@@ -6,7 +6,7 @@ import shutil
 
 # Set up logging
 logging.basicConfig(
-    level=logging.DEBUG,
+    level=logging.INFO,  # Changed from DEBUG to INFO to reduce log verbosity
     format='%(asctime)s - %(levelname)s - %(message)s',
     filename='extract_hpo_terms.log',
     filemode='w'
@@ -29,6 +29,22 @@ EXCLUDED_ROOTS = {
     "HP:0040279",  # Frequency
     "HP:0025354"   # Evidence
 }
+
+def normalize_id(id_str):
+    """Normalize an HPO ID from various formats to standard HP:XXXXXXX format."""
+    if not id_str:
+        return ""
+    
+    # Handle URLs in format http://purl.obolibrary.org/obo/HP_0000118
+    if id_str.startswith("http"):
+        parts = id_str.split("/")
+        if len(parts) > 0:
+            id_str = parts[-1].replace("HP_", "HP:")
+    
+    # Replace underscore with colon if needed
+    id_str = id_str.replace("_", ":")
+    
+    return id_str
 
 def extract_hpo_terms():
     """Extract individual HPO terms from the main JSON file into separate files."""
@@ -53,136 +69,119 @@ def extract_hpo_terms():
     except json.JSONDecodeError:
         logging.error(f"Error: Could not decode JSON from {HPO_FILE_PATH}.")
         return False
+    except Exception as e:
+        logging.error(f"Error reading {HPO_FILE_PATH}: {e}")
+        return False
     
     # Extract nodes and their relationships
     nodes = {}
     edges = {}
     
     logging.info("Building HPO hierarchy structure...")
+    
+    # Process all graphs in the file
     for graph in data.get('graphs', []):
-        # Collect all nodes
+        # Process nodes first
         for node in graph.get('nodes', []):
-            node_id = node.get('id', '').replace('http://purl.obolibrary.org/obo/HP_', 'HP:').replace('_', ':')
+            # Normalize the ID
+            node_id = normalize_id(node.get('id', ''))
+            
+            # Only process HP terms
             if node_id.startswith('HP:'):
-                # Store the node for later processing
                 nodes[node_id] = node
         
-        # Collect all edges for hierarchy tracking
+        # Now process the relationships (edges)
         for edge in graph.get('edges', []):
-            if edge.get('pred') == 'is_a':
-                # Fix URL to ID conversion for both subject and object
-                subj = edge.get('subj', '').replace('http://purl.obolibrary.org/obo/HP_', 'HP:')
-                obj = edge.get('obj', '').replace('http://purl.obolibrary.org/obo/HP_', 'HP:')
+            # We're interested in 'is_a' relationships to build the hierarchy
+            if edge.get('pred') == 'is_a' or edge.get('pred') == 'http://purl.obolibrary.org/obo/BFO_0000050':
+                subj = normalize_id(edge.get('sub', edge.get('subj', '')))
+                obj = normalize_id(edge.get('obj', ''))
                 
-                # Replace underscore with colon for proper HP IDs
-                subj = subj.replace('_', ':')
-                obj = obj.replace('_', ':')
-                
-                logging.debug(f"Found is_a relationship: {subj} is_a {obj}")
-                
-                if obj not in edges:
-                    edges[obj] = []
-                edges[obj].append(subj)  # Parent -> Child direction for traversal
+                # Only process edges between HP terms
+                if subj.startswith('HP:') and obj.startswith('HP:'):
+                    # Store the relationship: obj is parent of subj
+                    if obj not in edges:
+                        edges[obj] = []
+                    if subj not in edges[obj]:
+                        edges[obj].append(subj)  # Parent -> Children mapping
     
-    # Log some stats about the data
+    # Log some stats
     logging.info(f"Found {len(nodes)} nodes and {sum(len(children) for children in edges.values())} edges")
     
-    # Check if the root node has any children in our edge map
-    if PHENOTYPE_ROOT in edges:
-        logging.info(f"Root node {PHENOTYPE_ROOT} has {len(edges[PHENOTYPE_ROOT])} direct children")
-        for i, child in enumerate(edges[PHENOTYPE_ROOT][:10]):  # Print first 10 children
-            logging.debug(f"Child {i+1}: {child} - {nodes[child]['lbl'] if child in nodes else 'Unknown'}")
-    else:
-        logging.error(f"Root node {PHENOTYPE_ROOT} has no children in the edge map!")
-    
-    # Build a set of all phenotype terms using a breadth-first approach
-    phenotype_terms_ids = set()
-    
-    # Add the root node
-    if PHENOTYPE_ROOT in nodes:
-        phenotype_terms_ids.add(PHENOTYPE_ROOT)
-        logging.info(f"Added root node {PHENOTYPE_ROOT} to phenotype terms")
-    else:
-        logging.error(f"Error: Phenotypic abnormality root node '{PHENOTYPE_ROOT}' not found in the HPO file!")
+    # Verify the root node exists and has children
+    if PHENOTYPE_ROOT not in nodes:
+        logging.error(f"Root node {PHENOTYPE_ROOT} not found in the data!")
         return False
     
-    # Breadth-first search to find all descendants
-    logging.info("Identifying phenotype terms...")
+    if PHENOTYPE_ROOT not in edges or not edges[PHENOTYPE_ROOT]:
+        logging.error(f"Root node {PHENOTYPE_ROOT} has no children!")
+        return False
+    
+    logging.info(f"Root node {PHENOTYPE_ROOT} has {len(edges.get(PHENOTYPE_ROOT, []))} direct children")
+    
+    # Collect all phenotype terms starting from the root
+    phenotype_terms_ids = set()
+    phenotype_terms_ids.add(PHENOTYPE_ROOT)  # Add the root itself
+    
+    # Breadth-first search to find all descendants of the phenotype root
+    logging.info("Identifying all phenotype terms...")
     to_visit = [PHENOTYPE_ROOT]
     visited = set(to_visit)
     
     while to_visit:
         current_id = to_visit.pop(0)
-        phenotype_terms_ids.add(current_id)
         
-        # Find children of current node (all nodes that have current node as a parent)
+        # Get all children of the current node
         children = edges.get(current_id, [])
-        logging.debug(f"Node {current_id} has {len(children)} children")
         
         for child_id in children:
-            if child_id not in visited:
-                # Don't visit excluded roots
-                if child_id not in EXCLUDED_ROOTS:
-                    to_visit.append(child_id)
-                    visited.add(child_id)
-                    logging.debug(f"Added {child_id} to visit queue")
-                else:
-                    logging.debug(f"Skipping excluded root: {child_id}")
-            else:
-                logging.debug(f"Already visited: {child_id}")
+            if child_id not in visited and child_id not in EXCLUDED_ROOTS:
+                phenotype_terms_ids.add(child_id)
+                to_visit.append(child_id)
+                visited.add(child_id)
     
-    # Filter excluded roots and their descendants
+    # Remove excluded roots and their descendants
     for excluded_root in EXCLUDED_ROOTS:
         if excluded_root in phenotype_terms_ids:
             phenotype_terms_ids.remove(excluded_root)
-            logging.debug(f"Removed excluded root: {excluded_root}")
-            
-        # Also remove any descendants of excluded roots
-        to_remove = set()
+        
+        # Find and remove descendants of excluded roots
         if excluded_root in edges:
+            excluded_descendants = set()
             to_visit = [excluded_root]
-            excluded_visited = set(to_visit)
+            visited_exclusions = set([excluded_root])
             
             while to_visit:
                 current_id = to_visit.pop(0)
-                to_remove.add(current_id)
+                excluded_descendants.add(current_id)
                 
-                # Find children
                 for child_id in edges.get(current_id, []):
-                    if child_id not in excluded_visited:
+                    if child_id not in visited_exclusions:
                         to_visit.append(child_id)
-                        excluded_visited.add(child_id)
-                        logging.debug(f"Added {child_id} to exclusion list (descendant of {excluded_root})")
+                        visited_exclusions.add(child_id)
             
-            # Remove excluded descendants
-            before = len(phenotype_terms_ids)
-            phenotype_terms_ids -= to_remove
-            after = len(phenotype_terms_ids)
-            logging.debug(f"Removed {before - after} descendants of {excluded_root}")
+            # Remove the excluded descendants from our phenotype terms
+            phenotype_terms_ids -= excluded_descendants
     
-    logging.info(f"Found {len(phenotype_terms_ids)} phenotypic abnormality terms in HPO.")
-    
-    # Save some samples for debugging
-    samples = list(phenotype_terms_ids)[:10]
-    logging.debug(f"Sample phenotype terms: {samples}")
+    logging.info(f"Found {len(phenotype_terms_ids)} phenotypic abnormality terms in HPO")
     
     # Save each phenotype term as a separate JSON file
     logging.info("Saving individual HPO term files...")
     term_count = 0
-    for term_id in tqdm(phenotype_terms_ids, desc="Extracting HPO terms"):
-        if term_id in nodes:
-            node = nodes[term_id]
-            # Create a clean term ID without the URL part for the filename
-            clean_id = term_id.replace(':', '_')
-            
-            # Create a file for each term
-            output_path = os.path.join(HPO_TERMS_DIR, f"{clean_id}.json")
-            with open(output_path, 'w', encoding='utf-8') as f:
-                json.dump(node, f, indent=2)
-            term_count += 1
-            
-            if term_count % 1000 == 0:
-                logging.debug(f"Processed {term_count} terms so far")
+    
+    with tqdm(total=len(phenotype_terms_ids), desc="Extracting HPO terms") as pbar:
+        for term_id in phenotype_terms_ids:
+            if term_id in nodes:
+                node = nodes[term_id]
+                # Create filename from term ID
+                clean_id = term_id.replace(':', '_')
+                
+                # Create a file for each term
+                output_path = os.path.join(HPO_TERMS_DIR, f"{clean_id}.json")
+                with open(output_path, 'w', encoding='utf-8') as f:
+                    json.dump(node, f, indent=2)
+                term_count += 1
+                pbar.update(1)
     
     logging.info(f"Successfully extracted {term_count} HPO terms to {HPO_TERMS_DIR}")
     return True
@@ -190,7 +189,10 @@ def extract_hpo_terms():
 if __name__ == "__main__":
     try:
         logging.info("Starting HPO term extraction")
-        extract_hpo_terms()
-        logging.info("Finished HPO term extraction")
+        result = extract_hpo_terms()
+        if result:
+            logging.info("Finished HPO term extraction successfully")
+        else:
+            logging.error("HPO term extraction failed")
     except Exception as e:
         logging.exception("Error during HPO term extraction")

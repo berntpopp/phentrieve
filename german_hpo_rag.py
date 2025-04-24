@@ -9,17 +9,19 @@ import numpy as np
 MODEL_NAME = 'sentence-transformers/paraphrase-multilingual-mpnet-base-v2'
 INDEX_DIR = "hpo_chroma_index"
 COLLECTION_NAME = "hpo_multilingual"
-MIN_SIMILARITY_THRESHOLD = 0.5  # Minimum similarity score to display results
+MIN_SIMILARITY_THRESHOLD = 0.3  # Lowered threshold to show more potential matches
 
 def query_hpo(sentence, model, collection, n_results=10):
     """Generates embedding and queries the HPO index."""
+    print(f"Query: '{sentence}'")
+    
     # Generate embedding for the query sentence
     query_embedding = model.encode([sentence])[0]  # Encode returns a list, get the first element
     
     # Query the collection - get more results than we need to filter by similarity
     results = collection.query(
         query_embeddings=[query_embedding.tolist()],
-        n_results=n_results * 2,  # Get more results than needed to allow filtering
+        n_results=n_results * 3,  # Get even more results to allow better filtering
         include=["documents", "metadatas", "distances"]
     )
     
@@ -33,15 +35,23 @@ def format_results(results, threshold=MIN_SIMILARITY_THRESHOLD, max_results=5):
     formatted_output = []
     count = 0
     
+    # First sort results by similarity (convert distance to similarity score)
+    items = []
     for i, (hpo_id, metadata, distance, document) in enumerate(zip(
         results['ids'][0], 
         results['metadatas'][0], 
         results['distances'][0],
         results['documents'][0]
     )):
-        # Use cosine similarity (higher is better)
+        # Convert distance to similarity score (higher is better)
         similarity_score = 1 / (1 + distance)
-        
+        items.append((similarity_score, hpo_id, metadata, document))
+    
+    # Sort by similarity score (descending)
+    items.sort(reverse=True)
+    
+    # Format the top results
+    for similarity_score, hpo_id, metadata, document in items:
         # Skip results with low similarity
         if similarity_score < threshold:
             continue
@@ -52,15 +62,40 @@ def format_results(results, threshold=MIN_SIMILARITY_THRESHOLD, max_results=5):
             
         count += 1
         
+        # Extract definition if available
+        definition = "No definition"
+        if 'Definition: ' in document:
+            try:
+                definition_part = document.split('Definition: ')[1]
+                if '.' in definition_part:
+                    definition = definition_part.split('.', 1)[0] + '.'
+                else:
+                    definition = definition_part
+            except:
+                pass
+                
+        # Extract synonyms if available
+        synonyms = ""
+        if 'Synonyms: ' in document:
+            try:
+                synonyms_part = document.split('Synonyms: ')[1]
+                if '.' in synonyms_part:
+                    synonyms = synonyms_part.split('.', 1)[0]
+                else:
+                    synonyms = synonyms_part
+                synonyms = f"\n   Synonyms: {synonyms}"
+            except:
+                pass
+        
         # Format the result with more detail
         formatted_output.append(
             f"{count}. {metadata['hpo_id']} - {metadata['hpo_name']}\n"
             f"   Similarity: {similarity_score:.3f}\n"
-            f"   Definition: {metadata.get('has_definition', False) and document.split('Definition: ')[1].split('.', 1)[0] + '.' if 'Definition: ' in document else 'No definition'}"
+            f"   Definition: {definition}{synonyms}"
         )
     
     if not formatted_output:
-        return "No matching HPO terms found with sufficient similarity."
+        return "No matching HPO terms found with sufficient similarity.\n\nTry lowering the similarity threshold with --similarity-threshold."
         
     return "\n\n".join(formatted_output)
 
