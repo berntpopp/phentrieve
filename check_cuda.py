@@ -9,7 +9,7 @@ if torch.cuda.is_available():
     print(f"CUDA version: {torch.version.cuda}")
     print(f"GPU device: {torch.cuda.get_device_name(0)}")
     print(f"GPU count: {torch.cuda.device_count()}")
-    
+
     # Test CUDA with a simple operation
     x = torch.rand(5, 5).cuda()
     print(f"Tensor device: {x.device}")

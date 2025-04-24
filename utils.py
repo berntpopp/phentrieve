@@ -13,19 +13,19 @@ def get_model_slug(model_name):
         str: Filesystem-safe string
     """
     # Extract the last part of the model path if it contains slashes
-    if '/' in model_name:
-        slug = model_name.split('/')[-1]
+    if "/" in model_name:
+        slug = model_name.split("/")[-1]
     else:
         slug = model_name
 
     # Replace any non-alphanumeric characters with underscores
-    slug = re.sub(r'[^a-zA-Z0-9]', '_', slug).lower()
+    slug = re.sub(r"[^a-zA-Z0-9]", "_", slug).lower()
 
     # Remove any duplicate underscores
-    slug = re.sub(r'_+', '_', slug)
+    slug = re.sub(r"_+", "_", slug)
 
     # Remove leading/trailing underscores
-    slug = slug.strip('_')
+    slug = slug.strip("_")
 
     return slug
 
