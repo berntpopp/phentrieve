@@ -415,7 +415,7 @@ def create_sample_test_data():
         },
         {
             "text": "Makrozephalie",
-            "expected_hpo_ids": ["HP:0000098"],
+            "expected_hpo_ids": ["HP:0000256"],
             "description": "Macrocephaly"
         },
         {
@@ -487,7 +487,9 @@ def display_test_case_results(results):
         # Print top hits summary
         if test_detail.get('top_hits'):
             print(f"    Top hits:")
-            for hit in test_detail['top_hits'][:3]:  # Show top 3 for brevity
+            # Show top 10 hits for comprehensive analysis
+            display_count = min(10, len(test_detail['top_hits']))
+            for hit in test_detail['top_hits'][:display_count]:
                 print(f"      {hit['rank']}. {hit['hpo_id']} - {hit['name']} (Similarity: {hit['similarity']:.4f})")
         
         # Print correct hits information if any
@@ -503,7 +505,7 @@ def display_test_case_results(results):
         # Print metrics
         print(f"    Metrics: MRR: {test_detail.get('mrr', 0):.4f}, Precision: {test_detail.get('precision', 0):.4f}, "
               f"Hit@1: {test_detail.get('hit_rate@1', 0):.1f}, Hit@3: {test_detail.get('hit_rate@3', 0):.1f}, "
-              f"Hit@5: {test_detail.get('hit_rate@5', 0):.1f}")
+              f"Hit@5: {test_detail.get('hit_rate@5', 0):.1f}, Hit@10: {test_detail.get('hit_rate@10', 0):.1f}")
         print("\n")
 
 
