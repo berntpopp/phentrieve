@@ -193,7 +193,7 @@ def precision_recall_f1(results, expected_ids, similarity_threshold=0.3, k=None)
     return precision, recall, f1
 
 
-def run_benchmark(model_name, test_cases, k_values=(1, 3, 5, 10)):
+def run_benchmark(model_name, test_cases, k_values=(1, 3, 5, 10), similarity_threshold=0.1):
     """
     Run benchmark with given model and test cases.
     
@@ -201,109 +201,190 @@ def run_benchmark(model_name, test_cases, k_values=(1, 3, 5, 10)):
         model_name: Name of the embedding model
         test_cases: List of test case dictionaries
         k_values: Tuple of k values for Hit Rate@K
+        similarity_threshold: Threshold for similarity scores
     
     Returns:
         dict: Benchmark results
     """
-    # Get index directory and collection name
+    model_slug = get_model_slug(model_name)
     index_dir = get_index_dir()
-    model_collection_name = get_collection_name(model_name)
+    collection_name = get_collection_name(model_name)
     
-    # Check if index exists
-    if not os.path.exists(index_dir):
-        logging.error(f"Error: Index directory '{index_dir}' not found. Please run setup_hpo_index.py first.")
-        return None
-    
-    # Load model
+    # Load the embedding model
+    logging.info(f"Loading embedding model: {model_name}")
     try:
-        logging.info(f"Loading embedding model: {model_name}")
         model = SentenceTransformer(model_name)
-        logging.info("Model loaded successfully.")
     except Exception as e:
-        logging.error(f"Error loading SentenceTransformer model: {e}")
+        logging.error(f"Error loading model: {e}")
         return None
+    
+    logging.info("Model loaded successfully.")
     
     # Connect to ChromaDB
+    logging.info(f"Connecting to ChromaDB at {index_dir}")
     try:
-        logging.info(f"Connecting to ChromaDB at {index_dir}")
         client = chromadb.PersistentClient(path=index_dir)
         
-        # First try model-specific collection name
+        # First try model-specific collection
         try:
-            logging.info(f"Trying model-specific collection: {model_collection_name}")
-            collection = client.get_collection(model_collection_name)
-            logging.info(f"Connected to ChromaDB collection '{model_collection_name}' with {collection.count()} entries.")
+            logging.info(f"Trying model-specific collection: {collection_name}")
+            collection = client.get_collection(collection_name)
         except Exception as e:
-            # If that fails, try the default collection name
+            # If that fails, try the default collection
             logging.info(f"Model-specific collection not found, trying default collection 'hpo_multilingual'")
             try:
                 collection = client.get_collection('hpo_multilingual')
-                logging.info(f"Connected to ChromaDB collection 'hpo_multilingual' with {collection.count()} entries.")
             except Exception as e:
-                logging.error(f"Error: No suitable collection found for model '{model_name}'")
-                logging.error(f"Make sure you've run setup_hpo_index.py with this model or the default model")
+                logging.error(f"Error: No suitable collection found")
                 return None
+        
+        logging.info(f"Connected to ChromaDB collection with {collection.count()} entries.")
     except Exception as e:
         logging.error(f"Error connecting to ChromaDB: {e}")
         return None
     
-    # Prepare results
+    # Initialize result containers
+    mrr_values = []
+    precision_values = []
+    recall_values = []
+    f1_scores = []
+    hit_rates = {k: [] for k in k_values}
+    
+    # For detailed per-test-case results
+    detailed_results = []
+    
+    # Run the benchmark
+    logging.info(f"Running benchmark with {len(test_cases)} test cases...")
+    
+    # Set up a progress bar
+    pbar = tqdm(test_cases, desc=f"Model: {model_slug}")
+    
+    for test_case in pbar:
+        german_text = test_case['text']
+        expected_ids = test_case['expected_hpo_ids']
+        
+        # Log the query only in debug mode to avoid cluttering the output
+        logging.info(f"Query: '{german_text}'")
+        
+        # Query the HPO index with the German text
+        query_results = query_hpo(german_text, model, collection)
+        
+        # Initialize detail dict for this test case
+        test_detail = {
+            'query': german_text,
+            'expected_ids': expected_ids,
+            'expected_labels': test_case.get('description', ''),
+            'top_hits': [],
+            'correct_hits': [],
+            'similarity_threshold': similarity_threshold
+        }
+        
+        if query_results is None:
+            # Log error and skip this test case
+            logging.error(f"Query failed for: '{german_text}'")
+            mrr_values.append(0.0)
+            precision_values.append(0.0)
+            recall_values.append(0.0)
+            f1_scores.append(0.0)
+            for k in k_values:
+                hit_rates[k].append(0.0)
+            
+            test_detail['error'] = "Query failed"
+            detailed_results.append(test_detail)
+            continue
+        
+        # Process results to get ranked hits
+        if query_results and query_results['ids'] and query_results['ids'][0]:
+            ranked_hits = []
+            for i, (hpo_id, metadata, distance) in enumerate(zip(
+                query_results['ids'][0], 
+                query_results['metadatas'][0], 
+                query_results['distances'][0]
+            )):
+                similarity = calculate_similarity(distance)
+                hpo_term = metadata['hpo_id']
+                hpo_name = metadata.get('hpo_name', 'Unknown')
+                ranked_hits.append({
+                    'rank': i+1, 
+                    'hpo_id': hpo_term, 
+                    'name': hpo_name, 
+                    'similarity': similarity
+                })
+            
+            # Sort by similarity (descending)
+            ranked_hits.sort(key=lambda x: x['similarity'], reverse=True)
+            
+            # Re-rank after sorting
+            for i, hit in enumerate(ranked_hits):
+                hit['rank'] = i+1
+            
+            # Store top 5 hits for detailed results
+            test_detail['top_hits'] = ranked_hits[:5]
+            
+            # Find where the expected IDs are in the results
+            for expected_id in expected_ids:
+                found = False
+                for hit in ranked_hits:
+                    if hit['hpo_id'] == expected_id:
+                        test_detail['correct_hits'].append({
+                            'expected_id': expected_id,
+                            'rank': hit['rank'],
+                            'similarity': hit['similarity'],
+                            'above_threshold': hit['similarity'] >= similarity_threshold
+                        })
+                        found = True
+                        break
+                if not found:
+                    test_detail['correct_hits'].append({
+                        'expected_id': expected_id,
+                        'rank': float('inf'),
+                        'similarity': 0.0,
+                        'above_threshold': False
+                    })
+        
+        # Calculate MRR
+        mrr = mean_reciprocal_rank(query_results, expected_ids)
+        mrr_values.append(mrr)
+        test_detail['mrr'] = mrr
+        
+        # Calculate precision, recall, F1
+        precision, recall, f1 = precision_recall_f1(query_results, expected_ids, similarity_threshold=similarity_threshold)
+        precision_values.append(precision)
+        recall_values.append(recall)
+        f1_scores.append(f1)
+        test_detail['precision'] = precision
+        test_detail['recall'] = recall
+        test_detail['f1'] = f1
+        
+        # Calculate Hit Rate @ K
+        for k in k_values:
+            hit_rate = hit_rate_at_k(query_results, expected_ids, k=k)
+            hit_rates[k].append(hit_rate)
+            test_detail[f'hit_rate@{k}'] = hit_rate
+        
+        detailed_results.append(test_detail)
+    
+    # Aggregate results
     results = {
-        'model': model_name,
-        'model_slug': get_model_slug(model_name),
-        'total_cases': len(test_cases),
-        'mrr': [],
-        'f1_scores': [],
-        'precision': [],
-        'recall': []
+        'model_name': model_name,
+        'model_slug': model_slug,
+        'mrr': mrr_values,
+        'precision': precision_values,
+        'recall': recall_values,
+        'f1_scores': f1_scores,
+        'detailed_results': detailed_results,  # Add detailed results
+        'similarity_threshold': similarity_threshold
     }
     
-    # Add Hit Rate@K entries
+    # Add Hit Rate results
     for k in k_values:
-        results[f'hit_rate@{k}'] = []
-    
-    # Process each test case
-    logging.info(f"Running benchmark with {len(test_cases)} test cases...")
-    for case in tqdm(test_cases, desc=f"Model: {get_model_slug(model_name)}"):
-        text = case['text']
-        expected_ids = case['expected_hpo_ids']
-        
-        # Query the collection
-        query_results = query_hpo(text, model, collection, n_results=20)
-        
-        # Calculate metrics
-        if query_results:
-            # MRR
-            mrr = mean_reciprocal_rank(query_results, expected_ids)
-            results['mrr'].append(mrr)
-            
-            # Hit Rate@K
-            for k in k_values:
-                hit_rate = hit_rate_at_k(query_results, expected_ids, k=k)
-                results[f'hit_rate@{k}'].append(hit_rate)
-            
-            # Precision, Recall, F1
-            precision, recall, f1 = precision_recall_f1(
-                query_results, expected_ids, 
-                similarity_threshold=0.3, k=10
-            )
-            results['precision'].append(precision)
-            results['recall'].append(recall)
-            results['f1_scores'].append(f1)
-        else:
-            # No results - all metrics are 0
-            results['mrr'].append(0.0)
-            for k in k_values:
-                results[f'hit_rate@{k}'].append(0.0)
-            results['precision'].append(0.0)
-            results['recall'].append(0.0)
-            results['f1_scores'].append(0.0)
+        results[f'hit_rate@{k}'] = hit_rates[k]
     
     # Calculate averages
-    results['avg_mrr'] = np.mean(results['mrr'])
-    results['avg_precision'] = np.mean(results['precision'])
-    results['avg_recall'] = np.mean(results['recall'])
-    results['avg_f1'] = np.mean(results['f1_scores'])
+    results['avg_mrr'] = np.mean(mrr_values)
+    results['avg_precision'] = np.mean(precision_values)
+    results['avg_recall'] = np.mean(recall_values)
+    results['avg_f1'] = np.mean(f1_scores)
     
     for k in k_values:
         results[f'avg_hit_rate@{k}'] = np.mean(results[f'hit_rate@{k}'])
@@ -324,32 +405,52 @@ def create_sample_test_data():
     if os.path.exists(sample_file):
         return sample_file
     
-    # Create sample test cases
+    # Create sample test cases with single terms only
     sample_data = [
         {
-            "text": "Das Kind hat Kleinwuchs und eine Makrozephalie.",
-            "expected_hpo_ids": ["HP:0004322", "HP:0000098"],
-            "description": "Short stature and macrocephaly"
+            "text": "Kleinwuchs",
+            "expected_hpo_ids": ["HP:0004322"],
+            "description": "Short stature"
         },
         {
-            "text": "Der Patient zeigt eine Hemiplegie und Krampfanfälle.",
-            "expected_hpo_ids": ["HP:0002301", "HP:0001250"],
-            "description": "Hemiplegia and seizures"
+            "text": "Makrozephalie",
+            "expected_hpo_ids": ["HP:0000098"],
+            "description": "Macrocephaly"
         },
         {
-            "text": "Das Kind hat einen niedrigen Blutdruck und Schwindel.",
-            "expected_hpo_ids": ["HP:0002615", "HP:0002321"],
-            "description": "Hypotension and vertigo"
+            "text": "Hemiplegie",
+            "expected_hpo_ids": ["HP:0002301"],
+            "description": "Hemiplegia"
         },
         {
-            "text": "Der Patient hat eine fortschreitende Muskelschwäche.",
+            "text": "Krampfanfälle",
+            "expected_hpo_ids": ["HP:0001250"],
+            "description": "Seizures"
+        },
+        {
+            "text": "Niedriger Blutdruck",
+            "expected_hpo_ids": ["HP:0002615"],
+            "description": "Hypotension"
+        },
+        {
+            "text": "Schwindel",
+            "expected_hpo_ids": ["HP:0002321"],
+            "description": "Vertigo"
+        },
+        {
+            "text": "Fortschreitende Muskelschwäche",
             "expected_hpo_ids": ["HP:0001324"],
             "description": "Progressive muscle weakness"
         },
         {
-            "text": "Die Patientin zeigt geistige Behinderung und eine Mikrozephalie.",
-            "expected_hpo_ids": ["HP:0001249", "HP:0000252"],
-            "description": "Intellectual disability and microcephaly"
+            "text": "Geistige Behinderung",
+            "expected_hpo_ids": ["HP:0001249"],
+            "description": "Intellectual disability"
+        },
+        {
+            "text": "Mikrozephalie",
+            "expected_hpo_ids": ["HP:0000252"],
+            "description": "Microcephaly"
         }
     ]
     
@@ -358,6 +459,51 @@ def create_sample_test_data():
         json.dump(sample_data, f, ensure_ascii=False, indent=2)
     
     return sample_file
+
+
+def display_test_case_results(results):
+    """
+    Display detailed per-test-case results.
+    
+    Args:
+        results: Benchmark results dictionary with detailed_results
+    """
+    if 'detailed_results' not in results:
+        print("No detailed results available.")
+        return
+    
+    threshold = results.get('similarity_threshold', 0.3)
+    print(f"\n===== Detailed Test Case Results =====")
+    print(f"Model: {results['model_slug']}")
+    print(f"Similarity threshold: {threshold}")
+    print("\n")
+    
+    for i, test_detail in enumerate(results['detailed_results']):
+        # Print test case information
+        print(f"[{i+1}] Query: '{test_detail['query']}'")
+        print(f"    Expected HPO terms: {', '.join(test_detail['expected_ids'])} ({test_detail['expected_labels']})")
+        
+        # Print top hits summary
+        if test_detail.get('top_hits'):
+            print(f"    Top hits:")
+            for hit in test_detail['top_hits'][:3]:  # Show top 3 for brevity
+                print(f"      {hit['rank']}. {hit['hpo_id']} - {hit['name']} (Similarity: {hit['similarity']:.4f})")
+        
+        # Print correct hits information if any
+        if test_detail.get('correct_hits'):
+            print(f"    Correct term positions:")
+            for hit in test_detail['correct_hits']:
+                if hit['rank'] == float('inf'):
+                    print(f"      {hit['expected_id']} - Not found")
+                else:
+                    threshold_status = "✓" if hit['above_threshold'] else "✗"
+                    print(f"      {hit['expected_id']} - Rank: {hit['rank']} (Similarity: {hit['similarity']:.4f}) {threshold_status}")
+        
+        # Print metrics
+        print(f"    Metrics: MRR: {test_detail.get('mrr', 0):.4f}, Precision: {test_detail.get('precision', 0):.4f}, "
+              f"Hit@1: {test_detail.get('hit_rate@1', 0):.1f}, Hit@3: {test_detail.get('hit_rate@3', 0):.1f}, "
+              f"Hit@5: {test_detail.get('hit_rate@5', 0):.1f}")
+        print("\n")
 
 
 def compare_models(results_list):
@@ -422,6 +568,17 @@ def main():
         default="benchmark_results.csv",
         help="Output CSV file for detailed results"
     )
+    parser.add_argument(
+        "--similarity-threshold",
+        type=float,
+        default=0.1,
+        help="Minimum similarity threshold (default: 0.1)"
+    )
+    parser.add_argument(
+        "--detailed",
+        action="store_true",
+        help="Show detailed per-test-case results"
+    )
     
     args = parser.parse_args()
     
@@ -439,9 +596,12 @@ def main():
     results_list = []
     for model_name in args.model_names:
         logging.info(f"Benchmarking model: {model_name}")
-        results = run_benchmark(model_name, test_cases)
+        results = run_benchmark(model_name, test_cases, similarity_threshold=args.similarity_threshold)
         if results:
             results_list.append(results)
+            # Show detailed results if requested
+            if args.detailed:
+                display_test_case_results(results)
     
     # Generate comparison
     if len(results_list) > 0:
@@ -451,6 +611,7 @@ def main():
         print("\n===== Benchmark Results =====")
         print(f"Test cases: {len(test_cases)}")
         print(f"Models evaluated: {len(results_list)}")
+        print(f"Similarity threshold: {args.similarity_threshold}")
         print("\nModel Comparison:")
         print(comparison_df.round(4))
         
