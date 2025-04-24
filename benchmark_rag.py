@@ -429,6 +429,11 @@ def create_sample_test_data():
             "expected_hpo_ids": ["HP:0000252"],
             "description": "Microcephaly",
         },
+        {
+            "text": "Nierensteine",
+            "expected_hpo_ids": ["HP:0000787"],
+            "description": "Nephrolithiasis",
+        },
     ]
 
     logging.info(f"Creating sample test data at {sample_file}")
