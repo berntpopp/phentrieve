@@ -1,0 +1,5 @@
+sentence-transformers>=2.2.2
+chromadb>=0.4.18
+requests>=2.31.0
+pysbd>=0.3.4
+tqdm>=4.66.1
