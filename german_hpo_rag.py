@@ -96,7 +96,8 @@ def format_results(results, threshold=MIN_SIMILARITY_THRESHOLD, max_results=5):
     raw_distances = results['distances'][0][:5]  # Just look at first 5
     raw_similarities = [calculate_similarity(d) for d in raw_distances]
     formatted_output.append(f"DEBUG - Raw distances: {raw_distances}")
-    formatted_output.append(f"DEBUG - Raw similarities: {raw_similarities}\n")
+    formatted_output.append(f"DEBUG - Raw similarities: {raw_similarities}")
+    formatted_output.append(f"DEBUG - Similarity threshold: {threshold}\n")
     
     # Prepare items with calculated similarity scores
     items = []

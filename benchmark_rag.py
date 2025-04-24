@@ -255,6 +255,7 @@ def run_benchmark(model_name, test_cases, k_values=(1, 3, 5, 10), similarity_thr
     
     # Run the benchmark
     logging.info(f"Running benchmark with {len(test_cases)} test cases...")
+    logging.info(f"Using similarity threshold: {similarity_threshold}")
     
     # Set up a progress bar
     pbar = tqdm(test_cases, desc=f"Model: {model_slug}")
