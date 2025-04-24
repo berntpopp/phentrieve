@@ -166,4 +166,4 @@ data/
 /hpo_chroma_index
 
 # benchmark results
-benchmark_results/
+/enchmark_results
