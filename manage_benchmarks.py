@@ -37,6 +37,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from datetime import datetime
+import numpy as np
 from utils import get_model_slug
 import time
 import glob
@@ -152,8 +153,37 @@ def run_benchmark_wrapper(
 
     end_time = time.time()
     logging.info(f"Benchmark completed in {end_time - start_time:.2f} seconds")
-
-    # The results are already saved by benchmark_rag.py, just return them
+    
+    # Save the results as a JSON file for later comparison
+    model_slug = results["model_slug"]
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    ensure_directories()
+    
+    # Create summary dictionary
+    summary = {
+        "model": model_slug,
+        "original_model_name": results["model_name"],
+        "timestamp": datetime.now().isoformat(),
+        "mrr": results.get("avg_mrr", 0),
+    }
+    
+    # Add hit rates
+    for k in [1, 3, 5, 10]:
+        if f"avg_hit_rate@{k}" in results:
+            summary[f"hit_rate@{k}"] = results[f"avg_hit_rate@{k}"]
+    
+    # Add ontology similarity metrics
+    for k in [1, 3, 5, 10]:
+        if f"avg_ont_similarity@{k}" in results:
+            summary[f"ont_similarity@{k}"] = results[f"avg_ont_similarity@{k}"]
+    
+    # Save to JSON file
+    summary_file = os.path.join(SUMMARIES_DIR, f"{model_slug}_{timestamp}.json")
+    with open(summary_file, "w") as f:
+        json.dump(summary, f, indent=2)
+    
+    logging.info(f"Summary saved to {summary_file}")
+    
     return results
 
 
@@ -271,24 +301,54 @@ def compare_models(models_to_compare=None):
     for result in results_list:
         # Use the right key based on what's available (model or model_slug)
         model_name = result.get("model_slug", result.get("model", "Unknown"))
-        # Extract MRR directly from the result (avg_mrr key might not exist)
-        row = {"model": model_name, "mrr": result.get("mrr", 0)}
+        
+        # Initialize row with model name
+        row = {"model": model_name}
+        
+        # Handle MRR (could be in mrr or avg_mrr keys)
+        mrr_value = None
+        if "mrr" in result:
+            mrr_value = result["mrr"]
+        elif "avg_mrr" in result:
+            mrr_value = result["avg_mrr"]
+            
+        # If MRR is a list, calculate the mean
+        if isinstance(mrr_value, list):
+            row["mrr"] = np.mean(mrr_value) if mrr_value else 0
+        else:
+            row["mrr"] = mrr_value if mrr_value is not None else 0
 
-        # Add hit rates
+        # Add hit rates with aggregation if needed
         for k in [1, 3, 5, 10]:
+            hit_rate_value = None
+            
             # First check for the direct key, then fallback to avg_ prefix
             if f"hit_rate@{k}" in result:
-                row[f"hit_rate@{k}"] = result[f"hit_rate@{k}"]
+                hit_rate_value = result[f"hit_rate@{k}"]
             elif f"avg_hit_rate@{k}" in result:
-                row[f"hit_rate@{k}"] = result[f"avg_hit_rate@{k}"]
+                hit_rate_value = result[f"avg_hit_rate@{k}"]
+                
+            # If it's a list, calculate the mean
+            if isinstance(hit_rate_value, list):
+                row[f"hit_rate@{k}"] = np.mean(hit_rate_value) if hit_rate_value else 0
+            else:
+                row[f"hit_rate@{k}"] = hit_rate_value if hit_rate_value is not None else 0
 
-        # Add ontology similarity metrics
+        # Add ontology similarity metrics with aggregation if needed
         for k in [1, 3, 5, 10]:
+            ont_sim_value = None
+            
             # First check for the direct key, then fallback to avg_ prefix
             if f"ont_similarity@{k}" in result:
-                row[f"ont_similarity@{k}"] = result[f"ont_similarity@{k}"]
+                ont_sim_value = result[f"ont_similarity@{k}"]
             elif f"avg_ont_similarity@{k}" in result:
-                row[f"ont_similarity@{k}"] = result[f"avg_ont_similarity@{k}"]
+                ont_sim_value = result[f"avg_ont_similarity@{k}"]
+                
+            # If it's a list, calculate the mean
+            if isinstance(ont_sim_value, list):
+                row[f"ont_similarity@{k}"] = np.mean(ont_sim_value) if ont_sim_value else 0
+            else:
+                row[f"ont_similarity@{k}"] = ont_sim_value if ont_sim_value is not None else 0
 
         comparison_data.append(row)
 
@@ -351,39 +411,71 @@ def visualize_results(results_list):
     for result in loaded_results:
         row = {
             "model": result.get("model_slug", result.get("model", "Unknown")),
-            "mrr": result.get("mrr", 0),  # Use direct key, not avg_mrr
             "timestamp": result.get("timestamp", datetime.now().isoformat()),
         }
+        
+        # Add MRR - handle if it's a scalar or a list
+        mrr_value = result.get("mrr", 0)  # Use direct key, not avg_mrr
+        if isinstance(mrr_value, list):
+            # If it's a list, we want the average
+            row["mrr"] = np.mean(mrr_value) if mrr_value else 0
+        else:
+            row["mrr"] = mrr_value
 
         # Add hit rates
         for k in [1, 3, 5, 10]:
             # First check for the direct key, then fallback to avg_ prefix
+            hit_rate_value = None
             if f"hit_rate@{k}" in result:
-                row[f"hit_rate@{k}"] = result[f"hit_rate@{k}"]
+                hit_rate_value = result[f"hit_rate@{k}"]
             elif f"avg_hit_rate@{k}" in result:
-                row[f"hit_rate@{k}"] = result[f"avg_hit_rate@{k}"]
+                hit_rate_value = result[f"avg_hit_rate@{k}"]
+                
+            # Handle if it's a list
+            if isinstance(hit_rate_value, list):
+                row[f"hit_rate@{k}"] = np.mean(hit_rate_value) if hit_rate_value else 0
+            else:
+                row[f"hit_rate@{k}"] = hit_rate_value if hit_rate_value is not None else 0
 
         # Add ontology similarity metrics
         for k in [1, 3, 5, 10]:
             # First check for the direct key, then fallback to avg_ prefix
+            ont_sim_value = None
             if f"ont_similarity@{k}" in result:
-                row[f"ont_similarity@{k}"] = result[f"ont_similarity@{k}"]
+                ont_sim_value = result[f"ont_similarity@{k}"]
             elif f"avg_ont_similarity@{k}" in result:
-                row[f"ont_similarity@{k}"] = result[f"avg_ont_similarity@{k}"]
+                ont_sim_value = result[f"avg_ont_similarity@{k}"]
+                
+            # Handle if it's a list
+            if isinstance(ont_sim_value, list):
+                row[f"ont_similarity@{k}"] = np.mean(ont_sim_value) if ont_sim_value else 0
+            else:
+                row[f"ont_similarity@{k}"] = ont_sim_value if ont_sim_value is not None else 0
 
         visualization_data.append(row)
 
     # Create dataframe and sort by model name
     df = pd.DataFrame(visualization_data)
     df = df.sort_values("model")
+    
+    # Ensure we have at least one model
+    if len(df) == 0:
+        logging.warning("No valid results for visualization")
+        return None
+        
+    # If we have only one model, duplicate it so we can still create plots
+    # This is a workaround for seaborn barplot which needs at least 2 categories
+    if len(df) == 1:
+        # Create a copy of the first row with a placeholder model name
+        duplicate_row = df.iloc[0].copy()
+        duplicate_row['model'] = "_placeholder_" # This won't be visible in the plot
+        # Add the duplicate row
+        df = pd.concat([df, pd.DataFrame([duplicate_row])], ignore_index=True)
 
     # Set timestamp for the plots
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
-    # Verify we have at least one model with results
-    if len(df) == 0:
-        logging.warning("No valid results for visualization")
-        return None
+
 
     # Create the visualization directory if it doesn't exist
     os.makedirs(VISUALIZATIONS_DIR, exist_ok=True)
@@ -504,6 +596,115 @@ def visualize_results(results_list):
 
     # Return path to main visualizations
     return combined_plot_path
+
+
+def run_subcommand(args):
+    """Handle the run subcommand."""
+    models_to_run = []
+
+    if args.all:
+        models_to_run = DEFAULT_MODELS
+    elif args.model_name:
+        models_to_run = [args.model_name]
+    else:
+        logging.error("Please specify either --all or --model-name")
+        return False
+
+    logging.info(f"Running benchmarks for {len(models_to_run)} models")
+
+    # Run benchmarks
+    results_list = []
+    for model in models_to_run:
+        results = run_benchmark_wrapper(
+            model,
+            similarity_threshold=args.similarity_threshold,
+            test_file=args.test_file,
+            detailed=args.detailed,
+        )
+        if results:
+            results_list.append(results)
+
+    # Create a new results list with aggregated metrics for visualization
+    aggregated_results = []
+    for result in results_list:
+        # Create a deep copy to avoid modifying the original
+        aggregated_result = result.copy()
+        
+        # Aggregate MRR if it's a list
+        if "avg_mrr" in result and isinstance(result["avg_mrr"], list):
+            aggregated_result["avg_mrr"] = np.mean(result["avg_mrr"])
+            
+        # Aggregate Hit@K metrics if they're lists
+        for k in [1, 3, 5, 10]:
+            key = f"avg_hit_rate@{k}"
+            if key in result and isinstance(result[key], list):
+                aggregated_result[key] = np.mean(result[key])
+        
+        # Aggregate OntSim@K metrics if they're lists
+        for k in [1, 3, 5, 10]:
+            key = f"avg_ont_similarity@{k}"
+            if key in result and isinstance(result[key], list):
+                aggregated_result[key] = np.mean(result[key])
+                
+        aggregated_results.append(aggregated_result)
+
+    # Compare results
+    if aggregated_results:
+        comparison_df = compare_models(aggregated_results)
+        if comparison_df is not None:
+            print("\n===== Benchmark Results =====")
+            print(f"Models evaluated: {len(aggregated_results)}")
+            print(f"Similarity threshold: {args.similarity_threshold}")
+            print("\nModel Performance Comparison:")
+
+            # Format and display
+            pd.set_option("display.max_columns", None)
+            pd.set_option("display.width", 200)
+            pd.set_option("display.float_format", "{:.4f}".format)
+            print(comparison_df)
+
+            # Also save the comparison
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            csv_path = os.path.join(SUMMARIES_DIR, f"comparison_{timestamp}.csv")
+            comparison_df.to_csv(csv_path)
+            print(f"\nComparison table saved to {csv_path}")
+
+            # Generate visualization
+            vis_path = visualize_results(aggregated_results)
+            if vis_path:
+                print(f"Visualization saved to {vis_path}")
+
+        return True
+    else:
+        logging.error("No benchmarks completed successfully")
+        return False
+def setup_subcommand(args):
+    """Handle the setup subcommand."""
+    models_to_setup = []
+
+    if args.all:
+        models_to_setup = DEFAULT_MODELS
+    elif args.model_name:
+        models_to_setup = [args.model_name]
+    else:
+        logging.error("Please specify either --all or --model-name")
+        return False
+
+    logging.info(f"Setting up {len(models_to_setup)} models")
+
+    success_count = 0
+    for model in models_to_setup:
+        if setup_model(model, args.batch_size):
+            success_count += 1
+
+    if success_count == len(models_to_setup):
+        logging.info("All models were set up successfully")
+        return True
+    else:
+        logging.warning(
+            f"{success_count}/{len(models_to_setup)} models were set up successfully"
+        )
+        return success_count > 0
 
 
 def compare_subcommand(args):

@@ -255,6 +255,65 @@ OntSim@K offers several advantages over exact match metrics:
 
 This allows for more nuanced comparison between models, especially in cases where exact matches are rare but semantically similar results are clinically valuable.
 
+### Running Benchmarks
+
+The system provides a command-line interface for running and comparing benchmarks. Here are the key commands:
+
+#### Setting Up Models for Benchmarking
+
+Before running benchmarks, you need to set up the embedding models and their corresponding ChromaDB collections:
+
+```bash
+# Set up a specific model
+python manage_benchmarks.py setup --model-name "FremyCompany/BioLORD-2023-M"
+
+# Or set up all supported models at once
+python manage_benchmarks.py setup --all
+```
+
+#### Running Benchmark Tests
+
+To evaluate model performance using the test cases:
+
+```bash
+# Benchmark a specific model
+python manage_benchmarks.py run --model-name "FremyCompany/BioLORD-2023-M"
+
+# Run benchmarks on all models
+python manage_benchmarks.py run --all
+
+# Run with detailed per-test-case results
+python manage_benchmarks.py run --all --detailed
+
+# Set a custom similarity threshold
+python manage_benchmarks.py run --all --similarity-threshold 0.2
+```
+
+**Note:** The `run` command will benchmark models, generate result files, and also create a comparison table and visualization for the models just benchmarked. When using `--all`, this provides an immediate comparison of all models.
+
+#### Comparing Previously Benchmarked Models
+
+The `compare` command allows you to compare previously saved benchmark results without re-running the benchmarks:
+
+```bash
+# Compare all previously benchmarked models (loads saved results)
+python manage_benchmarks.py compare
+
+# Compare only specific models from previous benchmark runs
+python manage_benchmarks.py compare --models "biolord_2023_m" "jina_embeddings_v2_base_de"
+```
+
+**When to use `compare` vs. `run --all`:**
+
+- Use `run --all` when you need to execute new benchmarks and want results for all models at once
+- Use `compare` when:
+  - You've benchmarked models at different times and want to compare them later
+  - You want to generate new visualizations without re-running time-consuming benchmarks
+  - You want to create a focused comparison of just a few specific models
+  - You've made changes to the visualization code and want to update visualizations for existing results
+
+Both commands will display a table with all metrics (MRR, Hit@K, OntSim@K) and generate visualizations showing the relative performance of each model. Benchmark results and visualizations are saved to the `benchmark_results/` directory.
+
 ## References
 
 - Human Phenotype Ontology: [https://hpo.jax.org/](https://hpo.jax.org/)
