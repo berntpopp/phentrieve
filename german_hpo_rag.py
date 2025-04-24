@@ -8,6 +8,10 @@ import logging
 import numpy as np
 from sentence_transformers import SentenceTransformer
 from utils import get_model_slug, get_index_dir, get_collection_name
+import torch
+
+# Set up device - use CUDA if available, otherwise CPU
+device = "cuda" if torch.cuda.is_available() else "cpu"
 
 # Set up logging
 logging.basicConfig(
@@ -260,7 +264,18 @@ def main():
     
     logging.info(f"Loading embedding model: {args.model_name}")
     try:
-        model = SentenceTransformer(args.model_name)
+        # Special handling for Jina model which requires trust_remote_code=True
+        jina_model_id = "jinaai/jina-embeddings-v2-base-de"
+        if args.model_name == jina_model_id:
+            logging.info(f"Loading Jina model '{args.model_name}' with trust_remote_code=True on {device}")
+            # Security note: Only use trust_remote_code=True for trusted sources
+            model = SentenceTransformer(args.model_name, trust_remote_code=True)
+        else:
+            logging.info(f"Loading model '{args.model_name}' on {device}")
+            model = SentenceTransformer(args.model_name)
+        
+        # Move model to GPU if available
+        model = model.to(device)
     except Exception as e:
         logging.error(f"Error loading SentenceTransformer model: {e}")
         logging.error("Make sure you have run: pip install -r requirements.txt")

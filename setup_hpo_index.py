@@ -10,6 +10,11 @@ from sentence_transformers import SentenceTransformer
 from download_hpo import download_hpo_json, HPO_FILE_PATH
 from extract_hpo_terms import extract_hpo_terms, HPO_TERMS_DIR
 from utils import get_model_slug, get_index_dir, get_collection_name
+import torch
+
+# Set up device - use CUDA if available, otherwise CPU
+device = "cuda" if torch.cuda.is_available() else "cpu"
+logging.info(f"Using device: {device}")
 
 # Set up logging
 logging.basicConfig(
@@ -162,7 +167,18 @@ def build_index(model_name=DEFAULT_MODEL, batch_size=100):
     # Load the sentence transformer model
     logging.info(f"Loading the {model_name} model...")
     try:
-        model = SentenceTransformer(model_name)
+        # Special handling for Jina model which requires trust_remote_code=True
+        jina_model_id = "jinaai/jina-embeddings-v2-base-de"
+        if model_name == jina_model_id:
+            logging.info(f"Loading Jina model '{model_name}' with trust_remote_code=True on {device}")
+            # Security note: Only use trust_remote_code=True for trusted sources
+            model = SentenceTransformer(model_name, trust_remote_code=True)
+        else:
+            logging.info(f"Loading model '{model_name}' on {device}")
+            model = SentenceTransformer(model_name)
+        
+        # Move model to GPU if available
+        model = model.to(device)
     except Exception as e:
         logging.error(f"Error loading model: {e}")
         return False
@@ -196,16 +212,16 @@ def build_index(model_name=DEFAULT_MODEL, batch_size=100):
     
     # Generate embeddings and add to ChromaDB in batches
     total_batches = (len(documents) + batch_size - 1) // batch_size
-    logging.info(f"Generating embeddings and adding to ChromaDB in {total_batches} batches...")
+    logging.info(f"Computing embeddings for {len(documents)} HPO terms using {device}...")
     
-    for i in tqdm(range(0, len(documents), batch_size), desc="Processing batches"):
+    for i in tqdm(range(0, len(documents), batch_size), desc="Generating embeddings"):
         batch_docs = documents[i:i+batch_size]
         batch_meta = metadatas[i:i+batch_size]
         batch_ids = ids[i:i+batch_size]
         
         try:
             # Generate embeddings for the batch
-            embeddings = model.encode(batch_docs)
+            embeddings = model.encode(batch_docs, device=device)
             
             # Add to ChromaDB
             collection.add(

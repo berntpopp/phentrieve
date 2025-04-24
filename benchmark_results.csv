@@ -8,6 +8,15 @@ biolord_2023_m,5,Schwindel,HP:0002321,1.0,0.03333333333333333,1.0,0.064516129032
 biolord_2023_m,6,Fortschreitende Muskelschwäche,HP:0001324,0.125,0.03333333333333333,1.0,0.06451612903225806,0.0,0.0,0.0,1.0
 biolord_2023_m,7,Geistige Behinderung,HP:0001249,1.0,0.03333333333333333,1.0,0.06451612903225806,1.0,1.0,1.0,1.0
 biolord_2023_m,8,Mikrozephalie,HP:0000252,0.2,0.03333333333333333,1.0,0.06451612903225806,0.0,0.0,1.0,1.0
+jina_embeddings_v2_base_de,0,Kleinwuchs,HP:0004322,0.1111111111111111,0.03333333333333333,1.0,0.06451612903225806,0.0,0.0,0.0,1.0
+jina_embeddings_v2_base_de,1,Makrozephalie,HP:0000256,1.0,0.03333333333333333,1.0,0.06451612903225806,1.0,1.0,1.0,1.0
+jina_embeddings_v2_base_de,2,Hemiplegie,HP:0002301,0.3333333333333333,0.03333333333333333,1.0,0.06451612903225806,0.0,1.0,1.0,1.0
+jina_embeddings_v2_base_de,3,Krampfanfälle,HP:0001250,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+jina_embeddings_v2_base_de,4,Niedriger Blutdruck,HP:0002615,0.25,0.03333333333333333,1.0,0.06451612903225806,0.0,0.0,1.0,1.0
+jina_embeddings_v2_base_de,5,Schwindel,HP:0002321,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+jina_embeddings_v2_base_de,6,Fortschreitende Muskelschwäche,HP:0001324,0.14285714285714285,0.03333333333333333,1.0,0.06451612903225806,0.0,0.0,0.0,1.0
+jina_embeddings_v2_base_de,7,Geistige Behinderung,HP:0001249,1.0,0.03333333333333333,1.0,0.06451612903225806,1.0,1.0,1.0,1.0
+jina_embeddings_v2_base_de,8,Mikrozephalie,HP:0000252,0.5,0.03333333333333333,1.0,0.06451612903225806,0.0,1.0,1.0,1.0
 cross_en_de_roberta_sentence_transformer,0,Kleinwuchs,HP:0004322,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
 cross_en_de_roberta_sentence_transformer,1,Makrozephalie,HP:0000256,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
 cross_en_de_roberta_sentence_transformer,2,Hemiplegie,HP:0002301,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
@@ -26,3 +35,12 @@ paraphrase_multilingual_mpnet_base_v2,5,Schwindel,HP:0002321,0.0,0.0,0.0,0.0,0.0
 paraphrase_multilingual_mpnet_base_v2,6,Fortschreitende Muskelschwäche,HP:0001324,1.0,0.03333333333333333,1.0,0.06451612903225806,1.0,1.0,1.0,1.0
 paraphrase_multilingual_mpnet_base_v2,7,Geistige Behinderung,HP:0001249,1.0,0.03333333333333333,1.0,0.06451612903225806,1.0,1.0,1.0,1.0
 paraphrase_multilingual_mpnet_base_v2,8,Mikrozephalie,HP:0000252,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+distiluse_base_multilingual_cased_v2,0,Kleinwuchs,HP:0004322,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+distiluse_base_multilingual_cased_v2,1,Makrozephalie,HP:0000256,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+distiluse_base_multilingual_cased_v2,2,Hemiplegie,HP:0002301,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+distiluse_base_multilingual_cased_v2,3,Krampfanfälle,HP:0001250,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+distiluse_base_multilingual_cased_v2,4,Niedriger Blutdruck,HP:0002615,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+distiluse_base_multilingual_cased_v2,5,Schwindel,HP:0002321,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+distiluse_base_multilingual_cased_v2,6,Fortschreitende Muskelschwäche,HP:0001324,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+distiluse_base_multilingual_cased_v2,7,Geistige Behinderung,HP:0001249,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+distiluse_base_multilingual_cased_v2,8,Mikrozephalie,HP:0000252,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0

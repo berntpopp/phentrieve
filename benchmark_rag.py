@@ -17,11 +17,15 @@ import json
 import logging
 import pandas as pd
 import numpy as np
+import torch
 from tqdm import tqdm
 from sentence_transformers import SentenceTransformer
 import chromadb
 from utils import get_model_slug, get_index_dir, get_collection_name
 from german_hpo_rag import query_hpo, calculate_similarity
+
+# Set up device - use CUDA if available, otherwise CPU
+device = "cuda" if torch.cuda.is_available() else "cpu"
 
 # Set up logging
 logging.basicConfig(
@@ -213,7 +217,18 @@ def run_benchmark(model_name, test_cases, k_values=(1, 3, 5, 10), similarity_thr
     # Load the embedding model
     logging.info(f"Loading embedding model: {model_name}")
     try:
-        model = SentenceTransformer(model_name)
+        # Special handling for Jina model which requires trust_remote_code=True
+        jina_model_id = "jinaai/jina-embeddings-v2-base-de"
+        if model_name == jina_model_id:
+            logging.info(f"Loading Jina model '{model_name}' with trust_remote_code=True on {device}")
+            # Security note: Only use trust_remote_code=True for trusted sources
+            model = SentenceTransformer(model_name, trust_remote_code=True)
+        else:
+            logging.info(f"Loading model '{model_name}' on {device}")
+            model = SentenceTransformer(model_name)
+        
+        # Move model to GPU if available
+        model = model.to(device)
     except Exception as e:
         logging.error(f"Error loading model: {e}")
         return None
@@ -268,6 +283,7 @@ def run_benchmark(model_name, test_cases, k_values=(1, 3, 5, 10), similarity_thr
         logging.info(f"Query: '{german_text}'")
         
         # Query the HPO index with the German text
+        # The query_hpo function will handle the encoding internally
         query_results = query_hpo(german_text, model, collection)
         
         # Initialize detail dict for this test case
@@ -555,10 +571,20 @@ def main():
         description="Benchmark German HPO RAG system with different models."
     )
     parser.add_argument(
+        "--model-name",
+        type=str,
+        default=DEFAULT_MODEL,
+        help="Single model name to benchmark (default: only the default model)"
+    )
+    parser.add_argument(
         "--model-names",
         nargs="+",
-        default=[DEFAULT_MODEL],
-        help="List of model names to benchmark (default: only the default model)"
+        help="List of model names to benchmark (overrides --model-name if provided)"
+    )
+    parser.add_argument(
+        "--all-models",
+        action="store_true",
+        help="Run benchmark on all available models"
     )
     parser.add_argument(
         "--test-file",
@@ -595,9 +621,28 @@ def main():
     if not test_cases:
         return
     
+    # Determine which models to run
+    models_to_run = []
+    if args.all_models:
+        # Define all available models
+        models_to_run = [
+            "FremyCompany/BioLORD-2023-M",
+            "jinaai/jina-embeddings-v2-base-de",
+            "T-Systems-onsite/cross-en-de-roberta-sentence-transformer",
+            "sentence-transformers/paraphrase-multilingual-mpnet-base-v2",
+            "sentence-transformers/distiluse-base-multilingual-cased-v2"
+        ]
+        logging.info(f"Running benchmark on all {len(models_to_run)} available models")
+    elif args.model_names:
+        models_to_run = args.model_names
+        logging.info(f"Running benchmark on {len(models_to_run)} specified models")
+    else:
+        models_to_run = [args.model_name]
+        logging.info(f"Running benchmark on single model: {args.model_name}")
+    
     # Run benchmark for each model
     results_list = []
-    for model_name in args.model_names:
+    for model_name in models_to_run:
         logging.info(f"Benchmarking model: {model_name}")
         results = run_benchmark(model_name, test_cases, similarity_threshold=args.similarity_threshold)
         if results:
@@ -616,7 +661,18 @@ def main():
         print(f"Models evaluated: {len(results_list)}")
         print(f"Similarity threshold: {args.similarity_threshold}")
         print("\nModel Comparison:")
-        print(comparison_df.round(4))
+        
+        # Format and display results in a clean table format
+        comparison_table = comparison_df.round(4)
+        pd.set_option('display.max_columns', None)  # Show all columns
+        pd.set_option('display.width', 200)  # Wide display
+        pd.set_option('display.float_format', '{:.4f}'.format)  # Consistent formatting
+        print(comparison_table)
+        
+        # Also save as CSV for easier parsing by other tools
+        csv_path = "benchmark_comparison.csv"
+        comparison_df.to_csv(csv_path)
+        print(f"\nComparison table saved to {csv_path}")
         
         # Save detailed results
         detailed_results = []
