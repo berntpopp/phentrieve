@@ -9,7 +9,7 @@ from tqdm import tqdm
 from sentence_transformers import SentenceTransformer
 from download_hpo import download_hpo_json, HPO_FILE_PATH
 from extract_hpo_terms import extract_hpo_terms, HPO_TERMS_DIR
-from utils import get_model_slug, get_index_dir, get_collection_name
+from utils import get_model_slug, get_index_dir, generate_collection_name
 import torch
 
 # Set up device - use CUDA if available, otherwise CPU
@@ -24,6 +24,20 @@ logging.basicConfig(
 
 # Default model
 DEFAULT_MODEL = 'sentence-transformers/paraphrase-multilingual-mpnet-base-v2'
+
+
+def get_embedding_dimension(model_name):
+    """Get the embedding dimension for a given model.
+    Different models produce embeddings with different dimensions.
+    """
+    # Models with non-standard dimensions
+    dimension_map = {
+        "sentence-transformers/distiluse-base-multilingual-cased-v2": 512,
+        # Add more models with different dimensions as needed
+    }
+    
+    # Default dimension for most sentence transformer models
+    return dimension_map.get(model_name, 768)
 
 def load_hpo_terms():
     """Load HPO terms from individual JSON files."""
@@ -148,7 +162,7 @@ def build_index(model_name=DEFAULT_MODEL, batch_size=100):
     
     # Get index directory and collection name using utilities
     index_dir = get_index_dir()
-    collection_name = get_collection_name(model_name)
+    collection_name = generate_collection_name(model_name)
     model_slug = get_model_slug(model_name)
     
     logging.info(f"Building HPO index for model: {model_name} (slug: {model_slug})")
@@ -188,6 +202,7 @@ def build_index(model_name=DEFAULT_MODEL, batch_size=100):
     logging.info(f"Initializing ChromaDB at {index_dir}...")
     try:
         client = chromadb.PersistentClient(path=index_dir)
+        
         # Delete collection if it exists (for clean rebuilds)
         try:
             client.delete_collection(collection_name)
@@ -196,16 +211,22 @@ def build_index(model_name=DEFAULT_MODEL, batch_size=100):
             # Collection didn't exist or some other error
             logging.debug(f"Note: {e}")
         
-        # Create a new collection
+        # Check model embedding dimension
+        model_dimension = get_embedding_dimension(model_name)
+        logging.info(f"Using embedding dimension {model_dimension} for model {model_name}")
+        
+        # Create a new collection with specified metadata
         collection = client.create_collection(
             name=collection_name,
             metadata={
                 "hpo_version": "latest", 
                 "model": model_name,
+                "dimension": model_dimension,
                 "created_at": time.strftime("%Y-%m-%d %H:%M:%S"),
                 "hnsw:space": "cosine"
             }
         )
+        logging.info(f"Created new collection: {collection_name} with dimension {model_dimension}")
     except Exception as e:
         logging.error(f"Error initializing ChromaDB: {e}")
         return False

@@ -7,8 +7,22 @@ import argparse
 import logging
 import numpy as np
 from sentence_transformers import SentenceTransformer
-from utils import get_model_slug, get_index_dir, get_collection_name
+from utils import get_model_slug, get_index_dir, generate_collection_name
 import torch
+
+# Function to identify model dimension
+def get_embedding_dimension(model_name):
+    """Get the embedding dimension for a given model.
+    Different models produce embeddings with different dimensions.
+    """
+    # Models with non-standard dimensions
+    dimension_map = {
+        "sentence-transformers/distiluse-base-multilingual-cased-v2": 512,
+        # Add more models with different dimensions as needed
+    }
+    
+    # Default dimension for most sentence transformer models
+    return dimension_map.get(model_name, 768)
 
 # Set up device - use CUDA if available, otherwise CPU
 device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -218,6 +232,40 @@ def process_input(text, model, collection, num_results=5, sentence_mode=False, s
             print(format_results(results, threshold=similarity_threshold, max_results=num_results))
 
 
+def connect_to_chroma(index_dir, collection_name, model_name=None):
+    """Connect to the ChromaDB index.
+    
+    Args:
+        index_dir: Directory where ChromaDB indices are stored
+        collection_name: Name of the collection to connect to
+        model_name: Optional model name to handle dimension-specific collections
+    """
+    logging.info(f"Connecting to ChromaDB at {index_dir}")
+    
+    try:
+        client = chromadb.PersistentClient(path=index_dir)
+        
+        # First try to find a model-specific collection
+        try:
+            logging.info(f"Trying model-specific collection: {collection_name}")
+            collection = client.get_collection(name=collection_name)
+            return collection
+        except ValueError:
+            # Fall back to default collection if model-specific one doesn't exist
+            try:
+                default_collection = 'hpo_multilingual'
+                logging.info(f"Model-specific collection not found, trying default collection '{default_collection}'")
+                collection = client.get_collection(name=default_collection)
+                return collection
+            except ValueError:
+                logging.error(f"Error: Neither model-specific nor default collection found.")
+                logging.info(f"You may need to run setup_hpo_index.py with the model {model_name} to create a collection compatible with its embedding dimension {get_embedding_dimension(model_name) if model_name else 'unknown'}.")
+                return None
+    except Exception as e:
+        logging.error(f"Error connecting to ChromaDB: {e}")
+        return None
+
+
 def main():
     """Main CLI function."""
     parser = argparse.ArgumentParser(
@@ -254,7 +302,7 @@ def main():
     
     # Get index directory and collection name based on model
     index_dir = get_index_dir()
-    collection_name = get_collection_name(args.model_name)
+    collection_name = generate_collection_name(args.model_name)
     model_slug = get_model_slug(args.model_name)
     
     # Check if index exists
@@ -282,27 +330,9 @@ def main():
         sys.exit(1)
     logging.info("Model loaded successfully.")
     
-    logging.info(f"Connecting to ChromaDB at {index_dir}")
-    try:
-        client = chromadb.PersistentClient(path=index_dir)
-        
-        # First try model-specific collection name
-        try:
-            logging.info(f"Trying model-specific collection: {collection_name}")
-            collection = client.get_collection(collection_name)
-            logging.info(f"Connected to ChromaDB collection '{collection_name}' with {collection.count()} entries.")
-        except Exception as e:
-            # If that fails, try the default collection name
-            logging.info(f"Model-specific collection not found, trying default collection 'hpo_multilingual'")
-            try:
-                collection = client.get_collection('hpo_multilingual')
-                logging.info(f"Connected to ChromaDB collection 'hpo_multilingual' with {collection.count()} entries.")
-            except Exception as e:
-                logging.error(f"Error: No suitable collection found for model '{args.model_name}'")
-                logging.error(f"Make sure you've run setup_hpo_index.py with this model or the default model")
-                sys.exit(1)
-    except Exception as e:
-        logging.error(f"Error connecting to ChromaDB: {e}")
+    # Connect to ChromaDB
+    collection = connect_to_chroma(index_dir, collection_name, args.model_name)
+    if not collection:
         sys.exit(1)
     
     # Display summary

@@ -40,7 +40,7 @@ def get_index_dir():
     return "hpo_chroma_index"
 
 
-def get_collection_name(model_name):
+def generate_collection_name(model_name):
     """
     Generate a unique collection name based on the model slug.
 

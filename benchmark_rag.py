@@ -21,8 +21,22 @@ import torch
 from tqdm import tqdm
 from sentence_transformers import SentenceTransformer
 import chromadb
-from utils import get_model_slug, get_index_dir, get_collection_name
+from utils import get_model_slug, get_index_dir, generate_collection_name
 from german_hpo_rag import query_hpo, calculate_similarity
+
+# Function to identify model dimension
+def get_embedding_dimension(model_name):
+    """Get the embedding dimension for a given model.
+    Different models produce embeddings with different dimensions.
+    """
+    # Models with non-standard dimensions
+    dimension_map = {
+        "sentence-transformers/distiluse-base-multilingual-cased-v2": 512,
+        # Add more models with different dimensions as needed
+    }
+    
+    # Default dimension for most sentence transformer models
+    return dimension_map.get(model_name, 768)
 
 # Set up device - use CUDA if available, otherwise CPU
 device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -212,7 +226,7 @@ def run_benchmark(model_name, test_cases, k_values=(1, 3, 5, 10), similarity_thr
     """
     model_slug = get_model_slug(model_name)
     index_dir = get_index_dir()
-    collection_name = get_collection_name(model_name)
+    collection_name = generate_collection_name(model_name)
     
     # Load the embedding model
     logging.info(f"Loading embedding model: {model_name}")
@@ -247,10 +261,12 @@ def run_benchmark(model_name, test_cases, k_values=(1, 3, 5, 10), similarity_thr
         except Exception as e:
             # If that fails, try the default collection
             logging.info(f"Model-specific collection not found, trying default collection 'hpo_multilingual'")
+            
             try:
                 collection = client.get_collection('hpo_multilingual')
             except Exception as e:
                 logging.error(f"Error: No suitable collection found")
+                logging.error(f"You may need to run setup_hpo_index.py with model {model_name} to create a collection compatible with its embedding dimension {get_embedding_dimension(model_name)}.")
                 return None
         
         logging.info(f"Connected to ChromaDB collection with {collection.count()} entries.")
