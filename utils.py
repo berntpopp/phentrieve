@@ -1,6 +1,21 @@
 import re
 
 
+def get_embedding_dimension(model_name):
+    """Get the embedding dimension for a given model.
+    Different models produce embeddings with different dimensions.
+    """
+    # Models with non-standard dimensions
+    dimension_map = {
+        "sentence-transformers/distiluse-base-multilingual-cased-v2": 512,
+        "BAAI/bge-m3": 1024,  # BGE-M3 uses 1024-dimensional embeddings
+        "sentence-transformers/LaBSE": 768,  # LaBSE uses 768-dimensional embeddings
+    }
+
+    # Default dimension for most sentence transformer models
+    return dimension_map.get(model_name, 768)
+
+
 def get_model_slug(model_name):
     """
     Create a simple, filesystem-safe string (slug) from the model name.

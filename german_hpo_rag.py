@@ -7,24 +7,13 @@ import argparse
 import logging
 import numpy as np
 from sentence_transformers import SentenceTransformer
-from utils import get_model_slug, get_index_dir, generate_collection_name
+from utils import (
+    get_model_slug,
+    get_index_dir,
+    generate_collection_name,
+    get_embedding_dimension,
+)
 import torch
-
-
-# Function to identify model dimension
-def get_embedding_dimension(model_name):
-    """Get the embedding dimension for a given model.
-    Different models produce embeddings with different dimensions.
-    """
-    # Models with non-standard dimensions
-    dimension_map = {
-        "sentence-transformers/distiluse-base-multilingual-cased-v2": 512,
-        "BAAI/bge-m3": 1024,  # BGE-M3 uses 1024-dimensional embeddings
-        "sentence-transformers/LaBSE": 768,  # LaBSE uses 768-dimensional embeddings
-    }
-
-    # Default dimension for most sentence transformer models
-    return dimension_map.get(model_name, 768)
 
 
 # Set up device - use CUDA if available, otherwise CPU
@@ -41,28 +30,12 @@ MIN_SIMILARITY_THRESHOLD = 0.3  # Minimum similarity score to display results
 
 
 def calculate_similarity(distance):
-    """Convert distance to similarity score.
-
-    Args:
-        distance (float): Distance value from ChromaDB (cosine distance)
-
-    Returns:
-        float: Similarity score between 0 and 1
-    """
-    # For standard cosine distance, range should be 0-2
-    # However, our distances are larger - likely using L2 or another metric
-    # So we'll normalize them to a more reasonable scale
-
-    # For exceptionally large distances, apply a more aggressive normalization
-    if distance > 2.0:
-        # For large values, use an inversely scaled approach
-        # This gives small but non-zero similarity even for large distances
-        similarity = 1.0 / (1.0 + distance)
-    else:
-        # For normal cosine range values, use standard formula
-        similarity = 1.0 - (distance / 2.0)
-
-    # Ensure value is between 0 and 1
+    """Converts cosine distance (0 to 2) to similarity score (1 to -1, clamped to 0-1)."""
+    # Cosine distance = 1 - Cosine Similarity
+    # Similarity = 1 - Cosine Distance
+    similarity = 1.0 - distance
+    # Clamp the result between 0.0 and 1.0 as similarity scores typically range from 0 to 1
+    # (though cosine similarity technically ranges from -1 to 1, negative values are unlikely here)
     return max(0.0, min(1.0, similarity))
 
 
@@ -163,30 +136,28 @@ def format_results(results, threshold=MIN_SIMILARITY_THRESHOLD, max_results=5):
 
         count += 1
 
-        # Extract definition if available
-        definition = "No definition"
-        if "Definition: " in document:
-            try:
-                definition_part = document.split("Definition: ")[1]
-                if "." in definition_part:
-                    definition = definition_part.split(".", 1)[0] + "."
-                else:
-                    definition = definition_part
-            except Exception as e:
-                logging.debug(f"Error extracting definition: {e}")
+        # Get definition directly from metadata
+        definition = metadata.get("definition", "No definition")
+        if definition:
+            # Truncate definition to first sentence for display clarity
+            if "." in definition:
+                definition = definition.split(".", 1)[0] + "."
 
-        # Extract synonyms if available
+        # Get synonyms directly from metadata
         synonyms = ""
-        if "Synonyms: " in document:
-            try:
-                synonyms_part = document.split("Synonyms: ")[1]
-                if "." in synonyms_part:
-                    synonyms = synonyms_part.split(".", 1)[0]
-                else:
-                    synonyms = synonyms_part
-                synonyms = f"\n   Synonyms: {synonyms}"
-            except Exception as e:
-                logging.debug(f"Error extracting synonyms: {e}")
+        synonyms_text = metadata.get("synonyms_text", "")
+        if synonyms_text:
+            # Display the first few synonyms for readability
+            syn_parts = synonyms_text.split("; ", 3)
+            if len(syn_parts) > 3:
+                display_syns = "; ".join(syn_parts[:3])
+                count = metadata.get("synonyms_count", 0) - 3
+                if count > 0:
+                    display_syns += f" (+ {count} more)"
+            else:
+                display_syns = synonyms_text
+
+            synonyms = f"\n   Synonyms: {display_syns}"
 
         # Format the result with more detail
         regular_results.append(
@@ -245,17 +216,88 @@ def process_input(
         if len(sentences) > 1:
             print(f"\nText segmented into {len(sentences)} sentences.")
 
+        # Dictionary to track the best similarity score for each HPO ID
+        aggregated_results = {}
+        sentence_results = []
+
+        # Process each sentence and collect results
         for i, sentence in enumerate(sentences, 1):
             if len(sentences) > 1:
                 print(f"\n--- Sentence {i}/{len(sentences)} ---")
                 print(f'"{sentence}"\n')
 
-            results = query_hpo(sentence, model, collection, num_results)
-            print(
-                format_results(
-                    results, threshold=similarity_threshold, max_results=num_results
+            results = query_hpo(
+                sentence, model, collection, num_results * 2
+            )  # Get more results to aggregate
+
+            # Show individual sentence results if multiple sentences
+            if len(sentences) > 1:
+                print(
+                    format_results(
+                        results, threshold=similarity_threshold, max_results=num_results
+                    )
                 )
-            )
+
+            # Store the results for aggregation
+            sentence_results.append((sentence, results))
+
+            # Process results for aggregation
+            if results and results["ids"] and results["ids"][0]:
+                for hpo_id, metadata, distance, document in zip(
+                    results["ids"][0],
+                    results["metadatas"][0],
+                    results["distances"][0],
+                    results["documents"][0],
+                ):
+                    similarity = calculate_similarity(distance)
+
+                    # Skip results below threshold
+                    if similarity < similarity_threshold:
+                        continue
+
+                    # Update aggregated results with max similarity
+                    if (
+                        metadata["hpo_id"] not in aggregated_results
+                        or similarity
+                        > aggregated_results[metadata["hpo_id"]]["similarity"]
+                    ):
+                        aggregated_results[metadata["hpo_id"]] = {
+                            "similarity": similarity,
+                            "metadata": metadata,
+                            "document": document,
+                            "source_sentence": sentence,
+                        }
+
+        # If we processed multiple sentences, show aggregated results
+        if len(sentences) > 1 and aggregated_results:
+            print("\n\n===== AGGREGATED RESULTS ACROSS ALL SENTENCES =====\n")
+
+            # Convert to list and sort by similarity
+            ranked_results = list(aggregated_results.values())
+            ranked_results.sort(key=lambda x: x["similarity"], reverse=True)
+
+            # Format and display aggregated results
+            for i, result in enumerate(ranked_results[:num_results], 1):
+                metadata = result["metadata"]
+                similarity = result["similarity"]
+
+                # Get definition from metadata
+                definition = metadata.get("definition", "No definition")
+                if definition and "." in definition:
+                    definition = definition.split(".", 1)[0] + "."
+
+                # Get synonyms from metadata
+                synonyms = ""
+                synonym_list = metadata.get("synonyms", [])
+                if synonym_list:
+                    synonyms = f"\n   Synonyms: {'; '.join(synonym_list[:3])}"
+                    if len(synonym_list) > 3:
+                        synonyms += f" (+ {len(synonym_list) - 3} more)"
+
+                print(f"{i}. {metadata['hpo_id']} - {metadata['hpo_name']}")
+                print(f"   Similarity: {similarity:.5f}")
+                print(f"   Definition: {definition}{synonyms}")
+                print(f"   Found in sentence: \"{result['source_sentence']}\"\n")
 
 
 def connect_to_chroma(index_dir, collection_name, model_name=None):
@@ -271,28 +313,17 @@ def connect_to_chroma(index_dir, collection_name, model_name=None):
     try:
         client = chromadb.PersistentClient(path=index_dir)
 
-        # First try to find a model-specific collection
+        # Only use the model-specific collection - no fallback
         try:
-            logging.info(f"Trying model-specific collection: {collection_name}")
+            logging.info(f"Using model-specific collection: {collection_name}")
             collection = client.get_collection(name=collection_name)
             return collection
-        except ValueError:
-            # Fall back to default collection if model-specific one doesn't exist
-            try:
-                default_collection = "hpo_multilingual"
-                logging.info(
-                    f"Model-specific collection not found, trying default collection '{default_collection}'"
-                )
-                collection = client.get_collection(name=default_collection)
-                return collection
-            except ValueError:
-                logging.error(
-                    f"Error: Neither model-specific nor default collection found."
-                )
-                logging.info(
-                    f"You may need to run setup_hpo_index.py with the model {model_name} to create a collection compatible with its embedding dimension {get_embedding_dimension(model_name) if model_name else 'unknown'}."
-                )
-                return None
+        except ValueError as e:
+            logging.error(f"Error: Collection '{collection_name}' not found")
+            logging.error(
+                f"You need to run setup_hpo_index.py with model {model_name} to create a collection compatible with its embedding dimension {get_embedding_dimension(model_name) if model_name else 'unknown'}."
+            )
+            return None
     except Exception as e:
         logging.error(f"Error connecting to ChromaDB: {e}")
         return None

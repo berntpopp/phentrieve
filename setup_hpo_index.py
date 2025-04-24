@@ -9,7 +9,12 @@ from tqdm import tqdm
 from sentence_transformers import SentenceTransformer
 from download_hpo import download_hpo_json, HPO_FILE_PATH
 from extract_hpo_terms import extract_hpo_terms, HPO_TERMS_DIR
-from utils import get_model_slug, get_index_dir, generate_collection_name
+from utils import (
+    get_model_slug,
+    get_index_dir,
+    generate_collection_name,
+    get_embedding_dimension,
+)
 import torch
 
 # Set up device - use CUDA if available, otherwise CPU
@@ -23,21 +28,6 @@ logging.basicConfig(
 
 # Default model
 DEFAULT_MODEL = "sentence-transformers/paraphrase-multilingual-mpnet-base-v2"
-
-
-def get_embedding_dimension(model_name):
-    """Get the embedding dimension for a given model.
-    Different models produce embeddings with different dimensions.
-    """
-    # Models with non-standard dimensions
-    dimension_map = {
-        "sentence-transformers/distiluse-base-multilingual-cased-v2": 512,
-        "BAAI/bge-m3": 1024,  # BGE-M3 uses 1024-dimensional embeddings
-        "sentence-transformers/LaBSE": 768,  # LaBSE uses 768-dimensional embeddings
-    }
-
-    # Default dimension for most sentence transformer models
-    return dimension_map.get(model_name, 768)
 
 
 def load_hpo_terms():
@@ -150,12 +140,17 @@ def create_hpo_documents(hpo_terms):
         doc_text = ". ".join(doc_parts)
 
         documents.append(doc_text)
+        # Convert lists to serializable strings for ChromaDB
         metadatas.append(
             {
                 "hpo_id": term["id"],
                 "hpo_name": term["label"],
-                "has_definition": bool(term["definition"]),
-                "synonym_count": len(term["synonyms"]),
+                "definition": term["definition"],
+                "synonyms_count": len(term["synonyms"]),
+                "synonyms_text": (
+                    "; ".join(term["synonyms"]) if term["synonyms"] else ""
+                ),
+                "has_comments": len(term["comments"]) > 0,
             }
         )
         ids.append(term["id"])  # Use HPO ID as the document ID

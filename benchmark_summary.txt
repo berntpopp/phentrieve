@@ -1,6 +1,0 @@
-## HPO RAG Benchmark Results (GPU-Accelerated)
-Similarity threshold: 0.1
-Date: 2025-04-24
-
-| Model | MRR | Precision | Recall | F1 | Hit@1 | Hit@3 | Hit@5 | Hit@10 |
-|-------|-----|-----------|--------|-----|-------|-------|-------|--------|

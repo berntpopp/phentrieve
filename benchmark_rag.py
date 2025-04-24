@@ -2,44 +2,31 @@
 """
 Benchmark tool for the German HPO RAG system.
 
-This script evaluates the performance of the RAG system using various metrics:
+This script evaluates the performance of the RAG system using retrieval metrics:
 - Mean Reciprocal Rank (MRR)
 - Hit Rate at K (HR@K)
-- Precision, Recall, and F1 score
 
 Multiple embedding models can be compared if they have been indexed.
 """
 
-import argparse
 import os
-import sys
+import argparse
 import json
 import logging
 import pandas as pd
 import numpy as np
 import torch
+from datetime import datetime
 from tqdm import tqdm
 from sentence_transformers import SentenceTransformer
 import chromadb
-from utils import get_model_slug, get_index_dir, generate_collection_name
+from utils import (
+    get_model_slug,
+    get_index_dir,
+    generate_collection_name,
+    get_embedding_dimension,
+)
 from german_hpo_rag import query_hpo, calculate_similarity
-
-
-# Function to identify model dimension
-def get_embedding_dimension(model_name):
-    """Get the embedding dimension for a given model.
-    Different models produce embeddings with different dimensions.
-    """
-    # Models with non-standard dimensions
-    dimension_map = {
-        "sentence-transformers/distiluse-base-multilingual-cased-v2": 512,
-        "BAAI/bge-m3": 1024,  # BGE-M3 uses 1024-dimensional embeddings
-        "sentence-transformers/LaBSE": 768,  # LaBSE uses 768-dimensional embeddings
-    }
-
-    # Default dimension for most sentence transformer models
-    return dimension_map.get(model_name, 768)
-
 
 # Set up device - use CUDA if available, otherwise CPU
 device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -50,7 +37,11 @@ logging.basicConfig(
 )
 
 # Default model
-DEFAULT_MODEL = "sentence-transformers/paraphrase-multilingual-mpnet-base-v2"
+DEFAULT_MODEL = "FremyCompany/BioLORD-2023-M"
+DEFAULT_TEST_FILE = os.path.join("data", "test_cases", "sample_test_cases.json")
+RESULTS_DIR = "benchmark_results"
+SUMMARIES_DIR = os.path.join(RESULTS_DIR, "summaries")
+
 
 # Define test data directory
 TEST_DATA_DIR = "data/test_cases"
@@ -156,61 +147,6 @@ def hit_rate_at_k(results, expected_ids, k=5):
     return 0.0
 
 
-def precision_recall_f1(results, expected_ids, similarity_threshold=0.3, k=None):
-    """
-    Calculate precision, recall, and F1 score.
-
-    Args:
-        results: Results from query_hpo
-        expected_ids: List of expected HPO IDs
-        similarity_threshold: Minimum similarity score to consider
-        k: If set, only consider top k results after sorting by similarity
-
-    Returns:
-        tuple: (precision, recall, f1)
-    """
-    if not results or not results["ids"] or not results["ids"][0]:
-        return 0.0, 0.0, 0.0
-
-    # Get all retrieved HPO IDs with similarity scores
-    retrieved_items = []
-    for i, (hpo_id, metadata, distance) in enumerate(
-        zip(results["ids"][0], results["metadatas"][0], results["distances"][0])
-    ):
-        similarity = calculate_similarity(distance)
-        if similarity >= similarity_threshold:
-            retrieved_items.append((metadata["hpo_id"], similarity))
-
-    # Sort by similarity score (descending)
-    retrieved_items.sort(key=lambda x: x[1], reverse=True)
-
-    # Limit to top K if specified
-    if k is not None:
-        retrieved_items = retrieved_items[:k]
-
-    retrieved_ids = [item[0] for item in retrieved_items]
-
-    # Calculate metrics
-    true_positives = len(set(retrieved_ids).intersection(set(expected_ids)))
-
-    if not retrieved_ids:
-        precision = 0.0
-    else:
-        precision = true_positives / len(retrieved_ids)
-
-    if not expected_ids:
-        recall = 0.0
-    else:
-        recall = true_positives / len(expected_ids)
-
-    if precision + recall == 0:
-        f1 = 0.0
-    else:
-        f1 = 2 * (precision * recall) / (precision + recall)
-
-    return precision, recall, f1
-
-
 def run_benchmark(
     model_name, test_cases, k_values=(1, 3, 5, 10), similarity_threshold=0.1
 ):
@@ -258,24 +194,16 @@ def run_benchmark(
     try:
         client = chromadb.PersistentClient(path=index_dir)
 
-        # First try model-specific collection
+        # Only use the model-specific collection - no fallback
         try:
-            logging.info(f"Trying model-specific collection: {collection_name}")
+            logging.info(f"Using model-specific collection: {collection_name}")
             collection = client.get_collection(collection_name)
         except Exception as e:
-            # If that fails, try the default collection
-            logging.info(
-                f"Model-specific collection not found, trying default collection 'hpo_multilingual'"
+            logging.error(f"Error: Collection '{collection_name}' not found")
+            logging.error(
+                f"You need to run setup_hpo_index.py with model {model_name} to create a collection compatible with its embedding dimension {get_embedding_dimension(model_name)}."
             )
-
-            try:
-                collection = client.get_collection("hpo_multilingual")
-            except Exception as e:
-                logging.error(f"Error: No suitable collection found")
-                logging.error(
-                    f"You may need to run setup_hpo_index.py with model {model_name} to create a collection compatible with its embedding dimension {get_embedding_dimension(model_name)}."
-                )
-                return None
+            return None
 
         logging.info(
             f"Connected to ChromaDB collection with {collection.count()} entries."
@@ -286,17 +214,15 @@ def run_benchmark(
 
     # Initialize result containers
     mrr_values = []
-    precision_values = []
-    recall_values = []
-    f1_scores = []
     hit_rates = {k: [] for k in k_values}
 
     # For detailed per-test-case results
     detailed_results = []
 
     # Run the benchmark
-    logging.info(f"Running benchmark with {len(test_cases)} test cases...")
-    logging.info(f"Using similarity threshold: {similarity_threshold}")
+    logging.info(
+        f"Running benchmark for model {model_name} with {len(test_cases)} test cases at similarity threshold {similarity_threshold}"
+    )
 
     # Set up a progress bar
     pbar = tqdm(test_cases, desc=f"Model: {model_slug}")
@@ -326,9 +252,6 @@ def run_benchmark(
             # Log error and skip this test case
             logging.error(f"Query failed for: '{german_text}'")
             mrr_values.append(0.0)
-            precision_values.append(0.0)
-            recall_values.append(0.0)
-            f1_scores.append(0.0)
             for k in k_values:
                 hit_rates[k].append(0.0)
 
@@ -399,17 +322,6 @@ def run_benchmark(
         mrr_values.append(mrr)
         test_detail["mrr"] = mrr
 
-        # Calculate precision, recall, F1
-        precision, recall, f1 = precision_recall_f1(
-            query_results, expected_ids, similarity_threshold=similarity_threshold
-        )
-        precision_values.append(precision)
-        recall_values.append(recall)
-        f1_scores.append(f1)
-        test_detail["precision"] = precision
-        test_detail["recall"] = recall
-        test_detail["f1"] = f1
-
         # Calculate Hit Rate @ K
         for k in k_values:
             hit_rate = hit_rate_at_k(query_results, expected_ids, k=k)
@@ -423,9 +335,6 @@ def run_benchmark(
         "model_name": model_name,
         "model_slug": model_slug,
         "mrr": mrr_values,
-        "precision": precision_values,
-        "recall": recall_values,
-        "f1_scores": f1_scores,
         "detailed_results": detailed_results,  # Add detailed results
         "similarity_threshold": similarity_threshold,
     }
@@ -436,9 +345,6 @@ def run_benchmark(
 
     # Calculate averages
     results["avg_mrr"] = np.mean(mrr_values)
-    results["avg_precision"] = np.mean(precision_values)
-    results["avg_recall"] = np.mean(recall_values)
-    results["avg_f1"] = np.mean(f1_scores)
 
     for k in k_values:
         results[f"avg_hit_rate@{k}"] = np.mean(results[f"hit_rate@{k}"])
@@ -563,9 +469,11 @@ def display_test_case_results(results):
 
         # Print metrics
         print(
-            f"    Metrics: MRR: {test_detail.get('mrr', 0):.4f}, Precision: {test_detail.get('precision', 0):.4f}, "
-            f"Hit@1: {test_detail.get('hit_rate@1', 0):.1f}, Hit@3: {test_detail.get('hit_rate@3', 0):.1f}, "
-            f"Hit@5: {test_detail.get('hit_rate@5', 0):.1f}, Hit@10: {test_detail.get('hit_rate@10', 0):.1f}"
+            f"    Metrics: MRR: {test_detail.get('mrr', 0):.4f}, "
+            f"Hit@1: {test_detail.get('hit_rate@1', 0):.1f}, "
+            f"Hit@3: {test_detail.get('hit_rate@3', 0):.1f}, "
+            f"Hit@5: {test_detail.get('hit_rate@5', 0):.1f}, "
+            f"Hit@10: {test_detail.get('hit_rate@10', 0):.1f}"
         )
         print("\n")
 
@@ -588,9 +496,6 @@ def compare_models(results_list):
         model_metrics = {
             "Model": results["model_slug"],
             "MRR": results["avg_mrr"],
-            "Precision": results["avg_precision"],
-            "Recall": results["avg_recall"],
-            "F1": results["avg_f1"],
         }
 
         # Add Hit Rate metrics
@@ -719,6 +624,32 @@ def main():
         comparison_df.to_csv(csv_path)
         print(f"\nComparison table saved to {csv_path}")
 
+        # Save summary JSON files for each model
+        os.makedirs(SUMMARIES_DIR, exist_ok=True)
+        for result in results_list:
+            model_slug = result["model_slug"]
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            summary_file = os.path.join(SUMMARIES_DIR, f"{model_slug}_{timestamp}.json")
+
+            # Create summary dictionary
+            summary = {
+                "model": model_slug,
+                "original_model_name": result["model_name"],
+                "timestamp": datetime.now().isoformat(),
+                "mrr": result.get("avg_mrr", 0),
+            }
+
+            # Add hit rates
+            for k in [1, 3, 5, 10]:
+                if f"avg_hit_rate@{k}" in result:
+                    summary[f"hit_rate@{k}"] = result[f"avg_hit_rate@{k}"]
+
+            # Save to JSON file
+            with open(summary_file, "w") as f:
+                json.dump(summary, f, indent=2)
+
+            print(f"Summary saved to {summary_file}")
+
         # Save detailed results
         detailed_results = []
         for result in results_list:
@@ -729,9 +660,6 @@ def main():
                     "text": test_cases[i]["text"],
                     "expected_ids": ", ".join(test_cases[i]["expected_hpo_ids"]),
                     "mrr": result["mrr"][i],
-                    "precision": result["precision"][i],
-                    "recall": result["recall"][i],
-                    "f1": result["f1_scores"][i],
                 }
 
                 for k in [1, 3, 5, 10]:
