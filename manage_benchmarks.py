@@ -187,7 +187,7 @@ def load_all_results(filter_models=None):
         filter_models: Optional list of model slugs to filter results
 
     Returns:
-        DataFrame with benchmark results
+        List of benchmark result dictionaries with the latest results for each model
     """
     ensure_directories()
 
@@ -198,46 +198,98 @@ def load_all_results(filter_models=None):
         logging.warning("No benchmark results found")
         return None
 
+    # Track the latest result for each model by timestamp
+    latest_results = {}
+
     # Load results
-    all_results = []
     for json_file in json_files:
         with open(json_file, "r") as f:
-            results = json.load(f)
+            try:
+                results = json.load(f)
 
-            # Filter by model if specified
-            if filter_models and results["model"] not in filter_models:
+                # Skip if we're filtering and this model isn't in the filter list
+                model_name = results.get("model", "")
+                if filter_models and model_name not in filter_models:
+                    continue
+
+                # Get timestamp
+                timestamp = results.get("timestamp", "")
+
+                # If we don't have this model yet, or this is a newer result
+                if model_name not in latest_results or timestamp > latest_results[
+                    model_name
+                ].get("timestamp", ""):
+                    latest_results[model_name] = results
+            except json.JSONDecodeError:
+                logging.warning(f"Error parsing JSON file: {json_file}")
                 continue
 
-            all_results.append(results)
+    # Convert dictionary to list
+    all_results = list(latest_results.values())
 
     if not all_results:
         logging.warning("No matching benchmark results found")
         return None
 
-    # Convert to DataFrame
-    df = pd.DataFrame(all_results)
+    # Sort results by model name
+    all_results.sort(key=lambda x: x.get("model", ""))
 
-    # Sort by model name
-    if "model" in df.columns:
-        df = df.sort_values(by="model")
-
-    return df
+    return all_results
 
 
-def compare_models(results_list):
-    """Compare models directly from the results_list."""
-    if not results_list:
+def compare_models(models_to_compare=None):
+    """Compare models based on benchmark results.
+
+    Args:
+        models_to_compare: Either a list of model slugs or a list of result dictionaries
+
+    Returns:
+        DataFrame with model comparison metrics
+    """
+    # Load results based on what was provided
+    if models_to_compare is None:
+        # If nothing provided, load all available results
+        results_list = load_all_results()
+    elif (
+        isinstance(models_to_compare, list)
+        and models_to_compare
+        and isinstance(models_to_compare[0], str)
+    ):
+        # If list of model slugs provided, load those specific results
+        results_list = load_all_results(models_to_compare)
+    else:
+        # If list of result dictionaries provided, use as is
+        results_list = models_to_compare
+
+    # Check if we have any results to work with
+    if not results_list or len(results_list) == 0:
         logging.warning("No results provided for comparison")
         return None
 
     # Create a comparison dataframe with the metrics
     comparison_data = []
     for result in results_list:
-        row = {"model": result["model_slug"], "mrr": result.get("avg_mrr", 0)}
+        # Use the right key based on what's available (model or model_slug)
+        model_name = result.get("model_slug", result.get("model", "Unknown"))
+        # Extract MRR directly from the result (avg_mrr key might not exist)
+        row = {"model": model_name, "mrr": result.get("mrr", 0)}
+
         # Add hit rates
         for k in [1, 3, 5, 10]:
-            if f"avg_hit_rate@{k}" in result:
+            # First check for the direct key, then fallback to avg_ prefix
+            if f"hit_rate@{k}" in result:
+                row[f"hit_rate@{k}"] = result[f"hit_rate@{k}"]
+            elif f"avg_hit_rate@{k}" in result:
                 row[f"hit_rate@{k}"] = result[f"avg_hit_rate@{k}"]
+
+        # Add ontology similarity metrics
+        for k in [1, 3, 5, 10]:
+            # First check for the direct key, then fallback to avg_ prefix
+            if f"ont_similarity@{k}" in result:
+                row[f"ont_similarity@{k}"] = result[f"ont_similarity@{k}"]
+            elif f"avg_ont_similarity@{k}" in result:
+                row[f"ont_similarity@{k}"] = result[f"avg_ont_similarity@{k}"]
+
         comparison_data.append(row)
 
     comparison = pd.DataFrame(comparison_data)
@@ -251,11 +303,18 @@ def compare_models(results_list):
         if hr_col in comparison.columns:
             display_cols.append(hr_col)
 
+    # Add ontology similarity columns
+    for k in [1, 3, 5, 10]:
+        os_col = f"ont_similarity@{k}"
+        if os_col in comparison.columns:
+            display_cols.append(os_col)
+
     # Create final comparison dataframe with selected columns
     comparison_df = comparison[display_cols]
 
     # Rename columns for better display
-    rename_map = {f"hit_rate@{k}": f"HR@{k}" for k in [1, 3, 5, 10]}
+    rename_map = {f"hit_rate@{k}": f"Hit@{k}" for k in [1, 3, 5, 10]}
+    rename_map.update({f"ont_similarity@{k}": f"OntSim@{k}" for k in [1, 3, 5, 10]})
     rename_map["mrr"] = "MRR"
     rename_map["model"] = "Model"
 
@@ -268,174 +327,183 @@ def visualize_results(results_list):
     """Visualize benchmark results directly from the results list.
 
     Args:
-        results_list: List of benchmark result dictionaries
+        results_list: Either a list of model slugs or benchmark result dictionaries
 
     Returns:
         Path to saved visualization file
     """
-    if not results_list:
+    # Load results if models_to_compare is a list of model slugs
+    if (
+        isinstance(results_list, list)
+        and results_list
+        and isinstance(results_list[0], str)
+    ):
+        loaded_results = load_all_results(results_list)
+    else:
+        loaded_results = results_list
+
+    if not loaded_results:
         logging.warning("No results provided for visualization")
         return None
 
     # Build a dataframe from the results
     visualization_data = []
-    for result in results_list:
+    for result in loaded_results:
         row = {
-            "model": result["model_slug"],
-            "mrr": result.get("avg_mrr", 0),
-            "timestamp": datetime.now().isoformat(),
+            "model": result.get("model_slug", result.get("model", "Unknown")),
+            "mrr": result.get("mrr", 0),  # Use direct key, not avg_mrr
+            "timestamp": result.get("timestamp", datetime.now().isoformat()),
         }
 
         # Add hit rates
         for k in [1, 3, 5, 10]:
-            if f"avg_hit_rate@{k}" in result:
+            # First check for the direct key, then fallback to avg_ prefix
+            if f"hit_rate@{k}" in result:
+                row[f"hit_rate@{k}"] = result[f"hit_rate@{k}"]
+            elif f"avg_hit_rate@{k}" in result:
                 row[f"hit_rate@{k}"] = result[f"avg_hit_rate@{k}"]
+
+        # Add ontology similarity metrics
+        for k in [1, 3, 5, 10]:
+            # First check for the direct key, then fallback to avg_ prefix
+            if f"ont_similarity@{k}" in result:
+                row[f"ont_similarity@{k}"] = result[f"ont_similarity@{k}"]
+            elif f"avg_ont_similarity@{k}" in result:
+                row[f"ont_similarity@{k}"] = result[f"avg_ont_similarity@{k}"]
 
         visualization_data.append(row)
 
-    # Create dataframe
-    latest_results = pd.DataFrame(visualization_data)
+    # Create dataframe and sort by model name
+    df = pd.DataFrame(visualization_data)
+    df = df.sort_values("model")
 
-    # Create visualization
-    fig, axes = plt.subplots(2, 1, figsize=(12, 10))
-    plt.subplots_adjust(hspace=0.3)
+    # Set timestamp for the plots
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
-    # Plot MRR
-    sns.barplot(x="model", y="mrr", data=latest_results, ax=axes[0])
-    axes[0].set_title("Mean Reciprocal Rank (MRR)")
-    axes[0].set_xlabel("")
-    axes[0].set_ylabel("MRR")
-    axes[0].tick_params(axis="x", rotation=45)
+    # Verify we have at least one model with results
+    if len(df) == 0:
+        logging.warning("No valid results for visualization")
+        return None
 
-    # Plot Hit Rate @ K
-    hr_cols = [col for col in latest_results.columns if col.startswith("hit_rate@")]
-    if hr_cols:
-        hr_data = []
-        for model in latest_results["model"]:
-            model_data = latest_results[latest_results["model"] == model]
-            for hr_col in hr_cols:
-                k = hr_col.split("@")[1]
-                hr_data.append(
-                    {
-                        "model": model,
-                        "k": int(k),
-                        "hit_rate": model_data[hr_col].values[0],
-                    }
-                )
+    # Create the visualization directory if it doesn't exist
+    os.makedirs(VISUALIZATIONS_DIR, exist_ok=True)
 
-        hr_df = pd.DataFrame(hr_data)
-        sns.lineplot(
-            x="k",
-            y="hit_rate",
-            hue="model",
-            markers=True,
-            dashes=False,
-            data=hr_df,
-            ax=axes[1],
-        )
-        axes[1].set_title("Hit Rate @ K")
-        axes[1].set_xlabel("K")
-        axes[1].set_ylabel("Hit Rate")
-
+    # Visualize MRR score
+    plt.figure(figsize=(10, 6))
+    sns.barplot(x="model", y="mrr", data=df, palette="viridis")
+    plt.title("Mean Reciprocal Rank (MRR) by Model")
+    plt.xlabel("Model")
+    plt.ylabel("MRR")
+    plt.xticks(rotation=45, ha="right")
     plt.tight_layout()
 
-    # Save figure
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    output_file = os.path.join(
-        VISUALIZATIONS_DIR, f"benchmark_comparison_{timestamp}.png"
+    # Save plot
+    mrr_plot_path = os.path.join(VISUALIZATIONS_DIR, f"mrr_comparison_{timestamp}.png")
+    plt.savefig(mrr_plot_path)
+    plt.close()
+
+    # Visualize Hit@K rates
+    hit_rate_cols = [col for col in df.columns if col.startswith("hit_rate@")]
+    if hit_rate_cols:
+        plt.figure(figsize=(12, 8))
+        hit_rate_df = df.melt(
+            id_vars=["model"],
+            value_vars=hit_rate_cols,
+            var_name="Metric",
+            value_name="Value",
+        )
+        # Clean up metric names for plot
+        hit_rate_df["Metric"] = hit_rate_df["Metric"].str.replace("hit_rate@", "Hit@")
+
+        sns.barplot(
+            x="model", y="Value", hue="Metric", data=hit_rate_df, palette="viridis"
+        )
+        plt.title("Hit Rate by Model")
+        plt.xlabel("Model")
+        plt.ylabel("Hit Rate")
+        plt.xticks(rotation=45, ha="right")
+        plt.legend(title="Metric")
+        plt.tight_layout()
+
+        # Save plot
+        hit_rate_plot_path = os.path.join(
+            VISUALIZATIONS_DIR, f"hit_rate_comparison_{timestamp}.png"
+        )
+        plt.savefig(hit_rate_plot_path)
+        plt.close()
+
+    # Visualize Ontology Similarity@K rates
+    ont_sim_cols = [col for col in df.columns if col.startswith("ont_similarity@")]
+    if ont_sim_cols:
+        plt.figure(figsize=(12, 8))
+        ont_sim_df = df.melt(
+            id_vars=["model"],
+            value_vars=ont_sim_cols,
+            var_name="Metric",
+            value_name="Value",
+        )
+        # Clean up metric names for plot
+        ont_sim_df["Metric"] = ont_sim_df["Metric"].str.replace(
+            "ont_similarity@", "OntSim@"
+        )
+
+        sns.barplot(
+            x="model", y="Value", hue="Metric", data=ont_sim_df, palette="viridis"
+        )
+        plt.title("Ontology Similarity by Model")
+        plt.xlabel("Model")
+        plt.ylabel("Ontology Similarity")
+        plt.xticks(rotation=45, ha="right")
+        plt.legend(title="Metric")
+        plt.tight_layout()
+
+        # Save plot
+        ont_sim_plot_path = os.path.join(
+            VISUALIZATIONS_DIR, f"ont_similarity_comparison_{timestamp}.png"
+        )
+        plt.savefig(ont_sim_plot_path)
+        plt.close()
+
+    # Create a combined metrics comparison chart (side-by-side)
+    plt.figure(figsize=(15, 10))
+
+    # Create 3 subplots
+    plt.subplot(3, 1, 1)
+    sns.barplot(x="model", y="mrr", data=df, palette="viridis")
+    plt.title("Mean Reciprocal Rank (MRR) by Model")
+    plt.xlabel("")
+    plt.xticks(rotation=45, ha="right")
+    plt.tight_layout()
+
+    plt.subplot(3, 1, 2)
+    if hit_rate_cols:
+        sns.barplot(
+            x="model", y="Value", hue="Metric", data=hit_rate_df, palette="viridis"
+        )
+        plt.title("Hit Rate by Model")
+        plt.xlabel("")
+        plt.legend(title="Metric")
+        plt.tight_layout()
+
+    plt.subplot(3, 1, 3)
+    if ont_sim_cols:
+        sns.barplot(
+            x="model", y="Value", hue="Metric", data=ont_sim_df, palette="viridis"
+        )
+        plt.title("Ontology Similarity by Model")
+        plt.xlabel("Model")
+        plt.legend(title="Metric")
+        plt.tight_layout()
+
+    # Save the combined plot
+    combined_plot_path = os.path.join(
+        VISUALIZATIONS_DIR, f"combined_metrics_comparison_{timestamp}.png"
     )
+    plt.savefig(combined_plot_path)
+    plt.close()
 
-    plt.savefig(output_file)
-    logging.info(f"Visualization saved to {output_file}")
-
-    return output_file
-
-
-def setup_subcommand(args):
-    """Handle the setup subcommand."""
-    models_to_setup = []
-
-    if args.all:
-        models_to_setup = DEFAULT_MODELS
-    elif args.model_name:
-        models_to_setup = [args.model_name]
-    else:
-        logging.error("Please specify either --all or --model-name")
-        return False
-
-    logging.info(f"Setting up {len(models_to_setup)} models")
-
-    success_count = 0
-    for model in models_to_setup:
-        if setup_model(model, args.batch_size):
-            success_count += 1
-
-    if success_count == len(models_to_setup):
-        logging.info("All models were set up successfully")
-        return True
-    else:
-        logging.warning(
-            f"{success_count}/{len(models_to_setup)} models were set up successfully"
-        )
-        return success_count > 0
-
-
-def run_subcommand(args):
-    """Handle the run subcommand."""
-    models_to_run = []
-
-    if args.all:
-        models_to_run = DEFAULT_MODELS
-    elif args.model_name:
-        models_to_run = [args.model_name]
-    else:
-        logging.error("Please specify either --all or --model-name")
-        return False
-
-    logging.info(f"Running benchmarks for {len(models_to_run)} models")
-
-    # Run benchmarks
-    results_list = []
-    for model in models_to_run:
-        results = run_benchmark_wrapper(
-            model,
-            similarity_threshold=args.similarity_threshold,
-            test_file=args.test_file,
-            detailed=args.detailed,
-        )
-        if results:
-            results_list.append(results)
-
-    # Compare results
-    if results_list:
-        comparison_df = compare_models(results_list)
-        if comparison_df is not None:
-            print("\n===== Benchmark Results =====")
-            print(f"Models evaluated: {len(results_list)}")
-            print(f"Similarity threshold: {args.similarity_threshold}")
-            print("\nModel Performance Comparison:")
-
-            # Format and display
-            pd.set_option("display.max_columns", None)
-            pd.set_option("display.width", 200)
-            pd.set_option("display.float_format", "{:.4f}".format)
-            print(comparison_df)
-
-            # Also save the comparison
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            csv_path = os.path.join(SUMMARIES_DIR, f"comparison_{timestamp}.csv")
-            comparison_df.to_csv(csv_path)
-            print(f"\nComparison table saved to {csv_path}")
-
-            # Generate visualization
-            vis_path = visualize_results(results_list)
-            if vis_path:
-                print(f"Visualization saved to {vis_path}")
-
-        return True
-    else:
-        logging.error("No benchmarks completed successfully")
-        return False
+    # Return path to main visualizations
+    return combined_plot_path
 
 
 def compare_subcommand(args):
@@ -463,7 +531,9 @@ def compare_subcommand(args):
         print(f"\nComparison table saved to {csv_path}")
 
         # Generate visualization
-        vis_path = visualize_results(models_to_compare)
+        # Pass the actual loaded results to visualize_results, not just the model names
+        results_list = load_all_results(models_to_compare)
+        vis_path = visualize_results(results_list)
         if vis_path:
             print(f"Visualization saved to {vis_path}")
 

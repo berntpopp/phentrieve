@@ -27,6 +27,7 @@ from utils import (
     get_embedding_dimension,
 )
 from german_hpo_rag import query_hpo, calculate_similarity
+from hpo_similarity import load_hpo_graph_data, average_max_similarity
 
 # Set up device - use CUDA if available, otherwise CPU
 device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -160,7 +161,7 @@ def run_benchmark(
         similarity_threshold: Threshold for similarity scores
 
     Returns:
-        dict: Benchmark results
+        dict: Benchmark results including ontology similarity metrics
     """
     model_slug = get_model_slug(model_name)
     index_dir = get_index_dir()
@@ -212,11 +213,15 @@ def run_benchmark(
         logging.error(f"Error connecting to ChromaDB: {e}")
         return None
 
-    # Initialize result containers
+    # Initialize metrics
     mrr_values = []
     hit_rates = {k: [] for k in k_values}
+    ont_similarities = {k: [] for k in k_values}  # Ontology similarity at each k value
 
-    # For detailed per-test-case results
+    # Load HPO graph data for ontology similarity calculations
+    load_hpo_graph_data()
+
+    # Detailed results
     detailed_results = []
 
     # Run the benchmark
@@ -254,6 +259,7 @@ def run_benchmark(
             mrr_values.append(0.0)
             for k in k_values:
                 hit_rates[k].append(0.0)
+                ont_similarities[k].append(0.0)
 
             test_detail["error"] = "Query failed"
             detailed_results.append(test_detail)
@@ -322,11 +328,20 @@ def run_benchmark(
         mrr_values.append(mrr)
         test_detail["mrr"] = mrr
 
-        # Calculate Hit Rate @ K
+        # Calculate metrics for hit rate at different k values
         for k in k_values:
             hit_rate = hit_rate_at_k(query_results, expected_ids, k=k)
             hit_rates[k].append(hit_rate)
             test_detail[f"hit_rate@{k}"] = hit_rate
+
+            # Calculate ontology similarity for top-k
+            if ranked_hits:
+                similarity = average_max_similarity(expected_ids, ranked_hits[:k])
+                ont_similarities[k].append(similarity)
+                test_detail[f"ont_similarity@{k}"] = similarity
+            else:
+                ont_similarities[k].append(0.0)
+                test_detail[f"ont_similarity@{k}"] = 0.0
 
         detailed_results.append(test_detail)
 
@@ -342,12 +357,14 @@ def run_benchmark(
     # Add Hit Rate results
     for k in k_values:
         results[f"hit_rate@{k}"] = hit_rates[k]
+        results[f"ont_similarity@{k}"] = ont_similarities[k]
 
     # Calculate averages
     results["avg_mrr"] = np.mean(mrr_values)
 
     for k in k_values:
         results[f"avg_hit_rate@{k}"] = np.mean(results[f"hit_rate@{k}"])
+        results[f"avg_ont_similarity@{k}"] = np.mean(results[f"ont_similarity@{k}"])
 
     return results
 
@@ -475,6 +492,24 @@ def display_test_case_results(results):
             f"Hit@5: {test_detail.get('hit_rate@5', 0):.1f}, "
             f"Hit@10: {test_detail.get('hit_rate@10', 0):.1f}"
         )
+
+        # Print ontology similarity metrics if available
+        if any(
+            k in test_detail
+            for k in [
+                "ont_similarity@1",
+                "ont_similarity@3",
+                "ont_similarity@5",
+                "ont_similarity@10",
+            ]
+        ):
+            print(
+                f"    Ontology Similarity: "
+                f"@1: {test_detail.get('ont_similarity@1', 0):.4f}, "
+                f"@3: {test_detail.get('ont_similarity@3', 0):.4f}, "
+                f"@5: {test_detail.get('ont_similarity@5', 0):.4f}, "
+                f"@10: {test_detail.get('ont_similarity@10', 0):.4f}"
+            )
         print("\n")
 
 
@@ -488,24 +523,28 @@ def compare_models(results_list):
     Returns:
         DataFrame: Comparison table
     """
-    if not results_list:
-        return None
+    comparison_data = []
 
-    comparison = []
-    for results in results_list:
-        model_metrics = {
-            "Model": results["model_slug"],
-            "MRR": results["avg_mrr"],
+    for result in results_list:
+        model_data = {
+            "Model": result["model_slug"],
+            "MRR": result.get("avg_mrr", 0),
         }
 
-        # Add Hit Rate metrics
+        # Add hit rates
         for k in [1, 3, 5, 10]:
-            if f"avg_hit_rate@{k}" in results:
-                model_metrics[f"HR@{k}"] = results[f"avg_hit_rate@{k}"]
+            if f"avg_hit_rate@{k}" in result:
+                model_data[f"Hit@{k}"] = result[f"avg_hit_rate@{k}"]
 
-        comparison.append(model_metrics)
+        # Add ontology similarity metrics
+        for k in [1, 3, 5, 10]:
+            if f"avg_ont_similarity@{k}" in result:
+                model_data[f"OntSim@{k}"] = result[f"avg_ont_similarity@{k}"]
 
-    df = pd.DataFrame(comparison)
+        comparison_data.append(model_data)
+
+    # Create DataFrame
+    df = pd.DataFrame(comparison_data)
 
     # Set Model as index for better display
     df.set_index("Model", inplace=True)
@@ -644,6 +683,11 @@ def main():
                 if f"avg_hit_rate@{k}" in result:
                     summary[f"hit_rate@{k}"] = result[f"avg_hit_rate@{k}"]
 
+            # Add ontology similarity metrics
+            for k in [1, 3, 5, 10]:
+                if f"avg_ont_similarity@{k}" in result:
+                    summary[f"ont_similarity@{k}"] = result[f"avg_ont_similarity@{k}"]
+
             # Save to JSON file
             with open(summary_file, "w") as f:
                 json.dump(summary, f, indent=2)
@@ -665,6 +709,11 @@ def main():
                 for k in [1, 3, 5, 10]:
                     if f"hit_rate@{k}" in result:
                         row[f"hit_rate@{k}"] = result[f"hit_rate@{k}"][i]
+
+                # Add ontology similarity metrics
+                for k in [1, 3, 5, 10]:
+                    if f"ont_similarity@{k}" in result:
+                        row[f"ont_similarity@{k}"] = result[f"ont_similarity@{k}"][i]
 
                 detailed_results.append(row)
 

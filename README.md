@@ -44,7 +44,7 @@ The system operates in two phases:
 
 ## Current Implementation
 
-Our current implementation successfully extracts and indexes over 18,000 HPO phenotypic abnormality terms. The system includes:
+Our current implementation successfully extracts and indexes over 18,000 HPO phenotypic abnormality terms and provides comprehensive benchmarking with both exact-match and ontology-based semantic similarity metrics. The system includes:
 
 1. **Data processing pipeline**:
    - `download_hpo.py`: Downloads the HPO data from the official source
@@ -55,13 +55,25 @@ Our current implementation successfully extracts and indexes over 18,000 HPO phe
    - `german_hpo_rag.py`: CLI for entering German text and viewing matching HPO terms
    - Supports sentence-by-sentence processing for longer texts
    - Configurable similarity threshold and result count
+   
+3. **Benchmarking system**:
+   - `benchmark_rag.py`: Evaluates model performance using test cases with expected HPO terms
+   - `manage_benchmarks.py`: Tool for running and comparing benchmarks across different models
+   - `precompute_hpo_graph.py`: Precomputes HPO graph properties for ontology similarity metrics
+   - Generates detailed performance metrics and visualizations
 
 ### Technical Details
 
-- **Embedding Model**: sentence-transformers/paraphrase-multilingual-mpnet-base-v2
+- **Embedding Models**: Multiple models supported and benchmarked:
+  - FremyCompany/BioLORD-2023-M (biomedical specialized)
+  - jinaai/jina-embeddings-v2-base-de (German specialized)
+  - T-Systems-onsite/cross-en-de-roberta-sentence-transformer (German-English cross-lingual)
+  - sentence-transformers/paraphrase-multilingual-mpnet-base-v2 (multilingual)
+  - sentence-transformers/distiluse-base-multilingual-cased-v2 (multilingual lightweight)
 - **Vector Database**: ChromaDB (local, persistent)
 - **HPO Version**: Latest available from JAX (currently 2025-03-03)
 - **Batch Processing**: Terms are processed and indexed in batches to handle memory constraints
+- **Ontology Metrics**: Semantic similarity calculations using HPO hierarchy depth and structure
 
 ## Limitations & Future Work
 
@@ -76,6 +88,7 @@ Our current implementation successfully extracts and indexes over 18,000 HPO phe
 - Adding a secondary step for coordinate mapping
 - Implementing a hybrid approach combining semantic search with other techniques
 - Support for additional languages beyond German
+- Expanding the ontology similarity metrics with additional measures (e.g., Lin, Wu-Palmer)
 
 ## Setup and Usage
 
@@ -139,9 +152,14 @@ Options:
 - `extract_hpo_terms.py`: Extracts and filters HPO terms from the main data file
 - `setup_hpo_index.py`: Builds the ChromaDB vector index
 - `german_hpo_rag.py`: CLI tool for querying with German text
+- `benchmark_rag.py`: Evaluates model performance with various metrics
+- `manage_benchmarks.py`: Tool for running, comparing, and visualizing benchmark results
+- `precompute_hpo_graph.py`: Precomputes HPO graph properties for ontology similarity
+- `hpo_similarity.py`: Contains implementations of ontology-based similarity metrics
 - `requirements.txt`: Project dependencies
-- `data/`: Directory containing the HPO data and extracted terms
+- `data/`: Directory containing the HPO data, extracted terms, and graph data
 - `hpo_chroma_index/`: Directory containing the ChromaDB vector database
+- `benchmark_results/`: Directory containing benchmark output files and visualizations
 
 ## Example Results
 
@@ -155,8 +173,91 @@ Query: 'Synophrys.'
    Synonyms: Monobrow; Synophris; Unibrow
 ```
 
+## Benchmarking and Evaluation
+
+The system includes a comprehensive benchmarking suite that evaluates model performance using two types of metrics:
+
+### Exact Match Metrics
+
+- **Mean Reciprocal Rank (MRR)**: The average of the reciprocal of the rank of the correct HPO term. Higher is better.
+- **Hit Rate at K (Hit@K)**: The proportion of test cases where a correct HPO term appears in the top K results. Higher is better.
+
+### Ontology Similarity Metrics
+
+- **Ontology Similarity at K (OntSim@K)**: The average semantic similarity between the expected HPO terms and the top K retrieved terms, based on the HPO hierarchy. Higher is better.
+
+These ontology-based metrics provide a more nuanced evaluation than exact matches alone because they account for the semantic relatedness of terms in the HPO hierarchy. For example, retrieving "Mild microcephaly" (HP:0040196) when the expected term is "Microcephaly" (HP:0000252) would get a high ontology similarity score due to their close relationship in the HPO hierarchy, despite not being an exact match.
+
+Benchmark results are saved as:
+- JSON summaries for each model
+- CSV files with detailed metrics for all test cases
+- Visualizations comparing model performance
+
+### Understanding Ontology Similarity
+
+#### How Ontology Similarity Works
+
+The HPO is organized as a directed acyclic graph where terms have parent-child relationships defining increasingly specific phenotypes. Our ontology similarity implementation:
+
+1. **Precomputes** a graph representation of the HPO including:
+   - Each term's ancestors (all parent terms up to the root)
+   - Each term's depth in the hierarchy (distance from root)
+
+2. **Calculates similarity** between an expected HPO term and a retrieved HPO term using:
+   - The depth of their Lowest Common Ancestor (LCA)
+   - The depth of the terms themselves
+   - A normalization factor to produce values between 0 and 1
+
+3. **Aggregates** these similarities into the OntSim@K metric by:
+   - For each expected term, finding its most similar term among the top-K retrieved results
+   - Averaging these maximum similarities across all expected terms
+
+#### Interpreting Similarity Values
+
+Similarity values range from 0 to 1, where:
+
+- **1.0**: Perfect match (same term)
+- **~0.75-0.99**: Very close relationship (e.g., parent-child or siblings sharing a specific parent)
+- **~0.50-0.74**: Moderate relationship (e.g., terms sharing a common ancestor a few levels up)
+- **~0.25-0.49**: Distant relationship (e.g., terms sharing only general category ancestors)
+- **~0.01-0.24**: Very distant relationship (e.g., terms under the same broad branches)
+- **0.0**: No meaningful relationship (no common ancestor except the root)
+
+#### Examples
+
+1. **High Similarity (0.95)**:
+   - Expected: "Microcephaly" (HP:0000252)
+   - Retrieved: "Mild microcephaly" (HP:0040196)
+   - Explanation: "Mild microcephaly" is a direct child of "Microcephaly" in the HPO hierarchy
+
+2. **Medium Similarity (0.65)**:
+   - Expected: "Seizure" (HP:0001250)
+   - Retrieved: "Focal seizure" (HP:0007359)
+   - Explanation: Both are types of seizures but in different subcategories of the nervous system abnormalities
+
+3. **Low Similarity (0.30)**:
+   - Expected: "Microcephaly" (HP:0000252)
+   - Retrieved: "Intellectual disability" (HP:0001249)
+   - Explanation: Both are neurological abnormalities but affect different aspects (brain size vs. cognitive function)
+
+4. **Minimal Similarity (0.10)**:
+   - Expected: "Microcephaly" (HP:0000252)
+   - Retrieved: "Joint hypermobility" (HP:0001382)
+   - Explanation: These terms come from entirely different branches of the HPO (neurological vs. skeletal)
+
+#### Benefits in Model Evaluation
+
+OntSim@K offers several advantages over exact match metrics:
+
+- **Clinical relevance**: A model retrieving closely related terms is more useful than one retrieving unrelated terms
+- **Partial credit**: Models are rewarded for retrieving terms semantically close to the expected ones
+- **Hierarchy awareness**: The evaluation acknowledges the organized nature of medical knowledge
+
+This allows for more nuanced comparison between models, especially in cases where exact matches are rare but semantically similar results are clinically valuable.
+
 ## References
 
 - Human Phenotype Ontology: [https://hpo.jax.org/](https://hpo.jax.org/)
 - Sentence Transformers: [https://www.sbert.net/](https://www.sbert.net/)
 - ChromaDB: [https://docs.trychroma.com/](https://docs.trychroma.com/)
+- Semantic Similarity in Biomedical Ontologies: [https://doi.org/10.1371/journal.pcbi.1000443](https://doi.org/10.1371/journal.pcbi.1000443)
