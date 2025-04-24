@@ -480,9 +480,45 @@ def visualize_results(results_list):
     # Create the visualization directory if it doesn't exist
     os.makedirs(VISUALIZATIONS_DIR, exist_ok=True)
 
-    # Visualize MRR score
+    # Visualize MRR score with error bars - extract raw data for calculating errors
     plt.figure(figsize=(10, 6))
-    sns.barplot(x="model", y="mrr", hue="model", data=df, palette="viridis", legend=False)
+    
+    # Create standard error bars from the raw data if available
+    error_data = []
+    for model_name in df['model'].unique():
+        # Find the corresponding full result to extract raw values
+        for result in loaded_results:
+            result_model = result.get("model_slug", result.get("model", "Unknown"))
+            if result_model == model_name:
+                # Look for raw MRR values (could be in different keys)
+                mrr_values = None
+                if "avg_mrr" in result and isinstance(result["avg_mrr"], list):
+                    mrr_values = result["avg_mrr"]
+                elif "mrr" in result and isinstance(result["mrr"], list):
+                    mrr_values = result["mrr"]
+                
+                if mrr_values:
+                    # Calculate standard deviation for error bars
+                    error_data.append({
+                        'model': model_name,
+                        'mean': np.mean(mrr_values),
+                        'std': np.std(mrr_values)
+                    })
+                    break
+    
+    # If we have error data, use it; otherwise fall back to simple bars
+    if error_data:
+        error_df = pd.DataFrame(error_data)
+        # Create bar plot with error bars
+        plt.bar(error_df['model'], error_df['mean'], yerr=error_df['std'], 
+                capsize=5, color=sns.color_palette("viridis", len(error_df)))
+        # Set y-axis limits to keep it from going below 0 unless needed for error bars
+        ymin = max(0, min([m - s for m, s in zip(error_df['mean'], error_df['std'])]) - 0.05)
+        plt.ylim(bottom=ymin)
+    else:
+        # Fall back to regular barplot without error bars
+        sns.barplot(x="model", y="mrr", hue="model", data=df, palette="viridis", legend=False)
+    
     plt.title("Mean Reciprocal Rank (MRR) by Model")
     plt.xlabel("Model")
     plt.ylabel("MRR")
@@ -507,9 +543,76 @@ def visualize_results(results_list):
         # Clean up metric names for plot
         hit_rate_df["Metric"] = hit_rate_df["Metric"].str.replace("hit_rate@", "Hit@")
 
-        sns.barplot(
-            x="model", y="Value", hue="Metric", data=hit_rate_df, palette="viridis"
-        )
+        # Create error bars for hit rates if raw data available
+        hit_rate_error_data = []
+        
+        for model_name in df['model'].unique():
+            for k in [1, 3, 5, 10]:
+                metric_name = f"Hit@{k}"
+                # Find the corresponding full result
+                for result in loaded_results:
+                    result_model = result.get("model_slug", result.get("model", "Unknown"))
+                    if result_model == model_name:
+                        # Check for raw values
+                        hit_values = None
+                        if f"avg_hit_rate@{k}" in result and isinstance(result[f"avg_hit_rate@{k}"], list):
+                            hit_values = result[f"avg_hit_rate@{k}"]
+                        elif f"hit_rate@{k}" in result and isinstance(result[f"hit_rate@{k}"], list):
+                            hit_values = result[f"hit_rate@{k}"]
+                        
+                        if hit_values:
+                            hit_rate_error_data.append({
+                                'model': model_name,
+                                'Metric': metric_name,
+                                'mean': np.mean(hit_values),
+                                'std': np.std(hit_values)
+                            })
+                        break
+        
+        if hit_rate_error_data:
+            # We have error data, create grouped bar chart with error bars
+            hr_error_df = pd.DataFrame(hit_rate_error_data)
+            
+            # Group by model and metric to calculate positions
+            models = sorted(hr_error_df['model'].unique())
+            # Sort metrics in the correct order: Hit@1, Hit@3, Hit@5, Hit@10
+            metrics = ['Hit@1', 'Hit@3', 'Hit@5', 'Hit@10']
+            # Filter to only include metrics present in the data
+            metrics = [m for m in metrics if m in hr_error_df['Metric'].unique()]
+            
+            # Set up plot dimensions
+            bar_width = 0.2
+            x = np.arange(len(models))
+            
+            # Create grouped bars with error bars
+            for i, metric in enumerate(metrics):
+                metric_data = hr_error_df[hr_error_df['Metric'] == metric]
+                # Ensure data is sorted to match models order
+                metric_data = metric_data.set_index('model').reindex(models).reset_index()
+                
+                offset = (i - len(metrics)/2 + 0.5) * bar_width
+                # Get consistent colors - use the same viridis palette but in consistent order
+                viridis_colors = sns.color_palette("viridis", 4)
+                # Map metrics to consistent color indexes
+                color_idx = {'Hit@1': 0, 'Hit@3': 1, 'Hit@5': 2, 'Hit@10': 3,
+                            'OntSim@1': 0, 'OntSim@3': 1, 'OntSim@5': 2, 'OntSim@10': 3}
+                
+                plt.bar(x + offset, metric_data['mean'], bar_width, 
+                        yerr=metric_data['std'], capsize=3,
+                        label=metric, color=viridis_colors[color_idx[metric]])
+            
+            plt.xticks(x, models, rotation=45, ha='right')
+            plt.legend(title="Metric")
+            
+            # Set y-axis limits to keep it from going below 0 unless needed for error bars
+            min_y_with_error = min([r['mean'] - r['std'] for _, r in hr_error_df.iterrows()])
+            ymin = max(0, min_y_with_error - 0.05)
+            plt.ylim(bottom=ymin)
+        else:
+            # Fall back to standard barplot
+            sns.barplot(
+                x="model", y="Value", hue="Metric", data=hit_rate_df, palette="viridis"
+            )
         plt.title("Hit Rate by Model")
         plt.xlabel("Model")
         plt.ylabel("Hit Rate")
@@ -535,14 +638,79 @@ def visualize_results(results_list):
             value_name="Value",
         )
         # Clean up metric names for plot
-        ont_sim_df["Metric"] = ont_sim_df["Metric"].str.replace(
-            "ont_similarity@", "OntSim@"
-        )
+        ont_sim_df["Metric"] = ont_sim_df["Metric"].str.replace("ont_similarity@", "OntSim@")
 
-        sns.barplot(
-            x="model", y="Value", hue="Metric", data=ont_sim_df, palette="viridis"
-        )
-        plt.title("Ontology Similarity by Model")
+        # Create error bars for ontology similarity if raw data available
+        ont_sim_error_data = []
+        
+        for model_name in df['model'].unique():
+            for k in [1, 3, 5, 10]:
+                metric_name = f"OntSim@{k}"
+                # Find the corresponding full result
+                for result in loaded_results:
+                    result_model = result.get("model_slug", result.get("model", "Unknown"))
+                    if result_model == model_name:
+                        # Check for raw values
+                        ont_values = None
+                        if f"avg_ont_similarity@{k}" in result and isinstance(result[f"avg_ont_similarity@{k}"], list):
+                            ont_values = result[f"avg_ont_similarity@{k}"]
+                        elif f"ont_similarity@{k}" in result and isinstance(result[f"ont_similarity@{k}"], list):
+                            ont_values = result[f"ont_similarity@{k}"]
+                        
+                        if ont_values:
+                            ont_sim_error_data.append({
+                                'model': model_name,
+                                'Metric': metric_name,
+                                'mean': np.mean(ont_values),
+                                'std': np.std(ont_values)
+                            })
+                        break
+        
+        if ont_sim_error_data:
+            # We have error data, create grouped bar chart with error bars
+            os_error_df = pd.DataFrame(ont_sim_error_data)
+            
+            # Group by model and metric to calculate positions
+            models = sorted(os_error_df['model'].unique())
+            # Sort metrics in the correct order: OntSim@1, OntSim@3, OntSim@5, OntSim@10
+            metrics = ['OntSim@1', 'OntSim@3', 'OntSim@5', 'OntSim@10']
+            # Filter to only include metrics present in the data
+            metrics = [m for m in metrics if m in os_error_df['Metric'].unique()]
+            
+            # Set up plot dimensions
+            bar_width = 0.2
+            x = np.arange(len(models))
+            
+            # Create grouped bars with error bars
+            for i, metric in enumerate(metrics):
+                metric_data = os_error_df[os_error_df['Metric'] == metric]
+                # Ensure data is sorted to match models order
+                metric_data = metric_data.set_index('model').reindex(models).reset_index()
+                
+                offset = (i - len(metrics)/2 + 0.5) * bar_width
+                # Get consistent colors - use the same viridis palette but in consistent order
+                viridis_colors = sns.color_palette("viridis", 4)
+                # Map metrics to consistent color indexes
+                color_idx = {'Hit@1': 0, 'Hit@3': 1, 'Hit@5': 2, 'Hit@10': 3,
+                            'OntSim@1': 0, 'OntSim@3': 1, 'OntSim@5': 2, 'OntSim@10': 3}
+                
+                plt.bar(x + offset, metric_data['mean'], bar_width, 
+                        yerr=metric_data['std'], capsize=3,
+                        label=metric, color=viridis_colors[color_idx[metric]])
+            
+            plt.xticks(x, models, rotation=45, ha='right')
+            plt.legend(title="Metric")
+            
+            # Set y-axis limits to keep it from going below 0 unless needed for error bars
+            min_y_with_error = min([r['mean'] - r['std'] for _, r in hr_error_df.iterrows()])
+            ymin = max(0, min_y_with_error - 0.05)
+            plt.ylim(bottom=ymin)
+        else:
+            # Fall back to standard barplot
+            sns.barplot(
+                x="model", y="Value", hue="Metric", data=ont_sim_df, palette="viridis"
+            )
+            plt.title("Ontology Similarity by Model")
         plt.xlabel("Model")
         plt.ylabel("Ontology Similarity")
         plt.xticks(rotation=45, ha="right")
@@ -561,7 +729,43 @@ def visualize_results(results_list):
 
     # Create 3 subplots
     plt.subplot(3, 1, 1)
-    sns.barplot(x="model", y="mrr", hue="model", data=df, palette="viridis", legend=False)
+    
+    # Create standard error bars from the raw data if available
+    error_data = []
+    for model_name in df['model'].unique():
+        # Find the corresponding full result to extract raw values
+        for result in loaded_results:
+            result_model = result.get("model_slug", result.get("model", "Unknown"))
+            if result_model == model_name:
+                # Look for raw MRR values (could be in different keys)
+                mrr_values = None
+                if "avg_mrr" in result and isinstance(result["avg_mrr"], list):
+                    mrr_values = result["avg_mrr"]
+                elif "mrr" in result and isinstance(result["mrr"], list):
+                    mrr_values = result["mrr"]
+                
+                if mrr_values:
+                    # Calculate standard deviation for error bars
+                    error_data.append({
+                        'model': model_name,
+                        'mean': np.mean(mrr_values),
+                        'std': np.std(mrr_values)
+                    })
+                    break
+    
+    # If we have error data, use it; otherwise fall back to simple bars
+    if error_data:
+        error_df = pd.DataFrame(error_data)
+        # Create bar plot with error bars
+        plt.bar(error_df['model'], error_df['mean'], yerr=error_df['std'], 
+                capsize=5, color=sns.color_palette("viridis", len(error_df)))
+        # Set y-axis limits to keep it from going below 0 unless needed for error bars
+        ymin = max(0, min([m - s for m, s in zip(error_df['mean'], error_df['std'])]) - 0.05)
+        plt.ylim(bottom=ymin)
+    else:
+        # Fall back to regular barplot without error bars
+        sns.barplot(x="model", y="mrr", hue="model", data=df, palette="viridis", legend=False)
+        
     plt.title("Mean Reciprocal Rank (MRR) by Model")
     plt.xlabel("")
     plt.xticks(rotation=45, ha="right")
