@@ -32,7 +32,8 @@ def get_embedding_dimension(model_name):
     # Models with non-standard dimensions
     dimension_map = {
         "sentence-transformers/distiluse-base-multilingual-cased-v2": 512,
-        # Add more models with different dimensions as needed
+        "BAAI/bge-m3": 1024,  # BGE-M3 uses 1024-dimensional embeddings
+        "sentence-transformers/LaBSE": 768,  # LaBSE uses 768-dimensional embeddings
     }
     
     # Default dimension for most sentence transformer models
