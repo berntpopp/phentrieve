@@ -1,41 +1,104 @@
 import chromadb
-from sentence_transformers import SentenceTransformer
 import os
 import sys
+import re
 import pysbd
 import argparse
+import logging
 import numpy as np
+from sentence_transformers import SentenceTransformer
+from utils import get_model_slug, get_index_dir, get_collection_name
 
-MODEL_NAME = 'sentence-transformers/paraphrase-multilingual-mpnet-base-v2'
-INDEX_DIR = "hpo_chroma_index"
-COLLECTION_NAME = "hpo_multilingual"
-MIN_SIMILARITY_THRESHOLD = 0.3  # Lowered threshold to show more potential matches
+# Set up logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+
+# Default values
+DEFAULT_MODEL = 'sentence-transformers/paraphrase-multilingual-mpnet-base-v2'
+MIN_SIMILARITY_THRESHOLD = 0.3  # Minimum similarity score to display results
+
+def calculate_similarity(distance):
+    """Convert distance to similarity score.
+    
+    Args:
+        distance (float): Distance value from ChromaDB (cosine distance)
+        
+    Returns:
+        float: Similarity score between 0 and 1
+    """
+    # For standard cosine distance, range should be 0-2
+    # However, our distances are larger - likely using L2 or another metric
+    # So we'll normalize them to a more reasonable scale
+    
+    # For exceptionally large distances, apply a more aggressive normalization
+    if distance > 2.0:
+        # For large values, use an inversely scaled approach
+        # This gives small but non-zero similarity even for large distances
+        similarity = 1.0 / (1.0 + distance)
+    else:
+        # For normal cosine range values, use standard formula
+        similarity = 1.0 - (distance / 2.0)
+    
+    # Ensure value is between 0 and 1
+    return max(0.0, min(1.0, similarity))
+
 
 def query_hpo(sentence, model, collection, n_results=10):
-    """Generates embedding and queries the HPO index."""
-    print(f"Query: '{sentence}'")
+    """Generates embedding and queries the HPO index.
     
-    # Generate embedding for the query sentence
-    query_embedding = model.encode([sentence])[0]  # Encode returns a list, get the first element
+    Args:
+        sentence (str): The German input sentence
+        model: Loaded SentenceTransformer model instance
+        collection: ChromaDB collection instance
+        n_results (int): Number of results to fetch initially
+        
+    Returns:
+        dict: ChromaDB query results dictionary
+    """
+    logging.info(f"Query: '{sentence}'")
     
-    # Query the collection - get more results than we need to filter by similarity
-    results = collection.query(
-        query_embeddings=[query_embedding.tolist()],
-        n_results=n_results * 3,  # Get even more results to allow better filtering
-        include=["documents", "metadatas", "distances"]
-    )
-    
-    return results
+    try:
+        # Generate embedding for the query sentence
+        query_embedding = model.encode([sentence])[0]  # Encode returns a list, get the first element
+        
+        # Query the collection - get more results than we need to filter by similarity
+        results = collection.query(
+            query_embeddings=[query_embedding.tolist()],
+            n_results=n_results * 3,  # Get more results to allow better filtering
+            include=["documents", "metadatas", "distances"]
+        )
+        
+        return results
+    except Exception as e:
+        logging.error(f"Error querying HPO: {e}")
+        return None
 
 def format_results(results, threshold=MIN_SIMILARITY_THRESHOLD, max_results=5):
-    """Format the query results for display, filtering by similarity threshold."""
+    """Format the query results for display, filtering by similarity threshold.
+    
+    Args:
+        results (dict): Raw results dictionary from collection.query
+        threshold (float): Minimum similarity score to display
+        max_results (int): Maximum number of results to display
+        
+    Returns:
+        str: Formatted string for display
+    """
     if not results or not results['ids'] or not results['ids'][0]:
         return "No matching HPO terms found."
     
     formatted_output = []
     count = 0
     
-    # First sort results by similarity (convert distance to similarity score)
+    # Print raw distances for debugging
+    raw_distances = results['distances'][0][:5]  # Just look at first 5
+    raw_similarities = [calculate_similarity(d) for d in raw_distances]
+    formatted_output.append(f"DEBUG - Raw distances: {raw_distances}")
+    formatted_output.append(f"DEBUG - Raw similarities: {raw_similarities}\n")
+    
+    # Prepare items with calculated similarity scores
     items = []
     for i, (hpo_id, metadata, distance, document) in enumerate(zip(
         results['ids'][0], 
@@ -43,14 +106,25 @@ def format_results(results, threshold=MIN_SIMILARITY_THRESHOLD, max_results=5):
         results['distances'][0],
         results['documents'][0]
     )):
-        # Convert distance to similarity score (higher is better)
-        similarity_score = 1 / (1 + distance)
+        # Calculate similarity score from distance (cosine distance)
+        similarity_score = calculate_similarity(distance)
         items.append((similarity_score, hpo_id, metadata, document))
     
     # Sort by similarity score (descending)
     items.sort(reverse=True)
     
-    # Format the top results
+    # Debug top 5 items regardless of threshold
+    formatted_output.append("DEBUG - Top 5 items regardless of threshold:")
+    for i, (similarity_score, hpo_id, metadata, document) in enumerate(items[:5]):
+        formatted_output.append(
+            f"DEBUG {i+1}. {metadata['hpo_id']} - {metadata['hpo_name']}\n"
+            f"   Similarity: {similarity_score:.5f}"
+        )
+    formatted_output.append("")
+    
+    # Format the regular results
+    count = 0
+    regular_results = []
     for similarity_score, hpo_id, metadata, document in items:
         # Skip results with low similarity
         if similarity_score < threshold:
@@ -71,8 +145,8 @@ def format_results(results, threshold=MIN_SIMILARITY_THRESHOLD, max_results=5):
                     definition = definition_part.split('.', 1)[0] + '.'
                 else:
                     definition = definition_part
-            except:
-                pass
+            except Exception as e:
+                logging.debug(f"Error extracting definition: {e}")
                 
         # Extract synonyms if available
         synonyms = ""
@@ -84,18 +158,21 @@ def format_results(results, threshold=MIN_SIMILARITY_THRESHOLD, max_results=5):
                 else:
                     synonyms = synonyms_part
                 synonyms = f"\n   Synonyms: {synonyms}"
-            except:
-                pass
+            except Exception as e:
+                logging.debug(f"Error extracting synonyms: {e}")
         
         # Format the result with more detail
-        formatted_output.append(
+        regular_results.append(
             f"{count}. {metadata['hpo_id']} - {metadata['hpo_name']}\n"
-            f"   Similarity: {similarity_score:.3f}\n"
+            f"   Similarity: {similarity_score:.5f}\n"
             f"   Definition: {definition}{synonyms}"
         )
     
-    if not formatted_output:
-        return "No matching HPO terms found with sufficient similarity.\n\nTry lowering the similarity threshold with --similarity-threshold."
+    if regular_results:
+        formatted_output.append("REGULAR RESULTS (with threshold filtering):")
+        formatted_output.extend(regular_results)
+    else:
+        formatted_output.append("No matching HPO terms found with sufficient similarity.\n\nTry lowering the similarity threshold with --similarity-threshold.")
         
     return "\n\n".join(formatted_output)
 
@@ -103,6 +180,38 @@ def segment_text(text, lang="de"):
     """Split text into sentences."""
     segmenter = pysbd.Segmenter(language=lang, clean=False)
     return segmenter.segment(text)
+
+
+def process_input(text, model, collection, num_results=5, sentence_mode=False, similarity_threshold=MIN_SIMILARITY_THRESHOLD):
+    """Process input text, either as a whole or sentence by sentence.
+    
+    Args:
+        text (str): The input text to process
+        model: Loaded SentenceTransformer model instance
+        collection: ChromaDB collection instance
+        num_results (int): Number of results to display per query
+        sentence_mode (bool): Whether to process text sentence by sentence
+        similarity_threshold (float): Minimum similarity threshold for results
+    """
+    if not sentence_mode:
+        # Process whole text as one query
+        results = query_hpo(text, model, collection, num_results)
+        print("\nMatches:\n")
+        print(format_results(results, threshold=similarity_threshold, max_results=num_results))
+    else:
+        # Process text sentence by sentence
+        sentences = segment_text(text)
+        if len(sentences) > 1:
+            print(f"\nText segmented into {len(sentences)} sentences.")
+        
+        for i, sentence in enumerate(sentences, 1):
+            if len(sentences) > 1:
+                print(f"\n--- Sentence {i}/{len(sentences)} ---")
+                print(f"\"{sentence}\"\n")
+            
+            results = query_hpo(sentence, model, collection, num_results)
+            print(format_results(results, threshold=similarity_threshold, max_results=num_results))
+
 
 def main():
     """Main CLI function."""
@@ -130,30 +239,61 @@ def main():
         default=MIN_SIMILARITY_THRESHOLD,
         help=f"Minimum similarity threshold (default: {MIN_SIMILARITY_THRESHOLD})"
     )
+    parser.add_argument(
+        "--model-name",
+        type=str,
+        default=DEFAULT_MODEL,
+        help=f"Sentence transformer model name (default: {DEFAULT_MODEL})"
+    )
     args = parser.parse_args()
     
+    # Get index directory and collection name based on model
+    index_dir = get_index_dir()
+    collection_name = get_collection_name(args.model_name)
+    model_slug = get_model_slug(args.model_name)
+    
     # Check if index exists
-    if not os.path.exists(INDEX_DIR):
-        print("Error: HPO index not found. Please run setup_hpo_index.py first.")
+    if not os.path.exists(index_dir):
+        logging.error(f"Error: Index directory '{index_dir}' not found. Please run setup_hpo_index.py first.")
         sys.exit(1)
     
-    print("Loading embedding model...")
+    logging.info(f"Loading embedding model: {args.model_name}")
     try:
-        model = SentenceTransformer(MODEL_NAME)
+        model = SentenceTransformer(args.model_name)
     except Exception as e:
-        print(f"Error loading SentenceTransformer model: {e}")
-        print("Make sure you have run: pip install -r requirements.txt")
-        return
-    print("Model loaded.")
+        logging.error(f"Error loading SentenceTransformer model: {e}")
+        logging.error("Make sure you have run: pip install -r requirements.txt")
+        sys.exit(1)
+    logging.info("Model loaded successfully.")
     
-    print(f"Connecting to ChromaDB at {INDEX_DIR}...")
+    logging.info(f"Connecting to ChromaDB at {index_dir}")
     try:
-        client = chromadb.PersistentClient(path=INDEX_DIR)
-        collection = client.get_collection(COLLECTION_NAME)
+        client = chromadb.PersistentClient(path=index_dir)
+        
+        # First try model-specific collection name
+        try:
+            logging.info(f"Trying model-specific collection: {collection_name}")
+            collection = client.get_collection(collection_name)
+            logging.info(f"Connected to ChromaDB collection '{collection_name}' with {collection.count()} entries.")
+        except Exception as e:
+            # If that fails, try the default collection name
+            logging.info(f"Model-specific collection not found, trying default collection 'hpo_multilingual'")
+            try:
+                collection = client.get_collection('hpo_multilingual')
+                logging.info(f"Connected to ChromaDB collection 'hpo_multilingual' with {collection.count()} entries.")
+            except Exception as e:
+                logging.error(f"Error: No suitable collection found for model '{args.model_name}'")
+                logging.error(f"Make sure you've run setup_hpo_index.py with this model or the default model")
+                sys.exit(1)
     except Exception as e:
-        print(f"Error connecting to ChromaDB: {e}")
-        return
-    print(f"Connected to ChromaDB index with {collection.count()} entries.")
+        logging.error(f"Error connecting to ChromaDB: {e}")
+        sys.exit(1)
+    
+    # Display summary
+    print(f"Model: {args.model_name}")
+    print(f"Collection: {collection_name}")
+    print(f"Index entries: {collection.count()}")
+    print(f"Similarity threshold: {args.similarity_threshold}")
     
     # Process a one-time query if provided via command line
     if args.text:
@@ -166,34 +306,22 @@ def main():
     print("Type 'exit', 'quit', or 'q' to exit the program.\n")
     
     while True:
-        user_input = input("\nEnter German text (or 'q' to quit): ")
-        if user_input.lower() in ['exit', 'quit', 'q']:
-            print("Exiting.")
-            break
-        
-        if not user_input.strip():
-            continue
-        
-        process_input(user_input, model, collection, args.num_results, args.sentence_mode, args.similarity_threshold)
-
-def process_input(text, model, collection, n_results=5, sentence_mode=False, similarity_threshold=MIN_SIMILARITY_THRESHOLD):
-    """Process input text, either as whole or sentence by sentence."""
-    if sentence_mode and len(text.strip()) > 100:  # Only split if text is substantial
-        print("\nProcessing text sentence by sentence:")
-        sentences = segment_text(text)
-        
-        for i, sentence in enumerate(sentences):
-            if not sentence.strip():
+        try:
+            user_input = input("\nEnter German text (or 'q' to quit): ")
+            if user_input.lower() in ['exit', 'quit', 'q']:
+                print("Exiting.")
+                break
+            
+            if not user_input.strip():
                 continue
-                
-            print(f"\n[Sentence {i+1}]: {sentence}")
-            results = query_hpo(sentence, model, collection, n_results)
-            print(format_results(results, threshold=similarity_threshold, max_results=n_results))
-    else:
-        # Process the whole text as a single query
-        print("\nQuerying HPO terms...")
-        results = query_hpo(text, model, collection, n_results)
-        print(format_results(results, threshold=similarity_threshold, max_results=n_results))
+            
+            process_input(user_input, model, collection, args.num_results, args.sentence_mode, args.similarity_threshold)
+        except KeyboardInterrupt:
+            print("\nExiting.")
+            break
+        except Exception as e:
+            logging.error(f"Error: {e}")
+            continue
 
 if __name__ == "__main__":
     main()
