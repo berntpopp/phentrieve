@@ -482,7 +482,7 @@ def visualize_results(results_list):
 
     # Visualize MRR score
     plt.figure(figsize=(10, 6))
-    sns.barplot(x="model", y="mrr", data=df, palette="viridis")
+    sns.barplot(x="model", y="mrr", hue="model", data=df, palette="viridis", legend=False)
     plt.title("Mean Reciprocal Rank (MRR) by Model")
     plt.xlabel("Model")
     plt.ylabel("MRR")
@@ -561,7 +561,7 @@ def visualize_results(results_list):
 
     # Create 3 subplots
     plt.subplot(3, 1, 1)
-    sns.barplot(x="model", y="mrr", data=df, palette="viridis")
+    sns.barplot(x="model", y="mrr", hue="model", data=df, palette="viridis", legend=False)
     plt.title("Mean Reciprocal Rank (MRR) by Model")
     plt.xlabel("")
     plt.xticks(rotation=45, ha="right")
