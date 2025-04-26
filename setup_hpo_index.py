@@ -21,10 +21,23 @@ import torch
 device = "cuda" if torch.cuda.is_available() else "cpu"
 logging.info(f"Using device: {device}")
 
-# Set up logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-)
+
+# Logging will be configured based on debug flag
+def configure_logging(debug=False):
+    """Configure logging based on debug flag"""
+    level = logging.DEBUG if debug else logging.INFO
+    logging.basicConfig(
+        level=level, format="%(asctime)s - %(levelname)s - %(message)s", force=True
+    )
+    # Also set root logger level
+    logging.getLogger().setLevel(level)
+
+    if debug:
+        logging.debug("Debug logging enabled in setup_hpo_index.py")
+
+
+# Default to INFO level initially
+configure_logging(False)
 
 # Default model
 DEFAULT_MODEL = "sentence-transformers/paraphrase-multilingual-mpnet-base-v2"
@@ -34,7 +47,7 @@ def load_hpo_terms():
     """Load HPO terms from individual JSON files."""
     # Check if terms directory exists, if not extract them
     if not os.path.exists(HPO_TERMS_DIR) or not os.listdir(HPO_TERMS_DIR):
-        print(f"HPO terms directory not found or empty. Extracting terms...")
+        logging.info(f"HPO terms directory not found or empty. Extracting terms...")
         # Make sure we have the HPO data first
         download_hpo_json()
         # Extract individual term files
@@ -42,13 +55,15 @@ def load_hpo_terms():
             return []
 
     # Load all HPO terms from individual JSON files
-    print(f"Loading HPO terms from {HPO_TERMS_DIR}...")
+    logging.info(f"Loading HPO terms from {HPO_TERMS_DIR}...")
     hpo_terms = []
 
     # Get all JSON files in the directory
     term_files = glob.glob(os.path.join(HPO_TERMS_DIR, "*.json"))
+    logging.debug(f"Found {len(term_files)} term files")
 
-    for file_path in tqdm(term_files, desc="Loading HPO term files"):
+    # Add a progress bar for loading HPO terms
+    for file_path in tqdm(term_files, desc="Loading HPO terms", unit="files"):
         try:
             with open(file_path, "r", encoding="utf-8") as f:
                 node = json.load(f)
@@ -98,15 +113,15 @@ def load_hpo_terms():
             )
 
         except (json.JSONDecodeError, IOError) as e:
-            print(f"Error reading {file_path}: {e}")
+            logging.error(f"Error reading {file_path}: {e}")
 
-    print(f"Successfully loaded {len(hpo_terms)} HPO terms.")
+    logging.info(f"Successfully loaded {len(hpo_terms)} HPO terms.")
     return hpo_terms
 
 
 def create_hpo_documents(hpo_terms):
     """Creates descriptive documents for each HPO term."""
-    print("Creating HPO documents for indexing...")
+    logging.info("Creating HPO documents for indexing...")
     documents = []
     metadatas = []
     ids = []
@@ -158,7 +173,7 @@ def create_hpo_documents(hpo_terms):
     return documents, metadatas, ids
 
 
-def build_index(model_name=DEFAULT_MODEL, batch_size=100):
+def build_index(model_name=DEFAULT_MODEL, batch_size=100, trust_remote_code=False):
     """Loads HPO terms, generates embeddings, and builds the ChromaDB index.
 
     Args:
@@ -191,11 +206,15 @@ def build_index(model_name=DEFAULT_MODEL, batch_size=100):
     # Load the sentence transformer model
     logging.info(f"Loading the {model_name} model...")
     try:
-        # Special handling for Jina model which requires trust_remote_code=True
-        jina_model_id = "jinaai/jina-embeddings-v2-base-de"
-        if model_name == jina_model_id:
+        # Special handling for models which require trust_remote_code=True
+        models_requiring_trust = [
+            "jinaai/jina-embeddings-v2-base-de",
+            "Alibaba-NLP/gte-multilingual-base",
+        ]
+
+        if model_name in models_requiring_trust or trust_remote_code:
             logging.info(
-                f"Loading Jina model '{model_name}' with trust_remote_code=True on {device}"
+                f"Loading model '{model_name}' with trust_remote_code=True on {device}"
             )
             # Security note: Only use trust_remote_code=True for trusted sources
             model = SentenceTransformer(model_name, trust_remote_code=True)
@@ -253,7 +272,19 @@ def build_index(model_name=DEFAULT_MODEL, batch_size=100):
         f"Computing embeddings for {len(documents)} HPO terms using {device}..."
     )
 
-    for i in tqdm(range(0, len(documents), batch_size), desc="Generating embeddings"):
+    # Process documents in batches
+    total_batches = len(documents) // batch_size + (
+        1 if len(documents) % batch_size > 0 else 0
+    )
+    logging.info(f"Processing {len(documents)} documents in {total_batches} batches...")
+
+    # Add a clear progress bar for batch processing
+    for i in tqdm(
+        range(0, len(documents), batch_size),
+        desc="Batches",
+        total=total_batches,
+        unit="batch",
+    ):
         batch_docs = documents[i : i + batch_size]
         batch_meta = metadatas[i : i + batch_size]
         batch_ids = ids[i : i + batch_size]
@@ -302,10 +333,30 @@ if __name__ == "__main__":
         default=100,
         help="Number of documents to process at once (default: 100)",
     )
+    parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="Enable debug logging with more verbose output",
+    )
+    parser.add_argument(
+        "--trust-remote-code",
+        action="store_true",
+        help="Enable trust_remote_code for model loading (required for some models)",
+    )
     args = parser.parse_args()
 
+    # Configure logging based on debug flag
+    configure_logging(args.debug)
+
+    if args.trust_remote_code:
+        logging.info("trust_remote_code enabled for model loading")
+
     # Build the index
-    success = build_index(model_name=args.model_name, batch_size=args.batch_size)
+    success = build_index(
+        model_name=args.model_name,
+        batch_size=args.batch_size,
+        trust_remote_code=args.trust_remote_code,
+    )
 
     # Exit with appropriate status code
     if not success:

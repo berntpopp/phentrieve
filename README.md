@@ -70,6 +70,9 @@ Our current implementation successfully extracts and indexes over 18,000 HPO phe
   - T-Systems-onsite/cross-en-de-roberta-sentence-transformer (German-English cross-lingual)
   - sentence-transformers/paraphrase-multilingual-mpnet-base-v2 (multilingual)
   - sentence-transformers/distiluse-base-multilingual-cased-v2 (multilingual lightweight)
+  - BAAI/bge-m3 (retrieval-focused model)
+  - sentence-transformers/LaBSE (translation alignment model)
+  - sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2 (lightweight model)
 - **Vector Database**: ChromaDB (local, persistent)
 - **HPO Version**: Latest available from JAX (currently 2025-03-03)
 - **Batch Processing**: Terms are processed and indexed in batches to handle memory constraints

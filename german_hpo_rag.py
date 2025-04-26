@@ -19,10 +19,23 @@ import torch
 # Set up device - use CUDA if available, otherwise CPU
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
-# Set up logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-)
+
+# Logging will be configured based on debug flag
+def configure_logging(debug=False):
+    """Configure logging based on debug flag"""
+    level = logging.DEBUG if debug else logging.INFO
+    logging.basicConfig(
+        level=level, format="%(asctime)s - %(levelname)s - %(message)s", force=True
+    )
+    # Also set root logger level
+    logging.getLogger().setLevel(level)
+
+    if debug:
+        logging.debug("Debug logging enabled in german_hpo_rag.py")
+
+
+# Default to INFO level initially
+configure_logging(False)
 
 # Default values
 DEFAULT_MODEL = "sentence-transformers/paraphrase-multilingual-mpnet-base-v2"
@@ -39,7 +52,7 @@ def calculate_similarity(distance):
     return max(0.0, min(1.0, similarity))
 
 
-def query_hpo(sentence, model, collection, n_results=10):
+def query_hpo(sentence, model, collection, n_results=10, debug=False):
     """Generates embedding and queries the HPO index.
 
     Args:
@@ -52,6 +65,10 @@ def query_hpo(sentence, model, collection, n_results=10):
         dict: ChromaDB query results dictionary
     """
     logging.info(f"Query: '{sentence}'")
+    if debug:
+        logging.debug(
+            f"Using model: {model.__class__.__name__}, n_results: {n_results}"
+        )
 
     try:
         # Generate embedding for the query sentence
@@ -60,11 +77,18 @@ def query_hpo(sentence, model, collection, n_results=10):
         ]  # Encode returns a list, get the first element
 
         # Query the collection - get more results than we need to filter by similarity
+        query_n_results = n_results * 3  # Get more results to allow better filtering
+        if debug:
+            logging.debug(f"Querying collection with {query_n_results} initial results")
+
         results = collection.query(
             query_embeddings=[query_embedding.tolist()],
-            n_results=n_results * 3,  # Get more results to allow better filtering
+            n_results=query_n_results,
             include=["documents", "metadatas", "distances"],
         )
+
+        if debug and results:
+            logging.debug(f"Got {len(results['ids'][0])} results from collection")
 
         return results
     except Exception as e:
@@ -190,6 +214,7 @@ def process_input(
     num_results=5,
     sentence_mode=False,
     similarity_threshold=MIN_SIMILARITY_THRESHOLD,
+    debug=False,
 ):
     """Process input text, either as a whole or sentence by sentence.
 
@@ -202,8 +227,10 @@ def process_input(
         similarity_threshold (float): Minimum similarity threshold for results
     """
     if not sentence_mode:
-        # Process whole text as one query
-        results = query_hpo(text, model, collection, num_results)
+        print("\n[Processing text as a whole]")
+        results = query_hpo(
+            text.strip(), model, collection, num_results * 2, debug=debug
+        )
         print("\nMatches:\n")
         print(
             format_results(
@@ -364,7 +391,17 @@ def main():
         default=DEFAULT_MODEL,
         help=f"Sentence transformer model name (default: {DEFAULT_MODEL})",
     )
+    parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="Enable debug logging with more verbose output",
+    )
     args = parser.parse_args()
+
+    # Configure logging based on debug flag
+    configure_logging(args.debug)
+    if args.debug:
+        logging.debug("Debug mode enabled")
 
     # Get index directory and collection name based on model
     index_dir = get_index_dir()
@@ -420,6 +457,7 @@ def main():
             args.num_results,
             args.sentence_mode,
             args.similarity_threshold,
+            debug=args.debug,
         )
         return
 
@@ -445,6 +483,7 @@ def main():
                 args.num_results,
                 args.sentence_mode,
                 args.similarity_threshold,
+                debug=args.debug,
             )
         except KeyboardInterrupt:
             print("\nExiting.")

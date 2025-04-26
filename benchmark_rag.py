@@ -32,10 +32,23 @@ from hpo_similarity import load_hpo_graph_data, average_max_similarity
 # Set up device - use CUDA if available, otherwise CPU
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
-# Set up logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-)
+
+# Logging will be configured based on debug flag
+def configure_logging(debug=False):
+    """Configure logging based on debug flag"""
+    level = logging.DEBUG if debug else logging.INFO
+    logging.basicConfig(
+        level=level, format="%(asctime)s - %(levelname)s - %(message)s", force=True
+    )
+    # Also set root logger level
+    logging.getLogger().setLevel(level)
+
+    if debug:
+        logging.debug("Debug logging enabled in benchmark_rag.py")
+
+
+# Default to INFO level initially
+configure_logging(False)
 
 # Default model
 DEFAULT_MODEL = "FremyCompany/BioLORD-2023-M"
@@ -67,6 +80,7 @@ def load_test_data(test_file):
             test_cases = json.load(f)
 
         logging.info(f"Loaded {len(test_cases)} test cases from {test_file}")
+        logging.debug(f"Processing {len(test_cases)} test cases...")
         return test_cases
     except Exception as e:
         logging.error(f"Error loading test data from {test_file}: {e}")
@@ -149,8 +163,13 @@ def hit_rate_at_k(results, expected_ids, k=5):
 
 
 def run_benchmark(
-    model_name, test_cases, k_values=(1, 3, 5, 10), similarity_threshold=0.1
+    model_name,
+    test_cases,
+    k_values=(1, 3, 5, 10),
+    similarity_threshold=0.1,
+    debug=False,
 ):
+    logging.debug(f"Starting benchmark for model: {model_name}")
     """
     Run benchmark with given model and test cases.
 
@@ -164,17 +183,24 @@ def run_benchmark(
         dict: Benchmark results including ontology similarity metrics
     """
     model_slug = get_model_slug(model_name)
-    index_dir = get_index_dir()
+    index_dir = get_index_dir()  # Function doesn't take parameters
     collection_name = generate_collection_name(model_name)
+    logging.debug(
+        f"Using model_slug: {model_slug}, collection: {collection_name}, index_dir: {index_dir}"
+    )
 
     # Load the embedding model
     logging.info(f"Loading embedding model: {model_name}")
     try:
-        # Special handling for Jina model which requires trust_remote_code=True
-        jina_model_id = "jinaai/jina-embeddings-v2-base-de"
-        if model_name == jina_model_id:
+        # Special handling for models which require trust_remote_code=True
+        models_requiring_trust = [
+            "jinaai/jina-embeddings-v2-base-de",
+            "Alibaba-NLP/gte-multilingual-base",
+        ]
+
+        if model_name in models_requiring_trust:
             logging.info(
-                f"Loading Jina model '{model_name}' with trust_remote_code=True on {device}"
+                f"Loading model '{model_name}' with trust_remote_code=True on {device}"
             )
             # Security note: Only use trust_remote_code=True for trusted sources
             model = SentenceTransformer(model_name, trust_remote_code=True)
@@ -229,8 +255,15 @@ def run_benchmark(
         f"Running benchmark for model {model_name} with {len(test_cases)} test cases at similarity threshold {similarity_threshold}"
     )
 
-    # Set up a progress bar
-    pbar = tqdm(test_cases, desc=f"Model: {model_slug}")
+    # Set up a clearer progress bar with more information
+    pbar = tqdm(
+        test_cases,
+        desc=f"Model: {model_slug}",
+        unit="tests",
+        leave=True,
+        position=0,
+        bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]",
+    )
 
     for test_case in pbar:
         german_text = test_case["text"]
@@ -600,8 +633,18 @@ def main():
     parser.add_argument(
         "--detailed", action="store_true", help="Show detailed per-test-case results"
     )
+    parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="Enable debug logging with more verbose output",
+    )
 
     args = parser.parse_args()
+
+    # Configure logging based on debug flag
+    configure_logging(args.debug)
+    if args.debug:
+        logging.debug("Debug mode enabled for benchmark")
 
     # Load or create test data
     if args.test_file and os.path.exists(args.test_file):
@@ -636,6 +679,7 @@ def main():
     results_list = []
     for model_name in models_to_run:
         logging.info(f"Benchmarking model: {model_name}")
+        logging.debug(f"Using similarity threshold: {args.similarity_threshold}")
         results = run_benchmark(
             model_name, test_cases, similarity_threshold=args.similarity_threshold
         )

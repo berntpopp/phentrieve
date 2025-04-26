@@ -45,12 +45,23 @@ import glob
 # Import run_benchmark directly from benchmark_rag.py
 from benchmark_rag import run_benchmark, load_test_data, DEFAULT_TEST_FILE
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S",
-)
+# Configure logging - will be updated based on debug flag
+logging_level = logging.INFO
+
+
+def configure_logging(debug=False):
+    """Configure logging based on debug flag"""
+    global logging_level
+    logging_level = logging.DEBUG if debug else logging.INFO
+    logging.basicConfig(
+        level=logging_level,
+        format="%(asctime)s - %(levelname)s - %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+        force=True,
+    )
+    # Set root logger level as well
+    logging.getLogger().setLevel(logging_level)
+
 
 # Default models to use
 DEFAULT_MODELS = [
@@ -59,6 +70,11 @@ DEFAULT_MODELS = [
     "T-Systems-onsite/cross-en-de-roberta-sentence-transformer",
     "sentence-transformers/paraphrase-multilingual-mpnet-base-v2",
     "sentence-transformers/distiluse-base-multilingual-cased-v2",
+    # New models to benchmark
+    "BAAI/bge-m3",
+    "Alibaba-NLP/gte-multilingual-base",
+    "sentence-transformers/LaBSE",
+    "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
 ]
 
 # Directories for saving results
@@ -103,9 +119,10 @@ def run_command(command, desc=None, capture_output=True):
         return False, e.stdout if e.stdout else None, e.stderr if e.stderr else None
 
 
-def setup_model(model_name, batch_size=100):
+def setup_model(model_name, batch_size=100, debug=False):
     """Set up HPO index with the specified model."""
     logging.info(f"Setting up HPO index with model: {model_name}")
+    logging.debug(f"Using batch size: {batch_size}, debug mode: {debug}")
 
     command = [
         "python",
@@ -115,6 +132,20 @@ def setup_model(model_name, batch_size=100):
         "--batch-size",
         str(batch_size),
     ]
+
+    # Add debug flag if debugging is enabled
+    if debug:
+        command.append("--debug")
+
+    # Add trust-remote-code flag for models that require it
+    models_requiring_trust = [
+        "jinaai/jina-embeddings-v2-base-de",
+        "Alibaba-NLP/gte-multilingual-base",
+    ]
+
+    if model_name in models_requiring_trust:
+        logging.info(f"Adding trust-remote-code flag for model: {model_name}")
+        command.append("--trust-remote-code")
 
     success, stdout, stderr = run_command(command, f"Setting up index for {model_name}")
     if success:
@@ -126,11 +157,13 @@ def setup_model(model_name, batch_size=100):
 
 
 def run_benchmark_wrapper(
-    model_name, similarity_threshold=0.1, test_file=None, detailed=False
+    model_name, similarity_threshold=0.1, test_file=None, detailed=False, debug=False
 ):
     """Run benchmark for a single model and save results."""
-    start_time = time.time()
     logging.info(f"Running benchmark for {model_name}")
+    logging.debug(
+        f"Parameters: similarity_threshold={similarity_threshold}, test_file={test_file}, detailed={detailed}, debug={debug}"
+    )
 
     # Use the default test file if none provided
     if not test_file:
@@ -152,13 +185,13 @@ def run_benchmark_wrapper(
         return None
 
     end_time = time.time()
-    logging.info(f"Benchmark completed in {end_time - start_time:.2f} seconds")
-    
+    logging.info(f"Benchmark completed in {end_time - time.time():.2f} seconds")
+
     # Save the results as a JSON file for later comparison
     model_slug = results["model_slug"]
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     ensure_directories()
-    
+
     # Create summary dictionary
     summary = {
         "model": model_slug,
@@ -166,24 +199,24 @@ def run_benchmark_wrapper(
         "timestamp": datetime.now().isoformat(),
         "mrr": results.get("avg_mrr", 0),
     }
-    
+
     # Add hit rates
     for k in [1, 3, 5, 10]:
         if f"avg_hit_rate@{k}" in results:
             summary[f"hit_rate@{k}"] = results[f"avg_hit_rate@{k}"]
-    
+
     # Add ontology similarity metrics
     for k in [1, 3, 5, 10]:
         if f"avg_ont_similarity@{k}" in results:
             summary[f"ont_similarity@{k}"] = results[f"avg_ont_similarity@{k}"]
-    
+
     # Save to JSON file
     summary_file = os.path.join(SUMMARIES_DIR, f"{model_slug}_{timestamp}.json")
     with open(summary_file, "w") as f:
         json.dump(summary, f, indent=2)
-    
+
     logging.info(f"Summary saved to {summary_file}")
-    
+
     return results
 
 
@@ -301,17 +334,17 @@ def compare_models(models_to_compare=None):
     for result in results_list:
         # Use the right key based on what's available (model or model_slug)
         model_name = result.get("model_slug", result.get("model", "Unknown"))
-        
+
         # Initialize row with model name
         row = {"model": model_name}
-        
+
         # Handle MRR (could be in mrr or avg_mrr keys)
         mrr_value = None
         if "mrr" in result:
             mrr_value = result["mrr"]
         elif "avg_mrr" in result:
             mrr_value = result["avg_mrr"]
-            
+
         # If MRR is a list, calculate the mean
         if isinstance(mrr_value, list):
             row["mrr"] = np.mean(mrr_value) if mrr_value else 0
@@ -321,34 +354,40 @@ def compare_models(models_to_compare=None):
         # Add hit rates with aggregation if needed
         for k in [1, 3, 5, 10]:
             hit_rate_value = None
-            
+
             # First check for the direct key, then fallback to avg_ prefix
             if f"hit_rate@{k}" in result:
                 hit_rate_value = result[f"hit_rate@{k}"]
             elif f"avg_hit_rate@{k}" in result:
                 hit_rate_value = result[f"avg_hit_rate@{k}"]
-                
+
             # If it's a list, calculate the mean
             if isinstance(hit_rate_value, list):
                 row[f"hit_rate@{k}"] = np.mean(hit_rate_value) if hit_rate_value else 0
             else:
-                row[f"hit_rate@{k}"] = hit_rate_value if hit_rate_value is not None else 0
+                row[f"hit_rate@{k}"] = (
+                    hit_rate_value if hit_rate_value is not None else 0
+                )
 
         # Add ontology similarity metrics with aggregation if needed
         for k in [1, 3, 5, 10]:
             ont_sim_value = None
-            
+
             # First check for the direct key, then fallback to avg_ prefix
             if f"ont_similarity@{k}" in result:
                 ont_sim_value = result[f"ont_similarity@{k}"]
             elif f"avg_ont_similarity@{k}" in result:
                 ont_sim_value = result[f"avg_ont_similarity@{k}"]
-                
+
             # If it's a list, calculate the mean
             if isinstance(ont_sim_value, list):
-                row[f"ont_similarity@{k}"] = np.mean(ont_sim_value) if ont_sim_value else 0
+                row[f"ont_similarity@{k}"] = (
+                    np.mean(ont_sim_value) if ont_sim_value else 0
+                )
             else:
-                row[f"ont_similarity@{k}"] = ont_sim_value if ont_sim_value is not None else 0
+                row[f"ont_similarity@{k}"] = (
+                    ont_sim_value if ont_sim_value is not None else 0
+                )
 
         comparison_data.append(row)
 
@@ -413,7 +452,7 @@ def visualize_results(results_list):
             "model": result.get("model_slug", result.get("model", "Unknown")),
             "timestamp": result.get("timestamp", datetime.now().isoformat()),
         }
-        
+
         # Add MRR - handle if it's a scalar or a list
         mrr_value = result.get("mrr", 0)  # Use direct key, not avg_mrr
         if isinstance(mrr_value, list):
@@ -430,12 +469,14 @@ def visualize_results(results_list):
                 hit_rate_value = result[f"hit_rate@{k}"]
             elif f"avg_hit_rate@{k}" in result:
                 hit_rate_value = result[f"avg_hit_rate@{k}"]
-                
+
             # Handle if it's a list
             if isinstance(hit_rate_value, list):
                 row[f"hit_rate@{k}"] = np.mean(hit_rate_value) if hit_rate_value else 0
             else:
-                row[f"hit_rate@{k}"] = hit_rate_value if hit_rate_value is not None else 0
+                row[f"hit_rate@{k}"] = (
+                    hit_rate_value if hit_rate_value is not None else 0
+                )
 
         # Add ontology similarity metrics
         for k in [1, 3, 5, 10]:
@@ -445,47 +486,49 @@ def visualize_results(results_list):
                 ont_sim_value = result[f"ont_similarity@{k}"]
             elif f"avg_ont_similarity@{k}" in result:
                 ont_sim_value = result[f"avg_ont_similarity@{k}"]
-                
+
             # Handle if it's a list
             if isinstance(ont_sim_value, list):
-                row[f"ont_similarity@{k}"] = np.mean(ont_sim_value) if ont_sim_value else 0
+                row[f"ont_similarity@{k}"] = (
+                    np.mean(ont_sim_value) if ont_sim_value else 0
+                )
             else:
-                row[f"ont_similarity@{k}"] = ont_sim_value if ont_sim_value is not None else 0
+                row[f"ont_similarity@{k}"] = (
+                    ont_sim_value if ont_sim_value is not None else 0
+                )
 
         visualization_data.append(row)
 
     # Create dataframe and sort by model name
     df = pd.DataFrame(visualization_data)
     df = df.sort_values("model")
-    
+
     # Ensure we have at least one model
     if len(df) == 0:
         logging.warning("No valid results for visualization")
         return None
-        
+
     # If we have only one model, duplicate it so we can still create plots
     # This is a workaround for seaborn barplot which needs at least 2 categories
     if len(df) == 1:
         # Create a copy of the first row with a placeholder model name
         duplicate_row = df.iloc[0].copy()
-        duplicate_row['model'] = "_placeholder_" # This won't be visible in the plot
+        duplicate_row["model"] = "_placeholder_"  # This won't be visible in the plot
         # Add the duplicate row
         df = pd.concat([df, pd.DataFrame([duplicate_row])], ignore_index=True)
 
     # Set timestamp for the plots
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
-
-
     # Create the visualization directory if it doesn't exist
     os.makedirs(VISUALIZATIONS_DIR, exist_ok=True)
 
     # Visualize MRR score with error bars - extract raw data for calculating errors
     plt.figure(figsize=(10, 6))
-    
+
     # Create standard error bars from the raw data if available
     error_data = []
-    for model_name in df['model'].unique():
+    for model_name in df["model"].unique():
         # Find the corresponding full result to extract raw values
         for result in loaded_results:
             result_model = result.get("model_slug", result.get("model", "Unknown"))
@@ -496,29 +539,40 @@ def visualize_results(results_list):
                     mrr_values = result["avg_mrr"]
                 elif "mrr" in result and isinstance(result["mrr"], list):
                     mrr_values = result["mrr"]
-                
+
                 if mrr_values:
                     # Calculate standard deviation for error bars
-                    error_data.append({
-                        'model': model_name,
-                        'mean': np.mean(mrr_values),
-                        'std': np.std(mrr_values)
-                    })
+                    error_data.append(
+                        {
+                            "model": model_name,
+                            "mean": np.mean(mrr_values),
+                            "std": np.std(mrr_values),
+                        }
+                    )
                     break
-    
+
     # If we have error data, use it; otherwise fall back to simple bars
     if error_data:
         error_df = pd.DataFrame(error_data)
         # Create bar plot with error bars
-        plt.bar(error_df['model'], error_df['mean'], yerr=error_df['std'], 
-                capsize=5, color=sns.color_palette("viridis", len(error_df)))
+        plt.bar(
+            error_df["model"],
+            error_df["mean"],
+            yerr=error_df["std"],
+            capsize=5,
+            color=sns.color_palette("viridis", len(error_df)),
+        )
         # Set y-axis limits to keep it from going below 0 unless needed for error bars
-        ymin = max(0, min([m - s for m, s in zip(error_df['mean'], error_df['std'])]) - 0.05)
+        ymin = max(
+            0, min([m - s for m, s in zip(error_df["mean"], error_df["std"])]) - 0.05
+        )
         plt.ylim(bottom=ymin)
     else:
         # Fall back to regular barplot without error bars
-        sns.barplot(x="model", y="mrr", hue="model", data=df, palette="viridis", legend=False)
-    
+        sns.barplot(
+            x="model", y="mrr", hue="model", data=df, palette="viridis", legend=False
+        )
+
     plt.title("Mean Reciprocal Rank (MRR) by Model")
     plt.xlabel("Model")
     plt.ylabel("MRR")
@@ -545,67 +599,93 @@ def visualize_results(results_list):
 
         # Create error bars for hit rates if raw data available
         hit_rate_error_data = []
-        
-        for model_name in df['model'].unique():
+
+        for model_name in df["model"].unique():
             for k in [1, 3, 5, 10]:
                 metric_name = f"Hit@{k}"
                 # Find the corresponding full result
                 for result in loaded_results:
-                    result_model = result.get("model_slug", result.get("model", "Unknown"))
+                    result_model = result.get(
+                        "model_slug", result.get("model", "Unknown")
+                    )
                     if result_model == model_name:
                         # Check for raw values
                         hit_values = None
-                        if f"avg_hit_rate@{k}" in result and isinstance(result[f"avg_hit_rate@{k}"], list):
+                        if f"avg_hit_rate@{k}" in result and isinstance(
+                            result[f"avg_hit_rate@{k}"], list
+                        ):
                             hit_values = result[f"avg_hit_rate@{k}"]
-                        elif f"hit_rate@{k}" in result and isinstance(result[f"hit_rate@{k}"], list):
+                        elif f"hit_rate@{k}" in result and isinstance(
+                            result[f"hit_rate@{k}"], list
+                        ):
                             hit_values = result[f"hit_rate@{k}"]
-                        
+
                         if hit_values:
-                            hit_rate_error_data.append({
-                                'model': model_name,
-                                'Metric': metric_name,
-                                'mean': np.mean(hit_values),
-                                'std': np.std(hit_values)
-                            })
+                            hit_rate_error_data.append(
+                                {
+                                    "model": model_name,
+                                    "Metric": metric_name,
+                                    "mean": np.mean(hit_values),
+                                    "std": np.std(hit_values),
+                                }
+                            )
                         break
-        
+
         if hit_rate_error_data:
             # We have error data, create grouped bar chart with error bars
             hr_error_df = pd.DataFrame(hit_rate_error_data)
-            
+
             # Group by model and metric to calculate positions
-            models = sorted(hr_error_df['model'].unique())
+            models = sorted(hr_error_df["model"].unique())
             # Sort metrics in the correct order: Hit@1, Hit@3, Hit@5, Hit@10
-            metrics = ['Hit@1', 'Hit@3', 'Hit@5', 'Hit@10']
+            metrics = ["Hit@1", "Hit@3", "Hit@5", "Hit@10"]
             # Filter to only include metrics present in the data
-            metrics = [m for m in metrics if m in hr_error_df['Metric'].unique()]
-            
+            metrics = [m for m in metrics if m in hr_error_df["Metric"].unique()]
+
             # Set up plot dimensions
             bar_width = 0.2
             x = np.arange(len(models))
-            
+
             # Create grouped bars with error bars
             for i, metric in enumerate(metrics):
-                metric_data = hr_error_df[hr_error_df['Metric'] == metric]
+                metric_data = hr_error_df[hr_error_df["Metric"] == metric]
                 # Ensure data is sorted to match models order
-                metric_data = metric_data.set_index('model').reindex(models).reset_index()
-                
-                offset = (i - len(metrics)/2 + 0.5) * bar_width
+                metric_data = (
+                    metric_data.set_index("model").reindex(models).reset_index()
+                )
+
+                offset = (i - len(metrics) / 2 + 0.5) * bar_width
                 # Get consistent colors - use the same viridis palette but in consistent order
                 viridis_colors = sns.color_palette("viridis", 4)
                 # Map metrics to consistent color indexes
-                color_idx = {'Hit@1': 0, 'Hit@3': 1, 'Hit@5': 2, 'Hit@10': 3,
-                            'OntSim@1': 0, 'OntSim@3': 1, 'OntSim@5': 2, 'OntSim@10': 3}
-                
-                plt.bar(x + offset, metric_data['mean'], bar_width, 
-                        yerr=metric_data['std'], capsize=3,
-                        label=metric, color=viridis_colors[color_idx[metric]])
-            
-            plt.xticks(x, models, rotation=45, ha='right')
+                color_idx = {
+                    "Hit@1": 0,
+                    "Hit@3": 1,
+                    "Hit@5": 2,
+                    "Hit@10": 3,
+                    "OntSim@1": 0,
+                    "OntSim@3": 1,
+                    "OntSim@5": 2,
+                    "OntSim@10": 3,
+                }
+
+                plt.bar(
+                    x + offset,
+                    metric_data["mean"],
+                    bar_width,
+                    yerr=metric_data["std"],
+                    capsize=3,
+                    label=metric,
+                    color=viridis_colors[color_idx[metric]],
+                )
+
+            plt.xticks(x, models, rotation=45, ha="right")
             plt.legend(title="Metric")
-            
+
             # Set y-axis limits to keep it from going below 0 unless needed for error bars
-            min_y_with_error = min([r['mean'] - r['std'] for _, r in hr_error_df.iterrows()])
+            min_y_with_error = min(
+                [r["mean"] - r["std"] for _, r in hr_error_df.iterrows()]
+            )
             ymin = max(0, min_y_with_error - 0.05)
             plt.ylim(bottom=ymin)
         else:
@@ -638,71 +718,99 @@ def visualize_results(results_list):
             value_name="Value",
         )
         # Clean up metric names for plot
-        ont_sim_df["Metric"] = ont_sim_df["Metric"].str.replace("ont_similarity@", "OntSim@")
+        ont_sim_df["Metric"] = ont_sim_df["Metric"].str.replace(
+            "ont_similarity@", "OntSim@"
+        )
 
         # Create error bars for ontology similarity if raw data available
         ont_sim_error_data = []
-        
-        for model_name in df['model'].unique():
+
+        for model_name in df["model"].unique():
             for k in [1, 3, 5, 10]:
                 metric_name = f"OntSim@{k}"
                 # Find the corresponding full result
                 for result in loaded_results:
-                    result_model = result.get("model_slug", result.get("model", "Unknown"))
+                    result_model = result.get(
+                        "model_slug", result.get("model", "Unknown")
+                    )
                     if result_model == model_name:
                         # Check for raw values
                         ont_values = None
-                        if f"avg_ont_similarity@{k}" in result and isinstance(result[f"avg_ont_similarity@{k}"], list):
+                        if f"avg_ont_similarity@{k}" in result and isinstance(
+                            result[f"avg_ont_similarity@{k}"], list
+                        ):
                             ont_values = result[f"avg_ont_similarity@{k}"]
-                        elif f"ont_similarity@{k}" in result and isinstance(result[f"ont_similarity@{k}"], list):
+                        elif f"ont_similarity@{k}" in result and isinstance(
+                            result[f"ont_similarity@{k}"], list
+                        ):
                             ont_values = result[f"ont_similarity@{k}"]
-                        
+
                         if ont_values:
-                            ont_sim_error_data.append({
-                                'model': model_name,
-                                'Metric': metric_name,
-                                'mean': np.mean(ont_values),
-                                'std': np.std(ont_values)
-                            })
+                            ont_sim_error_data.append(
+                                {
+                                    "model": model_name,
+                                    "Metric": metric_name,
+                                    "mean": np.mean(ont_values),
+                                    "std": np.std(ont_values),
+                                }
+                            )
                         break
-        
+
         if ont_sim_error_data:
             # We have error data, create grouped bar chart with error bars
             os_error_df = pd.DataFrame(ont_sim_error_data)
-            
+
             # Group by model and metric to calculate positions
-            models = sorted(os_error_df['model'].unique())
+            models = sorted(os_error_df["model"].unique())
             # Sort metrics in the correct order: OntSim@1, OntSim@3, OntSim@5, OntSim@10
-            metrics = ['OntSim@1', 'OntSim@3', 'OntSim@5', 'OntSim@10']
+            metrics = ["OntSim@1", "OntSim@3", "OntSim@5", "OntSim@10"]
             # Filter to only include metrics present in the data
-            metrics = [m for m in metrics if m in os_error_df['Metric'].unique()]
-            
+            metrics = [m for m in metrics if m in os_error_df["Metric"].unique()]
+
             # Set up plot dimensions
             bar_width = 0.2
             x = np.arange(len(models))
-            
+
             # Create grouped bars with error bars
             for i, metric in enumerate(metrics):
-                metric_data = os_error_df[os_error_df['Metric'] == metric]
+                metric_data = os_error_df[os_error_df["Metric"] == metric]
                 # Ensure data is sorted to match models order
-                metric_data = metric_data.set_index('model').reindex(models).reset_index()
-                
-                offset = (i - len(metrics)/2 + 0.5) * bar_width
+                metric_data = (
+                    metric_data.set_index("model").reindex(models).reset_index()
+                )
+
+                offset = (i - len(metrics) / 2 + 0.5) * bar_width
                 # Get consistent colors - use the same viridis palette but in consistent order
                 viridis_colors = sns.color_palette("viridis", 4)
                 # Map metrics to consistent color indexes
-                color_idx = {'Hit@1': 0, 'Hit@3': 1, 'Hit@5': 2, 'Hit@10': 3,
-                            'OntSim@1': 0, 'OntSim@3': 1, 'OntSim@5': 2, 'OntSim@10': 3}
-                
-                plt.bar(x + offset, metric_data['mean'], bar_width, 
-                        yerr=metric_data['std'], capsize=3,
-                        label=metric, color=viridis_colors[color_idx[metric]])
-            
-            plt.xticks(x, models, rotation=45, ha='right')
+                color_idx = {
+                    "Hit@1": 0,
+                    "Hit@3": 1,
+                    "Hit@5": 2,
+                    "Hit@10": 3,
+                    "OntSim@1": 0,
+                    "OntSim@3": 1,
+                    "OntSim@5": 2,
+                    "OntSim@10": 3,
+                }
+
+                plt.bar(
+                    x + offset,
+                    metric_data["mean"],
+                    bar_width,
+                    yerr=metric_data["std"],
+                    capsize=3,
+                    label=metric,
+                    color=viridis_colors[color_idx[metric]],
+                )
+
+            plt.xticks(x, models, rotation=45, ha="right")
             plt.legend(title="Metric")
-            
+
             # Set y-axis limits to keep it from going below 0 unless needed for error bars
-            min_y_with_error = min([r['mean'] - r['std'] for _, r in hr_error_df.iterrows()])
+            min_y_with_error = min(
+                [r["mean"] - r["std"] for _, r in hr_error_df.iterrows()]
+            )
             ymin = max(0, min_y_with_error - 0.05)
             plt.ylim(bottom=ymin)
         else:
@@ -729,10 +837,10 @@ def visualize_results(results_list):
 
     # Create 3 subplots
     plt.subplot(3, 1, 1)
-    
+
     # Create standard error bars from the raw data if available
     error_data = []
-    for model_name in df['model'].unique():
+    for model_name in df["model"].unique():
         # Find the corresponding full result to extract raw values
         for result in loaded_results:
             result_model = result.get("model_slug", result.get("model", "Unknown"))
@@ -743,29 +851,40 @@ def visualize_results(results_list):
                     mrr_values = result["avg_mrr"]
                 elif "mrr" in result and isinstance(result["mrr"], list):
                     mrr_values = result["mrr"]
-                
+
                 if mrr_values:
                     # Calculate standard deviation for error bars
-                    error_data.append({
-                        'model': model_name,
-                        'mean': np.mean(mrr_values),
-                        'std': np.std(mrr_values)
-                    })
+                    error_data.append(
+                        {
+                            "model": model_name,
+                            "mean": np.mean(mrr_values),
+                            "std": np.std(mrr_values),
+                        }
+                    )
                     break
-    
+
     # If we have error data, use it; otherwise fall back to simple bars
     if error_data:
         error_df = pd.DataFrame(error_data)
         # Create bar plot with error bars
-        plt.bar(error_df['model'], error_df['mean'], yerr=error_df['std'], 
-                capsize=5, color=sns.color_palette("viridis", len(error_df)))
+        plt.bar(
+            error_df["model"],
+            error_df["mean"],
+            yerr=error_df["std"],
+            capsize=5,
+            color=sns.color_palette("viridis", len(error_df)),
+        )
         # Set y-axis limits to keep it from going below 0 unless needed for error bars
-        ymin = max(0, min([m - s for m, s in zip(error_df['mean'], error_df['std'])]) - 0.05)
+        ymin = max(
+            0, min([m - s for m, s in zip(error_df["mean"], error_df["std"])]) - 0.05
+        )
         plt.ylim(bottom=ymin)
     else:
         # Fall back to regular barplot without error bars
-        sns.barplot(x="model", y="mrr", hue="model", data=df, palette="viridis", legend=False)
-        
+        sns.barplot(
+            x="model", y="mrr", hue="model", data=df, palette="viridis", legend=False
+        )
+
     plt.title("Mean Reciprocal Rank (MRR) by Model")
     plt.xlabel("")
     plt.xticks(rotation=45, ha="right")
@@ -818,12 +937,13 @@ def run_subcommand(args):
 
     # Run benchmarks
     results_list = []
-    for model in models_to_run:
+    for model_name in models_to_run:
         results = run_benchmark_wrapper(
-            model,
-            similarity_threshold=args.similarity_threshold,
-            test_file=args.test_file,
-            detailed=args.detailed,
+            model_name,
+            args.similarity_threshold,
+            args.test_file,
+            args.detailed,
+            debug=args.debug,
         )
         if results:
             results_list.append(results)
@@ -833,23 +953,23 @@ def run_subcommand(args):
     for result in results_list:
         # Create a deep copy to avoid modifying the original
         aggregated_result = result.copy()
-        
+
         # Aggregate MRR if it's a list
         if "avg_mrr" in result and isinstance(result["avg_mrr"], list):
             aggregated_result["avg_mrr"] = np.mean(result["avg_mrr"])
-            
+
         # Aggregate Hit@K metrics if they're lists
         for k in [1, 3, 5, 10]:
             key = f"avg_hit_rate@{k}"
             if key in result and isinstance(result[key], list):
                 aggregated_result[key] = np.mean(result[key])
-        
+
         # Aggregate OntSim@K metrics if they're lists
         for k in [1, 3, 5, 10]:
             key = f"avg_ont_similarity@{k}"
             if key in result and isinstance(result[key], list):
                 aggregated_result[key] = np.mean(result[key])
-                
+
         aggregated_results.append(aggregated_result)
 
     # Compare results
@@ -882,6 +1002,8 @@ def run_subcommand(args):
     else:
         logging.error("No benchmarks completed successfully")
         return False
+
+
 def setup_subcommand(args):
     """Handle the setup subcommand."""
     models_to_setup = []
@@ -897,8 +1019,8 @@ def setup_subcommand(args):
     logging.info(f"Setting up {len(models_to_setup)} models")
 
     success_count = 0
-    for model in models_to_setup:
-        if setup_model(model, args.batch_size):
+    for model_name in models_to_setup:
+        if setup_model(model_name, args.batch_size, debug=args.debug):
             success_count += 1
 
     if success_count == len(models_to_setup):
@@ -972,6 +1094,11 @@ def main():
         default=100,
         help="Batch size for processing documents (default: 100)",
     )
+    setup_parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="Enable debug logging with more verbose output",
+    )
 
     # Run subcommand
     run_parser = subparsers.add_parser("run", help="Run benchmarks on models")
@@ -992,15 +1119,35 @@ def main():
     run_parser.add_argument(
         "--detailed", action="store_true", help="Show detailed per-test-case results"
     )
+    run_parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="Enable debug logging with more verbose output",
+    )
 
     # Compare subcommand
     compare_parser = subparsers.add_parser("compare", help="Compare benchmark results")
     compare_parser.add_argument(
         "--models", nargs="+", help="Models to compare (model slugs)"
     )
+    compare_parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="Enable debug logging with more verbose output",
+    )
 
     # Parse arguments
     args = parser.parse_args()
+
+    # Configure logging based on debug flag
+    # Check if debug is provided in any of the subcommands
+    debug_enabled = False
+    if hasattr(args, "debug") and args.debug:
+        debug_enabled = True
+    configure_logging(debug_enabled)
+
+    if debug_enabled:
+        logging.debug("Debug logging enabled")
 
     # Ensure results directories exist
     ensure_directories()
