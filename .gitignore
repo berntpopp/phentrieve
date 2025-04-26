@@ -166,6 +166,13 @@ data/*.pkl
 !data/test_cases/
 !data/test_cases/*.json
 
+# data in multilingual_hpo_rag
+multilingual_hpo_rag/data/hpo_terms
+multilingual_hpo_rag/data/*.json
+multilingual_hpo_rag/data/*.pkl
+!multilingual_hpo_rag/data/test_cases/
+!multilingual_hpo_rag/data/test_cases/*.json
+
 # chroma database
 /hpo_chroma_index
 
