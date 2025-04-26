@@ -86,3 +86,21 @@ def generate_collection_name(model_name: str) -> str:
         Collection name string
     """
     return f"hpo_multilingual_{get_model_slug(model_name)}"
+
+
+def calculate_similarity(distance: float) -> float:
+    """
+    Convert cosine distance to similarity score.
+
+    Args:
+        distance: Cosine distance (0 to 2) from ChromaDB
+
+    Returns:
+        Similarity score (0 to 1)
+    """
+    # Cosine distance = 1 - Cosine Similarity
+    # Similarity = 1 - Cosine Distance
+    similarity = 1.0 - distance
+    # Clamp the result between 0.0 and 1.0 as similarity scores typically range from 0 to 1
+    # (though cosine similarity technically ranges from -1 to 1, negative values are unlikely here)
+    return max(0.0, min(1.0, similarity))

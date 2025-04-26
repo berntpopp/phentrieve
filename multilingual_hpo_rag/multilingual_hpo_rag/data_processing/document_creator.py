@@ -151,7 +151,7 @@ def create_hpo_documents(
         }
 
         # Use the HPO ID as the document ID for easy lookup
-        doc_id = term_id.replace(":", "_")
+        doc_id = term_id
 
         documents.append(document)
         metadatas.append(metadata)

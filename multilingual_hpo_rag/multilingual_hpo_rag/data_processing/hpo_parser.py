@@ -29,15 +29,14 @@ from multilingual_hpo_rag.config import (
     HPO_ANCESTORS_FILE,
     HPO_DEPTHS_FILE,
     DATA_DIR,
-    HPO_ROOT_ID,
+    PHENOTYPE_ROOT,
 )
 
 
 # HPO download settings
 HPO_JSON_URL = "https://github.com/obophenotype/human-phenotype-ontology/releases/download/v2025-03-03/hp.json"
 
-# Root ID for phenotypic abnormalities
-PHENOTYPE_ROOT = "HP:0000118"  # Phenotypic abnormality
+# Root ID for phenotypic abnormalities is defined in config.py
 
 # HPO branches to exclude
 EXCLUDED_ROOTS = {
@@ -337,18 +336,18 @@ def load_and_build_graphs(
     logging.info(f"Processed {edges_processed} is_a relationships")
 
     # Add root if missing
-    if HPO_ROOT_ID not in all_hpo_term_ids:
-        logging.warning(f"HPO root {HPO_ROOT_ID} not found in nodes, adding manually")
-        all_hpo_term_ids.add(HPO_ROOT_ID)
+    if PHENOTYPE_ROOT not in all_hpo_term_ids:
+        logging.warning(f"HPO root {PHENOTYPE_ROOT} not found in nodes, adding manually")
+        all_hpo_term_ids.add(PHENOTYPE_ROOT)
 
     # Check for orphaned nodes (no parents except root)
     orphaned = 0
     for term_id in all_hpo_term_ids:
-        if term_id != HPO_ROOT_ID and term_id not in child_to_parents:
+        if term_id != PHENOTYPE_ROOT and term_id not in child_to_parents:
             orphaned += 1
             logging.debug(f"Term {term_id} has no parents, connecting to root")
-            child_to_parents[term_id].append(HPO_ROOT_ID)
-            parent_to_children[HPO_ROOT_ID].append(term_id)
+            child_to_parents[term_id].append(PHENOTYPE_ROOT)
+            parent_to_children[PHENOTYPE_ROOT].append(term_id)
 
     if orphaned:
         logging.warning(f"Connected {orphaned} orphaned terms to root")
@@ -430,17 +429,23 @@ def calculate_all_ancestors(
         # Start BFS from parents
         queue = deque(child_to_parents.get(term_id, []))
         while queue:
-            parent_id = queue.popleft()
-            if parent_id not in ancestors:
-                ancestors.add(parent_id)
-                # Add parent's parents to queue
-                queue.extend(
-                    [
-                        p
-                        for p in child_to_parents.get(parent_id, [])
-                        if p not in ancestors
-                    ]
-                )
+            # Exclude terms under certain branches (e.g., mode of inheritance)
+            if PHENOTYPE_ROOT in ancestors and any(root in ancestors for root in EXCLUDED_ROOTS):
+                logging.debug(f"{node_id} excluded as it's under excluded root")
+                continue
+
+            if PHENOTYPE_ROOT in ancestors:
+                parent_id = queue.popleft()
+                if parent_id not in ancestors:
+                    ancestors.add(parent_id)
+                    # Add parent's parents to queue
+                    queue.extend(
+                        [
+                            p
+                            for p in child_to_parents.get(parent_id, [])
+                            if p not in ancestors
+                        ]
+                    )
 
         ancestors_map[term_id] = ancestors
 

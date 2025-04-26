@@ -14,8 +14,8 @@ import pickle
 from collections import defaultdict
 from typing import Dict, List, Optional, Set, Tuple, Union, Any
 
-from multilingual_hpo_rag.config import HPO_ANCESTORS_FILE, HPO_DEPTHS_FILE, HPO_ROOT_ID
-from multilingual_hpo_rag.retrieval.dense_retriever import calculate_similarity
+from multilingual_hpo_rag.config import HPO_ANCESTORS_FILE, HPO_DEPTHS_FILE
+from multilingual_hpo_rag.utils import calculate_similarity
 
 
 # Global caches for HPO graph data

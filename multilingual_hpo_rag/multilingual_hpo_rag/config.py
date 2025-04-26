@@ -51,5 +51,5 @@ BENCHMARK_MODELS = [
 MIN_SIMILARITY_THRESHOLD = 0.3  # Minimum similarity score to display results
 DEFAULT_TOP_K = 5  # Default number of results to return
 
-# HPO root ID - used in HPO graph processing
-HPO_ROOT_ID = "HP:0000001"
+# Root for HPO term extraction and depth calculations
+PHENOTYPE_ROOT = "HP:0000118"
