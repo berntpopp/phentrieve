@@ -1,6 +1,42 @@
-# German HPO RAG Prototype
+# Multilingual HPO RAG
 
-This project implements a multilingual Retrieval-Augmented Generation (RAG) system for mapping German clinical text to Human Phenotype Ontology (HPO) terms without requiring translation.
+A modular Python package for mapping clinical text in multiple languages to Human Phenotype Ontology (HPO) terms via a Retrieval-Augmented Generation (RAG) approach. Originally developed for German clinical text, the system now supports benchmarking across multiple multilingual embedding models.
+
+## Project Structure
+
+```
+multilingual_hpo_rag/
+├── data/                         # Data Sources & Test Cases
+│   ├── hp.json                   # Original HPO download (generated)
+│   ├── hpo_terms/                # Extracted terms (generated)
+│   ├── hpo_ancestors.pkl         # Precomputed graph data (generated)
+│   ├── hpo_term_depths.pkl       # Precomputed graph data (generated)
+│   └── test_cases/               # Test cases for benchmarking
+│
+├── multilingual_hpo_rag/         # Core Source Code Package
+│   ├── __init__.py
+│   ├── config.py                 # Central config: paths, defaults, constants
+│   ├── data_processing/          # Modules for loading/processing data
+│   ├── embeddings.py             # Wrapper for loading embedding models
+│   ├── indexing/                 # Modules for building indexes
+│   ├── retrieval/                # Modules for querying indexes
+│   ├── evaluation/               # Modules for benchmarking and metrics
+│   └── utils.py                  # Shared utility functions
+│
+├── scripts/                      # Executable Workflow Scripts
+│   ├── 01_prepare_hpo_data.py    # Downloads, parses, precomputes HPO graph data
+│   ├── 02_build_index.py         # Builds ChromaDB index for a given model
+│   ├── 03_run_benchmark.py       # Runs benchmark evaluation for models/configs
+│   ├── 04_manage_results.py      # Compares/visualizes results from benchmark runs
+│   └── run_interactive_query.py  # Runs the interactive query CLI
+│
+├── benchmark_results/            # Benchmark Outputs
+│   ├── summaries/                # JSON summaries per run/model
+│   ├── visualizations/           # Plot images
+│   └── detailed/                 # Detailed CSV results per run
+│
+├── hpo_chroma_index/             # ChromaDB persistent storage (generated)
+```
 
 ## Core Concept
 
@@ -8,7 +44,13 @@ In clinical genomics and rare disease diagnosis, identifying phenotypic abnormal
 
 This project implements a novel approach that avoids translation by using a **multilingual embedding model**. The key insight is that a properly trained multilingual model can map semantically similar concepts from different languages to nearby points in the embedding space.
 
-We use the `sentence-transformers/paraphrase-multilingual-mpnet-base-v2` model, which is specifically designed to map sentences from different languages into a shared semantic space, allowing direct semantic matching between German clinical text and English HPO terms.
+We support multiple multilingual embedding models, with comprehensive benchmarking for performance comparison:
+
+- Domain-specific models like `FremyCompany/BioLORD-2023-M`
+- Language-specific models like `jinaai/jina-embeddings-v2-base-de`
+- General multilingual models like `sentence-transformers/paraphrase-multilingual-mpnet-base-v2`, `BAAI/bge-m3`, `Alibaba-NLP/gte-multilingual-base`, and more
+
+This allows researchers to select the best model for their specific language and domain needs.
 
 ## How It Works
 

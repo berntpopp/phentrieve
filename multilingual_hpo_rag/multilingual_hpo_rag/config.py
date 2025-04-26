@@ -37,7 +37,7 @@ JINA_MODEL_ID = "jinaai/jina-embeddings-v2-base-de"
 # All models for benchmarking
 BENCHMARK_MODELS = [
     "FremyCompany/BioLORD-2023-M",
-    "jinaai/jina-embeddings-v2-base-de", 
+    "jinaai/jina-embeddings-v2-base-de",
     "T-Systems-onsite/cross-en-de-roberta-sentence-transformer",
     "sentence-transformers/paraphrase-multilingual-mpnet-base-v2",
     "sentence-transformers/distiluse-base-multilingual-cased-v2",

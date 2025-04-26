@@ -116,10 +116,10 @@ def main() -> None:
 
     # Make sure index directory exists
     os.makedirs(INDEX_DIR, exist_ok=True)
-    
+
     # 4. Build the index
     logging.info(f"Building ChromaDB index with {len(documents)} documents...")
-    
+
     # Track success/failure count
     success_count = 0
     failure_count = 0
@@ -128,17 +128,17 @@ def main() -> None:
     if args.all_models:
         # Build indices for all benchmark models
         logging.info(f"Building indices for {len(BENCHMARK_MODELS)} models")
-        
+
         for model_name in BENCHMARK_MODELS:
             logging.info(f"Building index for model: {model_name}")
             try:
                 # Load model for each iteration
                 current_model = load_embedding_model(
-                    model_name=model_name, 
+                    model_name=model_name,
                     trust_remote_code=args.trust_remote_code,
-                    device="cpu" if args.cpu else None
+                    device="cpu" if args.cpu else None,
                 )
-                
+
                 result = build_chromadb_index(
                     documents=documents,
                     metadatas=metadatas,
@@ -161,6 +161,7 @@ def main() -> None:
                 failure_count += 1
                 if args.debug:
                     import traceback
+
                     traceback.print_exc()
     else:
         # Build index for a single model
@@ -187,6 +188,7 @@ def main() -> None:
             failure_count += 1
             if args.debug:
                 import traceback
+
                 traceback.print_exc()
 
     # Calculate elapsed time
@@ -194,7 +196,9 @@ def main() -> None:
 
     # Report results
     if success_count > 0:
-        logging.info(f"Index building completed: {success_count} successful, {failure_count} failed")
+        logging.info(
+            f"Index building completed: {success_count} successful, {failure_count} failed"
+        )
         logging.info(f"Successfully built indices for: {', '.join(processed_models)}")
         logging.info(f"Index building completed in {elapsed_time:.2f} seconds!")
         logging.info(f"Index location: {os.path.abspath(INDEX_DIR)}")
