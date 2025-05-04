@@ -4,7 +4,7 @@ A modular Python package for mapping clinical text in multiple languages to Huma
 
 ## Project Structure
 
-```
+```text
 multilingual_hpo_rag/
 ├── data/                         # Data Sources & Test Cases
 │   ├── hp.json                   # Original HPO download (generated)
@@ -94,10 +94,10 @@ Our current implementation successfully extracts and indexes over 18,000 HPO phe
    - `setup_hpo_index.py`: Creates and populates the vector database
 
 2. **Query interface**:
-   - `german_hpo_rag.py`: CLI for entering German text and viewing matching HPO terms
+   - `run_interactive_query.py`: CLI for entering multilingual text and viewing matching HPO terms
    - Supports sentence-by-sentence processing for longer texts
    - Configurable similarity threshold and result count
-   
+
 3. **Benchmarking system**:
    - `benchmark_rag.py`: Evaluates model performance using test cases with expected HPO terms
    - `manage_benchmarks.py`: Tool for running and comparing benchmarks across different models
@@ -164,9 +164,8 @@ pip install -r requirements.txt
 ### Prepare the HPO Index (Run Once)
 
 ```bash
-python download_hpo.py  # Downloads hp.json if needed
-python extract_hpo_terms.py  # Extracts individual HPO terms
-python setup_hpo_index.py  # Creates and populates the vector index
+python multilingual_hpo_rag/scripts/01_prepare_hpo_data.py  # Downloads hp.json if needed and extracts terms
+python multilingual_hpo_rag/scripts/02_build_index.py  # Creates and populates the vector index
 ```
 
 Note: The first run will download the model (~1.1 GB) and generate embeddings, which can be time-intensive.
@@ -174,14 +173,15 @@ Note: The first run will download the model (~1.1 GB) and generate embeddings, w
 ### Run the CLI Tool
 
 Basic usage:
+
 ```bash
-python german_hpo_rag.py
+python multilingual_hpo_rag/scripts/run_interactive_query.py
 ```
 
 With command-line arguments:
 
 ```bash
-python german_hpo_rag.py --text "Der Patient zeigt eine Anomalie des Herzens" --similarity-threshold 0.2 --num-results 3
+python multilingual_hpo_rag/scripts/run_interactive_query.py --text "Der Patient zeigt eine Anomalie des Herzens" --similarity-threshold 0.2 --num-results 3
 ```
 
 Options:
@@ -193,16 +193,16 @@ Options:
 
 ## File Structure
 
-- `download_hpo.py`: Downloads HPO data from official source
-- `extract_hpo_terms.py`: Extracts and filters HPO terms from the main data file
-- `setup_hpo_index.py`: Builds the ChromaDB vector index
-- `german_hpo_rag.py`: CLI tool for querying with German text
-- `benchmark_rag.py`: Evaluates model performance with various metrics
-- `manage_benchmarks.py`: Tool for running, comparing, and visualizing benchmark results
-- `precompute_hpo_graph.py`: Precomputes HPO graph properties for ontology similarity
+- `multilingual_hpo_rag/scripts/01_prepare_hpo_data.py`: Downloads and prepares HPO data from official source
+- `multilingual_hpo_rag/scripts/02_build_index.py`: Builds the ChromaDB vector index for a given model
+- `multilingual_hpo_rag/scripts/run_interactive_query.py`: CLI tool for querying with multilingual text
+- `multilingual_hpo_rag/scripts/03_run_benchmark.py`: Evaluates model performance with various metrics
+- `multilingual_hpo_rag/scripts/04_manage_results.py`: Tool for running, comparing, and visualizing benchmark results
+
 - `hpo_similarity.py`: Contains implementations of ontology-based similarity metrics
 - `requirements.txt`: Project dependencies
 - `data/`: Directory containing the HPO data, extracted terms, and graph data
+
 - `hpo_chroma_index/`: Directory containing the ChromaDB vector database
 - `benchmark_results/`: Directory containing benchmark output files and visualizations
 
@@ -234,6 +234,7 @@ The system includes a comprehensive benchmarking suite that evaluates model perf
 These ontology-based metrics provide a more nuanced evaluation than exact matches alone because they account for the semantic relatedness of terms in the HPO hierarchy. For example, retrieving "Mild microcephaly" (HP:0040196) when the expected term is "Microcephaly" (HP:0000252) would get a high ontology similarity score due to their close relationship in the HPO hierarchy, despite not being an exact match.
 
 Benchmark results are saved as:
+
 - JSON summaries for each model
 - CSV files with detailed metrics for all test cases
 - Visualizations comparing model performance
@@ -310,10 +311,10 @@ Before running benchmarks, you need to set up the embedding models and their cor
 
 ```bash
 # Set up a specific model
-python manage_benchmarks.py setup --model-name "FremyCompany/BioLORD-2023-M"
+python multilingual_hpo_rag/scripts/04_manage_results.py setup --model-name "FremyCompany/BioLORD-2023-M"
 
 # Or set up all supported models at once
-python manage_benchmarks.py setup --all
+python multilingual_hpo_rag/scripts/04_manage_results.py setup --all
 ```
 
 #### Running Benchmark Tests
@@ -322,16 +323,16 @@ To evaluate model performance using the test cases:
 
 ```bash
 # Benchmark a specific model
-python manage_benchmarks.py run --model-name "FremyCompany/BioLORD-2023-M"
+python multilingual_hpo_rag/scripts/04_manage_results.py run --model-name "FremyCompany/BioLORD-2023-M"
 
 # Run benchmarks on all models
-python manage_benchmarks.py run --all
+python multilingual_hpo_rag/scripts/04_manage_results.py run --all
 
 # Run with detailed per-test-case results
-python manage_benchmarks.py run --all --detailed
+python multilingual_hpo_rag/scripts/04_manage_results.py run --all --detailed
 
 # Set a custom similarity threshold
-python manage_benchmarks.py run --all --similarity-threshold 0.2
+python multilingual_hpo_rag/scripts/04_manage_results.py run --all --similarity-threshold 0.2
 ```
 
 **Note:** The `run` command will benchmark models, generate result files, and also create a comparison table and visualization for the models just benchmarked. When using `--all`, this provides an immediate comparison of all models.
@@ -342,15 +343,16 @@ The `compare` command allows you to compare previously saved benchmark results w
 
 ```bash
 # Compare all previously benchmarked models (loads saved results)
-python manage_benchmarks.py compare
+python multilingual_hpo_rag/scripts/04_manage_results.py compare
 
 # Compare only specific models from previous benchmark runs
-python manage_benchmarks.py compare --models "biolord_2023_m" "jina_embeddings_v2_base_de"
+python multilingual_hpo_rag/scripts/04_manage_results.py compare --models "biolord_2023_m" "jina_embeddings_v2_base_de"
 ```
 
 **When to use `compare` vs. `run --all`:**
 
 - Use `run --all` when you need to execute new benchmarks and want results for all models at once
+
 - Use `compare` when:
   - You've benchmarked models at different times and want to compare them later
   - You want to generate new visualizations without re-running time-consuming benchmarks

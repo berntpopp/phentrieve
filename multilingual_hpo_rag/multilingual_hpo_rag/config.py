@@ -30,7 +30,7 @@ DETAILED_DIR = os.path.join(RESULTS_DIR, "detailed")
 VISUALIZATIONS_DIR = os.path.join(RESULTS_DIR, "visualizations")
 
 # Default models
-DEFAULT_MODEL = "sentence-transformers/paraphrase-multilingual-mpnet-base-v2"
+DEFAULT_MODEL = "FremyCompany/BioLORD-2023-M"
 DEFAULT_BIOLORD_MODEL = "FremyCompany/BioLORD-2023-M"
 JINA_MODEL_ID = "jinaai/jina-embeddings-v2-base-de"
 
