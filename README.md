@@ -165,10 +165,10 @@ Each JSON file should follow this format:
 
 ```bash
 # Cross-lingual re-ranking (German query → English HPO)
-python multilingual_hpo_rag/scripts/run_interactive_query.py --enable-reranker
+python -m multilingual_hpo_rag.scripts.run_interactive_query --enable-reranker
 
 # Monolingual re-ranking (German query → German HPO translation)
-python multilingual_hpo_rag/scripts/run_interactive_query.py --enable-reranker --reranker-mode monolingual --translation-dir path/to/translations
+python -m multilingual_hpo_rag.scripts.run_interactive_query --enable-reranker --reranker-mode monolingual --translation-dir path/to/translations
 ```
 
 ## Limitations & Future Work
@@ -215,18 +215,18 @@ pip install -r requirements.txt
 ### Prepare the HPO Index (Run Once)
 
 ```bash
-python multilingual_hpo_rag/scripts/01_prepare_hpo_data.py  # Downloads hp.json if needed and extracts terms
-python multilingual_hpo_rag/scripts/02_build_index.py  # Creates and populates the vector index
+python -m multilingual_hpo_rag.scripts.01_prepare_hpo_data  # Downloads hp.json if needed and extracts terms
+python -m multilingual_hpo_rag.scripts.02_build_index  # Creates and populates the vector index
 ```
 
-Note: The first run will download the model (~1.1 GB) and generate embeddings, which can be time-intensive.
+Note: The first run will download the model (~1.1 GB) and generate embeddings, which can be time-intensive. All scripts should be run from the project root directory using the `python -m` flag to ensure proper module resolution.
 
 ### Run the CLI Tool
 
 Basic usage:
 
 ```bash
-python multilingual_hpo_rag/scripts/run_interactive_query.py
+python -m multilingual_hpo_rag.scripts.run_interactive_query
 ```
 
 With command-line arguments:
@@ -368,10 +368,10 @@ Before running benchmarks, you need to set up the embedding models and their cor
 
 ```bash
 # Set up a specific model
-python multilingual_hpo_rag/scripts/04_manage_results.py setup --model-name "FremyCompany/BioLORD-2023-M"
+python -m multilingual_hpo_rag.scripts.04_manage_results setup --model-name "FremyCompany/BioLORD-2023-M"
 
 # Or set up all supported models at once
-python multilingual_hpo_rag/scripts/04_manage_results.py setup --all
+python -m multilingual_hpo_rag.scripts.04_manage_results setup --all
 ```
 
 #### Running Benchmark Tests
@@ -380,16 +380,16 @@ To evaluate model performance using the test cases:
 
 ```bash
 # Benchmark a specific model
-python multilingual_hpo_rag/scripts/04_manage_results.py run --model-name "FremyCompany/BioLORD-2023-M"
+python -m multilingual_hpo_rag.scripts.04_manage_results run --model-name "FremyCompany/BioLORD-2023-M"
 
 # Run benchmarks on all models
-python multilingual_hpo_rag/scripts/04_manage_results.py run --all
+python -m multilingual_hpo_rag.scripts.04_manage_results run --all
 
 # Run with detailed per-test-case results
-python multilingual_hpo_rag/scripts/04_manage_results.py run --all --detailed
+python -m multilingual_hpo_rag.scripts.04_manage_results run --all --detailed
 
 # Set a custom similarity threshold
-python multilingual_hpo_rag/scripts/04_manage_results.py run --all --similarity-threshold 0.2
+python -m multilingual_hpo_rag.scripts.04_manage_results run --all --similarity-threshold 0.2
 ```
 
 **Note:** The `run` command will benchmark models, generate result files, and also create a comparison table and visualization for the models just benchmarked. When using `--all`, this provides an immediate comparison of all models.
@@ -400,10 +400,10 @@ The `compare` command allows you to compare previously saved benchmark results w
 
 ```bash
 # Compare all previously benchmarked models (loads saved results)
-python multilingual_hpo_rag/scripts/04_manage_results.py compare
+python -m multilingual_hpo_rag.scripts.04_manage_results compare
 
 # Compare only specific models from previous benchmark runs
-python multilingual_hpo_rag/scripts/04_manage_results.py compare --models "biolord_2023_m" "jina_embeddings_v2_base_de"
+python -m multilingual_hpo_rag.scripts.04_manage_results compare --models "biolord_2023_m" "jina_embeddings_v2_base_de"
 ```
 
 **When to use `compare` vs. `run --all`:**

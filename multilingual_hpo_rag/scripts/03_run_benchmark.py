@@ -14,13 +14,15 @@ Metrics include:
 import argparse
 import logging
 import os
-import json
-import time
-import re
-from typing import Dict, List, Tuple, Any
+import pathlib
+import sys
+from datetime import datetime
+from typing import List, Optional
 
-import torch
-from tqdm import tqdm
+# Add project root to path
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
+
+import pandas as pd
 
 from multilingual_hpo_rag.config import (
     MIN_SIMILARITY_THRESHOLD,
@@ -34,10 +36,10 @@ from multilingual_hpo_rag.config import (
     RESULTS_DIR,
     SUMMARIES_DIR,
     DETAILED_DIR,
+    DEFAULT_SIMILARITY_THRESHOLD,
+    DEFAULT_DEVICE,
 )
-from multilingual_hpo_rag.data_processing.test_data_loader import (
-    create_sample_test_data,
-)
+from multilingual_hpo_rag.utils.log_utils import setup_logger
 from multilingual_hpo_rag.evaluation.runner import run_evaluation, compare_models
 
 

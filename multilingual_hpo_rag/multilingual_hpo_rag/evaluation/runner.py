@@ -8,6 +8,7 @@ evaluations of the HPO retrieval system using various metrics.
 import json
 import logging
 import os
+import pickle
 import time
 from datetime import datetime
 from typing import Dict, List, Optional, Tuple, Any
@@ -16,25 +17,26 @@ import pandas as pd
 from tqdm import tqdm
 
 from multilingual_hpo_rag.config import (
-    INDEX_DIR,
+    DEFAULT_RERANKER_MODEL,
+    DEFAULT_RERANK_CANDIDATE_COUNT,
+    DEFAULT_TOP_K,
     RESULTS_DIR,
     SUMMARIES_DIR,
     DETAILED_DIR,
-    DEFAULT_TOP_K,
-    DEFAULT_RERANKER_MODEL,
-    DEFAULT_RERANK_CANDIDATE_COUNT,
-    DEFAULT_ENABLE_RERANKER,
+    INDEX_DIR,
 )
-from multilingual_hpo_rag.data_processing.test_data_loader import load_test_data
-from multilingual_hpo_rag.embeddings import load_embedding_model
-from multilingual_hpo_rag.evaluation import metrics
-from multilingual_hpo_rag.retrieval.retriever import HPORetriever
-from multilingual_hpo_rag.retrieval.reranker import (
-    load_cross_encoder,
-    rerank_with_cross_encoder,
+from multilingual_hpo_rag.data_processing.test_data_loader import (
+    load_test_cases as load_test_data,
 )
+from multilingual_hpo_rag.evaluation.metrics import (
+    mean_reciprocal_rank,
+    hit_rate_at_k,
+    average_max_similarity,
+    load_hpo_graph_data,
+)
+from multilingual_hpo_rag.utils.embed_utils import load_embedding_model
 from multilingual_hpo_rag.retrieval.dense_retriever import DenseRetriever
-from multilingual_hpo_rag.utils import get_model_slug
+from multilingual_hpo_rag.utils.model_utils import get_model_slug
 
 
 def run_evaluation(
@@ -138,6 +140,20 @@ def run_evaluation(
                 # Query the index
                 results = retriever.query(text, n_results=max(k_values) * 3)
 
+                # Extract HPO IDs from the results
+                term_ids = []
+                if (
+                    results
+                    and "metadatas" in results
+                    and results["metadatas"]
+                    and results["metadatas"][0]
+                ):
+                    # Extract HPO IDs from metadata
+                    term_ids = [
+                        metadata.get("hpo_id", "")
+                        for metadata in results["metadatas"][0]
+                    ]
+
                 # Calculate MRR
                 mrr = mean_reciprocal_rank(results, expected_ids)
                 mrr_values.append(mrr)
@@ -145,7 +161,7 @@ def run_evaluation(
                 # Calculate Hit Rate at different K values
                 hit_rates = {}
                 for k in k_values:
-                    hit = hit_rate_at_k(term_ids, expected_ids, k=k)
+                    hit = hit_rate_at_k(results, expected_ids, k=k)
                     hit_rate_values[k].append(hit)
                     hit_rates[f"hit_rate@{k}"] = hit
 
