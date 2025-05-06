@@ -337,7 +337,9 @@ def load_and_build_graphs(
 
     # Add root if missing
     if PHENOTYPE_ROOT not in all_hpo_term_ids:
-        logging.warning(f"HPO root {PHENOTYPE_ROOT} not found in nodes, adding manually")
+        logging.warning(
+            f"HPO root {PHENOTYPE_ROOT} not found in nodes, adding manually"
+        )
         all_hpo_term_ids.add(PHENOTYPE_ROOT)
 
     # Check for orphaned nodes (no parents except root)
@@ -430,7 +432,9 @@ def calculate_all_ancestors(
         queue = deque(child_to_parents.get(term_id, []))
         while queue:
             # Exclude terms under certain branches (e.g., mode of inheritance)
-            if PHENOTYPE_ROOT in ancestors and any(root in ancestors for root in EXCLUDED_ROOTS):
+            if PHENOTYPE_ROOT in ancestors and any(
+                root in ancestors for root in EXCLUDED_ROOTS
+            ):
                 logging.debug(f"{node_id} excluded as it's under excluded root")
                 continue
 

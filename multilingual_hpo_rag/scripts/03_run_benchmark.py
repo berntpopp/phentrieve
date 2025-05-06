@@ -14,14 +14,19 @@ Metrics include:
 import argparse
 import logging
 import os
-import sys
-from pathlib import Path
-from typing import List, Optional
+import json
+import time
+import re
+from typing import Dict, List, Tuple, Any
 
-# Add parent directory to path so we can import the package
-sys.path.insert(0, str(Path(__file__).parent.parent))
+import torch
+from tqdm import tqdm
 
 from multilingual_hpo_rag.config import (
+    MIN_SIMILARITY_THRESHOLD,
+    DEFAULT_RERANKER_MODEL,
+    DEFAULT_RERANK_CANDIDATE_COUNT,
+    DEFAULT_ENABLE_RERANKER,
     DEFAULT_BIOLORD_MODEL,
     DEFAULT_MODEL,
     BENCHMARK_MODELS,
@@ -126,6 +131,26 @@ def main() -> None:
         help="Enable debug logging",
     )
 
+    # Cross-encoder re-ranking arguments
+    reranker_group = parser.add_argument_group("Re-ranking options")
+    reranker_group.add_argument(
+        "--enable-reranker",
+        action="store_true",
+        help=f"Enable cross-encoder re-ranking of results (default: {DEFAULT_ENABLE_RERANKER})",
+    )
+    reranker_group.add_argument(
+        "--reranker-model",
+        type=str,
+        default=DEFAULT_RERANKER_MODEL,
+        help=f"Cross-encoder model to use for re-ranking (default: {DEFAULT_RERANKER_MODEL})",
+    )
+    parser.add_argument(
+        "--rerank-count",
+        type=int,
+        default=DEFAULT_RERANK_CANDIDATE_COUNT,
+        help=f"Number of candidates to re-rank (default: {DEFAULT_RERANK_CANDIDATE_COUNT})",
+    )
+
     args = parser.parse_args()
 
     # Set up logging
@@ -169,6 +194,9 @@ def main() -> None:
             device=device,
             trust_remote_code=args.trust_remote_code,
             save_results=True,
+            enable_reranker=args.enable_reranker,
+            reranker_model=args.reranker_model,
+            rerank_count=args.rerank_count,
         )
 
         if results:

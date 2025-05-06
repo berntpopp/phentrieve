@@ -10,7 +10,7 @@ import logging
 import os
 import time
 from datetime import datetime
-from typing import Dict, List, Optional, Tuple, Any, Union
+from typing import Dict, List, Optional, Tuple, Any
 
 import pandas as pd
 from tqdm import tqdm
@@ -21,14 +21,17 @@ from multilingual_hpo_rag.config import (
     SUMMARIES_DIR,
     DETAILED_DIR,
     DEFAULT_TOP_K,
+    DEFAULT_RERANKER_MODEL,
+    DEFAULT_RERANK_CANDIDATE_COUNT,
+    DEFAULT_ENABLE_RERANKER,
 )
 from multilingual_hpo_rag.data_processing.test_data_loader import load_test_data
 from multilingual_hpo_rag.embeddings import load_embedding_model
-from multilingual_hpo_rag.evaluation.metrics import (
-    average_max_similarity,
-    hit_rate_at_k,
-    load_hpo_graph_data,
-    mean_reciprocal_rank,
+from multilingual_hpo_rag.evaluation import metrics
+from multilingual_hpo_rag.retrieval.retriever import HPORetriever
+from multilingual_hpo_rag.retrieval.reranker import (
+    load_cross_encoder,
+    rerank_with_cross_encoder,
 )
 from multilingual_hpo_rag.retrieval.dense_retriever import DenseRetriever
 from multilingual_hpo_rag.utils import get_model_slug
@@ -44,6 +47,9 @@ def run_evaluation(
     trust_remote_code: bool = False,
     save_results: bool = True,
     output_dir: Optional[str] = None,
+    enable_reranker: bool = False,
+    reranker_model: str = DEFAULT_RERANKER_MODEL,
+    rerank_count: int = DEFAULT_RERANK_CANDIDATE_COUNT,
 ) -> Optional[Dict[str, Any]]:
     """
     Run a complete benchmark evaluation for a model on a test dataset.
@@ -139,19 +145,16 @@ def run_evaluation(
                 # Calculate Hit Rate at different K values
                 hit_rates = {}
                 for k in k_values:
-                    hit = hit_rate_at_k(results, expected_ids, k=k)
+                    hit = hit_rate_at_k(term_ids, expected_ids, k=k)
                     hit_rate_values[k].append(hit)
                     hit_rates[f"hit_rate@{k}"] = hit
 
                 # Calculate ontology similarity at different K values
                 ont_similarities = {}
                 for k in k_values:
-                    if results["ids"][0]:
+                    if term_ids:
                         # Extract HPO IDs from results
-                        retrieved_ids = [
-                            metadata.get("hpo_id")
-                            for metadata in results["metadatas"][0][:k]
-                        ]
+                        retrieved_ids = term_ids[:k]
                         ont_sim = average_max_similarity(expected_ids, retrieved_ids)
                         ont_similarity_values[k].append(ont_sim)
                         ont_similarities[f"ont_similarity@{k}"] = ont_sim
@@ -172,26 +175,38 @@ def run_evaluation(
 
                 if debug:
                     # Add top retrieved terms for debugging
-                    if results["ids"][0]:
+                    if term_ids and len(term_ids) > 0:
                         top_retrieved = []
-                        for j, (term_id, metadata, distance) in enumerate(
-                            zip(
-                                results["ids"][0][:DEFAULT_TOP_K],
-                                results["metadatas"][0][:DEFAULT_TOP_K],
-                                results["distances"][0][:DEFAULT_TOP_K],
-                            )
-                        ):
-                            hpo_id = metadata.get("hpo_id", "")
-                            label = metadata.get("label", "")
-                            similarity = 1.0 - distance
-                            top_retrieved.append(
-                                {
-                                    "rank": j + 1,
-                                    "hpo_id": hpo_id,
-                                    "label": label,
-                                    "similarity": similarity,
-                                }
-                            )
+                        max_to_show = min(len(retrieved_terms), DEFAULT_TOP_K)
+
+                        # For the reranker case, we already have separate lists
+                        for j in range(max_to_show):
+                            # Get the corresponding term data from the query engine
+                            results_for_term = query_engine.get_term_by_id(term_ids[j])
+
+                            if results_for_term:
+                                hpo_id = results_for_term.get("hpo_id", "")
+                                label = results_for_term.get("name", "")
+
+                                # The distance might be a similarity score from the cross-encoder
+                                # so we need to handle it differently
+                                if enable_reranker:
+                                    similarity = distances[
+                                        j
+                                    ]  # Already a similarity score
+                                else:
+                                    # Original bi-encoder distances are distances, convert to similarity
+                                    similarity = 1.0 - distances[j]
+
+                                top_retrieved.append(
+                                    {
+                                        "rank": j + 1,
+                                        "hpo_id": hpo_id,
+                                        "label": label,
+                                        "similarity": similarity,
+                                        "in_expected": hpo_id in expected_ids,
+                                    }
+                                )
                         case_result["top_retrieved"] = top_retrieved
 
                 detailed_results.append(case_result)
