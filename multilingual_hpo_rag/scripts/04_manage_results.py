@@ -163,25 +163,39 @@ def visualize_results_cli(
     # Prepare dataframes once
     # For MRR, we can derive from the comparison_df or pass summaries directly
     mrr_plot_df_data = []
+
+    # Debug information to help understand what's in the summaries
+    if len(summaries) > 0:
+        logging.info(f"First summary keys: {list(summaries[0].keys())}")
+
     for s in summaries:
         model_name = s.get("model", "Unknown")
-        mrr_plot_df_data.append(
-            {
-                "model": model_name,
-                "avg_mrr_dense": s.get(
-                    "avg_mrr_dense", s.get("avg_mrr", s.get("mrr", 0.0))
-                ),
-                "mrr_dense_per_case": s.get(
-                    "mrr_dense_per_case", s.get("mrr_per_case")
-                ),
-                "avg_mrr_reranked": s.get("avg_mrr_reranked"),
-                "mrr_reranked_per_case": s.get("mrr_reranked_per_case"),
-            }
-        )
+        reranker_enabled = s.get("reranker_enabled", False)
+
+        # Direct access to the MRR values from summary
+        dense_mrr = s.get("mrr_dense", 0.0)
+        reranked_mrr = s.get("mrr_reranked", 0.0) if reranker_enabled else None
+
+        # Create a row for this model
+        row_data = {
+            "model": model_name,
+            "metric": "MRR",
+            "Dense": dense_mrr,
+        }
+
+        # Add reranked value if available
+        if reranked_mrr is not None:
+            row_data["Re-Ranked"] = reranked_mrr
+
+        mrr_plot_df_data.append(row_data)
+    # Convert to DataFrame for MRR plot
     mrr_plot_df = pd.DataFrame(mrr_plot_df_data)
 
     if "mrr" in metrics_to_plot:
-        plot_mrr_comparison(mrr_plot_df, output_dir, timestamp)
+        logging.info("Creating MRR comparison plots...")
+        if "model" in mrr_plot_df.columns:
+            logging.info(f"MRR data: {mrr_plot_df}")
+            plot_mrr_comparison(mrr_plot_df, output_dir, timestamp)
 
     if "hit_rate" in metrics_to_plot or "all" in metrics_to_plot:
         # Work directly with the summary data instead of the comparison DataFrame

@@ -44,6 +44,9 @@ def plot_mrr_comparison(
         logger.warning("No data to plot for MRR comparison.")
         return None
 
+    # Check if we have the new format (with 'Dense' and 'Re-Ranked' columns)
+    new_format = "Dense" in summaries_df.columns
+
     fig, ax = plt.subplots(figsize=(12, 7))
 
     models = summaries_df["model"].unique()
@@ -51,104 +54,103 @@ def plot_mrr_comparison(
     width = 0.35
 
     mrr_dense_values = []
-    mrr_dense_std = []
     mrr_reranked_values = []
-    mrr_reranked_std = []
 
+    # Check if we have reranked data in the new format
     has_reranked_data = (
-        "avg_mrr_reranked" in summaries_df.columns
-        and summaries_df["avg_mrr_reranked"].notna().any()
+        new_format
+        and "Re-Ranked" in summaries_df.columns
+        and not summaries_df["Re-Ranked"].isna().all()
     )
 
     for model_name in models:
-        model_summary = summaries_df[summaries_df["model"] == model_name].iloc[0]
+        model_data = summaries_df[summaries_df["model"] == model_name]
+        if new_format:
+            # New format with 'Dense' and 'Re-Ranked' columns
+            model_row = model_data.iloc[0]
+            dense_mrr = model_row.get("Dense", 0.0)
+            mrr_dense_values.append(dense_mrr)
 
-        # Dense MRR
-        dense_mrr = model_summary.get(
-            "avg_mrr_dense", model_summary.get("avg_mrr", model_summary.get("mrr", 0.0))
-        )
-        mrr_dense_values.append(dense_mrr)
-        dense_per_case = model_summary.get(
-            "mrr_dense_per_case", model_summary.get("mrr_per_case")
-        )
-        mrr_dense_std.append(
-            np.std(dense_per_case)
-            if dense_per_case and isinstance(dense_per_case, list)
-            else 0
-        )
-
-        if has_reranked_data:
-            reranked_mrr = model_summary.get("avg_mrr_reranked", 0.0)
-            mrr_reranked_values.append(reranked_mrr)
-            reranked_per_case = model_summary.get("mrr_reranked_per_case")
-            mrr_reranked_std.append(
-                np.std(reranked_per_case)
-                if reranked_per_case and isinstance(reranked_per_case, list)
-                else 0
+            if (
+                has_reranked_data
+                and "Re-Ranked" in model_row
+                and not pd.isna(model_row["Re-Ranked"])
+            ):
+                reranked_mrr = model_row["Re-Ranked"]
+                mrr_reranked_values.append(reranked_mrr)
+            elif has_reranked_data:
+                mrr_reranked_values.append(0.0)
+        else:
+            # Old format
+            model_summary = model_data.iloc[0]
+            # Dense MRR
+            dense_mrr = model_summary.get(
+                "avg_mrr_dense",
+                model_summary.get("avg_mrr", model_summary.get("mrr", 0.0)),
             )
+            mrr_dense_values.append(dense_mrr)
 
+            if has_reranked_data:
+                reranked_mrr = model_summary.get("avg_mrr_reranked", 0.0)
+                mrr_reranked_values.append(reranked_mrr)
+
+    # Configure plot aesthetics
+    ax.set_xticks(x)
+    ax.set_xticklabels(models, rotation=35, ha="right")
+    ax.set_ylabel("Mean Reciprocal Rank (MRR)")
+    ax.set_title("MRR Comparison: Dense vs Re-Ranked Retrieval")
+    ax.set_ylim(0, 1.0)  # MRR is always between 0 and 1
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.set_xlabel("")
+    ax.grid(axis="y", alpha=0.3)
+
+    # Create the bars (without error bars)
     if has_reranked_data:
+        # Two sets of bars when we have both dense and reranked data
         rects1 = ax.bar(
             x - width / 2,
             mrr_dense_values,
             width,
-            yerr=mrr_dense_std,
             label="Dense Retrieval",
             color="#1f77b4",
-            capsize=5,
         )
+
         rects2 = ax.bar(
             x + width / 2,
             mrr_reranked_values,
             width,
-            yerr=mrr_reranked_std,
             label="Re-Ranked",
             color="#ff7f0e",
-            capsize=5,
         )
-        ax.set_title("Mean Reciprocal Rank (MRR): Dense vs Re-Ranked Comparison")
+
+        # Add the legend
         ax.legend()
-
-        def add_labels(rects):
-            for rect in rects:
-                height = rect.get_height()
-                ax.annotate(
-                    f"{height:.3f}",
-                    xy=(rect.get_x() + rect.get_width() / 2, height),
-                    xytext=(0, 3),
-                    textcoords="offset points",
-                    ha="center",
-                    va="bottom",
-                    fontsize=8,
-                )
-
-        add_labels(rects1)
-        add_labels(rects2)
-        ax.set_ylim(
-            0,
-            (
-                max(1.0, np.max(mrr_dense_values + mrr_reranked_values) * 1.15)
-                if mrr_dense_values
-                else 1.0
-            ),
-        )
     else:
-        ax.bar(
-            x,
-            mrr_dense_values,
-            yerr=mrr_dense_std,
-            color=sns.color_palette("viridis", len(models)),
-            capsize=5,
-        )
-        ax.set_title("Mean Reciprocal Rank (MRR) by Model")
-        ax.set_ylim(
-            0, max(1.0, np.max(mrr_dense_values) * 1.15) if mrr_dense_values else 1.0
+        # Just one set of bars for dense retrieval
+        rects1 = ax.bar(
+            x, mrr_dense_values, width, label="Dense Retrieval", color="#1f77b4"
         )
 
-    ax.set_xlabel("Model")
-    ax.set_ylabel("MRR")
-    ax.set_xticks(x)
-    ax.set_xticklabels(models, rotation=45, ha="right")
+    # Add values on top of bars
+    def autolabel(rects):
+        """Attach a text label above each bar showing its value."""
+        for rect in rects:
+            height = rect.get_height()
+            ax.annotate(
+                f"{height:.3f}",
+                xy=(rect.get_x() + rect.get_width() / 2, height),
+                xytext=(0, 3),  # 3 points vertical offset
+                textcoords="offset points",
+                ha="center",
+                va="bottom",
+                fontsize=8,
+            )
+
+    # Add labels to the bars
+    autolabel(rects1)
+    if has_reranked_data:
+        autolabel(rects2)
 
     return _save_plot(fig, output_dir, "mrr_comparison", timestamp)
 
