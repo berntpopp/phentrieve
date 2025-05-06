@@ -219,7 +219,25 @@ python -m multilingual_hpo_rag.scripts.01_prepare_hpo_data  # Downloads hp.json 
 python -m multilingual_hpo_rag.scripts.02_build_index  # Creates and populates the vector index
 ```
 
-Note: The first run will download the model (~1.1 GB) and generate embeddings, which can be time-intensive. All scripts should be run from the project root directory using the `python -m` flag to ensure proper module resolution.
+Note: The first run will download the model (~1.1 GB) and generate embeddings, which can be time-intensive.
+
+### Execution Methods
+
+There are two supported ways to run the scripts in this project:
+
+1. **Recommended Method**: Running from the project root using Python's module syntax:
+   ```bash
+   # Run from the project root directory
+   python -m multilingual_hpo_rag.scripts.03_run_benchmark [args...]
+   ```
+
+2. **Alternative Method**: Running scripts directly:
+   ```bash
+   # Run from the project root directory
+   python multilingual_hpo_rag/scripts/03_run_benchmark.py [args...]
+   ```
+
+Both methods will work, but the first is recommended as it follows standard Python practices for module resolution.
 
 ### Run the CLI Tool
 

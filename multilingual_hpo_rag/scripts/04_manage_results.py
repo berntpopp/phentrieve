@@ -122,26 +122,76 @@ def compare_summaries(
     comparison_data = []
 
     for summary in summaries:
+        # Basic row data
         row = {
             "Model": summary.get("model", "Unknown"),
             "Test File": summary.get("test_file", "Unknown"),
             "Test Cases": summary.get("num_test_cases", 0),
             "Date": summary.get("timestamp", ""),
-            "MRR": summary.get("mrr", 0.0),
-            # Recall metric removed as it was redundant with hit_rate@max_k
         }
 
-        # Add Hit Rate metrics
-        for k in [1, 3, 5, 10]:
-            key = f"hit_rate@{k}"
-            if key in summary:
-                row[f"HR@{k}"] = summary[key]
+        # Add re-ranking configuration if available
+        reranker_enabled = summary.get("reranker_enabled", False)
+        if reranker_enabled:
+            row["Re-Ranking"] = "Enabled"
+            row["Re-Ranker Model"] = summary.get("reranker_model", "Unknown")
+            row["Re-Rank Mode"] = summary.get("reranker_mode", "cross-lingual")
+            row["Re-Rank Count"] = summary.get("rerank_count", 0)
+        else:
+            row["Re-Ranking"] = "Disabled"
 
-        # Add Ontology Similarity metrics
+        # Add comparison metrics (both dense and re-ranked if available)
+
+        # MRR metrics
+        row["MRR (Dense)"] = summary.get(
+            "mrr_dense", summary.get("mrr", 0.0)
+        )  # Backward compatibility
+
+        if reranker_enabled:
+            row["MRR (Re-Ranked)"] = summary.get("mrr_reranked", 0.0)
+            row["MRR Diff"] = (
+                row["MRR (Re-Ranked)"] - row["MRR (Dense)"]
+            )  # Positive is good
+
+        # Add Hit Rate metrics - both dense and re-ranked if available
         for k in [1, 3, 5, 10]:
-            key = f"ont_similarity@{k}"
-            if key in summary:
-                row[f"OntSim@{k}"] = summary[key]
+            # Try both new and legacy format for backward compatibility
+            dense_key = f"hit_rate_dense@{k}"
+            legacy_key = f"hit_rate@{k}"
+
+            if dense_key in summary:
+                row[f"HR@{k} (Dense)"] = summary[dense_key]
+            elif legacy_key in summary:
+                row[f"HR@{k} (Dense)"] = summary[legacy_key]
+
+            # Add re-ranked metrics if available
+            if reranker_enabled:
+                reranked_key = f"hit_rate_reranked@{k}"
+                if reranked_key in summary:
+                    row[f"HR@{k} (Re-Ranked)"] = summary[reranked_key]
+                    row[f"HR@{k} Diff"] = (
+                        row[f"HR@{k} (Re-Ranked)"] - row[f"HR@{k} (Dense)"]
+                    )  # Positive is good
+
+        # Add Ontology Similarity metrics - both dense and re-ranked if available
+        for k in [1, 3, 5, 10]:
+            # Try both new and legacy format for backward compatibility
+            dense_key = f"ont_similarity_dense@{k}"
+            legacy_key = f"ont_similarity@{k}"
+
+            if dense_key in summary:
+                row[f"OntSim@{k} (Dense)"] = summary[dense_key]
+            elif legacy_key in summary:
+                row[f"OntSim@{k} (Dense)"] = summary[legacy_key]
+
+            # Add re-ranked metrics if available
+            if reranker_enabled:
+                reranked_key = f"ont_similarity_reranked@{k}"
+                if reranked_key in summary:
+                    row[f"OntSim@{k} (Re-Ranked)"] = summary[reranked_key]
+                    row[f"OntSim@{k} Diff"] = (
+                        row[f"OntSim@{k} (Re-Ranked)"] - row[f"OntSim@{k} (Dense)"]
+                    )  # Positive is good
 
         comparison_data.append(row)
 
