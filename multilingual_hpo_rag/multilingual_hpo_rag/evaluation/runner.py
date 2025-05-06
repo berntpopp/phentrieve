@@ -603,27 +603,44 @@ def compare_models(results_list: List[Dict[str, Any]]) -> pd.DataFrame:
         model_data = {
             "Model": result["model_slug"],
         }
-        
+
         # Add Dense Retrieval metrics
         if "mrr_dense" in result:
             # Check if the value is a list and get the average if so
             if isinstance(result["mrr_dense"], list):
-                model_data["MRR (Dense)"] = sum(result["mrr_dense"]) / len(result["mrr_dense"]) if result["mrr_dense"] else 0
+                model_data["MRR (Dense)"] = (
+                    sum(result["mrr_dense"]) / len(result["mrr_dense"])
+                    if result["mrr_dense"]
+                    else 0
+                )
             else:
                 model_data["MRR (Dense)"] = result["mrr_dense"]
-            
+
         # Add Re-ranked metrics if available
         if "mrr_reranked" in result:
             # Check if the value is a list and get the average if so
             if isinstance(result["mrr_reranked"], list):
-                model_data["MRR (ReRanked)"] = sum(result["mrr_reranked"]) / len(result["mrr_reranked"]) if result["mrr_reranked"] else 0
+                model_data["MRR (ReRanked)"] = (
+                    sum(result["mrr_reranked"]) / len(result["mrr_reranked"])
+                    if result["mrr_reranked"]
+                    else 0
+                )
             else:
                 model_data["MRR (ReRanked)"] = result["mrr_reranked"]
-                
+
             # Calculate difference
             if "mrr_dense" in result:
-                dense_mrr = sum(result["mrr_dense"]) / len(result["mrr_dense"]) if isinstance(result["mrr_dense"], list) and result["mrr_dense"] else result["mrr_dense"]
-                reranked_mrr = sum(result["mrr_reranked"]) / len(result["mrr_reranked"]) if isinstance(result["mrr_reranked"], list) and result["mrr_reranked"] else result["mrr_reranked"]
+                dense_mrr = (
+                    sum(result["mrr_dense"]) / len(result["mrr_dense"])
+                    if isinstance(result["mrr_dense"], list) and result["mrr_dense"]
+                    else result["mrr_dense"]
+                )
+                reranked_mrr = (
+                    sum(result["mrr_reranked"]) / len(result["mrr_reranked"])
+                    if isinstance(result["mrr_reranked"], list)
+                    and result["mrr_reranked"]
+                    else result["mrr_reranked"]
+                )
                 model_data["MRR (Diff)"] = reranked_mrr - dense_mrr
 
         # Add Hit Rate metrics
@@ -632,22 +649,39 @@ def compare_models(results_list: List[Dict[str, Any]]) -> pd.DataFrame:
             dense_key = f"hit_rate_dense@{k}"
             if dense_key in result:
                 if isinstance(result[dense_key], list):
-                    model_data[f"HR@{k} (Dense)"] = sum(result[dense_key]) / len(result[dense_key]) if result[dense_key] else 0
+                    model_data[f"HR@{k} (Dense)"] = (
+                        sum(result[dense_key]) / len(result[dense_key])
+                        if result[dense_key]
+                        else 0
+                    )
                 else:
                     model_data[f"HR@{k} (Dense)"] = result[dense_key]
-            
+
             # Re-ranked metrics if available
             reranked_key = f"hit_rate_reranked@{k}"
             if reranked_key in result:
                 if isinstance(result[reranked_key], list):
-                    model_data[f"HR@{k} (ReRanked)"] = sum(result[reranked_key]) / len(result[reranked_key]) if result[reranked_key] else 0
+                    model_data[f"HR@{k} (ReRanked)"] = (
+                        sum(result[reranked_key]) / len(result[reranked_key])
+                        if result[reranked_key]
+                        else 0
+                    )
                 else:
                     model_data[f"HR@{k} (ReRanked)"] = result[reranked_key]
-                    
+
                 # Calculate difference if both metrics are available
                 if dense_key in result:
-                    dense_val = sum(result[dense_key]) / len(result[dense_key]) if isinstance(result[dense_key], list) and result[dense_key] else result[dense_key]
-                    reranked_val = sum(result[reranked_key]) / len(result[reranked_key]) if isinstance(result[reranked_key], list) and result[reranked_key] else result[reranked_key]
+                    dense_val = (
+                        sum(result[dense_key]) / len(result[dense_key])
+                        if isinstance(result[dense_key], list) and result[dense_key]
+                        else result[dense_key]
+                    )
+                    reranked_val = (
+                        sum(result[reranked_key]) / len(result[reranked_key])
+                        if isinstance(result[reranked_key], list)
+                        and result[reranked_key]
+                        else result[reranked_key]
+                    )
                     model_data[f"HR@{k} (Diff)"] = reranked_val - dense_val
 
         # Add Ontology Similarity metrics
@@ -656,22 +690,39 @@ def compare_models(results_list: List[Dict[str, Any]]) -> pd.DataFrame:
             dense_key = f"ont_similarity_dense@{k}"
             if dense_key in result:
                 if isinstance(result[dense_key], list):
-                    model_data[f"OntSim@{k} (Dense)"] = sum(result[dense_key]) / len(result[dense_key]) if result[dense_key] else 0
+                    model_data[f"OntSim@{k} (Dense)"] = (
+                        sum(result[dense_key]) / len(result[dense_key])
+                        if result[dense_key]
+                        else 0
+                    )
                 else:
                     model_data[f"OntSim@{k} (Dense)"] = result[dense_key]
-                
+
             # Re-ranked metrics if available
             reranked_key = f"ont_similarity_reranked@{k}"
             if reranked_key in result:
                 if isinstance(result[reranked_key], list):
-                    model_data[f"OntSim@{k} (ReRanked)"] = sum(result[reranked_key]) / len(result[reranked_key]) if result[reranked_key] else 0
+                    model_data[f"OntSim@{k} (ReRanked)"] = (
+                        sum(result[reranked_key]) / len(result[reranked_key])
+                        if result[reranked_key]
+                        else 0
+                    )
                 else:
                     model_data[f"OntSim@{k} (ReRanked)"] = result[reranked_key]
-                    
+
                 # Calculate difference if both metrics are available
                 if dense_key in result:
-                    dense_val = sum(result[dense_key]) / len(result[dense_key]) if isinstance(result[dense_key], list) and result[dense_key] else result[dense_key]
-                    reranked_val = sum(result[reranked_key]) / len(result[reranked_key]) if isinstance(result[reranked_key], list) and result[reranked_key] else result[reranked_key]
+                    dense_val = (
+                        sum(result[dense_key]) / len(result[dense_key])
+                        if isinstance(result[dense_key], list) and result[dense_key]
+                        else result[dense_key]
+                    )
+                    reranked_val = (
+                        sum(result[reranked_key]) / len(result[reranked_key])
+                        if isinstance(result[reranked_key], list)
+                        and result[reranked_key]
+                        else result[reranked_key]
+                    )
                     model_data[f"OntSim@{k} (Diff)"] = reranked_val - dense_val
 
         # Recall metric has been removed as it was redundant with hit_rate@max_k

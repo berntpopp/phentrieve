@@ -53,6 +53,7 @@ from multilingual_hpo_rag.config import (
     DEFAULT_SIMILARITY_THRESHOLD,
     DEFAULT_DEVICE,
 )
+
 # Use local logging setup instead of importing from non-existent utils.log_utils module
 from multilingual_hpo_rag.evaluation.runner import run_evaluation, compare_models
 

@@ -3,28 +3,91 @@
 Benchmark Results Management Script
 
 This script provides functionality for:
-1. Comparing results across different model runs
-2. Visualizing benchmark results with plots
-3. Generating reports from benchmark data
+1. Comparing results across different model runs (generates CSV).
+2. Visualizing benchmark results with plots.
 """
 
 import argparse
-import glob
-import json
 import logging
 import os
 import sys
 from pathlib import Path
-from typing import Dict, List, Optional, Any
+from typing import List, Optional, Any, Dict
+from datetime import datetime
+import pandas as pd
 
-# Add parent directory to path so we can import the package
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Determine the absolute paths needed for proper imports
+script_file = os.path.abspath(__file__)
+script_dir = os.path.dirname(script_file)
 
-from multilingual_hpo_rag.config import (
-    SUMMARIES_DIR,
-    VISUALIZATIONS_DIR,
-    DETAILED_DIR,
+# Navigate from scripts dir to the project root
+project_root = os.path.dirname(os.path.dirname(script_dir))
+
+# Path to the actual package containing the modules
+actual_package_dir = os.path.join(
+    project_root, "multilingual_hpo_rag", "multilingual_hpo_rag"
 )
+
+# Add all necessary paths to sys.path
+paths_to_add = [project_root, actual_package_dir, os.path.dirname(project_root)]
+for path in paths_to_add:
+    if path not in sys.path:
+        sys.path.insert(0, path)
+
+# Debug: Print the sys.path to help diagnose issues
+# print(f"Script directory: {script_dir}")
+# print(f"Project root: {project_root}")
+# print(f"Actual package directory: {actual_package_dir}")
+# print("Python sys.path:")
+# for idx, path in enumerate(sys.path):
+#     print(f"  {idx}: {path}")
+
+# Import configuration constants
+try:
+    # Try direct import first
+    from config import SUMMARIES_DIR, VISUALIZATIONS_DIR, DETAILED_DIR
+except ImportError:
+    # Fall back to full package path
+    from multilingual_hpo_rag.config import (
+        SUMMARIES_DIR,
+        VISUALIZATIONS_DIR,
+        DETAILED_DIR,
+    )
+
+# Import required modules with fallback mechanisms
+try:
+    # Try direct imports first (works when the script directory is in sys.path)
+    from evaluation.result_analyzer import (
+        load_summary_files,
+        deduplicate_summaries,
+        prepare_comparison_dataframe,
+        prepare_flat_dataframe_for_plotting,
+    )
+except ImportError:
+    # Fall back to full package path
+    from multilingual_hpo_rag.evaluation.result_analyzer import (
+        load_summary_files,
+        deduplicate_summaries,
+        prepare_comparison_dataframe,
+        prepare_flat_dataframe_for_plotting,
+    )
+
+try:
+    # Try direct imports first
+    from visualization.plot_utils import (
+        plot_mrr_comparison,
+        plot_metric_at_k_bars,
+        plot_metric_at_k_lines,
+        K_VALUES_DEFAULT,
+    )
+except ImportError:
+    # Fall back to full package path
+    from multilingual_hpo_rag.visualization.plot_utils import (
+        plot_mrr_comparison,
+        plot_metric_at_k_bars,
+        plot_metric_at_k_lines,
+        K_VALUES_DEFAULT,
+    )
 
 
 def setup_logging(debug: bool = False) -> None:
@@ -32,9 +95,11 @@ def setup_logging(debug: bool = False) -> None:
     level = logging.DEBUG if debug else logging.INFO
     logging.basicConfig(
         level=level,
-        format="%(asctime)s - %(levelname)s - %(message)s",
+        format="%(asctime)s - %(levelname)s - %(module)s - %(message)s",  # Added module to format
         handlers=[logging.StreamHandler()],
     )
+    # Ensure root logger is also set if other modules are importing logging
+    logging.getLogger().setLevel(level)
 
 
 def ensure_directories_exist() -> None:
@@ -45,627 +110,213 @@ def ensure_directories_exist() -> None:
             os.makedirs(directory, exist_ok=True)
 
 
-def load_summary_files(directory: str = SUMMARIES_DIR) -> List[Dict[str, Any]]:
-    """
-    Load all summary JSON files from the specified directory.
-
-    Args:
-        directory: Directory containing summary JSON files
-
-    Returns:
-        List of dictionaries containing benchmark summaries
-    """
-    summaries = []
-
-    # Find all JSON files in the directory
-    json_files = glob.glob(os.path.join(directory, "*.json"))
-    logging.debug(f"Found {len(json_files)} summary files in {directory}")
-
-    for file_path in json_files:
-        try:
-            with open(file_path, "r", encoding="utf-8") as f:
-                summary = json.load(f)
-
-            # Add file path for reference
-            summary["file_path"] = file_path
-            summaries.append(summary)
-        except Exception as e:
-            logging.error(f"Error loading summary file {file_path}: {e}")
-
-    # Sort by timestamp (newest first)
-    if summaries:
-        summaries.sort(key=lambda x: x.get("timestamp", ""), reverse=True)
-
-    return summaries
-
-
-def deduplicate_summaries(summaries: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """
-    Remove duplicate model entries, keeping only the most recent result for each model.
-
-    Args:
-        summaries: List of benchmark summary dictionaries
-
-    Returns:
-        List of deduplicated benchmark summaries (one per model)
-    """
-    if not summaries:
-        return []
-
-    # Since summaries are already sorted by timestamp (newest first),
-    # we can use a dict to keep track of models we've seen
-    unique_summaries = {}
-
-    for summary in summaries:
-        model = summary.get("model", "Unknown")
-        if model not in unique_summaries:
-            unique_summaries[model] = summary
-
-    return list(unique_summaries.values())
-
-
-def compare_summaries(
-    summaries: List[Dict[str, Any]], output: Optional[str] = None
+def compare_summaries_cli(
+    summaries: List[Dict[str, Any]], output_csv_path: Optional[str] = None
 ) -> None:
     """
-    Compare benchmark summaries and generate a comparison table.
-
-    Args:
-        summaries: List of benchmark summary dictionaries
-        output: Optional output CSV file path
+    Prepares, prints, and optionally saves a comparison table from benchmark summaries.
+    This function is intended for direct CLI output and CSV saving.
     """
     if not summaries:
         logging.error("No summaries to compare")
         return
 
-    # Create comparison data
-    comparison_data = []
+    comparison_df = prepare_comparison_dataframe(summaries)
 
-    for summary in summaries:
-        # Basic row data
-        row = {
-            "Model": summary.get("model", "Unknown"),
-            "Test File": summary.get("test_file", "Unknown"),
-            "Test Cases": summary.get("num_test_cases", 0),
-            "Date": summary.get("timestamp", ""),
-        }
-
-        # Add re-ranking configuration if available
-        reranker_enabled = summary.get("reranker_enabled", False)
-        if reranker_enabled:
-            row["Re-Ranking"] = "Enabled"
-            row["Re-Ranker Model"] = summary.get("reranker_model", "Unknown")
-            row["Re-Rank Mode"] = summary.get("reranker_mode", "cross-lingual")
-            row["Re-Rank Count"] = summary.get("rerank_count", 0)
-        else:
-            row["Re-Ranking"] = "Disabled"
-
-        # Add comparison metrics (both dense and re-ranked if available)
-
-        # MRR metrics
-        row["MRR (Dense)"] = summary.get(
-            "mrr_dense", summary.get("mrr", 0.0)
-        )  # Backward compatibility
-
-        if reranker_enabled:
-            row["MRR (Re-Ranked)"] = summary.get("mrr_reranked", 0.0)
-            row["MRR Diff"] = (
-                row["MRR (Re-Ranked)"] - row["MRR (Dense)"]
-            )  # Positive is good
-
-        # Add Hit Rate metrics - both dense and re-ranked if available
-        for k in [1, 3, 5, 10]:
-            # Try both new and legacy format for backward compatibility
-            dense_key = f"hit_rate_dense@{k}"
-            legacy_key = f"hit_rate@{k}"
-
-            if dense_key in summary:
-                row[f"HR@{k} (Dense)"] = summary[dense_key]
-            elif legacy_key in summary:
-                row[f"HR@{k} (Dense)"] = summary[legacy_key]
-
-            # Add re-ranked metrics if available
-            if reranker_enabled:
-                reranked_key = f"hit_rate_reranked@{k}"
-                if reranked_key in summary:
-                    row[f"HR@{k} (Re-Ranked)"] = summary[reranked_key]
-                    row[f"HR@{k} Diff"] = (
-                        row[f"HR@{k} (Re-Ranked)"] - row[f"HR@{k} (Dense)"]
-                    )  # Positive is good
-
-        # Add Ontology Similarity metrics - both dense and re-ranked if available
-        for k in [1, 3, 5, 10]:
-            # Try both new and legacy format for backward compatibility
-            dense_key = f"ont_similarity_dense@{k}"
-            legacy_key = f"ont_similarity@{k}"
-
-            if dense_key in summary:
-                row[f"OntSim@{k} (Dense)"] = summary[dense_key]
-            elif legacy_key in summary:
-                row[f"OntSim@{k} (Dense)"] = summary[legacy_key]
-
-            # Add re-ranked metrics if available
-            if reranker_enabled:
-                reranked_key = f"ont_similarity_reranked@{k}"
-                if reranked_key in summary:
-                    row[f"OntSim@{k} (Re-Ranked)"] = summary[reranked_key]
-                    row[f"OntSim@{k} Diff"] = (
-                        row[f"OntSim@{k} (Re-Ranked)"] - row[f"OntSim@{k} (Dense)"]
-                    )  # Positive is good
-
-        comparison_data.append(row)
-
-    # Create DataFrame
-    df = pd.DataFrame(comparison_data)
-
-    # Sort by MRR (descending)
-    if "MRR" in df.columns:
-        df = df.sort_values("MRR", ascending=False)
+    if comparison_df.empty:
+        logging.warning("No data to compare after processing summaries.")
+        return
 
     # Display the table
     pd.options.display.float_format = "{:.4f}".format
     print("\n===== Benchmark Comparison =====")
-    print(df.to_string(index=False))
+    print(comparison_df.to_string(index=False))
 
-    # Save to CSV if output is specified
-    if output:
-        df.to_csv(output, index=False)
-        print(f"\nComparison saved to: {output}")
+    if output_csv_path:
+        try:
+            comparison_df.to_csv(output_csv_path, index=False)
+            print(f"\nComparison table saved to: {output_csv_path}")
+        except Exception as e:
+            logging.error(f"Failed to save comparison CSV to {output_csv_path}: {e}")
 
 
-def visualize_results(
+def visualize_results_cli(
     summaries: List[Dict[str, Any]],
-    metric: str = "all",
-    include_models: Optional[List[str]] = None,
+    metrics_to_plot: List[str],  # e.g., ["mrr", "hit_rate", "ont_similarity"]
     output_dir: str = VISUALIZATIONS_DIR,
 ) -> None:
     """
-    Create visualizations from benchmark results.
-
-    Args:
-        summaries: List of benchmark summary dictionaries
-        metric: Metric to visualize ("mrr", "hit_rate", "ont_similarity", or "all")
-        include_models: Optional list of models to include (None for all)
-        output_dir: Directory to save visualization images
+    Generates and saves visualizations for the specified metrics.
     """
     if not summaries:
-        logging.error("No summaries to visualize")
+        logging.error("No summaries provided for visualization.")
         return
 
-    # Import visualization libraries
-    try:
-        import matplotlib.pyplot as plt
-        import seaborn as sns
-        import numpy as np
-    except ImportError:
-        logging.error(
-            "Visualization requires matplotlib, seaborn, and numpy. "
-            "Please install these packages."
-        )
-        return
-
-    # Filter models if specified
-    if include_models:
-        summaries = [s for s in summaries if s.get("model", "") in include_models]
-
-    if not summaries:
-        logging.error("No matching summaries to visualize")
-        return
-
-    # Create output directory if it doesn't exist
     os.makedirs(output_dir, exist_ok=True)
-
-    # Set up the style
-    plt.style.use("seaborn-v0_8-whitegrid")
-
-    # Set specific metrics based on parameter
-    metrics_to_visualize = []
-    if metric == "all" or metric == "mrr":
-        metrics_to_visualize.append("mrr")
-    if metric == "all" or metric == "hit_rate":
-        metrics_to_visualize.append("hit_rate")
-    if metric == "all" or metric == "ont_similarity":
-        metrics_to_visualize.append("ont_similarity")
-
-    # Create timestamp for output files
-    from datetime import datetime
-
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
-    # Process the data for visualization
-    model_names = [s.get("model", "Unknown") for s in summaries]
-    model_slugs = [s.get("model_slug", s.get("model", "Unknown")) for s in summaries]
+    # Log the keys available in the first summary to help with debugging
+    if len(summaries) > 0 and logging.getLogger().level <= logging.DEBUG:
+        first_summary = summaries[0]
+        logging.debug(f"Available keys in first summary: {list(first_summary.keys())}")
 
-    # Create visualization for each requested metric
-    for metric_name in metrics_to_visualize:
-        if metric_name == "mrr":
-            # ---------------------------------------------------------------------
-            # MRR Bar Chart with Error Bars if available
-            # ---------------------------------------------------------------------
-            plt.figure(figsize=(10, 6))
-            mrr_values = [s.get("mrr", 0) for s in summaries]
+    # Prepare dataframes once
+    # For MRR, we can derive from the comparison_df or pass summaries directly
+    mrr_plot_df_data = []
+    for s in summaries:
+        model_name = s.get("model", "Unknown")
+        mrr_plot_df_data.append(
+            {
+                "model": model_name,
+                "avg_mrr_dense": s.get(
+                    "avg_mrr_dense", s.get("avg_mrr", s.get("mrr", 0.0))
+                ),
+                "mrr_dense_per_case": s.get(
+                    "mrr_dense_per_case", s.get("mrr_per_case")
+                ),
+                "avg_mrr_reranked": s.get("avg_mrr_reranked"),
+                "mrr_reranked_per_case": s.get("mrr_reranked_per_case"),
+            }
+        )
+    mrr_plot_df = pd.DataFrame(mrr_plot_df_data)
 
-            # Check if we have raw data for error bars
-            has_raw_data = False
-            error_data = []
+    if "mrr" in metrics_to_plot:
+        plot_mrr_comparison(mrr_plot_df, output_dir, timestamp)
 
-            for i, summary in enumerate(summaries):
-                # Look for raw MRR values (single value or list)
-                mrr_raw = summary.get("mrr_per_case") or summary.get("raw_mrr") or None
+    if "hit_rate" in metrics_to_plot or "all" in metrics_to_plot:
+        # Work directly with the summary data instead of the comparison DataFrame
+        plot_data = []
+        k_values = (
+            K_VALUES_DEFAULT if "K_VALUES_DEFAULT" in globals() else [1, 3, 5, 10]
+        )
 
-                if isinstance(mrr_raw, list) and len(mrr_raw) > 1:
-                    has_raw_data = True
-                    error_data.append(
+        # Debug information to help understand what's in the summaries
+        if len(summaries) > 0:
+            logging.info(f"First summary keys: {list(summaries[0].keys())}")
+
+        for summary in summaries:
+            model_name = summary.get("model", "Unknown")
+            reranker_enabled = summary.get("reranker_enabled", False)
+
+            for k in k_values:
+                # Directly access hit rate values from the summary with appropriate key names
+                dense_key = f"hit_rate_dense@{k}"
+                if dense_key in summary:
+                    plot_data.append(
                         {
-                            "model": model_names[i],
-                            "mean": np.mean(mrr_raw),
-                            "std": np.std(mrr_raw),
+                            "model": model_name,
+                            "k": k,
+                            "method": "Dense",
+                            "value": float(summary[dense_key]),
+                            "std_dev": 0.0,
                         }
                     )
 
-            # Create bar plot with or without error bars
-            if has_raw_data:
-                # We have error data for standard deviation
-                error_df = pd.DataFrame(error_data)
-                plt.bar(
-                    error_df["model"],
-                    error_df["mean"],
-                    yerr=error_df["std"],
-                    capsize=5,
-                    color=sns.color_palette("viridis", len(error_df)),
-                )
-                # Ensure y-axis doesn't go below 0 when showing error bars
-                ymin = max(
-                    0,
-                    min([m - s for m, s in zip(error_df["mean"], error_df["std"])])
-                    - 0.05,
-                )
-                plt.ylim(
-                    bottom=ymin,
-                    top=min(
-                        1.0,
-                        max([m + s for m, s in zip(error_df["mean"], error_df["std"])])
-                        + 0.05,
-                    ),
-                )
-            else:
-                # Create simple bar chart without error bars
-                bar_colors = sns.color_palette("viridis", len(model_names))
-                plt.bar(model_names, mrr_values, color=bar_colors)
-                plt.ylim(
-                    0, min(1.0, max(mrr_values) * 1.1)
-                )  # Add some headroom, but cap at 1.0
-
-            plt.title("Mean Reciprocal Rank (MRR) by Model")
-            plt.xlabel("Model")
-            plt.ylabel("MRR")
-            plt.xticks(rotation=45, ha="right")
-            plt.tight_layout()
-
-            # Save figure
-            output_file = os.path.join(output_dir, f"mrr_comparison_{timestamp}.png")
-            plt.savefig(output_file)
-            plt.close()
-            print(f"MRR visualization saved to: {output_file}")
-
-        if metric_name == "hit_rate":
-            # ---------------------------------------------------------------------
-            # 1. Hit Rate Bar Chart with Error Bars if available
-            # ---------------------------------------------------------------------
-            plt.figure(figsize=(12, 8))
-            k_values = [1, 3, 5, 10]
-
-            # Check if we have raw data for error bars
-            has_raw_data = False
-            hit_rate_error_data = []
-
-            for i, summary in enumerate(summaries):
-                for k in k_values:
-                    # Look for raw Hit Rate values
-                    key = f"hit_rate@{k}"
-                    raw_key = f"hit_rate@{k}_per_case"
-                    hr_raw = summary.get(raw_key) or summary.get(f"raw_{key}") or None
-
-                    if isinstance(hr_raw, list) and len(hr_raw) > 1:
-                        has_raw_data = True
-                        hit_rate_error_data.append(
+                if reranker_enabled:
+                    reranked_key = f"hit_rate_reranked@{k}"
+                    if reranked_key in summary:
+                        plot_data.append(
                             {
-                                "model": model_names[i],
-                                "metric": f"Hit@{k}",
-                                "mean": np.mean(hr_raw),
-                                "std": np.std(hr_raw),
-                            }
-                        )
-
-            # Create a visualization based on whether we have error data
-            if has_raw_data and len(hit_rate_error_data) > 0:
-                # Create grouped bar chart with error bars
-                hr_error_df = pd.DataFrame(hit_rate_error_data)
-
-                # Group by model and metric for positioning
-                unique_models = sorted(hr_error_df["model"].unique())
-                metrics = [f"Hit@{k}" for k in k_values]
-                metrics = [m for m in metrics if m in hr_error_df["metric"].unique()]
-
-                # Calculate bar positions
-                bar_width = 0.2 if len(unique_models) <= 3 else 0.15
-                x = np.arange(len(unique_models))
-
-                # Plot each metric as a group
-                viridis_colors = sns.color_palette("viridis", len(metrics))
-                color_map = {
-                    metric: viridis_colors[i] for i, metric in enumerate(metrics)
-                }
-
-                for i, metric in enumerate(metrics):
-                    metric_df = hr_error_df[hr_error_df["metric"] == metric]
-                    metric_df = (
-                        metric_df.set_index("model")
-                        .reindex(unique_models)
-                        .reset_index()
-                    )
-
-                    # Position the bars for this metric
-                    offset = (i - len(metrics) / 2 + 0.5) * bar_width
-
-                    plt.bar(
-                        x + offset,
-                        metric_df["mean"],
-                        bar_width,
-                        yerr=metric_df["std"],
-                        capsize=3,
-                        label=metric,
-                        color=color_map[metric],
-                    )
-
-                plt.xticks(x, unique_models, rotation=45, ha="right")
-                plt.legend(title="Metric", loc="upper left")
-
-                # Set y-axis limits (0 to 1 with padding for error bars)
-                min_y = max(
-                    0,
-                    min([r["mean"] - r["std"] for _, r in hr_error_df.iterrows()])
-                    - 0.05,
-                )
-                plt.ylim(bottom=min_y, top=1.05)
-            else:
-                # Create standard grouped bar chart without error bars
-                hit_rate_data = []
-                for i, model in enumerate(model_names):
-                    for k in k_values:
-                        key = f"hit_rate@{k}"
-                        value = summaries[i].get(key, 0)
-                        hit_rate_data.append(
-                            {"model": model, "metric": f"Hit@{k}", "value": value}
-                        )
-
-                hr_df = pd.DataFrame(hit_rate_data)
-                sns.barplot(
-                    x="model", y="value", hue="metric", data=hr_df, palette="viridis"
-                )
-                plt.ylim(0, 1.05)
-
-            plt.title("Hit Rate at K by Model")
-            plt.xlabel("Model")
-            plt.ylabel("Hit Rate")
-            plt.tight_layout()
-
-            # Save figure
-            output_file = os.path.join(output_dir, f"hit_rate_barplot_{timestamp}.png")
-            plt.savefig(output_file)
-            plt.close()
-            print(f"Hit Rate bar plot saved to: {output_file}")
-
-            # ---------------------------------------------------------------------
-            # 2. Hit Rate Line Plot with connected dots (by K value)
-            # ---------------------------------------------------------------------
-            plt.figure(figsize=(12, 8))
-
-            # Extract data for line plot (one line per model, x-axis = k values)
-            for i, model in enumerate(model_names):
-                hit_rates_by_k = []
-                for k in k_values:
-                    key = f"hit_rate@{k}"
-                    hit_rates_by_k.append(summaries[i].get(key, 0))
-
-                if any(hit_rates_by_k):
-                    model_color = plt.cm.viridis(i / max(1, len(model_names) - 1))
-                    plt.plot(
-                        k_values,
-                        hit_rates_by_k,
-                        "o-",
-                        linewidth=2.5,
-                        markersize=8,
-                        label=model,
-                        color=model_color,
-                    )
-
-            plt.title("Hit Rate by K Value", fontsize=14)
-            plt.xlabel("K", fontsize=12)
-            plt.ylabel("Hit Rate", fontsize=12)
-            plt.xticks(k_values, fontsize=11)
-            plt.yticks(fontsize=11)
-            plt.ylim(0, 1.05)
-            plt.grid(True, linestyle="--", alpha=0.7)
-            plt.legend(title="Model", title_fontsize=12, fontsize=11, loc="lower right")
-            plt.tight_layout()
-
-            # Save line plot
-            output_file = os.path.join(output_dir, f"hit_rate_lineplot_{timestamp}.png")
-            plt.savefig(output_file)
-            plt.close()
-            print(f"Hit Rate line plot saved to: {output_file}")
-
-        if metric_name == "ont_similarity":
-            # ---------------------------------------------------------------------
-            # 1. Ontology Similarity Bar Chart with Error Bars if available
-            # ---------------------------------------------------------------------
-            plt.figure(figsize=(12, 8))
-            k_values = [1, 3, 5, 10]
-
-            # Check if we have raw data for error bars
-            has_raw_data = False
-            ont_sim_error_data = []
-
-            for i, summary in enumerate(summaries):
-                for k in k_values:
-                    # Look for raw Ontology Similarity values
-                    key = f"ont_similarity@{k}"
-                    raw_key = f"ont_similarity@{k}_per_case"
-                    os_raw = summary.get(raw_key) or summary.get(f"raw_{key}") or None
-
-                    if isinstance(os_raw, list) and len(os_raw) > 1:
-                        has_raw_data = True
-                        ont_sim_error_data.append(
-                            {
-                                "model": model_names[i],
-                                "metric": f"OntSim@{k}",
-                                "mean": np.mean(os_raw),
-                                "std": np.std(os_raw),
+                                "model": model_name,
                                 "k": k,
+                                "method": "Re-Ranked",
+                                "value": float(summary[reranked_key]),
+                                "std_dev": 0.0,
                             }
                         )
 
-            if has_raw_data and len(ont_sim_error_data) > 0:
-                # Create grouped bar chart with error bars similar to Hit Rate
-                os_error_df = pd.DataFrame(ont_sim_error_data)
-
-                # Group by model and metric for positioning
-                unique_models = sorted(os_error_df["model"].unique())
-                metrics = [f"OntSim@{k}" for k in k_values]
-                metrics = [m for m in metrics if m in os_error_df["metric"].unique()]
-
-                # Calculate bar positions
-                bar_width = 0.2 if len(unique_models) <= 3 else 0.15
-                x = np.arange(len(unique_models))
-
-                # Plot each metric as a group
-                viridis_colors = sns.color_palette("viridis", len(metrics))
-                color_map = {
-                    metric: viridis_colors[i] for i, metric in enumerate(metrics)
-                }
-
-                for i, metric in enumerate(metrics):
-                    metric_df = os_error_df[os_error_df["metric"] == metric]
-                    metric_df = (
-                        metric_df.set_index("model")
-                        .reindex(unique_models)
-                        .reset_index()
-                    )
-
-                    # Position the bars for this metric
-                    offset = (i - len(metrics) / 2 + 0.5) * bar_width
-
-                    plt.bar(
-                        x + offset,
-                        metric_df["mean"],
-                        bar_width,
-                        yerr=metric_df["std"],
-                        capsize=3,
-                        label=metric,
-                        color=color_map[metric],
-                    )
-
-                plt.xticks(x, unique_models, rotation=45, ha="right")
-                plt.legend(title="Metric", loc="upper left")
-
-                # Set y-axis limits (0 to 1 with padding for error bars)
-                min_y = max(
-                    0,
-                    min([r["mean"] - r["std"] for _, r in os_error_df.iterrows()])
-                    - 0.05,
-                )
-                plt.ylim(bottom=min_y, top=1.05)
-            else:
-                # Check if we can do a line chart (one line per model)
-                ont_sim_data = []
-                for i, model in enumerate(model_names):
-                    values = []
-                    for k in k_values:
-                        key = f"ont_similarity@{k}"
-                        values.append(summaries[i].get(key, 0))
-
-                    if any(values):
-                        plt.plot(k_values, values, marker="o", label=model, linewidth=2)
-
-                plt.xticks(k_values)
-                plt.legend(title="Model")
-                plt.ylim(0, 1.05)
-
-            plt.title("Ontology Similarity at K by Model")
-            plt.xlabel("K")
-            plt.ylabel("Ontology Similarity")
-            plt.grid(True, linestyle="--", alpha=0.7)
-            plt.tight_layout()
-
-            # Save figure
-            output_file = os.path.join(
-                output_dir, f"ont_similarity_barplot_{timestamp}.png"
+        flat_df_hr = pd.DataFrame(plot_data)
+        if not flat_df_hr.empty:
+            logging.info(f"Created Hit Rate plot data with {len(flat_df_hr)} entries")
+            plot_metric_at_k_bars(
+                flat_df_hr, "Hit Rate", "Hit Rate", output_dir, timestamp
             )
-            plt.savefig(output_file)
-            plt.close()
-            print(f"Ontology Similarity bar plot saved to: {output_file}")
+            plot_metric_at_k_lines(
+                flat_df_hr, "Hit Rate", "Hit Rate", output_dir, timestamp
+            )
+        else:
+            logging.warning("No data available to plot Hit Rate.")
 
-            # ---------------------------------------------------------------------
-            # 2. Ontology Similarity Line Plot with connected dots (by K value)
-            # ---------------------------------------------------------------------
-            plt.figure(figsize=(12, 8))
+    if "ont_similarity" in metrics_to_plot or "all" in metrics_to_plot:
+        # Work directly with the summary data for ontology similarity too
+        plot_data = []
+        k_values = (
+            K_VALUES_DEFAULT if "K_VALUES_DEFAULT" in globals() else [1, 3, 5, 10]
+        )
 
-            # Extract data for line plot (one line per model, x-axis = k values)
-            for i, model in enumerate(model_names):
-                ont_sim_by_k = []
-                for k in k_values:
-                    key = f"ont_similarity@{k}"
-                    ont_sim_by_k.append(summaries[i].get(key, 0))
+        for summary in summaries:
+            model_name = summary.get("model", "Unknown")
+            reranker_enabled = summary.get("reranker_enabled", False)
 
-                if any(ont_sim_by_k):
-                    model_color = plt.cm.viridis(i / max(1, len(model_names) - 1))
-                    plt.plot(
-                        k_values,
-                        ont_sim_by_k,
-                        "o-",
-                        linewidth=2.5,
-                        markersize=8,
-                        label=model,
-                        color=model_color,
+            for k in k_values:
+                # Directly access ontology similarity values from the summary with appropriate key names
+                dense_key = f"ont_similarity_dense@{k}"
+                if dense_key in summary:
+                    plot_data.append(
+                        {
+                            "model": model_name,
+                            "k": k,
+                            "method": "Dense",
+                            "value": float(summary[dense_key]),
+                            "std_dev": 0.0,
+                        }
                     )
 
-            plt.title("Ontology Similarity by K Value", fontsize=14)
-            plt.xlabel("K", fontsize=12)
-            plt.ylabel("Ontology Similarity", fontsize=12)
-            plt.xticks(k_values, fontsize=11)
-            plt.yticks(fontsize=11)
-            plt.ylim(0, 1.05)
-            plt.grid(True, linestyle="--", alpha=0.7)
-            plt.legend(title="Model", title_fontsize=12, fontsize=11, loc="lower right")
-            plt.tight_layout()
+                if reranker_enabled:
+                    reranked_key = f"ont_similarity_reranked@{k}"
+                    if reranked_key in summary:
+                        plot_data.append(
+                            {
+                                "model": model_name,
+                                "k": k,
+                                "method": "Re-Ranked",
+                                "value": float(summary[reranked_key]),
+                                "std_dev": 0.0,
+                            }
+                        )
 
-            # Save line plot
-            output_file = os.path.join(
-                output_dir, f"ont_similarity_lineplot_{timestamp}.png"
+        flat_df_os = pd.DataFrame(plot_data)
+        if not flat_df_os.empty:
+            logging.info(
+                f"Created Ontology Similarity plot data with {len(flat_df_os)} entries"
             )
-            plt.savefig(output_file)
-            plt.close()
-            print(f"Ontology Similarity line plot saved to: {output_file}")
-
-    return os.path.join(output_dir, f"mrr_comparison_{timestamp}.png")
+            plot_metric_at_k_bars(
+                flat_df_os,
+                "Ontology Similarity",
+                "Ontology Similarity",
+                output_dir,
+                timestamp,
+            )
+            plot_metric_at_k_lines(
+                flat_df_os,
+                "Ontology Similarity",
+                "Ontology Similarity",
+                output_dir,
+                timestamp,
+            )
+        else:
+            logging.warning("No data available to plot Ontology Similarity.")
 
 
 def main() -> None:
     """Main function for managing benchmark results."""
-    # Parse command line arguments
     parser = argparse.ArgumentParser(
         description="Manage and visualize benchmark results"
     )
-
-    subparsers = parser.add_subparsers(dest="command", help="Command to execute")
+    subparsers = parser.add_subparsers(
+        dest="command", help="Command to execute", required=True
+    )
 
     # Compare command
     compare_parser = subparsers.add_parser("compare", help="Compare benchmark results")
     compare_parser.add_argument(
-        "--output",
+        "--output-csv",
         type=str,
-        help="Output CSV file for the comparison table",
+        default=os.path.join(
+            DETAILED_DIR,
+            f"benchmark_comparison_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
+        ),
+        help="Output CSV file for the comparison table (default: benchmark_results/detailed/benchmark_comparison_TIMESTAMP.csv)",
     )
     compare_parser.add_argument(
         "--summaries-dir",
@@ -677,17 +328,13 @@ def main() -> None:
     # Visualize command
     visualize_parser = subparsers.add_parser("visualize", help="Create visualizations")
     visualize_parser.add_argument(
-        "--metric",
+        "--metrics",
         type=str,
         choices=["mrr", "hit_rate", "ont_similarity", "all"],
         default="all",
-        help="Metric to visualize (default: all plots)",
+        help="Comma-separated list of metrics to visualize (e.g., mrr,hit_rate) or 'all' (default: all plots)",
     )
-    visualize_parser.add_argument(
-        "--models",
-        type=str,
-        help="Comma-separated list of models to include",
-    )
+    # --models filter was removed from visualize for now, can be re-added if complex filtering on summaries is needed
     visualize_parser.add_argument(
         "--summaries-dir",
         type=str,
@@ -701,73 +348,51 @@ def main() -> None:
         help=f"Directory to save visualization images (default: {VISUALIZATIONS_DIR})",
     )
 
-    # Debug option for both commands
     parser.add_argument(
         "--debug",
         action="store_true",
         help="Enable debug logging",
     )
-
     args = parser.parse_args()
 
-    # Set up logging
     setup_logging(args.debug)
-
-    # Ensure output directories exist
     ensure_directories_exist()
 
-    # If no command is specified, show help
-    if not args.command:
-        parser.print_help()
+    summaries_dir = args.summaries_dir
+    os.makedirs(summaries_dir, exist_ok=True)  # Ensure it exists before loading
+
+    all_summaries = load_summary_files(summaries_dir)
+    if not all_summaries:
+        logging.error(f"No summary files found in {summaries_dir}. Exiting.")
         return
 
-    # Load summary files
-    summaries_dir = (
-        args.summaries_dir if hasattr(args, "summaries_dir") else SUMMARIES_DIR
+    # Deduplicate summaries to get the latest run for each model configuration
+    # This is important if multiple runs for the same model exist.
+    # The definition of "unique run" might need adjustment if you run same model with different reranker configs.
+    # For now, deduplicating by 'model' slug primarily.
+    unique_model_summaries = deduplicate_summaries(all_summaries)
+    logging.info(
+        f"Using {len(unique_model_summaries)} unique model summaries for processing."
     )
 
-    # Make sure the summaries directory exists
-    os.makedirs(summaries_dir, exist_ok=True)
-
-    summaries = load_summary_files(summaries_dir)
-
-    if not summaries:
-        logging.error(f"No summary files found in {summaries_dir}")
-        return
-
-    logging.info(f"Loaded {len(summaries)} summary files")
-
-    # Execute the specified command
     if args.command == "compare":
-        compare_summaries(summaries, args.output)
+        compare_summaries_cli(unique_model_summaries, args.output_csv)
 
     elif args.command == "visualize":
-        # Parse models list if provided
-        include_models = None
-        if hasattr(args, "models") and args.models:
-            include_models = [m.strip() for m in args.models.split(",")]
+        metrics_to_plot_list = []
+        if args.metrics == "all":
+            metrics_to_plot_list = ["mrr", "hit_rate", "ont_similarity"]
+        else:
+            metrics_to_plot_list = [m.strip() for m in args.metrics.split(",")]
 
-        # Ensure output directory exists
-        output_dir = args.output_dir
-        os.makedirs(output_dir, exist_ok=True)
+        os.makedirs(args.output_dir, exist_ok=True)  # Ensure plot output dir exists
 
-        # Deduplicate summaries to avoid issues with duplicate model labels
-        deduplicated_summaries = deduplicate_summaries(summaries)
-        logging.info(
-            f"Using {len(deduplicated_summaries)} unique models for visualization"
-        )
-
-        visualize_results(
-            deduplicated_summaries,
-            metric=args.metric,
-            include_models=include_models,
-            output_dir=output_dir,
+        visualize_results_cli(
+            unique_model_summaries,
+            metrics_to_plot=metrics_to_plot_list,
+            output_dir=args.output_dir,
         )
 
 
 if __name__ == "__main__":
-    # Import necessary libraries here to avoid unnecessarily importing them when not needed
-    import pandas as pd
-    import matplotlib.pyplot as plt
-
     main()
