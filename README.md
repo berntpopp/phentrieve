@@ -120,6 +120,57 @@ Our current implementation successfully extracts and indexes over 18,000 HPO phe
 - **Batch Processing**: Terms are processed and indexed in batches to handle memory constraints
 - **Ontology Metrics**: Semantic similarity calculations using HPO hierarchy depth and structure
 
+## Advanced Features
+
+### Cross-Encoder Re-ranking
+
+The system supports re-ranking of retrieved candidate HPO terms using cross-encoder models, which can significantly improve the ranking precision. Two re-ranking modes are available:
+
+1. **Cross-lingual Re-ranking** (default): Compares the German query directly with English HPO term labels
+   - Uses a multilingual cross-encoder model (default: MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7)
+   - No translation files required
+   - Suitable when no German translations are available
+
+2. **Monolingual German Re-ranking**: Compares the German query with German translations of HPO terms
+   - Uses a German-specific cross-encoder model (default: ml6team/cross-encoder-mmarco-german-distilbert-base)
+   - Requires German translations of HPO terms in JSON format
+   - Often produces more accurate rankings for German queries
+
+#### Translation File Format
+
+For monolingual re-ranking, translation files must be provided in the following structure:
+
+```
+[translation_dir]/
+├── HP_0000123.json
+├── HP_0000124.json
+└── ...
+```
+
+Each JSON file should follow this format:
+
+```json
+{
+  "lbl": "German translation of the main HPO term label",
+  "meta": {
+    "synonyms": [
+      {"val": "German synonym 1"},
+      {"val": "German synonym 2"}
+    ]
+  }
+}
+```
+
+#### Example Usage
+
+```bash
+# Cross-lingual re-ranking (German query → English HPO)
+python multilingual_hpo_rag/scripts/run_interactive_query.py --enable-reranker
+
+# Monolingual re-ranking (German query → German HPO translation)
+python multilingual_hpo_rag/scripts/run_interactive_query.py --enable-reranker --reranker-mode monolingual --translation-dir path/to/translations
+```
+
 ## Limitations & Future Work
 
 - **No coordinate information**: The system identifies relevant HPO terms but not their precise positions in the input text
@@ -190,6 +241,12 @@ Options:
 - `--similarity-threshold`: Minimum similarity score (0-1) to show results (default: 0.3)
 - `--num-results`: Maximum number of results to display (default: 5)
 - `--sentence-mode`: Process input text sentence by sentence
+- `--enable-reranker`: Enable cross-encoder re-ranking (default: False)
+- `--reranker-mode`: Re-ranking mode, either 'cross-lingual' (German query → English HPO) or 'monolingual' (German query → German HPO translation) (default: cross-lingual)
+- `--reranker-model`: Cross-encoder model to use for cross-lingual re-ranking (default: MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7)
+- `--monolingual-reranker-model`: Cross-encoder model to use for monolingual re-ranking (default: ml6team/cross-encoder-mmarco-german-distilbert-base)
+- `--translation-dir`: Directory containing German HPO term translations for monolingual re-ranking (default: data/hpo_translations_de)
+- `--rerank-count`: Number of candidates to re-rank (default: 50)
 
 ## File Structure
 
