@@ -14,14 +14,35 @@ Metrics include:
 import argparse
 import logging
 import os
+import pathlib
 import sys
-from pathlib import Path
+from datetime import datetime
 from typing import List, Optional
 
-# Add parent directory to path so we can import the package
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Add the parent directory to sys.path to make the package importable
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+sys.path.insert(0, project_root)
+
+# For direct script execution, we also need to add the package directory itself
+package_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+sys.path.insert(0, package_dir)
+
+# For debugging import path issues
+if "--debug" in sys.argv:
+    print(f"Python path: {sys.path}")
+    print(f"Project root: {project_root}")
+    print(f"Package dir: {package_dir}")
+
+# Import pandas deferred to end if running as main to avoid unnecessary import when imported as a module
 
 from multilingual_hpo_rag.config import (
+    MIN_SIMILARITY_THRESHOLD,
+    DEFAULT_RERANKER_MODEL,
+    DEFAULT_MONOLINGUAL_RERANKER_MODEL,
+    DEFAULT_RERANKER_MODE,
+    DEFAULT_TRANSLATION_DIR,
+    DEFAULT_RERANK_CANDIDATE_COUNT,
+    DEFAULT_ENABLE_RERANKER,
     DEFAULT_BIOLORD_MODEL,
     DEFAULT_MODEL,
     BENCHMARK_MODELS,
@@ -29,10 +50,11 @@ from multilingual_hpo_rag.config import (
     RESULTS_DIR,
     SUMMARIES_DIR,
     DETAILED_DIR,
+    DEFAULT_SIMILARITY_THRESHOLD,
+    DEFAULT_DEVICE,
 )
-from multilingual_hpo_rag.data_processing.test_data_loader import (
-    create_sample_test_data,
-)
+
+# Use local logging setup instead of importing from non-existent utils.log_utils module
 from multilingual_hpo_rag.evaluation.runner import run_evaluation, compare_models
 
 
@@ -126,6 +148,45 @@ def main() -> None:
         help="Enable debug logging",
     )
 
+    # Cross-encoder re-ranking arguments
+    reranker_group = parser.add_argument_group("Re-ranking options")
+    reranker_group.add_argument(
+        "--enable-reranker",
+        action="store_true",
+        help=f"Enable cross-encoder re-ranking of results (default: {DEFAULT_ENABLE_RERANKER})",
+    )
+    reranker_group.add_argument(
+        "--reranker-model",
+        type=str,
+        default=DEFAULT_RERANKER_MODEL,
+        help=f"Cross-encoder model to use for re-ranking (default: {DEFAULT_RERANKER_MODEL})",
+    )
+    reranker_group.add_argument(
+        "--monolingual-reranker-model",
+        type=str,
+        default=DEFAULT_MONOLINGUAL_RERANKER_MODEL,
+        help=f"German cross-encoder model for monolingual re-ranking (default: {DEFAULT_MONOLINGUAL_RERANKER_MODEL})",
+    )
+    reranker_group.add_argument(
+        "--rerank-mode",
+        type=str,
+        choices=["cross-lingual", "monolingual"],
+        default=DEFAULT_RERANKER_MODE,
+        help=f"Re-ranking mode: cross-lingual (German->English) or monolingual (German->German) (default: {DEFAULT_RERANKER_MODE})",
+    )
+    reranker_group.add_argument(
+        "--translation-dir",
+        type=str,
+        default=DEFAULT_TRANSLATION_DIR,
+        help=f"Directory containing German translations of HPO terms (default: {DEFAULT_TRANSLATION_DIR})",
+    )
+    parser.add_argument(
+        "--rerank-count",
+        type=int,
+        default=DEFAULT_RERANK_CANDIDATE_COUNT,
+        help=f"Number of candidates to re-rank (default: {DEFAULT_RERANK_CANDIDATE_COUNT})",
+    )
+
     args = parser.parse_args()
 
     # Set up logging
@@ -169,6 +230,15 @@ def main() -> None:
             device=device,
             trust_remote_code=args.trust_remote_code,
             save_results=True,
+            enable_reranker=args.enable_reranker,
+            reranker_model=(
+                args.reranker_model
+                if args.rerank_mode == "cross-lingual"
+                else args.monolingual_reranker_model
+            ),
+            rerank_count=args.rerank_count,
+            reranker_mode=args.rerank_mode,
+            translation_dir=args.translation_dir,
         )
 
         if results:

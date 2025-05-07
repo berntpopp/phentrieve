@@ -120,6 +120,57 @@ Our current implementation successfully extracts and indexes over 18,000 HPO phe
 - **Batch Processing**: Terms are processed and indexed in batches to handle memory constraints
 - **Ontology Metrics**: Semantic similarity calculations using HPO hierarchy depth and structure
 
+## Advanced Features
+
+### Cross-Encoder Re-ranking
+
+The system supports re-ranking of retrieved candidate HPO terms using cross-encoder models, which can significantly improve the ranking precision. Two re-ranking modes are available:
+
+1. **Cross-lingual Re-ranking** (default): Compares the German query directly with English HPO term labels
+   - Uses a multilingual cross-encoder model (default: MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7)
+   - No translation files required
+   - Suitable when no German translations are available
+
+2. **Monolingual German Re-ranking**: Compares the German query with German translations of HPO terms
+   - Uses a German-specific cross-encoder model (default: ml6team/cross-encoder-mmarco-german-distilbert-base)
+   - Requires German translations of HPO terms in JSON format
+   - Often produces more accurate rankings for German queries
+
+#### Translation File Format
+
+For monolingual re-ranking, translation files must be provided in the following structure:
+
+```
+[translation_dir]/
+├── HP_0000123.json
+├── HP_0000124.json
+└── ...
+```
+
+Each JSON file should follow this format:
+
+```json
+{
+  "lbl": "German translation of the main HPO term label",
+  "meta": {
+    "synonyms": [
+      {"val": "German synonym 1"},
+      {"val": "German synonym 2"}
+    ]
+  }
+}
+```
+
+#### Example Usage
+
+```bash
+# Cross-lingual re-ranking (German query → English HPO)
+python -m multilingual_hpo_rag.scripts.run_interactive_query --enable-reranker
+
+# Monolingual re-ranking (German query → German HPO translation)
+python -m multilingual_hpo_rag.scripts.run_interactive_query --enable-reranker --reranker-mode monolingual --translation-dir path/to/translations
+```
+
 ## Limitations & Future Work
 
 - **No coordinate information**: The system identifies relevant HPO terms but not their precise positions in the input text
@@ -164,18 +215,36 @@ pip install -r requirements.txt
 ### Prepare the HPO Index (Run Once)
 
 ```bash
-python multilingual_hpo_rag/scripts/01_prepare_hpo_data.py  # Downloads hp.json if needed and extracts terms
-python multilingual_hpo_rag/scripts/02_build_index.py  # Creates and populates the vector index
+python -m multilingual_hpo_rag.scripts.01_prepare_hpo_data  # Downloads hp.json if needed and extracts terms
+python -m multilingual_hpo_rag.scripts.02_build_index  # Creates and populates the vector index
 ```
 
 Note: The first run will download the model (~1.1 GB) and generate embeddings, which can be time-intensive.
+
+### Execution Methods
+
+There are two supported ways to run the scripts in this project:
+
+1. **Recommended Method**: Running from the project root using Python's module syntax:
+   ```bash
+   # Run from the project root directory
+   python -m multilingual_hpo_rag.scripts.03_run_benchmark [args...]
+   ```
+
+2. **Alternative Method**: Running scripts directly:
+   ```bash
+   # Run from the project root directory
+   python multilingual_hpo_rag/scripts/03_run_benchmark.py [args...]
+   ```
+
+Both methods will work, but the first is recommended as it follows standard Python practices for module resolution.
 
 ### Run the CLI Tool
 
 Basic usage:
 
 ```bash
-python multilingual_hpo_rag/scripts/run_interactive_query.py
+python -m multilingual_hpo_rag.scripts.run_interactive_query
 ```
 
 With command-line arguments:
@@ -190,6 +259,12 @@ Options:
 - `--similarity-threshold`: Minimum similarity score (0-1) to show results (default: 0.3)
 - `--num-results`: Maximum number of results to display (default: 5)
 - `--sentence-mode`: Process input text sentence by sentence
+- `--enable-reranker`: Enable cross-encoder re-ranking (default: False)
+- `--reranker-mode`: Re-ranking mode, either 'cross-lingual' (German query → English HPO) or 'monolingual' (German query → German HPO translation) (default: cross-lingual)
+- `--reranker-model`: Cross-encoder model to use for cross-lingual re-ranking (default: MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7)
+- `--monolingual-reranker-model`: Cross-encoder model to use for monolingual re-ranking (default: ml6team/cross-encoder-mmarco-german-distilbert-base)
+- `--translation-dir`: Directory containing German HPO term translations for monolingual re-ranking (default: data/hpo_translations_de)
+- `--rerank-count`: Number of candidates to re-rank (default: 50)
 
 ## File Structure
 
@@ -311,10 +386,10 @@ Before running benchmarks, you need to set up the embedding models and their cor
 
 ```bash
 # Set up a specific model
-python multilingual_hpo_rag/scripts/04_manage_results.py setup --model-name "FremyCompany/BioLORD-2023-M"
+python -m multilingual_hpo_rag.scripts.04_manage_results setup --model-name "FremyCompany/BioLORD-2023-M"
 
 # Or set up all supported models at once
-python multilingual_hpo_rag/scripts/04_manage_results.py setup --all
+python -m multilingual_hpo_rag.scripts.04_manage_results setup --all
 ```
 
 #### Running Benchmark Tests
@@ -323,16 +398,16 @@ To evaluate model performance using the test cases:
 
 ```bash
 # Benchmark a specific model
-python multilingual_hpo_rag/scripts/04_manage_results.py run --model-name "FremyCompany/BioLORD-2023-M"
+python -m multilingual_hpo_rag.scripts.04_manage_results run --model-name "FremyCompany/BioLORD-2023-M"
 
 # Run benchmarks on all models
-python multilingual_hpo_rag/scripts/04_manage_results.py run --all
+python -m multilingual_hpo_rag.scripts.04_manage_results run --all
 
 # Run with detailed per-test-case results
-python multilingual_hpo_rag/scripts/04_manage_results.py run --all --detailed
+python -m multilingual_hpo_rag.scripts.04_manage_results run --all --detailed
 
 # Set a custom similarity threshold
-python multilingual_hpo_rag/scripts/04_manage_results.py run --all --similarity-threshold 0.2
+python -m multilingual_hpo_rag.scripts.04_manage_results run --all --similarity-threshold 0.2
 ```
 
 **Note:** The `run` command will benchmark models, generate result files, and also create a comparison table and visualization for the models just benchmarked. When using `--all`, this provides an immediate comparison of all models.
@@ -343,10 +418,10 @@ The `compare` command allows you to compare previously saved benchmark results w
 
 ```bash
 # Compare all previously benchmarked models (loads saved results)
-python multilingual_hpo_rag/scripts/04_manage_results.py compare
+python -m multilingual_hpo_rag.scripts.04_manage_results compare
 
 # Compare only specific models from previous benchmark runs
-python multilingual_hpo_rag/scripts/04_manage_results.py compare --models "biolord_2023_m" "jina_embeddings_v2_base_de"
+python -m multilingual_hpo_rag.scripts.04_manage_results compare --models "biolord_2023_m" "jina_embeddings_v2_base_de"
 ```
 
 **When to use `compare` vs. `run --all`:**

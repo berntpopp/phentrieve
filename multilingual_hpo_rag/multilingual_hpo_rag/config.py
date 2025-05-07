@@ -49,7 +49,26 @@ BENCHMARK_MODELS = [
 
 # Default parameters
 MIN_SIMILARITY_THRESHOLD = 0.3  # Minimum similarity score to display results
+# Default similarity threshold used in benchmark evaluations
+DEFAULT_SIMILARITY_THRESHOLD = 0.1
 DEFAULT_TOP_K = 5  # Default number of results to return
+DEFAULT_DEVICE = None  # Default device (None = auto-detect)
+
+# Cross-encoder re-ranking settings
+# Multilingual cross-encoder model for re-ranking
+DEFAULT_RERANKER_MODEL = "MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7"
+# German cross-encoder model for monolingual re-ranking
+DEFAULT_MONOLINGUAL_RERANKER_MODEL = (
+    "ml6team/cross-encoder-mmarco-german-distilbert-base"
+)
+# Re-ranking mode options:
+# - 'cross-lingual': German query -> English HPO
+# - 'monolingual': German query -> German HPO
+DEFAULT_RERANKER_MODE = "cross-lingual"
+# Default directory for German HPO term translations
+DEFAULT_TRANSLATION_DIR = os.path.join(DATA_DIR, "hpo_translations_de")
+DEFAULT_RERANK_CANDIDATE_COUNT = 50
+DEFAULT_ENABLE_RERANKER = False
 
 # Root for HPO term extraction and depth calculations
 PHENOTYPE_ROOT = "HP:0000118"

@@ -5,10 +5,16 @@ This module contains utility functions used throughout the multilingual_hpo_rag
 package for tasks like file handling, string processing, and configuration.
 """
 
+import functools
+import json
+import logging
+import os
 import re
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 
 from multilingual_hpo_rag.config import INDEX_DIR
+
+logger = logging.getLogger(__name__)
 
 
 def get_embedding_dimension(model_name: str) -> int:
@@ -104,3 +110,58 @@ def calculate_similarity(distance: float) -> float:
     # Clamp the result between 0.0 and 1.0 as similarity scores typically range from 0 to 1
     # (though cosine similarity technically ranges from -1 to 1, negative values are unlikely here)
     return max(0.0, min(1.0, similarity))
+
+
+@functools.lru_cache(maxsize=512)
+def load_german_translation_text(hpo_id: str, translation_dir: str) -> Optional[str]:
+    """
+    Load German translation text for a given HPO ID from a JSON file.
+
+    The function extracts ONLY the German label and synonyms (not the original English terms).
+
+    Args:
+        hpo_id: HPO ID (e.g., "HP:0004241")
+        translation_dir: Path to directory containing translation JSON files
+
+    Returns:
+        String containing formatted German translation text or None if not found/error
+        Format: "[German Label]. Synonyms: [German Syn1]; [German Syn2]; ..."
+    """
+    # Convert HPO ID format from HP:NNNNNNN to HP_NNNNNNN for filename
+    file_id = hpo_id.replace(":", "_")
+    json_path = os.path.join(translation_dir, f"{file_id}.json")
+
+    if not os.path.exists(json_path):
+        logger.warning(f"Translation file not found for {hpo_id} at {json_path}")
+        return None
+
+    try:
+        with open(json_path, "r", encoding="utf-8") as f:
+            translation_data = json.load(f)
+
+        # Extract German label (required field)
+        german_label = translation_data.get("lbl", "")
+        if not german_label:
+            logger.warning(f"Missing German label in translation for {hpo_id}")
+            return None
+
+        # Get German synonyms if available (optional field)
+        german_synonyms = []
+        if "meta" in translation_data and "synonyms" in translation_data["meta"]:
+            # Extract ONLY the German synonym values ("val" field), not the original English
+            for syn in translation_data["meta"]["synonyms"]:
+                if "val" in syn:
+                    german_synonyms.append(syn["val"])
+
+        # Construct the combined German text
+        result = german_label
+        if german_synonyms:
+            # Add synonyms separated by semicolons
+            synonyms_text = "; ".join(german_synonyms)
+            result += f". Synonyms: {synonyms_text}"
+
+        return result
+
+    except (json.JSONDecodeError, IOError) as e:
+        logger.error(f"Error loading translation for {hpo_id}: {str(e)}")
+        return None
