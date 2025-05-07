@@ -1,0 +1,48 @@
+# Initial pyproject.toml for Phentrieve
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "phentrieve"
+version = "0.2.0" # Initial CLI version
+description = "A CLI tool for retrieving Human Phenotype Ontology (HPO) terms from clinical text using multilingual embeddings."
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [
+    { name = "Bernt Popp", email = "bernt.popp@example.com" }, # Placeholder: Update email
+]
+requires-python = ">=3.9" # Verify minimum Python version needed
+classifiers = [
+    "Development Status :: 3 - Alpha", # Starting point
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+    "Topic :: Scientific/Engineering :: Medical Science Apps.",
+    "Environment :: Console",
+]
+dependencies = [
+    "sentence-transformers>=2.2.2",
+    "chromadb>=0.4.18",
+    "requests>=2.31.0",
+    "pysbd>=0.3.4",
+    "tqdm>=4.66.1",
+    "pandas>=2.0.0",
+    "torch>=2.0.0",
+    "numpy>=1.23.0",
+    "matplotlib>=3.7.0",
+    "seaborn>=0.12.0",
+    "typer[all]>=0.9.0"
+]
+
+[project.scripts]
+phentrieve = "phentrieve.phentrieve.cli:app"
+
+[tool.setuptools]
+packages = ["phentrieve", "phentrieve.phentrieve"]

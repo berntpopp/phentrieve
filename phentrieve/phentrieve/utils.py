@@ -10,11 +10,28 @@ import json
 import logging
 import os
 import re
+import sys
 from typing import Dict, Optional
 
-from phentrieve.config import INDEX_DIR
+from .config import INDEX_DIR
 
 logger = logging.getLogger(__name__)
+
+
+def setup_logging_cli(debug: bool = False):
+    """Configure logging for CLI commands."""
+    level = logging.DEBUG if debug else logging.INFO
+    log_format = "%(asctime)s - %(levelname)s - %(message)s"
+    # Configure root logger
+    logging.basicConfig(
+        level=level,
+        format=log_format,
+        handlers=[logging.StreamHandler(sys.stdout)],
+        force=True,
+    )
+    # Optional: Silence overly verbose libraries if needed
+    # logging.getLogger("chromadb").setLevel(logging.WARNING)
+    logging.info(f"Logging level set to {'DEBUG' if debug else 'INFO'}")
 
 
 def get_embedding_dimension(model_name: str) -> int:
