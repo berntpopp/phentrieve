@@ -32,6 +32,7 @@ from phentrieve.evaluation.metrics import (
     mean_reciprocal_rank,
     hit_rate_at_k,
     average_max_similarity,
+    calculate_semantic_similarity,
     load_hpo_graph_data,
 )
 from phentrieve.embeddings import load_embedding_model
@@ -232,7 +233,31 @@ def run_evaluation(
                     if dense_term_ids:
                         # Extract HPO IDs from results
                         retrieved_ids = dense_term_ids[:k]
-                        ont_sim = average_max_similarity(expected_ids, retrieved_ids)
+
+                        # Calculate similarity scores for each expected ID
+                        max_similarities = []
+                        for expected_id in expected_ids:
+                            # Check for exact match first
+                            if expected_id in retrieved_ids:
+                                # If there's an exact match, use 1.0 (ensures OntSim >= HR)
+                                max_similarities.append(1.0)
+                            else:
+                                # Otherwise calculate semantic similarity
+                                similarities = []
+                                for retrieved_id in retrieved_ids:
+                                    sim = calculate_semantic_similarity(
+                                        expected_id, retrieved_id
+                                    )
+                                    similarities.append(sim)
+                                # Take the max similarity for this expected ID
+                                max_similarities.append(
+                                    max(similarities) if similarities else 0.0
+                                )
+
+                        # Use the maximum similarity across all expected terms
+                        # This aligns with HR@k which checks if ANY expected term is retrieved
+                        ont_sim = max(max_similarities) if max_similarities else 0.0
+
                         ont_similarity_dense_values[k].append(ont_sim)
                         dense_ont_similarities[f"ont_similarity_dense@{k}"] = ont_sim
                     else:

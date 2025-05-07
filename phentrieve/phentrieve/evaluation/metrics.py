@@ -40,18 +40,51 @@ def load_hpo_graph_data(
 
     # Return cached data if already loaded
     if _hpo_ancestors is not None and _hpo_term_depths is not None:
+        logging.debug("Using cached HPO graph data")
         return _hpo_ancestors, _hpo_term_depths
 
     try:
+        # Check if files exist
+        if not os.path.exists(ancestors_path):
+            logging.error(f"Ancestors file not found: {ancestors_path}")
+            return {}, {}
+        if not os.path.exists(depths_path):
+            logging.error(f"Depths file not found: {depths_path}")
+            return {}, {}
+
         # Load ancestor sets
         with open(ancestors_path, "rb") as f:
             _hpo_ancestors = pickle.load(f)
         logging.info(f"Loaded ancestor sets for {len(_hpo_ancestors)} HPO terms")
 
+        # Log sample data for debugging
+        if _hpo_ancestors:
+            sample_terms = list(_hpo_ancestors.keys())[:3]
+            for term in sample_terms:
+                ancestors = _hpo_ancestors.get(term, set())
+                logging.debug(f"Sample term {term} has {len(ancestors)} ancestors")
+
         # Load term depths
         with open(depths_path, "rb") as f:
             _hpo_term_depths = pickle.load(f)
         logging.info(f"Loaded depth values for {len(_hpo_term_depths)} HPO terms")
+
+        # Log sample depth data
+        if _hpo_term_depths:
+            sample_terms = list(_hpo_term_depths.keys())[:5]
+            logging.debug(
+                f"Sample depths: {[(t, _hpo_term_depths[t]) for t in sample_terms]}"
+            )
+
+            # Statistics on depth distribution
+            depths = list(_hpo_term_depths.values())
+            if depths:
+                min_depth = min(depths)
+                max_depth = max(depths)
+                avg_depth = sum(depths) / len(depths)
+                logging.debug(
+                    f"Depth statistics: min={min_depth}, max={max_depth}, avg={avg_depth:.2f}"
+                )
 
         return _hpo_ancestors, _hpo_term_depths
 
@@ -120,6 +153,7 @@ def calculate_resnik_similarity(term1: str, term2: str) -> float:
     lca, lca_depth = find_lowest_common_ancestor(term1, term2)
 
     if lca is None:
+        logging.debug(f"No LCA found between {term1} and {term2}")
         return 0.0
 
     # Get depth of the two terms
@@ -129,17 +163,53 @@ def calculate_resnik_similarity(term1: str, term2: str) -> float:
     depth2 = depths_dict.get(term2, float("inf"))
 
     if depth1 == float("inf") or depth2 == float("inf"):
+        logging.debug(f"Missing depth for {term1}={depth1} or {term2}={depth2}")
         return 0.0
 
     # Calculate Resnik-like similarity based on LCA depth
-    # Normalize by max depth of the two terms to get a score between 0 and 1
-    max_depth = max(depth1, depth2)
+    # Calculate path length from each term to LCA
+    path_length1 = depth1 - lca_depth
+    path_length2 = depth2 - lca_depth
+    total_path_length = path_length1 + path_length2
 
-    if max_depth == 0:
-        return 0.0
+    # Check if path lengths are valid
+    if total_path_length < 0:
+        logging.warning(
+            f"Invalid path lengths: term1={depth1}, term2={depth2}, LCA={lca_depth}"
+        )
+        total_path_length = 0
 
-    # Normalize by max possible depth to get a value between 0 and 1
-    return lca_depth / max_depth
+    # Calculate Resnik similarity based on path length and depth
+    if total_path_length == 0:  # Identical or very closely related terms
+        similarity = 1.0
+    else:
+        # Two factors contribute to similarity:
+        # 1. How deep the LCA is (deeper = more specific = higher similarity)
+        # 2. How far the terms are from their LCA (farther = lower similarity)
+
+        # Scale LCA depth by maximum possible depth in the ontology
+        _, depths = load_hpo_graph_data()
+        max_possible_depth = (
+            max(depths.values()) if depths else 20
+        )  # Default if no data
+
+        # LCA depth factor (higher depth = more similarity)
+        depth_factor = lca_depth / max_possible_depth
+
+        # Distance factor (shorter total path = more similarity)
+        # Normalize by the sum of depths to get a relative distance
+        max_possible_distance = depth1 + depth2 if (depth1 + depth2) > 0 else 1
+        distance_factor = 1 - (total_path_length / max_possible_distance)
+
+        # Combine factors with more weight on depth
+        similarity = (0.7 * depth_factor) + (0.3 * distance_factor)
+
+    logging.debug(
+        f"Similarity between {term1} and {term2}: {similarity:.4f} "
+        f"(LCA={lca}, LCA depth={lca_depth}, depths={depth1},{depth2})"
+    )
+
+    return max(0.0, min(1.0, similarity))  # Ensure result is 0-1
 
 
 def calculate_semantic_similarity(expected_term: str, retrieved_term: str) -> float:
@@ -154,14 +224,30 @@ def calculate_semantic_similarity(expected_term: str, retrieved_term: str) -> fl
         Similarity score (0-1), where 1 is exact match and 0 is no similarity
     """
     # Load HPO graph data if not already loaded
-    load_hpo_graph_data()
+    ancestors_dict, depths_dict = load_hpo_graph_data()
+
+    # Check if we have valid data for both terms
+    if expected_term not in ancestors_dict or retrieved_term not in ancestors_dict:
+        logging.debug(
+            f"Missing term data: {expected_term} or {retrieved_term} not in ancestors"
+        )
+        # If terms are identical, return 1.0 even if missing from ancestors dict
+        if expected_term == retrieved_term:
+            return 1.0
+        return 0.0
 
     # If terms are identical, return 1.0
     if expected_term == retrieved_term:
+        logging.debug(f"Exact match between {expected_term} and {retrieved_term}")
         return 1.0
 
     # Calculate Resnik similarity
-    return calculate_resnik_similarity(expected_term, retrieved_term)
+    similarity = calculate_resnik_similarity(expected_term, retrieved_term)
+    logging.debug(
+        f"Semantic similarity between {expected_term} and {retrieved_term}: {similarity:.4f}"
+    )
+
+    return similarity
 
 
 def calculate_max_similarity(
