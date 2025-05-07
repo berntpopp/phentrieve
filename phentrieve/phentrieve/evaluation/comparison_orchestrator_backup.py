@@ -269,13 +269,15 @@ def generate_visualizations(
         # Organize metrics by type
         mrr_metrics = [col for col in comparison_df.columns if col.startswith("MRR")]
         hr_metrics = [col for col in comparison_df.columns if col.startswith("HR@")]
-        ont_metrics = [col for col in comparison_df.columns if col.startswith("OntSim@")]
-        
+        ont_metrics = [
+            col for col in comparison_df.columns if col.startswith("OntSim@")
+        ]
+
         # Check if we have both dense and reranked metrics
         has_dense = any("Dense" in m for m in comparison_df.columns)
         has_reranked = any("Re-Ranked" in m for m in comparison_df.columns)
         has_comparison = has_dense and has_reranked
-        
+
         # Organize HR and OntSim metrics by k value
         hr_by_k = {}
         for metric in hr_metrics:
@@ -285,7 +287,7 @@ def generate_visualizations(
                 if k not in hr_by_k:
                     hr_by_k[k] = []
                 hr_by_k[k].append(metric)
-        
+
         ont_by_k = {}
         for metric in ont_metrics:
             k_match = re.search(r"OntSim@(\d+)", metric)
@@ -294,70 +296,127 @@ def generate_visualizations(
                 if k not in ont_by_k:
                     ont_by_k[k] = []
                 ont_by_k[k].append(metric)
-        
+
         # Sort models by MRR for consistent display across all plots
-        primary_sort = "MRR (Dense)" if "MRR (Dense)" in comparison_df.columns else comparison_df.columns[1]
-        sorted_df = comparison_df.sort_values(by=primary_sort, ascending=False).reset_index(drop=True)
-        
+        primary_sort = (
+            "MRR (Dense)"
+            if "MRR (Dense)" in comparison_df.columns
+            else comparison_df.columns[1]
+        )
+        sorted_df = comparison_df.sort_values(
+            by=primary_sort, ascending=False
+        ).reset_index(drop=True)
+
         # Create a colormap for models that will be consistent across all charts
         # Use a colorblind-friendly palette with distinct colors
         model_names = sorted_df["Model"].tolist()
         n_models = len(model_names)
-        model_colors = plt.cm.get_cmap('tab10', n_models)  # tab10 is a good discrete colormap
+        model_colors = plt.cm.get_cmap(
+            "tab10", n_models
+        )  # tab10 is a good discrete colormap
         color_map = {model: model_colors(i) for i, model in enumerate(model_names)}
-        
+
         # 1. GENERATE MRR COMPARISON (special visualization)
         if mrr_metrics:
             plt.figure(figsize=(14, 8))
             x = np.arange(len(sorted_df))
             ax = plt.axes()
-            
+
             # If we have both dense and reranked MRR
-            if has_comparison and "MRR (Dense)" in mrr_metrics and "MRR (Re-Ranked)" in mrr_metrics:
+            if (
+                has_comparison
+                and "MRR (Dense)" in mrr_metrics
+                and "MRR (Re-Ranked)" in mrr_metrics
+            ):
                 bar_width = 0.35
                 # Use the model colors for the bars
-                dense_bars = ax.bar(x - bar_width/2, sorted_df["MRR (Dense)"], 
-                               width=bar_width, label="Dense", color=[color_map[m] for m in sorted_df["Model"]], alpha=0.9)
-                reranked_bars = ax.bar(x + bar_width/2, sorted_df["MRR (Re-Ranked)"], 
-                                  width=bar_width, label="Re-Ranked", color=[color_map[m] for m in sorted_df["Model"]], alpha=0.6)
-                
+                dense_bars = ax.bar(
+                    x - bar_width / 2,
+                    sorted_df["MRR (Dense)"],
+                    width=bar_width,
+                    label="Dense",
+                    color=[color_map[m] for m in sorted_df["Model"]],
+                    alpha=0.9,
+                )
+                reranked_bars = ax.bar(
+                    x + bar_width / 2,
+                    sorted_df["MRR (Re-Ranked)"],
+                    width=bar_width,
+                    label="Re-Ranked",
+                    color=[color_map[m] for m in sorted_df["Model"]],
+                    alpha=0.6,
+                )
+
                 # Add value labels on bars
                 for i, bar in enumerate(dense_bars):
                     height = bar.get_height()
-                    ax.text(bar.get_x() + bar.get_width()/2., height + 0.01,
-                          f"{height:.3f}", ha="center", va="bottom", fontsize=10)
-                
+                    ax.text(
+                        bar.get_x() + bar.get_width() / 2.0,
+                        height + 0.01,
+                        f"{height:.3f}",
+                        ha="center",
+                        va="bottom",
+                        fontsize=10,
+                    )
+
                 for i, bar in enumerate(reranked_bars):
                     height = bar.get_height()
-                    ax.text(bar.get_x() + bar.get_width()/2., height + 0.01,
-                          f"{height:.3f}", ha="center", va="bottom", fontsize=10)
-                
+                    ax.text(
+                        bar.get_x() + bar.get_width() / 2.0,
+                        height + 0.01,
+                        f"{height:.3f}",
+                        ha="center",
+                        va="bottom",
+                        fontsize=10,
+                    )
+
                 # Create legend for dense vs reranked
                 handles, labels = ax.get_legend_handles_labels()
-                ax.legend(handles, labels, loc='upper right')
-                
+                ax.legend(handles, labels, loc="upper right")
+
                 # Add a second legend for model colors
-                model_patches = [plt.Rectangle((0,0),1,1, color=color_map[model]) for model in model_names]
-                plt.legend(model_patches, model_names, loc='upper left', bbox_to_anchor=(1.05, 1))
-                
+                model_patches = [
+                    plt.Rectangle((0, 0), 1, 1, color=color_map[model])
+                    for model in model_names
+                ]
+                plt.legend(
+                    model_patches,
+                    model_names,
+                    loc="upper left",
+                    bbox_to_anchor=(1.05, 1),
+                )
+
                 title = "MRR Comparison: Dense vs Re-Ranked Retrieval"
             else:
                 # Single MRR type, create simple bar chart with model-colored bars
                 metric = mrr_metrics[0]
-                bars = ax.bar(x, sorted_df[metric], color=[color_map[m] for m in sorted_df["Model"]])
-                
+                bars = ax.bar(
+                    x,
+                    sorted_df[metric],
+                    color=[color_map[m] for m in sorted_df["Model"]],
+                )
+
                 # Add value labels on bars
                 for i, bar in enumerate(bars):
                     height = bar.get_height()
-                    ax.text(bar.get_x() + bar.get_width()/2., height + 0.01,
-                           f"{height:.3f}", ha="center", va="bottom", fontsize=10)
-                
+                    ax.text(
+                        bar.get_x() + bar.get_width() / 2.0,
+                        height + 0.01,
+                        f"{height:.3f}",
+                        ha="center",
+                        va="bottom",
+                        fontsize=10,
+                    )
+
                 # Create legend for model colors
-                model_patches = [plt.Rectangle((0,0),1,1, color=color_map[model]) for model in model_names]
-                plt.legend(model_patches, model_names, loc='upper right')
-                
+                model_patches = [
+                    plt.Rectangle((0, 0), 1, 1, color=color_map[model])
+                    for model in model_names
+                ]
+                plt.legend(model_patches, model_names, loc="upper right")
+
                 title = "MRR Comparison Across Models"
-            
+
             # Common formatting
             plt.xlabel("Model", fontsize=14)
             plt.ylabel("Mean Reciprocal Rank (MRR)", fontsize=14)
@@ -368,294 +427,399 @@ def generate_visualizations(
             plt.savefig(os.path.join(output_dir, "mrr_comparison.png"), dpi=300)
             plt.close()
             logger.info("Generated MRR comparison visualization")
-        
+
         # 2. CREATE COMBINED HR@K MULTI-PANEL CHART
         if hr_by_k:
             # Determine how many k-values we have for HR metrics
             hr_k_values = sorted([int(k) for k in hr_by_k.keys()])
             n_hr_plots = len(hr_k_values)
-            
+
             if n_hr_plots > 0:
                 # Create a figure with multiple subplots for each k value
-                fig, axes = plt.subplots(n_hr_plots, 1, figsize=(12, 5*n_hr_plots), squeeze=False)
-                
+                fig, axes = plt.subplots(
+                    n_hr_plots, 1, figsize=(12, 5 * n_hr_plots), squeeze=False
+                )
+
                 for i, k in enumerate(hr_k_values):
                     ax = axes[i, 0]
                     metrics = hr_by_k[str(k)]
-                    
+
                     # Check if we have both dense and reranked for this k value
                     has_dense_k = any("Dense" in m for m in metrics)
                     has_reranked_k = any("Re-Ranked" in m for m in metrics)
                     has_comparison_k = has_dense_k and has_reranked_k
-                    
+
                     x = np.arange(len(sorted_df))
-                    
+
                     # Case 1: If we have both dense and reranked
                     if has_comparison_k:
                         dense_metric = f"HR@{k} (Dense)"
                         reranked_metric = f"HR@{k} (Re-Ranked)"
-                        
+
                         bar_width = 0.35
                         # Apply model-based colors with different alpha for Dense vs Reranked
-                        dense_bars = ax.bar(x - bar_width/2, sorted_df[dense_metric], 
-                                           width=bar_width, label="Dense", 
-                                           color=[color_map[m] for m in sorted_df["Model"]], alpha=0.9)
-                        reranked_bars = ax.bar(x + bar_width/2, sorted_df[reranked_metric], 
-                                              width=bar_width, label="Re-Ranked", 
-                                              color=[color_map[m] for m in sorted_df["Model"]], alpha=0.6)
-                        
+                        dense_bars = ax.bar(
+                            x - bar_width / 2,
+                            sorted_df[dense_metric],
+                            width=bar_width,
+                            label="Dense",
+                            color=[color_map[m] for m in sorted_df["Model"]],
+                            alpha=0.9,
+                        )
+                        reranked_bars = ax.bar(
+                            x + bar_width / 2,
+                            sorted_df[reranked_metric],
+                            width=bar_width,
+                            label="Re-Ranked",
+                            color=[color_map[m] for m in sorted_df["Model"]],
+                            alpha=0.6,
+                        )
+
                         # Add value labels (only for a reasonable number of models)
                         if len(sorted_df) <= 8:
                             for j, bar in enumerate(dense_bars):
                                 height = bar.get_height()
-                                ax.text(bar.get_x() + bar.get_width()/2., height + 0.01,
-                                       f"{height:.3f}", ha="center", va="bottom", fontsize=9)
-                            
+                                ax.text(
+                                    bar.get_x() + bar.get_width() / 2.0,
+                                    height + 0.01,
+                                    f"{height:.3f}",
+                                    ha="center",
+                                    va="bottom",
+                                    fontsize=9,
+                                )
+
                             for j, bar in enumerate(reranked_bars):
                                 height = bar.get_height()
-                                ax.text(bar.get_x() + bar.get_width()/2., height + 0.01,
-                                       f"{height:.3f}", ha="center", va="bottom", fontsize=9)
-                        
+                                ax.text(
+                                    bar.get_x() + bar.get_width() / 2.0,
+                                    height + 0.01,
+                                    f"{height:.3f}",
+                                    ha="center",
+                                    va="bottom",
+                                    fontsize=9,
+                                )
+
                         if i == 0:  # Only add legend to first plot
                             # Create legend for dense vs reranked types
                             handles, labels = ax.get_legend_handles_labels()
-                            ax.legend(handles, labels, loc='upper right')
-                            
+                            ax.legend(handles, labels, loc="upper right")
+
                             # Only add model color legend to the first plot
-                            if len(model_names) <= 8:  # Only if we have a reasonable number of models
-                                model_patches = [plt.Rectangle((0,0),1,1, color=color_map[model]) 
-                                                 for model in model_names]
+                            if (
+                                len(model_names) <= 8
+                            ):  # Only if we have a reasonable number of models
+                                model_patches = [
+                                    plt.Rectangle((0, 0), 1, 1, color=color_map[model])
+                                    for model in model_names
+                                ]
                                 ax2 = ax.twinx()  # Create a second y-axis
                                 ax2.set_yticks([])
-                                ax2.legend(model_patches, model_names, loc='upper left', 
-                                          bbox_to_anchor=(1.05, 1), title="Models")
-                        
+                                ax2.legend(
+                                    model_patches,
+                                    model_names,
+                                    loc="upper left",
+                                    bbox_to_anchor=(1.05, 1),
+                                    title="Models",
+                                )
+
                     # Case 2: Single metric type
                     else:
                         metric = metrics[0]
                         bars = ax.bar(x, sorted_df[metric], color="tab:blue")
-                        
+
                         # Add value labels (only for a reasonable number of models)
                         if len(sorted_df) <= 8:
                             for j, bar in enumerate(bars):
                                 height = bar.get_height()
-                                ax.text(bar.get_x() + bar.get_width()/2., height + 0.01,
-                                       f"{height:.3f}", ha="center", va="bottom", fontsize=9)
-                    
+                                ax.text(
+                                    bar.get_x() + bar.get_width() / 2.0,
+                                    height + 0.01,
+                                    f"{height:.3f}",
+                                    ha="center",
+                                    va="bottom",
+                                    fontsize=9,
+                                )
+
                     # Common formatting for this subplot
                     ax.set_ylim(0, 1.0)
                     ax.set_title(f"Hit Rate: Dense vs Re-Ranked - HR@{k}", fontsize=12)
                     ax.set_xticks(x)
                     ax.set_xticklabels(sorted_df["Model"], rotation=45, ha="right")
                     ax.set_ylabel(f"HR@{k}")
-                    
+
                     # Only show x-label on bottom plot
-                    if i == n_hr_plots-1:
+                    if i == n_hr_plots - 1:
                         ax.set_xlabel("Model")
-                
+
                 plt.tight_layout()
-                plt.savefig(os.path.join(output_dir, "combined_hr_comparison.png"), dpi=300)
+                plt.savefig(
+                    os.path.join(output_dir, "combined_hr_comparison.png"), dpi=300
+                )
                 plt.close()
                 logger.info("Generated combined HR comparison visualization")
-        
+
         # 3. CREATE COMBINED ONTSIM@K MULTI-PANEL CHART
         if ont_by_k:
             # Determine how many k-values we have for OntSim metrics
             ont_k_values = sorted([int(k) for k in ont_by_k.keys()])
             n_ont_plots = len(ont_k_values)
-            
+
             if n_ont_plots > 0:
                 # Create a figure with multiple subplots for each k value
-                fig, axes = plt.subplots(n_ont_plots, 1, figsize=(12, 5*n_ont_plots), squeeze=False)
-                
+                fig, axes = plt.subplots(
+                    n_ont_plots, 1, figsize=(12, 5 * n_ont_plots), squeeze=False
+                )
+
                 for i, k in enumerate(ont_k_values):
                     ax = axes[i, 0]
                     metrics = ont_by_k[str(k)]
-                    
+
                     # Check if we have both dense and reranked for this k value
                     has_dense_k = any("Dense" in m for m in metrics)
                     has_reranked_k = any("Re-Ranked" in m for m in metrics)
                     has_comparison_k = has_dense_k and has_reranked_k
-                    
+
                     x = np.arange(len(sorted_df))
-                    
+
                     # Case 1: If we have both dense and reranked
                     if has_comparison_k:
                         dense_metric = f"OntSim@{k} (Dense)"
                         reranked_metric = f"OntSim@{k} (Re-Ranked)"
-                        
+
                         bar_width = 0.35
-                        dense_bars = ax.bar(x - bar_width/2, sorted_df[dense_metric], 
-                                           width=bar_width, label="Dense", color="tab:blue")
-                        reranked_bars = ax.bar(x + bar_width/2, sorted_df[reranked_metric], 
-                                              width=bar_width, label="Re-Ranked", color="tab:orange")
-                        
+                        dense_bars = ax.bar(
+                            x - bar_width / 2,
+                            sorted_df[dense_metric],
+                            width=bar_width,
+                            label="Dense",
+                            color="tab:blue",
+                        )
+                        reranked_bars = ax.bar(
+                            x + bar_width / 2,
+                            sorted_df[reranked_metric],
+                            width=bar_width,
+                            label="Re-Ranked",
+                            color="tab:orange",
+                        )
+
                         # Add value labels (only for a reasonable number of models)
                         if len(sorted_df) <= 8:
                             for j, bar in enumerate(dense_bars):
                                 height = bar.get_height()
-                                ax.text(bar.get_x() + bar.get_width()/2., height + 0.01,
-                                       f"{height:.3f}", ha="center", va="bottom", fontsize=9)
-                            
+                                ax.text(
+                                    bar.get_x() + bar.get_width() / 2.0,
+                                    height + 0.01,
+                                    f"{height:.3f}",
+                                    ha="center",
+                                    va="bottom",
+                                    fontsize=9,
+                                )
+
                             for j, bar in enumerate(reranked_bars):
                                 height = bar.get_height()
-                                ax.text(bar.get_x() + bar.get_width()/2., height + 0.01,
-                                       f"{height:.3f}", ha="center", va="bottom", fontsize=9)
-                        
+                                ax.text(
+                                    bar.get_x() + bar.get_width() / 2.0,
+                                    height + 0.01,
+                                    f"{height:.3f}",
+                                    ha="center",
+                                    va="bottom",
+                                    fontsize=9,
+                                )
+
                         if i == 0:  # Only add legend to first plot
                             ax.legend()
-                        
+
                     # Case 2: Single metric type
                     else:
                         metric = metrics[0]
                         bars = ax.bar(x, sorted_df[metric], color="tab:blue")
-                        
+
                         # Add value labels (only for a reasonable number of models)
                         if len(sorted_df) <= 8:
                             for j, bar in enumerate(bars):
                                 height = bar.get_height()
-                                ax.text(bar.get_x() + bar.get_width()/2., height + 0.01,
-                                       f"{height:.3f}", ha="center", va="bottom", fontsize=9)
-                    
+                                ax.text(
+                                    bar.get_x() + bar.get_width() / 2.0,
+                                    height + 0.01,
+                                    f"{height:.3f}",
+                                    ha="center",
+                                    va="bottom",
+                                    fontsize=9,
+                                )
+
                     # Common formatting for this subplot
                     ax.set_ylim(0, 1.0)
-                    ax.set_title(f"Ontology Similarity: Dense vs Re-Ranked - OntSim@{k}", fontsize=12)
+                    ax.set_title(
+                        f"Ontology Similarity: Dense vs Re-Ranked - OntSim@{k}",
+                        fontsize=12,
+                    )
                     ax.set_xticks(x)
                     ax.set_xticklabels(sorted_df["Model"], rotation=45, ha="right")
                     ax.set_ylabel(f"OntSim@{k}")
-                    
+
                     # Only show x-label on bottom plot
-                    if i == n_ont_plots-1:
+                    if i == n_ont_plots - 1:
                         ax.set_xlabel("Model")
-                
+
                 plt.tight_layout()
-                plt.savefig(os.path.join(output_dir, "combined_ontsim_comparison.png"), dpi=300)
+                plt.savefig(
+                    os.path.join(output_dir, "combined_ontsim_comparison.png"), dpi=300
+                )
                 plt.close()
                 logger.info("Generated combined OntSim comparison visualization")
-    
+
     except Exception as e:
         logger.error(f"Error generating comparison visualizations: {str(e)}")
         if debug:
             import traceback
+
             traceback.print_exc()
 
     # ADD HEATMAP - The one visualization you liked!
     try:
         # Select key metrics for heatmap
         key_metrics = [
-            "MRR (Dense)", 
-            "HR@1 (Dense)", "HR@3 (Dense)", "HR@5 (Dense)", "HR@10 (Dense)",
-            "OntSim@1 (Dense)", "OntSim@5 (Dense)", "OntSim@10 (Dense)"
+            "MRR (Dense)",
+            "HR@1 (Dense)",
+            "HR@3 (Dense)",
+            "HR@5 (Dense)",
+            "HR@10 (Dense)",
+            "OntSim@1 (Dense)",
+            "OntSim@5 (Dense)",
+            "OntSim@10 (Dense)",
         ]
-        
+
         available_metrics = [m for m in key_metrics if m in comparison_df.columns]
-        
+
         if available_metrics:
             # Sort models by MRR for consistent ordering
             if "MRR (Dense)" in comparison_df.columns:
-                sorted_df = comparison_df.sort_values(by="MRR (Dense)", ascending=False).reset_index(drop=True)
+                sorted_df = comparison_df.sort_values(
+                    by="MRR (Dense)", ascending=False
+                ).reset_index(drop=True)
             else:
                 sorted_df = comparison_df
-                
+
             plt.figure(figsize=(12, len(sorted_df) * 0.8 + 2))
             heatmap_data = sorted_df.set_index("Model")[available_metrics]
-            
+
             sns.heatmap(
-                heatmap_data, 
-                annot=True, 
+                heatmap_data,
+                annot=True,
                 fmt=".3f",
-                cmap="viridis", 
-                linewidths=.5,
-                cbar_kws={"label": "Score"}
+                cmap="viridis",
+                linewidths=0.5,
+                cbar_kws={"label": "Score"},
             )
-            
+
             plt.title("Performance Metrics Heatmap", fontsize=16)
             plt.tight_layout()
             plt.savefig(os.path.join(output_dir, "performance_heatmap.png"), dpi=300)
             plt.close()
             logger.info("Generated performance heatmap")
-    
+
     except Exception as e:
         logger.error(f"Error generating heatmap: {str(e)}")
         if debug:
             import traceback
+
             traceback.print_exc()
-    
+
     # Generate line plots for k-value trends (showing how metrics change with k)
     try:
         # Extract Hit Rate metrics for different k values
         hr_pattern = re.compile(r"HR@(\d+) \(Dense\)")
         hr_metrics = [col for col in comparison_df.columns if hr_pattern.match(col)]
-        
+
         # Extract Ontology Similarity metrics for different k values
         ont_pattern = re.compile(r"OntSim@(\d+) \(Dense\)")
         ont_metrics = [col for col in comparison_df.columns if ont_pattern.match(col)]
-        
+
         # Check if we have enough metrics to make line plots
         if len(hr_metrics) >= 2 or len(ont_metrics) >= 2:
             # Create figure with subplots for each model
             n_models = len(comparison_df)
-            fig, axes = plt.subplots(1, n_models, figsize=(n_models * 4, 5), sharey=True)
-            
+            fig, axes = plt.subplots(
+                1, n_models, figsize=(n_models * 4, 5), sharey=True
+            )
+
             # If there's only one model, axes won't be an array
             if n_models == 1:
                 axes = [axes]
-            
+
             # For each model, create a line plot showing how metrics vary with k
             for i, (idx, row) in enumerate(comparison_df.iterrows()):
                 model_name = row["Model"]
                 ax = axes[i]
-                
+
                 # Prepare data for HR@k metrics
                 if len(hr_metrics) >= 2:
-                    hr_k_values = [int(hr_pattern.match(col).group(1)) for col in hr_metrics]
+                    hr_k_values = [
+                        int(hr_pattern.match(col).group(1)) for col in hr_metrics
+                    ]
                     hr_scores = [row[col] for col in hr_metrics]
-                    
+
                     # Sort by k value
                     hr_points = sorted(zip(hr_k_values, hr_scores))
                     hr_k_values = [p[0] for p in hr_points]
                     hr_scores = [p[1] for p in hr_points]
-                    
+
                     # Plot HR@k line with model-specific color
                     model_color = color_map[model_name]
-                    ax.plot(hr_k_values, hr_scores, 'o-', color=model_color, label="Hit Rate")
-                
+                    ax.plot(
+                        hr_k_values,
+                        hr_scores,
+                        "o-",
+                        color=model_color,
+                        label="Hit Rate",
+                    )
+
                 # Prepare data for OntSim@k metrics
                 if len(ont_metrics) >= 2:
-                    ont_k_values = [int(ont_pattern.match(col).group(1)) for col in ont_metrics]
+                    ont_k_values = [
+                        int(ont_pattern.match(col).group(1)) for col in ont_metrics
+                    ]
                     ont_scores = [row[col] for col in ont_metrics]
-                    
+
                     # Sort by k value
                     ont_points = sorted(zip(ont_k_values, ont_scores))
                     ont_k_values = [p[0] for p in ont_points]
                     ont_scores = [p[1] for p in ont_points]
-                    
+
                     # Plot OntSim@k line with the same model color but different line style
-                    ax.plot(ont_k_values, ont_scores, 's--', color=model_color, alpha=0.7, label="Ontology Similarity")
-                
+                    ax.plot(
+                        ont_k_values,
+                        ont_scores,
+                        "s--",
+                        color=model_color,
+                        alpha=0.7,
+                        label="Ontology Similarity",
+                    )
+
                 # Configure subplot
                 ax.set_title(model_name, fontsize=10)
                 ax.set_xlabel("k value")
                 if i == 0:  # Only add y-label to first subplot
                     ax.set_ylabel("Score")
-                ax.grid(True, linestyle='--', alpha=0.7)
-                
+                ax.grid(True, linestyle="--", alpha=0.7)
+
                 # Set common y-axis limits
                 ax.set_ylim(0, 1.05)
-                
+
                 # Only add legend to first plot to avoid redundancy
                 if i == 0 and (len(hr_metrics) >= 2 and len(ont_metrics) >= 2):
                     ax.legend()
-            
+
             plt.tight_layout()
             plt.savefig(os.path.join(output_dir, "metric_by_k_trends.png"), dpi=300)
             plt.close()
             logger.info("Generated k-value trend line plots")
-    
+
     except Exception as e:
         logger.error(f"Error generating k-value trend plots: {str(e)}")
         if debug:
             import traceback
+
             traceback.print_exc()
 
     return True

@@ -10,7 +10,7 @@ import re
 file_path = "phentrieve/evaluation/comparison_orchestrator.py"
 
 # Read the original content
-with open(file_path, 'r') as f:
+with open(file_path, "r") as f:
     content = f.read()
 
 # Fix colors in HR@k case 2 (single metric)
@@ -34,21 +34,21 @@ ontsim_replacement2 = r'\1# Use model-specific colors for better visualization\n
 content = re.sub(ontsim_pattern2, ontsim_replacement2, content)
 
 # Fix the legend in OntSim@k case 1
-legend_pattern = r'(if i == 0:  # Only add legend to first plot\s+)ax\.legend\(\)'
+legend_pattern = r"(if i == 0:  # Only add legend to first plot\s+)ax\.legend\(\)"
 
 legend_replacement = r'\1# Create legend for dense vs reranked types\n                            handles, labels = ax.get_legend_handles_labels()\n                            ax.legend(handles, labels, loc="upper right")\n                            \n                            # Only add model color legend to the first plot\n                            if len(model_names) <= 8:  # Only if we have a reasonable number of models\n                                model_patches = [plt.Rectangle((0,0),1,1, color=color_map[model]) \n                                                 for model in model_names]\n                                ax2 = ax.twinx()  # Create a second y-axis\n                                ax2.set_yticks([])\n                                ax2.legend(model_patches, model_names, loc="upper left", \n                                           bbox_to_anchor=(1.05, 1), title="Models")'
 
 content = re.sub(legend_pattern, legend_replacement, content)
 
 # Add model legend to OntSim@k case 2
-ontsim_add_legend = r'(# Add value labels.*?\n.*?fontsize=9\))'
+ontsim_add_legend = r"(# Add value labels.*?\n.*?fontsize=9\))"
 
 ontsim_legend_addition = r'\1\n                            \n                        # Add model color legend to the first plot\n                        if i == 0 and len(model_names) <= 8:\n                            model_patches = [plt.Rectangle((0,0),1,1, color=color_map[model]) \n                                             for model in model_names]\n                            ax.legend(model_patches, model_names, loc="upper right",\n                                      title="Models")'
 
 content = re.sub(ontsim_add_legend, ontsim_legend_addition, content, flags=re.DOTALL)
 
 # Write updated content back to file
-with open(file_path, 'w') as f:
+with open(file_path, "w") as f:
     f.write(content)
 
 print("Applied model-specific coloring to all bar charts.")
