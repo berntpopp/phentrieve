@@ -21,11 +21,11 @@ ENV/
 
 # Data and Output files
 # Root level and nested paths
-multilingual_hpo_rag/data/
+phentrieve/data/
 data/
-multilingual_hpo_rag/hpo_chroma_index/
+phentrieve/hpo_chroma_index/
 hpo_chroma_index/
-multilingual_hpo_rag/benchmark_results/
+phentrieve/benchmark_results/
 benchmark_results/
 
 # Specific data files
@@ -36,7 +36,7 @@ benchmark_results/
 *.npz
 
 # Include test cases and README/LICENSE
-!multilingual_hpo_rag/data/test_cases/
+!phentrieve/data/test_cases/
 !*.md
 !LICENSE
 
