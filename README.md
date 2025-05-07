@@ -1,11 +1,11 @@
-# Multilingual HPO RAG
+# Phentrieve
 
-A modular Python package for mapping clinical text in multiple languages to Human Phenotype Ontology (HPO) terms via a Retrieval-Augmented Generation (RAG) approach. Originally developed for German clinical text, the system now supports benchmarking across multiple multilingual embedding models.
+A modular Python package for mapping clinical text in multiple languages to Human Phenotype Ontology (HPO) terms via a Retrieval-Augmented Generation (RAG) approach. Originally developed for German clinical text, the system supports benchmarking across multiple multilingual embedding models to identify relevant HPO terms from clinical descriptions in various languages.
 
 ## Project Structure
 
 ```text
-multilingual_hpo_rag/
+phentrieve/
 ├── data/                         # Data Sources & Test Cases
 │   ├── hp.json                   # Original HPO download (generated)
 │   ├── hpo_terms/                # Extracted terms (generated)
@@ -13,7 +13,7 @@ multilingual_hpo_rag/
 │   ├── hpo_term_depths.pkl       # Precomputed graph data (generated)
 │   └── test_cases/               # Test cases for benchmarking
 │
-├── multilingual_hpo_rag/         # Core Source Code Package
+├── phentrieve/                   # Core Source Code Package
 │   ├── __init__.py
 │   ├── config.py                 # Central config: paths, defaults, constants
 │   ├── data_processing/          # Modules for loading/processing data
@@ -140,7 +140,7 @@ The system supports re-ranking of retrieved candidate HPO terms using cross-enco
 
 For monolingual re-ranking, translation files must be provided in the following structure:
 
-```
+```bash
 [translation_dir]/
 ├── HP_0000123.json
 ├── HP_0000124.json
@@ -165,10 +165,10 @@ Each JSON file should follow this format:
 
 ```bash
 # Cross-lingual re-ranking (German query → English HPO)
-python -m multilingual_hpo_rag.scripts.run_interactive_query --enable-reranker
+python -m phentrieve.scripts.run_interactive_query --enable-reranker
 
 # Monolingual re-ranking (German query → German HPO translation)
-python -m multilingual_hpo_rag.scripts.run_interactive_query --enable-reranker --reranker-mode monolingual --translation-dir path/to/translations
+python -m phentrieve.scripts.run_interactive_query --enable-reranker --reranker-mode monolingual --translation-dir path/to/translations
 ```
 
 ## Limitations & Future Work
@@ -206,17 +206,18 @@ Activate the virtual environment:
 source .venv/bin/activate
 ```
 
-Install dependencies:
+Install Phentrieve:
 
 ```bash
+pip install -e .
 pip install -r requirements.txt
 ```
 
 ### Prepare the HPO Index (Run Once)
 
 ```bash
-python -m multilingual_hpo_rag.scripts.01_prepare_hpo_data  # Downloads hp.json if needed and extracts terms
-python -m multilingual_hpo_rag.scripts.02_build_index  # Creates and populates the vector index
+python -m phentrieve.scripts.01_prepare_hpo_data  # Downloads hp.json if needed and extracts terms
+python -m phentrieve.scripts.02_build_index  # Creates and populates the vector index
 ```
 
 Note: The first run will download the model (~1.1 GB) and generate embeddings, which can be time-intensive.
@@ -226,15 +227,17 @@ Note: The first run will download the model (~1.1 GB) and generate embeddings, w
 There are two supported ways to run the scripts in this project:
 
 1. **Recommended Method**: Running from the project root using Python's module syntax:
+
    ```bash
    # Run from the project root directory
-   python -m multilingual_hpo_rag.scripts.03_run_benchmark [args...]
+   python -m phentrieve.scripts.03_run_benchmark [args...]
    ```
 
 2. **Alternative Method**: Running scripts directly:
+
    ```bash
    # Run from the project root directory
-   python multilingual_hpo_rag/scripts/03_run_benchmark.py [args...]
+   python phentrieve/scripts/03_run_benchmark.py [args...]
    ```
 
 Both methods will work, but the first is recommended as it follows standard Python practices for module resolution.
@@ -244,13 +247,13 @@ Both methods will work, but the first is recommended as it follows standard Pyth
 Basic usage:
 
 ```bash
-python -m multilingual_hpo_rag.scripts.run_interactive_query
+python -m phentrieve.scripts.run_interactive_query
 ```
 
 With command-line arguments:
 
 ```bash
-python multilingual_hpo_rag/scripts/run_interactive_query.py --text "Der Patient zeigt eine Anomalie des Herzens" --similarity-threshold 0.2 --num-results 3
+python phentrieve/scripts/run_interactive_query.py --text "Der Patient zeigt eine Anomalie des Herzens" --similarity-threshold 0.2 --num-results 3
 ```
 
 Options:
@@ -268,11 +271,11 @@ Options:
 
 ## File Structure
 
-- `multilingual_hpo_rag/scripts/01_prepare_hpo_data.py`: Downloads and prepares HPO data from official source
-- `multilingual_hpo_rag/scripts/02_build_index.py`: Builds the ChromaDB vector index for a given model
-- `multilingual_hpo_rag/scripts/run_interactive_query.py`: CLI tool for querying with multilingual text
-- `multilingual_hpo_rag/scripts/03_run_benchmark.py`: Evaluates model performance with various metrics
-- `multilingual_hpo_rag/scripts/04_manage_results.py`: Tool for running, comparing, and visualizing benchmark results
+- `phentrieve/scripts/01_prepare_hpo_data.py`: Downloads and prepares HPO data from official source
+- `phentrieve/scripts/02_build_index.py`: Builds the ChromaDB vector index for a given model
+- `phentrieve/scripts/run_interactive_query.py`: CLI tool for querying with multilingual text
+- `phentrieve/scripts/03_run_benchmark.py`: Evaluates model performance with various metrics
+- `phentrieve/scripts/04_manage_results.py`: Tool for running, comparing, and visualizing benchmark results
 
 - `hpo_similarity.py`: Contains implementations of ontology-based similarity metrics
 - `requirements.txt`: Project dependencies
@@ -386,10 +389,10 @@ Before running benchmarks, you need to set up the embedding models and their cor
 
 ```bash
 # Set up a specific model
-python -m multilingual_hpo_rag.scripts.04_manage_results setup --model-name "FremyCompany/BioLORD-2023-M"
+python -m phentrieve.scripts.04_manage_results setup --model-name "FremyCompany/BioLORD-2023-M"
 
 # Or set up all supported models at once
-python -m multilingual_hpo_rag.scripts.04_manage_results setup --all
+python -m phentrieve.scripts.04_manage_results setup --all
 ```
 
 #### Running Benchmark Tests
@@ -398,16 +401,16 @@ To evaluate model performance using the test cases:
 
 ```bash
 # Benchmark a specific model
-python -m multilingual_hpo_rag.scripts.04_manage_results run --model-name "FremyCompany/BioLORD-2023-M"
+python -m phentrieve.scripts.04_manage_results run --model-name "FremyCompany/BioLORD-2023-M"
 
 # Run benchmarks on all models
-python -m multilingual_hpo_rag.scripts.04_manage_results run --all
+python -m phentrieve.scripts.04_manage_results run --all
 
 # Run with detailed per-test-case results
-python -m multilingual_hpo_rag.scripts.04_manage_results run --all --detailed
+python -m phentrieve.scripts.04_manage_results run --all --detailed
 
 # Set a custom similarity threshold
-python -m multilingual_hpo_rag.scripts.04_manage_results run --all --similarity-threshold 0.2
+python -m phentrieve.scripts.04_manage_results run --all --similarity-threshold 0.2
 ```
 
 **Note:** The `run` command will benchmark models, generate result files, and also create a comparison table and visualization for the models just benchmarked. When using `--all`, this provides an immediate comparison of all models.
@@ -421,7 +424,7 @@ The `compare` command allows you to compare previously saved benchmark results w
 python -m multilingual_hpo_rag.scripts.04_manage_results compare
 
 # Compare only specific models from previous benchmark runs
-python -m multilingual_hpo_rag.scripts.04_manage_results compare --models "biolord_2023_m" "jina_embeddings_v2_base_de"
+python -m phentrieve.scripts.04_manage_results compare --models "biolord_2023_m" "jina_embeddings_v2_base_de"
 ```
 
 **When to use `compare` vs. `run --all`:**
