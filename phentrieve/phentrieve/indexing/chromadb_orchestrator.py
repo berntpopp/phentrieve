@@ -1,0 +1,116 @@
+"""
+Index building orchestration module.
+
+This module provides orchestration functions for building ChromaDB indexes
+from HPO term data using embedding models.
+"""
+
+import logging
+import os
+import sys
+import time
+from typing import List, Optional
+
+from phentrieve.config import BENCHMARK_MODELS, DEFAULT_MODEL, INDEX_DIR
+from phentrieve.data_processing.document_creator import (
+    load_hpo_terms,
+    create_hpo_documents,
+)
+from phentrieve.embeddings import load_embedding_model
+from phentrieve.indexing.chromadb_indexer import build_chromadb_index
+
+
+def orchestrate_index_building(
+    model_name_arg: Optional[str] = None,
+    all_models: bool = False,
+    batch_size: int = 100,
+    trust_remote_code: bool = False,
+    device_override: Optional[str] = None,
+    recreate: bool = False,
+    debug: bool = False,
+) -> bool:
+    """Orchestrates loading data, models, and building ChromaDB indexes.
+
+    Args:
+        model_name_arg: Name of the model to use for embeddings, or None to use default
+        all_models: Whether to build indices for all benchmark models
+        batch_size: Number of documents to process at once
+        trust_remote_code: Whether to trust remote code when loading models
+        device_override: Device to use ('cpu', 'cuda', etc.), or None for auto-detection
+        recreate: Whether to recreate the index even if it exists
+        debug: Enable debug logging
+
+    Returns:
+        True if all requested indexes were built successfully, False otherwise
+    """
+    start_time = time.time()
+    logging.info("Loading HPO terms for indexing...")
+    hpo_terms = load_hpo_terms()
+    if not hpo_terms:
+        logging.error("Failed to load HPO terms. Run 'phentrieve data prepare' first.")
+        return False
+
+    logging.info("Creating HPO documents for indexing...")
+    documents, metadatas, ids = create_hpo_documents(hpo_terms)
+    if not documents:
+        logging.error("Failed to create documents from HPO terms.")
+        return False
+
+    os.makedirs(INDEX_DIR, exist_ok=True)
+
+    models_to_process = []
+    if all_models:
+        models_to_process = BENCHMARK_MODELS
+        logging.info(
+            f"Building indices for all {len(models_to_process)} benchmark models."
+        )
+    elif model_name_arg:
+        models_to_process = [model_name_arg]
+    else:
+        models_to_process = [DEFAULT_MODEL]  # Default if nothing specified
+
+    success_count = 0
+    failure_count = 0
+    processed_model_names = []
+
+    for model_name in models_to_process:
+        logging.info(f"--- Processing model: {model_name} ---")
+        try:
+            model = load_embedding_model(
+                model_name=model_name,
+                trust_remote_code=trust_remote_code,
+                device=device_override,  # Pass CPU/GPU preference
+            )
+            if not model:
+                raise ValueError(f"Failed to load model {model_name}")
+
+            result = build_chromadb_index(
+                documents=documents,
+                metadatas=metadatas,
+                ids=ids,
+                model=model,
+                model_name=model_name,
+                batch_size=batch_size,
+                recreate=recreate,
+            )
+            if result:
+                logging.info(f"✓ Index built successfully for model: {model_name}")
+                success_count += 1
+                processed_model_names.append(model_name)
+            else:
+                logging.error(f"✗ Failed to build index for model: {model_name}")
+                failure_count += 1
+        except Exception as e:
+            logging.error(
+                f"✗ Error building index for {model_name}: {e}", exc_info=debug
+            )
+            failure_count += 1
+
+    elapsed_time = time.time() - start_time
+    logging.info(f"--- Index Building Summary ---")
+    logging.info(f"Completed in {elapsed_time:.2f} seconds.")
+    logging.info(f"Successful: {success_count}, Failed: {failure_count}")
+    if processed_model_names:
+        logging.info(f"Successfully processed: {', '.join(processed_model_names)}")
+
+    return failure_count == 0

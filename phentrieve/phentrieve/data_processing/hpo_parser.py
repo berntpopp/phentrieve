@@ -464,6 +464,53 @@ def prepare_hpo_data(force_update: bool = False) -> Tuple[bool, Optional[str]]:
     return True, None
 
 
+def orchestrate_hpo_preparation(
+    debug: bool = False, force_update: bool = False
+) -> bool:
+    """Orchestrates the HPO ontology data download, extraction, and precomputation.
+
+    Args:
+        debug: Enable debug logging
+        force_update: Force updating the data even if files exist
+
+    Returns:
+        True if the data preparation was successful, False otherwise
+    """
+    logging.info("Starting HPO ontology data preparation orchestration")
+
+    try:
+        # Make sure data directory exists
+        os.makedirs(DATA_DIR, exist_ok=True)
+
+        # Download HPO JSON if needed
+        if not os.path.exists(HPO_FILE_PATH) or force_update:
+            logging.info("Downloading HPO JSON file...")
+            if not download_hpo_json():
+                logging.error("Failed to download HPO JSON file.")
+                return False
+            logging.info("HPO JSON file downloaded successfully.")
+        else:
+            logging.info(f"Using existing HPO JSON file: {HPO_FILE_PATH}")
+
+        # Run the full preparation process
+        success, error = prepare_hpo_data(force_update=force_update)
+        if not success:
+            logging.error(f"Failed to prepare HPO ontology data: {error}")
+            return False
+
+        logging.info("HPO data preparation orchestration completed successfully!")
+        logging.info(f"HPO JSON file: {HPO_FILE_PATH}")
+        logging.info(f"HPO terms directory: {HPO_TERMS_DIR}")
+        logging.info(f"HPO ancestors file: {HPO_ANCESTORS_FILE}")
+        logging.info(f"HPO depths file: {HPO_DEPTHS_FILE}")
+        return True
+    except Exception as e:
+        logging.error(
+            f"Error during HPO data preparation orchestration: {e}", exc_info=debug
+        )
+        return False
+
+
 if __name__ == "__main__":
     # Create a simple command-line interface
     import argparse
@@ -472,15 +519,17 @@ if __name__ == "__main__":
     parser.add_argument(
         "--force", action="store_true", help="Force update even if files exist"
     )
+    parser.add_argument("--debug", action="store_true", help="Enable debug logging")
     args = parser.parse_args()
 
-    # Create the data directory if it doesn't exist
-    os.makedirs(DATA_DIR, exist_ok=True)
+    # Setup logging
+    level = logging.DEBUG if args.debug else logging.INFO
+    logging.basicConfig(
+        level=level,
+        format="%(asctime)s - %(levelname)s - %(message)s",
+        handlers=[logging.StreamHandler()],
+    )
 
-    # Prepare the HPO data
-    success, error = prepare_hpo_data(force_update=args.force)
-    if not success:
-        print(f"Error: {error}")
+    # Run the orchestration function
+    if not orchestrate_hpo_preparation(debug=args.debug, force_update=args.force):
         sys.exit(1)
-    else:
-        print("HPO data preparation completed successfully!")

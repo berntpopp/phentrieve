@@ -628,13 +628,16 @@ def compare_models(results_list: List[Dict[str, Any]]) -> pd.DataFrame:
                     if isinstance(result["mrr_dense"], list) and result["mrr_dense"]
                     else result["mrr_dense"]
                 )
-                reranked_mrr = (
-                    sum(result["mrr_reranked"]) / len(result["mrr_reranked"])
-                    if isinstance(result["mrr_reranked"], list)
-                    and result["mrr_reranked"]
-                    else result["mrr_reranked"]
-                )
-                model_data["MRR (Diff)"] = reranked_mrr - dense_mrr
+                # Only calculate reranked MRR and diff if reranking was enabled
+                if result.get("reranker_enabled", False) and result.get("mrr_reranked"):
+                    reranked_mrr = (
+                        sum(result["mrr_reranked"]) / len(result["mrr_reranked"])
+                        if isinstance(result["mrr_reranked"], list)
+                        and result["mrr_reranked"]
+                        else result["mrr_reranked"]
+                    )
+                    if isinstance(reranked_mrr, (int, float)):
+                        model_data["MRR (Diff)"] = reranked_mrr - dense_mrr
 
         # Add Hit Rate metrics
         for k in [1, 3, 5, 10]:
