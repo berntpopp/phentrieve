@@ -31,7 +31,7 @@ from phentrieve.config import (
     DATA_DIR,
     PHENOTYPE_ROOT,
 )
-
+from phentrieve.utils import normalize_id
 
 # HPO download settings
 HPO_JSON_URL = "https://github.com/obophenotype/human-phenotype-ontology/releases/download/v2025-03-03/hp.json"
@@ -95,6 +95,98 @@ def load_hpo_json() -> Optional[dict]:
     except Exception as e:
         print(f"Error loading HPO JSON file: {str(e)}")
         return None
+
+
+def _parse_hpo_json_to_nodes_and_edges(
+    hpo_data: Dict,
+) -> Tuple[Dict[str, Dict], Dict[str, List[str]]]:
+    """Parses raw HPO JSON data into term data and parent->child relationships."""
+    nodes = {}
+    edges = defaultdict(list)  # parent_id -> list_of_child_ids
+
+    logging.debug("Parsing nodes and edges from HPO JSON...")
+    graph = hpo_data.get("graphs", [{}])[0]  # Assume single graph structure
+
+    # Process nodes first
+    for node in graph.get("nodes", []):
+        node_id_norm = normalize_id(node.get("id", ""))
+        if node_id_norm.startswith("HP:"):
+            # Store node data using normalized ID as key
+            nodes[node_id_norm] = node  # Store raw node data initially
+
+    # Process edges for parent->child mapping (is_a)
+    for edge in graph.get("edges", []):
+        pred = edge.get("pred")
+        if pred == "is_a" or pred == "http://purl.obolibrary.org/obo/BFO_0000050":
+            subj_norm = normalize_id(edge.get("sub", edge.get("subj", "")))
+            obj_norm = normalize_id(edge.get("obj", ""))
+
+            if subj_norm.startswith("HP:") and obj_norm.startswith("HP:"):
+                # obj is parent of subj
+                if obj_norm in nodes and subj_norm in nodes:  # Ensure both terms exist
+                    edges[obj_norm].append(subj_norm)
+
+    logging.debug(
+        f"Parsed {len(nodes)} nodes and {sum(len(v) for v in edges.values())} parent->child edges."
+    )
+    return nodes, edges  # Return raw nodes dict and parent->child edges
+
+
+def _identify_phenotypic_term_ids(
+    nodes: Dict[str, Dict],
+    edges: Dict[str, List[str]],
+    is_a_relationships: Dict[str, List[str]],
+) -> Set[str]:
+    """Identifies phenotypic term IDs by BFS from PHENOTYPE_ROOT, respecting exclusions."""
+    phenotype_terms_ids = set()
+    root_id = PHENOTYPE_ROOT
+    excluded_roots = EXCLUDED_ROOTS
+
+    if root_id not in nodes:
+        logging.error(f"Phenotype root {root_id} not found in parsed nodes!")
+        return phenotype_terms_ids
+
+    # BFS from phenotype root
+    queue = deque([root_id])
+    visited = {root_id}
+    phenotype_terms_ids.add(root_id)
+
+    while queue:
+        current_id = queue.popleft()
+        children = edges.get(current_id, [])  # Use parent->child edges map
+
+        for child_id in children:
+            # Process child only if it exists in nodes and hasn't been visited
+            if child_id in nodes and child_id not in visited:
+                visited.add(child_id)
+                # Check if this child is an excluded root
+                if child_id in excluded_roots:
+                    continue  # Skip this branch
+
+                phenotype_terms_ids.add(child_id)
+                queue.append(child_id)  # Add to queue only if not excluded
+
+    # Secondary check: Remove terms that are descendants of excluded roots
+    terms_to_remove = set()
+    for term_id in phenotype_terms_ids:
+        # Quick BFS upwards for this term to check ancestry
+        ancestors_queue = deque(is_a_relationships.get(term_id, []))
+        term_visited = set(ancestors_queue)
+        while ancestors_queue:
+            parent = ancestors_queue.popleft()
+            if parent in excluded_roots:
+                terms_to_remove.add(term_id)
+                break  # Found an excluded ancestor
+            grandparents = is_a_relationships.get(parent, [])
+            for gp in grandparents:
+                if gp not in term_visited:
+                    term_visited.add(gp)
+                    ancestors_queue.append(gp)
+
+    final_phenotype_ids = phenotype_terms_ids - terms_to_remove
+    logging.info(f"Identified {len(final_phenotype_ids)} phenotypic terms via BFS.")
+
+    return final_phenotype_ids
 
 
 def extract_hpo_terms(graph: dict) -> Dict[str, dict]:
@@ -196,24 +288,39 @@ def build_ontology_graph(graph: dict, terms: Dict[str, dict]) -> Dict[str, List[
     return is_a_relationships
 
 
-def save_terms_as_json_files(terms: Dict[str, dict]) -> None:
+def save_terms_as_json_files(
+    nodes: Dict[str, Dict], term_ids_to_save: Set[str]
+) -> None:
     """
-    Save each HPO term as an individual JSON file.
+    Saves specified HPO terms from the nodes map as individual JSON files.
 
     Args:
-        terms: Dictionary mapping HPO IDs to term data
+        nodes: Dictionary of all HPO terms/nodes
+        term_ids_to_save: Set of term IDs to save as individual files
     """
-    # Create the directory if it doesn't exist
     os.makedirs(HPO_TERMS_DIR, exist_ok=True)
+    logging.info(f"Saving {len(term_ids_to_save)} specified HPO terms as JSON files...")
+    saved_count = 0
 
-    # Save each term as a JSON file
-    for term_id, term_data in tqdm(terms.items(), desc="Saving HPO terms"):
-        # Replace the colon with an underscore for the filename
-        filename = term_id.replace(":", "_") + ".json"
-        file_path = os.path.join(HPO_TERMS_DIR, filename)
+    # Iterate through the *filtered set* of IDs
+    for term_id in tqdm(term_ids_to_save, desc="Saving HPO terms", unit="term"):
+        if term_id in nodes:
+            term_data = nodes[term_id]  # Get the raw node data
+            # Replace the colon with an underscore for the filename
+            filename = term_id.replace(":", "_") + ".json"
+            file_path = os.path.join(HPO_TERMS_DIR, filename)
+            try:
+                with open(file_path, "w", encoding="utf-8") as f:
+                    json.dump(term_data, f, ensure_ascii=False, indent=2)
+                saved_count += 1
+            except Exception as e:
+                logging.error(f"Error saving term {term_id} to {file_path}: {e}")
+        else:
+            logging.warning(
+                f"Term ID {term_id} requested for saving not found in nodes map."
+            )
 
-        with open(file_path, "w", encoding="utf-8") as f:
-            json.dump(term_data, f, ensure_ascii=False, indent=2)
+    logging.info(f"Successfully saved {saved_count} HPO term files to {HPO_TERMS_DIR}")
 
 
 def compute_ancestors(is_a_relationships: Dict[str, List[str]]) -> Dict[str, Set[str]]:
@@ -403,7 +510,8 @@ def load_term_depths() -> Dict[str, int]:
 
 def prepare_hpo_data(force_update: bool = False) -> Tuple[bool, Optional[str]]:
     """
-    Prepare all HPO data: download, parse, and save.
+    Prepare HPO data: download, parse, filter IDs, save term files, compute full graph data.
+    (Refactored to follow original logic flow)
 
     Args:
         force_update: Force updating the data even if files exist
@@ -411,56 +519,74 @@ def prepare_hpo_data(force_update: bool = False) -> Tuple[bool, Optional[str]]:
     Returns:
         Tuple containing success status and optional error message
     """
-    # Check if we need to download the HPO file
+    # 1. Download/Load JSON
     if force_update or not os.path.exists(HPO_FILE_PATH):
-        print("Downloading HPO JSON file...")
+        logging.info("Downloading HPO JSON file...")
         if not download_hpo_json():
             return False, "Failed to download HPO JSON file"
+        logging.info("HPO JSON downloaded.")
+    else:
+        logging.info(f"Using existing HPO JSON: {HPO_FILE_PATH}")
 
-    # Load the HPO JSON file
-    print("Loading HPO data...")
+    logging.info("Loading HPO data...")
     hpo_data = load_hpo_json()
     if not hpo_data:
         return False, "Failed to load HPO JSON file"
 
-    # Extract terms
-    print("Extracting HPO terms...")
-    terms = extract_hpo_terms(hpo_data)
-    if not terms:
-        return False, "Failed to extract HPO terms"
+    # 2. Parse into nodes and parent->child edges
+    logging.info("Parsing HPO JSON into nodes and edges...")
+    nodes, parent_child_edges = _parse_hpo_json_to_nodes_and_edges(hpo_data)
+    if not nodes or not parent_child_edges:
+        return False, "Failed to parse nodes and edges from HPO JSON"
+    all_term_ids = set(nodes.keys())
+    logging.info(f"Parsed {len(all_term_ids)} total HPO terms.")
 
-    # Build the ontology graph
-    print("Building ontology graph...")
-    is_a_relationships = build_ontology_graph(hpo_data, terms)
+    # 3. Build Child -> Parent graph (needed for both id filtering and ancestor calculation)
+    logging.info(
+        "Building child-to-parent relationships for term filtering and ancestry..."
+    )
+    child_parent_graph = build_ontology_graph(hpo_data, nodes)
+    if not child_parent_graph:
+        return False, "Failed to build child-to-parent graph"
 
-    # Compute ancestors
-    print("Computing ancestors...")
-    ancestors = compute_ancestors(is_a_relationships)
+    # 4. Identify Phenotypic Term IDs using BFS on parent->child edges
+    logging.info("Identifying phenotypic term IDs...")
+    phenotypic_ids = _identify_phenotypic_term_ids(
+        nodes, parent_child_edges, child_parent_graph
+    )
+    if not phenotypic_ids:
+        return False, "No phenotypic term IDs were identified."
 
-    # Filter terms to phenotypic abnormalities
-    print("Filtering phenotypic terms...")
-    filtered_terms = filter_phenotypic_terms(terms, ancestors)
-    if not filtered_terms:
-        return False, "Failed to filter phenotypic terms"
-
-    # Save filtered terms as individual JSON files
+    # 5. Save *only* the identified phenotypic terms to individual files
+    # Recreate directory if force_update or empty/non-existent
     if (
         force_update
         or not os.path.exists(HPO_TERMS_DIR)
         or not os.listdir(HPO_TERMS_DIR)
     ):
-        print("Saving HPO terms as JSON files...")
-        save_terms_as_json_files(filtered_terms)
+        if os.path.exists(HPO_TERMS_DIR):
+            logging.info(f"Removing existing terms directory: {HPO_TERMS_DIR}")
+            shutil.rmtree(HPO_TERMS_DIR)
+        save_terms_as_json_files(nodes, phenotypic_ids)
+    else:
+        logging.info(
+            f"Skipping saving individual term files as directory exists and force_update=False: {HPO_TERMS_DIR}"
+        )
 
-    # Compute term depths
-    print("Computing term depths...")
-    depths = compute_term_depths(is_a_relationships)
-
-    # Save ancestors and depths
-    print("Saving ancestors and depths...")
+    # --- Compute and Save Full Graph Data for Metrics ---
+    # 6. Compute Ancestors for ALL terms (needed for metric calculations)
+    logging.info("Computing ancestors for all terms...")
+    ancestors = compute_ancestors(child_parent_graph)
     save_ancestors_to_file(ancestors)
-    save_depths_to_file(depths)
+    logging.info(f"Saved ancestors to {HPO_ANCESTORS_FILE}")
 
+    # 7. Compute Depths for ALL terms
+    logging.info("Computing term depths...")
+    depths = compute_term_depths(parent_child_edges)
+    save_depths_to_file(depths)
+    logging.info(f"Saved depths to {HPO_DEPTHS_FILE}")
+
+    logging.info("HPO data preparation completed following revised flow.")
     return True, None
 
 

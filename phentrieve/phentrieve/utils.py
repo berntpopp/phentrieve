@@ -130,6 +130,31 @@ def calculate_similarity(distance: float) -> float:
 
 
 @functools.lru_cache(maxsize=512)
+def normalize_id(term_id: str) -> str:
+    """
+    Normalize HPO term ID to the standard format (HP:NNNNNNN).
+
+    This handles different ID formats found in HPO data:
+    - URIs like http://purl.obolibrary.org/obo/HP_0000001
+    - Already normalized HP:0000001 format
+
+    Args:
+        term_id: An HPO term ID in any format
+
+    Returns:
+        Normalized ID in HP:NNNNNNN format
+    """
+    # Handle URI format (HP_0000001)
+    if "obo/HP_" in term_id:
+        hp_number = term_id.split("HP_")[1]
+        return f"HP:{hp_number}"
+    # Handle colon format (already normalized)
+    elif term_id.startswith("HP:"):
+        return term_id
+    # Return as-is for other formats (which may not be valid HPO IDs)
+    return term_id
+
+
 def load_german_translation_text(hpo_id: str, translation_dir: str) -> Optional[str]:
     """
     Load German translation text for a given HPO ID from a JSON file.
