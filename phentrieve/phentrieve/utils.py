@@ -59,7 +59,7 @@ def get_embedding_dimension(model_name: str) -> int:
     return dimension_map.get(model_name, 768)
 
 
-def get_model_slug(model_name: str) -> str:
+def get_model_slug(model_name: Optional[str]) -> str:
     """
     Create a simple, filesystem-safe string (slug) from the model name.
 
@@ -70,6 +70,10 @@ def get_model_slug(model_name: str) -> str:
     Returns:
         Filesystem-safe string
     """
+    # Handle None case
+    if model_name is None:
+        return "biolord_2023_m"
+    
     # Extract the last part of the model path if it contains slashes
     if "/" in model_name:
         slug = model_name.split("/")[-1]
