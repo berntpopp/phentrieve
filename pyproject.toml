@@ -42,7 +42,11 @@ dependencies = [
 ]
 
 [project.scripts]
-phentrieve = "phentrieve.phentrieve.cli:app"
+phentrieve = "phentrieve.cli:app"
 
 [tool.setuptools]
-packages = ["phentrieve", "phentrieve.phentrieve"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["phentrieve*"]
+# exclude = ["tests*"] # Uncomment if/when you add tests
