@@ -209,9 +209,9 @@ def orchestrate_benchmark_comparison(
         csv_save_path = Path(output_csv).expanduser().resolve()
     else:
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        detailed_save_dir = base_results_dir / DEFAULT_DETAILED_SUBDIR
-        os.makedirs(detailed_save_dir, exist_ok=True)
-        csv_save_path = detailed_save_dir / f"benchmark_comparison_{timestamp}.csv"
+        # Save comparison directly in the results directory, not in detailed subdirectory
+        os.makedirs(base_results_dir, exist_ok=True)
+        csv_save_path = base_results_dir / f"benchmark_comparison_{timestamp}.csv"
 
     # Load benchmark summaries
     summaries = load_benchmark_summaries(str(summaries_load_path))
