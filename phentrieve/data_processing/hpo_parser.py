@@ -337,16 +337,16 @@ _recursive_all_term_ids_set = set()
 
 
 @functools.lru_cache(maxsize=None)  # Use LRU cache for memoization
-def get_term_ancestors_recursive(term_id: str, graph_key: str) -> frozenset[str]:
+def get_term_ancestors_recursive(term_id: str, graph_dict_key: str) -> frozenset[str]:
     """
     Recursive helper with memoization to get ancestors for a single term.
-    Uses a global dictionary lookup to avoid unhashable dict parameters.
+    Uses a special key to identify the graph dictionary in global variables.
     """
     # We'll use global variables to avoid passing unhashable dictionaries
     global _recursive_child_to_parents_map
     global _recursive_all_term_ids_set
 
-    # Base case: Include the term itself
+    # Base case: Term itself is always an ancestor
     current_ancestors = {term_id}
 
     # Get direct parents
@@ -354,9 +354,11 @@ def get_term_ancestors_recursive(term_id: str, graph_key: str) -> frozenset[str]
 
     # Recursively get ancestors of parents and add them
     for parent_id in direct_parents:
-        # Prevent infinite loops and ensure parent is valid
+        # Prevent infinite loops and ensure parent is valid & not self
         if parent_id in _recursive_all_term_ids_set and parent_id != term_id:
-            parent_ancestors = get_term_ancestors_recursive(parent_id, graph_key)
+            # Make the recursive call to get parent's ancestors
+            parent_ancestors = get_term_ancestors_recursive(parent_id, graph_dict_key)
+            # Update the current set with all ancestors from this parent path
             current_ancestors.update(parent_ancestors)
         elif parent_id not in _recursive_all_term_ids_set:
             # logging.debug(f"Term {term_id} has an unknown parent {parent_id}. Ignoring.")
@@ -388,16 +390,21 @@ def compute_ancestors(
 
     # Create a unique identifier for this graph to use in caching
     # We'll just use a timestamp as a unique key
-    graph_key = str(time.time())
+    graph_dict_key = str(time.time())
 
     ancestors_map: Dict[str, Set[str]] = {}
     logging.info(
         f"Computing ancestors for {len(all_term_ids)} total terms using recursive approach."
     )
 
+    # Pre-clear cache to ensure clean state if running multiple times
+    get_term_ancestors_recursive.cache_clear()
+
     # Compute ancestors for all terms using the recursive helper with global state
     for term_id in tqdm(all_term_ids, desc="Computing ancestors", unit="term"):
-        ancestors_map[term_id] = set(get_term_ancestors_recursive(term_id, graph_key))
+        ancestors_map[term_id] = set(
+            get_term_ancestors_recursive(term_id, graph_dict_key)
+        )
 
     # Clear the cache after computation
     get_term_ancestors_recursive.cache_clear()
