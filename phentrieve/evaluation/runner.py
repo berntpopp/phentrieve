@@ -29,7 +29,7 @@ from phentrieve.data_processing.test_data_loader import load_test_data
 from phentrieve.evaluation.metrics import (
     mean_reciprocal_rank,
     hit_rate_at_k,
-    average_max_similarity,
+    calculate_test_case_max_ont_sim,
     calculate_semantic_similarity,
     load_hpo_graph_data,
 )
@@ -175,12 +175,12 @@ def run_evaluation(
         # Baseline dense metrics
         mrr_dense_values = []
         hit_rate_dense_values = {k: [] for k in k_values}
-        ont_similarity_dense_values = {k: [] for k in k_values}
+        max_ont_sim_dense_values = {k: [] for k in k_values}
 
         # Re-ranked metrics (will remain empty if re-ranking is disabled)
         mrr_reranked_values = []
         hit_rate_reranked_values = {k: [] for k in k_values}
-        ont_similarity_reranked_values = {k: [] for k in k_values}
+        max_ont_sim_reranked_values = {k: [] for k in k_values}
 
         detailed_results = []
 
@@ -238,8 +238,9 @@ def run_evaluation(
                 mrr_dense = mean_reciprocal_rank(dense_results, expected_ids)
                 mrr_dense_values.append(mrr_dense)
 
-                # Calculate baseline Hit Rate at different K values
+                # Calculate baseline metrics for each k value
                 dense_hit_rates = {}
+                dense_max_ont_sims = {}
                 for k in k_values:
                     hit = hit_rate_at_k(dense_results, expected_ids, k=k)
                     hit_rate_dense_values[k].append(hit)
@@ -252,39 +253,24 @@ def run_evaluation(
                         # Extract HPO IDs from results
                         retrieved_ids = dense_term_ids[:k]
 
-                        # Calculate similarity scores for each expected ID
-                        max_similarities = []
-                        for expected_id in expected_ids:
-                            # Check for exact match first
-                            if expected_id in retrieved_ids:
-                                # If there's an exact match, use 1.0 (ensures OntSim >= HR)
-                                max_similarities.append(1.0)
-                            else:
-                                # Otherwise calculate semantic similarity
-                                similarities = []
-                                for retrieved_id in retrieved_ids:
-                                    sim = calculate_semantic_similarity(
-                                        expected_id, retrieved_id
-                                    )
-                                    similarities.append(sim)
-                                # Take the max similarity for this expected ID
-                                max_similarities.append(
-                                    max(similarities) if similarities else 0.0
-                                )
+                        # Calculate the maximum ontology similarity using the new function
+                        # This gets the single highest similarity between any expected ID and any retrieved ID
+                        max_ont_sim = calculate_test_case_max_ont_sim(
+                            expected_ids, retrieved_ids
+                        )
 
-                        # Use the maximum similarity across all expected terms
-                        # This aligns with HR@k which checks if ANY expected term is retrieved
-                        ont_sim = max(max_similarities) if max_similarities else 0.0
-
-                        ont_similarity_dense_values[k].append(ont_sim)
-                        dense_ont_similarities[f"ont_similarity_dense@{k}"] = ont_sim
+                        # Store the values using the new variable names
+                        max_ont_sim_dense_values[k].append(max_ont_sim)
+                        dense_max_ont_sims[f"max_ont_similarity_dense@{k}"] = (
+                            max_ont_sim
+                        )
                     else:
-                        ont_similarity_dense_values[k].append(0.0)
-                        dense_ont_similarities[f"ont_similarity_dense@{k}"] = 0.0
+                        max_ont_sim_dense_values[k].append(0.0)
+                        dense_max_ont_sims[f"max_ont_similarity_dense@{k}"] = 0.0
 
                 #### RE-RANKING (if enabled) ####
                 reranked_hit_rates = {}
-                reranked_ont_similarities = {}
+                reranked_max_ont_sims = {}
                 mrr_reranked = None
                 reranked_results = None
                 reranked_candidates = []
@@ -377,7 +363,7 @@ def run_evaluation(
                             hit_rate_reranked_values[k].append(hit)
                             reranked_hit_rates[f"hit_rate_reranked@{k}"] = hit
 
-                        # Calculate re-ranked ontology similarity
+                        # Calculate re-ranked maximum ontology similarity
                         for k in k_values:
                             if reranked_term_ids and len(reranked_term_ids) > 0:
                                 retrieved_ids = (
@@ -385,17 +371,20 @@ def run_evaluation(
                                     if k <= len(reranked_term_ids)
                                     else reranked_term_ids
                                 )
-                                ont_sim = average_max_similarity(
+                                # Use the new function for MaxOntSim calculation
+                                max_ont_sim_reranked = calculate_test_case_max_ont_sim(
                                     expected_ids, retrieved_ids
                                 )
-                                ont_similarity_reranked_values[k].append(ont_sim)
-                                reranked_ont_similarities[
-                                    f"ont_similarity_reranked@{k}"
-                                ] = ont_sim
+                                max_ont_sim_reranked_values[k].append(
+                                    max_ont_sim_reranked
+                                )
+                                reranked_max_ont_sims[
+                                    f"max_ont_similarity_reranked@{k}"
+                                ] = max_ont_sim_reranked
                             else:
-                                ont_similarity_reranked_values[k].append(0.0)
-                                reranked_ont_similarities[
-                                    f"ont_similarity_reranked@{k}"
+                                max_ont_sim_reranked_values[k].append(0.0)
+                                reranked_max_ont_sims[
+                                    f"max_ont_similarity_reranked@{k}"
                                 ] = 0.0
 
                 # Record detailed results for this test case with both baseline and re-ranked metrics
@@ -407,13 +396,13 @@ def run_evaluation(
                     "mrr_dense": mrr_dense,
                     "mrr_reranked": mrr_reranked,
                     **dense_hit_rates,
-                    **dense_ont_similarities,
+                    **dense_max_ont_sims,
                 }
 
                 # Add re-ranked metrics if available
                 if enable_reranker and reranked_results:
                     case_result.update(reranked_hit_rates)
-                    case_result.update(reranked_ont_similarities)
+                    case_result.update(reranked_max_ont_sims)
 
                 detailed_results.append(case_result)
 
@@ -447,11 +436,10 @@ def run_evaluation(
             )
             for k in k_values
         }
-        avg_ont_similarities_dense = {
+        avg_max_ont_sim_dense = {
             k: (
-                sum(ont_similarity_dense_values[k])
-                / len(ont_similarity_dense_values[k])
-                if ont_similarity_dense_values[k]
+                sum(max_ont_sim_dense_values[k]) / len(max_ont_sim_dense_values[k])
+                if max_ont_sim_dense_values[k]
                 else 0
             )
             for k in k_values
@@ -471,11 +459,11 @@ def run_evaluation(
             )
             for k in k_values
         }
-        avg_ont_similarities_reranked = {
+        avg_max_ont_sim_reranked = {
             k: (
-                sum(ont_similarity_reranked_values[k])
-                / len(ont_similarity_reranked_values[k])
-                if ont_similarity_reranked_values[k]
+                sum(max_ont_sim_reranked_values[k])
+                / len(max_ont_sim_reranked_values[k])
+                if max_ont_sim_reranked_values[k]
                 else 0
             )
             for k in k_values
@@ -510,10 +498,10 @@ def run_evaluation(
             results[f"hit_rate_dense@{k}"] = hit_rate_dense_values[k]
             results[f"avg_hit_rate_dense@{k}"] = avg_hit_rates_dense[k]
 
-        # Add ontology similarity metrics - dense
+        # Add maximum ontology similarity metrics - dense
         for k in k_values:
-            results[f"ont_similarity_dense@{k}"] = ont_similarity_dense_values[k]
-            results[f"avg_ont_similarity_dense@{k}"] = avg_ont_similarities_dense[k]
+            results[f"max_ont_similarity_dense@{k}"] = max_ont_sim_dense_values[k]
+            results[f"avg_max_ont_similarity_dense@{k}"] = avg_max_ont_sim_dense[k]
 
         # Add re-ranked metrics if enabled
         if enable_reranker:
@@ -522,13 +510,13 @@ def run_evaluation(
                 results[f"hit_rate_reranked@{k}"] = hit_rate_reranked_values[k]
                 results[f"avg_hit_rate_reranked@{k}"] = avg_hit_rates_reranked[k]
 
-            # Add ontology similarity metrics - reranked
+            # Add maximum ontology similarity metrics - reranked
             for k in k_values:
-                results[f"ont_similarity_reranked@{k}"] = (
-                    ont_similarity_reranked_values[k]
+                results[f"max_ont_similarity_reranked@{k}"] = (
+                    max_ont_sim_reranked_values[k]
                 )
-                results[f"avg_ont_similarity_reranked@{k}"] = (
-                    avg_ont_similarities_reranked[k]
+                results[f"avg_max_ont_similarity_reranked@{k}"] = (
+                    avg_max_ont_sim_reranked[k]
                 )
 
         # Add detailed results
@@ -561,26 +549,26 @@ def run_evaluation(
             # Add hit rates and ontology similarity for dense metrics
             for k in k_values:
                 summary[f"hit_rate_dense@{k}"] = avg_hit_rates_dense[k]
-                summary[f"ont_similarity_dense@{k}"] = avg_ont_similarities_dense[k]
+                summary[f"max_ont_similarity_dense@{k}"] = avg_max_ont_sim_dense[k]
                 # Add raw metrics for each k value
                 summary[f"hit_rate_dense@{k}_per_case"] = hit_rate_dense_values[k]
-                summary[f"ont_similarity_dense@{k}_per_case"] = (
-                    ont_similarity_dense_values[k]
+                summary[f"max_ont_similarity_dense@{k}_per_case"] = (
+                    max_ont_sim_dense_values[k]
                 )
 
             # Add hit rates and ontology similarity for re-ranked metrics (if enabled)
             if enable_reranker:
                 for k in k_values:
                     summary[f"hit_rate_reranked@{k}"] = avg_hit_rates_reranked[k]
-                    summary[f"ont_similarity_reranked@{k}"] = (
-                        avg_ont_similarities_reranked[k]
+                    summary[f"max_ont_similarity_reranked@{k}"] = (
+                        avg_max_ont_sim_reranked[k]
                     )
                     # Add raw metrics for each k value
                     summary[f"hit_rate_reranked@{k}_per_case"] = (
                         hit_rate_reranked_values[k]
                     )
-                    summary[f"ont_similarity_reranked@{k}_per_case"] = (
-                        ont_similarity_reranked_values[k]
+                    summary[f"max_ont_similarity_reranked@{k}_per_case"] = (
+                        max_ont_sim_reranked_values[k]
                     )
 
             # Save summary to file
@@ -604,7 +592,7 @@ def run_evaluation(
         logging.info(f"  MRR (Dense): {avg_mrr_dense:.4f}")
         for k in k_values:
             logging.info(f"  Hit@{k} (Dense): {avg_hit_rates_dense[k]:.4f}")
-            logging.info(f"  OntSim@{k} (Dense): {avg_ont_similarities_dense[k]:.4f}")
+            logging.info(f"  MaxOntSim@{k} (Dense): {avg_max_ont_sim_dense[k]:.4f}")
 
         if enable_reranker:
             logging.info(f"  === Re-ranked Metrics ({reranker_mode} mode) ===")
@@ -612,7 +600,7 @@ def run_evaluation(
             for k in k_values:
                 logging.info(f"  Hit@{k} (Re-ranked): {avg_hit_rates_reranked[k]:.4f}")
                 logging.info(
-                    f"  OntSim@{k} (Re-ranked): {avg_ont_similarities_reranked[k]:.4f}"
+                    f"  MaxOntSim@{k} (Re-ranked): {avg_max_ont_sim_reranked[k]:.4f}"
                 )
 
         return results
@@ -726,31 +714,31 @@ def compare_models(results_list: List[Dict[str, Any]]) -> pd.DataFrame:
                     )
                     model_data[f"HR@{k} (Diff)"] = reranked_val - dense_val
 
-        # Add Ontology Similarity metrics
+        # Add Maximum Ontology Similarity metrics
         for k in [1, 3, 5, 10]:
             # Dense retrieval metrics
-            dense_key = f"ont_similarity_dense@{k}"
+            dense_key = f"max_ont_similarity_dense@{k}"
             if dense_key in result:
                 if isinstance(result[dense_key], list):
-                    model_data[f"OntSim@{k} (Dense)"] = (
+                    model_data[f"MaxOntSim@{k} (Dense)"] = (
                         sum(result[dense_key]) / len(result[dense_key])
                         if result[dense_key]
                         else 0
                     )
                 else:
-                    model_data[f"OntSim@{k} (Dense)"] = result[dense_key]
+                    model_data[f"MaxOntSim@{k} (Dense)"] = result[dense_key]
 
             # Re-ranked metrics if available
-            reranked_key = f"ont_similarity_reranked@{k}"
+            reranked_key = f"max_ont_similarity_reranked@{k}"
             if reranked_key in result:
                 if isinstance(result[reranked_key], list):
-                    model_data[f"OntSim@{k} (ReRanked)"] = (
+                    model_data[f"MaxOntSim@{k} (ReRanked)"] = (
                         sum(result[reranked_key]) / len(result[reranked_key])
                         if result[reranked_key]
                         else 0
                     )
                 else:
-                    model_data[f"OntSim@{k} (ReRanked)"] = result[reranked_key]
+                    model_data[f"MaxOntSim@{k} (ReRanked)"] = result[reranked_key]
 
                 # Calculate difference if both metrics are available
                 if dense_key in result:

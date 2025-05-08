@@ -101,11 +101,11 @@ def compare_benchmark_summaries(summaries: List[Dict[str, Any]]) -> pd.DataFrame
             if key in summary:
                 model_data[f"HR@{k} (Dense)"] = summary[key]
 
-        # Add ontology similarity metrics for dense retrieval
+        # Add maximum ontology similarity metrics for dense retrieval
         for k in [1, 3, 5, 10]:
-            key = f"ont_similarity_dense@{k}"
+            key = f"max_ont_similarity_dense@{k}"
             if key in summary:
-                model_data[f"OntSim@{k} (Dense)"] = summary[key]
+                model_data[f"MaxOntSim@{k} (Dense)"] = summary[key]
 
         # Add re-ranked metrics if available
         if summary.get("reranker_enabled", False):
@@ -127,16 +127,16 @@ def compare_benchmark_summaries(summaries: List[Dict[str, Any]]) -> pd.DataFrame
                             summary[key] - summary[dense_key]
                         )
 
-            # Add ontology similarity metrics for re-ranked results
+            # Add maximum ontology similarity metrics for re-ranked results
             for k in [1, 3, 5, 10]:
-                key = f"ont_similarity_reranked@{k}"
+                key = f"max_ont_similarity_reranked@{k}"
                 if key in summary:
-                    model_data[f"OntSim@{k} (Reranked)"] = summary[key]
+                    model_data[f"MaxOntSim@{k} (Reranked)"] = summary[key]
 
                     # Calculate improvement
-                    dense_key = f"ont_similarity_dense@{k}"
+                    dense_key = f"max_ont_similarity_dense@{k}"
                     if dense_key in summary:
-                        model_data[f"OntSim@{k} (Improvement)"] = (
+                        model_data[f"MaxOntSim@{k} (Improvement)"] = (
                             summary[key] - summary[dense_key]
                         )
 

@@ -11,7 +11,6 @@ using various metrics including:
 import logging
 import os
 import pickle
-from collections import defaultdict
 from typing import Dict, List, Optional, Set, Tuple, Union, Any
 
 from phentrieve.config import DEFAULT_ANCESTORS_FILENAME, DEFAULT_DEPTHS_FILENAME
@@ -338,6 +337,64 @@ def average_max_similarity(
     max_similarities = calculate_max_similarity(expected_terms, retrieved_terms, top_k)
 
     return sum(max_similarities) / len(max_similarities)
+
+
+def calculate_test_case_max_ont_sim(
+    expected_ids: List[str], retrieved_ids: List[str]
+) -> float:
+    """
+    Calculates the single highest semantic similarity between any expected ID
+    and any retrieved ID for a single test case. Returns 1.0 if any exact match exists.
+
+    Args:
+        expected_ids: List of ground truth HPO IDs for the test case.
+        retrieved_ids: List of retrieved HPO IDs (typically top K).
+
+    Returns:
+        The maximum similarity score (float between 0.0 and 1.0) found.
+    """
+    if not expected_ids or not retrieved_ids:
+        return 0.0
+
+    overall_max_sim = 0.0
+
+    # Check for exact match first across all pairs
+    # Using sets for efficient intersection check
+    expected_set = set(expected_ids)
+    retrieved_set = set(retrieved_ids)
+    if not expected_set.isdisjoint(retrieved_set):
+        # If any exact match exists, the max possible similarity is 1.0
+        logging.debug(
+            f"Exact match found for test case ({expected_set.intersection(retrieved_set)}), MaxOntSim is 1.0"
+        )
+        return 1.0
+
+    # If no exact match, calculate all pairwise semantic similarities
+    # This requires the graph data to be loaded, assume it's handled/cached by calculate_semantic_similarity
+    try:
+        load_hpo_graph_data()  # Ensure data is loaded/cached
+        for exp_id in expected_ids:
+            for ret_id in retrieved_ids:
+                # calculate_semantic_similarity handles the 1.0 check internally too, but we did it above for clarity.
+                similarity = calculate_semantic_similarity(exp_id, ret_id)
+                if similarity > overall_max_sim:
+                    overall_max_sim = similarity
+                    # Optimization: if we reach 1.0, we can stop
+                    if overall_max_sim >= 1.0:
+                        break  # Exit inner loop
+            if overall_max_sim >= 1.0:
+                break  # Exit outer loop
+    except Exception as e:
+        logging.error(
+            f"Error during pairwise similarity calculation for MaxOntSim: {e}",
+            exc_info=True,
+        )
+        # Depending on desired behavior, could return 0.0 or raise
+        return 0.0  # Default to 0 on error during calculation
+
+    logging.debug(f"Calculated MaxOntSim for test case: {overall_max_sim:.4f}")
+    # Clamp result just in case, though calculate_semantic_similarity should handle it
+    return max(0.0, min(1.0, overall_max_sim))
 
 
 def mean_reciprocal_rank(results: Dict[str, Any], expected_ids: List[str]) -> float:

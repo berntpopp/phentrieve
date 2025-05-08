@@ -105,10 +105,10 @@ def prepare_comparison_dataframe(summaries: List[Dict[str, Any]]) -> pd.DataFram
             row["MRR (ReRanked)"] = summary.get("avg_mrr_reranked", 0.0)
             row["MRR (Diff)"] = row["MRR (ReRanked)"] - row["MRR (Dense)"]
 
-        # Hit Rate and Ontology Similarity
+        # Hit Rate and Maximum Ontology Similarity
         for metric_prefix, display_prefix in [
             ("hit_rate", "HR"),
-            ("ont_similarity", "OntSim"),
+            ("max_ont_similarity", "MaxOntSim"),
         ]:
             for k in k_values:
                 dense_key_avg = f"avg_{metric_prefix}_dense@{k}"
@@ -138,11 +138,11 @@ def prepare_comparison_dataframe(summaries: List[Dict[str, Any]]) -> pd.DataFram
 
 def prepare_flat_dataframe_for_plotting(
     summaries: List[Dict[str, Any]],
-    metric_prefix: str,  # e.g., "hit_rate", "ont_similarity"
+    metric_prefix: str,  # e.g., "hit_rate", "max_ont_similarity"
     k_values: List[int] = [1, 3, 5, 10],
 ) -> pd.DataFrame:
     """
-    Prepares a long-form DataFrame for plotting metrics like Hit@K or OntSim@K.
+    Prepares a long-form DataFrame for plotting metrics like Hit@K or MaxOntSim@K.
     This structure is suitable for seaborn plots using `hue` for 'Method'.
     """
     plot_data = []
