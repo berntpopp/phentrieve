@@ -11,14 +11,15 @@ Human Phenotype Ontology (HPO) data including:
 
 import os
 import json
+import functools
 import logging
 import pickle
 import shutil
 import sys
+import time
 from collections import defaultdict, deque
-from itertools import combinations
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Set
+from typing import Dict, List, Optional, Tuple, Set
 
 import matplotlib.pyplot as plt
 import networkx as nx
@@ -331,90 +332,183 @@ def save_terms_as_json_files(
     logging.info(f"Saved term files to {terms_dir}")
 
 
-def compute_ancestors(is_a_relationships: Dict[str, List[str]]) -> Dict[str, Set[str]]:
-    """
-    Compute all ancestors (transitive closure) for each HPO term.
+_recursive_child_to_parents_map = {}
+_recursive_all_term_ids_set = set()
 
-    This uses a breadth-first search to find all ancestors of each term.
+
+@functools.lru_cache(maxsize=None)  # Use LRU cache for memoization
+def get_term_ancestors_recursive(term_id: str, graph_key: str) -> frozenset[str]:
+    """
+    Recursive helper with memoization to get ancestors for a single term.
+    Uses a global dictionary lookup to avoid unhashable dict parameters.
+    """
+    # We'll use global variables to avoid passing unhashable dictionaries
+    global _recursive_child_to_parents_map
+    global _recursive_all_term_ids_set
+
+    # Base case: Include the term itself
+    current_ancestors = {term_id}
+
+    # Get direct parents
+    direct_parents = _recursive_child_to_parents_map.get(term_id, [])
+
+    # Recursively get ancestors of parents and add them
+    for parent_id in direct_parents:
+        # Prevent infinite loops and ensure parent is valid
+        if parent_id in _recursive_all_term_ids_set and parent_id != term_id:
+            parent_ancestors = get_term_ancestors_recursive(parent_id, graph_key)
+            current_ancestors.update(parent_ancestors)
+        elif parent_id not in _recursive_all_term_ids_set:
+            # logging.debug(f"Term {term_id} has an unknown parent {parent_id}. Ignoring.")
+            pass  # Ignore parents not in the main HPO set
+
+    # Return immutable frozenset for caching compatibility
+    return frozenset(current_ancestors)
+
+
+def compute_ancestors(
+    child_to_parents: Dict[str, List[str]], all_term_ids: Set[str]
+) -> Dict[str, Set[str]]:
+    """
+    Compute all ancestors (including self) for each HPO term using recursion with memoization.
 
     Args:
-        is_a_relationships: Dictionary mapping term IDs to lists of direct parent IDs
+        child_to_parents: Dictionary mapping child term IDs to lists of direct parent IDs.
+        all_term_ids: A set containing all known HPO term IDs in the ontology.
 
     Returns:
-        Dictionary mapping term IDs to sets of all ancestor IDs
+        Dictionary mapping term IDs to sets of all ancestor IDs (including self).
     """
-    ancestors: Dict[str, Set[str]] = {}
+    global _recursive_child_to_parents_map
+    global _recursive_all_term_ids_set
 
-    for term_id in tqdm(is_a_relationships, desc="Computing ancestors"):
-        # Skip if already computed
-        if term_id in ancestors:
-            continue
+    # Set up globals for the recursive function
+    _recursive_child_to_parents_map = child_to_parents
+    _recursive_all_term_ids_set = all_term_ids
 
-        # Initialize the ancestor set for this term
-        ancestors[term_id] = set()
+    # Create a unique identifier for this graph to use in caching
+    # We'll just use a timestamp as a unique key
+    graph_key = str(time.time())
 
-        # Initialize the queue for BFS
-        queue = deque(is_a_relationships[term_id])
-        visited = set(is_a_relationships[term_id])
+    ancestors_map: Dict[str, Set[str]] = {}
+    logging.info(
+        f"Computing ancestors for {len(all_term_ids)} total terms using recursive approach."
+    )
 
-        # BFS to find all ancestors
-        while queue:
-            parent_id = queue.popleft()
-            ancestors[term_id].add(parent_id)
+    # Compute ancestors for all terms using the recursive helper with global state
+    for term_id in tqdm(all_term_ids, desc="Computing ancestors", unit="term"):
+        ancestors_map[term_id] = set(get_term_ancestors_recursive(term_id, graph_key))
 
-            # Add parent's parents to queue if not visited
-            for grandparent_id in is_a_relationships.get(parent_id, []):
-                if grandparent_id not in visited:
-                    queue.append(grandparent_id)
-                    visited.add(grandparent_id)
+    # Clear the cache after computation
+    get_term_ancestors_recursive.cache_clear()
 
-    return ancestors
+    # Clear globals to free memory
+    _recursive_child_to_parents_map = {}
+    _recursive_all_term_ids_set = set()
+
+    computed_count = len(ancestors_map)
+    logging.info(f"Computed ancestor sets for {computed_count} terms.")
+    if computed_count != len(all_term_ids):
+        logging.warning(
+            f"Mismatch: Expected {len(all_term_ids)} ancestor sets, computed {computed_count}."
+        )
+
+    # Verification Step: Check if the universal root exists in most sets
+    universal_root = "HP:0000001"
+    root_check_count = 0
+    if universal_root in all_term_ids:
+        root_check_count = sum(
+            1 for ancestors in ancestors_map.values() if universal_root in ancestors
+        )
+        logging.info(
+            f"Number of terms tracing back to root {universal_root}: {root_check_count} / {computed_count}"
+        )
+        if root_check_count < computed_count * 0.98:  # Expect almost all to reach root
+            logging.warning(
+                f"Significantly fewer terms than expected trace back to the universal root {universal_root}. Check graph connectivity."
+            )
+    else:
+        logging.warning(
+            f"Universal root {universal_root} not found in parsed terms. Ancestry check might be incomplete."
+        )
+
+    return ancestors_map
 
 
 def compute_term_depths(
-    is_a_relationships: Dict[str, List[str]], root_id: str = PHENOTYPE_ROOT
+    parent_to_children: Dict[str, List[str]], all_term_ids: Set[str]
 ) -> Dict[str, int]:
     """
-    Compute the depth of each term from the root.
-
-    This uses a breadth-first search starting from the root.
+    Compute the depth of each term from the true root (HP:0000001) using BFS.
 
     Args:
-        is_a_relationships: Dictionary mapping term IDs to lists of parent IDs
-        root_id: The ID of the root term (default is Phenotypic abnormality HP:0000118)
+        parent_to_children: Dictionary mapping parent term IDs to lists of direct child IDs.
+        all_term_ids: A set containing all known HPO term IDs.
 
     Returns:
-        Dictionary mapping term IDs to their depths
+        Dictionary mapping term IDs to their depths (shortest path from true root).
+        Returns empty dict if true root is not found.
     """
-    # Initialize depths dictionary with -1 (not yet visited)
-    depths: Dict[str, int] = {term_id: -1 for term_id in is_a_relationships}
+    TRUE_ROOT_ID = "HP:0000001"
+    logging.info(f"Calculating term depths from true root {TRUE_ROOT_ID}")
 
-    # Check if root exists
-    if root_id not in is_a_relationships:
-        print(f"Root term {root_id} not found in the ontology graph")
-        return depths
+    # Initialize depths dictionary with -1 (not yet visited/unreachable)
+    depths: Dict[str, int] = {term_id: -1 for term_id in all_term_ids}
+
+    # Check if the true root exists in the set of all terms
+    if TRUE_ROOT_ID not in all_term_ids:
+        logging.error(
+            f"True root term {TRUE_ROOT_ID} not found in the parsed HPO terms. Cannot calculate depths."
+        )
+        return {}  # Return empty dict indicating failure
 
     # Set root depth to 0
-    depths[root_id] = 0
+    depths[TRUE_ROOT_ID] = 0
 
-    # Create a reverse mapping: child -> parents becomes parent -> children
-    children: Dict[str, List[str]] = defaultdict(list)
-    for child, parents in is_a_relationships.items():
-        for parent in parents:
-            children[parent].append(child)
+    # Use BFS to compute depths, traversing DOWN using the parent_to_children map
+    queue = deque([TRUE_ROOT_ID])
+    visited_bfs = {TRUE_ROOT_ID}  # Keep track of visited nodes during BFS
 
-    # Use BFS to compute depths
-    queue = deque([root_id])
+    processed_count = 0
     while queue:
         term_id = queue.popleft()
-        current_depth = depths[term_id]
+        processed_count += 1
 
-        # Process all children
-        for child_id in children[term_id]:
-            # If not visited or found a shorter path
-            if depths[child_id] == -1 or depths[child_id] > current_depth + 1:
+        current_depth = depths.get(term_id, -1)  # Should always exist if in queue
+        if current_depth == -1:
+            # Should ideally not happen if queue logic is correct
+            logging.warning(
+                f"Node {term_id} in BFS queue but has invalid depth. Skipping."
+            )
+            continue
+
+        # Process all children using the provided parent_to_children map
+        for child_id in parent_to_children.get(term_id, []):
+            # Ensure child is a known term and hasn't been visited in this BFS
+            if child_id in depths and child_id not in visited_bfs:
                 depths[child_id] = current_depth + 1
+                visited_bfs.add(child_id)
                 queue.append(child_id)
+            # Optional: Log if a child mentioned in edges isn't in all_term_ids
+            # elif child_id not in depths:
+            #    logging.debug(f"Child term {child_id} (parent {term_id}) not found in the initial set of all terms.")
+
+    # Log statistics
+    reachable_count = sum(1 for d in depths.values() if d >= 0)
+    unreachable_count = len(all_term_ids) - reachable_count  # More accurate count
+    logging.info(
+        f"Calculated depths for {reachable_count} HPO terms starting from root {TRUE_ROOT_ID}."
+    )
+    if unreachable_count > 0:
+        logging.warning(
+            f"{unreachable_count} terms were unreachable from root {TRUE_ROOT_ID}."
+        )
+        # Log a few unreachable terms for debugging
+        unreachable_sample = [tid for tid, d in depths.items() if d < 0][:10]
+        logging.debug(f"Sample unreachable terms: {unreachable_sample}")
+
+    max_depth_val = max((d for d in depths.values() if d >= 0), default=-1)
+    logging.info(f"Maximum depth found: {max_depth_val}")
 
     return depths
 
@@ -603,13 +697,13 @@ def prepare_hpo_data(
     # --- Compute and Save Full Graph Data for Metrics ---
     # 6. Compute Ancestors for ALL terms (needed for metric calculations)
     logging.info("Computing ancestors for all terms...")
-    ancestors = compute_ancestors(child_parent_graph)
+    ancestors = compute_ancestors(child_parent_graph, all_term_ids)
     save_ancestors_to_file(ancestors, ancestors_file)
     logging.info(f"Saved ancestors to {ancestors_file}")
 
     # 7. Compute Depths for ALL terms
     logging.info("Computing term depths...")
-    depths = compute_term_depths(parent_child_edges)
+    depths = compute_term_depths(parent_child_edges, all_term_ids)
     save_depths_to_file(depths, depths_file)
     logging.info(f"Saved depths to {depths_file}")
 

@@ -85,7 +85,9 @@ def inspect_ancestors(data, num_samples=5):
             if not is_root_present and term_id != ROOT_NODE:
                 missing_phenotype_root += 1
         else:
-            print(f"  Error: Value for {term_id} is not a set (Type: {type(ancestors)})")
+            print(
+                f"  Error: Value for {term_id} is not a set (Type: {type(ancestors)})"
+            )
 
     print(f"\nSummary across {len(sample_keys)} samples:")
     print(f"  Terms missing self-reference: {missing_self}")
