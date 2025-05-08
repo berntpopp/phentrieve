@@ -38,7 +38,8 @@ dependencies = [
     "numpy>=1.23.0",
     "matplotlib>=3.7.0",
     "seaborn>=0.12.0",
-    "typer[all]>=0.9.0"
+    "typer[all]>=0.9.0",
+    "PyYAML>=6.0"
 ]
 
 [project.scripts]

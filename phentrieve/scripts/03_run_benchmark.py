@@ -14,10 +14,10 @@ Metrics include:
 import argparse
 import logging
 import os
-import pathlib
 import sys
 from datetime import datetime
-from typing import List, Optional
+from pathlib import Path
+from typing import List
 
 # Add the parent directory to sys.path to make the package importable
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -33,28 +33,21 @@ if "--debug" in sys.argv:
     print(f"Project root: {project_root}")
     print(f"Package dir: {package_dir}")
 
-# Import pandas deferred to end if running as main to avoid unnecessary import when imported as a module
-
 from phentrieve.config import (
-    MIN_SIMILARITY_THRESHOLD,
     DEFAULT_RERANKER_MODEL,
     DEFAULT_MONOLINGUAL_RERANKER_MODEL,
     DEFAULT_RERANKER_MODE,
-    DEFAULT_TRANSLATION_DIR,
     DEFAULT_RERANK_CANDIDATE_COUNT,
     DEFAULT_ENABLE_RERANKER,
     DEFAULT_BIOLORD_MODEL,
-    DEFAULT_MODEL,
     BENCHMARK_MODELS,
-    TEST_CASES_DIR,
-    RESULTS_DIR,
-    SUMMARIES_DIR,
-    DETAILED_DIR,
     DEFAULT_SIMILARITY_THRESHOLD,
     DEFAULT_DEVICE,
+    DEFAULT_TEST_CASES_SUBDIR,
+    DEFAULT_SUMMARIES_SUBDIR,
+    DEFAULT_DETAILED_SUBDIR,
 )
-
-# Use local logging setup instead of importing from non-existent utils.log_utils module
+from phentrieve.utils import get_default_data_dir
 from phentrieve.evaluation.runner import run_evaluation, compare_models
 
 
@@ -70,10 +63,14 @@ def setup_logging(debug: bool = False) -> None:
 
 def ensure_directories_exist() -> None:
     """Create necessary output directories if they don't exist."""
-    for directory in [RESULTS_DIR, SUMMARIES_DIR, DETAILED_DIR]:
-        if not os.path.exists(directory):
+    data_dir = get_default_data_dir()
+    results_dir = data_dir / "results"
+    summaries_dir = results_dir / DEFAULT_SUMMARIES_SUBDIR
+    detailed_dir = results_dir / DEFAULT_DETAILED_SUBDIR
+    for directory in [results_dir, summaries_dir, detailed_dir]:
+        if not directory.exists():
             logging.info(f"Creating directory: {directory}")
-            os.makedirs(directory, exist_ok=True)
+            directory.mkdir(parents=True, exist_ok=True)
 
 
 def main() -> None:
@@ -84,10 +81,12 @@ def main() -> None:
     )
 
     # Test data options
+    data_dir = get_default_data_dir()
+    test_cases_dir = data_dir / DEFAULT_TEST_CASES_SUBDIR
     parser.add_argument(
         "--test-file",
         type=str,
-        default=os.path.join(TEST_CASES_DIR, "sample_test_cases.json"),
+        default=str(test_cases_dir / "sample_test_cases.json"),
         help="Path to test cases JSON file (default: sample_test_cases.json)",
     )
     parser.add_argument(
@@ -174,11 +173,13 @@ def main() -> None:
         default=DEFAULT_RERANKER_MODE,
         help=f"Re-ranking mode: cross-lingual (German->English) or monolingual (German->German) (default: {DEFAULT_RERANKER_MODE})",
     )
+    data_dir = get_default_data_dir()
+    translations_dir = data_dir / DEFAULT_TRANSLATIONS_SUBDIR
     reranker_group.add_argument(
         "--translation-dir",
         type=str,
-        default=DEFAULT_TRANSLATION_DIR,
-        help=f"Directory containing German translations of HPO terms (default: {DEFAULT_TRANSLATION_DIR})",
+        default=str(translations_dir),
+        help=f"Directory containing German translations of HPO terms (default: {translations_dir})",
     )
     parser.add_argument(
         "--rerank-count",
@@ -263,7 +264,10 @@ def main() -> None:
         print(comparison_df)
 
         # Save comparison to CSV
-        csv_path = os.path.join(RESULTS_DIR, "benchmark_comparison.csv")
+        data_dir = get_default_data_dir()
+        results_dir = data_dir / "results"
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        csv_path = str(results_dir / f"benchmark_comparison_{timestamp}.csv")
         comparison_df.to_csv(csv_path)
         print(f"\nComparison table saved to {csv_path}")
     else:

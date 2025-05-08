@@ -1,0 +1,40 @@
+# Phentrieve Configuration
+# This is a sample configuration file with default values
+# You can modify this file directly, or copy it to ~/.phentrieve/phentrieve.yaml
+
+# Data path configurations
+# These paths will be created automatically if they don't exist
+
+# Main data directory for HPO files, terms, and graph data
+data_dir: "c:/development/rag-hpo-testing/data"
+
+# Directory for ChromaDB vector indexes 
+index_dir: "c:/development/rag-hpo-testing/data/indexes"
+
+# Directory for benchmark results
+results_dir: "c:/development/rag-hpo-testing/data/results"
+
+# Hardware acceleration settings
+device: "auto"  # Options: "auto", "cuda", "cpu", or specific device like "cuda:0"
+use_fp16: false  # Use half-precision floating point for better performance when available
+
+# Default embedding model settings
+default_model: "FremyCompany/BioLORD-2023-M"
+
+# Re-ranking settings
+enable_reranker: false
+
+# Cross-encoder model options
+# Available options:
+# - "MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7" (multilingual NLI model)
+# - "cross-encoder/mmarco-mMiniLMv2-L12-H384-v1" (general multilingual retrieval)
+# - "ncbi/MedCPT-Cross-Encoder" (biomedical domain-specific)
+reranker_model: "MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7" 
+rerank_candidate_count: 50
+
+# Benchmark settings
+benchmark:
+  similarity_threshold: 0.1
+  save_summaries: true
+  save_detailed_results: true
+  create_visualizations: true

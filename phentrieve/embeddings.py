@@ -15,7 +15,9 @@ from phentrieve.config import JINA_MODEL_ID, DEFAULT_BIOLORD_MODEL
 
 
 def load_embedding_model(
-    model_name: Optional[str] = None, trust_remote_code: bool = False, device: Optional[str] = None
+    model_name: Optional[str] = None,
+    trust_remote_code: bool = False,
+    device: Optional[str] = None,
 ) -> SentenceTransformer:
     """
     Load a sentence transformer embedding model with support for GPU acceleration.
@@ -34,7 +36,7 @@ def load_embedding_model(
     # Set device - use CUDA if available and not explicitly set to CPU
     if device is None:
         device = "cuda" if torch.cuda.is_available() else "cpu"
-    
+
     # Use default model if None is provided
     if model_name is None:
         model_name = DEFAULT_BIOLORD_MODEL

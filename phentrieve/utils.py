@@ -11,9 +11,9 @@ import logging
 import os
 import re
 import sys
-from typing import Dict, Optional
-
-from .config import INDEX_DIR
+import yaml
+from pathlib import Path
+from typing import Dict, Optional, Callable
 
 logger = logging.getLogger(__name__)
 
@@ -73,7 +73,7 @@ def get_model_slug(model_name: Optional[str]) -> str:
     # Handle None case
     if model_name is None:
         return "biolord_2023_m"
-    
+
     # Extract the last part of the model path if it contains slashes
     if "/" in model_name:
         slug = model_name.split("/")[-1]
@@ -92,14 +92,145 @@ def get_model_slug(model_name: Optional[str]) -> str:
     return slug
 
 
-def get_index_dir() -> str:
-    """
-    Return the path for the ChromaDB persistent storage.
+def get_user_config_dir() -> Path:
+    """Gets the path to the user-specific config/data directory."""
+    return Path.home() / ".phentrieve"
+
+
+def get_config_paths() -> list[Path]:
+    """Gets all potential configuration file paths in priority order."""
+    # Local project directory - highest priority
+    local_config = Path.cwd() / "phentrieve.yaml"
+    local_config_alt = Path.cwd() / "phentrieve.yml"  # Alternative extension
+
+    # User home directory - secondary priority
+    user_config = get_user_config_dir() / "phentrieve.yaml"
+    user_config_alt = (
+        get_user_config_dir() / "config.yaml"
+    )  # For backward compatibility
+
+    # Return in priority order
+    return [local_config, local_config_alt, user_config, user_config_alt]
+
+
+def get_config_file_path() -> Optional[Path]:
+    """Gets the first existing config file path from the priority list.
 
     Returns:
-        Directory path string
+        Path to existing config file, or None if no config file exists
     """
-    return INDEX_DIR
+    for path in get_config_paths():
+        if path.exists():
+            return path
+    return None
+
+
+def get_default_data_dir() -> Path:
+    """Gets the default path for storing HPO data."""
+    return get_user_config_dir() / "data"
+
+
+def get_default_index_dir() -> Path:
+    """Gets the default path for storing ChromaDB indexes."""
+    return get_user_config_dir() / "hpo_chroma_index"
+
+
+def get_default_results_dir() -> Path:
+    """Gets the default path for storing benchmark results."""
+    return get_user_config_dir() / "benchmark_results"
+
+
+def get_index_dir() -> Path:
+    """Return the path for the ChromaDB persistent storage.
+
+    Note: This is maintained for backward compatibility.
+    New code should use resolve_data_path with get_default_index_dir.
+
+    Returns:
+        Directory path
+    """
+    # Create the directory if it doesn't exist
+    index_dir = get_default_index_dir()
+    os.makedirs(index_dir, exist_ok=True)
+    return index_dir
+
+
+@functools.lru_cache(maxsize=1)  # Cache the config for a single run
+def load_user_config() -> Dict:
+    """Loads the user configuration from the YAML file."""
+    config_path = get_config_file_path()
+    config = {}
+    if config_path and config_path.exists():
+        try:
+            with open(config_path, "r") as f:
+                config = yaml.safe_load(f)
+            if not isinstance(config, dict):
+                logging.warning(
+                    f"Config file {config_path} is not a valid dictionary. "
+                    f"Using defaults."
+                )
+                config = {}
+            logging.info(f"Loaded user configuration from {config_path}")
+        except Exception as e:
+            logging.warning(
+                f"Could not load user config file {config_path}: {e}. "
+                f"Using defaults."
+            )
+            config = {}
+    else:
+        logging.debug(f"User config file not found at {config_path}. Using defaults.")
+    return config if config else {}  # Ensure returning dict
+
+
+def resolve_data_path(
+    cli_path: Optional[str] = None,
+    config_key: Optional[str] = None,
+    default_func: Optional[Callable] = None,
+) -> Path:
+    """Resolves data paths based on priority: CLI > User Config > Default."""
+    user_config = load_user_config()
+
+    # 1. CLI Argument
+    if cli_path:
+        path = Path(cli_path).expanduser().resolve()
+        logging.debug(f"Using path from CLI arg '{cli_path}': {path}")
+        os.makedirs(path, exist_ok=True)  # Ensure dir exists if specified via CLI
+        return path
+
+    # 2. User Config File
+    if config_key and config_key in user_config:
+        path_str = user_config[config_key]
+        if isinstance(path_str, str):
+            path = Path(path_str).expanduser().resolve()
+            logging.debug(f"Using path from config file key '{config_key}': {path}")
+            os.makedirs(path, exist_ok=True)  # Ensure dir exists via config
+            return path
+        else:
+            logging.warning(
+                f"Invalid path value '{path_str}' for key '{config_key}' "
+                f"in config file. Using default."
+            )
+
+    # 3. Default Function
+    if default_func:
+        path = default_func().resolve()  # Call function to get Path object
+        logging.debug(
+            f"Using default path from function {default_func.__name__}: {path}"
+        )
+        # Ensure default directories exist
+        try:
+            os.makedirs(path, exist_ok=True)
+        except OSError as e:
+            logging.error(f"Could not create default directory {path}: {e}")
+            raise OSError(f"Failed to establish default data directory: {path}") from e
+        return path
+
+    # Fallback
+    logging.error(
+        "Could not resolve data path: No CLI arg, config key, "
+        "or default function provided."
+    )
+    raise ValueError("Unable to resolve data path")
 
 
 def generate_collection_name(model_name: str) -> str:

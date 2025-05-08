@@ -24,6 +24,9 @@ def prepare_hpo_data(
     force: Annotated[
         bool, typer.Option("--force", help="Force update even if files exist")
     ] = False,
+    data_dir: Annotated[
+        str, typer.Option("--data-dir", help="Custom directory for HPO data storage")
+    ] = None,
 ):
     """Prepare HPO data for indexing.
 
@@ -36,7 +39,9 @@ def prepare_hpo_data(
     setup_logging_cli(debug=debug)
 
     typer.echo("Starting HPO data preparation...")
-    success = orchestrate_hpo_preparation(debug=debug, force_update=force)
+    success = orchestrate_hpo_preparation(
+        debug=debug, force_update=force, data_dir_override=data_dir
+    )
 
     if success:
         typer.secho(
@@ -431,7 +436,7 @@ def query_hpo(
     cross-encoder re-ranking for improved results.
     """
     from phentrieve.retrieval.query_orchestrator import orchestrate_query
-    from phentrieve.config import DEFAULT_MODEL, DEFAULT_TRANSLATION_DIR
+    from phentrieve.config import DEFAULT_MODEL, DEFAULT_TRANSLATIONS_SUBDIR
     from phentrieve.utils import setup_logging_cli
 
     # Set up logging
@@ -444,7 +449,7 @@ def query_hpo(
 
     # Use default translation dir if not specified
     if translation_dir is None:
-        translation_dir = DEFAULT_TRANSLATION_DIR
+        translation_dir = DEFAULT_TRANSLATIONS_SUBDIR
 
     # Determine device based on CPU flag
     device_override = "cpu" if cpu else None

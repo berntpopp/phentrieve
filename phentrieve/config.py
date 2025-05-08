@@ -5,29 +5,24 @@ This module contains constants, defaults, and configuration parameters used
 throughout the phentrieve package.
 """
 
-import os
-from pathlib import Path
+# Note: This module intentionally does not import path resolution functions
+# We avoid importing from utils to prevent circular imports
 
+# Default directory sub-paths and filenames (relative to base dirs)
+# Sub-directories (for data_dir)
+DEFAULT_HPO_TERMS_SUBDIR = "hpo_terms"
+DEFAULT_TEST_CASES_SUBDIR = "test_cases"
+DEFAULT_TRANSLATIONS_SUBDIR = "hpo_translations_de"
 
-# Base directories
-ROOT_DIR = Path(__file__).parent.parent.absolute()
-DATA_DIR = os.path.join(ROOT_DIR, "data")
-HPO_TERMS_DIR = os.path.join(DATA_DIR, "hpo_terms")
-TEST_CASES_DIR = os.path.join(DATA_DIR, "test_cases")
+# HPO data filenames (relative to data_dir)
+DEFAULT_HPO_FILENAME = "hp.json"
+DEFAULT_ANCESTORS_FILENAME = "hpo_ancestors.pkl"
+DEFAULT_DEPTHS_FILENAME = "hpo_term_depths.pkl"
 
-# HPO data files
-HPO_FILE_PATH = os.path.join(DATA_DIR, "hp.json")
-HPO_ANCESTORS_FILE = os.path.join(DATA_DIR, "hpo_ancestors.pkl")
-HPO_DEPTHS_FILE = os.path.join(DATA_DIR, "hpo_term_depths.pkl")
-
-# ChromaDB settings
-INDEX_DIR = os.path.join(ROOT_DIR, "hpo_chroma_index")
-
-# Benchmark results directory
-RESULTS_DIR = os.path.join(ROOT_DIR, "benchmark_results")
-SUMMARIES_DIR = os.path.join(RESULTS_DIR, "summaries")
-DETAILED_DIR = os.path.join(RESULTS_DIR, "detailed")
-VISUALIZATIONS_DIR = os.path.join(RESULTS_DIR, "visualizations")
+# Benchmark result subdirectories
+DEFAULT_SUMMARIES_SUBDIR = "summaries"
+DEFAULT_DETAILED_SUBDIR = "detailed"
+DEFAULT_VISUALIZATIONS_SUBDIR = "visualizations"
 
 # Default models
 DEFAULT_MODEL = "FremyCompany/BioLORD-2023-M"
@@ -66,7 +61,7 @@ DEFAULT_MONOLINGUAL_RERANKER_MODEL = (
 # - 'monolingual': German query -> German HPO
 DEFAULT_RERANKER_MODE = "cross-lingual"
 # Default directory for German HPO term translations
-DEFAULT_TRANSLATION_DIR = os.path.join(DATA_DIR, "hpo_translations_de")
+# Note: Path is resolved at runtime using DEFAULT_TRANSLATIONS_SUBDIR
 DEFAULT_RERANK_CANDIDATE_COUNT = 50
 DEFAULT_ENABLE_RERANKER = False
 

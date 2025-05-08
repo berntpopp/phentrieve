@@ -9,29 +9,35 @@ Human Phenotype Ontology (HPO) data including:
 - Precomputing graph properties (ancestor sets, term depths)
 """
 
+import os
 import json
 import logging
-import os
 import pickle
-import re
 import shutil
 import sys
 from collections import defaultdict, deque
+from itertools import combinations
 from pathlib import Path
-from typing import Dict, List, Optional, Set, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Set
 
+import matplotlib.pyplot as plt
+import networkx as nx
 import requests
 from tqdm import tqdm
 
 from phentrieve.config import (
-    HPO_FILE_PATH,
-    HPO_TERMS_DIR,
-    HPO_ANCESTORS_FILE,
-    HPO_DEPTHS_FILE,
-    DATA_DIR,
+    DEFAULT_HPO_FILENAME,
+    DEFAULT_HPO_TERMS_SUBDIR,
+    DEFAULT_ANCESTORS_FILENAME,
+    DEFAULT_DEPTHS_FILENAME,
     PHENOTYPE_ROOT,
 )
-from phentrieve.utils import normalize_id
+
+from phentrieve.utils import (
+    normalize_id,
+    resolve_data_path,
+    get_default_data_dir,
+)
 
 # HPO download settings
 HPO_JSON_URL = "https://github.com/obophenotype/human-phenotype-ontology/releases/download/v2025-03-03/hp.json"
@@ -48,20 +54,23 @@ EXCLUDED_ROOTS = {
 }
 
 
-def download_hpo_json() -> bool:
+def download_hpo_json(hpo_file_path: Path) -> bool:
     """
     Download the latest version of the HPO JSON file.
+
+    Args:
+        hpo_file_path: Full path to save the HPO JSON file
 
     Returns:
         bool: True if the file was downloaded successfully, False otherwise
     """
-    os.makedirs(os.path.dirname(HPO_FILE_PATH), exist_ok=True)
+    os.makedirs(os.path.dirname(hpo_file_path), exist_ok=True)
 
     try:
         response = requests.get(HPO_JSON_URL, stream=True)
         response.raise_for_status()  # Raise an error for bad responses
 
-        with open(HPO_FILE_PATH, "wb") as f:
+        with open(hpo_file_path, "wb") as f:
             for chunk in response.iter_content(chunk_size=8192):
                 f.write(chunk)
 
@@ -72,23 +81,26 @@ def download_hpo_json() -> bool:
         return False
 
 
-def load_hpo_json() -> Optional[dict]:
+def load_hpo_json(hpo_file_path: Path) -> Optional[dict]:
     """
     Load the HPO JSON file.
+
+    Args:
+        hpo_file_path: Full path to the HPO JSON file
 
     Returns:
         dict: The loaded HPO JSON data or None if it fails
     """
     try:
-        if not os.path.exists(HPO_FILE_PATH):
-            print(f"HPO JSON file not found at {HPO_FILE_PATH}")
-            if download_hpo_json():
+        if not os.path.exists(hpo_file_path):
+            print(f"HPO JSON file not found at {hpo_file_path}")
+            if download_hpo_json(hpo_file_path):
                 print("HPO JSON file downloaded successfully")
             else:
                 print("Failed to download HPO JSON file")
                 return None
 
-        with open(HPO_FILE_PATH, "r", encoding="utf-8") as f:
+        with open(hpo_file_path, "r", encoding="utf-8") as f:
             data = json.load(f)
             return data
 
@@ -289,7 +301,7 @@ def build_ontology_graph(graph: dict, terms: Dict[str, dict]) -> Dict[str, List[
 
 
 def save_terms_as_json_files(
-    nodes: Dict[str, Dict], term_ids_to_save: Set[str]
+    nodes: Dict[str, Dict], term_ids_to_save: Set[str], terms_dir: Path
 ) -> None:
     """
     Saves specified HPO terms from the nodes map as individual JSON files.
@@ -297,30 +309,26 @@ def save_terms_as_json_files(
     Args:
         nodes: Dictionary of all HPO terms/nodes
         term_ids_to_save: Set of term IDs to save as individual files
+        terms_dir: Directory path where term JSON files will be saved
     """
-    os.makedirs(HPO_TERMS_DIR, exist_ok=True)
-    logging.info(f"Saving {len(term_ids_to_save)} specified HPO terms as JSON files...")
-    saved_count = 0
+    os.makedirs(terms_dir, exist_ok=True)
+    logging.info(f"Saving {len(term_ids_to_save)} HPO terms to individual JSON files")
 
-    # Iterate through the *filtered set* of IDs
-    for term_id in tqdm(term_ids_to_save, desc="Saving HPO terms", unit="term"):
+    for term_id in tqdm(term_ids_to_save, desc="Saving terms to JSON files"):
         if term_id in nodes:
-            term_data = nodes[term_id]  # Get the raw node data
-            # Replace the colon with an underscore for the filename
-            filename = term_id.replace(":", "_") + ".json"
-            file_path = os.path.join(HPO_TERMS_DIR, filename)
-            try:
-                with open(file_path, "w", encoding="utf-8") as f:
-                    json.dump(term_data, f, ensure_ascii=False, indent=2)
-                saved_count += 1
-            except Exception as e:
-                logging.error(f"Error saving term {term_id} to {file_path}: {e}")
-        else:
-            logging.warning(
-                f"Term ID {term_id} requested for saving not found in nodes map."
-            )
+            node_data = nodes[term_id]
 
-    logging.info(f"Successfully saved {saved_count} HPO term files to {HPO_TERMS_DIR}")
+            # Format the file ID: HP:0000123 -> HP_0000123.json
+            file_id = term_id.replace(":", "_")
+            file_path = terms_dir / f"{file_id}.json"
+
+            # Save the raw data for later use
+            with open(file_path, "w", encoding="utf-8") as f:
+                json.dump(node_data, f, ensure_ascii=False, indent=2)
+        else:
+            logging.warning(f"Term ID {term_id} not found in nodes")
+
+    logging.info(f"Saved term files to {terms_dir}")
 
 
 def compute_ancestors(is_a_relationships: Dict[str, List[str]]) -> Dict[str, Set[str]]:
@@ -454,82 +462,100 @@ def filter_phenotypic_terms(
     return filtered_terms
 
 
-def save_ancestors_to_file(ancestors: Dict[str, Set[str]]) -> None:
-    """
-    Save the computed ancestors to a pickle file.
+def save_ancestors_to_file(
+    ancestors: Dict[str, Set[str]], ancestors_file: Path
+) -> None:
+    """Save the ancestors dictionary to a pickle file.
 
     Args:
-        ancestors: Dictionary mapping term IDs to sets of ancestor IDs
+        ancestors: Dictionary mapping term IDs to their ancestors
+        ancestors_file: Path to the file where ancestors will be saved
     """
-    os.makedirs(os.path.dirname(HPO_ANCESTORS_FILE), exist_ok=True)
-    with open(HPO_ANCESTORS_FILE, "wb") as f:
+    os.makedirs(os.path.dirname(ancestors_file), exist_ok=True)
+    with open(ancestors_file, "wb") as f:
         pickle.dump(ancestors, f)
 
 
-def save_depths_to_file(depths: Dict[str, int]) -> None:
-    """
-    Save the computed term depths to a pickle file.
+def save_depths_to_file(term_depths: Dict[str, int], depths_file: Path) -> None:
+    """Save term depths to a pickle file.
 
     Args:
-        depths: Dictionary mapping term IDs to their depths
+        term_depths: Dictionary mapping term IDs to their depths
+        depths_file: Path to the file where depths will be saved
     """
-    os.makedirs(os.path.dirname(HPO_DEPTHS_FILE), exist_ok=True)
-    with open(HPO_DEPTHS_FILE, "wb") as f:
-        pickle.dump(depths, f)
+    os.makedirs(os.path.dirname(depths_file), exist_ok=True)
+    with open(depths_file, "wb") as f:
+        pickle.dump(term_depths, f)
 
 
-def load_ancestors() -> Dict[str, Set[str]]:
+def load_ancestors(ancestors_file: Path) -> Dict[str, Set[str]]:
     """
     Load the precomputed ancestors from the pickle file.
+
+    Args:
+        ancestors_file: Path to the pickle file containing ancestor data
 
     Returns:
         Dictionary mapping term IDs to sets of ancestor IDs
     """
-    if not os.path.exists(HPO_ANCESTORS_FILE):
-        print(f"Ancestors file not found: {HPO_ANCESTORS_FILE}")
+    if not os.path.exists(ancestors_file):
+        print(f"Ancestors file not found: {ancestors_file}")
         return {}
 
-    with open(HPO_ANCESTORS_FILE, "rb") as f:
+    with open(ancestors_file, "rb") as f:
         return pickle.load(f)
 
 
-def load_term_depths() -> Dict[str, int]:
+def load_term_depths(depths_file: Path) -> Dict[str, int]:
     """
     Load the precomputed term depths from the pickle file.
+
+    Args:
+        depths_file: Path to the pickle file containing term depths data
 
     Returns:
         Dictionary mapping term IDs to their depths
     """
-    if not os.path.exists(HPO_DEPTHS_FILE):
-        print(f"Depths file not found: {HPO_DEPTHS_FILE}")
+    if not os.path.exists(depths_file):
+        print(f"Depths file not found: {depths_file}")
         return {}
 
-    with open(HPO_DEPTHS_FILE, "rb") as f:
+    with open(depths_file, "rb") as f:
         return pickle.load(f)
 
 
-def prepare_hpo_data(force_update: bool = False) -> Tuple[bool, Optional[str]]:
+def prepare_hpo_data(
+    force_update: bool = False,
+    hpo_file_path: Path = None,
+    hpo_terms_dir: Path = None,
+    ancestors_file: Path = None,
+    depths_file: Path = None,
+) -> Tuple[bool, Optional[str]]:
     """
     Prepare HPO data: download, parse, filter IDs, save term files, compute full graph data.
     (Refactored to follow original logic flow)
 
     Args:
         force_update: Force updating the data even if files exist
+        hpo_file_path: Path to the HPO JSON file
+        hpo_terms_dir: Directory to store individual HPO term JSON files
+        ancestors_file: Path to save the ancestors pickle file
+        depths_file: Path to save the depths pickle file
 
     Returns:
         Tuple containing success status and optional error message
     """
     # 1. Download/Load JSON
-    if force_update or not os.path.exists(HPO_FILE_PATH):
+    if force_update or not os.path.exists(hpo_file_path):
         logging.info("Downloading HPO JSON file...")
-        if not download_hpo_json():
+        if not download_hpo_json(hpo_file_path):
             return False, "Failed to download HPO JSON file"
         logging.info("HPO JSON downloaded.")
     else:
-        logging.info(f"Using existing HPO JSON: {HPO_FILE_PATH}")
+        logging.info(f"Using existing HPO JSON: {hpo_file_path}")
 
     logging.info("Loading HPO data...")
-    hpo_data = load_hpo_json()
+    hpo_data = load_hpo_json(hpo_file_path)
     if not hpo_data:
         return False, "Failed to load HPO JSON file"
 
@@ -561,43 +587,47 @@ def prepare_hpo_data(force_update: bool = False) -> Tuple[bool, Optional[str]]:
     # Recreate directory if force_update or empty/non-existent
     if (
         force_update
-        or not os.path.exists(HPO_TERMS_DIR)
-        or not os.listdir(HPO_TERMS_DIR)
+        or not os.path.exists(hpo_terms_dir)
+        or not os.listdir(hpo_terms_dir)
     ):
-        if os.path.exists(HPO_TERMS_DIR):
-            logging.info(f"Removing existing terms directory: {HPO_TERMS_DIR}")
-            shutil.rmtree(HPO_TERMS_DIR)
-        save_terms_as_json_files(nodes, phenotypic_ids)
+        if os.path.exists(hpo_terms_dir):
+            logging.info(f"Removing existing terms directory: {hpo_terms_dir}")
+            shutil.rmtree(hpo_terms_dir)
+        save_terms_as_json_files(nodes, phenotypic_ids, hpo_terms_dir)
     else:
         logging.info(
-            f"Skipping saving individual term files as directory exists and force_update=False: {HPO_TERMS_DIR}"
+            f"Skipping saving individual term files as directory exists and "
+            f"force_update=False: {hpo_terms_dir}"
         )
 
     # --- Compute and Save Full Graph Data for Metrics ---
     # 6. Compute Ancestors for ALL terms (needed for metric calculations)
     logging.info("Computing ancestors for all terms...")
     ancestors = compute_ancestors(child_parent_graph)
-    save_ancestors_to_file(ancestors)
-    logging.info(f"Saved ancestors to {HPO_ANCESTORS_FILE}")
+    save_ancestors_to_file(ancestors, ancestors_file)
+    logging.info(f"Saved ancestors to {ancestors_file}")
 
     # 7. Compute Depths for ALL terms
     logging.info("Computing term depths...")
     depths = compute_term_depths(parent_child_edges)
-    save_depths_to_file(depths)
-    logging.info(f"Saved depths to {HPO_DEPTHS_FILE}")
+    save_depths_to_file(depths, depths_file)
+    logging.info(f"Saved depths to {depths_file}")
 
     logging.info("HPO data preparation completed following revised flow.")
     return True, None
 
 
 def orchestrate_hpo_preparation(
-    debug: bool = False, force_update: bool = False
+    debug: bool = False,
+    force_update: bool = False,
+    data_dir_override: Optional[str] = None,
 ) -> bool:
     """Orchestrates the HPO ontology data download, extraction, and precomputation.
 
     Args:
         debug: Enable debug logging
         force_update: Force updating the data even if files exist
+        data_dir_override: Override directory for HPO data files
 
     Returns:
         True if the data preparation was successful, False otherwise
@@ -605,30 +635,49 @@ def orchestrate_hpo_preparation(
     logging.info("Starting HPO ontology data preparation orchestration")
 
     try:
+        # Resolve data directory path based on priority: CLI > Config > Default
+        data_dir = resolve_data_path(
+            data_dir_override, "data_dir", get_default_data_dir
+        )
+        logging.info(f"Using data directory: {data_dir}")
+
+        # Construct full paths for files using the resolved data directory
+        hpo_file_path = data_dir / DEFAULT_HPO_FILENAME
+        hpo_terms_dir = data_dir / DEFAULT_HPO_TERMS_SUBDIR
+        ancestors_file = data_dir / DEFAULT_ANCESTORS_FILENAME
+        depths_file = data_dir / DEFAULT_DEPTHS_FILENAME
+
         # Make sure data directory exists
-        os.makedirs(DATA_DIR, exist_ok=True)
+        os.makedirs(data_dir, exist_ok=True)
 
         # Download HPO JSON if needed
-        if not os.path.exists(HPO_FILE_PATH) or force_update:
+        if not os.path.exists(hpo_file_path) or force_update:
             logging.info("Downloading HPO JSON file...")
-            if not download_hpo_json():
+            if not download_hpo_json(hpo_file_path):
                 logging.error("Failed to download HPO JSON file.")
                 return False
             logging.info("HPO JSON file downloaded successfully.")
         else:
-            logging.info(f"Using existing HPO JSON file: {HPO_FILE_PATH}")
+            logging.info(f"Using existing HPO JSON file: {hpo_file_path}")
 
-        # Run the full preparation process
-        success, error = prepare_hpo_data(force_update=force_update)
+        # Run the full preparation process with resolved paths
+        success, error = prepare_hpo_data(
+            force_update=force_update,
+            hpo_file_path=hpo_file_path,
+            hpo_terms_dir=hpo_terms_dir,
+            ancestors_file=ancestors_file,
+            depths_file=depths_file,
+        )
+
         if not success:
             logging.error(f"Failed to prepare HPO ontology data: {error}")
             return False
 
         logging.info("HPO data preparation orchestration completed successfully!")
-        logging.info(f"HPO JSON file: {HPO_FILE_PATH}")
-        logging.info(f"HPO terms directory: {HPO_TERMS_DIR}")
-        logging.info(f"HPO ancestors file: {HPO_ANCESTORS_FILE}")
-        logging.info(f"HPO depths file: {HPO_DEPTHS_FILE}")
+        logging.info(f"HPO JSON file: {hpo_file_path}")
+        logging.info(f"HPO terms directory: {hpo_terms_dir}")
+        logging.info(f"HPO ancestors file: {ancestors_file}")
+        logging.info(f"HPO depths file: {depths_file}")
         return True
     except Exception as e:
         logging.error(
@@ -646,6 +695,9 @@ if __name__ == "__main__":
         "--force", action="store_true", help="Force update even if files exist"
     )
     parser.add_argument("--debug", action="store_true", help="Enable debug logging")
+    parser.add_argument(
+        "--data-dir", type=str, help="Override the data directory for HPO files"
+    )
     args = parser.parse_args()
 
     # Setup logging
@@ -657,5 +709,7 @@ if __name__ == "__main__":
     )
 
     # Run the orchestration function
-    if not orchestrate_hpo_preparation(debug=args.debug, force_update=args.force):
+    if not orchestrate_hpo_preparation(
+        debug=args.debug, force_update=args.force, data_dir_override=args.data_dir
+    ):
         sys.exit(1)

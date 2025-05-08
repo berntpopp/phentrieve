@@ -10,8 +10,10 @@ import os
 import sys
 import time
 from typing import List, Optional
+from pathlib import Path
 
-from phentrieve.config import BENCHMARK_MODELS, DEFAULT_MODEL, INDEX_DIR
+from phentrieve.config import BENCHMARK_MODELS, DEFAULT_MODEL
+from phentrieve.utils import resolve_data_path, get_default_index_dir
 from phentrieve.data_processing.document_creator import (
     load_hpo_terms,
     create_hpo_documents,
@@ -28,6 +30,8 @@ def orchestrate_index_building(
     device_override: Optional[str] = None,
     recreate: bool = False,
     debug: bool = False,
+    index_dir_override: Optional[str] = None,
+    data_dir_override: Optional[str] = None,
 ) -> bool:
     """Orchestrates loading data, models, and building ChromaDB indexes.
 
@@ -45,7 +49,7 @@ def orchestrate_index_building(
     """
     start_time = time.time()
     logging.info("Loading HPO terms for indexing...")
-    hpo_terms = load_hpo_terms()
+    hpo_terms = load_hpo_terms(data_dir_override=data_dir_override)
     if not hpo_terms:
         logging.error("Failed to load HPO terms. Run 'phentrieve data prepare' first.")
         return False
@@ -56,7 +60,12 @@ def orchestrate_index_building(
         logging.error("Failed to create documents from HPO terms.")
         return False
 
-    os.makedirs(INDEX_DIR, exist_ok=True)
+    # Resolve index directory path based on priority: CLI > Config > Default
+    index_dir = resolve_data_path(
+        index_dir_override, "index_dir", get_default_index_dir
+    )
+    logging.info(f"Using index directory: {index_dir}")
+    os.makedirs(index_dir, exist_ok=True)
 
     models_to_process = []
     if all_models:
@@ -92,6 +101,7 @@ def orchestrate_index_building(
                 model_name=model_name,
                 batch_size=batch_size,
                 recreate=recreate,
+                index_dir=index_dir,
             )
             if result:
                 logging.info(f"✓ Index built successfully for model: {model_name}")

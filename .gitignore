@@ -50,6 +50,3 @@ benchmark_results/
 # OS specific files
 .DS_Store
 Thumbs.db
-
-# Explicitly include the original code backup
-!/original_code_backup/

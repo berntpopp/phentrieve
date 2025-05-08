@@ -20,7 +20,7 @@ from phentrieve.config import (
     DEFAULT_RERANKER_MODEL,
     DEFAULT_MONOLINGUAL_RERANKER_MODEL,
     DEFAULT_RERANKER_MODE,
-    DEFAULT_TRANSLATION_DIR,
+    DEFAULT_TRANSLATIONS_SUBDIR,
     DEFAULT_RERANK_CANDIDATE_COUNT,
     DEFAULT_ENABLE_RERANKER,
 )
@@ -249,7 +249,7 @@ def process_query(
     cross_encoder=None,
     rerank_count: int = None,
     reranker_mode: str = DEFAULT_RERANKER_MODE,
-    translation_dir: str = DEFAULT_TRANSLATION_DIR,
+    translation_dir: str = DEFAULT_TRANSLATIONS_SUBDIR,
     output_func: Callable = print,
 ) -> List[Dict[str, Any]]:
     """
@@ -627,7 +627,7 @@ def orchestrate_query(
     reranker_model: str = DEFAULT_RERANKER_MODEL,
     monolingual_reranker_model: str = DEFAULT_MONOLINGUAL_RERANKER_MODEL,
     reranker_mode: str = DEFAULT_RERANKER_MODE,
-    translation_dir: str = DEFAULT_TRANSLATION_DIR,
+    translation_dir: str = DEFAULT_TRANSLATIONS_SUBDIR,
     rerank_count: int = DEFAULT_RERANK_CANDIDATE_COUNT,
     device_override: Optional[str] = None,
     debug: bool = False,

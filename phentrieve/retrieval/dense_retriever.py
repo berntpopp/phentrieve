@@ -6,13 +6,19 @@ relevant HPO terms based on semantic similarity with input text.
 """
 
 import logging
-from typing import Dict, List, Optional, Any, Union
+from pathlib import Path
+from typing import Dict, Optional, Any, Union
 
 import chromadb
 from sentence_transformers import SentenceTransformer
 
-from phentrieve.config import INDEX_DIR, MIN_SIMILARITY_THRESHOLD
-from phentrieve.utils import generate_collection_name, calculate_similarity
+from phentrieve.config import MIN_SIMILARITY_THRESHOLD
+from phentrieve.utils import (
+    generate_collection_name,
+    calculate_similarity,
+    get_default_index_dir,
+    resolve_data_path,
+)
 
 
 def connect_to_chroma(
@@ -30,8 +36,16 @@ def connect_to_chroma(
         ChromaDB collection or None if connection failed
     """
     try:
-        # Initialize ChromaDB client
-        client = chromadb.PersistentClient(path=index_dir)
+        # Convert Path to string and ensure it exists
+        index_dir_str = str(index_dir)
+
+        # Initialize ChromaDB client with proper settings to avoid tenant issues
+        client = chromadb.PersistentClient(
+            path=index_dir_str,
+            settings=chromadb.Settings(
+                anonymized_telemetry=False, allow_reset=True, is_persistent=True
+            ),
+        )
 
         try:
             # Get the collection
@@ -103,7 +117,7 @@ class DenseRetriever:
         cls,
         model: SentenceTransformer,
         model_name: str,
-        index_dir: str = INDEX_DIR,
+        index_dir: Optional[Union[str, Path]] = None,
         min_similarity: float = MIN_SIMILARITY_THRESHOLD,
     ) -> Optional["DenseRetriever"]:
         """
@@ -119,7 +133,22 @@ class DenseRetriever:
             DenseRetriever instance or None if connection failed
         """
         collection_name = generate_collection_name(model_name)
-        collection = connect_to_chroma(index_dir, collection_name, model_name)
+
+        # Resolve index directory using dynamic path resolution
+        if index_dir is None:
+            index_dir = resolve_data_path(
+                cli_path=None,
+                config_key="index_dir",
+                default_func=get_default_index_dir
+            )
+        else:
+            index_dir = Path(index_dir)
+
+        collection = connect_to_chroma(
+            str(index_dir),
+            collection_name,
+            model_name
+        )
 
         if collection:
             return cls(model, collection, min_similarity)

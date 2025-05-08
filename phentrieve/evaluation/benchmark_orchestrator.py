@@ -7,22 +7,21 @@ for HPO term retrieval, supporting both single-model and multi-model evaluations
 
 import logging
 import os
-from typing import Dict, List, Optional, Any, Tuple, Union
+from typing import Dict, List, Any, Union
 
 from phentrieve.config import (
     DEFAULT_MODEL,
     DEFAULT_RERANKER_MODEL,
     DEFAULT_MONOLINGUAL_RERANKER_MODEL,
     DEFAULT_RERANKER_MODE,
-    DEFAULT_TRANSLATION_DIR,
     DEFAULT_RERANK_CANDIDATE_COUNT,
     DEFAULT_ENABLE_RERANKER,
     BENCHMARK_MODELS,
-    TEST_CASES_DIR,
-    RESULTS_DIR,
-    SUMMARIES_DIR,
-    DETAILED_DIR,
+    DEFAULT_TEST_CASES_SUBDIR,
+    DEFAULT_SUMMARIES_SUBDIR,
+    DEFAULT_DETAILED_SUBDIR,
 )
+from phentrieve.utils import get_default_data_dir
 from phentrieve.evaluation.runner import run_evaluation, compare_models
 from phentrieve.data_processing.test_data_loader import create_sample_test_data
 
@@ -32,10 +31,14 @@ logger = logging.getLogger(__name__)
 
 def ensure_directories_exist() -> None:
     """Create necessary output directories if they don't exist."""
-    for directory in [RESULTS_DIR, SUMMARIES_DIR, DETAILED_DIR]:
-        if not os.path.exists(directory):
+    data_dir = get_default_data_dir()
+    results_dir = data_dir / "results"
+    summaries_dir = results_dir / DEFAULT_SUMMARIES_SUBDIR
+    detailed_dir = results_dir / DEFAULT_DETAILED_SUBDIR
+    for directory in [results_dir, summaries_dir, detailed_dir]:
+        if not directory.exists():
             logger.info(f"Creating directory: {directory}")
-            os.makedirs(directory, exist_ok=True)
+            directory.mkdir(parents=True, exist_ok=True)
 
 
 def orchestrate_benchmark(
@@ -54,7 +57,7 @@ def orchestrate_benchmark(
     reranker_model: str = DEFAULT_RERANKER_MODEL,
     monolingual_reranker_model: str = DEFAULT_MONOLINGUAL_RERANKER_MODEL,
     rerank_mode: str = DEFAULT_RERANKER_MODE,
-    translation_dir: str = DEFAULT_TRANSLATION_DIR,
+    translation_dir: str = None,
     rerank_count: int = DEFAULT_RERANK_CANDIDATE_COUNT,
 ) -> Union[Dict[str, Any], List[Dict[str, Any]], None]:
     """
@@ -95,7 +98,9 @@ def orchestrate_benchmark(
 
     # Set default test file if not provided
     if not test_file:
-        test_file = os.path.join(TEST_CASES_DIR, "sample_test_cases.json")
+        data_dir = get_default_data_dir()
+        test_cases_dir = data_dir / DEFAULT_TEST_CASES_SUBDIR
+        test_file = str(test_cases_dir / "sample_test_cases.json")
 
     # Create sample test data if requested or if test file doesn't exist
     if create_sample or not os.path.exists(test_file):
@@ -165,12 +170,12 @@ def orchestrate_benchmark(
         if output:
             output_path = output
         else:
-            import pandas as pd
             from datetime import datetime
-
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            output_path = os.path.join(
-                RESULTS_DIR, f"benchmark_comparison_{timestamp}.csv"
+            data_dir = get_default_data_dir()
+            results_dir = data_dir / "results"
+            output_path = str(
+                results_dir / f"benchmark_comparison_{timestamp}.csv"
             )
 
         # Save comparison to CSV

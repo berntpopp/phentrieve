@@ -1,0 +1,51 @@
+# Phentrieve Configuration Template
+# Copy this file to your home directory at ~/.phentrieve/phentrieve.yaml
+# or to the project root directory to customize settings
+
+# Data path configurations
+# These can be overridden via command-line arguments when applicable
+
+# Main data directory for HPO files, terms, and graph data
+data_dir: "~/phentrieve_data"
+
+# Directory for ChromaDB vector indexes 
+index_dir: "~/phentrieve_data/indexes"
+
+# Directory for benchmark results
+results_dir: "~/phentrieve_data/results"
+
+# Hardware acceleration settings
+# device: "auto"  # Options: "auto", "cuda", "cpu", or specific device like "cuda:0"
+# use_fp16: false  # Use half-precision floating point for better performance when available
+
+# Embedding model settings
+# Uncomment and modify to override defaults
+# default_model: "FremyCompany/BioLORD-2023-M"
+
+# Additional models for benchmarking
+# benchmark_models:
+#   - "FremyCompany/BioLORD-2023-M"
+#   - "jinaai/jina-embeddings-v2-base-de"
+#   - "sentence-transformers/distiluse-base-multilingual-cased-v2"
+#   - "BAAI/bge-m3"
+
+# Re-ranking settings
+# enable_reranker: false
+
+# Cross-encoder model options for re-ranking
+# Available options:
+# - "MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7" (multilingual NLI model)
+# - "cross-encoder/mmarco-mMiniLMv2-L12-H384-v1" (general multilingual retrieval)
+# - "ncbi/MedCPT-Cross-Encoder" (biomedical domain-specific)
+# - "ml6team/cross-encoder-mmarco-german-distilbert-base" (German monolingual)
+# reranker_model: "MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7"
+# reranker_mode: "cross-lingual"  # Options: "cross-lingual" or "monolingual"
+# rerank_candidate_count: 50
+
+# Benchmark settings
+# benchmark:
+#   similarity_threshold: 0.1
+#   top_k_values: [1, 3, 5, 10]  # For metrics like Hit Ratio@k
+#   save_summaries: true
+#   save_detailed_results: true
+#   create_visualizations: true
