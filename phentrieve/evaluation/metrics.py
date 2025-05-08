@@ -14,7 +14,8 @@ import pickle
 from collections import defaultdict
 from typing import Dict, List, Optional, Set, Tuple, Union, Any
 
-from phentrieve.config import HPO_ANCESTORS_FILE, HPO_DEPTHS_FILE
+from phentrieve.config import DEFAULT_ANCESTORS_FILENAME, DEFAULT_DEPTHS_FILENAME
+from phentrieve.utils import get_default_data_dir
 from phentrieve.utils import calculate_similarity
 
 
@@ -24,7 +25,7 @@ _hpo_term_depths = None
 
 
 def load_hpo_graph_data(
-    ancestors_path: str = HPO_ANCESTORS_FILE, depths_path: str = HPO_DEPTHS_FILE
+    ancestors_path: str = None, depths_path: str = None
 ) -> Tuple[Dict[str, Set[str]], Dict[str, int]]:
     """
     Load precomputed HPO graph data from pickle files.
@@ -42,6 +43,25 @@ def load_hpo_graph_data(
     if _hpo_ancestors is not None and _hpo_term_depths is not None:
         logging.debug("Using cached HPO graph data")
         return _hpo_ancestors, _hpo_term_depths
+
+    # Resolve paths if not provided
+    if ancestors_path is None:
+        # Try direct data directory first
+        if os.path.exists("data") and os.path.exists(
+            f"data/{DEFAULT_ANCESTORS_FILENAME}"
+        ):
+            ancestors_path = f"data/{DEFAULT_ANCESTORS_FILENAME}"
+        else:
+            data_dir = get_default_data_dir()
+            ancestors_path = data_dir / DEFAULT_ANCESTORS_FILENAME
+
+    if depths_path is None:
+        # Try direct data directory first
+        if os.path.exists("data") and os.path.exists(f"data/{DEFAULT_DEPTHS_FILENAME}"):
+            depths_path = f"data/{DEFAULT_DEPTHS_FILENAME}"
+        else:
+            data_dir = get_default_data_dir()
+            depths_path = data_dir / DEFAULT_DEPTHS_FILENAME
 
     try:
         # Check if files exist

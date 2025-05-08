@@ -7,7 +7,8 @@ for HPO term retrieval, supporting both single-model and multi-model evaluations
 
 import logging
 import os
-from typing import Dict, List, Any, Union
+from typing import Dict, List, Any, Union, Optional
+from pathlib import Path
 
 from phentrieve.config import (
     DEFAULT_MODEL,
@@ -21,7 +22,12 @@ from phentrieve.config import (
     DEFAULT_SUMMARIES_SUBDIR,
     DEFAULT_DETAILED_SUBDIR,
 )
-from phentrieve.utils import get_default_data_dir
+from phentrieve.utils import (
+    get_default_data_dir,
+    get_default_index_dir,
+    get_default_results_dir,
+    resolve_data_path,
+)
 from phentrieve.evaluation.runner import run_evaluation, compare_models
 from phentrieve.data_processing.test_data_loader import create_sample_test_data
 
@@ -59,6 +65,9 @@ def orchestrate_benchmark(
     rerank_mode: str = DEFAULT_RERANKER_MODE,
     translation_dir: str = None,
     rerank_count: int = DEFAULT_RERANK_CANDIDATE_COUNT,
+    data_dir_override: Optional[str] = None,
+    index_dir_override: Optional[str] = None,
+    results_dir_override: Optional[str] = None,
 ) -> Union[Dict[str, Any], List[Dict[str, Any]], None]:
     """
     Run benchmark evaluations for HPO term retrieval.
@@ -91,6 +100,17 @@ def orchestrate_benchmark(
         level=log_level,
         format="%(asctime)s - %(levelname)s - %(message)s",
         handlers=[logging.StreamHandler()],
+    )
+
+    # Resolve paths
+    base_data_dir = resolve_data_path(
+        data_dir_override, "data_dir", get_default_data_dir
+    )
+    index_dir = resolve_data_path(
+        index_dir_override, "index_dir", get_default_index_dir
+    )
+    results_dir = resolve_data_path(
+        results_dir_override, "results_dir", get_default_results_dir
     )
 
     # Ensure output directories exist
@@ -144,6 +164,8 @@ def orchestrate_benchmark(
             device=device,
             trust_remote_code=trust_remote_code,
             save_results=True,
+            results_dir=results_dir,
+            index_dir=index_dir,
             enable_reranker=enable_reranker,
             reranker_model=active_reranker_model,
             rerank_count=rerank_count,
@@ -171,12 +193,11 @@ def orchestrate_benchmark(
             output_path = output
         else:
             from datetime import datetime
+
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             data_dir = get_default_data_dir()
             results_dir = data_dir / "results"
-            output_path = str(
-                results_dir / f"benchmark_comparison_{timestamp}.csv"
-            )
+            output_path = str(results_dir / f"benchmark_comparison_{timestamp}.csv")
 
         # Save comparison to CSV
         comparison_df.to_csv(output_path)

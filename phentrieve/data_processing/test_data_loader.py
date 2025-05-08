@@ -10,7 +10,8 @@ import logging
 import os
 from typing import Dict, List, Optional, Any
 
-from phentrieve.config import TEST_CASES_DIR
+from phentrieve.config import DEFAULT_TEST_CASES_SUBDIR
+from phentrieve.utils import get_default_data_dir
 
 
 def load_test_data(test_file: str) -> Optional[List[Dict[str, Any]]]:
@@ -54,11 +55,15 @@ def create_sample_test_data(output_file: Optional[str] = None) -> List[Dict[str,
     Returns:
         List of sample test cases
     """
+    # Get the test cases directory from data_dir
+    data_dir = get_default_data_dir()
+    test_cases_dir = data_dir / DEFAULT_TEST_CASES_SUBDIR
+
     # Create directory if it doesn't exist
-    os.makedirs(TEST_CASES_DIR, exist_ok=True)
+    os.makedirs(test_cases_dir, exist_ok=True)
 
     if output_file is None:
-        output_file = os.path.join(TEST_CASES_DIR, "sample_test_cases.json")
+        output_file = str(test_cases_dir / "sample_test_cases.json")
 
     # Sample test cases
     sample_test_cases = [

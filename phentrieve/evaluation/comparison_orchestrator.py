@@ -17,16 +17,20 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+from pathlib import Path
+from datetime import datetime
 from phentrieve.config import (
-    SUMMARIES_DIR,
-    RESULTS_DIR,
+    DEFAULT_SUMMARIES_SUBDIR,
+    DEFAULT_VISUALIZATIONS_SUBDIR,
+    DEFAULT_DETAILED_SUBDIR,
 )
+from phentrieve.utils import resolve_data_path, get_default_results_dir
 
 # Set up logging
 logger = logging.getLogger(__name__)
 
 
-def load_benchmark_summaries(summaries_dir: str = None) -> List[Dict[str, Any]]:
+def load_benchmark_summaries(summaries_dir: str) -> List[Dict[str, Any]]:
     """
     Load benchmark summary files from the specified directory.
 
@@ -36,8 +40,6 @@ def load_benchmark_summaries(summaries_dir: str = None) -> List[Dict[str, Any]]:
     Returns:
         List of loaded benchmark summaries
     """
-    if summaries_dir is None:
-        summaries_dir = SUMMARIES_DIR
 
     # Find all JSON files in the summaries directory
     summary_files = glob.glob(os.path.join(summaries_dir, "*.json"))
@@ -153,12 +155,13 @@ def compare_benchmark_summaries(summaries: List[Dict[str, Any]]) -> pd.DataFrame
 
 
 def orchestrate_benchmark_comparison(
-    summaries_dir: str = None,
-    output_csv: str = None,
+    summaries_dir: Optional[str] = None,
+    output_csv: Optional[str] = None,
     visualize: bool = False,
-    output_dir: str = None,
+    output_dir: Optional[str] = None,
     metrics: str = "all",
     debug: bool = False,
+    results_dir_override: Optional[str] = None,
 ) -> Optional[pd.DataFrame]:
     """
     Orchestrate the benchmark comparison process.
@@ -182,31 +185,52 @@ def orchestrate_benchmark_comparison(
         handlers=[logging.StreamHandler()],
     )
 
+    # Resolve paths
+    base_results_dir = resolve_data_path(
+        results_dir_override, "results_dir", get_default_results_dir
+    )
+
+    # Resolve summaries_dir (if provided explicitly, use it; otherwise construct from base_results_dir)
+    summaries_load_path = (
+        Path(summaries_dir).expanduser().resolve()
+        if summaries_dir
+        else base_results_dir / DEFAULT_SUMMARIES_SUBDIR
+    )
+
+    # Resolve output_dir for visualizations (if provided, use it; otherwise construct from base_results_dir)
+    output_dir_viz = (
+        Path(output_dir).expanduser().resolve()
+        if output_dir
+        else base_results_dir / DEFAULT_VISUALIZATIONS_SUBDIR
+    )
+
+    # Determine the output path for comparison CSV
+    if output_csv:
+        csv_save_path = Path(output_csv).expanduser().resolve()
+    else:
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        detailed_save_dir = base_results_dir / DEFAULT_DETAILED_SUBDIR
+        os.makedirs(detailed_save_dir, exist_ok=True)
+        csv_save_path = detailed_save_dir / f"benchmark_comparison_{timestamp}.csv"
+
     # Load benchmark summaries
-    summaries = load_benchmark_summaries(summaries_dir)
+    summaries = load_benchmark_summaries(str(summaries_load_path))
 
     if not summaries:
-        logger.warning("No benchmark summaries found for comparison")
+        logger.warning(f"No benchmark summaries found in {summaries_load_path}")
         return None
 
     # Generate comparison DataFrame
     comparison_df = compare_benchmark_summaries(summaries)
 
-    # Save comparison to CSV if requested
-    if output_csv:
-        output_path = output_csv
-    else:
-        from datetime import datetime
-
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        output_path = os.path.join(RESULTS_DIR, f"benchmark_comparison_{timestamp}.csv")
-
-    comparison_df.to_csv(output_path)
-    logger.info(f"Comparison table saved to {output_path}")
+    # Save comparison to CSV
+    os.makedirs(os.path.dirname(csv_save_path), exist_ok=True)
+    comparison_df.to_csv(str(csv_save_path))
+    logger.info(f"Comparison table saved to {csv_save_path}")
 
     # Generate visualizations if requested
     if visualize:
-        generate_visualizations(comparison_df, metrics, output_dir, debug)
+        generate_visualizations(comparison_df, metrics, str(output_dir_viz), debug)
 
     return comparison_df
 
@@ -249,10 +273,7 @@ def generate_visualizations(
         logger.warning("No valid metrics found for visualization")
         return False
 
-    # Set output directory
-    if output_dir is None:
-        output_dir = os.path.join(RESULTS_DIR, "visualizations")
-
+    # Ensure output directory exists
     os.makedirs(output_dir, exist_ok=True)
 
     # Set up plot style

@@ -46,7 +46,8 @@ BENCHMARK_MODELS = [
 MIN_SIMILARITY_THRESHOLD = 0.3  # Minimum similarity score to display results
 # Default similarity threshold used in benchmark evaluations
 DEFAULT_SIMILARITY_THRESHOLD = 0.1
-DEFAULT_TOP_K = 5  # Default number of results to return
+DEFAULT_TOP_K = 10  # Default number of results to return
+DEFAULT_K_VALUES = (1, 3, 5, 10)  # Default k values for hit rate calculation
 DEFAULT_DEVICE = None  # Default device (None = auto-detect)
 
 # Cross-encoder re-ranking settings
@@ -62,6 +63,7 @@ DEFAULT_MONOLINGUAL_RERANKER_MODEL = (
 DEFAULT_RERANKER_MODE = "cross-lingual"
 # Default directory for German HPO term translations
 # Note: Path is resolved at runtime using DEFAULT_TRANSLATIONS_SUBDIR
+DEFAULT_TRANSLATION_DIR = None  # Will be resolved at runtime
 DEFAULT_RERANK_CANDIDATE_COUNT = 50
 DEFAULT_ENABLE_RERANKER = False
 

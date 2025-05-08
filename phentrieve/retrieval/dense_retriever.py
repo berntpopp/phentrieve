@@ -139,16 +139,12 @@ class DenseRetriever:
             index_dir = resolve_data_path(
                 cli_path=None,
                 config_key="index_dir",
-                default_func=get_default_index_dir
+                default_func=get_default_index_dir,
             )
         else:
             index_dir = Path(index_dir)
 
-        collection = connect_to_chroma(
-            str(index_dir),
-            collection_name,
-            model_name
-        )
+        collection = connect_to_chroma(str(index_dir), collection_name, model_name)
 
         if collection:
             return cls(model, collection, min_similarity)

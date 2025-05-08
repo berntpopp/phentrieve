@@ -11,6 +11,7 @@ import os
 import time
 from datetime import datetime
 from typing import Dict, List, Optional, Tuple, Any
+from pathlib import Path
 
 import pandas as pd
 import torch
@@ -19,13 +20,10 @@ from tqdm import tqdm
 from phentrieve.config import (
     DEFAULT_RERANKER_MODEL,
     DEFAULT_RERANK_CANDIDATE_COUNT,
-    DEFAULT_TOP_K,
-    RESULTS_DIR,
-    SUMMARIES_DIR,
-    DETAILED_DIR,
-    INDEX_DIR,
     DEFAULT_RERANKER_MODE,
     DEFAULT_TRANSLATION_DIR,
+    DEFAULT_K_VALUES,
+    DEFAULT_SIMILARITY_THRESHOLD,
 )
 from phentrieve.data_processing.test_data_loader import load_test_data
 from phentrieve.evaluation.metrics import (
@@ -47,13 +45,14 @@ from phentrieve.utils import get_model_slug, load_german_translation_text
 def run_evaluation(
     model_name: str,
     test_file: str,
-    k_values: Tuple[int, ...] = (1, 3, 5, 10),
-    similarity_threshold: float = 0.1,
+    k_values: Tuple[int, ...] = DEFAULT_K_VALUES,
+    similarity_threshold: float = DEFAULT_SIMILARITY_THRESHOLD,
     debug: bool = False,
     device: Optional[str] = None,
     trust_remote_code: bool = False,
     save_results: bool = True,
-    output_dir: Optional[str] = None,
+    results_dir: Path = None,
+    index_dir: Path = None,
     enable_reranker: bool = False,
     reranker_model: str = DEFAULT_RERANKER_MODEL,
     rerank_count: int = DEFAULT_RERANK_CANDIDATE_COUNT,
@@ -72,7 +71,8 @@ def run_evaluation(
         device: Device to use for model inference (None for auto-detection)
         trust_remote_code: Whether to trust remote code when loading the model
         save_results: Whether to save results to files
-        output_dir: Directory to save results (default: configured RESULTS_DIR)
+        results_dir: Directory to save results (default: configured RESULTS_DIR)
+        index_dir: Directory containing the index files
         enable_reranker: Whether to enable cross-encoder re-ranking
         reranker_model: Model name for the cross-encoder
         rerank_count: Number of candidates to re-rank
@@ -82,14 +82,21 @@ def run_evaluation(
     Returns:
         Dictionary containing benchmark results or None if evaluation failed
     """
-    # Set up results directory
-    if output_dir is None:
-        output_dir = RESULTS_DIR
+    # Create output directory structure
+    if save_results:
+        if results_dir is None:
+            # Log error if results_dir is None
+            logging.error("results_dir must be provided when save_results is True")
+            raise ValueError("results_dir must be provided when save_results is True")
 
-    # Ensure directories exist
-    os.makedirs(output_dir, exist_ok=True)
-    os.makedirs(os.path.join(output_dir, "summaries"), exist_ok=True)
-    os.makedirs(os.path.join(output_dir, "detailed"), exist_ok=True)
+        # Create results directories if they don't exist
+        if not results_dir.exists():
+            results_dir.mkdir(parents=True, exist_ok=True)
+
+    detailed_results_dir = results_dir / "detailed"
+    summaries_dir = results_dir / "summaries"
+    os.makedirs(detailed_results_dir, exist_ok=True)
+    os.makedirs(summaries_dir, exist_ok=True)
 
     # Load test data
     test_cases = load_test_data(test_file)
@@ -141,11 +148,22 @@ def run_evaluation(
                     f"Successfully loaded cross-encoder model: {reranker_model}"
                 )
 
-        # Create retriever
+        # Initialize retrieval system
+        if index_dir is None and not os.path.exists("data"):
+            raise ValueError(
+                "No index directory provided and default 'data' directory not found."
+                " Please provide a valid index_dir."
+            )
+
+        index_path = (
+            index_dir / f"{model_name}.faiss"
+            if index_dir
+            else Path("data") / f"{model_name}.faiss"
+        )
         retriever = DenseRetriever.from_model_name(
             model=model,
             model_name=model_name,
-            index_dir=INDEX_DIR,
+            index_dir=index_dir,
             min_similarity=similarity_threshold,
         )
 
@@ -566,16 +584,19 @@ def run_evaluation(
                     )
 
             # Save summary to file
-            summary_file = os.path.join(SUMMARIES_DIR, f"{run_id}.json")
-            with open(summary_file, "w", encoding="utf-8") as f:
+            os.makedirs(summaries_dir, exist_ok=True)
+            # Replace slashes in model name with underscores to avoid directory issues
+            safe_model_name = model_name.replace("/", "__")
+            summary_path = summaries_dir / f"{safe_model_name}_summary.json"
+            with open(summary_path, "w") as f:
                 json.dump(summary, f, indent=2)
-            logging.info(f"Summary saved to {summary_file}")
 
             # Save detailed results as CSV
+            os.makedirs(detailed_results_dir, exist_ok=True)
             detailed_df = pd.DataFrame(detailed_results)
-            csv_path = os.path.join(DETAILED_DIR, f"{run_id}_detailed.csv")
+            # Use the same safe model name for CSV files
+            csv_path = detailed_results_dir / f"{safe_model_name}_detailed.csv"
             detailed_df.to_csv(csv_path, index=False)
-            logging.info(f"Detailed results saved to {csv_path}")
 
         # Log summary of results
         logging.info(f"Benchmark results for {model_name}:")
