@@ -262,7 +262,7 @@ def generate_visualizations(
         metric_columns = [
             col
             for col in comparison_df.columns
-            if any(col.startswith(prefix) for prefix in ["MRR", "HR@", "OntSim@"])
+            if any(col.startswith(prefix) for prefix in ["MRR", "HR@", "MaxOntSim@"])
         ]
     else:
         metric_columns = [m.strip() for m in metrics.split(",")]
@@ -291,7 +291,7 @@ def generate_visualizations(
         mrr_metrics = [col for col in comparison_df.columns if col.startswith("MRR")]
         hr_metrics = [col for col in comparison_df.columns if col.startswith("HR@")]
         ont_metrics = [
-            col for col in comparison_df.columns if col.startswith("OntSim@")
+            col for col in comparison_df.columns if col.startswith("MaxOntSim@")
         ]
 
         # Check if we have both dense and reranked metrics
@@ -311,7 +311,7 @@ def generate_visualizations(
 
         ont_by_k = {}
         for metric in ont_metrics:
-            k_match = re.search(r"OntSim@(\d+)", metric)
+            k_match = re.search(r"MaxOntSim@(\d+)", metric)
             if k_match:
                 k = k_match.group(1)
                 if k not in ont_by_k:
@@ -635,8 +635,8 @@ def generate_visualizations(
 
                     # Case 1: If we have both dense and reranked
                     if has_comparison_k:
-                        dense_metric = f"OntSim@{k} (Dense)"
-                        reranked_metric = f"OntSim@{k} (Re-Ranked)"
+                        dense_metric = f"MaxOntSim@{k} (Dense)"
+                        reranked_metric = f"MaxOntSim@{k} (Re-Ranked)"
 
                         bar_width = 0.35
                         # Apply model-based colors with different alpha for Dense vs Reranked
@@ -785,14 +785,14 @@ def generate_visualizations(
     try:
         # Select key metrics for heatmap
         key_metrics = [
-            "MRR (Dense)",
             "HR@1 (Dense)",
             "HR@3 (Dense)",
             "HR@5 (Dense)",
             "HR@10 (Dense)",
-            "OntSim@1 (Dense)",
-            "OntSim@5 (Dense)",
-            "OntSim@10 (Dense)",
+            "MaxOntSim@1 (Dense)",
+            "MaxOntSim@3 (Dense)",
+            "MaxOntSim@5 (Dense)",
+            "MaxOntSim@10 (Dense)",
         ]
 
         available_metrics = [m for m in key_metrics if m in comparison_df.columns]
@@ -809,6 +809,10 @@ def generate_visualizations(
             plt.figure(figsize=(12, len(sorted_df) * 0.8 + 2))
             heatmap_data = sorted_df.set_index("Model")[available_metrics]
 
+            # Create a divider between hit rate and ontology metrics
+            divider_position = 4  # After first 4 metrics (HR@1, HR@3, HR@5, HR@10)
+
+            # Draw the heatmap with a vertical line separator
             sns.heatmap(
                 heatmap_data,
                 annot=True,
@@ -818,11 +822,16 @@ def generate_visualizations(
                 cbar_kws={"label": "Score"},
             )
 
+            # Add a vertical line to separate metrics types
+            plt.axvline(x=divider_position, color="black", linewidth=3)
+
             plt.title("Performance Metrics Heatmap", fontsize=16)
             plt.tight_layout()
             plt.savefig(os.path.join(output_dir, "performance_heatmap.png"), dpi=300)
             plt.close()
             logger.info("Generated performance heatmap")
+
+            # We no longer generate a separate ontology heatmap as requested
 
     except Exception as e:
         logger.error(f"Error generating heatmap: {str(e)}")
@@ -838,7 +847,7 @@ def generate_visualizations(
         hr_metrics = [col for col in comparison_df.columns if hr_pattern.match(col)]
 
         # Extract Ontology Similarity metrics for different k values
-        ont_pattern = re.compile(r"OntSim@(\d+) \(Dense\)")
+        ont_pattern = re.compile(r"MaxOntSim@(\d+) \(Dense\)")
         ont_metrics = [col for col in comparison_df.columns if ont_pattern.match(col)]
 
         # Check if we have enough metrics to make line plots
