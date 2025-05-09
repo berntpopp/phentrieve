@@ -1,6 +1,6 @@
 # Phentrieve
 
-A modular Python package for mapping clinical text in multiple languages to Human Phenotype Ontology (HPO) terms via a Retrieval-Augmented Generation (RAG) approach. Originally developed for German clinical text, the system supports benchmarking across multiple multilingual embedding models to identify relevant HPO terms from clinical descriptions in various languages.
+A modular Python package for mapping clinical text in multiple languages to Human Phenotype Ontology (HPO) terms via a Retrieval-Augmented Generation (RAG) approach. The system supports benchmarking across multiple multilingual embedding models to identify relevant HPO terms from clinical descriptions in various languages.
 
 ## Project Structure
 
@@ -70,9 +70,9 @@ The system operates in two phases:
 
 ### 2. Query Phase
 
-- **Input Processing**: Takes German clinical text as input, optionally splitting into sentences
-- **Embedding Generation**: Maps the German text into the same embedding space using the identical model
-- **Semantic Search**: Queries the ChromaDB index to find the closest HPO term embeddings to the German text embedding
+- **Input Processing**: Takes multilingual clinical text as input, optionally splitting into sentences
+- **Embedding Generation**: Maps the text into the same embedding space using the identical model
+- **Semantic Search**: Queries the ChromaDB index to find the closest HPO term embeddings to the input text embedding
 - **Result Ranking**: Ranks results by similarity score and filters out low-confidence matches
 - **Output Generation**: Returns the most relevant HPO terms with their IDs, names, definitions, and similarity scores
 
@@ -126,19 +126,19 @@ Our current implementation successfully extracts and indexes over 18,000 HPO phe
 
 The system supports re-ranking of retrieved candidate HPO terms using cross-encoder models, which can significantly improve the ranking precision. Two re-ranking modes are available:
 
-1. **Cross-lingual Re-ranking** (default): Compares the German query directly with English HPO term labels
+1. **Cross-lingual Re-ranking** (default): Compares non-English queries directly with English HPO term labels
    - Uses a multilingual cross-encoder model (default: MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7)
    - No translation files required
-   - Suitable when no German translations are available
+   - Suitable when no translations are available in your target language
 
-2. **Monolingual German Re-ranking**: Compares the German query with German translations of HPO terms
-   - Uses a German-specific cross-encoder model (default: ml6team/cross-encoder-mmarco-german-distilbert-base)
-   - Requires German translations of HPO terms in JSON format
-   - Often produces more accurate rankings for German queries
+2. **Monolingual Re-ranking**: Compares queries with translations of HPO terms in the same language
+   - Uses a language-specific cross-encoder model
+   - Requires translations of HPO terms in JSON format
+   - Often produces more accurate rankings when translations are available
 
 #### Translation File Format
 
-For monolingual re-ranking, translation files must be provided in the following structure:
+For monolingual re-ranking, translation files must be provided in the following structure (example for German HPO translations):
 
 ```bash
 [translation_dir]/
@@ -151,11 +151,11 @@ Each JSON file should follow this format:
 
 ```json
 {
-  "lbl": "German translation of the main HPO term label",
+  "lbl": "Translation of the main HPO term label",
   "meta": {
     "synonyms": [
-      {"val": "German synonym 1"},
-      {"val": "German synonym 2"}
+      {"val": "Synonym 1 in target language"},
+      {"val": "Synonym 2 in target language"}
     ]
   }
 }
@@ -164,11 +164,11 @@ Each JSON file should follow this format:
 #### Example Usage
 
 ```bash
-# Cross-lingual re-ranking (German query → English HPO)
-python -m phentrieve.scripts.run_interactive_query --enable-reranker
+# Cross-lingual re-ranking (non-English query → English HPO)
+phentrieve query --enable-reranker
 
-# Monolingual re-ranking (German query → German HPO translation)
-python -m phentrieve.scripts.run_interactive_query --enable-reranker --reranker-mode monolingual --translation-dir path/to/translations
+# Monolingual re-ranking (using target language translations)
+phentrieve query --enable-reranker --reranker-mode monolingual --translation-dir path/to/translations
 ```
 
 ## Setup and Usage
@@ -195,83 +195,78 @@ Install Phentrieve:
 
 ```bash
 pip install -e .
-pip install -r requirements.txt
 ```
 
-### Prepare the HPO Index (Run Once)
+### Prepare HPO Data and Index (Run Once)
 
 ```bash
-python -m phentrieve.scripts.01_prepare_hpo_data  # Downloads hp.json if needed and extracts terms
-python -m phentrieve.scripts.02_build_index  # Creates and populates the vector index
+# Prepare HPO Data (Graph Properties & Extracted Terms)
+phentrieve data prepare
+
+# Build Vector Index for default model
+phentrieve index build
 ```
 
 Note: The first run will download the model (~1.1 GB) and generate embeddings, which can be time-intensive.
 
 ### Execution Methods
 
-There are two supported ways to run the scripts in this project:
+After installation, you can use the `phentrieve` command directly from your terminal:
 
-1. **Recommended Method**: Running from the project root using Python's module syntax:
+```bash
+# View available commands
+phentrieve --help
 
-   ```bash
-   # Run from the project root directory
-   python -m phentrieve.scripts.03_run_benchmark [args...]
-   ```
-
-2. **Alternative Method**: Running scripts directly:
-
-   ```bash
-   # Run from the project root directory
-   python phentrieve/scripts/03_run_benchmark.py [args...]
-   ```
-
-Both methods will work, but the first is recommended as it follows standard Python practices for module resolution.
+# View help for a specific command
+phentrieve query --help
+```
 
 ### Run the CLI Tool
 
 Basic usage:
 
 ```bash
-python -m phentrieve.scripts.run_interactive_query
+phentrieve query --interactive
 ```
 
 With command-line arguments:
 
 ```bash
-python phentrieve/scripts/run_interactive_query.py --text "Der Patient zeigt eine Anomalie des Herzens" --similarity-threshold 0.2 --num-results 3
+phentrieve query --text "The patient shows an anomaly of the heart" --similarity-threshold 0.2 --num-results 3
 ```
 
 Options:
 
-- `--text`: German text to process (if not provided, runs in interactive mode)
+- `--text`: Text to process (if not provided, runs in interactive mode)
 - `--similarity-threshold`: Minimum similarity score (0-1) to show results (default: 0.3)
 - `--num-results`: Maximum number of results to display (default: 5)
 - `--sentence-mode`: Process input text sentence by sentence
 - `--enable-reranker`: Enable cross-encoder re-ranking (default: False)
-- `--reranker-mode`: Re-ranking mode, either 'cross-lingual' (German query → English HPO) or 'monolingual' (German query → German HPO translation) (default: cross-lingual)
-- `--reranker-model`: Cross-encoder model to use for cross-lingual re-ranking (default: MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7)
-- `--monolingual-reranker-model`: Cross-encoder model to use for monolingual re-ranking (default: ml6team/cross-encoder-mmarco-german-distilbert-base)
-- `--translation-dir`: Directory containing German HPO term translations for monolingual re-ranking (default: data/hpo_translations_de)
+- `--reranker-mode`: Re-ranking mode, either 'cross-lingual' or 'monolingual' (default: cross-lingual)
+- `--reranker-model`: Cross-encoder model to use for cross-lingual re-ranking
+- `--monolingual-reranker-model`: Cross-encoder model to use for monolingual re-ranking
+- `--translation-dir`: Directory containing HPO term translations for monolingual re-ranking
 - `--rerank-count`: Number of candidates to re-rank (default: 50)
 
 ## File Structure
 
-- `phentrieve/scripts/01_prepare_hpo_data.py`: Downloads and prepares HPO data from official source
-- `phentrieve/scripts/02_build_index.py`: Builds the ChromaDB vector index for a given model
-- `phentrieve/scripts/run_interactive_query.py`: CLI tool for querying with multilingual text
-- `phentrieve/scripts/03_run_benchmark.py`: Evaluates model performance with various metrics
-- `phentrieve/scripts/04_manage_results.py`: Tool for running, comparing, and visualizing benchmark results
-
-- `hpo_similarity.py`: Contains implementations of ontology-based similarity metrics
-- `requirements.txt`: Project dependencies
+- `phentrieve/`: Main package directory
+  - `data_processing/`: Modules for loading/processing data
+  - `indexing/`: Modules for building indexes
+  - `retrieval/`: Modules for querying indexes
+  - `evaluation/`: Modules for benchmarking and metrics
+  - `utils.py`: Shared utility functions
 - `data/`: Directory containing the HPO data, extracted terms, and graph data
-
+  - `hp.json`: Original HPO download (generated)
+  - `hpo_terms/`: Extracted terms (generated)
+  - `hpo_ancestors.pkl`: Precomputed graph data (generated)
+  - `hpo_term_depths.pkl`: Precomputed graph data (generated)
+  - `results/`: Benchmark results and visualizations
 - `hpo_chroma_index/`: Directory containing the ChromaDB vector database
-- `benchmark_results/`: Directory containing benchmark output files and visualizations
 
 ## Example Results
 
-For the German query "Synophrys" (fused eyebrows):
+Example query for "Synophrys" (fused eyebrows):
 
 ```text
 Query: 'Synophrys.'
