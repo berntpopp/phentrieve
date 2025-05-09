@@ -32,11 +32,11 @@ from phentrieve.retrieval.dense_retriever import (
 from phentrieve.retrieval import reranker
 from phentrieve.utils import (
     generate_collection_name,
-    load_german_translation_text,
+    load_translation_text,
 )
 
 
-def segment_text(text: str, lang: str = "de") -> List[str]:
+def segment_text(text: str, lang: str = None) -> List[str]:
     """
     Split text into sentences.
 
@@ -47,6 +47,14 @@ def segment_text(text: str, lang: str = "de") -> List[str]:
     Returns:
         List of sentences
     """
+    # Use detected language or default to English if not specified
+    if lang is None:
+        # Try to detect language from text content
+        if len(text) > 20 and text[:20].strip().isascii():
+            lang = "en"  # Default to English for ASCII text
+        else:
+            lang = "en"  # Fallback to English
+
     segmenter = pysbd.Segmenter(language=lang, clean=False)
     return segmenter.segment(text)
 
@@ -265,7 +273,7 @@ def process_query(
         cross_encoder: Optional cross-encoder model for re-ranking
         rerank_count: Number of candidates to re-rank (if cross_encoder is provided)
         reranker_mode: Mode for re-ranking ('cross-lingual' or 'monolingual')
-        translation_dir: Directory containing German translations of HPO terms
+        translation_dir: Directory containing translations of HPO terms in target language
         output_func: Function to use for output (defaults to print)
 
     Returns:
@@ -463,24 +471,23 @@ def process_query(
 
                         # Get the document text to use for comparison based on the reranker mode
                         if reranker_mode == "monolingual":
-                            # For monolingual mode, load the German translation of the HPO term
-                            german_text = load_german_translation_text(
-                                hpo_id, translation_dir
+                            # For monolingual mode, load the translation of the HPO term
+                            translated_text = load_translation_text(
+                                hpo_id=hpo_id,
+                                translation_dir=translation_dir,
                             )
-
-                            if german_text is None:
+                            if translated_text is None:
                                 if debug:
                                     output_func(
-                                        f"[DEBUG] No German translation found for {hpo_id}, skipping"
+                                        f"[DEBUG] No translation found for {hpo_id}, skipping"
                                     )
                                 continue
-
                             if debug:
                                 output_func(
-                                    f"[DEBUG] Loaded German translation for {hpo_id}: {german_text[:50]}..."
+                                    f"[DEBUG] Loaded translation for {hpo_id}: {translated_text[:50]}..."
                                 )
 
-                            comparison_text = german_text
+                            comparison_text = translated_text
 
                         else:  # cross-lingual mode
                             # For cross-lingual mode, use the simplified English label
@@ -649,7 +656,7 @@ def orchestrate_query(
         reranker_model: Cross-encoder model name for reranking
         monolingual_reranker_model: Monolingual cross-encoder model
         reranker_mode: Reranking mode (cross-lingual or monolingual)
-        translation_dir: Directory with German HPO translations
+        translation_dir: Directory with HPO translations in target language
         rerank_count: Number of candidates to rerank
         device_override: Override device (cpu/cuda)
         debug: Enable debug output
@@ -721,7 +728,7 @@ def orchestrate_query(
             # Select the appropriate model based on the reranker mode
             ce_model_name = reranker_model
             if reranker_mode == "monolingual":
-                # For monolingual mode, use the German-specific model
+                # For monolingual mode, use the language-specific model
                 ce_model_name = monolingual_reranker_model
 
                 # Check if translation directory exists

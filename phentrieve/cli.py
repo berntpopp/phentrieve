@@ -167,7 +167,7 @@ def run_benchmarks(
         str,
         typer.Option(
             "--monolingual-reranker-model",
-            help="German cross-encoder model for monolingual re-ranking",
+            help="Language-specific cross-encoder model for monolingual re-ranking",
         ),
     ] = None,
     rerank_mode: Annotated[
@@ -409,9 +409,9 @@ def query_hpo(
         str,
         typer.Option(
             "--monolingual-reranker-model",
-            help="German cross-encoder model for monolingual re-ranking",
+            help="Language-specific cross-encoder model for monolingual re-ranking",
         ),
-    ] = "ml6team/cross-encoder-mmarco-german-distilbert-base",
+    ] = "ml6team/cross-encoder-mmarco-german-distilbert-base",  # Current default is German-specific, replace with appropriate language model
     reranker_mode: Annotated[
         str,
         typer.Option(
@@ -423,7 +423,9 @@ def query_hpo(
     translation_dir: Annotated[
         str,
         typer.Option(
-            "--translation-dir", "--td", help="Directory with German HPO translations"
+            "--translation-dir",
+            "--td",
+            help="Directory with HPO translations in target language",
         ),
     ] = None,
     rerank_count: Annotated[

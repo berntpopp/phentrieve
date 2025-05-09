@@ -40,7 +40,7 @@ from phentrieve.retrieval.reranker import (
     load_cross_encoder,
     rerank_with_cross_encoder,
 )
-from phentrieve.utils import get_model_slug, load_german_translation_text
+from phentrieve.utils import get_model_slug, load_translation_text
 
 
 def run_evaluation(
@@ -79,7 +79,7 @@ def run_evaluation(
         reranker_model: Model name for the cross-encoder
         rerank_count: Number of candidates to re-rank
         reranker_mode: Re-ranking mode ('cross-lingual' or 'monolingual')
-        translation_dir: Directory containing German translations of HPO terms
+        translation_dir: Directory containing translations of HPO terms in target language
         similarity_formula: Which similarity formula to use for ontology similarity calculations
 
     Returns:
@@ -315,18 +315,18 @@ def run_evaluation(
                             )  # Convert distance to similarity score
                             candidate["bi_encoder_score"] = score
 
-                        # For monolingual re-ranking, load German translation text
+                        # For monolingual re-ranking, load translation text in target language
                         if reranker_mode == "monolingual":
-                            german_text = load_german_translation_text(
+                            translated_text = load_translation_text(
                                 candidate["hpo_id"], translation_dir
                             )
-                            if german_text:
-                                candidate["comparison_text"] = german_text
+                            if translated_text:
+                                candidate["comparison_text"] = translated_text
                             else:
-                                # If translation not found, skip this candidate
-                                logging.debug(
-                                    f"No German translation found for {candidate['hpo_id']}"
+                                logging.warning(
+                                    f"No translation found for {candidate['hpo_id']}"
                                 )
+                                # Skip this candidate if no translation is available
                                 continue
                         else:  # cross-lingual mode
                             candidate["comparison_text"] = candidate["english_doc"]

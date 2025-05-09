@@ -290,11 +290,11 @@ def normalize_id(term_id: str) -> str:
     return term_id
 
 
-def load_german_translation_text(hpo_id: str, translation_dir: str) -> Optional[str]:
+def load_translation_text(hpo_id: str, translation_dir: str) -> Optional[str]:
     """
-    Load German translation text for a given HPO ID from a JSON file.
+    Load translation text for a given HPO ID from a JSON file.
 
-    The function extracts ONLY the German label and synonyms
+    The function extracts the translated label and synonyms in the target language
     (not the original English terms).
 
     Args:
@@ -302,8 +302,8 @@ def load_german_translation_text(hpo_id: str, translation_dir: str) -> Optional[
         translation_dir: Path to directory containing translation JSON files
 
     Returns:
-        Formatted German translation text or None if not found/error
-        Format: "[German Label]. Synonyms: [German Syn1]; [German Syn2]; ..."
+        Formatted translation text or None if not found/error
+        Format: "[Translated Label]. Synonyms: [Synonym 1]; [Synonym 2]; ..."
     """
     # Convert HPO ID format from HP:NNNNNNN to HP_NNNNNNN for filename
     file_id = hpo_id.replace(":", "_")
@@ -317,25 +317,25 @@ def load_german_translation_text(hpo_id: str, translation_dir: str) -> Optional[
         with open(json_path, "r", encoding="utf-8") as f:
             translation_data = json.load(f)
 
-        # Extract German label (required field)
-        german_label = translation_data.get("lbl", "")
-        if not german_label:
-            logger.warning(f"Missing German label in translation for {hpo_id}")
+        # Extract translated label (required field)
+        translated_label = translation_data.get("lbl", "")
+        if not translated_label:
+            logger.warning(f"Missing label in translation for {hpo_id}")
             return None
 
-        # Get German synonyms if available (optional field)
-        german_synonyms = []
+        # Get translated synonyms if available (optional field)
+        translated_synonyms = []
         if "meta" in translation_data and "synonyms" in translation_data["meta"]:
-            # Extract ONLY the German synonym values ("val" field)
+            # Extract ONLY the translated synonym values ("val" field)
             for syn in translation_data["meta"]["synonyms"]:
                 if "val" in syn:
-                    german_synonyms.append(syn["val"])
+                    translated_synonyms.append(syn["val"])
 
-        # Construct the combined German text
-        result = german_label
-        if german_synonyms:
+        # Construct the combined translation text
+        result = translated_label
+        if translated_synonyms:
             # Add synonyms separated by semicolons
-            synonyms_text = "; ".join(german_synonyms)
+            synonyms_text = "; ".join(translated_synonyms)
             result += f". Synonyms: {synonyms_text}"
 
         return result
@@ -343,3 +343,11 @@ def load_german_translation_text(hpo_id: str, translation_dir: str) -> Optional[
     except (json.JSONDecodeError, IOError) as e:
         logger.error(f"Error loading translation for {hpo_id}: {str(e)}")
         return None
+
+
+# Alias for backward compatibility
+def load_german_translation_text(hpo_id: str, translation_dir: str) -> Optional[str]:
+    """
+    Legacy function for backward compatibility. Use load_translation_text instead.
+    """
+    return load_translation_text(hpo_id, translation_dir)

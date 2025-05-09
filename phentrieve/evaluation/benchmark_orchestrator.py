@@ -89,7 +89,7 @@ def orchestrate_benchmark(
         reranker_model: Model name for the cross-encoder for cross-lingual reranking
         monolingual_reranker_model: Model name for the cross-encoder for monolingual reranking
         rerank_mode: Re-ranking mode ('cross-lingual' or 'monolingual')
-        translation_dir: Directory containing German translations of HPO terms
+        translation_dir: Directory containing translations of HPO terms in target language
         rerank_count: Number of candidates to re-rank
         similarity_formula: Formula to use for ontology semantic similarity calculation ('hybrid' or 'simple_resnik_like')
 

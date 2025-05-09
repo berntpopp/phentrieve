@@ -164,14 +164,14 @@ def main() -> None:
         "--monolingual-reranker-model",
         type=str,
         default=DEFAULT_MONOLINGUAL_RERANKER_MODEL,
-        help=f"German cross-encoder model for monolingual re-ranking (default: {DEFAULT_MONOLINGUAL_RERANKER_MODEL})",
+        help=f"Language-specific cross-encoder model for monolingual re-ranking (default: {DEFAULT_MONOLINGUAL_RERANKER_MODEL})",
     )
     reranker_group.add_argument(
         "--rerank-mode",
         type=str,
         choices=["cross-lingual", "monolingual"],
         default=DEFAULT_RERANKER_MODE,
-        help=f"Re-ranking mode: cross-lingual (German->English) or monolingual (German->German) (default: {DEFAULT_RERANKER_MODE})",
+        help=f"Re-ranking mode: cross-lingual (source->English) or monolingual (source->source) (default: {DEFAULT_RERANKER_MODE})",
     )
     data_dir = get_default_data_dir()
     translations_dir = data_dir / DEFAULT_TRANSLATIONS_SUBDIR
@@ -179,7 +179,7 @@ def main() -> None:
         "--translation-dir",
         type=str,
         default=str(translations_dir),
-        help=f"Directory containing German translations of HPO terms (default: {translations_dir})",
+        help=f"Directory containing translations of HPO terms in target language (default: {translations_dir})",
     )
     parser.add_argument(
         "--rerank-count",

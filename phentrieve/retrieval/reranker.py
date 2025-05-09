@@ -59,7 +59,7 @@ def rerank_with_cross_encoder(
     Re-rank retrieval candidates using a cross-encoder model.
 
     Args:
-        query: Original query string (in German or other language)
+        query: Original query string (in source language)
         candidates: List of candidate dictionaries with at least 'english_doc' field
         cross_encoder_model: Loaded CrossEncoder model
 

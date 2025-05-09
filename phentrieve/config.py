@@ -12,7 +12,7 @@ throughout the phentrieve package.
 # Sub-directories (for data_dir)
 DEFAULT_HPO_TERMS_SUBDIR = "hpo_terms"
 DEFAULT_TEST_CASES_SUBDIR = "test_cases"
-DEFAULT_TRANSLATIONS_SUBDIR = "hpo_translations_de"
+DEFAULT_TRANSLATIONS_SUBDIR = "hpo_translations"  # Directory for HPO term translations
 
 # HPO data filenames (relative to data_dir)
 DEFAULT_HPO_FILENAME = "hp.json"
@@ -27,13 +27,15 @@ DEFAULT_VISUALIZATIONS_SUBDIR = "visualizations"
 # Default models
 DEFAULT_MODEL = "FremyCompany/BioLORD-2023-M"
 DEFAULT_BIOLORD_MODEL = "FremyCompany/BioLORD-2023-M"
-JINA_MODEL_ID = "jinaai/jina-embeddings-v2-base-de"
+JINA_MODEL_ID = (
+    "jinaai/jina-embeddings-v2-base-de"  # Current default is a German embeddings model
+)
 
 # All models for benchmarking
 BENCHMARK_MODELS = [
-    "FremyCompany/BioLORD-2023-M",
-    "jinaai/jina-embeddings-v2-base-de",
-    "T-Systems-onsite/cross-en-de-roberta-sentence-transformer",
+    "FremyCompany/BioLORD-2023-M",  # Domain-specific biomedical model
+    "jinaai/jina-embeddings-v2-base-de",  # Language-specific embeddings model (German)
+    "T-Systems-onsite/cross-en-de-roberta-sentence-transformer",  # Cross-lingual model (English-German),
     "sentence-transformers/paraphrase-multilingual-mpnet-base-v2",
     "sentence-transformers/distiluse-base-multilingual-cased-v2",
     "BAAI/bge-m3",
@@ -53,15 +55,15 @@ DEFAULT_DEVICE = None  # Default device (None = auto-detect)
 # Cross-encoder re-ranking settings
 # Multilingual cross-encoder model for re-ranking
 DEFAULT_RERANKER_MODEL = "MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7"
-# German cross-encoder model for monolingual re-ranking
+# Language-specific cross-encoder model for monolingual re-ranking
 DEFAULT_MONOLINGUAL_RERANKER_MODEL = (
     "ml6team/cross-encoder-mmarco-german-distilbert-base"
 )
 # Re-ranking mode options:
-# - 'cross-lingual': German query -> English HPO
-# - 'monolingual': German query -> German HPO
+# - 'cross-lingual': Query in target language -> English HPO terms
+# - 'monolingual': Query in target language -> HPO terms in same language
 DEFAULT_RERANKER_MODE = "cross-lingual"
-# Default directory for German HPO term translations
+# Default directory for HPO term translations
 # Note: Path is resolved at runtime using DEFAULT_TRANSLATIONS_SUBDIR
 DEFAULT_TRANSLATION_DIR = None  # Will be resolved at runtime
 DEFAULT_RERANK_CANDIDATE_COUNT = 50

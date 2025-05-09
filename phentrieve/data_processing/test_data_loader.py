@@ -21,7 +21,7 @@ def load_test_data(test_file: str) -> Optional[List[Dict[str, Any]]]:
     Expected format:
     [
         {
-            "text": "German clinical text",
+            "text": "Clinical text in the target language",
             "expected_hpo_ids": ["HP:0000123", "HP:0000456"],
             "description": "Optional description of the case"
         },

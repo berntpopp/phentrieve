@@ -46,7 +46,7 @@ from phentrieve.retrieval.dense_retriever import (
 from phentrieve.retrieval import reranker
 from phentrieve.utils import (
     generate_collection_name,
-    load_german_translation_text,
+    load_translation_text,
 )
 
 
@@ -62,7 +62,7 @@ def setup_logging(debug: bool = False) -> None:
     logging.getLogger().setLevel(level)
 
 
-def segment_text(text: str, lang: str = "de") -> List[str]:
+def segment_text(text: str, lang: str = None) -> List[str]:
     """
     Split text into sentences.
 
@@ -73,6 +73,14 @@ def segment_text(text: str, lang: str = "de") -> List[str]:
     Returns:
         List of sentences
     """
+    # Use detected language or default to English if not specified
+    if lang is None:
+        # Try to detect language from text content
+        if len(text) > 20 and text[:20].strip().isascii():
+            lang = "en"  # Default to English for ASCII text
+        else:
+            lang = "en"  # Fallback to English
+
     segmenter = pysbd.Segmenter(language=lang, clean=False)
     return segmenter.segment(text)
 
@@ -284,7 +292,7 @@ def process_input(
         cross_encoder: Optional cross-encoder model for re-ranking
         rerank_count: Number of candidates to re-rank (if cross_encoder is provided)
         reranker_mode: Mode for re-ranking ('cross-lingual' or 'monolingual')
-        translation_dir: Directory containing German translations of HPO terms
+        translation_dir: Directory containing translations of HPO terms in target language
     """
 
     # Process in sentence mode if enabled
@@ -477,24 +485,24 @@ def process_input(
 
                         # Get the document text to use for comparison based on the reranker mode
                         if reranker_mode == "monolingual":
-                            # For monolingual mode, load the German translation of the HPO term
-                            german_text = load_german_translation_text(
+                            # For monolingual mode, load the translation of the HPO term
+                            translated_text = load_translation_text(
                                 hpo_id, translation_dir
                             )
 
-                            if german_text is None:
+                            if translated_text is None:
                                 if debug:
                                     print(
-                                        f"[DEBUG] No German translation found for {hpo_id}, skipping"
+                                        f"[DEBUG] No translation found for {hpo_id}, skipping"
                                     )
                                 continue
 
                             if debug:
                                 print(
-                                    f"[DEBUG] Loaded German translation for {hpo_id}: {german_text[:50]}..."
+                                    f"[DEBUG] Loaded translation for {hpo_id}: {translated_text[:50]}..."
                                 )
 
-                            comparison_text = german_text
+                            comparison_text = translated_text
 
                         else:  # cross-lingual mode
                             # For cross-lingual mode, use the simplified English label
@@ -782,7 +790,7 @@ def main() -> None:
         type=str,
         choices=["cross-lingual", "monolingual"],
         default=DEFAULT_RERANKER_MODE,
-        help=f"Mode for re-ranking: cross-lingual (German->English) or monolingual (German->German) (default: {DEFAULT_RERANKER_MODE})",
+        help=f"Mode for re-ranking: cross-lingual (source->English) or monolingual (source->source) (default: {DEFAULT_RERANKER_MODE})",
     )
     parser.add_argument(
         "--reranker-model",
@@ -794,13 +802,13 @@ def main() -> None:
         "--monolingual-reranker-model",
         type=str,
         default=DEFAULT_MONOLINGUAL_RERANKER_MODEL,
-        help=f"German cross-encoder model for monolingual re-ranking (default: {DEFAULT_MONOLINGUAL_RERANKER_MODEL})",
+        help=f"Language-specific cross-encoder model for monolingual re-ranking (default: {DEFAULT_MONOLINGUAL_RERANKER_MODEL})",
     )
     parser.add_argument(
         "--translation-dir",
         type=str,
         default=DEFAULT_TRANSLATION_DIR,
-        help=f"Directory containing German HPO term translations (default: {DEFAULT_TRANSLATION_DIR})",
+        help=f"Directory containing HPO term translations in target language (default: {DEFAULT_TRANSLATION_DIR})",
     )
     parser.add_argument(
         "--rerank-count",
@@ -845,14 +853,14 @@ def main() -> None:
         # Select the appropriate model based on the reranker mode
         model_name = args.reranker_model
         if args.reranker_mode == "monolingual":
-            # For monolingual mode, use the German-specific model
+            # For monolingual mode, use the language-specific model
             model_name = args.monolingual_reranker_model
 
             # Check if translation directory exists
             if not os.path.exists(args.translation_dir):
                 logging.warning(
                     f"Translation directory not found: {args.translation_dir}. "
-                    "Monolingual re-ranking will not work properly."
+                    "Monolingual re-ranking will not work properly without translations."
                 )
 
         # Load the selected cross-encoder model
