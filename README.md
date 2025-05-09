@@ -171,21 +171,6 @@ python -m phentrieve.scripts.run_interactive_query --enable-reranker
 python -m phentrieve.scripts.run_interactive_query --enable-reranker --reranker-mode monolingual --translation-dir path/to/translations
 ```
 
-## Limitations & Future Work
-
-- **No coordinate information**: The system identifies relevant HPO terms but not their precise positions in the input text
-- **Performance variability**: Matching quality depends on how well the model handles clinical terminology in different languages
-- **Semantic gap**: Clinical descriptions in German may use terminology patterns different from the English HPO terms
-- **German compound words**: German's compound word structure presents challenges for semantic matching
-
-### Planned Improvements
-
-- Fine-tuning the embedding model on clinical-specific multilingual data
-- Adding a secondary step for coordinate mapping
-- Implementing a hybrid approach combining semantic search with other techniques
-- Support for additional languages beyond German
-- Expanding the ontology similarity metrics with additional measures (e.g., Lin, Wu-Palmer)
-
 ## Setup and Usage
 
 ### Installation
@@ -307,7 +292,7 @@ The system includes a comprehensive benchmarking suite that evaluates model perf
 
 ### Ontology Similarity Metrics
 
-- **Ontology Similarity at K (OntSim@K)**: The average semantic similarity between the expected HPO terms and the top K retrieved terms, based on the HPO hierarchy. Higher is better.
+- **Ontology Similarity at K (MaxOntSim@K)**: For each expected term in a test case, this metric finds the highest semantic similarity score against any of the top K retrieved terms. These maximum scores are then averaged across all expected terms in the test case. Finally, these per-test-case average maximum similarities are averaged over all test cases. A score of 1.0 indicates perfect or very close semantic matches for all expected terms, while lower scores indicate less relevance. Higher is better.
 
 These ontology-based metrics provide a more nuanced evaluation than exact matches alone because they account for the semantic relatedness of terms in the HPO hierarchy. For example, retrieving "Mild microcephaly" (HP:0040196) when the expected term is "Microcephaly" (HP:0000252) would get a high ontology similarity score due to their close relationship in the HPO hierarchy, despite not being an exact match.
 
@@ -319,33 +304,71 @@ Benchmark results are saved as:
 
 ### Understanding Ontology Similarity
 
-#### How Ontology Similarity Works
+The HPO is organized as a directed acyclic graph (DAG) where terms have parent-child relationships defining increasingly specific phenotypes. Our ontology similarity implementation leverages this structure.
 
-The HPO is organized as a directed acyclic graph where terms have parent-child relationships defining increasingly specific phenotypes. Our ontology similarity implementation:
+### Core Calculation Steps
 
-1. **Precomputes** a graph representation of the HPO including:
-   - Each term's ancestors (all parent terms up to the root)
-   - Each term's depth in the hierarchy (distance from root)
+#### Precomputation (01_prepare_hpo_data.py)
 
-2. **Calculates similarity** between an expected HPO term and a retrieved HPO term using:
-   - The depth of their Lowest Common Ancestor (LCA)
-   - The depth of the terms themselves
-   - A normalization factor to produce values between 0 and 1
+- A graph representation of the HPO is built.
+- For every HPO term, its ancestors (all parent terms up to the true ontology root, HP:0000001) are determined and stored in data/hpo_ancestors.pkl.
+- The depth of each term (its shortest distance from HP:0000001) is calculated and stored in data/hpo_term_depths.pkl.
 
-3. **Aggregates** these similarities into the OntSim@K metric by:
-   - For each expected term, finding its most similar term among the top-K retrieved results
-   - Averaging these maximum similarities across all expected terms
+#### Lowest Common Ancestor (LCA)
 
-#### Interpreting Similarity Values
+- For any two HPO terms (e.g., an expected term t1 and a retrieved term t2), their LCA is found. The LCA is their deepest shared ancestor in the HPO graph.
 
-Similarity values range from 0 to 1, where:
+#### Similarity Calculation
 
-- **1.0**: Perfect match (same term)
-- **~0.75-0.99**: Very close relationship (e.g., parent-child or siblings sharing a specific parent)
-- **~0.50-0.74**: Moderate relationship (e.g., terms sharing a common ancestor a few levels up)
-- **~0.25-0.49**: Distant relationship (e.g., terms sharing only general category ancestors)
-- **~0.01-0.24**: Very distant relationship (e.g., terms under the same broad branches)
-- **0.0**: No meaningful relationship (no common ancestor except the root)
+- Once the LCA and the depths of t1, t2, and LCA(t1, t2) are known, a similarity score is computed. This system supports multiple similarity formulas, selectable during benchmarking.
+
+### Available Similarity Formulas
+
+The choice of formula can be specified using the `--similarity-formula` option when running benchmarks (e.g., `phentrieve benchmark run --similarity-formula simple_resnik_like`).
+
+#### hybrid (Default Formula)
+
+This formula combines aspects of Resnik and Lin similarity:
+
+```python
+Sim(t1, t2) = (0.7 * depth_factor) + (0.3 * distance_factor)
+```
+
+Where:
+
+- `depth_factor = D(LCA(t1, t2)) / D_max_ontology`
+  - D(LCA(t1, t2)) is the depth of the Lowest Common Ancestor.
+  - D_max_ontology is the maximum depth of any term in the entire HPO.
+  - This component reflects the shared specificity of the terms, normalized by the overall depth of the ontology.
+- `distance_factor = 1 - (total_path_length_to_LCA / (D(t1) + D(t2)))`
+  - total_path_length_to_LCA is the sum of path lengths from t1 to LCA and t2 to LCA.
+  - D(t1) and D(t2) are the depths of the terms being compared.
+  - This component reflects the structural closeness of the terms to their LCA.
+
+**Characteristics**: This formula aims for a nuanced score by considering both shared information (via LCA depth) and structural proximity. It tends to give slightly higher scores to direct parent-child relationships than to sibling relationships if the parent's depth is the same as the siblings' common parent.
+
+#### simple_resnik_like
+
+This formula is a simpler, Resnik-like measure using depth as a proxy for Information Content (IC):
+
+```python
+Sim(t1, t2) = D(LCA(t1, t2)) / max(D(t1), D(t2))
+```
+
+(If max(D(t1), D(t2)) is 0, the score is 0, unless t1 and t2 are identical and are the root, then it's 1).
+
+**Characteristics**: This formula is more straightforward. It normalizes the LCA's depth by the depth of the deeper of the two terms being compared. For parent-child pairs (P, C), it resolves to D(P) / D(C). Sibling pairs sharing a common parent P will have the same similarity score as a P-C pair where C is a child of P. Scores approach 1 for closely related terms deep in the ontology.
+
+### Interpreting Similarity Values
+
+Regardless of the formula, similarity values generally range from 0 to 1:
+
+- **1.0**: Perfect match (the terms are identical).
+- **~0.75-0.99**: Very close relationship (e.g., parent-child or siblings sharing a very specific parent). The exact range depends on the formula and term depths.
+- **~0.50-0.74**: Moderate relationship (e.g., terms sharing a common ancestor a few levels up).
+- **~0.25-0.49**: Distant relationship (e.g., terms sharing only general category ancestors).
+- **~0.01-0.24**: Very distant relationship.
+- **0.0**: No meaningful semantic relationship found based on the ontology structure (e.g., no common ancestor other than potentially the ultimate root, or one of the terms is not found in the precomputed data).
 
 #### Examples
 
@@ -401,43 +424,42 @@ To evaluate model performance using the test cases:
 
 ```bash
 # Benchmark a specific model
-python -m phentrieve.scripts.04_manage_results run --model-name "FremyCompany/BioLORD-2023-M"
+phentrieve benchmark run --model-name "FremyCompany/BioLORD-2023-M"
 
 # Run benchmarks on all models
-python -m phentrieve.scripts.04_manage_results run --all
+phentrieve benchmark run --all-models
+
+# Run with a specific similarity formula
+phentrieve benchmark run --similarity-formula simple_resnik_like
 
 # Run with detailed per-test-case results
-python -m phentrieve.scripts.04_manage_results run --all --detailed
-
-# Set a custom similarity threshold
-python -m phentrieve.scripts.04_manage_results run --all --similarity-threshold 0.2
+phentrieve benchmark run --detailed
 ```
 
 **Note:** The `run` command will benchmark models, generate result files, and also create a comparison table and visualization for the models just benchmarked. When using `--all`, this provides an immediate comparison of all models.
 
 #### Comparing Previously Benchmarked Models
 
-The `compare` command allows you to compare previously saved benchmark results without re-running the benchmarks:
+The system allows you to compare previously saved benchmark results without re-running the benchmarks:
 
 ```bash
 # Compare all previously benchmarked models (loads saved results)
-python -m multilingual_hpo_rag.scripts.04_manage_results compare
+phentrieve benchmark compare
 
-# Compare only specific models from previous benchmark runs
-python -m phentrieve.scripts.04_manage_results compare --models "biolord_2023_m" "jina_embeddings_v2_base_de"
+# Generate visualizations from benchmark results
+phentrieve benchmark visualize
+
+# Generate visualizations with specific metrics
+phentrieve benchmark visualize --metrics mrr,hit_rate
 ```
 
-**When to use `compare` vs. `run --all`:**
+**When to use the different benchmark commands:**
 
-- Use `run --all` when you need to execute new benchmarks and want results for all models at once
+- Use `benchmark run` when you need to execute benchmarks for specific or all models
+- Use `benchmark compare` when you want to compare previously benchmarked models without rerunning them
+- Use `benchmark visualize` when you want to generate or update visualizations for existing benchmark results
 
-- Use `compare` when:
-  - You've benchmarked models at different times and want to compare them later
-  - You want to generate new visualizations without re-running time-consuming benchmarks
-  - You want to create a focused comparison of just a few specific models
-  - You've made changes to the visualization code and want to update visualizations for existing results
-
-Both commands will display a table with all metrics (MRR, Hit@K, OntSim@K) and generate visualizations showing the relative performance of each model. Benchmark results and visualizations are saved to the `benchmark_results/` directory.
+Benchmark results and visualizations are saved to your configured results directory (default: `data/results/`). The visualizations include comparative plots for MRR, Hit@K, MaxOntSim@K and heatmaps showing the performance of all models across multiple metrics.
 
 ## References
 
