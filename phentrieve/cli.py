@@ -184,6 +184,13 @@ def run_benchmarks(
     rerank_count: Annotated[
         int, typer.Option("--rerank-count", help="Number of candidates to rerank")
     ] = 10,
+    similarity_formula: Annotated[
+        str,
+        typer.Option(
+            "--similarity-formula",
+            help="Formula to use for similarity calculation (hybrid or simple_resnik_like)",
+        ),
+    ] = "hybrid",
     debug: Annotated[
         bool, typer.Option("--debug", help="Enable debug logging")
     ] = False,
@@ -219,6 +226,7 @@ def run_benchmarks(
         rerank_mode=rerank_mode,
         translation_dir=translation_dir,
         rerank_count=rerank_count,
+        similarity_formula=similarity_formula,
     )
 
     if results:

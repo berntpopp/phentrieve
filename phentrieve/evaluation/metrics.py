@@ -11,11 +11,41 @@ using various metrics including:
 import logging
 import os
 import pickle
+from enum import Enum
 from typing import Dict, List, Optional, Set, Tuple, Union, Any
 
 from phentrieve.config import DEFAULT_ANCESTORS_FILENAME, DEFAULT_DEPTHS_FILENAME
 from phentrieve.utils import get_default_data_dir
 from phentrieve.utils import calculate_similarity
+
+
+class SimilarityFormula(Enum):
+    """
+    Available semantic similarity formulas for ontology-based similarity calculations.
+
+    SIMPLE_RESNIK_LIKE: A simplified version of Resnik similarity that
+                       focuses purely on the depth of the lowest common ancestor.
+
+    HYBRID: A hybrid formula that combines the depth of the lowest common ancestor
+           with factors like the specificity of the terms and their relation to the LCA.
+    """
+
+    SIMPLE_RESNIK_LIKE = "simple_resnik_like"
+    HYBRID = "hybrid"
+
+    @classmethod
+    def from_string(cls, formula_str: str) -> "SimilarityFormula":
+        """Convert a string representation to SimilarityFormula enum value."""
+        formula_str = formula_str.lower()
+        if formula_str in ("simple", "simple_resnik", "simple_resnik_like"):
+            return cls.SIMPLE_RESNIK_LIKE
+        elif formula_str in ("hybrid", "complex"):
+            return cls.HYBRID
+        else:
+            logging.warning(
+                f"Unknown similarity formula '{formula_str}', defaulting to HYBRID"
+            )
+            return cls.HYBRID
 
 
 # Global caches for HPO graph data
@@ -231,13 +261,53 @@ def calculate_resnik_similarity(term1: str, term2: str) -> float:
     return max(0.0, min(1.0, similarity))  # Ensure result is 0-1
 
 
-def calculate_semantic_similarity(expected_term: str, retrieved_term: str) -> float:
+def calculate_simple_resnik_similarity(term1: str, term2: str) -> float:
+    """
+    Calculate a simplified Resnik-like similarity between two HPO terms.
+    This formula focuses purely on the depth of the lowest common ancestor (LCA).
+
+    Args:
+        term1: First HPO term ID
+        term2: Second HPO term ID
+
+    Returns:
+        Similarity score (0-1), where 1 is exact match and 0 is no similarity
+    """
+    # Get the LCA and its depth
+    lca, lca_depth = find_lowest_common_ancestor(term1, term2)
+
+    if lca is None:
+        logging.debug(f"No LCA found between {term1} and {term2}")
+        return 0.0
+
+    # Get depth of the ontology (maximum possible depth)
+    _, depths_dict = load_hpo_graph_data()
+    max_possible_depth = max(depths_dict.values()) if depths_dict else 20
+
+    # Calculate similarity solely based on LCA depth
+    # Deeper LCA = higher similarity
+    similarity = lca_depth / max_possible_depth
+
+    logging.debug(
+        f"Simple similarity between {term1} and {term2}: {similarity:.4f} "
+        f"(LCA={lca}, LCA depth={lca_depth})"
+    )
+
+    return max(0.0, min(1.0, similarity))  # Ensure result is 0-1
+
+
+def calculate_semantic_similarity(
+    expected_term: str,
+    retrieved_term: str,
+    formula: SimilarityFormula = SimilarityFormula.HYBRID,
+) -> float:
     """
     Calculate semantic similarity between expected term and retrieved term.
 
     Args:
         expected_term: Expected HPO term ID
         retrieved_term: Retrieved HPO term ID
+        formula: Which similarity formula to use (default: HYBRID)
 
     Returns:
         Similarity score (0-1), where 1 is exact match and 0 is no similarity
@@ -260,19 +330,20 @@ def calculate_semantic_similarity(expected_term: str, retrieved_term: str) -> fl
         logging.debug(f"Exact match between {expected_term} and {retrieved_term}")
         return 1.0
 
-    # Calculate Resnik similarity
-    similarity = calculate_resnik_similarity(expected_term, retrieved_term)
-    logging.debug(
-        f"Semantic similarity between {expected_term} and {retrieved_term}: {similarity:.4f}"
-    )
-
-    return similarity
+    # Choose formula based on parameter
+    if formula == SimilarityFormula.SIMPLE_RESNIK_LIKE:
+        # Use simple depth-based similarity
+        return calculate_simple_resnik_similarity(expected_term, retrieved_term)
+    else:  # Default to HYBRID formula
+        # Use standard Resnik similarity with additional factors
+        return calculate_resnik_similarity(expected_term, retrieved_term)
 
 
 def calculate_max_similarity(
     expected_terms: List[str],
     retrieved_terms: Union[List[str], List[Dict[str, Any]]],
     top_k: Optional[int] = None,
+    formula: SimilarityFormula = SimilarityFormula.HYBRID,
 ) -> List[float]:
     """
     Calculate maximum similarity between each expected term and any retrieved term.
@@ -281,6 +352,7 @@ def calculate_max_similarity(
         expected_terms: List of expected HPO term IDs
         retrieved_terms: List of retrieved HPO term IDs (or list of dicts with 'hpo_id' key)
         top_k: Only consider top K retrieved terms, if specified
+        formula: Which similarity formula to use (default: HYBRID)
 
     Returns:
         List of max similarities, one for each expected term
@@ -301,13 +373,27 @@ def calculate_max_similarity(
             max_similarities.append(0.0)
             continue
 
-        # Calculate similarity to each retrieved term and take the max
-        similarities = [
-            calculate_semantic_similarity(expected_term, retrieved_term)
-            for retrieved_term in retrieved_ids
-        ]
+        # Calculate similarity with each retrieved term and find max
+        max_sim = 0.0
+        for i, retrieved_item in enumerate(retrieved_ids):
+            # Skip if we've reached top_k
+            if top_k is not None and i >= top_k:
+                break
 
-        max_similarities.append(max(similarities) if similarities else 0.0)
+            # Get term ID from retrieved item (can be string or dict)
+            if isinstance(retrieved_item, dict):
+                retrieved_term = retrieved_item.get("hpo_id", "")
+            else:
+                retrieved_term = retrieved_item
+
+            if not retrieved_term:
+                continue
+
+            # Calculate similarity between expected and retrieved term using specified formula
+            sim = calculate_semantic_similarity(expected_term, retrieved_term, formula)
+            max_sim = max(max_sim, sim)
+
+        max_similarities.append(max_sim)
 
     return max_similarities
 
@@ -316,6 +402,7 @@ def average_max_similarity(
     expected_terms: List[str],
     retrieved_terms: Union[List[str], List[Dict[str, Any]]],
     top_k: Optional[int] = None,
+    formula: SimilarityFormula = SimilarityFormula.HYBRID,
 ) -> float:
     """
     Calculate average maximum similarity between expected terms and top retrieved terms.
@@ -327,20 +414,23 @@ def average_max_similarity(
         expected_terms: List of expected HPO term IDs
         retrieved_terms: List of retrieved HPO term IDs (or list of dicts with 'hpo_id' key)
         top_k: Only consider top K retrieved terms, if specified
+        formula: Which similarity formula to use (default: HYBRID)
 
     Returns:
         Average maximum similarity score (0-1)
     """
-    if not expected_terms:
-        return 0.0
-
-    max_similarities = calculate_max_similarity(expected_terms, retrieved_terms, top_k)
+    # Get max similarities for each expected term
+    max_similarities = calculate_max_similarity(
+        expected_terms, retrieved_terms, top_k, formula
+    )
 
     return sum(max_similarities) / len(max_similarities)
 
 
 def calculate_test_case_max_ont_sim(
-    expected_ids: List[str], retrieved_ids: List[str]
+    expected_ids: List[str],
+    retrieved_ids: List[str],
+    formula: SimilarityFormula = SimilarityFormula.HYBRID,
 ) -> float:
     """
     Calculates the single highest semantic similarity between any expected ID
@@ -376,7 +466,7 @@ def calculate_test_case_max_ont_sim(
         for exp_id in expected_ids:
             for ret_id in retrieved_ids:
                 # calculate_semantic_similarity handles the 1.0 check internally too, but we did it above for clarity.
-                similarity = calculate_semantic_similarity(exp_id, ret_id)
+                similarity = calculate_semantic_similarity(exp_id, ret_id, formula)
                 if similarity > overall_max_sim:
                     overall_max_sim = similarity
                     # Optimization: if we reach 1.0, we can stop

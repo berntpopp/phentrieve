@@ -65,6 +65,7 @@ def orchestrate_benchmark(
     rerank_mode: str = DEFAULT_RERANKER_MODE,
     translation_dir: str = None,
     rerank_count: int = DEFAULT_RERANK_CANDIDATE_COUNT,
+    similarity_formula: str = "hybrid",
     data_dir_override: Optional[str] = None,
     index_dir_override: Optional[str] = None,
     results_dir_override: Optional[str] = None,
@@ -90,6 +91,7 @@ def orchestrate_benchmark(
         rerank_mode: Re-ranking mode ('cross-lingual' or 'monolingual')
         translation_dir: Directory containing German translations of HPO terms
         rerank_count: Number of candidates to re-rank
+        similarity_formula: Formula to use for ontology semantic similarity calculation ('hybrid' or 'simple_resnik_like')
 
     Returns:
         Dictionary or list of dictionaries containing benchmark results, or None if evaluation failed
@@ -156,25 +158,32 @@ def orchestrate_benchmark(
             else monolingual_reranker_model
         )
 
-        results = run_evaluation(
-            model_name=model_name,
-            test_file=test_file,
-            similarity_threshold=similarity_threshold,
-            debug=debug,
-            device=device,
-            trust_remote_code=trust_remote_code,
-            save_results=True,
-            results_dir=results_dir,
-            index_dir=index_dir,
-            enable_reranker=enable_reranker,
-            reranker_model=active_reranker_model,
-            rerank_count=rerank_count,
-            reranker_mode=rerank_mode,
-            translation_dir=translation_dir,
-        )
+        try:
+            results = run_evaluation(
+                model_name=model_name,
+                test_file=test_file,
+                similarity_threshold=similarity_threshold,
+                debug=debug,
+                device=device,
+                trust_remote_code=trust_remote_code,
+                save_results=True,
+                results_dir=results_dir,
+                index_dir=index_dir,
+                enable_reranker=enable_reranker,
+                reranker_model=active_reranker_model,
+                rerank_count=rerank_count,
+                reranker_mode=rerank_mode,
+                translation_dir=translation_dir,
+                similarity_formula=similarity_formula,
+            )
 
-        if results:
-            results_list.append(results)
+            if results:
+                results_list.append(results)
+                logger.info(f"Successfully completed benchmark for model: {model_name}")
+        except Exception as e:
+            logger.error(f"Error running benchmark for model {model_name}: {e}")
+            logger.error("Continuing with next model...")
+            continue
 
     # Generate comparison if we have multiple results
     if len(results_list) > 1:

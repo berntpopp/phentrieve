@@ -32,6 +32,7 @@ from phentrieve.evaluation.metrics import (
     calculate_test_case_max_ont_sim,
     calculate_semantic_similarity,
     load_hpo_graph_data,
+    SimilarityFormula,
 )
 from phentrieve.embeddings import load_embedding_model
 from phentrieve.retrieval.dense_retriever import DenseRetriever
@@ -58,6 +59,7 @@ def run_evaluation(
     rerank_count: int = DEFAULT_RERANK_CANDIDATE_COUNT,
     reranker_mode: str = DEFAULT_RERANKER_MODE,
     translation_dir: str = DEFAULT_TRANSLATION_DIR,
+    similarity_formula: str = "hybrid",
 ) -> Optional[Dict[str, Any]]:
     """
     Run a complete benchmark evaluation for a model on a test dataset.
@@ -78,6 +80,7 @@ def run_evaluation(
         rerank_count: Number of candidates to re-rank
         reranker_mode: Re-ranking mode ('cross-lingual' or 'monolingual')
         translation_dir: Directory containing German translations of HPO terms
+        similarity_formula: Which similarity formula to use for ontology similarity calculations
 
     Returns:
         Dictionary containing benchmark results or None if evaluation failed
@@ -121,6 +124,9 @@ def run_evaluation(
         # Load the HPO graph data for similarity metrics
         logging.info("Loading HPO graph data for semantic similarity calculation")
         load_hpo_graph_data()
+
+        # Convert similarity formula string to enum
+        formula = SimilarityFormula.from_string(similarity_formula)
 
         # Load cross-encoder model if re-ranking is enabled
         cross_encoder = None
@@ -256,7 +262,7 @@ def run_evaluation(
                         # Calculate the maximum ontology similarity using the new function
                         # This gets the single highest similarity between any expected ID and any retrieved ID
                         max_ont_sim = calculate_test_case_max_ont_sim(
-                            expected_ids, retrieved_ids
+                            expected_ids, retrieved_ids, formula
                         )
 
                         # Store the values using the new variable names
@@ -371,9 +377,9 @@ def run_evaluation(
                                     if k <= len(reranked_term_ids)
                                     else reranked_term_ids
                                 )
-                                # Use the new function for MaxOntSim calculation
+                                # Calculate maximum ontology similarity for the re-ranked results
                                 max_ont_sim_reranked = calculate_test_case_max_ont_sim(
-                                    expected_ids, retrieved_ids
+                                    expected_ids, retrieved_ids, formula
                                 )
                                 max_ont_sim_reranked_values[k].append(
                                     max_ont_sim_reranked
@@ -573,17 +579,17 @@ def run_evaluation(
 
             # Save summary to file
             os.makedirs(summaries_dir, exist_ok=True)
-            # Replace slashes in model name with underscores to avoid directory issues
-            safe_model_name = model_name.replace("/", "__")
-            summary_path = summaries_dir / f"{safe_model_name}_summary.json"
+            # Use model_slug instead of creating a new safe name
+            # This ensures consistency with collection naming
+            summary_path = summaries_dir / f"{model_slug}_summary.json"
             with open(summary_path, "w") as f:
                 json.dump(summary, f, indent=2)
 
             # Save detailed results as CSV
             os.makedirs(detailed_results_dir, exist_ok=True)
             detailed_df = pd.DataFrame(detailed_results)
-            # Use the same safe model name for CSV files
-            csv_path = detailed_results_dir / f"{safe_model_name}_detailed.csv"
+            # Use model_slug for CSV files
+            csv_path = detailed_results_dir / f"{model_slug}_detailed.csv"
             detailed_df.to_csv(csv_path, index=False)
 
         # Log summary of results
