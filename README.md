@@ -15,6 +15,7 @@ phentrieve/
 │
 ├── phentrieve/                   # Core Source Code Package
 │   ├── __init__.py
+│   ├── cli.py                    # Command-line interface entry points
 │   ├── config.py                 # Central config: paths, defaults, constants
 │   ├── data_processing/          # Modules for loading/processing data
 │   ├── embeddings.py             # Wrapper for loading embedding models
@@ -22,13 +23,6 @@ phentrieve/
 │   ├── retrieval/                # Modules for querying indexes
 │   ├── evaluation/               # Modules for benchmarking and metrics
 │   └── utils.py                  # Shared utility functions
-│
-├── scripts/                      # Executable Workflow Scripts
-│   ├── 01_prepare_hpo_data.py    # Downloads, parses, precomputes HPO graph data
-│   ├── 02_build_index.py         # Builds ChromaDB index for a given model
-│   ├── 03_run_benchmark.py       # Runs benchmark evaluation for models/configs
-│   ├── 04_manage_results.py      # Compares/visualizes results from benchmark runs
-│   └── run_interactive_query.py  # Runs the interactive query CLI
 │
 ├── benchmark_results/            # Benchmark Outputs
 │   ├── summaries/                # JSON summaries per run/model
@@ -89,19 +83,15 @@ The system operates in two phases:
 Our current implementation successfully extracts and indexes over 18,000 HPO phenotypic abnormality terms and provides comprehensive benchmarking with both exact-match and ontology-based semantic similarity metrics. The system includes:
 
 1. **Data processing pipeline**:
-   - `download_hpo.py`: Downloads the HPO data from the official source
-   - `extract_hpo_terms.py`: Parses the HPO hierarchy, extracts individual terms, and filters for phenotypic abnormalities
-   - `setup_hpo_index.py`: Creates and populates the vector database
-
-2. **Query interface**:
-   - `run_interactive_query.py`: CLI for entering multilingual text and viewing matching HPO terms
+   - HPO data download: Downloads the HPO data from the official source
+   - HPO term extraction: Parses the HPO hierarchy, extracts individual terms, and filters for phenotypic abnormalities
+   - Interactive query interface: CLI for entering multilingual text and viewing matching HPO terms
    - Supports sentence-by-sentence processing for longer texts
    - Configurable similarity threshold and result count
 
-3. **Benchmarking system**:
-   - `benchmark_rag.py`: Evaluates model performance using test cases with expected HPO terms
-   - `manage_benchmarks.py`: Tool for running and comparing benchmarks across different models
-   - `precompute_hpo_graph.py`: Precomputes HPO graph properties for ontology similarity metrics
+2. **Benchmarking framework**:
+   - Evaluates model performance using test cases with expected HPO terms
+   - HPO graph precomputation: Precomputes HPO graph properties for ontology similarity metrics
    - Generates detailed performance metrics and visualizations
 
 ### Technical Details
@@ -199,15 +189,35 @@ pip install -e .
 
 ### Prepare HPO Data and Index (Run Once)
 
+1. **Prepare HPO Data (Graph Properties & Extracted Terms):**
+   This step downloads `hp.json`, extracts all HPO terms into `data/hpo_terms/`, and precomputes `data/hpo_ancestors.pkl` and `data/hpo_term_depths.pkl`.
+
+   ```bash
+   phentrieve data prepare
+   ```
+
+   Use `--force` to re-download and re-process if needed.
+
+2. **Build Vector Index:**
+   This step creates the ChromaDB vector index for a specified model (or all benchmark models).
+
+   ```bash
+   # For the default model (e.g., BioLORD)
+   phentrieve index build
+   
+   # Or specify a model:
+   phentrieve index build --model-name "BAAI/bge-m3"
+   
+   # To build for all benchmark models:
+   phentrieve index build --all-models
+   ```
+
+### Interactive Querying
+
 ```bash
-# Prepare HPO Data (Graph Properties & Extracted Terms)
-phentrieve data prepare
-
-# Build Vector Index for default model
-phentrieve index build
+# For interactive querying with text input
+phentrieve query --interactive
 ```
-
-Note: The first run will download the model (~1.1 GB) and generate embeddings, which can be time-intensive.
 
 ### Execution Methods
 
@@ -303,7 +313,7 @@ The HPO is organized as a directed acyclic graph (DAG) where terms have parent-c
 
 ### Core Calculation Steps
 
-#### Precomputation (01_prepare_hpo_data.py)
+#### Precomputation (phentrieve data prepare)
 
 - A graph representation of the HPO is built.
 - For every HPO term, its ancestors (all parent terms up to the true ontology root, HP:0000001) are determined and stored in data/hpo_ancestors.pkl.
@@ -407,10 +417,10 @@ Before running benchmarks, you need to set up the embedding models and their cor
 
 ```bash
 # Set up a specific model
-python -m phentrieve.scripts.04_manage_results setup --model-name "FremyCompany/BioLORD-2023-M"
+phentrieve index build --model-name "FremyCompany/BioLORD-2023-M"
 
 # Or set up all supported models at once
-python -m phentrieve.scripts.04_manage_results setup --all
+phentrieve index build --all-models
 ```
 
 #### Running Benchmark Tests
