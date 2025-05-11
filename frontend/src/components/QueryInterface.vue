@@ -103,7 +103,7 @@
     
     <!-- Chat-like conversation interface -->
     <div class="conversation-container" ref="conversationContainer">
-      <div v-for="(item, index) in queryHistory" :key="index" class="mb-4">
+      <div v-for="(item, index) in [...queryHistory].reverse()" :key="index" class="mb-4">
         <!-- User query -->
         <div class="user-query d-flex">
           <v-avatar color="primary" size="36" class="mt-1 mr-2">
@@ -185,29 +185,54 @@ export default {
   },
   methods: {
     async submitQuery() {
-      if (!this.queryText.trim()) return;
+      // Validate input - prevent empty queries
+      const queryTextTrimmed = this.queryText.trim();
+      if (!queryTextTrimmed) return;
       
       this.isLoading = true;
       
-      // Add to history
-      const historyItem = {
-        query: this.queryText,
+      // Save the query text before clearing input field
+      const currentQuery = queryTextTrimmed;
+      
+      // Add the query result to the conversation
+      this.queryHistory.push({
+        query: currentQuery,
         loading: true,
         response: null,
         error: null
+      });
+
+      // Get reference to the latest history item
+      const historyIndex = this.queryHistory.length - 1;
+      
+      // Reset input
+      this.queryText = '';
+      
+      // Ensure multiple scroll attempts in case of race conditions with rendering
+      const scrollToTop = () => {
+        if (this.$refs.conversationContainer) {
+          this.$refs.conversationContainer.scrollTop = 0;
+        }
       };
       
-      this.queryHistory.push(historyItem);
+      // Immediate attempt
+      scrollToTop();
       
+      // Then after component updates
+      this.$nextTick(scrollToTop);
+      
+      // And again after a short delay to ensure all rendering is complete
+      setTimeout(scrollToTop, 100);
+
       try {
         // Prepare request data matching the QueryRequest schema
         const queryData = {
-          text: this.queryText,
-          model_name: this.selectedModel,
+          text: currentQuery,
+          model_name: this.selectedModel || 'FremyCompany/BioLORD-2023-M',
           num_results: this.numResults,
           similarity_threshold: this.similarityThreshold,
           enable_reranker: this.enableReranker,
-          reranker_mode: this.rerankerMode,
+          reranker_mode: this.rerankerMode
         };
         
         // Make API call
@@ -215,16 +240,16 @@ export default {
         const response = await PhentrieveService.queryHpo(queryData);
         console.log('Received API response:', response);
         
-        // Update history item with direct property assignment
-        historyItem.loading = false;
-        historyItem.response = response;
+        // Update history item using index reference
+        this.queryHistory[historyIndex].loading = false;
+        this.queryHistory[historyIndex].response = response;
         
         // Make a shallow copy of the array to trigger reactivity
         this.queryHistory = [...this.queryHistory];
       } catch (error) {
         // Handle error
-        historyItem.loading = false;
-        historyItem.error = error;
+        this.queryHistory[historyIndex].loading = false;
+        this.queryHistory[historyIndex].error = error;
         console.error('Error submitting query:', error);
         
         // Make a shallow copy of the array to trigger reactivity
