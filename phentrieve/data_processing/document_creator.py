@@ -9,29 +9,37 @@ import glob
 import json
 import logging
 import os
-from typing import Dict, List, Tuple, Any
+from pathlib import Path
+from typing import Dict, List, Tuple, Any, Optional
 
-from phentrieve.config import HPO_TERMS_DIR
+from phentrieve.config import DEFAULT_HPO_TERMS_SUBDIR
+from phentrieve.utils import resolve_data_path, get_default_data_dir
 
 
-def load_hpo_terms() -> List[Dict[str, Any]]:
+def load_hpo_terms(data_dir_override: Optional[str] = None) -> List[Dict[str, Any]]:
     """
     Load HPO terms from individual JSON files in the HPO_TERMS_DIR.
 
     Returns:
         List of dictionaries containing HPO term data
     """
+    # Resolve data directory path using our dynamic path resolution system
+    data_dir = resolve_data_path(data_dir_override, "data_dir", get_default_data_dir)
+
+    # Construct path to HPO terms directory
+    hpo_terms_dir = data_dir / DEFAULT_HPO_TERMS_SUBDIR
+
     # Check if terms directory exists
-    if not os.path.exists(HPO_TERMS_DIR) or not os.listdir(HPO_TERMS_DIR):
-        logging.error(f"HPO terms directory not found or empty: {HPO_TERMS_DIR}")
+    if not os.path.exists(hpo_terms_dir) or not os.listdir(hpo_terms_dir):
+        logging.error(f"HPO terms directory not found or empty: {hpo_terms_dir}")
         return []
 
     # Load all HPO terms from individual JSON files
-    logging.info(f"Loading HPO terms from {HPO_TERMS_DIR}...")
+    logging.info(f"Loading HPO terms from {hpo_terms_dir}...")
     hpo_terms = []
 
     # Get all JSON files in the directory
-    term_files = glob.glob(os.path.join(HPO_TERMS_DIR, "*.json"))
+    term_files = glob.glob(os.path.join(str(hpo_terms_dir), "*.json"))
     logging.debug(f"Found {len(term_files)} term files")
 
     # Process each term file

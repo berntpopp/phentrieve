@@ -1,6 +1,6 @@
 # Phentrieve
 
-A modular Python package for mapping clinical text in multiple languages to Human Phenotype Ontology (HPO) terms via a Retrieval-Augmented Generation (RAG) approach. Originally developed for German clinical text, the system supports benchmarking across multiple multilingual embedding models to identify relevant HPO terms from clinical descriptions in various languages.
+A modular Python package for mapping clinical text in multiple languages to Human Phenotype Ontology (HPO) terms via a Retrieval-Augmented Generation (RAG) approach. The system supports benchmarking across multiple multilingual embedding models to identify relevant HPO terms from clinical descriptions in various languages.
 
 ## Project Structure
 
@@ -15,6 +15,7 @@ phentrieve/
 │
 ├── phentrieve/                   # Core Source Code Package
 │   ├── __init__.py
+│   ├── cli.py                    # Command-line interface entry points
 │   ├── config.py                 # Central config: paths, defaults, constants
 │   ├── data_processing/          # Modules for loading/processing data
 │   ├── embeddings.py             # Wrapper for loading embedding models
@@ -22,13 +23,6 @@ phentrieve/
 │   ├── retrieval/                # Modules for querying indexes
 │   ├── evaluation/               # Modules for benchmarking and metrics
 │   └── utils.py                  # Shared utility functions
-│
-├── scripts/                      # Executable Workflow Scripts
-│   ├── 01_prepare_hpo_data.py    # Downloads, parses, precomputes HPO graph data
-│   ├── 02_build_index.py         # Builds ChromaDB index for a given model
-│   ├── 03_run_benchmark.py       # Runs benchmark evaluation for models/configs
-│   ├── 04_manage_results.py      # Compares/visualizes results from benchmark runs
-│   └── run_interactive_query.py  # Runs the interactive query CLI
 │
 ├── benchmark_results/            # Benchmark Outputs
 │   ├── summaries/                # JSON summaries per run/model
@@ -70,9 +64,9 @@ The system operates in two phases:
 
 ### 2. Query Phase
 
-- **Input Processing**: Takes German clinical text as input, optionally splitting into sentences
-- **Embedding Generation**: Maps the German text into the same embedding space using the identical model
-- **Semantic Search**: Queries the ChromaDB index to find the closest HPO term embeddings to the German text embedding
+- **Input Processing**: Takes multilingual clinical text as input, optionally splitting into sentences
+- **Embedding Generation**: Maps the text into the same embedding space using the identical model
+- **Semantic Search**: Queries the ChromaDB index to find the closest HPO term embeddings to the input text embedding
 - **Result Ranking**: Ranks results by similarity score and filters out low-confidence matches
 - **Output Generation**: Returns the most relevant HPO terms with their IDs, names, definitions, and similarity scores
 
@@ -89,19 +83,15 @@ The system operates in two phases:
 Our current implementation successfully extracts and indexes over 18,000 HPO phenotypic abnormality terms and provides comprehensive benchmarking with both exact-match and ontology-based semantic similarity metrics. The system includes:
 
 1. **Data processing pipeline**:
-   - `download_hpo.py`: Downloads the HPO data from the official source
-   - `extract_hpo_terms.py`: Parses the HPO hierarchy, extracts individual terms, and filters for phenotypic abnormalities
-   - `setup_hpo_index.py`: Creates and populates the vector database
-
-2. **Query interface**:
-   - `run_interactive_query.py`: CLI for entering multilingual text and viewing matching HPO terms
+   - HPO data download: Downloads the HPO data from the official source
+   - HPO term extraction: Parses the HPO hierarchy, extracts individual terms, and filters for phenotypic abnormalities
+   - Interactive query interface: CLI for entering multilingual text and viewing matching HPO terms
    - Supports sentence-by-sentence processing for longer texts
    - Configurable similarity threshold and result count
 
-3. **Benchmarking system**:
-   - `benchmark_rag.py`: Evaluates model performance using test cases with expected HPO terms
-   - `manage_benchmarks.py`: Tool for running and comparing benchmarks across different models
-   - `precompute_hpo_graph.py`: Precomputes HPO graph properties for ontology similarity metrics
+2. **Benchmarking framework**:
+   - Evaluates model performance using test cases with expected HPO terms
+   - HPO graph precomputation: Precomputes HPO graph properties for ontology similarity metrics
    - Generates detailed performance metrics and visualizations
 
 ### Technical Details
@@ -126,19 +116,19 @@ Our current implementation successfully extracts and indexes over 18,000 HPO phe
 
 The system supports re-ranking of retrieved candidate HPO terms using cross-encoder models, which can significantly improve the ranking precision. Two re-ranking modes are available:
 
-1. **Cross-lingual Re-ranking** (default): Compares the German query directly with English HPO term labels
+1. **Cross-lingual Re-ranking** (default): Compares non-English queries directly with English HPO term labels
    - Uses a multilingual cross-encoder model (default: MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7)
    - No translation files required
-   - Suitable when no German translations are available
+   - Suitable when no translations are available in your target language
 
-2. **Monolingual German Re-ranking**: Compares the German query with German translations of HPO terms
-   - Uses a German-specific cross-encoder model (default: ml6team/cross-encoder-mmarco-german-distilbert-base)
-   - Requires German translations of HPO terms in JSON format
-   - Often produces more accurate rankings for German queries
+2. **Monolingual Re-ranking**: Compares queries with translations of HPO terms in the same language
+   - Uses a language-specific cross-encoder model
+   - Requires translations of HPO terms in JSON format
+   - Often produces more accurate rankings when translations are available
 
 #### Translation File Format
 
-For monolingual re-ranking, translation files must be provided in the following structure:
+For monolingual re-ranking, translation files must be provided in the following structure (example for German HPO translations):
 
 ```bash
 [translation_dir]/
@@ -151,11 +141,11 @@ Each JSON file should follow this format:
 
 ```json
 {
-  "lbl": "German translation of the main HPO term label",
+  "lbl": "Translation of the main HPO term label",
   "meta": {
     "synonyms": [
-      {"val": "German synonym 1"},
-      {"val": "German synonym 2"}
+      {"val": "Synonym 1 in target language"},
+      {"val": "Synonym 2 in target language"}
     ]
   }
 }
@@ -164,27 +154,98 @@ Each JSON file should follow this format:
 #### Example Usage
 
 ```bash
-# Cross-lingual re-ranking (German query → English HPO)
-python -m phentrieve.scripts.run_interactive_query --enable-reranker
+# Cross-lingual re-ranking (non-English query → English HPO)
+phentrieve query --enable-reranker
 
-# Monolingual re-ranking (German query → German HPO translation)
-python -m phentrieve.scripts.run_interactive_query --enable-reranker --reranker-mode monolingual --translation-dir path/to/translations
+# Monolingual re-ranking (using target language translations)
+phentrieve query --enable-reranker --reranker-mode monolingual --translation-dir path/to/translations
 ```
 
-## Limitations & Future Work
+## Text Processing Features
 
-- **No coordinate information**: The system identifies relevant HPO terms but not their precise positions in the input text
-- **Performance variability**: Matching quality depends on how well the model handles clinical terminology in different languages
-- **Semantic gap**: Clinical descriptions in German may use terminology patterns different from the English HPO terms
-- **German compound words**: German's compound word structure presents challenges for semantic matching
+Phentrieve now includes robust text processing capabilities for extracting HPO terms from clinical text, with support for:
 
-### Planned Improvements
+### Flexible Text Chunking
 
-- Fine-tuning the embedding model on clinical-specific multilingual data
-- Adding a secondary step for coordinate mapping
-- Implementing a hybrid approach combining semantic search with other techniques
-- Support for additional languages beyond German
-- Expanding the ontology similarity metrics with additional measures (e.g., Lin, Wu-Palmer)
+The system provides multiple text chunking strategies that can be combined in a pipeline:
+
+- **Paragraph Chunking**: Splits text based on blank lines
+- **Sentence Chunking**: Uses language-specific rules to separate sentences
+- **Semantic Chunking**: Groups sentences by semantic similarity
+- **Fine-grained Punctuation Chunking**: Further splits text at punctuation marks like periods, commas, and semicolons
+
+Three predefined strategies are available via the `--strategy` option:
+
+- **simple**: Paragraph chunking + Sentence chunking
+- **semantic** (default): Paragraph chunking + Semantic chunking
+- **detailed**: Paragraph chunking + Semantic chunking + Fine-grained punctuation chunking for more granular analysis
+
+Chunking configuration can be specified via command-line parameters or through YAML/JSON configuration files.
+
+### Assertion Detection
+
+The system can detect the assertion status of medical concepts in text:
+
+- **Affirmed**: The phenotype is positively asserted (default)
+- **Negated**: The phenotype is explicitly negated (e.g., "no microcephaly", "denies seizures")
+- **Normal**: The finding is described as normal or within normal limits
+- **Uncertain**: The phenotype is mentioned with uncertainty
+
+Assertion detection uses both keyword-based and dependency-based approaches that can be configured based on user preference. The system implements a priority-based logic for determining assertion status:
+
+1. Dependency-based negation has highest priority
+2. Dependency-based normality has second priority
+3. Keyword-based negation has third priority
+4. Keyword-based normality has fourth priority
+
+This prioritization ensures the most accurate detection of assertion status, particularly for complex clinical text where the context and grammatical structure are important for proper interpretation.
+
+### Multilingual Assertion Detection
+
+Phentrieve supports assertion detection in multiple languages, including English and German, by utilizing language-specific SpaCy models and predefined negation/normality cues. For German clinical text, the system identifies terms like "kein", "keine", "nicht", and "ohne" (negation) as well as "normal", "unauffällig", and "o.B." (normality).
+
+All text processing, including chunking and assertion detection, uses the language parameter to ensure appropriate language models and cues are applied throughout the pipeline.
+
+### HPO Term Extraction
+
+The system processes chunked text and extracts relevant HPO terms while maintaining assertion status:
+
+- **Evidence Aggregation**: Combines evidence from multiple chunks for the same HPO term
+- **Confidence Scoring**: Calculates confidence scores based on similarity and evidence count
+- **Result Filtering**: Filters results based on confidence thresholds and allows taking only the top term per chunk
+- **Multi-format Output**: Supports JSON, CSV, and other output formats for easy integration
+
+### Using Text Processing
+
+```bash
+# Process text directly
+phentrieve text process "Patient presents with hearing loss and developmental delay"
+
+# Only include high-confidence terms (confidence >= 0.7)
+phentrieve text process "Patient presents with hearing loss" --min-confidence 0.7
+
+# Only include the highest-scored term for each text chunk
+phentrieve text process "Patient presents with hearing loss" --top-term-per-chunk
+
+# Process a file with semantic chunking
+phentrieve text process --input-file clinical_note.txt --strategy semantic
+
+# Use a specific model and output format
+phentrieve text process --input-file notes.txt --model "FremyCompany/BioLORD-2023-M" --output-format csv_hpo_list
+
+# Just perform chunking without HPO term extraction
+phentrieve text chunk "Patient presents with progressive hearing loss that began in childhood."
+
+# Process text with confidence threshold and only getting top term per chunk
+phentrieve text process "Patient has microcephaly but no seizures" --min-confidence 0.4 --top-term-per-chunk
+```
+
+### Filtering Options for Text Processing
+
+- `--min-confidence`: Set a threshold for minimum similarity score (0.0-1.0) to include an HPO term
+- `--top-term-per-chunk`: Return only the highest-scoring HPO term for each text chunk
+- `--strategy`: Choose text chunking strategy (simple, semantic, detailed)
+- `--language`: Specify text language for accurate chunking and assertion detection (e.g., 'en', 'de')
 
 ## Setup and Usage
 
@@ -210,83 +271,102 @@ Install Phentrieve:
 
 ```bash
 pip install -e .
-pip install -r requirements.txt
+
+# Install required SpaCy language models for dependency parsing
+python -m spacy download en_core_web_sm  # For English text
+python -m spacy download de_core_news_sm  # For German text
 ```
 
-### Prepare the HPO Index (Run Once)
+### Prepare HPO Data and Index (Run Once)
+
+1. **Prepare HPO Data (Graph Properties & Extracted Terms):**
+   This step downloads `hp.json`, extracts all HPO terms into `data/hpo_terms/`, and precomputes `data/hpo_ancestors.pkl` and `data/hpo_term_depths.pkl`.
+
+   ```bash
+   phentrieve data prepare
+   ```
+
+   Use `--force` to re-download and re-process if needed.
+
+2. **Build Vector Index:**
+   This step creates the ChromaDB vector index for a specified model (or all benchmark models).
+
+   ```bash
+   # For the default model (e.g., BioLORD)
+   phentrieve index build
+   
+   # Or specify a model:
+   phentrieve index build --model-name "BAAI/bge-m3"
+   
+   # To build for all benchmark models:
+   phentrieve index build --all-models
+   ```
+
+### Interactive Querying
 
 ```bash
-python -m phentrieve.scripts.01_prepare_hpo_data  # Downloads hp.json if needed and extracts terms
-python -m phentrieve.scripts.02_build_index  # Creates and populates the vector index
+# For interactive querying with text input
+phentrieve query --interactive
 ```
-
-Note: The first run will download the model (~1.1 GB) and generate embeddings, which can be time-intensive.
 
 ### Execution Methods
 
-There are two supported ways to run the scripts in this project:
+After installation, you can use the `phentrieve` command directly from your terminal:
 
-1. **Recommended Method**: Running from the project root using Python's module syntax:
+```bash
+# View available commands
+phentrieve --help
 
-   ```bash
-   # Run from the project root directory
-   python -m phentrieve.scripts.03_run_benchmark [args...]
-   ```
-
-2. **Alternative Method**: Running scripts directly:
-
-   ```bash
-   # Run from the project root directory
-   python phentrieve/scripts/03_run_benchmark.py [args...]
-   ```
-
-Both methods will work, but the first is recommended as it follows standard Python practices for module resolution.
+# View help for a specific command
+phentrieve query --help
+```
 
 ### Run the CLI Tool
 
 Basic usage:
 
 ```bash
-python -m phentrieve.scripts.run_interactive_query
+phentrieve query --interactive
 ```
 
 With command-line arguments:
 
 ```bash
-python phentrieve/scripts/run_interactive_query.py --text "Der Patient zeigt eine Anomalie des Herzens" --similarity-threshold 0.2 --num-results 3
+phentrieve query --text "The patient shows an anomaly of the heart" --similarity-threshold 0.2 --num-results 3
 ```
 
 Options:
 
-- `--text`: German text to process (if not provided, runs in interactive mode)
+- `--text`: Text to process (if not provided, runs in interactive mode)
 - `--similarity-threshold`: Minimum similarity score (0-1) to show results (default: 0.3)
 - `--num-results`: Maximum number of results to display (default: 5)
 - `--sentence-mode`: Process input text sentence by sentence
 - `--enable-reranker`: Enable cross-encoder re-ranking (default: False)
-- `--reranker-mode`: Re-ranking mode, either 'cross-lingual' (German query → English HPO) or 'monolingual' (German query → German HPO translation) (default: cross-lingual)
-- `--reranker-model`: Cross-encoder model to use for cross-lingual re-ranking (default: MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7)
-- `--monolingual-reranker-model`: Cross-encoder model to use for monolingual re-ranking (default: ml6team/cross-encoder-mmarco-german-distilbert-base)
-- `--translation-dir`: Directory containing German HPO term translations for monolingual re-ranking (default: data/hpo_translations_de)
+- `--reranker-mode`: Re-ranking mode, either 'cross-lingual' or 'monolingual' (default: cross-lingual)
+- `--reranker-model`: Cross-encoder model to use for cross-lingual re-ranking
+- `--monolingual-reranker-model`: Cross-encoder model to use for monolingual re-ranking
+- `--translation-dir`: Directory containing HPO term translations for monolingual re-ranking
 - `--rerank-count`: Number of candidates to re-rank (default: 50)
 
 ## File Structure
 
-- `phentrieve/scripts/01_prepare_hpo_data.py`: Downloads and prepares HPO data from official source
-- `phentrieve/scripts/02_build_index.py`: Builds the ChromaDB vector index for a given model
-- `phentrieve/scripts/run_interactive_query.py`: CLI tool for querying with multilingual text
-- `phentrieve/scripts/03_run_benchmark.py`: Evaluates model performance with various metrics
-- `phentrieve/scripts/04_manage_results.py`: Tool for running, comparing, and visualizing benchmark results
-
-- `hpo_similarity.py`: Contains implementations of ontology-based similarity metrics
-- `requirements.txt`: Project dependencies
+- `phentrieve/`: Main package directory
+  - `data_processing/`: Modules for loading/processing data
+  - `indexing/`: Modules for building indexes
+  - `retrieval/`: Modules for querying indexes
+  - `evaluation/`: Modules for benchmarking and metrics
+  - `utils.py`: Shared utility functions
 - `data/`: Directory containing the HPO data, extracted terms, and graph data
-
+  - `hp.json`: Original HPO download (generated)
+  - `hpo_terms/`: Extracted terms (generated)
+  - `hpo_ancestors.pkl`: Precomputed graph data (generated)
+  - `hpo_term_depths.pkl`: Precomputed graph data (generated)
+  - `results/`: Benchmark results and visualizations
 - `hpo_chroma_index/`: Directory containing the ChromaDB vector database
-- `benchmark_results/`: Directory containing benchmark output files and visualizations
 
 ## Example Results
 
-For the German query "Synophrys" (fused eyebrows):
+Example query for "Synophrys" (fused eyebrows):
 
 ```text
 Query: 'Synophrys.'
@@ -307,7 +387,7 @@ The system includes a comprehensive benchmarking suite that evaluates model perf
 
 ### Ontology Similarity Metrics
 
-- **Ontology Similarity at K (OntSim@K)**: The average semantic similarity between the expected HPO terms and the top K retrieved terms, based on the HPO hierarchy. Higher is better.
+- **Ontology Similarity at K (MaxOntSim@K)**: For each expected term in a test case, this metric finds the highest semantic similarity score against any of the top K retrieved terms. These maximum scores are then averaged across all expected terms in the test case. Finally, these per-test-case average maximum similarities are averaged over all test cases. A score of 1.0 indicates perfect or very close semantic matches for all expected terms, while lower scores indicate less relevance. Higher is better.
 
 These ontology-based metrics provide a more nuanced evaluation than exact matches alone because they account for the semantic relatedness of terms in the HPO hierarchy. For example, retrieving "Mild microcephaly" (HP:0040196) when the expected term is "Microcephaly" (HP:0000252) would get a high ontology similarity score due to their close relationship in the HPO hierarchy, despite not being an exact match.
 
@@ -319,33 +399,71 @@ Benchmark results are saved as:
 
 ### Understanding Ontology Similarity
 
-#### How Ontology Similarity Works
+The HPO is organized as a directed acyclic graph (DAG) where terms have parent-child relationships defining increasingly specific phenotypes. Our ontology similarity implementation leverages this structure.
 
-The HPO is organized as a directed acyclic graph where terms have parent-child relationships defining increasingly specific phenotypes. Our ontology similarity implementation:
+### Core Calculation Steps
 
-1. **Precomputes** a graph representation of the HPO including:
-   - Each term's ancestors (all parent terms up to the root)
-   - Each term's depth in the hierarchy (distance from root)
+#### Precomputation (phentrieve data prepare)
 
-2. **Calculates similarity** between an expected HPO term and a retrieved HPO term using:
-   - The depth of their Lowest Common Ancestor (LCA)
-   - The depth of the terms themselves
-   - A normalization factor to produce values between 0 and 1
+- A graph representation of the HPO is built.
+- For every HPO term, its ancestors (all parent terms up to the true ontology root, HP:0000001) are determined and stored in data/hpo_ancestors.pkl.
+- The depth of each term (its shortest distance from HP:0000001) is calculated and stored in data/hpo_term_depths.pkl.
 
-3. **Aggregates** these similarities into the OntSim@K metric by:
-   - For each expected term, finding its most similar term among the top-K retrieved results
-   - Averaging these maximum similarities across all expected terms
+#### Lowest Common Ancestor (LCA)
 
-#### Interpreting Similarity Values
+- For any two HPO terms (e.g., an expected term t1 and a retrieved term t2), their LCA is found. The LCA is their deepest shared ancestor in the HPO graph.
 
-Similarity values range from 0 to 1, where:
+#### Similarity Calculation
 
-- **1.0**: Perfect match (same term)
-- **~0.75-0.99**: Very close relationship (e.g., parent-child or siblings sharing a specific parent)
-- **~0.50-0.74**: Moderate relationship (e.g., terms sharing a common ancestor a few levels up)
-- **~0.25-0.49**: Distant relationship (e.g., terms sharing only general category ancestors)
-- **~0.01-0.24**: Very distant relationship (e.g., terms under the same broad branches)
-- **0.0**: No meaningful relationship (no common ancestor except the root)
+- Once the LCA and the depths of t1, t2, and LCA(t1, t2) are known, a similarity score is computed. This system supports multiple similarity formulas, selectable during benchmarking.
+
+### Available Similarity Formulas
+
+The choice of formula can be specified using the `--similarity-formula` option when running benchmarks (e.g., `phentrieve benchmark run --similarity-formula simple_resnik_like`).
+
+#### hybrid (Default Formula)
+
+This formula combines aspects of Resnik and Lin similarity:
+
+```python
+Sim(t1, t2) = (0.7 * depth_factor) + (0.3 * distance_factor)
+```
+
+Where:
+
+- `depth_factor = D(LCA(t1, t2)) / D_max_ontology`
+  - D(LCA(t1, t2)) is the depth of the Lowest Common Ancestor.
+  - D_max_ontology is the maximum depth of any term in the entire HPO.
+  - This component reflects the shared specificity of the terms, normalized by the overall depth of the ontology.
+- `distance_factor = 1 - (total_path_length_to_LCA / (D(t1) + D(t2)))`
+  - total_path_length_to_LCA is the sum of path lengths from t1 to LCA and t2 to LCA.
+  - D(t1) and D(t2) are the depths of the terms being compared.
+  - This component reflects the structural closeness of the terms to their LCA.
+
+**Characteristics**: This formula aims for a nuanced score by considering both shared information (via LCA depth) and structural proximity. It tends to give slightly higher scores to direct parent-child relationships than to sibling relationships if the parent's depth is the same as the siblings' common parent.
+
+#### simple_resnik_like
+
+This formula is a simpler, Resnik-like measure using depth as a proxy for Information Content (IC):
+
+```python
+Sim(t1, t2) = D(LCA(t1, t2)) / max(D(t1), D(t2))
+```
+
+(If max(D(t1), D(t2)) is 0, the score is 0, unless t1 and t2 are identical and are the root, then it's 1).
+
+**Characteristics**: This formula is more straightforward. It normalizes the LCA's depth by the depth of the deeper of the two terms being compared. For parent-child pairs (P, C), it resolves to D(P) / D(C). Sibling pairs sharing a common parent P will have the same similarity score as a P-C pair where C is a child of P. Scores approach 1 for closely related terms deep in the ontology.
+
+### Interpreting Similarity Values
+
+Regardless of the formula, similarity values generally range from 0 to 1:
+
+- **1.0**: Perfect match (the terms are identical).
+- **~0.75-0.99**: Very close relationship (e.g., parent-child or siblings sharing a very specific parent). The exact range depends on the formula and term depths.
+- **~0.50-0.74**: Moderate relationship (e.g., terms sharing a common ancestor a few levels up).
+- **~0.25-0.49**: Distant relationship (e.g., terms sharing only general category ancestors).
+- **~0.01-0.24**: Very distant relationship.
+- **0.0**: No meaningful semantic relationship found based on the ontology structure (e.g., no common ancestor other than potentially the ultimate root, or one of the terms is not found in the precomputed data).
 
 #### Examples
 
@@ -389,10 +507,10 @@ Before running benchmarks, you need to set up the embedding models and their cor
 
 ```bash
 # Set up a specific model
-python -m phentrieve.scripts.04_manage_results setup --model-name "FremyCompany/BioLORD-2023-M"
+phentrieve index build --model-name "FremyCompany/BioLORD-2023-M"
 
 # Or set up all supported models at once
-python -m phentrieve.scripts.04_manage_results setup --all
+phentrieve index build --all-models
 ```
 
 #### Running Benchmark Tests
@@ -401,43 +519,42 @@ To evaluate model performance using the test cases:
 
 ```bash
 # Benchmark a specific model
-python -m phentrieve.scripts.04_manage_results run --model-name "FremyCompany/BioLORD-2023-M"
+phentrieve benchmark run --model-name "FremyCompany/BioLORD-2023-M"
 
 # Run benchmarks on all models
-python -m phentrieve.scripts.04_manage_results run --all
+phentrieve benchmark run --all-models
+
+# Run with a specific similarity formula
+phentrieve benchmark run --similarity-formula simple_resnik_like
 
 # Run with detailed per-test-case results
-python -m phentrieve.scripts.04_manage_results run --all --detailed
-
-# Set a custom similarity threshold
-python -m phentrieve.scripts.04_manage_results run --all --similarity-threshold 0.2
+phentrieve benchmark run --detailed
 ```
 
 **Note:** The `run` command will benchmark models, generate result files, and also create a comparison table and visualization for the models just benchmarked. When using `--all`, this provides an immediate comparison of all models.
 
 #### Comparing Previously Benchmarked Models
 
-The `compare` command allows you to compare previously saved benchmark results without re-running the benchmarks:
+The system allows you to compare previously saved benchmark results without re-running the benchmarks:
 
 ```bash
 # Compare all previously benchmarked models (loads saved results)
-python -m multilingual_hpo_rag.scripts.04_manage_results compare
+phentrieve benchmark compare
 
-# Compare only specific models from previous benchmark runs
-python -m phentrieve.scripts.04_manage_results compare --models "biolord_2023_m" "jina_embeddings_v2_base_de"
+# Generate visualizations from benchmark results
+phentrieve benchmark visualize
+
+# Generate visualizations with specific metrics
+phentrieve benchmark visualize --metrics mrr,hit_rate
 ```
 
-**When to use `compare` vs. `run --all`:**
+**When to use the different benchmark commands:**
 
-- Use `run --all` when you need to execute new benchmarks and want results for all models at once
+- Use `benchmark run` when you need to execute benchmarks for specific or all models
+- Use `benchmark compare` when you want to compare previously benchmarked models without rerunning them
+- Use `benchmark visualize` when you want to generate or update visualizations for existing benchmark results
 
-- Use `compare` when:
-  - You've benchmarked models at different times and want to compare them later
-  - You want to generate new visualizations without re-running time-consuming benchmarks
-  - You want to create a focused comparison of just a few specific models
-  - You've made changes to the visualization code and want to update visualizations for existing results
-
-Both commands will display a table with all metrics (MRR, Hit@K, OntSim@K) and generate visualizations showing the relative performance of each model. Benchmark results and visualizations are saved to the `benchmark_results/` directory.
+Benchmark results and visualizations are saved to your configured results directory (default: `data/results/`). The visualizations include comparative plots for MRR, Hit@K, MaxOntSim@K and heatmaps showing the performance of all models across multiple metrics.
 
 ## References
 

@@ -9,13 +9,12 @@ import logging
 import os
 import time
 from typing import Dict, List, Tuple, Union, Optional, Any
+from pathlib import Path
 
 import chromadb
 import torch
 from sentence_transformers import SentenceTransformer
 from tqdm import tqdm
-
-from phentrieve.config import INDEX_DIR
 from phentrieve.utils import (
     get_model_slug,
     generate_collection_name,
@@ -31,6 +30,7 @@ def build_chromadb_index(
     model_name: str,
     batch_size: int = 100,
     recreate: bool = False,
+    index_dir: Path = None,
 ) -> bool:
     """
     Build a ChromaDB index for the given documents using the specified embedding model.
@@ -51,8 +51,7 @@ def build_chromadb_index(
         logging.error("No documents provided for indexing")
         return False
 
-    # Get index directory and collection name
-    index_dir = INDEX_DIR
+    # Get collection name (index_dir should be passed in)
     collection_name = generate_collection_name(model_name)
     model_slug = get_model_slug(model_name)
 
@@ -65,7 +64,17 @@ def build_chromadb_index(
     # Initialize ChromaDB
     logging.info(f"Initializing ChromaDB at {index_dir}")
     try:
-        client = chromadb.PersistentClient(path=index_dir)
+        # Convert Path to string and ensure it exists
+        index_dir_str = str(index_dir)
+        os.makedirs(index_dir_str, exist_ok=True)
+
+        # Initialize with proper settings to avoid tenant issues
+        client = chromadb.PersistentClient(
+            path=index_dir_str,
+            settings=chromadb.Settings(
+                anonymized_telemetry=False, allow_reset=True, is_persistent=True
+            ),
+        )
 
         # Initialize skip collection creation flag
         skip_collection_creation = False
@@ -169,5 +178,5 @@ def build_chromadb_index(
     end_time = time.time()
     logging.info(f"Index built successfully in {end_time - start_time:.2f} seconds!")
     logging.info(f"Indexed {len(documents)} HPO terms.")
-    logging.info(f"Index location: {os.path.abspath(index_dir)}")
+    logging.info(f"Index location: {os.path.abspath(str(index_dir))}")
     return True

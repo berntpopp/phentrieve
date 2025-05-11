@@ -1,40 +1,26 @@
-#!/usr/bin/env python3
 """
-Interactive HPO Query Tool
+HPO Query Orchestrator
 
-This script provides an interactive CLI for querying the HPO index with
-multilingual clinical text descriptions to find matching HPO terms.
+This module provides functionality for querying HPO terms with natural language
+descriptions and processing the results. It migrates the functionality from the
+interactive query script to be usable from the CLI interface.
 """
 
-import argparse
 import logging
 import os
-import sys
-import time
-import traceback
 import torch
-from pathlib import Path
-from typing import Dict, List, Tuple, Any, Optional
-
-# Set up import paths for the phentrieve modules
-# The correct structure is: repo_root/phentrieve/phentrieve/[modules]
-script_dir = Path(__file__).parent.absolute()
-phentrieve_dir = script_dir.parent  # This is 'phentrieve' directory
-sys.path.insert(0, str(phentrieve_dir))
-print(f"Added phentrieve directory to path: {phentrieve_dir}")
+from typing import Dict, List, Tuple, Any, Optional, Union, Callable
 
 import pysbd
 
-# Now directly import from the phentrieve directory
 from phentrieve.config import (
     DEFAULT_MODEL,
-    INDEX_DIR,
     MIN_SIMILARITY_THRESHOLD,
     DEFAULT_TOP_K,
     DEFAULT_RERANKER_MODEL,
     DEFAULT_MONOLINGUAL_RERANKER_MODEL,
     DEFAULT_RERANKER_MODE,
-    DEFAULT_TRANSLATION_DIR,
+    DEFAULT_TRANSLATIONS_SUBDIR,
     DEFAULT_RERANK_CANDIDATE_COUNT,
     DEFAULT_ENABLE_RERANKER,
 )
@@ -46,23 +32,11 @@ from phentrieve.retrieval.dense_retriever import (
 from phentrieve.retrieval import reranker
 from phentrieve.utils import (
     generate_collection_name,
-    load_german_translation_text,
+    load_translation_text,
 )
 
 
-def setup_logging(debug: bool = False) -> None:
-    """Configure logging based on debug flag."""
-    level = logging.DEBUG if debug else logging.INFO
-    logging.basicConfig(
-        level=level,
-        format="%(asctime)s - %(levelname)s - %(message)s",
-        handlers=[logging.StreamHandler()],
-    )
-    # Also set root logger level
-    logging.getLogger().setLevel(level)
-
-
-def segment_text(text: str, lang: str = "de") -> List[str]:
+def segment_text(text: str, lang: str = None) -> List[str]:
     """
     Split text into sentences.
 
@@ -73,6 +47,14 @@ def segment_text(text: str, lang: str = "de") -> List[str]:
     Returns:
         List of sentences
     """
+    # Use detected language or default to English if not specified
+    if lang is None:
+        # Try to detect language from text content
+        if len(text) > 20 and text[:20].strip().isascii():
+            lang = "en"  # Default to English for ASCII text
+        else:
+            lang = "en"  # Fallback to English
+
     segmenter = pysbd.Segmenter(language=lang, clean=False)
     return segmenter.segment(text)
 
@@ -97,7 +79,6 @@ def format_results(
     Returns:
         Dictionary with formatted results information
     """
-    # Debug print to trace calls with incorrect parameters
     logging.debug(
         f"format_results called with: threshold={threshold} ({type(threshold)}), max_results={max_results} ({type(max_results)})"
     )
@@ -237,13 +218,19 @@ def format_results(
     return {"results": results_list, "query": query, "header": header}
 
 
-def print_results(results: Dict[str, Any]) -> None:
-    """Print formatted results to the console."""
+def print_results(results: Dict[str, Any], output_func: Callable = print) -> None:
+    """
+    Print formatted results to the console or using a custom output function.
+
+    Args:
+        results: Formatted results dictionary
+        output_func: Function to use for output (defaults to print)
+    """
     if not results or not results.get("results"):
-        print("No matching HPO terms found.")
+        output_func("No matching HPO terms found.")
         return
 
-    print(f"\n{results.get('header', 'Results:')}")
+    output_func(f"\n{results.get('header', 'Results:')}")
 
     for i, result in enumerate(results["results"]):
         hpo_id = result.get("hpo_id", "Unknown")
@@ -252,15 +239,15 @@ def print_results(results: Dict[str, Any]) -> None:
         # Get the cross-encoder score and original rank if available
         if "cross_encoder_score" in result:
             original_rank = result.get("original_rank", "?")
-            print(
+            output_func(
                 f"{i+1}. {hpo_id}: {label} (was #{original_rank})\n   Cross-encoder score: {result['cross_encoder_score']:.4f}"
             )
         else:
             similarity = result["similarity"]
-            print(f"{i+1}. {hpo_id}: {label}\n   Similarity: {similarity:.4f}")
+            output_func(f"{i+1}. {hpo_id}: {label}\n   Similarity: {similarity:.4f}")
 
 
-def process_input(
+def process_query(
     text: str,
     retriever: DenseRetriever,
     num_results: int = DEFAULT_TOP_K,
@@ -270,9 +257,11 @@ def process_input(
     cross_encoder=None,
     rerank_count: int = None,
     reranker_mode: str = DEFAULT_RERANKER_MODE,
-    translation_dir: str = DEFAULT_TRANSLATION_DIR,
-) -> None:
-    """Process input text, either as a whole or sentence by sentence.
+    translation_dir: str = DEFAULT_TRANSLATIONS_SUBDIR,
+    output_func: Callable = print,
+) -> List[Dict[str, Any]]:
+    """
+    Process input text, either as a whole or sentence by sentence.
 
     Args:
         text: The input text to process
@@ -284,21 +273,25 @@ def process_input(
         cross_encoder: Optional cross-encoder model for re-ranking
         rerank_count: Number of candidates to re-rank (if cross_encoder is provided)
         reranker_mode: Mode for re-ranking ('cross-lingual' or 'monolingual')
-        translation_dir: Directory containing German translations of HPO terms
+        translation_dir: Directory containing translations of HPO terms in target language
+        output_func: Function to use for output (defaults to print)
+
+    Returns:
+        List of result dictionaries, one per query (or sentence if sentence_mode is True)
     """
+    all_results = []
 
     # Process in sentence mode if enabled
     if sentence_mode:
         # Split into sentences and process
         sentences = segment_text(text)
-        all_results = []
 
         if debug:
-            print(f"[DEBUG] Split into {len(sentences)} sentences")
+            output_func(f"[DEBUG] Split into {len(sentences)} sentences")
 
         for i, sentence in enumerate(sentences):
             if debug:
-                print(f"[DEBUG] Processing sentence {i+1}: {sentence}")
+                output_func(f"[DEBUG] Processing sentence {i+1}: {sentence}")
 
             # Set query count - need more results for reranking
             if cross_encoder and rerank_count is not None:
@@ -312,7 +305,7 @@ def process_input(
             # Rerank with cross-encoder if available
             if cross_encoder and rerank_count:
                 if debug:
-                    print(f"[DEBUG] Reranking with cross-encoder")
+                    output_func(f"[DEBUG] Reranking with cross-encoder")
                 reranked_results = reranker.rerank_with_cross_encoder(
                     query=sentence,
                     results=results,
@@ -341,7 +334,7 @@ def process_input(
         # If we have no results at all, try processing the whole text
         if not all_results:
             if debug:
-                print("[DEBUG] No results from sentence mode, trying full text")
+                output_func("[DEBUG] No results from sentence mode, trying full text")
 
             # Set query count - need more results for reranking
             if cross_encoder and rerank_count is not None:
@@ -355,7 +348,7 @@ def process_input(
             # Rerank with cross-encoder if available
             if cross_encoder and rerank_count:
                 if debug:
-                    print(f"[DEBUG] Reranking with cross-encoder")
+                    output_func(f"[DEBUG] Reranking with cross-encoder")
                 reranked_results = reranker.rerank_with_cross_encoder(
                     query=text,
                     results=results,
@@ -383,10 +376,10 @@ def process_input(
         # Print results for each sentence
         if all_results:
             for i, result_set in enumerate(all_results):
-                print(f"\n==== Results for: {result_set['query']} ====")
-                print_results(result_set)
+                output_func(f"\n==== Results for: {result_set['query']} ====")
+                print_results(result_set, output_func=output_func)
         else:
-            print("\nNo matching HPO terms found.")
+            output_func("\nNo matching HPO terms found.")
 
     else:
         # Process the entire text at once
@@ -412,10 +405,11 @@ def process_input(
             # No results passed the threshold, so just return the original results
             formatted = original_formatted
             if formatted and formatted["results"]:
-                print_results(formatted)
+                print_results(formatted, output_func=output_func)
+                all_results.append(formatted)
             else:
-                print("\nNo matching HPO terms found.")
-            return
+                output_func("\nNo matching HPO terms found.")
+            return all_results
 
         # Rerank with cross-encoder if available
         if (
@@ -427,26 +421,28 @@ def process_input(
             and len(results["ids"][0]) > 0
         ):
             if debug:
-                print(f"[DEBUG] Reranking with cross-encoder")
+                output_func(f"[DEBUG] Reranking with cross-encoder")
 
             # Extract only the top candidates from original results that passed the threshold
             candidates = []
             original_results = original_formatted["results"]
 
             if debug:
-                print(
+                output_func(
                     f"[DEBUG] Original formatted results structure: {original_formatted.keys()}"
                 )
-                print(
+                output_func(
                     f"[DEBUG] Original results count: {len(original_results) if original_results else 0}"
                 )
                 if original_results and len(original_results) > 0:
-                    print(f"[DEBUG] First result keys: {original_results[0].keys()}")
+                    output_func(
+                        f"[DEBUG] First result keys: {original_results[0].keys()}"
+                    )
 
             # We only want to re-rank the candidates that passed the bi-encoder filtering
             for result in original_results:
                 if debug:
-                    print(
+                    output_func(
                         f"[DEBUG] Processing result: {result.get('hpo_id', 'unknown')} with type {type(result)}"
                     )
 
@@ -454,47 +450,44 @@ def process_input(
                 hpo_id = result.get("hpo_id", None)
                 if not hpo_id:
                     if debug:
-                        print(f"[DEBUG] Missing hpo_id in result: {result}")
+                        output_func(f"[DEBUG] Missing hpo_id in result: {result}")
                     continue
 
                 # Find the full document and metadata for this ID
                 # Use the HPO ID as-is since we store them with the same format in ChromaDB
-                chroma_compatible_id = (
-                    hpo_id  # No need to replace colons with underscores
-                )
+                chroma_compatible_id = hpo_id
                 if debug:
-                    print(f"[DEBUG] Looking for HPO ID: {chroma_compatible_id}")
+                    output_func(f"[DEBUG] Looking for HPO ID: {chroma_compatible_id}")
 
                 found = False
                 for i, doc_id in enumerate(results["ids"][0]):
                     if doc_id == chroma_compatible_id:
                         found = True
                         if debug:
-                            print(f"[DEBUG] Found matching document for {hpo_id}")
+                            output_func(f"[DEBUG] Found matching document for {hpo_id}")
                         original_rank = original_results.index(result) + 1
                         # Get metadata for this document
                         metadata = results["metadatas"][0][i]
 
                         # Get the document text to use for comparison based on the reranker mode
                         if reranker_mode == "monolingual":
-                            # For monolingual mode, load the German translation of the HPO term
-                            german_text = load_german_translation_text(
-                                hpo_id, translation_dir
+                            # For monolingual mode, load the translation of the HPO term
+                            translated_text = load_translation_text(
+                                hpo_id=hpo_id,
+                                translation_dir=translation_dir,
                             )
-
-                            if german_text is None:
+                            if translated_text is None:
                                 if debug:
-                                    print(
-                                        f"[DEBUG] No German translation found for {hpo_id}, skipping"
+                                    output_func(
+                                        f"[DEBUG] No translation found for {hpo_id}, skipping"
                                     )
                                 continue
-
                             if debug:
-                                print(
-                                    f"[DEBUG] Loaded German translation for {hpo_id}: {german_text[:50]}..."
+                                output_func(
+                                    f"[DEBUG] Loaded translation for {hpo_id}: {translated_text[:50]}..."
                                 )
 
-                            comparison_text = german_text
+                            comparison_text = translated_text
 
                         else:  # cross-lingual mode
                             # For cross-lingual mode, use the simplified English label
@@ -525,34 +518,36 @@ def process_input(
                         break
 
                 if not found and debug:
-                    print(f"[DEBUG] Could not find document for {hpo_id} in results")
+                    output_func(
+                        f"[DEBUG] Could not find document for {hpo_id} in results"
+                    )
 
             if debug:
-                print(f"[DEBUG] Candidates for re-ranking: {len(candidates)}")
+                output_func(f"[DEBUG] Candidates for re-ranking: {len(candidates)}")
                 if candidates:
-                    print(f"[DEBUG] First candidate keys: {candidates[0].keys()}")
-                    print(
+                    output_func(f"[DEBUG] First candidate keys: {candidates[0].keys()}")
+                    output_func(
                         f"[DEBUG] First candidate simplified english_doc (raw label): {candidates[0]['english_doc']}"
                     )
-                    print(
+                    output_func(
                         f"[DEBUG] Original document: {candidates[0]['original_document'][:50]}..."
                     )
                 else:
-                    print(f"[DEBUG] No candidates to re-rank")
-                    print(
+                    output_func(f"[DEBUG] No candidates to re-rank")
+                    output_func(
                         f"[DEBUG] Results shape: ids={len(results['ids'][0])}, documents={len(results['documents'][0])}, metadatas={len(results['metadatas'][0])}"
                     )
                     # Sample a few IDs for comparison
                     sample_ids = results["ids"][0][:5]
-                    print(f"[DEBUG] Sample IDs from results: {sample_ids}")
-                    print(
+                    output_func(f"[DEBUG] Sample IDs from results: {sample_ids}")
+                    output_func(
                         f"[DEBUG] Original result IDs: {[r.get('hpo_id', 'unknown') for r in original_results[:5]]}"
                     )
                     # Try to match them directly
                     for orig_result in original_results[:5]:
                         orig_id = orig_result.get("hpo_id", "unknown")
                         found = orig_id in sample_ids
-                        print(
+                        output_func(
                             f"[DEBUG] Original ID {orig_id} found in results: {found}"
                         )
 
@@ -596,351 +591,220 @@ def process_input(
             )
 
             # Show both results
-            print("\n---------- Original Results (Bi-Encoder) ----------")
+            output_func("\n---------- Original Results (Bi-Encoder) ----------")
             if original_formatted and original_formatted["results"]:
-                print_results(original_formatted)
+                print_results(original_formatted, output_func=output_func)
+                all_results.append(original_formatted)
             else:
-                print("No matching HPO terms found.")
+                output_func("No matching HPO terms found.")
 
-            print("\n---------- Re-Ranked Results (Cross-Encoder) ----------")
+            output_func("\n---------- Re-Ranked Results (Cross-Encoder) ----------")
             formatted = reranked_formatted
+            if formatted and formatted["results"]:
+                print_results(formatted, output_func=output_func)
+                all_results.append(formatted)
+            else:
+                output_func("\nNo matching HPO terms found.")
         else:
             # Just use the original results
             formatted = original_formatted
+            if formatted and formatted["results"]:
+                print_results(formatted, output_func=output_func)
+                all_results.append(formatted)
+            else:
+                output_func("\nNo matching HPO terms found.")
 
-        if formatted and formatted["results"]:
-            print_results(formatted)
-        else:
-            print("\nNo matching HPO terms found.")
+    return all_results
 
 
-def process_single_query(
-    query_text: str,
-    retriever: DenseRetriever,
+# Global variables for sharing models and retriever between interactive queries
+_global_model = None
+_global_retriever = None
+_global_cross_encoder = None
+
+
+def orchestrate_query(
+    query_text: str = None,
+    model_name: str = DEFAULT_MODEL,
     num_results: int = DEFAULT_TOP_K,
     similarity_threshold: float = MIN_SIMILARITY_THRESHOLD,
-    cross_encoder=None,
-    rerank_count: int = None,
-) -> None:
+    sentence_mode: bool = False,
+    trust_remote_code: bool = False,
+    enable_reranker: bool = DEFAULT_ENABLE_RERANKER,
+    reranker_model: str = DEFAULT_RERANKER_MODEL,
+    monolingual_reranker_model: str = DEFAULT_MONOLINGUAL_RERANKER_MODEL,
+    reranker_mode: str = DEFAULT_RERANKER_MODE,
+    translation_dir: str = DEFAULT_TRANSLATIONS_SUBDIR,
+    rerank_count: int = DEFAULT_RERANK_CANDIDATE_COUNT,
+    device_override: Optional[str] = None,
+    debug: bool = False,
+    output_func: Callable = print,
+    interactive_setup: bool = False,
+    interactive_mode: bool = False,
+) -> Union[List[Dict[str, Any]], bool]:
     """
-    Process a single query with optional re-ranking.
+    Main orchestration function for HPO term queries.
 
     Args:
-        query_text: The text to query
-        retriever: DenseRetriever instance for querying
-        num_results: Number of results to display
-        similarity_threshold: Minimum similarity threshold for filtering results
-        cross_encoder: Optional cross-encoder model for re-ranking
-        rerank_count: Number of candidates to re-rank
+        query_text: The clinical text to query
+        model_name: Name of the embedding model to use
+        num_results: Number of results to return
+        similarity_threshold: Minimum similarity score threshold
+        sentence_mode: Process text sentence-by-sentence
+        trust_remote_code: Trust remote code when loading models
+        enable_reranker: Enable cross-encoder reranking
+        reranker_model: Cross-encoder model name for reranking
+        monolingual_reranker_model: Monolingual cross-encoder model
+        reranker_mode: Reranking mode (cross-lingual or monolingual)
+        translation_dir: Directory with HPO translations in target language
+        rerank_count: Number of candidates to rerank
+        device_override: Override device (cpu/cuda)
+        debug: Enable debug output
+        output_func: Function to use for output (defaults to print)
+        interactive_setup: Whether this is just setting up models for interactive mode
+        interactive_mode: Whether this is an interactive query using shared models
+
+    Returns:
+        List of result dictionaries, or bool if in interactive_setup mode
     """
-    # Determine how many results to retrieve initially
-    if cross_encoder and rerank_count is not None:
-        initial_result_count = rerank_count * 2
+    global _global_model, _global_retriever, _global_cross_encoder
+
+    # If in interactive mode, use the cached models
+    if interactive_mode:
+        if not all([_global_model, _global_retriever]):
+            error_msg = "Interactive mode requires initialized models. Run with interactive_setup first."
+            logging.error(error_msg)
+            output_func(error_msg)
+            return []
+
+        # Process the query using the global models
+        return process_query(
+            text=query_text,
+            retriever=_global_retriever,
+            num_results=num_results,
+            sentence_mode=sentence_mode,
+            similarity_threshold=similarity_threshold,
+            debug=debug,
+            cross_encoder=_global_cross_encoder,
+            rerank_count=rerank_count if _global_cross_encoder else None,
+            reranker_mode=reranker_mode,
+            translation_dir=translation_dir,
+            output_func=output_func,
+        )
+
+    # Determine device
+    if device_override:
+        device = device_override
     else:
-        initial_result_count = num_results * 3
-
-    # Query with the bi-encoder
-    logging.info(f"Querying with text: '{query_text}'")
-    results = retriever.query(query_text, n_results=initial_result_count)
-
-    # Apply cross-encoder re-ranking if enabled
-    if cross_encoder and rerank_count and results["ids"] and results["ids"][0]:
-        logging.info(
-            f"Re-ranking top {min(rerank_count, len(results['ids'][0]))} results"
-        )
-
-        # Prepare candidates list for re-ranking
-        candidates = []
-        for i, (doc_id, metadata, distance) in enumerate(
-            zip(results["ids"][0], results["metadatas"][0], results["distances"][0])
-        ):
-            if i >= rerank_count:
-                break
-
-            # Create English document text from metadata
-            english_doc = f"{metadata['label']}. {metadata.get('definition', '')}"
-            if metadata.get("synonyms"):
-                english_doc += f" Synonyms: {metadata['synonyms']}"
-
-            # Store candidate information
-            candidates.append(
-                {
-                    "id": doc_id,
-                    "metadata": metadata,
-                    "distance": distance,
-                    "english_doc": english_doc,
-                }
-            )
-
-        # Only proceed with re-ranking if we have candidates
-        if candidates:
-            try:
-                # Perform re-ranking
-                reranked_candidates = reranker.rerank_with_cross_encoder(
-                    query=query_text,
-                    candidates=candidates,
-                    cross_encoder_model=cross_encoder,
-                )
-
-                # Reconstruct results in re-ranked order
-                reranked_results = {
-                    "ids": [[c["id"] for c in reranked_candidates]],
-                    "metadatas": [[]],
-                    "distances": [[]],
-                }
-
-                # Add cross-encoder scores to the metadata
-                for candidate in reranked_candidates:
-                    # Create a copy of the metadata and add cross-encoder score
-                    metadata_copy = candidate["metadata"].copy()
-                    metadata_copy["cross_encoder_score"] = candidate[
-                        "cross_encoder_score"
-                    ]
-                    reranked_results["metadatas"][0].append(metadata_copy)
-
-                    # Keep the original distance for reference
-                    reranked_results["distances"][0].append(candidate["distance"])
-
-                # Format and display re-ranked results
-                formatted = format_results(
-                    results=reranked_results,
-                    threshold=similarity_threshold,
-                    max_results=num_results,
-                    query=query_text,
-                    reranked=True,
-                )
-                print(formatted)
-                return
-
-            except Exception as e:
-                logging.error(f"Error during re-ranking: {e}")
-                logging.warning("Falling back to bi-encoder results")
-
-    # Format and display regular bi-encoder results if no re-ranking or if re-ranking failed
-    formatted = format_results(
-        results=results,
-        threshold=similarity_threshold,
-        max_results=num_results,
-        query=query_text,
-    )
-    print(formatted)
-
-
-def main() -> None:
-    """Main function for the interactive query tool."""
-    # Parse command line arguments
-    parser = argparse.ArgumentParser(
-        description="Interactive HPO query tool for clinical text"
-    )
-    parser.add_argument(
-        "--text",
-        type=str,
-        help="Text to process (if not provided, interactive mode is used)",
-    )
-    parser.add_argument(
-        "--num-results",
-        type=int,
-        default=DEFAULT_TOP_K,
-        help=f"Number of results to show (default: {DEFAULT_TOP_K})",
-    )
-    parser.add_argument(
-        "--sentence-mode",
-        action="store_true",
-        help="Process input text sentence by sentence (helps with longer texts)",
-    )
-    parser.add_argument(
-        "--similarity-threshold",
-        type=float,
-        default=MIN_SIMILARITY_THRESHOLD,
-        help=f"Minimum similarity threshold (default: {MIN_SIMILARITY_THRESHOLD})",
-    )
-    parser.add_argument(
-        "--model-name",
-        type=str,
-        default=DEFAULT_MODEL,
-        help=f"Sentence transformer model name (default: {DEFAULT_MODEL})",
-    )
-    parser.add_argument(
-        "--debug",
-        action="store_true",
-        help="Enable debug logging with more verbose output",
-    )
-    parser.add_argument(
-        "--trust-remote-code",
-        action="store_true",
-        help="Enable trust_remote_code for model loading (required for some models)",
-    )
-
-    # Cross-encoder re-ranking arguments
-    parser.add_argument(
-        "--enable-reranker",
-        action="store_true",
-        help=f"Enable cross-encoder re-ranking of results (default: {DEFAULT_ENABLE_RERANKER})",
-    )
-    parser.add_argument(
-        "--reranker-mode",
-        type=str,
-        choices=["cross-lingual", "monolingual"],
-        default=DEFAULT_RERANKER_MODE,
-        help=f"Mode for re-ranking: cross-lingual (German->English) or monolingual (German->German) (default: {DEFAULT_RERANKER_MODE})",
-    )
-    parser.add_argument(
-        "--reranker-model",
-        type=str,
-        default=DEFAULT_RERANKER_MODEL,
-        help=f"Cross-encoder model to use for re-ranking (default: {DEFAULT_RERANKER_MODEL})",
-    )
-    parser.add_argument(
-        "--monolingual-reranker-model",
-        type=str,
-        default=DEFAULT_MONOLINGUAL_RERANKER_MODEL,
-        help=f"German cross-encoder model for monolingual re-ranking (default: {DEFAULT_MONOLINGUAL_RERANKER_MODEL})",
-    )
-    parser.add_argument(
-        "--translation-dir",
-        type=str,
-        default=DEFAULT_TRANSLATION_DIR,
-        help=f"Directory containing German HPO term translations (default: {DEFAULT_TRANSLATION_DIR})",
-    )
-    parser.add_argument(
-        "--rerank-count",
-        type=int,
-        default=DEFAULT_RERANK_CANDIDATE_COUNT,
-        help=f"Number of candidates to re-rank (default: {DEFAULT_RERANK_CANDIDATE_COUNT})",
-    )
-
-    args = parser.parse_args()
-
-    # Set up logging
-    setup_logging(args.debug)
-
-    # Load embedding model
-    try:
-        model = load_embedding_model(
-            model_name=args.model_name, trust_remote_code=args.trust_remote_code
-        )
-    except Exception as e:
-        logging.error(f"Error loading model: {e}")
-        sys.exit(1)
-
-    # Initialize retriever
-    retriever = DenseRetriever.from_model_name(
-        model=model,
-        model_name=args.model_name,
-        index_dir=INDEX_DIR,
-        min_similarity=args.similarity_threshold,
-    )
-
-    if not retriever:
-        logging.error(
-            f"Failed to initialize retriever. Make sure you have built an index for {args.model_name}"
-        )
-        sys.exit(1)
-
-    # Load cross-encoder model if re-ranking is enabled
-    cross_encoder = None
-    if args.enable_reranker:
         device = "cuda" if torch.cuda.is_available() else "cpu"
 
-        # Select the appropriate model based on the reranker mode
-        model_name = args.reranker_model
-        if args.reranker_mode == "monolingual":
-            # For monolingual mode, use the German-specific model
-            model_name = args.monolingual_reranker_model
+    # Log the device being used
+    logging.info(f"Using device: {device}")
 
-            # Check if translation directory exists
-            if not os.path.exists(args.translation_dir):
-                logging.warning(
-                    f"Translation directory not found: {args.translation_dir}. "
-                    "Monolingual re-ranking will not work properly."
-                )
-
-        # Load the selected cross-encoder model
-        cross_encoder = reranker.load_cross_encoder(model_name, device)
-        if cross_encoder:
-            logging.info(
-                f"Cross-encoder re-ranking enabled in {args.reranker_mode} mode with model: {model_name}"
-            )
-        else:
-            logging.warning(
-                f"Failed to load cross-encoder model {model_name}, re-ranking will be disabled"
-            )
-
-    # Get collection information
-    collection_name = generate_collection_name(args.model_name)
-    collection_count = retriever.collection.count()
-
-    # Display summary
-    print(f"Model: {args.model_name}")
-    print(f"Collection: {collection_name}")
-    print(f"Index entries: {collection_count}")
-    print(f"Similarity threshold: {args.similarity_threshold}")
-    if cross_encoder:
-        print(f"Cross-encoder re-ranking: Enabled (using {args.reranker_model})")
-    else:
-        print("Cross-encoder re-ranking: Disabled")
-
-    # Process a one-time query if provided via command line
-    if args.text:
-        process_input(
-            args.text,
-            retriever,
-            args.num_results,
-            args.sentence_mode,
-            args.similarity_threshold,
-            debug=args.debug,
-            cross_encoder=cross_encoder,
-            rerank_count=args.rerank_count if args.enable_reranker else None,
-            reranker_mode=args.reranker_mode,
-            translation_dir=args.translation_dir,
+    try:
+        # Load embedding model
+        model = load_embedding_model(
+            model_name=model_name,
+            trust_remote_code=trust_remote_code,
+            device=device,
         )
-        return
 
-    # Interactive mode
-    print("\n===== Phentrieve HPO RAG Query Tool =====")
-    print("Enter clinical descriptions to find matching HPO terms.")
-    print("Type 'exit', 'quit', or 'q' to exit the program.\n")
+        # Initialize retriever
+        retriever = DenseRetriever.from_model_name(
+            model=model,
+            model_name=model_name,
+            min_similarity=similarity_threshold,
+        )
 
-    while True:
-        try:
-            user_input = input("\nEnter text (or 'q' to quit): ")
-            if user_input.lower() in ["exit", "quit", "q"]:
-                print("Exiting.")
-                break
+        if not retriever:
+            error_msg = f"Failed to initialize retriever. Make sure you have built an index for {model_name}"
+            logging.error(error_msg)
+            output_func(error_msg)
+            return [] if not interactive_setup else False
 
-            if not user_input.strip():
-                continue
+        # Load cross-encoder model if re-ranking is enabled
+        cross_encoder = None
+        if enable_reranker:
+            # Select the appropriate model based on the reranker mode
+            ce_model_name = reranker_model
+            if reranker_mode == "monolingual":
+                # For monolingual mode, use the language-specific model
+                ce_model_name = monolingual_reranker_model
 
-            # Print debug information
-            if args.debug:
-                print(f"[DEBUG] Using num_results: {args.num_results}")
-                print(
-                    f"[DEBUG] Using rerank_count: {args.rerank_count if args.enable_reranker else None}"
+                # Check if translation directory exists
+                if not os.path.exists(translation_dir):
+                    warning_msg = (
+                        f"Translation directory not found: {translation_dir}. "
+                        "Monolingual re-ranking will not work properly."
+                    )
+                    logging.warning(warning_msg)
+                    output_func(warning_msg)
+
+            # Load the selected cross-encoder model
+            cross_encoder = reranker.load_cross_encoder(ce_model_name, device)
+            if cross_encoder:
+                logging.info(
+                    f"Cross-encoder re-ranking enabled in {reranker_mode} mode with model: {ce_model_name}"
                 )
+            else:
+                warning_msg = f"Failed to load cross-encoder model {ce_model_name}, re-ranking will be disabled"
+                logging.warning(warning_msg)
+                output_func(warning_msg)
 
-            process_input(
-                user_input,
-                retriever,
-                args.num_results,
-                args.sentence_mode,
-                args.similarity_threshold,
-                debug=args.debug,
-                cross_encoder=cross_encoder,
-                rerank_count=args.rerank_count if args.enable_reranker else None,
-                reranker_mode=args.reranker_mode,
-                translation_dir=args.translation_dir,
+        # Get collection information
+        collection_name = generate_collection_name(model_name)
+        collection_count = retriever.collection.count()
+
+        output_func(f"Model: {model_name}")
+        output_func(f"Collection: {collection_name}")
+        output_func(f"Index entries: {collection_count}")
+        output_func(f"Similarity threshold: {similarity_threshold}")
+        if cross_encoder:
+            model_display = (
+                reranker_model
+                if reranker_mode == "cross-lingual"
+                else monolingual_reranker_model
             )
-        except KeyboardInterrupt:
-            print("\nExiting.")
-            break
-        except Exception as e:
-            logging.error(f"Error: {str(e)}")
-            # Print detailed traceback for debugging
-            print("\nDetailed error information:")
+            output_func(f"Cross-encoder re-ranking: Enabled (using {model_display})")
+        else:
+            output_func("Cross-encoder re-ranking: Disabled")
+
+        # If this is just interactive setup, store models and return
+        if interactive_setup:
+            _global_model = model
+            _global_retriever = retriever
+            _global_cross_encoder = cross_encoder
+            return True
+
+        # For non-interactive mode, process the single query
+        if query_text is None and not interactive_setup:
+            error_msg = "Query text is required for non-interactive mode"
+            logging.error(error_msg)
+            output_func(error_msg)
+            return []
+
+        # Process the query
+        return process_query(
+            text=query_text,
+            retriever=retriever,
+            num_results=num_results,
+            sentence_mode=sentence_mode,
+            similarity_threshold=similarity_threshold,
+            debug=debug,
+            cross_encoder=cross_encoder,
+            rerank_count=rerank_count if enable_reranker else None,
+            reranker_mode=reranker_mode,
+            translation_dir=translation_dir,
+            output_func=output_func,
+        )
+
+    except Exception as e:
+        error_msg = f"Error processing query: {str(e)}"
+        logging.error(error_msg)
+        if debug:
+            import traceback
+
             traceback.print_exc()
-            print()
-            continue
 
-
-if __name__ == "__main__":
-    main()
+        output_func(error_msg)
+        return []
