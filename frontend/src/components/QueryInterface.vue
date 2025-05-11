@@ -103,7 +103,7 @@
     
     <!-- Chat-like conversation interface -->
     <div class="conversation-container" ref="conversationContainer">
-      <div v-for="(item, index) in [...queryHistory].reverse()" :key="index" class="mb-4">
+      <div v-for="(item, index) in queryHistory" :key="index" class="mb-4">
         <!-- User query -->
         <div class="user-query d-flex">
           <v-avatar color="primary" size="36" class="mt-1 mr-2">
@@ -268,17 +268,18 @@ export default {
       queryHistory: [],
       showAdvancedOptions: false,
       collectedPhenotypes: [],
-      showCollectionPanel: false
+      showCollectionPanel: false,
+      lastUserScrollPosition: 0,
+      userHasScrolled: false,
+      shouldScrollToTop: false
     };
   },
   watch: {
     queryHistory: {
+      // Watch for any changes to the queryHistory array
       handler() {
-        this.$nextTick(() => {
-          if (this.$refs.conversationContainer) {
-            this.$refs.conversationContainer.scrollTop = this.$refs.conversationContainer.scrollHeight;
-          }
-        });
+        // Force scroll to top whenever history changes
+        this.scrollToTop();
       },
       deep: true
     }
@@ -286,8 +287,41 @@ export default {
   mounted() {
     // Set default model
     this.selectedModel = this.availableModels[0].value;
+    
+    // Add a scroll event listener to handle user scrolling
+    const container = this.$refs.conversationContainer;
+    if (container) {
+      this.lastUserScrollPosition = 0;
+      container.addEventListener('scroll', this.handleUserScroll);
+    }
+  },
+  
+  unmounted() {
+    // Clean up event listener
+    const container = this.$refs.conversationContainer;
+    if (container) {
+      container.removeEventListener('scroll', this.handleUserScroll);
+    }
+  },
+  
+  updated() {
+    // After component updates, force scroll to top if this was triggered by a new query
+    // Use a flag to track if the update was triggered by a new query
+    if (this.shouldScrollToTop) {
+      this.scrollToTop();
+      this.shouldScrollToTop = false;
+    }
   },
   methods: {
+    handleUserScroll(event) {
+      // Track when the user manually scrolls
+      const container = this.$refs.conversationContainer;
+      if (container) {
+        this.lastUserScrollPosition = container.scrollTop;
+        this.userHasScrolled = true;
+      }
+    },
+    
     addToPhenotypeCollection(phenotype) {
       // Check if this phenotype is already in the collection
       const isDuplicate = this.collectedPhenotypes.some(item => item.hpo_id === phenotype.hpo_id);
@@ -316,6 +350,30 @@ export default {
     
     toggleCollectionPanel() {
       this.showCollectionPanel = !this.showCollectionPanel;
+    },
+    
+    scrollToTop() {
+      // Schedule multiple scroll attempts to ensure it works in all situations
+      const doScroll = () => {
+        const container = this.$refs.conversationContainer;
+        if (container) {
+          // Temporarily disable smooth scrolling for immediate jump
+          container.style.scrollBehavior = 'auto';
+          // Force scroll to top
+          container.scrollTop = 0;
+          // Restore smooth scrolling
+          setTimeout(() => {
+            container.style.scrollBehavior = 'smooth';
+          }, 50);
+        }
+      };
+      
+      // Try multiple times with increasing delays
+      doScroll();
+      this.$nextTick(doScroll);
+      setTimeout(doScroll, 100);
+      setTimeout(doScroll, 300);
+      setTimeout(doScroll, 500);
     },
     
     exportPhenotypes() {
@@ -350,35 +408,26 @@ export default {
       // Save the query text before clearing input field
       const currentQuery = queryTextTrimmed;
       
-      // Add the query result to the conversation
-      this.queryHistory.push({
+      // Add the query result to the conversation at the beginning (newest first)
+      this.queryHistory.unshift({
         query: currentQuery,
         loading: true,
         response: null,
         error: null
       });
 
-      // Get reference to the latest history item
-      const historyIndex = this.queryHistory.length - 1;
+      // Get reference to the latest history item (now at index 0)
+      const historyIndex = 0;
       
       // Reset input
       this.queryText = '';
       
-      // Ensure multiple scroll attempts in case of race conditions with rendering
-      const scrollToTop = () => {
-        if (this.$refs.conversationContainer) {
-          this.$refs.conversationContainer.scrollTop = 0;
-        }
-      };
+      // Set the flag to indicate a scroll to top should happen
+      this.shouldScrollToTop = true;
+      this.userHasScrolled = false;
       
-      // Immediate attempt
-      scrollToTop();
-      
-      // Then after component updates
-      this.$nextTick(scrollToTop);
-      
-      // And again after a short delay to ensure all rendering is complete
-      setTimeout(scrollToTop, 100);
+      // Also use direct scrollToTop method for redundancy
+      this.scrollToTop();
 
       try {
         // Prepare request data matching the QueryRequest schema
@@ -423,6 +472,7 @@ export default {
   max-height: 600px;
   overflow-y: auto;
   padding-right: 8px;
+  scroll-behavior: smooth;
 }
 
 .query-bubble {
