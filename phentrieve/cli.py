@@ -1,12 +1,13 @@
 # Main CLI entry point for Phentrieve
-import json
+import os
 import sys
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Callable, Union
+from typing import Optional, List, Dict
 
 import typer
 import importlib.metadata
 from typing_extensions import Annotated
+import json
 import yaml
 
 from .utils import setup_logging_cli
@@ -44,7 +45,7 @@ def prepare_hpo_data(
     graph properties needed for similarity calculations.
     """
     from phentrieve.data_processing.hpo_parser import orchestrate_hpo_preparation
-    from phentrieve.utils import setup_logging_cli
+    from phentrieve.utils import setup_logging_cli, resolve_data_path
 
     setup_logging_cli(debug=debug)
 
@@ -100,14 +101,14 @@ def build_index(
     for semantic search of HPO terms.
     """
     from phentrieve.indexing.chromadb_orchestrator import orchestrate_index_building
-    from phentrieve.utils import setup_logging_cli
+    from phentrieve.utils import setup_logging_cli, resolve_data_path
 
     setup_logging_cli(debug=debug)
 
     # Determine device based on CPU flag
     device_override = "cpu" if cpu else None
 
-    typer.echo(f"Starting index building process...")
+    typer.echo("Starting index building process")
 
     success = orchestrate_index_building(
         model_name_arg=model_name,
@@ -212,7 +213,7 @@ def run_benchmarks(
     benchmarking single models or multiple models for comparison.
     """
     from phentrieve.evaluation.benchmark_orchestrator import orchestrate_benchmark
-    from phentrieve.utils import setup_logging_cli
+    from phentrieve.utils import setup_logging_cli, resolve_data_path
 
     setup_logging_cli(debug=debug)
 
@@ -275,7 +276,7 @@ def compare_benchmarks(
     from phentrieve.evaluation.comparison_orchestrator import (
         orchestrate_benchmark_comparison,
     )
-    from phentrieve.utils import setup_logging_cli
+    from phentrieve.utils import setup_logging_cli, resolve_data_path
     import pandas as pd
 
     setup_logging_cli(debug=debug)
@@ -333,7 +334,7 @@ def visualize_benchmarks(
     from phentrieve.evaluation.comparison_orchestrator import (
         orchestrate_benchmark_comparison,
     )
-    from phentrieve.utils import setup_logging_cli
+    from phentrieve.utils import setup_logging_cli, resolve_data_path
     import pandas as pd
 
     setup_logging_cli(debug=debug)
@@ -457,7 +458,7 @@ def query_hpo(
     """
     from phentrieve.retrieval.query_orchestrator import orchestrate_query
     from phentrieve.config import DEFAULT_MODEL, DEFAULT_TRANSLATIONS_SUBDIR
-    from phentrieve.utils import setup_logging_cli
+    from phentrieve.utils import setup_logging_cli, resolve_data_path
 
     # Set up logging
     setup_logging_cli(debug=debug)
@@ -470,6 +471,9 @@ def query_hpo(
     # Use default translation dir if not specified
     if translation_dir is None:
         translation_dir = DEFAULT_TRANSLATIONS_SUBDIR
+
+    # Resolve translation directory path
+    translation_dir_path = resolve_data_path(translation_dir)
 
     # Determine device based on CPU flag
     device_override = "cpu" if cpu else None
@@ -494,7 +498,7 @@ def query_hpo(
             reranker_model=reranker_model,
             monolingual_reranker_model=monolingual_reranker_model,
             reranker_mode=reranker_mode,
-            translation_dir=translation_dir,
+            translation_dir=translation_dir_path,
             device_override=device_override,
             debug=debug,
             output_func=typer_echo,
@@ -563,7 +567,7 @@ def query_hpo(
             reranker_model=reranker_model,
             monolingual_reranker_model=monolingual_reranker_model,
             reranker_mode=reranker_mode,
-            translation_dir=translation_dir,
+            translation_dir=translation_dir_path,
             rerank_count=rerank_count,
             device_override=device_override,
             debug=debug,
@@ -580,6 +584,136 @@ def query_hpo(
                 "\nNo results found or an error occurred during query processing.",
                 fg=typer.colors.RED,
             )
+
+
+# Helper functions for CLI commands
+def load_text_from_input(text_arg: Optional[str], file_arg: Optional[Path]) -> str:
+    """Load text from command line argument, file, or stdin.
+
+    Args:
+        text_arg: Text provided as a command line argument
+        file_arg: Path to a file to read text from
+
+    Returns:
+        The loaded text content
+
+    Raises:
+        typer.Exit: If no text is provided or if the file does not exist
+    """
+    raw_text = None
+
+    if text_arg is not None:
+        raw_text = text_arg
+    elif file_arg is not None:
+        if not file_arg.exists():
+            typer.secho(
+                f"Error: Input file {file_arg} does not exist.", fg=typer.colors.RED
+            )
+            raise typer.Exit(code=1)
+        with open(file_arg, "r", encoding="utf-8") as f:
+            raw_text = f.read()
+    else:
+        # Read from stdin if available
+        if not sys.stdin.isatty():
+            raw_text = sys.stdin.read()
+        else:
+            typer.secho(
+                "Error: No text provided. Please provide text as an argument, "
+                "via --input-file, or through stdin.",
+                fg=typer.colors.RED,
+            )
+            raise typer.Exit(code=1)
+
+    if not raw_text or not raw_text.strip():
+        typer.secho("Error: Empty text provided.", fg=typer.colors.RED)
+        raise typer.Exit(code=1)
+
+    return raw_text
+
+
+def resolve_chunking_pipeline_config(
+    config_file_arg: Optional[Path], strategy_arg: str
+) -> List[Dict]:
+    """Resolve chunking pipeline configuration from file or strategy.
+
+    Args:
+        config_file_arg: Path to a YAML or JSON configuration file
+        strategy_arg: Name of a predefined chunking strategy
+
+    Returns:
+        List of chunking pipeline configuration dictionaries
+
+    Raises:
+        typer.Exit: If the configuration file does not exist or has an invalid format
+    """
+    from phentrieve.config import DEFAULT_CHUNK_PIPELINE_CONFIG
+
+    chunking_pipeline_config = None
+
+    # 1. First priority: Config file if provided
+    if config_file_arg is not None:
+        if not config_file_arg.exists():
+            typer.secho(
+                f"Error: Configuration file {config_file_arg} does not exist.",
+                fg=typer.colors.RED,
+            )
+            raise typer.Exit(code=1)
+
+        suffix = config_file_arg.suffix.lower()
+        with open(config_file_arg, "r", encoding="utf-8") as f:
+            if suffix == ".json":
+                config_data = json.load(f)
+            elif suffix in (".yaml", ".yml"):
+                config_data = yaml.safe_load(f)
+            else:
+                typer.secho(
+                    f"Error: Unsupported config file format: {suffix}. Use .json, .yaml, or .yml",
+                    fg=typer.colors.RED,
+                )
+                raise typer.Exit(code=1)
+
+        chunking_pipeline_config = config_data.get("chunking_pipeline", None)
+
+    # 2. Second priority: Strategy parameter
+    if chunking_pipeline_config is None:
+        if strategy_arg == "simple":
+            chunking_pipeline_config = [{"type": "paragraph"}, {"type": "sentence"}]
+        elif strategy_arg == "semantic":
+            chunking_pipeline_config = [
+                {"type": "paragraph"},
+                {
+                    "type": "semantic",
+                    "config": {
+                        "similarity_threshold": 0.4,
+                        "min_chunk_sentences": 1,
+                        "max_chunk_sentences": 3,
+                    },
+                },
+            ]
+        elif strategy_arg == "detailed":
+            chunking_pipeline_config = [
+                {"type": "paragraph"},
+                {
+                    "type": "semantic",
+                    "config": {
+                        "similarity_threshold": 0.4,
+                        "min_chunk_sentences": 1,
+                        "max_chunk_sentences": 3,
+                    },
+                },
+                {"type": "fine_grained_punctuation"},
+            ]
+        else:
+            typer.secho(
+                f"Warning: Unknown strategy '{strategy_arg}'. Using default configuration.",
+                fg=typer.colors.YELLOW,
+            )
+
+    # 3. Final fallback: Default configuration
+    if chunking_pipeline_config is None:
+        chunking_pipeline_config = DEFAULT_CHUNK_PIPELINE_CONFIG
+
+    return chunking_pipeline_config
 
 
 # Version callback
@@ -671,112 +805,98 @@ def chunk_text_command(
     - Simple paragraph+sentence chunking: phentrieve text chunk "My text here"
     - Semantic chunking: phentrieve text chunk -s semantic -m "FremyCompany/BioLORD-2023-M" -i clinical_note.txt
     """
-    import json
     from sentence_transformers import SentenceTransformer
+
     from phentrieve.config import (
         DEFAULT_CHUNK_PIPELINE_CONFIG,
-        DEFAULT_MODEL,
         DEFAULT_LANGUAGE,
+        DEFAULT_MODEL,
     )
     from phentrieve.text_processing.pipeline import TextProcessingPipeline
-    from phentrieve.utils import setup_logging_cli
+    from phentrieve.utils import detect_language, setup_logging_cli
 
     setup_logging_cli(debug=debug)
 
-    # Load the raw text
-    raw_text = None
+    # Load the raw text using helper function
+    raw_text = load_text_from_input(text, input_file)
 
-    if text is not None:
-        raw_text = text
-    elif input_file is not None:
-        if not input_file.exists():
+    # Detect or set the language
+    if not language:
+        # Try to auto-detect the language
+        try:
+            language = detect_language(raw_text, default_lang=DEFAULT_LANGUAGE)
+            typer.echo(f"Auto-detected language: {language}")
+        except ImportError:
+            language = DEFAULT_LANGUAGE
+            typer.echo(f"Using default language: {language}")
+
+    # Get chunking pipeline configuration using helper function
+    chunking_pipeline_config = resolve_chunking_pipeline_config(
+        chunking_pipeline_config_file, strategy
+    )
+
+    # Determine if we need a semantic model
+    needs_semantic_model = any(
+        chunk_config.get("type") == "semantic"
+        for chunk_config in chunking_pipeline_config
+    )
+
+    # Load the SBERT model if needed
+    sbert_model = None
+    if needs_semantic_model:
+        model_name = semantic_chunker_model or DEFAULT_MODEL
+        typer.echo(f"Loading sentence transformer model: {model_name}...")
+        try:
+            sbert_model = SentenceTransformer(model_name)
+        except Exception as e:
             typer.secho(
-                f"Error: Input file {input_file} does not exist.", fg=typer.colors.RED
+                f"Error loading model '{model_name}': {str(e)}", fg=typer.colors.RED
             )
             raise typer.Exit(code=1)
-        with open(input_file, "r", encoding="utf-8") as f:
-            raw_text = f.read()
-    else:
-        # Read from stdin if available
-        if not sys.stdin.isatty():
-            raw_text = sys.stdin.read()
-        else:
-            typer.secho(
-                "Error: No text provided. Please provide text as an argument, "
-                "via --input-file, or through stdin.",
-                fg=typer.colors.RED,
-            )
-            raise typer.Exit(code=1)
 
-    if not raw_text or not raw_text.strip():
-        typer.secho("Error: Empty text provided.", fg=typer.colors.RED)
+    # Empty assertion config to disable assertion detection for this command
+    assertion_config = {"disable": True}
+
+    # Create the pipeline
+    try:
+        pipeline = TextProcessingPipeline(
+            language=language,
+            chunking_pipeline_config=chunking_pipeline_config,
+            assertion_config=assertion_config,
+            sbert_model_for_semantic_chunking=sbert_model,
+        )
+    except Exception as e:
+        typer.secho(f"Error creating pipeline: {str(e)}", fg=typer.colors.RED)
         raise typer.Exit(code=1)
 
-    # Set the language
-    if not language:
-        language = DEFAULT_LANGUAGE
+    # Process the text
+    try:
+        processed_chunks = pipeline.process(raw_text)
+    except Exception as e:
+        typer.secho(f"Error processing text: {str(e)}", fg=typer.colors.RED)
+        raise typer.Exit(code=1)
 
-    # Load chunking pipeline configuration
-    chunking_pipeline_config = None
-
-    # 1. First priority: Config file if provided
-    if chunking_pipeline_config_file is not None:
-        if not chunking_pipeline_config_file.exists():
-            typer.secho(
-                f"Error: Configuration file {chunking_pipeline_config_file} does not exist.",
-                fg=typer.colors.RED,
-            )
-            raise typer.Exit(code=1)
-
-        suffix = chunking_pipeline_config_file.suffix.lower()
-        with open(chunking_pipeline_config_file, "r", encoding="utf-8") as f:
-            if suffix == ".json":
-                config_data = json.load(f)
-            elif suffix in (".yaml", ".yml"):
-                config_data = yaml.safe_load(f)
-            else:
-                typer.secho(
-                    f"Error: Unsupported config file format: {suffix}. Use .json, .yaml, or .yml",
-                    fg=typer.colors.RED,
-                )
-                raise typer.Exit(code=1)
-
-        chunking_pipeline_config = config_data.get("chunking_pipeline", None)
-
-    # 2. Second priority: Strategy parameter
-    if chunking_pipeline_config is None:
-        if strategy == "simple":
-            chunking_pipeline_config = [{"type": "paragraph"}, {"type": "sentence"}]
-        elif strategy == "semantic":
-            chunking_pipeline_config = [
-                {"type": "paragraph"},
-                {
-                    "type": "semantic",
-                    "config": {
-                        "similarity_threshold": 0.4,
-                        "min_chunk_sentences": 1,
-                        "max_chunk_sentences": 3,
-                    },
+    # Output the chunks in the requested format
+    if output_format == "lines":
+        for i, chunk_data in enumerate(processed_chunks):
+            typer.echo(f"[{i+1}] {chunk_data['text']}")
+    elif output_format == "json_lines":
+        for chunk_data in processed_chunks:
+            # Ensure Enum values are serialized properly
+            chunk_json = {
+                "text": chunk_data["text"],
+                "metadata": {
+                    k: (str(v) if hasattr(v, "name") else v)
+                    for k, v in chunk_data.get("metadata", {}).items()
                 },
-            ]
-        elif strategy == "detailed":
-            chunking_pipeline_config = [
-                {"type": "paragraph"},
-                {
-                    "type": "semantic",
-                    "config": {
-                        "similarity_threshold": 0.4,
-                        "min_chunk_sentences": 1,
-                        "max_chunk_sentences": 3,
-                    },
-                },
-                {"type": "fine_grained_punctuation"},
-            ]
-        else:
-            typer.secho(
-                f"Warning: Unknown strategy '{strategy}'. Using default configuration.",
-                fg=typer.colors.YELLOW,
-            )
+            }
+            typer.echo(json.dumps(chunk_json))
+    else:
+        typer.secho(
+            f"Error: Unknown output format '{output_format}'.",
+            fg=typer.colors.RED,
+        )
+        raise typer.Exit(code=1)
 
     # 3. Final fallback: Default configuration
     if chunking_pipeline_config is None:
@@ -940,11 +1060,33 @@ def process_text_for_hpo_command(
             "--reranker-model",
             help="Cross-encoder model for reranking (if reranking enabled)",
         ),
+    ] = "MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7",
+    monolingual_reranker_model: Annotated[
+        Optional[str],
+        typer.Option(
+            "--monolingual-reranker-model",
+            help="Language-specific cross-encoder model for monolingual reranking",
+        ),
+    ] = "ml6team/cross-encoder-mmarco-german-distilbert-base",
+    reranker_mode: Annotated[
+        str,
+        typer.Option(
+            "--reranker-mode",
+            help="Mode for re-ranking: 'cross-lingual' or 'monolingual'",
+        ),
+    ] = "cross-lingual",
+    translation_dir: Annotated[
+        Optional[str],
+        typer.Option(
+            "--translation-dir",
+            help="Directory with HPO translations in target language (required for monolingual mode)",
+        ),
     ] = None,
     rerank_count: Annotated[
         int,
         typer.Option(
-            "--rerank-count", help="Number of candidates to consider for reranking"
+            "--rerank-count",
+            help="Number of candidates to consider for re-ranking",
         ),
     ] = 50,
     output_format: Annotated[
@@ -1003,52 +1145,41 @@ def process_text_for_hpo_command(
         DEFAULT_LANGUAGE,
         DEFAULT_ASSERTION_CONFIG,
         MIN_SIMILARITY_THRESHOLD,
+        DEFAULT_TRANSLATIONS_SUBDIR,
     )
     from phentrieve.text_processing.pipeline import TextProcessingPipeline
     from phentrieve.text_processing.assertion_detection import AssertionStatus
     from phentrieve.retrieval.dense_retriever import DenseRetriever
-    from phentrieve.utils import setup_logging_cli
+    from phentrieve.retrieval import reranker
+    from phentrieve.utils import (
+        setup_logging_cli,
+        resolve_data_path,
+        load_translation_text,
+        detect_language,
+    )
 
     setup_logging_cli(debug=debug)
 
     # Determine device
     device = "cpu" if cpu else None
 
-    # Load the raw text
-    raw_text = None
+    # Load the raw text using helper function
+    raw_text = load_text_from_input(text, input_file)
 
-    if text is not None:
-        raw_text = text
-    elif input_file is not None:
-        if not input_file.exists():
-            typer.secho(
-                f"Error: Input file {input_file} does not exist.", fg=typer.colors.RED
-            )
-            raise typer.Exit(code=1)
-        with open(input_file, "r", encoding="utf-8") as f:
-            raw_text = f.read()
-    else:
-        # Read from stdin if available
-        if not sys.stdin.isatty():
-            raw_text = sys.stdin.read()
-        else:
-            typer.secho(
-                "Error: No text provided. Please provide text as an argument, "
-                "via --input-file, or through stdin.",
-                fg=typer.colors.RED,
-            )
-            raise typer.Exit(code=1)
-
-    if not raw_text or not raw_text.strip():
-        typer.secho("Error: Empty text provided.", fg=typer.colors.RED)
-        raise typer.Exit(code=1)
-
-    # Set the language
+    # Detect or set the language
     if not language:
-        language = DEFAULT_LANGUAGE
+        # Try to auto-detect the language
+        try:
+            language = detect_language(raw_text, default_lang=DEFAULT_LANGUAGE)
+            typer.echo(f"Auto-detected language: {language}")
+        except ImportError:
+            language = DEFAULT_LANGUAGE
+            typer.echo(f"Using default language: {language}")
 
-    # Load chunking pipeline configuration
-    chunking_pipeline_config = None
+    # Load chunking pipeline configuration using helper function
+    chunking_pipeline_config = resolve_chunking_pipeline_config(
+        chunking_pipeline_config_file, strategy
+    )
 
     # 1. First priority: Config file if provided
     if chunking_pipeline_config_file is not None:
@@ -1126,9 +1257,15 @@ def process_text_for_hpo_command(
     else:
         assertion_config["preference"] = assertion_preference
 
+    # Resolve translation directory path if in monolingual mode
+    if reranker_mode == "monolingual" and translation_dir is None:
+        translation_dir = resolve_data_path(DEFAULT_TRANSLATIONS_SUBDIR)
+        typer.echo(f"Using default translation directory: {translation_dir}")
+
     # Load models
     sbert_model = None
     retrieval_sbert_model = None
+    cross_encoder = None
 
     # Decide which models to load
     retrieval_model_name = retrieval_model or DEFAULT_MODEL
@@ -1166,6 +1303,45 @@ def process_text_for_hpo_command(
     except Exception as e:
         typer.secho(f"Error loading HPO index: {str(e)}", fg=typer.colors.RED)
         raise typer.Exit(code=1)
+
+    # Load cross-encoder model if reranking is enabled
+    if enable_reranker:
+        try:
+            # Select the appropriate model based on the reranker mode
+            ce_model_name = reranker_model
+            if reranker_mode == "monolingual":
+                # For monolingual mode, use the language-specific model
+                ce_model_name = monolingual_reranker_model
+
+                # Check if translation directory exists for monolingual mode
+                if not os.path.exists(translation_dir):
+                    warning_msg = (
+                        f"Translation directory not found: {translation_dir}. "
+                        "Monolingual re-ranking will not work properly."
+                    )
+                    typer.secho(warning_msg, fg=typer.colors.YELLOW)
+                    typer.echo("Falling back to cross-lingual mode.")
+                    reranker_mode = "cross-lingual"
+                    ce_model_name = reranker_model
+
+            # Load the selected cross-encoder model
+            typer.echo(f"Loading cross-encoder model: {ce_model_name}...")
+            cross_encoder = reranker.load_cross_encoder(ce_model_name, device)
+
+            if cross_encoder:
+                typer.echo(
+                    f"Cross-encoder re-ranking enabled in {reranker_mode} mode with model: {ce_model_name}"
+                )
+            else:
+                warning_msg = f"Failed to load cross-encoder model {ce_model_name}, re-ranking will be disabled"
+                typer.secho(warning_msg, fg=typer.colors.YELLOW)
+                enable_reranker = False
+        except Exception as e:
+            typer.secho(
+                f"Error loading cross-encoder model: {str(e)}", fg=typer.colors.YELLOW
+            )
+            typer.echo("Re-ranking will be disabled.")
+            enable_reranker = False
 
     # Create the pipeline
     try:
@@ -1209,12 +1385,16 @@ def process_text_for_hpo_command(
         try:
             # Get matching HPO terms with the chunk text as query
             results = retriever.query(
-                text=chunk_text, n_results=num_results, include_similarities=True
+                text=chunk_text,
+                n_results=max(num_results, rerank_count if enable_reranker else 0),
+                include_similarities=True,
             )
 
             # Filter results based on similarity threshold
             filtered_results = retriever.filter_results(
-                results, min_similarity=similarity_threshold, max_results=num_results
+                results,
+                min_similarity=similarity_threshold,
+                max_results=max(num_results, rerank_count if enable_reranker else 0),
             )
 
             # Format the results into a list of dictionaries
@@ -1250,8 +1430,108 @@ def process_text_for_hpo_command(
                             "id": doc_id,
                             "name": term_name,
                             "score": similarity,
+                            "rank": i,
+                            "metadata": metadata,
                         }
                         hpo_matches.append(hpo_match)
+
+                # Apply re-ranking if enabled
+                if enable_reranker and cross_encoder and hpo_matches:
+                    try:
+                        # Prepare candidates for re-ranking
+                        candidates_for_reranking = []
+
+                        # Limit to the number of candidates specified by rerank_count
+                        candidates_to_rerank = hpo_matches[
+                            : min(len(hpo_matches), rerank_count)
+                        ]
+
+                        for candidate in candidates_to_rerank:
+                            # Get the appropriate comparison text based on reranker mode
+                            if reranker_mode == "monolingual":
+                                # For monolingual mode, load the translation in the target language
+                                try:
+                                    comparison_text = load_translation_text(
+                                        hpo_id=candidate["id"],
+                                        language=language,
+                                        translation_dir=translation_dir,
+                                    )
+                                except Exception as e:
+                                    # If translation fails, fall back to English text
+                                    comparison_text = candidate["name"]
+                                    if debug:
+                                        typer.echo(
+                                            f"  Translation for {candidate['id']} failed: {str(e)}. Using English text."
+                                        )
+                            else:  # cross-lingual mode
+                                # Use the English label directly
+                                comparison_text = candidate["name"]
+
+                            # Format candidate for re-ranking
+                            rerank_candidate = {
+                                "hpo_id": candidate["id"],
+                                "english_doc": candidate["name"],
+                                "metadata": candidate["metadata"],
+                                "bi_encoder_score": candidate["score"],
+                                "rank": candidate["rank"],
+                                "comparison_text": comparison_text,
+                            }
+                            candidates_for_reranking.append(rerank_candidate)
+
+                        # Perform re-ranking
+                        if candidates_for_reranking:
+                            reranked_candidates = reranker.rerank_with_cross_encoder(
+                                query=chunk_text,
+                                candidates=candidates_for_reranking,
+                                cross_encoder_model=cross_encoder,
+                            )
+
+                            # Update hpo_matches with reranked results
+                            if reranked_candidates:
+                                # Create a mapping of hpo_id to reranked score
+                                reranked_scores = {}
+                                for i, candidate in enumerate(reranked_candidates):
+                                    reranked_scores[candidate["hpo_id"]] = {
+                                        "reranker_score": candidate[
+                                            "cross_encoder_score"
+                                        ],
+                                        "new_rank": i,
+                                    }
+
+                                # Update original matches with reranker scores
+                                for match in hpo_matches:
+                                    if match["id"] in reranked_scores:
+                                        match["reranker_score"] = reranked_scores[
+                                            match["id"]
+                                        ]["reranker_score"]
+                                        match["reranked_rank"] = reranked_scores[
+                                            match["id"]
+                                        ]["new_rank"]
+
+                                # If we're using reranking for final ordering, resort matches by reranker score
+                                hpo_matches = sorted(
+                                    hpo_matches,
+                                    key=lambda x: x.get(
+                                        "reranker_score", -float("inf")
+                                    ),
+                                    reverse=True,
+                                )[
+                                    :num_results
+                                ]  # Limit to the requested number of results
+
+                                if debug:
+                                    typer.echo(
+                                        f"  Re-ranked {len(reranked_candidates)} candidates"
+                                    )
+                    except Exception as e:
+                        typer.secho(
+                            f"  Error during re-ranking: {str(e)}",
+                            fg=typer.colors.YELLOW,
+                        )
+                        if debug:
+                            import traceback
+
+                            traceback.print_exc()
 
             if not hpo_matches:
                 typer.echo(f"Chunk {i+1}: No HPO terms found")

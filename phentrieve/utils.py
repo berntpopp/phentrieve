@@ -15,6 +15,13 @@ import yaml
 from pathlib import Path
 from typing import Dict, Optional, Callable
 
+try:
+    from langdetect import detect, LangDetectException
+
+    LANGDETECT_AVAILABLE = True
+except ImportError:
+    LANGDETECT_AVAILABLE = False
+
 logger = logging.getLogger(__name__)
 
 
@@ -351,3 +358,45 @@ def load_german_translation_text(hpo_id: str, translation_dir: str) -> Optional[
     Legacy function for backward compatibility. Use load_translation_text instead.
     """
     return load_translation_text(hpo_id, translation_dir)
+
+
+def detect_language(text: str, default_lang: str = "en") -> str:
+    """
+    Detect the language of a given text string.
+
+    Args:
+        text: The text to analyze for language detection
+        default_lang: Fallback language code if detection fails or is unavailable
+
+    Returns:
+        ISO 639-1 language code (e.g., 'en', 'de', 'fr', etc.)
+
+    Note:
+        Requires langdetect package to be installed. If not available, returns default_lang.
+        For very short texts or ambiguous content, detection may not be reliable.
+    """
+    # Check if langdetect is available
+    if not LANGDETECT_AVAILABLE:
+        logger.warning(
+            "langdetect package not installed. Defaulting to '" + default_lang + "'. "
+            "Install with 'pip install langdetect' for automatic language detection."
+        )
+        return default_lang
+
+    # Text must be long enough for reliable detection
+    if not text or len(text.strip()) < 20:
+        logger.info(
+            f"Text too short for reliable language detection, using default language: {default_lang}"
+        )
+        return default_lang
+
+    try:
+        # Detect language
+        detected = detect(text)
+        logger.info(f"Detected language: {detected}")
+        return detected
+    except LangDetectException as e:
+        logger.warning(
+            f"Language detection failed: {str(e)}. Using default: {default_lang}"
+        )
+        return default_lang
