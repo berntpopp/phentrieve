@@ -23,7 +23,7 @@
           v-for="(result, index) in responseData.results"
           :key="index"
           class="mb-1 rounded-lg"
-          color="grey-lighten-5"
+          :color="isAlreadyCollected(result.hpo_id) ? 'primary-lighten-5' : 'grey-lighten-5'"
           border
           density="compact"
         >
@@ -43,13 +43,14 @@
                 <span class="text-body-2 ml-2 text-grey">{{ result.label }}</span>
               </div>
               <v-btn
-                icon="mdi-plus-circle"
+                :icon="isAlreadyCollected(result.hpo_id) ? 'mdi-check-circle' : 'mdi-plus-circle'"
                 size="small"
-                color="primary"
+                :color="isAlreadyCollected(result.hpo_id) ? 'success' : 'primary'"
                 variant="text"
                 class="ml-2"
                 @click.stop="addToCollection(result)"
-                :title="'Add ' + result.hpo_id + ' to collection'"
+                :disabled="isAlreadyCollected(result.hpo_id)"
+                :title="isAlreadyCollected(result.hpo_id) ? result.hpo_id + ' already in collection' : 'Add ' + result.hpo_id + ' to collection'"
               ></v-btn>
             </div>
           </v-list-item-title>
@@ -115,10 +116,17 @@ export default {
     error: {
       type: Object,
       default: null
+    },
+    collectedPhenotypes: {
+      type: Array,
+      default: () => []
     }
   },
   emits: ['add-to-collection'],
   methods: {
+    isAlreadyCollected(hpoId) {
+      return this.collectedPhenotypes.some(item => item.hpo_id === hpoId);
+    },
     addToCollection(phenotype) {
       this.$emit('add-to-collection', phenotype);
     },

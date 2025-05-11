@@ -132,6 +132,7 @@
               :key="'results-' + index"
               :responseData="item.response"
               :error="item.error"
+              :collected-phenotypes="collectedPhenotypes"
               @add-to-collection="addToPhenotypeCollection"
             />
           </div>
