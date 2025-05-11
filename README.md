@@ -161,6 +161,92 @@ phentrieve query --enable-reranker
 phentrieve query --enable-reranker --reranker-mode monolingual --translation-dir path/to/translations
 ```
 
+## Text Processing Features
+
+Phentrieve now includes robust text processing capabilities for extracting HPO terms from clinical text, with support for:
+
+### Flexible Text Chunking
+
+The system provides multiple text chunking strategies that can be combined in a pipeline:
+
+- **Paragraph Chunking**: Splits text based on blank lines
+- **Sentence Chunking**: Uses language-specific rules to separate sentences
+- **Semantic Chunking**: Groups sentences by semantic similarity
+- **Fine-grained Punctuation Chunking**: Further splits text at punctuation marks like periods, commas, and semicolons
+
+Three predefined strategies are available via the `--strategy` option:
+
+- **simple**: Paragraph chunking + Sentence chunking
+- **semantic** (default): Paragraph chunking + Semantic chunking
+- **detailed**: Paragraph chunking + Semantic chunking + Fine-grained punctuation chunking for more granular analysis
+
+Chunking configuration can be specified via command-line parameters or through YAML/JSON configuration files.
+
+### Assertion Detection
+
+The system can detect the assertion status of medical concepts in text:
+
+- **Affirmed**: The phenotype is positively asserted (default)
+- **Negated**: The phenotype is explicitly negated (e.g., "no microcephaly", "denies seizures")
+- **Normal**: The finding is described as normal or within normal limits
+- **Uncertain**: The phenotype is mentioned with uncertainty
+
+Assertion detection uses both keyword-based and dependency-based approaches that can be configured based on user preference. The system implements a priority-based logic for determining assertion status:
+
+1. Dependency-based negation has highest priority
+2. Dependency-based normality has second priority
+3. Keyword-based negation has third priority
+4. Keyword-based normality has fourth priority
+
+This prioritization ensures the most accurate detection of assertion status, particularly for complex clinical text where the context and grammatical structure are important for proper interpretation.
+
+### Multilingual Assertion Detection
+
+Phentrieve supports assertion detection in multiple languages, including English and German, by utilizing language-specific SpaCy models and predefined negation/normality cues. For German clinical text, the system identifies terms like "kein", "keine", "nicht", and "ohne" (negation) as well as "normal", "unauffällig", and "o.B." (normality).
+
+All text processing, including chunking and assertion detection, uses the language parameter to ensure appropriate language models and cues are applied throughout the pipeline.
+
+### HPO Term Extraction
+
+The system processes chunked text and extracts relevant HPO terms while maintaining assertion status:
+
+- **Evidence Aggregation**: Combines evidence from multiple chunks for the same HPO term
+- **Confidence Scoring**: Calculates confidence scores based on similarity and evidence count
+- **Result Filtering**: Filters results based on confidence thresholds and allows taking only the top term per chunk
+- **Multi-format Output**: Supports JSON, CSV, and other output formats for easy integration
+
+### Using Text Processing
+
+```bash
+# Process text directly
+phentrieve text process "Patient presents with hearing loss and developmental delay"
+
+# Only include high-confidence terms (confidence >= 0.7)
+phentrieve text process "Patient presents with hearing loss" --min-confidence 0.7
+
+# Only include the highest-scored term for each text chunk
+phentrieve text process "Patient presents with hearing loss" --top-term-per-chunk
+
+# Process a file with semantic chunking
+phentrieve text process --input-file clinical_note.txt --strategy semantic
+
+# Use a specific model and output format
+phentrieve text process --input-file notes.txt --model "FremyCompany/BioLORD-2023-M" --output-format csv_hpo_list
+
+# Just perform chunking without HPO term extraction
+phentrieve text chunk "Patient presents with progressive hearing loss that began in childhood."
+
+# Process text with confidence threshold and only getting top term per chunk
+phentrieve text process "Patient has microcephaly but no seizures" --min-confidence 0.4 --top-term-per-chunk
+```
+
+### Filtering Options for Text Processing
+
+- `--min-confidence`: Set a threshold for minimum similarity score (0.0-1.0) to include an HPO term
+- `--top-term-per-chunk`: Return only the highest-scoring HPO term for each text chunk
+- `--strategy`: Choose text chunking strategy (simple, semantic, detailed)
+- `--language`: Specify text language for accurate chunking and assertion detection (e.g., 'en', 'de')
+
 ## Setup and Usage
 
 ### Installation
@@ -185,6 +271,10 @@ Install Phentrieve:
 
 ```bash
 pip install -e .
+
+# Install required SpaCy language models for dependency parsing
+python -m spacy download en_core_web_sm  # For English text
+python -m spacy download de_core_news_sm  # For German text
 ```
 
 ### Prepare HPO Data and Index (Run Once)

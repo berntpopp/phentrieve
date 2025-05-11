@@ -1,7 +1,13 @@
 # Main CLI entry point for Phentrieve
+import json
+import sys
+from pathlib import Path
+from typing import List, Dict, Any, Optional, Callable, Union
+
 import typer
 import importlib.metadata
 from typing_extensions import Annotated
+import yaml
 
 from .utils import setup_logging_cli
 
@@ -14,6 +20,10 @@ app = typer.Typer(name="phentrieve", help="Phenotype Retrieval CLI Tool")
 # Subcommand groups
 data_app = typer.Typer(name="data", help="Manage HPO data.")
 app.add_typer(data_app)
+
+# Text processing subcommand group
+text_app = typer.Typer(name="text", help="Process and analyze clinical text.")
+app.add_typer(text_app)
 
 
 @data_app.command("prepare")
@@ -595,6 +605,880 @@ def main_callback(
     """Phentrieve CLI main callback."""
     # This callback runs before any command
     pass
+
+
+# Text processing commands
+@text_app.command("chunk")
+def chunk_text_command(
+    text: Annotated[
+        Optional[str],
+        typer.Argument(
+            help="Text to chunk (optional, will read from stdin if not provided)"
+        ),
+    ] = None,
+    input_file: Annotated[
+        Optional[Path],
+        typer.Option(
+            "--input-file", "-i", help="File to read text from instead of command line"
+        ),
+    ] = None,
+    language: Annotated[
+        str,
+        typer.Option("--language", "-l", help="Language of the text (en, de, etc.)"),
+    ] = "en",
+    chunking_pipeline_config_file: Annotated[
+        Optional[Path],
+        typer.Option(
+            "--config-file",
+            "-c",
+            help="Path to YAML or JSON file with chunking pipeline configuration",
+        ),
+    ] = None,
+    strategy: Annotated[
+        str,
+        typer.Option(
+            "--strategy",
+            "-s",
+            help="Predefined chunking strategy (simple, semantic, detailed)",
+        ),
+    ] = "simple",
+    semantic_chunker_model: Annotated[
+        Optional[str],
+        typer.Option(
+            "--model",
+            "-m",
+            help="Model name for semantic chunker (if using semantic strategy)",
+        ),
+    ] = None,
+    output_format: Annotated[
+        str,
+        typer.Option(
+            "--output-format", "-o", help="Output format for chunks (lines, json_lines)"
+        ),
+    ] = "lines",
+    debug: Annotated[
+        bool,
+        typer.Option("--debug", help="Enable debug logging"),
+    ] = False,
+):
+    """Chunk text using configurable chunking strategies.
+
+    This command processes text through a chunking pipeline, which can include
+    paragraph splitting, sentence segmentation, semantic chunking, and fine-grained
+    punctuation-based splitting. The output is the resulting text chunks.
+
+    Example usage:
+    - Simple paragraph+sentence chunking: phentrieve text chunk "My text here"
+    - Semantic chunking: phentrieve text chunk -s semantic -m "FremyCompany/BioLORD-2023-M" -i clinical_note.txt
+    """
+    import json
+    from sentence_transformers import SentenceTransformer
+    from phentrieve.config import (
+        DEFAULT_CHUNK_PIPELINE_CONFIG,
+        DEFAULT_MODEL,
+        DEFAULT_LANGUAGE,
+    )
+    from phentrieve.text_processing.pipeline import TextProcessingPipeline
+    from phentrieve.utils import setup_logging_cli
+
+    setup_logging_cli(debug=debug)
+
+    # Load the raw text
+    raw_text = None
+
+    if text is not None:
+        raw_text = text
+    elif input_file is not None:
+        if not input_file.exists():
+            typer.secho(
+                f"Error: Input file {input_file} does not exist.", fg=typer.colors.RED
+            )
+            raise typer.Exit(code=1)
+        with open(input_file, "r", encoding="utf-8") as f:
+            raw_text = f.read()
+    else:
+        # Read from stdin if available
+        if not sys.stdin.isatty():
+            raw_text = sys.stdin.read()
+        else:
+            typer.secho(
+                "Error: No text provided. Please provide text as an argument, "
+                "via --input-file, or through stdin.",
+                fg=typer.colors.RED,
+            )
+            raise typer.Exit(code=1)
+
+    if not raw_text or not raw_text.strip():
+        typer.secho("Error: Empty text provided.", fg=typer.colors.RED)
+        raise typer.Exit(code=1)
+
+    # Set the language
+    if not language:
+        language = DEFAULT_LANGUAGE
+
+    # Load chunking pipeline configuration
+    chunking_pipeline_config = None
+
+    # 1. First priority: Config file if provided
+    if chunking_pipeline_config_file is not None:
+        if not chunking_pipeline_config_file.exists():
+            typer.secho(
+                f"Error: Configuration file {chunking_pipeline_config_file} does not exist.",
+                fg=typer.colors.RED,
+            )
+            raise typer.Exit(code=1)
+
+        suffix = chunking_pipeline_config_file.suffix.lower()
+        with open(chunking_pipeline_config_file, "r", encoding="utf-8") as f:
+            if suffix == ".json":
+                config_data = json.load(f)
+            elif suffix in (".yaml", ".yml"):
+                config_data = yaml.safe_load(f)
+            else:
+                typer.secho(
+                    f"Error: Unsupported config file format: {suffix}. Use .json, .yaml, or .yml",
+                    fg=typer.colors.RED,
+                )
+                raise typer.Exit(code=1)
+
+        chunking_pipeline_config = config_data.get("chunking_pipeline", None)
+
+    # 2. Second priority: Strategy parameter
+    if chunking_pipeline_config is None:
+        if strategy == "simple":
+            chunking_pipeline_config = [{"type": "paragraph"}, {"type": "sentence"}]
+        elif strategy == "semantic":
+            chunking_pipeline_config = [
+                {"type": "paragraph"},
+                {
+                    "type": "semantic",
+                    "config": {
+                        "similarity_threshold": 0.4,
+                        "min_chunk_sentences": 1,
+                        "max_chunk_sentences": 3,
+                    },
+                },
+            ]
+        elif strategy == "detailed":
+            chunking_pipeline_config = [
+                {"type": "paragraph"},
+                {
+                    "type": "semantic",
+                    "config": {
+                        "similarity_threshold": 0.4,
+                        "min_chunk_sentences": 1,
+                        "max_chunk_sentences": 3,
+                    },
+                },
+                {"type": "fine_grained_punctuation"},
+            ]
+        else:
+            typer.secho(
+                f"Warning: Unknown strategy '{strategy}'. Using default configuration.",
+                fg=typer.colors.YELLOW,
+            )
+
+    # 3. Final fallback: Default configuration
+    if chunking_pipeline_config is None:
+        chunking_pipeline_config = DEFAULT_CHUNK_PIPELINE_CONFIG
+
+    # Determine if we need a semantic model
+    needs_semantic_model = any(
+        chunk_config.get("type") == "semantic"
+        for chunk_config in chunking_pipeline_config
+    )
+
+    # Load the SBERT model if needed
+    sbert_model = None
+    if needs_semantic_model:
+        model_name = semantic_chunker_model or DEFAULT_MODEL
+        typer.echo(f"Loading sentence transformer model: {model_name}...")
+        try:
+            sbert_model = SentenceTransformer(model_name)
+        except Exception as e:
+            typer.secho(
+                f"Error loading model '{model_name}': {str(e)}", fg=typer.colors.RED
+            )
+            raise typer.Exit(code=1)
+
+    # Empty assertion config to disable assertion detection for this command
+    assertion_config = {"disable": True}
+
+    # Create the pipeline
+    try:
+        pipeline = TextProcessingPipeline(
+            language=language,
+            chunking_pipeline_config=chunking_pipeline_config,
+            assertion_config=assertion_config,
+            sbert_model_for_semantic_chunking=sbert_model,
+        )
+    except Exception as e:
+        typer.secho(f"Error creating pipeline: {str(e)}", fg=typer.colors.RED)
+        raise typer.Exit(code=1)
+
+    # Process the text
+    try:
+        processed_chunks = pipeline.process(raw_text)
+    except Exception as e:
+        typer.secho(f"Error processing text: {str(e)}", fg=typer.colors.RED)
+        raise typer.Exit(code=1)
+
+    # Output the chunks in the requested format
+    if output_format == "lines":
+        for i, chunk_data in enumerate(processed_chunks):
+            typer.echo(f"[{i+1}] {chunk_data['text']}")
+    elif output_format == "json_lines":
+        for chunk_data in processed_chunks:
+            # Ensure Enum values are serialized properly
+            chunk_json = {
+                "text": chunk_data["text"],
+                "source_indices": chunk_data["source_indices"],
+            }
+            typer.echo(json.dumps(chunk_json))
+    else:
+        typer.secho(
+            f"Error: Unknown output format '{output_format}'. "
+            f"Supported formats: lines, json_lines",
+            fg=typer.colors.RED,
+        )
+        raise typer.Exit(code=1)
+
+    # Summary
+    typer.secho(
+        f"\nText chunking completed. {len(processed_chunks)} chunks generated.",
+        fg=typer.colors.GREEN,
+    )
+
+
+@text_app.command("process")
+def process_text_for_hpo_command(
+    text: Annotated[
+        Optional[str],
+        typer.Argument(
+            help="Text to process (optional, will read from stdin if not provided)"
+        ),
+    ] = None,
+    input_file: Annotated[
+        Optional[Path],
+        typer.Option(
+            "--input-file", "-i", help="File to read text from instead of command line"
+        ),
+    ] = None,
+    language: Annotated[
+        str,
+        typer.Option("--language", "-l", help="Language of the text (en, de, etc.)"),
+    ] = "en",
+    chunking_pipeline_config_file: Annotated[
+        Optional[Path],
+        typer.Option(
+            "--config-file",
+            "-c",
+            help="Path to YAML or JSON file with chunking pipeline configuration",
+        ),
+    ] = None,
+    strategy: Annotated[
+        str,
+        typer.Option(
+            "--strategy",
+            "-s",
+            help="Predefined chunking strategy (simple, semantic, detailed)",
+        ),
+    ] = "semantic",  # Changed default to semantic for better chunks
+    semantic_chunker_model: Annotated[
+        Optional[str],
+        typer.Option(
+            "--semantic-model",
+            "--s-model",
+            help="Model name for semantic chunker (if using semantic strategy)",
+        ),
+    ] = None,
+    retrieval_model: Annotated[
+        Optional[str],
+        typer.Option("--model", "-m", help="Model name for HPO term retrieval"),
+    ] = None,
+    similarity_threshold: Annotated[
+        float,
+        typer.Option(
+            "--similarity-threshold",
+            "--threshold",
+            help="Minimum similarity score for HPO term matches",
+        ),
+    ] = 0.3,
+    num_results: Annotated[
+        int,
+        typer.Option(
+            "--num-results",
+            "-n",
+            help="Maximum number of HPO terms to return per query",
+        ),
+    ] = 10,
+    no_assertion_detection: Annotated[
+        bool,
+        typer.Option(
+            "--no-assertion",
+            help="Disable assertion detection (treat all chunks as affirmed)",
+        ),
+    ] = False,
+    assertion_preference: Annotated[
+        str,
+        typer.Option(
+            "--assertion-preference",
+            help="Assertion detection strategy preference (dependency, keyword, any_negative)",
+        ),
+    ] = "dependency",
+    enable_reranker: Annotated[
+        bool,
+        typer.Option(
+            "--enable-reranker",
+            "--rerank",
+            help="Enable cross-encoder reranking of results",
+        ),
+    ] = False,
+    reranker_model: Annotated[
+        Optional[str],
+        typer.Option(
+            "--reranker-model",
+            help="Cross-encoder model for reranking (if reranking enabled)",
+        ),
+    ] = None,
+    rerank_count: Annotated[
+        int,
+        typer.Option(
+            "--rerank-count", help="Number of candidates to consider for reranking"
+        ),
+    ] = 50,
+    output_format: Annotated[
+        str,
+        typer.Option(
+            "--output-format",
+            "-o",
+            help="Output format for results (json_lines, rich_json_summary, csv_hpo_list)",
+        ),
+    ] = "rich_json_summary",
+    min_confidence: Annotated[
+        float,
+        typer.Option(
+            "--min-confidence",
+            "--min-conf",
+            help="Minimum confidence threshold for HPO terms in the results",
+        ),
+    ] = 0.0,
+    top_term_per_chunk: Annotated[
+        bool,
+        typer.Option(
+            "--top-term-per-chunk",
+            "--top-only",
+            help="Only include the highest-scored HPO term for each chunk",
+        ),
+    ] = False,
+    cpu: Annotated[
+        bool,
+        typer.Option("--cpu", help="Force CPU usage even if GPU is available"),
+    ] = False,
+    debug: Annotated[
+        bool,
+        typer.Option("--debug", help="Enable debug logging"),
+    ] = False,
+):
+    """Process clinical text to extract HPO terms.
+
+    This command processes clinical texts through a chunking pipeline and assertion
+    detection, then extracts HPO terms from each chunk. Results are aggregated to provide
+    a comprehensive set of phenotype terms from the entire document.
+
+    Example usage:
+    - Basic processing: phentrieve text process "Patient presents with hearing loss."
+    - From file with semantic chunking: phentrieve text process -i clinical_note.txt -s semantic -m "FremyCompany/BioLORD-2023-M"
+    """
+    import json
+    import csv
+    import sys
+    from collections import defaultdict
+    from io import StringIO
+    from sentence_transformers import SentenceTransformer
+
+    from phentrieve.config import (
+        DEFAULT_CHUNK_PIPELINE_CONFIG,
+        DEFAULT_MODEL,
+        DEFAULT_LANGUAGE,
+        DEFAULT_ASSERTION_CONFIG,
+        MIN_SIMILARITY_THRESHOLD,
+    )
+    from phentrieve.text_processing.pipeline import TextProcessingPipeline
+    from phentrieve.text_processing.assertion_detection import AssertionStatus
+    from phentrieve.retrieval.dense_retriever import DenseRetriever
+    from phentrieve.utils import setup_logging_cli
+
+    setup_logging_cli(debug=debug)
+
+    # Determine device
+    device = "cpu" if cpu else None
+
+    # Load the raw text
+    raw_text = None
+
+    if text is not None:
+        raw_text = text
+    elif input_file is not None:
+        if not input_file.exists():
+            typer.secho(
+                f"Error: Input file {input_file} does not exist.", fg=typer.colors.RED
+            )
+            raise typer.Exit(code=1)
+        with open(input_file, "r", encoding="utf-8") as f:
+            raw_text = f.read()
+    else:
+        # Read from stdin if available
+        if not sys.stdin.isatty():
+            raw_text = sys.stdin.read()
+        else:
+            typer.secho(
+                "Error: No text provided. Please provide text as an argument, "
+                "via --input-file, or through stdin.",
+                fg=typer.colors.RED,
+            )
+            raise typer.Exit(code=1)
+
+    if not raw_text or not raw_text.strip():
+        typer.secho("Error: Empty text provided.", fg=typer.colors.RED)
+        raise typer.Exit(code=1)
+
+    # Set the language
+    if not language:
+        language = DEFAULT_LANGUAGE
+
+    # Load chunking pipeline configuration
+    chunking_pipeline_config = None
+
+    # 1. First priority: Config file if provided
+    if chunking_pipeline_config_file is not None:
+        if not chunking_pipeline_config_file.exists():
+            typer.secho(
+                f"Error: Configuration file {chunking_pipeline_config_file} does not exist.",
+                fg=typer.colors.RED,
+            )
+            raise typer.Exit(code=1)
+
+        suffix = chunking_pipeline_config_file.suffix.lower()
+        with open(chunking_pipeline_config_file, "r", encoding="utf-8") as f:
+            if suffix == ".json":
+                config_data = json.load(f)
+            elif suffix in (".yaml", ".yml"):
+                config_data = yaml.safe_load(f)
+            else:
+                typer.secho(
+                    f"Error: Unsupported config file format: {suffix}. Use .json, .yaml, or .yml",
+                    fg=typer.colors.RED,
+                )
+                raise typer.Exit(code=1)
+
+        chunking_pipeline_config = config_data.get("chunking_pipeline", None)
+
+    # 2. Second priority: Strategy parameter
+    if chunking_pipeline_config is None:
+        if strategy == "simple":
+            chunking_pipeline_config = [{"type": "paragraph"}, {"type": "sentence"}]
+        elif strategy == "semantic":
+            chunking_pipeline_config = [
+                {"type": "paragraph"},
+                {
+                    "type": "semantic",
+                    "config": {
+                        "similarity_threshold": 0.4,
+                        "min_chunk_sentences": 1,
+                        "max_chunk_sentences": 3,
+                    },
+                },
+            ]
+        elif strategy == "detailed":
+            chunking_pipeline_config = [
+                {"type": "paragraph"},
+                {
+                    "type": "semantic",
+                    "config": {
+                        "similarity_threshold": 0.4,
+                        "min_chunk_sentences": 1,
+                        "max_chunk_sentences": 3,
+                    },
+                },
+                {"type": "fine_grained_punctuation"},
+            ]
+        else:
+            typer.secho(
+                f"Warning: Unknown strategy '{strategy}'. Using default configuration.",
+                fg=typer.colors.YELLOW,
+            )
+
+    # 3. Final fallback: Default configuration
+    if chunking_pipeline_config is None:
+        chunking_pipeline_config = DEFAULT_CHUNK_PIPELINE_CONFIG
+
+    # Determine if we need a semantic model
+    needs_semantic_model = any(
+        chunk_config.get("type") == "semantic"
+        for chunk_config in chunking_pipeline_config
+    )
+
+    # Configure assertion detection
+    assertion_config = dict(DEFAULT_ASSERTION_CONFIG)
+    if no_assertion_detection:
+        assertion_config["disable"] = True
+    else:
+        assertion_config["preference"] = assertion_preference
+
+    # Load models
+    sbert_model = None
+    retrieval_sbert_model = None
+
+    # Decide which models to load
+    retrieval_model_name = retrieval_model or DEFAULT_MODEL
+    semantic_model_name = semantic_chunker_model or retrieval_model_name
+
+    # Check if we can use the same model for both tasks
+    can_share_model = (
+        needs_semantic_model and semantic_model_name == retrieval_model_name
+    )
+
+    try:
+        # For retrieval
+        typer.echo(f"Loading retrieval model: {retrieval_model_name}...")
+        retrieval_sbert_model = SentenceTransformer(retrieval_model_name, device=device)
+
+        # For semantic chunking (if needed)
+        if needs_semantic_model and not can_share_model:
+            typer.echo(f"Loading semantic chunking model: {semantic_model_name}...")
+            sbert_model = SentenceTransformer(semantic_model_name, device=device)
+        elif needs_semantic_model:
+            # Reuse the retrieval model for semantic chunking
+            sbert_model = retrieval_sbert_model
+    except Exception as e:
+        typer.secho(f"Error loading model: {str(e)}", fg=typer.colors.RED)
+        raise typer.Exit(code=1)
+
+    try:
+        # Initialize the DenseRetriever
+        typer.echo("Loading HPO term index...")
+        retriever = DenseRetriever.from_model_name(
+            model=retrieval_sbert_model,  # Pass pre-loaded model
+            model_name=retrieval_model_name,
+            min_similarity=similarity_threshold,
+        )
+    except Exception as e:
+        typer.secho(f"Error loading HPO index: {str(e)}", fg=typer.colors.RED)
+        raise typer.Exit(code=1)
+
+    # Create the pipeline
+    try:
+        typer.echo("Initializing text processing pipeline...")
+        pipeline = TextProcessingPipeline(
+            language=language,
+            chunking_pipeline_config=chunking_pipeline_config,
+            assertion_config=assertion_config,
+            sbert_model_for_semantic_chunking=sbert_model,
+        )
+    except Exception as e:
+        typer.secho(f"Error creating pipeline: {str(e)}", fg=typer.colors.RED)
+        raise typer.Exit(code=1)
+
+    # Process the text
+    try:
+        typer.echo("Processing text through chunking and assertion pipeline...")
+        processed_chunks = pipeline.process(raw_text)
+        typer.echo(f"Generated {len(processed_chunks)} chunks.")
+    except Exception as e:
+        typer.secho(f"Error processing text: {str(e)}", fg=typer.colors.RED)
+        raise typer.Exit(code=1)
+
+    # Extract HPO terms from each chunk
+    typer.echo("Extracting HPO terms from processed chunks...")
+
+    chunk_results = []
+    # Track aggregate results across all chunks
+    all_hpo_terms = defaultdict(list)  # HPO_ID -> list of evidence
+
+    for i, chunk_data in enumerate(processed_chunks):
+        chunk_text = chunk_data["text"]
+        assertion_status = chunk_data["status"]
+        assertion_details = chunk_data["assertion_details"]
+
+        # Log the assertion status for informational purposes
+        # Note: Processing all chunks regardless of assertion status
+        typer.echo(f"Chunk {i+1}: Status is {assertion_status.value} - processing")
+
+        # Retrieve HPO terms for this chunk
+        try:
+            # Get matching HPO terms with the chunk text as query
+            results = retriever.query(
+                text=chunk_text, n_results=num_results, include_similarities=True
+            )
+
+            # Filter results based on similarity threshold
+            filtered_results = retriever.filter_results(
+                results, min_similarity=similarity_threshold, max_results=num_results
+            )
+
+            # Format the results into a list of dictionaries
+            hpo_matches = []
+            if filtered_results.get("ids") and filtered_results["ids"][0]:
+                for i, doc_id in enumerate(filtered_results["ids"][0]):
+                    if i < len(filtered_results["metadatas"][0]):
+                        metadata = filtered_results["metadatas"][0][i]
+                        similarity = (
+                            filtered_results["similarities"][0][i]
+                            if filtered_results.get("similarities")
+                            else None
+                        )
+
+                        # Extract the name from metadata, usually contains "name" field
+                        term_name = ""
+                        if metadata:
+                            if "name" in metadata and metadata["name"]:
+                                term_name = metadata["name"]
+                            elif "label" in metadata and metadata["label"]:
+                                term_name = metadata["label"]
+                            # Try to extract from nested properties if available
+                            elif "properties" in metadata and isinstance(
+                                metadata["properties"], dict
+                            ):
+                                props = metadata["properties"]
+                                if "name" in props and props["name"]:
+                                    term_name = props["name"]
+                                elif "label" in props and props["label"]:
+                                    term_name = props["label"]
+
+                        hpo_match = {
+                            "id": doc_id,
+                            "name": term_name,
+                            "score": similarity,
+                        }
+                        hpo_matches.append(hpo_match)
+
+            if not hpo_matches:
+                typer.echo(f"Chunk {i+1}: No HPO terms found")
+            else:
+                typer.echo(f"Chunk {i+1}: Found {len(hpo_matches)} HPO terms")
+
+            # Store chunk results
+            chunk_result = {
+                "chunk_id": i + 1,
+                "text": chunk_text,
+                "status": assertion_status.value,
+                "hpo_terms": [],
+            }
+
+            # If top_term_per_chunk is enabled, keep only the highest-scoring match
+            if top_term_per_chunk and hpo_matches:
+                # Sort by score descending
+                sorted_matches = sorted(
+                    hpo_matches, key=lambda x: x["score"], reverse=True
+                )
+                # Keep only the top-scoring match
+                hpo_matches = [sorted_matches[0]]
+                typer.echo(
+                    f"Chunk {i+1}: Taking only top term (score: {hpo_matches[0]['score']:.4f})"
+                )
+
+            for match in hpo_matches:
+                # Basic match information
+                hpo_term_info = {
+                    "hpo_id": match["id"],
+                    "name": match["name"],
+                    "score": match["score"],
+                    "reranker_score": match.get("reranker_score"),
+                }
+
+                # Add to chunk result
+                chunk_result["hpo_terms"].append(hpo_term_info)
+
+                # Add to aggregate results
+                evidence = {
+                    "chunk_id": i + 1,
+                    "chunk_text": chunk_text,
+                    "status": assertion_status.value,
+                    "score": match["score"],
+                    "reranker_score": match.get("reranker_score"),
+                    "name": match["name"],  # Include the HPO term name in the evidence
+                }
+                all_hpo_terms[match["id"]].append(evidence)
+
+            chunk_results.append(chunk_result)
+
+        except Exception as e:
+            typer.secho(
+                f"Error retrieving HPO terms for chunk {i+1}: {str(e)}",
+                fg=typer.colors.RED,
+            )
+            if debug:
+                import traceback
+
+                traceback.print_exc()
+
+    # Aggregate results
+    typer.echo("Aggregating HPO terms from all chunks...")
+    aggregated_results = []
+
+    for hpo_id, evidence_list in all_hpo_terms.items():
+        # Get basic HPO information from the first evidence match
+        if not evidence_list or not evidence_list[0].get("chunk_id"):
+            continue  # Skip if we don't have any evidence for this HPO term
+
+        # Since we already have the name in the evidence, we don't need to query again
+        # Just extract the name from the first piece of evidence
+        first_evidence = evidence_list[0]
+
+        # Determine the best score
+        max_score = max(evidence["score"] for evidence in evidence_list)
+        max_reranker_score = max(
+            (
+                evidence.get("reranker_score", -float("inf"))
+                for evidence in evidence_list
+            ),
+            default=None,
+        )
+
+        # Count the types of evidence
+        affirmed_count = sum(
+            1 for e in evidence_list if e["status"] == AssertionStatus.AFFIRMED.value
+        )
+        negated_count = sum(
+            1 for e in evidence_list if e["status"] == AssertionStatus.NEGATED.value
+        )
+        normal_count = sum(
+            1 for e in evidence_list if e["status"] == AssertionStatus.NORMAL.value
+        )
+        uncertain_count = sum(
+            1 for e in evidence_list if e["status"] == AssertionStatus.UNCERTAIN.value
+        )
+
+        # Determine overall status based on evidence
+        if affirmed_count > 0 or uncertain_count > 0:
+            overall_status = AssertionStatus.AFFIRMED.value
+        elif negated_count > 0:
+            overall_status = AssertionStatus.NEGATED.value
+        elif normal_count > 0:
+            overall_status = AssertionStatus.NORMAL.value
+        else:
+            overall_status = AssertionStatus.UNCERTAIN.value
+
+        # Calculate a confidence score based on all evidence
+        evidence_count = len(evidence_list)
+        confidence_score = max_score * (
+            1 + 0.1 * min(9, evidence_count - 1)
+        )  # Boost score based on evidence count
+
+        # Look through the evidence to find the name of the HPO term
+        # We need to extract this from the hpo_match data that was saved
+        term_name = ""
+        for evidence in evidence_list:
+            if "name" in evidence:
+                term_name = evidence["name"]
+                break
+
+        aggregated_results.append(
+            {
+                "hpo_id": hpo_id,
+                "name": term_name,  # Use the name we found in the evidence
+                "score": max_score,
+                "reranker_score": max_reranker_score,
+                "confidence": confidence_score,
+                "evidence_count": evidence_count,
+                "status": overall_status,
+                "affirmed_count": affirmed_count,
+                "negated_count": negated_count,
+                "normal_count": normal_count,
+                "uncertain_count": uncertain_count,
+                "evidence": evidence_list,
+            }
+        )
+
+    # Sort by confidence score (descending)
+    aggregated_results.sort(key=lambda x: x["confidence"], reverse=True)
+
+    # Apply min_confidence filtering if specified
+    if min_confidence > 0.0:
+        filtered_count = len(aggregated_results)
+        aggregated_results = [
+            result
+            for result in aggregated_results
+            if result["confidence"] >= min_confidence
+        ]
+        filtered_count -= len(aggregated_results)
+        if filtered_count > 0:
+            typer.echo(
+                f"Filtered out {filtered_count} results below min_confidence threshold of {min_confidence}"
+            )
+
+    # Output the results in the requested format
+    if output_format == "json_lines":
+        # Output each chunk and its matches as a JSON object per line
+        for chunk_result in chunk_results:
+            typer.echo(json.dumps(chunk_result))
+
+        # Output aggregated results as a final JSON object
+        typer.echo(json.dumps({"aggregated_hpo_terms": aggregated_results}))
+
+    elif output_format == "rich_json_summary":
+        # Create a nicely formatted JSON summary
+        summary = {
+            "document": {
+                "language": language,
+                "total_chunks": len(processed_chunks),
+                "total_hpo_terms": len(aggregated_results),
+                "hpo_terms": [
+                    {
+                        "hpo_id": result["hpo_id"],
+                        "name": result["name"],
+                        "confidence": result["confidence"],
+                        "status": result["status"],
+                        "evidence_count": len(result["evidence"]),
+                        "top_evidence": (
+                            result["evidence"][0]["chunk_text"]
+                            if result["evidence"]
+                            else ""
+                        ),
+                    }
+                    for result in aggregated_results
+                ],
+            }
+        }
+        # Format the JSON nicely
+        formatted_json = json.dumps(summary, indent=2, ensure_ascii=False)
+        typer.echo(formatted_json)
+
+    elif output_format == "csv_hpo_list":
+        # Create a CSV with HPO terms and basic info
+        output = StringIO()
+        fieldnames = ["hpo_id", "name", "confidence", "status", "evidence_count"]
+        writer = csv.DictWriter(output, fieldnames=fieldnames)
+        writer.writeheader()
+
+        for r in aggregated_results:
+            writer.writerow(
+                {
+                    "hpo_id": r["hpo_id"],
+                    "name": r["name"],
+                    "confidence": r["confidence"],
+                    "status": r["status"],
+                    "evidence_count": r["evidence_count"],
+                }
+            )
+
+        typer.echo(output.getvalue())
+
+    else:
+        typer.secho(
+            f"Error: Unknown output format '{output_format}'. "
+            f"Supported formats: json_lines, rich_json_summary, csv_hpo_list",
+            fg=typer.colors.RED,
+        )
+        raise typer.Exit(code=1)
+
+    # Summary
+    typer.secho(
+        f"\nText processing completed. "
+        f"Found {len(aggregated_results)} HPO terms across {len(processed_chunks)} text chunks.",
+        fg=typer.colors.GREEN,
+    )
 
 
 # Entry point for direct script execution during development

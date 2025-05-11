@@ -71,3 +71,17 @@ DEFAULT_ENABLE_RERANKER = False
 
 # Root for HPO term extraction and depth calculations
 PHENOTYPE_ROOT = "HP:0000118"
+
+# Text Processing Configuration
+# Default chunking pipeline configuration
+DEFAULT_CHUNK_PIPELINE_CONFIG = [{"type": "paragraph"}, {"type": "sentence"}]
+
+# Default assertion detection configuration
+DEFAULT_ASSERTION_CONFIG = {
+    "enable_keyword": True,
+    "enable_dependency": True,
+    "preference": "dependency",
+}
+
+# Default language for text processing
+DEFAULT_LANGUAGE = "en"
