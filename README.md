@@ -556,6 +556,76 @@ phentrieve benchmark visualize --metrics mrr,hit_rate
 
 Benchmark results and visualizations are saved to your configured results directory (default: `data/results/`). The visualizations include comparative plots for MRR, Hit@K, MaxOntSim@K and heatmaps showing the performance of all models across multiple metrics.
 
+## Web Application Interface
+
+Phentrieve now includes a modern web interface for easier interaction with the HPO query functionality, consisting of:
+
+1. A FastAPI backend that exposes the core Phentrieve query functionality via REST API
+2. A Vue.js 3 frontend with Vuetify 3 that provides an intuitive user interface
+3. Docker configuration for easy deployment
+
+### Web API
+
+The API exposes the HPO term mapping functionality via a RESTful endpoint:
+
+
+- **Endpoint**: `/api/v1/query/`
+- **Method**: POST
+- **Request Body**: JSON matching the `QueryRequest` schema
+
+  ```json
+  {
+    "text": "Patient has microcephaly and seizures",
+    "model_name": "FremyCompany/BioLORD-2023-M",
+    "similarity_threshold": 0.3,
+    "enable_reranker": true
+  }
+  ```
+
+- **Response**: JSON with query results and matching HPO terms
+
+Key API features:
+
+- Support for all embedding models in the core Phentrieve package
+- Optional cross-encoder reranking for improved result quality
+- Automatic language detection for multilingual text
+- Model caching for improved performance
+
+### Web Frontend
+
+The Vue.js frontend provides:
+
+- A clean, modern interface using Vuetify 3 components
+- Text input area for clinical descriptions
+- Controls for model selection and similarity threshold
+- Chat-like results display showing HPO terms with confidence scores
+- Support for viewing cross-encoder reranking scores
+
+### Running the Web Application
+
+The easiest way to run the web application is using Docker Compose:
+
+```bash
+# Start both API and frontend containers
+docker-compose up --build
+
+# Access the web interface
+# Open http://localhost:8080 in your browser
+```
+
+For development, you can run the components individually:
+
+```bash
+# Start the FastAPI backend
+cd api
+uvicorn main:app --reload --host 0.0.0.0 --port 8001
+
+# Start the Vue.js frontend (in separate terminal)
+cd frontend
+npm install
+npm run serve
+```
+
 ## References
 
 - Human Phenotype Ontology: [https://hpo.jax.org/](https://hpo.jax.org/)

@@ -1,0 +1,26 @@
+version: '3.8'
+services:
+  phentrieve_api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    ports:
+      - "8001:8000" # API accessible on host port 8001
+    volumes:
+      - ./phentrieve:/app/phentrieve # For dev: live reload of python code
+      - ./api:/app/api             # For dev: live reload of API code
+      # For production, data should be built into image or use named volumes
+    environment:
+      - PHENTRIEVE_DATA_DIR=/app/data
+      - PHENTRIEVE_INDEX_DIR=/app/hpo_chroma_index
+    restart: unless-stopped
+
+  phentrieve_frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.frontend # Uses Nginx to serve built files
+    ports:
+      - "8080:80" # Frontend accessible on host port 8080
+    depends_on:
+      - phentrieve_api # Ensures API starts before frontend tries to connect via proxy
+    restart: unless-stopped
