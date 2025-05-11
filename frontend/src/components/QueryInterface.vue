@@ -132,11 +132,112 @@
               :key="'results-' + index"
               :responseData="item.response"
               :error="item.error"
+              @add-to-collection="addToPhenotypeCollection"
             />
           </div>
         </div>
       </div>
     </div>
+    
+    <!-- Floating action button for collection panel -->
+    <v-btn
+      class="collection-fab"
+      color="secondary"
+      icon
+      position="fixed"
+      location="bottom right"
+      size="large"
+      style="margin: 16px; bottom: 60px; right: 16px; z-index: 1000;"
+      @click="toggleCollectionPanel"
+    >
+      <v-badge
+        :content="collectedPhenotypes.length"
+        :model-value="collectedPhenotypes.length > 0"
+        color="primary"
+      >
+        <v-icon>mdi-format-list-checks</v-icon>
+      </v-badge>
+    </v-btn>
+    
+    <!-- Collection Panel -->
+    <v-navigation-drawer
+      v-model="showCollectionPanel"
+      location="right"
+      width="400"
+      temporary
+    >
+      <v-list-item>
+        <v-list-item-title class="text-h6">HPO Collection</v-list-item-title>
+        <template v-slot:append>
+          <v-btn icon @click="toggleCollectionPanel">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </template>
+      </v-list-item>
+      
+      <v-divider></v-divider>
+      
+      <v-list v-if="collectedPhenotypes.length > 0">
+        <v-list-subheader>{{ collectedPhenotypes.length }} phenotype(s) collected</v-list-subheader>
+        
+        <v-list-item
+          v-for="(phenotype, index) in collectedPhenotypes"
+          :key="phenotype.hpo_id"
+          density="compact"
+        >
+          <v-list-item-title>
+            <strong>{{ phenotype.hpo_id }}</strong>
+          </v-list-item-title>
+          <v-list-item-subtitle>
+            {{ phenotype.label }}
+          </v-list-item-subtitle>
+          
+          <template v-slot:append>
+            <v-btn
+              icon="mdi-close"
+              variant="text"
+              density="compact"
+              color="error"
+              @click="removePhenotype(index)"
+            ></v-btn>
+          </template>
+        </v-list-item>
+      </v-list>
+      
+      <v-sheet v-else class="pa-4 text-center">
+        <v-icon size="large" color="grey" class="mb-2">mdi-tray-plus</v-icon>
+        <div class="text-body-1 text-grey">No phenotypes collected yet</div>
+        <div class="text-body-2 text-grey-darken-1 mt-2">
+          Click the <v-icon size="small">mdi-plus-circle</v-icon> button next to any HPO term to add it to your collection
+        </div>
+      </v-sheet>
+      
+      <template v-slot:append>
+        <v-divider></v-divider>
+        <div class="pa-2">
+          <v-btn
+            block
+            color="primary"
+            class="mb-2"
+            prepend-icon="mdi-download"
+            @click="exportPhenotypes"
+            :disabled="collectedPhenotypes.length === 0"
+          >
+            Export Collection
+          </v-btn>
+          <v-btn
+            block
+            variant="tonal"
+            color="error"
+            prepend-icon="mdi-delete"
+            @click="clearPhenotypeCollection"
+            :disabled="collectedPhenotypes.length === 0"
+          >
+            Clear Collection
+          </v-btn>
+        </div>
+      </template>
+    </v-navigation-drawer>
   </div>
 </template>
 
@@ -164,7 +265,9 @@ export default {
       rerankerMode: 'cross-lingual',
       isLoading: false,
       queryHistory: [],
-      showAdvancedOptions: false
+      showAdvancedOptions: false,
+      collectedPhenotypes: [],
+      showCollectionPanel: false
     };
   },
   watch: {
@@ -184,6 +287,58 @@ export default {
     this.selectedModel = this.availableModels[0].value;
   },
   methods: {
+    addToPhenotypeCollection(phenotype) {
+      // Check if this phenotype is already in the collection
+      const isDuplicate = this.collectedPhenotypes.some(item => item.hpo_id === phenotype.hpo_id);
+      
+      if (!isDuplicate) {
+        // Add phenotype to collection
+        this.collectedPhenotypes.push({
+          ...phenotype,
+          added_at: new Date()
+        });
+        
+        // Auto-show the collection panel if this is the first item
+        if (this.collectedPhenotypes.length === 1) {
+          this.showCollectionPanel = true;
+        }
+      }
+    },
+    
+    removePhenotype(index) {
+      this.collectedPhenotypes.splice(index, 1);
+    },
+    
+    clearPhenotypeCollection() {
+      this.collectedPhenotypes = [];
+    },
+    
+    toggleCollectionPanel() {
+      this.showCollectionPanel = !this.showCollectionPanel;
+    },
+    
+    exportPhenotypes() {
+      // Create a formatted text with the phenotypes
+      let exportText = "HPO Phenotypes Collection\n";
+      exportText += "Exported on: " + new Date().toLocaleString() + "\n\n";
+      exportText += "ID\tLabel\n";
+      
+      this.collectedPhenotypes.forEach(phenotype => {
+        exportText += `${phenotype.hpo_id}\t${phenotype.label}\n`;
+      });
+      
+      // Create a blob and download it
+      const blob = new Blob([exportText], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'hpo_phenotypes.txt';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    },
+  
     async submitQuery() {
       // Validate input - prevent empty queries
       const queryTextTrimmed = this.queryText.trim();

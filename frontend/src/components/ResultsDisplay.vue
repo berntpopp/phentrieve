@@ -37,8 +37,21 @@
           </template>
           
           <v-list-item-title class="font-weight-bold d-flex align-center">
-            {{ result.hpo_id }}
-            <span class="text-body-2 ml-2 text-grey">{{ result.label }}</span>
+            <div class="d-flex align-center justify-space-between" style="width: 100%">
+              <div>
+                {{ result.hpo_id }}
+                <span class="text-body-2 ml-2 text-grey">{{ result.label }}</span>
+              </div>
+              <v-btn
+                icon="mdi-plus-circle"
+                size="small"
+                color="primary"
+                variant="text"
+                class="ml-2"
+                @click.stop="addToCollection(result)"
+                :title="'Add ' + result.hpo_id + ' to collection'"
+              ></v-btn>
+            </div>
           </v-list-item-title>
           
           <v-list-item-subtitle>
@@ -104,7 +117,11 @@ export default {
       default: null
     }
   },
+  emits: ['add-to-collection'],
   methods: {
+    addToCollection(phenotype) {
+      this.$emit('add-to-collection', phenotype);
+    },
     formatRerankerScore(score) {
       // Different rerankers use different score ranges/meanings
       // Some return negative scores (higher/less negative = better)
