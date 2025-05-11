@@ -18,51 +18,64 @@
         </v-card-title>
       </v-card>
 
-      <v-expansion-panels>
-        <v-expansion-panel v-for="(result, index) in responseData.results" :key="index">
-          <v-expansion-panel-title>
-            <div class="d-flex align-center">
-              <span class="font-weight-bold">{{ result.hpo_id }}</span>
-              <v-spacer></v-spacer>
+      <v-list lines="two" class="rounded-lg mt-2">
+        <v-list-item
+          v-for="(result, index) in responseData.results"
+          :key="index"
+          class="mb-1 rounded-lg"
+          color="grey-lighten-5"
+          border
+          density="compact"
+        >
+          <template v-slot:prepend>
+            <v-badge
+              :content="index + 1"
+              color="primary"
+              inline
+              class="mr-2"
+            ></v-badge>
+          </template>
+          
+          <v-list-item-title class="font-weight-bold d-flex align-center">
+            {{ result.hpo_id }}
+            <span class="text-body-2 ml-2 text-grey">{{ result.label }}</span>
+          </v-list-item-title>
+          
+          <v-list-item-subtitle>
+            <div class="d-flex align-center mt-1">
+              <span v-if="result.original_rank !== undefined" class="text-caption text-grey mr-3">
+                Original rank: #{{ result.original_rank }}
+              </span>
+            </div>
+          </v-list-item-subtitle>
+          
+          <template v-slot:append>
+            <div class="d-flex flex-column align-end">
               <v-chip
-                class="mr-2"
+                class="mb-1"
                 color="primary"
                 size="small"
                 label
+                variant="outlined"
               >
+                <v-icon size="x-small" start>mdi-percent</v-icon>
                 {{ (result.similarity * 100).toFixed(1) }}%
               </v-chip>
+              
               <v-chip
-                v-if="result.cross_encoder_score !== undefined"
-                class="mr-2"
+                v-if="result.cross_encoder_score !== undefined && result.cross_encoder_score !== null"
                 color="secondary"
                 size="small"
                 label
+                variant="outlined"
               >
-                Reranked: {{ formatRerankerScore(result.cross_encoder_score) }}
-              </v-chip>
-              <v-chip
-                v-if="result.original_rank !== undefined"
-                class="mr-2"
-                color="grey-lighten-1"
-                size="small"
-                label
-              >
-                Orig: #{{ result.original_rank }}
+                <v-icon size="x-small" start>mdi-filter</v-icon>
+                {{ formatRerankerScore(result.cross_encoder_score) }}
               </v-chip>
             </div>
-          </v-expansion-panel-title>
-          <v-expansion-panel-text>
-            <div class="py-2">
-              <p class="mb-2"><strong>HPO Term:</strong> {{ result.label }}</p>
-              <p class="mb-0"><strong>Similarity Score:</strong> {{ result.similarity !== null && result.similarity !== undefined ? result.similarity.toFixed(4) : 'N/A' }}</p>
-              <p v-if="result.cross_encoder_score !== undefined && result.cross_encoder_score !== null" class="mb-0">
-                <strong>Cross-Encoder Score:</strong> {{ result.cross_encoder_score.toFixed(4) }}
-              </p>
-            </div>
-          </v-expansion-panel-text>
-        </v-expansion-panel>
-      </v-expansion-panels>
+          </template>
+        </v-list-item>
+      </v-list>
     </div>
     <div v-else-if="responseData && responseData.results && responseData.results.length === 0">
       <v-alert color="warning" icon="mdi-alert-circle">

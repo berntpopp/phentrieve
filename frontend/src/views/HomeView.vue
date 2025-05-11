@@ -1,14 +1,11 @@
 <template>
-  <v-container>
-    <v-row>
+  <v-container fluid class="pa-0 ma-0 fill-height">
+    <v-row no-gutters>
       <v-col cols="12">
-        <h1 class="text-h4 mb-4">Phentrieve</h1>
-        <p class="mb-6">Map clinical text to HPO terms using advanced embedding models</p>
-      </v-col>
-    </v-row>
-    
-    <v-row>
-      <v-col cols="12">
+        <div class="d-flex justify-center align-center pt-10 pb-2">
+          <img src="/hpo-logo.svg" alt="HPO Logo" height="50" class="mr-2">
+          <h1 class="text-h5 font-weight-light">Phentrieve</h1>
+        </div>
         <QueryInterface />
       </v-col>
     </v-row>

@@ -1,83 +1,105 @@
 <template>
-  <div>
-    <v-card class="mb-4">
-      <v-card-title class="text-h6">Phentrieve HPO Query</v-card-title>
-      <v-card-text>
-        <v-textarea
-          v-model="queryText"
-          label="Enter clinical text to query for HPO terms"
-          rows="4"
-          counter
-          hide-details="auto"
-          :disabled="isLoading"
-          outlined
-          auto-grow
-        ></v-textarea>
-        
-        <v-row class="mt-2">
-          <v-col cols="12" md="6">
-            <v-select
-              v-model="selectedModel"
-              :items="availableModels"
-              item-title="text"
-              item-value="value"
-              label="Embedding Model"
-              :disabled="isLoading"
-              outlined
-              dense
-            ></v-select>
-          </v-col>
+  <div class="search-container mx-auto" style="max-width: 800px">
+    <!-- Clean Search Bar with Integrated Button -->
+    <div class="search-bar-container pa-4">
+      <v-sheet rounded="pill" elevation="2" class="pa-2 search-bar">
+        <div class="d-flex align-center">
+          <v-textarea
+            v-model="queryText"
+            density="compact"
+            variant="plain"
+            placeholder="Enter clinical text to search for HPO terms..."
+            rows="1"
+            auto-grow
+            hide-details
+            class="search-input ml-3"
+            :disabled="isLoading"
+            @keydown.enter.prevent="!isLoading && queryText.trim() ? submitQuery() : null"
+          ></v-textarea>
           
-          <v-col cols="12" md="6">
-            <v-slider
-              v-model="similarityThreshold"
-              label="Similarity Threshold"
-              min="0"
-              max="1"
-              step="0.05"
-              thumb-label
-              :disabled="isLoading"
-            ></v-slider>
-          </v-col>
-        </v-row>
-        
-        <v-row>
-          <v-col cols="12" md="6">
-            <v-switch
-              v-model="enableReranker"
-              label="Enable Re-ranking"
-              :disabled="isLoading"
-              color="primary"
-              hide-details
-            ></v-switch>
-          </v-col>
+          <v-btn 
+            icon 
+            variant="text" 
+            color="primary" 
+            class="mx-2"
+            @click="showAdvancedOptions = !showAdvancedOptions"
+            :disabled="isLoading"
+          >
+            <v-icon>{{ showAdvancedOptions ? 'mdi-cog' : 'mdi-tune' }}</v-icon>
+          </v-btn>
           
-          <v-col cols="12" md="6" v-if="enableReranker">
-            <v-select
-              v-model="rerankerMode"
-              :items="['cross-lingual', 'monolingual']"
-              label="Reranker Mode"
-              :disabled="isLoading"
-              outlined
-              dense
-            ></v-select>
-          </v-col>
-        </v-row>
-      </v-card-text>
+          <v-btn
+            color="primary"
+            variant="tonal"
+            icon
+            rounded="circle"
+            @click="submitQuery"
+            :loading="isLoading"
+            :disabled="!queryText.trim()"
+            class="mr-2"
+          >
+            <v-icon>mdi-magnify</v-icon>
+          </v-btn>
+        </div>
+      </v-sheet>
       
-      <v-card-actions>
-        <v-spacer></v-spacer>
-        <v-btn
-          color="primary"
-          @click="submitQuery"
-          :loading="isLoading"
-          :disabled="!queryText.trim()"
-        >
-          <v-icon left>mdi-magnify</v-icon>
-          Query HPO Terms
-        </v-btn>
-      </v-card-actions>
-    </v-card>
+      <!-- Advanced Options Panel (Hidden by Default) -->
+      <v-expand-transition>
+        <v-sheet v-if="showAdvancedOptions" rounded="lg" elevation="1" class="mt-3 pa-4">
+          <div class="text-subtitle-2 mb-3">Advanced Options</div>
+          
+          <v-row>
+            <v-col cols="12" md="6">
+              <v-select
+                v-model="selectedModel"
+                :items="availableModels"
+                item-title="text"
+                item-value="value"
+                label="Embedding Model"
+                :disabled="isLoading"
+                variant="outlined"
+                density="compact"
+              ></v-select>
+            </v-col>
+            
+            <v-col cols="12" md="6">
+              <v-slider
+                v-model="similarityThreshold"
+                label="Similarity Threshold"
+                min="0"
+                max="1"
+                step="0.05"
+                thumb-label
+                :disabled="isLoading"
+              ></v-slider>
+            </v-col>
+          </v-row>
+          
+          <v-row>
+            <v-col cols="12" md="6">
+              <v-switch
+                v-model="enableReranker"
+                label="Enable Re-ranking"
+                :disabled="isLoading"
+                color="primary"
+                hide-details
+              ></v-switch>
+            </v-col>
+            
+            <v-col cols="12" md="6" v-if="enableReranker">
+              <v-select
+                v-model="rerankerMode"
+                :items="['cross-lingual', 'monolingual']"
+                label="Reranker Mode"
+                :disabled="isLoading"
+                variant="outlined"
+                density="compact"
+              ></v-select>
+            </v-col>
+          </v-row>
+        </v-sheet>
+      </v-expand-transition>
+    </div>
     
     <!-- Chat-like conversation interface -->
     <div class="conversation-container" ref="conversationContainer">
@@ -141,7 +163,8 @@ export default {
       enableReranker: false,
       rerankerMode: 'cross-lingual',
       isLoading: false,
-      queryHistory: []
+      queryHistory: [],
+      showAdvancedOptions: false
     };
   },
   watch: {
