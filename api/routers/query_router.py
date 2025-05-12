@@ -6,7 +6,9 @@ import logging
 
 from sentence_transformers import SentenceTransformer, CrossEncoder
 
-from phentrieve.retrieval.api_helpers import execute_hpo_retrieval_for_api  # From Step 1
+from phentrieve.retrieval.api_helpers import (
+    execute_hpo_retrieval_for_api,
+)  # From Step 1
 from phentrieve.retrieval.dense_retriever import DenseRetriever
 from api.schemas.query_schemas import QueryRequest, QueryResponse, HPOResultItem
 from api.dependencies import (
@@ -40,14 +42,20 @@ async def run_hpo_query_get(
     retriever: DenseRetriever = Depends(
         lambda: get_dense_retriever_dependency(
             sbert_model_name_for_retriever=DEFAULT_MODEL,
-            index_dir=os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "data", "indexes")
+            index_dir=os.path.join(
+                os.path.dirname(
+                    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+                ),
+                "data",
+                "indexes",
+            ),
         )
-    )
+    ),
 ):
     """Simple GET endpoint for HPO term queries.
-    
+
     - text: Clinical text to query for HPO terms (required)
-    - model_name: Embedding model for HPO retrieval 
+    - model_name: Embedding model for HPO retrieval
     - language: ISO 639-1 language code (auto-detected if not provided)
     - num_results: Number of HPO terms to return
     - similarity_threshold: Minimum similarity score
@@ -64,7 +72,7 @@ async def run_hpo_query_get(
         enable_reranker=enable_reranker,
         reranker_mode=reranker_mode,
     )
-    
+
     # Reuse the POST endpoint logic
     return await run_hpo_query(request=request, retriever=retriever)
 
@@ -75,12 +83,18 @@ async def run_hpo_query(
     retriever: DenseRetriever = Depends(
         lambda: get_dense_retriever_dependency(
             sbert_model_name_for_retriever=DEFAULT_MODEL,
-            index_dir=os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "data", "indexes")
+            index_dir=os.path.join(
+                os.path.dirname(
+                    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+                ),
+                "data",
+                "indexes",
+            ),
         )
-    )
+    ),
 ):
     """Execute an HPO term query with full control over parameters.
-    
+
     This endpoint accepts a JSON body with various options for fine-tuning the query.
     For a simpler interface, use the GET endpoint.
     """
@@ -97,18 +111,24 @@ async def run_hpo_query(
         logger.warning(
             f"Retriever model mismatch or not initialized for {sbert_model_to_use_for_retrieval}. Attempting re-init."
         )
-        # Define the project's index directory path 
-        index_dir_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "data", "indexes")
-        
+        # Define the project's index directory path
+        index_dir_path = os.path.join(
+            os.path.dirname(
+                os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            ),
+            "data",
+            "indexes",
+        )
+
         # Get the SBERT model instance
         sbert_instance = await get_sbert_model_dependency(
             model_name_requested=sbert_model_to_use_for_retrieval
         )
-        
+
         # Properly initialize retriever with the correct index directory
         retriever = await get_dense_retriever_dependency(
             sbert_model_name_for_retriever=sbert_model_to_use_for_retrieval,
-            index_dir=index_dir_path
+            index_dir=index_dir_path,
         )
         if not retriever:
             raise HTTPException(

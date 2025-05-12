@@ -49,5 +49,29 @@ phentrieve = "phentrieve.cli:app"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["phentrieve*"]
+include = ["phentrieve*", "api*"]
 # exclude = ["tests*"] # Uncomment if/when you add tests
+
+[tool.black]
+line-length = 88
+target-version = ['py39']
+include = '\.pyi?$'
+extend-exclude = '''
+/(\n  \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | env
+  | venv
+)/
+'''
+force-exclude = '''
+/(
+  __pycache__
+)/
+'''

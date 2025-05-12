@@ -65,12 +65,12 @@ async def execute_hpo_retrieval_for_api(
     query_results = retriever.query(
         text=segment_to_process,
         n_results=rerank_count if enable_reranker else num_results,
-        include_similarities=True
+        include_similarities=True,
     )
-    
+
     # Convert the dictionary results to a list of HPO items
     hpo_embeddings_results = []
-    
+
     # Check if we have valid results
     if not query_results or not query_results.get("ids") or not query_results["ids"][0]:
         logger.info(
@@ -81,23 +81,32 @@ async def execute_hpo_retrieval_for_api(
             "header": f"No HPO terms found with similarity threshold {similarity_threshold}.",
             "results": [],
         }
-        
+
     # Process the results from query into a usable format
     for i in range(len(query_results["ids"][0])):
         # Skip items below similarity threshold
-        if "similarities" in query_results and query_results["similarities"][0][i] < similarity_threshold:
+        if (
+            "similarities" in query_results
+            and query_results["similarities"][0][i] < similarity_threshold
+        ):
             continue
-            
+
         # Get metadata
-        metadata = query_results["metadatas"][0][i] if query_results.get("metadatas") else {}
-        
+        metadata = (
+            query_results["metadatas"][0][i] if query_results.get("metadatas") else {}
+        )
+
         # Build the HPO item
         hpo_item = {
             "hpo_id": metadata.get("hpo_id", query_results["ids"][0][i]),
             "label": metadata.get("label", query_results["documents"][0][i]),
-            "similarity": query_results["similarities"][0][i] if "similarities" in query_results else None
+            "similarity": (
+                query_results["similarities"][0][i]
+                if "similarities" in query_results
+                else None
+            ),
         }
-        
+
         hpo_embeddings_results.append(hpo_item)
     # Apply reranking if enabled
     if enable_reranker and cross_encoder:
@@ -163,7 +172,7 @@ async def execute_hpo_retrieval_for_api(
     # Create result dictionary without using language as key to avoid the unhashable slice error
     result_dict = {
         "query_text_processed": segment_to_process,
-        "results": formatted_results
+        "results": formatted_results,
     }
-    
+
     return result_dict

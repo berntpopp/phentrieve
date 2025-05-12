@@ -71,12 +71,19 @@ async def get_dense_retriever_dependency(
         try:
             # Try to debug available index paths
             import os
+
             project_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
             possible_index_paths = [
-                os.path.join(project_dir, "data", "indexes"),  # Project data/indexes directory
-                os.path.join(project_dir, "hpo_chroma_index"),  # Project directory index
-                os.path.expanduser("~/.phentrieve/hpo_chroma_index"),  # User home directory index
-                index_dir or ""  # Custom index path if provided
+                os.path.join(
+                    project_dir, "data", "indexes"
+                ),  # Project data/indexes directory
+                os.path.join(
+                    project_dir, "hpo_chroma_index"
+                ),  # Project directory index
+                os.path.expanduser(
+                    "~/.phentrieve/hpo_chroma_index"
+                ),  # User home directory index
+                index_dir or "",  # Custom index path if provided
             ]
 
             for path in possible_index_paths:
@@ -94,12 +101,12 @@ async def get_dense_retriever_dependency(
                     found_index_path = path
                     logger.info(f"Using index directory: {path}")
                     break
-                    
+
             # Pass the found index path or fallback to the provided one
             retriever = DenseRetriever.from_model_name(
                 model=sbert_instance,
                 model_name=sbert_model_name_for_retriever,
-                index_dir=found_index_path or index_dir
+                index_dir=found_index_path or index_dir,
                 # min_similarity is applied per-query from request, not on retriever instantiation
             )
 
