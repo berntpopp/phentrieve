@@ -6,7 +6,7 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from api.routers import query_router
+from api.routers import query_router, health
 from api.dependencies import (
     get_sbert_model_dependency,
     get_dense_retriever_dependency,
@@ -83,6 +83,7 @@ async def startup_event():
 
 # Include routers
 app.include_router(query_router.router, prefix="/api/v1/query", tags=["HPO Term Query"])
+app.include_router(health.router, prefix="/api/v1", tags=["Health Check"])
 # Add other routers here for text_processing if created later
 
 
