@@ -58,8 +58,8 @@ def get_embedding_dimension(model_name: str) -> int:
         "sentence-transformers/distiluse-base-multilingual-cased-v2": 512,
         "BAAI/bge-m3": 1024,  # BGE-M3 uses 1024-dimensional embeddings
         "sentence-transformers/LaBSE": 768,  # LaBSE uses 768-dimensional embeddings
-        "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2": 384,  # Mini
-        # "Alibaba-NLP/gte-multilingual-base": 768,  # GTE uses standard 768-dimensional embeddings (covered by default)
+        "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2": 384,
+        # "Alibaba-NLP/gte-multilingual-base": 768,  # Standard dimensions
     }
 
     # Default dimension for most sentence transformer models
@@ -133,17 +133,68 @@ def get_config_file_path() -> Optional[Path]:
 
 
 def get_default_data_dir() -> Path:
-    """Gets the default path for storing HPO data."""
+    """Gets the default path for storing HPO data.
+
+    Prioritizes environment variables in this order:
+    1. PHENTRIEVE_DATA_DIR - specific data directory
+    2. PHENTRIEVE_DATA_ROOT_DIR/hpo_core_data - subfolder of root data directory
+    3. User home directory fallback (~/.phentrieve/data)
+    """
+    # Check for specific data directory environment variable
+    env_specific = os.getenv("PHENTRIEVE_DATA_DIR")
+    if env_specific:
+        return Path(env_specific)
+
+    # Check for root data directory and add subfolder
+    env_root = os.getenv("PHENTRIEVE_DATA_ROOT_DIR")
+    if env_root:
+        return Path(env_root) / "hpo_core_data"
+
+    # Fallback to user config directory
     return get_user_config_dir() / "data"
 
 
 def get_default_index_dir() -> Path:
-    """Gets the default path for storing ChromaDB indexes."""
+    """Gets the default path for storing ChromaDB indexes.
+
+    Prioritizes environment variables in this order:
+    1. PHENTRIEVE_INDEX_DIR - specific index directory
+    2. PHENTRIEVE_DATA_ROOT_DIR/indexes - subfolder of root data directory
+    3. User home directory fallback (~/.phentrieve/hpo_chroma_index)
+    """
+    # Check for specific index directory environment variable
+    env_specific = os.getenv("PHENTRIEVE_INDEX_DIR")
+    if env_specific:
+        return Path(env_specific)
+
+    # Check for root data directory and add subfolder
+    env_root = os.getenv("PHENTRIEVE_DATA_ROOT_DIR")
+    if env_root:
+        return Path(env_root) / "indexes"
+
+    # Fallback to user config directory
     return get_user_config_dir() / "hpo_chroma_index"
 
 
 def get_default_results_dir() -> Path:
-    """Gets the default path for storing benchmark results."""
+    """Gets the default path for storing benchmark results.
+
+    Prioritizes environment variables in this order:
+    1. PHENTRIEVE_RESULTS_DIR - specific results directory
+    2. PHENTRIEVE_DATA_ROOT_DIR/results - subfolder of root data directory
+    3. User home directory fallback (~/.phentrieve/benchmark_results)
+    """
+    # Check for specific results directory environment variable
+    env_specific = os.getenv("PHENTRIEVE_RESULTS_DIR")
+    if env_specific:
+        return Path(env_specific)
+
+    # Check for root data directory and add subfolder
+    env_root = os.getenv("PHENTRIEVE_DATA_ROOT_DIR")
+    if env_root:
+        return Path(env_root) / "results"
+
+    # Fallback to user config directory
     return get_user_config_dir() / "benchmark_results"
 
 
