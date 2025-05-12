@@ -41,13 +41,15 @@ RUN pip install --no-cache-dir .[all]
 COPY phentrieve/ /app/phentrieve/
 COPY api/ /app/api/
 
-# Copy data directory with all subdirectories
-COPY data/ /app/data/
-
 # Set environment variables
 ENV PYTHONPATH=/app
-ENV PHENTRIEVE_DATA_DIR=/app/data
-ENV PHENTRIEVE_INDEX_DIR=/app/data/indexes
+# Container path where host data will be mounted
+ENV PHENTRIEVE_DATA_ROOT_DIR=/phentrieve_data_mount
+# These are derived from PHENTRIEVE_DATA_ROOT_DIR by the code
+# Just setting them here for clarity about expected structure
+ENV PHENTRIEVE_DATA_DIR=/phentrieve_data_mount/hpo_core_data
+ENV PHENTRIEVE_INDEX_DIR=/phentrieve_data_mount/indexes
+ENV PHENTRIEVE_RESULTS_DIR=/phentrieve_data_mount/results
 
 # Clean up unnecessary packages after installation to reduce image size
 RUN apt-get purge -y --auto-remove build-essential wget libreadline-dev \

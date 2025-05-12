@@ -1,37 +1,58 @@
 version: '3.8'
+
 services:
   phentrieve_api:
     build:
       context: .
-      dockerfile: api/Dockerfile
-    ports:
-      - "8001:8000" # API accessible on host port 8001
+      dockerfile: api/Dockerfile # Assuming your Dockerfile is in the 'api' subdirectory
+    env_file:
+      - .env.docker 
     volumes:
-      # Development volumes for live code reload
+      # Mount the single host data directory to the specified container path
+      - ${PHENTRIEVE_HOST_DATA_DIR}:/phentrieve_data_mount 
+      # For development: Mount code for live reload (comment out for production image)
       - ./phentrieve:/app/phentrieve
       - ./api:/app/api
-      # Direct bind mount for data
-      - ./data:/app/data
     environment:
-      - PHENTRIEVE_DATA_DIR=/app/data
-      - PHENTRIEVE_INDEX_DIR=/app/data/indexes
+      - PHENTRIEVE_DATA_ROOT_DIR=/phentrieve_data_mount # Tells app where its data root is
+      - LOG_LEVEL=${LOG_LEVEL_API:-INFO}
+      - PYTHONPATH=/app # Ensures modules are found
+    # No 'ports' section here; NPM handles external exposure.
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
-      interval: 60s
-      timeout: 30s
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/api/v1/health || exit 1"]
+      interval: 30s
+      timeout: 10s
       retries: 5
-      start_period: 180s
+      start_period: 180s 
     restart: unless-stopped
+    networks:
+      - phentrieve_internal_net 
+      - npm_proxy_network       # Connects to the shared network with NPM
 
   phentrieve_frontend:
     build:
       context: ./frontend
-      dockerfile: Dockerfile # Uses Nginx to serve built files
-    ports:
-      - "8080:80" # Frontend accessible on host port 8080
+      dockerfile: Dockerfile 
+    env_file:
+      - .env.docker
+    environment:
+      # Pass the public API URL to Vite at build time if needed by the frontend app
+      # If frontend/nginx.conf proxies /api/v1/ correctly, this might just be "/api/v1"
+      VITE_API_URL: ${VITE_API_URL_PUBLIC} 
+    # No 'ports' section here; NPM handles external exposure.
     depends_on:
       phentrieve_api:
-        condition: service_healthy # Improved dependency handling
+        condition: service_healthy
     restart: unless-stopped
+    networks:
+      - phentrieve_internal_net
+      - npm_proxy_network
 
-# No named volumes needed - using direct bind mounts
+networks:
+  phentrieve_internal_net: # Internal network for Phentrieve services
+    driver: bridge
+  npm_proxy_network: # External network shared with NPM
+    external: true
+    # This name MUST match the actual name of NPM's network (e.g., 'npm_default')
+    # It will be read from the NPM_SHARED_NETWORK_NAME variable in .env.docker
+    name: ${NPM_SHARED_NETWORK_NAME} 

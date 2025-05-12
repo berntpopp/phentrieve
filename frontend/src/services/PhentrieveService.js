@@ -1,7 +1,14 @@
 import axios from 'axios';
 
-// Use import.meta.env for Vite instead of process.env
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8001/api/v1';
+/**
+ * Determine the API URL based on environment variables and deployment context
+ * 
+ * Priority order:
+ * 1. VITE_API_URL (from .env) - for external URLs like https://phentrieve-api.kidney-genetics.org/api/v1
+ * 2. Relative path '/api/v1' - when frontend Nginx proxies to API (Docker/NPM setup)
+ * 3. Development fallback - localhost with port for local development
+ */
+const API_URL = import.meta.env.VITE_API_URL || '/api/v1';  // Default to relative path for Nginx proxy
 
 class PhentrieveService {
     async queryHpo(queryData) {

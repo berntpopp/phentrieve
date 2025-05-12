@@ -603,17 +603,9 @@ The Vue.js frontend provides:
 
 ### Running the Web Application
 
-The easiest way to run the web application is using Docker Compose:
+#### Local Development
 
-```bash
-# Start both API and frontend containers
-docker-compose up --build
-
-# Access the web interface
-# Open http://localhost:8080 in your browser
-```
-
-For development, you can run the components individually:
+For local development, you can run the components individually:
 
 ```bash
 # Start the FastAPI backend
@@ -625,6 +617,112 @@ cd frontend
 npm install
 npm run serve
 ```
+
+#### Simple Docker Deployment
+
+For simple local testing with Docker:
+
+```bash
+# Start both API and frontend containers
+docker compose up --build
+
+# Access the web interface
+# Open http://localhost:8080 in your browser
+```
+
+#### Production Deployment with Docker and Nginx Proxy Manager
+
+For production or production-like environments, Phentrieve can be deployed behind [Nginx Proxy Manager (NPM)](https://nginxproxymanager.com/) for reverse proxying and SSL management.
+
+##### Prerequisites
+
+- Docker and Docker Compose V2 installed on your server
+- Nginx Proxy Manager already set up and running
+- Domain name with DNS records pointing to your server
+- Ubuntu server (recommended; other Linux distributions should work similarly)
+
+##### Deployment Steps
+
+1. **Clone the repository**
+
+   ```bash
+   git clone https://github.com/yourusername/phentrieve.git
+   cd phentrieve
+   ```
+
+2. **Configure environment variables**
+
+   ```bash
+   # Copy example files
+   cp .env.docker.example .env.docker
+   
+   # Edit the .env.docker file and set at minimum:
+   # - PHENTRIEVE_HOST_DATA_DIR (absolute path where data will be stored)
+   # - VITE_API_URL_PUBLIC and VITE_FRONTEND_URL_PUBLIC (your domain names)
+   nano .env.docker
+   ```
+
+3. **Run the setup script**
+
+   The setup script automates several tasks:
+   - Creates necessary host data directories
+   - Creates shared Docker network with NPM if needed
+   - Prepares HPO core data (if not already present)
+   - Builds default model index (if not already present)
+
+   ```bash
+   chmod +x setup_phentrieve.sh
+   ./setup_phentrieve.sh
+   ```
+
+4. **Configure DNS records**
+
+   Ensure your domain registrar has A/AAAA records pointing to your server for:
+   - Your main frontend domain (e.g., phentrieve.kidney-genetics.org)
+   - Your API domain (e.g., phentrieve-api.kidney-genetics.org)
+
+5. **Configure Nginx Proxy Manager**
+
+   In the NPM web interface, add two Proxy Hosts:
+
+   **Frontend:**
+   - Domain: phentrieve.kidney-genetics.org
+   - Scheme: http
+   - Forward Hostname/IP: phentrieve_frontend (Docker service name)
+   - Forward Port: 80
+   - SSL: Request Let's Encrypt certificate, Force SSL
+
+   **API:**
+   - Domain: phentrieve-api.kidney-genetics.org
+   - Scheme: http
+   - Forward Hostname/IP: phentrieve_api (Docker service name)
+   - Forward Port: 8000
+   - SSL: Request Let's Encrypt certificate, Force SSL
+
+6. **Start the Phentrieve services**
+
+   ```bash
+   docker compose -f docker-compose.yml --env-file .env.docker up -d --build
+   ```
+
+7. **Access your application**
+
+   Open your browser and navigate to your frontend domain (https://phentrieve.kidney-genetics.org)
+
+##### Data Management
+
+All Phentrieve data (HPO source files, indexes, benchmark results) is stored in the directory you specified in `PHENTRIEVE_HOST_DATA_DIR`. The data structure inside this directory is:
+
+```
+/your/host/data/dir/
+├── hpo_core_data/    # HPO source files (hp.json, etc.)
+├── indexes/          # ChromaDB persistent storage
+├── results/          # Benchmark results
+└── hpo_translations/ # Translation files (if used)
+    └── de/           # Language-specific subdirectories
+```
+
+This organization allows for easy backup and migration of Phentrieve data.
 
 ## References
 

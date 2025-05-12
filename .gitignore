@@ -50,3 +50,7 @@ benchmark_results/
 # OS specific files
 .DS_Store
 Thumbs.db
+
+# env files
+.env.docker
+.env
