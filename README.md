@@ -1,17 +1,21 @@
 # Phentrieve
 
-A modular Python package for mapping clinical text in multiple languages to Human Phenotype Ontology (HPO) terms via a Retrieval-Augmented Generation (RAG) approach. The system supports benchmarking across multiple multilingual embedding models to identify relevant HPO terms from clinical descriptions in various languages.
+A comprehensive system for mapping clinical text in multiple languages to Human Phenotype Ontology (HPO) terms via a Retrieval-Augmented Generation (RAG) approach. Phentrieve includes a robust Python package, FastAPI backend, and Vue/Vuetify frontend. The system supports benchmarking across multiple multilingual embedding models to identify relevant HPO terms from clinical descriptions in various languages.
 
 ## Project Structure
 
 ```text
 phentrieve/
-├── data/                         # Data Sources & Test Cases
-│   ├── hp.json                   # Original HPO download (generated)
-│   ├── hpo_terms/                # Extracted terms (generated)
-│   ├── hpo_ancestors.pkl         # Precomputed graph data (generated)
-│   ├── hpo_term_depths.pkl       # Precomputed graph data (generated)
-│   └── test_cases/               # Test cases for benchmarking
+├── api/                          # FastAPI Backend Application
+│   ├── Dockerfile                # API container definition
+│   ├── routers/                  # API endpoint groups
+│   └── dependencies.py           # FastAPI dependency injection
+│
+├── frontend/                     # Vue/Vuetify Web Interface
+│   ├── Dockerfile                # Frontend container definition
+│   ├── nginx.conf                # Web server configuration
+│   ├── src/                      # Vue application source
+│   └── package.json              # Frontend dependencies
 │
 ├── phentrieve/                   # Core Source Code Package
 │   ├── __init__.py
@@ -22,14 +26,18 @@ phentrieve/
 │   ├── indexing/                 # Modules for building indexes
 │   ├── retrieval/                # Modules for querying indexes
 │   ├── evaluation/               # Modules for benchmarking and metrics
+│   ├── text_processing/          # Text chunking and assertion detection 
 │   └── utils.py                  # Shared utility functions
+│
+├── docker-compose.yml            # Production Docker deployment
+├── docker-compose.dev.yml        # Local development overrides
+├── setup_phentrieve.sh           # Automated deployment setup script
+├── .env.docker.example           # Docker environment template
 │
 ├── benchmark_results/            # Benchmark Outputs
 │   ├── summaries/                # JSON summaries per run/model
 │   ├── visualizations/           # Plot images
 │   └── detailed/                 # Detailed CSV results per run
-│
-├── hpo_chroma_index/             # ChromaDB persistent storage (generated)
 ```
 
 ## Core Concept
@@ -48,51 +56,73 @@ This allows researchers to select the best model for their specific language and
 
 ## How It Works
 
-The system operates in two phases:
+The system operates in three main layers:
+
+1. **Core Package**: The underlying Python library that handles data processing, embedding generation, and retrieval
+2. **API Layer**: A FastAPI-based service that exposes the core functionality through RESTful endpoints
+3. **Frontend Layer**: A Vue.js-based web interface for user-friendly interaction
+
+The workflow follows two primary phases:
 
 ### 1. Setup Phase (One-time)
 
 - **HPO Data Acquisition**: Downloads the official HPO data in JSON format from JAX
-- **HPO Term Extraction**: Processes the HPO data, focusing only on phenotypic abnormalities (under HP:0000118) while filtering out non-phenotype terms (like modes of inheritance)
-- **Document Creation**: For each relevant HPO term, creates a comprehensive document containing:
+- **HPO Term Extraction**: Processes the HPO data, extracting ALL HPO terms with a focus on phenotypic abnormalities
+- **Document Creation**: For each HPO term, creates a comprehensive document containing:
   - HPO ID (e.g., HP:0000123)
   - Primary label/name in English
   - Definition
   - Synonyms
-- **Embedding Generation**: Using the multilingual model, creates vector embeddings for each HPO term document
+- **Embedding Generation**: Using a selected multilingual model, creates vector embeddings for each HPO term document
 - **Index Building**: Stores these embeddings along with metadata in a local ChromaDB vector database for efficient similarity search
+
+For Docker deployments, the `setup_phentrieve.sh` script automates this process, creating necessary directories, establishing network connections with Nginx Proxy Manager, and preparing the HPO data and index.
 
 ### 2. Query Phase
 
-- **Input Processing**: Takes multilingual clinical text as input, optionally splitting into sentences
-- **Embedding Generation**: Maps the text into the same embedding space using the identical model
-- **Semantic Search**: Queries the ChromaDB index to find the closest HPO term embeddings to the input text embedding
-- **Result Ranking**: Ranks results by similarity score and filters out low-confidence matches
-- **Output Generation**: Returns the most relevant HPO terms with their IDs, names, definitions, and similarity scores
+- **Input Processing**: Takes multilingual clinical text as input, with optional chunking and assertion detection
+- **Embedding Generation**: Creates vector embeddings of the input text using the same model
+- **Similarity Search**: Queries the ChromaDB index to find the most similar HPO term documents
+- **Optional Re-ranking**: Can apply cross-encoder models to improve ranking precision
+- **Result Filtering**: Ranks results by similarity score and filters out low-confidence matches
+- **Output Generation**: Returns the most relevant HPO terms with their IDs, names, definitions, similarity scores, and assertion status (if applicable)
 
 ## Advantages
 
 - **Direct semantic matching**: No error-prone intermediate translation step
 - **Language-independent**: The model understands the meaning across languages
-- **Offline operation**: All components run locally after initial setup
-- **Robust to linguistic variations**: Can find relevant terms even when phrasing differs from known synonyms
-- **Maintainable architecture**: Simpler than translation-based pipelines
 
 ## Current Implementation
 
-Our current implementation successfully extracts and indexes over 18,000 HPO phenotypic abnormality terms and provides comprehensive benchmarking with both exact-match and ontology-based semantic similarity metrics. The system includes:
+The system consists of several integrated components:
 
-1. **Data processing pipeline**:
-   - HPO data download: Downloads the HPO data from the official source
-   - HPO term extraction: Parses the HPO hierarchy, extracts individual terms, and filters for phenotypic abnormalities
-   - Interactive query interface: CLI for entering multilingual text and viewing matching HPO terms
-   - Supports sentence-by-sentence processing for longer texts
-   - Configurable similarity threshold and result count
+- **Core Python Package**:
+  - **Data Preparation**: Extracts phenotype terms from HPO JSON, builds semantic documents
+  - **Embedding Models**: Uses SentenceTransformers multilingual models with GPU acceleration when available
+  - **Vector Database**: ChromaDB for efficient similarity search
+  - **Text Processing**: Chunking strategies and assertion detection for detailed text analysis
+  - **Evaluation Framework**: Comprehensive benchmarking system with multiple metrics
+    - Basic retrieval metrics: MRR, Hit@K, recall, precision
+    - HPO graph precomputation: Precomputes HPO graph properties for ontology similarity metrics
+    - Generates detailed performance metrics and visualizations
 
-2. **Benchmarking framework**:
-   - Evaluates model performance using test cases with expected HPO terms
-   - HPO graph precomputation: Precomputes HPO graph properties for ontology similarity metrics
-   - Generates detailed performance metrics and visualizations
+- **API Layer**:
+  - FastAPI-based REST endpoints for querying HPO terms
+  - Dependency injection for efficient model and retriever management
+  - Health checks and error handling
+  - Interactive API documentation (OpenAPI)
+
+- **Frontend**:
+  - Vue.js framework with Vuetify UI components
+  - Interactive query interface
+  - Results display with HPO term details
+  - User-friendly configuration options
+  
+- **Deployment**:
+  - Docker containers for both API and frontend
+  - Nginx for serving the frontend
+  - Nginx Proxy Manager integration for reverse proxying and SSL
+  - Setup automation script for easy deployment
 
 ### Technical Details
 
@@ -277,7 +307,7 @@ python -m spacy download en_core_web_sm  # For English text
 python -m spacy download de_core_news_sm  # For German text
 ```
 
-### Prepare HPO Data and Index (Run Once)
+### Data Setup
 
 1. **Prepare HPO Data (Graph Properties & Extracted Terms):**
    This step downloads `hp.json`, extracts all HPO terms into `data/hpo_terms/`, and precomputes `data/hpo_ancestors.pkl` and `data/hpo_term_depths.pkl`.
@@ -593,55 +623,26 @@ Key API features:
 
 ### Web Frontend
 
-The Vue.js frontend provides:
+The Vue/Vuetify frontend provides:
 
 - A clean, modern interface using Vuetify 3 components
-- Text input area for clinical descriptions
+- Text input area for multilingual clinical text
 - Controls for model selection and similarity threshold
-- Chat-like results display showing HPO terms with confidence scores
-- Support for viewing cross-encoder reranking scores
 
-### Running the Web Application
+Phentrieve can be deployed in multiple ways depending on your needs. The recommended approach for production is using Docker with Nginx Proxy Manager, but local development options are also available.
 
-#### Local Development
+### Docker Deployment with Nginx Proxy Manager (Recommended for Servers)
 
-For local development, you can run the components individually:
+This deployment method provides a production-ready setup with proper SSL termination and domain routing.
 
-```bash
-# Start the FastAPI backend
-cd api
-uvicorn main:app --reload --host 0.0.0.0 --port 8001
-
-# Start the Vue.js frontend (in separate terminal)
-cd frontend
-npm install
-npm run serve
-```
-
-#### Simple Docker Deployment
-
-For simple local testing with Docker:
-
-```bash
-# Start both API and frontend containers
-docker compose up --build
-
-# Access the web interface
-# Open http://localhost:8080 in your browser
-```
-
-#### Production Deployment with Docker and Nginx Proxy Manager
-
-For production or production-like environments, Phentrieve can be deployed behind [Nginx Proxy Manager (NPM)](https://nginxproxymanager.com/) for reverse proxying and SSL management.
-
-##### Prerequisites
+#### Prerequisites
 
 - Docker and Docker Compose V2 installed on your server
-- Nginx Proxy Manager already set up and running
+- Nginx Proxy Manager (NPM) already set up and running
 - Domain name with DNS records pointing to your server
-- Ubuntu server (recommended; other Linux distributions should work similarly)
+- Linux server (Ubuntu recommended)
 
-##### Deployment Steps
+#### Deployment Steps
 
 1. **Clone the repository**
 
@@ -658,6 +659,7 @@ For production or production-like environments, Phentrieve can be deployed behin
    
    # Edit the .env.docker file and set at minimum:
    # - PHENTRIEVE_HOST_DATA_DIR (absolute path where data will be stored)
+   # - NPM_SHARED_NETWORK_NAME (your NPM network, typically 'npm_default')
    # - VITE_API_URL_PUBLIC and VITE_FRONTEND_URL_PUBLIC (your domain names)
    nano .env.docker
    ```
@@ -678,22 +680,22 @@ For production or production-like environments, Phentrieve can be deployed behin
 4. **Configure DNS records**
 
    Ensure your domain registrar has A/AAAA records pointing to your server for:
-   - Your main frontend domain (e.g., phentrieve.kidney-genetics.org)
-   - Your API domain (e.g., phentrieve-api.kidney-genetics.org)
+   - Your main frontend domain (e.g., phentrieve.example.com)
+   - Your API domain (e.g., phentrieve-api.example.com)
 
 5. **Configure Nginx Proxy Manager**
 
    In the NPM web interface, add two Proxy Hosts:
 
    **Frontend:**
-   - Domain: phentrieve.kidney-genetics.org
+   - Domain: phentrieve.example.com
    - Scheme: http
    - Forward Hostname/IP: phentrieve_frontend (Docker service name)
    - Forward Port: 80
    - SSL: Request Let's Encrypt certificate, Force SSL
 
    **API:**
-   - Domain: phentrieve-api.kidney-genetics.org
+   - Domain: phentrieve-api.example.com
    - Scheme: http
    - Forward Hostname/IP: phentrieve_api (Docker service name)
    - Forward Port: 8000
@@ -707,22 +709,164 @@ For production or production-like environments, Phentrieve can be deployed behin
 
 7. **Access your application**
 
-   Open your browser and navigate to your frontend domain (https://phentrieve.kidney-genetics.org)
+   Open your browser and navigate to your frontend domain (https://phentrieve.example.com)
 
-##### Data Management
+### Local Development with Docker Compose (Direct Port Access)
 
-All Phentrieve data (HPO source files, indexes, benchmark results) is stored in the directory you specified in `PHENTRIEVE_HOST_DATA_DIR`. The data structure inside this directory is:
+For local development and testing, you can run Phentrieve with direct port access:
+
+```bash
+# Create a local environment file
+cp .env.docker.example .env.local
+
+# Edit .env.local with local settings
+# Set PHENTRIEVE_HOST_DATA_DIR to an absolute path on your machine
+# You can leave the URL variables as they are
+
+# Start both API and frontend containers with development overrides
+docker compose -f docker-compose.yml -f docker-compose.dev.yml --env-file .env.local up --build
+
+# Access the frontend at http://localhost:8080
+# API is available at http://localhost:8001/api/v1
+# API docs at http://localhost:8001/docs
+```
+
+The `docker-compose.dev.yml` override file maps the container ports to your host and configures the frontend to communicate with the local API instance.
+
+### Local Python Environment Installation
+
+For CLI usage or advanced development, you can install Phentrieve directly in a Python environment:
+
+```bash
+# Create and activate a virtual environment
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install Phentrieve in development mode
+pip install -e .
+
+# Install required spaCy models
+python -m spacy download en_core_web_sm
+python -m spacy download de_core_news_sm  # If working with German
+
+# Verify installation
+phentrieve --help
+```
+
+### Initial Setup
+
+If using Docker, the `setup_phentrieve.sh` script handles this automatically. For local Python installations:
+
+```bash
+# Download and process HPO data
+phentrieve data prepare
+
+# Build the index for a specific model
+phentrieve index build --model-name "FremyCompany/BioLORD-2023-M"
+
+# Or build multiple indexes for benchmarking
+phentrieve index build --all-models
+```
+
+### Data Management
+
+All Phentrieve data is stored in configurable directories:
+
+- **For Docker deployments**: In the directory specified by `PHENTRIEVE_HOST_DATA_DIR` in your `.env.docker` file
+- **For local installations**: In the default locations specified in `phentrieve/config.py` (configurable via environment variables)
+
+The data structure includes:
 
 ```
-/your/host/data/dir/
+/your/data/dir/
 ├── hpo_core_data/    # HPO source files (hp.json, etc.)
 ├── indexes/          # ChromaDB persistent storage
 ├── results/          # Benchmark results
 └── hpo_translations/ # Translation files (if used)
-    └── de/           # Language-specific subdirectories
 ```
 
-This organization allows for easy backup and migration of Phentrieve data.
+### Web Application Components
+
+Phentrieve provides a complete web application for easy interaction with the system:
+
+#### API
+
+The FastAPI backend provides RESTful endpoints:
+
+- **Main Query Endpoint**: `/api/v1/query/`
+- **Method**: POST
+- **Example Request**:
+  ```json
+  {
+    "text": "Der Patient zeigt Mikrozephalie und Krampfanfälle",
+    "model_name": "FremyCompany/BioLORD-2023-M",
+    "num_results": 5,
+    "similarity_threshold": 0.3,
+    "enable_reranker": true
+  }
+  ```
+
+Complete API documentation is available at the `/docs` endpoint when running the API.
+
+#### Frontend
+
+The Vue/Vuetify frontend provides:
+
+- User-friendly query interface
+- Model selection dropdown
+- Result display with HPO details and similarity scores
+- Option toggles for reranking and other features
+
+## Benchmarking Results
+
+Extensive benchmarking has been performed to evaluate different embedding models for HPO term retrieval. Results show significant performance variations across models:
+
+### GPU-Accelerated Results
+
+Benchmarking with GPU acceleration (CUDA) shows the following metrics:
+
+- **BioLORD-2023-M** (domain-specific biomedical model):
+  - MRR: 0.5361
+  - HR@1: 0.3333
+  - HR@3: 0.6667
+  - HR@5: 0.7778
+  - HR@10: 1.0
+  - Recall: 1.0
+
+- **Jina-v2-base-de** (German language-specific model):
+  - MRR: 0.3708
+  - HR@1: 0.2222
+  - HR@3: 0.4444
+  - HR@5: 0.5556
+  - HR@10: 0.7778
+  - Recall: 0.7778
+
+### Cross-Encoder Re-Ranking Model Comparison
+
+Three different cross-encoder models have been tested for re-ranking HPO terms:
+
+1. **cross-encoder/mmarco-mMiniLMv2-L12-H384-v1** (original implementation)
+   - General multilingual retrieval model
+   - Returns negative scores (higher/less negative = better)
+   - Small and efficient, but not domain-specific
+
+2. **MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7** (current default)
+   - Multilingual natural language inference model
+   - Returns probability distributions for entailment/neutral/contradiction
+   - Strong multilingual capabilities with good performance
+
+3. **ncbi/MedCPT-Cross-Encoder**
+   - Biomedical domain-specific cross-encoder
+   - Developed by NCBI specifically for medical text matching
+   - Provides better understanding of medical relationships
+   - Complements BioLORD bi-encoder for medical terminology
+
+### Key Findings
+
+- Domain-specific models (BioLORD) consistently outperform language-specific models for medical terminology retrieval
+- GPU acceleration significantly improves processing speed while maintaining quality
+- Cross-encoder re-ranking improves precision at the cost of additional processing time
+- The choice between multilingual and domain-specific cross-encoders depends on the specific use case
 
 ## References
 
