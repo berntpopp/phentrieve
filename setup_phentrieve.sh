@@ -59,6 +59,7 @@ if [ ! -f ".env.docker" ]; then
     echo -e "${GREEN}✓ Created .env.docker from template.${NC}"
     echo -e "${YELLOW}IMPORTANT: Review and edit '.env.docker'. Ensure PHENTRIEVE_HOST_DATA_DIR is an absolute path.${NC}"
     echo "   Ensure NPM_SHARED_NETWORK_NAME is set to NPM's actual default network (e.g., 'npm_default')."
+    echo "   Set PHENTRIEVE_HOST_HF_CACHE_DIR if you want a custom location for model downloads."
     
     if command -v nano &> /dev/null; then
         echo "Opening .env.docker in nano for you. Save (Ctrl+O, Enter) and Exit (Ctrl+X) when done."
@@ -94,22 +95,26 @@ echo -e "${GREEN}✓ PHENTRIEVE_HOST_DATA_DIR is set to: $PHENTRIEVE_HOST_DATA_D
 echo -e "\n${YELLOW}Step 2: Ensuring Host Data Directory Structure...${NC}"
 HPO_CORE_DATA_SUBDIR_HOST="hpo_core_data" 
 INDEXES_SUBDIR_HOST="indexes"
-# TEST_CASES_SUBDIR_HOST="test_cases" # Assuming test cases are part of the repo, not dynamic data
 TRANSLATIONS_SUBDIR_HOST="hpo_translations"
 RESULTS_SUBDIR_HOST="results"
+HF_CACHE_SUBDIR_HOST_RELATIVE="hf_cache" # Relative to PHENTRIEVE_HOST_DATA_DIR
 
 mkdir -p "$PHENTRIEVE_HOST_DATA_DIR/$HPO_CORE_DATA_SUBDIR_HOST"
 mkdir -p "$PHENTRIEVE_HOST_DATA_DIR/$INDEXES_SUBDIR_HOST"
-# mkdir -p "$PHENTRIEVE_HOST_DATA_DIR/$TEST_CASES_SUBDIR_HOST" # Only if test_cases are outside repo
 mkdir -p "$PHENTRIEVE_HOST_DATA_DIR/$TRANSLATIONS_SUBDIR_HOST/de" 
 mkdir -p "$PHENTRIEVE_HOST_DATA_DIR/$TRANSLATIONS_SUBDIR_HOST/en" 
 mkdir -p "$PHENTRIEVE_HOST_DATA_DIR/$RESULTS_SUBDIR_HOST/summaries"
 mkdir -p "$PHENTRIEVE_HOST_DATA_DIR/$RESULTS_SUBDIR_HOST/detailed"
 mkdir -p "$PHENTRIEVE_HOST_DATA_DIR/$RESULTS_SUBDIR_HOST/visualizations"
-echo -e "${GREEN}✓ Host data directory structure checked/created under $PHENTRIEVE_HOST_DATA_DIR.${NC}"
+
+# Create Hugging Face cache directory on host if PHENTRIEVE_HOST_HF_CACHE_DIR is set
+# If PHENTRIEVE_HOST_HF_CACHE_DIR is not set in .env.docker, it defaults to being under PHENTRIEVE_HOST_DATA_DIR
+HOST_HF_CACHE_PATH="${PHENTRIEVE_HOST_HF_CACHE_DIR:-$PHENTRIEVE_HOST_DATA_DIR/$HF_CACHE_SUBDIR_HOST_RELATIVE}"
+mkdir -p "$HOST_HF_CACHE_PATH/hub" # HuggingFace often uses a 'hub' subdirectory
+echo -e "${GREEN}✓ Host data directory structure (including HF cache at $HOST_HF_CACHE_PATH) checked/created.${NC}"
+
 
 # --- Shared Docker Network with NPM ---
-# This variable should be set in .env.docker (e.g., NPM_SHARED_NETWORK_NAME=npm_default)
 if [ -z "$NPM_SHARED_NETWORK_NAME" ]; then
     echo -e "${RED}Error: NPM_SHARED_NETWORK_NAME is not set in .env.docker. Please define it (e.g., 'npm_default').${NC}"
     exit 1
@@ -117,12 +122,9 @@ fi
 echo -e "\n${YELLOW}Step 3: Checking Shared Docker Network '$NPM_SHARED_NETWORK_NAME'...${NC}"
 if ! docker network inspect "$NPM_SHARED_NETWORK_NAME" &> /dev/null; then
     echo -e "${YELLOW}Warning: Docker network '$NPM_SHARED_NETWORK_NAME' does not exist.${NC}"
-    echo "This script assumes NPM (Nginx Proxy Manager) has already created this network."
-    echo "If NPM is running and uses a different network name, update NPM_SHARED_NETWORK_NAME in .env.docker."
-    echo "If NPM is not yet running or uses a different setup, you might need to create this network manually"
-    echo "or ensure NPM's docker-compose.yml will create/use it, AND that Phentrieve's docker-compose.yml"
-    echo "refers to it correctly as an external network."
-    # For Option 1 (using NPM's default), we assume it exists. If not, user intervention is needed.
+    echo "This script expects NPM's network to exist. If using a custom shared network, create it first:"
+    echo "  sudo docker network create $NPM_SHARED_NETWORK_NAME"
+    echo "Then ensure NPM's docker-compose.yml connects to it."
 else
     echo -e "${GREEN}✓ Docker network '$NPM_SHARED_NETWORK_NAME' found.${NC}"
 fi
@@ -192,12 +194,13 @@ else
 fi
 
 # --- Final Instructions ---
+# (Keep the existing detailed instructions for DNS, NPM, and starting the stack)
 echo ""
 echo -e "${GREEN}=== Phentrieve Setup Script Finished ===${NC}"
 echo -e "\n${YELLOW}IMPORTANT NEXT STEPS:${NC}"
 echo "1.  **DNS Configuration:** Ensure your DNS records point to this server's public IP for the domains:"
 VITE_FRONTEND_URL_PUBLIC_VAL=${VITE_FRONTEND_URL_PUBLIC:-"YOUR_FRONTEND_DOMAIN (e.g., phentrieve.example.com)"}
-VITE_API_URL_PUBLIC_VAL=${VITE_API_URL_PUBLIC:-"YOUR_API_DOMAIN (e.g., api.phentrieve.example.com)"} # Show base domain for API
+VITE_API_URL_PUBLIC_VAL=${VITE_API_URL_PUBLIC:-"YOUR_API_DOMAIN (e.g., api.phentrieve.example.com)"} 
 VITE_API_URL_PUBLIC_BASE=$(echo $VITE_API_URL_PUBLIC_VAL | sed -E 's|/api/v1/?$||')
 
 echo "    - Frontend: $VITE_FRONTEND_URL_PUBLIC_VAL"
