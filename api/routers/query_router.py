@@ -1,19 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException
-from typing import List, Optional
+from typing import Optional
 import os
 from pathlib import Path
 import logging
 
-from sentence_transformers import SentenceTransformer, CrossEncoder
-
-from phentrieve.retrieval.api_helpers import (
-    execute_hpo_retrieval_for_api,
-)  # From Step 1
+from phentrieve.retrieval.api_helpers import execute_hpo_retrieval_for_api
 from phentrieve.retrieval.dense_retriever import DenseRetriever
-from api.schemas.query_schemas import QueryRequest, QueryResponse, HPOResultItem
+from api.schemas.query_schemas import QueryRequest, QueryResponse
 from api.dependencies import (
     get_dense_retriever_dependency,
-    get_sbert_model_dependency,
     get_cross_encoder_dependency,
 )
 from phentrieve.config import (
@@ -30,6 +25,25 @@ logger = logging.getLogger(__name__)
 router = APIRouter()  # Prefix will be added in main.py
 
 
+# Helper dependency to extract model_name from request for the retriever
+async def get_retriever_for_request(request: QueryRequest) -> DenseRetriever:
+    """Extract model name from request and get retriever dependency"""
+    model_name_to_use = request.model_name or DEFAULT_MODEL
+    return await get_dense_retriever_dependency(
+        sbert_model_name_for_retriever=model_name_to_use
+    )
+
+
+# Helper function for GET params to get retriever for model name
+async def get_retriever_for_get_params(
+    model_name: str = DEFAULT_MODEL,
+) -> DenseRetriever:
+    """Get retriever dependency for GET request's model name parameter"""
+    return await get_dense_retriever_dependency(
+        sbert_model_name_for_retriever=model_name or DEFAULT_MODEL
+    )
+
+
 @router.get("/", response_model=QueryResponse)
 async def run_hpo_query_get(
     text: str,
@@ -40,16 +54,7 @@ async def run_hpo_query_get(
     enable_reranker: bool = False,
     reranker_mode: str = "cross-lingual",
     retriever: DenseRetriever = Depends(
-        lambda: get_dense_retriever_dependency(
-            sbert_model_name_for_retriever=DEFAULT_MODEL,
-            index_dir=os.path.join(
-                os.path.dirname(
-                    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-                ),
-                "data",
-                "indexes",
-            ),
-        )
+        lambda model=DEFAULT_MODEL: get_retriever_for_get_params(model)
     ),
 ):
     """Simple GET endpoint for HPO term queries.
@@ -80,18 +85,7 @@ async def run_hpo_query_get(
 @router.post("/", response_model=QueryResponse)
 async def run_hpo_query(
     request: QueryRequest,
-    retriever: DenseRetriever = Depends(
-        lambda: get_dense_retriever_dependency(
-            sbert_model_name_for_retriever=DEFAULT_MODEL,
-            index_dir=os.path.join(
-                os.path.dirname(
-                    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-                ),
-                "data",
-                "indexes",
-            ),
-        )
-    ),
+    retriever: DenseRetriever = Depends(get_retriever_for_request),
 ):
     """Execute an HPO term query with full control over parameters.
 
@@ -102,6 +96,13 @@ async def run_hpo_query(
         request.model_name or DEFAULT_MODEL
     )  # Use requested or default for retrieval SBERT
 
+    # Log information about the retriever we're using
+    if hasattr(retriever, "model_name"):
+        logger.info(
+            f"API: Using retriever '{retriever.model_name}' "
+            f"for request '{sbert_model_to_use_for_retrieval}'"
+        )
+
     # Ensure retriever is using the correct SBERT model
     if (
         not retriever
@@ -109,27 +110,16 @@ async def run_hpo_query(
         or retriever.model_name != sbert_model_to_use_for_retrieval
     ):
         logger.warning(
-            f"Retriever model mismatch or not initialized for {sbert_model_to_use_for_retrieval}. Attempting re-init."
-        )
-        # Define the project's index directory path
-        index_dir_path = os.path.join(
-            os.path.dirname(
-                os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-            ),
-            "data",
-            "indexes",
+            f"Retriever mismatch for {sbert_model_to_use_for_retrieval}. "
+            f"Re-initializing."
         )
 
-        # Get the SBERT model instance
-        sbert_instance = await get_sbert_model_dependency(
-            model_name_requested=sbert_model_to_use_for_retrieval
-        )
-
-        # Properly initialize retriever with the correct index directory
+        # Initialize retriever using environment-variable based resolution
+        # This will use PHENTRIEVE_INDEX_DIR or PHENTRIEVE_DATA_ROOT_DIR/indexes
         retriever = await get_dense_retriever_dependency(
-            sbert_model_name_for_retriever=sbert_model_to_use_for_retrieval,
-            index_dir=index_dir_path,
+            sbert_model_name_for_retriever=sbert_model_to_use_for_retrieval
         )
+
         if not retriever:
             raise HTTPException(
                 status_code=503,
@@ -142,10 +132,10 @@ async def run_hpo_query(
             language_to_use = detect_language(
                 request.text, default_lang=DEFAULT_LANGUAGE
             )
-            logger.info(f"Auto-detected language for query: {language_to_use}")
+            logger.info(f"Auto-detected language: {language_to_use}")
         except Exception as e:  # Catch if langdetect fails
             logger.warning(
-                f"Language detection failed: {e}. Using default: {DEFAULT_LANGUAGE}"
+                f"Language detection failed: {e}. " f"Using default: {DEFAULT_LANGUAGE}"
             )
             language_to_use = DEFAULT_LANGUAGE
 
