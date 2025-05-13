@@ -4,27 +4,26 @@ services:
       context: .
       dockerfile: api/Dockerfile
     env_file:
-      - .env.docker
+      - .env.docker 
     volumes:
       - ${PHENTRIEVE_HOST_DATA_DIR}:/phentrieve_data_mount
-      - ./phentrieve:/app/phentrieve # Development: Live reload
-      - ./api:/app/api             # Development: Live reload
-      # Mount Hugging Face cache directory from host to container's expected cache location
-      - ${PHENTRIEVE_HOST_HF_CACHE_DIR:-/phentrieve_data_mount/hf_cache_default}:/root/.cache/huggingface
+      - ./phentrieve:/app/phentrieve   # For development: Live reload
+      - ./api:/app/api                # For development: Live reload
+      - ${PHENTRIEVE_HOST_HF_CACHE_DIR:-${PHENTRIEVE_HOST_DATA_DIR}/hf_cache}:/root/.cache/huggingface # HF Cache
     environment:
       - PHENTRIEVE_DATA_ROOT_DIR=/phentrieve_data_mount
       - LOG_LEVEL=${LOG_LEVEL_API:-INFO}
       - PYTHONPATH=/app
-      # Explicitly tell Hugging Face libraries where to find/store models
-      - HF_HOME=/root/.cache/huggingface # Points to the mounted volume
-      - TRANSFORMERS_CACHE=/root/.cache/huggingface/hub # Often models are under 'hub' subdir
-      - SENTENCE_TRANSFORMERS_HOME=/root/.cache/huggingface # ST might also use this
+      # Point Hugging Face libs to the mounted cache
+      - HF_HOME=/root/.cache/huggingface 
+      - TRANSFORMERS_CACHE=/root/.cache/huggingface/hub
+      # SENTENCE_TRANSFORMERS_HOME also often defaults to HF_HOME or TRANSFORMERS_CACHE
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8000/api/v1/health || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 180s
+      interval: 30s    # How often to run the check
+      timeout: 10s     # How long to wait for a response
+      retries: 5       # How many times to retry on failure before marking as unhealthy
+      start_period: 180s # Grace period for the service to start up before health checks begin
     restart: unless-stopped
     networks:
       - phentrieve_internal_net
@@ -34,14 +33,16 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-      args: # For passing ENV VARS to Vite build process
-        VITE_API_URL: ${VITE_API_URL_PUBLIC}
+      args:
+        # This VITE_API_URL should be the public URL when building for NPM deployment
+        # It will be overridden by docker-compose.dev.yml for local direct access
+        VITE_API_URL: ${VITE_API_URL_PUBLIC} 
     env_file:
-      - .env.docker
-    # No ports needed here if NPM handles it
+      - .env.docker 
+    # No ports exposed directly here; NPM will handle it
     depends_on:
       phentrieve_api:
-        condition: service_healthy
+        condition: service_healthy # Waits for API to be healthy
     restart: unless-stopped
     networks:
       - phentrieve_internal_net
@@ -52,4 +53,4 @@ networks:
     driver: bridge
   npm_proxy_network:
     external: true
-    name: ${NPM_SHARED_NETWORK_NAME}
+    name: ${NPM_SHARED_NETWORK_NAME} # This value comes from your .env.docker file

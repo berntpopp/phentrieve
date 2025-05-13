@@ -1,0 +1,13 @@
+# docker-compose.dev.yml
+services:
+  phentrieve_api:
+    ports:
+      - "${API_PORT_HOST:-8001}:8000"
+
+  phentrieve_frontend:
+    ports:
+      - "${FRONTEND_PORT_HOST:-8080}:80"
+    build:
+      args:
+        # Override VITE_API_URL for local development to point to directly exposed API
+        VITE_API_URL: http://localhost:${API_PORT_HOST:-8001}/api/v1
