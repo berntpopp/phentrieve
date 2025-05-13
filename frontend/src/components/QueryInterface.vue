@@ -151,15 +151,14 @@
       location="bottom right"
       size="large"
       elevation="3"
+      style="margin: 16px; bottom: 60px; right: 16px; z-index: 1000;"
       @click="toggleCollectionPanel"
       aria-label="Open HPO Collection Panel"
     >
       <v-badge
         :content="collectedPhenotypes.length"
-        :value="collectedPhenotypes.length"
-        color="error"
-        offset-x="12"
-        offset-y="12"
+        :model-value="collectedPhenotypes.length > 0"
+        color="primary"
       >
         <v-icon>mdi-format-list-checks</v-icon>
       </v-badge>
