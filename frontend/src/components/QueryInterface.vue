@@ -24,6 +24,7 @@
             class="mx-2"
             @click="showAdvancedOptions = !showAdvancedOptions"
             :disabled="isLoading"
+            :aria-label="showAdvancedOptions ? 'Close Advanced Options' : 'Open Advanced Options'"
           >
             <v-icon>{{ showAdvancedOptions ? 'mdi-cog' : 'mdi-tune' }}</v-icon>
           </v-btn>
@@ -37,6 +38,7 @@
             :loading="isLoading"
             :disabled="!queryText.trim()"
             class="mr-2"
+            aria-label="Search HPO Terms"
           >
             <v-icon>mdi-magnify</v-icon>
           </v-btn>
@@ -148,13 +150,16 @@
       position="fixed"
       location="bottom right"
       size="large"
-      style="margin: 16px; bottom: 60px; right: 16px; z-index: 1000;"
+      elevation="3"
       @click="toggleCollectionPanel"
+      aria-label="Open HPO Collection Panel"
     >
       <v-badge
         :content="collectedPhenotypes.length"
-        :model-value="collectedPhenotypes.length > 0"
-        color="primary"
+        :value="collectedPhenotypes.length"
+        color="error"
+        offset-x="12"
+        offset-y="12"
       >
         <v-icon>mdi-format-list-checks</v-icon>
       </v-badge>
@@ -170,7 +175,7 @@
       <v-list-item>
         <v-list-item-title class="text-h6">HPO Collection</v-list-item-title>
         <template v-slot:append>
-          <v-btn icon @click="toggleCollectionPanel">
+          <v-btn icon @click="toggleCollectionPanel" aria-label="Close HPO Collection Panel">
             <v-icon>mdi-close</v-icon>
           </v-btn>
         </template>
@@ -200,15 +205,16 @@
               density="compact"
               color="error"
               @click="removePhenotype(index)"
+              :aria-label="`Remove ${phenotype.label} (${phenotype.hpo_id}) from collection`"
             ></v-btn>
           </template>
         </v-list-item>
       </v-list>
       
       <v-sheet v-else class="pa-4 text-center">
-        <v-icon size="large" color="grey" class="mb-2">mdi-tray-plus</v-icon>
-        <div class="text-body-1 text-grey">No phenotypes collected yet</div>
-        <div class="text-body-2 text-grey-darken-1 mt-2">
+        <v-icon size="large" color="grey-darken-2" class="mb-2">mdi-tray-plus</v-icon>
+        <div class="text-body-1 text-grey-darken-3">No phenotypes collected yet</div>
+        <div class="text-body-2 text-grey-darken-3 mt-2">
           Click the <v-icon size="small">mdi-plus-circle</v-icon> button next to any HPO term to add it to your collection
         </div>
       </v-sheet>

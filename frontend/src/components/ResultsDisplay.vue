@@ -40,7 +40,7 @@
             <div class="d-flex align-center justify-space-between" style="width: 100%">
               <div>
                 {{ result.hpo_id }}
-                <span class="text-body-2 ml-2 text-grey">{{ result.label }}</span>
+                <span class="text-body-2 ml-2 text-grey-darken-3">{{ result.label }}</span>
               </div>
               <v-btn
                 :icon="isAlreadyCollected(result.hpo_id) ? 'mdi-check-circle' : 'mdi-plus-circle'"
@@ -51,13 +51,14 @@
                 @click.stop="addToCollection(result)"
                 :disabled="isAlreadyCollected(result.hpo_id)"
                 :title="isAlreadyCollected(result.hpo_id) ? result.hpo_id + ' already in collection' : 'Add ' + result.hpo_id + ' to collection'"
+                :aria-label="isAlreadyCollected(result.hpo_id) ? `HPO term ${result.hpo_id} (${result.label}) is in collection` : `Add ${result.label} (${result.hpo_id}) to collection`"
               ></v-btn>
             </div>
           </v-list-item-title>
           
           <v-list-item-subtitle>
             <div class="d-flex align-center mt-1">
-              <span v-if="result.original_rank !== undefined" class="text-caption text-grey mr-3">
+              <span v-if="result.original_rank !== undefined" class="text-caption text-grey-darken-3 mr-3">
                 Original rank: #{{ result.original_rank }}
               </span>
             </div>
