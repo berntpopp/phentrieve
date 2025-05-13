@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /assets/
+
+# Sitemap
+Sitemap: https://phentrieve.berntpopp.com/sitemap.xml
