@@ -1,20 +1,31 @@
 <template>
   <div class="results-container">
     <div v-if="responseData && responseData.results && responseData.results.length > 0">
-      <v-card class="mb-4">
-        <v-card-title class="text-subtitle-1">
-          <v-icon color="info" class="mr-2">mdi-information</v-icon>
-          Query processed with model: {{ responseData.model_used_for_retrieval }}
-          <span v-if="responseData.reranker_used">
-            <br>
-            <v-icon color="info" class="mr-2">mdi-filter</v-icon>
-            Results reranked with: {{ responseData.reranker_used }}
-          </span>
-          <span v-if="responseData.language_detected">
-            <br>
-            <v-icon color="info" class="mr-2">mdi-translate</v-icon>
-            Language detected: {{ responseData.language_detected }}
-          </span>
+      <v-card class="mb-4 info-card">
+        <v-card-title class="text-subtitle-1 pa-2 pa-sm-4">
+          <div class="info-item">
+            <v-icon color="info" class="mr-2" size="small">mdi-information</v-icon>
+            <span class="model-name">
+              <small class="text-caption d-block d-sm-inline text-grey-darken-1">Model:</small>
+              {{ displayModelName(responseData.model_used_for_retrieval) }}
+            </span>
+          </div>
+          
+          <div v-if="responseData.reranker_used" class="info-item mt-2">
+            <v-icon color="info" class="mr-2" size="small">mdi-filter</v-icon>
+            <span class="model-name">
+              <small class="text-caption d-block d-sm-inline text-grey-darken-1">Reranker:</small>
+              {{ displayModelName(responseData.reranker_used) }}
+            </span>
+          </div>
+          
+          <div v-if="responseData.language_detected" class="info-item mt-2">
+            <v-icon color="info" class="mr-2" size="small">mdi-translate</v-icon>
+            <span>
+              <small class="text-caption d-block d-sm-inline text-grey-darken-1">Language:</small>
+              {{ responseData.language_detected }}
+            </span>
+          </div>
         </v-card-title>
       </v-card>
 
@@ -36,38 +47,36 @@
             ></v-badge>
           </template>
           
-          <v-list-item-title class="font-weight-bold d-flex align-center">
-            <div class="d-flex align-center justify-space-between" style="width: 100%">
-              <div>
-                {{ result.hpo_id }}
-                <span class="text-body-2 ml-2 text-grey-darken-3">{{ result.label }}</span>
-              </div>
+          <v-list-item-title class="font-weight-bold pb-1">
+            <div class="d-flex align-center justify-space-between">
+              <span class="hpo-id">{{ result.hpo_id }}</span>
               <v-btn
                 :icon="isAlreadyCollected(result.hpo_id) ? 'mdi-check-circle' : 'mdi-plus-circle'"
                 size="small"
                 :color="isAlreadyCollected(result.hpo_id) ? 'success' : 'primary'"
                 variant="text"
-                class="ml-2"
+                class="ml-2 flex-shrink-0 add-btn"
                 @click.stop="addToCollection(result)"
                 :disabled="isAlreadyCollected(result.hpo_id)"
                 :title="isAlreadyCollected(result.hpo_id) ? result.hpo_id + ' already in collection' : 'Add ' + result.hpo_id + ' to collection'"
                 :aria-label="isAlreadyCollected(result.hpo_id) ? `HPO term ${result.hpo_id} (${result.label}) is in collection` : `Add ${result.label} (${result.hpo_id}) to collection`"
               ></v-btn>
             </div>
+            <div class="d-block mt-1">
+              <span class="text-body-2 text-grey-darken-3 hpo-label">{{ result.label }}</span>
+            </div>
           </v-list-item-title>
           
-          <v-list-item-subtitle>
+          <v-list-item-subtitle class="d-flex flex-wrap justify-space-between align-center">
             <div class="d-flex align-center mt-1">
               <span v-if="result.original_rank !== undefined" class="text-caption text-grey-darken-3 mr-3">
                 Original rank: #{{ result.original_rank }}
               </span>
             </div>
-          </v-list-item-subtitle>
-          
-          <template v-slot:append>
-            <div class="d-flex flex-column align-end">
+
+            <div class="d-flex flex-row align-center gap-2 mt-2 score-chips-container">
               <v-chip
-                class="mb-1"
+                class="score-chip"
                 color="primary"
                 size="small"
                 label
@@ -79,6 +88,7 @@
               
               <v-chip
                 v-if="result.cross_encoder_score !== undefined && result.cross_encoder_score !== null"
+                class="score-chip"
                 color="secondary"
                 size="small"
                 label
@@ -88,6 +98,10 @@
                 {{ formatRerankerScore(result.cross_encoder_score) }}
               </v-chip>
             </div>
+          </v-list-item-subtitle>
+          
+          <template v-slot:append>
+            <!-- Append content moved to subtitle for better space usage -->
           </template>
         </v-list-item>
       </v-list>
@@ -146,6 +160,23 @@ export default {
         // For any other type of score
         return score.toFixed(2);
       }
+    },
+    displayModelName(name) {
+      // Format model names to be more display-friendly on mobile
+      if (!name) return '';
+      
+      // For typical model paths like org/model-name
+      if (name.includes('/')) {
+        const parts = name.split('/');
+        return parts[parts.length - 1]; // Return just the model name without organization
+      }
+      
+      // Shorten long model names for mobile display
+      if (name.length > 25) {
+        return name.substring(0, 22) + '...';
+      }
+      
+      return name;
     }
   }
 }
@@ -154,5 +185,76 @@ export default {
 <style scoped>
 .results-container {
   margin-bottom: 16px;
+}
+
+.hpo-id {
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.hpo-label {
+  max-width: 100%;
+  display: inline-block;
+}
+
+.info-card .model-name {
+  word-break: break-word;
+}
+
+.info-item {
+  display: flex;
+  align-items: flex-start;
+}
+
+.score-chip {
+  margin-right: 4px;
+  height: 24px !important;
+}
+
+.add-btn {
+  transform: scale(1.2);
+  margin-left: 8px;
+}
+
+.score-chips-container {
+  margin-top: 4px;
+}
+
+/* On small screens */
+@media (max-width: 600px) {
+  .hpo-id {
+    font-size: 1rem;
+  }
+  
+  /* Make card titles wrap better on mobile */
+  :deep(.v-card-title) {
+    display: block;
+    font-size: 0.875rem;
+    line-height: 1.4;
+    padding: 8px 12px;
+  }
+
+  .v-list-item {
+    padding: 8px 12px !important;
+  }
+
+  /* Improve layout for model info on mobile */
+  .info-item {
+    margin-bottom: 8px;
+  }
+  
+  .info-item:last-child {
+    margin-bottom: 0;
+  }
+  
+  .score-chips-container {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+  
+  .score-chip {
+    font-size: 0.75rem;
+    height: 22px !important;
+  }
 }
 </style>

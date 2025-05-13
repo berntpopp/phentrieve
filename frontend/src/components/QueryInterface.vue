@@ -1,47 +1,51 @@
 <template>
-  <div class="search-container mx-auto" style="max-width: 800px">
+  <div class="search-container mx-auto px-2" :style="{ maxWidth: '800px', width: '100%' }">
     <!-- Clean Search Bar with Integrated Button -->
-    <div class="search-bar-container pa-4">
-      <v-sheet rounded="pill" elevation="2" class="pa-2 search-bar">
-        <div class="d-flex align-center">
+    <div class="search-bar-container pa-2 pa-sm-4">
+      <v-sheet rounded="pill" elevation="2" class="pa-1 pa-sm-2 search-bar">
+        <div class="d-flex align-center flex-wrap flex-sm-nowrap">
           <v-textarea
             v-model="queryText"
             density="compact"
             variant="plain"
-            placeholder="Enter clinical text to search for HPO terms..."
+            placeholder="Enter clinical text..."
             rows="1"
             auto-grow
             hide-details
-            class="search-input ml-3"
+            class="search-input ml-2 ml-sm-3 flex-grow-1"
             :disabled="isLoading"
             @keydown.enter.prevent="!isLoading && queryText.trim() ? submitQuery() : null"
           ></v-textarea>
           
-          <v-btn 
-            icon 
-            variant="text" 
-            color="primary" 
-            class="mx-2"
-            @click="showAdvancedOptions = !showAdvancedOptions"
-            :disabled="isLoading"
-            :aria-label="showAdvancedOptions ? 'Close Advanced Options' : 'Open Advanced Options'"
-          >
-            <v-icon>{{ showAdvancedOptions ? 'mdi-cog' : 'mdi-tune' }}</v-icon>
-          </v-btn>
-          
-          <v-btn
-            color="primary"
-            variant="tonal"
-            icon
-            rounded="circle"
-            @click="submitQuery"
-            :loading="isLoading"
-            :disabled="!queryText.trim()"
-            class="mr-2"
-            aria-label="Search HPO Terms"
-          >
-            <v-icon>mdi-magnify</v-icon>
-          </v-btn>
+          <div class="d-flex align-center">
+            <v-btn 
+              icon 
+              variant="text" 
+              color="primary" 
+              class="mx-1 mx-sm-2"
+              @click="showAdvancedOptions = !showAdvancedOptions"
+              :disabled="isLoading"
+              :aria-label="showAdvancedOptions ? 'Close Advanced Options' : 'Open Advanced Options'"
+              size="small"
+            >
+              <v-icon>{{ showAdvancedOptions ? 'mdi-cog' : 'mdi-tune' }}</v-icon>
+            </v-btn>
+            
+            <v-btn
+              color="primary"
+              variant="tonal"
+              icon
+              rounded="circle"
+              @click="submitQuery"
+              :loading="isLoading"
+              :disabled="!queryText.trim()"
+              class="mr-1 mr-sm-2"
+              aria-label="Search HPO Terms"
+              size="small"
+            >
+              <v-icon>mdi-magnify</v-icon>
+            </v-btn>
+          </div>
         </div>
       </v-sheet>
       
