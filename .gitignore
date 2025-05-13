@@ -29,7 +29,7 @@ phentrieve/benchmark_results/
 benchmark_results/
 
 # Specific data files
-*.json
+/*.json
 *.pkl
 *.csv
 *.npy
