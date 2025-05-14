@@ -3,4 +3,4 @@ Allow: /
 Disallow: /assets/
 
 # Sitemap
-Sitemap: https://phentrieve.berntpopp.com/sitemap.xml
+Sitemap: https://phentrieve.kidney-genetics.org/sitemap.xml
