@@ -8,6 +8,7 @@
         class="mb-4 align-self-start"
         :to="{ name: 'home' }"
         prepend-icon="mdi-arrow-left"
+        aria-label="Navigate back to home page"
       >
         Back to Home
       </v-btn>
@@ -21,7 +22,7 @@
           </div>
 
           <!-- Search Bar -->
-          <v-card class="mb-6" variant="outlined">
+          <v-card class="mb-6" variant="outlined" role="search">
             <v-card-text class="pa-2">
               <v-text-field
                 v-model="searchQuery"
@@ -31,41 +32,43 @@
                 density="compact"
                 variant="outlined"
                 hide-details
+                aria-label="Search frequently asked questions"
+                :placeholder="'Search through ' + totalQuestions + ' questions'"
               />
             </v-card-text>
           </v-card>
 
           <!-- FAQ Categories -->
-          <v-card variant="outlined">
-            <v-expansion-panels variant="accordion">
+          <v-card variant="outlined" role="region" aria-label="FAQ Categories">
+            <v-expansion-panels variant="accordion" role="tablist">
               <v-expansion-panel
                 v-for="category in filteredCategories"
                 :key="category.id"
                 class="faq-panel"
+                role="tab"
+                :aria-label="category.title + ' category'"
               >
-                <v-expansion-panel-title>
-                  <v-row no-gutters>
-                    <v-col cols="12">
-                      <h2 class="text-h6 font-weight-medium">{{ category.title }}</h2>
-                    </v-col>
-                  </v-row>
+                <v-expansion-panel-title class="text-subtitle-1 text-primary-darken-1">
+                  {{ category.title }}
                 </v-expansion-panel-title>
-                <v-expansion-panel-text>
+                <v-expansion-panel-text role="tabpanel">
                   <v-expansion-panels variant="accordion">
                     <v-expansion-panel
                       v-for="(qa, index) in category.questions"
                       :key="index"
-                      class="qa-panel"
+                      role="listitem"
+                      :aria-label="'Question: ' + qa.question"
                     >
-                      <v-expansion-panel-title>
-                        <v-row no-gutters>
-                          <v-col cols="12">
-                            <span class="text-subtitle-1 font-weight-regular">{{ qa.question }}</span>
-                          </v-col>
-                        </v-row>
+                      <v-expansion-panel-title class="text-body-1">
+                        {{ qa.question }}
                       </v-expansion-panel-title>
                       <v-expansion-panel-text>
-                        <div v-html="qa.answer" class="answer-content text-body-1"></div>
+                        <div 
+                          v-html="qa.answer" 
+                          class="answer-content text-body-2" 
+                          role="region" 
+                          :aria-label="'Answer to: ' + qa.question"
+                        />
                       </v-expansion-panel-text>
                     </v-expansion-panel>
                   </v-expansion-panels>
@@ -106,6 +109,11 @@ export default {
           ? { ...category, questions: filteredQuestions }
           : null
       }).filter(Boolean)
+    },
+    totalQuestions() {
+      return this.faqData.categories.reduce((total, category) => {
+        return total + category.questions.length
+      }, 0)
     }
   }
 }
@@ -115,6 +123,7 @@ export default {
 .fill-height {
   min-height: 100vh;
   background-color: rgb(var(--v-theme-background));
+  position: relative;
 }
 
 .content-wrapper {
@@ -123,17 +132,19 @@ export default {
   align-items: center;
   width: 100%;
   padding: 1rem;
-  position: relative;
 }
 
 .answer-content {
   padding: 16px;
-  color: rgb(var(--v-theme-on-surface));
-  line-height: 1.6;
+  color: rgb(var(--v-theme-on-surface-variant));
 }
 
 .answer-content :deep(p) {
   margin-bottom: 1em;
+}
+
+.answer-content :deep(p:last-child) {
+  margin-bottom: 0;
 }
 
 .answer-content :deep(ul),
@@ -146,14 +157,27 @@ export default {
   margin-bottom: 0.5em;
 }
 
+.answer-content :deep(li:last-child) {
+  margin-bottom: 0;
+}
+
+.answer-content :deep(strong) {
+  color: rgb(var(--v-theme-on-surface));
+  font-weight: 500;
+}
+
 .answer-content :deep(a) {
   color: rgb(var(--v-theme-primary));
   text-decoration: none;
-  font-weight: 500;
 }
 
 .answer-content :deep(a:hover) {
   text-decoration: underline;
+}
+
+.answer-content :deep(a:focus-visible) {
+  outline: 2px solid rgb(var(--v-theme-primary));
+  outline-offset: 2px;
 }
 
 .answer-content :deep(strong) {

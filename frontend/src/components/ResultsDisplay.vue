@@ -6,7 +6,7 @@
           <div class="info-item">
             <v-icon color="info" class="mr-2" size="small">mdi-information</v-icon>
             <span class="model-name">
-              <small class="text-caption d-block d-sm-inline text-grey-darken-1">Model:</small>
+              <small class="text-caption d-block d-sm-inline text-medium-emphasis">Model:</small>
               {{ displayModelName(responseData.model_used_for_retrieval) }}
             </span>
           </div>
@@ -14,7 +14,7 @@
           <div v-if="responseData.reranker_used" class="info-item mt-2">
             <v-icon color="info" class="mr-2" size="small">mdi-filter</v-icon>
             <span class="model-name">
-              <small class="text-caption d-block d-sm-inline text-grey-darken-1">Reranker:</small>
+              <small class="text-caption d-block d-sm-inline text-medium-emphasis">Reranker:</small>
               {{ displayModelName(responseData.reranker_used) }}
             </span>
           </div>
@@ -22,7 +22,7 @@
           <div v-if="responseData.language_detected" class="info-item mt-2">
             <v-icon color="info" class="mr-2" size="small">mdi-translate</v-icon>
             <span>
-              <small class="text-caption d-block d-sm-inline text-grey-darken-1">Language:</small>
+              <small class="text-caption d-block d-sm-inline text-medium-emphasis">Language:</small>
               {{ responseData.language_detected }}
             </span>
           </div>
@@ -63,13 +63,13 @@
               ></v-btn>
             </div>
             <div class="d-block mt-1">
-              <span class="text-body-2 text-grey-darken-3 hpo-label">{{ result.label }}</span>
+              <span class="text-body-2 text-high-emphasis hpo-label">{{ result.label }}</span>
             </div>
           </v-list-item-title>
           
           <v-list-item-subtitle class="d-flex flex-wrap justify-space-between align-center">
             <div class="d-flex align-center mt-1">
-              <span v-if="result.original_rank !== undefined" class="text-caption text-grey-darken-3 mr-3">
+              <span v-if="result.original_rank !== undefined" class="text-caption text-high-emphasis mr-3">
                 Original rank: #{{ result.original_rank }}
               </span>
             </div>

@@ -2,21 +2,25 @@
   <div class="search-container mx-auto px-2">
     <!-- Clean Search Bar with Integrated Button -->
     <div class="search-bar-container pa-2 pa-sm-4">
-      <v-sheet rounded="pill" elevation="2" class="pa-1 pa-sm-2 search-bar">
+      <v-sheet rounded="pill" elevation="2" class="pa-1 pa-sm-2 search-bar" color="surface">
         <div class="d-flex align-center flex-wrap flex-sm-nowrap">
           <v-text-field
             v-model="queryText"
             density="comfortable"
             variant="outlined"
-            placeholder="Enter clinical text..."
             hide-details
             class="search-input ml-2 ml-sm-3 flex-grow-1"
             :disabled="isLoading"
             @keydown.enter.prevent="!isLoading && queryText.trim() ? submitQuery() : null"
-            bg-color="white"
+            bg-color="surface"
+            color="primary"
             aria-label="Clinical text input field"
             :aria-description="'Enter clinical text to search for HPO terms' + (isLoading ? '. Search in progress' : '')"
-          ></v-text-field>
+          >
+            <template v-slot:label>
+              <span class="text-high-emphasis">Enter clinical text...</span>
+            </template>
+          </v-text-field>
           
           <div class="d-flex align-center">
             <v-btn 
@@ -72,19 +76,23 @@
                 :items="availableModels"
                 item-title="text"
                 item-value="value"
-                label="Embedding Model"
                 :disabled="isLoading"
                 variant="outlined"
                 density="compact"
                 aria-label="Select embedding model"
                 :aria-description="'Choose the model to use for text embedding. Currently selected: ' + selectedModel"
-              ></v-select>
+                bg-color="surface"
+                color="primary"
+              >
+                <template v-slot:label>
+                  <span class="text-high-emphasis">Embedding Model</span>
+                </template>
+              </v-select>
             </v-col>
             
             <v-col cols="12" md="6">
               <v-slider
                 v-model="similarityThreshold"
-                label="Similarity Threshold"
                 min="0"
                 max="1"
                 step="0.05"
@@ -93,7 +101,12 @@
                 aria-label="Adjust similarity threshold"
                 :aria-valuetext="`Similarity threshold set to ${(similarityThreshold * 100).toFixed(0)}%`"
                 :aria-description="'Set the minimum similarity score required for matches. Higher values mean more precise but fewer results.'"
-              ></v-slider>
+                color="primary"
+              >
+                <template v-slot:label>
+                  <span class="text-high-emphasis">Similarity Threshold</span>
+                </template>
+              </v-slider>
             </v-col>
           </v-row>
           
@@ -101,27 +114,35 @@
             <v-col cols="12" md="6">
               <v-switch
                 v-model="enableReranker"
-                label="Enable Re-ranking"
                 :disabled="isLoading"
                 color="primary"
                 hide-details
-                aria-label="Toggle re-ranking"
-                :aria-checked="enableReranker"
-                :aria-description="'Enable or disable re-ranking of search results for better accuracy'"
-              ></v-switch>
+                class="mb-2"
+                aria-label="Toggle re-ranking feature"
+                :aria-description="'Enable or disable re-ranking of search results'"
+              >
+                <template v-slot:label>
+                  <span class="text-high-emphasis">Enable Re-ranking</span>
+                </template>
+              </v-switch>
             </v-col>
             
             <v-col cols="12" md="6" v-if="enableReranker">
               <v-select
                 v-model="rerankerMode"
-                :items="['cross-lingual', 'monolingual']"
-                label="Reranker Mode"
-                :disabled="isLoading"
+                :items="rerankerModes"
+                :disabled="!enableReranker || isLoading"
                 variant="outlined"
                 density="compact"
                 aria-label="Select reranker mode"
                 :aria-description="'Choose between cross-lingual or monolingual re-ranking mode'"
-              ></v-select>
+                bg-color="surface"
+                color="primary"
+              >
+                <template v-slot:label>
+                  <span class="text-high-emphasis">Re-ranker Mode</span>
+                </template>
+              </v-select>
             </v-col>
           </v-row>
         </v-sheet>
@@ -194,6 +215,7 @@
       location="right"
       width="400"
       temporary
+      aria-label="Phenotype collection"
     >
       <v-list-item>
         <v-list-item-title class="text-h6">HPO Collection</v-list-item-title>

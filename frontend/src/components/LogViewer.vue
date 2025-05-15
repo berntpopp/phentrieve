@@ -4,6 +4,7 @@
     location="right"
     temporary
     width="600"
+    aria-label="Log viewer"
   >
     <v-toolbar density="compact" color="primary">
       <v-toolbar-title class="text-white">Application Logs</v-toolbar-title>
@@ -14,6 +15,7 @@
         color="white"
         @click="downloadLogs"
         :disabled="!logStore.logs.length"
+        aria-label="Download logs"
       ></v-btn>
       <v-btn
         icon="mdi-delete"
@@ -21,16 +23,18 @@
         color="white"
         @click="clearLogs"
         :disabled="!logStore.logs.length"
+        aria-label="Clear all logs"
       ></v-btn>
       <v-btn
         icon="mdi-close"
         variant="text"
         color="white"
         @click="logStore.setViewerVisibility(false)"
+        aria-label="Close log viewer"
       ></v-btn>
     </v-toolbar>
 
-    <v-card class="mx-2 mt-2">
+    <v-card class="mx-2 mt-2" variant="outlined">
       <v-card-text class="pa-2">
         <v-text-field
           v-model="search"
@@ -40,7 +44,14 @@
           append-inner-icon="mdi-magnify"
           hide-details
           class="mb-2"
-        ></v-text-field>
+          bg-color="surface"
+          color="primary"
+          theme="dark"
+        >
+          <template v-slot:label>
+            <span class="text-high-emphasis">Search logs</span>
+          </template>
+        </v-text-field>
         
         <v-select
           v-model="selectedLevels"
@@ -52,11 +63,18 @@
           chips
           hide-details
           class="mb-2"
-        ></v-select>
+          bg-color="surface"
+          color="primary"
+          theme="dark"
+        >
+          <template v-slot:label>
+            <span class="text-high-emphasis">Log Levels</span>
+          </template>
+        </v-select>
       </v-card-text>
     </v-card>
 
-    <div class="log-container">
+    <div class="log-container" role="log" aria-label="Application logs">
       <template v-if="filteredLogs.length">
         <v-card
           v-for="(log, index) in filteredLogs"
@@ -64,28 +82,31 @@
           :color="getLogColor(log.level)"
           class="mb-2 mx-2"
           variant="outlined"
+          role="article"
+          :aria-label="`${log.level} log from ${formatTimestamp(log.timestamp)}`"
         >
           <v-card-text class="pa-2">
             <div class="d-flex align-center">
-              <div class="text-caption text-grey">{{ formatTimestamp(log.timestamp) }}</div>
+              <div class="text-caption text-high-emphasis">{{ formatTimestamp(log.timestamp) }}</div>
               <v-chip
                 size="x-small"
                 :color="getLogColor(log.level)"
                 class="ml-2"
                 label
+                :aria-label="`Log level: ${log.level}`"
               >
                 {{ log.level }}
               </v-chip>
             </div>
-            <div class="text-body-2 mt-1">{{ log.message }}</div>
+            <div class="text-body-2 mt-1 text-high-emphasis">{{ log.message }}</div>
             <v-expand-transition>
-              <pre v-if="log.data" class="mt-2 text-caption">{{ JSON.stringify(log.data, null, 2) }}</pre>
+              <pre v-if="log.data" class="mt-2 text-caption text-high-emphasis" role="code" aria-label="Log details">{{ JSON.stringify(log.data, null, 2) }}</pre>
             </v-expand-transition>
           </v-card-text>
         </v-card>
       </template>
       <v-card v-else class="ma-2" variant="outlined">
-        <v-card-text class="text-center text-grey">
+        <v-card-text class="text-center text-disabled">
           No logs to display
         </v-card-text>
       </v-card>

@@ -7,7 +7,7 @@
       <LogViewer />
     </v-main>
     
-    <v-footer app class="d-flex justify-space-between pa-2" style="z-index: 1;">
+    <v-footer app class="d-flex justify-space-between pa-2" style="z-index: 1;" role="contentinfo">
       <div class="d-flex align-center">
         <v-btn
           variant="text"
@@ -15,16 +15,18 @@
           class="text-body-2 text-primary mr-2"
           prepend-icon="mdi-alert-circle-outline"
           @click="showDisclaimerDialog"
+          aria-label="View disclaimer information"
         >
           Disclaimer
           <template v-if="disclaimerStore.isAcknowledged" #append>
-            <v-tooltip location="top">
+            <v-tooltip location="top" role="tooltip" aria-label="Disclaimer acknowledgment date">
               <template v-slot:activator="{ props }">
                 <v-icon
                   v-bind="props"
                   size="small"
                   color="success"
                   class="ml-1"
+                  aria-label="Disclaimer acknowledged"
                 >
                   mdi-check-circle
                 </v-icon>
@@ -39,23 +41,27 @@
         <v-btn
           variant="text"
           density="compact"
-          class="text-body-2 mr-2"
+          class="text-body-2 text-high-emphasis mr-2"
           prepend-icon="mdi-help-circle-outline"
           :to="{ name: 'faq' }"
+          aria-label="View frequently asked questions"
+          color="primary"
         >
           FAQ
         </v-btn>
         <v-btn
           variant="text"
           density="compact"
-          class="text-body-2 mr-2"
+          class="text-body-2 text-high-emphasis mr-2"
           prepend-icon="mdi-text-box-search-outline"
           @click="logStore.toggleViewer"
+          aria-label="Toggle log viewer"
+          color="primary"
         >
           Logs
         </v-btn>
-        <div class="text-body-2 text-grey-darken-3 mr-2">&copy; {{ new Date().getFullYear() }} Phentrieve</div>
-        <v-tooltip location="top" text="View source code on GitHub">
+        <div class="text-body-2 text-high-emphasis mr-2" aria-label="Copyright">&copy; {{ new Date().getFullYear() }} Phentrieve</div>
+        <v-tooltip location="top" text="View source code on GitHub" role="tooltip" aria-label="GitHub repository link">
           <template v-slot:activator="{ props }">
             <v-btn
               v-bind="props"
@@ -65,13 +71,13 @@
               target="_blank"
               rel="noopener noreferrer"
               variant="text"
-              color="grey"
+              color="primary"
               aria-label="View Phentrieve project on GitHub"
               class="mr-1"
             ></v-btn>
           </template>
         </v-tooltip>
-        <v-tooltip location="top" text="View project documentation">
+        <v-tooltip location="top" text="View project documentation" role="tooltip" aria-label="Documentation link">
           <template v-slot:activator="{ props }">
             <v-btn
               v-bind="props"
@@ -81,13 +87,13 @@
               target="_blank"
               rel="noopener noreferrer"
               variant="text"
-              color="grey"
+              color="primary"
               aria-label="View project documentation"
               class="mr-1"
             ></v-btn>
           </template>
         </v-tooltip>
-        <v-tooltip location="top" text="View project license">
+        <v-tooltip location="top" text="View project license" role="tooltip" aria-label="License link">
           <template v-slot:activator="{ props }">
             <v-btn
               v-bind="props"
@@ -97,7 +103,7 @@
               target="_blank"
               rel="noopener noreferrer"
               variant="text"
-              color="grey"
+              color="primary"
               aria-label="View project license"
             ></v-btn>
           </template>
