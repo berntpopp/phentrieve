@@ -1,5 +1,6 @@
 import { createApp } from 'vue'
 import App from './App.vue'
+import router from './router'
 
 // Pinia store
 import { createPinia } from 'pinia'
@@ -32,6 +33,7 @@ const app = createApp(App)
 const pinia = createPinia()
 app.use(pinia)
 app.use(vuetify)
+app.use(router)
 
 // Initialize logService with store
 const logStore = useLogStore(pinia)

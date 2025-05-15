@@ -1,7 +1,10 @@
 <template>
   <v-app theme="light">
     <v-main class="bg-grey-lighten-4">
-      <HomeView />
+      <router-view v-slot="{ Component }">
+        <component :is="Component" />
+      </router-view>
+      <LogViewer />
     </v-main>
     
     <v-footer app class="d-flex justify-space-between pa-2" style="z-index: 1;">
@@ -33,6 +36,15 @@
       </div>
       
       <div class="d-flex align-center">
+        <v-btn
+          variant="text"
+          density="compact"
+          class="text-body-2 mr-2"
+          prepend-icon="mdi-help-circle-outline"
+          :to="{ name: 'faq' }"
+        >
+          FAQ
+        </v-btn>
         <v-btn
           variant="text"
           density="compact"
@@ -99,23 +111,20 @@
       @acknowledged="handleDisclaimerAcknowledged"
     />
 
-    <!-- Log Viewer -->
-    <LogViewer />
+
   </v-app>
 </template>
 
 <script>
-import HomeView from './views/HomeView.vue'
-const DisclaimerDialog = () => import('./components/DisclaimerDialog.vue')
-const LogViewer = () => import('./components/LogViewer.vue')
 import { useDisclaimerStore } from './stores/disclaimer'
 import { useLogStore } from './stores/log'
 import { logService } from './services/logService'
+import DisclaimerDialog from './components/DisclaimerDialog.vue'
+import LogViewer from './components/LogViewer.vue'
 
 export default {
   name: 'App',
   components: {
-    HomeView,
     DisclaimerDialog,
     LogViewer
   },

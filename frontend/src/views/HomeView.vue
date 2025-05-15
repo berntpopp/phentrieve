@@ -17,11 +17,16 @@
 
 <script>
 import QueryInterface from '@/components/QueryInterface.vue'
+import { useLogStore } from '@/stores/log'
 
 export default {
   name: 'HomeView',
   components: {
     QueryInterface
+  },
+  setup() {
+    const logStore = useLogStore()
+    return { logStore }
   }
 }
 </script>

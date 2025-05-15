@@ -1,0 +1,37 @@
+{
+  "pageTitle": "Frequently Asked Questions",
+  "categories": [
+    {
+      "id": "general",
+      "title": "General Information",
+      "questions": [
+        {
+          "question": "What is Phentrieve?",
+          "answer": "<p>Phentrieve is an advanced AI-powered tool that automatically maps clinical descriptions to standardized Human Phenotype Ontology (HPO) terms. It streamlines the process of phenotype annotation for both research and clinical diagnostics, making it faster and more accurate.</p><p>Key features include:</p><ul><li>Automatic mapping of clinical text to HPO terms</li><li>High accuracy through state-of-the-art AI models</li><li>Support for multiple languages</li><li>User-friendly interface</li></ul>"
+        },
+        {
+          "question": "How does Phentrieve work?",
+          "answer": "<p>Phentrieve uses a sophisticated pipeline of AI models and algorithms to process clinical text:</p><ol><li><strong>Text Analysis:</strong> The system analyzes the input text using specialized biomedical language models</li><li><strong>Term Matching:</strong> It identifies potential HPO terms using semantic search and context-aware matching</li><li><strong>Ranking:</strong> The matches are ranked by relevance using advanced cross-encoder models</li><li><strong>Results:</strong> The most relevant HPO terms are presented to the user</li></ol><p>This process ensures high-quality matches while maintaining efficiency.</p>"
+        },
+        {
+          "question": "Who can use Phentrieve?",
+          "answer": "<p>Phentrieve is designed for:</p><ul><li><strong>Clinical Geneticists:</strong> For efficient patient phenotyping</li><li><strong>Researchers:</strong> For standardizing phenotype descriptions in studies</li><li><strong>Healthcare Professionals:</strong> For consistent phenotype documentation</li><li><strong>Bioinformaticians:</strong> For automated phenotype analysis</li></ul><p>The tool is free to use and accessible through a web browser.</p>"
+        }
+      ]
+    },
+    {
+      "id": "technical",
+      "title": "Technical Details",
+      "questions": [
+        {
+          "question": "How does the re-ranking process work?",
+          "answer": "<p>Phentrieve uses a two-stage approach:</p><ol><li>Initial retrieval using bi-encoder models (BioLORD/Jina)</li><li>Re-ranking using cross-encoder models:</li></ol><ul><li>cross-encoder/mmarco-mMiniLMv2-L12-H384-v1 (general multilingual)</li><li>MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7 (multilingual NLI)</li><li>ncbi/MedCPT-Cross-Encoder (biomedical specific)</li></ul>"
+        },
+        {
+          "question": "What performance can I expect?",
+          "answer": "<p>Our benchmark results show:</p><ul><li>BioLORD-2023-M: HR@1=0.3333, HR@3=0.6667, HR@5=0.7778</li><li>Jina-v2-base-de: HR@1=0.2222, HR@3=0.4444, HR@5=0.5556</li></ul><p>Performance may vary based on the complexity and specificity of the input text.</p>"
+        }
+      ]
+    }
+  ]
+}
