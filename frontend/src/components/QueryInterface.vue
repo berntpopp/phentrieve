@@ -4,18 +4,17 @@
     <div class="search-bar-container pa-2 pa-sm-4">
       <v-sheet rounded="pill" elevation="2" class="pa-1 pa-sm-2 search-bar">
         <div class="d-flex align-center flex-wrap flex-sm-nowrap">
-          <v-textarea
+          <v-text-field
             v-model="queryText"
-            density="compact"
-            variant="plain"
+            density="comfortable"
+            variant="outlined"
             placeholder="Enter clinical text..."
-            rows="1"
-            auto-grow
             hide-details
             class="search-input ml-2 ml-sm-3 flex-grow-1"
             :disabled="isLoading"
             @keydown.enter.prevent="!isLoading && queryText.trim() ? submitQuery() : null"
-          ></v-textarea>
+            bg-color="white"
+          ></v-text-field>
           
           <div class="d-flex align-center">
             <v-btn 
@@ -508,6 +507,26 @@ export default {
 </script>
 
 <style scoped>
+.search-input {
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.search-input :deep(.v-field) {
+  border-radius: 24px;
+  min-height: 44px;
+}
+
+.search-input :deep(.v-field__input) {
+  min-height: 44px;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.search-input :deep(.v-field__outline) {
+  --v-field-border-width: 1px;
+}
+
 .conversation-container {
   max-height: 600px;
   overflow-y: auto;
