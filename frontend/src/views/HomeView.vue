@@ -2,7 +2,7 @@
   <div class="fill-height">
     <div class="content-wrapper">
       <div class="d-flex justify-center align-center pb-2">
-        <img src="/hpo-logo.svg" alt="HPO Logo" height="50" class="mr-2">
+        <img src="/hpo-logo.svg" alt="HPO Logo" width="50" height="50" class="mr-2" loading="lazy">
         <h1 class="text-h5 font-weight-light">Phentrieve</h1>
       </div>
       <div class="text-center px-4 pb-4" style="max-width: 600px;">

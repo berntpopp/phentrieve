@@ -17,7 +17,7 @@
       <div style="max-width: 600px; width: 100%;">
           <!-- Header -->
           <div class="d-flex align-center mb-6">
-            <img src="/hpo-logo.svg" alt="HPO Logo" height="40" class="mr-3">
+            <img src="/hpo-logo.svg" alt="HPO Logo" width="40" height="40" class="mr-3" loading="lazy">
             <h1 class="text-h4 font-weight-light">{{ faqData.pageTitle }}</h1>
           </div>
 
