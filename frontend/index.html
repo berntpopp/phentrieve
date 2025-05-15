@@ -2,8 +2,16 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8">
-    <link rel="icon" href="/hpo-logo.svg" type="image/svg+xml">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Resource hints for performance optimization -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="dns-prefetch" href="https://api.phentrieve.kidney-genetics.org">
+    
+    <!-- Preload critical assets -->
+    <link rel="preload" href="/hpo-logo.svg" as="image" type="image/svg+xml">
+    <link rel="icon" href="/hpo-logo.svg" type="image/svg+xml">
+    
     <!-- Font display:swap is used in CSS to ensure text remains visible during font loading -->
     <title>Phentrieve: AI-Powered Clinical Text to HPO Term Mapping</title>
     <meta name="description" content="Phentrieve accurately maps free-text clinical notes to HPO terms using cutting-edge AI. Streamline phenotype annotation for research and diagnostics.">
@@ -30,6 +38,11 @@
       }
     }
     </script>
+    <!-- Preload main JavaScript module for faster execution -->
+    <link rel="modulepreload" href="/src/main.js">
+    <link rel="modulepreload" href="/src/App.vue">
+    <link rel="modulepreload" href="/src/router/index.js">
+    <link rel="modulepreload" href="/src/stores/log.js">
   </head>
   <body>
     <div id="app"></div>
