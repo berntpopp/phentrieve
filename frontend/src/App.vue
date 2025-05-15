@@ -34,7 +34,53 @@
       
       <div class="d-flex align-center">
         <div class="text-body-2 text-grey-darken-3 mr-2">&copy; {{ new Date().getFullYear() }} Phentrieve</div>
-        <v-btn icon="mdi-github" size="small" href="https://github.com/berntpopp/rag-hpo-testing" target="_blank" variant="text" color="grey" aria-label="View Phentrieve project on GitHub"></v-btn>
+        <v-tooltip location="top" text="View source code on GitHub">
+          <template v-slot:activator="{ props }">
+            <v-btn
+              v-bind="props"
+              icon="mdi-github"
+              size="small"
+              href="https://github.com/berntpopp/rag-hpo-testing"
+              target="_blank"
+              rel="noopener noreferrer"
+              variant="text"
+              color="grey"
+              aria-label="View Phentrieve project on GitHub"
+              class="mr-1"
+            ></v-btn>
+          </template>
+        </v-tooltip>
+        <v-tooltip location="top" text="View project documentation">
+          <template v-slot:activator="{ props }">
+            <v-btn
+              v-bind="props"
+              icon="mdi-book-open-page-variant-outline"
+              size="small"
+              href="https://github.com/berntpopp/rag-hpo-testing/wiki"
+              target="_blank"
+              rel="noopener noreferrer"
+              variant="text"
+              color="grey"
+              aria-label="View project documentation"
+              class="mr-1"
+            ></v-btn>
+          </template>
+        </v-tooltip>
+        <v-tooltip location="top" text="View project license">
+          <template v-slot:activator="{ props }">
+            <v-btn
+              v-bind="props"
+              icon="mdi-license"
+              size="small"
+              href="https://github.com/berntpopp/rag-hpo-testing/blob/main/LICENSE"
+              target="_blank"
+              rel="noopener noreferrer"
+              variant="text"
+              color="grey"
+              aria-label="View project license"
+            ></v-btn>
+          </template>
+        </v-tooltip>
       </div>
     </v-footer>
     
