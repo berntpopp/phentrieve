@@ -14,6 +14,8 @@
             :disabled="isLoading"
             @keydown.enter.prevent="!isLoading && queryText.trim() ? submitQuery() : null"
             bg-color="white"
+            aria-label="Clinical text input field"
+            :aria-description="'Enter clinical text to search for HPO terms' + (isLoading ? '. Search in progress' : '')"
           ></v-text-field>
           
           <div class="d-flex align-center">
@@ -25,6 +27,8 @@
               @click="showAdvancedOptions = !showAdvancedOptions"
               :disabled="isLoading"
               :aria-label="showAdvancedOptions ? 'Close Advanced Options' : 'Open Advanced Options'"
+              :aria-expanded="showAdvancedOptions.toString()"
+              :aria-controls="'advanced-options-panel'"
               size="small"
             >
               <v-icon>{{ showAdvancedOptions ? 'mdi-cog' : 'mdi-tune' }}</v-icon>
@@ -50,7 +54,15 @@
       
       <!-- Advanced Options Panel (Hidden by Default) -->
       <v-expand-transition>
-        <v-sheet v-if="showAdvancedOptions" rounded="lg" elevation="1" class="mt-3 pa-4">
+        <v-sheet 
+          v-if="showAdvancedOptions" 
+          rounded="lg" 
+          elevation="1" 
+          class="mt-3 pa-4"
+          id="advanced-options-panel"
+          role="region"
+          aria-label="Advanced search options"
+        >
           <div class="text-subtitle-2 mb-3">Advanced Options</div>
           
           <v-row>
@@ -64,6 +76,8 @@
                 :disabled="isLoading"
                 variant="outlined"
                 density="compact"
+                aria-label="Select embedding model"
+                :aria-description="'Choose the model to use for text embedding. Currently selected: ' + selectedModel"
               ></v-select>
             </v-col>
             
@@ -76,6 +90,9 @@
                 step="0.05"
                 thumb-label
                 :disabled="isLoading"
+                aria-label="Adjust similarity threshold"
+                :aria-valuetext="`Similarity threshold set to ${(similarityThreshold * 100).toFixed(0)}%`"
+                :aria-description="'Set the minimum similarity score required for matches. Higher values mean more precise but fewer results.'"
               ></v-slider>
             </v-col>
           </v-row>
@@ -88,6 +105,9 @@
                 :disabled="isLoading"
                 color="primary"
                 hide-details
+                aria-label="Toggle re-ranking"
+                :aria-checked="enableReranker"
+                :aria-description="'Enable or disable re-ranking of search results for better accuracy'"
               ></v-switch>
             </v-col>
             
@@ -99,6 +119,8 @@
                 :disabled="isLoading"
                 variant="outlined"
                 density="compact"
+                aria-label="Select reranker mode"
+                :aria-description="'Choose between cross-lingual or monolingual re-ranking mode'"
               ></v-select>
             </v-col>
           </v-row>
@@ -297,7 +319,10 @@ export default {
       handler() {
         logService.info('Model changed', { newModel: this.selectedModel })
         // Reset settings to defaults when model changes
-        this.resetToDefaults();
+        this.similarityThreshold = 0.3;
+        this.enableReranker = false;
+        this.rerankerMode = 'cross-lingual';
+        logService.info('Reset settings to defaults');
       }
     }
   },
