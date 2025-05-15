@@ -65,6 +65,22 @@ export default defineConfig({
         target: 'http://localhost:8001',
         changeOrigin: true
       }
+    },
+    // Fix MIME type issues
+    fs: {
+      strict: false
+    },
+    // Properly configure headers for modules
+    headers: {
+      '*.js': {
+        'Content-Type': 'application/javascript'
+      },
+      '*.mjs': {
+        'Content-Type': 'application/javascript'
+      },
+      '*.vue': {
+        'Content-Type': 'application/javascript'
+      }
     }
   }
 })

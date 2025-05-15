@@ -38,11 +38,8 @@
       }
     }
     </script>
-    <!-- Preload main JavaScript module for faster execution -->
-    <link rel="modulepreload" href="/src/main.js">
-    <link rel="modulepreload" href="/src/App.vue">
-    <link rel="modulepreload" href="/src/router/index.js">
-    <link rel="modulepreload" href="/src/stores/log.js">
+    <link rel="preload" href="/hpo-logo.svg" as="image" fetchpriority="high">
+    <!-- No modulepreload to avoid MIME type errors -->
   </head>
   <body>
     <div id="app"></div>
