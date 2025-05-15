@@ -11,8 +11,11 @@ export default defineConfig({
     vue(),
     iconOptimizer(),
     viteCompression({
-      algorithm: 'brotli',
-      ext: '.br'
+      algorithm: 'brotliCompress',
+      ext: '.br',
+      threshold: 1024, // Only compress files larger than 1KB
+      compressionOptions: { level: 11 }, // Maximum compression level
+      deleteOriginFile: false // Keep original files
     }),
     viteImagemin({
       gifsicle: { optimizationLevel: 7 },
