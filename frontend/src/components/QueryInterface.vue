@@ -1,5 +1,5 @@
 <template>
-  <div class="search-container mx-auto px-2" :style="{ maxWidth: '800px', width: '100%' }">
+  <div class="search-container mx-auto px-2">
     <!-- Clean Search Bar with Integrated Button -->
     <div class="search-bar-container pa-2 pa-sm-4">
       <v-sheet rounded="pill" elevation="2" class="pa-1 pa-sm-2 search-bar">
@@ -169,14 +169,13 @@
     
     <!-- Floating action button for collection panel -->
     <v-btn
-      class="collection-fab"
+      class="collection-fab collection-fab-position"
       color="secondary"
       icon
       position="fixed"
       location="bottom right"
       size="large"
       elevation="3"
-      style="margin: 16px; bottom: 60px; right: 16px; z-index: 1000;"
       @click="toggleCollectionPanel"
       aria-label="Open HPO Collection Panel"
     >
@@ -532,6 +531,18 @@ export default {
 </script>
 
 <style scoped>
+.search-container {
+  max-width: 800px;
+  width: 100%;
+}
+
+.collection-fab-position {
+  margin: 16px;
+  bottom: 60px !important;
+  right: 16px !important;
+  z-index: 1000;
+}
+
 .search-input {
   font-size: 1rem;
   line-height: 1.5;
