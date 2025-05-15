@@ -2,6 +2,9 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
 
+// Import critical CSS first to optimize rendering
+import './critical.css'
+
 // Pinia store
 import { createPinia } from 'pinia'
 import { useLogStore } from './stores/log'
