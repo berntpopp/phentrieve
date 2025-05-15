@@ -10,7 +10,8 @@ html, body, #app {
 /* Font display setting for better loading performance */
 @font-face {
   font-family: 'Material Design Icons';
-  src: url('/assets/fonts/materialdesignicons-webfont.woff2') format('woff2');
+  /* The actual MDI font is loaded by the @mdi/font package import */
+  src: local('Material Design Icons');
   font-display: swap;
 }
 
