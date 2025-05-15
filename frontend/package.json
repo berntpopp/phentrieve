@@ -24,6 +24,9 @@
     "eslint-plugin-vue": "^9.17.0",
     "postcss": "^8.4.31",
     "rollup-plugin-visualizer": "^5.9.2",
-    "vite": "^4.4.11"
+    "terser": "^5.39.1",
+    "vite": "^4.4.11",
+    "vite-plugin-compression": "^0.5.1",
+    "vite-plugin-imagemin": "^0.6.1"
   }
 }

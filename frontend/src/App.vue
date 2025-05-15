@@ -106,8 +106,8 @@
 
 <script>
 import HomeView from './views/HomeView.vue'
-import DisclaimerDialog from './components/DisclaimerDialog.vue'
-import LogViewer from './components/LogViewer.vue'
+const DisclaimerDialog = () => import('./components/DisclaimerDialog.vue')
+const LogViewer = () => import('./components/LogViewer.vue')
 import { useDisclaimerStore } from './stores/disclaimer'
 import { useLogStore } from './stores/log'
 import { logService } from './services/logService'
