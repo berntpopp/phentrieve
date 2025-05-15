@@ -4,20 +4,86 @@
       <HomeView />
     </v-main>
     
-    <v-footer app class="d-flex justify-end pa-2" style="z-index: 1;">
-      <div class="text-body-2 text-grey-darken-3 mr-2">&copy; {{ new Date().getFullYear() }} Phentrieve</div>
-      <v-btn icon="mdi-github" size="small" href="https://github.com/berntpopp/rag-hpo-testing" target="_blank" variant="text" color="grey" aria-label="View Phentrieve project on GitHub"></v-btn>
+    <v-footer app class="d-flex justify-space-between pa-2" style="z-index: 1;">
+      <div class="d-flex align-center">
+        <v-btn
+          variant="text"
+          density="compact"
+          class="text-body-2 text-primary mr-2"
+          prepend-icon="mdi-alert-circle-outline"
+          @click="showDisclaimerDialog"
+        >
+          Disclaimer
+          <template v-if="disclaimerStore.isAcknowledged" #append>
+            <v-tooltip location="top">
+              <template v-slot:activator="{ props }">
+                <v-icon
+                  v-bind="props"
+                  size="small"
+                  color="success"
+                  class="ml-1"
+                >
+                  mdi-check-circle
+                </v-icon>
+              </template>
+              <span>Acknowledged on {{ disclaimerStore.formattedAcknowledgmentDate }}</span>
+            </v-tooltip>
+          </template>
+        </v-btn>
+      </div>
+      
+      <div class="d-flex align-center">
+        <div class="text-body-2 text-grey-darken-3 mr-2">&copy; {{ new Date().getFullYear() }} Phentrieve</div>
+        <v-btn icon="mdi-github" size="small" href="https://github.com/berntpopp/rag-hpo-testing" target="_blank" variant="text" color="grey" aria-label="View Phentrieve project on GitHub"></v-btn>
+      </div>
     </v-footer>
+    
+    <!-- Disclaimer Dialog -->
+    <DisclaimerDialog
+      v-model="disclaimerDialogVisible"
+      @acknowledged="handleDisclaimerAcknowledged"
+    />
   </v-app>
 </template>
 
 <script>
 import HomeView from './views/HomeView.vue'
+import DisclaimerDialog from './components/DisclaimerDialog.vue'
+import { useDisclaimerStore } from './stores/disclaimer'
 
 export default {
   name: 'App',
   components: {
-    HomeView
+    HomeView,
+    DisclaimerDialog
+  },
+  data() {
+    return {
+      disclaimerDialogVisible: false
+    }
+  },
+  computed: {
+    disclaimerStore() {
+      return useDisclaimerStore()
+    }
+  },
+  created() {
+    // Initialize the store
+    this.disclaimerStore.initialize()
+    
+    // Show the disclaimer dialog if it has not been acknowledged
+    if (!this.disclaimerStore.isAcknowledged) {
+      this.disclaimerDialogVisible = true
+    }
+  },
+  methods: {
+    showDisclaimerDialog() {
+      this.disclaimerDialogVisible = true
+    },
+    handleDisclaimerAcknowledged() {
+      // Save the acknowledgment to the store
+      this.disclaimerStore.saveAcknowledgment()
+    }
   }
 }
 </script>
