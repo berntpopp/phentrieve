@@ -3,6 +3,8 @@ import App from './App.vue'
 
 // Pinia store
 import { createPinia } from 'pinia'
+import { useLogStore } from './stores/log'
+import { logService } from './services/logService'
 
 // Vuetify
 import 'vuetify/styles'
@@ -27,6 +29,12 @@ const vuetify = createVuetify({
 })
 
 const app = createApp(App)
-app.use(createPinia())
+const pinia = createPinia()
+app.use(pinia)
 app.use(vuetify)
+
+// Initialize logService with store
+const logStore = useLogStore(pinia)
+logService.initStore(logStore)
+
 app.mount('#app')

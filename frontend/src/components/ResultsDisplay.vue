@@ -121,12 +121,25 @@
 </template>
 
 <script>
+import { logService } from '../services/logService'
+
 export default {
   name: 'ResultsDisplay',
   props: {
     responseData: {
       type: Object,
-      default: null
+      default: null,
+      validator(value) {
+        if (value) {
+          logService.debug('Results data received', {
+            modelUsed: value.model_used_for_retrieval,
+            rerankerUsed: value.reranker_used,
+            resultsCount: value.results?.length,
+            language: value.language_detected
+          });
+        }
+        return true;
+      }
     },
     error: {
       type: Object,
@@ -140,30 +153,41 @@ export default {
   emits: ['add-to-collection'],
   methods: {
     isAlreadyCollected(hpoId) {
-      return this.collectedPhenotypes.some(item => item.hpo_id === hpoId);
+      const isCollected = this.collectedPhenotypes.some(item => item.hpo_id === hpoId);
+      logService.debug('Checking if phenotype is collected', { hpoId, isCollected });
+      return isCollected;
     },
     addToCollection(phenotype) {
+      logService.info('Adding phenotype to collection from results', { phenotype });
       this.$emit('add-to-collection', phenotype);
     },
     formatRerankerScore(score) {
+      logService.debug('Formatting reranker score', { originalScore: score });
       // Different rerankers use different score ranges/meanings
       // Some return negative scores (higher/less negative = better)
       // Others return probabilities (0-1)
+      let formattedScore;
       if (score < 0) {
         // For models like cross-encoder/mmarco-mMiniLMv2-L12-H384-v1
         // that return negative scores, transform to a percentile-like display
-        return (5 + score).toFixed(1); // Transform range, e.g., -5 to 0 → 0 to 5
+        formattedScore = (5 + score).toFixed(1); // Transform range, e.g., -5 to 0 → 0 to 5
       } else if (score <= 1) {
         // For models returning probabilities (entailment scores)
-        return (score * 100).toFixed(1) + '%';
+        formattedScore = (score * 100).toFixed(1) + '%';
       } else {
         // For any other type of score
-        return score.toFixed(2);
+        formattedScore = score.toFixed(2);
       }
+      logService.debug('Formatted reranker score', { originalScore: score, formattedScore });
+      return formattedScore;
     },
     displayModelName(name) {
+      logService.debug('Formatting model name for display', { originalName: name });
       // Format model names to be more display-friendly on mobile
-      if (!name) return '';
+      if (!name) {
+        logService.warn('Empty model name received');
+        return '';
+      }
       
       // For typical model paths like org/model-name
       if (name.includes('/')) {

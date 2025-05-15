@@ -33,6 +33,15 @@
       </div>
       
       <div class="d-flex align-center">
+        <v-btn
+          variant="text"
+          density="compact"
+          class="text-body-2 mr-2"
+          prepend-icon="mdi-text-box-search-outline"
+          @click="logStore.toggleViewer"
+        >
+          Logs
+        </v-btn>
         <div class="text-body-2 text-grey-darken-3 mr-2">&copy; {{ new Date().getFullYear() }} Phentrieve</div>
         <v-tooltip location="top" text="View source code on GitHub">
           <template v-slot:activator="{ props }">
@@ -89,19 +98,26 @@
       v-model="disclaimerDialogVisible"
       @acknowledged="handleDisclaimerAcknowledged"
     />
+
+    <!-- Log Viewer -->
+    <LogViewer />
   </v-app>
 </template>
 
 <script>
 import HomeView from './views/HomeView.vue'
 import DisclaimerDialog from './components/DisclaimerDialog.vue'
+import LogViewer from './components/LogViewer.vue'
 import { useDisclaimerStore } from './stores/disclaimer'
+import { useLogStore } from './stores/log'
+import { logService } from './services/logService'
 
 export default {
   name: 'App',
   components: {
     HomeView,
-    DisclaimerDialog
+    DisclaimerDialog,
+    LogViewer
   },
   data() {
     return {
@@ -111,22 +127,37 @@ export default {
   computed: {
     disclaimerStore() {
       return useDisclaimerStore()
+    },
+    logStore() {
+      return useLogStore()
     }
   },
   created() {
+    logService.info('App component created')
+    
     // Initialize the store
     this.disclaimerStore.initialize()
+    logService.debug('Disclaimer store initialized', {
+      isAcknowledged: this.disclaimerStore.isAcknowledged,
+      timestamp: this.disclaimerStore.acknowledgmentTimestamp
+    })
     
     // Show the disclaimer dialog if it has not been acknowledged
     if (!this.disclaimerStore.isAcknowledged) {
       this.disclaimerDialogVisible = true
+      logService.info('Showing initial disclaimer dialog')
     }
+
+    // Log application initialization
+    logService.info('Application initialized')
   },
   methods: {
     showDisclaimerDialog() {
+      logService.debug('Manual disclaimer dialog trigger')
       this.disclaimerDialogVisible = true
     },
     handleDisclaimerAcknowledged() {
+      logService.info('User acknowledged disclaimer')
       // Save the acknowledgment to the store
       this.disclaimerStore.saveAcknowledgment()
     }

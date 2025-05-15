@@ -4,6 +4,7 @@
  */
 
 import { defineStore } from 'pinia'
+import { logService } from '../services/logService'
 
 // Storage keys
 const DISCLAIMER_KEY = 'phentrieveDisclaimerAcknowledged'
@@ -30,7 +31,7 @@ export const useDisclaimerStore = defineStore('disclaimer', {
           day: 'numeric'
         })
       } catch (error) {
-        console.error('Error formatting acknowledgment date:', error)
+        logService.error('Error formatting acknowledgment date', error)
         return ''
       }
     }
@@ -46,7 +47,7 @@ export const useDisclaimerStore = defineStore('disclaimer', {
         this.isAcknowledged = savedAcknowledgment === 'true'
         this.acknowledgmentTimestamp = savedTimestamp ? parseInt(savedTimestamp) : null
       } catch (error) {
-        console.error('Error loading disclaimer status:', error)
+        logService.error('Error loading disclaimer status', error)
         // Default to not acknowledged if there's an error
         this.isAcknowledged = false
         this.acknowledgmentTimestamp = null
@@ -63,7 +64,7 @@ export const useDisclaimerStore = defineStore('disclaimer', {
         this.isAcknowledged = true
         this.acknowledgmentTimestamp = now
       } catch (error) {
-        console.error('Error saving disclaimer acknowledgment:', error)
+        logService.error('Error saving disclaimer acknowledgment', error)
       }
     }
   }

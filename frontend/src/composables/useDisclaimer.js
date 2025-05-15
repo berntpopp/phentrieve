@@ -6,6 +6,7 @@
  */
 
 import { ref, readonly } from 'vue'
+import { logService } from '../services/logService'
 
 // Storage keys
 const DISCLAIMER_KEY = 'phentrieveDisclaimerAcknowledged'
@@ -27,7 +28,7 @@ export function useDisclaimer() {
       isAcknowledged.value = savedAcknowledgment === 'true'
       acknowledgmentTimestamp.value = savedTimestamp ? parseInt(savedTimestamp) : null
     } catch (error) {
-      console.error('Error loading disclaimer status:', error)
+      logService.error('Error loading disclaimer status', error)
       // Default to not acknowledged if there's an error
       isAcknowledged.value = false
       acknowledgmentTimestamp.value = null
@@ -56,7 +57,7 @@ export function useDisclaimer() {
       isAcknowledged.value = true
       acknowledgmentTimestamp.value = now
     } catch (error) {
-      console.error('Error saving disclaimer acknowledgment:', error)
+      logService.error('Error saving disclaimer acknowledgment', error)
     }
   }
 
@@ -81,7 +82,7 @@ export function useDisclaimer() {
         day: 'numeric'
       })
     } catch (error) {
-      console.error('Error formatting acknowledgment date:', error)
+      logService.error('Error formatting acknowledgment date', error)
       return ''
     }
   }

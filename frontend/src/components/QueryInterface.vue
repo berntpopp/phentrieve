@@ -254,6 +254,7 @@
 <script>
 import ResultsDisplay from './ResultsDisplay.vue';
 import PhentrieveService from '../services/PhentrieveService';
+import { logService } from '../services/logService';
 
 export default {
   name: 'QueryInterface',
@@ -287,13 +288,22 @@ export default {
     queryHistory: {
       // Watch for any changes to the queryHistory array
       handler() {
+        logService.info('Query history updated', { newHistory: this.queryHistory })
         // Force scroll to top whenever history changes
         this.scrollToTop();
       },
       deep: true
+    },
+    selectedModel: {
+      handler() {
+        logService.info('Model changed', { newModel: this.selectedModel })
+        // Reset settings to defaults when model changes
+        this.resetToDefaults();
+      }
     }
   },
   mounted() {
+    logService.debug('QueryInterface mounted')
     // Set default model
     this.selectedModel = this.availableModels[0].value;
     
@@ -302,6 +312,11 @@ export default {
     if (container) {
       this.lastUserScrollPosition = 0;
       container.addEventListener('scroll', this.handleUserScroll);
+    }
+    
+    // Focus the input field when component mounts
+    if (this.$refs.queryInput) {
+      this.$refs.queryInput.focus()
     }
   },
   
@@ -317,6 +332,7 @@ export default {
     // After component updates, force scroll to top if this was triggered by a new query
     // Use a flag to track if the update was triggered by a new query
     if (this.shouldScrollToTop) {
+      logService.debug('Scrolling to top after update')
       this.scrollToTop();
       this.shouldScrollToTop = false;
     }
@@ -329,9 +345,15 @@ export default {
         this.lastUserScrollPosition = container.scrollTop;
         this.userHasScrolled = true;
       }
+      
+      if (!this.userHasScrolled && this.shouldScrollToTop) {
+        logService.debug('User initiated scroll in conversation')
+        this.userHasScrolled = true;
+      }
     },
     
     addToPhenotypeCollection(phenotype) {
+      logService.info('Adding phenotype to collection', { phenotype: phenotype })
       // Check if this phenotype is already in the collection
       const isDuplicate = this.collectedPhenotypes.some(item => item.hpo_id === phenotype.hpo_id);
       
@@ -350,18 +372,22 @@ export default {
     },
     
     removePhenotype(index) {
+      logService.info('Removing phenotype from collection', { index: index })
       this.collectedPhenotypes.splice(index, 1);
     },
     
     clearPhenotypeCollection() {
+      logService.info('Clearing phenotype collection')
       this.collectedPhenotypes = [];
     },
     
     toggleCollectionPanel() {
+      logService.debug('Toggling collection panel')
       this.showCollectionPanel = !this.showCollectionPanel;
     },
     
     scrollToTop() {
+      logService.debug('Attempting to scroll conversation to top')
       // Schedule multiple scroll attempts to ensure it works in all situations
       const doScroll = () => {
         const container = this.$refs.conversationContainer;
@@ -386,6 +412,7 @@ export default {
     },
     
     exportPhenotypes() {
+      logService.info('Exporting phenotypes', { count: this.collectedPhenotypes.length })
       // Create a formatted text with the phenotypes
       let exportText = "HPO Phenotypes Collection\n";
       exportText += "Exported on: " + new Date().toLocaleString() + "\n\n";
@@ -408,9 +435,13 @@ export default {
     },
   
     async submitQuery() {
+      logService.debug('Submitting query')
       // Validate input - prevent empty queries
       const queryTextTrimmed = this.queryText.trim();
-      if (!queryTextTrimmed) return;
+      if (!queryTextTrimmed) {
+        logService.warn('Empty query submission prevented');
+        return;
+      }
       
       this.isLoading = true;
       
@@ -450,9 +481,9 @@ export default {
         };
         
         // Make API call
-        console.log('Sending query to API:', queryData);
+        logService.info('Sending query to API', queryData);
         const response = await PhentrieveService.queryHpo(queryData);
-        console.log('Received API response:', response);
+        logService.info('Received API response', response);
         
         // Update history item using index reference
         this.queryHistory[historyIndex].loading = false;
@@ -464,7 +495,7 @@ export default {
         // Handle error
         this.queryHistory[historyIndex].loading = false;
         this.queryHistory[historyIndex].error = error;
-        console.error('Error submitting query:', error);
+        logService.error('Error submitting query', error);
         
         // Make a shallow copy of the array to trigger reactivity
         this.queryHistory = [...this.queryHistory];

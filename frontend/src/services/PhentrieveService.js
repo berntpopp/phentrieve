@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { logService } from './logService';
 
 /**
  * Determine the API URL based on environment variables and deployment context
@@ -15,14 +16,24 @@ class PhentrieveService {
         // queryData should match QueryRequest schema from FastAPI
         // Example: { text: "...", model_name: "...", num_results: 10, ... }
         try {
+            logService.info('Querying HPO API', { query: queryData });
             const response = await axios.post(`${API_URL}/query/`, queryData);
+            logService.debug('HPO API response received', { 
+                status: response.status,
+                data: response.data
+            });
             return response.data; // Expected to match QueryResponse schema
         } catch (error) {
-            console.error("Error querying HPO:", error.response?.data || error.message);
+            const errorDetail = error.response?.data?.detail || "An unknown error occurred while fetching results.";
+            logService.error('Error querying HPO API', {
+                status: error.response?.status,
+                detail: errorDetail,
+                error: error.message
+            });
             // Rethrow a simplified error object for the component to handle
             throw { 
                 status: error.response?.status,
-                detail: error.response?.data?.detail || "An unknown error occurred while fetching results."
+                detail: errorDetail
             };
         }
     }
