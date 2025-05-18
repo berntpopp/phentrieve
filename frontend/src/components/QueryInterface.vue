@@ -264,6 +264,59 @@
         </div>
       </v-sheet>
       
+      <v-divider class="mt-4"></v-divider>
+      <v-list-subheader>Subject Information (Optional)</v-list-subheader>
+      <div class="pa-4">
+        <v-text-field
+          v-model="phenopacketSubjectId"
+          label="Subject ID"
+          density="compact"
+          variant="outlined"
+          hide-details="auto"
+          class="mb-3"
+          aria-label="Enter subject identifier for Phenopacket"
+          bg-color="surface"
+          color="primary"
+        >
+          <template v-slot:label><span class="text-high-emphasis">Subject ID</span></template>
+        </v-text-field>
+
+        <v-select
+          v-model="phenopacketSex"
+          :items="sexOptions"
+          item-title="title"
+          item-value="value"
+          label="Sex"
+          density="compact"
+          variant="outlined"
+          hide-details="auto"
+          class="mb-3"
+          clearable
+          aria-label="Select subject sex for Phenopacket"
+          bg-color="surface"
+          color="primary"
+        >
+          <template v-slot:label><span class="text-high-emphasis">Sex</span></template>
+        </v-select>
+
+        <v-text-field
+          v-model="phenopacketDateOfBirth"
+          label="Date of Birth (YYYY-MM-DD)"
+          placeholder="YYYY-MM-DD"
+          density="compact"
+          variant="outlined"
+          hide-details="auto"
+          class="mb-3"
+          clearable
+          type="date" 
+          aria-label="Enter subject date of birth for Phenopacket"
+          bg-color="surface"
+          color="primary"
+        >
+          <template v-slot:label><span class="text-high-emphasis">Date of Birth</span></template>
+        </v-text-field>
+      </div>
+      
       <template v-slot:append>
         <v-divider></v-divider>
         <div class="pa-2">
@@ -272,10 +325,22 @@
             color="primary"
             class="mb-2"
             prepend-icon="mdi-download"
+            @click="exportPhenotypesAsPhenopacket"
+            :disabled="collectedPhenotypes.length === 0"
+            aria-label="Export collected phenotypes as Phenopacket JSON"
+          >
+            Export as Phenopacket (JSON)
+          </v-btn>
+          <v-btn
+            block
+            variant="outlined"
+            color="primary"
+            class="mb-2"
+            prepend-icon="mdi-download"
             @click="exportPhenotypes"
             :disabled="collectedPhenotypes.length === 0"
           >
-            Export Collection
+            Export as Text
           </v-btn>
           <v-btn
             block
@@ -297,6 +362,7 @@
 import ResultsDisplay from './ResultsDisplay.vue';
 import PhentrieveService from '../services/PhentrieveService';
 import { logService } from '../services/logService';
+import * as pps from '@berntpopp/phenopackets-js';
 
 export default {
   name: 'QueryInterface',
@@ -323,7 +389,18 @@ export default {
       showCollectionPanel: false,
       lastUserScrollPosition: 0,
       userHasScrolled: false,
-      shouldScrollToTop: false
+      shouldScrollToTop: false,
+      // Subject information for Phenopacket export
+      phenopacketSubjectId: '',
+      phenopacketSex: null,
+      phenopacketDateOfBirth: null,
+      // Sex options based on phenopackets-js enum values
+      sexOptions: [
+        { title: 'Unknown', value: 0 }, // UNKNOWN_SEX
+        { title: 'Female', value: 1 },  // FEMALE
+        { title: 'Male', value: 2 },    // MALE
+        { title: 'Other', value: 3 }    // OTHER_SEX
+      ]
     };
   },
   watch: {
@@ -457,7 +534,7 @@ export default {
     },
     
     exportPhenotypes() {
-      logService.info('Exporting phenotypes', { count: this.collectedPhenotypes.length })
+      logService.info('Exporting phenotypes as text', { count: this.collectedPhenotypes.length })
       // Create a formatted text with the phenotypes
       let exportText = "HPO Phenotypes Collection\n";
       exportText += "Exported on: " + new Date().toLocaleString() + "\n\n";
@@ -477,6 +554,136 @@ export default {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
+    },
+    
+    exportPhenotypesAsPhenopacket() {
+      if (this.collectedPhenotypes.length === 0) {
+        logService.warn('Attempted to export empty phenopacket collection');
+        return;
+      }
+
+      logService.info('Starting Phenopacket export process', { count: this.collectedPhenotypes.length });
+
+      try {
+        // 1. Create a V2 Phenopacket
+        const phenopacket = new pps.v2.Phenopacket();
+        phenopacket.setId(`phentrieve-export-${Date.now()}`);
+
+        // 2. Create and set MetaData (Required for a valid Phenopacket)
+        const metaData = new pps.v2.core.MetaData();
+        
+        // Set creation timestamp
+        const createdTimestamp = pps.jsonUtils.dateToTimestamp(new Date());
+        metaData.setCreated(createdTimestamp);
+        
+        metaData.setCreatedBy('Phentrieve Frontend Application');
+        
+        // Define the version of the Phenopacket Schema being used
+        metaData.setPhenopacketSchemaVersion('2.0.0');
+        
+        // Add a resource entry for Phentrieve
+        const phentrieveResource = new pps.v2.core.Resource();
+        phentrieveResource.setId('phentrieve');
+        phentrieveResource.setName('Phentrieve: AI-Powered Clinical Text to HPO Term Mapping');
+        phentrieveResource.setNamespacePrefix('Phentrieve');
+        phentrieveResource.setUrl('https://phentrieve.kidney-genetics.org/');
+        
+        // Attempt to get app version from import.meta.env if available
+        const appVersion = import.meta.env.VITE_APP_VERSION || '1.0.0';
+        phentrieveResource.setVersion(appVersion);
+        phentrieveResource.setIriPrefix('phentrieve');
+
+        metaData.addResources(phentrieveResource);
+        phenopacket.setMetaData(metaData);
+
+        // 3. Create and add Subject information (if provided)
+        if (this.phenopacketSubjectId || this.phenopacketSex !== null || this.phenopacketDateOfBirth) {
+          const subject = new pps.v2.core.Individual();
+          let subjectInfoAdded = false;
+
+          if (this.phenopacketSubjectId.trim()) {
+            subject.setId(this.phenopacketSubjectId.trim());
+            subjectInfoAdded = true;
+            logService.debug('Adding subject ID to Phenopacket', { id: this.phenopacketSubjectId.trim() });
+          }
+
+          if (this.phenopacketSex !== null && this.phenopacketSex !== undefined) {
+            subject.setSex(this.phenopacketSex); // Using enum value directly
+            subjectInfoAdded = true;
+            logService.debug('Adding subject sex to Phenopacket', { sex: this.phenopacketSex });
+          }
+
+          if (this.phenopacketDateOfBirth) {
+            try {
+              // Parse date from YYYY-MM-DD format
+              const dob = new Date(this.phenopacketDateOfBirth + "T00:00:00Z");
+              if (!isNaN(dob.getTime())) {
+                const timeElement = new pps.v2.core.TimeElement();
+                timeElement.setTimestamp(pps.jsonUtils.dateToTimestamp(dob));
+                subject.setTimeAtLastEncounter(timeElement);
+                
+                subjectInfoAdded = true;
+                logService.debug('Adding subject date of birth to Phenopacket', { dob: this.phenopacketDateOfBirth });
+              } else {
+                logService.warn('Invalid date format for Date of Birth', { input: this.phenopacketDateOfBirth });
+              }
+            } catch (dateError) {
+              logService.error('Error processing Date of Birth for Phenopacket', { 
+                input: this.phenopacketDateOfBirth, 
+                error: dateError 
+              });
+            }
+          }
+          
+          if (subjectInfoAdded) {
+            phenopacket.setSubject(subject);
+            logService.info('Subject information added to Phenopacket');
+          }
+        }
+
+        // 4. Add Phenotypic Features from the collected HPO terms
+        const phenotypicFeaturesList = [];
+        this.collectedPhenotypes.forEach(collectedPheno => {
+          const feature = new pps.v2.core.PhenotypicFeature();
+          
+          const featureType = new pps.v2.core.OntologyClass();
+          featureType.setId(collectedPheno.hpo_id); // e.g., "HP:0001250"
+          featureType.setLabel(collectedPheno.label); // e.g., "Seizure"
+          feature.setType(featureType);
+          
+          phenotypicFeaturesList.push(feature);
+        });
+        phenopacket.setPhenotypicFeaturesList(phenotypicFeaturesList);
+
+        // 5. Convert the Phenopacket object to a JSON string
+        const phenopacketJsonString = pps.jsonUtils.phenopacketToJSON(phenopacket, { pretty: true });
+
+        // 6. Trigger the download
+        const blob = new Blob([phenopacketJsonString], { type: 'application/json;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        const isoTimestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        a.download = `phentrieve_phenopacket_${isoTimestamp}.json`;
+        a.href = url;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        logService.info('Phenopacket successfully exported as JSON', { 
+          phenopacketId: phenopacket.getId(), 
+          filename: a.download 
+        });
+
+      } catch (error) {
+        logService.error('Error during Phenopacket creation or export', { 
+          errorMessage: error.message, 
+          stack: error.stack,
+          errorObject: error 
+        });
+        // Inform the user about the error
+        alert('An error occurred while exporting the Phenopacket. Please check the console for details.');
+      }
     },
   
     async submitQuery() {

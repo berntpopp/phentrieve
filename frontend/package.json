@@ -9,7 +9,9 @@
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore"
   },
   "dependencies": {
+    "@berntpopp/phenopackets-js": "^1.0.2",
     "axios": "^1.6.2",
+    "google-protobuf": "^3.21.4",
     "pinia": "^3.0.2",
     "vue": "^3.3.4",
     "vue-router": "^4.2.5",
@@ -18,6 +20,7 @@
   "devDependencies": {
     "@fullhuman/postcss-purgecss": "^5.0.0",
     "@mdi/font": "^7.3.67",
+    "@rollup/plugin-commonjs": "^28.0.3",
     "@vitejs/plugin-vue": "^4.4.0",
     "autoprefixer": "^10.4.16",
     "eslint": "^8.49.0",

@@ -5,10 +5,24 @@ import { visualizer } from 'rollup-plugin-visualizer'
 import viteCompression from 'vite-plugin-compression'
 import viteImagemin from 'vite-plugin-imagemin'
 import iconOptimizer from './vite-icon-optimizer'
+import commonjs from '@rollup/plugin-commonjs'
 
-export default defineConfig({
+export default defineConfig({  
+  optimizeDeps: {
+    include: ['google-protobuf'],
+    esbuildOptions: {
+      // Node.js global to browser globalThis
+      define: {
+        global: 'globalThis'
+      }
+    }
+  },
   plugins: [
     vue(),
+    commonjs({
+      transformMixedEsModules: true,
+      include: [/node_modules/]
+    }),
     iconOptimizer(),
     viteCompression({
       algorithm: 'brotliCompress',
@@ -43,6 +57,11 @@ export default defineConfig({
         drop_console: true,
         drop_debugger: true
       }
+    },
+    commonjsOptions: {
+      transformMixedEsModules: true,
+      include: [/node_modules/],
+      exclude: [/\.mjs$/]
     },
     rollupOptions: {
       output: {
