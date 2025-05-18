@@ -362,7 +362,7 @@
 import ResultsDisplay from './ResultsDisplay.vue';
 import PhentrieveService from '../services/PhentrieveService';
 import { logService } from '../services/logService';
-import * as pps from '@berntpopp/phenopackets-js';
+// Direct JSON-based implementation instead of using @berntpopp/phenopackets-js
 
 export default {
   name: 'QueryInterface',
@@ -565,63 +565,64 @@ export default {
       logService.info('Starting Phenopacket export process', { count: this.collectedPhenotypes.length });
 
       try {
-        // 1. Create a V2 Phenopacket
-        const phenopacket = new pps.v2.Phenopacket();
-        phenopacket.setId(`phentrieve-export-${Date.now()}`);
-
-        // 2. Create and set MetaData (Required for a valid Phenopacket)
-        const metaData = new pps.v2.core.MetaData();
+        // Create the Phenopacket directly as a JavaScript object
+        // following the GA4GH Phenopacket v2 schema
+        const timestamp = new Date().toISOString();
+        const phenopacketId = `phentrieve-export-${Date.now()}`;
         
-        // Set creation timestamp
-        const createdTimestamp = pps.jsonUtils.dateToTimestamp(new Date());
-        metaData.setCreated(createdTimestamp);
+        // Basic structure of a Phenopacket
+        const phenopacket = {
+          id: phenopacketId,
+          metaData: {
+            created: timestamp,
+            createdBy: "Phentrieve Frontend Application",
+            phenopacketSchemaVersion: "2.0.0",
+            resources: [
+              {
+                id: "phentrieve",
+                name: "Phentrieve: AI-Powered Clinical Text to HPO Term Mapping",
+                namespacePrefix: "Phentrieve",
+                url: "https://phentrieve.kidney-genetics.org/",
+                version: import.meta.env.VITE_APP_VERSION || "1.0.0",
+                iriPrefix: "phentrieve"
+              }
+            ]
+          },
+          phenotypicFeatures: []
+        };
         
-        metaData.setCreatedBy('Phentrieve Frontend Application');
-        
-        // Define the version of the Phenopacket Schema being used
-        metaData.setPhenopacketSchemaVersion('2.0.0');
-        
-        // Add a resource entry for Phentrieve
-        const phentrieveResource = new pps.v2.core.Resource();
-        phentrieveResource.setId('phentrieve');
-        phentrieveResource.setName('Phentrieve: AI-Powered Clinical Text to HPO Term Mapping');
-        phentrieveResource.setNamespacePrefix('Phentrieve');
-        phentrieveResource.setUrl('https://phentrieve.kidney-genetics.org/');
-        
-        // Attempt to get app version from import.meta.env if available
-        const appVersion = import.meta.env.VITE_APP_VERSION || '1.0.0';
-        phentrieveResource.setVersion(appVersion);
-        phentrieveResource.setIriPrefix('phentrieve');
-
-        metaData.addResources(phentrieveResource);
-        phenopacket.setMetaData(metaData);
-
-        // 3. Create and add Subject information (if provided)
+        // Add subject information if provided
         if (this.phenopacketSubjectId || this.phenopacketSex !== null || this.phenopacketDateOfBirth) {
-          const subject = new pps.v2.core.Individual();
+          phenopacket.subject = {};
           let subjectInfoAdded = false;
-
-          if (this.phenopacketSubjectId.trim()) {
-            subject.setId(this.phenopacketSubjectId.trim());
+          
+          if (this.phenopacketSubjectId && this.phenopacketSubjectId.trim()) {
+            phenopacket.subject.id = this.phenopacketSubjectId.trim();
             subjectInfoAdded = true;
             logService.debug('Adding subject ID to Phenopacket', { id: this.phenopacketSubjectId.trim() });
           }
-
+          
           if (this.phenopacketSex !== null && this.phenopacketSex !== undefined) {
-            subject.setSex(this.phenopacketSex); // Using enum value directly
+            // Map numeric sex values to string values expected in the schema
+            const sexMap = {
+              0: "UNKNOWN_SEX",
+              1: "FEMALE",
+              2: "MALE",
+              3: "OTHER_SEX"
+            };
+            phenopacket.subject.sex = sexMap[this.phenopacketSex];
             subjectInfoAdded = true;
             logService.debug('Adding subject sex to Phenopacket', { sex: this.phenopacketSex });
           }
-
+          
           if (this.phenopacketDateOfBirth) {
             try {
               // Parse date from YYYY-MM-DD format
               const dob = new Date(this.phenopacketDateOfBirth + "T00:00:00Z");
               if (!isNaN(dob.getTime())) {
-                const timeElement = new pps.v2.core.TimeElement();
-                timeElement.setTimestamp(pps.jsonUtils.dateToTimestamp(dob));
-                subject.setTimeAtLastEncounter(timeElement);
-                
+                phenopacket.subject.timeAtLastEncounter = {
+                  timestamp: dob.toISOString()
+                };
                 subjectInfoAdded = true;
                 logService.debug('Adding subject date of birth to Phenopacket', { dob: this.phenopacketDateOfBirth });
               } else {
@@ -635,30 +636,28 @@ export default {
             }
           }
           
-          if (subjectInfoAdded) {
-            phenopacket.setSubject(subject);
+          // If no subject info was actually added, remove the empty subject object
+          if (!subjectInfoAdded) {
+            delete phenopacket.subject;
+          } else {
             logService.info('Subject information added to Phenopacket');
           }
         }
-
-        // 4. Add Phenotypic Features from the collected HPO terms
-        const phenotypicFeaturesList = [];
+        
+        // Add phenotypic features
         this.collectedPhenotypes.forEach(collectedPheno => {
-          const feature = new pps.v2.core.PhenotypicFeature();
-          
-          const featureType = new pps.v2.core.OntologyClass();
-          featureType.setId(collectedPheno.hpo_id); // e.g., "HP:0001250"
-          featureType.setLabel(collectedPheno.label); // e.g., "Seizure"
-          feature.setType(featureType);
-          
-          phenotypicFeaturesList.push(feature);
+          phenopacket.phenotypicFeatures.push({
+            type: {
+              id: collectedPheno.hpo_id,
+              label: collectedPheno.label
+            }
+          });
         });
-        phenopacket.setPhenotypicFeaturesList(phenotypicFeaturesList);
-
-        // 5. Convert the Phenopacket object to a JSON string
-        const phenopacketJsonString = pps.jsonUtils.phenopacketToJSON(phenopacket, { pretty: true });
-
-        // 6. Trigger the download
+        
+        // Convert to JSON string (pretty-printed)
+        const phenopacketJsonString = JSON.stringify(phenopacket, null, 2);
+        
+        // Trigger download
         const blob = new Blob([phenopacketJsonString], { type: 'application/json;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -669,12 +668,12 @@ export default {
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-
+        
         logService.info('Phenopacket successfully exported as JSON', { 
-          phenopacketId: phenopacket.getId(), 
+          phenopacketId: phenopacket.id, 
           filename: a.download 
         });
-
+        
       } catch (error) {
         logService.error('Error during Phenopacket creation or export', { 
           errorMessage: error.message, 
