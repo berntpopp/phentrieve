@@ -798,6 +798,47 @@ export default {
   --v-field-border-width: 1px;
 }
 
+/* Accessibility improvements for form fields */
+:deep(.text-high-emphasis) {
+  color: rgba(0, 0, 0, 0.87) !important; /* Darker text for better contrast */
+  font-weight: 500;
+}
+
+/* Improve contrast for form fields */
+:deep(.v-field--variant-outlined) {
+  background-color: #f8f9fa !important; /* Lighter background */
+  border: 1px solid rgba(0, 0, 0, 0.23);
+}
+
+:deep(.v-field__input) {
+  color: rgba(0, 0, 0, 0.87) !important; /* Darker text for better contrast */
+}
+
+/* Make sure placeholder text is also accessible */
+:deep(.v-field__input::placeholder) {
+  color: rgba(0, 0, 0, 0.6) !important;
+}
+
+/* Dark mode support - use media query for dark theme if needed */
+@media (prefers-color-scheme: dark) {
+  :deep(.text-high-emphasis) {
+    color: rgba(255, 255, 255, 0.87) !important;
+  }
+  
+  :deep(.v-field--variant-outlined) {
+    background-color: rgba(30, 30, 30, 0.8) !important;
+    border: 1px solid rgba(255, 255, 255, 0.23);
+  }
+  
+  :deep(.v-field__input) {
+    color: rgba(255, 255, 255, 0.87) !important;
+  }
+  
+  :deep(.v-field__input::placeholder) {
+    color: rgba(255, 255, 255, 0.6) !important;
+  }
+}
+
 .conversation-container {
   max-height: 600px;
   overflow-y: auto;
