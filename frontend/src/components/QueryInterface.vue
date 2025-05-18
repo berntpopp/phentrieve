@@ -499,8 +499,15 @@ export default {
     },
     
     clearPhenotypeCollection() {
-      logService.info('Clearing phenotype collection')
+      logService.info('Clearing phenotype collection and subject information')
       this.collectedPhenotypes = [];
+      
+      // Also reset the subject information fields
+      this.phenopacketSubjectId = '';
+      this.phenopacketSex = null;
+      this.phenopacketDateOfBirth = null;
+      
+      logService.debug('Subject information inputs have been reset');
     },
     
     toggleCollectionPanel() {
