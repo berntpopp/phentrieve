@@ -10,7 +10,6 @@ from typing_extensions import Annotated
 import json
 import yaml
 
-from .utils import setup_logging_cli
 
 # Read version from pyproject.toml
 __version__ = importlib.metadata.version("phentrieve")
@@ -45,7 +44,7 @@ def prepare_hpo_data(
     graph properties needed for similarity calculations.
     """
     from phentrieve.data_processing.hpo_parser import orchestrate_hpo_preparation
-    from phentrieve.utils import setup_logging_cli, resolve_data_path
+    from phentrieve.utils import setup_logging_cli
 
     setup_logging_cli(debug=debug)
 
@@ -101,7 +100,7 @@ def build_index(
     for semantic search of HPO terms.
     """
     from phentrieve.indexing.chromadb_orchestrator import orchestrate_index_building
-    from phentrieve.utils import setup_logging_cli, resolve_data_path
+    from phentrieve.utils import setup_logging_cli
 
     setup_logging_cli(debug=debug)
 
@@ -834,73 +833,6 @@ def chunk_text_command(
     chunking_pipeline_config = resolve_chunking_pipeline_config(
         chunking_pipeline_config_file, strategy
     )
-
-    # Determine if we need a semantic model
-    needs_semantic_model = any(
-        chunk_config.get("type") == "semantic"
-        for chunk_config in chunking_pipeline_config
-    )
-
-    # Load the SBERT model if needed
-    sbert_model = None
-    if needs_semantic_model:
-        model_name = semantic_chunker_model or DEFAULT_MODEL
-        typer.echo(f"Loading sentence transformer model: {model_name}...")
-        try:
-            sbert_model = SentenceTransformer(model_name)
-        except Exception as e:
-            typer.secho(
-                f"Error loading model '{model_name}': {str(e)}", fg=typer.colors.RED
-            )
-            raise typer.Exit(code=1)
-
-    # Empty assertion config to disable assertion detection for this command
-    assertion_config = {"disable": True}
-
-    # Create the pipeline
-    try:
-        pipeline = TextProcessingPipeline(
-            language=language,
-            chunking_pipeline_config=chunking_pipeline_config,
-            assertion_config=assertion_config,
-            sbert_model_for_semantic_chunking=sbert_model,
-        )
-    except Exception as e:
-        typer.secho(f"Error creating pipeline: {str(e)}", fg=typer.colors.RED)
-        raise typer.Exit(code=1)
-
-    # Process the text
-    try:
-        processed_chunks = pipeline.process(raw_text)
-    except Exception as e:
-        typer.secho(f"Error processing text: {str(e)}", fg=typer.colors.RED)
-        raise typer.Exit(code=1)
-
-    # Output the chunks in the requested format
-    if output_format == "lines":
-        for i, chunk_data in enumerate(processed_chunks):
-            typer.echo(f"[{i+1}] {chunk_data['text']}")
-    elif output_format == "json_lines":
-        for chunk_data in processed_chunks:
-            # Ensure Enum values are serialized properly
-            chunk_json = {
-                "text": chunk_data["text"],
-                "metadata": {
-                    k: (str(v) if hasattr(v, "name") else v)
-                    for k, v in chunk_data.get("metadata", {}).items()
-                },
-            }
-            typer.echo(json.dumps(chunk_json))
-    else:
-        typer.secho(
-            f"Error: Unknown output format '{output_format}'.",
-            fg=typer.colors.RED,
-        )
-        raise typer.Exit(code=1)
-
-    # 3. Final fallback: Default configuration
-    if chunking_pipeline_config is None:
-        chunking_pipeline_config = DEFAULT_CHUNK_PIPELINE_CONFIG
 
     # Determine if we need a semantic model
     needs_semantic_model = any(
