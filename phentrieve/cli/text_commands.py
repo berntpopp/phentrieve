@@ -6,12 +6,15 @@ This module contains commands for text processing and HPO term extraction.
 import csv
 from io import StringIO
 import json
+import logging
 import yaml
 from pathlib import Path
 from typing import Optional, List, Dict
 from typing_extensions import Annotated
 
 import typer
+
+logger = logging.getLogger(__name__)
 
 from phentrieve.cli.utils import load_text_from_input, resolve_chunking_pipeline_config
 from phentrieve.text_processing.hpo_extraction_orchestrator import (
@@ -295,41 +298,82 @@ def process_text_for_hpo_command(
 
             cross_encoder = reranker.load_cross_encoder(ce_model_name, device=device)
 
+        # Process text into chunks
+        typer.echo("Processing text into chunks...")
+        processed_chunks = pipeline.process(raw_text)
+        # Debug log the structure of processed chunks
+        logger.info(
+            f"Chunk structure: {processed_chunks[0].keys() if processed_chunks else 'No chunks'}"
+        )
+        text_chunks = [chunk["text"] for chunk in processed_chunks]
+        # Get assertion status from the 'status' key
+        assertion_statuses = [str(chunk["status"].value) for chunk in processed_chunks]
+
         # Use the orchestrator to process HPO extraction
         typer.echo("Starting HPO term extraction via orchestrator...")
-        aggregated_results, chunk_results, processed_chunks = (
-            orchestrate_hpo_extraction(
-                raw_text=raw_text,
-                language=language,
-                pipeline=pipeline,
-                retriever=retriever,
-                cross_encoder=cross_encoder,
-                similarity_threshold_per_chunk=similarity_threshold,
-                num_results_per_chunk=num_results,
-                enable_reranker=enable_reranker,
-                reranker_mode=reranker_mode,
-                translation_dir_path=Path(translation_dir) if translation_dir else None,
-                rerank_count_per_chunk=rerank_count,
-                min_confidence_for_aggregated=min_confidence,
-                top_term_per_chunk_for_aggregated=top_term_per_chunk,
-                debug=debug,
-            )
+        unique_terms, chunk_results, all_terms = orchestrate_hpo_extraction(
+            text_chunks=text_chunks,
+            retriever=retriever,
+            num_results_per_chunk=num_results,
+            similarity_threshold_per_chunk=similarity_threshold,
+            cross_encoder=cross_encoder,
+            translation_dir_path=Path(translation_dir) if translation_dir else None,
+            language=language,
+            reranker_mode=reranker_mode,
+            top_term_per_chunk=top_term_per_chunk,
+            min_confidence=min_confidence,
+            assertion_statuses=assertion_statuses,
         )
 
         typer.echo(
-            f"Extraction complete - found {len(aggregated_results)} HPO terms across {len(processed_chunks)} chunks"
+            f"Extraction complete - found {len(unique_terms)} HPO terms across {len(processed_chunks)} chunks"
         )
 
-        # Output the results in the requested format
-        _format_and_output_results(
-            aggregated_results=aggregated_results,
-            chunk_results=chunk_results,
-            processed_chunks=processed_chunks,
-            language=language,
-            output_format=output_format,
-        )
+        # Output results in the requested format
+        if output_format == "json_lines":
+            for result in unique_terms:
+                typer.echo(json.dumps(result))
+        elif output_format == "rich_json_summary":
+            output_data = {
+                "meta": {
+                    "input": {
+                        "text": raw_text,
+                        "language": language,
+                        "strategy": strategy,
+                        "min_confidence": similarity_threshold,
+                        "top_term_per_chunk": top_term_per_chunk,
+                        "assertion_detection": not no_assertion_detection,
+                        "assertion_preference": assertion_preference,
+                        "reranker_enabled": enable_reranker,
+                        "reranker_mode": reranker_mode if enable_reranker else None,
+                    },
+                    "models": {
+                        "retrieval": retriever.model_name,
+                        "reranker": reranker_model if enable_reranker else None,
+                        "monolingual_reranker": (
+                            monolingual_reranker_model if enable_reranker else None
+                        ),
+                    },
+                },
+                "chunks": [
+                    {
+                        "text": chunk["text"],
+                        "status": str(chunk["status"].value),
+                        "source_indices": chunk["source_indices"],
+                    }
+                    for chunk in processed_chunks
+                ],
+                "total_chunks": len(processed_chunks),
+                "total_terms": len(unique_terms),
+                "terms": unique_terms,
+            }
+            typer.echo(json.dumps(output_data, indent=2))
+        elif output_format == "csv_hpo_list":
+            # Output just the HPO IDs as a comma-separated list
+            hpo_ids = [result["hpo_id"] for result in unique_terms]
+            typer.echo(",".join(hpo_ids))
 
-        return aggregated_results
+        return unique_terms
 
     except Exception as e:
         typer.secho(f"Error processing text: {str(e)}", fg=typer.colors.RED)
