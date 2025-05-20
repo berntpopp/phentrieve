@@ -311,7 +311,7 @@ def process_text_for_hpo_command(
 
         # Use the orchestrator to process HPO extraction
         typer.echo("Starting HPO term extraction via orchestrator...")
-        unique_terms, chunk_results, all_terms = orchestrate_hpo_extraction(
+        aggregated_results, chunk_results = orchestrate_hpo_extraction(
             text_chunks=text_chunks,
             retriever=retriever,
             num_results_per_chunk=num_results,
@@ -326,12 +326,12 @@ def process_text_for_hpo_command(
         )
 
         typer.echo(
-            f"Extraction complete - found {len(unique_terms)} HPO terms across {len(processed_chunks)} chunks"
+            f"Extraction complete - found {len(aggregated_results)} HPO terms across {len(processed_chunks)} chunks"
         )
 
         # Output results in the requested format
         if output_format == "json_lines":
-            for result in unique_terms:
+            for result in aggregated_results:
                 typer.echo(json.dumps(result))
         elif output_format == "rich_json_summary":
             output_data = {
@@ -364,16 +364,16 @@ def process_text_for_hpo_command(
                     for chunk in processed_chunks
                 ],
                 "total_chunks": len(processed_chunks),
-                "total_terms": len(unique_terms),
-                "terms": unique_terms,
+                "total_terms": len(aggregated_results),
+                "terms": aggregated_results,
             }
             typer.echo(json.dumps(output_data, indent=2))
         elif output_format == "csv_hpo_list":
             # Output just the HPO IDs as a comma-separated list
-            hpo_ids = [result["hpo_id"] for result in unique_terms]
+            hpo_ids = [result["id"] for result in aggregated_results]
             typer.echo(",".join(hpo_ids))
 
-        return unique_terms
+        return aggregated_results
 
     except Exception as e:
         typer.secho(f"Error processing text: {str(e)}", fg=typer.colors.RED)
