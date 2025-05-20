@@ -6,14 +6,13 @@ using various strategies, from simple paragraph splitting to semantic chunking.
 """
 
 import re
-from abc import ABC, abstractmethod
-from typing import List, Optional
-
 import logging
 import pysbd
+import numpy as np
+from abc import ABC, abstractmethod
+from typing import List
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
-import numpy as np
 
 logger = logging.getLogger(__name__)
 
@@ -305,3 +304,172 @@ class FineGrainedPunctuationChunker(TextChunker):
                 cleaned_chunks.append(restored_chunk.strip())
 
         return cleaned_chunks
+
+
+class PreChunkSemanticGrouper(TextChunker):
+    """
+    Chunker that semantically groups pre-chunks (typically from FineGrainedPunctuationChunker)
+    from a single paragraph using SBERT embeddings and cosine similarity.
+
+    This chunker differs from standard TextChunkers as it expects a list of pre-chunks
+    rather than a single text string. It maintains the TextChunker interface by
+    overriding the chunk method but provides additional methods for handling
+    lists of pre-chunks directly.
+    """
+
+    def __init__(
+        self,
+        language: str = "en",
+        model: SentenceTransformer = None,
+        similarity_threshold: float = 0.5,
+        min_group_size: int = 1,
+        max_group_size: int = 7,
+        **kwargs,
+    ):
+        """
+        Initialize the pre-chunk semantic grouper.
+
+        Args:
+            language: ISO language code
+            model: Pre-loaded SentenceTransformer model (required)
+            similarity_threshold: Cosine similarity threshold for grouping pre-chunks (0-1)
+            min_group_size: Minimum number of pre-chunks in a final semantic chunk
+            max_group_size: Maximum number of pre-chunks in a final semantic chunk
+            **kwargs: Additional parameters for future extensibility
+        """
+        super().__init__(language=language, **kwargs)
+
+        if model is None:
+            raise ValueError(
+                "A SentenceTransformer model must be provided to PreChunkSemanticGrouper."
+            )
+
+        self.model = model
+        self.similarity_threshold = similarity_threshold
+        self.min_group_size = min_group_size
+        self.max_group_size = max_group_size
+
+        logger.info(
+            f"Initialized PreChunkSemanticGrouper with similarity_threshold={similarity_threshold}, "
+            f"min_group_size={min_group_size}, max_group_size={max_group_size}"
+        )
+
+    def chunk(self, text: str) -> List[str]:
+        """
+        Standard TextChunker interface method. This implementation treats the input text
+        as a single pre-chunk and returns it without additional processing, as this
+        chunker is designed to work on collections of pre-chunks, not single texts.
+
+        Args:
+            text: Input text (interpreted as a single pre-chunk)
+
+        Returns:
+            List containing the input text as a single chunk
+        """
+        logger.warning(
+            "PreChunkSemanticGrouper.chunk() called with a single text string. "
+            "This chunker is designed to work with lists of pre-chunks via "
+            "chunk_pre_chunks(). Returning the input as a single chunk."
+        )
+        return [text] if text and text.strip() else []
+
+    def chunk_pre_chunks(self, pre_chunks_from_paragraph: List[str]) -> List[str]:
+        """
+        Split a list of pre-chunks into semantically coherent chunks.
+
+        Args:
+            pre_chunks_from_paragraph: List of pre-chunks from a single paragraph
+
+        Returns:
+            List of semantic chunks (each chunk is formed by joining one or more pre-chunks)
+        """
+        # A. Handle edge cases
+        if not pre_chunks_from_paragraph:
+            return []
+
+        if len(pre_chunks_from_paragraph) == 1:
+            return list(pre_chunks_from_paragraph)
+
+        # B. Embed pre-chunks
+        embeddings = self.model.encode(
+            pre_chunks_from_paragraph, show_progress_bar=False, convert_to_numpy=True
+        )
+
+        # Another edge case check after encoding
+        if len(embeddings) <= 1:
+            return list(pre_chunks_from_paragraph)
+
+        # C. Calculate pairwise similarities between adjacent pre-chunks
+        similarities_with_next = []
+        for i in range(len(embeddings) - 1):
+            sim = cosine_similarity(
+                embeddings[i].reshape(1, -1), embeddings[i + 1].reshape(1, -1)
+            )[0][0]
+            similarities_with_next.append(sim)
+
+        # D. Identify breakpoints (low similarity between adjacent chunks)
+        breakpoints = []
+        for i, sim in enumerate(similarities_with_next):
+            if sim < self.similarity_threshold:
+                breakpoints.append(i)
+
+        # E. Form chunks based on breakpoints
+        final_chunks = []
+        current_chunk_start_idx = 0
+
+        # Process each segment between breakpoints
+        for bp_idx in breakpoints:
+            segment_pre_chunks = pre_chunks_from_paragraph[
+                current_chunk_start_idx : bp_idx + 1
+            ]
+
+            # Check if this segment meets minimum group size
+            if len(segment_pre_chunks) < self.min_group_size:
+                # If we're not at the start, prefer to merge with previous segment
+                if final_chunks and current_chunk_start_idx > 0:
+                    # Merge with previous chunk by removing the last chunk and combining
+                    prev_chunk = final_chunks.pop()
+                    combined_chunk = prev_chunk + " " + " ".join(segment_pre_chunks)
+                    final_chunks.append(combined_chunk)
+                else:
+                    # Otherwise, just add it
+                    final_chunks.append(" ".join(segment_pre_chunks))
+            else:
+                # Segment meets minimum size requirement
+                final_chunks.append(" ".join(segment_pre_chunks))
+
+            current_chunk_start_idx = bp_idx + 1
+
+        # Add the last segment
+        remaining_pre_chunks = pre_chunks_from_paragraph[current_chunk_start_idx:]
+        if remaining_pre_chunks:
+            # Check if last segment meets minimum group size and we have previous chunks
+            if len(remaining_pre_chunks) < self.min_group_size and final_chunks:
+                # Merge with previous chunk
+                prev_chunk = final_chunks.pop()
+                combined = prev_chunk + " " + " ".join(remaining_pre_chunks)
+                final_chunks.append(combined)
+            else:
+                final_chunks.append(" ".join(remaining_pre_chunks))
+
+        # F. Handle max_group_size constraints
+        # For chunks that exceed max_group_size, find optimal split points
+        result_chunks = []
+        for chunk in final_chunks:
+            chunk_parts = chunk.split(" ")
+            if len(chunk_parts) > self.max_group_size:
+                # Log that we're splitting an oversized chunk
+                logger.debug(
+                    f"Splitting chunk with {len(chunk_parts)} parts "
+                    f"exceeding max_group_size={self.max_group_size}"
+                )
+
+                # Split the oversized chunk into smaller chunks
+                for i in range(0, len(chunk_parts), self.max_group_size):
+                    sub_chunk = " ".join(chunk_parts[i : i + self.max_group_size])
+                    if sub_chunk:
+                        result_chunks.append(sub_chunk)
+            else:
+                result_chunks.append(chunk)
+
+        return result_chunks

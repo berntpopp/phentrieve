@@ -70,7 +70,12 @@ def resolve_chunking_pipeline_config(
         typer.Exit: If the config file does not exist or has an invalid
             format
     """
-    from phentrieve.config import DEFAULT_CHUNK_PIPELINE_CONFIG
+    from phentrieve.config import (
+        get_default_chunk_pipeline_config,
+        get_simple_chunking_config,
+        get_semantic_chunking_config,
+        get_detailed_chunking_config,
+    )
 
     chunking_pipeline_config = None
 
@@ -102,32 +107,11 @@ def resolve_chunking_pipeline_config(
     # 2. Second priority: Strategy parameter
     if chunking_pipeline_config is None:
         if strategy_arg == "simple":
-            chunking_pipeline_config = [{"type": "paragraph"}, {"type": "sentence"}]
+            chunking_pipeline_config = get_simple_chunking_config()
         elif strategy_arg == "semantic":
-            chunking_pipeline_config = [
-                {"type": "paragraph"},
-                {
-                    "type": "semantic",
-                    "config": {
-                        "similarity_threshold": 0.4,
-                        "min_chunk_sentences": 1,
-                        "max_chunk_sentences": 3,
-                    },
-                },
-            ]
+            chunking_pipeline_config = get_semantic_chunking_config()
         elif strategy_arg == "detailed":
-            chunking_pipeline_config = [
-                {"type": "paragraph"},
-                {
-                    "type": "semantic",
-                    "config": {
-                        "similarity_threshold": 0.4,
-                        "min_chunk_sentences": 1,
-                        "max_chunk_sentences": 3,
-                    },
-                },
-                {"type": "fine_grained_punctuation"},
-            ]
+            chunking_pipeline_config = get_detailed_chunking_config()
         else:
             typer.secho(
                 f"Warning: Unknown strategy '{strategy_arg}'. "
@@ -137,6 +121,6 @@ def resolve_chunking_pipeline_config(
 
     # 3. Final fallback: Default configuration
     if chunking_pipeline_config is None:
-        chunking_pipeline_config = DEFAULT_CHUNK_PIPELINE_CONFIG
+        chunking_pipeline_config = get_default_chunk_pipeline_config()
 
     return chunking_pipeline_config

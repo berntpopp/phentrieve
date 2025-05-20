@@ -244,7 +244,7 @@ def process_text_for_hpo_command(
 
     # Determine if we need a semantic model
     needs_semantic_model = any(
-        chunk_config.get("type") == "semantic"
+        chunk_config.get("type") in ["semantic", "pre_chunk_semantic_grouper"]
         for chunk_config in chunking_pipeline_config
     )
 
@@ -475,7 +475,7 @@ def chunk_text_command(
 
     # Determine if we need a semantic model
     needs_semantic_model = any(
-        chunk_config.get("type") == "semantic"
+        chunk_config.get("type") in ["semantic", "pre_chunk_semantic_grouper"]
         for chunk_config in chunking_pipeline_config
     )
 

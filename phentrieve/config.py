@@ -5,6 +5,11 @@ This module contains constants, defaults, and configuration parameters used
 throughout the phentrieve package.
 """
 
+import sys
+import warnings
+import copy
+from pathlib import Path
+
 # Note: This module intentionally does not import path resolution functions
 # We avoid importing from utils to prevent circular imports
 
@@ -75,6 +80,52 @@ PHENOTYPE_ROOT = "HP:0000118"
 # Text Processing Configuration
 # Default chunking pipeline configuration
 DEFAULT_CHUNK_PIPELINE_CONFIG = [{"type": "paragraph"}, {"type": "sentence"}]
+
+# Predefined chunking strategies
+SIMPLE_CHUNKING_CONFIG = [{"type": "paragraph"}, {"type": "sentence"}]
+
+SEMANTIC_CHUNKING_CONFIG = [
+    {"type": "paragraph"},
+    {
+        "type": "semantic",
+        "config": {
+            "similarity_threshold": 0.4,
+            "min_chunk_sentences": 1,
+            "max_chunk_sentences": 3,
+        },
+    },
+]
+
+DETAILED_CHUNKING_CONFIG = [
+    {"type": "paragraph"},
+    {"type": "fine_grained_punctuation"},
+    {
+        "type": "pre_chunk_semantic_grouper",
+        "config": {
+            "similarity_threshold": 0.5,
+            "min_group_size": 1,
+            "max_group_size": 7,
+        },
+    },
+]
+
+
+# Functions to get fresh copies of the configs to avoid mutation issues
+def get_default_chunk_pipeline_config():
+    return copy.deepcopy(DEFAULT_CHUNK_PIPELINE_CONFIG)
+
+
+def get_simple_chunking_config():
+    return copy.deepcopy(SIMPLE_CHUNKING_CONFIG)
+
+
+def get_semantic_chunking_config():
+    return copy.deepcopy(SEMANTIC_CHUNKING_CONFIG)
+
+
+def get_detailed_chunking_config():
+    return copy.deepcopy(DETAILED_CHUNKING_CONFIG)
+
 
 # Default assertion detection configuration
 DEFAULT_ASSERTION_CONFIG = {
