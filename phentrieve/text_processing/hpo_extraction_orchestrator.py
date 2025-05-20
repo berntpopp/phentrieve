@@ -88,6 +88,7 @@ def orchestrate_hpo_extraction(
                     logger.warning(f"Translation failed: {e}")
 
             # Get matches
+            # Query logging is already done in the retriever class, so don't log here
             query_results = retriever.query(
                 text=chunk_text,
                 n_results=num_results_per_chunk,
@@ -97,7 +98,12 @@ def orchestrate_hpo_extraction(
             # Convert to expected format
             current_hpo_matches = []
             if query_results.get("metadatas") and query_results["metadatas"][0]:
+                matches_added = 0
                 for i, metadata in enumerate(query_results["metadatas"][0]):
+                    # Stop if we've reached the desired number of results
+                    if matches_added >= num_results_per_chunk:
+                        break
+
                     similarity = (
                         query_results["similarities"][0][i]
                         if query_results.get("similarities")
@@ -121,12 +127,21 @@ def orchestrate_hpo_extraction(
                                     ),
                                 }
                             )
+                            matches_added += 1
 
             # Log matches
             logger.info(
                 f"Found {len(current_hpo_matches)} matches"
                 f" for chunk {chunk_idx + 1}"
             )
+
+            # Print detailed extraction results for debugging
+            if current_hpo_matches:
+                for idx, match in enumerate(current_hpo_matches):
+                    score_str = f"{match['score']:.4f}" if "score" in match else "N/A"
+                    logger.info(
+                        f"  [{idx+1}] {match['id']} - {match['name']} [score: {score_str}]"
+                    )
 
             # Re-rank if enabled
             if cross_encoder and current_hpo_matches:
@@ -221,9 +236,8 @@ def orchestrate_hpo_extraction(
             ),
         }
 
-        # Add assertion status if available
-        if assertion_status:
-            aggregated_term["assertion_status"] = assertion_status
+        # Always include assertion status (even if None) for consistency
+        aggregated_term["assertion_status"] = assertion_status
 
         aggregated_results_list.append(aggregated_term)
 
