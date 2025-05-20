@@ -20,6 +20,7 @@ from phentrieve.cli.utils import load_text_from_input, resolve_chunking_pipeline
 from phentrieve.text_processing.hpo_extraction_orchestrator import (
     orchestrate_hpo_extraction,
 )
+from phentrieve.config import DEFAULT_MODEL
 
 # Create the Typer app for this command group
 app = typer.Typer()
@@ -56,7 +57,7 @@ def process_text_for_hpo_command(
         typer.Option(
             "--strategy",
             "-s",
-            help="Predefined chunking strategy (simple, semantic, detailed)",
+            help="Predefined chunking strategy (choices: simple, detailed, semantic)",
         ),
     ] = "semantic",  # Changed default to semantic for better chunks
     semantic_chunker_model: Annotated[
@@ -64,19 +65,19 @@ def process_text_for_hpo_command(
         typer.Option(
             "--semantic-model",
             "--s-model",
-            help="Model name for semantic chunker (if using semantic strategy)",
+            help=f"Model name for semantic chunker (if using semantic strategy, default: {DEFAULT_MODEL})",
         ),
-    ] = None,
+    ] = DEFAULT_MODEL,
     retrieval_model: Annotated[
         Optional[str],
         typer.Option("--model", "-m", help="Model name for HPO term retrieval"),
     ] = None,
-    similarity_threshold: Annotated[
+    chunk_retrieval_threshold: Annotated[
         float,
         typer.Option(
-            "--similarity-threshold",
-            "--threshold",
-            help="Minimum similarity score for HPO term matches",
+            "--chunk-retrieval-threshold",
+            "-crt",
+            help="Minimum similarity score for an HPO term to be considered a match for an individual text chunk (0.0-1.0)",
         ),
     ] = 0.3,
     num_results: Annotated[
@@ -152,12 +153,12 @@ def process_text_for_hpo_command(
             help="Output format for results (json_lines, rich_json_summary, csv_hpo_list)",
         ),
     ] = "rich_json_summary",
-    min_confidence: Annotated[
+    aggregated_term_confidence: Annotated[
         float,
         typer.Option(
-            "--min-confidence",
-            "--min-conf",
-            help="Minimum confidence threshold for HPO terms in the results",
+            "--aggregated-term-confidence",
+            "-atc",
+            help="Minimum confidence score for an aggregated HPO term to be included in the final results (0.0-1.0+)",
         ),
     ] = 0.0,
     top_term_per_chunk: Annotated[
@@ -281,7 +282,7 @@ def process_text_for_hpo_command(
         retriever = DenseRetriever.from_model_name(
             model=retrieval_sbert_model,  # Pass pre-loaded model
             model_name=retrieval_model_name,
-            min_similarity=similarity_threshold,
+            min_similarity=chunk_retrieval_threshold,
         )
 
         # Initialize cross-encoder for reranking if enabled
@@ -315,13 +316,13 @@ def process_text_for_hpo_command(
             text_chunks=text_chunks,
             retriever=retriever,
             num_results_per_chunk=num_results,
-            similarity_threshold_per_chunk=similarity_threshold,
+            chunk_retrieval_threshold=chunk_retrieval_threshold,
             cross_encoder=cross_encoder,
             translation_dir_path=Path(translation_dir) if translation_dir else None,
             language=language,
             reranker_mode=reranker_mode,
             top_term_per_chunk=top_term_per_chunk,
-            min_confidence=min_confidence,
+            min_confidence_for_aggregated=aggregated_term_confidence,
             assertion_statuses=assertion_statuses,
         )
 
@@ -340,7 +341,7 @@ def process_text_for_hpo_command(
                         "text": raw_text,
                         "language": language,
                         "strategy": strategy,
-                        "min_confidence": similarity_threshold,
+                        "min_confidence": chunk_retrieval_threshold,
                         "top_term_per_chunk": top_term_per_chunk,
                         "assertion_detection": not no_assertion_detection,
                         "assertion_preference": assertion_preference,
@@ -411,7 +412,7 @@ def chunk_text_command(
         typer.Option(
             "--strategy",
             "-s",
-            help="Predefined chunking strategy (simple, semantic, detailed)",
+            help="Predefined chunking strategy (choices: simple, detailed, semantic; default: simple)",
         ),
     ] = "simple",
     semantic_chunker_model: Annotated[
@@ -419,9 +420,9 @@ def chunk_text_command(
         typer.Option(
             "--model",
             "-m",
-            help="Model name for semantic chunker (if using semantic strategy)",
+            help=f"Model name for semantic chunker (if using semantic strategy, default: {DEFAULT_MODEL})",
         ),
-    ] = None,
+    ] = DEFAULT_MODEL,
     output_format: Annotated[
         str,
         typer.Option(

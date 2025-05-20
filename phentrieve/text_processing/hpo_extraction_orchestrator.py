@@ -20,13 +20,13 @@ def orchestrate_hpo_extraction(
     text_chunks: List[str],
     retriever: DenseRetriever,
     num_results_per_chunk: int = 10,
-    similarity_threshold_per_chunk: float = 0.3,
+    chunk_retrieval_threshold: float = 0.3,
     cross_encoder: Optional[CrossEncoder] = None,
     translation_dir_path: Optional[Path] = None,
     language: str = "en",
     reranker_mode: str = "cross-lingual",
     top_term_per_chunk: bool = False,
-    min_confidence: float = 0.0,
+    min_confidence_for_aggregated: float = 0.0,
     assertion_statuses: Optional[List[str]] = None,
 ) -> Tuple[
     List[Dict[str, Any]],  # aggregated results
@@ -44,13 +44,13 @@ def orchestrate_hpo_extraction(
         text_chunks: List of text chunks to process
         retriever: Dense retriever for HPO terms
         num_results_per_chunk: Number of results per chunk
-        similarity_threshold_per_chunk: Min similarity threshold for matches
+        chunk_retrieval_threshold: Min similarity threshold for HPO term matches per chunk
         cross_encoder: Optional cross-encoder model for re-ranking
         translation_dir_path: Path to translation files directory
         language: Language code (e.g. 'en', 'de')
         reranker_mode: Mode for re-ranking ('monolingual' or 'cross-lingual')
         top_term_per_chunk: If True, only keep top term per chunk
-        min_confidence: Minimum confidence threshold for terms
+        min_confidence_for_aggregated: Minimum confidence threshold for aggregated terms
         assertion_statuses: Optional list of assertion statuses per chunk
 
     Returns:
@@ -109,7 +109,7 @@ def orchestrate_hpo_extraction(
                         if query_results.get("similarities")
                         else 0.0
                     )
-                    if similarity >= similarity_threshold_per_chunk:
+                    if similarity >= chunk_retrieval_threshold:
                         # Extract ID and name from metadata
                         hpo_id = metadata.get("id") or metadata.get("hpo_id")
                         name = metadata.get("label") or metadata.get("name")
@@ -211,7 +211,7 @@ def orchestrate_hpo_extraction(
         avg_score = total_score / len(evidence_list)
 
         # Skip terms below confidence threshold
-        if avg_score < min_confidence:
+        if avg_score < min_confidence_for_aggregated:
             continue
 
         # Determine the most common assertion status
@@ -250,7 +250,7 @@ def orchestrate_hpo_extraction(
 
     logger.info(
         f"Found {len(aggregated_results_list)} unique HPO terms "
-        f"above threshold {min_confidence}"
+        f"above threshold {min_confidence_for_aggregated}"
     )
 
     return (aggregated_results_list, chunk_results)
