@@ -91,6 +91,67 @@ app.include_router(
 # Add other routers here for text_processing if created later
 
 
-@app.get("/")
+@app.get(
+    "/",
+    tags=["API Information"],
+    summary="API Information",
+    description="Returns information about the Phentrieve API and available endpoints.",
+)
 async def root():
-    return {"message": "Welcome to Phentrieve API. See /docs for details."}
+    """API Information endpoint.
+
+    Returns information about the Phentrieve API, its purpose, and available endpoints.
+    For full API documentation, visit the /docs endpoint.
+    """
+    return {
+        "api": "Phentrieve API",
+        "version": "0.1.0",
+        "description": "API for Human Phenotype Ontology (HPO) term retrieval and semantic similarity calculation",
+        "endpoints": {
+            "HPO Term Query": {
+                "description": "Query HPO terms based on clinical text",
+                "endpoints": [
+                    {
+                        "path": "/api/v1/query/",
+                        "methods": ["GET", "POST"],
+                        "description": "Retrieve relevant HPO terms for clinical text",
+                    }
+                ],
+            },
+            "HPO Term Similarity": {
+                "description": "Calculate semantic similarity between HPO terms",
+                "endpoints": [
+                    {
+                        "path": "/api/v1/similarity/{term1_id}/{term2_id}",
+                        "methods": ["GET"],
+                        "description": "Calculate semantic similarity between two HPO terms",
+                    }
+                ],
+            },
+            "Health Check": {
+                "description": "API health monitoring",
+                "endpoints": [
+                    {
+                        "path": "/api/v1/health/",
+                        "methods": ["GET"],
+                        "description": "Check API health status",
+                    }
+                ],
+            },
+            "Documentation": {
+                "description": "API documentation",
+                "endpoints": [
+                    {
+                        "path": "/docs",
+                        "methods": ["GET"],
+                        "description": "Swagger UI documentation",
+                    },
+                    {
+                        "path": "/redoc",
+                        "methods": ["GET"],
+                        "description": "ReDoc documentation",
+                    },
+                ],
+            },
+        },
+    }
