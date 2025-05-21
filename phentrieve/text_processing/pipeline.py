@@ -25,10 +25,8 @@ from phentrieve.text_processing.chunkers import (
     ParagraphChunker,
     PreChunkSemanticGrouper,
     SentenceChunker,
-    TextChunker,
-)
-from phentrieve.text_processing.sliding_window_chunker import (
     SlidingWindowSemanticSplitter,
+    TextChunker,
 )
 from phentrieve.text_processing.assertion_detection import (
     AssertionDetector,

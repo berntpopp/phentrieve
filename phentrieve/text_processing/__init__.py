@@ -15,8 +15,6 @@ from phentrieve.text_processing.chunkers import (
     ParagraphChunker,
     SentenceChunker,
     FineGrainedPunctuationChunker,
-)
-from phentrieve.text_processing.sliding_window_chunker import (
     SlidingWindowSemanticSplitter,
 )
 
