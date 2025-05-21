@@ -112,7 +112,7 @@ def get_sliding_window_config_with_params(
         {"type": "paragraph"},  # First split by paragraphs
         {"type": "sentence"},  # Then split into sentences
         {
-            "type": "sliding_window_semantic",  # Finally apply sliding window semantic splitting
+            "type": "sliding_window",  # Finally apply sliding window semantic splitting
             "config": {
                 "window_size_tokens": window_size,
                 "step_size_tokens": step_size,

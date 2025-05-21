@@ -115,38 +115,7 @@ class TextProcessingPipeline:
             elif chunker_type == "sentence":
                 chunkers.append(SentenceChunker(**params))
 
-            elif chunker_type == "semantic":
-                if not self.sbert_model:
-                    raise ValueError(
-                        "SentenceTransformer model required for semantic chunking "
-                        "but none was provided"
-                    )
-
-                # For backward compatibility: redirect 'semantic' chunker type to use
-                # the sliding window semantic splitter, which gives better results
-                logger.info(
-                    "'semantic' chunker type is deprecated, using sliding_window_semantic instead"
-                )
-
-                # Get sliding window parameters (with defaults tuned to match old semantic chunker behavior)
-                window_size = chunker_config.get("window_size_tokens", 3)
-                step_size = chunker_config.get("step_size_tokens", 1)
-                threshold = chunker_config.get("similarity_threshold", 0.4)
-                min_segment_length = chunker_config.get(
-                    "min_split_segment_length_words", 2
-                )
-
-                # Create sliding window semantic splitter
-                sliding_window_params = {
-                    **params,
-                    "model": self.sbert_model,
-                    "window_size_tokens": window_size,
-                    "step_size_tokens": step_size,
-                    "splitting_threshold": threshold,
-                    "min_split_segment_length_words": min_segment_length,
-                }
-                # Use sliding window instead of semantic chunker
-                chunkers.append(SlidingWindowSemanticSplitter(**sliding_window_params))
+            # 'semantic' chunker type has been removed, use 'sliding_window' instead
 
             elif chunker_type == "pre_chunk_semantic_grouper":
                 if not self.sbert_model:
