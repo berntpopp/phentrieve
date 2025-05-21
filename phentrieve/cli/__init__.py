@@ -16,6 +16,7 @@ from phentrieve.cli import (
     text_commands,
     benchmark_commands,
     query_commands,
+    similarity_commands,
 )
 
 # Read version from pyproject.toml
@@ -55,6 +56,11 @@ app.add_typer(index_commands.app, name="index", help="Manage vector indexes.")
 app.add_typer(text_commands.app, name="text", help="Process and analyze clinical text.")
 app.add_typer(
     benchmark_commands.app, name="benchmark", help="Run and manage benchmarks."
+)
+app.add_typer(
+    similarity_commands.app,
+    name="similarity",
+    help="Calculate HPO term similarities and related metrics.",
 )
 
 # Main command for query

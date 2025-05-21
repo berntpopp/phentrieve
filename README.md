@@ -339,6 +339,29 @@ python -m spacy download de_core_news_sm  # For German text
 phentrieve query --interactive
 ```
 
+### HPO Term Similarity Calculation
+
+Calculate semantic similarity between two specific HPO terms using the ontology graph structure:
+
+```bash
+# Calculate similarity between two HPO terms using the default 'hybrid' formula
+phentrieve similarity calculate HP:0000252 HP:0001250
+
+# Calculate using the simple Resnik-like formula
+phentrieve similarity calculate HP:0000252 HP:0001250 --formula simple_resnik_like
+
+# Enable debug logging
+phentrieve similarity calculate HP:0000252 HP:0001250 --debug
+```
+
+The output includes:
+- Information about both HPO terms (ID and label)
+- The formula used for calculation
+- The similarity score (0.0 to 1.0, where 1.0 means identical terms)
+- The Lowest Common Ancestor (LCA) in the ontology, including its depth
+
+This is useful for researchers who want to quantify the semantic relationship between phenotypic abnormalities based on their position in the HPO ontology tree.
+
 ### Execution Methods
 
 After installation, you can use the `phentrieve` command directly from your terminal:

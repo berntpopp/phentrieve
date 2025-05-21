@@ -196,6 +196,9 @@ def get_sliding_window_cleaned_config():
     return copy.deepcopy(SLIDING_WINDOW_CLEANED_CONFIG)
 
 
+# Default formula for semantic similarity calculations
+DEFAULT_SIMILARITY_FORMULA = "hybrid"
+
 # Default assertion detection configuration
 DEFAULT_ASSERTION_CONFIG = {
     "enable_keyword": True,

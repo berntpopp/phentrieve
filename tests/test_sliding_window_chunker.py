@@ -118,13 +118,15 @@ class TestNegationAwareMerging(unittest.TestCase):
             step_size_tokens=1,
             splitting_threshold=0.1,  # Very low to force splits
             min_split_segment_length_words=1,
-            language="en"
+            language="en",
         )
-        
+
         # Use a longer text to ensure splitting occurs
-        text_segments = ["Patient shows no response to stimuli and no eye contact with the examiner."]
+        text_segments = [
+            "Patient shows no response to stimuli and no eye contact with the examiner."
+        ]
         result = splitter.chunk(text_segments)
-        
+
         # The exact number of segments isn't as important as the merging behavior
         # Verify that negation patterns are preserved across splits
         combined = " ".join(result).lower()
@@ -157,13 +159,13 @@ class TestNegationAwareMerging(unittest.TestCase):
             step_size_tokens=1,
             splitting_threshold=0.1,  # Very low to force splits
             min_split_segment_length_words=1,
-            language="en"
+            language="en",
         )
-        
+
         # Use a longer text to ensure splitting occurs
         text_segments = ["Patient has no fever but has pain. No cough or cold."]
         result = splitter.chunk(text_segments)
-        
+
         # Check that "no fever" and "No cough" are preserved
         combined = " ".join(result).lower()
         self.assertIn("no fever", combined)
