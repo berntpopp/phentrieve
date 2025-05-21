@@ -169,6 +169,33 @@ def get_sliding_window_config():
     return copy.deepcopy(SLIDING_WINDOW_CONFIG)
 
 
+# Strategy: "sliding_window_cleaned" - Adds FinalChunkCleaner to the sliding window strategy
+SLIDING_WINDOW_CLEANED_CONFIG = [
+    {"type": "paragraph"},  # First split by paragraphs
+    {"type": "sentence"},  # Then split into sentences
+    {
+        "type": "sliding_window",  # Apply sliding window semantic splitting
+        "config": {
+            "window_size_tokens": 7,
+            "step_size_tokens": 1,
+            "splitting_threshold": 0.55,
+            "min_split_segment_length_words": 3,
+        },
+    },
+    {
+        "type": "final_chunk_cleaner",  # Clean up the chunks
+        "config": {
+            "min_cleaned_chunk_length_chars": 2,  # Minimum length of cleaned chunks in characters
+            "max_cleanup_passes": 3,  # Maximum number of cleanup passes
+        },
+    },
+]
+
+
+def get_sliding_window_cleaned_config():
+    return copy.deepcopy(SLIDING_WINDOW_CLEANED_CONFIG)
+
+
 # Default assertion detection configuration
 DEFAULT_ASSERTION_CONFIG = {
     "enable_keyword": True,

@@ -10,7 +10,7 @@ import re
 import logging
 import pysbd
 from abc import ABC, abstractmethod
-from typing import List, Tuple
+from typing import Dict, List, Optional, Tuple
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 
@@ -19,6 +19,110 @@ from phentrieve.text_processing.cleaners import (
     normalize_line_endings,
     clean_internal_newlines_and_extra_spaces,
 )
+
+# Language-specific cleanup words and punctuation
+# Ensure all are lowercase
+LEADING_CLEANUP_WORDS = {
+    "en": [
+        "a ",
+        "an ",
+        "the ",
+        "and ",
+        "or ",
+        "but ",
+        "with ",
+        "of ",
+        "in ",
+        "on ",
+        "at ",
+        "for ",
+        "to ",
+        "is ",
+        "are ",
+        "was ",
+        "were ",
+        "has ",
+        "have ",
+        "had ",
+        "also ",
+        "it ",
+        "its ",
+        "he ",
+        "she ",
+        "they ",
+        "them ",
+        "their ",
+        "this ",
+        "that ",
+        "these ",
+        "those ",
+    ],
+    "de": [
+        "der ",
+        "die ",
+        "das ",
+        "dem ",
+        "den ",
+        "des ",
+        "ein ",
+        "eine ",
+        "eines ",
+        "einem ",
+        "einen ",
+        "und ",
+        "oder ",
+        "aber ",
+        "sondern ",
+        "mit ",
+        "von ",
+        "zu ",
+        "in ",
+        "im ",
+        "am ",
+        "auf ",
+        "aus ",
+        "bei ",
+        "ist ",
+        "sind ",
+        "war ",
+        "waren ",
+        "hat ",
+        "haben ",
+        "hatte ",
+        "hatten ",
+        "auch ",
+        "als ",
+        "wenn ",
+        "dass ",
+        "daß ",
+        "so ",
+        "wie ",
+        "nur ",
+    ],
+}
+
+TRAILING_CLEANUP_WORDS = {
+    "en": [
+        " and",
+        " or",
+        " but",
+        " with",
+        " of",
+        " for",
+        " to",
+        " is",
+        " are",
+        " was",
+        " were",
+        # Trailing articles like " a", " the" are less common but can be added if observed
+    ],
+    "de": [" und", " oder", " aber", " sondern", " als", " wenn", " ist", " sind"],
+}
+
+# Punctuation to be stripped from the ends of segments
+TRAILING_PUNCTUATION_CHARS = ",.;:?!\"')}]"
+# Punctuation to be stripped from the beginnings of segments
+LEADING_PUNCTUATION_CHARS = "\"'([{"
 
 logger = logging.getLogger(__name__)
 
@@ -56,6 +160,214 @@ class TextChunker(ABC):
             List of text chunks
         """
         pass
+
+
+class FinalChunkCleaner(TextChunker):
+    """
+    Chunker that post-processes text segments to remove common leading/trailing
+    non-semantic elements like conjunctions, articles, and punctuation.
+
+    This is typically used as the final step in a chunking pipeline to clean up
+    the output of other chunkers.
+    """
+
+    def __init__(
+        self,
+        language: str = "en",
+        min_cleaned_chunk_length_chars: int = 2,  # Minimum length in characters after cleaning
+        max_cleanup_passes: int = 3,  # To prevent potential infinite loops with complex patterns
+        custom_leading_words_to_remove: Optional[List[str]] = None,
+        custom_trailing_words_to_remove: Optional[List[str]] = None,
+        custom_trailing_punctuation: Optional[str] = None,
+        custom_leading_punctuation: Optional[str] = None,
+        **kwargs,
+    ):
+        """
+        Initialize the FinalChunkCleaner.
+
+        Args:
+            language: ISO language code for language-specific cleanup rules
+            min_cleaned_chunk_length_words: Minimum number of words a chunk must have after cleaning
+            max_cleanup_passes: Maximum number of cleanup passes to perform
+            custom_leading_words_to_remove: Custom list of leading words to remove
+            custom_trailing_words_to_remove: Custom list of trailing words to remove
+            custom_trailing_punctuation: Custom string of trailing punctuation to remove
+            custom_leading_punctuation: Custom string of leading punctuation to remove
+            **kwargs: Additional arguments passed to the parent class
+        """
+        super().__init__(language=language, **kwargs)
+        self.min_cleaned_chunk_length_chars = max(
+            1, min_cleaned_chunk_length_chars
+        )  # Minimum 1 character
+        self.max_cleanup_passes = max(1, max_cleanup_passes)  # Ensure at least one pass
+
+        # Load language-specific or custom lists
+        # Ensure custom lists are all lowercase and have correct spacing if provided
+        self.leading_words_to_strip = (
+            [w.lower() for w in custom_leading_words_to_remove]
+            if custom_leading_words_to_remove is not None
+            else LEADING_CLEANUP_WORDS.get(
+                self.language.lower(), LEADING_CLEANUP_WORDS.get("en", [])
+            )
+        )
+
+        self.trailing_words_to_strip = (
+            [w.lower() for w in custom_trailing_words_to_remove]
+            if custom_trailing_words_to_remove is not None
+            else TRAILING_CLEANUP_WORDS.get(
+                self.language.lower(), TRAILING_CLEANUP_WORDS.get("en", [])
+            )
+        )
+
+        self.trailing_punctuation_to_strip = (
+            custom_trailing_punctuation
+            if custom_trailing_punctuation is not None
+            else TRAILING_PUNCTUATION_CHARS
+        )
+        self.leading_punctuation_to_strip = (
+            custom_leading_punctuation
+            if custom_leading_punctuation is not None
+            else LEADING_PUNCTUATION_CHARS
+        )
+
+        # Sort by length descending to attempt removal of longer phrases first (e.g., "negative for " before "for ")
+        self.leading_words_to_strip.sort(key=len, reverse=True)
+        self.trailing_words_to_strip.sort(key=len, reverse=True)
+
+        logger.info(
+            f"Initialized FinalChunkCleaner for language '{self.language}' with "
+            f"min_length_chars={self.min_cleaned_chunk_length_chars}, max_passes={self.max_cleanup_passes}."
+        )
+        logger.debug(f"Leading words for cleanup: {self.leading_words_to_strip}")
+        logger.debug(f"Trailing words for cleanup: {self.trailing_words_to_strip}")
+        logger.debug(
+            f"Leading punctuation for cleanup: '{self.leading_punctuation_to_strip}'"
+        )
+        logger.debug(
+            f"Trailing punctuation for cleanup: '{self.trailing_punctuation_to_strip}'"
+        )
+
+    def chunk(self, text_segments: List[str]) -> List[str]:
+        """
+        Process a list of text segments to clean up leading/trailing non-semantic elements.
+
+        Args:
+            text_segments: List of input text segments to clean
+
+        Returns:
+            List of cleaned text segments, with any segments that are too short after cleaning removed
+        """
+        cleaned_segments_accumulator: List[str] = []
+        for segment_str in text_segments:
+            if (
+                not segment_str or not segment_str.strip()
+            ):  # Skip if segment is already effectively empty
+                logger.debug(
+                    "FinalChunkCleaner: Skipping empty or whitespace-only input segment."
+                )
+                continue
+
+            cleaned_segment = self._clean_single_segment(segment_str)
+
+            # Check final length in characters (after cleaning)
+            if len(cleaned_segment) >= self.min_cleaned_chunk_length_chars:
+                cleaned_segments_accumulator.append(cleaned_segment)
+                logger.debug(
+                    f"Original: '{segment_str}' -> Cleaned: '{cleaned_segment}' (Kept - {len(cleaned_segment)} chars)"
+                )
+            else:
+                logger.debug(
+                    f"Original: '{segment_str}' -> Cleaned: '{cleaned_segment}' (Discarded - {len(cleaned_segment)} chars < {self.min_cleaned_chunk_length_chars} min chars)"
+                )
+
+        logger.info(
+            f"FinalChunkCleaner processed {len(text_segments)} input segments "
+            f"into {len(cleaned_segments_accumulator)} cleaned segments."
+        )
+        return cleaned_segments_accumulator
+
+    def _clean_single_segment(self, segment: str) -> str:
+        """
+        Clean a single text segment by removing leading/trailing non-semantic elements.
+
+        Args:
+            segment: Input text segment to clean
+
+        Returns:
+            Cleaned text segment
+        """
+        temp_segment = segment.strip()
+        if not temp_segment:
+            return ""
+
+        for _pass_num in range(self.max_cleanup_passes):
+            original_segment_for_pass = temp_segment
+
+            # 1. Strip leading and trailing punctuation
+            # Trailing punctuation
+            while (
+                temp_segment and temp_segment[-1] in self.trailing_punctuation_to_strip
+            ):
+                temp_segment = temp_segment[:-1].rstrip()
+            # Leading punctuation
+            while temp_segment and temp_segment[0] in self.leading_punctuation_to_strip:
+                temp_segment = temp_segment[1:].lstrip()
+
+            # 2. Strip leading words (case-insensitive match, actual strip preserves case of rest)
+            # Iterate because stripping one might reveal another
+            made_leading_change_in_iteration = True
+            while made_leading_change_in_iteration and temp_segment:
+                made_leading_change_in_iteration = False
+                for (
+                    word_to_remove_spaced
+                ) in (
+                    self.leading_words_to_strip
+                ):  # Assumes word_to_remove has trailing space
+                    # Ensure word_to_remove_spaced ends with a space for proper prefix matching
+                    if not word_to_remove_spaced.endswith(" "):
+                        word_to_remove_spaced_adjusted = word_to_remove_spaced + " "
+                    else:
+                        word_to_remove_spaced_adjusted = word_to_remove_spaced
+
+                    if temp_segment.lower().startswith(
+                        word_to_remove_spaced_adjusted.lower()
+                    ):
+                        temp_segment = temp_segment[
+                            len(word_to_remove_spaced_adjusted) :
+                        ].lstrip()
+                        made_leading_change_in_iteration = True
+                        break  # Restart checking leading words from the beginning of the modified segment
+
+            # 3. Strip trailing words (case-insensitive match)
+            made_trailing_change_in_iteration = True
+            while made_trailing_change_in_iteration and temp_segment:
+                made_trailing_change_in_iteration = False
+                for (
+                    word_to_remove_spaced
+                ) in (
+                    self.trailing_words_to_strip
+                ):  # Assumes word_to_remove has leading space
+                    # Ensure word_to_remove_spaced starts with a space
+                    if not word_to_remove_spaced.startswith(" "):
+                        word_to_remove_spaced_adjusted = " " + word_to_remove_spaced
+                    else:
+                        word_to_remove_spaced_adjusted = word_to_remove_spaced
+
+                    if temp_segment.lower().endswith(
+                        word_to_remove_spaced_adjusted.lower()
+                    ):
+                        temp_segment = temp_segment[
+                            : -len(word_to_remove_spaced_adjusted)
+                        ].rstrip()
+                        made_trailing_change_in_iteration = True
+                        break  # Restart checking trailing words
+
+            if (
+                temp_segment == original_segment_for_pass
+            ):  # No changes in this entire pass (punct + words)
+                break  # Optimization: if nothing changed, further passes won't help
+
+        return temp_segment.strip()  # Final strip after all passes
 
 
 class NoOpChunker(TextChunker):

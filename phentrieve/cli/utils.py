@@ -86,6 +86,7 @@ def resolve_chunking_pipeline_config(
         get_detailed_chunking_config,
         get_semantic_chunking_config,
         get_sliding_window_config_with_params,
+        get_sliding_window_cleaned_config,
     )
 
     chunking_pipeline_config = None
@@ -150,6 +151,25 @@ def resolve_chunking_pipeline_config(
                 threshold=threshold,
                 min_segment_length=min_segment_length,
             )
+
+        elif strategy_arg == "sliding_window_cleaned":
+            # Get the cleaned config and update the sliding window parameters if provided
+            chunking_pipeline_config = get_sliding_window_cleaned_config()
+            # Find the sliding window config in the pipeline and update its parameters
+            for stage in chunking_pipeline_config:
+                if stage.get("type") == "sliding_window" and "config" in stage:
+                    # Only update if the parameter was explicitly provided (not None)
+                    if window_size is not None:
+                        stage["config"]["window_size_tokens"] = window_size
+                    if step_size is not None:
+                        stage["config"]["step_size_tokens"] = step_size
+                    if threshold is not None:
+                        stage["config"]["splitting_threshold"] = threshold
+                    if min_segment_length is not None:
+                        stage["config"][
+                            "min_split_segment_length_words"
+                        ] = min_segment_length
+                    break
         else:
             typer.secho(
                 f"Warning: Unknown strategy '{strategy_arg}'. "

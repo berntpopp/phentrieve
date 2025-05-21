@@ -5,14 +5,9 @@ This module provides pipeline components that manage the sequence
 of text processing operations including chunking and assertion detection.
 """
 
-import copy
-import json
 import logging
-from enum import Enum
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional
 
-import spacy
 from sentence_transformers import SentenceTransformer
 
 from phentrieve.text_processing.cleaners import (
@@ -21,6 +16,7 @@ from phentrieve.text_processing.cleaners import (
 )
 from phentrieve.text_processing.chunkers import (
     FineGrainedPunctuationChunker,
+    FinalChunkCleaner,
     NoOpChunker,
     ParagraphChunker,
     SentenceChunker,
@@ -121,6 +117,51 @@ class TextProcessingPipeline:
 
             elif chunker_type == "noop":
                 chunkers.append(NoOpChunker(**params))
+
+            elif chunker_type == "final_chunk_cleaner":
+                # Get FinalChunkCleaner specific parameters with defaults from config
+                min_cleaned_chunk_length = chunker_config.get(
+                    "min_cleaned_chunk_length_words", 2
+                )
+                max_cleanup_passes = chunker_config.get("max_cleanup_passes", 3)
+                custom_leading_words = chunker_config.get(
+                    "custom_leading_words_to_remove"
+                )
+                custom_trailing_words = chunker_config.get(
+                    "custom_trailing_words_to_remove"
+                )
+                custom_leading_punct = chunker_config.get("custom_leading_punctuation")
+                custom_trailing_punct = chunker_config.get(
+                    "custom_trailing_punctuation"
+                )
+
+                # Initialize cleaner with default parameters
+                cleaner_params = {
+                    "language": self.language,
+                    "min_cleaned_chunk_length_words": min_cleaned_chunk_length,
+                    "max_cleanup_passes": max_cleanup_passes,
+                }
+
+                # Add custom parameters only if they are explicitly provided
+                if custom_leading_words is not None:
+                    cleaner_params["custom_leading_words_to_remove"] = (
+                        custom_leading_words
+                    )
+                if custom_trailing_words is not None:
+                    cleaner_params["custom_trailing_words_to_remove"] = (
+                        custom_trailing_words
+                    )
+                if custom_leading_punct is not None:
+                    cleaner_params["custom_leading_punctuation"] = custom_leading_punct
+                if custom_trailing_punct is not None:
+                    cleaner_params["custom_trailing_punctuation"] = (
+                        custom_trailing_punct
+                    )
+
+                logger.debug(
+                    "Creating FinalChunkCleaner with params: %s", cleaner_params
+                )
+                chunkers.append(FinalChunkCleaner(**cleaner_params))
 
             elif (
                 chunker_type == "sliding_window_semantic"
