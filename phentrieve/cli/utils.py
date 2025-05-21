@@ -120,9 +120,29 @@ def resolve_chunking_pipeline_config(
         if strategy_arg == "simple":
             chunking_pipeline_config = get_simple_chunking_config()
         elif strategy_arg == "detailed":
+            # Get the detailed config first
             chunking_pipeline_config = get_detailed_chunking_config()
+            # Find and update the sliding_window component with the specified parameters
+            for component in chunking_pipeline_config:
+                if component.get("type") == "sliding_window":
+                    component["config"] = {
+                        "window_size_tokens": window_size,
+                        "step_size_tokens": step_size,
+                        "splitting_threshold": threshold,
+                        "min_split_segment_length_words": min_segment_length,
+                    }
         elif strategy_arg == "semantic":
+            # Get the semantic config first
             chunking_pipeline_config = get_semantic_chunking_config()
+            # Find and update the sliding_window component with the specified parameters
+            for component in chunking_pipeline_config:
+                if component.get("type") == "sliding_window":
+                    component["config"] = {
+                        "window_size_tokens": window_size,
+                        "step_size_tokens": step_size,
+                        "splitting_threshold": threshold,
+                        "min_split_segment_length_words": min_segment_length,
+                    }
         elif strategy_arg == "sliding_window":
             chunking_pipeline_config = get_sliding_window_config_with_params(
                 window_size=window_size,
