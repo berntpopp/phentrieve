@@ -145,7 +145,10 @@ class TextProcessingPipeline:
             elif chunker_type == "noop":
                 chunkers.append(NoOpChunker(**params))
 
-            elif chunker_type == "sliding_window_semantic":
+            elif (
+                chunker_type == "sliding_window_semantic"
+                or chunker_type == "sliding_window"
+            ):
                 if not self.sbert_model:
                     raise ValueError(
                         "SentenceTransformer model required for sliding window semantic splitting "

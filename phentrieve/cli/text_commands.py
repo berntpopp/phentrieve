@@ -297,6 +297,7 @@ def process_text_for_hpo_command(
             "semantic",
             "pre_chunk_semantic_grouper",
             "sliding_window_semantic",
+            "sliding_window",
         ]:
             needs_semantic_model = True
             break
@@ -577,6 +578,7 @@ def chunk_text_command(
             "semantic",
             "pre_chunk_semantic_grouper",
             "sliding_window_semantic",
+            "sliding_window",
         ]:
             needs_semantic_model = True
             break
@@ -588,6 +590,8 @@ def chunk_text_command(
         typer.echo(f"Loading sentence transformer model: {model_name}...")
         try:
             sbert_model = SentenceTransformer(model_name)
+            logger.debug(f"Successfully loaded SentenceTransformer model: {model_name}")
+            logger.debug(f"Model type: {type(sbert_model)}")
         except Exception as e:
             typer.secho(
                 f"Error loading model '{model_name}': {str(e)}", fg=typer.colors.RED
@@ -599,12 +603,18 @@ def chunk_text_command(
 
     # Create the pipeline
     try:
+        logger.debug(f"Creating pipeline with model: {sbert_model is not None}")
+        logger.debug(f"Chunking config: {chunking_pipeline_config}")
+        logger.debug(f"Language: {language}")
+        logger.debug(f"Assertion config: {assertion_config}")
+
         pipeline = TextProcessingPipeline(
             language=language,
             chunking_pipeline_config=chunking_pipeline_config,
             assertion_config=assertion_config,
             sbert_model_for_semantic_chunking=sbert_model,
         )
+        logger.debug("Successfully created TextProcessingPipeline")
     except Exception as e:
         typer.secho(f"Error creating pipeline: {str(e)}", fg=typer.colors.RED)
         raise typer.Exit(code=1)
