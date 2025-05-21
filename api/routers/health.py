@@ -1,9 +1,7 @@
 from fastapi import APIRouter
 
-router = APIRouter(
-    prefix="/health",
-    tags=["health"],
-)
+# Create router without any tags or prefixes - these will be set in main.py
+router = APIRouter()
 
 
 @router.get("/")

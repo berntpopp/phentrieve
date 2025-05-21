@@ -69,3 +69,6 @@ logs/
 # Temporary files
 tmp/
 temp/
+
+# local config
+local_api_config.env
