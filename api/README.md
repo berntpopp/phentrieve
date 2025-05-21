@@ -8,6 +8,7 @@ The Phentrieve API provides a set of endpoints to interact with the Human Phenot
 
 - Querying clinical text to retrieve relevant HPO terms
 - Calculating semantic similarity between HPO terms
+- Retrieving configuration and model information
 - Health check endpoint for monitoring
 
 ## API Structure
@@ -20,12 +21,14 @@ api/
 ├── local_api_config.env # Local environment configuration
 ├── run_api_local.py     # Local development server script
 ├── routers/
-│   ├── health.py        # Health check endpoints
-│   ├── query_router.py  # HPO term querying endpoints
-│   └── similarity_router.py # Semantic similarity endpoints
+│   ├── health.py               # Health check endpoints
+│   ├── query_router.py         # HPO term querying endpoints
+│   ├── similarity_router.py    # Semantic similarity endpoints
+│   └── config_info_router.py   # Configuration information endpoint
 └── schemas/
-    ├── query_schemas.py    # Pydantic models for query API
-    └── similarity_schemas.py # Pydantic models for similarity API
+    ├── query_schemas.py          # Pydantic models for query API
+    ├── similarity_schemas.py     # Pydantic models for similarity API
+    └── config_info_schemas.py    # Pydantic models for configuration info API
 ```
 
 ## Running Locally
@@ -99,6 +102,34 @@ PHENTRIEVE_RESULTS_DIR=${PHENTRIEVE_DATA_ROOT_DIR}/results
 - `GET /api/v1/similarity/{term1_id}/{term2_id}`: Calculate semantic similarity between two HPO terms
   - Query parameter: `formula` (default: "hybrid")
   - Example: `/api/v1/similarity/HP:0001197/HP:0000750?formula=hybrid`
+
+### Configuration Information
+
+- `GET /api/v1/info`: Retrieve comprehensive system configuration information
+  - Returns information about available models, default parameters, and system status
+  - Useful for frontend applications to dynamically configure settings
+  - Example response:
+  ```json
+  {
+    "available_embedding_models": [
+      {"id": "FremyCompany/BioLORD-2023-M", "description": "Domain-specific biomedical model", "is_default": true},
+      {"id": "jinaai/jina-embeddings-v2-base-de", "description": "Language-specific embedding model (German)", "is_default": false}
+    ],
+    "default_embedding_model": "FremyCompany/BioLORD-2023-M",
+    "default_parameters": {
+      "similarity_threshold": 0.1,
+      "reranker_mode": "cross-lingual",
+      "top_k": 10,
+      "enable_reranker": false,
+      "similarity_formula": "hybrid",
+      "language": "en"
+    },
+    "hpo_data_status": {
+      "ancestors_loaded": true,
+      "depths_loaded": true
+    }
+  }
+  ```
 
 ## API Documentation
 

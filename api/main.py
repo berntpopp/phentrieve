@@ -7,7 +7,7 @@ import os
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from api.routers import query_router, health, similarity_router
+from api.routers import query_router, health, similarity_router, config_info_router
 from api.dependencies import (
     get_sbert_model_dependency,
     get_dense_retriever_dependency,
@@ -88,6 +88,7 @@ app.include_router(health.router, prefix="/api/v1/health", tags=["Health Check"]
 app.include_router(
     similarity_router.router, prefix="/api/v1/similarity", tags=["HPO Term Similarity"]
 )
+app.include_router(config_info_router.router, prefix="/api/v1")
 # Add other routers here for text_processing if created later
 
 
