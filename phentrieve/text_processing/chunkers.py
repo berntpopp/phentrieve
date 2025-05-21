@@ -14,20 +14,24 @@ from typing import List
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 
-logger = logging.getLogger(__name__)
-
+# Local imports
 from phentrieve.text_processing.cleaners import (
     normalize_line_endings,
     clean_internal_newlines_and_extra_spaces,
 )
+
+# SlidingWindowSemanticSplitter is implemented in its own module
+# to avoid circular imports
+
+logger = logging.getLogger(__name__)
 
 
 class TextChunker(ABC):
     """
     Abstract base class for text chunking strategies.
 
-    All chunkers must implement a chunk method that takes a text
-    string and returns a list of chunk strings.
+    All chunkers must implement a chunk method that takes a list of text
+    segments and returns a list of potentially modified or split text segments.
     """
 
     def __init__(self, language: str = "en", **kwargs):
@@ -36,17 +40,20 @@ class TextChunker(ABC):
 
         Args:
             language: ISO language code ('en', 'de', etc.)
-            **kwargs: Additional configuration parameters for specific chunker implementations
+            **kwargs: Additional configuration parameters for specific chunker
+                implementations
         """
         self.language = language
 
     @abstractmethod
-    def chunk(self, text: str) -> List[str]:
+    def chunk(self, text_segments: List[str]) -> List[str]:
         """
-        Split text into chunks according to the chunker's strategy.
+        Processes a list of input text segments and returns a new list of
+        potentially modified, split, or filtered text segments.
+        Each input segment can be split into multiple output segments by a chunker.
 
         Args:
-            text: Input text to chunk
+            text_segments: List of input text segments to process
 
         Returns:
             List of text chunks
@@ -56,26 +63,32 @@ class TextChunker(ABC):
 
 class NoOpChunker(TextChunker):
     """
-    Simple chunker that returns the entire text as a single chunk.
+    Simple chunker that returns the text segments unchanged.
 
     This is useful as a baseline or when no chunking is desired.
     """
 
-    def chunk(self, text: str) -> List[str]:
+    def chunk(self, text_segments: List[str]) -> List[str]:
         """
-        Return the entire text as a single chunk after cleaning.
+        Return the text segments after cleaning, without further splitting.
 
         Args:
-            text: Input text
+            text_segments: List of input text segments
 
         Returns:
-            List containing a single chunk or empty list if input is empty
+            List of cleaned text segments
         """
-        if not text or not text.strip():
-            return []
+        all_output_segments = []
+        for segment_str in text_segments:
+            if not segment_str or not segment_str.strip():
+                logger.debug("NoOpChunker: Skipping empty or whitespace-only segment.")
+                continue
 
-        cleaned_text = clean_internal_newlines_and_extra_spaces(text.strip())
-        return [cleaned_text] if cleaned_text else []
+            cleaned_text = clean_internal_newlines_and_extra_spaces(segment_str.strip())
+            if cleaned_text:
+                all_output_segments.append(cleaned_text)
+
+        return all_output_segments
 
 
 class ParagraphChunker(TextChunker):
@@ -83,22 +96,36 @@ class ParagraphChunker(TextChunker):
     Chunker that splits text into paragraphs based on blank lines.
     """
 
-    def chunk(self, text: str) -> List[str]:
+    def chunk(self, text_segments: List[str]) -> List[str]:
         """
-        Split text into paragraphs by looking for blank lines.
+        Split text segments into paragraphs by looking for blank lines.
 
         Args:
-            text: Input text to split into paragraphs
+            text_segments: List of input text segments to split into paragraphs
 
         Returns:
             List of paragraph chunks
         """
-        if not text or not text.strip():
-            return []
+        all_paragraph_chunks = []
+        for segment_str in text_segments:
+            if not segment_str or not segment_str.strip():
+                logger.debug(
+                    "ParagraphChunker: Skipping empty or whitespace-only segment."
+                )
+                continue
 
-        normalized_text = normalize_line_endings(text)
-        paragraphs = re.split(r"\n\s*\n+", normalized_text)
-        return [p.strip() for p in paragraphs if p.strip()]
+            # Apply original paragraph splitting logic to 'segment_str'
+            normalized_text = normalize_line_endings(segment_str)
+            paragraphs_from_segment = re.split(r"\n\s*\n+", normalized_text)
+            # Filter out empty strings that can result from re.split
+            all_paragraph_chunks.extend(
+                [p.strip() for p in paragraphs_from_segment if p.strip()]
+            )
+
+        logger.debug(
+            f"ParagraphChunker produced {len(all_paragraph_chunks)} segments from {len(text_segments)} input segments."
+        )
+        return all_paragraph_chunks
 
 
 class SentenceChunker(TextChunker):
@@ -106,17 +133,32 @@ class SentenceChunker(TextChunker):
     Chunker that splits text into individual sentences using pysbd.
     """
 
-    def chunk(self, text: str) -> List[str]:
+    def chunk(self, text_segments: List[str]) -> List[str]:
         """
-        Split text into sentences using pysbd with fallback method.
+        Split text segments into sentences using pysbd with fallback method.
 
         Args:
-            text: Input text to split into sentences
+            text_segments: List of text segments to split into sentences
 
         Returns:
             List of sentence chunks
         """
-        return self._segment_into_sentences(text, self.language)
+        all_sentences = []
+        for segment_str in text_segments:
+            if not segment_str or not segment_str.strip():
+                logger.debug("SentenceChunker: Skipping empty segment.")
+                continue
+
+            sentences_from_segment = self._segment_into_sentences(
+                segment_str, self.language
+            )
+            all_sentences.extend(sentences_from_segment)
+
+        logger.debug(
+            f"SentenceChunker produced {len(all_sentences)} sentences "
+            f"from {len(text_segments)} input segments."
+        )
+        return all_sentences
 
     def _segment_into_sentences(self, text: str, lang: str = "en") -> List[str]:
         """
@@ -198,21 +240,54 @@ class SemanticChunker(TextChunker):
         self.max_chunk_sentences = max_chunk_sentences
         self.sentence_chunker = SentenceChunker(language=language)
 
-    def chunk(self, text: str) -> List[str]:
+    def chunk(self, text_segments: List[str]) -> List[str]:
         """
-        Split text into semantically coherent chunks.
+        Process a list of text segments and group sentences within each segment
+        based on semantic similarity.
+
+        Important: This method processes each input segment separately; it does not
+        attempt to group sentences across different input segments.
 
         Args:
-            text: Input text to be split
+            text_segments: List of input text segments to process
 
         Returns:
-            List of semantic chunks
+            List of semantically grouped chunks
+        """
+        all_semantic_chunks = []
+
+        for segment_idx, segment_str in enumerate(text_segments):
+            if not segment_str or not segment_str.strip():
+                logger.debug(
+                    f"SemanticChunker: Skipping empty segment at index {segment_idx}"
+                )
+                continue
+
+            # Process this segment in isolation
+            segment_chunks = self._process_single_segment(segment_str)
+            all_semantic_chunks.extend(segment_chunks)
+
+        logger.debug(
+            f"SemanticChunker produced {len(all_semantic_chunks)} chunks from "
+            f"{len(text_segments)} input segments."
+        )
+        return all_semantic_chunks
+
+    def _process_single_segment(self, text: str) -> List[str]:
+        """
+        Process a single text segment, splitting it into semantically coherent chunks.
+
+        Args:
+            text: Single text segment to process
+
+        Returns:
+            List of semantic chunks derived from this segment
         """
         if not text or not text.strip():
             return []
 
-        # 1. First split into sentences
-        sentences = self.sentence_chunker.chunk(text)
+        # 1. First split this segment into sentences
+        sentences = self.sentence_chunker.chunk([text])
 
         if not sentences:
             return []
@@ -274,36 +349,45 @@ class FineGrainedPunctuationChunker(TextChunker):
     special cases like decimal points.
     """
 
-    def chunk(self, text: str) -> List[str]:
+    def chunk(self, text_segments: List[str]) -> List[str]:
         """
-        Split text at punctuation marks like periods, commas, semicolons, etc.
+        Split text segments at punctuation marks like periods, commas, semicolons, etc.
 
         Args:
-            text: Text to split
+            text_segments: List of text segments to split
 
         Returns:
             List of fine-grained chunks
         """
-        if not text or not text.strip():
-            return []
+        all_fine_grained_chunks = []
+        for segment_str in text_segments:
+            if not segment_str or not segment_str.strip():
+                logger.debug("FineGrainedPunctuationChunker: Skipping empty segment.")
+                continue
 
-        # First pass: protect decimal numbers from splitting
-        # Replace decimal points with a placeholder
-        decimal_pattern = r"(?<!\d)(\d+)\.(\d+)(?!\d)"
-        protected_text = re.sub(decimal_pattern, r"\1<DECIMAL_POINT>\2", text)
+            # Note the non-capturing groups (?:...) for abbreviations, etc.
+            # This prevents splitting on periods in abbreviations like Dr., Ms., etc.
+            # or in decimal numbers like 3.14
+            segments = re.split(
+                r"(?<!\bDr|\bMs|\bMr|\bMrs|\bPh|\bed|\bp|\bie|\beg|\bcf|\bvs|\bSt|\bJr|\bSr|(?:\d+(\,\d+)*))"  # Don't split abbreviations
+                r"(?<![A-Z]\.(?:[A-Z]\.)+)"  # Don't split acronyms like U.S.A.
+                r"(?<![A-Za-z]\.)"  # Don't split initials like J.
+                r"(?<!\d)"  # Don't split decimals like 3.14
+                r"(?<!\.\d)"  # Don't split version numbers like 1.2.3
+                r"(?<![\-\w])"  # Don't split within hyphenated words or inside words
+                r"[.,:;?!]\s+",  # Split on these punctuation marks followed by whitespace
+                segment_str,
+            )
 
-        # Split on various punctuation marks
-        split_pattern = r"[.?!,;:]+"
-        raw_chunks = re.split(split_pattern, protected_text)
+            # Remove empty strings and whitespace
+            fine_grained_chunks = [s.strip() for s in segments if s.strip()]
+            all_fine_grained_chunks.extend(fine_grained_chunks)
 
-        # Restore decimal points and clean chunks
-        cleaned_chunks = []
-        for chunk in raw_chunks:
-            if chunk.strip():
-                restored_chunk = chunk.replace("<DECIMAL_POINT>", ".")
-                cleaned_chunks.append(restored_chunk.strip())
-
-        return cleaned_chunks
+        logger.debug(
+            f"FineGrainedPunctuationChunker produced {len(all_fine_grained_chunks)} chunks "
+            f"from {len(text_segments)} input segments."
+        )
+        return all_fine_grained_chunks
 
 
 class PreChunkSemanticGrouper(TextChunker):
@@ -354,24 +438,38 @@ class PreChunkSemanticGrouper(TextChunker):
             f"min_group_size={min_group_size}, max_group_size={max_group_size}"
         )
 
-    def chunk(self, text: str) -> List[str]:
+    def chunk(self, text_segments: List[str]) -> List[str]:
         """
-        Standard TextChunker interface method. This implementation treats the input text
-        as a single pre-chunk and returns it without additional processing, as this
-        chunker is designed to work on collections of pre-chunks, not single texts.
+        Process a list of text segments using semantic grouping.
+
+        Note: All segments in the input list are treated as pre-chunks for semantic grouping.
+        This method does not perform any sentence splitting prior to semantic grouping,
+        unlike the SemanticChunker which first splits each segment into sentences.
 
         Args:
-            text: Input text (interpreted as a single pre-chunk)
+            text_segments: List of input text segments to process as pre-chunks
 
         Returns:
-            List containing the input text as a single chunk
+            List of semantically grouped chunks
         """
-        logger.warning(
-            "PreChunkSemanticGrouper.chunk() called with a single text string. "
-            "This chunker is designed to work with lists of pre-chunks via "
-            "chunk_pre_chunks(). Returning the input as a single chunk."
+        if not text_segments:
+            logger.debug("PreChunkSemanticGrouper: No input segments provided.")
+            return []
+
+        # Filter out empty segments
+        valid_segments = [seg for seg in text_segments if seg and seg.strip()]
+        if not valid_segments:
+            logger.debug("PreChunkSemanticGrouper: All input segments were empty.")
+            return []
+
+        # Apply semantic grouping to the entire set of segments as pre-chunks
+        result_chunks = self.chunk_pre_chunks(valid_segments)
+
+        logger.debug(
+            f"PreChunkSemanticGrouper processed {len(text_segments)} input segments "
+            f"into {len(result_chunks)} output chunks."
         )
-        return [text] if text and text.strip() else []
+        return result_chunks
 
     def chunk_pre_chunks(self, pre_chunks_from_paragraph: List[str]) -> List[str]:
         """

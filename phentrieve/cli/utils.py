@@ -55,16 +55,26 @@ def load_text_from_input(text_arg: Optional[str], file_arg: Optional[Path]) -> s
 
 
 def resolve_chunking_pipeline_config(
-    config_file_arg: Optional[Path], strategy_arg: str
+    chunking_pipeline_config_file: Optional[Path],
+    strategy_arg: str,
+    window_size: int = 3,
+    step_size: int = 1,
+    threshold: float = 0.5,
+    min_segment_length: int = 2,
 ) -> List[Dict]:
-    """Resolve chunking pipeline configuration from file or strategy.
+    """
+    Resolve the chunking pipeline configuration from a file or a strategy name.
 
     Args:
-        config_file_arg: Path to a YAML or JSON configuration file
-        strategy_arg: Name of a predefined chunking strategy
+        chunking_pipeline_config_file: Optional path to a config file
+        strategy_arg: Strategy name to use if no config file is provided
+        window_size: Window size for sliding window chunker (tokens)
+        step_size: Step size for sliding window chunker (tokens)
+        threshold: Similarity threshold for sliding window chunker
+        min_segment_length: Minimum segment length for sliding window chunker (words)
 
     Returns:
-        List of chunking pipeline configuration dictionaries
+        List of chunker configurations
 
     Raises:
         typer.Exit: If the config file does not exist or has an invalid
@@ -75,21 +85,22 @@ def resolve_chunking_pipeline_config(
         get_simple_chunking_config,
         get_semantic_chunking_config,
         get_detailed_chunking_config,
+        get_sliding_window_config_with_params,
     )
 
     chunking_pipeline_config = None
 
     # 1. First priority: Config file if provided
-    if config_file_arg is not None:
-        if not config_file_arg.exists():
+    if chunking_pipeline_config_file is not None:
+        if not chunking_pipeline_config_file.exists():
             typer.secho(
-                f"Error: Config file {config_file_arg} does not exist.",
+                f"Error: Config file {chunking_pipeline_config_file} does not exist.",
                 fg=typer.colors.RED,
             )
             raise typer.Exit(code=1)
 
-        suffix = config_file_arg.suffix.lower()
-        with open(config_file_arg, "r", encoding="utf-8") as f:
+        suffix = chunking_pipeline_config_file.suffix.lower()
+        with open(chunking_pipeline_config_file, "r", encoding="utf-8") as f:
             if suffix == ".json":
                 config_data = json.load(f)
             elif suffix in (".yaml", ".yml"):
@@ -112,6 +123,13 @@ def resolve_chunking_pipeline_config(
             chunking_pipeline_config = get_semantic_chunking_config()
         elif strategy_arg == "detailed":
             chunking_pipeline_config = get_detailed_chunking_config()
+        elif strategy_arg == "sliding_window":
+            chunking_pipeline_config = get_sliding_window_config_with_params(
+                window_size=window_size,
+                step_size=step_size,
+                threshold=threshold,
+                min_segment_length=min_segment_length,
+            )
         else:
             typer.secho(
                 f"Warning: Unknown strategy '{strategy_arg}'. "

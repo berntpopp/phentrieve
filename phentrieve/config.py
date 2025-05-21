@@ -110,6 +110,40 @@ DETAILED_CHUNKING_CONFIG = [
 ]
 
 
+# Most detailed chunking strategy using the sliding window semantic splitter
+def get_sliding_window_config_with_params(
+    window_size=7, step_size=1, threshold=0.5, min_segment_length=3
+):
+    """Get a sliding window config with custom parameters.
+
+    Args:
+        window_size: Number of tokens in each sliding window
+        step_size: Number of tokens to step between windows
+        threshold: Cosine similarity threshold below which to split (0-1)
+        min_segment_length: Minimum number of words in a split segment
+
+    Returns:
+        Sliding window configuration with custom parameters
+    """
+    return [
+        {"type": "paragraph"},  # First split by paragraphs
+        {"type": "sentence"},  # Then split into sentences
+        {
+            "type": "sliding_window_semantic",  # Finally apply sliding window semantic splitting
+            "config": {
+                "window_size_tokens": window_size,
+                "step_size_tokens": step_size,
+                "splitting_threshold": threshold,
+                "min_split_segment_length_words": min_segment_length,
+            },
+        },
+    ]
+
+
+# Default sliding window config
+SLIDING_WINDOW_CONFIG = get_sliding_window_config_with_params()
+
+
 # Functions to get fresh copies of the configs to avoid mutation issues
 def get_default_chunk_pipeline_config():
     return copy.deepcopy(DEFAULT_CHUNK_PIPELINE_CONFIG)
@@ -125,6 +159,10 @@ def get_semantic_chunking_config():
 
 def get_detailed_chunking_config():
     return copy.deepcopy(DETAILED_CHUNKING_CONFIG)
+
+
+def get_sliding_window_config():
+    return copy.deepcopy(SLIDING_WINDOW_CONFIG)
 
 
 # Default assertion detection configuration

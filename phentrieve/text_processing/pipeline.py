@@ -15,13 +15,16 @@ from phentrieve.text_processing.cleaners import (
     clean_internal_newlines_and_extra_spaces,
 )
 from phentrieve.text_processing.chunkers import (
-    TextChunker,
+    FineGrainedPunctuationChunker,
     NoOpChunker,
     ParagraphChunker,
-    SentenceChunker,
-    SemanticChunker,
-    FineGrainedPunctuationChunker,
     PreChunkSemanticGrouper,
+    SemanticChunker,
+    SentenceChunker,
+    TextChunker,
+)
+from phentrieve.text_processing.sliding_window_chunker import (
+    SlidingWindowSemanticSplitter,
 )
 from phentrieve.text_processing.assertion_detection import (
     AssertionDetector,
@@ -162,6 +165,32 @@ class TextProcessingPipeline:
             elif chunker_type == "noop":
                 chunkers.append(NoOpChunker(**params))
 
+            elif chunker_type == "sliding_window_semantic":
+                if not self.sbert_model:
+                    raise ValueError(
+                        "SentenceTransformer model required for sliding window semantic splitting "
+                        "but none was provided"
+                    )
+
+                # Get sliding window specific parameters
+                window_size = chunker_config.get("window_size_tokens", 4)
+                step_size = chunker_config.get("step_size_tokens", 2)
+                threshold = chunker_config.get("splitting_threshold", 0.5)
+                min_segment_length = chunker_config.get(
+                    "min_split_segment_length_words", 50
+                )
+
+                # Create sliding window semantic splitter
+                sliding_window_params = {
+                    **params,
+                    "model": self.sbert_model,
+                    "window_size_tokens": window_size,
+                    "step_size_tokens": step_size,
+                    "splitting_threshold": threshold,
+                    "min_split_segment_length_words": min_segment_length,
+                }
+                chunkers.append(SlidingWindowSemanticSplitter(**sliding_window_params))
+
             else:
                 logger.warning(
                     f"Unknown chunker type '{chunker_type}' in config, skipping"
@@ -216,273 +245,105 @@ class TextProcessingPipeline:
             List of processed chunks with assertion information:
             [
                 {
-                    'text': 'chunk text',         # The chunk text
-                    'status': AssertionStatus,    # POSITIVE, NEGATIVE, UNCERTAIN
-                    'assertion_details': Dict,    # Assertion detection details
-                    'source_indices': Dict          # Tracking information about source
+                    'text': str,                # The chunk text
+                    'status': AssertionStatus, # Enum value indicating assertion status
+                    'assertion_details': Dict,  # Details about the assertion analysis
+                    'source_indices': Dict      # Tracking information about source
                 },
                 ...
             ]
         """
         if not raw_text or not raw_text.strip():
             logger.warning(
-                "Empty input text provided to TextProcessingPipeline.process"
+                "TextProcessingPipeline.process called with empty input text."
             )
             return []
 
-        # Apply initial normalization
         normalized_text = normalize_line_endings(raw_text)
+        current_segments_for_stage: List[str] = [normalized_text]
 
-        # Initialize tracking of chunks and their groups (from paragraphs)
-        # Outermost list: stages of pipeline
-        # Middle list: groups of chunks (a paragraph's output becomes one group)
-        # Innermost list: the chunks themselves (strings)
-        list_of_chunk_groups_after_each_stage = [[[normalized_text]]]
+        # Simplified source tracking for this refactor:
+        # Each element in current_source_info_list corresponds to a segment in current_segments_for_stage
+        # It stores a list of strings describing the applied chunkers.
+        current_source_info_list: List[List[str]] = [["initial_raw_text"]]
 
-        # Track source information with the same structure
-        current_chunk_source_indices = [[{"original": True}]]
-
-        # Apply chunking pipeline stages iteratively
-        for chunker_idx, chunker in enumerate(self.chunkers):
+        for chunker_idx, chunker_instance in enumerate(self.chunkers):
+            chunker_name = chunker_instance.__class__.__name__
             logger.debug(
-                f"Pipeline Stage {chunker_idx + 1}: Applying {chunker.__class__.__name__}"
+                f"Pipeline Stage {chunker_idx + 1}: Applying {chunker_name} "
+                f"to {len(current_segments_for_stage)} segment(s)."
             )
 
-            # Get the input groups for this chunker stage
-            input_groups_for_this_stage = list_of_chunk_groups_after_each_stage[-1]
-            output_groups_for_next_stage = []
-            next_stage_source_indices_groups = []
+            input_segments_to_current_chunker = current_segments_for_stage
+            input_source_info_to_current_chunker = current_source_info_list
 
-            # Special handling for PreChunkSemanticGrouper
-            if isinstance(chunker, PreChunkSemanticGrouper):
-                logger.debug(
-                    f"Using special processing for PreChunkSemanticGrouper with "
-                    f"{len(input_groups_for_this_stage)} input groups"
-                )
-
-                # Process each group of pre-chunks (from a single paragraph)
-                for group_idx, current_input_group in enumerate(
-                    input_groups_for_this_stage
-                ):
-                    # current_input_group is a List[str] of pre-chunks from one paragraph
-                    if not current_input_group:  # Skip empty groups
-                        continue
-
-                    # Get source indices for this group
-                    group_source_indices_base = (
-                        current_chunk_source_indices[-1][group_idx]
-                        if group_idx < len(current_chunk_source_indices[-1])
-                        else {}
-                    )
-
-                    # Log the group processing
-                    logger.debug(
-                        f"  PreChunkSemanticGrouper processing a group of "
-                        f"{len(current_input_group)} pre-chunks."
-                    )
-
-                    # Process the group using chunk_pre_chunks method
-                    processed_by_grouper = chunker.chunk_pre_chunks(current_input_group)
-
-                    # Each output becomes a separate group of one chunk for next stage
-                    for part_idx, final_chunk_str in enumerate(processed_by_grouper):
-                        output_groups_for_next_stage.append([final_chunk_str])
-
-                        # Track source information
-                        # Initialize an empty dict to avoid issues
-                        new_source_info = {}
-
-                        # Ensure we're working with a dictionary for source tracking
-                        if isinstance(group_source_indices_base, dict):
-                            new_source_info = {**group_source_indices_base}
-                        # If we get a list with one dict inside, use that dict
-                        elif (
-                            isinstance(group_source_indices_base, list)
-                            and group_source_indices_base
-                        ):
-                            if isinstance(group_source_indices_base[0], dict):
-                                new_source_info = {**group_source_indices_base[0]}
-                            else:
-                                logger.debug(
-                                    f"Expected dict in list for semantic grouper source indices, got {type(group_source_indices_base[0])}"
-                                )
-                        else:
-                            logger.debug(
-                                f"Unexpected semantic grouper source indices type: {type(group_source_indices_base)}"
-                            )
-
-                        new_source_info[f"stage_{chunker_idx}_grouper"] = {
-                            "input_pre_chunk_count": len(current_input_group),
-                            "output_chunk_idx_in_group": part_idx,
-                            "chunker": chunker.__class__.__name__,
-                        }
-                        next_stage_source_indices_groups.append([new_source_info])
-
-            else:  # Standard chunker processing
-                # Process each group (usually a paragraph)
-                for group_idx, current_input_group in enumerate(
-                    input_groups_for_this_stage
-                ):
-                    output_chunks_from_this_group = []
-                    source_indices_for_this_group = []
-
-                    # Get source indices for this group
-                    group_source_indices_base = (
-                        current_chunk_source_indices[-1][group_idx]
-                        if group_idx < len(current_chunk_source_indices[-1])
-                        else {}
-                    )
-
-                    # Process each item in the group individually
-                    for item_idx, text_item in enumerate(current_input_group):
-                        # Clean the item
-                        cleaned_item = clean_internal_newlines_and_extra_spaces(
-                            text_item
-                        )
-                        if not cleaned_item:
-                            continue
-
-                        # Apply the chunker
-                        chunked_parts = chunker.chunk(cleaned_item)
-
-                        # Add to output chunks for this group
-                        output_chunks_from_this_group.extend(chunked_parts)
-
-                        # Track source indices for each part
-                        for part_idx, _ in enumerate(chunked_parts):
-                            # Create source info for this part
-                            # Initialize an empty dict to avoid issues
-                            new_source_info = {}
-
-                            # Ensure we're working with a dictionary for source tracking
-                            if isinstance(group_source_indices_base, dict):
-                                new_source_info = {**group_source_indices_base}
-                            # If we get a list with one dict inside, use that dict
-                            elif (
-                                isinstance(group_source_indices_base, list)
-                                and group_source_indices_base
-                            ):
-                                if isinstance(group_source_indices_base[0], dict):
-                                    new_source_info = {**group_source_indices_base[0]}
-                                else:
-                                    logger.debug(
-                                        f"Expected dict in list for source indices, got {type(group_source_indices_base[0])}"
-                                    )
-                            else:
-                                logger.debug(
-                                    f"Unexpected source indices type: {type(group_source_indices_base)}"
-                                )
-
-                            new_source_info[f"stage_{chunker_idx}"] = {
-                                "item_idx_in_group": item_idx,
-                                "output_part_idx": part_idx,
-                                "chunker": chunker.__class__.__name__,
-                            }
-                            source_indices_for_this_group.append(new_source_info)
-
-                    # Only add the group if it has output
-                    if output_chunks_from_this_group:
-                        # For regular chunkers, we don't need to maintain a
-                        # paragraph-to-chunks relationship except for PreChunkSemanticGrouper
-                        # For normal chunkers, we flatten the structure and each chunk becomes a group
-
-                        # If next chunker is PreChunkSemanticGrouper, keep the chunks as one group
-                        if chunker_idx + 1 < len(self.chunkers) and isinstance(
-                            self.chunkers[chunker_idx + 1], PreChunkSemanticGrouper
-                        ):
-                            output_groups_for_next_stage.append(
-                                output_chunks_from_this_group
-                            )
-                            next_stage_source_indices_groups.append(
-                                source_indices_for_this_group
-                            )
-                        else:
-                            # Otherwise, each chunk becomes its own group
-                            for i, chunk in enumerate(output_chunks_from_this_group):
-                                output_groups_for_next_stage.append([chunk])
-                                if i < len(source_indices_for_this_group):
-                                    # Ensure we're passing a dictionary, not a list
-                                    source_index = source_indices_for_this_group[i]
-                                    if isinstance(source_index, dict):
-                                        next_stage_source_indices_groups.append(
-                                            [source_index]
-                                        )
-                                    else:
-                                        # Convert to dict if needed
-                                        logger.debug(
-                                            f"Converting source index type {type(source_index)} to dict"
-                                        )
-                                        next_stage_source_indices_groups.append([{}])
-                                else:
-                                    # Should not happen, but just in case
-                                    next_stage_source_indices_groups.append([{}])
-
-            # Update for next stage
-            list_of_chunk_groups_after_each_stage.append(output_groups_for_next_stage)
-            current_chunk_source_indices.append(next_stage_source_indices_groups)
-
-            # Count total chunks for logging
-            total_chunks = sum(len(group) for group in output_groups_for_next_stage)
-            logger.debug(
-                f"Chunker {chunker_idx + 1} produced {total_chunks} chunks "
-                f"in {len(output_groups_for_next_stage)} groups"
+            output_segments_from_chunker = chunker_instance.chunk(
+                input_segments_to_current_chunker
             )
 
-        # Get final chunks (flatten the groups structure)
-        final_raw_chunks = []
-        final_source_indices = []
+            # Basic source tracking update:
+            # If a chunker doesn't change the number of segments, source info maps 1:1.
+            # If it splits one segment into many, all new segments inherit and append the current chunker's name.
+            # This is a simplification. True lineage is harder.
+            # For now, we'll just track that this chunker was applied.
+            # A more robust way would be for chunkers to also return source mapping.
 
-        for group_idx, group in enumerate(list_of_chunk_groups_after_each_stage[-1]):
-            final_raw_chunks.extend(group)
-            if group_idx < len(current_chunk_source_indices[-1]):
-                sources_for_group = current_chunk_source_indices[-1][group_idx]
-                # Handle cases where source indices might be a list instead of dict
-                for source in sources_for_group:
-                    if isinstance(source, dict):
-                        final_source_indices.append(source)
-                    else:
-                        logger.warning(
-                            f"Expected dict for source indices, got {type(source)}"
-                        )
-                        final_source_indices.append({})
-            else:
-                final_source_indices.extend([{}] * len(group))
+            updated_source_info_list = []
+            if (
+                len(input_segments_to_current_chunker)
+                == len(output_segments_from_chunker)
+                and len(input_segments_to_current_chunker) > 0
+            ):
+                # Assume 1:1 mapping if segment count doesn't change
+                for i, _ in enumerate(output_segments_from_chunker):
+                    updated_source_info_list.append(
+                        input_source_info_to_current_chunker[i] + [chunker_name]
+                    )
+            else:  # Segment count changed, apply new source info more generically
+                for _ in output_segments_from_chunker:
+                    # This is a simplification; ideally, we'd know which input segment(s) an output segment came from.
+                    # For now, just indicate this chunker ran. A more complex approach would be needed for precise lineage.
+                    updated_source_info_list.append([f"processed_by_{chunker_name}"])
 
-        # Process final chunks for assertion
-        processed_chunks_with_assertion = []
+            current_segments_for_stage = output_segments_from_chunker
+            current_source_info_list = updated_source_info_list
 
-        for chunk_idx, final_raw_chunk in enumerate(final_raw_chunks):
-            # Clean the final chunk
+            logger.debug(
+                f"Stage {chunker_idx + 1} ({chunker_name}) produced {len(current_segments_for_stage)} segment(s)."
+            )
+
+        final_raw_chunks_text_only: List[str] = current_segments_for_stage
+
+        processed_chunks_with_assertion: List[Dict[str, Any]] = []
+        for idx, final_text_chunk in enumerate(final_raw_chunks_text_only):
             cleaned_final_chunk = clean_internal_newlines_and_extra_spaces(
-                final_raw_chunk
+                final_text_chunk
             )
             if not cleaned_final_chunk:
                 continue
 
-            # Detect assertion status
             assertion_status, assertion_details = self.assertion_detector.detect(
                 cleaned_final_chunk
             )
 
-            # Store processed chunk with all information
-            source_info = (
-                final_source_indices[chunk_idx]
-                if chunk_idx < len(final_source_indices)
-                else {}
+            source_info_for_chunk = (
+                current_source_info_list[idx]
+                if idx < len(current_source_info_list)
+                else ["unknown_source"]
             )
 
             processed_chunks_with_assertion.append(
                 {
                     "text": cleaned_final_chunk,
-                    "status": assertion_status,
+                    "status": assertion_status,  # This is the AssertionStatus Enum object
                     "assertion_details": assertion_details,
-                    "source_indices": source_info,
+                    "source_indices": {
+                        "processing_stages": source_info_for_chunk
+                    },  # Simplified source info
                 }
             )
 
         logger.info(
-            f"TextProcessingPipeline processed text into {len(processed_chunks_with_assertion)} "
-            f"final chunks with assertion status"
+            f"TextProcessingPipeline processed text into {len(processed_chunks_with_assertion)} final asserted chunks."
         )
-
         return processed_chunks_with_assertion

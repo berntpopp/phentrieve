@@ -598,7 +598,6 @@ Phentrieve now includes a modern web interface for easier interaction with the H
 
 The API exposes the HPO term mapping functionality via a RESTful endpoint:
 
-
 - **Endpoint**: `/api/v1/query/`
 - **Method**: POST
 - **Request Body**: JSON matching the `QueryRequest` schema
@@ -753,6 +752,41 @@ python -m spacy download de_core_news_sm  # If working with German
 phentrieve --help
 ```
 
+### Running Tests
+
+Phentrieve includes a comprehensive test suite that ensures all components work correctly. Tests can be run using pytest (recommended) or Python's built-in unittest framework:
+
+```bash
+# Run all tests
+pytest
+
+# Run tests with verbose output
+pytest -v
+
+# Run specific test file
+pytest tests/test_sliding_window_chunker.py
+
+# Run tests with debug logging
+pytest --log-cli-level=DEBUG
+
+# Run a specific test case
+pytest phentrieve/text_processing/tests/test_sliding_window_chunker.py::TestSlidingWindowSemanticSplitter::test_semantic_splitting
+```
+
+Alternatively, you can use Python's unittest module:
+
+```bash
+# Run all tests in a specific file
+python -m unittest tests/test_sliding_window_chunker.py
+```
+
+#### Test Organization
+
+Tests are organized in the following directories:
+
+- `tests/`: High-level component and integration tests
+- `phentrieve/text_processing/tests/`: Unit tests for text processing modules
+
 ### Initial Setup
 
 If using Docker, the `setup_phentrieve.sh` script handles this automatically. For local Python installations:
@@ -777,7 +811,7 @@ All Phentrieve data is stored in configurable directories:
 
 The data structure includes:
 
-```
+```text
 /your/data/dir/
 ├── hpo_core_data/    # HPO source files (hp.json, etc.)
 ├── indexes/          # ChromaDB persistent storage
@@ -870,7 +904,7 @@ Three different cross-encoder models have been tested for re-ranking HPO terms:
 
 ## References
 
-- Human Phenotype Ontology: [https://hpo.jax.org/](https://hpo.jax.org/)
-- Sentence Transformers: [https://www.sbert.net/](https://www.sbert.net/)
-- ChromaDB: [https://docs.trychroma.com/](https://docs.trychroma.com/)
-- Semantic Similarity in Biomedical Ontologies: [https://doi.org/10.1371/journal.pcbi.1000443](https://doi.org/10.1371/journal.pcbi.1000443)
+- Human Phenotype Ontology: [HPO website](https://hpo.jax.org/)
+- Sentence Transformers: [SBERT website](https://www.sbert.net/)
+- ChromaDB: [Documentation](https://docs.trychroma.com/)
+- Semantic Similarity in Biomedical Ontologies: [Publication](https://doi.org/10.1371/journal.pcbi.1000443)

@@ -17,6 +17,9 @@ from phentrieve.text_processing.chunkers import (
     SemanticChunker,
     FineGrainedPunctuationChunker,
 )
+from phentrieve.text_processing.sliding_window_chunker import (
+    SlidingWindowSemanticSplitter,
+)
 
 __all__ = [
     # Cleaners
@@ -29,4 +32,5 @@ __all__ = [
     "SentenceChunker",
     "SemanticChunker",
     "FineGrainedPunctuationChunker",
+    "SlidingWindowSemanticSplitter",
 ]
