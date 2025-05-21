@@ -767,8 +767,15 @@ def _format_and_output_results(
         raise typer.Exit(code=1)
 
     # Summary
+    # For rich_json_summary format, use the chunk_results length for HPO term count
+    # as it contains the full list of HPO terms used in the JSON output
+    if output_format == "rich_json_summary":
+        hpo_term_count = len(chunk_results)
+    else:
+        hpo_term_count = len(aggregated_results)
+
     typer.secho(
-        f"\nText processing completed. Found {len(aggregated_results)} HPO terms "
+        f"\nText processing completed. Found {hpo_term_count} HPO terms "
         f"across {len(processed_chunks)} text chunks.",
         fg=typer.colors.GREEN,
     )
