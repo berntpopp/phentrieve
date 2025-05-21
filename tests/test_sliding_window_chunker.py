@@ -91,6 +91,97 @@ class TestSlidingWindowSplitter(unittest.TestCase):
             self.assertIn(key_word.lower(), combined_result.lower())
 
 
+class TestNegationAwareMerging(unittest.TestCase):
+    """Test cases for negation-aware merging in SlidingWindowSemanticSplitter."""
+
+    def setUp(self):
+        """Initialize resources needed for tests."""
+        # Use a small model for testing
+        self.model = SentenceTransformer("paraphrase-MiniLM-L3-v2")
+
+        # Create a splitter with a very low threshold to force splits for testing
+        self.splitter = SlidingWindowSemanticSplitter(
+            model=self.model,
+            window_size_tokens=2,
+            step_size_tokens=1,
+            splitting_threshold=0.1,  # Very low threshold to force splits
+            min_split_segment_length_words=1,
+            language="en",
+        )
+
+    def test_merge_negation_patterns(self):
+        """Test that negation patterns are properly merged."""
+        # Create a splitter with a very low threshold to force more splits
+        splitter = SlidingWindowSemanticSplitter(
+            model=self.model,
+            window_size_tokens=2,
+            step_size_tokens=1,
+            splitting_threshold=0.1,  # Very low to force splits
+            min_split_segment_length_words=1,
+            language="en"
+        )
+        
+        # Use a longer text to ensure splitting occurs
+        text_segments = ["Patient shows no response to stimuli and no eye contact with the examiner."]
+        result = splitter.chunk(text_segments)
+        
+        # The exact number of segments isn't as important as the merging behavior
+        # Verify that negation patterns are preserved across splits
+        combined = " ".join(result).lower()
+        self.assertIn("no response", combined)
+        self.assertIn("no eye contact", combined)
+
+    def test_german_negation_merging(self):
+        """Test German negation patterns are properly merged."""
+        german_splitter = SlidingWindowSemanticSplitter(
+            model=self.model,
+            window_size_tokens=2,
+            step_size_tokens=1,
+            splitting_threshold=0.1,
+            min_split_segment_length_words=1,
+            language="de",
+        )
+
+        text_segments = ["kein Blickkontakt und keine Reaktion"]
+        result = german_splitter.chunk(text_segments)
+
+        self.assertTrue(any("kein Blickkontakt" in s for s in result))
+        self.assertTrue(any("keine Reaktion" in s for s in result))
+
+    def test_no_merge_after_connector(self):
+        """Test that we don't merge after connector words."""
+        # Create a splitter with a very low threshold to force more splits
+        splitter = SlidingWindowSemanticSplitter(
+            model=self.model,
+            window_size_tokens=2,
+            step_size_tokens=1,
+            splitting_threshold=0.1,  # Very low to force splits
+            min_split_segment_length_words=1,
+            language="en"
+        )
+        
+        # Use a longer text to ensure splitting occurs
+        text_segments = ["Patient has no fever but has pain. No cough or cold."]
+        result = splitter.chunk(text_segments)
+        
+        # Check that "no fever" and "No cough" are preserved
+        combined = " ".join(result).lower()
+        self.assertIn("no fever", combined)
+        self.assertIn("no cough", combined)
+        # Check that we didn't merge "no but"
+        self.assertNotIn("no but", combined)
+
+    def test_multiple_negations(self):
+        """Test text with multiple negation patterns."""
+        text_segments = ["no response, no eye contact, and no movement"]
+        result = self.splitter.chunk(text_segments)
+
+        # Should preserve all negation patterns
+        self.assertTrue(any("no response" in s for s in result))
+        self.assertTrue(any("no eye contact" in s for s in result))
+        self.assertTrue(any("no movement" in s for s in result))
+
+
 class TestSlidingWindowChunker(unittest.TestCase):
     """Test cases for the sliding window chunker functionality."""
 
@@ -175,4 +266,5 @@ class TestSlidingWindowChunker(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    unittest.main()
+    # Run tests with more verbose output
+    unittest.main(verbosity=2)

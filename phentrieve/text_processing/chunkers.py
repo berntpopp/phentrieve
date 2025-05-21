@@ -587,11 +587,25 @@ class FineGrainedPunctuationChunker(TextChunker):
         return all_fine_grained_chunks
 
 
+# Language-specific constants for negation-aware merging
+NEGATION_PREFIXES = {
+    "en": ["no", "not", "non", "without", "zero"],
+    "de": ["kein", "keine", "keinen", "keiner", "keines", "ohne", "nicht"],
+}
+
+# A small list of words that, if they are the `next_segment`, might prevent merging a negation prefix.
+# These should be words that don't typically form a tight semantic unit with a preceding standalone negation.
+AVOID_MERGE_AFTER_NEGATION_IF_NEXT_IS = {
+    "en": ["and", "or", "but", "so", "yet", "for", "nor", "is", "are", "was", "were"],
+    "de": ["und", "oder", "aber", "sondern", "denn", "als", "wenn", "ist", "sind"],
+}
+
+
 class SlidingWindowSemanticSplitter(TextChunker):
     """
     Chunker that splits text segments using a sliding window of token embeddings to
     identify semantic boundaries. This enables more fine-grained semantic splitting
-    at sub-sentence level.
+    at sub-sentence level, with special handling for negation patterns.
     """
 
     def __init__(
@@ -818,4 +832,68 @@ class SlidingWindowSemanticSplitter(TextChunker):
                 logger.debug(f"Kept short (only) final segment: '{last_segment_str}'")
 
         # Final filter for any empty strings that might have been created
-        return [s for s in final_segments if s]
+        final_segments = [s for s in final_segments if s]
+
+        # Apply negation-aware merging to fix splits within negation patterns
+        final_segments = self._apply_negation_aware_merging(final_segments)
+
+        return final_segments
+
+    def _apply_negation_aware_merging(self, segments: List[str]) -> List[str]:
+        """
+        Merge segments that were incorrectly split within negation patterns.
+
+        Args:
+            segments: List of text segments to process
+
+        Returns:
+            List of segments with negation patterns properly merged
+        """
+        if not segments or len(segments) < 2:
+            return segments
+
+        lang_key = self.language.lower()
+        current_neg_prefixes = NEGATION_PREFIXES.get(lang_key, NEGATION_PREFIXES["en"])
+        current_avoid_merge = AVOID_MERGE_AFTER_NEGATION_IF_NEXT_IS.get(
+            lang_key, AVOID_MERGE_AFTER_NEGATION_IF_NEXT_IS["en"]
+        )
+
+        merged_segments: List[str] = []
+        i = 0
+
+        while i < len(segments):
+            current_segment = segments[i]
+            current_segment_lower = current_segment.lower()
+
+            # Check if current segment is a standalone negation prefix
+            is_standalone_neg_prefix = (
+                current_segment_lower in current_neg_prefixes
+                and " " not in current_segment
+            )
+
+            # If it's a negation prefix and there's a next segment
+            if is_standalone_neg_prefix and (i + 1) < len(segments):
+                next_segment = segments[i + 1]
+                next_segment_lower = next_segment.lower().strip()
+                next_first_word = (
+                    next_segment_lower.split()[0] if next_segment_lower else ""
+                )
+
+                # Only merge if next segment doesn't start with a connector word
+                if next_first_word and next_first_word not in current_avoid_merge:
+                    merged = f"{current_segment} {next_segment}".strip()
+                    merged_segments.append(merged)
+                    logger.debug(
+                        f"Merged negation pattern: '{current_segment}' + '{next_segment}' -> '{merged}'"
+                    )
+                    i += 2  # Skip next segment as it's been merged
+                    continue
+
+            # No merge occurred, add current segment as is
+            merged_segments.append(current_segment)
+            i += 1
+
+        logger.debug(
+            f"After negation merging: {len(segments)} -> {len(merged_segments)} segments"
+        )
+        return merged_segments
