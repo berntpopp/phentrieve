@@ -67,13 +67,13 @@ async def get_hpo_term_similarity(
     term1_id: str = FastApiPath(
         ...,
         description="The first HPO Term ID (e.g., HP:0001197). Must be in HP:####### format.",
-        example="HP:0001197",
+        examples=["HP:0001197"],
         pattern=r"^HP:\d{7}$",  # Basic HPO ID pattern validation
     ),
     term2_id: str = FastApiPath(
         ...,
         description="The second HPO Term ID (e.g., HP:0000750). Must be in HP:####### format.",
-        example="HP:0000750",
+        examples=["HP:0000750"],
         pattern=r"^HP:\d{7}$",
     ),
     formula: Optional[str] = Query(

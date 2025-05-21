@@ -1,10 +1,12 @@
 import logging
+import os
+import sys
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-import sys
-import os
-
+# Add project root to Python path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from api.routers import query_router, health, similarity_router, config_info_router
@@ -24,31 +26,14 @@ logger = logging.getLogger(__name__)
 # Configure logging for the API
 logging.basicConfig(level=logging.INFO)
 
-app = FastAPI(title="Phentrieve API", version="0.1.0")
 
-# Configure CORS
-# Adjust origins as needed for your frontend development and production
-origins = [
-    "http://localhost:8080",  # Default Vue CLI dev server
-    "http://localhost:3000",  # Common React/Next.js dev server
-    "http://localhost:5173",  # Vite default port
-    # Add your production frontend URL when deployed
-]
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-
-@app.on_event("startup")
-async def startup_event():
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup logic
     logger.info("Phentrieve API starting up. Pre-loading default models...")
     try:
         # Pre-load default SBERT model for retrieval
-        sbert_retrieval_model = await get_sbert_model_dependency(
+        await get_sbert_model_dependency(
             model_name_requested=DEFAULT_MODEL, device_override=DEFAULT_DEVICE
         )
         # Pre-load the retriever associated with the default SBERT model
@@ -80,6 +65,31 @@ async def startup_event():
     except Exception as e:
         logger.error(f"Error during API startup model pre-loading: {e}", exc_info=True)
     logger.info("API startup model pre-loading complete (or attempted).")
+
+    yield  # This is where the application runs
+
+    # Shutdown logic (if needed)
+    logger.info("Shutting down Phentrieve API...")
+
+
+app = FastAPI(title="Phentrieve API", version="0.1.0", lifespan=lifespan)
+
+# Configure CORS
+# Adjust origins as needed for your frontend development and production
+origins = [
+    "http://localhost:8080",  # Default Vue CLI dev server
+    "http://localhost:3000",  # Common React/Next.js dev server
+    "http://localhost:5173",  # Vite default port
+    # Add your production frontend URL when deployed
+]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+# This content was moved to the lifespan context manager
 
 
 # Include routers
