@@ -57,7 +57,7 @@ def process_text_for_hpo_command(
         typer.Option(
             "--strategy",
             "-s",
-            help="Predefined chunking strategy (choices: simple, detailed, sliding_window)",
+            help="Predefined chunking strategy. 'simple': paragraph then sentence. 'semantic': paragraph, sentence, then semantic splitting of sentences. 'detailed': paragraph, sentence, punctuation splitting, then semantic splitting of fragments. 'sliding_window': customizable semantic sliding window (choices: simple, semantic, detailed, sliding_window)",
         ),
     ] = "sliding_window",  # Using sliding_window for optimal semantic segmentation
     window_size: Annotated[
@@ -469,7 +469,7 @@ def chunk_text_command(
         typer.Option(
             "--strategy",
             "-s",
-            help="Predefined chunking strategy (choices: simple, detailed, sliding_window; default: sliding_window)",
+            help="Predefined chunking strategy. 'simple': paragraph then sentence. 'semantic': paragraph, sentence, then semantic splitting of sentences. 'detailed': paragraph, sentence, punctuation splitting, then semantic splitting of fragments. 'sliding_window': customizable semantic sliding window (choices: simple, semantic, detailed, sliding_window; default: sliding_window)",
         ),
     ] = "sliding_window",
     window_size: Annotated[

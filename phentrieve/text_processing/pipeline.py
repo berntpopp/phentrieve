@@ -23,7 +23,6 @@ from phentrieve.text_processing.chunkers import (
     FineGrainedPunctuationChunker,
     NoOpChunker,
     ParagraphChunker,
-    PreChunkSemanticGrouper,
     SentenceChunker,
     SlidingWindowSemanticSplitter,
     TextChunker,
@@ -115,29 +114,7 @@ class TextProcessingPipeline:
             elif chunker_type == "sentence":
                 chunkers.append(SentenceChunker(**params))
 
-            # 'semantic' chunker type has been removed, use 'sliding_window' instead
-
-            elif chunker_type == "pre_chunk_semantic_grouper":
-                if not self.sbert_model:
-                    raise ValueError(
-                        "SentenceTransformer model required for PreChunkSemanticGrouper "
-                        "but not provided to pipeline."
-                    )
-
-                # Get grouper specific parameters
-                similarity_threshold = chunker_config.get("similarity_threshold", 0.5)
-                min_group_size = chunker_config.get("min_group_size", 1)
-                max_group_size = chunker_config.get("max_group_size", 7)
-
-                # Create pre-chunk semantic grouper
-                grouper_params = {
-                    **params,
-                    "model": self.sbert_model,
-                    "similarity_threshold": similarity_threshold,
-                    "min_group_size": min_group_size,
-                    "max_group_size": max_group_size,
-                }
-                chunkers.append(PreChunkSemanticGrouper(**grouper_params))
+            # 'pre_chunk_semantic_grouper' has been removed, use 'sliding_window' instead
 
             elif chunker_type == "fine_grained_punctuation":
                 chunkers.append(FineGrainedPunctuationChunker(**params))

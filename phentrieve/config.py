@@ -79,15 +79,33 @@ PHENOTYPE_ROOT = "HP:0000118"
 # Predefined chunking strategies
 SIMPLE_CHUNKING_CONFIG = [{"type": "paragraph"}, {"type": "sentence"}]
 
+# Strategy: "semantic" - Uses paragraph -> sentence -> semantic splitting
+SEMANTIC_CHUNKING_CONFIG = [
+    {"type": "paragraph"},
+    {"type": "sentence"},
+    {
+        "type": "sliding_window",
+        "config": {
+            "window_size_tokens": 2,
+            "step_size_tokens": 1,
+            "splitting_threshold": 0.6,
+            "min_split_segment_length_words": 1,
+        },
+    },
+]
+
+# Strategy: "detailed" - Most granular: paragraph -> sentence -> punctuation -> semantic split
 DETAILED_CHUNKING_CONFIG = [
     {"type": "paragraph"},
+    {"type": "sentence"},
     {"type": "fine_grained_punctuation"},
     {
-        "type": "pre_chunk_semantic_grouper",
+        "type": "sliding_window",
         "config": {
-            "similarity_threshold": 0.5,
-            "min_group_size": 1,
-            "max_group_size": 7,
+            "window_size_tokens": 2,
+            "step_size_tokens": 1,
+            "splitting_threshold": 0.6,
+            "min_split_segment_length_words": 1,
         },
     },
 ]
@@ -137,6 +155,10 @@ def get_default_chunk_pipeline_config():
 
 def get_simple_chunking_config():
     return copy.deepcopy(SIMPLE_CHUNKING_CONFIG)
+
+
+def get_semantic_chunking_config():
+    return copy.deepcopy(SEMANTIC_CHUNKING_CONFIG)
 
 
 def get_detailed_chunking_config():
