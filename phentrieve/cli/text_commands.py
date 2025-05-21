@@ -57,9 +57,9 @@ def process_text_for_hpo_command(
         typer.Option(
             "--strategy",
             "-s",
-            help="Predefined chunking strategy (choices: simple, detailed, semantic, sliding_window)",
+            help="Predefined chunking strategy (choices: simple, detailed, sliding_window)",
         ),
-    ] = "semantic",  # Changed default to semantic for better chunks
+    ] = "sliding_window",  # Using sliding_window for optimal semantic segmentation
     window_size: Annotated[
         int,
         typer.Option(
@@ -97,7 +97,7 @@ def process_text_for_hpo_command(
         typer.Option(
             "--semantic-model",
             "--s-model",
-            help=f"Model name for semantic chunker (if using semantic strategy, default: {DEFAULT_MODEL})",
+            help=f"Model name for semantic chunking (for sliding_window strategy, default: {DEFAULT_MODEL})",
         ),
     ] = DEFAULT_MODEL,
     retrieval_model: Annotated[
@@ -468,9 +468,9 @@ def chunk_text_command(
         typer.Option(
             "--strategy",
             "-s",
-            help="Predefined chunking strategy (choices: simple, detailed, semantic, sliding_window; default: simple)",
+            help="Predefined chunking strategy (choices: simple, detailed, sliding_window; default: sliding_window)",
         ),
-    ] = "simple",
+    ] = "sliding_window",
     window_size: Annotated[
         int,
         typer.Option(

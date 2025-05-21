@@ -5,9 +5,14 @@ This module provides pipeline components that manage the sequence
 of text processing operations including chunking and assertion detection.
 """
 
+import copy
+import json
 import logging
-from typing import List, Dict, Any, Optional, Type
+from enum import Enum
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple, Union
 
+import spacy
 from sentence_transformers import SentenceTransformer
 
 from phentrieve.text_processing.cleaners import (
@@ -19,7 +24,6 @@ from phentrieve.text_processing.chunkers import (
     NoOpChunker,
     ParagraphChunker,
     PreChunkSemanticGrouper,
-    SemanticChunker,
     SentenceChunker,
     TextChunker,
 )
@@ -29,8 +33,6 @@ from phentrieve.text_processing.sliding_window_chunker import (
 from phentrieve.text_processing.assertion_detection import (
     AssertionDetector,
     AssertionStatus,
-    KeywordAssertionDetector,
-    DependencyAssertionDetector,
     CombinedAssertionDetector,
 )
 
@@ -122,20 +124,31 @@ class TextProcessingPipeline:
                         "but none was provided"
                     )
 
-                # Get semantic chunker specific parameters
-                similarity_threshold = chunker_config.get("similarity_threshold", 0.4)
-                min_chunk_sentences = chunker_config.get("min_sentences", 1)
-                max_chunk_sentences = chunker_config.get("max_sentences", 5)
+                # For backward compatibility: redirect 'semantic' chunker type to use
+                # the sliding window semantic splitter, which gives better results
+                logger.info(
+                    "'semantic' chunker type is deprecated, using sliding_window_semantic instead"
+                )
 
-                # Create semantic chunker
-                semantic_params = {
+                # Get sliding window parameters (with defaults tuned to match old semantic chunker behavior)
+                window_size = chunker_config.get("window_size_tokens", 3)
+                step_size = chunker_config.get("step_size_tokens", 1)
+                threshold = chunker_config.get("similarity_threshold", 0.4)
+                min_segment_length = chunker_config.get(
+                    "min_split_segment_length_words", 2
+                )
+
+                # Create sliding window semantic splitter
+                sliding_window_params = {
                     **params,
                     "model": self.sbert_model,
-                    "similarity_threshold": similarity_threshold,
-                    "min_chunk_sentences": min_chunk_sentences,
-                    "max_chunk_sentences": max_chunk_sentences,
+                    "window_size_tokens": window_size,
+                    "step_size_tokens": step_size,
+                    "splitting_threshold": threshold,
+                    "min_split_segment_length_words": min_segment_length,
                 }
-                chunkers.append(SemanticChunker(**semantic_params))
+                # Use sliding window instead of semantic chunker
+                chunkers.append(SlidingWindowSemanticSplitter(**sliding_window_params))
 
             elif chunker_type == "pre_chunk_semantic_grouper":
                 if not self.sbert_model:

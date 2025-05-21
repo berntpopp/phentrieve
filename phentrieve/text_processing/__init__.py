@@ -14,7 +14,6 @@ from phentrieve.text_processing.chunkers import (
     NoOpChunker,
     ParagraphChunker,
     SentenceChunker,
-    SemanticChunker,
     FineGrainedPunctuationChunker,
 )
 from phentrieve.text_processing.sliding_window_chunker import (
@@ -30,7 +29,6 @@ __all__ = [
     "NoOpChunker",
     "ParagraphChunker",
     "SentenceChunker",
-    "SemanticChunker",
     "FineGrainedPunctuationChunker",
     "SlidingWindowSemanticSplitter",
 ]

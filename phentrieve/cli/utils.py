@@ -83,7 +83,6 @@ def resolve_chunking_pipeline_config(
     from phentrieve.config import (
         get_default_chunk_pipeline_config,
         get_simple_chunking_config,
-        get_semantic_chunking_config,
         get_detailed_chunking_config,
         get_sliding_window_config_with_params,
     )
@@ -119,11 +118,9 @@ def resolve_chunking_pipeline_config(
     if chunking_pipeline_config is None:
         if strategy_arg == "simple":
             chunking_pipeline_config = get_simple_chunking_config()
-        elif strategy_arg == "semantic":
-            chunking_pipeline_config = get_semantic_chunking_config()
         elif strategy_arg == "detailed":
             chunking_pipeline_config = get_detailed_chunking_config()
-        elif strategy_arg == "sliding_window":
+        elif strategy_arg == "sliding_window" or strategy_arg == "semantic":
             chunking_pipeline_config = get_sliding_window_config_with_params(
                 window_size=window_size,
                 step_size=step_size,

@@ -2,13 +2,13 @@
 Text chunking utilities for Phentrieve.
 
 This module provides classes for breaking down text into processable chunks
-using various strategies, from simple paragraph splitting to semantic chunking.
+using various strategies, from simple paragraph splitting to semantic grouping.
+The primary semantic chunking is handled by SlidingWindowSemanticSplitter in a separate module.
 """
 
 import re
 import logging
 import pysbd
-import numpy as np
 from abc import ABC, abstractmethod
 from typing import List
 from sentence_transformers import SentenceTransformer
@@ -198,149 +198,6 @@ class SentenceChunker(TextChunker):
                 r"[^.?!]+(?:[.?!]|$)", text_for_fallback_splitting
             )
             return [s.strip() for s in sentences_raw if s.strip()]
-
-
-class SemanticChunker(TextChunker):
-    """
-    Chunker that groups sentences based on semantic similarity.
-
-    This chunker uses a sentence transformer model to compute embeddings
-    and groups sentences with similar meanings together.
-    """
-
-    def __init__(
-        self,
-        language: str = "en",
-        model: SentenceTransformer = None,
-        similarity_threshold: float = 0.4,
-        min_chunk_sentences: int = 1,
-        max_chunk_sentences: int = 5,
-        **kwargs,
-    ):
-        """
-        Initialize the semantic chunker.
-
-        Args:
-            language: ISO language code
-            model: Pre-loaded SentenceTransformer model
-            similarity_threshold: Cosine similarity threshold for grouping sentences (0-1)
-            min_chunk_sentences: Minimum number of sentences per chunk
-            max_chunk_sentences: Maximum number of sentences per chunk
-            **kwargs: Additional parameters
-        """
-        super().__init__(language=language, **kwargs)
-        self.model = model
-        if not self.model:
-            raise ValueError(
-                "A SentenceTransformer model must be provided for SemanticChunker"
-            )
-
-        self.similarity_threshold = similarity_threshold
-        self.min_chunk_sentences = min_chunk_sentences
-        self.max_chunk_sentences = max_chunk_sentences
-        self.sentence_chunker = SentenceChunker(language=language)
-
-    def chunk(self, text_segments: List[str]) -> List[str]:
-        """
-        Process a list of text segments and group sentences within each segment
-        based on semantic similarity.
-
-        Important: This method processes each input segment separately; it does not
-        attempt to group sentences across different input segments.
-
-        Args:
-            text_segments: List of input text segments to process
-
-        Returns:
-            List of semantically grouped chunks
-        """
-        all_semantic_chunks = []
-
-        for segment_idx, segment_str in enumerate(text_segments):
-            if not segment_str or not segment_str.strip():
-                logger.debug(
-                    f"SemanticChunker: Skipping empty segment at index {segment_idx}"
-                )
-                continue
-
-            # Process this segment in isolation
-            segment_chunks = self._process_single_segment(segment_str)
-            all_semantic_chunks.extend(segment_chunks)
-
-        logger.debug(
-            f"SemanticChunker produced {len(all_semantic_chunks)} chunks from "
-            f"{len(text_segments)} input segments."
-        )
-        return all_semantic_chunks
-
-    def _process_single_segment(self, text: str) -> List[str]:
-        """
-        Process a single text segment, splitting it into semantically coherent chunks.
-
-        Args:
-            text: Single text segment to process
-
-        Returns:
-            List of semantic chunks derived from this segment
-        """
-        if not text or not text.strip():
-            return []
-
-        # 1. First split this segment into sentences
-        sentences = self.sentence_chunker.chunk([text])
-
-        if not sentences:
-            return []
-
-        if len(sentences) == 1:
-            return sentences  # Single sentence is a single chunk
-
-        # 2. Compute sentence embeddings
-        embeddings = self.model.encode(sentences, convert_to_numpy=True)
-
-        # 3. Group semantically similar sentences
-        chunks = []
-        current_chunk_indices = [0]  # Start with the first sentence
-        current_chunk_embedding = embeddings[0].reshape(1, -1)
-
-        for i in range(1, len(sentences)):
-            # Compare the current sentence to the average of the current chunk
-            similarity = cosine_similarity(
-                embeddings[i].reshape(1, -1), current_chunk_embedding
-            )[0][0]
-
-            # Check if we should add to the current chunk or start a new one
-            if (
-                similarity >= self.similarity_threshold
-                and len(current_chunk_indices) < self.max_chunk_sentences
-            ):
-                # Add to current chunk
-                current_chunk_indices.append(i)
-                # Update the chunk embedding (average)
-                chunk_embeddings = np.vstack(
-                    [embeddings[idx] for idx in current_chunk_indices]
-                )
-                current_chunk_embedding = np.mean(chunk_embeddings, axis=0).reshape(
-                    1, -1
-                )
-            else:
-                # Finalize the current chunk if it meets minimum size
-                if len(current_chunk_indices) >= self.min_chunk_sentences:
-                    chunk_text = " ".join(
-                        [sentences[idx] for idx in current_chunk_indices]
-                    )
-                    chunks.append(chunk_text)
-
-                # Start a new chunk with the current sentence
-                current_chunk_indices = [i]
-                current_chunk_embedding = embeddings[i].reshape(1, -1)
-
-        # Add the last chunk if it's not empty
-        if current_chunk_indices:
-            chunk_text = " ".join([sentences[idx] for idx in current_chunk_indices])
-            chunks.append(chunk_text)
-
-        return chunks
 
 
 class FineGrainedPunctuationChunker(TextChunker):
