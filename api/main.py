@@ -9,7 +9,13 @@ from fastapi.middleware.cors import CORSMiddleware
 # Add project root to Python path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from api.routers import query_router, health, similarity_router, config_info_router
+from api.routers import (
+    query_router,
+    health,
+    similarity_router,
+    config_info_router,
+    text_processing_router,
+)
 from api.dependencies import (
     get_sbert_model_dependency,
     get_dense_retriever_dependency,
@@ -99,7 +105,9 @@ app.include_router(
     similarity_router.router, prefix="/api/v1/similarity", tags=["HPO Term Similarity"]
 )
 app.include_router(config_info_router.router, prefix="/api/v1")
-# Add other routers here for text_processing if created later
+app.include_router(
+    text_processing_router.router, tags=["Text Processing and HPO Extraction"]
+)
 
 
 @app.get(
@@ -126,6 +134,16 @@ async def root():
                         "path": "/api/v1/query/",
                         "methods": ["GET", "POST"],
                         "description": "Retrieve relevant HPO terms for clinical text",
+                    }
+                ],
+            },
+            "Text Processing": {
+                "description": "Process clinical text to extract HPO terms with advanced configuration",
+                "endpoints": [
+                    {
+                        "path": "/api/v1/text/process",
+                        "methods": ["POST"],
+                        "description": "Process raw clinical text with customizable chunking, reranking, and assertion detection settings",
                     }
                 ],
             },
