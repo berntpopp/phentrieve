@@ -1,6 +1,6 @@
 # Phentrieve Logo
 
-![Phentrieve Logo](../../frontend/public/hpo-logo.svg)
+![Phentrieve Logo](../assets/images/phentrieve-logo.svg)
 
 ## Design Concept
 
