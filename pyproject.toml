@@ -45,6 +45,12 @@ dependencies = [
 [project.scripts]
 phentrieve = "phentrieve.cli:app"
 
+[project.optional-dependencies]
+text_processing = [
+    "spacy>=3.6.0",
+    "en_core_web_sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.6.0/en_core_web_sm-3.6.0-py3-none-any.whl"
+]
+
 [tool.setuptools]
 
 [tool.setuptools.packages.find]

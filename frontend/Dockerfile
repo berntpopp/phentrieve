@@ -2,7 +2,8 @@ FROM node:lts-alpine as build-stage
 
 WORKDIR /app
 
-COPY package*.json ./
+# Copy package files first for better caching
+COPY package.json package-lock.json* ./
 
 # Install build dependencies
 RUN apk add --no-cache --virtual .build-deps \
@@ -18,12 +19,16 @@ RUN apk add --no-cache --virtual .build-deps \
     pkgconfig \
     python3
 
-RUN npm install
+# Install dependencies with clean environment
+RUN npm ci --no-audit --no-fund
 
 # Clean up build dependencies
 RUN apk del .build-deps
 
+# Copy project files excluding node_modules (should be in .dockerignore)
 COPY . .
+
+# Build the app
 RUN npm run build
 
 # Production stage
