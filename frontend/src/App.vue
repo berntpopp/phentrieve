@@ -83,7 +83,7 @@
               v-bind="props"
               icon="mdi-book-open-page-variant-outline"
               size="small"
-              href="https://github.com/berntpopp/phentrieve/wiki"
+              href="https://berntpopp.github.io/phentrieve/"
               target="_blank"
               rel="noopener noreferrer"
               variant="text"
