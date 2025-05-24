@@ -4,6 +4,8 @@
       "disclaimer": "Disclaimer",
       "disclaimerTooltip": "Bekijk belangrijke disclaimer- en gebruiksinformatie",
       "disclaimerAcknowledgedTooltip": "Erkend op {date}",
+      "tutorial": "Tutorial",
+      "tutorialTooltip": "Begeleide rondleiding door Phentrieve",
       "faq": "FAQ",
       "faqTooltip": "Bekijk veelgestelde vragen",
       "logs": "Logboeken",
@@ -20,7 +22,7 @@
     "description": "Deze tool is ontworpen om klinische tekst te koppelen aan gestandaardiseerde Human Phenotype Ontology (HPO) termen om onderzoek en kennisontdekking te ondersteunen.",
     "limitationsTitle": "Belangrijke Beperkingen:",
     "limitations": {
-      "item1": "Phentrieve is <strong class=\"error--text\">GEEN</strong> klinisch diagnostisch hulpmiddel en mag professioneel medisch advies, diagnose of behandeling niet vervangen.",
+      "item1": "Phentrieve is  GEEN  klinisch diagnostisch hulpmiddel en mag professioneel medisch advies, diagnose of behandeling niet vervangen.",
       "item2": "De AI-modellen en HPO-mapping kunnen onnauwkeurigheden, fouten of beperkingen bevatten.",
       "item3": "Resultaten moeten worden geverifieerd door gekwalificeerde medische professionals voordat ze in een klinische context worden gebruikt.",
       "item4": "De tool creëert geen arts-patiëntrelatie en is geen vervanging voor het raadplegen van zorgverleners."
@@ -164,6 +166,50 @@
           }
         }
       }
+    }
+  },
+  "tutorial": {
+    "step1": {
+      "title": "Welkom bij Phentrieve",
+      "content": "Dit is uw startpunt voor het koppelen van klinische tekst aan HPO-termen. Laten we een snelle rondleiding doen van de hoofdfuncties!"
+    },
+    "step2": {
+      "title": "Klinische Tekst Invoeren",
+      "content": "Typ of plak hier uw klinische beschrijving. U kunt patiëntsymptomen, fenotypes of medische observaties beschrijven die u wilt koppelen aan HPO-termen."
+    },
+    "step3": {
+      "title": "HPO-Termen Zoeken",
+      "content": "Klik op deze knop om de AI-gestuurde analyse te starten. Phentrieve zal uw tekst verwerken en de meest relevante HPO-termen vinden."
+    },
+    "step4": {
+      "title": "Resultaten Bekijken",
+      "content": "Uw zoekresultaten verschijnen hier, gerangschikt op relevantie. Elk resultaat toont de HPO-term, definitie en betrouwbaarheidsscore."
+    },
+    "step5": {
+      "title": "Geavanceerde Opties",
+      "content": "Vouw deze sectie uit voor toegang tot geavanceerde zoekparameters zoals modelselectie, resultaatlimieten en herrangschikkingsopties."
+    },
+    "step6": {
+      "title": "Termen Verzamelen",
+      "content": "Voeg interessante HPO-termen toe aan uw collectie door op de 'Toevoegen aan Collectie' knop te klikken. U kunt ze later bekijken en exporteren."
+    },
+    "step7": {
+      "title": "Uw Collectie",
+      "content": "Bekijk, beheer en exporteer hier uw verzamelde HPO-termen. U kunt exporteren als tekst of gestructureerd Phenopacket JSON-formaat."
+    },
+    "step8": {
+      "title": "Hulp en Bronnen",
+      "content": "Krijg toegang tot documentatie, veelgestelde vragen en aanvullende bronnen via de voettekstlinks. U kunt ook logs bekijken voor debugging."
+    },
+    "navigation": {
+      "next": "Volgende",
+      "previous": "Vorige",
+      "skip": "Rondleiding Overslaan",
+      "finish": "Rondleiding Beëindigen"
+    },
+    "tooltips": {
+      "startTour": "Begeleide rondleiding starten",
+      "restartTour": "Rondleiding herstarten"
     }
   }
 }

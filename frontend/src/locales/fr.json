@@ -4,6 +4,8 @@
       "disclaimer": "Avertissement",
       "disclaimerTooltip": "Voir les informations importantes d'avertissement et d'utilisation",
       "disclaimerAcknowledgedTooltip": "Reconnu le {date}",
+      "tutorial": "Tutoriel",
+      "tutorialTooltip": "Démarrer le tutoriel",
       "faq": "FAQ",
       "faqTooltip": "Voir les questions fréquemment posées",
       "logs": "Journaux",
@@ -20,7 +22,7 @@
     "description": "Cet outil est conçu pour cartographier le texte clinique selon les termes standardisés de l'Ontologie du Phénotype Humain (HPO) afin d'aider à la recherche et à la découverte de connaissances.",
     "limitationsTitle": "Limitations Importantes:",
     "limitations": {
-      "item1": "Phentrieve <strong class=\"error--text\">N'EST PAS</strong> un outil de diagnostic clinique et ne doit pas remplacer les conseils, diagnostics ou traitements médicaux professionnels.",
+      "item1": "Phentrieve  N'EST PAS un outil de diagnostic clinique et ne doit pas remplacer les conseils, diagnostics ou traitements médicaux professionnels.",
       "item2": "Les modèles d'IA et le mappage HPO peuvent contenir des inexactitudes, des erreurs ou des limitations.",
       "item3": "Les résultats doivent être vérifiés par des professionnels de la santé qualifiés avant d'être utilisés dans un contexte clinique.",
       "item4": "L'outil n'établit pas de relation médecin-patient et ne remplace pas la consultation de professionnels de santé."
@@ -139,15 +141,15 @@
         "questions": {
           "whatIsPhentrieve": {
             "question": "Qu'est-ce que Phentrieve?",
-            "answer": "<p>Phentrieve est un outil avancé propulsé par l'IA qui associe automatiquement les descriptions cliniques aux termes standardisés de l'Ontologie du Phénotype Humain (HPO). Il optimise le processus d'annotation phénotypique pour la recherche et le diagnostic clinique, le rendant plus rapide et plus précis.</p><p>Les fonctionnalités principales incluent:</p><ul><li>Mappage automatique du texte clinique vers les termes HPO</li><li>Haute précision grâce à des modèles d'IA de pointe</li><li>Support pour plusieurs langues</li><li>Interface conviviale</li></ul>"
+            "answer": "Phentrieve est un outil avancé propulsé par l'IA qui associe automatiquement les descriptions cliniques aux termes standardisés de l'Ontologie du Phénotype Humain (HPO). Il optimise le processus d'annotation phénotypique pour la recherche et le diagnostic clinique, le rendant plus rapide et plus précis.Les fonctionnalités principales incluent:Mappage automatique du texte clinique vers les termes HPOHaute précision grâce à des modèles d'IA de pointeSupport pour plusieurs languesInterface conviviale"
           },
           "howItWorks": {
             "question": "Comment fonctionne Phentrieve?",
-            "answer": "<p>Phentrieve utilise un pipeline sophistiqué de modèles d'IA et d'algorithmes pour traiter le texte clinique:</p><ol><li><strong>Analyse de texte:</strong> Le système analyse le texte d'entrée en utilisant des modèles de langage biomédical spécialisés</li><li><strong>Correspondance de termes:</strong> Il identifie les termes HPO potentiels en utilisant la recherche sémantique et la correspondance contextuelle</li><li><strong>Classement:</strong> Les correspondances sont classées par pertinence à l'aide de modèles cross-encoder avancés</li><li><strong>Résultats:</strong> Les termes HPO les plus pertinents sont présentés à l'utilisateur</li></ol><p>Ce processus assure des correspondances de haute qualité tout en maintenant l'efficacité.</p>"
+            "answer": "Phentrieve utilise un pipeline sophistiqué de modèles d'IA et d'algorithmes pour traiter le texte clinique:Analyse de texte: Le système analyse le texte d'entrée en utilisant des modèles de langage biomédical spécialisésCorrespondance de termes: Il identifie les termes HPO potentiels en utilisant la recherche sémantique et la correspondance contextuelleClassement: Les correspondances sont classées par pertinence à l'aide de modèles cross-encoder avancésRésultats: Les termes HPO les plus pertinents sont présentés à l'utilisateurCe processus assure des correspondances de haute qualité tout en maintenant l'efficacité."
           },
           "whoCanUse": {
             "question": "Qui peut utiliser Phentrieve?",
-            "answer": "<p>Phentrieve est conçu pour:</p><ul><li><strong>Généticiens cliniques:</strong> Pour un phénotypage efficace des patients</li><li><strong>Chercheurs:</strong> Pour standardiser les descriptions phénotypiques dans les études</li><li><strong>Professionnels de santé:</strong> Pour une documentation cohérente des phénotypes</li><li><strong>Bio-informaticiens:</strong> Pour l'analyse phénotypique automatisée</li></ul><p>L'outil est gratuit et accessible via un navigateur web.</p>"
+            "answer": "Phentrieve est conçu pour:Généticiens cliniques: Pour un phénotypage efficace des patientsChercheurs: Pour standardiser les descriptions phénotypiques dans les étudesProfessionnels de santé: Pour une documentation cohérente des phénotypesBio-informaticiens: Pour l'analyse phénotypique automatiséeL'outil est gratuit et accessible via un navigateur web."
           }
         }
       },
@@ -156,14 +158,58 @@
         "questions": {
           "reranking": {
             "question": "Comment fonctionne le processus de reclassement?",
-            "answer": "<p>Phentrieve utilise une approche en deux étapes:</p><ol><li>Récupération initiale utilisant des modèles bi-encodeurs (BioLORD/Jina)</li><li>Reclassement utilisant des modèles cross-encodeurs:</li></ol><ul><li>cross-encoder/mmarco-mMiniLMv2-L12-H384-v1 (général multilingue)</li><li>MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7 (NLI multilingue)</li><li>ncbi/MedCPT-Cross-Encoder (spécifique biomédical)</li></ul>"
+            "answer": "Phentrieve utilise une approche en deux étapes:Récupération initiale utilisant des modèles bi-encodeurs (BioLORD/Jina)Reclassement utilisant des modèles cross-encodeurs:cross-encoder/mmarco-mMiniLMv2-L12-H384-v1 (général multilingue)MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7 (NLI multilingue)ncbi/MedCPT-Cross-Encoder (spécifique biomédical)"
           },
           "performance": {
             "question": "Quelles performances puis-je attendre?",
-            "answer": "<p>Nos résultats de benchmark montrent:</p><ul><li>BioLORD-2023-M: HR@1=0.3333, HR@3=0.6667, HR@5=0.7778</li><li>Jina-v2-base-de: HR@1=0.2222, HR@3=0.4444, HR@5=0.5556</li></ul><p>Les performances peuvent varier en fonction de la complexité et de la spécificité du texte d'entrée.</p>"
+            "answer": "Nos résultats de benchmark montrent:BioLORD-2023-M: HR@1=0.3333, HR@3=0.6667, HR@5=0.7778Jina-v2-base-de: HR@1=0.2222, HR@3=0.4444, HR@5=0.5556Les performances peuvent varier en fonction de la complexité et de la spécificité du texte d'entrée."
           }
         }
       }
+    }
+  },
+  "tutorial": {
+    "step1": {
+      "title": "Bienvenue dans Phentrieve",
+      "content": "Voici votre point de départ pour mapper le texte clinique aux termes HPO. Faisons un tour rapide des principales fonctionnalités !"
+    },
+    "step2": {
+      "title": "Entrer le Texte Clinique",
+      "content": "Tapez ou collez votre description clinique ici. Vous pouvez décrire les symptômes du patient, les phénotypes ou toute observation médicale que vous souhaitez mapper aux termes HPO."
+    },
+    "step3": {
+      "title": "Rechercher des Termes HPO",
+      "content": "Cliquez sur ce bouton pour démarrer l'analyse alimentée par l'IA. Phentrieve va traiter votre texte et trouver les termes HPO les plus pertinents."
+    },
+    "step4": {
+      "title": "Examiner les Résultats",
+      "content": "Vos résultats de recherche apparaîtront ici, classés par pertinence. Chaque résultat montre le terme HPO, sa définition et le score de confiance."
+    },
+    "step5": {
+      "title": "Options Avancées",
+      "content": "Développez cette section pour accéder aux paramètres de recherche avancés comme la sélection de modèle, les limites de résultats et les options de re-classement."
+    },
+    "step6": {
+      "title": "Collecter des Termes",
+      "content": "Ajoutez des termes HPO intéressants à votre collection en cliquant sur le bouton 'Ajouter à la Collection'. Vous pourrez les examiner et les exporter plus tard."
+    },
+    "step7": {
+      "title": "Votre Collection",
+      "content": "Visualisez, gérez et exportez vos termes HPO collectés ici. Vous pouvez exporter au format texte ou JSON Phenopacket structuré."
+    },
+    "step8": {
+      "title": "Aide et Ressources",
+      "content": "Accédez à la documentation, FAQ et ressources supplémentaires en utilisant les liens du pied de page. Vous pouvez aussi consulter les journaux pour le débogage."
+    },
+    "navigation": {
+      "next": "Suivant",
+      "previous": "Précédent",
+      "skip": "Ignorer le Tour",
+      "finish": "Terminer le Tour"
+    },
+    "tooltips": {
+      "startTour": "Démarrer le tour guidé",
+      "restartTour": "Redémarrer le tour"
     }
   }
 }

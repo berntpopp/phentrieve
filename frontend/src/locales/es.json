@@ -4,6 +4,8 @@
       "disclaimer": "Aviso legal",
       "disclaimerTooltip": "Ver información importante sobre el aviso legal y el uso",
       "disclaimerAcknowledgedTooltip": "Reconocido el {date}",
+      "tutorial": "Tutorial",
+      "tutorialTooltip": "Iniciar recorrido guiado",
       "faq": "FAQ",
       "faqTooltip": "Ver preguntas frecuentes",
       "logs": "Registros",
@@ -20,7 +22,7 @@
     "description": "Esta herramienta está diseñada para mapear texto clínico a términos estandarizados de la Ontología de Fenotipo Humano (HPO) para ayudar en la investigación y el descubrimiento de conocimiento.",
     "limitationsTitle": "Limitaciones Importantes:",
     "limitations": {
-      "item1": "Phentrieve <strong class=\"error--text\">NO ES</strong> una herramienta de diagnóstico clínico y no debe reemplazar el asesoramiento, diagnóstico o tratamiento médico profesional.",
+      "item1": "Phentrieve  NO ES  una herramienta de diagnóstico clínico y no debe reemplazar el asesoramiento, diagnóstico o tratamiento médico profesional.",
       "item2": "Los modelos de IA y el mapeo HPO pueden contener inexactitudes, errores o limitaciones.",
       "item3": "Los resultados deben ser verificados por profesionales médicos calificados antes de ser utilizados en cualquier contexto clínico.",
       "item4": "La herramienta no establece una relación médico-paciente y no es un sustituto para consultar con proveedores de atención médica."
@@ -128,6 +130,50 @@
   },
   "languageSwitcher": {
     "label": "Idioma"
+  },
+  "tutorial": {
+    "step1": {
+      "title": "Bienvenido a Phentrieve",
+      "content": "Este es tu punto de partida para mapear texto clínico a términos HPO. ¡Hagamos un recorrido rápido de las principales características!"
+    },
+    "step2": {
+      "title": "Ingresar Texto Clínico",
+      "content": "Escribe o pega tu descripción clínica aquí. Puedes describir síntomas del paciente, fenotipos o cualquier observación médica que quieras mapear a términos HPO."
+    },
+    "step3": {
+      "title": "Buscar Términos HPO",
+      "content": "Haz clic en este botón para iniciar el análisis impulsado por IA. Phentrieve procesará tu texto y encontrará los términos HPO más relevantes."
+    },
+    "step4": {
+      "title": "Revisar Resultados",
+      "content": "Tus resultados de búsqueda aparecerán aquí, ordenados por relevancia. Cada resultado muestra el término HPO, su definición y puntuación de confianza."
+    },
+    "step5": {
+      "title": "Opciones Avanzadas",
+      "content": "Expande esta sección para acceder a parámetros de búsqueda avanzados como selección de modelo, límites de resultados y opciones de re-clasificación."
+    },
+    "step6": {
+      "title": "Recopilar Términos",
+      "content": "Agrega términos HPO interesantes a tu colección haciendo clic en el botón 'Agregar a la Colección'. Podrás revisarlos y exportarlos más tarde."
+    },
+    "step7": {
+      "title": "Tu Colección",
+      "content": "Visualiza, gestiona y exporta tus términos HPO recopilados aquí. Puedes exportar como texto o formato JSON Phenopacket estructurado."
+    },
+    "step8": {
+      "title": "Ayuda y Recursos",
+      "content": "Accede a documentación, preguntas frecuentes y recursos adicionales usando los enlaces del pie de página. También puedes ver los registros para depuración."
+    },
+    "navigation": {
+      "next": "Siguiente",
+      "previous": "Anterior",
+      "skip": "Omitir Recorrido",
+      "finish": "Finalizar Recorrido"
+    },
+    "tooltips": {
+      "startTour": "Iniciar recorrido guiado",
+      "restartTour": "Reiniciar recorrido"
+    }
   },
   "faq": {
     "backToHome": "Volver al inicio",

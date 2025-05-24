@@ -4,6 +4,8 @@
       "disclaimer": "Haftungsausschluss",
       "disclaimerTooltip": "Wichtige Informationen zum Haftungsausschluss und zur Nutzung anzeigen",
       "disclaimerAcknowledgedTooltip": "Bestätigt am {date}",
+      "tutorial": "Tutorial",
+      "tutorialTooltip": "Geführte Tour durch Phentrieve starten",
       "faq": "FAQ",
       "faqTooltip": "Häufig gestellte Fragen anzeigen",
       "logs": "Protokolle",
@@ -128,6 +130,50 @@
   },
   "languageSwitcher": {
     "label": "Sprache"
+  },
+  "tutorial": {
+    "step1": {
+      "title": "Willkommen bei Phentrieve",
+      "content": "Dies ist Ihr Ausgangspunkt für die Zuordnung klinischer Texte zu HPO-Begriffen. Lassen Sie uns einen kurzen Überblick über die wichtigsten Funktionen geben!"
+    },
+    "step2": {
+      "title": "Klinischen Text eingeben",
+      "content": "Geben Sie hier Ihre klinische Beschreibung ein oder fügen Sie sie ein. Sie können Patientensymptome, Phänotypen oder medizinische Beobachtungen beschreiben, die Sie HPO-Begriffen zuordnen möchten."
+    },
+    "step3": {
+      "title": "Nach HPO-Begriffen suchen",
+      "content": "Klicken Sie auf diese Schaltfläche, um die KI-gestützte Analyse zu starten. Phentrieve verarbeitet Ihren Text und findet die relevantesten HPO-Begriffe."
+    },
+    "step4": {
+      "title": "Ergebnisse überprüfen",
+      "content": "Ihre Suchergebnisse erscheinen hier, nach Relevanz sortiert. Jedes Ergebnis zeigt den HPO-Begriff, seine Definition und den Konfidenzwert."
+    },
+    "step5": {
+      "title": "Erweiterte Optionen",
+      "content": "Erweitern Sie diesen Bereich, um auf erweiterte Suchparameter wie Modellauswahl, Ergebnislimits und Neurangierungsoptionen zuzugreifen."
+    },
+    "step6": {
+      "title": "Begriffe sammeln",
+      "content": "Fügen Sie interessante HPO-Begriffe zu Ihrer Sammlung hinzu, indem Sie auf die Schaltfläche 'Zur Sammlung hinzufügen' klicken. Sie können sie später überprüfen und exportieren."
+    },
+    "step7": {
+      "title": "Ihre Sammlung",
+      "content": "Sehen, verwalten und exportieren Sie hier Ihre gesammelten HPO-Begriffe. Sie können sie als Text oder im strukturierten Phenopacket-JSON-Format exportieren."
+    },
+    "step8": {
+      "title": "Hilfe & Ressourcen",
+      "content": "Greifen Sie über die Links in der Fußzeile auf Dokumentation, FAQs und zusätzliche Ressourcen zu. Sie können auch Protokolle für Debugging-Zwecke einsehen."
+    },
+    "navigation": {
+      "next": "Weiter",
+      "previous": "Zurück",
+      "skip": "Tour überspringen",
+      "finish": "Tour beenden"
+    },
+    "tooltips": {
+      "startTour": "Geführte Tour starten",
+      "restartTour": "Tour neu starten"
+    }
   },
   "faq": {
     "backToHome": "Zurück zur Startseite",

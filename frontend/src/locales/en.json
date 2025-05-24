@@ -4,6 +4,8 @@
       "disclaimer": "Disclaimer",
       "disclaimerTooltip": "View important disclaimer and usage information",
       "disclaimerAcknowledgedTooltip": "Acknowledged on {date}",
+      "tutorial": "Tutorial",
+      "tutorialTooltip": "View guided tutorial",
       "faq": "FAQ",
       "faqTooltip": "View frequently asked questions",
       "logs": "Logs",
@@ -128,6 +130,50 @@
   },
   "languageSwitcher": {
     "label": "Language"
+  },
+  "tutorial": {
+    "step1": {
+      "title": "Welcome to Phentrieve",
+      "content": "This is your starting point for mapping clinical text to HPO terms. Let's take a quick tour of the main features!"
+    },
+    "step2": {
+      "title": "Enter Clinical Text",
+      "content": "Type or paste your clinical description here. You can describe patient symptoms, phenotypes, or any medical observations you want to map to HPO terms."
+    },
+    "step3": {
+      "title": "Search for HPO Terms",
+      "content": "Click this button to start the AI-powered analysis. Phentrieve will process your text and find the most relevant HPO terms."
+    },
+    "step4": {
+      "title": "Review Results",
+      "content": "Your search results will appear here, ranked by relevance. Each result shows the HPO term, its definition, and confidence score."
+    },
+    "step5": {
+      "title": "Advanced Options",
+      "content": "Expand this section to access advanced search parameters like model selection, result limits, and re-ranking options."
+    },
+    "step6": {
+      "title": "Collect Terms",
+      "content": "Add interesting HPO terms to your collection by clicking the 'Add to Collection' button. You can review and export them later."
+    },
+    "step7": {
+      "title": "Your Collection",
+      "content": "View, manage, and export your collected HPO terms here. You can export as text or structured Phenopacket JSON format."
+    },
+    "step8": {
+      "title": "Help & Resources",
+      "content": "Access documentation, FAQs, and additional resources using the footer links. You can also view logs for debugging purposes."
+    },
+    "navigation": {
+      "next": "Next",
+      "previous": "Previous",
+      "skip": "Skip Tour",
+      "finish": "Finish Tour"
+    },
+    "tooltips": {
+      "startTour": "Start guided tour",
+      "restartTour": "Restart tour"
+    }
   },
   "faq": {
     "backToHome": "Back to Home",
