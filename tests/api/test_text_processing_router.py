@@ -178,7 +178,10 @@ def test_process_text_with_reranker(
 
     # Check that reranker info is in meta
     # The API uses the actual model name from the request, not the mock name
-    assert data["meta"]["effective_reranker_model"] == "MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7"
+    assert (
+        data["meta"]["effective_reranker_model"]
+        == "MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7"
+    )
 
 
 def test_process_text_with_custom_chunking_strategy(

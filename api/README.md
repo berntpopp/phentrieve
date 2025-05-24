@@ -78,7 +78,7 @@ Example configuration:
 
 ```
 # Base directory for all Phentrieve data
-PHENTRIEVE_DATA_ROOT_DIR=C:/development/rag-hpo-testing
+PHENTRIEVE_DATA_ROOT_DIR=C:/development/phentrieve
 
 # Derived paths - these will be created by the code if they don't exist
 PHENTRIEVE_DATA_DIR=${PHENTRIEVE_DATA_ROOT_DIR}/hpo_core_data
