@@ -11,33 +11,30 @@
       <div class="d-flex align-center">
         <v-tooltip location="top" :text="$t('app.footer.disclaimerTooltip')" role="tooltip" aria-label="Disclaimer information">
           <template v-slot:activator="{ props }">
-            <v-btn
-              v-bind="props"
-              variant="text"
-              density="compact"
-              class="text-body-2 text-primary mr-2"
-              prepend-icon="mdi-alert-circle-outline"
-              @click="showDisclaimerDialog"
-              aria-label="View disclaimer information"
-            >
-          {{ $t('app.footer.disclaimer') }}
-          <template v-if="disclaimerStore.isAcknowledged" #append>
-            <v-tooltip location="top" role="tooltip" aria-label="Disclaimer acknowledgment date">
-              <template v-slot:activator="{ props }">
-                <v-icon
-                  v-bind="props"
-                  size="small"
-                  color="success"
-                  class="ml-1"
-                  aria-label="Disclaimer acknowledged"
-                >
-                  mdi-check-circle
-                </v-icon>
-              </template>
-              <span>{{ $t('app.footer.disclaimerAcknowledgedTooltip', { date: disclaimerStore.formattedAcknowledgmentDate }) }}</span>
-            </v-tooltip>
-          </template>
-            </v-btn>
+            <div class="d-flex align-center">
+              <v-btn
+                v-bind="props"
+                icon
+                variant="text"
+                color="primary"
+                size="small"
+                class="mr-1"
+                @click="showDisclaimerDialog"
+                aria-label="View disclaimer information"
+              >
+                <v-icon>mdi-scale-balance</v-icon>
+              </v-btn>
+              <v-icon
+                v-if="disclaimerStore.isAcknowledged"
+                size="small"
+                color="success"
+                class="mr-2"
+                aria-label="Disclaimer acknowledged"
+                v-tooltip="$t('app.footer.disclaimerAcknowledgedTooltip', { date: disclaimerStore.formattedAcknowledgmentDate })"
+              >
+                mdi-check-circle
+              </v-icon>
+            </div>
           </template>
         </v-tooltip>
       </div>
@@ -48,15 +45,15 @@
           <template v-slot:activator="{ props }">
             <v-btn
               v-bind="props"
+              icon
               variant="text"
-              density="compact"
-              class="text-body-2 text-high-emphasis mr-2"
-              prepend-icon="mdi-help-circle"
+              color="primary"
+              size="small"
+              class="mr-2"
               @click="startTutorial"
               aria-label="Start guided tutorial"
-              color="primary"
             >
-          {{ $t('app.footer.tutorial') }}
+              <v-icon>mdi-hand-pointing-up</v-icon>
             </v-btn>
           </template>
         </v-tooltip>
@@ -64,15 +61,15 @@
           <template v-slot:activator="{ props }">
             <v-btn
               v-bind="props"
+              icon
               variant="text"
-              density="compact"
-              class="text-body-2 text-high-emphasis mr-2"
-              prepend-icon="mdi-help-circle-outline"
+              color="primary"
+              size="small"
+              class="mr-2"
               :to="{ name: 'faq' }"
               aria-label="View frequently asked questions"
-              color="primary"
             >
-          {{ $t('app.footer.faq') }}
+              <v-icon>mdi-help-circle-outline</v-icon>
             </v-btn>
           </template>
         </v-tooltip>
@@ -80,15 +77,15 @@
           <template v-slot:activator="{ props }">
             <v-btn
               v-bind="props"
+              icon
               variant="text"
-              density="compact"
-              class="text-body-2 text-high-emphasis mr-2"
-              prepend-icon="mdi-text-box-search-outline"
+              color="primary"
+              size="small"
+              class="mr-2"
               @click="logStore.toggleViewer"
               aria-label="Toggle log viewer"
-              color="primary"
             >
-          {{ $t('app.footer.logs') }}
+              <v-icon>mdi-text-box-search-outline</v-icon>
             </v-btn>
           </template>
         </v-tooltip>
