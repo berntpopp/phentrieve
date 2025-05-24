@@ -2,7 +2,7 @@
   <div class="search-container mx-auto px-2">
     <!-- Clean Search Bar with Integrated Button -->
     <div class="search-bar-container pa-2 pa-sm-4">
-      <v-sheet rounded="pill" elevation="1" class="pa-1 pa-sm-2 search-bar" color="white">
+      <v-sheet rounded="pill" elevation="0" class="pa-1 pa-sm-2 search-bar" color="white">
         <div class="d-flex align-center flex-wrap flex-sm-nowrap">
           <v-text-field
             v-model="queryText"
@@ -788,8 +788,6 @@ export default {
   border-radius: 24px;
   min-height: 44px;
   box-shadow: none;
-  border: none;
-  outline: none;
 }
 
 .search-input :deep(.v-field__input) {
@@ -802,6 +800,12 @@ export default {
   --v-field-border-width: 0px;
 }
 
+/* Remove the border on the container and handle it in the input field */
+.search-bar {
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 28px;
+}
+
 /* Accessibility improvements for form fields */
 :deep(.text-high-emphasis) {
   color: rgba(0, 0, 0, 0.87) !important; /* Darker text for better contrast */
@@ -811,7 +815,6 @@ export default {
 /* Light theme styles for form fields */
 :deep(.v-field--variant-outlined) {
   background-color: #FFFFFF !important;
-  border: 1px solid rgba(0, 0, 0, 0.23);
   box-shadow: none;
 }
 

@@ -2,8 +2,10 @@
   <div class="fill-height">
     <div class="content-wrapper">
       <div class="d-flex justify-center align-center pb-2">
-        <img src="/hpo-logo.svg" alt="HPO Logo" width="50" height="50" class="mr-2" loading="lazy">
-        <h1 class="text-h5 font-weight-light">Phentrieve</h1>
+        <img src="/favicon.svg" alt="Phentrieve Logo" width="65" height="65" class="mr-2" loading="lazy">
+        <h1 class="text-h5 font-weight-light logo-text">
+          <span class="logo-visible">Phen</span><span class="logo-bracket">[</span><span class="logo-hidden">otype re</span><span class="logo-bracket">]</span><span class="logo-visible">trieve</span>
+        </h1>
       </div>
       <div class="text-center px-4 pb-4" style="max-width: 600px;">
         <p class="text-body-2 text-medium-emphasis">
@@ -46,5 +48,42 @@ export default {
 .fill-height {
   min-height: 100vh;
   position: relative;
+}
+
+.logo-text {
+  position: relative;
+  cursor: default;
+  display: inline-flex;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.logo-hidden {
+  max-width: 0;
+  opacity: 0;
+  transition: max-width 0.5s ease, opacity 0.3s ease;
+  display: inline-block;
+  overflow: hidden;
+  color: #1867C0;
+}
+
+.logo-visible {
+  display: inline-block;
+}
+
+.logo-bracket {
+  display: inline-block;
+  max-width: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-width 0.5s ease, opacity 0.3s ease;
+  color: #42A5F5;
+  font-weight: bold;
+}
+
+.logo-text:hover .logo-hidden,
+.logo-text:hover .logo-bracket {
+  max-width: 150px;
+  opacity: 1;
 }
 </style>

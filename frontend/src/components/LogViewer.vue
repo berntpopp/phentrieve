@@ -44,9 +44,8 @@
           append-inner-icon="mdi-magnify"
           hide-details
           class="mb-2"
-          bg-color="surface"
+          bg-color="white"
           color="primary"
-          theme="dark"
         >
           <template v-slot:label>
             <span class="text-high-emphasis">Search logs</span>
@@ -63,9 +62,8 @@
           chips
           hide-details
           class="mb-2"
-          bg-color="surface"
+          bg-color="white"
           color="primary"
-          theme="dark"
         >
           <template v-slot:label>
             <span class="text-high-emphasis">Log Levels</span>
