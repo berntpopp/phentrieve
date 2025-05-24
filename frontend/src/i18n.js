@@ -1,16 +1,20 @@
 import { createI18n } from 'vue-i18n'
 
-// Function to load locale messages dynamically
+// Import locale files explicitly to ensure they're included in the production build
+import en from './locales/en.json'
+import fr from './locales/fr.json'
+import es from './locales/es.json'
+import de from './locales/de.json'
+import nl from './locales/nl.json'
+
+// Create messages object with imported locales
 function loadLocaleMessages() {
-  const locales = import.meta.glob('./locales/*.json', { eager: true })
-  const messages = {}
-  for (const path in locales) {
-    const matched = path.match(/([A-Za-z0-9-_]+)\.json$/i)
-    if (matched && matched.length > 1) {
-      const locale = matched[1]
-      // Handle cases where JSON might be directly exported or under a 'default' key
-      messages[locale] = locales[path].default || locales[path]
-    }
+  const messages = {
+    en,
+    fr,
+    es,
+    de,
+    nl
   }
   return messages
 }
