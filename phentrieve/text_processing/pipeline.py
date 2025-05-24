@@ -6,7 +6,7 @@ of text processing operations including chunking and assertion detection.
 """
 
 import logging
-from typing import List, Dict, Any, Optional, Type
+from typing import Any, Dict, List, Optional
 
 from sentence_transformers import SentenceTransformer
 
@@ -15,18 +15,17 @@ from phentrieve.text_processing.cleaners import (
     clean_internal_newlines_and_extra_spaces,
 )
 from phentrieve.text_processing.chunkers import (
-    TextChunker,
+    FineGrainedPunctuationChunker,
+    FinalChunkCleaner,
     NoOpChunker,
     ParagraphChunker,
     SentenceChunker,
-    SemanticChunker,
-    FineGrainedPunctuationChunker,
+    SlidingWindowSemanticSplitter,
+    TextChunker,
 )
 from phentrieve.text_processing.assertion_detection import (
     AssertionDetector,
     AssertionStatus,
-    KeywordAssertionDetector,
-    DependencyAssertionDetector,
     CombinedAssertionDetector,
 )
 
@@ -94,11 +93,15 @@ class TextProcessingPipeline:
         """
         chunkers = []
 
-        for config in self.chunking_pipeline_config:
-            chunker_type = config.get("type", "").lower()
-            chunker_config = config.get("config", {})
+        for stage_config in self.chunking_pipeline_config:
+            # Get chunker configuration
+            if isinstance(stage_config, dict):
+                chunker_type = stage_config.get("type", "unknown")
+                chunker_config = stage_config.get("config", {})
+            else:
+                chunker_type = stage_config
+                chunker_config = {}
 
-            # Common parameters for all chunkers
             params = {"language": self.language}
 
             if chunker_type == "paragraph":
@@ -107,46 +110,91 @@ class TextProcessingPipeline:
             elif chunker_type == "sentence":
                 chunkers.append(SentenceChunker(**params))
 
-            elif chunker_type == "semantic":
-                if not self.sbert_model:
-                    raise ValueError(
-                        "SentenceTransformer model required for semantic chunking "
-                        "but none was provided"
-                    )
-
-                # Get semantic chunker specific parameters
-                similarity_threshold = chunker_config.get(
-                    "similarity_threshold", config.get("similarity_threshold", 0.4)
-                )
-                min_chunk_sentences = chunker_config.get(
-                    "min_chunk_sentences",
-                    config.get("min_chunk_sentences", config.get("min_sentences", 1)),
-                )
-                max_chunk_sentences = chunker_config.get(
-                    "max_chunk_sentences",
-                    config.get("max_chunk_sentences", config.get("max_sentences", 5)),
-                )
-
-                chunkers.append(
-                    SemanticChunker(
-                        **params,
-                        model=self.sbert_model,
-                        similarity_threshold=similarity_threshold,
-                        min_chunk_sentences=min_chunk_sentences,
-                        max_chunk_sentences=max_chunk_sentences,
-                    )
-                )
+            # 'pre_chunk_semantic_grouper' has been removed, use 'sliding_window' instead
 
             elif chunker_type == "fine_grained_punctuation":
                 chunkers.append(FineGrainedPunctuationChunker(**params))
 
-            elif chunker_type == "noop" or chunker_type == "no_op":
+            elif chunker_type == "noop":
                 chunkers.append(NoOpChunker(**params))
+
+            elif chunker_type == "final_chunk_cleaner":
+                # Get FinalChunkCleaner specific parameters with defaults from config
+                min_cleaned_chunk_length = chunker_config.get(
+                    "min_cleaned_chunk_length_words", 2
+                )
+                max_cleanup_passes = chunker_config.get("max_cleanup_passes", 3)
+                custom_leading_words = chunker_config.get(
+                    "custom_leading_words_to_remove"
+                )
+                custom_trailing_words = chunker_config.get(
+                    "custom_trailing_words_to_remove"
+                )
+                custom_leading_punct = chunker_config.get("custom_leading_punctuation")
+                custom_trailing_punct = chunker_config.get(
+                    "custom_trailing_punctuation"
+                )
+
+                # Initialize cleaner with default parameters
+                cleaner_params = {
+                    "language": self.language,
+                    "min_cleaned_chunk_length_words": min_cleaned_chunk_length,
+                    "max_cleanup_passes": max_cleanup_passes,
+                }
+
+                # Add custom parameters only if they are explicitly provided
+                if custom_leading_words is not None:
+                    cleaner_params["custom_leading_words_to_remove"] = (
+                        custom_leading_words
+                    )
+                if custom_trailing_words is not None:
+                    cleaner_params["custom_trailing_words_to_remove"] = (
+                        custom_trailing_words
+                    )
+                if custom_leading_punct is not None:
+                    cleaner_params["custom_leading_punctuation"] = custom_leading_punct
+                if custom_trailing_punct is not None:
+                    cleaner_params["custom_trailing_punctuation"] = (
+                        custom_trailing_punct
+                    )
+
+                logger.debug(
+                    "Creating FinalChunkCleaner with params: %s", cleaner_params
+                )
+                chunkers.append(FinalChunkCleaner(**cleaner_params))
+
+            elif (
+                chunker_type == "sliding_window_semantic"
+                or chunker_type == "sliding_window"
+            ):
+                if not self.sbert_model:
+                    raise ValueError(
+                        "SentenceTransformer model required for sliding window semantic splitting "
+                        "but none was provided"
+                    )
+
+                # Get sliding window specific parameters
+                window_size = chunker_config.get("window_size_tokens", 4)
+                step_size = chunker_config.get("step_size_tokens", 2)
+                threshold = chunker_config.get("splitting_threshold", 0.5)
+                min_segment_length = chunker_config.get(
+                    "min_split_segment_length_words", 50
+                )
+
+                # Create sliding window semantic splitter
+                sliding_window_params = {
+                    **params,
+                    "model": self.sbert_model,
+                    "window_size_tokens": window_size,
+                    "step_size_tokens": step_size,
+                    "splitting_threshold": threshold,
+                    "min_split_segment_length_words": min_segment_length,
+                }
+                chunkers.append(SlidingWindowSemanticSplitter(**sliding_window_params))
 
             else:
                 logger.warning(
-                    f"Unknown chunker type '{chunker_type}'. "
-                    f"Valid types: paragraph, sentence, semantic, fine_grained_punctuation, noop."
+                    f"Unknown chunker type '{chunker_type}' in config, skipping"
                 )
 
         if not chunkers:
@@ -198,117 +246,105 @@ class TextProcessingPipeline:
             List of processed chunks with assertion information:
             [
                 {
-                    'text': str,                    # The chunk text
-                    'status': AssertionStatus,      # Assertion status enum
-                    'assertion_details': Dict,      # Details about assertion detection
-                    'source_indices': Dict          # Tracking information about source
+                    'text': str,                # The chunk text
+                    'status': AssertionStatus, # Enum value indicating assertion status
+                    'assertion_details': Dict,  # Details about the assertion analysis
+                    'source_indices': Dict      # Tracking information about source
                 },
                 ...
             ]
         """
         if not raw_text or not raw_text.strip():
             logger.warning(
-                "Empty input text provided to TextProcessingPipeline.process"
+                "TextProcessingPipeline.process called with empty input text."
             )
             return []
 
-        # Apply initial normalization
         normalized_text = normalize_line_endings(raw_text)
+        current_segments_for_stage: List[str] = [normalized_text]
 
-        # Start with a single chunk
-        current_chunks = [normalized_text]
+        # Simplified source tracking for this refactor:
+        # Each element in current_source_info_list corresponds to a segment in current_segments_for_stage
+        # It stores a list of strings describing the applied chunkers.
+        current_source_info_list: List[List[str]] = [["initial_raw_text"]]
 
-        # Track source information (optional, mainly for debugging/analysis)
-        source_indices = [{"original": True}]
-
-        # Apply chunking pipeline stages iteratively
-        for chunker_idx, chunker in enumerate(self.chunkers):
+        for chunker_idx, chunker_instance in enumerate(self.chunkers):
+            chunker_name = chunker_instance.__class__.__name__
             logger.debug(
-                f"Applying chunker {chunker_idx + 1}/{len(self.chunkers)}: "
-                f"{chunker.__class__.__name__} to {len(current_chunks)} chunks"
+                f"Pipeline Stage {chunker_idx + 1}: Applying {chunker_name} "
+                f"to {len(current_segments_for_stage)} segment(s)."
             )
 
-            next_stage_chunks = []
-            next_stage_indices = []
+            input_segments_to_current_chunker = current_segments_for_stage
+            input_source_info_to_current_chunker = current_source_info_list
 
-            # Process each chunk through the current chunker
-            for chunk_idx, chunk_to_process in enumerate(current_chunks):
-                # Clean the chunk
-                cleaned_chunk = clean_internal_newlines_and_extra_spaces(
-                    chunk_to_process
-                )
-                if not cleaned_chunk:
-                    continue
-
-                # Apply the chunker
-                newly_chunked_parts = chunker.chunk(cleaned_chunk)
-
-                # Add new chunks with source tracking
-                for part_idx, part in enumerate(newly_chunked_parts):
-                    next_stage_chunks.append(part)
-
-                    # Track source indices
-                    source_info = {
-                        f"stage_{chunker_idx}": {
-                            "parent_idx": chunk_idx,
-                            "part_idx": part_idx,
-                            "chunker": chunker.__class__.__name__,
-                        }
-                    }
-
-                    # Copy previous source info if available
-                    if chunk_idx < len(source_indices):
-                        source_info.update(source_indices[chunk_idx])
-
-                    next_stage_indices.append(source_info)
-
-            # Update for next stage
-            current_chunks = next_stage_chunks
-            source_indices = next_stage_indices
-
-            logger.debug(
-                f"Chunker {chunker_idx + 1} produced {len(current_chunks)} chunks"
+            output_segments_from_chunker = chunker_instance.chunk(
+                input_segments_to_current_chunker
             )
 
-        # Final raw chunks after all chunking stages
-        final_raw_chunks = current_chunks
-        final_source_indices = source_indices
+            # Basic source tracking update:
+            # If a chunker doesn't change the number of segments, source info maps 1:1.
+            # If it splits one segment into many, all new segments inherit and append the current chunker's name.
+            # This is a simplification. True lineage is harder.
+            # For now, we'll just track that this chunker was applied.
+            # A more robust way would be for chunkers to also return source mapping.
 
-        # Process final chunks for assertion
-        processed_chunks_with_assertion = []
+            updated_source_info_list = []
+            if (
+                len(input_segments_to_current_chunker)
+                == len(output_segments_from_chunker)
+                and len(input_segments_to_current_chunker) > 0
+            ):
+                # Assume 1:1 mapping if segment count doesn't change
+                for i, _ in enumerate(output_segments_from_chunker):
+                    updated_source_info_list.append(
+                        input_source_info_to_current_chunker[i] + [chunker_name]
+                    )
+            else:  # Segment count changed, apply new source info more generically
+                for _ in output_segments_from_chunker:
+                    # This is a simplification; ideally, we'd know which input segment(s) an output segment came from.
+                    # For now, just indicate this chunker ran. A more complex approach would be needed for precise lineage.
+                    updated_source_info_list.append([f"processed_by_{chunker_name}"])
 
-        for chunk_idx, final_raw_chunk in enumerate(final_raw_chunks):
-            # Clean the final chunk
+            current_segments_for_stage = output_segments_from_chunker
+            current_source_info_list = updated_source_info_list
+
+            logger.debug(
+                f"Stage {chunker_idx + 1} ({chunker_name}) produced {len(current_segments_for_stage)} segment(s)."
+            )
+
+        final_raw_chunks_text_only: List[str] = current_segments_for_stage
+
+        processed_chunks_with_assertion: List[Dict[str, Any]] = []
+        for idx, final_text_chunk in enumerate(final_raw_chunks_text_only):
             cleaned_final_chunk = clean_internal_newlines_and_extra_spaces(
-                final_raw_chunk
+                final_text_chunk
             )
             if not cleaned_final_chunk:
                 continue
 
-            # Detect assertion status
             assertion_status, assertion_details = self.assertion_detector.detect(
                 cleaned_final_chunk
             )
 
-            # Store processed chunk with all information
-            source_info = (
-                final_source_indices[chunk_idx]
-                if chunk_idx < len(final_source_indices)
-                else {}
+            source_info_for_chunk = (
+                current_source_info_list[idx]
+                if idx < len(current_source_info_list)
+                else ["unknown_source"]
             )
 
             processed_chunks_with_assertion.append(
                 {
                     "text": cleaned_final_chunk,
-                    "status": assertion_status,
+                    "status": assertion_status,  # This is the AssertionStatus Enum object
                     "assertion_details": assertion_details,
-                    "source_indices": source_info,
+                    "source_indices": {
+                        "processing_stages": source_info_for_chunk
+                    },  # Simplified source info
                 }
             )
 
         logger.info(
-            f"TextProcessingPipeline processed text into {len(processed_chunks_with_assertion)} "
-            f"final chunks with assertion status"
+            f"TextProcessingPipeline processed text into {len(processed_chunks_with_assertion)} final asserted chunks."
         )
-
         return processed_chunks_with_assertion

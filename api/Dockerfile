@@ -34,7 +34,18 @@ ENV LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
 
 # Copy requirements or pyproject.toml first for better layer caching
 COPY pyproject.toml ./
-# Install dependencies
+# Install dependencies - optimize for build time
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel
+
+# Fix numpy binary compatibility issue by installing specific versions
+RUN pip install --no-cache-dir numpy==1.23.5
+RUN pip install --no-cache-dir Cython==0.29.36
+
+# Install Spacy after numpy is correctly installed
+RUN pip install --no-cache-dir spacy==3.5.4
+RUN pip install --no-cache-dir https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.5.0/en_core_web_sm-3.5.0-py3-none-any.whl
+
+# Now install the rest of the dependencies
 RUN pip install --no-cache-dir .[all]
 
 # Copy phentrieve package and API code

@@ -2,7 +2,7 @@
   <div class="search-container mx-auto px-2">
     <!-- Clean Search Bar with Integrated Button -->
     <div class="search-bar-container pa-2 pa-sm-4">
-      <v-sheet rounded="pill" elevation="2" class="pa-1 pa-sm-2 search-bar" color="surface">
+      <v-sheet rounded="pill" elevation="0" class="pa-1 pa-sm-2 search-bar" color="white">
         <div class="d-flex align-center flex-wrap flex-sm-nowrap">
           <v-text-field
             v-model="queryText"
@@ -12,7 +12,7 @@
             class="search-input ml-2 ml-sm-3 flex-grow-1"
             :disabled="isLoading"
             @keydown.enter.prevent="!isLoading && queryText.trim() ? submitQuery() : null"
-            bg-color="surface"
+            bg-color="white"
             color="primary"
             aria-label="Clinical text input field"
             :aria-description="'Enter clinical text to search for HPO terms' + (isLoading ? '. Search in progress' : '')"
@@ -66,6 +66,7 @@
           id="advanced-options-panel"
           role="region"
           aria-label="Advanced search options"
+          color="white"
         >
           <div class="text-subtitle-2 mb-3">Advanced Options</div>
           
@@ -81,7 +82,7 @@
                 density="compact"
                 aria-label="Select embedding model"
                 :aria-description="'Choose the model to use for text embedding. Currently selected: ' + selectedModel"
-                bg-color="surface"
+                bg-color="white"
                 color="primary"
               >
                 <template v-slot:label>
@@ -786,6 +787,7 @@ export default {
 .search-input :deep(.v-field) {
   border-radius: 24px;
   min-height: 44px;
+  box-shadow: none;
 }
 
 .search-input :deep(.v-field__input) {
@@ -795,7 +797,13 @@ export default {
 }
 
 .search-input :deep(.v-field__outline) {
-  --v-field-border-width: 1px;
+  --v-field-border-width: 0px;
+}
+
+/* Remove the border on the container and handle it in the input field */
+.search-bar {
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 28px;
 }
 
 /* Accessibility improvements for form fields */
@@ -804,10 +812,10 @@ export default {
   font-weight: 500;
 }
 
-/* Improve contrast for form fields */
+/* Light theme styles for form fields */
 :deep(.v-field--variant-outlined) {
-  background-color: #f8f9fa !important; /* Lighter background */
-  border: 1px solid rgba(0, 0, 0, 0.23);
+  background-color: #FFFFFF !important;
+  box-shadow: none;
 }
 
 :deep(.v-field__input) {
@@ -819,24 +827,17 @@ export default {
   color: rgba(0, 0, 0, 0.6) !important;
 }
 
-/* Dark mode support - use media query for dark theme if needed */
-@media (prefers-color-scheme: dark) {
-  :deep(.text-high-emphasis) {
-    color: rgba(255, 255, 255, 0.87) !important;
-  }
-  
-  :deep(.v-field--variant-outlined) {
-    background-color: rgba(30, 30, 30, 0.8) !important;
-    border: 1px solid rgba(255, 255, 255, 0.23);
-  }
-  
-  :deep(.v-field__input) {
-    color: rgba(255, 255, 255, 0.87) !important;
-  }
-  
-  :deep(.v-field__input::placeholder) {
-    color: rgba(255, 255, 255, 0.6) !important;
-  }
+:deep(.text-high-emphasis) {
+  color: rgba(0, 0, 0, 0.87) !important;
+  font-weight: 500;
+}
+
+:deep(.v-field__input) {
+  color: rgba(0, 0, 0, 0.87) !important;
+}
+
+:deep(.v-field__input::placeholder) {
+  color: rgba(0, 0, 0, 0.6) !important;
 }
 
 .conversation-container {

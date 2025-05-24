@@ -5,6 +5,8 @@ This module contains constants, defaults, and configuration parameters used
 throughout the phentrieve package.
 """
 
+import copy
+
 # Note: This module intentionally does not import path resolution functions
 # We avoid importing from utils to prevent circular imports
 
@@ -73,8 +75,129 @@ DEFAULT_ENABLE_RERANKER = False
 PHENOTYPE_ROOT = "HP:0000118"
 
 # Text Processing Configuration
-# Default chunking pipeline configuration
-DEFAULT_CHUNK_PIPELINE_CONFIG = [{"type": "paragraph"}, {"type": "sentence"}]
+
+# Predefined chunking strategies
+SIMPLE_CHUNKING_CONFIG = [{"type": "paragraph"}, {"type": "sentence"}]
+
+# Strategy: "semantic" - Uses paragraph -> sentence -> semantic splitting
+SEMANTIC_CHUNKING_CONFIG = [
+    {"type": "paragraph"},
+    {"type": "sentence"},
+    {
+        "type": "sliding_window",
+        "config": {
+            "window_size_tokens": 2,
+            "step_size_tokens": 1,
+            "splitting_threshold": 0.6,
+            "min_split_segment_length_words": 1,
+        },
+    },
+]
+
+# Strategy: "detailed" - Most granular: paragraph -> sentence -> punctuation -> semantic split
+DETAILED_CHUNKING_CONFIG = [
+    {"type": "paragraph"},
+    {"type": "sentence"},
+    {"type": "fine_grained_punctuation"},
+    {
+        "type": "sliding_window",
+        "config": {
+            "window_size_tokens": 2,
+            "step_size_tokens": 1,
+            "splitting_threshold": 0.6,
+            "min_split_segment_length_words": 1,
+        },
+    },
+]
+
+
+# Most detailed chunking strategy using the sliding window semantic splitter
+def get_sliding_window_config_with_params(
+    window_size=7, step_size=1, threshold=0.5, min_segment_length=3
+):
+    """Get a sliding window config with custom parameters.
+
+    Args:
+        window_size: Number of tokens in each sliding window
+        step_size: Number of tokens to step between windows
+        threshold: Cosine similarity threshold below which to split (0-1)
+        min_segment_length: Minimum number of words in a split segment
+
+    Returns:
+        Sliding window configuration with custom parameters
+    """
+    return [
+        {"type": "paragraph"},  # First split by paragraphs
+        {"type": "sentence"},  # Then split into sentences
+        {
+            "type": "sliding_window",  # Finally apply sliding window semantic splitting
+            "config": {
+                "window_size_tokens": window_size,
+                "step_size_tokens": step_size,
+                "splitting_threshold": threshold,
+                "min_split_segment_length_words": min_segment_length,
+            },
+        },
+    ]
+
+
+# Default sliding window config
+SLIDING_WINDOW_CONFIG = get_sliding_window_config_with_params()
+
+# Default chunking pipeline configuration (using sliding window for better results)
+DEFAULT_CHUNK_PIPELINE_CONFIG = SLIDING_WINDOW_CONFIG
+
+
+# Functions to get fresh copies of the configs to avoid mutation issues
+def get_default_chunk_pipeline_config():
+    return copy.deepcopy(DEFAULT_CHUNK_PIPELINE_CONFIG)
+
+
+def get_simple_chunking_config():
+    return copy.deepcopy(SIMPLE_CHUNKING_CONFIG)
+
+
+def get_semantic_chunking_config():
+    return copy.deepcopy(SEMANTIC_CHUNKING_CONFIG)
+
+
+def get_detailed_chunking_config():
+    return copy.deepcopy(DETAILED_CHUNKING_CONFIG)
+
+
+def get_sliding_window_config():
+    return copy.deepcopy(SLIDING_WINDOW_CONFIG)
+
+
+# Strategy: "sliding_window_cleaned" - Adds FinalChunkCleaner to the sliding window strategy
+SLIDING_WINDOW_CLEANED_CONFIG = [
+    {"type": "paragraph"},  # First split by paragraphs
+    {"type": "sentence"},  # Then split into sentences
+    {
+        "type": "sliding_window",  # Apply sliding window semantic splitting
+        "config": {
+            "window_size_tokens": 7,
+            "step_size_tokens": 1,
+            "splitting_threshold": 0.55,
+            "min_split_segment_length_words": 3,
+        },
+    },
+    {
+        "type": "final_chunk_cleaner",  # Clean up the chunks
+        "config": {
+            "min_cleaned_chunk_length_chars": 2,  # Minimum length of cleaned chunks in characters
+            "max_cleanup_passes": 3,  # Maximum number of cleanup passes
+        },
+    },
+]
+
+
+def get_sliding_window_cleaned_config():
+    return copy.deepcopy(SLIDING_WINDOW_CLEANED_CONFIG)
+
+
+# Default formula for semantic similarity calculations
+DEFAULT_SIMILARITY_FORMULA = "hybrid"
 
 # Default assertion detection configuration
 DEFAULT_ASSERTION_CONFIG = {

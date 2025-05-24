@@ -1,13 +1,21 @@
 import logging
+import os
+import sys
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-import sys
-import os
-
+# Add project root to Python path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from api.routers import query_router, health
+from api.routers import (
+    query_router,
+    health,
+    similarity_router,
+    config_info_router,
+    text_processing_router,
+)
 from api.dependencies import (
     get_sbert_model_dependency,
     get_dense_retriever_dependency,
@@ -24,31 +32,14 @@ logger = logging.getLogger(__name__)
 # Configure logging for the API
 logging.basicConfig(level=logging.INFO)
 
-app = FastAPI(title="Phentrieve API", version="0.1.0")
 
-# Configure CORS
-# Adjust origins as needed for your frontend development and production
-origins = [
-    "http://localhost:8080",  # Default Vue CLI dev server
-    "http://localhost:3000",  # Common React/Next.js dev server
-    "http://localhost:5173",  # Vite default port
-    # Add your production frontend URL when deployed
-]
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-
-@app.on_event("startup")
-async def startup_event():
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup logic
     logger.info("Phentrieve API starting up. Pre-loading default models...")
     try:
         # Pre-load default SBERT model for retrieval
-        sbert_retrieval_model = await get_sbert_model_dependency(
+        await get_sbert_model_dependency(
             model_name_requested=DEFAULT_MODEL, device_override=DEFAULT_DEVICE
         )
         # Pre-load the retriever associated with the default SBERT model
@@ -81,13 +72,115 @@ async def startup_event():
         logger.error(f"Error during API startup model pre-loading: {e}", exc_info=True)
     logger.info("API startup model pre-loading complete (or attempted).")
 
+    yield  # This is where the application runs
+
+    # Shutdown logic (if needed)
+    logger.info("Shutting down Phentrieve API...")
+
+
+app = FastAPI(title="Phentrieve API", version="0.1.0", lifespan=lifespan)
+
+# Configure CORS
+# Adjust origins as needed for your frontend development and production
+origins = [
+    "http://localhost:8080",  # Default Vue CLI dev server
+    "http://localhost:3000",  # Common React/Next.js dev server
+    "http://localhost:5173",  # Vite default port
+    # Add your production frontend URL when deployed
+]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+# This content was moved to the lifespan context manager
+
 
 # Include routers
 app.include_router(query_router.router, prefix="/api/v1/query", tags=["HPO Term Query"])
-app.include_router(health.router, prefix="/api/v1", tags=["Health Check"])
-# Add other routers here for text_processing if created later
+app.include_router(health.router, prefix="/api/v1/health", tags=["Health Check"])
+app.include_router(
+    similarity_router.router, prefix="/api/v1/similarity", tags=["HPO Term Similarity"]
+)
+app.include_router(config_info_router.router, prefix="/api/v1")
+app.include_router(
+    text_processing_router.router, tags=["Text Processing and HPO Extraction"]
+)
 
 
-@app.get("/")
+@app.get(
+    "/",
+    tags=["API Information"],
+    summary="API Information",
+    description="Returns information about the Phentrieve API and available endpoints.",
+)
 async def root():
-    return {"message": "Welcome to Phentrieve API. See /docs for details."}
+    """API Information endpoint.
+
+    Returns information about the Phentrieve API, its purpose, and available endpoints.
+    For full API documentation, visit the /docs endpoint.
+    """
+    return {
+        "api": "Phentrieve API",
+        "version": "0.1.0",
+        "description": "API for Human Phenotype Ontology (HPO) term retrieval and semantic similarity calculation",
+        "endpoints": {
+            "HPO Term Query": {
+                "description": "Query HPO terms based on clinical text",
+                "endpoints": [
+                    {
+                        "path": "/api/v1/query/",
+                        "methods": ["GET", "POST"],
+                        "description": "Retrieve relevant HPO terms for clinical text",
+                    }
+                ],
+            },
+            "Text Processing": {
+                "description": "Process clinical text to extract HPO terms with advanced configuration",
+                "endpoints": [
+                    {
+                        "path": "/api/v1/text/process",
+                        "methods": ["POST"],
+                        "description": "Process raw clinical text with customizable chunking, reranking, and assertion detection settings",
+                    }
+                ],
+            },
+            "HPO Term Similarity": {
+                "description": "Calculate semantic similarity between HPO terms",
+                "endpoints": [
+                    {
+                        "path": "/api/v1/similarity/{term1_id}/{term2_id}",
+                        "methods": ["GET"],
+                        "description": "Calculate semantic similarity between two HPO terms",
+                    }
+                ],
+            },
+            "Health Check": {
+                "description": "API health monitoring",
+                "endpoints": [
+                    {
+                        "path": "/api/v1/health/",
+                        "methods": ["GET"],
+                        "description": "Check API health status",
+                    }
+                ],
+            },
+            "Documentation": {
+                "description": "API documentation",
+                "endpoints": [
+                    {
+                        "path": "/docs",
+                        "methods": ["GET"],
+                        "description": "Swagger UI documentation",
+                    },
+                    {
+                        "path": "/redoc",
+                        "methods": ["GET"],
+                        "description": "ReDoc documentation",
+                    },
+                ],
+            },
+        },
+    }

@@ -54,3 +54,6 @@ Thumbs.db
 # env files
 .env.docker
 .env
+
+# output files
+output/

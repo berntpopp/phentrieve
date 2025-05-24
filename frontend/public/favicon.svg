@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="200" height="200"><svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Main Groups -->
+  <g id="SvgjsG1005">
+    <!-- Background Circle (Optional) - Very subtle -->
+    <circle cx="100" cy="100" r="90" fill="#1867C0" opacity="0.05"></circle>
+    
+    <!-- Stylized P Group -->
+    <g id="SvgjsG1004">
+      <!-- P Vertical Stem -->
+      <path d="M75 150C75 150 75 50 75 50C75 50 75 45 80 45C85 45 110 45 115 45C120 45 130 45 135 50C140 55 145 65 145 75C145 85 140 95 135 100C130 105 120 105 115 105C110 105 85 105 80 105C75 105 75 100 75 100" fill="#1867C0" stroke="#1867C0" stroke-width="2"></path>
+      
+      <!-- P Counter/Loop (serves as the "origin" of the vector space) -->
+      <circle cx="110" cy="75" r="22" fill="#FFFFFF" stroke="#1867C0" stroke-width="2"></circle>
+    </g>
+    
+    <!-- Vector Space Concept Group -->
+    <g id="SvgjsG1003">
+      <!-- Origin Point (center of the "P" counter) -->
+      <circle cx="110" cy="75" r="4" fill="#1867C0"></circle>
+      
+      <!-- Vector Lines - Similar Pair (small angle) -->
+      <line x1="110" y1="75" x2="160" y2="60" stroke="#42A5F5" stroke-width="2"></line>
+      <line x1="110" y1="75" x2="155" y2="40" stroke="#42A5F5" stroke-width="2"></line>
+      
+      <!-- Vector Line - Dissimilar (wider angle) -->
+      <line x1="110" y1="75" x2="130" y2="130" stroke="#90CAF9" stroke-width="2"></line>
+      
+      <!-- Subtle Arc to Indicate Small Angle -->
+      <path d="M118 69 A 12 12 0 0 0 125 62" stroke="#42A5F5" stroke-width="1" opacity="0.6" fill="none"></path>
+      
+      <!-- Data Nodes at Vector Endpoints -->
+      <circle cx="160" cy="60" r="6" fill="#42A5F5"></circle>
+      <circle cx="155" cy="40" r="6" fill="#42A5F5"></circle>
+      <circle cx="130" cy="130" r="6" fill="#90CAF9"></circle>
+    </g>
+  </g>
+</svg><style>@media (prefers-color-scheme: light) { :root { filter: none; } }
+@media (prefers-color-scheme: dark) { :root { filter: none; } }
+</style></svg>

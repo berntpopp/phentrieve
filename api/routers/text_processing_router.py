@@ -1,0 +1,251 @@
+from fastapi import APIRouter, HTTPException, Depends
+from fastapi.concurrency import run_in_threadpool
+import logging
+from pathlib import Path
+from typing import List, Dict, Any, Tuple
+
+from api.schemas.text_processing_schemas import (
+    TextProcessingRequest,
+    TextProcessingResponseAPI,
+    ProcessedChunkAPI,
+    AggregatedHPOTermAPI,
+)
+from phentrieve.text_processing.hpo_extraction_orchestrator import (
+    orchestrate_hpo_extraction,
+)
+from phentrieve.text_processing.pipeline import TextProcessingPipeline
+from phentrieve.text_processing.assertion_detection import AssertionStatus
+from phentrieve.retrieval.dense_retriever import DenseRetriever
+from phentrieve.retrieval.reranker import load_cross_encoder
+from phentrieve.embeddings import load_embedding_model
+from phentrieve.config import (
+    DEFAULT_MODEL,
+    DEFAULT_LANGUAGE,
+    DEFAULT_ASSERTION_CONFIG,
+    get_simple_chunking_config,
+    get_semantic_chunking_config,
+    get_detailed_chunking_config,
+    get_sliding_window_config_with_params,
+    DEFAULT_TRANSLATIONS_SUBDIR,
+    DEFAULT_RERANKER_MODEL,
+    DEFAULT_MONOLINGUAL_RERANKER_MODEL,
+)
+from phentrieve.utils import detect_language, resolve_data_path
+
+logger = logging.getLogger(__name__)
+router = APIRouter(prefix="/api/v1/text", tags=["Text Processing and HPO Extraction"])
+
+
+# Helper to get chunking config based on strategy name from request
+def _get_chunking_config_for_api(
+    request: TextProcessingRequest,
+) -> List[Dict[str, Any]]:
+    strategy_name = (
+        request.chunking_strategy.lower() if request.chunking_strategy else "semantic"
+    )
+
+    # Parameters for sliding_window strategy if applicable
+    window_size = 7
+    step_size = 1
+    split_threshold = 0.5
+    min_segment_length = 3
+
+    if strategy_name == "simple":
+        return get_simple_chunking_config()
+    elif strategy_name == "semantic":
+        return get_semantic_chunking_config()
+    elif strategy_name == "detailed":
+        return get_detailed_chunking_config()
+    elif strategy_name == "sliding_window":
+        return get_sliding_window_config_with_params(
+            window_size, step_size, split_threshold, min_segment_length
+        )
+    else:
+        logger.warning(
+            f"API: Unknown chunking strategy '{strategy_name}'. Falling back to default semantic (splitting)."
+        )
+        return get_semantic_chunking_config()
+
+
+@router.post("/process", response_model=TextProcessingResponseAPI)
+async def process_text_extract_hpo(request: TextProcessingRequest):
+    """
+    Process clinical text to extract Human Phenotype Ontology (HPO) terms.
+
+    This endpoint replicates the functionality of the `phentrieve text process` CLI command,
+    accepting raw clinical text input along with various processing configurations.
+    It returns processed text chunks with assertion statuses and aggregated HPO terms.
+
+    Heavy NLP operations are executed asynchronously to prevent blocking the API server.
+    """
+    logger.info(
+        f"API: Received request to process text. Language: {request.language}, Strategy: {request.chunking_strategy}"
+    )
+
+    try:
+        # Determine language
+        actual_language = request.language
+        if not actual_language or actual_language.lower() == "auto":
+            try:
+                actual_language = await run_in_threadpool(
+                    detect_language, request.text_content, default_lang=DEFAULT_LANGUAGE
+                )
+                logger.info(f"API: Auto-detected language: {actual_language}")
+            except Exception as lang_e:
+                logger.warning(
+                    f"API: Language detection failed: {lang_e}. Defaulting to {DEFAULT_LANGUAGE}."
+                )
+                actual_language = DEFAULT_LANGUAGE
+
+        # Resolve translation directory if needed for monolingual reranking
+        translation_dir = resolve_data_path(DEFAULT_TRANSLATIONS_SUBDIR)
+
+        # Model loading (run in threadpool as it's blocking)
+        retrieval_model_name_to_load = request.retrieval_model_name or DEFAULT_MODEL
+        sbert_for_chunking_name_to_load = (
+            request.semantic_model_name or retrieval_model_name_to_load
+        )
+
+        logger.info(f"API: Loading retrieval model: {retrieval_model_name_to_load}")
+        retrieval_sbert_model = await run_in_threadpool(
+            load_embedding_model, model_name=retrieval_model_name_to_load
+        )
+
+        sbert_for_chunking = retrieval_sbert_model  # Default to using same model
+        if sbert_for_chunking_name_to_load != retrieval_model_name_to_load:
+            logger.info(
+                f"API: Loading separate semantic model for chunking: {sbert_for_chunking_name_to_load}"
+            )
+            sbert_for_chunking = await run_in_threadpool(
+                load_embedding_model, model_name=sbert_for_chunking_name_to_load
+            )
+
+        retriever = await run_in_threadpool(
+            DenseRetriever.from_model_name,
+            model=retrieval_sbert_model,
+            model_name=retrieval_model_name_to_load,
+            min_similarity=request.chunk_retrieval_threshold,
+        )
+        if not retriever:
+            raise HTTPException(
+                status_code=503,
+                detail=f"Failed to initialize retriever for model {retrieval_model_name_to_load}. Index might be missing.",
+            )
+
+        cross_enc = None
+        if request.enable_reranker:
+            reranker_to_load = request.reranker_model_name
+            if request.reranker_mode == "monolingual" and actual_language != "en":
+                reranker_to_load = request.monolingual_reranker_model_name
+            if reranker_to_load:
+                logger.info(f"API: Loading reranker model: {reranker_to_load}")
+                cross_enc = await run_in_threadpool(
+                    load_cross_encoder, model_name=reranker_to_load
+                )
+            if not cross_enc:
+                logger.warning(
+                    f"API: Failed to load reranker {reranker_to_load}, proceeding without reranking."
+                )
+
+        # Prepare pipeline configuration
+        chunking_pipeline_cfg = _get_chunking_config_for_api(request)
+
+        assertion_cfg = dict(DEFAULT_ASSERTION_CONFIG)
+        assertion_cfg["disable"] = request.no_assertion_detection
+        assertion_cfg["preference"] = request.assertion_preference
+
+        text_pipeline = TextProcessingPipeline(
+            language=actual_language,
+            chunking_pipeline_config=chunking_pipeline_cfg,
+            assertion_config=assertion_cfg,
+            sbert_model_for_semantic_chunking=sbert_for_chunking,
+        )
+
+        # Run the pipeline to get chunks and initial assertion statuses
+        logger.info("API: Processing text through pipeline...")
+        processed_chunks_list = await run_in_threadpool(
+            text_pipeline.process, request.text_content
+        )
+
+        api_processed_chunks: List[ProcessedChunkAPI] = []
+        text_chunks_for_orchestrator: List[str] = []
+        assertion_statuses_for_orchestrator: List[str] = []
+
+        for idx, p_chunk in enumerate(processed_chunks_list):
+            api_processed_chunks.append(
+                ProcessedChunkAPI(
+                    chunk_id=idx + 1,  # 1-based for display/API
+                    text=p_chunk["text"],
+                    status=p_chunk["status"].value,  # Convert Enum to string
+                    assertion_details=p_chunk.get("assertion_details"),
+                )
+            )
+            text_chunks_for_orchestrator.append(p_chunk["text"])
+            assertion_statuses_for_orchestrator.append(p_chunk["status"].value)
+
+        logger.info(
+            f"API: Running HPO extraction orchestrator on {len(text_chunks_for_orchestrator)} chunks."
+        )
+        # Call the core orchestrator function (this is synchronous, so wrap it)
+        aggregated_hpo_terms_internal, _ = await run_in_threadpool(
+            orchestrate_hpo_extraction,
+            text_chunks=text_chunks_for_orchestrator,
+            assertion_statuses=assertion_statuses_for_orchestrator,
+            retriever=retriever,
+            cross_encoder=cross_enc,
+            language=actual_language,
+            chunk_retrieval_threshold=request.chunk_retrieval_threshold,
+            num_results_per_chunk=request.num_results_per_chunk,
+            reranker_mode=request.reranker_mode,
+            translation_dir_path=translation_dir,
+            min_confidence_for_aggregated=request.aggregated_term_confidence,
+            top_term_per_chunk=request.top_term_per_chunk_for_aggregation,
+        )
+
+        # Convert internal aggregated results to API schema
+        api_aggregated_hpo_terms: List[AggregatedHPOTermAPI] = []
+        for term_data in aggregated_hpo_terms_internal:
+            api_aggregated_hpo_terms.append(
+                AggregatedHPOTermAPI(
+                    hpo_id=term_data["id"],  # ID should always be present
+                    name=term_data["name"],  # Name should always be present
+                    confidence=term_data.get("confidence", 0.0),
+                    status=term_data.get("status", "unknown"),
+                    evidence_count=term_data.get("evidence_count", 1),
+                    score=term_data.get("score", 0.0),
+                    reranker_score=term_data.get("reranker_score"),
+                )
+            )
+
+        # Construct meta information for the response
+        response_meta = {
+            "request_parameters": request.model_dump(exclude_none=True),
+            "effective_language": actual_language,
+            "effective_chunking_strategy_config": chunking_pipeline_cfg,
+            "effective_retrieval_model": retriever.model_name if retriever else None,
+            "effective_reranker_model": (
+                request.reranker_model_name if cross_enc else None
+            ),
+            "num_processed_chunks": len(api_processed_chunks),
+            "num_aggregated_hpo_terms": len(api_aggregated_hpo_terms),
+        }
+
+        return TextProcessingResponseAPI(
+            meta=response_meta,
+            processed_chunks=api_processed_chunks,
+            aggregated_hpo_terms=api_aggregated_hpo_terms,
+        )
+
+    except HTTPException:
+        raise
+    except ValueError as ve:
+        logger.warning(f"API: Bad request during text processing: {ve}", exc_info=True)
+        raise HTTPException(status_code=400, detail=str(ve))
+    except Exception as e:
+        logger.error(
+            f"API: Internal server error during text processing: {e}", exc_info=True
+        )
+        raise HTTPException(
+            status_code=500,
+            detail="An internal server error occurred while processing the text.",
+        )
