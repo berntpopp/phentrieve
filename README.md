@@ -1,8 +1,6 @@
 # Phentrieve
 
-<p align="center">
-  <img src="docs/assets/hpo-logo.svg" alt="Phentrieve Logo" width="150"/>
-</p>
+![Phentrieve Logo](docs/assets/phentrieve-logo.svg)
 
 Phentrieve is an advanced AI-powered system for mapping clinical text to Human Phenotype Ontology (HPO) terms using a Retrieval-Augmented Generation (RAG) approach. It supports multiple languages and offers robust tools for benchmarking, text processing, and HPO term retrieval.
 

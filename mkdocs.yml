@@ -7,8 +7,8 @@ edit_uri: edit/main/docs/
 theme:
   name: material
   language: en
-  logo: assets/hpo-logo.svg
-  favicon: assets/hpo-logo.svg
+  logo: assets/phentrieve-logo.svg
+  favicon: assets/phentrieve-logo.svg
   palette:
     - scheme: default
       primary: blue
@@ -52,6 +52,7 @@ nav:
     - 'Multilingual Embeddings': 'core-concepts/multilingual-embeddings.md'
     - 'Reranking': 'core-concepts/reranking.md'
     - 'Ontology Similarity': 'core-concepts/ontology-similarity.md'
+    - 'Logo Design': 'core-concepts/logo.md'
   - 'Advanced Topics':
     - 'Overview': 'advanced-topics/index.md'
     - 'Text Processing Pipeline': 'advanced-topics/text-processing-pipeline.md'
