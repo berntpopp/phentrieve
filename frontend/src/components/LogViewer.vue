@@ -7,7 +7,7 @@
     aria-label="Log viewer"
   >
     <v-toolbar density="compact" color="primary">
-      <v-toolbar-title class="text-white">Application Logs</v-toolbar-title>
+      <v-toolbar-title class="text-white">{{ $t('logViewer.title') }}</v-toolbar-title>
       <v-spacer></v-spacer>
       <v-btn
         icon="mdi-download"
@@ -48,7 +48,7 @@
           color="primary"
         >
           <template v-slot:label>
-            <span class="text-high-emphasis">Search logs</span>
+            <span class="text-high-emphasis">{{ $t('logViewer.searchPlaceholder') }}</span>
           </template>
         </v-text-field>
         
@@ -66,7 +66,7 @@
           color="primary"
         >
           <template v-slot:label>
-            <span class="text-high-emphasis">Log Levels</span>
+            <span class="text-high-emphasis">{{ $t('logViewer.logLevels') }}</span>
           </template>
         </v-select>
       </v-card-text>
@@ -105,7 +105,7 @@
       </template>
       <v-card v-else class="ma-2" variant="outlined">
         <v-card-text class="text-center text-disabled">
-          No logs to display
+          {{ $t('logViewer.emptyLogsMessage') }}
         </v-card-text>
       </v-card>
     </div>

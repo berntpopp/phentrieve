@@ -1,0 +1,169 @@
+{
+  "app": {
+    "footer": {
+      "disclaimer": "Haftungsausschluss",
+      "disclaimerTooltip": "Wichtige Informationen zum Haftungsausschluss und zur Nutzung anzeigen",
+      "disclaimerAcknowledgedTooltip": "Bestätigt am {date}",
+      "faq": "FAQ",
+      "faqTooltip": "Häufig gestellte Fragen anzeigen",
+      "logs": "Protokolle",
+      "logsTooltip": "Anwendungsprotokolle und Debug-Informationen anzeigen",
+      "copyright": "© {year} Phentrieve",
+      "githubTooltip": "Quellcode auf GitHub anzeigen",
+      "docsTooltip": "Projektdokumentation ansehen",
+      "licenseTooltip": "Projektlizenz ansehen"
+    }
+  },
+  "disclaimerDialog": {
+    "title": "Forschungsnutzungs-Haftungsausschluss",
+    "mainHeader": "Phentrieve ist nur für Forschungs- und Informationszwecke bestimmt.",
+    "description": "Dieses Tool wurde entwickelt, um klinischen Text in standardisierte Human Phenotype Ontology (HPO) Begriffe zu übersetzen und somit Forschung und Wissensfindung zu unterstützen.",
+    "limitationsTitle": "Wichtige Einschränkungen:",
+    "limitations": {
+      "item1": "Phentrieve ist <strong class=\"error--text\">KEIN</strong> klinisches Diagnosewerkzeug und sollte professionellen medizinischen Rat, Diagnose oder Behandlung nicht ersetzen.",
+      "item2": "Die KI-Modelle und HPO-Zuordnungen können Ungenauigkeiten, Fehler oder Einschränkungen enthalten.",
+      "item3": "Ergebnisse sollten von qualifizierten medizinischen Fachkräften überprüft werden, bevor sie in einem klinischen Kontext verwendet werden.",
+      "item4": "Das Tool begründet kein Arzt-Patienten-Verhältnis und ist kein Ersatz für die Konsultation von Gesundheitsdienstleistern."
+    },
+    "responsibilityTitle": "Benutzerverantwortung:",
+    "responsibilityText": "Durch die Nutzung von Phentrieve bestätigen Sie, dass Sie diese Einschränkungen verstehen und die volle Verantwortung dafür übernehmen, wie Sie die von diesem Tool bereitgestellten Informationen interpretieren und verwenden.",
+    "acceptButton": "Ich verstehe und stimme zu"
+  },
+  "queryInterface": {
+    "title": "Phentrieve",
+    "subtitle": "HPO-Term-Mapping für klinische Phänotyp-Beschreibungen",
+    "welcomeText": "Phentrieve ist ein KI-gestütztes Tool, das klinischen Text präzise standardisierten Human Phenotype Ontology (HPO)-Begriffen zuordnet und so die Phänotyp-Annotation für Forschung und Diagnostik optimiert.",
+    "inputLabel": "Klinische Textbeschreibung eingeben",
+    "examples": {
+      "title": "Beispiele",
+      "loadExample": "Beispiel laden",
+      "example1": "Der Patient präsentiert sich mit Kleinwuchs, wiederkehrenden Frakturen und blauen Skleren, was auf Osteogenesis imperfecta hindeutet.",
+      "example2": "Das Kind zeigt Gesichtsdysmorphien mit Hypertelorismus, abfallenden Lidfalten und tief ansetzenden Ohren, zusammen mit angeborenen Herzfehlern und Entwicklungsverzögerung."
+    },
+    "formLabel": "Patienteninformationen (Optional)",
+    "idLabel": "Patienten-ID",
+    "sexLabel": "Geschlecht",
+    "dobLabel": "Geburtsdatum",
+    "sexOptions": {
+      "male": "Männlich",
+      "female": "Weiblich",
+      "other": "Andere",
+      "unknown": "Unbekannt"
+    },
+    "analyzeButton": "Text analysieren",
+    "clearButton": "Löschen",
+    "copyButton": "HPO-Begriffe kopieren",
+    "exportButton": "Als Phenopacket exportieren",
+    "processingMessage": "Verarbeitung...",
+    "noInputError": "Bitte geben Sie einen Text zur Analyse ein",
+    "copySuccess": "HPO-Begriffe in die Zwischenablage kopiert",
+    "exportSuccess": "Phenopacket in die Zwischenablage exportiert",
+    "error": "Fehler: {message}",
+    "phenotypeCollection": {
+      "title": "HPO-Sammlung",
+      "close": "HPO-Sammlungsbereich schließen",
+      "count": "{count} Phänotyp(en) gesammelt",
+      "empty": "Noch keine Phänotypen gesammelt",
+      "instructions": "Klicken Sie auf die Schaltfläche neben einem HPO-Begriff, um ihn zu Ihrer Sammlung hinzuzufügen",
+      "subjectInfoHeader": "Personeninformationen (Optional)",
+      "subjectId": "Personen-ID",
+      "sex": "Geschlecht",
+      "dateOfBirth": "Geburtsdatum",
+      "exportPhenopacket": "Als Phenopacket exportieren (JSON)",
+      "exportText": "Als Text exportieren",
+      "clear": "Sammlung leeren"
+    },
+    "advancedOptions": {
+      "title": "Erweiterte Optionen",
+      "embeddingModel": "Embedding-Modell",
+      "similarityThreshold": "Ähnlichkeitsschwelle",
+      "enableReranking": "Neuordnung aktivieren",
+      "rerankerMode": "Neuordnungsmodus"
+    },
+    "tooltips": {
+      "advancedOptions": "Erweiterte Sucheinstellungen konfigurieren",
+      "phenotypeCollection": "Gesammelte Phänotypen anzeigen und verwalten",
+      "embeddingModel": "KI-Modell für die Texteinbettung auswählen",
+      "similarityThreshold": "Ähnlichkeitsschwelle für Treffer festlegen (höher = präziser, weniger Ergebnisse)",
+      "enableReranking": "Suchergebnisse neu ordnen für verbesserte Genauigkeit",
+      "rerankerMode": "Modus für die Neuordnung der Suchergebnisse wählen",
+      "subjectId": "Geben Sie eine Kennung für den Patienten ein",
+      "sex": "Wählen Sie das biologische Geschlecht des Patienten",
+      "dateOfBirth": "Geben Sie das Geburtsdatum des Patienten ein"
+    }
+  },
+  "resultsDisplay": {
+    "title": "Extrahierte HPO-Begriffe",
+    "termCountLabel": "{count} Begriffe gefunden",
+    "noResultsMessage": "Keine HPO-Begriffe identifiziert. Versuchen Sie einen anderen Text oder überprüfen Sie Ihre Eingabe.",
+    "termIdHeader": "HPO-ID",
+    "termNameHeader": "Begriffsname",
+    "confidenceHeader": "Konfidenz",
+    "actionsHeader": "Aktionen",
+    "removeTermTooltip": "Diesen Begriff entfernen",
+    "confidenceTooltip": "Konfidenzwert: {score}",
+    "viewTermLink": "Auf HPO-Website anzeigen",
+    "modelLabel": "Modell",
+    "rerankerLabel": "Neuordner",
+    "languageLabel": "Sprache",
+    "originalRank": "Ursprünglicher Rang",
+    "noTermsFound": "Keine HPO-Begriffe gefunden, die Ihrer Anfrage mit dem aktuellen Schwellenwert entsprechen. Versuchen Sie, den Ähnlichkeitsschwellenwert zu senken oder Ihre Anfrage umzuformulieren.",
+    "defaultError": "Bei der Verarbeitung Ihrer Anfrage ist ein Fehler aufgetreten.",
+    "addToCollectionTooltip": "{id} zur Sammlung hinzufügen",
+    "alreadyInCollectionTooltip": "{id} bereits in Sammlung",
+    "addToCollectionAriaLabel": "{label} ({id}) zur Sammlung hinzufügen",
+    "alreadyInCollectionAriaLabel": "HPO-Begriff {id} ({label}) ist in der Sammlung"
+  },
+  "logViewer": {
+    "title": "Anwendungsprotokolle",
+    "clearLogsButton": "Protokolle löschen",
+    "closeButton": "Schließen",
+    "emptyLogsMessage": "Keine Protokolle zum Anzeigen",
+    "searchPlaceholder": "Protokolle durchsuchen",
+    "logLevels": "Protokollebenen",
+    "timestamp": "Zeitstempel",
+    "level": "Stufe",
+    "message": "Nachricht",
+    "details": "Details"
+  },
+  "languageSwitcher": {
+    "label": "Sprache"
+  },
+  "faq": {
+    "backToHome": "Zurück zur Startseite",
+    "pageTitle": "Häufig gestellte Fragen",
+    "searchPlaceholder": "Durchsuche {count} Fragen",
+    "categories": {
+      "general": {
+        "title": "Allgemeine Informationen",
+        "questions": {
+          "whatIsPhentrieve": {
+            "question": "Was ist Phentrieve?",
+            "answer": "<p>Phentrieve ist ein fortschrittliches KI-gestütztes Tool, das klinische Beschreibungen automatisch in standardisierte Human Phenotype Ontology (HPO) Begriffe überträgt. Es optimiert den Prozess der Phänotyp-Annotation für Forschung und klinische Diagnostik, macht ihn schneller und genauer.</p><p>Hauptfunktionen umfassen:</p><ul><li>Automatische Zuordnung von klinischem Text zu HPO-Begriffen</li><li>Hohe Genauigkeit durch modernste KI-Modelle</li><li>Unterstützung für mehrere Sprachen</li><li>Benutzerfreundliche Oberfläche</li></ul>"
+          },
+          "howItWorks": {
+            "question": "Wie funktioniert Phentrieve?",
+            "answer": "<p>Phentrieve verwendet eine anspruchsvolle Pipeline von KI-Modellen und Algorithmen zur Verarbeitung klinischer Texte:</p><ol><li><strong>Textanalyse:</strong> Das System analysiert den Eingabetext mithilfe spezialisierter biomedizinischer Sprachmodelle</li><li><strong>Begriffsabgleich:</strong> Es identifiziert potenzielle HPO-Begriffe durch semantische Suche und kontextbewusste Zuordnung</li><li><strong>Ranking:</strong> Die Treffer werden mittels fortschrittlicher Cross-Encoder-Modelle nach Relevanz geordnet</li><li><strong>Ergebnisse:</strong> Die relevantesten HPO-Begriffe werden dem Benutzer präsentiert</li></ol><p>Dieser Prozess gewährleistet hochwertige Übereinstimmungen bei gleichzeitiger Effizienz.</p>"
+          },
+          "whoCanUse": {
+            "question": "Wer kann Phentrieve nutzen?",
+            "answer": "<p>Phentrieve wurde entwickelt für:</p><ul><li><strong>Klinische Genetiker:</strong> Für effiziente Patientenphänotypisierung</li><li><strong>Forscher:</strong> Zur Standardisierung von Phänotypbeschreibungen in Studien</li><li><strong>Medizinisches Fachpersonal:</strong> Für konsistente Phänotypdokumentation</li><li><strong>Bioinformatiker:</strong> Für automatisierte Phänotypanalyse</li></ul><p>Das Tool ist kostenlos und über einen Webbrowser zugänglich.</p>"
+          }
+        }
+      },
+      "technical": {
+        "title": "Technische Details",
+        "questions": {
+          "reranking": {
+            "question": "Wie funktioniert der Re-Ranking-Prozess?",
+            "answer": "<p>Phentrieve verwendet einen zweistufigen Ansatz:</p><ol><li>Initiale Abruf durch Bi-Encoder-Modelle (BioLORD/Jina)</li><li>Re-Ranking durch Cross-Encoder-Modelle:</li></ol><ul><li>cross-encoder/mmarco-mMiniLMv2-L12-H384-v1 (allgemein mehrsprachig)</li><li>MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7 (mehrsprachig NLI)</li><li>ncbi/MedCPT-Cross-Encoder (biomedizinisch spezifisch)</li></ul>"
+          },
+          "performance": {
+            "question": "Welche Leistung kann ich erwarten?",
+            "answer": "<p>Unsere Benchmark-Ergebnisse zeigen:</p><ul><li>BioLORD-2023-M: HR@1=0.3333, HR@3=0.6667, HR@5=0.7778</li><li>Jina-v2-base-de: HR@1=0.2222, HR@3=0.4444, HR@5=0.5556</li></ul><p>Die Leistung kann je nach Komplexität und Spezifität des Eingabetextes variieren.</p>"
+          }
+        }
+      }
+    }
+  }
+}

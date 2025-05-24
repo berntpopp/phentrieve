@@ -6,7 +6,7 @@
           <div class="info-item">
             <v-icon color="info" class="mr-2" size="small">mdi-information</v-icon>
             <span class="model-name">
-              <small class="text-caption d-block d-sm-inline text-medium-emphasis">Model:</small>
+              <small class="text-caption d-block d-sm-inline text-medium-emphasis">{{ $t('resultsDisplay.modelLabel') }}:</small>
               {{ displayModelName(responseData.model_used_for_retrieval) }}
             </span>
           </div>
@@ -14,7 +14,7 @@
           <div v-if="responseData.reranker_used" class="info-item mt-2">
             <v-icon color="info" class="mr-2" size="small">mdi-filter</v-icon>
             <span class="model-name">
-              <small class="text-caption d-block d-sm-inline text-medium-emphasis">Reranker:</small>
+              <small class="text-caption d-block d-sm-inline text-medium-emphasis">{{ $t('resultsDisplay.rerankerLabel') }}:</small>
               {{ displayModelName(responseData.reranker_used) }}
             </span>
           </div>
@@ -22,7 +22,7 @@
           <div v-if="responseData.language_detected" class="info-item mt-2">
             <v-icon color="info" class="mr-2" size="small">mdi-translate</v-icon>
             <span>
-              <small class="text-caption d-block d-sm-inline text-medium-emphasis">Language:</small>
+              <small class="text-caption d-block d-sm-inline text-medium-emphasis">{{ $t('resultsDisplay.languageLabel') }}:</small>
               {{ responseData.language_detected }}
             </span>
           </div>
@@ -58,8 +58,8 @@
                 class="ml-2 flex-shrink-0 add-btn"
                 @click.stop="addToCollection(result)"
                 :disabled="isAlreadyCollected(result.hpo_id)"
-                :title="isAlreadyCollected(result.hpo_id) ? result.hpo_id + ' already in collection' : 'Add ' + result.hpo_id + ' to collection'"
-                :aria-label="isAlreadyCollected(result.hpo_id) ? `HPO term ${result.hpo_id} (${result.label}) is in collection` : `Add ${result.label} (${result.hpo_id}) to collection`"
+                :title="isAlreadyCollected(result.hpo_id) ? $t('resultsDisplay.alreadyInCollectionTooltip', { id: result.hpo_id }) : $t('resultsDisplay.addToCollectionTooltip', { id: result.hpo_id })"
+                :aria-label="isAlreadyCollected(result.hpo_id) ? $t('resultsDisplay.alreadyInCollectionAriaLabel', { id: result.hpo_id, label: result.label }) : $t('resultsDisplay.addToCollectionAriaLabel', { id: result.hpo_id, label: result.label })"
               ></v-btn>
             </div>
             <div class="d-block mt-1">
@@ -70,7 +70,7 @@
           <v-list-item-subtitle class="d-flex flex-wrap justify-space-between align-center">
             <div class="d-flex align-center mt-1">
               <span v-if="result.original_rank !== undefined" class="text-caption text-high-emphasis mr-3">
-                Original rank: #{{ result.original_rank }}
+                {{ $t('resultsDisplay.originalRank') }}: #{{ result.original_rank }}
               </span>
             </div>
 
@@ -108,13 +108,12 @@
     </div>
     <div v-else-if="responseData && responseData.results && responseData.results.length === 0">
       <v-alert color="warning" icon="mdi-alert-circle">
-        No HPO terms found matching your query with the current threshold.
-        Try lowering the similarity threshold or rewording your query.
+        {{ $t('resultsDisplay.noTermsFound') }}
       </v-alert>
     </div>
     <div v-else-if="error">
       <v-alert color="error" icon="mdi-alert">
-        {{ error.detail || "An error occurred while processing your query." }}
+        {{ error.detail || $t('resultsDisplay.defaultError') }}
       </v-alert>
     </div>
   </div>

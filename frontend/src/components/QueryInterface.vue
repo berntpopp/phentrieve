@@ -18,25 +18,30 @@
             :aria-description="'Enter clinical text to search for HPO terms' + (isLoading ? '. Search in progress' : '')"
           >
             <template v-slot:label>
-              <span class="text-high-emphasis">Enter clinical text...</span>
+              <span class="text-high-emphasis">{{ $t('queryInterface.inputLabel') }}</span>
             </template>
           </v-text-field>
           
           <div class="d-flex align-center">
-            <v-btn 
-              icon 
-              variant="text" 
-              color="primary" 
-              class="mx-1 mx-sm-2"
-              @click="showAdvancedOptions = !showAdvancedOptions"
-              :disabled="isLoading"
-              :aria-label="showAdvancedOptions ? 'Close Advanced Options' : 'Open Advanced Options'"
-              :aria-expanded="showAdvancedOptions.toString()"
-              :aria-controls="'advanced-options-panel'"
-              size="small"
-            >
-              <v-icon>{{ showAdvancedOptions ? 'mdi-cog' : 'mdi-tune' }}</v-icon>
-            </v-btn>
+            <v-tooltip location="top" :text="$t('queryInterface.tooltips.advancedOptions')" role="tooltip">
+              <template v-slot:activator="{ props }">
+                <v-btn 
+                  v-bind="props"
+                  icon 
+                  variant="text" 
+                  color="primary" 
+                  class="mx-1 mx-sm-2"
+                  @click="showAdvancedOptions = !showAdvancedOptions"
+                  :disabled="isLoading"
+                  :aria-label="showAdvancedOptions ? 'Close Advanced Options' : 'Open Advanced Options'"
+                  :aria-expanded="showAdvancedOptions.toString()"
+                  :aria-controls="'advanced-options-panel'"
+                  size="small"
+                >
+                  <v-icon>{{ showAdvancedOptions ? 'mdi-cog' : 'mdi-tune' }}</v-icon>
+                </v-btn>
+              </template>
+            </v-tooltip>
             
             <v-btn
               color="primary"
@@ -68,82 +73,104 @@
           aria-label="Advanced search options"
           color="white"
         >
-          <div class="text-subtitle-2 mb-3">Advanced Options</div>
+          <div class="text-subtitle-2 mb-3">{{ $t('queryInterface.advancedOptions.title') }}</div>
           
           <v-row>
             <v-col cols="12" md="6">
-              <v-select
-                v-model="selectedModel"
-                :items="availableModels"
-                item-title="text"
-                item-value="value"
-                :disabled="isLoading"
-                variant="outlined"
-                density="compact"
-                aria-label="Select embedding model"
-                :aria-description="'Choose the model to use for text embedding. Currently selected: ' + selectedModel"
-                bg-color="white"
-                color="primary"
-              >
+              <v-tooltip location="bottom" :text="$t('queryInterface.tooltips.embeddingModel')" role="tooltip">
+                <template v-slot:activator="{ props }">
+                  <v-select
+                    v-bind="props"
+                    v-model="selectedModel"
+                    :items="availableModels"
+                    item-title="text"
+                    item-value="value"
+                    :disabled="isLoading"
+                    variant="outlined"
+                    density="compact"
+                    aria-label="Select embedding model"
+                    :aria-description="'Choose the model to use for text embedding. Currently selected: ' + selectedModel"
+                    bg-color="white"
+                    color="primary"
+                  >
+
                 <template v-slot:label>
-                  <span class="text-high-emphasis">Embedding Model</span>
+                  <span class="text-high-emphasis">{{ $t('queryInterface.advancedOptions.embeddingModel') }}</span>
                 </template>
-              </v-select>
+                  </v-select>
+                </template>
+              </v-tooltip>
             </v-col>
             
             <v-col cols="12" md="6">
-              <v-slider
-                v-model="similarityThreshold"
-                min="0"
-                max="1"
-                step="0.05"
-                thumb-label
-                :disabled="isLoading"
-                aria-label="Adjust similarity threshold"
-                :aria-valuetext="`Similarity threshold set to ${(similarityThreshold * 100).toFixed(0)}%`"
-                :aria-description="'Set the minimum similarity score required for matches. Higher values mean more precise but fewer results.'"
-                color="primary"
-              >
+              <v-tooltip location="bottom" :text="$t('queryInterface.tooltips.similarityThreshold')" role="tooltip">
+                <template v-slot:activator="{ props }">
+                  <v-slider
+                    v-bind="props"
+                    v-model="similarityThreshold"
+                    min="0"
+                    max="1"
+                    step="0.05"
+                    thumb-label
+                    :disabled="isLoading"
+                    aria-label="Adjust similarity threshold"
+                    :aria-valuetext="`Similarity threshold set to ${(similarityThreshold * 100).toFixed(0)}%`"
+                    :aria-description="'Set the minimum similarity score required for matches. Higher values mean more precise but fewer results.'"
+                    color="primary"
+                  >
+
                 <template v-slot:label>
-                  <span class="text-high-emphasis">Similarity Threshold</span>
-                </template>
-              </v-slider>
+                  <span class="text-high-emphasis">{{ $t('queryInterface.advancedOptions.similarityThreshold') }}</span>
+                  </template>
+                </v-slider>
+              </template>
+            </v-tooltip>
             </v-col>
           </v-row>
           
           <v-row>
             <v-col cols="12" md="6">
-              <v-switch
-                v-model="enableReranker"
-                :disabled="isLoading"
-                color="primary"
-                hide-details
-                class="mb-2"
-                aria-label="Toggle re-ranking feature"
-                :aria-description="'Enable or disable re-ranking of search results'"
-              >
+              <v-tooltip location="bottom" :text="$t('queryInterface.tooltips.enableReranking')" role="tooltip">
+                <template v-slot:activator="{ props }">
+                  <v-switch
+                    v-bind="props"
+                    v-model="enableReranker"
+                    :disabled="isLoading"
+                    color="primary"
+                    hide-details
+                    class="mb-2"
+                    aria-label="Toggle re-ranking feature"
+                    :aria-description="'Enable or disable re-ranking of search results'"
+                  >
                 <template v-slot:label>
-                  <span class="text-high-emphasis">Enable Re-ranking</span>
-                </template>
-              </v-switch>
+                  <span class="text-high-emphasis">{{ $t('queryInterface.advancedOptions.enableReranking') }}</span>
+                  </template>
+                </v-switch>
+              </template>
+            </v-tooltip>
             </v-col>
             
             <v-col cols="12" md="6" v-if="enableReranker">
-              <v-select
-                v-model="rerankerMode"
-                :items="rerankerModes"
-                :disabled="!enableReranker || isLoading"
-                variant="outlined"
-                density="compact"
-                aria-label="Select reranker mode"
-                :aria-description="'Choose between cross-lingual or monolingual re-ranking mode'"
-                bg-color="surface"
-                color="primary"
-              >
+              <v-tooltip location="bottom" :text="$t('queryInterface.tooltips.rerankerMode')" role="tooltip">
+                <template v-slot:activator="{ props }">
+                  <v-select
+                    v-bind="props"
+                    v-model="rerankerMode"
+                    :items="rerankerModes"
+                    :disabled="!enableReranker || isLoading"
+                    variant="outlined"
+                    density="compact"
+                    aria-label="Select reranker mode"
+                    :aria-description="'Choose between cross-lingual or monolingual re-ranking mode'"
+                    bg-color="surface"
+                    color="primary"
+                  >
                 <template v-slot:label>
-                  <span class="text-high-emphasis">Re-ranker Mode</span>
+                  <span class="text-high-emphasis">{{ $t('queryInterface.advancedOptions.rerankerMode') }}</span>
                 </template>
-              </v-select>
+                  </v-select>
+                </template>
+              </v-tooltip>
             </v-col>
           </v-row>
         </v-sheet>
@@ -190,25 +217,30 @@
     </div>
     
     <!-- Floating action button for collection panel -->
-    <v-btn
-      class="collection-fab collection-fab-position"
-      color="secondary"
-      icon
-      position="fixed"
-      location="bottom right"
-      size="large"
-      elevation="3"
-      @click="toggleCollectionPanel"
-      aria-label="Open HPO Collection Panel"
-    >
-      <v-badge
-        :content="collectedPhenotypes.length"
-        :model-value="collectedPhenotypes.length > 0"
-        color="primary"
-      >
-        <v-icon>mdi-format-list-checks</v-icon>
-      </v-badge>
-    </v-btn>
+    <v-tooltip location="left" :text="$t('queryInterface.tooltips.phenotypeCollection')" role="tooltip">
+      <template v-slot:activator="{ props }">
+        <v-btn
+          v-bind="props"
+          class="collection-fab collection-fab-position"
+          color="secondary"
+          icon
+          position="fixed"
+          location="bottom right"
+          size="large"
+          elevation="3"
+          @click="toggleCollectionPanel"
+          aria-label="Open HPO Collection Panel"
+        >
+          <v-badge
+            :content="collectedPhenotypes.length"
+            :model-value="collectedPhenotypes.length > 0"
+            color="primary"
+          >
+            <v-icon>mdi-format-list-checks</v-icon>
+          </v-badge>
+        </v-btn>
+      </template>
+    </v-tooltip>
     
     <!-- Collection Panel -->
     <v-navigation-drawer
@@ -219,9 +251,9 @@
       aria-label="Phenotype collection"
     >
       <v-list-item>
-        <v-list-item-title class="text-h6">HPO Collection</v-list-item-title>
+        <v-list-item-title class="text-h6">{{ $t('queryInterface.phenotypeCollection.title') }}</v-list-item-title>
         <template v-slot:append>
-          <v-btn icon @click="toggleCollectionPanel" aria-label="Close HPO Collection Panel">
+          <v-btn icon @click="toggleCollectionPanel" :aria-label="$t('queryInterface.phenotypeCollection.close')">
             <v-icon>mdi-close</v-icon>
           </v-btn>
         </template>
@@ -230,7 +262,7 @@
       <v-divider></v-divider>
       
       <v-list v-if="collectedPhenotypes.length > 0">
-        <v-list-subheader>{{ collectedPhenotypes.length }} phenotype(s) collected</v-list-subheader>
+        <v-list-subheader>{{ $t('queryInterface.phenotypeCollection.count', { count: collectedPhenotypes.length }) }}</v-list-subheader>
         
         <v-list-item
           v-for="(phenotype, index) in collectedPhenotypes"
@@ -259,63 +291,78 @@
       
       <v-sheet v-else class="pa-4 text-center">
         <v-icon size="large" color="grey-darken-2" class="mb-2">mdi-tray-plus</v-icon>
-        <div class="text-body-1 text-grey-darken-3">No phenotypes collected yet</div>
+        <div class="text-body-1 text-grey-darken-3">{{ $t('queryInterface.phenotypeCollection.empty') }}</div>
         <div class="text-body-2 text-grey-darken-3 mt-2">
-          Click the <v-icon size="small">mdi-plus-circle</v-icon> button next to any HPO term to add it to your collection
+          {{ $t('queryInterface.phenotypeCollection.instructions') }} <v-icon size="small">mdi-plus-circle</v-icon>
         </div>
       </v-sheet>
       
       <v-divider class="mt-4"></v-divider>
-      <v-list-subheader>Subject Information (Optional)</v-list-subheader>
+      <v-list-subheader>{{ $t('queryInterface.phenotypeCollection.subjectInfoHeader') }}</v-list-subheader>
       <div class="pa-4">
-        <v-text-field
-          v-model="phenopacketSubjectId"
-          label="Subject ID"
-          density="compact"
-          variant="outlined"
-          hide-details="auto"
-          class="mb-3"
-          aria-label="Enter subject identifier for Phenopacket"
-          bg-color="surface"
-          color="primary"
-        >
-          <template v-slot:label><span class="text-high-emphasis">Subject ID</span></template>
-        </v-text-field>
+        <v-tooltip location="bottom" :text="$t('queryInterface.tooltips.subjectId')" role="tooltip">
+          <template v-slot:activator="{ props }">
+            <v-text-field
+              v-bind="props"
+              v-model="phenopacketSubjectId"
+              label="Subject ID"
+              density="compact"
+              variant="outlined"
+              hide-details="auto"
+              class="mb-3"
+              aria-label="Enter subject identifier for Phenopacket"
+              bg-color="surface"
+              color="primary"
+            >
+              <template v-slot:label><span class="text-high-emphasis">{{ $t('queryInterface.phenotypeCollection.subjectId') }}</span></template>
+            </v-text-field>
+          </template>
+        </v-tooltip>
 
-        <v-select
-          v-model="phenopacketSex"
-          :items="sexOptions"
-          item-title="title"
-          item-value="value"
-          label="Sex"
-          density="compact"
-          variant="outlined"
-          hide-details="auto"
-          class="mb-3"
-          clearable
-          aria-label="Select subject sex for Phenopacket"
-          bg-color="surface"
-          color="primary"
-        >
-          <template v-slot:label><span class="text-high-emphasis">Sex</span></template>
-        </v-select>
+        <v-tooltip location="bottom" :text="$t('queryInterface.tooltips.sex')" role="tooltip">
+          <template v-slot:activator="{ props }">
+            <v-select
+              v-bind="props"
+              v-model="phenopacketSex"
+              :items="sexOptions"
+              item-title="title"
+              item-value="value"
+              label="Sex"
+              density="compact"
+              variant="outlined"
+              hide-details="auto"
+              class="mb-3"
+              clearable
+              aria-label="Select subject sex for Phenopacket"
+              bg-color="surface"
+              color="primary"
+            >
+              <template v-slot:label><span class="text-high-emphasis">{{ $t('queryInterface.phenotypeCollection.sex') }}</span></template>
+            </v-select>
+          </template>
+        </v-tooltip>
 
-        <v-text-field
-          v-model="phenopacketDateOfBirth"
-          label="Date of Birth (YYYY-MM-DD)"
-          placeholder="YYYY-MM-DD"
-          density="compact"
-          variant="outlined"
-          hide-details="auto"
-          class="mb-3"
-          clearable
-          type="date" 
-          aria-label="Enter subject date of birth for Phenopacket"
-          bg-color="surface"
-          color="primary"
-        >
-          <template v-slot:label><span class="text-high-emphasis">Date of Birth</span></template>
-        </v-text-field>
+        <v-tooltip location="bottom" :text="$t('queryInterface.tooltips.dateOfBirth')" role="tooltip">
+          <template v-slot:activator="{ props }">
+            <v-text-field
+              v-bind="props"
+              v-model="phenopacketDateOfBirth"
+              label="Date of Birth (YYYY-MM-DD)"
+              placeholder="YYYY-MM-DD"
+              density="compact"
+              variant="outlined"
+              hide-details="auto"
+              class="mb-3"
+              clearable
+              type="date" 
+              aria-label="Enter subject date of birth for Phenopacket"
+              bg-color="surface"
+              color="primary"
+            >
+              <template v-slot:label><span class="text-high-emphasis">{{ $t('queryInterface.phenotypeCollection.dateOfBirth') }}</span></template>
+            </v-text-field>
+          </template>
+        </v-tooltip>
       </div>
       
       <template v-slot:append>
@@ -330,7 +377,7 @@
             :disabled="collectedPhenotypes.length === 0"
             aria-label="Export collected phenotypes as Phenopacket JSON"
           >
-            Export as Phenopacket (JSON)
+            {{ $t('queryInterface.phenotypeCollection.exportPhenopacket') }}
           </v-btn>
           <v-btn
             block
@@ -341,7 +388,7 @@
             @click="exportPhenotypes"
             :disabled="collectedPhenotypes.length === 0"
           >
-            Export as Text
+            {{ $t('queryInterface.phenotypeCollection.exportText') }}
           </v-btn>
           <v-btn
             block
@@ -351,7 +398,7 @@
             @click="clearPhenotypeCollection"
             :disabled="collectedPhenotypes.length === 0"
           >
-            Clear Collection
+            {{ $t('queryInterface.phenotypeCollection.clear') }}
           </v-btn>
         </div>
       </template>

@@ -1,6 +1,7 @@
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
+import i18n from './i18n'
 
 // Import critical CSS first to optimize rendering
 import './critical.css'
@@ -37,6 +38,7 @@ const pinia = createPinia()
 app.use(pinia)
 app.use(vuetify)
 app.use(router)
+app.use(i18n)
 
 // Initialize logService with store
 const logStore = useLogStore(pinia)

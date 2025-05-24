@@ -9,7 +9,7 @@
       </div>
       <div class="text-center px-4 pb-4" style="max-width: 600px;">
         <p class="text-body-2 text-medium-emphasis">
-          Phentrieve is an AI-powered tool that accurately maps clinical text to standardized Human Phenotype Ontology (HPO) terms, streamlining phenotype annotation for research and diagnostics.
+          {{ t('queryInterface.welcomeText') }}
         </p>
       </div>
       <QueryInterface />
@@ -20,6 +20,7 @@
 <script>
 import QueryInterface from '@/components/QueryInterface.vue'
 import { useLogStore } from '@/stores/log'
+import { useI18n } from 'vue-i18n'
 
 export default {
   name: 'HomeView',
@@ -28,7 +29,8 @@ export default {
   },
   setup() {
     const logStore = useLogStore()
-    return { logStore }
+    const { t } = useI18n()
+    return { logStore, t }
   }
 }
 </script>

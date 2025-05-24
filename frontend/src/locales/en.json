@@ -1,0 +1,169 @@
+{
+  "app": {
+    "footer": {
+      "disclaimer": "Disclaimer",
+      "disclaimerTooltip": "View important disclaimer and usage information",
+      "disclaimerAcknowledgedTooltip": "Acknowledged on {date}",
+      "faq": "FAQ",
+      "faqTooltip": "View frequently asked questions",
+      "logs": "Logs",
+      "logsTooltip": "View application logs and debug information",
+      "copyright": "© {year} Phentrieve",
+      "githubTooltip": "View source code on GitHub",
+      "docsTooltip": "View project documentation",
+      "licenseTooltip": "View project license"
+    }
+  },
+  "disclaimerDialog": {
+    "title": "Research Use Disclaimer",
+    "mainHeader": "Phentrieve is intended for research and informational purposes only.",
+    "description": "This tool is designed to map clinical text to standardized Human Phenotype Ontology (HPO) terms to aid in research and knowledge discovery.",
+    "limitationsTitle": "Important Limitations:",
+    "limitations": {
+      "item1": "Phentrieve is NOT a clinical diagnostic tool and should not replace professional medical advice, diagnosis, or treatment.",
+      "item2": "The AI models and HPO mapping may contain inaccuracies, errors, or limitations.",
+      "item3": "Results should be verified by qualified medical professionals before being used in any clinical context.",
+      "item4": "The tool does not establish a doctor-patient relationship and is not a substitute for consulting with healthcare providers."
+    },
+    "responsibilityTitle": "User Responsibility:",
+    "responsibilityText": "By using Phentrieve, you acknowledge that you understand these limitations and that you assume full responsibility for how you interpret and use the information provided by this tool.",
+    "acceptButton": "I Understand and Agree"
+  },
+  "queryInterface": {
+    "title": "Phentrieve",
+    "subtitle": "HPO Term Mapping for Clinical Phenotype Descriptions",
+    "welcomeText": "Phentrieve is an AI-powered tool that accurately maps clinical text to standardized Human Phenotype Ontology (HPO) terms, streamlining phenotype annotation for research and diagnostics.",
+    "inputLabel": "Enter clinical text description",
+    "examples": {
+      "title": "Examples",
+      "loadExample": "Load example",
+      "example1": "The patient presents with short stature, recurrent fractures, and blue sclerae, suggesting osteogenesis imperfecta.",
+      "example2": "The child exhibits facial dysmorphism with hypertelorism, downslanting palpebral fissures, and low-set ears, along with congenital heart defects and developmental delay."
+    },
+    "formLabel": "Patient Information (Optional)",
+    "idLabel": "Patient ID",
+    "sexLabel": "Sex",
+    "dobLabel": "Date of Birth",
+    "sexOptions": {
+      "male": "Male",
+      "female": "Female",
+      "other": "Other",
+      "unknown": "Unknown"
+    },
+    "analyzeButton": "Analyze Text",
+    "clearButton": "Clear",
+    "copyButton": "Copy HPO Terms",
+    "exportButton": "Export as Phenopacket",
+    "processingMessage": "Processing...",
+    "noInputError": "Please enter some text to analyze",
+    "copySuccess": "HPO terms copied to clipboard",
+    "exportSuccess": "Phenopacket exported to clipboard",
+    "error": "Error: {message}",
+    "phenotypeCollection": {
+      "title": "HPO Collection",
+      "close": "Close HPO Collection Panel",
+      "count": "{count} phenotype(s) collected",
+      "empty": "No phenotypes collected yet",
+      "instructions": "Click the button next to any HPO term to add it to your collection",
+      "subjectInfoHeader": "Subject Information (Optional)",
+      "subjectId": "Subject ID",
+      "sex": "Sex",
+      "dateOfBirth": "Date of Birth",
+      "exportPhenopacket": "Export as Phenopacket (JSON)",
+      "exportText": "Export as Text",
+      "clear": "Clear Collection"
+    },
+    "advancedOptions": {
+      "title": "Advanced Options",
+      "embeddingModel": "Embedding Model",
+      "similarityThreshold": "Similarity Threshold",
+      "enableReranking": "Enable Re-ranking",
+      "rerankerMode": "Re-ranker Mode"
+    },
+    "tooltips": {
+      "advancedOptions": "Configure advanced search settings",
+      "phenotypeCollection": "View and manage collected phenotypes",
+      "embeddingModel": "Select the AI model used for embedding text",
+      "similarityThreshold": "Set the minimum similarity required for matches (higher = more precise, fewer results)",
+      "enableReranking": "Re-rank search results for improved accuracy",
+      "rerankerMode": "Choose how search results are re-ranked",
+      "subjectId": "Enter an identifier for the subject/patient",
+      "sex": "Select the subject's biological sex",
+      "dateOfBirth": "Enter the subject's date of birth"
+    }
+  },
+  "resultsDisplay": {
+    "title": "Extracted HPO Terms",
+    "termCountLabel": "{count} terms found",
+    "noResultsMessage": "No HPO terms identified. Try a different text or check your input.",
+    "termIdHeader": "HPO ID",
+    "termNameHeader": "Term Name",
+    "confidenceHeader": "Confidence",
+    "actionsHeader": "Actions",
+    "removeTermTooltip": "Remove this term",
+    "confidenceTooltip": "Confidence score: {score}",
+    "viewTermLink": "View on HPO website",
+    "modelLabel": "Model",
+    "rerankerLabel": "Reranker",
+    "languageLabel": "Language",
+    "originalRank": "Original rank",
+    "noTermsFound": "No HPO terms found matching your query with the current threshold. Try lowering the similarity threshold or rewording your query.",
+    "defaultError": "An error occurred while processing your query.",
+    "addToCollectionTooltip": "Add {id} to collection",
+    "alreadyInCollectionTooltip": "{id} already in collection",
+    "addToCollectionAriaLabel": "Add {label} ({id}) to collection",
+    "alreadyInCollectionAriaLabel": "HPO term {id} ({label}) is in collection"
+  },
+  "logViewer": {
+    "title": "Application Logs",
+    "clearLogsButton": "Clear Logs",
+    "closeButton": "Close",
+    "emptyLogsMessage": "No logs to display",
+    "searchPlaceholder": "Search logs",
+    "logLevels": "Log Levels",
+    "timestamp": "Timestamp",
+    "level": "Level",
+    "message": "Message",
+    "details": "Details"
+  },
+  "languageSwitcher": {
+    "label": "Language"
+  },
+  "faq": {
+    "backToHome": "Back to Home",
+    "pageTitle": "Frequently Asked Questions",
+    "searchPlaceholder": "Search through {count} questions",
+    "categories": {
+      "general": {
+        "title": "General Information",
+        "questions": {
+          "whatIsPhentrieve": {
+            "question": "What is Phentrieve?",
+            "answer": "<p>Phentrieve is an advanced AI-powered tool that automatically maps clinical descriptions to standardized Human Phenotype Ontology (HPO) terms. It streamlines the process of phenotype annotation for both research and clinical diagnostics, making it faster and more accurate.</p><p>Key features include:</p><ul><li>Automatic mapping of clinical text to HPO terms</li><li>High accuracy through state-of-the-art AI models</li><li>Support for multiple languages</li><li>User-friendly interface</li></ul>"
+          },
+          "howItWorks": {
+            "question": "How does Phentrieve work?",
+            "answer": "<p>Phentrieve uses a sophisticated pipeline of AI models and algorithms to process clinical text:</p><ol><li><strong>Text Analysis:</strong> The system analyzes the input text using specialized biomedical language models</li><li><strong>Term Matching:</strong> It identifies potential HPO terms using semantic search and context-aware matching</li><li><strong>Ranking:</strong> The matches are ranked by relevance using advanced cross-encoder models</li><li><strong>Results:</strong> The most relevant HPO terms are presented to the user</li></ol><p>This process ensures high-quality matches while maintaining efficiency.</p>"
+          },
+          "whoCanUse": {
+            "question": "Who can use Phentrieve?",
+            "answer": "<p>Phentrieve is designed for:</p><ul><li><strong>Clinical Geneticists:</strong> For efficient patient phenotyping</li><li><strong>Researchers:</strong> For standardizing phenotype descriptions in studies</li><li><strong>Healthcare Professionals:</strong> For consistent phenotype documentation</li><li><strong>Bioinformaticians:</strong> For automated phenotype analysis</li></ul><p>The tool is free to use and accessible through a web browser.</p>"
+          }
+        }
+      },
+      "technical": {
+        "title": "Technical Details",
+        "questions": {
+          "reranking": {
+            "question": "How does the re-ranking process work?",
+            "answer": "<p>Phentrieve uses a two-stage approach:</p><ol><li>Initial retrieval using bi-encoder models (BioLORD/Jina)</li><li>Re-ranking using cross-encoder models:</li></ol><ul><li>cross-encoder/mmarco-mMiniLMv2-L12-H384-v1 (general multilingual)</li><li>MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7 (multilingual NLI)</li><li>ncbi/MedCPT-Cross-Encoder (biomedical specific)</li></ul>"
+          },
+          "performance": {
+            "question": "What performance can I expect?",
+            "answer": "<p>Our benchmark results show:</p><ul><li>BioLORD-2023-M: HR@1=0.3333, HR@3=0.6667, HR@5=0.7778</li><li>Jina-v2-base-de: HR@1=0.2222, HR@3=0.4444, HR@5=0.5556</li></ul><p>Performance may vary based on the complexity and specificity of the input text.</p>"
+          }
+        }
+      }
+    }
+  }
+}

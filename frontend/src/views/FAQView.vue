@@ -10,7 +10,7 @@
         prepend-icon="mdi-arrow-left"
         aria-label="Navigate back to home page"
       >
-        Back to Home
+        {{ t('faq.backToHome') }}
       </v-btn>
 
       <!-- Main Content -->
@@ -18,7 +18,7 @@
           <!-- Header -->
           <div class="d-flex align-center mb-6">
             <img src="/hpo-logo.svg" alt="HPO Logo" width="40" height="40" class="mr-3" loading="lazy">
-            <h1 class="text-h4 font-weight-light">{{ faqData.pageTitle }}</h1>
+            <h1 class="text-h4 font-weight-light">{{ t('faq.pageTitle') }}</h1>
           </div>
 
           <!-- Search Bar -->
@@ -33,7 +33,7 @@
                 variant="outlined"
                 hide-details
                 aria-label="Search frequently asked questions"
-                :placeholder="'Search through ' + totalQuestions + ' questions'"
+                :placeholder="t('faq.searchPlaceholder', { count: totalQuestions })"
               />
             </v-card-text>
           </v-card>
@@ -49,7 +49,7 @@
                 :aria-label="category.title + ' category'"
               >
                 <v-expansion-panel-title class="text-subtitle-1 text-primary-darken-1">
-                  {{ category.title }}
+                  {{ t(`faq.categories.${category.id}.title`) }}
                 </v-expansion-panel-title>
                 <v-expansion-panel-text role="tabpanel">
                   <v-expansion-panels variant="accordion">
@@ -60,11 +60,11 @@
                       :aria-label="'Question: ' + qa.question"
                     >
                       <v-expansion-panel-title class="text-body-1">
-                        {{ qa.question }}
+                        {{ t(`faq.categories.${category.id}.questions.${qa.id}.question`) }}
                       </v-expansion-panel-title>
                       <v-expansion-panel-text>
                         <div 
-                          v-html="qa.answer" 
+                          v-html="t(`faq.categories.${category.id}.questions.${qa.id}.answer`)" 
                           class="answer-content text-body-2" 
                           role="region" 
                           :aria-label="'Answer to: ' + qa.question"
@@ -82,28 +82,53 @@
 </template>
 
 <script>
+import { useI18n } from 'vue-i18n'
 import faqData from '@/config/faqConfig.json'
 
 export default {
   name: 'FAQView',
+  setup() {
+    const { t } = useI18n()
+    return { t }
+  },
   data() {
     return {
       faqData,
-      searchQuery: ''
+      searchQuery: '',
+      categoriesMap: {
+        'general': {
+          id: 'general',
+          questions: [
+            { id: 'whatIsPhentrieve' },
+            { id: 'howItWorks' },
+            { id: 'whoCanUse' }
+          ]
+        },
+        'technical': {
+          id: 'technical',
+          questions: [
+            { id: 'reranking' },
+            { id: 'performance' }
+          ]
+        }
+      }
     }
   },
   computed: {
     filteredCategories() {
+      const categories = Object.values(this.categoriesMap);
+      
       if (!this.searchQuery) {
-        return this.faqData.categories
+        return categories
       }
 
       const query = this.searchQuery.toLowerCase()
-      return this.faqData.categories.map(category => {
-        const filteredQuestions = category.questions.filter(qa =>
-          qa.question.toLowerCase().includes(query) ||
-          qa.answer.toLowerCase().includes(query)
-        )
+      return categories.map(category => {
+        const filteredQuestions = category.questions.filter(qa => {
+          const question = this.t(`faq.categories.${category.id}.questions.${qa.id}.question`).toLowerCase()
+          const answer = this.t(`faq.categories.${category.id}.questions.${qa.id}.answer`).toLowerCase()
+          return question.includes(query) || answer.includes(query)
+        })
         
         return filteredQuestions.length > 0
           ? { ...category, questions: filteredQuestions }
@@ -111,7 +136,7 @@ export default {
       }).filter(Boolean)
     },
     totalQuestions() {
-      return this.faqData.categories.reduce((total, category) => {
+      return Object.values(this.categoriesMap).reduce((total, category) => {
         return total + category.questions.length
       }, 0)
     }

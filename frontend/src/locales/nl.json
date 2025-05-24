@@ -1,0 +1,169 @@
+{
+  "app": {
+    "footer": {
+      "disclaimer": "Disclaimer",
+      "disclaimerTooltip": "Bekijk belangrijke disclaimer- en gebruiksinformatie",
+      "disclaimerAcknowledgedTooltip": "Erkend op {date}",
+      "faq": "FAQ",
+      "faqTooltip": "Bekijk veelgestelde vragen",
+      "logs": "Logboeken",
+      "logsTooltip": "Bekijk applicatielogboeken en debuginformatie",
+      "copyright": "© {year} Phentrieve",
+      "githubTooltip": "Bekijk broncode op GitHub",
+      "docsTooltip": "Bekijk projectdocumentatie",
+      "licenseTooltip": "Bekijk projectlicentie"
+    }
+  },
+  "disclaimerDialog": {
+    "title": "Disclaimer voor Onderzoeksgebruik",
+    "mainHeader": "Phentrieve is alleen bedoeld voor onderzoeks- en informatiedoeleinden.",
+    "description": "Deze tool is ontworpen om klinische tekst te koppelen aan gestandaardiseerde Human Phenotype Ontology (HPO) termen om onderzoek en kennisontdekking te ondersteunen.",
+    "limitationsTitle": "Belangrijke Beperkingen:",
+    "limitations": {
+      "item1": "Phentrieve is <strong class=\"error--text\">GEEN</strong> klinisch diagnostisch hulpmiddel en mag professioneel medisch advies, diagnose of behandeling niet vervangen.",
+      "item2": "De AI-modellen en HPO-mapping kunnen onnauwkeurigheden, fouten of beperkingen bevatten.",
+      "item3": "Resultaten moeten worden geverifieerd door gekwalificeerde medische professionals voordat ze in een klinische context worden gebruikt.",
+      "item4": "De tool creëert geen arts-patiëntrelatie en is geen vervanging voor het raadplegen van zorgverleners."
+    },
+    "responsibilityTitle": "Gebruikersverantwoordelijkheid:",
+    "responsibilityText": "Door Phentrieve te gebruiken, erkent u dat u deze beperkingen begrijpt en de volledige verantwoordelijkheid aanvaardt voor hoe u de door deze tool verstrekte informatie interpreteert en gebruikt.",
+    "acceptButton": "Ik begrijp het en ga akkoord"
+  },
+  "queryInterface": {
+    "title": "Phentrieve",
+    "subtitle": "HPO-termmapping voor klinische fenotypebeschrijvingen",
+    "welcomeText": "Phentrieve is een door AI aangedreven tool die klinische tekst nauwkeurig koppelt aan gestandaardiseerde Human Phenotype Ontology (HPO) termen, waardoor fenotype-annotatie voor onderzoek en diagnostiek wordt gestroomlijnd.",
+    "inputLabel": "Voer klinische tekstbeschrijving in",
+    "examples": {
+      "title": "Voorbeelden",
+      "loadExample": "Voorbeeld laden",
+      "example1": "De patiënt presenteert met kleine gestalte, terugkerende fracturen en blauwe sclerae, wat wijst op osteogenesis imperfecta.",
+      "example2": "Het kind vertoont faciale dysmorfie met hypertelorisme, naar beneden gerichte oogleden en laag geplaatste oren, samen met aangeboren hartafwijkingen en ontwikkelingsachterstand."
+    },
+    "formLabel": "Patiëntinformatie (Optioneel)",
+    "idLabel": "Patiënt-ID",
+    "sexLabel": "Geslacht",
+    "dobLabel": "Geboortedatum",
+    "sexOptions": {
+      "male": "Man",
+      "female": "Vrouw",
+      "other": "Anders",
+      "unknown": "Onbekend"
+    },
+    "analyzeButton": "Tekst analyseren",
+    "clearButton": "Wissen",
+    "copyButton": "HPO-termen kopiëren",
+    "exportButton": "Exporteren als Phenopacket",
+    "processingMessage": "Verwerken...",
+    "noInputError": "Voer tekst in om te analyseren",
+    "copySuccess": "HPO-termen gekopieerd naar klembord",
+    "exportSuccess": "Phenopacket geëxporteerd naar klembord",
+    "error": "Fout: {message}",
+    "phenotypeCollection": {
+      "title": "HPO-Verzameling",
+      "close": "HPO-verzamelingspaneel sluiten",
+      "count": "{count} fenotype(n) verzameld",
+      "empty": "Nog geen fenotypen verzameld",
+      "instructions": "Klik op de knop naast een HPO-term om deze aan uw verzameling toe te voegen",
+      "subjectInfoHeader": "Patiëntinformatie (Optioneel)",
+      "subjectId": "Patiënt-ID",
+      "sex": "Geslacht",
+      "dateOfBirth": "Geboortedatum",
+      "exportPhenopacket": "Exporteren als Phenopacket (JSON)",
+      "exportText": "Exporteren als tekst",
+      "clear": "Verzameling wissen"
+    },
+    "advancedOptions": {
+      "title": "Geavanceerde opties",
+      "embeddingModel": "Embedding-model",
+      "similarityThreshold": "Overeenkomstdrempel",
+      "enableReranking": "Herrangschikking inschakelen",
+      "rerankerMode": "Herrangschikkingsmodus"
+    },
+    "tooltips": {
+      "advancedOptions": "Configureer geavanceerde zoekinstellingen",
+      "phenotypeCollection": "Bekijk en beheer verzamelde fenotypen",
+      "embeddingModel": "Selecteer het AI-model dat wordt gebruikt voor tekstembedding",
+      "similarityThreshold": "Stel de minimale overeenkomst in die vereist is voor matches (hoger = nauwkeuriger, minder resultaten)",
+      "enableReranking": "Herorden zoekresultaten voor verbeterde nauwkeurigheid",
+      "rerankerMode": "Kies hoe zoekresultaten worden geherordend",
+      "subjectId": "Voer een identificatie in voor de patiënt",
+      "sex": "Selecteer het biologische geslacht van de patiënt",
+      "dateOfBirth": "Voer de geboortedatum van de patiënt in"
+    }
+  },
+  "resultsDisplay": {
+    "title": "Geëxtraheerde HPO-termen",
+    "termCountLabel": "{count} termen gevonden",
+    "noResultsMessage": "Geen HPO-termen geïdentificeerd. Probeer een andere tekst of controleer uw invoer.",
+    "termIdHeader": "HPO-ID",
+    "termNameHeader": "Termnaam",
+    "confidenceHeader": "Betrouwbaarheid",
+    "actionsHeader": "Acties",
+    "removeTermTooltip": "Deze term verwijderen",
+    "confidenceTooltip": "Betrouwbaarheidsscore: {score}",
+    "viewTermLink": "Bekijk op HPO-website",
+    "modelLabel": "Model",
+    "rerankerLabel": "Herrangschikker",
+    "languageLabel": "Taal",
+    "originalRank": "Oorspronkelijke rang",
+    "noTermsFound": "Geen HPO-termen gevonden die overeenkomen met uw zoekopdracht met de huidige drempel. Probeer de overeenkomstdrempel te verlagen of uw zoekopdracht te herformuleren.",
+    "defaultError": "Er is een fout opgetreden bij het verwerken van uw zoekopdracht.",
+    "addToCollectionTooltip": "{id} aan verzameling toevoegen",
+    "alreadyInCollectionTooltip": "{id} is al in verzameling",
+    "addToCollectionAriaLabel": "{label} ({id}) aan verzameling toevoegen",
+    "alreadyInCollectionAriaLabel": "HPO-term {id} ({label}) is in verzameling"
+  },
+  "logViewer": {
+    "title": "Applicatielogboeken",
+    "clearLogsButton": "Logboeken wissen",
+    "closeButton": "Sluiten",
+    "emptyLogsMessage": "Geen logboeken om weer te geven",
+    "searchPlaceholder": "Logboeken zoeken",
+    "logLevels": "Logboekniveaus",
+    "timestamp": "Tijdstempel",
+    "level": "Niveau",
+    "message": "Bericht",
+    "details": "Details"
+  },
+  "languageSwitcher": {
+    "label": "Taal"
+  },
+  "faq": {
+    "backToHome": "Terug naar hoofdpagina",
+    "pageTitle": "Veelgestelde Vragen",
+    "searchPlaceholder": "Zoek door {count} vragen",
+    "categories": {
+      "general": {
+        "title": "Algemene Informatie",
+        "questions": {
+          "whatIsPhentrieve": {
+            "question": "Wat is Phentrieve?",
+            "answer": "<p>Phentrieve is een geavanceerde, door AI aangedreven tool die automatisch klinische beschrijvingen koppelt aan gestandaardiseerde Human Phenotype Ontology (HPO) termen. Het stroomlijnt het proces van fenotype-annotatie voor zowel onderzoek als klinische diagnostiek, waardoor het sneller en nauwkeuriger wordt.</p><p>Belangrijkste kenmerken zijn:</p><ul><li>Automatische mapping van klinische tekst naar HPO-termen</li><li>Hoge nauwkeurigheid door geavanceerde AI-modellen</li><li>Ondersteuning voor meerdere talen</li><li>Gebruiksvriendelijke interface</li></ul>"
+          },
+          "howItWorks": {
+            "question": "Hoe werkt Phentrieve?",
+            "answer": "<p>Phentrieve gebruikt een geavanceerde pipeline van AI-modellen en algoritmen om klinische tekst te verwerken:</p><ol><li><strong>Tekstanalyse:</strong> Het systeem analyseert de invoertekst met behulp van gespecialiseerde biomedische taalmodellen</li><li><strong>Termmatching:</strong> Het identificeert potentiële HPO-termen met behulp van semantisch zoeken en contextbewuste matching</li><li><strong>Rangschikking:</strong> De matches worden gerangschikt op relevantie met behulp van geavanceerde cross-encoder modellen</li><li><strong>Resultaten:</strong> De meest relevante HPO-termen worden aan de gebruiker gepresenteerd</li></ol><p>Dit proces zorgt voor kwalitatief hoogwaardige matches met behoud van efficiëntie.</p>"
+          },
+          "whoCanUse": {
+            "question": "Wie kan Phentrieve gebruiken?",
+            "answer": "<p>Phentrieve is ontworpen voor:</p><ul><li><strong>Klinisch genetici:</strong> Voor efficiënte fenotypering van patiënten</li><li><strong>Onderzoekers:</strong> Voor het standaardiseren van fenotypebeschrijvingen in studies</li><li><strong>Zorgverleners:</strong> Voor consistente fenotypedocumentatie</li><li><strong>Bioinformatici:</strong> Voor geautomatiseerde fenotype-analyse</li></ul><p>De tool is gratis te gebruiken en toegankelijk via een webbrowser.</p>"
+          }
+        }
+      },
+      "technical": {
+        "title": "Technische Details",
+        "questions": {
+          "reranking": {
+            "question": "Hoe werkt het herrangschikkingsproces?",
+            "answer": "<p>Phentrieve gebruikt een tweefasenaanpak:</p><ol><li>Initiële ophaling met behulp van bi-encoder modellen (BioLORD/Jina)</li><li>Herrangschikking met behulp van cross-encoder modellen:</li></ol><ul><li>cross-encoder/mmarco-mMiniLMv2-L12-H384-v1 (algemeen meertalig)</li><li>MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7 (meertalig NLI)</li><li>ncbi/MedCPT-Cross-Encoder (biomedisch specifiek)</li></ul>"
+          },
+          "performance": {
+            "question": "Welke prestaties kan ik verwachten?",
+            "answer": "<p>Onze benchmark resultaten tonen:</p><ul><li>BioLORD-2023-M: HR@1=0.3333, HR@3=0.6667, HR@5=0.7778</li><li>Jina-v2-base-de: HR@1=0.2222, HR@3=0.4444, HR@5=0.5556</li></ul><p>De prestaties kunnen variëren afhankelijk van de complexiteit en specificiteit van de invoertekst.</p>"
+          }
+        }
+      }
+    }
+  }
+}

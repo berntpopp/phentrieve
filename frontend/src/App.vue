@@ -9,15 +9,18 @@
     
     <v-footer app class="d-flex justify-space-between pa-2" style="z-index: 1;" role="contentinfo">
       <div class="d-flex align-center">
-        <v-btn
-          variant="text"
-          density="compact"
-          class="text-body-2 text-primary mr-2"
-          prepend-icon="mdi-alert-circle-outline"
-          @click="showDisclaimerDialog"
-          aria-label="View disclaimer information"
-        >
-          Disclaimer
+        <v-tooltip location="top" :text="$t('app.footer.disclaimerTooltip')" role="tooltip" aria-label="Disclaimer information">
+          <template v-slot:activator="{ props }">
+            <v-btn
+              v-bind="props"
+              variant="text"
+              density="compact"
+              class="text-body-2 text-primary mr-2"
+              prepend-icon="mdi-alert-circle-outline"
+              @click="showDisclaimerDialog"
+              aria-label="View disclaimer information"
+            >
+          {{ $t('app.footer.disclaimer') }}
           <template v-if="disclaimerStore.isAcknowledged" #append>
             <v-tooltip location="top" role="tooltip" aria-label="Disclaimer acknowledgment date">
               <template v-slot:activator="{ props }">
@@ -31,37 +34,49 @@
                   mdi-check-circle
                 </v-icon>
               </template>
-              <span>Acknowledged on {{ disclaimerStore.formattedAcknowledgmentDate }}</span>
+              <span>{{ $t('app.footer.disclaimerAcknowledgedTooltip', { date: disclaimerStore.formattedAcknowledgmentDate }) }}</span>
             </v-tooltip>
           </template>
-        </v-btn>
+            </v-btn>
+          </template>
+        </v-tooltip>
       </div>
       
       <div class="d-flex align-center">
-        <v-btn
-          variant="text"
-          density="compact"
-          class="text-body-2 text-high-emphasis mr-2"
-          prepend-icon="mdi-help-circle-outline"
-          :to="{ name: 'faq' }"
-          aria-label="View frequently asked questions"
-          color="primary"
-        >
-          FAQ
-        </v-btn>
-        <v-btn
-          variant="text"
-          density="compact"
-          class="text-body-2 text-high-emphasis mr-2"
-          prepend-icon="mdi-text-box-search-outline"
-          @click="logStore.toggleViewer"
-          aria-label="Toggle log viewer"
-          color="primary"
-        >
-          Logs
-        </v-btn>
-        <div class="text-body-2 text-high-emphasis mr-2" aria-label="Copyright">&copy; {{ new Date().getFullYear() }} Phentrieve</div>
-        <v-tooltip location="top" text="View source code on GitHub" role="tooltip" aria-label="GitHub repository link">
+        <LanguageSwitcher class="mr-2" />
+        <v-tooltip location="top" :text="$t('app.footer.faqTooltip')" role="tooltip" aria-label="FAQ information">
+          <template v-slot:activator="{ props }">
+            <v-btn
+              v-bind="props"
+              variant="text"
+              density="compact"
+              class="text-body-2 text-high-emphasis mr-2"
+              prepend-icon="mdi-help-circle-outline"
+              :to="{ name: 'faq' }"
+              aria-label="View frequently asked questions"
+              color="primary"
+            >
+          {{ $t('app.footer.faq') }}
+            </v-btn>
+          </template>
+        </v-tooltip>
+        <v-tooltip location="top" :text="$t('app.footer.logsTooltip')" role="tooltip" aria-label="Log viewer information">
+          <template v-slot:activator="{ props }">
+            <v-btn
+              v-bind="props"
+              variant="text"
+              density="compact"
+              class="text-body-2 text-high-emphasis mr-2"
+              prepend-icon="mdi-text-box-search-outline"
+              @click="logStore.toggleViewer"
+              aria-label="Toggle log viewer"
+              color="primary"
+            >
+          {{ $t('app.footer.logs') }}
+            </v-btn>
+          </template>
+        </v-tooltip>
+        <v-tooltip location="top" :text="$t('app.footer.githubTooltip')" role="tooltip" aria-label="GitHub repository link">
           <template v-slot:activator="{ props }">
             <v-btn
               v-bind="props"
@@ -77,7 +92,7 @@
             ></v-btn>
           </template>
         </v-tooltip>
-        <v-tooltip location="top" text="View project documentation" role="tooltip" aria-label="Documentation link">
+        <v-tooltip location="top" :text="$t('app.footer.docsTooltip')" role="tooltip" aria-label="Documentation link">
           <template v-slot:activator="{ props }">
             <v-btn
               v-bind="props"
@@ -93,7 +108,7 @@
             ></v-btn>
           </template>
         </v-tooltip>
-        <v-tooltip location="top" text="View project license" role="tooltip" aria-label="License link">
+        <v-tooltip location="top" :text="$t('app.footer.licenseTooltip')" role="tooltip" aria-label="License link">
           <template v-slot:activator="{ props }">
             <v-btn
               v-bind="props"
@@ -127,12 +142,14 @@ import { useLogStore } from './stores/log'
 import { logService } from './services/logService'
 import DisclaimerDialog from './components/DisclaimerDialog.vue'
 import LogViewer from './components/LogViewer.vue'
+import LanguageSwitcher from './components/LanguageSwitcher.vue'
 
 export default {
   name: 'App',
   components: {
     DisclaimerDialog,
-    LogViewer
+    LogViewer,
+    LanguageSwitcher
   },
   data() {
     return {
