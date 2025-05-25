@@ -7,19 +7,14 @@ import es from './locales/es.json'
 import de from './locales/de.json'
 import nl from './locales/nl.json'
 
-// Create messages object with imported locales
-function loadLocaleMessages() {
-  const messages = {
-    en,
-    fr,
-    es,
-    de,
-    nl
-  }
-  return messages
+// Create messages object directly with imported locales
+const messages = {
+  en,
+  fr,
+  es,
+  de,
+  nl
 }
-
-const messages = loadLocaleMessages()
 
 // Determine initial locale: localStorage > browser language > default ('en')
 let initialLocale = 'en'; // Default
@@ -37,12 +32,23 @@ try {
   console.warn('Could not access localStorage for language preference. Defaulting to English.');
 }
 
-export default createI18n({
-  legacy: false, // Important for Composition API
+const i18n = createI18n({
+  legacy: false, // Use Composition API features by default
   locale: initialLocale,
   fallbackLocale: 'en',
   messages: messages,
+  
+  // Critical: Ensure $t is available in Options API components
+  globalInjection: true,
+  
+  // Critical: Disable runtime-only mode to properly compile messages with HTML
+  runtimeOnly: false,
+  
+  // Other configuration options
   warnHtmlMessage: false, // Allow HTML in messages (e.g., for FAQ)
-  missingWarn: process.env.NODE_ENV !== 'production', // Show missing warnings only in dev
-  fallbackWarn: process.env.NODE_ENV !== 'production', // Show fallback warnings only in dev
+  missingWarn: import.meta.env.MODE !== 'production', // Show missing warnings only in dev
+  fallbackWarn: import.meta.env.MODE !== 'production', // Show fallback warnings only in dev
+  escapeParameter: true, // Escape HTML in parameters for security
 })
+
+export default i18n
