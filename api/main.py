@@ -7,21 +7,22 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 # Add project root to Python path
+# This needs to be before other project-specific imports
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from api.routers import (
+from api.routers import (  # noqa: E402
     query_router,
     health,
     similarity_router,
     config_info_router,
     text_processing_router,
 )
-from api.dependencies import (
+from api.dependencies import (  # noqa: E402
     get_sbert_model_dependency,
     get_dense_retriever_dependency,
     get_cross_encoder_dependency,
 )
-from phentrieve.config import (
+from phentrieve.config import (  # noqa: E402
     DEFAULT_MODEL,
     DEFAULT_RERANKER_MODEL,
     DEFAULT_MONOLINGUAL_RERANKER_MODEL,
@@ -86,7 +87,8 @@ origins = [
     "http://localhost:8080",  # Default Vue CLI dev server
     "http://localhost:3000",  # Common React/Next.js dev server
     "http://localhost:5173",  # Vite default port
-    # Add your production frontend URL when deployed
+    "https://phentrieve.kidney-genetics.org",  # Production frontend URL
+    # Add your production frontend URL when deployed (placeholder if others needed)
 ]
 app.add_middleware(
     CORSMiddleware,
