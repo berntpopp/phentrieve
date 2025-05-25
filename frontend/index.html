@@ -9,7 +9,7 @@
     <link rel="dns-prefetch" href="https://api.phentrieve.kidney-genetics.org">
     
     <!-- Preload critical assets -->
-    <link rel="preload" href="/favicon.svg" as="image" type="image/svg+xml">
+    <link rel="preload" href="/favicon.svg" as="image" type="image/svg+xml" fetchpriority="high">
     <!-- Favicon setup for multiple platforms -->
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" sizes="any">
     <link rel="icon" href="/favicon.ico" sizes="32x32">
@@ -45,7 +45,6 @@
       }
     }
     </script>
-    <link rel="preload" href="/favicon.svg" as="image" fetchpriority="high">
     <!-- No modulepreload to avoid MIME type errors -->
   </head>
   <body>
