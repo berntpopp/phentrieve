@@ -1,6 +1,8 @@
 import logging
+import asyncio
 from fastapi import HTTPException
-from typing import Optional, Dict
+from fastapi.concurrency import run_in_threadpool
+from typing import Optional, Dict, Literal
 from sentence_transformers import SentenceTransformer, CrossEncoder
 
 # Core loader functions
@@ -18,6 +20,59 @@ LOADED_SBERT_MODELS: Dict[str, SentenceTransformer] = {}
 LOADED_RETRIEVERS: Dict[str, DenseRetriever] = {}
 LOADED_CROSS_ENCODERS: Dict[str, Optional[CrossEncoder]] = {}
 
+# Model loading status tracking
+ModelLoadStatus = Literal["not_loaded", "loading", "loaded", "failed"]
+MODEL_LOADING_STATUS: Dict[str, ModelLoadStatus] = {}
+MODEL_LOAD_LOCKS: Dict[str, asyncio.Lock] = {}
+
+
+def _get_lock_for_model(model_name: str) -> asyncio.Lock:
+    """Get or create a lock for a given model name."""
+    if model_name not in MODEL_LOAD_LOCKS:
+        MODEL_LOAD_LOCKS[model_name] = asyncio.Lock()
+    return MODEL_LOAD_LOCKS[model_name]
+
+
+async def _load_model_in_background(
+    model_name: str, is_sbert: bool, trust_remote_code: bool, device: Optional[str]
+):
+    """Load the specified model (SBERT or CrossEncoder) in background using run_in_threadpool.
+
+    Updates global cache and loading status. Handles exceptions.
+    """
+    logger.info(
+        f"Background task started: Loading {'SBERT' if is_sbert else 'CrossEncoder'} model '{model_name}' on device '{device}'."
+    )
+    actual_device = device or DEFAULT_DEVICE
+    try:
+        if is_sbert:
+            model_instance = await run_in_threadpool(
+                load_embedding_model,
+                model_name=model_name,
+                trust_remote_code=trust_remote_code,
+                device=actual_device,
+            )
+            LOADED_SBERT_MODELS[model_name] = model_instance
+        else:
+            model_instance = await run_in_threadpool(
+                load_ce_model, model_name=model_name, device=actual_device
+            )
+            LOADED_CROSS_ENCODERS[model_name] = model_instance
+
+        MODEL_LOADING_STATUS[model_name] = "loaded"
+        logger.info(f"Background task success: Model '{model_name}' loaded and cached.")
+    except Exception as e:
+        MODEL_LOADING_STATUS[model_name] = "failed"
+        logger.error(
+            f"Background task error: Failed to load model '{model_name}': {e}",
+            exc_info=True,
+        )
+        # Clear from cache if partially added
+        if is_sbert and model_name in LOADED_SBERT_MODELS:
+            del LOADED_SBERT_MODELS[model_name]
+        if not is_sbert and model_name in LOADED_CROSS_ENCODERS:
+            del LOADED_CROSS_ENCODERS[model_name]
+
 
 async def get_sbert_model_dependency(
     model_name_requested: Optional[str] = None,
@@ -27,21 +82,50 @@ async def get_sbert_model_dependency(
     model_name = model_name_requested or DEFAULT_MODEL
     device = device_override or DEFAULT_DEVICE
 
-    if model_name not in LOADED_SBERT_MODELS:
-        logger.info(f"Loading SBERT model for API: {model_name}")
-        try:
-            LOADED_SBERT_MODELS[model_name] = load_embedding_model(
-                model_name=model_name,
-                trust_remote_code=trust_remote_code,
-                device=device,
-            )
-        except ValueError as e:
-            logger.error(f"API: Failed to load SBERT model {model_name}: {e}")
+    if model_name in LOADED_SBERT_MODELS:
+        logger.debug(f"API: Returning cached SBERT model: {model_name}")
+        return LOADED_SBERT_MODELS[model_name]
+
+    lock = _get_lock_for_model(model_name)
+    async with lock:
+        # Re-check after acquiring lock
+        if model_name in LOADED_SBERT_MODELS:
+            logger.debug(f"API: Returning cached SBERT model (post-lock): {model_name}")
+            return LOADED_SBERT_MODELS[model_name]
+
+        current_status = MODEL_LOADING_STATUS.get(model_name, "not_loaded")
+
+        if current_status == "loading":
+            logger.info(f"API: Model '{model_name}' is already loading. Advise retry.")
             raise HTTPException(
                 status_code=503,
-                detail=f"SBERT model '{model_name}' is currently unavailable.",
+                detail=f"Model '{model_name}' is currently being prepared. Please try again in 30 seconds.",
+                headers={"Retry-After": "30"},
             )
-    return LOADED_SBERT_MODELS[model_name]
+
+        if current_status == "failed":
+            logger.error(f"API: Model '{model_name}' failed to load previously.")
+            raise HTTPException(
+                status_code=503,
+                detail=f"Model '{model_name}' failed to load and is unavailable.",
+            )
+
+        # If 'not_loaded', initiate loading
+        logger.info(f"API: Initiating background load for SBERT model: {model_name}")
+        MODEL_LOADING_STATUS[model_name] = "loading"
+
+        # Using asyncio.create_task as this specific request will return 503 anyway
+        # and the task is not tied to this response finishing
+        asyncio.create_task(
+            _load_model_in_background(model_name, True, trust_remote_code, device)
+        )
+
+        # Inform client to retry
+        raise HTTPException(
+            status_code=503,
+            detail=f"Model '{model_name}' is being prepared. Please try again in 30 seconds.",
+            headers={"Retry-After": "30"},
+        )
 
 
 async def get_dense_retriever_dependency(
@@ -98,25 +182,60 @@ async def get_cross_encoder_dependency(
 
     device = device_override or DEFAULT_DEVICE
 
-    if reranker_model_name not in LOADED_CROSS_ENCODERS:
-        logger.info(f"Loading CrossEncoder model for API: {reranker_model_name}")
-        try:
-            # Use the existing load_cross_encoder from phentrieve.retrieval.reranker
-            model_instance = load_ce_model(
-                model_name=reranker_model_name, device=device
-            )
-            LOADED_CROSS_ENCODERS[reranker_model_name] = model_instance  # May be None
-        except Exception as e:  # Catch any exception during loading
-            logger.error(f"API: Failed to load CrossEncoder {reranker_model_name}: {e}")
-            LOADED_CROSS_ENCODERS[reranker_model_name] = None  # Cache failure
-
-    # Check if it was cached as None (meaning previous load attempt failed)
     if (
-        LOADED_CROSS_ENCODERS.get(reranker_model_name) is None
-        and reranker_model_name in LOADED_CROSS_ENCODERS
+        reranker_model_name in LOADED_CROSS_ENCODERS
+        and LOADED_CROSS_ENCODERS[reranker_model_name] is not None
     ):
-        logger.warning(
-            f"CrossEncoder '{reranker_model_name}' was previously unavailable."
+        logger.debug(f"API: Returning cached CrossEncoder: {reranker_model_name}")
+        return LOADED_CROSS_ENCODERS[reranker_model_name]
+
+    lock = _get_lock_for_model(reranker_model_name)
+    async with lock:
+        # Re-check after acquiring lock
+        if (
+            reranker_model_name in LOADED_CROSS_ENCODERS
+            and LOADED_CROSS_ENCODERS[reranker_model_name] is not None
+        ):
+            logger.debug(
+                f"API: Returning cached CrossEncoder (post-lock): {reranker_model_name}"
+            )
+            return LOADED_CROSS_ENCODERS[reranker_model_name]
+
+        current_status = MODEL_LOADING_STATUS.get(reranker_model_name, "not_loaded")
+
+        if current_status == "loading":
+            logger.info(
+                f"API: CrossEncoder '{reranker_model_name}' is already loading. Advise retry."
+            )
+            raise HTTPException(
+                status_code=503,
+                detail=f"CrossEncoder '{reranker_model_name}' is currently being prepared. Please try again in 30 seconds.",
+                headers={"Retry-After": "30"},
+            )
+
+        if current_status == "failed":
+            logger.error(
+                f"API: CrossEncoder '{reranker_model_name}' failed to load previously."
+            )
+            raise HTTPException(
+                status_code=503,
+                detail=f"CrossEncoder '{reranker_model_name}' failed to load and is unavailable.",
+            )
+
+        # If 'not_loaded', initiate loading
+        logger.info(
+            f"API: Initiating background load for CrossEncoder: {reranker_model_name}"
+        )
+        MODEL_LOADING_STATUS[reranker_model_name] = "loading"
+
+        # Using asyncio.create_task as this specific request will return 503 anyway
+        asyncio.create_task(
+            _load_model_in_background(reranker_model_name, False, False, device)
         )
 
-    return LOADED_CROSS_ENCODERS.get(reranker_model_name)
+        # Inform client to retry
+        raise HTTPException(
+            status_code=503,
+            detail=f"CrossEncoder '{reranker_model_name}' is being prepared. Please try again in 30 seconds.",
+            headers={"Retry-After": "30"},
+        )
