@@ -41,8 +41,10 @@ const i18n = createI18n({
   // Critical: Ensure $t is available in Options API components
   globalInjection: true,
   
-  // Critical: Disable runtime-only mode to properly compile messages with HTML
-  runtimeOnly: false,
+  // Use runtime-only mode to avoid eval() usage for better CSP compatibility
+  runtimeOnly: true,
+  // Pre-compile all messages to avoid dynamic compilation
+  compileMode: 'hoist',
   
   // Other configuration options
   warnHtmlMessage: false, // Allow HTML in messages (e.g., for FAQ)
