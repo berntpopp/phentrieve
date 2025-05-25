@@ -1,3 +1,5 @@
+// The useLogStore import is used by components that initialize this service
+// eslint-disable-next-line no-unused-vars
 import { useLogStore } from '../stores/log'
 
 export const LogLevel = {

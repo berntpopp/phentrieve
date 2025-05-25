@@ -678,7 +678,7 @@ export default {
       }
     },
     
-    handleUserScroll(event) {
+    handleUserScroll() {
       // Track when the user manually scrolls
       const container = this.$refs.conversationContainer;
       if (container) {

@@ -37,7 +37,7 @@ import { ref, watch, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { logService } from '@/services/logService'; // Assuming logService is available
 
-const { locale, t } = useI18n()
+const { locale } = useI18n()
 
 const availableLocales = ref([
   { code: 'en', name: 'English', icon: 'mdi-alpha-e-box', color: 'blue' },
