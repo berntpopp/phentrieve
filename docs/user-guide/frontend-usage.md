@@ -90,3 +90,43 @@ The frontend supports multilingual input thanks to the underlying embedding mode
 
 1. Enter text in any supported language
 2. The system will process it directly without requiring translation
+
+### URL Query Parameters
+
+Phentrieve supports URL query parameters that allow pre-filling the search form and automatically triggering searches. This is particularly useful for integrating Phentrieve with other systems or creating bookmarks to specific searches.
+
+The following URL parameters are supported:
+
+| Parameter | Type | Description | Example |
+|-----------|------|-------------|--------|
+| `text` | string | Pre-fills the query text field | `text=Patient%20has%20headache` |
+| `model` | string | Sets the embedding model | `model=FremyCompany/BioLORD-2023-M` |
+| `threshold` | float | Sets the similarity threshold (0.0-1.0) | `threshold=0.4` |
+| `reranker` | boolean | Enables/disables the reranker | `reranker=true` |
+| `rerankerMode` | string | Sets the reranker mode | `rerankerMode=cross-lingual` |
+| `autoSubmit` | boolean | Automatically submits the query if true | `autoSubmit=true` |
+
+#### Examples
+
+**Pre-fill search text only:**
+```
+http://localhost:8080/?text=Patient%20has%20headache
+```
+
+**Pre-fill and auto-submit:**
+```
+http://localhost:8080/?text=Patient%20has%20headache&autoSubmit=true
+```
+
+**Complete configuration with specific model and settings:**
+```
+http://localhost:8080/?text=Patient%20has%20headache&model=FremyCompany/BioLORD-2023-M&threshold=0.4&reranker=true&rerankerMode=cross-lingual&autoSubmit=true
+```
+
+#### Notes
+
+- When providing the `text` parameter, the search will automatically be submitted without needing the `autoSubmit` parameter
+- The `autoSubmit` parameter is removed from the URL after submission to prevent re-submission on page refresh
+- Model names must exactly match one of the available models
+- The threshold must be a number between 0.0 and 1.0
+- Reranker mode is only applied if the reranker is enabled

@@ -54,6 +54,7 @@
               class="mr-1 mr-sm-2"
               aria-label="Search HPO Terms"
               size="small"
+              ref="searchButton"
             >
               <v-icon>mdi-magnify</v-icon>
             </v-btn>
@@ -430,6 +431,7 @@ export default {
       numResults: 10,
       enableReranker: false,
       rerankerMode: 'cross-lingual',
+      rerankerModes: ['cross-lingual', 'monolingual'],
       isLoading: false,
       queryHistory: [],
       showAdvancedOptions: false,
@@ -477,6 +479,9 @@ export default {
     // Set default model
     this.selectedModel = this.availableModels[0].value;
     
+    // Apply URL parameters and handle auto-submit if needed
+    this.applyUrlParametersAndAutoSubmit();
+    
     // Add a scroll event listener to handle user scrolling
     const container = this.$refs.conversationContainer;
     if (container) {
@@ -508,6 +513,171 @@ export default {
     }
   },
   methods: {
+    applyUrlParametersAndAutoSubmit() {
+      // Get URL query parameters
+      const queryParams = this.$route.query;
+      logService.debug('Raw URL query parameters:', { ...queryParams });
+      
+      // Track if any advanced options were set from URL parameters
+      let advancedOptionsWereSet = false;
+      let performAutoSubmit = false;
+      
+      // Helper function for parsing boolean parameters
+      const parseBooleanParam = (val) => typeof val === 'string' && (val.toLowerCase() === 'true' || val === '1');
+      
+      // Process 'text' parameter
+      if (queryParams.text !== undefined) {
+        const newTextValue = queryParams.text;
+        this.queryText = newTextValue;
+        logService.info('Applying URL parameter: text', { value: newTextValue });
+      }
+      
+      // Process 'model' parameter
+      if (queryParams.model !== undefined) {
+        const paramValue = queryParams.model;
+        const validModels = this.availableModels.map(m => m.value);
+        
+        if (validModels.includes(paramValue)) {
+          this.selectedModel = paramValue;
+          advancedOptionsWereSet = true;
+          logService.info('Applying URL parameter: model', { value: paramValue });
+        } else {
+          logService.warn(`URL 'model' value '${paramValue}' is invalid.`);
+        }
+      }
+      
+      // Process 'threshold' parameter
+      if (queryParams.threshold !== undefined) {
+        const thresholdValue = parseFloat(queryParams.threshold);
+        
+        if (!isNaN(thresholdValue) && thresholdValue >= 0 && thresholdValue <= 1) {
+          this.similarityThreshold = thresholdValue;
+          advancedOptionsWereSet = true;
+          logService.info('Applying URL parameter: threshold', { value: thresholdValue });
+        } else {
+          logService.warn(`URL 'threshold' value '${queryParams.threshold}' is invalid. Must be a number between 0 and 1.`);
+        }
+      }
+      
+      // Process 'reranker' parameter
+      if (queryParams.reranker !== undefined) {
+        const rerankerValue = parseBooleanParam(queryParams.reranker);
+        this.enableReranker = rerankerValue;
+        advancedOptionsWereSet = true;
+        logService.info('Applying URL parameter: reranker', { value: rerankerValue });
+      }
+      
+      // Process 'rerankerMode' parameter (only if reranker is enabled)
+      if (queryParams.rerankerMode !== undefined && this.enableReranker) {
+        const modeValue = queryParams.rerankerMode;
+        
+        if (this.rerankerModes.includes(modeValue)) {
+          this.rerankerMode = modeValue;
+          advancedOptionsWereSet = true;
+          logService.info('Applying URL parameter: rerankerMode', { value: modeValue });
+        } else {
+          logService.warn(`URL 'rerankerMode' value '${modeValue}' is invalid.`);
+        }
+      }
+      
+      // Show advanced options panel if any advanced parameters were set
+      if (advancedOptionsWereSet) {
+        this.showAdvancedOptions = true;
+        logService.info('Opened advanced options panel due to URL parameters.');
+      }
+      
+      // Process 'autoSubmit' parameter
+      if (queryParams.autoSubmit !== undefined) {
+        performAutoSubmit = parseBooleanParam(queryParams.autoSubmit);
+        logService.info('Found URL parameter: autoSubmit', { value: performAutoSubmit });
+      } else if (queryParams.text !== undefined) {
+        // If text is provided in URL but no autoSubmit parameter, default to auto-submit
+        performAutoSubmit = true;
+        logService.info('Text found in URL, defaulting to auto-submit');
+      }
+      
+      // Auto-submit the query if requested and query text is not empty
+      if (performAutoSubmit && this.queryText && this.queryText.trim()) {
+        logService.info('Auto-submitting query based on URL parameters.');
+        
+        // Keep a reference to the query text since it will be cleared in submitQuery
+        const currentQuery = this.queryText.trim();
+        
+        // Use nextTick to ensure the component is fully updated before submitting
+        this.$nextTick(() => {
+          // Add a delay to ensure the component is fully mounted and stable
+          setTimeout(() => {
+            logService.info('Executing query submission for:', { text: currentQuery });
+            
+            try {
+              // Manually simulate what happens in submitQuery to ensure it works
+              this.isLoading = true;
+              
+              // Add the query to the history
+              this.queryHistory.unshift({
+                query: currentQuery,
+                loading: true,
+                response: null,
+                error: null
+              });
+              
+              // Clear input field
+              this.queryText = '';
+              
+              // Set scroll flags
+              this.shouldScrollToTop = true;
+              this.userHasScrolled = false;
+              this.scrollToTop();
+              
+              // Execute the actual API call
+              logService.info('Preparing API request data');
+              const queryData = {
+                text: currentQuery,
+                model_name: this.selectedModel || 'FremyCompany/BioLORD-2023-M',
+                num_results: this.numResults,
+                similarity_threshold: this.similarityThreshold,
+                enable_reranker: this.enableReranker,
+                reranker_mode: this.rerankerMode
+              };
+              
+              // Make API call
+              logService.info('Sending auto-submitted query to API', queryData);
+              PhentrieveService.queryHpo(queryData).then(response => {
+                logService.info('Received API response for auto-submitted query');
+                // Update history item
+                this.queryHistory[0].loading = false;
+                this.queryHistory[0].response = response;
+                // Update reactivity
+                this.queryHistory = [...this.queryHistory];
+              }).catch(error => {
+                logService.error('Error submitting auto query', error);
+                this.queryHistory[0].loading = false;
+                this.queryHistory[0].error = error;
+                // Update reactivity
+                this.queryHistory = [...this.queryHistory];
+              }).finally(() => {
+                this.isLoading = false;
+                
+                // Remove the autoSubmit parameter from URL to prevent re-submission on refresh
+                setTimeout(() => {
+                  const newQuery = { ...this.$route.query };
+                  delete newQuery.autoSubmit;
+                  this.$router.replace({ query: newQuery }).catch(err => {
+                    if (err.name !== 'NavigationDuplicated' && err.name !== 'NavigationCancelled') {
+                      logService.warn('Error updating URL after auto-submit:', err);
+                    }
+                  });
+                }, 500);
+              });
+            } catch (e) {
+              logService.error('Exception during auto-submit process', e);
+              this.isLoading = false;
+            }
+          }, 800); // Increased delay to ensure everything is ready
+        });
+      }
+    },
+    
     handleUserScroll(event) {
       // Track when the user manually scrolls
       const container = this.$refs.conversationContainer;
