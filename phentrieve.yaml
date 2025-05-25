@@ -6,13 +6,13 @@
 # These paths will be created automatically if they don't exist
 
 # Main data directory for HPO files, terms, and graph data
-data_dir: "c:/development/phentrieve/data"
+data_dir: "c:/development/rag-hpo-testing/data"
 
 # Directory for ChromaDB vector indexes 
-index_dir: "c:/development/phentrieve/data/indexes"
+index_dir: "c:/development/rag-hpo-testing/data/indexes"
 
 # Directory for benchmark results
-results_dir: "c:/development/phentrieve/data/results"
+results_dir: "c:/development/rag-hpo-testing/data/results"
 
 # Hardware acceleration settings
 device: "auto"  # Options: "auto", "cuda", "cpu", or specific device like "cuda:0"
