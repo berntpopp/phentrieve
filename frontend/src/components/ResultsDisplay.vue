@@ -113,7 +113,12 @@
     </div>
     <div v-else-if="error">
       <v-alert color="error" icon="mdi-alert">
-        {{ error.detail || $t('resultsDisplay.defaultError') }}
+        <template v-if="error && error.userMessageKey">
+          {{ $t(error.userMessageKey, error.userMessageParams) }}
+        </template>
+        <template v-else>
+          {{ error.detail || $t('resultsDisplay.defaultError') }}
+        </template>
       </v-alert>
     </div>
   </div>

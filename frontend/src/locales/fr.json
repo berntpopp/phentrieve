@@ -128,6 +128,21 @@
     "message": "Message",
     "details": "Détails"
   },
+  "errors": {
+    "api": {
+      "unknown": "Une erreur inattendue s'est produite. Veuillez réessayer.",
+      "network": "Impossible de se connecter au serveur. Veuillez vérifier votre connexion Internet et réessayer.",
+      "clientSide": "Une erreur s'est produite lors de {context}.",
+      "badRequest": "Votre requête était invalide. Veuillez vérifier les données et réessayer. (Statut: {status})",
+      "badRequestModel": "Le modèle spécifié dans votre requête est invalide ou non pris en charge. (Statut: {status})",
+      "unauthorized": "Vous n'êtes pas autorisé à effectuer cette action. (Statut: {status})",
+      "forbidden": "Vous n'avez pas la permission d'accéder à cette ressource. (Statut: {status})",
+      "notFound": "La ressource demandée est introuvable. (Statut: {status})",
+      "notFoundModel": "Le modèle demandé est introuvable sur le serveur. (Statut: {status})",
+      "serverError": "Une erreur serveur s'est produite. Veuillez réessayer plus tard. (Statut: {status})",
+      "serviceUnavailable": "Le service est temporairement indisponible. Veuillez réessayer plus tard. (Statut: {status})"
+    }
+  },
   "languageSwitcher": {
     "label": "Langue"
   },

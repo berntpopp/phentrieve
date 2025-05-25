@@ -131,6 +131,21 @@
   "languageSwitcher": {
     "label": "Idioma"
   },
+  "errors": {
+    "api": {
+      "unknown": "Ha ocurrido un error inesperado. Por favor, inténtelo de nuevo.",
+      "network": "No se pudo conectar al servidor. Por favor, compruebe su conexión a Internet e inténtelo de nuevo.",
+      "clientSide": "Se ha producido un error al {context}.",
+      "badRequest": "Su solicitud no es válida. Por favor, compruebe los datos e inténtelo de nuevo. (Estado: {status})",
+      "badRequestModel": "El modelo especificado en su solicitud no es válido o no está soportado. (Estado: {status})",
+      "unauthorized": "No está autorizado para realizar esta acción. (Estado: {status})",
+      "forbidden": "No tiene permiso para acceder a este recurso. (Estado: {status})",
+      "notFound": "El recurso solicitado no se encuentra. (Estado: {status})",
+      "notFoundModel": "El modelo solicitado no se encuentra en el servidor. (Estado: {status})",
+      "serverError": "Se ha producido un error en el servidor. Por favor, inténtelo más tarde. (Estado: {status})",
+      "serviceUnavailable": "El servicio no está disponible temporalmente. Por favor, inténtelo más tarde. (Estado: {status})"
+    }
+  },
   "tutorial": {
     "step1": {
       "title": "Bienvenido a Phentrieve",

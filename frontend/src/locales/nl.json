@@ -131,6 +131,21 @@
   "languageSwitcher": {
     "label": "Taal"
   },
+  "errors": {
+    "api": {
+      "unknown": "Er is een onverwachte fout opgetreden. Probeer het opnieuw.",
+      "network": "Kon geen verbinding maken met de server. Controleer uw internetverbinding en probeer het opnieuw.",
+      "clientSide": "Er is een fout opgetreden tijdens het {context}.",
+      "badRequest": "Uw verzoek was ongeldig. Controleer de invoer en probeer het opnieuw. (Status: {status})",
+      "badRequestModel": "Het model dat in uw verzoek is opgegeven, is ongeldig of wordt niet ondersteund. (Status: {status})",
+      "unauthorized": "U bent niet gemachtigd om deze actie uit te voeren. (Status: {status})",
+      "forbidden": "U heeft geen toestemming om toegang te krijgen tot deze bron. (Status: {status})",
+      "notFound": "De gevraagde bron kon niet worden gevonden. (Status: {status})",
+      "notFoundModel": "Het gevraagde model kon niet worden gevonden op de server. (Status: {status})",
+      "serverError": "Er is een serverfout opgetreden. Probeer het later opnieuw. (Status: {status})",
+      "serviceUnavailable": "De dienst is tijdelijk niet beschikbaar. Probeer het later opnieuw. (Status: {status})"
+    }
+  },
   "faq": {
     "backToHome": "Terug naar hoofdpagina",
     "pageTitle": "Veelgestelde Vragen",
