@@ -49,6 +49,9 @@ const i18n = createI18n({
   missingWarn: import.meta.env.MODE !== 'production', // Show missing warnings only in dev
   fallbackWarn: import.meta.env.MODE !== 'production', // Show fallback warnings only in dev
   escapeParameter: true, // Escape HTML in parameters for security
+  // Silent option to avoid console errors
+  silentTranslationWarn: true,
+  silentFallbackWarn: true
 })
 
 export default i18n

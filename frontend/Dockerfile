@@ -1,5 +1,11 @@
 FROM node:lts-alpine as build-stage
 
+# Define build arguments
+ARG VITE_API_URL
+
+# Set as environment variables for the build process
+ENV VITE_API_URL=${VITE_API_URL}
+
 WORKDIR /app
 
 # Copy package files first for better caching
