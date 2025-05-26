@@ -152,18 +152,15 @@
 </template>
 
 <style>
-/* Global styles to prevent page scrollbar */
+/* Global styles */
 html, body {
-  overflow: hidden;
   height: 100%;
   margin: 0;
   padding: 0;
 }
 
 .app-container {
-  height: 100vh;
-  max-height: 100vh;
-  overflow: hidden;
+  min-height: 100vh;
 }
 
 .main-container {

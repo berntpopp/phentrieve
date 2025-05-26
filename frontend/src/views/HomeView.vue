@@ -41,17 +41,12 @@ export default {
   flex-direction: column;
   align-items: center;
   width: 100%;
-  position: absolute;
-  top: 10%; /* Increase space at the top as requested */
-  left: 0;
-  right: 0;
+  padding-top: 10vh; /* Replace absolute positioning with padding */
 }
 
 .fill-height {
-  height: 100vh;
-  max-height: 100vh;
+  min-height: 100vh;
   position: relative;
-  overflow: hidden; /* Prevent page scrollbar */
   display: flex;
   flex-direction: column;
 }
