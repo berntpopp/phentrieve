@@ -24,6 +24,11 @@ from phentrieve.config import (
     DEFAULT_RERANK_CANDIDATE_COUNT,
     DEFAULT_ENABLE_RERANKER,
 )
+from phentrieve.text_processing.assertion_detection import (
+    CombinedAssertionDetector,
+    AssertionStatus,
+)
+from phentrieve.utils import detect_language
 from phentrieve.embeddings import load_embedding_model
 from phentrieve.retrieval.dense_retriever import (
     DenseRetriever,
@@ -65,6 +70,8 @@ def format_results(
     max_results: int = DEFAULT_TOP_K,
     query: str = None,
     reranked: bool = False,
+    original_query_assertion_status=None,
+    original_query_assertion_details=None,
 ) -> Dict[str, Any]:
     """
     Format the query results into a structured format, filtering by similarity threshold.
@@ -224,6 +231,17 @@ def format_results(
         "results": results_list,
         "query_text_processed": query,
         "header_info": header_info,
+        "original_query_assertion_status": (
+            original_query_assertion_status.value
+            if original_query_assertion_status
+            else None
+        ),
+        "original_query_assertion_status_value": (
+            original_query_assertion_status.value
+            if original_query_assertion_status
+            else None
+        ),  # Keep for backward compatibility
+        "original_query_assertion_details": original_query_assertion_details,  # Can be None
     }
 
 
@@ -283,6 +301,7 @@ def process_query(
     reranker_mode: str = DEFAULT_RERANKER_MODE,
     translation_dir: str = DEFAULT_TRANSLATIONS_SUBDIR,
     output_func: Callable = print,
+    query_assertion_detector=None,
 ) -> List[Dict[str, Any]]:
     """
     Process input text, either as a whole or sentence by sentence.
@@ -299,13 +318,64 @@ def process_query(
         reranker_mode: Mode for re-ranking ('cross-lingual' or 'monolingual')
         translation_dir: Directory containing translations of HPO terms in target language
         output_func: Function to use for output (for debug messages only, not for final results)
+        query_assertion_detector: Optional query assertion detector
 
     Returns:
         List of structured result dictionaries, one per query (or sentence if sentence_mode is True)
     """
     all_results = []
 
-    # Process in sentence mode if enabled
+    # Detect assertion on the entire original input query if a detector is provided
+    original_query_assertion_status = None
+    original_query_assertion_details = None
+
+    if query_assertion_detector and text:
+        try:
+            # Explicitly log detector info
+            if debug:
+                output_func(
+                    f"[DEBUG] Using assertion detector with language: {query_assertion_detector.language}"
+                )
+                output_func(
+                    f"[DEBUG] Assertion detector config: keyword={query_assertion_detector.enable_keyword}, dependency={query_assertion_detector.enable_dependency}"
+                )
+
+            # Detect assertion status
+            original_query_assertion_status, original_query_assertion_details = (
+                query_assertion_detector.detect(text)
+            )
+
+            # Make sure we log a successful detection
+            if original_query_assertion_status:
+                output_func(
+                    f"Query assertion detection enabled (lang: {query_assertion_detector.language}, pref: {query_assertion_detector.preference})"
+                )
+
+            # Log detailed information
+            if debug:
+                output_func(
+                    f"[DEBUG] Query: '{text}' - Raw assertion result: {original_query_assertion_status}"
+                )
+                output_func(
+                    f"[DEBUG] Assertion status type: {type(original_query_assertion_status)}"
+                )
+                output_func(
+                    f"[DEBUG] Assertion value: {original_query_assertion_status.value if original_query_assertion_status else 'None'}"
+                )
+                output_func(
+                    f"[DEBUG] Assertion details: {original_query_assertion_details}"
+                )
+        except Exception as e:
+            if debug:
+                output_func(f"[DEBUG] Error during assertion detection: {str(e)}")
+                import traceback
+
+                traceback.print_exc()
+            # Ensure we have a fallback
+            original_query_assertion_status = None
+            original_query_assertion_details = {"error": str(e)}
+
+    # If sentence_mode is True, split the text into sentences and process each one separately
     if sentence_mode:
         # Split into sentences and process
         sentences = segment_text(text)
@@ -342,6 +412,8 @@ def process_query(
                     max_results=num_results,
                     query=sentence,
                     reranked=True,
+                    original_query_assertion_status=original_query_assertion_status,
+                    original_query_assertion_details=original_query_assertion_details,
                 )
             else:
                 formatted = format_results(
@@ -349,6 +421,9 @@ def process_query(
                     threshold=similarity_threshold,
                     max_results=num_results,
                     query=sentence,
+                    reranked=False,
+                    original_query_assertion_status=original_query_assertion_status,
+                    original_query_assertion_details=original_query_assertion_details,
                 )
 
             # Only add if we have valid results
@@ -403,6 +478,8 @@ def process_query(
                 max_results=num_results,
                 query=text,
                 reranked=cross_encoder is not None,
+                original_query_assertion_status=original_query_assertion_status,
+                original_query_assertion_details=original_query_assertion_details,
             )
             structured_results = [formatted_result]
 
@@ -469,6 +546,8 @@ def process_query(
                     max_results=num_results,
                     query=text,
                     reranked=True,
+                    original_query_assertion_status=original_query_assertion_status,
+                    original_query_assertion_details=original_query_assertion_details,
                 )
                 if formatted_result and formatted_result["results"]:
                     all_results.append(formatted_result)
@@ -481,6 +560,8 @@ def process_query(
                 max_results=num_results,
                 query=text,
                 reranked=False,
+                original_query_assertion_status=original_query_assertion_status,
+                original_query_assertion_details=original_query_assertion_details,
             )
             if formatted_result and formatted_result["results"]:
                 all_results.append(formatted_result)
@@ -489,7 +570,7 @@ def process_query(
 
 
 def orchestrate_query(
-    query_text: str = None,
+    query_text: Optional[str] = None,
     model_name: str = DEFAULT_MODEL,
     num_results: int = DEFAULT_TOP_K,
     similarity_threshold: float = MIN_SIMILARITY_THRESHOLD,
@@ -506,6 +587,9 @@ def orchestrate_query(
     output_func: Callable = print,
     interactive_setup: bool = False,
     interactive_mode: bool = False,
+    detect_query_assertion: bool = False,
+    query_assertion_language: Optional[str] = None,
+    query_assertion_preference: str = "dependency",
 ) -> Union[List[Dict[str, Any]], bool]:
     """
     Main orchestration function for HPO term queries.
@@ -528,11 +612,14 @@ def orchestrate_query(
         output_func: Function to use for output (for setup and debug messages)
         interactive_setup: Whether this is just setting up models for interactive mode
         interactive_mode: Whether this is an interactive query using shared models
+        detect_query_assertion: Whether to detect query assertions
+        query_assertion_language: Language of the query assertions
+        query_assertion_preference: Preference for query assertion detection (dependency or rule-based)
 
     Returns:
         List of structured result dictionaries, or bool if in interactive_setup mode
     """
-    global _global_model, _global_retriever, _global_cross_encoder
+    global _global_model, _global_retriever, _global_cross_encoder, _global_query_assertion_detector
 
     # If in interactive mode, use the cached models
     if interactive_mode:
@@ -555,6 +642,7 @@ def orchestrate_query(
             reranker_mode=reranker_mode,
             translation_dir=translation_dir,
             output_func=output_func,
+            query_assertion_detector=_global_query_assertion_detector,
         )
 
     # Determine device
@@ -634,11 +722,50 @@ def orchestrate_query(
         else:
             output_func("Cross-encoder re-ranking: Disabled")
 
+        # Initialize assertion detector for the query if requested
+        query_assertion_detector_to_use = None
+
+        if detect_query_assertion:
+            actual_query_assertion_lang = query_assertion_language
+            if not actual_query_assertion_lang and query_text:
+                actual_query_assertion_lang = detect_language(
+                    query_text, default_lang="en"
+                )
+            elif not actual_query_assertion_lang:
+                actual_query_assertion_lang = "en"  # Fallback for interactive_setup
+
+            assertion_config_for_query = {
+                "enable_keyword": True,  # Keep these simple for query, or make configurable later
+                "enable_dependency": True,
+                "preference": query_assertion_preference,
+            }
+            query_assertion_detector_to_use = CombinedAssertionDetector(
+                language=actual_query_assertion_lang,
+                # Pass only the expected kwargs to CombinedAssertionDetector
+                enable_keyword=assertion_config_for_query["enable_keyword"],
+                enable_dependency=assertion_config_for_query["enable_dependency"],
+                preference=assertion_config_for_query["preference"],
+            )
+            if not interactive_setup:  # Avoid logging during mere setup
+                output_func(
+                    f"Query assertion detection enabled (lang: {actual_query_assertion_lang}, pref: {query_assertion_preference})"
+                )
+
         # If this is just interactive setup, store models and return
         if interactive_setup:
             _global_model = model
             _global_retriever = retriever
             _global_cross_encoder = cross_encoder
+            _global_query_assertion_detector = (
+                query_assertion_detector_to_use  # Store for interactive use
+            )
+
+            # Log that assertion detection is ready if requested
+            if detect_query_assertion:
+                output_func(
+                    f"Query assertion detection enabled (lang: {actual_query_assertion_lang}, pref: {query_assertion_preference})"
+                )
+
             return True
 
         # For non-interactive mode, process the single query
@@ -648,19 +775,29 @@ def orchestrate_query(
             output_func(error_msg)
             return []
 
+        # Determine which assertion detector to use (global for interactive, local for non-interactive)
+        active_query_assertion_detector = (
+            _global_query_assertion_detector
+            if interactive_mode
+            else query_assertion_detector_to_use
+        )
+
         # Process the query
         return process_query(
             text=query_text,
-            retriever=retriever,
+            retriever=retriever if not interactive_mode else _global_retriever,
             num_results=num_results,
             sentence_mode=sentence_mode,
             similarity_threshold=similarity_threshold,
             debug=debug,
-            cross_encoder=cross_encoder,
+            cross_encoder=(
+                cross_encoder if not interactive_mode else _global_cross_encoder
+            ),
             rerank_count=rerank_count if enable_reranker else None,
             reranker_mode=reranker_mode,
             translation_dir=translation_dir,
             output_func=output_func,
+            query_assertion_detector=active_query_assertion_detector,
         )
 
     except Exception as e:

@@ -32,9 +32,7 @@ def format_results_as_text(
             output_lines.append(f"==== Results for: {query_text} ====")
 
         # Display original query assertion status if available
-        og_query_status_val = result_set.get(
-            "original_query_assertion_status"
-        ) or result_set.get("original_query_assertion_status_value")
+        og_query_status_val = result_set.get("original_query_assertion_status_value")
         if og_query_status_val:
             # It's important to clarify this status is for the *original* query,
             # especially if sentence_mode=True and query_text_segment is just one sentence.
@@ -92,16 +90,13 @@ def format_results_as_json(
     transformed_results = []
 
     for result_set in structured_query_results:
-        # Get assertion status with fallback
-        assertion_status = result_set.get("original_query_assertion_status")
-        if not assertion_status:
-            assertion_status = result_set.get("original_query_assertion_status_value")
-
         transformed_result = {
             "query_text_processed": result_set["query_text_processed"],
             "retrieval_info": {"header": result_set["header_info"]},
             "hpo_terms": [],
-            "original_query_assertion_status": assertion_status,
+            "original_query_assertion_status": result_set.get(
+                "original_query_assertion_status_value"
+            ),
         }
 
         # Transform each HPO term result
@@ -147,16 +142,13 @@ def format_results_as_jsonl(structured_query_results: List[Dict[str, Any]]) -> s
     transformed_results = []
 
     for result_set in structured_query_results:
-        # Get assertion status with fallback
-        assertion_status = result_set.get("original_query_assertion_status")
-        if not assertion_status:
-            assertion_status = result_set.get("original_query_assertion_status_value")
-
         transformed_result = {
             "query_text_processed": result_set["query_text_processed"],
             "retrieval_info": {"header": result_set["header_info"]},
             "hpo_terms": [],
-            "original_query_assertion_status": assertion_status,
+            "original_query_assertion_status": result_set.get(
+                "original_query_assertion_status_value"
+            ),
         }
 
         # Transform each HPO term result

@@ -125,6 +125,27 @@ def query_hpo(
     debug: Annotated[
         bool, typer.Option("--debug", help="Enable debug logging")
     ] = False,
+    detect_query_assertion: Annotated[
+        bool,
+        typer.Option(
+            "--detect-query-assertion",
+            help="Enable assertion detection on the input query text.",
+        ),
+    ] = False,
+    query_assertion_language: Annotated[
+        Optional[str],
+        typer.Option(
+            "--query-assertion-language",
+            help="Language for query assertion detection (e.g., 'en', 'de'). Defaults to auto-detect or 'en'.",
+        ),
+    ] = None,
+    query_assertion_preference: Annotated[
+        str,
+        typer.Option(
+            "--query-assertion-preference",
+            help="Assertion detection strategy for the query (dependency, keyword, any_negative).",
+        ),
+    ] = "dependency",
 ):
     """Query HPO terms with natural language clinical descriptions.
 
@@ -140,6 +161,11 @@ def query_hpo(
     from phentrieve.retrieval.query_orchestrator import orchestrate_query
     from phentrieve.config import DEFAULT_MODEL, DEFAULT_TRANSLATIONS_SUBDIR
     from phentrieve.utils import setup_logging_cli, resolve_data_path
+    from phentrieve.retrieval.output_formatters import (
+        format_results_as_text,
+        format_results_as_json,
+        format_results_as_jsonl,
+    )
 
     # Set up logging
     setup_logging_cli(debug=debug)
@@ -183,6 +209,9 @@ def query_hpo(
             device_override=device_override,
             debug=debug,
             output_func=typer_echo,
+            detect_query_assertion=detect_query_assertion,
+            query_assertion_language=query_assertion_language,
+            query_assertion_preference=query_assertion_preference,
         )
 
         if not success:
@@ -203,16 +232,26 @@ def query_hpo(
                 if not user_input.strip():
                     continue
 
+                # For JSON output, we need to be careful not to mix debug output with the JSON
+                # so we'll use a no-op output function
+                output_func_to_use = typer_echo
+                if output_format.lower() in ["json", "json_lines"]:
+                    output_func_to_use = (
+                        lambda x: None
+                    )  # No-op function to suppress output during query
+
                 # Process the query
                 query_results = orchestrate_query(
                     query_text=user_input,
                     interactive_mode=True,
+                    sentence_mode=sentence_mode,
                     num_results=num_results,
                     similarity_threshold=similarity_threshold,
-                    sentence_mode=sentence_mode,
-                    rerank_count=rerank_count,
                     debug=debug,
-                    output_func=typer_echo,
+                    output_func=output_func_to_use,
+                    detect_query_assertion=detect_query_assertion,
+                    query_assertion_language=query_assertion_language,
+                    query_assertion_preference=query_assertion_preference,
                 )
 
                 # Format the results based on the selected output format
@@ -228,7 +267,7 @@ def query_hpo(
                         )
                     elif output_format.lower() == "json_lines":
                         formatted_output = format_results_as_jsonl(query_results)
-                    
+
                     # Print to console
                     typer.echo(formatted_output)
 
@@ -278,6 +317,9 @@ def query_hpo(
             device_override=device_override,
             debug=debug,
             output_func=typer_echo,
+            detect_query_assertion=detect_query_assertion,
+            query_assertion_language=query_assertion_language,
+            query_assertion_preference=query_assertion_preference,
         )
 
         # Check if we have results

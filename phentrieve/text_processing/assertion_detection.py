@@ -344,15 +344,33 @@ class DependencyAssertionDetector(AssertionDetector):
         negated_concepts = []
         is_negated = False
 
+        # Handle German negation directly with a text check first (more reliable for short phrases)
+        chunk_lower = chunk.lower()
+        if lang == "de" and any(
+            neg_term in chunk_lower for neg_term in ["kein", "keine", "keinen", "nicht"]
+        ):
+            is_negated = True
+            negated_concepts.append(f"German negation term found in: {chunk}")
+
+        # Also check with spaCy's dependency parsing
         for token in doc:
             token_text = token.text.lower()
 
             # Check if token or its lemma is a negation cue
             is_negation_term = False
             for neg_cue in NEGATION_CUES.get(lang, NEGATION_CUES["en"]):
+                neg_cue_clean = neg_cue.strip().lower()
+                # More flexible matching for German
                 if (
-                    token_text == neg_cue.strip().lower()
-                    or token.lemma_.lower() == neg_cue.strip().lower()
+                    lang == "de"
+                    and neg_cue_clean.startswith("kein")
+                    and token_text.startswith("kein")
+                ):
+                    is_negation_term = True
+                    break
+                # Regular exact matching
+                elif (
+                    token_text == neg_cue_clean or token.lemma_.lower() == neg_cue_clean
                 ):
                     is_negation_term = True
                     break
