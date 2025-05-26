@@ -773,6 +773,9 @@ class FineGrainedPunctuationChunker(TextChunker):
 NEGATION_PREFIXES = {
     "en": ["no", "not", "non", "without", "zero"],
     "de": ["kein", "keine", "keinen", "keiner", "keines", "ohne", "nicht"],
+    "fr": ["non", "pas", "sans", "aucun", "aucune", "jamais", "nul", "nulle"],
+    "es": ["no", "sin", "ningún", "ninguna", "nunca", "jamás", "ni"],
+    "nl": ["geen", "niet", "zonder", "nooit", "nee", "niks", "nergens"],
 }
 
 # A small list of words that, if they are the `next_segment`, might prevent merging a negation prefix.
@@ -780,6 +783,9 @@ NEGATION_PREFIXES = {
 AVOID_MERGE_AFTER_NEGATION_IF_NEXT_IS = {
     "en": ["and", "or", "but", "so", "yet", "for", "nor", "is", "are", "was", "were"],
     "de": ["und", "oder", "aber", "sondern", "denn", "als", "wenn", "ist", "sind"],
+    "fr": ["et", "ou", "mais", "donc", "car", "ni", "est", "sont", "était", "étaient", "comme", "si"],
+    "es": ["y", "o", "pero", "así", "que", "porque", "ni", "es", "son", "era", "eran", "como", "si"],
+    "nl": ["en", "of", "maar", "dus", "want", "noch", "is", "zijn", "was", "waren", "als"],
 }
 
 
