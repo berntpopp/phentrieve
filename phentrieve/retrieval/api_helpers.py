@@ -1,8 +1,12 @@
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, Tuple
 import logging
 
 from sentence_transformers import CrossEncoder
 from phentrieve.retrieval.dense_retriever import DenseRetriever
+from phentrieve.text_processing.assertion_detection import (
+    CombinedAssertionDetector,
+    AssertionStatus,
+)
 
 
 logger = logging.getLogger(__name__)
@@ -19,6 +23,9 @@ async def execute_hpo_retrieval_for_api(
     rerank_count: int,
     reranker_mode: str,
     translation_dir_path: Optional[str],
+    detect_query_assertion: bool = True,
+    query_assertion_language: Optional[str] = None,
+    query_assertion_preference: str = "dependency",
     debug: bool = False,
 ) -> Dict[str, Any]:
     """
@@ -52,7 +59,36 @@ async def execute_hpo_retrieval_for_api(
             "query_text_processed": text,
             "header": "Error: Empty query text",
             "results": [],
+            "original_query_assertion_status": None,
         }
+
+    # Detect assertion status if enabled
+    original_query_assertion_status = None
+    if detect_query_assertion:
+        # Use the explicitly provided assertion language or fallback to the query language
+        assertion_language = query_assertion_language or language
+        try:
+            # Log the language being used for assertion detection
+            logger.info(
+                f"Using language '{assertion_language}' for assertion detection"
+            )
+
+            # Create the assertion detector with the specified language
+            assertion_detector = CombinedAssertionDetector(
+                language=assertion_language, preference=query_assertion_preference
+            )
+
+            # Detect assertion status
+            original_query_assertion_status, details = assertion_detector.detect(text)
+
+            logger.info(
+                f"Query assertion status detected: {original_query_assertion_status}"
+            )
+            if details:
+                logger.debug(f"Assertion detection details: {details}")
+        except Exception as e:
+            logger.warning(f"Error in assertion detection: {e}")
+            original_query_assertion_status = None
     if enable_reranker and not cross_encoder:
         logger.warning(
             "Reranking requested but no cross_encoder provided. Disabling reranking."
@@ -173,6 +209,11 @@ async def execute_hpo_retrieval_for_api(
     result_dict = {
         "query_text_processed": segment_to_process,
         "results": formatted_results,
+        "original_query_assertion_status": (
+            original_query_assertion_status.value
+            if original_query_assertion_status
+            else None
+        ),
     }
 
     return result_dict

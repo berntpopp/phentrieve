@@ -1,6 +1,9 @@
 from pydantic import BaseModel, Field, validator
 from typing import List, Optional, Dict, Any, Literal
 
+# For assertion status type
+from phentrieve.text_processing.assertion_detection import AssertionStatus
+
 
 class QueryRequest(BaseModel):
     text: str = Field(
@@ -47,6 +50,21 @@ class QueryRequest(BaseModel):
         description="Number of top dense results to pass to the reranker.",
     )
 
+    # Assertion detection parameters
+    detect_query_assertion: bool = Field(
+        True, description="Whether to detect assertions (negations) in the query text."
+    )
+    query_assertion_language: Optional[str] = Field(
+        None,
+        description="Language for assertion detection (e.g., 'en', 'de'). If None, uses the query language.",
+    )
+    query_assertion_preference: Literal["dependency", "keyword", "any_negative"] = (
+        Field(
+            "dependency",
+            description="Assertion detection strategy (dependency-based, keyword-based, or any negative detection).",
+        )
+    )
+
     # Add sentence_mode if you want to expose it directly, default to False for whole text processing by the API
     # sentence_mode: bool = Field(False, description="Process text sentence by sentence. If false, whole input text is processed as one query.")
 
@@ -69,6 +87,8 @@ class QueryResponse(BaseModel):
     language_detected: Optional[str] = None
     model_used_for_retrieval: str
     reranker_used: Optional[str] = None
+    # Assertion status from query text
+    query_assertion_status: Optional[str] = None
     # If processing as a single block (initial approach):
     results: List[HPOResultItem]
     # If supporting sentence_mode and returning per-sentence results:

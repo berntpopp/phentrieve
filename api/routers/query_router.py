@@ -53,6 +53,9 @@ async def run_hpo_query_get(
     similarity_threshold: float = 0.3,
     enable_reranker: bool = False,
     reranker_mode: str = "cross-lingual",
+    detect_query_assertion: bool = True,
+    query_assertion_language: Optional[str] = None,
+    query_assertion_preference: str = "dependency",
     retriever: DenseRetriever = Depends(
         lambda model=DEFAULT_MODEL: get_retriever_for_get_params(model)
     ),
@@ -76,6 +79,9 @@ async def run_hpo_query_get(
         similarity_threshold=similarity_threshold,
         enable_reranker=enable_reranker,
         reranker_mode=reranker_mode,
+        detect_query_assertion=detect_query_assertion,
+        query_assertion_language=query_assertion_language,
+        query_assertion_preference=query_assertion_preference,
     )
 
     # Reuse the POST endpoint logic
@@ -126,6 +132,7 @@ async def run_hpo_query(
                 detail=f"Retriever for {sbert_model_to_use_for_retrieval} could not be initialized.",
             )
 
+    # Language detection for the main query
     language_to_use = request.language
     if not language_to_use:
         try:
@@ -138,6 +145,14 @@ async def run_hpo_query(
                 f"Language detection failed: {e}. " f"Using default: {DEFAULT_LANGUAGE}"
             )
             language_to_use = DEFAULT_LANGUAGE
+            
+    # For assertion detection, explicitly use the query_assertion_language if provided
+    # otherwise keep using the detected/specified language
+    assertion_language = request.query_assertion_language
+    if assertion_language:
+        logger.info(f"Using explicit assertion language: {assertion_language} (overriding detected language: {language_to_use})")
+    else:
+        logger.info(f"No explicit assertion language provided, using query language: {language_to_use}")
 
     cross_encoder_instance = None
     actual_reranker_model_name = None
@@ -190,6 +205,9 @@ async def run_hpo_query(
         rerank_count=request.rerank_count,
         reranker_mode=request.reranker_mode,
         translation_dir_path=resolved_translation_dir,
+        detect_query_assertion=request.detect_query_assertion,
+        query_assertion_language=request.query_assertion_language,
+        query_assertion_preference=request.query_assertion_preference,
         debug=False,
     )
 
@@ -202,6 +220,9 @@ async def run_hpo_query(
             actual_reranker_model_name
             if request.enable_reranker and cross_encoder_instance
             else None
+        ),
+        query_assertion_status=query_results_dict.get(
+            "original_query_assertion_status"
         ),
         results=query_results_dict.get("results", []),
     )
