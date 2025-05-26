@@ -131,26 +131,48 @@
           
           <v-row>
             <v-col cols="12" md="6">
+              <v-tooltip location="bottom" :text="$t('queryInterface.tooltips.language')" role="tooltip">
+                <template v-slot:activator="{ props }">
+                  <v-select
+                    v-bind="props"
+                    v-model="selectedLanguage"
+                    :items="availableLanguages"
+                    item-title="text"
+                    item-value="value"
+                    :disabled="isLoading"
+                    variant="outlined"
+                    density="compact"
+                    aria-label="Select query language"
+                    :aria-description="'Choose the language for query processing. Currently selected: ' + selectedLanguage"
+                    bg-color="white"
+                    color="primary"
+                  >
+                    <template v-slot:label>
+                      <span class="text-high-emphasis">{{ $t('queryInterface.advancedOptions.language') }}</span>
+                    </template>
+                  </v-select>
+                </template>
+              </v-tooltip>
+            </v-col>
+            
+            <v-col cols="12" md="6">
               <v-tooltip location="bottom" :text="$t('queryInterface.tooltips.enableReranking')" role="tooltip">
                 <template v-slot:activator="{ props }">
                   <v-switch
                     v-bind="props"
                     v-model="enableReranker"
                     :disabled="isLoading"
+                    :label="$t('queryInterface.advancedOptions.enableReranking')"
                     color="primary"
-                    hide-details
-                    class="mb-2"
-                    aria-label="Toggle re-ranking feature"
-                    :aria-description="'Enable or disable re-ranking of search results'"
-                  >
-                <template v-slot:label>
-                  <span class="text-high-emphasis">{{ $t('queryInterface.advancedOptions.enableReranking') }}</span>
-                  </template>
-                </v-switch>
-              </template>
-            </v-tooltip>
+                    inset
+                    aria-label="Enable result re-ranking"
+                  ></v-switch>
+                </template>
+              </v-tooltip>
             </v-col>
-            
+          </v-row>
+
+          <v-row>
             <v-col cols="12" md="6" v-if="enableReranker">
               <v-tooltip location="bottom" :text="$t('queryInterface.tooltips.rerankerMode')" role="tooltip">
                 <template v-slot:activator="{ props }">
@@ -158,20 +180,25 @@
                     v-bind="props"
                     v-model="rerankerMode"
                     :items="rerankerModes"
-                    :disabled="!enableReranker || isLoading"
+                    item-title="text"
+                    item-value="value"
+                    :disabled="isLoading"
                     variant="outlined"
                     density="compact"
                     aria-label="Select reranker mode"
-                    :aria-description="'Choose between cross-lingual or monolingual re-ranking mode'"
-                    bg-color="surface"
+                    bg-color="white"
                     color="primary"
                   >
-                <template v-slot:label>
+                  <template v-slot:label>
                   <span class="text-high-emphasis">{{ $t('queryInterface.advancedOptions.rerankerMode') }}</span>
                 </template>
                   </v-select>
                 </template>
               </v-tooltip>
+            </v-col>
+            
+            <v-col cols="12" md="6" v-if="enableReranker">
+              <!-- Placeholder for balance -->
             </v-col>
           </v-row>
         </v-sheet>
@@ -272,14 +299,37 @@
         >
           <v-list-item-title>
             <strong>{{ phenotype.hpo_id }}</strong>
+            <v-chip
+              size="x-small"
+              class="ml-2"
+              :color="phenotype.assertion_status === 'negated' ? 'error' : 'success'"
+              text-color="white"
+              label
+            >
+              {{ $t(`queryInterface.phenotypeCollection.${phenotype.assertion_status}`) }}
+            </v-chip>
           </v-list-item-title>
           <v-list-item-subtitle>
             {{ phenotype.label }}
           </v-list-item-subtitle>
           
           <template v-slot:append>
+            <v-tooltip :text="$t('queryInterface.phenotypeCollection.assertionToggle')" location="start">
+              <template v-slot:activator="{ props }">
+                <v-btn
+                  v-bind="props"
+                  :icon="phenotype.assertion_status === 'negated' ? 'mdi-check' : 'mdi-close-circle-outline'"
+                  variant="text"
+                  density="compact"
+                  :color="phenotype.assertion_status === 'negated' ? 'success' : 'error'"
+                  class="mr-1"
+                  @click="toggleAssertionStatus(index)"
+                  :aria-label="`Toggle assertion status for ${phenotype.label} (${phenotype.hpo_id})`"
+                ></v-btn>
+              </template>
+            </v-tooltip>
             <v-btn
-              icon="mdi-close"
+              icon="mdi-delete"
               variant="text"
               density="compact"
               color="error"
@@ -427,6 +477,15 @@ export default {
         { text: 'Jina Embed v2 (German)', value: 'jinaai/jina-embeddings-v2-base-de' },
         { text: 'DistilUSE (Multilingual)', value: 'distiluse-base-multilingual-cased-v1' }
       ],
+      selectedLanguage: null,
+      availableLanguages: [
+        { text: this.$t('common.auto'), value: null },
+        { text: 'English', value: 'en' },
+        { text: 'German (Deutsch)', value: 'de' },
+        { text: 'French (Français)', value: 'fr' },
+        { text: 'Spanish (Español)', value: 'es' },
+        { text: 'Dutch (Nederlands)', value: 'nl' }
+      ],
       similarityThreshold: 0.3,
       numResults: 10,
       enableReranker: false,
@@ -478,6 +537,20 @@ export default {
     logService.debug('QueryInterface mounted')
     // Set default model
     this.selectedModel = this.availableModels[0].value;
+    
+    // Initialize language from current UI language if supported
+    const currentUiLang = this.$i18n.locale;
+    logService.debug('Current UI language:', { language: currentUiLang });
+    
+    // Only set language if UI language is in our supported languages
+    const supportedLanguages = this.availableLanguages.filter(lang => lang.value !== null).map(lang => lang.value);
+    if (supportedLanguages.includes(currentUiLang)) {
+      this.selectedLanguage = currentUiLang;
+      logService.info('Setting query language from UI language:', { language: currentUiLang });
+    } else {
+      // Keep auto-detect (null) as default
+      logService.info('UI language not in supported languages, using auto-detect');
+    }
     
     // Apply URL parameters and handle auto-submit if needed
     this.applyUrlParametersAndAutoSubmit();
@@ -634,10 +707,12 @@ export default {
               const queryData = {
                 text: currentQuery,
                 model_name: this.selectedModel || 'FremyCompany/BioLORD-2023-M',
+                language: this.selectedLanguage,
                 num_results: this.numResults,
                 similarity_threshold: this.similarityThreshold,
                 enable_reranker: this.enableReranker,
-                reranker_mode: this.rerankerMode
+                reranker_mode: this.rerankerMode,
+                query_assertion_language: this.selectedLanguage
               };
               
               // Make API call
@@ -692,16 +767,27 @@ export default {
       }
     },
     
-    addToPhenotypeCollection(phenotype) {
-      logService.info('Adding phenotype to collection', { phenotype: phenotype })
+    addToPhenotypeCollection(phenotype, queryAssertionStatus = null) {
+      logService.info('Adding phenotype to collection', { 
+        phenotype: phenotype,
+        assertionStatus: queryAssertionStatus
+      })
       // Check if this phenotype is already in the collection
       const isDuplicate = this.collectedPhenotypes.some(item => item.hpo_id === phenotype.hpo_id);
       
       if (!isDuplicate) {
-        // Add phenotype to collection
+        // Get the current query assertion status from the response if available
+        const currentResponse = this.queryHistory.length > 0 ? this.queryHistory[0].response : null;
+        const responseAssertionStatus = currentResponse?.query_assertion_status || null;
+        
+        // Use provided status, response status, or default to 'affirmed'
+        const assertionStatus = queryAssertionStatus || responseAssertionStatus || 'affirmed';
+        
+        // Add phenotype to collection with assertion status
         this.collectedPhenotypes.push({
           ...phenotype,
-          added_at: new Date()
+          added_at: new Date(),
+          assertion_status: assertionStatus
         });
         
         // Auto-show the collection panel if this is the first item
@@ -712,8 +798,29 @@ export default {
     },
     
     removePhenotype(index) {
-      logService.info('Removing phenotype from collection', { index: index })
+      logService.info('Removing phenotype from collection', { index: index, phenotype: this.collectedPhenotypes[index] })
       this.collectedPhenotypes.splice(index, 1);
+    },
+    
+    toggleAssertionStatus(index) {
+      if (index >= 0 && index < this.collectedPhenotypes.length) {
+        const phenotype = this.collectedPhenotypes[index];
+        
+        // Toggle between 'affirmed' and 'negated'
+        const newStatus = phenotype.assertion_status === 'negated' ? 'affirmed' : 'negated';
+        
+        logService.info('Toggling phenotype assertion status', { 
+          phenotype: phenotype.hpo_id,
+          oldStatus: phenotype.assertion_status,
+          newStatus: newStatus
+        });
+        
+        // Update the phenotype with the new assertion status
+        this.collectedPhenotypes.splice(index, 1, {
+          ...phenotype,
+          assertion_status: newStatus
+        });
+      }
     },
     
     clearPhenotypeCollection() {
@@ -763,10 +870,12 @@ export default {
       // Create a formatted text with the phenotypes
       let exportText = "HPO Phenotypes Collection\n";
       exportText += "Exported on: " + new Date().toLocaleString() + "\n\n";
-      exportText += "ID\tLabel\n";
+      exportText += "ID\tLabel\tAssertion Status\n";
       
       this.collectedPhenotypes.forEach(phenotype => {
-        exportText += `${phenotype.hpo_id}\t${phenotype.label}\n`;
+        // Include assertion status in the export
+        const assertionStatus = phenotype.assertion_status || 'affirmed';
+        exportText += `${phenotype.hpo_id}\t${phenotype.label}\t${assertionStatus}\n`;
       });
       
       // Create a blob and download it
@@ -871,12 +980,33 @@ export default {
         
         // Add phenotypic features
         this.collectedPhenotypes.forEach(collectedPheno => {
-          phenopacket.phenotypicFeatures.push({
+          // Create the phenotypic feature object
+          const phenotypicFeature = {
             type: {
               id: collectedPheno.hpo_id,
               label: collectedPheno.label
             }
-          });
+          };
+          
+          // Set the excluded property based on the assertion status
+          // In GA4GH Phenopacket v2, 'excluded: true' means the phenotype is negated/absent
+          if (collectedPheno.assertion_status === 'negated') {
+            phenotypicFeature.excluded = true;
+            logService.debug('Adding negated phenotype to Phenopacket', { 
+              id: collectedPheno.hpo_id, 
+              status: 'negated' 
+            });
+          } else {
+            // For affirmed phenotypes, we can either set excluded:false or omit it
+            // We'll set it explicitly for clarity
+            phenotypicFeature.excluded = false;
+            logService.debug('Adding affirmed phenotype to Phenopacket', { 
+              id: collectedPheno.hpo_id, 
+              status: 'affirmed' 
+            });
+          }
+          
+          phenopacket.phenotypicFeatures.push(phenotypicFeature);
         });
         
         // Convert to JSON string (pretty-printed)
@@ -950,10 +1080,12 @@ export default {
         const queryData = {
           text: currentQuery,
           model_name: this.selectedModel || 'FremyCompany/BioLORD-2023-M',
+          language: this.selectedLanguage, // Pass explicitly selected language or null for auto-detection
           num_results: this.numResults,
           similarity_threshold: this.similarityThreshold,
           enable_reranker: this.enableReranker,
-          reranker_mode: this.rerankerMode
+          reranker_mode: this.rerankerMode,
+          query_assertion_language: this.selectedLanguage // Use same language for assertion detection
         };
         
         // Make API call

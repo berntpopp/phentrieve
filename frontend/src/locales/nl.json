@@ -73,7 +73,11 @@
       "dateOfBirth": "Geboortedatum",
       "exportPhenopacket": "Exporteren als Phenopacket (JSON)",
       "exportText": "Exporteren als tekst",
-      "clear": "Verzameling wissen"
+      "clear": "Verzameling wissen",
+      "assertionToggle": "Bevestigingsstatus omschakelen",
+      "assertionStatus": "Bevestigingsstatus",
+      "affirmed": "Bevestigd",
+      "negated": "Ontkend"
     },
     "advancedOptions": {
       "title": "Geavanceerde opties",

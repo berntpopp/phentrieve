@@ -1,4 +1,7 @@
 {
+  "common": {
+    "auto": "Automatische Erkennung"
+  },
   "app": {
     "footer": {
       "disclaimer": "Haftungsausschluss",
@@ -73,22 +76,28 @@
       "dateOfBirth": "Geburtsdatum",
       "exportPhenopacket": "Als Phenopacket exportieren (JSON)",
       "exportText": "Als Text exportieren",
-      "clear": "Sammlung leeren"
+      "clear": "Sammlung leeren",
+      "assertionToggle": "Aussagestatus umschalten",
+      "assertionStatus": "Aussagestatus",
+      "affirmed": "Bestätigt",
+      "negated": "Verneint"
     },
     "advancedOptions": {
       "title": "Erweiterte Optionen",
       "embeddingModel": "Embedding-Modell",
       "similarityThreshold": "Ähnlichkeitsschwelle",
       "enableReranking": "Neuordnung aktivieren",
-      "rerankerMode": "Neuordnungsmodus"
+      "rerankerMode": "Neuordnungsmodus",
+      "language": "Sprache"
     },
     "tooltips": {
       "advancedOptions": "Erweiterte Sucheinstellungen konfigurieren",
       "phenotypeCollection": "Gesammelte Phänotypen anzeigen und verwalten",
       "embeddingModel": "KI-Modell für die Texteinbettung auswählen",
-      "similarityThreshold": "Ähnlichkeitsschwelle für Treffer festlegen (höher = präziser, weniger Ergebnisse)",
-      "enableReranking": "Suchergebnisse neu ordnen für verbesserte Genauigkeit",
-      "rerankerMode": "Modus für die Neuordnung der Suchergebnisse wählen",
+      "similarityThreshold": "Minimale Ähnlichkeitsbewertung für Ergebnisse festlegen",
+      "enableReranking": "Neuordnung der Ergebnisse mit einem Cross-Encoder aktivieren",
+      "rerankerMode": "Wählen Sie, wie die Suchergebnisse neu geordnet werden",
+      "language": "Wählen Sie die Sprache für die Verarbeitung und Negationserkennung",
       "subjectId": "Geben Sie eine Kennung für den Patienten ein",
       "sex": "Wählen Sie das biologische Geschlecht des Patienten",
       "dateOfBirth": "Geben Sie das Geburtsdatum des Patienten ein"
@@ -108,6 +117,9 @@
     "modelLabel": "Modell",
     "rerankerLabel": "Neuordner",
     "languageLabel": "Sprache",
+    "assertionLabel": "Aussage",
+    "negated": "Negiert",
+    "affirmed": "Bejaht",
     "originalRank": "Ursprünglicher Rang",
     "noTermsFound": "Keine HPO-Begriffe gefunden, die Ihrer Anfrage mit dem aktuellen Schwellenwert entsprechen. Versuchen Sie, den Ähnlichkeitsschwellenwert zu senken oder Ihre Anfrage umzuformulieren.",
     "defaultError": "Bei der Verarbeitung Ihrer Anfrage ist ein Fehler aufgetreten.",

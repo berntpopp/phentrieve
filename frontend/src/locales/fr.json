@@ -1,4 +1,7 @@
 {
+  "common": {
+    "auto": "Détection automatique"
+  },
   "app": {
     "footer": {
       "disclaimer": "Avertissement",
@@ -73,22 +76,28 @@
       "dateOfBirth": "Date de naissance",
       "exportPhenopacket": "Exporter en Phenopacket (JSON)",
       "exportText": "Exporter en texte",
-      "clear": "Effacer la collection"
+      "clear": "Effacer la collection",
+      "assertionToggle": "Basculer le statut d'assertion",
+      "assertionStatus": "Statut d'assertion",
+      "affirmed": "Affirmé",
+      "negated": "Nié"
     },
     "advancedOptions": {
       "title": "Options avancées",
       "embeddingModel": "Modèle d'embedding",
       "similarityThreshold": "Seuil de similarité",
       "enableReranking": "Activer le re-classement",
-      "rerankerMode": "Mode de re-classement"
+      "rerankerMode": "Mode de re-classement",
+      "language": "Langue"
     },
     "tooltips": {
       "advancedOptions": "Configurer les paramètres de recherche avancés",
       "phenotypeCollection": "Afficher et gérer les phénotypes collectés",
-      "embeddingModel": "Sélectionner le modèle d'IA utilisé pour l'embedding de texte",
-      "similarityThreshold": "Définir la similarité minimale requise pour les correspondances (plus élevée = plus précis, moins de résultats)",
-      "enableReranking": "Réorganiser les résultats de recherche pour une meilleure précision",
-      "rerankerMode": "Choisir comment les résultats de recherche sont réorganisés",
+      "embeddingModel": "Sélectionner le modèle d'IA utilisé pour l'embedding du texte",
+      "similarityThreshold": "Définir le score de similarité minimum requis pour les résultats",
+      "enableReranking": "Activer le reclassement des résultats avec un cross-encoder",
+      "rerankerMode": "Choisir comment les résultats de recherche sont reclassés",
+      "language": "Sélectionner la langue pour le traitement des requêtes et la détection des négations",
       "subjectId": "Entrer un identifiant pour le sujet/patient",
       "sex": "Sélectionner le sexe biologique du sujet",
       "dateOfBirth": "Entrer la date de naissance du sujet"
@@ -106,8 +115,11 @@
     "confidenceTooltip": "Score de confiance: {score}",
     "viewTermLink": "Voir sur le site HPO",
     "modelLabel": "Modèle",
-    "rerankerLabel": "Reclasseur",
+    "rerankerLabel": "Re-classeur",
     "languageLabel": "Langue",
+    "assertionLabel": "Assertion",
+    "negated": "Niée",
+    "affirmed": "Affirmée",
     "originalRank": "Rang initial",
     "noTermsFound": "Aucun terme HPO correspondant à votre requête n'a été trouvé avec le seuil actuel. Essayez de réduire le seuil de similarité ou de reformuler votre requête.",
     "defaultError": "Une erreur s'est produite lors du traitement de votre requête.",

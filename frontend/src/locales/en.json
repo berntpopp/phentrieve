@@ -1,4 +1,7 @@
 {
+  "common": {
+    "auto": "Auto-detect"
+  },
   "app": {
     "footer": {
       "disclaimer": "Disclaimer",
@@ -73,22 +76,28 @@
       "dateOfBirth": "Date of Birth",
       "exportPhenopacket": "Export as Phenopacket (JSON)",
       "exportText": "Export as Text",
-      "clear": "Clear Collection"
+      "clear": "Clear Collection",
+      "assertionToggle": "Toggle Assertion Status",
+      "assertionStatus": "Assertion Status",
+      "affirmed": "Affirmed",
+      "negated": "Negated"
     },
     "advancedOptions": {
       "title": "Advanced Options",
       "embeddingModel": "Embedding Model",
       "similarityThreshold": "Similarity Threshold",
       "enableReranking": "Enable Re-ranking",
-      "rerankerMode": "Re-ranker Mode"
+      "rerankerMode": "Re-ranker Mode",
+      "language": "Language"
     },
     "tooltips": {
       "advancedOptions": "Configure advanced search settings",
       "phenotypeCollection": "View and manage collected phenotypes",
       "embeddingModel": "Select the AI model used for embedding text",
-      "similarityThreshold": "Set the minimum similarity required for matches (higher = more precise, fewer results)",
-      "enableReranking": "Re-rank search results for improved accuracy",
+      "similarityThreshold": "Set the minimum similarity score required for results",
+      "enableReranking": "Enable re-ranking of results using a cross-encoder",
       "rerankerMode": "Choose how search results are re-ranked",
+      "language": "Select language for query processing and assertion detection",
       "subjectId": "Enter an identifier for the subject/patient",
       "sex": "Select the subject's biological sex",
       "dateOfBirth": "Enter the subject's date of birth"
@@ -102,8 +111,11 @@
     "termLabelHeader": "Label",
     "termDefinitionHeader": "Definition",
     "modelLabel": "Model",
-    "rerankerLabel": "Re-ranker",
+    "rerankerLabel": "Reranker",
     "languageLabel": "Language",
+    "assertionLabel": "Assertion",
+    "negated": "Negated",
+    "affirmed": "Affirmed",
     "similarityLabel": "Similarity",
     "rerankerScoreLabel": "Re-ranked",
     "rankChangeLabel": "Rank",

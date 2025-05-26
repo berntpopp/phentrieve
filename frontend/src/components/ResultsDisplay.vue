@@ -26,6 +26,27 @@
               {{ responseData.language_detected }}
             </span>
           </div>
+          
+          <div v-if="responseData.query_assertion_status" class="info-item mt-2">
+            <v-icon 
+              :color="responseData.query_assertion_status === 'negated' ? 'error' : 'success'" 
+              class="mr-2" 
+              size="small"
+            >
+              {{ responseData.query_assertion_status === 'negated' ? 'mdi-block-helper' : 'mdi-check-circle' }}
+            </v-icon>
+            <span>
+              <small class="text-caption d-block d-sm-inline text-medium-emphasis">{{ $t('resultsDisplay.assertionLabel', 'Assertion') }}:</small>
+              <v-chip
+                size="x-small"
+                :color="responseData.query_assertion_status === 'negated' ? 'error' : 'success'"
+                class="ml-1"
+                density="comfortable"
+              >
+                {{ responseData.query_assertion_status === 'negated' ? $t('resultsDisplay.negated', 'Negated') : $t('resultsDisplay.affirmed', 'Affirmed') }}
+              </v-chip>
+            </span>
+          </div>
         </v-card-title>
       </v-card>
 
@@ -139,7 +160,8 @@ export default {
             modelUsed: value.model_used_for_retrieval,
             rerankerUsed: value.reranker_used,
             resultsCount: value.results?.length,
-            language: value.language_detected
+            language: value.language_detected,
+            queryAssertionStatus: value.query_assertion_status
           });
         }
         return true;

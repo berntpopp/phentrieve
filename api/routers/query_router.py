@@ -145,14 +145,18 @@ async def run_hpo_query(
                 f"Language detection failed: {e}. " f"Using default: {DEFAULT_LANGUAGE}"
             )
             language_to_use = DEFAULT_LANGUAGE
-            
+
     # For assertion detection, explicitly use the query_assertion_language if provided
     # otherwise keep using the detected/specified language
     assertion_language = request.query_assertion_language
     if assertion_language:
-        logger.info(f"Using explicit assertion language: {assertion_language} (overriding detected language: {language_to_use})")
+        logger.info(
+            f"Using explicit assertion language: {assertion_language} (overriding detected language: {language_to_use})"
+        )
     else:
-        logger.info(f"No explicit assertion language provided, using query language: {language_to_use}")
+        logger.info(
+            f"No explicit assertion language provided, using query language: {language_to_use}"
+        )
 
     cross_encoder_instance = None
     actual_reranker_model_name = None
