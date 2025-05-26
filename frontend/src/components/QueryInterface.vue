@@ -1,7 +1,7 @@
 <template>
   <div class="search-container mx-auto px-2">
     <!-- Clean Search Bar with Integrated Button -->
-    <div class="search-bar-container pa-2 pa-sm-4">
+    <div class="search-bar-container pt-0 px-2 pb-2 pa-sm-3">
       <v-sheet rounded="pill" elevation="0" class="pa-1 pa-sm-2 search-bar" color="white">
         <div class="d-flex align-center flex-wrap flex-sm-nowrap">
           <v-text-field
@@ -1119,6 +1119,7 @@ export default {
 .search-container {
   max-width: 800px;
   width: 100%;
+  margin-top: 0; /* Remove the top margin */
 }
 
 .collection-fab-position {

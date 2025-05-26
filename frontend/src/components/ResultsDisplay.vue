@@ -3,48 +3,54 @@
     <div v-if="responseData && responseData.results && responseData.results.length > 0">
       <v-card class="mb-4 info-card">
         <v-card-title class="text-subtitle-1 pa-2 pa-sm-4">
-          <div class="info-item">
-            <v-icon color="info" class="mr-2" size="small">mdi-information</v-icon>
-            <span class="model-name">
-              <small class="text-caption d-block d-sm-inline text-medium-emphasis">{{ $t('resultsDisplay.modelLabel') }}:</small>
-              {{ displayModelName(responseData.model_used_for_retrieval) }}
-            </span>
-          </div>
-          
-          <div v-if="responseData.reranker_used" class="info-item mt-2">
-            <v-icon color="info" class="mr-2" size="small">mdi-filter</v-icon>
-            <span class="model-name">
-              <small class="text-caption d-block d-sm-inline text-medium-emphasis">{{ $t('resultsDisplay.rerankerLabel') }}:</small>
-              {{ displayModelName(responseData.reranker_used) }}
-            </span>
-          </div>
-          
-          <div v-if="responseData.language_detected" class="info-item mt-2">
-            <v-icon color="info" class="mr-2" size="small">mdi-translate</v-icon>
-            <span>
-              <small class="text-caption d-block d-sm-inline text-medium-emphasis">{{ $t('resultsDisplay.languageLabel') }}:</small>
-              {{ responseData.language_detected }}
-            </span>
-          </div>
-          
-          <div v-if="responseData.query_assertion_status" class="info-item mt-2">
-            <v-icon 
-              :color="responseData.query_assertion_status === 'negated' ? 'error' : 'success'" 
-              class="mr-2" 
-              size="small"
-            >
-              {{ responseData.query_assertion_status === 'negated' ? 'mdi-block-helper' : 'mdi-check-circle' }}
-            </v-icon>
-            <span>
-              <small class="text-caption d-block d-sm-inline text-medium-emphasis">{{ $t('resultsDisplay.assertionLabel', 'Assertion') }}:</small>
-              <v-chip
-                size="x-small"
-                :color="responseData.query_assertion_status === 'negated' ? 'error' : 'success'"
-                class="ml-1"
-                density="comfortable"
+          <div class="d-flex flex-wrap align-center">
+            <!-- Model info - always present -->
+            <div class="info-item mr-4 mb-1">
+              <v-icon color="info" class="mr-1" size="small">mdi-information</v-icon>
+              <span class="model-name">
+                <small class="text-caption text-medium-emphasis">{{ $t('resultsDisplay.modelLabel') }}:</small>
+                {{ displayModelName(responseData.model_used_for_retrieval) }}
+              </span>
+            </div>
+            
+            <!-- Language info -->
+            <div v-if="responseData.language_detected" class="info-item mr-4 mb-1">
+              <v-icon color="info" class="mr-1" size="small">mdi-translate</v-icon>
+              <span>
+                <small class="text-caption text-medium-emphasis">{{ $t('resultsDisplay.languageLabel') }}:</small>
+                {{ responseData.language_detected }}
+              </span>
+            </div>
+            
+            <!-- Assertion status -->
+            <div v-if="responseData.query_assertion_status" class="info-item mb-1">
+              <v-icon 
+                :color="responseData.query_assertion_status === 'negated' ? 'error' : 'success'" 
+                class="mr-1" 
+                size="small"
               >
-                {{ responseData.query_assertion_status === 'negated' ? $t('resultsDisplay.negated', 'Negated') : $t('resultsDisplay.affirmed', 'Affirmed') }}
-              </v-chip>
+                {{ responseData.query_assertion_status === 'negated' ? 'mdi-block-helper' : 'mdi-check-circle' }}
+              </v-icon>
+              <span>
+                <small class="text-caption text-medium-emphasis">{{ $t('resultsDisplay.assertionLabel', 'Assertion') }}:</small>
+                <v-chip
+                  size="x-small"
+                  :color="responseData.query_assertion_status === 'negated' ? 'error' : 'success'"
+                  class="ml-1"
+                  density="comfortable"
+                >
+                  {{ responseData.query_assertion_status === 'negated' ? $t('resultsDisplay.negated', 'Negated') : $t('resultsDisplay.affirmed', 'Affirmed') }}
+                </v-chip>
+              </span>
+            </div>
+          </div>
+          
+          <!-- Reranker info on separate line -->
+          <div v-if="responseData.reranker_used" class="info-item mt-2">
+            <v-icon color="info" class="mr-1" size="small">mdi-filter</v-icon>
+            <span class="model-name">
+              <small class="text-caption text-medium-emphasis">{{ $t('resultsDisplay.rerankerLabel') }}:</small>
+              {{ displayModelName(responseData.reranker_used) }}
             </span>
           </div>
         </v-card-title>
@@ -68,58 +74,76 @@
             ></v-badge>
           </template>
           
-          <v-list-item-title class="font-weight-bold pb-1">
-            <div class="d-flex align-center justify-space-between">
-              <span class="hpo-id">{{ result.hpo_id }}</span>
-              <v-btn
-                :icon="isAlreadyCollected(result.hpo_id) ? 'mdi-check-circle' : 'mdi-plus-circle'"
-                size="small"
-                :color="isAlreadyCollected(result.hpo_id) ? 'success' : 'primary'"
-                variant="text"
-                class="ml-2 flex-shrink-0 add-btn"
-                @click.stop="addToCollection(result)"
-                :disabled="isAlreadyCollected(result.hpo_id)"
-                :title="isAlreadyCollected(result.hpo_id) ? $t('resultsDisplay.alreadyInCollectionTooltip', { id: result.hpo_id }) : $t('resultsDisplay.addToCollectionTooltip', { id: result.hpo_id })"
-                :aria-label="isAlreadyCollected(result.hpo_id) ? $t('resultsDisplay.alreadyInCollectionAriaLabel', { id: result.hpo_id, label: result.label }) : $t('resultsDisplay.addToCollectionAriaLabel', { id: result.hpo_id, label: result.label })"
-              ></v-btn>
-            </div>
-            <div class="d-block mt-1">
-              <span class="text-body-2 text-high-emphasis hpo-label">{{ result.label }}</span>
+          <v-list-item-title class="pb-2">
+            <div class="d-flex flex-wrap align-center">
+              <!-- HPO ID and Label on the left -->
+              <div class="flex-grow-1">
+                <div class="d-flex align-center mb-1">
+                  <a 
+                    :href="`https://hpo.jax.org/browse/term/${result.hpo_id}`" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    class="hpo-link"
+                    :title="`View ${result.hpo_id} in HPO Browser`"
+                  >
+                    <span class="hpo-id font-weight-bold">{{ result.hpo_id }}</span>
+                    <v-icon size="x-small" class="ml-1">mdi-open-in-new</v-icon>
+                  </a>
+                </div>
+                <div class="d-flex align-center">
+                  <span class="text-body-2 text-high-emphasis hpo-label">{{ result.label }}</span>
+                  <v-chip v-if="result.original_rank !== undefined"
+                    class="ml-2"
+                    size="x-small"
+                    color="grey-lighten-1"
+                    label
+                  >
+                    {{ $t('resultsDisplay.originalRank') }}: #{{ result.original_rank }}
+                  </v-chip>
+                </div>
+              </div>
+              
+              <!-- Score chips and Add button on the right -->
+              <div class="d-flex align-center ml-auto">
+                <div class="d-flex flex-row align-center gap-1 mr-2 score-chips-container">
+                  <v-chip
+                    class="score-chip"
+                    color="primary"
+                    size="x-small"
+                    label
+                    variant="outlined"
+                  >
+                    <v-icon size="x-small" start>mdi-percent</v-icon>
+                    {{ (result.similarity * 100).toFixed(1) }}%
+                  </v-chip>
+                  
+                  <v-chip
+                    v-if="result.cross_encoder_score !== undefined && result.cross_encoder_score !== null"
+                    class="score-chip"
+                    color="secondary"
+                    size="x-small"
+                    label
+                    variant="outlined"
+                  >
+                    <v-icon size="x-small" start>mdi-filter</v-icon>
+                    {{ formatRerankerScore(result.cross_encoder_score) }}
+                  </v-chip>
+                </div>
+                
+                <v-btn
+                  :icon="isAlreadyCollected(result.hpo_id) ? 'mdi-check-circle' : 'mdi-plus-circle'"
+                  size="small"
+                  :color="isAlreadyCollected(result.hpo_id) ? 'success' : 'primary'"
+                  variant="text"
+                  class="flex-shrink-0 add-btn"
+                  @click.stop="addToCollection(result)"
+                  :disabled="isAlreadyCollected(result.hpo_id)"
+                  :title="isAlreadyCollected(result.hpo_id) ? $t('resultsDisplay.alreadyInCollectionTooltip', { id: result.hpo_id }) : $t('resultsDisplay.addToCollectionTooltip', { id: result.hpo_id })"
+                  :aria-label="isAlreadyCollected(result.hpo_id) ? $t('resultsDisplay.alreadyInCollectionAriaLabel', { id: result.hpo_id, label: result.label }) : $t('resultsDisplay.addToCollectionAriaLabel', { id: result.hpo_id, label: result.label })"
+                ></v-btn>
+              </div>
             </div>
           </v-list-item-title>
-          
-          <v-list-item-subtitle class="d-flex flex-wrap justify-space-between align-center">
-            <div class="d-flex align-center mt-1">
-              <span v-if="result.original_rank !== undefined" class="text-caption text-high-emphasis mr-3">
-                {{ $t('resultsDisplay.originalRank') }}: #{{ result.original_rank }}
-              </span>
-            </div>
-
-            <div class="d-flex flex-row align-center gap-2 mt-2 score-chips-container">
-              <v-chip
-                class="score-chip"
-                color="primary"
-                size="small"
-                label
-                variant="outlined"
-              >
-                <v-icon size="x-small" start>mdi-percent</v-icon>
-                {{ (result.similarity * 100).toFixed(1) }}%
-              </v-chip>
-              
-              <v-chip
-                v-if="result.cross_encoder_score !== undefined && result.cross_encoder_score !== null"
-                class="score-chip"
-                color="secondary"
-                size="small"
-                label
-                variant="outlined"
-              >
-                <v-icon size="x-small" start>mdi-filter</v-icon>
-                {{ formatRerankerScore(result.cross_encoder_score) }}
-              </v-chip>
-            </div>
-          </v-list-item-subtitle>
           
           <template v-slot:append>
             <!-- Append content moved to subtitle for better space usage -->
@@ -240,6 +264,18 @@ export default {
 .hpo-id {
   font-weight: bold;
   white-space: nowrap;
+}
+
+.hpo-link {
+  text-decoration: none;
+  color: inherit;
+  display: inline-flex;
+  align-items: center;
+  transition: color 0.2s;
+}
+
+.hpo-link:hover {
+  color: var(--v-theme-primary);
 }
 
 .hpo-label {

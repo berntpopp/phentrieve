@@ -1,14 +1,14 @@
 <template>
   <div class="fill-height">
     <div class="content-wrapper">
-      <div class="d-flex justify-center align-center pb-2">
+      <div class="d-flex justify-center align-center pb-1">
         <img src="/favicon.svg" alt="Phentrieve Logo" width="65" height="65" class="mr-2" loading="lazy">
         <h1 class="text-h5 font-weight-light logo-text">
           <span class="logo-visible">Phen</span><span class="logo-bracket">[</span><span class="logo-hidden">otype re</span><span class="logo-bracket">]</span><span class="logo-visible">trieve</span>
         </h1>
       </div>
-      <div class="text-center px-4 pb-4" style="max-width: 600px;">
-        <p class="text-body-2 text-medium-emphasis">
+      <div class="text-center px-4 py-0" style="max-width: 600px;">
+        <p class="text-body-2 text-medium-emphasis mb-1">
           {{ t('queryInterface.welcomeText') }}
         </p>
       </div>
@@ -42,7 +42,7 @@ export default {
   align-items: center;
   width: 100%;
   position: absolute;
-  top: 25%; /* Position exactly at 1/4 from the top */
+  top: 10%; /* Increase space at the top as requested */
   left: 0;
   right: 0;
 }
