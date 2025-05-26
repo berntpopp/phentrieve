@@ -1048,7 +1048,7 @@ export default {
 
 .collection-fab-position {
   margin: 16px;
-  bottom: 16px !important; /* Adjusted for potential scrollbar */
+  bottom: 72px !important; /* Increased to clear bottom menu bar */
   right: 16px !important;
   z-index: 1050; /* Ensure it's above navigation drawer backdrop */
 }
@@ -1061,7 +1061,7 @@ export default {
 .search-input :deep(.v-field) {
   border-radius: 28px; /* More rounded */
   min-height: 48px; /* Slightly taller */
-  box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.16); /* Softer shadow */
+  /* Removed box-shadow to rely on the search-bar border instead */
 }
 .search-input.v-textarea :deep(.v-field) {
   border-radius: 18px; /* Consistent rounding for textarea */
@@ -1069,18 +1069,12 @@ export default {
   padding-bottom: 8px;
 }
 
-.search-input :deep(.v-field__input) {
-  min-height: 48px;
-  padding-top: 0;
-  padding-bottom: 0;
-  align-items: center; /* Vertically align text */
-}
 .search-input.v-textarea :deep(.v-field__input) {
   min-height: 80px; /* Keep textarea height if needed */
 }
 
 .search-bar {
-  /* Removed border from search-bar, it's on v-field now */
+  border: 1px solid rgba(0, 0, 0, 0.15); /* Added border back to search-bar */
   border-radius: 30px; /* Match outer radius if needed */
 }
 
