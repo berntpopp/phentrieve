@@ -26,6 +26,7 @@ from phentrieve.config import (
     get_semantic_chunking_config,
     get_detailed_chunking_config,
     get_sliding_window_config_with_params,
+    get_sliding_window_cleaned_config,
     DEFAULT_TRANSLATIONS_SUBDIR,
     DEFAULT_RERANKER_MODEL,
     DEFAULT_MONOLINGUAL_RERANKER_MODEL,
@@ -41,30 +42,88 @@ def _get_chunking_config_for_api(
     request: TextProcessingRequest,
 ) -> List[Dict[str, Any]]:
     strategy_name = (
-        request.chunking_strategy.lower() if request.chunking_strategy else "semantic"
+        request.chunking_strategy.lower()
+    )  # Already defaults to sliding_window_cleaned in schema
+
+    # Use defaults from phentrieve.config as fallback if not provided in request
+    # These values are for get_sliding_window_config_with_params and similar internal configs
+    cfg_window_size = request.window_size if request.window_size is not None else 7
+    cfg_step_size = request.step_size if request.step_size is not None else 1
+    cfg_split_threshold = (
+        request.split_threshold if request.split_threshold is not None else 0.5
+    )
+    cfg_min_segment_length = (
+        request.min_segment_length if request.min_segment_length is not None else 3
     )
 
-    # Parameters for sliding_window strategy if applicable
-    window_size = 7
-    step_size = 1
-    split_threshold = 0.5
-    min_segment_length = 3
+    logger.debug(
+        f"API: Building chunking config for strategy '{strategy_name}' with params: "
+        f"ws={cfg_window_size}, ss={cfg_step_size}, th={cfg_split_threshold}, msl={cfg_min_segment_length}"
+    )
 
     if strategy_name == "simple":
         return get_simple_chunking_config()
     elif strategy_name == "semantic":
-        return get_semantic_chunking_config()
+        config = get_semantic_chunking_config()
+        for component in config:
+            if component.get("type") == "sliding_window":
+                component["config"].update(
+                    {
+                        "window_size_tokens": cfg_window_size,
+                        "step_size_tokens": cfg_step_size,
+                        "splitting_threshold": cfg_split_threshold,
+                        "min_split_segment_length_words": cfg_min_segment_length,
+                    }
+                )
+        return config
     elif strategy_name == "detailed":
-        return get_detailed_chunking_config()
+        config = get_detailed_chunking_config()
+        for component in config:
+            if component.get("type") == "sliding_window":
+                component["config"].update(
+                    {
+                        "window_size_tokens": cfg_window_size,
+                        "step_size_tokens": cfg_step_size,
+                        "splitting_threshold": cfg_split_threshold,
+                        "min_split_segment_length_words": cfg_min_segment_length,
+                    }
+                )
+        return config
     elif strategy_name == "sliding_window":
         return get_sliding_window_config_with_params(
-            window_size, step_size, split_threshold, min_segment_length
+            window_size=cfg_window_size,
+            step_size=cfg_step_size,
+            threshold=cfg_split_threshold,
+            min_segment_length=cfg_min_segment_length,
         )
-    else:
+    elif strategy_name == "sliding_window_cleaned":
+        config = get_sliding_window_cleaned_config()
+        for component in config:
+            if component.get("type") == "sliding_window":
+                component["config"].update(
+                    {
+                        "window_size_tokens": cfg_window_size,
+                        "step_size_tokens": cfg_step_size,
+                        "splitting_threshold": cfg_split_threshold,
+                        "min_split_segment_length_words": cfg_min_segment_length,
+                    }
+                )
+        return config
+    else:  # Fallback
         logger.warning(
-            f"API: Unknown chunking strategy '{strategy_name}'. Falling back to default semantic (splitting)."
+            f"API: Unknown chunking strategy '{strategy_name}'. Defaulting to sliding_window_cleaned."
         )
-        return get_semantic_chunking_config()
+        # Use sliding_window_cleaned as the default fallback
+        config = get_sliding_window_cleaned_config()
+        for component in config:
+            if component.get("type") == "sliding_window":
+                component["config"].update({
+                    "window_size_tokens": cfg_window_size,
+                    "step_size_tokens": cfg_step_size,
+                    "splitting_threshold": cfg_split_threshold,
+                    "min_split_segment_length_words": cfg_min_segment_length,
+                })
+        return config
 
 
 @router.post("/process", response_model=TextProcessingResponseAPI)
@@ -101,23 +160,34 @@ async def process_text_extract_hpo(request: TextProcessingRequest):
         translation_dir = resolve_data_path(DEFAULT_TRANSLATIONS_SUBDIR)
 
         # Model loading (run in threadpool as it's blocking)
+        # Determine which models to load, with dynamic defaulting for semantic model
         retrieval_model_name_to_load = request.retrieval_model_name or DEFAULT_MODEL
         sbert_for_chunking_name_to_load = (
             request.semantic_model_name or retrieval_model_name_to_load
         )
 
-        logger.info(f"API: Loading retrieval model: {retrieval_model_name_to_load}")
-        retrieval_sbert_model = await run_in_threadpool(
-            load_embedding_model, model_name=retrieval_model_name_to_load
+        logger.info(f"API: Effective retrieval model: {retrieval_model_name_to_load}")
+        logger.info(
+            f"API: Effective semantic model for chunking: {sbert_for_chunking_name_to_load}"
         )
 
-        sbert_for_chunking = retrieval_sbert_model  # Default to using same model
+        # Load the retrieval model
+        retrieval_sbert_model = await run_in_threadpool(
+            load_embedding_model,
+            model_name=retrieval_model_name_to_load,
+            trust_remote_code=request.trust_remote_code,
+        )
+
+        # Determine whether we need a separate model for chunking
+        sbert_for_chunking = retrieval_sbert_model
         if sbert_for_chunking_name_to_load != retrieval_model_name_to_load:
             logger.info(
                 f"API: Loading separate semantic model for chunking: {sbert_for_chunking_name_to_load}"
             )
             sbert_for_chunking = await run_in_threadpool(
-                load_embedding_model, model_name=sbert_for_chunking_name_to_load
+                load_embedding_model,
+                model_name=sbert_for_chunking_name_to_load,
+                trust_remote_code=request.trust_remote_code,
             )
 
         retriever = await run_in_threadpool(
@@ -219,7 +289,9 @@ async def process_text_extract_hpo(request: TextProcessingRequest):
 
         # Construct meta information for the response
         response_meta = {
-            "request_parameters": request.model_dump(exclude_none=True),
+            "request_parameters": request.dict(
+                exclude_none=True
+            ),  # Using dict for Pydantic v1.x compatibility
             "effective_language": actual_language,
             "effective_chunking_strategy_config": chunking_pipeline_cfg,
             "effective_retrieval_model": retriever.model_name if retriever else None,
@@ -239,13 +311,25 @@ async def process_text_extract_hpo(request: TextProcessingRequest):
     except HTTPException:
         raise
     except ValueError as ve:
-        logger.warning(f"API: Bad request during text processing: {ve}", exc_info=True)
-        raise HTTPException(status_code=400, detail=str(ve))
-    except Exception as e:
+        logger.warning(f"API: Bad request for text processing: {ve}", exc_info=True)
+        raise HTTPException(
+            status_code=400, detail=f"Invalid input parameter: {str(ve)}"
+        )
+    except FileNotFoundError as fnfe:
         logger.error(
-            f"API: Internal server error during text processing: {e}", exc_info=True
+            f"API: Missing data file during text processing: {fnfe}", exc_info=True
+        )
+        raise HTTPException(
+            status_code=503,
+            detail=f"Service temporarily unavailable due to missing data. Details: {str(fnfe)}",
+        )
+    except Exception as e:
+        error_type = type(e).__name__
+        logger.error(
+            f"API: Unhandled internal server error during text processing: {error_type} - {e}",
+            exc_info=True,
         )
         raise HTTPException(
             status_code=500,
-            detail="An internal server error occurred while processing the text.",
+            detail=f"An unexpected internal server error occurred ({error_type}). Please check server logs.",
         )

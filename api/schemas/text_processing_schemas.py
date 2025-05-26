@@ -20,18 +20,42 @@ class TextProcessingRequest(BaseModel):
 
     # Chunking Configuration
     chunking_strategy: Optional[str] = Field(
-        default="semantic",
-        description="Predefined chunking strategy (e.g., 'simple', 'semantic', 'detailed', 'sliding_window'). See Phentrieve documentation for details.",
+        default="sliding_window_cleaned",  # Changed from "semantic" to align with CLI
+        description="Predefined chunking strategy (e.g., 'simple', 'semantic', 'detailed', 'sliding_window_cleaned'). See Phentrieve documentation for details.",
+        example="sliding_window_cleaned",
+    )
+
+    # Sliding window chunking parameters
+    window_size: Optional[int] = Field(
+        default=2, ge=1, description="Sliding window size in tokens."
+    )
+    step_size: Optional[int] = Field(
+        default=1, ge=1, description="Sliding window step size in tokens."
+    )
+    split_threshold: Optional[float] = Field(
+        default=0.3,
+        ge=0.0,
+        le=1.0,
+        description="Similarity threshold for splitting (0-1).",
+    )
+    min_segment_length: Optional[int] = Field(
+        default=1,
+        ge=1,
+        description="Minimum segment length in words for sliding window.",
     )
 
     # Model Configuration
     semantic_model_name: Optional[str] = Field(
-        default=None,
-        description=f"Model for semantic-based chunking strategies. Defaults to retrieval_model_name or Phentrieve's DEFAULT_MODEL ('{DEFAULT_MODEL}') if retrieval_model_name is also None.",
+        default=DEFAULT_MODEL,  # Will be handled in router logic to default to retrieval_model_name
+        description=f"Model for semantic-based chunking strategies. If None, defaults to retrieval_model_name or Phentrieve's DEFAULT_MODEL ('{DEFAULT_MODEL}')."
     )
     retrieval_model_name: Optional[str] = Field(
         default=DEFAULT_MODEL,
         description=f"Embedding model for HPO term retrieval (default: '{DEFAULT_MODEL}').",
+    )
+    trust_remote_code: Optional[bool] = Field(
+        default=False,
+        description="Trust remote code when loading models from Hugging Face Hub (use with caution).",
     )
 
     # Retrieval & Reranking Parameters
@@ -74,7 +98,9 @@ class TextProcessingRequest(BaseModel):
 
     # Aggregation
     aggregated_term_confidence: Optional[float] = Field(
-        default=0.0, ge=0.0, description="Minimum confidence for aggregated HPO terms."
+        default=0.35, ge=0.0, le=1.0,  # Changed from 0.0 to 0.35 to align with CLI
+        description="Minimum confidence score for an aggregated HPO term.",
+        example=0.35,
     )
     top_term_per_chunk_for_aggregation: Optional[bool] = Field(
         default=False,

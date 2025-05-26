@@ -3,7 +3,7 @@ import os
 import sys
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 # Add project root to Python path
@@ -36,19 +36,21 @@ logging.basicConfig(level=logging.INFO)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup logic
-    logger.info("Phentrieve API starting up. Pre-loading default models...")
+    logger.info("Phentrieve API starting up. Attempting to pre-load default models...")
+    default_trust_remote_code = True  # For default models known to need it
     try:
         # Pre-load default SBERT model for retrieval
         await get_sbert_model_dependency(
-            model_name_requested=DEFAULT_MODEL, device_override=DEFAULT_DEVICE
+            model_name_requested=DEFAULT_MODEL,
+            device_override=DEFAULT_DEVICE,
+            trust_remote_code=default_trust_remote_code,
         )
         # Pre-load the retriever associated with the default SBERT model
         await get_dense_retriever_dependency(
             sbert_model_name_for_retriever=DEFAULT_MODEL
         )
         logger.info(
-            f"Default SBERT model '{DEFAULT_MODEL}' and its retriever pre-loaded."
+            f"Default SBERT model '{DEFAULT_MODEL}' and its retriever pre-loading tasks initiated."
         )
 
         # Attempt to pre-load default rerankers (optional, good for responsiveness)
@@ -58,7 +60,7 @@ async def lifespan(app: FastAPI):
                 device_override=DEFAULT_DEVICE,
             )
             logger.info(
-                f"Default cross-lingual reranker '{DEFAULT_RERANKER_MODEL}' pre-loading attempted."
+                f"Default cross-lingual reranker '{DEFAULT_RERANKER_MODEL}' pre-loading task initiated."
             )
         if DEFAULT_MONOLINGUAL_RERANKER_MODEL:
             await get_cross_encoder_dependency(
@@ -66,13 +68,32 @@ async def lifespan(app: FastAPI):
                 device_override=DEFAULT_DEVICE,
             )
             logger.info(
-                f"Default monolingual reranker '{DEFAULT_MONOLINGUAL_RERANKER_MODEL}' pre-loading attempted."
+                f"Default monolingual reranker '{DEFAULT_MONOLINGUAL_RERANKER_MODEL}' pre-loading task initiated."
             )
 
+    except HTTPException as http_exc:
+        if http_exc.status_code == 503 and "is being prepared" in str(http_exc.detail):
+            logger.warning(
+                f"API Startup: A default model is still loading in the background: {http_exc.detail}"
+            )
+        elif http_exc.status_code == 503 and "failed to load" in str(http_exc.detail):
+            logger.error(
+                f"API Startup CRITICAL FAILURE: A default model ('{DEFAULT_MODEL}') failed to load: {http_exc.detail}. The API will start, but this model will be unavailable."
+            )
+        else:
+            logger.error(
+                f"API Startup: HTTP error during initial model dependency call: {http_exc.status_code} - {http_exc.detail}",
+                exc_info=True,
+            )
     except Exception as e:
-        logger.error(f"Error during API startup model pre-loading: {e}", exc_info=True)
-    logger.info("API startup model pre-loading complete (or attempted).")
+        logger.error(
+            f"API Startup: Unexpected general error during model pre-loading attempt: {e}",
+            exc_info=True,
+        )
 
+    logger.info(
+        "API startup: Default model pre-loading initiation complete (actual loading may be in background)."
+    )
     yield  # This is where the application runs
 
     # Shutdown logic (if needed)
