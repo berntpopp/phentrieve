@@ -210,9 +210,13 @@
       <div v-for="(item, index) in queryHistory" :key="index" class="mb-4">
         <!-- User query -->
         <div class="user-query d-flex">
-          <v-avatar color="primary" size="36" class="mt-1 mr-2">
-            <span class="white--text">U</span>
-          </v-avatar>
+          <v-tooltip location="top" text="User Input">
+            <template v-slot:activator="{ props }">
+              <v-avatar v-bind="props" color="primary" size="36" class="mt-1 mr-2">
+                <span class="white--text">U</span>
+              </v-avatar>
+            </template>
+          </v-tooltip>
           <div class="query-bubble">
             <p class="mb-0">{{ item.query }}</p>
           </div>
@@ -220,9 +224,13 @@
         
         <!-- API response -->
         <div class="bot-response d-flex mt-2" v-if="item.loading || item.response || item.error">
-          <v-avatar color="info" size="36" class="mt-1 mr-2">
-            <span class="white--text">P</span> <!-- P for Phentrieve -->
-          </v-avatar>
+          <v-tooltip location="top" text="Phentrieve Response">
+            <template v-slot:activator="{ props }">
+              <v-avatar v-bind="props" color="info" size="36" class="mt-1 mr-2">
+                <span class="white--text">P</span> <!-- P for Phentrieve -->
+              </v-avatar>
+            </template>
+          </v-tooltip>
           <div class="response-bubble">
             <v-progress-circular
               v-if="item.loading"
