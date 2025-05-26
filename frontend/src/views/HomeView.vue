@@ -48,8 +48,12 @@ export default {
 }
 
 .fill-height {
-  min-height: 100vh;
+  height: 100vh;
+  max-height: 100vh;
   position: relative;
+  overflow: hidden; /* Prevent page scrollbar */
+  display: flex;
+  flex-direction: column;
 }
 
 .logo-text {

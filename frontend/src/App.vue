@@ -1,6 +1,6 @@
 <template>
-  <v-app theme="light">
-    <v-main class="bg-grey-lighten-4">
+  <v-app theme="light" class="app-container">
+    <v-main class="bg-grey-lighten-4 main-container">
       <router-view v-slot="{ Component }">
         <component :is="Component" />
       </router-view>
@@ -150,6 +150,29 @@
 
   </v-app>
 </template>
+
+<style>
+/* Global styles to prevent page scrollbar */
+html, body {
+  overflow: hidden;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.app-container {
+  height: 100vh;
+  max-height: 100vh;
+  overflow: hidden;
+}
+
+.main-container {
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+</style>
 
 <script>
 import { useDisclaimerStore } from './stores/disclaimer'

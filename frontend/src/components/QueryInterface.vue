@@ -1191,10 +1191,30 @@ export default {
 }
 
 .conversation-container {
-  max-height: 600px;
+  max-height: calc(70vh - 100px); /* Further reduced height to add more space at bottom */
+  min-height: 200px;
   overflow-y: auto;
+  overflow-x: hidden;
   padding-right: 8px;
   scroll-behavior: smooth;
+  margin-bottom: 24px; /* Increased bottom margin */
+  border-radius: 8px;
+}
+
+/* Make scrollbar visible */
+.conversation-container::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.conversation-container::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+
+.conversation-container::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
 }
 
 .query-bubble {
