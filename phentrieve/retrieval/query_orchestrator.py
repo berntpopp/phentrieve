@@ -67,7 +67,7 @@ def format_results(
     reranked: bool = False,
 ) -> Dict[str, Any]:
     """
-    Format the query results for display, filtering by similarity threshold.
+    Format the query results into a structured format, filtering by similarity threshold.
 
     Args:
         results: Raw results dictionary from retriever.query
@@ -77,7 +77,7 @@ def format_results(
         reranked: Whether the results were re-ranked by a cross-encoder
 
     Returns:
-        Dictionary with formatted results information
+        Dictionary with structured results information suitable for different output formats
     """
     logging.debug(
         f"format_results called with: threshold={threshold} ({type(threshold)}), max_results={max_results} ({type(max_results)})"
@@ -96,7 +96,11 @@ def format_results(
                 )
                 max_results = DEFAULT_TOP_K
     if not results or not results.get("ids") or not results["ids"][0]:
-        return {"results": [], "query": query, "header": "No matching HPO terms found."}
+        return {
+            "results": [],
+            "query_text_processed": query,
+            "header_info": "No matching HPO terms found.",
+        }
 
     formatted_output = []
 
@@ -182,11 +186,11 @@ def format_results(
     if not filtered_results:
         return {
             "results": [],
-            "query": query,
-            "header": "No results above the similarity threshold.",
+            "query_text_processed": query,
+            "header_info": "No results above the similarity threshold.",
         }
 
-    header = f"Found {len(filtered_results)} matching HPO terms:"
+    header_info = f"Found {len(filtered_results)} matching HPO terms:"
     results_list = []
 
     # Create results list with formatted entries
@@ -200,6 +204,7 @@ def format_results(
     ) in enumerate(filtered_results):
         # For each result, create a dictionary with relevant information
         entry = {
+            "rank": i + 1,  # Add rank for better structured output
             "hpo_id": hpo_id,
             "label": label,
             "similarity": bi_encoder_similarity,
@@ -215,36 +220,55 @@ def format_results(
 
         results_list.append(entry)
 
-    return {"results": results_list, "query": query, "header": header}
+    return {
+        "results": results_list,
+        "query_text_processed": query,
+        "header_info": header_info,
+    }
 
 
-def print_results(results: Dict[str, Any], output_func: Callable = print) -> None:
+def _format_structured_results_to_text_display(results: Dict[str, Any]) -> str:
     """
-    Print formatted results to the console or using a custom output function.
+    Format structured results into a human-readable text string.
 
     Args:
-        results: Formatted results dictionary
-        output_func: Function to use for output (defaults to print)
+        results: Structured results dictionary
+
+    Returns:
+        Formatted text string for display
     """
-    if not results or not results.get("results"):
-        output_func("No matching HPO terms found.")
-        return
+    output_lines = []
 
-    output_func(f"\n{results.get('header', 'Results:')}")
+    # Get the formatted results
+    header = results.get("header_info", "")
+    results_list = results.get("results", [])
 
-    for i, result in enumerate(results["results"]):
-        hpo_id = result.get("hpo_id", "Unknown")
-        label = result.get("label", "Unknown")
+    # Add the header
+    if header:
+        output_lines.append(header)
 
-        # Get the cross-encoder score and original rank if available
-        if "cross_encoder_score" in result:
-            original_rank = result.get("original_rank", "?")
-            output_func(
-                f"{i+1}. {hpo_id}: {label} (was #{original_rank})\n   Cross-encoder score: {result['cross_encoder_score']:.4f}"
+    # Format each result
+    for entry in results_list:
+        hpo_id = entry.get("hpo_id", "")
+        label = entry.get("label", "")
+        similarity = entry.get("similarity", 0.0)
+        similarity_str = f"{similarity:.2f}"
+        rank_display = f"{entry.get('rank', '?')}."
+
+        # Get re-ranking info if available
+        reranking_info = ""
+        if "cross_encoder_score" in entry:
+            ce_score = f"{entry['cross_encoder_score']:.2f}"
+            original_rank = entry.get("original_rank", "?")
+            reranking_info = (
+                f" [re-ranked from #{original_rank}, cross-encoder: {ce_score}]"
             )
-        else:
-            similarity = result["similarity"]
-            output_func(f"{i+1}. {hpo_id}: {label}\n   Similarity: {similarity:.4f}")
+
+        output_lines.append(
+            f"{rank_display:3} {hpo_id:11} {label} (similarity: {similarity_str}){reranking_info}"
+        )
+
+    return "\n".join(output_lines)
 
 
 def process_query(
@@ -274,10 +298,10 @@ def process_query(
         rerank_count: Number of candidates to re-rank (if cross_encoder is provided)
         reranker_mode: Mode for re-ranking ('cross-lingual' or 'monolingual')
         translation_dir: Directory containing translations of HPO terms in target language
-        output_func: Function to use for output (defaults to print)
+        output_func: Function to use for output (for debug messages only, not for final results)
 
     Returns:
-        List of result dictionaries, one per query (or sentence if sentence_mode is True)
+        List of structured result dictionaries, one per query (or sentence if sentence_mode is True)
     """
     all_results = []
 
@@ -336,53 +360,63 @@ def process_query(
             if debug:
                 output_func("[DEBUG] No results from sentence mode, trying full text")
 
-            # Set query count - need more results for reranking
-            if cross_encoder and rerank_count is not None:
-                query_count = rerank_count * 2
-            else:
-                query_count = num_results * 2
+            # Single query mode, no sentence splitting
+            query_result = retriever.query(
+                query_embedding=retriever.encode_query(text),
+                top_k=rerank_count if cross_encoder else num_results,
+            )
 
-            # Query the retriever
-            results = retriever.query(text, n_results=query_count)
+            # Perform re-ranking if a cross-encoder is provided
+            if cross_encoder:
+                # Extract metadata for re-ranking
+                rerank_query_result = query_result
 
-            # Rerank with cross-encoder if available
-            if cross_encoder and rerank_count:
-                if debug:
-                    output_func(f"[DEBUG] Reranking with cross-encoder")
-                reranked_results = reranker.rerank_with_cross_encoder(
-                    query=text,
-                    results=results,
-                    cross_encoder=cross_encoder,
-                    top_k=rerank_count,
-                )
-                formatted = format_results(
-                    results=reranked_results,
-                    threshold=similarity_threshold,
-                    max_results=num_results,
-                    query=text,
-                    reranked=True,
-                )
-            else:
-                formatted = format_results(
-                    results=results,
-                    threshold=similarity_threshold,
-                    max_results=num_results,
-                    query=text,
-                )
+                # Apply cross-encoder re-ranking based on the selected mode
+                if reranker_mode == "monolingual":
+                    # Monolingual mode requires translations of HPO terms
+                    lang_code = detect_language(text)
+                    translations = load_translation_text(translation_dir, lang_code)
 
-            if formatted and formatted["results"]:
-                all_results.append(formatted)
+                    # Re-rank using the original language
+                    reranked_result = reranker.rerank_with_cross_encoder_monolingual(
+                        query=text,
+                        query_result=rerank_query_result,
+                        cross_encoder=cross_encoder,
+                        translations=translations,
+                        top_k=num_results,
+                    )
+                else:
+                    # Cross-lingual mode (default): uses cross-encoder directly
+                    reranked_result = reranker.rerank_with_cross_encoder(
+                        query=text,
+                        query_result=rerank_query_result,
+                        cross_encoder=cross_encoder,
+                        top_k=num_results,
+                    )
 
-        # Print results for each sentence
-        if all_results:
-            for i, result_set in enumerate(all_results):
-                output_func(f"\n==== Results for: {result_set['query']} ====")
-                print_results(result_set, output_func=output_func)
-        else:
-            output_func("\nNo matching HPO terms found.")
+                query_result = reranked_result
 
+            # Format the results into a structured format
+            formatted_result = format_results(
+                query_result,
+                threshold=similarity_threshold,
+                max_results=num_results,
+                query=text,
+                reranked=cross_encoder is not None,
+            )
+            structured_results = [formatted_result]
+
+            # Add to the list of results
+            all_results.extend(structured_results)
+
+            output_func("\n---------- Re-Ranked Results (Cross-Encoder) ----------")
+            # Return all results collected from sentences
+        return all_results
     else:
         # Process the entire text at once
+        if debug:
+            output_func(f"[DEBUG] Processing complete text: {text[:50]}...")
+
         # Set query count - need more results for reranking
         if cross_encoder and rerank_count is not None:
             query_count = rerank_count * 2
@@ -392,235 +426,66 @@ def process_query(
         # Query the retriever
         results = retriever.query(text, n_results=query_count)
 
-        # Format original results first
-        original_formatted = format_results(
-            results=results,
-            threshold=similarity_threshold,
-            max_results=num_results,
-            query=text,
-        )
-
-        # Only proceed with re-ranking if we have original results
-        if not original_formatted or not original_formatted.get("results"):
-            # No results passed the threshold, so just return the original results
-            formatted = original_formatted
-            if formatted and formatted["results"]:
-                print_results(formatted, output_func=output_func)
-                all_results.append(formatted)
-            else:
-                output_func("\nNo matching HPO terms found.")
-            return all_results
-
-        # Rerank with cross-encoder if available
-        if (
-            cross_encoder
-            and rerank_count
-            and results
-            and results.get("ids")
-            and len(results["ids"]) > 0
-            and len(results["ids"][0]) > 0
-        ):
+        # Perform re-ranking if a cross-encoder is provided
+        if cross_encoder and rerank_count is not None:
             if debug:
                 output_func(f"[DEBUG] Reranking with cross-encoder")
 
-            # Extract only the top candidates from original results that passed the threshold
-            candidates = []
-            original_results = original_formatted["results"]
+            reranked_result = None
+            try:
+                # Apply cross-encoder re-ranking based on the selected mode
+                if reranker_mode == "monolingual":
+                    # Monolingual mode requires translations of HPO terms
+                    from phentrieve.utils import detect_language
 
-            if debug:
-                output_func(
-                    f"[DEBUG] Original formatted results structure: {original_formatted.keys()}"
-                )
-                output_func(
-                    f"[DEBUG] Original results count: {len(original_results) if original_results else 0}"
-                )
-                if original_results and len(original_results) > 0:
-                    output_func(
-                        f"[DEBUG] First result keys: {original_results[0].keys()}"
-                    )
+                    lang_code = detect_language(text)
+                    translations = load_translation_text(translation_dir, lang_code)
 
-            # We only want to re-rank the candidates that passed the bi-encoder filtering
-            for result in original_results:
-                if debug:
-                    output_func(
-                        f"[DEBUG] Processing result: {result.get('hpo_id', 'unknown')} with type {type(result)}"
-                    )
-
-                # Extract the HPO ID from the result
-                hpo_id = result.get("hpo_id", None)
-                if not hpo_id:
-                    if debug:
-                        output_func(f"[DEBUG] Missing hpo_id in result: {result}")
-                    continue
-
-                # Find the full document and metadata for this ID
-                # Use the HPO ID as-is since we store them with the same format in ChromaDB
-                chroma_compatible_id = hpo_id
-                if debug:
-                    output_func(f"[DEBUG] Looking for HPO ID: {chroma_compatible_id}")
-
-                found = False
-                for i, doc_id in enumerate(results["ids"][0]):
-                    if doc_id == chroma_compatible_id:
-                        found = True
-                        if debug:
-                            output_func(f"[DEBUG] Found matching document for {hpo_id}")
-                        original_rank = original_results.index(result) + 1
-                        # Get metadata for this document
-                        metadata = results["metadatas"][0][i]
-
-                        # Get the document text to use for comparison based on the reranker mode
-                        if reranker_mode == "monolingual":
-                            # For monolingual mode, load the translation of the HPO term
-                            translated_text = load_translation_text(
-                                hpo_id=hpo_id,
-                                translation_dir=translation_dir,
-                            )
-                            if translated_text is None:
-                                if debug:
-                                    output_func(
-                                        f"[DEBUG] No translation found for {hpo_id}, skipping"
-                                    )
-                                continue
-                            if debug:
-                                output_func(
-                                    f"[DEBUG] Loaded translation for {hpo_id}: {translated_text[:50]}..."
-                                )
-
-                            comparison_text = translated_text
-
-                        else:  # cross-lingual mode
-                            # For cross-lingual mode, use the simplified English label
-                            comparison_text = metadata.get("label", "")
-
-                        candidates.append(
-                            {
-                                "id": doc_id,
-                                "comparison_text": comparison_text,  # Text to use for re-ranking
-                                "english_doc": metadata.get(
-                                    "label", ""
-                                ),  # Keep the English label
-                                "original_document": results["documents"][0][
-                                    i
-                                ],  # Keep the original for reference
-                                "metadata": metadata,
-                                "distance": (
-                                    results["distances"][0][i]
-                                    if "distances" in results
-                                    and len(results["distances"]) > 0
-                                    else 0.0
-                                ),
-                                "embedding": None,  # Safer to omit embeddings
-                                "bi_encoder_score": result.get("similarity", 0.0),
-                                "original_rank": original_rank,
-                            }
-                        )
-                        break
-
-                if not found and debug:
-                    output_func(
-                        f"[DEBUG] Could not find document for {hpo_id} in results"
-                    )
-
-            if debug:
-                output_func(f"[DEBUG] Candidates for re-ranking: {len(candidates)}")
-                if candidates:
-                    output_func(f"[DEBUG] First candidate keys: {candidates[0].keys()}")
-                    output_func(
-                        f"[DEBUG] First candidate simplified english_doc (raw label): {candidates[0]['english_doc']}"
-                    )
-                    output_func(
-                        f"[DEBUG] Original document: {candidates[0]['original_document'][:50]}..."
+                    # Re-rank using the original language
+                    reranked_result = reranker.rerank_with_cross_encoder_monolingual(
+                        query=text,
+                        query_result=results,
+                        cross_encoder=cross_encoder,
+                        translations=translations,
+                        top_k=num_results,
                     )
                 else:
-                    output_func(f"[DEBUG] No candidates to re-rank")
-                    output_func(
-                        f"[DEBUG] Results shape: ids={len(results['ids'][0])}, documents={len(results['documents'][0])}, metadatas={len(results['metadatas'][0])}"
+                    # Cross-lingual mode (default): uses cross-encoder directly
+                    reranked_result = reranker.rerank_with_cross_encoder(
+                        query=text,
+                        query_result=results,
+                        cross_encoder=cross_encoder,
+                        top_k=num_results,
                     )
-                    # Sample a few IDs for comparison
-                    sample_ids = results["ids"][0][:5]
-                    output_func(f"[DEBUG] Sample IDs from results: {sample_ids}")
-                    output_func(
-                        f"[DEBUG] Original result IDs: {[r.get('hpo_id', 'unknown') for r in original_results[:5]]}"
-                    )
-                    # Try to match them directly
-                    for orig_result in original_results[:5]:
-                        orig_id = orig_result.get("hpo_id", "unknown")
-                        found = orig_id in sample_ids
-                        output_func(
-                            f"[DEBUG] Original ID {orig_id} found in results: {found}"
-                        )
+            except Exception as e:
+                if debug:
+                    output_func(f"[DEBUG] Error during re-ranking: {str(e)}")
 
-            # Call the reranker with the correct parameters
-            reranked_candidates = reranker.rerank_with_cross_encoder(
-                query=text, candidates=candidates, cross_encoder_model=cross_encoder
-            )
-
-            # Convert back to ChromaDB format
-            reranked_results = {
-                "ids": [[c["id"] for c in reranked_candidates[:rerank_count]]],
-                "documents": [
-                    [c["english_doc"] for c in reranked_candidates[:rerank_count]]
-                ],
-                "metadatas": [
-                    [c["metadata"] for c in reranked_candidates[:rerank_count]]
-                ],
-                "distances": [
-                    [
-                        1.0 - c.get("cross_encoder_score", 0.0)
-                        for c in reranked_candidates[:rerank_count]
-                    ]
-                ],
-            }
-
-            # Add cross-encoder scores and original rank to metadata
-            for i, candidate in enumerate(reranked_candidates[:rerank_count]):
-                reranked_results["metadatas"][0][i]["cross_encoder_score"] = (
-                    candidate.get("cross_encoder_score", 0.0)
+            # Format the reranked results if available
+            if reranked_result:
+                formatted_result = format_results(
+                    results=reranked_result,
+                    threshold=similarity_threshold,
+                    max_results=num_results,
+                    query=text,
+                    reranked=True,
                 )
-                reranked_results["metadatas"][0][i]["original_rank"] = candidate.get(
-                    "original_rank", 0
-                )
+                if formatted_result and formatted_result["results"]:
+                    all_results.append(formatted_result)
 
-            reranked_formatted = format_results(
-                results=reranked_results,
+        # Format the original results (or use them if no reranking was done)
+        if not all_results or not cross_encoder:
+            formatted_result = format_results(
+                results=results,
                 threshold=similarity_threshold,
                 max_results=num_results,
                 query=text,
-                reranked=True,
+                reranked=False,
             )
-
-            # Show both results
-            output_func("\n---------- Original Results (Bi-Encoder) ----------")
-            if original_formatted and original_formatted["results"]:
-                print_results(original_formatted, output_func=output_func)
-                all_results.append(original_formatted)
-            else:
-                output_func("No matching HPO terms found.")
-
-            output_func("\n---------- Re-Ranked Results (Cross-Encoder) ----------")
-            formatted = reranked_formatted
-            if formatted and formatted["results"]:
-                print_results(formatted, output_func=output_func)
-                all_results.append(formatted)
-            else:
-                output_func("\nNo matching HPO terms found.")
-        else:
-            # Just use the original results
-            formatted = original_formatted
-            if formatted and formatted["results"]:
-                print_results(formatted, output_func=output_func)
-                all_results.append(formatted)
-            else:
-                output_func("\nNo matching HPO terms found.")
-
+            if formatted_result and formatted_result["results"]:
+                all_results.append(formatted_result)
+            # Return the structured results (could be empty list if no results were found)
     return all_results
-
-
-# Global variables for sharing models and retriever between interactive queries
-_global_model = None
-_global_retriever = None
-_global_cross_encoder = None
 
 
 def orchestrate_query(
@@ -660,12 +525,12 @@ def orchestrate_query(
         rerank_count: Number of candidates to rerank
         device_override: Override device (cpu/cuda)
         debug: Enable debug output
-        output_func: Function to use for output (defaults to print)
+        output_func: Function to use for output (for setup and debug messages)
         interactive_setup: Whether this is just setting up models for interactive mode
         interactive_mode: Whether this is an interactive query using shared models
 
     Returns:
-        List of result dictionaries, or bool if in interactive_setup mode
+        List of structured result dictionaries, or bool if in interactive_setup mode
     """
     global _global_model, _global_retriever, _global_cross_encoder
 

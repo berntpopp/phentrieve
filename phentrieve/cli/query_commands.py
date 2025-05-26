@@ -4,10 +4,17 @@ This module contains commands for querying HPO terms.
 """
 
 import traceback
+from pathlib import Path
 from typing import Optional
 from typing_extensions import Annotated
 
 import typer
+
+from phentrieve.retrieval.output_formatters import (
+    format_results_as_text,
+    format_results_as_json,
+    format_results_as_jsonl,
+)
 
 
 def query_hpo(
@@ -90,6 +97,28 @@ def query_hpo(
         int,
         typer.Option("--rerank-count", "--rc", help="Number of candidates to re-rank"),
     ] = 10,
+    output_file: Annotated[
+        Optional[Path],
+        typer.Option(
+            "--output-file",
+            "-O",
+            help="Path to save query results. If not specified, results are printed to the console.",
+            show_default=False,
+            writable=True,
+            resolve_path=True,
+            dir_okay=False,
+            file_okay=True,
+        ),
+    ] = None,
+    output_format: Annotated[
+        str,
+        typer.Option(
+            "--output-format",
+            "-F",
+            help="Format for the output (text, json, json_lines). Default is 'text'.",
+            case_sensitive=False,
+        ),
+    ] = "text",
     cpu: Annotated[
         bool, typer.Option("--cpu", help="Force CPU usage even if GPU is available")
     ] = False,
@@ -102,6 +131,11 @@ def query_hpo(
     This command allows querying the HPO term index with clinical text descriptions
     to find matching HPO terms. It supports various embedding models and optional
     cross-encoder re-ranking for improved results.
+
+    Results can be printed to the console or saved to a file in various formats:
+    - text: Human-readable text output (default)
+    - json: Structured JSON output
+    - json_lines: JSON Lines format (one JSON object per line)
     """
     from phentrieve.retrieval.query_orchestrator import orchestrate_query
     from phentrieve.config import DEFAULT_MODEL, DEFAULT_TRANSLATIONS_SUBDIR
@@ -170,7 +204,7 @@ def query_hpo(
                     continue
 
                 # Process the query
-                results = orchestrate_query(
+                query_results = orchestrate_query(
                     query_text=user_input,
                     interactive_mode=True,
                     num_results=num_results,
@@ -180,6 +214,23 @@ def query_hpo(
                     debug=debug,
                     output_func=typer_echo,
                 )
+
+                # Format the results based on the selected output format
+                if query_results:
+                    formatted_output = ""
+                    if output_format.lower() == "text":
+                        formatted_output = format_results_as_text(
+                            query_results, sentence_mode=sentence_mode
+                        )
+                    elif output_format.lower() == "json":
+                        formatted_output = format_results_as_json(
+                            query_results, sentence_mode=sentence_mode
+                        )
+                    elif output_format.lower() == "json_lines":
+                        formatted_output = format_results_as_jsonl(query_results)
+                    
+                    # Print to console
+                    typer.echo(formatted_output)
 
             except KeyboardInterrupt:
                 typer.echo("\nExiting.")
@@ -198,10 +249,20 @@ def query_hpo(
             )
             raise typer.Exit(code=1)
 
+        # Validate output format
+        SUPPORTED_OUTPUT_FORMATS = ["text", "json", "json_lines"]
+        if output_format.lower() not in SUPPORTED_OUTPUT_FORMATS:
+            typer.secho(
+                f"Error: Unsupported output format '{output_format}'. "
+                f"Supported formats: {', '.join(SUPPORTED_OUTPUT_FORMATS)}",
+                fg=typer.colors.RED,
+            )
+            raise typer.Exit(code=1)
+
         typer.echo(f"Querying for HPO terms with text: '{text}'")
 
         # Call the orchestrator for a single query
-        results = orchestrate_query(
+        all_query_results = orchestrate_query(
             query_text=text,
             model_name=model_name,
             num_results=num_results,
@@ -219,13 +280,46 @@ def query_hpo(
             output_func=typer_echo,
         )
 
+        # Check if we have results
+        if not all_query_results:
+            message = "No results found or an error occurred during query processing."
+            if output_file is None:
+                typer.secho(message, fg=typer.colors.RED)
+            return
+
+        # Format the results based on the selected output format
+        formatted_output = ""
+        if output_format.lower() == "text":
+            formatted_output = format_results_as_text(
+                all_query_results, sentence_mode=sentence_mode
+            )
+        elif output_format.lower() == "json":
+            formatted_output = format_results_as_json(
+                all_query_results, sentence_mode=sentence_mode
+            )
+        elif output_format.lower() == "json_lines":
+            formatted_output = format_results_as_jsonl(all_query_results)
+
+        # Output the results (to file or console)
+        if output_file:
+            try:
+                # Ensure parent directory exists
+                output_file.parent.mkdir(parents=True, exist_ok=True)
+
+                # Write the formatted output to the file
+                with open(output_file, "w", encoding="utf-8") as f:
+                    f.write(formatted_output)
+
+                typer.secho(f"Results saved to {output_file}", fg=typer.colors.GREEN)
+            except Exception as e:
+                typer.secho(f"Error writing to file: {str(e)}", fg=typer.colors.RED)
+                raise typer.Exit(code=1)
+        else:
+            # Print to console
+            typer.echo(formatted_output)
+
         # Display summary
-        if results:
+        if all_query_results:
             typer.secho(
                 "\nQuery processing completed successfully!", fg=typer.colors.GREEN
-            )
-        else:
-            typer.secho(
-                "\nNo results found or an error occurred during query processing.",
-                fg=typer.colors.RED,
             )
