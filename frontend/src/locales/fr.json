@@ -88,7 +88,22 @@
       "similarityThreshold": "Seuil de similarité",
       "enableReranking": "Activer le re-classement",
       "rerankerMode": "Mode de re-classement",
-      "language": "Langue"
+      "language": "Langue",
+      "processingModeTitle": "Mode de traitement",
+      "processingModeLabel": "Mode de traitement",
+      "modeAutomatic": "Automatique (par longueur de texte)",
+      "modeQuery": "Mode requête (texte court)",
+      "modeTextProcess": "Mode traitement de texte (document)",
+      "textProcessingTitle": "Paramètres de traitement de texte",
+      "chunkingStrategy": "Stratégie de découpage",
+      "windowSize": "Taille de fenêtre (tokens)",
+      "stepSize": "Taille de pas",
+      "chunkThreshold": "Seuil de récupération de fragments",
+      "aggConfidence": "Confiance des termes agrégés",
+      "detectAssertions": "Détecter les assertions",
+      "splitThreshold": "Seuil de division",
+      "minSegmentLength": "Longueur minimale de segment",
+      "numResultsPerChunk": "Résultats par fragment"
     },
     "tooltips": {
       "advancedOptions": "Configurer les paramètres de recherche avancés",

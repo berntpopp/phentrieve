@@ -88,7 +88,22 @@
       "similarityThreshold": "Ähnlichkeitsschwelle",
       "enableReranking": "Neuordnung aktivieren",
       "rerankerMode": "Neuordnungsmodus",
-      "language": "Sprache"
+      "language": "Sprache",
+      "processingModeTitle": "Verarbeitungsmodus",
+      "processingModeLabel": "Verarbeitungsmodus",
+      "modeAutomatic": "Automatisch (nach Textlänge)",
+      "modeQuery": "Abfragemodus (kurzer Text)",
+      "modeTextProcess": "Textverarbeitungsmodus (Dokument)",
+      "textProcessingTitle": "Textverarbeitungseinstellungen",
+      "chunkingStrategy": "Aufteilungsstrategie",
+      "windowSize": "Fenstergröße (Tokens)",
+      "stepSize": "Schrittgröße",
+      "chunkThreshold": "Abrufschwelle für Textabschnitte",
+      "aggConfidence": "Konfidenz für aggregierte Begriffe",
+      "detectAssertions": "Aussagen erkennen",
+      "splitThreshold": "Aufspaltungsschwelle",
+      "minSegmentLength": "Min. Segmentlänge",
+      "numResultsPerChunk": "Ergebnisse pro Textabschnitt"
     },
     "tooltips": {
       "advancedOptions": "Erweiterte Sucheinstellungen konfigurieren",

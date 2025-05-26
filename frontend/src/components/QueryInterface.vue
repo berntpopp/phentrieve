@@ -88,19 +88,20 @@
       <!-- Advanced Options Panel (Hidden by Default) -->
       <v-expand-transition>
         <v-sheet 
-          v-if="showAdvancedOptions" 
+          v-if="showAdvancedOptions && !isLoading" 
           rounded="lg" 
           elevation="1" 
-          class="mt-3 pa-4"
+          class="mt-1 py-1 px-2"
           id="advanced-options-panel"
           role="region"
           aria-label="Advanced search options"
           color="white"
+          style="font-size: 0.8rem;"
         >
-          <div class="text-subtitle-2 mb-3">{{ $t('queryInterface.advancedOptions.title') }}</div>
+          <div class="text-caption mb-0 px-1 font-weight-medium">{{ $t('queryInterface.advancedOptions.title') }}</div>
           
-          <v-row>
-            <v-col cols="12" md="6">
+          <v-row dense>
+            <v-col cols="12" md="6" class="py-0">
               <v-tooltip location="bottom" :text="$t('queryInterface.tooltips.embeddingModel')" role="tooltip">
                 <template v-slot:activator="{ props }">
                   <v-select
@@ -112,43 +113,49 @@
                     :disabled="isLoading"
                     variant="outlined"
                     density="compact"
+                    size="x-small"
                     aria-label="Select embedding model"
                     :aria-description="'Choose the model to use for text embedding. Currently selected: ' + selectedModel"
                     bg-color="white"
                     color="primary"
+                    class="my-0"
+                    hide-details
                   >
 
                 <template v-slot:label>
-                  <span class="text-high-emphasis">{{ $t('queryInterface.advancedOptions.embeddingModel') }}</span>
+                  <span class="text-caption">{{ $t('queryInterface.advancedOptions.embeddingModel') }}</span>
                 </template>
                   </v-select>
                 </template>
               </v-tooltip>
             </v-col>
             
-            <v-col cols="12" md="6">
+            <v-col cols="12" md="6" class="py-0">
               <v-tooltip location="bottom" :text="$t('queryInterface.tooltips.similarityThreshold')" role="tooltip">
                 <template v-slot:activator="{ props }">
-                  <v-slider
-                    v-bind="props"
-                    v-model="similarityThreshold"
-                    min="0"
-                    max="1"
-                    step="0.05"
-                    thumb-label
-                    :disabled="isLoading"
-                    aria-label="Adjust similarity threshold"
-                    :aria-valuetext="`Similarity threshold set to ${(similarityThreshold * 100).toFixed(0)}%`"
-                    :aria-description="'Set the minimum similarity score required for matches. Higher values mean more precise but fewer results.'"
-                    color="primary"
-                  >
-
-                <template v-slot:label>
-                  <span class="text-high-emphasis">{{ $t('queryInterface.advancedOptions.similarityThreshold') }}</span>
-                  </template>
-                </v-slider>
-              </template>
-            </v-tooltip>
+                  <div>
+                    <label :for="'similarity-slider'" class="text-caption mb-0 d-block" style="font-size: 0.7rem;">{{ $t('queryInterface.advancedOptions.similarityThreshold') }}: {{ similarityThreshold.toFixed(2) }}</label>
+                    <v-slider
+                      v-bind="props"
+                      v-model="similarityThreshold"
+                      :disabled="isLoading"
+                      id="similarity-slider"
+                      class="py-0 mt-0 mb-1"
+                      density="compact"
+                      min="0"
+                      max="1"
+                      step="0.01"
+                      color="primary"
+                      track-color="grey-lighten-2"
+                      thumb-label="hover"
+                      :tick-size="0"
+                      hide-details
+                      aria-label="Similarity threshold slider"
+                      :aria-description="'Adjust minimum similarity threshold. Current value: ' + similarityThreshold.toFixed(2)"
+                    ></v-slider>
+                  </div>
+                </template>
+              </v-tooltip>
             </v-col>
           </v-row>
           
@@ -227,37 +234,44 @@
           </v-row>
           
           <!-- Processing Mode Selector -->
-          <v-divider class="my-3"></v-divider>
-          <div class="text-subtitle-2 mb-3">{{ $t('queryInterface.advancedOptions.processingModeTitle', 'Processing Mode') }}</div>
+          <v-divider class="my-0"></v-divider>
+          <div class="text-caption mb-0 px-1 font-weight-medium">{{ $t('queryInterface.advancedOptions.processingModeTitle') }}</div>
           
-          <v-row>
-            <v-col cols="12">
+          <v-row dense>
+            <v-col cols="12" class="py-0">
               <v-select
                 v-model="forceEndpointMode"
                 :items="[
-                  { title: $t('queryInterface.advancedOptions.modeAutomatic', 'Automatic (by text length)'), value: null },
-                  { title: $t('queryInterface.advancedOptions.modeQuery', 'Query Mode (short text)'), value: 'query' },
-                  { title: $t('queryInterface.advancedOptions.modeTextProcess', 'Text Processing Mode (document)'), value: 'textProcess' }
+                  { title: $t('queryInterface.advancedOptions.modeAutomatic'), value: null },
+                  { title: $t('queryInterface.advancedOptions.modeQuery'), value: 'query' },
+                  { title: $t('queryInterface.advancedOptions.modeTextProcess'), value: 'textProcess' }
                 ]"
                 item-title="title"
                 item-value="value"
-                :label="$t('queryInterface.advancedOptions.processingModeLabel', 'Processing Mode')"
+                :label="$t('queryInterface.advancedOptions.processingModeLabel')"
                 variant="outlined"
                 density="compact"
+                size="x-small"
                 :disabled="isLoading"
                 bg-color="white"
                 color="primary"
-              ></v-select>
+                class="my-0"
+                hide-details
+              >
+                <template v-slot:label>
+                  <span class="text-caption">{{ $t('queryInterface.advancedOptions.processingModeLabel') }}</span>
+                </template>
+              </v-select>
             </v-col>
           </v-row>
           
           <!-- Text Processing Specific Options (Only show when in text processing mode) -->
-          <div v-if="isTextProcessModeActive">
-            <v-divider class="my-3"></v-divider>
-            <div class="text-subtitle-2 mb-3">{{ $t('queryInterface.advancedOptions.textProcessingTitle', 'Text Processing Settings') }}</div>
+          <div v-if="forceEndpointMode === 'textProcess' || queryText.length > inputTextLengthThreshold">
+            <v-divider class="my-0"></v-divider>
+            <div class="text-caption mb-0 px-1 font-weight-medium">{{ $t('queryInterface.advancedOptions.textProcessingTitle') }}</div>
             
-            <v-row>
-              <v-col cols="12" md="6">
+            <v-row dense>
+              <v-col cols="12" md="6" class="py-0">
                 <v-select 
                   v-model="chunkingStrategy" 
                   :items="[
@@ -267,76 +281,183 @@
                     'sliding_window',
                     'sliding_window_cleaned'
                   ]" 
-                  :label="$t('queryInterface.advancedOptions.chunkingStrategy', 'Chunking Strategy')" 
+                  :label="$t('queryInterface.advancedOptions.chunkingStrategy')" 
                   variant="outlined" 
-                  density="compact" 
+                  density="compact"
+                  size="x-small"
                   bg-color="white" 
                   color="primary"
-                ></v-select>
+                  class="my-0"
+                  hide-details
+                >
+                  <template v-slot:label>
+                    <span class="text-caption">{{ $t('queryInterface.advancedOptions.chunkingStrategy') }}</span>
+                  </template>
+                </v-select>
               </v-col>
-              <v-col cols="12" md="6">
+              <v-col cols="12" md="6" class="py-0">
                 <v-text-field 
                   v-model.number="windowSize" 
-                  :label="$t('queryInterface.advancedOptions.windowSize', 'Window Size (tokens)')" 
+                  :label="$t('queryInterface.advancedOptions.windowSize')" 
                   type="number" 
                   variant="outlined" 
-                  density="compact" 
+                  density="compact"
+                  size="x-small"
                   bg-color="white" 
                   color="primary"
-                ></v-text-field>
+                  class="my-0"
+                  hide-details
+                >
+                  <template v-slot:label>
+                    <span class="text-caption">{{ $t('queryInterface.advancedOptions.windowSize') }}</span>
+                  </template>
+                </v-text-field>
               </v-col>
             </v-row>
             
-            <v-row>
-              <v-col cols="12" md="6">
+            <v-row dense>
+              <v-col cols="12" md="6" class="py-0">
                 <v-text-field 
                   v-model.number="stepSize" 
-                  :label="$t('queryInterface.advancedOptions.stepSize', 'Step Size')" 
+                  :label="$t('queryInterface.advancedOptions.stepSize')" 
                   type="number" 
                   variant="outlined" 
-                  density="compact" 
+                  density="compact"
+                  size="x-small"
                   bg-color="white" 
                   color="primary"
-                ></v-text-field>
+                  class="my-0"
+                  hide-details
+                >
+                  <template v-slot:label>
+                    <span class="text-caption">{{ $t('queryInterface.advancedOptions.stepSize') }}</span>
+                  </template>
+                </v-text-field>
               </v-col>
-              <v-col cols="12" md="6">
+              <v-col cols="12" md="6" class="py-0">
                 <v-text-field 
                   v-model.number="chunkRetrievalThreshold" 
-                  :label="$t('queryInterface.advancedOptions.chunkThreshold', 'Chunk Retrieval Threshold')" 
+                  :label="$t('queryInterface.advancedOptions.chunkThreshold')" 
                   type="number" 
                   step="0.01" 
                   min="0" 
                   max="1" 
                   variant="outlined" 
-                  density="compact" 
+                  density="compact"
+                  size="x-small"
                   bg-color="white" 
                   color="primary"
-                ></v-text-field>
+                  class="my-0"
+                  hide-details
+                >
+                  <template v-slot:label>
+                    <span class="text-caption">{{ $t('queryInterface.advancedOptions.chunkThreshold') }}</span>
+                  </template>
+                </v-text-field>
               </v-col>
             </v-row>
             
-            <v-row>
-              <v-col cols="12" md="6">
+            <v-row dense>
+              <v-col cols="12" md="6" class="py-0">
                 <v-text-field 
                   v-model.number="aggregatedTermConfidence" 
-                  :label="$t('queryInterface.advancedOptions.aggConfidence', 'Aggregated Term Confidence')" 
+                  :label="$t('queryInterface.advancedOptions.aggConfidence')" 
                   type="number" 
                   step="0.01" 
                   min="0" 
                   max="1" 
                   variant="outlined" 
-                  density="compact" 
+                  density="compact"
+                  size="x-small"
                   bg-color="white" 
                   color="primary"
-                ></v-text-field>
+                  class="my-0"
+                  hide-details
+                >
+                  <template v-slot:label>
+                    <span class="text-caption">{{ $t('queryInterface.advancedOptions.aggConfidence') }}</span>
+                  </template>
+                </v-text-field>
               </v-col>
-              <v-col cols="12" md="6">
-                <v-switch 
+              <v-col cols="12" md="6" class="d-flex align-center py-0">
+                <v-switch
                   v-model="noAssertionDetectionForTextProcess" 
-                  :label="$t('queryInterface.advancedOptions.noAssertion', 'Disable Assertion Detection')" 
+                  :label="$t('queryInterface.advancedOptions.detectAssertions')" 
                   color="primary" 
-                  inset
-                ></v-switch>
+                  hide-details
+                  density="compact"
+                  class="my-0"
+                  :true-value="false"
+                  :false-value="true"
+                  size="x-small"
+                >
+                  <template v-slot:label>
+                    <span class="text-caption">{{ $t('queryInterface.advancedOptions.detectAssertions') }}</span>
+                  </template>
+                </v-switch>
+              </v-col>
+            </v-row>
+            
+            <!-- Additional text processing settings -->
+            <v-row dense>
+              <v-col cols="12" md="6" class="py-0">
+                <v-text-field 
+                  v-model.number="splitThreshold" 
+                  type="number" 
+                  step="0.01" 
+                  min="0" 
+                  max="1" 
+                  variant="outlined" 
+                  density="compact"
+                  size="x-small"
+                  bg-color="white" 
+                  color="primary"
+                  class="my-0"
+                  hide-details
+                >
+                  <template v-slot:label>
+                    <span class="text-caption">{{ $t('queryInterface.advancedOptions.splitThreshold') }}</span>
+                  </template>
+                </v-text-field>
+              </v-col>
+              <v-col cols="12" md="6" class="py-0">
+                <v-text-field 
+                  v-model.number="minSegmentLength" 
+                  type="number" 
+                  min="1"
+                  variant="outlined" 
+                  density="compact"
+                  size="x-small"
+                  bg-color="white" 
+                  color="primary"
+                  class="my-0"
+                  hide-details
+                >
+                  <template v-slot:label>
+                    <span class="text-caption">{{ $t('queryInterface.advancedOptions.minSegmentLength') }}</span>
+                  </template>
+                </v-text-field>
+              </v-col>
+            </v-row>
+            
+            <v-row dense>
+              <v-col cols="12" md="6" class="py-0">
+                <v-text-field 
+                  v-model.number="numResultsPerChunk" 
+                  type="number" 
+                  min="1"
+                  variant="outlined" 
+                  density="compact"
+                  size="x-small"
+                  bg-color="white" 
+                  color="primary"
+                  class="my-0"
+                  hide-details
+                >
+                  <template v-slot:label>
+                    <span class="text-caption">{{ $t('queryInterface.advancedOptions.numResultsPerChunk') }}</span>
+                  </template>
+                </v-text-field>
               </v-col>
             </v-row>
           </div>
