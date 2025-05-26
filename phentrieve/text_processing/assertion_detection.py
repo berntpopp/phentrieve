@@ -66,6 +66,53 @@ NEGATION_CUES = {
         "niemals gehabt ",
         "kann nicht identifiziert werden ",
     ],
+    "fr": [
+        "pas de ",
+        "non ",
+        "ne ... pas",
+        "sans ",
+        "absence de ",
+        "manque de ",
+        "aucunement ",
+        "négatif pour ",
+        "négative pour ",
+        "exclut ",
+        "jamais eu ",
+        "ne peut pas être identifié ",
+        "aucun ",
+        "aucune ",
+        "nul ",
+        "nulle ",
+    ],
+    "es": [
+        "no ",
+        "sin ",
+        "ausencia de ",
+        "falta de ",
+        "carencia de ",
+        "negativo para ",
+        "descarta ",
+        "nunca tuvo ",
+        "jamás tuvo ",
+        "no se puede identificar ",
+        "ningún ",
+        "ninguna ",
+        "nada ",
+    ],
+    "nl": [
+        "geen ",
+        "niet ",
+        "zonder ",
+        "afwezigheid van ",
+        "gebrek aan ",
+        "negatief voor ",
+        "sluit uit ",
+        "sloot uit ",
+        "nooit gehad ",
+        "kan niet worden geïdentificeerd ",
+        "ontkent ",
+        "ontkende ",
+    ],
 }
 
 
@@ -82,6 +129,7 @@ NORMALITY_CUES = {
         "absent",
         " unremarkable",
         "no acute process",
+        "no significant findings",
     ],
     "de": [
         "normal",
@@ -95,6 +143,44 @@ NORMALITY_CUES = {
         "nicht vorhanden",
         "aufgehoben",
         "physiologisch",
+        "regelrecht",
+    ],
+    "fr": [
+        "normal",
+        "normale",
+        "normaux",
+        "normales",
+        "sans particularité",
+        "RAS",
+        "aucune anomalie",
+        "pas d'anomalie",
+        "résolu",
+        "absent",
+        "absente",
+        "aspect normal",
+    ],
+    "es": [
+        "normal",
+        "normales",
+        "sin hallazgos",
+        "sin particularidades",
+        "sin alteraciones",
+        "resuelta",
+        "resuelto",
+        "ausente",
+        "dentro de límites normales",
+        "no se observan alteraciones",
+    ],
+    "nl": [
+        "normaal",
+        "normale",
+        "zonder bijzonderheden",
+        "g.b.",
+        "niet afwijkend",
+        "opgelost",
+        "afwezig",
+        "binnen normale grenzen",
+        "geen afwijkingen",
     ],
 }
 
@@ -119,6 +205,12 @@ def get_spacy_model(lang_code: str) -> Optional[spacy.language.Language]:
             model_name_spacy = "en_core_web_sm"
         elif lang_code == "de":
             model_name_spacy = "de_core_news_sm"
+        elif lang_code == "fr":
+            model_name_spacy = "fr_core_news_sm"
+        elif lang_code == "es":
+            model_name_spacy = "es_core_news_sm"
+        elif lang_code == "nl":
+            model_name_spacy = "nl_core_news_sm"
 
         if model_name_spacy:
             try:
