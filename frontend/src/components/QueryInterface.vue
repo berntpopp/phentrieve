@@ -4,7 +4,8 @@
     <div class="search-bar-container pt-0 px-2 pb-2 pa-sm-3">
       <v-sheet rounded="pill" elevation="0" class="pa-1 pa-sm-2 search-bar" color="white">
         <div class="d-flex align-center flex-wrap flex-sm-nowrap">
-          <v-text-field
+          <v-textarea
+            v-if="forceEndpointMode === 'textProcess' || queryText.length > inputTextLengthThreshold"
             v-model="queryText"
             density="comfortable"
             variant="outlined"
@@ -14,11 +15,33 @@
             @keydown.enter.prevent="!isLoading && queryText.trim() ? submitQuery() : null"
             bg-color="white"
             color="primary"
+            rows="3" 
+            auto-grow
+            clearable
+            aria-label="Clinical document input for text processing"
+            :aria-description="'Enter longer clinical text for document processing' + (isLoading ? '. Processing in progress' : '')"
+          >
+            <template v-slot:label>
+              <span class="text-high-emphasis">{{ $t('queryInterface.inputLabel') }} ({{ $t('queryInterface.documentModeLabel', 'Document Mode') }})</span>
+            </template>
+          </v-textarea>
+          <v-text-field
+            v-else
+            v-model="queryText"
+            density="comfortable"
+            variant="outlined"
+            hide-details
+            class="search-input ml-2 ml-sm-3 flex-grow-1"
+            :disabled="isLoading"
+            @keydown.enter.prevent="!isLoading && queryText.trim() ? submitQuery() : null"
+            bg-color="white"
+            color="primary"
+            clearable
             aria-label="Clinical text input field"
             :aria-description="'Enter clinical text to search for HPO terms' + (isLoading ? '. Search in progress' : '')"
           >
             <template v-slot:label>
-              <span class="text-high-emphasis">{{ $t('queryInterface.inputLabel') }}</span>
+              <span class="text-high-emphasis">{{ $t('queryInterface.inputLabel') }} ({{ $t('queryInterface.queryModeLabel', 'Query Mode') }})</span>
             </template>
           </v-text-field>
           
@@ -186,6 +209,7 @@
                     variant="outlined"
                     density="compact"
                     aria-label="Select reranker mode"
+                    :aria-description="'Choose the reranker mode. Currently selected: ' + rerankerMode"
                     bg-color="white"
                     color="primary"
                   >
@@ -201,6 +225,121 @@
               <!-- Placeholder for balance -->
             </v-col>
           </v-row>
+          
+          <!-- Processing Mode Selector -->
+          <v-divider class="my-3"></v-divider>
+          <div class="text-subtitle-2 mb-3">{{ $t('queryInterface.advancedOptions.processingModeTitle', 'Processing Mode') }}</div>
+          
+          <v-row>
+            <v-col cols="12">
+              <v-select
+                v-model="forceEndpointMode"
+                :items="[
+                  { title: $t('queryInterface.advancedOptions.modeAutomatic', 'Automatic (by text length)'), value: null },
+                  { title: $t('queryInterface.advancedOptions.modeQuery', 'Query Mode (short text)'), value: 'query' },
+                  { title: $t('queryInterface.advancedOptions.modeTextProcess', 'Text Processing Mode (document)'), value: 'textProcess' }
+                ]"
+                item-title="title"
+                item-value="value"
+                :label="$t('queryInterface.advancedOptions.processingModeLabel', 'Processing Mode')"
+                variant="outlined"
+                density="compact"
+                :disabled="isLoading"
+                bg-color="white"
+                color="primary"
+              ></v-select>
+            </v-col>
+          </v-row>
+          
+          <!-- Text Processing Specific Options (Only show when in text processing mode) -->
+          <div v-if="isTextProcessModeActive">
+            <v-divider class="my-3"></v-divider>
+            <div class="text-subtitle-2 mb-3">{{ $t('queryInterface.advancedOptions.textProcessingTitle', 'Text Processing Settings') }}</div>
+            
+            <v-row>
+              <v-col cols="12" md="6">
+                <v-select 
+                  v-model="chunkingStrategy" 
+                  :items="[
+                    'simple',
+                    'semantic',
+                    'detailed',
+                    'sliding_window',
+                    'sliding_window_cleaned'
+                  ]" 
+                  :label="$t('queryInterface.advancedOptions.chunkingStrategy', 'Chunking Strategy')" 
+                  variant="outlined" 
+                  density="compact" 
+                  bg-color="white" 
+                  color="primary"
+                ></v-select>
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-text-field 
+                  v-model.number="windowSize" 
+                  :label="$t('queryInterface.advancedOptions.windowSize', 'Window Size (tokens)')" 
+                  type="number" 
+                  variant="outlined" 
+                  density="compact" 
+                  bg-color="white" 
+                  color="primary"
+                ></v-text-field>
+              </v-col>
+            </v-row>
+            
+            <v-row>
+              <v-col cols="12" md="6">
+                <v-text-field 
+                  v-model.number="stepSize" 
+                  :label="$t('queryInterface.advancedOptions.stepSize', 'Step Size')" 
+                  type="number" 
+                  variant="outlined" 
+                  density="compact" 
+                  bg-color="white" 
+                  color="primary"
+                ></v-text-field>
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-text-field 
+                  v-model.number="chunkRetrievalThreshold" 
+                  :label="$t('queryInterface.advancedOptions.chunkThreshold', 'Chunk Retrieval Threshold')" 
+                  type="number" 
+                  step="0.01" 
+                  min="0" 
+                  max="1" 
+                  variant="outlined" 
+                  density="compact" 
+                  bg-color="white" 
+                  color="primary"
+                ></v-text-field>
+              </v-col>
+            </v-row>
+            
+            <v-row>
+              <v-col cols="12" md="6">
+                <v-text-field 
+                  v-model.number="aggregatedTermConfidence" 
+                  :label="$t('queryInterface.advancedOptions.aggConfidence', 'Aggregated Term Confidence')" 
+                  type="number" 
+                  step="0.01" 
+                  min="0" 
+                  max="1" 
+                  variant="outlined" 
+                  density="compact" 
+                  bg-color="white" 
+                  color="primary"
+                ></v-text-field>
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-switch 
+                  v-model="noAssertionDetectionForTextProcess" 
+                  :label="$t('queryInterface.advancedOptions.noAssertion', 'Disable Assertion Detection')" 
+                  color="primary" 
+                  inset
+                ></v-switch>
+              </v-col>
+            </v-row>
+          </div>
         </v-sheet>
       </v-expand-transition>
     </div>
@@ -243,6 +382,7 @@
               v-else
               :key="'results-' + index"
               :responseData="item.response"
+              :resultType="item.type"
               :error="item.error"
               :collected-phenotypes="collectedPhenotypes"
               @add-to-collection="addToPhenotypeCollection"
@@ -476,6 +616,15 @@ export default {
   components: {
     ResultsDisplay
   },
+  computed: {
+    // Determine if text processing mode is active based on text length or user force setting
+    isTextProcessModeActive() {
+      if (this.forceEndpointMode) {
+        return this.forceEndpointMode === 'textProcess';
+      }
+      return this.queryText.length > this.inputTextLengthThreshold;
+    }
+  },
   data() {
     return {
       queryText: '',
@@ -517,7 +666,29 @@ export default {
         { title: 'Female', value: 1 },  // FEMALE
         { title: 'Male', value: 2 },    // MALE
         { title: 'Other', value: 3 }    // OTHER_SEX
-      ]
+      ],
+      inputTextLengthThreshold: 60, // Character limit to auto-switch modes
+      forceEndpointMode: null, // 'query', 'textProcess', or null (for automatic)
+      
+      // Parameters for /text/process endpoint
+      chunkingStrategy: 'sliding_window_cleaned', // API default
+      windowSize: 2, // Default for sliding window
+      stepSize: 1, // Default step size
+      splitThreshold: 0.5, // Default semantic split threshold
+      minSegmentLength: 3, // Default minimum segment length (words)
+      semanticModelForChunking: null, // Default to same as retrieval model if not set
+      retrievalModelForTextProcess: null, // Default to same as query model if not set
+      
+      chunkRetrievalThreshold: 0.3, // Default retrieval threshold for chunks
+      numResultsPerChunk: 10, // Default number of HPO terms per chunk
+      
+      // Assertion detection options
+      noAssertionDetectionForTextProcess: false, // Default: enabled
+      assertionPreferenceForTextProcess: 'dependency', // Default preference
+      
+      // Aggregation options
+      aggregatedTermConfidence: 0.35, // Default confidence threshold for aggregation
+      topTermPerChunkForAggregation: false // Default: use all terms for aggregation
     };
   },
   watch: {
@@ -1057,6 +1228,18 @@ export default {
         return;
       }
       
+      // Determine the mode BEFORE clearing the input field
+      // This fixes the issue where the mode is determined incorrectly after clearing the input
+      const useTextProcessMode = this.forceEndpointMode === 'textProcess' || 
+                                queryTextTrimmed.length > this.inputTextLengthThreshold;
+      
+      logService.info('Mode determination', { 
+        length: queryTextTrimmed.length, 
+        threshold: this.inputTextLengthThreshold,
+        forcedMode: this.forceEndpointMode,
+        useTextProcessMode: useTextProcessMode
+      });
+      
       this.isLoading = true;
       
       // Save the query text before clearing input field
@@ -1067,7 +1250,8 @@ export default {
         query: currentQuery,
         loading: true,
         response: null,
-        error: null
+        error: null,
+        type: useTextProcessMode ? 'textProcess' : 'query' // Add type to distinguish between query and text process results
       });
 
       // Get reference to the latest history item (now at index 0)
@@ -1084,22 +1268,66 @@ export default {
       this.scrollToTop();
 
       try {
-        // Prepare request data matching the QueryRequest schema
-        const queryData = {
-          text: currentQuery,
-          model_name: this.selectedModel || 'FremyCompany/BioLORD-2023-M',
-          language: this.selectedLanguage, // Pass explicitly selected language or null for auto-detection
-          num_results: this.numResults,
-          similarity_threshold: this.similarityThreshold,
-          enable_reranker: this.enableReranker,
-          reranker_mode: this.rerankerMode,
-          query_assertion_language: this.selectedLanguage // Use same language for assertion detection
-        };
+        let response;
         
-        // Make API call
-        logService.info('Sending query to API', queryData);
-        const response = await PhentrieveService.queryHpo(queryData);
-        logService.info('Received API response', response);
+        if (useTextProcessMode) {
+          // Text Processing Mode - use /text/process endpoint
+          logService.info('Using text processing endpoint for longer text');
+          
+          // Prepare text processing request data
+          const textProcessData = {
+            text_content: currentQuery,
+            language: this.selectedLanguage, // Pass explicitly selected language or null for auto-detection
+            chunking_strategy: this.chunkingStrategy,
+            window_size: this.windowSize,
+            step_size: this.stepSize,
+            split_threshold: this.splitThreshold,
+            min_segment_length: this.minSegmentLength,
+            semantic_model_name: this.semanticModelForChunking || this.selectedModel, // Use specific or fallback
+            retrieval_model_name: this.retrievalModelForTextProcess || this.selectedModel, // Use specific or fallback
+            trust_remote_code: true,
+            chunk_retrieval_threshold: this.chunkRetrievalThreshold,
+            num_results_per_chunk: this.numResultsPerChunk,
+            enable_reranker: this.enableReranker,
+            reranker_mode: this.rerankerMode,
+            no_assertion_detection: this.noAssertionDetectionForTextProcess,
+            assertion_preference: this.assertionPreferenceForTextProcess,
+            aggregated_term_confidence: this.aggregatedTermConfidence,
+            top_term_per_chunk_for_aggregation: this.topTermPerChunkForAggregation,
+          };
+          
+          // Make Text Processing API call
+          logService.info('Sending request to text processing API', {
+            strategy: textProcessData.chunking_strategy,
+            textLength: textProcessData.text_content.length,
+            model: textProcessData.retrieval_model_name
+          });
+          
+          response = await PhentrieveService.processText(textProcessData);
+          
+          logService.info('Received text processing API response', {
+            numChunks: response.processed_chunks?.length || 0,
+            numAggregatedTerms: response.aggregated_hpo_terms?.length || 0
+          });
+        } else {
+          // Query Mode - use /query/ endpoint (original behavior)
+          // Prepare query request data
+          const queryData = {
+            text: currentQuery,
+            model_name: this.selectedModel || 'FremyCompany/BioLORD-2023-M',
+            language: this.selectedLanguage, // Pass explicitly selected language or null for auto-detection
+            num_results: this.numResults,
+            similarity_threshold: this.similarityThreshold,
+            enable_reranker: this.enableReranker,
+            reranker_mode: this.rerankerMode,
+            query_assertion_language: this.selectedLanguage // Use same language for assertion detection
+          };
+          
+          // Make Query API call
+          logService.info('Sending request to query API', queryData);
+          response = await PhentrieveService.queryHpo(queryData);
+          logService.info('Received query API response', response);
+        }
         
         // Update history item using index reference
         this.queryHistory[historyIndex].loading = false;
@@ -1111,7 +1339,7 @@ export default {
         // Handle error
         this.queryHistory[historyIndex].loading = false;
         this.queryHistory[historyIndex].error = error;
-        logService.error('Error submitting query', error);
+        logService.error('Error submitting query/processing text', error);
         
         // Make a shallow copy of the array to trigger reactivity
         this.queryHistory = [...this.queryHistory];
@@ -1152,6 +1380,23 @@ export default {
   min-height: 44px;
   padding-top: 0;
   padding-bottom: 0;
+}
+
+/* Specific styles for textarea in document mode */
+.search-input.v-textarea :deep(.v-field) {
+  border-radius: 16px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+.search-input.v-textarea :deep(.v-field__input) {
+  min-height: 80px;
+  padding-top: 4px;
+}
+
+/* Ensure search bar container has enough height for the textarea */
+.search-bar {
+  min-height: 60px;
 }
 
 .search-input :deep(.v-field__outline) {

@@ -1,6 +1,7 @@
 <template>
   <div class="results-container">
-    <div v-if="responseData && responseData.results && responseData.results.length > 0">
+    <!-- Regular Query Results Display -->
+    <div v-if="resultType === 'query' && responseData && responseData.results && responseData.results.length > 0">
       <v-card class="mb-4 info-card">
         <v-card-title class="text-subtitle-1 pa-2 pa-sm-4">
           <div class="d-flex flex-wrap align-center">
@@ -151,14 +152,173 @@
         </v-list-item>
       </v-list>
     </div>
-    <div v-else-if="responseData && responseData.results && responseData.results.length === 0">
+
+    <!-- Text Processing Results Display -->
+    <div v-else-if="resultType === 'textProcess' && responseData && responseData.processed_chunks && responseData.aggregated_hpo_terms">
+      <!-- Meta Information Card -->
+      <v-card class="mb-4 info-card">
+        <v-card-title class="text-subtitle-1 pa-2 pa-sm-4">
+          <div class="d-flex flex-wrap align-center">
+            <!-- Processing Strategy -->
+            <div class="info-item mr-4 mb-1">
+              <v-icon color="info" class="mr-1" size="small">mdi-information</v-icon>
+              <span class="model-name">
+                <small class="text-caption text-medium-emphasis">{{ $t('resultsDisplay.textProcess.strategyLabel', 'Strategy') }}:</small>
+                {{ responseData.meta?.request_parameters?.chunking_strategy || 'sliding_window_cleaned' }}
+              </span>
+            </div>
+            
+            <!-- Number of Chunks -->
+            <div class="info-item mr-4 mb-1">
+              <v-icon color="info" class="mr-1" size="small">mdi-file-document-multiple</v-icon>
+              <span>
+                <small class="text-caption text-medium-emphasis">{{ $t('resultsDisplay.textProcess.chunksLabel', 'Chunks') }}:</small>
+                {{ responseData.processed_chunks.length }}
+              </span>
+            </div>
+            
+            <!-- Language info -->
+            <div v-if="responseData.meta?.effective_language || responseData.meta?.request_parameters?.language" class="info-item mr-4 mb-1">
+              <v-icon color="info" class="mr-1" size="small">mdi-translate</v-icon>
+              <span>
+                <small class="text-caption text-medium-emphasis">{{ $t('resultsDisplay.languageLabel') }}:</small>
+                {{ responseData.meta.effective_language || responseData.meta.request_parameters?.language }}
+              </span>
+            </div>
+          </div>
+          
+          <!-- Model info on separate line -->
+          <div v-if="responseData.meta?.effective_retrieval_model || responseData.meta?.request_parameters?.retrieval_model_name" class="info-item mt-2">
+            <v-icon color="info" class="mr-1" size="small">mdi-brain</v-icon>
+            <span class="model-name">
+              <small class="text-caption text-medium-emphasis">{{ $t('resultsDisplay.modelLabel') }}:</small>
+              {{ displayModelName(responseData.meta.effective_retrieval_model || responseData.meta.request_parameters?.retrieval_model_name) }}
+            </span>
+          </div>
+        </v-card-title>
+      </v-card>
+
+      <!-- Processed Chunks Section -->
+      <h3 class="text-h6 my-4">{{ $t('resultsDisplay.textProcess.chunksTitle', 'Processed Chunks & Per-Chunk HPO Terms') }}</h3>
+      <v-expansion-panels v-if="responseData.processed_chunks && responseData.processed_chunks.length > 0">
+        <v-expansion-panel v-for="chunk in responseData.processed_chunks" :key="chunk.chunk_id">
+          <v-expansion-panel-title>
+            <div class="d-flex align-center">
+              <span class="text-truncate">{{ $t('resultsDisplay.textProcess.chunkLabel', 'Chunk') }} {{ chunk.chunk_id }}: {{ chunk.text.substring(0, 50) }}...</span>
+              <v-chip 
+                size="small" 
+                :color="chunk.status === 'negated' ? 'error' : (chunk.status === 'affirmed' ? 'success' : 'grey')" 
+                class="ml-2">
+                {{ chunk.status || 'unknown' }}
+              </v-chip>
+            </div>
+          </v-expansion-panel-title>
+          <v-expansion-panel-text>
+            <p class="font-italic mb-2">"{{ chunk.text }}"</p>
+            <div v-if="chunk.assertion_details && chunk.assertion_details.final_status">
+              <small>({{ $t('resultsDisplay.textProcess.assertionDetail', 'Assertion Method:') }} {{ chunk.assertion_details.combination_strategy }}, {{ $t('resultsDisplay.textProcess.finalStatus', 'Final Status:') }} {{ chunk.assertion_details.final_status }})</small>
+            </div>
+            
+            <!-- Note: The current API response doesn't include per-chunk HPO terms -->
+            <div class="text-caption text-medium-emphasis mt-2">
+              {{ $t('resultsDisplay.textProcess.noChunkHPOTerms', 'No HPO terms were identified for this chunk.') }}
+            </div>
+          </v-expansion-panel-text>
+        </v-expansion-panel>
+      </v-expansion-panels>
+      <v-alert v-else type="info">
+        {{ $t('resultsDisplay.textProcess.noChunksProcessed', 'No text chunks were processed.') }}
+      </v-alert>
+
+      <!-- Aggregated HPO Terms Section -->
+      <h3 class="text-h6 my-4">{{ $t('resultsDisplay.textProcess.aggregatedTitle', 'Aggregated Document Phenotypes') }}</h3>
+      <v-list v-if="responseData.aggregated_hpo_terms && responseData.aggregated_hpo_terms.length > 0" 
+              lines="two" class="rounded-lg mt-2">
+        <v-list-item
+          v-for="(term, index) in responseData.aggregated_hpo_terms"
+          :key="'agg-' + index"
+          class="mb-1 rounded-lg"
+          :color="isAlreadyCollected(term.hpo_id) ? 'primary-lighten-5' : 'grey-lighten-5'"
+          border
+          density="compact"
+        >
+          <template v-slot:prepend>
+            <v-badge
+              :content="index + 1"
+              color="primary"
+              inline
+              class="mr-2"
+            ></v-badge>
+          </template>
+          
+          <v-list-item-title class="pb-2">
+            <div class="d-flex flex-wrap align-center">
+              <!-- HPO ID and Label on the left -->
+              <div class="flex-grow-1">
+                <div class="d-flex align-center mb-1">
+                  <a 
+                    :href="`https://hpo.jax.org/browse/term/${term.hpo_id}`" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    class="hpo-link"
+                    :title="`View ${term.hpo_id} in HPO Browser`"
+                  >
+                    <span class="hpo-id font-weight-bold">{{ term.hpo_id }}</span>
+                    <v-icon size="x-small" class="ml-1">mdi-open-in-new</v-icon>
+                  </a>
+                </div>
+                <div class="hpo-label mt-1">{{ term.name || term.label }}</div>
+              </div>
+              
+              <!-- Score chips and Add button on the right -->
+              <div class="d-flex align-center ml-auto">
+                <div class="d-flex flex-row align-center gap-1 mr-2 score-chips-container">
+                  <v-chip
+                    class="score-chip"
+                    color="primary"
+                    size="x-small"
+                    variant="flat"
+                  >
+                    <v-icon size="x-small" start>mdi-numeric</v-icon>
+                    {{ term.score?.toFixed(2) || term.aggregated_score?.toFixed(2) || term.similarity_score?.toFixed(2) || '?' }}
+                  </v-chip>
+                </div>
+                
+                <v-btn
+                  :icon="isAlreadyCollected(term.hpo_id) ? 'mdi-check-circle' : 'mdi-plus-circle'"
+                  size="small"
+                  :color="isAlreadyCollected(term.hpo_id) ? 'success' : 'primary'"
+                  variant="text"
+                  class="add-btn"
+                  density="comfortable"
+                  @click="addToCollection({hpo_id: term.hpo_id, label: term.name || term.label}, term.status || 'affirmed')"
+                  :disabled="isAlreadyCollected(term.hpo_id)"
+                  :aria-label="isAlreadyCollected(term.hpo_id) ? 'Already added to collection' : 'Add to collection'"
+                ></v-btn>
+              </div>
+            </div>
+          </v-list-item-title>
+        </v-list-item>
+      </v-list>
+      <v-alert v-else type="info" class="mb-4">
+        {{ $t('resultsDisplay.textProcess.noAggregatedTerms', 'No aggregated HPO terms found.') }}
+      </v-alert>
+    </div>
+
+    <!-- No Results / Empty States -->
+    <div v-else-if="resultType === 'query' && responseData && responseData.results && responseData.results.length === 0">
       <v-alert color="warning" icon="mdi-alert-circle">
         {{ $t('resultsDisplay.noTermsFound') }}
       </v-alert>
     </div>
+    <div v-else-if="resultType === 'textProcess' && responseData && (!responseData.processed_chunks || responseData.processed_chunks.length === 0)">
+      <v-alert color="warning" icon="mdi-alert-circle">
+        {{ $t('resultsDisplay.textProcess.noChunksProcessed', 'No text chunks were processed.') }}
+      </v-alert>
+    </div>
     <div v-else-if="error">
-      <v-alert color="error" icon="mdi-alert">
-        <template v-if="error && error.userMessageKey">
+      <v-alert type="error" icon="mdi-alert-circle">
+        <template v-if="error.userMessageKey">
           {{ $t(error.userMessageKey, error.userMessageParams) }}
         </template>
         <template v-else>
@@ -185,11 +345,18 @@ export default {
             rerankerUsed: value.reranker_used,
             resultsCount: value.results?.length,
             language: value.language_detected,
-            queryAssertionStatus: value.query_assertion_status
+            queryAssertionStatus: value.query_assertion_status,
+            processedChunks: value.processed_chunks?.length,
+            aggregatedTerms: value.aggregated_hpo_terms?.length
           });
         }
         return true;
       }
+    },
+    resultType: {
+      type: String,
+      default: 'query',
+      validator: value => ['query', 'textProcess'].includes(value)
     },
     error: {
       type: Object,
@@ -207,9 +374,20 @@ export default {
       logService.debug('Checking if phenotype is collected', { hpoId, isCollected });
       return isCollected;
     },
-    addToCollection(phenotype) {
-      logService.info('Adding phenotype to collection from results', { phenotype });
-      this.$emit('add-to-collection', phenotype);
+    addToCollection(phenotype, assertionStatus = 'affirmed') {
+      // Convert text processing format to the expected format for collection
+      const normalizedPhenotype = {
+        hpo_id: phenotype.hpo_id,
+        label: phenotype.name || phenotype.label, // API uses 'name' in text processing mode
+        assertion_status: assertionStatus
+      };
+      
+      logService.info('Adding phenotype to collection from results', { 
+        originalPhenotype: phenotype,
+        normalizedPhenotype: normalizedPhenotype
+      });
+      
+      this.$emit('add-to-collection', normalizedPhenotype);
     },
     formatRerankerScore(score) {
       logService.debug('Formatting reranker score', { originalScore: score });

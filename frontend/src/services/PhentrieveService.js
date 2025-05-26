@@ -44,6 +44,49 @@ class PhentrieveService {
     }
 
     /**
+     * Processes longer text content for HPO term extraction with detailed chunk-level analysis
+     * @param {Object} textProcessingData - Data matching TextProcessingRequest schema from FastAPI
+     * @returns {Object} Data matching TextProcessingResponseAPI schema
+     */
+    async processText(textProcessingData) {
+        try {
+            logService.info('Calling Text Processing API', { 
+                requestSize: JSON.stringify(textProcessingData).length,
+                textLength: textProcessingData.text_content?.length || 0,
+                model: textProcessingData.retrieval_model_name
+            });
+            
+            const response = await axios.post(`${API_URL}/text/process`, textProcessingData);
+            
+            logService.debug('Text Processing API response received', { 
+                status: response.status,
+                dataSize: JSON.stringify(response.data).length,
+                numChunks: response.data.processed_chunks?.length || 0,
+                numAggregatedTerms: response.data.aggregated_hpo_terms?.length || 0
+            });
+            
+            return response.data; // Expected to match TextProcessingResponseAPI schema
+        } catch (error) {
+            logService.error('Original API Error in PhentrieveService processText:', {
+                message: error.message,
+                name: error.name,
+                code: error.code,
+                config: error.config ? {
+                    url: error.config.url,
+                    method: error.config.method,
+                    timeout: error.config.timeout
+                } : null,
+                request: error.request ? 'Exists' : 'DoesNotExist', // Avoid logging large objects
+                response: error.response ? { 
+                    status: error.response.status, 
+                    data: error.response.data 
+                } : null
+            });
+            throw this._createStandardizedError(error, 'processing text for HPO extraction');
+        }
+    }
+
+    /**
      * Creates a standardized error object from an Axios error
      * @param {Error} error - The original Axios error
      * @param {string} contextMessage - Context describing what operation was being performed
