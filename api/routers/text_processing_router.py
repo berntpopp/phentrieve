@@ -117,12 +117,14 @@ def _get_chunking_config_for_api(
         config = get_sliding_window_cleaned_config()
         for component in config:
             if component.get("type") == "sliding_window":
-                component["config"].update({
-                    "window_size_tokens": cfg_window_size,
-                    "step_size_tokens": cfg_step_size,
-                    "splitting_threshold": cfg_split_threshold,
-                    "min_split_segment_length_words": cfg_min_segment_length,
-                })
+                component["config"].update(
+                    {
+                        "window_size_tokens": cfg_window_size,
+                        "step_size_tokens": cfg_step_size,
+                        "splitting_threshold": cfg_split_threshold,
+                        "min_split_segment_length_words": cfg_min_segment_length,
+                    }
+                )
         return config
 
 

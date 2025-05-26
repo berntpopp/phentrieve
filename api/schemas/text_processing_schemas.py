@@ -47,7 +47,7 @@ class TextProcessingRequest(BaseModel):
     # Model Configuration
     semantic_model_name: Optional[str] = Field(
         default=DEFAULT_MODEL,  # Will be handled in router logic to default to retrieval_model_name
-        description=f"Model for semantic-based chunking strategies. If None, defaults to retrieval_model_name or Phentrieve's DEFAULT_MODEL ('{DEFAULT_MODEL}')."
+        description=f"Model for semantic-based chunking strategies. If None, defaults to retrieval_model_name or Phentrieve's DEFAULT_MODEL ('{DEFAULT_MODEL}').",
     )
     retrieval_model_name: Optional[str] = Field(
         default=DEFAULT_MODEL,
@@ -98,7 +98,9 @@ class TextProcessingRequest(BaseModel):
 
     # Aggregation
     aggregated_term_confidence: Optional[float] = Field(
-        default=0.35, ge=0.0, le=1.0,  # Changed from 0.0 to 0.35 to align with CLI
+        default=0.35,
+        ge=0.0,
+        le=1.0,  # Changed from 0.0 to 0.35 to align with CLI
         description="Minimum confidence score for an aggregated HPO term.",
         example=0.35,
     )
