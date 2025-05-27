@@ -100,11 +100,13 @@ async def get_phentrieve_info():
             "detailed",  # Paragraph -> sentence -> punctuation -> semantic split
             "sliding_window",  # Sliding window semantic splitting
             "sliding_window_cleaned",  # Sliding window with cleaning
+            "sliding_window_punct_cleaned",  # Sliding window with punctuation cleaning
+            "sliding_window_punct_conj_cleaned",  # Sliding window with punctuation and conjunction cleaning
         ]
 
         chunking_config = ChunkingConfig(
             available_strategies=chunking_strategies,
-            default_strategy="sliding_window",  # Based on DEFAULT_CHUNK_PIPELINE_CONFIG
+            default_strategy="sliding_window_punct_conj_cleaned",  # Updated default strategy
         )
 
         # HPO Data Status

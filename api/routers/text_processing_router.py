@@ -27,6 +27,8 @@ from phentrieve.config import (
     get_detailed_chunking_config,
     get_sliding_window_config_with_params,
     get_sliding_window_cleaned_config,
+    get_sliding_window_punct_cleaned_config,
+    get_sliding_window_punct_conj_cleaned_config,
     DEFAULT_TRANSLATIONS_SUBDIR,
     DEFAULT_RERANKER_MODEL,
     DEFAULT_MONOLINGUAL_RERANKER_MODEL,
@@ -109,12 +111,38 @@ def _get_chunking_config_for_api(
                     }
                 )
         return config
+    elif strategy_name == "sliding_window_punct_cleaned":
+        config = get_sliding_window_punct_cleaned_config()
+        for component in config:
+            if component.get("type") == "sliding_window":
+                component["config"].update(
+                    {
+                        "window_size_tokens": cfg_window_size,
+                        "step_size_tokens": cfg_step_size,
+                        "splitting_threshold": cfg_split_threshold,
+                        "min_split_segment_length_words": cfg_min_segment_length,
+                    }
+                )
+        return config
+    elif strategy_name == "sliding_window_punct_conj_cleaned":
+        config = get_sliding_window_punct_conj_cleaned_config()
+        for component in config:
+            if component.get("type") == "sliding_window":
+                component["config"].update(
+                    {
+                        "window_size_tokens": cfg_window_size,
+                        "step_size_tokens": cfg_step_size,
+                        "splitting_threshold": cfg_split_threshold,
+                        "min_split_segment_length_words": cfg_min_segment_length,
+                    }
+                )
+        return config
     else:  # Fallback
         logger.warning(
-            f"API: Unknown chunking strategy '{strategy_name}'. Defaulting to sliding_window_cleaned."
+            f"API: Unknown chunking strategy '{strategy_name}'. Defaulting to sliding_window_punct_conj_cleaned."
         )
-        # Use sliding_window_cleaned as the default fallback
-        config = get_sliding_window_cleaned_config()
+        # Use sliding_window_punct_conj_cleaned as the default fallback
+        config = get_sliding_window_punct_conj_cleaned_config()
         for component in config:
             if component.get("type") == "sliding_window":
                 component["config"].update(
