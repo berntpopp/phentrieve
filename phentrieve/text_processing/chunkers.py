@@ -769,6 +769,87 @@ class FineGrainedPunctuationChunker(TextChunker):
         return all_fine_grained_chunks
 
 
+class ConjunctionChunker(TextChunker):
+    """
+    Chunker that splits text segments at specified coordinating conjunctions.
+    The split occurs before the conjunction, and the conjunction becomes
+    part of the following chunk.
+    """
+
+    def __init__(self, language: str = "en", **kwargs):
+        super().__init__(language=language, **kwargs)
+        # Get conjunctions for the current language, defaulting to English
+        self.conjunctions = COORDINATING_CONJUNCTIONS.get(
+            self.language.lower(), COORDINATING_CONJUNCTIONS.get("en", [])
+        )
+        # Create a regex pattern for splitting.
+        # We want to split *before* the conjunction.
+        # The pattern should match space(s) + conjunction + space(s)
+        # We'll use a lookahead to include the conjunction in the next split.
+        if self.conjunctions:
+            # Escape conjunctions in case they contain regex special characters (unlikely for these)
+            escaped_conjunctions = [re.escape(c) for c in self.conjunctions]
+            # Pattern to split *before* " conjunction " (case-insensitive)
+            # Using word boundaries (\b) is important
+            self.split_pattern = re.compile(
+                r"\s+(?=(\b(?:" + "|".join(escaped_conjunctions) + r")\b\s+))",
+                re.IGNORECASE,
+            )
+            logger.info(
+                f"ConjunctionChunker for lang '{self.language}' initialized with conjunctions: {self.conjunctions}"
+            )
+        else:
+            self.split_pattern = None
+            logger.warning(
+                f"ConjunctionChunker for lang '{self.language}' has no conjunctions defined. Will act as a NoOp."
+            )
+
+    def chunk(self, text_segments: List[str]) -> List[str]:
+        """
+        Split text segments at coordinating conjunctions.
+
+        Args:
+            text_segments: List of text segments to split
+
+        Returns:
+            List of conjunction-split chunks
+        """
+        if not self.split_pattern:
+            return text_segments  # Act as NoOp if no conjunctions
+
+        all_conjunction_split_chunks = []
+        for segment_str in text_segments:
+            if not segment_str or not segment_str.strip():
+                logger.debug("ConjunctionChunker: Skipping empty segment.")
+                continue
+
+            # Perform the split. re.split with a capturing group in lookahead
+            # doesn't directly give what we want (keeping delimiter with next part).
+            # A simpler approach is to find all matches and reconstruct.
+
+            parts = []
+            last_end = 0
+            for match in self.split_pattern.finditer(segment_str):
+                start_of_split_point = (
+                    match.start()
+                )  # This is the space *before* the conjunction
+                # The part before the split point (and the conjunction)
+                parts.append(segment_str[last_end:start_of_split_point].strip())
+                last_end = start_of_split_point  # Next part starts from here (including the space and conjunction)
+
+            # Add the final part of the segment
+            parts.append(segment_str[last_end:].strip())
+
+            # Filter out any empty strings resulting from multiple spaces or edge cases
+            all_conjunction_split_chunks.extend([p for p in parts if p])
+
+        logger.debug(
+            f"ConjunctionChunker produced {len(all_conjunction_split_chunks)} chunks "
+            f"from {len(text_segments)} input segments."
+        )
+        return all_conjunction_split_chunks
+
+
 # Language-specific constants for negation-aware merging
 NEGATION_PREFIXES = {
     "en": ["no", "not", "non", "without", "zero"],
@@ -778,11 +859,56 @@ NEGATION_PREFIXES = {
     "nl": ["geen", "niet", "zonder", "nooit", "nee", "niks", "nergens"],
 }
 
+# Dictionary of coordinating conjunctions for supported languages
+# These are used by ConjunctionChunker to split text at conjunction points
+# All conjunctions must be lowercase
+COORDINATING_CONJUNCTIONS = {
+    "en": ["and", "or", "but"],
+    "de": ["und", "oder", "aber", "sondern"],
+    "fr": ["et", "ou", "mais"],
+    "es": ["y", "e", "o", "u", "pero"],  # 'e' before 'i'/'hi', 'u' before 'o'/'ho'
+    "nl": ["en", "of", "maar"],
+}
+
 # A small list of words that, if they are the `next_segment`, might prevent merging a negation prefix.
 # These should be words that don't typically form a tight semantic unit with a preceding standalone negation.
 AVOID_MERGE_AFTER_NEGATION_IF_NEXT_IS = {
-    "en": ["and", "or", "but", "so", "yet", "for", "nor", "is", "are", "was", "were"],
-    "de": ["und", "oder", "aber", "sondern", "denn", "als", "wenn", "ist", "sind"],
+    "en": [
+        "and",
+        "or",
+        "but",
+        "so",
+        "yet",
+        "for",
+        "nor",
+        "is",
+        "are",
+        "was",
+        "were",
+        "if",
+        "when",
+        "then",
+        "while",
+        "although",
+        "though",
+        "however",
+    ],
+    "de": [
+        "und",
+        "oder",
+        "aber",
+        "sondern",
+        "denn",
+        "als",
+        "wenn",
+        "ist",
+        "sind",
+        "falls",
+        "dann",
+        "während",
+        "obwohl",
+        "jedoch",
+    ],
     "fr": [
         "et",
         "ou",
@@ -796,6 +922,12 @@ AVOID_MERGE_AFTER_NEGATION_IF_NEXT_IS = {
         "étaient",
         "comme",
         "si",
+        "quand",
+        "alors",
+        "bien que",
+        "quoique",
+        "pendant",
+        "cependant",
     ],
     "es": [
         "y",
@@ -811,6 +943,11 @@ AVOID_MERGE_AFTER_NEGATION_IF_NEXT_IS = {
         "eran",
         "como",
         "si",
+        "cuando",
+        "entonces",
+        "mientras",
+        "aunque",
+        "sin embargo",
     ],
     "nl": [
         "en",
@@ -824,6 +961,11 @@ AVOID_MERGE_AFTER_NEGATION_IF_NEXT_IS = {
         "was",
         "waren",
         "als",
+        "wanneer",
+        "dan",
+        "terwijl",
+        "hoewel",
+        "echter",
     ],
 }
 
@@ -1081,9 +1223,14 @@ class SlidingWindowSemanticSplitter(TextChunker):
 
         lang_key = self.language.lower()
         # Create a clean set of negation prefixes by stripping whitespace
-        current_neg_standalone_prefixes = set(prefix.strip() for prefix in NEGATION_PREFIXES.get(lang_key, NEGATION_PREFIXES["en"]))
-        current_avoid_merge_next_starts_with = AVOID_MERGE_AFTER_NEGATION_IF_NEXT_IS.get(
-            lang_key, AVOID_MERGE_AFTER_NEGATION_IF_NEXT_IS["en"]
+        current_neg_standalone_prefixes = set(
+            prefix.strip()
+            for prefix in NEGATION_PREFIXES.get(lang_key, NEGATION_PREFIXES["en"])
+        )
+        current_avoid_merge_next_starts_with = (
+            AVOID_MERGE_AFTER_NEGATION_IF_NEXT_IS.get(
+                lang_key, AVOID_MERGE_AFTER_NEGATION_IF_NEXT_IS["en"]
+            )
         )
 
         merged_segments: List[str] = []
@@ -1093,14 +1240,16 @@ class SlidingWindowSemanticSplitter(TextChunker):
             current_segment = segments[i]
             current_segment_lower_stripped = current_segment.lower().strip()
 
-            if not current_segment_lower_stripped:  # Handle empty string after potential splits
+            if (
+                not current_segment_lower_stripped
+            ):  # Handle empty string after potential splits
                 i += 1
                 continue
 
             # Check if current segment is a standalone negation prefix
             is_standalone_neg_prefix = (
-                current_segment_lower_stripped in current_neg_standalone_prefixes and
-                len(self.tokenizer(current_segment_lower_stripped)) == 1
+                current_segment_lower_stripped in current_neg_standalone_prefixes
+                and len(self.tokenizer(current_segment_lower_stripped)) == 1
             )
 
             # Check if segment ends with a negation word (and is not just the negation word itself)
@@ -1108,41 +1257,53 @@ class SlidingWindowSemanticSplitter(TextChunker):
             neg_suffix_found_for_log = None
             if not is_standalone_neg_prefix:
                 tokenized_current = self.tokenizer(current_segment_lower_stripped)
-                if tokenized_current and len(tokenized_current) > 1:  # More than one word
+                if (
+                    tokenized_current and len(tokenized_current) > 1
+                ):  # More than one word
                     last_word = tokenized_current[-1]
                     if last_word in current_neg_standalone_prefixes:
                         ends_with_neg_word = True
                         neg_suffix_found_for_log = last_word
-            
+
             # Determine if we should attempt to merge
             attempt_merge = is_standalone_neg_prefix or ends_with_neg_word
-            
+
             if attempt_merge and (i + 1) < len(segments):
                 next_segment = segments[i + 1]
                 next_segment_lower_stripped = next_segment.lower().strip()
-                
-                if not next_segment_lower_stripped:  # Next segment is empty, don't merge
+
+                if (
+                    not next_segment_lower_stripped
+                ):  # Next segment is empty, don't merge
                     attempt_merge = False
                 else:
                     tokenized_next = self.tokenizer(next_segment_lower_stripped)
                     next_first_word = tokenized_next[0] if tokenized_next else ""
-                    
+
                     # Don't merge if next segment starts with a word to avoid
                     if next_first_word in current_avoid_merge_next_starts_with:
                         attempt_merge = False
-                    
+
                     # Additional heuristic for ends_with_neg_word case to prevent over-merging
-                    if ends_with_neg_word and len(tokenized_next) > 5:  # Tunable parameter: max 5 words
+                    if (
+                        ends_with_neg_word and len(tokenized_next) > 5
+                    ):  # Tunable parameter: max 5 words
                         logger.debug(
                             f"Segment '{current_segment}' ends with negation '{neg_suffix_found_for_log}', "
                             f"but next segment '{next_segment[:30]}...' (len {len(tokenized_next)}) is long. No merge."
                         )
                         attempt_merge = False
-            
+
             if attempt_merge and (i + 1) < len(segments):
-                merged_text = (current_segment.rstrip() + " " + segments[i+1].lstrip()).strip()
+                merged_text = (
+                    current_segment.rstrip() + " " + segments[i + 1].lstrip()
+                ).strip()
                 merged_segments.append(merged_text)
-                log_reason = "standalone prefix" if is_standalone_neg_prefix else f"suffix '{neg_suffix_found_for_log}'"
+                log_reason = (
+                    "standalone prefix"
+                    if is_standalone_neg_prefix
+                    else f"suffix '{neg_suffix_found_for_log}'"
+                )
                 logger.debug(
                     f"Merged negation pattern ({log_reason}): '{current_segment}' + '{segments[i+1]}' -> '{merged_text}'"
                 )

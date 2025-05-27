@@ -22,6 +22,7 @@ from phentrieve.text_processing.chunkers import (
     SentenceChunker,
     SlidingWindowSemanticSplitter,
     TextChunker,
+    ConjunctionChunker,
 )
 from phentrieve.text_processing.assertion_detection import (
     AssertionDetector,
@@ -115,8 +116,37 @@ class TextProcessingPipeline:
             elif chunker_type == "fine_grained_punctuation":
                 chunkers.append(FineGrainedPunctuationChunker(**params))
 
+            elif chunker_type == "conjunction":
+                chunkers.append(ConjunctionChunker(**params))
+
             elif chunker_type == "noop":
                 chunkers.append(NoOpChunker(**params))
+
+            elif chunker_type == "sliding_window":
+                if not self.sbert_model:
+                    raise ValueError(
+                        "SentenceTransformer model required for sliding window semantic splitting "
+                        "but none was provided"
+                    )
+
+                # Get sliding window specific parameters
+                window_size = chunker_config.get("window_size_tokens", 4)
+                step_size = chunker_config.get("step_size_tokens", 2)
+                threshold = chunker_config.get("splitting_threshold", 0.5)
+                min_segment_length = chunker_config.get(
+                    "min_split_segment_length_words", 50
+                )
+
+                # Create sliding window semantic splitter
+                sliding_window_params = {
+                    **params,
+                    "model": self.sbert_model,
+                    "window_size_tokens": window_size,
+                    "step_size_tokens": step_size,
+                    "splitting_threshold": threshold,
+                    "min_split_segment_length_words": min_segment_length,
+                }
+                chunkers.append(SlidingWindowSemanticSplitter(**sliding_window_params))
 
             elif chunker_type == "final_chunk_cleaner":
                 # Get FinalChunkCleaner specific parameters with defaults from config
