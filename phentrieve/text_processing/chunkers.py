@@ -22,6 +22,79 @@ from phentrieve.text_processing.cleaners import (
 
 # Language-specific cleanup words and punctuation
 # Ensure all are lowercase
+
+# Dictionary of low semantic value words for filtering short chunks
+# These are common words with little semantic value (stop words, articles, prepositions, etc.)
+LOW_SEMANTIC_VALUE_WORDS = {
+    "en": [
+        "a", "an", "the", "is", "are", "was", "were", "be", "been", "being", "have", "has", "had",
+        "do", "does", "did", "will", "would", "should", "can", "could", "may", "might", "must",
+        "and", "but", "or", "nor", "for", "so", "yet", "if", "as", "of", "in", "on", "at", "to",
+        "by", "from", "with", "about", "above", "after", "also", "again", "against", "all", "am",
+        "any", "because", "before", "below", "between", "both", "each", "few", "further",
+        "he", "her", "here", "him", "his", "how", "i", "it", "its", "me", "more", "most", "my",
+        "no", "not", "now", "once", "only", "other", "our", "out", "own", "same", "she",
+        "some", "such", "than", "that", "their", "them", "then", "there", "these", "they",
+        "this", "those", "through", "too", "under", "until", "up", "very", "we", "what",
+        "when", "where", "which", "while", "who", "whom", "why", "you", "your", "yours",
+        "yourself", "yourselves"
+    ],
+    "de": [
+        "der", "die", "das", "ein", "eine", "eines", "einem", "einen", "er", "sie", "es",
+        "ist", "sind", "war", "waren", "wird", "werden", "wurde", "wurden", "sei", "seien",
+        "haben", "hat", "hatte", "hatten", "und", "oder", "aber", "sondern", "denn", "als",
+        "wenn", "dass", "daß", "ob", "so", "wie", "nur", "mit", "von", "zu", "in", "im", "am",
+        "an", "auf", "aus", "bei", "bis", "durch", "für", "gegen", "hinter", "ihr", "ihre",
+        "ihrem", "ihren", "ihrer", "ihres", "ihm", "ihn", "ich", "du", "wir", "ihr", "sich",
+        "mein", "dein", "sein", "unser", "euer", "mir", "dir", "uns", "euch", "ihnen",
+        "mich", "dich", "man", "nicht", "kein", "keine", "keinen", "keiner", "keines",
+        "auch", "schon", "noch", "doch", "ja", "nein", "hier", "da", "dort", "des", "dem",
+        "den", "deshalb", "darum", "wegen", "trotz", "während", "beim", "vom", "zum", "zur"
+    ],
+    "fr": [
+        "le", "la", "les", "un", "une", "des", "du", "de", "d", "l",
+        "et", "ou", "mais", "si", "car", "ni", "or",
+        "est", "sont", "était", "étaient", "sera", "seront", "été",
+        "a", "ont", "avait", "avaient", "aura", "auront", "eu",
+        "je", "tu", "il", "elle", "on", "nous", "vous", "ils", "elles",
+        "me", "te", "se", "lui", "leur", "en", "y",
+        "ce", "cet", "cette", "ces", "mon", "ton", "son", "ma", "ta", "sa",
+        "notre", "votre", "leur", "mes", "tes", "ses", "nos", "vos", "leurs",
+        "qui", "que", "quoi", "dont", "où",
+        "à", "au", "aux", "dans", "par", "pour", "sur", "avec", "sans", "sous",
+        "pas", "ne", "n", "plus", "rien", "jamais", "aucun", "aucune"
+    ],
+    "es": [
+        "el", "la", "lo", "los", "las", "un", "una", "unos", "unas",
+        "y", "e", "o", "u", "pero", "sino", "mas", "que", "como", "si",
+        "es", "son", "era", "eran", "fue", "fueron", "será", "serán", "sido",
+        "ha", "han", "había", "habían", "habrá", "habrán", "habido",
+        "yo", "tú", "él", "ella", "ello", "nosotros", "vosotros", "ellos", "ellas",
+        "me", "te", "se", "le", "les", "nos", "os",
+        "este", "esta", "estos", "estas", "ese", "esa", "esos", "esas", "aquel", "aquella", "aquellos", "aquellas",
+        "mi", "tu", "su", "nuestro", "vuestro",
+        "quien", "quienes", "cuyo", "cuya", "cuyos", "cuyas",
+        "a", "al", "ante", "bajo", "con", "contra", "de", "del", "desde", "en", "entre",
+        "hacia", "hasta", "para", "por", "según", "sin", "sobre", "tras",
+        "no", "ni", "nunca", "jamás", "tampoco", "nada", "nadie", "ningún", "ninguna"
+    ],
+    "nl": [
+        "de", "het", "een",
+        "en", "of", "maar", "want", "dus", "doch",
+        "is", "zijn", "was", "waren", "wordt", "worden", "werd", "werden", "zal", "zullen", "zou", "zouden", "geweest",
+        "heeft", "hebben", "had", "hadden", "gehad",
+        "ik", "jij", "je", "hij", "zij", "ze", "het", "we", "wij", "jullie", "u",
+        "mij", "me", "jou", "hem", "haar", "ons", "zich",
+        "dit", "dat", "deze", "die", "mijn", "mijne", "jouw", "jouwe", "zijn", "zijne", "haar", "hare", "ons", "onze", "uw", "uwe", "hun", "hunne",
+        "wie", "wat", "welke", "wiens", "wier",
+        "aan", "achter", "bij", "binnen", "boven", "buiten", "door", "in", "langs", "met", "na", "naar", "naast",
+        "om", "onder", "op", "over", "per", "sinds", "te", "tegen", "tegenover", "tot", "tussen", "uit", "van", "vanaf", "via", "voor",
+        "niet", "geen", "nooit", "nergens", "niemand", "niks"
+    ]
+}
+
+# Language-specific cleanup words and punctuation
+# Ensure all are lowercase
 LEADING_CLEANUP_WORDS = {
     "en": [
         "a ",
@@ -356,12 +429,14 @@ class FinalChunkCleaner(TextChunker):
     def __init__(
         self,
         language: str = "en",
-        min_cleaned_chunk_length_chars: int = 2,  # Minimum length in characters after cleaning
+        min_cleaned_chunk_length_chars: int = 1,  # Minimum length in characters after cleaning (sensible minimum to remove truly empty strings)
+        filter_short_low_value_chunks_max_words: int = 2,  # Chunks of this many words or less get checked for low semantic value
         max_cleanup_passes: int = 3,  # To prevent potential infinite loops with complex patterns
         custom_leading_words_to_remove: Optional[List[str]] = None,
         custom_trailing_words_to_remove: Optional[List[str]] = None,
         custom_trailing_punctuation: Optional[str] = None,
         custom_leading_punctuation: Optional[str] = None,
+        custom_low_value_words: Optional[List[str]] = None,  # New parameter for custom low-value words
         **kwargs,
     ):
         """
@@ -369,19 +444,27 @@ class FinalChunkCleaner(TextChunker):
 
         Args:
             language: ISO language code for language-specific cleanup rules
-            min_cleaned_chunk_length_words: Minimum number of words a chunk must have after cleaning
+            min_cleaned_chunk_length_chars: Minimum character length a chunk must have after cleaning
+            filter_short_low_value_chunks_max_words: Maximum word count for chunks to check for low semantic value
             max_cleanup_passes: Maximum number of cleanup passes to perform
             custom_leading_words_to_remove: Custom list of leading words to remove
             custom_trailing_words_to_remove: Custom list of trailing words to remove
             custom_trailing_punctuation: Custom string of trailing punctuation to remove
             custom_leading_punctuation: Custom string of leading punctuation to remove
+            custom_low_value_words: Custom list of words considered to have low semantic value
             **kwargs: Additional arguments passed to the parent class
         """
         super().__init__(language=language, **kwargs)
         self.min_cleaned_chunk_length_chars = max(
             1, min_cleaned_chunk_length_chars
         )  # Minimum 1 character
+        self.filter_short_low_value_chunks_max_words = max(
+            1, filter_short_low_value_chunks_max_words
+        )  # At least 1 word
         self.max_cleanup_passes = max(1, max_cleanup_passes)  # Ensure at least one pass
+        
+        # Simple tokenizer for word counting and stop word checks
+        self.tokenizer = lambda text: [token for token in text.split() if token.strip()]
 
         # Load language-specific or custom lists
         # Ensure custom lists are all lowercase and have correct spacing if provided
@@ -415,10 +498,18 @@ class FinalChunkCleaner(TextChunker):
         # Sort by length descending to attempt removal of longer phrases first (e.g., "negative for " before "for ")
         self.leading_words_to_strip.sort(key=len, reverse=True)
         self.trailing_words_to_strip.sort(key=len, reverse=True)
+        
+        # Load low_value_words for filtering short chunks
+        self.low_value_words = (
+            set(s.lower() for s in custom_low_value_words) if custom_low_value_words
+            else set(LOW_SEMANTIC_VALUE_WORDS.get(self.language.lower(), LOW_SEMANTIC_VALUE_WORDS.get("en", [])))
+        )
 
         logger.info(
             f"Initialized FinalChunkCleaner for language '{self.language}' with "
-            f"min_length_chars={self.min_cleaned_chunk_length_chars}, max_passes={self.max_cleanup_passes}."
+            f"min_chars={self.min_cleaned_chunk_length_chars}, "
+            f"filter_short_low_value_max_words={self.filter_short_low_value_chunks_max_words}, "
+            f"max_passes={self.max_cleanup_passes}."
         )
         logger.debug(f"Leading words for cleanup: {self.leading_words_to_strip}")
         logger.debug(f"Trailing words for cleanup: {self.trailing_words_to_strip}")
@@ -428,43 +519,72 @@ class FinalChunkCleaner(TextChunker):
         logger.debug(
             f"Trailing punctuation for cleanup: '{self.trailing_punctuation_to_strip}'"
         )
+        logger.debug(f"Low-value words for lang '{self.language}': {sorted(list(self.low_value_words))[:20]}...")
 
     def chunk(self, text_segments: List[str]) -> List[str]:
         """
         Process a list of text segments to clean up leading/trailing non-semantic elements.
+        Also filters out short segments consisting entirely of low semantic value words.
 
         Args:
             text_segments: List of input text segments to clean
 
         Returns:
-            List of cleaned text segments, with any segments that are too short after cleaning removed
+            List of cleaned text segments, with any segments that are too short after cleaning 
+            or consist entirely of low semantic value words removed
         """
         cleaned_segments_accumulator: List[str] = []
-        for segment_str in text_segments:
-            if (
-                not segment_str or not segment_str.strip()
-            ):  # Skip if segment is already effectively empty
+        for segment_str_input in text_segments:
+            if not segment_str_input or not segment_str_input.strip():
+                logger.debug("FinalChunkCleaner: Skipping empty or whitespace-only input segment.")
+                continue
+
+            # 1. Clean edges (leading/trailing punctuation and words)
+            edge_cleaned_segment = self._clean_single_segment(segment_str_input)
+
+            # 2. Basic filter: if empty or below min char length after edge cleaning, discard
+            if not edge_cleaned_segment or len(edge_cleaned_segment) < self.min_cleaned_chunk_length_chars:
                 logger.debug(
-                    "FinalChunkCleaner: Skipping empty or whitespace-only input segment."
+                    f"Input: '{segment_str_input[:50]}...' -> Edge-Cleaned: '{edge_cleaned_segment}' "
+                    f"(Discarded - empty or below char threshold {self.min_cleaned_chunk_length_chars})"
                 )
                 continue
 
-            cleaned_segment = self._clean_single_segment(segment_str)
+            # 3. Tokenize for word count and low-value word check
+            # Always use the edge_cleaned_segment for tokenization
+            words_in_edge_cleaned_segment = [
+                word for word in self.tokenizer(edge_cleaned_segment.lower()) if word
+            ]
+            num_words = len(words_in_edge_cleaned_segment)
 
-            # Check final length in characters (after cleaning)
-            if len(cleaned_segment) >= self.min_cleaned_chunk_length_chars:
-                cleaned_segments_accumulator.append(cleaned_segment)
+            keep_segment = True
+            discard_reason = ""
+
+            # 4. Apply the short, low-value-word-only chunk filter
+            if num_words > 0 and num_words <= self.filter_short_low_value_chunks_max_words:
+                if self.low_value_words and all(
+                    word in self.low_value_words for word in words_in_edge_cleaned_segment
+                ):
+                    keep_segment = False
+                    discard_reason = (
+                        f"short ({num_words} words) and all words are low-value: "
+                        f"'{', '.join(words_in_edge_cleaned_segment)}'"
+                    )
+            
+            if keep_segment:
+                # IMPORTANT: Append the segment with original casing, not the lowercased one
+                cleaned_segments_accumulator.append(edge_cleaned_segment)
                 logger.debug(
-                    f"Original: '{segment_str}' -> Cleaned: '{cleaned_segment}' (Kept - {len(cleaned_segment)} chars)"
+                    f"Input: '{segment_str_input[:50]}...' -> Final: '{edge_cleaned_segment}' (Kept - words: {num_words})"
                 )
             else:
                 logger.debug(
-                    f"Original: '{segment_str}' -> Cleaned: '{cleaned_segment}' (Discarded - {len(cleaned_segment)} chars < {self.min_cleaned_chunk_length_chars} min chars)"
+                    f"Input: '{segment_str_input[:50]}...' -> Edge-Cleaned: '{edge_cleaned_segment}' (Discarded - {discard_reason})"
                 )
-
+        
         logger.info(
             f"FinalChunkCleaner processed {len(text_segments)} input segments "
-            f"into {len(cleaned_segments_accumulator)} cleaned segments."
+            f"into {len(cleaned_segments_accumulator)} final segments."
         )
         return cleaned_segments_accumulator
 

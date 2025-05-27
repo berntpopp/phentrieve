@@ -150,8 +150,11 @@ class TextProcessingPipeline:
 
             elif chunker_type == "final_chunk_cleaner":
                 # Get FinalChunkCleaner specific parameters with defaults from config
-                min_cleaned_chunk_length = chunker_config.get(
-                    "min_cleaned_chunk_length_words", 2
+                min_cleaned_chunk_length_chars = chunker_config.get(
+                    "min_cleaned_chunk_length_chars", 1
+                )
+                filter_short_low_value_chunks_max_words = chunker_config.get(
+                    "filter_short_low_value_chunks_max_words", 2
                 )
                 max_cleanup_passes = chunker_config.get("max_cleanup_passes", 3)
                 custom_leading_words = chunker_config.get(
@@ -164,11 +167,13 @@ class TextProcessingPipeline:
                 custom_trailing_punct = chunker_config.get(
                     "custom_trailing_punctuation"
                 )
+                custom_low_value_words = chunker_config.get("custom_low_value_words")
 
                 # Initialize cleaner with default parameters
                 cleaner_params = {
                     "language": self.language,
-                    "min_cleaned_chunk_length_words": min_cleaned_chunk_length,
+                    "min_cleaned_chunk_length_chars": min_cleaned_chunk_length_chars,
+                    "filter_short_low_value_chunks_max_words": filter_short_low_value_chunks_max_words,
                     "max_cleanup_passes": max_cleanup_passes,
                 }
 
@@ -187,6 +192,8 @@ class TextProcessingPipeline:
                     cleaner_params["custom_trailing_punctuation"] = (
                         custom_trailing_punct
                     )
+                if custom_low_value_words is not None:
+                    cleaner_params["custom_low_value_words"] = custom_low_value_words
 
                 logger.debug(
                     "Creating FinalChunkCleaner with params: %s", cleaner_params
