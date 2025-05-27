@@ -1080,8 +1080,9 @@ class SlidingWindowSemanticSplitter(TextChunker):
             return segments
 
         lang_key = self.language.lower()
-        current_neg_prefixes = NEGATION_PREFIXES.get(lang_key, NEGATION_PREFIXES["en"])
-        current_avoid_merge = AVOID_MERGE_AFTER_NEGATION_IF_NEXT_IS.get(
+        # Create a clean set of negation prefixes by stripping whitespace
+        current_neg_standalone_prefixes = set(prefix.strip() for prefix in NEGATION_PREFIXES.get(lang_key, NEGATION_PREFIXES["en"]))
+        current_avoid_merge_next_starts_with = AVOID_MERGE_AFTER_NEGATION_IF_NEXT_IS.get(
             lang_key, AVOID_MERGE_AFTER_NEGATION_IF_NEXT_IS["en"]
         )
 
@@ -1090,35 +1091,65 @@ class SlidingWindowSemanticSplitter(TextChunker):
 
         while i < len(segments):
             current_segment = segments[i]
-            current_segment_lower = current_segment.lower()
+            current_segment_lower_stripped = current_segment.lower().strip()
+
+            if not current_segment_lower_stripped:  # Handle empty string after potential splits
+                i += 1
+                continue
 
             # Check if current segment is a standalone negation prefix
             is_standalone_neg_prefix = (
-                current_segment_lower in current_neg_prefixes
-                and " " not in current_segment
+                current_segment_lower_stripped in current_neg_standalone_prefixes and
+                len(self.tokenizer(current_segment_lower_stripped)) == 1
             )
 
-            # If it's a negation prefix and there's a next segment
-            if is_standalone_neg_prefix and (i + 1) < len(segments):
+            # Check if segment ends with a negation word (and is not just the negation word itself)
+            ends_with_neg_word = False
+            neg_suffix_found_for_log = None
+            if not is_standalone_neg_prefix:
+                tokenized_current = self.tokenizer(current_segment_lower_stripped)
+                if tokenized_current and len(tokenized_current) > 1:  # More than one word
+                    last_word = tokenized_current[-1]
+                    if last_word in current_neg_standalone_prefixes:
+                        ends_with_neg_word = True
+                        neg_suffix_found_for_log = last_word
+            
+            # Determine if we should attempt to merge
+            attempt_merge = is_standalone_neg_prefix or ends_with_neg_word
+            
+            if attempt_merge and (i + 1) < len(segments):
                 next_segment = segments[i + 1]
-                next_segment_lower = next_segment.lower().strip()
-                next_first_word = (
-                    next_segment_lower.split()[0] if next_segment_lower else ""
+                next_segment_lower_stripped = next_segment.lower().strip()
+                
+                if not next_segment_lower_stripped:  # Next segment is empty, don't merge
+                    attempt_merge = False
+                else:
+                    tokenized_next = self.tokenizer(next_segment_lower_stripped)
+                    next_first_word = tokenized_next[0] if tokenized_next else ""
+                    
+                    # Don't merge if next segment starts with a word to avoid
+                    if next_first_word in current_avoid_merge_next_starts_with:
+                        attempt_merge = False
+                    
+                    # Additional heuristic for ends_with_neg_word case to prevent over-merging
+                    if ends_with_neg_word and len(tokenized_next) > 5:  # Tunable parameter: max 5 words
+                        logger.debug(
+                            f"Segment '{current_segment}' ends with negation '{neg_suffix_found_for_log}', "
+                            f"but next segment '{next_segment[:30]}...' (len {len(tokenized_next)}) is long. No merge."
+                        )
+                        attempt_merge = False
+            
+            if attempt_merge and (i + 1) < len(segments):
+                merged_text = (current_segment.rstrip() + " " + segments[i+1].lstrip()).strip()
+                merged_segments.append(merged_text)
+                log_reason = "standalone prefix" if is_standalone_neg_prefix else f"suffix '{neg_suffix_found_for_log}'"
+                logger.debug(
+                    f"Merged negation pattern ({log_reason}): '{current_segment}' + '{segments[i+1]}' -> '{merged_text}'"
                 )
-
-                # Only merge if next segment doesn't start with a connector word
-                if next_first_word and next_first_word not in current_avoid_merge:
-                    merged = f"{current_segment} {next_segment}".strip()
-                    merged_segments.append(merged)
-                    logger.debug(
-                        f"Merged negation pattern: '{current_segment}' + '{next_segment}' -> '{merged}'"
-                    )
-                    i += 2  # Skip next segment as it's been merged
-                    continue
-
-            # No merge occurred, add current segment as is
-            merged_segments.append(current_segment)
-            i += 1
+                i += 2
+            else:
+                merged_segments.append(current_segment)
+                i += 1
 
         logger.debug(
             f"After negation merging: {len(segments)} -> {len(merged_segments)} segments"
