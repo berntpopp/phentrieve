@@ -739,7 +739,7 @@ export default {
         { text: this.$t('models.jinaGerman'), value: 'jinaai/jina-embeddings-v2-base-de' },
         { text: this.$t('models.distiluse'), value: 'sentence-transformers/distiluse-base-multilingual-cased-v2' } // Corrected model name
       ],
-      selectedLanguage: null,
+      selectedLanguage: null, // Will be set to current locale in created()
       availableLanguages: [
         { text: this.$t('common.auto'), value: null },
         { text: 'English', value: 'en' },
@@ -1053,6 +1053,19 @@ export default {
     //   logService.error('Failed to fetch config info for models:', error);
     // });
     this.selectedModel = this.availableModels[0].value; // Set a default if not fetched
+    
+    // Set selectedLanguage based on current locale
+    const currentLocale = this.$i18n.locale;
+    // Only set if it's one of our supported languages
+    const supportedLanguages = this.availableLanguages.filter(lang => lang.value !== null).map(lang => lang.value);
+    
+    if (currentLocale && supportedLanguages.includes(currentLocale)) {
+      this.selectedLanguage = currentLocale;
+      logService.info(`Using UI locale '${currentLocale}' as default language for queries and text processing`);
+    } else {
+      // Keep the auto-detect (null) as fallback if locale is not supported
+      logService.info(`Current locale '${currentLocale}' not in supported languages, using auto-detect`);
+    }
   }
 };
 </script>
