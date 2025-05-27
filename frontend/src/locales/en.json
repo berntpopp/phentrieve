@@ -103,7 +103,12 @@
       "detectAssertions": "Detect Assertions",
       "splitThreshold": "Split Threshold",
       "minSegmentLength": "Min Segment Length",
-      "numResultsPerChunk": "Results Per Chunk"
+      "numResultsPerChunk": "Results Per Chunk",
+      "topTermPerChunk": "Keep only top HPO term per chunk",
+      "strategies": {
+        "sliding_window_punct_cleaned": "Sliding Window + Punctuation + Cleaner",
+        "sliding_window_punct_conj_cleaned": "Sliding Window + Punctuation + Conjunctions + Cleaner"
+      }
     },
     "tooltips": {
       "advancedOptions": "Configure advanced search settings",

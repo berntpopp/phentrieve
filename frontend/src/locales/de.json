@@ -103,7 +103,12 @@
       "detectAssertions": "Aussagen erkennen",
       "splitThreshold": "Aufspaltungsschwelle",
       "minSegmentLength": "Min. Segmentlänge",
-      "numResultsPerChunk": "Ergebnisse pro Textabschnitt"
+      "numResultsPerChunk": "Ergebnisse pro Textabschnitt",
+      "topTermPerChunk": "Nur den besten HPO-Begriff pro Textabschnitt behalten",
+      "strategies": {
+        "sliding_window_punct_cleaned": "Gleitendes Fenster + Interpunktion + Bereiniger",
+        "sliding_window_punct_conj_cleaned": "Gleitendes Fenster + Interpunktion + Konjunktionen + Bereiniger"
+      }
     },
     "tooltips": {
       "advancedOptions": "Erweiterte Sucheinstellungen konfigurieren",

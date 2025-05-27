@@ -103,7 +103,12 @@
       "detectAssertions": "Detectar aserciones",
       "splitThreshold": "Umbral de división",
       "minSegmentLength": "Longitud mínima de segmento",
-      "numResultsPerChunk": "Resultados por fragmento"
+      "numResultsPerChunk": "Resultados por fragmento",
+      "topTermPerChunk": "Mantener solo el mejor término HPO por fragmento",
+      "strategies": {
+        "sliding_window_punct_cleaned": "Ventana deslizante + Puntuación + Limpiador",
+        "sliding_window_punct_conj_cleaned": "Ventana deslizante + Puntuación + Conjunciones + Limpiador"
+      }
     },
     "tooltips": {
       "advancedOptions": "Configurar opciones avanzadas de búsqueda",

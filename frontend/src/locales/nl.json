@@ -100,7 +100,12 @@
       "detectAssertions": "Detecteer beweringen",
       "splitThreshold": "Splitsingsdrempel",
       "minSegmentLength": "Min. segmentlengte",
-      "numResultsPerChunk": "Resultaten per fragment"
+      "numResultsPerChunk": "Resultaten per fragment",
+      "topTermPerChunk": "Alleen de beste HPO-term per fragment behouden",
+      "strategies": {
+        "sliding_window_punct_cleaned": "Schuivend venster + Interpunctie + Opschoner",
+        "sliding_window_punct_conj_cleaned": "Schuivend venster + Interpunctie + Voegwoorden + Opschoner"
+      }
     },
     "tooltips": {
       "advancedOptions": "Configureer geavanceerde zoekinstellingen",

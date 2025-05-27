@@ -267,7 +267,7 @@
               <v-col cols="12" md="6" class="pa-1">
                 <v-select
                   v-model="chunkingStrategy"
-                  :items="['simple', 'semantic', 'detailed', 'sliding_window', 'sliding_window_cleaned']"
+                  :items="['simple', 'semantic', 'detailed', 'sliding_window', 'sliding_window_cleaned', 'sliding_window_punct_cleaned', 'sliding_window_punct_conj_cleaned']"
                   variant="outlined"
                   density="compact"
                   bg-color="white"
@@ -426,6 +426,26 @@
               </v-col>
               <!-- Empty col for alignment if needed -->
               <v-col cols="12" md="6" class="pa-1"></v-col>
+            </v-row>
+
+            <v-row dense>
+              <v-col cols="12" md="6" class="pa-1 d-flex align-center">
+                <v-switch
+                  v-model="topTermPerChunkForAggregation"
+                  color="primary"
+                  hide-details
+                  density="compact"
+                  inset
+                  aria-label="Toggle keeping only top HPO term per chunk for aggregation"
+                >
+                  <template v-slot:label>
+                    <span class="text-caption">{{ $t('queryInterface.advancedOptions.topTermPerChunk', 'Keep only top HPO term per chunk') }}</span>
+                  </template>
+                </v-switch>
+              </v-col>
+              <v-col cols="12" md="6" class="pa-1">
+                <!-- Empty col for alignment -->
+              </v-col>
             </v-row>
           </div>
         </v-sheet>
@@ -757,7 +777,7 @@ export default {
       ],
       inputTextLengthThreshold: 120, // Increased threshold
       forceEndpointMode: null,
-      chunkingStrategy: 'sliding_window_cleaned',
+      chunkingStrategy: 'sliding_window_punct_conj_cleaned',
       windowSize: 2, // Default from config
       stepSize: 1, // Default from config
       splitThreshold: 0.25, // Default from config
@@ -987,7 +1007,7 @@ export default {
             no_assertion_detection: this.noAssertionDetectionForTextProcess,
             assertion_preference: this.assertionPreferenceForTextProcess,
             aggregated_term_confidence: this.aggregatedTermConfidence,
-            top_term_per_chunk_for_aggregation: this.topTermPerChunkForAggregation,
+            top_term_per_chunk: this.topTermPerChunkForAggregation,
           };
           logService.info('Sending to /text/process API', textProcessData);
           response = await PhentrieveService.processText(textProcessData);
