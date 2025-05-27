@@ -758,10 +758,10 @@ export default {
       inputTextLengthThreshold: 120, // Increased threshold
       forceEndpointMode: null,
       chunkingStrategy: 'sliding_window_cleaned',
-      windowSize: 7, // Default from config
+      windowSize: 2, // Default from config
       stepSize: 1, // Default from config
       splitThreshold: 0.5, // Default from config
-      minSegmentLength: 3, // Default from config
+      minSegmentLength: 1, // Default from config
       semanticModelForChunking: null,
       retrievalModelForTextProcess: null,
       chunkRetrievalThreshold: 0.3,
