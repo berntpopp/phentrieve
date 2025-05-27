@@ -1,4 +1,12 @@
 {
+  "common": {
+    "auto": "Automatische detectie"
+  },
+  "models": {
+    "biolord": "BioLORD 2023-M",
+    "jinaGerman": "Jina German v2",
+    "distiluse": "DistilUSE Multilingual"
+  },
   "app": {
     "footer": {
       "disclaimer": "Disclaimer",
