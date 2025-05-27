@@ -415,20 +415,14 @@
                   min="1"
                   variant="outlined"
                   density="compact"
-                  bg-color="white"
-                  color="primary"
                   hide-details
+                  class="mb-0"
                 >
                   <template v-slot:label>
                     <span class="text-caption">{{ $t('queryInterface.advancedOptions.numResultsPerChunk') }}</span>
                   </template>
                 </v-text-field>
               </v-col>
-              <!-- Empty col for alignment if needed -->
-              <v-col cols="12" md="6" class="pa-1"></v-col>
-            </v-row>
-
-            <v-row dense>
               <v-col cols="12" md="6" class="pa-1 d-flex align-center">
                 <v-switch
                   v-model="topTermPerChunkForAggregation"
@@ -436,15 +430,19 @@
                   hide-details
                   density="compact"
                   inset
-                  aria-label="Toggle keeping only top HPO term per chunk for aggregation"
                 >
                   <template v-slot:label>
-                    <span class="text-caption">{{ $t('queryInterface.advancedOptions.topTermPerChunk', 'Keep only top HPO term per chunk') }}</span>
+                    <span class="text-caption">{{ $t('queryInterface.advancedOptions.topTermPerChunk') }}</span>
                   </template>
                 </v-switch>
               </v-col>
+            </v-row>
+
+            <v-row dense>
+              <!-- Empty col for alignment if needed -->
+              <v-col cols="12" md="6" class="pa-1"></v-col>
+              <!-- Empty col for alignment -->
               <v-col cols="12" md="6" class="pa-1">
-                <!-- Empty col for alignment -->
               </v-col>
             </v-row>
           </div>
