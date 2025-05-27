@@ -58,6 +58,9 @@ where = ["."]
 include = ["phentrieve*", "api*"]
 # exclude = ["tests*"] # Uncomment if/when you add tests
 
+[tool.setuptools.package-data]
+"phentrieve.text_processing.default_lang_resources" = ["*.json"]
+
 [tool.black]
 line-length = 88
 target-version = ['py39']

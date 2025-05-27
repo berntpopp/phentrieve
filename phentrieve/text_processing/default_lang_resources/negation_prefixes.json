@@ -1,0 +1,7 @@
+{
+    "en": ["no", "not", "non", "without", "zero"],
+    "de": ["kein", "keine", "keinen", "keiner", "keines", "ohne", "nicht"],
+    "fr": ["non", "pas", "sans", "aucun", "aucune", "jamais", "nul", "nulle"],
+    "es": ["no", "sin", "ningún", "ninguna", "nunca", "jamás", "ni"],
+    "nl": ["geen", "niet", "zonder", "nooit", "nee", "niks", "nergens"]
+}

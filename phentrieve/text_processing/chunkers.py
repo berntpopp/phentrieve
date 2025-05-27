@@ -10,7 +10,7 @@ import re
 import logging
 import pysbd
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional, Tuple
+from typing import List, Optional, Tuple
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 
@@ -19,360 +19,8 @@ from phentrieve.text_processing.cleaners import (
     normalize_line_endings,
     clean_internal_newlines_and_extra_spaces,
 )
-
-# Language-specific cleanup words and punctuation
-# Ensure all are lowercase
-
-# Dictionary of low semantic value words for filtering short chunks
-# These are common words with little semantic value (stop words, articles, prepositions, etc.)
-LOW_SEMANTIC_VALUE_WORDS = {
-    "en": [
-        "a", "an", "the", "is", "are", "was", "were", "be", "been", "being", "have", "has", "had",
-        "do", "does", "did", "will", "would", "should", "can", "could", "may", "might", "must",
-        "and", "but", "or", "nor", "for", "so", "yet", "if", "as", "of", "in", "on", "at", "to",
-        "by", "from", "with", "about", "above", "after", "also", "again", "against", "all", "am",
-        "any", "because", "before", "below", "between", "both", "each", "few", "further",
-        "he", "her", "here", "him", "his", "how", "i", "it", "its", "me", "more", "most", "my",
-        "no", "not", "now", "once", "only", "other", "our", "out", "own", "same", "she",
-        "some", "such", "than", "that", "their", "them", "then", "there", "these", "they",
-        "this", "those", "through", "too", "under", "until", "up", "very", "we", "what",
-        "when", "where", "which", "while", "who", "whom", "why", "you", "your", "yours",
-        "yourself", "yourselves"
-    ],
-    "de": [
-        "der", "die", "das", "ein", "eine", "eines", "einem", "einen", "er", "sie", "es",
-        "ist", "sind", "war", "waren", "wird", "werden", "wurde", "wurden", "sei", "seien",
-        "haben", "hat", "hatte", "hatten", "und", "oder", "aber", "sondern", "denn", "als",
-        "wenn", "dass", "daß", "ob", "so", "wie", "nur", "mit", "von", "zu", "in", "im", "am",
-        "an", "auf", "aus", "bei", "bis", "durch", "für", "gegen", "hinter", "ihr", "ihre",
-        "ihrem", "ihren", "ihrer", "ihres", "ihm", "ihn", "ich", "du", "wir", "ihr", "sich",
-        "mein", "dein", "sein", "unser", "euer", "mir", "dir", "uns", "euch", "ihnen",
-        "mich", "dich", "man", "nicht", "kein", "keine", "keinen", "keiner", "keines",
-        "auch", "schon", "noch", "doch", "ja", "nein", "hier", "da", "dort", "des", "dem",
-        "den", "deshalb", "darum", "wegen", "trotz", "während", "beim", "vom", "zum", "zur"
-    ],
-    "fr": [
-        "le", "la", "les", "un", "une", "des", "du", "de", "d", "l",
-        "et", "ou", "mais", "si", "car", "ni", "or",
-        "est", "sont", "était", "étaient", "sera", "seront", "été",
-        "a", "ont", "avait", "avaient", "aura", "auront", "eu",
-        "je", "tu", "il", "elle", "on", "nous", "vous", "ils", "elles",
-        "me", "te", "se", "lui", "leur", "en", "y",
-        "ce", "cet", "cette", "ces", "mon", "ton", "son", "ma", "ta", "sa",
-        "notre", "votre", "leur", "mes", "tes", "ses", "nos", "vos", "leurs",
-        "qui", "que", "quoi", "dont", "où",
-        "à", "au", "aux", "dans", "par", "pour", "sur", "avec", "sans", "sous",
-        "pas", "ne", "n", "plus", "rien", "jamais", "aucun", "aucune"
-    ],
-    "es": [
-        "el", "la", "lo", "los", "las", "un", "una", "unos", "unas",
-        "y", "e", "o", "u", "pero", "sino", "mas", "que", "como", "si",
-        "es", "son", "era", "eran", "fue", "fueron", "será", "serán", "sido",
-        "ha", "han", "había", "habían", "habrá", "habrán", "habido",
-        "yo", "tú", "él", "ella", "ello", "nosotros", "vosotros", "ellos", "ellas",
-        "me", "te", "se", "le", "les", "nos", "os",
-        "este", "esta", "estos", "estas", "ese", "esa", "esos", "esas", "aquel", "aquella", "aquellos", "aquellas",
-        "mi", "tu", "su", "nuestro", "vuestro",
-        "quien", "quienes", "cuyo", "cuya", "cuyos", "cuyas",
-        "a", "al", "ante", "bajo", "con", "contra", "de", "del", "desde", "en", "entre",
-        "hacia", "hasta", "para", "por", "según", "sin", "sobre", "tras",
-        "no", "ni", "nunca", "jamás", "tampoco", "nada", "nadie", "ningún", "ninguna"
-    ],
-    "nl": [
-        "de", "het", "een",
-        "en", "of", "maar", "want", "dus", "doch",
-        "is", "zijn", "was", "waren", "wordt", "worden", "werd", "werden", "zal", "zullen", "zou", "zouden", "geweest",
-        "heeft", "hebben", "had", "hadden", "gehad",
-        "ik", "jij", "je", "hij", "zij", "ze", "het", "we", "wij", "jullie", "u",
-        "mij", "me", "jou", "hem", "haar", "ons", "zich",
-        "dit", "dat", "deze", "die", "mijn", "mijne", "jouw", "jouwe", "zijn", "zijne", "haar", "hare", "ons", "onze", "uw", "uwe", "hun", "hunne",
-        "wie", "wat", "welke", "wiens", "wier",
-        "aan", "achter", "bij", "binnen", "boven", "buiten", "door", "in", "langs", "met", "na", "naar", "naast",
-        "om", "onder", "op", "over", "per", "sinds", "te", "tegen", "tegenover", "tot", "tussen", "uit", "van", "vanaf", "via", "voor",
-        "niet", "geen", "nooit", "nergens", "niemand", "niks"
-    ]
-}
-
-# Language-specific cleanup words and punctuation
-# Ensure all are lowercase
-LEADING_CLEANUP_WORDS = {
-    "en": [
-        "a ",
-        "an ",
-        "the ",
-        "and ",
-        "or ",
-        "but ",
-        "with ",
-        "of ",
-        "in ",
-        "on ",
-        "at ",
-        "for ",
-        "to ",
-        "is ",
-        "are ",
-        "was ",
-        "were ",
-        "has ",
-        "have ",
-        "had ",
-        "also ",
-        "it ",
-        "its ",
-        "he ",
-        "she ",
-        "they ",
-        "them ",
-        "their ",
-        "this ",
-        "that ",
-        "these ",
-        "those ",
-        "by ",
-        "from ",
-        "as ",
-    ],
-    "de": [
-        "der ",
-        "die ",
-        "das ",
-        "dem ",
-        "den ",
-        "des ",
-        "ein ",
-        "eine ",
-        "eines ",
-        "einem ",
-        "einen ",
-        "und ",
-        "oder ",
-        "aber ",
-        "sondern ",
-        "mit ",
-        "von ",
-        "zu ",
-        "in ",
-        "im ",
-        "am ",
-        "auf ",
-        "aus ",
-        "bei ",
-        "ist ",
-        "sind ",
-        "war ",
-        "waren ",
-        "hat ",
-        "haben ",
-        "hatte ",
-        "hatten ",
-        "auch ",
-        "als ",
-        "wenn ",
-        "dass ",
-        "daß ",
-        "so ",
-        "wie ",
-        "nur ",
-        "durch ",
-        "für ",
-    ],
-    "fr": [
-        "le ",
-        "la ",
-        "l'",
-        "les ",
-        "un ",
-        "une ",
-        "des ",
-        "et ",
-        "ou ",
-        "mais ",
-        "avec ",
-        "de ",
-        "d'",
-        "du ",
-        "en ",
-        "dans ",
-        "sur ",
-        "pour ",
-        "à ",
-        "au ",
-        "aux ",
-        "est ",
-        "sont ",
-        "était ",
-        "étaient ",
-        "a ",
-        "ont ",
-        "avait ",
-        "avaient ",
-        "aussi ",
-        "il ",
-        "elle ",
-        "ils ",
-        "elles ",
-        "ce ",
-        "cet ",
-        "cette ",
-        "ces ",
-        "par ",
-        "comme ",
-    ],
-    "es": [
-        "el ",
-        "la ",
-        "lo ",
-        "los ",
-        "las ",
-        "un ",
-        "una ",
-        "unos ",
-        "unas ",
-        "y ",
-        "e ",
-        "o ",
-        "u ",
-        "pero ",
-        "con ",
-        "de ",
-        "del ",
-        "en ",
-        "sobre ",
-        "para ",
-        "a ",
-        "al ",
-        "es ",
-        "son ",
-        "era ",
-        "eran ",
-        "fue ",
-        "fueron ",
-        "ha ",
-        "han ",
-        "había ",
-        "habían ",
-        "también ",
-        "él ",
-        "ella ",
-        "ellos ",
-        "ellas ",
-        "esto ",
-        "esta ",
-        "estos ",
-        "estas ",
-        "eso ",
-        "esa ",
-        "esos ",
-        "esas ",
-        "por ",
-        "como ",
-    ],
-    "nl": [
-        "de ",
-        "het ",
-        "een ",
-        "en ",
-        "of ",
-        "maar ",
-        "met ",
-        "van ",
-        "in ",
-        "op ",
-        "aan ",
-        "voor ",
-        "tot ",
-        "is ",
-        "zijn ",
-        "was ",
-        "waren ",
-        "heeft ",
-        "hebben ",
-        "had ",
-        "hadden ",
-        "ook ",
-        "hij ",
-        "zij ",
-        "ze ",
-        "dit ",
-        "dat ",
-        "deze ",
-        "die ",
-        "door ",
-        "als ",
-    ],
-}
-
-TRAILING_CLEANUP_WORDS = {
-    "en": [
-        " and",
-        " or",
-        " but",
-        " with",
-        " of",
-        " for",
-        " to",
-        " is",
-        " are",
-        " was",
-        " were",
-        " by",
-        " from",
-        " as",
-        # Trailing articles like " a", " the" are less common but can be added if observed
-    ],
-    "de": [
-        " und",
-        " oder",
-        " aber",
-        " sondern",
-        " als",
-        " wenn",
-        " ist",
-        " sind",
-        " mit",
-        " von",
-        " zu",
-        " durch",
-        " für",
-    ],
-    "fr": [
-        " et",
-        " ou",
-        " mais",
-        " avec",
-        " de",
-        " d'",
-        " pour",
-        " à",
-        " par",
-        " comme",
-    ],
-    "es": [
-        " y",
-        " e",
-        " o",
-        " u",
-        " pero",
-        " con",
-        " de",
-        " para",
-        " a",
-        " por",
-        " como",
-    ],
-    "nl": [
-        " en",
-        " of",
-        " maar",
-        " met",
-        " van",
-        " voor",
-        " tot",
-        " door",
-        " als",
-    ],
-}
+from phentrieve.text_processing.resource_loader import load_language_resource
+from phentrieve.utils import load_user_config
 
 # Punctuation to be stripped from the ends of segments
 TRAILING_PUNCTUATION_CHARS = ",.;:?!\"')}]"
@@ -429,14 +77,14 @@ class FinalChunkCleaner(TextChunker):
     def __init__(
         self,
         language: str = "en",
-        min_cleaned_chunk_length_chars: int = 1,  # Minimum length in characters after cleaning (sensible minimum to remove truly empty strings)
-        filter_short_low_value_chunks_max_words: int = 2,  # Chunks of this many words or less get checked for low semantic value
-        max_cleanup_passes: int = 3,  # To prevent potential infinite loops with complex patterns
+        min_cleaned_chunk_length_chars: int = 1,  # Minimum chars after cleaning
+        filter_short_low_value_chunks_max_words: int = 2,  # Max words for low value check
+        max_cleanup_passes: int = 3,  # Prevent infinite loops
         custom_leading_words_to_remove: Optional[List[str]] = None,
         custom_trailing_words_to_remove: Optional[List[str]] = None,
         custom_trailing_punctuation: Optional[str] = None,
         custom_leading_punctuation: Optional[str] = None,
-        custom_low_value_words: Optional[List[str]] = None,  # New parameter for custom low-value words
+        custom_low_value_words: Optional[List[str]] = None,  # Custom low-value words
         **kwargs,
     ):
         """
@@ -462,27 +110,45 @@ class FinalChunkCleaner(TextChunker):
             1, filter_short_low_value_chunks_max_words
         )  # At least 1 word
         self.max_cleanup_passes = max(1, max_cleanup_passes)  # Ensure at least one pass
-        
+
         # Simple tokenizer for word counting and stop word checks
         self.tokenizer = lambda text: [token for token in text.split() if token.strip()]
 
+        # Load user configuration
+        user_config_main = load_user_config()
+        language_resources_section = user_config_main.get("language_resources", {})
+
         # Load language-specific or custom lists
         # Ensure custom lists are all lowercase and have correct spacing if provided
-        self.leading_words_to_strip = (
-            [w.lower() for w in custom_leading_words_to_remove]
-            if custom_leading_words_to_remove is not None
-            else LEADING_CLEANUP_WORDS.get(
-                self.language.lower(), LEADING_CLEANUP_WORDS.get("en", [])
+        if custom_leading_words_to_remove is not None:
+            self.leading_words_to_strip = [
+                w.lower() for w in custom_leading_words_to_remove
+            ]
+        else:
+            # Load from resource files with the new mechanism
+            leading_cleanup_resources = load_language_resource(
+                default_resource_filename="leading_cleanup_words.json",
+                config_key_for_custom_file="leading_cleanup_words_file",
+                language_resources_config_section=language_resources_section,
             )
-        )
+            self.leading_words_to_strip = leading_cleanup_resources.get(
+                self.language.lower(), leading_cleanup_resources.get("en", [])
+            )
 
-        self.trailing_words_to_strip = (
-            [w.lower() for w in custom_trailing_words_to_remove]
-            if custom_trailing_words_to_remove is not None
-            else TRAILING_CLEANUP_WORDS.get(
-                self.language.lower(), TRAILING_CLEANUP_WORDS.get("en", [])
+        if custom_trailing_words_to_remove is not None:
+            self.trailing_words_to_strip = [
+                w.lower() for w in custom_trailing_words_to_remove
+            ]
+        else:
+            # Load from resource files with the new mechanism
+            trailing_cleanup_resources = load_language_resource(
+                default_resource_filename="trailing_cleanup_words.json",
+                config_key_for_custom_file="trailing_cleanup_words_file",
+                language_resources_config_section=language_resources_section,
             )
-        )
+            self.trailing_words_to_strip = trailing_cleanup_resources.get(
+                self.language.lower(), trailing_cleanup_resources.get("en", [])
+            )
 
         self.trailing_punctuation_to_strip = (
             custom_trailing_punctuation
@@ -498,12 +164,22 @@ class FinalChunkCleaner(TextChunker):
         # Sort by length descending to attempt removal of longer phrases first (e.g., "negative for " before "for ")
         self.leading_words_to_strip.sort(key=len, reverse=True)
         self.trailing_words_to_strip.sort(key=len, reverse=True)
-        
+
         # Load low_value_words for filtering short chunks
-        self.low_value_words = (
-            set(s.lower() for s in custom_low_value_words) if custom_low_value_words
-            else set(LOW_SEMANTIC_VALUE_WORDS.get(self.language.lower(), LOW_SEMANTIC_VALUE_WORDS.get("en", [])))
-        )
+        if custom_low_value_words:
+            self.low_value_words = set(s.lower() for s in custom_low_value_words)
+        else:
+            # Load from resource files with the new mechanism
+            low_value_resources = load_language_resource(
+                default_resource_filename="low_semantic_value_words.json",
+                config_key_for_custom_file="low_semantic_value_words_file",
+                language_resources_config_section=language_resources_section,
+            )
+            self.low_value_words = set(
+                low_value_resources.get(
+                    self.language.lower(), low_value_resources.get("en", [])
+                )
+            )
 
         logger.info(
             f"Initialized FinalChunkCleaner for language '{self.language}' with "
@@ -519,7 +195,9 @@ class FinalChunkCleaner(TextChunker):
         logger.debug(
             f"Trailing punctuation for cleanup: '{self.trailing_punctuation_to_strip}'"
         )
-        logger.debug(f"Low-value words for lang '{self.language}': {sorted(list(self.low_value_words))[:20]}...")
+        logger.debug(
+            f"Low-value words for lang '{self.language}': {sorted(list(self.low_value_words))[:20]}..."
+        )
 
     def chunk(self, text_segments: List[str]) -> List[str]:
         """
@@ -530,20 +208,25 @@ class FinalChunkCleaner(TextChunker):
             text_segments: List of input text segments to clean
 
         Returns:
-            List of cleaned text segments, with any segments that are too short after cleaning 
+            List of cleaned text segments, with any segments that are too short after cleaning
             or consist entirely of low semantic value words removed
         """
         cleaned_segments_accumulator: List[str] = []
         for segment_str_input in text_segments:
             if not segment_str_input or not segment_str_input.strip():
-                logger.debug("FinalChunkCleaner: Skipping empty or whitespace-only input segment.")
+                logger.debug(
+                    "FinalChunkCleaner: Skipping empty or whitespace-only input segment."
+                )
                 continue
 
             # 1. Clean edges (leading/trailing punctuation and words)
             edge_cleaned_segment = self._clean_single_segment(segment_str_input)
 
             # 2. Basic filter: if empty or below min char length after edge cleaning, discard
-            if not edge_cleaned_segment or len(edge_cleaned_segment) < self.min_cleaned_chunk_length_chars:
+            if (
+                not edge_cleaned_segment
+                or len(edge_cleaned_segment) < self.min_cleaned_chunk_length_chars
+            ):
                 logger.debug(
                     f"Input: '{segment_str_input[:50]}...' -> Edge-Cleaned: '{edge_cleaned_segment}' "
                     f"(Discarded - empty or below char threshold {self.min_cleaned_chunk_length_chars})"
@@ -561,16 +244,20 @@ class FinalChunkCleaner(TextChunker):
             discard_reason = ""
 
             # 4. Apply the short, low-value-word-only chunk filter
-            if num_words > 0 and num_words <= self.filter_short_low_value_chunks_max_words:
+            if (
+                num_words > 0
+                and num_words <= self.filter_short_low_value_chunks_max_words
+            ):
                 if self.low_value_words and all(
-                    word in self.low_value_words for word in words_in_edge_cleaned_segment
+                    word in self.low_value_words
+                    for word in words_in_edge_cleaned_segment
                 ):
                     keep_segment = False
                     discard_reason = (
                         f"short ({num_words} words) and all words are low-value: "
                         f"'{', '.join(words_in_edge_cleaned_segment)}'"
                     )
-            
+
             if keep_segment:
                 # IMPORTANT: Append the segment with original casing, not the lowercased one
                 cleaned_segments_accumulator.append(edge_cleaned_segment)
@@ -581,7 +268,7 @@ class FinalChunkCleaner(TextChunker):
                 logger.debug(
                     f"Input: '{segment_str_input[:50]}...' -> Edge-Cleaned: '{edge_cleaned_segment}' (Discarded - {discard_reason})"
                 )
-        
+
         logger.info(
             f"FinalChunkCleaner processed {len(text_segments)} input segments "
             f"into {len(cleaned_segments_accumulator)} final segments."
@@ -898,9 +585,21 @@ class ConjunctionChunker(TextChunker):
 
     def __init__(self, language: str = "en", **kwargs):
         super().__init__(language=language, **kwargs)
+
+        # Load user configuration
+        user_config_main = load_user_config()
+        language_resources_section = user_config_main.get("language_resources", {})
+
+        # Load coordinating conjunctions from resource files
+        coordinating_conjunctions = load_language_resource(
+            default_resource_filename="coordinating_conjunctions.json",
+            config_key_for_custom_file="coordinating_conjunctions_file",
+            language_resources_config_section=language_resources_section,
+        )
+
         # Get conjunctions for the current language, defaulting to English
-        self.conjunctions = COORDINATING_CONJUNCTIONS.get(
-            self.language.lower(), COORDINATING_CONJUNCTIONS.get("en", [])
+        self.conjunctions = coordinating_conjunctions.get(
+            self.language.lower(), coordinating_conjunctions.get("en", [])
         )
         # Create a regex pattern for splitting.
         # We want to split *before* the conjunction.
@@ -1341,16 +1040,36 @@ class SlidingWindowSemanticSplitter(TextChunker):
         if not segments or len(segments) < 2:
             return segments
 
+        # Load user configuration
+        user_config_main = load_user_config()
+        language_resources_section = user_config_main.get("language_resources", {})
+
         lang_key = self.language.lower()
+
+        # Load negation prefixes from resource files
+        negation_prefixes = load_language_resource(
+            default_resource_filename="negation_prefixes.json",
+            config_key_for_custom_file="negation_prefixes_file",
+            language_resources_config_section=language_resources_section,
+        )
+
         # Create a clean set of negation prefixes by stripping whitespace
         current_neg_standalone_prefixes = set(
             prefix.strip()
-            for prefix in NEGATION_PREFIXES.get(lang_key, NEGATION_PREFIXES["en"])
-        )
-        current_avoid_merge_next_starts_with = (
-            AVOID_MERGE_AFTER_NEGATION_IF_NEXT_IS.get(
-                lang_key, AVOID_MERGE_AFTER_NEGATION_IF_NEXT_IS["en"]
+            for prefix in negation_prefixes.get(
+                lang_key, negation_prefixes.get("en", [])
             )
+        )
+
+        # Load words to avoid merging after negation from resource files
+        avoid_merge_resources = load_language_resource(
+            default_resource_filename="avoid_merge_after_negation_if_next_is.json",
+            config_key_for_custom_file="avoid_merge_after_negation_file",
+            language_resources_config_section=language_resources_section,
+        )
+
+        current_avoid_merge_next_starts_with = avoid_merge_resources.get(
+            lang_key, avoid_merge_resources.get("en", [])
         )
 
         merged_segments: List[str] = []
