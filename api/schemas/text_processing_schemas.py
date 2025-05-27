@@ -22,7 +22,7 @@ class TextProcessingRequest(BaseModel):
     chunking_strategy: Optional[str] = Field(
         default="sliding_window_cleaned",  # Changed from "semantic" to align with CLI
         description="Predefined chunking strategy (e.g., 'simple', 'semantic', 'detailed', 'sliding_window_cleaned'). See Phentrieve documentation for details.",
-        example="sliding_window_cleaned",
+        json_schema_extra={"example": "sliding_window_cleaned"},
     )
 
     # Sliding window chunking parameters
@@ -102,7 +102,7 @@ class TextProcessingRequest(BaseModel):
         ge=0.0,
         le=1.0,  # Changed from 0.0 to 0.35 to align with CLI
         description="Minimum confidence score for an aggregated HPO term.",
-        example=0.35,
+        json_schema_extra={"example": 0.35},
     )
     top_term_per_chunk_for_aggregation: Optional[bool] = Field(
         default=False,

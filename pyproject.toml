@@ -66,7 +66,8 @@ line-length = 88
 target-version = ['py39']
 include = '\.pyi?$'
 extend-exclude = '''
-/(\n  \.git
+/(
+  \.git
   | \.hg
   | \.mypy_cache
   | \.tox
@@ -84,3 +85,19 @@ force-exclude = '''
   __pycache__
 )/
 '''
+
+[tool.pytest.ini_options]
+python_files = ["test_*.py", "*_test.py", "tests.py"]
+testpaths = ["tests"]
+norecursedirs = [
+    ".*",       # Ignore hidden directories like .git, .vscode, .venv, .pytest_cache
+    "build",
+    "dist",
+    "docs",
+    "data",     # Ignore the 'data' directory (and thus 'data/hf_cache')
+    "venv",
+    "env",
+    "*.egg-info",
+    "phentrieve", # Ignore the main application source directory
+    "api",      # Ignore the API source directory
+]
