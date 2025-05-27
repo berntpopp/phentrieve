@@ -760,15 +760,15 @@ export default {
       chunkingStrategy: 'sliding_window_cleaned',
       windowSize: 2, // Default from config
       stepSize: 1, // Default from config
-      splitThreshold: 0.5, // Default from config
+      splitThreshold: 0.25, // Default from config
       minSegmentLength: 1, // Default from config
       semanticModelForChunking: null,
       retrievalModelForTextProcess: null,
-      chunkRetrievalThreshold: 0.3,
-      numResultsPerChunk: 10,
+      chunkRetrievalThreshold: 0.5,
+      numResultsPerChunk: 3,
       noAssertionDetectionForTextProcess: false,
       assertionPreferenceForTextProcess: 'dependency',
-      aggregatedTermConfidence: 0.35,
+      aggregatedTermConfidence: 0.4,
       topTermPerChunkForAggregation: false
     };
   },
