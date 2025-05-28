@@ -196,6 +196,63 @@ def get_sliding_window_cleaned_config():
     return copy.deepcopy(SLIDING_WINDOW_CLEANED_CONFIG)
 
 
+# Strategy: "sliding_window_punct_cleaned" - Adds FineGrainedPunctuationChunker before SlidingWindowSemanticSplitter and FinalChunkCleaner
+SLIDING_WINDOW_PUNCT_CLEANED_CONFIG = [
+    {"type": "paragraph"},  # First split by paragraphs
+    {"type": "sentence"},  # Then split into sentences
+    {"type": "fine_grained_punctuation"},  # Split by punctuation (commas, semicolons)
+    {
+        "type": "sliding_window",  # Apply sliding window semantic splitting
+        "config": {
+            "window_size_tokens": 5,  # Slightly smaller window due to pre-punctuation split
+            "step_size_tokens": 1,
+            "splitting_threshold": 0.45,  # Slightly lower threshold for more sensitive splits
+            "min_split_segment_length_words": 2,  # Allow slightly shorter segments
+        },
+    },
+    {
+        "type": "final_chunk_cleaner",  # Clean up the chunks
+        "config": {
+            "min_cleaned_chunk_length_chars": 2,  # Minimum length of cleaned chunks in characters
+            "max_cleanup_passes": 3,  # Maximum number of cleanup passes
+        },
+    },
+]
+
+
+def get_sliding_window_punct_cleaned_config():
+    return copy.deepcopy(SLIDING_WINDOW_PUNCT_CLEANED_CONFIG)
+
+
+# Strategy: "sliding_window_punct_conj_cleaned" - Adds ConjunctionChunker between punctuation and sliding window
+SLIDING_WINDOW_PUNCT_CONJ_CLEANED_CONFIG = [
+    {"type": "paragraph"},  # First split by paragraphs
+    {"type": "sentence"},  # Then split into sentences
+    {"type": "fine_grained_punctuation"},  # Split by punctuation (commas, semicolons)
+    {"type": "conjunction"},  # Split at coordinating conjunctions
+    {
+        "type": "sliding_window",  # Apply sliding window semantic splitting
+        "config": {
+            "window_size_tokens": 5,  # Keep reasonable defaults after more aggressive pre-splitting
+            "step_size_tokens": 1,
+            "splitting_threshold": 0.50,  # Similar to punct_cleaned but may need adjustment
+            "min_split_segment_length_words": 2,  # Allow shorter segments due to extra splitting
+        },
+    },
+    {
+        "type": "final_chunk_cleaner",  # Clean up the chunks
+        "config": {
+            "min_cleaned_chunk_length_chars": 2,  # Minimum length of cleaned chunks in characters
+            "max_cleanup_passes": 3,  # Maximum number of cleanup passes
+        },
+    },
+]
+
+
+def get_sliding_window_punct_conj_cleaned_config():
+    return copy.deepcopy(SLIDING_WINDOW_PUNCT_CONJ_CLEANED_CONFIG)
+
+
 # Default formula for semantic similarity calculations
 DEFAULT_SIMILARITY_FORMULA = "hybrid"
 

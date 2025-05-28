@@ -75,7 +75,9 @@ MOCK_RERANKED_RESULTS = [
 @pytest.fixture
 def mock_query_results():
     """Mock the query results returned by the query orchestrator."""
-    with patch("phentrieve.cli.query_commands.orchestrate_query") as mock_orchestrate:
+    with patch(
+        "phentrieve.retrieval.query_orchestrator.orchestrate_query"
+    ) as mock_orchestrate:
         # Return the mock results
         mock_orchestrate.return_value = MOCK_QUERY_RESULTS
         yield mock_orchestrate
@@ -84,7 +86,9 @@ def mock_query_results():
 @pytest.fixture
 def mock_reranked_query_results():
     """Mock the reranked query results returned by the query orchestrator."""
-    with patch("phentrieve.cli.query_commands.orchestrate_query") as mock_orchestrate:
+    with patch(
+        "phentrieve.retrieval.query_orchestrator.orchestrate_query"
+    ) as mock_orchestrate:
         # Return the mock reranked results
         mock_orchestrate.return_value = MOCK_RERANKED_RESULTS
         yield mock_orchestrate

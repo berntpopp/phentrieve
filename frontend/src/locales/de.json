@@ -2,6 +2,11 @@
   "common": {
     "auto": "Automatische Erkennung"
   },
+  "models": {
+    "biolord": "BioLORD 2023-M",
+    "jinaGerman": "Jina German v2",
+    "distiluse": "DistilUSE Multilingual"
+  },
   "app": {
     "footer": {
       "disclaimer": "Haftungsausschluss",
@@ -80,7 +85,8 @@
       "assertionToggle": "Aussagestatus umschalten",
       "assertionStatus": "Aussagestatus",
       "affirmed": "Bestätigt",
-      "negated": "Verneint"
+      "negated": "Verneint",
+      "unknown": "Unbekannt"
     },
     "advancedOptions": {
       "title": "Erweiterte Optionen",
@@ -88,7 +94,27 @@
       "similarityThreshold": "Ähnlichkeitsschwelle",
       "enableReranking": "Neuordnung aktivieren",
       "rerankerMode": "Neuordnungsmodus",
-      "language": "Sprache"
+      "language": "Sprache",
+      "processingModeTitle": "Verarbeitungsmodus",
+      "processingModeLabel": "Verarbeitungsmodus",
+      "modeAutomatic": "Automatisch (nach Textlänge)",
+      "modeQuery": "Abfragemodus (kurzer Text)",
+      "modeTextProcess": "Textverarbeitungsmodus (Dokument)",
+      "textProcessingTitle": "Textverarbeitungseinstellungen",
+      "chunkingStrategy": "Aufteilungsstrategie",
+      "windowSize": "Fenstergröße (Tokens)",
+      "stepSize": "Schrittgröße",
+      "chunkThreshold": "Abrufschwelle für Textabschnitte",
+      "aggConfidence": "Konfidenz für aggregierte Begriffe",
+      "detectAssertions": "Aussagen erkennen",
+      "splitThreshold": "Aufspaltungsschwelle",
+      "minSegmentLength": "Min. Segmentlänge",
+      "numResultsPerChunk": "Ergebnisse pro Textabschnitt",
+      "topTermPerChunk": "Nur den besten HPO-Begriff pro Textabschnitt behalten",
+      "strategies": {
+        "sliding_window_punct_cleaned": "Gleitendes Fenster + Interpunktion + Bereiniger",
+        "sliding_window_punct_conj_cleaned": "Gleitendes Fenster + Interpunktion + Konjunktionen + Bereiniger"
+      }
     },
     "tooltips": {
       "advancedOptions": "Erweiterte Sucheinstellungen konfigurieren",
@@ -120,13 +146,43 @@
     "assertionLabel": "Aussage",
     "negated": "Negiert",
     "affirmed": "Bejaht",
+    "unknown": "Unbekannt",
     "originalRank": "Ursprünglicher Rang",
     "noTermsFound": "Keine HPO-Begriffe gefunden, die Ihrer Anfrage mit dem aktuellen Schwellenwert entsprechen. Versuchen Sie, den Ähnlichkeitsschwellenwert zu senken oder Ihre Anfrage umzuformulieren.",
     "defaultError": "Bei der Verarbeitung Ihrer Anfrage ist ein Fehler aufgetreten.",
     "addToCollectionTooltip": "{id} zur Sammlung hinzufügen",
     "alreadyInCollectionTooltip": "{id} bereits in Sammlung",
+    "confidenceScoreTooltip": "Konfidenzwert: {score}",
+    "sourceChunksTooltip": "In {count} Textabschnitten gefunden",
+    "maxScoreTooltip": "Höchste Konfidenz: {score}",
+    "topEvidenceTooltip": "Beste Evidenz in Abschnitt #{id}",
     "addToCollectionAriaLabel": "{label} ({id}) zur Sammlung hinzufügen",
-    "alreadyInCollectionAriaLabel": "HPO-Begriff {id} ({label}) ist in der Sammlung"
+    "alreadyInCollectionAriaLabel": "HPO-Begriff {id} ({label}) ist in der Sammlung",
+    "textProcess": {
+      "title": "Verarbeitete Textanalyse",
+      "chunksTitle": "Verarbeitete Textabschnitte & HPO-Begriffe pro Abschnitt",
+      "aggregatedTitle": "Aggregierte Dokumentphänotypen",
+      "chunksLabel": "Abschnitte",
+      "strategyLabel": "Strategie",
+      "chunkLabel": "Abschnitt",
+      "chunkHPOTerms": "In diesem Abschnitt identifizierte HPO-Begriffe:",
+      "noChunkHPOTerms": "Für diesen Abschnitt wurden keine HPO-Begriffe identifiziert.",
+      "hpoInChunkTitle": "In diesem Abschnitt gefundene HPO-Begriffe:",
+      "noChunkHPOTermsMatched": "Für diesen Abschnitt hat kein HPO-Begriff den Abrufschwellenwert erreicht.",
+      "avgConfidenceTooltip": "Durchschnittlicher Konfidenzwert aus allen Evidenzabschnitten",
+      "maxScoreTooltip": "Höchster Wert aus einem Abschnitt",
+      "evidenceFromChunksShort": "Abschnitte:",
+      "hitsText": "Treffer",
+      "evidenceCountTooltip": "Anzahl der Abschnitte, die Evidenz liefern",
+      "evidenceTooltip": "Quellenabschnitte. Klicken Sie, um den besten Evidenzabschnitt zu sehen.",
+      "confidenceTooltip": "Durchschnittlicher Konfidenzwert aus allen Evidenzabschnitten",
+      "sourceChunks": "Quellenabschnitte",
+      "topEvidence": "Beste Evidenz",
+      "noChunksProcessed": "Es wurden keine Textabschnitte verarbeitet.",
+      "noAggregatedTerms": "Keine aggregierten HPO-Begriffe gefunden.",
+      "assertionDetail": "Bestimmungsmethode:",
+      "finalStatus": "Endgültiger Status:"
+    }
   },
   "logViewer": {
     "title": "Anwendungsprotokolle",

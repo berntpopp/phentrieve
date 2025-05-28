@@ -1,0 +1,67 @@
+{
+    "en": [
+        "normal",
+        "unremarkable",
+        "within normal limits",
+        "wnl",
+        "clear ",
+        "no evidence of ",
+        "nev",
+        "resolved",
+        "absent",
+        " unremarkable",
+        "no acute process",
+        "no significant findings"
+    ],
+    "de": [
+        "normal",
+        "unauffällig",
+        "o.B.",
+        "oB",
+        "ohne Befund",
+        "im Normbereich",
+        "reizlos",
+        "kein Anhalt für ",
+        "nicht vorhanden",
+        "aufgehoben",
+        "physiologisch",
+        "regelrecht"
+    ],
+    "fr": [
+        "normal",
+        "normale",
+        "normaux",
+        "normales",
+        "sans particularité",
+        "RAS",
+        "aucune anomalie",
+        "pas d'anomalie",
+        "résolu",
+        "absent",
+        "absente",
+        "aspect normal"
+    ],
+    "es": [
+        "normal",
+        "normales",
+        "sin hallazgos",
+        "sin particularidades",
+        "sin alteraciones",
+        "resuelta",
+        "resuelto",
+        "ausente",
+        "dentro de límites normales",
+        "no se observan alteraciones"
+    ],
+    "nl": [
+        "normaal",
+        "normale",
+        "zonder bijzonderheden",
+        "g.b.",
+        "niet afwijkend",
+        "opgelost",
+        "afwezig",
+        "binnen normale grenzen",
+        "geen afwijkingen"
+    ]
+}

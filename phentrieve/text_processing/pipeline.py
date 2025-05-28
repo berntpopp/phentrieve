@@ -22,6 +22,7 @@ from phentrieve.text_processing.chunkers import (
     SentenceChunker,
     SlidingWindowSemanticSplitter,
     TextChunker,
+    ConjunctionChunker,
 )
 from phentrieve.text_processing.assertion_detection import (
     AssertionDetector,
@@ -115,13 +116,45 @@ class TextProcessingPipeline:
             elif chunker_type == "fine_grained_punctuation":
                 chunkers.append(FineGrainedPunctuationChunker(**params))
 
+            elif chunker_type == "conjunction":
+                chunkers.append(ConjunctionChunker(**params))
+
             elif chunker_type == "noop":
                 chunkers.append(NoOpChunker(**params))
 
+            elif chunker_type == "sliding_window":
+                if not self.sbert_model:
+                    raise ValueError(
+                        "SentenceTransformer model required for sliding window semantic splitting "
+                        "but none was provided"
+                    )
+
+                # Get sliding window specific parameters
+                window_size = chunker_config.get("window_size_tokens", 4)
+                step_size = chunker_config.get("step_size_tokens", 2)
+                threshold = chunker_config.get("splitting_threshold", 0.5)
+                min_segment_length = chunker_config.get(
+                    "min_split_segment_length_words", 50
+                )
+
+                # Create sliding window semantic splitter
+                sliding_window_params = {
+                    **params,
+                    "model": self.sbert_model,
+                    "window_size_tokens": window_size,
+                    "step_size_tokens": step_size,
+                    "splitting_threshold": threshold,
+                    "min_split_segment_length_words": min_segment_length,
+                }
+                chunkers.append(SlidingWindowSemanticSplitter(**sliding_window_params))
+
             elif chunker_type == "final_chunk_cleaner":
                 # Get FinalChunkCleaner specific parameters with defaults from config
-                min_cleaned_chunk_length = chunker_config.get(
-                    "min_cleaned_chunk_length_words", 2
+                min_cleaned_chunk_length_chars = chunker_config.get(
+                    "min_cleaned_chunk_length_chars", 1
+                )
+                filter_short_low_value_chunks_max_words = chunker_config.get(
+                    "filter_short_low_value_chunks_max_words", 2
                 )
                 max_cleanup_passes = chunker_config.get("max_cleanup_passes", 3)
                 custom_leading_words = chunker_config.get(
@@ -134,11 +167,13 @@ class TextProcessingPipeline:
                 custom_trailing_punct = chunker_config.get(
                     "custom_trailing_punctuation"
                 )
+                custom_low_value_words = chunker_config.get("custom_low_value_words")
 
                 # Initialize cleaner with default parameters
                 cleaner_params = {
                     "language": self.language,
-                    "min_cleaned_chunk_length_words": min_cleaned_chunk_length,
+                    "min_cleaned_chunk_length_chars": min_cleaned_chunk_length_chars,
+                    "filter_short_low_value_chunks_max_words": filter_short_low_value_chunks_max_words,
                     "max_cleanup_passes": max_cleanup_passes,
                 }
 
@@ -157,6 +192,8 @@ class TextProcessingPipeline:
                     cleaner_params["custom_trailing_punctuation"] = (
                         custom_trailing_punct
                     )
+                if custom_low_value_words is not None:
+                    cleaner_params["custom_low_value_words"] = custom_low_value_words
 
                 logger.debug(
                     "Creating FinalChunkCleaner with params: %s", cleaner_params

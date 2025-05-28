@@ -9,6 +9,8 @@ from api.schemas.text_processing_schemas import (
     TextProcessingResponseAPI,
     ProcessedChunkAPI,
     AggregatedHPOTermAPI,
+    HPOMatchInChunkAPI,
+    TextAttributionSpanAPI,
 )
 from phentrieve.text_processing.hpo_extraction_orchestrator import (
     orchestrate_hpo_extraction,
@@ -27,6 +29,8 @@ from phentrieve.config import (
     get_detailed_chunking_config,
     get_sliding_window_config_with_params,
     get_sliding_window_cleaned_config,
+    get_sliding_window_punct_cleaned_config,
+    get_sliding_window_punct_conj_cleaned_config,
     DEFAULT_TRANSLATIONS_SUBDIR,
     DEFAULT_RERANKER_MODEL,
     DEFAULT_MONOLINGUAL_RERANKER_MODEL,
@@ -109,12 +113,38 @@ def _get_chunking_config_for_api(
                     }
                 )
         return config
+    elif strategy_name == "sliding_window_punct_cleaned":
+        config = get_sliding_window_punct_cleaned_config()
+        for component in config:
+            if component.get("type") == "sliding_window":
+                component["config"].update(
+                    {
+                        "window_size_tokens": cfg_window_size,
+                        "step_size_tokens": cfg_step_size,
+                        "splitting_threshold": cfg_split_threshold,
+                        "min_split_segment_length_words": cfg_min_segment_length,
+                    }
+                )
+        return config
+    elif strategy_name == "sliding_window_punct_conj_cleaned":
+        config = get_sliding_window_punct_conj_cleaned_config()
+        for component in config:
+            if component.get("type") == "sliding_window":
+                component["config"].update(
+                    {
+                        "window_size_tokens": cfg_window_size,
+                        "step_size_tokens": cfg_step_size,
+                        "splitting_threshold": cfg_split_threshold,
+                        "min_split_segment_length_words": cfg_min_segment_length,
+                    }
+                )
+        return config
     else:  # Fallback
         logger.warning(
-            f"API: Unknown chunking strategy '{strategy_name}'. Defaulting to sliding_window_cleaned."
+            f"API: Unknown chunking strategy '{strategy_name}'. Defaulting to sliding_window_punct_conj_cleaned."
         )
-        # Use sliding_window_cleaned as the default fallback
-        config = get_sliding_window_cleaned_config()
+        # Use sliding_window_punct_conj_cleaned as the default fallback
+        config = get_sliding_window_punct_conj_cleaned_config()
         for component in config:
             if component.get("type") == "sliding_window":
                 component["config"].update(
@@ -226,6 +256,12 @@ async def process_text_extract_hpo(request: TextProcessingRequest):
         assertion_cfg["disable"] = request.no_assertion_detection
         assertion_cfg["preference"] = request.assertion_preference
 
+        # Important: We need to ensure the language is explicitly set in assertion_cfg
+        # This matches how the CLI explicitly passes language to the pipeline
+        assertion_cfg["language"] = actual_language
+
+        logger.info(f"API: Using assertion configuration: {assertion_cfg}")
+
         text_pipeline = TextProcessingPipeline(
             language=actual_language,
             chunking_pipeline_config=chunking_pipeline_cfg,
@@ -259,24 +295,69 @@ async def process_text_extract_hpo(request: TextProcessingRequest):
             f"API: Running HPO extraction orchestrator on {len(text_chunks_for_orchestrator)} chunks."
         )
         # Call the core orchestrator function (this is synchronous, so wrap it)
-        aggregated_hpo_terms_internal, _ = await run_in_threadpool(
-            orchestrate_hpo_extraction,
-            text_chunks=text_chunks_for_orchestrator,
-            assertion_statuses=assertion_statuses_for_orchestrator,
-            retriever=retriever,
-            cross_encoder=cross_enc,
-            language=actual_language,
-            chunk_retrieval_threshold=request.chunk_retrieval_threshold,
-            num_results_per_chunk=request.num_results_per_chunk,
-            reranker_mode=request.reranker_mode,
-            translation_dir_path=translation_dir,
-            min_confidence_for_aggregated=request.aggregated_term_confidence,
-            top_term_per_chunk=request.top_term_per_chunk_for_aggregation,
+        aggregated_hpo_terms_internal, detailed_chunk_results_internal = (
+            await run_in_threadpool(
+                orchestrate_hpo_extraction,
+                text_chunks=text_chunks_for_orchestrator,
+                assertion_statuses=assertion_statuses_for_orchestrator,
+                retriever=retriever,
+                cross_encoder=cross_enc,
+                language=actual_language,
+                chunk_retrieval_threshold=request.chunk_retrieval_threshold,
+                num_results_per_chunk=request.num_results_per_chunk,
+                reranker_mode=request.reranker_mode,
+                translation_dir_path=translation_dir,
+                min_confidence_for_aggregated=request.aggregated_term_confidence,
+                top_term_per_chunk=request.top_term_per_chunk_for_aggregation,
+            )
         )
+
+        # Add HPO matches to each processed chunk from the detailed chunk results
+        chunk_id_to_processed_chunk = {
+            chunk.chunk_id: chunk for chunk in api_processed_chunks
+        }
+        for chunk_result in detailed_chunk_results_internal:
+            chunk_idx = chunk_result.get("chunk_idx", 0)
+            chunk_id = chunk_idx + 1  # Convert 0-based to 1-based for API
+
+            if chunk_id in chunk_id_to_processed_chunk:
+                processed_chunk = chunk_id_to_processed_chunk[chunk_id]
+                # Add HPO matches to the processed chunk
+                for match in chunk_result.get("matches", []):
+                    processed_chunk.hpo_matches.append(
+                        HPOMatchInChunkAPI(
+                            hpo_id=match.get("id"),
+                            name=match.get("name"),
+                            score=match.get("score", 0.0),
+                        )
+                    )
 
         # Convert internal aggregated results to API schema
         api_aggregated_hpo_terms: List[AggregatedHPOTermAPI] = []
         for term_data in aggregated_hpo_terms_internal:
+            # Create text attribution spans
+            text_attributions = []
+            for attribution in term_data.get("text_attributions", []):
+                text_attributions.append(
+                    TextAttributionSpanAPI(
+                        chunk_id=attribution.get("chunk_idx", 0)
+                        + 1,  # Convert 0-based to 1-based
+                        start_char=attribution.get("start_char", 0),
+                        end_char=attribution.get("end_char", 0),
+                        matched_text_in_chunk=attribution.get(
+                            "matched_text_in_chunk", ""
+                        ),
+                    )
+                )
+
+            # Convert internal 0-based chunk indices to 1-based API indices
+            source_chunk_ids = [
+                chunk_idx + 1 for chunk_idx in term_data.get("chunks", [])
+            ]
+            top_evidence_chunk_id = None
+            if term_data.get("top_evidence_chunk_idx") is not None:
+                top_evidence_chunk_id = term_data.get("top_evidence_chunk_idx") + 1
+
             api_aggregated_hpo_terms.append(
                 AggregatedHPOTermAPI(
                     hpo_id=term_data["id"],  # ID should always be present
@@ -284,6 +365,11 @@ async def process_text_extract_hpo(request: TextProcessingRequest):
                     confidence=term_data.get("confidence", 0.0),
                     status=term_data.get("status", "unknown"),
                     evidence_count=term_data.get("evidence_count", 1),
+                    source_chunk_ids=source_chunk_ids,
+                    max_score_from_evidence=term_data.get("score", 0.0),
+                    top_evidence_chunk_id=top_evidence_chunk_id,
+                    text_attributions=text_attributions,
+                    # Keep these for backward compatibility
                     score=term_data.get("score", 0.0),
                     reranker_score=term_data.get("reranker_score"),
                 )

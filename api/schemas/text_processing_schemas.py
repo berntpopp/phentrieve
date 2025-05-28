@@ -20,9 +20,9 @@ class TextProcessingRequest(BaseModel):
 
     # Chunking Configuration
     chunking_strategy: Optional[str] = Field(
-        default="sliding_window_cleaned",  # Changed from "semantic" to align with CLI
-        description="Predefined chunking strategy (e.g., 'simple', 'semantic', 'detailed', 'sliding_window_cleaned'). See Phentrieve documentation for details.",
-        example="sliding_window_cleaned",
+        default="sliding_window_punct_conj_cleaned",  # Updated to the new default strategy
+        description="Predefined chunking strategy (e.g., 'simple', 'semantic', 'detailed', 'sliding_window_cleaned', 'sliding_window_punct_cleaned', 'sliding_window_punct_conj_cleaned'). See Phentrieve documentation for details.",
+        json_schema_extra={"example": "sliding_window_punct_conj_cleaned"},
     )
 
     # Sliding window chunking parameters
@@ -102,7 +102,7 @@ class TextProcessingRequest(BaseModel):
         ge=0.0,
         le=1.0,  # Changed from 0.0 to 0.35 to align with CLI
         description="Minimum confidence score for an aggregated HPO term.",
-        example=0.35,
+        json_schema_extra={"example": 0.35},
     )
     top_term_per_chunk_for_aggregation: Optional[bool] = Field(
         default=False,
@@ -110,11 +110,28 @@ class TextProcessingRequest(BaseModel):
     )
 
 
+class HPOMatchInChunkAPI(BaseModel):
+    hpo_id: str
+    name: str
+    score: float
+
+
+class TextAttributionSpanAPI(BaseModel):
+    chunk_id: int = Field(description="1-based ID of the source chunk for this span")
+    start_char: int
+    end_char: int
+    matched_text_in_chunk: str
+
+
 class ProcessedChunkAPI(BaseModel):
     chunk_id: int
     text: str
     status: str  # e.g., "affirmed", "negated" (string value of AssertionStatus enum)
     assertion_details: Optional[Dict[str, Any]] = None  # From AssertionDetector
+    hpo_matches: List[HPOMatchInChunkAPI] = Field(
+        default_factory=list,
+        description="HPO terms identified as relevant to this specific chunk.",
+    )
 
 
 class AggregatedHPOTermAPI(BaseModel):
@@ -122,9 +139,29 @@ class AggregatedHPOTermAPI(BaseModel):
         ..., alias="hpo_id"
     )  # Use alias for consistency if internal field is 'id'
     name: str
-    confidence: float
-    status: str  # Aggregated assertion status
+    confidence: float = Field(
+        description="Average confidence score from all evidence chunks."
+    )
+    status: str = Field(
+        description="Aggregated assertion status (e.g., 'affirmed', 'negated')."
+    )
     evidence_count: int
+    source_chunk_ids: List[int] = Field(
+        description="List of 1-based chunk_ids that provide evidence."
+    )
+    max_score_from_evidence: Optional[float] = Field(
+        None,
+        description="Highest raw score from any single evidence chunk for this term.",
+    )
+    top_evidence_chunk_id: Optional[int] = Field(
+        None,
+        description="1-based ID of the chunk providing the max_score_from_evidence.",
+    )
+    text_attributions: List[TextAttributionSpanAPI] = Field(
+        default_factory=list,
+        description="Text spans in source chunks attributed to this HPO term.",
+    )
+    # Keeping these for backward compatibility
     score: Optional[float] = None  # Max bi-encoder score from evidence
     reranker_score: Optional[float] = (
         None  # Max reranker score from evidence (if applicable)

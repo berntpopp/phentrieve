@@ -1,0 +1,7 @@
+{
+    "en": ["and", "or", "but"],
+    "de": ["und", "oder", "aber", "sondern"],
+    "fr": ["et", "ou", "mais"],
+    "es": ["y", "e", "o", "u", "pero"],
+    "nl": ["en", "of", "maar"]
+}

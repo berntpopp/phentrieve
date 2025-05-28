@@ -1,0 +1,68 @@
+{
+    "en": [
+        "a", "an", "the", "is", "are", "was", "were", "be", "been", "being", "have", "has", "had",
+        "do", "does", "did", "will", "would", "should", "can", "could", "may", "might", "must",
+        "and", "but", "or", "nor", "for", "so", "yet", "if", "as", "of", "in", "on", "at", "to",
+        "by", "from", "with", "about", "above", "after", "also", "again", "against", "all", "am",
+        "any", "because", "before", "below", "between", "both", "each", "few", "further",
+        "he", "her", "here", "him", "his", "how", "i", "it", "its", "me", "more", "most", "my",
+        "no", "not", "now", "once", "only", "other", "our", "out", "own", "same", "she",
+        "some", "such", "than", "that", "their", "them", "then", "there", "these", "they",
+        "this", "those", "through", "too", "under", "until", "up", "very", "we", "what",
+        "when", "where", "which", "while", "who", "whom", "why", "you", "your", "yours",
+        "yourself", "yourselves"
+    ],
+    "de": [
+        "der", "die", "das", "ein", "eine", "eines", "einem", "einen", "er", "sie", "es",
+        "ist", "sind", "war", "waren", "wird", "werden", "wurde", "wurden", "sei", "seien",
+        "haben", "hat", "hatte", "hatten", "und", "oder", "aber", "sondern", "denn", "als",
+        "wenn", "dass", "daß", "ob", "so", "wie", "nur", "mit", "von", "zu", "in", "im", "am",
+        "an", "auf", "aus", "bei", "bis", "durch", "für", "gegen", "hinter", "ihr", "ihre",
+        "ihrem", "ihren", "ihrer", "ihres", "ihm", "ihn", "ich", "du", "wir", "ihr", "sich",
+        "mein", "dein", "sein", "unser", "euer", "mir", "dir", "uns", "euch", "ihnen",
+        "mich", "dich", "man", "nicht", "kein", "keine", "keinen", "keiner", "keines",
+        "auch", "schon", "noch", "doch", "ja", "nein", "hier", "da", "dort", "des", "dem",
+        "den", "deshalb", "darum", "wegen", "trotz", "während", "beim", "vom", "zum", "zur"
+    ],
+    "fr": [
+        "le", "la", "les", "un", "une", "des", "du", "de", "d", "l",
+        "et", "ou", "mais", "si", "car", "ni", "or",
+        "est", "sont", "était", "étaient", "sera", "seront", "été",
+        "a", "ont", "avait", "avaient", "aura", "auront", "eu",
+        "je", "tu", "il", "elle", "on", "nous", "vous", "ils", "elles",
+        "me", "te", "se", "lui", "leur", "en", "y",
+        "ce", "cet", "cette", "ces", "mon", "ton", "son", "ma", "ta", "sa",
+        "notre", "votre", "leur", "mes", "tes", "ses", "nos", "vos", "leurs",
+        "qui", "que", "quoi", "dont", "où",
+        "à", "au", "aux", "dans", "par", "pour", "sur", "avec", "sans", "sous",
+        "pas", "ne", "n", "plus", "rien", "jamais", "aucun", "aucune"
+    ],
+    "es": [
+        "el", "la", "lo", "los", "las", "un", "una", "unos", "unas",
+        "y", "e", "o", "u", "pero", "sino", "mas", "que", "como", "si",
+        "es", "son", "era", "eran", "fue", "fueron", "será", "serán", "sido",
+        "ha", "han", "había", "habían", "habrá", "habrán", "habido",
+        "yo", "tú", "él", "ella", "ello", "nosotros", "vosotros", "ellos", "ellas",
+        "me", "te", "se", "le", "les", "nos", "os",
+        "este", "esta", "estos", "estas", "ese", "esa", "esos", "esas", "aquel", "aquella",
+        "aquellos", "aquellas", "mi", "tu", "su", "nuestro", "vuestra", "mis", "tus", "sus",
+        "nuestros", "vuestros",
+        "que", "quien", "quienes", "cuyo", "cuya", "cuyos", "cuyas", "donde", "cuando",
+        "a", "ante", "bajo", "con", "contra", "de", "del", "desde", "en", "entre", "hacia",
+        "hasta", "para", "por", "según", "sin", "sobre", "tras",
+        "no", "ni", "nunca", "jamás", "tampoco", "nada", "nadie", "ningún", "ninguna"
+    ],
+    "nl": [
+        "de", "het", "een",
+        "en", "of", "maar", "want", "dus", "doch",
+        "is", "zijn", "was", "waren", "wordt", "worden", "werd", "werden", "zal", "zullen", "zou", "zouden", "geweest",
+        "heb", "heeft", "hebben", "had", "hadden", "zal", "zullen", "zouden", "gehad",
+        "ik", "jij", "je", "hij", "zij", "ze", "het", "wij", "we", "jullie", "u", "zij", "ze",
+        "mij", "me", "jou", "hem", "haar", "ons", "hun", "hen",
+        "deze", "dit", "die", "dat", "zulke", "degene", "diegene", "wat",
+        "mijn", "jouw", "je", "zijn", "haar", "ons", "onze", "jullie", "uw", "hun",
+        "aan", "achter", "bij", "binnen", "boven", "buiten", "door", "in", "langs", "met", "na", "naar",
+        "naast", "om", "onder", "op", "over", "per", "sinds", "te", "tegen", "tegenover", "tot", "tussen", "uit", "van", "vanaf", "via", "voor",
+        "niet", "geen", "nooit", "nergens", "niemand", "niks"
+    ]
+}

@@ -2,6 +2,11 @@
   "common": {
     "auto": "Détection automatique"
   },
+  "models": {
+    "biolord": "BioLORD 2023-M",
+    "jinaGerman": "Jina German v2",
+    "distiluse": "DistilUSE Multilingual"
+  },
   "app": {
     "footer": {
       "disclaimer": "Avertissement",
@@ -77,10 +82,11 @@
       "exportPhenopacket": "Exporter en Phenopacket (JSON)",
       "exportText": "Exporter en texte",
       "clear": "Effacer la collection",
-      "assertionToggle": "Basculer le statut d'assertion",
-      "assertionStatus": "Statut d'assertion",
+      "assertionToggle": "Basculer le statut d'affirmation",
+      "assertionStatus": "Statut d'affirmation",
       "affirmed": "Affirmé",
-      "negated": "Nié"
+      "negated": "Nié",
+      "unknown": "Inconnu"
     },
     "advancedOptions": {
       "title": "Options avancées",
@@ -88,7 +94,27 @@
       "similarityThreshold": "Seuil de similarité",
       "enableReranking": "Activer le re-classement",
       "rerankerMode": "Mode de re-classement",
-      "language": "Langue"
+      "language": "Langue",
+      "processingModeTitle": "Mode de traitement",
+      "processingModeLabel": "Mode de traitement",
+      "modeAutomatic": "Automatique (par longueur de texte)",
+      "modeQuery": "Mode requête (texte court)",
+      "modeTextProcess": "Mode traitement de texte (document)",
+      "textProcessingTitle": "Paramètres de traitement de texte",
+      "chunkingStrategy": "Stratégie de découpage",
+      "windowSize": "Taille de fenêtre (tokens)",
+      "stepSize": "Taille de pas",
+      "chunkThreshold": "Seuil de récupération de fragments",
+      "aggConfidence": "Confiance des termes agrégés",
+      "detectAssertions": "Détecter les assertions",
+      "splitThreshold": "Seuil de division",
+      "minSegmentLength": "Longueur minimale de segment",
+      "numResultsPerChunk": "Résultats par fragment",
+      "topTermPerChunk": "Ne conserver que le meilleur terme HPO par fragment",
+      "strategies": {
+        "sliding_window_punct_cleaned": "Fenêtre glissante + Ponctuation + Nettoyeur",
+        "sliding_window_punct_conj_cleaned": "Fenêtre glissante + Ponctuation + Conjonctions + Nettoyeur"
+      }
     },
     "tooltips": {
       "advancedOptions": "Configurer les paramètres de recherche avancés",
@@ -125,8 +151,37 @@
     "defaultError": "Une erreur s'est produite lors du traitement de votre requête.",
     "addToCollectionTooltip": "Ajouter {id} à la collection",
     "alreadyInCollectionTooltip": "{id} déjà dans la collection",
+    "confidenceScoreTooltip": "Score de confiance: {score}",
+    "sourceChunksTooltip": "Trouvé dans {count} fragments de texte",
+    "maxScoreTooltip": "Confiance maximale: {score}",
+    "topEvidenceTooltip": "Meilleure preuve dans le fragment #{id}",
     "addToCollectionAriaLabel": "Ajouter {label} ({id}) à la collection",
-    "alreadyInCollectionAriaLabel": "Le terme HPO {id} ({label}) est dans la collection"
+    "alreadyInCollectionAriaLabel": "Le terme HPO {id} ({label}) est dans la collection",
+    "textProcess": {
+      "title": "Analyse de Texte Traité",
+      "chunksTitle": "Fragments Traités & Termes HPO par Fragment",
+      "aggregatedTitle": "Phénotypes Agrégés du Document",
+      "chunksLabel": "Fragments",
+      "strategyLabel": "Stratégie",
+      "chunkLabel": "Fragment",
+      "chunkHPOTerms": "Termes HPO identifiés dans ce fragment:",
+      "noChunkHPOTerms": "Aucun terme HPO n'a été identifié pour ce fragment.",
+      "hpoInChunkTitle": "Termes HPO trouvés dans ce fragment:",
+      "noChunkHPOTermsMatched": "Aucun terme HPO n'a atteint le seuil de récupération pour ce fragment spécifique.",
+      "avgConfidenceTooltip": "Score de confiance moyen de tous les fragments de preuve",
+      "maxScoreTooltip": "Score maximum d'un fragment",
+      "evidenceFromChunksShort": "Fragments:",
+      "hitsText": "résultats",
+      "evidenceCountTooltip": "Nombre de fragments fournissant des preuves",
+      "evidenceTooltip": "Fragments sources. Cliquez pour voir le meilleur fragment de preuve.",
+      "confidenceTooltip": "Score de confiance moyen de tous les fragments de preuve",
+      "sourceChunks": "Fragments sources",
+      "topEvidence": "Meilleure preuve",
+      "noChunksProcessed": "Aucun fragment de texte n'a été traité.",
+      "noAggregatedTerms": "Aucun terme HPO agrégé trouvé.",
+      "assertionDetail": "Méthode d'assertion:",
+      "finalStatus": "Statut final:"
+    }
   },
   "logViewer": {
     "title": "Journaux d'Application",

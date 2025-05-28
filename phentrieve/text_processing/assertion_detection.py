@@ -13,6 +13,10 @@ from typing import Dict, List, Tuple, Any, Optional
 
 import spacy
 
+# Local imports
+from phentrieve.text_processing.resource_loader import load_language_resource
+from phentrieve.utils import load_user_config
+
 logger = logging.getLogger(__name__)
 
 # Cache for loaded spaCy models
@@ -28,161 +32,6 @@ class AssertionStatus(Enum):
     NEGATED = "negated"
     NORMAL = "normal"
     UNCERTAIN = "uncertain"
-
-
-# Dictionaries of negation and normality cues for different languages
-NEGATION_CUES = {
-    "en": [
-        "no ",
-        "not ",
-        "n't",
-        "denies ",
-        "denied ",
-        "without ",
-        "negative for ",
-        "rules out ",
-        "ruled out ",
-        "absence of ",
-        "lack of ",
-        "free of ",
-        "never had ",
-        "cannot be identified ",
-    ],
-    "de": [
-        "kein ",
-        "keine ",
-        "keinen ",
-        "keiner ",
-        "keines ",
-        "nicht ",
-        "ohne ",
-        "Abwesenheit von ",
-        "Fehlen von ",
-        "Mangel an ",
-        "negativ für ",
-        "schließt aus ",
-        "ausgeschlossen ",
-        "frei von ",
-        "niemals gehabt ",
-        "kann nicht identifiziert werden ",
-    ],
-    "fr": [
-        "pas de ",
-        "non ",
-        "ne ... pas",
-        "sans ",
-        "absence de ",
-        "manque de ",
-        "aucunement ",
-        "négatif pour ",
-        "négative pour ",
-        "exclut ",
-        "jamais eu ",
-        "ne peut pas être identifié ",
-        "aucun ",
-        "aucune ",
-        "nul ",
-        "nulle ",
-    ],
-    "es": [
-        "no ",
-        "sin ",
-        "ausencia de ",
-        "falta de ",
-        "carencia de ",
-        "negativo para ",
-        "descarta ",
-        "nunca tuvo ",
-        "jamás tuvo ",
-        "no se puede identificar ",
-        "ningún ",
-        "ninguna ",
-        "nada ",
-    ],
-    "nl": [
-        "geen ",
-        "niet ",
-        "zonder ",
-        "afwezigheid van ",
-        "gebrek aan ",
-        "negatief voor ",
-        "sluit uit ",
-        "sloot uit ",
-        "nooit gehad ",
-        "kan niet worden geïdentificeerd ",
-        "ontkent ",
-        "ontkende ",
-    ],
-}
-
-
-NORMALITY_CUES = {
-    "en": [
-        "normal",
-        "unremarkable",
-        "within normal limits",
-        "wnl",
-        "clear ",
-        "no evidence of ",
-        "nev",
-        "resolved",
-        "absent",
-        " unremarkable",
-        "no acute process",
-        "no significant findings",
-    ],
-    "de": [
-        "normal",
-        "unauffällig",
-        "o.B.",
-        "oB",
-        "ohne Befund",
-        "im Normbereich",
-        "reizlos",
-        "kein Anhalt für ",
-        "nicht vorhanden",
-        "aufgehoben",
-        "physiologisch",
-        "regelrecht",
-    ],
-    "fr": [
-        "normal",
-        "normale",
-        "normaux",
-        "normales",
-        "sans particularité",
-        "RAS",
-        "aucune anomalie",
-        "pas d'anomalie",
-        "résolu",
-        "absent",
-        "absente",
-        "aspect normal",
-    ],
-    "es": [
-        "normal",
-        "normales",
-        "sin hallazgos",
-        "sin particularidades",
-        "sin alteraciones",
-        "resuelta",
-        "resuelto",
-        "ausente",
-        "dentro de límites normales",
-        "no se observan alteraciones",
-    ],
-    "nl": [
-        "normaal",
-        "normale",
-        "zonder bijzonderheden",
-        "g.b.",
-        "niet afwijkend",
-        "opgelost",
-        "afwezig",
-        "binnen normale grenzen",
-        "geen afwijkingen",
-    ],
-}
 
 
 # Keyword detection window size (number of words before/after cue)
@@ -326,11 +175,27 @@ class KeywordAssertionDetector(AssertionDetector):
                 index > 0 and f" {cue_lower}" in text_lower
             )
 
+        # Load user configuration
+        user_config_main = load_user_config()
+        language_resources_section = user_config_main.get("language_resources", {})
+
+        # Load negation cues from resource files
+        negation_cues_resources = load_language_resource(
+            default_resource_filename="negation_cues.json",
+            config_key_for_custom_file="negation_cues_file",
+            language_resources_config_section=language_resources_section,
+        )
+
         # Check for negation cues
         negated_scopes = []
         is_negated = False
 
-        for cue in NEGATION_CUES.get(lang, NEGATION_CUES["en"]):
+        # Get negation cues for the current language, defaulting to English
+        lang_negation_cues = negation_cues_resources.get(
+            lang, negation_cues_resources.get("en", [])
+        )
+
+        for cue in lang_negation_cues:
             cue_lower = cue.lower()
             cue_index = text_lower.find(cue_lower)
 
@@ -345,11 +210,23 @@ class KeywordAssertionDetector(AssertionDetector):
                     negated_scopes.append(f"{cue.strip()}: {context}")
                     is_negated = True
 
+        # Load normality cues from resource files
+        normality_cues_resources = load_language_resource(
+            default_resource_filename="normality_cues.json",
+            config_key_for_custom_file="normality_cues_file",
+            language_resources_config_section=language_resources_section,
+        )
+
         # Check for normality cues
         normal_scopes = []
         is_normal = False
 
-        for cue in NORMALITY_CUES.get(lang, NORMALITY_CUES["en"]):
+        # Get normality cues for the current language, defaulting to English
+        lang_normality_cues = normality_cues_resources.get(
+            lang, normality_cues_resources.get("en", [])
+        )
+
+        for cue in lang_normality_cues:
             cue_lower = cue.lower()
             cue_index = text_lower.find(cue_lower)
 
@@ -448,9 +325,23 @@ class DependencyAssertionDetector(AssertionDetector):
         for token in doc:
             token_text = token.text.lower()
 
+            # Load negation cues from resource files
+            user_config_main = load_user_config()
+            language_resources_section = user_config_main.get("language_resources", {})
+
+            negation_cues_resources = load_language_resource(
+                default_resource_filename="negation_cues.json",
+                config_key_for_custom_file="negation_cues_file",
+                language_resources_config_section=language_resources_section,
+            )
+
             # Check if token or its lemma is a negation cue
             is_negation_term = False
-            for neg_cue in NEGATION_CUES.get(lang, NEGATION_CUES["en"]):
+            lang_negation_cues = negation_cues_resources.get(
+                lang, negation_cues_resources.get("en", [])
+            )
+
+            for neg_cue in lang_negation_cues:
                 neg_cue_clean = neg_cue.strip().lower()
                 # More flexible matching for German
                 if (
@@ -478,11 +369,23 @@ class DependencyAssertionDetector(AssertionDetector):
         normal_concepts = []
         is_normal = False
 
+        # Load normality cues from resource files
+        normality_cues_resources = load_language_resource(
+            default_resource_filename="normality_cues.json",
+            config_key_for_custom_file="normality_cues_file",
+            language_resources_config_section=language_resources_section,
+        )
+
+        # Get normality cues for the current language, defaulting to English
+        lang_normality_cues = normality_cues_resources.get(
+            lang, normality_cues_resources.get("en", [])
+        )
+
         for token in doc:
             token_text = token.text.lower()
 
             # Check if token or multi-token span matches normality cue
-            for norm_cue in NORMALITY_CUES.get(lang, NORMALITY_CUES["en"]):
+            for norm_cue in lang_normality_cues:
                 norm_cue = norm_cue.strip().lower()
                 if token_text == norm_cue or token.lemma_.lower() == norm_cue:
                     # Single token match

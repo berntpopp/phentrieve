@@ -1,4 +1,12 @@
 {
+  "common": {
+    "auto": "Automatische detectie"
+  },
+  "models": {
+    "biolord": "BioLORD 2023-M",
+    "jinaGerman": "Jina German v2",
+    "distiluse": "DistilUSE Multilingual"
+  },
   "app": {
     "footer": {
       "disclaimer": "Disclaimer",
@@ -77,14 +85,36 @@
       "assertionToggle": "Bevestigingsstatus omschakelen",
       "assertionStatus": "Bevestigingsstatus",
       "affirmed": "Bevestigd",
-      "negated": "Ontkend"
+      "negated": "Ontkend",
+      "unknown": "Onbekend"
     },
     "advancedOptions": {
       "title": "Geavanceerde opties",
       "embeddingModel": "Embedding-model",
       "similarityThreshold": "Overeenkomstdrempel",
       "enableReranking": "Herrangschikking inschakelen",
-      "rerankerMode": "Herrangschikkingsmodus"
+      "rerankerMode": "Herrangschikkingsmodus",
+      "language": "Taal",
+      "processingModeTitle": "Verwerkingsmodus",
+      "processingModeLabel": "Verwerkingsmodus",
+      "modeAutomatic": "Automatisch (op tekstlengte)",
+      "modeQuery": "Zoekmodus (korte tekst)",
+      "modeTextProcess": "Tekstverwerking (document)",
+      "textProcessingTitle": "Tekstverwerkingsinstellingen",
+      "chunkingStrategy": "Opdelingsstrategie",
+      "windowSize": "Venstergrootte (tokens)",
+      "stepSize": "Stapgrootte",
+      "chunkThreshold": "Drempelwaarde voor tekstfragmenten",
+      "aggConfidence": "Betrouwbaarheid geaggregeerde termen",
+      "detectAssertions": "Detecteer beweringen",
+      "splitThreshold": "Splitsingsdrempel",
+      "minSegmentLength": "Min. segmentlengte",
+      "numResultsPerChunk": "Resultaten per fragment",
+      "topTermPerChunk": "Alleen de beste HPO-term per fragment behouden",
+      "strategies": {
+        "sliding_window_punct_cleaned": "Schuivend venster + Interpunctie + Opschoner",
+        "sliding_window_punct_conj_cleaned": "Schuivend venster + Interpunctie + Voegwoorden + Opschoner"
+      }
     },
     "tooltips": {
       "advancedOptions": "Configureer geavanceerde zoekinstellingen",
@@ -117,8 +147,37 @@
     "defaultError": "Er is een fout opgetreden bij het verwerken van uw zoekopdracht.",
     "addToCollectionTooltip": "{id} aan verzameling toevoegen",
     "alreadyInCollectionTooltip": "{id} is al in verzameling",
+    "confidenceScoreTooltip": "Betrouwbaarheidsscore: {score}",
+    "sourceChunksTooltip": "Gevonden in {count} tekstfragmenten",
+    "maxScoreTooltip": "Hoogste betrouwbaarheid: {score}",
+    "topEvidenceTooltip": "Beste bewijs in fragment #{id}",
     "addToCollectionAriaLabel": "{label} ({id}) aan verzameling toevoegen",
-    "alreadyInCollectionAriaLabel": "HPO-term {id} ({label}) is in verzameling"
+    "alreadyInCollectionAriaLabel": "HPO-term {id} ({label}) is in verzameling",
+    "textProcess": {
+      "title": "Verwerkte Tekstanalyse",
+      "chunksTitle": "Verwerkte Fragmenten & HPO-termen per Fragment",
+      "aggregatedTitle": "Geaggregeerde Document Fenotypen",
+      "chunksLabel": "Fragmenten",
+      "strategyLabel": "Strategie",
+      "chunkLabel": "Fragment",
+      "chunkHPOTerms": "HPO-termen geïdentificeerd in dit fragment:",
+      "noChunkHPOTerms": "Er zijn geen HPO-termen geïdentificeerd voor dit fragment.",
+      "hpoInChunkTitle": "HPO-termen gevonden in dit fragment:",
+      "noChunkHPOTermsMatched": "Geen HPO-termen hebben de ophaaldrempel voor dit specifieke fragment bereikt.",
+      "avgConfidenceTooltip": "Gemiddelde betrouwbaarheidsscore van alle bewijsfragmenten",
+      "maxScoreTooltip": "Maximale score van één fragment",
+      "evidenceFromChunksShort": "Fragmenten:",
+      "hitsText": "treffers",
+      "evidenceCountTooltip": "Aantal fragmenten dat bewijs levert",
+      "evidenceTooltip": "Bronfragmenten. Klik om het beste bewijsfragment te zien.",
+      "confidenceTooltip": "Gemiddelde betrouwbaarheidsscore van alle bewijsfragmenten",
+      "sourceChunks": "Bronfragmenten",
+      "topEvidence": "Beste bewijs",
+      "noChunksProcessed": "Er zijn geen tekstfragmenten verwerkt.",
+      "noAggregatedTerms": "Geen geaggregeerde HPO-termen gevonden.",
+      "assertionDetail": "Bevestigingsmethode:",
+      "finalStatus": "Uiteindelijke status:"
+    }
   },
   "logViewer": {
     "title": "Applicatielogboeken",

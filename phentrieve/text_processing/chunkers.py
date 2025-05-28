@@ -10,7 +10,7 @@ import re
 import logging
 import pysbd
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional, Tuple
+from typing import List, Optional, Tuple
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 
@@ -19,287 +19,8 @@ from phentrieve.text_processing.cleaners import (
     normalize_line_endings,
     clean_internal_newlines_and_extra_spaces,
 )
-
-# Language-specific cleanup words and punctuation
-# Ensure all are lowercase
-LEADING_CLEANUP_WORDS = {
-    "en": [
-        "a ",
-        "an ",
-        "the ",
-        "and ",
-        "or ",
-        "but ",
-        "with ",
-        "of ",
-        "in ",
-        "on ",
-        "at ",
-        "for ",
-        "to ",
-        "is ",
-        "are ",
-        "was ",
-        "were ",
-        "has ",
-        "have ",
-        "had ",
-        "also ",
-        "it ",
-        "its ",
-        "he ",
-        "she ",
-        "they ",
-        "them ",
-        "their ",
-        "this ",
-        "that ",
-        "these ",
-        "those ",
-        "by ",
-        "from ",
-        "as ",
-    ],
-    "de": [
-        "der ",
-        "die ",
-        "das ",
-        "dem ",
-        "den ",
-        "des ",
-        "ein ",
-        "eine ",
-        "eines ",
-        "einem ",
-        "einen ",
-        "und ",
-        "oder ",
-        "aber ",
-        "sondern ",
-        "mit ",
-        "von ",
-        "zu ",
-        "in ",
-        "im ",
-        "am ",
-        "auf ",
-        "aus ",
-        "bei ",
-        "ist ",
-        "sind ",
-        "war ",
-        "waren ",
-        "hat ",
-        "haben ",
-        "hatte ",
-        "hatten ",
-        "auch ",
-        "als ",
-        "wenn ",
-        "dass ",
-        "daß ",
-        "so ",
-        "wie ",
-        "nur ",
-        "durch ",
-        "für ",
-    ],
-    "fr": [
-        "le ",
-        "la ",
-        "l'",
-        "les ",
-        "un ",
-        "une ",
-        "des ",
-        "et ",
-        "ou ",
-        "mais ",
-        "avec ",
-        "de ",
-        "d'",
-        "du ",
-        "en ",
-        "dans ",
-        "sur ",
-        "pour ",
-        "à ",
-        "au ",
-        "aux ",
-        "est ",
-        "sont ",
-        "était ",
-        "étaient ",
-        "a ",
-        "ont ",
-        "avait ",
-        "avaient ",
-        "aussi ",
-        "il ",
-        "elle ",
-        "ils ",
-        "elles ",
-        "ce ",
-        "cet ",
-        "cette ",
-        "ces ",
-        "par ",
-        "comme ",
-    ],
-    "es": [
-        "el ",
-        "la ",
-        "lo ",
-        "los ",
-        "las ",
-        "un ",
-        "una ",
-        "unos ",
-        "unas ",
-        "y ",
-        "e ",
-        "o ",
-        "u ",
-        "pero ",
-        "con ",
-        "de ",
-        "del ",
-        "en ",
-        "sobre ",
-        "para ",
-        "a ",
-        "al ",
-        "es ",
-        "son ",
-        "era ",
-        "eran ",
-        "fue ",
-        "fueron ",
-        "ha ",
-        "han ",
-        "había ",
-        "habían ",
-        "también ",
-        "él ",
-        "ella ",
-        "ellos ",
-        "ellas ",
-        "esto ",
-        "esta ",
-        "estos ",
-        "estas ",
-        "eso ",
-        "esa ",
-        "esos ",
-        "esas ",
-        "por ",
-        "como ",
-    ],
-    "nl": [
-        "de ",
-        "het ",
-        "een ",
-        "en ",
-        "of ",
-        "maar ",
-        "met ",
-        "van ",
-        "in ",
-        "op ",
-        "aan ",
-        "voor ",
-        "tot ",
-        "is ",
-        "zijn ",
-        "was ",
-        "waren ",
-        "heeft ",
-        "hebben ",
-        "had ",
-        "hadden ",
-        "ook ",
-        "hij ",
-        "zij ",
-        "ze ",
-        "dit ",
-        "dat ",
-        "deze ",
-        "die ",
-        "door ",
-        "als ",
-    ],
-}
-
-TRAILING_CLEANUP_WORDS = {
-    "en": [
-        " and",
-        " or",
-        " but",
-        " with",
-        " of",
-        " for",
-        " to",
-        " is",
-        " are",
-        " was",
-        " were",
-        " by",
-        " from",
-        " as",
-        # Trailing articles like " a", " the" are less common but can be added if observed
-    ],
-    "de": [
-        " und",
-        " oder",
-        " aber",
-        " sondern",
-        " als",
-        " wenn",
-        " ist",
-        " sind",
-        " mit",
-        " von",
-        " zu",
-        " durch",
-        " für",
-    ],
-    "fr": [
-        " et",
-        " ou",
-        " mais",
-        " avec",
-        " de",
-        " d'",
-        " pour",
-        " à",
-        " par",
-        " comme",
-    ],
-    "es": [
-        " y",
-        " e",
-        " o",
-        " u",
-        " pero",
-        " con",
-        " de",
-        " para",
-        " a",
-        " por",
-        " como",
-    ],
-    "nl": [
-        " en",
-        " of",
-        " maar",
-        " met",
-        " van",
-        " voor",
-        " tot",
-        " door",
-        " als",
-    ],
-}
+from phentrieve.text_processing.resource_loader import load_language_resource
+from phentrieve.utils import load_user_config
 
 # Punctuation to be stripped from the ends of segments
 TRAILING_PUNCTUATION_CHARS = ",.;:?!\"')}]"
@@ -356,12 +77,14 @@ class FinalChunkCleaner(TextChunker):
     def __init__(
         self,
         language: str = "en",
-        min_cleaned_chunk_length_chars: int = 2,  # Minimum length in characters after cleaning
-        max_cleanup_passes: int = 3,  # To prevent potential infinite loops with complex patterns
+        min_cleaned_chunk_length_chars: int = 1,  # Minimum chars after cleaning
+        filter_short_low_value_chunks_max_words: int = 2,  # Max words for low value check
+        max_cleanup_passes: int = 3,  # Prevent infinite loops
         custom_leading_words_to_remove: Optional[List[str]] = None,
         custom_trailing_words_to_remove: Optional[List[str]] = None,
         custom_trailing_punctuation: Optional[str] = None,
         custom_leading_punctuation: Optional[str] = None,
+        custom_low_value_words: Optional[List[str]] = None,  # Custom low-value words
         **kwargs,
     ):
         """
@@ -369,37 +92,63 @@ class FinalChunkCleaner(TextChunker):
 
         Args:
             language: ISO language code for language-specific cleanup rules
-            min_cleaned_chunk_length_words: Minimum number of words a chunk must have after cleaning
+            min_cleaned_chunk_length_chars: Minimum character length a chunk must have after cleaning
+            filter_short_low_value_chunks_max_words: Maximum word count for chunks to check for low semantic value
             max_cleanup_passes: Maximum number of cleanup passes to perform
             custom_leading_words_to_remove: Custom list of leading words to remove
             custom_trailing_words_to_remove: Custom list of trailing words to remove
             custom_trailing_punctuation: Custom string of trailing punctuation to remove
             custom_leading_punctuation: Custom string of leading punctuation to remove
+            custom_low_value_words: Custom list of words considered to have low semantic value
             **kwargs: Additional arguments passed to the parent class
         """
         super().__init__(language=language, **kwargs)
         self.min_cleaned_chunk_length_chars = max(
             1, min_cleaned_chunk_length_chars
         )  # Minimum 1 character
+        self.filter_short_low_value_chunks_max_words = max(
+            1, filter_short_low_value_chunks_max_words
+        )  # At least 1 word
         self.max_cleanup_passes = max(1, max_cleanup_passes)  # Ensure at least one pass
+
+        # Simple tokenizer for word counting and stop word checks
+        self.tokenizer = lambda text: [token for token in text.split() if token.strip()]
+
+        # Load user configuration
+        user_config_main = load_user_config()
+        language_resources_section = user_config_main.get("language_resources", {})
 
         # Load language-specific or custom lists
         # Ensure custom lists are all lowercase and have correct spacing if provided
-        self.leading_words_to_strip = (
-            [w.lower() for w in custom_leading_words_to_remove]
-            if custom_leading_words_to_remove is not None
-            else LEADING_CLEANUP_WORDS.get(
-                self.language.lower(), LEADING_CLEANUP_WORDS.get("en", [])
+        if custom_leading_words_to_remove is not None:
+            self.leading_words_to_strip = [
+                w.lower() for w in custom_leading_words_to_remove
+            ]
+        else:
+            # Load from resource files with the new mechanism
+            leading_cleanup_resources = load_language_resource(
+                default_resource_filename="leading_cleanup_words.json",
+                config_key_for_custom_file="leading_cleanup_words_file",
+                language_resources_config_section=language_resources_section,
             )
-        )
+            self.leading_words_to_strip = leading_cleanup_resources.get(
+                self.language.lower(), leading_cleanup_resources.get("en", [])
+            )
 
-        self.trailing_words_to_strip = (
-            [w.lower() for w in custom_trailing_words_to_remove]
-            if custom_trailing_words_to_remove is not None
-            else TRAILING_CLEANUP_WORDS.get(
-                self.language.lower(), TRAILING_CLEANUP_WORDS.get("en", [])
+        if custom_trailing_words_to_remove is not None:
+            self.trailing_words_to_strip = [
+                w.lower() for w in custom_trailing_words_to_remove
+            ]
+        else:
+            # Load from resource files with the new mechanism
+            trailing_cleanup_resources = load_language_resource(
+                default_resource_filename="trailing_cleanup_words.json",
+                config_key_for_custom_file="trailing_cleanup_words_file",
+                language_resources_config_section=language_resources_section,
             )
-        )
+            self.trailing_words_to_strip = trailing_cleanup_resources.get(
+                self.language.lower(), trailing_cleanup_resources.get("en", [])
+            )
 
         self.trailing_punctuation_to_strip = (
             custom_trailing_punctuation
@@ -416,9 +165,27 @@ class FinalChunkCleaner(TextChunker):
         self.leading_words_to_strip.sort(key=len, reverse=True)
         self.trailing_words_to_strip.sort(key=len, reverse=True)
 
+        # Load low_value_words for filtering short chunks
+        if custom_low_value_words:
+            self.low_value_words = set(s.lower() for s in custom_low_value_words)
+        else:
+            # Load from resource files with the new mechanism
+            low_value_resources = load_language_resource(
+                default_resource_filename="low_semantic_value_words.json",
+                config_key_for_custom_file="low_semantic_value_words_file",
+                language_resources_config_section=language_resources_section,
+            )
+            self.low_value_words = set(
+                low_value_resources.get(
+                    self.language.lower(), low_value_resources.get("en", [])
+                )
+            )
+
         logger.info(
             f"Initialized FinalChunkCleaner for language '{self.language}' with "
-            f"min_length_chars={self.min_cleaned_chunk_length_chars}, max_passes={self.max_cleanup_passes}."
+            f"min_chars={self.min_cleaned_chunk_length_chars}, "
+            f"filter_short_low_value_max_words={self.filter_short_low_value_chunks_max_words}, "
+            f"max_passes={self.max_cleanup_passes}."
         )
         logger.debug(f"Leading words for cleanup: {self.leading_words_to_strip}")
         logger.debug(f"Trailing words for cleanup: {self.trailing_words_to_strip}")
@@ -428,43 +195,83 @@ class FinalChunkCleaner(TextChunker):
         logger.debug(
             f"Trailing punctuation for cleanup: '{self.trailing_punctuation_to_strip}'"
         )
+        logger.debug(
+            f"Low-value words for lang '{self.language}': {sorted(list(self.low_value_words))[:20]}..."
+        )
 
     def chunk(self, text_segments: List[str]) -> List[str]:
         """
         Process a list of text segments to clean up leading/trailing non-semantic elements.
+        Also filters out short segments consisting entirely of low semantic value words.
 
         Args:
             text_segments: List of input text segments to clean
 
         Returns:
-            List of cleaned text segments, with any segments that are too short after cleaning removed
+            List of cleaned text segments, with any segments that are too short after cleaning
+            or consist entirely of low semantic value words removed
         """
         cleaned_segments_accumulator: List[str] = []
-        for segment_str in text_segments:
-            if (
-                not segment_str or not segment_str.strip()
-            ):  # Skip if segment is already effectively empty
+        for segment_str_input in text_segments:
+            if not segment_str_input or not segment_str_input.strip():
                 logger.debug(
                     "FinalChunkCleaner: Skipping empty or whitespace-only input segment."
                 )
                 continue
 
-            cleaned_segment = self._clean_single_segment(segment_str)
+            # 1. Clean edges (leading/trailing punctuation and words)
+            edge_cleaned_segment = self._clean_single_segment(segment_str_input)
 
-            # Check final length in characters (after cleaning)
-            if len(cleaned_segment) >= self.min_cleaned_chunk_length_chars:
-                cleaned_segments_accumulator.append(cleaned_segment)
+            # 2. Basic filter: if empty or below min char length after edge cleaning, discard
+            if (
+                not edge_cleaned_segment
+                or len(edge_cleaned_segment) < self.min_cleaned_chunk_length_chars
+            ):
                 logger.debug(
-                    f"Original: '{segment_str}' -> Cleaned: '{cleaned_segment}' (Kept - {len(cleaned_segment)} chars)"
+                    f"Input: '{segment_str_input[:50]}...' -> Edge-Cleaned: '{edge_cleaned_segment}' "
+                    f"(Discarded - empty or below char threshold {self.min_cleaned_chunk_length_chars})"
+                )
+                continue
+
+            # 3. Tokenize for word count and low-value word check
+            # Always use the edge_cleaned_segment for tokenization
+            words_in_edge_cleaned_segment = [
+                word for word in self.tokenizer(edge_cleaned_segment.lower()) if word
+            ]
+            num_words = len(words_in_edge_cleaned_segment)
+
+            keep_segment = True
+            discard_reason = ""
+
+            # 4. Apply the short, low-value-word-only chunk filter
+            if (
+                num_words > 0
+                and num_words <= self.filter_short_low_value_chunks_max_words
+            ):
+                if self.low_value_words and all(
+                    word in self.low_value_words
+                    for word in words_in_edge_cleaned_segment
+                ):
+                    keep_segment = False
+                    discard_reason = (
+                        f"short ({num_words} words) and all words are low-value: "
+                        f"'{', '.join(words_in_edge_cleaned_segment)}'"
+                    )
+
+            if keep_segment:
+                # IMPORTANT: Append the segment with original casing, not the lowercased one
+                cleaned_segments_accumulator.append(edge_cleaned_segment)
+                logger.debug(
+                    f"Input: '{segment_str_input[:50]}...' -> Final: '{edge_cleaned_segment}' (Kept - words: {num_words})"
                 )
             else:
                 logger.debug(
-                    f"Original: '{segment_str}' -> Cleaned: '{cleaned_segment}' (Discarded - {len(cleaned_segment)} chars < {self.min_cleaned_chunk_length_chars} min chars)"
+                    f"Input: '{segment_str_input[:50]}...' -> Edge-Cleaned: '{edge_cleaned_segment}' (Discarded - {discard_reason})"
                 )
 
         logger.info(
             f"FinalChunkCleaner processed {len(text_segments)} input segments "
-            f"into {len(cleaned_segments_accumulator)} cleaned segments."
+            f"into {len(cleaned_segments_accumulator)} final segments."
         )
         return cleaned_segments_accumulator
 
@@ -769,6 +576,99 @@ class FineGrainedPunctuationChunker(TextChunker):
         return all_fine_grained_chunks
 
 
+class ConjunctionChunker(TextChunker):
+    """
+    Chunker that splits text segments at specified coordinating conjunctions.
+    The split occurs before the conjunction, and the conjunction becomes
+    part of the following chunk.
+    """
+
+    def __init__(self, language: str = "en", **kwargs):
+        super().__init__(language=language, **kwargs)
+
+        # Load user configuration
+        user_config_main = load_user_config()
+        language_resources_section = user_config_main.get("language_resources", {})
+
+        # Load coordinating conjunctions from resource files
+        coordinating_conjunctions = load_language_resource(
+            default_resource_filename="coordinating_conjunctions.json",
+            config_key_for_custom_file="coordinating_conjunctions_file",
+            language_resources_config_section=language_resources_section,
+        )
+
+        # Get conjunctions for the current language, defaulting to English
+        self.conjunctions = coordinating_conjunctions.get(
+            self.language.lower(), coordinating_conjunctions.get("en", [])
+        )
+        # Create a regex pattern for splitting.
+        # We want to split *before* the conjunction.
+        # The pattern should match space(s) + conjunction + space(s)
+        # We'll use a lookahead to include the conjunction in the next split.
+        if self.conjunctions:
+            # Escape conjunctions in case they contain regex special characters (unlikely for these)
+            escaped_conjunctions = [re.escape(c) for c in self.conjunctions]
+            # Pattern to split *before* " conjunction " (case-insensitive)
+            # Using word boundaries (\b) is important
+            self.split_pattern = re.compile(
+                r"\s+(?=(\b(?:" + "|".join(escaped_conjunctions) + r")\b\s+))",
+                re.IGNORECASE,
+            )
+            logger.info(
+                f"ConjunctionChunker for lang '{self.language}' initialized with conjunctions: {self.conjunctions}"
+            )
+        else:
+            self.split_pattern = None
+            logger.warning(
+                f"ConjunctionChunker for lang '{self.language}' has no conjunctions defined. Will act as a NoOp."
+            )
+
+    def chunk(self, text_segments: List[str]) -> List[str]:
+        """
+        Split text segments at coordinating conjunctions.
+
+        Args:
+            text_segments: List of text segments to split
+
+        Returns:
+            List of conjunction-split chunks
+        """
+        if not self.split_pattern:
+            return text_segments  # Act as NoOp if no conjunctions
+
+        all_conjunction_split_chunks = []
+        for segment_str in text_segments:
+            if not segment_str or not segment_str.strip():
+                logger.debug("ConjunctionChunker: Skipping empty segment.")
+                continue
+
+            # Perform the split. re.split with a capturing group in lookahead
+            # doesn't directly give what we want (keeping delimiter with next part).
+            # A simpler approach is to find all matches and reconstruct.
+
+            parts = []
+            last_end = 0
+            for match in self.split_pattern.finditer(segment_str):
+                start_of_split_point = (
+                    match.start()
+                )  # This is the space *before* the conjunction
+                # The part before the split point (and the conjunction)
+                parts.append(segment_str[last_end:start_of_split_point].strip())
+                last_end = start_of_split_point  # Next part starts from here (including the space and conjunction)
+
+            # Add the final part of the segment
+            parts.append(segment_str[last_end:].strip())
+
+            # Filter out any empty strings resulting from multiple spaces or edge cases
+            all_conjunction_split_chunks.extend([p for p in parts if p])
+
+        logger.debug(
+            f"ConjunctionChunker produced {len(all_conjunction_split_chunks)} chunks "
+            f"from {len(text_segments)} input segments."
+        )
+        return all_conjunction_split_chunks
+
+
 # Language-specific constants for negation-aware merging
 NEGATION_PREFIXES = {
     "en": ["no", "not", "non", "without", "zero"],
@@ -778,11 +678,56 @@ NEGATION_PREFIXES = {
     "nl": ["geen", "niet", "zonder", "nooit", "nee", "niks", "nergens"],
 }
 
+# Dictionary of coordinating conjunctions for supported languages
+# These are used by ConjunctionChunker to split text at conjunction points
+# All conjunctions must be lowercase
+COORDINATING_CONJUNCTIONS = {
+    "en": ["and", "or", "but"],
+    "de": ["und", "oder", "aber", "sondern"],
+    "fr": ["et", "ou", "mais"],
+    "es": ["y", "e", "o", "u", "pero"],  # 'e' before 'i'/'hi', 'u' before 'o'/'ho'
+    "nl": ["en", "of", "maar"],
+}
+
 # A small list of words that, if they are the `next_segment`, might prevent merging a negation prefix.
 # These should be words that don't typically form a tight semantic unit with a preceding standalone negation.
 AVOID_MERGE_AFTER_NEGATION_IF_NEXT_IS = {
-    "en": ["and", "or", "but", "so", "yet", "for", "nor", "is", "are", "was", "were"],
-    "de": ["und", "oder", "aber", "sondern", "denn", "als", "wenn", "ist", "sind"],
+    "en": [
+        "and",
+        "or",
+        "but",
+        "so",
+        "yet",
+        "for",
+        "nor",
+        "is",
+        "are",
+        "was",
+        "were",
+        "if",
+        "when",
+        "then",
+        "while",
+        "although",
+        "though",
+        "however",
+    ],
+    "de": [
+        "und",
+        "oder",
+        "aber",
+        "sondern",
+        "denn",
+        "als",
+        "wenn",
+        "ist",
+        "sind",
+        "falls",
+        "dann",
+        "während",
+        "obwohl",
+        "jedoch",
+    ],
     "fr": [
         "et",
         "ou",
@@ -796,6 +741,12 @@ AVOID_MERGE_AFTER_NEGATION_IF_NEXT_IS = {
         "étaient",
         "comme",
         "si",
+        "quand",
+        "alors",
+        "bien que",
+        "quoique",
+        "pendant",
+        "cependant",
     ],
     "es": [
         "y",
@@ -811,6 +762,11 @@ AVOID_MERGE_AFTER_NEGATION_IF_NEXT_IS = {
         "eran",
         "como",
         "si",
+        "cuando",
+        "entonces",
+        "mientras",
+        "aunque",
+        "sin embargo",
     ],
     "nl": [
         "en",
@@ -824,6 +780,11 @@ AVOID_MERGE_AFTER_NEGATION_IF_NEXT_IS = {
         "was",
         "waren",
         "als",
+        "wanneer",
+        "dan",
+        "terwijl",
+        "hoewel",
+        "echter",
     ],
 }
 
@@ -1079,10 +1040,36 @@ class SlidingWindowSemanticSplitter(TextChunker):
         if not segments or len(segments) < 2:
             return segments
 
+        # Load user configuration
+        user_config_main = load_user_config()
+        language_resources_section = user_config_main.get("language_resources", {})
+
         lang_key = self.language.lower()
-        current_neg_prefixes = NEGATION_PREFIXES.get(lang_key, NEGATION_PREFIXES["en"])
-        current_avoid_merge = AVOID_MERGE_AFTER_NEGATION_IF_NEXT_IS.get(
-            lang_key, AVOID_MERGE_AFTER_NEGATION_IF_NEXT_IS["en"]
+
+        # Load negation prefixes from resource files
+        negation_prefixes = load_language_resource(
+            default_resource_filename="negation_prefixes.json",
+            config_key_for_custom_file="negation_prefixes_file",
+            language_resources_config_section=language_resources_section,
+        )
+
+        # Create a clean set of negation prefixes by stripping whitespace
+        current_neg_standalone_prefixes = set(
+            prefix.strip()
+            for prefix in negation_prefixes.get(
+                lang_key, negation_prefixes.get("en", [])
+            )
+        )
+
+        # Load words to avoid merging after negation from resource files
+        avoid_merge_resources = load_language_resource(
+            default_resource_filename="avoid_merge_after_negation_if_next_is.json",
+            config_key_for_custom_file="avoid_merge_after_negation_file",
+            language_resources_config_section=language_resources_section,
+        )
+
+        current_avoid_merge_next_starts_with = avoid_merge_resources.get(
+            lang_key, avoid_merge_resources.get("en", [])
         )
 
         merged_segments: List[str] = []
@@ -1090,35 +1077,79 @@ class SlidingWindowSemanticSplitter(TextChunker):
 
         while i < len(segments):
             current_segment = segments[i]
-            current_segment_lower = current_segment.lower()
+            current_segment_lower_stripped = current_segment.lower().strip()
+
+            if (
+                not current_segment_lower_stripped
+            ):  # Handle empty string after potential splits
+                i += 1
+                continue
 
             # Check if current segment is a standalone negation prefix
             is_standalone_neg_prefix = (
-                current_segment_lower in current_neg_prefixes
-                and " " not in current_segment
+                current_segment_lower_stripped in current_neg_standalone_prefixes
+                and len(self.tokenizer(current_segment_lower_stripped)) == 1
             )
 
-            # If it's a negation prefix and there's a next segment
-            if is_standalone_neg_prefix and (i + 1) < len(segments):
+            # Check if segment ends with a negation word (and is not just the negation word itself)
+            ends_with_neg_word = False
+            neg_suffix_found_for_log = None
+            if not is_standalone_neg_prefix:
+                tokenized_current = self.tokenizer(current_segment_lower_stripped)
+                if (
+                    tokenized_current and len(tokenized_current) > 1
+                ):  # More than one word
+                    last_word = tokenized_current[-1]
+                    if last_word in current_neg_standalone_prefixes:
+                        ends_with_neg_word = True
+                        neg_suffix_found_for_log = last_word
+
+            # Determine if we should attempt to merge
+            attempt_merge = is_standalone_neg_prefix or ends_with_neg_word
+
+            if attempt_merge and (i + 1) < len(segments):
                 next_segment = segments[i + 1]
-                next_segment_lower = next_segment.lower().strip()
-                next_first_word = (
-                    next_segment_lower.split()[0] if next_segment_lower else ""
+                next_segment_lower_stripped = next_segment.lower().strip()
+
+                if (
+                    not next_segment_lower_stripped
+                ):  # Next segment is empty, don't merge
+                    attempt_merge = False
+                else:
+                    tokenized_next = self.tokenizer(next_segment_lower_stripped)
+                    next_first_word = tokenized_next[0] if tokenized_next else ""
+
+                    # Don't merge if next segment starts with a word to avoid
+                    if next_first_word in current_avoid_merge_next_starts_with:
+                        attempt_merge = False
+
+                    # Additional heuristic for ends_with_neg_word case to prevent over-merging
+                    if (
+                        ends_with_neg_word and len(tokenized_next) > 5
+                    ):  # Tunable parameter: max 5 words
+                        logger.debug(
+                            f"Segment '{current_segment}' ends with negation '{neg_suffix_found_for_log}', "
+                            f"but next segment '{next_segment[:30]}...' (len {len(tokenized_next)}) is long. No merge."
+                        )
+                        attempt_merge = False
+
+            if attempt_merge and (i + 1) < len(segments):
+                merged_text = (
+                    current_segment.rstrip() + " " + segments[i + 1].lstrip()
+                ).strip()
+                merged_segments.append(merged_text)
+                log_reason = (
+                    "standalone prefix"
+                    if is_standalone_neg_prefix
+                    else f"suffix '{neg_suffix_found_for_log}'"
                 )
-
-                # Only merge if next segment doesn't start with a connector word
-                if next_first_word and next_first_word not in current_avoid_merge:
-                    merged = f"{current_segment} {next_segment}".strip()
-                    merged_segments.append(merged)
-                    logger.debug(
-                        f"Merged negation pattern: '{current_segment}' + '{next_segment}' -> '{merged}'"
-                    )
-                    i += 2  # Skip next segment as it's been merged
-                    continue
-
-            # No merge occurred, add current segment as is
-            merged_segments.append(current_segment)
-            i += 1
+                logger.debug(
+                    f"Merged negation pattern ({log_reason}): '{current_segment}' + '{segments[i+1]}' -> '{merged_text}'"
+                )
+                i += 2
+            else:
+                merged_segments.append(current_segment)
+                i += 1
 
         logger.debug(
             f"After negation merging: {len(segments)} -> {len(merged_segments)} segments"

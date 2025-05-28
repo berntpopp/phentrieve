@@ -2,6 +2,11 @@
   "common": {
     "auto": "Auto-detect"
   },
+  "models": {
+    "biolord": "BioLORD 2023-M",
+    "jinaGerman": "Jina German v2",
+    "distiluse": "DistilUSE Multilingual"
+  },
   "app": {
     "footer": {
       "disclaimer": "Disclaimer",
@@ -80,7 +85,8 @@
       "assertionToggle": "Toggle Assertion Status",
       "assertionStatus": "Assertion Status",
       "affirmed": "Affirmed",
-      "negated": "Negated"
+      "negated": "Negated",
+      "unknown": "Unknown"
     },
     "advancedOptions": {
       "title": "Advanced Options",
@@ -88,7 +94,27 @@
       "similarityThreshold": "Similarity Threshold",
       "enableReranking": "Enable Re-ranking",
       "rerankerMode": "Re-ranker Mode",
-      "language": "Language"
+      "language": "Language",
+      "processingModeTitle": "Processing Mode",
+      "processingModeLabel": "Processing Mode",
+      "modeAutomatic": "Automatic (by text length)",
+      "modeQuery": "Query Mode (short text)",
+      "modeTextProcess": "Text Processing Mode (document)",
+      "textProcessingTitle": "Text Processing Settings",
+      "chunkingStrategy": "Chunking Strategy",
+      "windowSize": "Window Size (tokens)",
+      "stepSize": "Step Size",
+      "chunkThreshold": "Chunk Retrieval Threshold",
+      "aggConfidence": "Aggregated Term Confidence",
+      "detectAssertions": "Detect Assertions",
+      "splitThreshold": "Split Threshold",
+      "minSegmentLength": "Min Segment Length",
+      "numResultsPerChunk": "Results Per Chunk",
+      "topTermPerChunk": "Keep only top HPO term per chunk",
+      "strategies": {
+        "sliding_window_punct_cleaned": "Sliding Window + Punctuation + Cleaner",
+        "sliding_window_punct_conj_cleaned": "Sliding Window + Punctuation + Conjunctions + Cleaner"
+      }
     },
     "tooltips": {
       "advancedOptions": "Configure advanced search settings",
@@ -108,33 +134,48 @@
     "termCountLabel": "{count} terms found",
     "noResultsMessage": "No HPO terms identified. Try a different text or check your input.",
     "termIdHeader": "HPO ID",
-    "termLabelHeader": "Label",
-    "termDefinitionHeader": "Definition",
+    "termNameHeader": "Term Name",
+    "similarityLabel": "Similarity",
+    "addToCollection": "Add to Collection",
     "modelLabel": "Model",
     "rerankerLabel": "Reranker",
     "languageLabel": "Language",
     "assertionLabel": "Assertion",
-    "negated": "Negated",
+    "noTermsFound": "No matching HPO terms found for your query. Try a different search or adjust the similarity threshold.",
     "affirmed": "Affirmed",
-    "similarityLabel": "Similarity",
-    "rerankerScoreLabel": "Re-ranked",
-    "rankChangeLabel": "Rank",
-    "addToCollectionTooltip": "Add {id} to collection",
-    "addToCollectionAriaLabel": "Add {id}: {label} to collection",
-    "alreadyInCollectionTooltip": "{id} already in collection",
-    "alreadyInCollectionAriaLabel": "{id}: {label} already in collection",
-    "originalRank": "Original rank",
-    "noTermsFound": "No HPO terms could be identified in the provided text. Please try a different search or check your input.",
-    "defaultError": "An error occurred while processing your request. Please try again.",
-    "logsDialogTitle": "Application Logs",
-    "closeButton": "Close",
-    "emptyLogsMessage": "No logs to display",
-    "searchPlaceholder": "Search logs",
-    "logLevels": "Log Levels",
-    "timestamp": "Timestamp",
-    "level": "Level",
-    "message": "Message",
-    "details": "Details"
+    "negated": "Negated",
+    "unknown": "Unknown",
+    "addToCollectionTooltip": "Add HPO term {id} to your collection",
+    "alreadyInCollectionTooltip": "HPO term {id} is already in your collection",
+    "confidenceScoreTooltip": "Confidence score: {score}",
+    "sourceChunksTooltip": "Found in {count} text chunks",
+    "maxScoreTooltip": "Highest confidence: {score}",
+    "topEvidenceTooltip": "Best evidence in chunk #{id}",
+    "textProcess": {
+      "title": "Processed Text Analysis",
+      "chunksTitle": "Processed Chunks & Per-Chunk HPO Terms",
+      "aggregatedTitle": "Aggregated Document Phenotypes",
+      "chunksLabel": "Chunks",
+      "strategyLabel": "Strategy",
+      "chunkLabel": "Chunk",
+      "chunkHPOTerms": "HPO Terms Identified in this Chunk:",
+      "noChunkHPOTerms": "No HPO terms were identified for this chunk.",
+      "hpoInChunkTitle": "HPO Terms found in this Chunk:",
+      "noChunkHPOTermsMatched": "No HPO terms met the retrieval threshold for this specific chunk.",
+      "avgConfidenceTooltip": "Average confidence score from all evidence chunks",
+      "maxScoreTooltip": "Max Score from one Chunk",
+      "evidenceFromChunksShort": "Chunks:",
+      "hitsText": "hits",
+      "evidenceCountTooltip": "Number of chunks providing evidence",
+      "evidenceTooltip": "Source chunks. Click to see top evidence chunk.",
+      "confidenceTooltip": "Average confidence score from all evidence chunks",
+      "sourceChunks": "Source chunks",
+      "topEvidence": "Top evidence",
+      "noChunksProcessed": "No text chunks were processed.",
+      "noAggregatedTerms": "No aggregated HPO terms found.",
+      "assertionDetail": "Assertion Method:",
+      "finalStatus": "Final Status:"
+    }
   },
   "errors": {
     "api": {
