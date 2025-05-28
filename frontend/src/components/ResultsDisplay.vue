@@ -200,11 +200,11 @@
 
       <!-- Processed Chunks Section -->
       <h3 class="text-h6 my-4">{{ $t('resultsDisplay.textProcess.chunksTitle', 'Processed Chunks & Per-Chunk HPO Terms') }}</h3>
-      <v-expansion-panels v-if="responseData.processed_chunks && responseData.processed_chunks.length > 0">
+      <v-expansion-panels v-if="responseData.processed_chunks && responseData.processed_chunks.length > 0" v-model="openChunkPanels">
         <v-expansion-panel 
           v-for="chunk in responseData.processed_chunks" 
           :key="chunk.chunk_id"
-          :ref="el => { if (el) chunkPanelsRef[chunk.chunk_id] = el }"
+          :ref="el => { if (el) chunkPanelRefs[chunk.chunk_id] = el }"
         >
           <v-expansion-panel-title>
             <div class="d-flex align-center">
@@ -218,52 +218,46 @@
             </div>
           </v-expansion-panel-title>
           <v-expansion-panel-text>
-            <p class="font-italic mb-2" :id="`chunk-text-${chunk.chunk_id}`">
-              <template v-if="highlightedAttributions.length > 0">
-                <span 
-                  v-for="(segment, segmentIndex) in getHighlightedChunkSegments(chunk)" 
-                  :key="segmentIndex" 
-                  :class="{ 'highlighted-text-span': segment.isHighlighted }"
-                >{{ segment.text }}</span>
-              </template>
-              <template v-else>
-                "{{ chunk.text }}"
-              </template>
+            <p class="font-italic mb-2 chunk-text-displayable" :ref="`chunk-text-${chunk.chunk_id}`" :id="`chunk-text-${chunk.chunk_id}`">
+              <span v-for="(segment, segIdx) in getHighlightedChunkSegments(chunk)"
+                    :key="segIdx"
+                    :class="{ 'highlighted-text-span': segment.isHighlighted }">
+                  {{ segment.text }}
+              </span>
             </p>
             <div v-if="chunk.assertion_details && chunk.assertion_details.final_status">
               <small>({{ $t('resultsDisplay.textProcess.assertionDetail', 'Assertion Method:') }} {{ chunk.assertion_details.combination_strategy }}, {{ $t('resultsDisplay.textProcess.finalStatus', 'Final Status:') }} {{ chunk.assertion_details.final_status }})</small>
             </div>
             
             <!-- Per-chunk HPO terms display -->
-            <div v-if="chunk.hpo_matches && chunk.hpo_matches.length > 0" class="mt-2">
-              <v-divider class="my-2"></v-divider>
-              <div class="text-caption font-weight-medium mb-1">{{ $t('resultsDisplay.textProcess.chunkHPOTerms', 'HPO Terms Identified in this Chunk:') }}</div>
-              <v-chip-group>
-                <v-chip
-                  v-for="match in chunk.hpo_matches"
-                  :key="match.hpo_id"
-                  size="small"
-                  color="primary"
-                  variant="outlined"
-                  class="mr-1 mb-1"
-                  :prepend-icon="'mdi-tag'"
-                  :title="`${match.name} (Score: ${match.score.toFixed(2)})`"
+            <div v-if="chunk.hpo_matches && chunk.hpo_matches.length > 0" class="mt-3 per-chunk-matches">
+              <h4 class="text-subtitle-2 mb-1">{{ $t('resultsDisplay.textProcess.hpoInChunkTitle', 'HPO Terms found in this Chunk:') }}</h4>
+              <v-list density="compact" class="pa-0" style="background-color: transparent;"> <!-- Use transparent background for list -->
+                <v-list-item 
+                  v-for="(match, matchIndex) in chunk.hpo_matches" 
+                  :key="`chunk-${chunk.chunk_id}-match-${matchIndex}`"
+                  class="mb-1 pa-1"
+                  variant="tonal" 
+                  density="compact"
+                  rounded="sm"
+                  color="blue-grey-lighten-5" 
                 >
-                  <a 
-                    :href="`https://hpo.jax.org/browse/term/${match.hpo_id}`" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    class="hpo-link"
-                    style="color: inherit;"
-                  >
-                    {{ match.hpo_id }}
-                  </a>
-                  <span class="ms-1">({{ match.score.toFixed(2) }})</span>
-                </v-chip>
-              </v-chip-group>
+                  <div class="d-flex justify-space-between align-center w-100"> <!-- Use w-100 for full width -->
+                    <div class="text-caption">
+                      <a :href="`https://hpo.jax.org/browse/term/${match.hpo_id}`" target="_blank" rel="noopener noreferrer" class="hpo-link">
+                        <strong class="mr-1">{{ match.hpo_id }}</strong>{{ match.name }}
+                        <v-icon size="x-small" class="ml-1" color="primary">mdi-open-in-new</v-icon>
+                      </a>
+                    </div>
+                    <v-chip size="x-small" color="blue-grey" variant="flat" label class="ml-2">
+                      {{ $t('resultsDisplay.similarityLabel', 'Score') }}: {{ (match.score * 100).toFixed(1) }}%
+                    </v-chip>
+                  </div>
+                </v-list-item>
+              </v-list>
             </div>
             <div v-else class="text-caption text-medium-emphasis mt-2">
-              {{ $t('resultsDisplay.textProcess.noChunkHPOTerms', 'No HPO terms were identified for this chunk.') }}
+              {{ $t('resultsDisplay.textProcess.noChunkHPOTermsMatched', 'No HPO terms met the retrieval threshold for this specific chunk.') }}
             </div>
           </v-expansion-panel-text>
         </v-expansion-panel>
@@ -278,128 +272,78 @@
               lines="two" class="rounded-lg mt-2">
         <v-list-item
           v-for="(term, index) in responseData.aggregated_hpo_terms"
-          :key="'agg-' + index"
-          class="mb-1 rounded-lg"
-          :color="isAlreadyCollected(term.hpo_id) ? 'primary-lighten-5' : 'grey-lighten-5'"
+          :key="'agg-' + term.hpo_id + '-' + index"
+          class="mb-2 pa-3 rounded-lg custom-hpo-card"
+          :color="isAlreadyCollected(term.hpo_id) ? 'blue-grey-lighten-5' : 'white'"
+          elevation="1"
           border
-          density="compact"
+          @mouseenter="updateHighlightedAttributions(term.text_attributions || [])"
+          @mouseleave="clearHighlightedAttributions"
         >
-          <template v-slot:prepend>
-            <v-badge
-              :content="index + 1"
-              color="primary"
-              inline
-              class="mr-2"
-            ></v-badge>
-          </template>
-          
-          <v-list-item-title class="pb-2">
-            <div class="d-flex flex-wrap align-center">
-              <!-- HPO ID and Label on the left -->
+          <div class="d-flex flex-column">
+            <!-- Top Row: ID, Name, Assertion Status -->
+            <div class="d-flex align-start mb-1">
               <div class="flex-grow-1">
-                <div class="d-flex align-center mb-1">
-                  <a 
-                    :href="`https://hpo.jax.org/browse/term/${term.hpo_id}`" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    class="hpo-link"
-                    :title="`View ${term.hpo_id} in HPO Browser`"
-                  >
-                    <span class="hpo-id font-weight-bold">{{ term.hpo_id }}</span>
-                    <v-icon size="x-small" class="ml-1">mdi-open-in-new</v-icon>
-                  </a>
-                </div>
-                <div class="hpo-label mt-1">{{ term.name || term.label }}</div>
-                
-                <!-- Source chunks -->                
-                <div v-if="term.source_chunk_ids && term.source_chunk_ids.length > 0" class="text-caption mt-1">
-                  <span class="text-secondary">{{ $t('resultsDisplay.textProcess.sourceChunks', 'Source chunks') }}:</span>
-                  <v-chip-group class="d-inline-flex">
-                    <v-chip
-                      v-for="chunkId in term.source_chunk_ids"
-                      :key="chunkId"
-                      size="x-small"
-                      color="secondary"
-                      variant="outlined"
-                      class="mr-1"
-                      @click="scrollToChunk(chunkId)"
-                      style="cursor: pointer;"
-                    >
-                      #{{ chunkId }}
-                    </v-chip>
-                  </v-chip-group>
-                  <span v-if="term.top_evidence_chunk_id" class="ml-2">
-                    <span class="text-secondary">{{ $t('resultsDisplay.textProcess.topEvidence', 'Top evidence') }}:</span>
-                    <v-chip
-                      size="x-small"
-                      color="primary"
-                      variant="outlined"
-                      class="ml-1"
-                      @click="scrollToChunk(term.top_evidence_chunk_id)"
-                      style="cursor: pointer;"
-                    >
-                      #{{ term.top_evidence_chunk_id }}
-                    </v-chip>
-                  </span>
-                </div>
+                <a :href="`https://hpo.jax.org/browse/term/${term.hpo_id}`" target="_blank" rel="noopener noreferrer" class="hpo-link">
+                  <span class="hpo-id font-weight-bold text-primary text-body-1">{{ term.hpo_id }}</span>
+                  <v-icon size="x-small" class="ml-1" color="primary">mdi-open-in-new</v-icon>
+                </a>
+              </div>
+              <v-chip 
+                v-if="term.status && term.status !== 'unknown'"
+                size="small" 
+                :color="getAssertionColor(term.status)" 
+                class="text-uppercase ml-2"
+                label
+                variant="flat"
+                density="comfortable"
+              >
+                {{ $t(`queryInterface.phenotypeCollection.assertionStatus.${term.status}`, term.status) }}
+              </v-chip>
+            </div>
+            
+            <!-- Middle Row: HPO Label -->
+            <div class="text-body-1 text-high-emphasis hpo-label mb-2">{{ term.name || term.label }}</div>
+
+            <!-- Bottom Row: Scores, Evidence Details, Add Button -->
+            <div class="d-flex align-center justify-space-between flex-wrap">
+              <div class="d-flex align-center flex-wrap ga-1"> <!-- ga-1 for gap -->
+                <v-chip color="primary" size="small" label variant="elevated">
+                  <v-icon size="small" start>mdi-chart-line-variant</v-icon>
+                  {{ (term.confidence * 100).toFixed(1) }}%
+                   <v-tooltip activator="parent" location="top">{{ $t('resultsDisplay.textProcess.avgConfidenceTooltip', 'Avg. Confidence') }}</v-tooltip>
+                </v-chip>
+                <v-chip v-if="term.max_score_from_evidence && term.max_score_from_evidence.toFixed(2) !== term.confidence.toFixed(2)" 
+                        color="blue-grey-lighten-2" size="small" label variant="tonal">
+                    <v-icon size="small" start>mdi-arrow-up-bold-hexagon-outline</v-icon>
+                    Max: {{ (term.max_score_from_evidence * 100).toFixed(1) }}%
+                    <v-tooltip activator="parent" location="top">{{ $t('resultsDisplay.textProcess.maxScoreTooltip', 'Max Score from one Chunk') }}</v-tooltip>
+                </v-chip>
+                <v-chip v-if="term.source_chunk_ids && term.source_chunk_ids.length" 
+                        size="small" label variant="tonal" @click="scrollToChunk(term.top_evidence_chunk_id || term.source_chunk_ids[0])" style="cursor: pointer;">
+                  <v-icon start size="small">mdi-text-box-search-outline</v-icon>
+                  {{ $t('resultsDisplay.textProcess.evidenceFromChunksShort', 'Chunks:') }} #{{ term.source_chunk_ids.join(', #') }}
+                  <v-tooltip activator="parent" location="top">{{ $t('resultsDisplay.textProcess.evidenceTooltip', 'Source chunks. Click to see top evidence chunk.') }}</v-tooltip>
+                </v-chip>
+                <v-chip v-if="term.source_chunk_ids && term.source_chunk_ids.length > 0" size="small" label variant="tonal">
+                    <v-icon start size="small">mdi-pound</v-icon>
+                    {{ term.source_chunk_ids.length }} {{ $t('resultsDisplay.textProcess.hitsText', 'hits') }}
+                    <v-tooltip activator="parent" location="top">{{ $t('resultsDisplay.textProcess.evidenceCountTooltip', 'Number of chunks providing evidence') }}</v-tooltip>
+                </v-chip>
               </div>
               
-              <!-- Score chips and Add button on the right -->
-              <div class="d-flex align-center ml-auto">
-                <div class="d-flex flex-row align-center gap-1 mr-2 score-chips-container">
-                  <!-- Confidence score (average) -->
-                  <v-chip
-                    class="score-chip"
-                    color="primary"
-                    size="x-small"
-                    variant="flat"
-                    :title="$t('resultsDisplay.textProcess.confidenceTooltip', 'Average confidence score from all evidence chunks')"
-                  >
-                    <v-icon size="x-small" start>mdi-numeric</v-icon>
-                    {{ (term.confidence * 100).toFixed(0) }}%
-                  </v-chip>
-                  
-                  <!-- Assertion status -->
-                  <v-chip
-                    class="score-chip"
-                    :color="getAssertionColor(term.status)"
-                    size="x-small"
-                    variant="flat"
-                  >
-                    <v-icon size="x-small" start>
-                      {{ term.status === 'negated' ? 'mdi-block-helper' : 'mdi-check-circle' }}
-                    </v-icon>
-                    {{ term.status || 'unknown' }}
-                  </v-chip>
-                  
-                  <!-- Evidence count -->
-                  <v-chip
-                    v-if="term.evidence_count > 1"
-                    class="score-chip"
-                    color="secondary"
-                    size="x-small"
-                    variant="flat"
-                    :title="$t('resultsDisplay.textProcess.evidenceCountTooltip', 'Number of chunks providing evidence for this term')"
-                  >
-                    <v-icon size="x-small" start>mdi-file-multiple</v-icon>
-                    {{ term.evidence_count }}
-                  </v-chip>
-                </div>
-                
-                <v-btn
-                  :icon="isAlreadyCollected(term.hpo_id) ? 'mdi-check-circle' : 'mdi-plus-circle'"
-                  size="small"
-                  :color="isAlreadyCollected(term.hpo_id) ? 'success' : 'primary'"
-                  variant="text"
-                  class="add-btn"
-                  density="comfortable"
-                  @click="addToCollection({hpo_id: term.hpo_id, label: term.name || term.label}, term.status || 'affirmed')"
-                  :disabled="isAlreadyCollected(term.hpo_id)"
-                  :aria-label="isAlreadyCollected(term.hpo_id) ? 'Already added to collection' : 'Add to collection'"
-                ></v-btn>
-              </div>
+              <v-btn
+                :icon="isAlreadyCollected(term.hpo_id) ? 'mdi-check-circle' : 'mdi-plus-circle'"
+                size="small"
+                :color="isAlreadyCollected(term.hpo_id) ? 'success' : 'primary'"
+                variant="text"
+                class="flex-shrink-0 add-btn"
+                @click.stop="addToCollection({hpo_id: term.hpo_id, label: term.name || term.label, assertion_status: term.status || 'affirmed'})" 
+                :disabled="isAlreadyCollected(term.hpo_id)"
+                :title="isAlreadyCollected(term.hpo_id) ? $t('resultsDisplay.alreadyInCollectionTooltip', { id: term.hpo_id }) : $t('resultsDisplay.addToCollectionTooltip', { id: term.hpo_id })"
+              ></v-btn>
             </div>
-          </v-list-item-title>
+          </div>
         </v-list-item>
       </v-list>
       <v-alert v-else type="info" class="mb-4">
@@ -439,7 +383,8 @@ export default {
   data() {
     return {
       highlightedAttributions: [],
-      chunkPanelsRef: {}
+      chunkPanelRefs: {},
+      openChunkPanels: []
     }
   },
   props: {
@@ -477,6 +422,19 @@ export default {
   },
   emits: ['add-to-collection'],
   methods: {
+    updateHighlightedAttributions(attributions) {
+      this.highlightedAttributions = attributions.map(attr => ({
+        chunkId: attr.chunk_id, // Assumes API sends 1-based chunk_id
+        start: attr.start_char,
+        end: attr.end_char,
+        text: attr.matched_text_in_chunk
+      }));
+    },
+    
+    clearHighlightedAttributions() {
+      this.highlightedAttributions = [];
+    },
+    
     highlightAttributions(term) {
       if (term.text_attributions && term.text_attributions.length > 0) {
         // Format attributions for easier use in the component
@@ -539,25 +497,41 @@ export default {
     },
     
     scrollToChunk(chunkId) {
-      // Get the expansion panel element
-      const panel = this.chunkPanelsRef[chunkId];
-      if (panel) {
+      if (!chunkId) return;
+      
+      // Handle array of chunk IDs - use the first one
+      if (Array.isArray(chunkId)) {
+        chunkId = chunkId[0];
+      }
+      
+      logService.debug(`Attempting to scroll to and open chunk ID: ${chunkId}`);
+      
+      const panelComponent = this.chunkPanelRefs[chunkId];
+      if (panelComponent && panelComponent.$el) {
+        panelComponent.$el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
         // Open the panel if closed
-        panel.expand();
+        const panelValueToOpen = chunkId - 1; // Assuming panel value is its 0-based index
+        if (this.openChunkPanels === undefined) this.openChunkPanels = []; // Initialize if not array
+        if (!Array.isArray(this.openChunkPanels)) this.openChunkPanels = [this.openChunkPanels]; // Ensure array for multiple
         
-        // Scroll to the panel
+        if (!this.openChunkPanels.includes(panelValueToOpen)) {
+           // If multiple panels can be open:
+           this.openChunkPanels.push(panelValueToOpen);
+        }
+
+        // Flash highlight effect
         setTimeout(() => {
-          const element = document.getElementById(`chunk-text-${chunkId}`);
-          if (element) {
-            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            
-            // Add a temporary highlight effect
-            element.classList.add('flash-highlight');
+          const textDisplayEl = this.$refs[`chunk-text-${chunkId}`];
+          if (textDisplayEl && textDisplayEl[0]) {
+            textDisplayEl[0].classList.add('flash-highlight');
             setTimeout(() => {
-              element.classList.remove('flash-highlight');
+              if (textDisplayEl && textDisplayEl[0]) textDisplayEl[0].classList.remove('flash-highlight');
             }, 1500);
           }
-        }, 300); // Wait for expansion animation
+        }, 300); // Small delay to allow panel to open
+      } else {
+        logService.warn(`Panel ref for chunk ID ${chunkId} not found.`);
       }
     },
     
@@ -688,13 +662,28 @@ export default {
 }
 
 .flash-highlight {
-  animation: flash-animation 1.5s;
+  animation: flashHighlightAnimation 0.75s 2 ease-in-out;
 }
 
-@keyframes flash-animation {
+@keyframes flashHighlightAnimation {
   0%, 100% { background-color: transparent; }
-  25% { background-color: rgba(255, 235, 59, 0.5); }
-  75% { background-color: rgba(255, 235, 59, 0.5); }
+  50% { background-color: rgba(var(--v-theme-primary), 0.15); }
+}
+
+.highlighted-text-span {
+  background-color: rgba(255, 236, 179, 0.8); /* Vuetify yellow lighten-3 with opacity */
+  border-radius: 3px;
+  padding: 0.5px 2px;
+  box-shadow: 0 0 3px rgba(255,210,50,0.5);
+}
+
+.custom-hpo-card {
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.custom-hpo-card:hover {
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important;
+  transform: translateY(-1px);
 }
 
 /* On small screens */
