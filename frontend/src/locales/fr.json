@@ -82,10 +82,11 @@
       "exportPhenopacket": "Exporter en Phenopacket (JSON)",
       "exportText": "Exporter en texte",
       "clear": "Effacer la collection",
-      "assertionToggle": "Basculer le statut d'assertion",
-      "assertionStatus": "Statut d'assertion",
+      "assertionToggle": "Basculer le statut d'affirmation",
+      "assertionStatus": "Statut d'affirmation",
       "affirmed": "Affirmé",
-      "negated": "Nié"
+      "negated": "Nié",
+      "unknown": "Inconnu"
     },
     "advancedOptions": {
       "title": "Options avancées",
@@ -150,8 +151,37 @@
     "defaultError": "Une erreur s'est produite lors du traitement de votre requête.",
     "addToCollectionTooltip": "Ajouter {id} à la collection",
     "alreadyInCollectionTooltip": "{id} déjà dans la collection",
+    "confidenceScoreTooltip": "Score de confiance: {score}",
+    "sourceChunksTooltip": "Trouvé dans {count} fragments de texte",
+    "maxScoreTooltip": "Confiance maximale: {score}",
+    "topEvidenceTooltip": "Meilleure preuve dans le fragment #{id}",
     "addToCollectionAriaLabel": "Ajouter {label} ({id}) à la collection",
-    "alreadyInCollectionAriaLabel": "Le terme HPO {id} ({label}) est dans la collection"
+    "alreadyInCollectionAriaLabel": "Le terme HPO {id} ({label}) est dans la collection",
+    "textProcess": {
+      "title": "Analyse de Texte Traité",
+      "chunksTitle": "Fragments Traités & Termes HPO par Fragment",
+      "aggregatedTitle": "Phénotypes Agrégés du Document",
+      "chunksLabel": "Fragments",
+      "strategyLabel": "Stratégie",
+      "chunkLabel": "Fragment",
+      "chunkHPOTerms": "Termes HPO identifiés dans ce fragment:",
+      "noChunkHPOTerms": "Aucun terme HPO n'a été identifié pour ce fragment.",
+      "hpoInChunkTitle": "Termes HPO trouvés dans ce fragment:",
+      "noChunkHPOTermsMatched": "Aucun terme HPO n'a atteint le seuil de récupération pour ce fragment spécifique.",
+      "avgConfidenceTooltip": "Score de confiance moyen de tous les fragments de preuve",
+      "maxScoreTooltip": "Score maximum d'un fragment",
+      "evidenceFromChunksShort": "Fragments:",
+      "hitsText": "résultats",
+      "evidenceCountTooltip": "Nombre de fragments fournissant des preuves",
+      "evidenceTooltip": "Fragments sources. Cliquez pour voir le meilleur fragment de preuve.",
+      "confidenceTooltip": "Score de confiance moyen de tous les fragments de preuve",
+      "sourceChunks": "Fragments sources",
+      "topEvidence": "Meilleure preuve",
+      "noChunksProcessed": "Aucun fragment de texte n'a été traité.",
+      "noAggregatedTerms": "Aucun terme HPO agrégé trouvé.",
+      "assertionDetail": "Méthode d'assertion:",
+      "finalStatus": "Statut final:"
+    }
   },
   "logViewer": {
     "title": "Journaux d'Application",

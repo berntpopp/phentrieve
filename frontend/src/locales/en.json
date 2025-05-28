@@ -85,7 +85,8 @@
       "assertionToggle": "Toggle Assertion Status",
       "assertionStatus": "Assertion Status",
       "affirmed": "Affirmed",
-      "negated": "Negated"
+      "negated": "Negated",
+      "unknown": "Unknown"
     },
     "advancedOptions": {
       "title": "Advanced Options",
@@ -143,8 +144,13 @@
     "noTermsFound": "No matching HPO terms found for your query. Try a different search or adjust the similarity threshold.",
     "affirmed": "Affirmed",
     "negated": "Negated",
+    "unknown": "Unknown",
     "addToCollectionTooltip": "Add HPO term {id} to your collection",
     "alreadyInCollectionTooltip": "HPO term {id} is already in your collection",
+    "confidenceScoreTooltip": "Confidence score: {score}",
+    "sourceChunksTooltip": "Found in {count} text chunks",
+    "maxScoreTooltip": "Highest confidence: {score}",
+    "topEvidenceTooltip": "Best evidence in chunk #{id}",
     "textProcess": {
       "title": "Processed Text Analysis",
       "chunksTitle": "Processed Chunks & Per-Chunk HPO Terms",
