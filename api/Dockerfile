@@ -44,6 +44,8 @@ RUN pip install --no-cache-dir Cython==0.29.36
 # Install Spacy after numpy is correctly installed
 RUN pip install --no-cache-dir spacy==3.5.4
 RUN pip install --no-cache-dir https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.5.0/en_core_web_sm-3.5.0-py3-none-any.whl
+# Install German spaCy model
+RUN pip install --no-cache-dir https://github.com/explosion/spacy-models/releases/download/de_core_news_sm-3.5.0/de_core_news_sm-3.5.0-py3-none-any.whl
 
 # Now install the rest of the dependencies
 RUN pip install --no-cache-dir .[all]

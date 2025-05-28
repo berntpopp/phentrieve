@@ -253,7 +253,13 @@ async def process_text_extract_hpo(request: TextProcessingRequest):
         assertion_cfg = dict(DEFAULT_ASSERTION_CONFIG)
         assertion_cfg["disable"] = request.no_assertion_detection
         assertion_cfg["preference"] = request.assertion_preference
-
+        
+        # Important: We need to ensure the language is explicitly set in assertion_cfg
+        # This matches how the CLI explicitly passes language to the pipeline
+        assertion_cfg["language"] = actual_language
+        
+        logger.info(f"API: Using assertion configuration: {assertion_cfg}")
+        
         text_pipeline = TextProcessingPipeline(
             language=actual_language,
             chunking_pipeline_config=chunking_pipeline_cfg,
