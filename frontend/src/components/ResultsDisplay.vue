@@ -201,7 +201,11 @@
       <!-- Processed Chunks Section -->
       <h3 class="text-h6 my-4">{{ $t('resultsDisplay.textProcess.chunksTitle', 'Processed Chunks & Per-Chunk HPO Terms') }}</h3>
       <v-expansion-panels v-if="responseData.processed_chunks && responseData.processed_chunks.length > 0">
-        <v-expansion-panel v-for="chunk in responseData.processed_chunks" :key="chunk.chunk_id">
+        <v-expansion-panel 
+          v-for="chunk in responseData.processed_chunks" 
+          :key="chunk.chunk_id"
+          :ref="el => { if (el) chunkPanelsRef[chunk.chunk_id] = el }"
+        >
           <v-expansion-panel-title>
             <div class="d-flex align-center">
               <span class="text-truncate">{{ $t('resultsDisplay.textProcess.chunkLabel', 'Chunk') }} {{ chunk.chunk_id }}: {{ chunk.text.substring(0, 50) }}...</span>
@@ -214,13 +218,51 @@
             </div>
           </v-expansion-panel-title>
           <v-expansion-panel-text>
-            <p class="font-italic mb-2">"{{ chunk.text }}"</p>
+            <p class="font-italic mb-2" :id="`chunk-text-${chunk.chunk_id}`">
+              <template v-if="highlightedAttributions.length > 0">
+                <span 
+                  v-for="(segment, segmentIndex) in getHighlightedChunkSegments(chunk)" 
+                  :key="segmentIndex" 
+                  :class="{ 'highlighted-text-span': segment.isHighlighted }"
+                >{{ segment.text }}</span>
+              </template>
+              <template v-else>
+                "{{ chunk.text }}"
+              </template>
+            </p>
             <div v-if="chunk.assertion_details && chunk.assertion_details.final_status">
               <small>({{ $t('resultsDisplay.textProcess.assertionDetail', 'Assertion Method:') }} {{ chunk.assertion_details.combination_strategy }}, {{ $t('resultsDisplay.textProcess.finalStatus', 'Final Status:') }} {{ chunk.assertion_details.final_status }})</small>
             </div>
             
-            <!-- Note: The current API response doesn't include per-chunk HPO terms -->
-            <div class="text-caption text-medium-emphasis mt-2">
+            <!-- Per-chunk HPO terms display -->
+            <div v-if="chunk.hpo_matches && chunk.hpo_matches.length > 0" class="mt-2">
+              <v-divider class="my-2"></v-divider>
+              <div class="text-caption font-weight-medium mb-1">{{ $t('resultsDisplay.textProcess.chunkHPOTerms', 'HPO Terms Identified in this Chunk:') }}</div>
+              <v-chip-group>
+                <v-chip
+                  v-for="match in chunk.hpo_matches"
+                  :key="match.hpo_id"
+                  size="small"
+                  color="primary"
+                  variant="outlined"
+                  class="mr-1 mb-1"
+                  :prepend-icon="'mdi-tag'"
+                  :title="`${match.name} (Score: ${match.score.toFixed(2)})`"
+                >
+                  <a 
+                    :href="`https://hpo.jax.org/browse/term/${match.hpo_id}`" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    class="hpo-link"
+                    style="color: inherit;"
+                  >
+                    {{ match.hpo_id }}
+                  </a>
+                  <span class="ms-1">({{ match.score.toFixed(2) }})</span>
+                </v-chip>
+              </v-chip-group>
+            </div>
+            <div v-else class="text-caption text-medium-emphasis mt-2">
               {{ $t('resultsDisplay.textProcess.noChunkHPOTerms', 'No HPO terms were identified for this chunk.') }}
             </div>
           </v-expansion-panel-text>
@@ -268,19 +310,79 @@
                   </a>
                 </div>
                 <div class="hpo-label mt-1">{{ term.name || term.label }}</div>
+                
+                <!-- Source chunks -->                
+                <div v-if="term.source_chunk_ids && term.source_chunk_ids.length > 0" class="text-caption mt-1">
+                  <span class="text-secondary">{{ $t('resultsDisplay.textProcess.sourceChunks', 'Source chunks') }}:</span>
+                  <v-chip-group class="d-inline-flex">
+                    <v-chip
+                      v-for="chunkId in term.source_chunk_ids"
+                      :key="chunkId"
+                      size="x-small"
+                      color="secondary"
+                      variant="outlined"
+                      class="mr-1"
+                      @click="scrollToChunk(chunkId)"
+                      style="cursor: pointer;"
+                    >
+                      #{{ chunkId }}
+                    </v-chip>
+                  </v-chip-group>
+                  <span v-if="term.top_evidence_chunk_id" class="ml-2">
+                    <span class="text-secondary">{{ $t('resultsDisplay.textProcess.topEvidence', 'Top evidence') }}:</span>
+                    <v-chip
+                      size="x-small"
+                      color="primary"
+                      variant="outlined"
+                      class="ml-1"
+                      @click="scrollToChunk(term.top_evidence_chunk_id)"
+                      style="cursor: pointer;"
+                    >
+                      #{{ term.top_evidence_chunk_id }}
+                    </v-chip>
+                  </span>
+                </div>
               </div>
               
               <!-- Score chips and Add button on the right -->
               <div class="d-flex align-center ml-auto">
                 <div class="d-flex flex-row align-center gap-1 mr-2 score-chips-container">
+                  <!-- Confidence score (average) -->
                   <v-chip
                     class="score-chip"
                     color="primary"
                     size="x-small"
                     variant="flat"
+                    :title="$t('resultsDisplay.textProcess.confidenceTooltip', 'Average confidence score from all evidence chunks')"
                   >
                     <v-icon size="x-small" start>mdi-numeric</v-icon>
-                    {{ term.score?.toFixed(2) || term.aggregated_score?.toFixed(2) || term.similarity_score?.toFixed(2) || '?' }}
+                    {{ (term.confidence * 100).toFixed(0) }}%
+                  </v-chip>
+                  
+                  <!-- Assertion status -->
+                  <v-chip
+                    class="score-chip"
+                    :color="getAssertionColor(term.status)"
+                    size="x-small"
+                    variant="flat"
+                  >
+                    <v-icon size="x-small" start>
+                      {{ term.status === 'negated' ? 'mdi-block-helper' : 'mdi-check-circle' }}
+                    </v-icon>
+                    {{ term.status || 'unknown' }}
+                  </v-chip>
+                  
+                  <!-- Evidence count -->
+                  <v-chip
+                    v-if="term.evidence_count > 1"
+                    class="score-chip"
+                    color="secondary"
+                    size="x-small"
+                    variant="flat"
+                    :title="$t('resultsDisplay.textProcess.evidenceCountTooltip', 'Number of chunks providing evidence for this term')"
+                  >
+                    <v-icon size="x-small" start>mdi-file-multiple</v-icon>
+                    {{ term.evidence_count }}
                   </v-chip>
                 </div>
                 
@@ -334,6 +436,12 @@ import { logService } from '../services/logService'
 
 export default {
   name: 'ResultsDisplay',
+  data() {
+    return {
+      highlightedAttributions: [],
+      chunkPanelsRef: {}
+    }
+  },
   props: {
     responseData: {
       type: Object,
@@ -369,6 +477,95 @@ export default {
   },
   emits: ['add-to-collection'],
   methods: {
+    highlightAttributions(term) {
+      if (term.text_attributions && term.text_attributions.length > 0) {
+        // Format attributions for easier use in the component
+        this.highlightedAttributions = term.text_attributions.map(attr => ({
+          chunkId: attr.chunk_id,
+          start: attr.start_char,
+          end: attr.end_char,
+          text: attr.matched_text_in_chunk
+        }));
+      }
+    },
+    
+    clearHighlights() {
+      this.highlightedAttributions = [];
+    },
+    
+    getHighlightedChunkSegments(chunk) {
+      // Find attributions for this chunk
+      const chunkAttributions = this.highlightedAttributions.filter(
+        attr => attr.chunkId === chunk.chunk_id
+      );
+      
+      if (chunkAttributions.length === 0) {
+        return [{ text: `"${chunk.text}"`, isHighlighted: false }];
+      }
+      
+      // Sort attributions by start position
+      chunkAttributions.sort((a, b) => a.start - b.start);
+      
+      const segments = [];
+      let lastEnd = 0;
+      
+      for (const attr of chunkAttributions) {
+        // Add non-highlighted segment before this attribution if needed
+        if (attr.start > lastEnd) {
+          segments.push({
+            text: chunk.text.substring(lastEnd, attr.start),
+            isHighlighted: false
+          });
+        }
+        
+        // Add highlighted segment
+        segments.push({
+          text: chunk.text.substring(attr.start, attr.end),
+          isHighlighted: true
+        });
+        
+        lastEnd = attr.end;
+      }
+      
+      // Add remaining text after last attribution
+      if (lastEnd < chunk.text.length) {
+        segments.push({
+          text: chunk.text.substring(lastEnd),
+          isHighlighted: false
+        });
+      }
+      
+      return segments;
+    },
+    
+    scrollToChunk(chunkId) {
+      // Get the expansion panel element
+      const panel = this.chunkPanelsRef[chunkId];
+      if (panel) {
+        // Open the panel if closed
+        panel.expand();
+        
+        // Scroll to the panel
+        setTimeout(() => {
+          const element = document.getElementById(`chunk-text-${chunkId}`);
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            
+            // Add a temporary highlight effect
+            element.classList.add('flash-highlight');
+            setTimeout(() => {
+              element.classList.remove('flash-highlight');
+            }, 1500);
+          }
+        }, 300); // Wait for expansion animation
+      }
+    },
+    
+    getAssertionColor(status) {
+      if (!status) return 'grey';
+      return status === 'negated' ? 'error' : 'success';
+    },
+    
     isAlreadyCollected(hpoId) {
       const isCollected = this.collectedPhenotypes.some(item => item.hpo_id === hpoId);
       logService.debug('Checking if phenotype is collected', { hpoId, isCollected });
@@ -482,6 +679,22 @@ export default {
 
 .score-chips-container {
   margin-top: 4px;
+}
+
+.highlighted-text-span {
+  background-color: rgba(255, 235, 59, 0.5);
+  border-radius: 2px;
+  padding: 0 2px;
+}
+
+.flash-highlight {
+  animation: flash-animation 1.5s;
+}
+
+@keyframes flash-animation {
+  0%, 100% { background-color: transparent; }
+  25% { background-color: rgba(255, 235, 59, 0.5); }
+  75% { background-color: rgba(255, 235, 59, 0.5); }
 }
 
 /* On small screens */
