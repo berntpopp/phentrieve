@@ -4,14 +4,16 @@ This module provides functionality to extract HPO terms from text using a
 pipeline-based approach with dense retrieval and optional cross-encoder reranking.
 """
 
-from collections import defaultdict
+from collections import defaultdict, Counter
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 import logging
 from sentence_transformers import CrossEncoder
 
 from phentrieve.retrieval.dense_retriever import DenseRetriever
+from phentrieve.retrieval.text_attribution import get_text_attributions
 from phentrieve.utils import load_translation_text
+from phentrieve.data_processing.document_creator import load_hpo_terms
 
 logger = logging.getLogger(__name__)
 
@@ -170,6 +172,10 @@ def orchestrate_hpo_extraction(
             if top_term_per_chunk and current_hpo_matches:
                 current_hpo_matches = [current_hpo_matches[0]]
 
+            # Get HPO term synonyms for text attribution
+            # Create a cache for HPO term synonyms to avoid repeated loading
+            hpo_synonyms_cache = {}
+
             # Add matches to results
             chunk_results.append(
                 {
@@ -182,13 +188,40 @@ def orchestrate_hpo_extraction(
             # Collect evidence for each HPO term from this chunk
             for term in current_hpo_matches:
                 hpo_id = term["id"]
+
+                # Get synonyms for text attribution
+                synonyms = []
+                if hpo_id not in hpo_synonyms_cache:
+                    try:
+                        # Try to get synonyms from HPO terms
+                        hpo_terms = load_hpo_terms()
+                        for hpo_term in hpo_terms:
+                            if hpo_term.get("id") == hpo_id:
+                                synonyms = hpo_term.get("synonyms", [])
+                                break
+                        hpo_synonyms_cache[hpo_id] = synonyms
+                    except Exception as e:
+                        logger.warning(f"Failed to load synonyms for {hpo_id}: {e}")
+                        hpo_synonyms_cache[hpo_id] = []
+                else:
+                    synonyms = hpo_synonyms_cache[hpo_id]
+
+                # Get text attributions for this term in this chunk
+                attributions_in_chunk = get_text_attributions(
+                    source_chunk_text=chunk_text,
+                    hpo_term_label=term["name"],
+                    hpo_term_synonyms=synonyms,
+                    hpo_term_id=hpo_id,
+                )
+
                 # Create evidence detail for this match
                 evidence_detail = {
                     "score": term["score"],
-                    "chunk_id": chunk_idx,
+                    "chunk_idx": chunk_idx,
                     "text": chunk_text,
                     "status": term.get("assertion_status"),
                     "name": term["name"],
+                    "attributions_in_chunk": attributions_in_chunk,
                 }
                 # Add to evidence map keyed by HPO ID
                 aggregated_hpo_evidence_map[hpo_id].append(evidence_detail)
@@ -214,30 +247,52 @@ def orchestrate_hpo_extraction(
         if avg_score < min_confidence_for_aggregated:
             continue
 
-        # Determine the most common assertion status
-        assertion_statuses = [e["status"] for e in evidence_list if e["status"]]
-        assertion_status = None
-        if assertion_statuses:
-            assertion_status = max(
-                set(assertion_statuses), key=assertion_statuses.count
-            )
+        # Get the highest score and corresponding chunk index
+        max_score = max(evidence["score"] for evidence in evidence_list)
+        top_evidence_chunk_idx = next(
+            evidence["chunk_idx"]
+            for evidence in evidence_list
+            if evidence["score"] == max_score
+        )
 
-        # Create the aggregated term entry
+        # Determine the most common assertion status using Counter for better handling
+        # of multiple statuses with same frequency
+        status_counter = Counter([e["status"] for e in evidence_list if e["status"]])
+        assertion_status = None
+        if status_counter:
+            assertion_status = status_counter.most_common(1)[0][0]
+
+        # Collect all text attributions from all evidence chunks
+        text_attributions = []
+        for evidence in evidence_list:
+            chunk_idx = evidence["chunk_idx"]
+            for attribution in evidence.get("attributions_in_chunk", []):
+                # Add chunk_idx to each attribution
+                attribution_with_chunk = attribution.copy()
+                attribution_with_chunk["chunk_idx"] = chunk_idx
+                text_attributions.append(attribution_with_chunk)
+
+        # Create the aggregated term entry with enhanced information
         aggregated_term = {
             "id": hpo_id,
             "name": evidence_list[0]["name"],  # Use name from first evidence
-            "score": max(
-                evidence["score"] for evidence in evidence_list
-            ),  # Highest score
+            "score": max_score,  # Highest score
             "count": len(evidence_list),
+            "evidence_count": len(evidence_list),  # Alias for count for API consistency
             "avg_score": avg_score,
+            "confidence": avg_score,  # Alias for avg_score for API consistency
             "chunks": sorted(
-                list(set(evidence["chunk_id"] for evidence in evidence_list))
+                list(set(evidence["chunk_idx"] for evidence in evidence_list))
             ),
+            "top_evidence_chunk_idx": top_evidence_chunk_idx,
+            "text_attributions": text_attributions,
         }
 
         # Always include assertion status (even if None) for consistency
         aggregated_term["assertion_status"] = assertion_status
+        aggregated_term["status"] = (
+            assertion_status  # Alias for assertion_status for API consistency
+        )
 
         aggregated_results_list.append(aggregated_term)
 
