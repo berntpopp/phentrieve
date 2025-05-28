@@ -338,7 +338,7 @@
                 :color="isAlreadyCollected(term.hpo_id) ? 'success' : 'primary'"
                 variant="text"
                 class="flex-shrink-0 add-btn"
-                @click.stop="addToCollection({hpo_id: term.hpo_id, label: term.name || term.label, assertion_status: term.status || 'affirmed'})" 
+                @click.stop="addToCollection({hpo_id: term.hpo_id, name: term.name, label: term.name || term.label}, term.status || 'affirmed')" 
                 :disabled="isAlreadyCollected(term.hpo_id)"
                 :title="isAlreadyCollected(term.hpo_id) ? $t('resultsDisplay.alreadyInCollectionTooltip', { id: term.hpo_id }) : $t('resultsDisplay.addToCollectionTooltip', { id: term.hpo_id })"
               ></v-btn>
@@ -552,6 +552,13 @@ export default {
         label: phenotype.name || phenotype.label, // API uses 'name' in text processing mode
         assertion_status: assertionStatus
       };
+      
+      // Log the assertion status being used
+      logService.debug('Setting assertion status for collection item', { 
+        hpoId: phenotype.hpo_id, 
+        originalStatus: assertionStatus,
+        finalStatus: normalizedPhenotype.assertion_status
+      });
       
       logService.info('Adding phenotype to collection from results', { 
         originalPhenotype: phenotype,

@@ -872,12 +872,39 @@ export default {
       });
     },
     addToPhenotypeCollection(phenotype, queryAssertionStatus = null) {
-      logService.info('Adding phenotype to collection', { phenotype, queryAssertionStatus });
+      // Log the incoming values to help debug
+      logService.info('Adding phenotype to collection', { 
+        phenotype, 
+        queryAssertionStatus,
+        phenotypeHasAssertionStatus: phenotype.assertion_status ? true : false,
+        phenotypeAssertionStatus: phenotype.assertion_status
+      });
+      
       const isDuplicate = this.collectedPhenotypes.some(item => item.hpo_id === phenotype.hpo_id);
       if (!isDuplicate) {
-        const currentResponse = this.queryHistory.length > 0 ? this.queryHistory[0].response : null;
-        const responseAssertionStatus = currentResponse?.query_assertion_status || null;
-        const assertionStatus = queryAssertionStatus || responseAssertionStatus || 'affirmed';
+        // Priority order for assertion status:
+        // 1. Use assertion_status directly from phenotype object if available
+        // 2. Use queryAssertionStatus parameter if provided
+        // 3. Fallback to global query assertion status if available
+        // 4. Default to 'affirmed' if nothing else is available
+        let assertionStatus;
+        
+        if (phenotype.assertion_status) {
+          // If the phenotype object already has an assertion status, use it with highest priority
+          assertionStatus = phenotype.assertion_status;
+          logService.debug('Using assertion status from phenotype object', { assertionStatus });
+        } else {
+          // Otherwise follow the existing priority logic
+          const currentResponse = this.queryHistory.length > 0 ? this.queryHistory[0].response : null;
+          const responseAssertionStatus = currentResponse?.query_assertion_status || null;
+          assertionStatus = queryAssertionStatus || responseAssertionStatus || 'affirmed';
+          logService.debug('Using computed assertion status', { 
+            queryAssertionStatus,
+            responseAssertionStatus,
+            finalAssertionStatus: assertionStatus
+          });
+        }
+        
         this.collectedPhenotypes.push({ ...phenotype, added_at: new Date(), assertion_status: assertionStatus });
         if (this.collectedPhenotypes.length === 1) this.showCollectionPanel = true;
       }
