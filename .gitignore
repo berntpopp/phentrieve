@@ -57,3 +57,7 @@ Thumbs.db
 
 # output files
 output/
+
+# Claude Code files
+CLAUDE.md
+.claude/
