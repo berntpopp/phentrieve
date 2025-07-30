@@ -61,3 +61,7 @@ output/
 # Claude Code files
 CLAUDE.md
 .claude/
+
+# serena MCP files
+SERENA.md
+.serena/
