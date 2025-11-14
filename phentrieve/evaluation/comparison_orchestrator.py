@@ -874,7 +874,9 @@ def generate_visualizations(
                 # Prepare data for HR@k metrics
                 if len(hr_metrics) >= 2:
                     hr_k_values = [
-                        int(m.group(1)) for col in hr_metrics if (m := hr_pattern.match(col))
+                        int(m.group(1))
+                        for col in hr_metrics
+                        if (m := hr_pattern.match(col))
                     ]
                     hr_scores = [row[col] for col in hr_metrics]
 
@@ -891,7 +893,9 @@ def generate_visualizations(
                 # Prepare data for OntSim@k metrics
                 if len(ont_metrics) >= 2:
                     ont_k_values = [
-                        int(m.group(1)) for col in ont_metrics if (m := ont_pattern.match(col))
+                        int(m.group(1))
+                        for col in ont_metrics
+                        if (m := ont_pattern.match(col))
                     ]
                     ont_scores = [row[col] for col in ont_metrics]
 

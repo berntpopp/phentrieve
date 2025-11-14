@@ -80,11 +80,29 @@ export default defineConfig({
     chunkSizeWarningLimit: 600
   },
   server: {
+    port: 5173,
+    strictPort: true,
+    // API proxy for local development
     proxy: {
       '/api': {
-        target: 'http://localhost:8001',
-        changeOrigin: true
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+        secure: false,
+        // Improve logging for debugging
+        configure: (proxy) => {
+          proxy.on('error', (err) => {
+            console.log('[Proxy Error]', err)
+          })
+          proxy.on('proxyReq', (proxyReq, req) => {
+            console.log('[Proxy Request]', req.method, req.url)
+          })
+        }
       }
+    },
+    // HMR configuration (optimized for fast refresh)
+    hmr: {
+      overlay: true, // Show errors in browser overlay
+      timeout: 30000 // Increase timeout for slower connections
     },
     // Fix MIME type issues
     fs: {
@@ -101,6 +119,11 @@ export default defineConfig({
       '*.vue': {
         'Content-Type': 'application/javascript'
       }
+    },
+    // Watch options for better HMR performance
+    watch: {
+      usePolling: false, // Use native file system events (faster)
+      interval: 100
     }
   },
   test: {

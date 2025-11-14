@@ -43,7 +43,9 @@ def _get_chunking_config_for_api(
     request: TextProcessingRequest,
 ) -> list[dict[str, Any]]:
     strategy_name = (
-        request.chunking_strategy.lower() if request.chunking_strategy else "sliding_window_punct_conj_cleaned"
+        request.chunking_strategy.lower()
+        if request.chunking_strategy
+        else "sliding_window_punct_conj_cleaned"
     )
 
     # Use defaults from phentrieve.config as fallback if not provided in request
@@ -91,12 +93,14 @@ def _get_chunking_config_for_api(
                 )
         return config
     elif strategy_name == "sliding_window":
-        return list(get_sliding_window_config_with_params(
-            window_size=cfg_window_size,
-            step_size=cfg_step_size,
-            threshold=cfg_split_threshold,
-            min_segment_length=cfg_min_segment_length,
-        ))
+        return list(
+            get_sliding_window_config_with_params(
+                window_size=cfg_window_size,
+                step_size=cfg_step_size,
+                threshold=cfg_split_threshold,
+                min_segment_length=cfg_min_segment_length,
+            )
+        )
     elif strategy_name == "sliding_window_cleaned":
         config = list(get_sliding_window_cleaned_config())
         for component in config:

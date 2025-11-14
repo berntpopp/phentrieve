@@ -515,7 +515,9 @@ def process_query(
             # Single query mode, no sentence splitting
             query_result = retriever.query(
                 text,
-                n_results=(rerank_count if (cross_encoder and rerank_count) else num_results),
+                n_results=(
+                    rerank_count if (cross_encoder and rerank_count) else num_results
+                ),
             )
 
             # Perform re-ranking if a cross-encoder is provided
