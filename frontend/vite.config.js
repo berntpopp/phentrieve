@@ -1,6 +1,7 @@
 import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
+import { configDefaults } from 'vitest/config'
 import { visualizer } from 'rollup-plugin-visualizer'
 import viteCompression from 'vite-plugin-compression'
 import viteImagemin from 'vite-plugin-imagemin'
@@ -101,5 +102,21 @@ export default defineConfig({
         'Content-Type': 'application/javascript'
       }
     }
+  },
+  test: {
+    globals: true,
+    environment: 'happy-dom',
+    setupFiles: './src/test/setup.js',
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json', 'html'],
+      exclude: [
+        ...configDefaults.coverage.exclude,
+        'src/test/**',
+        '**/*.config.js',
+        '**/dist/**'
+      ]
+    },
+    exclude: [...configDefaults.exclude, 'e2e/*']
   }
 })

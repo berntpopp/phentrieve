@@ -72,6 +72,15 @@ frontend-dev: ## Run frontend development server
 frontend-build: ## Build frontend for production
 	cd frontend && npm run build
 
+frontend-test: ## Run frontend tests with Vitest
+	cd frontend && npm run test:run
+
+frontend-test-ui: ## Run frontend tests with UI
+	cd frontend && npm run test:ui
+
+frontend-test-cov: ## Run frontend tests with coverage
+	cd frontend && npm run test:coverage
+
 ##@ Docker
 
 docker-build: ## Build Docker images
@@ -112,6 +121,6 @@ clean-data: ## Clean data caches (use with caution)
 
 ##@ All-in-one
 
-check-all: check frontend-lint ## Check both Python and frontend code
+check-all: check frontend-lint frontend-test ## Check and test both Python and frontend code
 
 all: clean check test ## Clean, check, and test Python code

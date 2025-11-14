@@ -10,7 +10,11 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write \"src/**/*.{js,vue,css,scss,html}\"",
-    "format:check": "prettier --check \"src/**/*.{js,vue,css,scss,html}\""
+    "format:check": "prettier --check \"src/**/*.{js,vue,css,scss,html}\"",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@berntpopp/phenopackets-js": "^1.0.2",
@@ -28,12 +32,15 @@
     "@mdi/font": "^7.3.67",
     "@rollup/plugin-commonjs": "^28.0.3",
     "@vitejs/plugin-vue": "^4.4.0",
+    "@vitest/ui": "^4.0.9",
+    "@vue/test-utils": "^2.4.6",
     "autoprefixer": "^10.4.16",
     "eslint": "^9.39.1",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
     "eslint-plugin-vue": "^10.5.1",
     "globals": "^16.5.0",
+    "happy-dom": "^20.0.10",
     "postcss": "^8.4.31",
     "prettier": "^3.6.2",
     "rollup-plugin-visualizer": "^5.9.2",
@@ -41,6 +48,7 @@
     "vite": "^4.4.11",
     "vite-plugin-compression": "^0.5.1",
     "vite-plugin-imagemin": "^0.6.1",
+    "vitest": "^4.0.9",
     "vue-eslint-parser": "^10.2.0"
   }
 }

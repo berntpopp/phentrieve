@@ -78,6 +78,15 @@ npm run lint                                         # ESLint check
 npm run lint:fix                                     # ESLint auto-fix
 npm run format                                       # Prettier format
 npm run format:check                                 # Prettier check
+npm run test                                         # Vitest (watch mode)
+npm run test:run                                     # Vitest (run once)
+npm run test:ui                                      # Vitest with UI
+npm run test:coverage                                # Vitest with coverage
+
+# Using Makefile for testing
+make frontend-test                                   # Run tests once
+make frontend-test-ui                                # Run tests with UI
+make frontend-test-cov                               # Run tests with coverage
 ```
 
 ### API (FastAPI)
