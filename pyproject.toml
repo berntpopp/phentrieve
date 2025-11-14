@@ -112,6 +112,38 @@ indent-style = "space"
 skip-magic-trailing-comma = false
 line-ending = "auto"
 
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false  # Gradual typing - start permissive
+check_untyped_defs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+no_implicit_optional = true
+strict_optional = true
+show_error_codes = true
+
+# Allow incremental adoption
+ignore_missing_imports = true
+allow_untyped_calls = true
+allow_untyped_decorators = true
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = [
+    "sentence_transformers.*",
+    "chromadb.*",
+    "spacy.*",
+    "pysbd.*",
+    "matplotlib.*",
+    "seaborn.*",
+]
+ignore_missing_imports = true
+
 [tool.pytest.ini_options]
 python_files = ["test_*.py", "*_test.py", "tests.py"]
 testpaths = ["tests"]
@@ -126,4 +158,9 @@ norecursedirs = [
     "*.egg-info",
     "phentrieve", # Ignore the main application source directory
     "api",      # Ignore the API source directory
+]
+
+[dependency-groups]
+dev = [
+    "mypy>=1.18.2",
 ]

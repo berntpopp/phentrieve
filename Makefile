@@ -1,4 +1,4 @@
-.PHONY: help format lint check test clean all install lock upgrade add remove clean-venv
+.PHONY: help format lint typecheck check test clean all install lock upgrade add remove clean-venv
 
 # Default target
 .DEFAULT_GOAL := help
@@ -29,6 +29,9 @@ lint: ## Lint Python code with Ruff
 
 lint-fix: ## Lint and auto-fix Python code
 	ruff check phentrieve/ api/ tests/ --fix
+
+typecheck: ## Type check with mypy
+	mypy phentrieve/ api/
 
 check: format lint ## Format and lint code
 
