@@ -602,6 +602,7 @@ class ConjunctionChunker(TextChunker):
         # We want to split *before* the conjunction.
         # The pattern should match space(s) + conjunction + space(s)
         # We'll use a lookahead to include the conjunction in the next split.
+        self.split_pattern: re.Pattern[str] | None
         if self.conjunctions:
             # Escape conjunctions in case they contain regex special characters (unlikely for these)
             escaped_conjunctions = [re.escape(c) for c in self.conjunctions]
@@ -796,7 +797,7 @@ class SlidingWindowSemanticSplitter(TextChunker):
     def __init__(
         self,
         language: str = "en",
-        model: SentenceTransformer = None,
+        model: SentenceTransformer | None = None,
         window_size_tokens: int = 7,
         # Determines overlap. step_size_tokens=window_size_tokens means no overlap.
         step_size_tokens: int = 1,

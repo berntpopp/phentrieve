@@ -272,6 +272,11 @@ def generate_visualizations(
         logger.warning("No valid metrics found for visualization")
         return False
 
+    # Validate output directory
+    if output_dir is None:
+        logger.error("Output directory must be specified for visualizations")
+        return False
+
     # Ensure output directory exists
     os.makedirs(output_dir, exist_ok=True)
 
@@ -441,7 +446,7 @@ def generate_visualizations(
             plt.xlabel("Model", fontsize=14)
             plt.ylabel("Mean Reciprocal Rank (MRR)", fontsize=14)
             plt.title(title, fontsize=16)
-            plt.xticks(x, sorted_df["Model"], rotation=45, ha="right")  # type: ignore[arg-type]
+            plt.xticks(x, sorted_df["Model"], rotation=45, ha="right")
             plt.ylim(0, 1.0)
             plt.tight_layout()
             plt.savefig(os.path.join(output_dir, "mrr_comparison.png"), dpi=300)
@@ -462,7 +467,7 @@ def generate_visualizations(
 
                 for i, k in enumerate(hr_k_values):
                     ax = axes[i, 0]
-                    metrics = hr_by_k[str(k)]
+                    metrics: list[str] = hr_by_k[str(k)]
 
                     # Check if we have both dense and reranked for this k value
                     has_dense_k = any("Dense" in m for m in metrics)
@@ -623,7 +628,7 @@ def generate_visualizations(
 
                 for i, k in enumerate(ont_k_values):
                     ax = axes[i, 0]
-                    metrics = ont_by_k[str(k)]
+                    metrics: list[str] = ont_by_k[str(k)]
 
                     # Check if we have both dense and reranked for this k value
                     has_dense_k = any("Dense" in m for m in metrics)
@@ -859,7 +864,7 @@ def generate_visualizations(
 
             # If there's only one model, axes won't be an array
             if n_models == 1:
-                axes = [axes]  # type: ignore[list-item]
+                axes = [axes]  # type: ignore[assignment]
 
             # For each model, create a line plot showing how metrics vary with k
             for i, (_idx, row) in enumerate(comparison_df.iterrows()):

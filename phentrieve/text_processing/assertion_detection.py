@@ -20,7 +20,7 @@ from phentrieve.utils import load_user_config
 logger = logging.getLogger(__name__)
 
 # Cache for loaded spaCy models
-NLP_MODELS = {}
+NLP_MODELS: dict[str, Language | None] = {}
 
 
 class AssertionStatus(Enum):
@@ -542,9 +542,9 @@ class CombinedAssertionDetector(AssertionDetector):
 
         # Initialize results
         keyword_status = None
-        keyword_details = {}
+        keyword_details: dict[str, Any] = {}
         dependency_status = None
-        dependency_details = {}
+        dependency_details: dict[str, Any] = {}
 
         # Run enabled detectors
         if self.enable_keyword and self.keyword_detector:

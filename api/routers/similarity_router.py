@@ -7,7 +7,7 @@ between HPO terms using the Human Phenotype Ontology graph structure.
 
 import logging
 from functools import lru_cache
-from typing import Optional
+from typing import Any, Optional
 
 from fastapi import APIRouter, HTTPException, Query
 from fastapi import Path as FastApiPath
@@ -122,7 +122,7 @@ async def get_hpo_term_similarity(
     label1 = labels.get(norm_term1)
     label2 = labels.get(norm_term2)
 
-    response_kwargs = {
+    response_kwargs: dict[str, Any] = {
         "term1_id": norm_term1,
         "term1_label": label1,
         "term2_id": norm_term2,
@@ -157,7 +157,7 @@ async def get_hpo_term_similarity(
         if lca_id and lca_depth != -1:
             lca_label = labels.get(lca_id)
             response_kwargs["lca_details"] = LCADetailAPI(
-                id=lca_id, label=lca_label, depth=lca_depth
+                id=lca_id, label=lca_label, depth=int(lca_depth)
             )
 
         return HPOTermSimilarityResponseAPI(**response_kwargs)
