@@ -56,10 +56,11 @@ async def _load_model_in_background(
             )
             LOADED_SBERT_MODELS[model_name] = model_instance
         else:
-            model_instance = await run_in_threadpool(
+            # Explicit type annotation for cross-encoder loading
+            ce_model_instance: CrossEncoder | None = await run_in_threadpool(
                 load_ce_model, model_name=model_name, device=actual_device
             )
-            LOADED_CROSS_ENCODERS[model_name] = model_instance
+            LOADED_CROSS_ENCODERS[model_name] = ce_model_instance
 
         MODEL_LOADING_STATUS[model_name] = "loaded"
         logger.info(f"Background task success: Model '{model_name}' loaded and cached.")

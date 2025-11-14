@@ -163,10 +163,11 @@ def build_chromadb_index(
             embeddings = model.encode(batch_docs, device=device_name)
 
             # Add to ChromaDB
+            # Cast to satisfy ChromaDB's strict type requirements
             collection.add(
                 documents=batch_docs,
                 embeddings=embeddings.tolist(),
-                metadatas=batch_meta,
+                metadatas=batch_meta,  # type: ignore[arg-type]
                 ids=batch_ids,
             )
         except Exception as e:

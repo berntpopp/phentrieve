@@ -73,22 +73,9 @@ def orchestrate_hpo_extraction(
     # Process chunks
     for chunk_idx, chunk_text in enumerate(text_chunks):
         try:
-            # Get translation
-            if (
-                translation_dir_path
-                and language != "en"
-                and reranker_mode == "monolingual"
-            ):
-                try:
-                    translation = load_translation_text(
-                        chunk_text,
-                        translation_dir_path,
-                        language,
-                    )
-                    if translation:
-                        chunk_text = translation
-                except Exception as e:
-                    logger.warning(f"Translation failed: {e}")
+            # Note: In monolingual reranker mode, we keep the query text in its original
+            # language and translate the HPO term candidates instead (done in reranker).
+            # The chunk_text is not translated here.
 
             # Get matches
             # Query logging is already done in the retriever class, so don't log here
