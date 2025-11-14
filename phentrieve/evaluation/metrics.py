@@ -48,8 +48,8 @@ class SimilarityFormula(Enum):
 
 
 # Global caches for HPO graph data
-_hpo_ancestors = None
-_hpo_term_depths = None
+_hpo_ancestors: dict[str, set[str]] | None = None
+_hpo_term_depths: dict[str, int] | None = None
 
 
 def load_hpo_graph_data(
