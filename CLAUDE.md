@@ -61,12 +61,23 @@ make clean                                           # Remove build artifacts an
 
 ### Frontend (Vue.js)
 ```bash
+# Using Makefile (recommended)
+make frontend-install                                # Install dependencies
+make frontend-lint                                   # Lint with ESLint 9
+make frontend-format                                 # Format with Prettier
+make frontend-dev                                    # Development server
+make frontend-build                                  # Production build
+
+# Or directly with npm
 cd frontend/
 npm install
-npm run dev          # Development server
-npm run build        # Production build
-npm run preview      # Preview production build
-npm run lint         # ESLint with auto-fix
+npm run dev                                          # Development server
+npm run build                                        # Production build
+npm run preview                                      # Preview production build
+npm run lint                                         # ESLint check
+npm run lint:fix                                     # ESLint auto-fix
+npm run format                                       # Prettier format
+npm run format:check                                 # Prettier check
 ```
 
 ### API (FastAPI)
@@ -77,11 +88,17 @@ python run_api_local.py    # Run local development server
 
 ### Docker Development
 ```bash
-# Full stack development
-docker-compose -f docker-compose.dev.yml up
+# Using Makefile (recommended)
+make docker-build                                    # Build Docker images
+make docker-up                                       # Start containers (detached)
+make docker-down                                     # Stop containers
+make docker-logs                                     # View logs
+make docker-dev                                      # Development stack
 
-# Production deployment
-docker-compose up
+# Or directly with docker-compose
+docker-compose -f docker-compose.dev.yml up          # Development
+docker-compose up                                    # Production
+docker-compose down                                  # Stop containers
 ```
 
 ## Architecture Overview
