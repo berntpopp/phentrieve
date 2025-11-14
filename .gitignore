@@ -80,4 +80,5 @@ output/
 
 # serena MCP files
 SERENA.md
+.serena/.env
 .serena/
