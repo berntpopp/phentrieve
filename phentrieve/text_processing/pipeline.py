@@ -92,7 +92,7 @@ class TextProcessingPipeline:
         Returns:
             List of initialized chunker instances
         """
-        chunkers = []
+        chunkers: list[TextChunker] = []
 
         for stage_config in self.chunking_pipeline_config:
             # Get chunker configuration
