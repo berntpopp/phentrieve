@@ -98,17 +98,31 @@ python run_api_local.py    # Run local development server
 ### Docker Development
 ```bash
 # Using Makefile (recommended)
-make docker-build                                    # Build Docker images
+make docker-build                                    # Build Docker images locally
 make docker-up                                       # Start containers (detached)
 make docker-down                                     # Stop containers
 make docker-logs                                     # View logs
 make docker-dev                                      # Development stack
 
 # Or directly with docker-compose
-docker-compose -f docker-compose.dev.yml up          # Development
-docker-compose up                                    # Production
+docker-compose -f docker-compose.dev.yml up          # Development (builds locally)
+docker-compose up                                    # Production (uses GHCR images)
 docker-compose down                                  # Stop containers
+
+# Pull pre-built images from GitHub Container Registry
+docker pull ghcr.io/berntpopp/phentrieve/api:latest
+docker pull ghcr.io/berntpopp/phentrieve/frontend:latest
+
+# Build and push to GHCR (requires authentication)
+docker login ghcr.io -u USERNAME
+docker-compose build
+docker-compose push
 ```
+
+**Docker Images**: Images are automatically built and pushed to GitHub Container Registry (GHCR) via GitHub Actions on:
+- Push to `main` branch → `latest` tag
+- Git tags `v*.*.*` → versioned tags (e.g., `v1.0.0`, `1.0`, `1`)
+- Pull requests → test builds only (not pushed)
 
 ## Architecture Overview
 

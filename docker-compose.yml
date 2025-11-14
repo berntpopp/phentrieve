@@ -1,5 +1,6 @@
 services:
   phentrieve_api:
+    image: ghcr.io/berntpopp/phentrieve/api:latest
     build:
       context: .
       dockerfile: api/Dockerfile
@@ -30,6 +31,7 @@ services:
       - npm_proxy_network
 
   phentrieve_frontend:
+    image: ghcr.io/berntpopp/phentrieve/frontend:latest
     build:
       context: ./frontend
       dockerfile: Dockerfile
