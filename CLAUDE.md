@@ -27,7 +27,12 @@ make all                                             # Clean + check + test
 make format                                          # Format with Ruff
 make lint                                            # Lint with Ruff
 make lint-fix                                        # Lint and auto-fix issues
-make typecheck                                       # Type check with mypy
+
+# Type checking
+make typecheck                                       # Type check with mypy (incremental + SQLite cache)
+make typecheck-fast                                  # Fast type check using mypy daemon (recommended)
+make typecheck-daemon-stop                           # Stop mypy daemon
+make typecheck-fresh                                 # Type check from scratch (clears cache)
 
 # Package management (uv)
 make lock                                            # Update uv.lock file

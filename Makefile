@@ -30,7 +30,18 @@ lint: ## Lint Python code with Ruff
 lint-fix: ## Lint and auto-fix Python code
 	ruff check phentrieve/ api/ tests/ --fix
 
-typecheck: ## Type check with mypy
+typecheck: ## Type check with mypy (incremental with SQLite cache)
+	mypy phentrieve/ api/
+
+typecheck-fast: ## Fast type check using mypy daemon (first run starts daemon)
+	@echo "Using mypy daemon for faster checking..."
+	@dmypy run -- phentrieve/ api/ || (echo "Starting mypy daemon..." && dmypy start && dmypy run -- phentrieve/ api/)
+
+typecheck-daemon-stop: ## Stop mypy daemon
+	dmypy stop
+
+typecheck-fresh: ## Type check from scratch (clear cache first)
+	rm -rf .mypy_cache/
 	mypy phentrieve/ api/
 
 check: format lint ## Format and lint code

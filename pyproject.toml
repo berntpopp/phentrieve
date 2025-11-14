@@ -124,6 +124,13 @@ no_implicit_optional = true
 strict_optional = true
 show_error_codes = true
 
+# Performance optimizations
+cache_dir = ".mypy_cache"
+sqlite_cache = true
+incremental = true
+# skip_version_check = true  # Uncomment if switching mypy versions frequently
+# skip_cache_mtime_checks = true  # Uncomment for extra speed (less safety)
+
 # Allow incremental adoption
 ignore_missing_imports = true
 allow_untyped_calls = true
