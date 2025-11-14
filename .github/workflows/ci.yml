@@ -1,0 +1,215 @@
+name: CI - Continuous Integration
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+  workflow_dispatch:
+
+# Cancel in-progress runs for the same workflow and ref
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Detect which parts of the codebase changed
+  changes:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    outputs:
+      python: ${{ steps.filter.outputs.python }}
+      frontend: ${{ steps.filter.outputs.frontend }}
+      docker: ${{ steps.filter.outputs.docker }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            python:
+              - 'phentrieve/**'
+              - 'api/**'
+              - 'tests/**'
+              - 'pyproject.toml'
+              - 'uv.lock'
+              - '.github/workflows/ci.yml'
+            frontend:
+              - 'frontend/**'
+              - '.github/workflows/ci.yml'
+            docker:
+              - '**/Dockerfile'
+              - 'docker-compose*.yml'
+              - '.github/workflows/ci.yml'
+
+  # Python Backend CI
+  python-ci:
+    name: Python CI
+    needs: changes
+    if: needs.changes.outputs.python == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.9', '3.10', '3.11']
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "latest"
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Cache uv dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/uv
+            .venv
+          key: ${{ runner.os }}-uv-${{ matrix.python-version }}-${{ hashFiles('uv.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-uv-${{ matrix.python-version }}-
+            ${{ runner.os }}-uv-
+
+      - name: Install dependencies
+        run: |
+          uv sync
+
+      - name: Run Ruff format check
+        run: |
+          uv run ruff format --check phentrieve/ api/ tests/
+
+      - name: Run Ruff linting
+        run: |
+          uv run ruff check phentrieve/ api/ tests/
+
+      - name: Run mypy type checking
+        run: |
+          uv run mypy phentrieve/ api/
+        continue-on-error: true  # Don't fail on type errors (gradual typing)
+
+      - name: Run pytest
+        run: |
+          uv run pytest tests/ -v --cov=phentrieve --cov=api --cov-report=xml --cov-report=term
+
+      - name: Upload coverage to Codecov
+        if: matrix.python-version == '3.10'
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./coverage.xml
+          flags: python
+          name: python-${{ matrix.python-version }}
+        continue-on-error: true
+
+  # Frontend CI
+  frontend-ci:
+    name: Frontend CI
+    needs: changes
+    if: needs.changes.outputs.frontend == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Run ESLint
+        working-directory: frontend
+        run: npm run lint
+
+      - name: Run Prettier format check
+        working-directory: frontend
+        run: npm run format:check
+
+      - name: Run Vitest tests
+        working-directory: frontend
+        run: npm run test:coverage
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./frontend/coverage/coverage-final.json
+          flags: frontend
+          name: frontend
+        continue-on-error: true
+
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build
+        env:
+          VITE_API_URL: /api/v1
+
+  # Docker Build Test
+  docker-build-test:
+    name: Docker Build Test
+    needs: changes
+    if: needs.changes.outputs.docker == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [api, frontend]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build ${{ matrix.service }} image
+        uses: docker/build-push-action@v5
+        with:
+          context: ${{ matrix.service == 'api' && '.' || './frontend' }}
+          file: ${{ matrix.service == 'api' && './api/Dockerfile' || './frontend/Dockerfile' }}
+          push: false
+          tags: ghcr.io/berntpopp/phentrieve/${{ matrix.service }}:test
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            ${{ matrix.service == 'frontend' && 'VITE_API_URL=/api/v1' || '' }}
+
+  # Summary job that requires all checks to pass
+  ci-summary:
+    name: CI Summary
+    needs: [changes, python-ci, frontend-ci, docker-build-test]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check CI results
+        run: |
+          echo "Python CI: ${{ needs.python-ci.result }}"
+          echo "Frontend CI: ${{ needs.frontend-ci.result }}"
+          echo "Docker Build: ${{ needs.docker-build-test.result }}"
+
+          # Fail if any required job failed
+          if [[ "${{ needs.python-ci.result }}" == "failure" ]] || \
+             [[ "${{ needs.frontend-ci.result }}" == "failure" ]] || \
+             [[ "${{ needs.docker-build-test.result }}" == "failure" ]]; then
+            echo "❌ One or more CI jobs failed"
+            exit 1
+          fi
+
+          echo "✅ All CI checks passed"

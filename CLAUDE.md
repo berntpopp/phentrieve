@@ -143,6 +143,38 @@ docker-compose push
 
 Configuration: `.github/dependabot.yml`
 
+### Continuous Integration (CI)
+
+Automated CI pipeline runs on all pull requests and pushes to `main`/`develop` branches:
+
+**Python CI** (Python 3.9, 3.10, 3.11):
+- ✓ Ruff format check (`ruff format --check`)
+- ✓ Ruff linting (`ruff check`)
+- ✓ mypy type checking (informational, doesn't fail)
+- ✓ pytest with coverage reporting
+- ✓ Coverage upload to Codecov
+
+**Frontend CI** (Node 18):
+- ✓ ESLint 9 linting (`npm run lint`)
+- ✓ Prettier format check (`npm run format:check`)
+- ✓ Vitest tests with coverage (`npm run test:coverage`)
+- ✓ Production build verification
+- ✓ Coverage upload to Codecov
+
+**Docker Build Test**:
+- ✓ API Docker image build
+- ✓ Frontend Docker image build
+- ✓ Multi-platform support (linux/amd64)
+- ✓ Layer caching for faster builds
+
+**Optimizations**:
+- Change detection: Only runs jobs for modified code paths
+- Dependency caching: uv cache, npm cache
+- Concurrency control: Cancels outdated workflow runs
+- Matrix testing: Multiple Python versions in parallel
+
+Workflows: `.github/workflows/ci.yml`, `.github/workflows/docker-publish.yml`
+
 ## Architecture Overview
 
 ### Core Components
