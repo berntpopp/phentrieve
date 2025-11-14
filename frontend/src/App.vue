@@ -1,8 +1,5 @@
 <template>
-  <v-app
-    theme="light"
-    class="app-container"
-  >
+  <v-app theme="light" class="app-container">
     <v-main class="bg-grey-lighten-4 main-container">
       <router-view v-slot="{ Component }">
         <component :is="Component" />
@@ -10,12 +7,7 @@
       <LogViewer />
     </v-main>
 
-    <v-footer
-      app
-      class="d-flex justify-space-between pa-2"
-      style="z-index: 1"
-      role="contentinfo"
-    >
+    <v-footer app class="d-flex justify-space-between pa-2" style="z-index: 1" role="contentinfo">
       <div class="d-flex align-center">
         <v-tooltip
           location="top"
@@ -193,10 +185,7 @@
     />
 
     <!-- Tutorial Overlay -->
-    <TutorialOverlay
-      :visible="tutorialVisible"
-      @update:visible="tutorialVisible = $event"
-    />
+    <TutorialOverlay :visible="tutorialVisible" @update:visible="tutorialVisible = $event" />
   </v-app>
 </template>
 

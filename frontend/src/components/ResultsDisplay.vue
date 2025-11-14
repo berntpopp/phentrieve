@@ -4,9 +4,9 @@
     <div
       v-if="
         resultType === 'query' &&
-          responseData &&
-          responseData.results &&
-          responseData.results.length > 0
+        responseData &&
+        responseData.results &&
+        responseData.results.length > 0
       "
     >
       <v-card class="mb-4 info-card">
@@ -14,42 +14,28 @@
           <div class="d-flex flex-wrap align-center">
             <!-- Model info - always present -->
             <div class="info-item mr-4 mb-1">
-              <v-icon
-                color="info"
-                class="mr-1"
-                size="small"
-              >
-                mdi-information
-              </v-icon>
+              <v-icon color="info" class="mr-1" size="small"> mdi-information </v-icon>
               <span class="model-name">
-                <small class="text-caption text-medium-emphasis">{{ $t('resultsDisplay.modelLabel') }}:</small>
+                <small class="text-caption text-medium-emphasis"
+                  >{{ $t('resultsDisplay.modelLabel') }}:</small
+                >
                 {{ displayModelName(responseData.model_used_for_retrieval) }}
               </span>
             </div>
 
             <!-- Language info -->
-            <div
-              v-if="responseData.language_detected"
-              class="info-item mr-4 mb-1"
-            >
-              <v-icon
-                color="info"
-                class="mr-1"
-                size="small"
-              >
-                mdi-translate
-              </v-icon>
+            <div v-if="responseData.language_detected" class="info-item mr-4 mb-1">
+              <v-icon color="info" class="mr-1" size="small"> mdi-translate </v-icon>
               <span>
-                <small class="text-caption text-medium-emphasis">{{ $t('resultsDisplay.languageLabel') }}:</small>
+                <small class="text-caption text-medium-emphasis"
+                  >{{ $t('resultsDisplay.languageLabel') }}:</small
+                >
                 {{ responseData.language_detected }}
               </span>
             </div>
 
             <!-- Assertion status -->
-            <div
-              v-if="responseData.query_assertion_status"
-              class="info-item mb-1"
-            >
+            <div v-if="responseData.query_assertion_status" class="info-item mb-1">
               <v-icon
                 :color="responseData.query_assertion_status === 'negated' ? 'error' : 'success'"
                 class="mr-1"
@@ -62,7 +48,9 @@
                 }}
               </v-icon>
               <span>
-                <small class="text-caption text-medium-emphasis">{{ $t('resultsDisplay.assertionLabel', 'Assertion') }}:</small>
+                <small class="text-caption text-medium-emphasis"
+                  >{{ $t('resultsDisplay.assertionLabel', 'Assertion') }}:</small
+                >
                 <v-chip
                   size="x-small"
                   :color="responseData.query_assertion_status === 'negated' ? 'error' : 'success'"
@@ -80,29 +68,19 @@
           </div>
 
           <!-- Reranker info on separate line -->
-          <div
-            v-if="responseData.reranker_used"
-            class="info-item mt-2"
-          >
-            <v-icon
-              color="info"
-              class="mr-1"
-              size="small"
-            >
-              mdi-filter
-            </v-icon>
+          <div v-if="responseData.reranker_used" class="info-item mt-2">
+            <v-icon color="info" class="mr-1" size="small"> mdi-filter </v-icon>
             <span class="model-name">
-              <small class="text-caption text-medium-emphasis">{{ $t('resultsDisplay.rerankerLabel') }}:</small>
+              <small class="text-caption text-medium-emphasis"
+                >{{ $t('resultsDisplay.rerankerLabel') }}:</small
+              >
               {{ displayModelName(responseData.reranker_used) }}
             </span>
           </div>
         </v-card-title>
       </v-card>
 
-      <v-list
-        lines="two"
-        class="rounded-lg mt-2"
-      >
+      <v-list lines="two" class="rounded-lg mt-2">
         <v-list-item
           v-for="(result, index) in responseData.results"
           :key="index"
@@ -112,12 +90,7 @@
           density="compact"
         >
           <template #prepend>
-            <v-badge
-              :content="index + 1"
-              color="primary"
-              inline
-              class="mr-2"
-            />
+            <v-badge :content="index + 1" color="primary" inline class="mr-2" />
           </template>
 
           <v-list-item-title class="pb-2">
@@ -133,10 +106,7 @@
                     :title="`View ${result.hpo_id} in HPO Browser`"
                   >
                     <span class="hpo-id font-weight-bold">{{ result.hpo_id }}</span>
-                    <v-icon
-                      size="x-small"
-                      class="ml-1"
-                    >mdi-open-in-new</v-icon>
+                    <v-icon size="x-small" class="ml-1">mdi-open-in-new</v-icon>
                   </a>
                 </div>
                 <div class="d-flex align-center">
@@ -163,19 +133,14 @@
                     label
                     variant="outlined"
                   >
-                    <v-icon
-                      size="x-small"
-                      start
-                    >
-                      mdi-percent
-                    </v-icon>
+                    <v-icon size="x-small" start> mdi-percent </v-icon>
                     {{ (result.similarity * 100).toFixed(1) }}%
                   </v-chip>
 
                   <v-chip
                     v-if="
                       result.cross_encoder_score !== undefined &&
-                        result.cross_encoder_score !== null
+                      result.cross_encoder_score !== null
                     "
                     class="score-chip"
                     color="secondary"
@@ -183,12 +148,7 @@
                     label
                     variant="outlined"
                   >
-                    <v-icon
-                      size="x-small"
-                      start
-                    >
-                      mdi-filter
-                    </v-icon>
+                    <v-icon size="x-small" start> mdi-filter </v-icon>
                     {{ formatRerankerScore(result.cross_encoder_score) }}
                   </v-chip>
                 </div>
@@ -208,13 +168,13 @@
                   :aria-label="
                     isAlreadyCollected(result.hpo_id)
                       ? $t('resultsDisplay.alreadyInCollectionAriaLabel', {
-                        id: result.hpo_id,
-                        label: result.label,
-                      })
+                          id: result.hpo_id,
+                          label: result.label,
+                        })
                       : $t('resultsDisplay.addToCollectionAriaLabel', {
-                        id: result.hpo_id,
-                        label: result.label,
-                      })
+                          id: result.hpo_id,
+                          label: result.label,
+                        })
                   "
                   @click.stop="addToCollection(result)"
                 />
@@ -233,9 +193,9 @@
     <div
       v-else-if="
         resultType === 'textProcess' &&
-          responseData &&
-          responseData.processed_chunks &&
-          responseData.aggregated_hpo_terms
+        responseData &&
+        responseData.processed_chunks &&
+        responseData.aggregated_hpo_terms
       "
     >
       <!-- Meta Information Card -->
@@ -244,33 +204,25 @@
           <div class="d-flex flex-wrap align-center">
             <!-- Processing Strategy -->
             <div class="info-item mr-4 mb-1">
-              <v-icon
-                color="info"
-                class="mr-1"
-                size="small"
-              >
-                mdi-information
-              </v-icon>
+              <v-icon color="info" class="mr-1" size="small"> mdi-information </v-icon>
               <span class="model-name">
-                <small class="text-caption text-medium-emphasis">{{ $t('resultsDisplay.textProcess.strategyLabel', 'Strategy') }}:</small>
+                <small class="text-caption text-medium-emphasis"
+                  >{{ $t('resultsDisplay.textProcess.strategyLabel', 'Strategy') }}:</small
+                >
                 {{
                   responseData.meta?.request_parameters?.chunking_strategy ||
-                    'sliding_window_cleaned'
+                  'sliding_window_cleaned'
                 }}
               </span>
             </div>
 
             <!-- Number of Chunks -->
             <div class="info-item mr-4 mb-1">
-              <v-icon
-                color="info"
-                class="mr-1"
-                size="small"
-              >
-                mdi-file-document-multiple
-              </v-icon>
+              <v-icon color="info" class="mr-1" size="small"> mdi-file-document-multiple </v-icon>
               <span>
-                <small class="text-caption text-medium-emphasis">{{ $t('resultsDisplay.textProcess.chunksLabel', 'Chunks') }}:</small>
+                <small class="text-caption text-medium-emphasis"
+                  >{{ $t('resultsDisplay.textProcess.chunksLabel', 'Chunks') }}:</small
+                >
                 {{ responseData.processed_chunks.length }}
               </span>
             </div>
@@ -279,22 +231,18 @@
             <div
               v-if="
                 responseData.meta?.effective_language ||
-                  responseData.meta?.request_parameters?.language
+                responseData.meta?.request_parameters?.language
               "
               class="info-item mr-4 mb-1"
             >
-              <v-icon
-                color="info"
-                class="mr-1"
-                size="small"
-              >
-                mdi-translate
-              </v-icon>
+              <v-icon color="info" class="mr-1" size="small"> mdi-translate </v-icon>
               <span>
-                <small class="text-caption text-medium-emphasis">{{ $t('resultsDisplay.languageLabel') }}:</small>
+                <small class="text-caption text-medium-emphasis"
+                  >{{ $t('resultsDisplay.languageLabel') }}:</small
+                >
                 {{
                   responseData.meta.effective_language ||
-                    responseData.meta.request_parameters?.language
+                  responseData.meta.request_parameters?.language
                 }}
               </span>
             </div>
@@ -304,19 +252,15 @@
           <div
             v-if="
               responseData.meta?.effective_retrieval_model ||
-                responseData.meta?.request_parameters?.retrieval_model_name
+              responseData.meta?.request_parameters?.retrieval_model_name
             "
             class="info-item mt-2"
           >
-            <v-icon
-              color="info"
-              class="mr-1"
-              size="small"
-            >
-              mdi-brain
-            </v-icon>
+            <v-icon color="info" class="mr-1" size="small"> mdi-brain </v-icon>
             <span class="model-name">
-              <small class="text-caption text-medium-emphasis">{{ $t('resultsDisplay.modelLabel') }}:</small>
+              <small class="text-caption text-medium-emphasis"
+                >{{ $t('resultsDisplay.modelLabel') }}:</small
+              >
               {{
                 displayModelName(
                   responseData.meta.effective_retrieval_model ||
@@ -347,8 +291,10 @@
         >
           <v-expansion-panel-title>
             <div class="d-flex align-center">
-              <span class="text-truncate">{{ $t('resultsDisplay.textProcess.chunkLabel', 'Chunk') }} {{ chunk.chunk_id }}:
-                {{ chunk.text.substring(0, 50) }}...</span>
+              <span class="text-truncate"
+                >{{ $t('resultsDisplay.textProcess.chunkLabel', 'Chunk') }} {{ chunk.chunk_id }}:
+                {{ chunk.text.substring(0, 50) }}...</span
+              >
               <v-chip
                 size="small"
                 :color="
@@ -379,10 +325,12 @@
               </span>
             </p>
             <div v-if="chunk.assertion_details && chunk.assertion_details.final_status">
-              <small>({{ $t('resultsDisplay.textProcess.assertionDetail', 'Assertion Method:') }}
+              <small
+                >({{ $t('resultsDisplay.textProcess.assertionDetail', 'Assertion Method:') }}
                 {{ chunk.assertion_details.combination_strategy }},
                 {{ $t('resultsDisplay.textProcess.finalStatus', 'Final Status:') }}
-                {{ chunk.assertion_details.final_status }})</small>
+                {{ chunk.assertion_details.final_status }})</small
+              >
             </div>
 
             <!-- Per-chunk HPO terms display -->
@@ -395,11 +343,7 @@
                   $t('resultsDisplay.textProcess.hpoInChunkTitle', 'HPO Terms found in this Chunk:')
                 }}
               </h4>
-              <v-list
-                density="compact"
-                class="pa-0"
-                style="background-color: transparent"
-              >
+              <v-list density="compact" class="pa-0" style="background-color: transparent">
                 <!-- Use transparent background for list -->
                 <v-list-item
                   v-for="(match, matchIndex) in chunk.hpo_matches"
@@ -419,21 +363,12 @@
                         rel="noopener noreferrer"
                         class="hpo-link"
                       >
-                        <strong class="mr-1">{{ match.hpo_id }}</strong>{{ match.name }}
-                        <v-icon
-                          size="x-small"
-                          class="ml-1"
-                          color="primary"
-                        >mdi-open-in-new</v-icon>
+                        <strong class="mr-1">{{ match.hpo_id }}</strong
+                        >{{ match.name }}
+                        <v-icon size="x-small" class="ml-1" color="primary">mdi-open-in-new</v-icon>
                       </a>
                     </div>
-                    <v-chip
-                      size="x-small"
-                      color="blue-grey"
-                      variant="flat"
-                      label
-                      class="ml-2"
-                    >
+                    <v-chip size="x-small" color="blue-grey" variant="flat" label class="ml-2">
                       {{ $t('resultsDisplay.similarityLabel', 'Score') }}:
                       {{ (match.score * 100).toFixed(1) }}%
                     </v-chip>
@@ -441,10 +376,7 @@
                 </v-list-item>
               </v-list>
             </div>
-            <div
-              v-else
-              class="text-caption text-medium-emphasis mt-2"
-            >
+            <div v-else class="text-caption text-medium-emphasis mt-2">
               {{
                 $t(
                   'resultsDisplay.textProcess.noChunkHPOTermsMatched',
@@ -455,10 +387,7 @@
           </v-expansion-panel-text>
         </v-expansion-panel>
       </v-expansion-panels>
-      <v-alert
-        v-else
-        type="info"
-      >
+      <v-alert v-else type="info">
         {{ $t('resultsDisplay.textProcess.noChunksProcessed', 'No text chunks were processed.') }}
       </v-alert>
 
@@ -494,11 +423,7 @@
                   <span class="hpo-id font-weight-bold text-primary text-body-1">{{
                     term.hpo_id
                   }}</span>
-                  <v-icon
-                    size="x-small"
-                    class="ml-1"
-                    color="primary"
-                  >mdi-open-in-new</v-icon>
+                  <v-icon size="x-small" class="ml-1" color="primary">mdi-open-in-new</v-icon>
                 </a>
               </div>
               <v-chip
@@ -528,49 +453,26 @@
             <div class="d-flex align-center justify-space-between flex-wrap">
               <div class="d-flex align-center flex-wrap ga-1">
                 <!-- ga-1 for gap -->
-                <v-chip
-                  color="primary"
-                  size="small"
-                  label
-                  variant="elevated"
-                >
-                  <v-icon
-                    size="small"
-                    start
-                  >
-                    mdi-chart-line-variant
-                  </v-icon>
+                <v-chip color="primary" size="small" label variant="elevated">
+                  <v-icon size="small" start> mdi-chart-line-variant </v-icon>
                   {{ (term.confidence * 100).toFixed(1) }}%
-                  <v-tooltip
-                    activator="parent"
-                    location="top"
-                  >
-                    {{
-                      $t('resultsDisplay.textProcess.avgConfidenceTooltip', 'Avg. Confidence')
-                    }}
+                  <v-tooltip activator="parent" location="top">
+                    {{ $t('resultsDisplay.textProcess.avgConfidenceTooltip', 'Avg. Confidence') }}
                   </v-tooltip>
                 </v-chip>
                 <v-chip
                   v-if="
                     term.max_score_from_evidence &&
-                      term.max_score_from_evidence.toFixed(2) !== term.confidence.toFixed(2)
+                    term.max_score_from_evidence.toFixed(2) !== term.confidence.toFixed(2)
                   "
                   color="blue-grey-lighten-2"
                   size="small"
                   label
                   variant="tonal"
                 >
-                  <v-icon
-                    size="small"
-                    start
-                  >
-                    mdi-arrow-up-bold-hexagon-outline
-                  </v-icon>
+                  <v-icon size="small" start> mdi-arrow-up-bold-hexagon-outline </v-icon>
                   Max: {{ (term.max_score_from_evidence * 100).toFixed(1) }}%
-                  <v-tooltip
-                    activator="parent"
-                    location="top"
-                  >
+                  <v-tooltip activator="parent" location="top">
                     {{
                       $t('resultsDisplay.textProcess.maxScoreTooltip', 'Max Score from one Chunk')
                     }}
@@ -584,19 +486,11 @@
                   style="cursor: pointer"
                   @click="scrollToChunk(term.top_evidence_chunk_id || term.source_chunk_ids[0])"
                 >
-                  <v-icon
-                    start
-                    size="small"
-                  >
-                    mdi-text-box-search-outline
-                  </v-icon>
+                  <v-icon start size="small"> mdi-text-box-search-outline </v-icon>
                   {{ $t('resultsDisplay.textProcess.evidenceFromChunksShort', 'Chunks:') }} #{{
                     term.source_chunk_ids.join(', #')
                   }}
-                  <v-tooltip
-                    activator="parent"
-                    location="top"
-                  >
+                  <v-tooltip activator="parent" location="top">
                     {{
                       $t(
                         'resultsDisplay.textProcess.evidenceTooltip',
@@ -611,18 +505,10 @@
                   label
                   variant="tonal"
                 >
-                  <v-icon
-                    start
-                    size="small"
-                  >
-                    mdi-pound
-                  </v-icon>
+                  <v-icon start size="small"> mdi-pound </v-icon>
                   {{ term.source_chunk_ids.length }}
                   {{ $t('resultsDisplay.textProcess.hitsText', 'hits') }}
-                  <v-tooltip
-                    activator="parent"
-                    location="top"
-                  >
+                  <v-tooltip activator="parent" location="top">
                     {{
                       $t(
                         'resultsDisplay.textProcess.evidenceCountTooltip',
@@ -656,11 +542,7 @@
           </div>
         </v-list-item>
       </v-list>
-      <v-alert
-        v-else
-        type="info"
-        class="mb-4"
-      >
+      <v-alert v-else type="info" class="mb-4">
         {{ $t('resultsDisplay.textProcess.noAggregatedTerms', 'No aggregated HPO terms found.') }}
       </v-alert>
     </div>
@@ -669,37 +551,28 @@
     <div
       v-else-if="
         resultType === 'query' &&
-          responseData &&
-          responseData.results &&
-          responseData.results.length === 0
+        responseData &&
+        responseData.results &&
+        responseData.results.length === 0
       "
     >
-      <v-alert
-        color="warning"
-        icon="mdi-alert-circle"
-      >
+      <v-alert color="warning" icon="mdi-alert-circle">
         {{ $t('resultsDisplay.noTermsFound') }}
       </v-alert>
     </div>
     <div
       v-else-if="
         resultType === 'textProcess' &&
-          responseData &&
-          (!responseData.processed_chunks || responseData.processed_chunks.length === 0)
+        responseData &&
+        (!responseData.processed_chunks || responseData.processed_chunks.length === 0)
       "
     >
-      <v-alert
-        color="warning"
-        icon="mdi-alert-circle"
-      >
+      <v-alert color="warning" icon="mdi-alert-circle">
         {{ $t('resultsDisplay.textProcess.noChunksProcessed', 'No text chunks were processed.') }}
       </v-alert>
     </div>
     <div v-else-if="error">
-      <v-alert
-        type="error"
-        icon="mdi-alert-circle"
-      >
+      <v-alert type="error" icon="mdi-alert-circle">
         <template v-if="error.userMessageKey">
           {{ $t(error.userMessageKey, error.userMessageParams) }}
         </template>

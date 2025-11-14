@@ -24,18 +24,14 @@
             height="40"
             class="mr-3"
             loading="lazy"
-          >
+          />
           <h1 class="text-h4 font-weight-light">
             {{ t('faq.pageTitle') }}
           </h1>
         </div>
 
         <!-- Search Bar -->
-        <v-card
-          class="mb-6"
-          variant="outlined"
-          role="search"
-        >
+        <v-card class="mb-6" variant="outlined" role="search">
           <v-card-text class="pa-2">
             <v-text-field
               v-model="searchQuery"
@@ -52,15 +48,8 @@
         </v-card>
 
         <!-- FAQ Categories -->
-        <v-card
-          variant="outlined"
-          role="region"
-          aria-label="FAQ Categories"
-        >
-          <v-expansion-panels
-            variant="accordion"
-            role="tablist"
-          >
+        <v-card variant="outlined" role="region" aria-label="FAQ Categories">
+          <v-expansion-panels variant="accordion" role="tablist">
             <v-expansion-panel
               v-for="category in filteredCategories"
               :key="category.id"

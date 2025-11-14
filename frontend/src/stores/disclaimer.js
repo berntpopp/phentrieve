@@ -18,7 +18,7 @@ export const useDisclaimerStore = defineStore('disclaimer', () => {
       month: 'long',
       day: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
     });
   });
 
@@ -48,7 +48,7 @@ export const useDisclaimerStore = defineStore('disclaimer', () => {
     try {
       const data = {
         acknowledged: true,
-        timestamp: timestamp
+        timestamp: timestamp,
       };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     } catch (error) {
@@ -78,6 +78,6 @@ export const useDisclaimerStore = defineStore('disclaimer', () => {
     // Actions
     initialize,
     saveAcknowledgment,
-    reset
+    reset,
   };
 });
