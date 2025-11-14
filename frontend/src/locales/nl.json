@@ -43,6 +43,7 @@
     "title": "Phentrieve",
     "subtitle": "HPO-termmapping voor klinische fenotypebeschrijvingen",
     "welcomeText": "Phentrieve is een door AI aangedreven tool die klinische tekst nauwkeurig koppelt aan gestandaardiseerde Human Phenotype Ontology (HPO) termen, waardoor fenotype-annotatie voor onderzoek en diagnostiek wordt gestroomlijnd.",
+    "queryModeLabel": "Query-modus",
     "inputLabel": "Voer klinische tekstbeschrijving in",
     "examples": {
       "title": "Voorbeelden",
@@ -94,6 +95,8 @@
       "similarityThreshold": "Overeenkomstdrempel",
       "enableReranking": "Herrangschikking inschakelen",
       "rerankerMode": "Herrangschikkingsmodus",
+      "rerankerModeCrossLingual": "Meertalig",
+      "rerankerModeMonolingual": "Eentalig",
       "language": "Taal",
       "processingModeTitle": "Verwerkingsmodus",
       "processingModeLabel": "Verwerkingsmodus",
@@ -289,5 +292,11 @@
       "startTour": "Begeleide rondleiding starten",
       "restartTour": "Rondleiding herstarten"
     }
+  },
+  "phenopacket": {
+    "sexUnknown": "Onbekend",
+    "sexFemale": "Vrouwelijk",
+    "sexMale": "Mannelijk",
+    "sexOther": "Anders"
   }
 }
