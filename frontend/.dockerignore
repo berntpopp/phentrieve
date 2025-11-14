@@ -3,20 +3,50 @@ node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
 .npm
+.yarn
+.pnp
+.pnp.js
 
 # Build artifacts
 /dist
 /build
+.output
+.nuxt
+.next
+out
+
+# Testing
+coverage/
+.nyc_output
+*.lcov
+test-results/
+playwright-report/
+playwright/.cache/
+
+# Caching
+.cache/
+.parcel-cache/
+.eslintcache
+.stylelintcache
 
 # Editor directories and files
 .idea
 .vscode
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+*.sublime-*
+.project
+.classpath
+.settings/
 
 # OS generated files
 .DS_Store
@@ -26,10 +56,35 @@ yarn-error.log*
 .Trashes
 ehthumbs.db
 Thumbs.db
+desktop.ini
 
 # Environment variables
 .env
 .env.local
+.env.*.local
 .env.development.local
 .env.test.local
 .env.production.local
+
+# Documentation
+*.md
+!README.md
+docs/
+
+# Docker
+Dockerfile
+Dockerfile.*
+docker-compose*.yml
+.dockerignore
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# CI/CD
+.github/
+
+# Logs
+logs/
+*.log
