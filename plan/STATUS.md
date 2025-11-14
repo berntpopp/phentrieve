@@ -158,17 +158,19 @@ Creating it after Phase 1 ensures accuracy.
 
 ### Completed
 - [x] ✅ Master Plan (comprehensive)
-- [x] ✅ Critical Review (detailed)
 - [x] ✅ Phase 0 Plan (18K, 10 steps)
 - [x] ✅ Phase 1 Plan (15K, 13 steps)
 - [x] ✅ README (navigation)
-- [x] ✅ Cleaned up obsolete files
+- [x] ✅ **Type Annotations** - Fixed all 158 mypy errors → 0 errors (16 commits on `feature/type-annotations-fix`)
+- [x] ✅ **Frontend Linting** - Fixed all 471 ESLint warnings → 0 warnings
+- [x] ✅ **Phase 0 Baselines** - Performance metrics collected (see baselines.md, pilot reports)
 
 ### In Progress
-- [ ] ⏳ Phase 0 execution (your turn)
+- [ ] ⏳ Merge `feature/type-annotations-fix` to main
+- [ ] ⏳ Complete Phase 0 execution
 
 ### Next Up
-- [ ] ⏳ Phase 1 execution (after Phase 0)
+- [ ] ⏳ Phase 1 execution (Ruff migration)
 - [ ] ⏳ Phase 2 plan creation (after Phase 1)
 
 ---
