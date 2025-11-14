@@ -30,7 +30,7 @@ def orchestrate_hpo_extraction(
     reranker_mode: str = "cross-lingual",
     top_term_per_chunk: bool = False,
     min_confidence_for_aggregated: float = 0.0,
-    assertion_statuses: Optional[list[str]] = None,
+    assertion_statuses: Optional[list[str | None]] = None,
 ) -> tuple[
     list[dict[str, Any]],  # aggregated results
     list[dict[str, Any]],  # chunk results

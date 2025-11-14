@@ -274,7 +274,7 @@ async def process_text_extract_hpo(request: TextProcessingRequest):
 
         api_processed_chunks: list[ProcessedChunkAPI] = []
         text_chunks_for_orchestrator: list[str] = []
-        assertion_statuses_for_orchestrator: list[str] = []
+        assertion_statuses_for_orchestrator: list[str | None] = []
 
         for idx, p_chunk in enumerate(processed_chunks_list):
             api_processed_chunks.append(

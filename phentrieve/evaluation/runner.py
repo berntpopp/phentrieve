@@ -579,6 +579,10 @@ def run_evaluation(
                     )
 
             # Save summary to file
+            # Type narrowing: these are not None inside save_results block
+            assert summaries_dir is not None
+            assert detailed_results_dir is not None
+
             os.makedirs(summaries_dir, exist_ok=True)
             # Use model_slug instead of creating a new safe name
             # This ensures consistency with collection naming
