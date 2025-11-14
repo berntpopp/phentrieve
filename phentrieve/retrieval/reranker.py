@@ -42,7 +42,7 @@ def load_cross_encoder(
         logger.info(f"Loading cross-encoder model '{model_name}' on {device}")
 
         # Load the cross-encoder model
-        model = CrossEncoder(model_name, device=device)
+        model: CrossEncoder = CrossEncoder(model_name, device=device)
         logger.info(f"Successfully loaded cross-encoder model: {model_name}")
         return model
 

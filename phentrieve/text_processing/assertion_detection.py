@@ -12,6 +12,7 @@ from enum import Enum
 from typing import Any, Optional
 
 import spacy
+from spacy.language import Language
 
 # Local imports
 from phentrieve.text_processing.resource_loader import load_language_resource
