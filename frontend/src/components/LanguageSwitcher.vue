@@ -33,11 +33,11 @@
 </template>
 
 <script setup>
-import { ref, watch, computed } from 'vue'
-import { useI18n } from 'vue-i18n'
+import { ref, watch, computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { logService } from '@/services/logService'; // Assuming logService is available
 
-const { locale } = useI18n()
+const { locale } = useI18n();
 
 const availableLocales = ref([
   { code: 'en', name: 'English', icon: 'mdi-alpha-e-box', color: 'blue' },
@@ -45,35 +45,35 @@ const availableLocales = ref([
   { code: 'fr', name: 'Français', icon: 'mdi-alpha-f-box', color: 'blue-darken-1' },
   { code: 'es', name: 'Español', icon: 'mdi-alpha-s-box', color: 'yellow-darken-3' },
   { code: 'nl', name: 'Nederlands', icon: 'mdi-alpha-n-box', color: 'orange' },
-])
+]);
 
-const currentLocale = ref(locale.value) // Initialize with current i18n locale
+const currentLocale = ref(locale.value); // Initialize with current i18n locale
 
 watch(currentLocale, (newLocale) => {
   logService.info('Language changed by user', { newLocale });
-  locale.value = newLocale
+  locale.value = newLocale;
   try {
-    localStorage.setItem('phentrieve-lang', newLocale)
+    localStorage.setItem('phentrieve-lang', newLocale);
   } catch (e) {
     logService.warn('Could not save language preference to localStorage.', e);
   }
-})
+});
 
 // Watch for external changes to i18n locale (e.g., on initial load)
 watch(locale, (newGlobalLocale) => {
-    if (currentLocale.value !== newGlobalLocale) {
-        currentLocale.value = newGlobalLocale;
-    }
+  if (currentLocale.value !== newGlobalLocale) {
+    currentLocale.value = newGlobalLocale;
+  }
 });
 
 const currentLanguageIcon = computed(() => {
-    const found = availableLocales.value.find(l => l.code === currentLocale.value);
-    return found ? found.icon : 'mdi-translate';
+  const found = availableLocales.value.find((l) => l.code === currentLocale.value);
+  return found ? found.icon : 'mdi-translate';
 });
 
 const currentLanguageColor = computed(() => {
-    const found = availableLocales.value.find(l => l.code === currentLocale.value);
-    return found ? found.color : 'primary';
+  const found = availableLocales.value.find((l) => l.code === currentLocale.value);
+  return found ? found.color : 'primary';
 });
 </script>
 

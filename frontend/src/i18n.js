@@ -1,11 +1,11 @@
-import { createI18n } from 'vue-i18n'
+import { createI18n } from 'vue-i18n';
 
 // Import locale files explicitly to ensure they're included in the production build
-import en from './locales/en.json'
-import fr from './locales/fr.json'
-import es from './locales/es.json'
-import de from './locales/de.json'
-import nl from './locales/nl.json'
+import en from './locales/en.json';
+import fr from './locales/fr.json';
+import es from './locales/es.json';
+import de from './locales/de.json';
+import nl from './locales/nl.json';
 
 // Create messages object directly with imported locales
 const messages = {
@@ -13,8 +13,8 @@ const messages = {
   fr,
   es,
   de,
-  nl
-}
+  nl,
+};
 
 // Determine initial locale: localStorage > browser language > default ('en')
 let initialLocale = 'en'; // Default
@@ -37,15 +37,15 @@ const i18n = createI18n({
   locale: initialLocale,
   fallbackLocale: 'en',
   messages: messages,
-  
+
   // Critical: Ensure $t is available in Options API components
   globalInjection: true,
-  
+
   // Use runtime-only mode to avoid eval() usage for better CSP compatibility
   runtimeOnly: true,
   // Pre-compile all messages to avoid dynamic compilation
   compileMode: 'hoist',
-  
+
   // Other configuration options
   warnHtmlMessage: false, // Allow HTML in messages (e.g., for FAQ)
   missingWarn: import.meta.env.MODE !== 'production', // Show missing warnings only in dev
@@ -53,7 +53,7 @@ const i18n = createI18n({
   escapeParameter: true, // Escape HTML in parameters for security
   // Silent option to avoid console errors
   silentTranslationWarn: true,
-  silentFallbackWarn: true
-})
+  silentFallbackWarn: true,
+});
 
-export default i18n
+export default i18n;

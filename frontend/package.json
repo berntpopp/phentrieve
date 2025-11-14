@@ -2,11 +2,15 @@
   "name": "phentrieve-frontend",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore"
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write \"src/**/*.{js,vue,css,scss,html}\"",
+    "format:check": "prettier --check \"src/**/*.{js,vue,css,scss,html}\""
   },
   "dependencies": {
     "@berntpopp/phenopackets-js": "^1.0.2",
@@ -19,18 +23,24 @@
     "vuetify": "^3.3.23"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.1",
     "@fullhuman/postcss-purgecss": "^5.0.0",
     "@mdi/font": "^7.3.67",
     "@rollup/plugin-commonjs": "^28.0.3",
     "@vitejs/plugin-vue": "^4.4.0",
     "autoprefixer": "^10.4.16",
-    "eslint": "^8.49.0",
-    "eslint-plugin-vue": "^9.17.0",
+    "eslint": "^9.39.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
+    "eslint-plugin-vue": "^10.5.1",
+    "globals": "^16.5.0",
     "postcss": "^8.4.31",
+    "prettier": "^3.6.2",
     "rollup-plugin-visualizer": "^5.9.2",
     "terser": "^5.39.1",
     "vite": "^4.4.11",
     "vite-plugin-compression": "^0.5.1",
-    "vite-plugin-imagemin": "^0.6.1"
+    "vite-plugin-imagemin": "^0.6.1",
+    "vue-eslint-parser": "^10.2.0"
   }
 }

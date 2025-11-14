@@ -1,4 +1,4 @@
-.PHONY: help format lint typecheck check test clean all install lock upgrade add remove clean-venv
+.PHONY: help format lint typecheck check test clean all install lock upgrade add remove clean-venv frontend-install frontend-lint frontend-format frontend-dev frontend-build docker-build docker-up docker-down docker-logs
 
 # Default target
 .DEFAULT_GOAL := help
@@ -55,6 +55,40 @@ add: ## Add a new dependency (usage: make add PACKAGE=package-name)
 remove: ## Remove a dependency (usage: make remove PACKAGE=package-name)
 	uv remove $(PACKAGE)
 
+##@ Frontend Development
+
+frontend-install: ## Install frontend dependencies
+	cd frontend && npm install
+
+frontend-lint: ## Lint frontend code
+	cd frontend && npm run lint
+
+frontend-format: ## Format frontend code with Prettier
+	cd frontend && npm run format
+
+frontend-dev: ## Run frontend development server
+	cd frontend && npm run dev
+
+frontend-build: ## Build frontend for production
+	cd frontend && npm run build
+
+##@ Docker
+
+docker-build: ## Build Docker images
+	docker-compose build
+
+docker-up: ## Start Docker containers
+	docker-compose up -d
+
+docker-down: ## Stop Docker containers
+	docker-compose down
+
+docker-logs: ## View Docker logs
+	docker-compose logs -f
+
+docker-dev: ## Start development Docker stack
+	docker-compose -f docker-compose.dev.yml up
+
 ##@ Cleaning
 
 clean: ## Remove build artifacts and caches
@@ -78,4 +112,6 @@ clean-data: ## Clean data caches (use with caution)
 
 ##@ All-in-one
 
-all: clean check test ## Clean, check, and test everything
+check-all: check frontend-lint ## Check both Python and frontend code
+
+all: clean check test ## Clean, check, and test Python code

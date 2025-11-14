@@ -51,7 +51,7 @@
             <span class="text-high-emphasis">{{ $t('logViewer.searchPlaceholder') }}</span>
           </template>
         </v-text-field>
-        
+
         <v-select
           v-model="selectedLevels"
           :items="logLevels"
@@ -85,7 +85,9 @@
         >
           <v-card-text class="pa-2">
             <div class="d-flex align-center">
-              <div class="text-caption text-high-emphasis">{{ formatTimestamp(log.timestamp) }}</div>
+              <div class="text-caption text-high-emphasis">
+                {{ formatTimestamp(log.timestamp) }}
+              </div>
               <v-chip
                 size="x-small"
                 :color="getLogColor(log.level)"
@@ -98,7 +100,13 @@
             </div>
             <div class="text-body-2 mt-1 text-high-emphasis">{{ log.message }}</div>
             <v-expand-transition>
-              <pre v-if="log.data" class="mt-2 text-caption text-high-emphasis" role="code" aria-label="Log details">{{ JSON.stringify(log.data, null, 2) }}</pre>
+              <pre
+                v-if="log.data"
+                class="mt-2 text-caption text-high-emphasis"
+                role="code"
+                aria-label="Log details"
+                >{{ JSON.stringify(log.data, null, 2) }}</pre
+              >
             </v-expand-transition>
           </v-card-text>
         </v-card>
@@ -113,58 +121,59 @@
 </template>
 
 <script>
-import { ref, computed } from 'vue'
-import { useLogStore } from '../stores/log'
-import { LogLevel } from '../services/logService'
+import { ref, computed } from 'vue';
+import { useLogStore } from '../stores/log';
+import { LogLevel } from '../services/logService';
 
 export default {
   name: 'LogViewer',
   setup() {
-    const logStore = useLogStore()
-    const search = ref('')
-    const selectedLevels = ref(Object.values(LogLevel))
-    const logLevels = Object.values(LogLevel)
+    const logStore = useLogStore();
+    const search = ref('');
+    const selectedLevels = ref(Object.values(LogLevel));
+    const logLevels = Object.values(LogLevel);
 
     const filteredLogs = computed(() => {
-      return logStore.logs.filter(log => {
-        const matchesSearch = !search.value || 
+      return logStore.logs.filter((log) => {
+        const matchesSearch =
+          !search.value ||
           log.message.toLowerCase().includes(search.value.toLowerCase()) ||
-          (log.data && JSON.stringify(log.data).toLowerCase().includes(search.value.toLowerCase()))
-        const matchesLevel = selectedLevels.value.includes(log.level)
-        return matchesSearch && matchesLevel
-      })
-    })
+          (log.data && JSON.stringify(log.data).toLowerCase().includes(search.value.toLowerCase()));
+        const matchesLevel = selectedLevels.value.includes(log.level);
+        return matchesSearch && matchesLevel;
+      });
+    });
 
     const getLogColor = (level) => {
       const colors = {
         [LogLevel.DEBUG]: 'grey-lighten-3',
         [LogLevel.INFO]: 'blue-lighten-4',
         [LogLevel.WARN]: 'amber-lighten-4',
-        [LogLevel.ERROR]: 'red-lighten-4'
-      }
-      return colors[level] || 'grey-lighten-3'
-    }
+        [LogLevel.ERROR]: 'red-lighten-4',
+      };
+      return colors[level] || 'grey-lighten-3';
+    };
 
     const formatTimestamp = (timestamp) => {
-      return new Date(timestamp).toLocaleTimeString()
-    }
+      return new Date(timestamp).toLocaleTimeString();
+    };
 
     const downloadLogs = () => {
-      const content = JSON.stringify(logStore.logs, null, 2)
-      const blob = new Blob([content], { type: 'application/json' })
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `logs-${new Date().toISOString()}.json`
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-      URL.revokeObjectURL(url)
-    }
+      const content = JSON.stringify(logStore.logs, null, 2);
+      const blob = new Blob([content], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `logs-${new Date().toISOString()}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    };
 
     const clearLogs = () => {
-      logStore.clearLogs()
-    }
+      logStore.clearLogs();
+    };
 
     return {
       logStore,
@@ -175,10 +184,10 @@ export default {
       getLogColor,
       formatTimestamp,
       downloadLogs,
-      clearLogs
-    }
-  }
-}
+      clearLogs,
+    };
+  },
+};
 </script>
 
 <style scoped>
