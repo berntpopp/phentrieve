@@ -47,14 +47,14 @@ def ensure_directories_exist() -> None:
 
 
 def orchestrate_benchmark(
-    test_file: str = None,
+    test_file: str | None = None,
     model_name: str = DEFAULT_MODEL,
-    model_list: str = None,
+    model_list: str | None = None,
     all_models: bool = False,
     similarity_threshold: float = 0.1,
     cpu: bool = False,
     detailed: bool = False,
-    output: str = None,
+    output: str | None = None,
     debug: bool = False,
     create_sample: bool = False,
     trust_remote_code: bool = False,
@@ -62,7 +62,7 @@ def orchestrate_benchmark(
     reranker_model: str = DEFAULT_RERANKER_MODEL,
     monolingual_reranker_model: str = DEFAULT_MONOLINGUAL_RERANKER_MODEL,
     rerank_mode: str = DEFAULT_RERANKER_MODE,
-    translation_dir: str = None,
+    translation_dir: str | None = None,
     rerank_count: int = DEFAULT_RERANK_CANDIDATE_COUNT,
     similarity_formula: str = "hybrid",
     data_dir_override: Optional[str] = None,

@@ -51,13 +51,13 @@ def run_evaluation(
     device: Optional[str] = None,
     trust_remote_code: bool = False,
     save_results: bool = True,
-    results_dir: Path = None,
-    index_dir: Path = None,
+    results_dir: Path | None = None,
+    index_dir: Path | None = None,
     enable_reranker: bool = False,
     reranker_model: str = DEFAULT_RERANKER_MODEL,
     rerank_count: int = DEFAULT_RERANK_CANDIDATE_COUNT,
     reranker_mode: str = DEFAULT_RERANKER_MODE,
-    translation_dir: str = DEFAULT_TRANSLATION_DIR,
+    translation_dir: str | None = DEFAULT_TRANSLATION_DIR,
     similarity_formula: str = "hybrid",
 ) -> Optional[dict[str, Any]]:
     """

@@ -30,7 +30,7 @@ def build_chromadb_index(
     model_name: str,
     batch_size: int = 100,
     recreate: bool = False,
-    index_dir: Path = None,
+    index_dir: Path | None = None,
 ) -> bool:
     """
     Build a ChromaDB index for the given documents using the specified embedding model.
