@@ -65,7 +65,7 @@ def convert_results_to_candidates(
     Returns:
         List of candidate dictionaries ready for reranking
     """
-    candidates = []
+    candidates: list[dict[str, Any]] = []
 
     if not results or not results.get("ids") or not results["ids"][0]:
         return candidates
@@ -124,7 +124,7 @@ def segment_text(text: str, lang: str | None = None) -> list[str]:
             lang = "en"  # Fallback to English
 
     segmenter = pysbd.Segmenter(language=lang, clean=False)
-    return segmenter.segment(text)
+    return list(segmenter.segment(text))
 
 
 def format_results(
@@ -515,7 +515,7 @@ def process_query(
             # Single query mode, no sentence splitting
             query_result = retriever.query(
                 text,
-                n_results=rerank_count if cross_encoder else num_results,
+                n_results=(rerank_count if (cross_encoder and rerank_count) else num_results),
             )
 
             # Perform re-ranking if a cross-encoder is provided
@@ -697,11 +697,15 @@ def orchestrate_query(
 
     # If in interactive mode, use the cached models
     if interactive_mode:
-        if not all([_global_model, _global_retriever]):
-            error_msg = "Interactive mode requires initialized models. Run with interactive_setup first."
+        if not all([_global_model, _global_retriever, query_text]):
+            error_msg = "Interactive mode requires initialized models and query text. Run with interactive_setup first."
             logging.error(error_msg)
             output_func(error_msg)
             return []
+
+        # Type narrowing: at this point we know these are not None
+        assert _global_retriever is not None
+        assert query_text is not None
 
         # Process the query using the global models
         return process_query(
@@ -816,9 +820,9 @@ def orchestrate_query(
             query_assertion_detector_to_use = CombinedAssertionDetector(
                 language=actual_query_assertion_lang,
                 # Pass only the expected kwargs to CombinedAssertionDetector
-                enable_keyword=assertion_config_for_query["enable_keyword"],
-                enable_dependency=assertion_config_for_query["enable_dependency"],
-                preference=assertion_config_for_query["preference"],
+                enable_keyword=bool(assertion_config_for_query["enable_keyword"]),
+                enable_dependency=bool(assertion_config_for_query["enable_dependency"]),
+                preference=str(assertion_config_for_query["preference"]),
             )
             if not interactive_setup:  # Avoid logging during mere setup
                 output_func(
