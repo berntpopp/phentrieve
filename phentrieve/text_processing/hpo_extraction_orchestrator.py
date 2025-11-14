@@ -281,9 +281,7 @@ def orchestrate_hpo_extraction(
             "evidence_count": len(evidence_list),  # Alias for count for API consistency
             "avg_score": avg_score,
             "confidence": avg_score,  # Alias for avg_score for API consistency
-            "chunks": sorted(
-                {evidence["chunk_idx"] for evidence in evidence_list}
-            ),
+            "chunks": sorted({evidence["chunk_idx"] for evidence in evidence_list}),
             "top_evidence_chunk_idx": top_evidence_chunk_idx,
             "text_attributions": text_attributions,
         }

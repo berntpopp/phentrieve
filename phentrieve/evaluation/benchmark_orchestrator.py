@@ -104,9 +104,7 @@ def orchestrate_benchmark(
     )
 
     # Resolve paths
-    resolve_data_path(
-        data_dir_override, "data_dir", get_default_data_dir
-    )
+    resolve_data_path(data_dir_override, "data_dir", get_default_data_dir)
     index_dir = resolve_data_path(
         index_dir_override, "index_dir", get_default_index_dir
     )

@@ -108,7 +108,6 @@ def format_results(
             "header_info": "No matching HPO terms found.",
         }
 
-
     # Check if this is a re-ranked result by looking for cross_encoder_score in first metadata
     is_reranked = False
     if (

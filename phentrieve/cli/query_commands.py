@@ -230,8 +230,9 @@ def query_hpo(
                 # so we'll use a no-op output function
                 output_func_to_use = typer_echo
                 if output_format.lower() in ["json", "json_lines"]:
+
                     def output_func_to_use(x):
-                        return (None)  # No-op function to suppress output during query
+                        return None  # No-op function to suppress output during query
 
                 # Process the query
                 query_results = orchestrate_query(
