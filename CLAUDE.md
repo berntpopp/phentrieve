@@ -15,10 +15,18 @@ Phentrieve is an AI-powered system for mapping clinical text to Human Phenotype 
 ### Python CLI/Library
 ```bash
 # Install in development mode
-pip install -e .
+make install                                         # Install package (pip install -e .)
+make install-dev                                     # Install with text_processing extras
 
-# Install with optional text processing dependencies (spaCy, NER)
-pip install -e ".[text_processing]"
+# Development workflow (recommended)
+make check                                           # Format + lint code
+make test                                            # Run tests
+make all                                             # Clean + check + test
+
+# Code quality
+make format                                          # Format with Ruff
+make lint                                            # Lint with Ruff
+make lint-fix                                        # Lint and auto-fix issues
 
 # Common CLI commands
 phentrieve --help                                    # Show all commands
@@ -34,13 +42,14 @@ phentrieve benchmark run                             # Run retrieval benchmarks
 phentrieve benchmark compare                         # Compare benchmark results
 phentrieve benchmark visualize                       # Generate result visualizations
 
-# Testing
+# Testing (manual)
 pytest tests/                                        # Run all tests
 pytest tests/test_chunking.py                        # Run specific test file
 pytest -k "test_semantic"                            # Run tests matching pattern
+make test-cov                                        # Run tests with coverage
 
-# Code formatting
-black phentrieve/ api/ tests/                        # Format all Python code
+# Cleaning
+make clean                                           # Remove build artifacts and caches
 ```
 
 ### Frontend (Vue.js)
