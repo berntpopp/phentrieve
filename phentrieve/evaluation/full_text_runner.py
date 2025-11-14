@@ -99,7 +99,7 @@ def evaluate_single_document_extraction(
     assertion_statuses_for_orchestrator = None
     if processed_chunks_from_pipeline and "status" in processed_chunks_from_pipeline[0]:
         # Extract assertion statuses from each chunk
-        assertion_statuses_for_orchestrator = []
+        assertion_statuses_for_orchestrator: list[str | None] = []
         for chunk in processed_chunks_from_pipeline:
             status = chunk.get("status")
             if status is None:

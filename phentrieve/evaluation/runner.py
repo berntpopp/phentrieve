@@ -178,13 +178,13 @@ def run_evaluation(
         # Initialize result containers for both dense and re-ranked metrics
         # Baseline dense metrics
         mrr_dense_values = []
-        hit_rate_dense_values = {k: [] for k in k_values}
-        max_ont_sim_dense_values = {k: [] for k in k_values}
+        hit_rate_dense_values: dict[int, list[float]] = {k: [] for k in k_values}
+        max_ont_sim_dense_values: dict[int, list[float]] = {k: [] for k in k_values}
 
         # Re-ranked metrics (will remain empty if re-ranking is disabled)
         mrr_reranked_values = []
-        hit_rate_reranked_values = {k: [] for k in k_values}
-        max_ont_sim_reranked_values = {k: [] for k in k_values}
+        hit_rate_reranked_values: dict[int, list[float]] = {k: [] for k in k_values}
+        max_ont_sim_reranked_values: dict[int, list[float]] = {k: [] for k in k_values}
 
         detailed_results = []
 
