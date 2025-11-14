@@ -2,7 +2,12 @@
   <div class="search-container mx-auto px-2">
     <!-- Clean Search Bar with Integrated Button -->
     <div class="search-bar-container pt-0 px-2 pb-2 pa-sm-3">
-      <v-sheet rounded="pill" elevation="0" class="pa-1 pa-sm-2 search-bar" color="white">
+      <v-sheet
+        rounded="pill"
+        elevation="0"
+        class="pa-1 pa-sm-2 search-bar"
+        color="white"
+      >
         <div class="d-flex align-center flex-wrap flex-sm-nowrap">
           <v-textarea
             v-if="isTextProcessModeActive"
@@ -12,7 +17,6 @@
             hide-details
             class="search-input ml-2 ml-sm-3 flex-grow-1"
             :disabled="isLoading"
-            @keydown.enter.prevent="!isLoading && queryText.trim() ? submitQuery() : null"
             bg-color="white"
             color="primary"
             rows="3"
@@ -21,42 +25,39 @@
             aria-label="Clinical document input for text processing"
             :aria-description="
               'Enter longer clinical text for document processing' +
-              (isLoading ? '. Processing in progress' : '')
+                (isLoading ? '. Processing in progress' : '')
             "
+            @keydown.enter.prevent="!isLoading && queryText.trim() ? submitQuery() : null"
           >
-            <template v-slot:label>
-              <span class="text-high-emphasis"
-                >{{ $t('queryInterface.inputLabel') }} ({{
-                  $t('queryInterface.documentModeLabel', 'Document Mode')
-                }})</span
-              >
+            <template #label>
+              <span class="text-high-emphasis">{{ $t('queryInterface.inputLabel') }} ({{
+                $t('queryInterface.documentModeLabel', 'Document Mode')
+              }})</span>
             </template>
           </v-textarea>
           <v-text-field
             v-else
+            ref="queryInput"
             v-model="queryText"
             density="comfortable"
             variant="outlined"
             hide-details
             class="search-input ml-2 ml-sm-3 flex-grow-1"
             :disabled="isLoading"
-            @keydown.enter.prevent="!isLoading && queryText.trim() ? submitQuery() : null"
             bg-color="white"
             color="primary"
             clearable
             aria-label="Clinical text input field"
             :aria-description="
               'Enter clinical text to search for HPO terms' +
-              (isLoading ? '. Search in progress' : '')
+                (isLoading ? '. Search in progress' : '')
             "
-            ref="queryInput"
+            @keydown.enter.prevent="!isLoading && queryText.trim() ? submitQuery() : null"
           >
-            <template v-slot:label>
-              <span class="text-high-emphasis"
-                >{{ $t('queryInterface.inputLabel') }} ({{
-                  $t('queryInterface.queryModeLabel', 'Query Mode')
-                }})</span
-              >
+            <template #label>
+              <span class="text-high-emphasis">{{ $t('queryInterface.inputLabel') }} ({{
+                $t('queryInterface.queryModeLabel', 'Query Mode')
+              }})</span>
             </template>
           </v-text-field>
 
@@ -66,14 +67,13 @@
               :text="$t('queryInterface.tooltips.advancedOptions')"
               role="tooltip"
             >
-              <template v-slot:activator="{ props }">
+              <template #activator="{ props }">
                 <v-btn
                   v-bind="props"
                   icon
                   variant="text"
                   color="primary"
                   class="mx-1 mx-sm-2"
-                  @click="showAdvancedOptions = !showAdvancedOptions"
                   :disabled="isLoading"
                   :aria-label="
                     showAdvancedOptions ? 'Close Advanced Options' : 'Open Advanced Options'
@@ -81,26 +81,29 @@
                   :aria-expanded="showAdvancedOptions.toString()"
                   aria-controls="advanced-options-panel"
                   size="small"
+                  @click="showAdvancedOptions = !showAdvancedOptions"
                 >
-                  <v-icon>{{
-                    showAdvancedOptions ? 'mdi-cog-outline' : 'mdi-tune-variant'
-                  }}</v-icon>
+                  <v-icon>
+                    {{
+                      showAdvancedOptions ? 'mdi-cog-outline' : 'mdi-tune-variant'
+                    }}
+                  </v-icon>
                 </v-btn>
               </template>
             </v-tooltip>
 
             <v-btn
+              ref="searchButton"
               color="primary"
               variant="tonal"
               icon
               rounded="circle"
-              @click="submitQuery"
               :loading="isLoading"
               :disabled="!queryText.trim()"
               class="mr-1 mr-sm-2"
               aria-label="Search HPO Terms"
               size="small"
-              ref="searchButton"
+              @click="submitQuery"
             >
               <v-icon>mdi-magnify</v-icon>
             </v-btn>
@@ -112,10 +115,10 @@
       <v-expand-transition>
         <v-sheet
           v-if="showAdvancedOptions && !isLoading"
+          id="advanced-options-panel"
           rounded="lg"
           elevation="1"
           class="mt-2 pa-3"
-          id="advanced-options-panel"
           role="region"
           aria-label="Advanced search options"
           color="white"
@@ -126,13 +129,17 @@
           </div>
 
           <v-row dense>
-            <v-col cols="12" md="6" class="pa-1">
+            <v-col
+              cols="12"
+              md="6"
+              class="pa-1"
+            >
               <v-tooltip
                 location="bottom"
                 :text="$t('queryInterface.tooltips.embeddingModel')"
                 role="tooltip"
               >
-                <template v-slot:activator="{ props }">
+                <template #activator="{ props }">
                   <v-select
                     v-bind="props"
                     v-model="selectedModel"
@@ -145,13 +152,13 @@
                     aria-label="Select embedding model"
                     :aria-description="
                       'Choose the model to use for text embedding. Currently selected: ' +
-                      selectedModel
+                        selectedModel
                     "
                     bg-color="white"
                     color="primary"
                     hide-details
                   >
-                    <template v-slot:label>
+                    <template #label>
                       <span class="text-caption">{{
                         $t('queryInterface.advancedOptions.embeddingModel')
                       }}</span>
@@ -161,26 +168,29 @@
               </v-tooltip>
             </v-col>
 
-            <v-col cols="12" md="6" class="pa-1">
+            <v-col
+              cols="12"
+              md="6"
+              class="pa-1"
+            >
               <v-tooltip
                 location="bottom"
                 :text="$t('queryInterface.tooltips.similarityThreshold')"
                 role="tooltip"
               >
-                <template v-slot:activator="{ props }">
+                <template #activator="{ props }">
                   <div>
                     <label
                       :for="'similarity-slider'"
                       class="text-caption mb-0 d-block"
                       style="font-size: 0.7rem; padding-left: 4px"
-                      >{{ $t('queryInterface.advancedOptions.similarityThreshold') }}:
-                      {{ similarityThreshold.toFixed(2) }}</label
-                    >
+                    >{{ $t('queryInterface.advancedOptions.similarityThreshold') }}:
+                      {{ similarityThreshold.toFixed(2) }}</label>
                     <v-slider
                       v-bind="props"
+                      id="similarity-slider"
                       v-model="similarityThreshold"
                       :disabled="isLoading"
-                      id="similarity-slider"
                       class="mt-0 mb-1"
                       density="compact"
                       min="0"
@@ -193,9 +203,9 @@
                       aria-label="Similarity threshold slider"
                       :aria-description="
                         'Adjust minimum similarity threshold. Current value: ' +
-                        similarityThreshold.toFixed(2)
+                          similarityThreshold.toFixed(2)
                       "
-                    ></v-slider>
+                    />
                   </div>
                 </template>
               </v-tooltip>
@@ -203,13 +213,17 @@
           </v-row>
 
           <v-row dense>
-            <v-col cols="12" md="6" class="pa-1">
+            <v-col
+              cols="12"
+              md="6"
+              class="pa-1"
+            >
               <v-tooltip
                 location="bottom"
                 :text="$t('queryInterface.tooltips.language')"
                 role="tooltip"
               >
-                <template v-slot:activator="{ props }">
+                <template #activator="{ props }">
                   <v-select
                     v-bind="props"
                     v-model="selectedLanguage"
@@ -222,13 +236,13 @@
                     aria-label="Select query language"
                     :aria-description="
                       'Choose the language for query processing. Currently selected: ' +
-                      selectedLanguage
+                        selectedLanguage
                     "
                     bg-color="white"
                     color="primary"
                     hide-details
                   >
-                    <template v-slot:label>
+                    <template #label>
                       <span class="text-caption">{{
                         $t('queryInterface.advancedOptions.language')
                       }}</span>
@@ -238,13 +252,17 @@
               </v-tooltip>
             </v-col>
 
-            <v-col cols="12" md="6" class="pa-1 d-flex align-center">
+            <v-col
+              cols="12"
+              md="6"
+              class="pa-1 d-flex align-center"
+            >
               <v-tooltip
                 location="bottom"
                 :text="$t('queryInterface.tooltips.enableReranking')"
                 role="tooltip"
               >
-                <template v-slot:activator="{ props }">
+                <template #activator="{ props }">
                   <v-switch
                     v-bind="props"
                     v-model="enableReranker"
@@ -256,20 +274,27 @@
                     hide-details
                     class="mt-0 pt-0"
                     aria-label="Enable result re-ranking"
-                  ></v-switch>
+                  />
                 </template>
               </v-tooltip>
             </v-col>
           </v-row>
 
-          <v-row dense v-if="enableReranker">
-            <v-col cols="12" md="6" class="pa-1">
+          <v-row
+            v-if="enableReranker"
+            dense
+          >
+            <v-col
+              cols="12"
+              md="6"
+              class="pa-1"
+            >
               <v-tooltip
                 location="bottom"
                 :text="$t('queryInterface.tooltips.rerankerMode')"
                 role="tooltip"
               >
-                <template v-slot:activator="{ props }">
+                <template #activator="{ props }">
                   <v-select
                     v-bind="props"
                     v-model="rerankerMode"
@@ -287,7 +312,7 @@
                     color="primary"
                     hide-details
                   >
-                    <template v-slot:label>
+                    <template #label>
                       <span class="text-caption">{{
                         $t('queryInterface.advancedOptions.rerankerMode')
                       }}</span>
@@ -298,13 +323,16 @@
             </v-col>
           </v-row>
 
-          <v-divider class="my-2"></v-divider>
+          <v-divider class="my-2" />
           <div class="text-subtitle-2 mb-1 px-1 font-weight-medium">
             {{ $t('queryInterface.advancedOptions.processingModeTitle') }}
           </div>
 
           <v-row dense>
-            <v-col cols="12" class="pa-1">
+            <v-col
+              cols="12"
+              class="pa-1"
+            >
               <v-select
                 v-model="forceEndpointMode"
                 :items="[
@@ -324,7 +352,7 @@
                 color="primary"
                 hide-details
               >
-                <template v-slot:label>
+                <template #label>
                   <span class="text-caption">{{
                     $t('queryInterface.advancedOptions.processingModeLabel')
                   }}</span>
@@ -334,13 +362,17 @@
           </v-row>
 
           <div v-if="isTextProcessModeActive">
-            <v-divider class="my-2"></v-divider>
+            <v-divider class="my-2" />
             <div class="text-subtitle-2 mb-1 px-1 font-weight-medium">
               {{ $t('queryInterface.advancedOptions.textProcessingTitle') }}
             </div>
 
             <v-row dense>
-              <v-col cols="12" md="6" class="pa-1">
+              <v-col
+                cols="12"
+                md="6"
+                class="pa-1"
+              >
                 <v-select
                   v-model="chunkingStrategy"
                   :items="[
@@ -358,14 +390,18 @@
                   color="primary"
                   hide-details
                 >
-                  <template v-slot:label>
+                  <template #label>
                     <span class="text-caption">{{
                       $t('queryInterface.advancedOptions.chunkingStrategy')
                     }}</span>
                   </template>
                 </v-select>
               </v-col>
-              <v-col cols="12" md="6" class="pa-1">
+              <v-col
+                cols="12"
+                md="6"
+                class="pa-1"
+              >
                 <v-text-field
                   v-model.number="windowSize"
                   type="number"
@@ -376,7 +412,7 @@
                   color="primary"
                   hide-details
                 >
-                  <template v-slot:label>
+                  <template #label>
                     <span class="text-caption">{{
                       $t('queryInterface.advancedOptions.windowSize')
                     }}</span>
@@ -386,7 +422,11 @@
             </v-row>
 
             <v-row dense>
-              <v-col cols="12" md="6" class="pa-1">
+              <v-col
+                cols="12"
+                md="6"
+                class="pa-1"
+              >
                 <v-text-field
                   v-model.number="stepSize"
                   type="number"
@@ -397,14 +437,18 @@
                   color="primary"
                   hide-details
                 >
-                  <template v-slot:label>
+                  <template #label>
                     <span class="text-caption">{{
                       $t('queryInterface.advancedOptions.stepSize')
                     }}</span>
                   </template>
                 </v-text-field>
               </v-col>
-              <v-col cols="12" md="6" class="pa-1">
+              <v-col
+                cols="12"
+                md="6"
+                class="pa-1"
+              >
                 <v-text-field
                   v-model.number="chunkRetrievalThreshold"
                   type="number"
@@ -417,7 +461,7 @@
                   color="primary"
                   hide-details
                 >
-                  <template v-slot:label>
+                  <template #label>
                     <span class="text-caption">{{
                       $t('queryInterface.advancedOptions.chunkThreshold')
                     }}</span>
@@ -427,7 +471,11 @@
             </v-row>
 
             <v-row dense>
-              <v-col cols="12" md="6" class="pa-1">
+              <v-col
+                cols="12"
+                md="6"
+                class="pa-1"
+              >
                 <v-text-field
                   v-model.number="aggregatedTermConfidence"
                   type="number"
@@ -440,14 +488,18 @@
                   color="primary"
                   hide-details
                 >
-                  <template v-slot:label>
+                  <template #label>
                     <span class="text-caption">{{
                       $t('queryInterface.advancedOptions.aggConfidence')
                     }}</span>
                   </template>
                 </v-text-field>
               </v-col>
-              <v-col cols="12" md="6" class="pa-1 d-flex align-center">
+              <v-col
+                cols="12"
+                md="6"
+                class="pa-1 d-flex align-center"
+              >
                 <v-switch
                   v-model="noAssertionDetectionForTextProcess"
                   color="primary"
@@ -457,7 +509,7 @@
                   :true-value="false"
                   :false-value="true"
                 >
-                  <template v-slot:label>
+                  <template #label>
                     <span class="text-caption">{{
                       $t('queryInterface.advancedOptions.detectAssertions')
                     }}</span>
@@ -467,7 +519,11 @@
             </v-row>
 
             <v-row dense>
-              <v-col cols="12" md="6" class="pa-1">
+              <v-col
+                cols="12"
+                md="6"
+                class="pa-1"
+              >
                 <v-text-field
                   v-model.number="splitThreshold"
                   type="number"
@@ -480,14 +536,18 @@
                   color="primary"
                   hide-details
                 >
-                  <template v-slot:label>
+                  <template #label>
                     <span class="text-caption">{{
                       $t('queryInterface.advancedOptions.splitThreshold')
                     }}</span>
                   </template>
                 </v-text-field>
               </v-col>
-              <v-col cols="12" md="6" class="pa-1">
+              <v-col
+                cols="12"
+                md="6"
+                class="pa-1"
+              >
                 <v-text-field
                   v-model.number="minSegmentLength"
                   type="number"
@@ -498,7 +558,7 @@
                   color="primary"
                   hide-details
                 >
-                  <template v-slot:label>
+                  <template #label>
                     <span class="text-caption">{{
                       $t('queryInterface.advancedOptions.minSegmentLength')
                     }}</span>
@@ -508,7 +568,11 @@
             </v-row>
 
             <v-row dense>
-              <v-col cols="12" md="6" class="pa-1">
+              <v-col
+                cols="12"
+                md="6"
+                class="pa-1"
+              >
                 <v-text-field
                   v-model.number="numResultsPerChunk"
                   type="number"
@@ -518,14 +582,18 @@
                   hide-details
                   class="mb-0"
                 >
-                  <template v-slot:label>
+                  <template #label>
                     <span class="text-caption">{{
                       $t('queryInterface.advancedOptions.numResultsPerChunk')
                     }}</span>
                   </template>
                 </v-text-field>
               </v-col>
-              <v-col cols="12" md="6" class="pa-1 d-flex align-center">
+              <v-col
+                cols="12"
+                md="6"
+                class="pa-1 d-flex align-center"
+              >
                 <v-switch
                   v-model="topTermPerChunkForAggregation"
                   color="primary"
@@ -533,7 +601,7 @@
                   density="compact"
                   inset
                 >
-                  <template v-slot:label>
+                  <template #label>
                     <span class="text-caption">{{
                       $t('queryInterface.advancedOptions.topTermPerChunk')
                     }}</span>
@@ -544,9 +612,17 @@
 
             <v-row dense>
               <!-- Empty col for alignment if needed -->
-              <v-col cols="12" md="6" class="pa-1"></v-col>
+              <v-col
+                cols="12"
+                md="6"
+                class="pa-1"
+              />
               <!-- Empty col for alignment -->
-              <v-col cols="12" md="6" class="pa-1"> </v-col>
+              <v-col
+                cols="12"
+                md="6"
+                class="pa-1"
+              />
             </v-row>
           </div>
         </v-sheet>
@@ -554,28 +630,61 @@
     </div>
 
     <!-- Chat-like conversation interface -->
-    <div class="conversation-container" ref="conversationContainer">
-      <div v-for="(item, index) in queryHistory" :key="index" class="mb-4">
+    <div
+      ref="conversationContainer"
+      class="conversation-container"
+    >
+      <div
+        v-for="(item, index) in queryHistory"
+        :key="index"
+        class="mb-4"
+      >
         <!-- User query -->
         <div class="user-query d-flex">
-          <v-tooltip location="top" text="User Input">
-            <template v-slot:activator="{ props }">
-              <v-avatar v-bind="props" color="primary" size="36" class="mt-1 mr-2">
+          <v-tooltip
+            location="top"
+            text="User Input"
+          >
+            <template #activator="{ props }">
+              <v-avatar
+                v-bind="props"
+                color="primary"
+                size="36"
+                class="mt-1 mr-2"
+              >
                 <span class="white--text">U</span>
               </v-avatar>
             </template>
           </v-tooltip>
           <div class="query-bubble">
-            <p class="mb-0" style="white-space: pre-wrap">{{ item.query }}</p>
+            <p
+              class="mb-0"
+              style="white-space: pre-wrap"
+            >
+              {{ item.query }}
+            </p>
           </div>
         </div>
 
         <!-- API response -->
-        <div class="bot-response d-flex mt-2" v-if="item.loading || item.response || item.error">
-          <v-tooltip location="top" text="Phentrieve Response">
-            <template v-slot:activator="{ props }">
-              <v-avatar v-bind="props" color="info" size="36" class="mt-1 mr-2">
-                <v-icon color="white">mdi-robot-outline</v-icon>
+        <div
+          v-if="item.loading || item.response || item.error"
+          class="bot-response d-flex mt-2"
+        >
+          <v-tooltip
+            location="top"
+            text="Phentrieve Response"
+          >
+            <template #activator="{ props }">
+              <v-avatar
+                v-bind="props"
+                color="info"
+                size="36"
+                class="mt-1 mr-2"
+              >
+                <v-icon color="white">
+                  mdi-robot-outline
+                </v-icon>
               </v-avatar>
             </template>
           </v-tooltip>
@@ -585,13 +694,13 @@
               indeterminate
               color="primary"
               size="24"
-            ></v-progress-circular>
+            />
 
             <ResultsDisplay
               v-else
               :key="'results-' + index"
-              :responseData="item.response"
-              :resultType="item.type"
+              :response-data="item.response"
+              :result-type="item.type"
               :error="item.error"
               :collected-phenotypes="collectedPhenotypes"
               @add-to-collection="addToPhenotypeCollection"
@@ -607,7 +716,7 @@
       :text="$t('queryInterface.tooltips.phenotypeCollection')"
       role="tooltip"
     >
-      <template v-slot:activator="{ props }">
+      <template #activator="{ props }">
         <v-btn
           v-bind="props"
           class="collection-fab collection-fab-position"
@@ -617,8 +726,8 @@
           location="bottom right"
           size="large"
           elevation="3"
-          @click="toggleCollectionPanel"
           aria-label="Open HPO Collection Panel"
+          @click="toggleCollectionPanel"
         >
           <v-badge
             :content="collectedPhenotypes.length"
@@ -641,28 +750,35 @@
       aria-label="Phenotype collection"
     >
       <v-list-item class="pl-2 pr-1">
-        <v-list-item-title class="text-h6">{{
-          $t('queryInterface.phenotypeCollection.title')
-        }}</v-list-item-title>
-        <template v-slot:append>
+        <v-list-item-title class="text-h6">
+          {{
+            $t('queryInterface.phenotypeCollection.title')
+          }}
+        </v-list-item-title>
+        <template #append>
           <v-btn
             icon
-            @click="toggleCollectionPanel"
             :aria-label="$t('queryInterface.phenotypeCollection.close')"
             variant="text"
             density="compact"
+            @click="toggleCollectionPanel"
           >
             <v-icon>mdi-close</v-icon>
           </v-btn>
         </template>
       </v-list-item>
 
-      <v-divider></v-divider>
+      <v-divider />
 
-      <v-list v-if="collectedPhenotypes.length > 0" class="pt-0">
-        <v-list-subheader>{{
-          $t('queryInterface.phenotypeCollection.count', { count: collectedPhenotypes.length })
-        }}</v-list-subheader>
+      <v-list
+        v-if="collectedPhenotypes.length > 0"
+        class="pt-0"
+      >
+        <v-list-subheader>
+          {{
+            $t('queryInterface.phenotypeCollection.count', { count: collectedPhenotypes.length })
+          }}
+        </v-list-subheader>
 
         <v-list-item
           v-for="(phenotype, index) in collectedPhenotypes"
@@ -692,12 +808,12 @@
             {{ phenotype.label }}
           </v-list-item-subtitle>
 
-          <template v-slot:append>
+          <template #append>
             <v-tooltip
               :text="$t('queryInterface.phenotypeCollection.assertionToggle')"
               location="start"
             >
-              <template v-slot:activator="{ props }">
+              <template #activator="{ props }">
                 <v-btn
                   v-bind="props"
                   :icon="
@@ -709,9 +825,9 @@
                   density="compact"
                   :color="phenotype.assertion_status === 'negated' ? 'success' : 'error'"
                   class="mr-0"
-                  @click="toggleAssertionStatus(index)"
                   :aria-label="`Toggle assertion status for ${phenotype.label} (${phenotype.hpo_id})`"
-                ></v-btn>
+                  @click="toggleAssertionStatus(index)"
+                />
               </template>
             </v-tooltip>
             <v-btn
@@ -719,31 +835,48 @@
               variant="text"
               density="compact"
               color="grey-darken-1"
-              @click="removePhenotype(index)"
               :aria-label="`Remove ${phenotype.label} (${phenotype.hpo_id}) from collection`"
-            ></v-btn>
+              @click="removePhenotype(index)"
+            />
           </template>
         </v-list-item>
       </v-list>
 
-      <v-sheet v-else class="pa-4 text-center">
-        <v-icon size="x-large" color="grey-darken-1" class="mb-2">mdi-tray-plus</v-icon>
+      <v-sheet
+        v-else
+        class="pa-4 text-center"
+      >
+        <v-icon
+          size="x-large"
+          color="grey-darken-1"
+          class="mb-2"
+        >
+          mdi-tray-plus
+        </v-icon>
         <div class="text-body-1 text-grey-darken-2">
           {{ $t('queryInterface.phenotypeCollection.empty') }}
         </div>
         <div class="text-caption text-grey-darken-3 mt-2">
           {{ $t('queryInterface.phenotypeCollection.instructions') }}
-          <v-icon size="small">mdi-plus-circle-outline</v-icon>
+          <v-icon size="small">
+            mdi-plus-circle-outline
+          </v-icon>
         </div>
       </v-sheet>
 
-      <v-divider class="mt-4"></v-divider>
-      <v-list-subheader>{{
-        $t('queryInterface.phenotypeCollection.subjectInfoHeader')
-      }}</v-list-subheader>
+      <v-divider class="mt-4" />
+      <v-list-subheader>
+        {{
+          $t('queryInterface.phenotypeCollection.subjectInfoHeader')
+        }}
+      </v-list-subheader>
       <div class="pa-3">
-        <v-tooltip location="bottom" :text="$t('queryInterface.tooltips.subjectId')" role="tooltip">
-          <template v-slot:activator="{ props }">
+        <v-tooltip
+          location="bottom"
+          :text="$t('queryInterface.tooltips.subjectId')"
+          role="tooltip"
+        >
+          <template #activator="{ props }">
             <v-text-field
               v-bind="props"
               v-model="phenopacketSubjectId"
@@ -755,17 +888,21 @@
               bg-color="white"
               color="primary"
             >
-              <template v-slot:label
-                ><span class="text-caption">{{
+              <template #label>
+                <span class="text-caption">{{
                   $t('queryInterface.phenotypeCollection.subjectId')
-                }}</span></template
-              >
+                }}</span>
+              </template>
             </v-text-field>
           </template>
         </v-tooltip>
 
-        <v-tooltip location="bottom" :text="$t('queryInterface.tooltips.sex')" role="tooltip">
-          <template v-slot:activator="{ props }">
+        <v-tooltip
+          location="bottom"
+          :text="$t('queryInterface.tooltips.sex')"
+          role="tooltip"
+        >
+          <template #activator="{ props }">
             <v-select
               v-bind="props"
               v-model="phenopacketSex"
@@ -781,11 +918,11 @@
               bg-color="white"
               color="primary"
             >
-              <template v-slot:label
-                ><span class="text-caption">{{
+              <template #label>
+                <span class="text-caption">{{
                   $t('queryInterface.phenotypeCollection.sex')
-                }}</span></template
-              >
+                }}</span>
+              </template>
             </v-select>
           </template>
         </v-tooltip>
@@ -795,7 +932,7 @@
           :text="$t('queryInterface.tooltips.dateOfBirth')"
           role="tooltip"
         >
-          <template v-slot:activator="{ props }">
+          <template #activator="{ props }">
             <v-text-field
               v-bind="props"
               v-model="phenopacketDateOfBirth"
@@ -810,27 +947,27 @@
               bg-color="white"
               color="primary"
             >
-              <template v-slot:label
-                ><span class="text-caption">{{
+              <template #label>
+                <span class="text-caption">{{
                   $t('queryInterface.phenotypeCollection.dateOfBirth')
-                }}</span></template
-              >
+                }}</span>
+              </template>
             </v-text-field>
           </template>
         </v-tooltip>
       </div>
 
-      <template v-slot:append>
-        <v-divider></v-divider>
+      <template #append>
+        <v-divider />
         <div class="pa-3">
           <v-btn
             block
             color="primary"
             class="mb-2"
             prepend-icon="mdi-download-box-outline"
-            @click="exportPhenotypesAsPhenopacket"
             :disabled="collectedPhenotypes.length === 0"
             aria-label="Export collected phenotypes as Phenopacket JSON"
+            @click="exportPhenotypesAsPhenopacket"
           >
             {{ $t('queryInterface.phenotypeCollection.exportPhenopacket') }}
           </v-btn>
@@ -840,8 +977,8 @@
             color="primary"
             class="mb-2"
             prepend-icon="mdi-text-box-outline"
-            @click="exportPhenotypes"
             :disabled="collectedPhenotypes.length === 0"
+            @click="exportPhenotypes"
           >
             {{ $t('queryInterface.phenotypeCollection.exportText') }}
           </v-btn>
@@ -850,8 +987,8 @@
             variant="tonal"
             color="error"
             prepend-icon="mdi-delete-sweep-outline"
-            @click="clearPhenotypeCollection"
             :disabled="collectedPhenotypes.length === 0"
+            @click="clearPhenotypeCollection"
           >
             {{ $t('queryInterface.phenotypeCollection.clear') }}
           </v-btn>
@@ -871,15 +1008,6 @@ export default {
   name: 'QueryInterface',
   components: {
     ResultsDisplay,
-  },
-  computed: {
-    // Determine if text processing mode is active based on text length or user force setting
-    isTextProcessModeActive() {
-      if (this.forceEndpointMode) {
-        return this.forceEndpointMode === 'textProcess';
-      }
-      return this.queryText.length > this.inputTextLengthThreshold;
-    },
   },
   data() {
     return {
@@ -952,6 +1080,15 @@ export default {
       topTermPerChunkForAggregation: false,
     };
   },
+  computed: {
+    // Determine if text processing mode is active based on text length or user force setting
+    isTextProcessModeActive() {
+      if (this.forceEndpointMode) {
+        return this.forceEndpointMode === 'textProcess';
+      }
+      return this.queryText.length > this.inputTextLengthThreshold;
+    },
+  },
   watch: {
     queryHistory: {
       handler() {
@@ -975,6 +1112,37 @@ export default {
         logService.info('Reset query-specific settings to defaults due to model change.');
       }
     },
+  },
+  created() {
+    // Example: Populate availableModels from an API endpoint if needed
+    // PhentrieveService.getConfigInfo().then(config => {
+    //   this.availableModels = config.available_embedding_models.map(m => ({ text: `${m.description} (${m.id.split('/').pop()})`, value: m.id }));
+    //   if (!this.selectedModel && config.default_embedding_model) {
+    //     this.selectedModel = config.default_embedding_model;
+    //   }
+    // }).catch(error => {
+    //   logService.error('Failed to fetch config info for models:', error);
+    // });
+    this.selectedModel = this.availableModels[0].value; // Set a default if not fetched
+
+    // Set selectedLanguage based on current locale
+    const currentLocale = this.$i18n.locale;
+    // Only set if it's one of our supported languages
+    const supportedLanguages = this.availableLanguages
+      .filter((lang) => lang.value !== null)
+      .map((lang) => lang.value);
+
+    if (currentLocale && supportedLanguages.includes(currentLocale)) {
+      this.selectedLanguage = currentLocale;
+      logService.info(
+        `Using UI locale '${currentLocale}' as default language for queries and text processing`
+      );
+    } else {
+      // Keep the auto-detect (null) as fallback if locale is not supported
+      logService.info(
+        `Current locale '${currentLocale}' not in supported languages, using auto-detect`
+      );
+    }
   },
   methods: {
     // ... (applyUrlParametersAndAutoSubmit, handleUserScroll, addToPhenotypeCollection, etc. remain largely the same) ...
@@ -1303,37 +1471,6 @@ export default {
         }
       }
     },
-  },
-  created() {
-    // Example: Populate availableModels from an API endpoint if needed
-    // PhentrieveService.getConfigInfo().then(config => {
-    //   this.availableModels = config.available_embedding_models.map(m => ({ text: `${m.description} (${m.id.split('/').pop()})`, value: m.id }));
-    //   if (!this.selectedModel && config.default_embedding_model) {
-    //     this.selectedModel = config.default_embedding_model;
-    //   }
-    // }).catch(error => {
-    //   logService.error('Failed to fetch config info for models:', error);
-    // });
-    this.selectedModel = this.availableModels[0].value; // Set a default if not fetched
-
-    // Set selectedLanguage based on current locale
-    const currentLocale = this.$i18n.locale;
-    // Only set if it's one of our supported languages
-    const supportedLanguages = this.availableLanguages
-      .filter((lang) => lang.value !== null)
-      .map((lang) => lang.value);
-
-    if (currentLocale && supportedLanguages.includes(currentLocale)) {
-      this.selectedLanguage = currentLocale;
-      logService.info(
-        `Using UI locale '${currentLocale}' as default language for queries and text processing`
-      );
-    } else {
-      // Keep the auto-detect (null) as fallback if locale is not supported
-      logService.info(
-        `Current locale '${currentLocale}' not in supported languages, using auto-detect`
-      );
-    }
   },
 };
 </script>

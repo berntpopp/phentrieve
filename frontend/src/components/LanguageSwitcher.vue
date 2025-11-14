@@ -1,7 +1,7 @@
 <template>
   <div class="language-selector-container">
     <v-menu location="bottom">
-      <template v-slot:activator="{ props }">
+      <template #activator="{ props }">
         <v-btn
           variant="tonal"
           density="comfortable"
@@ -10,22 +10,36 @@
           color="primary"
           class="language-btn"
         >
-          <v-icon :icon="currentLanguageIcon" size="small" :color="currentLanguageColor"></v-icon>
-          <v-icon size="x-small" class="ml-1">mdi-chevron-down</v-icon>
+          <v-icon
+            :icon="currentLanguageIcon"
+            size="small"
+            :color="currentLanguageColor"
+          />
+          <v-icon
+            size="x-small"
+            class="ml-1"
+          >
+            mdi-chevron-down
+          </v-icon>
         </v-btn>
       </template>
       <v-list density="compact">
         <v-list-item
-          v-for="locale in availableLocales"
-          :key="locale.code"
-          :value="locale.code"
-          @click="currentLocale = locale.code"
-          :active="currentLocale === locale.code"
+          v-for="localeOption in availableLocales"
+          :key="localeOption.code"
+          :value="localeOption.code"
+          :active="currentLocale === localeOption.code"
+          @click="currentLocale = localeOption.code"
         >
-          <template v-slot:prepend>
-            <v-icon :icon="locale.icon" size="small" class="mr-2" :color="locale.color"></v-icon>
+          <template #prepend>
+            <v-icon
+              :icon="localeOption.icon"
+              size="small"
+              class="mr-2"
+              :color="localeOption.color"
+            />
           </template>
-          <v-list-item-title>{{ locale.name }}</v-list-item-title>
+          <v-list-item-title>{{ localeOption.name }}</v-list-item-title>
         </v-list-item>
       </v-list>
     </v-menu>

@@ -1,5 +1,8 @@
 <template>
-  <v-app theme="light" class="app-container">
+  <v-app
+    theme="light"
+    class="app-container"
+  >
     <v-main class="bg-grey-lighten-4 main-container">
       <router-view v-slot="{ Component }">
         <component :is="Component" />
@@ -7,7 +10,12 @@
       <LogViewer />
     </v-main>
 
-    <v-footer app class="d-flex justify-space-between pa-2" style="z-index: 1" role="contentinfo">
+    <v-footer
+      app
+      class="d-flex justify-space-between pa-2"
+      style="z-index: 1"
+      role="contentinfo"
+    >
       <div class="d-flex align-center">
         <v-tooltip
           location="top"
@@ -15,7 +23,7 @@
           role="tooltip"
           aria-label="Disclaimer information"
         >
-          <template v-slot:activator="{ props }">
+          <template #activator="{ props }">
             <div class="d-flex align-center">
               <v-btn
                 v-bind="props"
@@ -24,22 +32,22 @@
                 color="primary"
                 size="small"
                 class="mr-1"
-                @click="showDisclaimerDialog"
                 aria-label="View disclaimer information"
+                @click="showDisclaimerDialog"
               >
                 <v-icon>mdi-scale-balance</v-icon>
               </v-btn>
               <v-icon
                 v-if="disclaimerStore.isAcknowledged"
-                size="small"
-                color="success"
-                class="mr-2"
-                aria-label="Disclaimer acknowledged"
                 v-tooltip="
                   $t('app.footer.disclaimerAcknowledgedTooltip', {
                     date: disclaimerStore.formattedAcknowledgmentDate,
                   })
                 "
+                size="small"
+                color="success"
+                class="mr-2"
+                aria-label="Disclaimer acknowledged"
               >
                 mdi-check-circle
               </v-icon>
@@ -56,7 +64,7 @@
           role="tooltip"
           aria-label="Tutorial information"
         >
-          <template v-slot:activator="{ props }">
+          <template #activator="{ props }">
             <v-btn
               v-bind="props"
               icon
@@ -64,8 +72,8 @@
               color="primary"
               size="small"
               class="mr-2"
-              @click="startTutorial"
               aria-label="Start guided tutorial"
+              @click="startTutorial"
             >
               <v-icon>mdi-hand-pointing-up</v-icon>
             </v-btn>
@@ -77,7 +85,7 @@
           role="tooltip"
           aria-label="FAQ information"
         >
-          <template v-slot:activator="{ props }">
+          <template #activator="{ props }">
             <v-btn
               v-bind="props"
               icon
@@ -98,7 +106,7 @@
           role="tooltip"
           aria-label="Log viewer information"
         >
-          <template v-slot:activator="{ props }">
+          <template #activator="{ props }">
             <v-btn
               v-bind="props"
               icon
@@ -106,8 +114,8 @@
               color="primary"
               size="small"
               class="mr-2"
-              @click="logStore.toggleViewer"
               aria-label="Toggle log viewer"
+              @click="logStore.toggleViewer"
             >
               <v-icon>mdi-text-box-search-outline</v-icon>
             </v-btn>
@@ -119,7 +127,7 @@
           role="tooltip"
           aria-label="GitHub repository link"
         >
-          <template v-slot:activator="{ props }">
+          <template #activator="{ props }">
             <v-btn
               v-bind="props"
               icon="mdi-github"
@@ -131,7 +139,7 @@
               color="primary"
               aria-label="View Phentrieve project on GitHub"
               class="mr-1"
-            ></v-btn>
+            />
           </template>
         </v-tooltip>
         <v-tooltip
@@ -140,7 +148,7 @@
           role="tooltip"
           aria-label="Documentation link"
         >
-          <template v-slot:activator="{ props }">
+          <template #activator="{ props }">
             <v-btn
               v-bind="props"
               icon="mdi-book-open-page-variant-outline"
@@ -152,7 +160,7 @@
               color="primary"
               aria-label="View project documentation"
               class="mr-1"
-            ></v-btn>
+            />
           </template>
         </v-tooltip>
         <v-tooltip
@@ -161,7 +169,7 @@
           role="tooltip"
           aria-label="License link"
         >
-          <template v-slot:activator="{ props }">
+          <template #activator="{ props }">
             <v-btn
               v-bind="props"
               icon="mdi-license"
@@ -172,7 +180,7 @@
               variant="text"
               color="primary"
               aria-label="View project license"
-            ></v-btn>
+            />
           </template>
         </v-tooltip>
       </div>
@@ -185,30 +193,12 @@
     />
 
     <!-- Tutorial Overlay -->
-    <TutorialOverlay :visible="tutorialVisible" @update:visible="tutorialVisible = $event" />
+    <TutorialOverlay
+      :visible="tutorialVisible"
+      @update:visible="tutorialVisible = $event"
+    />
   </v-app>
 </template>
-
-<style>
-/* Global styles */
-html,
-body {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-}
-
-.app-container {
-  min-height: 100vh;
-}
-
-.main-container {
-  overflow: auto;
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
-}
-</style>
 
 <script>
 import { useDisclaimerStore } from './stores/disclaimer';
@@ -432,6 +422,27 @@ export default {
   },
 };
 </script>
+
+<style>
+/* Global styles */
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.app-container {
+  min-height: 100vh;
+}
+
+.main-container {
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+</style>
 
 <style>
 /* Global styles */

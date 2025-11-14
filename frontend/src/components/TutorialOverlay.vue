@@ -1,30 +1,43 @@
 <template>
-  <div v-if="isVisible" class="tutorial-overlay">
+  <div
+    v-if="isVisible"
+    class="tutorial-overlay"
+  >
     <!-- Backdrop -->
-    <div class="tutorial-backdrop" @click="skipTutorial"></div>
+    <div
+      class="tutorial-backdrop"
+      @click="skipTutorial"
+    />
 
     <!-- Highlight area -->
     <div
       v-if="currentStep && highlightBounds"
       class="tutorial-highlight"
       :style="highlightStyle"
-    ></div>
+    />
 
     <!-- Tutorial card -->
-    <v-card v-if="currentStep" class="tutorial-card elevation-8" :style="cardStyle" max-width="400">
+    <v-card
+      v-if="currentStep"
+      class="tutorial-card elevation-8"
+      :style="cardStyle"
+      max-width="400"
+    >
       <v-card-title class="d-flex align-center justify-space-between">
         <span class="text-h6">{{ $t(currentStep.titleKey) }}</span>
         <v-btn
           icon="mdi-close"
           variant="text"
           size="small"
-          @click="skipTutorial"
           aria-label="Close tutorial"
-        ></v-btn>
+          @click="skipTutorial"
+        />
       </v-card-title>
 
       <v-card-text>
-        <p class="text-body-1 mb-3">{{ $t(currentStep.contentKey) }}</p>
+        <p class="text-body-1 mb-3">
+          {{ $t(currentStep.contentKey) }}
+        </p>
 
         <!-- Progress indicator -->
         <div class="d-flex align-center mb-3">
@@ -36,12 +49,16 @@
             color="primary"
             height="4"
             rounded
-          ></v-progress-linear>
+          />
         </div>
       </v-card-text>
 
       <v-card-actions class="justify-space-between">
-        <v-btn variant="text" @click="skipTutorial" color="default">
+        <v-btn
+          variant="text"
+          color="default"
+          @click="skipTutorial"
+        >
           {{ $t('tutorial.navigation.skip') }}
         </v-btn>
 
@@ -49,8 +66,8 @@
           <v-btn
             v-if="!isFirstStep"
             variant="outlined"
-            @click="previousStep"
             prepend-icon="mdi-chevron-left"
+            @click="previousStep"
           >
             {{ $t('tutorial.navigation.previous') }}
           </v-btn>
@@ -59,8 +76,8 @@
             v-if="!isLastStep"
             variant="flat"
             color="primary"
-            @click="nextStep"
             append-icon="mdi-chevron-right"
+            @click="nextStep"
           >
             {{ $t('tutorial.navigation.next') }}
           </v-btn>
@@ -69,8 +86,8 @@
             v-else
             variant="flat"
             color="success"
-            @click="finishTutorial"
             prepend-icon="mdi-check"
+            @click="finishTutorial"
           >
             {{ $t('tutorial.navigation.finish') }}
           </v-btn>
@@ -92,6 +109,7 @@ export default {
       default: false,
     },
   },
+  emits: ['update:visible'],
   data() {
     return {
       isVisible: false,

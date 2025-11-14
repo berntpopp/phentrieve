@@ -28,7 +28,7 @@ try {
       initialLocale = browserLang;
     }
   }
-} catch (e) {
+} catch {
   console.warn('Could not access localStorage for language preference. Defaulting to English.');
 }
 
