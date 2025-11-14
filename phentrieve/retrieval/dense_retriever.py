@@ -211,10 +211,13 @@ class DenseRetriever:
             query_n_results = n_results * 3
             logging.debug(f"Querying with {query_n_results} results")
 
-            results = self.collection.query(
-                query_embeddings=[query_embedding.tolist()],
-                n_results=query_n_results,
-                include=["documents", "metadatas", "distances"],
+            # Cast to dict[str, Any] since we'll be adding custom keys
+            results: dict[str, Any] = dict(
+                self.collection.query(
+                    query_embeddings=[query_embedding.tolist()],
+                    n_results=query_n_results,
+                    include=["documents", "metadatas", "distances"],
+                )
             )
 
             # Add similarity scores if requested
