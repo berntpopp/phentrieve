@@ -36,7 +36,9 @@ def load_test_data(test_file: str) -> Optional[list[dict[str, Any]]]:
     """
     try:
         with open(test_file, encoding="utf-8") as f:
-            test_cases = json.load(f)
+            data = json.load(f)
+            # Ensure we have a list
+            test_cases: list[dict[str, Any]] = data if isinstance(data, list) else []
 
         logging.info(f"Loaded {len(test_cases)} test cases from {test_file}")
         return test_cases

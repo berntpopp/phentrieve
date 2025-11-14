@@ -185,6 +185,10 @@ def calculate_semantically_aware_set_based_prf1(
             for truth_idx, truth_term in enumerate(available_truth):
                 truth_id = truth_term.get("hpo_id") or truth_term.get("id")
 
+                # Skip if truth_id is not available
+                if not truth_id or not isinstance(truth_id, str):
+                    continue
+
                 # Calculate semantic similarity
                 similarity = calculate_semantic_similarity(
                     extracted_id, truth_id, formula=similarity_formula

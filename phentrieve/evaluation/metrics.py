@@ -53,7 +53,7 @@ _hpo_term_depths = None
 
 
 def load_hpo_graph_data(
-    ancestors_path: str = None, depths_path: str = None
+    ancestors_path: str | None = None, depths_path: str | None = None
 ) -> tuple[dict[str, set[str]], dict[str, int]]:
     """
     Load precomputed HPO graph data from pickle files.
@@ -81,7 +81,7 @@ def load_hpo_graph_data(
             ancestors_path = f"data/{DEFAULT_ANCESTORS_FILENAME}"
         else:
             data_dir = get_default_data_dir()
-            ancestors_path = data_dir / DEFAULT_ANCESTORS_FILENAME
+            ancestors_path = str(data_dir / DEFAULT_ANCESTORS_FILENAME)
 
     if depths_path is None:
         # Try direct data directory first
@@ -89,7 +89,7 @@ def load_hpo_graph_data(
             depths_path = f"data/{DEFAULT_DEPTHS_FILENAME}"
         else:
             data_dir = get_default_data_dir()
-            depths_path = data_dir / DEFAULT_DEPTHS_FILENAME
+            depths_path = str(data_dir / DEFAULT_DEPTHS_FILENAME)
 
     try:
         # Check if files exist
@@ -143,7 +143,7 @@ def load_hpo_graph_data(
 
 def find_lowest_common_ancestor(
     term1: str, term2: str, ancestors_dict: Optional[dict[str, set[str]]] = None
-) -> tuple[Optional[str], int]:
+) -> tuple[Optional[str], int | float]:
     """
     Find the lowest common ancestor (LCA) of two HPO terms.
 
@@ -173,7 +173,7 @@ def find_lowest_common_ancestor(
 
     # Find the deepest common ancestor (LCA)
     lca = None
-    max_depth = -1
+    max_depth: int | float = -1
     for ancestor in common_ancestors:
         depth = depths_dict.get(ancestor, float("inf"))
         if depth != float("inf") and depth > max_depth:
@@ -360,8 +360,11 @@ def calculate_max_similarity(
     load_hpo_graph_data()
 
     # Extract term IDs if retrieved_terms contains dictionaries
+    retrieved_ids: list[str | Any]
     if retrieved_terms and isinstance(retrieved_terms[0], dict):
-        retrieved_ids = [item["hpo_id"] for item in retrieved_terms[:top_k]]
+        retrieved_ids = [
+            item["hpo_id"] for item in retrieved_terms[:top_k] if isinstance(item, dict)
+        ]
     else:
         retrieved_ids = retrieved_terms[:top_k] if top_k else retrieved_terms
 

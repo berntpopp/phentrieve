@@ -269,7 +269,7 @@ def compute_ancestors_iterative(
     for term_id in tqdm(all_term_ids, desc="Computing ancestors", unit="term"):
         current_term_ancestors = {term_id}  # Always include self
 
-        queue = deque()
+        queue: deque[str] = deque()
         # Add direct parents to the queue and to ancestors
         direct_parents = child_to_parents_map.get(term_id, [])
         for parent_id in direct_parents:
@@ -407,10 +407,10 @@ def save_pickle_data(data: Any, file_path: Path, description: str) -> None:
 
 def prepare_hpo_data(
     force_update: bool = False,
-    hpo_file_path: Path = None,
-    hpo_terms_dir: Path = None,
-    ancestors_file: Path = None,
-    depths_file: Path = None,
+    hpo_file_path: Path | None = None,
+    hpo_terms_dir: Path | None = None,
+    ancestors_file: Path | None = None,
+    depths_file: Path | None = None,
 ) -> tuple[bool, Optional[str]]:
     """
     Core HPO data preparation: download, parse, save ALL terms, compute graph data.

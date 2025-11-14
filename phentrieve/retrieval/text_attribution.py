@@ -52,7 +52,7 @@ def get_text_attributions(
     search_phrases.sort(key=len, reverse=True)
 
     # Keep track of matched spans to avoid duplicates
-    matched_spans = set()
+    matched_spans: set[tuple[int, int]] = set()
 
     for phrase in search_phrases:
         try:

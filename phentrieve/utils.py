@@ -271,7 +271,10 @@ def resolve_data_path(
 
     # 3. Default Function
     if default_func:
-        path = default_func().resolve()  # Call function to get Path object
+        result = default_func()
+        path = (
+            Path(result).resolve() if result else Path.cwd()
+        )  # Call function to get Path object
         logging.debug(
             f"Using default path from function {default_func.__name__}: {path}"
         )
@@ -376,21 +379,21 @@ def load_translation_text(hpo_id: str, translation_dir: str) -> Optional[str]:
             translation_data = json.load(f)
 
         # Extract translated label (required field)
-        translated_label = translation_data.get("lbl", "")
+        translated_label = str(translation_data.get("lbl", ""))
         if not translated_label:
             logger.warning(f"Missing label in translation for {hpo_id}")
             return None
 
         # Get translated synonyms if available (optional field)
-        translated_synonyms = []
+        translated_synonyms: list[str] = []
         if "meta" in translation_data and "synonyms" in translation_data["meta"]:
             # Extract ONLY the translated synonym values ("val" field)
             for syn in translation_data["meta"]["synonyms"]:
                 if "val" in syn:
-                    translated_synonyms.append(syn["val"])
+                    translated_synonyms.append(str(syn["val"]))
 
         # Construct the combined translation text
-        result = translated_label
+        result: str = translated_label
         if translated_synonyms:
             # Add synonyms separated by semicolons
             synonyms_text = "; ".join(translated_synonyms)
@@ -443,7 +446,7 @@ def detect_language(text: str, default_lang: str = "en") -> str:
 
     try:
         # Detect language
-        detected = detect(text)
+        detected = str(detect(text))
         logger.info(f"Detected language: {detected}")
         return detected
     except LangDetectException as e:
