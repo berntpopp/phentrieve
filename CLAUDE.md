@@ -27,6 +27,7 @@ make all                                             # Clean + check + test
 make format                                          # Format with Ruff
 make lint                                            # Lint with Ruff
 make lint-fix                                        # Lint and auto-fix issues
+make typecheck                                       # Type check with mypy
 
 # Package management (uv)
 make lock                                            # Update uv.lock file
