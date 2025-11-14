@@ -210,15 +210,21 @@ make dev-all    # Display setup instructions for both terminals
 
 **API Configuration**: `api/local_api_config.env`
 ```bash
-API_PORT=8000                      # API server port
-LOG_LEVEL=DEBUG                    # Detailed logging
-RELOAD=true                        # Enable hot reload
-PHENTRIEVE_DATA_ROOT_DIR=./data    # Local data directory
-ALLOWED_ORIGINS=http://localhost:5173  # CORS for frontend
+API_PORT=8734                         # API server port (custom HPOD port)
+LOG_LEVEL=DEBUG                       # Detailed logging
+RELOAD=true                           # Enable hot reload
+PHENTRIEVE_DATA_ROOT_DIR=../data      # IMPORTANT: Relative to api/ directory!
+ALLOWED_ORIGINS=http://localhost:5734 # CORS for frontend
 ```
 
+**IMPORTANT Path Configuration:**
+- The API runs from `api/` directory via `cd api && python run_api_local.py`
+- Therefore `PHENTRIEVE_DATA_ROOT_DIR=../data` points to project root `data/`
+- Using `./data` would incorrectly point to `api/data` (doesn't exist)
+- This must be set correctly or you'll get "503 Service Unavailable" errors
+
 **Frontend Configuration**: `frontend/vite.config.js`
-- API proxy: Forwards `/api/*` to `http://localhost:8000`
+- API proxy: Forwards `/api/*` to `http://localhost:8734` (custom HPOD port)
 - HMR overlay: Shows errors in browser
 - Fast refresh: Vue component state preservation
 - Source maps: Enabled for debugging
