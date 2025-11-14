@@ -196,10 +196,10 @@ def query_hpo(
             model_name=model_name,
             trust_remote_code=trust_remote_code,
             enable_reranker=enable_reranker,
-            reranker_model=reranker_model,
-            monolingual_reranker_model=monolingual_reranker_model,
+            reranker_model=reranker_model or "",
+            monolingual_reranker_model=monolingual_reranker_model or "",
             reranker_mode=reranker_mode,
-            translation_dir=translation_dir_path,
+            translation_dir=str(translation_dir_path),
             device_override=device_override,
             debug=debug,
             output_func=typer_echo,
@@ -249,7 +249,7 @@ def query_hpo(
                 )
 
                 # Format the results based on the selected output format
-                if query_results:
+                if query_results and isinstance(query_results, list):
                     formatted_output = ""
                     if output_format.lower() == "text":
                         formatted_output = format_results_as_text(
@@ -303,10 +303,10 @@ def query_hpo(
             sentence_mode=sentence_mode,
             trust_remote_code=trust_remote_code,
             enable_reranker=enable_reranker,
-            reranker_model=reranker_model,
-            monolingual_reranker_model=monolingual_reranker_model,
+            reranker_model=reranker_model or "",
+            monolingual_reranker_model=monolingual_reranker_model or "",
             reranker_mode=reranker_mode,
-            translation_dir=translation_dir_path,
+            translation_dir=str(translation_dir_path),
             rerank_count=rerank_count,
             device_override=device_override,
             debug=debug,
@@ -325,16 +325,17 @@ def query_hpo(
 
         # Format the results based on the selected output format
         formatted_output = ""
-        if output_format.lower() == "text":
-            formatted_output = format_results_as_text(
-                all_query_results, sentence_mode=sentence_mode
-            )
-        elif output_format.lower() == "json":
-            formatted_output = format_results_as_json(
-                all_query_results, sentence_mode=sentence_mode
-            )
-        elif output_format.lower() == "json_lines":
-            formatted_output = format_results_as_jsonl(all_query_results)
+        if all_query_results and isinstance(all_query_results, list):
+            if output_format.lower() == "text":
+                formatted_output = format_results_as_text(
+                    all_query_results, sentence_mode=sentence_mode
+                )
+            elif output_format.lower() == "json":
+                formatted_output = format_results_as_json(
+                    all_query_results, sentence_mode=sentence_mode
+                )
+            elif output_format.lower() == "json_lines":
+                formatted_output = format_results_as_jsonl(all_query_results)
 
         # Output the results (to file or console)
         if output_file:
