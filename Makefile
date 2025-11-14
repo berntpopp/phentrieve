@@ -111,26 +111,26 @@ docker-dev: ## Start development Docker stack
 
 ##@ Local Development (Fast - No Docker)
 
-dev-api: ## Start API with hot reload (FastAPI dev mode)
+dev-api: ## Start API with hot reload (custom port 8734)
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 	@echo "  FastAPI Development Server (Hot Reload)"
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 	@echo ""
-	@echo "API:       http://localhost:8000"
-	@echo "API Docs:  http://localhost:8000/docs"
+	@echo "API:       http://localhost:8734 (custom port - HPOD)"
+	@echo "API Docs:  http://localhost:8734/docs"
 	@echo ""
 	@echo "Hot Reload: Enabled (<1s on .py file changes)"
 	@echo "Press CTRL+C to stop"
 	@echo ""
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-	@cd api && fastapi dev run_api_local.py
+	@cd api && python run_api_local.py
 
-dev-frontend: ## Start frontend with Vite HMR (port 5173)
+dev-frontend: ## Start frontend with Vite HMR (custom port 5734)
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 	@echo "  Vite Development Server (Hot Module Replacement)"
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 	@echo ""
-	@echo "Frontend:  http://localhost:5173"
+	@echo "Frontend:  http://localhost:5734 (custom port - matches HPOD)"
 	@echo ""
 	@echo "HMR: Enabled (<50ms on file changes)"
 	@echo "Press CTRL+C to stop"
@@ -147,12 +147,16 @@ dev-all: ## Display instructions to start both API and frontend
 	@echo ""
 	@echo "  Terminal 1 (API):"
 	@echo "    $$ make dev-api"
-	@echo "    → http://localhost:8000"
-	@echo "    → http://localhost:8000/docs (OpenAPI)"
+	@echo "    → http://localhost:8734 (custom HPOD port)"
+	@echo "    → http://localhost:8734/docs (OpenAPI)"
 	@echo ""
 	@echo "  Terminal 2 (Frontend):"
 	@echo "    $$ make dev-frontend"
-	@echo "    → http://localhost:5173"
+	@echo "    → http://localhost:5734 (custom HPOD port)"
+	@echo ""
+	@echo "Custom Ports (avoid conflicts with other dev tools):"
+	@echo "  • API: 8734 (HPOD - HPO Database on phone keypad)"
+	@echo "  • Frontend: 5734 (matches API pattern)"
 	@echo ""
 	@echo "Performance:"
 	@echo "  • API hot reload: <1s on .py changes"

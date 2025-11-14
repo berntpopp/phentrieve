@@ -80,12 +80,14 @@ export default defineConfig({
     chunkSizeWarningLimit: 600
   },
   server: {
-    port: 5173,
-    strictPort: true,
+    // Custom port 5734 (matches API 8734 pattern - HPOD project ports)
+    // Avoids conflicts with other Vite projects (default 5173)
+    port: 5734,
+    strictPort: true, // Fail fast if port is in use
     // API proxy for local development
     proxy: {
       '/api': {
-        target: 'http://localhost:8000',
+        target: 'http://localhost:8734', // Match custom API port
         changeOrigin: true,
         secure: false,
         // Improve logging for debugging

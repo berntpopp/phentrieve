@@ -88,8 +88,8 @@ def main():
     setup_environment()
 
     # API server configuration
-    host = "0.0.0.0"  # Listen on all interfaces
-    port = 8001  # Use the same port you were trying before
+    host = os.environ.get("API_HOST", "0.0.0.0")  # Listen on all interfaces
+    port = int(os.environ.get("API_PORT", "8000"))  # Default to 8000
 
     logger.info(f"Starting uvicorn on {host}:{port}")
     logger.info("Press CTRL+C to stop the server")
