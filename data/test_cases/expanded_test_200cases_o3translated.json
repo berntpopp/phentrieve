@@ -1,0 +1,1402 @@
+[
+  {
+    "text": "Anti-HLA-Antikörper-Positivität",
+    "expected_hpo_ids": [
+      "HP:0034016"
+    ],
+    "description": "Anti-HLA antibody positivity"
+  },
+  {
+    "text": "Kleine Epiphysen der Phalangen der Hand",
+    "expected_hpo_ids": [
+      "HP:0010236"
+    ],
+    "description": "Small epiphyses of the phalanges of the hand"
+  },
+  {
+    "text": "Anasarka",
+    "expected_hpo_ids": [
+      "HP:0012050"
+    ],
+    "description": "Anasarca"
+  },
+  {
+    "text": "Varusklumpfuß",
+    "expected_hpo_ids": [
+      "HP:0025802"
+    ],
+    "description": "Talipes varus"
+  },
+  {
+    "text": "Abnorme Konzentration von Carbonsäuren im Liquor",
+    "expected_hpo_ids": [
+      "HP:0500183"
+    ],
+    "description": "Abnormal CSF carboxylic acid concentration"
+  },
+  {
+    "text": "Gerade Klavikeln",
+    "expected_hpo_ids": [
+      "HP:0006587"
+    ],
+    "description": "Straight clavicles"
+  },
+  {
+    "text": "Erhöhter Harn-N,N-Dimethylglycin-Spiegel",
+    "expected_hpo_ids": [
+      "HP:0031946"
+    ],
+    "description": "Elevated urinary N,N-dimethylglycine level"
+  },
+  {
+    "text": "Knieschmerz",
+    "expected_hpo_ids": [
+      "HP:0030839"
+    ],
+    "description": "Knee pain"
+  },
+  {
+    "text": "Dibasische Aminoazidurie",
+    "expected_hpo_ids": [
+      "HP:0003168"
+    ],
+    "description": "Dibasicaminoaciduria"
+  },
+  {
+    "text": "Gekrümmte Phalanx des 2. Zehs",
+    "expected_hpo_ids": [
+      "HP:0010350"
+    ],
+    "description": "Curved 2nd toe phalanx"
+  },
+  {
+    "text": "Parenchymales Hirntuberkulom",
+    "expected_hpo_ids": [
+      "HP:6000585"
+    ],
+    "description": "Brain parenchymal tuberculoma"
+  },
+  {
+    "text": "Fokaler, Bewusstsein beeinträchtigender kognitiver Anfall mit Dysgraphie/Agraphie",
+    "expected_hpo_ids": [
+      "HP:0032803"
+    ],
+    "description": "Focal impaired awareness cognitive seizure with dysgraphia/agraphia"
+  },
+  {
+    "text": "Bilaterale Stimmbandparese",
+    "expected_hpo_ids": [
+      "HP:0012822"
+    ],
+    "description": "Bilateral vocal cord paresis"
+  },
+  {
+    "text": "Vermehrte Mitochondrien in Neutrophilen",
+    "expected_hpo_ids": [
+      "HP:0041045"
+    ],
+    "description": "Increased neutrophil mitochondria"
+  },
+  {
+    "text": "Karpometakarpale Synostose",
+    "expected_hpo_ids": [
+      "HP:0100328"
+    ],
+    "description": "Carpometacarpal synostosis"
+  },
+  {
+    "text": "Aplasie/Hypoplasie der Vagina",
+    "expected_hpo_ids": [
+      "HP:0011026"
+    ],
+    "description": "Aplasia/Hypoplasia of the vagina"
+  },
+  {
+    "text": "Pseudobulbäre Lähmung",
+    "expected_hpo_ids": [
+      "HP:0007024"
+    ],
+    "description": "Pseudobulbar paralysis"
+  },
+  {
+    "text": "Aortenklappenprolaps",
+    "expected_hpo_ids": [
+      "HP:0025578"
+    ],
+    "description": "Aortic valve prolapse"
+  },
+  {
+    "text": "Durchfall",
+    "expected_hpo_ids": [
+      "HP:0002014"
+    ],
+    "description": "Diarrhea"
+  },
+  {
+    "text": "Acetabuläre Sporne",
+    "expected_hpo_ids": [
+      "HP:0010454"
+    ],
+    "description": "Acetabular spurs"
+  },
+  {
+    "text": "Dermale Flammenfiguren",
+    "expected_hpo_ids": [
+      "HP:6000090"
+    ],
+    "description": "Dermal flame figures"
+  },
+  {
+    "text": "Verminderter Glukose-6-Phosphat-Dehydrogenase-Spiegel in Leukozyten",
+    "expected_hpo_ids": [
+      "HP:0410190"
+    ],
+    "description": "Decreased glucose-6-phosphate dehydrogenase level in leukocytes"
+  },
+  {
+    "text": "Zervikales Teratom",
+    "expected_hpo_ids": [
+      "HP:0034563"
+    ],
+    "description": "Neck teratoma"
+  },
+  {
+    "text": "Abnorme B-Zellzahl",
+    "expected_hpo_ids": [
+      "HP:0010975"
+    ],
+    "description": "Abnormal B cell count"
+  },
+  {
+    "text": "Neuralgie",
+    "expected_hpo_ids": [
+      "HP:0033345"
+    ],
+    "description": "Neuralgia"
+  },
+  {
+    "text": "Progressive proximale Muskelschwäche",
+    "expected_hpo_ids": [
+      "HP:0009073"
+    ],
+    "description": "Progressive proximal muscle weakness"
+  },
+  {
+    "text": "Akute Leukämie",
+    "expected_hpo_ids": [
+      "HP:0002488"
+    ],
+    "description": "Acute leukemia"
+  },
+  {
+    "text": "Isolierte systolische Hypertonie",
+    "expected_hpo_ids": [
+      "HP:0500106"
+    ],
+    "description": "Isolated systolic hypertension"
+  },
+  {
+    "text": "Lithoptyse",
+    "expected_hpo_ids": [
+      "HP:0032543"
+    ],
+    "description": "Lithoptysis"
+  },
+  {
+    "text": "Fehlende Epiphysen der Zehen",
+    "expected_hpo_ids": [
+      "HP:0010162"
+    ],
+    "description": "Absent epiphyses of the toes"
+  },
+  {
+    "text": "Schilddrüsenadenom",
+    "expected_hpo_ids": [
+      "HP:0000854"
+    ],
+    "description": "Thyroid adenoma"
+  },
+  {
+    "text": "Schwere Cytomegalovirus-Infektion",
+    "expected_hpo_ids": [
+      "HP:0031692"
+    ],
+    "description": "Severe cytomegalovirus infection"
+  },
+  {
+    "text": "Renales Übergangszellkarzinom",
+    "expected_hpo_ids": [
+      "HP:0030409"
+    ],
+    "description": "Renal transitional cell carcinoma"
+  },
+  {
+    "text": "Erhöhte Konzentration von zirkulierendem Selen",
+    "expected_hpo_ids": [
+      "HP:0033191"
+    ],
+    "description": "Increased circulating selenium concentration"
+  },
+  {
+    "text": "Tubulointerstitielle Nephritis",
+    "expected_hpo_ids": [
+      "HP:0001970"
+    ],
+    "description": "Tubulointerstitial nephritis"
+  },
+  {
+    "text": "Erhöhte hepatische Eisenkonzentration",
+    "expected_hpo_ids": [
+      "HP:0012465"
+    ],
+    "description": "Elevated hepatic iron concentration"
+  },
+  {
+    "text": "Autoaggressives Verhalten",
+    "expected_hpo_ids": [
+      "HP:0100716"
+    ],
+    "description": "Self-injurious behavior"
+  },
+  {
+    "text": "Totale intestinale Aganglionose",
+    "expected_hpo_ids": [
+      "HP:0005241"
+    ],
+    "description": "Total intestinal aganglionosis"
+  },
+  {
+    "text": "Kraniellen Asymmetrie",
+    "expected_hpo_ids": [
+      "HP:0000267"
+    ],
+    "description": "Cranial asymmetry"
+  },
+  {
+    "text": "Abnorme Konzentration verzweigter Aminosäuren im Blut",
+    "expected_hpo_ids": [
+      "HP:0010892"
+    ],
+    "description": "Abnormal circulating branched chain amino acid concentration"
+  },
+  {
+    "text": "Fokale kortikale Dysplasie Typ Ib",
+    "expected_hpo_ids": [
+      "HP:0032049"
+    ],
+    "description": "Focal cortical dysplasia type Ib"
+  },
+  {
+    "text": "Im Kindesalter beginnende sensorineurale Hörbeeinträchtigung",
+    "expected_hpo_ids": [
+      "HP:0011474"
+    ],
+    "description": "Childhood onset sensorineural hearing impairment"
+  },
+  {
+    "text": "Nicht-nekrotisierendes Granulom",
+    "expected_hpo_ids": [
+      "HP:0033805"
+    ],
+    "description": "Non-necrotizing granuloma"
+  },
+  {
+    "text": "Verminderter Harn-Guanidinoessigsäurespiegel",
+    "expected_hpo_ids": [
+      "HP:0034888"
+    ],
+    "description": "Decreased urine guanidinoacetic acid level"
+  },
+  {
+    "text": "Erhöhter Harn-Pyrrolinhydroxycarbonsäurespiegel",
+    "expected_hpo_ids": [
+      "HP:6000620"
+    ],
+    "description": "Elevated urinary pyrroline hydroxycarboxylic acid level"
+  },
+  {
+    "text": "Photophobie",
+    "expected_hpo_ids": [
+      "HP:0000613"
+    ],
+    "description": "Photophobia"
+  },
+  {
+    "text": "Scherengang",
+    "expected_hpo_ids": [
+      "HP:0012407"
+    ],
+    "description": "Scissor gait"
+  },
+  {
+    "text": "Abnorme Hautmorphologie",
+    "expected_hpo_ids": [
+      "HP:0011121"
+    ],
+    "description": "Abnormal skin morphology"
+  },
+  {
+    "text": "Indeterminierte Ventrikelachse",
+    "expected_hpo_ids": [
+      "HP:0033570"
+    ],
+    "description": "Indeterminate ventricular axis"
+  },
+  {
+    "text": "Hyperkonvexer Zehennagel",
+    "expected_hpo_ids": [
+      "HP:0030055"
+    ],
+    "description": "Hyperconvex toenail"
+  },
+  {
+    "text": "Papilläres Nierenzellkarzinom Typ 1",
+    "expected_hpo_ids": [
+      "HP:0011797"
+    ],
+    "description": "Papillary renal cell carcinoma type 1"
+  },
+  {
+    "text": "Stenose der Arteria cerebri anterior",
+    "expected_hpo_ids": [
+      "HP:0012494"
+    ],
+    "description": "Anterior cerebral artery stenosis"
+  },
+  {
+    "text": "Striae distensae",
+    "expected_hpo_ids": [
+      "HP:0001065"
+    ],
+    "description": "Striae distensae"
+  },
+  {
+    "text": "Pinealom",
+    "expected_hpo_ids": [
+      "HP:0010799"
+    ],
+    "description": "Pinealoma"
+  },
+  {
+    "text": "Sigmoidniere",
+    "expected_hpo_ids": [
+      "HP:0034231"
+    ],
+    "description": "Sigmoid kidney"
+  },
+  {
+    "text": "Ulnardeviation des dritten Fingers",
+    "expected_hpo_ids": [
+      "HP:0009463"
+    ],
+    "description": "Ulnar deviation of the 3rd finger"
+  },
+  {
+    "text": "Morbilliformer Ausschlag",
+    "expected_hpo_ids": [
+      "HP:0012282"
+    ],
+    "description": "Morbilliform rash"
+  },
+  {
+    "text": "Papillenblutung",
+    "expected_hpo_ids": [
+      "HP:6001186"
+    ],
+    "description": "Optic disc hemorrhage"
+  },
+  {
+    "text": "Mikrotropie ohne Identität",
+    "expected_hpo_ids": [
+      "HP:0031782"
+    ],
+    "description": "Microtropia without identity"
+  },
+  {
+    "text": "Dekortikate Rigidität",
+    "expected_hpo_ids": [
+      "HP:0011444"
+    ],
+    "description": "Decorticate rigidity"
+  },
+  {
+    "text": "Aplasie/Hypoplasie der Uvea",
+    "expected_hpo_ids": [
+      "HP:0008055"
+    ],
+    "description": "Aplasia/Hypoplasia affecting the uvea"
+  },
+  {
+    "text": "Abnorme zirkulierende Interleukin-Konzentration",
+    "expected_hpo_ids": [
+      "HP:0011117"
+    ],
+    "description": "Abnormal circulating interleukin concentration"
+  },
+  {
+    "text": "Schmelzagenesie",
+    "expected_hpo_ids": [
+      "HP:0033785"
+    ],
+    "description": "Enamel agenesis"
+  },
+  {
+    "text": "Abnorme Leberenzyaktivität oder -konzentration",
+    "expected_hpo_ids": [
+      "HP:0034685"
+    ],
+    "description": "Abnormal liver enzyme activity or concentration"
+  },
+  {
+    "text": "Otosklerose",
+    "expected_hpo_ids": [
+      "HP:0000362"
+    ],
+    "description": "Otosclerosis"
+  },
+  {
+    "text": "Fokaler emotionaler Krampfanfall",
+    "expected_hpo_ids": [
+      "HP:0025613"
+    ],
+    "description": "Focal emotional seizure"
+  },
+  {
+    "text": "Intraluminale Thromben in der kortikalen Radialarterie",
+    "expected_hpo_ids": [
+      "HP:0033950"
+    ],
+    "description": "Cortical radial artery intraluminal thrombi"
+  },
+  {
+    "text": "Erhöhter Harn-2-Oxovaleriansäure-Spiegel",
+    "expected_hpo_ids": [
+      "HP:6000600"
+    ],
+    "description": "Elevated urinary 2-oxovaleric acid level"
+  },
+  {
+    "text": "Steckenpferd-Gang",
+    "expected_hpo_ids": [
+      "HP:0031856"
+    ],
+    "description": "Hobby horse gait"
+  },
+  {
+    "text": "Thorakales Aortenaneurysma",
+    "expected_hpo_ids": [
+      "HP:0012727"
+    ],
+    "description": "Thoracic aortic aneurysm"
+  },
+  {
+    "text": "Nasale Polypose",
+    "expected_hpo_ids": [
+      "HP:0100582"
+    ],
+    "description": "Nasal polyposis"
+  },
+  {
+    "text": "Autoimmun-Antikörper-Positivität im Liquor",
+    "expected_hpo_ids": [
+      "HP:0032265"
+    ],
+    "description": "CSF autoimmune antibody positivity"
+  },
+  {
+    "text": "Erhöhter Harn-2-Methyl-3-Hydroxybuttersäure-Spiegel",
+    "expected_hpo_ids": [
+      "HP:6000603"
+    ],
+    "description": "Elevated urinary 2-methyl-3-hydroxybutyric acid level"
+  },
+  {
+    "text": "Laryngeale Zyste",
+    "expected_hpo_ids": [
+      "HP:0100640"
+    ],
+    "description": "Laryngeal cyst"
+  },
+  {
+    "text": "Unregelmäßige proximale Tibiapiphysen",
+    "expected_hpo_ids": [
+      "HP:0006456"
+    ],
+    "description": "Irregular proximal tibial epiphyses"
+  },
+  {
+    "text": "Foveale Hyperpigmentierung",
+    "expected_hpo_ids": [
+      "HP:0008001"
+    ],
+    "description": "Foveal hyperpigmentation"
+  },
+  {
+    "text": "Fehlende distale Phalangen",
+    "expected_hpo_ids": [
+      "HP:0005807"
+    ],
+    "description": "Absent distal phalanges"
+  },
+  {
+    "text": "Erhöhte Konzentration von zirkulierendem Kupfer",
+    "expected_hpo_ids": [
+      "HP:0032254"
+    ],
+    "description": "Increased circulating copper concentration"
+  },
+  {
+    "text": "Reduzierte Spermienmotilität",
+    "expected_hpo_ids": [
+      "HP:0012207"
+    ],
+    "description": "Reduced sperm motility"
+  },
+  {
+    "text": "Fehlendes Harnurothion",
+    "expected_hpo_ids": [
+      "HP:0003606"
+    ],
+    "description": "Absent urinary urothione"
+  },
+  {
+    "text": "Scheckige Hautdepigmentierung",
+    "expected_hpo_ids": [
+      "HP:0007544"
+    ],
+    "description": "Piebald skin depigmentation"
+  },
+  {
+    "text": "Fokaler bewusster Krampfanfall mit sexuellem Automatismus",
+    "expected_hpo_ids": [
+      "HP:0032917"
+    ],
+    "description": "Focal aware sexual automatism seizure"
+  },
+  {
+    "text": "Brauenptosis",
+    "expected_hpo_ids": [
+      "HP:0031623"
+    ],
+    "description": "Brow ptosis"
+  },
+  {
+    "text": "Weiche, teigige Haut",
+    "expected_hpo_ids": [
+      "HP:0001027"
+    ],
+    "description": "Soft, doughy skin"
+  },
+  {
+    "text": "Anomalie der Glenoidfossa",
+    "expected_hpo_ids": [
+      "HP:0011912"
+    ],
+    "description": "Abnormality of the glenoid fossa"
+  },
+  {
+    "text": "Peritonealabszess",
+    "expected_hpo_ids": [
+      "HP:0100592"
+    ],
+    "description": "Peritoneal abscess"
+  },
+  {
+    "text": "Prominenz des Jochbeins",
+    "expected_hpo_ids": [
+      "HP:0012370"
+    ],
+    "description": "Prominence of the zygomatic bone"
+  },
+  {
+    "text": "Hüftsubluxation",
+    "expected_hpo_ids": [
+      "HP:0030043"
+    ],
+    "description": "Hip subluxation"
+  },
+  {
+    "text": "Dreieckig geformte proximale Phalanx des dritten Fingers",
+    "expected_hpo_ids": [
+      "HP:0009456"
+    ],
+    "description": "Triangular shaped proximal phalanx of the 3rd finger"
+  },
+  {
+    "text": "Konjunktivale Amyloidose",
+    "expected_hpo_ids": [
+      "HP:0010637"
+    ],
+    "description": "Conjunctival amyloidosis"
+  },
+  {
+    "text": "Dilatation des Trikuspidalklappenrings",
+    "expected_hpo_ids": [
+      "HP:0031444"
+    ],
+    "description": "Dilatation of the tricuspid annulus"
+  },
+  {
+    "text": "Hautgeschwür",
+    "expected_hpo_ids": [
+      "HP:0200042"
+    ],
+    "description": "Skin ulcer"
+  },
+  {
+    "text": "Parasitosenwahn",
+    "expected_hpo_ids": [
+      "HP:5200426"
+    ],
+    "description": "Delusions of infestation"
+  },
+  {
+    "text": "Abnorme Adenosindesaminase-Aktivität in Erythrozyten",
+    "expected_hpo_ids": [
+      "HP:4000209"
+    ],
+    "description": "Abnormal erythrocyte adenosine deaminase activity"
+  },
+  {
+    "text": "Verminderte Partikelgröße von Low-Density-Lipoproteinen",
+    "expected_hpo_ids": [
+      "HP:0032193"
+    ],
+    "description": "Decreased low-density lipoprotein particle size"
+  },
+  {
+    "text": "Cyclotropie",
+    "expected_hpo_ids": [
+      "HP:0031776"
+    ],
+    "description": "Cyclotropia"
+  },
+  {
+    "text": "Extramedulläre Hämatopoese",
+    "expected_hpo_ids": [
+      "HP:0001978"
+    ],
+    "description": "Extramedullary hematopoiesis"
+  },
+  {
+    "text": "Abnorme Harn-1-Methylhistidinkonzentration",
+    "expected_hpo_ids": [
+      "HP:0410313"
+    ],
+    "description": "Abnormal urinary 1-methylhistidine concentration"
+  },
+  {
+    "text": "Subependymale Zysten",
+    "expected_hpo_ids": [
+      "HP:0002416"
+    ],
+    "description": "Subependymal cysts"
+  },
+  {
+    "text": "Status epilepticus mit iktaler Parese",
+    "expected_hpo_ids": [
+      "HP:0032862"
+    ],
+    "description": "Status epilepticus with ictal paresis"
+  },
+  {
+    "text": "Eingeschränkte okuläre Abduktion",
+    "expected_hpo_ids": [
+      "HP:0000634"
+    ],
+    "description": "Impaired ocular abduction"
+  },
+  {
+    "text": "Proteinverlangen",
+    "expected_hpo_ids": [
+      "HP:6000785"
+    ],
+    "description": "Protein craving"
+  },
+  {
+    "text": "Unikoronale Synostose",
+    "expected_hpo_ids": [
+      "HP:0011315"
+    ],
+    "description": "Unicoronal synostosis"
+  },
+  {
+    "text": "Spastische Tetraplegie",
+    "expected_hpo_ids": [
+      "HP:0002510"
+    ],
+    "description": "Spastic tetraplegia"
+  },
+  {
+    "text": "Beeinträchtigte Zytokinsignalübertragung",
+    "expected_hpo_ids": [
+      "HP:0031407"
+    ],
+    "description": "Impaired cytokine signaling"
+  },
+  {
+    "text": "Adversiver Status epilepticus",
+    "expected_hpo_ids": [
+      "HP:0032664"
+    ],
+    "description": "Adversive status epilepticus"
+  },
+  {
+    "text": "Ventrikuläre Präexzitation mit multiplen akzessorischen Leitungsbahnen",
+    "expected_hpo_ids": [
+      "HP:0006684"
+    ],
+    "description": "Ventricular preexcitation with multiple accessory pathways"
+  },
+  {
+    "text": "Anti-GM1-IgM-Antikörper-Positivität",
+    "expected_hpo_ids": [
+      "HP:0034118"
+    ],
+    "description": "Anti-GM1 IgM antibody positivity"
+  },
+  {
+    "text": "Intima/Media-Nekrose der Arkuatarterie",
+    "expected_hpo_ids": [
+      "HP:0033931"
+    ],
+    "description": "Arcuate artery intima/media necrosis"
+  },
+  {
+    "text": "Proximaler/mittlerer Symphalangismus des dritten Zehs",
+    "expected_hpo_ids": [
+      "HP:0100480"
+    ],
+    "description": "Proximal/middle symphalangism of 3rd toe"
+  },
+  {
+    "text": "Masse in der Thoraxbildgebung",
+    "expected_hpo_ids": [
+      "HP:0033822"
+    ],
+    "description": "Mass on thoracic imaging"
+  },
+  {
+    "text": "Osteolytische Defekte der Phalangen der Hand",
+    "expected_hpo_ids": [
+      "HP:0009771"
+    ],
+    "description": "Osteolytic defects of the phalanges of the hand"
+  },
+  {
+    "text": "Turmschädel",
+    "expected_hpo_ids": [
+      "HP:0000262"
+    ],
+    "description": "Turricephaly"
+  },
+  {
+    "text": "Abnorme Morphologie der Halsblutgefäße",
+    "expected_hpo_ids": [
+      "HP:3000037"
+    ],
+    "description": "Abnormal neck blood vessel morphology"
+  },
+  {
+    "text": "Hypoplastische nasopharyngeale Adenoide",
+    "expected_hpo_ids": [
+      "HP:0040258"
+    ],
+    "description": "Hypoplastic nasopharyngeal adenoids"
+  },
+  {
+    "text": "Fokaler autonomer Krampfanfall mit Piloerektion",
+    "expected_hpo_ids": [
+      "HP:0032767"
+    ],
+    "description": "Focal autonomic seizure with piloerection"
+  },
+  {
+    "text": "Retikulozytose",
+    "expected_hpo_ids": [
+      "HP:0001923"
+    ],
+    "description": "Reticulocytosis"
+  },
+  {
+    "text": "Knuckle-Pad",
+    "expected_hpo_ids": [
+      "HP:0032541"
+    ],
+    "description": "Knuckle pad"
+  },
+  {
+    "text": "Fusion der Halswirbel C2/C3",
+    "expected_hpo_ids": [
+      "HP:0004602"
+    ],
+    "description": "Cervical C2/C3 vertebral fusion"
+  },
+  {
+    "text": "Reduzierte Alpha-2-Antiplasmin-Aktivität",
+    "expected_hpo_ids": [
+      "HP:0040245"
+    ],
+    "description": "Reduced alpha-2-antiplasmin activity"
+  },
+  {
+    "text": "Orotsäure-Kristallurie",
+    "expected_hpo_ids": [
+      "HP:0003526"
+    ],
+    "description": "Orotic acid crystalluria"
+  },
+  {
+    "text": "Offenes Operculum",
+    "expected_hpo_ids": [
+      "HP:0100954"
+    ],
+    "description": "Open operculum"
+  },
+  {
+    "text": "Erlenmeyer-Kolben-Deformität der Femora",
+    "expected_hpo_ids": [
+      "HP:0004975"
+    ],
+    "description": "Erlenmeyer flask deformity of the femurs"
+  },
+  {
+    "text": "Abnorme Fucosylierung der protein-N-gebundenen Glykosylierung",
+    "expected_hpo_ids": [
+      "HP:0012352"
+    ],
+    "description": "Abnormal fucosylation of protein N-linked glycosylation"
+  },
+  {
+    "text": "Überwiegen von Muskelfasertyp 2",
+    "expected_hpo_ids": [
+      "HP:0010602"
+    ],
+    "description": "Type 2 muscle fiber predominance"
+  },
+  {
+    "text": "Reduzierte hepatische N-Acetylglutamat-Synthase-Aktivität",
+    "expected_hpo_ids": [
+      "HP:6000161"
+    ],
+    "description": "Reduced hepatic N-acetylglutamate synthase activity"
+  },
+  {
+    "text": "Double-Inlet-Rechter-Ventrikel",
+    "expected_hpo_ids": [
+      "HP:0011556"
+    ],
+    "description": "Double inlet right ventricle"
+  },
+  {
+    "text": "Stimmbandpolyp",
+    "expected_hpo_ids": [
+      "HP:0032041"
+    ],
+    "description": "Vocal cord polyp"
+  },
+  {
+    "text": "Zementom",
+    "expected_hpo_ids": [
+      "HP:0012328"
+    ],
+    "description": "Cementoma"
+  },
+  {
+    "text": "Minicore-Myopathie",
+    "expected_hpo_ids": [
+      "HP:0003789"
+    ],
+    "description": "Minicore myopathy"
+  },
+  {
+    "text": "Pneumothorax",
+    "expected_hpo_ids": [
+      "HP:0002107"
+    ],
+    "description": "Pneumothorax"
+  },
+  {
+    "text": "Konjunktivale Papillen",
+    "expected_hpo_ids": [
+      "HP:0030946"
+    ],
+    "description": "Conjunctival papillae"
+  },
+  {
+    "text": "Schwere B-Lymphozytopenie",
+    "expected_hpo_ids": [
+      "HP:0005365"
+    ],
+    "description": "Severe B lymphocytopenia"
+  },
+  {
+    "text": "Abnormes RV/TLC-Verhältnis",
+    "expected_hpo_ids": [
+      "HP:0033772"
+    ],
+    "description": "Abnormal RV/TLC ratio"
+  },
+  {
+    "text": "Nummuläre Pigmentierung des Fundus",
+    "expected_hpo_ids": [
+      "HP:0030505"
+    ],
+    "description": "Nummular pigmentation of the fundus"
+  },
+  {
+    "text": "Nävus",
+    "expected_hpo_ids": [
+      "HP:0003764"
+    ],
+    "description": "Nevus"
+  },
+  {
+    "text": "Geschossförmige proximale Phalanx des zweiten Fingers",
+    "expected_hpo_ids": [
+      "HP:0009582"
+    ],
+    "description": "Bullet-shaped proximal phalanx of the 2nd finger"
+  },
+  {
+    "text": "Dalen-Fuchs-Knötchen",
+    "expected_hpo_ids": [
+      "HP:6000710"
+    ],
+    "description": "Dalen Fuchs nodules"
+  },
+  {
+    "text": "Gonadentumor",
+    "expected_hpo_ids": [
+      "HP:0010785"
+    ],
+    "description": "Gonadal neoplasm"
+  },
+  {
+    "text": "Partielle Duplikation der Phalangen des fünften Fingers",
+    "expected_hpo_ids": [
+      "HP:0009987"
+    ],
+    "description": "Partial duplication of the phalanges of the 5th finger"
+  },
+  {
+    "text": "Magenkrebs",
+    "expected_hpo_ids": [
+      "HP:0012126"
+    ],
+    "description": "Stomach cancer"
+  },
+  {
+    "text": "Abnorme Nasenknochenmorphologie",
+    "expected_hpo_ids": [
+      "HP:0010939"
+    ],
+    "description": "Abnormal nasal bone morphology"
+  },
+  {
+    "text": "Hyperechogene Nieren",
+    "expected_hpo_ids": [
+      "HP:0004719"
+    ],
+    "description": "Hyperechogenic kidneys"
+  },
+  {
+    "text": "Positiver Test auf Erreger der Atemwege",
+    "expected_hpo_ids": [
+      "HP:0430151"
+    ],
+    "description": "Positive respiratory tract infectious agent test"
+  },
+  {
+    "text": "Pleomorphe Cholangitis",
+    "expected_hpo_ids": [
+      "HP:0030990"
+    ],
+    "description": "Pleomorphic cholangitis"
+  },
+  {
+    "text": "Konstante Exotropie",
+    "expected_hpo_ids": [
+      "HP:0031713"
+    ],
+    "description": "Constant exotropia"
+  },
+  {
+    "text": "Schnelle Ermüdbarkeit",
+    "expected_hpo_ids": [
+      "HP:0003388"
+    ],
+    "description": "Easy fatigability"
+  },
+  {
+    "text": "Pulmonalarterielle Atherosklerose",
+    "expected_hpo_ids": [
+      "HP:0031272"
+    ],
+    "description": "Pulmonary arterial atherosclerosis"
+  },
+  {
+    "text": "Anti-Angiotensin-Rezeptor-Typ-1-Antikörper-Positivität",
+    "expected_hpo_ids": [
+      "HP:0034094"
+    ],
+    "description": "Anti-angiotensin receptor type-1 antibody positivity"
+  },
+  {
+    "text": "Erhöhte Annexin-V-Bindung an Thrombozyten-Phosphatidylserin",
+    "expected_hpo_ids": [
+      "HP:0031133"
+    ],
+    "description": "Increased annexin V binding to platelet phosphatidylserine"
+  },
+  {
+    "text": "Zerebrales Ödem",
+    "expected_hpo_ids": [
+      "HP:0002181"
+    ],
+    "description": "Cerebral edema"
+  },
+  {
+    "text": "Mesokardie",
+    "expected_hpo_ids": [
+      "HP:0011599"
+    ],
+    "description": "Mesocardia"
+  },
+  {
+    "text": "Hypovolämischer Schock",
+    "expected_hpo_ids": [
+      "HP:0031274"
+    ],
+    "description": "Hypovolemic shock"
+  },
+  {
+    "text": "Verminderter Körperfettanteil",
+    "expected_hpo_ids": [
+      "HP:0041079"
+    ],
+    "description": "Decreased body fat percentage"
+  },
+  {
+    "text": "Verbiegung der Beine",
+    "expected_hpo_ids": [
+      "HP:0002979"
+    ],
+    "description": "Bowing of the legs"
+  },
+  {
+    "text": "Verminderte Konzentration zirkulierender Asparaginsäure",
+    "expected_hpo_ids": [
+      "HP:0034441"
+    ],
+    "description": "Decreased circulating aspartic acid concentration"
+  },
+  {
+    "text": "Ungeschützte Trikuspidalklappe",
+    "expected_hpo_ids": [
+      "HP:0030719"
+    ],
+    "description": "Unguarded tricuspid valve"
+  },
+  {
+    "text": "Synovialkristalle",
+    "expected_hpo_ids": [
+      "HP:6001156"
+    ],
+    "description": "Synovial crystals"
+  },
+  {
+    "text": "Herabgezogene Mundwinkel",
+    "expected_hpo_ids": [
+      "HP:0002714"
+    ],
+    "description": "Downturned corners of mouth"
+  },
+  {
+    "text": "Plazenta praevia",
+    "expected_hpo_ids": [
+      "HP:0430070"
+    ],
+    "description": "Placenta previa"
+  },
+  {
+    "text": "Erhöhte Konzentration der zirkulierenden Kreatinkinase-MB-Isoform",
+    "expected_hpo_ids": [
+      "HP:0032232"
+    ],
+    "description": "Increased circulating creatine kinase MB isoform"
+  },
+  {
+    "text": "Kurze distale Phalanx des dritten Zehs",
+    "expected_hpo_ids": [
+      "HP:0100389"
+    ],
+    "description": "Short distal phalanx of the 3rd toe"
+  },
+  {
+    "text": "Zerebrales venöses Angiom",
+    "expected_hpo_ids": [
+      "HP:0012481"
+    ],
+    "description": "Cerebral venous angioma"
+  },
+  {
+    "text": "Periphere Dysmyelinisierung",
+    "expected_hpo_ids": [
+      "HP:0003469"
+    ],
+    "description": "Peripheral dysmyelination"
+  },
+  {
+    "text": "Temporallappenverkalkung",
+    "expected_hpo_ids": [
+      "HP:0034293"
+    ],
+    "description": "Temporal lobe calcification"
+  },
+  {
+    "text": "Hydroa vacciniforme",
+    "expected_hpo_ids": [
+      "HP:0032381"
+    ],
+    "description": "Hydroa vacciniforme"
+  },
+  {
+    "text": "Schwere geistige Behinderung",
+    "expected_hpo_ids": [
+      "HP:0002187"
+    ],
+    "description": "Intellectual disability, profound"
+  },
+  {
+    "text": "Verminderte Konzentration von zirkulierendem Komplement C8",
+    "expected_hpo_ids": [
+      "HP:0004434"
+    ],
+    "description": "Decreased circulating complement C8 concentration"
+  },
+  {
+    "text": "Abnorme Bowman-Kapsel-Morphologie",
+    "expected_hpo_ids": [
+      "HP:0031264"
+    ],
+    "description": "Abnormal Bowman capsule morphology"
+  },
+  {
+    "text": "Papilläres Nierenzellkarzinom Typ 2",
+    "expected_hpo_ids": [
+      "HP:0006732"
+    ],
+    "description": "Papillary renal cell carcinoma type 2"
+  },
+  {
+    "text": "Abnormer emotionaler Zustand",
+    "expected_hpo_ids": [
+      "HP:0100851"
+    ],
+    "description": "Abnormal emotional state"
+  },
+  {
+    "text": "Niedrige Serumosmolalität",
+    "expected_hpo_ids": [
+      "HP:6000680"
+    ],
+    "description": "Low serum osmolality"
+  },
+  {
+    "text": "Intrakranielle zystische Läsion",
+    "expected_hpo_ids": [
+      "HP:0010576"
+    ],
+    "description": "Intracranial cystic lesion"
+  },
+  {
+    "text": "Amphetaminabhängiger Konsum",
+    "expected_hpo_ids": [
+      "HP:0033514"
+    ],
+    "description": "Addictive amphetamine use"
+  },
+  {
+    "text": "Übergangszellkarzinom der Blase",
+    "expected_hpo_ids": [
+      "HP:0006740"
+    ],
+    "description": "Transitional cell carcinoma of the bladder"
+  },
+  {
+    "text": "Enger innerer Gehörgang",
+    "expected_hpo_ids": [
+      "HP:0011386"
+    ],
+    "description": "Narrow internal auditory canal"
+  },
+  {
+    "text": "Einseitige Ptosis",
+    "expected_hpo_ids": [
+      "HP:0007687"
+    ],
+    "description": "Unilateral ptosis"
+  },
+  {
+    "text": "Chiari-Typ-I-Fehlbildung",
+    "expected_hpo_ids": [
+      "HP:0007099"
+    ],
+    "description": "Chiari type I malformation"
+  },
+  {
+    "text": "Abszess",
+    "expected_hpo_ids": [
+      "HP:0025615"
+    ],
+    "description": "Abscess"
+  },
+  {
+    "text": "EMG-Anomalie",
+    "expected_hpo_ids": [
+      "HP:0003457"
+    ],
+    "description": "EMG abnormality"
+  },
+  {
+    "text": "Zerebelläre Gliose",
+    "expected_hpo_ids": [
+      "HP:0012698"
+    ],
+    "description": "Cerebellar gliosis"
+  },
+  {
+    "text": "Knochenmarkreifungsstopp",
+    "expected_hpo_ids": [
+      "HP:0033606"
+    ],
+    "description": "Bone marrow maturation arrest"
+  },
+  {
+    "text": "Speicherung in Hepatozyten",
+    "expected_hpo_ids": [
+      "HP:0031137"
+    ],
+    "description": "Storage in hepatocytes"
+  },
+  {
+    "text": "Einfache Nierenzyste",
+    "expected_hpo_ids": [
+      "HP:0012581"
+    ],
+    "description": "Simple renal cyst"
+  },
+  {
+    "text": "Abnorme Größe der Lidspalten",
+    "expected_hpo_ids": [
+      "HP:0200007"
+    ],
+    "description": "Abnormal size of the palpebral fissures"
+  },
+  {
+    "text": "Iris-Hypoperfusion",
+    "expected_hpo_ids": [
+      "HP:0012635"
+    ],
+    "description": "Iris hypoperfusion"
+  },
+  {
+    "text": "Kerbenförmiger primärer zentraler Schneidezahn",
+    "expected_hpo_ids": [
+      "HP:0012413"
+    ],
+    "description": "Notched primary central incisor"
+  },
+  {
+    "text": "Alkoholabhängiger Konsum",
+    "expected_hpo_ids": [
+      "HP:0030955"
+    ],
+    "description": "Addictive alcohol use"
+  },
+  {
+    "text": "Punktierung der Epiphyse der mittleren Phalanx des dritten Zehs",
+    "expected_hpo_ids": [
+      "HP:0100155"
+    ],
+    "description": "Stippling of the epiphysis of the middle phalanx of the 3rd toe"
+  },
+  {
+    "text": "Aplasie der distalen Phalangen der Zehen",
+    "expected_hpo_ids": [
+      "HP:0010645"
+    ],
+    "description": "Aplasia of the distal phalanges of the toes"
+  },
+  {
+    "text": "Elfenbeinartige Epiphyse der mittleren Phalanx des dritten Fingers",
+    "expected_hpo_ids": [
+      "HP:0009327"
+    ],
+    "description": "Ivory epiphysis of the middle phalanx of the 3rd finger"
+  },
+  {
+    "text": "Karpale Synostose",
+    "expected_hpo_ids": [
+      "HP:0009702"
+    ],
+    "description": "Carpal synostosis"
+  },
+  {
+    "text": "Verminderte zirkulierende Alkalische-Phosphatase-Aktivität",
+    "expected_hpo_ids": [
+      "HP:0003282"
+    ],
+    "description": "Decreased circulating alkaline phosphatase activity"
+  },
+  {
+    "text": "Verlust von subkutanem Fettgewebe an den Gliedmaßen",
+    "expected_hpo_ids": [
+      "HP:0003635"
+    ],
+    "description": "Loss of subcutaneous adipose tissue in limbs"
+  },
+  {
+    "text": "Hot-Cross-Bun-Zeichen",
+    "expected_hpo_ids": [
+      "HP:0041056"
+    ],
+    "description": "Hot cross bun sign"
+  },
+  {
+    "text": "Renale kortikale interstitielle Entzündung",
+    "expected_hpo_ids": [
+      "HP:0032946"
+    ],
+    "description": "Renal cortical interstitial inflammation"
+  },
+  {
+    "text": "Abnorme Leukozytenzahl",
+    "expected_hpo_ids": [
+      "HP:0011893"
+    ],
+    "description": "Abnormal leukocyte count"
+  },
+  {
+    "text": "Mittellinien-Handbewegungen",
+    "expected_hpo_ids": [
+      "HP:5200009"
+    ],
+    "description": "Midline hand movements"
+  },
+  {
+    "text": "Hypomaturer Zahnschmelz",
+    "expected_hpo_ids": [
+      "HP:0011085"
+    ],
+    "description": "Hypomature dental enamel"
+  },
+  {
+    "text": "Fehlende dermoepidermale Hemidesmosomen",
+    "expected_hpo_ids": [
+      "HP:0034256"
+    ],
+    "description": "Absent dermoepidermal hemidesmosomes"
+  }
+]

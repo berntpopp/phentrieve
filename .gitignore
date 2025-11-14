@@ -20,18 +20,27 @@ ENV/
 *.swo
 
 # Data and Output files
-# Root level and nested paths
+# Exclude specific data directories but allow test data and results
 phentrieve/data/
-data/
+data/hf_cache/
+data/indexes/
+data/hpo_terms/
+data/hpo_core_data/
+
+# Keep test data and results versioned (NOT ignored)
+# data/test_cases/ - tracked
+# data/test_texts/ - tracked
+# data/results/ - tracked
+
+# Exclude other directories
 phentrieve/hpo_chroma_index/
 hpo_chroma_index/
 phentrieve/benchmark_results/
 benchmark_results/
 
-# Specific data files
+# Specific data files (but not in test/results directories)
 /*.json
 *.pkl
-*.csv
 *.npy
 *.npz
 
