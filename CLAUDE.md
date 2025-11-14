@@ -14,9 +14,9 @@ Phentrieve is an AI-powered system for mapping clinical text to Human Phenotype 
 
 ### Python CLI/Library
 ```bash
-# Install in development mode
-make install                                         # Install package (pip install -e .)
-make install-dev                                     # Install with text_processing extras
+# Install in development mode (using uv)
+make install                                         # Install package (uv sync)
+make install-dev                                     # Install with all extras (uv sync --all-extras)
 
 # Development workflow (recommended)
 make check                                           # Format + lint code
@@ -27,6 +27,12 @@ make all                                             # Clean + check + test
 make format                                          # Format with Ruff
 make lint                                            # Lint with Ruff
 make lint-fix                                        # Lint and auto-fix issues
+
+# Package management (uv)
+make lock                                            # Update uv.lock file
+make upgrade                                         # Upgrade all dependencies
+make add PACKAGE=name                                # Add new dependency
+make remove PACKAGE=name                             # Remove dependency
 
 # Common CLI commands
 phentrieve --help                                    # Show all commands
