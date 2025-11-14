@@ -124,6 +124,25 @@ docker-compose push
 - Git tags `v*.*.*` → versioned tags (e.g., `v1.0.0`, `1.0`, `1`)
 - Pull requests → test builds only (not pushed)
 
+### Dependency Management
+
+**Dependabot** automatically checks for dependency updates weekly (Mondays at 09:00 CET) for:
+- **Python dependencies** (pyproject.toml) - Grouped minor/patch updates, pinned major versions for critical packages
+- **npm dependencies** (frontend/package.json) - Grouped updates, manual review for framework majors
+- **GitHub Actions** - Keeps workflow actions up to date
+- **Docker base images** - Updates base images in Dockerfiles
+
+**Important**: Dependabot PRs require manual review and merge. NO automatic merging is configured for security.
+
+**Pinned Dependencies** (no major version auto-updates):
+- `sentence-transformers` (4.x) - Breaking changes in 5.x
+- `chromadb` (1.x) - Stable version
+- `torch` (2.x) - PyTorch major versions
+- `typer` (0.16.x) - Feature compatibility
+- `vue`, `vuetify`, `vite` - Framework stability
+
+Configuration: `.github/dependabot.yml`
+
 ## Architecture Overview
 
 ### Core Components

@@ -1,0 +1,142 @@
+# Dependabot configuration for automated dependency updates
+# Docs: https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+
+version: 2
+updates:
+  # Python dependencies (pyproject.toml)
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Europe/Berlin"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "berntpopp"
+    labels:
+      - "dependencies"
+      - "python"
+    commit-message:
+      prefix: "chore(deps)"
+      include: "scope"
+    # Group minor and patch updates together to reduce PR noise
+    groups:
+      python-minor-patch:
+        update-types:
+          - "minor"
+          - "patch"
+        exclude-patterns:
+          - "sentence-transformers*"  # Pin to 4.x
+          - "chromadb*"               # Pin to 1.x
+          - "torch*"                  # Pin to 2.x
+          - "typer*"                  # Pin to 0.16.x
+    ignore:
+      # Ignore major version updates for pinned dependencies
+      - dependency-name: "sentence-transformers"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "chromadb"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "torch"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "typer"
+        update-types: ["version-update:semver-major"]
+
+  # Frontend npm dependencies
+  - package-ecosystem: "npm"
+    directory: "/frontend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Europe/Berlin"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "berntpopp"
+    labels:
+      - "dependencies"
+      - "frontend"
+    commit-message:
+      prefix: "chore(deps)"
+      include: "scope"
+    # Group minor and patch updates together
+    groups:
+      frontend-minor-patch:
+        update-types:
+          - "minor"
+          - "patch"
+        exclude-patterns:
+          - "vue"
+          - "vuetify"
+          - "vite"
+    ignore:
+      # Monitor but don't auto-update major framework versions
+      - dependency-name: "vue"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "vuetify"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "vite"
+        update-types: ["version-update:semver-major"]
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Europe/Berlin"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "berntpopp"
+    labels:
+      - "dependencies"
+      - "github-actions"
+    commit-message:
+      prefix: "chore(deps)"
+      include: "scope"
+    groups:
+      actions-updates:
+        update-types:
+          - "minor"
+          - "patch"
+
+  # Docker base images
+  - package-ecosystem: "docker"
+    directory: "/api"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Europe/Berlin"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "berntpopp"
+    labels:
+      - "dependencies"
+      - "docker"
+    commit-message:
+      prefix: "chore(deps)"
+      include: "scope"
+    ignore:
+      # Pin Python base image to 3.9
+      - dependency-name: "python"
+        update-types: ["version-update:semver-major"]
+
+  # Frontend Docker base images
+  - package-ecosystem: "docker"
+    directory: "/frontend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Europe/Berlin"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "berntpopp"
+    labels:
+      - "dependencies"
+      - "docker"
+    commit-message:
+      prefix: "chore(deps)"
+      include: "scope"
