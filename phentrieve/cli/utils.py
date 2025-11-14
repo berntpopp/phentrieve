@@ -6,7 +6,7 @@ This module contains shared utility functions used by the CLI commands.
 import json
 import sys
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional, cast
 
 import typer
 import yaml
@@ -223,4 +223,5 @@ def resolve_chunking_pipeline_config(
     if chunking_pipeline_config is None:
         chunking_pipeline_config = get_default_chunk_pipeline_config()
 
-    return chunking_pipeline_config
+    # Cast to list[dict] to match return type annotation
+    return cast(list[dict[str, Any]], chunking_pipeline_config)

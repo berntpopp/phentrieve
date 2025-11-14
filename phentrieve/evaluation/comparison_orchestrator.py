@@ -237,7 +237,7 @@ def orchestrate_benchmark_comparison(
 def generate_visualizations(
     comparison_df: pd.DataFrame,
     metrics: str = "all",
-    output_dir: str = None,
+    output_dir: str | None = None,
     debug: bool = False,
 ) -> bool:
     """
@@ -299,7 +299,7 @@ def generate_visualizations(
         has_comparison = has_dense and has_reranked
 
         # Organize HR and OntSim metrics by k value
-        hr_by_k = {}
+        hr_by_k: dict[str, list[str]] = {}
         for metric in hr_metrics:
             k_match = re.search(r"HR@(\d+)", metric)
             if k_match:
@@ -308,7 +308,7 @@ def generate_visualizations(
                     hr_by_k[k] = []
                 hr_by_k[k].append(metric)
 
-        ont_by_k = {}
+        ont_by_k: dict[str, list[str]] = {}
         for metric in ont_metrics:
             k_match = re.search(r"MaxOntSim@(\d+)", metric)
             if k_match:
@@ -441,7 +441,7 @@ def generate_visualizations(
             plt.xlabel("Model", fontsize=14)
             plt.ylabel("Mean Reciprocal Rank (MRR)", fontsize=14)
             plt.title(title, fontsize=16)
-            plt.xticks(x, sorted_df["Model"], rotation=45, ha="right")
+            plt.xticks(x, sorted_df["Model"], rotation=45, ha="right")  # type: ignore[arg-type]
             plt.ylim(0, 1.0)
             plt.tight_layout()
             plt.savefig(os.path.join(output_dir, "mrr_comparison.png"), dpi=300)
@@ -859,7 +859,7 @@ def generate_visualizations(
 
             # If there's only one model, axes won't be an array
             if n_models == 1:
-                axes = [axes]
+                axes = [axes]  # type: ignore[list-item]
 
             # For each model, create a line plot showing how metrics vary with k
             for i, (_idx, row) in enumerate(comparison_df.iterrows()):
@@ -869,7 +869,7 @@ def generate_visualizations(
                 # Prepare data for HR@k metrics
                 if len(hr_metrics) >= 2:
                     hr_k_values = [
-                        int(hr_pattern.match(col).group(1)) for col in hr_metrics
+                        int(m.group(1)) for col in hr_metrics if (m := hr_pattern.match(col))
                     ]
                     hr_scores = [row[col] for col in hr_metrics]
 
@@ -886,7 +886,7 @@ def generate_visualizations(
                 # Prepare data for OntSim@k metrics
                 if len(ont_metrics) >= 2:
                     ont_k_values = [
-                        int(ont_pattern.match(col).group(1)) for col in ont_metrics
+                        int(m.group(1)) for col in ont_metrics if (m := ont_pattern.match(col))
                     ]
                     ont_scores = [row[col] for col in ont_metrics]
 

@@ -366,7 +366,9 @@ def calculate_max_similarity(
             item["hpo_id"] for item in retrieved_terms[:top_k] if isinstance(item, dict)
         ]
     else:
-        retrieved_ids = retrieved_terms[:top_k] if top_k else retrieved_terms
+        # Cast to list[str | Any] to match the declared type
+        sliced_terms = retrieved_terms[:top_k] if top_k else retrieved_terms
+        retrieved_ids = list(sliced_terms)
 
     max_similarities = []
 

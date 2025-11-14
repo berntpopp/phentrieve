@@ -140,7 +140,7 @@ def prepare_comparison_dataframe(summaries: list[dict[str, Any]]) -> pd.DataFram
 def prepare_flat_dataframe_for_plotting(
     summaries: list[dict[str, Any]],
     metric_prefix: str,  # e.g., "hit_rate", "max_ont_similarity"
-    k_values: list[int] = None,
+    k_values: list[int] | None = None,
 ) -> pd.DataFrame:
     """
     Prepares a long-form DataFrame for plotting metrics like Hit@K or MaxOntSim@K.

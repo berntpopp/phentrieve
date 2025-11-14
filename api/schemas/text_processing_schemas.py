@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any, Optional, cast
 
 from pydantic import BaseModel, Field
 
@@ -93,7 +93,7 @@ class TextProcessingRequest(BaseModel):
         default=False, description="Disable assertion detection."
     )
     assertion_preference: Optional[str] = Field(
-        default=DEFAULT_ASSERTION_CONFIG.get("preference", "dependency"),
+        default=cast(str, DEFAULT_ASSERTION_CONFIG.get("preference", "dependency")),
         description="Assertion detection preference ('dependency' or 'keyword').",
     )
 

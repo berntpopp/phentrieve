@@ -94,7 +94,8 @@ def load_hpo_json(hpo_file_path: Path) -> Optional[dict]:
         with open(hpo_file_path, encoding="utf-8") as f:
             data = json.load(f)
         logger.info("HPO JSON file loaded successfully.")
-        return data
+        # Cast to dict to match return type annotation
+        return dict(data) if isinstance(data, dict) else {}
     except json.JSONDecodeError as e:
         logger.error(f"Error decoding HPO JSON file {hpo_file_path}: {e}")
         return None
@@ -415,8 +416,18 @@ def prepare_hpo_data(
     """
     Core HPO data preparation: download, parse, save ALL terms, compute graph data.
     """
+    # Validate required paths
+    if hpo_file_path is None:
+        return False, "hpo_file_path is required but was not provided"
+    if hpo_terms_dir is None:
+        return False, "hpo_terms_dir is required but was not provided"
+    if ancestors_file is None:
+        return False, "ancestors_file is required but was not provided"
+    if depths_file is None:
+        return False, "depths_file is required but was not provided"
+
     # 1. Download/Load HPO JSON
-    if force_update or not (hpo_file_path and os.path.exists(hpo_file_path)):
+    if force_update or not os.path.exists(hpo_file_path):
         logger.info(
             f"Force update or file missing. Downloading HPO JSON to {hpo_file_path}..."
         )
