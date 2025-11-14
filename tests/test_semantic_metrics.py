@@ -5,14 +5,12 @@ Tests the semantically-aware P/R/F1 calculations and assertion accuracy metrics.
 """
 
 import unittest
-from unittest.mock import patch, MagicMock
-from typing import Dict, List, Any
+from unittest.mock import patch
 
 from phentrieve.evaluation.semantic_metrics import (
-    calculate_semantically_aware_set_based_prf1,
     calculate_assertion_accuracy,
+    calculate_semantically_aware_set_based_prf1,
 )
-from phentrieve.evaluation.metrics import SimilarityFormula
 
 
 class TestSemanticMetrics(unittest.TestCase):

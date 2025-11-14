@@ -8,15 +8,15 @@ relevant HPO terms based on semantic similarity with input text.
 import logging
 import os
 from pathlib import Path
-from typing import Dict, Optional, Any, Union
+from typing import Any, Optional, Union
 
 import chromadb
 from sentence_transformers import SentenceTransformer
 
 from phentrieve.config import MIN_SIMILARITY_THRESHOLD
 from phentrieve.utils import (
-    generate_collection_name,
     calculate_similarity,
+    generate_collection_name,
     get_default_index_dir,
     resolve_data_path,
 )
@@ -54,7 +54,7 @@ def connect_to_chroma(
             collection = client.get_collection(name=collection_name)
             count = collection.count()
             logging.info(
-                f"Connected to collection '{collection_name}' with " f"{count} docs"
+                f"Connected to collection '{collection_name}' with {count} docs"
             )
             return collection
         except Exception as e:
@@ -151,8 +151,7 @@ class DenseRetriever:
                 default_func=get_default_index_dir,
             )
             logging.info(
-                f"DenseRetriever.from_model_name: Resolved index dir: "
-                f"{final_index_dir}"
+                f"DenseRetriever.from_model_name: Resolved index dir: {final_index_dir}"
             )
 
         if not final_index_dir.exists() or not final_index_dir.is_dir():
@@ -186,7 +185,7 @@ class DenseRetriever:
 
     def query(
         self, text: str, n_results: int = 10, include_similarities: bool = True
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Generate embedding for input text and query the HPO index.
 
@@ -239,10 +238,10 @@ class DenseRetriever:
 
     def filter_results(
         self,
-        results: Dict[str, Any],
+        results: dict[str, Any],
         min_similarity: Optional[float] = None,
         max_results: Optional[int] = None,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Filter query results by similarity threshold and maximum count.
 

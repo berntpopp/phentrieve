@@ -1,6 +1,6 @@
 # Allows running the CLI via 'python -m phentrieve'
 import sys
-import typer
+
 from .cli import app
 
 # For Python CLI compatibility, manually check for -h and redirect to --help

@@ -10,13 +10,14 @@ This module tests the functionality of the various text chunkers:
 """
 
 import unittest
+
 from phentrieve.text_processing.chunkers import (
-    ParagraphChunker,
-    SentenceChunker,
-    FineGrainedPunctuationChunker,
     ConjunctionChunker,
     FinalChunkCleaner,
+    FineGrainedPunctuationChunker,
     NoOpChunker,
+    ParagraphChunker,
+    SentenceChunker,
 )
 
 
@@ -51,7 +52,7 @@ class TestParagraphChunker(unittest.TestCase):
         text = """First paragraph with some content.
 
         Second paragraph with different content.
-        
+
         Third paragraph here."""
 
         result = self.chunker.chunk([text])
@@ -69,7 +70,7 @@ class TestParagraphChunker(unittest.TestCase):
         Paragraph 2."""
 
         segment2 = """Paragraph 3.
-        
+
         Paragraph 4."""
 
         result = self.chunker.chunk([segment1, segment2])
@@ -163,7 +164,7 @@ class TestFineGrainedPunctuationChunker(unittest.TestCase):
         result = self.chunker.chunk([text])
 
         # Should preserve abbreviations (with or without escape sequences)
-        combined = " ".join(result)
+        " ".join(result)
         # Check if the abbreviations are present (ignoring potential regex escapes)
         self.assertTrue(
             any("Dr" in part for part in result), "Dr abbreviation not preserved"

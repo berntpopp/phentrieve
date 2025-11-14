@@ -6,11 +6,11 @@ output formats (text, JSON, JSON Lines) for the query commands.
 """
 
 import json
-from typing import Dict, List, Any
+from typing import Any
 
 
 def format_results_as_text(
-    structured_query_results: List[Dict[str, Any]], sentence_mode: bool
+    structured_query_results: list[dict[str, Any]], sentence_mode: bool
 ) -> str:
     """
     Format structured query results as a human-readable text string.
@@ -24,7 +24,7 @@ def format_results_as_text(
     """
     output_lines = []
 
-    for i, result_set in enumerate(structured_query_results):
+    for _i, result_set in enumerate(structured_query_results):
         # Add a header for each segment if in sentence mode with multiple segments
         if sentence_mode and len(structured_query_results) > 1:
             output_lines.append("")
@@ -60,7 +60,7 @@ def format_results_as_text(
                 ce_score = f"{result['cross_encoder_score']:.2f}"
                 original_rank = result.get("original_rank", "?")
                 reranking_info = (
-                    f" [re-ranked from #{original_rank}, " f"cross-encoder: {ce_score}]"
+                    f" [re-ranked from #{original_rank}, cross-encoder: {ce_score}]"
                 )
 
             # Format the line
@@ -74,7 +74,7 @@ def format_results_as_text(
 
 
 def format_results_as_json(
-    structured_query_results: List[Dict[str, Any]], sentence_mode: bool
+    structured_query_results: list[dict[str, Any]], sentence_mode: bool
 ) -> str:
     """
     Format structured query results as a JSON string.
@@ -128,7 +128,7 @@ def format_results_as_json(
     return json.dumps(transformed_results, indent=2, ensure_ascii=False)
 
 
-def format_results_as_jsonl(structured_query_results: List[Dict[str, Any]]) -> str:
+def format_results_as_jsonl(structured_query_results: list[dict[str, Any]]) -> str:
     """
     Format structured query results as a JSON Lines string.
 

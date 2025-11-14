@@ -10,9 +10,9 @@ from unittest.mock import patch
 
 from phentrieve.text_processing.assertion_detection import (
     AssertionStatus,
-    KeywordAssertionDetector,
-    DependencyAssertionDetector,
     CombinedAssertionDetector,
+    DependencyAssertionDetector,
+    KeywordAssertionDetector,
 )
 
 

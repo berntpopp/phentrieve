@@ -1,29 +1,31 @@
-import logging
 import asyncio
+import logging
+from typing import Literal, Optional
+
 from fastapi import HTTPException
 from fastapi.concurrency import run_in_threadpool
-from typing import Optional, Dict, Literal
-from sentence_transformers import SentenceTransformer, CrossEncoder
+from sentence_transformers import CrossEncoder, SentenceTransformer
+
+from phentrieve.config import DEFAULT_DEVICE, DEFAULT_MODEL
 
 # Core loader functions
 from phentrieve.embeddings import load_embedding_model
-from phentrieve.retrieval.reranker import load_cross_encoder as load_ce_model
 from phentrieve.retrieval.dense_retriever import DenseRetriever
-from phentrieve.config import DEFAULT_MODEL, DEFAULT_DEVICE
+from phentrieve.retrieval.reranker import load_cross_encoder as load_ce_model
 
 logger = logging.getLogger(__name__)
 
 # Global cache for models and retrievers
 # Key: model_name (or unique identifier), Value: loaded instance
-LOADED_SBERT_MODELS: Dict[str, SentenceTransformer] = {}
+LOADED_SBERT_MODELS: dict[str, SentenceTransformer] = {}
 # Key is now only model name, no need for index_dir in key
-LOADED_RETRIEVERS: Dict[str, DenseRetriever] = {}
-LOADED_CROSS_ENCODERS: Dict[str, Optional[CrossEncoder]] = {}
+LOADED_RETRIEVERS: dict[str, DenseRetriever] = {}
+LOADED_CROSS_ENCODERS: dict[str, Optional[CrossEncoder]] = {}
 
 # Model loading status tracking
 ModelLoadStatus = Literal["not_loaded", "loading", "loaded", "failed"]
-MODEL_LOADING_STATUS: Dict[str, ModelLoadStatus] = {}
-MODEL_LOAD_LOCKS: Dict[str, asyncio.Lock] = {}
+MODEL_LOADING_STATUS: dict[str, ModelLoadStatus] = {}
+MODEL_LOAD_LOCKS: dict[str, asyncio.Lock] = {}
 
 
 def _get_lock_for_model(model_name: str) -> asyncio.Lock:

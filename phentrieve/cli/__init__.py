@@ -5,18 +5,18 @@ from their respective modules.
 """
 
 import importlib.metadata
-from typing_extensions import Annotated
+from typing import Annotated
 
 import typer
 
 # Import all command groups
 from phentrieve.cli import (
+    benchmark_commands,
     data_commands,
     index_commands,
-    text_commands,
-    benchmark_commands,
     query_commands,
     similarity_commands,
+    text_commands,
 )
 
 # Read version from pyproject.toml

@@ -8,40 +8,39 @@ interactive query script to be usable from the CLI interface.
 
 import logging
 import os
-import torch
-from typing import Dict, List, Tuple, Any, Optional, Union, Callable
+from typing import Any, Callable, Optional, Union
 
 import pysbd
+import torch
 
 from phentrieve.config import (
-    DEFAULT_MODEL,
-    MIN_SIMILARITY_THRESHOLD,
-    DEFAULT_TOP_K,
-    DEFAULT_RERANKER_MODEL,
-    DEFAULT_MONOLINGUAL_RERANKER_MODEL,
-    DEFAULT_RERANKER_MODE,
-    DEFAULT_TRANSLATIONS_SUBDIR,
-    DEFAULT_RERANK_CANDIDATE_COUNT,
     DEFAULT_ENABLE_RERANKER,
+    DEFAULT_MODEL,
+    DEFAULT_MONOLINGUAL_RERANKER_MODEL,
+    DEFAULT_RERANK_CANDIDATE_COUNT,
+    DEFAULT_RERANKER_MODE,
+    DEFAULT_RERANKER_MODEL,
+    DEFAULT_TOP_K,
+    DEFAULT_TRANSLATIONS_SUBDIR,
+    MIN_SIMILARITY_THRESHOLD,
 )
-from phentrieve.text_processing.assertion_detection import (
-    CombinedAssertionDetector,
-    AssertionStatus,
-)
-from phentrieve.utils import detect_language
 from phentrieve.embeddings import load_embedding_model
+from phentrieve.retrieval import reranker
 from phentrieve.retrieval.dense_retriever import (
     DenseRetriever,
     calculate_similarity,
 )
-from phentrieve.retrieval import reranker
+from phentrieve.text_processing.assertion_detection import (
+    CombinedAssertionDetector,
+)
 from phentrieve.utils import (
+    detect_language,
     generate_collection_name,
     load_translation_text,
 )
 
 
-def segment_text(text: str, lang: str = None) -> List[str]:
+def segment_text(text: str, lang: str = None) -> list[str]:
     """
     Split text into sentences.
 
@@ -65,14 +64,14 @@ def segment_text(text: str, lang: str = None) -> List[str]:
 
 
 def format_results(
-    results: Dict[str, Any],
+    results: dict[str, Any],
     threshold: float = MIN_SIMILARITY_THRESHOLD,
     max_results: int = DEFAULT_TOP_K,
     query: str = None,
     reranked: bool = False,
     original_query_assertion_status=None,
     original_query_assertion_details=None,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Format the query results into a structured format, filtering by similarity threshold.
 
@@ -109,7 +108,6 @@ def format_results(
             "header_info": "No matching HPO terms found.",
         }
 
-    formatted_output = []
 
     # Check if this is a re-ranked result by looking for cross_encoder_score in first metadata
     is_reranked = False
@@ -140,7 +138,7 @@ def format_results(
     distances = results["distances"][0] if has_distances else [0.0] * len(ids)
 
     # Iterate through all results
-    for i, (doc_id, metadata, distance) in enumerate(zip(ids, metadatas, distances)):
+    for i, (_doc_id, metadata, distance) in enumerate(zip(ids, metadatas, distances)):
         # Calculate bi-encoder similarity from distance
         bi_encoder_similarity = calculate_similarity(distance)
 
@@ -245,7 +243,7 @@ def format_results(
     }
 
 
-def _format_structured_results_to_text_display(results: Dict[str, Any]) -> str:
+def _format_structured_results_to_text_display(results: dict[str, Any]) -> str:
     """
     Format structured results into a human-readable text string.
 
@@ -302,7 +300,7 @@ def process_query(
     translation_dir: str = DEFAULT_TRANSLATIONS_SUBDIR,
     output_func: Callable = print,
     query_assertion_detector=None,
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """
     Process input text, either as a whole or sentence by sentence.
 
@@ -385,7 +383,7 @@ def process_query(
 
         for i, sentence in enumerate(sentences):
             if debug:
-                output_func(f"[DEBUG] Processing sentence {i+1}: {sentence}")
+                output_func(f"[DEBUG] Processing sentence {i + 1}: {sentence}")
 
             # Set query count - need more results for reranking
             if cross_encoder and rerank_count is not None:
@@ -399,7 +397,7 @@ def process_query(
             # Rerank with cross-encoder if available
             if cross_encoder and rerank_count:
                 if debug:
-                    output_func(f"[DEBUG] Reranking with cross-encoder")
+                    output_func("[DEBUG] Reranking with cross-encoder")
                 reranked_results = reranker.rerank_with_cross_encoder(
                     query=sentence,
                     results=results,
@@ -506,7 +504,7 @@ def process_query(
         # Perform re-ranking if a cross-encoder is provided
         if cross_encoder and rerank_count is not None:
             if debug:
-                output_func(f"[DEBUG] Reranking with cross-encoder")
+                output_func("[DEBUG] Reranking with cross-encoder")
 
             reranked_result = None
             try:
@@ -590,7 +588,7 @@ def orchestrate_query(
     detect_query_assertion: bool = False,
     query_assertion_language: Optional[str] = None,
     query_assertion_preference: str = "dependency",
-) -> Union[List[Dict[str, Any]], bool]:
+) -> Union[list[dict[str, Any]], bool]:
     """
     Main orchestration function for HPO term queries.
 
@@ -619,7 +617,11 @@ def orchestrate_query(
     Returns:
         List of structured result dictionaries, or bool if in interactive_setup mode
     """
-    global _global_model, _global_retriever, _global_cross_encoder, _global_query_assertion_detector
+    global \
+        _global_model, \
+        _global_retriever, \
+        _global_cross_encoder, \
+        _global_query_assertion_detector
 
     # If in interactive mode, use the cached models
     if interactive_mode:

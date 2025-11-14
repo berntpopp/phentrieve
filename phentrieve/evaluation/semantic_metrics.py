@@ -7,29 +7,29 @@ between predicted and ground truth HPO terms.
 """
 
 import logging
-from typing import Dict, List, Optional, Set, Tuple, Any
+from typing import Any, Optional
 
 from phentrieve.evaluation.metrics import (
-    calculate_semantic_similarity,
     SimilarityFormula,
+    calculate_semantic_similarity,
 )
 
 logger = logging.getLogger(__name__)
 
 
 def calculate_semantically_aware_set_based_prf1(
-    extracted_annotations: List[
-        Dict[str, Any]
+    extracted_annotations: list[
+        dict[str, Any]
     ],  # List of dicts from orchestrate_hpo_extraction
-    ground_truth_annotations: List[
-        Dict[str, Any]
+    ground_truth_annotations: list[
+        dict[str, Any]
     ],  # List of dicts from full_text_loader
     target_assertion_status: Optional[
         str
     ] = "affirmed",  # e.g., "affirmed", "negated", or None
     semantic_similarity_threshold: float = 0.7,  # Threshold for considering a semantic match
     similarity_formula: SimilarityFormula = SimilarityFormula.HYBRID,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Calculate semantically-aware precision, recall, and F1 score for HPO term extraction.
 
@@ -320,10 +320,10 @@ def calculate_semantically_aware_set_based_prf1(
 
 
 def calculate_assertion_accuracy(
-    matched_pairs: List[
-        Tuple[Dict[str, Any], Dict[str, Any]]
+    matched_pairs: list[
+        tuple[dict[str, Any], dict[str, Any]]
     ],  # List of (extracted_term_dict, ground_truth_term_dict)
-) -> Tuple[float, int, int]:
+) -> tuple[float, int, int]:
     """
     Calculate assertion status accuracy for matched HPO terms.
 

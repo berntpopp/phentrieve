@@ -4,12 +4,12 @@ Tests for the HPO term similarity CLI commands.
 This module contains tests for the HPO term similarity command line interface.
 """
 
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
+
 import pytest
 from typer.testing import CliRunner
 
 from phentrieve.cli import app
-from phentrieve.evaluation.metrics import SimilarityFormula
 
 runner = CliRunner()
 

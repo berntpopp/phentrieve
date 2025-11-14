@@ -3,13 +3,13 @@
 This module contains shared utility functions used by the CLI commands.
 """
 
-import sys
 import json
-import yaml
+import sys
 from pathlib import Path
-from typing import Optional, List, Dict
+from typing import Optional
 
 import typer
+import yaml
 
 
 def load_text_from_input(text_arg: Optional[str], file_arg: Optional[Path]) -> str:
@@ -33,7 +33,7 @@ def load_text_from_input(text_arg: Optional[str], file_arg: Optional[Path]) -> s
         if not file_arg.exists():
             typer.secho(f"Error: File {file_arg} does not exist.", fg=typer.colors.RED)
             raise typer.Exit(code=1)
-        with open(file_arg, "r", encoding="utf-8") as f:
+        with open(file_arg, encoding="utf-8") as f:
             raw_text = f.read()
     else:
         # Read from stdin if available
@@ -61,7 +61,7 @@ def resolve_chunking_pipeline_config(
     step_size: int = 1,
     threshold: float = 0.5,
     min_segment_length: int = 2,
-) -> List[Dict]:
+) -> list[dict]:
     """
     Resolve the chunking pipeline configuration from a file or a strategy name.
 
@@ -82,11 +82,11 @@ def resolve_chunking_pipeline_config(
     """
     from phentrieve.config import (
         get_default_chunk_pipeline_config,
-        get_simple_chunking_config,
         get_detailed_chunking_config,
         get_semantic_chunking_config,
-        get_sliding_window_config_with_params,
+        get_simple_chunking_config,
         get_sliding_window_cleaned_config,
+        get_sliding_window_config_with_params,
         get_sliding_window_punct_cleaned_config,
         get_sliding_window_punct_conj_cleaned_config,
     )
@@ -103,7 +103,7 @@ def resolve_chunking_pipeline_config(
             raise typer.Exit(code=1)
 
         suffix = chunking_pipeline_config_file.suffix.lower()
-        with open(chunking_pipeline_config_file, "r", encoding="utf-8") as f:
+        with open(chunking_pipeline_config_file, encoding="utf-8") as f:
             if suffix == ".json":
                 config_data = json.load(f)
             elif suffix in (".yaml", ".yml"):
@@ -168,9 +168,9 @@ def resolve_chunking_pipeline_config(
                     if threshold is not None:
                         stage["config"]["splitting_threshold"] = threshold
                     if min_segment_length is not None:
-                        stage["config"][
-                            "min_split_segment_length_words"
-                        ] = min_segment_length
+                        stage["config"]["min_split_segment_length_words"] = (
+                            min_segment_length
+                        )
                     break
         elif strategy_arg == "sliding_window_punct_cleaned":
             # Get the punctuation+cleaned config and update sliding window parameters if provided

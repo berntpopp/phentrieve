@@ -5,11 +5,11 @@ This module provides utilities for detecting negation, normality and
 uncertainty in clinical text chunks.
 """
 
-import re
 import logging
+import re
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import Dict, List, Tuple, Any, Optional
+from typing import Any, Optional
 
 import spacy
 
@@ -103,7 +103,7 @@ class AssertionDetector(ABC):
         self.language = language
 
     @abstractmethod
-    def detect(self, text_chunk: str) -> Tuple[AssertionStatus, Dict[str, Any]]:
+    def detect(self, text_chunk: str) -> tuple[AssertionStatus, dict[str, Any]]:
         """
         Detect assertion status in text.
 
@@ -124,7 +124,7 @@ class KeywordAssertionDetector(AssertionDetector):
     and checks their context to determine assertion status.
     """
 
-    def detect(self, text_chunk: str) -> Tuple[AssertionStatus, Dict[str, Any]]:
+    def detect(self, text_chunk: str) -> tuple[AssertionStatus, dict[str, Any]]:
         """
         Detect assertion status using keyword-based rules.
 
@@ -152,7 +152,7 @@ class KeywordAssertionDetector(AssertionDetector):
 
     def _detect_negation_normality_keyword(
         self, chunk: str, lang: str = "en"
-    ) -> Tuple[bool, bool, List[str], List[str]]:
+    ) -> tuple[bool, bool, list[str], list[str]]:
         """
         Detect negation and normality using keyword-based rules.
 
@@ -167,7 +167,7 @@ class KeywordAssertionDetector(AssertionDetector):
             return False, False, [], []
 
         text_lower = chunk.lower()
-        words = re.sub(r"[^\w\s]", " ", text_lower).split()
+        re.sub(r"[^\w\s]", " ", text_lower).split()
 
         # Helper function to check for cue match
         def is_cue_match(text_lower, cue_lower, index):
@@ -250,7 +250,7 @@ class DependencyAssertionDetector(AssertionDetector):
     relationships between negation/normality cues and concepts.
     """
 
-    def detect(self, text_chunk: str) -> Tuple[AssertionStatus, Dict[str, Any]]:
+    def detect(self, text_chunk: str) -> tuple[AssertionStatus, dict[str, Any]]:
         """
         Detect assertion status using dependency parsing.
 
@@ -289,7 +289,7 @@ class DependencyAssertionDetector(AssertionDetector):
 
     def _detect_negation_normality_dependency(
         self, chunk: str, lang: str = "en"
-    ) -> Tuple[bool, bool, List[str], List[str]]:
+    ) -> tuple[bool, bool, list[str], list[str]]:
         """
         Detect negation and normality using dependency parsing.
 
@@ -527,7 +527,7 @@ class CombinedAssertionDetector(AssertionDetector):
             else None
         )
 
-    def detect(self, text_chunk: str) -> Tuple[AssertionStatus, Dict[str, Any]]:
+    def detect(self, text_chunk: str) -> tuple[AssertionStatus, dict[str, Any]]:
         """
         Detect assertion status using multiple strategies.
 

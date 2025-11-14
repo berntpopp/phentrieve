@@ -5,20 +5,18 @@ This module tests the CLI commands for querying HPO terms, including
 the new output format and file output capabilities.
 """
 
-import json
-import os
 import tempfile
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 import pytest
 from typer.testing import CliRunner
 
 from phentrieve.cli import app
 from phentrieve.retrieval.output_formatters import (
-    format_results_as_text,
     format_results_as_json,
     format_results_as_jsonl,
+    format_results_as_text,
 )
 
 runner = CliRunner()
@@ -156,7 +154,7 @@ def test_query_with_output_file(mock_query_results):
 
         # Verify file was created with correct content
         assert output_file.exists()
-        with open(output_file, "r", encoding="utf-8") as f:
+        with open(output_file, encoding="utf-8") as f:
             file_content = f.read()
             expected_text = format_results_as_text(
                 MOCK_QUERY_RESULTS, sentence_mode=False
@@ -186,7 +184,7 @@ def test_query_with_output_file_json(mock_query_results):
 
         # Verify file was created with correct content
         assert output_file.exists()
-        with open(output_file, "r", encoding="utf-8") as f:
+        with open(output_file, encoding="utf-8") as f:
             file_content = f.read()
             expected_json = format_results_as_json(
                 MOCK_QUERY_RESULTS, sentence_mode=False
@@ -216,7 +214,7 @@ def test_query_with_output_file_jsonl(mock_query_results):
 
         # Verify file was created with correct content
         assert output_file.exists()
-        with open(output_file, "r", encoding="utf-8") as f:
+        with open(output_file, encoding="utf-8") as f:
             file_content = f.read()
             expected_jsonl = format_results_as_jsonl(MOCK_QUERY_RESULTS)
             assert file_content == expected_jsonl

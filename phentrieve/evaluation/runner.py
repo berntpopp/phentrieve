@@ -10,31 +10,30 @@ import logging
 import os
 import time
 from datetime import datetime
-from typing import Dict, List, Optional, Tuple, Any
 from pathlib import Path
+from typing import Any, Optional
 
 import pandas as pd
 import torch
 from tqdm import tqdm
 
 from phentrieve.config import (
-    DEFAULT_RERANKER_MODEL,
+    DEFAULT_K_VALUES,
     DEFAULT_RERANK_CANDIDATE_COUNT,
     DEFAULT_RERANKER_MODE,
-    DEFAULT_TRANSLATION_DIR,
-    DEFAULT_K_VALUES,
+    DEFAULT_RERANKER_MODEL,
     DEFAULT_SIMILARITY_THRESHOLD,
+    DEFAULT_TRANSLATION_DIR,
 )
 from phentrieve.data_processing.test_data_loader import load_test_data
-from phentrieve.evaluation.metrics import (
-    mean_reciprocal_rank,
-    hit_rate_at_k,
-    calculate_test_case_max_ont_sim,
-    calculate_semantic_similarity,
-    load_hpo_graph_data,
-    SimilarityFormula,
-)
 from phentrieve.embeddings import load_embedding_model
+from phentrieve.evaluation.metrics import (
+    SimilarityFormula,
+    calculate_test_case_max_ont_sim,
+    hit_rate_at_k,
+    load_hpo_graph_data,
+    mean_reciprocal_rank,
+)
 from phentrieve.retrieval.dense_retriever import DenseRetriever
 from phentrieve.retrieval.reranker import (
     load_cross_encoder,
@@ -46,7 +45,7 @@ from phentrieve.utils import get_model_slug, load_translation_text
 def run_evaluation(
     model_name: str,
     test_file: str,
-    k_values: Tuple[int, ...] = DEFAULT_K_VALUES,
+    k_values: tuple[int, ...] = DEFAULT_K_VALUES,
     similarity_threshold: float = DEFAULT_SIMILARITY_THRESHOLD,
     debug: bool = False,
     device: Optional[str] = None,
@@ -60,7 +59,7 @@ def run_evaluation(
     reranker_mode: str = DEFAULT_RERANKER_MODE,
     translation_dir: str = DEFAULT_TRANSLATION_DIR,
     similarity_formula: str = "hybrid",
-) -> Optional[Dict[str, Any]]:
+) -> Optional[dict[str, Any]]:
     """
     Run a complete benchmark evaluation for a model on a test dataset.
 
@@ -109,8 +108,7 @@ def run_evaluation(
 
     # Create a descriptive name for the benchmark run
     model_slug = get_model_slug(model_name)
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    run_id = f"{model_slug}_{timestamp}"
+    datetime.now().strftime("%Y%m%d_%H%M%S")
 
     logging.info(f"Starting benchmark evaluation for model '{model_name}'")
     logging.info(f"Test file: {test_file} ({len(test_cases)} test cases)")
@@ -161,7 +159,7 @@ def run_evaluation(
                 " Please provide a valid index_dir."
             )
 
-        index_path = (
+        (
             index_dir / f"{model_name}.faiss"
             if index_dir
             else Path("data") / f"{model_name}.faiss"
@@ -198,11 +196,11 @@ def run_evaluation(
             # Extract test case data
             text = test_case["text"]
             expected_ids = test_case.get("expected_hpo_ids", [])
-            description = test_case.get("description", f"Case {i+1}")
+            description = test_case.get("description", f"Case {i + 1}")
 
             # Skip test cases with no expected IDs
             if not expected_ids:
-                logging.warning(f"Skipping test case {i+1} with no expected HPO IDs")
+                logging.warning(f"Skipping test case {i + 1} with no expected HPO IDs")
                 continue
 
             try:
@@ -253,7 +251,6 @@ def run_evaluation(
                     dense_hit_rates[f"hit_rate_dense@{k}"] = hit
 
                 # Calculate baseline ontology similarity at different K values
-                dense_ont_similarities = {}
                 for k in k_values:
                     if dense_term_ids:
                         # Extract HPO IDs from results
@@ -413,7 +410,7 @@ def run_evaluation(
                 detailed_results.append(case_result)
 
             except Exception as e:
-                logging.error(f"Error processing test case {i+1}: {e}")
+                logging.error(f"Error processing test case {i + 1}: {e}")
                 # Add a failed entry
                 detailed_results.append(
                     {
@@ -594,7 +591,7 @@ def run_evaluation(
 
         # Log summary of results
         logging.info(f"Benchmark results for {model_name}:")
-        logging.info(f"  === Dense Retrieval Metrics ====")
+        logging.info("  === Dense Retrieval Metrics ====")
         logging.info(f"  MRR (Dense): {avg_mrr_dense:.4f}")
         for k in k_values:
             logging.info(f"  Hit@{k} (Dense): {avg_hit_rates_dense[k]:.4f}")
@@ -616,7 +613,7 @@ def run_evaluation(
         return None
 
 
-def compare_models(results_list: List[Dict[str, Any]]) -> pd.DataFrame:
+def compare_models(results_list: list[dict[str, Any]]) -> pd.DataFrame:
     """
     Compare results across different models.
 

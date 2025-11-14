@@ -6,9 +6,9 @@ correspond to HPO terms, supporting attribution of phenotype observations to
 specific parts of the text.
 """
 
-import re
 import logging
-from typing import List, Dict, Any, Optional
+import re
+from typing import Any, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -16,9 +16,9 @@ logger = logging.getLogger(__name__)
 def get_text_attributions(
     source_chunk_text: str,
     hpo_term_label: str,
-    hpo_term_synonyms: Optional[List[str]] = None,
+    hpo_term_synonyms: Optional[list[str]] = None,
     hpo_term_id: Optional[str] = None,
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """
     Find text spans in a chunk that correspond to an HPO term or its synonyms.
 

@@ -1,24 +1,25 @@
-from fastapi import APIRouter, Depends, HTTPException
-from typing import Optional
+import logging
 import os
 from pathlib import Path
-import logging
+from typing import Optional
 
+from fastapi import APIRouter, Depends, HTTPException
+
+from api.dependencies import (
+    get_cross_encoder_dependency,
+    get_dense_retriever_dependency,
+)
+from api.schemas.query_schemas import QueryRequest, QueryResponse
+from phentrieve.config import (
+    DEFAULT_DEVICE,
+    DEFAULT_LANGUAGE,
+    DEFAULT_MODEL,
+    DEFAULT_MONOLINGUAL_RERANKER_MODEL,
+    DEFAULT_RERANKER_MODEL,
+    DEFAULT_TRANSLATIONS_SUBDIR,
+)
 from phentrieve.retrieval.api_helpers import execute_hpo_retrieval_for_api
 from phentrieve.retrieval.dense_retriever import DenseRetriever
-from api.schemas.query_schemas import QueryRequest, QueryResponse
-from api.dependencies import (
-    get_dense_retriever_dependency,
-    get_cross_encoder_dependency,
-)
-from phentrieve.config import (
-    DEFAULT_MODEL,
-    DEFAULT_RERANKER_MODEL,
-    DEFAULT_MONOLINGUAL_RERANKER_MODEL,
-    DEFAULT_TRANSLATIONS_SUBDIR,
-    DEFAULT_LANGUAGE,
-    DEFAULT_DEVICE,
-)
 from phentrieve.utils import detect_language
 
 logger = logging.getLogger(__name__)
@@ -142,7 +143,7 @@ async def run_hpo_query(
             logger.info(f"Auto-detected language: {language_to_use}")
         except Exception as e:  # Catch if langdetect fails
             logger.warning(
-                f"Language detection failed: {e}. " f"Using default: {DEFAULT_LANGUAGE}"
+                f"Language detection failed: {e}. Using default: {DEFAULT_LANGUAGE}"
             )
             language_to_use = DEFAULT_LANGUAGE
 

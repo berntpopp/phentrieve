@@ -10,27 +10,26 @@ import json
 import logging
 import os
 import re
-import numpy as np
-from typing import Dict, List, Optional, Any, Union
+from datetime import datetime
+from pathlib import Path
+from typing import Any, Optional
 
-import pandas as pd
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 import seaborn as sns
 
-from pathlib import Path
-from datetime import datetime
 from phentrieve.config import (
     DEFAULT_SUMMARIES_SUBDIR,
     DEFAULT_VISUALIZATIONS_SUBDIR,
-    DEFAULT_DETAILED_SUBDIR,
 )
-from phentrieve.utils import resolve_data_path, get_default_results_dir
+from phentrieve.utils import get_default_results_dir, resolve_data_path
 
 # Set up logging
 logger = logging.getLogger(__name__)
 
 
-def load_benchmark_summaries(summaries_dir: str) -> List[Dict[str, Any]]:
+def load_benchmark_summaries(summaries_dir: str) -> list[dict[str, Any]]:
     """
     Load benchmark summary files from the specified directory.
 
@@ -52,7 +51,7 @@ def load_benchmark_summaries(summaries_dir: str) -> List[Dict[str, Any]]:
     summaries = []
     for file_path in summary_files:
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 summary = json.load(f)
                 summaries.append(summary)
                 logger.debug(f"Loaded summary from {file_path}")
@@ -63,7 +62,7 @@ def load_benchmark_summaries(summaries_dir: str) -> List[Dict[str, Any]]:
     return summaries
 
 
-def compare_benchmark_summaries(summaries: List[Dict[str, Any]]) -> pd.DataFrame:
+def compare_benchmark_summaries(summaries: list[dict[str, Any]]) -> pd.DataFrame:
     """
     Compare benchmark summaries and create a DataFrame with the comparison.
 
@@ -498,7 +497,7 @@ def generate_visualizations(
 
                         # Add value labels (only for a reasonable number of models)
                         if len(sorted_df) <= 8:
-                            for j, bar in enumerate(dense_bars):
+                            for _j, bar in enumerate(dense_bars):
                                 height = bar.get_height()
                                 ax.text(
                                     bar.get_x() + bar.get_width() / 2.0,
@@ -522,7 +521,7 @@ def generate_visualizations(
                                 title="Models",
                             )
 
-                            for j, bar in enumerate(reranked_bars):
+                            for _j, bar in enumerate(reranked_bars):
                                 height = bar.get_height()
                                 ax.text(
                                     bar.get_x() + bar.get_width() / 2.0,
@@ -568,7 +567,7 @@ def generate_visualizations(
 
                         # Add value labels (only for a reasonable number of models)
                         if len(sorted_df) <= 8:
-                            for j, bar in enumerate(bars):
+                            for _j, bar in enumerate(bars):
                                 height = bar.get_height()
                                 ax.text(
                                     bar.get_x() + bar.get_width() / 2.0,
@@ -659,7 +658,7 @@ def generate_visualizations(
 
                         # Add value labels (only for a reasonable number of models)
                         if len(sorted_df) <= 8:
-                            for j, bar in enumerate(dense_bars):
+                            for _j, bar in enumerate(dense_bars):
                                 height = bar.get_height()
                                 ax.text(
                                     bar.get_x() + bar.get_width() / 2.0,
@@ -683,7 +682,7 @@ def generate_visualizations(
                                 title="Models",
                             )
 
-                            for j, bar in enumerate(reranked_bars):
+                            for _j, bar in enumerate(reranked_bars):
                                 height = bar.get_height()
                                 ax.text(
                                     bar.get_x() + bar.get_width() / 2.0,
@@ -729,7 +728,7 @@ def generate_visualizations(
 
                         # Add value labels (only for a reasonable number of models)
                         if len(sorted_df) <= 8:
-                            for j, bar in enumerate(bars):
+                            for _j, bar in enumerate(bars):
                                 height = bar.get_height()
                                 ax.text(
                                     bar.get_x() + bar.get_width() / 2.0,
@@ -863,7 +862,7 @@ def generate_visualizations(
                 axes = [axes]
 
             # For each model, create a line plot showing how metrics vary with k
-            for i, (idx, row) in enumerate(comparison_df.iterrows()):
+            for i, (_idx, row) in enumerate(comparison_df.iterrows()):
                 model_name = row["Model"]
                 ax = axes[i]
 

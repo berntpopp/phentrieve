@@ -61,30 +61,54 @@ include = ["phentrieve*", "api*"]
 [tool.setuptools.package-data]
 "phentrieve.text_processing.default_lang_resources" = ["*.json"]
 
-[tool.black]
+[tool.ruff]
 line-length = 88
-target-version = ['py39']
-include = '\.pyi?$'
-extend-exclude = '''
-/(
-  \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
-  | env
-  | venv
-)/
-'''
-force-exclude = '''
-/(
-  __pycache__
-)/
-'''
+target-version = "py39"
+fix = true
+exclude = [
+    ".git",
+    ".mypy_cache",
+    ".pytest_cache",
+    ".venv",
+    "__pycache__",
+    "_build",
+    "build",
+    "dist",
+    "venv",
+    "data",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+    "S",   # bandit security checks
+]
+ignore = [
+    "E501",  # line too long (handled by formatter)
+    "S101",  # use of assert (common in tests)
+    "B904",  # raise without from (can be addressed later)
+    "B007",  # unused loop control variable (intentional in some cases)
+    "B008",  # function call in default arg (pandas/dataframe patterns)
+    "S301",  # pickle usage (needed for model loading)
+    "S104",  # hardcoded bind all interfaces (local dev only)
+    "S112",  # try-except-continue (acceptable pattern)
+    "F823",  # false positive - detect_language is imported
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101"]  # Allow asserts in tests
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
 
 [tool.pytest.ini_options]
 python_files = ["test_*.py", "*_test.py", "tests.py"]

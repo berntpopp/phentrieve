@@ -3,8 +3,7 @@
 This module contains commands for running and analyzing benchmarks.
 """
 
-from typing import Optional
-from typing_extensions import Annotated
+from typing import Annotated, Optional
 
 import typer
 
@@ -158,11 +157,12 @@ def compare_benchmarks(
     a comparison table showing various metrics such as MRR, Hit Rate, and
     semantic similarity.
     """
+    import pandas as pd
+
     from phentrieve.evaluation.comparison_orchestrator import (
         orchestrate_benchmark_comparison,
     )
     from phentrieve.utils import setup_logging_cli
-    import pandas as pd
 
     setup_logging_cli(debug=debug)
 
@@ -218,11 +218,11 @@ def visualize_benchmarks(
     different metrics like MRR, Hit Rate, and semantic similarity. You can specify
     which metrics to visualize or generate charts for all available metrics.
     """
+
     from phentrieve.evaluation.comparison_orchestrator import (
         orchestrate_benchmark_comparison,
     )
     from phentrieve.utils import setup_logging_cli
-    import pandas as pd
 
     setup_logging_cli(debug=debug)
 

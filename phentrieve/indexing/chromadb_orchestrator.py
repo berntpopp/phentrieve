@@ -7,19 +7,17 @@ from HPO term data using embedding models.
 
 import logging
 import os
-import sys
 import time
-from typing import List, Optional
-from pathlib import Path
+from typing import Optional
 
 from phentrieve.config import BENCHMARK_MODELS, DEFAULT_MODEL
-from phentrieve.utils import resolve_data_path, get_default_index_dir
 from phentrieve.data_processing.document_creator import (
-    load_hpo_terms,
     create_hpo_documents,
+    load_hpo_terms,
 )
 from phentrieve.embeddings import load_embedding_model
 from phentrieve.indexing.chromadb_indexer import build_chromadb_index
+from phentrieve.utils import get_default_index_dir, resolve_data_path
 
 
 def orchestrate_index_building(
@@ -117,7 +115,7 @@ def orchestrate_index_building(
             failure_count += 1
 
     elapsed_time = time.time() - start_time
-    logging.info(f"--- Index Building Summary ---")
+    logging.info("--- Index Building Summary ---")
     logging.info(f"Completed in {elapsed_time:.2f} seconds.")
     logging.info(f"Successful: {success_count}, Failed: {failure_count}")
     if processed_model_names:

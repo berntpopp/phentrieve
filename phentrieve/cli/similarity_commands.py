@@ -5,32 +5,33 @@ This module provides CLI commands for calculating semantic similarity between HP
 using the Human Phenotype Ontology graph structure.
 """
 
-import typer
-from typing_extensions import Annotated
-from typing import Optional, Dict
 import logging
+from typing import Annotated, Optional
 
-# Import necessary Phentrieve components
-from phentrieve.evaluation.metrics import (
-    calculate_semantic_similarity,
-    find_lowest_common_ancestor,
-    load_hpo_graph_data,  # This handles its own caching
-    SimilarityFormula,  # For type hinting and choices
-)
-from phentrieve.utils import normalize_id, setup_logging_cli
+import typer
+
+from phentrieve.config import DEFAULT_SIMILARITY_FORMULA  # Default formula
 from phentrieve.data_processing.document_creator import (
     load_hpo_terms,
 )  # For fetching labels
-from phentrieve.config import DEFAULT_SIMILARITY_FORMULA  # Default formula
+
+# Import necessary Phentrieve components
+from phentrieve.evaluation.metrics import (
+    SimilarityFormula,  # For type hinting and choices
+    calculate_semantic_similarity,
+    find_lowest_common_ancestor,
+    load_hpo_graph_data,  # This handles its own caching
+)
+from phentrieve.utils import normalize_id, setup_logging_cli
 
 logger = logging.getLogger(__name__)
 app = typer.Typer(name="similarity", help="Tools for HPO term similarity calculations.")
 
 # Simple in-memory cache for HPO labels for CLI (loaded once per command run if needed)
-_cli_hpo_label_cache: Optional[Dict[str, str]] = None
+_cli_hpo_label_cache: Optional[dict[str, str]] = None
 
 
-def _ensure_cli_hpo_label_cache() -> Dict[str, str]:
+def _ensure_cli_hpo_label_cache() -> dict[str, str]:
     """Loads HPO term labels into a cache if not already loaded."""
     global _cli_hpo_label_cache
     if _cli_hpo_label_cache is None:
@@ -55,9 +56,7 @@ def _ensure_cli_hpo_label_cache() -> Dict[str, str]:
             )
         except Exception as e:
             logger.error(f"CLI: Failed to load HPO terms for labels: {e}")
-            _cli_hpo_label_cache = (
-                {}
-            )  # Ensure it's initialized to prevent repeated attempts
+            _cli_hpo_label_cache = {}  # Ensure it's initialized to prevent repeated attempts
     return _cli_hpo_label_cache
 
 
@@ -172,7 +171,7 @@ def hpo_similarity_cli(
         raise typer.Exit(code=1)
 
     # 7. Print formatted output
-    typer.echo(f"\n--- HPO Term Similarity ---")
+    typer.echo("\n--- HPO Term Similarity ---")
     typer.echo(f"Term 1: {norm_term1} ({term1_display_label})")
     typer.echo(f"Term 2: {norm_term2} ({term2_display_label})")
     typer.echo(f"Formula Used: {formula.value}")
@@ -181,7 +180,9 @@ def hpo_similarity_cli(
         fg=(
             typer.colors.BRIGHT_GREEN
             if similarity_score >= 0.5
-            else typer.colors.YELLOW if similarity_score > 0 else typer.colors.WHITE
+            else typer.colors.YELLOW
+            if similarity_score > 0
+            else typer.colors.WHITE
         ),
     )
 

@@ -5,15 +5,15 @@ This module provides functionality for loading annotated ground truth data
 from files to support evaluation of HPO term extraction.
 """
 
-from pathlib import Path
-from typing import List, Dict, Any
 import json
 import logging
+from pathlib import Path
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
 
-def load_full_text_annotations(filepath: Path) -> List[Dict[str, Any]]:
+def load_full_text_annotations(filepath: Path) -> list[dict[str, Any]]:
     """
     Load and parse full-text HPO annotations from a JSONL file.
 
@@ -41,7 +41,7 @@ def load_full_text_annotations(filepath: Path) -> List[Dict[str, Any]]:
     loaded_documents = []
 
     try:
-        with open(filepath, "r", encoding="utf-8") as f:
+        with open(filepath, encoding="utf-8") as f:
             for line_number, line in enumerate(f):
                 line = line.strip()
                 if not line:
@@ -59,7 +59,7 @@ def load_full_text_annotations(filepath: Path) -> List[Dict[str, Any]]:
         logger.info(
             f"Successfully loaded {len(loaded_documents)} documents from {filepath}"
         )
-    except IOError as e:
+    except OSError as e:
         logger.error(f"Error reading file {filepath}: {e}")
         raise
 

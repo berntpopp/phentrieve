@@ -1,40 +1,37 @@
-from fastapi import APIRouter, HTTPException, Depends
-from fastapi.concurrency import run_in_threadpool
 import logging
-from pathlib import Path
-from typing import List, Dict, Any, Tuple
+from typing import Any
+
+from fastapi import APIRouter, HTTPException
+from fastapi.concurrency import run_in_threadpool
 
 from api.schemas.text_processing_schemas import (
-    TextProcessingRequest,
-    TextProcessingResponseAPI,
-    ProcessedChunkAPI,
     AggregatedHPOTermAPI,
     HPOMatchInChunkAPI,
+    ProcessedChunkAPI,
     TextAttributionSpanAPI,
+    TextProcessingRequest,
+    TextProcessingResponseAPI,
 )
+from phentrieve.config import (
+    DEFAULT_ASSERTION_CONFIG,
+    DEFAULT_LANGUAGE,
+    DEFAULT_MODEL,
+    DEFAULT_TRANSLATIONS_SUBDIR,
+    get_detailed_chunking_config,
+    get_semantic_chunking_config,
+    get_simple_chunking_config,
+    get_sliding_window_cleaned_config,
+    get_sliding_window_config_with_params,
+    get_sliding_window_punct_cleaned_config,
+    get_sliding_window_punct_conj_cleaned_config,
+)
+from phentrieve.embeddings import load_embedding_model
+from phentrieve.retrieval.dense_retriever import DenseRetriever
+from phentrieve.retrieval.reranker import load_cross_encoder
 from phentrieve.text_processing.hpo_extraction_orchestrator import (
     orchestrate_hpo_extraction,
 )
 from phentrieve.text_processing.pipeline import TextProcessingPipeline
-from phentrieve.text_processing.assertion_detection import AssertionStatus
-from phentrieve.retrieval.dense_retriever import DenseRetriever
-from phentrieve.retrieval.reranker import load_cross_encoder
-from phentrieve.embeddings import load_embedding_model
-from phentrieve.config import (
-    DEFAULT_MODEL,
-    DEFAULT_LANGUAGE,
-    DEFAULT_ASSERTION_CONFIG,
-    get_simple_chunking_config,
-    get_semantic_chunking_config,
-    get_detailed_chunking_config,
-    get_sliding_window_config_with_params,
-    get_sliding_window_cleaned_config,
-    get_sliding_window_punct_cleaned_config,
-    get_sliding_window_punct_conj_cleaned_config,
-    DEFAULT_TRANSLATIONS_SUBDIR,
-    DEFAULT_RERANKER_MODEL,
-    DEFAULT_MONOLINGUAL_RERANKER_MODEL,
-)
 from phentrieve.utils import detect_language, resolve_data_path
 
 logger = logging.getLogger(__name__)
@@ -44,7 +41,7 @@ router = APIRouter(prefix="/api/v1/text", tags=["Text Processing and HPO Extract
 # Helper to get chunking config based on strategy name from request
 def _get_chunking_config_for_api(
     request: TextProcessingRequest,
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     strategy_name = (
         request.chunking_strategy.lower()
     )  # Already defaults to sliding_window_cleaned in schema
@@ -275,9 +272,9 @@ async def process_text_extract_hpo(request: TextProcessingRequest):
             text_pipeline.process, request.text_content
         )
 
-        api_processed_chunks: List[ProcessedChunkAPI] = []
-        text_chunks_for_orchestrator: List[str] = []
-        assertion_statuses_for_orchestrator: List[str] = []
+        api_processed_chunks: list[ProcessedChunkAPI] = []
+        text_chunks_for_orchestrator: list[str] = []
+        assertion_statuses_for_orchestrator: list[str] = []
 
         for idx, p_chunk in enumerate(processed_chunks_list):
             api_processed_chunks.append(
@@ -295,21 +292,22 @@ async def process_text_extract_hpo(request: TextProcessingRequest):
             f"API: Running HPO extraction orchestrator on {len(text_chunks_for_orchestrator)} chunks."
         )
         # Call the core orchestrator function (this is synchronous, so wrap it)
-        aggregated_hpo_terms_internal, detailed_chunk_results_internal = (
-            await run_in_threadpool(
-                orchestrate_hpo_extraction,
-                text_chunks=text_chunks_for_orchestrator,
-                assertion_statuses=assertion_statuses_for_orchestrator,
-                retriever=retriever,
-                cross_encoder=cross_enc,
-                language=actual_language,
-                chunk_retrieval_threshold=request.chunk_retrieval_threshold,
-                num_results_per_chunk=request.num_results_per_chunk,
-                reranker_mode=request.reranker_mode,
-                translation_dir_path=translation_dir,
-                min_confidence_for_aggregated=request.aggregated_term_confidence,
-                top_term_per_chunk=request.top_term_per_chunk_for_aggregation,
-            )
+        (
+            aggregated_hpo_terms_internal,
+            detailed_chunk_results_internal,
+        ) = await run_in_threadpool(
+            orchestrate_hpo_extraction,
+            text_chunks=text_chunks_for_orchestrator,
+            assertion_statuses=assertion_statuses_for_orchestrator,
+            retriever=retriever,
+            cross_encoder=cross_enc,
+            language=actual_language,
+            chunk_retrieval_threshold=request.chunk_retrieval_threshold,
+            num_results_per_chunk=request.num_results_per_chunk,
+            reranker_mode=request.reranker_mode,
+            translation_dir_path=translation_dir,
+            min_confidence_for_aggregated=request.aggregated_term_confidence,
+            top_term_per_chunk=request.top_term_per_chunk_for_aggregation,
         )
 
         # Add HPO matches to each processed chunk from the detailed chunk results
@@ -333,7 +331,7 @@ async def process_text_extract_hpo(request: TextProcessingRequest):
                     )
 
         # Convert internal aggregated results to API schema
-        api_aggregated_hpo_terms: List[AggregatedHPOTermAPI] = []
+        api_aggregated_hpo_terms: list[AggregatedHPOTermAPI] = []
         for term_data in aggregated_hpo_terms_internal:
             # Create text attribution spans
             text_attributions = []

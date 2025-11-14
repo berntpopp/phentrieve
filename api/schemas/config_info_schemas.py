@@ -5,8 +5,9 @@ This module defines the data structures used for the configuration/info API
 endpoint responses, ensuring consistent and well-documented API contracts.
 """
 
-from typing import List, Optional
-from pydantic import BaseModel, Field, ConfigDict
+from typing import Optional
+
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class ModelInfo(BaseModel):
@@ -80,7 +81,7 @@ class ChunkingConfig(BaseModel):
         }
     )
 
-    available_strategies: List[str] = Field(description="Available chunking strategies")
+    available_strategies: list[str] = Field(description="Available chunking strategies")
     default_strategy: str = Field(description="Default chunking strategy")
 
 
@@ -157,15 +158,15 @@ class PhentrieveConfigInfoResponseAPI(BaseModel):
         }
     )
 
-    available_embedding_models: List[ModelInfo] = Field(
+    available_embedding_models: list[ModelInfo] = Field(
         description="List of available embedding models"
     )
     default_embedding_model: str = Field(description="Default embedding model ID")
-    available_reranker_models: List[ModelInfo] = Field(
+    available_reranker_models: list[ModelInfo] = Field(
         description="List of available reranker models"
     )
     default_reranker_model: str = Field(description="Default reranker model ID")
-    available_monolingual_reranker_models: List[ModelInfo] = Field(
+    available_monolingual_reranker_models: list[ModelInfo] = Field(
         description="List of available monolingual reranker models"
     )
     default_monolingual_reranker_model: Optional[str] = Field(

@@ -6,12 +6,12 @@ used for encoding text into vector representations.
 """
 
 import logging
-from typing import Optional, Union
+from typing import Optional
 
 import torch
 from sentence_transformers import SentenceTransformer
 
-from phentrieve.config import JINA_MODEL_ID, DEFAULT_BIOLORD_MODEL
+from phentrieve.config import DEFAULT_BIOLORD_MODEL, JINA_MODEL_ID
 
 
 def load_embedding_model(

@@ -9,12 +9,13 @@ Usage:
     python run_api_local.py
 """
 
+import logging
 import os
 import sys
-import logging
 from pathlib import Path
-from dotenv import load_dotenv
+
 import uvicorn
+from dotenv import load_dotenv
 
 # Setup logging
 logging.basicConfig(

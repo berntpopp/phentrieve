@@ -11,12 +11,13 @@ import logging
 import os
 import re
 import sys
-import yaml
 from pathlib import Path
-from typing import Dict, Optional, Callable
+from typing import Callable, Optional
+
+import yaml
 
 try:
-    from langdetect import detect, LangDetectException
+    from langdetect import LangDetectException, detect
 
     LANGDETECT_AVAILABLE = True
 except ImportError:
@@ -54,7 +55,7 @@ def get_embedding_dimension(model_name: str) -> int:
         The embedding dimension as an integer
     """
     # Models with non-standard dimensions
-    dimension_map: Dict[str, int] = {
+    dimension_map: dict[str, int] = {
         "sentence-transformers/distiluse-base-multilingual-cased-v2": 512,
         "BAAI/bge-m3": 1024,  # BGE-M3 uses 1024-dimensional embeddings
         "sentence-transformers/LaBSE": 768,  # LaBSE uses 768-dimensional embeddings
@@ -214,13 +215,13 @@ def get_index_dir() -> Path:
 
 
 @functools.lru_cache(maxsize=1)  # Cache the config for a single run
-def load_user_config() -> Dict:
+def load_user_config() -> dict:
     """Loads the user configuration from the YAML file."""
     config_path = get_config_file_path()
     config = {}
     if config_path and config_path.exists():
         try:
-            with open(config_path, "r") as f:
+            with open(config_path) as f:
                 config = yaml.safe_load(f)
             if not isinstance(config, dict):
                 logging.warning(
@@ -231,8 +232,7 @@ def load_user_config() -> Dict:
             logging.info(f"Loaded user configuration from {config_path}")
         except Exception as e:
             logging.warning(
-                f"Could not load user config file {config_path}: {e}. "
-                f"Using defaults."
+                f"Could not load user config file {config_path}: {e}. Using defaults."
             )
             config = {}
     else:
@@ -372,7 +372,7 @@ def load_translation_text(hpo_id: str, translation_dir: str) -> Optional[str]:
         return None
 
     try:
-        with open(json_path, "r", encoding="utf-8") as f:
+        with open(json_path, encoding="utf-8") as f:
             translation_data = json.load(f)
 
         # Extract translated label (required field)
@@ -398,7 +398,7 @@ def load_translation_text(hpo_id: str, translation_dir: str) -> Optional[str]:
 
         return result
 
-    except (json.JSONDecodeError, IOError) as e:
+    except (OSError, json.JSONDecodeError) as e:
         logger.error(f"Error loading translation for {hpo_id}: {str(e)}")
         return None
 

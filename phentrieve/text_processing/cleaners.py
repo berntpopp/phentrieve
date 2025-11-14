@@ -6,7 +6,6 @@ and assertion detection, ensuring consistent text formatting.
 """
 
 import re
-from typing import Optional
 
 
 def normalize_line_endings(text: str) -> str:

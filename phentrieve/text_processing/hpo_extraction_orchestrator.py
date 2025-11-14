@@ -4,22 +4,23 @@ This module provides functionality to extract HPO terms from text using a
 pipeline-based approach with dense retrieval and optional cross-encoder reranking.
 """
 
-from collections import defaultdict, Counter
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
 import logging
+from collections import Counter, defaultdict
+from pathlib import Path
+from typing import Any, Optional
+
 from sentence_transformers import CrossEncoder
 
+from phentrieve.data_processing.document_creator import load_hpo_terms
 from phentrieve.retrieval.dense_retriever import DenseRetriever
 from phentrieve.retrieval.text_attribution import get_text_attributions
 from phentrieve.utils import load_translation_text
-from phentrieve.data_processing.document_creator import load_hpo_terms
 
 logger = logging.getLogger(__name__)
 
 
 def orchestrate_hpo_extraction(
-    text_chunks: List[str],
+    text_chunks: list[str],
     retriever: DenseRetriever,
     num_results_per_chunk: int = 10,
     chunk_retrieval_threshold: float = 0.3,
@@ -29,10 +30,10 @@ def orchestrate_hpo_extraction(
     reranker_mode: str = "cross-lingual",
     top_term_per_chunk: bool = False,
     min_confidence_for_aggregated: float = 0.0,
-    assertion_statuses: Optional[List[str]] = None,
-) -> Tuple[
-    List[Dict[str, Any]],  # aggregated results
-    List[Dict[str, Any]],  # chunk results
+    assertion_statuses: Optional[list[str]] = None,
+) -> tuple[
+    list[dict[str, Any]],  # aggregated results
+    list[dict[str, Any]],  # chunk results
 ]:
     """Orchestrate HPO term extraction from text.
 
@@ -133,8 +134,7 @@ def orchestrate_hpo_extraction(
 
             # Log matches
             logger.info(
-                f"Found {len(current_hpo_matches)} matches"
-                f" for chunk {chunk_idx + 1}"
+                f"Found {len(current_hpo_matches)} matches for chunk {chunk_idx + 1}"
             )
 
             # Print detailed extraction results for debugging
@@ -142,7 +142,7 @@ def orchestrate_hpo_extraction(
                 for idx, match in enumerate(current_hpo_matches):
                     score_str = f"{match['score']:.4f}" if "score" in match else "N/A"
                     logger.info(
-                        f"  [{idx+1}] {match['id']} - {match['name']} [score: {score_str}]"
+                        f"  [{idx + 1}] {match['id']} - {match['name']} [score: {score_str}]"
                     )
 
             # Re-rank if enabled
@@ -282,7 +282,7 @@ def orchestrate_hpo_extraction(
             "avg_score": avg_score,
             "confidence": avg_score,  # Alias for avg_score for API consistency
             "chunks": sorted(
-                list(set(evidence["chunk_idx"] for evidence in evidence_list))
+                {evidence["chunk_idx"] for evidence in evidence_list}
             ),
             "top_evidence_chunk_idx": top_evidence_chunk_idx,
             "text_attributions": text_attributions,

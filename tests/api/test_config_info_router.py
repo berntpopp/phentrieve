@@ -5,12 +5,11 @@ This file contains tests to ensure the Phentrieve API's configuration
 and information endpoint is working correctly.
 """
 
-import pytest
 from fastapi.testclient import TestClient
-from phentrieve import config as phentrieve_config
 
 # Import the main FastAPI app
 from api.main import app
+from phentrieve import config as phentrieve_config
 
 client = TestClient(app)
 

@@ -1,8 +1,8 @@
-from pydantic import BaseModel, Field, validator
-from typing import List, Optional, Dict, Any, Literal
+from typing import Literal, Optional
+
+from pydantic import BaseModel, Field
 
 # For assertion status type
-from phentrieve.text_processing.assertion_detection import AssertionStatus
 
 
 class QueryRequest(BaseModel):
@@ -79,7 +79,7 @@ class HPOResultItem(BaseModel):
 
 class QueryResponseSegment(BaseModel):  # If processing in segments (e.g. sentences)
     segment_text: str
-    hpo_results: List[HPOResultItem]
+    hpo_results: list[HPOResultItem]
 
 
 class QueryResponse(BaseModel):
@@ -90,7 +90,7 @@ class QueryResponse(BaseModel):
     # Assertion status from query text
     query_assertion_status: Optional[str] = None
     # If processing as a single block (initial approach):
-    results: List[HPOResultItem]
+    results: list[HPOResultItem]
     # If supporting sentence_mode and returning per-sentence results:
     # processed_segments: List[QueryResponseSegment]
     # For now, implement the simpler `results: List[HPOResultItem]` for the whole query

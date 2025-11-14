@@ -5,15 +5,14 @@ This module tests the resource loading and caching mechanisms implemented
 in the resource_loader module.
 """
 
-import unittest
 import json
 import tempfile
-import os
+import unittest
 from pathlib import Path
 
 from phentrieve.text_processing.resource_loader import (
-    load_language_resource,
     _RESOURCE_CACHE,
+    load_language_resource,
 )
 
 

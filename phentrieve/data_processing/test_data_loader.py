@@ -8,13 +8,13 @@ used in benchmark evaluation of the HPO retrieval system.
 import json
 import logging
 import os
-from typing import Dict, List, Optional, Any
+from typing import Any, Optional
 
 from phentrieve.config import DEFAULT_TEST_CASES_SUBDIR
 from phentrieve.utils import get_default_data_dir
 
 
-def load_test_data(test_file: str) -> Optional[List[Dict[str, Any]]]:
+def load_test_data(test_file: str) -> Optional[list[dict[str, Any]]]:
     """
     Load test cases from a JSON file.
 
@@ -35,7 +35,7 @@ def load_test_data(test_file: str) -> Optional[List[Dict[str, Any]]]:
         List of test case dictionaries, or None if loading fails
     """
     try:
-        with open(test_file, "r", encoding="utf-8") as f:
+        with open(test_file, encoding="utf-8") as f:
             test_cases = json.load(f)
 
         logging.info(f"Loaded {len(test_cases)} test cases from {test_file}")
@@ -45,7 +45,7 @@ def load_test_data(test_file: str) -> Optional[List[Dict[str, Any]]]:
         return None
 
 
-def create_sample_test_data(output_file: Optional[str] = None) -> List[Dict[str, Any]]:
+def create_sample_test_data(output_file: Optional[str] = None) -> list[dict[str, Any]]:
     """
     Create a sample test dataset if none exists.
 

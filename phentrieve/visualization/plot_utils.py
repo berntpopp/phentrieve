@@ -2,9 +2,9 @@
 """
 Utility functions for creating benchmark result visualizations.
 """
+
 import logging
 import os
-from datetime import datetime
 from typing import Optional
 
 import matplotlib.pyplot as plt

@@ -6,12 +6,14 @@ with particular focus on the sliding_window_punct_conj_cleaned strategy.
 """
 
 import unittest
+
 from sentence_transformers import SentenceTransformer
-from phentrieve.text_processing.pipeline import TextProcessingPipeline
+
 from phentrieve.config import (
     get_sliding_window_punct_cleaned_config,
     get_sliding_window_punct_conj_cleaned_config,
 )
+from phentrieve.text_processing.pipeline import TextProcessingPipeline
 
 
 class TestChunkingPipelineIntegration(unittest.TestCase):
@@ -26,8 +28,8 @@ class TestChunkingPipelineIntegration(unittest.TestCase):
     def test_sliding_window_punct_cleaned_strategy(self):
         """Test the sliding_window_punct_cleaned strategy."""
         # Sample text with punctuation
-        text = """The patient reports fever, headache, and fatigue. 
-        No cough or shortness of breath was observed. 
+        text = """The patient reports fever, headache, and fatigue.
+        No cough or shortness of breath was observed.
         Patient has history of hypertension but no diabetes."""
 
         # Create a pipeline with sliding_window_punct_cleaned strategy
@@ -101,7 +103,7 @@ class TestChunkingPipelineIntegration(unittest.TestCase):
     def test_language_specific_conjunction_splitting(self):
         """Test that conjunction splitting works with different languages."""
         # Test German text
-        german_text = """Der Patient berichtet über Fieber und Kopfschmerzen, 
+        german_text = """Der Patient berichtet über Fieber und Kopfschmerzen,
         aber keine Husten oder Atemnot."""
 
         # Create a pipeline with sliding_window_punct_conj_cleaned strategy
@@ -135,10 +137,10 @@ class TestChunkingPipelineIntegration(unittest.TestCase):
         Patient is a 45-year-old male presenting with chest pain and shortness of breath.
         The pain is described as sharp and radiating to the left arm, but not to the jaw or back.
         Patient reports that the pain started yesterday after mild exercise and has been intermittent.
-        
+
         Patient has a history of hypertension and hyperlipidemia, but no prior cardiac events.
         He takes lisinopril for blood pressure control and atorvastatin for cholesterol management.
-        
+
         On examination, vital signs are stable with BP 130/85, HR 82, RR 18, and O2 sat 98% on room air.
         Heart sounds are regular without murmurs, gallops, or rubs. Lungs are clear to auscultation.
         No peripheral edema is noted, and pulses are strong and equal bilaterally.

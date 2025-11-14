@@ -5,29 +5,32 @@ This module provides API endpoints for calculating semantic similarity
 between HPO terms using the Human Phenotype Ontology graph structure.
 """
 
-from fastapi import APIRouter, HTTPException, Path as FastApiPath, Query
-from typing import Optional, Dict
 import logging
 from functools import lru_cache
+from typing import Optional
+
+from fastapi import APIRouter, HTTPException, Query
+from fastapi import Path as FastApiPath
+
+from api.schemas.similarity_schemas import HPOTermSimilarityResponseAPI, LCADetailAPI
+from phentrieve.config import DEFAULT_SIMILARITY_FORMULA
+from phentrieve.data_processing.document_creator import load_hpo_terms
 
 # Core Phentrieve logic imports
 from phentrieve.evaluation.metrics import (
+    SimilarityFormula,
     calculate_semantic_similarity,
     find_lowest_common_ancestor,
     load_hpo_graph_data,
-    SimilarityFormula,
 )
 from phentrieve.utils import normalize_id
-from phentrieve.data_processing.document_creator import load_hpo_terms
-from api.schemas.similarity_schemas import HPOTermSimilarityResponseAPI, LCADetailAPI
-from phentrieve.config import DEFAULT_SIMILARITY_FORMULA
 
 logger = logging.getLogger(__name__)
 router = APIRouter()  # Prefix will be added in main.py
 
 
 @lru_cache(maxsize=1)  # Cache the HPO labels once loaded
-def _get_hpo_label_map_api() -> Dict[str, str]:
+def _get_hpo_label_map_api() -> dict[str, str]:
     """
     Initialize and cache HPO label mapping for the API.
 

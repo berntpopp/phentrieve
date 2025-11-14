@@ -1,13 +1,14 @@
-from typing import Optional, List, Dict, Any
+from typing import Any, Optional
+
 from pydantic import BaseModel, Field
+
 from phentrieve.config import (  # Import defaults from config.py
-    DEFAULT_MODEL,
-    DEFAULT_LANGUAGE,
     DEFAULT_ASSERTION_CONFIG,
-    DEFAULT_TRANSLATIONS_SUBDIR,
-    DEFAULT_RERANKER_MODEL,
+    DEFAULT_LANGUAGE,
+    DEFAULT_MODEL,
     DEFAULT_MONOLINGUAL_RERANKER_MODEL,
     DEFAULT_RERANKER_MODE,
+    DEFAULT_RERANKER_MODEL,
 )
 
 
@@ -127,8 +128,8 @@ class ProcessedChunkAPI(BaseModel):
     chunk_id: int
     text: str
     status: str  # e.g., "affirmed", "negated" (string value of AssertionStatus enum)
-    assertion_details: Optional[Dict[str, Any]] = None  # From AssertionDetector
-    hpo_matches: List[HPOMatchInChunkAPI] = Field(
+    assertion_details: Optional[dict[str, Any]] = None  # From AssertionDetector
+    hpo_matches: list[HPOMatchInChunkAPI] = Field(
         default_factory=list,
         description="HPO terms identified as relevant to this specific chunk.",
     )
@@ -146,7 +147,7 @@ class AggregatedHPOTermAPI(BaseModel):
         description="Aggregated assertion status (e.g., 'affirmed', 'negated')."
     )
     evidence_count: int
-    source_chunk_ids: List[int] = Field(
+    source_chunk_ids: list[int] = Field(
         description="List of 1-based chunk_ids that provide evidence."
     )
     max_score_from_evidence: Optional[float] = Field(
@@ -157,7 +158,7 @@ class AggregatedHPOTermAPI(BaseModel):
         None,
         description="1-based ID of the chunk providing the max_score_from_evidence.",
     )
-    text_attributions: List[TextAttributionSpanAPI] = Field(
+    text_attributions: list[TextAttributionSpanAPI] = Field(
         default_factory=list,
         description="Text spans in source chunks attributed to this HPO term.",
     )
@@ -169,13 +170,13 @@ class AggregatedHPOTermAPI(BaseModel):
 
 
 class TextProcessingResponseAPI(BaseModel):
-    meta: Dict[str, Any] = Field(
+    meta: dict[str, Any] = Field(
         ..., description="Metadata about the request and processing parameters used."
     )
-    processed_chunks: List[ProcessedChunkAPI] = Field(
+    processed_chunks: list[ProcessedChunkAPI] = Field(
         ..., description="List of text chunks after processing and assertion detection."
     )
-    aggregated_hpo_terms: List[AggregatedHPOTermAPI] = Field(
+    aggregated_hpo_terms: list[AggregatedHPOTermAPI] = Field(
         ...,
         description="Final list of aggregated HPO terms extracted from the document.",
     )

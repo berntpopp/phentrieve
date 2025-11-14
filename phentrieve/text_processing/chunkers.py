@@ -6,18 +6,19 @@ using various strategies, from simple paragraph splitting to semantic grouping.
 The primary semantic chunking is handled by SlidingWindowSemanticSplitter in a separate module.
 """
 
-import re
 import logging
-import pysbd
+import re
 from abc import ABC, abstractmethod
-from typing import List, Optional, Tuple
+from typing import Optional
+
+import pysbd
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 
 # Local imports
 from phentrieve.text_processing.cleaners import (
-    normalize_line_endings,
     clean_internal_newlines_and_extra_spaces,
+    normalize_line_endings,
 )
 from phentrieve.text_processing.resource_loader import load_language_resource
 from phentrieve.utils import load_user_config
@@ -50,7 +51,7 @@ class TextChunker(ABC):
         self.language = language
 
     @abstractmethod
-    def chunk(self, text_segments: List[str]) -> List[str]:
+    def chunk(self, text_segments: list[str]) -> list[str]:
         """
         Processes a list of input text segments and returns a new list of
         potentially modified, split, or filtered text segments.
@@ -80,11 +81,11 @@ class FinalChunkCleaner(TextChunker):
         min_cleaned_chunk_length_chars: int = 1,  # Minimum chars after cleaning
         filter_short_low_value_chunks_max_words: int = 2,  # Max words for low value check
         max_cleanup_passes: int = 3,  # Prevent infinite loops
-        custom_leading_words_to_remove: Optional[List[str]] = None,
-        custom_trailing_words_to_remove: Optional[List[str]] = None,
+        custom_leading_words_to_remove: Optional[list[str]] = None,
+        custom_trailing_words_to_remove: Optional[list[str]] = None,
         custom_trailing_punctuation: Optional[str] = None,
         custom_leading_punctuation: Optional[str] = None,
-        custom_low_value_words: Optional[List[str]] = None,  # Custom low-value words
+        custom_low_value_words: Optional[list[str]] = None,  # Custom low-value words
         **kwargs,
     ):
         """
@@ -167,7 +168,7 @@ class FinalChunkCleaner(TextChunker):
 
         # Load low_value_words for filtering short chunks
         if custom_low_value_words:
-            self.low_value_words = set(s.lower() for s in custom_low_value_words)
+            self.low_value_words = {s.lower() for s in custom_low_value_words}
         else:
             # Load from resource files with the new mechanism
             low_value_resources = load_language_resource(
@@ -196,10 +197,10 @@ class FinalChunkCleaner(TextChunker):
             f"Trailing punctuation for cleanup: '{self.trailing_punctuation_to_strip}'"
         )
         logger.debug(
-            f"Low-value words for lang '{self.language}': {sorted(list(self.low_value_words))[:20]}..."
+            f"Low-value words for lang '{self.language}': {sorted(self.low_value_words)[:20]}..."
         )
 
-    def chunk(self, text_segments: List[str]) -> List[str]:
+    def chunk(self, text_segments: list[str]) -> list[str]:
         """
         Process a list of text segments to clean up leading/trailing non-semantic elements.
         Also filters out short segments consisting entirely of low semantic value words.
@@ -211,7 +212,7 @@ class FinalChunkCleaner(TextChunker):
             List of cleaned text segments, with any segments that are too short after cleaning
             or consist entirely of low semantic value words removed
         """
-        cleaned_segments_accumulator: List[str] = []
+        cleaned_segments_accumulator: list[str] = []
         for segment_str_input in text_segments:
             if not segment_str_input or not segment_str_input.strip():
                 logger.debug(
@@ -307,9 +308,7 @@ class FinalChunkCleaner(TextChunker):
             made_leading_change_in_iteration = True
             while made_leading_change_in_iteration and temp_segment:
                 made_leading_change_in_iteration = False
-                for (
-                    word_to_remove_spaced
-                ) in (
+                for word_to_remove_spaced in (
                     self.leading_words_to_strip
                 ):  # Assumes word_to_remove has trailing space
                     # Ensure word_to_remove_spaced ends with a space for proper prefix matching
@@ -331,9 +330,7 @@ class FinalChunkCleaner(TextChunker):
             made_trailing_change_in_iteration = True
             while made_trailing_change_in_iteration and temp_segment:
                 made_trailing_change_in_iteration = False
-                for (
-                    word_to_remove_spaced
-                ) in (
+                for word_to_remove_spaced in (
                     self.trailing_words_to_strip
                 ):  # Assumes word_to_remove has leading space
                     # Ensure word_to_remove_spaced starts with a space
@@ -366,7 +363,7 @@ class NoOpChunker(TextChunker):
     This is useful as a baseline or when no chunking is desired.
     """
 
-    def chunk(self, text_segments: List[str]) -> List[str]:
+    def chunk(self, text_segments: list[str]) -> list[str]:
         """
         Return the text segments after cleaning, without further splitting.
 
@@ -394,7 +391,7 @@ class ParagraphChunker(TextChunker):
     Chunker that splits text into paragraphs based on blank lines.
     """
 
-    def chunk(self, text_segments: List[str]) -> List[str]:
+    def chunk(self, text_segments: list[str]) -> list[str]:
         """
         Split text segments into paragraphs by looking for blank lines.
 
@@ -431,7 +428,7 @@ class SentenceChunker(TextChunker):
     Chunker that splits text into individual sentences using pysbd.
     """
 
-    def chunk(self, text_segments: List[str]) -> List[str]:
+    def chunk(self, text_segments: list[str]) -> list[str]:
         """
         Split text segments into sentences using pysbd with fallback method.
 
@@ -458,7 +455,7 @@ class SentenceChunker(TextChunker):
         )
         return all_sentences
 
-    def _segment_into_sentences(self, text: str, lang: str = "en") -> List[str]:
+    def _segment_into_sentences(self, text: str, lang: str = "en") -> list[str]:
         """
         Split text into sentences using pysbd with fallback to regex for errors.
 
@@ -504,7 +501,7 @@ class FineGrainedPunctuationChunker(TextChunker):
     special cases like decimal points.
     """
 
-    def chunk(self, text_segments: List[str]) -> List[str]:
+    def chunk(self, text_segments: list[str]) -> list[str]:
         """
         Split text segments at punctuation marks like periods, commas, semicolons, etc.
 
@@ -561,7 +558,7 @@ class FineGrainedPunctuationChunker(TextChunker):
             segments = re.split(r"[.,:;?!]\s+", segment_str)
 
             # Restore abbreviations and decimal numbers
-            for i, segment in enumerate(segments):
+            for i, _segment in enumerate(segments):
                 for placeholder, original in placeholders.items():
                     segments[i] = segments[i].replace(placeholder, original)
 
@@ -623,7 +620,7 @@ class ConjunctionChunker(TextChunker):
                 f"ConjunctionChunker for lang '{self.language}' has no conjunctions defined. Will act as a NoOp."
             )
 
-    def chunk(self, text_segments: List[str]) -> List[str]:
+    def chunk(self, text_segments: list[str]) -> list[str]:
         """
         Split text segments at coordinating conjunctions.
 
@@ -847,7 +844,7 @@ class SlidingWindowSemanticSplitter(TextChunker):
                 f"Model embedding dimension: {self.model.get_sentence_embedding_dimension()}"
             )
 
-    def chunk(self, text_segments: List[str]) -> List[str]:
+    def chunk(self, text_segments: list[str]) -> list[str]:
         """
         Process a list of text segments and split each one semantically.
 
@@ -860,7 +857,7 @@ class SlidingWindowSemanticSplitter(TextChunker):
         logger.debug(
             f"SlidingWindowSemanticSplitter received {len(text_segments)} segments to process"
         )
-        output_segments: List[str] = []
+        output_segments: list[str] = []
 
         for i, segment in enumerate(text_segments):
             # Skip empty segments
@@ -883,7 +880,7 @@ class SlidingWindowSemanticSplitter(TextChunker):
 
     def _split_one_segment_by_sliding_window(
         self, current_text_segment: str
-    ) -> List[str]:
+    ) -> list[str]:
         """
         Split a single text segment into multiple parts based on semantic boundaries
         detected using a sliding window of token embeddings.
@@ -911,8 +908,8 @@ class SlidingWindowSemanticSplitter(TextChunker):
             )
             return [current_text_segment] if current_text_segment.strip() else []
 
-        window_texts: List[str] = []
-        window_token_spans: List[Tuple[int, int]] = []
+        window_texts: list[str] = []
+        window_token_spans: list[tuple[int, int]] = []
 
         for i in range(
             0, len(tokens) - self.window_size_tokens + 1, self.step_size_tokens
@@ -932,7 +929,7 @@ class SlidingWindowSemanticSplitter(TextChunker):
         logger.debug(f"Generated {len(window_texts)} sliding windows for the segment.")
         window_embeddings = self.model.encode(window_texts, show_progress_bar=False)
 
-        similarities_between_windows: List[float] = []
+        similarities_between_windows: list[float] = []
         for j in range(len(window_embeddings) - 1):
             sim = cosine_similarity(
                 window_embeddings[j].reshape(1, -1),
@@ -942,11 +939,11 @@ class SlidingWindowSemanticSplitter(TextChunker):
 
         # Identify indices of the *first* window in a pair that has low similarity to the next one
         # These mark potential *ends* of semantic segments.
-        potential_split_marker_indices: List[int] = []
+        potential_split_marker_indices: list[int] = []
         for k, sim_score in enumerate(similarities_between_windows):
             logger.debug(
                 f"Similarity between window {k} (tokens {window_token_spans[k]}) and "
-                f"window {k+1} (tokens {window_token_spans[k+1]}): {sim_score:.4f}"
+                f"window {k + 1} (tokens {window_token_spans[k + 1]}): {sim_score:.4f}"
             )
             if sim_score < self.splitting_threshold:
                 potential_split_marker_indices.append(
@@ -959,7 +956,7 @@ class SlidingWindowSemanticSplitter(TextChunker):
             )
             return [current_text_segment]
 
-        final_segments: List[str] = []
+        final_segments: list[str] = []
         current_segment_start_token_idx = 0
         for marker_idx in potential_split_marker_indices:
             # The split occurs AFTER the window at marker_idx.
@@ -1027,7 +1024,7 @@ class SlidingWindowSemanticSplitter(TextChunker):
 
         return final_segments
 
-    def _apply_negation_aware_merging(self, segments: List[str]) -> List[str]:
+    def _apply_negation_aware_merging(self, segments: list[str]) -> list[str]:
         """
         Merge segments that were incorrectly split within negation patterns.
 
@@ -1054,12 +1051,12 @@ class SlidingWindowSemanticSplitter(TextChunker):
         )
 
         # Create a clean set of negation prefixes by stripping whitespace
-        current_neg_standalone_prefixes = set(
+        current_neg_standalone_prefixes = {
             prefix.strip()
             for prefix in negation_prefixes.get(
                 lang_key, negation_prefixes.get("en", [])
             )
-        )
+        }
 
         # Load words to avoid merging after negation from resource files
         avoid_merge_resources = load_language_resource(
@@ -1072,7 +1069,7 @@ class SlidingWindowSemanticSplitter(TextChunker):
             lang_key, avoid_merge_resources.get("en", [])
         )
 
-        merged_segments: List[str] = []
+        merged_segments: list[str] = []
         i = 0
 
         while i < len(segments):
@@ -1144,7 +1141,7 @@ class SlidingWindowSemanticSplitter(TextChunker):
                     else f"suffix '{neg_suffix_found_for_log}'"
                 )
                 logger.debug(
-                    f"Merged negation pattern ({log_reason}): '{current_segment}' + '{segments[i+1]}' -> '{merged_text}'"
+                    f"Merged negation pattern ({log_reason}): '{current_segment}' + '{segments[i + 1]}' -> '{merged_text}'"
                 )
                 i += 2
             else:

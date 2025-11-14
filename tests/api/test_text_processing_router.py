@@ -1,10 +1,10 @@
-from fastapi.testclient import TestClient
+from unittest.mock import MagicMock, patch
+
 import pytest
-from unittest.mock import patch, MagicMock
+from fastapi.testclient import TestClient
 
 from api.main import app
 from phentrieve.text_processing.assertion_detection import AssertionStatus
-
 
 client = TestClient(app)
 
