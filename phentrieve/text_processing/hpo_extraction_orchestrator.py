@@ -14,7 +14,6 @@ from sentence_transformers import CrossEncoder
 from phentrieve.data_processing.document_creator import load_hpo_terms
 from phentrieve.retrieval.dense_retriever import DenseRetriever
 from phentrieve.retrieval.text_attribution import get_text_attributions
-from phentrieve.utils import load_translation_text
 
 logger = logging.getLogger(__name__)
 
