@@ -1,4 +1,4 @@
-.PHONY: help format lint check test clean all install
+.PHONY: help format lint check test clean all install lock upgrade add remove clean-venv
 
 # Default target
 .DEFAULT_GOAL := help
@@ -12,11 +12,14 @@ help: ## Display this help message
 
 ##@ Python Development
 
-install: ## Install package in development mode
-	pip install -e .
+install: ## Install package with uv
+	uv sync
 
-install-dev: ## Install package with dev dependencies
-	pip install -e ".[text_processing]"
+install-dev: ## Install package with optional dependencies
+	uv sync --all-extras
+
+install-editable: ## Install in editable mode (for development)
+	uv pip install -e .
 
 format: ## Format Python code with Ruff
 	ruff format phentrieve/ api/ tests/
@@ -35,6 +38,20 @@ test: ## Run tests with pytest
 test-cov: ## Run tests with coverage
 	pytest tests/ -v --cov=phentrieve --cov=api --cov-report=html --cov-report=term
 
+##@ Package Management
+
+lock: ## Update uv.lock file
+	uv lock
+
+upgrade: ## Upgrade dependencies
+	uv lock --upgrade
+
+add: ## Add a new dependency (usage: make add PACKAGE=package-name)
+	uv add $(PACKAGE)
+
+remove: ## Remove a dependency (usage: make remove PACKAGE=package-name)
+	uv remove $(PACKAGE)
+
 ##@ Cleaning
 
 clean: ## Remove build artifacts and caches
@@ -46,6 +63,9 @@ clean: ## Remove build artifacts and caches
 	find . -type f -name '*.pyo' -delete
 	find . -type d -name .pytest_cache -exec rm -rf {} +
 	find . -type d -name .ruff_cache -exec rm -rf {} +
+
+clean-venv: ## Remove virtual environment
+	rm -rf .venv
 
 clean-data: ## Clean data caches (use with caution)
 	@echo "⚠️  This will remove ChromaDB indices and model caches"
