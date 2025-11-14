@@ -446,7 +446,7 @@ def generate_visualizations(
             plt.xlabel("Model", fontsize=14)
             plt.ylabel("Mean Reciprocal Rank (MRR)", fontsize=14)
             plt.title(title, fontsize=16)
-            plt.xticks(x, sorted_df["Model"], rotation=45, ha="right")
+            plt.xticks(x, sorted_df["Model"].tolist(), rotation=45, ha="right")
             plt.ylim(0, 1.0)
             plt.tight_layout()
             plt.savefig(os.path.join(output_dir, "mrr_comparison.png"), dpi=300)
@@ -467,11 +467,11 @@ def generate_visualizations(
 
                 for i, k in enumerate(hr_k_values):
                     ax = axes[i, 0]
-                    metrics: list[str] = hr_by_k[str(k)]
+                    hr_metrics = hr_by_k[str(k)]
 
                     # Check if we have both dense and reranked for this k value
-                    has_dense_k = any("Dense" in m for m in metrics)
-                    has_reranked_k = any("Re-Ranked" in m for m in metrics)
+                    has_dense_k = any("Dense" in m for m in hr_metrics)
+                    has_reranked_k = any("Re-Ranked" in m for m in hr_metrics)
                     has_comparison_k = has_dense_k and has_reranked_k
 
                     x = np.arange(len(sorted_df))
@@ -628,11 +628,11 @@ def generate_visualizations(
 
                 for i, k in enumerate(ont_k_values):
                     ax = axes[i, 0]
-                    metrics: list[str] = ont_by_k[str(k)]
+                    ont_metrics = ont_by_k[str(k)]
 
                     # Check if we have both dense and reranked for this k value
-                    has_dense_k = any("Dense" in m for m in metrics)
-                    has_reranked_k = any("Re-Ranked" in m for m in metrics)
+                    has_dense_k = any("Dense" in m for m in ont_metrics)
+                    has_reranked_k = any("Re-Ranked" in m for m in ont_metrics)
                     has_comparison_k = has_dense_k and has_reranked_k
 
                     x = np.arange(len(sorted_df))
