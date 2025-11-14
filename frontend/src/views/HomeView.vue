@@ -2,12 +2,21 @@
   <div class="fill-height">
     <div class="content-wrapper">
       <div class="d-flex justify-center align-center pb-1">
-        <img src="/favicon.svg" alt="Phentrieve Logo" width="65" height="65" class="mr-2" loading="lazy">
+        <img
+          src="/favicon.svg"
+          alt="Phentrieve Logo"
+          width="65"
+          height="65"
+          class="mr-2"
+          loading="lazy"
+        />
         <h1 class="text-h5 font-weight-light logo-text">
-          <span class="logo-visible">Phen</span><span class="logo-bracket">[</span><span class="logo-hidden">otype re</span><span class="logo-bracket">]</span><span class="logo-visible">trieve</span>
+          <span class="logo-visible">Phen</span><span class="logo-bracket">[</span
+          ><span class="logo-hidden">otype re</span><span class="logo-bracket">]</span
+          ><span class="logo-visible">trieve</span>
         </h1>
       </div>
-      <div class="text-center px-4 py-0" style="max-width: 600px;">
+      <div class="text-center px-4 py-0" style="max-width: 600px">
         <p class="text-body-2 text-medium-emphasis mb-1">
           {{ t('queryInterface.welcomeText') }}
         </p>
@@ -18,21 +27,21 @@
 </template>
 
 <script>
-import QueryInterface from '@/components/QueryInterface.vue'
-import { useLogStore } from '@/stores/log'
-import { useI18n } from 'vue-i18n'
+import QueryInterface from '@/components/QueryInterface.vue';
+import { useLogStore } from '@/stores/log';
+import { useI18n } from 'vue-i18n';
 
 export default {
   name: 'HomeView',
   components: {
-    QueryInterface
+    QueryInterface,
   },
   setup() {
-    const logStore = useLogStore()
-    const { t } = useI18n()
-    return { logStore, t }
-  }
-}
+    const logStore = useLogStore();
+    const { t } = useI18n();
+    return { logStore, t };
+  },
+};
 </script>
 
 <style scoped>
@@ -62,10 +71,12 @@ export default {
 .logo-hidden {
   max-width: 0;
   opacity: 0;
-  transition: max-width 0.5s ease, opacity 0.3s ease;
+  transition:
+    max-width 0.5s ease,
+    opacity 0.3s ease;
   display: inline-block;
   overflow: hidden;
-  color: #1867C0;
+  color: #1867c0;
 }
 
 .logo-visible {
@@ -77,8 +88,10 @@ export default {
   max-width: 0;
   opacity: 0;
   overflow: hidden;
-  transition: max-width 0.5s ease, opacity 0.3s ease;
-  color: #42A5F5;
+  transition:
+    max-width 0.5s ease,
+    opacity 0.3s ease;
+  color: #42a5f5;
   font-weight: bold;
 }
 

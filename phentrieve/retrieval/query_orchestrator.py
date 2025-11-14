@@ -39,8 +39,72 @@ from phentrieve.utils import (
     load_translation_text,
 )
 
+# Module-level global variables for interactive mode
+# These are initialized when orchestrate_query is called with interactive_setup=True
+_global_model: Optional[Any] = None
+_global_retriever: Optional[DenseRetriever] = None
+_global_cross_encoder: Optional[Any] = (
+    None  # CrossEncoder type from sentence_transformers
+)
+_global_query_assertion_detector: Optional[CombinedAssertionDetector] = None
 
-def segment_text(text: str, lang: str = None) -> list[str]:
+
+def convert_results_to_candidates(
+    results: dict[str, Any],
+    reranker_mode: str = "cross-lingual",
+    translation_dir: str = DEFAULT_TRANSLATIONS_SUBDIR,
+) -> list[dict[str, Any]]:
+    """
+    Convert ChromaDB query results to candidate format for reranking.
+
+    Args:
+        results: ChromaDB query results dictionary
+        reranker_mode: Reranking mode ('cross-lingual' or 'monolingual')
+        translation_dir: Directory containing translations (should point to language-specific dir for monolingual)
+
+    Returns:
+        List of candidate dictionaries ready for reranking
+    """
+    candidates = []
+
+    if not results or not results.get("ids") or not results["ids"][0]:
+        return candidates
+
+    ids = results["ids"][0]
+    metadatas = results.get("metadatas", [[]])[0]
+    documents = results.get("documents", [[]])[0]
+    distances = results.get("distances", [[]])[0]
+
+    for j, (hpo_id, metadata, doc, distance) in enumerate(
+        zip(ids, metadatas, documents, distances)
+    ):
+        candidate = {
+            "hpo_id": hpo_id,
+            "english_doc": doc,
+            "metadata": metadata,
+            "rank": j + 1,
+            "bi_encoder_score": calculate_similarity(distance),
+        }
+
+        # Set comparison_text based on mode
+        if reranker_mode == "monolingual":
+            # For monolingual mode, try to load translation
+            translated_text = load_translation_text(hpo_id, translation_dir)
+            if translated_text:
+                candidate["comparison_text"] = translated_text
+            else:
+                # Fall back to English if no translation available
+                candidate["comparison_text"] = doc
+        else:
+            # For cross-lingual mode, use English document
+            candidate["comparison_text"] = doc
+
+        candidates.append(candidate)
+
+    return candidates
+
+
+def segment_text(text: str, lang: str | None = None) -> list[str]:
     """
     Split text into sentences.
 
@@ -67,7 +131,7 @@ def format_results(
     results: dict[str, Any],
     threshold: float = MIN_SIMILARITY_THRESHOLD,
     max_results: int = DEFAULT_TOP_K,
-    query: str = None,
+    query: str | None = None,
     reranked: bool = False,
     original_query_assertion_status=None,
     original_query_assertion_details=None,
@@ -294,7 +358,7 @@ def process_query(
     similarity_threshold: float = MIN_SIMILARITY_THRESHOLD,
     debug: bool = False,
     cross_encoder=None,
-    rerank_count: int = None,
+    rerank_count: int | None = None,
     reranker_mode: str = DEFAULT_RERANKER_MODE,
     translation_dir: str = DEFAULT_TRANSLATIONS_SUBDIR,
     output_func: Callable = print,
@@ -397,12 +461,28 @@ def process_query(
             if cross_encoder and rerank_count:
                 if debug:
                     output_func("[DEBUG] Reranking with cross-encoder")
-                reranked_results = reranker.rerank_with_cross_encoder(
-                    query=sentence,
-                    results=results,
-                    cross_encoder=cross_encoder,
-                    top_k=rerank_count,
+                # Convert results to candidates format
+                candidates = convert_results_to_candidates(
+                    results,
+                    reranker_mode=reranker_mode,
+                    translation_dir=translation_dir,
                 )
+                # Rerank the candidates
+                reranked_candidates = reranker.rerank_with_cross_encoder(
+                    sentence, candidates, cross_encoder
+                )
+                # Convert back to ChromaDB format
+                reranked_results = {
+                    "ids": [[c["hpo_id"] for c in reranked_candidates]],
+                    "metadatas": [[c["metadata"] for c in reranked_candidates]],
+                    "documents": [[c["english_doc"] for c in reranked_candidates]],
+                    "distances": [
+                        [
+                            1.0 - c.get("cross_encoder_score", 0.0)
+                            for c in reranked_candidates
+                        ]
+                    ],
+                }
                 formatted = format_results(
                     results=reranked_results,
                     threshold=similarity_threshold,
@@ -434,39 +514,34 @@ def process_query(
 
             # Single query mode, no sentence splitting
             query_result = retriever.query(
-                query_embedding=retriever.encode_query(text),
-                top_k=rerank_count if cross_encoder else num_results,
+                text,
+                n_results=rerank_count if cross_encoder else num_results,
             )
 
             # Perform re-ranking if a cross-encoder is provided
             if cross_encoder:
-                # Extract metadata for re-ranking
-                rerank_query_result = query_result
-
-                # Apply cross-encoder re-ranking based on the selected mode
-                if reranker_mode == "monolingual":
-                    # Monolingual mode requires translations of HPO terms
-                    lang_code = detect_language(text)
-                    translations = load_translation_text(translation_dir, lang_code)
-
-                    # Re-rank using the original language
-                    reranked_result = reranker.rerank_with_cross_encoder_monolingual(
-                        query=text,
-                        query_result=rerank_query_result,
-                        cross_encoder=cross_encoder,
-                        translations=translations,
-                        top_k=num_results,
-                    )
-                else:
-                    # Cross-lingual mode (default): uses cross-encoder directly
-                    reranked_result = reranker.rerank_with_cross_encoder(
-                        query=text,
-                        query_result=rerank_query_result,
-                        cross_encoder=cross_encoder,
-                        top_k=num_results,
-                    )
-
-                query_result = reranked_result
+                # Convert results to candidates format
+                candidates = convert_results_to_candidates(
+                    query_result,
+                    reranker_mode=reranker_mode,
+                    translation_dir=translation_dir,
+                )
+                # Rerank the candidates
+                reranked_candidates = reranker.rerank_with_cross_encoder(
+                    text, candidates, cross_encoder
+                )
+                # Convert back to ChromaDB format
+                query_result = {
+                    "ids": [[c["hpo_id"] for c in reranked_candidates]],
+                    "metadatas": [[c["metadata"] for c in reranked_candidates]],
+                    "documents": [[c["english_doc"] for c in reranked_candidates]],
+                    "distances": [
+                        [
+                            1.0 - c.get("cross_encoder_score", 0.0)
+                            for c in reranked_candidates
+                        ]
+                    ],
+                }
 
             # Format the results into a structured format
             formatted_result = format_results(
@@ -507,30 +582,28 @@ def process_query(
 
             reranked_result = None
             try:
-                # Apply cross-encoder re-ranking based on the selected mode
-                if reranker_mode == "monolingual":
-                    # Monolingual mode requires translations of HPO terms
-                    from phentrieve.utils import detect_language
-
-                    lang_code = detect_language(text)
-                    translations = load_translation_text(translation_dir, lang_code)
-
-                    # Re-rank using the original language
-                    reranked_result = reranker.rerank_with_cross_encoder_monolingual(
-                        query=text,
-                        query_result=results,
-                        cross_encoder=cross_encoder,
-                        translations=translations,
-                        top_k=num_results,
-                    )
-                else:
-                    # Cross-lingual mode (default): uses cross-encoder directly
-                    reranked_result = reranker.rerank_with_cross_encoder(
-                        query=text,
-                        query_result=results,
-                        cross_encoder=cross_encoder,
-                        top_k=num_results,
-                    )
+                # Convert results to candidates format
+                candidates = convert_results_to_candidates(
+                    results,
+                    reranker_mode=reranker_mode,
+                    translation_dir=translation_dir,
+                )
+                # Rerank the candidates
+                reranked_candidates = reranker.rerank_with_cross_encoder(
+                    text, candidates, cross_encoder
+                )
+                # Convert back to ChromaDB format
+                reranked_result = {
+                    "ids": [[c["hpo_id"] for c in reranked_candidates]],
+                    "metadatas": [[c["metadata"] for c in reranked_candidates]],
+                    "documents": [[c["english_doc"] for c in reranked_candidates]],
+                    "distances": [
+                        [
+                            1.0 - c.get("cross_encoder_score", 0.0)
+                            for c in reranked_candidates
+                        ]
+                    ],
+                }
             except Exception as e:
                 if debug:
                     output_func(f"[DEBUG] Error during re-ranking: {str(e)}")
