@@ -85,6 +85,8 @@ def run_evaluation(
         Dictionary containing benchmark results or None if evaluation failed
     """
     # Create output directory structure
+    detailed_results_dir = None
+    summaries_dir = None
     if save_results:
         if results_dir is None:
             # Log error if results_dir is None
@@ -95,10 +97,10 @@ def run_evaluation(
         if not results_dir.exists():
             results_dir.mkdir(parents=True, exist_ok=True)
 
-    detailed_results_dir = results_dir / "detailed"
-    summaries_dir = results_dir / "summaries"
-    os.makedirs(detailed_results_dir, exist_ok=True)
-    os.makedirs(summaries_dir, exist_ok=True)
+        detailed_results_dir = results_dir / "detailed"
+        summaries_dir = results_dir / "summaries"
+        os.makedirs(detailed_results_dir, exist_ok=True)
+        os.makedirs(summaries_dir, exist_ok=True)
 
     # Load test data
     test_cases = load_test_data(test_file)
@@ -142,7 +144,9 @@ def run_evaluation(
                     f"Failed to load cross-encoder model {reranker_model}. Re-ranking will be disabled."
                 )
                 enable_reranker = False
-            elif reranker_mode == "monolingual" and not os.path.exists(translation_dir):
+            elif reranker_mode == "monolingual" and (
+                not translation_dir or not os.path.exists(translation_dir)
+            ):
                 logging.warning(
                     f"Translation directory not found: {translation_dir}. Re-ranking will be disabled."
                 )
@@ -313,7 +317,7 @@ def run_evaluation(
                             candidate["bi_encoder_score"] = score
 
                         # For monolingual re-ranking, load translation text in target language
-                        if reranker_mode == "monolingual":
+                        if reranker_mode == "monolingual" and translation_dir:
                             translated_text = load_translation_text(
                                 candidate["hpo_id"], translation_dir
                             )

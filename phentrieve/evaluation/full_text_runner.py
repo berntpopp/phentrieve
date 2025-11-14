@@ -96,10 +96,10 @@ def evaluate_single_document_extraction(
     ]
 
     # Get assertion statuses if available in the pipeline output
-    assertion_statuses_for_orchestrator = None
+    assertion_statuses_for_orchestrator: list[str | None] | None = None
     if processed_chunks_from_pipeline and "status" in processed_chunks_from_pipeline[0]:
         # Extract assertion statuses from each chunk
-        assertion_statuses_for_orchestrator: list[str | None] = []
+        assertion_statuses_for_orchestrator = []
         for chunk in processed_chunks_from_pipeline:
             status = chunk.get("status")
             if status is None:
@@ -131,13 +131,13 @@ def evaluate_single_document_extraction(
             text_chunks=text_chunks_for_orchestrator,
             retriever=retriever,
             num_results_per_chunk=num_results_per_chunk,
-            similarity_threshold_per_chunk=similarity_threshold_per_chunk,
+            chunk_retrieval_threshold=similarity_threshold_per_chunk,
             cross_encoder=cross_encoder_to_use,
             translation_dir_path=translation_dir_path,
             language=language,
             reranker_mode=reranker_mode,
             top_term_per_chunk=top_term_per_chunk_for_aggregated,
-            min_confidence=min_confidence_for_aggregated,
+            min_confidence_for_aggregated=min_confidence_for_aggregated,
             assertion_statuses=assertion_statuses_for_orchestrator,
         )
 

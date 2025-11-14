@@ -51,6 +51,11 @@ def build_chromadb_index(
         logging.error("No documents provided for indexing")
         return False
 
+    # Validate index_dir is provided
+    if index_dir is None:
+        logging.error("index_dir must be provided for indexing")
+        return False
+
     # Get collection name (index_dir should be passed in)
     collection_name = generate_collection_name(model_name)
     get_model_slug(model_name)

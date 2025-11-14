@@ -1,7 +1,7 @@
 import logging
 import os
 from pathlib import Path
-from typing import Optional
+from typing import Literal, Optional, cast
 
 from fastapi import APIRouter, Depends, HTTPException
 
@@ -79,10 +79,17 @@ async def run_hpo_query_get(
         num_results=num_results,
         similarity_threshold=similarity_threshold,
         enable_reranker=enable_reranker,
-        reranker_mode=reranker_mode,
+        reranker_model=DEFAULT_RERANKER_MODEL,
+        monolingual_reranker_model=DEFAULT_MONOLINGUAL_RERANKER_MODEL,
+        reranker_mode=cast(Literal["cross-lingual", "monolingual"], reranker_mode),
+        translation_dir_name=None,
+        rerank_count=10,
         detect_query_assertion=detect_query_assertion,
         query_assertion_language=query_assertion_language,
-        query_assertion_preference=query_assertion_preference,
+        query_assertion_preference=cast(
+            Literal["dependency", "keyword", "any_negative"],
+            query_assertion_preference,
+        ),
     )
 
     # Reuse the POST endpoint logic

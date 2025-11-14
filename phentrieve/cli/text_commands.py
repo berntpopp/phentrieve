@@ -382,8 +382,8 @@ def process_text_for_hpo_command(
                 logger.warning(f"Failed to load cross-encoder: {e}")
 
         # Extract text and assertion statuses from processed chunks
-        text_chunks = []
-        assertion_statuses = []
+        text_chunks: list[str] = []
+        assertion_statuses: list[str | None] = []
         for chunk in processed_chunks:
             # Handle both formats: string or dict with text/status
             if isinstance(chunk, str):
@@ -395,7 +395,8 @@ def process_text_for_hpo_command(
                 status = chunk.get("status")
                 if status is not None and hasattr(status, "value"):
                     status = status.value
-                assertion_statuses.append(status)
+                # Ensure status is str or None
+                assertion_statuses.append(str(status) if status is not None else None)
 
         logger.debug(
             f"Extracted {len(text_chunks)} text chunks with assertion statuses"
