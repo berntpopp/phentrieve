@@ -21,7 +21,11 @@ make install-dev                                     # Install with all extras (
 # Development workflow (recommended)
 make check                                           # Format + lint code
 make test                                            # Run tests
+make typecheck-fast                                  # Type check (REQUIRED for Python changes)
 make all                                             # Clean + check + test
+
+# IMPORTANT: Always run type checking before committing Python code changes
+# The codebase maintains 0 mypy errors - keep it that way!
 
 # Code quality
 make format                                          # Format with Ruff
