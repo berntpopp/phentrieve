@@ -43,8 +43,8 @@ def _get_chunking_config_for_api(
     request: TextProcessingRequest,
 ) -> list[dict[str, Any]]:
     strategy_name = (
-        request.chunking_strategy.lower()
-    )  # Already defaults to sliding_window_cleaned in schema
+        request.chunking_strategy.lower() if request.chunking_strategy else "sliding_window_punct_conj_cleaned"
+    )
 
     # Use defaults from phentrieve.config as fallback if not provided in request
     # These values are for get_sliding_window_config_with_params and similar internal configs
@@ -63,9 +63,9 @@ def _get_chunking_config_for_api(
     )
 
     if strategy_name == "simple":
-        return get_simple_chunking_config()
+        return list(get_simple_chunking_config())
     elif strategy_name == "semantic":
-        config = get_semantic_chunking_config()
+        config = list(get_semantic_chunking_config())
         for component in config:
             if component.get("type") == "sliding_window":
                 component["config"].update(
@@ -78,7 +78,7 @@ def _get_chunking_config_for_api(
                 )
         return config
     elif strategy_name == "detailed":
-        config = get_detailed_chunking_config()
+        config = list(get_detailed_chunking_config())
         for component in config:
             if component.get("type") == "sliding_window":
                 component["config"].update(
@@ -91,14 +91,14 @@ def _get_chunking_config_for_api(
                 )
         return config
     elif strategy_name == "sliding_window":
-        return get_sliding_window_config_with_params(
+        return list(get_sliding_window_config_with_params(
             window_size=cfg_window_size,
             step_size=cfg_step_size,
             threshold=cfg_split_threshold,
             min_segment_length=cfg_min_segment_length,
-        )
+        ))
     elif strategy_name == "sliding_window_cleaned":
-        config = get_sliding_window_cleaned_config()
+        config = list(get_sliding_window_cleaned_config())
         for component in config:
             if component.get("type") == "sliding_window":
                 component["config"].update(
@@ -111,7 +111,7 @@ def _get_chunking_config_for_api(
                 )
         return config
     elif strategy_name == "sliding_window_punct_cleaned":
-        config = get_sliding_window_punct_cleaned_config()
+        config = list(get_sliding_window_punct_cleaned_config())
         for component in config:
             if component.get("type") == "sliding_window":
                 component["config"].update(
@@ -124,7 +124,7 @@ def _get_chunking_config_for_api(
                 )
         return config
     elif strategy_name == "sliding_window_punct_conj_cleaned":
-        config = get_sliding_window_punct_conj_cleaned_config()
+        config = list(get_sliding_window_punct_conj_cleaned_config())
         for component in config:
             if component.get("type") == "sliding_window":
                 component["config"].update(
@@ -141,7 +141,7 @@ def _get_chunking_config_for_api(
             f"API: Unknown chunking strategy '{strategy_name}'. Defaulting to sliding_window_punct_conj_cleaned."
         )
         # Use sliding_window_punct_conj_cleaned as the default fallback
-        config = get_sliding_window_punct_conj_cleaned_config()
+        config = list(get_sliding_window_punct_conj_cleaned_config())
         for component in config:
             if component.get("type") == "sliding_window":
                 component["config"].update(
@@ -204,7 +204,7 @@ async def process_text_extract_hpo(request: TextProcessingRequest):
         retrieval_sbert_model = await run_in_threadpool(
             load_embedding_model,
             model_name=retrieval_model_name_to_load,
-            trust_remote_code=request.trust_remote_code,
+            trust_remote_code=request.trust_remote_code or False,
         )
 
         # Determine whether we need a separate model for chunking
@@ -216,14 +216,14 @@ async def process_text_extract_hpo(request: TextProcessingRequest):
             sbert_for_chunking = await run_in_threadpool(
                 load_embedding_model,
                 model_name=sbert_for_chunking_name_to_load,
-                trust_remote_code=request.trust_remote_code,
+                trust_remote_code=request.trust_remote_code or False,
             )
 
         retriever = await run_in_threadpool(
             DenseRetriever.from_model_name,
             model=retrieval_sbert_model,
             model_name=retrieval_model_name_to_load,
-            min_similarity=request.chunk_retrieval_threshold,
+            min_similarity=request.chunk_retrieval_threshold or 0.3,
         )
         if not retriever:
             raise HTTPException(
@@ -302,12 +302,12 @@ async def process_text_extract_hpo(request: TextProcessingRequest):
             retriever=retriever,
             cross_encoder=cross_enc,
             language=actual_language,
-            chunk_retrieval_threshold=request.chunk_retrieval_threshold,
-            num_results_per_chunk=request.num_results_per_chunk,
-            reranker_mode=request.reranker_mode,
+            chunk_retrieval_threshold=request.chunk_retrieval_threshold or 0.3,
+            num_results_per_chunk=request.num_results_per_chunk or 10,
+            reranker_mode=request.reranker_mode or "cross-lingual",
             translation_dir_path=translation_dir,
-            min_confidence_for_aggregated=request.aggregated_term_confidence,
-            top_term_per_chunk=request.top_term_per_chunk_for_aggregation,
+            min_confidence_for_aggregated=request.aggregated_term_confidence or 0.35,
+            top_term_per_chunk=request.top_term_per_chunk_for_aggregation or False,
         )
 
         # Add HPO matches to each processed chunk from the detailed chunk results
@@ -353,8 +353,9 @@ async def process_text_extract_hpo(request: TextProcessingRequest):
                 chunk_idx + 1 for chunk_idx in term_data.get("chunks", [])
             ]
             top_evidence_chunk_id = None
-            if term_data.get("top_evidence_chunk_idx") is not None:
-                top_evidence_chunk_id = term_data.get("top_evidence_chunk_idx") + 1
+            top_evidence_chunk_idx = term_data.get("top_evidence_chunk_idx")
+            if top_evidence_chunk_idx is not None:
+                top_evidence_chunk_id = top_evidence_chunk_idx + 1
 
             api_aggregated_hpo_terms.append(
                 AggregatedHPOTermAPI(
