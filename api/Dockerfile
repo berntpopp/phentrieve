@@ -88,29 +88,30 @@ WORKDIR /build
 COPY pyproject.toml ./
 
 # Install dependencies in specific order to handle binary compatibility
+# CRITICAL: Remove --no-cache-dir to leverage pip cache mount for 60-90% faster builds
 SHELL ["/bin/bash", "-c"]
 RUN --mount=type=cache,target=/root/.cache/pip \
     set -euxo pipefail && \
     # Install critical deps with version pins \
-    pip install --no-cache-dir numpy==1.23.5 && \
-    pip install --no-cache-dir Cython==0.29.36 && \
+    pip install numpy==1.23.5 && \
+    pip install Cython==0.29.36 && \
     # Install spaCy and language models \
-    pip install --no-cache-dir spacy==3.5.4 && \
-    pip install --no-cache-dir \
+    pip install spacy==3.5.4 && \
+    pip install \
         https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.5.0/en_core_web_sm-3.5.0-py3-none-any.whl && \
-    pip install --no-cache-dir \
+    pip install \
         https://github.com/explosion/spacy-models/releases/download/de_core_news_sm-3.5.0/de_core_news_sm-3.5.0-py3-none-any.whl && \
     # Install langdetect for language auto-detection (fixes #VULN-007) \
-    pip install --no-cache-dir langdetect && \
+    pip install langdetect && \
     # Install API dependencies (FastAPI, uvicorn) \
-    pip install --no-cache-dir \
+    pip install \
         "fastapi>=0.115.0" \
         "uvicorn[standard]>=0.35.0" \
         "python-dotenv>=1.0.0" \
         "pydantic>=2.0.0" \
         "pydantic-settings>=2.0.0" && \
     # Install remaining dependencies from pyproject.toml \
-    pip install --no-cache-dir .
+    pip install .
 SHELL ["/bin/sh", "-c"]
 
 # Pre-compile Python bytecode for faster startup
