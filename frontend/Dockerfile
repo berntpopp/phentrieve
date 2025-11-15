@@ -1,54 +1,81 @@
-FROM node:lts-alpine as build-stage
+# syntax=docker/dockerfile:1.11
 
-# Define build arguments
+# ============================================================================
+# ARGUMENTS
+# ============================================================================
+ARG NODE_VERSION=20-alpine3.20
+ARG NGINX_VERSION=1.27-alpine3.20-slim
 ARG VITE_API_URL
 
-# Set as environment variables for the build process
+# ============================================================================
+# STAGE 1: Dependencies - Install node_modules with cache
+# ============================================================================
+FROM node:${NODE_VERSION} AS deps
+
+WORKDIR /app
+
+# Copy package files
+COPY package.json package-lock.json* ./
+
+# Install ALL dependencies including devDependencies (needed for build)
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci --ignore-scripts
+
+# ============================================================================
+# STAGE 2: Builder - Build application
+# ============================================================================
+FROM node:${NODE_VERSION} AS builder
+
+ARG VITE_API_URL
 ENV VITE_API_URL=${VITE_API_URL}
 
 WORKDIR /app
 
-# Copy package files first for better caching
-COPY package.json package-lock.json* ./
+# Copy dependencies from deps stage
+COPY --from=deps /app/node_modules ./node_modules
 
-# Install build dependencies
-RUN apk add --no-cache --virtual .build-deps \
-    autoconf \
-    automake \
-    build-base \
-    libtool \
-    nasm \
-    zlib-dev \
-    libpng-dev \
-    libjpeg-turbo-dev \
-    libwebp-dev \
-    pkgconfig \
-    python3
-
-# Install dependencies with clean environment
-RUN npm ci --no-audit --no-fund
-
-# Clean up build dependencies
-RUN apk del .build-deps
-
-# Copy project files excluding node_modules (should be in .dockerignore)
+# Copy application source
 COPY . .
 
-# Build the app
-RUN npm run build
+# Build application
+RUN npm run build && \
+    # Verify dist directory was created
+    ls -la dist/
 
-# Production stage
-FROM fholzer/nginx-brotli:v1.28.0 as production-stage
+# ============================================================================
+# STAGE 3: Runtime - Nginx unprivileged serving static files
+# ============================================================================
+FROM nginxinc/nginx-unprivileged:${NGINX_VERSION} AS runtime
 
-# Copy built files and config
-COPY --from=build-stage /app/dist /usr/share/nginx/html
-COPY ./nginx.conf /etc/nginx/conf.d/default.conf
+# Metadata labels (OCI standard)
+LABEL org.opencontainers.image.title="Phentrieve Frontend" \
+      org.opencontainers.image.description="Vue.js frontend for Phentrieve HPO term mapping" \
+      org.opencontainers.image.vendor="Phentrieve" \
+      org.opencontainers.image.licenses="MIT" \
+      org.opencontainers.image.source="https://github.com/berntpopp/phentrieve" \
+      org.opencontainers.image.documentation="https://github.com/berntpopp/phentrieve/blob/main/README.md" \
+      org.opencontainers.image.authors="Bernt Popp <bernt.popp@gmail.com>"
 
-# Remove default nginx config to avoid conflicts
-RUN rm -f /etc/nginx/conf.d/*.conf.default
+# Copy nginx configuration (as nginx user)
+COPY --chown=nginx:nginx nginx.conf.secure /etc/nginx/conf.d/default.conf
 
-EXPOSE 80
+# Copy built application (as nginx user)
+COPY --chown=nginx:nginx --from=builder /app/dist /usr/share/nginx/html
 
-# Start nginx in foreground mode
+# Remove default configs (need root temporarily)
+USER root
+RUN rm -f /etc/nginx/conf.d/*.conf.default && \
+    # Verify files were copied
+    ls -la /usr/share/nginx/html/
+USER nginx
+
+# Health check (nginx-unprivileged runs on 8080)
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+    CMD curl -f http://localhost:8080/health || exit 1
+
+# Expose non-privileged port
+EXPOSE 8080
+
+# Start nginx (runs as non-root user 'nginx' UID 101)
 ENTRYPOINT ["nginx"]
 CMD ["-g", "daemon off;"]

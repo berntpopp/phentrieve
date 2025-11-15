@@ -23,7 +23,7 @@ services:
     image: ghcr.io/berntpopp/phentrieve/api:latest
     build:
       context: .
-      dockerfile: api/Dockerfile.secure
+      dockerfile: api/Dockerfile
       args:
         BUILDKIT_INLINE_CACHE: 1
       cache_from:
@@ -109,7 +109,7 @@ services:
     image: ghcr.io/berntpopp/phentrieve/frontend:latest
     build:
       context: ./frontend
-      dockerfile: Dockerfile.secure
+      dockerfile: Dockerfile
       args:
         BUILDKIT_INLINE_CACHE: 1
         VITE_API_URL: ${VITE_API_URL_PUBLIC}
