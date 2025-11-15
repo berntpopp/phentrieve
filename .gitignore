@@ -61,6 +61,14 @@ benchmark_results/
 .mypy_cache/
 .ruff_cache/
 
+# Coverage reports (generated artifacts, not versioned)
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+*.cover
+.hypothesis/
+
 # Jupyter Notebook
 .ipynb_checkpoints
 
