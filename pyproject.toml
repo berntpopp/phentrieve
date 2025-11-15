@@ -13,11 +13,10 @@ license = { file = "LICENSE" }
 authors = [
     { name = "Bernt Popp", email = "bernt.popp@example.com" }, # Placeholder: Update email
 ]
-requires-python = ">=3.9" # Verify minimum Python version needed
+requires-python = ">=3.10"
 classifiers = [
-    "Development Status :: 3 - Alpha", # Starting point
+    "Development Status :: 3 - Alpha",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "License :: OSI Approved :: MIT License",
