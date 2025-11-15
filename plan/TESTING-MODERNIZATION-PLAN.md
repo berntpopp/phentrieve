@@ -1,204 +1,114 @@
-# Testing Modernization Plan (Medical-Grade Software)
+# Testing Modernization Plan
 
-**Status**: Planning
-**Priority**: **CRITICAL** (Patient Safety)
-**Estimated Effort**: 2-3 weeks
-**Regulatory Context**: Clinical Decision Support (CDS) Software
-
-## ⚕️ Medical-Grade Software Considerations
-
-Phentrieve is a **Clinical Decision Support (CDS) system** that maps clinical text to HPO terms for diagnostic assistance. This classification requires:
-
-- **IEC 62304 Compliance**: Medical device software life cycle processes
-- **FDA CDS Guidelines**: Clinical decision support software requirements
-- **Patient Safety Focus**: Errors in HPO term mapping could impact clinical decisions
-- **High Reliability Standards**: Medical-grade testing and validation
-
-### Regulatory Classification
-
-- **Software Type**: Clinical Decision Support (CDS)
-- **IEC 62304 Safety Class**: Class B (probable Class C for diagnostic use)
-  - Class A: No injury or damage to health possible
-  - Class B: Non-serious injury possible
-  - Class C: Death or serious injury possible
-- **Coverage Requirement**: **95-100% code coverage** (Class C standard)
-- **Testing Burden**: 50-60% of total development effort (industry standard)
+**Status**: Ready for Implementation
+**Priority**: High
+**Estimated Effort**: 1-2 weeks
+**Coverage Target**: 80% statement (pragmatic quality standard)
 
 ## Overview
 
-Modernize Phentrieve's test suite to achieve **medical-grade quality standards** with comprehensive, maintainable coverage across all components (CLI, API, Core). Focus on patient safety, clinical accuracy, and regulatory compliance.
+Modernize Phentrieve's test suite with **practical 80% coverage** and strong e2e testing. Focus on **not blocking development** while ensuring quality.
 
-## Current State Analysis
+### Guiding Principles
 
-### What We Have (87 tests)
-- ✅ Core functionality tests (6 files): chunking, assertion detection, semantic metrics
-- ✅ CLI tests (2 files): query commands, similarity commands
-- ✅ API tests (2 files): config info, text processing routers
-- ✅ Basic pytest setup in `pyproject.toml`
+- **80% coverage is pragmatic**: Not too strict, not too loose
+- **Fast feedback**: Don't slow down development
+- **E2E tests matter most**: Production environment validation is critical
+- **Flexible**: Tests help development, not hinder it
+- **Simple**: No over-engineering, clear structure
 
-### Critical Gaps (Medical-Grade Perspective)
+---
 
-**Testing Infrastructure**:
-- ❌ **Mixed testing styles**: unittest.TestCase + pytest (inconsistent)
-- ❌ **No conftest.py**: No shared fixtures, setup duplication
-- ❌ **No test markers**: Cannot filter unit/integration/slow tests
-- ❌ **No coverage reporting**: Unknown actual test coverage (<95% unacceptable)
-- ❌ **Incomplete API coverage**: Missing routers, schemas, dependencies
+## Current State
 
-**Medical-Grade Requirements**:
-- ❌ **No clinical validation tests**: HPO term mapping accuracy not validated
-- ❌ **No assertion detection validation**: Negation/normality detection accuracy untested
-- ❌ **No edge case coverage**: Missing tests for malformed input, boundary conditions
-- ❌ **No safety testing**: Error handling, graceful degradation untested
-- ❌ **No data quality tests**: Input validation, sanitization not verified
-- ❌ **No requirements traceability**: Cannot map tests to requirements
-- ❌ **No branch/MC/DC coverage**: Only statement coverage (insufficient for Class C)
-- ❌ **No regression testing**: No baseline for clinical accuracy metrics
-- ❌ **No security testing**: OWASP vulnerabilities, PHI handling untested
-- ❌ **No integration tests**: Components tested in isolation only
-- ❌ **No Docker/E2E tests**: Production environment not tested
+### What We Have
+- ✅ **87 tests**: Core functionality, CLI, API
+- ✅ **Basic pytest setup** in pyproject.toml
+- ✅ **Mixed style**: unittest.TestCase + pytest (needs migration)
 
-## Goals & Principles
+### What We Need
+- ❌ **Unknown coverage**: No baseline measured
+- ❌ **No Docker tests**: Production environment untested
+- ❌ **Mixed test styles**: Need pytest migration
+- ❌ **No clear structure**: Tests not organized by type
 
-### Goals (Medical-Grade Standards)
+---
 
-**Code Quality**:
-1. **100% pytest**: Eliminate unittest.TestCase, pure pytest style
-2. **95%+ code coverage**: Meet IEC 62304 Class C requirements
-   - Statement coverage: 95%+
-   - Branch coverage: 90%+ (pytest-cov --cov-branch)
-   - Critical paths: 100% (assertion detection, HPO mapping)
-3. **Requirements traceability**: Every requirement → test mapping
-4. **Fast feedback**: Unit tests <10s, integration <60s, full suite <5min
+## Goals
 
-**Clinical Safety**:
-5. **Clinical validation**: HPO term mapping accuracy benchmarks
-6. **Assertion accuracy**: Negation/normality detection validation (F1 scores)
-7. **Edge case coverage**: Malformed input, boundary conditions, adversarial cases
-8. **Error resilience**: Graceful degradation, error handling, fallback mechanisms
-9. **Data quality**: Input validation, sanitization, PHI handling
+1. **80% statement coverage** for phentrieve/ and api/
+2. **Strong Docker E2E tests** for production validation
+3. **Fast test suite**: Unit <10s, integration <60s, full <5min
+4. **Developer-friendly**: Easy to run, debug, and extend
+5. **CI-ready**: Automated testing without blocking merges
 
-**Infrastructure**:
-10. **Clear categorization**: Markers for unit/integration/clinical/security/e2e
-11. **Reusable fixtures**: Shared setup via conftest.py hierarchy
-12. **Regression prevention**: Automated clinical accuracy baseline checks
-13. **Security testing**: OWASP Top 10, dependency scanning, PHI protection
-
-### Principles (DRY, KISS, SOLID)
-- **DRY**: Shared fixtures in conftest.py, parametrization for similar tests
-- **KISS**: Simple, focused tests doing one thing well
-- **SOLID**:
-  - Single Responsibility: One assertion per test where practical
-  - Open/Closed: Easy to add new tests without changing existing ones
-  - Dependency Inversion: Mock external dependencies, test abstractions
+---
 
 ## Test Architecture
 
-### Test Categories (Pytest Markers)
-
-```python
-# pytest.ini
-[pytest]
-markers =
-    # Standard categories
-    unit: Fast unit tests (no I/O, mocked dependencies)
-    integration: Integration tests (real database, embeddings)
-    api: FastAPI endpoint tests
-    cli: CLI command tests
-    slow: Slow tests (>5s, run in CI only)
-
-    # Medical-grade categories
-    clinical: Clinical validation tests (accuracy, precision, recall)
-    safety: Safety-critical tests (error handling, graceful degradation)
-    security: Security tests (OWASP, input validation, PHI protection)
-    regression: Regression tests (baseline accuracy preservation)
-    edge_case: Edge case and boundary condition tests
-
-    # Requirements traceability
-    req_REQ001: Tests for requirement REQ-001 (HPO term retrieval)
-    req_REQ002: Tests for requirement REQ-002 (assertion detection)
-    # ... add all requirements
-
-    # Resource requirements
-    requires_data: Tests requiring HPO data
-    requires_models: Tests requiring ML models
-    requires_internet: Tests requiring internet (model downloads)
-```
-
-### Directory Structure
+### Directory Structure (Simple 3-Tier)
 
 ```
 tests/
-├── conftest.py                      # Root fixtures (session-scoped resources)
-├── pytest.ini                       # Pytest configuration
-├── requirements_traceability.json   # Requirement → Test mapping
+├── conftest.py                      # Root fixtures
+├── test_data/                       # Test data files
+│   └── sample_cases.json            # Test cases for validation
 │
-├── unit/                            # Unit tests (fast, mocked)
-│   ├── conftest.py                  # Unit test fixtures
-│   ├── test_chunking.py            # Text chunking (migrated)
-│   ├── test_assertion_detection.py # Assertion detection (migrated)
-│   ├── test_semantic_metrics.py    # Semantic metrics (migrated)
-│   ├── test_embeddings.py          # Embedding utilities
-│   ├── test_resource_loader.py     # Resource loading (migrated)
-│   └── test_input_validation.py    # Input validation and sanitization
+├── unit/                            # Fast unit tests (mocked)
+│   ├── conftest.py
+│   ├── core/                        # phentrieve/ package
+│   │   ├── test_chunking.py
+│   │   ├── test_assertion_detection.py
+│   │   ├── test_semantic_metrics.py
+│   │   └── test_embeddings.py
+│   ├── api/                         # API unit tests
+│   │   ├── test_schemas.py
+│   │   └── test_dependencies.py
+│   └── cli/                         # CLI unit tests
+│       └── test_commands.py
 │
-├── integration/                     # Integration tests (real dependencies)
-│   ├── conftest.py                  # Integration fixtures
+├── integration/                     # Integration tests (real deps)
+│   ├── conftest.py
 │   ├── test_retrieval_pipeline.py  # End-to-end retrieval
 │   ├── test_indexing_flow.py       # ChromaDB indexing
-│   └── test_query_orchestrator.py  # Query orchestration
+│   └── test_api_endpoints.py       # API integration
 │
-├── clinical/                        # ⚕️ Clinical validation tests
-│   ├── conftest.py                  # Clinical test fixtures
-│   ├── test_hpo_mapping_accuracy.py # HPO term mapping validation
-│   ├── test_assertion_accuracy.py   # Assertion detection F1 scores
-│   ├── test_clinical_scenarios.py   # Real-world clinical text
-│   ├── test_edge_cases.py          # Boundary conditions, adversarial
-│   ├── test_multilingual_accuracy.py # Language-specific validation
-│   └── baseline_metrics.json       # Regression baseline (F1, precision, recall)
-│
-├── safety/                          # ⚕️ Safety-critical tests
-│   ├── conftest.py                  # Safety test fixtures
-│   ├── test_error_handling.py      # Error handling, exceptions
-│   ├── test_graceful_degradation.py # Fallback mechanisms
-│   ├── test_malformed_input.py     # Invalid/malformed input handling
-│   ├── test_resource_limits.py     # Memory/CPU limits, OOM handling
-│   └── test_data_quality.py        # Data validation, sanitization
-│
-├── security/                        # 🔒 Security tests
-│   ├── conftest.py                  # Security test fixtures
-│   ├── test_input_injection.py     # SQL/NoSQL/Command injection
-│   ├── test_xss_prevention.py      # Cross-site scripting prevention
-│   ├── test_phi_protection.py      # PHI/PII handling (if applicable)
-│   ├── test_dependency_scanning.py # Known vulnerabilities (Safety, Bandit)
-│   └── test_api_security.py        # OWASP API Security Top 10
-│
-├── api/                             # FastAPI tests
-│   ├── conftest.py                  # API-specific fixtures
-│   ├── test_health.py               # Health endpoints
-│   ├── test_query_router.py        # Query endpoints
-│   ├── test_similarity_router.py   # Similarity endpoints
-│   ├── test_text_processing_router.py  # (migrate existing)
-│   ├── test_config_info_router.py  # (migrate existing)
-│   ├── test_dependencies.py        # Dependency injection
-│   └── test_error_responses.py     # Error handling (4xx, 5xx)
-│
-├── cli/                             # CLI tests
-│   ├── conftest.py                  # CLI-specific fixtures
-│   ├── test_query_commands.py      # (migrate existing)
-│   ├── test_similarity_commands.py # (migrate existing)
-│   ├── test_data_commands.py       # Data preparation
-│   ├── test_index_commands.py      # Index building
-│   ├── test_benchmark_commands.py  # Benchmark commands
-│   └── test_cli_error_handling.py  # CLI error messages, exit codes
-│
-└── e2e/                             # End-to-end tests (Phase 5)
-    ├── conftest.py                  # E2E fixtures (Docker, etc.)
-    ├── test_docker_containers.py   # Container health, runtime
-    └── test_full_workflow.py       # Complete user workflows
+└── e2e/                             # Docker + End-to-End tests
+    ├── conftest.py
+    ├── test_docker_build.py         # Container builds
+    ├── test_docker_runtime.py       # Container health, startup
+    ├── test_docker_security.py      # Non-root, read-only FS
+    └── test_production_workflow.py  # Full user workflows
 ```
 
-## Key Fixtures (conftest.py)
+### Pytest Markers (Minimal)
+
+```ini
+[pytest]
+markers =
+    unit: Fast unit tests (mocked, no I/O)
+    integration: Integration tests (real ChromaDB, embeddings)
+    e2e: End-to-end Docker tests (slow)
+    slow: Slow tests (>5s, skip in local dev)
+```
+
+**Usage**:
+```python
+@pytest.mark.integration
+def test_retrieval_pipeline():
+    """Integration test with real ChromaDB"""
+    ...
+
+@pytest.mark.e2e
+@pytest.mark.slow
+def test_docker_api_health(api_service):
+    """Docker E2E test"""
+    ...
+```
+
+---
+
+## Key Fixtures
 
 ### Root Fixtures (`tests/conftest.py`)
 
@@ -207,27 +117,26 @@ tests/
 import pytest
 from pathlib import Path
 
-# Session-scoped resources
 @pytest.fixture(scope="session")
 def test_data_dir() -> Path:
     """Test data directory."""
     return Path(__file__).parent / "test_data"
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 def sample_clinical_texts() -> list[str]:
     """Sample clinical texts for testing."""
     return [
         "Patient presents with seizures and developmental delay",
-        "No evidence of heart disease or abnormalities",
-        "Normal blood pressure, within normal limits",
+        "No evidence of heart disease",
+        "Family history of autism spectrum disorder",
     ]
 
-# Function-scoped mocks
+# Mocks (function-scoped for isolation)
 @pytest.fixture
 def mock_embedding_model(mocker):
     """Mock sentence transformer model."""
     mock = mocker.MagicMock()
-    mock.encode.return_value = [[0.1] * 384]  # Mock embedding
+    mock.encode.return_value = [[0.1] * 384]  # Mock 384-dim embedding
     return mock
 
 @pytest.fixture
@@ -242,630 +151,465 @@ def mock_chromadb_collection(mocker):
     return mock
 ```
 
-### API Fixtures (`tests/api/conftest.py`)
+### Integration Fixtures (`tests/integration/conftest.py`)
 
 ```python
-"""FastAPI test fixtures."""
+"""Integration test fixtures (real dependencies)."""
 import pytest
-from fastapi.testclient import TestClient
-from httpx import AsyncClient, ASGITransport
-from api.main import app
 
-@pytest.fixture
-def test_client() -> TestClient:
-    """Synchronous test client."""
-    return TestClient(app)
+@pytest.fixture(scope="module")
+def real_embedding_model():
+    """Real embedding model (cached at module scope)."""
+    from sentence_transformers import SentenceTransformer
+    return SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
 
-@pytest.fixture
-async def async_client() -> AsyncClient:
-    """Async test client for async endpoints."""
-    async with AsyncClient(
-        transport=ASGITransport(app=app),
-        base_url="http://test"
-    ) as ac:
-        yield ac
+@pytest.fixture(scope="module")
+def real_chromadb_collection(tmp_path_factory):
+    """Real ChromaDB collection (test isolation)."""
+    import chromadb
 
-@pytest.fixture
-def override_dependencies():
-    """Override FastAPI dependencies for testing."""
-    # Override expensive model loading
-    app.dependency_overrides[get_embedding_model] = lambda: mock_model
-    yield
-    app.dependency_overrides.clear()
+    persist_dir = tmp_path_factory.mktemp("chromadb")
+    client = chromadb.PersistentClient(path=str(persist_dir))
+    collection = client.get_or_create_collection("test_hpo_terms")
+
+    yield collection
+
+    # Cleanup
+    client.delete_collection("test_hpo_terms")
 ```
 
-### Clinical Fixtures (`tests/clinical/conftest.py`)
+### E2E Fixtures (`tests/e2e/conftest.py`)
 
 ```python
-"""Clinical validation test fixtures."""
+"""Docker E2E test fixtures."""
 import pytest
-import json
-from pathlib import Path
+import time
+import requests
 
 @pytest.fixture(scope="session")
-def clinical_test_corpus() -> list[dict]:
-    """Validated clinical text corpus with gold-standard HPO annotations."""
-    corpus_path = Path(__file__).parent / "clinical_corpus.json"
-    with open(corpus_path) as f:
-        return json.load(f)
+def docker_compose_file():
+    """Point to docker-compose files for testing."""
+    from pathlib import Path
+    return [
+        Path.cwd() / "docker-compose.yml",
+        Path.cwd() / "docker-compose.test.yml",  # Test overrides
+    ]
 
 @pytest.fixture(scope="session")
-def baseline_metrics() -> dict:
-    """Baseline clinical accuracy metrics (regression prevention)."""
-    baseline_path = Path(__file__).parent / "baseline_metrics.json"
-    with open(baseline_path) as f:
-        return json.load(f)
+def docker_compose_project_name():
+    """Unique project name for test isolation."""
+    return "phentrieve_test"
 
-@pytest.fixture
-def assertion_test_cases() -> list[dict]:
-    """Test cases for assertion detection (negation, normality)."""
-    return [
-        {
-            "text": "Patient denies fever",
-            "expected_status": "NEGATED",
-            "clinical_note": "Negative assertion (denies)",
-        },
-        {
-            "text": "No evidence of seizures",
-            "expected_status": "NEGATED",
-            "clinical_note": "Negative assertion (no evidence)",
-        },
-        {
-            "text": "Normal heart rhythm",
-            "expected_status": "NORMAL",
-            "clinical_note": "Normal finding",
-        },
-        {
-            "text": "Patient has developmental delay",
-            "expected_status": "AFFIRMED",
-            "clinical_note": "Positive assertion",
-        },
-    ]
+@pytest.fixture(scope="session")
+def api_service(docker_services):
+    """Wait for API service health check."""
+    url = "http://localhost:8001/api/v1/health"
+
+    # Wait up to 180s for health check
+    for _ in range(60):
+        try:
+            response = requests.get(url, timeout=5)
+            if response.status_code == 200:
+                return "http://localhost:8001"
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
+            time.sleep(3)
+
+    raise RuntimeError("API service failed to become healthy")
 ```
 
-### Safety Fixtures (`tests/safety/conftest.py`)
+---
 
-```python
-"""Safety-critical test fixtures."""
-import pytest
+## Implementation Plan
 
-@pytest.fixture
-def malformed_inputs() -> list[dict]:
-    """Malformed/adversarial inputs for safety testing."""
-    return [
-        {"input": "", "expected": "empty_input_error"},
-        {"input": "x" * 1000000, "expected": "input_too_long_error"},  # 1MB text
-        {"input": "SELECT * FROM users;", "expected": "safe_handling"},  # SQL-like
-        {"input": "<script>alert(1)</script>", "expected": "safe_handling"},  # XSS
-        {"input": "../../../etc/passwd", "expected": "safe_handling"},  # Path traversal
-        {"input": "\x00\x01\x02", "expected": "safe_handling"},  # Binary data
-        {"input": "null\nNone\nundefined", "expected": "safe_handling"},  # Edge values
-    ]
+### Phase 0: Baseline Measurement (Day 0)
 
-@pytest.fixture
-def resource_limits() -> dict:
-    """Resource limits for safety testing."""
-    return {
-        "max_text_length": 100000,  # 100KB
-        "max_chunk_count": 1000,
-        "max_results": 100,
-        "timeout_seconds": 30,
-    }
+**Measure current state before ANY changes.**
+
+```bash
+# Measure current coverage
+pytest --cov=phentrieve --cov=api \
+       --cov-report=json:coverage-baseline.json \
+       --cov-report=term-missing
+
+# Document baseline
+echo "Baseline coverage: $(jq '.totals.percent_covered' coverage-baseline.json)%"
 ```
 
-### CLI Fixtures (`tests/cli/conftest.py`)
+**Commit baseline**:
+```
+docs: establish testing baseline
+
+Current coverage: XX%
+Total tests: 87
+Test duration: ZZ seconds
+```
+
+---
+
+### Phase 1: Foundation (Days 1-2)
+
+**Goal**: Safe migration to new structure.
+
+**Tasks**:
+1. **Create new structure** (parallel to existing):
+   ```bash
+   mkdir -p tests_new/{unit/{core,api,cli},integration,e2e,test_data}
+   touch tests_new/conftest.py
+   touch tests_new/{unit,integration,e2e}/conftest.py
+   ```
+
+2. **Migrate tests** (one category at a time):
+   - [ ] Unit tests → `tests_new/unit/`
+   - [ ] Convert unittest.TestCase → pure pytest
+   - [ ] Update imports and fixtures
+
+3. **Dual-path CI** (safety period - 1 week):
+   ```yaml
+   # Run BOTH old and new tests
+   - name: Run old tests (baseline)
+     run: pytest tests/ --cov
+
+   - name: Run new tests (migrated)
+     run: pytest tests_new/ --cov
+   ```
+
+**Success Criteria**:
+- ✅ New structure created
+- ✅ 87 tests migrated and passing in `tests_new/`
+- ✅ Old tests still passing in `tests/`
+- ✅ Coverage ≥ baseline (no regression)
+
+---
+
+### Phase 2: Coverage Expansion (Days 3-5)
+
+**Goal**: Achieve 80% statement coverage.
+
+**New Tests**:
+- [ ] `unit/core/test_embeddings.py`: Embedding utilities
+- [ ] `unit/api/test_schemas.py`: Pydantic models
+- [ ] `integration/test_retrieval_pipeline.py`: Full retrieval flow
+- [ ] `integration/test_api_endpoints.py`: API integration
+
+**Success Criteria**:
+- ✅ **80%+ coverage** for phentrieve/ and api/
+- ✅ All critical workflows tested
+- ✅ Test suite <5min
+
+---
+
+### Phase 3: Docker E2E Testing (Days 6-8)
+
+**Goal**: Validate production Docker environment.
+
+**Setup**:
+
+1. **Create docker-compose.test.yml**:
+   ```yaml
+   # docker-compose.test.yml
+   version: '3.9'
+
+   services:
+     phentrieve_api:
+       environment:
+         - LOG_LEVEL=DEBUG
+         - TESTING=true
+       ports:
+         - "8001:8000"  # Expose for pytest
+
+     phentrieve_frontend:
+       ports:
+         - "8081:8080"  # Expose for pytest
+   ```
+
+2. **Install pytest-docker**:
+   ```bash
+   uv add --group dev pytest-docker
+   ```
+
+**Docker Tests**:
 
 ```python
-"""CLI test fixtures."""
-import pytest
-from typer.testing import CliRunner
-from phentrieve.cli import app
+# tests/e2e/test_docker_build.py
 
-@pytest.fixture
-def cli_runner() -> CliRunner:
-    """Typer CLI test runner."""
-    return CliRunner()
-
-@pytest.fixture
-def mock_query_orchestrator(mocker):
-    """Mock query orchestrator for CLI tests."""
-    return mocker.patch(
-        "phentrieve.retrieval.query_orchestrator.orchestrate_query"
+@pytest.mark.e2e
+def test_api_dockerfile_builds():
+    """Docker: API image builds without errors"""
+    import subprocess
+    result = subprocess.run(
+        ["docker", "build", "-f", "api/Dockerfile", "-t", "phentrieve-api:test", "."],
+        capture_output=True,
+        timeout=300
     )
+    assert result.returncode == 0
+
+# tests/e2e/test_docker_runtime.py
+
+@pytest.mark.e2e
+def test_api_health_check(api_service):
+    """Docker: API responds to health check"""
+    response = requests.get(f"{api_service}/api/v1/health")
+    assert response.status_code == 200
+    assert response.json()["status"] == "healthy"
+
+@pytest.mark.e2e
+def test_api_runs_as_nonroot(docker_services):
+    """Docker: API container runs as UID 10001 (non-root)"""
+    import subprocess
+    result = subprocess.run(
+        ["docker", "exec", "phentrieve_test_phentrieve_api_1", "id", "-u"],
+        capture_output=True,
+        text=True
+    )
+    assert result.stdout.strip() == "10001"
+
+# tests/e2e/test_docker_security.py
+
+@pytest.mark.e2e
+def test_api_readonly_filesystem(docker_services):
+    """Docker: Root filesystem is read-only"""
+    import subprocess
+    result = subprocess.run(
+        ["docker", "exec", "phentrieve_test_phentrieve_api_1", "touch", "/app/test.txt"],
+        capture_output=True
+    )
+    assert result.returncode != 0  # Should fail (read-only)
+
+# tests/e2e/test_production_workflow.py
+
+@pytest.mark.e2e
+@pytest.mark.slow
+def test_full_query_workflow(api_service):
+    """E2E: Complete query workflow through Docker"""
+    response = requests.post(
+        f"{api_service}/api/v1/query",
+        json={"text": "Patient has seizures", "top_k": 5}
+    )
+
+    assert response.status_code == 200
+    results = response.json()
+    assert len(results["results"]) > 0
+    assert results["results"][0]["hpo_id"].startswith("HP:")
 ```
 
-## Migration Strategy
+**Success Criteria**:
+- ✅ API + Frontend containers build successfully
+- ✅ Containers start and pass health checks
+- ✅ Non-root user verified
+- ✅ Read-only filesystem validated
+- ✅ Full E2E workflow tested
 
-### Phase 1: Foundation (Week 1, Days 1-3)
+---
 
-**Goals**: Setup infrastructure, migrate existing tests
+### Phase 4: CI/CD Integration & Cleanup (Days 9-10)
+
+**Goal**: Automate testing in CI, remove old structure.
 
 **Tasks**:
-- [ ] Create new directory structure (`tests/{unit,integration,api,cli}`)
-- [ ] Write pytest.ini with markers and configuration
-- [ ] Create conftest.py hierarchy with shared fixtures
-- [ ] Configure pytest-cov for coverage reporting
-- [ ] Migrate existing tests to new structure:
-  - [ ] `test_assertion_detection.py` → `unit/test_assertion_detection.py` (convert to pytest)
-  - [ ] `test_basic_chunkers.py` → `unit/test_chunking.py` (convert to pytest)
-  - [ ] `test_semantic_metrics.py` → `unit/test_semantic_metrics.py` (convert to pytest)
-  - [ ] `test_sliding_window_chunker.py` → `unit/test_chunking.py` (merge)
-  - [ ] `test_chunking_pipeline_integration.py` → `integration/` (evaluate)
-  - [ ] `test_resource_loader.py` → `unit/test_resource_loader.py`
-  - [ ] `cli/test_query_commands.py` → `cli/test_query_commands.py` (update fixtures)
-  - [ ] `cli/test_similarity_commands.py` → `cli/test_similarity_commands.py` (update fixtures)
-  - [ ] `api/test_config_info_router.py` → `api/test_config_info_router.py` (async support)
-  - [ ] `api/test_text_processing_router.py` → `api/test_text_processing_router.py` (async support)
+1. **Update CI workflow**:
+   ```yaml
+   # .github/workflows/ci.yml
+   jobs:
+     test-unit:
+       runs-on: ubuntu-latest
+       steps:
+         - uses: actions/checkout@v4
+         - uses: actions/setup-python@v5
+
+         - name: Install dependencies
+           run: |
+             pip install uv
+             uv sync --all-extras
+
+         - name: Run unit tests
+           run: pytest tests/unit -m unit --cov
+
+         - name: Upload coverage
+           uses: codecov/codecov-action@v4
+
+     test-integration:
+       if: github.event_name == 'pull_request'
+       steps:
+         - name: Run integration tests
+           run: pytest tests/integration -m integration
+
+     test-e2e:
+       if: github.ref == 'refs/heads/main'
+       steps:
+         - name: Run E2E Docker tests
+           run: pytest tests/e2e -m e2e
+   ```
+
+2. **Remove old test structure** (after 1-week safety period):
+   ```bash
+   # Promote new tests
+   git mv tests_new tests
+   git commit -m "refactor: promote new test structure"
+   ```
 
 **Success Criteria**:
-- All 87 existing tests pass in new structure
-- Coverage baseline established
-- No unittest.TestCase classes remaining
+- ✅ Unit tests on every commit (<10s)
+- ✅ Integration tests on PRs (<60s)
+- ✅ E2E tests on main merges (<5min)
+- ✅ Coverage badge in README
+- ✅ Old structure removed
 
-### Phase 2: Coverage Expansion (Week 1, Days 4-5)
-
-**Goals**: Fill critical gaps in test coverage
-
-**Unit Tests** (New):
-- [ ] `unit/test_embeddings.py`: Embedding model utilities
-- [ ] `unit/test_output_formatters.py`: Output formatting (text, JSON, JSONL)
-- [ ] `unit/test_config.py`: Configuration management
-
-**API Tests** (New):
-- [ ] `api/test_health.py`: Health check endpoints
-- [ ] `api/test_query_router.py`: Query endpoints (comprehensive)
-- [ ] `api/test_similarity_router.py`: Similarity calculation endpoints
-- [ ] `api/test_dependencies.py`: Dependency injection
-- [ ] `api/test_schemas.py`: Pydantic schema validation
-
-**CLI Tests** (New):
-- [ ] `cli/test_data_commands.py`: Data preparation commands
-- [ ] `cli/test_index_commands.py`: Index building commands
-- [ ] `cli/test_benchmark_commands.py`: Benchmark commands
-
-**Integration Tests** (New):
-- [ ] `integration/test_retrieval_pipeline.py`: End-to-end retrieval
-- [ ] `integration/test_indexing_flow.py`: ChromaDB indexing workflow
-- [ ] `integration/test_query_orchestrator.py`: Query orchestration
-
-**Success Criteria**:
-- >80% code coverage for phentrieve/ package
-- >70% code coverage for api/ package
-- All major user workflows tested
-
-### Phase 3: Async & Performance (Week 2, Days 1-2)
-
-**Goals**: Add async testing, parametrization, performance tests
-
-**Tasks**:
-- [ ] Add pytest-asyncio for async test support
-- [ ] Convert API tests to use AsyncClient where appropriate
-- [ ] Add parametrized tests for:
-  - [ ] Multiple chunking strategies
-  - [ ] Multiple embedding models
-  - [ ] Multiple languages
-  - [ ] Edge cases (empty input, very long text, special characters)
-- [ ] Add performance benchmarks:
-  - [ ] Chunking speed
-  - [ ] Embedding generation speed
-  - [ ] Retrieval latency
-
-**Success Criteria**:
-- All async endpoints tested with AsyncClient
-- Parametrized tests cover major variations
-- Performance baselines established
-
-### Phase 4: CI/CD Integration (Week 2, Days 3-4)
-
-**Goals**: Optimize test execution, CI/CD pipeline
-
-**Tasks**:
-- [ ] Update `.github/workflows/ci.yml`:
-  - [ ] Add coverage reporting (Codecov)
-  - [ ] Run unit tests on every commit (fast)
-  - [ ] Run integration tests on PR (requires data)
-  - [ ] Run slow tests on merge to main
-- [ ] Add pytest-xdist for parallel test execution
-- [ ] Add pytest-timeout to prevent hanging tests
-- [ ] Configure coverage thresholds (fail if <80%)
-- [ ] Add coverage badge to README.md
-
-**Success Criteria**:
-- Unit tests complete in <10s
-- Full test suite completes in <60s
-- Coverage report published to Codecov
-- CI fails if coverage drops below 80%
-
-### Phase 5: Docker/E2E Foundation (Week 2, Day 5)
-
-**Goals**: Prepare for Docker integration testing (future work)
-
-**Tasks**:
-- [ ] Create `tests/e2e/` directory structure
-- [ ] Add pytest-docker or testcontainers-python
-- [ ] Write sample Docker container tests:
-  - [ ] Container builds successfully
-  - [ ] Container starts and responds to health checks
-  - [ ] API accessible via container
-- [ ] Document E2E testing approach in plan/
-
-**Success Criteria**:
-- E2E test framework configured
-- Sample Docker tests demonstrate approach
-- Ready for DOCKER-TEST-SUITE-PLAN.md implementation
+---
 
 ## Updated pyproject.toml
 
 ```toml
 [project.optional-dependencies]
 dev = [
-    # Existing
+    # Code quality
     "mypy>=1.18.2",
     "ruff>=0.8.4",
 
-    # Testing (Medical-Grade Requirements)
+    # Testing core
     "pytest>=8.0.0",
-    "pytest-asyncio>=0.21.0",      # Async test support
-    "pytest-cov>=6.0.0",            # Coverage reporting (statement + branch)
-    "pytest-xdist>=3.5.0",          # Parallel test execution
-    "pytest-timeout>=2.2.0",        # Prevent hanging tests
-    "pytest-mock>=3.12.0",          # Mocking utilities
-    "httpx>=0.27.0",                # AsyncClient for FastAPI
+    "pytest-asyncio>=0.21.0",
+    "pytest-cov>=6.0.0",
+    "pytest-xdist>=3.5.0",          # Parallel execution
+    "pytest-timeout>=2.2.0",        # Prevent hanging
+    "pytest-mock>=3.12.0",          # Mocking
+    "httpx>=0.27.0",                # FastAPI testing
 
-    # Clinical/Safety Testing
-    "hypothesis>=6.90.0",           # Property-based testing (edge cases)
-    "faker>=22.0.0",                # Generate test data (clinical text)
-
-    # Security Testing
-    "safety>=3.0.0",                # Dependency vulnerability scanning
-    "bandit>=1.7.5",                # Security linting (AST analysis)
-
-    # Performance/Regression
-    "pytest-benchmark>=4.0.0",      # Performance regression testing
-
-    # Requirements Traceability
-    "pytest-html>=4.0.0",           # HTML test reports
-    "pytest-json-report>=1.5.0",    # JSON test reports (traceability)
-
-    # Docker/E2E (Phase 5)
-    "pytest-docker>=3.1.0",         # Docker integration
-    # OR "testcontainers>=4.0.0",   # Alternative to pytest-docker
+    # Docker E2E
+    "pytest-docker>=3.1.0",
+    "requests>=2.31.0",
 ]
 
 [tool.pytest.ini_options]
 python_files = ["test_*.py"]
 testpaths = ["tests"]
 addopts = [
-    "-v",                           # Verbose output
-    "--strict-markers",             # Fail on unknown markers
-    "--tb=short",                   # Short traceback format
+    "-v",
+    "--strict-markers",
+    "--tb=short",
 
-    # Coverage (Medical-Grade: 95%+ required)
-    "--cov=phentrieve",             # Coverage for phentrieve package
-    "--cov=api",                    # Coverage for API package
-    "--cov-branch",                 # ⚕️ Branch coverage (IEC 62304 requirement)
-    "--cov-report=term-missing",    # Show missing lines
-    "--cov-report=html:htmlcov",    # HTML coverage report
-    "--cov-report=xml:coverage.xml", # XML for CI (Codecov)
-    "--cov-fail-under=95",          # ⚕️ Medical-grade: Fail if coverage < 95%
+    # Coverage (80% target)
+    "--cov=phentrieve",
+    "--cov=api",
+    "--cov-report=term-missing",
+    "--cov-report=html:htmlcov",
+    "--cov-report=xml:coverage.xml",
+    "--cov-fail-under=80",          # Enforce 80% threshold
 
-    # Test execution
-    "-m", "not slow",               # Skip slow tests by default
-    "--maxfail=5",                  # Stop after 5 failures
-
-    # Reporting
-    "--html=htmlreports/report.html",  # HTML test report
-    "--json-report",                # JSON report (requirements traceability)
-    "--json-report-file=testreports/report.json",
+    # Execution
+    "-m", "not slow",               # Skip slow by default
 ]
 
 markers = [
-    # Standard categories
-    "unit: Fast unit tests (no I/O, mocked dependencies)",
-    "integration: Integration tests (real database, embeddings)",
-    "api: FastAPI endpoint tests",
-    "cli: CLI command tests",
-    "slow: Slow tests (>5s, run in CI only)",
-
-    # Medical-grade categories
-    "clinical: Clinical validation tests (accuracy, precision, recall)",
-    "safety: Safety-critical tests (error handling, graceful degradation)",
-    "security: Security tests (OWASP, input validation, PHI protection)",
-    "regression: Regression tests (baseline accuracy preservation)",
-    "edge_case: Edge case and boundary condition tests",
-
-    # Requirements traceability (add all requirements)
-    "req_REQ001: HPO term retrieval from clinical text",
-    "req_REQ002: Assertion detection (negation, normality, uncertainty)",
-    "req_REQ003: Multilingual support (EN, DE, ES, FR, NL)",
-    "req_REQ004: Semantic chunking strategies",
-    "req_REQ005: Vector search with ChromaDB",
-    "req_REQ006: Cross-encoder reranking",
-    "req_REQ007: Input validation and sanitization",
-    "req_REQ008: Error handling and logging",
-    "req_REQ009: API endpoint functionality",
-    "req_REQ010: CLI command functionality",
-    # ... add more requirements as needed
-
-    # Resource requirements
-    "requires_data: Tests requiring HPO data",
-    "requires_models: Tests requiring ML models",
-    "requires_internet: Tests requiring internet (model downloads)",
-    "docker: Docker container tests (Phase 5)",
-    "e2e: End-to-end tests (Phase 5)",
+    "unit: Fast unit tests (mocked)",
+    "integration: Integration tests (real deps)",
+    "e2e: End-to-end Docker tests",
+    "slow: Slow tests (>5s)",
 ]
 
-asyncio_mode = "auto"              # Automatic async test detection
-timeout = 300                      # 5 minute global timeout
-log_cli = true                     # Show logs during test execution
-log_cli_level = "INFO"             # Log level for CLI output
-
-norecursedirs = [
-    ".*",
-    "build",
-    "dist",
-    "docs",
-    "data",
-    "venv",
-    "env",
-    "*.egg-info",
-]
+asyncio_mode = "auto"
+timeout = 300
+log_cli = true
+log_cli_level = "INFO"
 ```
+
+---
 
 ## Running Tests
 
 ### Local Development
 
 ```bash
-# Fast unit tests only (default)
-make test                          # or: pytest
+# Fast unit tests (default)
+pytest                                 # Runs unit tests, skips slow
 
-# All tests including integration
-pytest -m "unit or integration"
+# All tests including slow
+pytest -m "unit or integration or e2e"
 
 # Specific categories
-pytest -m unit                     # Unit tests only
-pytest -m api                      # API tests only
-pytest -m cli                      # CLI tests only
-pytest -m integration              # Integration tests only
+pytest -m unit                         # Unit only
+pytest -m integration                  # Integration only
+pytest -m e2e                          # Docker E2E only
 
-# Include slow tests
-pytest -m "slow"                   # Slow tests only
-pytest                             # All tests (including slow)
-
-# Parallel execution (8 workers)
-pytest -n 8
+# Parallel execution (fast!)
+pytest -n auto                         # Use all CPU cores
 
 # With coverage
-pytest --cov=phentrieve --cov-report=html
-open htmlcov/index.html            # View coverage report
-
-# Specific test file
-pytest tests/unit/test_chunking.py
-
-# Pattern matching
-pytest -k "assertion"              # Tests with 'assertion' in name
+pytest --cov --cov-report=html
+open htmlcov/index.html
 ```
 
-### CI/CD
+### Docker E2E Tests
 
-```yaml
-# .github/workflows/ci.yml
-jobs:
-  test:
-    strategy:
-      matrix:
-        python-version: ['3.9', '3.10', '3.11']
-    steps:
-      - uses: actions/checkout@v4
+```bash
+# Build images first
+docker-compose -f docker-compose.yml -f docker-compose.test.yml build
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
+# Run E2E tests
+pytest tests/e2e -m e2e
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip uv
-          uv sync --all-extras
-
-      # Unit tests (fast, always run)
-      - name: Run unit tests
-        run: pytest -m unit --cov --cov-report=xml
-
-      # Integration tests (requires data, run on PR)
-      - name: Run integration tests
-        if: github.event_name == 'pull_request'
-        run: pytest -m integration --cov --cov-append
-
-      # Upload coverage
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
-        with:
-          file: ./coverage.xml
-          fail_ci_if_error: true
+# Cleanup
+docker-compose -f docker-compose.yml -f docker-compose.test.yml down -v
 ```
 
-## Success Metrics (Medical-Grade Standards)
+---
 
-### Phase 1 (Foundation)
-- ✅ All 87 existing tests migrated and passing
-- ✅ No unittest.TestCase classes remaining
-- ✅ Coverage baseline established (statement + branch)
-- ✅ pytest.ini configured with medical-grade markers
+## Success Metrics
 
-### Phase 2 (Coverage Expansion)
-- ✅ **95%+ statement coverage** for phentrieve/ (IEC 62304 Class C)
-- ✅ **90%+ branch coverage** for phentrieve/ (safety-critical paths)
-- ✅ **100% coverage** for safety-critical modules (assertion detection, HPO mapping)
-- ✅ **90%+ coverage** for api/ package
-- ✅ All critical user workflows tested
-- ✅ Requirements traceability matrix complete
+### Phase 1: Foundation
+- ✅ Baseline measured
+- ✅ New structure created
+- ✅ 87 tests migrated
+- ✅ Dual-path CI running
 
-### Phase 3 (Clinical & Safety)
-- ✅ **Clinical validation complete**:
-  - HPO mapping F1 score ≥ 0.85 (baseline established)
-  - Assertion detection F1 score ≥ 0.90 (negation/normality)
-  - Multilingual accuracy validated (EN, DE, ES, FR, NL)
-- ✅ **Safety testing complete**:
-  - All edge cases covered (malformed input, resource limits)
-  - Error handling validated (graceful degradation)
-  - Data quality tests passing (validation, sanitization)
-- ✅ **Security testing complete**:
-  - OWASP Top 10 vulnerabilities tested
-  - Dependency scanning clean (no high/critical CVEs)
-  - Input injection attacks prevented
+### Phase 2: Coverage
+- ✅ **80%+ coverage** for phentrieve/ and api/
+- ✅ Test suite <5min
 
-### Phase 4 (CI/CD Integration)
-- ✅ Unit tests <10s
-- ✅ Full suite <5min (medical-grade thorough testing)
-- ✅ Coverage reports in CI (Codecov)
-- ✅ **Coverage thresholds enforced** (fail if <95%)
-- ✅ **Regression tests automated** (F1 score baselines)
-- ✅ Coverage badge in README (95%+ displayed)
-- ✅ Security scans automated (Safety, Bandit)
+### Phase 3: Docker E2E
+- ✅ Container builds verified
+- ✅ Health checks passing
+- ✅ Security validated
+- ✅ Production workflows tested
 
-### Phase 5 (E2E Foundation)
-- ✅ E2E framework configured (pytest-docker)
-- ✅ Sample Docker tests working
-- ✅ Production environment validated
-- ✅ Ready for full Docker test suite (DOCKER-TEST-SUITE-PLAN.md)
+### Phase 4: CI/CD
+- ✅ Automated CI
+- ✅ Coverage badge in README
+- ✅ Old structure removed
 
-## Antipatterns to Avoid
+---
 
-### ❌ Don't Do This
+## Developer Experience
 
-1. **Mixing pytest and unittest styles**
-   ```python
-   # BAD: unittest.TestCase
-   class TestChunking(unittest.TestCase):
-       def setUp(self): ...
+### Tests Won't Block You
 
-   # GOOD: Pure pytest
-   @pytest.fixture
-   def chunker():
-       return SlidingWindowChunker()
-   ```
+- **Fast by default**: `pytest` runs only fast unit tests
+- **Parallel execution**: Use `-n auto` for speed
+- **Skip slow tests**: Marked with `@pytest.mark.slow`
+- **Clear failures**: Short tracebacks, clear error messages
+- **Easy debugging**: Run specific tests easily
 
-2. **Duplicated setup code**
-   ```python
-   # BAD: Duplicate setup in every test
-   def test_a():
-       model = load_model()  # Expensive
-       ...
+### Flexible Coverage
 
-   def test_b():
-       model = load_model()  # Expensive, again!
-       ...
+- **80% is pragmatic**: Not perfect, not lax
+- **Fails CI at 80%**: Prevents regressions
+- **Easy to see gaps**: `--cov-report=html` shows uncovered lines
+- **Not blocking**: Can commit with >80%, improve gradually
 
-   # GOOD: Shared fixture
-   @pytest.fixture(scope="module")
-   def model():
-       return load_model()  # Once per module
-   ```
+---
 
-3. **Testing implementation details**
-   ```python
-   # BAD: Testing internal state
-   assert chunker._internal_buffer == [...]
+## Notes
 
-   # GOOD: Testing behavior
-   assert len(chunker.chunk(text)) == 3
-   ```
+- **Start with baseline**: Measure before changing anything
+- **Safety first**: Keep old tests during migration
+- **Incremental**: Foundation → Coverage → Docker → CI
+- **Pragmatic**: 80% is the target, not 100%
+- **Fast feedback**: Keep unit tests <10s
+- **E2E matters**: Docker tests validate production
 
-4. **Overly complex tests**
-   ```python
-   # BAD: Testing multiple things
-   def test_everything():
-       assert chunker.chunk(text1) == expected1
-       assert chunker.chunk(text2) == expected2
-       assert chunker.chunk(text3) == expected3
-
-   # GOOD: Parametrized test
-   @pytest.mark.parametrize("text,expected", [
-       (text1, expected1),
-       (text2, expected2),
-       (text3, expected3),
-   ])
-   def test_chunking(text, expected):
-       assert chunker.chunk(text) == expected
-   ```
-
-5. **Slow tests without markers**
-   ```python
-   # BAD: Unmarked slow test
-   def test_full_indexing():
-       build_index()  # Takes 30s
-
-   # GOOD: Marked as slow
-   @pytest.mark.slow
-   @pytest.mark.requires_models
-   def test_full_indexing():
-       build_index()
-   ```
+---
 
 ## References
 
 - [Pytest Documentation](https://docs.pytest.org/en/stable/)
-- [FastAPI Testing](https://fastapi.tiangolo.com/tutorial/testing/)
-- [Typer Testing](https://typer.tiangolo.com/tutorial/testing/)
-- [pytest-asyncio](https://pytest-asyncio.readthedocs.io/)
-- [pytest-docker](https://github.com/avast/pytest-docker)
-- [Testcontainers Python](https://testcontainers-python.readthedocs.io/)
-- VNtyper CI/CD: `/tmp/VNtyper/tests/conftest.py` (session hooks, fixtures)
-
-## Medical-Grade Testing Summary
-
-### Coverage Requirements Comparison
-
-| Aspect | General Software | **Medical-Grade (Phentrieve)** |
-|--------|-----------------|--------------------------------|
-| **Statement Coverage** | 70-80% acceptable | **95%+ required** (IEC 62304 Class C) |
-| **Branch Coverage** | Optional | **90%+ required** (safety-critical) |
-| **Critical Path Coverage** | Not specified | **100% required** (assertion, HPO mapping) |
-| **Testing Burden** | 20-30% of development | **50-60% of development** (industry standard) |
-| **Clinical Validation** | N/A | **Required** (F1 ≥ 0.85 for HPO mapping) |
-| **Assertion Accuracy** | N/A | **Required** (F1 ≥ 0.90 for negation/normality) |
-| **Edge Case Testing** | Nice to have | **Mandatory** (malformed input, adversarial) |
-| **Security Testing** | Recommended | **Mandatory** (OWASP Top 10, PHI protection) |
-| **Regression Testing** | Nice to have | **Automated** (baseline F1 scores) |
-| **Requirements Traceability** | Optional | **Required** (every req → test mapping) |
-| **Safety Testing** | Optional | **Mandatory** (error handling, graceful degradation) |
-
-### Why Medical-Grade Matters for Phentrieve
-
-1. **Patient Safety Impact**: Incorrect HPO term mapping could lead to misdiagnosis
-2. **Clinical Decision Support**: CDS systems require FDA/IEC 62304 compliance
-3. **High Reliability**: Medical-grade software requires 95-100% test coverage
-4. **Regulatory Compliance**: IEC 62304 Class C standards for diagnostic use
-5. **Legal Liability**: Medical software errors can result in patient harm and litigation
-6. **Professional Trust**: Healthcare professionals need confidence in accuracy
-
-### Testing Investment Justification
-
-**Testing Burden**: Medical-grade software requires **50-60% of total development effort** dedicated to testing (FDA/IEC 62304 industry standard).
-
-**For Phentrieve (2-3 week sprint)**:
-- Week 1: Foundation + Coverage (Phase 1-2)
-- Week 2: Clinical/Safety Testing (Phase 3)
-- Week 3: CI/CD + E2E Foundation (Phase 4-5)
-
-**Return on Investment**:
-- ✅ Prevent clinical errors (patient safety)
-- ✅ Regulatory compliance (FDA CDS guidelines)
-- ✅ Professional credibility (95%+ coverage badge)
-- ✅ Reduced liability (documented validation)
-- ✅ Faster debugging (comprehensive test suite)
-- ✅ Confident deployment (regression prevention)
-
-## Notes
-
-- **Start small**: Migrate existing tests first, then expand
-- **Incremental adoption**: Don't rewrite everything at once
-- **Coverage is a guide**: 95% coverage + clinical validation = medical-grade quality
-- **Fast feedback**: Keep unit tests fast (<10s) for developer workflow
-- **CI optimization**: Use markers to run subsets of tests strategically
-- **Clinical accuracy first**: Prioritize HPO mapping and assertion detection validation
-- **Safety-critical focus**: 100% coverage for assertion detection and HPO mapping modules
-- **Requirements traceability**: Every requirement must map to at least one test
-- **Docker later**: Foundation first, Docker/E2E in Phase 5 (or separate sprint)
+- [pytest-docker Examples](https://github.com/avast/pytest-docker/tree/master/tests)
+- [Docker Python SDK](https://docker-py.readthedocs.io/)
