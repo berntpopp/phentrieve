@@ -169,8 +169,8 @@ addopts = [
     "--cov-report=xml:coverage.xml",
     # "--cov-fail-under=80",  # TODO: Enable after migration complete
 
-    # Execution
-    "-m", "not slow",  # Skip slow tests by default
+    # Execution - Skip slow and e2e tests by default
+    "-m", "not slow and not e2e",  # E2E tests require Docker, run separately
 ]
 markers = [
     "unit: Fast unit tests (mocked dependencies)",

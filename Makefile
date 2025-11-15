@@ -218,8 +218,8 @@ ci-python: ## Run Python CI checks (matches GitHub Actions)
 	@echo "[4/5] mypy type check..."
 	@uv run mypy phentrieve/ api/ || echo "⚠️  Type errors found (non-blocking)"
 	@echo ""
-	@echo "[5/5] pytest with coverage..."
-	@uv run pytest tests/ -v --cov=phentrieve --cov=api --cov-report=xml --cov-report=term || (echo "❌ Tests failed" && exit 1)
+	@echo "[5/5] pytest with coverage (unit + integration only)..."
+	@uv run pytest tests/ -v -m "not e2e" --cov=phentrieve --cov=api --cov-report=xml --cov-report=term || (echo "❌ Tests failed" && exit 1)
 	@echo "✅ Tests passed"
 	@echo ""
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
