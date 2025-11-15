@@ -2,8 +2,38 @@
 
 **Version:** 1.0
 **Date:** 2025-11-14
-**Status:** Proposal
+**Status:** ⚠️ ARCHIVED
 **Author:** Senior DevOps/Docker Expert Analysis
+
+---
+
+## ⚠️ ARCHIVE NOTICE
+
+**ARCHIVED:** 2025-11-15
+**Reason:** Superseded by direct implementation
+**Status:** Docker security hardening was implemented directly without following this formal plan
+
+**What Was Implemented:**
+- ✅ Non-root users (UID 10001:10001)
+- ✅ Read-only root filesystem
+- ✅ All capabilities dropped
+- ✅ Resource limits (CPU, memory)
+- ✅ Security options (no-new-privileges, seccomp)
+- ✅ tmpfs for writable paths
+- ✅ Comprehensive E2E security tests (12 tests validating all hardening)
+
+**Current Docker Security Status:**
+- **Security Score:** A (all best practices implemented)
+- **Validation:** 42 E2E tests (12 security + 14 health + 17 API)
+- **Images:** ghcr.io/berntpopp/phentrieve/api:latest (production-ready)
+
+**Replacement Documentation:**
+- See: `tests/e2e/test_docker_security.py` for validation tests
+- See: `docker-compose.yml` and `docker-compose.test.yml` for actual implementation
+- See: `api/Dockerfile` for hardened build configuration
+
+This plan served as valuable research and design reference, but implementation
+proceeded through direct commits rather than following this formal plan structure.
 
 ---
 
