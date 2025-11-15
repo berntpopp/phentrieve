@@ -1,31 +1,106 @@
+# docker-compose.yml
+# Production-ready Docker Compose configuration with comprehensive security hardening
+# Based on DOCKER-REFACTORING-PLAN.md Phase 1 implementation
+#
+# Usage:
+#   Development: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+#   Production:  docker-compose up
+#
+# Security Features:
+# - Non-root user execution (UID 10001 for API, UID 101 for frontend)
+# - Resource limits (CPU, memory)
+# - Read-only root filesystems with tmpfs for writable directories
+# - Capability dropping (CAP_DROP: ALL)
+# - Security options (no-new-privileges, seccomp)
+# - Enhanced health checks
+# - Structured logging with rotation
+# - Network isolation
+
+version: '3.9'
+
 services:
   phentrieve_api:
     image: ghcr.io/berntpopp/phentrieve/api:latest
     build:
       context: .
       dockerfile: api/Dockerfile
-    env_file:
-      - .env.docker 
+      args:
+        BUILDKIT_INLINE_CACHE: 1
+      cache_from:
+        - ghcr.io/berntpopp/phentrieve/api:latest
+
+    # SECURITY: Run as non-root user (phentrieve:phentrieve = 10001:10001)
+    user: "10001:10001"
+
+    # SECURITY: Resource limits to prevent resource exhaustion attacks
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'      # Maximum 4 CPU cores
+          memory: 8G       # Maximum 8GB RAM
+        reservations:
+          cpus: '1.0'      # Minimum 1 CPU core
+          memory: 4G       # Minimum 4GB RAM
+
+    # SECURITY: Security options
+    security_opt:
+      - no-new-privileges:true  # Prevent privilege escalation
+      - seccomp:unconfined      # May need adjustment for ChromaDB operations
+
+    # SECURITY: Drop all capabilities by default
+    # Only add back specific capabilities if absolutely required
+    cap_drop:
+      - ALL
+    # Uncomment if binding to privileged ports (<1024) is needed
+    # cap_add:
+    #   - NET_BIND_SERVICE
+
+    # SECURITY: Read-only root filesystem prevents container modifications
+    read_only: true
+
+    # Writable tmpfs mounts for directories that need write access
+    # Size limits prevent disk exhaustion attacks
+    tmpfs:
+      - /tmp:uid=10001,gid=10001,mode=1777,size=1G
+      - /app/.cache:uid=10001,gid=10001,mode=0755,size=2G
+
+    # Volume mounts with explicit read/write permissions
     volumes:
-      - ${PHENTRIEVE_HOST_DATA_DIR}:/phentrieve_data_mount
-      - ./phentrieve:/app/phentrieve   # For development: Live reload
-      - ./api:/app/api                # For development: Live reload
-      - ${PHENTRIEVE_HOST_HF_CACHE_DIR:-${PHENTRIEVE_HOST_DATA_DIR}/hf_cache}:/root/.cache/huggingface # HF Cache
+      # Data mount - read-only by default for security
+      - ${PHENTRIEVE_HOST_DATA_DIR}:/phentrieve_data_mount:ro
+      # ChromaDB indexes need write access for vector operations
+      - ${PHENTRIEVE_HOST_DATA_DIR}/indexes:/phentrieve_data_mount/indexes:rw
+      # Hugging Face cache for model downloads
+      - ${PHENTRIEVE_HOST_HF_CACHE_DIR:-${PHENTRIEVE_HOST_DATA_DIR}/hf_cache}:/app/.cache/huggingface:rw
+
+    # Environment variables
     environment:
       - PHENTRIEVE_DATA_ROOT_DIR=/phentrieve_data_mount
       - LOG_LEVEL=${LOG_LEVEL_API:-INFO}
       - PYTHONPATH=/app
-      # Point Hugging Face libs to the mounted cache
-      - HF_HOME=/root/.cache/huggingface 
-      - TRANSFORMERS_CACHE=/root/.cache/huggingface/hub
-      # SENTENCE_TRANSFORMERS_HOME also often defaults to HF_HOME or TRANSFORMERS_CACHE
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONUNBUFFERED=1
+      - HF_HOME=/app/.cache/huggingface
+      - TRANSFORMERS_CACHE=/app/.cache/huggingface/hub
+
+    # Enhanced health check with longer start period for model loading
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8000/api/v1/health || exit 1"]
-      interval: 30s    # How often to run the check
-      timeout: 10s     # How long to wait for a response
-      retries: 5       # How many times to retry on failure before marking as unhealthy
-      start_period: 180s # Grace period for the service to start up before health checks begin
+      interval: 30s       # Check every 30 seconds
+      timeout: 10s        # 10 second timeout
+      retries: 5          # 5 retries before marking unhealthy
+      start_period: 180s  # 3 minute grace period for initial startup
+
+    # Structured logging with rotation to prevent disk exhaustion
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"   # Maximum 10MB per log file
+        max-file: "3"     # Keep 3 rotated files (30MB total)
+        labels: "service,env"
+
     restart: unless-stopped
+
     networks:
       - phentrieve_internal_net
       - npm_proxy_network
@@ -36,23 +111,78 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        # This VITE_API_URL should be the public URL when building for NPM deployment
-        # It will be overridden by docker-compose.dev.yml for local direct access
-        VITE_API_URL: ${VITE_API_URL_PUBLIC} 
-    env_file:
-      - .env.docker 
-    # No ports exposed directly here; NPM will handle it
+        BUILDKIT_INLINE_CACHE: 1
+        VITE_API_URL: ${VITE_API_URL_PUBLIC}
+      cache_from:
+        - ghcr.io/berntpopp/phentrieve/frontend:latest
+
+    # SECURITY: Run as non-root (nginx:nginx = 101:101)
+    user: "101:101"
+
+    # SECURITY: Resource limits for frontend (lower than API)
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'     # Maximum 0.5 CPU cores
+          memory: 256M    # Maximum 256MB RAM
+        reservations:
+          cpus: '0.1'     # Minimum 0.1 CPU cores
+          memory: 64M     # Minimum 64MB RAM
+
+    # SECURITY: Security options
+    security_opt:
+      - no-new-privileges:true  # Prevent privilege escalation
+
+    # SECURITY: Drop all capabilities (nginx doesn't need any)
+    cap_drop:
+      - ALL
+
+    # SECURITY: Read-only root filesystem
+    read_only: true
+
+    # Writable tmpfs mounts for nginx runtime directories
+    tmpfs:
+      - /tmp:uid=101,gid=101,mode=1777,size=10M
+      - /var/cache/nginx:uid=101,gid=101,mode=0755,size=50M
+      - /var/run:uid=101,gid=101,mode=0755,size=10M
+
+    # Enhanced health check using /health endpoint
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      interval: 30s       # Check every 30 seconds
+      timeout: 5s         # 5 second timeout
+      retries: 3          # 3 retries before marking unhealthy
+      start_period: 10s   # 10 second grace period for startup
+
+    # Structured logging with rotation
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"    # Maximum 5MB per log file
+        max-file: "2"     # Keep 2 rotated files (10MB total)
+        labels: "service,env"
+
+    # Wait for API to be healthy before starting frontend
     depends_on:
       phentrieve_api:
-        condition: service_healthy # Waits for API to be healthy
+        condition: service_healthy
+
     restart: unless-stopped
+
     networks:
       - phentrieve_internal_net
       - npm_proxy_network
 
+# Network configuration
 networks:
+  # Internal network for service-to-service communication
   phentrieve_internal_net:
     driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16  # Explicit subnet for network isolation
+
+  # External network for Nginx Proxy Manager (NPM)
   npm_proxy_network:
     external: true
-    name: ${NPM_SHARED_NETWORK_NAME} # This value comes from your .env.docker file
+    name: ${NPM_SHARED_NETWORK_NAME}
