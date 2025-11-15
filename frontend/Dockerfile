@@ -57,7 +57,7 @@ LABEL org.opencontainers.image.title="Phentrieve Frontend" \
       org.opencontainers.image.authors="Bernt Popp <bernt.popp@gmail.com>"
 
 # Copy nginx configuration (as nginx user)
-COPY --chown=nginx:nginx nginx.conf.secure /etc/nginx/conf.d/default.conf
+COPY --chown=nginx:nginx nginx.conf /etc/nginx/conf.d/default.conf
 
 # Copy built application (as nginx user)
 COPY --chown=nginx:nginx --from=builder /app/dist /usr/share/nginx/html
