@@ -197,3 +197,12 @@ clean-data: ## Clean data caches (use with caution)
 check-all: check frontend-lint frontend-test ## Check and test both Python and frontend code
 
 all: clean check test ## Clean, check, and test Python code
+
+# API Testing (requires PYTHONPATH for api module imports)
+.PHONY: test-api
+test-api:  ## Run API unit tests
+	PYTHONPATH=$(PWD) python3 -m pytest tests/unit/api/ -v
+
+.PHONY: test-api-cov
+test-api-cov:  ## Run API tests with coverage
+	PYTHONPATH=$(PWD) python3 -m pytest tests/unit/api/ --cov=api --cov-report=term-missing -v

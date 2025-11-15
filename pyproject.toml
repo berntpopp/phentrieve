@@ -154,6 +154,7 @@ ignore_missing_imports = true
 [tool.pytest.ini_options]
 python_files = ["test_*.py"]
 testpaths = ["tests"]
+# pythonpath = "."  # Temporarily disabled - using PYTHONPATH env var instead
 addopts = [
     "-v",
     "--strict-markers",
