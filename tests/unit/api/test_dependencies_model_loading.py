@@ -6,10 +6,9 @@ forcing clients to retry with 503 errors.
 """
 
 import asyncio
-import os
 import sys
 from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 from fastapi import HTTPException
@@ -19,7 +18,7 @@ from sentence_transformers import CrossEncoder, SentenceTransformer
 project_root = Path(__file__).parent.parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from api import dependencies
+from api import dependencies  # noqa: E402
 
 
 @pytest.fixture(autouse=True)

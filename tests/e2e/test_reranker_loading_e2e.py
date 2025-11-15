@@ -8,9 +8,8 @@ in a real API environment, ensuring that:
 4. Performance meets expectations
 """
 
-import asyncio
 import time
-from typing import Any, Dict
+from typing import Any
 
 import pytest
 import requests
@@ -47,7 +46,7 @@ def http_session():
 
 
 @pytest.fixture
-def sample_query_payload() -> Dict[str, Any]:
+def sample_query_payload() -> dict[str, Any]:
     """Sample query payload for testing."""
     return {
         "text": "Kleinwuchs",  # German for "short stature"

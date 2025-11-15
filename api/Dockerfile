@@ -20,6 +20,7 @@ ARG SQLITE_YEAR
 ARG SQLITE_SHA256
 
 # Install only necessary build tools
+# hadolint ignore=DL3008
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     apt-get update && apt-get install -y --no-install-recommends \
@@ -30,7 +31,8 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 
 # Download, verify, and build SQLite with checksum validation
 WORKDIR /build
-SHELL ["/bin/bash", "-c"]
+# hadolint ignore=DL3003
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN set -euxo pipefail && \
     # Download SQLite source (HTTPS for security) \
     wget -q https://www.sqlite.org/${SQLITE_YEAR}/sqlite-autoconf-${SQLITE_VERSION}.tar.gz && \
@@ -64,6 +66,7 @@ COPY --from=sqlite-builder /usr/local/include/sqlite3*.h /usr/local/include/
 ENV LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
 
 # Install build dependencies for Python packages
+# hadolint ignore=DL3008
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     apt-get update && apt-get install -y --no-install-recommends \
@@ -79,6 +82,7 @@ RUN python -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 # Upgrade pip, setuptools, wheel
+# hadolint ignore=DL3042,DL3013
 RUN --mount=type=cache,target=/root/.cache/pip \
     pip install --upgrade pip setuptools wheel
 
@@ -89,7 +93,8 @@ COPY pyproject.toml ./
 
 # Install dependencies in specific order to handle binary compatibility
 # CRITICAL: Remove --no-cache-dir to leverage pip cache mount for 60-90% faster builds
-SHELL ["/bin/bash", "-c"]
+# hadolint ignore=DL3042,DL3013
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN --mount=type=cache,target=/root/.cache/pip \
     set -euxo pipefail && \
     # Install critical deps with version pins \
@@ -132,6 +137,7 @@ LABEL org.opencontainers.image.title="Phentrieve API" \
       org.opencontainers.image.authors="Bernt Popp <bernt.popp@gmail.com>"
 
 # Install only runtime dependencies
+# hadolint ignore=DL3008
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     apt-get update && apt-get install -y --no-install-recommends \

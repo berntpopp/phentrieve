@@ -203,18 +203,22 @@ ci-python: ## Run Python CI checks (matches GitHub Actions)
 	@echo ""
 	@echo "Running Python CI checks (same as GitHub Actions)..."
 	@echo ""
-	@echo "[1/4] Ruff format check..."
+	@echo "[1/5] Install dependencies..."
+	@uv sync --all-extras --dev
+	@echo "✅ Dependencies installed"
+	@echo ""
+	@echo "[2/5] Ruff format check..."
 	@ruff format --check phentrieve/ api/ tests/ || (echo "❌ Format check failed. Run: make format" && exit 1)
 	@echo "✅ Format check passed"
 	@echo ""
-	@echo "[2/4] Ruff lint check..."
+	@echo "[3/5] Ruff lint check..."
 	@ruff check phentrieve/ api/ tests/ || (echo "❌ Lint check failed. Run: make lint-fix" && exit 1)
 	@echo "✅ Lint check passed"
 	@echo ""
-	@echo "[3/4] mypy type check..."
+	@echo "[4/5] mypy type check..."
 	@uv run mypy phentrieve/ api/ || echo "⚠️  Type errors found (non-blocking)"
 	@echo ""
-	@echo "[4/4] pytest with coverage..."
+	@echo "[5/5] pytest with coverage..."
 	@uv run pytest tests/ -v --cov=phentrieve --cov=api --cov-report=xml --cov-report=term || (echo "❌ Tests failed" && exit 1)
 	@echo "✅ Tests passed"
 	@echo ""
