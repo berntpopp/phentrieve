@@ -23,7 +23,14 @@ from phentrieve.cli import (
 __version__ = importlib.metadata.version("phentrieve")
 
 # Create the main Typer app
-app = typer.Typer(name="phentrieve", help="Phenotype Retrieval CLI Tool")
+app = typer.Typer(
+    name="phentrieve",
+    help="Phentrieve - AI-powered HPO term mapping using Retrieval-Augmented Generation (RAG)",
+    no_args_is_help=True,
+    rich_markup_mode="rich",
+    add_completion=True,
+    context_settings={"help_option_names": ["-h", "--help"]},
+)
 
 
 def version_callback(value: bool):
@@ -46,7 +53,7 @@ def main_callback(
         ),
     ] = False,
 ):
-    """Phentrieve CLI main callback."""
+    """Main callback for Phentrieve CLI - handles global options like --version."""
     pass
 
 
