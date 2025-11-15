@@ -10,6 +10,23 @@ Phentrieve is an AI-powered system for mapping clinical text to Human Phenotype 
 2. **FastAPI Backend** (`api/`) - REST API exposing Phentrieve functionality
 3. **Vue.js Frontend** (`frontend/`) - Web interface for interactive HPO term mapping
 
+## Planning & Project Status
+
+**For current project status**, see `plan/STATUS.md` - comprehensive snapshot of completed work, testing metrics, and next steps.
+
+**Planning documentation** is organized in `plan/` with status-based structure:
+- `01-active/` - Currently executing plans
+- `02-completed/` - Successfully implemented (MASTER-PLAN.md, TESTING-MODERNIZATION-PLAN.md, LOCAL-DEV-ENVIRONMENT.md)
+- `03-archived/` - Obsolete or superseded plans
+- `04-reference/` - Guides and templates
+- `README.md` - Navigation guide and best practices for LLM-assisted development
+
+**Current Status Highlights**:
+- ✅ Tooling Modernization: 8/9 phases complete (Ruff, uv, mypy, ESLint 9, GHCR, Dependabot, CI/CD)
+- ✅ Testing Infrastructure: 157 tests (115 unit/integration + 42 Docker E2E), 13% coverage
+- ✅ Local Development: 100x faster than Docker with instant hot reload
+- ✅ Code Quality: 0 linting errors, 0 type errors
+
 ## Development Commands
 
 ### Python CLI/Library
@@ -164,13 +181,13 @@ phentrieve index build     # Build vector indexes
 ```bash
 # Terminal 1: Start API server with hot reload
 make dev-api
-# → API:      http://localhost:8000
-# → API Docs: http://localhost:8000/docs
+# → API:      http://localhost:8734
+# → API Docs: http://localhost:8734/docs
 # → Hot reload: <1s on .py file changes
 
 # Terminal 2: Start frontend with Vite HMR
 make dev-frontend
-# → Frontend: http://localhost:5173
+# → Frontend: http://localhost:5734
 # → HMR: <50ms on .vue/.ts file changes
 ```
 
@@ -233,8 +250,8 @@ ALLOWED_ORIGINS=http://localhost:5734 # CORS for frontend
 
 **API not starting?**
 ```bash
-# Check if port 8000 is in use
-lsof -i :8000
+# Check if port 8734 is in use
+lsof -i :8734
 kill -9 <PID>
 
 # Verify environment file exists
@@ -250,7 +267,7 @@ uv sync
 cat frontend/vite.config.js | grep -A 10 "proxy"
 
 # Verify API is running
-curl http://localhost:8000/health
+curl http://localhost:8734/health
 
 # Check browser console for CORS errors
 ```
@@ -270,8 +287,8 @@ cd api && fastapi dev run_api_local.py --log-level debug
 **Port conflicts?**
 ```bash
 # Find process using ports
-lsof -i :8000  # API
-lsof -i :5173  # Frontend
+lsof -i :8734  # API (custom HPOD port)
+lsof -i :5734  # Frontend (custom HPOD port)
 
 # Or use different ports
 uvicorn api.run_api_local:app --reload --port 8001
@@ -294,6 +311,33 @@ uvicorn api.run_api_local:app --reload --port 8001
 ✅ System-level dependency isolation
 
 **Note**: Both environments use the same codebase - only configuration differs!
+
+### E2E Testing (Docker)
+
+**Docker-based End-to-End Tests** - Validates production configuration with 42 comprehensive tests.
+
+```bash
+# Run all E2E tests (requires Docker running)
+make test-e2e                                    # All 42 E2E tests (security + health + API)
+
+# Run specific E2E test categories
+make test-e2e-security                           # 12 security tests (non-root, read-only FS, capabilities)
+make test-e2e-health                             # 14 health check tests (endpoints, uptime, OOM protection)
+make test-e2e-api                                # 17 API workflow tests (validation, formats, performance)
+
+# Fast testing with existing containers
+make test-e2e-fast                               # Skip container rebuild (faster for iteration)
+
+# Cleanup E2E test resources
+make test-e2e-clean                              # Stop containers and remove volumes
+```
+
+**E2E Test Coverage**:
+- **Security Validation**: Non-root user (UID 10001), read-only filesystem, dropped capabilities, resource limits
+- **Health Monitoring**: Container uptime, health endpoints, restart policies, memory protection
+- **API Workflows**: Query validation, error handling, response formats, performance benchmarks
+
+**Implementation Details**: See `plan/02-completed/TESTING-MODERNIZATION-PLAN.md` Phase 3 for test architecture and `tests_new/e2e/` for test code.
 
 ### Dependency Management
 
@@ -368,13 +412,26 @@ Workflows: `.github/workflows/ci.yml`, `.github/workflows/docker-publish.yml`
 - **HPO data**: `data/hpo_core_data/` contains processed HPO ontology files
 - **Embeddings cache**: `data/hf_cache/` for Hugging Face model cache
 
-### Testing
+### Testing Architecture
 
-- Test files in `tests/` directory
-- Focus on text processing components, chunking, and semantic metrics
-- Use `pytest` for running tests
-- Run specific tests with `pytest tests/test_file.py` or pattern matching with `-k`
-- No current test coverage for API or frontend components
+**Test Structure** (157 total tests, 13% statement coverage):
+- **Unit/Integration Tests** (`tests/`, `tests_new/unit/`): 115 tests covering core functionality
+  - Text processing: Chunking, assertion detection, HPO extraction
+  - Retrieval: Dense retriever (100% coverage), embeddings (100% coverage), re-ranker (100% coverage)
+  - Utilities: Output formatters (100% coverage), semantic metrics
+- **Docker E2E Tests** (`tests_new/e2e/`): 42 tests validating production deployment
+  - 12 security tests (non-root, read-only FS, capabilities, limits)
+  - 14 health tests (endpoints, uptime, restart policies, OOM)
+  - 17 API workflow tests (validation, formats, performance)
+
+**Coverage Highlights**:
+- 4 modules at 100% coverage (embeddings.py, dense_retriever.py, reranker.py, output_formatters.py)
+- 13% overall statement coverage (622/4916 statements)
+- All tests passing with 0 linting errors, 0 type errors
+
+**Testing Commands**: See Development Commands section for `make test`, `make test-cov`, and `make test-e2e*` commands.
+
+**Documentation**: Full testing plan in `plan/02-completed/TESTING-MODERNIZATION-PLAN.md`
 
 ### Data Directory Structure
 
