@@ -72,9 +72,7 @@ class TestCrossEncoderLoadingWithTimeout:
             await asyncio.sleep(0.1)  # Simulate fast loading
             return mock_cross_encoder
 
-        with patch(
-            "api.dependencies.run_in_threadpool", new=fast_load
-        ):
+        with patch("api.dependencies.run_in_threadpool", new=fast_load):
             # First request should succeed
             result = await dependencies.get_cross_encoder_dependency(
                 reranker_model_name=model_name
@@ -282,7 +280,9 @@ class TestSBERTModelLoadingWithTimeout:
         SBERT models are larger and slower to load.
         """
         # Verify timeout configuration
-        assert dependencies.SBERT_LOAD_TIMEOUT >= dependencies.CROSS_ENCODER_LOAD_TIMEOUT
+        assert (
+            dependencies.SBERT_LOAD_TIMEOUT >= dependencies.CROSS_ENCODER_LOAD_TIMEOUT
+        )
         assert dependencies.SBERT_LOAD_TIMEOUT == 60  # Default
         assert dependencies.CROSS_ENCODER_LOAD_TIMEOUT == 10  # Default
 
@@ -308,6 +308,7 @@ class TestConfigurableTimeouts:
 
         # Reload module to pick up new env var
         import importlib
+
         importlib.reload(dependencies)
 
         assert dependencies.CROSS_ENCODER_LOAD_TIMEOUT == 5.0

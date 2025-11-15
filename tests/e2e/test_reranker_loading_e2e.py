@@ -95,9 +95,7 @@ class TestFirstRerankerRequestNoTimeout:
         )
 
         # Should complete in reasonable time (<15s with buffer for model loading)
-        assert (
-            elapsed_time < 15
-        ), f"Request took {elapsed_time:.2f}s, expected <15s"
+        assert elapsed_time < 15, f"Request took {elapsed_time:.2f}s, expected <15s"
 
         # Validate response structure
         data = response.json()
@@ -121,9 +119,7 @@ class TestFirstRerankerRequestNoTimeout:
         payload_with_reranker = sample_query_payload.copy()
         payload_with_reranker["enable_reranker"] = True
 
-        response_with = http_session.post(
-            url, json=payload_with_reranker, timeout=30
-        )
+        response_with = http_session.post(url, json=payload_with_reranker, timeout=30)
         assert response_with.status_code == 200
 
         # Request WITHOUT reranker
@@ -171,7 +167,9 @@ class TestConcurrentRerankerRequests:
         # Use threading to send truly concurrent requests
         import concurrent.futures
 
-        with concurrent.futures.ThreadPoolExecutor(max_workers=num_concurrent) as executor:
+        with concurrent.futures.ThreadPoolExecutor(
+            max_workers=num_concurrent
+        ) as executor:
             futures = [
                 executor.submit(send_request, http_session, sample_query_payload)
                 for _ in range(num_concurrent)
@@ -259,7 +257,9 @@ class TestRerankerFunctionalityEndToEnd:
         for result in results:
             assert "similarity" in result
             assert isinstance(result["similarity"], (int, float))
-            assert 0 <= result["similarity"] <= 1, "Similarity should be between 0 and 1"
+            assert 0 <= result["similarity"] <= 1, (
+                "Similarity should be between 0 and 1"
+            )
 
             assert "hpo_id" in result
             assert result["hpo_id"].startswith("HP:"), "Should be valid HPO ID"
@@ -278,9 +278,7 @@ class TestRerankerFunctionalityEndToEnd:
         payload_cross_lingual = sample_query_payload.copy()
         payload_cross_lingual["reranker_mode"] = "cross-lingual"
 
-        response_cross = http_session.post(
-            url, json=payload_cross_lingual, timeout=30
-        )
+        response_cross = http_session.post(url, json=payload_cross_lingual, timeout=30)
         assert response_cross.status_code == 200
         data_cross = response_cross.json()
         assert data_cross["reranker_used"] is not None
@@ -320,9 +318,7 @@ class TestPerformanceExpectations:
         elapsed = time.time() - start_time
 
         assert response.status_code == 200
-        assert (
-            elapsed < 5
-        ), f"Cached request took {elapsed:.2f}s, expected <5s"
+        assert elapsed < 5, f"Cached request took {elapsed:.2f}s, expected <5s"
 
     @pytest.mark.e2e
     def test_batch_requests_performance(
@@ -373,9 +369,7 @@ class TestErrorRecovery:
         )
 
     @pytest.mark.e2e
-    def test_reranker_with_no_results(
-        self, api_base_url, http_session
-    ):
+    def test_reranker_with_no_results(self, api_base_url, http_session):
         """Test reranker behavior when there are no initial results.
 
         Edge case: What happens if similarity_threshold is so high that
