@@ -274,4 +274,6 @@ def test_query_output_file_write_error(mock_query_results):
         )
 
         assert result.exit_code == 1
-        assert "Error writing to file: Permission denied" in result.stdout
+        # Check for error message (may include errno and path in actual error)
+        assert "Error writing to file:" in result.stdout
+        assert "Permission denied" in result.stdout

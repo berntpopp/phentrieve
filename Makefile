@@ -1,4 +1,4 @@
-.PHONY: help format lint typecheck check test clean all install lock upgrade add remove clean-venv frontend-install frontend-lint frontend-format frontend-dev frontend-build docker-build docker-up docker-down docker-logs dev-api dev-frontend dev-all
+.PHONY: help format lint typecheck check test clean all install install-text-processing lock upgrade add remove clean-venv frontend-install frontend-lint frontend-format frontend-dev frontend-build docker-build docker-up docker-down docker-logs dev-api dev-frontend dev-all
 
 # Default target
 .DEFAULT_GOAL := help
@@ -15,8 +15,11 @@ help: ## Display this help message
 install: ## Install package with uv
 	uv sync
 
-install-dev: ## Install package with optional dependencies
+install-dev: ## Install package with all optional dependencies (includes text_processing)
 	uv sync --all-extras
+
+install-text-processing: ## Install text processing dependencies (spaCy + model)
+	uv sync --extra text_processing
 
 install-editable: ## Install in editable mode (for development)
 	uv pip install -e .
