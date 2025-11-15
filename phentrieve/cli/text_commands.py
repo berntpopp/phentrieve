@@ -16,7 +16,6 @@ import typer
 # Importing sentence_transformers loads PyTorch/CUDA (18+ seconds), which should
 # only happen when commands actually need ML models, not for --help or --version.
 # The import is done inside command functions where the model is actually used.
-
 from phentrieve.cli.utils import load_text_from_input, resolve_chunking_pipeline_config
 from phentrieve.config import DEFAULT_MODEL
 from phentrieve.retrieval.dense_retriever import DenseRetriever
