@@ -10,12 +10,12 @@ import os
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Optional, Union
 
-import chromadb
-
-# NOTE: SentenceTransformer is only imported for type hints (TYPE_CHECKING).
-# This module receives SentenceTransformer instances but doesn't create them,
-# so we avoid the 18+ second import cost at module load time.
+# NOTE: Heavy dependencies (chromadb, SentenceTransformer) are only imported
+# for type hints (TYPE_CHECKING) or lazily inside functions where actually used.
+# This avoids the 2.8+ second chromadb import cost at module load time.
+# chromadb alone loads: API, telemetry, OpenTelemetry, jsonschema, numpy typing.
 if TYPE_CHECKING:
+    import chromadb
     from sentence_transformers import SentenceTransformer
 
 from phentrieve.config import MIN_SIMILARITY_THRESHOLD
@@ -29,7 +29,7 @@ from phentrieve.utils import (
 
 def connect_to_chroma(
     index_dir: str, collection_name: str, model_name: Optional[str] = None
-) -> Optional[chromadb.Collection]:
+) -> Optional["chromadb.Collection"]:
     """
     Connect to the ChromaDB index and retrieve the specified collection.
 
@@ -42,6 +42,10 @@ def connect_to_chroma(
     Returns:
         ChromaDB collection or None if connection failed
     """
+    # Lazy import - only load chromadb when actually connecting to database
+    # Avoids 2.8s import overhead for CLI commands that don't use ChromaDB
+    import chromadb
+
     try:
         # Convert Path to string and ensure it exists
         index_dir_str = str(index_dir)
@@ -103,7 +107,7 @@ class DenseRetriever:
     def __init__(
         self,
         model: "SentenceTransformer",
-        collection: chromadb.Collection,
+        collection: "chromadb.Collection",
         min_similarity: float = MIN_SIMILARITY_THRESHOLD,
     ):
         """

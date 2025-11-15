@@ -87,9 +87,9 @@ def test_cli_subcommand_help_performance():
 
 @pytest.mark.unit
 def test_no_heavy_imports_on_cli_load():
-    """Verify that importing CLI does not load sentence-transformers or torch.
+    """Verify that importing CLI does not load sentence-transformers, torch, or chromadb.
 
-    This test ensures lazy loading is working by checking that heavy ML
+    This test ensures lazy loading is working by checking that heavy ML/database
     libraries are not imported when the CLI module is loaded.
     """
     result = subprocess.run(
@@ -97,7 +97,7 @@ def test_no_heavy_imports_on_cli_load():
             "python",
             "-c",
             "import sys; from phentrieve.cli import app; "
-            "heavy = [m for m in sys.modules if 'sentence_transformers' in m or 'torch' in m]; "
+            "heavy = [m for m in sys.modules if 'sentence_transformers' in m or 'torch' in m or 'chromadb' in m]; "
             "print('HEAVY_IMPORTS:', heavy)",
         ],
         capture_output=True,
@@ -110,7 +110,7 @@ def test_no_heavy_imports_on_cli_load():
 
     # Check that no heavy imports were loaded
     assert "HEAVY_IMPORTS: []" in output, (
-        f"Heavy ML libraries were imported at CLI load time: {output}. "
-        "This defeats lazy loading. Check that sentence-transformers and torch "
+        f"Heavy ML/database libraries were imported at CLI load time: {output}. "
+        "This defeats lazy loading. Check that sentence-transformers, torch, and chromadb "
         "imports are only done inside functions that actually use them."
     )
