@@ -152,22 +152,51 @@ module = [
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]
-python_files = ["test_*.py", "*_test.py", "tests.py"]
-testpaths = ["tests"]
+python_files = ["test_*.py"]
+testpaths = ["tests", "tests_new"]  # Support both old and new during migration
+addopts = [
+    "-v",
+    "--strict-markers",
+    "--tb=short",
+
+    # Coverage (80% target - temporarily disabled during migration)
+    "--cov=phentrieve",
+    "--cov=api",
+    "--cov-report=term-missing",
+    "--cov-report=html:htmlcov",
+    "--cov-report=xml:coverage.xml",
+    # "--cov-fail-under=80",  # TODO: Enable after migration complete
+
+    # Execution
+    "-m", "not slow",  # Skip slow tests by default
+]
+markers = [
+    "unit: Fast unit tests (mocked dependencies)",
+    "integration: Integration tests (real dependencies)",
+    "e2e: End-to-end Docker tests",
+    "slow: Slow tests (>5s)",
+]
 norecursedirs = [
-    ".*",       # Ignore hidden directories like .git, .vscode, .venv, .pytest_cache
+    ".*",
     "build",
     "dist",
     "docs",
-    "data",     # Ignore the 'data' directory (and thus 'data/hf_cache')
+    "data",
     "venv",
     "env",
     "*.egg-info",
-    "phentrieve", # Ignore the main application source directory
-    "api",      # Ignore the API source directory
+    "phentrieve",
+    "api",
 ]
 
 [dependency-groups]
 dev = [
     "mypy>=1.18.2",
+    "pytest>=8.0.0",
+    "pytest-cov>=6.0.0",
+    "pytest-mock>=3.14.0",
+    "pytest-xdist>=3.8.0",  # Parallel test execution
+    "pytest-timeout>=2.4.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-docker>=3.1.0",  # For Docker E2E tests (Phase 3)
 ]
