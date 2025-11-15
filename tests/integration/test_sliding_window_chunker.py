@@ -2,13 +2,13 @@
 
 import logging
 import string
+
 import pytest
 from sentence_transformers import SentenceTransformer
 
 from phentrieve.config import get_sliding_window_config_with_params
 from phentrieve.text_processing.chunkers import SlidingWindowSemanticSplitter
 from phentrieve.text_processing.pipeline import TextProcessingPipeline
-
 
 pytestmark = pytest.mark.integration
 

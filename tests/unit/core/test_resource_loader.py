@@ -1,14 +1,13 @@
 """Unit tests for language resource loader (pytest style)."""
 
 import json
+
 import pytest
-from pathlib import Path
 
 from phentrieve.text_processing.resource_loader import (
     _RESOURCE_CACHE,
     load_language_resource,
 )
-
 
 # Mark all tests as unit tests
 pytestmark = pytest.mark.unit

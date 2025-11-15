@@ -20,8 +20,6 @@ from phentrieve.text_processing.chunkers import (
     SentenceChunker,
 )
 
-
-
 pytestmark = pytest.mark.unit
 
 class TestParagraphChunker:
@@ -427,5 +425,5 @@ class TestNoOpChunker:
         assert result == segments
 
 
-if __name__ == "__main__":
-    unittest.main(verbosity=2)
+# No longer needed - use pytest to run tests
+# Run with: pytest tests/unit/core/test_basic_chunkers.py

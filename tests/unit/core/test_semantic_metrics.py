@@ -1,13 +1,13 @@
 """Unit tests for semantic metrics module (pytest style)."""
 
-import pytest
 from unittest.mock import patch
+
+import pytest
 
 from phentrieve.evaluation.semantic_metrics import (
     calculate_assertion_accuracy,
     calculate_semantically_aware_set_based_prf1,
 )
-
 
 # Mark all tests in this file as unit tests
 pytestmark = pytest.mark.unit

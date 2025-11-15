@@ -9,7 +9,6 @@ from phentrieve.config import (
 )
 from phentrieve.text_processing.pipeline import TextProcessingPipeline
 
-
 # Mark all tests as integration tests
 pytestmark = pytest.mark.integration
 

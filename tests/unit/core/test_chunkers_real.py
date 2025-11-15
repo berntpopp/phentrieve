@@ -10,12 +10,10 @@ import pytest
 from phentrieve.text_processing.chunkers import (
     ConjunctionChunker,
     FinalChunkCleaner,
-    FineGrainedPunctuationChunker,
     NoOpChunker,
     ParagraphChunker,
     SentenceChunker,
 )
-
 
 pytestmark = pytest.mark.unit
 

@@ -1,8 +1,7 @@
 """Integration test fixtures (real dependencies)."""
 
+
 import pytest
-from pathlib import Path
-import tempfile
 
 
 @pytest.fixture(scope="module")

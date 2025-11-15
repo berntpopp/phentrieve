@@ -11,7 +11,6 @@ from typer.testing import CliRunner
 
 from phentrieve.cli import app
 
-
 # Mark all tests in this file as unit tests
 pytestmark = pytest.mark.unit
 

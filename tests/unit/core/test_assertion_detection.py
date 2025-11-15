@@ -1,13 +1,13 @@
 """Unit tests for assertion detection (pytest style)."""
 
 import pytest
+
 from phentrieve.text_processing.assertion_detection import (
     AssertionStatus,
     CombinedAssertionDetector,
     DependencyAssertionDetector,
     KeywordAssertionDetector,
 )
-
 
 pytestmark = pytest.mark.unit
 

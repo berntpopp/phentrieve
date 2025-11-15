@@ -9,11 +9,14 @@ The primary semantic chunking is handled by SlidingWindowSemanticSplitter in a s
 import logging
 import re
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 import pysbd
-from sentence_transformers import SentenceTransformer
-from sklearn.metrics.pairwise import cosine_similarity
+
+# Lazy imports for heavy dependencies (only needed by SlidingWindowSemanticSplitter)
+# This avoids loading torch/transformers at module import time
+if TYPE_CHECKING:
+    from sentence_transformers import SentenceTransformer
 
 # Local imports
 from phentrieve.text_processing.cleaners import (
@@ -797,7 +800,7 @@ class SlidingWindowSemanticSplitter(TextChunker):
     def __init__(
         self,
         language: str = "en",
-        model: SentenceTransformer | None = None,
+        model: "SentenceTransformer | None" = None,
         window_size_tokens: int = 7,
         # Determines overlap. step_size_tokens=window_size_tokens means no overlap.
         step_size_tokens: int = 1,
@@ -817,6 +820,8 @@ class SlidingWindowSemanticSplitter(TextChunker):
             min_split_segment_length_words: Minimum number of words in a split segment
             **kwargs: Additional parameters
         """
+        # Import heavy dependencies only when this class is instantiated
+
         super().__init__(language=language, **kwargs)
         if model is None:
             raise ValueError(
@@ -892,6 +897,9 @@ class SlidingWindowSemanticSplitter(TextChunker):
         Returns:
             List of semantically split chunks derived from this segment
         """
+        # Lazy import for heavy dependency (sklearn)
+        from sklearn.metrics.pairwise import cosine_similarity
+
         logger.debug(
             f"SlidingWindow: Attempting to split segment: "
             f'"{current_text_segment[:150]}..."'

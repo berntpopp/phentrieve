@@ -19,7 +19,6 @@ from phentrieve.retrieval.output_formatters import (
     format_results_as_text,
 )
 
-
 # Mark all tests in this file as unit tests
 pytestmark = pytest.mark.unit
 
