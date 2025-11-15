@@ -7,9 +7,13 @@ pipeline-based approach with dense retrieval and optional cross-encoder rerankin
 import logging
 from collections import Counter, defaultdict
 from pathlib import Path
-from typing import Any, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
-from sentence_transformers import CrossEncoder
+# NOTE: CrossEncoder is only imported for type hints (TYPE_CHECKING).
+# This module receives CrossEncoder instances but doesn't create them,
+# so we avoid the 18+ second import cost at module load time.
+if TYPE_CHECKING:
+    from sentence_transformers import CrossEncoder
 
 from phentrieve.data_processing.document_creator import load_hpo_terms
 from phentrieve.retrieval.dense_retriever import DenseRetriever
@@ -23,7 +27,7 @@ def orchestrate_hpo_extraction(
     retriever: DenseRetriever,
     num_results_per_chunk: int = 10,
     chunk_retrieval_threshold: float = 0.3,
-    cross_encoder: Optional[CrossEncoder] = None,
+    cross_encoder: Optional["CrossEncoder"] = None,
     translation_dir_path: Optional[Path] = None,
     language: str = "en",
     reranker_mode: str = "cross-lingual",

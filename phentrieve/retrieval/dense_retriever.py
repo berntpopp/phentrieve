@@ -8,10 +8,15 @@ relevant HPO terms based on semantic similarity with input text.
 import logging
 import os
 from pathlib import Path
-from typing import Any, Optional, Union
+from typing import TYPE_CHECKING, Any, Optional, Union
 
 import chromadb
-from sentence_transformers import SentenceTransformer
+
+# NOTE: SentenceTransformer is only imported for type hints (TYPE_CHECKING).
+# This module receives SentenceTransformer instances but doesn't create them,
+# so we avoid the 18+ second import cost at module load time.
+if TYPE_CHECKING:
+    from sentence_transformers import SentenceTransformer
 
 from phentrieve.config import MIN_SIMILARITY_THRESHOLD
 from phentrieve.utils import (
@@ -97,7 +102,7 @@ class DenseRetriever:
 
     def __init__(
         self,
-        model: SentenceTransformer,
+        model: "SentenceTransformer",
         collection: chromadb.Collection,
         min_similarity: float = MIN_SIMILARITY_THRESHOLD,
     ):
@@ -119,7 +124,7 @@ class DenseRetriever:
     @classmethod
     def from_model_name(
         cls,
-        model: SentenceTransformer,
+        model: "SentenceTransformer",
         model_name: str,
         index_dir: Optional[Union[str, Path]] = None,
         min_similarity: float = MIN_SIMILARITY_THRESHOLD,

@@ -11,7 +11,11 @@ from pathlib import Path
 from typing import Annotated, Optional
 
 import typer
-from sentence_transformers import SentenceTransformer
+
+# NOTE: SentenceTransformer is NOT imported at module level to avoid slow startup.
+# Importing sentence_transformers loads PyTorch/CUDA (18+ seconds), which should
+# only happen when commands actually need ML models, not for --help or --version.
+# The import is done inside command functions where the model is actually used.
 
 from phentrieve.cli.utils import load_text_from_input, resolve_chunking_pipeline_config
 from phentrieve.config import DEFAULT_MODEL
@@ -300,6 +304,9 @@ def process_text_for_hpo_command(
     # Load the SBERT model if needed for semantic chunking
     sbert_model_for_chunking = None
     if needs_semantic_model:
+        # Lazy import - only load heavy ML dependencies when actually needed
+        from sentence_transformers import SentenceTransformer
+
         semantic_model_name = semantic_chunker_model or DEFAULT_MODEL
         typer.echo(
             f"Loading sentence transformer model for chunking: {semantic_model_name}..."
@@ -338,6 +345,9 @@ def process_text_for_hpo_command(
     try:
         # Initialize the retriever
         try:
+            # Lazy import - only load heavy ML dependencies when actually needed
+            from sentence_transformers import SentenceTransformer
+
             # First load the SentenceTransformer model
             logger.info(f"Loading SentenceTransformer model: {model_name}")
             # Check for GPU availability
@@ -580,6 +590,9 @@ def chunk_text_command(
     # Load the SBERT model if needed
     sbert_model = None
     if needs_semantic_model:
+        # Lazy import - only load heavy ML dependencies when actually needed
+        from sentence_transformers import SentenceTransformer
+
         model_name = semantic_chunker_model or DEFAULT_MODEL
         typer.echo(f"Loading sentence transformer model: {model_name}...")
         try:
