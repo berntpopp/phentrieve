@@ -60,14 +60,24 @@ class TestFormatResultsAsText:
                 "query_text_processed": "segment 1",
                 "header_info": "Found 1 term:",
                 "results": [
-                    {"rank": 1, "hpo_id": "HP:0000001", "label": "Term 1", "similarity": 0.9}
+                    {
+                        "rank": 1,
+                        "hpo_id": "HP:0000001",
+                        "label": "Term 1",
+                        "similarity": 0.9,
+                    }
                 ],
             },
             {
                 "query_text_processed": "segment 2",
                 "header_info": "Found 1 term:",
                 "results": [
-                    {"rank": 1, "hpo_id": "HP:0000002", "label": "Term 2", "similarity": 0.8}
+                    {
+                        "rank": 1,
+                        "hpo_id": "HP:0000002",
+                        "label": "Term 2",
+                        "similarity": 0.8,
+                    }
                 ],
             },
         ]
@@ -90,7 +100,12 @@ class TestFormatResultsAsText:
                 "header_info": "Found 1 term:",
                 "original_query_assertion_status": "negated",
                 "results": [
-                    {"rank": 1, "hpo_id": "HP:0000001", "label": "Term", "similarity": 0.9}
+                    {
+                        "rank": 1,
+                        "hpo_id": "HP:0000001",
+                        "label": "Term",
+                        "similarity": 0.9,
+                    }
                 ],
             }
         ]
@@ -110,7 +125,12 @@ class TestFormatResultsAsText:
                 "header_info": "Found 1 term:",
                 "original_query_assertion_status_value": "uncertain",
                 "results": [
-                    {"rank": 1, "hpo_id": "HP:0000001", "label": "Term", "similarity": 0.9}
+                    {
+                        "rank": 1,
+                        "hpo_id": "HP:0000001",
+                        "label": "Term",
+                        "similarity": 0.9,
+                    }
                 ],
             }
         ]
@@ -225,14 +245,24 @@ class TestFormatResultsAsJson:
                 "query_text_processed": "query 1",
                 "header_info": "Found 1 term:",
                 "results": [
-                    {"rank": 1, "hpo_id": "HP:0000001", "label": "Term 1", "similarity": 0.9}
+                    {
+                        "rank": 1,
+                        "hpo_id": "HP:0000001",
+                        "label": "Term 1",
+                        "similarity": 0.9,
+                    }
                 ],
             },
             {
                 "query_text_processed": "query 2",
                 "header_info": "Found 1 term:",
                 "results": [
-                    {"rank": 1, "hpo_id": "HP:0000002", "label": "Term 2", "similarity": 0.8}
+                    {
+                        "rank": 1,
+                        "hpo_id": "HP:0000002",
+                        "label": "Term 2",
+                        "similarity": 0.8,
+                    }
                 ],
             },
         ]
@@ -284,7 +314,12 @@ class TestFormatResultsAsJson:
                 "header_info": "Found 1 term:",
                 "original_query_assertion_status_value": "negated",
                 "results": [
-                    {"rank": 1, "hpo_id": "HP:0000001", "label": "Term", "similarity": 0.9}
+                    {
+                        "rank": 1,
+                        "hpo_id": "HP:0000001",
+                        "label": "Term",
+                        "similarity": 0.9,
+                    }
                 ],
             }
         ]
@@ -373,14 +408,24 @@ class TestFormatResultsAsJsonl:
                 "query_text_processed": "query 1",
                 "header_info": "Found 1 term:",
                 "results": [
-                    {"rank": 1, "hpo_id": "HP:0000001", "label": "Term 1", "similarity": 0.9}
+                    {
+                        "rank": 1,
+                        "hpo_id": "HP:0000001",
+                        "label": "Term 1",
+                        "similarity": 0.9,
+                    }
                 ],
             },
             {
                 "query_text_processed": "query 2",
                 "header_info": "Found 1 term:",
                 "results": [
-                    {"rank": 1, "hpo_id": "HP:0000002", "label": "Term 2", "similarity": 0.8}
+                    {
+                        "rank": 1,
+                        "hpo_id": "HP:0000002",
+                        "label": "Term 2",
+                        "similarity": 0.8,
+                    }
                 ],
             },
         ]
@@ -433,7 +478,12 @@ class TestFormatResultsAsJsonl:
                 "header_info": "Found 1 term:",
                 "original_query_assertion_status": "uncertain",
                 "results": [
-                    {"rank": 1, "hpo_id": "HP:0000001", "label": "Term", "similarity": 0.9}
+                    {
+                        "rank": 1,
+                        "hpo_id": "HP:0000001",
+                        "label": "Term",
+                        "similarity": 0.9,
+                    }
                 ],
             }
         ]

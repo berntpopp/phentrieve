@@ -242,7 +242,10 @@ class TestQueryResponse:
 
         # Assert
         assert resp.language_detected == "en"
-        assert resp.reranker_used == "MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7"
+        assert (
+            resp.reranker_used
+            == "MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7"
+        )
         assert resp.query_assertion_status == "negated"
         assert resp.results[0].cross_encoder_score == 0.92
 
@@ -340,7 +343,9 @@ class TestSimilarityResponse:
             query_label="Seizure",
             model_used="FremyCompany/BioLORD-2023-M",
             similar_terms=[
-                SimilarityPairResult(hpo_id="HP:0002066", label="Gait ataxia", similarity=0.78)
+                SimilarityPairResult(
+                    hpo_id="HP:0002066", label="Gait ataxia", similarity=0.78
+                )
             ],
         )
 

@@ -13,8 +13,8 @@ pytestmark = pytest.mark.unit
 class TestLoadCrossEncoder:
     """Test load_cross_encoder function with real logic execution."""
 
-    @patch('phentrieve.retrieval.reranker.CrossEncoder')
-    @patch('phentrieve.retrieval.reranker.torch.cuda.is_available')
+    @patch("phentrieve.retrieval.reranker.CrossEncoder")
+    @patch("phentrieve.retrieval.reranker.torch.cuda.is_available")
     def test_successful_load_with_auto_cpu(self, mock_cuda, mock_ce):
         """Test successful model loading with automatic CPU detection."""
         # Arrange
@@ -29,8 +29,8 @@ class TestLoadCrossEncoder:
         assert result == mock_model
         mock_ce.assert_called_once_with("test-model", device="cpu")
 
-    @patch('phentrieve.retrieval.reranker.CrossEncoder')
-    @patch('phentrieve.retrieval.reranker.torch.cuda.is_available')
+    @patch("phentrieve.retrieval.reranker.CrossEncoder")
+    @patch("phentrieve.retrieval.reranker.torch.cuda.is_available")
     def test_successful_load_with_auto_cuda(self, mock_cuda, mock_ce):
         """Test successful model loading with automatic CUDA detection."""
         # Arrange
@@ -45,8 +45,8 @@ class TestLoadCrossEncoder:
         assert result == mock_model
         mock_ce.assert_called_once_with("test-model", device="cuda")
 
-    @patch('phentrieve.retrieval.reranker.CrossEncoder')
-    @patch('phentrieve.retrieval.reranker.torch.cuda.is_available')
+    @patch("phentrieve.retrieval.reranker.CrossEncoder")
+    @patch("phentrieve.retrieval.reranker.torch.cuda.is_available")
     def test_successful_load_with_explicit_device(self, mock_cuda, mock_ce):
         """Test successful model loading with explicit device override."""
         # Arrange
@@ -61,8 +61,8 @@ class TestLoadCrossEncoder:
         assert result == mock_model
         mock_ce.assert_called_once_with("test-model", device="cpu")
 
-    @patch('phentrieve.retrieval.reranker.CrossEncoder')
-    @patch('phentrieve.retrieval.reranker.torch.cuda.is_available')
+    @patch("phentrieve.retrieval.reranker.CrossEncoder")
+    @patch("phentrieve.retrieval.reranker.torch.cuda.is_available")
     def test_load_failure_error_handling(self, mock_cuda, mock_ce):
         """Test error handling when model loading fails."""
         # Arrange
@@ -110,11 +110,13 @@ class TestRerankWithCrossEncoder:
         # Arrange
         mock_model = Mock()
         # NLI model returns array with [entailment, neutral, contradiction] probabilities
-        mock_model.predict.return_value = np.array([
-            [0.8, 0.1, 0.1],  # doc1 - high entailment
-            [0.2, 0.3, 0.5],  # doc2 - low entailment
-            [0.6, 0.2, 0.2],  # doc3 - medium entailment
-        ])
+        mock_model.predict.return_value = np.array(
+            [
+                [0.8, 0.1, 0.1],  # doc1 - high entailment
+                [0.2, 0.3, 0.5],  # doc2 - low entailment
+                [0.6, 0.2, 0.2],  # doc3 - medium entailment
+            ]
+        )
 
         query = "test query"
         candidates = [

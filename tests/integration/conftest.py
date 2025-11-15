@@ -1,6 +1,5 @@
 """Integration test fixtures (real dependencies)."""
 
-
 import pytest
 
 

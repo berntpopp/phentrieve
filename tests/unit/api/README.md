@@ -79,11 +79,11 @@ tests/unit/api/
 5. ✗ `PYTHONPATH` environment variable
 6. ✗ `--import-mode=importlib`
 
-**Current Solution**: Using Makefile targets that set PYTHONPATH (works inconsistently due to pytest caching/assertion rewriting timing)
+**Current Solution**: Using Makefile targets that set PYTHONPATH
 
-**Recommended Fix** (from pytest documentation):
-- Use `src` layout: Move API code to `src/api/` (requires refactoring)
-- OR: Accept the Makefile/PYTHONPATH workaround for now
+**Status**: **ACCEPTED** - This workaround is the official solution for API tests. The `make test-api` and `make test-api-cov` targets handle PYTHONPATH configuration automatically.
+
+**Future Consideration**: The `src` layout refactoring was attempted but deferred to avoid regressions and allow more thorough research into pytest 9.0 configuration. This may be revisited as a separate, dedicated refactoring task.
 
 ## Future Improvements
 

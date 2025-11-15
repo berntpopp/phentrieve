@@ -15,7 +15,7 @@ pytestmark = pytest.mark.unit
 class TestConnectToChroma:
     """Test connect_to_chroma function with real logic execution."""
 
-    @patch('phentrieve.retrieval.dense_retriever.chromadb.PersistentClient')
+    @patch("phentrieve.retrieval.dense_retriever.chromadb.PersistentClient")
     def test_successful_connection(self, mock_client_class):
         """Test successful connection to ChromaDB collection."""
         # Arrange
@@ -34,7 +34,7 @@ class TestConnectToChroma:
         mock_client.get_collection.assert_called_once_with(name="test_collection")
         mock_collection.count.assert_called_once()
 
-    @patch('phentrieve.retrieval.dense_retriever.chromadb.PersistentClient')
+    @patch("phentrieve.retrieval.dense_retriever.chromadb.PersistentClient")
     def test_collection_not_found_no_alternates(self, mock_client_class):
         """Test when collection not found and no alternate collections exist."""
         # Arrange
@@ -49,9 +49,11 @@ class TestConnectToChroma:
         # Assert
         assert result is None
 
-    @patch('phentrieve.retrieval.dense_retriever.chromadb.PersistentClient')
-    @patch('phentrieve.retrieval.dense_retriever.generate_collection_name')
-    def test_collection_not_found_with_alternate(self, mock_gen_name, mock_client_class):
+    @patch("phentrieve.retrieval.dense_retriever.chromadb.PersistentClient")
+    @patch("phentrieve.retrieval.dense_retriever.generate_collection_name")
+    def test_collection_not_found_with_alternate(
+        self, mock_gen_name, mock_client_class
+    ):
         """Test finding alternate collection when primary not found."""
         # Arrange
         mock_alternate_collection = Mock()
@@ -63,7 +65,7 @@ class TestConnectToChroma:
         mock_client = Mock()
         mock_client.get_collection.side_effect = [
             Exception("Not found"),  # First call fails
-            mock_alternate_collection  # Second call succeeds
+            mock_alternate_collection,  # Second call succeeds
         ]
         mock_client.list_collections.return_value = [mock_collection_obj_1]
         mock_client_class.return_value = mock_client
@@ -71,12 +73,14 @@ class TestConnectToChroma:
         mock_gen_name.return_value = "alternate_name"
 
         # Act
-        result = connect_to_chroma("/fake/index", "original_name", model_name="some-model")
+        result = connect_to_chroma(
+            "/fake/index", "original_name", model_name="some-model"
+        )
 
         # Assert
         assert result == mock_alternate_collection
 
-    @patch('phentrieve.retrieval.dense_retriever.chromadb.PersistentClient')
+    @patch("phentrieve.retrieval.dense_retriever.chromadb.PersistentClient")
     def test_chromadb_connection_error(self, mock_client_class):
         """Test error handling when ChromaDB connection fails."""
         # Arrange
@@ -116,7 +120,9 @@ class TestDenseRetrieverInit:
         custom_threshold = 0.8
 
         # Act
-        retriever = DenseRetriever(mock_model, mock_collection, min_similarity=custom_threshold)
+        retriever = DenseRetriever(
+            mock_model, mock_collection, min_similarity=custom_threshold
+        )
 
         # Assert
         assert retriever.min_similarity == custom_threshold
@@ -125,10 +131,12 @@ class TestDenseRetrieverInit:
 class TestDenseRetrieverFromModelName:
     """Test DenseRetriever.from_model_name class method."""
 
-    @patch('phentrieve.retrieval.dense_retriever.connect_to_chroma')
-    @patch('phentrieve.retrieval.dense_retriever.resolve_data_path')
-    @patch('phentrieve.retrieval.dense_retriever.generate_collection_name')
-    def test_successful_creation_with_default_index(self, mock_gen_name, mock_resolve_path, mock_connect):
+    @patch("phentrieve.retrieval.dense_retriever.connect_to_chroma")
+    @patch("phentrieve.retrieval.dense_retriever.resolve_data_path")
+    @patch("phentrieve.retrieval.dense_retriever.generate_collection_name")
+    def test_successful_creation_with_default_index(
+        self, mock_gen_name, mock_resolve_path, mock_connect
+    ):
         """Test successful retriever creation with default index directory."""
         # Arrange
         mock_model = Mock()
@@ -140,9 +148,10 @@ class TestDenseRetrieverFromModelName:
         mock_connect.return_value = mock_collection
 
         # Mock Path.exists() and is_dir()
-        with patch.object(Path, 'exists', return_value=True), \
-             patch.object(Path, 'is_dir', return_value=True):
-
+        with (
+            patch.object(Path, "exists", return_value=True),
+            patch.object(Path, "is_dir", return_value=True),
+        ):
             # Act
             retriever = DenseRetriever.from_model_name(mock_model, "test-model")
 
@@ -153,8 +162,8 @@ class TestDenseRetrieverFromModelName:
             assert retriever.model_name == "test-model"
             assert retriever.index_base_path == mock_index_dir
 
-    @patch('phentrieve.retrieval.dense_retriever.connect_to_chroma')
-    @patch('phentrieve.retrieval.dense_retriever.generate_collection_name')
+    @patch("phentrieve.retrieval.dense_retriever.connect_to_chroma")
+    @patch("phentrieve.retrieval.dense_retriever.generate_collection_name")
     def test_successful_creation_with_explicit_index(self, mock_gen_name, mock_connect):
         """Test successful retriever creation with explicit index directory."""
         # Arrange
@@ -166,9 +175,10 @@ class TestDenseRetrieverFromModelName:
         mock_connect.return_value = mock_collection
 
         # Mock Path.exists() and is_dir()
-        with patch.object(Path, 'exists', return_value=True), \
-             patch.object(Path, 'is_dir', return_value=True):
-
+        with (
+            patch.object(Path, "exists", return_value=True),
+            patch.object(Path, "is_dir", return_value=True),
+        ):
             # Act
             retriever = DenseRetriever.from_model_name(
                 mock_model, "test-model", index_dir=explicit_index
@@ -178,8 +188,8 @@ class TestDenseRetrieverFromModelName:
             assert retriever is not None
             assert retriever.index_base_path == Path(explicit_index)
 
-    @patch('phentrieve.retrieval.dense_retriever.resolve_data_path')
-    @patch('phentrieve.retrieval.dense_retriever.generate_collection_name')
+    @patch("phentrieve.retrieval.dense_retriever.resolve_data_path")
+    @patch("phentrieve.retrieval.dense_retriever.generate_collection_name")
     def test_index_directory_not_found(self, mock_gen_name, mock_resolve_path):
         """Test when index directory doesn't exist."""
         # Arrange
@@ -190,16 +200,16 @@ class TestDenseRetrieverFromModelName:
         mock_resolve_path.return_value = mock_index_dir
 
         # Mock Path.exists() to return False
-        with patch.object(Path, 'exists', return_value=False):
+        with patch.object(Path, "exists", return_value=False):
             # Act
             retriever = DenseRetriever.from_model_name(mock_model, "test-model")
 
             # Assert
             assert retriever is None
 
-    @patch('phentrieve.retrieval.dense_retriever.connect_to_chroma')
-    @patch('phentrieve.retrieval.dense_retriever.resolve_data_path')
-    @patch('phentrieve.retrieval.dense_retriever.generate_collection_name')
+    @patch("phentrieve.retrieval.dense_retriever.connect_to_chroma")
+    @patch("phentrieve.retrieval.dense_retriever.resolve_data_path")
+    @patch("phentrieve.retrieval.dense_retriever.generate_collection_name")
     def test_connection_failure(self, mock_gen_name, mock_resolve_path, mock_connect):
         """Test when connection to ChromaDB fails."""
         # Arrange
@@ -211,9 +221,10 @@ class TestDenseRetrieverFromModelName:
         mock_connect.return_value = None  # Connection failed
 
         # Mock Path.exists() and is_dir()
-        with patch.object(Path, 'exists', return_value=True), \
-             patch.object(Path, 'is_dir', return_value=True):
-
+        with (
+            patch.object(Path, "exists", return_value=True),
+            patch.object(Path, "is_dir", return_value=True),
+        ):
             # Act
             retriever = DenseRetriever.from_model_name(mock_model, "test-model")
 
@@ -239,7 +250,7 @@ class TestDenseRetrieverQuery:
             "ids": [["HP:0001"]],
             "documents": [["Test document"]],
             "metadatas": [[{"hpo_id": "HP:0001"}]],
-            "distances": [[0.5]]
+            "distances": [[0.5]],
         }
 
         retriever = DenseRetriever(mock_model, mock_collection)
@@ -268,7 +279,7 @@ class TestDenseRetrieverQuery:
             "ids": [["HP:0001"]],
             "documents": [["Test document"]],
             "metadatas": [[{"hpo_id": "HP:0001"}]],
-            "distances": [[0.5]]
+            "distances": [[0.5]],
         }
 
         retriever = DenseRetriever(mock_model, mock_collection)
@@ -294,7 +305,7 @@ class TestDenseRetrieverQuery:
             "ids": [[]],
             "documents": [[]],
             "metadatas": [[]],
-            "distances": [[]]
+            "distances": [[]],
         }
 
         retriever = DenseRetriever(mock_model, mock_collection)
@@ -327,7 +338,7 @@ class TestDenseRetrieverQuery:
 class TestDenseRetrieverFilterResults:
     """Test DenseRetriever.filter_results method."""
 
-    @patch('phentrieve.retrieval.dense_retriever.calculate_similarity')
+    @patch("phentrieve.retrieval.dense_retriever.calculate_similarity")
     def test_filter_by_similarity_threshold(self, mock_calc_sim):
         """Test filtering results by similarity threshold."""
         # Arrange
@@ -352,7 +363,7 @@ class TestDenseRetrieverFilterResults:
         assert len(filtered["ids"][0]) == 2  # Only 2 results above 0.5 threshold
         assert filtered["ids"][0] == ["HP:0001", "HP:0002"]
 
-    @patch('phentrieve.retrieval.dense_retriever.calculate_similarity')
+    @patch("phentrieve.retrieval.dense_retriever.calculate_similarity")
     def test_filter_by_max_results(self, mock_calc_sim):
         """Test filtering results by maximum count."""
         # Arrange
@@ -397,7 +408,7 @@ class TestDenseRetrieverFilterResults:
         # Assert
         assert filtered == results
 
-    @patch('phentrieve.retrieval.dense_retriever.calculate_similarity')
+    @patch("phentrieve.retrieval.dense_retriever.calculate_similarity")
     def test_filter_with_existing_similarities(self, mock_calc_sim):
         """Test filtering when similarities already included in results."""
         # Arrange
@@ -410,7 +421,7 @@ class TestDenseRetrieverFilterResults:
             "documents": [["doc1", "doc2"]],
             "metadatas": [[{"id": "1"}, {"id": "2"}]],
             "distances": [[0.1, 0.5]],
-            "similarities": [[0.9, 0.5]]  # Already calculated
+            "similarities": [[0.9, 0.5]],  # Already calculated
         }
 
         # Act
@@ -421,7 +432,7 @@ class TestDenseRetrieverFilterResults:
         mock_calc_sim.assert_not_called()
         assert len(filtered["ids"][0]) == 2
 
-    @patch('phentrieve.retrieval.dense_retriever.calculate_similarity')
+    @patch("phentrieve.retrieval.dense_retriever.calculate_similarity")
     def test_filter_override_threshold(self, mock_calc_sim):
         """Test overriding default similarity threshold."""
         # Arrange

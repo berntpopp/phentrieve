@@ -1,4 +1,4 @@
-.PHONY: help format lint typecheck check test clean all install install-text-processing lock upgrade add remove clean-venv frontend-install frontend-lint frontend-format frontend-dev frontend-build docker-build docker-up docker-down docker-logs dev-api dev-frontend dev-all
+.PHONY: help format lint typecheck check test clean all install install-text-processing lock upgrade add remove clean-venv frontend-install frontend-lint frontend-format frontend-dev frontend-build docker-build docker-up docker-down docker-logs dev-api dev-frontend dev-all test-api test-api-cov test-e2e test-e2e-security test-e2e-health test-e2e-api test-e2e-fast test-e2e-clean test-e2e-logs test-e2e-shell
 
 # Default target
 .DEFAULT_GOAL := help
@@ -206,3 +206,63 @@ test-api:  ## Run API unit tests
 .PHONY: test-api-cov
 test-api-cov:  ## Run API tests with coverage
 	PYTHONPATH=$(PWD) python3 -m pytest tests/unit/api/ --cov=api --cov-report=term-missing -v
+
+##@ E2E Testing (Docker)
+
+.PHONY: test-e2e
+test-e2e:  ## Run all E2E tests (requires Docker)
+	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+	@echo "  Running E2E Docker Tests"
+	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+	@echo ""
+	@echo "Prerequisites:"
+	@echo "  • Docker Engine running"
+	@echo "  • docker-compose V2 installed"
+	@echo "  • HPO data prepared (data/hpo_core_data/)"
+	@echo "  • ~6GB free disk space"
+	@echo "  • ~4GB RAM available"
+	@echo ""
+	@echo "This will:"
+	@echo "  1. Build Docker images (first run: ~5-10 min)"
+	@echo "  2. Start containers with health checks"
+	@echo "  3. Run security, health, and API tests"
+	@echo "  4. Clean up containers and volumes"
+	@echo ""
+	@echo "Starting tests..."
+	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+	@echo ""
+	pytest tests/e2e/ -v -m e2e
+
+.PHONY: test-e2e-security
+test-e2e-security:  ## Run E2E security tests only
+	@echo "Running E2E Security Tests..."
+	pytest tests/e2e/test_docker_security.py -v -m e2e
+
+.PHONY: test-e2e-health
+test-e2e-health:  ## Run E2E health check tests only
+	@echo "Running E2E Health Tests..."
+	pytest tests/e2e/test_docker_health.py -v -m e2e
+
+.PHONY: test-e2e-api
+test-e2e-api:  ## Run E2E API workflow tests only
+	@echo "Running E2E API Workflow Tests..."
+	pytest tests/e2e/test_api_e2e.py -v -m e2e
+
+.PHONY: test-e2e-fast
+test-e2e-fast:  ## Run E2E tests with existing containers (no rebuild)
+	@echo "Running E2E tests with existing containers..."
+	pytest tests/e2e/ -v -m e2e --reuse-containers
+
+.PHONY: test-e2e-clean
+test-e2e-clean:  ## Clean up E2E test Docker resources
+	@echo "Cleaning up E2E test Docker resources..."
+	docker-compose -f docker-compose.test.yml -p phentrieve_e2e_test down -v
+	@echo "E2E test resources cleaned."
+
+.PHONY: test-e2e-logs
+test-e2e-logs:  ## View E2E test container logs
+	docker-compose -f docker-compose.test.yml -p phentrieve_e2e_test logs -f
+
+.PHONY: test-e2e-shell
+test-e2e-shell:  ## Open shell in E2E test API container
+	docker-compose -f docker-compose.test.yml -p phentrieve_e2e_test exec phentrieve_api_test sh

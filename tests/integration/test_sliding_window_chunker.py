@@ -68,7 +68,9 @@ class TestSlidingWindowSplitter:
 
         result = self.chunker.chunk([mixed_topic_text])
 
-        assert len(result) > 1, "Should split into at least 2 chunks for distinct topics"
+        assert len(result) > 1, (
+            "Should split into at least 2 chunks for distinct topics"
+        )
 
         combined_result = " ".join(result)
         translator = str.maketrans("", "", string.punctuation)

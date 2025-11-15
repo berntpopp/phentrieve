@@ -13,8 +13,8 @@ pytestmark = pytest.mark.unit
 class TestLoadEmbeddingModel:
     """Test load_embedding_model function with real logic execution."""
 
-    @patch('phentrieve.embeddings.SentenceTransformer')
-    @patch('phentrieve.embeddings.torch.cuda.is_available')
+    @patch("phentrieve.embeddings.SentenceTransformer")
+    @patch("phentrieve.embeddings.torch.cuda.is_available")
     def test_default_model_cpu(self, mock_cuda, mock_st):
         """Test loading default model on CPU."""
         # Arrange
@@ -30,8 +30,8 @@ class TestLoadEmbeddingModel:
         mock_model.to.assert_called_once_with("cpu")
         # model.to() returns the model itself
 
-    @patch('phentrieve.embeddings.SentenceTransformer')
-    @patch('phentrieve.embeddings.torch.cuda.is_available')
+    @patch("phentrieve.embeddings.SentenceTransformer")
+    @patch("phentrieve.embeddings.torch.cuda.is_available")
     def test_cuda_device_selection(self, mock_cuda, mock_st):
         """Test CUDA device selection when available."""
         # Arrange
@@ -45,8 +45,8 @@ class TestLoadEmbeddingModel:
         # Assert
         mock_model.to.assert_called_once_with("cuda")
 
-    @patch('phentrieve.embeddings.SentenceTransformer')
-    @patch('phentrieve.embeddings.torch.cuda.is_available')
+    @patch("phentrieve.embeddings.SentenceTransformer")
+    @patch("phentrieve.embeddings.torch.cuda.is_available")
     def test_explicit_device_override(self, mock_cuda, mock_st):
         """Test explicit device parameter overrides auto-detection."""
         # Arrange
@@ -60,8 +60,8 @@ class TestLoadEmbeddingModel:
         # Assert
         mock_model.to.assert_called_once_with("cpu")  # Should use explicit CPU
 
-    @patch('phentrieve.embeddings.SentenceTransformer')
-    @patch('phentrieve.embeddings.torch.cuda.is_available')
+    @patch("phentrieve.embeddings.SentenceTransformer")
+    @patch("phentrieve.embeddings.torch.cuda.is_available")
     def test_jina_model_special_handling(self, mock_cuda, mock_st):
         """Test Jina model loads with trust_remote_code=True."""
         # Arrange
@@ -75,8 +75,8 @@ class TestLoadEmbeddingModel:
         # Assert
         mock_st.assert_called_once_with(JINA_MODEL_ID, trust_remote_code=True)
 
-    @patch('phentrieve.embeddings.SentenceTransformer')
-    @patch('phentrieve.embeddings.torch.cuda.is_available')
+    @patch("phentrieve.embeddings.SentenceTransformer")
+    @patch("phentrieve.embeddings.torch.cuda.is_available")
     def test_biolord_model_special_handling(self, mock_cuda, mock_st):
         """Test BioLORD model loads with trust_remote_code=True."""
         # Arrange
@@ -90,8 +90,8 @@ class TestLoadEmbeddingModel:
         # Assert
         mock_st.assert_called_once_with(DEFAULT_BIOLORD_MODEL, trust_remote_code=True)
 
-    @patch('phentrieve.embeddings.SentenceTransformer')
-    @patch('phentrieve.embeddings.torch.cuda.is_available')
+    @patch("phentrieve.embeddings.SentenceTransformer")
+    @patch("phentrieve.embeddings.torch.cuda.is_available")
     def test_trust_remote_code_parameter(self, mock_cuda, mock_st):
         """Test trust_remote_code parameter is respected."""
         # Arrange
@@ -106,8 +106,8 @@ class TestLoadEmbeddingModel:
         # Assert
         mock_st.assert_called_once_with(custom_model, trust_remote_code=True)
 
-    @patch('phentrieve.embeddings.SentenceTransformer')
-    @patch('phentrieve.embeddings.torch.cuda.is_available')
+    @patch("phentrieve.embeddings.SentenceTransformer")
+    @patch("phentrieve.embeddings.torch.cuda.is_available")
     def test_standard_model_loading(self, mock_cuda, mock_st):
         """Test standard model loading without trust_remote_code."""
         # Arrange
@@ -122,8 +122,8 @@ class TestLoadEmbeddingModel:
         # Assert
         mock_st.assert_called_once_with(standard_model)
 
-    @patch('phentrieve.embeddings.SentenceTransformer')
-    @patch('phentrieve.embeddings.torch.cuda.is_available')
+    @patch("phentrieve.embeddings.SentenceTransformer")
+    @patch("phentrieve.embeddings.torch.cuda.is_available")
     def test_error_handling(self, mock_cuda, mock_st):
         """Test error handling when model loading fails."""
         # Arrange

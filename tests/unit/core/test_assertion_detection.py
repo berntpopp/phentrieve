@@ -31,12 +31,14 @@ class TestKeywordAssertionDetector:
 
         for text, expected_status in test_cases:
             status, details = self.detector.detect(text)
-            assert status == expected_status, \
+            assert status == expected_status, (
                 f"Failed for text: '{text}', got {status} instead of {expected_status}"
+            )
 
             if expected_status == AssertionStatus.NEGATED:
-                assert len(details["keyword_negated_scopes"]) > 0, \
+                assert len(details["keyword_negated_scopes"]) > 0, (
                     f"No negation scopes found for '{text}'"
+                )
 
     def test_normality_detection(self):
         """Test detection of normality in text."""
@@ -49,12 +51,14 @@ class TestKeywordAssertionDetector:
 
         for text, expected_status in test_cases:
             status, details = self.detector.detect(text)
-            assert status == expected_status, \
+            assert status == expected_status, (
                 f"Failed for text: '{text}', got {status} instead of {expected_status}"
+            )
 
             if expected_status == AssertionStatus.NORMAL:
-                assert len(details["keyword_normal_scopes"]) > 0, \
+                assert len(details["keyword_normal_scopes"]) > 0, (
                     f"No normality scopes found for '{text}'"
+                )
 
 
 class TestDependencyAssertionDetector:
@@ -79,12 +83,14 @@ class TestDependencyAssertionDetector:
 
         for text, expected_status in test_cases:
             status, details = self.detector.detect(text)
-            assert status == expected_status, \
+            assert status == expected_status, (
                 f"Failed for text: '{text}', got {status} instead of {expected_status}"
+            )
 
             if expected_status == AssertionStatus.NEGATED:
-                assert len(details["dependency_negated_concepts"]) > 0, \
+                assert len(details["dependency_negated_concepts"]) > 0, (
                     f"No negation concepts found for '{text}'"
+                )
 
     def test_normality_detection_after_refactoring(self):
         """Test normality detection works correctly after refactoring."""
@@ -97,12 +103,14 @@ class TestDependencyAssertionDetector:
 
         for text, expected_status in test_cases:
             status, details = self.detector.detect(text)
-            assert status == expected_status, \
+            assert status == expected_status, (
                 f"Failed for text: '{text}', got {status} instead of {expected_status}"
+            )
 
             if expected_status == AssertionStatus.NORMAL:
-                assert len(details["dependency_normal_concepts"]) > 0, \
+                assert len(details["dependency_normal_concepts"]) > 0, (
                     f"No normality concepts found for '{text}'"
+                )
 
     def test_multilingual_support(self):
         """Test detection in different languages."""

@@ -1,0 +1,89 @@
+# docker-compose.test.yml
+# Docker Compose configuration for E2E testing
+# Optimized for fast test execution with minimal resource usage
+#
+# Usage: pytest tests/e2e/ -v --tb=short
+#
+# Key differences from production docker-compose.yml:
+# - Smaller resource limits for faster startup
+# - Shorter health check timeouts
+# - Test-specific port mappings to avoid conflicts
+# - Minimal data volumes (no persistent storage needed)
+
+version: '3.9'
+
+services:
+  phentrieve_api_test:
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+      args:
+        BUILDKIT_INLINE_CACHE: 1
+
+    # SECURITY: Run as non-root user (same as production)
+    user: "10001:10001"
+
+    # Resource limits (reduced for testing)
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'       # Reduced from 4.0
+          memory: 4G        # Reduced from 8G
+        reservations:
+          cpus: '0.5'
+          memory: 2G
+
+    # SECURITY: Same security settings as production
+    security_opt:
+      - no-new-privileges:true
+      - seccomp:unconfined
+
+    cap_drop:
+      - ALL
+
+    # SECURITY: Read-only root filesystem
+    read_only: true
+
+    # Writable tmpfs mounts
+    tmpfs:
+      - /tmp:uid=10001,gid=10001,mode=1777,size=500M
+      - /app/.cache:uid=10001,gid=10001,mode=0755,size=1G
+
+    # Minimal volumes for testing (no persistent data needed)
+    volumes:
+      - ./data:/phentrieve_data_mount:ro
+      - test_hf_cache:/app/.cache/huggingface:rw
+
+    # Environment variables
+    environment:
+      - PHENTRIEVE_DATA_ROOT_DIR=/phentrieve_data_mount
+      - LOG_LEVEL=INFO
+      - PYTHONPATH=/app
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONUNBUFFERED=1
+      - HF_HOME=/app/.cache/huggingface
+      - TRANSFORMERS_CACHE=/app/.cache/huggingface/hub
+
+    # Health check (shorter timeouts for testing)
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/api/v1/health || exit 1"]
+      interval: 10s       # More frequent checks
+      timeout: 5s
+      retries: 5
+      start_period: 60s   # Shorter grace period
+
+    # Test-specific port mapping to avoid conflicts with dev environment
+    ports:
+      - "8001:8000"       # Map to 8001 on host for testing
+
+    networks:
+      - test_network
+
+# Test network configuration
+networks:
+  test_network:
+    driver: bridge
+
+# Named volume for test HuggingFace cache
+volumes:
+  test_hf_cache:

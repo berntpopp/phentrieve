@@ -186,7 +186,9 @@ class TestSemanticPRF1:
         # Always return low similarity
         mock_sim.return_value = 0.1
 
-        extracted = [{"id": "HP:0001251", "name": "Atonic seizure", "status": "affirmed"}]
+        extracted = [
+            {"id": "HP:0001251", "name": "Atonic seizure", "status": "affirmed"}
+        ]
 
         ground_truth = [
             {

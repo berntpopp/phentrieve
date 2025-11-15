@@ -22,6 +22,7 @@ from phentrieve.text_processing.chunkers import (
 
 pytestmark = pytest.mark.unit
 
+
 class TestParagraphChunker:
     """Test cases for the ParagraphChunker class."""
 
@@ -260,22 +261,38 @@ class TestConjunctionChunker:
 
         # The chunker splits at both standalone 'and's but not within words
         # First validate we don't have chunks with partial names
-        assert not any(chunk == "S" for chunk in result), "Should not split 'Sandy' at 'and'"
-        assert not any(chunk == "y" for chunk in result), "Should not split 'Sandy' at 'and'"
+        assert not any(chunk == "S" for chunk in result), (
+            "Should not split 'Sandy' at 'and'"
+        )
+        assert not any(chunk == "y" for chunk in result), (
+            "Should not split 'Sandy' at 'and'"
+        )
 
         # Now check that chunks with expected content are present
-        assert any("Sandy" in chunk for chunk in result), "'Sandy' not found in any chunk"
+        assert any("Sandy" in chunk for chunk in result), (
+            "'Sandy' not found in any chunk"
+        )
         assert any("Andy" in chunk for chunk in result), "'Andy' not found in any chunk"
-        assert any("beach" in chunk for chunk in result), "'beach' not found in any chunk"
-        assert any(chunk.startswith("and it") for chunk in result), "No chunk starts with 'and it'"
+        assert any("beach" in chunk for chunk in result), (
+            "'beach' not found in any chunk"
+        )
+        assert any(chunk.startswith("and it") for chunk in result), (
+            "No chunk starts with 'and it'"
+        )
 
         # Verify we have at least 2 chunks (split at least once on 'and')
         assert len(result) > 1, "Should split at least once on 'and'"
 
         # Verify words containing 'and' as substring are not split
-        assert not any(chunk == "S" for chunk in result), "Should not split 'Sandy' at 'and'"
-        assert not any(chunk == "y" for chunk in result), "Should not split 'Sandy' at 'and'"
-        assert any("Andy" in chunk for chunk in result), "'Andy' should be preserved intact"
+        assert not any(chunk == "S" for chunk in result), (
+            "Should not split 'Sandy' at 'and'"
+        )
+        assert not any(chunk == "y" for chunk in result), (
+            "Should not split 'Sandy' at 'and'"
+        )
+        assert any("Andy" in chunk for chunk in result), (
+            "'Andy' should be preserved intact"
+        )
 
     def test_multiple_conjunctions_of_same_type(self):
         """Test handling of multiple instances of the same conjunction."""
@@ -308,9 +325,13 @@ class TestConjunctionChunker:
         assert len(result) > 1, "Should split at English conjunctions"
 
         # Verify the content of the chunks
-        assert any("This is a test with" in chunk for chunk in result), "First part before 'and' not found"
+        assert any("This is a test with" in chunk for chunk in result), (
+            "First part before 'and' not found"
+        )
         assert any("conjunction" in chunk for chunk in result), "Middle part not found"
-        assert any("should not be split" in chunk for chunk in result), "Last part not found"
+        assert any("should not be split" in chunk for chunk in result), (
+            "Last part not found"
+        )
 
 
 class TestFinalChunkCleaner:

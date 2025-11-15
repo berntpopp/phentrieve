@@ -214,8 +214,10 @@ class TestLoadTranslationText:
         mock_json = json.dumps(mock_data)
 
         # Act
-        with patch("os.path.exists", return_value=True), \
-             patch("builtins.open", mock_open(read_data=mock_json)):
+        with (
+            patch("os.path.exists", return_value=True),
+            patch("builtins.open", mock_open(read_data=mock_json)),
+        ):
             result = load_translation_text("HP:0004241", "/fake/translation/dir")
 
         # Assert
@@ -228,8 +230,10 @@ class TestLoadTranslationText:
         mock_json = json.dumps(mock_data)
 
         # Act
-        with patch("os.path.exists", return_value=True), \
-             patch("builtins.open", mock_open(read_data=mock_json)):
+        with (
+            patch("os.path.exists", return_value=True),
+            patch("builtins.open", mock_open(read_data=mock_json)),
+        ):
             result = load_translation_text("HP:0004241", "/fake/translation/dir")
 
         # Assert
@@ -251,8 +255,10 @@ class TestLoadTranslationText:
         mock_json = json.dumps(mock_data)
 
         # Act
-        with patch("os.path.exists", return_value=True), \
-             patch("builtins.open", mock_open(read_data=mock_json)):
+        with (
+            patch("os.path.exists", return_value=True),
+            patch("builtins.open", mock_open(read_data=mock_json)),
+        ):
             result = load_translation_text("HP:0004241", "/fake/translation/dir")
 
         # Assert
@@ -265,8 +271,10 @@ class TestLoadTranslationText:
         mock_json = json.dumps(mock_data)
 
         # Act
-        with patch("os.path.exists", return_value=True), \
-             patch("builtins.open", mock_open(read_data=mock_json)):
+        with (
+            patch("os.path.exists", return_value=True),
+            patch("builtins.open", mock_open(read_data=mock_json)),
+        ):
             result = load_translation_text("HP:0004241", "/fake/translation/dir")
 
         # Assert
@@ -275,8 +283,10 @@ class TestLoadTranslationText:
     def test_json_decode_error(self):
         """Test error handling for invalid JSON."""
         # Act
-        with patch("os.path.exists", return_value=True), \
-             patch("builtins.open", mock_open(read_data="invalid json{")):
+        with (
+            patch("os.path.exists", return_value=True),
+            patch("builtins.open", mock_open(read_data="invalid json{")),
+        ):
             result = load_translation_text("HP:0004241", "/fake/translation/dir")
 
         # Assert
@@ -289,8 +299,10 @@ class TestLoadTranslationText:
         mock_json = json.dumps(mock_data)
 
         # Act
-        with patch("os.path.exists", return_value=True) as mock_exists, \
-             patch("builtins.open", mock_open(read_data=mock_json)):
+        with (
+            patch("os.path.exists", return_value=True) as mock_exists,
+            patch("builtins.open", mock_open(read_data=mock_json)),
+        ):
             load_translation_text("HP:0004241", "/fake/dir")
 
             # Verify the correct path was checked

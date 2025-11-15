@@ -80,8 +80,9 @@ class TestChunkingPipelineIntegration:
         ]
 
         for phrase in key_phrases:
-            assert phrase.lower() in all_text.lower(), \
+            assert phrase.lower() in all_text.lower(), (
                 f"Phrase '{phrase}' should be preserved in chunking output"
+            )
 
     def test_language_specific_conjunction_splitting(self, embedding_model):
         """Test conjunction splitting with different languages."""
@@ -136,8 +137,12 @@ class TestChunkingPipelineIntegration:
         chunk_texts = [chunk["text"] for chunk in chunks]
 
         # Find chunk containing "chest pain"
-        chest_pain_chunks = [text for text in chunk_texts if "chest pain" in text.lower()]
-        assert len(chest_pain_chunks) > 0, "Should have at least one chunk with 'chest pain'"
+        chest_pain_chunks = [
+            text for text in chunk_texts if "chest pain" in text.lower()
+        ]
+        assert len(chest_pain_chunks) > 0, (
+            "Should have at least one chunk with 'chest pain'"
+        )
 
         # Verify all key clinical information is preserved
         key_clinical_terms = [
@@ -157,8 +162,9 @@ class TestChunkingPipelineIntegration:
         ]
 
         for term in key_clinical_terms:
-            assert any(term.lower() in chunk.lower() for chunk in chunk_texts), \
+            assert any(term.lower() in chunk.lower() for chunk in chunk_texts), (
                 f"Clinical term '{term}' should be preserved in some chunk"
+            )
 
         # Medication information should be present
         medication_chunks = [
@@ -166,8 +172,9 @@ class TestChunkingPipelineIntegration:
             for text in chunk_texts
             if "lisinopril" in text.lower() or "atorvastatin" in text.lower()
         ]
-        assert len(medication_chunks) > 0, \
+        assert len(medication_chunks) > 0, (
             "Should have at least one chunk with medication information"
+        )
 
     def test_custom_chunking_parameters(self, embedding_model):
         """Test custom parameters for sliding window."""
