@@ -202,4 +202,5 @@ dev = [
     "pytest-timeout>=2.4.0",
     "pytest-asyncio>=0.21.0",
     "pytest-docker>=3.1.0",  # For Docker E2E tests (Phase 3)
+    "docker>=7.0.0",  # Docker SDK for E2E tests
 ]
