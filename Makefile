@@ -192,6 +192,75 @@ clean-data: ## Clean data caches (use with caution)
 	rm -rf data/chromadb_*
 	rm -rf data/hf_cache/
 
+##@ CI/CD Pipeline (Local-First Best Practice)
+
+ci: ci-python ci-frontend ## Run full CI pipeline locally (matches GitHub Actions 1:1)
+
+ci-python: ## Run Python CI checks (matches GitHub Actions)
+	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+	@echo "  Python CI Pipeline"
+	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+	@echo ""
+	@echo "Running Python CI checks (same as GitHub Actions)..."
+	@echo ""
+	@echo "[1/4] Ruff format check..."
+	@ruff format --check phentrieve/ api/ tests/ || (echo "❌ Format check failed. Run: make format" && exit 1)
+	@echo "✅ Format check passed"
+	@echo ""
+	@echo "[2/4] Ruff lint check..."
+	@ruff check phentrieve/ api/ tests/ || (echo "❌ Lint check failed. Run: make lint-fix" && exit 1)
+	@echo "✅ Lint check passed"
+	@echo ""
+	@echo "[3/4] mypy type check..."
+	@uv run mypy phentrieve/ api/ || echo "⚠️  Type errors found (non-blocking)"
+	@echo ""
+	@echo "[4/4] pytest with coverage..."
+	@uv run pytest tests/ -v --cov=phentrieve --cov=api --cov-report=xml --cov-report=term || (echo "❌ Tests failed" && exit 1)
+	@echo "✅ Tests passed"
+	@echo ""
+	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+	@echo "  ✅ Python CI Pipeline Complete"
+	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+ci-frontend: ## Run Frontend CI checks (matches GitHub Actions)
+	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+	@echo "  Frontend CI Pipeline"
+	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+	@echo ""
+	@echo "Running Frontend CI checks (same as GitHub Actions)..."
+	@echo ""
+	@echo "[1/5] npm install (if needed)..."
+	@cd frontend && npm ci
+	@echo "✅ Dependencies installed"
+	@echo ""
+	@echo "[2/5] ESLint check..."
+	@cd frontend && npm run lint || (echo "❌ ESLint failed. Run: make frontend-lint" && exit 1)
+	@echo "✅ ESLint passed"
+	@echo ""
+	@echo "[3/5] Prettier format check..."
+	@cd frontend && npm run format:check || (echo "❌ Format check failed. Run: make frontend-format" && exit 1)
+	@echo "✅ Format check passed"
+	@echo ""
+	@echo "[4/5] Vitest tests with coverage..."
+	@cd frontend && npm run test:coverage || (echo "❌ Tests failed" && exit 1)
+	@echo "✅ Tests passed"
+	@echo ""
+	@echo "[5/5] Production build..."
+	@cd frontend && VITE_API_URL=/api/v1 npm run build || (echo "❌ Build failed" && exit 1)
+	@echo "✅ Build passed"
+	@echo ""
+	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+	@echo "  ✅ Frontend CI Pipeline Complete"
+	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+ci-quick: ## Quick CI check (format + lint only, no tests)
+	@echo "Running quick CI checks (format + lint)..."
+	@ruff format --check phentrieve/ api/ tests/
+	@ruff check phentrieve/ api/ tests/
+	@cd frontend && npm run lint
+	@cd frontend && npm run format:check
+	@echo "✅ Quick CI checks passed"
+
 ##@ All-in-one
 
 check-all: check frontend-lint frontend-test ## Check and test both Python and frontend code
