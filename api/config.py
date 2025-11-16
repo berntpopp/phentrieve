@@ -69,7 +69,7 @@ def _load_api_yaml_config() -> dict[Any, Any]:
                         return {}
                     logger.info(f"Loaded API configuration from: {config_path}")
                     return cast(dict[Any, Any], config)
-            except Exception as e:
+            except (yaml.YAMLError, OSError) as e:
                 logger.warning(
                     f"Failed to load API config from {config_path}: {e}. Using defaults."
                 )
@@ -159,7 +159,11 @@ CROSS_ENCODER_LOAD_TIMEOUT: float = float(
 
 # CORS settings
 ALLOWED_ORIGINS: list[str] = (
-    os.getenv("ALLOWED_ORIGINS", "").split(",")
+    [
+        origin.strip()
+        for origin in os.getenv("ALLOWED_ORIGINS", "").split(",")
+        if origin.strip()
+    ]
     if os.getenv("ALLOWED_ORIGINS")
     else get_api_config_value("cors", _DEFAULT_CORS_ORIGINS, "allowed_origins")
 )

@@ -296,8 +296,14 @@ def _load_yaml_config() -> dict:
         from phentrieve.utils import load_user_config
 
         return load_user_config()
-    except Exception:
-        # If any error loading config, return empty dict (use all defaults)
+    except Exception as e:
+        # Log configuration loading errors for debugging
+        # but continue with defaults rather than failing
+        import logging
+
+        logging.getLogger(__name__).debug(
+            f"Failed to load configuration: {e}. Using defaults."
+        )
         return {}
 
 
@@ -341,9 +347,14 @@ def get_config_value(key: str, default: Any, nested_key: str | None = None) -> A
 
 # Models
 DEFAULT_MODEL: str = get_config_value("default_model", _DEFAULT_MODEL_FALLBACK)
-BENCHMARK_MODELS: list[str] = get_config_value(
-    "benchmark", _BENCHMARK_MODELS_FALLBACK, "models"
-)
+_loaded_models = get_config_value("benchmark", _BENCHMARK_MODELS_FALLBACK, "models")
+# Validate BENCHMARK_MODELS is a list of strings
+if not isinstance(_loaded_models, list) or not all(
+    isinstance(m, str) for m in _loaded_models
+):
+    BENCHMARK_MODELS: list[str] = _BENCHMARK_MODELS_FALLBACK
+else:
+    BENCHMARK_MODELS: list[str] = _loaded_models
 
 # Retrieval parameters
 MIN_SIMILARITY_THRESHOLD = get_config_value(
@@ -388,9 +399,11 @@ HPO_VERSION: str = get_config_value(
 HPO_BASE_URL: str = get_config_value(
     "hpo_data", _DEFAULT_HPO_BASE_URL_FALLBACK, "base_url"
 )
-HPO_DOWNLOAD_TIMEOUT: int = get_config_value(
-    "hpo_data", _DEFAULT_HPO_DOWNLOAD_TIMEOUT_FALLBACK, "download_timeout"
+HPO_DOWNLOAD_TIMEOUT: int = int(
+    get_config_value(
+        "hpo_data", _DEFAULT_HPO_DOWNLOAD_TIMEOUT_FALLBACK, "download_timeout"
+    )
 )
-HPO_CHUNK_SIZE: int = get_config_value(
-    "hpo_data", _DEFAULT_HPO_CHUNK_SIZE_FALLBACK, "chunk_size"
+HPO_CHUNK_SIZE: int = int(
+    get_config_value("hpo_data", _DEFAULT_HPO_CHUNK_SIZE_FALLBACK, "chunk_size")
 )

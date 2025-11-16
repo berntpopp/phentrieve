@@ -179,12 +179,6 @@ async def get_sbert_model_dependency(
                 headers={"Retry-After": "30"},
             )
 
-        # This should never be reached, but handle the case for type checker
-        raise HTTPException(
-            status_code=500,
-            detail=f"Model '{model_name}' failed to load for unknown reasons.",
-        )
-
 
 async def get_dense_retriever_dependency(
     sbert_model_name_for_retriever: str,  # SBERT model name for retriever
@@ -347,9 +341,3 @@ async def get_cross_encoder_dependency(
                 detail=f"CrossEncoder '{reranker_model_name}' is taking longer than expected to load. Please try again in 10 seconds.",
                 headers={"Retry-After": "10"},
             )
-
-        # This should never be reached, but handle the case for type checker
-        raise HTTPException(
-            status_code=500,
-            detail=f"CrossEncoder '{reranker_model_name}' failed to load for unknown reasons.",
-        )
