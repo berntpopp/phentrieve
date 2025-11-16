@@ -77,6 +77,11 @@ updates:
         update-types: ["version-update:semver-major"]
       - dependency-name: "vite"
         update-types: ["version-update:semver-major"]
+      # Ignore incompatible plugin versions (require Vite 5+ upgrade)
+      - dependency-name: "@vitejs/plugin-vue"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@fullhuman/postcss-purgecss"
+        update-types: ["version-update:semver-major"]
 
   # GitHub Actions
   - package-ecosystem: "github-actions"
