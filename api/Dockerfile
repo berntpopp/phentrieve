@@ -62,8 +62,8 @@ COPY --from=sqlite-builder /usr/local/lib/libsqlite3.* /usr/local/lib/
 COPY --from=sqlite-builder /usr/local/bin/sqlite3 /usr/local/bin/
 COPY --from=sqlite-builder /usr/local/include/sqlite3*.h /usr/local/include/
 
-# Set SQLite library path
-ENV LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
+# Set SQLite library path with conditional expansion to avoid undefined variable warning
+ENV LD_LIBRARY_PATH=/usr/local/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
 
 # Install build dependencies for Python packages
 # hadolint ignore=DL3008
@@ -145,7 +145,8 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 # Copy SQLite runtime libraries
 COPY --from=sqlite-builder /usr/local/lib/libsqlite3.* /usr/local/lib/
 COPY --from=sqlite-builder /usr/local/bin/sqlite3 /usr/local/bin/
-ENV LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
+# Set SQLite library path with conditional expansion to avoid undefined variable warning
+ENV LD_LIBRARY_PATH=/usr/local/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
 
 # Copy virtual environment from builder
 COPY --from=python-builder /opt/venv /opt/venv
