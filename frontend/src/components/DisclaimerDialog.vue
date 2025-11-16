@@ -9,12 +9,24 @@
     aria-describedby="disclaimer-content"
   >
     <v-card>
-      <v-card-title id="disclaimer-title" class="text-h5 d-flex align-center text-primary-darken-1">
-        <v-icon color="warning" class="mr-2" aria-hidden="true"> mdi-alert-circle </v-icon>
+      <v-card-title
+        id="disclaimer-title"
+        class="text-h5 d-flex align-center text-primary-darken-1"
+      >
+        <v-icon
+          color="warning"
+          class="mr-2"
+          aria-hidden="true"
+        >
+          mdi-alert-circle
+        </v-icon>
         {{ $t('disclaimerDialog.title') }}
       </v-card-title>
 
-      <v-card-text id="disclaimer-content" class="pb-0">
+      <v-card-text
+        id="disclaimer-content"
+        class="pb-0"
+      >
         <p class="mb-4 text-h6 text-high-emphasis">
           {{ $t('disclaimerDialog.mainHeader') }}
         </p>
@@ -27,8 +39,14 @@
           {{ $t('disclaimerDialog.limitationsTitle') }}
         </h3>
 
-        <ul class="mb-4 text-body-1 text-high-emphasis" role="list">
-          <li class="mb-2" v-html="$t('disclaimerDialog.limitations.item1')" />
+        <ul
+          class="mb-4 text-body-1 text-high-emphasis"
+          role="list"
+        >
+          <li
+            class="mb-2"
+            v-html="$t('disclaimerDialog.limitations.item1')"
+          />
           <li class="mb-2">
             {{ $t('disclaimerDialog.limitations.item2') }}
           </li>

@@ -10,8 +10,17 @@
           color="primary"
           class="language-btn"
         >
-          <v-icon :icon="currentLanguageIcon" size="small" :color="currentLanguageColor" />
-          <v-icon size="x-small" class="ml-1"> mdi-chevron-down </v-icon>
+          <v-icon
+            :icon="currentLanguageIcon"
+            size="small"
+            :color="currentLanguageColor"
+          />
+          <v-icon
+            size="x-small"
+            class="ml-1"
+          >
+            mdi-chevron-down
+          </v-icon>
         </v-btn>
       </template>
       <v-list density="compact">

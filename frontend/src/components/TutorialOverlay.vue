@@ -1,13 +1,28 @@
 <template>
-  <div v-if="isVisible" class="tutorial-overlay">
+  <div
+    v-if="isVisible"
+    class="tutorial-overlay"
+  >
     <!-- Backdrop -->
-    <div class="tutorial-backdrop" @click="skipTutorial" />
+    <div
+      class="tutorial-backdrop"
+      @click="skipTutorial"
+    />
 
     <!-- Highlight area -->
-    <div v-if="currentStep && highlightBounds" class="tutorial-highlight" :style="highlightStyle" />
+    <div
+      v-if="currentStep && highlightBounds"
+      class="tutorial-highlight"
+      :style="highlightStyle"
+    />
 
     <!-- Tutorial card -->
-    <v-card v-if="currentStep" class="tutorial-card elevation-8" :style="cardStyle" max-width="400">
+    <v-card
+      v-if="currentStep"
+      class="tutorial-card elevation-8"
+      :style="cardStyle"
+      max-width="400"
+    >
       <v-card-title class="d-flex align-center justify-space-between">
         <span class="text-h6">{{ $t(currentStep.titleKey) }}</span>
         <v-btn
@@ -29,12 +44,21 @@
           <span class="text-caption text-medium-emphasis mr-2">
             {{ currentStepIndex + 1 }} / {{ totalSteps }}
           </span>
-          <v-progress-linear :model-value="progress" color="primary" height="4" rounded />
+          <v-progress-linear
+            :model-value="progress"
+            color="primary"
+            height="4"
+            rounded
+          />
         </div>
       </v-card-text>
 
       <v-card-actions class="justify-space-between">
-        <v-btn variant="text" color="default" @click="skipTutorial">
+        <v-btn
+          variant="text"
+          color="default"
+          @click="skipTutorial"
+        >
           {{ $t('tutorial.navigation.skip') }}
         </v-btn>
 

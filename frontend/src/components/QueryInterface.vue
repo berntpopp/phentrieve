@@ -2,7 +2,12 @@
   <div class="search-container mx-auto px-2">
     <!-- Clean Search Bar with Integrated Button -->
     <div class="search-bar-container pt-0 px-2 pb-2 pa-sm-3">
-      <v-sheet rounded="pill" elevation="0" class="pa-1 pa-sm-2 search-bar" color="white">
+      <v-sheet
+        rounded="pill"
+        elevation="0"
+        class="pa-1 pa-sm-2 search-bar"
+        color="white"
+      >
         <div class="d-flex align-center flex-wrap flex-sm-nowrap">
           <v-textarea
             v-if="isTextProcessModeActive"
@@ -20,16 +25,14 @@
             aria-label="Clinical document input for text processing"
             :aria-description="
               'Enter longer clinical text for document processing' +
-              (isLoading ? '. Processing in progress' : '')
+                (isLoading ? '. Processing in progress' : '')
             "
             @keydown.enter.prevent="!isLoading && queryText.trim() ? submitQuery() : null"
           >
             <template #label>
-              <span class="text-high-emphasis"
-                >{{ $t('queryInterface.inputLabel') }} ({{
-                  $t('queryInterface.documentModeLabel', 'Document Mode')
-                }})</span
-              >
+              <span class="text-high-emphasis">{{ $t('queryInterface.inputLabel') }} ({{
+                $t('queryInterface.documentModeLabel', 'Document Mode')
+              }})</span>
             </template>
           </v-textarea>
           <v-text-field
@@ -47,16 +50,14 @@
             aria-label="Clinical text input field"
             :aria-description="
               'Enter clinical text to search for HPO terms' +
-              (isLoading ? '. Search in progress' : '')
+                (isLoading ? '. Search in progress' : '')
             "
             @keydown.enter.prevent="!isLoading && queryText.trim() ? submitQuery() : null"
           >
             <template #label>
-              <span class="text-high-emphasis"
-                >{{ $t('queryInterface.inputLabel') }} ({{
-                  $t('queryInterface.queryModeLabel', 'Query Mode')
-                }})</span
-              >
+              <span class="text-high-emphasis">{{ $t('queryInterface.inputLabel') }} ({{
+                $t('queryInterface.queryModeLabel', 'Query Mode')
+              }})</span>
             </template>
           </v-text-field>
 
@@ -126,7 +127,11 @@
           </div>
 
           <v-row dense>
-            <v-col cols="12" md="6" class="pa-1">
+            <v-col
+              cols="12"
+              md="6"
+              class="pa-1"
+            >
               <v-tooltip
                 location="bottom"
                 :text="$t('queryInterface.tooltips.embeddingModel')"
@@ -145,7 +150,7 @@
                     aria-label="Select embedding model"
                     :aria-description="
                       'Choose the model to use for text embedding. Currently selected: ' +
-                      selectedModel
+                        selectedModel
                     "
                     bg-color="white"
                     color="primary"
@@ -161,7 +166,11 @@
               </v-tooltip>
             </v-col>
 
-            <v-col cols="12" md="6" class="pa-1">
+            <v-col
+              cols="12"
+              md="6"
+              class="pa-1"
+            >
               <v-tooltip
                 location="bottom"
                 :text="$t('queryInterface.tooltips.similarityThreshold')"
@@ -173,9 +182,8 @@
                       :for="'similarity-slider'"
                       class="text-caption mb-0 d-block"
                       style="font-size: 0.7rem; padding-left: 4px"
-                      >{{ $t('queryInterface.advancedOptions.similarityThreshold') }}:
-                      {{ similarityThreshold.toFixed(2) }}</label
-                    >
+                    >{{ $t('queryInterface.advancedOptions.similarityThreshold') }}:
+                      {{ similarityThreshold.toFixed(2) }}</label>
                     <v-slider
                       v-bind="props"
                       id="similarity-slider"
@@ -193,7 +201,7 @@
                       aria-label="Similarity threshold slider"
                       :aria-description="
                         'Adjust minimum similarity threshold. Current value: ' +
-                        similarityThreshold.toFixed(2)
+                          similarityThreshold.toFixed(2)
                       "
                     />
                   </div>
@@ -203,7 +211,11 @@
           </v-row>
 
           <v-row dense>
-            <v-col cols="12" md="6" class="pa-1">
+            <v-col
+              cols="12"
+              md="6"
+              class="pa-1"
+            >
               <v-tooltip
                 location="bottom"
                 :text="$t('queryInterface.tooltips.language')"
@@ -222,7 +234,7 @@
                     aria-label="Select query language"
                     :aria-description="
                       'Choose the language for query processing. Currently selected: ' +
-                      selectedLanguage
+                        selectedLanguage
                     "
                     bg-color="white"
                     color="primary"
@@ -238,7 +250,11 @@
               </v-tooltip>
             </v-col>
 
-            <v-col cols="12" md="6" class="pa-1 d-flex align-center">
+            <v-col
+              cols="12"
+              md="6"
+              class="pa-1 d-flex align-center"
+            >
               <v-tooltip
                 location="bottom"
                 :text="$t('queryInterface.tooltips.enableReranking')"
@@ -262,8 +278,15 @@
             </v-col>
           </v-row>
 
-          <v-row v-if="enableReranker" dense>
-            <v-col cols="12" md="6" class="pa-1">
+          <v-row
+            v-if="enableReranker"
+            dense
+          >
+            <v-col
+              cols="12"
+              md="6"
+              class="pa-1"
+            >
               <v-tooltip
                 location="bottom"
                 :text="$t('queryInterface.tooltips.rerankerMode')"
@@ -304,7 +327,10 @@
           </div>
 
           <v-row dense>
-            <v-col cols="12" class="pa-1">
+            <v-col
+              cols="12"
+              class="pa-1"
+            >
               <v-select
                 v-model="forceEndpointMode"
                 :items="[
@@ -340,7 +366,11 @@
             </div>
 
             <v-row dense>
-              <v-col cols="12" md="6" class="pa-1">
+              <v-col
+                cols="12"
+                md="6"
+                class="pa-1"
+              >
                 <v-select
                   v-model="chunkingStrategy"
                   :items="[
@@ -365,7 +395,11 @@
                   </template>
                 </v-select>
               </v-col>
-              <v-col cols="12" md="6" class="pa-1">
+              <v-col
+                cols="12"
+                md="6"
+                class="pa-1"
+              >
                 <v-text-field
                   v-model.number="windowSize"
                   type="number"
@@ -386,7 +420,11 @@
             </v-row>
 
             <v-row dense>
-              <v-col cols="12" md="6" class="pa-1">
+              <v-col
+                cols="12"
+                md="6"
+                class="pa-1"
+              >
                 <v-text-field
                   v-model.number="stepSize"
                   type="number"
@@ -404,7 +442,11 @@
                   </template>
                 </v-text-field>
               </v-col>
-              <v-col cols="12" md="6" class="pa-1">
+              <v-col
+                cols="12"
+                md="6"
+                class="pa-1"
+              >
                 <v-text-field
                   v-model.number="chunkRetrievalThreshold"
                   type="number"
@@ -427,7 +469,11 @@
             </v-row>
 
             <v-row dense>
-              <v-col cols="12" md="6" class="pa-1">
+              <v-col
+                cols="12"
+                md="6"
+                class="pa-1"
+              >
                 <v-text-field
                   v-model.number="aggregatedTermConfidence"
                   type="number"
@@ -447,7 +493,11 @@
                   </template>
                 </v-text-field>
               </v-col>
-              <v-col cols="12" md="6" class="pa-1 d-flex align-center">
+              <v-col
+                cols="12"
+                md="6"
+                class="pa-1 d-flex align-center"
+              >
                 <v-switch
                   v-model="noAssertionDetectionForTextProcess"
                   color="primary"
@@ -467,7 +517,11 @@
             </v-row>
 
             <v-row dense>
-              <v-col cols="12" md="6" class="pa-1">
+              <v-col
+                cols="12"
+                md="6"
+                class="pa-1"
+              >
                 <v-text-field
                   v-model.number="splitThreshold"
                   type="number"
@@ -487,7 +541,11 @@
                   </template>
                 </v-text-field>
               </v-col>
-              <v-col cols="12" md="6" class="pa-1">
+              <v-col
+                cols="12"
+                md="6"
+                class="pa-1"
+              >
                 <v-text-field
                   v-model.number="minSegmentLength"
                   type="number"
@@ -508,7 +566,11 @@
             </v-row>
 
             <v-row dense>
-              <v-col cols="12" md="6" class="pa-1">
+              <v-col
+                cols="12"
+                md="6"
+                class="pa-1"
+              >
                 <v-text-field
                   v-model.number="numResultsPerChunk"
                   type="number"
@@ -525,7 +587,11 @@
                   </template>
                 </v-text-field>
               </v-col>
-              <v-col cols="12" md="6" class="pa-1 d-flex align-center">
+              <v-col
+                cols="12"
+                md="6"
+                class="pa-1 d-flex align-center"
+              >
                 <v-switch
                   v-model="topTermPerChunkForAggregation"
                   color="primary"
@@ -544,9 +610,17 @@
 
             <v-row dense>
               <!-- Empty col for alignment if needed -->
-              <v-col cols="12" md="6" class="pa-1" />
+              <v-col
+                cols="12"
+                md="6"
+                class="pa-1"
+              />
               <!-- Empty col for alignment -->
-              <v-col cols="12" md="6" class="pa-1" />
+              <v-col
+                cols="12"
+                md="6"
+                class="pa-1"
+              />
             </v-row>
           </div>
         </v-sheet>
@@ -554,35 +628,71 @@
     </div>
 
     <!-- Chat-like conversation interface -->
-    <div ref="conversationContainer" class="conversation-container">
-      <div v-for="(item, index) in queryHistory" :key="index" class="mb-4">
+    <div
+      ref="conversationContainer"
+      class="conversation-container"
+    >
+      <div
+        v-for="(item, index) in queryHistory"
+        :key="index"
+        class="mb-4"
+      >
         <!-- User query -->
         <div class="user-query d-flex">
-          <v-tooltip location="top" text="User Input">
+          <v-tooltip
+            location="top"
+            text="User Input"
+          >
             <template #activator="{ props }">
-              <v-avatar v-bind="props" color="primary" size="36" class="mt-1 mr-2">
+              <v-avatar
+                v-bind="props"
+                color="primary"
+                size="36"
+                class="mt-1 mr-2"
+              >
                 <span class="white--text">U</span>
               </v-avatar>
             </template>
           </v-tooltip>
           <div class="query-bubble">
-            <p class="mb-0" style="white-space: pre-wrap">
+            <p
+              class="mb-0"
+              style="white-space: pre-wrap"
+            >
               {{ item.query }}
             </p>
           </div>
         </div>
 
         <!-- API response -->
-        <div v-if="item.loading || item.response || item.error" class="bot-response d-flex mt-2">
-          <v-tooltip location="top" text="Phentrieve Response">
+        <div
+          v-if="item.loading || item.response || item.error"
+          class="bot-response d-flex mt-2"
+        >
+          <v-tooltip
+            location="top"
+            text="Phentrieve Response"
+          >
             <template #activator="{ props }">
-              <v-avatar v-bind="props" color="info" size="36" class="mt-1 mr-2">
-                <v-icon color="white"> mdi-robot-outline </v-icon>
+              <v-avatar
+                v-bind="props"
+                color="info"
+                size="36"
+                class="mt-1 mr-2"
+              >
+                <v-icon color="white">
+                  mdi-robot-outline
+                </v-icon>
               </v-avatar>
             </template>
           </v-tooltip>
           <div class="response-bubble">
-            <v-progress-circular v-if="item.loading" indeterminate color="primary" size="24" />
+            <v-progress-circular
+              v-if="item.loading"
+              indeterminate
+              color="primary"
+              size="24"
+            />
 
             <ResultsDisplay
               v-else
@@ -656,7 +766,10 @@
 
       <v-divider />
 
-      <v-list v-if="collectedPhenotypes.length > 0" class="pt-0">
+      <v-list
+        v-if="collectedPhenotypes.length > 0"
+        class="pt-0"
+      >
         <v-list-subheader>
           {{
             $t('queryInterface.phenotypeCollection.count', { count: collectedPhenotypes.length })
@@ -725,14 +838,25 @@
         </v-list-item>
       </v-list>
 
-      <v-sheet v-else class="pa-4 text-center">
-        <v-icon size="x-large" color="grey-darken-1" class="mb-2"> mdi-tray-plus </v-icon>
+      <v-sheet
+        v-else
+        class="pa-4 text-center"
+      >
+        <v-icon
+          size="x-large"
+          color="grey-darken-1"
+          class="mb-2"
+        >
+          mdi-tray-plus
+        </v-icon>
         <div class="text-body-1 text-grey-darken-2">
           {{ $t('queryInterface.phenotypeCollection.empty') }}
         </div>
         <div class="text-caption text-grey-darken-3 mt-2">
           {{ $t('queryInterface.phenotypeCollection.instructions') }}
-          <v-icon size="small"> mdi-plus-circle-outline </v-icon>
+          <v-icon size="small">
+            mdi-plus-circle-outline
+          </v-icon>
         </div>
       </v-sheet>
 
@@ -741,7 +865,11 @@
         {{ $t('queryInterface.phenotypeCollection.subjectInfoHeader') }}
       </v-list-subheader>
       <div class="pa-3">
-        <v-tooltip location="bottom" :text="$t('queryInterface.tooltips.subjectId')" role="tooltip">
+        <v-tooltip
+          location="bottom"
+          :text="$t('queryInterface.tooltips.subjectId')"
+          role="tooltip"
+        >
           <template #activator="{ props }">
             <v-text-field
               v-bind="props"
@@ -763,7 +891,11 @@
           </template>
         </v-tooltip>
 
-        <v-tooltip location="bottom" :text="$t('queryInterface.tooltips.sex')" role="tooltip">
+        <v-tooltip
+          location="bottom"
+          :text="$t('queryInterface.tooltips.sex')"
+          role="tooltip"
+        >
           <template #activator="{ props }">
             <v-select
               v-bind="props"

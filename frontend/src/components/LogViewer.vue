@@ -6,7 +6,10 @@
     width="600"
     aria-label="Log viewer"
   >
-    <v-toolbar density="compact" color="primary">
+    <v-toolbar
+      density="compact"
+      color="primary"
+    >
       <v-toolbar-title class="text-white">
         {{ $t('logViewer.title') }}
       </v-toolbar-title>
@@ -36,7 +39,10 @@
       />
     </v-toolbar>
 
-    <v-card class="mx-2 mt-2" variant="outlined">
+    <v-card
+      class="mx-2 mt-2"
+      variant="outlined"
+    >
       <v-card-text class="pa-2">
         <v-text-field
           v-model="search"
@@ -74,7 +80,11 @@
       </v-card-text>
     </v-card>
 
-    <div class="log-container" role="log" aria-label="Application logs">
+    <div
+      class="log-container"
+      role="log"
+      aria-label="Application logs"
+    >
       <template v-if="filteredLogs.length">
         <v-card
           v-for="(log, index) in filteredLogs"
@@ -109,13 +119,16 @@
                 class="mt-2 text-caption text-high-emphasis"
                 role="code"
                 aria-label="Log details"
-                >{{ JSON.stringify(log.data, null, 2) }}</pre
-              >
+              >{{ JSON.stringify(log.data, null, 2) }}</pre>
             </v-expand-transition>
           </v-card-text>
         </v-card>
       </template>
-      <v-card v-else class="ma-2" variant="outlined">
+      <v-card
+        v-else
+        class="ma-2"
+        variant="outlined"
+      >
         <v-card-text class="text-center text-disabled">
           {{ $t('logViewer.emptyLogsMessage') }}
         </v-card-text>
