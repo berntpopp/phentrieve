@@ -16,8 +16,6 @@
 # - Structured logging with rotation
 # - Network isolation
 
-version: '3.9'
-
 services:
   phentrieve_api:
     image: ghcr.io/berntpopp/phentrieve/api:latest

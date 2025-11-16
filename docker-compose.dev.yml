@@ -15,7 +15,7 @@ services:
 
   phentrieve_frontend:
     ports:
-      - "${FRONTEND_PORT_HOST:-8080}:80"
+      - "${FRONTEND_PORT_HOST:-8080}:8080"
     build:
       args:
         # Override VITE_API_URL for local development to point to directly exposed API

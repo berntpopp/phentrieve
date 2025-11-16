@@ -10,8 +10,6 @@
 # - Test-specific port mappings to avoid conflicts
 # - Minimal data volumes (no persistent storage needed)
 
-version: '3.9'
-
 services:
   phentrieve_api_test:
     build:
