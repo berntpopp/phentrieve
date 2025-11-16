@@ -3,6 +3,9 @@
 from pathlib import Path
 from unittest.mock import Mock, patch
 
+# Import chromadb at test module level to enable mocking
+# (dense_retriever imports it locally inside functions)
+import chromadb  # noqa: F401
 import numpy as np
 import pytest
 
