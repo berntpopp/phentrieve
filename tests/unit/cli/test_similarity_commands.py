@@ -4,7 +4,7 @@ Tests for the HPO term similarity CLI commands.
 This module contains tests for the HPO term similarity command line interface.
 """
 
-from unittest.mock import patch
+import re
 
 import pytest
 from typer.testing import CliRunner
@@ -93,30 +93,39 @@ MOCK_LABELS = {
 
 
 @pytest.fixture(autouse=True)
-def mock_hpo_data():
-    """Mock HPO graph data and term labels for testing."""
-    # Import the metrics module to clear global caches
+def mock_hpo_data(monkeypatch):
+    """Mock HPO graph data and term labels for testing.
+
+    Uses monkeypatch instead of unittest.mock.patch to work properly with
+    Typer's CliRunner, which creates an isolated execution context.
+    """
+    # Import the modules we need to mock
+    import phentrieve.cli.similarity_commands as sim_commands
     import phentrieve.evaluation.metrics as metrics_module
 
     # Clear global caches BEFORE mocking to prevent cache from bypassing the mock
     metrics_module._hpo_ancestors = None
     metrics_module._hpo_term_depths = None
 
-    # IMPORTANT: Patch where the function is CALLED, not where it's DEFINED
-    # similarity_commands imports load_hpo_graph_data, so patch it there
-    with patch(
-        "phentrieve.cli.similarity_commands.load_hpo_graph_data"
-    ) as mock_graph_data:
-        with patch(
-            "phentrieve.cli.similarity_commands._ensure_cli_hpo_label_cache"
-        ) as mock_labels:
-            mock_graph_data.return_value = (MOCK_ANCESTORS, MOCK_DEPTHS)
-            mock_labels.return_value = MOCK_LABELS
-            yield
+    # Create mock functions that return our test data
+    def mock_load_hpo_graph_data(*args, **kwargs):
+        return (MOCK_ANCESTORS, MOCK_DEPTHS)
 
-            # Clear caches after test to prevent cross-test pollution
-            metrics_module._hpo_ancestors = None
-            metrics_module._hpo_term_depths = None
+    def mock_ensure_cli_hpo_label_cache(*args, **kwargs):
+        return MOCK_LABELS
+
+    # Use monkeypatch to replace functions at module level
+    # This works with Typer's CliRunner unlike context manager patches
+    monkeypatch.setattr(sim_commands, "load_hpo_graph_data", mock_load_hpo_graph_data)
+    monkeypatch.setattr(
+        sim_commands, "_ensure_cli_hpo_label_cache", mock_ensure_cli_hpo_label_cache
+    )
+
+    yield
+
+    # Clear caches after test to prevent cross-test pollution
+    metrics_module._hpo_ancestors = None
+    metrics_module._hpo_term_depths = None
 
 
 def test_similarity_calculate_basic(mock_hpo_data):
@@ -222,7 +231,11 @@ def test_similarity_help():
     """Test help output for the similarity calculate command."""
     result = runner.invoke(app, ["similarity", "calculate", "--help"])
 
+    # Strip ANSI escape codes from output (Typer adds colors/formatting)
+    ansi_escape = re.compile(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
+    clean_output = ansi_escape.sub("", result.stdout)
+
     assert result.exit_code == 0
-    assert "Calculate semantic similarity between two HPO terms" in result.stdout
-    assert "--formula" in result.stdout
-    assert "--debug" in result.stdout
+    assert "Calculate semantic similarity between two HPO terms" in clean_output
+    assert "--formula" in clean_output
+    assert "--debug" in clean_output
