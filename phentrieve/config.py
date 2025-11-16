@@ -352,9 +352,9 @@ _loaded_models = get_config_value("benchmark", _BENCHMARK_MODELS_FALLBACK, "mode
 if not isinstance(_loaded_models, list) or not all(
     isinstance(m, str) for m in _loaded_models
 ):
-    BENCHMARK_MODELS: list[str] = _BENCHMARK_MODELS_FALLBACK
+    BENCHMARK_MODELS = _BENCHMARK_MODELS_FALLBACK
 else:
-    BENCHMARK_MODELS: list[str] = _loaded_models
+    BENCHMARK_MODELS = _loaded_models
 
 # Retrieval parameters
 MIN_SIMILARITY_THRESHOLD = get_config_value(
