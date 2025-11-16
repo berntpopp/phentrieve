@@ -29,6 +29,10 @@ from phentrieve.config import (
     DEFAULT_DEPTHS_FILENAME,
     DEFAULT_HPO_FILENAME,
     DEFAULT_HPO_TERMS_SUBDIR,  # Still useful for semantic context, but not for filtering saved terms
+    HPO_BASE_URL,
+    HPO_CHUNK_SIZE,
+    HPO_DOWNLOAD_TIMEOUT,
+    HPO_VERSION,
 )
 from phentrieve.utils import (
     get_default_data_dir,
@@ -36,8 +40,8 @@ from phentrieve.utils import (
     resolve_data_path,
 )
 
-# HPO download settings
-HPO_JSON_URL = "https://github.com/obophenotype/human-phenotype-ontology/releases/download/v2025-03-03/hp.json"
+# HPO download settings (constructed from config)
+HPO_JSON_URL = f"{HPO_BASE_URL}/{HPO_VERSION}/hp.json"
 TRUE_ONTOLOGY_ROOT = "HP:0000001"  # All of HPO
 
 # HPO branches that are often excluded for *phenotypic abnormality* specific tasks,
@@ -62,10 +66,10 @@ def download_hpo_json(hpo_file_path: Path) -> bool:
         f"Attempting to download HPO JSON from {HPO_JSON_URL} to {hpo_file_path}"
     )
     try:
-        response = requests.get(HPO_JSON_URL, stream=True, timeout=60)
+        response = requests.get(HPO_JSON_URL, stream=True, timeout=HPO_DOWNLOAD_TIMEOUT)
         response.raise_for_status()
         with open(hpo_file_path, "wb") as f:
-            for chunk in response.iter_content(chunk_size=8192):
+            for chunk in response.iter_content(chunk_size=HPO_CHUNK_SIZE):
                 f.write(chunk)
         logger.info("HPO JSON file downloaded successfully.")
         return True

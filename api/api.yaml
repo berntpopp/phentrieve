@@ -1,0 +1,71 @@
+# Phentrieve API Configuration
+# FastAPI backend configuration for the Phentrieve HPO term mapping service
+
+# =============================================================================
+# SERVER SETTINGS
+# =============================================================================
+
+server:
+  # Port to run the API server on
+  port: 8734
+
+  # Host to bind to (0.0.0.0 for all interfaces, 127.0.0.1 for localhost only)
+  host: "0.0.0.0"
+
+  # Enable hot reload during development (auto-restart on code changes)
+  reload: true
+
+  # Number of worker processes (set to 1 for development, increase for production)
+  workers: 1
+
+# =============================================================================
+# LOGGING CONFIGURATION
+# =============================================================================
+
+logging:
+  # Logging level: DEBUG, INFO, WARNING, ERROR, CRITICAL
+  level: "INFO"
+
+# =============================================================================
+# MODEL LOADING SETTINGS
+# =============================================================================
+
+model_loading:
+  # Timeout for loading SBERT embedding models (in seconds)
+  # Large models can take significant time to download and initialize
+  sbert_timeout: 60
+
+  # Timeout for loading cross-encoder re-ranking models (in seconds)
+  # Cross-encoders are typically smaller and load faster
+  cross_encoder_timeout: 10
+
+# =============================================================================
+# CORS (Cross-Origin Resource Sharing) SETTINGS
+# =============================================================================
+
+cors:
+  # List of allowed origins for CORS (frontend URLs)
+  allowed_origins:
+    - "http://localhost:5734"  # Frontend development server
+    - "http://localhost:8734"  # API docs/swagger UI
+
+  # Allow cookies and authentication headers
+  allow_credentials: true
+
+  # Allowed HTTP methods
+  allow_methods: ["*"]
+
+  # Allowed HTTP headers
+  allow_headers: ["*"]
+
+# =============================================================================
+# DATA PATH CONFIGURATION
+# =============================================================================
+
+data:
+  # Root directory for phentrieve data (relative to api/ directory)
+  # This should point to the project's data directory containing:
+  # - hpo_core_data/ (HPO ontology files)
+  # - indexes/ (ChromaDB vector indexes)
+  # - hf_cache/ (Hugging Face model cache)
+  root_dir: "../data"

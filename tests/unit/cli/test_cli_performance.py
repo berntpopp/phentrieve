@@ -24,7 +24,7 @@ def test_cli_version_performance():
     """
     start = time.time()
     result = subprocess.run(
-        ["phentrieve", "--version"],
+        ["phentrieve", "--version"],  # noqa: S607 - Partial path acceptable for testing CLI in PATH
         capture_output=True,
         text=True,
         timeout=15.0,  # Fail if takes >15s
@@ -49,7 +49,7 @@ def test_cli_help_performance():
     """
     start = time.time()
     result = subprocess.run(
-        ["phentrieve", "--help"],
+        ["phentrieve", "--help"],  # noqa: S607 - Partial path acceptable for testing CLI in PATH
         capture_output=True,
         text=True,
         timeout=15.0,
@@ -70,7 +70,7 @@ def test_cli_subcommand_help_performance():
     """Ensure subcommand help is fast (<10 seconds)."""
     start = time.time()
     result = subprocess.run(
-        ["phentrieve", "data", "--help"],
+        ["phentrieve", "data", "--help"],  # noqa: S607 - Partial path acceptable for testing CLI in PATH
         capture_output=True,
         text=True,
         timeout=15.0,
@@ -93,7 +93,7 @@ def test_no_heavy_imports_on_cli_load():
     libraries are not imported when the CLI module is loaded.
     """
     result = subprocess.run(
-        [
+        [  # noqa: S607 - Partial path acceptable for testing Python in PATH
             "python",
             "-c",
             "import sys; from phentrieve.cli import app; "
