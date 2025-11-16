@@ -18,12 +18,12 @@
   },
   "dependencies": {
     "@berntpopp/phenopackets-js": "^1.0.2",
-    "axios": "^1.6.2",
+    "axios": "^1.13.2",
     "google-protobuf": "^3.21.4",
-    "pinia": "^3.0.2",
+    "pinia": "^3.0.4",
     "vue": "^3.3.4",
     "vue-i18n": "^9.13.0",
-    "vue-router": "^4.2.5",
+    "vue-router": "^4.6.3",
     "vuetify": "^3.3.23"
   },
   "devDependencies": {
@@ -35,7 +35,7 @@
     "@vitest/coverage-v8": "^4.0.9",
     "@vitest/ui": "^4.0.9",
     "@vue/test-utils": "^2.4.6",
-    "autoprefixer": "^10.4.16",
+    "autoprefixer": "^10.4.22",
     "eslint": "^9.39.1",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
@@ -45,7 +45,7 @@
     "postcss": "^8.4.31",
     "prettier": "^3.6.2",
     "rollup-plugin-visualizer": "^5.9.2",
-    "terser": "^5.39.1",
+    "terser": "^5.44.1",
     "vite": "^4.4.11",
     "vite-plugin-compression": "^0.5.1",
     "vite-plugin-imagemin": "^0.6.1",
