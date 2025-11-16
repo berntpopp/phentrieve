@@ -118,9 +118,6 @@ RUN --mount=type=cache,target=/root/.cache/pip \
     pip install .
 SHELL ["/bin/sh", "-c"]
 
-# Pre-compile Python bytecode for faster startup
-RUN python -m compileall -b $VIRTUAL_ENV
-
 # ============================================================================
 # STAGE 3: Runtime - Minimal production image
 # ============================================================================
