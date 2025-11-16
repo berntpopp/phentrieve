@@ -104,3 +104,23 @@ benchmark:
     - "Alibaba-NLP/gte-multilingual-base"
     - "sentence-transformers/LaBSE"
     - "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+
+# =============================================================================
+# HPO DATA CONFIGURATION
+# =============================================================================
+
+hpo_data:
+  # HPO ontology version to download
+  # Version string from HPO releases (e.g., "v2025-03-03")
+  version: "v2025-03-03"
+
+  # Base URL for HPO releases on GitHub
+  base_url: "https://github.com/obophenotype/human-phenotype-ontology/releases/download"
+
+  # Download timeout in seconds
+  # Maximum time to wait for HPO data download to complete
+  download_timeout: 60
+
+  # Chunk size for streaming downloads (in bytes)
+  # Larger chunks = faster downloads but more memory usage
+  chunk_size: 8192

@@ -1,12 +1,12 @@
 import asyncio
 import logging
-import os
 from typing import Literal, Optional
 
 from fastapi import HTTPException
 from fastapi.concurrency import run_in_threadpool
 from sentence_transformers import CrossEncoder, SentenceTransformer
 
+from api.config import CROSS_ENCODER_LOAD_TIMEOUT, SBERT_LOAD_TIMEOUT
 from phentrieve.config import DEFAULT_DEVICE, DEFAULT_MODEL
 
 # Core loader functions
@@ -15,13 +15,6 @@ from phentrieve.retrieval.dense_retriever import DenseRetriever
 from phentrieve.retrieval.reranker import load_cross_encoder as load_ce_model
 
 logger = logging.getLogger(__name__)
-
-# Configurable timeouts for model loading (in seconds)
-# Can be overridden via environment variables
-SBERT_LOAD_TIMEOUT = float(os.getenv("PHENTRIEVE_SBERT_LOAD_TIMEOUT", "60"))
-CROSS_ENCODER_LOAD_TIMEOUT = float(
-    os.getenv("PHENTRIEVE_CROSS_ENCODER_LOAD_TIMEOUT", "10")
-)
 
 # Global cache for models and retrievers
 # Key: model_name (or unique identifier), Value: loaded instance

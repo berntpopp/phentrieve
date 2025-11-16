@@ -267,6 +267,14 @@ DEFAULT_ASSERTION_CONFIG = {
 # Default language for text processing (loaded from YAML with fallback)
 _DEFAULT_LANGUAGE_FALLBACK = "en"
 
+# Default HPO data configuration (loaded from YAML with fallbacks)
+_DEFAULT_HPO_VERSION_FALLBACK = "v2025-03-03"
+_DEFAULT_HPO_BASE_URL_FALLBACK = (
+    "https://github.com/obophenotype/human-phenotype-ontology/releases/download"
+)
+_DEFAULT_HPO_DOWNLOAD_TIMEOUT_FALLBACK = 60
+_DEFAULT_HPO_CHUNK_SIZE_FALLBACK = 8192
+
 
 # =============================================================================
 # YAML Configuration Loading
@@ -372,3 +380,17 @@ DEFAULT_SIMILARITY_FORMULA = get_config_value(
     "similarity_formula", _DEFAULT_SIMILARITY_FORMULA_FALLBACK
 )
 DEFAULT_LANGUAGE = get_config_value("default_language", _DEFAULT_LANGUAGE_FALLBACK)
+
+# HPO data configuration
+HPO_VERSION: str = get_config_value(
+    "hpo_data", _DEFAULT_HPO_VERSION_FALLBACK, "version"
+)
+HPO_BASE_URL: str = get_config_value(
+    "hpo_data", _DEFAULT_HPO_BASE_URL_FALLBACK, "base_url"
+)
+HPO_DOWNLOAD_TIMEOUT: int = get_config_value(
+    "hpo_data", _DEFAULT_HPO_DOWNLOAD_TIMEOUT_FALLBACK, "download_timeout"
+)
+HPO_CHUNK_SIZE: int = get_config_value(
+    "hpo_data", _DEFAULT_HPO_CHUNK_SIZE_FALLBACK, "chunk_size"
+)

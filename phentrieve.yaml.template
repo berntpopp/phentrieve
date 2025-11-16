@@ -100,3 +100,20 @@ results_dir: "~/phentrieve_data/results"
 #     - "Alibaba-NLP/gte-multilingual-base"
 #     - "sentence-transformers/LaBSE"
 #     - "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+
+# =============================================================================
+# HPO DATA CONFIGURATION
+# =============================================================================
+
+# hpo_data:
+#   # HPO ontology version to download
+#   version: "v2025-03-03"
+#
+#   # Base URL for HPO releases on GitHub
+#   base_url: "https://github.com/obophenotype/human-phenotype-ontology/releases/download"
+#
+#   # Download timeout in seconds
+#   download_timeout: 60
+#
+#   # Chunk size for streaming downloads (in bytes)
+#   chunk_size: 8192
