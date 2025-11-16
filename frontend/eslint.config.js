@@ -31,6 +31,12 @@ export default [
       'vue/valid-v-slot': 'off',
       'vue/no-v-html': 'off',
 
+      // Disable Vue formatting rules - let Prettier handle formatting
+      'vue/max-attributes-per-line': 'off',
+      'vue/singleline-html-element-content-newline': 'off',
+      'vue/html-indent': 'off',
+      'vue/html-closing-bracket-newline': 'off',
+
       // General rules
       'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
       'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
