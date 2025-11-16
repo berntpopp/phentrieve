@@ -43,6 +43,7 @@
     "title": "Phentrieve",
     "subtitle": "HPO-Term-Mapping für klinische Phänotyp-Beschreibungen",
     "welcomeText": "Phentrieve ist ein KI-gestütztes Tool, das klinischen Text präzise standardisierten Human Phenotype Ontology (HPO)-Begriffen zuordnet und so die Phänotyp-Annotation für Forschung und Diagnostik optimiert.",
+    "queryModeLabel": "Abfragemodus",
     "inputLabel": "Klinische Textbeschreibung eingeben",
     "examples": {
       "title": "Beispiele",
@@ -94,6 +95,8 @@
       "similarityThreshold": "Ähnlichkeitsschwelle",
       "enableReranking": "Neuordnung aktivieren",
       "rerankerMode": "Neuordnungsmodus",
+      "rerankerModeCrossLingual": "Sprachübergreifend",
+      "rerankerModeMonolingual": "Einsprachig",
       "language": "Sprache",
       "processingModeTitle": "Verarbeitungsmodus",
       "processingModeLabel": "Verarbeitungsmodus",
@@ -294,5 +297,11 @@
         }
       }
     }
+  },
+  "phenopacket": {
+    "sexUnknown": "Unbekannt",
+    "sexFemale": "Weiblich",
+    "sexMale": "Männlich",
+    "sexOther": "Andere"
   }
 }

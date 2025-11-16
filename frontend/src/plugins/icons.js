@@ -20,5 +20,5 @@ export const usedIcons = [
   'mdi-text-box-search-outline',
   'mdi-github',
   'mdi-book-open-page-variant-outline',
-  'mdi-license'
+  'mdi-license',
 ];

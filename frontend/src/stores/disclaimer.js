@@ -1,71 +1,83 @@
-/**
- * Disclaimer store
- * Manages disclaimer state using Pinia and persists to localStorage
- */
+import { defineStore } from 'pinia';
+import { ref, computed } from 'vue';
 
-import { defineStore } from 'pinia'
-import { logService } from '../services/logService'
+const STORAGE_KEY = 'phentrieve_disclaimer_acknowledged';
 
-// Storage keys
-const DISCLAIMER_KEY = 'phentrieveDisclaimerAcknowledged'
-const DISCLAIMER_TIMESTAMP_KEY = 'phentrieveDisclaimerTimestamp'
+export const useDisclaimerStore = defineStore('disclaimer', () => {
+  // State
+  const isAcknowledged = ref(false);
+  const acknowledgmentTimestamp = ref(null);
 
-export const useDisclaimerStore = defineStore('disclaimer', {
-  state: () => ({
-    isAcknowledged: false,
-    acknowledgmentTimestamp: null
-  }),
+  // Computed
+  const formattedAcknowledgmentDate = computed(() => {
+    if (!acknowledgmentTimestamp.value) return '';
 
-  getters: {
-    // Get the formatted acknowledgment date
-    formattedAcknowledgmentDate: (state) => {
-      if (!state.acknowledgmentTimestamp) {
-        return ''
+    const date = new Date(acknowledgmentTimestamp.value);
+    return date.toLocaleDateString(undefined, {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  });
+
+  // Actions
+  function initialize() {
+    // Load disclaimer acknowledgment from localStorage
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        const data = JSON.parse(stored);
+        isAcknowledged.value = data.acknowledged || false;
+        acknowledgmentTimestamp.value = data.timestamp || null;
       }
-
-      try {
-        const date = new Date(state.acknowledgmentTimestamp)
-        return date.toLocaleDateString(undefined, {
-          year: 'numeric',
-          month: 'short',
-          day: 'numeric'
-        })
-      } catch (error) {
-        logService.error('Error formatting acknowledgment date', error)
-        return ''
-      }
-    }
-  },
-
-  actions: {
-    // Initialize the store by loading from localStorage
-    initialize() {
-      try {
-        const savedAcknowledgment = localStorage.getItem(DISCLAIMER_KEY)
-        const savedTimestamp = localStorage.getItem(DISCLAIMER_TIMESTAMP_KEY)
-        
-        this.isAcknowledged = savedAcknowledgment === 'true'
-        this.acknowledgmentTimestamp = savedTimestamp ? parseInt(savedTimestamp) : null
-      } catch (error) {
-        logService.error('Error loading disclaimer status', error)
-        // Default to not acknowledged if there's an error
-        this.isAcknowledged = false
-        this.acknowledgmentTimestamp = null
-      }
-    },
-
-    // Save acknowledgment to localStorage
-    saveAcknowledgment() {
-      try {
-        const now = Date.now()
-        localStorage.setItem(DISCLAIMER_KEY, 'true')
-        localStorage.setItem(DISCLAIMER_TIMESTAMP_KEY, now.toString())
-        
-        this.isAcknowledged = true
-        this.acknowledgmentTimestamp = now
-      } catch (error) {
-        logService.error('Error saving disclaimer acknowledgment', error)
-      }
+    } catch (error) {
+      console.error('Error loading disclaimer acknowledgment:', error);
+      isAcknowledged.value = false;
+      acknowledgmentTimestamp.value = null;
     }
   }
-})
+
+  function saveAcknowledgment() {
+    // Save disclaimer acknowledgment to localStorage
+    const timestamp = new Date().toISOString();
+    isAcknowledged.value = true;
+    acknowledgmentTimestamp.value = timestamp;
+
+    try {
+      const data = {
+        acknowledged: true,
+        timestamp: timestamp,
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    } catch (error) {
+      console.error('Error saving disclaimer acknowledgment:', error);
+    }
+  }
+
+  function reset() {
+    // Reset disclaimer acknowledgment (for testing/debugging)
+    isAcknowledged.value = false;
+    acknowledgmentTimestamp.value = null;
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch (error) {
+      console.error('Error resetting disclaimer acknowledgment:', error);
+    }
+  }
+
+  return {
+    // State
+    isAcknowledged,
+    acknowledgmentTimestamp,
+
+    // Computed
+    formattedAcknowledgmentDate,
+
+    // Actions
+    initialize,
+    saveAcknowledgment,
+    reset,
+  };
+});

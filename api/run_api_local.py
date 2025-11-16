@@ -9,12 +9,13 @@ Usage:
     python run_api_local.py
 """
 
+import logging
 import os
 import sys
-import logging
 from pathlib import Path
-from dotenv import load_dotenv
+
 import uvicorn
+from dotenv import load_dotenv
 
 # Setup logging
 logging.basicConfig(
@@ -87,8 +88,8 @@ def main():
     setup_environment()
 
     # API server configuration
-    host = "0.0.0.0"  # Listen on all interfaces
-    port = 8001  # Use the same port you were trying before
+    host = os.environ.get("API_HOST", "0.0.0.0")  # Listen on all interfaces
+    port = int(os.environ.get("API_PORT", "8000"))  # Default to 8000
 
     logger.info(f"Starting uvicorn on {host}:{port}")
     logger.info("Press CTRL+C to stop the server")

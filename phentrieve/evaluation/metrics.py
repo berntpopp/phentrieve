@@ -12,11 +12,10 @@ import logging
 import os
 import pickle
 from enum import Enum
-from typing import Dict, List, Optional, Set, Tuple, Union, Any
+from typing import Any, Optional, Union
 
 from phentrieve.config import DEFAULT_ANCESTORS_FILENAME, DEFAULT_DEPTHS_FILENAME
-from phentrieve.utils import get_default_data_dir
-from phentrieve.utils import calculate_similarity
+from phentrieve.utils import calculate_similarity, get_default_data_dir
 
 
 class SimilarityFormula(Enum):
@@ -49,13 +48,13 @@ class SimilarityFormula(Enum):
 
 
 # Global caches for HPO graph data
-_hpo_ancestors = None
-_hpo_term_depths = None
+_hpo_ancestors: dict[str, set[str]] | None = None
+_hpo_term_depths: dict[str, int] | None = None
 
 
 def load_hpo_graph_data(
-    ancestors_path: str = None, depths_path: str = None
-) -> Tuple[Dict[str, Set[str]], Dict[str, int]]:
+    ancestors_path: str | None = None, depths_path: str | None = None
+) -> tuple[dict[str, set[str]], dict[str, int]]:
     """
     Load precomputed HPO graph data from pickle files.
 
@@ -82,7 +81,7 @@ def load_hpo_graph_data(
             ancestors_path = f"data/{DEFAULT_ANCESTORS_FILENAME}"
         else:
             data_dir = get_default_data_dir()
-            ancestors_path = data_dir / DEFAULT_ANCESTORS_FILENAME
+            ancestors_path = str(data_dir / DEFAULT_ANCESTORS_FILENAME)
 
     if depths_path is None:
         # Try direct data directory first
@@ -90,7 +89,7 @@ def load_hpo_graph_data(
             depths_path = f"data/{DEFAULT_DEPTHS_FILENAME}"
         else:
             data_dir = get_default_data_dir()
-            depths_path = data_dir / DEFAULT_DEPTHS_FILENAME
+            depths_path = str(data_dir / DEFAULT_DEPTHS_FILENAME)
 
     try:
         # Check if files exist
@@ -143,8 +142,8 @@ def load_hpo_graph_data(
 
 
 def find_lowest_common_ancestor(
-    term1: str, term2: str, ancestors_dict: Optional[Dict[str, Set[str]]] = None
-) -> Tuple[Optional[str], int]:
+    term1: str, term2: str, ancestors_dict: Optional[dict[str, set[str]]] = None
+) -> tuple[Optional[str], int | float]:
     """
     Find the lowest common ancestor (LCA) of two HPO terms.
 
@@ -174,7 +173,7 @@ def find_lowest_common_ancestor(
 
     # Find the deepest common ancestor (LCA)
     lca = None
-    max_depth = -1
+    max_depth: int | float = -1
     for ancestor in common_ancestors:
         depth = depths_dict.get(ancestor, float("inf"))
         if depth != float("inf") and depth > max_depth:
@@ -340,11 +339,11 @@ def calculate_semantic_similarity(
 
 
 def calculate_max_similarity(
-    expected_terms: List[str],
-    retrieved_terms: Union[List[str], List[Dict[str, Any]]],
+    expected_terms: list[str],
+    retrieved_terms: Union[list[str], list[dict[str, Any]]],
     top_k: Optional[int] = None,
     formula: SimilarityFormula = SimilarityFormula.HYBRID,
-) -> List[float]:
+) -> list[float]:
     """
     Calculate maximum similarity between each expected term and any retrieved term.
 
@@ -361,10 +360,15 @@ def calculate_max_similarity(
     load_hpo_graph_data()
 
     # Extract term IDs if retrieved_terms contains dictionaries
+    retrieved_ids: list[str | Any]
     if retrieved_terms and isinstance(retrieved_terms[0], dict):
-        retrieved_ids = [item["hpo_id"] for item in retrieved_terms[:top_k]]
+        retrieved_ids = [
+            item["hpo_id"] for item in retrieved_terms[:top_k] if isinstance(item, dict)
+        ]
     else:
-        retrieved_ids = retrieved_terms[:top_k] if top_k else retrieved_terms
+        # Cast to list[str | Any] to match the declared type
+        sliced_terms = retrieved_terms[:top_k] if top_k else retrieved_terms
+        retrieved_ids = list(sliced_terms)
 
     max_similarities = []
 
@@ -399,8 +403,8 @@ def calculate_max_similarity(
 
 
 def average_max_similarity(
-    expected_terms: List[str],
-    retrieved_terms: Union[List[str], List[Dict[str, Any]]],
+    expected_terms: list[str],
+    retrieved_terms: Union[list[str], list[dict[str, Any]]],
     top_k: Optional[int] = None,
     formula: SimilarityFormula = SimilarityFormula.HYBRID,
 ) -> float:
@@ -428,8 +432,8 @@ def average_max_similarity(
 
 
 def calculate_test_case_max_ont_sim(
-    expected_ids: List[str],
-    retrieved_ids: List[str],
+    expected_ids: list[str],
+    retrieved_ids: list[str],
     formula: SimilarityFormula = SimilarityFormula.HYBRID,
 ) -> float:
     """
@@ -487,7 +491,7 @@ def calculate_test_case_max_ont_sim(
     return max(0.0, min(1.0, overall_max_sim))
 
 
-def mean_reciprocal_rank(results: Dict[str, Any], expected_ids: List[str]) -> float:
+def mean_reciprocal_rank(results: dict[str, Any], expected_ids: list[str]) -> float:
     """
     Calculate Mean Reciprocal Rank (MRR).
 
@@ -532,7 +536,7 @@ def mean_reciprocal_rank(results: Dict[str, Any], expected_ids: List[str]) -> fl
 
 
 def hit_rate_at_k(
-    results: Dict[str, Any], expected_ids: List[str], k: int = 5
+    results: dict[str, Any], expected_ids: list[str], k: int = 5
 ) -> float:
     """
     Calculate Hit Rate at K.
@@ -555,7 +559,7 @@ def hit_rate_at_k(
 
     # Get all retrieved HPO IDs with similarity scores
     retrieved_ids = []
-    for i, (hpo_id, metadata, distance) in enumerate(
+    for _i, (hpo_id, metadata, distance) in enumerate(
         zip(results["ids"][0], results["metadatas"][0], results["distances"][0])
     ):
         similarity = calculate_similarity(distance)

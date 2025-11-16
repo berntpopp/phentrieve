@@ -1,13 +1,12 @@
-from typing import Dict, Any, Optional, Tuple
 import logging
+from typing import Any, Optional
 
 from sentence_transformers import CrossEncoder
+
 from phentrieve.retrieval.dense_retriever import DenseRetriever
 from phentrieve.text_processing.assertion_detection import (
     CombinedAssertionDetector,
-    AssertionStatus,
 )
-
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +26,7 @@ async def execute_hpo_retrieval_for_api(
     query_assertion_language: Optional[str] = None,
     query_assertion_preference: str = "dependency",
     debug: bool = False,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Execute HPO term retrieval for API requests.
 

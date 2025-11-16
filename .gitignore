@@ -12,6 +12,7 @@ build/
 venv/
 env/
 ENV/
+.venv/
 
 # IDE files
 .vscode/
@@ -57,6 +58,16 @@ benchmark_results/
 # Cache files
 .cache/
 .pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Coverage reports (generated artifacts, not versioned)
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+*.cover
+.hypothesis/
 
 # Jupyter Notebook
 .ipynb_checkpoints
@@ -77,4 +88,5 @@ output/
 
 # serena MCP files
 SERENA.md
+.serena/.env
 .serena/

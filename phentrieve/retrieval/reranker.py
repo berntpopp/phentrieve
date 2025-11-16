@@ -7,7 +7,7 @@ to provide more accurate relevance scores.
 """
 
 import logging
-from typing import List, Dict, Any, Optional, Union
+from typing import Any, Optional
 
 import numpy as np
 import torch
@@ -42,7 +42,7 @@ def load_cross_encoder(
         logger.info(f"Loading cross-encoder model '{model_name}' on {device}")
 
         # Load the cross-encoder model
-        model = CrossEncoder(model_name, device=device)
+        model: CrossEncoder = CrossEncoder(model_name, device=device)
         logger.info(f"Successfully loaded cross-encoder model: {model_name}")
         return model
 
@@ -53,8 +53,8 @@ def load_cross_encoder(
 
 
 def rerank_with_cross_encoder(
-    query: str, candidates: List[Dict[str, Any]], cross_encoder_model: CrossEncoder
-) -> List[Dict[str, Any]]:
+    query: str, candidates: list[dict[str, Any]], cross_encoder_model: CrossEncoder
+) -> list[dict[str, Any]]:
     """
     Re-rank retrieval candidates using a cross-encoder model.
 

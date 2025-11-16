@@ -8,15 +8,20 @@ relevant HPO terms based on semantic similarity with input text.
 import logging
 import os
 from pathlib import Path
-from typing import Dict, Optional, Any, Union
+from typing import TYPE_CHECKING, Any, Optional, Union
 
-import chromadb
-from sentence_transformers import SentenceTransformer
+# NOTE: Heavy dependencies (chromadb, SentenceTransformer) are only imported
+# for type hints (TYPE_CHECKING) or lazily inside functions where actually used.
+# This avoids the 2.8+ second chromadb import cost at module load time.
+# chromadb alone loads: API, telemetry, OpenTelemetry, jsonschema, numpy typing.
+if TYPE_CHECKING:
+    import chromadb
+    from sentence_transformers import SentenceTransformer
 
 from phentrieve.config import MIN_SIMILARITY_THRESHOLD
 from phentrieve.utils import (
-    generate_collection_name,
     calculate_similarity,
+    generate_collection_name,
     get_default_index_dir,
     resolve_data_path,
 )
@@ -24,7 +29,7 @@ from phentrieve.utils import (
 
 def connect_to_chroma(
     index_dir: str, collection_name: str, model_name: Optional[str] = None
-) -> Optional[chromadb.Collection]:
+) -> Optional["chromadb.Collection"]:
     """
     Connect to the ChromaDB index and retrieve the specified collection.
 
@@ -37,6 +42,10 @@ def connect_to_chroma(
     Returns:
         ChromaDB collection or None if connection failed
     """
+    # Lazy import - only load chromadb when actually connecting to database
+    # Avoids 2.8s import overhead for CLI commands that don't use ChromaDB
+    import chromadb
+
     try:
         # Convert Path to string and ensure it exists
         index_dir_str = str(index_dir)
@@ -54,7 +63,7 @@ def connect_to_chroma(
             collection = client.get_collection(name=collection_name)
             count = collection.count()
             logging.info(
-                f"Connected to collection '{collection_name}' with " f"{count} docs"
+                f"Connected to collection '{collection_name}' with {count} docs"
             )
             return collection
         except Exception as e:
@@ -97,8 +106,8 @@ class DenseRetriever:
 
     def __init__(
         self,
-        model: SentenceTransformer,
-        collection: chromadb.Collection,
+        model: "SentenceTransformer",
+        collection: "chromadb.Collection",
         min_similarity: float = MIN_SIMILARITY_THRESHOLD,
     ):
         """
@@ -119,7 +128,7 @@ class DenseRetriever:
     @classmethod
     def from_model_name(
         cls,
-        model: SentenceTransformer,
+        model: "SentenceTransformer",
         model_name: str,
         index_dir: Optional[Union[str, Path]] = None,
         min_similarity: float = MIN_SIMILARITY_THRESHOLD,
@@ -151,8 +160,7 @@ class DenseRetriever:
                 default_func=get_default_index_dir,
             )
             logging.info(
-                f"DenseRetriever.from_model_name: Resolved index dir: "
-                f"{final_index_dir}"
+                f"DenseRetriever.from_model_name: Resolved index dir: {final_index_dir}"
             )
 
         if not final_index_dir.exists() or not final_index_dir.is_dir():
@@ -186,7 +194,7 @@ class DenseRetriever:
 
     def query(
         self, text: str, n_results: int = 10, include_similarities: bool = True
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Generate embedding for input text and query the HPO index.
 
@@ -212,10 +220,13 @@ class DenseRetriever:
             query_n_results = n_results * 3
             logging.debug(f"Querying with {query_n_results} results")
 
-            results = self.collection.query(
-                query_embeddings=[query_embedding.tolist()],
-                n_results=query_n_results,
-                include=["documents", "metadatas", "distances"],
+            # Cast to dict[str, Any] since we'll be adding custom keys
+            results: dict[str, Any] = dict(
+                self.collection.query(
+                    query_embeddings=[query_embedding.tolist()],
+                    n_results=query_n_results,
+                    include=["documents", "metadatas", "distances"],
+                )
             )
 
             # Add similarity scores if requested
@@ -239,10 +250,10 @@ class DenseRetriever:
 
     def filter_results(
         self,
-        results: Dict[str, Any],
+        results: dict[str, Any],
         min_similarity: Optional[float] = None,
         max_results: Optional[int] = None,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Filter query results by similarity threshold and maximum count.
 

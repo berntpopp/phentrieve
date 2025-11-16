@@ -5,18 +5,20 @@ This module provides an API endpoint that returns information about the availabl
 default settings, and system status to clients (e.g., frontend applications).
 """
 
-from fastapi import APIRouter, HTTPException
 import logging
+
+from fastapi import APIRouter, HTTPException
+
+from api.schemas.config_info_schemas import (
+    ChunkingConfig,
+    DefaultParametersAPI,
+    HPODataStatusAPI,
+    ModelInfo,
+    PhentrieveConfigInfoResponseAPI,
+)
 
 # Import constants and getters from Phentrieve's config
 from phentrieve import config as phentrieve_config
-from api.schemas.config_info_schemas import (
-    PhentrieveConfigInfoResponseAPI,
-    ModelInfo,
-    DefaultParametersAPI,
-    ChunkingConfig,
-    HPODataStatusAPI,
-)
 from phentrieve.evaluation.metrics import load_hpo_graph_data
 
 logger = logging.getLogger(__name__)

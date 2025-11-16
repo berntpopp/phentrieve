@@ -7,29 +7,28 @@ for HPO term retrieval, supporting both single-model and multi-model evaluations
 
 import logging
 import os
-from typing import Dict, List, Any, Union, Optional
-from pathlib import Path
+from typing import Any, Optional, Union
 
 from phentrieve.config import (
-    DEFAULT_MODEL,
-    DEFAULT_RERANKER_MODEL,
-    DEFAULT_MONOLINGUAL_RERANKER_MODEL,
-    DEFAULT_RERANKER_MODE,
-    DEFAULT_RERANK_CANDIDATE_COUNT,
-    DEFAULT_ENABLE_RERANKER,
     BENCHMARK_MODELS,
-    DEFAULT_TEST_CASES_SUBDIR,
-    DEFAULT_SUMMARIES_SUBDIR,
     DEFAULT_DETAILED_SUBDIR,
+    DEFAULT_ENABLE_RERANKER,
+    DEFAULT_MODEL,
+    DEFAULT_MONOLINGUAL_RERANKER_MODEL,
+    DEFAULT_RERANK_CANDIDATE_COUNT,
+    DEFAULT_RERANKER_MODE,
+    DEFAULT_RERANKER_MODEL,
+    DEFAULT_SUMMARIES_SUBDIR,
+    DEFAULT_TEST_CASES_SUBDIR,
 )
+from phentrieve.data_processing.test_data_loader import create_sample_test_data
+from phentrieve.evaluation.runner import compare_models, run_evaluation
 from phentrieve.utils import (
     get_default_data_dir,
     get_default_index_dir,
     get_default_results_dir,
     resolve_data_path,
 )
-from phentrieve.evaluation.runner import run_evaluation, compare_models
-from phentrieve.data_processing.test_data_loader import create_sample_test_data
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -48,14 +47,14 @@ def ensure_directories_exist() -> None:
 
 
 def orchestrate_benchmark(
-    test_file: str = None,
+    test_file: str | None = None,
     model_name: str = DEFAULT_MODEL,
-    model_list: str = None,
+    model_list: str | None = None,
     all_models: bool = False,
     similarity_threshold: float = 0.1,
     cpu: bool = False,
     detailed: bool = False,
-    output: str = None,
+    output: str | None = None,
     debug: bool = False,
     create_sample: bool = False,
     trust_remote_code: bool = False,
@@ -63,13 +62,13 @@ def orchestrate_benchmark(
     reranker_model: str = DEFAULT_RERANKER_MODEL,
     monolingual_reranker_model: str = DEFAULT_MONOLINGUAL_RERANKER_MODEL,
     rerank_mode: str = DEFAULT_RERANKER_MODE,
-    translation_dir: str = None,
+    translation_dir: str | None = None,
     rerank_count: int = DEFAULT_RERANK_CANDIDATE_COUNT,
     similarity_formula: str = "hybrid",
     data_dir_override: Optional[str] = None,
     index_dir_override: Optional[str] = None,
     results_dir_override: Optional[str] = None,
-) -> Union[Dict[str, Any], List[Dict[str, Any]], None]:
+) -> Union[dict[str, Any], list[dict[str, Any]], None]:
     """
     Run benchmark evaluations for HPO term retrieval.
 
@@ -105,9 +104,7 @@ def orchestrate_benchmark(
     )
 
     # Resolve paths
-    base_data_dir = resolve_data_path(
-        data_dir_override, "data_dir", get_default_data_dir
-    )
+    resolve_data_path(data_dir_override, "data_dir", get_default_data_dir)
     index_dir = resolve_data_path(
         index_dir_override, "index_dir", get_default_index_dir
     )
@@ -133,7 +130,7 @@ def orchestrate_benchmark(
     device = "cpu" if cpu else None
 
     # Determine which models to run
-    models_to_run: List[str] = []
+    models_to_run: list[str] = []
     if all_models:
         models_to_run = BENCHMARK_MODELS
         logger.info(f"Running benchmarks for all {len(models_to_run)} models")

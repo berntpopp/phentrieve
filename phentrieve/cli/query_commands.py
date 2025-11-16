@@ -5,15 +5,14 @@ This module contains commands for querying HPO terms.
 
 import traceback
 from pathlib import Path
-from typing import Optional
-from typing_extensions import Annotated
+from typing import Annotated, Optional
 
 import typer
 
 from phentrieve.retrieval.output_formatters import (
-    format_results_as_text,
     format_results_as_json,
     format_results_as_jsonl,
+    format_results_as_text,
 )
 
 
@@ -158,14 +157,9 @@ def query_hpo(
     - json: Structured JSON output
     - json_lines: JSON Lines format (one JSON object per line)
     """
-    from phentrieve.retrieval.query_orchestrator import orchestrate_query
     from phentrieve.config import DEFAULT_MODEL, DEFAULT_TRANSLATIONS_SUBDIR
-    from phentrieve.utils import setup_logging_cli, resolve_data_path
-    from phentrieve.retrieval.output_formatters import (
-        format_results_as_text,
-        format_results_as_json,
-        format_results_as_jsonl,
-    )
+    from phentrieve.retrieval.query_orchestrator import orchestrate_query
+    from phentrieve.utils import resolve_data_path, setup_logging_cli
 
     # Set up logging
     setup_logging_cli(debug=debug)
@@ -202,10 +196,10 @@ def query_hpo(
             model_name=model_name,
             trust_remote_code=trust_remote_code,
             enable_reranker=enable_reranker,
-            reranker_model=reranker_model,
-            monolingual_reranker_model=monolingual_reranker_model,
+            reranker_model=reranker_model or "",
+            monolingual_reranker_model=monolingual_reranker_model or "",
             reranker_mode=reranker_mode,
-            translation_dir=translation_dir_path,
+            translation_dir=str(translation_dir_path),
             device_override=device_override,
             debug=debug,
             output_func=typer_echo,
@@ -236,9 +230,9 @@ def query_hpo(
                 # so we'll use a no-op output function
                 output_func_to_use = typer_echo
                 if output_format.lower() in ["json", "json_lines"]:
-                    output_func_to_use = (
-                        lambda x: None
-                    )  # No-op function to suppress output during query
+
+                    def output_func_to_use(x):
+                        return None  # No-op function to suppress output during query
 
                 # Process the query
                 query_results = orchestrate_query(
@@ -255,7 +249,7 @@ def query_hpo(
                 )
 
                 # Format the results based on the selected output format
-                if query_results:
+                if query_results and isinstance(query_results, list):
                     formatted_output = ""
                     if output_format.lower() == "text":
                         formatted_output = format_results_as_text(
@@ -309,10 +303,10 @@ def query_hpo(
             sentence_mode=sentence_mode,
             trust_remote_code=trust_remote_code,
             enable_reranker=enable_reranker,
-            reranker_model=reranker_model,
-            monolingual_reranker_model=monolingual_reranker_model,
+            reranker_model=reranker_model or "",
+            monolingual_reranker_model=monolingual_reranker_model or "",
             reranker_mode=reranker_mode,
-            translation_dir=translation_dir_path,
+            translation_dir=str(translation_dir_path),
             rerank_count=rerank_count,
             device_override=device_override,
             debug=debug,
@@ -331,16 +325,17 @@ def query_hpo(
 
         # Format the results based on the selected output format
         formatted_output = ""
-        if output_format.lower() == "text":
-            formatted_output = format_results_as_text(
-                all_query_results, sentence_mode=sentence_mode
-            )
-        elif output_format.lower() == "json":
-            formatted_output = format_results_as_json(
-                all_query_results, sentence_mode=sentence_mode
-            )
-        elif output_format.lower() == "json_lines":
-            formatted_output = format_results_as_jsonl(all_query_results)
+        if all_query_results and isinstance(all_query_results, list):
+            if output_format.lower() == "text":
+                formatted_output = format_results_as_text(
+                    all_query_results, sentence_mode=sentence_mode
+                )
+            elif output_format.lower() == "json":
+                formatted_output = format_results_as_json(
+                    all_query_results, sentence_mode=sentence_mode
+                )
+            elif output_format.lower() == "json_lines":
+                formatted_output = format_results_as_jsonl(all_query_results)
 
         # Output the results (to file or console)
         if output_file:

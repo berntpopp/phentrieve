@@ -1,6 +1,7 @@
 import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
+import { configDefaults } from 'vitest/config'
 import { visualizer } from 'rollup-plugin-visualizer'
 import viteCompression from 'vite-plugin-compression'
 import viteImagemin from 'vite-plugin-imagemin'
@@ -79,11 +80,31 @@ export default defineConfig({
     chunkSizeWarningLimit: 600
   },
   server: {
+    // Custom port 5734 (matches API 8734 pattern - HPOD project ports)
+    // Avoids conflicts with other Vite projects (default 5173)
+    port: 5734,
+    strictPort: true, // Fail fast if port is in use
+    // API proxy for local development
     proxy: {
       '/api': {
-        target: 'http://localhost:8001',
-        changeOrigin: true
+        target: 'http://localhost:8734', // Match custom API port
+        changeOrigin: true,
+        secure: false,
+        // Improve logging for debugging
+        configure: (proxy) => {
+          proxy.on('error', (err) => {
+            console.log('[Proxy Error]', err)
+          })
+          proxy.on('proxyReq', (proxyReq, req) => {
+            console.log('[Proxy Request]', req.method, req.url)
+          })
+        }
       }
+    },
+    // HMR configuration (optimized for fast refresh)
+    hmr: {
+      overlay: true, // Show errors in browser overlay
+      timeout: 30000 // Increase timeout for slower connections
     },
     // Fix MIME type issues
     fs: {
@@ -100,6 +121,27 @@ export default defineConfig({
       '*.vue': {
         'Content-Type': 'application/javascript'
       }
+    },
+    // Watch options for better HMR performance
+    watch: {
+      usePolling: false, // Use native file system events (faster)
+      interval: 100
     }
+  },
+  test: {
+    globals: true,
+    environment: 'happy-dom',
+    setupFiles: './src/test/setup.js',
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json', 'html'],
+      exclude: [
+        ...configDefaults.coverage.exclude,
+        'src/test/**',
+        '**/*.config.js',
+        '**/dist/**'
+      ]
+    },
+    exclude: [...configDefaults.exclude, 'e2e/*']
   }
 })

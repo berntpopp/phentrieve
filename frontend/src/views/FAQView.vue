@@ -14,134 +14,142 @@
       </v-btn>
 
       <!-- Main Content -->
-      <div style="max-width: 600px; width: 100%;">
-          <!-- Header -->
-          <div class="d-flex align-center mb-6">
-            <img src="/hpo-logo.svg" alt="HPO Logo" width="40" height="40" class="mr-3" loading="lazy">
-            <h1 class="text-h4 font-weight-light">{{ t('faq.pageTitle') }}</h1>
-          </div>
+      <div style="max-width: 600px; width: 100%">
+        <!-- Header -->
+        <div class="d-flex align-center mb-6">
+          <img
+            src="/hpo-logo.svg"
+            alt="HPO Logo"
+            width="40"
+            height="40"
+            class="mr-3"
+            loading="lazy"
+          />
+          <h1 class="text-h4 font-weight-light">
+            {{ t('faq.pageTitle') }}
+          </h1>
+        </div>
 
-          <!-- Search Bar -->
-          <v-card class="mb-6" variant="outlined" role="search">
-            <v-card-text class="pa-2">
-              <v-text-field
-                v-model="searchQuery"
-                prepend-icon="mdi-magnify"
-                label="Search FAQs"
-                clearable
-                density="compact"
-                variant="outlined"
-                hide-details
-                aria-label="Search frequently asked questions"
-                :placeholder="t('faq.searchPlaceholder', { count: totalQuestions })"
-              />
-            </v-card-text>
-          </v-card>
+        <!-- Search Bar -->
+        <v-card class="mb-6" variant="outlined" role="search">
+          <v-card-text class="pa-2">
+            <v-text-field
+              v-model="searchQuery"
+              prepend-icon="mdi-magnify"
+              label="Search FAQs"
+              clearable
+              density="compact"
+              variant="outlined"
+              hide-details
+              aria-label="Search frequently asked questions"
+              :placeholder="t('faq.searchPlaceholder', { count: totalQuestions })"
+            />
+          </v-card-text>
+        </v-card>
 
-          <!-- FAQ Categories -->
-          <v-card variant="outlined" role="region" aria-label="FAQ Categories">
-            <v-expansion-panels variant="accordion" role="tablist">
-              <v-expansion-panel
-                v-for="category in filteredCategories"
-                :key="category.id"
-                class="faq-panel"
-                role="tab"
-                :aria-label="category.title + ' category'"
-              >
-                <v-expansion-panel-title class="text-subtitle-1 text-primary-darken-1">
-                  {{ t(`faq.categories.${category.id}.title`) }}
-                </v-expansion-panel-title>
-                <v-expansion-panel-text role="tabpanel">
-                  <v-expansion-panels variant="accordion">
-                    <v-expansion-panel
-                      v-for="(qa, index) in category.questions"
-                      :key="index"
-                      role="listitem"
-                      :aria-label="'Question: ' + qa.question"
-                    >
-                      <v-expansion-panel-title class="text-body-1">
-                        {{ t(`faq.categories.${category.id}.questions.${qa.id}.question`) }}
-                      </v-expansion-panel-title>
-                      <v-expansion-panel-text>
-                        <div 
-                          v-html="t(`faq.categories.${category.id}.questions.${qa.id}.answer`)" 
-                          class="answer-content text-body-2" 
-                          role="region" 
-                          :aria-label="'Answer to: ' + qa.question"
-                        />
-                      </v-expansion-panel-text>
-                    </v-expansion-panel>
-                  </v-expansion-panels>
-                </v-expansion-panel-text>
-              </v-expansion-panel>
-            </v-expansion-panels>
-          </v-card>
+        <!-- FAQ Categories -->
+        <v-card variant="outlined" role="region" aria-label="FAQ Categories">
+          <v-expansion-panels variant="accordion" role="tablist">
+            <v-expansion-panel
+              v-for="category in filteredCategories"
+              :key="category.id"
+              class="faq-panel"
+              role="tab"
+              :aria-label="category.title + ' category'"
+            >
+              <v-expansion-panel-title class="text-subtitle-1 text-primary-darken-1">
+                {{ t(`faq.categories.${category.id}.title`) }}
+              </v-expansion-panel-title>
+              <v-expansion-panel-text role="tabpanel">
+                <v-expansion-panels variant="accordion">
+                  <v-expansion-panel
+                    v-for="(qa, index) in category.questions"
+                    :key="index"
+                    role="listitem"
+                    :aria-label="'Question: ' + qa.question"
+                  >
+                    <v-expansion-panel-title class="text-body-1">
+                      {{ t(`faq.categories.${category.id}.questions.${qa.id}.question`) }}
+                    </v-expansion-panel-title>
+                    <v-expansion-panel-text>
+                      <div
+                        class="answer-content text-body-2"
+                        role="region"
+                        :aria-label="'Answer to: ' + qa.question"
+                        v-html="t(`faq.categories.${category.id}.questions.${qa.id}.answer`)"
+                      />
+                    </v-expansion-panel-text>
+                  </v-expansion-panel>
+                </v-expansion-panels>
+              </v-expansion-panel-text>
+            </v-expansion-panel>
+          </v-expansion-panels>
+        </v-card>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import { useI18n } from 'vue-i18n'
-import faqData from '@/config/faqConfig.json'
+import { useI18n } from 'vue-i18n';
+import faqData from '@/config/faqConfig.json';
 
 export default {
   name: 'FAQView',
   setup() {
-    const { t } = useI18n()
-    return { t }
+    const { t } = useI18n();
+    return { t };
   },
   data() {
     return {
       faqData,
       searchQuery: '',
       categoriesMap: {
-        'general': {
+        general: {
           id: 'general',
-          questions: [
-            { id: 'whatIsPhentrieve' },
-            { id: 'howItWorks' },
-            { id: 'whoCanUse' }
-          ]
+          questions: [{ id: 'whatIsPhentrieve' }, { id: 'howItWorks' }, { id: 'whoCanUse' }],
         },
-        'technical': {
+        technical: {
           id: 'technical',
-          questions: [
-            { id: 'reranking' },
-            { id: 'performance' }
-          ]
-        }
-      }
-    }
+          questions: [{ id: 'reranking' }, { id: 'performance' }],
+        },
+      },
+    };
   },
   computed: {
     filteredCategories() {
       const categories = Object.values(this.categoriesMap);
-      
+
       if (!this.searchQuery) {
-        return categories
+        return categories;
       }
 
-      const query = this.searchQuery.toLowerCase()
-      return categories.map(category => {
-        const filteredQuestions = category.questions.filter(qa => {
-          const question = this.t(`faq.categories.${category.id}.questions.${qa.id}.question`).toLowerCase()
-          const answer = this.t(`faq.categories.${category.id}.questions.${qa.id}.answer`).toLowerCase()
-          return question.includes(query) || answer.includes(query)
+      const query = this.searchQuery.toLowerCase();
+      return categories
+        .map((category) => {
+          const filteredQuestions = category.questions.filter((qa) => {
+            const question = this.t(
+              `faq.categories.${category.id}.questions.${qa.id}.question`
+            ).toLowerCase();
+            const answer = this.t(
+              `faq.categories.${category.id}.questions.${qa.id}.answer`
+            ).toLowerCase();
+            return question.includes(query) || answer.includes(query);
+          });
+
+          return filteredQuestions.length > 0
+            ? { ...category, questions: filteredQuestions }
+            : null;
         })
-        
-        return filteredQuestions.length > 0
-          ? { ...category, questions: filteredQuestions }
-          : null
-      }).filter(Boolean)
+        .filter(Boolean);
     },
     totalQuestions() {
       return Object.values(this.categoriesMap).reduce((total, category) => {
-        return total + category.questions.length
-      }, 0)
-    }
-  }
-}
+        return total + category.questions.length;
+      }, 0);
+    },
+  },
+};
 </script>
 
 <style scoped>

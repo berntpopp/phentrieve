@@ -4,25 +4,26 @@ This module contains commands for text processing and HPO term extraction.
 """
 
 import csv
-from io import StringIO
 import json
 import logging
-import yaml
+from io import StringIO
 from pathlib import Path
-from typing import Optional, List, Dict
-from typing_extensions import Annotated
+from typing import Annotated, Optional
 
 import typer
 
-logger = logging.getLogger(__name__)
-
+# NOTE: SentenceTransformer is NOT imported at module level to avoid slow startup.
+# Importing sentence_transformers loads PyTorch/CUDA (18+ seconds), which should
+# only happen when commands actually need ML models, not for --help or --version.
+# The import is done inside command functions where the model is actually used.
 from phentrieve.cli.utils import load_text_from_input, resolve_chunking_pipeline_config
+from phentrieve.config import DEFAULT_MODEL
+from phentrieve.retrieval.dense_retriever import DenseRetriever
 from phentrieve.text_processing.hpo_extraction_orchestrator import (
     orchestrate_hpo_extraction,
 )
-from phentrieve.retrieval.dense_retriever import DenseRetriever
-from phentrieve.config import DEFAULT_MODEL
-from sentence_transformers import SentenceTransformer
+
+logger = logging.getLogger(__name__)
 
 # Create the Typer app for this command group
 app = typer.Typer()
@@ -233,18 +234,15 @@ def process_text_for_hpo_command(
     - Process from file with semantic chunking: phentrieve text process -s semantic -i clinical_note.txt
     - Process German text with specialized model: phentrieve text process -l de -m "Jina-v2-base-de" -i german_note.txt
     """
+    import logging
     import time
-    from sentence_transformers import SentenceTransformer
 
     from phentrieve.config import (
-        DEFAULT_CHUNK_PIPELINE_CONFIG,
         DEFAULT_LANGUAGE,
         DEFAULT_MODEL,
     )
     from phentrieve.text_processing.pipeline import TextProcessingPipeline
     from phentrieve.utils import detect_language, setup_logging_cli
-
-    import logging
 
     logger = logging.getLogger(__name__)
     start_time = time.time()
@@ -305,6 +303,9 @@ def process_text_for_hpo_command(
     # Load the SBERT model if needed for semantic chunking
     sbert_model_for_chunking = None
     if needs_semantic_model:
+        # Lazy import - only load heavy ML dependencies when actually needed
+        from sentence_transformers import SentenceTransformer
+
         semantic_model_name = semantic_chunker_model or DEFAULT_MODEL
         typer.echo(
             f"Loading sentence transformer model for chunking: {semantic_model_name}..."
@@ -343,6 +344,9 @@ def process_text_for_hpo_command(
     try:
         # Initialize the retriever
         try:
+            # Lazy import - only load heavy ML dependencies when actually needed
+            from sentence_transformers import SentenceTransformer
+
             # First load the SentenceTransformer model
             logger.info(f"Loading SentenceTransformer model: {model_name}")
             # Check for GPU availability
@@ -387,8 +391,8 @@ def process_text_for_hpo_command(
                 logger.warning(f"Failed to load cross-encoder: {e}")
 
         # Extract text and assertion statuses from processed chunks
-        text_chunks = []
-        assertion_statuses = []
+        text_chunks: list[str] = []
+        assertion_statuses: list[str | None] = []
         for chunk in processed_chunks:
             # Handle both formats: string or dict with text/status
             if isinstance(chunk, str):
@@ -400,7 +404,8 @@ def process_text_for_hpo_command(
                 status = chunk.get("status")
                 if status is not None and hasattr(status, "value"):
                     status = status.value
-                assertion_statuses.append(status)
+                # Ensure status is str or None
+                assertion_statuses.append(str(status) if status is not None else None)
 
         logger.debug(
             f"Extracted {len(text_chunks)} text chunks with assertion statuses"
@@ -533,10 +538,8 @@ def chunk_text_command(
     - Simple paragraph+sentence chunking: phentrieve text chunk "My text here"
     - Semantic chunking: phentrieve text chunk -s semantic -m "FremyCompany/BioLORD-2023-M" -i clinical_note.txt
     """
-    from sentence_transformers import SentenceTransformer
 
     from phentrieve.config import (
-        DEFAULT_CHUNK_PIPELINE_CONFIG,
         DEFAULT_LANGUAGE,
         DEFAULT_MODEL,
     )
@@ -586,6 +589,9 @@ def chunk_text_command(
     # Load the SBERT model if needed
     sbert_model = None
     if needs_semantic_model:
+        # Lazy import - only load heavy ML dependencies when actually needed
+        from sentence_transformers import SentenceTransformer
+
         model_name = semantic_chunker_model or DEFAULT_MODEL
         typer.echo(f"Loading sentence transformer model: {model_name}...")
         try:
@@ -629,7 +635,7 @@ def chunk_text_command(
     # Output the chunks in the requested format
     if output_format == "lines":
         for i, chunk_data in enumerate(processed_chunks):
-            typer.echo(f"[{i+1}] {chunk_data['text']}")
+            typer.echo(f"[{i + 1}] {chunk_data['text']}")
     elif output_format == "json_lines":
         for chunk_data in processed_chunks:
             # Ensure Enum values are serialized properly
@@ -654,9 +660,9 @@ def chunk_text_command(
 
 
 def _format_and_output_results(
-    aggregated_results: List[Dict],
-    chunk_results: List[Dict],
-    processed_chunks: List[Dict],
+    aggregated_results: list[dict],
+    chunk_results: list[dict],
+    processed_chunks: list[dict],
     language: str,
     output_format: str,
 ) -> None:

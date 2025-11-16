@@ -10,23 +10,23 @@ from fastapi.middleware.cors import CORSMiddleware
 # This needs to be before other project-specific imports
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from api.dependencies import (  # noqa: E402
+    get_cross_encoder_dependency,
+    get_dense_retriever_dependency,
+    get_sbert_model_dependency,
+)
 from api.routers import (  # noqa: E402
-    query_router,
-    health,
-    similarity_router,
     config_info_router,
+    health,
+    query_router,
+    similarity_router,
     text_processing_router,
 )
-from api.dependencies import (  # noqa: E402
-    get_sbert_model_dependency,
-    get_dense_retriever_dependency,
-    get_cross_encoder_dependency,
-)
 from phentrieve.config import (  # noqa: E402
-    DEFAULT_MODEL,
-    DEFAULT_RERANKER_MODEL,
-    DEFAULT_MONOLINGUAL_RERANKER_MODEL,
     DEFAULT_DEVICE,
+    DEFAULT_MODEL,
+    DEFAULT_MONOLINGUAL_RERANKER_MODEL,
+    DEFAULT_RERANKER_MODEL,
 )
 
 logger = logging.getLogger(__name__)

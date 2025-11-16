@@ -3,8 +3,7 @@
 This module contains commands for running and analyzing benchmarks.
 """
 
-from typing import Optional
-from typing_extensions import Annotated
+from typing import Annotated, Optional
 
 import typer
 
@@ -103,22 +102,22 @@ def run_benchmarks(
     typer.echo("Starting benchmark evaluation...")
 
     results = orchestrate_benchmark(
-        test_file=test_file,
-        model_name=model_name,
-        model_list=model_list,
+        test_file=test_file or "",
+        model_name=model_name or "",
+        model_list=model_list or "",
         all_models=all_models,
         similarity_threshold=similarity_threshold,
         cpu=cpu,
         detailed=detailed,
-        output=output,
+        output=output or "",
         debug=debug,
         create_sample=create_sample,
         trust_remote_code=trust_remote_code,
         enable_reranker=enable_reranker,
-        reranker_model=reranker_model,
-        monolingual_reranker_model=monolingual_reranker_model,
-        rerank_mode=rerank_mode,
-        translation_dir=translation_dir,
+        reranker_model=reranker_model or "",
+        monolingual_reranker_model=monolingual_reranker_model or "",
+        rerank_mode=rerank_mode or "",
+        translation_dir=translation_dir or "",
         rerank_count=rerank_count,
         similarity_formula=similarity_formula,
     )
@@ -158,11 +157,12 @@ def compare_benchmarks(
     a comparison table showing various metrics such as MRR, Hit Rate, and
     semantic similarity.
     """
+    import pandas as pd
+
     from phentrieve.evaluation.comparison_orchestrator import (
         orchestrate_benchmark_comparison,
     )
     from phentrieve.utils import setup_logging_cli
-    import pandas as pd
 
     setup_logging_cli(debug=debug)
 
@@ -218,11 +218,11 @@ def visualize_benchmarks(
     different metrics like MRR, Hit Rate, and semantic similarity. You can specify
     which metrics to visualize or generate charts for all available metrics.
     """
+
     from phentrieve.evaluation.comparison_orchestrator import (
         orchestrate_benchmark_comparison,
     )
     from phentrieve.utils import setup_logging_cli
-    import pandas as pd
 
     setup_logging_cli(debug=debug)
 

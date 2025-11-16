@@ -9,14 +9,13 @@ import glob
 import json
 import logging
 import os
-from pathlib import Path
-from typing import Dict, List, Tuple, Any, Optional
+from typing import Any, Optional
 
 from phentrieve.config import DEFAULT_HPO_TERMS_SUBDIR
-from phentrieve.utils import resolve_data_path, get_default_data_dir
+from phentrieve.utils import get_default_data_dir, resolve_data_path
 
 
-def load_hpo_terms(data_dir_override: Optional[str] = None) -> List[Dict[str, Any]]:
+def load_hpo_terms(data_dir_override: Optional[str] = None) -> list[dict[str, Any]]:
     """
     Load HPO terms from individual JSON files in the HPO_TERMS_DIR.
 
@@ -45,7 +44,7 @@ def load_hpo_terms(data_dir_override: Optional[str] = None) -> List[Dict[str, An
     # Process each term file
     for file_path in term_files:
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 node = json.load(f)
 
             # Extract the HP ID
@@ -92,7 +91,7 @@ def load_hpo_terms(data_dir_override: Optional[str] = None) -> List[Dict[str, An
                 }
             )
 
-        except (json.JSONDecodeError, IOError) as e:
+        except (OSError, json.JSONDecodeError) as e:
             logging.error(f"Error reading {file_path}: {e}")
 
     logging.info(f"Successfully loaded {len(hpo_terms)} HPO terms.")
@@ -100,8 +99,8 @@ def load_hpo_terms(data_dir_override: Optional[str] = None) -> List[Dict[str, An
 
 
 def create_hpo_documents(
-    hpo_terms: List[Dict[str, Any]],
-) -> Tuple[List[str], List[Dict[str, Any]], List[str]]:
+    hpo_terms: list[dict[str, Any]],
+) -> tuple[list[str], list[dict[str, Any]], list[str]]:
     """
     Create descriptive documents for each HPO term suitable for embedding and indexing.
 

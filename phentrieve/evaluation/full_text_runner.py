@@ -7,27 +7,27 @@ and semantic metrics.
 """
 
 import logging
-from typing import List, Dict, Any, Optional
 from pathlib import Path
+from typing import Any, Optional
 
-from sentence_transformers import SentenceTransformer, CrossEncoder
+from sentence_transformers import CrossEncoder
 
+from phentrieve.evaluation.metrics import SimilarityFormula
+from phentrieve.evaluation.semantic_metrics import (
+    calculate_assertion_accuracy,
+    calculate_semantically_aware_set_based_prf1,
+)
+from phentrieve.retrieval.dense_retriever import DenseRetriever
 from phentrieve.text_processing.hpo_extraction_orchestrator import (
     orchestrate_hpo_extraction,
 )
 from phentrieve.text_processing.pipeline import TextProcessingPipeline
-from phentrieve.retrieval.dense_retriever import DenseRetriever
-from phentrieve.evaluation.semantic_metrics import (
-    calculate_semantically_aware_set_based_prf1,
-    calculate_assertion_accuracy,
-)
-from phentrieve.evaluation.metrics import SimilarityFormula
 
 logger = logging.getLogger(__name__)
 
 
 def evaluate_single_document_extraction(
-    ground_truth_doc: Dict[str, Any],
+    ground_truth_doc: dict[str, Any],
     language: str,  # Often from ground_truth_doc, but can be overridden
     # --- Phentrieve Components (pre-initialized) ---
     pipeline: TextProcessingPipeline,
@@ -47,7 +47,7 @@ def evaluate_single_document_extraction(
     metrics_semantic_similarity_threshold: float = 0.7,  # For PRF1
     metrics_similarity_formula: SimilarityFormula = SimilarityFormula.HYBRID,  # For PRF1
     debug: bool = False,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Evaluate Phentrieve's HPO extraction performance on a single document.
 
@@ -96,7 +96,7 @@ def evaluate_single_document_extraction(
     ]
 
     # Get assertion statuses if available in the pipeline output
-    assertion_statuses_for_orchestrator = None
+    assertion_statuses_for_orchestrator: list[str | None] | None = None
     if processed_chunks_from_pipeline and "status" in processed_chunks_from_pipeline[0]:
         # Extract assertion statuses from each chunk
         assertion_statuses_for_orchestrator = []
@@ -131,13 +131,13 @@ def evaluate_single_document_extraction(
             text_chunks=text_chunks_for_orchestrator,
             retriever=retriever,
             num_results_per_chunk=num_results_per_chunk,
-            similarity_threshold_per_chunk=similarity_threshold_per_chunk,
+            chunk_retrieval_threshold=similarity_threshold_per_chunk,
             cross_encoder=cross_encoder_to_use,
             translation_dir_path=translation_dir_path,
             language=language,
             reranker_mode=reranker_mode,
             top_term_per_chunk=top_term_per_chunk_for_aggregated,
-            min_confidence=min_confidence_for_aggregated,
+            min_confidence_for_aggregated=min_confidence_for_aggregated,
             assertion_statuses=assertion_statuses_for_orchestrator,
         )
 
@@ -150,7 +150,7 @@ def evaluate_single_document_extraction(
                 matches = chunk_data.get("matches", [])
 
                 logger.info(
-                    f"\nChunk {chunk_idx+1}: '{chunk_text}' (extracted {len(matches)} terms)"
+                    f"\nChunk {chunk_idx + 1}: '{chunk_text}' (extracted {len(matches)} terms)"
                 )
 
                 for j, term in enumerate(matches):
@@ -164,7 +164,7 @@ def evaluate_single_document_extraction(
                     )
                     status_str = status if status else "None"
                     logger.info(
-                        f"  [{j+1}] {term_id} - {name} ({status_str}) [score: {score_str}]"
+                        f"  [{j + 1}] {term_id} - {name} ({status_str}) [score: {score_str}]"
                     )
 
             logger.info("\n=== END CHUNK EXTRACTION DETAILS ===")
@@ -191,12 +191,12 @@ def evaluate_single_document_extraction(
         )
 
         # Extract metrics
-        precision = metrics_results.get("precision", 0.0)
-        recall = metrics_results.get("recall", 0.0)
-        f1_score = metrics_results.get("f1_score", 0.0)
-        tp_count = metrics_results.get("tp_count", 0)
-        fp_count = metrics_results.get("fp_count", 0)
-        fn_count = metrics_results.get("fn_count", 0)
+        metrics_results.get("precision", 0.0)
+        metrics_results.get("recall", 0.0)
+        metrics_results.get("f1_score", 0.0)
+        metrics_results.get("tp_count", 0)
+        metrics_results.get("fp_count", 0)
+        metrics_results.get("fn_count", 0)
 
         # Extract exact and semantic match counts
         exact_match_count = metrics_results.get("exact_match_count", 0)
@@ -265,7 +265,7 @@ def evaluate_single_document_extraction(
                 hpo_id = term.get("hpo_id") or term.get("id")
                 name = term.get("label") or term.get("name")
                 status = term.get("assertion_status")
-                logger.info(f"  [{i+1}] {hpo_id} - {name} ({status})")
+                logger.info(f"  [{i + 1}] {hpo_id} - {name} ({status})")
 
             # Print extracted terms
             logger.info(f"\nExtracted Terms ({len(aggregated_results)}):")
@@ -277,7 +277,7 @@ def evaluate_single_document_extraction(
 
                 score_str = f"{score:.4f}" if isinstance(score, (int, float)) else "N/A"
                 logger.info(
-                    f"  [{i+1}] {term_id} - {name} ({status}) [score: {score_str}]"
+                    f"  [{i + 1}] {term_id} - {name} ({status}) [score: {score_str}]"
                 )
 
             # Print matched pairs
@@ -290,7 +290,7 @@ def evaluate_single_document_extraction(
                     "name"
                 )
                 logger.info(
-                    f"  [{i+1}] {extracted_id} - {extracted_name} ↔ {ground_truth_id} - {ground_truth_name}"
+                    f"  [{i + 1}] {extracted_id} - {extracted_name} ↔ {ground_truth_id} - {ground_truth_name}"
                 )
 
             # Print false positives
@@ -305,7 +305,7 @@ def evaluate_single_document_extraction(
                 term = next((t for t in aggregated_results if t["id"] == fp_id), None)
                 if term:
                     name = term.get("name")
-                    logger.info(f"  [{i+1}] {fp_id} - {name}")
+                    logger.info(f"  [{i + 1}] {fp_id} - {name}")
 
             # Print false negatives
             true_positive_ground_truth_ids = [
@@ -328,7 +328,7 @@ def evaluate_single_document_extraction(
                 )
                 if term:
                     label = term.get("label") or term.get("name")
-                    logger.info(f"  [{i+1}] {fn_id} - {label}")
+                    logger.info(f"  [{i + 1}] {fn_id} - {label}")
 
             logger.info("\n=== END DEBUG INFO ===\n")
 

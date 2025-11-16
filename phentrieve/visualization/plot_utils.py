@@ -2,9 +2,9 @@
 """
 Utility functions for creating benchmark result visualizations.
 """
+
 import logging
 import os
-from datetime import datetime
 from typing import Optional
 
 import matplotlib.pyplot as plt
@@ -222,7 +222,7 @@ def plot_metric_at_k_bars(
             errorbar="sd",
         )
         for c in ax.containers:
-            ax.bar_label(c, fmt="%.3f", fontsize=9, padding=3)
+            ax.bar_label(c, fmt="%.3f", fontsize=9, padding=3)  # type: ignore[arg-type]
         ax.set_title(f"{metric_name}: Dense vs Re-Ranked - {model_name}")
         ax.set_xlabel("K value")
         ax.set_ylabel(y_label)
@@ -320,7 +320,7 @@ def plot_metric_at_k_lines(
                 ax.get_legend().remove()
 
         plt.suptitle(f"{metric_name} Trends vs K: Dense vs Re-Ranked", y=0.98)
-        plt.tight_layout(rect=[0, 0.08, 1, 0.95])
+        plt.tight_layout(rect=[0, 0.08, 1, 0.95])  # type: ignore[arg-type]
 
     else:  # Single model
         # Use a simpler approach for a single model

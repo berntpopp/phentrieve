@@ -2,19 +2,20 @@
 """
 Utility functions for loading, processing, and analyzing benchmark summary files.
 """
+
 import glob
 import json
 import logging
 import os
-from typing import Dict, List, Any, Optional
+from typing import Any
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 
 logger = logging.getLogger(__name__)
 
 
-def load_summary_files(directory: str) -> List[Dict[str, Any]]:
+def load_summary_files(directory: str) -> list[dict[str, Any]]:
     """
     Load all summary JSON files from the specified directory.
 
@@ -30,7 +31,7 @@ def load_summary_files(directory: str) -> List[Dict[str, Any]]:
 
     for file_path in json_files:
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 summary = json.load(f)
             summary["file_path"] = file_path  # Add file path for reference
             summaries.append(summary)
@@ -43,7 +44,7 @@ def load_summary_files(directory: str) -> List[Dict[str, Any]]:
     return summaries
 
 
-def deduplicate_summaries(summaries: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+def deduplicate_summaries(summaries: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """
     Remove duplicate model entries, keeping only the most recent result for each model.
     Assumes summaries are sorted by timestamp (newest first).
@@ -70,7 +71,7 @@ def deduplicate_summaries(summaries: List[Dict[str, Any]]) -> List[Dict[str, Any
     return deduplicated
 
 
-def prepare_comparison_dataframe(summaries: List[Dict[str, Any]]) -> pd.DataFrame:
+def prepare_comparison_dataframe(summaries: list[dict[str, Any]]) -> pd.DataFrame:
     """
     Prepare a Pandas DataFrame for comparing benchmark summaries.
     Handles both dense and re-ranked metrics.
@@ -137,14 +138,16 @@ def prepare_comparison_dataframe(summaries: List[Dict[str, Any]]) -> pd.DataFram
 
 
 def prepare_flat_dataframe_for_plotting(
-    summaries: List[Dict[str, Any]],
+    summaries: list[dict[str, Any]],
     metric_prefix: str,  # e.g., "hit_rate", "max_ont_similarity"
-    k_values: List[int] = [1, 3, 5, 10],
+    k_values: list[int] | None = None,
 ) -> pd.DataFrame:
     """
     Prepares a long-form DataFrame for plotting metrics like Hit@K or MaxOntSim@K.
     This structure is suitable for seaborn plots using `hue` for 'Method'.
     """
+    if k_values is None:
+        k_values = [1, 3, 5, 10]
     plot_data = []
     for summary in summaries:
         model_name = summary.get("model", "Unknown")

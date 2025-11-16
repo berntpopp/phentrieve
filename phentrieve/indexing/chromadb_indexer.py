@@ -8,29 +8,29 @@ for HPO terms, allowing efficient semantic search.
 import logging
 import os
 import time
-from typing import Dict, List, Tuple, Union, Optional, Any
 from pathlib import Path
+from typing import Any
 
 import chromadb
-import torch
 from sentence_transformers import SentenceTransformer
 from tqdm import tqdm
+
 from phentrieve.utils import (
-    get_model_slug,
     generate_collection_name,
     get_embedding_dimension,
+    get_model_slug,
 )
 
 
 def build_chromadb_index(
-    documents: List[str],
-    metadatas: List[Dict[str, Any]],
-    ids: List[str],
+    documents: list[str],
+    metadatas: list[dict[str, Any]],
+    ids: list[str],
     model: SentenceTransformer,
     model_name: str,
     batch_size: int = 100,
     recreate: bool = False,
-    index_dir: Path = None,
+    index_dir: Path | None = None,
 ) -> bool:
     """
     Build a ChromaDB index for the given documents using the specified embedding model.
@@ -51,9 +51,14 @@ def build_chromadb_index(
         logging.error("No documents provided for indexing")
         return False
 
+    # Validate index_dir is provided
+    if index_dir is None:
+        logging.error("index_dir must be provided for indexing")
+        return False
+
     # Get collection name (index_dir should be passed in)
     collection_name = generate_collection_name(model_name)
-    model_slug = get_model_slug(model_name)
+    get_model_slug(model_name)
 
     # Make sure index directory exists
     os.makedirs(index_dir, exist_ok=True)
@@ -163,15 +168,16 @@ def build_chromadb_index(
             embeddings = model.encode(batch_docs, device=device_name)
 
             # Add to ChromaDB
+            # Cast to satisfy ChromaDB's strict type requirements
             collection.add(
                 documents=batch_docs,
                 embeddings=embeddings.tolist(),
-                metadatas=batch_meta,
+                metadatas=batch_meta,  # type: ignore[arg-type]
                 ids=batch_ids,
             )
         except Exception as e:
             logging.error(
-                f"Error processing batch {i//batch_size + 1}/{total_batches}: {e}"
+                f"Error processing batch {i // batch_size + 1}/{total_batches}: {e}"
             )
             continue
 

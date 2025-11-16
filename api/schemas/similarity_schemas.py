@@ -6,7 +6,9 @@ responses, ensuring consistent and well-documented API contracts.
 """
 
 from typing import Optional
-from pydantic import BaseModel, Field, ConfigDict
+
+from pydantic import BaseModel, ConfigDict, Field
+
 from phentrieve.evaluation.metrics import (
     SimilarityFormula,
 )  # For type safety and OpenAPI docs

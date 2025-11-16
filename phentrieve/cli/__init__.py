@@ -5,25 +5,32 @@ from their respective modules.
 """
 
 import importlib.metadata
-from typing_extensions import Annotated
+from typing import Annotated
 
 import typer
 
 # Import all command groups
 from phentrieve.cli import (
+    benchmark_commands,
     data_commands,
     index_commands,
-    text_commands,
-    benchmark_commands,
     query_commands,
     similarity_commands,
+    text_commands,
 )
 
 # Read version from pyproject.toml
 __version__ = importlib.metadata.version("phentrieve")
 
 # Create the main Typer app
-app = typer.Typer(name="phentrieve", help="Phenotype Retrieval CLI Tool")
+app = typer.Typer(
+    name="phentrieve",
+    help="Phentrieve - AI-powered HPO term mapping using Retrieval-Augmented Generation (RAG)",
+    no_args_is_help=True,
+    rich_markup_mode="rich",
+    add_completion=True,
+    context_settings={"help_option_names": ["-h", "--help"]},
+)
 
 
 def version_callback(value: bool):
@@ -46,7 +53,7 @@ def main_callback(
         ),
     ] = False,
 ):
-    """Phentrieve CLI main callback."""
+    """Main callback for Phentrieve CLI - handles global options like --version."""
     pass
 
 

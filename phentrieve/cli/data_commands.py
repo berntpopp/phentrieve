@@ -3,8 +3,7 @@
 This module contains commands for managing HPO data.
 """
 
-from typing import Optional
-from typing_extensions import Annotated
+from typing import Annotated, Optional
 
 import typer
 

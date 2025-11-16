@@ -5,12 +5,12 @@ This module provides utilities for loading language-specific resources from
 JSON files. It supports both bundled default resources and user-provided custom resources.
 """
 
+import copy
+import importlib.resources
 import json
 import logging
-import copy
 from pathlib import Path
-from typing import Dict, List, Any, Optional
-import importlib.resources
+from typing import Any, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -20,14 +20,14 @@ DEFAULT_RESOURCES_PACKAGE_PATH = "phentrieve.text_processing.default_lang_resour
 # Cache for loaded resources to avoid repeatedly loading the same resources
 # Key: tuple(resource_filename, custom_file_path)
 # Value: loaded resource dictionary
-_RESOURCE_CACHE: Dict[str, Dict[str, List[str]]] = {}
+_RESOURCE_CACHE: dict[str, dict[str, list[str]]] = {}
 
 
 def load_language_resource(
     default_resource_filename: str,
     config_key_for_custom_file: str,
-    language_resources_config_section: Optional[Dict[str, Any]] = None,
-) -> Dict[str, List[str]]:
+    language_resources_config_section: Optional[dict[str, Any]] = None,
+) -> dict[str, list[str]]:
     """
     Load a language resource from JSON files, with user overrides if provided.
 
@@ -68,7 +68,7 @@ def load_language_resource(
 
     # If not in cache, load the resource
     # Initialize with empty dictionary (fallback if everything fails)
-    effective_resources: Dict[str, List[str]] = {}
+    effective_resources: dict[str, list[str]] = {}
 
     # 1. Load default resources from bundled package
     try:
@@ -102,7 +102,7 @@ def load_language_resource(
 
         if custom_file_path.exists() and custom_file_path.is_file():
             try:
-                with open(custom_file_path, "r", encoding="utf-8") as f:
+                with open(custom_file_path, encoding="utf-8") as f:
                     custom_resources = json.load(f)
 
                 logger.info(

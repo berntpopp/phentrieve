@@ -10,31 +10,30 @@ import logging
 import os
 import time
 from datetime import datetime
-from typing import Dict, List, Optional, Tuple, Any
 from pathlib import Path
+from typing import Any, Optional
 
 import pandas as pd
 import torch
 from tqdm import tqdm
 
 from phentrieve.config import (
-    DEFAULT_RERANKER_MODEL,
+    DEFAULT_K_VALUES,
     DEFAULT_RERANK_CANDIDATE_COUNT,
     DEFAULT_RERANKER_MODE,
-    DEFAULT_TRANSLATION_DIR,
-    DEFAULT_K_VALUES,
+    DEFAULT_RERANKER_MODEL,
     DEFAULT_SIMILARITY_THRESHOLD,
+    DEFAULT_TRANSLATION_DIR,
 )
 from phentrieve.data_processing.test_data_loader import load_test_data
-from phentrieve.evaluation.metrics import (
-    mean_reciprocal_rank,
-    hit_rate_at_k,
-    calculate_test_case_max_ont_sim,
-    calculate_semantic_similarity,
-    load_hpo_graph_data,
-    SimilarityFormula,
-)
 from phentrieve.embeddings import load_embedding_model
+from phentrieve.evaluation.metrics import (
+    SimilarityFormula,
+    calculate_test_case_max_ont_sim,
+    hit_rate_at_k,
+    load_hpo_graph_data,
+    mean_reciprocal_rank,
+)
 from phentrieve.retrieval.dense_retriever import DenseRetriever
 from phentrieve.retrieval.reranker import (
     load_cross_encoder,
@@ -46,21 +45,21 @@ from phentrieve.utils import get_model_slug, load_translation_text
 def run_evaluation(
     model_name: str,
     test_file: str,
-    k_values: Tuple[int, ...] = DEFAULT_K_VALUES,
+    k_values: tuple[int, ...] = DEFAULT_K_VALUES,
     similarity_threshold: float = DEFAULT_SIMILARITY_THRESHOLD,
     debug: bool = False,
     device: Optional[str] = None,
     trust_remote_code: bool = False,
     save_results: bool = True,
-    results_dir: Path = None,
-    index_dir: Path = None,
+    results_dir: Path | None = None,
+    index_dir: Path | None = None,
     enable_reranker: bool = False,
     reranker_model: str = DEFAULT_RERANKER_MODEL,
     rerank_count: int = DEFAULT_RERANK_CANDIDATE_COUNT,
     reranker_mode: str = DEFAULT_RERANKER_MODE,
-    translation_dir: str = DEFAULT_TRANSLATION_DIR,
+    translation_dir: str | None = DEFAULT_TRANSLATION_DIR,
     similarity_formula: str = "hybrid",
-) -> Optional[Dict[str, Any]]:
+) -> Optional[dict[str, Any]]:
     """
     Run a complete benchmark evaluation for a model on a test dataset.
 
@@ -86,6 +85,8 @@ def run_evaluation(
         Dictionary containing benchmark results or None if evaluation failed
     """
     # Create output directory structure
+    detailed_results_dir = None
+    summaries_dir = None
     if save_results:
         if results_dir is None:
             # Log error if results_dir is None
@@ -96,10 +97,10 @@ def run_evaluation(
         if not results_dir.exists():
             results_dir.mkdir(parents=True, exist_ok=True)
 
-    detailed_results_dir = results_dir / "detailed"
-    summaries_dir = results_dir / "summaries"
-    os.makedirs(detailed_results_dir, exist_ok=True)
-    os.makedirs(summaries_dir, exist_ok=True)
+        detailed_results_dir = results_dir / "detailed"
+        summaries_dir = results_dir / "summaries"
+        os.makedirs(detailed_results_dir, exist_ok=True)
+        os.makedirs(summaries_dir, exist_ok=True)
 
     # Load test data
     test_cases = load_test_data(test_file)
@@ -109,8 +110,7 @@ def run_evaluation(
 
     # Create a descriptive name for the benchmark run
     model_slug = get_model_slug(model_name)
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    run_id = f"{model_slug}_{timestamp}"
+    datetime.now().strftime("%Y%m%d_%H%M%S")
 
     logging.info(f"Starting benchmark evaluation for model '{model_name}'")
     logging.info(f"Test file: {test_file} ({len(test_cases)} test cases)")
@@ -144,7 +144,9 @@ def run_evaluation(
                     f"Failed to load cross-encoder model {reranker_model}. Re-ranking will be disabled."
                 )
                 enable_reranker = False
-            elif reranker_mode == "monolingual" and not os.path.exists(translation_dir):
+            elif reranker_mode == "monolingual" and (
+                not translation_dir or not os.path.exists(translation_dir)
+            ):
                 logging.warning(
                     f"Translation directory not found: {translation_dir}. Re-ranking will be disabled."
                 )
@@ -161,7 +163,7 @@ def run_evaluation(
                 " Please provide a valid index_dir."
             )
 
-        index_path = (
+        (
             index_dir / f"{model_name}.faiss"
             if index_dir
             else Path("data") / f"{model_name}.faiss"
@@ -180,13 +182,13 @@ def run_evaluation(
         # Initialize result containers for both dense and re-ranked metrics
         # Baseline dense metrics
         mrr_dense_values = []
-        hit_rate_dense_values = {k: [] for k in k_values}
-        max_ont_sim_dense_values = {k: [] for k in k_values}
+        hit_rate_dense_values: dict[int, list[float]] = {k: [] for k in k_values}
+        max_ont_sim_dense_values: dict[int, list[float]] = {k: [] for k in k_values}
 
         # Re-ranked metrics (will remain empty if re-ranking is disabled)
         mrr_reranked_values = []
-        hit_rate_reranked_values = {k: [] for k in k_values}
-        max_ont_sim_reranked_values = {k: [] for k in k_values}
+        hit_rate_reranked_values: dict[int, list[float]] = {k: [] for k in k_values}
+        max_ont_sim_reranked_values: dict[int, list[float]] = {k: [] for k in k_values}
 
         detailed_results = []
 
@@ -198,11 +200,11 @@ def run_evaluation(
             # Extract test case data
             text = test_case["text"]
             expected_ids = test_case.get("expected_hpo_ids", [])
-            description = test_case.get("description", f"Case {i+1}")
+            description = test_case.get("description", f"Case {i + 1}")
 
             # Skip test cases with no expected IDs
             if not expected_ids:
-                logging.warning(f"Skipping test case {i+1} with no expected HPO IDs")
+                logging.warning(f"Skipping test case {i + 1} with no expected HPO IDs")
                 continue
 
             try:
@@ -253,7 +255,6 @@ def run_evaluation(
                     dense_hit_rates[f"hit_rate_dense@{k}"] = hit
 
                 # Calculate baseline ontology similarity at different K values
-                dense_ont_similarities = {}
                 for k in k_values:
                     if dense_term_ids:
                         # Extract HPO IDs from results
@@ -316,7 +317,7 @@ def run_evaluation(
                             candidate["bi_encoder_score"] = score
 
                         # For monolingual re-ranking, load translation text in target language
-                        if reranker_mode == "monolingual":
+                        if reranker_mode == "monolingual" and translation_dir:
                             translated_text = load_translation_text(
                                 candidate["hpo_id"], translation_dir
                             )
@@ -413,7 +414,7 @@ def run_evaluation(
                 detailed_results.append(case_result)
 
             except Exception as e:
-                logging.error(f"Error processing test case {i+1}: {e}")
+                logging.error(f"Error processing test case {i + 1}: {e}")
                 # Add a failed entry
                 detailed_results.append(
                     {
@@ -578,6 +579,10 @@ def run_evaluation(
                     )
 
             # Save summary to file
+            # Type narrowing: these are not None inside save_results block
+            assert summaries_dir is not None
+            assert detailed_results_dir is not None
+
             os.makedirs(summaries_dir, exist_ok=True)
             # Use model_slug instead of creating a new safe name
             # This ensures consistency with collection naming
@@ -594,7 +599,7 @@ def run_evaluation(
 
         # Log summary of results
         logging.info(f"Benchmark results for {model_name}:")
-        logging.info(f"  === Dense Retrieval Metrics ====")
+        logging.info("  === Dense Retrieval Metrics ====")
         logging.info(f"  MRR (Dense): {avg_mrr_dense:.4f}")
         for k in k_values:
             logging.info(f"  Hit@{k} (Dense): {avg_hit_rates_dense[k]:.4f}")
@@ -616,7 +621,7 @@ def run_evaluation(
         return None
 
 
-def compare_models(results_list: List[Dict[str, Any]]) -> pd.DataFrame:
+def compare_models(results_list: list[dict[str, Any]]) -> pd.DataFrame:
     """
     Compare results across different models.
 

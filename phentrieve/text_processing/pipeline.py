@@ -6,28 +6,28 @@ of text processing operations including chunking and assertion detection.
 """
 
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 from sentence_transformers import SentenceTransformer
 
-from phentrieve.text_processing.cleaners import (
-    normalize_line_endings,
-    clean_internal_newlines_and_extra_spaces,
+from phentrieve.text_processing.assertion_detection import (
+    AssertionDetector,
+    AssertionStatus,
+    CombinedAssertionDetector,
 )
 from phentrieve.text_processing.chunkers import (
-    FineGrainedPunctuationChunker,
+    ConjunctionChunker,
     FinalChunkCleaner,
+    FineGrainedPunctuationChunker,
     NoOpChunker,
     ParagraphChunker,
     SentenceChunker,
     SlidingWindowSemanticSplitter,
     TextChunker,
-    ConjunctionChunker,
 )
-from phentrieve.text_processing.assertion_detection import (
-    AssertionDetector,
-    AssertionStatus,
-    CombinedAssertionDetector,
+from phentrieve.text_processing.cleaners import (
+    clean_internal_newlines_and_extra_spaces,
+    normalize_line_endings,
 )
 
 logger = logging.getLogger(__name__)
@@ -44,8 +44,8 @@ class TextProcessingPipeline:
     def __init__(
         self,
         language: str,
-        chunking_pipeline_config: List[Dict],
-        assertion_config: Dict,
+        chunking_pipeline_config: list[dict],
+        assertion_config: dict,
         sbert_model_for_semantic_chunking: Optional[SentenceTransformer] = None,
     ):
         """
@@ -85,14 +85,14 @@ class TextProcessingPipeline:
             f"and assertion detection config: {assertion_config}"
         )
 
-    def _create_chunkers(self) -> List[TextChunker]:
+    def _create_chunkers(self) -> list[TextChunker]:
         """
         Create chunker instances based on configuration.
 
         Returns:
             List of initialized chunker instances
         """
-        chunkers = []
+        chunkers: list[TextChunker] = []
 
         for stage_config in self.chunking_pipeline_config:
             # Get chunker configuration
@@ -272,7 +272,7 @@ class TextProcessingPipeline:
             preference=preference,
         )
 
-    def process(self, raw_text: str) -> List[Dict[str, Any]]:
+    def process(self, raw_text: str) -> list[dict[str, Any]]:
         """
         Process raw text through the chunking pipeline and assertion detection.
 
@@ -298,12 +298,12 @@ class TextProcessingPipeline:
             return []
 
         normalized_text = normalize_line_endings(raw_text)
-        current_segments_for_stage: List[str] = [normalized_text]
+        current_segments_for_stage: list[str] = [normalized_text]
 
         # Simplified source tracking for this refactor:
         # Each element in current_source_info_list corresponds to a segment in current_segments_for_stage
         # It stores a list of strings describing the applied chunkers.
-        current_source_info_list: List[List[str]] = [["initial_raw_text"]]
+        current_source_info_list: list[list[str]] = [["initial_raw_text"]]
 
         for chunker_idx, chunker_instance in enumerate(self.chunkers):
             chunker_name = chunker_instance.__class__.__name__
@@ -350,9 +350,9 @@ class TextProcessingPipeline:
                 f"Stage {chunker_idx + 1} ({chunker_name}) produced {len(current_segments_for_stage)} segment(s)."
             )
 
-        final_raw_chunks_text_only: List[str] = current_segments_for_stage
+        final_raw_chunks_text_only: list[str] = current_segments_for_stage
 
-        processed_chunks_with_assertion: List[Dict[str, Any]] = []
+        processed_chunks_with_assertion: list[dict[str, Any]] = []
         for idx, final_text_chunk in enumerate(final_raw_chunks_text_only):
             cleaned_final_chunk = clean_internal_newlines_and_extra_spaces(
                 final_text_chunk

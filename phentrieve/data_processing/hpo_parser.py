@@ -10,32 +10,30 @@ Human Phenotype Ontology (HPO) data including:
 - Precomputing graph properties (ancestor sets, term depths) for ALL terms
 """
 
-import os
 import json
 import logging
+import os
 import pickle
 import shutil
 import sys
 from collections import defaultdict, deque
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Set, Any
+from typing import Any, Optional
 
 import requests
 from tqdm import tqdm
 
 # Assuming config and utils are in the phentrieve package and accessible
 from phentrieve.config import (
-    DEFAULT_HPO_FILENAME,
-    DEFAULT_HPO_TERMS_SUBDIR,
     DEFAULT_ANCESTORS_FILENAME,
     DEFAULT_DEPTHS_FILENAME,
-    PHENOTYPE_ROOT,  # Still useful for semantic context, but not for filtering saved terms
+    DEFAULT_HPO_FILENAME,
+    DEFAULT_HPO_TERMS_SUBDIR,  # Still useful for semantic context, but not for filtering saved terms
 )
-
 from phentrieve.utils import (
+    get_default_data_dir,
     normalize_id,
     resolve_data_path,
-    get_default_data_dir,
 )
 
 # HPO download settings
@@ -93,10 +91,11 @@ def load_hpo_json(hpo_file_path: Path) -> Optional[dict]:
                 return None
 
         logger.info(f"Loading HPO JSON from {hpo_file_path}")
-        with open(hpo_file_path, "r", encoding="utf-8") as f:
+        with open(hpo_file_path, encoding="utf-8") as f:
             data = json.load(f)
         logger.info("HPO JSON file loaded successfully.")
-        return data
+        # Cast to dict to match return type annotation
+        return dict(data) if isinstance(data, dict) else {}
     except json.JSONDecodeError as e:
         logger.error(f"Error decoding HPO JSON file {hpo_file_path}: {e}")
         return None
@@ -106,20 +105,20 @@ def load_hpo_json(hpo_file_path: Path) -> Optional[dict]:
 
 
 def _parse_hpo_json_to_graphs(
-    hpo_data: Dict,
-) -> Tuple[
-    Optional[Dict[str, Dict]],
-    Optional[Dict[str, List[str]]],
-    Optional[Dict[str, List[str]]],
-    Optional[Set[str]],
+    hpo_data: dict,
+) -> tuple[
+    Optional[dict[str, dict]],
+    Optional[dict[str, list[str]]],
+    Optional[dict[str, list[str]]],
+    Optional[set[str]],
 ]:
     """
     Parses raw HPO JSON data into term data, parent->child, and child->parent relationships.
     """
-    all_nodes_data: Dict[str, Dict] = {}
-    parent_to_children_map: Dict[str, List[str]] = defaultdict(list)
-    child_to_parents_map: Dict[str, List[str]] = defaultdict(list)
-    all_term_ids: Set[str] = set()
+    all_nodes_data: dict[str, dict] = {}
+    parent_to_children_map: dict[str, list[str]] = defaultdict(list)
+    child_to_parents_map: dict[str, list[str]] = defaultdict(list)
+    all_term_ids: set[str] = set()
 
     logger.debug("Parsing nodes and edges from HPO JSON...")
 
@@ -213,7 +212,7 @@ def _parse_hpo_json_to_graphs(
 
 
 def save_all_hpo_terms_as_json_files(
-    all_nodes_data: Dict[str, Dict], terms_dir: Path
+    all_nodes_data: dict[str, dict], terms_dir: Path
 ) -> int:
     """
     Saves ALL HPO terms from the nodes map as individual JSON files.
@@ -243,7 +242,7 @@ def save_all_hpo_terms_as_json_files(
                 with open(file_path, "w", encoding="utf-8") as f:
                     json.dump(node_data, f, ensure_ascii=False, indent=2)
                 saved_count += 1
-            except IOError as e:
+            except OSError as e:
                 logger.error(
                     f"Could not write JSON for term {term_id} to {file_path}: {e}"
                 )
@@ -255,8 +254,8 @@ def save_all_hpo_terms_as_json_files(
 
 
 def compute_ancestors_iterative(
-    child_to_parents_map: Dict[str, List[str]], all_term_ids: Set[str]
-) -> Dict[str, Set[str]]:
+    child_to_parents_map: dict[str, list[str]], all_term_ids: set[str]
+) -> dict[str, set[str]]:
     """
     Compute all ancestors (including self) for each HPO term using iterative BFS.
     Args:
@@ -266,12 +265,12 @@ def compute_ancestors_iterative(
         Dictionary mapping term IDs to sets of all ancestor IDs (including self).
     """
     logger.info("Computing ancestors for all HPO terms (iterative BFS approach)...")
-    ancestors_map: Dict[str, Set[str]] = {}
+    ancestors_map: dict[str, set[str]] = {}
 
     for term_id in tqdm(all_term_ids, desc="Computing ancestors", unit="term"):
         current_term_ancestors = {term_id}  # Always include self
 
-        queue = deque()
+        queue: deque[str] = deque()
         # Add direct parents to the queue and to ancestors
         direct_parents = child_to_parents_map.get(term_id, [])
         for parent_id in direct_parents:
@@ -334,8 +333,8 @@ def compute_ancestors_iterative(
 
 
 def compute_term_depths(
-    parent_to_children_map: Dict[str, List[str]], all_term_ids: Set[str]
-) -> Dict[str, int]:
+    parent_to_children_map: dict[str, list[str]], all_term_ids: set[str]
+) -> dict[str, int]:
     """
     Compute the depth of each term from the true ontology root (HP:0000001) using BFS.
     Args:
@@ -347,9 +346,7 @@ def compute_term_depths(
     """
     logger.info(f"Calculating term depths from true HPO root: {TRUE_ONTOLOGY_ROOT}")
 
-    depths: Dict[str, int] = {
-        term_id: -1 for term_id in all_term_ids
-    }  # Initialize depths
+    depths: dict[str, int] = dict.fromkeys(all_term_ids, -1)  # Initialize depths
 
     if TRUE_ONTOLOGY_ROOT not in all_term_ids:
         logger.error(
@@ -411,16 +408,26 @@ def save_pickle_data(data: Any, file_path: Path, description: str) -> None:
 
 def prepare_hpo_data(
     force_update: bool = False,
-    hpo_file_path: Path = None,
-    hpo_terms_dir: Path = None,
-    ancestors_file: Path = None,
-    depths_file: Path = None,
-) -> Tuple[bool, Optional[str]]:
+    hpo_file_path: Path | None = None,
+    hpo_terms_dir: Path | None = None,
+    ancestors_file: Path | None = None,
+    depths_file: Path | None = None,
+) -> tuple[bool, Optional[str]]:
     """
     Core HPO data preparation: download, parse, save ALL terms, compute graph data.
     """
+    # Validate required paths
+    if hpo_file_path is None:
+        return False, "hpo_file_path is required but was not provided"
+    if hpo_terms_dir is None:
+        return False, "hpo_terms_dir is required but was not provided"
+    if ancestors_file is None:
+        return False, "ancestors_file is required but was not provided"
+    if depths_file is None:
+        return False, "depths_file is required but was not provided"
+
     # 1. Download/Load HPO JSON
-    if force_update or not (hpo_file_path and os.path.exists(hpo_file_path)):
+    if force_update or not os.path.exists(hpo_file_path):
         logger.info(
             f"Force update or file missing. Downloading HPO JSON to {hpo_file_path}..."
         )

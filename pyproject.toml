@@ -13,13 +13,15 @@ license = { file = "LICENSE" }
 authors = [
     { name = "Bernt Popp", email = "bernt.popp@example.com" }, # Placeholder: Update email
 ]
-requires-python = ">=3.9" # Verify minimum Python version needed
+# NOTE: Python 3.10+ required for modern type syntax (PEP 585: list[str], PEP 604: str | None)
+# Previous versions (0.1.x) supported Python 3.9
+requires-python = ">=3.10"
 classifiers = [
-    "Development Status :: 3 - Alpha", # Starting point
+    "Development Status :: 3 - Alpha",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Intended Audience :: Science/Research",
@@ -28,17 +30,19 @@ classifiers = [
     "Environment :: Console",
 ]
 dependencies = [
-    "sentence-transformers>=2.2.2",
-    "chromadb>=0.4.18",
+    "sentence-transformers>=4.1.0,<5.0.0",  # Pin to 4.x (avoid breaking changes in 5.x)
+    "chromadb>=1.0.6,<2.0.0",               # Pin to 1.x (stable version)
     "requests>=2.31.0",
     "pysbd>=0.3.4",
     "tqdm>=4.66.1",
     "pandas>=2.0.0",
-    "torch>=2.0.0",
-    "numpy>=1.23.0",
+    "torch>=2.6.0,<3.0.0",                  # Pin to 2.x (PyTorch major versions)
+    "numpy>=2.0.0,<3.0.0",                   # NumPy 2.x for modern library compatibility (spacy 3.8+, thinc 8.3+)
     "matplotlib>=3.7.0",
     "seaborn>=0.12.0",
-    "typer[all]>=0.9.0",
+    "typer>=0.16.0,<0.17.0",                # Pin to 0.16.x (prevent downgrade)
+    "rich>=10.0.0",                         # Required for typer CLI features
+    "shellingham>=1.3.0",                   # Required for typer shell completion
     "PyYAML>=6.0"
 ]
 
@@ -47,8 +51,8 @@ phentrieve = "phentrieve.cli:app"
 
 [project.optional-dependencies]
 text_processing = [
-    "spacy>=3.6.0",
-    "en_core_web_sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.6.0/en_core_web_sm-3.6.0-py3-none-any.whl"
+    "spacy>=3.8.0,<4.0.0",  # spaCy 3.8+ supports NumPy 2.x and typer 0.16+
+    "en_core_web_sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl"  # Compatible with spacy 3.8+
 ]
 
 [tool.setuptools]
@@ -61,43 +65,144 @@ include = ["phentrieve*", "api*"]
 [tool.setuptools.package-data]
 "phentrieve.text_processing.default_lang_resources" = ["*.json"]
 
-[tool.black]
+[tool.ruff]
 line-length = 88
-target-version = ['py39']
-include = '\.pyi?$'
-extend-exclude = '''
-/(
-  \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
-  | env
-  | venv
-)/
-'''
-force-exclude = '''
-/(
-  __pycache__
-)/
-'''
+target-version = "py39"
+fix = true
+exclude = [
+    ".git",
+    ".mypy_cache",
+    ".pytest_cache",
+    ".venv",
+    "__pycache__",
+    "_build",
+    "build",
+    "dist",
+    "venv",
+    "data",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+    "S",   # bandit security checks
+]
+ignore = [
+    "E501",  # line too long (handled by formatter)
+    "S101",  # use of assert (common in tests)
+    "B904",  # raise without from (can be addressed later)
+    "B007",  # unused loop control variable (intentional in some cases)
+    "B008",  # function call in default arg (pandas/dataframe patterns)
+    "S301",  # pickle usage (needed for model loading)
+    "S104",  # hardcoded bind all interfaces (local dev only)
+    "S112",  # try-except-continue (acceptable pattern)
+    "F823",  # false positive - detect_language is imported
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101"]  # Allow asserts in tests
+"tests/e2e/*" = ["S101", "S108"]  # Allow asserts and /tmp path references in E2E tests
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false  # Gradual typing - start permissive
+check_untyped_defs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+no_implicit_optional = true
+strict_optional = true
+show_error_codes = true
+
+# Performance optimizations
+cache_dir = ".mypy_cache"
+sqlite_cache = true
+incremental = true
+# skip_version_check = true  # Uncomment if switching mypy versions frequently
+# skip_cache_mtime_checks = true  # Uncomment for extra speed (less safety)
+
+# Allow incremental adoption
+ignore_missing_imports = true
+allow_untyped_calls = true
+allow_untyped_decorators = true
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = [
+    "sentence_transformers.*",
+    "chromadb.*",
+    "spacy.*",
+    "pysbd.*",
+    "matplotlib.*",
+    "seaborn.*",
+]
+ignore_missing_imports = true
 
 [tool.pytest.ini_options]
-python_files = ["test_*.py", "*_test.py", "tests.py"]
+python_files = ["test_*.py"]
 testpaths = ["tests"]
+# pythonpath = "."  # Temporarily disabled - using PYTHONPATH env var instead
+addopts = [
+    "-v",
+    "--strict-markers",
+    "--tb=short",
+
+    # Coverage (80% target - temporarily disabled during migration)
+    "--cov=phentrieve",
+    "--cov=api",
+    "--cov-report=term-missing",
+    "--cov-report=html:htmlcov",
+    "--cov-report=xml:coverage.xml",
+    # "--cov-fail-under=80",  # TODO: Enable after migration complete
+
+    # Execution - Skip slow and e2e tests by default
+    "-m", "not slow and not e2e",  # E2E tests require Docker, run separately
+]
+markers = [
+    "unit: Fast unit tests (mocked dependencies)",
+    "integration: Integration tests (real dependencies)",
+    "e2e: End-to-end Docker tests",
+    "slow: Slow tests (>5s)",
+]
 norecursedirs = [
-    ".*",       # Ignore hidden directories like .git, .vscode, .venv, .pytest_cache
+    ".*",
     "build",
     "dist",
     "docs",
-    "data",     # Ignore the 'data' directory (and thus 'data/hf_cache')
+    "data",
     "venv",
     "env",
     "*.egg-info",
-    "phentrieve", # Ignore the main application source directory
-    "api",      # Ignore the API source directory
+    "phentrieve",
+    "api",
+]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.9.1",
+    "mypy>=1.18.2",
+    "pytest>=8.0.0",
+    "pytest-cov>=6.0.0",
+    "pytest-mock>=3.14.0",
+    "pytest-xdist>=3.8.0",  # Parallel test execution
+    "pytest-timeout>=2.4.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-docker>=3.1.0",  # For Docker E2E tests (Phase 3)
+    "docker>=7.0.0",  # Docker SDK for E2E tests
 ]

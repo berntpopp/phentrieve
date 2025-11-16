@@ -5,29 +5,32 @@ This module provides API endpoints for calculating semantic similarity
 between HPO terms using the Human Phenotype Ontology graph structure.
 """
 
-from fastapi import APIRouter, HTTPException, Path as FastApiPath, Query
-from typing import Optional, Dict
 import logging
 from functools import lru_cache
+from typing import Any, Optional
+
+from fastapi import APIRouter, HTTPException, Query
+from fastapi import Path as FastApiPath
+
+from api.schemas.similarity_schemas import HPOTermSimilarityResponseAPI, LCADetailAPI
+from phentrieve.config import DEFAULT_SIMILARITY_FORMULA
+from phentrieve.data_processing.document_creator import load_hpo_terms
 
 # Core Phentrieve logic imports
 from phentrieve.evaluation.metrics import (
+    SimilarityFormula,
     calculate_semantic_similarity,
     find_lowest_common_ancestor,
     load_hpo_graph_data,
-    SimilarityFormula,
 )
 from phentrieve.utils import normalize_id
-from phentrieve.data_processing.document_creator import load_hpo_terms
-from api.schemas.similarity_schemas import HPOTermSimilarityResponseAPI, LCADetailAPI
-from phentrieve.config import DEFAULT_SIMILARITY_FORMULA
 
 logger = logging.getLogger(__name__)
 router = APIRouter()  # Prefix will be added in main.py
 
 
 @lru_cache(maxsize=1)  # Cache the HPO labels once loaded
-def _get_hpo_label_map_api() -> Dict[str, str]:
+def _get_hpo_label_map_api() -> dict[str, str]:
     """
     Initialize and cache HPO label mapping for the API.
 
@@ -119,7 +122,7 @@ async def get_hpo_term_similarity(
     label1 = labels.get(norm_term1)
     label2 = labels.get(norm_term2)
 
-    response_kwargs = {
+    response_kwargs: dict[str, Any] = {
         "term1_id": norm_term1,
         "term1_label": label1,
         "term2_id": norm_term2,
@@ -154,7 +157,7 @@ async def get_hpo_term_similarity(
         if lca_id and lca_depth != -1:
             lca_label = labels.get(lca_id)
             response_kwargs["lca_details"] = LCADetailAPI(
-                id=lca_id, label=lca_label, depth=lca_depth
+                id=lca_id, label=lca_label, depth=int(lca_depth)
             )
 
         return HPOTermSimilarityResponseAPI(**response_kwargs)

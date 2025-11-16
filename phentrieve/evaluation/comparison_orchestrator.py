@@ -10,27 +10,26 @@ import json
 import logging
 import os
 import re
-import numpy as np
-from typing import Dict, List, Optional, Any, Union
+from datetime import datetime
+from pathlib import Path
+from typing import Any, Optional
 
-import pandas as pd
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 import seaborn as sns
 
-from pathlib import Path
-from datetime import datetime
 from phentrieve.config import (
     DEFAULT_SUMMARIES_SUBDIR,
     DEFAULT_VISUALIZATIONS_SUBDIR,
-    DEFAULT_DETAILED_SUBDIR,
 )
-from phentrieve.utils import resolve_data_path, get_default_results_dir
+from phentrieve.utils import get_default_results_dir, resolve_data_path
 
 # Set up logging
 logger = logging.getLogger(__name__)
 
 
-def load_benchmark_summaries(summaries_dir: str) -> List[Dict[str, Any]]:
+def load_benchmark_summaries(summaries_dir: str) -> list[dict[str, Any]]:
     """
     Load benchmark summary files from the specified directory.
 
@@ -52,7 +51,7 @@ def load_benchmark_summaries(summaries_dir: str) -> List[Dict[str, Any]]:
     summaries = []
     for file_path in summary_files:
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 summary = json.load(f)
                 summaries.append(summary)
                 logger.debug(f"Loaded summary from {file_path}")
@@ -63,7 +62,7 @@ def load_benchmark_summaries(summaries_dir: str) -> List[Dict[str, Any]]:
     return summaries
 
 
-def compare_benchmark_summaries(summaries: List[Dict[str, Any]]) -> pd.DataFrame:
+def compare_benchmark_summaries(summaries: list[dict[str, Any]]) -> pd.DataFrame:
     """
     Compare benchmark summaries and create a DataFrame with the comparison.
 
@@ -238,7 +237,7 @@ def orchestrate_benchmark_comparison(
 def generate_visualizations(
     comparison_df: pd.DataFrame,
     metrics: str = "all",
-    output_dir: str = None,
+    output_dir: str | None = None,
     debug: bool = False,
 ) -> bool:
     """
@@ -273,6 +272,11 @@ def generate_visualizations(
         logger.warning("No valid metrics found for visualization")
         return False
 
+    # Validate output directory
+    if output_dir is None:
+        logger.error("Output directory must be specified for visualizations")
+        return False
+
     # Ensure output directory exists
     os.makedirs(output_dir, exist_ok=True)
 
@@ -300,7 +304,7 @@ def generate_visualizations(
         has_comparison = has_dense and has_reranked
 
         # Organize HR and OntSim metrics by k value
-        hr_by_k = {}
+        hr_by_k: dict[str, list[str]] = {}
         for metric in hr_metrics:
             k_match = re.search(r"HR@(\d+)", metric)
             if k_match:
@@ -309,7 +313,7 @@ def generate_visualizations(
                     hr_by_k[k] = []
                 hr_by_k[k].append(metric)
 
-        ont_by_k = {}
+        ont_by_k: dict[str, list[str]] = {}
         for metric in ont_metrics:
             k_match = re.search(r"MaxOntSim@(\d+)", metric)
             if k_match:
@@ -442,7 +446,7 @@ def generate_visualizations(
             plt.xlabel("Model", fontsize=14)
             plt.ylabel("Mean Reciprocal Rank (MRR)", fontsize=14)
             plt.title(title, fontsize=16)
-            plt.xticks(x, sorted_df["Model"], rotation=45, ha="right")
+            plt.xticks(x, sorted_df["Model"].tolist(), rotation=45, ha="right")
             plt.ylim(0, 1.0)
             plt.tight_layout()
             plt.savefig(os.path.join(output_dir, "mrr_comparison.png"), dpi=300)
@@ -463,11 +467,11 @@ def generate_visualizations(
 
                 for i, k in enumerate(hr_k_values):
                     ax = axes[i, 0]
-                    metrics = hr_by_k[str(k)]
+                    hr_metrics = hr_by_k[str(k)]
 
                     # Check if we have both dense and reranked for this k value
-                    has_dense_k = any("Dense" in m for m in metrics)
-                    has_reranked_k = any("Re-Ranked" in m for m in metrics)
+                    has_dense_k = any("Dense" in m for m in hr_metrics)
+                    has_reranked_k = any("Re-Ranked" in m for m in hr_metrics)
                     has_comparison_k = has_dense_k and has_reranked_k
 
                     x = np.arange(len(sorted_df))
@@ -498,7 +502,7 @@ def generate_visualizations(
 
                         # Add value labels (only for a reasonable number of models)
                         if len(sorted_df) <= 8:
-                            for j, bar in enumerate(dense_bars):
+                            for _j, bar in enumerate(dense_bars):
                                 height = bar.get_height()
                                 ax.text(
                                     bar.get_x() + bar.get_width() / 2.0,
@@ -522,7 +526,7 @@ def generate_visualizations(
                                 title="Models",
                             )
 
-                            for j, bar in enumerate(reranked_bars):
+                            for _j, bar in enumerate(reranked_bars):
                                 height = bar.get_height()
                                 ax.text(
                                     bar.get_x() + bar.get_width() / 2.0,
@@ -568,7 +572,7 @@ def generate_visualizations(
 
                         # Add value labels (only for a reasonable number of models)
                         if len(sorted_df) <= 8:
-                            for j, bar in enumerate(bars):
+                            for _j, bar in enumerate(bars):
                                 height = bar.get_height()
                                 ax.text(
                                     bar.get_x() + bar.get_width() / 2.0,
@@ -624,11 +628,11 @@ def generate_visualizations(
 
                 for i, k in enumerate(ont_k_values):
                     ax = axes[i, 0]
-                    metrics = ont_by_k[str(k)]
+                    ont_metrics = ont_by_k[str(k)]
 
                     # Check if we have both dense and reranked for this k value
-                    has_dense_k = any("Dense" in m for m in metrics)
-                    has_reranked_k = any("Re-Ranked" in m for m in metrics)
+                    has_dense_k = any("Dense" in m for m in ont_metrics)
+                    has_reranked_k = any("Re-Ranked" in m for m in ont_metrics)
                     has_comparison_k = has_dense_k and has_reranked_k
 
                     x = np.arange(len(sorted_df))
@@ -659,7 +663,7 @@ def generate_visualizations(
 
                         # Add value labels (only for a reasonable number of models)
                         if len(sorted_df) <= 8:
-                            for j, bar in enumerate(dense_bars):
+                            for _j, bar in enumerate(dense_bars):
                                 height = bar.get_height()
                                 ax.text(
                                     bar.get_x() + bar.get_width() / 2.0,
@@ -683,7 +687,7 @@ def generate_visualizations(
                                 title="Models",
                             )
 
-                            for j, bar in enumerate(reranked_bars):
+                            for _j, bar in enumerate(reranked_bars):
                                 height = bar.get_height()
                                 ax.text(
                                     bar.get_x() + bar.get_width() / 2.0,
@@ -729,7 +733,7 @@ def generate_visualizations(
 
                         # Add value labels (only for a reasonable number of models)
                         if len(sorted_df) <= 8:
-                            for j, bar in enumerate(bars):
+                            for _j, bar in enumerate(bars):
                                 height = bar.get_height()
                                 ax.text(
                                     bar.get_x() + bar.get_width() / 2.0,
@@ -860,17 +864,19 @@ def generate_visualizations(
 
             # If there's only one model, axes won't be an array
             if n_models == 1:
-                axes = [axes]
+                axes = [axes]  # type: ignore[assignment]
 
             # For each model, create a line plot showing how metrics vary with k
-            for i, (idx, row) in enumerate(comparison_df.iterrows()):
+            for i, (_idx, row) in enumerate(comparison_df.iterrows()):
                 model_name = row["Model"]
                 ax = axes[i]
 
                 # Prepare data for HR@k metrics
                 if len(hr_metrics) >= 2:
                     hr_k_values = [
-                        int(hr_pattern.match(col).group(1)) for col in hr_metrics
+                        int(m.group(1))
+                        for col in hr_metrics
+                        if (m := hr_pattern.match(col))
                     ]
                     hr_scores = [row[col] for col in hr_metrics]
 
@@ -887,7 +893,9 @@ def generate_visualizations(
                 # Prepare data for OntSim@k metrics
                 if len(ont_metrics) >= 2:
                     ont_k_values = [
-                        int(ont_pattern.match(col).group(1)) for col in ont_metrics
+                        int(m.group(1))
+                        for col in ont_metrics
+                        if (m := ont_pattern.match(col))
                     ]
                     ont_scores = [row[col] for col in ont_metrics]
 

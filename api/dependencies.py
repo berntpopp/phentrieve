@@ -1,29 +1,41 @@
-import logging
 import asyncio
+import logging
+import os
+from typing import Literal, Optional
+
 from fastapi import HTTPException
 from fastapi.concurrency import run_in_threadpool
-from typing import Optional, Dict, Literal
-from sentence_transformers import SentenceTransformer, CrossEncoder
+from sentence_transformers import CrossEncoder, SentenceTransformer
+
+from phentrieve.config import DEFAULT_DEVICE, DEFAULT_MODEL
 
 # Core loader functions
 from phentrieve.embeddings import load_embedding_model
-from phentrieve.retrieval.reranker import load_cross_encoder as load_ce_model
 from phentrieve.retrieval.dense_retriever import DenseRetriever
-from phentrieve.config import DEFAULT_MODEL, DEFAULT_DEVICE
+from phentrieve.retrieval.reranker import load_cross_encoder as load_ce_model
 
 logger = logging.getLogger(__name__)
 
+# Configurable timeouts for model loading (in seconds)
+# Can be overridden via environment variables
+SBERT_LOAD_TIMEOUT = float(os.getenv("PHENTRIEVE_SBERT_LOAD_TIMEOUT", "60"))
+CROSS_ENCODER_LOAD_TIMEOUT = float(
+    os.getenv("PHENTRIEVE_CROSS_ENCODER_LOAD_TIMEOUT", "10")
+)
+
 # Global cache for models and retrievers
 # Key: model_name (or unique identifier), Value: loaded instance
-LOADED_SBERT_MODELS: Dict[str, SentenceTransformer] = {}
+LOADED_SBERT_MODELS: dict[str, SentenceTransformer] = {}
 # Key is now only model name, no need for index_dir in key
-LOADED_RETRIEVERS: Dict[str, DenseRetriever] = {}
-LOADED_CROSS_ENCODERS: Dict[str, Optional[CrossEncoder]] = {}
+LOADED_RETRIEVERS: dict[str, DenseRetriever] = {}
+LOADED_CROSS_ENCODERS: dict[str, Optional[CrossEncoder]] = {}
 
 # Model loading status tracking
 ModelLoadStatus = Literal["not_loaded", "loading", "loaded", "failed"]
-MODEL_LOADING_STATUS: Dict[str, ModelLoadStatus] = {}
-MODEL_LOAD_LOCKS: Dict[str, asyncio.Lock] = {}
+MODEL_LOADING_STATUS: dict[str, ModelLoadStatus] = {}
+MODEL_LOAD_LOCKS: dict[str, asyncio.Lock] = {}
+# Track active loading tasks to enable awaiting
+MODEL_LOADING_TASKS: dict[str, asyncio.Task] = {}
 
 
 def _get_lock_for_model(model_name: str) -> asyncio.Lock:
@@ -54,10 +66,11 @@ async def _load_model_in_background(
             )
             LOADED_SBERT_MODELS[model_name] = model_instance
         else:
-            model_instance = await run_in_threadpool(
+            # Explicit type annotation for cross-encoder loading
+            ce_model_instance: CrossEncoder | None = await run_in_threadpool(
                 load_ce_model, model_name=model_name, device=actual_device
             )
-            LOADED_CROSS_ENCODERS[model_name] = model_instance
+            LOADED_CROSS_ENCODERS[model_name] = ce_model_instance
 
         MODEL_LOADING_STATUS[model_name] = "loaded"
         logger.info(f"Background task success: Model '{model_name}' loaded and cached.")
@@ -72,6 +85,10 @@ async def _load_model_in_background(
             del LOADED_SBERT_MODELS[model_name]
         if not is_sbert and model_name in LOADED_CROSS_ENCODERS:
             del LOADED_CROSS_ENCODERS[model_name]
+    finally:
+        # Clean up the task from tracking dict
+        if model_name in MODEL_LOADING_TASKS:
+            del MODEL_LOADING_TASKS[model_name]
 
 
 async def get_sbert_model_dependency(
@@ -96,7 +113,35 @@ async def get_sbert_model_dependency(
         current_status = MODEL_LOADING_STATUS.get(model_name, "not_loaded")
 
         if current_status == "loading":
-            logger.info(f"API: Model '{model_name}' is already loading. Advise retry.")
+            # Model is loading - wait for it with timeout
+            logger.info(
+                f"API: Model '{model_name}' is loading. Waiting up to {SBERT_LOAD_TIMEOUT}s..."
+            )
+            if model_name in MODEL_LOADING_TASKS:
+                try:
+                    await asyncio.wait_for(
+                        asyncio.shield(MODEL_LOADING_TASKS[model_name]),
+                        timeout=SBERT_LOAD_TIMEOUT,
+                    )
+                    # Loading completed successfully, return the model
+                    if model_name in LOADED_SBERT_MODELS:
+                        logger.info(
+                            f"API: Model '{model_name}' finished loading, returning it."
+                        )
+                        return LOADED_SBERT_MODELS[model_name]
+                except asyncio.TimeoutError:
+                    logger.warning(
+                        f"API: Model '{model_name}' loading timeout ({SBERT_LOAD_TIMEOUT}s). Loading continues in background."
+                    )
+                    raise HTTPException(
+                        status_code=503,
+                        detail=f"Model '{model_name}' is taking longer than expected to load. Please try again in 30 seconds.",
+                        headers={"Retry-After": "30"},
+                    )
+            # Task not found but status is loading - fallback to old behavior
+            logger.warning(
+                f"API: Model '{model_name}' status is 'loading' but no task found. Advise retry."
+            )
             raise HTTPException(
                 status_code=503,
                 detail=f"Model '{model_name}' is currently being prepared. Please try again in 30 seconds.",
@@ -114,18 +159,32 @@ async def get_sbert_model_dependency(
         logger.info(f"API: Initiating background load for SBERT model: {model_name}")
         MODEL_LOADING_STATUS[model_name] = "loading"
 
-        # Using asyncio.create_task as this specific request will return 503 anyway
-        # and the task is not tied to this response finishing
-        asyncio.create_task(
+        # Create task and store it for awaiting
+        task = asyncio.create_task(
             _load_model_in_background(model_name, True, trust_remote_code, device)
         )
+        MODEL_LOADING_TASKS[model_name] = task
 
-        # Inform client to retry
-        raise HTTPException(
-            status_code=503,
-            detail=f"Model '{model_name}' is being prepared. Please try again in 30 seconds.",
-            headers={"Retry-After": "30"},
-        )
+        # Wait for the model to load with timeout
+        try:
+            await asyncio.wait_for(asyncio.shield(task), timeout=SBERT_LOAD_TIMEOUT)
+            # Loading completed successfully, return the model
+            if model_name in LOADED_SBERT_MODELS:
+                logger.info(
+                    f"API: Model '{model_name}' loaded successfully on first request."
+                )
+                return LOADED_SBERT_MODELS[model_name]
+        except asyncio.TimeoutError:
+            logger.warning(
+                f"API: Model '{model_name}' loading timeout ({SBERT_LOAD_TIMEOUT}s) on first request. Loading continues in background."
+            )
+            # Task continues in background - don't cancel it
+            # Inform client to retry
+            raise HTTPException(
+                status_code=503,
+                detail=f"Model '{model_name}' is taking longer than expected to load. Please try again in 30 seconds.",
+                headers={"Retry-After": "30"},
+            )
 
 
 async def get_dense_retriever_dependency(
@@ -204,8 +263,37 @@ async def get_cross_encoder_dependency(
         current_status = MODEL_LOADING_STATUS.get(reranker_model_name, "not_loaded")
 
         if current_status == "loading":
+            # Model is loading - wait for it with timeout
             logger.info(
-                f"API: CrossEncoder '{reranker_model_name}' is already loading. Advise retry."
+                f"API: CrossEncoder '{reranker_model_name}' is loading. Waiting up to {CROSS_ENCODER_LOAD_TIMEOUT}s..."
+            )
+            if reranker_model_name in MODEL_LOADING_TASKS:
+                try:
+                    await asyncio.wait_for(
+                        asyncio.shield(MODEL_LOADING_TASKS[reranker_model_name]),
+                        timeout=CROSS_ENCODER_LOAD_TIMEOUT,
+                    )
+                    # Loading completed successfully, return the model
+                    if (
+                        reranker_model_name in LOADED_CROSS_ENCODERS
+                        and LOADED_CROSS_ENCODERS[reranker_model_name] is not None
+                    ):
+                        logger.info(
+                            f"API: CrossEncoder '{reranker_model_name}' finished loading, returning it."
+                        )
+                        return LOADED_CROSS_ENCODERS[reranker_model_name]
+                except asyncio.TimeoutError:
+                    logger.warning(
+                        f"API: CrossEncoder '{reranker_model_name}' loading timeout ({CROSS_ENCODER_LOAD_TIMEOUT}s). Loading continues in background."
+                    )
+                    raise HTTPException(
+                        status_code=503,
+                        detail=f"CrossEncoder '{reranker_model_name}' is taking longer than expected to load. Please try again in 10 seconds.",
+                        headers={"Retry-After": "10"},
+                    )
+            # Task not found but status is loading - fallback to old behavior
+            logger.warning(
+                f"API: CrossEncoder '{reranker_model_name}' status is 'loading' but no task found. Advise retry."
             )
             raise HTTPException(
                 status_code=503,
@@ -228,14 +316,35 @@ async def get_cross_encoder_dependency(
         )
         MODEL_LOADING_STATUS[reranker_model_name] = "loading"
 
-        # Using asyncio.create_task as this specific request will return 503 anyway
-        asyncio.create_task(
+        # Create task and store it for awaiting
+        task = asyncio.create_task(
             _load_model_in_background(reranker_model_name, False, False, device)
         )
+        MODEL_LOADING_TASKS[reranker_model_name] = task
 
-        # Inform client to retry
-        raise HTTPException(
-            status_code=503,
-            detail=f"CrossEncoder '{reranker_model_name}' is being prepared. Please try again in 30 seconds.",
-            headers={"Retry-After": "30"},
-        )
+        # Wait for the model to load with timeout
+        try:
+            await asyncio.wait_for(
+                asyncio.shield(task), timeout=CROSS_ENCODER_LOAD_TIMEOUT
+            )
+            # Loading completed successfully, return the model
+            if (
+                reranker_model_name in LOADED_CROSS_ENCODERS
+                and LOADED_CROSS_ENCODERS[reranker_model_name] is not None
+            ):
+                logger.info(
+                    f"API: CrossEncoder '{reranker_model_name}' loaded successfully on first request."
+                )
+                return LOADED_CROSS_ENCODERS[reranker_model_name]
+        except asyncio.TimeoutError:
+            logger.warning(
+                f"API: CrossEncoder '{reranker_model_name}' loading timeout ({CROSS_ENCODER_LOAD_TIMEOUT}s) on first request. "
+                f"Loading continues in background."
+            )
+            # Task continues in background - don't cancel it
+            # Inform client to retry
+            raise HTTPException(
+                status_code=503,
+                detail=f"CrossEncoder '{reranker_model_name}' is taking longer than expected to load. Please try again in 10 seconds.",
+                headers={"Retry-After": "10"},
+            )

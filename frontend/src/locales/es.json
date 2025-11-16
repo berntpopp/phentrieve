@@ -43,6 +43,7 @@
     "title": "Phentrieve",
     "subtitle": "Mapeo de términos HPO para descripciones clínicas de fenotipos",
     "welcomeText": "Phentrieve es una herramienta impulsada por IA que mapea con precisión texto clínico a términos estandarizados de la Ontología de Fenotipo Humano (HPO), agilizando la anotación de fenotipos para investigación y diagnóstico.",
+    "queryModeLabel": "Modo de consulta",
     "inputLabel": "Introducir descripción de texto clínico",
     "examples": {
       "title": "Ejemplos",
@@ -94,6 +95,8 @@
       "similarityThreshold": "Umbral de similitud",
       "enableReranking": "Habilitar reclasificación",
       "rerankerMode": "Modo de reclasificación",
+      "rerankerModeCrossLingual": "Multilingüe",
+      "rerankerModeMonolingual": "Monolingüe",
       "language": "Idioma",
       "processingModeTitle": "Modo de procesamiento",
       "processingModeLabel": "Modo de procesamiento",
@@ -294,5 +297,11 @@
         }
       }
     }
+  },
+  "phenopacket": {
+    "sexUnknown": "Desconocido",
+    "sexFemale": "Femenino",
+    "sexMale": "Masculino",
+    "sexOther": "Otro"
   }
 }

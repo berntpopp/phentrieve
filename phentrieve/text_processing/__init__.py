@@ -5,18 +5,18 @@ This module provides functionality for processing clinical text documents,
 including text chunking, cleaning, and assertion detection.
 """
 
-from phentrieve.text_processing.cleaners import (
-    normalize_line_endings,
-    clean_internal_newlines_and_extra_spaces,
-)
 from phentrieve.text_processing.chunkers import (
-    TextChunker,
+    ConjunctionChunker,
+    FineGrainedPunctuationChunker,
     NoOpChunker,
     ParagraphChunker,
     SentenceChunker,
-    FineGrainedPunctuationChunker,
     SlidingWindowSemanticSplitter,
-    ConjunctionChunker,
+    TextChunker,
+)
+from phentrieve.text_processing.cleaners import (
+    clean_internal_newlines_and_extra_spaces,
+    normalize_line_endings,
 )
 
 __all__ = [

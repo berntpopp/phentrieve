@@ -1,24 +1,25 @@
-from fastapi import APIRouter, Depends, HTTPException
-from typing import Optional
+import logging
 import os
 from pathlib import Path
-import logging
+from typing import Literal, Optional, cast
 
+from fastapi import APIRouter, Depends, HTTPException
+
+from api.dependencies import (
+    get_cross_encoder_dependency,
+    get_dense_retriever_dependency,
+)
+from api.schemas.query_schemas import QueryRequest, QueryResponse
+from phentrieve.config import (
+    DEFAULT_DEVICE,
+    DEFAULT_LANGUAGE,
+    DEFAULT_MODEL,
+    DEFAULT_MONOLINGUAL_RERANKER_MODEL,
+    DEFAULT_RERANKER_MODEL,
+    DEFAULT_TRANSLATIONS_SUBDIR,
+)
 from phentrieve.retrieval.api_helpers import execute_hpo_retrieval_for_api
 from phentrieve.retrieval.dense_retriever import DenseRetriever
-from api.schemas.query_schemas import QueryRequest, QueryResponse
-from api.dependencies import (
-    get_dense_retriever_dependency,
-    get_cross_encoder_dependency,
-)
-from phentrieve.config import (
-    DEFAULT_MODEL,
-    DEFAULT_RERANKER_MODEL,
-    DEFAULT_MONOLINGUAL_RERANKER_MODEL,
-    DEFAULT_TRANSLATIONS_SUBDIR,
-    DEFAULT_LANGUAGE,
-    DEFAULT_DEVICE,
-)
 from phentrieve.utils import detect_language
 
 logger = logging.getLogger(__name__)
@@ -78,10 +79,17 @@ async def run_hpo_query_get(
         num_results=num_results,
         similarity_threshold=similarity_threshold,
         enable_reranker=enable_reranker,
-        reranker_mode=reranker_mode,
+        reranker_model=DEFAULT_RERANKER_MODEL,
+        monolingual_reranker_model=DEFAULT_MONOLINGUAL_RERANKER_MODEL,
+        reranker_mode=cast(Literal["cross-lingual", "monolingual"], reranker_mode),
+        translation_dir_name=None,
+        rerank_count=10,
         detect_query_assertion=detect_query_assertion,
         query_assertion_language=query_assertion_language,
-        query_assertion_preference=query_assertion_preference,
+        query_assertion_preference=cast(
+            Literal["dependency", "keyword", "any_negative"],
+            query_assertion_preference,
+        ),
     )
 
     # Reuse the POST endpoint logic
@@ -142,7 +150,7 @@ async def run_hpo_query(
             logger.info(f"Auto-detected language: {language_to_use}")
         except Exception as e:  # Catch if langdetect fails
             logger.warning(
-                f"Language detection failed: {e}. " f"Using default: {DEFAULT_LANGUAGE}"
+                f"Language detection failed: {e}. Using default: {DEFAULT_LANGUAGE}"
             )
             language_to_use = DEFAULT_LANGUAGE
 
