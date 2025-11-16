@@ -13,6 +13,8 @@ license = { file = "LICENSE" }
 authors = [
     { name = "Bernt Popp", email = "bernt.popp@example.com" }, # Placeholder: Update email
 ]
+# NOTE: Python 3.10+ required for modern type syntax (PEP 585: list[str], PEP 604: str | None)
+# Previous versions (0.1.x) supported Python 3.9
 requires-python = ">=3.10"
 classifiers = [
     "Development Status :: 3 - Alpha",

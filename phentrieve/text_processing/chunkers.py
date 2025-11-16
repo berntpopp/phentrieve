@@ -11,9 +11,7 @@ import re
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Optional
 
-import pysbd
-
-# Lazy imports for heavy dependencies (only needed by SlidingWindowSemanticSplitter)
+# Lazy imports for heavy dependencies
 # This avoids loading torch/transformers at module import time
 if TYPE_CHECKING:
     from sentence_transformers import SentenceTransformer
@@ -473,6 +471,9 @@ class SentenceChunker(TextChunker):
             return []
 
         try:
+            # Lazy import pysbd (loads 25+ language modules, adds 30ms to import time)
+            import pysbd
+
             segmenter = pysbd.Segmenter(language=lang, clean=False)
             sentences = segmenter.segment(text)
             return [s.strip() for s in sentences if s.strip()]
