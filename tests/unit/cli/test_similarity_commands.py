@@ -119,9 +119,7 @@ def mock_hpo_data(monkeypatch):
 
     # CRITICAL: Patch at the source module level (metrics_module)
     # This ensures the mock is applied before the CLI runner imports the module
-    monkeypatch.setattr(
-        metrics_module, "load_hpo_graph_data", mock_load_hpo_graph_data
-    )
+    monkeypatch.setattr(metrics_module, "load_hpo_graph_data", mock_load_hpo_graph_data)
 
     # Also patch in similarity_commands in case it's already imported
     monkeypatch.setattr(sim_commands, "load_hpo_graph_data", mock_load_hpo_graph_data)
