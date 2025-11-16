@@ -65,7 +65,7 @@ def orchestrate_index_building(
     logging.info(f"Using index directory: {index_dir}")
     os.makedirs(index_dir, exist_ok=True)
 
-    models_to_process = []
+    models_to_process: list[str] = []
     if all_models:
         models_to_process = BENCHMARK_MODELS
         logging.info(

@@ -3,12 +3,14 @@ Central configuration for the Phentrieve package.
 
 This module contains constants, defaults, and configuration parameters used
 throughout the phentrieve package.
+
+Configuration values are loaded from phentrieve.yaml if present, otherwise
+fall back to the defaults defined in this module.
 """
 
 import copy
-
-# Note: This module intentionally does not import path resolution functions
-# We avoid importing from utils to prevent circular imports
+import functools
+from typing import Any
 
 # Default directory sub-paths and filenames (relative to base dirs)
 # Sub-directories (for data_dir)
@@ -26,15 +28,13 @@ DEFAULT_SUMMARIES_SUBDIR = "summaries"
 DEFAULT_DETAILED_SUBDIR = "detailed"
 DEFAULT_VISUALIZATIONS_SUBDIR = "visualizations"
 
-# Default models
-DEFAULT_MODEL = "FremyCompany/BioLORD-2023-M"
-DEFAULT_BIOLORD_MODEL = "FremyCompany/BioLORD-2023-M"
-JINA_MODEL_ID = (
-    "jinaai/jina-embeddings-v2-base-de"  # Current default is a German embeddings model
-)
+# Default models (loaded from YAML with fallbacks)
+_DEFAULT_MODEL_FALLBACK = "FremyCompany/BioLORD-2023-M"
+DEFAULT_BIOLORD_MODEL = "FremyCompany/BioLORD-2023-M"  # Kept for backward compatibility
+JINA_MODEL_ID = "jinaai/jina-embeddings-v2-base-de"  # German embeddings model
 
-# All models for benchmarking
-BENCHMARK_MODELS = [
+# All models for benchmarking (loaded from YAML with fallback)
+_BENCHMARK_MODELS_FALLBACK = [
     "FremyCompany/BioLORD-2023-M",  # Domain-specific biomedical model
     "jinaai/jina-embeddings-v2-base-de",  # Language-specific embeddings model (German)
     "T-Systems-onsite/cross-en-de-roberta-sentence-transformer",  # Cross-lingual model (English-German),
@@ -46,30 +46,31 @@ BENCHMARK_MODELS = [
     "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
 ]
 
-# Default parameters
-MIN_SIMILARITY_THRESHOLD = 0.3  # Minimum similarity score to display results
-# Default similarity threshold used in benchmark evaluations
-DEFAULT_SIMILARITY_THRESHOLD = 0.1
-DEFAULT_TOP_K = 10  # Default number of results to return
-DEFAULT_K_VALUES = (1, 3, 5, 10)  # Default k values for hit rate calculation
-DEFAULT_DEVICE: str | None = None  # Default device (None = auto-detect)
+# Default parameters (loaded from YAML with fallbacks)
+_MIN_SIMILARITY_THRESHOLD_FALLBACK = 0.3  # Minimum similarity score to display results
+_DEFAULT_SIMILARITY_THRESHOLD_FALLBACK = (
+    0.1  # Default threshold for benchmark evaluations
+)
+_DEFAULT_TOP_K_FALLBACK = 10  # Default number of results to return
+_DEFAULT_K_VALUES_FALLBACK = (1, 3, 5, 10)  # Default k values for hit rate calculation
+_DEFAULT_DEVICE_FALLBACK: str | None = None  # Default device (None = auto-detect)
 
-# Cross-encoder re-ranking settings
-# Multilingual cross-encoder model for re-ranking
-DEFAULT_RERANKER_MODEL = "MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7"
-# Language-specific cross-encoder model for monolingual re-ranking
-DEFAULT_MONOLINGUAL_RERANKER_MODEL = (
+# Cross-encoder re-ranking settings (loaded from YAML with fallbacks)
+_DEFAULT_RERANKER_MODEL_FALLBACK = (
+    "MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7"
+)
+_DEFAULT_MONOLINGUAL_RERANKER_MODEL_FALLBACK = (
     "ml6team/cross-encoder-mmarco-german-distilbert-base"
 )
 # Re-ranking mode options:
 # - 'cross-lingual': Query in target language -> English HPO terms
 # - 'monolingual': Query in target language -> HPO terms in same language
-DEFAULT_RERANKER_MODE = "cross-lingual"
+_DEFAULT_RERANKER_MODE_FALLBACK = "cross-lingual"
 # Default directory for HPO term translations
 # Note: Path is resolved at runtime using DEFAULT_TRANSLATIONS_SUBDIR
 DEFAULT_TRANSLATION_DIR: str | None = None  # Will be resolved at runtime
-DEFAULT_RERANK_CANDIDATE_COUNT = 50
-DEFAULT_ENABLE_RERANKER = False
+_DEFAULT_RERANK_CANDIDATE_COUNT_FALLBACK = 50
+_DEFAULT_ENABLE_RERANKER_FALLBACK = False
 
 # Root for HPO term extraction and depth calculations
 PHENOTYPE_ROOT = "HP:0000118"
@@ -253,8 +254,8 @@ def get_sliding_window_punct_conj_cleaned_config():
     return copy.deepcopy(SLIDING_WINDOW_PUNCT_CONJ_CLEANED_CONFIG)
 
 
-# Default formula for semantic similarity calculations
-DEFAULT_SIMILARITY_FORMULA = "hybrid"
+# Default formula for semantic similarity calculations (loaded from YAML with fallback)
+_DEFAULT_SIMILARITY_FORMULA_FALLBACK = "hybrid"
 
 # Default assertion detection configuration
 DEFAULT_ASSERTION_CONFIG = {
@@ -263,5 +264,111 @@ DEFAULT_ASSERTION_CONFIG = {
     "preference": "dependency",
 }
 
-# Default language for text processing
-DEFAULT_LANGUAGE = "en"
+# Default language for text processing (loaded from YAML with fallback)
+_DEFAULT_LANGUAGE_FALLBACK = "en"
+
+
+# =============================================================================
+# YAML Configuration Loading
+# =============================================================================
+
+
+@functools.lru_cache(maxsize=1)
+def _load_yaml_config() -> dict:
+    """
+    Load configuration from phentrieve.yaml.
+
+    Uses lazy import to avoid circular dependency with utils module.
+    Cached to load only once per Python session.
+
+    Returns:
+        dict: Configuration dictionary from YAML, or empty dict if not found
+    """
+    try:
+        from phentrieve.utils import load_user_config
+
+        return load_user_config()
+    except Exception:
+        # If any error loading config, return empty dict (use all defaults)
+        return {}
+
+
+def get_config_value(key: str, default: Any, nested_key: str | None = None) -> Any:
+    """
+    Get a configuration value from YAML config with fallback to default.
+
+    Args:
+        key: Top-level key in YAML config
+        default: Default value if key not found in config
+        nested_key: Optional nested key for hierarchical configs (e.g., benchmark.models)
+
+    Returns:
+        Configuration value from YAML, or default if not found
+
+    Examples:
+        >>> get_config_value("default_model", "FremyCompany/BioLORD-2023-M")
+        >>> get_config_value("benchmark", {}, "similarity_threshold")
+    """
+    config = _load_yaml_config()
+
+    if key not in config:
+        return default
+
+    if nested_key is None:
+        return config.get(key, default)
+
+    # Handle nested keys
+    if isinstance(config[key], dict):
+        return config[key].get(nested_key, default)
+
+    return default
+
+
+# =============================================================================
+# Public Configuration Constants (loaded from YAML with fallbacks)
+# =============================================================================
+# These constants are loaded from phentrieve.yaml if present, otherwise use
+# the fallback values defined above. This allows for runtime configuration
+# while maintaining backward compatibility.
+
+# Models
+DEFAULT_MODEL: str = get_config_value("default_model", _DEFAULT_MODEL_FALLBACK)
+BENCHMARK_MODELS: list[str] = get_config_value(
+    "benchmark", _BENCHMARK_MODELS_FALLBACK, "models"
+)
+
+# Retrieval parameters
+MIN_SIMILARITY_THRESHOLD = get_config_value(
+    "min_similarity_threshold", _MIN_SIMILARITY_THRESHOLD_FALLBACK
+)
+DEFAULT_SIMILARITY_THRESHOLD = get_config_value(
+    "benchmark", _DEFAULT_SIMILARITY_THRESHOLD_FALLBACK, "similarity_threshold"
+)
+DEFAULT_TOP_K = get_config_value("default_top_k", _DEFAULT_TOP_K_FALLBACK)
+DEFAULT_K_VALUES: tuple[int, ...] = tuple(
+    get_config_value("benchmark", list(_DEFAULT_K_VALUES_FALLBACK), "k_values")
+)
+DEFAULT_DEVICE: str | None = get_config_value("device", _DEFAULT_DEVICE_FALLBACK)
+
+# Re-ranking settings
+DEFAULT_RERANKER_MODEL = get_config_value(
+    "reranker_model", _DEFAULT_RERANKER_MODEL_FALLBACK
+)
+DEFAULT_MONOLINGUAL_RERANKER_MODEL = get_config_value(
+    "monolingual_reranker_model", _DEFAULT_MONOLINGUAL_RERANKER_MODEL_FALLBACK
+)
+DEFAULT_RERANKER_MODE = get_config_value(
+    "reranker_mode", _DEFAULT_RERANKER_MODE_FALLBACK
+)
+DEFAULT_RERANK_CANDIDATE_COUNT = get_config_value(
+    "rerank_candidate_count", _DEFAULT_RERANK_CANDIDATE_COUNT_FALLBACK
+)
+DEFAULT_ENABLE_RERANKER = get_config_value(
+    "enable_reranker", _DEFAULT_ENABLE_RERANKER_FALLBACK
+)
+
+# Text processing
+DEFAULT_SIMILARITY_FORMULA = get_config_value(
+    "similarity_formula", _DEFAULT_SIMILARITY_FORMULA_FALLBACK
+)
+DEFAULT_LANGUAGE = get_config_value("default_language", _DEFAULT_LANGUAGE_FALLBACK)
