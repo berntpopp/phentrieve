@@ -98,6 +98,9 @@ def mock_hpo_data(monkeypatch):
 
     Uses monkeypatch instead of unittest.mock.patch to work properly with
     Typer's CliRunner, which creates an isolated execution context.
+
+    Patches at the source module level (phentrieve.evaluation.metrics) to
+    ensure the mock is applied before any imports or caching occurs.
     """
     # Import the modules we need to mock
     import phentrieve.cli.similarity_commands as sim_commands
@@ -114,8 +117,13 @@ def mock_hpo_data(monkeypatch):
     def mock_ensure_cli_hpo_label_cache(*args, **kwargs):
         return MOCK_LABELS
 
-    # Use monkeypatch to replace functions at module level
-    # This works with Typer's CliRunner unlike context manager patches
+    # CRITICAL: Patch at the source module level (metrics_module)
+    # This ensures the mock is applied before the CLI runner imports the module
+    monkeypatch.setattr(
+        metrics_module, "load_hpo_graph_data", mock_load_hpo_graph_data
+    )
+
+    # Also patch in similarity_commands in case it's already imported
     monkeypatch.setattr(sim_commands, "load_hpo_graph_data", mock_load_hpo_graph_data)
     monkeypatch.setattr(
         sim_commands, "_ensure_cli_hpo_label_cache", mock_ensure_cli_hpo_label_cache
