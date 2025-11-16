@@ -23,13 +23,13 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Lint API Dockerfile
-        uses: hadolint/hadolint-action@v3.1.0
+        uses: hadolint/hadolint-action@v3.3.0
         with:
           dockerfile: api/Dockerfile
           failure-threshold: error
 
       - name: Lint Frontend Dockerfile
-        uses: hadolint/hadolint-action@v3.1.0
+        uses: hadolint/hadolint-action@v3.3.0
         with:
           dockerfile: frontend/Dockerfile
           failure-threshold: error
@@ -95,7 +95,7 @@ jobs:
           load: ${{ github.event_name == 'pull_request' }}  # Load for scanning on PRs
 
       - name: Scan API image with Trivy
-        uses: aquasecurity/trivy-action@0.30.0
+        uses: aquasecurity/trivy-action@0.33.1
         with:
           image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_API }}:${{ steps.meta.outputs.version }}
           format: 'sarif'
@@ -173,7 +173,7 @@ jobs:
             VITE_API_URL=/api/v1
 
       - name: Scan Frontend image with Trivy
-        uses: aquasecurity/trivy-action@0.30.0
+        uses: aquasecurity/trivy-action@0.33.1
         with:
           image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:${{ steps.meta.outputs.version }}
           format: 'sarif'
