@@ -97,15 +97,14 @@ COPY pyproject.toml ./
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN --mount=type=cache,target=/root/.cache/pip \
     set -euxo pipefail && \
-    # Install critical deps with version pins \
-    pip install numpy==1.23.5 && \
-    pip install Cython==0.29.36 && \
-    # Install spaCy and language models \
-    pip install spacy==3.5.4 && \
+    # Install NumPy 2.x first (modern ABI) \
+    pip install "numpy>=2.0.0,<3.0.0" && \
+    # Install spaCy 3.8+ (compatible with NumPy 2.x and Pydantic v2) \
+    pip install "spacy>=3.8.0,<4.0.0" && \
     pip install \
-        https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.5.0/en_core_web_sm-3.5.0-py3-none-any.whl && \
+        https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl && \
     pip install \
-        https://github.com/explosion/spacy-models/releases/download/de_core_news_sm-3.5.0/de_core_news_sm-3.5.0-py3-none-any.whl && \
+        https://github.com/explosion/spacy-models/releases/download/de_core_news_sm-3.8.0/de_core_news_sm-3.8.0-py3-none-any.whl && \
     # Install langdetect for language auto-detection (fixes #VULN-007) \
     pip install langdetect && \
     # Install API dependencies (FastAPI, uvicorn) \

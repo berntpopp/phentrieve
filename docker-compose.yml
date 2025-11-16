@@ -180,7 +180,7 @@ networks:
     driver: bridge
     ipam:
       config:
-        - subnet: 172.20.0.0/16  # Explicit subnet for network isolation
+        - subnet: 172.25.0.0/16  # Explicit subnet for network isolation (changed from 172.20 to avoid conflicts)
 
   # External network for Nginx Proxy Manager (NPM)
   npm_proxy_network:

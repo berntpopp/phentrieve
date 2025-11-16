@@ -95,6 +95,13 @@ MOCK_LABELS = {
 @pytest.fixture
 def mock_hpo_data():
     """Mock HPO graph data and term labels for testing."""
+    # Import the metrics module to clear global caches
+    import phentrieve.evaluation.metrics as metrics_module
+
+    # Clear global caches BEFORE mocking to prevent cache from bypassing the mock
+    metrics_module._hpo_ancestors = None
+    metrics_module._hpo_term_depths = None
+
     with patch("phentrieve.evaluation.metrics.load_hpo_graph_data") as mock_graph_data:
         with patch(
             "phentrieve.cli.similarity_commands._ensure_cli_hpo_label_cache"
@@ -102,6 +109,10 @@ def mock_hpo_data():
             mock_graph_data.return_value = (MOCK_ANCESTORS, MOCK_DEPTHS)
             mock_labels.return_value = MOCK_LABELS
             yield
+
+            # Clear caches after test to prevent cross-test pollution
+            metrics_module._hpo_ancestors = None
+            metrics_module._hpo_term_depths = None
 
 
 def test_similarity_calculate_basic(mock_hpo_data):

@@ -15,7 +15,7 @@ pytestmark = pytest.mark.unit
 class TestConnectToChroma:
     """Test connect_to_chroma function with real logic execution."""
 
-    @patch("phentrieve.retrieval.dense_retriever.chromadb.PersistentClient")
+    @patch("chromadb.PersistentClient")
     def test_successful_connection(self, mock_client_class):
         """Test successful connection to ChromaDB collection."""
         # Arrange
@@ -34,7 +34,7 @@ class TestConnectToChroma:
         mock_client.get_collection.assert_called_once_with(name="test_collection")
         mock_collection.count.assert_called_once()
 
-    @patch("phentrieve.retrieval.dense_retriever.chromadb.PersistentClient")
+    @patch("chromadb.PersistentClient")
     def test_collection_not_found_no_alternates(self, mock_client_class):
         """Test when collection not found and no alternate collections exist."""
         # Arrange
@@ -49,7 +49,7 @@ class TestConnectToChroma:
         # Assert
         assert result is None
 
-    @patch("phentrieve.retrieval.dense_retriever.chromadb.PersistentClient")
+    @patch("chromadb.PersistentClient")
     @patch("phentrieve.retrieval.dense_retriever.generate_collection_name")
     def test_collection_not_found_with_alternate(
         self, mock_gen_name, mock_client_class
@@ -80,7 +80,7 @@ class TestConnectToChroma:
         # Assert
         assert result == mock_alternate_collection
 
-    @patch("phentrieve.retrieval.dense_retriever.chromadb.PersistentClient")
+    @patch("chromadb.PersistentClient")
     def test_chromadb_connection_error(self, mock_client_class):
         """Test error handling when ChromaDB connection fails."""
         # Arrange
