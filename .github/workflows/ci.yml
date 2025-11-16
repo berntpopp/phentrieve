@@ -192,8 +192,7 @@ jobs:
           file: ${{ matrix.service == 'api' && './api/Dockerfile' || './frontend/Dockerfile' }}
           push: false
           tags: ghcr.io/berntpopp/phentrieve/${{ matrix.service }}:test
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          # No caching for test builds - we just need to verify they complete
           build-args: |
             ${{ matrix.service == 'frontend' && 'VITE_API_URL=/api/v1' || '' }}
 
