@@ -92,7 +92,7 @@ MOCK_LABELS = {
 }
 
 
-@pytest.fixture
+@pytest.fixture(autouse=True)
 def mock_hpo_data():
     """Mock HPO graph data and term labels for testing."""
     # Import the metrics module to clear global caches
