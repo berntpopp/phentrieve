@@ -440,3 +440,133 @@ class TestQueryWorkflow:
         assert len(hpo_ids) == len(unique_hpo_ids), (
             f"Results should not contain duplicate HPO IDs, got: {hpo_ids}"
         )
+
+
+@pytest.mark.e2e
+class TestChunkAlignment:
+    """
+    Test suite for chunk index alignment in text processing API.
+
+    Validates that chunk IDs are consistent across all components of the API
+    response (processed_chunks, source_chunk_ids, text_attributions,
+    top_evidence_chunk_id) to prevent off-by-one errors.
+    """
+
+    def test_chunk_ids_sequential_one_based(self, api_text_process_endpoint: str):
+        """
+        Verify chunk IDs are sequential starting from 1.
+
+        Expected:
+            - Chunk IDs: [1, 2, 3, ..., n]
+            - No gaps, no zero-based indexing
+        """
+        payload = {
+            "text_content": "Patient has seizures and ataxia. No heart disease.",
+            "language": "en",
+        }
+
+        response = requests.post(api_text_process_endpoint, json=payload, timeout=30)
+
+        assert response.status_code == 200, (
+            f"Text processing should succeed, got: {response.status_code}"
+        )
+
+        data = response.json()
+        chunks = data["processed_chunks"]
+        chunk_ids = [c["chunk_id"] for c in chunks]
+
+        # Verify sequential 1-based IDs
+        expected_ids = list(range(1, len(chunks) + 1))
+        assert chunk_ids == expected_ids, (
+            f"Chunk IDs should be sequential 1-based. Expected {expected_ids}, got {chunk_ids}"
+        )
+
+    def test_source_chunk_ids_reference_existing_chunks(
+        self, api_text_process_endpoint: str
+    ):
+        """
+        Verify all source_chunk_ids reference existing processed chunks.
+
+        Expected:
+            - Every source_chunk_id in aggregated_hpo_terms exists in processed_chunks
+            - No invalid or out-of-range chunk references
+        """
+        payload = {
+            "text_content": "Patient has seizures and ataxia. Tremor noted.",
+            "language": "en",
+        }
+
+        response = requests.post(api_text_process_endpoint, json=payload, timeout=30)
+
+        assert response.status_code == 200, (
+            f"Text processing should succeed, got: {response.status_code}"
+        )
+
+        data = response.json()
+        valid_chunk_ids = {c["chunk_id"] for c in data["processed_chunks"]}
+
+        for term in data["aggregated_hpo_terms"]:
+            for chunk_id in term["source_chunk_ids"]:
+                assert chunk_id in valid_chunk_ids, (
+                    f"Term {term['hpo_id']} references non-existent chunk {chunk_id}. "
+                    f"Valid IDs: {sorted(valid_chunk_ids)}"
+                )
+
+    def test_text_attribution_chunk_ids_valid(
+        self, api_text_process_endpoint: str
+    ):
+        """
+        Verify text_attribution chunk_ids reference existing chunks.
+
+        Expected:
+            - Every chunk_id in text_attributions exists in processed_chunks
+        """
+        payload = {
+            "text_content": "Patient has seizures and ataxia.",
+            "language": "en",
+        }
+
+        response = requests.post(api_text_process_endpoint, json=payload, timeout=30)
+
+        assert response.status_code == 200, (
+            f"Text processing should succeed, got: {response.status_code}"
+        )
+
+        data = response.json()
+        valid_chunk_ids = {c["chunk_id"] for c in data["processed_chunks"]}
+
+        for term in data["aggregated_hpo_terms"]:
+            for attribution in term["text_attributions"]:
+                assert attribution["chunk_id"] in valid_chunk_ids, (
+                    f"Term {term['hpo_id']} attribution references "
+                    f"non-existent chunk {attribution['chunk_id']}"
+                )
+
+    def test_top_evidence_chunk_id_valid(self, api_text_process_endpoint: str):
+        """
+        Verify top_evidence_chunk_id references existing chunk when present.
+
+        Expected:
+            - If top_evidence_chunk_id is not None, it must be a valid chunk_id
+        """
+        payload = {
+            "text_content": "Patient has seizures.",
+            "language": "en",
+        }
+
+        response = requests.post(api_text_process_endpoint, json=payload, timeout=30)
+
+        assert response.status_code == 200, (
+            f"Text processing should succeed, got: {response.status_code}"
+        )
+
+        data = response.json()
+        valid_chunk_ids = {c["chunk_id"] for c in data["processed_chunks"]}
+
+        for term in data["aggregated_hpo_terms"]:
+            top_chunk_id = term.get("top_evidence_chunk_id")
+            if top_chunk_id is not None:
+                assert top_chunk_id in valid_chunk_ids, (
+                    f"Term {term['hpo_id']} top_evidence_chunk_id {top_chunk_id} "
+                    f"does not reference an existing chunk. Valid IDs: {sorted(valid_chunk_ids)}"
+                )
