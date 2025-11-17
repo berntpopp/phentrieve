@@ -131,6 +131,63 @@ def _get_chunking_config_for_api(
     return config
 
 
+def _validate_response_chunk_references(
+    processed_chunks: list[ProcessedChunkAPI],
+    aggregated_terms: list[AggregatedHPOTermAPI],
+) -> None:
+    """
+    Validate chunk ID references in API response for internal consistency.
+
+    This function checks invariants that must hold for a valid response:
+    1. Chunk IDs are sequential and 1-based
+    2. All source_chunk_ids reference existing chunks
+    3. All text_attribution chunk_ids reference existing chunks
+    4. top_evidence_chunk_id references an existing chunk (if present)
+
+    This is called under __debug__ (Python assertions enabled) to catch
+    bugs during development/testing without production overhead.
+
+    Args:
+        processed_chunks: List of processed chunks with chunk_id
+        aggregated_terms: List of aggregated HPO terms with chunk references
+
+    Raises:
+        AssertionError: If any invariant is violated
+    """
+    total_chunks = len(processed_chunks)
+    chunk_ids = {chunk.chunk_id for chunk in processed_chunks}
+
+    # Invariant 1: Chunk IDs are sequential 1-based
+    expected_ids = set(range(1, total_chunks + 1))
+    assert chunk_ids == expected_ids, (
+        f"Chunk IDs not sequential 1-based. Expected {expected_ids}, got {chunk_ids}"
+    )
+
+    # Invariant 2: All source_chunk_ids reference existing chunks
+    for term in aggregated_terms:
+        invalid_source_ids = set(term.source_chunk_ids) - chunk_ids
+        assert not invalid_source_ids, (
+            f"HPO term {term.id} has invalid source_chunk_ids: "
+            f"{invalid_source_ids} (valid range: 1-{total_chunks})"
+        )
+
+    # Invariant 3: All text_attribution chunk_ids reference existing chunks
+    for term in aggregated_terms:
+        for attr in term.text_attributions:
+            assert attr.chunk_id in chunk_ids, (
+                f"HPO term {term.id} has text_attribution with invalid "
+                f"chunk_id {attr.chunk_id} (valid range: 1-{total_chunks})"
+            )
+
+    # Invariant 4: top_evidence_chunk_id references existing chunk (if present)
+    for term in aggregated_terms:
+        if term.top_evidence_chunk_id is not None:
+            assert term.top_evidence_chunk_id in chunk_ids, (
+                f"HPO term {term.id} has invalid top_evidence_chunk_id "
+                f"{term.top_evidence_chunk_id} (valid range: 1-{total_chunks})"
+            )
+
+
 @router.post("/process", response_model=TextProcessingResponseAPI)
 async def process_text_extract_hpo(request: TextProcessingRequest):
     """
@@ -364,6 +421,12 @@ async def process_text_extract_hpo(request: TextProcessingRequest):
             "num_processed_chunks": len(api_processed_chunks),
             "num_aggregated_hpo_terms": len(api_aggregated_hpo_terms),
         }
+
+        # Validate response invariants (only when assertions enabled)
+        if __debug__:
+            _validate_response_chunk_references(
+                api_processed_chunks, api_aggregated_hpo_terms
+            )
 
         return TextProcessingResponseAPI(
             meta=response_meta,
