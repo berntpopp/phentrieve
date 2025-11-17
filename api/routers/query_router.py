@@ -26,6 +26,96 @@ logger = logging.getLogger(__name__)
 router = APIRouter()  # Prefix will be added in main.py
 
 
+def _resolve_query_language(
+    text: str,
+    language: Optional[str] = None,
+    default_language: str = DEFAULT_LANGUAGE,
+) -> str:
+    """Resolve the language for a query text.
+
+    If language is provided, use it. Otherwise auto-detect.
+    Falls back to default_language if detection fails.
+
+    Args:
+        text: The query text to detect language for
+        language: Explicitly provided language code (optional)
+        default_language: Fallback language if detection fails
+
+    Returns:
+        ISO 639-1 language code
+    """
+    if language:
+        return language
+
+    try:
+        detected_lang = detect_language(text, default_lang=default_language)
+        logger.info(f"Auto-detected language: {detected_lang}")
+        return detected_lang
+    except Exception as e:
+        logger.warning(
+            f"Language detection failed: {e}. Using default: {default_language}"
+        )
+        return default_language
+
+
+def _resolve_reranker_model_name(
+    enable_reranker: bool,
+    reranker_mode: Literal["cross-lingual", "monolingual"],
+    reranker_model: Optional[str] = None,
+    monolingual_reranker_model: Optional[str] = None,
+) -> Optional[str]:
+    """Determine which reranker model to use based on mode.
+
+    Args:
+        enable_reranker: Whether reranking is enabled
+        reranker_mode: Either "cross-lingual" or "monolingual"
+        reranker_model: Cross-lingual reranker model name
+        monolingual_reranker_model: Monolingual reranker model name
+
+    Returns:
+        Model name to use, or None if reranking disabled/no model specified
+    """
+    if not enable_reranker:
+        return None
+
+    if reranker_mode == "monolingual":
+        return monolingual_reranker_model or DEFAULT_MONOLINGUAL_RERANKER_MODEL
+    else:  # cross-lingual
+        return reranker_model or DEFAULT_RERANKER_MODEL
+
+
+def _resolve_translation_directory(
+    enable_reranker: bool,
+    reranker_mode: Literal["cross-lingual", "monolingual"],
+    language: str,
+    translation_dir_name: Optional[str] = None,
+) -> Optional[str]:
+    """Resolve translation directory path for monolingual reranking.
+
+    Args:
+        enable_reranker: Whether reranking is enabled
+        reranker_mode: Either "cross-lingual" or "monolingual"
+        language: Detected/specified language code
+        translation_dir_name: Override translation directory name
+
+    Returns:
+        Translation directory path, or None if not needed
+    """
+    if not enable_reranker or reranker_mode != "monolingual":
+        return None
+
+    base_trans_dir = Path("data") / DEFAULT_TRANSLATIONS_SUBDIR
+    resolved_path = str(base_trans_dir / (translation_dir_name or language))
+
+    if not os.path.exists(resolved_path):
+        logger.warning(
+            f"Monolingual reranking: Translation directory {resolved_path} not found. "
+            "Reranking may be suboptimal or fail for translations."
+        )
+
+    return resolved_path
+
+
 # Helper dependency to extract model_name from request for the retriever
 async def get_retriever_for_request(request: QueryRequest) -> DenseRetriever:
     """Extract model name from request and get retriever dependency"""
@@ -141,18 +231,11 @@ async def run_hpo_query(
             )
 
     # Language detection for the main query
-    language_to_use = request.language
-    if not language_to_use:
-        try:
-            language_to_use = detect_language(
-                request.text, default_lang=DEFAULT_LANGUAGE
-            )
-            logger.info(f"Auto-detected language: {language_to_use}")
-        except Exception as e:  # Catch if langdetect fails
-            logger.warning(
-                f"Language detection failed: {e}. Using default: {DEFAULT_LANGUAGE}"
-            )
-            language_to_use = DEFAULT_LANGUAGE
+    language_to_use = _resolve_query_language(
+        text=request.text,
+        language=request.language,
+        default_language=DEFAULT_LANGUAGE,
+    )
 
     # For assertion detection, explicitly use the query_assertion_language if provided
     # otherwise keep using the detected/specified language
@@ -167,17 +250,14 @@ async def run_hpo_query(
         )
 
     cross_encoder_instance = None
-    actual_reranker_model_name = None
-    if request.enable_reranker:
-        if request.reranker_mode == "monolingual":
-            actual_reranker_model_name = (
-                request.monolingual_reranker_model or DEFAULT_MONOLINGUAL_RERANKER_MODEL
-            )
-        else:  # cross-lingual
-            actual_reranker_model_name = (
-                request.reranker_model or DEFAULT_RERANKER_MODEL
-            )
+    actual_reranker_model_name = _resolve_reranker_model_name(
+        enable_reranker=request.enable_reranker,
+        reranker_mode=request.reranker_mode,
+        reranker_model=request.reranker_model,
+        monolingual_reranker_model=request.monolingual_reranker_model,
+    )
 
+    if request.enable_reranker:
         if actual_reranker_model_name:
             cross_encoder_instance = await get_cross_encoder_dependency(
                 reranker_model_name=actual_reranker_model_name,
@@ -192,17 +272,12 @@ async def run_hpo_query(
                 "Reranking enabled but no reranker model specified for the mode. Proceeding without reranking."
             )
 
-    resolved_translation_dir = None
-    if request.enable_reranker and request.reranker_mode == "monolingual":
-        # For monolingual reranking mode, determine the translation directory path
-        base_trans_dir = Path("data") / DEFAULT_TRANSLATIONS_SUBDIR
-        resolved_translation_dir = str(
-            base_trans_dir / (request.translation_dir_name or language_to_use)
-        )
-        if not os.path.exists(resolved_translation_dir):
-            logger.warning(
-                f"Monolingual reranking: Translation directory {resolved_translation_dir} not found. Reranking may be suboptimal or fail for translations."
-            )
+    resolved_translation_dir = _resolve_translation_directory(
+        enable_reranker=request.enable_reranker,
+        reranker_mode=request.reranker_mode,
+        language=language_to_use,
+        translation_dir_name=request.translation_dir_name,
+    )
 
     # Call the core HPO retrieval logic
     query_results_dict = await execute_hpo_retrieval_for_api(

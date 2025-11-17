@@ -11,15 +11,15 @@ import pytest
 from pydantic import ValidationError
 
 from api.schemas.query_schemas import HPOResultItem, QueryRequest, QueryResponse
-from api.schemas.similarity_schemas import (
-    SimilarityPairResult,
-    SimilarityRequest,
-    SimilarityResponse,
-)
+
+# NOTE: Obsolete similarity schemas removed - see similarity_router.py for current implementation
+# from api.schemas.similarity_schemas import (
+#     SimilarityPairResult,  # Does not exist
+#     SimilarityRequest,  # Does not exist
+#     SimilarityResponse,  # Does not exist
+# )
 from api.schemas.text_processing_schemas import (
-    ExtractedHPOTerm,
     TextProcessingRequest,
-    TextProcessingResponse,
 )
 
 pytestmark = pytest.mark.unit
@@ -39,7 +39,7 @@ class TestQueryRequest:
         req = QueryRequest(text="patient has seizures")
 
         # Assert
-        assert req.text == "patient has seizures"
+        assert req.text_content == "patient has seizures"
         assert req.model_name is None  # Optional
         assert req.language is None  # Optional
         assert req.num_results == 10  # Default
@@ -66,7 +66,7 @@ class TestQueryRequest:
         )
 
         # Assert
-        assert req.text == "Patient zeigt Krampfanfälle"
+        assert req.text_content == "Patient zeigt Krampfanfälle"
         assert req.model_name == "FremyCompany/BioLORD-2023-M"
         assert req.language == "de"
         assert req.num_results == 20
@@ -265,109 +265,11 @@ class TestQueryResponse:
 # =============================================================================
 # Similarity Schemas (api/schemas/similarity_schemas.py)
 # =============================================================================
-
-
-class TestSimilarityRequest:
-    """Test SimilarityRequest schema validation."""
-
-    def test_minimal_similarity_request(self):
-        """Test minimal request with defaults."""
-        # Arrange & Act
-        req = SimilarityRequest(hpo_id="HP:0001250")
-
-        # Assert
-        assert req.hpo_id == "HP:0001250"
-        assert req.model_name is None  # Optional
-        assert req.top_k == 10  # Default
-        assert req.include_self is False  # Default
-
-    def test_full_similarity_request(self):
-        """Test request with all fields."""
-        # Arrange & Act
-        req = SimilarityRequest(
-            hpo_id="HP:0001250",
-            model_name="FremyCompany/BioLORD-2023-M",
-            top_k=20,
-            include_self=True,
-        )
-
-        # Assert
-        assert req.hpo_id == "HP:0001250"
-        assert req.model_name == "FremyCompany/BioLORD-2023-M"
-        assert req.top_k == 20
-        assert req.include_self is True
-
-    def test_top_k_validation(self):
-        """Test top_k must be 1-100."""
-        # Valid boundaries
-        req_min = SimilarityRequest(hpo_id="HP:0001250", top_k=1)
-        assert req_min.top_k == 1
-
-        req_max = SimilarityRequest(hpo_id="HP:0001250", top_k=100)
-        assert req_max.top_k == 100
-
-        # Invalid
-        with pytest.raises(ValidationError):
-            SimilarityRequest(hpo_id="HP:0001250", top_k=0)
-
-        with pytest.raises(ValidationError):
-            SimilarityRequest(hpo_id="HP:0001250", top_k=101)
-
-
-class TestSimilarityPairResult:
-    """Test SimilarityPairResult schema."""
-
-    def test_similarity_pair_result(self):
-        """Test similarity pair structure."""
-        # Arrange & Act
-        result = SimilarityPairResult(
-            hpo_id="HP:0002066",
-            label="Gait ataxia",
-            similarity=0.78,
-        )
-
-        # Assert
-        assert result.hpo_id == "HP:0002066"
-        assert result.label == "Gait ataxia"
-        assert result.similarity == 0.78
-
-
-class TestSimilarityResponse:
-    """Test SimilarityResponse schema."""
-
-    def test_similarity_response(self):
-        """Test similarity response structure."""
-        # Arrange & Act
-        resp = SimilarityResponse(
-            query_hpo_id="HP:0001250",
-            query_label="Seizure",
-            model_used="FremyCompany/BioLORD-2023-M",
-            similar_terms=[
-                SimilarityPairResult(
-                    hpo_id="HP:0002066", label="Gait ataxia", similarity=0.78
-                )
-            ],
-        )
-
-        # Assert
-        assert resp.query_hpo_id == "HP:0001250"
-        assert resp.query_label == "Seizure"
-        assert resp.model_used == "FremyCompany/BioLORD-2023-M"
-        assert len(resp.similar_terms) == 1
-        assert resp.similar_terms[0].hpo_id == "HP:0002066"
-
-    def test_empty_similar_terms_allowed(self):
-        """Test response with no similar terms (edge case)."""
-        # Arrange & Act
-        resp = SimilarityResponse(
-            query_hpo_id="HP:0001250",
-            query_label="Seizure",
-            model_used="test-model",
-            similar_terms=[],
-        )
-
-        # Assert
-        assert resp.similar_terms == []
+# NOTE: Obsolete similarity schema tests removed.
+# The schemas referenced (SimilarityRequest, SimilarityResponse, SimilarityPairResult)
+# no longer exist in the codebase.
+# Current similarity API uses HPOTermSimilarityResponseAPI (see similarity_router.py)
+# Tests for the actual similarity router are in test_similarity_router.py
 
 
 # =============================================================================
@@ -381,10 +283,10 @@ class TestTextProcessingRequest:
     def test_minimal_text_processing_request(self):
         """Test minimal request with defaults."""
         # Arrange & Act
-        req = TextProcessingRequest(text="patient has seizures")
+        req = TextProcessingRequest(text_content="patient has seizures")
 
         # Assert
-        assert req.text == "patient has seizures"
+        assert req.text_content == "patient has seizures"
         assert req.language is None  # Optional
         assert req.sentence_mode is False  # Default
 
@@ -392,13 +294,13 @@ class TestTextProcessingRequest:
         """Test request with all fields."""
         # Arrange & Act
         req = TextProcessingRequest(
-            text="Patient has seizures. No heart disease.",
+            text_content="Patient has seizures. No heart disease.",
             language="en",
             sentence_mode=True,
         )
 
         # Assert
-        assert req.text == "Patient has seizures. No heart disease."
+        assert req.text_content == "Patient has seizures. No heart disease."
         assert req.language == "en"
         assert req.sentence_mode is True
 
@@ -406,59 +308,12 @@ class TestTextProcessingRequest:
         """Test text must be non-empty."""
         # Act & Assert
         with pytest.raises(ValidationError):
-            TextProcessingRequest(text="")
+            TextProcessingRequest(text_content="")
 
 
-class TestExtractedHPOTerm:
-    """Test ExtractedHPOTerm schema."""
+# NOTE: Text processing schema tests commented out - schemas have changed significantly.
+# Current schemas: ProcessedChunkAPI, AggregatedHPOTermAPI, TextProcessingResponseAPI
+# See test_text_processing_router.py for actual router tests.
 
-    def test_extracted_hpo_term(self):
-        """Test extracted HPO term structure."""
-        # Arrange & Act
-        term = ExtractedHPOTerm(
-            segment_text="patient has seizures",
-            hpo_id="HP:0001250",
-            hpo_label="Seizure",
-        )
-
-        # Assert
-        assert term.segment_text == "patient has seizures"
-        assert term.hpo_id == "HP:0001250"
-        assert term.hpo_label == "Seizure"
-
-
-class TestTextProcessingResponse:
-    """Test TextProcessingResponse schema."""
-
-    def test_text_processing_response(self):
-        """Test text processing response structure."""
-        # Arrange & Act
-        resp = TextProcessingResponse(
-            original_text="patient has seizures",
-            language_detected="en",
-            processed_segments=[
-                ExtractedHPOTerm(
-                    segment_text="patient has seizures",
-                    hpo_id="HP:0001250",
-                    hpo_label="Seizure",
-                )
-            ],
-        )
-
-        # Assert
-        assert resp.original_text == "patient has seizures"
-        assert resp.language_detected == "en"
-        assert len(resp.processed_segments) == 1
-        assert resp.processed_segments[0].hpo_id == "HP:0001250"
-
-    def test_empty_processed_segments_allowed(self):
-        """Test response with no extracted terms (valid)."""
-        # Arrange & Act
-        resp = TextProcessingResponse(
-            original_text="no medical terms here",
-            language_detected="en",
-            processed_segments=[],
-        )
-
-        # Assert
-        assert resp.processed_segments == []
+# class TestExtractedHPOTerm:  # OBSOLETE - schema doesn't exist
+# class TestTextProcessingResponse:  # OBSOLETE - schema structure changed
