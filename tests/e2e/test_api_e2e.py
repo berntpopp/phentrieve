@@ -512,9 +512,7 @@ class TestChunkAlignment:
                     f"Valid IDs: {sorted(valid_chunk_ids)}"
                 )
 
-    def test_text_attribution_chunk_ids_valid(
-        self, api_text_process_endpoint: str
-    ):
+    def test_text_attribution_chunk_ids_valid(self, api_text_process_endpoint: str):
         """
         Verify text_attribution chunk_ids reference existing chunks.
 
