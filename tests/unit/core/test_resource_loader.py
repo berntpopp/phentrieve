@@ -131,3 +131,40 @@ class TestResourceLoader:
         # Should fall back to default resources
         assert "en" in resources
         assert len(resources["en"]) > 0
+
+    def test_invalid_default_resource_file(self, mocker):
+        """Test error handling when default resource file cannot be loaded."""
+        # Mock importlib.resources.files to raise an exception
+        mock_files = mocker.patch("importlib.resources.files")
+        mock_files.side_effect = Exception("Failed to load default resource")
+
+        # Load resources - should handle error and return empty dict
+        resources = load_language_resource(
+            default_resource_filename="negation_cues.json",
+            config_key_for_custom_file="negation_cues_file",
+        )
+
+        # Should return empty dict when default loading fails
+        assert resources == {}
+
+    def test_corrupt_custom_resource_file(self, tmp_path):
+        """Test error handling when custom resource file has invalid JSON."""
+        # Create corrupt JSON file
+        custom_file = tmp_path / "corrupt_negation_cues.json"
+        with open(custom_file, "w", encoding="utf-8") as f:
+            f.write("{invalid json content!@#$")
+
+        # Create config section
+        config_section = {"negation_cues_file": str(custom_file)}
+
+        # Load resources - should handle error and use defaults
+        resources = load_language_resource(
+            default_resource_filename="negation_cues.json",
+            config_key_for_custom_file="negation_cues_file",
+            language_resources_config_section=config_section,
+        )
+
+        # Should still have default resources even though custom file is corrupt
+        assert "en" in resources
+        assert "de" in resources
+        assert len(resources["en"]) > 0
