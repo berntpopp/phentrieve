@@ -265,7 +265,9 @@ class TestGetTextAttributions:
     def test_complex_medical_term_with_punctuation(self):
         """Test matching complex medical terms with punctuation."""
         # Arrange
-        source_text = "Diagnosis: 3-hydroxy-3-methylglutaryl-CoA lyase deficiency confirmed"
+        source_text = (
+            "Diagnosis: 3-hydroxy-3-methylglutaryl-CoA lyase deficiency confirmed"
+        )
         hpo_label = "3-hydroxy-3-methylglutaryl-CoA lyase deficiency"
 
         # Act
@@ -273,9 +275,10 @@ class TestGetTextAttributions:
 
         # Assert
         assert len(result) == 1
-        assert "3-hydroxy-3-methylglutaryl-CoA lyase deficiency" in result[0][
-            "matched_text_in_chunk"
-        ]
+        assert (
+            "3-hydroxy-3-methylglutaryl-CoA lyase deficiency"
+            in result[0]["matched_text_in_chunk"]
+        )
 
     def test_attribution_span_positions_accurate(self):
         """Test that start and end positions are accurate."""

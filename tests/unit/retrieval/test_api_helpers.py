@@ -267,10 +267,7 @@ class TestExecuteHpoRetrievalForApi:
             "ids": [["HP:0001", "HP:0002", "HP:0003", "HP:0004", "HP:0005"]],
             "documents": [["Term1", "Term2", "Term3", "Term4", "Term5"]],
             "metadatas": [
-                [
-                    {"hpo_id": f"HP:000{i}", "label": f"Term{i}"}
-                    for i in range(1, 6)
-                ]
+                [{"hpo_id": f"HP:000{i}", "label": f"Term{i}"} for i in range(1, 6)]
             ],
             "similarities": [[0.95, 0.90, 0.85, 0.80, 0.75]],
         }
@@ -564,7 +561,7 @@ class TestExecuteHpoRetrievalForApi:
         mock_cross_encoder.predict.return_value = [0.95]
 
         # Act
-        result = await execute_hpo_retrieval_for_api(
+        _result = await execute_hpo_retrieval_for_api(
             text=query_text,
             language="en",
             retriever=mock_retriever,

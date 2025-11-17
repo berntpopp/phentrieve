@@ -87,7 +87,7 @@ class TestMainCallback:
 
     def test_main_callback_with_version_true(self, mocker):
         """Test main callback with version=True triggers version_callback."""
-        from phentrieve.cli import main_callback, version_callback
+        from phentrieve.cli import version_callback
 
         # Arrange
         mock_echo = mocker.patch("typer.echo")

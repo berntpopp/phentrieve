@@ -4,12 +4,11 @@ import cProfile
 import pstats
 import sys
 
+import pytest
+
 # Run pytest collection with profiling
 profiler = cProfile.Profile()
 profiler.enable()
-
-# Import and run pytest
-import pytest
 
 sys.exit(
     pytest.main(
