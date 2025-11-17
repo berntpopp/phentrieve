@@ -1,7 +1,8 @@
-# Testing Coverage Expansion Plan
+# Testing Coverage Expansion Plan (REVISED)
 
 **Status:** Active - Ready for Implementation
 **Created:** 2025-11-17
+**Revised:** 2025-11-17 (Senior Review - Critical Flaws Fixed)
 **Priority:** High
 **Related Issue:** [#37: Implement comprehensive testing suite](https://github.com/berntpopp/phentrieve/issues/37)
 
@@ -9,608 +10,805 @@
 
 ## Executive Summary
 
-Issue #37 requested a comprehensive testing suite. **Testing infrastructure is complete** (pytest, coverage, CI/CD), but **coverage is only 8%** vs. the **30% baseline target**. This plan focuses on expanding test coverage to meet the original acceptance criteria while following best practices (DRY, KISS, SOLID).
+Issue #37 requested comprehensive testing. **Infrastructure is complete** (pytest, CI/CD, 263 tests), but **coverage is only 8%**. This revised plan focuses on **quality over quantity**, testing **critical paths to 70-80%** rather than all code to 30%.
 
 ### Current State ✅
 - ✅ 263 tests (206 unit/integration + 57 E2E)
 - ✅ pytest + pytest-cov configured
 - ✅ Test structure (unit/, integration/, e2e/)
 - ✅ CI/CD integration (GitHub Actions)
-- ✅ Documentation (CLAUDE.md)
-- ✅ Make commands for testing
+- ✅ Make commands (`make test`, `make test-cov`)
 
-### Gap Analysis ❌
-- ❌ Coverage: 8% (need 30% minimum)
-- ❌ 33 modules with 0% coverage
-- ❌ No API route tests (all API modules 0%)
-- ❌ No CLI command tests (most at 0%)
-- ❌ No evaluation/benchmark tests
-- ❌ No indexing tests
+### Critical Findings ⚠️
+- ❌ **8% coverage** (industry standard: 70-80%)
+- ❌ **Zero coverage on critical modules** (API routes, retrieval)
+- ❌ **Missing anti-pattern prevention** (risk of low-quality tests)
+- ⚠️ **Risk:** Testing easy code, missing critical paths
 
 ---
 
-## Objectives
+## Objectives (REVISED)
 
-### Primary Goal
-Increase test coverage from **8% to 30%+** by adding strategic tests for high-value, critical-path modules.
+### Primary Goal: Quality Over Quantity
 
-### Secondary Goals
-1. Maintain fast test execution (<2 minutes for unit tests)
-2. Follow pytest best practices (fixtures, parametrization, mocking)
-3. Focus on meaningful tests over coverage percentage
-4. Keep tests maintainable and well-documented
+**NOT THIS:**
+> ❌ "Increase coverage from 8% to 30%"
+> Problem: Could hit 30% by testing trivial getters/setters
 
----
+**THIS:**
+> ✅ **Test all critical paths to 70-80% coverage**
+> ✅ **Test high-risk modules to 90%+ coverage**
+> ✅ **Let overall coverage be a natural byproduct**
 
-## Best Practices Framework
+### Coverage Targets by Module Type
 
-### Testing Philosophy (Based on 2024 Research)
+| Module Type | Target | Rationale |
+|-------------|--------|-----------|
+| **Critical** (auth, query, retrieval) | 90%+ | High risk, high use |
+| **Important** (utils, processing, CLI) | 70%+ | Widely used, medium risk |
+| **Supporting** (config, formatters) | 50%+ | Low complexity, low risk |
+| **Low Priority** (visualization, plotting) | 30%+ | Not core functionality |
 
-**Quality > Quantity**
-- Focus on critical paths and edge cases
-- 30% meaningful coverage > 100% shallow coverage
-- Test behavior, not implementation details
+**Overall target: 60-70% coverage** as natural result of testing critical code.
 
-**Test Pyramid**
-```
-       /\
-      /E2\      E2E Tests (Slow, Comprehensive) - 10%
-     /----\
-    / Int  \    Integration Tests (Medium) - 20%
-   /--------\
-  /   Unit   \  Unit Tests (Fast, Focused) - 70%
- /------------\
-```
+### Guiding Principles
 
-**KISS Principle**
-- Simple, focused tests (1 test = 1 behavior)
-- Descriptive names: `test_function_name_when_condition_then_expected_behavior`
-- Minimal setup/teardown
-- Avoid test interdependencies
+**Based on 2024 Research:**
+> "Projects with over 80% test coverage have 30% lower bug density than those with less than 50%"
+>
+> "Aspire to 100% and you'll hit 80%; aspire to 80% and you'll hit 40%"
+>
+> "The 20% left uncovered is probably the 20% that needs testing most"
 
-**DRY Principle**
-- Use pytest fixtures for common setup
-- Parametrize tests for multiple inputs
-- Share test utilities in conftest.py
-- Extract test data factories
-
-**SOLID for Tests**
-- Single Responsibility: One assertion per test (when practical)
-- Open/Closed: Extend fixtures, don't modify tests
-- Dependency Injection: Use fixtures for dependencies
-- Interface Segregation: Focused fixtures
-- Dependency Inversion: Mock external dependencies
+**Focus:**
+1. ✅ Test behavior, not implementation
+2. ✅ Critical paths first, percentage second
+3. ✅ Edge cases and error handling
+4. ✅ Fast, independent, maintainable tests
+5. ❌ Don't chase coverage percentage
+6. ❌ Don't test trivial code for metrics
 
 ---
 
-## Strategic Coverage Plan
+## Pytest Anti-Patterns (MUST AVOID)
 
-### Phase 1: Critical Path Coverage (Target: 15% → 20%)
+### ❌ Anti-Pattern #1: Testing Private Methods
 
-**Rationale:** Cover the most-used, highest-risk code paths first.
-
-#### 1.1 API Route Tests (Priority: HIGH)
-**Current:** 0% coverage on all API routers
-**Target:** 60% coverage on critical routes
-**Effort:** 2-3 days
-
-**Modules to Test:**
-- `api/routers/query_router.py` (0% → 60%)
-  - `/api/v1/query` endpoint (most critical)
-  - Error handling (invalid input, timeout)
-  - Response format validation
-
-- `api/routers/text_processing_router.py` (0% → 60%)
-  - `/api/v1/text/process` endpoint
-  - All 7 chunking strategies
-  - Edge cases (already have some tests, expand)
-
-- `api/routers/similarity_router.py` (0% → 60%)
-  - `/api/v1/similarity` endpoint
-  - Different similarity formulas
-  - Invalid HPO IDs
-
-**Test Strategy:**
 ```python
-# Use FastAPI TestClient (NOT Docker - too slow)
-from fastapi.testclient import TestClient
-from api.main import app
+# DON'T DO THIS
+def test_internal_helper():
+    obj = MyClass()
+    result = obj._private_method()  # WRONG!
+    assert result == expected
+```
+
+**Why it's wrong:** Makes refactoring impossible. Private methods are tested indirectly through public API.
+
+**Do this instead:**
+```python
+# CORRECT - test public API
+def test_public_method_behavior():
+    obj = MyClass()
+    result = obj.public_method()  # Tests private methods indirectly
+    assert result == expected
+```
+
+### ❌ Anti-Pattern #2: Test Interdependencies
+
+```python
+# DON'T DO THIS
+class TestUserFlow:
+    user_id = None  # Shared state!
+
+    def test_create_user(self):
+        self.user_id = create_user("John")  # Sets global state
+
+    def test_get_user(self):
+        user = get_user(self.user_id)  # Depends on previous test!
+```
+
+**Why it's wrong:** Tests break when run in isolation or different order.
+
+**Do this instead:**
+```python
+# CORRECT - independent tests
+def test_create_user():
+    user_id = create_user("John")
+    assert user_id is not None
+
+def test_get_user():
+    user_id = create_user("Test")  # Create own data
+    user = get_user(user_id)
+    assert user.name == "Test"
+```
+
+### ❌ Anti-Pattern #3: File-Based Fixtures
+
+```python
+# DON'T DO THIS
+def test_api():
+    # Dozens of JSON files in tests/fixtures/
+    data = json.load(open("tests/fixtures/sample1.json"))
+    data2 = json.load(open("tests/fixtures/sample2.json"))
+    # Hard to maintain, unclear what data is
+```
+
+**Why it's wrong (from research):**
+> "Having dozens of JSONs or files stored as data fixtures is wrong - create functions that generate those on demand"
+
+**Do this instead:**
+```python
+# CORRECT - generate data in code
+@pytest.fixture
+def sample_hpo_term():
+    """Generate test HPO term data."""
+    return {
+        "id": "HP:0000001",
+        "name": "Seizure",
+        "definition": "Test definition"
+    }
 
 @pytest.fixture
-def client():
-    return TestClient(app)
+def hpo_term_factory():
+    """Factory for custom HPO terms."""
+    def _create(**overrides):
+        defaults = {"id": "HP:0000001", "name": "Seizure"}
+        return {**defaults, **overrides}
+    return _create
+```
 
-@pytest.fixture
-def mock_retriever(monkeypatch):
-    # Mock heavy dependencies (ChromaDB, models)
-    # This makes tests fast (<100ms each)
-    pass
+### ❌ Anti-Pattern #4: Assertion Roulette
 
-def test_query_endpoint_returns_valid_response(client, mock_retriever):
-    response = client.post("/api/v1/query", json={
-        "query_text": "seizures",
-        "top_k": 5
-    })
+```python
+# DON'T DO THIS
+def test_user_creation():
+    user = create_user("John", 30, "john@example.com")
+    assert user.name == "John"
+    assert user.age == 30
+    assert user.email == "john@example.com"
+    # Which one failed? Message doesn't tell you!
+```
+
+**Why it's wrong:** First failure hides subsequent issues. Unclear what's being tested.
+
+**Do this instead:**
+```python
+# CORRECT - focused tests
+def test_user_has_correct_name():
+    user = create_user("John")
+    assert user.name == "John", "User name should match input"
+
+def test_user_has_correct_age():
+    user = create_user("John", age=30)
+    assert user.age == 30, "User age should match input"
+
+# OR use parametrize for similar assertions
+@pytest.mark.parametrize("field,value", [
+    ("name", "John"),
+    ("age", 30),
+    ("email", "john@example.com"),
+])
+def test_user_fields(field, value):
+    user = create_user("John", 30, "john@example.com")
+    assert getattr(user, field) == value
+```
+
+### ❌ Anti-Pattern #5: Over-Mocking
+
+```python
+# DON'T DO THIS - mocking everything
+def test_api_query():
+    with patch("chromadb.Client"):
+        with patch("sentence_transformers.SentenceTransformer"):
+            with patch("phentrieve.retrieval.dense_retriever"):
+                # What are we even testing? Our mocks?
+                response = api_query("test")
+```
+
+**Why it's wrong:** Mocking too much makes test meaningless. Won't catch integration bugs.
+
+**Do this instead:**
+```python
+# CORRECT - strategic mocking
+
+# UNIT TEST: Mock external dependencies only
+def test_retriever_filters_results():
+    mock_collection = MagicMock()
+    mock_collection.query.return_value = {
+        "ids": [["HP:001", "HP:002"]],
+        "distances": [[0.9, 0.1]]
+    }
+
+    retriever = DenseRetriever(collection=mock_collection)
+    results = retriever.filter_by_threshold(threshold=0.5)
+    # Test filtering logic, not ChromaDB
+    assert len(results) == 1
+
+# INTEGRATION TEST: Use real lightweight instance
+def test_retriever_with_real_db(tmp_path):
+    client = chromadb.PersistentClient(path=str(tmp_path))
+    collection = client.create_collection("test")
+    collection.add(documents=["seizure"], ids=["HP:001"])
+
+    retriever = DenseRetriever(collection=collection)
+    results = retriever.query("seizure", top_k=1)
+    # Test real integration
+    assert results[0]["id"] == "HP:001"
+```
+
+---
+
+## Mocking Strategy (REVISED)
+
+### Three Layers, Three Strategies
+
+```
+┌─────────────────────────────────────────┐
+│ E2E Tests (Docker)                      │ NO MOCKING
+│ - Full system with real containers     │ Test: Complete workflows
+│ - Real ChromaDB, real models, real API │ Slow: 5-10 min total
+└─────────────────────────────────────────┘
+
+┌─────────────────────────────────────────┐
+│ Integration Tests                       │ MINIMAL MOCKING
+│ - Real lightweight instances            │ Mock: External APIs only
+│ - In-memory ChromaDB, temp files        │ Real: Component interactions
+│ - Test component interactions           │ Medium: 30-60 sec total
+└─────────────────────────────────────────┘
+
+┌─────────────────────────────────────────┐
+│ Unit Tests                              │ STRATEGIC MOCKING
+│ - Isolated business logic               │ Mock: Slow/external deps
+│ - Mock ChromaDB, ML models, network     │ Real: Business logic
+│ - Test single function/class            │ Fast: <1 sec each
+└─────────────────────────────────────────┘
+```
+
+### When to Mock (and When NOT To)
+
+**✅ DO Mock:**
+- External APIs (network calls)
+- ML model inference (slow, non-deterministic)
+- Database connections (in unit tests)
+- File I/O (in unit tests)
+- Time/random (non-deterministic)
+
+**❌ DON'T Mock:**
+- Business logic (defeats the purpose!)
+- Simple utilities (test real implementation)
+- Integration tests (use real instances)
+- E2E tests (defeats the purpose!)
+
+### Example: Three-Layer Testing
+
+```python
+# UNIT TEST: Mock ChromaDB client
+def test_dense_retriever_filters_low_scores():
+    """Test filtering logic in isolation."""
+    mock_results = [
+        {"id": "HP:001", "score": 0.9},
+        {"id": "HP:002", "score": 0.3},  # Below threshold
+    ]
+
+    retriever = DenseRetriever()
+    filtered = retriever.filter_results(mock_results, threshold=0.5)
+
+    assert len(filtered) == 1
+    assert filtered[0]["id"] == "HP:001"
+
+# INTEGRATION TEST: Real in-memory ChromaDB
+def test_retriever_with_lightweight_db(tmp_path):
+    """Test retriever with real ChromaDB instance."""
+    client = chromadb.PersistentClient(path=str(tmp_path))
+    collection = client.create_collection("test")
+    collection.add(
+        documents=["seizure", "tremor"],
+        ids=["HP:001", "HP:002"]
+    )
+
+    retriever = DenseRetriever(collection=collection)
+    results = retriever.query("epilepsy", top_k=1)
+
+    assert len(results) == 1
+    assert results[0]["id"] in ["HP:001", "HP:002"]
+
+# E2E TEST: Full Docker stack (in tests/e2e/)
+def test_api_query_end_to_end(api_service):
+    """Test complete query workflow via HTTP."""
+    response = requests.post(
+        f"{api_service}/api/v1/query",
+        json={"query_text": "seizures", "top_k": 5}
+    )
+
     assert response.status_code == 200
     data = response.json()
     assert "results" in data
-    assert len(data["results"]) <= 5
+    assert len(data["results"]) > 0
+    # Real API, real DB, real models - full integration
 ```
-
-**Key Insight:** Mock ChromaDB and ML models for fast tests. Real integration happens in E2E tests.
-
-#### 1.2 Core Retrieval Tests (Priority: HIGH)
-**Current:** dense_retriever.py at 13%, reranker.py at 22%
-**Target:** 70% coverage
-**Effort:** 1-2 days
-
-**Modules:**
-- `phentrieve/retrieval/dense_retriever.py` (13% → 70%)
-  - Query processing
-  - Result filtering
-  - Error handling
-
-- `phentrieve/retrieval/reranker.py` (22% → 70%)
-  - Cross-encoder scoring
-  - NLI mode
-  - Score normalization
-
-**Test Strategy:**
-```python
-# Test with minimal fixtures (use sample data, not real models)
-@pytest.fixture
-def sample_embeddings():
-    # Return pre-computed embeddings (no model loading)
-    return np.random.rand(10, 384)
-
-def test_dense_retriever_filters_by_threshold():
-    retriever = DenseRetriever(threshold=0.5)
-    results = retriever.filter_results([
-        {"id": "HP:0000001", "score": 0.7},  # Keep
-        {"id": "HP:0000002", "score": 0.3},  # Filter
-    ])
-    assert len(results) == 1
-    assert results[0]["score"] >= 0.5
-```
-
-#### 1.3 Text Processing Pipeline (Priority: HIGH)
-**Current:** pipeline.py at 10%
-**Target:** 50% coverage
-**Effort:** 1 day
-
-**Focus Areas:**
-- Pipeline initialization
-- Component chaining
-- Error propagation
-- Language handling
 
 ---
 
-### Phase 2: Utility & Helper Coverage (Target: 20% → 25%)
+## Strategic Coverage Plan (REVISED)
 
-**Rationale:** Utils are widely used - high leverage for coverage.
+### Phase 1: Critical Modules (Target: 90%+ coverage)
 
-#### 2.1 Utils Module (Priority: MEDIUM)
-**Current:** utils.py at 30%
-**Target:** 70% coverage
-**Effort:** 1 day
+**Duration:** 3 weeks
+**Why First:** High risk, high use, high impact
 
-**Focus:**
-- HPO ID normalization
-- Similarity calculations
-- Model slug generation
-- Translation loading
+#### 1.1 API Authentication & Authorization (Priority: CRITICAL)
+**Current:** 0%
+**Target:** 95%
+**Modules:**
+- `api/dependencies.py` - Auth dependency injection
+- `api/middleware/` - Auth middleware (if exists)
+
+**Why Critical:** Security vulnerability if auth bypassed.
+
+**Test Coverage:**
+```python
+def test_query_requires_authentication():
+    # Test: Unauthenticated request fails
+
+def test_invalid_token_rejected():
+    # Test: Malformed/expired tokens rejected
+
+def test_rate_limiting_enforced():
+    # Test: Too many requests blocked
+```
+
+#### 1.2 Query & Retrieval System (Priority: CRITICAL)
+**Current:** dense_retriever.py at 13%, reranker.py at 22%
+**Target:** 90%
+**Effort:** 1 week
+
+**Modules:**
+- `api/routers/query_router.py` (0% → 90%)
+- `phentrieve/retrieval/dense_retriever.py` (13% → 90%)
+- `phentrieve/retrieval/reranker.py` (22% → 90%)
+- `phentrieve/retrieval/query_orchestrator.py` (0% → 70%)
+
+**Why Critical:** Core functionality - if this breaks, product doesn't work.
 
 **Test Strategy:**
 ```python
-# Utils are perfect for parametrized tests
+# Critical paths to test:
+- Valid query returns results
+- Invalid query_text raises error
+- Empty query returns empty results
+- top_k parameter works correctly
+- Threshold filtering works
+- Re-ranking improves results
+- Error handling (timeout, DB unavailable)
+- Edge cases (special characters, long text)
+```
+
+#### 1.3 Text Processing Pipeline (Priority: HIGH)
+**Current:** 10%
+**Target:** 80%
+**Effort:** 1 week
+
+**Modules:**
+- `api/routers/text_processing_router.py` (0% → 80%)
+- `phentrieve/text_processing/pipeline.py` (10% → 80%)
+- `phentrieve/text_processing/chunkers.py` (11% → 60%)
+
+**Why Critical:** Core text processing - errors affect all results.
+
+**Critical Test Cases:**
+```python
+- Pipeline processes clinical text correctly
+- All 7 chunking strategies work
+- Assertion detection works (negation, uncertainty)
+- HPO extraction works
+- Error handling (malformed input)
+- Edge cases (empty text, very long text, special chars)
+```
+
+---
+
+### Phase 2: Important Utilities (Target: 70%+ coverage)
+
+**Duration:** 2 weeks
+**Why Second:** Widely used across codebase
+
+#### 2.1 Core Utilities (Priority: HIGH)
+**Current:** 30%
+**Target:** 80%
+**Effort:** 1 week
+
+**Modules:**
+- `phentrieve/utils.py` (30% → 80%)
+- `phentrieve/embeddings.py` (19% → 70%)
+- `phentrieve/config.py` (87% → 95%)
+
+**Why Important:** Used by all other modules - bugs cascade.
+
+**Test Strategy:**
+```python
 @pytest.mark.parametrize("input_id,expected", [
     ("http://purl.obolibrary.org/obo/HP_0000001", "HP:0000001"),
     ("HP:0000001", "HP:0000001"),
     ("HP_0000001", "HP:0000001"),
+    ("INVALID", ValueError),  # Test error handling
 ])
-def test_normalize_id(input_id, expected):
-    assert normalize_id(input_id) == expected
+def test_normalize_hpo_id(input_id, expected):
+    if expected == ValueError:
+        with pytest.raises(ValueError):
+            normalize_id(input_id)
+    else:
+        assert normalize_id(input_id) == expected
 ```
 
-#### 2.2 Config Module (Priority: MEDIUM)
-**Current:** config.py at 87%
-**Target:** 95% coverage
-**Effort:** 0.5 day
+#### 2.2 Output Formatters (Priority: MEDIUM)
+**Current:** 8%
+**Target:** 70%
+**Effort:** 3 days
 
-**Focus:**
-- Config loading edge cases
-- Default value handling
-- Validation errors
+**Modules:**
+- `phentrieve/retrieval/output_formatters.py` (8% → 70%)
+
+**Test All Formats:**
+```python
+def test_format_as_text_valid_structure()
+def test_format_as_json_valid_structure()
+def test_format_as_jsonl_valid_structure()
+def test_empty_results_handled_gracefully()
+```
 
 ---
 
-### Phase 3: CLI Command Coverage (Target: 25% → 30%)
+### Phase 3: CLI & Supporting Code (Target: 50%+ coverage)
 
-**Rationale:** CLI is primary user interface - needs solid tests.
+**Duration:** 1 week
+**Why Third:** Less critical than API, but important for usability
 
 #### 3.1 CLI Commands (Priority: MEDIUM)
-**Current:** Most CLI commands at 0%
-**Target:** 50% coverage
-**Effort:** 2 days
+**Current:** Most at 0%
+**Target:** 60%
+**Effort:** 1 week
 
 **Modules:**
-- `phentrieve/cli/query_commands.py` (0% → 50%)
+- `phentrieve/cli/query_commands.py` (0% → 60%)
 - `phentrieve/cli/data_commands.py` (0% → 50%)
 - `phentrieve/cli/index_commands.py` (0% → 50%)
 
 **Test Strategy:**
 ```python
-# Use Typer's CliRunner for CLI testing
 from typer.testing import CliRunner
-from phentrieve.cli import app
-
-runner = CliRunner()
 
 def test_query_command_basic():
-    result = runner.invoke(app, ["query", "seizures", "--top-k", "5"])
+    runner = CliRunner()
+    result = runner.invoke(app, ["query", "seizures"])
     assert result.exit_code == 0
     assert "HP:" in result.stdout
 
 def test_query_command_invalid_input():
-    result = runner.invoke(app, ["query", "", "--top-k", "5"])
+    runner = CliRunner()
+    result = runner.invoke(app, ["query", ""])
     assert result.exit_code != 0
     assert "Error" in result.stdout
 ```
 
-**Note:** We already have some CLI tests (test_query_commands.py, test_similarity_commands.py) - expand those.
+**Note:** We already have CLI tests (expand them, don't rewrite).
+
+---
+
+### Phase 4: Low Priority Modules (Target: 30%+)
+
+**Defer or minimal coverage:**
+- Visualization (`phentrieve/visualization/`) - Not core functionality
+- Evaluation (`phentrieve/evaluation/`) - Benchmarking only
+- Data processing (`phentrieve/data_processing/`) - Run rarely, complex
+
+**Rationale:** Limited ROI, focus on core product functionality.
 
 ---
 
 ## Implementation Strategy
 
+### Data-Driven Prioritization
+
+**BEFORE writing ANY tests, analyze:**
+
+```bash
+# 1. Find most-changed files (likely most buggy)
+git log --since="6 months ago" --format=format: --name-only \
+  | grep "\.py$" \
+  | sort | uniq -c | sort -rn | head -20
+
+# 2. Find files with most lines (complex = risky)
+find phentrieve/ api/ -name "*.py" -exec wc -l {} + \
+  | sort -rn | head -20
+
+# 3. Check production errors (if available)
+# - Which modules cause 500 errors?
+# - Which APIs have highest failure rate?
+```
+
+**Use this data to prioritize, not assumptions!**
+
 ### Test Development Workflow
 
 ```bash
-# 1. Identify module to test
+# 1. Identify critical module
+git log --oneline phentrieve/retrieval/dense_retriever.py | head
+
 # 2. Check current coverage
-pytest tests/unit/core/test_utils.py --cov=phentrieve/utils.py --cov-report=term-missing
+pytest tests/unit/retrieval/test_dense_retriever.py \
+  --cov=phentrieve/retrieval/dense_retriever.py \
+  --cov-report=term-missing
 
-# 3. Write tests for uncovered lines
+# 3. Write tests for uncovered critical paths
+# Focus on: error handling, edge cases, business logic
+
 # 4. Verify coverage increase
-pytest tests/unit/core/test_utils.py --cov=phentrieve/utils.py --cov-report=term-missing
+pytest tests/unit/retrieval/test_dense_retriever.py \
+  --cov=phentrieve/retrieval/dense_retriever.py \
+  --cov-report=term-missing
 
-# 5. Run full suite to catch regressions
+# 5. Run full suite (catch regressions)
 make test
 
-# 6. Commit with coverage increase in message
-git commit -m "test(utils): Add tests for normalize_id function (coverage: 30% → 45%)"
+# 6. Run linters (catch anti-patterns)
+make lint-tests  # Uses flake8-pytest-style
+
+# 7. Commit with meaningful message
+git commit -m "test(retrieval): Add edge case tests for dense retriever
+
+- Test empty query handling
+- Test invalid threshold values
+- Test ChromaDB connection errors
+- Coverage: 13% → 45% (critical paths covered)"
 ```
 
-### Mocking Strategy
+### Fixture Organization (DRY Principle)
 
-**When to Mock:**
-- ✅ External APIs (ChromaDB, Hugging Face)
-- ✅ ML model inference (slow, non-deterministic)
-- ✅ File I/O for most unit tests
-- ✅ Network requests
-
-**When NOT to Mock:**
-- ❌ Simple utility functions (test real implementation)
-- ❌ Integration tests (test real interactions)
-- ❌ E2E tests (test real system)
-
-**Example:**
-```python
-# Mock ChromaDB for fast API tests
-@pytest.fixture
-def mock_chroma(monkeypatch):
-    class MockCollection:
-        def query(self, query_embeddings, n_results):
-            return {
-                "ids": [["HP:0000001", "HP:0000002"]],
-                "distances": [[0.1, 0.2]],
-                "metadatas": [[{"name": "Seizure"}, {"name": "Tremor"}]]
-            }
-
-    def mock_connect(*args, **kwargs):
-        client = MagicMock()
-        client.get_collection.return_value = MockCollection()
-        return client
-
-    monkeypatch.setattr("chromadb.Client", mock_connect)
-```
-
-### Fixture Organization
-
-**conftest.py Structure:**
 ```
 tests/
-├── conftest.py              # Shared fixtures (all tests)
+├── conftest.py                    # Shared fixtures (all tests)
+│   ├── @pytest.fixture sample_hpo_data
+│   ├── @pytest.fixture temp_config_file
+│   └── @pytest.fixture hpo_term_factory
+│
 ├── unit/
-│   ├── conftest.py          # Unit test fixtures
+│   ├── conftest.py                # Unit test fixtures
+│   │   ├── @pytest.fixture mock_chroma_client
+│   │   └── @pytest.fixture mock_embedding_model
+│   │
 │   ├── api/
-│   │   ├── conftest.py      # API test fixtures
+│   │   ├── conftest.py            # API-specific fixtures
+│   │   │   ├── @pytest.fixture api_client
+│   │   │   └── @pytest.fixture mock_dependencies
 │   │   └── test_*.py
+│   │
 │   └── core/
-│       ├── conftest.py      # Core test fixtures
+│       ├── conftest.py            # Core lib fixtures
 │       └── test_*.py
+│
 └── integration/
-    ├── conftest.py          # Integration fixtures
+    ├── conftest.py                # Integration fixtures
+    │   ├── @pytest.fixture test_db (real)
+    │   └── @pytest.fixture temp_index_dir
     └── test_*.py
 ```
 
-**Common Fixtures:**
+**Fixture Example (Factory Pattern - DRY):**
 ```python
 # tests/conftest.py
 @pytest.fixture
-def sample_hpo_data():
-    """Minimal HPO data for testing."""
-    return {
-        "HP:0000001": {
+def hpo_term_factory():
+    """Factory for creating HPO terms with custom attributes."""
+    def _create(**overrides):
+        defaults = {
+            "id": "HP:0000001",
             "name": "Seizure",
-            "definition": "An abnormal electrical discharge in the brain"
+            "definition": "Abnormal electrical discharge",
+            "synonyms": []
         }
-    }
+        return {**defaults, **overrides}
+    return _create
 
-@pytest.fixture
-def temp_config_file(tmp_path):
-    """Create temporary config file."""
-    config = tmp_path / "phentrieve.yaml"
-    config.write_text("model: paraphrase-multilingual-MiniLM-L12-v2")
-    return config
+# Usage in tests
+def test_with_custom_term(hpo_term_factory):
+    term = hpo_term_factory(name="Epileptic seizure")
+    assert term["name"] == "Epileptic seizure"
+    assert term["id"] == "HP:0000001"  # Defaults preserved
 ```
+
+---
+
+## Quality Gates (MANDATORY)
+
+### Pre-Merge Checklist
+
+**Before merging any test PR, verify:**
+
+#### 1. Test Quality
+- [ ] No anti-patterns (private methods, dependencies, file fixtures)
+- [ ] Clear, descriptive test names
+- [ ] Each test has single purpose (KISS)
+- [ ] No magic numbers or strings
+- [ ] Proper use of fixtures (DRY)
+
+#### 2. Test Coverage
+- [ ] Critical paths covered (>90%)
+- [ ] Edge cases tested
+- [ ] Error handling tested
+- [ ] NOT just hitting coverage percentage
+
+#### 3. Performance
+- [ ] Unit tests: <1s each
+- [ ] Integration tests: <5s each
+- [ ] All tests pass consistently (no flaky tests)
+
+#### 4. Code Quality
+- [ ] `make lint-tests` passes (flake8-pytest-style)
+- [ ] `make test` passes (all tests)
+- [ ] `make typecheck` passes (mypy)
+- [ ] No test warnings
+
+#### 5. Documentation
+- [ ] Tests have docstrings explaining purpose
+- [ ] Complex logic has comments
+- [ ] Fixtures are documented
+
+### flake8-pytest-style Integration
+
+**Add to project:**
+```bash
+# Add linter
+uv add --dev flake8-pytest-style
+
+# Add to Makefile
+lint-tests:
+    @echo "Linting tests for pytest anti-patterns..."
+    flake8 tests/ --select=PT --show-source
+```
+
+**What it catches:**
+- ✅ Incorrect fixture usage
+- ✅ Test function naming violations
+- ✅ Marker misuse
+- ✅ Assert statement issues
+- ✅ Parametrize problems
 
 ---
 
 ## Test Structure & Naming
 
-### Directory Structure
+### Directory Structure (KISS)
+
 ```
 tests/
-├── conftest.py                     # Shared fixtures
-├── unit/                           # Fast, isolated tests (<1s each)
-│   ├── api/                        # API unit tests
-│   │   ├── test_query_router.py
-│   │   ├── test_text_processing_router.py   # ✅ Already exists
-│   │   └── test_similarity_router.py
-│   ├── cli/                        # CLI unit tests
-│   │   ├── test_query_commands.py  # ✅ Already exists (expand)
-│   │   ├── test_data_commands.py
-│   │   └── test_index_commands.py
-│   ├── core/                       # Core library tests
-│   │   ├── test_utils.py           # ✅ Partially exists (expand)
-│   │   ├── test_embeddings.py      # ✅ Already exists
-│   │   └── test_config.py
-│   └── retrieval/                  # Retrieval tests
-│       ├── test_dense_retriever.py # ✅ Already exists (expand)
-│       ├── test_reranker.py        # ✅ Already exists (expand)
-│       └── test_output_formatters.py # ✅ Already exists
-├── integration/                    # Component interaction tests
-│   ├── test_chunking_pipeline_integration.py  # ✅ Already exists
-│   └── test_api_workflows.py       # NEW - End-to-end API flows
-└── e2e/                            # Docker-based E2E tests
-    ├── test_api_e2e.py             # ✅ Already exists
-    ├── test_docker_security.py     # ✅ Already exists
-    └── test_docker_health.py       # ✅ Already exists
+├── conftest.py                         # Shared fixtures
+├── unit/                               # Fast, isolated (<1s each)
+│   ├── api/
+│   │   ├── test_query_router.py        # NEW - Critical!
+│   │   ├── test_text_processing_router.py  # ✅ Exists (expand)
+│   │   └── test_similarity_router.py   # NEW
+│   ├── cli/
+│   │   ├── test_query_commands.py      # ✅ Exists (expand)
+│   │   ├── test_data_commands.py       # NEW
+│   │   └── test_index_commands.py      # NEW
+│   ├── core/
+│   │   ├── test_utils.py               # ✅ Exists (expand)
+│   │   ├── test_embeddings.py          # ✅ Exists (expand)
+│   │   └── test_config.py              # NEW
+│   └── retrieval/
+│       ├── test_dense_retriever.py     # ✅ Exists (expand)
+│       ├── test_reranker.py            # ✅ Exists (expand)
+│       └── test_output_formatters.py   # ✅ Exists
+├── integration/                        # Component interaction (<30s total)
+│   ├── test_chunking_pipeline_integration.py  # ✅ Exists
+│   ├── test_query_workflow.py          # NEW - End-to-end query
+│   └── test_index_building.py          # NEW - Index creation
+└── e2e/                                # Full Docker stack
+    ├── test_api_e2e.py                 # ✅ Exists (expand)
+    ├── test_docker_security.py         # ✅ Exists
+    └── test_docker_health.py           # ✅ Exists
 ```
 
-### Naming Conventions
+### Naming Conventions (Self-Documenting)
 
-**Test Functions:**
 ```python
 # Pattern: test_<function>_<condition>_<expected_behavior>
-def test_normalize_id_with_uri_returns_hpo_format()
-def test_query_endpoint_with_invalid_input_returns_400()
-def test_dense_retriever_with_empty_query_raises_error()
-```
 
-**Test Classes:**
-```python
-# Pattern: Test<ComponentName>
+# Good examples:
+def test_normalize_id_with_uri_returns_hpo_format()
+def test_normalize_id_with_invalid_format_raises_error()
+def test_query_endpoint_with_empty_text_returns_400()
+def test_dense_retriever_with_low_threshold_returns_more_results()
+def test_reranker_with_nli_mode_improves_scores()
+
+# Class naming:
 class TestDenseRetriever:
     """Tests for dense retriever functionality."""
 
     def test_query_returns_results(self):
         pass
 
-    def test_filter_by_threshold(self):
+    def test_filter_by_threshold_removes_low_scores(self):
         pass
 ```
 
 ---
 
-## Modules Prioritized by Impact
+## Timeline & Effort (REALISTIC)
 
-### High Priority (Critical Path - Phase 1)
-| Module | Current | Target | Tests | Impact |
-|--------|---------|--------|-------|--------|
-| `api/routers/query_router.py` | 0% | 60% | NEW | Most-used API endpoint |
-| `api/routers/text_processing_router.py` | 0% | 60% | EXPAND | Core text processing |
-| `phentrieve/retrieval/dense_retriever.py` | 13% | 70% | EXPAND | Core retrieval |
-| `phentrieve/retrieval/reranker.py` | 22% | 70% | EXPAND | Result quality |
-| `phentrieve/text_processing/pipeline.py` | 10% | 50% | NEW | Core pipeline |
+### Phase 1: Critical Modules (90%+ coverage)
+**Duration:** 3 weeks
+**Effort:** ~120 hours
 
-### Medium Priority (Utilities - Phase 2)
-| Module | Current | Target | Tests | Impact |
-|--------|---------|--------|-------|--------|
-| `phentrieve/utils.py` | 30% | 70% | EXPAND | Widely used |
-| `phentrieve/config.py` | 87% | 95% | EXPAND | Almost done |
-| `phentrieve/embeddings.py` | 19% | 60% | EXPAND | Model loading |
+- **Week 1:** API routes & auth (query, text processing, auth)
+- **Week 2:** Core retrieval (dense retriever, reranker, orchestrator)
+- **Week 3:** Text processing pipeline (chunkers, assertion detection)
 
-### Medium Priority (CLI - Phase 3)
-| Module | Current | Target | Tests | Impact |
-|--------|---------|--------|-------|--------|
-| `phentrieve/cli/query_commands.py` | 0% | 50% | EXPAND | Primary CLI |
-| `phentrieve/cli/data_commands.py` | 0% | 50% | NEW | Data management |
-| `phentrieve/cli/index_commands.py` | 0% | 50% | NEW | Index building |
+### Phase 2: Important Utilities (70%+ coverage)
+**Duration:** 2 weeks
+**Effort:** ~80 hours
 
-### Lower Priority (Defer to Future)
-- Evaluation modules (used for benchmarking, not core functionality)
-- Visualization modules (plotting, not core)
-- Data processing (HPO parser - complex, low ROI)
+- **Week 1:** Core utils (normalization, similarity, embeddings)
+- **Week 2:** Formatters, config, helpers
 
----
+### Phase 3: CLI & Supporting (50%+ coverage)
+**Duration:** 1 week
+**Effort:** ~40 hours
 
-## Anti-Patterns to Avoid
+- CLI commands (query, data, index)
+- Integration tests
+- Documentation
 
-### ❌ Don't Do This
+### Phase 4: Review & Cleanup
+**Duration:** 1 week
+**Effort:** ~40 hours
 
-**1. Testing Implementation Details**
-```python
-# BAD - brittle, breaks on refactoring
-def test_query_calls_chromadb():
-    with patch("chromadb.Client") as mock:
-        query("seizures")
-        mock.assert_called_once()  # Implementation detail!
-```
+- Code review feedback
+- Test refactoring (DRY improvements)
+- Performance optimization
+- Documentation updates
 
-**2. Over-Mocking**
-```python
-# BAD - mocking everything makes test meaningless
-def test_addition():
-    with patch("operator.add", return_value=4):
-        assert add(2, 2) == 4  # What are we testing?
-```
+### Total Timeline
+**7 weeks** for 60-70% quality coverage
 
-**3. Test Interdependencies**
-```python
-# BAD - tests depend on execution order
-class TestCounter:
-    counter = 0
-
-    def test_increment(self):
-        self.counter += 1
-        assert self.counter == 1
-
-    def test_value(self):  # Fails if run in isolation!
-        assert self.counter == 1
-```
-
-**4. Assertion Roulette**
-```python
-# BAD - which assertion failed?
-def test_user():
-    user = create_user()
-    assert user.name == "John"
-    assert user.age == 30
-    assert user.email == "john@example.com"
-    # Better: One test per property or use pytest.fail with message
-```
-
-### ✅ Do This Instead
-
-**1. Test Behavior**
-```python
-# GOOD - tests observable behavior
-def test_query_returns_relevant_results():
-    results = query("seizures")
-    assert len(results) > 0
-    assert any("seizure" in r.name.lower() for r in results)
-```
-
-**2. Strategic Mocking**
-```python
-# GOOD - mock slow/external dependencies only
-@pytest.fixture
-def mock_model():
-    # Mock ML model (slow, non-deterministic)
-    return MagicMock(embed=lambda x: [0.1, 0.2, 0.3])
-
-def test_retriever_with_mock_model(mock_model):
-    retriever = DenseRetriever(model=mock_model)
-    results = retriever.query("test")
-    # Test retriever logic, not model
-```
-
-**3. Isolated Tests**
-```python
-# GOOD - each test is independent
-def test_increment():
-    counter = Counter()
-    counter.increment()
-    assert counter.value == 1
-
-def test_decrement():
-    counter = Counter()  # Fresh instance
-    counter.decrement()
-    assert counter.value == -1
-```
-
-**4. Clear Assertions**
-```python
-# GOOD - descriptive, focused tests
-def test_user_has_valid_name():
-    user = create_user(name="John")
-    assert user.name == "John", "User name should match input"
-
-def test_user_has_valid_email():
-    user = create_user(email="john@example.com")
-    assert "@" in user.email, "Email should contain @"
-```
+**Note:** Can be parallelized with multiple developers.
 
 ---
 
-## Acceptance Criteria (Issue #37)
+## Success Metrics (REVISED)
 
-| Criterion | Status | Notes |
-|-----------|--------|-------|
-| ✅ pytest framework | DONE | Configured in pyproject.toml |
-| ✅ pytest-cov plugin | DONE | Coverage reporting works |
-| ✅ tests/ directory structure | DONE | unit/, integration/, e2e/ |
-| ⚠️ Unit tests for utilities | PARTIAL | Have some, need more |
-| ✅ Integration tests | DONE | Good integration test coverage |
-| ⚠️ CLI tests with CliRunner | PARTIAL | Have some, need more |
-| ❌ Coverage >30% baseline | **8%** | **PRIMARY GAP** |
-| ✅ Simple `pytest` command | DONE | Works via Make commands |
-| ✅ CI/CD integration | DONE | GitHub Actions configured |
-| ⚠️ Documentation | PARTIAL | In CLAUDE.md, need README |
+### Quantitative (Secondary)
+- ✅ Overall coverage: 8% → **60-70%**
+- ✅ Critical modules: **90%+**
+- ✅ Important modules: **70%+**
+- ✅ Test count: 263 → **500-600 tests**
+- ✅ Test speed: Unit tests <1 min, integration <2 min
 
----
+### Qualitative (PRIMARY)
+- ✅ **All critical paths tested** (query, retrieval, auth, processing)
+- ✅ **All edge cases covered** (empty input, invalid data, errors)
+- ✅ **Tests are maintainable** (DRY, clear naming, good fixtures)
+- ✅ **Tests are meaningful** (catch real bugs, not implementation details)
+- ✅ **No anti-patterns** (passes flake8-pytest-style)
+- ✅ **Fast execution** (enable TDD workflow)
 
-## Timeline & Effort Estimate
+### The Real Test
+> "Can we confidently refactor code without breaking tests?"
+> "Do tests catch real bugs in code review?"
+> "Can new developers understand tests easily?"
 
-### Phase 1: Critical Path (Target: 20% coverage)
-**Effort:** 4-6 days
-- API route tests: 2-3 days
-- Retrieval tests: 1-2 days
-- Pipeline tests: 1 day
-
-### Phase 2: Utilities (Target: 25% coverage)
-**Effort:** 1.5 days
-- Utils module: 1 day
-- Config module: 0.5 day
-
-### Phase 3: CLI (Target: 30% coverage)
-**Effort:** 2 days
-- CLI command tests: 2 days
-
-### Total Effort
-**8-10 days** of focused development to reach 30% coverage target.
-
-**Note:** Can be parallelized if multiple developers work on different modules.
-
----
-
-## Success Metrics
-
-### Quantitative
-- ✅ **Coverage:** 8% → 30%+ (minimum target from issue #37)
-- ✅ **Test Count:** 263 → 400+ tests
-- ✅ **Test Speed:** Unit tests <2 minutes total
-- ✅ **CI Pass Rate:** >95% (stable tests)
-
-### Qualitative
-- ✅ Tests are **maintainable** (follow DRY, clear naming)
-- ✅ Tests are **meaningful** (catch real bugs, not implementation details)
-- ✅ Tests are **fast** (enable TDD workflow)
-- ✅ Tests are **documented** (docstrings explain purpose)
+If YES to all three → Success! ✅
 
 ---
 
 ## Documentation Updates
 
-### 1. Add Testing Section to README.md
+### 1. README.md - Add Testing Section
 
 ```markdown
 ## Testing
 
-Phentrieve uses pytest for comprehensive testing across unit, integration, and E2E layers.
+Phentrieve maintains high test coverage (60-70%) with focus on critical paths.
 
 ### Running Tests
 
@@ -630,61 +828,84 @@ make test-e2e
 
 ### Test Structure
 
-- `tests/unit/` - Fast, isolated tests for individual functions/classes
-- `tests/integration/` - Tests for component interactions
-- `tests/e2e/` - Docker-based end-to-end tests
+- `tests/unit/` - Fast, isolated tests (<1s each, 90%+ critical path coverage)
+- `tests/integration/` - Component interaction tests (<30s total)
+- `tests/e2e/` - Docker-based end-to-end tests (full system validation)
 
 ### Writing Tests
 
-See [CONTRIBUTING.md](CONTRIBUTING.md#testing) for testing guidelines and best practices.
+See [CONTRIBUTING.md](CONTRIBUTING.md#testing) for guidelines.
 
-### Coverage Goals
-
-- Overall: 30%+ (current: 8%)
-- Critical paths: 60%+
-- Utilities: 70%+
+**Key principles:**
+- Test behavior, not implementation
+- Focus on critical paths and edge cases
+- Keep tests fast and independent
+- Avoid anti-patterns (see CONTRIBUTING.md)
 ```
 
-### 2. Create CONTRIBUTING.md Testing Section
+### 2. CONTRIBUTING.md - Testing Guidelines
 
 ```markdown
 ## Testing Guidelines
 
-### Test Structure
+### Test Philosophy
 
-Follow the test pyramid:
-- 70% unit tests (fast, focused)
-- 20% integration tests (component interaction)
-- 10% E2E tests (full system)
+**Quality > Quantity**
+- 90% coverage of critical paths > 100% coverage of trivial code
+- Focus on edge cases and error handling
+- Tests should catch real bugs, not just increase percentages
 
 ### Writing Good Tests
 
 **DO:**
-- ✅ Use descriptive names: `test_function_when_condition_then_expected`
 - ✅ Test behavior, not implementation
-- ✅ Keep tests simple and focused
-- ✅ Use fixtures for common setup
+- ✅ Use descriptive names: `test_function_when_condition_then_expected`
+- ✅ Keep tests simple (KISS) - if setup is >10 lines, refactor
+- ✅ Make tests independent (no shared state)
+- ✅ Use fixtures for setup (DRY)
 - ✅ Parametrize for multiple inputs
+- ✅ Test edge cases and errors
 
 **DON'T:**
-- ❌ Test implementation details
-- ❌ Create test interdependencies
-- ❌ Over-mock (mock only slow/external deps)
-- ❌ Write brittle tests
+- ❌ Test private methods (test through public API)
+- ❌ Create test dependencies (each test must run independently)
+- ❌ Use file-based fixtures (generate data in code)
+- ❌ Over-mock (mock only slow/external dependencies)
+- ❌ Test implementation details (tests should survive refactoring)
 
-### Example
+### Anti-Patterns to Avoid
 
-```python
-@pytest.mark.parametrize("input_text,expected_count", [
-    ("Patient has seizures", 1),
-    ("Seizures and tremor", 2),
-    ("No symptoms", 0),
-])
-def test_extract_hpo_terms_counts(input_text, expected_count):
-    results = extract_hpo_terms(input_text)
-    assert len(results) == expected_count
+See examples in our testing plan: `plan/01-active/TESTING-COVERAGE-EXPANSION-PLAN.md`
+
+### Test Review Checklist
+
+Before submitting test PR:
+- [ ] No anti-patterns (pytest-style linter passes)
+- [ ] Tests are fast (<1s for unit tests)
+- [ ] Tests are independent (can run in any order)
+- [ ] Clear, descriptive names
+- [ ] Edge cases and errors tested
+- [ ] Critical paths covered
 ```
-```
+
+---
+
+## Acceptance Criteria (Issue #37) - REVISED
+
+| Criterion | Status | Notes |
+|-----------|--------|-------|
+| ✅ pytest framework | DONE | Configured in pyproject.toml |
+| ✅ pytest-cov plugin | DONE | Coverage reporting works |
+| ✅ tests/ directory structure | DONE | unit/, integration/, e2e/ |
+| ⚠️ Unit tests for utilities | PARTIAL | Need 70%+ coverage (currently 30%) |
+| ✅ Integration tests | DONE | Good coverage |
+| ⚠️ CLI tests with CliRunner | PARTIAL | Expand from 0% to 60% |
+| ❌ Coverage >30% baseline | **8%** | **Expand to 60-70% (revised target)** |
+| ✅ Simple `pytest` command | DONE | Works via Make commands |
+| ✅ CI/CD integration | DONE | GitHub Actions configured |
+| ⚠️ Documentation | PARTIAL | Add to README/CONTRIBUTING |
+
+**REVISED Target:** 60-70% overall, 90%+ critical paths
 
 ---
 
@@ -692,39 +913,53 @@ def test_extract_hpo_terms_counts(input_text, expected_count):
 
 | Risk | Likelihood | Impact | Mitigation |
 |------|------------|--------|------------|
-| Tests slow down development | Medium | High | Keep unit tests <1s each, use mocking |
-| Brittle tests (break on refactoring) | Medium | Medium | Test behavior not implementation |
-| Low-quality tests (high coverage, low value) | Medium | High | Code review, focus on critical paths |
-| Test maintenance burden | Low | Medium | Follow DRY, use fixtures, clear naming |
-| CI pipeline too slow | Low | Medium | Parallelize tests, cache dependencies |
+| **Writing low-value tests for coverage** | High | High | Focus on critical paths first, use quality gates |
+| **Over-mocking creates false confidence** | Medium | High | Clarified mocking strategy, integration tests with real instances |
+| **Tests slow down development** | Medium | High | Performance requirements (<1s unit, <30s integration) |
+| **Brittle tests break on refactoring** | Medium | Medium | Test behavior not implementation, code reviews |
+| **Test interdependencies** | Low | Medium | Enforce independence in quality gates |
+| **Missing anti-patterns** | Medium | Medium | Add flake8-pytest-style linter |
+| **Timeline pressure → cutting corners** | Medium | High | Realistic 7-week timeline, no shortcuts on quality |
 
 ---
 
 ## Next Steps
 
-1. **Review & Approve Plan** - Get stakeholder buy-in
-2. **Create Feature Branch** - `feature/testing-coverage-expansion`
-3. **Phase 1: Critical Path** - Start with API route tests (highest impact)
-4. **Incremental PRs** - Small PRs per module (easier review)
-5. **Track Progress** - Update this plan with completion status
-6. **Celebrate 30%** - Close issue #37 when target reached! 🎉
+1. **Review & Approve** - Stakeholder sign-off on revised plan
+2. **Add Tooling** - Install flake8-pytest-style linter
+3. **Data Analysis** - Run git churn analysis to validate priorities
+4. **Create Branch** - `feature/testing-coverage-expansion`
+5. **Phase 1 Week 1** - Start with API query router (critical path)
+6. **Incremental PRs** - Small, focused PRs per module
+7. **Track Progress** - Update plan with completion status
+8. **Close Issue #37** - When 60%+ coverage achieved with quality! 🎉
 
 ---
 
 ## References
 
-### Best Practices
+### Research & Best Practices
 - [pytest Best Practices (2024)](https://pytest-with-eric.com/pytest-best-practices/)
 - [FastAPI Testing Guide](https://fastapi.tiangolo.com/tutorial/testing/)
-- [Python Test Coverage Best Practices](https://medium.com/@keployio/mastering-python-test-coverage-tools-tips-and-best-practices-11daf699d79b)
+- [Test Coverage Best Practices](https://medium.com/@keployio/mastering-python-test-coverage-tools-tips-and-best-practices-11daf699d79b)
+- [Why 100% Coverage Isn't the Goal](https://blog.ndepend.com/aim-100-percent-test-coverage/)
+- [80% Coverage Standard](https://stackoverflow.com/questions/90002/what-is-a-reasonable-code-coverage-for-unit-tests-and-why)
 
 ### Internal Docs
-- `CLAUDE.md` - Development commands and pre-commit checklist
+- `CLAUDE.md` - Pre-commit checklist (make check, make typecheck-fast, make test)
 - `plan/02-completed/TESTING-MODERNIZATION-PLAN.md` - Previous testing work
 - Issue #37 - Original testing requirements
 
+### Key Quotes
+> "Projects with over 80% test coverage have 30% lower bug density"
+>
+> "Aspire to 100% and you'll hit 80%; aspire to 80% and you'll hit 40%"
+>
+> "The 20% left uncovered is probably the 20% that needs testing most"
+
 ---
 
-**Status:** Ready for Implementation
-**Next Action:** Review plan, then start Phase 1 (API route tests)
-**Target:** Close issue #37 with 30%+ coverage and comprehensive test suite
+**Status:** Ready for Implementation (REVISED)
+**Next Action:** Review revised plan, then start Phase 1 Week 1 (API query router)
+**Target:** Close issue #37 with 60-70% quality coverage, 90%+ critical paths
+**Approach:** Quality over quantity, critical paths first, no anti-patterns
