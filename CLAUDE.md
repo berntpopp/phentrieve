@@ -29,6 +29,33 @@ Phentrieve is an AI-powered system for mapping clinical text to Human Phenotype 
 
 ## Development Commands
 
+### ⚠️ CRITICAL: Pre-Commit Checklist (ALWAYS RUN BEFORE COMMITTING!)
+
+**MANDATORY checks before every commit:**
+
+```bash
+# 1. Format code (auto-fixes formatting issues)
+make check
+
+# 2. Type checking (must pass with 0 errors)
+make typecheck-fast
+
+# 3. Run tests (must pass with 0 failures)
+make test
+
+# OR run all checks at once:
+make all
+```
+
+**Why this matters:**
+- CI/CD will FAIL if any check fails
+- Formatting issues cause build failures
+- Type errors break the build
+- Test failures indicate regressions
+- **NEVER skip these checks before committing!**
+
+**Common mistake:** Running tests locally but forgetting `make check` (formatting) → CI fails!
+
 ### Python CLI/Library
 ```bash
 # Install in development mode (using uv)
@@ -36,13 +63,13 @@ make install                                         # Install package (uv sync)
 make install-dev                                     # Install with all extras (uv sync --all-extras)
 
 # Development workflow (recommended)
-make check                                           # Format + lint code
-make test                                            # Run tests
-make typecheck-fast                                  # Type check (REQUIRED for Python changes)
-make all                                             # Clean + check + test
+make check                                           # Format + lint code (REQUIRED BEFORE COMMIT!)
+make test                                            # Run tests (REQUIRED BEFORE COMMIT!)
+make typecheck-fast                                  # Type check (REQUIRED BEFORE COMMIT!)
+make all                                             # Clean + check + test (BEST PRACTICE!)
 
-# IMPORTANT: Always run type checking before committing Python code changes
-# The codebase maintains 0 mypy errors - keep it that way!
+# IMPORTANT: Always run ALL checks before committing Python code changes
+# The codebase maintains 0 mypy errors, 0 lint errors, 0 format issues - keep it that way!
 
 # Code quality
 make format                                          # Format with Ruff

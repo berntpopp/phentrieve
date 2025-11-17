@@ -208,3 +208,17 @@ def api_query_endpoint(api_service: str) -> str:
         str: Query endpoint URL
     """
     return f"{api_service}/api/v1/query"
+
+
+@pytest.fixture(scope="session")
+def api_text_process_endpoint(api_service: str) -> str:
+    """
+    Convenience fixture for API text processing endpoint URL.
+
+    Args:
+        api_service: API base URL
+
+    Returns:
+        str: Text processing endpoint URL
+    """
+    return f"{api_service}/api/v1/text/process"

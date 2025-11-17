@@ -38,125 +38,154 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/v1/text", tags=["Text Processing and HPO Extraction"])
 
 
-# Helper to get chunking config based on strategy name from request
+def _apply_sliding_window_params(
+    config: list[dict[str, Any]],
+    window_size: int,
+    step_size: int,
+    threshold: float,
+    min_segment_length: int,
+) -> None:
+    """
+    Apply sliding window parameters to chunking configuration components.
+
+    Modifies config in-place by updating parameters for any components
+    with type='sliding_window'.
+
+    Args:
+        config: Chunking pipeline configuration (modified in-place)
+        window_size: Window size in tokens
+        step_size: Step size in tokens
+        threshold: Similarity threshold for splitting (0.0-1.0)
+        min_segment_length: Minimum segment length in words
+    """
+    for component in config:
+        if component.get("type") == "sliding_window":
+            component["config"].update(
+                {
+                    "window_size_tokens": window_size,
+                    "step_size_tokens": step_size,
+                    "splitting_threshold": threshold,
+                    "min_split_segment_length_words": min_segment_length,
+                }
+            )
+
+
 def _get_chunking_config_for_api(
     request: TextProcessingRequest,
 ) -> list[dict[str, Any]]:
+    """
+    Get chunking configuration based on request strategy and parameters.
+
+    Args:
+        request: Text processing request with strategy and parameters
+
+    Returns:
+        Chunking pipeline configuration list
+    """
     strategy_name = (
         request.chunking_strategy.lower()
         if request.chunking_strategy
         else "sliding_window_punct_conj_cleaned"
     )
 
-    # Use defaults from phentrieve.config as fallback if not provided in request
-    # These values are for get_sliding_window_config_with_params and similar internal configs
-    cfg_window_size = request.window_size if request.window_size is not None else 7
-    cfg_step_size = request.step_size if request.step_size is not None else 1
-    cfg_split_threshold = (
-        request.split_threshold if request.split_threshold is not None else 0.5
-    )
-    cfg_min_segment_length = (
-        request.min_segment_length if request.min_segment_length is not None else 3
-    )
+    # Extract parameters with defaults
+    ws = request.window_size if request.window_size is not None else 7
+    ss = request.step_size if request.step_size is not None else 1
+    th = request.split_threshold if request.split_threshold is not None else 0.5
+    msl = request.min_segment_length if request.min_segment_length is not None else 3
 
     logger.debug(
-        f"API: Building chunking config for strategy '{strategy_name}' with params: "
-        f"ws={cfg_window_size}, ss={cfg_step_size}, th={cfg_split_threshold}, msl={cfg_min_segment_length}"
+        f"API: Building config for '{strategy_name}': "
+        f"ws={ws}, ss={ss}, th={th}, msl={msl}"
     )
 
+    # Strategy selection - explicit if/elif is clear and maintainable
     if strategy_name == "simple":
         return list(get_simple_chunking_config())
+
+    elif strategy_name == "sliding_window":
+        # Special case: takes params directly, no post-processing needed
+        return list(get_sliding_window_config_with_params(ws, ss, th, msl))
+
+    # All other strategies: get base config, then apply params
     elif strategy_name == "semantic":
         config = list(get_semantic_chunking_config())
-        for component in config:
-            if component.get("type") == "sliding_window":
-                component["config"].update(
-                    {
-                        "window_size_tokens": cfg_window_size,
-                        "step_size_tokens": cfg_step_size,
-                        "splitting_threshold": cfg_split_threshold,
-                        "min_split_segment_length_words": cfg_min_segment_length,
-                    }
-                )
-        return config
     elif strategy_name == "detailed":
         config = list(get_detailed_chunking_config())
-        for component in config:
-            if component.get("type") == "sliding_window":
-                component["config"].update(
-                    {
-                        "window_size_tokens": cfg_window_size,
-                        "step_size_tokens": cfg_step_size,
-                        "splitting_threshold": cfg_split_threshold,
-                        "min_split_segment_length_words": cfg_min_segment_length,
-                    }
-                )
-        return config
-    elif strategy_name == "sliding_window":
-        return list(
-            get_sliding_window_config_with_params(
-                window_size=cfg_window_size,
-                step_size=cfg_step_size,
-                threshold=cfg_split_threshold,
-                min_segment_length=cfg_min_segment_length,
-            )
-        )
     elif strategy_name == "sliding_window_cleaned":
         config = list(get_sliding_window_cleaned_config())
-        for component in config:
-            if component.get("type") == "sliding_window":
-                component["config"].update(
-                    {
-                        "window_size_tokens": cfg_window_size,
-                        "step_size_tokens": cfg_step_size,
-                        "splitting_threshold": cfg_split_threshold,
-                        "min_split_segment_length_words": cfg_min_segment_length,
-                    }
-                )
-        return config
     elif strategy_name == "sliding_window_punct_cleaned":
         config = list(get_sliding_window_punct_cleaned_config())
-        for component in config:
-            if component.get("type") == "sliding_window":
-                component["config"].update(
-                    {
-                        "window_size_tokens": cfg_window_size,
-                        "step_size_tokens": cfg_step_size,
-                        "splitting_threshold": cfg_split_threshold,
-                        "min_split_segment_length_words": cfg_min_segment_length,
-                    }
-                )
-        return config
     elif strategy_name == "sliding_window_punct_conj_cleaned":
         config = list(get_sliding_window_punct_conj_cleaned_config())
-        for component in config:
-            if component.get("type") == "sliding_window":
-                component["config"].update(
-                    {
-                        "window_size_tokens": cfg_window_size,
-                        "step_size_tokens": cfg_step_size,
-                        "splitting_threshold": cfg_split_threshold,
-                        "min_split_segment_length_words": cfg_min_segment_length,
-                    }
-                )
-        return config
-    else:  # Fallback
+    else:
+        # Unknown strategy - use default with warning
         logger.warning(
-            f"API: Unknown chunking strategy '{strategy_name}'. Defaulting to sliding_window_punct_conj_cleaned."
+            f"API: Unknown strategy '{strategy_name}', "
+            f"using sliding_window_punct_conj_cleaned"
         )
-        # Use sliding_window_punct_conj_cleaned as the default fallback
         config = list(get_sliding_window_punct_conj_cleaned_config())
-        for component in config:
-            if component.get("type") == "sliding_window":
-                component["config"].update(
-                    {
-                        "window_size_tokens": cfg_window_size,
-                        "step_size_tokens": cfg_step_size,
-                        "splitting_threshold": cfg_split_threshold,
-                        "min_split_segment_length_words": cfg_min_segment_length,
-                    }
-                )
-        return config
+
+    # Apply sliding window parameters to config
+    _apply_sliding_window_params(config, ws, ss, th, msl)
+    return config
+
+
+def _validate_response_chunk_references(
+    processed_chunks: list[ProcessedChunkAPI],
+    aggregated_terms: list[AggregatedHPOTermAPI],
+) -> None:
+    """
+    Validate chunk ID references in API response for internal consistency.
+
+    This function checks invariants that must hold for a valid response:
+    1. Chunk IDs are sequential and 1-based
+    2. All source_chunk_ids reference existing chunks
+    3. All text_attribution chunk_ids reference existing chunks
+    4. top_evidence_chunk_id references an existing chunk (if present)
+
+    This is called under __debug__ (Python assertions enabled) to catch
+    bugs during development/testing without production overhead.
+
+    Args:
+        processed_chunks: List of processed chunks with chunk_id
+        aggregated_terms: List of aggregated HPO terms with chunk references
+
+    Raises:
+        AssertionError: If any invariant is violated
+    """
+    total_chunks = len(processed_chunks)
+    chunk_ids = {chunk.chunk_id for chunk in processed_chunks}
+
+    # Invariant 1: Chunk IDs are sequential 1-based
+    expected_ids = set(range(1, total_chunks + 1))
+    assert chunk_ids == expected_ids, (
+        f"Chunk IDs not sequential 1-based. Expected {expected_ids}, got {chunk_ids}"
+    )
+
+    # Invariant 2: All source_chunk_ids reference existing chunks
+    for term in aggregated_terms:
+        invalid_source_ids = set(term.source_chunk_ids) - chunk_ids
+        assert not invalid_source_ids, (
+            f"HPO term {term.id} has invalid source_chunk_ids: "
+            f"{invalid_source_ids} (valid range: 1-{total_chunks})"
+        )
+
+    # Invariant 3: All text_attribution chunk_ids reference existing chunks
+    for term in aggregated_terms:
+        for attr in term.text_attributions:
+            assert attr.chunk_id in chunk_ids, (
+                f"HPO term {term.id} has text_attribution with invalid "
+                f"chunk_id {attr.chunk_id} (valid range: 1-{total_chunks})"
+            )
+
+    # Invariant 4: top_evidence_chunk_id references existing chunk (if present)
+    for term in aggregated_terms:
+        if term.top_evidence_chunk_id is not None:
+            assert term.top_evidence_chunk_id in chunk_ids, (
+                f"HPO term {term.id} has invalid top_evidence_chunk_id "
+                f"{term.top_evidence_chunk_id} (valid range: 1-{total_chunks})"
+            )
 
 
 @router.post("/process", response_model=TextProcessingResponseAPI)
@@ -392,6 +421,12 @@ async def process_text_extract_hpo(request: TextProcessingRequest):
             "num_processed_chunks": len(api_processed_chunks),
             "num_aggregated_hpo_terms": len(api_aggregated_hpo_terms),
         }
+
+        # Validate response invariants (only when assertions enabled)
+        if __debug__:
+            _validate_response_chunk_references(
+                api_processed_chunks, api_aggregated_hpo_terms
+            )
 
         return TextProcessingResponseAPI(
             meta=response_meta,
