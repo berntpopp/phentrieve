@@ -339,3 +339,39 @@ test-e2e-logs:  ## View E2E test container logs
 .PHONY: test-e2e-shell
 test-e2e-shell:  ## Open shell in E2E test API container
 	docker-compose -f docker-compose.test.yml -p phentrieve_e2e_test exec phentrieve_api_test sh
+
+# CLI Testing Commands
+.PHONY: test-cli
+test-cli:  ## Run CLI unit tests
+	@echo "🧪 Running CLI unit tests..."
+	@uv run pytest tests/unit/cli/ -v || (echo "❌ CLI tests failed" && exit 1)
+
+.PHONY: test-cli-cov
+test-cli-cov:  ## Run CLI tests with coverage
+	@echo "🧪 Running CLI tests with coverage..."
+	@uv run pytest tests/unit/cli/ --cov=phentrieve/cli --cov-report=term-missing -v
+
+# Core Module Testing Commands
+.PHONY: test-core
+test-core:  ## Run core module tests (retrieval, text_processing, embeddings)
+	@echo "🧪 Running core module tests..."
+	@uv run pytest tests/unit/retrieval/ tests/unit/core/ tests/unit/text_processing/ -v || (echo "❌ Core tests failed" && exit 1)
+
+.PHONY: test-core-cov
+test-core-cov:  ## Run core tests with coverage
+	@echo "🧪 Running core tests with coverage..."
+	@uv run pytest tests/unit/retrieval/ tests/unit/core/ tests/unit/text_processing/ \
+		--cov=phentrieve/retrieval --cov=phentrieve/text_processing --cov=phentrieve/embeddings \
+		--cov-report=term-missing -v
+
+# Combined CLI + Core (excluding API)
+.PHONY: test-phentrieve
+test-phentrieve:  ## Run all phentrieve tests (CLI + core, excluding API)
+	@echo "🧪 Running all phentrieve tests (CLI + core)..."
+	@uv run pytest tests/unit/cli/ tests/unit/retrieval/ tests/unit/core/ tests/unit/text_processing/ -v
+
+.PHONY: test-phentrieve-cov
+test-phentrieve-cov:  ## Run phentrieve tests with coverage
+	@echo "🧪 Running phentrieve tests with coverage..."
+	@uv run pytest tests/unit/cli/ tests/unit/retrieval/ tests/unit/core/ tests/unit/text_processing/ \
+		--cov=phentrieve --cov-report=html --cov-report=term-missing -v
