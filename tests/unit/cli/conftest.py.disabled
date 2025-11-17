@@ -1,0 +1,49 @@
+"""Conftest for CLI unit tests.
+
+Uses pytest_configure hook to mock heavy dependencies BEFORE test collection.
+This prevents 2+ minute import delays from torch/transformers/spacy/chromadb.
+
+Based on pytest documentation:
+- pytest_configure runs BEFORE test collection
+- sys.modules mocking at this stage prevents slow imports
+- Hook approach works where module-level mocking fails
+"""
+
+import sys
+from unittest.mock import MagicMock
+
+
+def pytest_configure(config):
+    """
+    Hook called before test collection begins.
+
+    Mocks heavy ML/NLP dependencies in sys.modules to prevent slow imports
+    during test collection phase. This is called BEFORE pytest starts importing
+    test modules, so mocks are in place when needed.
+    """
+    # Heavy dependencies that cause 2+ minute import delays
+    heavy_modules = [
+        "torch",
+        "torch.nn",
+        "torch.nn.functional",
+        "torch.cuda",
+        "torch.optim",
+        "transformers",
+        "transformers.models",
+        "transformers.trainer",
+        "sentence_transformers",
+        "sentence_transformers.models",
+        "sentence_transformers.SentenceTransformer",
+        "spacy",
+        "spacy.cli",
+        "spacy.language",
+        "spacy.tokens",
+        "chromadb",
+        "chromadb.api",
+        "chromadb.config",
+    ]
+
+    # Inject mocks into sys.modules before test collection
+    for module_name in heavy_modules:
+        if module_name not in sys.modules:
+            sys.modules[module_name] = MagicMock()
