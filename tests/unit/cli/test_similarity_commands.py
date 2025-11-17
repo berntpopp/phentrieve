@@ -1,247 +1,636 @@
-"""
-Tests for the HPO term similarity CLI commands.
+"""Unit tests for similarity CLI commands.
 
-This module contains tests for the HPO term similarity command line interface.
-"""
+Tests for HPO term similarity calculation commands:
+- hpo_similarity_cli: Calculate semantic similarity between HPO terms
+- _ensure_cli_hpo_label_cache: HPO label cache initialization
 
-import re
+Following best practices:
+- Mock external dependencies (data loading, logging)
+- Test CLI argument handling
+- Test success/failure paths with appropriate exit codes
+- Clear Arrange-Act-Assert structure
+"""
 
 import pytest
-from typer.testing import CliRunner
+import typer
 
-from phentrieve.cli import app
+# NOTE: Do NOT import CLI functions at module level!
+# They trigger slow torch/transformers imports during test collection.
+# Import them inside test functions instead.
 
-# Mark all tests in this file as unit tests
 pytestmark = pytest.mark.unit
 
 
-runner = CliRunner()
+# =============================================================================
+# Tests for _ensure_cli_hpo_label_cache()
+# =============================================================================
 
 
-# Mock data for tests
-MOCK_ANCESTORS = {
-    "HP:0000001": {"HP:0000001"},  # Root
-    "HP:0000118": {"HP:0000118", "HP:0000001"},  # Phenotypic abnormality
-    "HP:0000707": {
-        "HP:0000707",
-        "HP:0000118",
-        "HP:0000001",
-    },  # Abnormality of the nervous system
-    "HP:0012639": {
-        "HP:0012639",
-        "HP:0000707",
-        "HP:0000118",
-        "HP:0000001",
-    },  # Abnormality of nervous system physiology
-    "HP:0001939": {
-        "HP:0001939",
-        "HP:0012639",
-        "HP:0000707",
-        "HP:0000118",
-        "HP:0000001",
-    },  # Abnormality of metabolism/homeostasis
-    "HP:0001250": {
-        "HP:0001250",
-        "HP:0012639",
-        "HP:0000707",
-        "HP:0000118",
-        "HP:0000001",
-    },  # Seizure
-    "HP:0002060": {
-        "HP:0002060",
-        "HP:0000118",
-        "HP:0000001",
-    },  # Abnormality of the cerebrum
-    "HP:0002067": {
-        "HP:0002067",
-        "HP:0002060",
-        "HP:0000118",
-        "HP:0000001",
-    },  # Abnormality of the cerebral cortex
-    "HP:0000252": {
-        "HP:0000252",
-        "HP:0002067",
-        "HP:0002060",
-        "HP:0000118",
-        "HP:0000001",
-    },  # Microcephaly
-}
+class TestEnsureCliHpoLabelCache:
+    """Test _ensure_cli_hpo_label_cache() helper function."""
 
-MOCK_DEPTHS = {
-    "HP:0000001": 0,  # Root
-    "HP:0000118": 1,  # Phenotypic abnormality
-    "HP:0000707": 2,  # Abnormality of the nervous system
-    "HP:0012639": 3,  # Abnormality of nervous system physiology
-    "HP:0001939": 4,  # Abnormality of metabolism/homeostasis
-    "HP:0001250": 4,  # Seizure
-    "HP:0002060": 2,  # Abnormality of the cerebrum
-    "HP:0002067": 3,  # Abnormality of the cerebral cortex
-    "HP:0000252": 4,  # Microcephaly
-}
+    def test_initializes_cache_from_hpo_terms(self, mocker):
+        """Test cache initialization from HPO terms data."""
+        # Arrange
+        # Reset the global cache
+        import phentrieve.cli.similarity_commands as sim_module
+        from phentrieve.cli.similarity_commands import _ensure_cli_hpo_label_cache
 
-MOCK_LABELS = {
-    "HP:0000001": "All",
-    "HP:0000118": "Phenotypic abnormality",
-    "HP:0000707": "Abnormality of the nervous system",
-    "HP:0012639": "Abnormality of nervous system physiology",
-    "HP:0001939": "Abnormality of metabolism/homeostasis",
-    "HP:0001250": "Seizure",
-    "HP:0002060": "Abnormality of the cerebrum",
-    "HP:0002067": "Abnormality of the cerebral cortex",
-    "HP:0000252": "Microcephaly",
-}
+        sim_module._cli_hpo_label_cache = None
 
+        mock_load_terms = mocker.patch(
+            "phentrieve.cli.similarity_commands.load_hpo_terms",
+            return_value=[
+                {"id": "HP:0000001", "label": "Term 1"},
+                {"id": "HP:0000002", "label": "Term 2"},
+            ],
+        )
 
-@pytest.fixture(autouse=True)
-def mock_hpo_data(monkeypatch):
-    """Mock HPO graph data and term labels for testing.
+        # Act
+        cache = _ensure_cli_hpo_label_cache()
 
-    Uses monkeypatch instead of unittest.mock.patch to work properly with
-    Typer's CliRunner, which creates an isolated execution context.
+        # Assert
+        mock_load_terms.assert_called_once()
+        assert len(cache) == 2
+        assert cache["HP:0000001"] == "Term 1"
+        assert cache["HP:0000002"] == "Term 2"
 
-    Patches at the source module level (phentrieve.evaluation.metrics) to
-    ensure the mock is applied before any imports or caching occurs.
-    """
-    # Import the modules we need to mock
-    import phentrieve.cli.similarity_commands as sim_commands
-    import phentrieve.evaluation.metrics as metrics_module
+    def test_returns_empty_cache_when_no_data(self, mocker):
+        """Test cache initialization with no HPO terms data."""
+        # Arrange
+        import phentrieve.cli.similarity_commands as sim_module
+        from phentrieve.cli.similarity_commands import _ensure_cli_hpo_label_cache
 
-    # Clear global caches BEFORE mocking to prevent cache from bypassing the mock
-    metrics_module._hpo_ancestors = None
-    metrics_module._hpo_term_depths = None
+        sim_module._cli_hpo_label_cache = None
 
-    # Create mock functions that return our test data
-    def mock_load_hpo_graph_data(*args, **kwargs):
-        return (MOCK_ANCESTORS, MOCK_DEPTHS)
+        mocker.patch(
+            "phentrieve.cli.similarity_commands.load_hpo_terms",
+            return_value=[],  # No data
+        )
 
-    def mock_ensure_cli_hpo_label_cache(*args, **kwargs):
-        return MOCK_LABELS
+        # Act
+        cache = _ensure_cli_hpo_label_cache()
 
-    # CRITICAL: Patch at the source module level (metrics_module)
-    # This ensures the mock is applied before the CLI runner imports the module
-    monkeypatch.setattr(metrics_module, "load_hpo_graph_data", mock_load_hpo_graph_data)
+        # Assert
+        assert cache == {}
 
-    # Also patch in similarity_commands in case it's already imported
-    monkeypatch.setattr(sim_commands, "load_hpo_graph_data", mock_load_hpo_graph_data)
-    monkeypatch.setattr(
-        sim_commands, "_ensure_cli_hpo_label_cache", mock_ensure_cli_hpo_label_cache
-    )
+    def test_handles_load_error_gracefully(self, mocker):
+        """Test error handling when loading HPO terms fails."""
+        # Arrange
+        import phentrieve.cli.similarity_commands as sim_module
+        from phentrieve.cli.similarity_commands import _ensure_cli_hpo_label_cache
 
-    yield
+        sim_module._cli_hpo_label_cache = None
 
-    # Clear caches after test to prevent cross-test pollution
-    metrics_module._hpo_ancestors = None
-    metrics_module._hpo_term_depths = None
+        mocker.patch(
+            "phentrieve.cli.similarity_commands.load_hpo_terms",
+            side_effect=Exception("Load failed"),
+        )
+
+        # Act
+        cache = _ensure_cli_hpo_label_cache()
+
+        # Assert
+        # Should return empty cache rather than crashing
+        assert cache == {}
+
+    def test_returns_existing_cache_if_already_loaded(self, mocker):
+        """Test returns existing cache without reloading."""
+        # Arrange
+        import phentrieve.cli.similarity_commands as sim_module
+        from phentrieve.cli.similarity_commands import _ensure_cli_hpo_label_cache
+
+        sim_module._cli_hpo_label_cache = {"HP:0000001": "Cached Term"}
+
+        mock_load_terms = mocker.patch(
+            "phentrieve.cli.similarity_commands.load_hpo_terms"
+        )
+
+        # Act
+        cache = _ensure_cli_hpo_label_cache()
+
+        # Assert
+        mock_load_terms.assert_not_called()  # Should not reload
+        assert cache["HP:0000001"] == "Cached Term"
 
 
-def test_similarity_calculate_basic(mock_hpo_data):
-    """Test basic similarity calculation with valid HPO terms."""
-    result = runner.invoke(app, ["similarity", "calculate", "HP:0001250", "HP:0001939"])
-
-    assert result.exit_code == 0
-    assert "Semantic Similarity Score:" in result.stdout
-    assert "Term 1: HP:0001250 (Seizure)" in result.stdout
-    assert "Term 2: HP:0001939 (Abnormality of metabolism/homeostasis)" in result.stdout
-    # The real implementation might find a different LCA depending on mock vs real data
-    assert "Lowest Common Ancestor (LCA):" in result.stdout
-    # Accept either the mock LCA or the real data LCA
-    assert (
-        "Phenotypic abnormality" in result.stdout
-        or "Abnormality of nervous system physiology" in result.stdout
-    )
-    assert "Formula Used: hybrid" in result.stdout
+# =============================================================================
+# Tests for hpo_similarity_cli()
+# =============================================================================
 
 
-def test_similarity_calculate_with_formula(mock_hpo_data):
-    """Test similarity calculation with specified formula."""
-    result = runner.invoke(
-        app,
-        [
-            "similarity",
-            "calculate",
-            "HP:0000252",
-            "HP:0001250",
-            "--formula",
-            "simple_resnik_like",
-        ],
-    )
+class TestHpoSimilarityCli:
+    """Test hpo_similarity_cli() command."""
 
-    assert result.exit_code == 0
-    assert "Semantic Similarity Score:" in result.stdout
-    assert "Formula Used: simple_resnik_like" in result.stdout
+    def setup_method(self):
+        """Reset global cache before each test."""
+        import phentrieve.cli.similarity_commands as sim_module
 
+        sim_module._cli_hpo_label_cache = None
 
-def test_similarity_identical_terms(mock_hpo_data):
-    """Test similarity calculation with identical terms (should give 1.0)."""
-    result = runner.invoke(app, ["similarity", "calculate", "HP:0000252", "HP:0000252"])
+    def test_calculates_similarity_successfully_with_defaults(self, mocker):
+        """Test successful similarity calculation with default parameters."""
+        from phentrieve.cli.similarity_commands import hpo_similarity_cli
+        from phentrieve.evaluation.metrics import SimilarityFormula
 
-    assert result.exit_code == 0
-    assert "Term 1: HP:0000252 (Microcephaly)" in result.stdout
-    assert "Term 2: HP:0000252 (Microcephaly)" in result.stdout
-    # The exact score depends on the formula implementation, but identical terms should have high similarity
-    assert "Semantic Similarity Score: 1.0000" in result.stdout
+        # Arrange - Mock at the point of USE (similarity_commands), not point of definition
+        mock_setup_logging = mocker.patch(
+            "phentrieve.cli.similarity_commands.setup_logging_cli"
+        )
+        mock_load_graph = mocker.patch(
+            "phentrieve.cli.similarity_commands.load_hpo_graph_data",
+            return_value=(
+                {
+                    "HP:0000001": {"HP:0000001"},
+                    "HP:0000002": {"HP:0000002"},
+                },  # ancestors
+                {"HP:0000001": 1, "HP:0000002": 1},  # depths
+            ),
+        )
+        mock_load_terms = mocker.patch(
+            "phentrieve.cli.similarity_commands.load_hpo_terms",
+            return_value=[
+                {"id": "HP:0000001", "label": "Seizure"},
+                {"id": "HP:0000002", "label": "Tremor"},
+            ],
+        )
+        mock_calc_similarity = mocker.patch(
+            "phentrieve.cli.similarity_commands.calculate_semantic_similarity",
+            return_value=0.75,
+        )
+        mock_find_lca = mocker.patch(
+            "phentrieve.cli.similarity_commands.find_lowest_common_ancestor",
+            return_value=("HP:0000118", 2),
+        )
+        mock_echo = mocker.patch("typer.echo")
+        mock_secho = mocker.patch("typer.secho")
+        mocker.patch(
+            "phentrieve.cli.similarity_commands.normalize_id", side_effect=lambda x: x
+        )
 
+        # Act
+        hpo_similarity_cli(term1_id="HP:0000001", term2_id="HP:0000002")
 
-def test_similarity_unrelated_terms(mock_hpo_data):
-    """Test similarity calculation with unrelated terms."""
-    result = runner.invoke(app, ["similarity", "calculate", "HP:0000252", "HP:0001250"])
+        # Assert
+        mock_setup_logging.assert_called_once_with(debug=False)
+        mock_load_graph.assert_called_once()
+        mock_load_terms.assert_called_once()
+        mock_calc_similarity.assert_called_once()
+        assert (
+            mock_calc_similarity.call_args.kwargs["formula"] == SimilarityFormula.HYBRID
+        )
+        mock_find_lca.assert_called_once()
 
-    assert result.exit_code == 0
-    assert "Semantic Similarity Score:" in result.stdout
-    # We don't check for a specific value as it depends on the actual implementation
-    # But we can verify the output format is correct
-    assert "Term 1: HP:0000252" in result.stdout
-    assert "Term 2: HP:0001250" in result.stdout
+        # Check output messages
+        assert any(
+            "HPO Term Similarity" in str(call.args[0])
+            for call in mock_echo.call_args_list
+        )
+        assert any("0.75" in str(call.args[0]) for call in mock_secho.call_args_list)
 
+    def test_calculates_similarity_with_different_formula(self, mocker):
+        """Test similarity calculation with different formula."""
+        from phentrieve.cli.similarity_commands import hpo_similarity_cli
+        from phentrieve.evaluation.metrics import SimilarityFormula
 
-def test_similarity_one_invalid_term(mock_hpo_data):
-    """Test with one valid and one invalid HPO term."""
-    result = runner.invoke(app, ["similarity", "calculate", "HP:0000252", "HP:9999999"])
+        # Arrange
+        mocker.patch("phentrieve.cli.similarity_commands.setup_logging_cli")
+        mocker.patch(
+            "phentrieve.cli.similarity_commands.load_hpo_graph_data",
+            return_value=(
+                {"HP:0000001": {"HP:0000001"}, "HP:0000002": {"HP:0000002"}},
+                {"HP:0000001": 1, "HP:0000002": 1},
+            ),
+        )
+        mocker.patch(
+            "phentrieve.cli.similarity_commands.load_hpo_terms",
+            return_value=[
+                {"id": "HP:0000001", "label": "Term 1"},
+                {"id": "HP:0000002", "label": "Term 2"},
+            ],
+        )
+        mock_calc = mocker.patch(
+            "phentrieve.cli.similarity_commands.calculate_semantic_similarity",
+            return_value=0.5,
+        )
+        mocker.patch(
+            "phentrieve.cli.similarity_commands.find_lowest_common_ancestor",
+            return_value=("HP:0000118", 2),
+        )
+        mocker.patch("typer.echo")
+        mocker.patch("typer.secho")
+        mocker.patch(
+            "phentrieve.cli.similarity_commands.normalize_id", side_effect=lambda x: x
+        )
 
-    assert result.exit_code == 1
-    assert "CLI Error: Term 'HP:9999999'" in result.stdout
-    assert "not found in the HPO ontology data" in result.stdout
+        # Act
+        hpo_similarity_cli(
+            term1_id="HP:0000001",
+            term2_id="HP:0000002",
+            formula_str="simple_resnik_like",
+        )
 
+        # Assert
+        assert (
+            mock_calc.call_args.kwargs["formula"]
+            == SimilarityFormula.SIMPLE_RESNIK_LIKE
+        )
 
-def test_similarity_both_invalid_terms(mock_hpo_data):
-    """Test with both invalid HPO terms."""
-    result = runner.invoke(app, ["similarity", "calculate", "HP:8888888", "HP:9999999"])
+    def test_calculates_similarity_with_debug_mode(self, mocker):
+        """Test similarity calculation with debug logging enabled."""
+        from phentrieve.cli.similarity_commands import hpo_similarity_cli
 
-    assert result.exit_code == 1
-    assert "CLI Error: Term 'HP:8888888'" in result.stdout
-    assert "CLI Error: Term 'HP:9999999'" in result.stdout
+        # Arrange
+        mock_setup_logging = mocker.patch(
+            "phentrieve.cli.similarity_commands.setup_logging_cli"
+        )
+        mocker.patch(
+            "phentrieve.cli.similarity_commands.load_hpo_graph_data",
+            return_value=(
+                {"HP:0000001": {"HP:0000001"}, "HP:0000002": {"HP:0000002"}},
+                {"HP:0000001": 1, "HP:0000002": 1},
+            ),
+        )
+        mocker.patch(
+            "phentrieve.cli.similarity_commands.load_hpo_terms",
+            return_value=[{"id": "HP:0000001", "label": "Term"}],
+        )
+        mocker.patch(
+            "phentrieve.cli.similarity_commands.calculate_semantic_similarity",
+            return_value=0.5,
+        )
+        mocker.patch(
+            "phentrieve.cli.similarity_commands.find_lowest_common_ancestor",
+            return_value=("HP:0000118", 2),
+        )
+        mocker.patch("typer.echo")
+        mocker.patch("typer.secho")
+        mocker.patch(
+            "phentrieve.cli.similarity_commands.normalize_id", side_effect=lambda x: x
+        )
 
+        # Act
+        hpo_similarity_cli(term1_id="HP:0000001", term2_id="HP:0000002", debug=True)
 
-def test_similarity_invalid_formula(mock_hpo_data):
-    """Test with invalid formula name."""
-    result = runner.invoke(
-        app,
-        [
-            "similarity",
-            "calculate",
-            "HP:0000252",
-            "HP:0001250",
-            "--formula",
-            "invalid_formula",
-        ],
-    )
+        # Assert
+        mock_setup_logging.assert_called_once_with(debug=True)
 
-    # The command may not fail with exit code since we now use from_string method
-    # which has a fallback to HYBRID in the SimilarityFormula.from_string method
-    # Check that warning was logged and a similarity score is still calculated
-    assert "hybrid" in result.stdout.lower()
-    assert "Semantic Similarity Score:" in result.stdout
+    def test_exits_when_graph_data_not_found(self, mocker):
+        """Test exits with error when graph data is not found."""
+        from phentrieve.cli.similarity_commands import hpo_similarity_cli
 
+        # Arrange
+        mocker.patch("phentrieve.cli.similarity_commands.setup_logging_cli")
+        mocker.patch(
+            "phentrieve.cli.similarity_commands.load_hpo_graph_data",
+            return_value=(None, None),  # No data found
+        )
+        mock_secho = mocker.patch("typer.secho")
 
-def test_similarity_help():
-    """Test help output for the similarity calculate command."""
-    result = runner.invoke(app, ["similarity", "calculate", "--help"])
+        # Act & Assert
+        with pytest.raises(typer.Exit) as exc_info:
+            hpo_similarity_cli(term1_id="HP:0000001", term2_id="HP:0000002")
 
-    # Strip ANSI escape codes from output (Typer adds colors/formatting)
-    ansi_escape = re.compile(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
-    clean_output = ansi_escape.sub("", result.stdout)
+        assert exc_info.value.exit_code == 1
+        assert any(
+            "not found" in str(call.args[0]).lower()
+            for call in mock_secho.call_args_list
+        )
 
-    assert result.exit_code == 0
-    assert "Calculate semantic similarity between two HPO terms" in clean_output
-    assert "--formula" in clean_output
-    assert "--debug" in clean_output
+    def test_exits_when_graph_data_empty(self, mocker):
+        """Test exits with error when graph data is empty."""
+        from phentrieve.cli.similarity_commands import hpo_similarity_cli
+
+        # Arrange
+        mocker.patch("phentrieve.cli.similarity_commands.setup_logging_cli")
+        mocker.patch(
+            "phentrieve.cli.similarity_commands.load_hpo_graph_data",
+            return_value=({}, {}),  # Empty data
+        )
+        _mock_secho = mocker.patch("typer.secho")
+
+        # Act & Assert
+        with pytest.raises(typer.Exit) as exc_info:
+            hpo_similarity_cli(term1_id="HP:0000001", term2_id="HP:0000002")
+
+        assert exc_info.value.exit_code == 1
+
+    def test_exits_when_graph_data_loading_fails(self, mocker):
+        """Test exits with error when loading graph data raises exception."""
+        from phentrieve.cli.similarity_commands import hpo_similarity_cli
+
+        # Arrange
+        mocker.patch("phentrieve.cli.similarity_commands.setup_logging_cli")
+        mocker.patch(
+            "phentrieve.cli.similarity_commands.load_hpo_graph_data",
+            side_effect=Exception("Load failed"),
+        )
+        mock_secho = mocker.patch("typer.secho")
+
+        # Act & Assert
+        with pytest.raises(typer.Exit) as exc_info:
+            hpo_similarity_cli(term1_id="HP:0000001", term2_id="HP:0000002")
+
+        assert exc_info.value.exit_code == 1
+        assert any(
+            "failed" in str(call.args[0]).lower() for call in mock_secho.call_args_list
+        )
+
+    def test_exits_when_term_not_found_in_ontology(self, mocker):
+        """Test exits with error when term not found in ontology."""
+        from phentrieve.cli.similarity_commands import hpo_similarity_cli
+
+        # Arrange
+        mocker.patch("phentrieve.cli.similarity_commands.setup_logging_cli")
+        mocker.patch(
+            "phentrieve.cli.similarity_commands.load_hpo_graph_data",
+            return_value=(
+                {"HP:0000001": {"HP:0000001"}},
+                {"HP:0000001": 1},  # Only HP:0000001 exists
+            ),
+        )
+        mocker.patch(
+            "phentrieve.cli.similarity_commands.load_hpo_terms",
+            return_value=[{"id": "HP:0000001", "label": "Term"}],
+        )
+        mock_secho = mocker.patch("typer.secho")
+        mocker.patch(
+            "phentrieve.cli.similarity_commands.normalize_id", side_effect=lambda x: x
+        )
+
+        # Act & Assert
+        with pytest.raises(typer.Exit) as exc_info:
+            hpo_similarity_cli(
+                term1_id="HP:0000001", term2_id="HP:9999999"
+            )  # Invalid term
+
+        assert exc_info.value.exit_code == 1
+        assert any(
+            "not found" in str(call.args[0]).lower()
+            for call in mock_secho.call_args_list
+        )
+
+    def test_exits_when_both_terms_not_found(self, mocker):
+        """Test exits with error when both terms not found in ontology."""
+        from phentrieve.cli.similarity_commands import hpo_similarity_cli
+
+        # Arrange
+        mocker.patch("phentrieve.cli.similarity_commands.setup_logging_cli")
+        mocker.patch(
+            "phentrieve.cli.similarity_commands.load_hpo_graph_data",
+            return_value=({"HP:0000001": {"HP:0000001"}}, {"HP:0000001": 1}),
+        )
+        mocker.patch(
+            "phentrieve.cli.similarity_commands.load_hpo_terms",
+            return_value=[],
+        )
+        mock_secho = mocker.patch("typer.secho")
+        mocker.patch(
+            "phentrieve.cli.similarity_commands.normalize_id", side_effect=lambda x: x
+        )
+
+        # Act & Assert
+        with pytest.raises(typer.Exit) as exc_info:
+            hpo_similarity_cli(term1_id="HP:9999998", term2_id="HP:9999999")
+
+        assert exc_info.value.exit_code == 1
+        # Should show error for both terms
+        error_calls = [call.args[0] for call in mock_secho.call_args_list]
+        assert sum("not found" in str(call).lower() for call in error_calls) >= 2
+
+    def test_exits_when_similarity_calculation_fails(self, mocker):
+        """Test exits with error when similarity calculation raises exception."""
+        from phentrieve.cli.similarity_commands import hpo_similarity_cli
+
+        # Arrange
+        mocker.patch("phentrieve.cli.similarity_commands.setup_logging_cli")
+        mocker.patch(
+            "phentrieve.cli.similarity_commands.load_hpo_graph_data",
+            return_value=(
+                {"HP:0000001": {"HP:0000001"}, "HP:0000002": {"HP:0000002"}},
+                {"HP:0000001": 1, "HP:0000002": 1},
+            ),
+        )
+        mocker.patch(
+            "phentrieve.cli.similarity_commands.load_hpo_terms",
+            return_value=[{"id": "HP:0000001", "label": "Term"}],
+        )
+        mocker.patch(
+            "phentrieve.cli.similarity_commands.calculate_semantic_similarity",
+            side_effect=Exception("Calculation failed"),
+        )
+        mock_secho = mocker.patch("typer.secho")
+        mocker.patch(
+            "phentrieve.cli.similarity_commands.normalize_id", side_effect=lambda x: x
+        )
+
+        # Act & Assert
+        with pytest.raises(typer.Exit) as exc_info:
+            hpo_similarity_cli(term1_id="HP:0000001", term2_id="HP:0000002")
+
+        assert exc_info.value.exit_code == 1
+        assert any(
+            "error" in str(call.args[0]).lower() for call in mock_secho.call_args_list
+        )
+
+    def test_displays_lca_when_found(self, mocker):
+        """Test displays LCA information when found."""
+        from phentrieve.cli.similarity_commands import hpo_similarity_cli
+
+        # Arrange
+        mocker.patch("phentrieve.cli.similarity_commands.setup_logging_cli")
+        mocker.patch(
+            "phentrieve.cli.similarity_commands.load_hpo_graph_data",
+            return_value=(
+                {"HP:0000001": {"HP:0000001"}, "HP:0000002": {"HP:0000002"}},
+                {"HP:0000001": 1, "HP:0000002": 1},
+            ),
+        )
+        mocker.patch(
+            "phentrieve.cli.similarity_commands.load_hpo_terms",
+            return_value=[
+                {"id": "HP:0000001", "label": "Term 1"},
+                {"id": "HP:0000118", "label": "Phenotypic abnormality"},
+            ],
+        )
+        mocker.patch(
+            "phentrieve.cli.similarity_commands.calculate_semantic_similarity",
+            return_value=0.5,
+        )
+        mocker.patch(
+            "phentrieve.cli.similarity_commands.find_lowest_common_ancestor",
+            return_value=("HP:0000118", 2),  # LCA found
+        )
+        mock_echo = mocker.patch("typer.echo")
+        mocker.patch("typer.secho")
+        mocker.patch(
+            "phentrieve.cli.similarity_commands.normalize_id", side_effect=lambda x: x
+        )
+
+        # Act
+        hpo_similarity_cli(term1_id="HP:0000001", term2_id="HP:0000002")
+
+        # Assert
+        output_lines = [str(call.args[0]) for call in mock_echo.call_args_list]
+        assert any("Lowest Common Ancestor" in line for line in output_lines)
+        assert any("HP:0000118" in line for line in output_lines)
+        assert any("LCA Depth: 2" in line for line in output_lines)
+
+    def test_displays_no_lca_when_not_found(self, mocker):
+        """Test displays appropriate message when LCA not found."""
+        from phentrieve.cli.similarity_commands import hpo_similarity_cli
+
+        # Arrange
+        mocker.patch("phentrieve.cli.similarity_commands.setup_logging_cli")
+        mocker.patch(
+            "phentrieve.cli.similarity_commands.load_hpo_graph_data",
+            return_value=(
+                {"HP:0000001": {"HP:0000001"}, "HP:0000002": {"HP:0000002"}},
+                {"HP:0000001": 1, "HP:0000002": 1},
+            ),
+        )
+        mocker.patch(
+            "phentrieve.cli.similarity_commands.load_hpo_terms",
+            return_value=[{"id": "HP:0000001", "label": "Term"}],
+        )
+        mocker.patch(
+            "phentrieve.cli.similarity_commands.calculate_semantic_similarity",
+            return_value=0.0,
+        )
+        mocker.patch(
+            "phentrieve.cli.similarity_commands.find_lowest_common_ancestor",
+            return_value=(None, -1),  # No LCA found
+        )
+        mock_echo = mocker.patch("typer.echo")
+        mocker.patch("typer.secho")
+        mocker.patch(
+            "phentrieve.cli.similarity_commands.normalize_id", side_effect=lambda x: x
+        )
+
+        # Act
+        hpo_similarity_cli(term1_id="HP:0000001", term2_id="HP:0000002")
+
+        # Assert
+        output_lines = [str(call.args[0]) for call in mock_echo.call_args_list]
+        assert any("Not found" in line or "unrelated" in line for line in output_lines)
+
+    def test_color_codes_high_similarity(self, mocker):
+        """Test uses green color for high similarity scores."""
+        from phentrieve.cli.similarity_commands import hpo_similarity_cli
+
+        # Arrange
+        mocker.patch("phentrieve.cli.similarity_commands.setup_logging_cli")
+        mocker.patch(
+            "phentrieve.cli.similarity_commands.load_hpo_graph_data",
+            return_value=(
+                {"HP:0000001": {"HP:0000001"}, "HP:0000002": {"HP:0000002"}},
+                {"HP:0000001": 1, "HP:0000002": 1},
+            ),
+        )
+        mocker.patch(
+            "phentrieve.cli.similarity_commands.load_hpo_terms",
+            return_value=[{"id": "HP:0000001", "label": "Term"}],
+        )
+        mocker.patch(
+            "phentrieve.cli.similarity_commands.calculate_semantic_similarity",
+            return_value=0.9,  # High similarity
+        )
+        mocker.patch(
+            "phentrieve.cli.similarity_commands.find_lowest_common_ancestor",
+            return_value=("HP:0000118", 2),
+        )
+        mocker.patch("typer.echo")
+        mock_secho = mocker.patch("typer.secho")
+        mocker.patch(
+            "phentrieve.cli.similarity_commands.normalize_id", side_effect=lambda x: x
+        )
+
+        # Act
+        hpo_similarity_cli(term1_id="HP:0000001", term2_id="HP:0000002")
+
+        # Assert
+        # Find the secho call with similarity score
+        score_call = [
+            call for call in mock_secho.call_args_list if "0.9" in str(call.args[0])
+        ][0]
+        assert score_call.kwargs["fg"] == typer.colors.BRIGHT_GREEN
+
+    def test_color_codes_medium_similarity(self, mocker):
+        """Test uses yellow color for medium similarity scores."""
+        from phentrieve.cli.similarity_commands import hpo_similarity_cli
+
+        # Arrange
+        mocker.patch("phentrieve.cli.similarity_commands.setup_logging_cli")
+        mocker.patch(
+            "phentrieve.cli.similarity_commands.load_hpo_graph_data",
+            return_value=(
+                {"HP:0000001": {"HP:0000001"}, "HP:0000002": {"HP:0000002"}},
+                {"HP:0000001": 1, "HP:0000002": 1},
+            ),
+        )
+        mocker.patch(
+            "phentrieve.cli.similarity_commands.load_hpo_terms",
+            return_value=[{"id": "HP:0000001", "label": "Term"}],
+        )
+        mocker.patch(
+            "phentrieve.cli.similarity_commands.calculate_semantic_similarity",
+            return_value=0.3,  # Medium similarity
+        )
+        mocker.patch(
+            "phentrieve.cli.similarity_commands.find_lowest_common_ancestor",
+            return_value=("HP:0000118", 2),
+        )
+        mocker.patch("typer.echo")
+        mock_secho = mocker.patch("typer.secho")
+        mocker.patch(
+            "phentrieve.cli.similarity_commands.normalize_id", side_effect=lambda x: x
+        )
+
+        # Act
+        hpo_similarity_cli(term1_id="HP:0000001", term2_id="HP:0000002")
+
+        # Assert
+        score_call = [
+            call for call in mock_secho.call_args_list if "0.3" in str(call.args[0])
+        ][0]
+        assert score_call.kwargs["fg"] == typer.colors.YELLOW
+
+    def test_color_codes_zero_similarity(self, mocker):
+        """Test uses white color for zero similarity scores."""
+        from phentrieve.cli.similarity_commands import hpo_similarity_cli
+
+        # Arrange
+        mocker.patch("phentrieve.cli.similarity_commands.setup_logging_cli")
+        mocker.patch(
+            "phentrieve.cli.similarity_commands.load_hpo_graph_data",
+            return_value=(
+                {"HP:0000001": {"HP:0000001"}, "HP:0000002": {"HP:0000002"}},
+                {"HP:0000001": 1, "HP:0000002": 1},
+            ),
+        )
+        mocker.patch(
+            "phentrieve.cli.similarity_commands.load_hpo_terms",
+            return_value=[{"id": "HP:0000001", "label": "Term"}],
+        )
+        mocker.patch(
+            "phentrieve.cli.similarity_commands.calculate_semantic_similarity",
+            return_value=0.0,  # Zero similarity
+        )
+        mocker.patch(
+            "phentrieve.cli.similarity_commands.find_lowest_common_ancestor",
+            return_value=(None, -1),
+        )
+        mocker.patch("typer.echo")
+        mock_secho = mocker.patch("typer.secho")
+        mocker.patch(
+            "phentrieve.cli.similarity_commands.normalize_id", side_effect=lambda x: x
+        )
+
+        # Act
+        hpo_similarity_cli(term1_id="HP:0000001", term2_id="HP:0000002")
+
+        # Assert
+        score_call = [
+            call for call in mock_secho.call_args_list if "0.0" in str(call.args[0])
+        ][0]
+        assert score_call.kwargs["fg"] == typer.colors.WHITE
