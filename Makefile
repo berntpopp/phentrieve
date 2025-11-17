@@ -1,4 +1,4 @@
-.PHONY: help format lint typecheck check test clean all install install-text-processing lock upgrade add remove clean-venv frontend-install frontend-lint frontend-format frontend-dev frontend-build docker-build docker-up docker-down docker-logs dev-api dev-frontend dev-all test-api test-api-cov test-e2e test-e2e-security test-e2e-health test-e2e-api test-e2e-fast test-e2e-clean test-e2e-logs test-e2e-shell
+.PHONY: help format lint typecheck check test clean all install install-text-processing lock upgrade add remove clean-venv frontend-install frontend-lint frontend-format frontend-dev frontend-build docker-build docker-up docker-down docker-logs dev-api dev-frontend dev-all test-api test-api-cov test-e2e test-e2e-security test-e2e-health test-e2e-api test-e2e-fast test-e2e-clean test-e2e-logs test-e2e-shell cov-package cov-api cov-frontend cov-all
 
 # Default target
 .DEFAULT_GOAL := help
@@ -340,38 +340,53 @@ test-e2e-logs:  ## View E2E test container logs
 test-e2e-shell:  ## Open shell in E2E test API container
 	docker-compose -f docker-compose.test.yml -p phentrieve_e2e_test exec phentrieve_api_test sh
 
-# CLI Testing Commands
-.PHONY: test-cli
-test-cli:  ## Run CLI unit tests
-	@echo "🧪 Running CLI unit tests..."
-	@uv run pytest tests/unit/cli/ -v || (echo "❌ CLI tests failed" && exit 1)
+##@ Package Coverage Testing
 
-.PHONY: test-cli-cov
-test-cli-cov:  ## Run CLI tests with coverage
-	@echo "🧪 Running CLI tests with coverage..."
-	@uv run pytest tests/unit/cli/ --cov=phentrieve/cli --cov-report=term-missing -v
-
-# Core Module Testing Commands
-.PHONY: test-core
-test-core:  ## Run core module tests (retrieval, text_processing, embeddings)
-	@echo "🧪 Running core module tests..."
-	@uv run pytest tests/unit/retrieval/ tests/unit/core/ tests/unit/text_processing/ -v || (echo "❌ Core tests failed" && exit 1)
-
-.PHONY: test-core-cov
-test-core-cov:  ## Run core tests with coverage
-	@echo "🧪 Running core tests with coverage..."
-	@uv run pytest tests/unit/retrieval/ tests/unit/core/ tests/unit/text_processing/ \
-		--cov=phentrieve/retrieval --cov=phentrieve/text_processing --cov=phentrieve/embeddings \
-		--cov-report=term-missing -v
-
-# Combined CLI + Core (excluding API)
-.PHONY: test-phentrieve
-test-phentrieve:  ## Run all phentrieve tests (CLI + core, excluding API)
-	@echo "🧪 Running all phentrieve tests (CLI + core)..."
-	@uv run pytest tests/unit/cli/ tests/unit/retrieval/ tests/unit/core/ tests/unit/text_processing/ -v
-
-.PHONY: test-phentrieve-cov
-test-phentrieve-cov:  ## Run phentrieve tests with coverage
-	@echo "🧪 Running phentrieve tests with coverage..."
-	@uv run pytest tests/unit/cli/ tests/unit/retrieval/ tests/unit/core/ tests/unit/text_processing/ \
+.PHONY: cov-package
+cov-package:  ## Coverage: Full phentrieve package (CLI + all core modules)
+	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+	@echo "  Coverage: Phentrieve Package (Full CLI Application)"
+	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+	@echo ""
+	@uv run pytest tests/unit/cli/ tests/unit/retrieval/ tests/unit/core/ \
 		--cov=phentrieve --cov-report=html --cov-report=term-missing -v
+	@echo ""
+	@echo "📊 HTML Coverage Report: htmlcov/index.html"
+	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+.PHONY: cov-api
+cov-api:  ## Coverage: API package (FastAPI backend)
+	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+	@echo "  Coverage: API Package (FastAPI Backend)"
+	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+	@echo ""
+	@PYTHONPATH=$(PWD) python3 -m pytest tests/unit/api/ \
+		--cov=api --cov-report=html --cov-report=term-missing -v
+	@echo ""
+	@echo "📊 HTML Coverage Report: htmlcov/index.html"
+	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+.PHONY: cov-frontend
+cov-frontend:  ## Coverage: Frontend package (Vue.js application)
+	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+	@echo "  Coverage: Frontend Package (Vue.js Application)"
+	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+	@echo ""
+	@cd frontend && npm run test:coverage
+	@echo ""
+	@echo "📊 HTML Coverage Report: frontend/coverage/index.html"
+	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+.PHONY: cov-all
+cov-all: cov-package cov-api cov-frontend  ## Coverage: Run all package coverage reports (package + API + frontend)
+	@echo ""
+	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+	@echo "  ✅ All Coverage Reports Complete"
+	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+	@echo ""
+	@echo "Coverage reports generated:"
+	@echo "  • Phentrieve Package: htmlcov/index.html"
+	@echo "  • API Package:        htmlcov/index.html"
+	@echo "  • Frontend Package:   frontend/coverage/index.html"
+	@echo ""
+	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
