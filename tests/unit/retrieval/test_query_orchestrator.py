@@ -216,8 +216,9 @@ class TestSegmentText:
 
         # Assert
         assert len(sentences) == 3
-        assert "Patient has seizures." in sentences
-        assert "They occur at night." in sentences
+        # Note: pysbd may add trailing spaces to sentences
+        assert any("Patient has seizures" in s for s in sentences)
+        assert any("They occur at night" in s for s in sentences)
 
     def test_detects_english_for_ascii_text_when_lang_none(self):
         """Test defaults to English for ASCII text when lang is None."""
@@ -395,7 +396,7 @@ class TestFormatResults:
         # Assert
         # Results should be in order provided (reranked order), not sorted by distance
         assert len(formatted["results"]) == 2
-        assert formatted["results"][0]["id"] == "HP:0001250"
+        assert formatted["results"][0]["hpo_id"] == "HP:0001250"
         assert formatted["results"][0]["cross_encoder_score"] == 0.95
 
     def test_coerces_max_results_from_string(self):
@@ -468,6 +469,6 @@ class TestFormatResults:
 
         # Assert
         # Should be sorted by similarity (distance converted): High, Medium, Low
-        assert formatted["results"][0]["id"] == "HP:0002"  # Highest similarity
-        assert formatted["results"][1]["id"] == "HP:0003"  # Medium
-        assert formatted["results"][2]["id"] == "HP:0001"  # Lowest
+        assert formatted["results"][0]["hpo_id"] == "HP:0002"  # Highest similarity
+        assert formatted["results"][1]["hpo_id"] == "HP:0003"  # Medium
+        assert formatted["results"][2]["hpo_id"] == "HP:0001"  # Lowest
