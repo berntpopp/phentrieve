@@ -1,6 +1,5 @@
 """Unit tests for query router helper functions."""
 
-
 import pytest
 
 from api.routers.query_router import (

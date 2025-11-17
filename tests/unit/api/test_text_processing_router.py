@@ -7,8 +7,14 @@ import pytest
 from api.routers.text_processing_router import (
     _apply_sliding_window_params,
     _get_chunking_config_for_api,
+    _validate_response_chunk_references,
 )
-from api.schemas.text_processing_schemas import TextProcessingRequest
+from api.schemas.text_processing_schemas import (
+    AggregatedHPOTermAPI,
+    ProcessedChunkAPI,
+    TextAttributionSpanAPI,
+    TextProcessingRequest,
+)
 
 pytestmark = pytest.mark.unit
 
@@ -311,3 +317,276 @@ class TestGetChunkingConfigForApi:
         )
         if sw_component:  # Some strategies may not have sliding_window
             assert sw_component["config"]["window_size_tokens"] == custom_ws
+
+
+class TestValidateResponseChunkReferences:
+    """Test _validate_response_chunk_references validation function."""
+
+    def test_valid_references_pass_validation(self):
+        """Test valid chunk references pass all checks."""
+        # Arrange
+        chunks = [
+            ProcessedChunkAPI(
+                chunk_id=1,
+                text="First chunk with seizures",
+                status="affirmed",
+            ),
+            ProcessedChunkAPI(
+                chunk_id=2,
+                text="Second chunk with autism",
+                status="affirmed",
+            ),
+        ]
+        terms = [
+            AggregatedHPOTermAPI(
+                hpo_id="HP:0001250",
+                name="Seizure",
+                confidence=0.9,
+                status="affirmed",
+                evidence_count=1,
+                source_chunk_ids=[1],
+                text_attributions=[
+                    TextAttributionSpanAPI(
+                        chunk_id=1,
+                        matched_text_in_chunk="seizures",
+                        start_char=17,
+                        end_char=25,
+                    )
+                ],
+                top_evidence_chunk_id=1,
+            ),
+            AggregatedHPOTermAPI(
+                hpo_id="HP:0000729",
+                name="Autism",
+                confidence=0.85,
+                status="affirmed",
+                evidence_count=1,
+                source_chunk_ids=[2],
+                text_attributions=[
+                    TextAttributionSpanAPI(
+                        chunk_id=2,
+                        matched_text_in_chunk="autism",
+                        start_char=18,
+                        end_char=24,
+                    )
+                ],
+                top_evidence_chunk_id=2,
+            ),
+        ]
+
+        # Act & Assert - should not raise
+        _validate_response_chunk_references(chunks, terms)
+
+    def test_non_sequential_chunk_ids_fail_validation(self):
+        """Test non-sequential chunk IDs trigger assertion."""
+        # Arrange - chunk IDs are 1 and 3 (missing 2)
+        chunks = [
+            ProcessedChunkAPI(
+                chunk_id=1,
+                text="First chunk",
+                status="affirmative",
+            ),
+            ProcessedChunkAPI(
+                chunk_id=3,  # ❌ Should be 2
+                text="Third chunk",
+                status="affirmative",
+            ),
+        ]
+        terms: list[AggregatedHPOTermAPI] = []
+
+        # Act & Assert
+        with pytest.raises(AssertionError, match="Chunk IDs not sequential 1-based"):
+            _validate_response_chunk_references(chunks, terms)
+
+    def test_non_1_based_chunk_ids_fail_validation(self):
+        """Test chunk IDs not starting at 1 trigger assertion."""
+        # Arrange - chunk IDs start at 0
+        chunks = [
+            ProcessedChunkAPI(
+                chunk_id=0,  # ❌ Should be 1
+                text="First chunk",
+                status="affirmative",
+            ),
+            ProcessedChunkAPI(
+                chunk_id=1,
+                text="Second chunk",
+                status="affirmative",
+            ),
+        ]
+        terms: list[AggregatedHPOTermAPI] = []
+
+        # Act & Assert
+        with pytest.raises(AssertionError, match="Chunk IDs not sequential 1-based"):
+            _validate_response_chunk_references(chunks, terms)
+
+    def test_invalid_source_chunk_id_fails_validation(self):
+        """Test invalid source_chunk_id triggers assertion."""
+        # Arrange
+        chunks = [
+            ProcessedChunkAPI(
+                chunk_id=1,
+                text="Only chunk",
+                status="affirmative",
+            ),
+        ]
+        terms = [
+            AggregatedHPOTermAPI(
+                hpo_id="HP:0001250",
+                name="Seizure",
+                confidence=0.9,
+                status="affirmed",
+                evidence_count=1,
+                source_chunk_ids=[1, 2, 3],  # ❌ 2 and 3 don't exist
+                text_attributions=[],
+            ),
+        ]
+
+        # Act & Assert
+        with pytest.raises(
+            AssertionError, match="has invalid source_chunk_ids.*{2, 3}"
+        ):
+            _validate_response_chunk_references(chunks, terms)
+
+    def test_invalid_text_attribution_chunk_id_fails_validation(self):
+        """Test invalid text_attribution chunk_id triggers assertion."""
+        # Arrange
+        chunks = [
+            ProcessedChunkAPI(
+                chunk_id=1,
+                text="Only chunk",
+                status="affirmative",
+            ),
+        ]
+        terms = [
+            AggregatedHPOTermAPI(
+                hpo_id="HP:0001250",
+                name="Seizure",
+                confidence=0.9,
+                status="affirmed",
+                evidence_count=1,
+                source_chunk_ids=[1],
+                text_attributions=[
+                    TextAttributionSpanAPI(
+                        chunk_id=99,  # ❌ Doesn't exist
+                        matched_text_in_chunk="seizure",
+                        start_char=0,
+                        end_char=7,
+                    )
+                ],
+            ),
+        ]
+
+        # Act & Assert
+        with pytest.raises(
+            AssertionError,
+            match="has text_attribution with invalid chunk_id 99",
+        ):
+            _validate_response_chunk_references(chunks, terms)
+
+    def test_invalid_top_evidence_chunk_id_fails_validation(self):
+        """Test invalid top_evidence_chunk_id triggers assertion."""
+        # Arrange
+        chunks = [
+            ProcessedChunkAPI(
+                chunk_id=1,
+                text="Only chunk",
+                status="affirmative",
+            ),
+        ]
+        terms = [
+            AggregatedHPOTermAPI(
+                hpo_id="HP:0001250",
+                name="Seizure",
+                confidence=0.9,
+                status="affirmed",
+                evidence_count=1,
+                source_chunk_ids=[1],
+                text_attributions=[],
+                top_evidence_chunk_id=42,  # ❌ Doesn't exist
+            ),
+        ]
+
+        # Act & Assert
+        with pytest.raises(
+            AssertionError,
+            match="has invalid top_evidence_chunk_id 42",
+        ):
+            _validate_response_chunk_references(chunks, terms)
+
+    def test_none_top_evidence_chunk_id_passes_validation(self):
+        """Test None top_evidence_chunk_id is valid (optional field)."""
+        # Arrange
+        chunks = [
+            ProcessedChunkAPI(
+                chunk_id=1,
+                text="Only chunk",
+                status="affirmative",
+            ),
+        ]
+        terms = [
+            AggregatedHPOTermAPI(
+                hpo_id="HP:0001250",
+                name="Seizure",
+                confidence=0.9,
+                status="affirmed",
+                evidence_count=1,
+                source_chunk_ids=[1],
+                text_attributions=[],
+                top_evidence_chunk_id=None,  # ✅ Optional
+            ),
+        ]
+
+        # Act & Assert - should not raise
+        _validate_response_chunk_references(chunks, terms)
+
+    def test_empty_chunks_and_terms_pass_validation(self):
+        """Test empty chunks and terms pass validation."""
+        # Arrange
+        chunks: list[ProcessedChunkAPI] = []
+        terms: list[AggregatedHPOTermAPI] = []
+
+        # Act & Assert - should not raise
+        _validate_response_chunk_references(chunks, terms)
+
+    def test_multiple_text_attributions_all_valid(self):
+        """Test multiple text attributions with valid chunk IDs."""
+        # Arrange
+        chunks = [
+            ProcessedChunkAPI(
+                chunk_id=1,
+                text="First chunk",
+                status="affirmative",
+            ),
+            ProcessedChunkAPI(
+                chunk_id=2,
+                text="Second chunk",
+                status="affirmative",
+            ),
+        ]
+        terms = [
+            AggregatedHPOTermAPI(
+                hpo_id="HP:0001250",
+                name="Seizure",
+                confidence=0.9,
+                status="affirmed",
+                evidence_count=1,
+                source_chunk_ids=[1, 2],
+                text_attributions=[
+                    TextAttributionSpanAPI(
+                        chunk_id=1,
+                        matched_text_in_chunk="seizure",
+                        start_char=0,
+                        end_char=7,
+                    ),
+                    TextAttributionSpanAPI(
+                        chunk_id=2,
+                        matched_text_in_chunk="epilepsy",
+                        start_char=0,
+                        end_char=8,
+                    ),
+                ],
+            ),
+        ]
+
+        # Act & Assert - should not raise
+        _validate_response_chunk_references(chunks, terms)
