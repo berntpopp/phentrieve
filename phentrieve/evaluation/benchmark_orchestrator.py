@@ -10,7 +10,9 @@ import os
 from typing import Any, Optional, Union
 
 from phentrieve.config import (
+    BENCHMARK_DATA_DIR,
     BENCHMARK_MODELS,
+    DEFAULT_BENCHMARK_FILE,
     DEFAULT_DETAILED_SUBDIR,
     DEFAULT_ENABLE_RERANKER,
     DEFAULT_MODEL,
@@ -19,7 +21,6 @@ from phentrieve.config import (
     DEFAULT_RERANKER_MODE,
     DEFAULT_RERANKER_MODEL,
     DEFAULT_SUMMARIES_SUBDIR,
-    DEFAULT_TEST_CASES_SUBDIR,
 )
 from phentrieve.data_processing.test_data_loader import create_sample_test_data
 from phentrieve.evaluation.runner import compare_models, run_evaluation
@@ -117,9 +118,21 @@ def orchestrate_benchmark(
 
     # Set default test file if not provided
     if not test_file:
-        data_dir = get_default_data_dir()
-        test_cases_dir = data_dir / DEFAULT_TEST_CASES_SUBDIR
-        test_file = str(test_cases_dir / "sample_test_cases.json")
+        from pathlib import Path
+
+        project_root = Path(__file__).parent.parent.parent
+        test_file = str(project_root / BENCHMARK_DATA_DIR / DEFAULT_BENCHMARK_FILE)
+    else:
+        # If test_file is a relative path (doesn't start with /), resolve it relative to BENCHMARK_DATA_DIR
+        from pathlib import Path
+
+        test_file_path = Path(test_file)
+        if not test_file_path.is_absolute():
+            project_root = Path(__file__).parent.parent.parent
+            resolved_path = project_root / BENCHMARK_DATA_DIR / test_file
+            if resolved_path.exists():
+                test_file = str(resolved_path)
+                logger.debug(f"Resolved relative test file path to: {test_file}")
 
     # Create sample test data if requested or if test file doesn't exist
     if create_sample or not os.path.exists(test_file):

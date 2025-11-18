@@ -7,11 +7,10 @@ used in benchmark evaluation of the HPO retrieval system.
 
 import json
 import logging
-import os
+from pathlib import Path
 from typing import Any, Optional
 
-from phentrieve.config import DEFAULT_TEST_CASES_SUBDIR
-from phentrieve.utils import get_default_data_dir
+from phentrieve.config import BENCHMARK_DATA_DIR, DEFAULT_BENCHMARK_FILE
 
 
 def load_test_data(test_file: str) -> Optional[list[dict[str, Any]]]:
@@ -57,15 +56,12 @@ def create_sample_test_data(output_file: Optional[str] = None) -> list[dict[str,
     Returns:
         List of sample test cases
     """
-    # Get the test cases directory from data_dir
-    data_dir = get_default_data_dir()
-    test_cases_dir = data_dir / DEFAULT_TEST_CASES_SUBDIR
-
-    # Create directory if it doesn't exist
-    os.makedirs(test_cases_dir, exist_ok=True)
-
     if output_file is None:
-        output_file = str(test_cases_dir / "sample_test_cases.json")
+        # Use new benchmark data location
+        project_root = Path(__file__).parent.parent.parent
+        output_path = project_root / BENCHMARK_DATA_DIR / DEFAULT_BENCHMARK_FILE
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        output_file = str(output_path)
 
     # Sample test cases
     sample_test_cases = [

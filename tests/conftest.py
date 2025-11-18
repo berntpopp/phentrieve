@@ -40,3 +40,9 @@ def mock_chromadb_collection(mocker):
         "metadatas": [[{"label": "Seizure"}]],
     }
     return mock
+
+
+@pytest.fixture
+def benchmark_data_dir():
+    """Return path to benchmark data directory."""
+    return Path(__file__).parent / "data" / "benchmarks"
