@@ -21,7 +21,7 @@ from collections.abc import Iterator
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +38,7 @@ class ProvenanceTracker:
     """Tracks provenance information for reproducibility."""
 
     @staticmethod
-    def get_git_version(repo_path: Path) -> Optional[dict]:
+    def get_git_version(repo_path: Path) -> Optional[dict[str, Any]]:
         """
         Extract git version information from repository.
 
@@ -128,7 +128,7 @@ class Annotation:
     hpo_id: str
     confidence: Optional[float] = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate annotation on creation."""
         if self.start < 0:
             raise ValueError(f"Invalid start offset: {self.start}")
@@ -144,12 +144,12 @@ class ConversionStats:
 
     total_docs: int = 0
     total_annotations: int = 0
-    datasets: dict = field(default_factory=dict)
+    datasets: dict[str, dict[str, int]] = field(default_factory=dict)
     errors: list[str] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
-    provenance: dict = field(default_factory=dict)
+    provenance: dict[str, Any] = field(default_factory=dict)
 
-    def add_document(self, dataset: str, num_annotations: int):
+    def add_document(self, dataset: str, num_annotations: int) -> None:
         """Record document conversion."""
         self.total_docs += 1
         self.total_annotations += num_annotations
@@ -165,10 +165,10 @@ class ConversionStats:
 
     def set_provenance(
         self,
-        source_version: Optional[dict],
+        source_version: Optional[dict[str, Any]],
         converter_version: str,
         conversion_date: str,
-    ):
+    ) -> None:
         """
         Set provenance metadata for reproducibility.
 
@@ -186,7 +186,7 @@ class ConversionStats:
             },
         }
 
-    def to_dict(self) -> dict:
+    def to_dict(self) -> dict[str, Any]:
         """Export stats as dictionary with provenance."""
         return {
             "provenance": self.provenance,
@@ -392,7 +392,7 @@ class AnnotationParser:
     def _parse_with_pattern(
         self,
         ann_file: Path,
-        pattern: re.Pattern,
+        pattern: re.Pattern[str],
         is_raw: bool,
     ) -> list[Annotation]:
         """
@@ -424,14 +424,15 @@ class AnnotationParser:
                     continue
 
                 try:
+                    confidence_value: Optional[float]
                     if is_raw:
                         # Raw format: [start::end] HPO_ID | text
                         start, end, hpo_id, text = match.groups()
-                        confidence = None
+                        confidence_value = None
                     else:
                         # Processed format: start\tend\ttext\tHPO:ID\tconfidence
-                        start, end, text, hpo_id, confidence = match.groups()
-                        confidence = float(confidence) if confidence else None
+                        start, end, text, hpo_id, confidence_str = match.groups()
+                        confidence_value = float(confidence_str) if confidence_str else None
 
                     # Normalize HPO ID (HP_NNNN → HP:NNNN)
                     hpo_id = hpo_id.replace("_", ":")
@@ -442,7 +443,7 @@ class AnnotationParser:
                             end=int(end),
                             text=text,
                             hpo_id=hpo_id,
-                            confidence=confidence,
+                            confidence=confidence_value,
                         )
                     )
 
@@ -469,7 +470,7 @@ class HPOLookup:
         Args:
             hpo_data_path: Path to hpo_core_data directory
         """
-        self.cache = {}
+        self.cache: dict[str, str] = {}
         hpo_file = Path(hpo_data_path) / "hpo_terms.tsv"
 
         if not hpo_file.exists():
@@ -477,7 +478,7 @@ class HPOLookup:
 
         self._load_hpo_data(hpo_file)
 
-    def _load_hpo_data(self, hpo_file: Path):
+    def _load_hpo_data(self, hpo_file: Path) -> None:
         """
         Load HPO terms into memory cache.
 
@@ -548,7 +549,7 @@ class PhenoBERTConverter:
         corpus_file: Path,
         ann_file: Path,
         dataset_name: str,
-    ) -> dict:
+    ) -> dict[str, Any]:
         """
         Convert single document to Phentrieve JSON format.
 
@@ -632,7 +633,7 @@ class PhenoBERTConverter:
         full_text: str,
         annotations: list[Annotation],
         dataset_name: str,
-    ) -> dict:
+    ) -> dict[str, Any]:
         """
         Build Phentrieve JSON structure.
 
@@ -720,7 +721,7 @@ class OutputWriter:
         # Extract provenance information
         self._initialize_provenance(source_data_dir)
 
-    def _initialize_provenance(self, source_data_dir: Path):
+    def _initialize_provenance(self, source_data_dir: Path) -> None:
         """
         Initialize provenance tracking from source directory.
 
@@ -747,7 +748,7 @@ class OutputWriter:
             conversion_date=datetime.now().isoformat(),
         )
 
-    def write_document(self, doc: dict, dataset: str):
+    def write_document(self, doc: dict[str, Any], dataset: str) -> None:
         """
         Write single JSON document.
 
@@ -769,7 +770,7 @@ class OutputWriter:
 
         logger.debug(f"Wrote {output_file}")
 
-    def write_report(self):
+    def write_report(self) -> None:
         """Write conversion report with provenance metadata."""
         report_file = self.output_dir / "conversion_report.json"
         with open(report_file, "w", encoding="utf-8") as f:

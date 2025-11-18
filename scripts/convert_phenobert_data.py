@@ -58,7 +58,7 @@ from phenobert_converter import (
 logger = logging.getLogger(__name__)
 
 
-def setup_logging(log_level: str = "INFO"):
+def setup_logging(log_level: str = "INFO") -> None:
     """
     Configure logging format and level.
 
@@ -102,7 +102,7 @@ def validate_paths(args: argparse.Namespace) -> bool:
     return True
 
 
-def main():
+def main() -> None:
     """Main conversion entry point."""
     parser = argparse.ArgumentParser(
         description="Convert PhenoBERT corpus datasets to Phentrieve JSON format",
