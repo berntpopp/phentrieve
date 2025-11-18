@@ -122,6 +122,17 @@ def orchestrate_benchmark(
 
         project_root = Path(__file__).parent.parent.parent
         test_file = str(project_root / BENCHMARK_DATA_DIR / DEFAULT_BENCHMARK_FILE)
+    else:
+        # If test_file is a relative path (doesn't start with /), resolve it relative to BENCHMARK_DATA_DIR
+        from pathlib import Path
+
+        test_file_path = Path(test_file)
+        if not test_file_path.is_absolute():
+            project_root = Path(__file__).parent.parent.parent
+            resolved_path = project_root / BENCHMARK_DATA_DIR / test_file
+            if resolved_path.exists():
+                test_file = str(resolved_path)
+                logger.debug(f"Resolved relative test file path to: {test_file}")
 
     # Create sample test data if requested or if test file doesn't exist
     if create_sample or not os.path.exists(test_file):
