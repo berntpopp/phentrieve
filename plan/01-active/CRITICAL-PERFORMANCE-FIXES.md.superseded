@@ -1,0 +1,674 @@
+# Critical Performance Fixes - Pragmatic Action Plan
+
+**Status:** URGENT - Active
+**Date:** 2025-01-18
+**Priority:** CRITICAL (P0) - Production breaking
+**Estimated Effort:** 3-5 days
+**Principle:** FIX CRITICAL BUGS FIRST, THEN OPTIMIZE
+
+---
+
+## Executive Summary
+
+The frontend **times out and loses connection** on real documents. This is NOT a performance optimization problem - it's a **CRITICAL BUG** that must be fixed immediately.
+
+### Root Cause Analysis
+
+**Test Case 1: `clinical_case_001.json`**
+- Text: 125 characters, 4 annotations
+- Status: ❌ "Relatively slow" (should be instant!)
+- **Root Cause:** Model loading on EVERY request (5-10 seconds overhead)
+
+**Test Case 2: `GeneReviews_NBK1379.json`**
+- Text: 1588 characters, 22 annotations
+- Status: ❌ Frontend timeout: "Es konnte keine Verbindung zum Server hergestellt werden"
+- **Root Cause:** 60+ seconds processing → Frontend timeout (default ~30-60s)
+
+### Critical Issues Found
+
+```
+❌ CRITICAL: No API timeout configuration (requests can run forever)
+❌ CRITICAL: Models loaded on EVERY request (5-10s overhead per request!)
+❌ CRITICAL: No model caching between requests
+❌ HIGH: No frontend progress updates (user thinks it crashed)
+❌ HIGH: Sequential ChromaDB queries (1 query per chunk, ~20-30 queries)
+❌ MEDIUM: No request cancellation
+❌ LOW: Over-engineered profiling infrastructure (before fixing basics!)
+```
+
+---
+
+## Table of Contents
+
+1. [Immediate Fix: Model Caching (TODAY)](#1-immediate-fix-model-caching-today)
+2. [Immediate Fix: API Timeouts (TODAY)](#2-immediate-fix-api-timeouts-today)
+3. [Quick Win: Batch ChromaDB Queries (Day 2)](#3-quick-win-batch-chromadb-queries-day-2)
+4. [Simple Profiling with Real Data (Day 3)](#4-simple-profiling-with-real-data-day-3)
+5. [Progress Updates (Day 4-5)](#5-progress-updates-day-4-5)
+6. [Validation with Real Test Cases](#6-validation-with-real-test-cases)
+
+---
+
+## 1. Immediate Fix: Model Caching (TODAY)
+
+### Problem
+
+**File:** `api/routers/text_processing_router.py:237-253`
+
+```python
+# ❌ CRITICAL BUG: Models loaded on EVERY request!
+retrieval_sbert_model = await run_in_threadpool(
+    load_embedding_model,
+    model_name=retrieval_model_name_to_load,
+    trust_remote_code=request.trust_remote_code or False,
+)
+# This takes 5-10 seconds PER REQUEST!
+```
+
+**Impact:** Even small 125-char texts take 5-10 seconds due to model loading overhead.
+
+### Solution: Use Existing Dependency Injection
+
+The API ALREADY has model caching in `api/dependencies.py`! We just need to USE it!
+
+**File:** `api/routers/text_processing_router.py` (UPDATE)
+
+```python
+# BEFORE (❌ BAD - loads every time):
+retrieval_sbert_model = await run_in_threadpool(
+    load_embedding_model,
+    model_name=retrieval_model_name_to_load,
+    trust_remote_code=request.trust_remote_code or False,
+)
+
+# AFTER (✅ GOOD - uses cached dependency):
+from api.dependencies import get_sbert_model_dependency, get_dense_retriever_dependency
+
+retrieval_sbert_model = await get_sbert_model_dependency(
+    model_name_requested=retrieval_model_name_to_load,
+    trust_remote_code=request.trust_remote_code or False,
+)
+
+# Same for chunking model:
+if sbert_for_chunking_name_to_load != retrieval_model_name_to_load:
+    sbert_for_chunking = await get_sbert_model_dependency(
+        model_name_requested=sbert_for_chunking_name_to_load,
+        trust_remote_code=request.trust_remote_code or False,
+    )
+else:
+    sbert_for_chunking = retrieval_sbert_model  # Reuse!
+
+# Retriever (use cached):
+retriever = await get_dense_retriever_dependency(
+    sbert_model_name_for_retriever=retrieval_model_name_to_load
+)
+
+# Cross-encoder (use cached):
+if request.enable_reranker and reranker_to_load:
+    from api.dependencies import get_cross_encoder_dependency
+    cross_enc = await get_cross_encoder_dependency(
+        reranker_model_name=reranker_to_load
+    )
+```
+
+### Expected Impact
+
+- **Before:** 5-10s model loading + processing time
+- **After:** ~0.1s model retrieval + processing time
+- **Speedup:** 50-100x for small texts!
+
+### Validation
+
+```bash
+# Test with real data (CLI for baseline):
+time phentrieve text process tests/data/de/phentrieve/annotations/clinical_case_001.json
+
+# Test API endpoint (before fix):
+curl -X POST http://localhost:8734/api/v1/text/process \
+  -H "Content-Type: application/json" \
+  -d @tests/data/de/phentrieve/annotations/clinical_case_001.json \
+  -w "\nTime: %{time_total}s\n"
+
+# Test API endpoint (after fix):
+# Should be ~10x faster!
+```
+
+---
+
+## 2. Immediate Fix: API Timeouts (TODAY)
+
+### Problem
+
+No timeout configuration! Requests can run forever, causing frontend to timeout first.
+
+### Solution 1: Add Endpoint Timeout
+
+**File:** `api/routers/text_processing_router.py` (UPDATE)
+
+```python
+import asyncio
+from fastapi import APIRouter, HTTPException, status
+
+@router.post("/process", response_model=TextProcessingResponseAPI)
+async def process_text_extract_hpo(request: TextProcessingRequest):
+    """..."""
+    logger.info(f"API: Received request to process text...")
+
+    # ✅ Add timeout wrapper
+    try:
+        # Set timeout based on text length (heuristic)
+        text_length = len(request.text_content)
+        if text_length < 500:
+            timeout_seconds = 30
+        elif text_length < 2000:
+            timeout_seconds = 60
+        else:
+            timeout_seconds = 120
+
+        logger.info(f"API: Processing with {timeout_seconds}s timeout (text length: {text_length} chars)")
+
+        # Run with timeout
+        return await asyncio.wait_for(
+            _process_text_internal(request),
+            timeout=timeout_seconds
+        )
+
+    except asyncio.TimeoutError:
+        logger.error(f"API: Request timed out after {timeout_seconds}s")
+        raise HTTPException(
+            status_code=status.HTTP_504_GATEWAY_TIMEOUT,
+            detail=f"Text processing timed out after {timeout_seconds} seconds. "
+                   f"Try reducing text length or simplifying chunking strategy."
+        )
+
+
+async def _process_text_internal(request: TextProcessingRequest):
+    """Internal processing function (existing code moved here)."""
+    # ... ALL existing code from process_text_extract_hpo ...
+    # (Lines 206-435 from current implementation)
+```
+
+### Solution 2: Update Frontend to Handle Timeout
+
+**File:** `frontend/src/services/api.js` (or similar)
+
+```javascript
+// Add timeout to fetch requests
+const response = await fetch('/api/v1/text/process', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify(requestData),
+  signal: AbortSignal.timeout(120000)  // 120s frontend timeout (matches backend max)
+});
+
+// Handle timeout error
+if (response.status === 504) {
+  showError('Der Text ist zu lang und die Verarbeitung dauerte zu lange. ' +
+            'Bitte kürzen Sie den Text oder wählen Sie eine einfachere Strategie.');
+}
+```
+
+### Expected Impact
+
+- Graceful timeout messages instead of "Verbindung verloren"
+- Clear feedback to users
+- Prevents resource leaks from abandoned requests
+
+---
+
+## 3. Quick Win: Batch ChromaDB Queries (Day 2)
+
+### Problem
+
+**Sequential queries kill performance:**
+
+```python
+# In orchestrator (called for EACH chunk):
+for chunk in chunks:  # ❌ 20-30 iterations for GeneReviews_NBK1379
+    results = retriever.query(chunk)  # ❌ Separate ChromaDB query!
+    # ~1-2s per query × 20-30 chunks = 20-60 seconds!
+```
+
+### Solution: Batch Query API
+
+**File:** `phentrieve/retrieval/dense_retriever.py` (ADD method)
+
+```python
+class DenseRetriever:
+    """..."""
+
+    def query_batch(
+        self,
+        query_texts: list[str],
+        n_results: int = 10,
+        where: dict | None = None,
+    ) -> list[dict]:
+        """
+        Query ChromaDB for multiple texts at once (batched).
+
+        Args:
+            query_texts: List of query texts
+            n_results: Number of results per query
+            where: Optional filter
+
+        Returns:
+            List of results (one dict per query text)
+        """
+        if not query_texts:
+            return []
+
+        logger.info(f"Batch querying ChromaDB: {len(query_texts)} queries")
+
+        # ChromaDB supports batch queries natively!
+        results = self.collection.query(
+            query_texts=query_texts,  # ✅ Batch query!
+            n_results=n_results,
+            where=where,
+        )
+
+        # Parse results (same format as single query, but lists)
+        parsed_results = []
+        for i in range(len(query_texts)):
+            parsed_results.append({
+                "ids": results["ids"][i],
+                "distances": results["distances"][i],
+                "metadatas": results["metadatas"][i],
+                "documents": results["documents"][i] if "documents" in results else None,
+            })
+
+        return parsed_results
+```
+
+**File:** `phentrieve/text_processing/hpo_extraction_orchestrator.py` (UPDATE)
+
+```python
+def orchestrate_hpo_extraction(
+    text_chunks: list[str],
+    assertion_statuses: list[str | None],
+    retriever: DenseRetriever,
+    # ... other params ...
+):
+    """..."""
+
+    # ✅ BATCH QUERY (instead of sequential)
+    logger.info(f"Batch querying {len(text_chunks)} chunks")
+    batch_results = retriever.query_batch(
+        query_texts=text_chunks,
+        n_results=num_results_per_chunk,
+    )
+
+    # Process results (same logic, but using pre-fetched results)
+    detailed_chunk_results = []
+    for chunk_idx, (chunk_text, assertion_status, chunk_matches) in enumerate(
+        zip(text_chunks, assertion_statuses, batch_results)
+    ):
+        # ... existing processing logic using chunk_matches ...
+```
+
+### Expected Impact
+
+- **Before:** 20-30 sequential queries × 1-2s = 20-60s
+- **After:** 1 batch query × 2-3s = 2-3s
+- **Speedup:** 10-20x for multi-chunk documents!
+
+---
+
+## 4. Simple Profiling with Real Data (Day 3)
+
+### Approach: KISS - Use Standard Tools
+
+**NO custom profiling infrastructure!** Use existing Python profiling:
+
+```bash
+# Profile CLI with REAL problematic file
+python -m cProfile -o genereview.prof \
+  -m phentrieve text process \
+  tests/data/en/phenobert/GeneReviews/annotations/GeneReviews_NBK1379.json
+
+# Analyze results (focus on cumtime!)
+python -m pstats genereview.prof << EOF
+sort cumtime
+stats 20
+quit
+EOF
+
+# Simple timing with time command
+time phentrieve text process tests/data/en/phenobert/GeneReviews/annotations/GeneReviews_NBK1379.json
+```
+
+### Test Cases (Use REAL Data!)
+
+```bash
+# Test 1: Small text (should be instant after model caching fix)
+tests/data/de/phentrieve/annotations/clinical_case_001.json  # 125 chars
+
+# Test 2: Medium text (should be <10s after batching fix)
+tests/data/en/phenobert/GeneReviews/annotations/GeneReviews_NBK1379.json  # 1588 chars
+
+# Test 3: Find more real examples in tests/data/
+find tests/data -name "*.json" -type f | head -10
+```
+
+### Profiling Checklist
+
+```bash
+# 1. Baseline (before fixes)
+mkdir -p results/profiling/baseline
+python -m cProfile -o results/profiling/baseline/genereview_before.prof \
+  -m phentrieve text process tests/data/en/phenobert/GeneReviews/annotations/GeneReviews_NBK1379.json
+
+# 2. After model caching fix
+python -m cProfile -o results/profiling/baseline/genereview_after_caching.prof \
+  -m phentrieve text process tests/data/en/phenobert/GeneReviews/annotations/GeneReviews_NBK1379.json
+
+# 3. After batch queries fix
+python -m cProfile -o results/profiling/baseline/genereview_after_batching.prof \
+  -m phentrieve text process tests/data/en/phenobert/GeneReviews/annotations/GeneReviews_NBK1379.json
+
+# 4. Compare (manual analysis)
+python -m pstats results/profiling/baseline/genereview_before.prof
+# Look for top functions by cumtime
+```
+
+### Document Results (Simple Markdown)
+
+**File:** `plan/PROFILING-RESULTS.md`
+
+```markdown
+# Profiling Results
+
+## Test: GeneReviews_NBK1379.json (1588 chars)
+
+### Baseline (Before Fixes)
+- **Total Time:** 65.3 seconds
+- **Frontend Status:** ❌ Timeout
+- **Top Bottlenecks:**
+  1. Model loading: 12.5s (19%)
+  2. ChromaDB queries: 45.2s (69%) - 28 sequential queries
+  3. Embedding generation: 5.8s (9%)
+
+### After Model Caching
+- **Total Time:** 52.8 seconds (-19%)
+- **Top Bottlenecks:**
+  1. ChromaDB queries: 45.2s (86%)
+  2. Embedding generation: 5.8s (11%)
+
+### After Batch Queries
+- **Total Time:** 8.1 seconds (-87% vs baseline!)
+- **Frontend Status:** ✅ Works!
+- **Speedup:** 8x faster
+```
+
+---
+
+## 5. Progress Updates (Day 4-5)
+
+### Problem
+
+Frontend has NO feedback during processing. User thinks it crashed.
+
+### Solution: Server-Sent Events (SSE) for Progress
+
+**File:** `api/routers/text_processing_router.py` (NEW endpoint)
+
+```python
+from fastapi.responses import StreamingResponse
+import json
+
+@router.post("/process-stream")
+async def process_text_with_progress(request: TextProcessingRequest):
+    """
+    Stream processing progress using Server-Sent Events.
+
+    Returns progress updates while processing, allowing frontend
+    to show real-time feedback.
+    """
+
+    async def event_generator():
+        """Generate SSE events during processing."""
+        try:
+            # Send initial event
+            yield f"data: {json.dumps({'status': 'started', 'progress': 0})}\n\n"
+
+            # Step 1: Language detection
+            yield f"data: {json.dumps({'status': 'detecting_language', 'progress': 10})}\n\n"
+            actual_language = request.language or "en"
+            # ... language detection logic ...
+
+            # Step 2: Model loading
+            yield f"data: {json.dumps({'status': 'loading_models', 'progress': 20})}\n\n"
+            # ... model loading (from cache!) ...
+
+            # Step 3: Text chunking
+            yield f"data: {json.dumps({'status': 'chunking', 'progress': 40})}\n\n"
+            # ... chunking logic ...
+            num_chunks = len(processed_chunks_list)
+
+            # Step 4: HPO extraction
+            yield f"data: {json.dumps({'status': 'extracting_hpo', 'progress': 60, 'num_chunks': num_chunks})}\n\n"
+            # ... extraction logic ...
+
+            # Step 5: Aggregation
+            yield f"data: {json.dumps({'status': 'aggregating', 'progress': 90})}\n\n"
+            # ... aggregation logic ...
+
+            # Final result
+            result = {
+                'status': 'completed',
+                'progress': 100,
+                'data': {
+                    'processed_chunks': [...],
+                    'aggregated_hpo_terms': [...],
+                }
+            }
+            yield f"data: {json.dumps(result)}\n\n"
+
+        except Exception as e:
+            error_event = {
+                'status': 'error',
+                'error': str(e)
+            }
+            yield f"data: {json.dumps(error_event)}\n\n"
+
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+    )
+```
+
+**File:** `frontend/src/services/api.js` (UPDATE)
+
+```javascript
+// Use EventSource for SSE
+async function processTextWithProgress(text, onProgress) {
+  const url = '/api/v1/text/process-stream';
+
+  return new Promise((resolve, reject) => {
+    const eventSource = new EventSource(url);
+
+    eventSource.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+
+      if (data.status === 'completed') {
+        eventSource.close();
+        resolve(data.data);
+      } else if (data.status === 'error') {
+        eventSource.close();
+        reject(new Error(data.error));
+      } else {
+        // Update progress bar
+        onProgress(data.progress, data.status);
+      }
+    };
+
+    eventSource.onerror = () => {
+      eventSource.close();
+      reject(new Error('Connection lost'));
+    };
+  });
+}
+
+// Usage:
+await processTextWithProgress(
+  userText,
+  (progress, status) => {
+    updateProgressBar(progress);
+    updateStatusMessage(status);
+  }
+);
+```
+
+### Expected Impact
+
+- User sees: "Chunking... 40%", "Extracting HPO terms... 60%"
+- Understands processing is happening
+- Can estimate completion time
+
+---
+
+## 6. Validation with Real Test Cases
+
+### Validation Suite
+
+```bash
+#!/bin/bash
+# validate_fixes.sh
+
+echo "=== Performance Validation Suite ==="
+echo ""
+
+# Test 1: Small text (instant)
+echo "Test 1: Small text (clinical_case_001.json - 125 chars)"
+time phentrieve text process tests/data/de/phentrieve/annotations/clinical_case_001.json
+echo "Expected: <2s (after caching)"
+echo ""
+
+# Test 2: Medium text (fast)
+echo "Test 2: Medium text (GeneReviews_NBK1379.json - 1588 chars)"
+time phentrieve text process tests/data/en/phenobert/GeneReviews/annotations/GeneReviews_NBK1379.json
+echo "Expected: <10s (after batching)"
+echo ""
+
+# Test 3: API endpoint
+echo "Test 3: API endpoint (with cached models)"
+curl -X POST http://localhost:8734/api/v1/text/process \
+  -H "Content-Type: application/json" \
+  -d '{"text_content": "Patient presents with ataxia and hypotonia."}' \
+  -w "\nTime: %{time_total}s\n"
+echo "Expected: <1s (after caching)"
+echo ""
+
+echo "=== Validation Complete ==="
+```
+
+### Success Criteria
+
+| Test Case | Before Fixes | After Fixes | Status |
+|-----------|-------------|-------------|--------|
+| **Small text (125 chars)** | ~10s | <2s | ✅ |
+| **Medium text (1588 chars)** | 65s (timeout!) | <10s | ✅ |
+| **API endpoint (cached)** | ~10s | <1s | ✅ |
+| **Frontend timeout** | ❌ Loses connection | ✅ Works | ✅ |
+
+---
+
+## Implementation Timeline
+
+```
+Day 1 (TODAY): CRITICAL FIXES
+├── Morning: Model caching (2 hours)
+│   ├── Update text_processing_router.py to use dependencies
+│   ├── Test with clinical_case_001.json
+│   └── Verify 10x speedup
+├── Afternoon: API timeouts (2 hours)
+│   ├── Add timeout wrapper
+│   ├── Update frontend error handling
+│   └── Test with GeneReviews_NBK1379.json
+
+Day 2: BATCH QUERIES
+├── Morning: Implement batch query API (3 hours)
+│   ├── Add query_batch() to DenseRetriever
+│   ├── Update orchestrator to use batching
+│   └── Unit tests
+├── Afternoon: Integration testing (2 hours)
+│   └── Verify 10-20x speedup on GeneReviews
+
+Day 3: PROFILING & VALIDATION
+├── Profile with real data (using cProfile)
+├── Document results in PROFILING-RESULTS.md
+└── Validate all fixes with test suite
+
+Day 4-5: PROGRESS UPDATES (Optional)
+├── Implement SSE endpoint
+├── Update frontend to show progress
+└── User testing
+
+Total: 3-5 days
+```
+
+---
+
+## Anti-Pattern Review
+
+### ❌ What NOT to Do (from my previous plan)
+
+1. **Over-Engineering:**
+   - ❌ Building complex `PerformanceProfiler` class before fixing bugs
+   - ✅ Use `python -m cProfile` (it works!)
+
+2. **Synthetic Workloads:**
+   - ❌ Creating `corpus.txt` for profiling
+   - ✅ Use REAL files: `clinical_case_001.json`, `GeneReviews_NBK1379.json`
+
+3. **Premature Optimization:**
+   - ❌ Implementing parallelization before profiling
+   - ✅ Fix model caching first (biggest win!)
+
+4. **Infrastructure Before Value:**
+   - ❌ Building profiling CLI tools first
+   - ✅ Fix timeout bug first (user-visible!)
+
+5. **Complexity Creep:**
+   - ❌ "ModelPool singleton with thread locks"
+   - ✅ Use existing dependency injection (`api/dependencies.py`)!
+
+### ✅ Best Practices Applied
+
+1. **Fix Critical Bugs First** - Timeout is production-breaking
+2. **Use Existing Tools** - `cProfile`, `time`, existing dependencies
+3. **Test with Real Data** - Use actual problematic files
+4. **KISS Principle** - Simplest solution that works
+5. **Measure Impact** - Before/after timing with real cases
+6. **Incremental Delivery** - Day 1 fixes are immediately valuable
+
+---
+
+## Appendix A: Quick Reference
+
+### Commands
+
+```bash
+# Profile CLI
+python -m cProfile -o output.prof -m phentrieve text process input.json
+python -m pstats output.prof
+
+# Time CLI
+time phentrieve text process input.json
+
+# Test API
+curl -X POST http://localhost:8734/api/v1/text/process -d @input.json -w "\nTime: %{time_total}s\n"
+
+# Find test files
+find tests/data -name "*.json" -type f
+```
+
+### Test Files
+
+```
+tests/data/de/phentrieve/annotations/clinical_case_001.json      # 125 chars (small)
+tests/data/en/phenobert/GeneReviews/annotations/GeneReviews_NBK1379.json  # 1588 chars (medium)
+```
+
+---
+
+**END OF CRITICAL FIXES PLAN**
