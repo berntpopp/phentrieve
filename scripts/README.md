@@ -28,23 +28,23 @@ Convert PhenoBERT corpus datasets (GSC+, ID-68, GeneReviews) to Phentrieve JSON 
 **Usage:**
 
 ```bash
-# Convert all datasets
+# Convert all datasets (recommended path for test data)
 python scripts/convert_phenobert_data.py \
     --phenobert-data path/to/PhenoBERT/phenobert/data \
-    --output data/test_texts/phenobert \
+    --output tests/data/en/phenobert \
     --hpo-data data/hpo_core_data
 
 # Convert specific dataset
 python scripts/convert_phenobert_data.py \
     --phenobert-data path/to/PhenoBERT/phenobert/data \
-    --output data/test_texts/phenobert \
+    --output tests/data/en/phenobert \
     --hpo-data data/hpo_core_data \
     --dataset GSC+
 
 # With debug logging
 python scripts/convert_phenobert_data.py \
     --phenobert-data path/to/PhenoBERT/phenobert/data \
-    --output data/test_texts/phenobert \
+    --output tests/data/en/phenobert \
     --hpo-data data/hpo_core_data \
     --log-level DEBUG
 ```
@@ -52,15 +52,15 @@ python scripts/convert_phenobert_data.py \
 **Output Structure:**
 
 ```
-data/test_texts/phenobert/
-├── GSC_plus/
+tests/data/en/phenobert/         # Test data organized by language
+├── GSC_plus/                    # Normalized from 'GSC+'
 │   └── annotations/
-│       ├── GSC+_doc001.json
-│       ├── GSC+_doc002.json
+│       ├── GSC_plus_1003450.json   # Normalized filenames
+│       ├── GSC_plus_1003451.json
 │       └── ... (228 files)
-├── ID68/
+├── ID_68/                       # Normalized from 'ID-68'
 │   └── annotations/
-│       ├── ID-68_doc001.json
+│       ├── ID_68_doc001.json    # Normalized filenames
 │       └── ... (68 files)
 ├── GeneReviews/
 │   └── annotations/
@@ -68,6 +68,8 @@ data/test_texts/phenobert/
 │       └── ... (10 files)
 └── conversion_report.json
 ```
+
+**Note:** Dataset and file names are normalized for filesystem compatibility (e.g., `GSC+` → `GSC_plus`, `ID-68` → `ID_68`), while original names are preserved in JSON metadata for traceability.
 
 **Options:**
 
@@ -90,15 +92,15 @@ cd /path/to/phentrieve
 # 3. Run conversion
 python scripts/convert_phenobert_data.py \
     --phenobert-data /tmp/PhenoBERT/phenobert/data \
-    --output data/test_texts/phenobert \
+    --output tests/data/en/phenobert \
     --hpo-data data/hpo_core_data
 
 # 4. Check output
-ls data/test_texts/phenobert/
-cat data/test_texts/phenobert/conversion_report.json
+ls tests/data/en/phenobert/
+cat tests/data/en/phenobert/conversion_report.json
 
 # 5. Verify a sample file
-cat data/test_texts/phenobert/GSC_plus/annotations/GSC+_*.json | head -n 50
+cat tests/data/en/phenobert/GSC_plus/annotations/GSC_plus_*.json | head -n 50
 ```
 
 ## Troubleshooting

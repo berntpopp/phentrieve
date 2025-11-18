@@ -1,0 +1,43 @@
+{
+  "doc_id": "GSC+_16871364",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Brachydactyly type A1 (BDA1) is caused by mutations in the Indian hedgehog gene, IHH, on chromosome 2q35-36. In this study, a large five-generation Chinese family with BDA1 was identified and characterized. All affected family members demonstrated significant homogeneous phenotype and some unique clinical features different from those associated with the reported BDA1 mutations in IHH. Linkage analysis showed that the BDA1 gene in the family was linked to marker D2S126 close to IHH with a LOD score of 4.74 at a recombination fraction of 0. DNA sequence analysis revealed a heterozygous C to T transition at nucleotide 461 of IHH, resulting in a novel T154I substitution. The T154I mutation co-segregated with all affected individuals in the family, and was not present in normal family members or 200 normal controls. These results expand the spectrum of clinical phenotype associated with IHH mutations.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 910,
+    "num_annotations": 2,
+    "conversion_date": "2025-11-18T13:13:15.646885"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0009371",
+      "label": "Type A1 brachydactyly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 0,
+          "end_char": 21,
+          "text_snippet": "Brachydactyly type A1"
+        },
+        {
+          "start_char": 23,
+          "end_char": 27,
+          "text_snippet": "BDA1"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003813",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 248,
+          "end_char": 281,
+          "text_snippet": "significant homogeneous phenotype"
+        }
+      ]
+    }
+  ]
+}

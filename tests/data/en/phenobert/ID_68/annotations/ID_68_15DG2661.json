@@ -1,0 +1,367 @@
+{
+  "doc_id": "ID-68_15DG2661",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "A 2 years old girl with facial dysmorphism, global developmental delay, hypotonia, congenital hip dysplasia and failure to thrive. She was born at 37 weeks gestation via NSVD, and Apgar scores were 9 and 10 at 1 and 5 minutes, respectively. Antenatal ultrasound revealed IUGR, ascites, pericardial effusion, dilated cisterna magna and hyper echogenic stomach wall. At birth, she underwent partial exchange transfusion due to polycythemia. Growth parameters at birth were weight 2.7 kg (10th -25th percentile), length 49 cm (25th-50th percentile) and head circumference 33 cm (10th -25th percentile). She was found to have PFO and PDA that closed spontaneously later on and bilateral DDH. Her parents are double first-degree cousins, and there is no family history of a similar condition. Her examination was significant for coarse facial features, hypertrichosis, thick bushy eyebrows, upslanting palpebral fissures, high forehead, a bilateral convergent squint, prominent nose, thin lips, prominent ears, prominent nasal tip, high narrow palate, fish mouth appearance, arachnodactyly, pectus excavatum, overlapping toes, hypotonia and generalized muscle wasting. Her growth parameters at 22 months of age were weight 8.8 kg (<1st percentile, -2.71 SD), length 77 cm (on the 2nd percentile) and head circumference 44 cm (on the 1st percentile). Skeletal survey revealed generalized osteopenia, 11 pairs of ribs and bilateral DDH. Brain MRI, abdominal ultrasound, creatine kinase, newborn screening and CGH microarray were within normal limits. She had swallowing assessment, and she was found to have an aspiration of thin and thick fluids.",
+  "metadata": {
+    "dataset": "ID-68",
+    "text_length_chars": 1640,
+    "num_annotations": 29,
+    "conversion_date": "2025-11-18T13:13:19.892426"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001999",
+      "label": "Abnormal facial shape",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 19,
+          "end_char": 42,
+          "text_snippet": "with facial dysmorphism"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001263",
+      "label": "Global developmental delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 44,
+          "end_char": 70,
+          "text_snippet": "global developmental delay"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001290",
+      "label": "Generalized hypotonia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 72,
+          "end_char": 81,
+          "text_snippet": "hypotonia"
+        },
+        {
+          "start_char": 1122,
+          "end_char": 1131,
+          "text_snippet": "hypotonia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001385",
+      "label": "Hip dysplasia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 83,
+          "end_char": 107,
+          "text_snippet": "congenital hip dysplasia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001508",
+      "label": "Failure to thrive",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 112,
+          "end_char": 129,
+          "text_snippet": "failure to thrive"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001511",
+      "label": "Intrauterine growth retardation",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 271,
+          "end_char": 275,
+          "text_snippet": "IUGR"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001541",
+      "label": "Ascites",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 277,
+          "end_char": 284,
+          "text_snippet": "ascites"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001698",
+      "label": "Pericardial effusion",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 286,
+          "end_char": 306,
+          "text_snippet": "pericardial effusion"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002280",
+      "label": "Enlarged cisterna magna",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 308,
+          "end_char": 330,
+          "text_snippet": "dilated cisterna magna"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001901",
+      "label": "Polycythemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 425,
+          "end_char": 437,
+          "text_snippet": "polycythemia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000280",
+      "label": "Coarse facial features",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 808,
+          "end_char": 846,
+          "text_snippet": "significant for coarse facial features"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000998",
+      "label": "Hypertrichosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 848,
+          "end_char": 862,
+          "text_snippet": "hypertrichosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000574",
+      "label": "Thick eyebrow",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 864,
+          "end_char": 884,
+          "text_snippet": "thick bushy eyebrows"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000582",
+      "label": "Upslanted palpebral fissure",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 886,
+          "end_char": 915,
+          "text_snippet": "upslanting palpebral fissures"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000348",
+      "label": "High forehead",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 917,
+          "end_char": 930,
+          "text_snippet": "high forehead"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0020045",
+      "label": "Esodeviation",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 944,
+          "end_char": 961,
+          "text_snippet": "convergent squint"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000448",
+      "label": "Prominent nose",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 963,
+          "end_char": 977,
+          "text_snippet": "prominent nose"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000233",
+      "label": "Thin vermilion border",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 979,
+          "end_char": 988,
+          "text_snippet": "thin lips"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000411",
+      "label": "Protruding ear",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 990,
+          "end_char": 1004,
+          "text_snippet": "prominent ears"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0005274",
+      "label": "Prominent nasal tip",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1006,
+          "end_char": 1025,
+          "text_snippet": "prominent nasal tip"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002705",
+      "label": "High, narrow palate",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1027,
+          "end_char": 1045,
+          "text_snippet": "high narrow palate"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010806",
+      "label": "U-Shaped upper lip vermilion",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1047,
+          "end_char": 1068,
+          "text_snippet": "fish mouth appearance"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001166",
+      "label": "Arachnodactyly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1070,
+          "end_char": 1084,
+          "text_snippet": "arachnodactyly"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000767",
+      "label": "Pectus excavatum",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1086,
+          "end_char": 1102,
+          "text_snippet": "pectus excavatum"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001845",
+      "label": "Overlapping toe",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1104,
+          "end_char": 1120,
+          "text_snippet": "overlapping toes"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009055",
+      "label": "Generalized limb muscle atrophy",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1136,
+          "end_char": 1162,
+          "text_snippet": "generalized muscle wasting"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000938",
+      "label": "Osteopenia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1370,
+          "end_char": 1392,
+          "text_snippet": "generalized osteopenia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000878",
+      "label": "11 pairs of ribs",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1394,
+          "end_char": 1410,
+          "text_snippet": "11 pairs of ribs"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002835",
+      "label": "Aspiration",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1604,
+          "end_char": 1614,
+          "text_snippet": "aspiration"
+        }
+      ]
+    }
+  ]
+}

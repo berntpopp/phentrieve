@@ -1,0 +1,62 @@
+{
+  "doc_id": "GSC+_1750770",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Two very preterm infants (born at 29 and 25 weeks, respectively) were found to have abnormal ribs. Though this was thought unimportant at the time, it was subsequently shown to indicate that some members of their families had a dominantly inherited risk of developing skin cancer and other serious problems.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 307,
+    "num_annotations": 4,
+    "conversion_date": "2025-11-18T13:13:15.782133"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001622",
+      "label": "Premature birth",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 9,
+          "end_char": 24,
+          "text_snippet": "preterm infants"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000772",
+      "label": "Abnormal rib morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 84,
+          "end_char": 97,
+          "text_snippet": "abnormal ribs"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 228,
+          "end_char": 248,
+          "text_snippet": "dominantly inherited"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0008069",
+      "label": "Neoplasm of the skin",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 268,
+          "end_char": 279,
+          "text_snippet": "skin cancer"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,96 @@
+{
+  "doc_id": "GSC+_2282716",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Clinical and genetic data of 10 patients with neurofibromatosis 2 (NF-2) are presented. Interestingly, no family history of neurofibromatosis was detectable in any of them, which indicates that these are sporadic cases of NF-2, most likely due to a new mutational event. According to our own results and the data in the literature, sporadic cases of NF-2 are clinically characterized by a high incidence of multiple meningiomas and spinal tumors in addition to the bilateral occurrence of acoustic neurinomas. The clinical heterogeneity of NF-2 is pointed out and the possible existence of different forms of this disease is discussed.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 635,
+    "num_annotations": 6,
+    "conversion_date": "2025-11-18T13:13:16.251835"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0006746",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 46,
+          "end_char": 63,
+          "text_snippet": "neurofibromatosis"
+        },
+        {
+          "start_char": 124,
+          "end_char": 141,
+          "text_snippet": "neurofibromatosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003745",
+      "label": "Sporadic",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 204,
+          "end_char": 218,
+          "text_snippet": "sporadic cases"
+        },
+        {
+          "start_char": 332,
+          "end_char": 346,
+          "text_snippet": "sporadic cases"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002858",
+      "label": "Meningioma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 416,
+          "end_char": 427,
+          "text_snippet": "meningiomas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010302",
+      "label": "Spinal cord tumor",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 432,
+          "end_char": 445,
+          "text_snippet": "spinal tumors"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009589",
+      "label": "Bilateral vestibular schwannoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 465,
+          "end_char": 508,
+          "text_snippet": "bilateral occurrence of acoustic neurinomas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003812",
+      "label": "Phenotypic variability",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 514,
+          "end_char": 536,
+          "text_snippet": "clinical heterogeneity"
+        }
+      ]
+    }
+  ]
+}

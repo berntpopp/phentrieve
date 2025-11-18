@@ -1,0 +1,257 @@
+{
+  "doc_id": "GSC+_7485365",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "To evaluate the ocular abnormalities in patients with clinically diagnosed neurofibromatosis 2 and asymptomatic gene carriers.\n\nProbands were ascertained through a surgical otolaryngology practice. In a cross-sectional study, we examined 49 patients with neurofibromatosis 2, 30 offspring of patients, and, as a comparison group, 18 parents and siblings of patients with sporadic neurofibromatosis 2. The examination included a complete neuro-ophthalmic assessment, physical examination, and, for patients and first-degree relatives at risk, cranial and spinal magnetic resonance imaging with gadolinium enhancement, if not previously performed.\n\nThe most common ocular abnormalities were posterior subcapsular or capsular, cortical, or mixed lens opacities in 33 (67%) of 49 patients with neurofibromatosis 2 and retinal hamartomas in 11 (22%). We used segregation analysis to determine the mutation carrier status of six at-risk offspring who were 30 years old or younger in two multigeneration families. Three asymptomatic mutation carriers had cataracts, whereas those who were predicted not to carry the mutation did not have cataracts. Asymptomatic mutation carriers may have developmental abnormalities of the eye that are detectable in childhood or adolescence, a finding that may assist in early diagnosis of the disease.\n\nA variety of ocular abnormalities are present in neurofibromatosis 2, including cataracts, retinal hamartomas, and ocular motor deficits. Many of these are developmental or acquired early in life and may assist in presymptomatic diagnosis. For screening at-risk relatives of patients with neurofibromatosis 2, the types of cataract that are most suggestive of neurofibromatosis 2 are plaque-like posterior subcapsular or capsular cataract and cortical cataract with onset under the age of 30 years.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 1830,
+    "num_annotations": 14,
+    "conversion_date": "2025-11-18T13:13:17.551714"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000284",
+      "label": "obsolete Abnormality of the ocular region",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 16,
+          "end_char": 36,
+          "text_snippet": "ocular abnormalities"
+        },
+        {
+          "start_char": 663,
+          "end_char": 683,
+          "text_snippet": "ocular abnormalities"
+        },
+        {
+          "start_char": 1345,
+          "end_char": 1365,
+          "text_snippet": "ocular abnormalities"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0006746",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 75,
+          "end_char": 92,
+          "text_snippet": "neurofibromatosis"
+        },
+        {
+          "start_char": 255,
+          "end_char": 272,
+          "text_snippet": "neurofibromatosis"
+        },
+        {
+          "start_char": 380,
+          "end_char": 397,
+          "text_snippet": "neurofibromatosis"
+        },
+        {
+          "start_char": 790,
+          "end_char": 807,
+          "text_snippet": "neurofibromatosis"
+        },
+        {
+          "start_char": 1381,
+          "end_char": 1398,
+          "text_snippet": "neurofibromatosis"
+        },
+        {
+          "start_char": 1621,
+          "end_char": 1638,
+          "text_snippet": "neurofibromatosis"
+        },
+        {
+          "start_char": 1692,
+          "end_char": 1709,
+          "text_snippet": "neurofibromatosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003745",
+      "label": "Sporadic",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 371,
+          "end_char": 379,
+          "text_snippet": "sporadic"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0007787",
+      "label": "Posterior subcapsular cataract",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 689,
+          "end_char": 757,
+          "text_snippet": "posterior subcapsular or capsular, cortical, or mixed lens opacities"
+        },
+        {
+          "start_char": 1728,
+          "end_char": 1770,
+          "text_snippet": "posterior subcapsular or capsular cataract"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100020",
+      "label": "Posterior capsular cataract",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 714,
+          "end_char": 757,
+          "text_snippet": "capsular, cortical, or mixed lens opacities"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100019",
+      "label": "Cortical cataract",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 724,
+          "end_char": 757,
+          "text_snippet": "cortical, or mixed lens opacities"
+        },
+        {
+          "start_char": 1775,
+          "end_char": 1792,
+          "text_snippet": "cortical cataract"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000518",
+      "label": "Cataract",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 743,
+          "end_char": 757,
+          "text_snippet": "lens opacities"
+        },
+        {
+          "start_char": 1048,
+          "end_char": 1057,
+          "text_snippet": "cataracts"
+        },
+        {
+          "start_char": 1131,
+          "end_char": 1140,
+          "text_snippet": "cataracts"
+        },
+        {
+          "start_char": 1412,
+          "end_char": 1421,
+          "text_snippet": "cataracts"
+        },
+        {
+          "start_char": 1655,
+          "end_char": 1663,
+          "text_snippet": "cataract"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009594",
+      "label": "Retinal hamartoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 814,
+          "end_char": 832,
+          "text_snippet": "retinal hamartomas"
+        },
+        {
+          "start_char": 1423,
+          "end_char": 1441,
+          "text_snippet": "retinal hamartomas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001263",
+      "label": "Global developmental delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1182,
+          "end_char": 1209,
+          "text_snippet": "developmental abnormalities"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000478",
+      "label": "Abnormality of the eye",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1196,
+          "end_char": 1220,
+          "text_snippet": "abnormalities of the eye"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0011463",
+      "label": "Childhood onset",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1244,
+          "end_char": 1253,
+          "text_snippet": "childhood"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0011462",
+      "label": "Young adult onset",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1257,
+          "end_char": 1268,
+          "text_snippet": "adolescence"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0006860",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1447,
+          "end_char": 1468,
+          "text_snippet": "ocular motor deficits"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100017",
+      "label": "Capsular cataract",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1753,
+          "end_char": 1770,
+          "text_snippet": "capsular cataract"
+        }
+      ]
+    }
+  ]
+}

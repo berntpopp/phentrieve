@@ -1,0 +1,324 @@
+{
+  "doc_id": "GeneReviews_NBK148668",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Summary:\nThe phenotypic spectrum of mucopolysaccharidosis IVA (MPS IVA) is a continuum that ranges from a severe and rapidly progressive early-onset form to a slowly progressive later-onset form. Children with MPS IVA have no distinctive clinical findings at birth. The severe form is usually apparent between ages one and three years, often first manifesting as kyphoscoliosis, knock-knee (genu valgum), and pectus carinatum; the slowly progressive form may not become evident until late childhood or adolescence often first manifesting as hip problems (pain, stiffness, and Legg Perthes disease). Progressive bone and joint involvement leads to short stature, and eventually to disabling pain and arthritis. Involvement of other organ systems can lead to significant morbidity, including respiratory compromise, obstructive sleep apnea, valvular heart disease, hearing impairment, visual impairment from corneal clouding, dental abnormalities, and hepatomegaly. Compression of the spinal cord is a common complication that results in neurologic impairment. Children with MPS IVA have normal intellectual abilities at the outset of the disease.\nDescription:\nMucopolysaccharidosis type IVA (MPS IVA) comprises a clinical continuum ranging from a severe and rapidly progressive form to a slowly progressive form. In the past, the two forms were distinguished by height, the subjective assessment of severity of bone deformity, and survival; however, neither clinical nor biochemical findings can provide clear distinctions between the two forms and, thus, the MPS IVA phenotype should be considered a continuum from severe to slowly progressive.\nAffected children have no distinctive clinical findings at birth. The severe form is usually apparent between ages one and three years. The slowly progressive form may not become evident until late childhood or adolescence.\nIn both forms, the initial presentations vary and may be a single finding or several findings. Kyphoscoliosis, knock-knee (genu valgum) (Figure 5), and pectus carinatum (Figure 3 and Figure 4) are the most common initial manifestations of the severe form.\nBecause descriptions of the natural history of MPS IV published in the past may not have distinguished between MPS IVA (Morquio syndrome type A; accounting for >95% of affected individuals) and MPS IVB (Morquio syndrome type B; <5% of affected individuals), the following information is relevant to both MPS IVA and MPS IVB.\nWhile the skeletal findings of MPS IVA are the hallmark findings, involvement of other organ systems can lead to significant morbidity, including respiratory compromise, obstructive sleep apnea, valvular heart disease, hearing impairment, corneal clouding, dental abnormalities, and hepatomegaly. Compression of the spinal cord results in neurologic involvement especially when disease is recognized later in life.\nCoarse facial features are also present but milder than in other mucopolysaccharidoses (see Differential Diagnosis).\nChildren with MPS IVA typically have normal intellectual ability.\nLigamentous laxity and joint hypermobility are distinctive features of MPS IVA, and are rare among other storage disorders.\n",
+  "metadata": {
+    "dataset": "GeneReviews",
+    "text_length_chars": 3172,
+    "num_annotations": 20,
+    "conversion_date": "2025-11-18T13:13:20.740979"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0002751",
+      "label": "Kyphoscoliosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 363,
+          "end_char": 377,
+          "text_snippet": "kyphoscoliosis"
+        },
+        {
+          "start_char": 1964,
+          "end_char": 1978,
+          "text_snippet": "Kyphoscoliosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002857",
+      "label": "Genu valgum",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 379,
+          "end_char": 389,
+          "text_snippet": "knock-knee"
+        },
+        {
+          "start_char": 391,
+          "end_char": 402,
+          "text_snippet": "genu valgum"
+        },
+        {
+          "start_char": 1980,
+          "end_char": 1990,
+          "text_snippet": "knock-knee"
+        },
+        {
+          "start_char": 1992,
+          "end_char": 2003,
+          "text_snippet": "genu valgum"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000768",
+      "label": "Pectus carinatum",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 409,
+          "end_char": 425,
+          "text_snippet": "pectus carinatum"
+        },
+        {
+          "start_char": 2021,
+          "end_char": 2037,
+          "text_snippet": "pectus carinatum"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012531",
+      "label": "Pain",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 555,
+          "end_char": 559,
+          "text_snippet": "pain"
+        },
+        {
+          "start_char": 690,
+          "end_char": 694,
+          "text_snippet": "pain"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0005743",
+      "label": "Avascular necrosis of the capital femoral epiphysis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 576,
+          "end_char": 596,
+          "text_snippet": "Legg Perthes disease"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004322",
+      "label": "Short stature",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 647,
+          "end_char": 660,
+          "text_snippet": "short stature"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001369",
+      "label": "Arthritis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 699,
+          "end_char": 708,
+          "text_snippet": "arthritis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002093",
+      "label": "Respiratory insufficiency",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 790,
+          "end_char": 812,
+          "text_snippet": "respiratory compromise"
+        },
+        {
+          "start_char": 2596,
+          "end_char": 2618,
+          "text_snippet": "respiratory compromise"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002870",
+      "label": "Obstructive sleep apnea",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 814,
+          "end_char": 837,
+          "text_snippet": "obstructive sleep apnea"
+        },
+        {
+          "start_char": 2620,
+          "end_char": 2643,
+          "text_snippet": "obstructive sleep apnea"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001654",
+      "label": "Abnormal heart valve morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 839,
+          "end_char": 861,
+          "text_snippet": "valvular heart disease"
+        },
+        {
+          "start_char": 2645,
+          "end_char": 2667,
+          "text_snippet": "valvular heart disease"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000365",
+      "label": "Hearing impairment",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 863,
+          "end_char": 881,
+          "text_snippet": "hearing impairment"
+        },
+        {
+          "start_char": 2669,
+          "end_char": 2687,
+          "text_snippet": "hearing impairment"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000505",
+      "label": "Visual impairment",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 883,
+          "end_char": 900,
+          "text_snippet": "visual impairment"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0007957",
+      "label": "Corneal opacity",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 906,
+          "end_char": 922,
+          "text_snippet": "corneal clouding"
+        },
+        {
+          "start_char": 2689,
+          "end_char": 2705,
+          "text_snippet": "corneal clouding"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000164",
+      "label": "Abnormality of the dentition",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 924,
+          "end_char": 944,
+          "text_snippet": "dental abnormalities"
+        },
+        {
+          "start_char": 2707,
+          "end_char": 2727,
+          "text_snippet": "dental abnormalities"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002240",
+      "label": "Hepatomegaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 950,
+          "end_char": 962,
+          "text_snippet": "hepatomegaly"
+        },
+        {
+          "start_char": 2733,
+          "end_char": 2745,
+          "text_snippet": "hepatomegaly"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002176",
+      "label": "Spinal cord compression",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 964,
+          "end_char": 994,
+          "text_snippet": "Compression of the spinal cord"
+        },
+        {
+          "start_char": 2747,
+          "end_char": 2777,
+          "text_snippet": "Compression of the spinal cord"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000707",
+      "label": "Abnormality of the nervous system",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2789,
+          "end_char": 2811,
+          "text_snippet": "neurologic involvement"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000280",
+      "label": "Coarse facial features",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2865,
+          "end_char": 2887,
+          "text_snippet": "Coarse facial features"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001388",
+      "label": "obsolete Joint laxity",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 3048,
+          "end_char": 3066,
+          "text_snippet": "Ligamentous laxity"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001382",
+      "label": "Joint hypermobility",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 3071,
+          "end_char": 3090,
+          "text_snippet": "joint hypermobility"
+        }
+      ]
+    }
+  ]
+}

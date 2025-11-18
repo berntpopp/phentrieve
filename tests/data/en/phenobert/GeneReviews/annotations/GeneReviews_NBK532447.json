@@ -1,0 +1,602 @@
+{
+  "doc_id": "GeneReviews_NBK532447",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Summary:\nAbetalipoproteinemia typically presents in infancy with failure to thrive, diarrhea, vomiting, and malabsorption of fat. Hematologic manifestations may include acanthocytosis (irregularly spiculated erythrocytes), anemia, reticulocytosis, and hemolysis with resultant hyperbilirubinemia. Malabsorption of fat-soluble vitamins (A, D, E, and K) can result in an increased international normalized ratio (INR). Untreated individuals may develop atypical pigmentation of the retina that may present with progressive loss of night vision and/or color vision in adulthood. Neuromuscular findings in untreated individuals including progressive loss of deep tendon reflexes, vibratory sense, and proprioception; muscle weakness; dysarthria; and ataxia typically manifest in the first or second decades of life.\nDescription:\nAbetalipoproteinemia typically presents in infancy with failure to thrive, diarrhea, vomiting, and malabsorption of fat. The absence of apo B-containing lipoproteins and resulting deficiency of fat-soluble vitamins lead to multisystem manifestations as the affected individual ages.\nGastrointestinal. Steatorrhea is the primary gastrointestinal manifestation. The severity relates to the fat content of the diet.\nAs affected individuals age they learn to avoid dietary fat, which improves steatorrhea.;Hepatic involvement as identified on laboratory studies is frequently stable over many years and may not evolve to be clinically significant.;Hepatomegaly and hepatic steatosis can be observed, which rarely may progress to steatohepatitis, fibrosis, and cirrhosis.;On a typical diet (e.g., no dietary fat restriction), the intestinal mucosa may have a \"gelee blanche\" or \"white hoar frosting\" appearance on endoscopy.Biopsy of the intestinal epithelium may demonstrate lipid-laden intestinal epithelial cells.\nHematologic manifestations of abetalipoproteinemia include the following:\nAcanthocytosis, defined as irregularly spiculated erythrocytes;Low erythrocyte sedimentation rate;Anemia;Reticulocytosis;Hyperbilirubinemia;Hemolysis;Prolonged INR due to vitamin K deficiency.\nOphthalmologic manifestations of abetalipoproteinemia are variable, with the most prominent being an atypical pigmentation of the retina.\nMany affected individuals are asymptomatic until adulthood, when they experience loss of night vision and/or color vision.;As the disease progresses, affected individuals may experience progressively expanding scotomas.;Without treatment, progression to complete visual loss may occur.;Other rare, typically acquired, ophthalmologic findings include the following:PtosisOphthalmoplegiaCorneal ulcers.\nIt is hypothesized that the possible cause of ptosis and ophthalmoplegia is vitamin E deficiency leading to cranial nerve demyelination. Corneal ulcers may be caused or exacerbated by vitamin A deficiency.\nNeuromuscular. If untreated, neuromuscular manifestations of abetalipoproteinemia secondary to the deficiency of vitamin E typically begin in the first or second decade of life. Symptoms include the following:\nProgressive loss of deep tendon reflexes, vibratory sense, and proprioception;Muscle weakness;Dysarthria;Eventually, a Friedrich's-like ataxia, with a broad base and high stepping gait, can develop in early adulthood in untreated individuals.\nCardiac. Although rare, cardiomegaly can occur after decades, with rare death related to cardiomyopathy reported.\nEndocrinologic. Although rare, both subclinical and overt hypothyroidism have been reported in individuals with abetalipoproteinemia.\nPrognosis. In the past, without high-dose fat-soluble vitamin supplementation, affected individuals would typically not survive past the third decade of life, dying with severe neuromyopathy and respiratory failure. With lifelong high-dose oral fat-soluble vitamin treatment, longevity into the seventh and eighth decade of life, with relatively minimal symptoms, has been reported.\n",
+  "metadata": {
+    "dataset": "GeneReviews",
+    "text_length_chars": 3933,
+    "num_annotations": 39,
+    "conversion_date": "2025-11-18T13:13:20.858982"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0008181",
+      "label": "Abetalipoproteinemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 9,
+          "end_char": 29,
+          "text_snippet": "Abetalipoproteinemia"
+        },
+        {
+          "start_char": 1867,
+          "end_char": 1887,
+          "text_snippet": "abetalipoproteinemia"
+        },
+        {
+          "start_char": 2137,
+          "end_char": 2157,
+          "text_snippet": "abetalipoproteinemia"
+        },
+        {
+          "start_char": 2910,
+          "end_char": 2930,
+          "text_snippet": "abetalipoproteinemia"
+        },
+        {
+          "start_char": 3528,
+          "end_char": 3548,
+          "text_snippet": "abetalipoproteinemia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001508",
+      "label": "Failure to thrive",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 65,
+          "end_char": 82,
+          "text_snippet": "failure to thrive"
+        },
+        {
+          "start_char": 881,
+          "end_char": 898,
+          "text_snippet": "failure to thrive"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002014",
+      "label": "Diarrhea",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 84,
+          "end_char": 92,
+          "text_snippet": "diarrhea"
+        },
+        {
+          "start_char": 900,
+          "end_char": 908,
+          "text_snippet": "diarrhea"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002013",
+      "label": "Vomiting",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 94,
+          "end_char": 102,
+          "text_snippet": "vomiting"
+        },
+        {
+          "start_char": 910,
+          "end_char": 918,
+          "text_snippet": "vomiting"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002630",
+      "label": "Fat malabsorption",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 108,
+          "end_char": 128,
+          "text_snippet": "malabsorption of fat"
+        },
+        {
+          "start_char": 297,
+          "end_char": 317,
+          "text_snippet": "Malabsorption of fat"
+        },
+        {
+          "start_char": 924,
+          "end_char": 944,
+          "text_snippet": "malabsorption of fat"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001927",
+      "label": "Acanthocytosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 169,
+          "end_char": 183,
+          "text_snippet": "acanthocytosis"
+        },
+        {
+          "start_char": 1911,
+          "end_char": 1925,
+          "text_snippet": "Acanthocytosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001903",
+      "label": "Anemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 223,
+          "end_char": 229,
+          "text_snippet": "anemia"
+        },
+        {
+          "start_char": 2009,
+          "end_char": 2015,
+          "text_snippet": "Anemia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001923",
+      "label": "Reticulocytosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 231,
+          "end_char": 246,
+          "text_snippet": "reticulocytosis"
+        },
+        {
+          "start_char": 2016,
+          "end_char": 2031,
+          "text_snippet": "Reticulocytosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002904",
+      "label": "Hyperbilirubinemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 277,
+          "end_char": 295,
+          "text_snippet": "hyperbilirubinemia"
+        },
+        {
+          "start_char": 2032,
+          "end_char": 2050,
+          "text_snippet": "Hyperbilirubinemia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0008151",
+      "label": "Prolonged prothrombin time",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 369,
+          "end_char": 409,
+          "text_snippet": "increased international normalized ratio"
+        },
+        {
+          "start_char": 2061,
+          "end_char": 2074,
+          "text_snippet": "Prolonged INR"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0007703",
+      "label": "Abnormality of retinal pigmentation",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 460,
+          "end_char": 486,
+          "text_snippet": "pigmentation of the retina"
+        },
+        {
+          "start_char": 2214,
+          "end_char": 2240,
+          "text_snippet": "pigmentation of the retina"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0007675",
+      "label": "Progressive night blindness",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 509,
+          "end_char": 541,
+          "text_snippet": "progressive loss of night vision"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000551",
+      "label": "Color vision defect",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 549,
+          "end_char": 574,
+          "text_snippet": "color vision in adulthood"
+        },
+        {
+          "start_char": 2351,
+          "end_char": 2363,
+          "text_snippet": "color vision"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001284",
+      "label": "Areflexia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 646,
+          "end_char": 674,
+          "text_snippet": "loss of deep tendon reflexes"
+        },
+        {
+          "start_char": 3071,
+          "end_char": 3099,
+          "text_snippet": "loss of deep tendon reflexes"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002495",
+      "label": "Impaired vibratory sensation",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 676,
+          "end_char": 691,
+          "text_snippet": "vibratory sense"
+        },
+        {
+          "start_char": 3101,
+          "end_char": 3116,
+          "text_snippet": "vibratory sense "
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001324",
+      "label": "Muscle weakness",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 713,
+          "end_char": 728,
+          "text_snippet": "muscle weakness"
+        },
+        {
+          "start_char": 3137,
+          "end_char": 3152,
+          "text_snippet": "Muscle weakness"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001260",
+      "label": "Dysarthria",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 730,
+          "end_char": 740,
+          "text_snippet": "dysarthria"
+        },
+        {
+          "start_char": 3153,
+          "end_char": 3163,
+          "text_snippet": "Dysarthria"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001251",
+      "label": "Ataxia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 746,
+          "end_char": 752,
+          "text_snippet": "ataxia"
+        },
+        {
+          "start_char": 3195,
+          "end_char": 3201,
+          "text_snippet": "ataxia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002570",
+      "label": "Steatorrhea",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1126,
+          "end_char": 1137,
+          "text_snippet": "Steatorrhea"
+        },
+        {
+          "start_char": 1314,
+          "end_char": 1325,
+          "text_snippet": "steatorrhea"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002240",
+      "label": "Hepatomegaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1469,
+          "end_char": 1481,
+          "text_snippet": "Hepatomegaly"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001397",
+      "label": "Hepatic steatosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1486,
+          "end_char": 1503,
+          "text_snippet": "hepatic steatosis"
+        },
+        {
+          "start_char": 1550,
+          "end_char": 1565,
+          "text_snippet": "steatohepatitis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001394",
+      "label": "Cirrhosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1581,
+          "end_char": 1590,
+          "text_snippet": "cirrhosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0025022",
+      "label": "Decreased erythrocyte sedimentation rate",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1974,
+          "end_char": 2008,
+          "text_snippet": "Low erythrocyte sedimentation rate"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0011892",
+      "label": "Decreased circulating vitamin K concentration",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2082,
+          "end_char": 2102,
+          "text_snippet": "vitamin K deficiency"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000662",
+      "label": "Nyctalopia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2312,
+          "end_char": 2343,
+          "text_snippet": "experience loss of night vision"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000575",
+      "label": "Scotoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2452,
+          "end_char": 2460,
+          "text_snippet": "scotomas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000572",
+      "label": "Visual loss",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2505,
+          "end_char": 2516,
+          "text_snippet": "visual loss"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000508",
+      "label": "Ptosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2689,
+          "end_char": 2695,
+          "text_snippet": "ptosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000602",
+      "label": "Ophthalmoplegia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2700,
+          "end_char": 2715,
+          "text_snippet": "ophthalmoplegia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100513",
+      "label": "Decreased circulating vitamin E concentration",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2719,
+          "end_char": 2739,
+          "text_snippet": "vitamin E deficiency"
+        },
+        {
+          "start_char": 2944,
+          "end_char": 2971,
+          "text_snippet": "the deficiency of vitamin E"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0011096",
+      "label": "Peripheral demyelination",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2759,
+          "end_char": 2778,
+          "text_snippet": "nerve demyelination"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012804",
+      "label": "Corneal ulceration",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2780,
+          "end_char": 2794,
+          "text_snippet": "Corneal ulcers"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004905",
+      "label": "Reduced circulating vitamin A concentration",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2827,
+          "end_char": 2847,
+          "text_snippet": "vitamin A deficiency"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010831",
+      "label": "Impaired proprioception",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 3122,
+          "end_char": 3136,
+          "text_snippet": "proprioception"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003376",
+      "label": "Steppage gait",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 3225,
+          "end_char": 3243,
+          "text_snippet": "high stepping gait"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001640",
+      "label": "Cardiomegaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 3326,
+          "end_char": 3339,
+          "text_snippet": "cardiomegaly"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001638",
+      "label": "Cardiomyopathy",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 3391,
+          "end_char": 3405,
+          "text_snippet": "cardiomyopathy"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000821",
+      "label": "Hypothyroidism",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 3474,
+          "end_char": 3488,
+          "text_snippet": "hypothyroidism"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002878",
+      "label": "Respiratory failure",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 3745,
+          "end_char": 3764,
+          "text_snippet": "respiratory failure"
+        }
+      ]
+    }
+  ]
+}

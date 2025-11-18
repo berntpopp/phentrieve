@@ -1,0 +1,152 @@
+{
+  "doc_id": "GSC+_10066029",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Nevoid basal cell carcinoma syndrome (NBCCS) is a hereditary condition transmitted as an autosomal dominant trait with complete penetrance and variable expressivity. The syndrome is characterised by numerous basal cell carcinomas (BCCs), odontogenic keratocysts of the jaws, palmar and/or plantar pits, skeletal abnormalities and intracranial calcifications. In this paper, the clinical features of 37 Italian patients are reviewed. Jaw cysts and calcification of falx cerebri were the most frequently observed anomalies, followed by BCCs and palmar/plantar pits. Similar to the case of African Americans, the relatively low frequency of BCCs in the Italian population is probably due to protective skin pigmentation. A future search based on mutation screening might establish a possible genotype phenotype correlation in Italian patients.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 840,
+    "num_annotations": 9,
+    "conversion_date": "2025-11-18T13:13:14.012676"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0002671",
+      "label": "Basal cell carcinoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 7,
+          "end_char": 27,
+          "text_snippet": "basal cell carcinoma"
+        },
+        {
+          "start_char": 208,
+          "end_char": 229,
+          "text_snippet": "basal cell carcinomas"
+        },
+        {
+          "start_char": 534,
+          "end_char": 538,
+          "text_snippet": "BCCs"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 89,
+          "end_char": 113,
+          "text_snippet": "autosomal dominant trait"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003828",
+      "label": "Variable expressivity",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 143,
+          "end_char": 164,
+          "text_snippet": "variable expressivity"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010603",
+      "label": "Odontogenic keratocysts of the jaw",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 238,
+          "end_char": 261,
+          "text_snippet": "odontogenic keratocysts"
+        },
+        {
+          "start_char": 250,
+          "end_char": 273,
+          "text_snippet": "keratocysts of the jaws"
+        },
+        {
+          "start_char": 433,
+          "end_char": 442,
+          "text_snippet": "Jaw cysts"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010612",
+      "label": "Plantar pits",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 275,
+          "end_char": 301,
+          "text_snippet": "palmar and/or plantar pits"
+        },
+        {
+          "start_char": 289,
+          "end_char": 301,
+          "text_snippet": "plantar pits"
+        },
+        {
+          "start_char": 550,
+          "end_char": 562,
+          "text_snippet": "plantar pits"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000924",
+      "label": "Abnormality of the skeletal system",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 303,
+          "end_char": 325,
+          "text_snippet": "skeletal abnormalities"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002514",
+      "label": "Cerebral calcification",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 330,
+          "end_char": 357,
+          "text_snippet": "intracranial calcifications"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0005462",
+      "label": "Calcification of falx cerebri",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 447,
+          "end_char": 476,
+          "text_snippet": "calcification of falx cerebri"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010610",
+      "label": "Palmar pits",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 543,
+          "end_char": 562,
+          "text_snippet": "palmar/plantar pits"
+        }
+      ]
+    }
+  ]
+}

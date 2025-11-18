@@ -1,0 +1,91 @@
+{
+  "doc_id": "GSC+_1307249",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Branchio-oto-renal syndrome (BOR) is an autosomal dominant disorder with variable clinical manifestations affecting branchial, renal and auditory development. Varying clinical expression of the disease between different families suggests that multiple loci may be involved. However, the possibility of genetic heterogeneity as the cause of clinical variability cannot be resolved until the gene(s) causing BOR syndrome are mapped. DNA from four generations of a family with autosomal dominant BOR syndrome have been typed with a series of genetic markers on the long arm of chromosome 8. Using two point linkage analysis, a significant lod score of Z = 4.0 at theta = 0.05 was obtained with the D8S165 microsatellite marker. Multipoint analyses with 8q markers place the gene for BOR between the markers D8S87 and D8S165.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 821,
+    "num_annotations": 6,
+    "conversion_date": "2025-11-18T13:13:14.969791"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 40,
+          "end_char": 67,
+          "text_snippet": "autosomal dominant disorder"
+        },
+        {
+          "start_char": 474,
+          "end_char": 492,
+          "text_snippet": "autosomal dominant"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003813",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 73,
+          "end_char": 81,
+          "text_snippet": "variable"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000077",
+      "label": "Abnormality of the kidney",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 91,
+          "end_char": 132,
+          "text_snippet": "manifestations affecting branchial, renal"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000364",
+      "label": "Hearing abnormality",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 91,
+          "end_char": 157,
+          "text_snippet": "manifestations affecting branchial, renal and auditory development"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001425",
+      "label": "obsolete Heterogeneous",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 302,
+          "end_char": 323,
+          "text_snippet": "genetic heterogeneity"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003812",
+      "label": "Phenotypic variability",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 340,
+          "end_char": 360,
+          "text_snippet": "clinical variability"
+        }
+      ]
+    }
+  ]
+}

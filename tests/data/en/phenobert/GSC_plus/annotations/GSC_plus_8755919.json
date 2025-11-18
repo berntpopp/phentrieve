@@ -1,0 +1,110 @@
+{
+  "doc_id": "GSC+_8755919",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "The gene predisposing to neurofibromatosis type 2 (NF2) on human chromosome 22 has revealed a wide variety of different mutations in NF2 individuals. These patients display a marked variability in clinical presentation, ranging from very severe disease with numerous tumors at a young age to a relatively mild condition much later in life. To investigate whether this phenotypic heterogeneity is determined by the type of mutation in NF2, we have collected clinical information on 111 NF2 cases from 73 different families on whom we have performed mutation screening in this gene. Sixty-seven individuals (56.2%) from 41 of these kindreds revealed 36 different putative disease-causing mutations. These include 26 proposed protein-truncating alterations (frameshift deletions/insertions and nonsense mutations), 6 splice-site mutations, 2 missense mutations, 1 base substitution in the 3' UTR of the NF2 cDNA, and a single 3-bp in-frame insertion. Seventeen of these mutations are novel, whereas the remaining 19 have been described previously in other NF2 individuals or sporadic tumors. When individuals harboring protein-truncating mutations are compared with cases with single codon alterations, a significant correlation (P < .001) with clinical outcome is observed. Twenty-four of 28 patients with mutations that cause premature truncation of the NF2 protein, schwannomin, present with severe phenotypes. In contrast, all 16 cases from three families with mutations that affect only a single amino acid have mild NF2. These data provide conclusive evidence that a phenotype/genotype correlation exists for certain NF2 mutations.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 1634,
+    "num_annotations": 8,
+    "conversion_date": "2025-11-18T13:13:18.372528"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0006746",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 25,
+          "end_char": 42,
+          "text_snippet": "neurofibromatosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003812",
+      "label": "Phenotypic variability",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 182,
+          "end_char": 193,
+          "text_snippet": "variability"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003008",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 258,
+          "end_char": 273,
+          "text_snippet": "numerous tumors"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003593",
+      "label": "Infantile onset",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 279,
+          "end_char": 288,
+          "text_snippet": "young age"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003664",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 305,
+          "end_char": 338,
+          "text_snippet": "mild condition much later in life"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001425",
+      "label": "obsolete Heterogeneous",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 379,
+          "end_char": 392,
+          "text_snippet": "heterogeneity"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003745",
+      "label": "Sporadic",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1072,
+          "end_char": 1080,
+          "text_snippet": "sporadic"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002664",
+      "label": "Neoplasm",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1081,
+          "end_char": 1087,
+          "text_snippet": "tumors"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "doc_id": "GSC+_3100017",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "In situ hybridization with a c-sis probe was performed on peripheral lymphocytes of a man with neurofibromatosis and a ring 22 chromosome. Hybridization was observed on both the normal #22 and the ring 22, indicating that the patient is not constitutionally hemizygous for c-sis. The implications of a ring 22 constitution and the neurofibromatosis phenotype are discussed.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 373,
+    "num_annotations": 1,
+    "conversion_date": "2025-11-18T13:13:16.593190"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0006746",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 95,
+          "end_char": 112,
+          "text_snippet": "neurofibromatosis"
+        },
+        {
+          "start_char": 331,
+          "end_char": 348,
+          "text_snippet": "neurofibromatosis"
+        }
+      ]
+    }
+  ]
+}

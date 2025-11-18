@@ -1,0 +1,180 @@
+{
+  "doc_id": "ID-68_15DG0115",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "A 1-year-old boy with bilateral cataract, global developmental delay, nephrocalcinosis, proteinuria with normal renal function, G6PD and hepatic calcification. Developmentally, he has a global developmental delay. His parents are first-degree cousins, and they have another four healthy children with no family history of a similar condition. His examination was significant for sparse hair, fair hair, deep seated eyes, small eyes, hypotonia, hyperreflexia, reduced muscle mass. Growth parameters at 12 months of age were weight: 5.3 kg, Length: 61 cm, head circumference: 40.5 cm. Other examinations are within normal limits. Head CT showed mild asymmetrical dilation of both lateral ventricles due to central atrophy. Abdominal ultrasound showed nephrocalcinosis and hepatic calcification. He was found to have hypocalcemia (0.61 mmol/L), hypomagnesemia (0.3 mmol/L), hypophosphatemia (6.7 mmol/L) and hypercalciuria.",
+  "metadata": {
+    "dataset": "ID-68",
+    "text_length_chars": 920,
+    "num_annotations": 13,
+    "conversion_date": "2025-11-18T13:13:19.534938"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001263",
+      "label": "Global developmental delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 42,
+          "end_char": 68,
+          "text_snippet": "global developmental delay"
+        },
+        {
+          "start_char": 186,
+          "end_char": 212,
+          "text_snippet": "global developmental delay"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000121",
+      "label": "Nephrocalcinosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 70,
+          "end_char": 86,
+          "text_snippet": "nephrocalcinosis"
+        },
+        {
+          "start_char": 749,
+          "end_char": 765,
+          "text_snippet": "nephrocalcinosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000093",
+      "label": "Proteinuria",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 88,
+          "end_char": 99,
+          "text_snippet": "proteinuria"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002286",
+      "label": "Fair hair",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 392,
+          "end_char": 401,
+          "text_snippet": "fair hair"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000568",
+      "label": "Microphthalmia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 421,
+          "end_char": 431,
+          "text_snippet": "small eyes"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001290",
+      "label": "Generalized hypotonia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 433,
+          "end_char": 442,
+          "text_snippet": "hypotonia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001347",
+      "label": "Hyperreflexia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 444,
+          "end_char": 457,
+          "text_snippet": "hyperreflexia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003199",
+      "label": "Decreased muscle mass",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 459,
+          "end_char": 478,
+          "text_snippet": "reduced muscle mass"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0006559",
+      "label": "Hepatic calcification",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 770,
+          "end_char": 791,
+          "text_snippet": "hepatic calcification"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002901",
+      "label": "Hypocalcemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 814,
+          "end_char": 826,
+          "text_snippet": "hypocalcemia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002917",
+      "label": "Hypomagnesemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 842,
+          "end_char": 856,
+          "text_snippet": "hypomagnesemia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002148",
+      "label": "Hypophosphatemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 871,
+          "end_char": 887,
+          "text_snippet": "hypophosphatemia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002150",
+      "label": "Hypercalciuria",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 905,
+          "end_char": 919,
+          "text_snippet": "hypercalciuria"
+        }
+      ]
+    }
+  ]
+}

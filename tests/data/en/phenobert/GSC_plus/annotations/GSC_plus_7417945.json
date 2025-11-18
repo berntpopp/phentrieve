@@ -1,0 +1,50 @@
+{
+  "doc_id": "GSC+_7417945",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Four patients representing four generations of one family suffered from the multiple nevoid basal cell carcinoma syndrome. These cases are described and the importance of examination and careful supervision of the progeny of such patients is discussed. A unique finding in this series was a large congenital lung cyst occupying the left thoracic cavity of 1 patient.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 366,
+    "num_annotations": 3,
+    "conversion_date": "2025-11-18T13:13:17.468376"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001054",
+      "label": "Numerous nevi",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 76,
+          "end_char": 91,
+          "text_snippet": "multiple nevoid"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002671",
+      "label": "Basal cell carcinoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 92,
+          "end_char": 112,
+          "text_snippet": "basal cell carcinoma"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0006540",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 297,
+          "end_char": 317,
+          "text_snippet": "congenital lung cyst"
+        }
+      ]
+    }
+  ]
+}

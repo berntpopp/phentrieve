@@ -1,0 +1,110 @@
+{
+  "doc_id": "GSC+_2729353",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "We report on a 4-year-old girl with Angelman syndrome who has an apparent de-novo del(15) (q11q13) originating from a maternally derived chromosome. Her mother had severe brachycephaly, sensorineural hearing loss, speech impediment, and mild ataxia. CT brain scans showed an enlarged foramen magnum in the mother and daughter but magnetic resonance imaging (MRI) showed no brainstem abnormality in either. This family demonstrates that some Angelman syndrome cases may be dominantly transmitted with variable expression and associated with abnormal or cytogenetically apparently normal chromosome 15.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 600,
+    "num_annotations": 8,
+    "conversion_date": "2025-11-18T13:13:16.399626"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000248",
+      "label": "Brachycephaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 171,
+          "end_char": 184,
+          "text_snippet": "brachycephaly"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000407",
+      "label": "Sensorineural hearing impairment",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 186,
+          "end_char": 212,
+          "text_snippet": "sensorineural hearing loss"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002167",
+      "label": "Abnormal speech pattern",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 214,
+          "end_char": 231,
+          "text_snippet": "speech impediment"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001251",
+      "label": "Ataxia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 237,
+          "end_char": 248,
+          "text_snippet": "mild ataxia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002700",
+      "label": "Large foramen magnum",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 275,
+          "end_char": 298,
+          "text_snippet": "enlarged foramen magnum"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002363",
+      "label": "Abnormal brainstem morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 373,
+          "end_char": 394,
+          "text_snippet": "brainstem abnormality"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 472,
+          "end_char": 494,
+          "text_snippet": "dominantly transmitted"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003828",
+      "label": "Variable expressivity",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 500,
+          "end_char": 519,
+          "text_snippet": "variable expression"
+        }
+      ]
+    }
+  ]
+}

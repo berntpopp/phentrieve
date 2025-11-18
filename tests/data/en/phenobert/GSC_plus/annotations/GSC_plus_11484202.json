@@ -1,0 +1,151 @@
+{
+  "doc_id": "GSC+_11484202",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Townes-Brocks syndrome (TBS) is a condition with imperforate anus, hand anomalies, and ear malformations with sensorineural hearing loss. Many cases are sporadic. Within and between families, the phenotype displays striking variability. Recently, the disease-causing gene for TBS was identified as SALL1, a zinc finger transcription factor. Here, we report a three-generation family with seven affected individuals who have a novel SALL1 mutation. Unique cardiac anomalies seen in this family include lethal truncus arteriosus in one patient and a lethal complicated defect, including pulmonary valve atresia, in a second patient. These severe cardiac anomalies have not previously been reported in a familial case of TBS. This family and a review of the literature indicate that cardiac evaluation is warranted in all individuals with this disorder. In addition, hypoplastic thumbs were seen in two individuals in this family and should, therefore, be considered a true feature of TBS.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 986,
+    "num_annotations": 11,
+    "conversion_date": "2025-11-18T13:13:14.597704"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0002023",
+      "label": "Anal atresia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 49,
+          "end_char": 65,
+          "text_snippet": "imperforate anus"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001155",
+      "label": "Abnormality of the hand",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 67,
+          "end_char": 81,
+          "text_snippet": "hand anomalies"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000598",
+      "label": "Abnormality of the ear",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 87,
+          "end_char": 104,
+          "text_snippet": "ear malformations"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000407",
+      "label": "Sensorineural hearing impairment",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 110,
+          "end_char": 136,
+          "text_snippet": "sensorineural hearing loss"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003745",
+      "label": "Sporadic",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 153,
+          "end_char": 161,
+          "text_snippet": "sporadic"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003822",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 163,
+          "end_char": 235,
+          "text_snippet": "Within and between families, the phenotype displays striking variability"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003812",
+      "label": "Phenotypic variability",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 224,
+          "end_char": 235,
+          "text_snippet": "variability"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001627",
+      "label": "Abnormal heart morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 455,
+          "end_char": 472,
+          "text_snippet": "cardiac anomalies"
+        },
+        {
+          "start_char": 644,
+          "end_char": 661,
+          "text_snippet": "cardiac anomalies"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001660",
+      "label": "Truncus arteriosus",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 508,
+          "end_char": 526,
+          "text_snippet": "truncus arteriosus"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0005134",
+      "label": "Absence of the pulmonary valve",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 585,
+          "end_char": 608,
+          "text_snippet": "pulmonary valve atresia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009778",
+      "label": "Short thumb",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 864,
+          "end_char": 882,
+          "text_snippet": "hypoplastic thumbs"
+        }
+      ]
+    }
+  ]
+}

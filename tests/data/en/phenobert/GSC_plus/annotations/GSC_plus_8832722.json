@@ -1,0 +1,209 @@
+{
+  "doc_id": "GSC+_8832722",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "A young male infant was noted at birth to have bilateral cleft lip and palate, bilateral microphthalmos and ocular colobomata, and a dysplastic left kidney. His mother had similar ophthalmological findings and milder facial anomalies which included abnormality of the philtrum and bilateral congenital nasolacrimal duct obstruction. His maternal grandmother had mild facial anomalies including a short philtrum and bilateral congenital nasolacrimal duct obstruction but had no evidence of any ocular abnormalities. The spectrum of abnormalities seen in this family are similar to those described in the branchio-oculo-facial syndrome, a rare dominantly inherited syndrome in which there are a number of developmental abnormalities of the eye, face, and kidney. Although the precise cause of this syndrome is unknown, it is likely to be caused by mutations in a gene responsible for the ordered closure of the foetal fissure and fusion of facial structures.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 956,
+    "num_annotations": 15,
+    "conversion_date": "2025-11-18T13:13:18.465958"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0003593",
+      "label": "Infantile onset",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2,
+          "end_char": 7,
+          "text_snippet": "young"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100336",
+      "label": "Bilateral cleft lip",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 47,
+          "end_char": 66,
+          "text_snippet": "bilateral cleft lip"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002744",
+      "label": "obsolete Bilateral cleft lip and palate",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 47,
+          "end_char": 77,
+          "text_snippet": "bilateral cleft lip and palate"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000175",
+      "label": "Cleft palate",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 57,
+          "end_char": 77,
+          "text_snippet": "cleft lip and palate"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0007633",
+      "label": "Bilateral microphthalmos",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 79,
+          "end_char": 103,
+          "text_snippet": "bilateral microphthalmos"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0007995",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 108,
+          "end_char": 125,
+          "text_snippet": "ocular colobomata"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004741",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 133,
+          "end_char": 155,
+          "text_snippet": "dysplastic left kidney"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000478",
+      "label": "Abnormality of the eye",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 180,
+          "end_char": 205,
+          "text_snippet": "ophthalmological findings"
+        },
+        {
+          "start_char": 717,
+          "end_char": 741,
+          "text_snippet": "abnormalities of the eye"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004675",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 210,
+          "end_char": 233,
+          "text_snippet": "milder facial anomalies"
+        },
+        {
+          "start_char": 362,
+          "end_char": 383,
+          "text_snippet": "mild facial anomalies"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000288",
+      "label": "Abnormality of the philtrum",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 249,
+          "end_char": 276,
+          "text_snippet": "abnormality of the philtrum"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0007669",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 281,
+          "end_char": 331,
+          "text_snippet": "bilateral congenital nasolacrimal duct obstruction"
+        },
+        {
+          "start_char": 415,
+          "end_char": 465,
+          "text_snippet": "bilateral congenital nasolacrimal duct obstruction"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000322",
+      "label": "Short philtrum",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 396,
+          "end_char": 410,
+          "text_snippet": "short philtrum"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000284",
+      "label": "obsolete Abnormality of the ocular region",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 493,
+          "end_char": 513,
+          "text_snippet": "ocular abnormalities"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 642,
+          "end_char": 662,
+          "text_snippet": "dominantly inherited"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001263",
+      "label": "Global developmental delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 703,
+          "end_char": 730,
+          "text_snippet": "developmental abnormalities"
+        }
+      ]
+    }
+  ]
+}

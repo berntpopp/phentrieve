@@ -1,0 +1,163 @@
+{
+  "doc_id": "ID-68_16DG1608",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "A 4 years old girl who was born at full term via NSVD following an uneventful pregnancy. At birth, she was found to have hypotonia, poor feeding and ASD-II. She showed slow improvement in feeding within the first week of life. At 6 months of age, she started to have seizures that necessitate antiepileptic therapy. Developmentally, she has a global developmental delay. She cannot roll or sit. She can only make few scattered voices. Her parents are second-degree cousins once removed. Physical examination revealed central hypotonia with decreased power, tone and reflexes. Tandem MS and plasma amino acids revealed moderately elevated methionine and homocysteine that were persistently elevated. Ultrasound of kidneys and bladder showed a stable mild dilatation of the pelvicalyceal systems of both kidneys. Brain MRI showed areas of hypomyelination, reduced volume of the white matter and subcortical atrophy. ",
+  "metadata": {
+    "dataset": "ID-68",
+    "text_length_chars": 914,
+    "num_annotations": 12,
+    "conversion_date": "2025-11-18T13:13:20.132545"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001290",
+      "label": "Generalized hypotonia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 121,
+          "end_char": 130,
+          "text_snippet": "hypotonia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0011968",
+      "label": "Feeding difficulties",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 132,
+          "end_char": 144,
+          "text_snippet": "poor feeding"
+        },
+        {
+          "start_char": 168,
+          "end_char": 195,
+          "text_snippet": "slow improvement in feeding"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001631",
+      "label": "Atrial septal defect",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 149,
+          "end_char": 152,
+          "text_snippet": "ASD"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001250",
+      "label": "Seizure",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 267,
+          "end_char": 275,
+          "text_snippet": "seizures"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001263",
+      "label": "Global developmental delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 343,
+          "end_char": 369,
+          "text_snippet": "global developmental delay"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002167",
+      "label": "Abnormal speech pattern",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 403,
+          "end_char": 433,
+          "text_snippet": "only make few scattered voices"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0011398",
+      "label": "obsolete Central hypotonia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 517,
+          "end_char": 534,
+          "text_snippet": "central hypotonia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003235",
+      "label": "Hypermethioninemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 629,
+          "end_char": 648,
+          "text_snippet": "elevated methionine"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100581",
+      "label": "Dilatation of renal calices",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 749,
+          "end_char": 785,
+          "text_snippet": "mild dilatation of the pelvicalyceal"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003429",
+      "label": "CNS hypomyelination",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 837,
+          "end_char": 852,
+          "text_snippet": "hypomyelination"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012762",
+      "label": "Cerebral white matter atrophy",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 854,
+          "end_char": 888,
+          "text_snippet": "reduced volume of the white matter"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012157",
+      "label": "Subcortical cerebral atrophy",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 893,
+          "end_char": 912,
+          "text_snippet": "subcortical atrophy"
+        }
+      ]
+    }
+  ]
+}

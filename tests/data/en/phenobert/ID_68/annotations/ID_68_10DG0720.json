@@ -1,0 +1,194 @@
+{
+  "doc_id": "ID-68_10DG0720",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "A 10 years old boy who was born at full term via assisted vaginal delivery to 23 years old primigravida following an uneventful pregnancy with a birth weight of 3.2 kg. His Apgar scores were 7 and 10 at 1 and 5 minutes, respectively, and he cried immediately. Shortly after birth, he developed tachypnea, irritability and spastic movements of the upper limbs, and he was found to have mild hypocalcemia and hypomagnesemia. He stayed in NICU for three days and during that time he had weak suckling and feeding difficulty. The first abnormality that was noted by his parents was a motor delay at the age of 9 months. Developmentally, he has a global developmental delay. He sat at 15 months, walked at 22 months, said mama at 24 months and claimed stairs shortly after. At 3 years of age, he could speak only 10 words, and he could speak in two-word sentences at 4 years. He currently can jump on one leg, ride a tricycle, dress himself and tie his shoes. He can write his name and count to 10, and he is toilet-trained. His parents are third-degree cousins, and there is a family history of a similar condition in a paternal uncle and history of congenital glaucoma in another paternal uncle and his two daughters. His examination revealed left eye strabismus, hypertonia and flat feet with the rest of his clinical examination being unremarkable. His growth parameters at 6 years of age were weight 18.4 kg (10th-25th percentile), height 107 cm (on the 5th percentile) and head circumference 51.1 cm (25th-50th percentile). His brain MRI showed periventricular, thalamic and perirolandic white matter changes, and MR spectroscopy showed a region of increased myoinositol in the left thalamus indicating gliosis with no lactate peak. His TSH has been persistently mildly elevated; however, he is not on thyroxine.A 7 years old boy with brain malformation who is the uncle of 10DG0720. He was born at full term via NSVD to a G6P5+0 40 years old mother following an uneventful pregnancy. The perinatal and postnatal histories were unremarkable, and he was discharged on the second day. At the age of 7 months, he had his first seizure, and the frequency of his seizures increased with time. Developmentally, he has a profound developmental delay. He was at 10 months. He cannot walk or talk, and his speech is limited to mama. His parents are third-degree cousins. Physical examination showed microcephaly, brachycephaly, upturned ear lobules and hypertonia. His growth parameters at 7 years of age were weight 18.7 kg (on the 5th percentile) and head circumference was 48.5 cm (<1st percentile). Brain MRI showed right temporal lobe cortical dysplasia and EEG was consistent with partial seizure activity.",
+  "metadata": {
+    "dataset": "ID-68",
+    "text_length_chars": 2704,
+    "num_annotations": 15,
+    "conversion_date": "2025-11-18T13:13:19.159043"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0011412",
+      "label": "Ventouse delivery",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 49,
+          "end_char": 74,
+          "text_snippet": "assisted vaginal delivery"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002789",
+      "label": "Tachypnea",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 294,
+          "end_char": 303,
+          "text_snippet": "tachypnea"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000737",
+      "label": "Irritability",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 305,
+          "end_char": 317,
+          "text_snippet": "irritability"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002901",
+      "label": "Hypocalcemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 390,
+          "end_char": 402,
+          "text_snippet": "hypocalcemia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002917",
+      "label": "Hypomagnesemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 407,
+          "end_char": 421,
+          "text_snippet": "hypomagnesemia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0011968",
+      "label": "Feeding difficulties",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 502,
+          "end_char": 520,
+          "text_snippet": "feeding difficulty"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001270",
+      "label": "Motor delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 580,
+          "end_char": 591,
+          "text_snippet": "motor delay"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001263",
+      "label": "Global developmental delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 642,
+          "end_char": 668,
+          "text_snippet": "global developmental delay"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0008007",
+      "label": "Primary congenital glaucoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1146,
+          "end_char": 1165,
+          "text_snippet": "congenital glaucoma"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000486",
+      "label": "Strabismus",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1249,
+          "end_char": 1259,
+          "text_snippet": "strabismus"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001276",
+      "label": "Hypertonia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1261,
+          "end_char": 1271,
+          "text_snippet": "hypertonia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001763",
+      "label": "Pes planus",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1276,
+          "end_char": 1285,
+          "text_snippet": "flat feet"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0025460",
+      "label": "High myoinositol in brain by MRS",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1650,
+          "end_char": 1692,
+          "text_snippet": "increased myoinositol in the left thalamus"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002925",
+      "label": "Elevated circulating thyroid-stimulating hormone concentration",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1738,
+          "end_char": 1779,
+          "text_snippet": "TSH has been persistently mildly elevated"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012443",
+      "label": "Abnormal brain morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1836,
+          "end_char": 1854,
+          "text_snippet": "brain malformation"
+        }
+      ]
+    }
+  ]
+}

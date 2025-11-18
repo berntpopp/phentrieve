@@ -1,0 +1,122 @@
+{
+  "doc_id": "ID-68_14DG0959",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "A 12 years old girl with profound developmental delay, brain malformation and glaucoma. She was born via NSVD to G3P2+0 35 years old mother following an uneventful pregnancy. Neonatal history was unremarkable. At 4 months of age, the mother was concerned that the baby was too floppy, and her eyes seemed hazy that led to an eye surgery at that time. Developmentally, she has a global developmental delay. She is still unable to sit, and she can say mama and dada. Her parents are first-degree cousins, and she has a sister with a similar condition. Her growth parameters at 12 years of age were weight 23.5 kg (<3rd percentile) and head circumference 51.5 cm (10th -25th percentile). Her dysmorphic features include hypertelorism, bulbous nasal tip and buphthalmos. She has hypertonia and spasticity. MRI showed lissencephaly and Cerebellar hypoplasia.",
+  "metadata": {
+    "dataset": "ID-68",
+    "text_length_chars": 853,
+    "num_annotations": 9,
+    "conversion_date": "2025-11-18T13:13:19.433459"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0012443",
+      "label": "Abnormal brain morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 55,
+          "end_char": 73,
+          "text_snippet": "brain malformation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000501",
+      "label": "Glaucoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 78,
+          "end_char": 86,
+          "text_snippet": "glaucoma"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001263",
+      "label": "Global developmental delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 378,
+          "end_char": 404,
+          "text_snippet": "global developmental delay"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000316",
+      "label": "Hypertelorism",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 717,
+          "end_char": 730,
+          "text_snippet": "hypertelorism"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000414",
+      "label": "Bulbous nose",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 732,
+          "end_char": 749,
+          "text_snippet": "bulbous nasal tip"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000557",
+      "label": "Buphthalmos",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 754,
+          "end_char": 765,
+          "text_snippet": "buphthalmos"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001276",
+      "label": "Hypertonia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 775,
+          "end_char": 785,
+          "text_snippet": "hypertonia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001257",
+      "label": "Spasticity",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 790,
+          "end_char": 800,
+          "text_snippet": "spasticity"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001339",
+      "label": "Lissencephaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 813,
+          "end_char": 826,
+          "text_snippet": "lissencephaly"
+        }
+      ]
+    }
+  ]
+}

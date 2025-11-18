@@ -1,0 +1,115 @@
+{
+  "doc_id": "GSC+_6741990",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "This is a report on a child with sensorineural deafness, imperforate anus with rectovaginal fistula, hypoplastic thumb, and congenital heart defect. This pattern of congenital anomalies is similar to that described in patients with the Townes-Brocks syndrome, although the present patient has characteristics that have not been reported previously in this syndrome. It is proposed that the clinical spectrum of the Townes-Brocks syndrome must be extended to include congenital heart defect, auricular changes differing from those previously described, and anomalies of other internal organs. The syndrome is an autosomal dominant trait. The present case may represent a de novo mutation.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 687,
+    "num_annotations": 8,
+    "conversion_date": "2025-11-18T13:13:17.080047"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000407",
+      "label": "Sensorineural hearing impairment",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 33,
+          "end_char": 55,
+          "text_snippet": "sensorineural deafness"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002023",
+      "label": "Anal atresia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 57,
+          "end_char": 73,
+          "text_snippet": "imperforate anus"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000143",
+      "label": "Rectovaginal fistula",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 79,
+          "end_char": 99,
+          "text_snippet": "rectovaginal fistula"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009778",
+      "label": "Short thumb",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 101,
+          "end_char": 118,
+          "text_snippet": "hypoplastic thumb"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002564",
+      "label": "obsolete Malformation of the heart and great vessels",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 124,
+          "end_char": 147,
+          "text_snippet": "congenital heart defect"
+        },
+        {
+          "start_char": 466,
+          "end_char": 489,
+          "text_snippet": "congenital heart defect"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000383",
+      "label": "Abnormal periauricular region morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 491,
+          "end_char": 508,
+          "text_snippet": "auricular changes"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 611,
+          "end_char": 635,
+          "text_snippet": "autosomal dominant trait"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003745",
+      "label": "Sporadic",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 670,
+          "end_char": 686,
+          "text_snippet": "de novo mutation"
+        }
+      ]
+    }
+  ]
+}

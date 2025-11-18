@@ -1,0 +1,26 @@
+{
+  "doc_id": "GSC+_3321989",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "We report on two sibs with Angelman \"happy puppet\" syndrome. Out of 48 families reported in the literature, this is only the fourth family with affected sibs. A review of the literature shows a low but not negligible recurrence risk. Different explanations for this are discussed.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 280,
+    "num_annotations": 1,
+    "conversion_date": "2025-11-18T13:13:16.741647"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0100024",
+      "label": "Conspicuously happy disposition",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 37,
+          "end_char": 49,
+          "text_snippet": "happy puppet"
+        }
+      ]
+    }
+  ]
+}

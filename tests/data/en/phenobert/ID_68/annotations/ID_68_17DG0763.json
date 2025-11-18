@@ -1,0 +1,86 @@
+{
+  "doc_id": "ID-68_17DG0763",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "A 3 years old girl with failure to thrive, short stature, microcephaly, speech delay, anteriorly placed anus and dysmorphic features. She was born preterm with IUGR to consanguineous parents. ",
+  "metadata": {
+    "dataset": "ID-68",
+    "text_length_chars": 192,
+    "num_annotations": 6,
+    "conversion_date": "2025-11-18T13:13:20.194414"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001508",
+      "label": "Failure to thrive",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 19,
+          "end_char": 41,
+          "text_snippet": "with failure to thrive"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004322",
+      "label": "Short stature",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 43,
+          "end_char": 56,
+          "text_snippet": "short stature"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000252",
+      "label": "Microcephaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 58,
+          "end_char": 70,
+          "text_snippet": "microcephaly"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000750",
+      "label": "Delayed speech and language development",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 72,
+          "end_char": 84,
+          "text_snippet": "speech delay"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001545",
+      "label": "Anteriorly placed anus",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 86,
+          "end_char": 108,
+          "text_snippet": "anteriorly placed anus"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001511",
+      "label": "Intrauterine growth retardation",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 155,
+          "end_char": 167,
+          "text_snippet": "with IUGR to"
+        }
+      ]
+    }
+  ]
+}

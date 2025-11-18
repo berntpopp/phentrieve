@@ -1,0 +1,86 @@
+{
+  "doc_id": "GSC+_8092198",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Branchio-oto-renal (BOR) syndrome is an autosomal dominant condition of branchial arch anomalies, deafness and renal dysplasia. Clinical manifestations tend to have considerable intrafamilial and interfamilial variability. Previous linkage studies had localized the gene responsible for BOR syndrome to a broad region of chromosome 8q. Using 10 microsatellite markers, we have further refined the localization of this disorder by establishing tight linkage to two markers, D8S279 and D8S530 (Zmax = 3.91 and Zmax = 2.83 respectively at theta = 0.00). These markers are within 1 cM of one another. Multipoint analysis, involving 7 loci, placed the gene between these markers, with a lod-1 confidence interval 0.7 cM proximal to D8S530 and 0.6 cM distal to D8S279.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 762,
+    "num_annotations": 6,
+    "conversion_date": "2025-11-18T13:13:17.874513"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 40,
+          "end_char": 58,
+          "text_snippet": "autosomal dominant"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009794",
+      "label": "Branchial anomaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 72,
+          "end_char": 96,
+          "text_snippet": "branchial arch anomalies"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000404",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 98,
+          "end_char": 106,
+          "text_snippet": "deafness"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000110",
+      "label": "Renal dysplasia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 111,
+          "end_char": 126,
+          "text_snippet": "renal dysplasia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003822",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 178,
+          "end_char": 221,
+          "text_snippet": "intrafamilial and interfamilial variability"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003812",
+      "label": "Phenotypic variability",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 196,
+          "end_char": 221,
+          "text_snippet": "interfamilial variability"
+        }
+      ]
+    }
+  ]
+}

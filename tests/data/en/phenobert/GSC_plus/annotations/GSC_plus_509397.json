@@ -1,0 +1,127 @@
+{
+  "doc_id": "GSC+_509397",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "We have reviewed a series of 36 patients with the basal cell nevus syndrome seen at Roswell Park Memorial Institute from 1950 to 1978. Among these patients a number of disastrous complications occurred. These include extensive uncontrolled basal cell epithelioma of the face resulting in one death from direct cerebral invasion via the orbit, one facial nerve palsy, two bilateral and two unilateral eye enucleations, and several severe facial mutilations in young patients. There were three patients who developed severe bradycardia and hypotension during induction of general anesthesia required postponement of the intended operation, and one patient with congenital hemiparesis who on investigation was found to have an absent internal carotid artery. A review of the syndrome complex is presented with a plan for recognition and management.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 845,
+    "num_annotations": 9,
+    "conversion_date": "2025-11-18T13:13:17.002655"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0002671",
+      "label": "Basal cell carcinoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 50,
+          "end_char": 66,
+          "text_snippet": "basal cell nevus"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000271",
+      "label": "Abnormality of the face",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 240,
+          "end_char": 274,
+          "text_snippet": "basal cell epithelioma of the face"
+        },
+        {
+          "start_char": 437,
+          "end_char": 455,
+          "text_snippet": "facial mutilations"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002008",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 347,
+          "end_char": 365,
+          "text_snippet": "facial nerve palsy"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000478",
+      "label": "Abnormality of the eye",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 400,
+          "end_char": 416,
+          "text_snippet": "eye enucleations"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003593",
+      "label": "Infantile onset",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 459,
+          "end_char": 473,
+          "text_snippet": "young patients"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001662",
+      "label": "Bradycardia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 522,
+          "end_char": 533,
+          "text_snippet": "bradycardia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002615",
+      "label": "Hypotension",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 538,
+          "end_char": 549,
+          "text_snippet": "hypotension"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001269",
+      "label": "Hemiparesis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 659,
+          "end_char": 681,
+          "text_snippet": "congenital hemiparesis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0005290",
+      "label": "Internal carotid artery hypoplasia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 724,
+          "end_char": 754,
+          "text_snippet": "absent internal carotid artery"
+        }
+      ]
+    }
+  ]
+}

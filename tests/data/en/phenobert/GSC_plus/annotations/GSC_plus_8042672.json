@@ -1,0 +1,130 @@
+{
+  "doc_id": "GSC+_8042672",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "The nevoid basal cell carcinoma syndrome (NBCC) is an autosomal dominant multisystem disorder with variable expressivity. We present the clinical findings on 11 African-American NBCC cases from 2 families and a review of the literature of NBCC in African-Americans. The 2 new families, as well as those previously reported, suggest minimal expression of the basal cell carcinomas and full expression of the other components of the syndrome. The 3 most common findings in the 11 cases were jaw cysts, palmar and/or plantar pits, and calcification of the falx cerebri. Only 44% (4/11) of these cases had one or more confirmed basal cell carcinomas. This frequency is substantially less than that observed in whites (90% with basal cell carcinomas). The relative lack of these skin tumors in African-Americans partly reflects ultraviolet radiation protection resulting from increased skin pigmentation. Future research should help identify the specific mutation(s) in blacks as well as other modifying genes and environmental exposures that may contribute to the varied manifestations of the syndrome.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 1098,
+    "num_annotations": 8,
+    "conversion_date": "2025-11-18T13:13:17.830109"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0002671",
+      "label": "Basal cell carcinoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 11,
+          "end_char": 31,
+          "text_snippet": "basal cell carcinoma"
+        },
+        {
+          "start_char": 358,
+          "end_char": 379,
+          "text_snippet": "basal cell carcinomas"
+        },
+        {
+          "start_char": 624,
+          "end_char": 645,
+          "text_snippet": "basal cell carcinomas"
+        },
+        {
+          "start_char": 723,
+          "end_char": 744,
+          "text_snippet": "basal cell carcinomas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 54,
+          "end_char": 72,
+          "text_snippet": "autosomal dominant"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003828",
+      "label": "Variable expressivity",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 99,
+          "end_char": 120,
+          "text_snippet": "variable expressivity"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010603",
+      "label": "Odontogenic keratocysts of the jaw",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 489,
+          "end_char": 498,
+          "text_snippet": "jaw cysts"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010612",
+      "label": "Plantar pits",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 500,
+          "end_char": 526,
+          "text_snippet": "palmar and/or plantar pits"
+        },
+        {
+          "start_char": 514,
+          "end_char": 526,
+          "text_snippet": "plantar pits"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0005462",
+      "label": "Calcification of falx cerebri",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 532,
+          "end_char": 565,
+          "text_snippet": "calcification of the falx cerebri"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0008069",
+      "label": "Neoplasm of the skin",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 774,
+          "end_char": 785,
+          "text_snippet": "skin tumors"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000953",
+      "label": "Hyperpigmentation of the skin",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 871,
+          "end_char": 898,
+          "text_snippet": "increased skin pigmentation"
+        }
+      ]
+    }
+  ]
+}

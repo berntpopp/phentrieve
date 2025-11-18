@@ -1,0 +1,144 @@
+{
+  "doc_id": "GSC+_11748306",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Angelman syndrome (AS) is a severe neurobehavioural disorder caused by defects in the maternally derived imprinted domain located on 15q11-q13. Most patients acquire AS by one of five mechanisms: (1) a large interstitial deletion of 15q11-q13; (2) paternal uniparental disomy (UPD) of chromosome 15; (3) an imprinting defect (ID); (4) a mutation in the E3 ubiquitin protein ligase gene (UBE3A); or (5) unidentified mechanism(s). All classical patients from these classes exhibit four cardinal features, including severe developmental delay and/or mental retardation, profound speech impairment, a movement and balance disorder, and AS specific behaviour typified by an easily excitable personality with an inappropriately happy affect. In addition, patients can display other characteristics, including microcephaly, hypopigmentation, and seizures.\n\nWe restricted the present study to 104 patients (93 families) with a classical AS phenotype. All of our patients were evaluated for 22 clinical variables including growth parameters, acquisition of motor skills, and history of seizures. In addition, molecular and cytogenetic analyses were used to assign a molecular class (I-V) to each patient for genotype-phenotype correlations.\n\nIn our patient repository, 22% of our families had normal DNA methylation analyses along 15q11-q13. Of these, 44% of sporadic patients had mutations within UBE3A, the largest percentage found to date. Our data indicate that the five molecular classes can be divided into four phenotypic groups: deletions, UPD and ID patients, UBE3A mutation patients, and subjects with unknown aetiology. Deletion patients are the most severely affected, while UPD and ID patients are the least. Differences in body mass index, head circumference, and seizure activity are the most pronounced among the classes.\n\nClinically, we were unable to distinguish between UPD and ID patients, suggesting that 15q11-q13 contains the only significant maternally expressed imprinted genes on chromosome 15.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 2011,
+    "num_annotations": 10,
+    "conversion_date": "2025-11-18T13:13:14.620747"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000707",
+      "label": "Abnormality of the nervous system",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 35,
+          "end_char": 60,
+          "text_snippet": "neurobehavioural disorder"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001263",
+      "label": "Global developmental delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 520,
+          "end_char": 539,
+          "text_snippet": "developmental delay"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002187",
+      "label": "Intellectual disability, profound",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 547,
+          "end_char": 575,
+          "text_snippet": "mental retardation, profound"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002167",
+      "label": "Abnormal speech pattern",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 567,
+          "end_char": 593,
+          "text_snippet": "profound speech impairment"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100022",
+      "label": "Abnormality of movement",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 597,
+          "end_char": 626,
+          "text_snippet": "movement and balance disorder"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100024",
+      "label": "Conspicuously happy disposition",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 706,
+          "end_char": 734,
+          "text_snippet": "inappropriately happy affect"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000252",
+      "label": "Microcephaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 803,
+          "end_char": 815,
+          "text_snippet": "microcephaly"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0007513",
+      "label": "Generalized hypopigmentation",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 817,
+          "end_char": 833,
+          "text_snippet": "hypopigmentation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001250",
+      "label": "Seizure",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 839,
+          "end_char": 847,
+          "text_snippet": "seizures"
+        },
+        {
+          "start_char": 1077,
+          "end_char": 1085,
+          "text_snippet": "seizures"
+        },
+        {
+          "start_char": 1769,
+          "end_char": 1776,
+          "text_snippet": "seizure"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003745",
+      "label": "Sporadic",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1350,
+          "end_char": 1358,
+          "text_snippet": "sporadic"
+        }
+      ]
+    }
+  ]
+}

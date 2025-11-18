@@ -1,0 +1,62 @@
+{
+  "doc_id": "GSC+_8414026",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Neurofibromatosis 2 (NF2) is a dominantly inherited disorder characterized by multiple tumors of the central nervous system, predominantly bilateral vestibular schwannomas. The gene for NF2 is located in the chromosomal region 22q12 between the loci D22S1 and D22S28. We have performed genetic linkage analysis on 13 NF2 families with a total of nine polymorphic DNA markers, including five which we have recently mapped to this region. Two loci, D22S32 and NEFH, are linked to the NF2 locus at 0% recombination (lod scores of 6.03 and 4.28, respectively). By multipoint linkage analysis, we assign the NF2 gene to an interval of 7 cM, between the loci D22S212 and D22S28. We have used this set of nine markers to construct chromosome 22 haplotypes for the 82 at-risk individuals in this pedigree set. It has been possible to determine, with a high degree of certainty, the carrier status of 70 (85%) of these at-risk individuals. Risk prediction was possible in every case where DNA was available from both parents. Fifty-three of the 70 (76%) informative individuals were assigned decreased risks of being carriers. The use of chromosome 22 probes for risk assessment should result in a greatly reduced number of individuals who require periodic screening for NF2.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 1266,
+    "num_annotations": 4,
+    "conversion_date": "2025-11-18T13:13:18.143869"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0006746",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 0,
+          "end_char": 17,
+          "text_snippet": "Neurofibromatosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 31,
+          "end_char": 51,
+          "text_snippet": "dominantly inherited"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100006",
+      "label": "Neoplasm of the central nervous system",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 87,
+          "end_char": 123,
+          "text_snippet": "tumors of the central nervous system"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009589",
+      "label": "Bilateral vestibular schwannoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 139,
+          "end_char": 171,
+          "text_snippet": "bilateral vestibular schwannomas"
+        }
+      ]
+    }
+  ]
+}

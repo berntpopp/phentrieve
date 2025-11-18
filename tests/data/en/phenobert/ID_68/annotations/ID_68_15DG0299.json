@@ -1,0 +1,125 @@
+{
+  "doc_id": "ID-68_15DG0299",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "A 17 years old boy with intellectual disability, seizure disorder and ADHD. He was born to consanguineous parents without a history of prenatal or postnatal complications. He had a global developmental delay that was mainly in cognitive functions with poor attention and hyperactivity. He also has seizures that started at 6 years of age with semiology of a partial component. His seizure disorder has been refractory to multiple antiepileptic medications. He later developed new episodes of dystonic movements, and he started to deteriorate clinically and his dystonic symptoms were getting worse. EEG was consistent with a partial seizure. Initial brain MRI was reported to be normal, and a second MRI three years later showed bilateral tonsillar herniation. ",
+  "metadata": {
+    "dataset": "ID-68",
+    "text_length_chars": 761,
+    "num_annotations": 8,
+    "conversion_date": "2025-11-18T13:13:19.575206"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001249",
+      "label": "Intellectual disability",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 19,
+          "end_char": 47,
+          "text_snippet": "with intellectual disability"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001250",
+      "label": "Seizure",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 49,
+          "end_char": 65,
+          "text_snippet": "seizure disorder"
+        },
+        {
+          "start_char": 298,
+          "end_char": 306,
+          "text_snippet": "seizures"
+        },
+        {
+          "start_char": 381,
+          "end_char": 397,
+          "text_snippet": "seizure disorder"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0007018",
+      "label": "Attention deficit hyperactivity disorder",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 70,
+          "end_char": 74,
+          "text_snippet": "ADHD"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001263",
+      "label": "Global developmental delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 181,
+          "end_char": 207,
+          "text_snippet": "global developmental delay"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000736",
+      "label": "Short attention span",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 252,
+          "end_char": 266,
+          "text_snippet": "poor attention"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000752",
+      "label": "Hyperactivity",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 271,
+          "end_char": 284,
+          "text_snippet": "hyperactivity"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001332",
+      "label": "Dystonia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 492,
+          "end_char": 510,
+          "text_snippet": "dystonic movements"
+        },
+        {
+          "start_char": 561,
+          "end_char": 578,
+          "text_snippet": "dystonic symptoms"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0007359",
+      "label": "Focal-onset seizure",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 625,
+          "end_char": 640,
+          "text_snippet": "partial seizure"
+        }
+      ]
+    }
+  ]
+}

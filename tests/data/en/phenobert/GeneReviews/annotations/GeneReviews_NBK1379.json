@@ -1,0 +1,328 @@
+{
+  "doc_id": "GeneReviews_NBK1379",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Summary:\nSYNE1 deficiency comprises a phenotypic spectrum that ranges from autosomal recessive cerebellar ataxia at the mild end to arthrogryposis multiplex congenita (AMC) at the severe end. SYNE1-deficient cerebellar ataxia, the most commonly recognized manifestation of SYNE1 deficiency to date, is a slowly progressive disorder typically beginning in adulthood (age range 6-45 years). While some individuals have a pure cerebellar syndrome (i.e., cerebellar ataxia, dysarthria, dysmetria, abnormalities in ocular saccades and smooth pursuit), many also have upper motor neuron dysfunction (spasticity, hyperreflexia, Babinski sign) and/or lower motor neuron dysfunction (amyotrophy, reduced reflexes, fasciculations). Most patients develop features of the cerebellar cognitive and affective syndrome (i.e., significant deficits in attention, executive functioning, verbal working memory, and visuospatial/visuoconstructional skills). The two less common phenotypes are SYNE1-deficient childhood-onset multisystem disease (ataxia, upper and lower motor neuron dysfunction, muscle weakness and wasting, intellectual disability) and SYNE1-deficient arthrogryposis multiplex congenita (decreased fetal movements and severe neonatal hypotonia associated with multiple congenital joint contractures including clubfoot).\nDescription:\nThe phenotype and severity of SYNE1 deficiency vary widely and span a spectrum ranging from adult-onset cerebellar ataxia at the milder end to childhood-onset multisystem disease and prenatal-onset arthrogryposis multiplex congenita at the more severe end.\n",
+  "metadata": {
+    "dataset": "GeneReviews",
+    "text_length_chars": 1588,
+    "num_annotations": 22,
+    "conversion_date": "2025-11-18T13:13:20.716771"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001251",
+      "label": "Ataxia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 95,
+          "end_char": 112,
+          "text_snippet": "cerebellar ataxia"
+        },
+        {
+          "start_char": 208,
+          "end_char": 225,
+          "text_snippet": "cerebellar ataxia"
+        },
+        {
+          "start_char": 451,
+          "end_char": 468,
+          "text_snippet": "cerebellar ataxia"
+        },
+        {
+          "start_char": 1026,
+          "end_char": 1032,
+          "text_snippet": "ataxia"
+        },
+        {
+          "start_char": 1435,
+          "end_char": 1452,
+          "text_snippet": "cerebellar ataxia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002804",
+      "label": "Arthrogryposis multiplex congenita",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 132,
+          "end_char": 166,
+          "text_snippet": "arthrogryposis multiplex congenita"
+        },
+        {
+          "start_char": 1140,
+          "end_char": 1184,
+          "text_snippet": "deficient arthrogryposis multiplex congenita"
+        },
+        {
+          "start_char": 1258,
+          "end_char": 1296,
+          "text_snippet": "multiple congenital joint contractures"
+        },
+        {
+          "start_char": 1523,
+          "end_char": 1563,
+          "text_snippet": "onset arthrogryposis multiplex congenita"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001317",
+      "label": "Abnormal cerebellum morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 424,
+          "end_char": 443,
+          "text_snippet": "cerebellar syndrome"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001260",
+      "label": "Dysarthria",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 470,
+          "end_char": 480,
+          "text_snippet": "dysarthria"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001310",
+      "label": "Dysmetria",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 482,
+          "end_char": 491,
+          "text_snippet": "dysmetria"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000570",
+      "label": "Abnormal saccadic eye movements",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 493,
+          "end_char": 525,
+          "text_snippet": "abnormalities in ocular saccades"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000617",
+      "label": "Abnormality of ocular smooth pursuit",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 493,
+          "end_char": 544,
+          "text_snippet": "abnormalities in ocular saccades and smooth pursuit"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002493",
+      "label": "Upper motor neuron dysfunction",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 562,
+          "end_char": 592,
+          "text_snippet": "upper motor neuron dysfunction"
+        },
+        {
+          "start_char": 643,
+          "end_char": 673,
+          "text_snippet": "lower motor neuron dysfunction"
+        },
+        {
+          "start_char": 1034,
+          "end_char": 1074,
+          "text_snippet": "upper and lower motor neuron dysfunction"
+        },
+        {
+          "start_char": 1044,
+          "end_char": 1074,
+          "text_snippet": "lower motor neuron dysfunction"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001257",
+      "label": "Spasticity",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 594,
+          "end_char": 604,
+          "text_snippet": "spasticity"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001347",
+      "label": "Hyperreflexia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 606,
+          "end_char": 619,
+          "text_snippet": "hyperreflexia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003487",
+      "label": "Babinski sign",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 621,
+          "end_char": 634,
+          "text_snippet": "Babinski sign"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003202",
+      "label": "Skeletal muscle atrophy",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 675,
+          "end_char": 685,
+          "text_snippet": "amyotrophy"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001265",
+      "label": "Hyporeflexia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 687,
+          "end_char": 703,
+          "text_snippet": "reduced reflexes"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002380",
+      "label": "Fasciculations",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 705,
+          "end_char": 719,
+          "text_snippet": "fasciculations"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0007018",
+      "label": "Attention deficit hyperactivity disorder",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 811,
+          "end_char": 844,
+          "text_snippet": "significant deficits in attention"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002354",
+      "label": "Memory impairment",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 869,
+          "end_char": 890,
+          "text_snippet": "verbal working memory"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010794",
+      "label": "Impaired visuospatial constructive cognition",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 896,
+          "end_char": 935,
+          "text_snippet": "visuospatial/visuoconstructional skills"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001324",
+      "label": "Muscle weakness",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1076,
+          "end_char": 1091,
+          "text_snippet": "muscle weakness"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001249",
+      "label": "Intellectual disability",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1105,
+          "end_char": 1128,
+          "text_snippet": "intellectual disability"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001558",
+      "label": "Decreased fetal movement",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1186,
+          "end_char": 1211,
+          "text_snippet": "decreased fetal movements"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001319",
+      "label": "Neonatal hypotonia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1223,
+          "end_char": 1241,
+          "text_snippet": "neonatal hypotonia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001762",
+      "label": "Talipes equinovarus",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1307,
+          "end_char": 1315,
+          "text_snippet": "clubfoot"
+        }
+      ]
+    }
+  ]
+}

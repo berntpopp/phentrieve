@@ -1,0 +1,79 @@
+{
+  "doc_id": "GSC+_11837604",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Intrafamilial clinical variability in type C brachydactyly: In this report we describe a 4-generation family in which three members present variable clinical and radiological manifestations of brachydactyly type C. The observation of 'skipped generations' in the present family and in a few other families reported previously, may indicate that brachydactyly type C is not a true autosomal dominant condition due to mutations in a single gene.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 443,
+    "num_annotations": 5,
+    "conversion_date": "2025-11-18T13:13:14.644754"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0003822",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 0,
+          "end_char": 34,
+          "text_snippet": "Intrafamilial clinical variability"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009373",
+      "label": "Type C brachydactyly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 38,
+          "end_char": 58,
+          "text_snippet": "type C brachydactyly"
+        },
+        {
+          "start_char": 193,
+          "end_char": 213,
+          "text_snippet": "brachydactyly type C"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003813",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 140,
+          "end_char": 148,
+          "text_snippet": "variable"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001156",
+      "label": "Brachydactyly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 345,
+          "end_char": 358,
+          "text_snippet": "brachydactyly"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 380,
+          "end_char": 398,
+          "text_snippet": "autosomal dominant"
+        }
+      ]
+    }
+  ]
+}

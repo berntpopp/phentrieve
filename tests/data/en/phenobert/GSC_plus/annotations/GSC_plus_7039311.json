@@ -1,0 +1,378 @@
+{
+  "doc_id": "GSC+_7039311",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "We report on 44 patients (18 with additional affected family members), with congenital distal limb contractures identified from a large study of over 350 patients with congenital joint contractures. Fourteen propositi (seven familial cases, seven isolated cases) had a newly recognized form of arthrogryposis, which we have designated distal arthrogryposis type 1, with the predominant manifestations of autosomal dominant inheritance; tightly clenched fists at birth, with medially overlapping fingers, ulnar deviation, and camptodactyly in adults; and positional foot deformities. Contractures at other major joints are variable. There are no associated visceral anomalies; intelligence is normal. There can be marked intrafamilial and interfamilial variability. Twenty-two propositi with similar distal contractures had additional findings and were classified into five subcategories of distal arthrogryposis (type IIA-E). Among type II patients cleft palate, cleft lip, small tongue, trismus, ptosis, epicanthal folds, keratoconus, short stature, scoliosis, a unique hand position, and dull normal intelligence were seen. These characteristics were seen in various combinations and patterns and allowed sorting into groups that were the basis for the categorization. The remaining eight propositi were recognized to have previously described conditions with distal contractures and autosomal dominant inheritance, ie, the Freeman-Sheldon syndrome, trismus-pseudo-camptodactyly syndrome, congenital contractural arachnodactyly, and familial camptodactyly. Pathogenetically we postulate similar underlying defects of abnormal tendon attachments, attenuation, and absence; careful nosologic comparisons are important for prognostic counseling and habilitative management.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 1772,
+    "num_annotations": 27,
+    "conversion_date": "2025-11-18T13:13:17.286231"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0002803",
+      "label": "Congenital contracture",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 76,
+          "end_char": 111,
+          "text_snippet": "congenital distal limb contractures"
+        },
+        {
+          "start_char": 168,
+          "end_char": 197,
+          "text_snippet": "congenital joint contractures"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000005",
+      "label": "Mode of inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 225,
+          "end_char": 239,
+          "text_snippet": "familial cases"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001420",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 247,
+          "end_char": 261,
+          "text_snippet": "isolated cases"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001390",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 294,
+          "end_char": 308,
+          "text_snippet": "arthrogryposis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0005684",
+      "label": "Distal arthrogryposis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 335,
+          "end_char": 356,
+          "text_snippet": "distal arthrogryposis"
+        },
+        {
+          "start_char": 799,
+          "end_char": 818,
+          "text_snippet": "distal contractures"
+        },
+        {
+          "start_char": 890,
+          "end_char": 911,
+          "text_snippet": "distal arthrogryposis"
+        },
+        {
+          "start_char": 1362,
+          "end_char": 1381,
+          "text_snippet": "distal contractures"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 404,
+          "end_char": 434,
+          "text_snippet": "autosomal dominant inheritance"
+        },
+        {
+          "start_char": 1386,
+          "end_char": 1416,
+          "text_snippet": "autosomal dominant inheritance"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001188",
+      "label": "Hand clenching",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 436,
+          "end_char": 458,
+          "text_snippet": "tightly clenched fists"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010557",
+      "label": "Overlapping fingers",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 474,
+          "end_char": 502,
+          "text_snippet": "medially overlapping fingers"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001193",
+      "label": "Ulnar deviation of the hand or of fingers of the hand",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 504,
+          "end_char": 519,
+          "text_snippet": "ulnar deviation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012385",
+      "label": "Camptodactyly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 525,
+          "end_char": 538,
+          "text_snippet": "camptodactyly"
+        },
+        {
+          "start_char": 1467,
+          "end_char": 1480,
+          "text_snippet": "camptodactyly"
+        },
+        {
+          "start_char": 1544,
+          "end_char": 1557,
+          "text_snippet": "camptodactyly"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0005656",
+      "label": "Positional foot deformity",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 554,
+          "end_char": 581,
+          "text_snippet": "positional foot deformities"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001371",
+      "label": "Flexion contracture",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 583,
+          "end_char": 595,
+          "text_snippet": "Contractures"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003813",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 622,
+          "end_char": 630,
+          "text_snippet": "variable"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002012",
+      "label": "Abnormality of the abdominal organs",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 656,
+          "end_char": 674,
+          "text_snippet": "visceral anomalies"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003822",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 720,
+          "end_char": 763,
+          "text_snippet": "intrafamilial and interfamilial variability"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003812",
+      "label": "Phenotypic variability",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 738,
+          "end_char": 763,
+          "text_snippet": "interfamilial variability"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000175",
+      "label": "Cleft palate",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 949,
+          "end_char": 961,
+          "text_snippet": "cleft palate"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100333",
+      "label": "Unilateral cleft lip",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 963,
+          "end_char": 972,
+          "text_snippet": "cleft lip"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000171",
+      "label": "Microglossia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 974,
+          "end_char": 986,
+          "text_snippet": "small tongue"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000211",
+      "label": "Trismus",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 988,
+          "end_char": 995,
+          "text_snippet": "trismus"
+        },
+        {
+          "start_char": 1452,
+          "end_char": 1459,
+          "text_snippet": "trismus"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000508",
+      "label": "Ptosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 997,
+          "end_char": 1003,
+          "text_snippet": "ptosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000286",
+      "label": "Epicanthus",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1005,
+          "end_char": 1021,
+          "text_snippet": "epicanthal folds"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000563",
+      "label": "Keratoconus",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1023,
+          "end_char": 1034,
+          "text_snippet": "keratoconus"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004322",
+      "label": "Short stature",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1036,
+          "end_char": 1049,
+          "text_snippet": "short stature"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002650",
+      "label": "Scoliosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1051,
+          "end_char": 1060,
+          "text_snippet": "scoliosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001155",
+      "label": "Abnormality of the hand",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1064,
+          "end_char": 1084,
+          "text_snippet": "unique hand position"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001166",
+      "label": "Arachnodactyly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1502,
+          "end_char": 1529,
+          "text_snippet": "contractural arachnodactyly"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,255 @@
+{
+  "doc_id": "GSC+_263442",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "A pedigree of branchio-oto-renal dysplasia (the BOR syndrome) is reported, including the documentation by serial audiometric studies of the onset and rapid progression of hearing loss in the twin sister of an affected child. The literature on this syndrome is analyzed to derive some figures for use in genetic counseling of such families. Branchio-oto-renal dysplasia is an autosomal dominant disorder in which affected individuals may have preauricular pits, lachrymal duct stenosis, hearing loss, branchial fistulas or cysts, structural defects of the outer, middle, and inner ear, and renal anomalies, which may range from mild hypoplasia to complete absence. Not all features of the syndrome are expressed in all carriers of the gene, but few carriers lack all the features, and the pits, branchial clefts, and hearing loss, are frequently expressed. Those offspring of affected persons who have pits or fistulas are likely (about 80%) to have hearing loss of varying degrees of severity. A minority of heterozygotes (about 7%) may have hearing loss without pits or fistulas. The risk of severe renal malformation is probably fairly low. Whether families that show dominant inheritance of pits, clefts, and deafness without renal anomalies represent variants of the BOR syndrome or a separate entity (the BO syndrome), is still not clear. At present, any individual with preauricular pits and branchial clefts deserves both otologic and renal investigation.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 1462,
+    "num_annotations": 13,
+    "conversion_date": "2025-11-18T13:13:16.333771"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000110",
+      "label": "Renal dysplasia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 27,
+          "end_char": 42,
+          "text_snippet": "renal dysplasia"
+        },
+        {
+          "start_char": 353,
+          "end_char": 368,
+          "text_snippet": "renal dysplasia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003678",
+      "label": "Rapidly progressive",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 150,
+          "end_char": 167,
+          "text_snippet": "rapid progression"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000365",
+      "label": "Hearing impairment",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 171,
+          "end_char": 183,
+          "text_snippet": "hearing loss"
+        },
+        {
+          "start_char": 486,
+          "end_char": 498,
+          "text_snippet": "hearing loss"
+        },
+        {
+          "start_char": 816,
+          "end_char": 828,
+          "text_snippet": "hearing loss"
+        },
+        {
+          "start_char": 949,
+          "end_char": 961,
+          "text_snippet": "hearing loss"
+        },
+        {
+          "start_char": 1042,
+          "end_char": 1054,
+          "text_snippet": "hearing loss"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 375,
+          "end_char": 402,
+          "text_snippet": "autosomal dominant disorder"
+        },
+        {
+          "start_char": 1170,
+          "end_char": 1190,
+          "text_snippet": "dominant inheritance"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004467",
+      "label": "Preauricular pit",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 442,
+          "end_char": 459,
+          "text_snippet": "preauricular pits"
+        },
+        {
+          "start_char": 788,
+          "end_char": 792,
+          "text_snippet": "pits"
+        },
+        {
+          "start_char": 901,
+          "end_char": 905,
+          "text_snippet": "pits"
+        },
+        {
+          "start_char": 1063,
+          "end_char": 1067,
+          "text_snippet": "pits"
+        },
+        {
+          "start_char": 1194,
+          "end_char": 1198,
+          "text_snippet": "pits"
+        },
+        {
+          "start_char": 1376,
+          "end_char": 1393,
+          "text_snippet": "preauricular pits"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0007925",
+      "label": "Lacrimal duct aplasia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 461,
+          "end_char": 484,
+          "text_snippet": "lachrymal duct stenosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009796",
+      "label": "Branchial cyst",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 500,
+          "end_char": 527,
+          "text_snippet": "branchial fistulas or cysts"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009795",
+      "label": "Branchial fistula",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 500,
+          "end_char": 518,
+          "text_snippet": "branchial fistulas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000598",
+      "label": "Abnormality of the ear",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 529,
+          "end_char": 583,
+          "text_snippet": "structural defects of the outer, middle, and inner ear"
+        },
+        {
+          "start_char": 1429,
+          "end_char": 1437,
+          "text_snippet": "otologic"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000077",
+      "label": "Abnormality of the kidney",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 589,
+          "end_char": 604,
+          "text_snippet": "renal anomalies"
+        },
+        {
+          "start_char": 1229,
+          "end_char": 1244,
+          "text_snippet": "renal anomalies"
+        },
+        {
+          "start_char": 1442,
+          "end_char": 1461,
+          "text_snippet": "renal investigation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009794",
+      "label": "Branchial anomaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 794,
+          "end_char": 810,
+          "text_snippet": "branchial clefts"
+        },
+        {
+          "start_char": 909,
+          "end_char": 917,
+          "text_snippet": "fistulas"
+        },
+        {
+          "start_char": 1200,
+          "end_char": 1206,
+          "text_snippet": "clefts"
+        },
+        {
+          "start_char": 1398,
+          "end_char": 1414,
+          "text_snippet": "branchial clefts"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000792",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1100,
+          "end_char": 1118,
+          "text_snippet": "renal malformation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000404",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1212,
+          "end_char": 1220,
+          "text_snippet": "deafness"
+        }
+      ]
+    }
+  ]
+}

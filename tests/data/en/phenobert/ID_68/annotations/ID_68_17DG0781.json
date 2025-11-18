@@ -1,0 +1,175 @@
+{
+  "doc_id": "ID-68_17DG0781",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "An 8 years old boy who was born at full-term via C-section due to placenta previa following an uneventful pregnancy. Birth growth parameters were within normal limits with a head circumference of 33 cm (50th percentile). The first abnormality was noted at 9 months of age when he was found to have delayed development. He has a global developmental delay affecting all domains, and his IQ was estimated to be 55. He can currently walk with a wide base gait. His parents are a first-degree consanguineous couple with five healthy children, and there is no similar condition in the family. On examination, his current growth parameters at 8 years of age were weight 30 kg (75th – 90th percentile), height 125 cm (50th -75th percentile) and head circumference 48 cm (< 3rd percentile). His dysmorphic features include deep-set eyes, high nasal bridge, frontal bossing, prominent occipital protuberance, large central teeth, short fingers, prominent jaw and flat feet. Other examinations were within normal limits. EEG was reported to be normal, and brain MRI showed periventricular hypomyelination with a prominent retrocerebellar cistern. Skeletal survey revealed relative decreased height of the cervical vertebral bodies, straightening of the lumbosacral spine, bilateral coxa valga deformity, depression of the medial tibial plateau and hypertrophy of the medial femoral condyle on both knees, over pneumatization of the mastoid air cells, shortening and broadening of the small bones of the hands as well as the feet and growth arrest lines. ",
+  "metadata": {
+    "dataset": "ID-68",
+    "text_length_chars": 1544,
+    "num_annotations": 13,
+    "conversion_date": "2025-11-18T13:13:20.580930"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001263",
+      "label": "Global developmental delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 298,
+          "end_char": 317,
+          "text_snippet": "delayed development"
+        },
+        {
+          "start_char": 328,
+          "end_char": 354,
+          "text_snippet": "global developmental delay"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002136",
+      "label": "Broad-based gait",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 442,
+          "end_char": 456,
+          "text_snippet": "wide base gait"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000426",
+      "label": "Prominent nasal bridge",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 830,
+          "end_char": 847,
+          "text_snippet": "high nasal bridge"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002007",
+      "label": "Frontal bossing",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 849,
+          "end_char": 864,
+          "text_snippet": "frontal bossing"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000269",
+      "label": "Prominent occiput",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 866,
+          "end_char": 898,
+          "text_snippet": "prominent occipital protuberance"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001572",
+      "label": "Macrodontia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 900,
+          "end_char": 919,
+          "text_snippet": "large central teeth"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009381",
+      "label": "Short finger",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 921,
+          "end_char": 934,
+          "text_snippet": "short fingers"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000303",
+      "label": "Mandibular prognathia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 936,
+          "end_char": 949,
+          "text_snippet": "prominent jaw"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001763",
+      "label": "Pes planus",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 954,
+          "end_char": 963,
+          "text_snippet": "flat feet"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003429",
+      "label": "CNS hypomyelination",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1079,
+          "end_char": 1094,
+          "text_snippet": "hypomyelination"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000470",
+      "label": "Short neck",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1171,
+          "end_char": 1220,
+          "text_snippet": "decreased height of the cervical vertebral bodies"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010665",
+      "label": "Bilateral coxa valga",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1262,
+          "end_char": 1292,
+          "text_snippet": "bilateral coxa valga deformity"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0006437",
+      "label": "Disproportionate prominence of the femoral medial condyle",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1338,
+          "end_char": 1379,
+          "text_snippet": "hypertrophy of the medial femoral condyle"
+        }
+      ]
+    }
+  ]
+}

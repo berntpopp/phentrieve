@@ -1,0 +1,103 @@
+{
+  "doc_id": "GSC+_1745350",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "We studied two families with an unusual variant of neurofibromatosis (NF). The first family had spinal neurofibromas and café au lait spots (CLS), the second spinal neurofibromas without CLS. Other signs of NF1 or NF2, such as cutaneous tumors, Lisch nodules, or acoustic tumors, were absent. The inheritance pattern in both pedigrees was consistent with autosomal dominant inheritance. Using genetic linkage analysis with DNA markers tightly linked to the NF1 and NF2 loci, we determined that the likely location for the mutation in the first family was in the NF1 gene with odds of 97:1, whereas the mutation in the second family was excluded from the NF1 locus with odds greater than 100,000:1. Families such as these, in which a defined subset of the NF phenotype is passed on, are important for understanding the functional consequences of particular mutations in the NF genes.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 882,
+    "num_annotations": 7,
+    "conversion_date": "2025-11-18T13:13:15.762315"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0006746",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 51,
+          "end_char": 68,
+          "text_snippet": "neurofibromatosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009735",
+      "label": "Spinal neurofibroma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 96,
+          "end_char": 116,
+          "text_snippet": "spinal neurofibromas"
+        },
+        {
+          "start_char": 158,
+          "end_char": 178,
+          "text_snippet": "spinal neurofibromas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000957",
+      "label": "Cafe-au-lait spot",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 121,
+          "end_char": 145,
+          "text_snippet": "café au lait spots (CLS)"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0008069",
+      "label": "Neoplasm of the skin",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 227,
+          "end_char": 243,
+          "text_snippet": "cutaneous tumors"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009737",
+      "label": "Lisch nodules",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 245,
+          "end_char": 258,
+          "text_snippet": "Lisch nodules"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009588",
+      "label": "Vestibular schwannoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 263,
+          "end_char": 278,
+          "text_snippet": "acoustic tumors"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 355,
+          "end_char": 385,
+          "text_snippet": "autosomal dominant inheritance"
+        }
+      ]
+    }
+  ]
+}

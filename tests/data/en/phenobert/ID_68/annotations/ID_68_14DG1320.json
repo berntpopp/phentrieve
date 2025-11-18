@@ -1,0 +1,180 @@
+{
+  "doc_id": "ID-68_14DG1320",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "A 2 months old deceased boy with pinpoint pupils, right eye microcornea and microphthalmia, congenital nephrotic syndrome, pulmonary hypoplasia and renal failure. He was born at full term via NSVD, and he cried immediately after birth. Apgar scores were 6, 8 and 9 at 1, 5, and 10 minutes, respectively. The antenatal ultrasound at 32 and 37 weeks of gestation showed anhydramnios and bilateral echogenic dilated dysplastic kidneys. At birth, he was noted to have pinpoint pupils and right eye microconia, and he was admitted to high dependency unit. Chest X-ray showed severe pulmonary hypoplasia, and echocardiogram showed an ostium secundum atrial septal defect with a left to right shunt and large PDA. Renal ultrasound showed enlarged dysplastic echogenic kidneys. He did not pass urine for the first 12 hours of life. His parents are first-degree cousins, and they have another healthy child and a history of abortion. On examination, he has mild paleness, subtle dysmorphic features, depressed nasal bridge, unilateral concave face and bilateral talipes equinovarus deformity. His chest examination was remarkable for respiratory distress, subcostal and intercostal recession, accessory muscle use and bilateral decreased air entry.  Other examinations were within normal limits.",
+  "metadata": {
+    "dataset": "ID-68",
+    "text_length_chars": 1286,
+    "num_annotations": 13,
+    "conversion_date": "2025-11-18T13:13:19.472391"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000482",
+      "label": "Microcornea",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 50,
+          "end_char": 71,
+          "text_snippet": "right eye microcornea"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000568",
+      "label": "Microphthalmia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 76,
+          "end_char": 90,
+          "text_snippet": "microphthalmia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0008677",
+      "label": "Congenital nephrotic syndrome",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 92,
+          "end_char": 121,
+          "text_snippet": "congenital nephrotic syndrome"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002089",
+      "label": "Pulmonary hypoplasia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 123,
+          "end_char": 143,
+          "text_snippet": "pulmonary hypoplasia"
+        },
+        {
+          "start_char": 577,
+          "end_char": 597,
+          "text_snippet": "pulmonary hypoplasia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000083",
+      "label": "Renal insufficiency",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 148,
+          "end_char": 161,
+          "text_snippet": "renal failure"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000110",
+      "label": "Renal dysplasia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 413,
+          "end_char": 431,
+          "text_snippet": "dysplastic kidneys"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001684",
+      "label": "Secundum atrial septal defect",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 603,
+          "end_char": 664,
+          "text_snippet": "echocardiogram showed an ostium secundum atrial septal defect"
+        },
+        {
+          "start_char": 618,
+          "end_char": 669,
+          "text_snippet": "showed an ostium secundum atrial septal defect with"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012382",
+      "label": "Left-to-right shunt",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 672,
+          "end_char": 691,
+          "text_snippet": "left to right shunt"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001643",
+      "label": "Patent ductus arteriosus",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 702,
+          "end_char": 705,
+          "text_snippet": "PDA"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000980",
+      "label": "Pallor",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 953,
+          "end_char": 961,
+          "text_snippet": "paleness"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0005280",
+      "label": "Depressed nasal bridge",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 991,
+          "end_char": 1013,
+          "text_snippet": "depressed nasal bridge"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001776",
+      "label": "Bilateral talipes equinovarus",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1043,
+          "end_char": 1082,
+          "text_snippet": "bilateral talipes equinovarus deformity"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002098",
+      "label": "Respiratory distress",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1125,
+          "end_char": 1145,
+          "text_snippet": "respiratory distress"
+        }
+      ]
+    }
+  ]
+}

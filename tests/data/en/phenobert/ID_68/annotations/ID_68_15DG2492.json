@@ -1,0 +1,50 @@
+{
+  "doc_id": "ID-68_15DG2492",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "A 6 years old boy with intellectual disability, genitourinary anomalies, cardiac defects, short stature and non-specific elevations in several plasma amino acids and urine orotic acid. ",
+  "metadata": {
+    "dataset": "ID-68",
+    "text_length_chars": 185,
+    "num_annotations": 3,
+    "conversion_date": "2025-11-18T13:13:19.865237"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001249",
+      "label": "Intellectual disability",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 18,
+          "end_char": 46,
+          "text_snippet": "with intellectual disability"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000119",
+      "label": "Abnormality of the genitourinary system",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 48,
+          "end_char": 71,
+          "text_snippet": "genitourinary anomalies"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004322",
+      "label": "Short stature",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 90,
+          "end_char": 103,
+          "text_snippet": "short stature"
+        }
+      ]
+    }
+  ]
+}

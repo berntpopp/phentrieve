@@ -1,0 +1,38 @@
+{
+  "doc_id": "GSC+_2035528",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "A 9-year-old mentally retarded girl with multiple congenital anomalies was found to carry a balanced 13/14 Robertsonian translocation [45,XX,t(13q14q)] which was also present in her father. Her mother carried a balanced reciprocal translocation between chromosomes 1 and 14 [46,XX,t(1;14) (q32;q32)]. Both of her parents were phenotypically normal. Molecular studies were carried out to determine the parental origin of chromosomes 1, 13, and 14 in the patient. Using probes for D14S13 and D14S22, we could show that the patient inherited both chromosomes 14 from her father and none from her mother. Similar studies using probes for chromosomes 1 (D1S76) and 13 (D13S37) loci showed the presence of both maternal and paternal alleles in the patient. Our findings indicate that paternal uniparental heterodisomy for chromosome 14 most likely accounts for the phenotypic abnormalities observed in our patient. It is suggested that uniparental disomy may be the basis for abnormal development in at least some phenotypically abnormal familial balanced-translocation carriers.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 1073,
+    "num_annotations": 2,
+    "conversion_date": "2025-11-18T13:13:16.193749"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001249",
+      "label": "Intellectual disability",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 13,
+          "end_char": 30,
+          "text_snippet": "mentally retarded"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001263",
+      "label": "Global developmental delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 970,
+          "end_char": 990,
+          "text_snippet": "abnormal development"
+        }
+      ]
+    }
+  ]
+}

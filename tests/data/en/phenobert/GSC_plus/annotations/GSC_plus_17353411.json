@@ -1,0 +1,89 @@
+{
+  "doc_id": "GSC+_17353411",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "To gain insight into the pathogenesis of neurofibromatosis type 2 (NF2) by investigating the ocular manifestations of this disease.\n\nUsing standard histologic techniques, immunohistochemistry, and electron microscopy, we described the ocular pathologic findings of a 34-year-old woman who died from complications of NF2.\n\nWe identified 3 types of NF2-associated lesions: juvenile posterior subcapsular cataracts, epiretinal membranes, and an intrascleral schwannoma.\n\nOur analysis indicated that dysplastic lens cells accumulate just anterior to the posterior lens capsule in juvenile posterior subcapsular cataracts and that dysplastic Müller cells may be a major component of NF2-associated epiretinal membranes. Clinical Relevance Our findings suggest that a subset of glial cells with epithelial features (Schwann cells, ependymal cells, and Müller cells) may be particularly sensitive to loss of the NF2 gene. Understanding the molecular basis for this sensitivity may lead to novel strategies for treating NF2.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 1016,
+    "num_annotations": 5,
+    "conversion_date": "2025-11-18T13:13:15.716350"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0006746",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 41,
+          "end_char": 58,
+          "text_snippet": "neurofibromatosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000478",
+      "label": "Abnormality of the eye",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 93,
+          "end_char": 114,
+          "text_snippet": "ocular manifestations"
+        },
+        {
+          "start_char": 235,
+          "end_char": 261,
+          "text_snippet": "ocular pathologic findings"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0007787",
+      "label": "Posterior subcapsular cataract",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 380,
+          "end_char": 411,
+          "text_snippet": "posterior subcapsular cataracts"
+        },
+        {
+          "start_char": 585,
+          "end_char": 616,
+          "text_snippet": "posterior subcapsular cataracts"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100014",
+      "label": "Epiretinal membrane",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 413,
+          "end_char": 433,
+          "text_snippet": "epiretinal membranes"
+        },
+        {
+          "start_char": 693,
+          "end_char": 713,
+          "text_snippet": "epiretinal membranes"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100011",
+      "label": "Scleral schwannoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 442,
+          "end_char": 465,
+          "text_snippet": "intrascleral schwannoma"
+        }
+      ]
+    }
+  ]
+}

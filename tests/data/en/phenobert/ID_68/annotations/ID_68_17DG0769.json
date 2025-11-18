@@ -1,0 +1,163 @@
+{
+  "doc_id": "ID-68_17DG0769",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "A 12 years old boy who was born at full term via NSVD to a G4P3 35 years old mother following an uneventful pregnancy. He was noted to be hypotonic shortly after birth, but it was only during the second month of life when he was found to have high CK in addition to his hypotonia, so the clinical diagnosis of merosin-deficient muscular dystrophy was made. Developmentally, he has a global developmental delay, and his motor and cognitive skills seem to be severely delayed. He is still unable to sit unsupported. His past medical history is notable for nephrosis that developed suddenly at 4 years of age that has been treated with steroids. His parents are consanguineous, and they have a younger child with severe hypotonia. Physical examination revealed severe underweight and a borderline OFC (6th percentile). His dysmorphic features include plagiocephaly, open bite, multiple contractures of hands and knees joints, severe scoliosis and one large café au lait macule in the lower back. He also was found to have severe hypotonia and areflexia. Other examinations were within normal limits. Echocardiogram showed a normal cardiac function.",
+  "metadata": {
+    "dataset": "ID-68",
+    "text_length_chars": 1145,
+    "num_annotations": 12,
+    "conversion_date": "2025-11-18T13:13:20.329085"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0003236",
+      "label": "Elevated circulating creatine kinase concentration",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 243,
+          "end_char": 250,
+          "text_snippet": "high CK"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001290",
+      "label": "Generalized hypotonia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 270,
+          "end_char": 279,
+          "text_snippet": "hypotonia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003560",
+      "label": "Muscular dystrophy",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 328,
+          "end_char": 346,
+          "text_snippet": "muscular dystrophy"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001263",
+      "label": "Global developmental delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 383,
+          "end_char": 409,
+          "text_snippet": "global developmental delay"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000100",
+      "label": "Nephrotic syndrome",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 554,
+          "end_char": 563,
+          "text_snippet": "nephrosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0006829",
+      "label": "Severe muscular hypotonia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 710,
+          "end_char": 726,
+          "text_snippet": "severe hypotonia"
+        },
+        {
+          "start_char": 1019,
+          "end_char": 1035,
+          "text_snippet": "severe hypotonia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001525",
+      "label": "Severe failure to thrive",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 758,
+          "end_char": 776,
+          "text_snippet": "severe underweight"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001357",
+      "label": "Plagiocephaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 848,
+          "end_char": 861,
+          "text_snippet": "plagiocephaly"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010807",
+      "label": "Open bite",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 863,
+          "end_char": 872,
+          "text_snippet": "open bite"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002828",
+      "label": "Multiple joint contractures",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 874,
+          "end_char": 895,
+          "text_snippet": "multiple contractures"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002650",
+      "label": "Scoliosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 930,
+          "end_char": 939,
+          "text_snippet": "scoliosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001284",
+      "label": "Areflexia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1040,
+          "end_char": 1049,
+          "text_snippet": "areflexia"
+        }
+      ]
+    }
+  ]
+}

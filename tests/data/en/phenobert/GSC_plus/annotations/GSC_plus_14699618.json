@@ -1,0 +1,151 @@
+{
+  "doc_id": "GSC+_14699618",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "The phenotype of Gorlin-Goltz syndrome or basal cell nevus syndrome (BCNS, #109400, OMIM), a Mendelian trait due to PTCH mutations has been reported in a few cases of interstitial deletion of chromosome 9q. We present an 11-year-old girl with clinical features consistent with BCNS including bridging of sella turcica, biparietal bossing, downward slanting palpebral fissures, mandible prognathism, pectus excavatum, thumb abnormalities, occult spina bifida at L5-S4, numerous basal cell nevi, and single basal cell carcinoma. Cytogenetic analysis using high-resolution banding techniques and fluorescence in situ hybridization (FISH) revealed interstitial chromosome deletion 9q22.32-q33.2 involving the PTCH gene as a secondary breakage event to a chromosome translocation t(9;17)(q34.1;p11.2)mat. Further FISH studies showed the translocation breakpoint on 9q34.11 maps proximal to ABL, between the BAC clone RP11-88G17 and the LMX1B gene. The latter gene encodes a transcription factor, in which loss of function mutations are responsible for the nail-patella syndrome (NPS, #161200 OMIM). Interestingly, some features of our proband (e.g., bilateral patellar dysplasia and abnormal clavicular shape), as well as her healthy sister who carries the same translocation, are also found in patients with NPS. The chromosome 17p11.2 breakpoint maps in the Smith-Magenis syndrome common deletion region, within two overlapping BAC clones, CTD-2354J3 and RP11-311F12.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 1464,
+    "num_annotations": 11,
+    "conversion_date": "2025-11-18T13:13:15.206320"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0002671",
+      "label": "Basal cell carcinoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 42,
+          "end_char": 67,
+          "text_snippet": "basal cell nevus syndrome"
+        },
+        {
+          "start_char": 505,
+          "end_char": 525,
+          "text_snippet": "basal cell carcinoma"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0005449",
+      "label": "Bridged sella turcica",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 292,
+          "end_char": 317,
+          "text_snippet": "bridging of sella turcica"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000242",
+      "label": "Parietal bossing",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 319,
+          "end_char": 337,
+          "text_snippet": "biparietal bossing"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000494",
+      "label": "Downslanted palpebral fissures",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 339,
+          "end_char": 375,
+          "text_snippet": "downward slanting palpebral fissures"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000303",
+      "label": "Mandibular prognathia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 377,
+          "end_char": 397,
+          "text_snippet": "mandible prognathism"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000767",
+      "label": "Pectus excavatum",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 399,
+          "end_char": 415,
+          "text_snippet": "pectus excavatum"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001172",
+      "label": "Abnormal thumb morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 417,
+          "end_char": 436,
+          "text_snippet": "thumb abnormalities"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003298",
+      "label": "Spina bifida occulta",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 438,
+          "end_char": 457,
+          "text_snippet": "occult spina bifida"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001054",
+      "label": "Numerous nevi",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 468,
+          "end_char": 492,
+          "text_snippet": "numerous basal cell nevi"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0006446",
+      "label": "Dysplastic patella",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1155,
+          "end_char": 1173,
+          "text_snippet": "patellar dysplasia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000889",
+      "label": "Abnormal clavicle morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1178,
+          "end_char": 1203,
+          "text_snippet": "abnormal clavicular shape"
+        }
+      ]
+    }
+  ]
+}

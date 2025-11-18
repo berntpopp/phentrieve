@@ -1,0 +1,55 @@
+{
+  "doc_id": "ID-68_16DG0697",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "An 11 years old boy who was born to a G3P2 32 years old mother following an uneventful pregnancy. He had his first seizure at 4 months of age, and they were progressing in term of severity and frequency and reaching a peak at the age of three years. He was developing normally until three years of age when he started to lose his milestones. His parents are first-degree cousins, and there is a history of seizures on the paternal side. His growth parameters at 11 years of age were weight 45.5 kg (75th-90th percentile), height 144.7 cm (50th-75th percentile) and head circumference 52.7 cm (25th-50th percentile). His physical examination was significant for hyporeflexia, and he did not have dysmorphic features. His brain MRI was normal and EEG showed dysrhythmia with evidence of encephalopathy. ",
+  "metadata": {
+    "dataset": "ID-68",
+    "text_length_chars": 801,
+    "num_annotations": 3,
+    "conversion_date": "2025-11-18T13:13:20.069278"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001250",
+      "label": "Seizure",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 115,
+          "end_char": 122,
+          "text_snippet": "seizure"
+        },
+        {
+          "start_char": 406,
+          "end_char": 414,
+          "text_snippet": "seizures"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001265",
+      "label": "Hyporeflexia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 661,
+          "end_char": 673,
+          "text_snippet": "hyporeflexia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001298",
+      "label": "Encephalopathy",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 785,
+          "end_char": 799,
+          "text_snippet": "encephalopathy"
+        }
+      ]
+    }
+  ]
+}

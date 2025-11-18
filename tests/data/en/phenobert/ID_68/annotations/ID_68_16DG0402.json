@@ -1,0 +1,110 @@
+{
+  "doc_id": "ID-68_16DG0402",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "An 11 months old girl who was born at full-term via C-section due to failure to progress. Birth weight was 2.6 kg, and she was discharged from the hospital on the following day. She was noted at birth to have a cleft palate. She has had recurrent aspiration pneumonia that began within the second week of life led to several hospital admissions. Developmentally, she has a global developmental delay affecting all domains. She can roll over and hold her milk bottle, but she cannot sit, stand or say any word. Her parents are nonconsanguineous, and other siblings are healthy. On examination, her dysmorphic features include hypertelorism, excessive forehead hair, broad thumbs, three phalanges thumbs and bilateral prominent fingertip pads. Her growth parameters at 11 months of age were weight 5.1 KG and height 64 cm; both were below the 1st percentile. Her neurological assessment showed hyperreflexia and hypotonia, but other examinations were within normal limits. Brain MRI and EEG were reported to be normal. ",
+  "metadata": {
+    "dataset": "ID-68",
+    "text_length_chars": 1017,
+    "num_annotations": 8,
+    "conversion_date": "2025-11-18T13:13:20.028631"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000175",
+      "label": "Cleft palate",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 211,
+          "end_char": 223,
+          "text_snippet": "cleft palate"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002100",
+      "label": "Recurrent aspiration pneumonia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 237,
+          "end_char": 267,
+          "text_snippet": "recurrent aspiration pneumonia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001263",
+      "label": "Global developmental delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 373,
+          "end_char": 399,
+          "text_snippet": "global developmental delay"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000316",
+      "label": "Hypertelorism",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 625,
+          "end_char": 638,
+          "text_snippet": "hypertelorism"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0011304",
+      "label": "Broad thumb",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 665,
+          "end_char": 677,
+          "text_snippet": "broad thumbs"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001212",
+      "label": "Prominent fingertip pads",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 716,
+          "end_char": 740,
+          "text_snippet": "prominent fingertip pads"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001347",
+      "label": "Hyperreflexia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 892,
+          "end_char": 905,
+          "text_snippet": "hyperreflexia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001290",
+      "label": "Generalized hypotonia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 910,
+          "end_char": 919,
+          "text_snippet": "hypotonia"
+        }
+      ]
+    }
+  ]
+}

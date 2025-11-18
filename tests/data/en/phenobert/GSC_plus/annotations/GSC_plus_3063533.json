@@ -1,0 +1,62 @@
+{
+  "doc_id": "GSC+_3063533",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "We report on seven children with Angelman syndrome presenting with psychomotor retardation during the 1st year of life. Seizures developed in six patients, and computed tomography (CT) scanning showed diffuse atrophy of the brain in five patients. We conclude that diagnosis is difficult in the first years of life. A review of the literature is given.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 352,
+    "num_annotations": 4,
+    "conversion_date": "2025-11-18T13:13:16.509660"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001255",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 67,
+          "end_char": 90,
+          "text_snippet": "psychomotor retardation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003576",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 91,
+          "end_char": 118,
+          "text_snippet": "during the 1st year of life"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001250",
+      "label": "Seizure",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 120,
+          "end_char": 128,
+          "text_snippet": "Seizures"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002283",
+      "label": "Global brain atrophy",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 201,
+          "end_char": 229,
+          "text_snippet": "diffuse atrophy of the brain"
+        }
+      ]
+    }
+  ]
+}

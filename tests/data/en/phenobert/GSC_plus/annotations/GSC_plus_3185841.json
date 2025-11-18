@@ -1,0 +1,153 @@
+{
+  "doc_id": "GSC+_3185841",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "The diagnosis, size and operation results in 41 acoustic neurinomas (26 females and 15 males) are presented. In one case the tumor was bilateral. Out of the total of 41 tumors, 12.5% were small acoustic neurinomas. As a rule, at diagnosis the tumors were larger in females than in males. Ten of the small and medium size acoustic neurinomas had no brain stem and cerebellar symptoms or signs at all, only the 8th cranial nerve was affected. All large tumors already had brain stem symptoms and one-third of them also had cerebellar symptoms, lesions of further cranial nerves and increasing intracranial pressure. All these findings were always present in giant tumors. Neurootological functional laboratory examinations cannot be replaced by CT because of the possibility of false negative findings in the smallest acoustic neurinomas. CT and functional neurootological laboratory examinations are complementary to each other and they are not screening procedures at all. As regards morbidity and mortality, the surgical results are comparable with those of other authors using microsurgical techniques. As regards the preservation of hearing, the results are among the best particularly in tumors that were diagnosed as small or medium in this series. Thus it is apparent that the size of a diagnosed acoustic neurinoma is more important for surgical results than the chosen approach to the tumor.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 1399,
+    "num_annotations": 7,
+    "conversion_date": "2025-11-18T13:13:16.680089"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0009588",
+      "label": "Vestibular schwannoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 48,
+          "end_char": 67,
+          "text_snippet": "acoustic neurinomas"
+        },
+        {
+          "start_char": 194,
+          "end_char": 213,
+          "text_snippet": "acoustic neurinomas"
+        },
+        {
+          "start_char": 321,
+          "end_char": 340,
+          "text_snippet": "acoustic neurinomas"
+        },
+        {
+          "start_char": 816,
+          "end_char": 835,
+          "text_snippet": "acoustic neurinomas"
+        },
+        {
+          "start_char": 1303,
+          "end_char": 1321,
+          "text_snippet": "acoustic neurinoma"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002664",
+      "label": "Neoplasm",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 125,
+          "end_char": 130,
+          "text_snippet": "tumor"
+        },
+        {
+          "start_char": 169,
+          "end_char": 175,
+          "text_snippet": "tumors"
+        },
+        {
+          "start_char": 243,
+          "end_char": 249,
+          "text_snippet": "tumors"
+        },
+        {
+          "start_char": 451,
+          "end_char": 457,
+          "text_snippet": "tumors"
+        },
+        {
+          "start_char": 662,
+          "end_char": 668,
+          "text_snippet": "tumors"
+        },
+        {
+          "start_char": 1192,
+          "end_char": 1198,
+          "text_snippet": "tumors"
+        },
+        {
+          "start_char": 1393,
+          "end_char": 1398,
+          "text_snippet": "tumor"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001317",
+      "label": "Abnormal cerebellum morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 363,
+          "end_char": 382,
+          "text_snippet": "cerebellar symptoms"
+        },
+        {
+          "start_char": 521,
+          "end_char": 540,
+          "text_snippet": "cerebellar symptoms"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009591",
+      "label": "Abnorma vestibulocochlear nerve morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 409,
+          "end_char": 426,
+          "text_snippet": "8th cranial nerve"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002363",
+      "label": "Abnormal brainstem morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 470,
+          "end_char": 489,
+          "text_snippet": "brain stem symptoms"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001291",
+      "label": "Abnormal cranial nerve morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 542,
+          "end_char": 575,
+          "text_snippet": "lesions of further cranial nerves"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002516",
+      "label": "Increased intracranial pressure",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 580,
+          "end_char": 612,
+          "text_snippet": "increasing intracranial pressure"
+        }
+      ]
+    }
+  ]
+}

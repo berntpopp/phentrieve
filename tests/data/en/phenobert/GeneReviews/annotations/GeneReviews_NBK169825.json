@@ -1,0 +1,313 @@
+{
+  "doc_id": "GeneReviews_NBK169825",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Summary:\nCASK disorders include a spectrum of phenotypes in both females and males. Two main types of clinical presentation are seen:MICPCH is typically seen in females with moderate-to-severe intellectual disability, progressive microcephaly with or without ophthalmologic anomalies, and sensorineural hearing loss. Most are able to sit independently; 20%-25% attain the ability to walk; language is nearly absent in most. Neurologic features may include axial hypotonia, hypertonia/spasticity of the extremities, and dystonia or other movement disorders. Nearly 40% have seizures by age ten years. Behaviors may include sleep disturbances, hand stereotypies, and self biting.MICPCH in males may occur with or without severe epileptic encephalopathy in addition to severe-to-profound developmental delay. When seizures are present they occur early and may be intractable.In individuals and families with milder (i.e., hypomorphic) pathogenic variants, the clinical phenotype is usually that of XLID with or without nystagmus and additional clinical features. Males have mild-to-severe intellectual disability, with or without nystagmus and other ocular features. Females typically have normal intelligence with some displaying mild-to-severe intellectual disability with or without ocular features.\nDescription:\nCASK disorders are more commonly reported in females and include a spectrum of phenotypes that differs in females and males:\nFemales typically have moderate-to-severe intellectual disability and in most individuals, progressive microcephaly with pontine and cerebellar hypoplasia (MICPCH). Possible findings are ophthalmologic anomalies and sensorineural hearing loss. Females who are relatives of males with the X-linked intellectual disability (XLID) ± nystagmus phenotype may rarely present with a mild-to-severe intellectual disability phenotype.;In males the spectrum is broad, ranging from severe (intellectual disability and MICPCH, or early-infantile epileptic encephalopathy.\nTo date, 130 individuals (45 males and 85 females) have been identified with a pathogenic variant in CASK. The following description of the phenotypic features associated with this condition is based on these reports.\n",
+  "metadata": {
+    "dataset": "GeneReviews",
+    "text_length_chars": 2216,
+    "num_annotations": 22,
+    "conversion_date": "2025-11-18T13:13:20.784560"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0002342",
+      "label": "Intellectual disability, moderate",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 174,
+          "end_char": 216,
+          "text_snippet": "moderate-to-severe intellectual disability"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000253",
+      "label": "Progressive microcephaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 218,
+          "end_char": 242,
+          "text_snippet": "progressive microcephaly"
+        },
+        {
+          "start_char": 1529,
+          "end_char": 1553,
+          "text_snippet": "progressive microcephaly"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000478",
+      "label": "Abnormality of the eye",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 259,
+          "end_char": 283,
+          "text_snippet": "ophthalmologic anomalies"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000407",
+      "label": "Sensorineural hearing impairment",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 289,
+          "end_char": 315,
+          "text_snippet": "sensorineural hearing loss"
+        },
+        {
+          "start_char": 1654,
+          "end_char": 1680,
+          "text_snippet": "sensorineural hearing loss"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001344",
+      "label": "Absent speech",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 389,
+          "end_char": 414,
+          "text_snippet": "language is nearly absent"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0008936",
+      "label": "Axial hypotonia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 456,
+          "end_char": 471,
+          "text_snippet": "axial hypotonia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001276",
+      "label": "Hypertonia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 473,
+          "end_char": 483,
+          "text_snippet": "hypertonia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001257",
+      "label": "Spasticity",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 484,
+          "end_char": 494,
+          "text_snippet": "spasticity"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001332",
+      "label": "Dystonia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 519,
+          "end_char": 527,
+          "text_snippet": "dystonia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100022",
+      "label": "Abnormality of movement",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 537,
+          "end_char": 555,
+          "text_snippet": "movement disorders"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001250",
+      "label": "Seizure",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 573,
+          "end_char": 581,
+          "text_snippet": "seizures"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002360",
+      "label": "Sleep abnormality",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 622,
+          "end_char": 640,
+          "text_snippet": "sleep disturbances"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000733",
+      "label": "Motor stereotypy",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 647,
+          "end_char": 659,
+          "text_snippet": "stereotypies"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012169",
+      "label": "Self-biting",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 665,
+          "end_char": 676,
+          "text_snippet": "self biting"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0200134",
+      "label": "Epileptic encephalopathy",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 726,
+          "end_char": 750,
+          "text_snippet": "epileptic encephalopathy"
+        },
+        {
+          "start_char": 1972,
+          "end_char": 1996,
+          "text_snippet": "epileptic encephalopathy"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012736",
+      "label": "Profound global developmental delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 776,
+          "end_char": 804,
+          "text_snippet": "profound developmental delay"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0007359",
+      "label": "Focal-onset seizure",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 811,
+          "end_char": 819,
+          "text_snippet": "seizures"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000639",
+      "label": "Nystagmus",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1016,
+          "end_char": 1025,
+          "text_snippet": "nystagmus"
+        },
+        {
+          "start_char": 1127,
+          "end_char": 1136,
+          "text_snippet": "nystagmus"
+        },
+        {
+          "start_char": 1768,
+          "end_char": 1777,
+          "text_snippet": "nystagmus"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001256",
+      "label": "Intellectual disability, mild",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1071,
+          "end_char": 1109,
+          "text_snippet": "mild-to-severe intellectual disability"
+        },
+        {
+          "start_char": 1228,
+          "end_char": 1266,
+          "text_snippet": "mild-to-severe intellectual disability"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012110",
+      "label": "Hypoplasia of the pons",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1559,
+          "end_char": 1592,
+          "text_snippet": "pontine and cerebellar hypoplasia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001321",
+      "label": "Cerebellar hypoplasia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1571,
+          "end_char": 1592,
+          "text_snippet": "cerebellar hypoplasia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001249",
+      "label": "Intellectual disability",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1735,
+          "end_char": 1758,
+          "text_snippet": "intellectual disability"
+        },
+        {
+          "start_char": 1917,
+          "end_char": 1940,
+          "text_snippet": "intellectual disability"
+        }
+      ]
+    }
+  ]
+}

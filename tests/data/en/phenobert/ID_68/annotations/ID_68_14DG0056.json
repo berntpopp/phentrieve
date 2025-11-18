@@ -1,0 +1,286 @@
+{
+  "doc_id": "ID-68_14DG0056",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "A 3 months old girl who presented during neonatal period with congenital stridor and generalized hypertonia. Her birth weight was 3.2 kg, and she showed poor weight gain since birth even though she was on NG-tube feeding. Developmentally, she has a global developmental delay affecting all domains. She shows no purposeful movements and has a prolonged grasp reflex. She does not have a social smile, but she can babble and coo. There is a family history of a similar condition in two siblings; a brother who died at the age of 3 months and an older sister who is currently 21 months with GDD and Hypertonia. There is also a paternal cousin with similar presentation. On examination, she has a nonexpressive face with subtle dysmorphism and mild positional deformity of the chest wall. Her current growth parameters at 3 months of age were weight 3.2 kg, length 53 cm and head circumference 36.5 cm; all are below the third percentile. On neurological examination, there is a generalized hypertonia affecting upper limbs more than lower limbs and hyperreflexia without a clonus. Hearing and vision were intact, and other examinations were within normal limits.A 3 years old boy who was born at 34 weeks gestation via an emergency C-Section due to fetal distress. His Apgar scores were 4 and 7 at 1 and 5 minutes, respectively. He has a respiratory difficulty at birth, and he was subsequently intubated and admitted to NICU. His growth parameters at birth were weight 2.1 kg and head circumference 33.5 cm, and he was noted to have a very small anterior fontanel at birth. He stayed in NICU for 9 months. A tracheostomy was placed for him because he failed extubation several times. He had frequent hospital admissions due to pneumonia and sepsis. There is a positive family history of a similar condition in a male sibling who died due to the same condition and in two cousins. His physical examination was significant for hypertelorism, high and wide nasal bridge, micrognathia, glossoptosis, cleft palate, long thin and hyperextensible fingers and hypotonia. Other examinations were within normal limits. Brain MRI showed diffuse white matter T2 hyperintensity. Skeletal survey showed 11 pairs of ribs. EMG, Nerve conduction, echocardiography, karyotyping, CGH microarray, CK assay, neonatal screen, and urine organic acids were within normal limits.The other affected family member had hypertelorism, micrognathia, very small anterior fontanel and hyperextended fingers. The other affected family member had had respiratory distress after birth, and required prolonged NICU admission with several failed extubations.",
+  "metadata": {
+    "dataset": "ID-68",
+    "text_length_chars": 2620,
+    "num_annotations": 21,
+    "conversion_date": "2025-11-18T13:13:19.372370"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0004886",
+      "label": "Congenital laryngeal stridor",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 62,
+          "end_char": 80,
+          "text_snippet": "congenital stridor"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001276",
+      "label": "Hypertonia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 97,
+          "end_char": 107,
+          "text_snippet": "hypertonia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001508",
+      "label": "Failure to thrive",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 153,
+          "end_char": 181,
+          "text_snippet": "poor weight gain since birth"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001263",
+      "label": "Global developmental delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 249,
+          "end_char": 275,
+          "text_snippet": "global developmental delay"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0030903",
+      "label": "Grasp reflex",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 343,
+          "end_char": 365,
+          "text_snippet": "prolonged grasp reflex"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001999",
+      "label": "Abnormal facial shape",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 708,
+          "end_char": 736,
+          "text_snippet": "face with subtle dysmorphism"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0200049",
+      "label": "Upper limb hypertonia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 988,
+          "end_char": 1020,
+          "text_snippet": "hypertonia affecting upper limbs"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001347",
+      "label": "Hyperreflexia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1047,
+          "end_char": 1060,
+          "text_snippet": "hyperreflexia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0025116",
+      "label": "Fetal distress",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1247,
+          "end_char": 1261,
+          "text_snippet": "fetal distress"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002098",
+      "label": "Respiratory distress",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1336,
+          "end_char": 1358,
+          "text_snippet": "respiratory difficulty"
+        },
+        {
+          "start_char": 2516,
+          "end_char": 2536,
+          "text_snippet": "respiratory distress"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000237",
+      "label": "Small anterior fontanelle",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1534,
+          "end_char": 1571,
+          "text_snippet": "very small anterior fontanel at birth"
+        },
+        {
+          "start_char": 2419,
+          "end_char": 2447,
+          "text_snippet": "very small anterior fontanel"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002090",
+      "label": "Pneumonia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1726,
+          "end_char": 1735,
+          "text_snippet": "pneumonia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100806",
+      "label": "Sepsis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1740,
+          "end_char": 1746,
+          "text_snippet": "sepsis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000316",
+      "label": "Hypertelorism",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1924,
+          "end_char": 1937,
+          "text_snippet": "hypertelorism"
+        },
+        {
+          "start_char": 2390,
+          "end_char": 2403,
+          "text_snippet": "hypertelorism"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000431",
+      "label": "Wide nasal bridge",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1948,
+          "end_char": 1965,
+          "text_snippet": "wide nasal bridge"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000347",
+      "label": "Micrognathia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1967,
+          "end_char": 1979,
+          "text_snippet": "micrognathia"
+        },
+        {
+          "start_char": 2405,
+          "end_char": 2417,
+          "text_snippet": "micrognathia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000162",
+      "label": "Glossoptosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1981,
+          "end_char": 1993,
+          "text_snippet": "glossoptosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000175",
+      "label": "Cleft palate",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1995,
+          "end_char": 2007,
+          "text_snippet": "cleft palate"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001187",
+      "label": "Hyperextensibility of the finger joints",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2023,
+          "end_char": 2046,
+          "text_snippet": "hyperextensible fingers"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001290",
+      "label": "Generalized hypotonia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2051,
+          "end_char": 2060,
+          "text_snippet": "hypotonia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0030890",
+      "label": "Hyperintensity of cerebral white matter on MRI",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2125,
+          "end_char": 2163,
+          "text_snippet": "diffuse white matter T2 hyperintensity"
+        }
+      ]
+    }
+  ]
+}

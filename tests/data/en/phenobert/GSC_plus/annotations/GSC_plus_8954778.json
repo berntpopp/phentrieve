@@ -1,0 +1,67 @@
+{
+  "doc_id": "GSC+_8954778",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Brachydactyly type C is an autosomal dominant disorder characterized by abnormal segmentation of the index and middle fingers segregating with a high degree of variable expression in members of the same family. We have followed up and studied members of the large kindred segregating with the brachydactyly type C phenotype described by Virgil Haws in 1963, and using genetic linkage analysis, we localized the susceptibility gene to human chromosome 12q24.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 457,
+    "num_annotations": 4,
+    "conversion_date": "2025-11-18T13:13:18.549252"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0009373",
+      "label": "Type C brachydactyly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 0,
+          "end_char": 20,
+          "text_snippet": "Brachydactyly type C"
+        },
+        {
+          "start_char": 293,
+          "end_char": 313,
+          "text_snippet": "brachydactyly type C"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 27,
+          "end_char": 54,
+          "text_snippet": "autosomal dominant disorder"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004100",
+      "label": "Abnormal 2nd finger morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 72,
+          "end_char": 125,
+          "text_snippet": "abnormal segmentation of the index and middle fingers"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003822",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 145,
+          "end_char": 209,
+          "text_snippet": "high degree of variable expression in members of the same family"
+        }
+      ]
+    }
+  ]
+}

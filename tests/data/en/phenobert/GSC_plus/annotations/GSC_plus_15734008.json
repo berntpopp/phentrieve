@@ -1,0 +1,164 @@
+{
+  "doc_id": "GSC+_15734008",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "To report new ocular manifestations of branchio-oculo-facial (BOF) syndrome.\n\nCase report.\n\nA 10-year-old girl with known BOF syndrome was referred because of a fundus lesion in her left eye.\n\nShe had undergone excision of a left orbital dermoid cyst at age 18 months and a branchial cleft fistula from the right side of neck at age 4 years. Examination disclosed openings of sinus tracts on each side of the nose connecting the lacrimal sac to skin. In the right eye, an iris pigment epithelial cyst was confirmed with ultrasound biomicroscopy. In the left eye, there was a combined hamartoma of the retina and retina pigment epithelium.\n\nBOF syndrome can display mild to severe craniofacial, auricular, oral, and ophthalmic anomalies. In this case, the ophthalmic manifestations included lacrimal sac fistula, orbital dermoid cyst, iris pigment epithelial cyst, and combined hamartoma of the retina and retinal pigment epithelium.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 932,
+    "num_annotations": 10,
+    "conversion_date": "2025-11-18T13:13:15.476124"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000478",
+      "label": "Abnormality of the eye",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 14,
+          "end_char": 35,
+          "text_snippet": "ocular manifestations"
+        },
+        {
+          "start_char": 715,
+          "end_char": 735,
+          "text_snippet": "ophthalmic anomalies"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001144",
+      "label": "Orbital cyst",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 161,
+          "end_char": 174,
+          "text_snippet": "fundus lesion"
+        },
+        {
+          "start_char": 225,
+          "end_char": 250,
+          "text_snippet": "left orbital dermoid cyst"
+        },
+        {
+          "start_char": 812,
+          "end_char": 832,
+          "text_snippet": "orbital dermoid cyst"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009795",
+      "label": "Branchial fistula",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 274,
+          "end_char": 297,
+          "text_snippet": "branchial cleft fistula"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000525",
+      "label": "Abnormality iris morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 472,
+          "end_char": 500,
+          "text_snippet": "iris pigment epithelial cyst"
+        },
+        {
+          "start_char": 834,
+          "end_char": 862,
+          "text_snippet": "iris pigment epithelial cyst"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009594",
+      "label": "Retinal hamartoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 584,
+          "end_char": 607,
+          "text_snippet": "hamartoma of the retina"
+        },
+        {
+          "start_char": 877,
+          "end_char": 900,
+          "text_snippet": "hamartoma of the retina"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0008051",
+      "label": "obsolete Abnormality of the retinal pigment epithelium",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 612,
+          "end_char": 637,
+          "text_snippet": "retina pigment epithelium"
+        },
+        {
+          "start_char": 905,
+          "end_char": 931,
+          "text_snippet": "retinal pigment epithelium"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002260",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 680,
+          "end_char": 735,
+          "text_snippet": "craniofacial, auricular, oral, and ophthalmic anomalies"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000598",
+      "label": "Abnormality of the ear",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 694,
+          "end_char": 735,
+          "text_snippet": "auricular, oral, and ophthalmic anomalies"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000153",
+      "label": "Abnormality of the mouth",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 705,
+          "end_char": 735,
+          "text_snippet": "oral, and ophthalmic anomalies"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000521",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 790,
+          "end_char": 810,
+          "text_snippet": "lacrimal sac fistula"
+        }
+      ]
+    }
+  ]
+}

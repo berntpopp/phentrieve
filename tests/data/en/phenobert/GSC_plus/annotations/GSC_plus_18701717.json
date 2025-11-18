@@ -1,0 +1,62 @@
+{
+  "doc_id": "GSC+_18701717",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Angelman syndrome is a neurological disorder whose symptoms include severe mental retardation, loss of motor coordination, and sleep disturbances. The disease is caused by a loss of function of UBE3A, which encodes a HECT-domain ubiquitin ligase. Here, we generate a Drosophila model for the disease. The results of several experiments show that the functions of human UBE3A and its fly counterpart, dube3a, are similar. First, expression of Dube3a is enriched in the Drosophila nervous system, including mushroom bodies, the seat of learning and memory. Second, we have generated dube3a null mutants, and they appear normal externally, but display abnormal locomotive behavior and circadian rhythms, and defective long-term memory. Third, flies that overexpress Dube3a in the nervous system also display locomotion defects, dependent on the ubiquitin ligase activity. Finally, missense mutations in UBE3A alleles of Angelman syndrome patients alter amino acid residues conserved in the fly protein, and when introduced into dube3a, behave as loss-of-function mutations. The simplest model for Angelman syndrome is that in the absence of UBE3A, particular substrates fail to be ubiquitinated and proteasomally degraded, accumulate in the brain, and interfere with brain function. We have generated flies useful for genetic screens to identify Dube3a substrates. These flies overexpress Dube3a in the eye or wing and display morphological abnormalities, dependent on the critical catalytic cysteine. We conclude that dube3a mutants are a valid model for Angelman syndrome, with great potential for identifying the elusive UBE3A substrates relevant to the disease.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 1662,
+    "num_annotations": 4,
+    "conversion_date": "2025-11-18T13:13:16.007885"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000707",
+      "label": "Abnormality of the nervous system",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 23,
+          "end_char": 44,
+          "text_snippet": "neurological disorder"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002187",
+      "label": "Intellectual disability, profound",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 68,
+          "end_char": 93,
+          "text_snippet": "severe mental retardation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002275",
+      "label": "Poor motor coordination",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 95,
+          "end_char": 121,
+          "text_snippet": "loss of motor coordination"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002360",
+      "label": "Sleep abnormality",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 127,
+          "end_char": 145,
+          "text_snippet": "sleep disturbances"
+        }
+      ]
+    }
+  ]
+}

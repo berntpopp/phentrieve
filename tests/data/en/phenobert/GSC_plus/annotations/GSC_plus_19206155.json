@@ -1,0 +1,74 @@
+{
+  "doc_id": "GSC+_19206155",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Branchio-oto-renal syndrome is a heterogeneous disorder inherited in an autosomal dominant pattern, characterized by branchial arch abnormalities, hearing loss and renal abnormalities, with mutations in EYA1 reported in 30-70% of patients. We have applied a molecular testing strategy of sequencing of the complete coding region/flanking intronic regions and multiple ligation probe amplification analysis of EYA1 to a pediatric branchio-oto-renal proband cohort. EYA1 mutations were identified in 82% (14/17) of the probands. We also describe a novel recurrent EYA1 mutation c.867 + 5G > A found in five unrelated affected patients. RNA analysis showed that c.867 + 5G > A affects EYA1 splicing, producing an aberrant mRNA transcript lacking exon 8 and resulting in premature termination in exon 9. The aberrant transcript was present at approximately 50% level of wild-type EYA1 mRNA in fibroblasts, and is predicted to encode an EYA1 protein retaining the amino terminal transcriptional coactivator region but lacking the conserved carboxy terminal Eya phosphatase domain. Patients with the c.867 + 5G > A mutation were found to have more severe renal abnormalities than probands with other mutations in this cohort. Analysis of the c.867 + 5G > A mutation suggests that certain transcripts of EYA1 escape nonsense-mediated decay and encode truncated EYA proteins that may be capable of dominant-negative interactions producing distinct phenotypic features within the branchio-oto-renal spectrum.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 1499,
+    "num_annotations": 5,
+    "conversion_date": "2025-11-18T13:13:16.029628"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001425",
+      "label": "obsolete Heterogeneous",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 33,
+          "end_char": 46,
+          "text_snippet": "heterogeneous"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 72,
+          "end_char": 90,
+          "text_snippet": "autosomal dominant"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009794",
+      "label": "Branchial anomaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 117,
+          "end_char": 145,
+          "text_snippet": "branchial arch abnormalities"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000365",
+      "label": "Hearing impairment",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 147,
+          "end_char": 159,
+          "text_snippet": "hearing loss"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000077",
+      "label": "Abnormality of the kidney",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 164,
+          "end_char": 183,
+          "text_snippet": "renal abnormalities"
+        }
+      ]
+    }
+  ]
+}

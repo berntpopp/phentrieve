@@ -11,13 +11,13 @@ Usage:
     # Convert all datasets
     python scripts/convert_phenobert_data.py \\
         --phenobert-data path/to/PhenoBERT/phenobert/data \\
-        --output data/test_texts/phenobert \\
+        --output tests/data/en/phenobert \\
         --hpo-data data/hpo_core_data
 
     # Convert specific dataset
     python scripts/convert_phenobert_data.py \\
         --phenobert-data path/to/PhenoBERT/phenobert/data \\
-        --output data/test_texts/phenobert \\
+        --output tests/data/en/phenobert \\
         --hpo-data data/hpo_core_data \\
         --dataset GSC+
 
@@ -25,19 +25,24 @@ Usage:
     python scripts/convert_phenobert_data.py --help
 
 Output:
-    Creates directory structure:
-    data/test_texts/phenobert/
-    ├── GSC_plus/
+    Creates directory structure (with normalized names):
+    tests/data/en/phenobert/
+    ├── GSC_plus/                      # Normalized from 'GSC+'
     │   └── annotations/
-    │       ├── GSC+_doc001.json
+    │       ├── GSC_plus_1003450.json  # Normalized filenames
     │       └── ...
-    ├── ID68/
+    ├── ID_68/                         # Normalized from 'ID-68'
     │   └── annotations/
     │       └── ...
     ├── GeneReviews/
     │   └── annotations/
     │       └── ...
     └── conversion_report.json
+
+Note:
+    - Dataset names and file names are normalized for filesystem compatibility
+    - Original names preserved in JSON metadata for traceability
+    - Test data organized by language (en/) for multilingual support
 """
 
 import argparse

@@ -1,0 +1,74 @@
+{
+  "doc_id": "GSC+_2667456",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "The authors report a new case of Townes-Brocks syndrome with cardiac defect, ossicular anomalies and dominant transmission. The intrafamilial variability of the phenotype and the difficulty of diagnosis in isolated cases are underlined.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 236,
+    "num_annotations": 5,
+    "conversion_date": "2025-11-18T13:13:16.354990"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001627",
+      "label": "Abnormal heart morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 61,
+          "end_char": 75,
+          "text_snippet": "cardiac defect"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001759",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 77,
+          "end_char": 96,
+          "text_snippet": "ossicular anomalies"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 101,
+          "end_char": 122,
+          "text_snippet": "dominant transmission"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003822",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 128,
+          "end_char": 170,
+          "text_snippet": "intrafamilial variability of the phenotype"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001420",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 206,
+          "end_char": 220,
+          "text_snippet": "isolated cases"
+        }
+      ]
+    }
+  ]
+}

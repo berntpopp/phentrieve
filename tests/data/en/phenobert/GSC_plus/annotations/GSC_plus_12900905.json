@@ -1,0 +1,173 @@
+{
+  "doc_id": "GSC+_12900905",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "We present the case of a 14-year-old Japanese girl who had both Gorlin syndrome and ulcerative colitis. She had complained of blood stools for 6 months and severe scoliosis from her infancy. Physical examination revealed multiple nevi, palmar and plantar pits, jaw cysts, and calcification of the falx cerebri, leading to the diagnosis of Gorlin syndrome. Total colonoscopy revealed an edematous and spotty bleeding mucosa extending from the anus to the transverse colon. Histological examination was also compatible with ulcerative colitis. Thus, we diagnosed her as having Gorlin syndrome with ulcerative colitis. Gene analysis revealed a mutation, 1247InsT, in the human patched gene (PTCH), resulting in the truncation of PTCH protein. Since Gorlin syndrome and ulcerative colitis are rare disorders in childhood, this association is interesting, suggesting a correlation between the hedgehog signaling and intestinal disorders.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 932,
+    "num_annotations": 12,
+    "conversion_date": "2025-11-18T13:13:14.941201"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0100279",
+      "label": "Ulcerative colitis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 84,
+          "end_char": 102,
+          "text_snippet": "ulcerative colitis"
+        },
+        {
+          "start_char": 522,
+          "end_char": 540,
+          "text_snippet": "ulcerative colitis"
+        },
+        {
+          "start_char": 596,
+          "end_char": 614,
+          "text_snippet": "ulcerative colitis"
+        },
+        {
+          "start_char": 766,
+          "end_char": 784,
+          "text_snippet": "ulcerative colitis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002255",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 126,
+          "end_char": 138,
+          "text_snippet": "blood stools"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002650",
+      "label": "Scoliosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 163,
+          "end_char": 172,
+          "text_snippet": "scoliosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003576",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 182,
+          "end_char": 189,
+          "text_snippet": "infancy"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001054",
+      "label": "Numerous nevi",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 221,
+          "end_char": 234,
+          "text_snippet": "multiple nevi"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010610",
+      "label": "Palmar pits",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 236,
+          "end_char": 259,
+          "text_snippet": "palmar and plantar pits"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010612",
+      "label": "Plantar pits",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 247,
+          "end_char": 259,
+          "text_snippet": "plantar pits"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010603",
+      "label": "Odontogenic keratocysts of the jaw",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 261,
+          "end_char": 270,
+          "text_snippet": "jaw cysts"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0005462",
+      "label": "Calcification of falx cerebri",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 276,
+          "end_char": 309,
+          "text_snippet": "calcification of the falx cerebri"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004295",
+      "label": "Abnormal gastric mucosa morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 386,
+          "end_char": 422,
+          "text_snippet": "edematous and spotty bleeding mucosa"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0011463",
+      "label": "Childhood onset",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 807,
+          "end_char": 816,
+          "text_snippet": "childhood"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002012",
+      "label": "Abnormality of the abdominal organs",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 911,
+          "end_char": 931,
+          "text_snippet": "intestinal disorders"
+        }
+      ]
+    }
+  ]
+}

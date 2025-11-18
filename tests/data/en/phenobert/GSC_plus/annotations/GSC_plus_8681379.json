@@ -1,0 +1,137 @@
+{
+  "doc_id": "GSC+_8681379",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "The nevoid basal cell carcinoma syndrome (NBCCS) is an autosomal dominant disorder characterized by multiple basal cell carcinomas (BCCs), pits of the palms and soles, jaw keratocysts, a variety of other tumors, and developmental abnormalities. NBCCS maps to chromosome 9q22.3. Familial and sporadic BCCs display loss of heterozygosity in this region, consistent with the gene being a tumor suppressor. A human sequence (PTC) with strong homology to the Drosophila segment polarity gene, patched, was isolated from a YAC and cosmid contig of the NBCCS region. Mutation analysis revealed alterations of PTC in NBCCS patients and in related tumors. We propose that a reduction in expression of the patched gene can lead to the developmental abnormalities observed in the syndrome and that complete loss of patched function contributes to transformation of certain cell types.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 873,
+    "num_annotations": 9,
+    "conversion_date": "2025-11-18T13:13:18.325687"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0002671",
+      "label": "Basal cell carcinoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 11,
+          "end_char": 31,
+          "text_snippet": "basal cell carcinoma"
+        },
+        {
+          "start_char": 109,
+          "end_char": 130,
+          "text_snippet": "basal cell carcinomas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 55,
+          "end_char": 82,
+          "text_snippet": "autosomal dominant disorder"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010610",
+      "label": "Palmar pits",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 139,
+          "end_char": 156,
+          "text_snippet": "pits of the palms"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010612",
+      "label": "Plantar pits",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 139,
+          "end_char": 166,
+          "text_snippet": "pits of the palms and soles"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010603",
+      "label": "Odontogenic keratocysts of the jaw",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 168,
+          "end_char": 183,
+          "text_snippet": "jaw keratocysts"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003008",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 198,
+          "end_char": 210,
+          "text_snippet": "other tumors"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001263",
+      "label": "Global developmental delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 216,
+          "end_char": 243,
+          "text_snippet": "developmental abnormalities"
+        },
+        {
+          "start_char": 725,
+          "end_char": 752,
+          "text_snippet": "developmental abnormalities"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003745",
+      "label": "Sporadic",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 291,
+          "end_char": 299,
+          "text_snippet": "sporadic"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002664",
+      "label": "Neoplasm",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 385,
+          "end_char": 390,
+          "text_snippet": "tumor"
+        },
+        {
+          "start_char": 639,
+          "end_char": 645,
+          "text_snippet": "tumors"
+        }
+      ]
+    }
+  ]
+}

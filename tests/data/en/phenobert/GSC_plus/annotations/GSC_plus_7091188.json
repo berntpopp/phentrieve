@@ -1,0 +1,98 @@
+{
+  "doc_id": "GSC+_7091188",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "We report studies of six patients with the Angelman \"Happy Puppet\" syndrome and compare the data with those from previous reports. The results confirm the classic findings of severe mental retardation, \"puppet-like\" gait, characteristic craniofacial abnormalities, and frequent episodes of laughter and suggest that this syndrome is more common than previously thought. Computerized axial tomographs of the brain demonstrating unilateral cerebellar atrophy in one patient constitute the first direct evidence of cerebellar abnormalities in this syndrome.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 554,
+    "num_annotations": 7,
+    "conversion_date": "2025-11-18T13:13:17.327047"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0100024",
+      "label": "Conspicuously happy disposition",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 53,
+          "end_char": 65,
+          "text_snippet": "Happy Puppet"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002187",
+      "label": "Intellectual disability, profound",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 175,
+          "end_char": 200,
+          "text_snippet": "severe mental retardation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001288",
+      "label": "Gait disturbance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 202,
+          "end_char": 220,
+          "text_snippet": "\"puppet-like\" gait"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001999",
+      "label": "Abnormal facial shape",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 237,
+          "end_char": 263,
+          "text_snippet": "craniofacial abnormalities"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000749",
+      "label": "Paroxysmal bursts of laughter",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 269,
+          "end_char": 298,
+          "text_snippet": "frequent episodes of laughter"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001272",
+      "label": "Cerebellar atrophy",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 427,
+          "end_char": 456,
+          "text_snippet": "unilateral cerebellar atrophy"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001317",
+      "label": "Abnormal cerebellum morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 512,
+          "end_char": 536,
+          "text_snippet": "cerebellar abnormalities"
+        }
+      ]
+    }
+  ]
+}

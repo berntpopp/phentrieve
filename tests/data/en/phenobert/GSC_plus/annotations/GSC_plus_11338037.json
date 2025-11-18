@@ -1,0 +1,43 @@
+{
+  "doc_id": "GSC+_11338037",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "In this report we present a subject affected by nevoid basal cell carcinoma syndrome (NBCCS), showing also bilateral mandibular coronoid processes hyperplasia, a hitherto unreported association. Our observation of bilateral hyperplasia of the mandibular coronoid processes in a boy with NBCCS may prompt a retrospective and prospective review of other patients affected by this syndrome in order to establish if this anomaly is part of it.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 439,
+    "num_annotations": 2,
+    "conversion_date": "2025-11-18T13:13:14.444226"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0002671",
+      "label": "Basal cell carcinoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 55,
+          "end_char": 75,
+          "text_snippet": "basal cell carcinoma"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000277",
+      "label": "Abnormal mandible morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 107,
+          "end_char": 158,
+          "text_snippet": "bilateral mandibular coronoid processes hyperplasia"
+        },
+        {
+          "start_char": 214,
+          "end_char": 272,
+          "text_snippet": "bilateral hyperplasia of the mandibular coronoid processes"
+        }
+      ]
+    }
+  ]
+}

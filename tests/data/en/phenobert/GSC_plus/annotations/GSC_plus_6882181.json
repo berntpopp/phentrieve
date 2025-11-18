@@ -1,0 +1,158 @@
+{
+  "doc_id": "GSC+_6882181",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "We report 9 subjects from 2 families with the syndrome of cerebral gigantism, seven of the patients also had jaw cyst basal cell naevoid syndrome. Neurological, radiological, somatic and biochemical features of this hitherto unreported association are described. Neurological symptoms included mild hydrocephalus, ventricular malformation, cerebellar syndrome, intracranial calcification, oculomotor disturbances, EEG abnormalities and rarely, mild peripheral nervous disorders. A disturbance of calcium metabolism appears to be a prominent feature of the genetically determined nonprogressive syndrome.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 603,
+    "num_annotations": 12,
+    "conversion_date": "2025-11-18T13:13:17.199164"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0002060",
+      "label": "Abnormal cerebral morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 58,
+          "end_char": 76,
+          "text_snippet": "cerebral gigantism"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010603",
+      "label": "Odontogenic keratocysts of the jaw",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 109,
+          "end_char": 117,
+          "text_snippet": "jaw cyst"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002671",
+      "label": "Basal cell carcinoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 118,
+          "end_char": 136,
+          "text_snippet": "basal cell naevoid"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000238",
+      "label": "Hydrocephalus",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 299,
+          "end_char": 312,
+          "text_snippet": "hydrocephalus"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002118",
+      "label": "Abnormal cerebral ventricle morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 314,
+          "end_char": 338,
+          "text_snippet": "ventricular malformation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001317",
+      "label": "Abnormal cerebellum morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 340,
+          "end_char": 359,
+          "text_snippet": "cerebellar syndrome"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002514",
+      "label": "Cerebral calcification",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 361,
+          "end_char": 387,
+          "text_snippet": "intracranial calcification"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0006860",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 389,
+          "end_char": 412,
+          "text_snippet": "oculomotor disturbances"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002353",
+      "label": "EEG abnormality",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 414,
+          "end_char": 431,
+          "text_snippet": "EEG abnormalities"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000759",
+      "label": "Abnormal peripheral nervous system morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 449,
+          "end_char": 477,
+          "text_snippet": "peripheral nervous disorders"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004363",
+      "label": "Abnormal circulating calcium concentration",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 496,
+          "end_char": 514,
+          "text_snippet": "calcium metabolism"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003680",
+      "label": "Nonprogressive",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 579,
+          "end_char": 593,
+          "text_snippet": "nonprogressive"
+        }
+      ]
+    }
+  ]
+}

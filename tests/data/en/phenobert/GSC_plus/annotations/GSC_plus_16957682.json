@@ -1,0 +1,82 @@
+{
+  "doc_id": "GSC+_16957682",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Heterozygous missense mutations in the serine-threonine kinase receptor BMPR1B result typically in brachydactyly type A2 (BDA2), whereas mutations in the corresponding ligand GDF5 cause brachydactyly type C (BDC). Mutations in the GDF inhibitor Noggin (NOG) or activating mutations in GDF5 cause proximal symphalangism (SYM1). Here, we describe a novel mutation in BMPR1B (R486Q) that is associated with either BDA2 or a BDC/SYM1-like phenotype. Functional investigations of the R486Q mutation were performed and compared with the previously reported BDA2-causing mutation R486W and WT BMPR1B. Overexpression of the mutant receptors in chicken micromass cultures resulted in a strong inhibition of chondrogenesis with the R486Q mutant, showing a stronger effect than the R486W mutant. To investigate the consequences of the BMPR1B mutations on the intracellular signal transduction, we used stably transfected C2C12 cells and measured the activity of SMAD-dependent and SMAD-independent pathways. SMAD activation after stimulation with GDF5 was suppressed in both mutants. Alkaline phosphatase induction showed an almost complete loss of activation by both mutants. Our data extend the previously known mutational and phenotypic spectrum associated with mutations in BMPR1B. Disturbances of NOG-GDF5-BMPR1B signaling cascade can result in similar clinical manifestations depending on the quantitative effect and mode of action of the specific mutations within the same functional pathway.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 1488,
+    "num_annotations": 4,
+    "conversion_date": "2025-11-18T13:13:15.674961"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0009372",
+      "label": "Type A2 brachydactyly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 99,
+          "end_char": 127,
+          "text_snippet": "brachydactyly type A2 (BDA2)"
+        },
+        {
+          "start_char": 411,
+          "end_char": 415,
+          "text_snippet": "BDA2"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009373",
+      "label": "Type C brachydactyly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 186,
+          "end_char": 206,
+          "text_snippet": "brachydactyly type C"
+        },
+        {
+          "start_char": 208,
+          "end_char": 211,
+          "text_snippet": "BDC"
+        },
+        {
+          "start_char": 421,
+          "end_char": 424,
+          "text_snippet": "BDC"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100264",
+      "label": "Proximal symphalangism",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 296,
+          "end_char": 318,
+          "text_snippet": "proximal symphalangism"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0006152",
+      "label": "Proximal symphalangism of hands",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 320,
+          "end_char": 324,
+          "text_snippet": "SYM1"
+        },
+        {
+          "start_char": 425,
+          "end_char": 434,
+          "text_snippet": "SYM1-like"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,173 @@
+{
+  "doc_id": "GSC+_8755929",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Gorlin syndrome is an autosomal dominant disorder characterized by multiple basal cell carcinomas, medulloblastomas, ovarian fibromas, and a variety of developmental defects. All affected individuals share certain key features, but there is significant phenotypic variability within and among kindreds with respect to malformations. The gene (NBCCS) maps to chromosome 9q22, and allelic loss at this location is common in tumors from Gorlin syndrome patients. Two recessive cancer-predisposition syndromes, xeroderma pigmentosum group A (XPAC) and Fanconi anemia group C (FACC), map to the NBCCS region; and unusual, dominant mutations in these genes have been proposed as the cause of Gorlin syndrome. This study presents cytogenetic and molecular characterization of germ-line deletions in one patient with a chromosome 9q22 deletion and in a second patient with a deletion of 9q22-q3l. Both have typical features of Gorlin syndrome plus additional findings, including mental retardation, conductive hearing loss, and failure to thrive. That Gorlin syndrome can be caused by null mutations (deletions) rather than by activating mutations has several implications. First, in conjunction with previous analyses of allelic loss in tumors, this study provides evidence that associated neoplasms arise with homozygous inactivation of the gene. In addition, dominant mutations of the XPAC and FACC1 genes can be ruled out as the cause of Gorlin syndrome, since the two patients described have null mutations. Finally, phenotypic features that show variable expression must be influenced by genetic background, epigenetic effects, somatic mutations, or environmental factors, since these two patients with identical alterations (deletions) of the Gorlin syndrome gene have somewhat different manifestations of Gorlin syndrome.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 1821,
+    "num_annotations": 12,
+    "conversion_date": "2025-11-18T13:13:18.395057"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 22,
+          "end_char": 49,
+          "text_snippet": "autosomal dominant disorder"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002671",
+      "label": "Basal cell carcinoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 76,
+          "end_char": 97,
+          "text_snippet": "basal cell carcinomas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002885",
+      "label": "Medulloblastoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 99,
+          "end_char": 115,
+          "text_snippet": "medulloblastomas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010618",
+      "label": "Ovarian fibroma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 117,
+          "end_char": 133,
+          "text_snippet": "ovarian fibromas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001263",
+      "label": "Global developmental delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 152,
+          "end_char": 173,
+          "text_snippet": "developmental defects"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003822",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 241,
+          "end_char": 301,
+          "text_snippet": "significant phenotypic variability within and among kindreds"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003812",
+      "label": "Phenotypic variability",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 253,
+          "end_char": 275,
+          "text_snippet": "phenotypic variability"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002664",
+      "label": "Neoplasm",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 422,
+          "end_char": 428,
+          "text_snippet": "tumors"
+        },
+        {
+          "start_char": 474,
+          "end_char": 480,
+          "text_snippet": "cancer"
+        },
+        {
+          "start_char": 1230,
+          "end_char": 1236,
+          "text_snippet": "tumors"
+        },
+        {
+          "start_char": 1283,
+          "end_char": 1292,
+          "text_snippet": "neoplasms"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001249",
+      "label": "Intellectual disability",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 971,
+          "end_char": 989,
+          "text_snippet": "mental retardation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000405",
+      "label": "Conductive hearing impairment",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 991,
+          "end_char": 1014,
+          "text_snippet": "conductive hearing loss"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001508",
+      "label": "Failure to thrive",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1020,
+          "end_char": 1037,
+          "text_snippet": "failure to thrive"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003828",
+      "label": "Variable expressivity",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1544,
+          "end_char": 1563,
+          "text_snippet": "variable expression"
+        }
+      ]
+    }
+  ]
+}

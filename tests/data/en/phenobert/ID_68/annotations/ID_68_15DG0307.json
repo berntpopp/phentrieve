@@ -1,0 +1,110 @@
+{
+  "doc_id": "ID-68_15DG0307",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "A 1 year old boy with dysmorphic features who was born at full term via NSVD to G7P4+2 35 years old mother with normal growth parameters. Pregnancy was complicated by low lying placenta necessitating admission for two weeks towards the day of delivery. He was found to have hypospadias with chordee that led to recurrent UTIs. He sat unsupported at 8 months, but he still cannot stand or bear weight. He can only say dada, and he has stranger and separation anxiety. His parents are consanguineous with a family history of cleft lip and intellectual disability. His examination was significant for a flat nose, frontal bossing, abnormal frontal and side hairlines, anteverted nares and a café au lait spot on the inner thigh. His growth parameters at 1 year of age were weight 10.1 kg (25th-50th percentile), height 75 cm (25th-50th percentile) and head circumference 46 cm (25th-50th percentile).",
+  "metadata": {
+    "dataset": "ID-68",
+    "text_length_chars": 897,
+    "num_annotations": 8,
+    "conversion_date": "2025-11-18T13:13:19.624396"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000047",
+      "label": "Hypospadias",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 274,
+          "end_char": 285,
+          "text_snippet": "hypospadias"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000041",
+      "label": "Chordee",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 291,
+          "end_char": 298,
+          "text_snippet": "chordee"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000739",
+      "label": "Anxiety",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 458,
+          "end_char": 465,
+          "text_snippet": "anxiety"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0410030",
+      "label": "Cleft lip",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 523,
+          "end_char": 532,
+          "text_snippet": "cleft lip"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001249",
+      "label": "Intellectual disability",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 537,
+          "end_char": 560,
+          "text_snippet": "intellectual disability"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000457",
+      "label": "Depressed nasal ridge",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 600,
+          "end_char": 609,
+          "text_snippet": "flat nose"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002007",
+      "label": "Frontal bossing",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 611,
+          "end_char": 626,
+          "text_snippet": "frontal bossing"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000463",
+      "label": "Anteverted nares",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 665,
+          "end_char": 681,
+          "text_snippet": "anteverted nares"
+        }
+      ]
+    }
+  ]
+}

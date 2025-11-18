@@ -1,0 +1,108 @@
+{
+  "doc_id": "ID-68_17DG0770",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "A 6 years old girl with a speech delay and autism. She was born at 38 3/7 weeks gestation via a C-section as part of a twin gestation secondary to IVF to a 34 years old G3P2 mother. Pregnancy was uncomplicated, and Apgar scores were 8 and 9 at 1 and 5 minutes, respectively. There were no teratogens exposure, and maternal medications during pregnancy were low-dose aspirin and progesterone in early pregnancy. She was hospitalized for 3 days after birth, and her growth parameters at 7 days of age were weight 2.6 kg (on the 8th percentile), length 47 cm (on the 4th percentile) and head circumference 34.1 cm (on the 36th percentile). Early development and milestones were normal until 15 months of age when speech began to be delayed compared to her twin brother, and she had difficulty with social interactions and poor eye contact. She was subsequently diagnosed with autism spectrum disorder and was started on ABA therapy. At 3 years of age, she had only 25-50 words vocabulary. She also has some difficulty with sleep, waking up every 2-3 days for prolonged periods at night. She had some tantrums, particularly with routine change and will not play cooperatively with other children, though she will play independently alongside them. Her parents are a nonconsanguineous couple, and her mother had a speech delay as a child. Her twin brother is also mildly delayed compared to his peers. She has two half cousins with ADHD, dyslexia and learning difficulties. Her growth parameters at 3 years and 7 months of age were weight 15.6 kg (50th-75th percentile) and height 99.1 cm (50th-75th percentile), and her head circumference at 16 months of age was 47.5 cm (75th-90th percentile). ",
+  "metadata": {
+    "dataset": "ID-68",
+    "text_length_chars": 1691,
+    "num_annotations": 7,
+    "conversion_date": "2025-11-18T13:13:20.353645"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000750",
+      "label": "Delayed speech and language development",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 26,
+          "end_char": 38,
+          "text_snippet": "speech delay"
+        },
+        {
+          "start_char": 710,
+          "end_char": 736,
+          "text_snippet": "speech began to be delayed"
+        },
+        {
+          "start_char": 1309,
+          "end_char": 1321,
+          "text_snippet": "speech delay"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000717",
+      "label": "Autism",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 43,
+          "end_char": 49,
+          "text_snippet": "autism"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000735",
+      "label": "obsolete Impaired social interactions",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 779,
+          "end_char": 814,
+          "text_snippet": "difficulty with social interactions"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000817",
+      "label": "Reduced eye contact",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 819,
+          "end_char": 835,
+          "text_snippet": "poor eye contact"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000729",
+      "label": "Autistic behavior",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 858,
+          "end_char": 897,
+          "text_snippet": "diagnosed with autism spectrum disorder"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002360",
+      "label": "Sleep abnormality",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1004,
+          "end_char": 1025,
+          "text_snippet": "difficulty with sleep"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010522",
+      "label": "Dyslexia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1433,
+          "end_char": 1441,
+          "text_snippet": "dyslexia"
+        }
+      ]
+    }
+  ]
+}

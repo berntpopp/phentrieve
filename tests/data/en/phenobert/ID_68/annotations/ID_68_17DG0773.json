@@ -1,0 +1,358 @@
+{
+  "doc_id": "ID-68_17DG0773",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "A 28 months old girl who was born at 37 weeks of gestation via C-section due to breech presentation. An antenatal scan showed mild bilateral ventriculomegaly; otherwise, the prenatal course was uncomplicated. Growth parameters at birth were weight 3.25 kg, length 52 cm and head circumference 36 cm, and Apgar scores were 8, 9, and 9, at 1, 5, and 10 minutes, respectively. After birth, she was admitted to NICU due to respiratory distress for one week, and a head sonogram during that admission showed a mild dilatation of the lateral and third ventricles and an echocardiogram at the 4th day showed small PDA, small PFO, and mild septal hypertrophy. She was also noted to have hypotonia, weak sucking and dysmorphic facial features. She was re-hospitalized at the age of 2 weeks when she developed respiratory distress due to aspiration, and NG-tube feeding was initiated. Repeated echocardiogram at the age of 4 weeks was normal. She had frequent respiratory infections with multiple hospital admissions, and her respiratory status continued to decline until she became dependant on a mechanical ventilator through a tracheostomy. A gastrostomy tube was placed for feeding. Her parents are consanguineous with a history of maternal abortion at 8 weeks of gestation in a previous marriage. She has a significant hypotonia, weakness and decreased movement of limbs from birth. She can only move her extremities with gravity. Developmentally, she has a severe global developmental delay affecting all domains. She does not show any purposeful movement, and she cannot speak or make any sounds. She can only regard faces and smile. Her physical examination revealed a broad nasal bridge, upward slanted palpebral fissures, coarse facial features, generalized hirsutism, low-set posteriorly rotated ears, thick lower lip, high arched palate, hepatomegaly and bilateral myopia. Her neurological examination showed roving eye movements, rotatory nystagmus, generalized hypotonia, areflexia and weakness (minimal movements in upper limbs against gravity and no spontaneous movements noted in lower limbs). Other examinations were within normal limits. Her growth parameters at 28 months of age were weight 11.3 kg (10-25th percentile), length 86 cm (10-25th percentile) and head circumference 48 cm (50-75th percentile). Brain MRI showed a reduced brain volume with prominent CSF spaces, cerebellar vermis hypoplasia with absent inferior vermis, thin corpus callosum, delayed myelination, cavum septum pellucidum and mega cisterna magna. Muscle biopsy was normal. Abdominal sonography showed increased echogenicity of the liver and hepatomegaly. EEG showed diffuse fast beta activity in both hemispheres, predominantly in the posterior regions, occasionally superimposed over slow delta activity. Liver function test, thyroid function test, CPK, ammonia, lactate, plasma amino acids, urine organic acids, acylcarnitine profile, VLCFA, karyotyping and chromosomal microarray analysis were normal. Screening for lysosomal, peroxisomal and storage disorders was also normal. Lysosomal enzymes in cultured skin fibroblasts (beta-galactosidase, total beta-hexosaminidase, beta-hexosaminidase A, arylsulphatase A, beta-glucuronidase, alpha-mannosidase, alpha-fucosidase, palmitoyl-protein thioesterase 1, tripeptidyl peptidase I, sphingomyelinase, Alpha-NAc-galactosaminidase, beta-glucocerebrosidase, beta-galactocerebrosidase, and acid lipase) were all within normal limits.",
+  "metadata": {
+    "dataset": "ID-68",
+    "text_length_chars": 3465,
+    "num_annotations": 27,
+    "conversion_date": "2025-11-18T13:13:20.416782"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001623",
+      "label": "Breech presentation",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 80,
+          "end_char": 99,
+          "text_snippet": "breech presentation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002119",
+      "label": "Ventriculomegaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 141,
+          "end_char": 157,
+          "text_snippet": "ventriculomegaly"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002098",
+      "label": "Respiratory distress",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 419,
+          "end_char": 439,
+          "text_snippet": "respiratory distress"
+        },
+        {
+          "start_char": 800,
+          "end_char": 820,
+          "text_snippet": "respiratory distress"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001290",
+      "label": "Generalized hypotonia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 679,
+          "end_char": 688,
+          "text_snippet": "hypotonia"
+        },
+        {
+          "start_char": 1314,
+          "end_char": 1323,
+          "text_snippet": "hypotonia"
+        },
+        {
+          "start_char": 1953,
+          "end_char": 1974,
+          "text_snippet": "generalized hypotonia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002033",
+      "label": "Poor suck",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 690,
+          "end_char": 702,
+          "text_snippet": "weak sucking"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001999",
+      "label": "Abnormal facial shape",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 707,
+          "end_char": 733,
+          "text_snippet": "dysmorphic facial features"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002835",
+      "label": "Aspiration",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 828,
+          "end_char": 838,
+          "text_snippet": "aspiration"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002205",
+      "label": "Recurrent respiratory infections",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 941,
+          "end_char": 972,
+          "text_snippet": "frequent respiratory infections"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0005268",
+      "label": "Miscarriage",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1226,
+          "end_char": 1243,
+          "text_snippet": "maternal abortion"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0011344",
+      "label": "Severe global developmental delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1453,
+          "end_char": 1486,
+          "text_snippet": "severe global developmental delay"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000431",
+      "label": "Wide nasal bridge",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1667,
+          "end_char": 1685,
+          "text_snippet": "broad nasal bridge"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000582",
+      "label": "Upslanted palpebral fissure",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1687,
+          "end_char": 1720,
+          "text_snippet": "upward slanted palpebral fissures"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000280",
+      "label": "Coarse facial features",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1722,
+          "end_char": 1744,
+          "text_snippet": "coarse facial features"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002230",
+      "label": "Generalized hirsutism",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1746,
+          "end_char": 1767,
+          "text_snippet": "generalized hirsutism"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000179",
+      "label": "Thick lower lip vermilion",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1803,
+          "end_char": 1818,
+          "text_snippet": "thick lower lip"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002705",
+      "label": "High, narrow palate",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1820,
+          "end_char": 1838,
+          "text_snippet": "high arched palate"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002240",
+      "label": "Hepatomegaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1840,
+          "end_char": 1852,
+          "text_snippet": "hepatomegaly"
+        },
+        {
+          "start_char": 2627,
+          "end_char": 2639,
+          "text_snippet": "hepatomegaly"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000545",
+      "label": "Myopia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1867,
+          "end_char": 1873,
+          "text_snippet": "myopia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001583",
+      "label": "Rotary nystagmus",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1933,
+          "end_char": 1951,
+          "text_snippet": "rotatory nystagmus"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001284",
+      "label": "Areflexia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1976,
+          "end_char": 1985,
+          "text_snippet": "areflexia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012444",
+      "label": "Brain atrophy",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2335,
+          "end_char": 2355,
+          "text_snippet": "reduced brain volume"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001320",
+      "label": "Cerebellar vermis hypoplasia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2383,
+          "end_char": 2411,
+          "text_snippet": "cerebellar vermis hypoplasia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002079",
+      "label": "Hypoplasia of the corpus callosum",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2441,
+          "end_char": 2461,
+          "text_snippet": "thin corpus callosum"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012448",
+      "label": "Delayed myelination",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2463,
+          "end_char": 2482,
+          "text_snippet": "delayed myelination"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002389",
+      "label": "Cavum septum pellucidum",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2484,
+          "end_char": 2507,
+          "text_snippet": "cavum septum pellucidum"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002280",
+      "label": "Enlarged cisterna magna",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2512,
+          "end_char": 2531,
+          "text_snippet": "mega cisterna magna"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0031141",
+      "label": "Increased hepatic echogenicity",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2580,
+          "end_char": 2622,
+          "text_snippet": "showed increased echogenicity of the liver"
+        }
+      ]
+    }
+  ]
+}

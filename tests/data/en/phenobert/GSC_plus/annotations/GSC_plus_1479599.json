@@ -1,0 +1,125 @@
+{
+  "doc_id": "GSC+_1479599",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "The major defining features, age at onset of symptoms, and survival in 150 patients with type 2 neurofibromatosis (NF2) have been studied. The mean age at onset was 21.57 years (n = 110) and no cases presented after 55 years of age. Patients presented with symptoms attributable to vestibular schwannomas (acoustic neuroma), cranial meningiomas, and spinal tumours. In 97 cases studied personally by the authors, skin and eye examination were found to be useful to detect early signs of the condition. Examination of the skin is likely to assist in early diagnosis in at least 10% of cases and examination of the eye for a lens opacity or cataract in at least as many again. There are marked interfamilial differences in disease severity and tumour susceptibility. Vestibular schwannomas are not fully penetrant, but the condition is usually expressed in another way. Alteration to the current diagnostic criteria is advocated to cover the lack of provision for new mutations. A screening protocol is proposed and the effect of disease heterogeneity on management is discussed.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 1077,
+    "num_annotations": 8,
+    "conversion_date": "2025-11-18T13:13:15.309715"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0006746",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 96,
+          "end_char": 113,
+          "text_snippet": "neurofibromatosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009588",
+      "label": "Vestibular schwannoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 282,
+          "end_char": 304,
+          "text_snippet": "vestibular schwannomas"
+        },
+        {
+          "start_char": 306,
+          "end_char": 322,
+          "text_snippet": "acoustic neuroma"
+        },
+        {
+          "start_char": 765,
+          "end_char": 787,
+          "text_snippet": "Vestibular schwannomas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100009",
+      "label": "Intracranial meningioma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 325,
+          "end_char": 344,
+          "text_snippet": "cranial meningiomas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010302",
+      "label": "Spinal cord tumor",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 350,
+          "end_char": 364,
+          "text_snippet": "spinal tumours"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000518",
+      "label": "Cataract",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 623,
+          "end_char": 635,
+          "text_snippet": "lens opacity"
+        },
+        {
+          "start_char": 639,
+          "end_char": 647,
+          "text_snippet": "cataract"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003822",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 692,
+          "end_char": 717,
+          "text_snippet": "interfamilial differences"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002664",
+      "label": "Neoplasm",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 742,
+          "end_char": 748,
+          "text_snippet": "tumour"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001425",
+      "label": "obsolete Heterogeneous",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1036,
+          "end_char": 1049,
+          "text_snippet": "heterogeneity"
+        }
+      ]
+    }
+  ]
+}

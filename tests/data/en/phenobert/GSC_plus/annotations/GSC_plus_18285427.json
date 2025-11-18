@@ -1,0 +1,38 @@
+{
+  "doc_id": "GSC+_18285427",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Naevoid basal cell carcinoma syndrome (NBCCS) is a pleiotropic, autosomal dominant disease. Growing evidence suggests that the disorder may result from mutations in genes of the Sonic hedgehog (Shh) signalling pathway.\n\nTo investigate the pathogenic gene in a Chinese Han family with NBCCS.\n\nMapping and mutation screening were used to investigate the candidate genes SHH, PTCH, PTCH2 and SMO. A GLI1 reporter gene and a cell growth curve were used to examine functional consequences of the detected mutant.\n\nOne novel mutation, a G-->A transition (2157G-->A) in exon 15 of the PTCH2 gene, was identified in this family with NBCCS by direct sequencing and digestion with the AvaI restriction enzyme. The mutation was not found in normal family members or in 520 controls. The mutation led to an R719Q amino acid substitution in an extracellular loop of the PTCH2 protein. Functional studies revealed that the R719Q mutation resulted in inactivation of PTCH2 inhibitory activities. In contrast to wild type PTCH2, PTCH2-R719Q could not inhibit cell proliferation.\n\nPTCH2 (2157G-->A), a novel missense mutation, underlies NBCCS, resulting in the loss of PTCH2 inhibitory function in the Shh signalling pathway.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 1208,
+    "num_annotations": 2,
+    "conversion_date": "2025-11-18T13:13:15.907908"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0002671",
+      "label": "Basal cell carcinoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 8,
+          "end_char": 28,
+          "text_snippet": "basal cell carcinoma"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 64,
+          "end_char": 82,
+          "text_snippet": "autosomal dominant"
+        }
+      ]
+    }
+  ]
+}

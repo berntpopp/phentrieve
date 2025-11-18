@@ -1,0 +1,67 @@
+{
+  "doc_id": "ID-68_15DG0749",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "An 8 years old boy who was born via an induced vaginal delivery to G3P0 A2 23 years old mother. Neonatal history was uneventful, and they were discharged on the third day. His motor development has been appropriate for age, but his language has always been delayed. He was 2 years old when his parents started to feel his gait was unstable, and they were concerned about his language delay. His IQ was estimated to be 70. He has a 6 years old sister with a similar condition, and there is a family history of intellectual disability. On examination, he has no dysmorphic features, and his growth parameters at 8 years of age were weight 18.7 kg (10th percentile), height 113.5 cm (3rd -5th percentile) and head circumference 51 cm (25th- 50th percentile).",
+  "metadata": {
+    "dataset": "ID-68",
+    "text_length_chars": 755,
+    "num_annotations": 4,
+    "conversion_date": "2025-11-18T13:13:19.692553"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0030369",
+      "label": "Induced vaginal delivery",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 36,
+          "end_char": 63,
+          "text_snippet": "an induced vaginal delivery"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000750",
+      "label": "Delayed speech and language development",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 232,
+          "end_char": 264,
+          "text_snippet": "language has always been delayed"
+        },
+        {
+          "start_char": 375,
+          "end_char": 389,
+          "text_snippet": "language delay"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002317",
+      "label": "Unsteady gait",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 322,
+          "end_char": 339,
+          "text_snippet": "gait was unstable"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001249",
+      "label": "Intellectual disability",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 498,
+          "end_char": 532,
+          "text_snippet": "history of intellectual disability"
+        }
+      ]
+    }
+  ]
+}

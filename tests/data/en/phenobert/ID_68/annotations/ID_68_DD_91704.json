@@ -1,0 +1,161 @@
+{
+  "doc_id": "ID-68_DD_91704",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "A 30 months old boy with global developmental delay, congenital microcephaly, infantile spasms and mild dysmorphic features. He was born at full term via NSVD to a healthy mother following an uneventful pregnancy. His growth parameters at birth were weight (on the 25th percentile), height (on the 25th percentile) and head circumference 31 cm (on the 3rd percentile). At the age of 9 months,  he developed seizures consisting of several daily episodes of typical infantile spasms with sudden flexion and a tonic fashion of the body, arms and legs. His infantile spasms were refractory to ACTH, but it improved with valproic acid and levetiracetam. Developmentally, he has a global developmental delay affecting all domains. At the age of 8 months, he was unable to sit and control his head. He currently cannot walk, and his speech is severely delayed. His parents are a second-degree consanguineous couple, and he is their only child. Physical examination revealed anteverted ears, thin upper lip vermilion, brisk tendon reflexes, absent visual following and dystonic posturing that is more prominent on the left side. The hearing was normal, and other examinations were within normal limits. His head circumference at the age of 26 months was 42 cm (<3rd percentile). ",
+  "metadata": {
+    "dataset": "ID-68",
+    "text_length_chars": 1271,
+    "num_annotations": 11,
+    "conversion_date": "2025-11-18T13:13:20.645242"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001263",
+      "label": "Global developmental delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 25,
+          "end_char": 51,
+          "text_snippet": "global developmental delay"
+        },
+        {
+          "start_char": 675,
+          "end_char": 701,
+          "text_snippet": "global developmental delay"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0011451",
+      "label": "Primary microcephaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 53,
+          "end_char": 76,
+          "text_snippet": "congenital microcephaly"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012469",
+      "label": "Infantile spasms",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 78,
+          "end_char": 94,
+          "text_snippet": "infantile spasms"
+        },
+        {
+          "start_char": 464,
+          "end_char": 480,
+          "text_snippet": "infantile spasms"
+        },
+        {
+          "start_char": 553,
+          "end_char": 569,
+          "text_snippet": "infantile spasms"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001250",
+      "label": "Seizure",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 407,
+          "end_char": 415,
+          "text_snippet": "seizures"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001371",
+      "label": "Flexion contracture",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 486,
+          "end_char": 500,
+          "text_snippet": "sudden flexion"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002540",
+      "label": "Inability to walk",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 805,
+          "end_char": 816,
+          "text_snippet": "cannot walk"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000750",
+      "label": "Delayed speech and language development",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 826,
+          "end_char": 852,
+          "text_snippet": "speech is severely delayed"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0040080",
+      "label": "Anteverted ears",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 967,
+          "end_char": 982,
+          "text_snippet": "anteverted ears"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000219",
+      "label": "Thin upper lip vermilion",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 984,
+          "end_char": 1008,
+          "text_snippet": "thin upper lip vermilion"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0006801",
+      "label": "Hyperactive deep tendon reflexes",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1010,
+          "end_char": 1031,
+          "text_snippet": "brisk tendon reflexes"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001332",
+      "label": "Dystonia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1061,
+          "end_char": 1079,
+          "text_snippet": "dystonic posturing"
+        }
+      ]
+    }
+  ]
+}

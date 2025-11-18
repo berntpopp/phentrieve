@@ -40,60 +40,108 @@ class ProvenanceTracker:
     @staticmethod
     def get_git_version(repo_path: Path) -> Optional[dict[str, Any]]:
         """
-        Extract git version information from repository.
+        Extract version information from repository (git or ZIP download).
 
         Args:
-            repo_path: Path to git repository
+            repo_path: Path to repository directory
 
         Returns:
-            Dictionary with git metadata, or None if not a git repo
+            Dictionary with version metadata, or None if unavailable
         """
         git_dir = repo_path / ".git"
-        if not git_dir.exists():
-            logger.info("Not a git repository, skipping version detection")
-            return None
 
-        try:
-            # Get commit SHA
-            result = subprocess.run(
-                ["git", "rev-parse", "HEAD"],  # noqa: S607
-                cwd=repo_path,
-                capture_output=True,
-                text=True,
-                check=True,
-            )
-            commit_sha = result.stdout.strip()
+        # Try git repository first
+        if git_dir.exists():
+            try:
+                # Get commit SHA
+                result = subprocess.run(
+                    ["git", "rev-parse", "HEAD"],  # noqa: S607
+                    cwd=repo_path,
+                    capture_output=True,
+                    text=True,
+                    check=True,
+                )
+                commit_sha = result.stdout.strip()
 
-            # Get commit date
-            result = subprocess.run(
-                ["git", "log", "-1", "--format=%ci"],  # noqa: S607
-                cwd=repo_path,
-                capture_output=True,
-                text=True,
-                check=True,
-            )
-            commit_date = result.stdout.strip()
+                # Get commit date
+                result = subprocess.run(
+                    ["git", "log", "-1", "--format=%ci"],  # noqa: S607
+                    cwd=repo_path,
+                    capture_output=True,
+                    text=True,
+                    check=True,
+                )
+                commit_date = result.stdout.strip()
 
-            # Check if repo is dirty (uncommitted changes)
-            result = subprocess.run(
-                ["git", "status", "--porcelain"],  # noqa: S607
-                cwd=repo_path,
-                capture_output=True,
-                text=True,
-                check=True,
-            )
-            is_dirty = bool(result.stdout.strip())
+                # Check if repo is dirty (uncommitted changes)
+                result = subprocess.run(
+                    ["git", "status", "--porcelain"],  # noqa: S607
+                    cwd=repo_path,
+                    capture_output=True,
+                    text=True,
+                    check=True,
+                )
+                is_dirty = bool(result.stdout.strip())
 
-            return {
-                "commit_sha": commit_sha,
-                "commit_date": commit_date,
-                "is_dirty": is_dirty,
-                "repository": "https://github.com/EclipseCN/PhenoBERT",
-            }
+                logger.info(f"Git repository detected: {commit_sha[:8]}")
+                return {
+                    "commit_sha": commit_sha,
+                    "commit_date": commit_date,
+                    "is_dirty": is_dirty,
+                    "download_method": "git_clone",
+                }
 
-        except (subprocess.CalledProcessError, FileNotFoundError) as e:
-            logger.warning(f"Failed to extract git version: {e}")
-            return None
+            except (subprocess.CalledProcessError, FileNotFoundError) as e:
+                logger.warning(f"Failed to extract git version: {e}")
+                return None
+
+        # Not a git repo - try to infer from directory name (ZIP download)
+        logger.info("Not a git repository, attempting ZIP download detection")
+        return ProvenanceTracker._detect_zip_download(repo_path)
+
+    @staticmethod
+    def _detect_zip_download(repo_path: Path) -> Optional[dict[str, Any]]:
+        """
+        Detect version info from GitHub ZIP download.
+
+        GitHub ZIPs are named like: PhenoBERT-main or PhenoBERT-{commit_sha}
+
+        Args:
+            repo_path: Path to extracted ZIP directory
+
+        Returns:
+            Dictionary with download metadata
+        """
+        dir_name = repo_path.name
+
+        # Pattern: RepoName-main or RepoName-{sha}
+        if "-" in dir_name:
+            parts = dir_name.rsplit("-", 1)
+            ref = parts[1]  # Either "main" or commit SHA
+
+            # Check if it looks like a commit SHA (40 hex chars)
+            if len(ref) == 40 and all(c in "0123456789abcdef" for c in ref):
+                logger.info(f"Detected ZIP from commit: {ref[:8]}")
+                return {
+                    "commit_sha": ref,
+                    "download_method": "github_zip",
+                    "branch_or_tag": "unknown",
+                }
+            else:
+                # Likely a branch name (e.g., "main")
+                logger.info(f"Detected ZIP from branch: {ref}")
+                return {
+                    "branch_or_tag": ref,
+                    "download_method": "github_zip",
+                    "note": f"Downloaded from '{ref}' branch - commit SHA unknown",
+                }
+
+        # Couldn't determine version
+        logger.warning("Could not determine source version from directory name")
+        return {
+            "download_method": "unknown",
+            "note": f"Downloaded source, version unknown (directory: {dir_name})",
+        }
 
     @staticmethod
     def calculate_checksum(file_path: Path) -> str:
@@ -111,6 +159,106 @@ class ProvenanceTracker:
             for chunk in iter(lambda: f.read(8192), b""):
                 sha256.update(chunk)
         return sha256.hexdigest()
+
+
+# ============================================================================
+# Filename Normalization
+# ============================================================================
+
+
+class FileNameNormalizer:
+    """
+    Normalizes file and directory names for filesystem compatibility.
+
+    Handles special characters in dataset names (e.g., 'GSC+', 'ID-68')
+    and document IDs to ensure cross-platform compatibility and avoid
+    issues with special characters in file paths.
+
+    Design principles:
+    - Explicit mappings for known dataset names (predictable, reversible)
+    - General fallback for unknown names (robust)
+    - Preserves original values in JSON metadata (traceable)
+    """
+
+    # Explicit mappings for known dataset names
+    DATASET_MAPPINGS: dict[str, str] = {
+        "GSC+": "GSC_plus",
+        "ID-68": "ID_68",
+        "GeneReviews": "GeneReviews",  # Already clean, but explicit
+    }
+
+    @classmethod
+    def normalize_dataset_name(cls, name: str) -> str:
+        """
+        Normalize dataset name using explicit mappings or general rules.
+
+        Args:
+            name: Original dataset name (e.g., "GSC+")
+
+        Returns:
+            Normalized name (e.g., "GSC_plus")
+
+        Examples:
+            >>> FileNameNormalizer.normalize_dataset_name("GSC+")
+            'GSC_plus'
+            >>> FileNameNormalizer.normalize_dataset_name("ID-68")
+            'ID_68'
+        """
+        return cls.DATASET_MAPPINGS.get(name, cls._normalize_general(name))
+
+    @classmethod
+    def normalize_doc_id(cls, doc_id: str) -> str:
+        """
+        Normalize document ID for use in filenames.
+
+        Preserves dataset prefix mappings (e.g., GSC+ → GSC_plus).
+
+        Args:
+            doc_id: Original document ID (e.g., "GSC+_1003450")
+
+        Returns:
+            Normalized document ID (e.g., "GSC_plus_1003450")
+
+        Examples:
+            >>> FileNameNormalizer.normalize_doc_id("GSC+_1003450")
+            'GSC_plus_1003450'
+            >>> FileNameNormalizer.normalize_doc_id("ID-68_doc001")
+            'ID_68_doc001'
+        """
+        # Check if doc_id starts with any known dataset prefix
+        for original, normalized in cls.DATASET_MAPPINGS.items():
+            if doc_id.startswith(original):
+                # Replace only the first occurrence (the prefix)
+                return doc_id.replace(original, normalized, 1)
+
+        # Fallback to general normalization
+        return cls._normalize_general(doc_id)
+
+    @staticmethod
+    def _normalize_general(text: str) -> str:
+        """
+        General normalization: replace non-alphanumeric characters with underscore.
+
+        Args:
+            text: Text to normalize
+
+        Returns:
+            Normalized text with only alphanumeric and underscore characters
+
+        Examples:
+            >>> FileNameNormalizer._normalize_general("foo-bar+baz")
+            'foo_bar_baz'
+            >>> FileNameNormalizer._normalize_general("test__name")
+            'test_name'
+        """
+        # Replace special characters with underscore
+        normalized = re.sub(r"[^a-zA-Z0-9_]", "_", text)
+
+        # Collapse multiple consecutive underscores
+        normalized = re.sub(r"_+", "_", normalized)
+
+        # Strip leading/trailing underscores
+        return normalized.strip("_")
 
 
 # ============================================================================
@@ -265,14 +413,21 @@ class DatasetLoader:
         corpus_dir = self.data_dir / corpus_subdir
         ann_dir = self.data_dir / ann_subdir
 
-        # Get all corpus files
+        # Get all corpus files (some have .txt extension, some don't)
         corpus_files = sorted(corpus_dir.glob("*.txt"))
+        if not corpus_files:
+            # Try files without extension
+            corpus_files = sorted([f for f in corpus_dir.iterdir() if f.is_file()])
 
         logger.info(f"Found {len(corpus_files)} corpus files in {dataset}")
 
         for corpus_file in corpus_files:
             # Match annotation file by stem (filename without extension)
             ann_file = ann_dir / f"{corpus_file.stem}.ann"
+
+            # Also try without .ann extension
+            if not ann_file.exists():
+                ann_file = ann_dir / corpus_file.stem
 
             if ann_file.exists():
                 yield (corpus_file, ann_file)
@@ -432,7 +587,9 @@ class AnnotationParser:
                     else:
                         # Processed format: start\tend\ttext\tHPO:ID\tconfidence
                         start, end, text, hpo_id, confidence_str = match.groups()
-                        confidence_value = float(confidence_str) if confidence_str else None
+                        confidence_value = (
+                            float(confidence_str) if confidence_str else None
+                        )
 
                     # Normalize HPO ID (HP_NNNN → HP:NNNN)
                     hpo_id = hpo_id.replace("_", ":")
@@ -728,18 +885,35 @@ class OutputWriter:
         Args:
             source_data_dir: Path to PhenoBERT data directory
         """
-        # Try to get parent directory (should be repo root)
-        repo_root = source_data_dir.parent
+        # Try to find repo root (may be 1-2 levels up)
+        # Path structure: /path/to/PhenoBERT-main/phenobert/data
+        # We want: /path/to/PhenoBERT-main
+        repo_root = source_data_dir.parent  # phenobert/
+
+        # Check if parent directory name looks like a repo name (has hyphen pattern)
+        if "-" not in repo_root.name and repo_root.parent.name != "":
+            repo_root = repo_root.parent  # Try one level up
 
         # Extract git version if available
         source_version = ProvenanceTracker.get_git_version(repo_root)
 
         if source_version:
-            logger.info(f"Source version: {source_version['commit_sha'][:8]}")
-            if source_version["is_dirty"]:
-                logger.warning("Source repository has uncommitted changes!")
+            # Log version information based on what's available
+            if "commit_sha" in source_version:
+                logger.info(f"Source commit: {source_version['commit_sha'][:8]}")
+                if source_version.get("is_dirty"):
+                    logger.warning("Source repository has uncommitted changes!")
+            elif "branch_or_tag" in source_version:
+                logger.info(
+                    f"Source: {source_version['download_method']} "
+                    f"from '{source_version['branch_or_tag']}'"
+                )
+            else:
+                logger.info(
+                    f"Source: {source_version.get('download_method', 'unknown')}"
+                )
         else:
-            logger.info("Source data not from git repository")
+            logger.warning("Could not determine source version")
 
         # Set provenance in stats
         self.stats.set_provenance(
@@ -753,19 +927,25 @@ class OutputWriter:
         Write single JSON document.
 
         Args:
-            doc: Document in Phentrieve JSON format
-            dataset: Dataset name (for directory organization)
+            doc: Document in Phentrieve JSON format (contains original doc_id)
+            dataset: Dataset name (original, will be normalized for filesystem)
         """
-        # Create dataset directory
-        dataset_dir = self.output_dir / dataset / "annotations"
+        # Normalize dataset name for directory (filesystem-safe)
+        normalized_dataset = FileNameNormalizer.normalize_dataset_name(dataset)
+
+        # Create dataset directory with normalized name
+        dataset_dir = self.output_dir / normalized_dataset / "annotations"
         dataset_dir.mkdir(parents=True, exist_ok=True)
 
-        # Write JSON file
-        output_file = dataset_dir / f"{doc['doc_id']}.json"
+        # Normalize doc_id for filename (filesystem-safe)
+        normalized_doc_id = FileNameNormalizer.normalize_doc_id(doc["doc_id"])
+
+        # Write JSON file with normalized filename
+        output_file = dataset_dir / f"{normalized_doc_id}.json"
         with open(output_file, "w", encoding="utf-8") as f:
             json.dump(doc, f, indent=2, ensure_ascii=False)
 
-        # Update stats
+        # Update stats (using original dataset name for reporting)
         self.stats.add_document(dataset, len(doc["annotations"]))
 
         logger.debug(f"Wrote {output_file}")

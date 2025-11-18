@@ -1,0 +1,96 @@
+{
+  "doc_id": "GSC+_6846397",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "We report a man who had the branchio-oto-renal (BOR) syndrome with crossed renal ectopia. His three children were born with bilateral renal agenesis and the so-called Potter syndrome. This case illustrates the potential severity of the renal anomalies in the BOR syndrome and the inadequacy of oligohydramnios and maternal serum alpha-fetoprotein as screening methods for renal agenesis. This case also implies strongly the necessity for meticulous search for renal anomalies in individuals with the BOR syndrome and proper counseling regarding the possibility of lethal bilateral renal agenesis.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 596,
+    "num_annotations": 6,
+    "conversion_date": "2025-11-18T13:13:17.157719"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000086",
+      "label": "Ectopic kidney",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 75,
+          "end_char": 88,
+          "text_snippet": "renal ectopia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010958",
+      "label": "Bilateral renal agenesis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 124,
+          "end_char": 148,
+          "text_snippet": "bilateral renal agenesis"
+        },
+        {
+          "start_char": 571,
+          "end_char": 595,
+          "text_snippet": "bilateral renal agenesis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002009",
+      "label": "Potter facies",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 167,
+          "end_char": 182,
+          "text_snippet": "Potter syndrome"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000077",
+      "label": "Abnormality of the kidney",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 236,
+          "end_char": 251,
+          "text_snippet": "renal anomalies"
+        },
+        {
+          "start_char": 460,
+          "end_char": 475,
+          "text_snippet": "renal anomalies"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001562",
+      "label": "Oligohydramnios",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 294,
+          "end_char": 309,
+          "text_snippet": "oligohydramnios"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000104",
+      "label": "Renal agenesis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 372,
+          "end_char": 386,
+          "text_snippet": "renal agenesis"
+        }
+      ]
+    }
+  ]
+}

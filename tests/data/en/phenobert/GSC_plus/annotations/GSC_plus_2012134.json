@@ -1,0 +1,170 @@
+{
+  "doc_id": "GSC+_2012134",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "The diagnosis of Angelman syndrome (AS) has seldom been made in infants because the previously described characteristic manifestations usually are not apparent until after age 2 years. We describe 4 AS patients, one of whom has oculocutaneous albinism, who were less than 2 years old when first evaluated. All 4 have deletions of the region q11.2-q13 of chromosome 15. In the 3 cases in which parents were available for study the deleted chromosome 15 was maternally derived, as determined by cytological markers. All of the patients presented with severe to profound global developmental delay and postnatal-onset microcephaly; they had seizures, hypotonia, hyperreflexia, and hyperkinesis. All were hypopigmented as compared to their relatives. Each had eye abnormalities; all had choroidal pigment hypoplasia. None were initially described as having an abnormal appearance. We believe that AS is far more common than previously thought and present these 4 children to emphasize the manifestations that may be helpful in making the diagnosis in the young patient. We also emphasize the hypopigmentation that patients with AS frequently have, including what we think is the first reported case of albinism and AS.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 1214,
+    "num_annotations": 13,
+    "conversion_date": "2025-11-18T13:13:16.171680"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001107",
+      "label": "Ocular albinism",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 228,
+          "end_char": 251,
+          "text_snippet": "oculocutaneous albinism"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0007106",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 549,
+          "end_char": 594,
+          "text_snippet": "severe to profound global developmental delay"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0005484",
+      "label": "Secondary microcephaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 599,
+          "end_char": 627,
+          "text_snippet": "postnatal-onset microcephaly"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001250",
+      "label": "Seizure",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 638,
+          "end_char": 646,
+          "text_snippet": "seizures"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001252",
+      "label": "Hypotonia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 648,
+          "end_char": 657,
+          "text_snippet": "hypotonia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001347",
+      "label": "Hyperreflexia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 659,
+          "end_char": 672,
+          "text_snippet": "hyperreflexia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002487",
+      "label": "Hyperkinetic movements",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 678,
+          "end_char": 690,
+          "text_snippet": "hyperkinesis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001010",
+      "label": "Hypopigmentation of the skin",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 701,
+          "end_char": 714,
+          "text_snippet": "hypopigmented"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000478",
+      "label": "Abnormality of the eye",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 756,
+          "end_char": 773,
+          "text_snippet": "eye abnormalities"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0007757",
+      "label": "obsolete Hypoplasia of choroid",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 783,
+          "end_char": 811,
+          "text_snippet": "choroidal pigment hypoplasia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003593",
+      "label": "Infantile onset",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1051,
+          "end_char": 1056,
+          "text_snippet": "young"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0007513",
+      "label": "Generalized hypopigmentation",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1088,
+          "end_char": 1104,
+          "text_snippet": "hypopigmentation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001022",
+      "label": "Albinism",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1198,
+          "end_char": 1206,
+          "text_snippet": "albinism"
+        }
+      ]
+    }
+  ]
+}

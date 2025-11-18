@@ -1,0 +1,38 @@
+{
+  "doc_id": "GSC+_3943073",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Six patients with typical features of the multiple basal cell nevus syndrome were studied cytogenetically, using prometaphase G-banding and C-banding. Three patients were from one family and the others were sporadic cases. No cytogenetic marker of the disease was identified using these techniques.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 298,
+    "num_annotations": 2,
+    "conversion_date": "2025-11-18T13:13:16.957787"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0002671",
+      "label": "Basal cell carcinoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 51,
+          "end_char": 76,
+          "text_snippet": "basal cell nevus syndrome"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003745",
+      "label": "Sporadic",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 207,
+          "end_char": 221,
+          "text_snippet": "sporadic cases"
+        }
+      ]
+    }
+  ]
+}

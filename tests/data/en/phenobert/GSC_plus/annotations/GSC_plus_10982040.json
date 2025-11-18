@@ -1,0 +1,26 @@
+{
+  "doc_id": "GSC+_10982040",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Angelman syndrome is a neuro-developmental disorder caused by genetic abnormalities affecting the maternal gene expression in the chromosome region 15q11-q13. In a study group of 45 Finnish Angelman patients, a recurrence of a del(15)(q11q13) was detected in one family. The mother's chromosomes 15 were structurally normal, whereas the patients and their unaffected brother shared an identical maternally derived haplotype outside the deletion region. These findings are suggestive of maternal germ-line mosaicism of del(15)(q11q13).",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 534,
+    "num_annotations": 1,
+    "conversion_date": "2025-11-18T13:13:14.302395"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0012759",
+      "label": "Neurodevelopmental abnormality",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 23,
+          "end_char": 51,
+          "text_snippet": "neuro-developmental disorder"
+        }
+      ]
+    }
+  ]
+}

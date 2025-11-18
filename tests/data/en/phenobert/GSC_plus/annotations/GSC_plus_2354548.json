@@ -1,0 +1,43 @@
+{
+  "doc_id": "GSC+_2354548",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "A father and son are described with an autosomal dominant branchial cleft syndrome resembling both the branchio-oto-renal and the branchio-oculo-facial syndrome. Both syndromes may represent variant expressions of the same autosomal dominant gene.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 247,
+    "num_annotations": 2,
+    "conversion_date": "2025-11-18T13:13:16.289230"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 39,
+          "end_char": 57,
+          "text_snippet": "autosomal dominant"
+        },
+        {
+          "start_char": 223,
+          "end_char": 241,
+          "text_snippet": "autosomal dominant"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009794",
+      "label": "Branchial anomaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 58,
+          "end_char": 73,
+          "text_snippet": "branchial cleft"
+        }
+      ]
+    }
+  ]
+}

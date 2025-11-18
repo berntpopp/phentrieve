@@ -1,0 +1,67 @@
+{
+  "doc_id": "GSC+_12384778",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Brachydactyly type A1 (BDA1) was the first disorder described in terms of autosomal dominant Mendelian inheritance. Early in the 1900s Farabee and Drinkwater described a number of families with BDA1. Examination of two of Drinkwater's families has revealed that, although they are not known to be related, both share a common mutation within the Indian hedgehog gene ( IHH). This novel mutation is a guanine to adenine transition at nucleotide 298, resulting in an Asn100Asp amino acid substitution. Both families demonstrate significant intrafamilial phenotypic heterogeneity among the affected individuals. Examination of single nucleotide polymorphisms (SNP) has shown that the affected individuals in both families share SNPs within IHH consistent with that of a common founder. The identification of the same mutation in these families has answered a question that is nearly a century old about the genetic cause of their disease and supports the hypothesis that IHH plays a pivotal role in normal human skeletogenesis.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 1024,
+    "num_annotations": 4,
+    "conversion_date": "2025-11-18T13:13:14.794898"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0009371",
+      "label": "Type A1 brachydactyly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 0,
+          "end_char": 21,
+          "text_snippet": "Brachydactyly type A1"
+        },
+        {
+          "start_char": 23,
+          "end_char": 27,
+          "text_snippet": "BDA1"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 74,
+          "end_char": 92,
+          "text_snippet": "autosomal dominant"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003822",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 538,
+          "end_char": 575,
+          "text_snippet": "intrafamilial phenotypic heterogeneit"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001425",
+      "label": "obsolete Heterogeneous",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 563,
+          "end_char": 576,
+          "text_snippet": "heterogeneity"
+        }
+      ]
+    }
+  ]
+}

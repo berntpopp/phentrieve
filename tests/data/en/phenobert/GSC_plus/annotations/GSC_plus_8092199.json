@@ -1,0 +1,38 @@
+{
+  "doc_id": "GSC+_8092199",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Branchiootorenal (BOR) syndrome is a common autosomal dominant form of hearing impairment previously mapped to 8q. This report refines the localization of the BOR syndrome gene by haplotype analysis to the interval flanked by markers D8S553 and D8S286. By multipoint linkage analysis, the disease locus most likely is flanked by markers D8S530 and D8S279.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 355,
+    "num_annotations": 2,
+    "conversion_date": "2025-11-18T13:13:17.894017"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 44,
+          "end_char": 67,
+          "text_snippet": "autosomal dominant form"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000365",
+      "label": "Hearing impairment",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 71,
+          "end_char": 89,
+          "text_snippet": "hearing impairment"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,122 @@
+{
+  "doc_id": "ID-68_17DG0772",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "A 10 years old with ADHD, autistic features, cold intolerance, sloping forehead, microcephaly, brittle hair, esotropia, failure to thrive, muscle weakness and frequent falls.",
+  "metadata": {
+    "dataset": "ID-68",
+    "text_length_chars": 174,
+    "num_annotations": 9,
+    "conversion_date": "2025-11-18T13:13:20.396525"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000729",
+      "label": "Autistic behavior",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 26,
+          "end_char": 43,
+          "text_snippet": "autistic features"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004370",
+      "label": "Abnormality of temperature regulation",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 45,
+          "end_char": 61,
+          "text_snippet": "cold intolerance"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000340",
+      "label": "Sloping forehead",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 63,
+          "end_char": 79,
+          "text_snippet": "sloping forehead"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000252",
+      "label": "Microcephaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 81,
+          "end_char": 93,
+          "text_snippet": "microcephaly"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002299",
+      "label": "Brittle hair",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 95,
+          "end_char": 107,
+          "text_snippet": "brittle hair"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000565",
+      "label": "Esotropia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 109,
+          "end_char": 118,
+          "text_snippet": "esotropia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001508",
+      "label": "Failure to thrive",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 120,
+          "end_char": 137,
+          "text_snippet": "failure to thrive"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001324",
+      "label": "Muscle weakness",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 139,
+          "end_char": 154,
+          "text_snippet": "muscle weakness"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002359",
+      "label": "Frequent falls",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 159,
+          "end_char": 173,
+          "text_snippet": "frequent falls"
+        }
+      ]
+    }
+  ]
+}

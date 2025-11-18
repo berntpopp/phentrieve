@@ -1,0 +1,67 @@
+{
+  "doc_id": "GSC+_11455389",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Brachydactyly type A-1 (BDA-1; MIM 112500) is characterized by shortening or missing of the middle phalanges (Fig. 1a). It was first identified by Farabee in 1903 (ref. 2), is the first recorded example of a human anomaly with Mendelian autosomal-dominant inheritance and, as such, is cited in most genetic and biological textbooks. Here we show that mutations in IHH, which encodes Indian hedgehog, cause BDA-1. We have identified three heterozygous missense mutations in the region encoding the amino-terminal signaling domain in all affected members of three large, unrelated families. The three mutant amino acids, which are conserved across all vertebrates and invertebrates studied so far, are predicted to be adjacent on the surface of IHH.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 747,
+    "num_annotations": 4,
+    "conversion_date": "2025-11-18T13:13:14.574320"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0009371",
+      "label": "Type A1 brachydactyly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 0,
+          "end_char": 22,
+          "text_snippet": "Brachydactyly type A-1"
+        },
+        {
+          "start_char": 24,
+          "end_char": 29,
+          "text_snippet": "BDA-1"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0005819",
+      "label": "Short middle phalanx of finger",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 63,
+          "end_char": 108,
+          "text_snippet": "shortening or missing of the middle phalanges"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009843",
+      "label": "Aplasia/Hypoplasia of the middle phalanges of the hand",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 77,
+          "end_char": 108,
+          "text_snippet": "missing of the middle phalanges"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 237,
+          "end_char": 267,
+          "text_snippet": "autosomal-dominant inheritance"
+        }
+      ]
+    }
+  ]
+}

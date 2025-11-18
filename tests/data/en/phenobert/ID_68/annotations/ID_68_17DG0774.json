@@ -1,0 +1,170 @@
+{
+  "doc_id": "ID-68_17DG0774",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "This is an 11 years old boy with intellectual disability, bilateral postaxial polydactyly, microcephaly, abnormal hair, aortic dilatation (AR), atrioventricular septal defect, right undescended testis, left upper lid moderate-to-severe ptosis, short palpebral fissures that are more severe in the left, dysmorphic facial features and short stature. His parents are consanguineous, and his father and one of his brothers are similarly affected without the cardiac component. Skeletal Survey showed osteopenia, and cardiomegaly and pulmonary congestion.",
+  "metadata": {
+    "dataset": "ID-68",
+    "text_length_chars": 551,
+    "num_annotations": 13,
+    "conversion_date": "2025-11-18T13:13:20.435188"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001249",
+      "label": "Intellectual disability",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 33,
+          "end_char": 56,
+          "text_snippet": "intellectual disability"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0006136",
+      "label": "Bilateral postaxial polydactyly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 58,
+          "end_char": 89,
+          "text_snippet": "bilateral postaxial polydactyly"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000252",
+      "label": "Microcephaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 91,
+          "end_char": 103,
+          "text_snippet": "microcephaly"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001595",
+      "label": "Abnormal hair morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 105,
+          "end_char": 118,
+          "text_snippet": "abnormal hair"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004942",
+      "label": "Aortic aneurysm",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 120,
+          "end_char": 137,
+          "text_snippet": "aortic dilatation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0006695",
+      "label": "Atrioventricular canal defect",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 144,
+          "end_char": 174,
+          "text_snippet": "atrioventricular septal defect"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000028",
+      "label": "Cryptorchidism",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 182,
+          "end_char": 200,
+          "text_snippet": "undescended testis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000508",
+      "label": "Ptosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 236,
+          "end_char": 242,
+          "text_snippet": "ptosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012745",
+      "label": "Short palpebral fissure",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 244,
+          "end_char": 268,
+          "text_snippet": "short palpebral fissures"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001999",
+      "label": "Abnormal facial shape",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 303,
+          "end_char": 329,
+          "text_snippet": "dysmorphic facial features"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004322",
+      "label": "Short stature",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 334,
+          "end_char": 347,
+          "text_snippet": "short stature"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000938",
+      "label": "Osteopenia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 497,
+          "end_char": 507,
+          "text_snippet": "osteopenia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001640",
+      "label": "Cardiomegaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 513,
+          "end_char": 525,
+          "text_snippet": "cardiomegaly"
+        }
+      ]
+    }
+  ]
+}

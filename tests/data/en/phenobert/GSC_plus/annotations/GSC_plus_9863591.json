@@ -1,0 +1,140 @@
+{
+  "doc_id": "GSC+_9863591",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Patients who present with unilateral vestibular schwannomas either at a young age or with additional features of type 2 neurofibromatosis (NF2) are at risk of developing bilateral disease and transmitting a risk of neurogenic tumours to their offspring. We have identified 15 patients from a series of 537 with unilateral vestibular schwannomas who also had one or more of the following: other tumours (10/15), features of NF2 (3/15), or a family history of neurogenic tumours (5/15). No germline NF2 mutations were detected and in 7/9 cases where tumour material was available for analysis a germline mutation in the NF2 gene has been excluded. Although a possibility of gonosomal mosaicism still exists, exclusion tests for the offspring are now possible. We suggest a general strategy, based on analysis of tumour DNA, for distinguishing sporadic and familial cases of tumours caused by two hit mechanisms. Application of this strategy suggests that most instances of unilateral vestibular schwannoma which do not fulfil criteria for NF2 represent chance occurrences.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 1070,
+    "num_annotations": 8,
+    "conversion_date": "2025-11-18T13:13:19.040041"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0009590",
+      "label": "Unilateral vestibular schwannoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 26,
+          "end_char": 59,
+          "text_snippet": "unilateral vestibular schwannomas"
+        },
+        {
+          "start_char": 311,
+          "end_char": 344,
+          "text_snippet": "unilateral vestibular schwannomas"
+        },
+        {
+          "start_char": 971,
+          "end_char": 1003,
+          "text_snippet": "unilateral vestibular schwannoma"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003593",
+      "label": "Infantile onset",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 72,
+          "end_char": 81,
+          "text_snippet": "young age"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0006746",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 120,
+          "end_char": 137,
+          "text_snippet": "neurofibromatosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009589",
+      "label": "Bilateral vestibular schwannoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 170,
+          "end_char": 187,
+          "text_snippet": "bilateral disease"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004375",
+      "label": "Neoplasm of the nervous system",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 215,
+          "end_char": 233,
+          "text_snippet": "neurogenic tumours"
+        },
+        {
+          "start_char": 458,
+          "end_char": 476,
+          "text_snippet": "neurogenic tumours"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002664",
+      "label": "Neoplasm",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 394,
+          "end_char": 401,
+          "text_snippet": "tumours"
+        },
+        {
+          "start_char": 548,
+          "end_char": 554,
+          "text_snippet": "tumour"
+        },
+        {
+          "start_char": 810,
+          "end_char": 816,
+          "text_snippet": "tumour"
+        },
+        {
+          "start_char": 872,
+          "end_char": 879,
+          "text_snippet": "tumours"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003745",
+      "label": "Sporadic",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 841,
+          "end_char": 849,
+          "text_snippet": "sporadic"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000005",
+      "label": "Mode of inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 854,
+          "end_char": 868,
+          "text_snippet": "familial cases"
+        }
+      ]
+    }
+  ]
+}

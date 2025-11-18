@@ -1,0 +1,180 @@
+{
+  "doc_id": "GSC+_8751853",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Neurofibromatosis 2 (NF2) features bilateral vestibular schwannomas, other benign neural tumors, and cataracts. Patients in some families develop many tumors at an early age and have rapid clinical progression, whereas in other families, patients may not have symptoms until much later and vestibular schwannomas may be the only tumors. The NF2 gene has been cloned from chromosome 22q; most identified germ-line mutations result in a truncated protein and severe NF2. To look for additional mutations and clinical correlations, we used SSCP analysis to screen DNA from 32 unrelated patients. We identified 20 different mutations in 21 patients (66%): 10 nonsense mutations, 2 frameshifts, 7 splice-site mutations, and 1 large in-frame deletion. Clinical information on 47 patients from the 21 families included ages at onset and at diagnosis, numbers of meningiomas, spinal and skin tumors, and presence of cataracts and retinal abnormalities. We compared clinical findings in patients with nonsense or frameshift mutations to those with splice-site mutations. When each patient was considered as an independent random event, the two groups differed (P < or = .05) for nearly every variable. Patients with nonsense or frameshift mutations were younger at onset and at diagnosis and had a higher frequency and mean number of tumors, supporting the correlation between nonsense and frameshift mutations and severe NF2. When each family was considered as an independent random event, statistically significant differences between the two groups were observed only for mean ages at onset and at diagnosis. A larger data set is needed to resolve these discrepancies. We observed retinal hamartomas and/or epiretinal membranes in nine patients from five families with four different nonsense mutations. This finding, which may represent a new genotype-phenotype correlation, merits further study.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 1891,
+    "num_annotations": 13,
+    "conversion_date": "2025-11-18T13:13:18.346317"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0006746",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 0,
+          "end_char": 17,
+          "text_snippet": "Neurofibromatosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009589",
+      "label": "Bilateral vestibular schwannoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 35,
+          "end_char": 67,
+          "text_snippet": "bilateral vestibular schwannomas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004375",
+      "label": "Neoplasm of the nervous system",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 82,
+          "end_char": 95,
+          "text_snippet": "neural tumors"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000518",
+      "label": "Cataract",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 101,
+          "end_char": 110,
+          "text_snippet": "cataracts"
+        },
+        {
+          "start_char": 908,
+          "end_char": 917,
+          "text_snippet": "cataracts"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003008",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 146,
+          "end_char": 157,
+          "text_snippet": "many tumors"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003593",
+      "label": "Infantile onset",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 164,
+          "end_char": 173,
+          "text_snippet": "early age"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009588",
+      "label": "Vestibular schwannoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 290,
+          "end_char": 312,
+          "text_snippet": "vestibular schwannomas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002664",
+      "label": "Neoplasm",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 329,
+          "end_char": 335,
+          "text_snippet": "tumors"
+        },
+        {
+          "start_char": 1325,
+          "end_char": 1331,
+          "text_snippet": "tumors"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002858",
+      "label": "Meningioma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 855,
+          "end_char": 866,
+          "text_snippet": "meningiomas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0008069",
+      "label": "Neoplasm of the skin",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 879,
+          "end_char": 890,
+          "text_snippet": "skin tumors"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003813",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1183,
+          "end_char": 1191,
+          "text_snippet": "variable"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009594",
+      "label": "Retinal hamartoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1675,
+          "end_char": 1693,
+          "text_snippet": "retinal hamartomas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100014",
+      "label": "Epiretinal membrane",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1701,
+          "end_char": 1721,
+          "text_snippet": "epiretinal membranes"
+        }
+      ]
+    }
+  ]
+}

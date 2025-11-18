@@ -1,0 +1,235 @@
+{
+  "doc_id": "GSC+_10631923",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Townes-Brocks syndrome (TBS) has been recognized as a dominant inherited syndrome. We report 2 cases of TBS. Case 1 was operated on for imperforate anus. Triphalangeal thumb and ear anomalies were remarkable. Deafness was diagnosed when the patient was 6 months old. Anomalies of the semicircular canals and the incus with inculomalleolar fusion were shown when the patient was 3.5 years old. During childhood, recurrent episodes of abdominal pain appeared. The diagnosis of hereditary angioneurotic edema (HANE) was made. HANE was familial as the father, the father's brother and the paternal grand mother were also affected. The parents of case 2, a female, are both mildly mentally retarded. This was the first pregnancy of the mother who had short stature. The child had an antepositioned anus, bifid right thumb, large toes, low set ears, microretrognathia and deafness. A (5, 16) translocation was observed in a child with TBS. At the breakpoint in 16q21.1, a gene coding for a transcription factor SALL1 has been identified and it was shown that mutations in the putative zinc finger of SALL1 cause TBS.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 1110,
+    "num_annotations": 18,
+    "conversion_date": "2025-11-18T13:13:14.215262"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 54,
+          "end_char": 72,
+          "text_snippet": "dominant inherited"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002023",
+      "label": "Anal atresia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 136,
+          "end_char": 152,
+          "text_snippet": "imperforate anus"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001199",
+      "label": "Triphalangeal thumb",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 154,
+          "end_char": 173,
+          "text_snippet": "Triphalangeal thumb"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000598",
+      "label": "Abnormality of the ear",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 178,
+          "end_char": 191,
+          "text_snippet": "ear anomalies"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000404",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 209,
+          "end_char": 217,
+          "text_snippet": "Deafness"
+        },
+        {
+          "start_char": 866,
+          "end_char": 874,
+          "text_snippet": "deafness"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0011380",
+      "label": "Abnormal semicircular canal morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 267,
+          "end_char": 303,
+          "text_snippet": "Anomalies of the semicircular canals"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0011453",
+      "label": "Abnormal incus morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 267,
+          "end_char": 317,
+          "text_snippet": "Anomalies of the semicircular canals and the incus"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0005473",
+      "label": "Fusion of middle ear ossicles",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 323,
+          "end_char": 345,
+          "text_snippet": "inculomalleolar fusion"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0011463",
+      "label": "Childhood onset",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 400,
+          "end_char": 409,
+          "text_snippet": "childhood"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002574",
+      "label": "Episodic abdominal pain",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 421,
+          "end_char": 447,
+          "text_snippet": "episodes of abdominal pain"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000969",
+      "label": "Edema",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 500,
+          "end_char": 505,
+          "text_snippet": "edema"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001256",
+      "label": "Intellectual disability, mild",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 669,
+          "end_char": 693,
+          "text_snippet": "mildly mentally retarded"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004322",
+      "label": "Short stature",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 746,
+          "end_char": 759,
+          "text_snippet": "short stature"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001545",
+      "label": "Anteriorly placed anus",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 778,
+          "end_char": 797,
+          "text_snippet": "antepositioned anus"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009944",
+      "label": "Partial duplication of thumb phalanx",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 799,
+          "end_char": 816,
+          "text_snippet": "bifid right thumb"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010511",
+      "label": "Long toe",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 818,
+          "end_char": 828,
+          "text_snippet": "large toes"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000369",
+      "label": "Low-set ears",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 830,
+          "end_char": 842,
+          "text_snippet": "low set ears"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000308",
+      "label": "Microretrognathia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 844,
+          "end_char": 861,
+          "text_snippet": "microretrognathia"
+        }
+      ]
+    }
+  ]
+}

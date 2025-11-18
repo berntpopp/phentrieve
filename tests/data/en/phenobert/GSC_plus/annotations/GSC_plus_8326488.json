@@ -1,0 +1,139 @@
+{
+  "doc_id": "GSC+_8326488",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "There are many potential complications which have been reported in association with the naevoid basal cell carcinoma syndrome. We have been able to show the relative frequencies of these problems in a population based study of 84 cases in the north west of England. The major complications of basal cell carcinomas and jaw cysts occur in over 90% of patients by 40 years of age, but may both occur before 10 years of age. Less well described complications are ovarian calcification or fibroma (24%), medulloblastoma (5%), cardiac fibroma (3%), cleft palate (5%), and ophthalmic abnormalities such as squint or cataract (26%). This study more clearly defines the possible complications of the syndrome and gives clearer guidelines for counselling and screening affected and at risk persons.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 789,
+    "num_annotations": 10,
+    "conversion_date": "2025-11-18T13:13:18.068469"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0002671",
+      "label": "Basal cell carcinoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 96,
+          "end_char": 116,
+          "text_snippet": "basal cell carcinoma"
+        },
+        {
+          "start_char": 293,
+          "end_char": 314,
+          "text_snippet": "basal cell carcinomas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010603",
+      "label": "Odontogenic keratocysts of the jaw",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 319,
+          "end_char": 328,
+          "text_snippet": "jaw cysts"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0008657",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 460,
+          "end_char": 481,
+          "text_snippet": "ovarian calcification"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010618",
+      "label": "Ovarian fibroma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 460,
+          "end_char": 492,
+          "text_snippet": "ovarian calcification or fibroma"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002885",
+      "label": "Medulloblastoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 500,
+          "end_char": 515,
+          "text_snippet": "medulloblastoma"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010617",
+      "label": "Cardiac fibroma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 522,
+          "end_char": 537,
+          "text_snippet": "cardiac fibroma"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000175",
+      "label": "Cleft palate",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 544,
+          "end_char": 556,
+          "text_snippet": "cleft palate"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000478",
+      "label": "Abnormality of the eye",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 567,
+          "end_char": 591,
+          "text_snippet": "ophthalmic abnormalities"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000486",
+      "label": "Strabismus",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 600,
+          "end_char": 606,
+          "text_snippet": "squint"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000518",
+      "label": "Cataract",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 610,
+          "end_char": 618,
+          "text_snippet": "cataract"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,228 @@
+{
+  "doc_id": "GSC+_18177466",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Branchio-oto-renal (BOR) and Stickler (STL) syndromes are disorders that include hearing loss among their clinical features. STL syndrome type I (STL1) is a combination of ophthalmic, orofacial, articular, and auditory manifestations, caused by mutations in the COL2A1. BOR syndrome is an autosomal dominant trait encompassing branchial, otic and renal anomalies because of mutations in EYA1, SIX1 and SIX5. In this study, we have clinically and genetically diagnosed a proband that displayed STL1 and BOR syndromes. This patient and his younger brother exhibited hearing loss and cleft palate. Both siblings and their mother also showed myopia, congenital non-progressive vitreous anomaly and a flat face. Taken together, these clinical features are consistent with the diagnosis of a familial case of STL. Sequence analysis revealed in the three patients a novel COL2A1 mutation (c.1468_1475delinsT) that accounted for a STL1 phenotype. The proband also displayed pre-auricular pits, branchial fistulae and renal agenesis that define BOR syndrome. Interestingly, this patient carries an EYA1 mutation, p.R328X, which was not present in the two other patients or in his healthy father, supporting that the mutation arose de novo. In conclusion, this report highlights the importance of molecular testing and detailed clinical evaluation for the diagnosis of syndromes with overlapping phenotypic features.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 1406,
+    "num_annotations": 17,
+    "conversion_date": "2025-11-18T13:13:15.846164"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000365",
+      "label": "Hearing impairment",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 81,
+          "end_char": 93,
+          "text_snippet": "hearing loss"
+        },
+        {
+          "start_char": 564,
+          "end_char": 576,
+          "text_snippet": "hearing loss"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000478",
+      "label": "Abnormality of the eye",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 172,
+          "end_char": 233,
+          "text_snippet": "ophthalmic, orofacial, articular, and auditory manifestations"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000153",
+      "label": "Abnormality of the mouth",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 184,
+          "end_char": 233,
+          "text_snippet": "orofacial, articular, and auditory manifestations"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001367",
+      "label": "Abnormal joint morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 195,
+          "end_char": 233,
+          "text_snippet": "articular, and auditory manifestations"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000364",
+      "label": "Hearing abnormality",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 210,
+          "end_char": 233,
+          "text_snippet": "auditory manifestations"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 289,
+          "end_char": 313,
+          "text_snippet": "autosomal dominant trait"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009794",
+      "label": "Branchial anomaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 327,
+          "end_char": 362,
+          "text_snippet": "branchial, otic and renal anomalies"
+        },
+        {
+          "start_char": 327,
+          "end_char": 336,
+          "text_snippet": "branchial"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000598",
+      "label": "Abnormality of the ear",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 338,
+          "end_char": 362,
+          "text_snippet": "otic and renal anomalies"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000077",
+      "label": "Abnormality of the kidney",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 347,
+          "end_char": 362,
+          "text_snippet": "renal anomalies"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000175",
+      "label": "Cleft palate",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 581,
+          "end_char": 593,
+          "text_snippet": "cleft palate"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000545",
+      "label": "Myopia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 638,
+          "end_char": 644,
+          "text_snippet": "myopia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0007773",
+      "label": "Vitreoretinopathy",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 673,
+          "end_char": 689,
+          "text_snippet": "vitreous anomaly"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000272",
+      "label": "Malar flattening",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 696,
+          "end_char": 705,
+          "text_snippet": "flat face"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004467",
+      "label": "Preauricular pit",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 966,
+          "end_char": 984,
+          "text_snippet": "pre-auricular pits"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009795",
+      "label": "Branchial fistula",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 986,
+          "end_char": 1004,
+          "text_snippet": "branchial fistulae"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000104",
+      "label": "Renal agenesis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1009,
+          "end_char": 1023,
+          "text_snippet": "renal agenesis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003745",
+      "label": "Sporadic",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1222,
+          "end_char": 1229,
+          "text_snippet": "de novo"
+        }
+      ]
+    }
+  ]
+}

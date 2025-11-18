@@ -1,0 +1,50 @@
+{
+  "doc_id": "ID-68_16DG0051",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "A 12 years old boy who was born at full term via NSVD to a G2P1 mother following an uneventful pregnancy. He was noted to have an abnormal roving eye movement in infancy, and it was found that his retina is severely damaged, bilaterally. His motor and cognitive functions are appropriate for age. His parents are first-degree cousins, and they have a daughter with a similar condition and occipital encephalocele and two sons with intellectual disability. His growth parameters at 12 years of age were weight 39 kg (50th -75th percentile), height 153 cm (50th -75th percentile) and head circumference 53 cm (25th – 50th percentile). He does not have dysmorphic features. Brain MRI showed nonspecific white matter changes.",
+  "metadata": {
+    "dataset": "ID-68",
+    "text_length_chars": 721,
+    "num_annotations": 3,
+    "conversion_date": "2025-11-18T13:13:19.920798"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0002085",
+      "label": "Occipital encephalocele",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 389,
+          "end_char": 412,
+          "text_snippet": "occipital encephalocele"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001249",
+      "label": "Intellectual disability",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 426,
+          "end_char": 454,
+          "text_snippet": "with intellectual disability"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002500",
+      "label": "Abnormal cerebral white matter morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 700,
+          "end_char": 720,
+          "text_snippet": "white matter changes"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "doc_id": "GSC+_12868482",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "A mother and daughter with Gorlin syndrome with similar neuroradiological findings are reported. These include calcification of the falx cerebri and tentorium cerebelli and dysgenesis of the corpus callosum and vermis. Vermian dysgenesis was detected in both mother and daughter suggesting a previously unrecognized finding associated with Gorlin syndrome.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 356,
+    "num_annotations": 4,
+    "conversion_date": "2025-11-18T13:13:14.922084"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0007352",
+      "label": "Cerebellar calcifications",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 111,
+          "end_char": 168,
+          "text_snippet": "calcification of the falx cerebri and tentorium cerebelli"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0005462",
+      "label": "Calcification of falx cerebri",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 111,
+          "end_char": 144,
+          "text_snippet": "calcification of the falx cerebri"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002195",
+      "label": "Dysgenesis of the cerebellar vermis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 173,
+          "end_char": 217,
+          "text_snippet": "dysgenesis of the corpus callosum and vermis"
+        },
+        {
+          "start_char": 219,
+          "end_char": 237,
+          "text_snippet": "Vermian dysgenesis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0006996",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 173,
+          "end_char": 206,
+          "text_snippet": "dysgenesis of the corpus callosum"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "doc_id": "ID-68_15DG2032",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "A 9 months old boy who was born via NSVD to a G1P0 mother following a pregnancy that was complicated by gestational hypertension. The first concern was hypotonia at three months of age. He does not seem to be achieving any milestones. There is no family history of a similar condition. His examination is significant for severe hypotonia, weakness, hyporeflexia and choreoathetosis. Muscle biopsy and brain MRI were reported as normal. ",
+  "metadata": {
+    "dataset": "ID-68",
+    "text_length_chars": 436,
+    "num_annotations": 5,
+    "conversion_date": "2025-11-18T13:13:19.739228"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0008071",
+      "label": "Maternal hypertension",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 104,
+          "end_char": 128,
+          "text_snippet": "gestational hypertension"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001290",
+      "label": "Generalized hypotonia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 152,
+          "end_char": 161,
+          "text_snippet": "hypotonia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0006829",
+      "label": "Severe muscular hypotonia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 321,
+          "end_char": 337,
+          "text_snippet": "severe hypotonia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001265",
+      "label": "Hyporeflexia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 349,
+          "end_char": 361,
+          "text_snippet": "hyporeflexia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001266",
+      "label": "Choreoathetosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 366,
+          "end_char": 381,
+          "text_snippet": "choreoathetosis"
+        }
+      ]
+    }
+  ]
+}

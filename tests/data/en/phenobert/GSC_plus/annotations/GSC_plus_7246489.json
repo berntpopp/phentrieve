@@ -1,0 +1,98 @@
+{
+  "doc_id": "GSC+_7246489",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Five new cases are presented of a syndrome characterized mainly by severe mental retardation, epilepsy, puppet-like ataxic movements, microbrachycephaly, prognathism, tongue protrusion, and inappropriate paroxysms of laughter. The cases are analyzed with reference to personal and family histories, clinical findings, and results of special investigations (biochemical, chromosomal, dermatoglyphic, EEG, and radiologic). The findings are compared with those in the 22 patients described previously. Though clinically distinctive, there is as yet no clear-cut evidence as to cause.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 580,
+    "num_annotations": 7,
+    "conversion_date": "2025-11-18T13:13:17.398865"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0002187",
+      "label": "Intellectual disability, profound",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 67,
+          "end_char": 92,
+          "text_snippet": "severe mental retardation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001250",
+      "label": "Seizure",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 94,
+          "end_char": 102,
+          "text_snippet": "epilepsy"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001251",
+      "label": "Ataxia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 104,
+          "end_char": 132,
+          "text_snippet": "puppet-like ataxic movements"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002258",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 134,
+          "end_char": 152,
+          "text_snippet": "microbrachycephaly"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000303",
+      "label": "Mandibular prognathia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 154,
+          "end_char": 165,
+          "text_snippet": "prognathism"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010808",
+      "label": "Protruding tongue",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 167,
+          "end_char": 184,
+          "text_snippet": "tongue protrusion"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000748",
+      "label": "Inappropriate laughter",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 190,
+          "end_char": 225,
+          "text_snippet": "inappropriate paroxysms of laughter"
+        }
+      ]
+    }
+  ]
+}

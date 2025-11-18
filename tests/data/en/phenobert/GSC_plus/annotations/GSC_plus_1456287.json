@@ -1,0 +1,38 @@
+{
+  "doc_id": "GSC+_1456287",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "We report on the 12-year development of a child with branchio-oculo-facial syndrome who was initially referred at age 5 months. Of note is his normal intelligence, regular class placement, hypernasal speech, and continued growth along the third centile. The importance of serial observations of patients with rare genetic disorders is emphasized.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 346,
+    "num_annotations": 2,
+    "conversion_date": "2025-11-18T13:13:15.181716"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001611",
+      "label": "Hypernasal speech",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 189,
+          "end_char": 206,
+          "text_snippet": "hypernasal speech"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004322",
+      "label": "Short stature",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 212,
+          "end_char": 252,
+          "text_snippet": "continued growth along the third centile"
+        }
+      ]
+    }
+  ]
+}

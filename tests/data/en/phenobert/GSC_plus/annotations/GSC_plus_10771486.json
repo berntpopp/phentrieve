@@ -1,0 +1,180 @@
+{
+  "doc_id": "GSC+_10771486",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Schwannomas in the skin are frequently observed in neurofibromatosis 2 patients. In about one-quarter of the cases, skin tumors are the first clinical symptoms of this disease. Recognizing neurofibromatosis-2-related skin tumors is therefore important for early diagnosis of neurofibromatosis 2, especially in pediatric patients. In this study, we examined 40 skin tumors (36 schwannomas and four neurofibromas) from 20 neurofibromatosis 2 patients for NF2 mutations and allelic loss. NF2 mutations have been identified in blood from 15 (75%) of the 20 patients. We found NF2 mutations in five (13%) and NF2 allelic loss in 18 (45%) of the 40 analyzed tumors. Genetic alterations (allelic loss or mutation) were thus found in 50 (63%) out of the total of 80 examined alleles. In 17 (43%) tumors, alterations were found on both NF2 alleles. These results suggest that, as in the case of vestibular schwannomas and meningiomas, loss of functional NF2 gene product is also the critical event in the development of skin schwannomas. Identification of genetic alterations of the NF2 gene in skin tumors may help to identify neurofibromatosis-2-associated skin tumors, thus assisting in the diagnosis of neurofibromatosis 2 in ambiguous cases, and excluding neurofibromatosis 1 in unclear cases. We also report that the detection rate of constitutional mutations was higher in patients with skin tumors (65%) than in patients without skin tumors (40%).",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 1446,
+    "num_annotations": 8,
+    "conversion_date": "2025-11-18T13:13:14.270138"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0009593",
+      "label": "Peripheral schwannoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 0,
+          "end_char": 23,
+          "text_snippet": "Schwannomas in the skin"
+        },
+        {
+          "start_char": 1011,
+          "end_char": 1027,
+          "text_snippet": "skin schwannomas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0006746",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 51,
+          "end_char": 68,
+          "text_snippet": "neurofibromatosis"
+        },
+        {
+          "start_char": 189,
+          "end_char": 206,
+          "text_snippet": "neurofibromatosis"
+        },
+        {
+          "start_char": 275,
+          "end_char": 292,
+          "text_snippet": "neurofibromatosis"
+        },
+        {
+          "start_char": 420,
+          "end_char": 437,
+          "text_snippet": "neurofibromatosis"
+        },
+        {
+          "start_char": 1119,
+          "end_char": 1136,
+          "text_snippet": "neurofibromatosis"
+        },
+        {
+          "start_char": 1198,
+          "end_char": 1215,
+          "text_snippet": "neurofibromatosis"
+        },
+        {
+          "start_char": 1252,
+          "end_char": 1269,
+          "text_snippet": "neurofibromatosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0008069",
+      "label": "Neoplasm of the skin",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 116,
+          "end_char": 127,
+          "text_snippet": "skin tumors"
+        },
+        {
+          "start_char": 217,
+          "end_char": 228,
+          "text_snippet": "skin tumors"
+        },
+        {
+          "start_char": 360,
+          "end_char": 371,
+          "text_snippet": "skin tumors"
+        },
+        {
+          "start_char": 1086,
+          "end_char": 1097,
+          "text_snippet": "skin tumors"
+        },
+        {
+          "start_char": 1150,
+          "end_char": 1161,
+          "text_snippet": "skin tumors"
+        },
+        {
+          "start_char": 1385,
+          "end_char": 1396,
+          "text_snippet": "skin tumors"
+        },
+        {
+          "start_char": 1428,
+          "end_char": 1439,
+          "text_snippet": "skin tumors"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100008",
+      "label": "Schwannoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 376,
+          "end_char": 387,
+          "text_snippet": "schwannomas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001067",
+      "label": "Neurofibroma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 397,
+          "end_char": 410,
+          "text_snippet": "neurofibromas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002664",
+      "label": "Neoplasm",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 652,
+          "end_char": 658,
+          "text_snippet": "tumors"
+        },
+        {
+          "start_char": 788,
+          "end_char": 794,
+          "text_snippet": "tumors"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009588",
+      "label": "Vestibular schwannoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 886,
+          "end_char": 908,
+          "text_snippet": "vestibular schwannomas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002858",
+      "label": "Meningioma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 913,
+          "end_char": 924,
+          "text_snippet": "meningiomas"
+        }
+      ]
+    }
+  ]
+}

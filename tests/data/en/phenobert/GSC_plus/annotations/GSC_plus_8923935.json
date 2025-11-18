@@ -1,0 +1,50 @@
+{
+  "doc_id": "GSC+_8923935",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Since the group of disorders known as the distal arthrogryposes (DAs) were defined, additional disorders characterized by multiple congenital contractures of the distal limbs were described, and the distribution of phenotypic findings in the DAs has been expanded. The breadth of disorders labeled as DAs has diminished the usefulness of the DA classification. We propose a strict definition of DA and diagnostic criteria for DA disorders. Subsequently, we use these standards and propose a revised classification of discrete conditions that should be labeled DAs. Optimally, this serves as a framework for a DA classification based on underlying molecular and physiologic abnormalities.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 687,
+    "num_annotations": 3,
+    "conversion_date": "2025-11-18T13:13:18.486901"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0005684",
+      "label": "Distal arthrogryposis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 42,
+          "end_char": 63,
+          "text_snippet": "distal arthrogryposes"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0005188",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 122,
+          "end_char": 154,
+          "text_snippet": "multiple congenital contractures"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003121",
+      "label": "Limb joint contracture",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 142,
+          "end_char": 174,
+          "text_snippet": "contractures of the distal limbs"
+        }
+      ]
+    }
+  ]
+}

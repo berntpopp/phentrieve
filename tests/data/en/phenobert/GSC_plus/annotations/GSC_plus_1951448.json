@@ -1,0 +1,48 @@
+{
+  "doc_id": "GSC+_1951448",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "We report on 2 children with Townes-Brocks syndrome (TBS) and mental retardation. One child had mild hearing loss, but the other only had hearing loss at 8000 Hz. These cases suggest that there may be an increased incidence of mental retardation in individuals with TBS.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 270,
+    "num_annotations": 2,
+    "conversion_date": "2025-11-18T13:13:16.098917"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001249",
+      "label": "Intellectual disability",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 62,
+          "end_char": 80,
+          "text_snippet": "mental retardation"
+        },
+        {
+          "start_char": 227,
+          "end_char": 245,
+          "text_snippet": "mental retardation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000365",
+      "label": "Hearing impairment",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 101,
+          "end_char": 113,
+          "text_snippet": "hearing loss"
+        },
+        {
+          "start_char": 138,
+          "end_char": 150,
+          "text_snippet": "hearing loss"
+        }
+      ]
+    }
+  ]
+}

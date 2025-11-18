@@ -1,0 +1,26 @@
+{
+  "doc_id": "GSC+_2893543",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "A female with cystic fibrosis and short stature was investigated for molecular or cytogenetic abnormalities that might explain the combined phenotype. Analysis with polymorphic DNA markers indicated that the father did not contribute alleles to the propositus for markers near the CF locus or for centromeric markers on chromosome 7. High-resolution cytogenetic analysis was normal, and the result could not be explained on the basis of nonpaternity or a submicroscopic deletion. All of the data indicate that the propositus inherited two identical copies of maternal sequences for much or all of chromosome 7. The occurrence of uniparental disomy could be explained by models postulating postfertilization error, gamete complementation, monosomic conception with subsequent chromosome gain, or trisomic conception followed by chromosome loss. Uniparental disomy in an individual with a normal chromosome analysis is a novel mechanism for the occurrence of human genetic disease.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 979,
+    "num_annotations": 1,
+    "conversion_date": "2025-11-18T13:13:16.441498"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0004322",
+      "label": "Short stature",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 34,
+          "end_char": 47,
+          "text_snippet": "short stature"
+        }
+      ]
+    }
+  ]
+}

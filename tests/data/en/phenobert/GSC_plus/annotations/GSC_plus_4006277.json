@@ -1,0 +1,110 @@
+{
+  "doc_id": "GSC+_4006277",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Branchio-oto-renal (BOR) syndrome is a developmental complex presenting with various combinations of ear pits, branchial cleft cysts, deafness and renal anomalies, which is inherited as an autosomal dominant trait. This report describes a father and 2 children with BOR syndrome in which gustatory lacrimation (GL) was also present in 2 of them. GL is considered to be a rare, non-hereditary type of anomalous, cranial nerve-end organ innervation. Since lacrimal stenosis, which can clinically mimic GL, is also a feature of the BOR syndrome, future reports require lacrimal reflex testing and duct patency evaluation to define this variation in the BOR phenotype.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 664,
+    "num_annotations": 8,
+    "conversion_date": "2025-11-18T13:13:16.980762"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0004467",
+      "label": "Preauricular pit",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 101,
+          "end_char": 109,
+          "text_snippet": "ear pits"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009796",
+      "label": "Branchial cyst",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 111,
+          "end_char": 132,
+          "text_snippet": "branchial cleft cysts"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000404",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 134,
+          "end_char": 142,
+          "text_snippet": "deafness"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000077",
+      "label": "Abnormality of the kidney",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 147,
+          "end_char": 162,
+          "text_snippet": "renal anomalies"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 189,
+          "end_char": 213,
+          "text_snippet": "autosomal dominant trait"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100274",
+      "label": "Gustatory lacrimation",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 288,
+          "end_char": 309,
+          "text_snippet": "gustatory lacrimation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001291",
+      "label": "Abnormal cranial nerve morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 411,
+          "end_char": 446,
+          "text_snippet": "cranial nerve-end organ innervation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0007925",
+      "label": "Lacrimal duct aplasia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 454,
+          "end_char": 471,
+          "text_snippet": "lacrimal stenosis"
+        }
+      ]
+    }
+  ]
+}

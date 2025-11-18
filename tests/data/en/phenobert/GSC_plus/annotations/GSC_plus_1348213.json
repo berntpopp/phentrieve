@@ -1,0 +1,143 @@
+{
+  "doc_id": "GSC+_1348213",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Gorlin syndrome is an autosomal dominant disorder that predisposes to basal cell carcinomas of the skin, ovarian fibromas, and medulloblastomas. Unlike other hereditary disorders associated with cancer, it features widespread developmental defects. To investigate the possibility that the syndrome is caused by mutation in a tumor suppressor gene, we searched for loss of heterozygosity in 16 sporadic basal cell carcinomas, 2 hereditary basal cell carcinomas, and 1 hereditary ovarian fibroma and performed genetic linkage studies in five Gorlin syndrome kindreds. Eleven sporadic basal cell carcinomas and all 3 hereditary tumors had allelic loss of chromosome 9q31, and all informative kindreds showed tight linkage between the Gorlin syndrome gene and a genetic marker in this region. Loss of heterozygosity at this chromosomal location, particularly in hereditary tumors, implies that the gene is homozygously inactivated and normally functions as a tumor suppressor. In contrast, hemizygous germline mutations lead to multiple congenital anomalies.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 1054,
+    "num_annotations": 7,
+    "conversion_date": "2025-11-18T13:13:15.010907"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 22,
+          "end_char": 49,
+          "text_snippet": "autosomal dominant disorder"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002671",
+      "label": "Basal cell carcinoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 70,
+          "end_char": 103,
+          "text_snippet": "basal cell carcinomas of the skin"
+        },
+        {
+          "start_char": 402,
+          "end_char": 423,
+          "text_snippet": "basal cell carcinomas"
+        },
+        {
+          "start_char": 438,
+          "end_char": 459,
+          "text_snippet": "basal cell carcinomas"
+        },
+        {
+          "start_char": 582,
+          "end_char": 603,
+          "text_snippet": "basal cell carcinomas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010618",
+      "label": "Ovarian fibroma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 105,
+          "end_char": 121,
+          "text_snippet": "ovarian fibromas"
+        },
+        {
+          "start_char": 478,
+          "end_char": 493,
+          "text_snippet": "ovarian fibroma"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002885",
+      "label": "Medulloblastoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 127,
+          "end_char": 143,
+          "text_snippet": "medulloblastomas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002664",
+      "label": "Neoplasm",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 195,
+          "end_char": 201,
+          "text_snippet": "cancer"
+        },
+        {
+          "start_char": 325,
+          "end_char": 330,
+          "text_snippet": "tumor"
+        },
+        {
+          "start_char": 625,
+          "end_char": 631,
+          "text_snippet": "tumors"
+        },
+        {
+          "start_char": 869,
+          "end_char": 875,
+          "text_snippet": "tumors"
+        },
+        {
+          "start_char": 955,
+          "end_char": 960,
+          "text_snippet": "tumor"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001263",
+      "label": "Global developmental delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 226,
+          "end_char": 247,
+          "text_snippet": "developmental defects"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003745",
+      "label": "Sporadic",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 393,
+          "end_char": 401,
+          "text_snippet": "sporadic"
+        },
+        {
+          "start_char": 573,
+          "end_char": 581,
+          "text_snippet": "sporadic"
+        }
+      ]
+    }
+  ]
+}

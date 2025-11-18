@@ -1,0 +1,74 @@
+{
+  "doc_id": "ID-68_17DG0766",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "A 13 years old boy who was born to first-degree cousins with a family history of a similar condition. He has a severe intellectual disability, autism, motor delay, absent speech and dysmorphic facial features. On examination, his current growth parameters were weight 60.8 kg (90th -95th percentile), height 159 cm (on 75th percentile) and head circumference 43 cm (<1st percentile). Other examinations were within normal limits. Brain MRI showed dysplastic corpus callosum.",
+  "metadata": {
+    "dataset": "ID-68",
+    "text_length_chars": 474,
+    "num_annotations": 5,
+    "conversion_date": "2025-11-18T13:13:20.252845"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0010864",
+      "label": "Intellectual disability, severe",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 111,
+          "end_char": 141,
+          "text_snippet": "severe intellectual disability"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000717",
+      "label": "Autism",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 143,
+          "end_char": 149,
+          "text_snippet": "autism"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001270",
+      "label": "Motor delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 151,
+          "end_char": 162,
+          "text_snippet": "motor delay"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001344",
+      "label": "Absent speech",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 164,
+          "end_char": 177,
+          "text_snippet": "absent speech"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001999",
+      "label": "Abnormal facial shape",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 182,
+          "end_char": 208,
+          "text_snippet": "dysmorphic facial features"
+        }
+      ]
+    }
+  ]
+}

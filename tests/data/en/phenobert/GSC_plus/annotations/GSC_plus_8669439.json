@@ -1,0 +1,171 @@
+{
+  "doc_id": "GSC+_8669439",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "The Townes-Brocks syndrome (TBS) is comprised of a triad including characteristic anal, thumb, and ear anomalies. There are many other organ system abnormalities which may be present. However, the literature does not emphasize craniofacial findings except with reference to the typical ear configuration. A three-generation family is described in which craniofacial manifestations were prominent and a Goldenhar-like condition was considered as the most likely diagnosis. However, with the recent birth of an affected male who had an imperforate anus, the diagnosis of TBS was also considered. The family manifests a variety of Goldenhar-like findings, including epibulbar dermoids, hemifacial microsomia, preauricular tags, macrostomia, and micrognathia in addition to classical ear, radial, and anal findings of TBS. We report on this family to point out a possible biological relationship of these two conditions.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 916,
+    "num_annotations": 11,
+    "conversion_date": "2025-11-18T13:13:18.301147"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0004378",
+      "label": "Abnormality of the anus",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 82,
+          "end_char": 112,
+          "text_snippet": "anal, thumb, and ear anomalies"
+        },
+        {
+          "start_char": 797,
+          "end_char": 810,
+          "text_snippet": "anal findings"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001172",
+      "label": "Abnormal thumb morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 88,
+          "end_char": 112,
+          "text_snippet": "thumb, and ear anomalies"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000598",
+      "label": "Abnormality of the ear",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 99,
+          "end_char": 112,
+          "text_snippet": "ear anomalies"
+        },
+        {
+          "start_char": 278,
+          "end_char": 303,
+          "text_snippet": "typical ear configuration"
+        },
+        {
+          "start_char": 780,
+          "end_char": 810,
+          "text_snippet": "ear, radial, and anal findings"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000118",
+      "label": "Phenotypic abnormality",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 135,
+          "end_char": 161,
+          "text_snippet": "organ system abnormalities"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000271",
+      "label": "Abnormality of the face",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 227,
+          "end_char": 248,
+          "text_snippet": "craniofacial findings"
+        },
+        {
+          "start_char": 353,
+          "end_char": 380,
+          "text_snippet": "craniofacial manifestations"
+        },
+        {
+          "start_char": 683,
+          "end_char": 704,
+          "text_snippet": "hemifacial microsomia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002023",
+      "label": "Anal atresia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 534,
+          "end_char": 550,
+          "text_snippet": "imperforate anus"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001140",
+      "label": "Limbal dermoid",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 663,
+          "end_char": 681,
+          "text_snippet": "epibulbar dermoids"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000384",
+      "label": "Preauricular skin tag",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 706,
+          "end_char": 723,
+          "text_snippet": "preauricular tags"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000181",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 725,
+          "end_char": 736,
+          "text_snippet": "macrostomia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000347",
+      "label": "Micrognathia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 742,
+          "end_char": 754,
+          "text_snippet": "micrognathia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002818",
+      "label": "Abnormal morphology of the radius",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 785,
+          "end_char": 810,
+          "text_snippet": "radial, and anal findings"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,218 @@
+{
+  "doc_id": "ID-68_17DG0771",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "A 14 months deceased girl who was born at 42 weeks gestational age via NSVD to a 32 years old mother following a pregnancy that was complicated by decreased fetal movements. After birth, she was found to have meconium stained amniotic fluid and respiratory distress that needed CPAP for 24 hours. The Apgar scores were 5, 6, 8 at the 1st, 5th, and 10th minutes, respectively, and her growth parameters at birth were weight 3.15 kg (25th-50th percentile), height 49 cm (25th-50th percentile) and head circumference 35 cm (on the 75th percentile). She developed persistent hypoglycemia since the first day of life that needed D10 and then D15. On the 20th day of life, she developed seizures despite optimal glycemic control. Developmentally, she has a profound developmental delay. Her parents are consanguineous with 4 other healthy children, and there is no family history of a similar condition. Her examination was significant for downslanting palpebral fissures, depressed nasal bridge, posteriorly rotated ears, long philtrum, small mouth, head lag, micrognathia, short neck, widely spaced nipples, overriding of the 4th toe on the left foot, varus deformity and poor visual contact. Her growth parameters at 14 months of age were weight 6 kg (<3rd percentile), height 65 cm (<3rd percentile) and head circumference 39 cm (<3rd percentile). Skeletal survey, abdominal US, CGH, newborn screen, urine organic acid, VLCFA, plasma amino acids, NH3 and lactic acids were all within normal limits. Brain MRI at 5 months of age showed delayed myelination and bilateral globus pallidus T2 hyperintensity.",
+  "metadata": {
+    "dataset": "ID-68",
+    "text_length_chars": 1601,
+    "num_annotations": 17,
+    "conversion_date": "2025-11-18T13:13:20.374218"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001558",
+      "label": "Decreased fetal movement",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 147,
+          "end_char": 172,
+          "text_snippet": "decreased fetal movements"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012420",
+      "label": "Meconium stained amniotic fluid",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 209,
+          "end_char": 240,
+          "text_snippet": "meconium stained amniotic fluid"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002098",
+      "label": "Respiratory distress",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 245,
+          "end_char": 265,
+          "text_snippet": "respiratory distress"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001943",
+      "label": "Hypoglycemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 571,
+          "end_char": 583,
+          "text_snippet": "hypoglycemia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001250",
+      "label": "Seizure",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 681,
+          "end_char": 689,
+          "text_snippet": "seizures"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012736",
+      "label": "Profound global developmental delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 751,
+          "end_char": 779,
+          "text_snippet": "profound developmental delay"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000494",
+      "label": "Downslanted palpebral fissures",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 934,
+          "end_char": 965,
+          "text_snippet": "downslanting palpebral fissures"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0005280",
+      "label": "Depressed nasal bridge",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 967,
+          "end_char": 989,
+          "text_snippet": "depressed nasal bridge"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000358",
+      "label": "Posteriorly rotated ears",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 991,
+          "end_char": 1015,
+          "text_snippet": "posteriorly rotated ears"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000343",
+      "label": "Long philtrum",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1017,
+          "end_char": 1030,
+          "text_snippet": "long philtrum"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000160",
+      "label": "Narrow mouth",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1032,
+          "end_char": 1043,
+          "text_snippet": "small mouth"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000347",
+      "label": "Micrognathia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1055,
+          "end_char": 1067,
+          "text_snippet": "micrognathia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000470",
+      "label": "Short neck",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1069,
+          "end_char": 1079,
+          "text_snippet": "short neck"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0006610",
+      "label": "Wide intermamillary distance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1081,
+          "end_char": 1102,
+          "text_snippet": "widely spaced nipples"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001845",
+      "label": "Overlapping toe",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1104,
+          "end_char": 1129,
+          "text_snippet": "overriding of the 4th toe"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000817",
+      "label": "Reduced eye contact",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1168,
+          "end_char": 1187,
+          "text_snippet": "poor visual contact"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012448",
+      "label": "Delayed myelination",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1533,
+          "end_char": 1552,
+          "text_snippet": "delayed myelination"
+        }
+      ]
+    }
+  ]
+}

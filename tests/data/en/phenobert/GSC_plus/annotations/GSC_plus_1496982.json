@@ -1,0 +1,163 @@
+{
+  "doc_id": "GSC+_1496982",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Neurofibromatosis type 2 (NF2) is an autosomal dominant syndrome characterized by the development of vestibular schwannomas and other tumors of the nervous system, including cranial and spinal meningiomas, schwannomas, and ependymomas. The presence of bilateral vestibular schwannomas is sufficient for the diagnosis. Skin manifestations are less common than in neurofibromatosis type 1 (NF1; von Recklinghausen disease). The apparent clinical distinction between NF1 and NF2 has been confirmed at the level of the gene locus by linkage studies; the gene for NF1 maps to chromosome 17, whereas the gene for NF2 has been assigned (in a single family) to chromosome 22. To increase the precision of the genetic mapping of NF2 and to determine whether additional susceptibility loci exist, we have performed linkage analysis on 12 families with NF2 by using four polymorphic markers from chromosome 22 and a marker at the NF1 locus on chromosome 17. Our results confirm the assignment of the gene for NF2 to chromosome 22 and do not support the hypothesis of genetic heterogeneity. We believe that chromosome 22 markers can now be used for presymptomatic diagnosis in selected families. The NF2 gene is tightly linked to the D22S32 locus (maximum lod score 4.12; recombination fraction 0). A CA-repeat polymorphism at the CRYB2 locus was the most informative marker in our families (lod score 5.99), but because the observed recombination fraction between NF2 and CRYB2 was 10 cM, predictions using this marker will need to be interpreted with caution.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 1549,
+    "num_annotations": 12,
+    "conversion_date": "2025-11-18T13:13:15.369930"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0006746",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 0,
+          "end_char": 17,
+          "text_snippet": "Neurofibromatosis"
+        },
+        {
+          "start_char": 362,
+          "end_char": 379,
+          "text_snippet": "neurofibromatosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 37,
+          "end_char": 55,
+          "text_snippet": "autosomal dominant"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009588",
+      "label": "Vestibular schwannoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 101,
+          "end_char": 123,
+          "text_snippet": "vestibular schwannomas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003008",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 128,
+          "end_char": 140,
+          "text_snippet": "other tumors"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004375",
+      "label": "Neoplasm of the nervous system",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 134,
+          "end_char": 162,
+          "text_snippet": "tumors of the nervous system"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100009",
+      "label": "Intracranial meningioma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 174,
+          "end_char": 204,
+          "text_snippet": "cranial and spinal meningiomas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100010",
+      "label": "Spinal meningioma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 186,
+          "end_char": 204,
+          "text_snippet": "spinal meningiomas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100008",
+      "label": "Schwannoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 206,
+          "end_char": 217,
+          "text_snippet": "schwannomas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002888",
+      "label": "Ependymoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 223,
+          "end_char": 234,
+          "text_snippet": "ependymomas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009589",
+      "label": "Bilateral vestibular schwannoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 252,
+          "end_char": 284,
+          "text_snippet": "bilateral vestibular schwannomas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000951",
+      "label": "Abnormality of the skin",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 318,
+          "end_char": 337,
+          "text_snippet": "Skin manifestations"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001425",
+      "label": "obsolete Heterogeneous",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1056,
+          "end_char": 1077,
+          "text_snippet": "genetic heterogeneity"
+        }
+      ]
+    }
+  ]
+}

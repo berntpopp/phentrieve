@@ -1,0 +1,98 @@
+{
+  "doc_id": "ID-68_11DG1842",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "This is a baby girl who was born at 36 weeks gestational age via C-section to primigravid 24 years old healthy mother. She was admitted to NICU for symmetric IUGR and mild respiratory distress. Apgar scores were 8 and 9 at 1 and 5 minutes, respectively, and growth parameters at birth were weight 1.92 kg (<1st percentile), length 48 cm (25th-50th percentile) and OFC 29.5 cm (<1st percentile). On examination, her dysmorphic features include oligodactyly and dysplasia of the digits in the right hand (4 digits), Cutis aplasia in the scalp, posteriorly rotated ears, prominent nose and micrognathia. Her last growth parameters were all below 3rd percentile, and other examinations were within normal limits. Brain MRI was reported to be within normal limits. Skeletal survey showed 5 metacarpals with 3 hypoplastic fingers in the right hand as well as a claw appearance of a part of the little finger. The left hand is unremarkable. ",
+  "metadata": {
+    "dataset": "ID-68",
+    "text_length_chars": 934,
+    "num_annotations": 7,
+    "conversion_date": "2025-11-18T13:13:19.217042"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001511",
+      "label": "Intrauterine growth retardation",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 158,
+          "end_char": 162,
+          "text_snippet": "IUGR"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002098",
+      "label": "Respiratory distress",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 172,
+          "end_char": 192,
+          "text_snippet": "respiratory distress"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012165",
+      "label": "Oligodactyly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 443,
+          "end_char": 455,
+          "text_snippet": "oligodactyly"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000358",
+      "label": "Posteriorly rotated ears",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 542,
+          "end_char": 566,
+          "text_snippet": "posteriorly rotated ears"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000448",
+      "label": "Prominent nose",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 568,
+          "end_char": 582,
+          "text_snippet": "prominent nose"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000347",
+      "label": "Micrognathia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 587,
+          "end_char": 599,
+          "text_snippet": "micrognathia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009381",
+      "label": "Short finger",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 802,
+          "end_char": 841,
+          "text_snippet": "3 hypoplastic fingers in the right hand"
+        }
+      ]
+    }
+  ]
+}

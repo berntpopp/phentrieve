@@ -1,0 +1,60 @@
+{
+  "doc_id": "GSC+_391043",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Short stature may be a component of the brachydactyly C syndrome. A family is presented in which the propositus has brachydactyly C, short stature, and hip dysplasia.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 166,
+    "num_annotations": 3,
+    "conversion_date": "2025-11-18T13:13:16.932151"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0004322",
+      "label": "Short stature",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 0,
+          "end_char": 13,
+          "text_snippet": "Short stature"
+        },
+        {
+          "start_char": 133,
+          "end_char": 146,
+          "text_snippet": "short stature"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009373",
+      "label": "Type C brachydactyly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 40,
+          "end_char": 55,
+          "text_snippet": "brachydactyly C"
+        },
+        {
+          "start_char": 116,
+          "end_char": 131,
+          "text_snippet": "brachydactyly C"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001385",
+      "label": "Hip dysplasia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 152,
+          "end_char": 165,
+          "text_snippet": "hip dysplasia"
+        }
+      ]
+    }
+  ]
+}

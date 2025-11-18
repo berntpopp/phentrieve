@@ -1,0 +1,98 @@
+{
+  "doc_id": "ID-68_16DG1625",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "A 5 years old girl with swallowing difficulty, recurrent chest infections and developmental delay. She can only say 4 words. Her parents are first-degree cousins, and there is no family history of a similar condition. Her growth parameters at 5 years of age were weight 9.4 kg, height 82.5 cm and head circumference 46 cm, all below the 3rd percentile. Her physical examination was significant for a blue sclera, hypotonia and hyporeflexia. Vision and hearing were normal, and other examinations were within normal limits. The brain MRI was grossly normal with diffuse T-2 hyperintensity in subcortical white matter. ",
+  "metadata": {
+    "dataset": "ID-68",
+    "text_length_chars": 617,
+    "num_annotations": 7,
+    "conversion_date": "2025-11-18T13:13:20.152141"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0200136",
+      "label": "Oral-pharyngeal dysphagia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 24,
+          "end_char": 45,
+          "text_snippet": "swallowing difficulty"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002783",
+      "label": "Recurrent lower respiratory tract infections",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 47,
+          "end_char": 73,
+          "text_snippet": "recurrent chest infections"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001263",
+      "label": "Global developmental delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 78,
+          "end_char": 97,
+          "text_snippet": "developmental delay"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000592",
+      "label": "Blue sclerae",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 398,
+          "end_char": 411,
+          "text_snippet": "a blue sclera"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001290",
+      "label": "Generalized hypotonia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 413,
+          "end_char": 422,
+          "text_snippet": "hypotonia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001265",
+      "label": "Hyporeflexia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 427,
+          "end_char": 439,
+          "text_snippet": "hyporeflexia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0030890",
+      "label": "Hyperintensity of cerebral white matter on MRI",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 573,
+          "end_char": 615,
+          "text_snippet": "hyperintensity in subcortical white matter"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,157 @@
+{
+  "doc_id": "GSC+_15190457",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Neurofibromatosis 2 (NF2) is an autosomal dominant disease that is characterized by tumors on the vestibular branch of the VIII cranial nerve, but other types of nervous system tumors usually occur as well. Genotype-phenotype correlations are well documented for overall NF2 disease severity but have not been definitively evaluated for specific types of non-VIII nerve tumors. We evaluated genotype-phenotype correlations for various types of non-VIII nerve tumors in 406 patients from the population-based United Kingdom NF2 registry, using regression models with the additional covariates of current age and type of treatment center (specialty or nonspecialty). The models also permitted consideration of intrafamilial correlation. We found statistically significant genotype-phenotype correlations for intracranial meningiomas, spinal tumors, and peripheral nerve tumors. People with constitutional NF2 missense mutations, splice-site mutations, large deletions, or somatic mosaicism had significantly fewer tumors than did people with constitutional nonsense or frameshift NF2 mutations. In addition, there were significant intrafamilial correlations for intracranial meningiomas and spinal tumors, after adjustment for the type of constitutional NF2 mutation. The type of constitutional NF2 mutation is an important determinant of the number of NF2-associated intracranial meningiomas, spinal tumors, and peripheral nerve tumors.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 1435,
+    "num_annotations": 9,
+    "conversion_date": "2025-11-18T13:13:15.410843"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0006746",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 0,
+          "end_char": 17,
+          "text_snippet": "Neurofibromatosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 32,
+          "end_char": 50,
+          "text_snippet": "autosomal dominant"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009591",
+      "label": "Abnorma vestibulocochlear nerve morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 84,
+          "end_char": 141,
+          "text_snippet": "tumors on the vestibular branch of the VIII cranial nerve"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004375",
+      "label": "Neoplasm of the nervous system",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 162,
+          "end_char": 183,
+          "text_snippet": "nervous system tumors"
+        },
+        {
+          "start_char": 364,
+          "end_char": 376,
+          "text_snippet": "nerve tumors"
+        },
+        {
+          "start_char": 453,
+          "end_char": 465,
+          "text_snippet": "nerve tumors"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100009",
+      "label": "Intracranial meningioma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 806,
+          "end_char": 830,
+          "text_snippet": "intracranial meningiomas"
+        },
+        {
+          "start_char": 1160,
+          "end_char": 1184,
+          "text_snippet": "intracranial meningiomas"
+        },
+        {
+          "start_char": 1366,
+          "end_char": 1390,
+          "text_snippet": "intracranial meningiomas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010302",
+      "label": "Spinal cord tumor",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 832,
+          "end_char": 845,
+          "text_snippet": "spinal tumors"
+        },
+        {
+          "start_char": 1189,
+          "end_char": 1202,
+          "text_snippet": "spinal tumors"
+        },
+        {
+          "start_char": 1392,
+          "end_char": 1405,
+          "text_snippet": "spinal tumors"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100007",
+      "label": "Neoplasm of the peripheral nervous system",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 851,
+          "end_char": 874,
+          "text_snippet": "peripheral nerve tumors"
+        },
+        {
+          "start_char": 1411,
+          "end_char": 1434,
+          "text_snippet": "peripheral nerve tumors"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001442",
+      "label": "Typified by somatic mosaicism",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 970,
+          "end_char": 987,
+          "text_snippet": "somatic mosaicism"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002664",
+      "label": "Neoplasm",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1012,
+          "end_char": 1018,
+          "text_snippet": "tumors"
+        }
+      ]
+    }
+  ]
+}

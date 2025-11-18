@@ -1,0 +1,286 @@
+{
+  "doc_id": "GeneReviews_NBK164500",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Summary:\nGLB1-related disorders comprise two phenotypically distinct lysosomal storage disorders: GM1 gangliosidosis and mucopolysaccharidosis type IVB (MPS IVB).GM1 gangliosidosis includes phenotypes that range from severe to mild. Type I (infantile) begins before age one year; progressive central nervous system dysfunction leads to spasticity, deafness, blindness, and decerebrate rigidity. Life expectancy is two to three years. Type II can be subdivided into the late-infantile form and juvenile form. Type II, late-infantile form begins between ages one and three years; life expectancy is five to ten years. Type II, juvenile form begins between ages three and ten years with insidious plateauing of motor and cognitive development followed by slow regression. Type II may or may not include skeletal dysplasia. Type III begins in the second to third decade with extrapyramidal signs, gait disturbance, and cardiomyopathy; and can be misidentified as Parkinson disease. Intellectual impairment is common late in the disease; skeletal involvement includes short stature, kyphosis, and scoliosis of varying severity.MPS IVB is characterized by skeletal changes, including short stature and skeletal dysplasia. Affected children have no distinctive clinical findings at birth. The severe form is usually apparent between ages one and three years, and the attenuated form in late childhood or adolescence. In addition to skeletal involvement, significant morbidity can result from respiratory compromise, obstructive sleep apnea, valvular heart disease, hearing impairment, corneal clouding, and spinal cord compression. Intellect is normal unless spinal cord compression leads to central nervous system compromise.\nDescription:\nGLB1-related disorders comprise two phenotypically distinct disorders: GM1 gangliosidosis and mucopolysaccharidosis type IVB (MPS IVB).\n",
+  "metadata": {
+    "dataset": "GeneReviews",
+    "text_length_chars": 1869,
+    "num_annotations": 21,
+    "conversion_date": "2025-11-18T13:13:20.763769"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0004356",
+      "label": "Abnormality of lysosomal metabolism",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 69,
+          "end_char": 96,
+          "text_snippet": "lysosomal storage disorders"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0020160",
+      "label": "GM1-ganglioside accumulation",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 98,
+          "end_char": 116,
+          "text_snippet": "GM1 gangliosidosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001257",
+      "label": "Spasticity",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 336,
+          "end_char": 346,
+          "text_snippet": "spasticity"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000365",
+      "label": "Hearing impairment",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 348,
+          "end_char": 356,
+          "text_snippet": "deafness"
+        },
+        {
+          "start_char": 1558,
+          "end_char": 1576,
+          "text_snippet": "hearing impairment"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000618",
+      "label": "Blindness",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 358,
+          "end_char": 367,
+          "text_snippet": "blindness"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0025013",
+      "label": "Decerebrate rigidity",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 373,
+          "end_char": 393,
+          "text_snippet": "decerebrate rigidity"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001263",
+      "label": "Global developmental delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 718,
+          "end_char": 739,
+          "text_snippet": "cognitive development"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002652",
+      "label": "Skeletal dysplasia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 800,
+          "end_char": 818,
+          "text_snippet": "skeletal dysplasia"
+        },
+        {
+          "start_char": 1196,
+          "end_char": 1214,
+          "text_snippet": "skeletal dysplasia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002071",
+      "label": "Abnormality of extrapyramidal motor function",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 871,
+          "end_char": 891,
+          "text_snippet": "extrapyramidal signs"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001288",
+      "label": "Gait disturbance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 893,
+          "end_char": 909,
+          "text_snippet": "gait disturbance"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001638",
+      "label": "Cardiomyopathy",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 915,
+          "end_char": 929,
+          "text_snippet": "cardiomyopathy"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100543",
+      "label": "Cognitive impairment",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 978,
+          "end_char": 1011,
+          "text_snippet": "Intellectual impairment is common"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004322",
+      "label": "Short stature",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1063,
+          "end_char": 1076,
+          "text_snippet": "short stature"
+        },
+        {
+          "start_char": 1178,
+          "end_char": 1191,
+          "text_snippet": "short stature"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002808",
+      "label": "Kyphosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1078,
+          "end_char": 1086,
+          "text_snippet": "kyphosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002650",
+      "label": "Scoliosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1092,
+          "end_char": 1101,
+          "text_snippet": "scoliosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002093",
+      "label": "Respiratory insufficiency",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1485,
+          "end_char": 1507,
+          "text_snippet": "respiratory compromise"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002870",
+      "label": "Obstructive sleep apnea",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1509,
+          "end_char": 1532,
+          "text_snippet": "obstructive sleep apnea"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001654",
+      "label": "Abnormal heart valve morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1534,
+          "end_char": 1556,
+          "text_snippet": "valvular heart disease"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0007957",
+      "label": "Corneal opacity",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1578,
+          "end_char": 1594,
+          "text_snippet": "corneal clouding"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002176",
+      "label": "Spinal cord compression",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1600,
+          "end_char": 1623,
+          "text_snippet": "spinal cord compression"
+        },
+        {
+          "start_char": 1652,
+          "end_char": 1675,
+          "text_snippet": "spinal cord compression"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000707",
+      "label": "Abnormality of the nervous system",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1685,
+          "end_char": 1718,
+          "text_snippet": "central nervous system compromise"
+        }
+      ]
+    }
+  ]
+}

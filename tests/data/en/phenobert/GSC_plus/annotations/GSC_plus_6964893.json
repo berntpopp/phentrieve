@@ -1,0 +1,224 @@
+{
+  "doc_id": "GSC+_6964893",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Several pedigrees with 19 new cases of the earpits-deafness syndrome (McK +12510) [28] are presented. Mention is made of clinical findings obtained in audiometric and vestibular studies, studies of renal function and configuration and polytomographic studies of the labyrinth, and results of exploratory tympanotomies are discussed. The literature is reviewed and the features found in 138 cases and in our 19 cases are presented. The earpits-deafness syndrome is an autosomal dominant disorder in which affected individuals may have sensorineural, conductive or mixed hearing loss, preauricular pits, structural defects of the outer, middle and inner ear, lacrimal duct stenosis, branchial fistulas or cysts of the second branchial arch, and renal anomalies ranging from mild hypoplasia to complete absence. Not all the features of the syndrome are expressed in all carriers of the gene. Pits, branchial clefts and hearing loss are frequently expressed. The incidence of renal malformation is higher, as mentioned earlier in the literature. The poor results of exploratory tympanotomies are discussed. On the basis of personal observations as well as in view of data from the literature it is maintained that the BOR (branchio-oto-renal dysplasia) syndrome [12,30-32] and the BO (branchio-oto dysplasia) syndrome are in fact the same affection. It is also maintained that no separate syndromes can be distinguished on the basis of the type of hearing loss. The present knowledge of the syndrome is summarized in terms of the information available for genetic counselling.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 1572,
+    "num_annotations": 15,
+    "conversion_date": "2025-11-18T13:13:17.239899"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0004467",
+      "label": "Preauricular pit",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 43,
+          "end_char": 50,
+          "text_snippet": "earpits"
+        },
+        {
+          "start_char": 435,
+          "end_char": 442,
+          "text_snippet": "earpits"
+        },
+        {
+          "start_char": 583,
+          "end_char": 600,
+          "text_snippet": "preauricular pits"
+        },
+        {
+          "start_char": 889,
+          "end_char": 893,
+          "text_snippet": "Pits"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000404",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 51,
+          "end_char": 59,
+          "text_snippet": "deafness"
+        },
+        {
+          "start_char": 443,
+          "end_char": 451,
+          "text_snippet": "deafness"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 467,
+          "end_char": 494,
+          "text_snippet": "autosomal dominant disorder"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000407",
+      "label": "Sensorineural hearing impairment",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 534,
+          "end_char": 581,
+          "text_snippet": "sensorineural, conductive or mixed hearing loss"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000405",
+      "label": "Conductive hearing impairment",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 549,
+          "end_char": 581,
+          "text_snippet": "conductive or mixed hearing loss"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000410",
+      "label": "Mixed hearing impairment",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 563,
+          "end_char": 581,
+          "text_snippet": "mixed hearing loss"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000359",
+      "label": "Abnormality of the inner ear",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 613,
+          "end_char": 655,
+          "text_snippet": "defects of the outer, middle and inner ear"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0007925",
+      "label": "Lacrimal duct aplasia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 657,
+          "end_char": 679,
+          "text_snippet": "lacrimal duct stenosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009795",
+      "label": "Branchial fistula",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 681,
+          "end_char": 699,
+          "text_snippet": "branchial fistulas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009796",
+      "label": "Branchial cyst",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 681,
+          "end_char": 708,
+          "text_snippet": "branchial fistulas or cysts"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009794",
+      "label": "Branchial anomaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 723,
+          "end_char": 732,
+          "text_snippet": "branchial"
+        },
+        {
+          "start_char": 895,
+          "end_char": 911,
+          "text_snippet": "branchial clefts"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000077",
+      "label": "Abnormality of the kidney",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 743,
+          "end_char": 758,
+          "text_snippet": "renal anomalies"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000365",
+      "label": "Hearing impairment",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 916,
+          "end_char": 928,
+          "text_snippet": "hearing loss"
+        },
+        {
+          "start_char": 1444,
+          "end_char": 1456,
+          "text_snippet": "hearing loss"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000792",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 972,
+          "end_char": 990,
+          "text_snippet": "renal malformation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000110",
+      "label": "Renal dysplasia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1232,
+          "end_char": 1247,
+          "text_snippet": "renal dysplasia"
+        }
+      ]
+    }
+  ]
+}

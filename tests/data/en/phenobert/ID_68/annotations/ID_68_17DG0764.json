@@ -1,0 +1,67 @@
+{
+  "doc_id": "ID-68_17DG0764",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "A 14 months old girl with hypotonia and global developmental delay. Her family history is significant for one affected sister and two abortions. The pregnancy and delivery were uneventful. She has a global developmental delay affecting all domains. On examination, she has no dysmorphic features, and she is interactive and following. Her head circumference at 14 months of age was 46 cm (50th-75th percentile). Her neurological evaluation was significant for severe hypotonia and hyporeflexia.",
+  "metadata": {
+    "dataset": "ID-68",
+    "text_length_chars": 494,
+    "num_annotations": 4,
+    "conversion_date": "2025-11-18T13:13:20.214904"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001290",
+      "label": "Generalized hypotonia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 26,
+          "end_char": 35,
+          "text_snippet": "hypotonia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001263",
+      "label": "Global developmental delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 40,
+          "end_char": 66,
+          "text_snippet": "global developmental delay"
+        },
+        {
+          "start_char": 199,
+          "end_char": 225,
+          "text_snippet": "global developmental delay"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0006829",
+      "label": "Severe muscular hypotonia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 460,
+          "end_char": 476,
+          "text_snippet": "severe hypotonia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001265",
+      "label": "Hyporeflexia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 481,
+          "end_char": 493,
+          "text_snippet": "hyporeflexia"
+        }
+      ]
+    }
+  ]
+}

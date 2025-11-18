@@ -1,0 +1,201 @@
+{
+  "doc_id": "GSC+_11382639",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "To describe the ophthalmic and systemic features in a series of patients initially seen with eyelid basal cell carcinoma associated with Gorlin-Goltz syndrome.\n\nRetrospective noncomparative case series.\n\nOf 105 consecutive patients with eyelid basal cell carcinoma managed at an Ocular Oncology Center between January 1973 and December 1999, four patients with Gorlin-Goltz syndrome were identified.\n\nThe ophthalmic and systemic features, management, and outcome of patients with eyelid basal cell carcinoma associated with Gorlin-Goltz syndrome were analyzed. The published literature on Gorlin-Goltz syndrome, specifically related to genetics, systemic features, ophthalmic associations, and prophylactic management strategies, was reviewed.\n\nResponse of the eyelid basal cell carcinoma to treatment and the final systemic condition were the main outcome measures.\n\nAll four patients had a family history of Gorlin-Goltz syndrome. The systemic manifestations included multiple basal cell carcinomas in all the patients, frontal bossing or increased occipitofrontal circumference in three patients, palmar pits in two patients, odontogenic keratocyst in one patient, ectopic calcification in one patient, and bifid rib in one patient. The mean age at the detection of the first basal cell carcinoma was 30 years (range, 16-38 years). All four patients had multiple basal cell carcinomas on the face and elsewhere. The eyelid basal cell carcinoma was advanced with orbital infiltration in three patients, one of whom opted for palliative radiotherapy, whereas the other two underwent orbital exenteration. The fourth patient, who had localized recurrent basal cell carcinoma in the upper eyelid, was treated with excision and eyelid reconstruction. At the final follow-up (mean, 41 months), eyelid basal cell carcinoma was cured in three patients and stable in one patient. No patient had life-threatening sequelae of Gorlin-Goltz syndrome.\n\nGorlin-Goltz syndrome is a rare autosomal dominant cancer predisposition syndrome that may be associated with eyelid basal cell carcinoma. The associated systemic findings may be a clue to the diagnosis of this condition. It is important to recognize Gorlin-Goltz syndrome when a patient has multiple basal cell carcinomas or when a young patient with eyelid basal cell carcinoma is seen by an ophthalmologist, because lifelong monitoring is essential for patient management.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 2417,
+    "num_annotations": 11,
+    "conversion_date": "2025-11-18T13:13:14.520567"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0002671",
+      "label": "Basal cell carcinoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 100,
+          "end_char": 120,
+          "text_snippet": "basal cell carcinoma"
+        },
+        {
+          "start_char": 244,
+          "end_char": 264,
+          "text_snippet": "basal cell carcinoma"
+        },
+        {
+          "start_char": 487,
+          "end_char": 507,
+          "text_snippet": "basal cell carcinoma"
+        },
+        {
+          "start_char": 768,
+          "end_char": 788,
+          "text_snippet": "basal cell carcinoma"
+        },
+        {
+          "start_char": 979,
+          "end_char": 1000,
+          "text_snippet": "basal cell carcinomas"
+        },
+        {
+          "start_char": 1279,
+          "end_char": 1299,
+          "text_snippet": "basal cell carcinoma"
+        },
+        {
+          "start_char": 1426,
+          "end_char": 1446,
+          "text_snippet": "basal cell carcinoma"
+        },
+        {
+          "start_char": 1654,
+          "end_char": 1674,
+          "text_snippet": "basal cell carcinoma"
+        },
+        {
+          "start_char": 1798,
+          "end_char": 1818,
+          "text_snippet": "basal cell carcinoma"
+        },
+        {
+          "start_char": 2059,
+          "end_char": 2079,
+          "text_snippet": "basal cell carcinoma"
+        },
+        {
+          "start_char": 2243,
+          "end_char": 2264,
+          "text_snippet": "basal cell carcinomas"
+        },
+        {
+          "start_char": 2301,
+          "end_char": 2321,
+          "text_snippet": "basal cell carcinoma"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002007",
+      "label": "Frontal bossing",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1022,
+          "end_char": 1037,
+          "text_snippet": "frontal bossing"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000256",
+      "label": "Macrocephaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1041,
+          "end_char": 1080,
+          "text_snippet": "increased occipitofrontal circumference"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010610",
+      "label": "Palmar pits",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1100,
+          "end_char": 1111,
+          "text_snippet": "palmar pits"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010603",
+      "label": "Odontogenic keratocysts of the jaw",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1129,
+          "end_char": 1151,
+          "text_snippet": "odontogenic keratocyst"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010766",
+      "label": "Ectopic calcification",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1168,
+          "end_char": 1189,
+          "text_snippet": "ectopic calcification"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000892",
+      "label": "Bifid ribs",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1210,
+          "end_char": 1219,
+          "text_snippet": "bifid rib"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000271",
+      "label": "Abnormality of the face",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1366,
+          "end_char": 1399,
+          "text_snippet": "basal cell carcinomas on the face"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1974,
+          "end_char": 1992,
+          "text_snippet": "autosomal dominant"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002664",
+      "label": "Neoplasm",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1993,
+          "end_char": 1999,
+          "text_snippet": "cancer"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003593",
+      "label": "Infantile onset",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2275,
+          "end_char": 2280,
+          "text_snippet": "young"
+        }
+      ]
+    }
+  ]
+}

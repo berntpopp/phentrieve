@@ -1,0 +1,50 @@
+{
+  "doc_id": "GSC+_11152153",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "A 1-year-old male with branchio-oculo-facial syndrome together with preaxial polydatyly and a white forelock at birth is described. This is only the second case where preaxial polydactyly has been described in branchio-oculo-facial syndrome. In both cases a diagnosis of Waardenburg syndrome had been considered.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 312,
+    "num_annotations": 3,
+    "conversion_date": "2025-11-18T13:13:14.387650"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0100258",
+      "label": "Preaxial polydactyly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 68,
+          "end_char": 87,
+          "text_snippet": "preaxial polydatyly"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002211",
+      "label": "White forelock",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 94,
+          "end_char": 108,
+          "text_snippet": "white forelock"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001177",
+      "label": "Preaxial hand polydactyly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 167,
+          "end_char": 187,
+          "text_snippet": "preaxial polydactyly"
+        }
+      ]
+    }
+  ]
+}

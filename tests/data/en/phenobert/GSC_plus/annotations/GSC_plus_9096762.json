@@ -1,0 +1,133 @@
+{
+  "doc_id": "GSC+_9096762",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "We present an 8-year-old African-American boy with medulloblastoma and nevoid basal cell carcinoma syndrome (NBCCS) who exhibited the radiosensitive response of basal cell carcinoma (BCC) formation in the area irradiated for medulloblastoma. Such a response is well-documented in Caucasian NBCCS patients with medulloblastoma. The propositus was diagnosed with medulloblastoma at the age of 2 years and underwent surgery, chemotherapy, and craniospinal irradiation. At the age of 6 years, he was diagnosed with NBCCS following his presentation with a large odontogenic keratocyst of the mandible, pits of the palms and soles and numerous BCCs in the area of the back and neck that had been irradiated previously for medulloblastoma. Examination of other relatives showed that the propositus' mother also had NBCCS but was more mildly affected; in particular, she had no BCCs. This case illustrates complex gene-environment interaction, in that increased skin pigmentation in African-Americans is presumably protective against ultraviolet, but not ionizing, radiation. This case and other similar cases in the literature show the importance of considering NBCCS in the differential diagnosis of any patient who presents with a medulloblastoma, especially before the age of 5 years, and of examining other close relatives for signs of NBCCS to determine the patient's at-risk status. Finally, for individuals who are radiosensitive, protocols that utilize chemotherapy in lieu of radiotherapy should be considered.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 1512,
+    "num_annotations": 7,
+    "conversion_date": "2025-11-18T13:13:18.682777"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0002885",
+      "label": "Medulloblastoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 51,
+          "end_char": 66,
+          "text_snippet": "medulloblastoma"
+        },
+        {
+          "start_char": 225,
+          "end_char": 240,
+          "text_snippet": "medulloblastoma"
+        },
+        {
+          "start_char": 310,
+          "end_char": 325,
+          "text_snippet": "medulloblastoma"
+        },
+        {
+          "start_char": 361,
+          "end_char": 376,
+          "text_snippet": "medulloblastoma"
+        },
+        {
+          "start_char": 716,
+          "end_char": 731,
+          "text_snippet": "medulloblastoma"
+        },
+        {
+          "start_char": 1226,
+          "end_char": 1241,
+          "text_snippet": "medulloblastoma"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002671",
+      "label": "Basal cell carcinoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 78,
+          "end_char": 98,
+          "text_snippet": "basal cell carcinoma"
+        },
+        {
+          "start_char": 161,
+          "end_char": 181,
+          "text_snippet": "basal cell carcinoma"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003079",
+      "label": "Defective DNA repair after ultraviolet radiation damage",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 134,
+          "end_char": 157,
+          "text_snippet": "radiosensitive response"
+        },
+        {
+          "start_char": 1415,
+          "end_char": 1429,
+          "text_snippet": "radiosensitive"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010603",
+      "label": "Odontogenic keratocysts of the jaw",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 557,
+          "end_char": 595,
+          "text_snippet": "odontogenic keratocyst of the mandible"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010610",
+      "label": "Palmar pits",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 597,
+          "end_char": 614,
+          "text_snippet": "pits of the palms"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010612",
+      "label": "Plantar pits",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 597,
+          "end_char": 624,
+          "text_snippet": "pits of the palms and soles"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000953",
+      "label": "Hyperpigmentation of the skin",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 944,
+          "end_char": 971,
+          "text_snippet": "increased skin pigmentation"
+        }
+      ]
+    }
+  ]
+}

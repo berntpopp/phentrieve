@@ -1,0 +1,60 @@
+{
+  "doc_id": "GSC+_8001963",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Nevoid basal cell carcinoma syndrome (NBCCS, or Gorlin syndrome) is a cancer predisposition syndrome characterized by multiple basal cell carcinomas and diverse developmental defects. The gene responsible for NBCCS, which is most likely to be a tumor suppressor gene, has previously been mapped to 9q22.3-q31 in a 12-cM interval between the microsatellite marker loci D9S12.1 and D9S109. Combined multipoint and haplotype analyses of additional polymorphisms in this region in our collection of Australasian pedigrees have further refined the localization of the gene to between the markers D9S196 and D9S180, an interval reported to be approximately 2 cM.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 656,
+    "num_annotations": 3,
+    "conversion_date": "2025-11-18T13:13:17.810330"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0002671",
+      "label": "Basal cell carcinoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 7,
+          "end_char": 27,
+          "text_snippet": "basal cell carcinoma"
+        },
+        {
+          "start_char": 127,
+          "end_char": 148,
+          "text_snippet": "basal cell carcinomas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002664",
+      "label": "Neoplasm",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 70,
+          "end_char": 76,
+          "text_snippet": "cancer"
+        },
+        {
+          "start_char": 245,
+          "end_char": 250,
+          "text_snippet": "tumor"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001263",
+      "label": "Global developmental delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 161,
+          "end_char": 182,
+          "text_snippet": "developmental defects"
+        }
+      ]
+    }
+  ]
+}

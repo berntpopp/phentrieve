@@ -1,0 +1,110 @@
+{
+  "doc_id": "ID-68_14DG2158",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "A 10 years old boy who was born at full term via NSVD as part of a twin gestation following an uneventful pregnancy. Developmentally, he had a global developmental delay. He started to walk at the age of 5 years with ataxic gait, and he also was delayed in his speech. His speech is currently difficult to understand. His parents are first-degree cousins with another two affected sons. Physical examination revealed subtle dysmorphic features in the form of an elongated face, large prominent ears and high-arched palate without neurocutaneous marks. He has hypertonia and hyperreflexia in all extremities, but other examinations were within normal limits. MRI brain and cervical spine showed moderately decreased peritrigonal cerebral white matter with thinning of the body of the corpus callosum and focal syrinx in mid thoracic region.",
+  "metadata": {
+    "dataset": "ID-68",
+    "text_length_chars": 839,
+    "num_annotations": 8,
+    "conversion_date": "2025-11-18T13:13:19.514628"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001263",
+      "label": "Global developmental delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 143,
+          "end_char": 169,
+          "text_snippet": "global developmental delay"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002066",
+      "label": "Gait ataxia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 212,
+          "end_char": 228,
+          "text_snippet": "with ataxic gait"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000750",
+      "label": "Delayed speech and language development",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 246,
+          "end_char": 267,
+          "text_snippet": "delayed in his speech"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000276",
+      "label": "Long face",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 435,
+          "end_char": 476,
+          "text_snippet": "features in the form of an elongated face"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000411",
+      "label": "Protruding ear",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 478,
+          "end_char": 498,
+          "text_snippet": "large prominent ears"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001276",
+      "label": "Hypertonia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 559,
+          "end_char": 569,
+          "text_snippet": "hypertonia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001347",
+      "label": "Hyperreflexia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 574,
+          "end_char": 587,
+          "text_snippet": "hyperreflexia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003396",
+      "label": "Syringomyelia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 809,
+          "end_char": 815,
+          "text_snippet": "syrinx"
+        }
+      ]
+    }
+  ]
+}

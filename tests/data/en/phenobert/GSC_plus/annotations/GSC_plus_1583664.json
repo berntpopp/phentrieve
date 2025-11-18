@@ -1,0 +1,62 @@
+{
+  "doc_id": "GSC+_1583664",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "A four generation autosomal dominant pedigree of brachydactyly type C is presented with its radiological features. The hands and feet were similarly affected. All the subjects showing these changes had shortening of the big toes and, in addition, had cupped ears.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 263,
+    "num_annotations": 4,
+    "conversion_date": "2025-11-18T13:13:15.499655"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 18,
+          "end_char": 36,
+          "text_snippet": "autosomal dominant"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009373",
+      "label": "Type C brachydactyly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 49,
+          "end_char": 69,
+          "text_snippet": "brachydactyly type C"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010109",
+      "label": "Short hallux",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 202,
+          "end_char": 228,
+          "text_snippet": "shortening of the big toes"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000378",
+      "label": "Cupped ear",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 251,
+          "end_char": 262,
+          "text_snippet": "cupped ears"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,134 @@
+{
+  "doc_id": "GSC+_10482951",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "The clinical features of Angelman syndrome (AS) comprise severe mental retardation, postnatal microcephaly, macrostomia and prognathia, absence of speech, ataxia, and a happy disposition. We report on seven patients who lack most of these features, but presented with obesity, muscular hypotonia and mild mental retardation. Based on the latter findings, the patients were initially suspected of having Prader-Willi syndrome. DNA methylation analysis of SNRPN and D15S63, however, revealed an AS pattern, ie the maternal band was faint or absent. Cytogenetic studies and microsatellite analysis demonstrated apparently normal chromosomes 15 of biparental inheritance. We conclude that these patients have an imprinting defect and a previously unrecognised form of AS. The mild phenotype may be explained by an incomplete imprinting defect or by cellular mosaicism.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 864,
+    "num_annotations": 10,
+    "conversion_date": "2025-11-18T13:13:14.135499"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0002187",
+      "label": "Intellectual disability, profound",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 57,
+          "end_char": 82,
+          "text_snippet": "severe mental retardation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0005484",
+      "label": "Secondary microcephaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 84,
+          "end_char": 106,
+          "text_snippet": "postnatal microcephaly"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000181",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 108,
+          "end_char": 119,
+          "text_snippet": "macrostomia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000303",
+      "label": "Mandibular prognathia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 124,
+          "end_char": 134,
+          "text_snippet": "prognathia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001617",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 136,
+          "end_char": 153,
+          "text_snippet": "absence of speech"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001251",
+      "label": "Ataxia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 155,
+          "end_char": 161,
+          "text_snippet": "ataxia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100024",
+      "label": "Conspicuously happy disposition",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 169,
+          "end_char": 186,
+          "text_snippet": "happy disposition"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001513",
+      "label": "Obesity",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 268,
+          "end_char": 275,
+          "text_snippet": "obesity"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001252",
+      "label": "Hypotonia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 277,
+          "end_char": 295,
+          "text_snippet": "muscular hypotonia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001256",
+      "label": "Intellectual disability, mild",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 300,
+          "end_char": 323,
+          "text_snippet": "mild mental retardation"
+        }
+      ]
+    }
+  ]
+}

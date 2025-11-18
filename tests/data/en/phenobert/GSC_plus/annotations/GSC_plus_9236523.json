@@ -1,0 +1,201 @@
+{
+  "doc_id": "GSC+_9236523",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "To evaluate patients with multiple endocrine neoplasia type 1 (MEN 1) for cutaneous manifestations.\n\nSurvey during a 3-year period.\n\nThe National Institutes of Health, a tertiary referral research hospital in Bethesda Md.\n\nA consecutive sample of 32 individuals with previously diagnosed MEN1 who were not preselected for the presence of skin lesions were examined for cutaneous abnormalities. None of the patients or family members were diagnosed as having tuberous sclerosis.\n\nLesions were identified by clinical appearance, photographed, and confirmed histologically.\n\nTo determine the frequency of skin lesions in patients with MEN1.\n\nMultiple facial angiofibromas were observed in 28 (88%) of the patients with MEN1, with 16 patients (50%) having 5 or more. Angiofibromas were clinically and histologically identical to those in individuals with tuberous sclerosis. Collagenomas were observed in 23 patients (72%). Also observed were cafe au lait macules in 12 patients (38%), lipomas in 11 patients (34%), confetti-like hypopigmented macules in 2 patients (6%), and multiple gingival papules in 2 patients (6%).\n\nMultiple angiofibromas, collagenomas, lipomas, confetti-like hypopigmented macules and multiple gingival papules are cutaneous manifestations of MEN1 and should be looked for in both family members of patients with MEN1 and individuals with hyperparathyroidism of other MEN1-associated tumors. Multiple angiofibromas can no longer be considered pathognomonic for tuberous sclerosis. The observation of angiofibromas in individuals without tuberous sclerosis necessitates further biochemical testing for MEN1.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 1627,
+    "num_annotations": 11,
+    "conversion_date": "2025-11-18T13:13:18.765468"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0100568",
+      "label": "Neoplasm of the endocrine system",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 35,
+          "end_char": 54,
+          "text_snippet": "endocrine neoplasia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000951",
+      "label": "Abnormality of the skin",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 74,
+          "end_char": 98,
+          "text_snippet": "cutaneous manifestations"
+        },
+        {
+          "start_char": 369,
+          "end_char": 392,
+          "text_snippet": "cutaneous abnormalities"
+        },
+        {
+          "start_char": 871,
+          "end_char": 883,
+          "text_snippet": "Collagenomas"
+        },
+        {
+          "start_char": 1143,
+          "end_char": 1155,
+          "text_snippet": "collagenomas"
+        },
+        {
+          "start_char": 1236,
+          "end_char": 1260,
+          "text_snippet": "cutaneous manifestations"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0011355",
+      "label": "Localized skin lesion",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 338,
+          "end_char": 350,
+          "text_snippet": "skin lesions"
+        },
+        {
+          "start_char": 602,
+          "end_char": 614,
+          "text_snippet": "skin lesions"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009720",
+      "label": "Adenoma sebaceum",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 648,
+          "end_char": 668,
+          "text_snippet": "facial angiofibromas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010615",
+      "label": "Angiofibromas",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 763,
+          "end_char": 776,
+          "text_snippet": "Angiofibromas"
+        },
+        {
+          "start_char": 1128,
+          "end_char": 1141,
+          "text_snippet": "angiofibromas"
+        },
+        {
+          "start_char": 1422,
+          "end_char": 1435,
+          "text_snippet": "angiofibromas"
+        },
+        {
+          "start_char": 1521,
+          "end_char": 1534,
+          "text_snippet": "angiofibromas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000957",
+      "label": "Cafe-au-lait spot",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 939,
+          "end_char": 959,
+          "text_snippet": "cafe au lait macules"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001012",
+      "label": "Multiple lipomas",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 982,
+          "end_char": 989,
+          "text_snippet": "lipomas"
+        },
+        {
+          "start_char": 1157,
+          "end_char": 1164,
+          "text_snippet": "lipomas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0007449",
+      "label": "Confetti-like hypopigmented macules",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1012,
+          "end_char": 1047,
+          "text_snippet": "confetti-like hypopigmented macules"
+        },
+        {
+          "start_char": 1166,
+          "end_char": 1201,
+          "text_snippet": "confetti-like hypopigmented macules"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000168",
+      "label": "Abnormality of the gingiva",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1081,
+          "end_char": 1097,
+          "text_snippet": "gingival papules"
+        },
+        {
+          "start_char": 1215,
+          "end_char": 1231,
+          "text_snippet": "gingival papules"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000843",
+      "label": "Hyperparathyroidism",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1360,
+          "end_char": 1379,
+          "text_snippet": "hyperparathyroidism"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002664",
+      "label": "Neoplasm",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1405,
+          "end_char": 1411,
+          "text_snippet": "tumors"
+        }
+      ]
+    }
+  ]
+}

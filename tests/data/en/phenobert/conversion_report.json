@@ -1,0 +1,34 @@
+{
+  "provenance": {
+    "converter_version": "1.0.0",
+    "conversion_date": "2025-11-18T13:13:13.953344",
+    "source": {
+      "repository": "https://github.com/EclipseCN/PhenoBERT",
+      "version": {
+        "branch_or_tag": "main",
+        "download_method": "github_zip",
+        "note": "Downloaded from 'main' branch - commit SHA unknown"
+      }
+    }
+  },
+  "summary": {
+    "total_documents": 306,
+    "total_annotations": 2405,
+    "errors": 0,
+    "warnings": 0
+  },
+  "datasets": {
+    "GSC+": {
+      "docs": 228,
+      "annotations": 1543
+    },
+    "ID-68": {
+      "docs": 68,
+      "annotations": 625
+    },
+    "GeneReviews": {
+      "docs": 10,
+      "annotations": 237
+    }
+  }
+}
