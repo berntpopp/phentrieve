@@ -244,19 +244,35 @@ class DenseRetriever:
             # Convert batch results to list of individual results (one per text)
             # ChromaDB returns results as {"ids": [[...], [...]], "documents": [[...], [...]]}
             # We need to split this into [{"ids": [[...]], "documents": [[...]]}, ...]
+
+            # Extract lists once (more efficient than per-iteration)
+            ids_list = batch_results.get("ids")
+            docs_list = batch_results.get("documents")
+            metas_list = batch_results.get("metadatas")
+            dists_list = batch_results.get("distances")
+
+            # Validate result count matches input count
+            if ids_list and len(ids_list) != len(texts):
+                logging.warning(
+                    f"Batch result count mismatch: expected {len(texts)}, "
+                    f"got {len(ids_list)}. Using available results."
+                )
+
             results_list = []
             for i in range(len(texts)):
-                # Type-safe extraction with None checks for mypy
-                ids_list = batch_results.get("ids")
-                docs_list = batch_results.get("documents")
-                metas_list = batch_results.get("metadatas")
-                dists_list = batch_results.get("distances")
+                # Bounds check to prevent IndexError
+                if ids_list and i >= len(ids_list):
+                    logging.warning(
+                        f"Skipping text {i + 1}/{len(texts)}: "
+                        f"no result available from ChromaDB"
+                    )
+                    break
 
                 result: dict[str, Any] = {
-                    "ids": [ids_list[i]] if ids_list is not None else [[]],
-                    "documents": [docs_list[i]] if docs_list is not None else [[]],
-                    "metadatas": [metas_list[i]] if metas_list is not None else [[]],
-                    "distances": [dists_list[i]] if dists_list is not None else [[]],
+                    "ids": [ids_list[i]] if ids_list else [[]],
+                    "documents": [docs_list[i]] if docs_list else [[]],
+                    "metadatas": [metas_list[i]] if metas_list else [[]],
+                    "distances": [dists_list[i]] if dists_list else [[]],
                 }
 
                 # Add similarity scores if requested

@@ -8,7 +8,7 @@ Tests cover:
 """
 
 import asyncio
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 from fastapi import HTTPException
@@ -203,7 +203,9 @@ class TestModelCaching:
                             try:
                                 await _process_text_internal(request)
                             except Exception:
-                                pass  # Expected - we're only testing dependency calls
+                                # Expected: Full pipeline may fail with mocked dependencies
+                                # We're only testing that cached dependencies are called
+                                pass
 
                             # Verify cached dependency was called
                             mock_get_model.assert_called()
@@ -243,6 +245,8 @@ class TestModelCaching:
                             try:
                                 await _process_text_internal(request)
                             except Exception:
+                                # Expected: Full pipeline may fail with mocked dependencies
+                                # We're only testing that cached dependencies are called
                                 pass
 
                             # Verify cached retriever was requested
@@ -290,6 +294,8 @@ class TestModelCaching:
                                 try:
                                     await _process_text_internal(request)
                                 except Exception:
+                                    # Expected: Full pipeline may fail with mocked dependencies
+                                    # We're only testing that cached dependencies are called
                                     pass
 
                                 # Verify cross-encoder dependency was called
@@ -339,18 +345,12 @@ class TestModelReuse:
                             try:
                                 await _process_text_internal(request)
                             except Exception:
+                                # Expected: Full pipeline may fail with mocked dependencies
+                                # We're only testing that cached dependencies are called
                                 pass
 
                             # Should call get_sbert_model_dependency at least once
-                            # (may be called twice: once for retrieval check, once for actual use,
-                            # but both calls return the same cached instance)
+                            # (may be called twice: once for retrieval check, once for actual use)
+                            # Note: We can't test actual caching behavior with mocks - the mock
+                            # always returns the same value. Actual caching is tested in integration tests.
                             assert mock_get_model.call_count >= 1
-
-                            # Verify the same model instance is returned both times (cached)
-                            if mock_get_model.call_count > 1:
-                                # All calls should have returned the same instance
-                                first_call_result = mock_get_model.return_value
-                                assert all(
-                                    call == first_call_result
-                                    for call in [mock_get_model.return_value]
-                                )
