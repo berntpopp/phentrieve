@@ -192,7 +192,18 @@
     "timestamp": "Tijdstempel",
     "level": "Niveau",
     "message": "Bericht",
-    "details": "Details"
+    "details": "Details",
+    "stats": {
+      "received": "Ontvangen",
+      "dropped": "Verwijderd",
+      "memory": "Geheugen"
+    },
+    "config": {
+      "title": "Logboek configuratie",
+      "description": "Stel het maximum aantal logboekvermeldingen in om in het geheugen te bewaren. Oudere logboeken worden automatisch verwijderd (FIFO).",
+      "cancel": "Annuleren",
+      "save": "Opslaan"
+    }
   },
   "languageSwitcher": {
     "label": "Taal"

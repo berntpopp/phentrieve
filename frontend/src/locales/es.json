@@ -197,7 +197,18 @@
     "timestamp": "Marca de tiempo",
     "level": "Nivel",
     "message": "Mensaje",
-    "details": "Detalles"
+    "details": "Detalles",
+    "stats": {
+      "received": "Recibidos",
+      "dropped": "Descartados",
+      "memory": "Memoria"
+    },
+    "config": {
+      "title": "Configuración de registro",
+      "description": "Establezca el número máximo de entradas de registro que se conservarán en la memoria. Los registros antiguos se eliminan automáticamente (FIFO).",
+      "cancel": "Cancelar",
+      "save": "Guardar"
+    }
   },
   "languageSwitcher": {
     "label": "Idioma"

@@ -205,7 +205,18 @@
     "timestamp": "Timestamp",
     "level": "Level",
     "message": "Message",
-    "details": "Details"
+    "details": "Details",
+    "stats": {
+      "received": "Received",
+      "dropped": "Dropped",
+      "memory": "Memory"
+    },
+    "config": {
+      "title": "Logging Configuration",
+      "description": "Set the maximum number of log entries to keep in memory. Older logs are automatically rotated (FIFO).",
+      "cancel": "Cancel",
+      "save": "Save"
+    }
   },
   "languageSwitcher": {
     "label": "Language"
