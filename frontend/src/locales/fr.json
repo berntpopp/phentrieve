@@ -196,7 +196,18 @@
     "timestamp": "Horodatage",
     "level": "Niveau",
     "message": "Message",
-    "details": "Détails"
+    "details": "Détails",
+    "stats": {
+      "received": "Reçus",
+      "dropped": "Supprimés",
+      "memory": "Mémoire"
+    },
+    "config": {
+      "title": "Configuration de la journalisation",
+      "description": "Définissez le nombre maximum d'entrées de journal à conserver en mémoire. Les anciens journaux sont automatiquement rotés (FIFO).",
+      "cancel": "Annuler",
+      "save": "Enregistrer"
+    }
   },
   "errors": {
     "api": {

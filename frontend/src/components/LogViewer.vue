@@ -7,10 +7,20 @@
     aria-label="Log viewer"
   >
     <v-toolbar density="compact" color="primary">
-      <v-toolbar-title class="text-white">
+      <v-toolbar-title class="text-white d-flex align-center">
         {{ $t('logViewer.title') }}
+        <v-chip size="x-small" class="ml-2" color="white" variant="outlined">
+          {{ logStore.logCount }}/{{ logStore.maxEntries }}
+        </v-chip>
       </v-toolbar-title>
       <v-spacer />
+      <v-btn
+        icon="mdi-cog"
+        variant="text"
+        color="white"
+        aria-label="Configure logging"
+        @click="showConfigDialog = true"
+      />
       <v-btn
         icon="mdi-download"
         variant="text"
@@ -63,7 +73,6 @@
           multiple
           chips
           hide-details
-          class="mb-2"
           bg-color="white"
           color="primary"
         >
@@ -71,6 +80,28 @@
             <span class="text-high-emphasis">{{ $t('logViewer.logLevels') }}</span>
           </template>
         </v-select>
+      </v-card-text>
+    </v-card>
+
+    <!-- Statistics Card -->
+    <v-card v-if="statistics" class="mx-2 mb-2" variant="outlined">
+      <v-card-text class="pa-2">
+        <div class="d-flex justify-space-between text-caption">
+          <div>
+            <strong>{{ $t('logViewer.stats.received') }}:</strong>
+            {{ statistics.totalLogsReceived }}
+          </div>
+          <div>
+            <strong>{{ $t('logViewer.stats.dropped') }}:</strong>
+            <span :class="statistics.totalLogsDropped > 0 ? 'text-warning' : ''">
+              {{ statistics.totalLogsDropped }}
+            </span>
+          </div>
+          <div>
+            <strong>{{ $t('logViewer.stats.memory') }}:</strong>
+            {{ statistics.memoryUsage.kb }} KB
+          </div>
+        </div>
       </v-card-text>
     </v-card>
 
@@ -121,13 +152,46 @@
         </v-card-text>
       </v-card>
     </div>
+
+    <!-- Configuration Dialog -->
+    <v-dialog v-model="showConfigDialog" max-width="400">
+      <v-card>
+        <v-card-title>{{ $t('logViewer.config.title') }}</v-card-title>
+        <v-card-text>
+          <v-slider
+            v-model="configMaxEntries"
+            :min="configLimits.MIN_ENTRIES"
+            :max="configLimits.MAX_ENTRIES"
+            :step="configLimits.STEP"
+            thumb-label="always"
+            color="primary"
+          >
+            <template #prepend>
+              <span class="text-caption">{{ configLimits.MIN_ENTRIES }}</span>
+            </template>
+            <template #append>
+              <span class="text-caption">{{ configLimits.MAX_ENTRIES }}</span>
+            </template>
+          </v-slider>
+          <div class="text-caption text-medium-emphasis mt-2">
+            {{ $t('logViewer.config.description') }}
+          </div>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn @click="showConfigDialog = false">{{ $t('logViewer.config.cancel') }}</v-btn>
+          <v-btn color="primary" @click="saveConfig">{{ $t('logViewer.config.save') }}</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-navigation-drawer>
 </template>
 
 <script>
 import { ref, computed } from 'vue';
 import { useLogStore } from '../stores/log';
-import { LogLevel } from '../services/logService';
+import { LogLevel, logService } from '../services/logService';
+import { LOG_CONFIG } from '../config/logConfig';
 
 export default {
   name: 'LogViewer',
@@ -136,6 +200,14 @@ export default {
     const search = ref('');
     const selectedLevels = ref(Object.values(LogLevel));
     const logLevels = Object.values(LogLevel);
+
+    // Configuration dialog state
+    const showConfigDialog = ref(false);
+    const configMaxEntries = ref(logStore.maxEntries);
+    const configLimits = LOG_CONFIG.UI_LIMITS;
+
+    // Statistics (computed to update reactively)
+    const statistics = computed(() => logStore.getStatistics());
 
     const filteredLogs = computed(() => {
       return logStore.logs.filter((log) => {
@@ -179,16 +251,26 @@ export default {
       logStore.clearLogs();
     };
 
+    const saveConfig = () => {
+      logService.setMaxEntries(configMaxEntries.value);
+      showConfigDialog.value = false;
+    };
+
     return {
       logStore,
       search,
       selectedLevels,
       logLevels,
+      statistics,
+      showConfigDialog,
+      configMaxEntries,
+      configLimits,
       filteredLogs,
       getLogColor,
       formatTimestamp,
       downloadLogs,
       clearLogs,
+      saveConfig,
     };
   },
 };
