@@ -1,4 +1,4 @@
-.PHONY: help format lint typecheck check test test-scripts test-all clean all install install-text-processing lock upgrade add remove clean-venv frontend-install frontend-lint frontend-format frontend-dev frontend-build docker-build docker-up docker-down docker-logs dev-api dev-frontend dev-all test-api test-api-cov test-e2e test-e2e-security test-e2e-health test-e2e-api test-e2e-fast test-e2e-clean test-e2e-logs test-e2e-shell cov-package cov-api cov-frontend cov-all
+.PHONY: help format lint typecheck check test clean all install install-text-processing lock upgrade add remove clean-venv frontend-install frontend-lint frontend-format frontend-dev frontend-build docker-build docker-up docker-down docker-logs dev-api dev-frontend dev-all test-api test-api-cov test-e2e test-e2e-security test-e2e-health test-e2e-api test-e2e-fast test-e2e-clean test-e2e-logs test-e2e-shell cov-package cov-api cov-frontend cov-all
 
 # Default target
 .DEFAULT_GOAL := help
@@ -49,16 +49,11 @@ typecheck-fresh: ## Type check from scratch (clear cache first)
 
 check: format lint ## Format and lint code
 
-test: ## Run package tests with pytest
+test: ## Run tests with pytest
 	pytest tests/ -v
 
-test-cov: ## Run package tests with coverage
+test-cov: ## Run tests with coverage
 	pytest tests/ -v --cov=phentrieve --cov=api --cov-report=html --cov-report=term
-
-test-scripts: ## Run script tests (scripts/tests/)
-	pytest scripts/tests/ -v --cov=scripts --cov-report=term-missing
-
-test-all: test test-scripts ## Run all tests (package + scripts)
 
 ##@ Package Management
 
