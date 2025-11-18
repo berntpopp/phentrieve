@@ -300,18 +300,48 @@ def process_text_for_hpo_command(
             needs_semantic_model = True
             break
 
+    # Determine model names for chunking and retrieval
+    semantic_model_name = semantic_chunker_model or DEFAULT_MODEL
+    retrieval_model_name = retrieval_model or DEFAULT_MODEL
+
+    # Check for GPU availability
+    import torch
+
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    logger.info(f"Using device: {device}")
+
+    # Optimization: If same model is needed for both chunking and retrieval,
+    # load it once and share the instance (avoids double loading into VRAM)
+    use_same_model = (
+        needs_semantic_model and semantic_model_name == retrieval_model_name
+    )
+
     # Load the SBERT model if needed for semantic chunking
     sbert_model_for_chunking = None
     if needs_semantic_model:
         # Lazy import - only load heavy ML dependencies when actually needed
-        from sentence_transformers import SentenceTransformer
+        from phentrieve.embeddings import load_embedding_model
 
-        semantic_model_name = semantic_chunker_model or DEFAULT_MODEL
-        typer.echo(
-            f"Loading sentence transformer model for chunking: {semantic_model_name}..."
-        )
+        if use_same_model:
+            # Load once and share for both purposes (memory optimization)
+            typer.echo(
+                f"Loading sentence transformer model (shared for chunking and retrieval): {semantic_model_name}..."
+            )
+        else:
+            typer.echo(
+                f"Loading sentence transformer model for chunking: {semantic_model_name}..."
+            )
+
         try:
-            sbert_model_for_chunking = SentenceTransformer(semantic_model_name)
+            sbert_model_for_chunking = load_embedding_model(
+                model_name=semantic_model_name,
+                device=device
+                if use_same_model
+                else None,  # Use GPU if sharing, CPU-only for chunking-only
+            )
+            logger.debug(
+                f"Successfully loaded model for chunking: {semantic_model_name}"
+            )
         except Exception as e:
             typer.secho(
                 f"Error loading semantic chunker model '{semantic_model_name}': {str(e)}",
@@ -345,27 +375,33 @@ def process_text_for_hpo_command(
         # Initialize the retriever
         try:
             # Lazy import - only load heavy ML dependencies when actually needed
-            from sentence_transformers import SentenceTransformer
+            from phentrieve.embeddings import load_embedding_model
 
-            # First load the SentenceTransformer model
-            logger.info(f"Loading SentenceTransformer model: {model_name}")
-            # Check for GPU availability
-            import torch
-
-            device = "cuda" if torch.cuda.is_available() else "cpu"
-            logger.info(f"Using device: {device}")
-
-            # Load the model
-            st_model = SentenceTransformer(model_name, device=device)
+            # Load the SentenceTransformer model (reuses cached instance if already loaded)
+            if use_same_model and sbert_model_for_chunking is not None:
+                # Reuse the model we already loaded for chunking (memory optimization)
+                logger.info(
+                    f"Reusing cached model instance for retrieval: {retrieval_model_name}"
+                )
+                st_model = sbert_model_for_chunking
+            else:
+                # Load the model fresh (or from cache if previously loaded)
+                logger.info(
+                    f"Loading SentenceTransformer model for retrieval: {retrieval_model_name}"
+                )
+                st_model = load_embedding_model(
+                    model_name=retrieval_model_name,
+                    device=device,
+                )
 
             # Initialize the retriever with the model
             retriever = DenseRetriever.from_model_name(
-                model=st_model, model_name=model_name
+                model=st_model, model_name=retrieval_model_name
             )
 
             if not retriever:
                 typer.secho(
-                    f"Failed to initialize retriever for model: {model_name}",
+                    f"Failed to initialize retriever for model: {retrieval_model_name}",
                     fg=typer.colors.RED,
                 )
                 raise typer.Exit(code=1)
@@ -590,12 +626,15 @@ def chunk_text_command(
     sbert_model = None
     if needs_semantic_model:
         # Lazy import - only load heavy ML dependencies when actually needed
-        from sentence_transformers import SentenceTransformer
+        from phentrieve.embeddings import load_embedding_model
 
         model_name = semantic_chunker_model or DEFAULT_MODEL
         typer.echo(f"Loading sentence transformer model: {model_name}...")
         try:
-            sbert_model = SentenceTransformer(model_name)
+            # Use cached model loading (reuses model if already loaded in this process)
+            sbert_model = load_embedding_model(
+                model_name=model_name,
+            )
             logger.debug(f"Successfully loaded SentenceTransformer model: {model_name}")
             logger.debug(f"Model type: {type(sbert_model)}")
         except Exception as e:

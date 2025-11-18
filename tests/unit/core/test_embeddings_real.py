@@ -5,13 +5,21 @@ from unittest.mock import Mock, patch
 import pytest
 
 from phentrieve.config import DEFAULT_BIOLORD_MODEL, JINA_MODEL_ID
-from phentrieve.embeddings import load_embedding_model
+from phentrieve.embeddings import clear_model_registry, load_embedding_model
 
 pytestmark = pytest.mark.unit
 
 
 class TestLoadEmbeddingModel:
     """Test load_embedding_model function with real logic execution."""
+
+    def setup_method(self):
+        """Clear registry before each test."""
+        clear_model_registry()
+
+    def teardown_method(self):
+        """Clear registry after each test."""
+        clear_model_registry()
 
     @patch("phentrieve.embeddings.SentenceTransformer")
     @patch("phentrieve.embeddings.torch.cuda.is_available")
