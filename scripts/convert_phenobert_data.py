@@ -45,7 +45,8 @@ import logging
 import sys
 from pathlib import Path
 
-from phentrieve.data_processing.phenobert_converter import (
+# Import from local module (scripts/ directory)
+from phenobert_converter import (
     AnnotationParser,
     DatasetLoader,
     HPOLookup,
@@ -168,7 +169,7 @@ def main():
         annotation_parser = AnnotationParser()
         hpo_lookup = HPOLookup(args.hpo_data)
         converter = PhenoBERTConverter(hpo_lookup, dataset_loader, annotation_parser)
-        writer = OutputWriter(args.output)
+        writer = OutputWriter(args.output, args.phenobert_data)
 
         logger.info("✓ Components initialized")
 

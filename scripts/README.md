@@ -9,9 +9,10 @@ Standalone scripts for data processing, conversion, and analysis.
 Convert PhenoBERT corpus datasets (GSC+, ID-68, GeneReviews) to Phentrieve JSON format.
 
 **Prerequisites:**
-1. Clone PhenoBERT repository:
+1. Download PhenoBERT dataset (see [PHENOBERT-DOWNLOAD-GUIDE.md](./PHENOBERT-DOWNLOAD-GUIDE.md) for reproducible download instructions):
    ```bash
-   git clone https://github.com/EclipseCN/PhenoBERT.git
+   # For reproducibility, download specific version
+   # See PHENOBERT-DOWNLOAD-GUIDE.md for detailed instructions
    ```
 
 2. Ensure Phentrieve is installed:

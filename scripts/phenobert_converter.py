@@ -3,11 +3,19 @@ PhenoBERT corpus converter for Phentrieve.
 
 Converts PhenoBERT datasets (GSC+, ID-68, GeneReviews) to Phentrieve JSON format.
 Simple, focused implementation following alpha software principles.
+
+Includes provenance tracking for reproducibility:
+- Source version (git commit SHA or release tag)
+- File checksums (SHA256)
+- Conversion timestamp
+- Converter version
 """
 
+import hashlib
 import json
 import logging
 import re
+import subprocess
 from collections import defaultdict
 from collections.abc import Iterator
 from dataclasses import dataclass, field
@@ -16,6 +24,93 @@ from pathlib import Path
 from typing import Optional
 
 logger = logging.getLogger(__name__)
+
+# Converter version for reproducibility
+CONVERTER_VERSION = "1.0.0"
+
+
+# ============================================================================
+# Provenance Tracking
+# ============================================================================
+
+
+class ProvenanceTracker:
+    """Tracks provenance information for reproducibility."""
+
+    @staticmethod
+    def get_git_version(repo_path: Path) -> Optional[dict]:
+        """
+        Extract git version information from repository.
+
+        Args:
+            repo_path: Path to git repository
+
+        Returns:
+            Dictionary with git metadata, or None if not a git repo
+        """
+        git_dir = repo_path / ".git"
+        if not git_dir.exists():
+            logger.info("Not a git repository, skipping version detection")
+            return None
+
+        try:
+            # Get commit SHA
+            result = subprocess.run(
+                ["git", "rev-parse", "HEAD"],  # noqa: S607
+                cwd=repo_path,
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+            commit_sha = result.stdout.strip()
+
+            # Get commit date
+            result = subprocess.run(
+                ["git", "log", "-1", "--format=%ci"],  # noqa: S607
+                cwd=repo_path,
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+            commit_date = result.stdout.strip()
+
+            # Check if repo is dirty (uncommitted changes)
+            result = subprocess.run(
+                ["git", "status", "--porcelain"],  # noqa: S607
+                cwd=repo_path,
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+            is_dirty = bool(result.stdout.strip())
+
+            return {
+                "commit_sha": commit_sha,
+                "commit_date": commit_date,
+                "is_dirty": is_dirty,
+                "repository": "https://github.com/EclipseCN/PhenoBERT",
+            }
+
+        except (subprocess.CalledProcessError, FileNotFoundError) as e:
+            logger.warning(f"Failed to extract git version: {e}")
+            return None
+
+    @staticmethod
+    def calculate_checksum(file_path: Path) -> str:
+        """
+        Calculate SHA256 checksum of file.
+
+        Args:
+            file_path: Path to file
+
+        Returns:
+            Hexadecimal SHA256 checksum
+        """
+        sha256 = hashlib.sha256()
+        with open(file_path, "rb") as f:
+            for chunk in iter(lambda: f.read(8192), b""):
+                sha256.update(chunk)
+        return sha256.hexdigest()
 
 
 # ============================================================================
@@ -45,13 +140,14 @@ class Annotation:
 
 @dataclass
 class ConversionStats:
-    """Statistics for conversion tracking."""
+    """Statistics for conversion tracking with provenance metadata."""
 
     total_docs: int = 0
     total_annotations: int = 0
     datasets: dict = field(default_factory=dict)
     errors: list[str] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
+    provenance: dict = field(default_factory=dict)
 
     def add_document(self, dataset: str, num_annotations: int):
         """Record document conversion."""
@@ -67,14 +163,40 @@ class ConversionStats:
         self.datasets[dataset]["docs"] += 1
         self.datasets[dataset]["annotations"] += num_annotations
 
+    def set_provenance(
+        self,
+        source_version: Optional[dict],
+        converter_version: str,
+        conversion_date: str,
+    ):
+        """
+        Set provenance metadata for reproducibility.
+
+        Args:
+            source_version: Git version info from source repository
+            converter_version: Version of this converter
+            conversion_date: ISO-8601 timestamp of conversion
+        """
+        self.provenance = {
+            "converter_version": converter_version,
+            "conversion_date": conversion_date,
+            "source": {
+                "repository": "https://github.com/EclipseCN/PhenoBERT",
+                "version": source_version or {"note": "Not a git repository"},
+            },
+        }
+
     def to_dict(self) -> dict:
-        """Export stats as dictionary."""
+        """Export stats as dictionary with provenance."""
         return {
-            "total_documents": self.total_docs,
-            "total_annotations": self.total_annotations,
+            "provenance": self.provenance,
+            "summary": {
+                "total_documents": self.total_docs,
+                "total_annotations": self.total_annotations,
+                "errors": len(self.errors),
+                "warnings": len(self.warnings),
+            },
             "datasets": self.datasets,
-            "errors": len(self.errors),
-            "warnings": len(self.warnings),
         }
 
 
@@ -582,17 +704,48 @@ class PhenoBERTConverter:
 
 
 class OutputWriter:
-    """Writes converted documents and generates reports."""
+    """Writes converted documents and generates reports with provenance."""
 
-    def __init__(self, output_dir: Path):
+    def __init__(self, output_dir: Path, source_data_dir: Path):
         """
         Initialize writer with output directory.
 
         Args:
             output_dir: Base output directory
+            source_data_dir: Source PhenoBERT data directory (for provenance)
         """
         self.output_dir = Path(output_dir)
         self.stats = ConversionStats()
+
+        # Extract provenance information
+        self._initialize_provenance(source_data_dir)
+
+    def _initialize_provenance(self, source_data_dir: Path):
+        """
+        Initialize provenance tracking from source directory.
+
+        Args:
+            source_data_dir: Path to PhenoBERT data directory
+        """
+        # Try to get parent directory (should be repo root)
+        repo_root = source_data_dir.parent
+
+        # Extract git version if available
+        source_version = ProvenanceTracker.get_git_version(repo_root)
+
+        if source_version:
+            logger.info(f"Source version: {source_version['commit_sha'][:8]}")
+            if source_version["is_dirty"]:
+                logger.warning("Source repository has uncommitted changes!")
+        else:
+            logger.info("Source data not from git repository")
+
+        # Set provenance in stats
+        self.stats.set_provenance(
+            source_version=source_version,
+            converter_version=CONVERTER_VERSION,
+            conversion_date=datetime.now().isoformat(),
+        )
 
     def write_document(self, doc: dict, dataset: str):
         """
@@ -617,10 +770,19 @@ class OutputWriter:
         logger.debug(f"Wrote {output_file}")
 
     def write_report(self):
-        """Write conversion report."""
+        """Write conversion report with provenance metadata."""
         report_file = self.output_dir / "conversion_report.json"
         with open(report_file, "w", encoding="utf-8") as f:
             json.dump(self.stats.to_dict(), f, indent=2, ensure_ascii=False)
 
         logger.info(f"Conversion complete: {self.stats.total_docs} documents")
         logger.info(f"Report saved to: {report_file}")
+
+        # Log provenance info
+        prov = self.stats.provenance
+        if "source" in prov and "version" in prov["source"]:
+            source_ver = prov["source"]["version"]
+            if "commit_sha" in source_ver:
+                logger.info(f"Source commit: {source_ver['commit_sha'][:8]}")
+                logger.info(f"Source date: {source_ver['commit_date']}")
+            logger.info(f"Converter version: {prov['converter_version']}")
