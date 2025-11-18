@@ -12,8 +12,6 @@ Tests cover:
 
 import json
 import sqlite3
-import tempfile
-from pathlib import Path
 
 import pytest
 
@@ -187,7 +185,9 @@ class TestBulkInserts:
         # Original data should still be there
         assert temp_db.get_term_count() == 2
 
-    def test_bulk_insert_graph_metadata_success(self, temp_db, sample_terms, sample_graph_metadata):
+    def test_bulk_insert_graph_metadata_success(
+        self, temp_db, sample_terms, sample_graph_metadata
+    ):
         """Test successful bulk insert of graph metadata."""
         # Must insert terms first (FK constraint)
         temp_db.bulk_insert_terms(sample_terms)
@@ -205,7 +205,9 @@ class TestBulkInserts:
         count = temp_db.bulk_insert_graph_metadata([])
         assert count == 0
 
-    def test_bulk_insert_graph_metadata_fk_constraint(self, temp_db, sample_graph_metadata):
+    def test_bulk_insert_graph_metadata_fk_constraint(
+        self, temp_db, sample_graph_metadata
+    ):
         """Test that FK constraint is enforced (term must exist)."""
         # Try to insert graph data without terms (FK violation)
         with pytest.raises(sqlite3.IntegrityError):
@@ -258,7 +260,9 @@ class TestDataRetrieval:
         assert ancestors == {}
         assert depths == {}
 
-    def test_load_graph_data_correct_structure(self, temp_db, sample_terms, sample_graph_metadata):
+    def test_load_graph_data_correct_structure(
+        self, temp_db, sample_terms, sample_graph_metadata
+    ):
         """Test that load_graph_data returns correct data structures."""
         temp_db.bulk_insert_terms(sample_terms)
         temp_db.bulk_insert_graph_metadata(sample_graph_metadata)

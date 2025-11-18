@@ -25,15 +25,14 @@ from tqdm import tqdm
 
 # Assuming config and utils are in the phentrieve package and accessible
 from phentrieve.config import (
-    DEFAULT_ANCESTORS_FILENAME,
-    DEFAULT_DEPTHS_FILENAME,
+    DEFAULT_HPO_DB_FILENAME,
     DEFAULT_HPO_FILENAME,
-    DEFAULT_HPO_TERMS_SUBDIR,  # Still useful for semantic context, but not for filtering saved terms
     HPO_BASE_URL,
     HPO_CHUNK_SIZE,
     HPO_DOWNLOAD_TIMEOUT,
     HPO_VERSION,
 )
+from phentrieve.data_processing.hpo_database import HPODatabase
 from phentrieve.utils import (
     get_default_data_dir,
     normalize_id,
@@ -410,25 +409,88 @@ def save_pickle_data(data: Any, file_path: Path, description: str) -> None:
         logger.error(f"Failed to save {description} to {file_path}: {e}")
 
 
+def _extract_term_data_for_db(all_nodes_data: dict[str, dict]) -> list[dict[str, Any]]:
+    """
+    Extract term data from raw HPO nodes for database storage.
+
+    Converts raw node objects into structured term dictionaries suitable
+    for bulk insert into the HPO database.
+
+    Args:
+        all_nodes_data: Dictionary mapping term IDs to raw node data
+
+    Returns:
+        List of term dictionaries with keys: id, label, definition, synonyms, comments
+        Note: synonyms and comments are JSON-serialized strings for storage
+    """
+    terms_data = []
+
+    for term_id, node_data in tqdm(
+        all_nodes_data.items(), desc="Preparing HPO terms for database"
+    ):
+        # Skip non-HP terms (should already be filtered, but double-check)
+        if not term_id.startswith("HP:"):
+            continue
+
+        # Extract label
+        label = node_data.get("lbl", "")
+
+        # Extract definition
+        definition = ""
+        if (
+            "meta" in node_data
+            and "definition" in node_data["meta"]
+            and "val" in node_data["meta"]["definition"]
+        ):
+            definition = node_data["meta"]["definition"]["val"]
+
+        # Extract synonyms
+        synonyms = []
+        if "meta" in node_data and "synonyms" in node_data["meta"]:
+            for syn_obj in node_data["meta"]["synonyms"]:
+                if "val" in syn_obj:
+                    synonyms.append(syn_obj["val"])
+
+        # Extract comments
+        comments = []
+        if "meta" in node_data and "comments" in node_data["meta"]:
+            comments = [c for c in node_data["meta"]["comments"] if c]
+
+        # Prepare term data for database (serialize JSON fields)
+        terms_data.append(
+            {
+                "id": term_id,
+                "label": label,
+                "definition": definition,
+                "synonyms": json.dumps(synonyms, ensure_ascii=False),
+                "comments": json.dumps(comments, ensure_ascii=False),
+            }
+        )
+
+    return terms_data
+
+
 def prepare_hpo_data(
     force_update: bool = False,
     hpo_file_path: Path | None = None,
-    hpo_terms_dir: Path | None = None,
-    ancestors_file: Path | None = None,
-    depths_file: Path | None = None,
+    db_path: Path | None = None,
 ) -> tuple[bool, Optional[str]]:
     """
-    Core HPO data preparation: download, parse, save ALL terms, compute graph data.
+    Core HPO data preparation: download, parse, save ALL terms to SQLite, compute graph data.
+
+    Args:
+        force_update: Force re-download of HPO JSON file
+        hpo_file_path: Path to HPO JSON file
+        db_path: Path to SQLite database file
+
+    Returns:
+        Tuple of (success: bool, error_message: Optional[str])
     """
     # Validate required paths
     if hpo_file_path is None:
         return False, "hpo_file_path is required but was not provided"
-    if hpo_terms_dir is None:
-        return False, "hpo_terms_dir is required but was not provided"
-    if ancestors_file is None:
-        return False, "ancestors_file is required but was not provided"
-    if depths_file is None:
-        return False, "depths_file is required but was not provided"
+    if db_path is None:
+        return False, "db_path is required but was not provided"
 
     # 1. Download/Load HPO JSON
     if force_update or not os.path.exists(hpo_file_path):
@@ -462,37 +524,91 @@ def prepare_hpo_data(
         )
     logger.info(f"Successfully parsed data for {len(all_term_ids)} HPO terms.")
 
-    # 3. Save ALL HPO terms as individual JSON files
-    # The hpo_terms_dir will be cleared and repopulated by save_all_hpo_terms_as_json_files
-    num_terms_saved = save_all_hpo_terms_as_json_files(all_nodes_data, hpo_terms_dir)
-    if num_terms_saved == 0 and len(all_nodes_data) > 0:
-        logger.warning(
-            "No HPO terms were saved as individual files, though terms were parsed."
-        )
-    elif num_terms_saved < len(all_nodes_data):
-        logger.warning(
-            f"Only {num_terms_saved} out of {len(all_nodes_data)} parsed terms were saved as JSON files."
-        )
+    # 3. Initialize SQLite database
+    logger.info(f"Initializing HPO database at {db_path}...")
+    try:
+        # Remove existing database if force_update
+        if force_update and os.path.exists(db_path):
+            logger.info(f"Removing existing database: {db_path}")
+            os.remove(db_path)
 
-    # 4. Compute Ancestors for ALL terms
+        db = HPODatabase(db_path)
+        db.initialize_schema()
+    except Exception as e:
+        return False, f"Failed to initialize database: {e}"
+
+    # 4. Extract and insert HPO terms into database
+    logger.info("Extracting HPO term data for database storage...")
+    terms_data = _extract_term_data_for_db(all_nodes_data)
+
+    if not terms_data:
+        logger.warning("No terms extracted for database storage")
+        db.close()
+        return False, "No HPO terms could be extracted for storage"
+
+    logger.info(f"Inserting {len(terms_data)} HPO terms into database...")
+    try:
+        num_inserted = db.bulk_insert_terms(terms_data)
+        logger.info(f"Successfully inserted {num_inserted} HPO terms")
+    except Exception as e:
+        db.close()
+        return False, f"Failed to insert HPO terms: {e}"
+
+    # 5. Compute Ancestors for ALL terms
     logger.info("Computing ancestor sets for all HPO terms...")
     ancestors_map = compute_ancestors_iterative(child_to_parents_map, all_term_ids)
     if not ancestors_map:
         logger.warning(
             "Ancestor computation resulted in an empty map. Semantic similarity might be affected."
         )
-    save_pickle_data(ancestors_map, ancestors_file, "ancestor sets")
 
-    # 5. Compute Depths for ALL terms from the true ontology root
+    # 6. Compute Depths for ALL terms from the true ontology root
     logger.info("Computing term depths for all HPO terms...")
     term_depths_map = compute_term_depths(parent_to_children_map, all_term_ids)
     if not term_depths_map:
         logger.warning(
             "Term depth computation resulted in an empty map. Semantic similarity might be affected."
         )
-    save_pickle_data(term_depths_map, depths_file, "term depths")
 
-    logger.info("HPO data preparation completed.")
+    # 7. Prepare and insert graph metadata
+    logger.info("Preparing graph metadata for database storage...")
+    graph_metadata = []
+    for term_id in tqdm(all_term_ids, desc="Preparing graph metadata"):
+        # Get ancestors and depth for this term
+        ancestors = ancestors_map.get(term_id, set())
+        depth = term_depths_map.get(term_id, 0)
+
+        graph_metadata.append(
+            {
+                "term_id": term_id,
+                "depth": depth,
+                "ancestors": json.dumps(list(ancestors), ensure_ascii=False),
+            }
+        )
+
+    logger.info(f"Inserting {len(graph_metadata)} graph metadata records...")
+    try:
+        num_graph_inserted = db.bulk_insert_graph_metadata(graph_metadata)
+        logger.info(
+            f"Successfully inserted {num_graph_inserted} graph metadata records"
+        )
+    except Exception as e:
+        db.close()
+        return False, f"Failed to insert graph metadata: {e}"
+
+    # 8. Optimize database
+    logger.info("Optimizing database with ANALYZE...")
+    try:
+        db.optimize()
+    except Exception as e:
+        logger.warning(f"Database optimization failed: {e}")
+
+    # Close database connection
+    db.close()
+
+    logger.info("HPO data preparation completed successfully.")
+    logger.info(f"  Total terms: {len(terms_data)}")
+    logger.info(f"  Database: {db_path}")
     return True, None
 
 
@@ -502,7 +618,15 @@ def orchestrate_hpo_preparation(
     data_dir_override: Optional[str] = None,
 ) -> bool:
     """
-    Orchestrates HPO data download, extraction of ALL terms, and precomputation of graph properties.
+    Orchestrates HPO data download, extraction of ALL terms to SQLite, and precomputation of graph properties.
+
+    Args:
+        debug: Enable debug logging (handled by CLI caller)
+        force_update: Force re-download and regeneration of all data
+        data_dir_override: Override default data directory
+
+    Returns:
+        True if preparation succeeded, False otherwise
     """
     logger.info("Starting HPO ontology data preparation orchestration...")
 
@@ -513,18 +637,14 @@ def orchestrate_hpo_preparation(
         logger.info(f"Using data directory: {data_dir}")
 
         hpo_file_path = data_dir / DEFAULT_HPO_FILENAME
-        hpo_terms_dir = data_dir / DEFAULT_HPO_TERMS_SUBDIR
-        ancestors_file = data_dir / DEFAULT_ANCESTORS_FILENAME
-        depths_file = data_dir / DEFAULT_DEPTHS_FILENAME
+        db_path = data_dir / DEFAULT_HPO_DB_FILENAME
 
         os.makedirs(data_dir, exist_ok=True)  # Ensure base data_dir exists
 
         success, error_message = prepare_hpo_data(
             force_update=force_update,
             hpo_file_path=hpo_file_path,
-            hpo_terms_dir=hpo_terms_dir,
-            ancestors_file=ancestors_file,
-            depths_file=depths_file,
+            db_path=db_path,
         )
 
         if not success:
@@ -533,9 +653,7 @@ def orchestrate_hpo_preparation(
 
         logger.info("HPO data preparation orchestration completed successfully!")
         logger.info(f"  HPO JSON file: {hpo_file_path}")
-        logger.info(f"  Extracted HPO terms directory (ALL terms): {hpo_terms_dir}")
-        logger.info(f"  HPO ancestors file (ALL terms): {ancestors_file}")
-        logger.info(f"  HPO depths file (ALL terms): {depths_file}")
+        logger.info(f"  HPO database: {db_path}")
         return True
 
     except Exception as e:
