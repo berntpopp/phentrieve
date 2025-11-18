@@ -20,7 +20,7 @@ results_dir: "data/results"
 # HARDWARE & PERFORMANCE
 # =============================================================================
 
-device: "auto"  # Options: "auto", "cuda", "cpu", or specific device like "cuda:0"
+device: "cpu"  # Options: "cuda", "cpu", or specific device like "cuda:0" (Note: "auto" is not supported by PyTorch)
 use_fp16: false  # Use half-precision floating point for better performance when available
 
 # =============================================================================
