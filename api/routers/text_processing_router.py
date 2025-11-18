@@ -1,9 +1,15 @@
+import asyncio
 import logging
 from typing import Any
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, status
 from fastapi.concurrency import run_in_threadpool
 
+from api.dependencies import (
+    get_cross_encoder_dependency,
+    get_dense_retriever_dependency,
+    get_sbert_model_dependency,
+)
 from api.schemas.text_processing_schemas import (
     AggregatedHPOTermAPI,
     HPOMatchInChunkAPI,
@@ -25,9 +31,6 @@ from phentrieve.config import (
     get_sliding_window_punct_cleaned_config,
     get_sliding_window_punct_conj_cleaned_config,
 )
-from phentrieve.embeddings import load_embedding_model
-from phentrieve.retrieval.dense_retriever import DenseRetriever
-from phentrieve.retrieval.reranker import load_cross_encoder
 from phentrieve.text_processing.hpo_extraction_orchestrator import (
     orchestrate_hpo_extraction,
 )
@@ -198,10 +201,56 @@ async def process_text_extract_hpo(request: TextProcessingRequest):
     It returns processed text chunks with assertion statuses and aggregated HPO terms.
 
     Heavy NLP operations are executed asynchronously to prevent blocking the API server.
+
+    Includes adaptive timeout based on text length to prevent frontend disconnects.
     """
     logger.info(
-        f"API: Received request to process text. Language: {request.language}, Strategy: {request.chunking_strategy}"
+        f"API: Received request to process text. "
+        f"Language: {request.language}, Strategy: {request.chunking_strategy}"
     )
+
+    # Calculate adaptive timeout based on text length
+    text_length = len(request.text_content)
+    if text_length < 500:
+        timeout_seconds = 30
+    elif text_length < 2000:
+        timeout_seconds = 60
+    elif text_length < 5000:
+        timeout_seconds = 120
+    else:
+        timeout_seconds = 180
+
+    logger.info(f"API: Processing {text_length} chars with {timeout_seconds}s timeout")
+
+    try:
+        # Wrap processing with timeout protection
+        return await asyncio.wait_for(
+            _process_text_internal(request), timeout=timeout_seconds
+        )
+    except asyncio.TimeoutError:
+        logger.error(
+            f"API: Request timed out after {timeout_seconds}s "
+            f"(text length: {text_length} chars)"
+        )
+        raise HTTPException(
+            status_code=status.HTTP_504_GATEWAY_TIMEOUT,
+            detail=(
+                f"Text processing timed out after {timeout_seconds} seconds. "
+                f"Text length: {text_length} characters. "
+                f"Suggestions: (1) reduce text length, "
+                f"(2) use 'simple' chunking strategy, or "
+                f"(3) disable reranker."
+            ),
+        )
+
+
+async def _process_text_internal(request: TextProcessingRequest):
+    """
+    Internal processing function for text extraction.
+
+    Separated from the main endpoint to enable timeout wrapping.
+    Uses cached model dependencies for improved performance.
+    """
 
     try:
         # Determine language
@@ -221,7 +270,7 @@ async def process_text_extract_hpo(request: TextProcessingRequest):
         # Resolve translation directory if needed for monolingual reranking
         translation_dir = resolve_data_path(DEFAULT_TRANSLATIONS_SUBDIR)
 
-        # Model loading (run in threadpool as it's blocking)
+        # Model loading using cached dependencies (much faster than direct loading!)
         # Determine which models to load, with dynamic defaulting for semantic model
         retrieval_model_name_to_load = request.retrieval_model_name or DEFAULT_MODEL
         sbert_for_chunking_name_to_load = (
@@ -233,50 +282,44 @@ async def process_text_extract_hpo(request: TextProcessingRequest):
             f"API: Effective semantic model for chunking: {sbert_for_chunking_name_to_load}"
         )
 
-        # Load the retrieval model
-        retrieval_sbert_model = await run_in_threadpool(
-            load_embedding_model,
-            model_name=retrieval_model_name_to_load,
+        # Get cached retrieval model (will load only once per server lifecycle)
+        retrieval_sbert_model = await get_sbert_model_dependency(
+            model_name_requested=retrieval_model_name_to_load,
             trust_remote_code=request.trust_remote_code or False,
         )
 
         # Determine whether we need a separate model for chunking
-        sbert_for_chunking = retrieval_sbert_model
         if sbert_for_chunking_name_to_load != retrieval_model_name_to_load:
             logger.info(
-                f"API: Loading separate semantic model for chunking: {sbert_for_chunking_name_to_load}"
+                f"API: Using separate semantic model for chunking: {sbert_for_chunking_name_to_load}"
             )
-            sbert_for_chunking = await run_in_threadpool(
-                load_embedding_model,
-                model_name=sbert_for_chunking_name_to_load,
+            sbert_for_chunking = await get_sbert_model_dependency(
+                model_name_requested=sbert_for_chunking_name_to_load,
                 trust_remote_code=request.trust_remote_code or False,
             )
+        else:
+            # Reuse retrieval model for chunking
+            sbert_for_chunking = retrieval_sbert_model
 
-        retriever = await run_in_threadpool(
-            DenseRetriever.from_model_name,
-            model=retrieval_sbert_model,
-            model_name=retrieval_model_name_to_load,
-            min_similarity=request.chunk_retrieval_threshold or 0.3,
+        # Get cached retriever (initializes only once per model)
+        retriever = await get_dense_retriever_dependency(
+            sbert_model_name_for_retriever=retrieval_model_name_to_load
         )
-        if not retriever:
-            raise HTTPException(
-                status_code=503,
-                detail=f"Failed to initialize retriever for model {retrieval_model_name_to_load}. Index might be missing.",
-            )
 
+        # Get cached cross-encoder if reranking is enabled
         cross_enc = None
         if request.enable_reranker:
             reranker_to_load = request.reranker_model_name
             if request.reranker_mode == "monolingual" and actual_language != "en":
                 reranker_to_load = request.monolingual_reranker_model_name
             if reranker_to_load:
-                logger.info(f"API: Loading reranker model: {reranker_to_load}")
-                cross_enc = await run_in_threadpool(
-                    load_cross_encoder, model_name=reranker_to_load
+                logger.info(f"API: Using reranker model: {reranker_to_load}")
+                cross_enc = await get_cross_encoder_dependency(
+                    reranker_model_name=reranker_to_load
                 )
             if not cross_enc:
                 logger.warning(
-                    f"API: Failed to load reranker {reranker_to_load}, proceeding without reranking."
+                    f"API: Reranker {reranker_to_load} not available, proceeding without reranking."
                 )
 
         # Prepare pipeline configuration
