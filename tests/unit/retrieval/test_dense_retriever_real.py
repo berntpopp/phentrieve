@@ -338,6 +338,309 @@ class TestDenseRetrieverQuery:
         assert results == {"ids": [], "documents": [], "metadatas": [], "distances": []}
 
 
+class TestDenseRetrieverQueryBatch:
+    """Test DenseRetriever.query_batch method (Day 2 optimization)."""
+
+    def test_batch_query_empty_list(self):
+        """Test batch query with empty list returns empty results."""
+        # Arrange
+        mock_model = Mock()
+        mock_collection = Mock()
+        retriever = DenseRetriever(mock_model, mock_collection)
+
+        # Act
+        results = retriever.query_batch([])
+
+        # Assert
+        assert results == []
+        mock_model.encode.assert_not_called()
+        mock_collection.query.assert_not_called()
+
+    def test_batch_query_single_text(self):
+        """Test batch query with single text works correctly."""
+        # Arrange
+        mock_model = Mock()
+        mock_device = Mock()
+        mock_device.type = "cpu"
+        mock_model.parameters.return_value = iter([Mock(device=mock_device)])
+        # Return batch of embeddings (1 text)
+        mock_model.encode.return_value = np.array([[0.1, 0.2, 0.3]])
+
+        mock_collection = Mock()
+        mock_collection.query.return_value = {
+            "ids": [["HP:0001"]],
+            "documents": [["Test document"]],
+            "metadatas": [[{"hpo_id": "HP:0001"}]],
+            "distances": [[0.5]],
+        }
+
+        retriever = DenseRetriever(mock_model, mock_collection)
+
+        # Act
+        results = retriever.query_batch(["test query"])
+
+        # Assert
+        assert len(results) == 1
+        assert "ids" in results[0]
+        assert "documents" in results[0]
+        assert "similarities" in results[0]
+        mock_model.encode.assert_called_once_with(["test query"], device="cpu")
+        mock_collection.query.assert_called_once()
+
+    def test_batch_query_multiple_texts(self):
+        """Test batch query with multiple texts processes all at once."""
+        # Arrange
+        mock_model = Mock()
+        mock_device = Mock()
+        mock_device.type = "cpu"
+        mock_model.parameters.return_value = iter([Mock(device=mock_device)])
+        # Return batch of embeddings (3 texts)
+        mock_model.encode.return_value = np.array(
+            [
+                [0.1, 0.2, 0.3],
+                [0.4, 0.5, 0.6],
+                [0.7, 0.8, 0.9],
+            ]
+        )
+
+        mock_collection = Mock()
+        mock_collection.query.return_value = {
+            "ids": [["HP:0001"], ["HP:0002"], ["HP:0003"]],
+            "documents": [["doc1"], ["doc2"], ["doc3"]],
+            "metadatas": [
+                [{"hpo_id": "HP:0001"}],
+                [{"hpo_id": "HP:0002"}],
+                [{"hpo_id": "HP:0003"}],
+            ],
+            "distances": [[0.5], [0.6], [0.7]],
+        }
+
+        retriever = DenseRetriever(mock_model, mock_collection)
+
+        # Act
+        texts = ["query 1", "query 2", "query 3"]
+        results = retriever.query_batch(texts)
+
+        # Assert
+        assert len(results) == 3
+        # Verify all results have expected structure
+        for result in results:
+            assert "ids" in result
+            assert "documents" in result
+            assert "similarities" in result
+
+        # CRITICAL: Verify batch processing - encode called ONCE, not 3 times!
+        mock_model.encode.assert_called_once_with(texts, device="cpu")
+        # ChromaDB query called ONCE, not 3 times!
+        mock_collection.query.assert_called_once()
+
+    def test_batch_query_includes_similarities(self):
+        """Test batch query calculates similarities for all results."""
+        # Arrange
+        mock_model = Mock()
+        mock_device = Mock()
+        mock_device.type = "cpu"
+        mock_model.parameters.return_value = iter([Mock(device=mock_device)])
+        mock_model.encode.return_value = np.array([[0.1, 0.2], [0.3, 0.4]])
+
+        mock_collection = Mock()
+        mock_collection.query.return_value = {
+            "ids": [["HP:0001", "HP:0002"], ["HP:0003", "HP:0004"]],
+            "documents": [["doc1", "doc2"], ["doc3", "doc4"]],
+            "metadatas": [[{"id": "1"}, {"id": "2"}], [{"id": "3"}, {"id": "4"}]],
+            "distances": [[0.2, 0.4], [0.3, 0.5]],
+        }
+
+        retriever = DenseRetriever(mock_model, mock_collection)
+
+        # Act
+        results = retriever.query_batch(["query1", "query2"], include_similarities=True)
+
+        # Assert
+        assert len(results) == 2
+        for result in results:
+            assert "similarities" in result
+            assert len(result["similarities"][0]) == 2  # 2 results per query
+
+    def test_batch_query_without_similarities(self):
+        """Test batch query without similarity calculation."""
+        # Arrange
+        mock_model = Mock()
+        mock_device = Mock()
+        mock_device.type = "cpu"
+        mock_model.parameters.return_value = iter([Mock(device=mock_device)])
+        mock_model.encode.return_value = np.array([[0.1, 0.2]])
+
+        mock_collection = Mock()
+        mock_collection.query.return_value = {
+            "ids": [["HP:0001"]],
+            "documents": [["doc1"]],
+            "metadatas": [[{"id": "1"}]],
+            "distances": [[0.2]],
+        }
+
+        retriever = DenseRetriever(mock_model, mock_collection)
+
+        # Act
+        results = retriever.query_batch(["query1"], include_similarities=False)
+
+        # Assert
+        assert len(results) == 1
+        assert "similarities" not in results[0]
+
+    def test_batch_query_with_cuda_device(self):
+        """Test batch query with CUDA device."""
+        # Arrange
+        mock_model = Mock()
+        mock_device = Mock()
+        mock_device.type = "cuda"
+        mock_model.parameters.return_value = iter([Mock(device=mock_device)])
+        mock_model.encode.return_value = np.array([[0.1, 0.2]])
+
+        mock_collection = Mock()
+        mock_collection.query.return_value = {
+            "ids": [["HP:0001"]],
+            "documents": [["doc1"]],
+            "metadatas": [[{"id": "1"}]],
+            "distances": [[0.2]],
+        }
+
+        retriever = DenseRetriever(mock_model, mock_collection)
+
+        # Act
+        retriever.query_batch(["query1"])
+
+        # Assert
+        # Verify encode was called with device="cuda"
+        call_args = mock_model.encode.call_args
+        assert call_args[1]["device"] == "cuda"
+
+    def test_batch_query_error_handling(self):
+        """Test error handling during batch query."""
+        # Arrange
+        mock_model = Mock()
+        mock_model.parameters.side_effect = Exception("Model error")
+
+        mock_collection = Mock()
+
+        retriever = DenseRetriever(mock_model, mock_collection)
+
+        # Act
+        results = retriever.query_batch(["query1", "query2"])
+
+        # Assert
+        assert len(results) == 2
+        for result in results:
+            assert result == {
+                "ids": [],
+                "documents": [],
+                "metadatas": [],
+                "distances": [],
+            }
+
+    def test_query_uses_query_batch_internally(self):
+        """Test that query() method uses query_batch() internally (DRY principle)."""
+        # Arrange
+        mock_model = Mock()
+        mock_device = Mock()
+        mock_device.type = "cpu"
+        mock_model.parameters.return_value = iter([Mock(device=mock_device)])
+        mock_model.encode.return_value = np.array([[0.1, 0.2, 0.3]])
+
+        mock_collection = Mock()
+        mock_collection.query.return_value = {
+            "ids": [["HP:0001"]],
+            "documents": [["Test document"]],
+            "metadatas": [[{"hpo_id": "HP:0001"}]],
+            "distances": [[0.5]],
+        }
+
+        retriever = DenseRetriever(mock_model, mock_collection)
+
+        # Act
+        result = retriever.query("test query")
+
+        # Assert
+        # Should get same result as batch query with single text
+        assert "ids" in result
+        assert "documents" in result
+        assert "similarities" in result
+
+        # Verify internal implementation uses batch processing
+        # (encode called with list, even for single query)
+        mock_model.encode.assert_called_once()
+        call_args = mock_model.encode.call_args
+        assert isinstance(call_args[0][0], list)  # First arg is a list
+
+    def test_batch_query_consistency_with_sequential(self):
+        """Test batch query produces same results as sequential queries."""
+        # Arrange
+        mock_model = Mock()
+        mock_device = Mock()
+        mock_device.type = "cpu"
+        mock_model.parameters.return_value = iter(
+            [
+                Mock(device=mock_device),
+                Mock(device=mock_device),
+                Mock(device=mock_device),
+            ]
+        )
+        # First call: batch of 2 embeddings
+        # Second call: single embedding (for sequential query 1)
+        # Third call: single embedding (for sequential query 2)
+        mock_model.encode.side_effect = [
+            np.array([[0.1, 0.2], [0.3, 0.4]]),  # Batch
+            np.array([[0.1, 0.2]]),  # Sequential 1
+            np.array([[0.3, 0.4]]),  # Sequential 2
+        ]
+
+        mock_collection = Mock()
+        # First call: batch results
+        # Second call: sequential result 1
+        # Third call: sequential result 2
+        mock_collection.query.side_effect = [
+            {  # Batch
+                "ids": [["HP:0001"], ["HP:0002"]],
+                "documents": [["doc1"], ["doc2"]],
+                "metadatas": [[{"id": "1"}], [{"id": "2"}]],
+                "distances": [[0.2], [0.3]],
+            },
+            {  # Sequential 1
+                "ids": [["HP:0001"]],
+                "documents": [["doc1"]],
+                "metadatas": [[{"id": "1"}]],
+                "distances": [[0.2]],
+            },
+            {  # Sequential 2
+                "ids": [["HP:0002"]],
+                "documents": [["doc2"]],
+                "metadatas": [[{"id": "2"}]],
+                "distances": [[0.3]],
+            },
+        ]
+
+        retriever = DenseRetriever(mock_model, mock_collection)
+
+        # Act
+        batch_results = retriever.query_batch(["query1", "query2"])
+
+        # Reset mocks for sequential queries
+        mock_model.parameters.return_value = iter(
+            [
+                Mock(device=mock_device),
+                Mock(device=mock_device),
+            ]
+        )
+
+        sequential_result1 = retriever.query("query1")
+        sequential_result2 = retriever.query("query2")
+
+        # Assert
+        # Batch results should match sequential results
+        assert batch_results[0]["ids"] == sequential_result1["ids"]
+        assert batch_results[1]["ids"] == sequential_result2["ids"]
+
+
 class TestDenseRetrieverFilterResults:
     """Test DenseRetriever.filter_results method."""
 
