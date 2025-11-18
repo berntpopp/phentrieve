@@ -10,13 +10,17 @@ fall back to the defaults defined in this module.
 
 import copy
 import functools
+from pathlib import Path
 from typing import Any
 
 # Default directory sub-paths and filenames (relative to base dirs)
 # Sub-directories (for data_dir)
 DEFAULT_HPO_TERMS_SUBDIR = "hpo_terms"
-DEFAULT_TEST_CASES_SUBDIR = "test_cases"
 DEFAULT_TRANSLATIONS_SUBDIR = "hpo_translations"  # Directory for HPO term translations
+
+# Benchmark test data configuration (relative to project root)
+BENCHMARK_DATA_DIR = Path("tests/data/benchmarks")
+DEFAULT_BENCHMARK_FILE = "german/tiny_v1.json"
 
 # HPO data filenames (relative to data_dir)
 DEFAULT_HPO_FILENAME = "hp.json"

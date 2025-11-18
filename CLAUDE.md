@@ -468,6 +468,39 @@ When first run, Phentrieve creates data directories (configurable in `phentrieve
 - `data/hf_cache/` - Hugging Face model cache for faster loading
 - `data/results/` - Benchmark results and evaluation metrics
 
+### Benchmark Test Data
+
+**Location**: `tests/data/benchmarks/`
+
+Benchmark datasets for evaluating HPO retrieval performance organized by language:
+- `german/` - German-language datasets (current)
+- `en/` - English-language datasets (future)
+- Other languages as needed
+
+**Available Datasets**:
+- `tiny_v1.json` (9 cases) - Quick testing, used by default
+- `70cases_gemini_v1.json` (70 cases) - Medium evaluation
+- `200cases_gemini_v1.json` (200 cases) - Comprehensive evaluation
+
+**Usage**:
+```bash
+# Use default tiny dataset
+phentrieve benchmark run
+
+# Specify dataset by relative path
+phentrieve benchmark run --test-file german/70cases_gemini_v1.json
+```
+
+**In Tests**:
+```python
+def test_something(benchmark_data_dir):
+    from phentrieve.data_processing.test_data_loader import load_test_data
+    dataset = load_test_data(str(benchmark_data_dir / "german/tiny_v1.json"))
+    assert len(dataset) == 9
+```
+
+See `tests/data/benchmarks/README.md` for complete dataset documentation.
+
 ### Frontend Architecture
 
 - Vue 3 with Composition API
