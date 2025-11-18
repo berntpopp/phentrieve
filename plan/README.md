@@ -121,8 +121,22 @@ Add archive note:
 
 ### Active Plans (01-active/)
 
-**Count:** 0
-**Focus:** All major modernization complete
+**Count:** 2
+**Focus:** Performance optimization (critical production bugs + long-term improvements)
+
+| Plan | Status | Priority | ETA |
+|------|--------|----------|-----|
+| **PERFORMANCE-MASTER-PLAN.md** | 🔴 Phase 0 (Days 1-2) | P0 - Critical | Week 1 |
+| **CHUNKING-OPTIMIZATION-PLAN.md** | 🟡 Deferred (Phase 4) | P2 | Week 5+ |
+
+**Quick Wins Available:**
+- ⚡ Model caching: 50-100x speedup (2 hours, 3-line change!)
+- ⚡ API timeouts: Fix "Verbindung verloren" errors (2 hours, 10 lines)
+- ⚡ Batch ChromaDB: 10-20x speedup (4 hours, 30 lines)
+
+**Test Files:**
+- Small: `tests/data/de/phentrieve/annotations/clinical_case_001.json` (125 chars - currently slow!)
+- Medium: `tests/data/en/phenobert/GeneReviews/annotations/GeneReviews_NBK1379.json` (1588 chars - times out!)
 
 ### Completed Plans (02-completed/)
 
@@ -137,8 +151,14 @@ Add archive note:
 
 ### Archived Plans (03-archived/)
 
-**Count:** 1
-**Reason:** Superseded by direct implementation
+**Count:** 3
+**Reason:** Superseded by PERFORMANCE-MASTER-PLAN.md
+
+| Plan | Archived | Reason |
+|------|----------|--------|
+| ~~TECHNICAL-OPTIMIZATIONS-PLAN.md~~ | 2025-11-18 | Over-engineered, merged into master plan |
+| ~~CRITICAL-PERFORMANCE-FIXES.md~~ | 2025-11-18 | Merged into PERFORMANCE-MASTER-PLAN Phase 0 |
+| DOCKER-REFACTORING-PLAN.md | Earlier | Direct implementation |
 
 ---
 
@@ -399,6 +419,7 @@ This planning folder is designed to support effective LLM-assisted development t
 
 ---
 
-**Last Updated:** 2025-11-15
+**Last Updated:** 2025-11-18
 **Organization Method:** Status-based (Active → Completed → Archived)
 **Maintained By:** Development Team + LLM Assistants
+**Current Priority:** PERFORMANCE-MASTER-PLAN.md Phase 0 (Critical production bugs)
