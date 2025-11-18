@@ -32,28 +32,51 @@ _cli_hpo_label_cache: Optional[dict[str, str]] = None
 
 
 def _ensure_cli_hpo_label_cache() -> dict[str, str]:
-    """Loads HPO term labels into a cache if not already loaded."""
+    """
+    Loads HPO term labels into a cache if not already loaded.
+
+    Uses the optimized get_label_map() from HPODatabase for efficient label-only loading.
+    Falls back to load_hpo_terms() if database method fails.
+    """
     global _cli_hpo_label_cache
     if _cli_hpo_label_cache is None:
         logger.info("CLI: Initializing HPO label cache for similarity command...")
         try:
-            hpo_terms_data = (
-                load_hpo_terms()
-            )  # Assumes default data paths are correctly resolved by this function
-            if not hpo_terms_data:
-                logger.warning(
-                    "CLI: No HPO terms data found for label lookup. Labels will be 'Unknown Label'."
+            # Try optimized database label loading first
+            from phentrieve.config import DEFAULT_HPO_DB_FILENAME
+            from phentrieve.data_processing.hpo_database import HPODatabase
+            from phentrieve.utils import get_default_data_dir
+
+            data_dir = get_default_data_dir()
+            db_path = data_dir / DEFAULT_HPO_DB_FILENAME
+
+            if db_path.exists():
+                db = HPODatabase(db_path)
+                _cli_hpo_label_cache = db.get_label_map()
+                db.close()
+                logger.info(
+                    f"CLI: HPO label cache initialized with {len(_cli_hpo_label_cache)} terms from database."
                 )
-                _cli_hpo_label_cache = {}
             else:
-                _cli_hpo_label_cache = {
-                    term_data["id"]: term_data["label"]
-                    for term_data in hpo_terms_data
-                    if term_data.get("id") and term_data.get("label")
-                }
-            logger.info(
-                f"CLI: HPO label cache initialized with {len(_cli_hpo_label_cache)} terms."
-            )
+                # Fallback to loading all terms if database not found
+                logger.warning(
+                    "CLI: Database not found, falling back to load_hpo_terms()..."
+                )
+                hpo_terms_data = load_hpo_terms()
+                if not hpo_terms_data:
+                    logger.warning(
+                        "CLI: No HPO terms data found for label lookup. Labels will be 'Unknown Label'."
+                    )
+                    _cli_hpo_label_cache = {}
+                else:
+                    _cli_hpo_label_cache = {
+                        term_data["id"]: term_data["label"]
+                        for term_data in hpo_terms_data
+                        if term_data.get("id") and term_data.get("label")
+                    }
+                    logger.info(
+                        f"CLI: HPO label cache initialized with {len(_cli_hpo_label_cache)} terms."
+                    )
         except Exception as e:
             logger.error(f"CLI: Failed to load HPO terms for labels: {e}")
             _cli_hpo_label_cache = {}  # Ensure it's initialized to prevent repeated attempts
