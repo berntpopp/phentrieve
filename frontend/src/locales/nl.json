@@ -200,7 +200,7 @@
     },
     "config": {
       "title": "Logboek configuratie",
-      "description": "Stel het maximum aantal logboekvermeldingen in om in het geheugen te bewaren. Oudere logboeken worden automatisch geroteerd (FIFO).",
+      "description": "Stel het maximum aantal logboekvermeldingen in om in het geheugen te bewaren. Oudere logboeken worden automatisch verwijderd (FIFO).",
       "cancel": "Annuleren",
       "save": "Opslaan"
     }

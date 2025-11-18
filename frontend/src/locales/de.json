@@ -205,7 +205,7 @@
     },
     "config": {
       "title": "Protokollierungskonfiguration",
-      "description": "Legen Sie die maximale Anzahl der im Speicher zu behaltenden Protokolleinträge fest. Ältere Protokolle werden automatisch rotiert (FIFO).",
+      "description": "Legen Sie die maximale Anzahl der im Speicher zu behaltenden Protokolleinträge fest. Ältere Protokolle werden automatisch gelöscht (FIFO).",
       "cancel": "Abbrechen",
       "save": "Speichern"
     }

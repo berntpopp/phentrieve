@@ -199,12 +199,12 @@
     "details": "Détails",
     "stats": {
       "received": "Reçus",
-      "dropped": "Supprimés",
+      "dropped": "Abandonnés",
       "memory": "Mémoire"
     },
     "config": {
       "title": "Configuration de la journalisation",
-      "description": "Définissez le nombre maximum d'entrées de journal à conserver en mémoire. Les anciens journaux sont automatiquement rotés (FIFO).",
+      "description": "Définissez le nombre maximum d'entrées de journal à conserver en mémoire. Les anciens journaux sont automatiquement supprimés (FIFO).",
       "cancel": "Annuler",
       "save": "Enregistrer"
     }

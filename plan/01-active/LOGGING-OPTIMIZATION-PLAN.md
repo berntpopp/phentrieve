@@ -79,7 +79,7 @@ The `kidney-genetics-db` project has a **production-ready logging system** with 
 
 4. **LocalStorage Persistence**: User preferences survive page refreshes
 
-5. **Performance Optimization**: `Promise.resolve().then()` defers log addition to avoid render blocking
+5. **Performance Optimization**: Synchronous log addition with automatic rotation to keep implementation simple (KISS principle)
 
 6. **Advanced Features**:
    - Log sanitization for sensitive data
@@ -196,9 +196,6 @@ frontend/src/
        CONSOLE_ECHO: 'phentrieve-console-echo',
      },
 
-     // Performance settings
-     DEFER_LOG_ADDITION: true, // Use Promise.resolve() to defer
-
      // Memory warning threshold (bytes)
      MEMORY_WARNING_THRESHOLD: 1024 * 1024, // 1 MB
    };
@@ -290,12 +287,8 @@ frontend/src/
        }
      };
 
-     // Defer to next tick for performance
-     if (LOG_CONFIG.DEFER_LOG_ADDITION) {
-       Promise.resolve().then(addLog);
-     } else {
-       addLog();
-     }
+     // Synchronous execution (KISS principle - avoid unnecessary complexity)
+     addLog();
    }
    ```
 
@@ -868,7 +861,7 @@ describe('Logging System Integration', () => {
  * addLogEntry({ message: 'User login', level: 'INFO' });
  *
  * @performance
- * Uses Promise.resolve() to defer addition to next tick, preventing render blocking.
+ * Synchronous execution (KISS principle) with automatic rotation.
  * Automatically trims oldest logs when exceeding maxEntries.
  */
 function addLogEntry(entry, maxEntriesOverride = null) {

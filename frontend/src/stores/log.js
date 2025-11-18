@@ -187,6 +187,19 @@ export const useLogStore = defineStore('log', () => {
   }
 
   /**
+   * Internal helper: Perform trimming operation without changing maxEntries
+   * @private
+   * @param {number} targetMax - Target maximum entries
+   */
+  function _performTrim(targetMax) {
+    if (logs.value.length > targetMax) {
+      const toRemove = logs.value.length - targetMax;
+      logs.value = logs.value.slice(toRemove);
+      stats.value.totalLogsDropped += toRemove;
+    }
+  }
+
+  /**
    * Trim logs to a new maximum and update statistics
    *
    * @param {number} newMaxEntries - New maximum log entries
@@ -195,11 +208,7 @@ export const useLogStore = defineStore('log', () => {
    * trimLogs(50); // Keep only 50 most recent logs
    */
   function trimLogs(newMaxEntries) {
-    if (logs.value.length > newMaxEntries) {
-      const toRemove = logs.value.length - newMaxEntries;
-      logs.value = logs.value.slice(toRemove);
-      stats.value.totalLogsDropped += toRemove;
-    }
+    _performTrim(newMaxEntries);
     maxEntries.value = newMaxEntries;
     saveMaxEntriesToStorage(newMaxEntries);
   }
@@ -215,7 +224,7 @@ export const useLogStore = defineStore('log', () => {
   function setMaxEntries(value) {
     maxEntries.value = value;
     saveMaxEntriesToStorage(value);
-    trimLogs(value); // Trim existing logs if needed
+    _performTrim(value); // Trim existing logs if needed (no circular call)
   }
 
   /**
@@ -284,6 +293,11 @@ export const useLogStore = defineStore('log', () => {
   /**
    * Get comprehensive statistics about the logging system
    *
+   * PERFORMANCE NOTE: Set includeMemory=true only when needed, as it performs
+   * expensive JSON.stringify operation. Default is false to avoid performance
+   * impact when called from computed properties.
+   *
+   * @param {boolean} [includeMemory=false] - Whether to include memory usage (expensive)
    * @returns {Object} Statistics object
    * @returns {number} return.totalLogsReceived - Total logs added this session
    * @returns {number} return.totalLogsDropped - Total logs auto-rotated
@@ -291,23 +305,34 @@ export const useLogStore = defineStore('log', () => {
    * @returns {string} return.sessionStartTime - ISO timestamp of session start
    * @returns {number} return.currentCount - Current number of logs
    * @returns {number} return.maxEntries - Maximum log entries
-   * @returns {Object} return.memoryUsage - Memory usage statistics
+   * @returns {Object} [return.memoryUsage] - Memory usage (only if includeMemory=true)
    * @returns {string|null} return.oldestLog - Timestamp of oldest log
    * @returns {string|null} return.newestLog - Timestamp of newest log
    *
    * @example
+   * // Lightweight stats (for computed properties)
    * const stats = getStatistics();
+   *
+   * @example
+   * // Full stats with memory (for explicit UI display)
+   * const stats = getStatistics(true);
    * console.log(`${stats.currentCount}/${stats.maxEntries} logs, ${stats.memoryUsage.kb} KB`);
    */
-  function getStatistics() {
-    return {
+  function getStatistics(includeMemory = false) {
+    const baseStats = {
       ...stats.value,
       currentCount: logs.value.length,
       maxEntries: maxEntries.value,
-      memoryUsage: getMemoryUsage(),
       oldestLog: logs.value[0]?.timestamp || null,
       newestLog: logs.value[logs.value.length - 1]?.timestamp || null,
     };
+
+    // Only compute memory usage if explicitly requested (expensive operation)
+    if (includeMemory) {
+      baseStats.memoryUsage = getMemoryUsage();
+    }
+
+    return baseStats;
   }
 
   // ===========================

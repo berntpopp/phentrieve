@@ -80,12 +80,27 @@ class LogService {
    * @param {*} [data=null] - Optional data to log
    */
   _log(level, message, data = null) {
+    // Deep clone data to prevent reference issues
+    // Use structuredClone (modern, fast, handles circular refs)
+    // Fallback to JSON clone for older browsers
+    let clonedData = null;
+    if (data) {
+      try {
+        clonedData =
+          typeof structuredClone === 'function'
+            ? structuredClone(data)
+            : JSON.parse(JSON.stringify(data));
+      } catch {
+        // If cloning fails (circular refs in old browsers), store fallback message
+        clonedData = { _cloneError: 'Failed to clone data', _original: String(data) };
+      }
+    }
+
     const entry = {
       timestamp: new Date().toISOString(),
       level,
       message,
-      // Deep clone data to prevent reference issues
-      data: data ? JSON.parse(JSON.stringify(data)) : null,
+      data: clonedData,
     };
 
     // Add to store if initialized

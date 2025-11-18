@@ -73,6 +73,7 @@
           multiple
           chips
           hide-details
+          class="mb-2"
           bg-color="white"
           color="primary"
         >
@@ -188,7 +189,7 @@
 </template>
 
 <script>
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useLogStore } from '../stores/log';
 import { LogLevel, logService } from '../services/logService';
 import { LOG_CONFIG } from '../config/logConfig';
@@ -206,8 +207,16 @@ export default {
     const configMaxEntries = ref(logStore.maxEntries);
     const configLimits = LOG_CONFIG.UI_LIMITS;
 
+    // Watch dialog open to sync configMaxEntries with current store value
+    watch(showConfigDialog, (isOpen) => {
+      if (isOpen) {
+        configMaxEntries.value = logStore.maxEntries;
+      }
+    });
+
     // Statistics (computed to update reactively)
-    const statistics = computed(() => logStore.getStatistics());
+    // Pass true to include memory usage (expensive but needed for display)
+    const statistics = computed(() => logStore.getStatistics(true));
 
     const filteredLogs = computed(() => {
       return logStore.logs.filter((log) => {

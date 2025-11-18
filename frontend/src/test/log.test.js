@@ -336,7 +336,7 @@ describe('Log Store', () => {
         store.addLogEntry({ message: `Test ${i}`, level: 'INFO' });
       }
 
-      const stats = store.getStatistics();
+      const stats = store.getStatistics(true); // Include memory usage
 
       expect(stats.totalLogsReceived).toBe(10);
       expect(stats.totalLogsDropped).toBe(5);
