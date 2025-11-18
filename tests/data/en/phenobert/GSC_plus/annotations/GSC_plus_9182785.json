@@ -1,0 +1,262 @@
+{
+  "doc_id": "GSC+_9182785",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Undiagnosed institutionalised patients were reviewed in an attempt to identify those with Angelman syndrome (AS). The aim was to test these patients for deletion of chromosome 15(q11-13) and to describe the adult phenotype. The selection criteria included severe intellectual disability, ataxic or hypermotoric limb movements, lack of speech, a \"happy\" demeanour, epilepsy, and facial appearance consistent with the diagnosis. Patients were examined, medical records perused, and patients' doctors contacted as required. Genetic tests performed included routine cytogenetics, DNA methylation analysis (with probe PW71B), and fluorescence in situ hybridisation (with probes D15S10, GABRbeta3, or SNRPN). A deletion in the AS region was detected in 11 patients (9 males and 2 females) of 22 tested. The mean age at last review (March 1996) was 31.5 years (range 24 to 36 years). Clinical assessment documented findings of large mouth and jaw with deep set eyes, and microcephaly in nine patients (two having a large head size for height). No patient was hypopigmented; 1/11 patients was fair. Outbursts of laughter occurred in all patients but infrequently in 7/11 (64%) and a constant happy demeanour was present in 5/11 (46%). All had epilepsy, with improvement in 5/11 (46%), no change in 4 (36%), and deterioration in 2 (18%). The EEG was abnormal in 10/10 patients. Ocular abnormalities were reported in 3/8 patients (37.5%) and 4/11 (36%) had developed kyphosis. Two had never walked. All nine who walked were ataxic with an awkward, clumsy, heavy, and/or lilting gait. No patient had a single word of speech but one patient could use sign language for two needs (food and drink). Our data support the concept that AS resulting from deletion is a severe neurological syndrome in adulthood. The diagnosis in adults may not be straightforward as some manifestations change with age. Kyphosis and keratoconus are two problems of older patients.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 1945,
+    "num_annotations": 19,
+    "conversion_date": "2025-11-18T13:13:18.704766"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001249",
+      "label": "Intellectual disability",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 263,
+          "end_char": 286,
+          "text_snippet": "intellectual disability"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001251",
+      "label": "Ataxia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 288,
+          "end_char": 294,
+          "text_snippet": "ataxic"
+        },
+        {
+          "start_char": 1514,
+          "end_char": 1520,
+          "text_snippet": "ataxic"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002070",
+      "label": "Limb ataxia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 288,
+          "end_char": 325,
+          "text_snippet": "ataxic or hypermotoric limb movements"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002276",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 298,
+          "end_char": 325,
+          "text_snippet": "hypermotoric limb movements"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001617",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 327,
+          "end_char": 341,
+          "text_snippet": "lack of speech"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100024",
+      "label": "Conspicuously happy disposition",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 345,
+          "end_char": 362,
+          "text_snippet": "\"happy\" demeanour"
+        },
+        {
+          "start_char": 1175,
+          "end_char": 1199,
+          "text_snippet": "constant happy demeanour"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001250",
+      "label": "Seizure",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 364,
+          "end_char": 372,
+          "text_snippet": "epilepsy"
+        },
+        {
+          "start_char": 1235,
+          "end_char": 1243,
+          "text_snippet": "epilepsy"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001999",
+      "label": "Abnormal facial shape",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 378,
+          "end_char": 395,
+          "text_snippet": "facial appearance"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000303",
+      "label": "Mandibular prognathia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 920,
+          "end_char": 939,
+          "text_snippet": "large mouth and jaw"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000181",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 920,
+          "end_char": 931,
+          "text_snippet": "large mouth"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000490",
+      "label": "Deeply set eye",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 945,
+          "end_char": 958,
+          "text_snippet": "deep set eyes"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000252",
+      "label": "Microcephaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 964,
+          "end_char": 976,
+          "text_snippet": "microcephaly"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000256",
+      "label": "Macrocephaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1008,
+          "end_char": 1018,
+          "text_snippet": "large head"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001010",
+      "label": "Hypopigmentation of the skin",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1052,
+          "end_char": 1065,
+          "text_snippet": "hypopigmented"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000749",
+      "label": "Paroxysmal bursts of laughter",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1091,
+          "end_char": 1112,
+          "text_snippet": "Outbursts of laughter"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000284",
+      "label": "obsolete Abnormality of the ocular region",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1369,
+          "end_char": 1389,
+          "text_snippet": "Ocular abnormalities"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002808",
+      "label": "Kyphosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1457,
+          "end_char": 1465,
+          "text_snippet": "kyphosis"
+        },
+        {
+          "start_char": 1885,
+          "end_char": 1893,
+          "text_snippet": "Kyphosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002540",
+      "label": "Inability to walk",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1475,
+          "end_char": 1487,
+          "text_snippet": "never walked"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000563",
+      "label": "Keratoconus",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1898,
+          "end_char": 1909,
+          "text_snippet": "keratoconus"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,122 @@
+{
+  "doc_id": "GSC+_10051003",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Townes-Brocks syndrome (TBS) is an autosomal dominant disorder with multiple malformations and variable expression. Major findings include external ear anomalies, hearing loss, preaxial polydactyly and triphalangeal thumbs, imperforate anus, and renal malformations. Most patients with Townes-Brocks syndrome have normal intelligence, although mental retardation has been noted in a few.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 387,
+    "num_annotations": 9,
+    "conversion_date": "2025-11-18T13:13:13.992685"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 35,
+          "end_char": 62,
+          "text_snippet": "autosomal dominant disorder"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003828",
+      "label": "Variable expressivity",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 95,
+          "end_char": 114,
+          "text_snippet": "variable expression"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000356",
+      "label": "Abnormality of the outer ear",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 139,
+          "end_char": 161,
+          "text_snippet": "external ear anomalies"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000365",
+      "label": "Hearing impairment",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 163,
+          "end_char": 175,
+          "text_snippet": "hearing loss"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001177",
+      "label": "Preaxial hand polydactyly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 177,
+          "end_char": 197,
+          "text_snippet": "preaxial polydactyly"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001199",
+      "label": "Triphalangeal thumb",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 202,
+          "end_char": 222,
+          "text_snippet": "triphalangeal thumbs"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002023",
+      "label": "Anal atresia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 224,
+          "end_char": 240,
+          "text_snippet": "imperforate anus"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000792",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 246,
+          "end_char": 265,
+          "text_snippet": "renal malformations"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001249",
+      "label": "Intellectual disability",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 344,
+          "end_char": 362,
+          "text_snippet": "mental retardation"
+        }
+      ]
+    }
+  ]
+}

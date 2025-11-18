@@ -1,0 +1,98 @@
+{
+  "doc_id": "ID-68_17DG0765",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "An 11 years old girl who was born at full term via NSVD following an uneventful pregnancy. Her development has always been delayed. She walked at 30 months, and she started saying some words at 3 years. She has developmental dysplasia of the hip (DDH), and she underwent multiple surgeries to correct it. Her physical examination was significant for facial dysmorphia, prominent forehead, retrognathia, convergent squint and hyperextensible fingers. Growth parameters at 11 years of age were weight 51 kg (90th-95th percentile), height 152 cm (75th-90th percentile) and head circumference 51.5 cm (10th-25th percentile). ",
+  "metadata": {
+    "dataset": "ID-68",
+    "text_length_chars": 621,
+    "num_annotations": 7,
+    "conversion_date": "2025-11-18T13:13:20.235409"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001263",
+      "label": "Global developmental delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 211,
+          "end_char": 234,
+          "text_snippet": "developmental dysplasia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001385",
+      "label": "Hip dysplasia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 225,
+          "end_char": 245,
+          "text_snippet": "dysplasia of the hip"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001999",
+      "label": "Abnormal facial shape",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 350,
+          "end_char": 367,
+          "text_snippet": "facial dysmorphia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0011220",
+      "label": "Prominent forehead",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 369,
+          "end_char": 387,
+          "text_snippet": "prominent forehead"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000278",
+      "label": "Retrognathia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 389,
+          "end_char": 401,
+          "text_snippet": "retrognathia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0020045",
+      "label": "Esodeviation",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 403,
+          "end_char": 420,
+          "text_snippet": "convergent squint"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001187",
+      "label": "Hyperextensibility of the finger joints",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 425,
+          "end_char": 448,
+          "text_snippet": "hyperextensible fingers"
+        }
+      ]
+    }
+  ]
+}

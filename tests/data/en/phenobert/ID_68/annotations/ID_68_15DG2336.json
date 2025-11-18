@@ -1,0 +1,187 @@
+{
+  "doc_id": "ID-68_15DG2336",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "This is a 30 months old boy who was the product of a full-term pregnancy, and his growth parameters at birth were weight 2.2 kg (<3rd percentile), length 45 cm (<3rd percentile) and head circumference 32 cm (on the 3rd percentile). He was noted to have hypospadias, undescended testes, hypotonia and delay development. He also has been found to have central sleep apnea requiring O2 by nasal cannula. Parents are not cousins with another healthy child and another affected child. They have had a child with anencephaly and abortion. There is a family history of anencephaly on the maternal side, and his father had a delayed speech as a child. His dysmorphic features are epicanthus inverses, small nose with a high nasal bridge, prominent ears, long columella, hypoplastic alae nasi, hypotelorism and scoliosis. He was found to have omega-shaped epiglottis. Brain MRI showed slightly prominent ventricular system.",
+  "metadata": {
+    "dataset": "ID-68",
+    "text_length_chars": 914,
+    "num_annotations": 14,
+    "conversion_date": "2025-11-18T13:13:19.841380"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000047",
+      "label": "Hypospadias",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 253,
+          "end_char": 264,
+          "text_snippet": "hypospadias"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000028",
+      "label": "Cryptorchidism",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 266,
+          "end_char": 284,
+          "text_snippet": "undescended testes"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001290",
+      "label": "Generalized hypotonia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 286,
+          "end_char": 295,
+          "text_snippet": "hypotonia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001263",
+      "label": "Global developmental delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 300,
+          "end_char": 317,
+          "text_snippet": "delay development"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010536",
+      "label": "Central sleep apnea",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 350,
+          "end_char": 369,
+          "text_snippet": "central sleep apnea"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002323",
+      "label": "Anencephaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 507,
+          "end_char": 518,
+          "text_snippet": "anencephaly"
+        },
+        {
+          "start_char": 562,
+          "end_char": 573,
+          "text_snippet": "anencephaly"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000750",
+      "label": "Delayed speech and language development",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 617,
+          "end_char": 631,
+          "text_snippet": "delayed speech"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003196",
+      "label": "Short nose",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 693,
+          "end_char": 703,
+          "text_snippet": "small nose"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000426",
+      "label": "Prominent nasal bridge",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 711,
+          "end_char": 728,
+          "text_snippet": "high nasal bridge"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000411",
+      "label": "Protruding ear",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 730,
+          "end_char": 744,
+          "text_snippet": "prominent ears"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010761",
+      "label": "Broad columella",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 746,
+          "end_char": 760,
+          "text_snippet": "long columella"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000430",
+      "label": "Underdeveloped nasal alae",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 762,
+          "end_char": 783,
+          "text_snippet": "hypoplastic alae nasi"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000601",
+      "label": "Hypotelorism",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 785,
+          "end_char": 797,
+          "text_snippet": "hypotelorism"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002650",
+      "label": "Scoliosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 802,
+          "end_char": 811,
+          "text_snippet": "scoliosis"
+        }
+      ]
+    }
+  ]
+}

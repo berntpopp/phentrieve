@@ -1,0 +1,82 @@
+{
+  "doc_id": "GSC+_6774282",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Neurofibromatosis includes the common \"peripheral\" form and a recently documented \"central\" form. We describe the central form in 130 cases from 9 kindreds personally studied and 15 reported kindreds. Central neurofibromatosis with bilateral acoustic neuroma is an autosomal dominant disorder beginning about 20 years of age, accompanied by mild skin changes. In three kindreds with central neurofibromatosis, we measured nerve growth factor in serum by radioimmunoassay and radioreceptor assay. Only the antigenic activity of nerve growth factor was increased. In contrast, in peripheral neurofibromatosis, only the functional activity of nerve growth factor has been reported increased. Central and peripheral forms of neurofibromatosis are closely related but discrete diseases which appear to have separate alterations in nerve growth factor activity.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 855,
+    "num_annotations": 4,
+    "conversion_date": "2025-11-18T13:13:17.100451"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0006746",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 0,
+          "end_char": 17,
+          "text_snippet": "Neurofibromatosis"
+        },
+        {
+          "start_char": 209,
+          "end_char": 226,
+          "text_snippet": "neurofibromatosis"
+        },
+        {
+          "start_char": 391,
+          "end_char": 408,
+          "text_snippet": "neurofibromatosis"
+        },
+        {
+          "start_char": 589,
+          "end_char": 606,
+          "text_snippet": "neurofibromatosis"
+        },
+        {
+          "start_char": 721,
+          "end_char": 738,
+          "text_snippet": "neurofibromatosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009589",
+      "label": "Bilateral vestibular schwannoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 232,
+          "end_char": 258,
+          "text_snippet": "bilateral acoustic neuroma"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 265,
+          "end_char": 292,
+          "text_snippet": "autosomal dominant disorder"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000951",
+      "label": "Abnormality of the skin",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 346,
+          "end_char": 358,
+          "text_snippet": "skin changes"
+        }
+      ]
+    }
+  ]
+}

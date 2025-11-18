@@ -1,0 +1,67 @@
+{
+  "doc_id": "GSC+_3098672",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Cell cultures grown from peripheral neurofibromas of three patients suffering from sporadic peripheral neurofibromatosis (NF) were analysed cytogenetically at early in vitro passages. The NF-cultures exhibited a 6.7-fold higher frequency of aneuploid mitoses, including pseudodiploids, than the control cultures derived from the skin of three healthy donors. The predominant numerical anomaly was monosomy 22. Several, as yet unidentified marker chromosomes occurred in the NF-cultures, which also showed a much higher level of unstable chromosomal anomalies. The role of monosomy 22 in tumorigenesis of meningiomas and neurofibromas is discussed.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 647,
+    "num_annotations": 4,
+    "conversion_date": "2025-11-18T13:13:16.562336"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001067",
+      "label": "Neurofibroma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 36,
+          "end_char": 49,
+          "text_snippet": "neurofibromas"
+        },
+        {
+          "start_char": 620,
+          "end_char": 633,
+          "text_snippet": "neurofibromas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003745",
+      "label": "Sporadic",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 83,
+          "end_char": 91,
+          "text_snippet": "sporadic"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0006746",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 103,
+          "end_char": 120,
+          "text_snippet": "neurofibromatosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002858",
+      "label": "Meningioma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 604,
+          "end_char": 615,
+          "text_snippet": "meningiomas"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,110 @@
+{
+  "doc_id": "GSC+_6859100",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "We report two families in which propositi had severe bilateral sensorineural hearing loss, a preauricular pit or tag, and duplication of the ureters or bifid renal pelvices. Other relatives had one or more of these anomalies in a pattern suggesting autosomal dominant inheritance with reduced penetrance and variable expressivity. We suggest the term \"branchio-oto-ureteral syndrome\" to designate this condition.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 412,
+    "num_annotations": 8,
+    "conversion_date": "2025-11-18T13:13:17.179386"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0008619",
+      "label": "Bilateral sensorineural hearing impairment",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 53,
+          "end_char": 89,
+          "text_snippet": "bilateral sensorineural hearing loss"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000384",
+      "label": "Preauricular skin tag",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 93,
+          "end_char": 116,
+          "text_snippet": "preauricular pit or tag"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004467",
+      "label": "Preauricular pit",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 93,
+          "end_char": 109,
+          "text_snippet": "preauricular pit"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000073",
+      "label": "Ureteral duplication",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 122,
+          "end_char": 148,
+          "text_snippet": "duplication of the ureters"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0005580",
+      "label": "Duplication of renal pelvis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 152,
+          "end_char": 172,
+          "text_snippet": "bifid renal pelvices"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 249,
+          "end_char": 279,
+          "text_snippet": "autosomal dominant inheritance"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003829",
+      "label": "Typified by incomplete penetrance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 285,
+          "end_char": 303,
+          "text_snippet": "reduced penetrance"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003828",
+      "label": "Variable expressivity",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 308,
+          "end_char": 329,
+          "text_snippet": "variable expressivity"
+        }
+      ]
+    }
+  ]
+}

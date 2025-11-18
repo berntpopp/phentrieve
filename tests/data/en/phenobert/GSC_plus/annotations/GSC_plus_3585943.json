@@ -1,0 +1,38 @@
+{
+  "doc_id": "GSC+_3585943",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "We report a girl aged 11 and her brother aged five, both with the typical features of Angelman syndrome, and three isolated cases. This report, together with a review of published reports and contact with previous authors, has revealed a total of 41 sibs of probands, although only nine of these are known to have been later born. The possible effect of voluntary restriction of family size after the birth of an affected child is discussed in relation to the possibility of autosomal recessive inheritance, but a recurrence risk of 5% is appropriate for use in the genetic clinic.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 581,
+    "num_annotations": 2,
+    "conversion_date": "2025-11-18T13:13:16.824862"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001420",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 115,
+          "end_char": 129,
+          "text_snippet": "isolated cases"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000007",
+      "label": "Autosomal recessive inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 475,
+          "end_char": 506,
+          "text_snippet": "autosomal recessive inheritance"
+        }
+      ]
+    }
+  ]
+}

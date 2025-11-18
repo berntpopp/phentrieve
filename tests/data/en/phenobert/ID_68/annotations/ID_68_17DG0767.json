@@ -1,0 +1,62 @@
+{
+  "doc_id": "ID-68_17DG0767",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "A 14 months old boy with severe microcephaly, global developmental delay, severe photosensitivity and congenital cataract. Family history is significant of two deceased sisters with a similar phenotype.",
+  "metadata": {
+    "dataset": "ID-68",
+    "text_length_chars": 202,
+    "num_annotations": 4,
+    "conversion_date": "2025-11-18T13:13:20.278439"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000252",
+      "label": "Microcephaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 32,
+          "end_char": 44,
+          "text_snippet": "microcephaly"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001263",
+      "label": "Global developmental delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 46,
+          "end_char": 72,
+          "text_snippet": "global developmental delay"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0007537",
+      "label": "Severe photosensitivity",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 74,
+          "end_char": 97,
+          "text_snippet": "severe photosensitivity"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000519",
+      "label": "Developmental cataract",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 102,
+          "end_char": 121,
+          "text_snippet": "congenital cataract"
+        }
+      ]
+    }
+  ]
+}

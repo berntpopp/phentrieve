@@ -1,0 +1,62 @@
+{
+  "doc_id": "GSC+_9425907",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Townes-Brocks syndrome (TBS, OMIM #107480) is a rare autosomal-dominant malformation syndrome with a combination of anal, renal, limb and ear anomalies. Cytogenetic findings suggested that the gene mutated in TBS maps to chromosome 16q12.1, where SALL1 (previously known as HSAL1), a human homologue of spalt (sal), is located. SAL is a developmental regulator in Drosophila melanogaster and is conserved throughout evolution. No phenotype has yet been attributed to mutations in vertebrate sal-like genes. The expression patterns of sal-like genes in mouse, Xenopus and the fish Medaka, and the finding that Medaka sal is regulated by Sonic hedgehog (Shh; ref. 11), prompted us to examine SALL1 as a TBS candidate gene. Here we demonstrate that SALL1 mutations cause TBS in a family with vertical transmission of TBS and in an unrelated family with a sporadic case of TBS. Both mutations are predicted to result in a prematurely terminated SALL1 protein lacking all putative DNA binding domains. TBS therefore represents another human developmental disorder caused by mutations in a putative C2H2 zinc-finger transcription factor.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 1131,
+    "num_annotations": 4,
+    "conversion_date": "2025-11-18T13:13:18.804433"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 53,
+          "end_char": 71,
+          "text_snippet": "autosomal-dominant"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004378",
+      "label": "Abnormality of the anus",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 116,
+          "end_char": 151,
+          "text_snippet": "anal, renal, limb and ear anomalies"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000598",
+      "label": "Abnormality of the ear",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 138,
+          "end_char": 151,
+          "text_snippet": "ear anomalies"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003745",
+      "label": "Sporadic",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 852,
+          "end_char": 860,
+          "text_snippet": "sporadic"
+        }
+      ]
+    }
+  ]
+}

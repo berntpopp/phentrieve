@@ -1,0 +1,31 @@
+{
+  "doc_id": "GSC+_712760",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "A family is described in which 16 individuals in 3 generations have Charcot-Marie-Tooth disease. At least 6 family members also have the naevoid basal cell carcinoma syndrome. In addition, 1 subject with both disorders has 2 young daughters with the naevoid basal cell carcinoma syndrome.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 288,
+    "num_annotations": 1,
+    "conversion_date": "2025-11-18T13:13:17.355357"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0002671",
+      "label": "Basal cell carcinoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 145,
+          "end_char": 165,
+          "text_snippet": "basal cell carcinoma"
+        },
+        {
+          "start_char": 258,
+          "end_char": 278,
+          "text_snippet": "basal cell carcinoma"
+        }
+      ]
+    }
+  ]
+}

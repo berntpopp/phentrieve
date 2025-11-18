@@ -1,0 +1,26 @@
+{
+  "doc_id": "ID-68_17DG0782",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Autism spectrum disorder and speech delay",
+  "metadata": {
+    "dataset": "ID-68",
+    "text_length_chars": 41,
+    "num_annotations": 1,
+    "conversion_date": "2025-11-18T13:13:20.603029"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000750",
+      "label": "Delayed speech and language development",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 29,
+          "end_char": 41,
+          "text_snippet": "speech delay"
+        }
+      ]
+    }
+  ]
+}

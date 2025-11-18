@@ -1,0 +1,98 @@
+{
+  "doc_id": "ID-68_15DG2307",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "A 10 years old girl who was born at full term via NSVD to 29 years old primigravida following a pregnancy that was complicated by toxoplasmosis. After birth, she did not pass meconium and developed jaundice, and she was admitted to the nursery for a week. She had recurrent UTI that was secondary to left ureterovaginal fistula and VUR. She also had been floppiness since birth. Developmentally, she had a global developmental delay. She walked at 20 months and said dada and mama at 3 years of age. She has difficulties in school and memorization. Her IQ was estimated to be 70-79. Her parents are nonconsanguineous but they are from the same tribe, and they have a healthy son. There is a history of intellectual disability in a paternal cousin. Her examination revealed increased laxity of the major joints and mild camptodactyly of fingers, and other examinations were within normal limits.",
+  "metadata": {
+    "dataset": "ID-68",
+    "text_length_chars": 894,
+    "num_annotations": 7,
+    "conversion_date": "2025-11-18T13:13:19.810129"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000952",
+      "label": "Jaundice",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 198,
+          "end_char": 206,
+          "text_snippet": "jaundice"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000010",
+      "label": "Recurrent urinary tract infections",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 264,
+          "end_char": 277,
+          "text_snippet": "recurrent UTI"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0008716",
+      "label": "Urethrovaginal fistula",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 305,
+          "end_char": 327,
+          "text_snippet": "ureterovaginal fistula"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001263",
+      "label": "Global developmental delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 406,
+          "end_char": 432,
+          "text_snippet": "global developmental delay"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001249",
+      "label": "Intellectual disability",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 691,
+          "end_char": 725,
+          "text_snippet": "history of intellectual disability"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001388",
+      "label": "obsolete Joint laxity",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 773,
+          "end_char": 809,
+          "text_snippet": "increased laxity of the major joints"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100490",
+      "label": "Camptodactyly of finger",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 819,
+          "end_char": 843,
+          "text_snippet": "camptodactyly of fingers"
+        }
+      ]
+    }
+  ]
+}

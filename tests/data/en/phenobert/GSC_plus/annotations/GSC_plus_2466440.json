@@ -1,0 +1,194 @@
+{
+  "doc_id": "GSC+_2466440",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Thirty six children with typical features of Angelman's syndrome, including global developmental delay, ataxia, episodes of paroxysmal laughter, seizures, and microcephaly were studied. The series included three sibships of three affected sisters, two affected brothers, and two affected sisters, respectively. The facial appearance is characterised by a prominent jaw, a wide mouth, and a pointed chin. Tongue thrusting is common. The movement disorder consists of a wide based, ataxic gait with frequent jerky limb movements and flapping of the hands. Tone is variable in the limbs with normal reflexes, and the plantar responses are usually flexor. The syndrome is being diagnosed more often, and attention is drawn to its diagnostic aspects.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 745,
+    "num_annotations": 15,
+    "conversion_date": "2025-11-18T13:13:16.310798"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001263",
+      "label": "Global developmental delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 76,
+          "end_char": 102,
+          "text_snippet": "global developmental delay"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001251",
+      "label": "Ataxia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 104,
+          "end_char": 110,
+          "text_snippet": "ataxia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000749",
+      "label": "Paroxysmal bursts of laughter",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 112,
+          "end_char": 143,
+          "text_snippet": "episodes of paroxysmal laughter"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001250",
+      "label": "Seizure",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 145,
+          "end_char": 153,
+          "text_snippet": "seizures"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000252",
+      "label": "Microcephaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 159,
+          "end_char": 171,
+          "text_snippet": "microcephaly"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001999",
+      "label": "Abnormal facial shape",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 315,
+          "end_char": 332,
+          "text_snippet": "facial appearance"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002051",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 355,
+          "end_char": 368,
+          "text_snippet": "prominent jaw"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000154",
+      "label": "Wide mouth",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 372,
+          "end_char": 382,
+          "text_snippet": "wide mouth"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000307",
+      "label": "Pointed chin",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 390,
+          "end_char": 402,
+          "text_snippet": "pointed chin"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000182",
+      "label": "Movement abnormality of the tongue",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 404,
+          "end_char": 420,
+          "text_snippet": "Tongue thrusting"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100022",
+      "label": "Abnormality of movement",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 436,
+          "end_char": 453,
+          "text_snippet": "movement disorder"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002136",
+      "label": "Broad-based gait",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 468,
+          "end_char": 491,
+          "text_snippet": "wide based, ataxic gait"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002276",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 506,
+          "end_char": 526,
+          "text_snippet": "jerky limb movements"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100023",
+      "label": "Recurrent hand flapping",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 531,
+          "end_char": 552,
+          "text_snippet": "flapping of the hands"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003813",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 562,
+          "end_char": 570,
+          "text_snippet": "variable"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,153 @@
+{
+  "doc_id": "GSC+_1496981",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "The neurofibromatosis type 2 (NF2) gene has been hypothesized to be a recessive tumor suppressor, with mutations at the same locus on chromosome 22 that lead to NF2 also leading to sporadic tumors of the types seen in NF2. Flanking markers for this gene have previously been defined as D22S1 centromeric and D22S28 telomeric. Identification of subregions of this interval that are consistently rearranged in the NF2-related tumors would aid in better defining the disease locus. To this end, we have compared tumor and constitutional DNAs, isolated from 39 unrelated patients with sporadic and NF2-associated acoustic neuromas, meningiomas, schwannomas, and ependymomas, at eight polymorphic loci on chromosome 22. Two of the tumors studied revealed loss-of-heterozygosity patterns, which is consistent with the presence of chromosome 22 terminal deletions. By using additional polymorphic markers, the terminal deletion breakpoint found in one of the tumors, an acoustic neuroma from an NF2 patient, was mapped within the previously defined NF2 region. The breakpoint occurred between the haplotyped markers D22S41/D22S46 and D22S56. This finding redefines the proximal flanking marker and localizes the NF2 gene between markers D22S41/D22S46 and D22S28. In addition, we identified a sporadic acoustic neuroma that reveals a loss-of-heterozygosity pattern consistent with mitotic recombination or deletion and reduplication, which are mechanisms not previously seen in studies of these tumors. This finding, while inconsistent with models of tumorigenesis that invoke single deletions and their gene-dosage effects, lends further support to the recessive tumor-suppressor model.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 1679,
+    "num_annotations": 7,
+    "conversion_date": "2025-11-18T13:13:15.347343"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0006746",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 4,
+          "end_char": 21,
+          "text_snippet": "neurofibromatosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002664",
+      "label": "Neoplasm",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 80,
+          "end_char": 85,
+          "text_snippet": "tumor"
+        },
+        {
+          "start_char": 190,
+          "end_char": 196,
+          "text_snippet": "tumors"
+        },
+        {
+          "start_char": 424,
+          "end_char": 430,
+          "text_snippet": "tumors"
+        },
+        {
+          "start_char": 509,
+          "end_char": 514,
+          "text_snippet": "tumor"
+        },
+        {
+          "start_char": 726,
+          "end_char": 732,
+          "text_snippet": "tumors"
+        },
+        {
+          "start_char": 952,
+          "end_char": 958,
+          "text_snippet": "tumors"
+        },
+        {
+          "start_char": 1487,
+          "end_char": 1493,
+          "text_snippet": "tumors"
+        },
+        {
+          "start_char": 1656,
+          "end_char": 1661,
+          "text_snippet": "tumor"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003745",
+      "label": "Sporadic",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 181,
+          "end_char": 189,
+          "text_snippet": "sporadic"
+        },
+        {
+          "start_char": 581,
+          "end_char": 589,
+          "text_snippet": "sporadic"
+        },
+        {
+          "start_char": 1285,
+          "end_char": 1293,
+          "text_snippet": "sporadic"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009588",
+      "label": "Vestibular schwannoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 609,
+          "end_char": 626,
+          "text_snippet": "acoustic neuromas"
+        },
+        {
+          "start_char": 963,
+          "end_char": 979,
+          "text_snippet": "acoustic neuroma"
+        },
+        {
+          "start_char": 1294,
+          "end_char": 1310,
+          "text_snippet": "acoustic neuroma"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002858",
+      "label": "Meningioma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 628,
+          "end_char": 639,
+          "text_snippet": "meningiomas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100008",
+      "label": "Schwannoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 641,
+          "end_char": 652,
+          "text_snippet": "schwannomas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002888",
+      "label": "Ependymoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 658,
+          "end_char": 669,
+          "text_snippet": "ependymomas"
+        }
+      ]
+    }
+  ]
+}

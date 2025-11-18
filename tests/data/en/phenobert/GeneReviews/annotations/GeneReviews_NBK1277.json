@@ -1,0 +1,513 @@
+{
+  "doc_id": "GeneReviews_NBK1277",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Summary:\nShprintzen-Goldberg syndrome (SGS) is characterized by: delayed motor and cognitive milestones and mild-to-moderate intellectual disability; craniosynostosis of the coronal, sagittal, or lambdoid sutures; distinctive craniofacial features; and musculoskeletal findings including olichostenomelia, arachnodactyly, camptodactyly, pectus excavatum or carinatum, scoliosis, joint hypermobility or contractures, pes planus, foot malposition, and C1-C2 spine malformation. Cardiovascular anomalies may include mitral valve prolapse, secundum atrial septal defect, and aortic root dilatation. Minimal subcutaneous fat, abdominal wall defects, and myopia are also characteristic findings.\nDescription:\nTo date, 44 individuals have been identified with a pathogenic variant in SKI. The following description of the phenotypic features associated with this condition is based on these reports.\nNeurodevelopment. Motor and cognitive milestones are delayed and intellectual disability is usually mild to moderate. To date, three individuals with Shprintzen-Goldberg syndrome (SGS) and a confirmed SKI pathogenic variant were reported to have normal intelligence.\nCraniosynostosis usually involves the coronal, sagittal, or lambdoid sutures. The sutures are fused at birth and craniosynostosis can usually be suspected from the abnormal skull shape. A single suture or multiple sutures may be involved. Information on individuals with SGS who underwent surgery for craniosynostosis in unavailable.\nCharacteristic craniofacial features include hypertelorism, downslanting palpebral fissures, ocular proptosis, high narrow palate, micrognathia, and low-set posteriorly rotated ears. Cleft palate was reported in three of 17 individuals with SGS.\nMusculoskeletal. Arachnodactyly, camptodactyly, pectus deformities, and clubfeet are common features and are present at birth. Joint contractures are often present at birth or in the neonatal period, with the ankle joint most frequently affected.\nCardiovascular. Aortic root dilatation was present in three of 18 affected individuals reported by Carmignac et al one had arterial tortuosity and two had splenic artery aneurysm – one with spontaneous rupture.\nOcular. Myopia was reported in ten of 19 individuals.\nMinimal subcutaneous fat and/or marfanoid habitus was reported in nine of 20 individuals.\nAbdominal wall defects were reported in 14 of 23 individuals.\nOther\nDural ectasia (5/8 individuals);Chiari 1 malformation (2/3 individuals);Cryptorchidism (1/1 male).\n",
+  "metadata": {
+    "dataset": "GeneReviews",
+    "text_length_chars": 2509,
+    "num_annotations": 37,
+    "conversion_date": "2025-11-18T13:13:20.688408"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001270",
+      "label": "Motor delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 65,
+          "end_char": 78,
+          "text_snippet": "delayed motor"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002342",
+      "label": "Intellectual disability, moderate",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 108,
+          "end_char": 148,
+          "text_snippet": "mild-to-moderate intellectual disability"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004440",
+      "label": "Coronal craniosynostosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 150,
+          "end_char": 181,
+          "text_snippet": "craniosynostosis of the coronal"
+        },
+        {
+          "start_char": 1160,
+          "end_char": 1205,
+          "text_snippet": "Craniosynostosis usually involves the coronal"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004443",
+      "label": "Lambdoidal craniosynostosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 196,
+          "end_char": 212,
+          "text_snippet": "lambdoid sutures"
+        },
+        {
+          "start_char": 1220,
+          "end_char": 1236,
+          "text_snippet": "lambdoid sutures"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001999",
+      "label": "Abnormal facial shape",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 214,
+          "end_char": 247,
+          "text_snippet": "distinctive craniofacial features"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001519",
+      "label": "Disproportionate tall stature",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 288,
+          "end_char": 304,
+          "text_snippet": "olichostenomelia"
+        },
+        {
+          "start_char": 2284,
+          "end_char": 2301,
+          "text_snippet": "marfanoid habitus"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001166",
+      "label": "Arachnodactyly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 306,
+          "end_char": 320,
+          "text_snippet": "arachnodactyly"
+        },
+        {
+          "start_char": 1757,
+          "end_char": 1771,
+          "text_snippet": "Arachnodactyly"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012385",
+      "label": "Camptodactyly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 322,
+          "end_char": 335,
+          "text_snippet": "camptodactyly"
+        },
+        {
+          "start_char": 1773,
+          "end_char": 1786,
+          "text_snippet": "camptodactyly"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000766",
+      "label": "Abnormal sternum morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 337,
+          "end_char": 366,
+          "text_snippet": "pectus excavatum or carinatum"
+        },
+        {
+          "start_char": 1788,
+          "end_char": 1806,
+          "text_snippet": "pectus deformities"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002650",
+      "label": "Scoliosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 368,
+          "end_char": 377,
+          "text_snippet": "scoliosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001382",
+      "label": "Joint hypermobility",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 379,
+          "end_char": 398,
+          "text_snippet": "joint hypermobility"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001371",
+      "label": "Flexion contracture",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 402,
+          "end_char": 414,
+          "text_snippet": "contractures"
+        },
+        {
+          "start_char": 1867,
+          "end_char": 1885,
+          "text_snippet": "Joint contractures"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001763",
+      "label": "Pes planus",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 416,
+          "end_char": 426,
+          "text_snippet": "pes planus"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0008440",
+      "label": "C1-C2 vertebral abnormality",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 450,
+          "end_char": 474,
+          "text_snippet": "C1-C2 spine malformation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001626",
+      "label": "Abnormality of the cardiovascular system",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 476,
+          "end_char": 500,
+          "text_snippet": "Cardiovascular anomalies"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001634",
+      "label": "Mitral valve prolapse",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 513,
+          "end_char": 534,
+          "text_snippet": "mitral valve prolapse"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001684",
+      "label": "Secundum atrial septal defect",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 536,
+          "end_char": 565,
+          "text_snippet": "secundum atrial septal defect"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002616",
+      "label": "Aortic root aneurysm",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 571,
+          "end_char": 593,
+          "text_snippet": "aortic root dilatation"
+        },
+        {
+          "start_char": 2003,
+          "end_char": 2037,
+          "text_snippet": "Aortic root dilatation was present"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003717",
+      "label": "Minimal subcutaneous fat",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 595,
+          "end_char": 619,
+          "text_snippet": "Minimal subcutaneous fat"
+        },
+        {
+          "start_char": 2252,
+          "end_char": 2276,
+          "text_snippet": "Minimal subcutaneous fat"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010866",
+      "label": "Abdominal wall defect",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 621,
+          "end_char": 643,
+          "text_snippet": "abdominal wall defects"
+        },
+        {
+          "start_char": 2342,
+          "end_char": 2364,
+          "text_snippet": "Abdominal wall defects"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000545",
+      "label": "Myopia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 649,
+          "end_char": 655,
+          "text_snippet": "myopia"
+        },
+        {
+          "start_char": 2206,
+          "end_char": 2212,
+          "text_snippet": "Myopia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001263",
+      "label": "Global developmental delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 921,
+          "end_char": 953,
+          "text_snippet": "cognitive milestones are delayed"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001256",
+      "label": "Intellectual disability, mild",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 958,
+          "end_char": 997,
+          "text_snippet": "intellectual disability is usually mild"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002678",
+      "label": "Skull asymmetry",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1324,
+          "end_char": 1344,
+          "text_snippet": "abnormal skull shape"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001363",
+      "label": "Craniosynostosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1461,
+          "end_char": 1477,
+          "text_snippet": "craniosynostosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000316",
+      "label": "Hypertelorism",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1539,
+          "end_char": 1552,
+          "text_snippet": "hypertelorism"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000494",
+      "label": "Downslanted palpebral fissures",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1554,
+          "end_char": 1585,
+          "text_snippet": "downslanting palpebral fissures"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000520",
+      "label": "Proptosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1587,
+          "end_char": 1603,
+          "text_snippet": "ocular proptosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002705",
+      "label": "High, narrow palate",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1605,
+          "end_char": 1623,
+          "text_snippet": "high narrow palate"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000347",
+      "label": "Micrognathia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1625,
+          "end_char": 1637,
+          "text_snippet": "micrognathia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000368",
+      "label": "obsolete Low-set, posteriorly rotated ears",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1643,
+          "end_char": 1675,
+          "text_snippet": "low-set posteriorly rotated ears"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000175",
+      "label": "Cleft palate",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1677,
+          "end_char": 1689,
+          "text_snippet": "Cleft palate"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001762",
+      "label": "Talipes equinovarus",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1812,
+          "end_char": 1820,
+          "text_snippet": "clubfeet"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0005116",
+      "label": "Arterial tortuosity",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2110,
+          "end_char": 2129,
+          "text_snippet": "arterial tortuosity"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100775",
+      "label": "Dural ectasia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2410,
+          "end_char": 2423,
+          "text_snippet": "Dural ectasia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002308",
+      "label": "Chiari malformation",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2442,
+          "end_char": 2463,
+          "text_snippet": "Chiari 1 malformation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000028",
+      "label": "Cryptorchidism",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2482,
+          "end_char": 2496,
+          "text_snippet": "Cryptorchidism"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,175 @@
+{
+  "doc_id": "GSC+_10569966",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Neurofibromatosis type 2 (NF2) is a highly penetrant autosomal dominant condition predisposing affected individuals to schwannomas and meningiomas. The proportion of children presenting with meningioma or schwannoma who have NF2 is not well described, and neither is the mode of presentation in most children with the inherited disease.\n\nTo determine the frequency of childhood meningioma and schwannoma cases caused by NF2 and the mode of presentation.\n\nThe records of the Manchester Children's Tumour Registry from 1954 were searched for cases of meningioma and schwannoma. Paediatric presentation in a large UK series of NF2 was also studied.\n\n18% (61/334) of patients with NF2 on the UK database presented in the paediatric age group (0-15 years), frequently with the symptoms of an isolated tumour. More than half had no family history to alert the clinician to their susceptibility. Three of 22 children presenting with a meningioma on the Manchester Children's Tumour Registry have gone on to develop classic features of NF2.\n\nClinicians should suspect NF2 in children presenting with meningioma, schwannoma, and skin features, such as neurofibromas/schwannomas, but fewer than 6 café au lait patches, who thus fall short of a diagnosis of neurofibromatosis type 1.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 1272,
+    "num_annotations": 8,
+    "conversion_date": "2025-11-18T13:13:14.163961"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0006746",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 0,
+          "end_char": 17,
+          "text_snippet": "Neurofibromatosis"
+        },
+        {
+          "start_char": 1247,
+          "end_char": 1264,
+          "text_snippet": "neurofibromatosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 53,
+          "end_char": 71,
+          "text_snippet": "autosomal dominant"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100008",
+      "label": "Schwannoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 119,
+          "end_char": 130,
+          "text_snippet": "schwannomas"
+        },
+        {
+          "start_char": 205,
+          "end_char": 215,
+          "text_snippet": "schwannoma"
+        },
+        {
+          "start_char": 393,
+          "end_char": 403,
+          "text_snippet": "schwannoma"
+        },
+        {
+          "start_char": 564,
+          "end_char": 574,
+          "text_snippet": "schwannoma"
+        },
+        {
+          "start_char": 1104,
+          "end_char": 1114,
+          "text_snippet": "schwannoma"
+        },
+        {
+          "start_char": 1157,
+          "end_char": 1168,
+          "text_snippet": "schwannomas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002858",
+      "label": "Meningioma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 135,
+          "end_char": 146,
+          "text_snippet": "meningiomas"
+        },
+        {
+          "start_char": 191,
+          "end_char": 201,
+          "text_snippet": "meningioma"
+        },
+        {
+          "start_char": 378,
+          "end_char": 388,
+          "text_snippet": "meningioma"
+        },
+        {
+          "start_char": 549,
+          "end_char": 559,
+          "text_snippet": "meningioma"
+        },
+        {
+          "start_char": 928,
+          "end_char": 938,
+          "text_snippet": "meningioma"
+        },
+        {
+          "start_char": 1092,
+          "end_char": 1102,
+          "text_snippet": "meningioma"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0011463",
+      "label": "Childhood onset",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 368,
+          "end_char": 377,
+          "text_snippet": "childhood"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002664",
+      "label": "Neoplasm",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 496,
+          "end_char": 502,
+          "text_snippet": "Tumour"
+        },
+        {
+          "start_char": 796,
+          "end_char": 802,
+          "text_snippet": "tumour"
+        },
+        {
+          "start_char": 968,
+          "end_char": 974,
+          "text_snippet": "Tumour"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000951",
+      "label": "Abnormality of the skin",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1120,
+          "end_char": 1133,
+          "text_snippet": "skin features"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001067",
+      "label": "Neurofibroma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1143,
+          "end_char": 1156,
+          "text_snippet": "neurofibromas"
+        }
+      ]
+    }
+  ]
+}

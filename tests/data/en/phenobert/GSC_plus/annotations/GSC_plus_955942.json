@@ -1,0 +1,122 @@
+{
+  "doc_id": "GSC+_955942",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Six cases of this syndrome previously reported in Great Britain and in Canada are reviewed in relation to a personal case, a 17-month-old boy. The syndrome's main features are microbrachycephaly and peculiar face, mental deficiency with euphoria and laughter, ataxia and epilepsy consisting in infantile spasms and grand-mal attacks. Though its precise nature and cause still remain unknown, the syndrome seems neither familial nor progressive.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 444,
+    "num_annotations": 9,
+    "conversion_date": "2025-11-18T13:13:18.933541"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0002258",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 176,
+          "end_char": 194,
+          "text_snippet": "microbrachycephaly"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002004",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 199,
+          "end_char": 212,
+          "text_snippet": "peculiar face"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001249",
+      "label": "Intellectual disability",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 214,
+          "end_char": 231,
+          "text_snippet": "mental deficiency"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000708",
+      "label": "Atypical behavior",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 237,
+          "end_char": 245,
+          "text_snippet": "euphoria"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000748",
+      "label": "Inappropriate laughter",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 250,
+          "end_char": 258,
+          "text_snippet": "laughter"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001251",
+      "label": "Ataxia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 260,
+          "end_char": 266,
+          "text_snippet": "ataxia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001250",
+      "label": "Seizure",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 271,
+          "end_char": 279,
+          "text_snippet": "epilepsy"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002391",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 294,
+          "end_char": 310,
+          "text_snippet": "infantile spasms"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002069",
+      "label": "Bilateral tonic-clonic seizure",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 315,
+          "end_char": 332,
+          "text_snippet": "grand-mal attacks"
+        }
+      ]
+    }
+  ]
+}

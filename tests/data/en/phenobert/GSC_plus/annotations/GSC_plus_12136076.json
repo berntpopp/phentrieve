@@ -1,0 +1,72 @@
+{
+  "doc_id": "GSC+_12136076",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Mutations of the neurofibromatosis 2 (NF2) tumor suppressor gene cause the inherited disorder NF2 and are also common in malignant mesothelioma, which is not a characteristic feature of NF2. The authors report an asbestos-exposed person with NF2 and malignant mesothelioma. Immunohistochemical analysis of the mesothelioma confirmed loss of expression of the NF2 protein, and comparative genomic hybridization revealed losses of chromosomes 14, 15, and 22, and gain of 7. The authors propose that a person with a constitutional mutation of an NF2 allele is more susceptible to mesothelioma.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 590,
+    "num_annotations": 4,
+    "conversion_date": "2025-11-18T13:13:14.708248"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0006746",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 17,
+          "end_char": 34,
+          "text_snippet": "neurofibromatosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002664",
+      "label": "Neoplasm",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 43,
+          "end_char": 48,
+          "text_snippet": "tumor"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100001",
+      "label": "Malignant mesothelioma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 121,
+          "end_char": 143,
+          "text_snippet": "malignant mesothelioma"
+        },
+        {
+          "start_char": 250,
+          "end_char": 272,
+          "text_snippet": "malignant mesothelioma"
+        },
+        {
+          "start_char": 310,
+          "end_char": 322,
+          "text_snippet": "mesothelioma"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0006741",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 562,
+          "end_char": 589,
+          "text_snippet": "susceptible to mesothelioma"
+        }
+      ]
+    }
+  ]
+}

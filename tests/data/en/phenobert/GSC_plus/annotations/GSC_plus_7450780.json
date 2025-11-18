@@ -1,0 +1,132 @@
+{
+  "doc_id": "GSC+_7450780",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Two siblings with the \"happy puppet\" syndrome are presented. Their clinical features are quite similar and closely resemble those of previously reported cases. These features include severe mental retardation, epileptic seizures, easily provoked and prolonged paroxysms of laughter, atactic jerky movements, hypotonia, large mandible with prognathia, and 2-3 cps spike and wave activity in the EEG. The occurrence of this syndrome in the two siblings suggests a genetic etiology possible as an autosomal recessive trait.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 520,
+    "num_annotations": 9,
+    "conversion_date": "2025-11-18T13:13:17.508997"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0100024",
+      "label": "Conspicuously happy disposition",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 23,
+          "end_char": 35,
+          "text_snippet": "happy puppet"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002187",
+      "label": "Intellectual disability, profound",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 183,
+          "end_char": 208,
+          "text_snippet": "severe mental retardation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002133",
+      "label": "Status epilepticus",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 210,
+          "end_char": 228,
+          "text_snippet": "epileptic seizures"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000749",
+      "label": "Paroxysmal bursts of laughter",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 230,
+          "end_char": 281,
+          "text_snippet": "easily provoked and prolonged paroxysms of laughter"
+        },
+        {
+          "start_char": 260,
+          "end_char": 281,
+          "text_snippet": "paroxysms of laughter"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001251",
+      "label": "Ataxia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 283,
+          "end_char": 306,
+          "text_snippet": "atactic jerky movements"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001252",
+      "label": "Hypotonia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 308,
+          "end_char": 317,
+          "text_snippet": "hypotonia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000303",
+      "label": "Mandibular prognathia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 319,
+          "end_char": 333,
+          "text_snippet": "large mandible"
+        },
+        {
+          "start_char": 325,
+          "end_char": 349,
+          "text_snippet": "mandible with prognathia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010848",
+      "label": "EEG with spike-wave complexes (2.5-3.5 Hz)",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 355,
+          "end_char": 397,
+          "text_snippet": "2-3 cps spike and wave activity in the EEG"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000007",
+      "label": "Autosomal recessive inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 494,
+          "end_char": 513,
+          "text_snippet": "autosomal recessive"
+        }
+      ]
+    }
+  ]
+}

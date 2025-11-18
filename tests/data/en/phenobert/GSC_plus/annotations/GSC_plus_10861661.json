@@ -1,0 +1,50 @@
+{
+  "doc_id": "GSC+_10861661",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Among 25 patients diagnosed with Angelman syndrome, we detected 21 with deletion and 4 with paternal uniparental disomy (UPD), 2 isodisomies originating by postzygotic error, and 1 MII nondisjunction event. The diagnosis was obtained by molecular techniques, including methylation pattern analysis of exon 1 of SNRPN and microsatellite analysis of loci within and outside the 15q11-q13 region. Most manifestations present in deletion patients are those previously reported. Comparing the clinical data from our and published UPD patients with those with deletions we observed the following: the age of diagnosis is higher in UPD group (average 7 3/12 years), microcephaly is more frequent among deletion patients, UPD children start walking earlier (average age 2 9/12 years), whereas in deletion patients the average is 4 (1/2) years, epilepsy started later in UPD patients (average 5 10/12 years) than in deletion patients (average 1 11/12 years), weight above the 75th centile is reported mainly in UPD patients, complete absence of speech is more common in the deleted (88.9%) than in the UPD patients because half of the children are able to say few words. Thus, besides the abnormalities already described, the UPD patients have somewhat better verbal development, a weight above the 75th centile, and OFC in the upper normal range.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 1338,
+    "num_annotations": 3,
+    "conversion_date": "2025-11-18T13:13:14.286255"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000252",
+      "label": "Microcephaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 659,
+          "end_char": 671,
+          "text_snippet": "microcephaly"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001250",
+      "label": "Seizure",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 836,
+          "end_char": 844,
+          "text_snippet": "epilepsy"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001617",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1025,
+          "end_char": 1042,
+          "text_snippet": "absence of speech"
+        }
+      ]
+    }
+  ]
+}

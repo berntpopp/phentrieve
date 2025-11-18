@@ -1,0 +1,318 @@
+{
+  "doc_id": "GSC+_3547011",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "The nevoid basal-cell carcinoma syndrome is characterized by major manifestations, such as multiple basal-cell carcinomata, cysts of the jaws, and skeletal--specifically, rib--abnormalities. Findings in 53 patients and a review of the literature document both major and lesser-known manifestations of the disorder. The odontogenic keratocyst, which usually appears during adolescence, has a marked tendency to recur. In addition to the skin tumors, milia, epidermoid cysts, chalazia, comedones, and palmar and plantar pits are frequent. The skin tumors, originally thought to be independent of sun exposure, are more common in sun-exposed areas and are far less frequent and occur at a much later age in blacks than in whites. There is some evidence that radiation of the skin promotes the appearance of skin cancers in this disorder. Unilateral linear nevoid basal-cell carcinomas with comedones may represent postzygotic somatic mutation. A proclivity to other forms of neoplasia exists. Patients with this syndrome have had medulloblastoma, meningioma, ovarian fibroma, ovarian fibrosarcoma, fibrosarcoma of the jaws, cardiac fibroma, fetal rhabdomyoma, and lymphatic or chylous cysts of the mesentery. In addition to the usual modalities of treatment, topical immunotherapy and topical 5-fluorouracil have been used with success. Oral synthetic retinoids, such as 13-cis-retinoic acid, have been used to prevent new lesions from appearing and to arrest the growth of older lesions by inducing differentiation. The independent observations of increased prostaglandin levels associated both with odontogenic keratocyst expansion and aggression of basal cell cancers merit further investigation both as a fundamental cellular mechanism and as a possible basis for treatment (e.g., with antiprostaglandins). The key to pre- and early postnatal diagnosis of the disorder--as well as to an understanding of the basic abnormality--lies in molecular genetics. Prime attention should be given to finding the site of the gene through the use of DNA and other markers.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 2061,
+    "num_annotations": 22,
+    "conversion_date": "2025-11-18T13:13:16.805588"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0002671",
+      "label": "Basal cell carcinoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 11,
+          "end_char": 31,
+          "text_snippet": "basal-cell carcinoma"
+        },
+        {
+          "start_char": 100,
+          "end_char": 122,
+          "text_snippet": "basal-cell carcinomata"
+        },
+        {
+          "start_char": 860,
+          "end_char": 881,
+          "text_snippet": "basal-cell carcinomas"
+        },
+        {
+          "start_char": 1649,
+          "end_char": 1667,
+          "text_snippet": "basal cell cancers"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010603",
+      "label": "Odontogenic keratocysts of the jaw",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 124,
+          "end_char": 141,
+          "text_snippet": "cysts of the jaws"
+        },
+        {
+          "start_char": 319,
+          "end_char": 341,
+          "text_snippet": "odontogenic keratocyst"
+        },
+        {
+          "start_char": 1598,
+          "end_char": 1620,
+          "text_snippet": "odontogenic keratocyst"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000924",
+      "label": "Abnormality of the skeletal system",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 147,
+          "end_char": 169,
+          "text_snippet": "skeletal--specifically"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000772",
+      "label": "Abnormal rib morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 171,
+          "end_char": 189,
+          "text_snippet": "rib--abnormalities"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003590",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 357,
+          "end_char": 383,
+          "text_snippet": "appears during adolescence"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0008069",
+      "label": "Neoplasm of the skin",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 436,
+          "end_char": 447,
+          "text_snippet": "skin tumors"
+        },
+        {
+          "start_char": 541,
+          "end_char": 552,
+          "text_snippet": "skin tumors"
+        },
+        {
+          "start_char": 804,
+          "end_char": 816,
+          "text_snippet": "skin cancers"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001056",
+      "label": "Milia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 449,
+          "end_char": 454,
+          "text_snippet": "milia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0200040",
+      "label": "Epidermoid cyst",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 456,
+          "end_char": 472,
+          "text_snippet": "epidermoid cysts"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010605",
+      "label": "Chalazion",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 474,
+          "end_char": 482,
+          "text_snippet": "chalazia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000951",
+      "label": "Abnormality of the skin",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 484,
+          "end_char": 493,
+          "text_snippet": "comedones"
+        },
+        {
+          "start_char": 887,
+          "end_char": 896,
+          "text_snippet": "comedones"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010610",
+      "label": "Palmar pits",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 499,
+          "end_char": 522,
+          "text_snippet": "palmar and plantar pits"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010612",
+      "label": "Plantar pits",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 510,
+          "end_char": 522,
+          "text_snippet": "plantar pits"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001428",
+      "label": "obsolete Somatic mutation",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 923,
+          "end_char": 939,
+          "text_snippet": "somatic mutation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002664",
+      "label": "Neoplasm",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 972,
+          "end_char": 981,
+          "text_snippet": "neoplasia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002885",
+      "label": "Medulloblastoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1027,
+          "end_char": 1042,
+          "text_snippet": "medulloblastoma"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002858",
+      "label": "Meningioma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1044,
+          "end_char": 1054,
+          "text_snippet": "meningioma"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010618",
+      "label": "Ovarian fibroma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1056,
+          "end_char": 1071,
+          "text_snippet": "ovarian fibroma"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000137",
+      "label": "Abnormality of the ovary",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1073,
+          "end_char": 1093,
+          "text_snippet": "ovarian fibrosarcoma"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000209",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1095,
+          "end_char": 1119,
+          "text_snippet": "fibrosarcoma of the jaws"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010617",
+      "label": "Cardiac fibroma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1121,
+          "end_char": 1136,
+          "text_snippet": "cardiac fibroma"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009730",
+      "label": "Rhabdomyoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1144,
+          "end_char": 1155,
+          "text_snippet": "rhabdomyoma"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000718",
+      "label": "Aggressive behavior",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1635,
+          "end_char": 1645,
+          "text_snippet": "aggression"
+        }
+      ]
+    }
+  ]
+}

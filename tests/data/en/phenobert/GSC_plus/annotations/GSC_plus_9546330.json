@@ -1,0 +1,169 @@
+{
+  "doc_id": "GSC+_9546330",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "We compared epilepsy phenotypes with genotypes of Angelman syndrome (AS), including chromosome 15q11-13 deletions (class I), uniparental disomy (class II), methylation imprinting abnormalities (class III), and mutation in the UBE3A gene (class IV). Twenty patients were prospectively selected based on clinical cytogenetic and molecular diagnosis of AS. All patients had 6 to 72 hours of closed-circuit television videotaping and digitized electroencephalogrpahic (EEG) telemetry. Patients from all genotypic classes had characteristic EEGs with diffuse bifrontally dominant high-amplitude 1- to 3-Hz notched or triphasic or polyphasic slow waves, or slow and sharp waves. Class I patients had severe intractable epilepsy, most frequently with atypical absences and myoclonias and less frequently with generalized extensor tonic seizures or flexor spasms. Epileptic spasms were recorded in AS patients as old as 41 years. Aged-matched class II, III, and IV patients had either no epilepsy or drug-responsive mild epilepsy with relatively infrequent atypical absences, myoclonias, or atonic seizures. In conclusion, maternally inherited chromosome 15q11-13 deletions produce severe epilepsy. Loss-of-function UBE3A mutations, uniparental disomy, or methylation imprint abnormalities in AS are associated with relatively mild epilepsy. Involvement of other genes in the chromosome 15q11-13 deletion, such as GABRB3, may explain severe epilepsy in AS.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 1448,
+    "num_annotations": 10,
+    "conversion_date": "2025-11-18T13:13:18.852785"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001250",
+      "label": "Seizure",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 12,
+          "end_char": 20,
+          "text_snippet": "epilepsy"
+        },
+        {
+          "start_char": 980,
+          "end_char": 988,
+          "text_snippet": "epilepsy"
+        },
+        {
+          "start_char": 1013,
+          "end_char": 1021,
+          "text_snippet": "epilepsy"
+        },
+        {
+          "start_char": 1181,
+          "end_char": 1189,
+          "text_snippet": "epilepsy"
+        },
+        {
+          "start_char": 1324,
+          "end_char": 1332,
+          "text_snippet": "epilepsy"
+        },
+        {
+          "start_char": 1433,
+          "end_char": 1441,
+          "text_snippet": "epilepsy"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002353",
+      "label": "EEG abnormality",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 521,
+          "end_char": 540,
+          "text_snippet": "characteristic EEGs"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 566,
+          "end_char": 574,
+          "text_snippet": "dominant"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001275",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 701,
+          "end_char": 721,
+          "text_snippet": "intractable epilepsy"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0007270",
+      "label": "Atypical absence seizure",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 744,
+          "end_char": 761,
+          "text_snippet": "atypical absences"
+        },
+        {
+          "start_char": 1049,
+          "end_char": 1066,
+          "text_snippet": "atypical absences"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001336",
+      "label": "Myoclonus",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 766,
+          "end_char": 776,
+          "text_snippet": "myoclonias"
+        },
+        {
+          "start_char": 1068,
+          "end_char": 1078,
+          "text_snippet": "myoclonias"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002069",
+      "label": "Bilateral tonic-clonic seizure",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 802,
+          "end_char": 837,
+          "text_snippet": "generalized extensor tonic seizures"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004305",
+      "label": "Involuntary movements",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 841,
+          "end_char": 854,
+          "text_snippet": "flexor spasms"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0011097",
+      "label": "Epileptic spasm",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 856,
+          "end_char": 872,
+          "text_snippet": "Epileptic spasms"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010819",
+      "label": "Atonic seizure",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1083,
+          "end_char": 1098,
+          "text_snippet": "atonic seizures"
+        }
+      ]
+    }
+  ]
+}

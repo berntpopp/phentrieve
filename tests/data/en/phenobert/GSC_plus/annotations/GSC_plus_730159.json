@@ -1,0 +1,127 @@
+{
+  "doc_id": "GSC+_730159",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "The basal cell nevus syndrome is characterized by multiple basal cell nevi and basal cell carcinoma, cysts of the jaw, anomalies of ribs and spine, abnormal calcifications, and additional anomalies of the facial skull. A German family is described with manifestations of the syndrome in the mother and her three daughters. Expressivity was variable, in part due to age effects. The observation conforms to the assumed autosomal dominant mode of inheritance with high penetrance.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 478,
+    "num_annotations": 9,
+    "conversion_date": "2025-11-18T13:13:17.425599"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0002671",
+      "label": "Basal cell carcinoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 4,
+          "end_char": 29,
+          "text_snippet": "basal cell nevus syndrome"
+        },
+        {
+          "start_char": 79,
+          "end_char": 99,
+          "text_snippet": "basal cell carcinoma"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001054",
+      "label": "Numerous nevi",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 50,
+          "end_char": 74,
+          "text_snippet": "multiple basal cell nevi"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010603",
+      "label": "Odontogenic keratocysts of the jaw",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 101,
+          "end_char": 117,
+          "text_snippet": "cysts of the jaw"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000772",
+      "label": "Abnormal rib morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 119,
+          "end_char": 136,
+          "text_snippet": "anomalies of ribs"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000925",
+      "label": "Abnormality of the vertebral column",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 119,
+          "end_char": 146,
+          "text_snippet": "anomalies of ribs and spine"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004348",
+      "label": "Abnormality of bone mineral density",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 148,
+          "end_char": 171,
+          "text_snippet": "abnormal calcifications"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000271",
+      "label": "Abnormality of the face",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 188,
+          "end_char": 211,
+          "text_snippet": "anomalies of the facial"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003813",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 340,
+          "end_char": 348,
+          "text_snippet": "variable"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 418,
+          "end_char": 456,
+          "text_snippet": "autosomal dominant mode of inheritance"
+        }
+      ]
+    }
+  ]
+}

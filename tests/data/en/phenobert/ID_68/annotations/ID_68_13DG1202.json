@@ -1,0 +1,151 @@
+{
+  "doc_id": "ID-68_13DG1202",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "An 11 years old boy who was born via NSVD to G2P1+0 23 years old mother following an uneventful pregnancy. He required oxygen for less than one hour, but he was not admitted to NICU and was discharged on the second day. The first concern was at 5 months of age due to cyanotic episode and floppiness, and he was investigated by a brain MRI and found to have abnormal myelination. He also has peripheral nerve involvement confirmed by nerve conduction studies and biopsy that showed a progressive axonal loss. He gradually started to have deformities in his feet, hands and back. He sat at 18 months and walked with a walker at 4 years of age; however, he lost the ability to walk later on. He responds to his mother’s verbal commands. His estimated IQ was 65. He seems to have a borderline progressive microcephaly. He is drooling and wheelchair bound. His parents are first-degree consanguineous couple once removed with another affected son and two other healthy children, and there are no other affected members. His physical examination was significant for drooling, scoliosis, bilateral claw hands, bilateral drop feet and areflexia. Other examinations were within normal limits. His growth parameters at 11 years of age were weight 19 kg (<1st percentile, -3.35 SD) and head circumference 50 cm (on the 1st percentile).",
+  "metadata": {
+    "dataset": "ID-68",
+    "text_length_chars": 1325,
+    "num_annotations": 11,
+    "conversion_date": "2025-11-18T13:13:19.313154"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0200048",
+      "label": "Cyanotic episode",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 261,
+          "end_char": 284,
+          "text_snippet": "due to cyanotic episode"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012447",
+      "label": "Abnormal myelination",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 358,
+          "end_char": 378,
+          "text_snippet": "abnormal myelination"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003447",
+      "label": "Axonal loss",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 496,
+          "end_char": 507,
+          "text_snippet": "axonal loss"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001760",
+      "label": "Abnormal foot morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 538,
+          "end_char": 561,
+          "text_snippet": "deformities in his feet"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0006957",
+      "label": "obsolete Loss of ability to walk",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 655,
+          "end_char": 679,
+          "text_snippet": "lost the ability to walk"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000253",
+      "label": "Progressive microcephaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 790,
+          "end_char": 814,
+          "text_snippet": "progressive microcephaly"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002307",
+      "label": "Drooling",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 822,
+          "end_char": 830,
+          "text_snippet": "drooling"
+        },
+        {
+          "start_char": 1061,
+          "end_char": 1069,
+          "text_snippet": "drooling"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002650",
+      "label": "Scoliosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1071,
+          "end_char": 1080,
+          "text_snippet": "scoliosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001171",
+      "label": "Split hand",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1082,
+          "end_char": 1102,
+          "text_snippet": "bilateral claw hands"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009027",
+      "label": "Foot dorsiflexor weakness",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1114,
+          "end_char": 1123,
+          "text_snippet": "drop feet"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001284",
+      "label": "Areflexia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1128,
+          "end_char": 1137,
+          "text_snippet": "areflexia"
+        }
+      ]
+    }
+  ]
+}

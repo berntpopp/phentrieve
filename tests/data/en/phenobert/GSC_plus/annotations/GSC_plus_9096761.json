@@ -1,0 +1,378 @@
+{
+  "doc_id": "GSC+_9096761",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Nevoid basal cell carcinoma syndrome (NBCC; Gorlin syndrome), an autosomal dominant disorder linked to 9q22.3-q31, and caused by mutations in PTC, the human homologue of the Drosophila patched gene, comprises multiple basal cell carcinomas, keratocysts of the jaw, palmar/plantar pits, spine and rib anomalies and calcification of the falx cerebri. We reviewed the findings on 105 affected individuals examined at the NIH since 1985. The data included 48 males and 57 females ranging in age from 4 months to 87 years. Eighty percent of whites (71/90) and 38% (5/13) of African-Americans had at least one basal cell carcinoma (BCC), with the first tumor occurring at a mean age of 23 (median 20) years and 21 (median 20) years, respectively. Excluding individuals exposed to radiation therapy, the number of BCCs ranged from 1 to > 1,000 (median 8) and 1 to 3 (median 2), respectively, in the 2 groups. Jaw cysts occurred in 78/105 (74%) with the first tumor occurring in 80% by the age of 20 years. The number of total jaw cysts ranged from 1 to 28 (median 3). Palmar pits and plantar pits were seen in 87%. Ovarian fibromas were diagnosed by ultrasound in 9/52 (17%) at a mean age of 30 years. Medulloblastoma occurred in 4 patients at a mean age of 2.3 years. Three patients had cleft lip or palate. Physical findings include \"coarse face\" in 54%, relative macrocephaly in 50%, hypertelorism in 42%, frontal bossing in 27%, pectus deformity in 13%, and Sprengel deformity in 11%. Important radiological signs included calcification of the falx cerebri in 65%, of the tentorium cerebelli in 20%, bridged sella in 68%, bifid ribs in 26%, hemivertebrae in 15%, fusion of the vertebral bodies in 10%, and flame shaped lucencies of the phalanges, metacarpal, and carpal bones of the hands in 30%. Several traits previously considered components of the syndrome (including short fourth metacarpal, scoliosis, cervical ribs and spina bifida occulta) were not found to be significantly increased in the affected individuals. This study delineates the frequency of the clinical and radiological anomalies in NBCC in a large population of US patients and discusses guidelines for diagnosis and management.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 2197,
+    "num_annotations": 27,
+    "conversion_date": "2025-11-18T13:13:18.658595"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0002671",
+      "label": "Basal cell carcinoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 7,
+          "end_char": 27,
+          "text_snippet": "basal cell carcinoma"
+        },
+        {
+          "start_char": 218,
+          "end_char": 239,
+          "text_snippet": "basal cell carcinomas"
+        },
+        {
+          "start_char": 604,
+          "end_char": 624,
+          "text_snippet": "basal cell carcinoma"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 65,
+          "end_char": 92,
+          "text_snippet": "autosomal dominant disorder"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010603",
+      "label": "Odontogenic keratocysts of the jaw",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 241,
+          "end_char": 263,
+          "text_snippet": "keratocysts of the jaw"
+        },
+        {
+          "start_char": 902,
+          "end_char": 911,
+          "text_snippet": "Jaw cysts"
+        },
+        {
+          "start_char": 1019,
+          "end_char": 1028,
+          "text_snippet": "jaw cysts"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010610",
+      "label": "Palmar pits",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 265,
+          "end_char": 284,
+          "text_snippet": "palmar/plantar pits"
+        },
+        {
+          "start_char": 1061,
+          "end_char": 1072,
+          "text_snippet": "Palmar pits"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010612",
+      "label": "Plantar pits",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 272,
+          "end_char": 284,
+          "text_snippet": "plantar pits"
+        },
+        {
+          "start_char": 1077,
+          "end_char": 1089,
+          "text_snippet": "plantar pits"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000925",
+      "label": "Abnormality of the vertebral column",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 286,
+          "end_char": 309,
+          "text_snippet": "spine and rib anomalies"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000772",
+      "label": "Abnormal rib morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 296,
+          "end_char": 309,
+          "text_snippet": "rib anomalies"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0005462",
+      "label": "Calcification of falx cerebri",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 314,
+          "end_char": 347,
+          "text_snippet": "calcification of the falx cerebri"
+        },
+        {
+          "start_char": 1520,
+          "end_char": 1553,
+          "text_snippet": "calcification of the falx cerebri"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002664",
+      "label": "Neoplasm",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 647,
+          "end_char": 652,
+          "text_snippet": "tumor"
+        },
+        {
+          "start_char": 952,
+          "end_char": 957,
+          "text_snippet": "tumor"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010618",
+      "label": "Ovarian fibroma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1108,
+          "end_char": 1124,
+          "text_snippet": "Ovarian fibromas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002885",
+      "label": "Medulloblastoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1195,
+          "end_char": 1210,
+          "text_snippet": "Medulloblastoma"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000175",
+      "label": "Cleft palate",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1281,
+          "end_char": 1300,
+          "text_snippet": "cleft lip or palate"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100333",
+      "label": "Unilateral cleft lip",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1281,
+          "end_char": 1290,
+          "text_snippet": "cleft lip"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000280",
+      "label": "Coarse facial features",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1329,
+          "end_char": 1340,
+          "text_snippet": "coarse face"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004482",
+      "label": "Relative macrocephaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1350,
+          "end_char": 1371,
+          "text_snippet": "relative macrocephaly"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000316",
+      "label": "Hypertelorism",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1380,
+          "end_char": 1393,
+          "text_snippet": "hypertelorism"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002007",
+      "label": "Frontal bossing",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1402,
+          "end_char": 1417,
+          "text_snippet": "frontal bossing"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000766",
+      "label": "Abnormal sternum morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1426,
+          "end_char": 1442,
+          "text_snippet": "pectus deformity"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000912",
+      "label": "Sprengel anomaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1455,
+          "end_char": 1473,
+          "text_snippet": "Sprengel deformity"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0005449",
+      "label": "Bridged sella turcica",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1597,
+          "end_char": 1610,
+          "text_snippet": "bridged sella"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000892",
+      "label": "Bifid ribs",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1619,
+          "end_char": 1629,
+          "text_snippet": "bifid ribs"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002937",
+      "label": "Hemivertebrae",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1638,
+          "end_char": 1651,
+          "text_snippet": "hemivertebrae"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002948",
+      "label": "Vertebral fusion",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1660,
+          "end_char": 1690,
+          "text_snippet": "fusion of the vertebral bodies"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010044",
+      "label": "Short 4th metacarpal",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1869,
+          "end_char": 1892,
+          "text_snippet": "short fourth metacarpal"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002650",
+      "label": "Scoliosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1894,
+          "end_char": 1903,
+          "text_snippet": "scoliosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000891",
+      "label": "Cervical ribs",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1905,
+          "end_char": 1918,
+          "text_snippet": "cervical ribs"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003298",
+      "label": "Spina bifida occulta",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1923,
+          "end_char": 1943,
+          "text_snippet": "spina bifida occulta"
+        }
+      ]
+    }
+  ]
+}

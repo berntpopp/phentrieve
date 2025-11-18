@@ -1,0 +1,62 @@
+{
+  "doc_id": "GSC+_18629882",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Brachydactyly type A1 is a limb malformation characterized by a uniform shortening of the middle phalanges in all digits. Mutations in the Indian hedgehog (IHH) gene were shown to be the cause of this autosomal dominant disorder. The IHH protein is known to be an important signaling molecule involved in chondrocyte formation. So far, only missense mutations in IHH have been reported to cause BrachydactylyA1. We report here on the first deletion in IHH, p.delE95, causing mild BrachydactylyA1 in a small Dutch family. This brings the total number of different mutations found to cause BDA1 to 7.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 598,
+    "num_annotations": 4,
+    "conversion_date": "2025-11-18T13:13:15.982338"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0009371",
+      "label": "Type A1 brachydactyly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 0,
+          "end_char": 21,
+          "text_snippet": "Brachydactyly type A1"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002813",
+      "label": "Abnormal limb bone morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 27,
+          "end_char": 44,
+          "text_snippet": "limb malformation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010240",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 72,
+          "end_char": 120,
+          "text_snippet": "shortening of the middle phalanges in all digits"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 201,
+          "end_char": 228,
+          "text_snippet": "autosomal dominant disorder"
+        }
+      ]
+    }
+  ]
+}

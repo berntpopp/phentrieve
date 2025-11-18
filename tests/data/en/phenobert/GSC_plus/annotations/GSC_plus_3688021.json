@@ -1,0 +1,156 @@
+{
+  "doc_id": "GSC+_3688021",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Two unrelated females, age 15 and 5 years respectively, were studied cytogenetically because of severe mental retardation, seizures and ataxia-like incoordination. A similar deletion of the proximal long arm of chromosome 15 was found in both patients. Re-evaluation showed no voracious appetite or obesity; normal size of hands and feet, minimal to no hypotonia by history or examination and facial features not typical of the Prader-Willi syndrome. However, the facial appearance of the girls was similar to each other with mild hypertelorism. The similarity of these girls and dissimilarity to Prader-Willi syndrome suggest a different syndrome, perhaps the result of deletion of a different segment of 15q. The findings of ataxic-like movements, frequent, unprovoked and prolonged bouts of laughter and facial appearance are more compatible with the diagnosis of Angelman syndrome.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 885,
+    "num_annotations": 11,
+    "conversion_date": "2025-11-18T13:13:16.862454"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0002187",
+      "label": "Intellectual disability, profound",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 96,
+          "end_char": 121,
+          "text_snippet": "severe mental retardation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001250",
+      "label": "Seizure",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 123,
+          "end_char": 131,
+          "text_snippet": "seizures"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001251",
+      "label": "Ataxia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 136,
+          "end_char": 142,
+          "text_snippet": "ataxia"
+        },
+        {
+          "start_char": 727,
+          "end_char": 748,
+          "text_snippet": "ataxic-like movements"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002311",
+      "label": "Incoordination",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 148,
+          "end_char": 162,
+          "text_snippet": "incoordination"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002591",
+      "label": "Polyphagia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 277,
+          "end_char": 295,
+          "text_snippet": "voracious appetite"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001513",
+      "label": "Obesity",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 299,
+          "end_char": 306,
+          "text_snippet": "obesity"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001252",
+      "label": "Hypotonia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 353,
+          "end_char": 362,
+          "text_snippet": "hypotonia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001999",
+      "label": "Abnormal facial shape",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 464,
+          "end_char": 481,
+          "text_snippet": "facial appearance"
+        },
+        {
+          "start_char": 807,
+          "end_char": 824,
+          "text_snippet": "facial appearance"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000316",
+      "label": "Hypertelorism",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 531,
+          "end_char": 544,
+          "text_snippet": "hypertelorism"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000749",
+      "label": "Paroxysmal bursts of laughter",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 750,
+          "end_char": 802,
+          "text_snippet": "frequent, unprovoked and prolonged bouts of laughter"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000748",
+      "label": "Inappropriate laughter",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 794,
+          "end_char": 802,
+          "text_snippet": "laughter"
+        }
+      ]
+    }
+  ]
+}

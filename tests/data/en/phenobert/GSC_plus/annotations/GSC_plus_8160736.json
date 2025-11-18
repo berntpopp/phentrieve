@@ -1,0 +1,74 @@
+{
+  "doc_id": "GSC+_8160736",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "We present 3 individuals, a mother, her son, and an unrelated child, with a number of manifestations reported in the branchio-oculo-facial syndrome (BOFS). The former 2 individuals lacked the ocular and branchial abnormalities normally encountered in this syndrome. However, unilateral renal agenesis was present in the first child, a defect infrequently found in the BOF syndrome. Both the mother and her son also had bilateral supra-auricular sinuses. These defects may represent persistence of the otic vesicle sinus tract. The second child has a mild expression of this condition, among the mildest reported in the literature. The BOFS appears to represent a spectrum involving the development of the optic vesicles, branchial arches, eyes, face, lips, and kidneys. The variations seen in this disorder and the overlap between this condition and the branchio-oto-renal syndrome may represent different mutations within a single gene or may be a contiguous gene deletion syndrome.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 983,
+    "num_annotations": 5,
+    "conversion_date": "2025-11-18T13:13:17.992047"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000122",
+      "label": "Unilateral renal agenesis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 275,
+          "end_char": 300,
+          "text_snippet": "unilateral renal agenesis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0008606",
+      "label": "Supraauricular pit",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 419,
+          "end_char": 452,
+          "text_snippet": "bilateral supra-auricular sinuses"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000478",
+      "label": "Abnormality of the eye",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 686,
+          "end_char": 719,
+          "text_snippet": "development of the optic vesicles"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009794",
+      "label": "Branchial anomaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 721,
+          "end_char": 737,
+          "text_snippet": "branchial arches"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001466",
+      "label": "Contiguous gene syndrome",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 949,
+          "end_char": 982,
+          "text_snippet": "contiguous gene deletion syndrome"
+        }
+      ]
+    }
+  ]
+}

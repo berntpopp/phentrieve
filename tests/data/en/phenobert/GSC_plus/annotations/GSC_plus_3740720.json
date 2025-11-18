@@ -1,0 +1,110 @@
+{
+  "doc_id": "GSC+_3740720",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Branchio-oto-renal dysplasia, often called the BOR syndrome, in its full expression consists of hearing loss of conductive, sensorineural, or mixed type; preauricular pits; auricular deformities; lateral cervical sinuses, cysts, or fistulas; and renal malformations. The condition is inherited in an autosomal dominant mode. The findings in three affected families are described, and pertinent genetic and clinical aspects are discussed. The potential seriousness of the renal and aural malformations stresses the importance of early recognition of this syndrome.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 563,
+    "num_annotations": 8,
+    "conversion_date": "2025-11-18T13:13:16.885571"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000110",
+      "label": "Renal dysplasia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 13,
+          "end_char": 28,
+          "text_snippet": "renal dysplasia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000410",
+      "label": "Mixed hearing impairment",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 96,
+          "end_char": 152,
+          "text_snippet": "hearing loss of conductive, sensorineural, or mixed type"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000407",
+      "label": "Sensorineural hearing impairment",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 96,
+          "end_char": 137,
+          "text_snippet": "hearing loss of conductive, sensorineural"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004467",
+      "label": "Preauricular pit",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 154,
+          "end_char": 171,
+          "text_snippet": "preauricular pits"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009794",
+      "label": "Branchial anomaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 232,
+          "end_char": 240,
+          "text_snippet": "fistulas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000792",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 246,
+          "end_char": 265,
+          "text_snippet": "renal malformations"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 300,
+          "end_char": 318,
+          "text_snippet": "autosomal dominant"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001056",
+      "label": "Milia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 358,
+          "end_char": 363,
+          "text_snippet": "milie"
+        }
+      ]
+    }
+  ]
+}

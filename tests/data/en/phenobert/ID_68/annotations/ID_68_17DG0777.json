@@ -1,0 +1,230 @@
+{
+  "doc_id": "ID-68_17DG0777",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "A 9 years old girl with early-onset global developmental delay, poor feeding and recurrent chest infections. She was born at full term via an assisted vaginal delivery. After birth, she was admitted to the nursery for 3 days due to transient neonatal jaundice. Later in infancy, she was noted to have an increasing head circumference, and the head CT demonstrated static hydrocephalus. Developmentally, she has a global developmental delay affecting all domains. She currently walks unsteadily and feeds herself. She has no sphincter control, and she cannot talk or vocalize. Her parents are first-degree cousins, and they have a daughter and a son with congenital deafness and intellectual disability/ADHD. Her examination was significant for cutis laxa, hyperlaxity of joints, hepatomegaly, hypotonia, weakness, bilateral strabismus, oculomotor apraxia, inability to follow objects and poor vision. Other examinations were within normal limits. Her growth parameters at 9 years of age were weight 18 kg (<1st percentile), height 111.5 cm (<1st percentile) and head circumference 55 cm (>97th percentile). Head CT at 1 year of age showed ventriculomegaly.",
+  "metadata": {
+    "dataset": "ID-68",
+    "text_length_chars": 1156,
+    "num_annotations": 18,
+    "conversion_date": "2025-11-18T13:13:20.494540"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0011968",
+      "label": "Feeding difficulties",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 64,
+          "end_char": 76,
+          "text_snippet": "poor feeding"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002783",
+      "label": "Recurrent lower respiratory tract infections",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 81,
+          "end_char": 107,
+          "text_snippet": "recurrent chest infections"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0011412",
+      "label": "Ventouse delivery",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 139,
+          "end_char": 167,
+          "text_snippet": "an assisted vaginal delivery"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0006579",
+      "label": "Prolonged neonatal jaundice",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 232,
+          "end_char": 259,
+          "text_snippet": "transient neonatal jaundice"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0040194",
+      "label": "Increased head circumference",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 301,
+          "end_char": 333,
+          "text_snippet": "an increasing head circumference"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000238",
+      "label": "Hydrocephalus",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 371,
+          "end_char": 384,
+          "text_snippet": "hydrocephalus"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001263",
+      "label": "Global developmental delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 413,
+          "end_char": 439,
+          "text_snippet": "global developmental delay"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002839",
+      "label": "Urinary bladder sphincter dysfunction",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 517,
+          "end_char": 541,
+          "text_snippet": "has no sphincter control"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000365",
+      "label": "Hearing impairment",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 654,
+          "end_char": 673,
+          "text_snippet": "congenital deafness"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001249",
+      "label": "Intellectual disability",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 678,
+          "end_char": 701,
+          "text_snippet": "intellectual disability"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000973",
+      "label": "Cutis laxa",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 744,
+          "end_char": 754,
+          "text_snippet": "cutis laxa"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001388",
+      "label": "obsolete Joint laxity",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 756,
+          "end_char": 777,
+          "text_snippet": "hyperlaxity of joints"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002240",
+      "label": "Hepatomegaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 779,
+          "end_char": 791,
+          "text_snippet": "hepatomegaly"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001290",
+      "label": "Generalized hypotonia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 793,
+          "end_char": 802,
+          "text_snippet": "hypotonia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000486",
+      "label": "Strabismus",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 824,
+          "end_char": 834,
+          "text_snippet": "strabismus"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000657",
+      "label": "Oculomotor apraxia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 836,
+          "end_char": 854,
+          "text_snippet": "oculomotor apraxia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000505",
+      "label": "Visual impairment",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 888,
+          "end_char": 899,
+          "text_snippet": "poor vision"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002119",
+      "label": "Ventriculomegaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1139,
+          "end_char": 1155,
+          "text_snippet": "ventriculomegaly"
+        }
+      ]
+    }
+  ]
+}

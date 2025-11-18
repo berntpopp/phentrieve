@@ -1,0 +1,182 @@
+{
+  "doc_id": "GSC+_18423521",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Branchio-oculo-facial syndrome (BOFS) is a rare autosomal-dominant cleft palate-craniofacial disorder with variable expressivity. The major features include cutaneous anomalies (cervical, infra- and/or supra-auricular defects, often with dermal thymus), ocular anomalies, characteristic facial appearance (malformed pinnae, oral clefts), and, less commonly, renal and ectodermal (dental and hair) anomalies. The molecular basis for this disorder is heretofore unknown. We detected a 3.2 Mb deletion by 500K SNP microarray in an affected mother and son with BOFS at chromosome 6p24.3. Candidate genes in this region were selected for sequencing on the basis of their expression patterns and involvement in developmental pathways associated with the clinical findings of BOFS. Four additional BOFS patients were found to have de novo missense mutations in the highly conserved exons 4 and 5 (basic region of the DNA binding domain) of the TFAP2A gene in the candidate deleted region. We conclude BOFS is caused by mutations involving TFAP2A. More patients need to be studied to determine possible genetic heterogeneity and to establish whether there are genotype-phenotype correlations.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 1184,
+    "num_annotations": 14,
+    "conversion_date": "2025-11-18T13:13:15.933168"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 48,
+          "end_char": 66,
+          "text_snippet": "autosomal-dominant"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000175",
+      "label": "Cleft palate",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 67,
+          "end_char": 79,
+          "text_snippet": "cleft palate"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002260",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 80,
+          "end_char": 101,
+          "text_snippet": "craniofacial disorder"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003828",
+      "label": "Variable expressivity",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 107,
+          "end_char": 128,
+          "text_snippet": "variable expressivity"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000951",
+      "label": "Abnormality of the skin",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 157,
+          "end_char": 176,
+          "text_snippet": "cutaneous anomalies"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000377",
+      "label": "Abnormal pinna morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 188,
+          "end_char": 225,
+          "text_snippet": "infra- and/or supra-auricular defects"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000284",
+      "label": "obsolete Abnormality of the ocular region",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 254,
+          "end_char": 270,
+          "text_snippet": "ocular anomalies"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001999",
+      "label": "Abnormal facial shape",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 287,
+          "end_char": 304,
+          "text_snippet": "facial appearance"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000356",
+      "label": "Abnormality of the outer ear",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 306,
+          "end_char": 322,
+          "text_snippet": "malformed pinnae"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000202",
+      "label": "Orofacial cleft",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 324,
+          "end_char": 335,
+          "text_snippet": "oral clefts"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000077",
+      "label": "Abnormality of the kidney",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 358,
+          "end_char": 406,
+          "text_snippet": "renal and ectodermal (dental and hair) anomalies"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000164",
+      "label": "Abnormality of the dentition",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 368,
+          "end_char": 406,
+          "text_snippet": "ectodermal (dental and hair) anomalies"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003745",
+      "label": "Sporadic",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 824,
+          "end_char": 831,
+          "text_snippet": "de novo"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001425",
+      "label": "obsolete Heterogeneous",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1095,
+          "end_char": 1116,
+          "text_snippet": "genetic heterogeneity"
+        }
+      ]
+    }
+  ]
+}

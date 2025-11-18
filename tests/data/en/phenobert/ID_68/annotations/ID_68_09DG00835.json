@@ -1,0 +1,192 @@
+{
+  "doc_id": "ID-68_09DG00835",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "An 8 years old girl who was born at full term via NSVD to G4P2+1 33 years old mother. A decrease in fetal movements was noted during pregnancy, and her birth weight was 2.8 kg. After birth, she was noted to be floppy with poor sucking. At one month of age, she started to have choking episodes that turned to be due to severe GERD, and Niessel fundoplication was performed. Aspiration problems persisted, and the fundoplication procedure was repeated later. She also has developed seizures and continues to seize daily despite multiple attempts to control her seizures with medications. Her seizures’ semiology appears to be as opisthotonic posturing. She also has bronchial asthma. Her parents report that she barely can feel pain, and she has no tears when she cries even though she has normal sweating. She demonstrates a self-mutilating behavior by scratching her face. Parents are consanguineous, and there is no family history of a similar condition. Currently, she has a developmental delay affecting all domains, and her IQ was estimated to be 20-30. She can vocalize, but cannot talk. She can walk although her gait is unstable. On examination, she has poor growth with a significant microcephaly. She has subtle dysmorphia characterized as hypotelorism and tapering of fingers. MRI showed thinning of the corpus callosum and mild atrophy of the cerebellar vermis. ",
+  "metadata": {
+    "dataset": "ID-68",
+    "text_length_chars": 1374,
+    "num_annotations": 14,
+    "conversion_date": "2025-11-18T13:13:19.130121"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001558",
+      "label": "Decreased fetal movement",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 88,
+          "end_char": 115,
+          "text_snippet": "decrease in fetal movements"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002033",
+      "label": "Poor suck",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 217,
+          "end_char": 234,
+          "text_snippet": "with poor sucking"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0030842",
+      "label": "Choking episodes",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 277,
+          "end_char": 293,
+          "text_snippet": "choking episodes"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002020",
+      "label": "Gastroesophageal reflux",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 326,
+          "end_char": 330,
+          "text_snippet": "GERD"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002835",
+      "label": "Aspiration",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 374,
+          "end_char": 393,
+          "text_snippet": "Aspiration problems"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001250",
+      "label": "Seizure",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 481,
+          "end_char": 489,
+          "text_snippet": "seizures"
+        },
+        {
+          "start_char": 560,
+          "end_char": 568,
+          "text_snippet": "seizures"
+        },
+        {
+          "start_char": 591,
+          "end_char": 599,
+          "text_snippet": "seizures"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002099",
+      "label": "Asthma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 665,
+          "end_char": 681,
+          "text_snippet": "bronchial asthma"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001263",
+      "label": "Global developmental delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 978,
+          "end_char": 997,
+          "text_snippet": "developmental delay"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001510",
+      "label": "Growth delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1162,
+          "end_char": 1173,
+          "text_snippet": "poor growth"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000252",
+      "label": "Microcephaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1193,
+          "end_char": 1205,
+          "text_snippet": "microcephaly"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000601",
+      "label": "Hypotelorism",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1250,
+          "end_char": 1262,
+          "text_snippet": "hypotelorism"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001182",
+      "label": "Tapered finger",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1267,
+          "end_char": 1286,
+          "text_snippet": "tapering of fingers"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002079",
+      "label": "Hypoplasia of the corpus callosum",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1299,
+          "end_char": 1330,
+          "text_snippet": "thinning of the corpus callosum"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0006855",
+      "label": "Cerebellar vermis atrophy",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1340,
+          "end_char": 1372,
+          "text_snippet": "atrophy of the cerebellar vermis"
+        }
+      ]
+    }
+  ]
+}

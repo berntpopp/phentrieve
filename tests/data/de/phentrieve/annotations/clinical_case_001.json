@@ -1,7 +1,14 @@
 {
-  "doc_id": "german_report_001",
+  "doc_id": "phentrieve_de_clinical_001",
   "language": "de",
+  "source": "phentrieve",
   "full_text": "Kind vorgestellt mit Trinkschwäche und Hypotonie. Keine Krampfanfälle berichtet. Deutliche globale Entwicklungsverzögerung.",
+  "metadata": {
+    "dataset": "phentrieve_clinical_cases",
+    "text_length_chars": 125,
+    "num_annotations": 4,
+    "description": "German clinical case - pediatric presentation with feeding difficulties, hypotonia, and developmental delay"
+  },
   "annotations": [
     {
       "hpo_id": "HP:0030082",

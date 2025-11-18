@@ -1,0 +1,84 @@
+{
+  "doc_id": "GSC+_8658145",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "The basal cell nevus syndrome (BCNS) is characterized by developmental abnormalities and by the postnatal occurrence of cancers, especially basal cell carcinomas (BCCs), the most common human cancer. Heritable mutations in BCNS patients and a somatic mutation in a sporadic BCC were identified in a human homolog of the Drosophila patched (ptc) gene. The ptc gene encodes a transmembrane protein that in Drosophila acts in opposition to the Hedgehog signaling protein, controlling cell fates, patterning, and growth in numerous tissues. The human PTC gene appears to be crucial for proper embryonic development and for tumor suppression.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 637,
+    "num_annotations": 5,
+    "conversion_date": "2025-11-18T13:13:18.274118"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0002671",
+      "label": "Basal cell carcinoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 4,
+          "end_char": 29,
+          "text_snippet": "basal cell nevus syndrome"
+        },
+        {
+          "start_char": 140,
+          "end_char": 161,
+          "text_snippet": "basal cell carcinomas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001263",
+      "label": "Global developmental delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 57,
+          "end_char": 84,
+          "text_snippet": "developmental abnormalities"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002664",
+      "label": "Neoplasm",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 192,
+          "end_char": 198,
+          "text_snippet": "cancer"
+        },
+        {
+          "start_char": 619,
+          "end_char": 624,
+          "text_snippet": "tumor"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001428",
+      "label": "obsolete Somatic mutation",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 243,
+          "end_char": 259,
+          "text_snippet": "somatic mutation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003745",
+      "label": "Sporadic",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 265,
+          "end_char": 273,
+          "text_snippet": "sporadic"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,336 @@
+{
+  "doc_id": "GeneReviews_NBK550349",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Summary:\nFructose-1,6-bisphosphatase (FBP1) deficiency is characterized by episodic acute crises of lactic acidosis and ketotic hypoglycemia, manifesting as hyperventilation, apneic spells, seizures, and/or coma. Acute crises are most common in early childhood; nearly half of affected children have hypoglycemia in the neonatal period (especially the first 4 days) resulting from deficient glycogen stores. Factors known to trigger episodes include fever, fasting, decreased oral intake, vomiting, infections, and ingestion of large amounts of fructose.In untreated individuals, symptoms worsen progressively as continued catabolism leads to multiorgan failure (especially liver, brain, and later heart). Morbidity and mortality are high. Sepsis, blindness, and Reye syndrome-like presentation have been reported.In between acute episodes, children are asymptomatic. While the majority of affected children have normal growth and psychomotor development, a few have intellectual disability, presumably due to early and prolonged hypoglycemia.\nDescription:\nThe manifestations of fructose-1,6-bisphosphatase (FBP1) deficiency are generally episodic due to lactic acidosis and ketotic hypoglycemia, which are often triggered by fasting or febrile infections. The episodes of acute crisis are most frequent in early life – neonatal period, infancy, and early childhood – and subsequently decrease in frequency. In FBP1 deficiency, several metabolic derangements can occur with or without hypoglycemia.\nClassically, FBP1 deficiency manifests in the first year of life. Nearly half of affected infants present within the first four days of life with an acute crisis. Neonatal presentation results from hypoglycemia due to deficient glycogen stores.\nAcute crises are characterized by episodes of hyperventilation, apneic spells, seizures, and/or coma, often with hepatomegaly. Muscular hypotonia may also be present. This may be associated with transient liver dysfunction (transaminitis), which does not require specific treatment. With age, the frequency of attacks decreases and episodes are characterized by irritability, somnolence, hypotonia, and dyspnea.\nFactors known to trigger episodes include fever, fasting, decreased oral intake, vomiting, infections, and ingestion of large amounts of fructose. Episodes tend to be recurrent. Often four to five episodes occur before the correct diagnosis is established.\nIn between crises, children are asymptomatic and the majority experience normal growth and psychomotor development.\nIn untreated individuals, symptoms worsen progressively as continued catabolism leads to multiorgan failure (especially liver, brain, and later heart). Morbidity and mortality are high. Sepsis, blindness, and Reye syndrome-like presentation have been reported.\n",
+  "metadata": {
+    "dataset": "GeneReviews",
+    "text_length_chars": 2790,
+    "num_annotations": 21,
+    "conversion_date": "2025-11-18T13:13:20.879732"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0003128",
+      "label": "Lactic acidosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 100,
+          "end_char": 115,
+          "text_snippet": "lactic acidosis"
+        },
+        {
+          "start_char": 1155,
+          "end_char": 1170,
+          "text_snippet": "lactic acidosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012734",
+      "label": "Ketotic hypoglycemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 120,
+          "end_char": 140,
+          "text_snippet": "ketotic hypoglycemia"
+        },
+        {
+          "start_char": 1175,
+          "end_char": 1195,
+          "text_snippet": "ketotic hypoglycemia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002883",
+      "label": "Hyperventilation",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 157,
+          "end_char": 173,
+          "text_snippet": "hyperventilation"
+        },
+        {
+          "start_char": 1790,
+          "end_char": 1806,
+          "text_snippet": "hyperventilation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002104",
+      "label": "Apnea",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 175,
+          "end_char": 188,
+          "text_snippet": "apneic spells"
+        },
+        {
+          "start_char": 1808,
+          "end_char": 1821,
+          "text_snippet": "apneic spells"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001250",
+      "label": "Seizure",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 190,
+          "end_char": 198,
+          "text_snippet": "seizures"
+        },
+        {
+          "start_char": 1823,
+          "end_char": 1831,
+          "text_snippet": "seizures"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001259",
+      "label": "Coma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 207,
+          "end_char": 211,
+          "text_snippet": "coma"
+        },
+        {
+          "start_char": 1840,
+          "end_char": 1844,
+          "text_snippet": "coma"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001943",
+      "label": "Hypoglycemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 300,
+          "end_char": 312,
+          "text_snippet": "hypoglycemia"
+        },
+        {
+          "start_char": 1020,
+          "end_char": 1042,
+          "text_snippet": "prolonged hypoglycemia"
+        },
+        {
+          "start_char": 1485,
+          "end_char": 1497,
+          "text_snippet": "hypoglycemia"
+        },
+        {
+          "start_char": 1697,
+          "end_char": 1709,
+          "text_snippet": "hypoglycemia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001945",
+      "label": "Fever",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 450,
+          "end_char": 455,
+          "text_snippet": "fever"
+        },
+        {
+          "start_char": 2198,
+          "end_char": 2203,
+          "text_snippet": "fever"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002013",
+      "label": "Vomiting",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 489,
+          "end_char": 497,
+          "text_snippet": "vomiting"
+        },
+        {
+          "start_char": 2237,
+          "end_char": 2245,
+          "text_snippet": "vomiting"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100806",
+      "label": "Sepsis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 740,
+          "end_char": 746,
+          "text_snippet": "Sepsis"
+        },
+        {
+          "start_char": 2715,
+          "end_char": 2721,
+          "text_snippet": "Sepsis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000618",
+      "label": "Blindness",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 748,
+          "end_char": 757,
+          "text_snippet": "blindness"
+        },
+        {
+          "start_char": 2723,
+          "end_char": 2732,
+          "text_snippet": "blindness"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0006582",
+      "label": "Reye syndrome-like episodes",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 763,
+          "end_char": 794,
+          "text_snippet": "Reye syndrome-like presentation"
+        },
+        {
+          "start_char": 2738,
+          "end_char": 2769,
+          "text_snippet": "Reye syndrome-like presentation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001249",
+      "label": "Intellectual disability",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 967,
+          "end_char": 990,
+          "text_snippet": "intellectual disability"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001939",
+      "label": "Abnormality of metabolism/homeostasis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1436,
+          "end_char": 1458,
+          "text_snippet": "metabolic derangements"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002240",
+      "label": "Hepatomegaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1857,
+          "end_char": 1869,
+          "text_snippet": "hepatomegaly"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001252",
+      "label": "Hypotonia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1871,
+          "end_char": 1889,
+          "text_snippet": "Muscular hypotonia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001410",
+      "label": "Decreased liver function",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1939,
+          "end_char": 1966,
+          "text_snippet": "transient liver dysfunction"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000737",
+      "label": "Irritability",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2106,
+          "end_char": 2118,
+          "text_snippet": "irritability"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001262",
+      "label": "Excessive daytime somnolence",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2120,
+          "end_char": 2130,
+          "text_snippet": "somnolence"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001290",
+      "label": "Generalized hypotonia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2132,
+          "end_char": 2141,
+          "text_snippet": "hypotonia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002094",
+      "label": "Dyspnea",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2147,
+          "end_char": 2154,
+          "text_snippet": "dyspnea"
+        }
+      ]
+    }
+  ]
+}

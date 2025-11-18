@@ -1,0 +1,67 @@
+{
+  "doc_id": "GSC+_3287922",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "We report the prenatal diagnosis of distal arthrogryposis type I by ultrasound at 18 wk gestation in a family with two other affected members (mother and sister of the fetus). The pregnancy was followed with serial ultrasounds, and the diagnosis was confirmed after birth. The clinical findings in all affected family members are described. A literature survey of prenatally diagnosed cases of multiple joint contractures is presented. These include cases with many different diagnoses. This is the first report of the prenatal diagnosis of distal arthrogryposis type I. It helps to illustrate the variability and prenatal natural history of the condition and the subtlety of the prenatal ultrasound findings.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 709,
+    "num_annotations": 4,
+    "conversion_date": "2025-11-18T13:13:16.720820"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0005684",
+      "label": "Distal arthrogryposis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 36,
+          "end_char": 57,
+          "text_snippet": "distal arthrogryposis"
+        },
+        {
+          "start_char": 541,
+          "end_char": 562,
+          "text_snippet": "distal arthrogryposis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003660",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 364,
+          "end_char": 390,
+          "text_snippet": "prenatally diagnosed cases"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002828",
+      "label": "Multiple joint contractures",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 394,
+          "end_char": 421,
+          "text_snippet": "multiple joint contractures"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003812",
+      "label": "Phenotypic variability",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 598,
+          "end_char": 609,
+          "text_snippet": "variability"
+        }
+      ]
+    }
+  ]
+}

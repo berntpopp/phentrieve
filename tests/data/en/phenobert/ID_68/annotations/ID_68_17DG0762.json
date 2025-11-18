@@ -1,0 +1,79 @@
+{
+  "doc_id": "ID-68_17DG0762",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "A 17 months old girl with global developmental delay and neonatal-onset hypotonia. She was born via NSVD with no perinatal or maternal risk factors. She has poor feeding and hypotonia since birth. Developmentally, she has a global developmental delay affecting all domains. She can coo, raise her head, grasp objects and roll over from side to side. The parents are first-degree cousins with two healthy daughters. Her examination was significant for severe hypotonia and weakness, but other examinations were within normal limits. Her last growth parameters at 17 months of age were weight 9.7 kg (25th -50th percentile), height 80 cm (on the 50th percentile) and head circumference 47.1 cm (50th -75th percentile). The brain MRI showed white matter abnormality. ",
+  "metadata": {
+    "dataset": "ID-68",
+    "text_length_chars": 764,
+    "num_annotations": 5,
+    "conversion_date": "2025-11-18T13:13:20.176931"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001263",
+      "label": "Global developmental delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 26,
+          "end_char": 52,
+          "text_snippet": "global developmental delay"
+        },
+        {
+          "start_char": 224,
+          "end_char": 250,
+          "text_snippet": "global developmental delay"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0011968",
+      "label": "Feeding difficulties",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 157,
+          "end_char": 169,
+          "text_snippet": "poor feeding"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001319",
+      "label": "Neonatal hypotonia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 174,
+          "end_char": 195,
+          "text_snippet": "hypotonia since birth"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0006829",
+      "label": "Severe muscular hypotonia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 451,
+          "end_char": 467,
+          "text_snippet": "severe hypotonia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002500",
+      "label": "Abnormal cerebral white matter morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 738,
+          "end_char": 762,
+          "text_snippet": "white matter abnormality"
+        }
+      ]
+    }
+  ]
+}

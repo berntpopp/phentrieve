@@ -1,0 +1,103 @@
+{
+  "doc_id": "GSC+_1347096",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "The Gorlin (naevoid-basal-cell-carcinoma) syndrome is an autosomal dominant disorder characterised by multiple naevoid basal-cell carcinomas, recurrent odontogenic keratocysts, skeletal anomalies, intracranial calcification, and developmental malformations. Characterisation of the gene that causes the syndrome may improve our understanding of the pathogenesis of other basal-cell carcinomas. By linkage analysis, we have shown that the gene is located on chromosome 9q22.3-q31; the most likely position is between DNA markers D9S12 and D9S53. Location of the gene for Gorlin syndrome offers the possibility that DNA markers can be used in risk estimation and presymptomatic identification of patients for surveillance.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 720,
+    "num_annotations": 7,
+    "conversion_date": "2025-11-18T13:13:14.992134"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0002671",
+      "label": "Basal cell carcinoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 20,
+          "end_char": 40,
+          "text_snippet": "basal-cell-carcinoma"
+        },
+        {
+          "start_char": 371,
+          "end_char": 392,
+          "text_snippet": "basal-cell carcinomas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 57,
+          "end_char": 84,
+          "text_snippet": "autosomal dominant disorder"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001054",
+      "label": "Numerous nevi",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 102,
+          "end_char": 140,
+          "text_snippet": "multiple naevoid basal-cell carcinomas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010603",
+      "label": "Odontogenic keratocysts of the jaw",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 152,
+          "end_char": 175,
+          "text_snippet": "odontogenic keratocysts"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000924",
+      "label": "Abnormality of the skeletal system",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 177,
+          "end_char": 195,
+          "text_snippet": "skeletal anomalies"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002514",
+      "label": "Cerebral calcification",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 197,
+          "end_char": 223,
+          "text_snippet": "intracranial calcification"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001263",
+      "label": "Global developmental delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 229,
+          "end_char": 256,
+          "text_snippet": "developmental malformations"
+        }
+      ]
+    }
+  ]
+}

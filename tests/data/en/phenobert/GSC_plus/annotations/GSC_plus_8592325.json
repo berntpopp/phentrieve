@@ -1,0 +1,60 @@
+{
+  "doc_id": "GSC+_8592325",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Type A1 brachydactyly in humans is a recognisable syndrome characterised by shortening of the middle phalanx of all digits with occasional fusion of the middle and terminal phalanges. The purpose of this study was to evaluate candidate genes for type A1 brachydactyly in two families with multiple affected members. Several classes of genes have been implicated in the control of distal limb development including homeobox containing genes (MSX1, MSX2) some members of the homeobox gene family, and genes encoding growth factors of the FGF, TGF, and PDGF families. Homeobox (Hox) genes are a family of developmental control genes activated early in embryogenesis that encode positional information along the anterior-posterior body axis and specify distinct spatial domains within developing limbs. Growth factor genes can regulate the proliferation and differentiation of various embryonic structures including limb buds and have been shown to influence Hox gene expression. Candidate genes HOXD, MSX1, MSX2, FGF-1, and FGF-2 were excluded in one family. The brachydactyly type A1 gene or locus was not found in either of the two families studied.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 1148,
+    "num_annotations": 3,
+    "conversion_date": "2025-11-18T13:13:18.255290"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0009371",
+      "label": "Type A1 brachydactyly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 0,
+          "end_char": 21,
+          "text_snippet": "Type A1 brachydactyly"
+        },
+        {
+          "start_char": 246,
+          "end_char": 267,
+          "text_snippet": "type A1 brachydactyly"
+        },
+        {
+          "start_char": 1060,
+          "end_char": 1081,
+          "text_snippet": "brachydactyly type A1"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009843",
+      "label": "Aplasia/Hypoplasia of the middle phalanges of the hand",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 76,
+          "end_char": 122,
+          "text_snippet": "shortening of the middle phalanx of all digits"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001204",
+      "label": "Distal symphalangism of hands",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 139,
+          "end_char": 182,
+          "text_snippet": "fusion of the middle and terminal phalanges"
+        }
+      ]
+    }
+  ]
+}

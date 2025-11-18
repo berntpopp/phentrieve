@@ -1,0 +1,170 @@
+{
+  "doc_id": "ID-68_14DG0467",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "A 5 years old boy with dysmorphic features and developmental delay. He was born via an emergency C-section due to fetal distress and breech presentation to G3P2+0 30 years old mother following an uneventful pregnancy. Apgar scores were 6, 7, and 8 on 1, 5, and 10 minutes, respectively. He had cyanosis at birth, and he did not void for the first 24 hours. He also was noted to have bilateral undescended testes which were surgically corrected. He underwent a surgery to release his Achilles tendon. Developmentally, he started to say dada and mama at 4 years of age. He currently crawls, feeds himself and recognizes parents and family. Parents are nonconsanguineous, and there is no family history of a similar condition. On examination, his dysmorphic features include hirsutism, prominent deformed ears, fixed flexion deformity of the right knee and ankle, wide first web space bilaterally, clenched overlapping toes, and prominent columella. His growth parameters at 5 years of age were weight 18 kg (50th – 75th percentile), height 98.5 cm (5th -10th percentile) and head circumference 48 cm (5th percentile). Brain MRI showed brain atrophy. ",
+  "metadata": {
+    "dataset": "ID-68",
+    "text_length_chars": 1148,
+    "num_annotations": 13,
+    "conversion_date": "2025-11-18T13:13:19.395139"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001263",
+      "label": "Global developmental delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 47,
+          "end_char": 66,
+          "text_snippet": "developmental delay"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0025116",
+      "label": "Fetal distress",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 114,
+          "end_char": 128,
+          "text_snippet": "fetal distress"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001623",
+      "label": "Breech presentation",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 133,
+          "end_char": 152,
+          "text_snippet": "breech presentation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000961",
+      "label": "Cyanosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 294,
+          "end_char": 302,
+          "text_snippet": "cyanosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0008689",
+      "label": "Bilateral cryptorchidism",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 383,
+          "end_char": 411,
+          "text_snippet": "bilateral undescended testes"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001007",
+      "label": "Hirsutism",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 772,
+          "end_char": 781,
+          "text_snippet": "hirsutism"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000377",
+      "label": "Abnormal pinna morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 793,
+          "end_char": 806,
+          "text_snippet": "deformed ears"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001371",
+      "label": "Flexion contracture",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 808,
+          "end_char": 831,
+          "text_snippet": "fixed flexion deformity"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0006380",
+      "label": "Knee flexion contracture",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 814,
+          "end_char": 849,
+          "text_snippet": "flexion deformity of the right knee"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0006466",
+      "label": "Ankle flexion contracture",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 814,
+          "end_char": 859,
+          "text_snippet": "flexion deformity of the right knee and ankle"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001845",
+      "label": "Overlapping toe",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 904,
+          "end_char": 920,
+          "text_snippet": "overlapping toes"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009765",
+      "label": "Low hanging columella",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 926,
+          "end_char": 945,
+          "text_snippet": "prominent columella"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012444",
+      "label": "Brain atrophy",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1133,
+          "end_char": 1146,
+          "text_snippet": "brain atrophy"
+        }
+      ]
+    }
+  ]
+}

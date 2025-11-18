@@ -1,0 +1,142 @@
+{
+  "doc_id": "GSC+_10593995",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Popliteal pterygium syndrome (PPS) is a rare autosomal dominant disorder, thought to occur with an incidence of approximately 1 in 300 000 live births. The main clinical manifestations are popliteal webbing, cleft lip, cleft palate, lower lip pits, syndactyly, and genital and nail anomalies. This report describes the clinical features in two families with PPS and one isolated case, showing the range of anomalies found both within and between the families. PPS has some features in common with Van der Woude syndrome (VWS), also inherited as an autosomal dominant condition, with cleft lip/palate and, more distinctively, lower lip pits. Although the gene for VWS has not yet been identified, it has been localised to within 1.6 cM in the region 1q32-41. To determine whether PPS and VWS represent allelic forms of the same gene, three families were genotyped for markers flanking and within the critical region. A multipoint lod score of 2.7 was obtained, with no evidence of recombination, supporting the hypothesis that these two disorders are allelic.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 1058,
+    "num_annotations": 9,
+    "conversion_date": "2025-11-18T13:13:14.187435"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0009756",
+      "label": "Popliteal pterygium",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 0,
+          "end_char": 19,
+          "text_snippet": "Popliteal pterygium"
+        },
+        {
+          "start_char": 189,
+          "end_char": 206,
+          "text_snippet": "popliteal webbing"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 45,
+          "end_char": 72,
+          "text_snippet": "autosomal dominant disorder"
+        },
+        {
+          "start_char": 548,
+          "end_char": 566,
+          "text_snippet": "autosomal dominant"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000202",
+      "label": "Orofacial cleft",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 208,
+          "end_char": 231,
+          "text_snippet": "cleft lip, cleft palate"
+        },
+        {
+          "start_char": 583,
+          "end_char": 599,
+          "text_snippet": "cleft lip/palate"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000196",
+      "label": "Lower lip pit",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 233,
+          "end_char": 247,
+          "text_snippet": "lower lip pits"
+        },
+        {
+          "start_char": 625,
+          "end_char": 639,
+          "text_snippet": "lower lip pits"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001159",
+      "label": "Syndactyly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 249,
+          "end_char": 259,
+          "text_snippet": "syndactyly"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000078",
+      "label": "Abnormality of the genital system",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 265,
+          "end_char": 291,
+          "text_snippet": "genital and nail anomalies"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001597",
+      "label": "Abnormal nail morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 277,
+          "end_char": 291,
+          "text_snippet": "nail anomalies"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001420",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 370,
+          "end_char": 383,
+          "text_snippet": "isolated case"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100333",
+      "label": "Unilateral cleft lip",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 583,
+          "end_char": 592,
+          "text_snippet": "cleft lip"
+        }
+      ]
+    }
+  ]
+}

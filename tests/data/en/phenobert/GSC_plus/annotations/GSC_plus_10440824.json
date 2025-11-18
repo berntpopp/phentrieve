@@ -1,0 +1,104 @@
+{
+  "doc_id": "GSC+_10440824",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "We describe a 14-month-old girl with unilateral congenital cholesteatoma and anomalies of the facial nerve in addition to the more common branchial arch, otic, and renal malformations comprising the branchio-oto-renal (BOR) syndrome. Her mother also has the BOR syndrome and unilateral duplication of the facial nerve. This is the first study of a BOR patient with congenital cholesteatoma and the second family in which cholesteatoma and anomalies of the facial nerve are described in patients with the BO/BOR syndrome. We review the congenital cholesteatoma literature and discuss hypotheses for the pathogenesis of this entity in light of this new report.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 658,
+    "num_annotations": 5,
+    "conversion_date": "2025-11-18T13:13:14.114180"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0009797",
+      "label": "Cholesteatoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 59,
+          "end_char": 72,
+          "text_snippet": "cholesteatoma"
+        },
+        {
+          "start_char": 376,
+          "end_char": 389,
+          "text_snippet": "cholesteatoma"
+        },
+        {
+          "start_char": 421,
+          "end_char": 434,
+          "text_snippet": "cholesteatoma"
+        },
+        {
+          "start_char": 546,
+          "end_char": 559,
+          "text_snippet": "cholesteatoma"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010827",
+      "label": "Abnormal seventh cranial physiology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 77,
+          "end_char": 106,
+          "text_snippet": "anomalies of the facial nerve"
+        },
+        {
+          "start_char": 275,
+          "end_char": 317,
+          "text_snippet": "unilateral duplication of the facial nerve"
+        },
+        {
+          "start_char": 439,
+          "end_char": 468,
+          "text_snippet": "anomalies of the facial nerve"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009794",
+      "label": "Branchial anomaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 138,
+          "end_char": 183,
+          "text_snippet": "branchial arch, otic, and renal malformations"
+        },
+        {
+          "start_char": 138,
+          "end_char": 147,
+          "text_snippet": "branchial"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000598",
+      "label": "Abnormality of the ear",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 154,
+          "end_char": 183,
+          "text_snippet": "otic, and renal malformations"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000792",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 164,
+          "end_char": 183,
+          "text_snippet": "renal malformations"
+        }
+      ]
+    }
+  ]
+}

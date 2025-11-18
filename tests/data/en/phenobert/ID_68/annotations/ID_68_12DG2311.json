@@ -1,0 +1,113 @@
+{
+  "doc_id": "ID-68_12DG2311",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "A 4 years old deceased boy who was born at full term via NSVD to first‐degree cousins following an uneventful pregnancy. He was developing normally for the first two years until he had an episode of stiffness that turned to be seizures. Extensive seizure and metabolic investigations were negative at that time, including brain MRI. He also started to regress in his motor skills and had dystonia and ataxia. Months later, he had two severe episodes of seizures, high-grade fever, dystonia, hypotonia and hyperextension of the neck. Brain MRI showed massive hemorrhagic infarction of nonvascular distribution pattern involving both posterior occipitoparietal regions within the brainstem area and cerebellum. Thorough investigations did not show a source of infection, and he subsequently died due to progressive cerebral edema and tentorial herniation. Muscle biopsy showed mild lipid myopathy with type 2 muscle fiber atrophy, with no morphological evidence of mitochondrial disease. He had two other siblings who died of unknown cause with a similar course.",
+  "metadata": {
+    "dataset": "ID-68",
+    "text_length_chars": 1060,
+    "num_annotations": 7,
+    "conversion_date": "2025-11-18T13:13:19.260790"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001250",
+      "label": "Seizure",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 227,
+          "end_char": 235,
+          "text_snippet": "seizures"
+        },
+        {
+          "start_char": 247,
+          "end_char": 254,
+          "text_snippet": "seizure"
+        },
+        {
+          "start_char": 453,
+          "end_char": 461,
+          "text_snippet": "seizures"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001332",
+      "label": "Dystonia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 388,
+          "end_char": 396,
+          "text_snippet": "dystonia"
+        },
+        {
+          "start_char": 481,
+          "end_char": 489,
+          "text_snippet": "dystonia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001251",
+      "label": "Ataxia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 401,
+          "end_char": 407,
+          "text_snippet": "ataxia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001290",
+      "label": "Generalized hypotonia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 491,
+          "end_char": 500,
+          "text_snippet": "hypotonia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002181",
+      "label": "Cerebral edema",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 813,
+          "end_char": 827,
+          "text_snippet": "cerebral edema"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009058",
+      "label": "Increased muscle lipid content",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 880,
+          "end_char": 894,
+          "text_snippet": "lipid myopathy"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003554",
+      "label": "Type 2 muscle fiber atrophy",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 900,
+          "end_char": 927,
+          "text_snippet": "type 2 muscle fiber atrophy"
+        }
+      ]
+    }
+  ]
+}

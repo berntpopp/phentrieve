@@ -1,0 +1,55 @@
+{
+  "doc_id": "GSC+_9831341",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "We had previously described a patient with an overgrowth syndrome and the chromosome constitution 45,XY,t(15q15q) (Wajntal et al., DNA Cell Biol 1993: 12: 227-231). Clinical reassessment and the use of molecular studies, including methylation analysis with an SNRPN probe, microsatellite analyses of D15S11, GABRB3 and D15S113 loci, and fluorescence in situ hybridization (FISH) using the SNRPN and GABRB3 probes, are consistent with a diagnosis of Angelman syndrome (AS) due to paternal isodisomy. This is the fourth report case of a translocation 15q15q with paternal uniparental disomy (UPD). Our findings suggest that some patients with clinical features of AS have hyperphagia and obesity with overgrowth, and that these features should not rule out a diagnosis of AS.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 773,
+    "num_annotations": 3,
+    "conversion_date": "2025-11-18T13:13:19.017229"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001548",
+      "label": "Overgrowth",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 46,
+          "end_char": 56,
+          "text_snippet": "overgrowth"
+        },
+        {
+          "start_char": 699,
+          "end_char": 709,
+          "text_snippet": "overgrowth"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002591",
+      "label": "Polyphagia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 670,
+          "end_char": 681,
+          "text_snippet": "hyperphagia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001513",
+      "label": "Obesity",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 686,
+          "end_char": 693,
+          "text_snippet": "obesity"
+        }
+      ]
+    }
+  ]
+}

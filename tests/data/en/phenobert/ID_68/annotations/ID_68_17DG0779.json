@@ -1,0 +1,158 @@
+{
+  "doc_id": "ID-68_17DG0779",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "A 13 years old boy with ADHD, GDD, failure to thrive, microcephaly, dysmorphic facial features, short stature, ataxia, dystonia, hypertonia, spasticity, visual impairment and seizures. He was born to consanguineous parents with no family history of a similar condition. Head circumference at birth was 28 cm (<1st percentile). Brain MRI showed partial agenesis of the corpus callosum, absent septum pellucidum and abnormal cortical migration with pachygyria. ",
+  "metadata": {
+    "dataset": "ID-68",
+    "text_length_chars": 459,
+    "num_annotations": 12,
+    "conversion_date": "2025-11-18T13:13:20.538406"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001508",
+      "label": "Failure to thrive",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 35,
+          "end_char": 52,
+          "text_snippet": "failure to thrive"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000252",
+      "label": "Microcephaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 54,
+          "end_char": 66,
+          "text_snippet": "microcephaly"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001999",
+      "label": "Abnormal facial shape",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 68,
+          "end_char": 94,
+          "text_snippet": "dysmorphic facial features"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004322",
+      "label": "Short stature",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 96,
+          "end_char": 109,
+          "text_snippet": "short stature"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001251",
+      "label": "Ataxia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 111,
+          "end_char": 117,
+          "text_snippet": "ataxia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001332",
+      "label": "Dystonia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 119,
+          "end_char": 127,
+          "text_snippet": "dystonia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001276",
+      "label": "Hypertonia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 129,
+          "end_char": 139,
+          "text_snippet": "hypertonia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001257",
+      "label": "Spasticity",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 141,
+          "end_char": 151,
+          "text_snippet": "spasticity"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000505",
+      "label": "Visual impairment",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 153,
+          "end_char": 170,
+          "text_snippet": "visual impairment"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001250",
+      "label": "Seizure",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 175,
+          "end_char": 183,
+          "text_snippet": "seizures"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001331",
+      "label": "Absent septum pellucidum",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 385,
+          "end_char": 409,
+          "text_snippet": "absent septum pellucidum"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001302",
+      "label": "Pachygyria",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 447,
+          "end_char": 457,
+          "text_snippet": "pachygyria"
+        }
+      ]
+    }
+  ]
+}

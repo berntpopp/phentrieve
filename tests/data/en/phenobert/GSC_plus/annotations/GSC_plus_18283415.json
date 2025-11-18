@@ -1,0 +1,67 @@
+{
+  "doc_id": "GSC+_18283415",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Growth/differentiation factor 5 (GDF5) is a secreted growth factor that plays a key regulatory role in embryonic skeletal and joint development. Mutations in the GDF5 gene can cause different types of skeletal dysplasia, including brachydactyly type C (BDC) and proximal symphalangism (SYM1). We report two novel mutations in the GDF5 gene in Chinese families with distinct limb malformations. In one family affected with BDC, we identified a novel nonsense mutation, c.1461T > G (p.Y487X), which is predicted to truncate the GDF5 precursor protein by deleting 15 amino acids at its C-terminus. In one family with SYM1, we found a novel missense mutation, c.1118T > G (p.L373R), which changes a highly conserved amino acid in the prodomain of GDF5. We transfected COS-7 cells with retroviral constructs to express human wild-type or mutant GDF5 cDNAs. The mature GDF5 protein was detected, as in the wild-type, in supernatant derived from the p.L373R mutant GDF5 transfected cells, but not in the supernatant from the p.Y487X mutant transfected cells, indicating that the two mutations led to different fates of the mutant GDF5 proteins, thereby producing distinct limb phenotypes.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 1181,
+    "num_annotations": 4,
+    "conversion_date": "2025-11-18T13:13:15.886179"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0002652",
+      "label": "Skeletal dysplasia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 201,
+          "end_char": 219,
+          "text_snippet": "skeletal dysplasia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009373",
+      "label": "Type C brachydactyly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 231,
+          "end_char": 251,
+          "text_snippet": "brachydactyly type C"
+        },
+        {
+          "start_char": 253,
+          "end_char": 256,
+          "text_snippet": "BDC"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100264",
+      "label": "Proximal symphalangism",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 262,
+          "end_char": 284,
+          "text_snippet": "proximal symphalangism"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002813",
+      "label": "Abnormal limb bone morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 374,
+          "end_char": 392,
+          "text_snippet": "limb malformations"
+        }
+      ]
+    }
+  ]
+}

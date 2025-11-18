@@ -1,0 +1,87 @@
+{
+  "doc_id": "GSC+_9931336",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Mutations of the human Patched gene ( PTCH ) have been identified in individuals with the nevoid basal cell carcinoma syndrome (NBCCS) as well as in sporadic basal cell carcinomas and medulloblastomas. We have isolated a homologue of this tumour suppressor gene and localized it to the short arm of chromosome 1 (1p32.1-32.3). Patched 2 ( PTCH2 ) comprises 22 coding exons and spans approximately 15 kb of genomic DNA. The gene encodes a 1203 amino acid putative transmembrane protein which is highly homologous to the PTCH product. We have characterized the genomic structure of PTCH2 and have used single-stranded conformational polymorphism analysis to search for mutations in PTCH2 in NBCCS patients, basal cell carcinomas and in medulloblastomas. To date, we have identified one truncating mutation in a medulloblastoma and a change in a splice donor site in a basal cell carcinoma, suggesting that the gene plays a role in the development of some tumours.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 961,
+    "num_annotations": 4,
+    "conversion_date": "2025-11-18T13:13:19.062563"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0002671",
+      "label": "Basal cell carcinoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 97,
+          "end_char": 117,
+          "text_snippet": "basal cell carcinoma"
+        },
+        {
+          "start_char": 158,
+          "end_char": 179,
+          "text_snippet": "basal cell carcinomas"
+        },
+        {
+          "start_char": 705,
+          "end_char": 726,
+          "text_snippet": "basal cell carcinomas"
+        },
+        {
+          "start_char": 866,
+          "end_char": 886,
+          "text_snippet": "basal cell carcinoma"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003745",
+      "label": "Sporadic",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 149,
+          "end_char": 157,
+          "text_snippet": "sporadic"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002885",
+      "label": "Medulloblastoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 184,
+          "end_char": 200,
+          "text_snippet": "medulloblastomas"
+        },
+        {
+          "start_char": 734,
+          "end_char": 750,
+          "text_snippet": "medulloblastomas"
+        },
+        {
+          "start_char": 809,
+          "end_char": 824,
+          "text_snippet": "medulloblastoma"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002664",
+      "label": "Neoplasm",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 953,
+          "end_char": 960,
+          "text_snippet": "tumours"
+        }
+      ]
+    }
+  ]
+}

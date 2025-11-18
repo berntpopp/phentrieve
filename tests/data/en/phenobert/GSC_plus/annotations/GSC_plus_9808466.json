@@ -1,0 +1,62 @@
+{
+  "doc_id": "GSC+_9808466",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "The E6-AP ubiquitin ligase (human/mouse gene UBE3A/Ube3a) promotes the degradation of p53 in association with papilloma E6 protein, and maternal deficiency causes human Angelman syndrome (AS). Ube3a is imprinted with silencing of the paternal allele in hippocampus and cerebellum in mice. We found that the phenotype of mice with maternal deficiency (m-/p+) for Ube3a resembles human AS with motor dysfunction, inducible seizures, and a context-dependent learning deficit. Long-term potentiation (LTP) was severely impaired in m-/p+ mice despite normal baseline synaptic transmission and neuroanatomy, indicating that ubiquitination may play a role in mammalian LTP and that LTP may be abnormal in AS. The cytoplasmic abundance of p53 was increased in postmitotic neurons in m-/p+ mice and in AS, providing a potential biochemical basis for the phenotype through failure to ubiquitinate and degrade various effectors.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 917,
+    "num_annotations": 4,
+    "conversion_date": "2025-11-18T13:13:18.977912"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0012740",
+      "label": "Papilloma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 110,
+          "end_char": 119,
+          "text_snippet": "papilloma"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001270",
+      "label": "Motor delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 392,
+          "end_char": 409,
+          "text_snippet": "motor dysfunction"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001250",
+      "label": "Seizure",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 421,
+          "end_char": 429,
+          "text_snippet": "seizures"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001328",
+      "label": "Specific learning disability",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 455,
+          "end_char": 471,
+          "text_snippet": "learning deficit"
+        }
+      ]
+    }
+  ]
+}

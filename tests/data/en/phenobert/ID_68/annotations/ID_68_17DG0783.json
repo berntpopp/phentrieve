@@ -1,0 +1,62 @@
+{
+  "doc_id": "ID-68_17DG0783",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "This is a 13 months old boy with severe microcephaly, Dandy-Walker malformation, spasticity, GDD, developmental regression and failure to thrive. Parents are consanguineous, and there are no affected siblings. Head circumference at birth was 27 cm and at 1 year was 34 cm.",
+  "metadata": {
+    "dataset": "ID-68",
+    "text_length_chars": 272,
+    "num_annotations": 4,
+    "conversion_date": "2025-11-18T13:13:20.624597"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000252",
+      "label": "Microcephaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 40,
+          "end_char": 52,
+          "text_snippet": "microcephaly"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001257",
+      "label": "Spasticity",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 81,
+          "end_char": 91,
+          "text_snippet": "spasticity"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002376",
+      "label": "Developmental regression",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 98,
+          "end_char": 122,
+          "text_snippet": "developmental regression"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001508",
+      "label": "Failure to thrive",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 127,
+          "end_char": 144,
+          "text_snippet": "failure to thrive"
+        }
+      ]
+    }
+  ]
+}

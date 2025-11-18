@@ -1,0 +1,84 @@
+{
+  "doc_id": "GSC+_8494033",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Chromosome region 15q is thought to contain one or more genes that are important for melanin pigment synthesis in the hair, skin, and eyes. Hypopigmentation has been identified in the Prader-Willi (PWS) and Angelman (AS) syndromes. We have examined 6 individuals with AS to further characterize the pigment pattern in this condition. The age of the 5 girls and one boy ranged from 2.4 to 7.0 years. None had obvious albinism. Hair color ranged from light blond to brown. Skin was type I in 3 and type II in 3. Eye changes included nystagmus in 2, strabismus in 4, and reduced retinal pigment in 5. The mean hairbulb tyrosinase activity was 0.37 +/- 0.44 pmol/hb/120 min for the individuals with AS, with a range of 0.00 to 1.13 (normal brown control 1.49 +/- 0.79, normal blond control 1.50 +/- 0.85). Electron microscopic examination of hairbulb melanocytes showed normal melanosome and melanocyte architecture and number, but reduced melanin formation, with many stage II and III premelanosomes but few stage IV fully melanized melanosomes. Hypopigmentation characterized by light skin, reduced retinal pigment, low hairbulb tyrosinase activity, and incomplete melanization of melanosomes is part of the phenotype of AS, and is similar to that found in PWS.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 1259,
+    "num_annotations": 5,
+    "conversion_date": "2025-11-18T13:13:18.171283"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0007513",
+      "label": "Generalized hypopigmentation",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 85,
+          "end_char": 138,
+          "text_snippet": "melanin pigment synthesis in the hair, skin, and eyes"
+        },
+        {
+          "start_char": 140,
+          "end_char": 156,
+          "text_snippet": "Hypopigmentation"
+        },
+        {
+          "start_char": 1043,
+          "end_char": 1059,
+          "text_snippet": "Hypopigmentation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001022",
+      "label": "Albinism",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 416,
+          "end_char": 424,
+          "text_snippet": "albinism"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000639",
+      "label": "Nystagmus",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 531,
+          "end_char": 540,
+          "text_snippet": "nystagmus"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000486",
+      "label": "Strabismus",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 547,
+          "end_char": 557,
+          "text_snippet": "strabismus"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0007746",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 568,
+          "end_char": 591,
+          "text_snippet": "reduced retinal pigment"
+        }
+      ]
+    }
+  ]
+}

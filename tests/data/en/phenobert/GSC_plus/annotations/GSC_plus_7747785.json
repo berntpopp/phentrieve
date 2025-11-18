@@ -1,0 +1,223 @@
+{
+  "doc_id": "GSC+_7747785",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "We review 43 patients (15 new, 28 literature) with the branchio-oculo-facial (BOF) syndrome, which has a distinctive phenotype ranging from mild to severe forms, consisting of eye, ear, oral, and craniofacial anomalies. Virtually ubiquitous and possibly pathognomonic are the cervical/infra-auricular skin defects. Much less common are supra-auricular defects occurring as isolated anomalies or with cervical defects. Regardless of location, these lesions may have aplastic, \"hemangiomatous,\" or otherwise abnormal overlying skin, and draining sinus fistulae. Renal malformations are frequent, but congenital heart and central nervous system defects are rare. Psychomotor performance is usually normal, but development delays, hypotonia, and visual, hearing, and speech problems are common. Autosomal dominant inheritance seems likely. Overlap between the BOF and branchio-otorenal syndromes has been observed, but elucidation of its molecular basis is not yet available. This article also discusses 5 patients with atypical manifestations considered to be possibly affected or probably unaffected, who are sufficiently unusual to be excluded from the final data analysis.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 1172,
+    "num_annotations": 17,
+    "conversion_date": "2025-11-18T13:13:17.661959"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000478",
+      "label": "Abnormality of the eye",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 176,
+          "end_char": 218,
+          "text_snippet": "eye, ear, oral, and craniofacial anomalies"
+        },
+        {
+          "start_char": 742,
+          "end_char": 778,
+          "text_snippet": "visual, hearing, and speech problems"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000598",
+      "label": "Abnormality of the ear",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 181,
+          "end_char": 218,
+          "text_snippet": "ear, oral, and craniofacial anomalies"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000153",
+      "label": "Abnormality of the mouth",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 186,
+          "end_char": 218,
+          "text_snippet": "oral, and craniofacial anomalies"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002260",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 196,
+          "end_char": 218,
+          "text_snippet": "craniofacial anomalies"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009794",
+      "label": "Branchial anomaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 276,
+          "end_char": 313,
+          "text_snippet": "cervical/infra-auricular skin defects"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000356",
+      "label": "Abnormality of the outer ear",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 285,
+          "end_char": 313,
+          "text_snippet": "infra-auricular skin defects"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000383",
+      "label": "Abnormal periauricular region morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 336,
+          "end_char": 359,
+          "text_snippet": "supra-auricular defects"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000951",
+      "label": "Abnormality of the skin",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 506,
+          "end_char": 529,
+          "text_snippet": "abnormal overlying skin"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004467",
+      "label": "Preauricular pit",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 535,
+          "end_char": 558,
+          "text_snippet": "draining sinus fistulae"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000792",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 560,
+          "end_char": 579,
+          "text_snippet": "Renal malformations"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002564",
+      "label": "obsolete Malformation of the heart and great vessels",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 598,
+          "end_char": 649,
+          "text_snippet": "congenital heart and central nervous system defects"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0007319",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 619,
+          "end_char": 649,
+          "text_snippet": "central nervous system defects"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001263",
+      "label": "Global developmental delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 707,
+          "end_char": 725,
+          "text_snippet": "development delays"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001252",
+      "label": "Hypotonia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 727,
+          "end_char": 736,
+          "text_snippet": "hypotonia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000364",
+      "label": "Hearing abnormality",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 750,
+          "end_char": 778,
+          "text_snippet": "hearing, and speech problems"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002116",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 763,
+          "end_char": 778,
+          "text_snippet": "speech problems"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 791,
+          "end_char": 821,
+          "text_snippet": "Autosomal dominant inheritance"
+        }
+      ]
+    }
+  ]
+}

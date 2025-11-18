@@ -1,0 +1,171 @@
+{
+  "doc_id": "GSC+_657583",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Three families are presented, one with branchio-oto-renal dysplasia (BOR) and two with branchio-oto dysplasia (BO). The former syndrome is characterized by external ear malformations, cervical fistulae, mixed hearing loss and renal anomalies of varying severity. The latter syndrome differs in that there are no renal anomalies and that the sensorineural component of the hearing loss may be absent. The external ear malformations are quite variable in both syndromes. Evidence is presented which supports the idea that these two syndromes are not phenotypic variants of the same autosomal dominant mutation but distinct disease entities. The BOR syndrome appears to belong to a larger group of hereditary ear dysplasia-renal adysplasia syndromes that must be carefully ruled out in all patients with familial branchial arch malformations as well as in the parents and siblings of infants with \"Potter facies\" in the presence of auricular malformation and renal adysplasia.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 973,
+    "num_annotations": 11,
+    "conversion_date": "2025-11-18T13:13:17.037028"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000110",
+      "label": "Renal dysplasia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 52,
+          "end_char": 67,
+          "text_snippet": "renal dysplasia"
+        },
+        {
+          "start_char": 720,
+          "end_char": 736,
+          "text_snippet": "renal adysplasia"
+        },
+        {
+          "start_char": 956,
+          "end_char": 972,
+          "text_snippet": "renal adysplasia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000356",
+      "label": "Abnormality of the outer ear",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 156,
+          "end_char": 182,
+          "text_snippet": "external ear malformations"
+        },
+        {
+          "start_char": 404,
+          "end_char": 430,
+          "text_snippet": "external ear malformations"
+        },
+        {
+          "start_char": 929,
+          "end_char": 951,
+          "text_snippet": "auricular malformation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009795",
+      "label": "Branchial fistula",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 184,
+          "end_char": 201,
+          "text_snippet": "cervical fistulae"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000410",
+      "label": "Mixed hearing impairment",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 203,
+          "end_char": 221,
+          "text_snippet": "mixed hearing loss"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000077",
+      "label": "Abnormality of the kidney",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 226,
+          "end_char": 241,
+          "text_snippet": "renal anomalies"
+        },
+        {
+          "start_char": 312,
+          "end_char": 327,
+          "text_snippet": "renal anomalies"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000365",
+      "label": "Hearing impairment",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 372,
+          "end_char": 384,
+          "text_snippet": "hearing loss"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003813",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 441,
+          "end_char": 449,
+          "text_snippet": "variable"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 580,
+          "end_char": 598,
+          "text_snippet": "autosomal dominant"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000598",
+      "label": "Abnormality of the ear",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 706,
+          "end_char": 719,
+          "text_snippet": "ear dysplasia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009794",
+      "label": "Branchial anomaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 810,
+          "end_char": 838,
+          "text_snippet": "branchial arch malformations"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002009",
+      "label": "Potter facies",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 895,
+          "end_char": 908,
+          "text_snippet": "Potter facies"
+        }
+      ]
+    }
+  ]
+}

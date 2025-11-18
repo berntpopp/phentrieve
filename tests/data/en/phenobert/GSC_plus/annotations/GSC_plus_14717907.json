@@ -1,0 +1,48 @@
+{
+  "doc_id": "GSC+_14717907",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "The association between ear and kidney anomalies is not usually due to an insult to the embryo. In recent years, many essential development control genes that coordinate the assembly and function of kidney and ear have been discovered through the generation of animal mutants and have increased our understanding of the mechanisms of human oto-renal diseases. Here, we describe ear and kidney clinical syndromes and their molecular expression.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 443,
+    "num_annotations": 2,
+    "conversion_date": "2025-11-18T13:13:15.230017"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000598",
+      "label": "Abnormality of the ear",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 24,
+          "end_char": 48,
+          "text_snippet": "ear and kidney anomalies"
+        },
+        {
+          "start_char": 378,
+          "end_char": 411,
+          "text_snippet": "ear and kidney clinical syndromes"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000077",
+      "label": "Abnormality of the kidney",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 32,
+          "end_char": 48,
+          "text_snippet": "kidney anomalies"
+        },
+        {
+          "start_char": 386,
+          "end_char": 411,
+          "text_snippet": "kidney clinical syndromes"
+        }
+      ]
+    }
+  ]
+}

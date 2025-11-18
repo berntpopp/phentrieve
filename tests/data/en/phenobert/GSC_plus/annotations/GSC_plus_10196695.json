@@ -1,0 +1,38 @@
+{
+  "doc_id": "GSC+_10196695",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Angelman syndrome (AS) is a neurodevelopmental disorder caused by the absence of a maternal contribution to chromosome 15q11-q13. There are four classes of AS according to molecular or cytogenetic status: maternal microdeletion of 15q11-q13 (approximately 70% of AS patients); uniparental disomy (UPD); defects in a putative imprinting centre (IM); the fourth includes 20-30% of AS individuals with biparental inheritance and a normal pattern of allelic methylation in 15q11-q13. Mutations of UBE3A have recently been identified as causing AS in the latter group. Few studies have investigated the phenotypic differences between these classes. We compared 20 non-deletion to 20 age-matched deletion patients and found significant phenotypic differences between the two groups. The more severe phenotype in the deletion group may suggest a contiguous gene syndrome.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 864,
+    "num_annotations": 2,
+    "conversion_date": "2025-11-18T13:13:14.061467"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000707",
+      "label": "Abnormality of the nervous system",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 28,
+          "end_char": 55,
+          "text_snippet": "neurodevelopmental disorder"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001466",
+      "label": "Contiguous gene syndrome",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 839,
+          "end_char": 863,
+          "text_snippet": "contiguous gene syndrome"
+        }
+      ]
+    }
+  ]
+}

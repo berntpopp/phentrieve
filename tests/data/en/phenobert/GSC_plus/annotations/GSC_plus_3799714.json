@@ -1,0 +1,125 @@
+{
+  "doc_id": "GSC+_3799714",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "The family on which this report is based is of interest because it contains individuals with the branchio-oto-renal (BOR) syndrome who have renal hypoplasia or malformations of the kidney or collecting system including duplication; only branchial and ear anomalies; and apparent nonpenetrance of the syndrome. This report provides evidence to support the hypothesis that in some families variable expressivity includes duplication of the urinary collecting system in individuals with other manifestations of the BOR syndrome as well as individuals with branchial and ear anomalies who have apparently normal kidneys.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 616,
+    "num_annotations": 8,
+    "conversion_date": "2025-11-18T13:13:16.908427"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000089",
+      "label": "Renal hypoplasia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 140,
+          "end_char": 156,
+          "text_snippet": "renal hypoplasia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004742",
+      "label": "Abnormal renal collecting system morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 160,
+          "end_char": 208,
+          "text_snippet": "malformations of the kidney or collecting system"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000081",
+      "label": "Duplicated collecting system",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 160,
+          "end_char": 230,
+          "text_snippet": "malformations of the kidney or collecting system including duplication"
+        },
+        {
+          "start_char": 419,
+          "end_char": 463,
+          "text_snippet": "duplication of the urinary collecting system"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000792",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 160,
+          "end_char": 187,
+          "text_snippet": "malformations of the kidney"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009794",
+      "label": "Branchial anomaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 237,
+          "end_char": 246,
+          "text_snippet": "branchial"
+        },
+        {
+          "start_char": 553,
+          "end_char": 580,
+          "text_snippet": "branchial and ear anomalies"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000598",
+      "label": "Abnormality of the ear",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 251,
+          "end_char": 264,
+          "text_snippet": "ear anomalies"
+        },
+        {
+          "start_char": 567,
+          "end_char": 580,
+          "text_snippet": "ear anomalies"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003829",
+      "label": "Typified by incomplete penetrance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 279,
+          "end_char": 292,
+          "text_snippet": "nonpenetrance"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003828",
+      "label": "Variable expressivity",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 388,
+          "end_char": 409,
+          "text_snippet": "variable expressivity"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,144 @@
+{
+  "doc_id": "ID-68_17DG0776",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "A 3 years old boy with global developmental delay, failure to thrive, hypotonia and microcephaly. He was born at 35 weeks gestation via NSVD following an uneventful pregnancy. He was admitted to NICU for one month due to respiratory distress. He has severe GDD in all domains, and his developmental age is 10 months at 3 years of chronological age. He can sit without support, but he cannot walk or stand. He can only say mama and dada. He is feeding through NG-tube due to recurrent aspirations. His parents are a first-degree consanguineous couple with four healthy children, another affected daughter and deceased child at 8 years of age with developmental delay and a seizure disorder, and there is no family history of a similar condition in other members. His examination was significant for microcephaly, scaphocephaly and axial hypotonia. Other examinations were within normal limits. His growth parameters at 3 years of age were below the 3rd percentile. Brain MRI and spectroscopy were within normal limits. Skeletal survey revealed osteopenia with questionable radioulnar metaphyseal changes. Tandem MS, urine organic acid, lactate, ammonia, plasma amino acids, CPK and VLCFA were within normal limits. Plasma homocysteine and uric acid were low. Chromosomal microarray showed duplication in 1P12-P11.2 of unknown significance.",
+  "metadata": {
+    "dataset": "ID-68",
+    "text_length_chars": 1338,
+    "num_annotations": 10,
+    "conversion_date": "2025-11-18T13:13:20.474836"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001263",
+      "label": "Global developmental delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 23,
+          "end_char": 49,
+          "text_snippet": "global developmental delay"
+        },
+        {
+          "start_char": 646,
+          "end_char": 665,
+          "text_snippet": "developmental delay"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001508",
+      "label": "Failure to thrive",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 51,
+          "end_char": 68,
+          "text_snippet": "failure to thrive"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001290",
+      "label": "Generalized hypotonia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 70,
+          "end_char": 79,
+          "text_snippet": "hypotonia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000252",
+      "label": "Microcephaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 84,
+          "end_char": 96,
+          "text_snippet": "microcephaly"
+        },
+        {
+          "start_char": 798,
+          "end_char": 810,
+          "text_snippet": "microcephaly"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002098",
+      "label": "Respiratory distress",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 221,
+          "end_char": 241,
+          "text_snippet": "respiratory distress"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002835",
+      "label": "Aspiration",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 474,
+          "end_char": 495,
+          "text_snippet": "recurrent aspirations"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001250",
+      "label": "Seizure",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 672,
+          "end_char": 679,
+          "text_snippet": "seizure"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0030799",
+      "label": "Scaphocephaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 812,
+          "end_char": 825,
+          "text_snippet": "scaphocephaly"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0008936",
+      "label": "Axial hypotonia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 830,
+          "end_char": 845,
+          "text_snippet": "axial hypotonia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000938",
+      "label": "Osteopenia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1043,
+          "end_char": 1053,
+          "text_snippet": "osteopenia"
+        }
+      ]
+    }
+  ]
+}

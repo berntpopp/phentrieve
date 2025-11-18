@@ -1,0 +1,31 @@
+{
+  "doc_id": "GSC+_7628117",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Three successive generations in two families affected with the popliteal pterygium syndrome are reported. While expression of the syndrome was relatively mild in the first and second generation, the patients in the third generation showed the full-blown syndrome. Differential diagnosis between mildly affected patients with the popliteal pterygium syndrome and those with Van der Woude syndrome is difficult and may even be impossible. The present observations further support the hypothesis that both syndromes may in fact represent variants of the same condition.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 566,
+    "num_annotations": 1,
+    "conversion_date": "2025-11-18T13:13:17.616506"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0009756",
+      "label": "Popliteal pterygium",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 63,
+          "end_char": 82,
+          "text_snippet": "popliteal pterygium"
+        },
+        {
+          "start_char": 329,
+          "end_char": 348,
+          "text_snippet": "popliteal pterygium"
+        }
+      ]
+    }
+  ]
+}

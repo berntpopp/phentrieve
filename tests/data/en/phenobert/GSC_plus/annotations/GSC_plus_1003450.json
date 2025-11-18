@@ -1,0 +1,134 @@
+{
+  "doc_id": "GSC+_1003450",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "A syndrome of brachydactyly (absence of some middle or distal phalanges), aplastic or hypoplastic nails, symphalangism (ankylois of proximal interphalangeal joints), synostosis of some carpal and tarsal bones, craniosynostosis, and dysplastic hip joints is reported in five members of an Italian family. It may represent a previously undescribed autosomal dominant trait.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 371,
+    "num_annotations": 10,
+    "conversion_date": "2025-11-18T13:13:13.955410"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001156",
+      "label": "Brachydactyly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 14,
+          "end_char": 27,
+          "text_snippet": "brachydactyly"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009881",
+      "label": "Aplasia of the distal phalanges of the hand",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 29,
+          "end_char": 71,
+          "text_snippet": "absence of some middle or distal phalanges"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001798",
+      "label": "Anonychia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 74,
+          "end_char": 103,
+          "text_snippet": "aplastic or hypoplastic nails"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001792",
+      "label": "Small nail",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 86,
+          "end_char": 103,
+          "text_snippet": "hypoplastic nails"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100264",
+      "label": "Proximal symphalangism",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 105,
+          "end_char": 118,
+          "text_snippet": "symphalangism"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0008090",
+      "label": "Ankylosis of feet small joints",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 120,
+          "end_char": 163,
+          "text_snippet": "ankylois of proximal interphalangeal joints"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009702",
+      "label": "Carpal synostosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 166,
+          "end_char": 208,
+          "text_snippet": "synostosis of some carpal and tarsal bones"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001363",
+      "label": "Craniosynostosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 210,
+          "end_char": 226,
+          "text_snippet": "craniosynostosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001385",
+      "label": "Hip dysplasia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 232,
+          "end_char": 253,
+          "text_snippet": "dysplastic hip joints"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 346,
+          "end_char": 370,
+          "text_snippet": "autosomal dominant trait"
+        }
+      ]
+    }
+  ]
+}

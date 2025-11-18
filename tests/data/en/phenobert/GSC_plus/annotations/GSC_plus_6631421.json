@@ -1,0 +1,113 @@
+{
+  "doc_id": "GSC+_6631421",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "A young girl 12 old, sent to us for obesity, and coxa-epiphysiolysis showed signs of mental retardation and bilateral thumb ankylosis. The fact that the mother was also affected by both of these signs, led to a more detailed genetic research. The latter revealed that not only the daughter, the mother, but also their own mother and may be, the sister, the grand-mother and the great-aunt of the patient had a retardation, a slight dysmorphia, a type A brachydactylia, signs of obesity and an identical ankylosis of both thumbs. This vertical inheritance, affecting apparently females only, but not associated with a high rate of miscarriage, has, it seems, never been reported. The characteristics of this family are being considered and discussed.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 749,
+    "num_annotations": 7,
+    "conversion_date": "2025-11-18T13:13:17.060142"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0003593",
+      "label": "Infantile onset",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2,
+          "end_char": 7,
+          "text_snippet": "young"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001513",
+      "label": "Obesity",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 36,
+          "end_char": 43,
+          "text_snippet": "obesity"
+        },
+        {
+          "start_char": 478,
+          "end_char": 485,
+          "text_snippet": "obesity"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0006461",
+      "label": "Proximal femoral epiphysiolysis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 49,
+          "end_char": 68,
+          "text_snippet": "coxa-epiphysiolysis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001249",
+      "label": "Intellectual disability",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 85,
+          "end_char": 103,
+          "text_snippet": "mental retardation"
+        },
+        {
+          "start_char": 410,
+          "end_char": 421,
+          "text_snippet": "retardation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001172",
+      "label": "Abnormal thumb morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 118,
+          "end_char": 133,
+          "text_snippet": "thumb ankylosis"
+        },
+        {
+          "start_char": 503,
+          "end_char": 527,
+          "text_snippet": "ankylosis of both thumbs"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004675",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 425,
+          "end_char": 442,
+          "text_snippet": "slight dysmorphia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009370",
+      "label": "Type A brachydactyly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 446,
+          "end_char": 468,
+          "text_snippet": "type A brachydactylia,"
+        }
+      ]
+    }
+  ]
+}

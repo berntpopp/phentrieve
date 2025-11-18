@@ -1,0 +1,50 @@
+{
+  "doc_id": "GSC+_12404110",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Branchio-Oto-Renal (BOR) syndrome is transmitted as an autosomal dominant disorder, affects an estimated 2% of profoundly deaf children, and is caused by mutations in the human EYA1 gene. However, in up to half of the reported cases, EYA1 mutation screening is negative. This finding has been taken as evidence of genetic heterogeneity. Mutation screening of the coding region of EYA1 in a panel of families linked to chromosome 8 was conducted using SSCP and direct sequencing. Only one point mutation in five probands was detected. However, complex rearrangements, such as inversions or large deletions, were discovered in the other four patients using Southern blot analysis. These data suggest that more complex rearrangements may remain undetected in EYA1 since SSCP and sequencing were commonly used to detect mutations in this gene.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 839,
+    "num_annotations": 3,
+    "conversion_date": "2025-11-18T13:13:14.818230"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 55,
+          "end_char": 82,
+          "text_snippet": "autosomal dominant disorder"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000404",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 111,
+          "end_char": 126,
+          "text_snippet": "profoundly deaf"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001425",
+      "label": "obsolete Heterogeneous",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 314,
+          "end_char": 335,
+          "text_snippet": "genetic heterogeneity"
+        }
+      ]
+    }
+  ]
+}

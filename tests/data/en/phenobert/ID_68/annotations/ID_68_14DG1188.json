@@ -1,0 +1,221 @@
+{
+  "doc_id": "ID-68_14DG1188",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "A 6 years old boy with GDD, dysmorphic features, bicuspid aortic valve, a cleft lip and inguinal hernia. He was born at full term via NSVD to a G5P4+0 31 years old mother following an uneventful pregnancy. His growth parameters at birth were weight 2.55 kg (on the 5th percentile), length 47 cm (on the 10th percentile) and head circumference 30 cm (<3rd percentile). A cleft lip was apparent since birth, and it was repaired later on. He also was found to have an inguinal hernia that was repaired, and he also has recurrent otitis media infections from an early age. Developmentally, he had a global developmental delay. He walked at the age of 19 months, and he had a delayed speech. His estimated IQ was 70-75. His parents are first-degree cousins, and there is no family history of a similar condition. However, there is a family history of Klippel-Feil syndrome and learning disability in an uncle and a cousin, respectively. His examination was significant for microcephaly, brachycephaly, anteverted ears, bulbous nasal tip, long philtrum, thin upper lip, downturned corners of the mouth, mild synophrys and flat feet. Other examinations were within normal limits. His current growth parameters at 6 years of age were weight 19.7 kg (50th percentile), height 113 cm (50th percentile) and head circumference 45 (<3rd percentile). CT of the head revealed quadrigeminal cistern arachnoid cyst. Cardiac echocardiogram showed bicuspid aortic valve.",
+  "metadata": {
+    "dataset": "ID-68",
+    "text_length_chars": 1451,
+    "num_annotations": 16,
+    "conversion_date": "2025-11-18T13:13:19.453866"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001647",
+      "label": "Bicuspid aortic valve",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 49,
+          "end_char": 70,
+          "text_snippet": "bicuspid aortic valve"
+        },
+        {
+          "start_char": 1429,
+          "end_char": 1450,
+          "text_snippet": "bicuspid aortic valve"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0410030",
+      "label": "Cleft lip",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 74,
+          "end_char": 83,
+          "text_snippet": "cleft lip"
+        },
+        {
+          "start_char": 370,
+          "end_char": 379,
+          "text_snippet": "cleft lip"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000023",
+      "label": "Inguinal hernia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 88,
+          "end_char": 103,
+          "text_snippet": "inguinal hernia"
+        },
+        {
+          "start_char": 465,
+          "end_char": 480,
+          "text_snippet": "inguinal hernia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000403",
+      "label": "Recurrent otitis media",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 516,
+          "end_char": 549,
+          "text_snippet": "recurrent otitis media infections"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001263",
+      "label": "Global developmental delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 595,
+          "end_char": 621,
+          "text_snippet": "global developmental delay"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000750",
+      "label": "Delayed speech and language development",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 671,
+          "end_char": 685,
+          "text_snippet": "delayed speech"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000252",
+      "label": "Microcephaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 968,
+          "end_char": 980,
+          "text_snippet": "microcephaly"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000248",
+      "label": "Brachycephaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 982,
+          "end_char": 995,
+          "text_snippet": "brachycephaly"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0040080",
+      "label": "Anteverted ears",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 997,
+          "end_char": 1012,
+          "text_snippet": "anteverted ears"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000414",
+      "label": "Bulbous nose",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1014,
+          "end_char": 1031,
+          "text_snippet": "bulbous nasal tip"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000343",
+      "label": "Long philtrum",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1033,
+          "end_char": 1046,
+          "text_snippet": "long philtrum"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000219",
+      "label": "Thin upper lip vermilion",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1048,
+          "end_char": 1062,
+          "text_snippet": "thin upper lip"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002714",
+      "label": "Downturned corners of mouth",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1064,
+          "end_char": 1095,
+          "text_snippet": "downturned corners of the mouth"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000664",
+      "label": "Synophrys",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1102,
+          "end_char": 1111,
+          "text_snippet": "synophrys"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001763",
+      "label": "Pes planus",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1116,
+          "end_char": 1125,
+          "text_snippet": "flat feet"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100702",
+      "label": "Arachnoid cyst",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1361,
+          "end_char": 1397,
+          "text_snippet": "quadrigeminal cistern arachnoid cyst"
+        }
+      ]
+    }
+  ]
+}

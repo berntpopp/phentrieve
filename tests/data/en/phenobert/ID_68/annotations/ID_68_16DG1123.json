@@ -1,0 +1,74 @@
+{
+  "doc_id": "ID-68_16DG1123",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "A 10 years old girl with encephalopathy, developmental delay, strabismus and scoliosis. MRI showed hypomyelination. The parents are first-degree cousins with another similarly affected child.",
+  "metadata": {
+    "dataset": "ID-68",
+    "text_length_chars": 191,
+    "num_annotations": 5,
+    "conversion_date": "2025-11-18T13:13:20.112299"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001298",
+      "label": "Encephalopathy",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 25,
+          "end_char": 39,
+          "text_snippet": "encephalopathy"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001263",
+      "label": "Global developmental delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 41,
+          "end_char": 60,
+          "text_snippet": "developmental delay"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000486",
+      "label": "Strabismus",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 62,
+          "end_char": 72,
+          "text_snippet": "strabismus"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002650",
+      "label": "Scoliosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 77,
+          "end_char": 86,
+          "text_snippet": "scoliosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003429",
+      "label": "CNS hypomyelination",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 99,
+          "end_char": 114,
+          "text_snippet": "hypomyelination"
+        }
+      ]
+    }
+  ]
+}

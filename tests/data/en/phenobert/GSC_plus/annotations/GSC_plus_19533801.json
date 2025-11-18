@@ -1,0 +1,60 @@
+{
+  "doc_id": "GSC+_19533801",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Gorlin syndrome (GS) is inherited in an autosomal dominant pattern with high-penetrance and is characterized by a range of developmental anomalies and increased risk of developing basal cell carcinoma and medulloblastoma. Between 50% and 85% of patients with GS harbor germ line mutations in the only susceptibility gene identified to date, PTCH1, a key component in the Sonic Hedgehog signaling pathway. Another component in this pathway, SUFU, is known to be involved in susceptibility to medulloblastoma but has never been reported in GS patients to date. We have identified the known c.1022 + 1G>A SUFU germ line splicing mutation in a family that was PTCH1-negative and who had signs and symptoms of GS, including medulloblastoma. This is the first report of a germ line SUFU mutation associated with GS.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 809,
+    "num_annotations": 3,
+    "conversion_date": "2025-11-18T13:13:16.124355"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 40,
+          "end_char": 58,
+          "text_snippet": "autosomal dominant"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002671",
+      "label": "Basal cell carcinoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 180,
+          "end_char": 200,
+          "text_snippet": "basal cell carcinoma"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002885",
+      "label": "Medulloblastoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 205,
+          "end_char": 220,
+          "text_snippet": "medulloblastoma"
+        },
+        {
+          "start_char": 491,
+          "end_char": 506,
+          "text_snippet": "medulloblastoma"
+        },
+        {
+          "start_char": 719,
+          "end_char": 734,
+          "text_snippet": "medulloblastoma"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,86 @@
+{
+  "doc_id": "ID-68_15DG2206",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "A 17 years old girl with neuroregression that started at 4 years of age. She had been developmentally normal until the age of 4 years when she started to gradually lose her ability to walk and talk, and she is currently wheelchair-bound. She communicates through nodding her head. She also has developed seizures, but they have been under control. The parents are first-degree cousins, and they have three other affected children and three deceased children who died for an unknown reason. On examination, her growth parameters were weight 32 kg (<3rd percentile) and head circumference 49 cm(<3rd percentile). She has an ulnar deviation of the hands. She also has hyperreflexia of the extremities and strabismus. MRI showed mild leukodystrophy. Skin biopsy showed inclusion bodies. ",
+  "metadata": {
+    "dataset": "ID-68",
+    "text_length_chars": 783,
+    "num_annotations": 6,
+    "conversion_date": "2025-11-18T13:13:19.788818"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0002505",
+      "label": "Loss of ambulation",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 154,
+          "end_char": 188,
+          "text_snippet": "gradually lose her ability to walk"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001250",
+      "label": "Seizure",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 304,
+          "end_char": 312,
+          "text_snippet": "seizures"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009487",
+      "label": "Ulnar deviation of the hand",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 619,
+          "end_char": 650,
+          "text_snippet": "an ulnar deviation of the hands"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001347",
+      "label": "Hyperreflexia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 665,
+          "end_char": 678,
+          "text_snippet": "hyperreflexia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000486",
+      "label": "Strabismus",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 702,
+          "end_char": 712,
+          "text_snippet": "strabismus"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002415",
+      "label": "Leukodystrophy",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 730,
+          "end_char": 744,
+          "text_snippet": "leukodystrophy"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "doc_id": "GSC+_12357473",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Growth/differentiation factor-5 (GDF5), also known as cartilage-derived morphogenetic protein-1 (CDMP-1), is a secreted signaling molecule that participates in skeletal morphogenesis. Heterozygous mutations in GDF5, which maps to human chromosome 20, occur in individuals with autosomal dominant brachydactyly type C (BDC). Here we show that BDC is locus homogeneous by reporting a GDF5 frameshift mutation segregating with the phenotype in a family whose trait was initially thought to map to human chromosome 12. We also describe heterozygous mutations in nine additional probands/families with BDC and show nonpenetrance in a mutation carrier. Finally, we show that mutant GDF5 polypeptides containing missense mutations in their active domains do not efficiently form disulfide-linked dimers when expressed in vitro. These data support the hypothesis that BDC results from functional haploinsufficiency for GDF5.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 916,
+    "num_annotations": 3,
+    "conversion_date": "2025-11-18T13:13:14.777740"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 277,
+          "end_char": 295,
+          "text_snippet": "autosomal dominant"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009373",
+      "label": "Type C brachydactyly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 296,
+          "end_char": 316,
+          "text_snippet": "brachydactyly type C"
+        },
+        {
+          "start_char": 318,
+          "end_char": 321,
+          "text_snippet": "BDC"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003829",
+      "label": "Typified by incomplete penetrance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 610,
+          "end_char": 623,
+          "text_snippet": "nonpenetrance"
+        }
+      ]
+    }
+  ]
+}

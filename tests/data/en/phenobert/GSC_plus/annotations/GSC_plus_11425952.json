@@ -1,0 +1,67 @@
+{
+  "doc_id": "GSC+_11425952",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "The authors report a patient with neurofibromatosis type 2 (NF2) presenting with an axonal mononeuropathy multiplex. Sural nerve biopsy showed small scattered groups of Schwann cells transformed into irregular branching cells with abnormal cell-cell contacts. The authors hypothesize that defective Schwann cell function, due to inactivation of the NF2 gene product merlin, leads to changes in morphology, cell-cell contact, and growth, and finally to degeneration of axons.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 474,
+    "num_annotations": 4,
+    "conversion_date": "2025-11-18T13:13:14.549797"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0006746",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 34,
+          "end_char": 51,
+          "text_snippet": "neurofibromatosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009831",
+      "label": "Mononeuropathy",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 84,
+          "end_char": 115,
+          "text_snippet": "axonal mononeuropathy multiplex"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100008",
+      "label": "Schwannoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 169,
+          "end_char": 194,
+          "text_snippet": "Schwann cells transformed"
+        },
+        {
+          "start_char": 289,
+          "end_char": 320,
+          "text_snippet": "defective Schwann cell function"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000764",
+      "label": "Peripheral axonal degeneration",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 452,
+          "end_char": 473,
+          "text_snippet": "degeneration of axons"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "doc_id": "GSC+_1456285",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "We report on a female patient with bilateral acoustic neurinomas and other tumors in the central nervous system (neurofibromatosis type 2: NF2) and the constitutional translocation, t(4;22) (q12;q12.2). The precise identification of the translocation breakpoint (q12.2) on chromosome 22 implies the refined localization of a gene responsible for NF2, and would provide a clue to its molecular characterization and to the isolation of the gene. Chromosomes of a paraspinal neurinoma from the patient were also analyzed, and the same karyotype as seen in cultured peripheral lymphocytes was found. The patient's father was also a carrier of the translocation, but he had no clinical symptoms of NF2, nor did other relatives. Several explanations are offered for the different expression of the translocation between the patient and her father.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 841,
+    "num_annotations": 5,
+    "conversion_date": "2025-11-18T13:13:15.156770"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0009589",
+      "label": "Bilateral vestibular schwannoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 35,
+          "end_char": 64,
+          "text_snippet": "bilateral acoustic neurinomas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003008",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 69,
+          "end_char": 81,
+          "text_snippet": "other tumors"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100006",
+      "label": "Neoplasm of the central nervous system",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 75,
+          "end_char": 111,
+          "text_snippet": "tumors in the central nervous system"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0006746",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 113,
+          "end_char": 130,
+          "text_snippet": "neurofibromatosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0006751",
+      "label": "Paraspinal neurofibroma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 461,
+          "end_char": 481,
+          "text_snippet": "paraspinal neurinoma"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,175 @@
+{
+  "doc_id": "GSC+_12011146",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Neurofibromatosis type 2 (NF2) must be suspected in patients presenting with a unilateral vestibular schwannoma at a young age who are therefore at theoretical risk of developing bilateral disease. We identified 45 patients aged 30 years or less at the onset of symptoms of a unilateral vestibular schwannoma. Molecular genetic analysis of the NF2 gene was completed on peripheral blood samples in all 45 and on 28 tumour samples. No pathogenic NF2 mutations were identified in any of the blood samples. NF2 point mutations were identified in 21/28 (75%) tumour samples and loss of heterozygosity (LOH) in 21/28 (75%) tumour samples. Both mutational hits were identified in 18/28 (65%) tumour samples. In one multilobular tumour, one (presumably first hit) mutation was confirmed which was common to different foci of the tumour, while the second mutational event differed between foci. The molecular findings in this patient were consistent with somatic mosaicism for NF2 and the clinical diagnosis was confirmed with the presence of two meningiomas on a follow up MRI scan. A further patient developed a contralateral vestibular schwannoma on a follow up MRI scan in whom neither of the truncating mutations in the vestibular schwannoma were present in blood. It is important when counselling patients with unilateral vestibular schwannomas to identify (1) those at risk of bilateral disease, (2) those at risk of developing other tumours, and (3) other family members at risk of developing NF2. Comparing tumour and blood DNA cannot exclude mosaicism in the index case and cannot, therefore, be used to predict those at risk of developing further tumours. However, identification of both mutations or one mutation plus LOH in the tumour and exclusion of those mutations in the blood samples of the sibs or offspring of the affected case may be sufficient to render further screening unnecessary in these relatives.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 1917,
+    "num_annotations": 8,
+    "conversion_date": "2025-11-18T13:13:14.687259"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0006746",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 0,
+          "end_char": 17,
+          "text_snippet": "Neurofibromatosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009590",
+      "label": "Unilateral vestibular schwannoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 79,
+          "end_char": 111,
+          "text_snippet": "unilateral vestibular schwannoma"
+        },
+        {
+          "start_char": 276,
+          "end_char": 308,
+          "text_snippet": "unilateral vestibular schwannoma"
+        },
+        {
+          "start_char": 1309,
+          "end_char": 1342,
+          "text_snippet": "unilateral vestibular schwannomas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003593",
+      "label": "Infantile onset",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 117,
+          "end_char": 126,
+          "text_snippet": "young age"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009589",
+      "label": "Bilateral vestibular schwannoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 179,
+          "end_char": 196,
+          "text_snippet": "bilateral disease"
+        },
+        {
+          "start_char": 1106,
+          "end_char": 1141,
+          "text_snippet": "contralateral vestibular schwannoma"
+        },
+        {
+          "start_char": 1376,
+          "end_char": 1393,
+          "text_snippet": "bilateral disease"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002664",
+      "label": "Neoplasm",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 415,
+          "end_char": 421,
+          "text_snippet": "tumour"
+        },
+        {
+          "start_char": 555,
+          "end_char": 561,
+          "text_snippet": "tumour"
+        },
+        {
+          "start_char": 618,
+          "end_char": 624,
+          "text_snippet": "tumour"
+        },
+        {
+          "start_char": 686,
+          "end_char": 692,
+          "text_snippet": "tumour"
+        },
+        {
+          "start_char": 722,
+          "end_char": 728,
+          "text_snippet": "tumour"
+        },
+        {
+          "start_char": 822,
+          "end_char": 828,
+          "text_snippet": "tumour"
+        },
+        {
+          "start_char": 1433,
+          "end_char": 1440,
+          "text_snippet": "tumours"
+        },
+        {
+          "start_char": 1508,
+          "end_char": 1514,
+          "text_snippet": "tumour"
+        },
+        {
+          "start_char": 1650,
+          "end_char": 1657,
+          "text_snippet": "tumours"
+        },
+        {
+          "start_char": 1733,
+          "end_char": 1739,
+          "text_snippet": "tumour"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001442",
+      "label": "Typified by somatic mosaicism",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 947,
+          "end_char": 964,
+          "text_snippet": "somatic mosaicism"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002858",
+      "label": "Meningioma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1039,
+          "end_char": 1050,
+          "text_snippet": "meningiomas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009588",
+      "label": "Vestibular schwannoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1217,
+          "end_char": 1238,
+          "text_snippet": "vestibular schwannoma"
+        }
+      ]
+    }
+  ]
+}

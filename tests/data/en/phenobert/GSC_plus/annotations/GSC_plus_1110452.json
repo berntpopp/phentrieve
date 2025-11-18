@@ -1,0 +1,65 @@
+{
+  "doc_id": "GSC+_1110452",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Older paternal age has previously been documented as a factor in sporadic fresh mutational cases of several autosomal dominant disorders. In this collaborative study, an older mean paternal age has been documented in sporadic cases of at least five additional dominantly inheritable disorders; the basal cell nevus syndrome, the Waardenburg syndrome, the Crouzon syndrome, the oculo-dental-digital sysdrome, and the Treacher-Collins syndrome. It was also found to be a factor in acrodysostosis and progeria, suggesting a fresh mutant gene etiology for these two conditions in which virtually all cases have been sporadic and the mode of genetic etiology has been unknown.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 671,
+    "num_annotations": 3,
+    "conversion_date": "2025-11-18T13:13:14.353082"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0003745",
+      "label": "Sporadic",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 65,
+          "end_char": 73,
+          "text_snippet": "sporadic"
+        },
+        {
+          "start_char": 217,
+          "end_char": 231,
+          "text_snippet": "sporadic cases"
+        },
+        {
+          "start_char": 612,
+          "end_char": 620,
+          "text_snippet": "sporadic"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 108,
+          "end_char": 126,
+          "text_snippet": "autosomal dominant"
+        },
+        {
+          "start_char": 260,
+          "end_char": 292,
+          "text_snippet": "dominantly inheritable disorders"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002671",
+      "label": "Basal cell carcinoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 298,
+          "end_char": 323,
+          "text_snippet": "basal cell nevus syndrome"
+        }
+      ]
+    }
+  ]
+}

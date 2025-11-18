@@ -1,0 +1,90 @@
+{
+  "doc_id": "GSC+_9207339",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Neurofibromatosis 1 and neurofibromatosis 2 are autosomal dominant genetic disorders in which affected individuals develop both benign and malignant tumors at an increased frequency. Since the original National Institutes of Health Consensus Development Conference in 1987, there has been significant progress toward a more complete understanding of the molecular bases for neurofibromatosis 1 and neurofibromatosis 2. Our objective was to determine the diagnostic criteria for neurofibromatosis 1 and neurofibromatosis 2, recommendations for the care of patients and their families at diagnosis and during routine follow-up, and the role of DNA diagnostic testing in the evaluation of these disorders.\n\nPublished reports from 1966 through 1996 obtained by MEDLINE search and studies presented at national and international meetings.\n\nAll studies were reviewed and analyzed by consensus from multiple authors.\n\nPeer-reviewed published data were critically evaluated by independent extraction by multiple authors.\n\nThe main results of the review were qualitative and were reviewed by neurofibromatosis clinical directors worldwide through an Internet Web site.\n\nOn the basis of the information presented in this review, we propose a comprehensive approach to the diagnosis and treatment of individuals with neurofibromatosis 1 and neurofibromatosis 2.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 1350,
+    "num_annotations": 3,
+    "conversion_date": "2025-11-18T13:13:18.727039"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0006746",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 0,
+          "end_char": 17,
+          "text_snippet": "Neurofibromatosis"
+        },
+        {
+          "start_char": 24,
+          "end_char": 41,
+          "text_snippet": "neurofibromatosis"
+        },
+        {
+          "start_char": 374,
+          "end_char": 391,
+          "text_snippet": "neurofibromatosis"
+        },
+        {
+          "start_char": 398,
+          "end_char": 415,
+          "text_snippet": "neurofibromatosis"
+        },
+        {
+          "start_char": 478,
+          "end_char": 495,
+          "text_snippet": "neurofibromatosis"
+        },
+        {
+          "start_char": 502,
+          "end_char": 519,
+          "text_snippet": "neurofibromatosis"
+        },
+        {
+          "start_char": 1083,
+          "end_char": 1100,
+          "text_snippet": "neurofibromatosis"
+        },
+        {
+          "start_char": 1306,
+          "end_char": 1323,
+          "text_snippet": "neurofibromatosis"
+        },
+        {
+          "start_char": 1330,
+          "end_char": 1347,
+          "text_snippet": "neurofibromatosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 48,
+          "end_char": 66,
+          "text_snippet": "autosomal dominant"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002664",
+      "label": "Neoplasm",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 149,
+          "end_char": 155,
+          "text_snippet": "tumors"
+        }
+      ]
+    }
+  ]
+}

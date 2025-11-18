@@ -1,0 +1,144 @@
+{
+  "doc_id": "ID-68_17DG0778",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "A 19 months old boy who was born via NSVD following an uneventful pregnancy. He presented with similar clinical features as his brother. He had a migratory seizure at 2 months of that was refractory to multiple antiepileptic medications and was associated with severe oropharyngeal dysphagia. He currently has a poorly controlled seizure on three AED. He has severe gastroesophageal reflux and swallowing dysfunction that needed fundoplication and G-tube insertion. Clinical examination revealed microcephaly and spasticity with poor visual fixation. His growth parameters at 19 months of age were weight 12 kg (50th – 75th percentile), length 71 cm (<3rd percentile) and head circumference 44 cm (<3rd percentile). Brain MRI showed appropriate for age myelination but with diffuse volume loss and prominent subarachnoid spaces anteriorly as well as a thin corpus callosum. MRS was reported as normal. The EEG showed generalized multifocal spikes more in the temporal region and slow background with lack of sleep features as well as continuous subclinical seizures.",
+  "metadata": {
+    "dataset": "ID-68",
+    "text_length_chars": 1066,
+    "num_annotations": 10,
+    "conversion_date": "2025-11-18T13:13:20.514876"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001250",
+      "label": "Seizure",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 156,
+          "end_char": 163,
+          "text_snippet": "seizure"
+        },
+        {
+          "start_char": 330,
+          "end_char": 337,
+          "text_snippet": "seizure"
+        },
+        {
+          "start_char": 1057,
+          "end_char": 1065,
+          "text_snippet": "seizures"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0200136",
+      "label": "Oral-pharyngeal dysphagia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 268,
+          "end_char": 291,
+          "text_snippet": "oropharyngeal dysphagia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002020",
+      "label": "Gastroesophageal reflux",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 366,
+          "end_char": 389,
+          "text_snippet": "gastroesophageal reflux"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002015",
+      "label": "Dysphagia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 394,
+          "end_char": 416,
+          "text_snippet": "swallowing dysfunction"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000252",
+      "label": "Microcephaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 496,
+          "end_char": 508,
+          "text_snippet": "microcephaly"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001257",
+      "label": "Spasticity",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 513,
+          "end_char": 523,
+          "text_snippet": "spasticity"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0025404",
+      "label": "Abnormal visual fixation",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 529,
+          "end_char": 549,
+          "text_snippet": "poor visual fixation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012704",
+      "label": "Widened subarachnoid space",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 798,
+          "end_char": 827,
+          "text_snippet": "prominent subarachnoid spaces"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002079",
+      "label": "Hypoplasia of the corpus callosum",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 852,
+          "end_char": 872,
+          "text_snippet": "thin corpus callosum"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002360",
+      "label": "Sleep abnormality",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1000,
+          "end_char": 1022,
+          "text_snippet": "lack of sleep features"
+        }
+      ]
+    }
+  ]
+}

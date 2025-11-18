@@ -1,0 +1,91 @@
+{
+  "doc_id": "GSC+_6829601",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Two unrelated children (one male, the other female) had unusual craniofacial anomalies consisting of hemangiomatous branchial clefts, lip pseudoclefts, and identical unusual facial appearance. One also had unilateral microphthalmia and both had congenital nasolacrimal duct obstruction. Two similar, sporadic cases from the literature were also identified. These four cases form the basis of a new, distinctly recognizable pattern of malformation.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 447,
+    "num_annotations": 6,
+    "conversion_date": "2025-11-18T13:13:17.138535"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0002004",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 56,
+          "end_char": 86,
+          "text_snippet": "unusual craniofacial anomalies"
+        },
+        {
+          "start_char": 166,
+          "end_char": 191,
+          "text_snippet": "unusual facial appearance"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009794",
+      "label": "Branchial anomaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 101,
+          "end_char": 132,
+          "text_snippet": "hemangiomatous branchial clefts"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000159",
+      "label": "Abnormal lip morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 134,
+          "end_char": 150,
+          "text_snippet": "lip pseudoclefts"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000568",
+      "label": "Microphthalmia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 217,
+          "end_char": 231,
+          "text_snippet": "microphthalmia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000579",
+      "label": "Nasolacrimal duct obstruction",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 256,
+          "end_char": 285,
+          "text_snippet": "nasolacrimal duct obstruction"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003745",
+      "label": "Sporadic",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 300,
+          "end_char": 314,
+          "text_snippet": "sporadic cases"
+        }
+      ]
+    }
+  ]
+}

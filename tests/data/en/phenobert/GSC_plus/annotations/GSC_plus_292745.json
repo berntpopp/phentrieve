@@ -1,0 +1,98 @@
+{
+  "doc_id": "GSC+_292745",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "This paper is based on our experience with the Gorlin-Goltz syndrome and on data from 14 patients of the Nordwestdeutsche Kieferklinik in whom this disorder was detected, treated and followed up. A clinical concept has been produced, with a diagnostic check list including a genetic and a dermatological routine work up as well as a radiological survey of the jaws and skeleton. Whenever multiple basal cell carcinomas plus the typical jaw lesions are found in a patient, the diagnosis is easy. A minimum diagnostic criterion is the combination of either the skin tumours or multiple odontogenic keratocysts plus a positive family history for this disorder, bifid ribs, lamellar calcification of the falx cerebri or any one of the skeletal abnormalities typical of this syndrome. All those in whom this disorder is diagnosed or suspected should be followed up for the rest of their lives. The family should be examined and genetic counselling should be offered.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 961,
+    "num_annotations": 7,
+    "conversion_date": "2025-11-18T13:13:16.487374"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0002671",
+      "label": "Basal cell carcinoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 397,
+          "end_char": 418,
+          "text_snippet": "basal cell carcinomas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000209",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 436,
+          "end_char": 447,
+          "text_snippet": "jaw lesions"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0008069",
+      "label": "Neoplasm of the skin",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 559,
+          "end_char": 571,
+          "text_snippet": "skin tumours"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010603",
+      "label": "Odontogenic keratocysts of the jaw",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 584,
+          "end_char": 607,
+          "text_snippet": "odontogenic keratocysts"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000892",
+      "label": "Bifid ribs",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 658,
+          "end_char": 668,
+          "text_snippet": "bifid ribs"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0005462",
+      "label": "Calcification of falx cerebri",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 679,
+          "end_char": 712,
+          "text_snippet": "calcification of the falx cerebri"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000924",
+      "label": "Abnormality of the skeletal system",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 731,
+          "end_char": 753,
+          "text_snippet": "skeletal abnormalities"
+        }
+      ]
+    }
+  ]
+}

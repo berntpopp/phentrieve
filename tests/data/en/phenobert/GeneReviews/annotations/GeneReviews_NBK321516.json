@@ -1,0 +1,557 @@
+{
+  "doc_id": "GeneReviews_NBK321516",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Summary:\nNicolaides-Baraitser syndrome (NCBRS) is characterized by sparse scalp hair, prominence of the inter-phalangeal joints and distal phalanges due to decreased subcutaneous fat, characteristic coarse facial features, microcephaly, seizures, and developmental delay / intellectual disability. Seizures are of various types and can be difficult to manage. Developmental delay / intellectual disability (ID) is severe in nearly a half, moderate in a third, and mild in the remainder. Nearly a third never develop speech or language skills.\nDescription:\nThe most common findings in 61 individuals (35 male and 26 female) with Nicolaides-Baraitser syndrome (NCBRS) and a SMARCA2 pathogenic variant are summarized in Table 2.\nEctoderm. Scalp hair is usually sparse at birth and becomes increasingly so with age, particularly in the second decade of life. In some, the sparseness improves with time.\nSkin pigmentation appears to be reduced, although affected individuals do not exhibit true cutaneous albinism.\nPoor subcutaneous fat distribution leads to prominent veins; interphalangeal joints are prominent. The distal phalanges widen with age, becoming oval shaped and broad. Increasing space between the first and second toes can occur over time.\nDelayed tooth eruption is common, often requiring surgical extraction of primary dentition to allow secondary dentition to migrate into place.\nSeizures can be difficult to manage, requiring multiple antiepileptic drugs to achieve reasonable control. The mean and median age of onset of seizures is 24 months and 18 months, respectively. The range is birth to 14 years. Various seizure types have been reported. Regression or lack of developmental progress has been noted with the onset of seizures.\nDevelopmental delay / intellectual disability. Nearly half of affected individuals experience severe developmental delay / intellectual disability (ID) with particular delays in speech and language development. A third exhibit moderate intellectual disability and the remainder have mild ID.\nNearly a third never develop speech or language skills.\nThe mean age for walking independently is 21 months (range: 10 months - 5 years).\nAlthough psychomotor regression is not typical, the high incidence of seizures that progressively worsen has been associated with loss of speech.\nBehavior problems have been reported in at least 19 individuals with some displaying autistic-like features (such as perseveration and hyperacusis). However, a formal clinical diagnosis of autism has not been made in any affected individual reported in the literature.\nGrowth. About half of affected individuals (24/46) have low birth weight and the same proportion experience short stature. None was above the 50th centile for height.\nMicrocephaly tends to be acquired, being noted in almost one third of infants at birth (7/30) and in two thirds (34/52) at follow up.\nOther findings\nCryptorchidism is seen in most males.;Hearing loss has been noted in 4/59 affected individuals. The nature of the hearing loss and age of onset have not been reported.;Visual deficits including myopia and astigmatism have been seen in ten and four affected individuals, respectively.;Congenital heart defects (e.g., atrial septal defect, stenosis of the pulmonary artery, coarctation, patient ductus arteriosus, and double aortic arch) have been reported in six affected persons.\n",
+  "metadata": {
+    "dataset": "GeneReviews",
+    "text_length_chars": 3390,
+    "num_annotations": 39,
+    "conversion_date": "2025-11-18T13:13:20.808505"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0002209",
+      "label": "Sparse scalp hair",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 67,
+          "end_char": 84,
+          "text_snippet": "sparse scalp hair"
+        },
+        {
+          "start_char": 736,
+          "end_char": 764,
+          "text_snippet": "Scalp hair is usually sparse"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0006261",
+      "label": "Abnormal phalangeal joint morphology of the hand",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 86,
+          "end_char": 148,
+          "text_snippet": "prominence of the inter-phalangeal joints and distal phalanges"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003758",
+      "label": "Reduced subcutaneous adipose tissue",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 156,
+          "end_char": 182,
+          "text_snippet": "decreased subcutaneous fat"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000252",
+      "label": "Microcephaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 223,
+          "end_char": 235,
+          "text_snippet": "microcephaly"
+        },
+        {
+          "start_char": 2761,
+          "end_char": 2773,
+          "text_snippet": "Microcephaly"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001250",
+      "label": "Seizure",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 237,
+          "end_char": 245,
+          "text_snippet": "seizures"
+        },
+        {
+          "start_char": 298,
+          "end_char": 306,
+          "text_snippet": "Seizures"
+        },
+        {
+          "start_char": 1393,
+          "end_char": 1401,
+          "text_snippet": "Seizures"
+        },
+        {
+          "start_char": 1536,
+          "end_char": 1544,
+          "text_snippet": "seizures"
+        },
+        {
+          "start_char": 1627,
+          "end_char": 1634,
+          "text_snippet": "seizure"
+        },
+        {
+          "start_char": 1739,
+          "end_char": 1747,
+          "text_snippet": "seizures"
+        },
+        {
+          "start_char": 2249,
+          "end_char": 2257,
+          "text_snippet": "seizures"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001263",
+      "label": "Global developmental delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 251,
+          "end_char": 270,
+          "text_snippet": "developmental delay"
+        },
+        {
+          "start_char": 360,
+          "end_char": 379,
+          "text_snippet": "Developmental delay"
+        },
+        {
+          "start_char": 1661,
+          "end_char": 1705,
+          "text_snippet": "Regression or lack of developmental progress"
+        },
+        {
+          "start_char": 1749,
+          "end_char": 1768,
+          "text_snippet": "Developmental delay"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001249",
+      "label": "Intellectual disability",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 273,
+          "end_char": 296,
+          "text_snippet": "intellectual disability"
+        },
+        {
+          "start_char": 382,
+          "end_char": 405,
+          "text_snippet": "intellectual disability"
+        },
+        {
+          "start_char": 1771,
+          "end_char": 1794,
+          "text_snippet": "intellectual disability"
+        },
+        {
+          "start_char": 1872,
+          "end_char": 1895,
+          "text_snippet": "intellectual disability"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001344",
+      "label": "Absent speech",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 502,
+          "end_char": 541,
+          "text_snippet": "never develop speech or language skills"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001000",
+      "label": "Abnormality of skin pigmentation",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 899,
+          "end_char": 924,
+          "text_snippet": "Skin pigmentation appears"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001022",
+      "label": "Albinism",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1000,
+          "end_char": 1008,
+          "text_snippet": "albinism"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0007552",
+      "label": "Abnormal subcutaneous fat tissue distribution",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1010,
+          "end_char": 1044,
+          "text_snippet": "Poor subcutaneous fat distribution"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001015",
+      "label": "Prominent superficial veins",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1054,
+          "end_char": 1069,
+          "text_snippet": "prominent veins"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0006237",
+      "label": "Prominent interphalangeal joints",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1071,
+          "end_char": 1107,
+          "text_snippet": "interphalangeal joints are prominent"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009836",
+      "label": "Broad distal phalanx of finger",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1113,
+          "end_char": 1135,
+          "text_snippet": "distal phalanges widen"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010319",
+      "label": "Abnormal second toe morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1217,
+          "end_char": 1248,
+          "text_snippet": "second toes can occur over time"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000684",
+      "label": "Delayed eruption of teeth",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1250,
+          "end_char": 1272,
+          "text_snippet": "Delayed tooth eruption"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0011344",
+      "label": "Severe global developmental delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1843,
+          "end_char": 1869,
+          "text_snippet": "severe developmental delay"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000750",
+      "label": "Delayed speech and language development",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1906,
+          "end_char": 1958,
+          "text_snippet": "particular delays in speech and language development"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002342",
+      "label": "Intellectual disability, moderate",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1976,
+          "end_char": 2008,
+          "text_snippet": "moderate intellectual disability"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002376",
+      "label": "Developmental regression",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2188,
+          "end_char": 2210,
+          "text_snippet": "psychomotor regression"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002371",
+      "label": "Loss of speech",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2309,
+          "end_char": 2323,
+          "text_snippet": "loss of speech"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000708",
+      "label": "Atypical behavior",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2325,
+          "end_char": 2342,
+          "text_snippet": "Behavior problems"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000729",
+      "label": "Autistic behavior",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2399,
+          "end_char": 2432,
+          "text_snippet": "displaying autistic-like features"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0030223",
+      "label": "Perseverative thought",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2442,
+          "end_char": 2455,
+          "text_snippet": "perseveration"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010780",
+      "label": "Hyperacusis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2460,
+          "end_char": 2471,
+          "text_snippet": "hyperacusis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000717",
+      "label": "Autism",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2514,
+          "end_char": 2520,
+          "text_snippet": "autism"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001518",
+      "label": "Small for gestational age",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2650,
+          "end_char": 2666,
+          "text_snippet": "low birth weight"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004322",
+      "label": "Short stature",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2702,
+          "end_char": 2715,
+          "text_snippet": "short stature"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000028",
+      "label": "Cryptorchidism",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2910,
+          "end_char": 2924,
+          "text_snippet": "Cryptorchidism"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000365",
+      "label": "Hearing impairment",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2948,
+          "end_char": 2960,
+          "text_snippet": "Hearing loss"
+        },
+        {
+          "start_char": 3024,
+          "end_char": 3036,
+          "text_snippet": "hearing loss"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100704",
+      "label": "Cerebral visual impairment",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 3078,
+          "end_char": 3093,
+          "text_snippet": "Visual deficits"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000545",
+      "label": "Myopia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 3104,
+          "end_char": 3110,
+          "text_snippet": "myopia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000483",
+      "label": "Astigmatism",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 3115,
+          "end_char": 3126,
+          "text_snippet": "astigmatism"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001627",
+      "label": "Abnormal heart morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 3194,
+          "end_char": 3218,
+          "text_snippet": "Congenital heart defects"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001631",
+      "label": "Atrial septal defect",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 3226,
+          "end_char": 3246,
+          "text_snippet": "atrial septal defect"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004415",
+      "label": "Pulmonary artery stenosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 3248,
+          "end_char": 3280,
+          "text_snippet": "stenosis of the pulmonary artery"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001680",
+      "label": "Coarctation of aorta",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 3282,
+          "end_char": 3293,
+          "text_snippet": "coarctation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001643",
+      "label": "Patent ductus arteriosus",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 3295,
+          "end_char": 3320,
+          "text_snippet": "patient ductus arteriosus"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0011590",
+      "label": "Double aortic arch",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 3326,
+          "end_char": 3344,
+          "text_snippet": "double aortic arch"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,206 @@
+{
+  "doc_id": "GSC+_7625442",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "We describe 47 patients with Angelman syndrome (AS) from Belgium and the Netherlands, including the anamnestic data, the clinical and the behavioral attributes at different ages. The clinical picture of AS is most distinct between the ages of 2-16 years. Most patients of this age group show at least 8 of the major characteristics (bursts of laughter, happy disposition, hyperactive behaviour, microcephaly, brachycephaly, macrostomia, tongue protrusion, mandibular prognathism, widely spaced teeth, stiff and puppetlike movements, typical stature, wide based gait) beside the mental retardation and (almost) absence of speech, which is a universal trait. The diagnosis in infants is based on only a limited number of clinical characteristics or on anamnestic data. However, if these occur in combination, they are indicative of AS. In older patients, the diagnosis may be hampered in part because of the changing behavioral characteristics and the decreasing frequency of fits. Other manifestations, such as scoliosis, may become more pronounced with age.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 1057,
+    "num_annotations": 16,
+    "conversion_date": "2025-11-18T13:13:17.586449"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000749",
+      "label": "Paroxysmal bursts of laughter",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 333,
+          "end_char": 351,
+          "text_snippet": "bursts of laughter"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100024",
+      "label": "Conspicuously happy disposition",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 353,
+          "end_char": 370,
+          "text_snippet": "happy disposition"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000752",
+      "label": "Hyperactivity",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 372,
+          "end_char": 393,
+          "text_snippet": "hyperactive behaviour"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000252",
+      "label": "Microcephaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 395,
+          "end_char": 407,
+          "text_snippet": "microcephaly"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000248",
+      "label": "Brachycephaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 409,
+          "end_char": 422,
+          "text_snippet": "brachycephaly"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000181",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 424,
+          "end_char": 435,
+          "text_snippet": "macrostomia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010808",
+      "label": "Protruding tongue",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 437,
+          "end_char": 454,
+          "text_snippet": "tongue protrusion"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000303",
+      "label": "Mandibular prognathia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 456,
+          "end_char": 478,
+          "text_snippet": "mandibular prognathism"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000687",
+      "label": "Widely spaced teeth",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 480,
+          "end_char": 499,
+          "text_snippet": "widely spaced teeth"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100022",
+      "label": "Abnormality of movement",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 511,
+          "end_char": 531,
+          "text_snippet": "puppetlike movements"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002136",
+      "label": "Broad-based gait",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 550,
+          "end_char": 565,
+          "text_snippet": "wide based gait"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001249",
+      "label": "Intellectual disability",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 578,
+          "end_char": 596,
+          "text_snippet": "mental retardation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001617",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 610,
+          "end_char": 627,
+          "text_snippet": "absence of speech"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003576",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 661,
+          "end_char": 681,
+          "text_snippet": "diagnosis in infants"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000708",
+      "label": "Atypical behavior",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 915,
+          "end_char": 941,
+          "text_snippet": "behavioral characteristics"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002650",
+      "label": "Scoliosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1010,
+          "end_char": 1019,
+          "text_snippet": "scoliosis"
+        }
+      ]
+    }
+  ]
+}

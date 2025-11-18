@@ -1,0 +1,110 @@
+{
+  "doc_id": "GSC+_7446562",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "We report on a 32-year-old Italian man, his 5-year-old daughter, and his 3 1/2-year-old son, all of whom had congenital joint contractures. Each has severe ulnar deviation of fingers and soft-tissue contractures of both hands; and each had bilateral clubfeet at birth. The father is short in stature, as are the children, who also have delayed carpal ossification. The findings in this family suggest autosomal-dominant inheritance of the condition. The clinical features are consistent with the condition currently referred to as \"distal\" arthrogryposis.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 555,
+    "num_annotations": 8,
+    "conversion_date": "2025-11-18T13:13:17.488250"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0002803",
+      "label": "Congenital contracture",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 109,
+          "end_char": 138,
+          "text_snippet": "congenital joint contractures"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009465",
+      "label": "Ulnar deviation of finger",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 156,
+          "end_char": 182,
+          "text_snippet": "ulnar deviation of fingers"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0006096",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 199,
+          "end_char": 225,
+          "text_snippet": "contractures of both hands"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001776",
+      "label": "Bilateral talipes equinovarus",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 240,
+          "end_char": 258,
+          "text_snippet": "bilateral clubfeet"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001509",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 283,
+          "end_char": 299,
+          "text_snippet": "short in stature"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001216",
+      "label": "Delayed ossification of carpal bones",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 336,
+          "end_char": 363,
+          "text_snippet": "delayed carpal ossification"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 401,
+          "end_char": 431,
+          "text_snippet": "autosomal-dominant inheritance"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0005684",
+      "label": "Distal arthrogryposis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 531,
+          "end_char": 554,
+          "text_snippet": "\"distal\" arthrogryposis"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "doc_id": "GSC+_2705922",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "This study of 47 patients from 11 families with neurofibromatosis type 2 (NF 2) confirms our previously reported association between posterior capsular cataract and NF 2. A highly significant statistical association was found between the presence of posterior capsular lens opacities and the presence of NF 2 as determined by magnetic resonance imaging or pathologic diagnosis. This association was not present for other types of lens opacities that could be the result of age-related or nonspecific changes. When considering the diagnosis of NF 2, this finding now makes it essential to use a careful dilated biomicroscopic examination of the lens to evaluate known, suspected, or at-risk individuals for this potentially early associated manifestation.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 754,
+    "num_annotations": 5,
+    "conversion_date": "2025-11-18T13:13:16.375190"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0006746",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 48,
+          "end_char": 65,
+          "text_snippet": "neurofibromatosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100020",
+      "label": "Posterior capsular cataract",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 133,
+          "end_char": 160,
+          "text_snippet": "posterior capsular cataract"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0007787",
+      "label": "Posterior subcapsular cataract",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 250,
+          "end_char": 283,
+          "text_snippet": "posterior capsular lens opacities"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000518",
+      "label": "Cataract",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 430,
+          "end_char": 444,
+          "text_snippet": "lens opacities"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003593",
+      "label": "Infantile onset",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 723,
+          "end_char": 753,
+          "text_snippet": "early associated manifestation"
+        }
+      ]
+    }
+  ]
+}

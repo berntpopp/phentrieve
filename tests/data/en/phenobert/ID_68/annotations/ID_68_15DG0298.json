@@ -1,0 +1,146 @@
+{
+  "doc_id": "ID-68_15DG0298",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "A baby girl who was born at 36 weeks of gestational age via a C-section due to breech presentation to a G6P4 A1 L3 mother. Antenatal ultrasound revealed polyhydramnios. Apgar scores were 6,8 & 9 at 1,5 & 10 minutes, respectively, and birth growth parameters were weight 2.4 kg, length 49 cm and head circumference 34 cm. She was admitted to NICU immediately after birth due to significant hypotonia and respiratory distress. Her parents are a first-degree consanguineous couple, and they had two deceased children with hypotonia and encephalopathy. On examination, there is no gross deformity, but she has a myopathic face, opened mouth, froglike posture, a paucity of limb movements, hyporeflexia, significant head lag, truncal hypotonia and thinning of the distal part of the legs with a mild inward curvature of both legs. Other examinations are within normal limits.",
+  "metadata": {
+    "dataset": "ID-68",
+    "text_length_chars": 870,
+    "num_annotations": 11,
+    "conversion_date": "2025-11-18T13:13:19.553779"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001623",
+      "label": "Breech presentation",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 79,
+          "end_char": 98,
+          "text_snippet": "breech presentation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001561",
+      "label": "Polyhydramnios",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 153,
+          "end_char": 167,
+          "text_snippet": "polyhydramnios"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001290",
+      "label": "Generalized hypotonia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 377,
+          "end_char": 398,
+          "text_snippet": "significant hypotonia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002098",
+      "label": "Respiratory distress",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 403,
+          "end_char": 423,
+          "text_snippet": "respiratory distress"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0008947",
+      "label": "Infantile muscular hypotonia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 505,
+          "end_char": 528,
+          "text_snippet": "children with hypotonia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001298",
+      "label": "Encephalopathy",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 533,
+          "end_char": 547,
+          "text_snippet": "encephalopathy"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002058",
+      "label": "Myopathic facies",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 608,
+          "end_char": 622,
+          "text_snippet": "myopathic face"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000194",
+      "label": "Open mouth",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 624,
+          "end_char": 636,
+          "text_snippet": "opened mouth"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001265",
+      "label": "Hyporeflexia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 685,
+          "end_char": 697,
+          "text_snippet": "hyporeflexia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0008936",
+      "label": "Axial hypotonia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 721,
+          "end_char": 738,
+          "text_snippet": "truncal hypotonia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0006402",
+      "label": "Distal shortening of limbs",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 743,
+          "end_char": 782,
+          "text_snippet": "thinning of the distal part of the legs"
+        }
+      ]
+    }
+  ]
+}

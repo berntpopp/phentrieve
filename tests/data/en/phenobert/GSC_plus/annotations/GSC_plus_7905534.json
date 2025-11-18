@@ -1,0 +1,75 @@
+{
+  "doc_id": "GSC+_7905534",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Angelman syndrome (AS) results from a lack of maternal contribution from chromosome 15q11-13, arising from de novo deletion in most cases or rarely from uniparental disomy. These families are associated with a low recurrence risk. However, in a minority of families, more than one child is affected. No deletion has been found in these families, except one. The mode of inheritance in these families is autosomal dominant modified by imprinting. Sporadic cases, with no observable deletion, therefore pose a counselling dilemma as there could be a recurrence risk as high as 50%. We present a series of 93 AS patients, showing the relative contribution of these different genetic mechanisms. Eighty-one AS patients were sporadic cases while 12 cases came from six families. Sixty cases had deletions in 15q11-13 detected by a set of highly polymorphic (CA)n repeats markers and conventional RFLPs. Ten sporadic cases plus all 12 familial cases had no detectable deletion. In addition, two cases of de novo deletions occurred in a chromosome 15 carrying a pericentric inversion. In one of these the AS child had a cousin with Prader-Willi syndrome (PWS) arising from a de novo deletion in an inv(15) inherited from his father. One case arose from a maternal balanced t(9;15)(p24;q15) translocation. There were three cases of uniparental disomy. Five patients were monoallelic for all loci across the minimal AS critical region, but the presence of a deletion cannot be confirmed. In familial cases, all affected sibs inherited the same maternal chromosome 15 markers for the region 15q11-13. Two cases were observed with a de novo deletion starting close to the locus D15S11 (IR4-2R), providing evidence for the development of classical AS with smaller deletions. Cytogenetic analysis proved limited in its ability to detect deletions, detecting only 42 out of 60 cases. However, cytogenetic analysis is still essential to detect chromosomal abnormalities other than deletions such as inversions and balanced translocations since both have an increased risk for deletions. A staged diagnostic strategy based on the use of highly informative (CA)n repeat markers is proposed.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 2173,
+    "num_annotations": 3,
+    "conversion_date": "2025-11-18T13:13:17.773570"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0003745",
+      "label": "Sporadic",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 107,
+          "end_char": 114,
+          "text_snippet": "de novo"
+        },
+        {
+          "start_char": 446,
+          "end_char": 460,
+          "text_snippet": "Sporadic cases"
+        },
+        {
+          "start_char": 720,
+          "end_char": 734,
+          "text_snippet": "sporadic cases"
+        },
+        {
+          "start_char": 902,
+          "end_char": 916,
+          "text_snippet": "sporadic cases"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000005",
+      "label": "Mode of inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 362,
+          "end_char": 381,
+          "text_snippet": "mode of inheritance"
+        },
+        {
+          "start_char": 929,
+          "end_char": 943,
+          "text_snippet": "familial cases"
+        },
+        {
+          "start_char": 1482,
+          "end_char": 1496,
+          "text_snippet": "familial cases"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 403,
+          "end_char": 421,
+          "text_snippet": "autosomal dominant"
+        }
+      ]
+    }
+  ]
+}

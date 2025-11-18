@@ -1,0 +1,120 @@
+{
+  "doc_id": "GSC+_17431915",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "We report on wide phenotypic variations within a family with SALL1 mutations; the elder sister presented with a Townes-Brocks syndrome phenotype including external ear anomalies, preaxial polydactyly, and anteriorly placed anus, whereas the younger sister presented with a phenotype resembling Goldenhar syndrome, including atretic ear canals, mandibular hypoplasia, and right preaxial polydactyly as well as an epibulbar dermoid. The mother had abnormal external ears but was otherwise structurally normal, and the father was asymptomatic. Analysis of the SALL1 gene revealed that both daughters were heterozygous for nonsense mutation 1256T>A (L419X), that is present 5' to the region encoding the first double zinc finger. The mother was heterozygous for the L419X mutation. The younger daughter is the first patient with a SALL1 mutation to exhibit a classic Goldenhar syndrome-like phenotype with an epibulbar dermoid. The observation lends further support to the concept that Goldenhar syndrome is an etiologically heterogeneous disorder that may have a genetic basis in some cases.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 1088,
+    "num_annotations": 8,
+    "conversion_date": "2025-11-18T13:13:15.739854"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0003822",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 13,
+          "end_char": 55,
+          "text_snippet": "wide phenotypic variations within a family"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000356",
+      "label": "Abnormality of the outer ear",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 155,
+          "end_char": 177,
+          "text_snippet": "external ear anomalies"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001177",
+      "label": "Preaxial hand polydactyly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 179,
+          "end_char": 199,
+          "text_snippet": "preaxial polydactyly"
+        },
+        {
+          "start_char": 377,
+          "end_char": 397,
+          "text_snippet": "preaxial polydactyly"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001545",
+      "label": "Anteriorly placed anus",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 205,
+          "end_char": 227,
+          "text_snippet": "anteriorly placed anus"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000413",
+      "label": "Atresia of the external auditory canal",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 324,
+          "end_char": 342,
+          "text_snippet": "atretic ear canals"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000347",
+      "label": "Micrognathia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 344,
+          "end_char": 365,
+          "text_snippet": "mandibular hypoplasia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001140",
+      "label": "Limbal dermoid",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 412,
+          "end_char": 429,
+          "text_snippet": "epibulbar dermoid"
+        },
+        {
+          "start_char": 905,
+          "end_char": 922,
+          "text_snippet": "epibulbar dermoid"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001425",
+      "label": "obsolete Heterogeneous",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1021,
+          "end_char": 1034,
+          "text_snippet": "heterogeneous"
+        }
+      ]
+    }
+  ]
+}

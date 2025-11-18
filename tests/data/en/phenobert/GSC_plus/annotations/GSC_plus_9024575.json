@@ -1,0 +1,190 @@
+{
+  "doc_id": "GSC+_9024575",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Brachydactyly type C is characterized by shortness of the second and fifth middle phalanges and the first metacarpal. It is inherited as an autosomal dominant trait, and is noted for its widely variable clinical phenotype both within and between families. In most families involvement is limited to the hands. However, in some families additional skeletal and non-skeletal findings have been reported. We report on 12 affected members from a 5 generation kindred that segregates a brachydactyly type C phenotype. All affected individuals had shortness principally affecting the second and fifth phalanges and first metacarpal. However, the metacarpal-phalangeal profile indicated that other digital elements were short as well. In addition, one affected individual had a bilateral Madelung deformity, but none had foot involvement. No other non-skeletal findings cosegregated with brachydactyly in this family. Recently, a gene for brachydactyly type C has been localized to 12q24. This was done by studying a large kindred first reported by Haws [1963], which manifests both hand and foot anomalies. Here we present linkage data which excludes the 12q24 locus in our kindred, indicating locus heterogeneity as one explanation for the interfamilial variability described in brachydactyly type C.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 1295,
+    "num_annotations": 13,
+    "conversion_date": "2025-11-18T13:13:18.635710"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0009373",
+      "label": "Type C brachydactyly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 0,
+          "end_char": 20,
+          "text_snippet": "Brachydactyly type C"
+        },
+        {
+          "start_char": 481,
+          "end_char": 501,
+          "text_snippet": "brachydactyly type C"
+        },
+        {
+          "start_char": 932,
+          "end_char": 952,
+          "text_snippet": "brachydactyly type C"
+        },
+        {
+          "start_char": 1274,
+          "end_char": 1294,
+          "text_snippet": "brachydactyly type C"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004220",
+      "label": "Short middle phalanx of the 5th finger",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 41,
+          "end_char": 91,
+          "text_snippet": "shortness of the second and fifth middle phalanges"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 140,
+          "end_char": 164,
+          "text_snippet": "autosomal dominant trait"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003822",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 187,
+          "end_char": 254,
+          "text_snippet": "widely variable clinical phenotype both within and between families"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003813",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 194,
+          "end_char": 202,
+          "text_snippet": "variable"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000924",
+      "label": "Abnormality of the skeletal system",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 347,
+          "end_char": 381,
+          "text_snippet": "skeletal and non-skeletal findings"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009536",
+      "label": "Short 2nd finger",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 542,
+          "end_char": 625,
+          "text_snippet": "shortness principally affecting the second and fifth phalanges and first metacarpal"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003067",
+      "label": "Madelung deformity",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 771,
+          "end_char": 799,
+          "text_snippet": "bilateral Madelung deformity"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001760",
+      "label": "Abnormal foot morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 814,
+          "end_char": 830,
+          "text_snippet": "foot involvement"
+        },
+        {
+          "start_char": 1085,
+          "end_char": 1099,
+          "text_snippet": "foot anomalies"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001156",
+      "label": "Brachydactyly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 881,
+          "end_char": 894,
+          "text_snippet": "brachydactyly"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001155",
+      "label": "Abnormality of the hand",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1076,
+          "end_char": 1099,
+          "text_snippet": "hand and foot anomalies"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001425",
+      "label": "obsolete Heterogeneous",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1188,
+          "end_char": 1207,
+          "text_snippet": "locus heterogeneity"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003812",
+      "label": "Phenotypic variability",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1235,
+          "end_char": 1260,
+          "text_snippet": "interfamilial variability"
+        }
+      ]
+    }
+  ]
+}

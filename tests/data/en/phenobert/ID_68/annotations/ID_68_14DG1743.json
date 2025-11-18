@@ -1,0 +1,38 @@
+{
+  "doc_id": "ID-68_14DG1743",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "A 6.5 years old boy who was born at full term via NSVD with normal growth parameters at birth. Antenatal and perinatal history was unremarkable, and he was discharged home on the following day. His gross motor development has been appropriate for age. However, he seems to have a delay in fine motor and language domains. He still has immature finger grasp and cannot feed himself or dress himself. Parents are first-degree cousins, and they have two other children with intellectual disability. His last growth parameters at 6 years of age were weight 16.6 kg (10th-25th percentile), height 113 cm (on the 25th percentile) and head circumference 48.4 cm (5th-10th percentile). He has no dysmorphic features apart from bilateral clinodactyly. ",
+  "metadata": {
+    "dataset": "ID-68",
+    "text_length_chars": 743,
+    "num_annotations": 2,
+    "conversion_date": "2025-11-18T13:13:19.490375"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001249",
+      "label": "Intellectual disability",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 457,
+          "end_char": 494,
+          "text_snippet": "children with intellectual disability"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0030084",
+      "label": "Clinodactyly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 729,
+          "end_char": 741,
+          "text_snippet": "clinodactyly"
+        }
+      ]
+    }
+  ]
+}

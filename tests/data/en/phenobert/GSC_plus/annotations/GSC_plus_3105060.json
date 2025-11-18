@@ -1,0 +1,116 @@
+{
+  "doc_id": "GSC+_3105060",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Bilateral acoustic neurofibromatosis (BANF) is a genetic defect associated with multiple tumors of neural crest origin. Specific loss of alleles from chromosome 22 was detected with polymorphic DNA markers in two acoustic neuromas, two neurofibromas, and one meningioma from BANF patients. This indicates a common pathogenetic mechanism for all three tumor types. The two neurofibromas were among three taken from the same patient, and both showed loss of identical alleles demonstrating that the same chromosome suffered deletion in both tumors. The third neurofibroma from this patient showed no detectable loss of heterozygosity, which suggests the possibility of a more subtle mutational event that affects chromosome 22. In the two acoustic neuromas, only a portion of chromosome 22 was deleted, narrowing the possible chromosomal location of the gene that causes BANF to the region distal to the D22S9 locus in band 22q11. The identification of progressively smaller deletions on chromosome 22 in these tumor types may well provide a means to clone and characterize the defect.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 1083,
+    "num_annotations": 6,
+    "conversion_date": "2025-11-18T13:13:16.616512"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0009589",
+      "label": "Bilateral vestibular schwannoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 0,
+          "end_char": 36,
+          "text_snippet": "Bilateral acoustic neurofibromatosis"
+        },
+        {
+          "start_char": 38,
+          "end_char": 42,
+          "text_snippet": "BANF"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004375",
+      "label": "Neoplasm of the nervous system",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 80,
+          "end_char": 111,
+          "text_snippet": "multiple tumors of neural crest"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009588",
+      "label": "Vestibular schwannoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 213,
+          "end_char": 230,
+          "text_snippet": "acoustic neuromas"
+        },
+        {
+          "start_char": 737,
+          "end_char": 754,
+          "text_snippet": "acoustic neuromas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001067",
+      "label": "Neurofibroma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 236,
+          "end_char": 249,
+          "text_snippet": "neurofibromas"
+        },
+        {
+          "start_char": 372,
+          "end_char": 385,
+          "text_snippet": "neurofibromas"
+        },
+        {
+          "start_char": 557,
+          "end_char": 569,
+          "text_snippet": "neurofibroma"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002858",
+      "label": "Meningioma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 259,
+          "end_char": 269,
+          "text_snippet": "meningioma"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002664",
+      "label": "Neoplasm",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 351,
+          "end_char": 356,
+          "text_snippet": "tumor"
+        },
+        {
+          "start_char": 539,
+          "end_char": 545,
+          "text_snippet": "tumors"
+        },
+        {
+          "start_char": 1009,
+          "end_char": 1014,
+          "text_snippet": "tumor"
+        }
+      ]
+    }
+  ]
+}

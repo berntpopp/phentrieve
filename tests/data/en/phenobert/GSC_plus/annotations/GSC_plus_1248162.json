@@ -1,0 +1,151 @@
+{
+  "doc_id": "GSC+_1248162",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "The present report concerns a two-generation family of nine individuals in which the father and three of the six living children all had: (1) a mixed hearing loss with a Mondini type cochlear malformation and stapes fixation; (2) cup-shaped, anteverted pinnae with bilateral prehelical pits: (3) bilateral branchial cleft fistulas; and (4) bilateral renal dysplasia and anomalies of the collecting system. The father and one affected son also had aplasia of the lacrimal ducts. A fourth child who died at 5 months of age was reported to have branchial cleft fistulas and bilateral polycystic kidneys at autopsy. In addition, the concept of noso-embryologic communities is presented. Such groups are composed of syndromes whose total phenotypic spectra not only overlap but also share common elements in embryogenesis. This concept is illustrated with a group of branchial arch syndromes that are related in this way.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 916,
+    "num_annotations": 11,
+    "conversion_date": "2025-11-18T13:13:14.864427"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000410",
+      "label": "Mixed hearing impairment",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 144,
+          "end_char": 162,
+          "text_snippet": "mixed hearing loss"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000376",
+      "label": "Incomplete partition of the cochlea type II",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 170,
+          "end_char": 204,
+          "text_snippet": "Mondini type cochlear malformation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000381",
+      "label": "Stapes ankylosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 209,
+          "end_char": 224,
+          "text_snippet": "stapes fixation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000378",
+      "label": "Cupped ear",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 230,
+          "end_char": 259,
+          "text_snippet": "cup-shaped, anteverted pinnae"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004467",
+      "label": "Preauricular pit",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 275,
+          "end_char": 290,
+          "text_snippet": "prehelical pits"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009795",
+      "label": "Branchial fistula",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 306,
+          "end_char": 330,
+          "text_snippet": "branchial cleft fistulas"
+        },
+        {
+          "start_char": 542,
+          "end_char": 566,
+          "text_snippet": "branchial cleft fistulas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012582",
+      "label": "Bilateral renal dysplasia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 340,
+          "end_char": 365,
+          "text_snippet": "bilateral renal dysplasia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004742",
+      "label": "Abnormal renal collecting system morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 370,
+          "end_char": 404,
+          "text_snippet": "anomalies of the collecting system"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0007993",
+      "label": "Malformed lacrimal duct",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 447,
+          "end_char": 476,
+          "text_snippet": "aplasia of the lacrimal ducts"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000113",
+      "label": "Polycystic kidney dysplasia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 571,
+          "end_char": 599,
+          "text_snippet": "bilateral polycystic kidneys"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009794",
+      "label": "Branchial anomaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 862,
+          "end_char": 886,
+          "text_snippet": "branchial arch syndromes"
+        }
+      ]
+    }
+  ]
+}

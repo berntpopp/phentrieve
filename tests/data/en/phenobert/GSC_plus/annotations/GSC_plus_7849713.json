@@ -1,0 +1,111 @@
+{
+  "doc_id": "GSC+_7849713",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "The analysis of a de novo 8q12.2-q21.2 deletion led to the identification of a proposed previously undescribed contiguous gene syndrome consisting of Branchio-Oto-Renal (BOR) syndrome, Duane syndrome, hydrocephalus and trapeze aplasia. This is the first reported localization of the genes responsible for Duane syndrome and this dominant form of hydrocephalus. In contrast, we report a new localization for the gene responsible for BOR syndrome which is more telomeric to an initial placement. Linkage analysis of affected families consistently mapped the gene responsible for BOR and Branchio-Oto (BO) syndromes to within the deletion. Using new algorithms, a YAC contig was constructed and used to localize the breakpoint of another chromosomal rearrangement associated with BO syndrome to a 500 kb interval within the deletion. The 8q12.2-q21.2 deletion suggests that reduced dosage of the relevant genes is sufficient to cause Duane syndrome, BOR syndrome and this dominant form of hydrocephalus.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 1000,
+    "num_annotations": 6,
+    "conversion_date": "2025-11-18T13:13:17.753385"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0003745",
+      "label": "Sporadic",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 18,
+          "end_char": 25,
+          "text_snippet": "de novo"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001466",
+      "label": "Contiguous gene syndrome",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 111,
+          "end_char": 135,
+          "text_snippet": "contiguous gene syndrome"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009921",
+      "label": "Duane anomaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 185,
+          "end_char": 199,
+          "text_snippet": "Duane syndrome"
+        },
+        {
+          "start_char": 305,
+          "end_char": 319,
+          "text_snippet": "Duane syndrome"
+        },
+        {
+          "start_char": 931,
+          "end_char": 945,
+          "text_snippet": "Duane syndrome"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000238",
+      "label": "Hydrocephalus",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 201,
+          "end_char": 214,
+          "text_snippet": "hydrocephalus"
+        },
+        {
+          "start_char": 346,
+          "end_char": 359,
+          "text_snippet": "hydrocephalus"
+        },
+        {
+          "start_char": 986,
+          "end_char": 999,
+          "text_snippet": "hydrocephalus"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0006106",
+      "label": "Absent trapezoid bone",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 219,
+          "end_char": 234,
+          "text_snippet": "trapeze aplasia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 329,
+          "end_char": 337,
+          "text_snippet": "dominant"
+        },
+        {
+          "start_char": 969,
+          "end_char": 982,
+          "text_snippet": "dominant form"
+        }
+      ]
+    }
+  ]
+}

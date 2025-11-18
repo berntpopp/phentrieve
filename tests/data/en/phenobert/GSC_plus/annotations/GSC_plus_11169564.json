@@ -1,0 +1,123 @@
+{
+  "doc_id": "GSC+_11169564",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Hereditary isolated brachydactyly type C (OMIM 113100) mostly follows an autosomal dominant pattern of inheritance with a marked variability in expression. This phenotype has been mapped to two different loci on chromosomes 12q24 and 20q11.2. The latter locus contains the cartilage-derived morphogenetic protein (CDMP)1 gene, in which a null mutation has been found in patients with malformations restricted to the upper limbs. A more complex brachydactyly type C phenotype has been mapped to chromosome 12q24. Differences in complexity of these phenotypes have been attributed to locus heterogeneity. Clinical subclassification based on the degree of complexity of the phenotype has therefore been suggested. We present patients with a complex brachydactyly type C phenotype in whom there is considerable intra- and interfamilial variability in expression. We show that clinical subclassification based on the complexity of the brachydactyly type C phenotype related to the genetic defect is not feasible. We present evidence that differences in complexity are not only due to locus heterogeneity, but that genetic modifiers and/or environmental factors must also play a role.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 1178,
+    "num_annotations": 7,
+    "conversion_date": "2025-11-18T13:13:14.411445"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0009373",
+      "label": "Type C brachydactyly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 20,
+          "end_char": 40,
+          "text_snippet": "brachydactyly type C"
+        },
+        {
+          "start_char": 444,
+          "end_char": 464,
+          "text_snippet": "brachydactyly type C"
+        },
+        {
+          "start_char": 746,
+          "end_char": 766,
+          "text_snippet": "brachydactyly type C"
+        },
+        {
+          "start_char": 930,
+          "end_char": 950,
+          "text_snippet": "brachydactyly type C"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 73,
+          "end_char": 91,
+          "text_snippet": "autosomal dominant"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003828",
+      "label": "Variable expressivity",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 122,
+          "end_char": 154,
+          "text_snippet": "marked variability in expression"
+        },
+        {
+          "start_char": 832,
+          "end_char": 857,
+          "text_snippet": "variability in expression"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002817",
+      "label": "Abnormality of the upper limb",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 384,
+          "end_char": 427,
+          "text_snippet": "malformations restricted to the upper limbs"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001425",
+      "label": "obsolete Heterogeneous",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 582,
+          "end_char": 601,
+          "text_snippet": "locus heterogeneity"
+        },
+        {
+          "start_char": 1079,
+          "end_char": 1098,
+          "text_snippet": "locus heterogeneity"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003822",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 794,
+          "end_char": 843,
+          "text_snippet": "considerable intra- and interfamilial variability"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003812",
+      "label": "Phenotypic variability",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 818,
+          "end_char": 843,
+          "text_snippet": "interfamilial variability"
+        }
+      ]
+    }
+  ]
+}

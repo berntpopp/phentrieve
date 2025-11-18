@@ -1,0 +1,170 @@
+{
+  "doc_id": "ID-68_15DG0305",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "A 3 years old boy who was born at 32 weeks of gestation with multiple anomalies. Growth parameters at birth were weight 2.4 kg and head circumference 30 cm (< 3rd percentile). Developmentally, he was able to stand with support at the age of 26 months, and he currently can say only single words. His parents are first-degree cousins with three healthy children, and they had a daughter who died for an unknown reason. His examination was significant for left cleft lip and U shape cleft palate, flat face, micrognathia, syndactyly between the fourth and fifth metacarpals and metatarsals and flexion deformity with ulnar deviation of the metacarpophalangeal and interphalangeal joints, bilateral rocker bottom feet deformity and bowing of the lower extremities. Brain MRI was reported to be normal. Cardiac echocardiogram showed small atrial septal defect and small patent ductus arteriosus. His skeletal survey showed sclerosis of the skull sutures with prominent occiput, J-shaped sella, short sternum and small facial bones.",
+  "metadata": {
+    "dataset": "ID-68",
+    "text_length_chars": 1027,
+    "num_annotations": 13,
+    "conversion_date": "2025-11-18T13:13:19.602244"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0410030",
+      "label": "Cleft lip",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 454,
+          "end_char": 468,
+          "text_snippet": "left cleft lip"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000175",
+      "label": "Cleft palate",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 481,
+          "end_char": 493,
+          "text_snippet": "cleft palate"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012368",
+      "label": "Flat face",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 495,
+          "end_char": 504,
+          "text_snippet": "flat face"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000347",
+      "label": "Micrognathia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 506,
+          "end_char": 518,
+          "text_snippet": "micrognathia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001159",
+      "label": "Syndactyly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 520,
+          "end_char": 530,
+          "text_snippet": "syndactyly"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001371",
+      "label": "Flexion contracture",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 592,
+          "end_char": 609,
+          "text_snippet": "flexion deformity"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001838",
+      "label": "Rocker bottom foot",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 696,
+          "end_char": 724,
+          "text_snippet": "rocker bottom feet deformity"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001631",
+      "label": "Atrial septal defect",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 835,
+          "end_char": 855,
+          "text_snippet": "atrial septal defect"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001643",
+      "label": "Patent ductus arteriosus",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 866,
+          "end_char": 890,
+          "text_snippet": "patent ductus arteriosus"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004330",
+      "label": "Increased skull ossification",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 919,
+          "end_char": 941,
+          "text_snippet": "sclerosis of the skull"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0011329",
+      "label": "Abnormality of cranial sutures",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 919,
+          "end_char": 949,
+          "text_snippet": "sclerosis of the skull sutures"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000879",
+      "label": "Short sternum",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 990,
+          "end_char": 1003,
+          "text_snippet": "short sternum"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002692",
+      "label": "Hypoplastic facial bones",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1008,
+          "end_char": 1026,
+          "text_snippet": "small facial bones"
+        }
+      ]
+    }
+  ]
+}

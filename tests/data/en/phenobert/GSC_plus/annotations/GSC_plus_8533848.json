@@ -1,0 +1,108 @@
+{
+  "doc_id": "GSC+_8533848",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Branchiootorenal (BOR) syndrome is a variable, autosomal-dominant disorder of the first and second embryonic branchial arches, kidneys, and urinary tract. We describe the phenotype in 45 individuals, highlighting differences and similarities reported in other studies. Characteristic temporal bone findings include cochlear hypoplasia (4/5 of normal size with only 2 turns), dilation of the vestibular aqueduct, bulbous internal auditory canals, deep posterior fossae, and acutely-angled promontories.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 501,
+    "num_annotations": 7,
+    "conversion_date": "2025-11-18T13:13:18.201909"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0003813",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 37,
+          "end_char": 45,
+          "text_snippet": "variable"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 47,
+          "end_char": 65,
+          "text_snippet": "autosomal-dominant"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009794",
+      "label": "Branchial anomaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 109,
+          "end_char": 125,
+          "text_snippet": "branchial arches"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009911",
+      "label": "Abnormal temporal bone morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 284,
+          "end_char": 306,
+          "text_snippet": "temporal bone findings"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0008586",
+      "label": "Hypoplasia of the cochlea",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 315,
+          "end_char": 334,
+          "text_snippet": "cochlear hypoplasia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000359",
+      "label": "Abnormality of the inner ear",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 375,
+          "end_char": 410,
+          "text_snippet": "dilation of the vestibular aqueduct"
+        },
+        {
+          "start_char": 446,
+          "end_char": 467,
+          "text_snippet": "deep posterior fossae"
+        },
+        {
+          "start_char": 473,
+          "end_char": 500,
+          "text_snippet": "acutely-angled promontories"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004458",
+      "label": "Dilatated internal auditory canal",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 412,
+          "end_char": 444,
+          "text_snippet": "bulbous internal auditory canals"
+        }
+      ]
+    }
+  ]
+}

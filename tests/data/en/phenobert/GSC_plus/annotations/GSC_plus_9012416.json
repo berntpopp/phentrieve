@@ -1,0 +1,38 @@
+{
+  "doc_id": "GSC+_9012416",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Distal arthrogryposis type 1 (DA1) and Freeman-Sheldon syndrome (FSS) are the two most common known causes of inherited multiple congenital contractures. We recently have characterized a new disorder (DA2B) with a phenotype intermediate between DA1 and FSS. We report the mapping of a gene that causes DA2B to chromosome 11p15.5-pter. Linkage analysis in a single kindred generated a positive LOD score of 5.31 at theta = 0 with the marker D11S922, and recombinants localize the gene to an approximately 3.5-6.5-cM region between the marker TH and the telomere. Analysis of additional families improves the LOD score to 6.45 at theta = 0 and suggests linkage homogeneity for DA2B.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 680,
+    "num_annotations": 2,
+    "conversion_date": "2025-11-18T13:13:18.612993"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0005684",
+      "label": "Distal arthrogryposis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 0,
+          "end_char": 21,
+          "text_snippet": "Distal arthrogryposis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0005188",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 120,
+          "end_char": 152,
+          "text_snippet": "multiple congenital contractures"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,98 @@
+{
+  "doc_id": "GSC+_7200726",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "A mother and son with bilateral branchial sinuses, intrauterine and postnatal growth retardation, unusual facial appearance, and premature aging in the mother are reported. No other members of the family are similarly affected. No hormonal or systemic cause of growth retardation was identified. Chromosomal studies with G-banding were normal. It is suggested that this syndrome is a dominant trait, the mother being the initial mutant.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 436,
+    "num_annotations": 7,
+    "conversion_date": "2025-11-18T13:13:17.378331"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0009794",
+      "label": "Branchial anomaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 22,
+          "end_char": 49,
+          "text_snippet": "bilateral branchial sinuses"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001511",
+      "label": "Intrauterine growth retardation",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 51,
+          "end_char": 96,
+          "text_snippet": "intrauterine and postnatal growth retardation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0008897",
+      "label": "Postnatal growth retardation",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 68,
+          "end_char": 96,
+          "text_snippet": "postnatal growth retardation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002004",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 98,
+          "end_char": 123,
+          "text_snippet": "unusual facial appearance"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002216",
+      "label": "Premature graying of hair",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 129,
+          "end_char": 144,
+          "text_snippet": "premature aging"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001510",
+      "label": "Growth delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 261,
+          "end_char": 279,
+          "text_snippet": "growth retardation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 384,
+          "end_char": 398,
+          "text_snippet": "dominant trait"
+        }
+      ]
+    }
+  ]
+}

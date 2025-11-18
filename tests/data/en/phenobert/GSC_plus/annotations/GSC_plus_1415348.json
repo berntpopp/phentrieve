@@ -1,0 +1,204 @@
+{
+  "doc_id": "GSC+_1415348",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "We report on a woman who was diagnosed with branchio-oto-renal (BOR) syndrome after 2 pregnancies complicated by oligohydramnios due to renal hypoplasia and agenesis. Both babies died neonatally of pulmonary hypoplasia. Histopathology of the temporal bones of the second child showed marked immaturity of the middle ear cleft, ossicles, facial nerve and canal, and cochlear nerve. Maternal renal ultrasound study was normal although intravenous pyelography indicated renal hypoplasia. The frequency of BOR syndrome among cases of recurrent fetal renal hypoplasia/dysplasia or agenesis is unknown, and parental renal ultrasonography may not identify a heritable renal defect. Investigations should include a family history, and examination of relatives to look for preauricular pits, lacrimal duct stenosis, and branchial fistulae and/or cysts. Hearing studies and IVP may be indicated.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 885,
+    "num_annotations": 15,
+    "conversion_date": "2025-11-18T13:13:15.128245"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001562",
+      "label": "Oligohydramnios",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 113,
+          "end_char": 128,
+          "text_snippet": "oligohydramnios"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000089",
+      "label": "Renal hypoplasia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 136,
+          "end_char": 152,
+          "text_snippet": "renal hypoplasia"
+        },
+        {
+          "start_char": 467,
+          "end_char": 483,
+          "text_snippet": "renal hypoplasia"
+        },
+        {
+          "start_char": 546,
+          "end_char": 562,
+          "text_snippet": "renal hypoplasia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0008680",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 136,
+          "end_char": 165,
+          "text_snippet": "renal hypoplasia and agenesis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003811",
+      "label": "Neonatal death",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 179,
+          "end_char": 194,
+          "text_snippet": "died neonatally"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002089",
+      "label": "Pulmonary hypoplasia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 198,
+          "end_char": 218,
+          "text_snippet": "pulmonary hypoplasia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010827",
+      "label": "Abnormal seventh cranial physiology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 291,
+          "end_char": 349,
+          "text_snippet": "immaturity of the middle ear cleft, ossicles, facial nerve"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000375",
+      "label": "Abnormal cochlea morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 291,
+          "end_char": 379,
+          "text_snippet": "immaturity of the middle ear cleft, ossicles, facial nerve and canal, and cochlear nerve"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000110",
+      "label": "Renal dysplasia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 546,
+          "end_char": 572,
+          "text_snippet": "renal hypoplasia/dysplasia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000104",
+      "label": "Renal agenesis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 546,
+          "end_char": 584,
+          "text_snippet": "renal hypoplasia/dysplasia or agenesis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000077",
+      "label": "Abnormality of the kidney",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 661,
+          "end_char": 673,
+          "text_snippet": "renal defect"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004467",
+      "label": "Preauricular pit",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 764,
+          "end_char": 781,
+          "text_snippet": "preauricular pits"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0007925",
+      "label": "Lacrimal duct aplasia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 783,
+          "end_char": 805,
+          "text_snippet": "lacrimal duct stenosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009795",
+      "label": "Branchial fistula",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 811,
+          "end_char": 829,
+          "text_snippet": "branchial fistulae"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009796",
+      "label": "Branchial cyst",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 811,
+          "end_char": 842,
+          "text_snippet": "branchial fistulae and/or cysts"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000365",
+      "label": "Hearing impairment",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 844,
+          "end_char": 859,
+          "text_snippet": "Hearing studies"
+        }
+      ]
+    }
+  ]
+}

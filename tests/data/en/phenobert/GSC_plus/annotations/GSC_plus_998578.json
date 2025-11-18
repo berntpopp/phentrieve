@@ -1,0 +1,166 @@
+{
+  "doc_id": "GSC+_998578",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "A woman with the autosomal dominant syndrome of preauricular pits, cervical fistulae, and partial deafness gave birth to two children with preauricular pits and severe renal dysgenesis. The facies had some features of the Potter facies of renal agenesis. One child died soon after birth because of pneumothorax and immature development of the lungs. We suggest that all infants with renal agenesis or dysgenesis be examined for preauricular pits because of the high recurrence risk of renal anomalies in families with this syndrome.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 532,
+    "num_annotations": 11,
+    "conversion_date": "2025-11-18T13:13:19.104532"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 17,
+          "end_char": 35,
+          "text_snippet": "autosomal dominant"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004467",
+      "label": "Preauricular pit",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 48,
+          "end_char": 65,
+          "text_snippet": "preauricular pits"
+        },
+        {
+          "start_char": 139,
+          "end_char": 156,
+          "text_snippet": "preauricular pits"
+        },
+        {
+          "start_char": 428,
+          "end_char": 445,
+          "text_snippet": "preauricular pits"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009795",
+      "label": "Branchial fistula",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 67,
+          "end_char": 84,
+          "text_snippet": "cervical fistulae"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000365",
+      "label": "Hearing impairment",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 90,
+          "end_char": 106,
+          "text_snippet": "partial deafness"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0008680",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 161,
+          "end_char": 184,
+          "text_snippet": "severe renal dysgenesis"
+        },
+        {
+          "start_char": 383,
+          "end_char": 411,
+          "text_snippet": "renal agenesis or dysgenesis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002009",
+      "label": "Potter facies",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 222,
+          "end_char": 235,
+          "text_snippet": "Potter facies"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000104",
+      "label": "Renal agenesis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 239,
+          "end_char": 253,
+          "text_snippet": "renal agenesis"
+        },
+        {
+          "start_char": 383,
+          "end_char": 397,
+          "text_snippet": "renal agenesis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001432",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 265,
+          "end_char": 286,
+          "text_snippet": "died soon after birth"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002107",
+      "label": "Pneumothorax",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 298,
+          "end_char": 310,
+          "text_snippet": "pneumothorax"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002088",
+      "label": "Abnormal lung morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 315,
+          "end_char": 348,
+          "text_snippet": "immature development of the lungs"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000077",
+      "label": "Abnormality of the kidney",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 485,
+          "end_char": 500,
+          "text_snippet": "renal anomalies"
+        }
+      ]
+    }
+  ]
+}

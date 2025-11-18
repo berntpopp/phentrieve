@@ -1,0 +1,67 @@
+{
+  "doc_id": "GSC+_11342693",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "A retrospective review of 29 consecutive unselected patients referred for neuro-ophthalmic evaluation after the diagnosis of neurofibromatosis type 2 (NF2) showed that four of them had a monocular elevator paresis. In two of the four MRI demonstrated lesions, presumed to be schwannomas, of the third nerve. These findings indicate that monocular elevator paresis is a common neuro-ophthalmic finding in NF2, which the authors suspect is probably a sign of third nerve infiltration or compression by a schwannoma.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 513,
+    "num_annotations": 4,
+    "conversion_date": "2025-11-18T13:13:14.468972"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0006746",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 125,
+          "end_char": 142,
+          "text_snippet": "neurofibromatosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0006860",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 187,
+          "end_char": 213,
+          "text_snippet": "monocular elevator paresis"
+        },
+        {
+          "start_char": 337,
+          "end_char": 363,
+          "text_snippet": "monocular elevator paresis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001291",
+      "label": "Abnormal cranial nerve morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 275,
+          "end_char": 306,
+          "text_snippet": "schwannomas, of the third nerve"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100008",
+      "label": "Schwannoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 502,
+          "end_char": 512,
+          "text_snippet": "schwannoma"
+        }
+      ]
+    }
+  ]
+}

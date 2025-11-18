@@ -1,0 +1,169 @@
+{
+  "doc_id": "GSC+_7747758",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "To determine the spectrum of manifestations in neurofibromatosis 2 (NF2) and to assess possible heterogeneity, we evaluated 63 affected individuals from 32 families. Work-up included skin and neurologic examinations, audiometry, a complete ophthalmology examination with slit-lamp biomicroscopy of the lens and fundus, and gadolinium-enhanced MRI of the brain and, in some, of the spine. Mean age-at-onset in 58 individuals was 20.3 years; initial symptoms resulted from vestibular schwannomas (44.4%), other CNS tumors (22.2%), skin tumors (12.7%), and ocular manifestations including cataracts and retinal hamartomas (12.7%). Five asymptomatic individuals were diagnosed through screening. Vestibular schwannomas were documented in 62 individuals (98.4%); other findings included cataracts (81.0%), skin tumors (67.7%), spinal tumors (67.4%), and meningiomas (49.2%). Usually, clinical manifestations and course were similar within families but differed among families. To assess possible heterogeneity, we assigned affected individuals to three proposed subtypes (representing mild, intermediate, and severe NF2) based on age-at-onset, presence or absence of CNS tumors other than vestibular schwannomas, and presence or absence of retinal hamartomas. Comparisons among the three subtypes for many clinical parameters demonstrated that patients in the mild subtype differed from those in the other two subtypes for most parameters, but that none of the parameters distinguished patients in the intermediate subtype from those in the severe subtype. Thus, there are likely two rather than three subtypes of NF2. Classification of patients to subtype may aid in counseling about long-term prognosis and in formulating individualized guidelines for medical surveillance.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 1770,
+    "num_annotations": 10,
+    "conversion_date": "2025-11-18T13:13:17.640503"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0006746",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 47,
+          "end_char": 64,
+          "text_snippet": "neurofibromatosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001425",
+      "label": "obsolete Heterogeneous",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 96,
+          "end_char": 109,
+          "text_snippet": "heterogeneity"
+        },
+        {
+          "start_char": 991,
+          "end_char": 1004,
+          "text_snippet": "heterogeneity"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009588",
+      "label": "Vestibular schwannoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 471,
+          "end_char": 493,
+          "text_snippet": "vestibular schwannomas"
+        },
+        {
+          "start_char": 692,
+          "end_char": 714,
+          "text_snippet": "Vestibular schwannomas"
+        },
+        {
+          "start_char": 1184,
+          "end_char": 1206,
+          "text_snippet": "vestibular schwannomas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004375",
+      "label": "Neoplasm of the nervous system",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 509,
+          "end_char": 519,
+          "text_snippet": "CNS tumors"
+        },
+        {
+          "start_char": 1162,
+          "end_char": 1172,
+          "text_snippet": "CNS tumors"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0008069",
+      "label": "Neoplasm of the skin",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 529,
+          "end_char": 540,
+          "text_snippet": "skin tumors"
+        },
+        {
+          "start_char": 801,
+          "end_char": 812,
+          "text_snippet": "skin tumors"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000478",
+      "label": "Abnormality of the eye",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 554,
+          "end_char": 575,
+          "text_snippet": "ocular manifestations"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000518",
+      "label": "Cataract",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 586,
+          "end_char": 595,
+          "text_snippet": "cataracts"
+        },
+        {
+          "start_char": 782,
+          "end_char": 791,
+          "text_snippet": "cataracts"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009594",
+      "label": "Retinal hamartoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 600,
+          "end_char": 618,
+          "text_snippet": "retinal hamartomas"
+        },
+        {
+          "start_char": 1235,
+          "end_char": 1253,
+          "text_snippet": "retinal hamartomas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010302",
+      "label": "Spinal cord tumor",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 822,
+          "end_char": 835,
+          "text_snippet": "spinal tumors"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002858",
+      "label": "Meningioma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 849,
+          "end_char": 860,
+          "text_snippet": "meningiomas"
+        }
+      ]
+    }
+  ]
+}

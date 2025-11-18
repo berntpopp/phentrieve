@@ -1,0 +1,99 @@
+{
+  "doc_id": "GSC+_1931625",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "We have investigated the incidence of Gorlin syndrome (GS) in patients with the childhood brain tumour, medulloblastoma. One hundred and seventy-three consecutive cases of medulloblastoma in the North-West Regional Health Authority between 1954 and 1989 (Manchester Regional Health Board before 1974) were studied. After review of case notes, X-rays and health surveys only 2/173 cases had evidence supporting a diagnosis of GS. A further case at 50% risk of GS died of a brain tumour aged 4 years. The incidence of GS in medulloblastoma is, therefore, probably between 1-2%. A population based study of GS in the region started in 1983 was used to assess the incidence of medulloblastoma in GS, which was found to be between 3-5%. This figure is lower than previous estimates, but this is the first population based study undertaken. In view of the early age of onset in GS (mean 2 years) children presenting with medulloblastoma, especially under 5 years, should be examined for signs of the syndrome. Those at high risk of developing multiple invasive basal cell carcinomata will then be identified.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 1102,
+    "num_annotations": 5,
+    "conversion_date": "2025-11-18T13:13:16.052888"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0011463",
+      "label": "Childhood onset",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 80,
+          "end_char": 89,
+          "text_snippet": "childhood"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100006",
+      "label": "Neoplasm of the central nervous system",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 90,
+          "end_char": 102,
+          "text_snippet": "brain tumour"
+        },
+        {
+          "start_char": 472,
+          "end_char": 484,
+          "text_snippet": "brain tumour"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002885",
+      "label": "Medulloblastoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 104,
+          "end_char": 119,
+          "text_snippet": "medulloblastoma"
+        },
+        {
+          "start_char": 172,
+          "end_char": 187,
+          "text_snippet": "medulloblastoma"
+        },
+        {
+          "start_char": 522,
+          "end_char": 537,
+          "text_snippet": "medulloblastoma"
+        },
+        {
+          "start_char": 673,
+          "end_char": 688,
+          "text_snippet": "medulloblastoma"
+        },
+        {
+          "start_char": 915,
+          "end_char": 930,
+          "text_snippet": "medulloblastoma"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003593",
+      "label": "Infantile onset",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 850,
+          "end_char": 868,
+          "text_snippet": "early age of onset"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002671",
+      "label": "Basal cell carcinoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1055,
+          "end_char": 1077,
+          "text_snippet": "basal cell carcinomata"
+        }
+      ]
+    }
+  ]
+}

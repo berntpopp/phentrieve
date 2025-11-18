@@ -1,0 +1,98 @@
+{
+  "doc_id": "GSC+_6928117",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "A family with the Popliteal Pterygium Syndrome is presented. The father was born with a cleft of the palate and lower lip pits. Two of the three offspring showed extensive involvement of the palate, gums, and lips with minimal involvement of the lower limbs, genitalia, and nails.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 280,
+    "num_annotations": 7,
+    "conversion_date": "2025-11-18T13:13:17.220041"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0009756",
+      "label": "Popliteal pterygium",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 18,
+          "end_char": 37,
+          "text_snippet": "Popliteal Pterygium"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000175",
+      "label": "Cleft palate",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 88,
+          "end_char": 107,
+          "text_snippet": "cleft of the palate"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000196",
+      "label": "Lower lip pit",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 112,
+          "end_char": 126,
+          "text_snippet": "lower lip pits"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000159",
+      "label": "Abnormal lip morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 172,
+          "end_char": 213,
+          "text_snippet": "involvement of the palate, gums, and lips"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000174",
+      "label": "Abnormal palate morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 172,
+          "end_char": 197,
+          "text_snippet": "involvement of the palate"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001597",
+      "label": "Abnormal nail morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 227,
+          "end_char": 279,
+          "text_snippet": "involvement of the lower limbs, genitalia, and nails"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000078",
+      "label": "Abnormality of the genital system",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 227,
+          "end_char": 268,
+          "text_snippet": "involvement of the lower limbs, genitalia"
+        }
+      ]
+    }
+  ]
+}

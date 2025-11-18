@@ -1,0 +1,110 @@
+{
+  "doc_id": "ID-68_13DG1545",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Patient 1 and 2 are two sisters 6 and 7 years old, respectively, with developmental delay, ADHD, and recurrent respiratory infections since age 6 months. Both of them have language delay and intellectual disability as well as higher cerebral function deficit. They are the product of consanguineous marriage with no history of abortion or neonatal death; however, there is a positive family history of a similar condition. They share similar facial features with down slanting eyes, low hairline, prominent nose, and mild hyperplasia of the maxilla. They also noted to have flattened nails, otherwise normal dermatological examination. All other examinations were within normal limits. Growth parameters for patient 1 at 6 years of age were weight 19.4 kg (75th percentile), height 102 cm (10th-25th percentile) and head circumference 48 cm (10th -25th percentile). Growth parameters for patient 2 at 7 years of age were weight 14.3 kg (25th percentile), height 104 cm (10th percentile) and head circumference 49 cm (10th percentile).",
+  "metadata": {
+    "dataset": "ID-68",
+    "text_length_chars": 1034,
+    "num_annotations": 8,
+    "conversion_date": "2025-11-18T13:13:19.334532"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001263",
+      "label": "Global developmental delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 65,
+          "end_char": 89,
+          "text_snippet": "with developmental delay"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0007018",
+      "label": "Attention deficit hyperactivity disorder",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 91,
+          "end_char": 95,
+          "text_snippet": "ADHD"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002205",
+      "label": "Recurrent respiratory infections",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 101,
+          "end_char": 133,
+          "text_snippet": "recurrent respiratory infections"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000750",
+      "label": "Delayed speech and language development",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 172,
+          "end_char": 186,
+          "text_snippet": "language delay"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001249",
+      "label": "Intellectual disability",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 191,
+          "end_char": 214,
+          "text_snippet": "intellectual disability"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001999",
+      "label": "Abnormal facial shape",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 434,
+          "end_char": 457,
+          "text_snippet": "similar facial features"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000448",
+      "label": "Prominent nose",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 497,
+          "end_char": 511,
+          "text_snippet": "prominent nose"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0430028",
+      "label": "Hyperplasia of the maxilla",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 517,
+          "end_char": 548,
+          "text_snippet": "mild hyperplasia of the maxilla"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,91 @@
+{
+  "doc_id": "GSC+_9225971",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "The case of a seriously disabled and retarded female patient with neurofibromatosis type 2 (NF2) is reported. She suffered from bilateral vestibular schwannomas, multiple intracranial meningiomas and neurinomas. The constitutional karyotype of the patient was 46, XX, r(22)/45,XX,-22. A constitutional G to A transition in the proximal 3' untranslated region of isoforms 1 and 2 was identified in the patient's NF2 gene and shown not to affect differential splicing or mRNA stability. The instability of the ring chromosome 22 with the associated loss of tumor suppressor genes on chromosome 22, in particular the loss of the NF2 gene, are assumed to have caused multiple tumorigenesis in this patient.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 702,
+    "num_annotations": 6,
+    "conversion_date": "2025-11-18T13:13:18.746327"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001263",
+      "label": "Global developmental delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 37,
+          "end_char": 45,
+          "text_snippet": "retarded"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0006746",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 66,
+          "end_char": 83,
+          "text_snippet": "neurofibromatosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009589",
+      "label": "Bilateral vestibular schwannoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 128,
+          "end_char": 160,
+          "text_snippet": "bilateral vestibular schwannomas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003008",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 162,
+          "end_char": 195,
+          "text_snippet": "multiple intracranial meningiomas"
+        },
+        {
+          "start_char": 663,
+          "end_char": 685,
+          "text_snippet": "multiple tumorigenesis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009588",
+      "label": "Vestibular schwannoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 200,
+          "end_char": 210,
+          "text_snippet": "neurinomas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002664",
+      "label": "Neoplasm",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 555,
+          "end_char": 560,
+          "text_snippet": "tumor"
+        }
+      ]
+    }
+  ]
+}

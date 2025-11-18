@@ -1,0 +1,50 @@
+{
+  "doc_id": "GSC+_3281570",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "We report a type C brachydactyly transmitted through four generations, with incomplete penetrance and feet abnormalities in the proposita.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 138,
+    "num_annotations": 3,
+    "conversion_date": "2025-11-18T13:13:16.699396"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0009373",
+      "label": "Type C brachydactyly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 12,
+          "end_char": 32,
+          "text_snippet": "type C brachydactyly"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003829",
+      "label": "Typified by incomplete penetrance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 76,
+          "end_char": 97,
+          "text_snippet": "incomplete penetrance"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001760",
+      "label": "Abnormal foot morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 102,
+          "end_char": 120,
+          "text_snippet": "feet abnormalities"
+        }
+      ]
+    }
+  ]
+}

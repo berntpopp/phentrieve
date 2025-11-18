@@ -1,0 +1,72 @@
+{
+  "doc_id": "GSC+_1619642",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "Two sibs with the branchio-oculo-facial syndrome are reported. They both have orbital haemangiomatous cysts, which is a previously unreported feature. Both parents are clinically normal and unrelated. This disorder has been reported showing autosomal dominant transmission so this family could represent either an autosomal recessive form or germline mosaicism for the dominant gene.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 383,
+    "num_annotations": 4,
+    "conversion_date": "2025-11-18T13:13:15.549942"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001144",
+      "label": "Orbital cyst",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 78,
+          "end_char": 107,
+          "text_snippet": "orbital haemangiomatous cysts"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 241,
+          "end_char": 259,
+          "text_snippet": "autosomal dominant"
+        },
+        {
+          "start_char": 251,
+          "end_char": 272,
+          "text_snippet": "dominant transmission"
+        },
+        {
+          "start_char": 369,
+          "end_char": 377,
+          "text_snippet": "dominant"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000007",
+      "label": "Autosomal recessive inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 314,
+          "end_char": 338,
+          "text_snippet": "autosomal recessive form"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001442",
+      "label": "Typified by somatic mosaicism",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 342,
+          "end_char": 360,
+          "text_snippet": "germline mosaicism"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "doc_id": "ID-68_16DG0201",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "These are two siblings with global developmental delay, a boy 42 months old and a girl 16 months old. They were born at full term via a C-section and vaginal delivery, respectively. They both have hypotonia and autistic features, and IQ was estimated to be 35 for both. Their parents are first-degree cousins, and they have had two deceased children with a similar condition. Their shared dysmorphic features are brachydactyly and microcephaly. Brain MRI and EEG were normal. Other examinations were within normal limits.",
+  "metadata": {
+    "dataset": "ID-68",
+    "text_length_chars": 521,
+    "num_annotations": 5,
+    "conversion_date": "2025-11-18T13:13:19.985538"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001263",
+      "label": "Global developmental delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 14,
+          "end_char": 54,
+          "text_snippet": "siblings with global developmental delay"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001290",
+      "label": "Generalized hypotonia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 197,
+          "end_char": 206,
+          "text_snippet": "hypotonia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000729",
+      "label": "Autistic behavior",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 211,
+          "end_char": 228,
+          "text_snippet": "autistic features"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001156",
+      "label": "Brachydactyly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 413,
+          "end_char": 426,
+          "text_snippet": "brachydactyly"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000252",
+      "label": "Microcephaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 431,
+          "end_char": 443,
+          "text_snippet": "microcephaly"
+        }
+      ]
+    }
+  ]
+}

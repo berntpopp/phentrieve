@@ -1,0 +1,139 @@
+{
+  "doc_id": "ID-68_10DG0840",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "A 7 years old girl with failure to thrive. She was born via C-section at 39 weeks of gestational age due to breech presentation to G2P1+0 23 years old mother following an uneventful pregnancy. Growth parameters at birth were weight 2.6 KG, length 48 cm and head circumference 34.5 cm. The first concern was a poor weight gain at early months of life, and she underwent a full clinical evaluation that was negative. Developmentally, she started to walk at 14 months and started saying mama and dada at 2 years of age. She can now speak in full sentences but strangers find some difficulties in understanding her speech secondary to her dysarthria. Gross motor skills are appropriate for age. Her IQ was estimated to be 90 at 6 years of age. She also had atrial fibrillation since very young age. Parents are first-degree cousins, and she has a brother with developmental delay. There is a family history of intellectual disability in a paternal cousin. Her examination was significant for subtle dysmorphic features, dental anomalies, ataxic gait, hyperreflexia and metatarsus adductus. Her growth parameters at 7 years of age were weight 12.7 kg (<3rd percentile), height 102.2 cm (<3rd percentile) and head circumference 50 cm (25th-50th percentile).",
+  "metadata": {
+    "dataset": "ID-68",
+    "text_length_chars": 1251,
+    "num_annotations": 10,
+    "conversion_date": "2025-11-18T13:13:19.181487"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001508",
+      "label": "Failure to thrive",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 24,
+          "end_char": 41,
+          "text_snippet": "failure to thrive"
+        },
+        {
+          "start_char": 309,
+          "end_char": 325,
+          "text_snippet": "poor weight gain"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001623",
+      "label": "Breech presentation",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 108,
+          "end_char": 127,
+          "text_snippet": "breech presentation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001260",
+      "label": "Dysarthria",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 635,
+          "end_char": 645,
+          "text_snippet": "dysarthria"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0005110",
+      "label": "Atrial fibrillation",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 753,
+          "end_char": 772,
+          "text_snippet": "atrial fibrillation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001263",
+      "label": "Global developmental delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 856,
+          "end_char": 875,
+          "text_snippet": "developmental delay"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001249",
+      "label": "Intellectual disability",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 895,
+          "end_char": 929,
+          "text_snippet": "history of intellectual disability"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000164",
+      "label": "Abnormality of the dentition",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1016,
+          "end_char": 1032,
+          "text_snippet": "dental anomalies"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002066",
+      "label": "Gait ataxia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1034,
+          "end_char": 1045,
+          "text_snippet": "ataxic gait"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001347",
+      "label": "Hyperreflexia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1047,
+          "end_char": 1060,
+          "text_snippet": "hyperreflexia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001840",
+      "label": "Metatarsus adductus",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1065,
+          "end_char": 1084,
+          "text_snippet": "metatarsus adductus"
+        }
+      ]
+    }
+  ]
+}

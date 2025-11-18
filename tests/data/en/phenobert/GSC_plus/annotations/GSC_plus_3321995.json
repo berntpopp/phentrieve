@@ -1,0 +1,302 @@
+{
+  "doc_id": "GSC+_3321995",
+  "language": "en",
+  "source": "phenobert",
+  "full_text": "We observed an autosomal dominant disorder of abnormal upper lip, which resembles a poorly repaired cleft lip, malformed nose with broad bridge and flattened tip, lacrimal duct obstruction, malformed ears, and branchial cleft sinuses and/or linear skin lesions behind the ears in several persons in 3 families. In each of the 3 families, an affected parent had at least one affected child. Father-to-son transmission in one of these families ruled out X-linked inheritance. Other anomalies include coloboma, microphthalmia, auricular pits, lip pits, highly arched plate, dental anomalies, and subcutaneous cysts of the scalp. Premature graying of hair occurred in the affected adults. Growth retardation, developmental delay, and hand anomalies are variable components of the syndrome.",
+  "metadata": {
+    "dataset": "GSC+",
+    "text_length_chars": 785,
+    "num_annotations": 24,
+    "conversion_date": "2025-11-18T13:13:16.762821"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 15,
+          "end_char": 42,
+          "text_snippet": "autosomal dominant disorder"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000177",
+      "label": "Abnormal upper lip morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 46,
+          "end_char": 64,
+          "text_snippet": "abnormal upper lip"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100333",
+      "label": "Unilateral cleft lip",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 100,
+          "end_char": 109,
+          "text_snippet": "cleft lip"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000366",
+      "label": "Abnormality of the nose",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 111,
+          "end_char": 125,
+          "text_snippet": "malformed nose"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000431",
+      "label": "Wide nasal bridge",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 131,
+          "end_char": 143,
+          "text_snippet": "broad bridge"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000437",
+      "label": "Depressed nasal tip",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 148,
+          "end_char": 161,
+          "text_snippet": "flattened tip"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000579",
+      "label": "Nasolacrimal duct obstruction",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 163,
+          "end_char": 188,
+          "text_snippet": "lacrimal duct obstruction"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000377",
+      "label": "Abnormal pinna morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 190,
+          "end_char": 204,
+          "text_snippet": "malformed ears"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009794",
+      "label": "Branchial anomaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 210,
+          "end_char": 233,
+          "text_snippet": "branchial cleft sinuses"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004464",
+      "label": "Postauricular pit",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 241,
+          "end_char": 276,
+          "text_snippet": "linear skin lesions behind the ears"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001417",
+      "label": "X-linked inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 452,
+          "end_char": 472,
+          "text_snippet": "X-linked inheritance"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000589",
+      "label": "Coloboma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 498,
+          "end_char": 506,
+          "text_snippet": "coloboma"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000568",
+      "label": "Microphthalmia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 508,
+          "end_char": 522,
+          "text_snippet": "microphthalmia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004467",
+      "label": "Preauricular pit",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 524,
+          "end_char": 538,
+          "text_snippet": "auricular pits"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000196",
+      "label": "Lower lip pit",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 540,
+          "end_char": 548,
+          "text_snippet": "lip pits"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000156",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 550,
+          "end_char": 569,
+          "text_snippet": "highly arched plate"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000164",
+      "label": "Abnormality of the dentition",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 571,
+          "end_char": 587,
+          "text_snippet": "dental anomalies"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0200040",
+      "label": "Epidermoid cyst",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 593,
+          "end_char": 611,
+          "text_snippet": "subcutaneous cysts"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001965",
+      "label": "Abnormal scalp morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 606,
+          "end_char": 624,
+          "text_snippet": "cysts of the scalp"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002216",
+      "label": "Premature graying of hair",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 626,
+          "end_char": 651,
+          "text_snippet": "Premature graying of hair"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001510",
+      "label": "Growth delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 685,
+          "end_char": 703,
+          "text_snippet": "Growth retardation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001263",
+      "label": "Global developmental delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 705,
+          "end_char": 724,
+          "text_snippet": "developmental delay"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001155",
+      "label": "Abnormality of the hand",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 730,
+          "end_char": 744,
+          "text_snippet": "hand anomalies"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003813",
+      "label": "UNKNOWN",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 749,
+          "end_char": 757,
+          "text_snippet": "variable"
+        }
+      ]
+    }
+  ]
+}
