@@ -48,13 +48,13 @@ nav:
     - 'Frontend Usage': 'user-guide/frontend-usage.md'
   - 'Core Concepts':
     - 'Overview': 'core-concepts/index.md'
-    - 'RAG-HPO': 'core-concepts/rag-hpo.md'
     - 'Multilingual Embeddings': 'core-concepts/multilingual-embeddings.md'
     - 'Reranking': 'core-concepts/reranking.md'
     - 'Ontology Similarity': 'core-concepts/ontology-similarity.md'
     - 'Logo Design': 'core-concepts/logo.md'
   - 'Advanced Topics':
     - 'Overview': 'advanced-topics/index.md'
+    - 'Algorithms and Packages': 'advanced-topics/algorithms-and-packages.md'
     - 'Text Processing Pipeline': 'advanced-topics/text-processing-pipeline.md'
     - 'Benchmarking Framework': 'advanced-topics/benchmarking-framework.md'
   - 'Deployment':

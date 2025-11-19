@@ -1,6 +1,6 @@
 # CLI Usage Guide
 
-Phentrieve provides a comprehensive command-line interface (CLI) for accessing all its functionality. This guide covers the main commands and their options.
+Phentrieve provides a comprehensive command-line interface (CLI) built with Typer for accessing all its functionality. This guide covers the main commands and their options.
 
 ## Command Structure
 
@@ -9,6 +9,14 @@ Phentrieve commands follow this general structure:
 ```bash
 phentrieve <command> <subcommand> [options]
 ```
+
+## Global Options
+
+Available for all commands:
+
+*   `--debug`: Enable verbose logging for debugging purposes
+*   `--version`: Show version information and exit
+*   `--help`: Show help message for any command
 
 ## Available Commands
 
@@ -59,26 +67,73 @@ phentrieve query --text "The patient shows microcephaly and seizures"
 
 ### Text Processing
 
-Process clinical text to extract HPO terms:
+Process clinical text to extract HPO terms with advanced pipeline:
 
 ```bash
-# Process a text file
-phentrieve text process --input-file clinical_notes.txt --output-file results.json
+# Basic processing with default strategy
+phentrieve text process "Patient has arachnodactyly but no scoliosis"
 
-# Process text directly
-phentrieve text process "The patient exhibits microcephaly and frequent seizures."
+# Process with specific chunking strategy
+phentrieve text process "..." --strategy sliding_window_punct_conj_cleaned
+
+# Output as JSON Lines for machine parsing (useful for pipelines)
+phentrieve text process "..." --output-format json_lines
+
+# Process from file and save to file
+phentrieve text process --input-file notes.txt --output-file results.jsonl \
+  --output-format json_lines
+
+# Override sliding window parameters for fine-tuning
+phentrieve text process "..." \
+  --strategy sliding_window_punct_conj_cleaned \
+  --window-size 10 \
+  --step-size 2 \
+  --threshold 0.4 \
+  --min-segment 5
+```
+
+#### Available Chunking Strategies
+
+*   **`simple`**: Paragraph → Sentence splitting (fastest, least granular)
+*   **`sliding_window`**: Semantic sliding window only
+*   **`sliding_window_punct_conj_cleaned`** (Default): Full pipeline with:
+    - Paragraph splitting
+    - Sentence splitting
+    - Fine-grained punctuation splitting
+    - Conjunction splitting
+    - Semantic sliding window
+    - Final chunk cleaning
+
+#### Output Formats
+
+*   **`json_lines`** (Default): JSON Lines format - one JSON object per line (machine-readable)
+*   **`rich_json_summary`**: Rich JSON with complete metadata (human + machine readable)
+*   **`csv_hpo_list`**: CSV format with HPO IDs and labels (spreadsheet-friendly)
+
+Example JSON Lines output:
+```json
+{"chunk_index":0,"chunk_text":"Patient has arachnodactyly","assertion":"affirmed","matches":[{"hpo_id":"HP:0001166","label":"Arachnodactyly","score":0.89}]}
+{"chunk_index":1,"chunk_text":"no scoliosis","assertion":"negated","matches":[{"hpo_id":"HP:0002650","label":"Scoliosis","score":0.92}]}
 ```
 
 #### Text Processing Options
 
-- `--min-confidence`: Set a threshold for minimum similarity score (0.0-1.0)
-- `--top-term-per-chunk`: Return only the highest-scoring HPO term for each text chunk
-- `--strategy`: Choose text chunking strategy (simple, semantic, detailed, sliding_window)
-- `--language`: Specify text language for accurate chunking and assertion detection
-- `--window-size`: Size of the sliding window (for sliding_window strategy)
-- `--step-size`: Step size for the sliding window (for sliding_window strategy)
-- `--threshold`: Semantic similarity threshold for chunking
-- `--min-segment`: Minimum segment length for semantic chunking
+- `--min-confidence`: Minimum similarity score threshold (0.0-1.0, default: 0.3)
+- `--top-term-per-chunk`: Return only the highest-scoring HPO term per chunk (boolean)
+- `--strategy`: Chunking strategy (see above)
+- `--language`: Text language for accurate processing (en, de, es, fr, nl)
+- `--output-format`: Output format (json_lines, rich_json_summary, csv_hpo_list)
+
+**Sliding Window Parameters** (override config for all strategies using sliding window):
+- `--window-size`: Window size in tokens (default: 7)
+- `--step-size`: Step size in tokens (default: 1)
+- `--threshold`: Semantic similarity threshold for splitting (default: 0.5)
+- `--min-segment`: Minimum segment length in words (default: 3)
+
+**Advanced Options**:
+- `--input-file`, `-i`: Read text from file instead of argument
+- `--output-file`, `-f`: Save results to file instead of stdout
+- `--cross-language-hpo-retrieval`: Enable retrieval of HPO terms in a different language
 
 ### HPO Term Similarity
 
