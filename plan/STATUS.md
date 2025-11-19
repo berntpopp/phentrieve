@@ -1,8 +1,8 @@
 # Phentrieve Project Status
 
-**Last Updated:** 2025-11-15
+**Last Updated:** 2025-11-19
 **Overall Status:** 🎉 MAJOR MILESTONES COMPLETE
-**Current Focus:** E2E test execution, Phase 4 (CI/CD integration for E2E tests)
+**Current Focus:** Architecture refactoring (config resolver, HPO caching, SQLite migration)
 
 ---
 
@@ -96,6 +96,27 @@
 
 ## 🎉 Recent Achievements
 
+### Architecture Refactoring (2025-11-19)
+- ✅ **Config Resolver Refactoring** - Eliminated DRY violation by extracting shared config resolver module (PR #77)
+  - Consolidated 230 lines of duplicated logic into 60-line shared module
+  - 100% test coverage with 31 comprehensive tests
+  - Maintained backward compatibility across CLI and API
+
+### Performance & Data Optimizations (2025-11-18)
+- ✅ **HPO Graph Caching** - Refactored from global state to @lru_cache pattern (PR #76)
+  - Thread-safe caching for HPO graph data
+  - Eliminated global mutable state anti-pattern
+
+- ✅ **HPO SQLite Migration** - Migrated from JSON/pickle to SQLite database
+  - 12 MB structured database replacing multiple flat files
+  - 19,534 HPO terms with full ontology graph structure
+  - Improved data loading and query performance
+
+- ✅ **Model Caching** - Implemented thread-safe model registry (PR #73)
+  - Eliminated double-loading of SentenceTransformer models
+  - 50% memory reduction (1.3GB → 650MB for BioLORD)
+  - 15 unit tests with thread-safety validation
+
 ### Benchmark Data Reorganization (2025-11-18)
 - ✅ Migrated benchmark data from `data/test_cases/` to `tests/data/benchmarks/`
 - ✅ Simplified naming convention (directory provides language context)
@@ -108,6 +129,8 @@
 ## 📁 Plan Documentation
 
 ### Completed Plans (plan/02-completed/)
+
+#### Tooling & Infrastructure
 
 1. **MASTER-PLAN.md** - Tooling Modernization
    - **Status:** 8/9 phases complete
@@ -124,11 +147,59 @@
    - **Scope:** Native FastAPI + Vite dev setup
    - **Outcome:** 100x faster startup, instant hot reload
 
+#### Architecture Refactoring (November 2025)
+
+4. **CONFIG-RESOLVER-REFACTORING-PLAN.md** - Shared Configuration Resolver
+   - **Status:** PR #77 created
+   - **Scope:** Extract duplicated config resolution logic from CLI and API
+   - **Outcome:** 230 lines → 60 lines shared module, 100% test coverage
+
+5. **HPO-GRAPH-CACHING-REFACTORING.md** - Graph Data Caching
+   - **Status:** PR #76 merged
+   - **Scope:** Replace global state with @lru_cache pattern
+   - **Outcome:** Thread-safe caching, eliminated mutable global state
+
+6. **HPO-SQLITE-REFACTORING-PLAN.md** - Database Migration
+   - **Status:** Completed
+   - **Scope:** Migrate from JSON/pickle to SQLite
+   - **Outcome:** 12 MB structured database, improved query performance
+
+7. **MODEL-CACHING-OPTIMIZATION-PLAN.md** - Model Loading Optimization
+   - **Status:** PR #73 merged
+   - **Scope:** Thread-safe model registry to prevent double-loading
+   - **Outcome:** 50% memory reduction, 15 unit tests
+
+8. **REFACTORING-SUMMARY.md** - SQLite Migration Summary
+   - **Status:** Documentation of completed SQLite work
+   - **Scope:** Summary of data storage refactoring
+   - **Outcome:** Comprehensive migration documentation
+
 ### Archived Plans (plan/03-archived/)
 
 1. **DOCKER-REFACTORING-PLAN.md** - Superseded by direct implementation
    - **Reason:** Docker security hardening was implemented directly
    - **Status:** Non-root users, read-only FS, all capabilities dropped
+
+2. **PIPELINE-FACTORY-PATTERN-REVIEW.md** - Rejected alternative approach
+   - **Reason:** Review recommended simpler shared utility over Factory Pattern
+   - **Status:** Led to CONFIG-RESOLVER-REFACTORING-PLAN.md instead
+
+### Active Plans (plan/01-active/)
+
+1. **CHUNKING-OPTIMIZATION-PLAN.md** - Text chunking improvements
+   - **Status:** Active, not yet implemented
+   - **Scope:** Enhanced chunker, benchmarking framework, span-based metrics
+   - **Priority:** High
+
+2. **FRONTEND-CONVERSATION-PERSISTENCE-PLAN.md** - Frontend optimization
+   - **Status:** Active, not yet implemented
+   - **Scope:** Virtual scrolling, state persistence, performance improvements
+   - **Priority:** High
+
+3. **PERFORMANCE-MASTER-PLAN.md** - Performance coordination
+   - **Status:** Active coordination plan
+   - **Scope:** Master plan coordinating multiple performance optimizations
+   - **Priority:** Critical (P0)
 
 ---
 
@@ -324,6 +395,6 @@ The project has successfully completed 8/9 planned tooling modernization phases 
 
 ---
 
-**Last Updated:** 2025-11-15
-**Next Review:** 2025-11-22
-**Status:** Major milestones complete, ready for E2E execution
+**Last Updated:** 2025-11-19
+**Next Review:** 2025-11-26
+**Status:** Architecture refactoring in progress (4 plans completed, 1 pending merge)

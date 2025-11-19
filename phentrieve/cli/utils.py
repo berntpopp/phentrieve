@@ -3,13 +3,11 @@
 This module contains shared utility functions used by the CLI commands.
 """
 
-import json
 import sys
 from pathlib import Path
-from typing import Any, Optional, cast
+from typing import Optional
 
 import typer
-import yaml
 
 
 def load_text_from_input(text_arg: Optional[str], file_arg: Optional[Path]) -> str:
@@ -65,6 +63,9 @@ def resolve_chunking_pipeline_config(
     """
     Resolve the chunking pipeline configuration from a file or a strategy name.
 
+    This is a CLI-specific wrapper around the shared config resolver that converts
+    ChunkingConfigError exceptions to typer.Exit for CLI error handling.
+
     Args:
         chunking_pipeline_config_file: Optional path to a config file
         strategy_arg: Strategy name to use if no config file is provided
@@ -77,151 +78,22 @@ def resolve_chunking_pipeline_config(
         List of chunker configurations
 
     Raises:
-        typer.Exit: If the config file does not exist or has an invalid
-            format
+        typer.Exit: If the config file does not exist or has an invalid format
     """
-    from phentrieve.config import (
-        get_default_chunk_pipeline_config,
-        get_detailed_chunking_config,
-        get_semantic_chunking_config,
-        get_simple_chunking_config,
-        get_sliding_window_cleaned_config,
-        get_sliding_window_config_with_params,
-        get_sliding_window_punct_cleaned_config,
-        get_sliding_window_punct_conj_cleaned_config,
+    from phentrieve.text_processing.config_resolver import (
+        ChunkingConfigError,
+        resolve_chunking_config,
     )
 
-    chunking_pipeline_config = None
-
-    # 1. First priority: Config file if provided
-    if chunking_pipeline_config_file is not None:
-        if not chunking_pipeline_config_file.exists():
-            typer.secho(
-                f"Error: Config file {chunking_pipeline_config_file} does not exist.",
-                fg=typer.colors.RED,
-            )
-            raise typer.Exit(code=1)
-
-        suffix = chunking_pipeline_config_file.suffix.lower()
-        with open(chunking_pipeline_config_file, encoding="utf-8") as f:
-            if suffix == ".json":
-                config_data = json.load(f)
-            elif suffix in (".yaml", ".yml"):
-                config_data = yaml.safe_load(f)
-            else:
-                typer.secho(
-                    f"Error: Unsupported config file format: {suffix}."
-                    " Use .json, .yaml, or .yml",
-                    fg=typer.colors.RED,
-                )
-                raise typer.Exit(code=1)
-
-        chunking_pipeline_config = config_data.get("chunking_pipeline", None)
-
-    # 2. Second priority: Strategy parameter
-    if chunking_pipeline_config is None:
-        if strategy_arg == "simple":
-            chunking_pipeline_config = get_simple_chunking_config()
-        elif strategy_arg == "detailed":
-            # Get the detailed config first
-            chunking_pipeline_config = get_detailed_chunking_config()
-            # Find and update the sliding_window component with the specified parameters
-            for component in chunking_pipeline_config:
-                if component.get("type") == "sliding_window":
-                    component["config"] = {
-                        "window_size_tokens": window_size,
-                        "step_size_tokens": step_size,
-                        "splitting_threshold": threshold,
-                        "min_split_segment_length_words": min_segment_length,
-                    }
-        elif strategy_arg == "semantic":
-            # Get the semantic config first
-            chunking_pipeline_config = get_semantic_chunking_config()
-            # Find and update the sliding_window component with the specified parameters
-            for component in chunking_pipeline_config:
-                if component.get("type") == "sliding_window":
-                    component["config"] = {
-                        "window_size_tokens": window_size,
-                        "step_size_tokens": step_size,
-                        "splitting_threshold": threshold,
-                        "min_split_segment_length_words": min_segment_length,
-                    }
-        elif strategy_arg == "sliding_window":
-            chunking_pipeline_config = get_sliding_window_config_with_params(
-                window_size=window_size,
-                step_size=step_size,
-                threshold=threshold,
-                min_segment_length=min_segment_length,
-            )
-
-        elif strategy_arg == "sliding_window_cleaned":
-            # Get the cleaned config and update the sliding window parameters if provided
-            chunking_pipeline_config = get_sliding_window_cleaned_config()
-            # Find the sliding window config in the pipeline and update its parameters
-            for stage in chunking_pipeline_config:
-                if stage.get("type") == "sliding_window" and "config" in stage:
-                    # Only update if the parameter was explicitly provided (not None)
-                    if window_size is not None:
-                        stage["config"]["window_size_tokens"] = window_size
-                    if step_size is not None:
-                        stage["config"]["step_size_tokens"] = step_size
-                    if threshold is not None:
-                        stage["config"]["splitting_threshold"] = threshold
-                    if min_segment_length is not None:
-                        stage["config"]["min_split_segment_length_words"] = (
-                            min_segment_length
-                        )
-                    break
-        elif strategy_arg == "sliding_window_punct_cleaned":
-            # Get the punctuation+cleaned config and update sliding window parameters if provided
-            chunking_pipeline_config = get_sliding_window_punct_cleaned_config()
-            # Find the sliding window config in the pipeline and update its parameters
-            for stage_config_item in chunking_pipeline_config:
-                if (
-                    stage_config_item.get("type") == "sliding_window"
-                    and "config" in stage_config_item
-                ):
-                    if window_size is not None:  # Check if CLI arg was provided
-                        stage_config_item["config"]["window_size_tokens"] = window_size
-                    if step_size is not None:
-                        stage_config_item["config"]["step_size_tokens"] = step_size
-                    if threshold is not None:
-                        stage_config_item["config"]["splitting_threshold"] = threshold
-                    if min_segment_length is not None:
-                        stage_config_item["config"][
-                            "min_split_segment_length_words"
-                        ] = min_segment_length
-                    break  # Found and updated the sliding_window component
-        elif strategy_arg == "sliding_window_punct_conj_cleaned":
-            # Get the punctuation+conjunction+cleaned config and update sliding window parameters
-            chunking_pipeline_config = get_sliding_window_punct_conj_cleaned_config()
-            # Find the sliding window config in the pipeline and update its parameters
-            for stage_config_item in chunking_pipeline_config:
-                if (
-                    stage_config_item.get("type") == "sliding_window"
-                    and "config" in stage_config_item
-                ):
-                    if window_size is not None:  # Check if CLI arg was provided
-                        stage_config_item["config"]["window_size_tokens"] = window_size
-                    if step_size is not None:
-                        stage_config_item["config"]["step_size_tokens"] = step_size
-                    if threshold is not None:
-                        stage_config_item["config"]["splitting_threshold"] = threshold
-                    if min_segment_length is not None:
-                        stage_config_item["config"][
-                            "min_split_segment_length_words"
-                        ] = min_segment_length
-                    break  # Found and updated the sliding_window component
-        else:
-            typer.secho(
-                f"Warning: Unknown strategy '{strategy_arg}'. "
-                f"Using default configuration.",
-                fg=typer.colors.YELLOW,
-            )
-
-    # 3. Final fallback: Default configuration
-    if chunking_pipeline_config is None:
-        chunking_pipeline_config = get_default_chunk_pipeline_config()
-
-    # Cast to list[dict] to match return type annotation
-    return cast(list[dict[str, Any]], chunking_pipeline_config)
+    try:
+        return resolve_chunking_config(
+            strategy_name=strategy_arg,
+            config_file=chunking_pipeline_config_file,
+            window_size=window_size,
+            step_size=step_size,
+            threshold=threshold,
+            min_segment_length=min_segment_length,
+        )
+    except ChunkingConfigError as e:
+        typer.secho(f"Error: {e}", fg=typer.colors.RED)
+        raise typer.Exit(code=1)

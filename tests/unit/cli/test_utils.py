@@ -275,7 +275,7 @@ class TestResolveChunkingPipelineConfig:
         """Test uses simple strategy when no config file provided."""
         # Arrange
         mock_get_simple = mocker.patch(
-            "phentrieve.config.get_simple_chunking_config",
+            "phentrieve.text_processing.config_resolver.get_simple_chunking_config",
             return_value=[{"type": "sentence"}],
         )
 
@@ -293,7 +293,7 @@ class TestResolveChunkingPipelineConfig:
         """Test detailed strategy with custom sliding window parameters."""
         # Arrange
         mock_get_detailed = mocker.patch(
-            "phentrieve.config.get_detailed_chunking_config",
+            "phentrieve.text_processing.config_resolver.get_detailed_chunking_config",
             return_value=[
                 {"type": "sentence"},
                 {"type": "sliding_window", "config": {}},
@@ -322,7 +322,7 @@ class TestResolveChunkingPipelineConfig:
         """Test semantic strategy with custom sliding window parameters."""
         # Arrange
         mock_get_semantic = mocker.patch(
-            "phentrieve.config.get_semantic_chunking_config",
+            "phentrieve.text_processing.config_resolver.get_semantic_chunking_config",
             return_value=[
                 {"type": "semantic"},
                 {"type": "sliding_window", "config": {}},
@@ -345,12 +345,12 @@ class TestResolveChunkingPipelineConfig:
         """Test sliding_window strategy with custom parameters."""
         # Arrange
         mock_get_sliding = mocker.patch(
-            "phentrieve.config.get_sliding_window_config_with_params",
+            "phentrieve.text_processing.config_resolver.get_sliding_window_config_with_params",
             return_value=[{"type": "sliding_window", "config": {}}],
         )
 
         # Act
-        resolve_chunking_pipeline_config(
+        result = resolve_chunking_pipeline_config(
             chunking_pipeline_config_file=None,
             strategy_arg="sliding_window",
             window_size=6,
@@ -359,13 +359,14 @@ class TestResolveChunkingPipelineConfig:
             min_segment_length=5,
         )
 
-        # Assert
-        mock_get_sliding.assert_called_once_with(
-            window_size=6,
-            step_size=3,
-            threshold=0.6,
-            min_segment_length=5,
-        )
+        # Assert - function called once (parameters applied via override mechanism)
+        mock_get_sliding.assert_called_once()
+        # Verify parameters were applied
+        config = result[0]["config"]
+        assert config["window_size_tokens"] == 6
+        assert config["step_size_tokens"] == 3
+        assert config["splitting_threshold"] == 0.6
+        assert config["min_split_segment_length_words"] == 5
 
     @pytest.mark.parametrize(
         "strategy",
@@ -379,7 +380,7 @@ class TestResolveChunkingPipelineConfig:
         """Test updating sliding window variants with custom parameters."""
         # Arrange
         mock_getter = mocker.patch(
-            f"phentrieve.config.get_{strategy}_config",
+            f"phentrieve.text_processing.config_resolver.get_{strategy}_config",
             return_value=[{"type": "sliding_window", "config": {}}],
         )
 
@@ -401,12 +402,12 @@ class TestResolveChunkingPipelineConfig:
         assert config["splitting_threshold"] == 0.8
         assert config["min_split_segment_length_words"] == 4
 
-    def test_falls_back_to_default_on_unknown_strategy(self, mocker):
+    def test_falls_back_to_default_on_unknown_strategy(self, mocker, caplog):
         """Test falls back to default config for unknown strategy."""
-        # Arrange
-        mock_get_default = mocker.patch(
-            "phentrieve.config.get_default_chunk_pipeline_config",
-            return_value=[{"type": "default"}],
+        # Arrange - mock the fallback config function
+        mock_get_fallback = mocker.patch(
+            "phentrieve.text_processing.config_resolver.get_sliding_window_punct_conj_cleaned_config",
+            return_value=[{"type": "fallback"}],
         )
 
         # Act
@@ -415,9 +416,10 @@ class TestResolveChunkingPipelineConfig:
             strategy_arg="unknown_strategy",
         )
 
-        # Assert
-        mock_get_default.assert_called_once()
-        assert result[0]["type"] == "default"
+        # Assert - should call fallback and log warning
+        mock_get_fallback.assert_called_once()
+        assert result[0]["type"] == "fallback"
+        assert any("Unknown strategy" in record.message for record in caplog.records)
 
     def test_config_file_takes_precedence_over_strategy(self, tmp_path, mocker):
         """Test config file takes precedence over strategy argument."""
@@ -426,7 +428,9 @@ class TestResolveChunkingPipelineConfig:
         config_file = tmp_path / "config.json"
         config_file.write_text(json.dumps(config_data), encoding="utf-8")
 
-        mock_get_simple = mocker.patch("phentrieve.config.get_simple_chunking_config")
+        mock_get_simple = mocker.patch(
+            "phentrieve.text_processing.config_resolver.get_simple_chunking_config"
+        )
 
         # Act
         result = resolve_chunking_pipeline_config(

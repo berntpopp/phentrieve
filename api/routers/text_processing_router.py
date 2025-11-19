@@ -23,13 +23,6 @@ from phentrieve.config import (
     DEFAULT_LANGUAGE,
     DEFAULT_MODEL,
     DEFAULT_TRANSLATIONS_SUBDIR,
-    get_detailed_chunking_config,
-    get_semantic_chunking_config,
-    get_simple_chunking_config,
-    get_sliding_window_cleaned_config,
-    get_sliding_window_config_with_params,
-    get_sliding_window_punct_cleaned_config,
-    get_sliding_window_punct_conj_cleaned_config,
 )
 from phentrieve.text_processing.hpo_extraction_orchestrator import (
     orchestrate_hpo_extraction,
@@ -41,43 +34,13 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/v1/text", tags=["Text Processing and HPO Extraction"])
 
 
-def _apply_sliding_window_params(
-    config: list[dict[str, Any]],
-    window_size: int,
-    step_size: int,
-    threshold: float,
-    min_segment_length: int,
-) -> None:
-    """
-    Apply sliding window parameters to chunking configuration components.
-
-    Modifies config in-place by updating parameters for any components
-    with type='sliding_window'.
-
-    Args:
-        config: Chunking pipeline configuration (modified in-place)
-        window_size: Window size in tokens
-        step_size: Step size in tokens
-        threshold: Similarity threshold for splitting (0.0-1.0)
-        min_segment_length: Minimum segment length in words
-    """
-    for component in config:
-        if component.get("type") == "sliding_window":
-            component["config"].update(
-                {
-                    "window_size_tokens": window_size,
-                    "step_size_tokens": step_size,
-                    "splitting_threshold": threshold,
-                    "min_split_segment_length_words": min_segment_length,
-                }
-            )
-
-
 def _get_chunking_config_for_api(
     request: TextProcessingRequest,
 ) -> list[dict[str, Any]]:
     """
     Get chunking configuration based on request strategy and parameters.
+
+    This is an API-specific wrapper around the shared config resolver.
 
     Args:
         request: Text processing request with strategy and parameters
@@ -85,6 +48,8 @@ def _get_chunking_config_for_api(
     Returns:
         Chunking pipeline configuration list
     """
+    from phentrieve.text_processing.config_resolver import resolve_chunking_config
+
     strategy_name = (
         request.chunking_strategy.lower()
         if request.chunking_strategy
@@ -98,40 +63,18 @@ def _get_chunking_config_for_api(
     msl = request.min_segment_length if request.min_segment_length is not None else 3
 
     logger.debug(
-        f"API: Building config for '{strategy_name}': "
-        f"ws={ws}, ss={ss}, th={th}, msl={msl}"
+        f"API: Building config for '{strategy_name}': ws={ws}, ss={ss}, th={th}, msl={msl}"
     )
 
-    # Strategy selection - explicit if/elif is clear and maintainable
-    if strategy_name == "simple":
-        return list(get_simple_chunking_config())
-
-    elif strategy_name == "sliding_window":
-        # Special case: takes params directly, no post-processing needed
-        return list(get_sliding_window_config_with_params(ws, ss, th, msl))
-
-    # All other strategies: get base config, then apply params
-    elif strategy_name == "semantic":
-        config = list(get_semantic_chunking_config())
-    elif strategy_name == "detailed":
-        config = list(get_detailed_chunking_config())
-    elif strategy_name == "sliding_window_cleaned":
-        config = list(get_sliding_window_cleaned_config())
-    elif strategy_name == "sliding_window_punct_cleaned":
-        config = list(get_sliding_window_punct_cleaned_config())
-    elif strategy_name == "sliding_window_punct_conj_cleaned":
-        config = list(get_sliding_window_punct_conj_cleaned_config())
-    else:
-        # Unknown strategy - use default with warning
-        logger.warning(
-            f"API: Unknown strategy '{strategy_name}', "
-            f"using sliding_window_punct_conj_cleaned"
-        )
-        config = list(get_sliding_window_punct_conj_cleaned_config())
-
-    # Apply sliding window parameters to config
-    _apply_sliding_window_params(config, ws, ss, th, msl)
-    return config
+    # Use shared resolver
+    return resolve_chunking_config(
+        strategy_name=strategy_name,
+        config_file=None,  # API doesn't support config files
+        window_size=ws,
+        step_size=ss,
+        threshold=th,
+        min_segment_length=msl,
+    )
 
 
 def _validate_response_chunk_references(
