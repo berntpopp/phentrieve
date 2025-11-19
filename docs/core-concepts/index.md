@@ -32,7 +32,6 @@ To improve retrieval precision, Phentrieve can use cross-encoder models to re-ra
 
 ## Section Contents
 
-- [RAG-HPO](rag-hpo.md): Detailed explanation of the RAG approach for HPO term mapping
 - [Multilingual Embeddings](multilingual-embeddings.md): How multilingual models enable cross-language matching
 - [Reranking](reranking.md): Advanced re-ranking techniques for improved precision
 - [Ontology Similarity](ontology-similarity.md): Methods for calculating semantic similarity between HPO terms

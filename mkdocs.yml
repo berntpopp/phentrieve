@@ -48,7 +48,6 @@ nav:
     - 'Frontend Usage': 'user-guide/frontend-usage.md'
   - 'Core Concepts':
     - 'Overview': 'core-concepts/index.md'
-    - 'RAG-HPO': 'core-concepts/rag-hpo.md'
     - 'Multilingual Embeddings': 'core-concepts/multilingual-embeddings.md'
     - 'Reranking': 'core-concepts/reranking.md'
     - 'Ontology Similarity': 'core-concepts/ontology-similarity.md'
