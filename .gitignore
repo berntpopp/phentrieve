@@ -100,3 +100,6 @@ site/
 SERENA.md
 .serena/.env
 .serena/
+
+# Playwright MCP files
+.playwright-mcp/
