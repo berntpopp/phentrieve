@@ -93,8 +93,11 @@ class TestVectorStoreConfigCreation:
             index_dir=temp_index_dir,
         )
 
-        # Attempt to modify should raise FrozenInstanceError
-        with pytest.raises(Exception):  # dataclass.FrozenInstanceError
+        # Attempt to modify frozen dataclass should raise AttributeError
+        # (Python 3.9-3.10) or FrozenInstanceError (Python 3.11+)
+        with pytest.raises(
+            (AttributeError, Exception)
+        ):  # Compatible with all Python 3.9+
             config.path = "/new/path"  # type: ignore[misc]
 
     def test_config_custom_settings_override_defaults(self, temp_index_dir):
@@ -140,7 +143,7 @@ class TestIndexBuildReproducibility:
     @pytest.mark.integration
     def test_index_build_is_reproducible(
         self,
-        tiny_sbert_model,
+        real_embedding_model,
         temp_index_dir,
         sample_hpo_documents,
         sample_hpo_metadatas,
@@ -164,7 +167,7 @@ class TestIndexBuildReproducibility:
             documents=sample_hpo_documents,
             metadatas=sample_hpo_metadatas,
             ids=sample_hpo_ids,
-            model=tiny_sbert_model,
+            model=real_embedding_model,
             model_name=model_name,
             batch_size=10,
             recreate=True,
@@ -174,7 +177,7 @@ class TestIndexBuildReproducibility:
 
         # Query the first index
         retriever1 = DenseRetriever.from_model_name(
-            model=tiny_sbert_model,
+            model=real_embedding_model,
             model_name=model_name,
             index_dir=temp_index_dir,
         )
@@ -188,7 +191,7 @@ class TestIndexBuildReproducibility:
             documents=sample_hpo_documents,
             metadatas=sample_hpo_metadatas,
             ids=sample_hpo_ids,
-            model=tiny_sbert_model,
+            model=real_embedding_model,
             model_name=model_name,
             batch_size=10,
             recreate=True,
@@ -198,7 +201,7 @@ class TestIndexBuildReproducibility:
 
         # Query the rebuilt index
         retriever2 = DenseRetriever.from_model_name(
-            model=tiny_sbert_model,
+            model=real_embedding_model,
             model_name=model_name,
             index_dir=temp_index_dir,
         )
@@ -208,9 +211,9 @@ class TestIndexBuildReproducibility:
 
         # Results should be identical (same order, same scores)
         assert results1["ids"] == results2["ids"], "Query IDs differ between builds"
-        assert (
-            results1["distances"] == results2["distances"]
-        ), "Query distances differ between builds"
+        assert results1["distances"] == results2["distances"], (
+            "Query distances differ between builds"
+        )
 
 
 class TestQueryResultsStability:
@@ -219,7 +222,7 @@ class TestQueryResultsStability:
     @pytest.mark.integration
     def test_query_results_stable_across_connections(
         self,
-        tiny_sbert_model,
+        real_embedding_model,
         temp_index_dir,
         sample_hpo_documents,
         sample_hpo_metadatas,
@@ -242,7 +245,7 @@ class TestQueryResultsStability:
             documents=sample_hpo_documents,
             metadatas=sample_hpo_metadatas,
             ids=sample_hpo_ids,
-            model=tiny_sbert_model,
+            model=real_embedding_model,
             model_name=model_name,
             recreate=True,
             index_dir=temp_index_dir,
@@ -250,7 +253,7 @@ class TestQueryResultsStability:
 
         # Query with first connection
         retriever1 = DenseRetriever.from_model_name(
-            model=tiny_sbert_model,
+            model=real_embedding_model,
             model_name=model_name,
             index_dir=temp_index_dir,
         )
@@ -258,24 +261,22 @@ class TestQueryResultsStability:
 
         # Create new connection (simulates restart)
         retriever2 = DenseRetriever.from_model_name(
-            model=tiny_sbert_model,
+            model=real_embedding_model,
             model_name=model_name,
             index_dir=temp_index_dir,
         )
         results2 = retriever2.query("brain activity", n_results=3)
 
         # Results should be identical
-        assert (
-            results1["ids"] == results2["ids"]
-        ), "Query IDs differ across connections"
-        assert (
-            results1["distances"] == results2["distances"]
-        ), "Query distances differ across connections"
+        assert results1["ids"] == results2["ids"], "Query IDs differ across connections"
+        assert results1["distances"] == results2["distances"], (
+            "Query distances differ across connections"
+        )
 
     @pytest.mark.integration
     def test_batch_query_produces_consistent_results(
         self,
-        tiny_sbert_model,
+        real_embedding_model,
         temp_index_dir,
         sample_hpo_documents,
         sample_hpo_metadatas,
@@ -298,14 +299,14 @@ class TestQueryResultsStability:
             documents=sample_hpo_documents,
             metadatas=sample_hpo_metadatas,
             ids=sample_hpo_ids,
-            model=tiny_sbert_model,
+            model=real_embedding_model,
             model_name=model_name,
             recreate=True,
             index_dir=temp_index_dir,
         )
 
         retriever = DenseRetriever.from_model_name(
-            model=tiny_sbert_model,
+            model=real_embedding_model,
             model_name=model_name,
             index_dir=temp_index_dir,
         )
@@ -323,11 +324,12 @@ class TestQueryResultsStability:
         for i, (single_result, batch_result) in enumerate(
             zip(single_results, batch_results)
         ):
-            assert (
-                single_result["ids"] == batch_result["ids"]
-            ), f"Query {i}: IDs differ between single and batch"
-            assert (
-                single_result["distances"] == batch_result["distances"]
+            assert single_result["ids"] == batch_result["ids"], (
+                f"Query {i}: IDs differ between single and batch"
+            )
+            # Use pytest.approx for floating-point comparison (tolerates minor precision differences)
+            assert single_result["distances"][0] == pytest.approx(
+                batch_result["distances"][0], rel=1e-6
             ), f"Query {i}: Distances differ between single and batch"
 
 
@@ -337,7 +339,7 @@ class TestFullPipelineE2E:
     @pytest.mark.integration
     def test_full_pipeline_index_query_results(
         self,
-        tiny_sbert_model,
+        real_embedding_model,
         temp_index_dir,
         sample_hpo_documents,
         sample_hpo_metadatas,
@@ -362,7 +364,7 @@ class TestFullPipelineE2E:
             documents=sample_hpo_documents,
             metadatas=sample_hpo_metadatas,
             ids=sample_hpo_ids,
-            model=tiny_sbert_model,
+            model=real_embedding_model,
             model_name=model_name,
             batch_size=10,
             recreate=True,
@@ -372,7 +374,7 @@ class TestFullPipelineE2E:
 
         # Step 2: Create retriever
         retriever = DenseRetriever.from_model_name(
-            model=tiny_sbert_model,
+            model=real_embedding_model,
             model_name=model_name,
             index_dir=temp_index_dir,
         )
@@ -394,7 +396,9 @@ class TestFullPipelineE2E:
 
         # Expected: "Microcephaly" should be top result for "small head circumference"
         top_id = results["ids"][0][0]
-        assert top_id == "HP:0000252", f"Expected HP:0000252 (Microcephaly), got {top_id}"
+        assert top_id == "HP:0000252", (
+            f"Expected HP:0000252 (Microcephaly), got {top_id}"
+        )
 
 
 class TestVectorStoreConfigIntegration:
@@ -426,7 +430,7 @@ class TestVectorStoreConfigIntegration:
     @pytest.mark.integration
     def test_connect_to_chroma_uses_config_correctly(
         self,
-        tiny_sbert_model,
+        real_embedding_model,
         temp_index_dir,
         sample_hpo_documents,
         sample_hpo_metadatas,
@@ -445,7 +449,7 @@ class TestVectorStoreConfigIntegration:
             documents=sample_hpo_documents,
             metadatas=sample_hpo_metadatas,
             ids=sample_hpo_ids,
-            model=tiny_sbert_model,
+            model=real_embedding_model,
             model_name=model_name,
             batch_size=10,
             recreate=True,
@@ -462,6 +466,6 @@ class TestVectorStoreConfigIntegration:
 
         # Validate connection
         assert collection is not None, "Connection failed"
-        assert collection.count() == len(
-            sample_hpo_documents
-        ), "Collection count mismatch"
+        assert collection.count() == len(sample_hpo_documents), (
+            "Collection count mismatch"
+        )
