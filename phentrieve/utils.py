@@ -138,7 +138,7 @@ def get_default_data_dir() -> Path:
 
     Prioritizes environment variables in this order:
     1. PHENTRIEVE_DATA_DIR - specific data directory
-    2. PHENTRIEVE_DATA_ROOT_DIR/hpo_core_data - subfolder of root data directory
+    2. PHENTRIEVE_DATA_ROOT_DIR - root data directory
     3. User home directory fallback (~/.phentrieve/data)
     """
     # Check for specific data directory environment variable
@@ -146,10 +146,10 @@ def get_default_data_dir() -> Path:
     if env_specific:
         return Path(env_specific)
 
-    # Check for root data directory and add subfolder
+    # Check for root data directory (no longer appending hpo_core_data subdirectory)
     env_root = os.getenv("PHENTRIEVE_DATA_ROOT_DIR")
     if env_root:
-        return Path(env_root) / "hpo_core_data"
+        return Path(env_root)
 
     # Fallback to user config directory
     return get_user_config_dir() / "data"
