@@ -15,8 +15,8 @@ import chromadb
 from sentence_transformers import SentenceTransformer
 from tqdm import tqdm
 
+from phentrieve.config import VectorStoreConfig
 from phentrieve.utils import (
-    generate_collection_name,
     get_embedding_dimension,
     get_model_slug,
 )
@@ -56,8 +56,7 @@ def build_chromadb_index(
         logging.error("index_dir must be provided for indexing")
         return False
 
-    # Get collection name (index_dir should be passed in)
-    collection_name = generate_collection_name(model_name)
+    # Validate model name
     get_model_slug(model_name)
 
     # Make sure index directory exists
@@ -73,12 +72,16 @@ def build_chromadb_index(
         index_dir_str = str(index_dir)
         os.makedirs(index_dir_str, exist_ok=True)
 
-        # Initialize with proper settings to avoid tenant issues
+        # Create vector store configuration
+        vector_store_config = VectorStoreConfig.for_chromadb(
+            model_name=model_name,
+            index_dir=index_dir,
+        )
+
+        # Initialize ChromaDB client with config
         client = chromadb.PersistentClient(
-            path=index_dir_str,
-            settings=chromadb.Settings(
-                anonymized_telemetry=False, allow_reset=True, is_persistent=True
-            ),
+            path=vector_store_config.path,
+            settings=vector_store_config.to_chromadb_settings(),
         )
 
         # Initialize skip collection creation flag
@@ -86,14 +89,18 @@ def build_chromadb_index(
 
         # Check if collection already exists
         try:
-            existing_collection = client.get_collection(name=collection_name)
+            existing_collection = client.get_collection(
+                name=vector_store_config.collection_name
+            )
 
             if recreate:
-                logging.info(f"Deleting existing collection: {collection_name}")
-                client.delete_collection(name=collection_name)
+                logging.info(
+                    f"Deleting existing collection: {vector_store_config.collection_name}"
+                )
+                client.delete_collection(name=vector_store_config.collection_name)
             else:
                 logging.info(
-                    f"Collection {collection_name} already exists with {existing_collection.count()} documents"
+                    f"Collection {vector_store_config.collection_name} already exists with {existing_collection.count()} documents"
                 )
                 if existing_collection.count() > 0:
                     logging.info(
@@ -119,22 +126,22 @@ def build_chromadb_index(
         # Create a new collection with specified metadata if needed
         if not skip_collection_creation:
             collection = client.create_collection(
-                name=collection_name,
+                name=vector_store_config.collection_name,
                 metadata={
                     "hpo_version": "latest",
                     "model": model_name,
                     "dimension": model_dimension,
                     "created_at": time.strftime("%Y-%m-%d %H:%M:%S"),
-                    "hnsw:space": "cosine",
+                    "hnsw:space": vector_store_config.distance_metric,
                 },
             )
         if not skip_collection_creation:
             logging.info(
-                f"Created new collection: {collection_name} with dimension {model_dimension}"
+                f"Created new collection: {vector_store_config.collection_name} with dimension {model_dimension}"
             )
         else:
             logging.info(
-                f"Using existing collection: {collection_name} with dimension {model_dimension}"
+                f"Using existing collection: {vector_store_config.collection_name} with dimension {model_dimension}"
             )
     except Exception as e:
         logging.error(f"Error initializing ChromaDB: {e}")
