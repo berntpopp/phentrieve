@@ -85,10 +85,11 @@
       "exportText": "Exporter en texte",
       "clear": "Effacer la collection",
       "assertionToggle": "Basculer le statut d'affirmation",
-      "assertionStatus": "Statut d'affirmation",
-      "affirmed": "Affirmé",
-      "negated": "Nié",
-      "unknown": "Inconnu"
+      "assertionStatus": {
+        "affirmed": "Affirmé",
+        "negated": "Nié",
+        "unknown": "Inconnu"
+      }
     },
     "advancedOptions": {
       "title": "Options avancées",

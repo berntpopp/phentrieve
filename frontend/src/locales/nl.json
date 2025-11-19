@@ -85,10 +85,11 @@
       "exportText": "Exporteren als tekst",
       "clear": "Verzameling wissen",
       "assertionToggle": "Bevestigingsstatus omschakelen",
-      "assertionStatus": "Bevestigingsstatus",
-      "affirmed": "Bevestigd",
-      "negated": "Ontkend",
-      "unknown": "Onbekend"
+      "assertionStatus": {
+        "affirmed": "Bevestigd",
+        "negated": "Ontkend",
+        "unknown": "Onbekend"
+      }
     },
     "advancedOptions": {
       "title": "Geavanceerde opties",

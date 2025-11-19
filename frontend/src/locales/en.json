@@ -85,10 +85,11 @@
       "exportText": "Export as Text",
       "clear": "Clear Collection",
       "assertionToggle": "Toggle Assertion Status",
-      "assertionStatus": "Assertion Status",
-      "affirmed": "Affirmed",
-      "negated": "Negated",
-      "unknown": "Unknown"
+      "assertionStatus": {
+        "affirmed": "Affirmed",
+        "negated": "Negated",
+        "unknown": "Unknown"
+      }
     },
     "advancedOptions": {
       "title": "Advanced Options",

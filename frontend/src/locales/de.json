@@ -85,10 +85,11 @@
       "exportText": "Als Text exportieren",
       "clear": "Sammlung leeren",
       "assertionToggle": "Aussagestatus umschalten",
-      "assertionStatus": "Aussagestatus",
-      "affirmed": "Bestätigt",
-      "negated": "Verneint",
-      "unknown": "Unbekannt"
+      "assertionStatus": {
+        "affirmed": "Bestätigt",
+        "negated": "Verneint",
+        "unknown": "Unbekannt"
+      }
     },
     "advancedOptions": {
       "title": "Erweiterte Optionen",
