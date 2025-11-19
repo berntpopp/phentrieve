@@ -319,21 +319,11 @@
           },
           "performance": {
             "question": "Welche Leistung kann ich erwarten?",
-            "answer": "<p>Unsere Benchmark-Ergebnisse zeigen:</p><ul><li>BioLORD-2023-M: HR@1=0.3333, HR@3=0.6667, HR@5=0.7778</li><li>Jina-v2-base-de: HR@1=0.2222, HR@3=0.4444, HR@5=0.5556</li></ul><p>Die Leistung kann je nach Komplexität und Spezifität des Eingabetextes variieren.</p>"
+            "answer": "<p>Unsere Benchmark-Ergebnisse zeigen:</p><ul><li>BioLORD-2023-M: HR{'@'}1=0.3333, HR{'@'}3=0.6667, HR{'@'}5=0.7778</li><li>Jina-v2-base-de: HR{'@'}1=0.2222, HR{'@'}3=0.4444, HR{'@'}5=0.5556</li></ul><p>Die Leistung kann je nach Komplexität und Spezifität des Eingabetextes variieren.</p>"
           },
           "similarityScore": {
-            "title": "Was bedeuten die Ähnlichkeitswerte?",
-            "intro": "Phentrieve verwendet Kosinus-Ähnlichkeit, um zu messen, wie genau Ihr klinischer Text mit HPO-Begriffen übereinstimmt. Die Werte reichen von 0,0 (keine Ähnlichkeit) bis 1,0 (perfekte Übereinstimmung).",
-            "scoreRanges": "Wertebereich",
-            "excellent": "Ausgezeichnete Übereinstimmung - sehr relevant",
-            "high": "Hohe Übereinstimmung - sehr relevant",
-            "moderate": "Mittlere Übereinstimmung - potenziell relevant",
-            "low": "Geringe Übereinstimmung - lose verwandt",
-            "poor": "Schlechte Übereinstimmung - nicht empfohlen",
-            "technical": "Technische Details",
-            "explanation": "Die Werte werden mithilfe der Kosinus-Ähnlichkeit zwischen Einbettungsvektoren berechnet. Ein Wert von 1,0 zeigt identische semantische Bedeutung an, während 0,0 keine Ähnlichkeit anzeigt.",
-            "note": "Hinweis:",
-            "disclaimer": "Diese Werte repräsentieren semantische Ähnlichkeit im Vektorraum, nicht klinische Gewissheit. Überprüfen Sie die Ergebnisse immer mit klinischer Expertise."
+            "question": "Was bedeuten die Ähnlichkeitswerte?",
+            "answer": "<p>Phentrieve verwendet Kosinus-Ähnlichkeit, um zu messen, wie genau Ihr klinischer Text mit HPO-Begriffen übereinstimmt. Die Werte reichen von 0,0 (keine Ähnlichkeit) bis 1,0 (perfekte Übereinstimmung).</p><h4>Wertebereich</h4><ul><li><strong>0,90 - 1,00:</strong> Ausgezeichnete Übereinstimmung - sehr relevant</li><li><strong>0,75 - 0,89:</strong> Hohe Übereinstimmung - sehr relevant</li><li><strong>0,60 - 0,74:</strong> Mittlere Übereinstimmung - potenziell relevant</li><li><strong>0,40 - 0,59:</strong> Geringe Übereinstimmung - lose verwandt</li><li><strong>0,00 - 0,39:</strong> Schlechte Übereinstimmung - nicht empfohlen</li></ul><h4>Technische Details</h4><p>Die Werte werden mithilfe der Kosinus-Ähnlichkeit zwischen Einbettungsvektoren berechnet. Ein Wert von 1,0 zeigt identische semantische Bedeutung an, während 0,0 keine Ähnlichkeit anzeigt.</p><p><strong>Hinweis:</strong> Diese Werte repräsentieren semantische Ähnlichkeit im Vektorraum, nicht klinische Gewissheit. Überprüfen Sie die Ergebnisse immer mit klinischer Expertise.</p>"
           }
         }
       }

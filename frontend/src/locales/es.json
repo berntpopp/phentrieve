@@ -319,21 +319,11 @@
           },
           "performance": {
             "question": "¿Qué rendimiento puedo esperar?",
-            "answer": "<p>Nuestros resultados de referencia muestran:</p><ul><li>BioLORD-2023-M: HR@1=0.3333, HR@3=0.6667, HR@5=0.7778</li><li>Jina-v2-base-de: HR@1=0.2222, HR@3=0.4444, HR@5=0.5556</li></ul><p>El rendimiento puede variar según la complejidad y especificidad del texto de entrada.</p>"
+            "answer": "<p>Nuestros resultados de referencia muestran:</p><ul><li>BioLORD-2023-M: HR{'@'}1=0.3333, HR{'@'}3=0.6667, HR{'@'}5=0.7778</li><li>Jina-v2-base-de: HR{'@'}1=0.2222, HR{'@'}3=0.4444, HR{'@'}5=0.5556</li></ul><p>El rendimiento puede variar según la complejidad y especificidad del texto de entrada.</p>"
           },
           "similarityScore": {
-            "title": "¿Qué significan las puntuaciones de similitud?",
-            "intro": "Phentrieve utiliza similitud de coseno para medir qué tan cerca coincide su texto clínico con los términos HPO. Las puntuaciones van de 0,0 (sin similitud) a 1,0 (coincidencia perfecta).",
-            "scoreRanges": "Rangos de Puntuación",
-            "excellent": "Coincidencia excelente - altamente relevante",
-            "high": "Coincidencia alta - muy relevante",
-            "moderate": "Coincidencia moderada - potencialmente relevante",
-            "low": "Coincidencia baja - vagamente relacionada",
-            "poor": "Coincidencia pobre - no recomendada",
-            "technical": "Detalles Técnicos",
-            "explanation": "Las puntuaciones se calculan utilizando similitud de coseno entre vectores de incrustación. Una puntuación de 1,0 indica significado semántico idéntico, mientras que 0,0 indica que no hay similitud.",
-            "note": "Nota:",
-            "disclaimer": "Estas puntuaciones representan similitud semántica en el espacio vectorial, no certeza clínica. Siempre revise los resultados con experiencia clínica."
+            "question": "¿Qué significan las puntuaciones de similitud?",
+            "answer": "<p>Phentrieve utiliza similitud de coseno para medir qué tan cerca coincide su texto clínico con los términos HPO. Las puntuaciones van de 0,0 (sin similitud) a 1,0 (coincidencia perfecta).</p><h4>Rangos de Puntuación</h4><ul><li><strong>0,90 - 1,00:</strong> Coincidencia excelente - altamente relevante</li><li><strong>0,75 - 0,89:</strong> Coincidencia alta - muy relevante</li><li><strong>0,60 - 0,74:</strong> Coincidencia moderada - potencialmente relevante</li><li><strong>0,40 - 0,59:</strong> Coincidencia baja - vagamente relacionada</li><li><strong>0,00 - 0,39:</strong> Coincidencia pobre - no recomendada</li></ul><h4>Detalles Técnicos</h4><p>Las puntuaciones se calculan utilizando similitud de coseno entre vectores de incrustación. Una puntuación de 1,0 indica significado semántico idéntico, mientras que 0,0 indica que no hay similitud.</p><p><strong>Nota:</strong> Estas puntuaciones representan similitud semántica en el espacio vectorial, no certeza clínica. Siempre revise los resultados con experiencia clínica.</p>"
           }
         }
       }

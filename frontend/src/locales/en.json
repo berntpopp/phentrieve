@@ -311,21 +311,11 @@
           },
           "performance": {
             "question": "What performance can I expect?",
-            "answer": "<p>Our benchmark results show:</p><ul><li>BioLORD-2023-M: HR@1=0.3333, HR@3=0.6667, HR@5=0.7778</li><li>Jina-v2-base-de: HR@1=0.2222, HR@3=0.4444, HR@5=0.5556</li></ul><p>Performance may vary based on the complexity and specificity of the input text.</p>"
+            "answer": "<p>Our benchmark results show:</p><ul><li>BioLORD-2023-M: HR{'@'}1=0.3333, HR{'@'}3=0.6667, HR{'@'}5=0.7778</li><li>Jina-v2-base-de: HR{'@'}1=0.2222, HR{'@'}3=0.4444, HR{'@'}5=0.5556</li></ul><p>Performance may vary based on the complexity and specificity of the input text.</p>"
           },
           "similarityScore": {
-            "title": "What do the similarity scores mean?",
-            "intro": "Phentrieve uses cosine similarity to measure how closely your clinical text matches HPO terms. Scores range from 0.0 (no similarity) to 1.0 (perfect match).",
-            "scoreRanges": "Score Ranges",
-            "excellent": "Excellent match - highly relevant",
-            "high": "High match - very relevant",
-            "moderate": "Moderate match - potentially relevant",
-            "low": "Low match - loosely related",
-            "poor": "Poor match - not recommended",
-            "technical": "Technical Details",
-            "explanation": "Scores are calculated using cosine similarity between embedding vectors. A score of 1.0 indicates identical semantic meaning, while 0.0 indicates no similarity.",
-            "note": "Note:",
-            "disclaimer": "These scores represent semantic similarity in vector space, not clinical certainty. Always review results with clinical expertise."
+            "question": "What do the similarity scores mean?",
+            "answer": "<p>Phentrieve uses cosine similarity to measure how closely your clinical text matches HPO terms. Scores range from 0.0 (no similarity) to 1.0 (perfect match).</p><h4>Score Ranges</h4><ul><li><strong>0.90 - 1.00:</strong> Excellent match - highly relevant</li><li><strong>0.75 - 0.89:</strong> High match - very relevant</li><li><strong>0.60 - 0.74:</strong> Moderate match - potentially relevant</li><li><strong>0.40 - 0.59:</strong> Low match - loosely related</li><li><strong>0.00 - 0.39:</strong> Poor match - not recommended</li></ul><h4>Technical Details</h4><p>Scores are calculated using cosine similarity between embedding vectors. A score of 1.0 indicates identical semantic meaning, while 0.0 indicates no similarity.</p><p><strong>Note:</strong> These scores represent semantic similarity in vector space, not clinical certainty. Always review results with clinical expertise.</p>"
           }
         }
       }

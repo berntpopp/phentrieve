@@ -274,21 +274,11 @@
           },
           "performance": {
             "question": "Welke prestaties kan ik verwachten?",
-            "answer": "<p>Onze benchmark resultaten tonen:</p><ul><li>BioLORD-2023-M: HR@1=0.3333, HR@3=0.6667, HR@5=0.7778</li><li>Jina-v2-base-de: HR@1=0.2222, HR@3=0.4444, HR@5=0.5556</li></ul><p>De prestaties kunnen variëren afhankelijk van de complexiteit en specificiteit van de invoertekst.</p>"
+            "answer": "<p>Onze benchmark resultaten tonen:</p><ul><li>BioLORD-2023-M: HR{'@'}1=0.3333, HR{'@'}3=0.6667, HR{'@'}5=0.7778</li><li>Jina-v2-base-de: HR{'@'}1=0.2222, HR{'@'}3=0.4444, HR{'@'}5=0.5556</li></ul><p>De prestaties kunnen variëren afhankelijk van de complexiteit en specificiteit van de invoertekst.</p>"
           },
           "similarityScore": {
-            "title": "Wat betekenen de gelijkenisscores?",
-            "intro": "Phentrieve gebruikt cosinus gelijkenis om te meten hoe nauw uw klinische tekst overeenkomt met HPO-termen. Scores variëren van 0,0 (geen gelijkenis) tot 1,0 (perfecte overeenkomst).",
-            "scoreRanges": "Scorebereiken",
-            "excellent": "Uitstekende overeenkomst - zeer relevant",
-            "high": "Hoge overeenkomst - zeer relevant",
-            "moderate": "Gematigde overeenkomst - mogelijk relevant",
-            "low": "Lage overeenkomst - losjes verwant",
-            "poor": "Slechte overeenkomst - niet aanbevolen",
-            "technical": "Technische Details",
-            "explanation": "Scores worden berekend met behulp van cosinus gelijkenis tussen inbeddingsvectoren. Een score van 1,0 geeft identieke semantische betekenis aan, terwijl 0,0 geen gelijkenis aangeeft.",
-            "note": "Opmerking:",
-            "disclaimer": "Deze scores vertegenwoordigen semantische gelijkenis in vectorruimte, niet klinische zekerheid. Controleer resultaten altijd met klinische expertise."
+            "question": "Wat betekenen de gelijkenisscores?",
+            "answer": "<p>Phentrieve gebruikt cosinus gelijkenis om te meten hoe nauw uw klinische tekst overeenkomt met HPO-termen. Scores variëren van 0,0 (geen gelijkenis) tot 1,0 (perfecte overeenkomst).</p><h4>Scorebereiken</h4><ul><li><strong>0,90 - 1,00:</strong> Uitstekende overeenkomst - zeer relevant</li><li><strong>0,75 - 0,89:</strong> Hoge overeenkomst - zeer relevant</li><li><strong>0,60 - 0,74:</strong> Gematigde overeenkomst - mogelijk relevant</li><li><strong>0,40 - 0,59:</strong> Lage overeenkomst - losjes verwant</li><li><strong>0,00 - 0,39:</strong> Slechte overeenkomst - niet aanbevolen</li></ul><h4>Technische Details</h4><p>Scores worden berekend met behulp van cosinus gelijkenis tussen inbeddingsvectoren. Een score van 1,0 geeft identieke semantische betekenis aan, terwijl 0,0 geen gelijkenis aangeeft.</p><p><strong>Opmerking:</strong> Deze scores vertegenwoordigen semantische gelijkenis in vectorruimte, niet klinische zekerheid. Controleer resultaten altijd met klinische expertise.</p>"
           }
         }
       }
