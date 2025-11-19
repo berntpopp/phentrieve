@@ -85,7 +85,7 @@
           v-for="(result, index) in responseData.results"
           :key="index"
           class="mb-1 rounded-lg"
-          :color="isAlreadyCollected(result.hpo_id) ? 'primary-lighten-5' : 'grey-lighten-5'"
+          :color="collectedPhenotypeIds.has(result.hpo_id) ? 'primary-lighten-5' : 'grey-lighten-5'"
           border
           density="compact"
         >
@@ -146,19 +146,19 @@
                 </div>
 
                 <v-btn
-                  :icon="isAlreadyCollected(result.hpo_id) ? 'mdi-check-circle' : 'mdi-plus-circle'"
+                  :icon="collectedPhenotypeIds.has(result.hpo_id) ? 'mdi-check-circle' : 'mdi-plus-circle'"
                   size="small"
-                  :color="isAlreadyCollected(result.hpo_id) ? 'success' : 'primary'"
+                  :color="collectedPhenotypeIds.has(result.hpo_id) ? 'success' : 'primary'"
                   variant="text"
                   class="flex-shrink-0 add-btn"
-                  :disabled="isAlreadyCollected(result.hpo_id)"
+                  :disabled="collectedPhenotypeIds.has(result.hpo_id)"
                   :title="
-                    isAlreadyCollected(result.hpo_id)
+                    collectedPhenotypeIds.has(result.hpo_id)
                       ? $t('resultsDisplay.alreadyInCollectionTooltip', { id: result.hpo_id })
                       : $t('resultsDisplay.addToCollectionTooltip', { id: result.hpo_id })
                   "
                   :aria-label="
-                    isAlreadyCollected(result.hpo_id)
+                    collectedPhenotypeIds.has(result.hpo_id)
                       ? $t('resultsDisplay.alreadyInCollectionAriaLabel', {
                           id: result.hpo_id,
                           label: result.label,
@@ -399,7 +399,7 @@
           v-for="(term, index) in responseData.aggregated_hpo_terms"
           :key="'agg-' + term.hpo_id + '-' + index"
           class="mb-2 pa-3 rounded-lg custom-hpo-card"
-          :color="isAlreadyCollected(term.hpo_id) ? 'blue-grey-lighten-5' : 'white'"
+          :color="collectedPhenotypeIds.has(term.hpo_id) ? 'blue-grey-lighten-5' : 'white'"
           elevation="1"
           border
           @mouseenter="updateHighlightedAttributions(term.text_attributions || [])"
@@ -514,14 +514,14 @@
               </div>
 
               <v-btn
-                :icon="isAlreadyCollected(term.hpo_id) ? 'mdi-check-circle' : 'mdi-plus-circle'"
+                :icon="collectedPhenotypeIds.has(term.hpo_id) ? 'mdi-check-circle' : 'mdi-plus-circle'"
                 size="small"
-                :color="isAlreadyCollected(term.hpo_id) ? 'success' : 'primary'"
+                :color="collectedPhenotypeIds.has(term.hpo_id) ? 'success' : 'primary'"
                 variant="text"
                 class="flex-shrink-0 add-btn"
-                :disabled="isAlreadyCollected(term.hpo_id)"
+                :disabled="collectedPhenotypeIds.has(term.hpo_id)"
                 :title="
-                  isAlreadyCollected(term.hpo_id)
+                  collectedPhenotypeIds.has(term.hpo_id)
                     ? $t('resultsDisplay.alreadyInCollectionTooltip', { id: term.hpo_id })
                     : $t('resultsDisplay.addToCollectionTooltip', { id: term.hpo_id })
                 "
@@ -628,6 +628,13 @@ export default {
       openChunkPanels: [],
       modelNameCache: new Map(), // Cache for formatted model names (performance optimization)
     };
+  },
+  computed: {
+    // Create a Set of collected phenotype IDs for O(1) lookup performance
+    // This prevents reactive dependency issues when checking collection status in templates
+    collectedPhenotypeIds() {
+      return new Set(this.collectedPhenotypes.map((item) => item.hpo_id));
+    },
   },
   methods: {
     updateHighlightedAttributions(attributions) {
@@ -750,9 +757,8 @@ export default {
     },
 
     isAlreadyCollected(hpoId) {
-      const isCollected = this.collectedPhenotypes.some((item) => item.hpo_id === hpoId);
-      logService.debug('Checking if phenotype is collected', { hpoId, isCollected });
-      return isCollected;
+      // Use the computed Set for O(1) lookup performance
+      return this.collectedPhenotypeIds.has(hpoId);
     },
     addToCollection(phenotype, assertionStatus = 'affirmed') {
       // Convert text processing format to the expected format for collection
