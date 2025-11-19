@@ -263,7 +263,7 @@
           },
           "whoCanUse": {
             "question": "Wie kan Phentrieve gebruiken?",
-            "answer": "<p>Phentrieve is ontworpen voor:</p><ul><li><strong>Klinisch genetici:</strong> Voor efficiënte fenotypering van patiënten</li><li><strong>Onderzoekers:</strong> Voor het standaardiseren van fenotypebeschrijvingen in studies</li><li><strong>Zorgverleners:</strong> Voor consistente fenotypedocumentatie</li><li><strong>Bioinformatici:</strong> Voor geautomatiseerde fenotype-analyse</li></ul><p>De tool is gratis te gebruiken en toegankelijk via een webbrowser.</p>"
+            "answer": "<p><strong>Phentrieve is uitsluitend voor onderzoeks- en informatiedoeleinden.</strong> Het is GEEN klinische diagnostische tool.</p><p>Ontworpen voor:</p><ul><li><strong>Onderzoekers:</strong> Standaardisatie van fenotypebeschrijvingen in onderzoeksstudies</li><li><strong>Klinische Genetici:</strong> Onderzoeksfenotypering en literatuuronderzoek (NIET voor patiëntdiagnose)</li><li><strong>Bio-informatici:</strong> Geautomatiseerde fenotype-analyse in onderzoeksdatasets</li><li><strong>Gezondheidszorgprofessionals:</strong> Educatieve doeleinden en onderzoeksdocumentatie</li></ul><p><strong>Belangrijk:</strong> Resultaten moeten worden geverifieerd door gekwalificeerde medische professionals voordat ze klinisch worden toegepast. Zie de disclaimer voor volledige gebruiksvoorwaarden.</p>"
           }
         }
       },

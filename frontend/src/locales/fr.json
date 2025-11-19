@@ -263,7 +263,7 @@
           },
           "whoCanUse": {
             "question": "Qui peut utiliser Phentrieve?",
-            "answer": "Phentrieve est conçu pour:Généticiens cliniques: Pour un phénotypage efficace des patientsChercheurs: Pour standardiser les descriptions phénotypiques dans les étudesProfessionnels de santé: Pour une documentation cohérente des phénotypesBio-informaticiens: Pour l'analyse phénotypique automatiséeL'outil est gratuit et accessible via un navigateur web."
+            "answer": "<p><strong>Phentrieve est uniquement à des fins de recherche et d'information.</strong> Ce n'est PAS un outil de diagnostic clinique.</p><p>Conçu pour :</p><ul><li><strong>Chercheurs :</strong> Standardisation des descriptions phénotypiques dans les études de recherche</li><li><strong>Généticiens Cliniques :</strong> Phénotypage de recherche et revue de littérature (PAS pour le diagnostic des patients)</li><li><strong>Bioinformaticiens :</strong> Analyse automatisée des phénotypes dans les ensembles de données de recherche</li><li><strong>Professionnels de la Santé :</strong> Fins éducatives et documentation de recherche</li></ul><p><strong>Important :</strong> Les résultats doivent être vérifiés par des professionnels de santé qualifiés avant toute application clinique. Consultez l'avertissement pour les conditions d'utilisation complètes.</p>"
           }
         }
       },
