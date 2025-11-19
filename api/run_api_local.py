@@ -50,7 +50,7 @@ def setup_environment():
     )
     data_dir = os.environ.get(
         "PHENTRIEVE_DATA_DIR",
-        data_root,  # No longer appending hpo_core_data subdirectory
+        data_root,  # No longer appending hpo_core_data subdirectory.
     )
     index_dir = os.environ.get(
         "PHENTRIEVE_INDEX_DIR", os.path.join(data_root, "indexes")

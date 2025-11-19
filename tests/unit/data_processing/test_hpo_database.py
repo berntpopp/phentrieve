@@ -26,8 +26,10 @@ def temp_db():
     """Create temporary in-memory database for testing."""
     db = HPODatabase(":memory:")
     db.initialize_schema()
-    yield db
-    db.close()
+    try:
+        yield db
+    finally:
+        db.close()
 
 
 @pytest.fixture
@@ -36,8 +38,10 @@ def temp_file_db(tmp_path):
     db_path = tmp_path / "test_hpo.db"
     db = HPODatabase(db_path)
     db.initialize_schema()
-    yield db
-    db.close()
+    try:
+        yield db
+    finally:
+        db.close()
 
 
 @pytest.fixture
@@ -362,10 +366,10 @@ class TestContextManager:
         with HPODatabase(db_path) as db:
             db.initialize_schema()
             # Connection should be open
-            assert db._conn is not None
+            assert not db.is_closed
 
         # Connection should be closed after context
-        assert db._conn is None
+        assert db.is_closed
 
     def test_context_manager_closes_on_exception(self, tmp_path):
         """Test that context manager closes connection even on exception."""
@@ -379,7 +383,7 @@ class TestContextManager:
             pass
 
         # Connection should be closed
-        assert db._conn is None
+        assert db.is_closed
 
 
 class TestErrorHandling:

@@ -326,6 +326,16 @@ class HPODatabase:
             self._conn = None
             logger.debug("Database connection closed")
 
+    @property
+    def is_closed(self) -> bool:
+        """
+        Check if database connection is closed.
+
+        Returns:
+            True if connection is closed (None), False if open
+        """
+        return self._conn is None
+
     def __enter__(self):
         """Context manager entry."""
         return self
