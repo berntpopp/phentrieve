@@ -13,8 +13,6 @@ Human Phenotype Ontology (HPO) data including:
 import json
 import logging
 import os
-import pickle
-import shutil
 import sys
 from collections import defaultdict, deque
 from pathlib import Path
@@ -214,48 +212,6 @@ def _parse_hpo_json_to_graphs(
     return all_nodes_data, parent_to_children_map, child_to_parents_map, all_term_ids
 
 
-def save_all_hpo_terms_as_json_files(
-    all_nodes_data: dict[str, dict], terms_dir: Path
-) -> int:
-    """
-    Saves ALL HPO terms from the nodes map as individual JSON files.
-    Args:
-        all_nodes_data: Dictionary of all parsed HPO terms/nodes.
-        terms_dir: Directory path where term JSON files will be saved.
-    Returns:
-        Number of terms saved.
-    """
-    if os.path.exists(terms_dir):
-        logger.info(f"Removing existing HPO terms directory: {terms_dir}")
-        shutil.rmtree(terms_dir)
-    os.makedirs(terms_dir, exist_ok=True)
-
-    logger.info(
-        f"Saving {len(all_nodes_data)} HPO terms to individual JSON files in {terms_dir}"
-    )
-    saved_count = 0
-    for term_id, node_data in tqdm(
-        all_nodes_data.items(), desc="Saving HPO terms to JSON"
-    ):
-        # Ensure it's an HP term before saving (already filtered by _parse_hpo_json_to_graphs)
-        if term_id.startswith("HP:"):
-            file_id = term_id.replace(":", "_")  # HP:0000123 -> HP_0000123.json
-            file_path = terms_dir / f"{file_id}.json"
-            try:
-                with open(file_path, "w", encoding="utf-8") as f:
-                    json.dump(node_data, f, ensure_ascii=False, indent=2)
-                saved_count += 1
-            except OSError as e:
-                logger.error(
-                    f"Could not write JSON for term {term_id} to {file_path}: {e}"
-                )
-            except Exception as e:
-                logger.error(f"Unexpected error saving JSON for term {term_id}: {e}")
-
-    logger.info(f"Successfully saved {saved_count} HPO terms to {terms_dir}.")
-    return saved_count
-
-
 def compute_ancestors_iterative(
     child_to_parents_map: dict[str, list[str]], all_term_ids: set[str]
 ) -> dict[str, set[str]]:
@@ -396,17 +352,6 @@ def compute_term_depths(
             logger.debug(f"Sample unreachable terms: {unreachable_sample}")
 
     return depths
-
-
-def save_pickle_data(data: Any, file_path: Path, description: str) -> None:
-    """Helper function to save data to a pickle file."""
-    os.makedirs(os.path.dirname(file_path), exist_ok=True)
-    try:
-        with open(file_path, "wb") as f:
-            pickle.dump(data, f)
-        logger.info(f"Successfully saved {description} to {file_path}")
-    except Exception as e:
-        logger.error(f"Failed to save {description} to {file_path}: {e}")
 
 
 def _extract_term_data_for_db(all_nodes_data: dict[str, dict]) -> list[dict[str, Any]]:
