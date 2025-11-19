@@ -123,9 +123,10 @@ export default defineConfig({
       }
     },
     // Watch options for better HMR performance
+    // Enable polling for WSL2 with Windows mounted files (/mnt/c/)
     watch: {
-      usePolling: false, // Use native file system events (faster)
-      interval: 100
+      usePolling: true, // Required for WSL2 cross-filesystem watching
+      interval: 100 // Poll every 100ms for changes
     }
   },
   test: {
