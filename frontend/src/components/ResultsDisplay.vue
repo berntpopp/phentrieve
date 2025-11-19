@@ -126,31 +126,23 @@
               <!-- Score chips and Add button on the right -->
               <div class="d-flex align-center ml-auto">
                 <div class="d-flex flex-row align-center gap-1 mr-2 score-chips-container">
-                  <v-chip
-                    class="score-chip"
-                    color="primary"
-                    size="x-small"
-                    label
-                    variant="outlined"
-                  >
-                    <v-icon size="x-small" start> mdi-percent </v-icon>
-                    {{ (result.similarity * 100).toFixed(1) }}%
-                  </v-chip>
+                  <SimilarityScore
+                    :score="result.similarity"
+                    type="similarity"
+                    :decimals="2"
+                    :show-animation="false"
+                  />
 
-                  <v-chip
+                  <SimilarityScore
                     v-if="
                       result.cross_encoder_score !== undefined &&
                       result.cross_encoder_score !== null
                     "
-                    class="score-chip"
-                    color="secondary"
-                    size="x-small"
-                    label
-                    variant="outlined"
-                  >
-                    <v-icon size="x-small" start> mdi-filter </v-icon>
-                    {{ formatRerankerScore(result.cross_encoder_score) }}
-                  </v-chip>
+                    :score="result.cross_encoder_score"
+                    type="rerank"
+                    :decimals="2"
+                    :show-animation="false"
+                  />
                 </div>
 
                 <v-btn
@@ -368,10 +360,13 @@
                         <v-icon size="x-small" class="ml-1" color="primary">mdi-open-in-new</v-icon>
                       </a>
                     </div>
-                    <v-chip size="x-small" color="blue-grey" variant="flat" label class="ml-2">
-                      {{ $t('resultsDisplay.similarityLabel', 'Score') }}:
-                      {{ (match.score * 100).toFixed(1) }}%
-                    </v-chip>
+                    <SimilarityScore
+                      :score="match.score"
+                      type="similarity"
+                      :decimals="2"
+                      :show-animation="false"
+                      class="ml-2"
+                    />
                   </div>
                 </v-list-item>
               </v-list>
@@ -453,31 +448,30 @@
             <div class="d-flex align-center justify-space-between flex-wrap">
               <div class="d-flex align-center flex-wrap ga-1">
                 <!-- ga-1 for gap -->
-                <v-chip color="primary" size="small" label variant="elevated">
-                  <v-icon size="small" start> mdi-chart-line-variant </v-icon>
-                  {{ (term.confidence * 100).toFixed(1) }}%
-                  <v-tooltip activator="parent" location="top">
-                    {{ $t('resultsDisplay.textProcess.avgConfidenceTooltip', 'Avg. Confidence') }}
-                  </v-tooltip>
-                </v-chip>
-                <v-chip
+                <SimilarityScore
+                  :score="term.confidence"
+                  type="confidence"
+                  :decimals="2"
+                  :show-animation="false"
+                />
+                <div
                   v-if="
                     term.max_score_from_evidence &&
                     term.max_score_from_evidence.toFixed(2) !== term.confidence.toFixed(2)
                   "
-                  color="blue-grey-lighten-2"
-                  size="small"
-                  label
-                  variant="tonal"
+                  class="d-flex align-center"
                 >
-                  <v-icon size="small" start> mdi-arrow-up-bold-hexagon-outline </v-icon>
-                  Max: {{ (term.max_score_from_evidence * 100).toFixed(1) }}%
-                  <v-tooltip activator="parent" location="top">
-                    {{
-                      $t('resultsDisplay.textProcess.maxScoreTooltip', 'Max Score from one Chunk')
-                    }}
-                  </v-tooltip>
-                </v-chip>
+                  <v-icon size="small" class="mr-1 text-medium-emphasis">
+                    mdi-arrow-up-bold-hexagon-outline
+                  </v-icon>
+                  <span class="text-caption text-medium-emphasis mr-1">Max:</span>
+                  <SimilarityScore
+                    :score="term.max_score_from_evidence"
+                    type="similarity"
+                    :decimals="2"
+                    :show-animation="false"
+                  />
+                </div>
                 <v-chip
                   v-if="term.source_chunk_ids && term.source_chunk_ids.length"
                   size="small"
@@ -586,9 +580,13 @@
 
 <script>
 import { logService } from '../services/logService';
+import SimilarityScore from './SimilarityScore.vue';
 
 export default {
   name: 'ResultsDisplay',
+  components: {
+    SimilarityScore,
+  },
   props: {
     responseData: {
       type: Object,
@@ -628,6 +626,7 @@ export default {
       highlightedAttributions: [],
       chunkPanelRefs: {},
       openChunkPanels: [],
+      modelNameCache: new Map(), // Cache for formatted model names (performance optimization)
     };
   },
   methods: {
@@ -782,14 +781,15 @@ export default {
       // Different rerankers use different score ranges/meanings
       // Some return negative scores (higher/less negative = better)
       // Others return probabilities (0-1)
+      // NOTE: This function is kept for backward compatibility but is largely replaced by SimilarityScore component
       let formattedScore;
       if (score < 0) {
         // For models like cross-encoder/mmarco-mMiniLMv2-L12-H384-v1
-        // that return negative scores, transform to a percentile-like display
+        // that return negative scores, transform to a 0-5 scale
         formattedScore = (5 + score).toFixed(1); // Transform range, e.g., -5 to 0 → 0 to 5
       } else if (score <= 1) {
-        // For models returning probabilities (entailment scores)
-        formattedScore = (score * 100).toFixed(1) + '%';
+        // For models returning probabilities (entailment scores) - display as decimal
+        formattedScore = score.toFixed(2);
       } else {
         // For any other type of score
         formattedScore = score.toFixed(2);
@@ -798,6 +798,11 @@ export default {
       return formattedScore;
     },
     displayModelName(name) {
+      // Check cache first (performance optimization - prevents excessive re-computation)
+      if (this.modelNameCache.has(name)) {
+        return this.modelNameCache.get(name);
+      }
+
       logService.debug('Formatting model name for display', { originalName: name });
       // Format model names to be more display-friendly on mobile
       if (!name) {
@@ -805,18 +810,22 @@ export default {
         return '';
       }
 
+      let formatted;
       // For typical model paths like org/model-name
       if (name.includes('/')) {
         const parts = name.split('/');
-        return parts[parts.length - 1]; // Return just the model name without organization
+        formatted = parts[parts.length - 1]; // Return just the model name without organization
       }
-
       // Shorten long model names for mobile display
-      if (name.length > 25) {
-        return name.substring(0, 22) + '...';
+      else if (name.length > 25) {
+        formatted = name.substring(0, 22) + '...';
+      } else {
+        formatted = name;
       }
 
-      return name;
+      // Cache the result
+      this.modelNameCache.set(name, formatted);
+      return formatted;
     },
   },
 };
