@@ -204,24 +204,57 @@ Already using `@lru_cache` in:
 
 **Tasks:**
 
-1. **Add cache-clearing fixture** to `tests/conftest.py`:
+1. **Add opt-in cache-clearing fixtures** to `tests/conftest.py`:
+
+   **Note**: Originally planned with `autouse=True`, but implemented as opt-in fixtures to avoid
+   test suite slowdown. Most unit tests mock `load_hpo_graph_data` and don't need cache clearing.
+   Only integration tests that load real HPO data should use these fixtures.
+
    ```python
    import pytest
 
-   @pytest.fixture(autouse=True)
-   def clear_hpo_graph_cache():
-       """Clear HPO graph data cache before and after each test to prevent pollution."""
+   @pytest.fixture
+   def fresh_hpo_graph_data():
+       """
+       Opt-in fixture for tests that need fresh HPO graph data.
+
+       Clears the cache before and after the test to ensure isolation.
+       Use this fixture when your test:
+       - Needs to load real HPO data (not mocked)
+       - Requires fresh data without cached state
+       - Tests caching behavior itself
+       """
+       from phentrieve.evaluation.metrics import load_hpo_graph_data
+
+       # Clear cache before test
+       load_hpo_graph_data.cache_clear()
+
+       # Load fresh data
+       data = load_hpo_graph_data()
+
+       yield data
+
+       # Clear cache after test for isolation
+       load_hpo_graph_data.cache_clear()
+
+   @pytest.fixture
+   def clear_hpo_cache():
+       """
+       Minimal fixture that just clears the HPO graph data cache.
+
+       Use this when you need cache clearing but don't need the actual data.
+       Useful for integration tests that call functions which internally
+       load HPO data.
+       """
        from phentrieve.evaluation.metrics import load_hpo_graph_data
 
        # Clear before test
-       if hasattr(load_hpo_graph_data, 'cache_clear'):
-           load_hpo_graph_data.cache_clear()
+       load_hpo_graph_data.cache_clear()
 
        yield
 
        # Clear after test
-       if hasattr(load_hpo_graph_data, 'cache_clear'):
-           load_hpo_graph_data.cache_clear()
+       load_hpo_graph_data.cache_clear()
    ```
 
 2. **Remove global variable reset logic** from existing tests:

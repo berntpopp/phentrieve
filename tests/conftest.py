@@ -73,8 +73,7 @@ def fresh_hpo_graph_data():
     from phentrieve.evaluation.metrics import load_hpo_graph_data
 
     # Clear cache before test
-    if hasattr(load_hpo_graph_data, "cache_clear"):
-        load_hpo_graph_data.cache_clear()
+    load_hpo_graph_data.cache_clear()
 
     # Load fresh data
     data = load_hpo_graph_data()
@@ -82,8 +81,7 @@ def fresh_hpo_graph_data():
     yield data
 
     # Clear cache after test for isolation
-    if hasattr(load_hpo_graph_data, "cache_clear"):
-        load_hpo_graph_data.cache_clear()
+    load_hpo_graph_data.cache_clear()
 
 
 @pytest.fixture
@@ -106,11 +104,9 @@ def clear_hpo_cache():
     from phentrieve.evaluation.metrics import load_hpo_graph_data
 
     # Clear before test
-    if hasattr(load_hpo_graph_data, "cache_clear"):
-        load_hpo_graph_data.cache_clear()
+    load_hpo_graph_data.cache_clear()
 
     yield
 
     # Clear after test
-    if hasattr(load_hpo_graph_data, "cache_clear"):
-        load_hpo_graph_data.cache_clear()
+    load_hpo_graph_data.cache_clear()

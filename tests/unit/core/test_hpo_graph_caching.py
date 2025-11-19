@@ -40,7 +40,7 @@ class TestCacheKeyNormalization:
         # Will be normalized but should still be absolute
         assert os.path.isabs(result)
 
-    def test_resolve_path_consistent_for_none_and_default(self, tmp_path):
+    def test_resolve_path_consistent_for_none_and_default(self):
         """Test that None and default path resolve to same value."""
         # This ensures cache key consistency
         path1 = _resolve_hpo_db_path(None)
@@ -84,9 +84,9 @@ class TestCacheBehavior:
         load_hpo_graph_data()
         assert mock_db_class.call_count == 1
 
-        # Second call (should use cache)
+        # Second call - should use cache (no additional DB instantiation)
         load_hpo_graph_data()
-        assert mock_db_class.call_count == 1  # Still 1 (cached)
+        assert mock_db_class.call_count == 1
 
         # Clear cache
         _load_hpo_graph_data_impl.cache_clear()

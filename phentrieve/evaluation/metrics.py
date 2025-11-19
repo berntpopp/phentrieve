@@ -94,8 +94,7 @@ def _load_hpo_graph_data_impl(
     Note:
         Returns empty dictionaries if database not found or loading fails.
 
-    Thread Safety:
-        This function is thread-safe due to @lru_cache's built-in locking.
+        Thread-safe: This function uses @lru_cache's built-in locking mechanism.
         Multiple concurrent calls will wait for the first load to complete.
     """
     try:
@@ -172,9 +171,8 @@ def load_hpo_graph_data(
         Results are cached via @lru_cache. To clear cache (e.g., after data updates),
         call: load_hpo_graph_data.cache_clear()
 
-    Thread Safety:
-        This function is thread-safe. The underlying cached implementation
-        uses @lru_cache which provides built-in thread-safety via locks.
+        Thread-safe: The underlying cached implementation uses @lru_cache which
+        provides built-in thread-safety via locks.
 
     Examples:
         >>> ancestors, depths = load_hpo_graph_data()
@@ -196,7 +194,12 @@ def load_hpo_graph_data(
     return _load_hpo_graph_data_impl(normalized_path)
 
 
-# Expose cache_clear method on public API for testing
+# Expose lru_cache methods on public API wrapper
+# This is the standard Python pattern for wrapper functions around @lru_cache decorated functions.
+# The type: ignore comments are necessary because function objects don't have these attributes
+# in their type stubs, but lru_cache adds them at runtime. This allows callers to access
+# cache management methods (e.g., load_hpo_graph_data.cache_clear()) without needing to
+# import the internal implementation function.
 load_hpo_graph_data.cache_clear = _load_hpo_graph_data_impl.cache_clear  # type: ignore[attr-defined]
 load_hpo_graph_data.cache_info = _load_hpo_graph_data_impl.cache_info  # type: ignore[attr-defined]
 
