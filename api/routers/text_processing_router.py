@@ -50,11 +50,8 @@ def _get_chunking_config_for_api(
     """
     from phentrieve.text_processing.config_resolver import resolve_chunking_config
 
-    strategy_name = (
-        request.chunking_strategy.lower()
-        if request.chunking_strategy
-        else "sliding_window_punct_conj_cleaned"
-    )
+    # Pydantic schema ensures chunking_strategy always has a default value
+    strategy_name = request.chunking_strategy.lower()
 
     # Extract parameters with defaults
     ws = request.window_size if request.window_size is not None else 7

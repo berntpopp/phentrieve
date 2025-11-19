@@ -20,8 +20,8 @@ class TextProcessingRequest(BaseModel):
     )
 
     # Chunking Configuration
-    chunking_strategy: Optional[str] = Field(
-        default="sliding_window_punct_conj_cleaned",  # Updated to the new default strategy
+    chunking_strategy: str = Field(
+        default="sliding_window_punct_conj_cleaned",  # Default strategy for optimal results
         description="Predefined chunking strategy (e.g., 'simple', 'semantic', 'detailed', 'sliding_window_cleaned', 'sliding_window_punct_cleaned', 'sliding_window_punct_conj_cleaned'). See Phentrieve documentation for details.",
         json_schema_extra={"example": "sliding_window_punct_conj_cleaned"},
     )
