@@ -90,6 +90,9 @@ Thumbs.db
 # output files
 output/
 
+# MkDocs build output
+site/
+
 # Claude Code files
 .claude/
 
