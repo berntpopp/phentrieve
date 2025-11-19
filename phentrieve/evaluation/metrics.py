@@ -11,6 +11,7 @@ using various metrics including:
 import logging
 import os
 from enum import Enum
+from functools import lru_cache
 from typing import Any, Optional, Union
 
 from phentrieve.config import DEFAULT_HPO_DB_FILENAME
@@ -47,9 +48,100 @@ class SimilarityFormula(Enum):
             return cls.HYBRID
 
 
-# Global caches for HPO graph data
-_hpo_ancestors: dict[str, set[str]] | None = None
-_hpo_term_depths: dict[str, int] | None = None
+def _resolve_hpo_db_path(db_path: str | None = None) -> str:
+    """
+    Resolve HPO database path to absolute path.
+
+    This ensures consistent cache keys by normalizing None and relative paths
+    to the same absolute path.
+
+    Args:
+        db_path: Path to HPO database file, or None for default
+
+    Returns:
+        Absolute path to HPO database file
+    """
+    if db_path is None:
+        # Try direct data directory first
+        if os.path.exists("data") and os.path.exists(f"data/{DEFAULT_HPO_DB_FILENAME}"):
+            db_path = f"data/{DEFAULT_HPO_DB_FILENAME}"
+        else:
+            data_dir = get_default_data_dir()
+            db_path = str(data_dir / DEFAULT_HPO_DB_FILENAME)
+
+    # Convert to absolute path for consistent cache keys
+    return os.path.abspath(db_path)
+
+
+@lru_cache(maxsize=1)
+def _load_hpo_graph_data_impl(
+    db_path: str,
+) -> tuple[dict[str, set[str]], dict[str, int]]:
+    """
+    Internal cached implementation of HPO graph data loading.
+
+    This function is cached with @lru_cache for thread-safe memoization.
+    The cache key is based on the normalized absolute db_path.
+
+    Args:
+        db_path: Absolute path to HPO SQLite database file
+
+    Returns:
+        Tuple of (ancestors_dict, depths_dict)
+        - ancestors_dict: {term_id: set of ancestor IDs}
+        - depths_dict: {term_id: depth from root}
+
+    Note:
+        Returns empty dictionaries if database not found or loading fails.
+
+        Thread-safe: This function uses @lru_cache's built-in locking mechanism.
+        Multiple concurrent calls will wait for the first load to complete.
+    """
+    try:
+        # Check if database exists
+        if not os.path.exists(db_path):
+            logging.error(f"HPO database not found: {db_path}")
+            logging.error(
+                "Please run 'phentrieve data prepare' to generate the database."
+            )
+            return {}, {}
+
+        # Load graph data from database
+        logging.info(f"Loading HPO graph data from database: {db_path}...")
+        db = HPODatabase(db_path)
+        ancestors, depths = db.load_graph_data()
+        db.close()
+
+        logging.info(f"Loaded ancestor sets for {len(ancestors)} HPO terms")
+        logging.info(f"Loaded depth values for {len(depths)} HPO terms")
+
+        # Log sample data for debugging
+        if ancestors:
+            sample_terms = list(ancestors.keys())[:3]
+            for term in sample_terms:
+                term_ancestors = ancestors.get(term, set())
+                logging.debug(f"Sample term {term} has {len(term_ancestors)} ancestors")
+
+        # Log sample depth data
+        if depths:
+            sample_terms = list(depths.keys())[:5]
+            logging.debug(f"Sample depths: {[(t, depths[t]) for t in sample_terms]}")
+
+            # Statistics on depth distribution
+            depth_values = list(depths.values())
+            if depth_values:
+                min_depth = min(depth_values)
+                max_depth = max(depth_values)
+                avg_depth = sum(depth_values) / len(depth_values)
+                logging.debug(
+                    f"Depth statistics: min={min_depth}, max={max_depth}, avg={avg_depth:.2f}"
+                )
+
+        return ancestors, depths
+
+    except Exception as e:
+        logging.error(f"Error loading HPO graph data: {e}", exc_info=True)
+        return {}, {}
 
 
 def load_hpo_graph_data(
@@ -59,6 +151,10 @@ def load_hpo_graph_data(
 ) -> tuple[dict[str, set[str]], dict[str, int]]:
     """
     Load precomputed HPO graph data from SQLite database.
+
+    This is a wrapper function that normalizes the db_path argument before
+    calling the cached implementation. This ensures consistent cache behavior
+    regardless of whether None or an explicit path is provided.
 
     Args:
         db_path: Path to the HPO SQLite database file (preferred)
@@ -72,70 +168,40 @@ def load_hpo_graph_data(
 
     Note:
         Returns empty dictionaries if database not found or loading fails.
+        Results are cached via @lru_cache. To clear cache (e.g., after data updates),
+        call: load_hpo_graph_data.cache_clear()
+
+        Thread-safe: The underlying cached implementation uses @lru_cache which
+        provides built-in thread-safety via locks.
+
+    Examples:
+        >>> ancestors, depths = load_hpo_graph_data()
+        >>> len(ancestors)  # e.g., 19534
+        >>> # Clear cache if needed
+        >>> load_hpo_graph_data.cache_clear()
     """
-    global _hpo_ancestors, _hpo_term_depths
+    # Normalize path to ensure consistent cache keys
+    normalized_path = _resolve_hpo_db_path(db_path)
 
-    # Return cached data if already loaded
-    if _hpo_ancestors is not None and _hpo_term_depths is not None:
-        logging.debug("Using cached HPO graph data")
-        return _hpo_ancestors, _hpo_term_depths
+    # Deprecated parameters are ignored (kept for API compatibility)
+    if ancestors_path is not None or depths_path is not None:
+        logging.warning(
+            "ancestors_path and depths_path parameters are deprecated. "
+            "HPO data is now loaded from SQLite database only."
+        )
 
-    # Resolve database path if not provided
-    if db_path is None:
-        # Try direct data directory first
-        if os.path.exists("data") and os.path.exists(f"data/{DEFAULT_HPO_DB_FILENAME}"):
-            db_path = f"data/{DEFAULT_HPO_DB_FILENAME}"
-        else:
-            data_dir = get_default_data_dir()
-            db_path = str(data_dir / DEFAULT_HPO_DB_FILENAME)
+    # Call cached implementation with normalized path
+    return _load_hpo_graph_data_impl(normalized_path)
 
-    try:
-        # Check if database exists
-        if not os.path.exists(db_path):
-            logging.error(f"HPO database not found: {db_path}")
-            logging.error(
-                "Please run 'phentrieve data prepare' to generate the database."
-            )
-            return {}, {}
 
-        # Load graph data from database
-        logging.info(f"Loading HPO graph data from database: {db_path}...")
-        db = HPODatabase(db_path)
-        _hpo_ancestors, _hpo_term_depths = db.load_graph_data()
-        db.close()
-
-        logging.info(f"Loaded ancestor sets for {len(_hpo_ancestors)} HPO terms")
-        logging.info(f"Loaded depth values for {len(_hpo_term_depths)} HPO terms")
-
-        # Log sample data for debugging
-        if _hpo_ancestors:
-            sample_terms = list(_hpo_ancestors.keys())[:3]
-            for term in sample_terms:
-                ancestors = _hpo_ancestors.get(term, set())
-                logging.debug(f"Sample term {term} has {len(ancestors)} ancestors")
-
-        # Log sample depth data
-        if _hpo_term_depths:
-            sample_terms = list(_hpo_term_depths.keys())[:5]
-            logging.debug(
-                f"Sample depths: {[(t, _hpo_term_depths[t]) for t in sample_terms]}"
-            )
-
-            # Statistics on depth distribution
-            depths = list(_hpo_term_depths.values())
-            if depths:
-                min_depth = min(depths)
-                max_depth = max(depths)
-                avg_depth = sum(depths) / len(depths)
-                logging.debug(
-                    f"Depth statistics: min={min_depth}, max={max_depth}, avg={avg_depth:.2f}"
-                )
-
-        return _hpo_ancestors, _hpo_term_depths
-
-    except Exception as e:
-        logging.error(f"Error loading HPO graph data: {e}", exc_info=True)
-        return {}, {}
+# Expose lru_cache methods on public API wrapper
+# This is the standard Python pattern for wrapper functions around @lru_cache decorated functions.
+# The type: ignore comments are necessary because function objects don't have these attributes
+# in their type stubs, but lru_cache adds them at runtime. This allows callers to access
+# cache management methods (e.g., load_hpo_graph_data.cache_clear()) without needing to
+# import the internal implementation function.
+load_hpo_graph_data.cache_clear = _load_hpo_graph_data_impl.cache_clear  # type: ignore[attr-defined]
+load_hpo_graph_data.cache_info = _load_hpo_graph_data_impl.cache_info  # type: ignore[attr-defined]
 
 
 def find_lowest_common_ancestor(
