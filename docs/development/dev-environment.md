@@ -162,8 +162,6 @@ make dev-frontend
 | **API Reload** | 3-5 sec | <1 sec | 5x faster |
 | **Frontend HMR** | 2-4 sec | <50ms | 40-80x faster |
 
-See [CLAUDE.md](../../CLAUDE.md#local-development-fast---no-docker) for detailed local dev setup.
-
 ## Package Management with uv
 
 ### Common Operations

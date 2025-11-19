@@ -62,6 +62,7 @@ nav:
     - 'Docker & NPM': 'deployment/docker-npm.md'
     - 'Local Docker': 'deployment/local-docker.md'
     - 'Data Management': 'deployment/data-management.md'
+    - 'Security': 'deployment/security.md'
   - 'Development':
     - 'Overview': 'development/index.md'
     - 'Project Structure': 'development/project-structure.md'
