@@ -54,6 +54,7 @@ nav:
     - 'Logo Design': 'core-concepts/logo.md'
   - 'Advanced Topics':
     - 'Overview': 'advanced-topics/index.md'
+    - 'Algorithms and Packages': 'advanced-topics/algorithms-and-packages.md'
     - 'Text Processing Pipeline': 'advanced-topics/text-processing-pipeline.md'
     - 'Benchmarking Framework': 'advanced-topics/benchmarking-framework.md'
   - 'Deployment':
