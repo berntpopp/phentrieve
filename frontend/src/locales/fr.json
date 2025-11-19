@@ -275,6 +275,20 @@
           "performance": {
             "question": "Quelles performances puis-je attendre?",
             "answer": "Nos résultats de benchmark montrent:BioLORD-2023-M: HR@1=0.3333, HR@3=0.6667, HR@5=0.7778Jina-v2-base-de: HR@1=0.2222, HR@3=0.4444, HR@5=0.5556Les performances peuvent varier en fonction de la complexité et de la spécificité du texte d'entrée."
+          },
+          "similarityScore": {
+            "title": "Que signifient les scores de similitude?",
+            "intro": "Phentrieve utilise la similitude cosinus pour mesurer à quel point votre texte clinique correspond aux termes HPO. Les scores vont de 0,0 (aucune similitude) à 1,0 (correspondance parfaite).",
+            "scoreRanges": "Plages de Score",
+            "excellent": "Correspondance excellente - très pertinent",
+            "high": "Correspondance élevée - très pertinent",
+            "moderate": "Correspondance modérée - potentiellement pertinent",
+            "low": "Correspondance faible - vaguement lié",
+            "poor": "Correspondance médiocre - non recommandé",
+            "technical": "Détails Techniques",
+            "explanation": "Les scores sont calculés en utilisant la similitude cosinus entre les vecteurs d'intégration. Un score de 1,0 indique une signification sémantique identique, tandis que 0,0 indique aucune similitude.",
+            "note": "Remarque:",
+            "disclaimer": "Ces scores représentent la similitude sémantique dans l'espace vectoriel, pas la certitude clinique. Examinez toujours les résultats avec une expertise clinique."
           }
         }
       }

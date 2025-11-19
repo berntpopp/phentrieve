@@ -320,6 +320,20 @@
           "performance": {
             "question": "¿Qué rendimiento puedo esperar?",
             "answer": "<p>Nuestros resultados de referencia muestran:</p><ul><li>BioLORD-2023-M: HR@1=0.3333, HR@3=0.6667, HR@5=0.7778</li><li>Jina-v2-base-de: HR@1=0.2222, HR@3=0.4444, HR@5=0.5556</li></ul><p>El rendimiento puede variar según la complejidad y especificidad del texto de entrada.</p>"
+          },
+          "similarityScore": {
+            "title": "¿Qué significan las puntuaciones de similitud?",
+            "intro": "Phentrieve utiliza similitud de coseno para medir qué tan cerca coincide su texto clínico con los términos HPO. Las puntuaciones van de 0,0 (sin similitud) a 1,0 (coincidencia perfecta).",
+            "scoreRanges": "Rangos de Puntuación",
+            "excellent": "Coincidencia excelente - altamente relevante",
+            "high": "Coincidencia alta - muy relevante",
+            "moderate": "Coincidencia moderada - potencialmente relevante",
+            "low": "Coincidencia baja - vagamente relacionada",
+            "poor": "Coincidencia pobre - no recomendada",
+            "technical": "Detalles Técnicos",
+            "explanation": "Las puntuaciones se calculan utilizando similitud de coseno entre vectores de incrustación. Una puntuación de 1,0 indica significado semántico idéntico, mientras que 0,0 indica que no hay similitud.",
+            "note": "Nota:",
+            "disclaimer": "Estas puntuaciones representan similitud semántica en el espacio vectorial, no certeza clínica. Siempre revise los resultados con experiencia clínica."
           }
         }
       }

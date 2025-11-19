@@ -30,6 +30,11 @@
         {
           "question": "What performance can I expect?",
           "answer": "<p>Our benchmark results show:</p><ul><li>BioLORD-2023-M: HR@1=0.3333, HR@3=0.6667, HR@5=0.7778</li><li>Jina-v2-base-de: HR@1=0.2222, HR@3=0.4444, HR@5=0.5556</li></ul><p>Performance may vary based on the complexity and specificity of the input text.</p>"
+        },
+        {
+          "id": "similarityScore",
+          "question": "What do the similarity scores mean?",
+          "answer": "placeholder"
         }
       ]
     }

@@ -111,7 +111,7 @@ export default {
         },
         technical: {
           id: 'technical',
-          questions: [{ id: 'reranking' }, { id: 'performance' }],
+          questions: [{ id: 'reranking' }, { id: 'performance' }, { id: 'similarityScore' }],
         },
       },
     };
