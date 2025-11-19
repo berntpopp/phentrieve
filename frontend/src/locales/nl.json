@@ -128,6 +128,7 @@
       "similarityThreshold": "Stel de minimale overeenkomst in die vereist is voor matches (hoger = nauwkeuriger, minder resultaten)",
       "enableReranking": "Herorden zoekresultaten voor verbeterde nauwkeurigheid",
       "rerankerMode": "Kies hoe zoekresultaten worden geherordend",
+      "language": "Selecteer de taal voor verwerking en negatie detectie",
       "subjectId": "Voer een identificatie in voor de patiënt",
       "sex": "Selecteer het biologische geslacht van de patiënt",
       "dateOfBirth": "Voer de geboortedatum van de patiënt in"

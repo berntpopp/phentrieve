@@ -151,6 +151,7 @@
     "assertionLabel": "Assertion",
     "negated": "Niée",
     "affirmed": "Affirmée",
+    "unknown": "Inconnu",
     "similarityLabel": "Score de similitude",
     "rerankLabel": "Score de reclassement",
     "confidenceLabel": "Score de confiance",
