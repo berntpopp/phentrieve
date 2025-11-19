@@ -8,7 +8,12 @@ import viteImagemin from 'vite-plugin-imagemin'
 import iconOptimizer from './vite-icon-optimizer'
 import commonjs from '@rollup/plugin-commonjs'
 
-export default defineConfig({  
+export default defineConfig({
+  // Remove Vue devtools and debug code from production builds
+  define: {
+    __VUE_PROD_DEVTOOLS__: false,
+    __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: false,
+  },
   optimizeDeps: {
     include: ['google-protobuf'],
     esbuildOptions: {
