@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     import chromadb
     from sentence_transformers import SentenceTransformer
 
-from phentrieve.config import MIN_SIMILARITY_THRESHOLD
+from phentrieve.config import MIN_SIMILARITY_THRESHOLD, VectorStoreConfig
 from phentrieve.utils import (
     calculate_similarity,
     generate_collection_name,
@@ -44,18 +44,34 @@ def connect_to_chroma(
     """
     # Lazy import - only load chromadb when actually connecting to database
     # Avoids 2.8s import overhead for CLI commands that don't use ChromaDB
+    from pathlib import Path
+
     import chromadb
 
     try:
         # Convert Path to string and ensure it exists
         index_dir_str = str(index_dir)
 
-        # Initialize ChromaDB client with proper settings to avoid tenant issues
+        # Create vector store configuration
+        # Note: We use model_name or collection_name for config creation
+        # to maintain backward compatibility with existing collections
+        if model_name:
+            vector_store_config = VectorStoreConfig.for_chromadb(
+                model_name=model_name,
+                index_dir=Path(index_dir_str),
+            )
+        else:
+            # Fallback: create config with default settings if no model_name
+            # This handles edge cases where only collection_name is provided
+            vector_store_config = VectorStoreConfig(
+                path=index_dir_str,
+                collection_name=collection_name,
+            )
+
+        # Initialize ChromaDB client with config
         client = chromadb.PersistentClient(
-            path=index_dir_str,
-            settings=chromadb.Settings(
-                anonymized_telemetry=False, allow_reset=True, is_persistent=True
-            ),
+            path=vector_store_config.path,
+            settings=vector_store_config.to_chromadb_settings(),
         )
 
         try:

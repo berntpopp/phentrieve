@@ -10,8 +10,12 @@ fall back to the defaults defined in this module.
 
 import copy
 import functools
+from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    import chromadb
 
 # Default directory sub-paths and filenames (relative to base dirs)
 # Sub-directories (for data_dir)
@@ -410,3 +414,127 @@ HPO_DOWNLOAD_TIMEOUT: int = int(
 HPO_CHUNK_SIZE: int = int(
     get_config_value("hpo_data", _DEFAULT_HPO_CHUNK_SIZE_FALLBACK, "chunk_size")
 )
+
+
+# =============================================================================
+# Vector Store Configuration
+# =============================================================================
+
+
+@dataclass(frozen=True, slots=True, kw_only=True)
+class VectorStoreConfig:
+    """
+    Configuration for vector store connection and settings.
+
+    This class centralizes vector store configuration to reduce coupling with
+    ChromaDB-specific implementation details. It follows the Dependency Inversion
+    Principle (SOLID) by depending on configuration rather than implementation.
+
+    Design Principles:
+    - Immutable (frozen=True): Prevents accidental modification after creation
+    - Memory-efficient (slots=True): Reduces memory overhead
+    - Explicit (kw_only=True): Requires keyword arguments for clarity
+
+    Attributes:
+        path: Directory path where vector store data is persisted
+        collection_name: Name of the collection within the vector store
+        distance_metric: Distance metric for similarity calculations (default: "cosine")
+        settings: Backend-specific settings dictionary
+
+    Examples:
+        >>> config = VectorStoreConfig.for_chromadb(
+        ...     model_name="sentence-transformers/all-MiniLM-L6-v2",
+        ...     index_dir=Path("/data/indexes")
+        ... )
+        >>> client = chromadb.PersistentClient(
+        ...     path=config.path,
+        ...     settings=config.to_chromadb_settings()
+        ... )
+    """
+
+    path: str
+    collection_name: str
+    distance_metric: str = "cosine"
+    settings: dict[str, Any] = field(
+        default_factory=lambda: {
+            "anonymized_telemetry": False,
+            "allow_reset": True,
+            "is_persistent": True,
+        }
+    )
+
+    @classmethod
+    def for_chromadb(
+        cls,
+        model_name: str,
+        index_dir: Path,
+        distance_metric: str = "cosine",
+        custom_settings: dict[str, Any] | None = None,
+    ) -> "VectorStoreConfig":
+        """
+        Create a VectorStoreConfig for ChromaDB backend.
+
+        Factory method that encapsulates ChromaDB-specific defaults and
+        collection naming conventions. This allows easy creation of configs
+        without coupling client code to ChromaDB details.
+
+        Args:
+            model_name: Name of the embedding model (used for collection naming)
+            index_dir: Directory where ChromaDB will store data
+            distance_metric: Distance metric for similarity ("cosine", "l2", "ip")
+            custom_settings: Optional settings to override defaults
+
+        Returns:
+            VectorStoreConfig instance configured for ChromaDB
+
+        Examples:
+            >>> config = VectorStoreConfig.for_chromadb(
+            ...     model_name="sentence-transformers/all-MiniLM-L6-v2",
+            ...     index_dir=Path("/data/indexes")
+            ... )
+            >>> config.collection_name
+            'hpo_sentence-transformers_all-MiniLM-L6-v2'
+        """
+        # Lazy import to avoid circular dependency
+        from phentrieve.utils import generate_collection_name
+
+        collection_name = generate_collection_name(model_name)
+
+        # Default ChromaDB settings
+        default_settings = {
+            "anonymized_telemetry": False,
+            "allow_reset": True,
+            "is_persistent": True,
+        }
+
+        # Merge custom settings with defaults (custom settings override)
+        final_settings = default_settings.copy()
+        if custom_settings:
+            final_settings.update(custom_settings)
+
+        return cls(
+            path=str(index_dir),
+            collection_name=collection_name,
+            distance_metric=distance_metric,
+            settings=final_settings,
+        )
+
+    def to_chromadb_settings(self) -> "chromadb.Settings":
+        """
+        Convert configuration to ChromaDB Settings object.
+
+        This method encapsulates ChromaDB-specific settings creation. If we
+        migrate to a different vector store backend, this method can be
+        replaced with an equivalent for the new backend.
+
+        Returns:
+            chromadb.Settings: ChromaDB settings object
+
+        Examples:
+            >>> config = VectorStoreConfig.for_chromadb(...)
+            >>> settings = config.to_chromadb_settings()
+            >>> client = chromadb.PersistentClient(path=config.path, settings=settings)
+        """
+        import chromadb
+
+        return chromadb.Settings(**self.settings)
