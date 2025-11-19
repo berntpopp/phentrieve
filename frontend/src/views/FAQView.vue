@@ -73,9 +73,16 @@
                     </v-expansion-panel-title>
                     <v-expansion-panel-text>
                       <div
-                        class="answer-content text-body-2"
+                        class="answer-content text-body-1"
                         role="region"
                         :aria-label="'Answer to: ' + qa.question"
+                        :style="{
+                          color: 'rgba(0, 0, 0, 0.87)',
+                          backgroundColor: 'rgba(0, 0, 0, 0.02)',
+                          padding: '16px 20px',
+                          lineHeight: '1.6',
+                          borderRadius: '4px',
+                        }"
                         v-html="t(`faq.categories.${category.id}.questions.${qa.id}.answer`)"
                       />
                     </v-expansion-panel-text>
@@ -153,6 +160,8 @@ export default {
 </script>
 
 <style scoped>
+/* FAQ Page Styling - Modern UX with WCAG AAA Compliance */
+
 .fill-height {
   min-height: 100vh;
   background-color: rgb(var(--v-theme-background));
@@ -167,17 +176,20 @@ export default {
   padding: 1rem;
 }
 
-.answer-content {
-  padding: 16px;
-  color: rgb(var(--v-theme-on-surface-variant));
-}
-
+/* Deep selectors for answer content - styled via inline :style for better HMR */
 .answer-content :deep(p) {
   margin-bottom: 1em;
 }
 
 .answer-content :deep(p:last-child) {
   margin-bottom: 0;
+}
+
+.answer-content :deep(h4) {
+  margin-top: 1em;
+  margin-bottom: 0.5em;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.9);
 }
 
 .answer-content :deep(ul),
@@ -194,14 +206,18 @@ export default {
   margin-bottom: 0;
 }
 
-.answer-content :deep(strong) {
-  color: rgb(var(--v-theme-on-surface));
-  font-weight: 500;
+.answer-content :deep(code) {
+  background-color: rgba(0, 0, 0, 0.05);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-family: monospace;
+  font-size: 0.9em;
 }
 
 .answer-content :deep(a) {
   color: rgb(var(--v-theme-primary));
   text-decoration: none;
+  transition: all 0.2s ease;
 }
 
 .answer-content :deep(a:hover) {
@@ -215,22 +231,34 @@ export default {
 
 .answer-content :deep(strong) {
   font-weight: 600;
-  color: rgb(var(--v-theme-on-surface));
+  color: rgba(0, 0, 0, 0.95);
 }
 
+/* FAQ panel styling */
 .faq-panel {
   border-bottom: thin solid rgba(var(--v-border-color), var(--v-border-opacity));
 }
 
-.qa-panel {
-  background-color: rgb(var(--v-theme-surface));
-}
-
+/* Expansion panel improvements */
 :deep(.v-expansion-panel-title) {
   padding: 16px;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+:deep(.v-expansion-panel-title:hover) {
+  background-color: rgba(0, 0, 0, 0.02);
 }
 
 :deep(.v-expansion-panel-text__wrapper) {
   padding: 0;
+}
+
+:deep(.v-expansion-panel) {
+  margin-bottom: 2px;
+}
+
+:deep(.v-expansion-panel:last-child) {
+  margin-bottom: 0;
 }
 </style>

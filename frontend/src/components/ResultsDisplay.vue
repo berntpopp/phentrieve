@@ -146,7 +146,11 @@
                 </div>
 
                 <v-btn
-                  :icon="collectedPhenotypeIds.has(result.hpo_id) ? 'mdi-check-circle' : 'mdi-plus-circle'"
+                  :icon="
+                    collectedPhenotypeIds.has(result.hpo_id)
+                      ? 'mdi-check-circle'
+                      : 'mdi-plus-circle'
+                  "
                   size="small"
                   :color="collectedPhenotypeIds.has(result.hpo_id) ? 'success' : 'primary'"
                   variant="text"
@@ -514,7 +518,9 @@
               </div>
 
               <v-btn
-                :icon="collectedPhenotypeIds.has(term.hpo_id) ? 'mdi-check-circle' : 'mdi-plus-circle'"
+                :icon="
+                  collectedPhenotypeIds.has(term.hpo_id) ? 'mdi-check-circle' : 'mdi-plus-circle'
+                "
                 size="small"
                 :color="collectedPhenotypeIds.has(term.hpo_id) ? 'success' : 'primary'"
                 variant="text"
