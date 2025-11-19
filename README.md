@@ -36,6 +36,26 @@ phentrieve text process "The patient exhibits microcephaly and frequent seizures
 
 Discover more commands and options in the [User Guide](https://berntpopp.github.io/phentrieve/user-guide/).
 
+## Docker Deployment
+
+Deploy Phentrieve using Docker Compose for production environments:
+
+```bash
+# Linux: Setup volume permissions (required)
+sudo ./scripts/setup-docker-volumes.sh
+
+# macOS/Windows: No setup needed, skip to next step
+
+# Start services
+docker-compose up -d
+
+# Access the application
+# - API: http://localhost:8000
+# - Frontend: http://localhost:8080
+```
+
+For detailed deployment instructions, security best practices, and troubleshooting, see the [Docker Deployment Guide](docs/DOCKER-DEPLOYMENT.md).
+
 ---
 
 [Full Documentation](https://berntpopp.github.io/phentrieve/) | [Contributing Guide](https://berntpopp.github.io/phentrieve/development/) | [License](LICENSE)

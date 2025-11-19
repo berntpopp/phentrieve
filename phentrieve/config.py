@@ -25,8 +25,6 @@ DEFAULT_BENCHMARK_FILE = "german/tiny_v1.json"
 # HPO data filenames (relative to data_dir)
 DEFAULT_HPO_FILENAME = "hp.json"
 DEFAULT_HPO_DB_FILENAME = "hpo_data.db"  # SQLite database for HPO terms and graph data
-DEFAULT_ANCESTORS_FILENAME = "hpo_ancestors.pkl"  # Legacy - will be removed
-DEFAULT_DEPTHS_FILENAME = "hpo_term_depths.pkl"  # Legacy - will be removed
 
 # Benchmark result subdirectories
 DEFAULT_SUMMARIES_SUBDIR = "summaries"
