@@ -256,8 +256,8 @@ class TestBackwardCompatibility:
 class TestComplexScenarios:
     """Test complex real-world scenarios."""
 
-    def test_file_with_parameters_ignores_parameters(self, tmp_path):
-        """Test that parameters are ignored when loading from file."""
+    def test_file_with_parameters_overrides_file_values(self, tmp_path):
+        """Test that parameters override file values when both are provided."""
         config_file = tmp_path / "config.yaml"
         config_data = {
             "chunking_pipeline": [
@@ -275,11 +275,10 @@ class TestComplexScenarios:
         # Try to override with window_size=50
         config = resolve_chunking_config(
             config_file=config_file,
-            window_size=50,  # This should be ignored for file-based configs
+            window_size=50,  # This should override the value from the file
         )
 
-        # File should win, but parameters should be applied
-        # (This tests the override behavior)
+        # Parameters provided to resolve_chunking_config override values from the config file
         sw_component = config[0]
         assert sw_component["type"] == "sliding_window"
         # Parameters ARE applied to file configs

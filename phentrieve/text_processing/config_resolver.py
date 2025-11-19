@@ -7,6 +7,7 @@ Consolidates logic previously duplicated between CLI and API.
 
 import json
 import logging
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
@@ -186,11 +187,11 @@ def _get_strategy_config(strategy_name: str) -> list[dict[str, Any]]:
     strategy_name = strategy_name.lower()
 
     # Map strategy names to config functions
-    strategy_map = {
+    strategy_map: dict[str, Callable[[], list[dict[str, Any]]]] = {
         "simple": get_simple_chunking_config,
         "detailed": get_detailed_chunking_config,
         "semantic": get_semantic_chunking_config,
-        "sliding_window": lambda: get_sliding_window_config_with_params(),
+        "sliding_window": get_sliding_window_config_with_params,
         "sliding_window_cleaned": get_sliding_window_cleaned_config,
         "sliding_window_punct_cleaned": get_sliding_window_punct_cleaned_config,
         "sliding_window_punct_conj_cleaned": get_sliding_window_punct_conj_cleaned_config,
