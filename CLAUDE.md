@@ -439,6 +439,34 @@ Workflows: `.github/workflows/ci.yml`, `.github/workflows/docker-publish.yml`
 - **HPO data**: `data/hpo_data.db` - SQLite database containing all HPO terms, ontology structure, and graph metadata (generated via `phentrieve data prepare`)
 - **Embeddings cache**: `data/hf_cache/` for Hugging Face model cache
 
+### Caching Patterns
+
+**Thread-Safe Caching with `@lru_cache`:**
+- HPO graph data loading (`load_hpo_graph_data()`) - Thread-safe, cached ontology structure
+- Configuration loading (`load_user_config()`) - Cached YAML configuration
+- HPO label mapping (`_get_hpo_label_map_api()`) - Cached term labels
+- ID normalization (`normalize_id()`) - Cached ID format conversions
+
+**Implementation Pattern:**
+```python
+from functools import lru_cache
+
+@lru_cache(maxsize=1)
+def expensive_function(param: str) -> DataType:
+    """Function with cached results."""
+    # Expensive operation here
+    return result
+
+# Clear cache when needed (e.g., in tests):
+expensive_function.cache_clear()
+```
+
+**Benefits:**
+- Thread-safe by default (Python 3.9+)
+- No mutable global state
+- Easy to test with `.cache_clear()`
+- Pythonic and idiomatic
+
 ### Testing Architecture
 
 **Test Structure** (157 total tests, 13% statement coverage):
