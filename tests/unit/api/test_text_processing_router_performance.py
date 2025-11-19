@@ -36,7 +36,9 @@ class TestAdaptiveTimeout:
         ) as mock_internal:
             mock_internal.return_value = {"test": "result"}
 
-            with patch("api.routers.text_processing_router.asyncio.wait_for") as mock_wait:
+            with patch(
+                "api.routers.text_processing_router.asyncio.wait_for"
+            ) as mock_wait:
                 mock_wait.return_value = {"test": "result"}
 
                 await process_text_extract_hpo(request)
@@ -58,7 +60,9 @@ class TestAdaptiveTimeout:
         ) as mock_internal:
             mock_internal.return_value = {"test": "result"}
 
-            with patch("api.routers.text_processing_router.asyncio.wait_for") as mock_wait:
+            with patch(
+                "api.routers.text_processing_router.asyncio.wait_for"
+            ) as mock_wait:
                 mock_wait.return_value = {"test": "result"}
 
                 await process_text_extract_hpo(request)
@@ -79,7 +83,9 @@ class TestAdaptiveTimeout:
         ) as mock_internal:
             mock_internal.return_value = {"test": "result"}
 
-            with patch("api.routers.text_processing_router.asyncio.wait_for") as mock_wait:
+            with patch(
+                "api.routers.text_processing_router.asyncio.wait_for"
+            ) as mock_wait:
                 mock_wait.return_value = {"test": "result"}
 
                 await process_text_extract_hpo(request)
@@ -100,7 +106,9 @@ class TestAdaptiveTimeout:
         ) as mock_internal:
             mock_internal.return_value = {"test": "result"}
 
-            with patch("api.routers.text_processing_router.asyncio.wait_for") as mock_wait:
+            with patch(
+                "api.routers.text_processing_router.asyncio.wait_for"
+            ) as mock_wait:
                 mock_wait.return_value = {"test": "result"}
 
                 await process_text_extract_hpo(request)
@@ -120,9 +128,7 @@ class TestTimeoutHandling:
             text_content="Test text",
         )
 
-        with patch(
-            "api.routers.text_processing_router.asyncio.wait_for"
-        ) as mock_wait:
+        with patch("api.routers.text_processing_router.asyncio.wait_for") as mock_wait:
             # Simulate timeout
             mock_wait.side_effect = asyncio.TimeoutError()
 
@@ -145,9 +151,7 @@ class TestTimeoutHandling:
             text_content="Test text" * 50,
         )
 
-        with patch(
-            "api.routers.text_processing_router.asyncio.wait_for"
-        ) as mock_wait:
+        with patch("api.routers.text_processing_router.asyncio.wait_for") as mock_wait:
             mock_wait.side_effect = asyncio.TimeoutError()
 
             with pytest.raises(HTTPException) as exc_info:
@@ -202,7 +206,7 @@ class TestModelCaching:
 
                             try:
                                 await _process_text_internal(request)
-                            except Exception:
+                            except Exception:  # noqa: S110
                                 # Expected: Full pipeline may fail with mocked dependencies
                                 # We're only testing that cached dependencies are called
                                 pass
@@ -244,7 +248,7 @@ class TestModelCaching:
 
                             try:
                                 await _process_text_internal(request)
-                            except Exception:
+                            except Exception:  # noqa: S110
                                 # Expected: Full pipeline may fail with mocked dependencies
                                 # We're only testing that cached dependencies are called
                                 pass
@@ -293,7 +297,7 @@ class TestModelCaching:
 
                                 try:
                                     await _process_text_internal(request)
-                                except Exception:
+                                except Exception:  # noqa: S110
                                     # Expected: Full pipeline may fail with mocked dependencies
                                     # We're only testing that cached dependencies are called
                                     pass
@@ -336,7 +340,7 @@ class TestModelReuse:
 
                     with patch(
                         "api.routers.text_processing_router.TextProcessingPipeline"
-                    ) as mock_pipeline:
+                    ):
                         with patch(
                             "api.routers.text_processing_router.orchestrate_hpo_extraction"
                         ) as mock_orchestrate:
@@ -344,7 +348,7 @@ class TestModelReuse:
 
                             try:
                                 await _process_text_internal(request)
-                            except Exception:
+                            except Exception:  # noqa: S110
                                 # Expected: Full pipeline may fail with mocked dependencies
                                 # We're only testing that cached dependencies are called
                                 pass
