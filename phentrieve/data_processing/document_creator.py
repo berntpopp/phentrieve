@@ -5,97 +5,59 @@ This module provides functionality for loading HPO terms and converting them
 into indexable documents with appropriate metadata for vector storage.
 """
 
-import glob
-import json
 import logging
 import os
 from typing import Any, Optional
 
-from phentrieve.config import DEFAULT_HPO_TERMS_SUBDIR
+from phentrieve.config import DEFAULT_HPO_DB_FILENAME
+from phentrieve.data_processing.hpo_database import HPODatabase
 from phentrieve.utils import get_default_data_dir, resolve_data_path
 
 
 def load_hpo_terms(data_dir_override: Optional[str] = None) -> list[dict[str, Any]]:
     """
-    Load HPO terms from individual JSON files in the HPO_TERMS_DIR.
+    Load HPO terms from SQLite database.
+
+    Args:
+        data_dir_override: Optional override for the data directory path
 
     Returns:
-        List of dictionaries containing HPO term data
+        List of dictionaries containing HPO term data with keys:
+        - id: HPO term ID (e.g., "HP:0000001")
+        - label: Term label/name
+        - definition: Term definition text
+        - synonyms: List of synonym strings
+        - comments: List of comment strings
+
+    Note:
+        Returns empty list if database not found or loading fails.
     """
     # Resolve data directory path using our dynamic path resolution system
     data_dir = resolve_data_path(data_dir_override, "data_dir", get_default_data_dir)
 
-    # Construct path to HPO terms directory
-    hpo_terms_dir = data_dir / DEFAULT_HPO_TERMS_SUBDIR
+    # Construct path to HPO database
+    db_path = data_dir / DEFAULT_HPO_DB_FILENAME
 
-    # Check if terms directory exists
-    if not os.path.exists(hpo_terms_dir) or not os.listdir(hpo_terms_dir):
-        logging.error(f"HPO terms directory not found or empty: {hpo_terms_dir}")
+    # Check if database exists
+    if not os.path.exists(db_path):
+        logging.error(f"HPO database not found: {db_path}")
+        logging.error("Please run 'phentrieve data prepare' to generate the database.")
         return []
 
-    # Load all HPO terms from individual JSON files
-    logging.info(f"Loading HPO terms from {hpo_terms_dir}...")
-    hpo_terms = []
+    # Load HPO terms from database
+    logging.info(f"Loading HPO terms from database: {db_path}...")
 
-    # Get all JSON files in the directory
-    term_files = glob.glob(os.path.join(str(hpo_terms_dir), "*.json"))
-    logging.debug(f"Found {len(term_files)} term files")
+    try:
+        db = HPODatabase(db_path)
+        hpo_terms = db.load_all_terms()
+        db.close()
 
-    # Process each term file
-    for file_path in term_files:
-        try:
-            with open(file_path, encoding="utf-8") as f:
-                node = json.load(f)
+        logging.info(f"Successfully loaded {len(hpo_terms)} HPO terms from database.")
+        return hpo_terms
 
-            # Extract the HP ID
-            node_id = (
-                node.get("id", "")
-                .replace("http://purl.obolibrary.org/obo/HP_", "HP:")
-                .replace("_", ":")
-            )
-            if not node_id.startswith("HP:"):
-                continue
-
-            # Extract the label
-            label = node.get("lbl", "")
-
-            # Extract definition
-            definition = ""
-            if (
-                "meta" in node
-                and "definition" in node["meta"]
-                and "val" in node["meta"]["definition"]
-            ):
-                definition = node["meta"]["definition"]["val"]
-
-            # Extract synonyms
-            synonyms = []
-            if "meta" in node and "synonyms" in node["meta"]:
-                for syn_obj in node["meta"]["synonyms"]:
-                    if "val" in syn_obj:
-                        synonyms.append(syn_obj["val"])
-
-            # Extract comments
-            comments = []
-            if "meta" in node and "comments" in node["meta"]:
-                comments = [c for c in node["meta"]["comments"] if c]
-
-            # Add to our collection
-            hpo_terms.append(
-                {
-                    "id": node_id,
-                    "label": label,
-                    "definition": definition,
-                    "synonyms": synonyms,
-                    "comments": comments,
-                }
-            )
-
-        except (OSError, json.JSONDecodeError) as e:
-            logging.error(f"Error reading {file_path}: {e}")
-
-    logging.info(f"Successfully loaded {len(hpo_terms)} HPO terms.")
-    return hpo_terms
+    except Exception as e:
+        logging.error(f"Error loading HPO terms from database: {e}", exc_info=True)
+        return []
 
 
 def create_hpo_documents(

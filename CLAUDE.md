@@ -436,7 +436,7 @@ Workflows: `.github/workflows/ci.yml`, `.github/workflows/docker-publish.yml`
 
 - **Main config**: `phentrieve.yaml` (created from `phentrieve.yaml.template`)
 - **API config**: `api/local_api_config.env`
-- **HPO data**: `data/hpo_core_data/` contains processed HPO ontology files
+- **HPO data**: `data/hpo_data.db` - SQLite database containing all HPO terms, ontology structure, and graph metadata (generated via `phentrieve data prepare`)
 - **Embeddings cache**: `data/hf_cache/` for Hugging Face model cache
 
 ### Testing Architecture
@@ -463,7 +463,8 @@ Workflows: `.github/workflows/ci.yml`, `.github/workflows/docker-publish.yml`
 ### Data Directory Structure
 
 When first run, Phentrieve creates data directories (configurable in `phentrieve.yaml`):
-- `data/hpo_core_data/` - Processed HPO ontology files, terms, and graph data
+- `data/hpo_data.db` - SQLite database containing all HPO terms (labels, definitions, synonyms, comments), ontology graph structure (ancestors, depths), and metadata for 19,534 terms (~12 MB, generated via `phentrieve data prepare`)
+- `data/hp.json` - Source HPO JSON file downloaded from the HPO ontology repository
 - `data/indexes/` - ChromaDB vector indexes for different embedding models
 - `data/hf_cache/` - Hugging Face model cache for faster loading
 - `data/results/` - Benchmark results and evaluation metrics

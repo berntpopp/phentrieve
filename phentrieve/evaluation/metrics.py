@@ -10,11 +10,11 @@ using various metrics including:
 
 import logging
 import os
-import pickle
 from enum import Enum
 from typing import Any, Optional, Union
 
-from phentrieve.config import DEFAULT_ANCESTORS_FILENAME, DEFAULT_DEPTHS_FILENAME
+from phentrieve.config import DEFAULT_HPO_DB_FILENAME
+from phentrieve.data_processing.hpo_database import HPODatabase
 from phentrieve.utils import calculate_similarity, get_default_data_dir
 
 
@@ -53,17 +53,25 @@ _hpo_term_depths: dict[str, int] | None = None
 
 
 def load_hpo_graph_data(
-    ancestors_path: str | None = None, depths_path: str | None = None
+    db_path: str | None = None,
+    ancestors_path: str | None = None,  # Deprecated, kept for compatibility
+    depths_path: str | None = None,  # Deprecated, kept for compatibility
 ) -> tuple[dict[str, set[str]], dict[str, int]]:
     """
-    Load precomputed HPO graph data from pickle files.
+    Load precomputed HPO graph data from SQLite database.
 
     Args:
-        ancestors_path: Path to the ancestors pickle file
-        depths_path: Path to the term depths pickle file
+        db_path: Path to the HPO SQLite database file (preferred)
+        ancestors_path: (Deprecated) Path to ancestors pickle file - for backward compatibility
+        depths_path: (Deprecated) Path to depths pickle file - for backward compatibility
 
     Returns:
         Tuple of (ancestors_dict, depths_dict)
+        - ancestors_dict: {term_id: set of ancestor IDs}
+        - depths_dict: {term_id: depth from root}
+
+    Note:
+        Returns empty dictionaries if database not found or loading fails.
     """
     global _hpo_ancestors, _hpo_term_depths
 
@@ -72,38 +80,32 @@ def load_hpo_graph_data(
         logging.debug("Using cached HPO graph data")
         return _hpo_ancestors, _hpo_term_depths
 
-    # Resolve paths if not provided
-    if ancestors_path is None:
+    # Resolve database path if not provided
+    if db_path is None:
         # Try direct data directory first
-        if os.path.exists("data") and os.path.exists(
-            f"data/{DEFAULT_ANCESTORS_FILENAME}"
-        ):
-            ancestors_path = f"data/{DEFAULT_ANCESTORS_FILENAME}"
+        if os.path.exists("data") and os.path.exists(f"data/{DEFAULT_HPO_DB_FILENAME}"):
+            db_path = f"data/{DEFAULT_HPO_DB_FILENAME}"
         else:
             data_dir = get_default_data_dir()
-            ancestors_path = str(data_dir / DEFAULT_ANCESTORS_FILENAME)
-
-    if depths_path is None:
-        # Try direct data directory first
-        if os.path.exists("data") and os.path.exists(f"data/{DEFAULT_DEPTHS_FILENAME}"):
-            depths_path = f"data/{DEFAULT_DEPTHS_FILENAME}"
-        else:
-            data_dir = get_default_data_dir()
-            depths_path = str(data_dir / DEFAULT_DEPTHS_FILENAME)
+            db_path = str(data_dir / DEFAULT_HPO_DB_FILENAME)
 
     try:
-        # Check if files exist
-        if not os.path.exists(ancestors_path):
-            logging.error(f"Ancestors file not found: {ancestors_path}")
-            return {}, {}
-        if not os.path.exists(depths_path):
-            logging.error(f"Depths file not found: {depths_path}")
+        # Check if database exists
+        if not os.path.exists(db_path):
+            logging.error(f"HPO database not found: {db_path}")
+            logging.error(
+                "Please run 'phentrieve data prepare' to generate the database."
+            )
             return {}, {}
 
-        # Load ancestor sets
-        with open(ancestors_path, "rb") as f:
-            _hpo_ancestors = pickle.load(f)
+        # Load graph data from database
+        logging.info(f"Loading HPO graph data from database: {db_path}...")
+        db = HPODatabase(db_path)
+        _hpo_ancestors, _hpo_term_depths = db.load_graph_data()
+        db.close()
+
         logging.info(f"Loaded ancestor sets for {len(_hpo_ancestors)} HPO terms")
+        logging.info(f"Loaded depth values for {len(_hpo_term_depths)} HPO terms")
 
         # Log sample data for debugging
         if _hpo_ancestors:
@@ -111,11 +113,6 @@ def load_hpo_graph_data(
             for term in sample_terms:
                 ancestors = _hpo_ancestors.get(term, set())
                 logging.debug(f"Sample term {term} has {len(ancestors)} ancestors")
-
-        # Load term depths
-        with open(depths_path, "rb") as f:
-            _hpo_term_depths = pickle.load(f)
-        logging.info(f"Loaded depth values for {len(_hpo_term_depths)} HPO terms")
 
         # Log sample depth data
         if _hpo_term_depths:
@@ -137,7 +134,7 @@ def load_hpo_graph_data(
         return _hpo_ancestors, _hpo_term_depths
 
     except Exception as e:
-        logging.error(f"Error loading HPO graph data: {e}")
+        logging.error(f"Error loading HPO graph data: {e}", exc_info=True)
         return {}, {}
 
 

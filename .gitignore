@@ -28,6 +28,12 @@ data/indexes/
 data/hpo_terms/
 data/hpo_core_data/
 
+# HPO SQLite database (generated data)
+data/hpo_data.db
+data/*.db
+data/*.db-shm
+data/*.db-wal
+
 # ChromaDB database files
 *.sqlite3
 *.sqlite3-shm
