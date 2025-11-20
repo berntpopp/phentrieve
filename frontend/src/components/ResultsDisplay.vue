@@ -582,7 +582,9 @@
                 >
                   <v-icon size="small">
                     {{
-                      expandedAggregatedTerms.has(term.hpo_id) ? 'mdi-chevron-up' : 'mdi-information'
+                      expandedAggregatedTerms.has(term.hpo_id)
+                        ? 'mdi-chevron-up'
+                        : 'mdi-information'
                     }}
                   </v-icon>
                   <v-tooltip activator="parent" location="top">
