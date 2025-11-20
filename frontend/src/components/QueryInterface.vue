@@ -260,6 +260,29 @@
                 </template>
               </v-tooltip>
             </v-col>
+
+            <v-col cols="12" md="6" class="pa-1 d-flex align-center">
+              <v-tooltip
+                location="bottom"
+                :text="$t('queryInterface.tooltips.includeDetails')"
+                role="tooltip"
+              >
+                <template #activator="{ props }">
+                  <v-switch
+                    v-bind="props"
+                    v-model="includeDetails"
+                    :disabled="isLoading"
+                    :label="$t('queryInterface.advancedOptions.includeDetails')"
+                    color="primary"
+                    inset
+                    density="compact"
+                    hide-details
+                    class="mt-0 pt-0"
+                    aria-label="Include HPO term definitions and synonyms"
+                  />
+                </template>
+              </v-tooltip>
+            </v-col>
           </v-row>
 
           <v-row v-if="enableReranker" dense>
@@ -862,6 +885,7 @@
 import ResultsDisplay from './ResultsDisplay.vue';
 import PhentrieveService from '../services/PhentrieveService';
 import { logService } from '../services/logService';
+import { useQueryPreferencesStore } from '../stores/queryPreferences';
 // Direct JSON-based implementation instead of using @berntpopp/phenopackets-js
 
 export default {
@@ -947,6 +971,17 @@ export default {
         return this.forceEndpointMode === 'textProcess';
       }
       return this.queryText.length > this.inputTextLengthThreshold;
+    },
+    // Access includeDetails from Pinia store (persisted in localStorage)
+    includeDetails: {
+      get() {
+        const store = useQueryPreferencesStore();
+        return store.includeDetails;
+      },
+      set(value) {
+        const store = useQueryPreferencesStore();
+        store.setIncludeDetails(value);
+      },
     },
   },
   watch: {
@@ -1290,6 +1325,7 @@ export default {
             assertion_preference: this.assertionPreferenceForTextProcess,
             aggregated_term_confidence: this.aggregatedTermConfidence,
             top_term_per_chunk: this.topTermPerChunkForAggregation,
+            include_details: this.includeDetails,
           };
           logService.info('Sending to /text/process API', textProcessData);
           response = await PhentrieveService.processText(textProcessData);
@@ -1304,6 +1340,7 @@ export default {
             reranker_mode: this.rerankerMode,
             query_assertion_language: this.selectedLanguage, // Pass selected language for query assertion
             detect_query_assertion: true, // Default to true for query mode now
+            include_details: this.includeDetails,
           };
           logService.info('Sending to /query API', queryData);
           response = await PhentrieveService.queryHpo(queryData);

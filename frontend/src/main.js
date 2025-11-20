@@ -8,6 +8,7 @@ import './critical.css';
 
 // Pinia store
 import { createPinia } from 'pinia';
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate';
 import { useLogStore } from './stores/log';
 import { logService } from './services/logService';
 
@@ -18,6 +19,7 @@ import vuetify from './plugins/vuetify';
 
 const app = createApp(App);
 const pinia = createPinia();
+pinia.use(piniaPluginPersistedstate);
 app.use(pinia);
 app.use(vuetify);
 app.use(router);
