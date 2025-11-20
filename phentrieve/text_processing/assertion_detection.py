@@ -410,8 +410,7 @@ class KeywordAssertionDetector(AssertionDetector):
         Detect negation and normality using ConText-aware keyword rules.
 
         This method uses ConText rules with direction awareness (FORWARD, BACKWARD,
-        BIDIRECTIONAL) to detect negation and normality. Falls back to legacy
-        negation_cues.json if no ConText rules are available.
+        BIDIRECTIONAL) to detect negation and normality.
 
         Args:
             chunk: Text to analyze
@@ -425,21 +424,17 @@ class KeywordAssertionDetector(AssertionDetector):
 
         text_lower = chunk.lower()
 
-        # Try to load ConText rules first
+        # Load ConText rules
         context_rules = self._load_context_rules(lang)
 
-        if context_rules:
-            # Use ConText rules with direction awareness
-            return self._detect_with_context_rules(
-                text_lower, context_rules, chunk, lang
+        if not context_rules:
+            logger.warning(
+                f"No ConText rules found for language '{lang}', keyword detection disabled"
             )
-        else:
-            # Fall back to legacy negation_cues.json
-            logger.debug(
-                f"Using legacy negation_cues.json for language '{lang}' "
-                "(ConText rules not available)"
-            )
-            return self._detect_with_legacy_cues(text_lower, lang)
+            return False, False, [], []
+
+        # Use ConText rules with direction awareness
+        return self._detect_with_context_rules(text_lower, context_rules, chunk, lang)
 
     def _detect_with_context_rules(
         self,
@@ -610,85 +605,6 @@ class KeywordAssertionDetector(AssertionDetector):
 
         return is_normal, normal_scopes
 
-    def _detect_with_legacy_cues(
-        self, text_lower: str, lang: str
-    ) -> tuple[bool, bool, list[str], list[str]]:
-        """
-        Legacy detection using negation_cues.json (backward compatibility).
-
-        Args:
-            text_lower: Lowercased text to analyze
-            lang: Language code
-
-        Returns:
-            Tuple of (is_negated, is_normal, negated_scopes, normal_scopes)
-        """
-        # Load user configuration
-        user_config_main = load_user_config()
-        language_resources_section = user_config_main.get("language_resources", {})
-
-        # Load negation cues from resource files
-        negation_cues_resources = load_language_resource(
-            default_resource_filename="negation_cues.json",
-            config_key_for_custom_file="negation_cues_file",
-            language_resources_config_section=language_resources_section,
-        )
-
-        # Check for negation cues
-        negated_scopes = []
-        is_negated = False
-
-        # Get negation cues for the current language, defaulting to English
-        lang_negation_cues = negation_cues_resources.get(
-            lang, negation_cues_resources.get("en", [])
-        )
-
-        for cue in lang_negation_cues:
-            cue_lower = cue.lower()
-            cue_index = text_lower.find(cue_lower)
-
-            if cue_index >= 0 and _is_cue_match(text_lower, cue_lower, cue_index):
-                # Found a negation cue, extract the context after the cue
-                cue_end = cue_index + len(cue_lower)
-                words_after = text_lower[cue_end:].split()
-
-                # Take up to KEYWORD_WINDOW words after the cue
-                context = " ".join(words_after[:KEYWORD_WINDOW])
-                if context:
-                    negated_scopes.append(f"{cue.strip()}: {context}")
-                    is_negated = True
-
-        # Load normality cues from resource files
-        normality_cues_resources = load_language_resource(
-            default_resource_filename="normality_cues.json",
-            config_key_for_custom_file="normality_cues_file",
-            language_resources_config_section=language_resources_section,
-        )
-
-        # Check for normality cues
-        normal_scopes = []
-        is_normal = False
-
-        # Get normality cues for the current language, defaulting to English
-        lang_normality_cues = normality_cues_resources.get(
-            lang, normality_cues_resources.get("en", [])
-        )
-
-        for cue in lang_normality_cues:
-            cue_lower = cue.lower()
-            cue_index = text_lower.find(cue_lower)
-
-            if cue_index >= 0 and _is_cue_match(text_lower, cue_lower, cue_index):
-                # Get words around the cue (simple window approach)
-                start_idx = max(0, cue_index - 30)
-                end_idx = min(len(text_lower), cue_index + len(cue_lower) + 30)
-                context = text_lower[start_idx:end_idx]
-
-                normal_scopes.append(f"{cue.strip()}: {context}")
-                is_normal = True
-
-        return is_negated, is_normal, negated_scopes, normal_scopes
-
 
 class DependencyAssertionDetector(AssertionDetector):
     """
@@ -741,6 +657,8 @@ class DependencyAssertionDetector(AssertionDetector):
         """
         Detect negation and normality using dependency parsing.
 
+        Uses ConText rules for negation detection combined with spaCy dependency parsing.
+
         Args:
             chunk: Text to analyze
             lang: Language code
@@ -757,18 +675,51 @@ class DependencyAssertionDetector(AssertionDetector):
 
         doc = nlp(chunk)
 
+        # Load ConText rules for negation detection
+        import importlib.resources
+        import json
+
+        resources_package = "phentrieve.text_processing.default_lang_resources"
+        context_filename = f"context_rules_{lang}.json"
+
+        try:
+            resource_path = importlib.resources.files(resources_package).joinpath(
+                context_filename
+            )
+            with resource_path.open("r", encoding="utf-8") as f:
+                context_data = json.load(f)
+
+            # Extract negation cue literals from NEGATED_EXISTENCE rules
+            lang_negation_cues = [
+                rule["literal"].strip().lower()
+                for rule in context_data.get("context_rules", [])
+                if rule.get("category") == "NEGATED_EXISTENCE"
+                and rule.get("direction") != "PSEUDO"
+            ]
+        except (FileNotFoundError, AttributeError, KeyError):
+            # Fall back to English if language not found
+            try:
+                resource_path = importlib.resources.files(resources_package).joinpath(
+                    "context_rules_en.json"
+                )
+                with resource_path.open("r", encoding="utf-8") as f:
+                    context_data = json.load(f)
+
+                lang_negation_cues = [
+                    rule["literal"].strip().lower()
+                    for rule in context_data.get("context_rules", [])
+                    if rule.get("category") == "NEGATED_EXISTENCE"
+                    and rule.get("direction") != "PSEUDO"
+                ]
+            except (FileNotFoundError, AttributeError, KeyError):
+                logger.warning(
+                    f"No ConText rules found for lang '{lang}', dependency detection disabled"
+                )
+                return False, False, [], []
+
         # Load config and resources ONCE (not per token!) - PERFORMANCE FIX
         user_config_main = load_user_config()
         language_resources_section = user_config_main.get("language_resources", {})
-
-        negation_cues_resources = load_language_resource(
-            default_resource_filename="negation_cues.json",
-            config_key_for_custom_file="negation_cues_file",
-            language_resources_config_section=language_resources_section,
-        )
-        lang_negation_cues = negation_cues_resources.get(
-            lang, negation_cues_resources.get("en", [])
-        )
 
         normality_cues_resources = load_language_resource(
             default_resource_filename="normality_cues.json",
@@ -785,8 +736,8 @@ class DependencyAssertionDetector(AssertionDetector):
 
         # Handle German negation directly with a text check first (more reliable for short phrases)
         chunk_lower = chunk.lower()
-        # Use most common negation cues (first 5) for quick check - data-driven, not hardcoded
-        quick_check_cues = [cue.strip().lower() for cue in lang_negation_cues[:5]]
+        # Use most common negation cues (first 5) for quick check - data-driven from ConText rules
+        quick_check_cues = lang_negation_cues[:5]
         if lang == "de" and any(
             neg_term in chunk_lower for neg_term in quick_check_cues
         ):
@@ -801,19 +752,16 @@ class DependencyAssertionDetector(AssertionDetector):
             is_negation_term = False
 
             for neg_cue in lang_negation_cues:
-                neg_cue_clean = neg_cue.strip().lower()
                 # More flexible matching for German
                 if (
                     lang == "de"
-                    and neg_cue_clean.startswith("kein")
+                    and neg_cue.startswith("kein")
                     and token_text.startswith("kein")
                 ):
                     is_negation_term = True
                     break
                 # Regular exact matching
-                elif (
-                    token_text == neg_cue_clean or token.lemma_.lower() == neg_cue_clean
-                ):
+                elif token_text == neg_cue or token.lemma_.lower() == neg_cue:
                     is_negation_term = True
                     break
 
