@@ -107,7 +107,14 @@ class ConTextRule:
     metadata: dict[str, Any] | None = None
 
     def __post_init__(self):
-        """Validate rule after initialization."""
+        """Validate rule after initialization.
+
+        Note: The isinstance checks are defensive guards against issues during
+        JSON deserialization (where strings are converted to enums) and dynamic
+        attribute modification. While dataclass type annotations provide static
+        hints, they don't enforce types at runtime, so these checks catch
+        deserialization errors early with clear messages.
+        """
         if not self.literal or not self.literal.strip():
             raise ValueError("ConTextRule literal cannot be empty")
         if not isinstance(self.category, TriggerCategory):
@@ -527,6 +534,10 @@ class KeywordAssertionDetector(AssertionDetector):
                 continue
 
             # Check if this cue overlaps with any PSEUDO span
+            # Note: This is O(P × N) where P = pseudo spans, N = negation rules.
+            # For typical clinical text, P is 0-3 and N is 1-5 (<15 comparisons/chunk).
+            # Early exit on first overlap keeps average case fast. An interval tree
+            # would be overkill for this domain's typical data characteristics.
             cue_end = cue_index + len(cue_lower)
             overlaps_pseudo = False
             for pseudo_start, pseudo_end in pseudo_spans:

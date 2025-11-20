@@ -168,3 +168,66 @@ class TestResourceLoader:
         assert "en" in resources
         assert "de" in resources
         assert len(resources["en"]) > 0
+
+    def test_load_context_rules(self):
+        """Test loading ConText rules for English.
+
+        Note: This test verifies that ConText rule files can be loaded through
+        load_language_resource(). Detailed parsing and validation of ConText rules
+        is handled by parse_context_rules() in assertion_detection.py and tested there.
+        """
+        # Test loading English ConText rules
+        en_rules = load_language_resource(
+            default_resource_filename="context_rules_en.json",
+            config_key_for_custom_file="context_rules_file",
+        )
+
+        # ConText rules use "context_rules" key (not language keys like "en")
+        assert "context_rules" in en_rules
+        assert isinstance(en_rules["context_rules"], list)
+        assert len(en_rules["context_rules"]) > 0
+
+    def test_load_context_rules_multiple_languages(self):
+        """Test loading ConText rules for all supported languages."""
+        # Test all supported languages
+        languages = ["en", "de", "es", "fr", "nl"]
+
+        for lang in languages:
+            rules = load_language_resource(
+                default_resource_filename=f"context_rules_{lang}.json",
+                config_key_for_custom_file="context_rules_file",
+            )
+
+            # ConText rules use "context_rules" key (not language keys)
+            assert (
+                "context_rules" in rules
+            ), f"ConText rules key not found for language: {lang}"
+            assert isinstance(rules["context_rules"], list), (
+                f"ConText rules not a list for language: {lang}"
+            )
+            assert (
+                len(rules["context_rules"]) > 0
+            ), f"No ConText rules loaded for language: {lang}"
+
+    def test_context_rules_caching(self):
+        """Test that ConText rules are cached properly."""
+        # First load - should read from file
+        rules1 = load_language_resource(
+            default_resource_filename="context_rules_en.json",
+            config_key_for_custom_file="context_rules_file",
+        )
+
+        # Check cache has an entry
+        assert len(_RESOURCE_CACHE) == 1
+
+        # Second load - should use cache
+        rules2 = load_language_resource(
+            default_resource_filename="context_rules_en.json",
+            config_key_for_custom_file="context_rules_file",
+        )
+
+        # Verify resources are identical (same object reference if cached)
+        assert rules1 is rules2
+
+        # Cache should still have just one entry
+        assert len(_RESOURCE_CACHE) == 1
