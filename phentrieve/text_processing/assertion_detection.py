@@ -310,6 +310,28 @@ class DependencyAssertionDetector(AssertionDetector):
 
         doc = nlp(chunk)
 
+        # Load config and resources ONCE (not per token!) - PERFORMANCE FIX
+        user_config_main = load_user_config()
+        language_resources_section = user_config_main.get("language_resources", {})
+
+        negation_cues_resources = load_language_resource(
+            default_resource_filename="negation_cues.json",
+            config_key_for_custom_file="negation_cues_file",
+            language_resources_config_section=language_resources_section,
+        )
+        lang_negation_cues = negation_cues_resources.get(
+            lang, negation_cues_resources.get("en", [])
+        )
+
+        normality_cues_resources = load_language_resource(
+            default_resource_filename="normality_cues.json",
+            config_key_for_custom_file="normality_cues_file",
+            language_resources_config_section=language_resources_section,
+        )
+        lang_normality_cues = normality_cues_resources.get(
+            lang, normality_cues_resources.get("en", [])
+        )
+
         # Check for negation
         negated_concepts = []
         is_negated = False
@@ -326,21 +348,8 @@ class DependencyAssertionDetector(AssertionDetector):
         for token in doc:
             token_text = token.text.lower()
 
-            # Load negation cues from resource files
-            user_config_main = load_user_config()
-            language_resources_section = user_config_main.get("language_resources", {})
-
-            negation_cues_resources = load_language_resource(
-                default_resource_filename="negation_cues.json",
-                config_key_for_custom_file="negation_cues_file",
-                language_resources_config_section=language_resources_section,
-            )
-
             # Check if token or its lemma is a negation cue
             is_negation_term = False
-            lang_negation_cues = negation_cues_resources.get(
-                lang, negation_cues_resources.get("en", [])
-            )
 
             for neg_cue in lang_negation_cues:
                 neg_cue_clean = neg_cue.strip().lower()
@@ -370,18 +379,7 @@ class DependencyAssertionDetector(AssertionDetector):
         normal_concepts = []
         is_normal = False
 
-        # Load normality cues from resource files
-        normality_cues_resources = load_language_resource(
-            default_resource_filename="normality_cues.json",
-            config_key_for_custom_file="normality_cues_file",
-            language_resources_config_section=language_resources_section,
-        )
-
-        # Get normality cues for the current language, defaulting to English
-        lang_normality_cues = normality_cues_resources.get(
-            lang, normality_cues_resources.get("en", [])
-        )
-
+        # Resources already loaded at top of function (performance fix)
         for token in doc:
             token_text = token.text.lower()
 
