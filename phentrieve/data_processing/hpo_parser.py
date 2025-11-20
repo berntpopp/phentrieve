@@ -54,6 +54,174 @@ EXCLUDED_ROOTS_FOR_PHENOTYPIC_FILTERING = {
 logger = logging.getLogger(__name__)
 
 
+# --- Safe Dictionary Access Helpers (Issue #23) ---
+#
+# These helpers provide defensive access to nested dictionary structures
+# in the HPO JSON data. They prevent KeyError crashes when the HPO
+# Consortium modifies the JSON schema format.
+#
+# Design: Simple utility functions (not classes) following KISS principle
+# See: https://github.com/berntpopp/phentrieve/issues/23
+# ---
+
+
+def safe_get_nested(data: dict, *keys: str, default: Any = None) -> Any:
+    """
+    Safely access nested dictionary keys without raising KeyError.
+
+    This helper traverses a nested dictionary structure safely, returning
+    a default value if any key in the path is missing or if an intermediate
+    value is not a dictionary.
+
+    Args:
+        data: Dictionary to access
+        *keys: Sequence of keys to traverse (e.g., "meta", "definition", "val")
+        default: Value to return if any key is missing (default: None)
+
+    Returns:
+        Value at the nested path, or default if path cannot be traversed
+
+    Examples:
+        >>> node = {"meta": {"definition": {"val": "A seizure"}}}
+        >>> safe_get_nested(node, "meta", "definition", "val", default="")
+        'A seizure'
+
+        >>> safe_get_nested(node, "meta", "missing", "val", default="")
+        ''
+
+        >>> safe_get_nested({}, "meta", "definition", "val", default="N/A")
+        'N/A'
+
+    Note:
+        Returns None if the final value is explicitly None in the dict,
+        unless a different default is provided.
+    """
+    result: Any = data
+    for key in keys:
+        if isinstance(result, dict):
+            result = result.get(key)
+            if result is None:
+                return default
+        else:
+            return default
+    return result if result is not None else default
+
+
+def safe_get_list(data: dict, *keys: str, default: Optional[list] = None) -> list:
+    """
+    Safely access a nested list field, ensuring correct type.
+
+    Similar to safe_get_nested, but specifically for list fields. Validates
+    that the retrieved value is actually a list, returning the default if
+    the field is missing, None, or not a list type.
+
+    Args:
+        data: Dictionary to access
+        *keys: Sequence of keys to traverse (e.g., "meta", "synonyms")
+        default: List to return if field missing or wrong type (default: empty list)
+
+    Returns:
+        List at the nested path, or default if missing/wrong type
+
+    Examples:
+        >>> node = {"meta": {"synonyms": [{"val": "syn1"}, {"val": "syn2"}]}}
+        >>> safe_get_list(node, "meta", "synonyms", default=[])
+        [{'val': 'syn1'}, {'val': 'syn2'}]
+
+        >>> safe_get_list(node, "meta", "missing", default=[])
+        []
+
+        >>> bad_node = {"meta": {"synonyms": "not_a_list"}}
+        >>> safe_get_list(bad_node, "meta", "synonyms", default=[])
+        []
+
+    Note:
+        Always returns a list (never None), defaulting to empty list if
+        no explicit default provided.
+    """
+    if default is None:
+        default = []
+
+    result = safe_get_nested(data, *keys, default=default)
+    if isinstance(result, list):
+        return result
+    return default
+
+
+def log_missing_field(term_id: str, field_path: str, level: str = "debug") -> None:
+    """
+    Log missing optional field in structured, consistent format.
+
+    Provides consistent logging for missing optional fields during HPO
+    parsing, making it easy to track data quality and schema deviations.
+
+    Args:
+        term_id: HPO term ID (e.g., "HP:0001250")
+        field_path: Dot-separated path to missing field (e.g., "meta.definition.val")
+        level: Logging level - one of "debug", "info", "warning", "error"
+
+    Examples:
+        >>> log_missing_field("HP:0001250", "meta.definition.val", level="debug")
+        # Logs: "Term HP:0001250 missing optional field: meta.definition.val"
+
+        >>> log_missing_field("HP:0000001", "meta.synonyms", level="info")
+        # Logs at INFO level
+
+    Note:
+        Validates level parameter to prevent AttributeError. Defaults to
+        debug if invalid level provided.
+    """
+    valid_levels = {"debug", "info", "warning", "error"}
+    if level not in valid_levels:
+        level = "debug"
+
+    msg = f"Term {term_id} missing optional field: {field_path}"
+    log_func = getattr(logger, level)
+    log_func(msg)
+
+
+def log_parsing_summary(stats: dict[str, int], total_terms: int) -> None:
+    """
+    Log summary statistics of HPO parsing results.
+
+    Provides a clear overview of data quality metrics, showing how many
+    terms are missing optional fields. Useful for monitoring schema
+    changes and data completeness.
+
+    Args:
+        stats: Dictionary mapping field names to counts of missing occurrences
+               (e.g., {"definitions": 150, "synonyms": 45})
+        total_terms: Total number of HPO terms parsed
+
+    Examples:
+        >>> stats = {"definitions": 150, "synonyms": 45, "comments": 1200}
+        >>> log_parsing_summary(stats, total_terms=19534)
+        # Logs:
+        # === HPO Parsing Summary ===
+        # Total terms parsed: 19534
+        #   Missing definitions: 150 (0.8%)
+        #   Missing synonyms: 45 (0.2%)
+        #   Missing comments: 1200 (6.1%)
+
+    Note:
+        Only logs fields with non-zero counts to reduce noise in logs.
+    """
+    logger.info("=== HPO Parsing Summary ===")
+    logger.info(f"Total terms parsed: {total_terms}")
+
+    if total_terms == 0:
+        logger.warning("No terms parsed - cannot calculate percentages")
+        return
+
+    for field_name, count in sorted(stats.items()):
+        if count > 0:
+            percentage = (count / total_terms) * 100
+            logger.info(f"  Missing {field_name}: {count} ({percentage:.1f}%)")
+
+
+# --- End Safe Dictionary Access Helpers ---
+
+
 def download_hpo_json(hpo_file_path: Path) -> bool:
     """
     Download the latest version of the HPO JSON file.
@@ -115,6 +283,21 @@ def _parse_hpo_json_to_graphs(
 ]:
     """
     Parses raw HPO JSON data into term data, parent->child, and child->parent relationships.
+
+    Uses safe dictionary access patterns to handle schema variations gracefully (Issue #23).
+
+    Args:
+        hpo_data: Raw HPO JSON data (OBOGraph format)
+
+    Returns:
+        Tuple of (nodes_data, parent_to_children, child_to_parents, term_ids)
+        Returns (None, None, None, None) if critical structure missing
+
+    Resilience (Issue #23):
+        - Validates graphs array exists and has content
+        - Handles missing 'nodes' or 'edges' arrays gracefully
+        - Supports both 'sub' and 'subj' edge field variants
+        - Logs detailed error messages for debugging
     """
     all_nodes_data: dict[str, dict] = {}
     parent_to_children_map: dict[str, list[str]] = defaultdict(list)
@@ -123,22 +306,43 @@ def _parse_hpo_json_to_graphs(
 
     logger.debug("Parsing nodes and edges from HPO JSON...")
 
+    # SAFE: Validate graphs array structure (Issue #23)
     graphs_data = hpo_data.get("graphs")
-    if not graphs_data or not isinstance(graphs_data, list) or not graphs_data[0]:
-        logger.error("Invalid HPO JSON structure: 'graphs' array is missing or empty.")
+    if not graphs_data:
+        logger.error(
+            f"Invalid HPO JSON structure: 'graphs' field is missing. "
+            f"Available top-level keys: {list(hpo_data.keys())}"
+        )
+        return None, None, None, None
+
+    if not isinstance(graphs_data, list):
+        logger.error(
+            f"Invalid HPO JSON structure: 'graphs' must be a list, "
+            f"but got {type(graphs_data).__name__}"
+        )
+        return None, None, None, None
+
+    if len(graphs_data) == 0:
+        logger.error("Invalid HPO JSON structure: 'graphs' array is empty")
         return None, None, None, None
 
     graph = graphs_data[0]  # Assume single graph structure
 
-    # Process nodes first
+    # SAFE: Get nodes with fallback (Issue #23)
     raw_nodes = graph.get("nodes", [])
     if not raw_nodes:
-        logger.warning("No nodes found in HPO graph data.")
+        logger.warning("No nodes found in HPO graph data")
 
+    # Process nodes
     for node_obj in raw_nodes:
+        # SAFE: Get node ID safely (Issue #23)
         original_id = node_obj.get("id")
         if not original_id:
-            logger.warning(f"Node found without an ID: {node_obj.get('lbl', 'N/A')}")
+            # SAFE: Get label for better error message (Issue #23)
+            node_label = node_obj.get("lbl", "N/A")
+            logger.warning(
+                f"Node found without required 'id' field. Label: {node_label}"
+            )
             continue
 
         node_id_norm = normalize_id(original_id)
@@ -153,27 +357,34 @@ def _parse_hpo_json_to_graphs(
     ):  # double check if normalize_id was the issue
         all_term_ids.add(TRUE_ONTOLOGY_ROOT)  # ensure root is there
         logger.info(
-            f"Manually added {TRUE_ONTOLOGY_ROOT} to all_term_ids as it was in all_nodes_data but not initially in set."
+            f"Manually added {TRUE_ONTOLOGY_ROOT} to all_term_ids as it was in all_nodes_data but not initially in set"
         )
 
-    # Process edges for parent->child and child->parent mappings (is_a)
+    # SAFE: Get edges with fallback (Issue #23)
     raw_edges = graph.get("edges", [])
     if not raw_edges:
-        logger.warning("No edges found in HPO graph data.")
+        logger.warning("No edges found in HPO graph data")
 
+    # Process edges for parent->child and child->parent mappings (is_a)
     for edge_obj in raw_edges:
         pred = edge_obj.get("pred")
+
         # Standard 'is_a' or common URI for 'is_a'
         if (
             pred == "is_a"
             or pred == "http://www.w3.org/2000/01/rdf-schema#subClassOf"
             or pred == "http://purl.obolibrary.org/obo/BFO_0000050"
         ):
-            subj_orig = edge_obj.get("sub", edge_obj.get("subj"))  # child
+            # SAFE: Handle both 'sub' and 'subj' variants (Issue #23)
+            subj_orig = edge_obj.get("sub") or edge_obj.get("subj")  # child
             obj_orig = edge_obj.get("obj")  # parent
 
             if not subj_orig or not obj_orig:
-                logger.warning(f"Edge found with missing subject or object: {edge_obj}")
+                # SAFE: More detailed error message (Issue #23)
+                logger.warning(
+                    f"Edge found with missing subject or object. "
+                    f"subj/sub: {subj_orig}, obj: {obj_orig}, pred: {pred}"
+                )
                 continue
 
             subj_norm = normalize_id(subj_orig)
@@ -196,13 +407,16 @@ def _parse_hpo_json_to_graphs(
     num_child_parent_edges = sum(len(v) for v in child_to_parents_map.values())
 
     logger.info(
-        f"Parsed {len(all_nodes_data)} total HPO terms (nodes). Found {num_parent_child_edges} parent->child and {num_child_parent_edges} child->parent 'is_a' relationships."
+        f"Parsed {len(all_nodes_data)} total HPO terms (nodes). "
+        f"Found {num_parent_child_edges} parent->child and "
+        f"{num_child_parent_edges} child->parent 'is_a' relationships"
     )
 
-    # Ensure the true ontology root is present if defined.
+    # Ensure the true ontology root is present if defined
     if TRUE_ONTOLOGY_ROOT not in all_term_ids:
         logger.warning(
-            f"True ontology root {TRUE_ONTOLOGY_ROOT} not found among parsed term IDs. This may affect depth/ancestor calculations."
+            f"True ontology root {TRUE_ONTOLOGY_ROOT} not found among parsed term IDs. "
+            f"This may affect depth/ancestor calculations"
         )
         # If it was in the original nodes but got filtered by normalize_id or other logic, this is an issue.
         # For now, we proceed, but this is a critical warning.
@@ -359,7 +573,8 @@ def _extract_term_data_for_db(all_nodes_data: dict[str, dict]) -> list[dict[str,
     Extract term data from raw HPO nodes for database storage.
 
     Converts raw node objects into structured term dictionaries suitable
-    for bulk insert into the HPO database.
+    for bulk insert into the HPO database. Uses safe dictionary access
+    patterns to handle schema variations gracefully (Issue #23).
 
     Args:
         all_nodes_data: Dictionary mapping term IDs to raw node data
@@ -367,8 +582,28 @@ def _extract_term_data_for_db(all_nodes_data: dict[str, dict]) -> list[dict[str,
     Returns:
         List of term dictionaries with keys: id, label, definition, synonyms, comments
         Note: synonyms and comments are JSON-serialized strings for storage
+
+    Resilience (Issue #23):
+        - Missing optional fields (definition, synonyms, comments) are handled
+          gracefully with empty defaults and debug logging
+        - Malformed metadata is detected and logged without crashing
+        - Statistics summary logged showing data quality metrics
+
+    See Also:
+        safe_get_nested() - Helper for nested dict access
+        safe_get_list() - Helper for list field access
+        log_missing_field() - Structured logging for missing fields
+        log_parsing_summary() - Statistics summary logging
     """
     terms_data = []
+
+    # Track missing field statistics (Issue #23)
+    stats = {
+        "definitions": 0,
+        "synonyms": 0,
+        "comments": 0,
+        "empty_labels": 0,
+    }
 
     for term_id, node_data in tqdm(
         all_nodes_data.items(), desc="Preparing HPO terms for database"
@@ -377,29 +612,44 @@ def _extract_term_data_for_db(all_nodes_data: dict[str, dict]) -> list[dict[str,
         if not term_id.startswith("HP:"):
             continue
 
-        # Extract label
+        # SAFE: Extract label with fallback (Issue #23)
         label = node_data.get("lbl", "")
+        if not label:
+            logger.warning(f"Term {term_id} has empty label - using ID as fallback")
+            label = term_id
+            stats["empty_labels"] += 1
 
-        # Extract definition
-        definition = ""
-        if (
-            "meta" in node_data
-            and "definition" in node_data["meta"]
-            and "val" in node_data["meta"]["definition"]
-        ):
-            definition = node_data["meta"]["definition"]["val"]
+        # SAFE: Extract definition using safe helper (Issue #23)
+        definition = safe_get_nested(node_data, "meta", "definition", "val", default="")
+        if not definition:
+            stats["definitions"] += 1
+            log_missing_field(term_id, "meta.definition.val", level="debug")
 
-        # Extract synonyms
+        # SAFE: Extract synonyms using safe helpers (Issue #23)
         synonyms = []
-        if "meta" in node_data and "synonyms" in node_data["meta"]:
-            for syn_obj in node_data["meta"]["synonyms"]:
-                if "val" in syn_obj:
-                    synonyms.append(syn_obj["val"])
+        synonym_list = safe_get_list(node_data, "meta", "synonyms", default=[])
 
-        # Extract comments
+        if not synonym_list:
+            stats["synonyms"] += 1
+            log_missing_field(term_id, "meta.synonyms", level="debug")
+        else:
+            # Extract synonym values safely
+            for syn_obj in synonym_list:
+                if isinstance(syn_obj, dict):
+                    syn_val = syn_obj.get("val", "")
+                    if syn_val:
+                        synonyms.append(syn_val)
+
+        # SAFE: Extract comments using safe helpers (Issue #23)
         comments = []
-        if "meta" in node_data and "comments" in node_data["meta"]:
-            comments = [c for c in node_data["meta"]["comments"] if c]
+        comment_list = safe_get_list(node_data, "meta", "comments", default=[])
+
+        if not comment_list:
+            stats["comments"] += 1
+            log_missing_field(term_id, "meta.comments", level="debug")
+        else:
+            # Filter out empty/None comments
+            comments = [c for c in comment_list if c and isinstance(c, str)]
 
         # Prepare term data for database (serialize JSON fields)
         terms_data.append(
@@ -411,6 +661,9 @@ def _extract_term_data_for_db(all_nodes_data: dict[str, dict]) -> list[dict[str,
                 "comments": json.dumps(comments, ensure_ascii=False),
             }
         )
+
+    # Log summary statistics (Issue #23)
+    log_parsing_summary(stats, len(all_nodes_data))
 
     return terms_data
 

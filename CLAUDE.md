@@ -16,16 +16,17 @@ Phentrieve is an AI-powered system for mapping clinical text to Human Phenotype 
 
 **Planning documentation** is organized in `plan/` with status-based structure:
 - `01-active/` - Currently executing plans
-- `02-completed/` - Successfully implemented (MASTER-PLAN.md, TESTING-MODERNIZATION-PLAN.md, LOCAL-DEV-ENVIRONMENT.md)
+- `02-completed/` - Successfully implemented (MASTER-PLAN.md, TESTING-MODERNIZATION-PLAN.md, LOCAL-DEV-ENVIRONMENT.md, HPO-PARSER-RESILIENCE-REFACTOR-V2-SIMPLIFIED.md)
 - `03-archived/` - Obsolete or superseded plans
 - `04-reference/` - Guides and templates
 - `README.md` - Navigation guide and best practices for LLM-assisted development
 
 **Current Status Highlights**:
 - ✅ Tooling Modernization: 8/9 phases complete (Ruff, uv, mypy, ESLint 9, GHCR, Dependabot, CI/CD)
-- ✅ Testing Infrastructure: 157 tests (115 unit/integration + 42 Docker E2E), 13% coverage
+- ✅ Testing Infrastructure: 208 tests (166 unit/integration + 42 Docker E2E), improved coverage
 - ✅ Local Development: 100x faster than Docker with instant hot reload
 - ✅ Code Quality: 0 linting errors, 0 type errors
+- ✅ HPO Parser Resilience: Safe dictionary access (Issue #23)
 
 ## Development Commands
 
