@@ -100,6 +100,16 @@ frontend-test-ui: ## Run frontend tests with UI
 frontend-test-cov: ## Run frontend tests with coverage
 	cd frontend && npm run test:coverage
 
+frontend-i18n-check: ## Validate i18n translation completeness and congruence
+	@echo "🌍 Validating i18n translations..."
+	cd frontend && npm run i18n:check
+	@echo "✅ i18n validation complete"
+
+frontend-i18n-report: ## Generate detailed i18n validation report (JSON)
+	@echo "📊 Generating i18n validation report..."
+	cd frontend && npm run i18n:report
+	@echo "✅ Report saved to: frontend/i18n-report.json"
+
 ##@ Docker
 
 docker-build: ## Build Docker images

@@ -44,6 +44,7 @@
     "subtitle": "HPO-termmapping voor klinische fenotypebeschrijvingen",
     "welcomeText": "Phentrieve is een door AI aangedreven tool die klinische tekst nauwkeurig koppelt aan gestandaardiseerde Human Phenotype Ontology (HPO) termen, waardoor fenotype-annotatie voor onderzoek en diagnostiek wordt gestroomlijnd.",
     "queryModeLabel": "Query-modus",
+    "documentModeLabel": "Documentmodus",
     "inputLabel": "Voer klinische tekstbeschrijving in",
     "examples": {
       "title": "Voorbeelden",
@@ -84,10 +85,11 @@
       "exportText": "Exporteren als tekst",
       "clear": "Verzameling wissen",
       "assertionToggle": "Bevestigingsstatus omschakelen",
-      "assertionStatus": "Bevestigingsstatus",
-      "affirmed": "Bevestigd",
-      "negated": "Ontkend",
-      "unknown": "Onbekend"
+      "assertionStatus": {
+        "affirmed": "Bevestigd",
+        "negated": "Ontkend",
+        "unknown": "Onbekend"
+      }
     },
     "advancedOptions": {
       "title": "Geavanceerde opties",
@@ -126,6 +128,7 @@
       "similarityThreshold": "Stel de minimale overeenkomst in die vereist is voor matches (hoger = nauwkeuriger, minder resultaten)",
       "enableReranking": "Herorden zoekresultaten voor verbeterde nauwkeurigheid",
       "rerankerMode": "Kies hoe zoekresultaten worden geherordend",
+      "language": "Selecteer de taal voor verwerking en negatie detectie",
       "subjectId": "Voer een identificatie in voor de patiënt",
       "sex": "Selecteer het biologische geslacht van de patiënt",
       "dateOfBirth": "Voer de geboortedatum van de patiënt in"
@@ -137,6 +140,9 @@
     "noResultsMessage": "Geen HPO-termen geïdentificeerd. Probeer een andere tekst of controleer uw invoer.",
     "termIdHeader": "HPO-ID",
     "termNameHeader": "Termnaam",
+    "similarityLabel": "Gelijkenis score",
+    "rerankLabel": "Herrangschikking score",
+    "confidenceLabel": "Betrouwbaarheid score",
     "confidenceHeader": "Betrouwbaarheid",
     "actionsHeader": "Acties",
     "removeTermTooltip": "Deze term verwijderen",
@@ -145,8 +151,24 @@
     "modelLabel": "Model",
     "rerankerLabel": "Herrangschikker",
     "languageLabel": "Taal",
+    "assertionLabel": "Bewering",
     "originalRank": "Oorspronkelijke rang",
     "noTermsFound": "Geen HPO-termen gevonden die overeenkomen met uw zoekopdracht met de huidige drempel. Probeer de overeenkomstdrempel te verlagen of uw zoekopdracht te herformuleren.",
+    "affirmed": "Bevestigd",
+    "negated": "Ontkend",
+    "unknown": "Onbekend",
+    "cosineSimilarity": "Cosinus gelijkenis",
+    "rangeExplanation": "{min} (geen gelijkenis) tot {max} (perfecte overeenkomst)",
+    "noMatch": "Geen overeenkomst",
+    "perfectMatch": "Perfecte overeenkomst",
+    "scoreNote": "Vertegenwoordigt semantische gelijkenis in vectorruimte",
+    "quality": {
+      "excellent": "Uitstekende overeenkomst",
+      "high": "Hoge overeenkomst",
+      "moderate": "Gematigde overeenkomst",
+      "low": "Lage overeenkomst",
+      "poor": "Slechte overeenkomst"
+    },
     "defaultError": "Er is een fout opgetreden bij het verwerken van uw zoekopdracht.",
     "addToCollectionTooltip": "{id} aan verzameling toevoegen",
     "alreadyInCollectionTooltip": "{id} is al in verzameling",
@@ -241,7 +263,7 @@
           },
           "whoCanUse": {
             "question": "Wie kan Phentrieve gebruiken?",
-            "answer": "<p>Phentrieve is ontworpen voor:</p><ul><li><strong>Klinisch genetici:</strong> Voor efficiënte fenotypering van patiënten</li><li><strong>Onderzoekers:</strong> Voor het standaardiseren van fenotypebeschrijvingen in studies</li><li><strong>Zorgverleners:</strong> Voor consistente fenotypedocumentatie</li><li><strong>Bioinformatici:</strong> Voor geautomatiseerde fenotype-analyse</li></ul><p>De tool is gratis te gebruiken en toegankelijk via een webbrowser.</p>"
+            "answer": "<p><strong>Phentrieve is uitsluitend voor onderzoeks- en informatiedoeleinden.</strong> Het is GEEN klinische diagnostische tool.</p><p>Ontworpen voor:</p><ul><li><strong>Onderzoekers:</strong> Standaardisatie van fenotypebeschrijvingen in onderzoeksstudies</li><li><strong>Klinische Genetici:</strong> Onderzoeksfenotypering en literatuuronderzoek (NIET voor patiëntdiagnose)</li><li><strong>Bio-informatici:</strong> Geautomatiseerde fenotype-analyse in onderzoeksdatasets</li><li><strong>Gezondheidszorgprofessionals:</strong> Educatieve doeleinden en onderzoeksdocumentatie</li></ul><p><strong>Belangrijk:</strong> Resultaten moeten worden geverifieerd door gekwalificeerde medische professionals voordat ze klinisch worden toegepast. Zie de disclaimer voor volledige gebruiksvoorwaarden.</p>"
           }
         }
       },
@@ -254,7 +276,11 @@
           },
           "performance": {
             "question": "Welke prestaties kan ik verwachten?",
-            "answer": "<p>Onze benchmark resultaten tonen:</p><ul><li>BioLORD-2023-M: HR@1=0.3333, HR@3=0.6667, HR@5=0.7778</li><li>Jina-v2-base-de: HR@1=0.2222, HR@3=0.4444, HR@5=0.5556</li></ul><p>De prestaties kunnen variëren afhankelijk van de complexiteit en specificiteit van de invoertekst.</p>"
+            "answer": "<p>Onze benchmark resultaten tonen:</p><ul><li>BioLORD-2023-M: HR{'@'}1=0.3333, HR{'@'}3=0.6667, HR{'@'}5=0.7778</li><li>Jina-v2-base-de: HR{'@'}1=0.2222, HR{'@'}3=0.4444, HR{'@'}5=0.5556</li></ul><p>De prestaties kunnen variëren afhankelijk van de complexiteit en specificiteit van de invoertekst.</p>"
+          },
+          "similarityScore": {
+            "question": "Wat betekenen de gelijkenisscores?",
+            "answer": "<p>Phentrieve gebruikt cosinus gelijkenis om te meten hoe nauw uw klinische tekst overeenkomt met HPO-termen. Scores variëren van 0,0 (geen gelijkenis) tot 1,0 (perfecte overeenkomst).</p><h4>Scorebereiken</h4><ul><li><strong>0,90 - 1,00:</strong> Uitstekende overeenkomst - zeer relevant</li><li><strong>0,75 - 0,89:</strong> Hoge overeenkomst - zeer relevant</li><li><strong>0,60 - 0,74:</strong> Gematigde overeenkomst - mogelijk relevant</li><li><strong>0,40 - 0,59:</strong> Lage overeenkomst - losjes verwant</li><li><strong>0,00 - 0,39:</strong> Slechte overeenkomst - niet aanbevolen</li></ul><h4>Technische Details</h4><p>Scores worden berekend met behulp van cosinus gelijkenis tussen inbeddingsvectoren. Een score van 1,0 geeft identieke semantische betekenis aan, terwijl 0,0 geen gelijkenis aangeeft.</p><p><strong>Opmerking:</strong> Deze scores vertegenwoordigen semantische gelijkenis in vectorruimte, niet klinische zekerheid. Controleer resultaten altijd met klinische expertise.</p>"
           }
         }
       }

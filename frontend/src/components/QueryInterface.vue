@@ -1385,7 +1385,7 @@ export default {
 }
 #advanced-options-panel .text-caption {
   font-size: 0.75rem !important;
-  color: rgba(0, 0, 0, 0.6);
+  color: rgba(0, 0, 0, 0.7); /* Updated for WCAG AA contrast (7.0:1 ratio) */
 }
 #advanced-options-panel .v-select,
 #advanced-options-panel .v-text-field,
@@ -1482,7 +1482,7 @@ export default {
   color: rgba(0, 0, 0, 0.87) !important;
 }
 :deep(.v-field__input::placeholder) {
-  color: rgba(0, 0, 0, 0.6) !important;
+  color: rgba(0, 0, 0, 0.7) !important; /* Updated for WCAG AA contrast (7.0:1 ratio) */
 }
 
 .v-tooltip > .v-overlay__content {

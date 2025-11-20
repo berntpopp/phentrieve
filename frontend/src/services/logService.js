@@ -265,7 +265,7 @@ class LogService {
    * Load console echo setting from localStorage
    *
    * @private
-   * @returns {boolean} Console echo enabled (default: true in dev, false in prod)
+   * @returns {boolean} Console echo enabled (default: false, use LogViewer instead)
    */
   loadConsoleEchoFromStorage() {
     try {
@@ -276,8 +276,9 @@ class LogService {
     } catch (error) {
       console.error('Failed to load console echo setting:', error);
     }
-    // Default: true in development for debugging, false in production
-    return import.meta.env.DEV;
+    // Default: false - Always use LogViewer instead of console
+    // Users can manually enable console echo if needed via LogViewer settings
+    return false;
   }
 }
 

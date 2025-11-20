@@ -44,6 +44,7 @@
     "subtitle": "Mappage de termes HPO pour les descriptions phénotypiques cliniques",
     "welcomeText": "Phentrieve est un outil propulsé par l'IA qui cartographie avec précision le texte clinique en termes standardisés de l'Ontologie du Phénotype Humain (HPO), simplifiant l'annotation des phénotypes pour la recherche et le diagnostic.",
     "queryModeLabel": "Mode requête",
+    "documentModeLabel": "Mode document",
     "inputLabel": "Saisir une description textuelle clinique",
     "examples": {
       "title": "Exemples",
@@ -84,10 +85,11 @@
       "exportText": "Exporter en texte",
       "clear": "Effacer la collection",
       "assertionToggle": "Basculer le statut d'affirmation",
-      "assertionStatus": "Statut d'affirmation",
-      "affirmed": "Affirmé",
-      "negated": "Nié",
-      "unknown": "Inconnu"
+      "assertionStatus": {
+        "affirmed": "Affirmé",
+        "negated": "Nié",
+        "unknown": "Inconnu"
+      }
     },
     "advancedOptions": {
       "title": "Options avancées",
@@ -149,6 +151,22 @@
     "assertionLabel": "Assertion",
     "negated": "Niée",
     "affirmed": "Affirmée",
+    "unknown": "Inconnu",
+    "similarityLabel": "Score de similitude",
+    "rerankLabel": "Score de reclassement",
+    "confidenceLabel": "Score de confiance",
+    "cosineSimilarity": "Similitude cosinus",
+    "rangeExplanation": "{min} (aucune similitude) à {max} (correspondance parfaite)",
+    "noMatch": "Aucune correspondance",
+    "perfectMatch": "Correspondance parfaite",
+    "scoreNote": "Représente la similitude sémantique dans l'espace vectoriel",
+    "quality": {
+      "excellent": "Excellente correspondance",
+      "high": "Haute correspondance",
+      "moderate": "Correspondance modérée",
+      "low": "Faible correspondance",
+      "poor": "Mauvaise correspondance"
+    },
     "originalRank": "Rang initial",
     "noTermsFound": "Aucun terme HPO correspondant à votre requête n'a été trouvé avec le seuil actuel. Essayez de réduire le seuil de similarité ou de reformuler votre requête.",
     "defaultError": "Une erreur s'est produite lors du traitement de votre requête.",
@@ -245,7 +263,7 @@
           },
           "whoCanUse": {
             "question": "Qui peut utiliser Phentrieve?",
-            "answer": "Phentrieve est conçu pour:Généticiens cliniques: Pour un phénotypage efficace des patientsChercheurs: Pour standardiser les descriptions phénotypiques dans les étudesProfessionnels de santé: Pour une documentation cohérente des phénotypesBio-informaticiens: Pour l'analyse phénotypique automatiséeL'outil est gratuit et accessible via un navigateur web."
+            "answer": "<p><strong>Phentrieve est uniquement à des fins de recherche et d'information.</strong> Ce n'est PAS un outil de diagnostic clinique.</p><p>Conçu pour :</p><ul><li><strong>Chercheurs :</strong> Standardisation des descriptions phénotypiques dans les études de recherche</li><li><strong>Généticiens Cliniques :</strong> Phénotypage de recherche et revue de littérature (PAS pour le diagnostic des patients)</li><li><strong>Bioinformaticiens :</strong> Analyse automatisée des phénotypes dans les ensembles de données de recherche</li><li><strong>Professionnels de la Santé :</strong> Fins éducatives et documentation de recherche</li></ul><p><strong>Important :</strong> Les résultats doivent être vérifiés par des professionnels de santé qualifiés avant toute application clinique. Consultez l'avertissement pour les conditions d'utilisation complètes.</p>"
           }
         }
       },
@@ -258,7 +276,11 @@
           },
           "performance": {
             "question": "Quelles performances puis-je attendre?",
-            "answer": "Nos résultats de benchmark montrent:BioLORD-2023-M: HR@1=0.3333, HR@3=0.6667, HR@5=0.7778Jina-v2-base-de: HR@1=0.2222, HR@3=0.4444, HR@5=0.5556Les performances peuvent varier en fonction de la complexité et de la spécificité du texte d'entrée."
+            "answer": "<p>Nos résultats de benchmark montrent:</p><ul><li>BioLORD-2023-M: HR{'@'}1=0.3333, HR{'@'}3=0.6667, HR{'@'}5=0.7778</li><li>Jina-v2-base-de: HR{'@'}1=0.2222, HR{'@'}3=0.4444, HR{'@'}5=0.5556</li></ul><p>Les performances peuvent varier en fonction de la complexité et de la spécificité du texte d'entrée.</p>"
+          },
+          "similarityScore": {
+            "question": "Que signifient les scores de similitude?",
+            "answer": "<p>Phentrieve utilise la similitude cosinus pour mesurer à quel point votre texte clinique correspond aux termes HPO. Les scores vont de 0,0 (aucune similitude) à 1,0 (correspondance parfaite).</p><h4>Plages de Score</h4><ul><li><strong>0,90 - 1,00:</strong> Correspondance excellente - très pertinent</li><li><strong>0,75 - 0,89:</strong> Correspondance élevée - très pertinent</li><li><strong>0,60 - 0,74:</strong> Correspondance modérée - potentiellement pertinent</li><li><strong>0,40 - 0,59:</strong> Correspondance faible - vaguement lié</li><li><strong>0,00 - 0,39:</strong> Correspondance médiocre - non recommandé</li></ul><h4>Détails Techniques</h4><p>Les scores sont calculés en utilisant la similitude cosinus entre les vecteurs d'intégration. Un score de 1,0 indique une signification sémantique identique, tandis que 0,0 indique aucune similitude.</p><p><strong>Remarque:</strong> Ces scores représentent la similitude sémantique dans l'espace vectoriel, pas la certitude clinique. Examinez toujours les résultats avec une expertise clinique.</p>"
           }
         }
       }

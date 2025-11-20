@@ -36,6 +36,7 @@ export default [
       'vue/singleline-html-element-content-newline': 'off',
       'vue/html-indent': 'off',
       'vue/html-closing-bracket-newline': 'off',
+      'vue/html-self-closing': 'off', // Let Prettier decide on self-closing tags
 
       // General rules
       'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',

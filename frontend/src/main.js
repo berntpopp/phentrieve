@@ -11,27 +11,10 @@ import { createPinia } from 'pinia';
 import { useLogStore } from './stores/log';
 import { logService } from './services/logService';
 
-// Vuetify
+// Vuetify (tree-shaken via plugin - only used components imported)
 import 'vuetify/styles';
-import { createVuetify } from 'vuetify';
-import * as components from 'vuetify/components';
-import * as directives from 'vuetify/directives';
-import { mdi } from 'vuetify/iconsets/mdi';
 import '@mdi/font/css/materialdesignicons.css';
-
-const vuetify = createVuetify({
-  components,
-  directives,
-  icons: {
-    defaultSet: 'mdi',
-    sets: {
-      mdi,
-    },
-  },
-  theme: {
-    defaultTheme: 'light',
-  },
-});
+import vuetify from './plugins/vuetify';
 
 const app = createApp(App);
 const pinia = createPinia();

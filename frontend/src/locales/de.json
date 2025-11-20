@@ -44,6 +44,7 @@
     "subtitle": "HPO-Term-Mapping für klinische Phänotyp-Beschreibungen",
     "welcomeText": "Phentrieve ist ein KI-gestütztes Tool, das klinischen Text präzise standardisierten Human Phenotype Ontology (HPO)-Begriffen zuordnet und so die Phänotyp-Annotation für Forschung und Diagnostik optimiert.",
     "queryModeLabel": "Abfragemodus",
+    "documentModeLabel": "Dokumentenmodus",
     "inputLabel": "Klinische Textbeschreibung eingeben",
     "examples": {
       "title": "Beispiele",
@@ -84,10 +85,11 @@
       "exportText": "Als Text exportieren",
       "clear": "Sammlung leeren",
       "assertionToggle": "Aussagestatus umschalten",
-      "assertionStatus": "Aussagestatus",
-      "affirmed": "Bestätigt",
-      "negated": "Verneint",
-      "unknown": "Unbekannt"
+      "assertionStatus": {
+        "affirmed": "Bestätigt",
+        "negated": "Verneint",
+        "unknown": "Unbekannt"
+      }
     },
     "advancedOptions": {
       "title": "Erweiterte Optionen",
@@ -150,6 +152,21 @@
     "negated": "Negiert",
     "affirmed": "Bejaht",
     "unknown": "Unbekannt",
+    "similarityLabel": "Ähnlichkeitswert",
+    "rerankLabel": "Neuordnungswert",
+    "confidenceLabel": "Konfidenzwert",
+    "cosineSimilarity": "Kosinus-Ähnlichkeit",
+    "rangeExplanation": "{min} (keine Ähnlichkeit) bis {max} (perfekte Übereinstimmung)",
+    "noMatch": "Keine Übereinstimmung",
+    "perfectMatch": "Perfekte Übereinstimmung",
+    "scoreNote": "Repräsentiert semantische Ähnlichkeit im Vektorraum",
+    "quality": {
+      "excellent": "Ausgezeichnete Übereinstimmung",
+      "high": "Hohe Übereinstimmung",
+      "moderate": "Mittlere Übereinstimmung",
+      "low": "Geringe Übereinstimmung",
+      "poor": "Schlechte Übereinstimmung"
+    },
     "originalRank": "Ursprünglicher Rang",
     "noTermsFound": "Keine HPO-Begriffe gefunden, die Ihrer Anfrage mit dem aktuellen Schwellenwert entsprechen. Versuchen Sie, den Ähnlichkeitsschwellenwert zu senken oder Ihre Anfrage umzuformulieren.",
     "defaultError": "Bei der Verarbeitung Ihrer Anfrage ist ein Fehler aufgetreten.",
@@ -290,7 +307,7 @@
           },
           "whoCanUse": {
             "question": "Wer kann Phentrieve nutzen?",
-            "answer": "<p>Phentrieve wurde entwickelt für:</p><ul><li><strong>Klinische Genetiker:</strong> Für effiziente Patientenphänotypisierung</li><li><strong>Forscher:</strong> Zur Standardisierung von Phänotypbeschreibungen in Studien</li><li><strong>Medizinisches Fachpersonal:</strong> Für konsistente Phänotypdokumentation</li><li><strong>Bioinformatiker:</strong> Für automatisierte Phänotypanalyse</li></ul><p>Das Tool ist kostenlos und über einen Webbrowser zugänglich.</p>"
+            "answer": "<p><strong>Phentrieve ist ausschließlich für Forschungs- und Informationszwecke bestimmt.</strong> Es ist KEIN klinisches Diagnosewerkzeug.</p><p>Entwickelt für:</p><ul><li><strong>Forscher:</strong> Standardisierung von Phänotypbeschreibungen in Forschungsstudien</li><li><strong>Klinische Genetiker:</strong> Forschungsphänotypisierung und Literaturrecherche (NICHT für Patientendiagnose)</li><li><strong>Bioinformatiker:</strong> Automatisierte Phänotypanalyse in Forschungsdatensätzen</li><li><strong>Medizinisches Fachpersonal:</strong> Bildungszwecke und Forschungsdokumentation</li></ul><p><strong>Wichtig:</strong> Ergebnisse müssen von qualifizierten medizinischen Fachkräften überprüft werden, bevor sie klinisch angewendet werden. Siehe Haftungsausschluss für vollständige Nutzungsbedingungen.</p>"
           }
         }
       },
@@ -303,7 +320,11 @@
           },
           "performance": {
             "question": "Welche Leistung kann ich erwarten?",
-            "answer": "<p>Unsere Benchmark-Ergebnisse zeigen:</p><ul><li>BioLORD-2023-M: HR@1=0.3333, HR@3=0.6667, HR@5=0.7778</li><li>Jina-v2-base-de: HR@1=0.2222, HR@3=0.4444, HR@5=0.5556</li></ul><p>Die Leistung kann je nach Komplexität und Spezifität des Eingabetextes variieren.</p>"
+            "answer": "<p>Unsere Benchmark-Ergebnisse zeigen:</p><ul><li>BioLORD-2023-M: HR{'@'}1=0.3333, HR{'@'}3=0.6667, HR{'@'}5=0.7778</li><li>Jina-v2-base-de: HR{'@'}1=0.2222, HR{'@'}3=0.4444, HR{'@'}5=0.5556</li></ul><p>Die Leistung kann je nach Komplexität und Spezifität des Eingabetextes variieren.</p>"
+          },
+          "similarityScore": {
+            "question": "Was bedeuten die Ähnlichkeitswerte?",
+            "answer": "<p>Phentrieve verwendet Kosinus-Ähnlichkeit, um zu messen, wie genau Ihr klinischer Text mit HPO-Begriffen übereinstimmt. Die Werte reichen von 0,0 (keine Ähnlichkeit) bis 1,0 (perfekte Übereinstimmung).</p><h4>Wertebereich</h4><ul><li><strong>0,90 - 1,00:</strong> Ausgezeichnete Übereinstimmung - sehr relevant</li><li><strong>0,75 - 0,89:</strong> Hohe Übereinstimmung - sehr relevant</li><li><strong>0,60 - 0,74:</strong> Mittlere Übereinstimmung - potenziell relevant</li><li><strong>0,40 - 0,59:</strong> Geringe Übereinstimmung - lose verwandt</li><li><strong>0,00 - 0,39:</strong> Schlechte Übereinstimmung - nicht empfohlen</li></ul><h4>Technische Details</h4><p>Die Werte werden mithilfe der Kosinus-Ähnlichkeit zwischen Einbettungsvektoren berechnet. Ein Wert von 1,0 zeigt identische semantische Bedeutung an, während 0,0 keine Ähnlichkeit anzeigt.</p><p><strong>Hinweis:</strong> Diese Werte repräsentieren semantische Ähnlichkeit im Vektorraum, nicht klinische Gewissheit. Überprüfen Sie die Ergebnisse immer mit klinischer Expertise.</p>"
           }
         }
       }

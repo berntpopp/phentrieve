@@ -44,6 +44,7 @@
     "subtitle": "HPO Term Mapping for Clinical Phenotype Descriptions",
     "welcomeText": "Phentrieve is an AI-powered tool that accurately maps clinical text to standardized Human Phenotype Ontology (HPO) terms, streamlining phenotype annotation for research and diagnostics.",
     "queryModeLabel": "Query Mode",
+    "documentModeLabel": "Document Mode",
     "inputLabel": "Enter clinical text description",
     "examples": {
       "title": "Examples",
@@ -84,10 +85,11 @@
       "exportText": "Export as Text",
       "clear": "Clear Collection",
       "assertionToggle": "Toggle Assertion Status",
-      "assertionStatus": "Assertion Status",
-      "affirmed": "Affirmed",
-      "negated": "Negated",
-      "unknown": "Unknown"
+      "assertionStatus": {
+        "affirmed": "Affirmed",
+        "negated": "Negated",
+        "unknown": "Unknown"
+      }
     },
     "advancedOptions": {
       "title": "Advanced Options",
@@ -138,8 +140,14 @@
     "noResultsMessage": "No HPO terms identified. Try a different text or check your input.",
     "termIdHeader": "HPO ID",
     "termNameHeader": "Term Name",
-    "similarityLabel": "Similarity",
-    "addToCollection": "Add to Collection",
+    "confidenceHeader": "Confidence",
+    "actionsHeader": "Actions",
+    "removeTermTooltip": "Remove this term",
+    "confidenceTooltip": "Confidence score: {score}",
+    "viewTermLink": "View on HPO website",
+    "similarityLabel": "Similarity Score",
+    "rerankLabel": "Re-ranking Score",
+    "confidenceLabel": "Confidence Score",
     "modelLabel": "Model",
     "rerankerLabel": "Reranker",
     "languageLabel": "Language",
@@ -148,8 +156,24 @@
     "affirmed": "Affirmed",
     "negated": "Negated",
     "unknown": "Unknown",
+    "cosineSimilarity": "Cosine Similarity",
+    "rangeExplanation": "{min} (no similarity) to {max} (perfect match)",
+    "noMatch": "No Match",
+    "perfectMatch": "Perfect Match",
+    "scoreNote": "Represents semantic similarity in vector space",
+    "quality": {
+      "excellent": "Excellent Match",
+      "high": "High Match",
+      "moderate": "Moderate Match",
+      "low": "Low Match",
+      "poor": "Poor Match"
+    },
     "addToCollectionTooltip": "Add HPO term {id} to your collection",
     "alreadyInCollectionTooltip": "HPO term {id} is already in your collection",
+    "addToCollectionAriaLabel": "Add {label} ({id}) to collection",
+    "alreadyInCollectionAriaLabel": "{label} ({id}) is already in collection",
+    "originalRank": "Original Rank",
+    "defaultError": "An error occurred while processing your request.",
     "confidenceScoreTooltip": "Confidence score: {score}",
     "sourceChunksTooltip": "Found in {count} text chunks",
     "maxScoreTooltip": "Highest confidence: {score}",
@@ -283,7 +307,7 @@
           },
           "whoCanUse": {
             "question": "Who can use Phentrieve?",
-            "answer": "<p>Phentrieve is designed for:</p><ul><li><strong>Clinical Geneticists:</strong> For efficient patient phenotyping</li><li><strong>Researchers:</strong> For standardizing phenotype descriptions in studies</li><li><strong>Healthcare Professionals:</strong> For consistent phenotype documentation</li><li><strong>Bioinformaticians:</strong> For automated phenotype analysis</li></ul><p>The tool is free to use and accessible through a web browser.</p>"
+            "answer": "<p><strong>Phentrieve is for research and informational purposes only.</strong> It is NOT a clinical diagnostic tool.</p><p>Designed for:</p><ul><li><strong>Researchers:</strong> Standardizing phenotype descriptions in research studies</li><li><strong>Clinical Geneticists:</strong> Research phenotyping and literature review (NOT for patient diagnosis)</li><li><strong>Bioinformaticians:</strong> Automated phenotype analysis in research datasets</li><li><strong>Healthcare Professionals:</strong> Educational purposes and research documentation</li></ul><p><strong>Important:</strong> Results must be verified by qualified medical professionals before any clinical application. See the disclaimer for complete terms of use.</p>"
           }
         }
       },
@@ -296,7 +320,11 @@
           },
           "performance": {
             "question": "What performance can I expect?",
-            "answer": "<p>Our benchmark results show:</p><ul><li>BioLORD-2023-M: HR@1=0.3333, HR@3=0.6667, HR@5=0.7778</li><li>Jina-v2-base-de: HR@1=0.2222, HR@3=0.4444, HR@5=0.5556</li></ul><p>Performance may vary based on the complexity and specificity of the input text.</p>"
+            "answer": "<p>Our benchmark results show:</p><ul><li>BioLORD-2023-M: HR{'@'}1=0.3333, HR{'@'}3=0.6667, HR{'@'}5=0.7778</li><li>Jina-v2-base-de: HR{'@'}1=0.2222, HR{'@'}3=0.4444, HR{'@'}5=0.5556</li></ul><p>Performance may vary based on the complexity and specificity of the input text.</p>"
+          },
+          "similarityScore": {
+            "question": "What do the similarity scores mean?",
+            "answer": "<p>Phentrieve uses cosine similarity to measure how closely your clinical text matches HPO terms. Scores range from 0.0 (no similarity) to 1.0 (perfect match).</p><h4>Score Ranges</h4><ul><li><strong>0.90 - 1.00:</strong> Excellent match - highly relevant</li><li><strong>0.75 - 0.89:</strong> High match - very relevant</li><li><strong>0.60 - 0.74:</strong> Moderate match - potentially relevant</li><li><strong>0.40 - 0.59:</strong> Low match - loosely related</li><li><strong>0.00 - 0.39:</strong> Poor match - not recommended</li></ul><h4>Technical Details</h4><p>Scores are calculated using cosine similarity between embedding vectors. A score of 1.0 indicates identical semantic meaning, while 0.0 indicates no similarity.</p><p><strong>Note:</strong> These scores represent semantic similarity in vector space, not clinical certainty. Always review results with clinical expertise.</p>"
           }
         }
       }

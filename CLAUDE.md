@@ -56,6 +56,11 @@ make all
 
 **Common mistake:** Running tests locally but forgetting `make check` (formatting) → CI fails!
 
+**For locale file changes (frontend/src/locales/):**
+```bash
+make frontend-i18n-check  # REQUIRED: Validates all locales have matching keys
+```
+
 ### Python CLI/Library
 ```bash
 # Install in development mode (using uv)
@@ -140,6 +145,10 @@ npm run test:coverage                                # Vitest with coverage
 make frontend-test                                   # Run tests once
 make frontend-test-ui                                # Run tests with UI
 make frontend-test-cov                               # Run tests with coverage
+
+# i18n translation validation (REQUIRED when changing locale files!)
+make frontend-i18n-check                             # Validate translation completeness and congruence
+make frontend-i18n-report                            # Generate detailed JSON report
 ```
 
 ### API (FastAPI)

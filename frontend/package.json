@@ -14,7 +14,9 @@
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:run": "vitest run",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "i18n:check": "node scripts/validate-i18n.js && vue-i18n-extract --vueFiles './src/**/*.{vue,js,ts}' --languageFiles './src/locales/**/*.json'",
+    "i18n:report": "vue-i18n-extract --output json --vueFiles './src/**/*.{vue,js,ts}' --languageFiles './src/locales/**/*.json' > i18n-report.json"
   },
   "dependencies": {
     "@berntpopp/phenopackets-js": "^1.0.2",
@@ -50,6 +52,7 @@
     "vite-plugin-compression": "^0.5.1",
     "vite-plugin-imagemin": "^0.6.1",
     "vitest": "^4.0.9",
-    "vue-eslint-parser": "^10.2.0"
+    "vue-eslint-parser": "^10.2.0",
+    "vue-i18n-extract": "^2.0.7"
   }
 }
