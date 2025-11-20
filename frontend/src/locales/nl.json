@@ -180,6 +180,10 @@
     "topEvidenceTooltip": "Beste bewijs in fragment #{id}",
     "addToCollectionAriaLabel": "{label} ({id}) aan verzameling toevoegen",
     "alreadyInCollectionAriaLabel": "HPO-term {id} ({label}) is in verzameling",
+    "showDetails": "Details tonen",
+    "hideDetails": "Details verbergen",
+    "definitionLabel": "Definitie",
+    "synonymsLabel": "Synoniemen",
     "textProcess": {
       "title": "Verwerkte Tekstanalyse",
       "chunksTitle": "Verwerkte Fragmenten & HPO-termen per Fragment",

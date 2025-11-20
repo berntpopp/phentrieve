@@ -180,6 +180,10 @@
     "topEvidenceTooltip": "Beste Evidenz in Abschnitt #{id}",
     "addToCollectionAriaLabel": "{label} ({id}) zur Sammlung hinzufügen",
     "alreadyInCollectionAriaLabel": "HPO-Begriff {id} ({label}) ist in der Sammlung",
+    "showDetails": "Details anzeigen",
+    "hideDetails": "Details ausblenden",
+    "definitionLabel": "Definition",
+    "synonymsLabel": "Synonyme",
     "textProcess": {
       "title": "Verarbeitete Textanalyse",
       "chunksTitle": "Verarbeitete Textabschnitte & HPO-Begriffe pro Abschnitt",
