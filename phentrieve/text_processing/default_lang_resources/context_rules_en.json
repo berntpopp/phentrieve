@@ -1,0 +1,160 @@
+{
+  "context_rules": [
+    {
+      "literal": "no",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-existing", "language": "en"}
+    },
+    {
+      "literal": "not",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-existing", "language": "en"}
+    },
+    {
+      "literal": "n't",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-existing", "language": "en"}
+    },
+    {
+      "literal": "denies",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-existing", "language": "en"}
+    },
+    {
+      "literal": "denied",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-existing", "language": "en"}
+    },
+    {
+      "literal": "without",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-existing", "language": "en"}
+    },
+    {
+      "literal": "negative for",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-existing", "language": "en"}
+    },
+    {
+      "literal": "rules out",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-existing", "language": "en"}
+    },
+    {
+      "literal": "ruled out",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "BACKWARD",
+      "metadata": {"source": "phentrieve-existing", "language": "en"}
+    },
+    {
+      "literal": "absence of",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-existing", "language": "en"}
+    },
+    {
+      "literal": "lack of",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-existing", "language": "en"}
+    },
+    {
+      "literal": "free of",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-existing", "language": "en"}
+    },
+    {
+      "literal": "never had",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-existing", "language": "en"}
+    },
+    {
+      "literal": "cannot be identified",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "BACKWARD",
+      "metadata": {"source": "phentrieve-existing", "language": "en"}
+    },
+    {
+      "literal": "is absent",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "BACKWARD",
+      "metadata": {"source": "context-additions", "language": "en"}
+    },
+    {
+      "literal": "are absent",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "BACKWARD",
+      "metadata": {"source": "context-additions", "language": "en"}
+    },
+    {
+      "literal": "was ruled out",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "BACKWARD",
+      "metadata": {"source": "context-additions", "language": "en"}
+    },
+    {
+      "literal": "were ruled out",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "BACKWARD",
+      "metadata": {"source": "context-additions", "language": "en"}
+    },
+    {
+      "literal": "excluded",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "BACKWARD",
+      "metadata": {"source": "context-additions", "language": "en"}
+    },
+    {
+      "literal": "however",
+      "category": "TERMINATE",
+      "direction": "TERMINATE",
+      "metadata": {"source": "context-conjunctions", "language": "en"}
+    },
+    {
+      "literal": "but",
+      "category": "TERMINATE",
+      "direction": "TERMINATE",
+      "metadata": {"source": "context-conjunctions", "language": "en"}
+    },
+    {
+      "literal": "although",
+      "category": "TERMINATE",
+      "direction": "TERMINATE",
+      "metadata": {"source": "context-conjunctions", "language": "en"}
+    },
+    {
+      "literal": "though",
+      "category": "TERMINATE",
+      "direction": "TERMINATE",
+      "metadata": {"source": "context-conjunctions", "language": "en"}
+    },
+    {
+      "literal": "not only",
+      "category": "PSEUDO",
+      "direction": "PSEUDO",
+      "metadata": {"source": "context-pseudo", "language": "en"}
+    },
+    {
+      "literal": "not excluded",
+      "category": "PSEUDO",
+      "direction": "PSEUDO",
+      "metadata": {"source": "context-pseudo", "language": "en", "note": "Double negative"}
+    },
+    {
+      "literal": "no increase",
+      "category": "PSEUDO",
+      "direction": "PSEUDO",
+      "metadata": {"source": "context-pseudo", "language": "en", "note": "Negation of change, not existence"}
+    }
+  ]
+}
