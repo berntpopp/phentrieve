@@ -348,7 +348,7 @@ class HPODatabase:
             SELECT id, label, definition, synonyms, comments
             FROM hpo_terms
             WHERE id IN ({placeholders})
-        """
+        """  # noqa: S608 - False positive: using parameterized query with placeholders
 
         cursor = conn.execute(query, term_ids)
 

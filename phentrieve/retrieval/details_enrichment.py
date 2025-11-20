@@ -7,7 +7,6 @@ Following functional programming principles: no side effects, returns new object
 
 import logging
 from functools import lru_cache
-from pathlib import Path
 
 from phentrieve.config import DEFAULT_HPO_DB_FILENAME
 from phentrieve.data_processing.hpo_database import HPODatabase
@@ -107,9 +106,7 @@ def enrich_results_with_details(
         return []
 
     # Resolve database path
-    data_dir = resolve_data_path(
-        data_dir_override, "data_dir", get_default_data_dir
-    )
+    data_dir = resolve_data_path(data_dir_override, "data_dir", get_default_data_dir)
     db_path = data_dir / DEFAULT_HPO_DB_FILENAME
 
     # Check database exists (expected error at startup - handle gracefully)
@@ -120,9 +117,7 @@ def enrich_results_with_details(
             "Run 'phentrieve data prepare' to generate database."
         )
         # Return NEW dicts with None details (preserve original)
-        return [
-            {**result, "definition": None, "synonyms": None} for result in results
-        ]
+        return [{**result, "definition": None, "synonyms": None} for result in results]
 
     # Fetch term details (let database errors propagate - unexpected failures)
     hpo_ids = [result["hpo_id"] for result in results]

@@ -5,7 +5,7 @@ This module contains commands for querying HPO terms.
 
 import traceback
 from pathlib import Path
-from typing import Annotated, Optional
+from typing import Annotated, Any, Optional
 
 import typer
 
@@ -14,6 +14,36 @@ from phentrieve.retrieval.output_formatters import (
     format_results_as_jsonl,
     format_results_as_text,
 )
+
+
+def enrich_query_results_with_details(
+    structured_query_results: list[dict[str, Any]],
+    data_dir_override: str | None = None,
+) -> list[dict[str, Any]]:
+    """
+    Enrich structured query results with HPO term details (definitions, synonyms).
+
+    Takes structured results from orchestrate_query() and enriches each
+    result set's HPO terms with details from the database.
+
+    Args:
+        structured_query_results: List of result sets from orchestrate_query()
+        data_dir_override: Optional data directory override
+
+    Returns:
+        Enriched structured results with definition and synonyms added to each HPO term
+    """
+    from phentrieve.retrieval.details_enrichment import enrich_results_with_details
+
+    # Enrich each result set's HPO terms
+    for result_set in structured_query_results:
+        if "results" in result_set and result_set["results"]:
+            # Enrich returns new list - replace the old one
+            result_set["results"] = enrich_results_with_details(
+                result_set["results"], data_dir_override
+            )
+
+    return structured_query_results
 
 
 def query_hpo(
@@ -145,6 +175,14 @@ def query_hpo(
             help="Assertion detection strategy for the query (dependency, keyword, any_negative).",
         ),
     ] = "dependency",
+    include_details: Annotated[
+        bool,
+        typer.Option(
+            "--include-details",
+            "-d",
+            help="Include HPO term definitions and synonyms in output",
+        ),
+    ] = False,
 ):
     """Query HPO terms with natural language clinical descriptions.
 
@@ -248,6 +286,14 @@ def query_hpo(
                     query_assertion_preference=query_assertion_preference,
                 )
 
+                # Enrich with details if requested
+                if (
+                    include_details
+                    and query_results
+                    and isinstance(query_results, list)
+                ):
+                    query_results = enrich_query_results_with_details(query_results)
+
                 # Format the results based on the selected output format
                 if query_results and isinstance(query_results, list):
                     formatted_output = ""
@@ -322,6 +368,10 @@ def query_hpo(
             if output_file is None:
                 typer.secho(message, fg=typer.colors.RED)
             return
+
+        # Enrich with details if requested
+        if include_details and isinstance(all_query_results, list):
+            all_query_results = enrich_query_results_with_details(all_query_results)
 
         # Format the results based on the selected output format
         formatted_output = ""

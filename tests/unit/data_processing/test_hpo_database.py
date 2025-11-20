@@ -492,3 +492,142 @@ class TestFileBasedDatabase:
         db2.bulk_insert_terms(sample_terms[:2])
         assert db2.get_term_count() == 2
         db2.close()
+
+
+class TestBatchTermRetrieval:
+    """Test get_terms_by_ids batch retrieval method (Issue #24)."""
+
+    def test_get_terms_by_ids_batch_lookup(self, temp_db, sample_terms):
+        """Test efficient batch lookup of multiple terms."""
+        temp_db.bulk_insert_terms(sample_terms)
+
+        term_ids = ["HP:0000001", "HP:0000118", "HP:0001250"]
+        result = temp_db.get_terms_by_ids(term_ids)
+
+        assert len(result) == 3
+        assert "HP:0000001" in result
+        assert "HP:0000118" in result
+        assert "HP:0001250" in result
+
+        # Check structure
+        assert result["HP:0000001"]["label"] == "All"
+        assert result["HP:0000001"]["definition"] == "Root of all terms"
+
+        # Check JSON deserialization
+        assert isinstance(result["HP:0000001"]["synonyms"], list)
+        assert result["HP:0000001"]["synonyms"] == ["Everything"]
+
+        assert isinstance(result["HP:0000001"]["comments"], list)
+        assert result["HP:0000001"]["comments"] == ["Root term"]
+
+    def test_get_terms_by_ids_empty_list(self, temp_db):
+        """Test empty input returns empty dict."""
+        result = temp_db.get_terms_by_ids([])
+        assert result == {}
+
+    def test_get_terms_by_ids_single_term(self, temp_db, sample_terms):
+        """Test batch lookup with single term."""
+        temp_db.bulk_insert_terms(sample_terms)
+
+        result = temp_db.get_terms_by_ids(["HP:0001250"])
+
+        assert len(result) == 1
+        assert result["HP:0001250"]["label"] == "Seizure"
+        assert result["HP:0001250"]["synonyms"] == ["Seizures", "Epileptic seizure"]
+
+    def test_get_terms_by_ids_missing_terms(self, temp_db, sample_terms):
+        """Test handling of non-existent term IDs."""
+        temp_db.bulk_insert_terms(sample_terms)
+
+        # Request mix of valid and invalid IDs
+        term_ids = ["HP:0000001", "HP:9999999", "HP:0001250"]
+        result = temp_db.get_terms_by_ids(term_ids)
+
+        # Should return only found terms
+        assert len(result) == 2
+        assert "HP:0000001" in result
+        assert "HP:0001250" in result
+        assert "HP:9999999" not in result
+
+    def test_get_terms_by_ids_all_missing(self, temp_db):
+        """Test batch lookup when no terms exist."""
+        # Database is empty
+        result = temp_db.get_terms_by_ids(["HP:9999999", "HP:8888888"])
+
+        assert result == {}
+
+    def test_get_terms_by_ids_handles_null_json(self, temp_db):
+        """Test that NULL JSON fields are handled correctly."""
+        # Insert term with NULL synonyms/comments
+        with temp_db.transaction() as conn:
+            conn.execute(
+                """
+                INSERT INTO hpo_terms (id, label, definition, synonyms, comments)
+                VALUES ('HP:0000001', 'All', 'Root', NULL, NULL)
+                """
+            )
+
+        result = temp_db.get_terms_by_ids(["HP:0000001"])
+
+        assert len(result) == 1
+        # Should deserialize to empty lists
+        assert result["HP:0000001"]["synonyms"] == []
+        assert result["HP:0000001"]["comments"] == []
+
+    def test_get_terms_by_ids_preserves_order_in_dict(self, temp_db, sample_terms):
+        """Test that results can be accessed by any ID regardless of input order."""
+        temp_db.bulk_insert_terms(sample_terms)
+
+        # Request in different order
+        result = temp_db.get_terms_by_ids(["HP:0001250", "HP:0000001", "HP:0000118"])
+
+        # All should be accessible
+        assert "HP:0000001" in result
+        assert "HP:0000118" in result
+        assert "HP:0001250" in result
+
+
+class TestDeserializeHelper:
+    """Test _deserialize_term_row helper method (DRY principle)."""
+
+    def test_deserialize_term_row_consistency(self, temp_db, sample_terms):
+        """Ensure load_all_terms and get_terms_by_ids return consistent format."""
+        temp_db.bulk_insert_terms(sample_terms)
+
+        # Load via both methods
+        all_terms = {t["id"]: t for t in temp_db.load_all_terms()}
+        batch_terms = temp_db.get_terms_by_ids(list(all_terms.keys()))
+
+        # Same keys should have same structure
+        for term_id in batch_terms:
+            assert all_terms[term_id].keys() == batch_terms[term_id].keys()
+
+            # Same values (excluding created_at which might differ slightly)
+            assert all_terms[term_id]["id"] == batch_terms[term_id]["id"]
+            assert all_terms[term_id]["label"] == batch_terms[term_id]["label"]
+            assert (
+                all_terms[term_id]["definition"] == batch_terms[term_id]["definition"]
+            )
+            assert all_terms[term_id]["synonyms"] == batch_terms[term_id]["synonyms"]
+            assert all_terms[term_id]["comments"] == batch_terms[term_id]["comments"]
+
+    def test_deserialize_handles_empty_json_consistently(self, temp_db):
+        """Test that empty JSON arrays are handled consistently."""
+        # Insert term with empty JSON arrays
+        with temp_db.transaction() as conn:
+            conn.execute(
+                """
+                INSERT INTO hpo_terms (id, label, definition, synonyms, comments)
+                VALUES ('HP:0000001', 'All', 'Root', '[]', '[]')
+                """
+            )
+
+        # Via load_all_terms
+        all_terms = temp_db.load_all_terms()
+        assert all_terms[0]["synonyms"] == []
+        assert all_terms[0]["comments"] == []
+
+        # Via get_terms_by_ids
+        batch_terms = temp_db.get_terms_by_ids(["HP:0000001"])
+        assert batch_terms["HP:0000001"]["synonyms"] == []
+        assert batch_terms["HP:0000001"]["comments"] == []
