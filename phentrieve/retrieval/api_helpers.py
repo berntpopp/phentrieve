@@ -22,6 +22,7 @@ async def execute_hpo_retrieval_for_api(
     rerank_count: int,
     reranker_mode: str,
     translation_dir_path: Optional[str],
+    include_details: bool = False,
     detect_query_assertion: bool = True,
     query_assertion_language: Optional[str] = None,
     query_assertion_preference: str = "dependency",
@@ -44,6 +45,10 @@ async def execute_hpo_retrieval_for_api(
         rerank_count: Number of top dense results to rerank
         reranker_mode: Either "cross-lingual" or "monolingual"
         translation_dir_path: Path to translation directory for monolingual mode
+        include_details: Include HPO term definitions and synonyms in results
+        detect_query_assertion: Enable assertion detection on query text
+        query_assertion_language: Language for assertion detection
+        query_assertion_preference: Assertion detection strategy
         debug: Enable debug logging
 
     Returns:
@@ -203,6 +208,12 @@ async def execute_hpo_retrieval_for_api(
             result_item["original_rank"] = item["original_rank"]
 
         formatted_results.append(result_item)
+
+    # Enrich with HPO term details if requested (definitions and synonyms)
+    if include_details:
+        from phentrieve.retrieval.details_enrichment import enrich_results_with_details
+
+        formatted_results = enrich_results_with_details(formatted_results)
 
     # Create result dictionary without using language as key to avoid the unhashable slice error
     result_dict = {

@@ -1,6 +1,6 @@
 from typing import Literal, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 # For assertion status type
 
@@ -25,6 +25,10 @@ class QueryRequest(BaseModel):
         ge=0.0,
         le=1.0,
         description="Minimum similarity score for dense retrieval results.",
+    )
+    include_details: bool = Field(
+        False,
+        description="Include HPO term definitions and synonyms in results. When enabled, num_results is capped at 20 for performance.",
     )
 
     enable_reranker: bool = Field(False, description="Enable cross-encoder reranking.")
@@ -68,6 +72,13 @@ class QueryRequest(BaseModel):
     # Add sentence_mode if you want to expose it directly, default to False for whole text processing by the API
     # sentence_mode: bool = Field(False, description="Process text sentence by sentence. If false, whole input text is processed as one query.")
 
+    @model_validator(mode="after")
+    def validate_num_results_with_details(self) -> "QueryRequest":
+        """Cap num_results at 20 when include_details is enabled for performance."""
+        if self.include_details and self.num_results > 20:
+            self.num_results = 20
+        return self
+
 
 class HPOResultItem(BaseModel):
     hpo_id: str
@@ -75,6 +86,10 @@ class HPOResultItem(BaseModel):
     similarity: Optional[float] = None  # Score from dense retriever
     cross_encoder_score: Optional[float] = None  # Score from reranker
     original_rank: Optional[int] = None  # Rank before reranking
+    definition: Optional[str] = None  # HPO term definition (when include_details=True)
+    synonyms: Optional[list[str]] = (
+        None  # HPO term synonyms (when include_details=True)
+    )
 
 
 class QueryResponseSegment(BaseModel):  # If processing in segments (e.g. sentences)
