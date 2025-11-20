@@ -6,7 +6,6 @@ uncertainty in clinical text chunks.
 """
 
 import logging
-import re
 from abc import ABC, abstractmethod
 from enum import Enum
 from typing import Any, Optional
@@ -83,6 +82,23 @@ def get_spacy_model(lang_code: str) -> Optional[spacy.language.Language]:
             NLP_MODELS[lang_code] = None
 
     return NLP_MODELS.get(lang_code)
+
+
+def _is_cue_match(text_lower: str, cue_lower: str, index: int) -> bool:
+    """
+    Check if a cue matches at the given position with word boundary awareness.
+
+    Args:
+        text_lower: Lowercased text to search in
+        cue_lower: Lowercased cue to search for
+        index: Position where cue was found
+
+    Returns:
+        True if cue matches with proper word boundaries
+    """
+    return (index == 0 and text_lower.startswith(cue_lower)) or (
+        index > 0 and f" {cue_lower}" in text_lower
+    )
 
 
 class AssertionDetector(ABC):
@@ -168,13 +184,6 @@ class KeywordAssertionDetector(AssertionDetector):
             return False, False, [], []
 
         text_lower = chunk.lower()
-        re.sub(r"[^\w\s]", " ", text_lower).split()
-
-        # Helper function to check for cue match
-        def is_cue_match(text_lower, cue_lower, index):
-            return (index == 0 and text_lower.startswith(cue_lower)) or (
-                index > 0 and f" {cue_lower}" in text_lower
-            )
 
         # Load user configuration
         user_config_main = load_user_config()
@@ -200,7 +209,7 @@ class KeywordAssertionDetector(AssertionDetector):
             cue_lower = cue.lower()
             cue_index = text_lower.find(cue_lower)
 
-            if cue_index >= 0 and is_cue_match(text_lower, cue_lower, cue_index):
+            if cue_index >= 0 and _is_cue_match(text_lower, cue_lower, cue_index):
                 # Found a negation cue, extract the context after the cue
                 cue_end = cue_index + len(cue_lower)
                 words_after = text_lower[cue_end:].split()
@@ -231,7 +240,7 @@ class KeywordAssertionDetector(AssertionDetector):
             cue_lower = cue.lower()
             cue_index = text_lower.find(cue_lower)
 
-            if cue_index >= 0 and is_cue_match(text_lower, cue_lower, cue_index):
+            if cue_index >= 0 and _is_cue_match(text_lower, cue_lower, cue_index):
                 # Get words around the cue (simple window approach)
                 start_idx = max(0, cue_index - 30)
                 end_idx = min(len(text_lower), cue_index + len(cue_lower) + 30)
@@ -338,8 +347,10 @@ class DependencyAssertionDetector(AssertionDetector):
 
         # Handle German negation directly with a text check first (more reliable for short phrases)
         chunk_lower = chunk.lower()
+        # Use most common negation cues (first 5) for quick check - data-driven, not hardcoded
+        quick_check_cues = [cue.strip().lower() for cue in lang_negation_cues[:5]]
         if lang == "de" and any(
-            neg_term in chunk_lower for neg_term in ["kein", "keine", "keinen", "nicht"]
+            neg_term in chunk_lower for neg_term in quick_check_cues
         ):
             is_negated = True
             negated_concepts.append(f"German negation term found in: {chunk}")
