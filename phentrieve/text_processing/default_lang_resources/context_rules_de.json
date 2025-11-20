@@ -1,0 +1,275 @@
+{
+  "context_rules": [
+    {
+      "literal": "kein",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "FORWARD",
+      "metadata": {
+        "source": "phentrieve-existing",
+        "language": "de",
+        "type": "negation"
+      }
+    },
+    {
+      "literal": "keine",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "FORWARD",
+      "metadata": {
+        "source": "phentrieve-existing",
+        "language": "de",
+        "type": "negation"
+      }
+    },
+    {
+      "literal": "keinen",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "FORWARD",
+      "metadata": {
+        "source": "phentrieve-existing",
+        "language": "de",
+        "type": "negation"
+      }
+    },
+    {
+      "literal": "keiner",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "FORWARD",
+      "metadata": {
+        "source": "phentrieve-existing",
+        "language": "de",
+        "type": "negation"
+      }
+    },
+    {
+      "literal": "keines",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "FORWARD",
+      "metadata": {
+        "source": "phentrieve-existing",
+        "language": "de",
+        "type": "negation"
+      }
+    },
+    {
+      "literal": "nicht",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "FORWARD",
+      "metadata": {
+        "source": "phentrieve-existing",
+        "language": "de",
+        "type": "negation"
+      }
+    },
+    {
+      "literal": "ohne",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "FORWARD",
+      "metadata": {
+        "source": "phentrieve-existing",
+        "language": "de",
+        "type": "negation"
+      }
+    },
+    {
+      "literal": "Abwesenheit von",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "FORWARD",
+      "metadata": {
+        "source": "phentrieve-existing",
+        "language": "de",
+        "type": "negation"
+      }
+    },
+    {
+      "literal": "Fehlen von",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "FORWARD",
+      "metadata": {
+        "source": "phentrieve-existing",
+        "language": "de",
+        "type": "negation"
+      }
+    },
+    {
+      "literal": "Mangel an",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "FORWARD",
+      "metadata": {
+        "source": "phentrieve-existing",
+        "language": "de",
+        "type": "negation"
+      }
+    },
+    {
+      "literal": "negativ für",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "FORWARD",
+      "metadata": {
+        "source": "phentrieve-existing",
+        "language": "de",
+        "type": "negation"
+      }
+    },
+    {
+      "literal": "schließt aus",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "FORWARD",
+      "metadata": {
+        "source": "phentrieve-existing",
+        "language": "de",
+        "type": "negation"
+      }
+    },
+    {
+      "literal": "ausgeschlossen",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "BACKWARD",
+      "metadata": {
+        "source": "phentrieve-existing",
+        "language": "de",
+        "type": "negation",
+        "note": "Participial form, typically appears after the condition"
+      }
+    },
+    {
+      "literal": "frei von",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "FORWARD",
+      "metadata": {
+        "source": "phentrieve-existing",
+        "language": "de",
+        "type": "negation"
+      }
+    },
+    {
+      "literal": "niemals gehabt",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "BACKWARD",
+      "metadata": {
+        "source": "phentrieve-existing",
+        "language": "de",
+        "type": "negation"
+      }
+    },
+    {
+      "literal": "kann nicht identifiziert werden",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "BACKWARD",
+      "metadata": {
+        "source": "phentrieve-existing",
+        "language": "de",
+        "type": "negation"
+      }
+    },
+    {
+      "literal": "Ausschluss",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "FORWARD",
+      "metadata": {
+        "source": "issue-79",
+        "language": "de",
+        "type": "negation",
+        "note": "Missing term - noun form meaning 'exclusion'"
+      }
+    },
+    {
+      "literal": "Ausschluss von",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "FORWARD",
+      "metadata": {
+        "source": "issue-79",
+        "language": "de",
+        "type": "negation",
+        "note": "Missing term - 'exclusion of'"
+      }
+    },
+    {
+      "literal": "kann ausgeschlossen",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "BACKWARD",
+      "metadata": {
+        "source": "issue-79",
+        "language": "de",
+        "type": "negation",
+        "note": "Missing term - 'can be excluded'"
+      }
+    },
+    {
+      "literal": "wird ausgeschlossen",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "BACKWARD",
+      "metadata": {
+        "source": "issue-79",
+        "language": "de",
+        "type": "negation",
+        "note": "Missing term - 'is excluded'"
+      }
+    },
+    {
+      "literal": "werden ausgeschlossen",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "BACKWARD",
+      "metadata": {
+        "source": "issue-79",
+        "language": "de",
+        "type": "negation",
+        "note": "Missing term - 'are excluded'"
+      }
+    },
+    {
+      "literal": "jedoch",
+      "category": "TERMINATE",
+      "direction": "TERMINATE",
+      "metadata": {
+        "source": "context-conjunctions",
+        "language": "de",
+        "type": "terminator",
+        "note": "Conjunction that terminates negation scope - 'however'"
+      }
+    },
+    {
+      "literal": "aber",
+      "category": "TERMINATE",
+      "direction": "TERMINATE",
+      "metadata": {
+        "source": "context-conjunctions",
+        "language": "de",
+        "type": "terminator",
+        "note": "Conjunction that terminates negation scope - 'but'"
+      }
+    },
+    {
+      "literal": "obwohl",
+      "category": "TERMINATE",
+      "direction": "TERMINATE",
+      "metadata": {
+        "source": "context-conjunctions",
+        "language": "de",
+        "type": "terminator",
+        "note": "Conjunction that terminates negation scope - 'although'"
+      }
+    },
+    {
+      "literal": "nicht nur",
+      "category": "PSEUDO",
+      "direction": "PSEUDO",
+      "metadata": {
+        "source": "context-pseudo",
+        "language": "de",
+        "type": "pseudo-negation",
+        "note": "False positive - 'not only' does not negate"
+      }
+    },
+    {
+      "literal": "nicht ausgeschlossen",
+      "category": "PSEUDO",
+      "direction": "PSEUDO",
+      "metadata": {
+        "source": "context-pseudo",
+        "language": "de",
+        "type": "pseudo-negation",
+        "note": "Double negative - 'not excluded' means affirmed"
+      }
+    }
+  ]
+}
