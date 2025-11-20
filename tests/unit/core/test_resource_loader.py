@@ -199,15 +199,15 @@ class TestResourceLoader:
             )
 
             # ConText rules use "context_rules" key (not language keys)
-            assert (
-                "context_rules" in rules
-            ), f"ConText rules key not found for language: {lang}"
+            assert "context_rules" in rules, (
+                f"ConText rules key not found for language: {lang}"
+            )
             assert isinstance(rules["context_rules"], list), (
                 f"ConText rules not a list for language: {lang}"
             )
-            assert (
-                len(rules["context_rules"]) > 0
-            ), f"No ConText rules loaded for language: {lang}"
+            assert len(rules["context_rules"]) > 0, (
+                f"No ConText rules loaded for language: {lang}"
+            )
 
     def test_context_rules_caching(self):
         """Test that ConText rules are cached properly."""
