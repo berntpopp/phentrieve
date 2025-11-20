@@ -575,6 +575,12 @@ See `tests/data/benchmarks/README.md` for complete dataset documentation.
 
 **Text Processing Pipeline Components**:
 - Semantic chunking strategies (sentence-based, token-based)
-- Assertion detection (negation, uncertainty, family history)
+- **ConText Assertion Detection**: medspaCy-based algorithm with direction-aware scope detection
+  - Negation detection with FORWARD/BACKWARD/BIDIRECTIONAL directions
+  - TERMINATE scope boundaries prevent negation leakage across conjunctions
+  - PSEUDO false positive prevention
+  - 122 ConText rules across 5 languages (EN, DE, ES, FR, NL)
+  - Resolves issue #79 (missing German negation terms)
+  - See `docs/advanced-topics/negation-detection.md` for comprehensive documentation
 - HPO term extraction from clinical text
 - All configurable through CLI flags or config file

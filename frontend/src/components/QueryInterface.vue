@@ -188,7 +188,7 @@
                       step="0.01"
                       color="primary"
                       track-color="grey-lighten-2"
-                      thumb-label="hover"
+                      thumb-label
                       hide-details
                       aria-label="Similarity threshold slider"
                       :aria-description="

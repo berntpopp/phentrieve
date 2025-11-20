@@ -1,0 +1,136 @@
+{
+  "context_rules": [
+    {
+      "literal": "geen",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-existing", "language": "nl"}
+    },
+    {
+      "literal": "niet",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-existing", "language": "nl"}
+    },
+    {
+      "literal": "zonder",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-existing", "language": "nl"}
+    },
+    {
+      "literal": "afwezigheid van",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-existing", "language": "nl"}
+    },
+    {
+      "literal": "gebrek aan",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-existing", "language": "nl"}
+    },
+    {
+      "literal": "negatief voor",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-existing", "language": "nl"}
+    },
+    {
+      "literal": "sluit uit",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-existing", "language": "nl"}
+    },
+    {
+      "literal": "sloot uit",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-existing", "language": "nl"}
+    },
+    {
+      "literal": "nooit gehad",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-existing", "language": "nl"}
+    },
+    {
+      "literal": "kan niet worden geïdentificeerd",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "BACKWARD",
+      "metadata": {"source": "phentrieve-existing", "language": "nl"}
+    },
+    {
+      "literal": "ontkent",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-existing", "language": "nl"}
+    },
+    {
+      "literal": "ontkende",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-existing", "language": "nl"}
+    },
+    {
+      "literal": "is afwezig",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "BACKWARD",
+      "metadata": {"source": "context-additions", "language": "nl"}
+    },
+    {
+      "literal": "zijn afwezig",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "BACKWARD",
+      "metadata": {"source": "context-additions", "language": "nl"}
+    },
+    {
+      "literal": "werd uitgesloten",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "BACKWARD",
+      "metadata": {"source": "context-additions", "language": "nl"}
+    },
+    {
+      "literal": "werden uitgesloten",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "BACKWARD",
+      "metadata": {"source": "context-additions", "language": "nl"}
+    },
+    {
+      "literal": "uitgesloten",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "BACKWARD",
+      "metadata": {"source": "context-additions", "language": "nl"}
+    },
+    {
+      "literal": "echter",
+      "category": "TERMINATE",
+      "direction": "TERMINATE",
+      "metadata": {"source": "context-conjunctions", "language": "nl"}
+    },
+    {
+      "literal": "maar",
+      "category": "TERMINATE",
+      "direction": "TERMINATE",
+      "metadata": {"source": "context-conjunctions", "language": "nl"}
+    },
+    {
+      "literal": "hoewel",
+      "category": "TERMINATE",
+      "direction": "TERMINATE",
+      "metadata": {"source": "context-conjunctions", "language": "nl"}
+    },
+    {
+      "literal": "niet alleen",
+      "category": "PSEUDO",
+      "direction": "PSEUDO",
+      "metadata": {"source": "context-pseudo", "language": "nl"}
+    },
+    {
+      "literal": "niet uitgesloten",
+      "category": "PSEUDO",
+      "direction": "PSEUDO",
+      "metadata": {"source": "context-pseudo", "language": "nl", "note": "Double negative"}
+    }
+  ]
+}

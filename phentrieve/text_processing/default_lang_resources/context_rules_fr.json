@@ -1,0 +1,148 @@
+{
+  "context_rules": [
+    {
+      "literal": "pas de",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-existing", "language": "fr"}
+    },
+    {
+      "literal": "non",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-existing", "language": "fr"}
+    },
+    {
+      "literal": "ne ... pas",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "BIDIRECTIONAL",
+      "metadata": {"source": "phentrieve-existing", "language": "fr", "note": "Discontinuous negation"}
+    },
+    {
+      "literal": "sans",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-existing", "language": "fr"}
+    },
+    {
+      "literal": "absence de",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-existing", "language": "fr"}
+    },
+    {
+      "literal": "manque de",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-existing", "language": "fr"}
+    },
+    {
+      "literal": "aucunement",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-existing", "language": "fr"}
+    },
+    {
+      "literal": "négatif pour",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-existing", "language": "fr"}
+    },
+    {
+      "literal": "négative pour",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-existing", "language": "fr"}
+    },
+    {
+      "literal": "exclut",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-existing", "language": "fr"}
+    },
+    {
+      "literal": "jamais eu",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-existing", "language": "fr"}
+    },
+    {
+      "literal": "ne peut pas être identifié",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "BACKWARD",
+      "metadata": {"source": "phentrieve-existing", "language": "fr"}
+    },
+    {
+      "literal": "aucun",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-existing", "language": "fr"}
+    },
+    {
+      "literal": "aucune",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-existing", "language": "fr"}
+    },
+    {
+      "literal": "nul",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-existing", "language": "fr"}
+    },
+    {
+      "literal": "nulle",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-existing", "language": "fr"}
+    },
+    {
+      "literal": "est absent",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "BACKWARD",
+      "metadata": {"source": "context-additions", "language": "fr"}
+    },
+    {
+      "literal": "sont absents",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "BACKWARD",
+      "metadata": {"source": "context-additions", "language": "fr"}
+    },
+    {
+      "literal": "a été exclu",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "BACKWARD",
+      "metadata": {"source": "context-additions", "language": "fr"}
+    },
+    {
+      "literal": "cependant",
+      "category": "TERMINATE",
+      "direction": "TERMINATE",
+      "metadata": {"source": "context-conjunctions", "language": "fr"}
+    },
+    {
+      "literal": "mais",
+      "category": "TERMINATE",
+      "direction": "TERMINATE",
+      "metadata": {"source": "context-conjunctions", "language": "fr"}
+    },
+    {
+      "literal": "bien que",
+      "category": "TERMINATE",
+      "direction": "TERMINATE",
+      "metadata": {"source": "context-conjunctions", "language": "fr"}
+    },
+    {
+      "literal": "non seulement",
+      "category": "PSEUDO",
+      "direction": "PSEUDO",
+      "metadata": {"source": "context-pseudo", "language": "fr"}
+    },
+    {
+      "literal": "pas exclu",
+      "category": "PSEUDO",
+      "direction": "PSEUDO",
+      "metadata": {"source": "context-pseudo", "language": "fr", "note": "Double negative"}
+    }
+  ]
+}

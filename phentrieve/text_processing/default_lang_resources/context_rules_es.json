@@ -1,0 +1,148 @@
+{
+  "context_rules": [
+    {
+      "literal": "no",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-existing", "language": "es"}
+    },
+    {
+      "literal": "sin",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-existing", "language": "es"}
+    },
+    {
+      "literal": "ausencia de",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-existing", "language": "es"}
+    },
+    {
+      "literal": "falta de",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-existing", "language": "es"}
+    },
+    {
+      "literal": "carencia de",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-existing", "language": "es"}
+    },
+    {
+      "literal": "negativo para",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-existing", "language": "es"}
+    },
+    {
+      "literal": "descarta",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-existing", "language": "es"}
+    },
+    {
+      "literal": "nunca tuvo",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-existing", "language": "es"}
+    },
+    {
+      "literal": "jamás tuvo",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-existing", "language": "es"}
+    },
+    {
+      "literal": "no se puede identificar",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "BACKWARD",
+      "metadata": {"source": "phentrieve-existing", "language": "es"}
+    },
+    {
+      "literal": "ningún",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-existing", "language": "es"}
+    },
+    {
+      "literal": "ninguna",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-existing", "language": "es"}
+    },
+    {
+      "literal": "nada",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-existing", "language": "es"}
+    },
+    {
+      "literal": "está ausente",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "BACKWARD",
+      "metadata": {"source": "context-additions", "language": "es"}
+    },
+    {
+      "literal": "están ausentes",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "BACKWARD",
+      "metadata": {"source": "context-additions", "language": "es"}
+    },
+    {
+      "literal": "fue descartado",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "BACKWARD",
+      "metadata": {"source": "context-additions", "language": "es"}
+    },
+    {
+      "literal": "fueron descartados",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "BACKWARD",
+      "metadata": {"source": "context-additions", "language": "es"}
+    },
+    {
+      "literal": "excluido",
+      "category": "NEGATED_EXISTENCE",
+      "direction": "BACKWARD",
+      "metadata": {"source": "context-additions", "language": "es"}
+    },
+    {
+      "literal": "sin embargo",
+      "category": "TERMINATE",
+      "direction": "TERMINATE",
+      "metadata": {"source": "context-conjunctions", "language": "es"}
+    },
+    {
+      "literal": "pero",
+      "category": "TERMINATE",
+      "direction": "TERMINATE",
+      "metadata": {"source": "context-conjunctions", "language": "es"}
+    },
+    {
+      "literal": "aunque",
+      "category": "TERMINATE",
+      "direction": "TERMINATE",
+      "metadata": {"source": "context-conjunctions", "language": "es"}
+    },
+    {
+      "literal": "no solamente",
+      "category": "PSEUDO",
+      "direction": "PSEUDO",
+      "metadata": {"source": "context-pseudo", "language": "es"}
+    },
+    {
+      "literal": "no solo",
+      "category": "PSEUDO",
+      "direction": "PSEUDO",
+      "metadata": {"source": "context-pseudo", "language": "es"}
+    },
+    {
+      "literal": "no excluido",
+      "category": "PSEUDO",
+      "direction": "PSEUDO",
+      "metadata": {"source": "context-pseudo", "language": "es", "note": "Double negative"}
+    }
+  ]
+}
