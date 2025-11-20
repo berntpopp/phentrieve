@@ -34,12 +34,30 @@ Examples:
 
 import logging
 import threading
+import warnings
 from typing import Optional
 
 import torch
 from sentence_transformers import SentenceTransformer
 
 from phentrieve.config import DEFAULT_BIOLORD_MODEL, JINA_MODEL_ID
+
+# Configure logger
+logger = logging.getLogger(__name__)
+
+# Catch and log NVML warning nicely
+with warnings.catch_warnings(record=True) as caught_warnings:
+    warnings.simplefilter("always")
+    # Trigger any torch.cuda initialization warnings
+    _ = torch.cuda.is_available() if hasattr(torch, "cuda") else False
+
+    # Log NVML warnings nicely
+    for warning in caught_warnings:
+        if "NVML" in str(warning.message):
+            logger.debug(
+                "PyTorch CUDA/NVML initialization: GPU monitoring unavailable. "
+                "Using CPU device."
+            )
 
 # Thread-safe model registry
 # Key: model_name (str), Value: SentenceTransformer instance

@@ -333,25 +333,28 @@ uvicorn api.run_api_local:app --reload --port 8001
 ```
 
 **PyTorch CUDA/NVML warning at startup?**
-```
-UserWarning: Can't initialize NVML
-  warnings.warn("Can't initialize NVML")
+
+As of recent updates, PyTorch CUDA/NVML warnings are automatically caught and logged nicely through the application's logger system:
+
+```python
+# In phentrieve/embeddings.py - warning is caught and logged at DEBUG level
+logger.debug("PyTorch CUDA/NVML initialization: GPU monitoring unavailable. Using CPU device.")
 ```
 
-This warning is **harmless and expected** in WSL2 environments:
+**What this means**:
 - NVML (NVIDIA Management Library) is for GPU monitoring
 - PyTorch checks for CUDA/GPU availability at import time
-- NVML initialization fails in WSL2 (common behavior)
-- Your system correctly falls back to CPU execution
+- NVML initialization may fail in some environments (common behavior)
+- The system correctly falls back to CPU execution
 - **Zero functional impact** - the application works normally
 
-**Why this happens**:
-- Phentrieve runs on CPU by default (logs show "Using device: cpu")
+**Implementation**:
+- Warning is caught using Python's `warnings.catch_warnings()` at module import
+- Logged at DEBUG level for visibility without clutter
 - All code has proper conditional checks: `if torch.cuda.is_available():`
-- The warning is informational, not an error
-- This is a well-known PyTorch/WSL2 behavior
+- No raw Python warnings printed to stderr
 
-**No action needed** - the warning can be safely ignored. If you prefer to suppress it, you could add `PYTHONWARNINGS=ignore::UserWarning` to your environment, but we recommend leaving it visible for transparency.
+**No action needed** - the warning is handled automatically and logged cleanly.
 
 #### When to Use Docker vs Local
 
