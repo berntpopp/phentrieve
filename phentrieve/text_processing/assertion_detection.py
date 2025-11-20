@@ -170,6 +170,9 @@ def _is_cue_match(text_lower: str, cue_lower: str, index: int) -> bool:
     """
     Check if a cue matches at the given position with word boundary awareness.
 
+    Ensures that the cue is a complete word/phrase and not part of a larger word.
+    For example, "no" should NOT match inside "Normal".
+
     Args:
         text_lower: Lowercased text to search in
         cue_lower: Lowercased cue to search for
@@ -178,9 +181,20 @@ def _is_cue_match(text_lower: str, cue_lower: str, index: int) -> bool:
     Returns:
         True if cue matches with proper word boundaries
     """
-    return (index == 0 and text_lower.startswith(cue_lower)) or (
-        index > 0 and f" {cue_lower}" in text_lower
-    )
+    # Check character before the cue (must be start of string or non-alphanumeric)
+    if index > 0:
+        char_before = text_lower[index - 1]
+        if char_before.isalnum():
+            return False
+
+    # Check character after the cue (must be end of string or non-alphanumeric)
+    cue_end = index + len(cue_lower)
+    if cue_end < len(text_lower):
+        char_after = text_lower[cue_end]
+        if char_after.isalnum():
+            return False
+
+    return True
 
 
 def parse_context_rules(context_data: dict[str, Any]) -> list[ConTextRule]:
@@ -327,15 +341,81 @@ class KeywordAssertionDetector(AssertionDetector):
         else:
             return AssertionStatus.AFFIRMED, assertion_details
 
+    def _load_context_rules(self, lang: str) -> list[ConTextRule] | None:
+        """
+        Load ConText rules for the given language.
+
+        Tries to load ConText rules from context_rules_{lang}.json first,
+        then falls back to English if not available.
+
+        Args:
+            lang: Language code (e.g., 'de', 'en', 'es', 'fr', 'nl')
+
+        Returns:
+            List of ConTextRule objects or None if no ConText rules available
+        """
+        import importlib.resources
+        import json
+
+        # Package path for default language resources
+        resources_package = "phentrieve.text_processing.default_lang_resources"
+
+        # Try to load ConText rules for the requested language
+        context_filename = f"context_rules_{lang}.json"
+        try:
+            # Get a path to the bundled default JSON file
+            resource_path = importlib.resources.files(resources_package).joinpath(
+                context_filename
+            )
+
+            # Read the ConText rules file
+            with resource_path.open("r", encoding="utf-8") as f:
+                context_data = json.load(f)
+
+            if context_data and "context_rules" in context_data:
+                rules = parse_context_rules(context_data)
+                logger.info(f"Loaded {len(rules)} ConText rules for language '{lang}'")
+                return rules
+        except (FileNotFoundError, AttributeError):
+            logger.debug(
+                f"ConText rules file '{context_filename}' not found for '{lang}'"
+            )
+
+        # Fall back to English ConText rules if available
+        if lang != "en":
+            try:
+                resource_path = importlib.resources.files(resources_package).joinpath(
+                    "context_rules_en.json"
+                )
+
+                with resource_path.open("r", encoding="utf-8") as f:
+                    context_data = json.load(f)
+
+                if context_data and "context_rules" in context_data:
+                    rules = parse_context_rules(context_data)
+                    logger.info(
+                        f"Loaded {len(rules)} English ConText rules as fallback for '{lang}'"
+                    )
+                    return rules
+            except (FileNotFoundError, AttributeError):
+                logger.debug("English ConText rules not found either")
+
+        logger.debug(f"No ConText rules available for language '{lang}'")
+        return None
+
     def _detect_negation_normality_keyword(
         self, chunk: str, lang: str = "en"
     ) -> tuple[bool, bool, list[str], list[str]]:
         """
-        Detect negation and normality using keyword-based rules.
+        Detect negation and normality using ConText-aware keyword rules.
+
+        This method uses ConText rules with direction awareness (FORWARD, BACKWARD,
+        BIDIRECTIONAL) to detect negation and normality. Falls back to legacy
+        negation_cues.json if no ConText rules are available.
 
         Args:
             chunk: Text to analyze
-            lang: Language code
+            lang: Language code (e.g., 'de', 'en', 'es', 'fr', 'nl')
 
         Returns:
             Tuple of (is_negated, is_normal, negated_scopes, normal_scopes)
@@ -345,6 +425,204 @@ class KeywordAssertionDetector(AssertionDetector):
 
         text_lower = chunk.lower()
 
+        # Try to load ConText rules first
+        context_rules = self._load_context_rules(lang)
+
+        if context_rules:
+            # Use ConText rules with direction awareness
+            return self._detect_with_context_rules(
+                text_lower, context_rules, chunk, lang
+            )
+        else:
+            # Fall back to legacy negation_cues.json
+            logger.debug(
+                f"Using legacy negation_cues.json for language '{lang}' "
+                "(ConText rules not available)"
+            )
+            return self._detect_with_legacy_cues(text_lower, lang)
+
+    def _detect_with_context_rules(
+        self,
+        text_lower: str,
+        rules: list[ConTextRule],
+        original_text: str,
+        lang: str = "en",
+    ) -> tuple[bool, bool, list[str], list[str]]:
+        """
+        Detect negation/normality using ConText rules with direction awareness.
+
+        Uses ConText rules for negation detection and legacy normality_cues.json
+        for normality detection (since normality is not part of ConText standard).
+
+        Args:
+            text_lower: Lowercased text to analyze
+            rules: List of ConTextRule objects
+            original_text: Original text (for scope attribution)
+            lang: Language code for normality detection fallback
+
+        Returns:
+            Tuple of (is_negated, is_normal, negated_scopes, normal_scopes)
+        """
+        negated_scopes: list[str] = []
+        normal_scopes: list[str] = []
+        is_negated = False
+        is_normal = False
+
+        # First pass: Check for PSEUDO rules (false positives)
+        pseudo_matches = set()
+        for rule in rules:
+            if rule.direction == Direction.PSEUDO:
+                cue_lower = rule.literal.lower()
+                cue_index = text_lower.find(cue_lower)
+                if cue_index >= 0 and _is_cue_match(text_lower, cue_lower, cue_index):
+                    pseudo_matches.add(cue_lower)
+                    logger.debug(f"PSEUDO rule matched: '{rule.literal}' - skipping")
+
+        # Second pass: Process NEGATED_EXISTENCE and other categories
+        for rule in rules:
+            cue_lower = rule.literal.lower()
+
+            # Skip if this cue was matched by a PSEUDO rule
+            if cue_lower in pseudo_matches:
+                continue
+
+            # Skip PSEUDO and TERMINATE rules in this pass
+            if rule.direction in (Direction.PSEUDO, Direction.TERMINATE):
+                continue
+
+            cue_index = text_lower.find(cue_lower)
+            if cue_index < 0 or not _is_cue_match(text_lower, cue_lower, cue_index):
+                continue
+
+            # Found a match - extract scope based on direction
+            scope_text = self._extract_scope(
+                text_lower, cue_index, cue_lower, rule.direction
+            )
+
+            if scope_text:
+                # Categorize by TriggerCategory
+                if rule.category == TriggerCategory.NEGATED_EXISTENCE:
+                    negated_scopes.append(f"{rule.literal}: {scope_text}")
+                    is_negated = True
+                # Note: Normality detection not part of ConText standard
+                # Add support for other categories (POSSIBLE_EXISTENCE, etc.) in future
+
+        # ConText doesn't define "normality" - use legacy normality detection
+        is_normal, normal_scopes = self._detect_normality_legacy(text_lower, lang)
+
+        return is_negated, is_normal, negated_scopes, normal_scopes
+
+    def _extract_scope(
+        self, text_lower: str, cue_index: int, cue_lower: str, direction: Direction
+    ) -> str:
+        """
+        Extract scope text based on ConText rule direction.
+
+        Args:
+            text_lower: Lowercased text
+            cue_index: Position where cue was found
+            cue_lower: Lowercased cue text
+            direction: Direction to extract scope (FORWARD, BACKWARD, BIDIRECTIONAL)
+
+        Returns:
+            Extracted scope text
+        """
+        cue_end = cue_index + len(cue_lower)
+
+        if direction == Direction.FORWARD:
+            # Extract KEYWORD_WINDOW words AFTER the cue
+            words_after = text_lower[cue_end:].split()
+            return " ".join(words_after[:KEYWORD_WINDOW])
+
+        elif direction == Direction.BACKWARD:
+            # Extract KEYWORD_WINDOW words BEFORE the cue
+            words_before = text_lower[:cue_index].split()
+            # Take last KEYWORD_WINDOW words (closest to cue)
+            relevant_words = words_before[-KEYWORD_WINDOW:] if words_before else []
+            return " ".join(relevant_words)
+
+        elif direction == Direction.BIDIRECTIONAL:
+            # Extract words both before and after
+            words_before = text_lower[:cue_index].split()
+            words_after = text_lower[cue_end:].split()
+            before_scope = (
+                " ".join(words_before[-KEYWORD_WINDOW:]) if words_before else ""
+            )
+            after_scope = " ".join(words_after[:KEYWORD_WINDOW])
+            # Combine with cue in the middle
+            if before_scope and after_scope:
+                return f"{before_scope} [{cue_lower}] {after_scope}"
+            elif before_scope:
+                return before_scope
+            else:
+                return after_scope
+
+        return ""
+
+    def _detect_normality_legacy(
+        self, text_lower: str, lang: str
+    ) -> tuple[bool, list[str]]:
+        """
+        Legacy normality detection using normality_cues.json.
+
+        This is kept separate since "normality" is not part of the ConText standard
+        but is a Phentrieve-specific feature.
+
+        Args:
+            text_lower: Lowercased text to analyze
+            lang: Language code
+
+        Returns:
+            Tuple of (is_normal, normal_scopes)
+        """
+        # Load user configuration
+        user_config_main = load_user_config()
+        language_resources_section = user_config_main.get("language_resources", {})
+
+        # Load normality cues from resource files
+        normality_cues_resources = load_language_resource(
+            default_resource_filename="normality_cues.json",
+            config_key_for_custom_file="normality_cues_file",
+            language_resources_config_section=language_resources_section,
+        )
+
+        # Check for normality cues
+        normal_scopes = []
+        is_normal = False
+
+        # Get normality cues for the current language, defaulting to English
+        lang_normality_cues = normality_cues_resources.get(
+            lang, normality_cues_resources.get("en", [])
+        )
+
+        for cue in lang_normality_cues:
+            cue_lower = cue.lower()
+            cue_index = text_lower.find(cue_lower)
+
+            if cue_index >= 0 and _is_cue_match(text_lower, cue_lower, cue_index):
+                # Get words around the cue (simple window approach)
+                start_idx = max(0, cue_index - 30)
+                end_idx = min(len(text_lower), cue_index + len(cue_lower) + 30)
+                context = text_lower[start_idx:end_idx]
+
+                normal_scopes.append(f"{cue.strip()}: {context}")
+                is_normal = True
+
+        return is_normal, normal_scopes
+
+    def _detect_with_legacy_cues(
+        self, text_lower: str, lang: str
+    ) -> tuple[bool, bool, list[str], list[str]]:
+        """
+        Legacy detection using negation_cues.json (backward compatibility).
+
+        Args:
+            text_lower: Lowercased text to analyze
+            lang: Language code
+
+        Returns:
+            Tuple of (is_negated, is_normal, negated_scopes, normal_scopes)
+        """
         # Load user configuration
         user_config_main = load_user_config()
         language_resources_section = user_config_main.get("language_resources", {})

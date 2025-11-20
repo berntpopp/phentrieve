@@ -157,6 +157,7 @@ class TestCombinedAssertionDetector:
         # Should use keyword detector
         assert status == AssertionStatus.NEGATED or status == AssertionStatus.NORMAL
 
+
 class TestConTextRule:
     """Test cases for ConTextRule dataclass."""
 
