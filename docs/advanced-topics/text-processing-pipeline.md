@@ -140,59 +140,79 @@ Output: ["patient", "seizures", "small head"]
 
 The `CombinedAssertionDetector` determines if a phenotype is:
 
-- **Affirmed**: "Patient has..."
-- **Negated**: "No sign of..."
+- **Affirmed**: "Patient has seizures"
+- **Negated**: "No sign of seizures"
 - **Normal**: "Heart sounds are normal"
-- **Uncertain**: "Possible evidence of..."
+- **Uncertain**: "Possible evidence of delay"
 
-### Detection Architecture
+Phentrieve implements the **ConText algorithm** (from medspaCy) with direction-aware scope detection and TERMINATE boundaries for precise negation detection.
 
-#### Priority Logic (Highest to Lowest)
+!!! tip "Detailed Documentation"
+    For comprehensive technical details about the ConText implementation, see [Clinical Negation Detection with ConText](negation-detection.md).
 
-1. **Dependency Parsing (spaCy)**
-   - Uses grammatical dependency trees
-   - Finds exact scope of negation terms
-   - Highest accuracy but slower
+### Quick Overview
 
-2. **Keyword Patterns**
-   - Fallback to window-based keyword matching
-   - Used if dependency parsing is inconclusive
-   - Used for languages without spaCy models
+#### Two-Tier Detection Strategy
 
-#### Dependency-Based Detection
-
-**How It Works:**
-1. Parse sentence into dependency tree using spaCy
-2. Find negation words (e.g., "no", "without", "denies")
-3. Traverse dependency tree to find negation scope
-4. Check if chunk text falls within negation scope
-
-**Advantages:**
-- Grammatically accurate
-- Handles complex sentence structures
-- Language-specific patterns
-
-**Example:**
 ```
-Text: "Patient has no history of seizures but does have tremors"
-Tree: "Patient" ← SUBJ ← "has" → OBJ → "history" → PREP → "of" → POBJ → "seizures"
-                                                       ↑ NEG ← "no"
-Result:
-  - "seizures" → NEGATED (in scope of "no")
-  - "tremors" → AFFIRMED (outside scope)
+┌─────────────────────────────────────┐
+│  1. DependencyAssertionDetector    │ ← Primary (highest accuracy)
+│     Uses: spaCy dependency parsing  │
+│     Handles: Complex grammar        │
+└─────────────────────────────────────┘
+              ↓ (fallback if inconclusive)
+┌─────────────────────────────────────┐
+│  2. KeywordAssertionDetector        │ ← Fallback (fast, accurate)
+│     Uses: ConText rules             │
+│     Handles: Direction + boundaries │
+└─────────────────────────────────────┘
 ```
 
-#### Keyword-Based Detection (Fallback)
+#### ConText Features
 
-**Pattern Matching:**
-- Negation window: Looks for negation keywords within N words before the chunk
-- Uncertainty markers: "possible", "maybe", "uncertain", "suspected"
-- Normal markers: "normal", "unremarkable", "within normal limits"
+**Direction-Aware Detection:**
+- **FORWARD**: "No fever" → negates text AFTER trigger
+- **BACKWARD**: "Fever ruled out" → negates text BEFORE trigger
+- **BIDIRECTIONAL**: French "ne...pas" → negates both sides
 
-**Language Resources:**
-- `negation_keywords.json`: Language-specific negation terms
-- `uncertainty_keywords.json`: Uncertainty markers
-- `normal_keywords.json`: Normalcy indicators
+**TERMINATE Boundaries:**
+```
+"No fever but has cough"
+    ↓     ↓
+ negated  affirmed (scope stops at "but")
+```
+
+**PSEUDO Prevention:**
+```
+"Not only fever" → "not only" is PSEUDO, prevents false negation
+```
+
+#### Multilingual Support
+
+- **122 ConText rules** across 5 languages (EN, DE, ES, FR, NL)
+- Language-specific rules in `phentrieve/text_processing/default_lang_resources/`
+- Automatic fallback to English if language rules unavailable
+
+#### Configuration
+
+```python
+from phentrieve.text_processing.assertion_detection import KeywordAssertionDetector
+
+# Language-specific detection
+detector = KeywordAssertionDetector(language="de")
+status, details = detector.detect("Ausschluss von Krampfanfällen")
+# Returns: AssertionStatus.NEGATED
+```
+
+**ConText Rule Files:**
+- `context_rules_en.json` - English (26 rules)
+- `context_rules_de.json` - German (26 rules, resolves issue #79)
+- `context_rules_es.json` - Spanish (24 rules)
+- `context_rules_fr.json` - French (24 rules)
+- `context_rules_nl.json` - Dutch (22 rules)
+- `normality_cues.json` - Phentrieve-specific normalcy detection
+
+For detailed information about rule format, detection logic, TERMINATE handling, and examples, see the [Negation Detection documentation](negation-detection.md).
 
 ## Complete Pipeline Configuration
 
