@@ -332,6 +332,27 @@ lsof -i :5734  # Frontend (custom HPOD port)
 uvicorn api.run_api_local:app --reload --port 8001
 ```
 
+**PyTorch CUDA/NVML warning at startup?**
+```
+UserWarning: Can't initialize NVML
+  warnings.warn("Can't initialize NVML")
+```
+
+This warning is **harmless and expected** in WSL2 environments:
+- NVML (NVIDIA Management Library) is for GPU monitoring
+- PyTorch checks for CUDA/GPU availability at import time
+- NVML initialization fails in WSL2 (common behavior)
+- Your system correctly falls back to CPU execution
+- **Zero functional impact** - the application works normally
+
+**Why this happens**:
+- Phentrieve runs on CPU by default (logs show "Using device: cpu")
+- All code has proper conditional checks: `if torch.cuda.is_available():`
+- The warning is informational, not an error
+- This is a well-known PyTorch/WSL2 behavior
+
+**No action needed** - the warning can be safely ignored. If you prefer to suppress it, you could add `PYTHONWARNINGS=ignore::UserWarning` to your environment, but we recommend leaving it visible for transparency.
+
 #### When to Use Docker vs Local
 
 **Use Local Development (Native) when**:
