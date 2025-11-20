@@ -315,6 +315,20 @@ class KeywordAssertionDetector(AssertionDetector):
     and checks their context to determine assertion status.
     """
 
+    def __init__(self, language: str = "en", **kwargs):
+        """
+        Initialize the KeywordAssertionDetector.
+
+        Args:
+            language: ISO language code ('en', 'de', etc.)
+            **kwargs: Additional configuration parameters
+        """
+        super().__init__(language, **kwargs)
+        # Cache ConText rules per language (dict of lang -> rules)
+        self._context_rules_cache: dict[str, list[ConTextRule] | None] = {}
+        # Pre-load rules for the default language
+        self._context_rules_cache[language] = self._load_context_rules(language)
+
     def detect(self, text_chunk: str) -> tuple[AssertionStatus, dict[str, Any]]:
         """
         Detect assertion status using keyword-based rules.
@@ -424,8 +438,12 @@ class KeywordAssertionDetector(AssertionDetector):
 
         text_lower = chunk.lower()
 
-        # Load ConText rules
-        context_rules = self._load_context_rules(lang)
+        # Get ConText rules for the requested language (with caching)
+        if lang not in self._context_rules_cache:
+            # Load and cache rules for this language
+            self._context_rules_cache[lang] = self._load_context_rules(lang)
+
+        context_rules = self._context_rules_cache[lang]
 
         if not context_rules:
             logger.warning(
@@ -695,6 +713,106 @@ class DependencyAssertionDetector(AssertionDetector):
     relationships between negation/normality cues and concepts.
     """
 
+    def __init__(self, language: str = "en", **kwargs):
+        """
+        Initialize the DependencyAssertionDetector.
+
+        Args:
+            language: ISO language code ('en', 'de', etc.)
+            **kwargs: Additional configuration parameters
+        """
+        super().__init__(language, **kwargs)
+        # Cache negation and normality cues per language
+        self._negation_cues_cache: dict[str, list[str]] = {}
+        self._normality_cues_cache: dict[str, list[str]] = {}
+        # Pre-load cues for the default language
+        self._negation_cues_cache[language] = self._load_negation_cues(language)
+        self._normality_cues_cache[language] = self._load_normality_cues(language)
+
+    def _load_negation_cues(self, lang: str) -> list[str]:
+        """
+        Load negation cues from ConText rules for the given language.
+
+        Args:
+            lang: Language code (e.g., 'de', 'en', 'es', 'fr', 'nl')
+
+        Returns:
+            List of negation cue strings (lowercase)
+        """
+        import importlib.resources
+        import json
+
+        resources_package = "phentrieve.text_processing.default_lang_resources"
+        context_filename = f"context_rules_{lang}.json"
+
+        try:
+            resource_path = importlib.resources.files(resources_package).joinpath(
+                context_filename
+            )
+            with resource_path.open("r", encoding="utf-8") as f:
+                context_data = json.load(f)
+
+            # Extract negation cue literals from NEGATED_EXISTENCE rules
+            negation_cues = [
+                rule["literal"].strip().lower()
+                for rule in context_data.get("context_rules", [])
+                if rule.get("category") == "NEGATED_EXISTENCE"
+                and rule.get("direction") != "PSEUDO"
+            ]
+            logger.info(
+                f"Loaded {len(negation_cues)} negation cues from ConText rules for '{lang}'"
+            )
+            return negation_cues
+        except (FileNotFoundError, AttributeError, KeyError):
+            # Fall back to English if language not found
+            if lang != "en":
+                try:
+                    resource_path = importlib.resources.files(
+                        resources_package
+                    ).joinpath("context_rules_en.json")
+                    with resource_path.open("r", encoding="utf-8") as f:
+                        context_data = json.load(f)
+
+                    negation_cues = [
+                        rule["literal"].strip().lower()
+                        for rule in context_data.get("context_rules", [])
+                        if rule.get("category") == "NEGATED_EXISTENCE"
+                        and rule.get("direction") != "PSEUDO"
+                    ]
+                    logger.info(
+                        f"Loaded {len(negation_cues)} English negation cues as fallback for '{lang}'"
+                    )
+                    return negation_cues
+                except (FileNotFoundError, AttributeError, KeyError):
+                    pass
+
+            logger.warning(
+                f"No ConText rules found for lang '{lang}', returning empty negation cues"
+            )
+            return []
+
+    def _load_normality_cues(self, lang: str) -> list[str]:
+        """
+        Load normality cues for the given language.
+
+        Args:
+            lang: Language code (e.g., 'de', 'en', 'es', 'fr', 'nl')
+
+        Returns:
+            List of normality cue strings (lowercase)
+        """
+        user_config_main = load_user_config()
+        language_resources_section = user_config_main.get("language_resources", {})
+
+        normality_cues_resources = load_language_resource(
+            default_resource_filename="normality_cues.json",
+            config_key_for_custom_file="normality_cues_file",
+            language_resources_config_section=language_resources_section,
+        )
+        return normality_cues_resources.get(
+            lang, normality_cues_resources.get("en", [])
+        )
+
     def detect(self, text_chunk: str) -> tuple[AssertionStatus, dict[str, Any]]:
         """
         Detect assertion status using dependency parsing.
@@ -756,60 +874,20 @@ class DependencyAssertionDetector(AssertionDetector):
 
         doc = nlp(chunk)
 
-        # Load ConText rules for negation detection
-        import importlib.resources
-        import json
+        # Get negation and normality cues for the requested language (with caching)
+        if lang not in self._negation_cues_cache:
+            # Load and cache cues for this language
+            self._negation_cues_cache[lang] = self._load_negation_cues(lang)
+            self._normality_cues_cache[lang] = self._load_normality_cues(lang)
 
-        resources_package = "phentrieve.text_processing.default_lang_resources"
-        context_filename = f"context_rules_{lang}.json"
+        lang_negation_cues = self._negation_cues_cache[lang]
+        lang_normality_cues = self._normality_cues_cache[lang]
 
-        try:
-            resource_path = importlib.resources.files(resources_package).joinpath(
-                context_filename
+        if not lang_negation_cues:
+            logger.warning(
+                f"No negation cues available for lang '{lang}', dependency detection disabled"
             )
-            with resource_path.open("r", encoding="utf-8") as f:
-                context_data = json.load(f)
-
-            # Extract negation cue literals from NEGATED_EXISTENCE rules
-            lang_negation_cues = [
-                rule["literal"].strip().lower()
-                for rule in context_data.get("context_rules", [])
-                if rule.get("category") == "NEGATED_EXISTENCE"
-                and rule.get("direction") != "PSEUDO"
-            ]
-        except (FileNotFoundError, AttributeError, KeyError):
-            # Fall back to English if language not found
-            try:
-                resource_path = importlib.resources.files(resources_package).joinpath(
-                    "context_rules_en.json"
-                )
-                with resource_path.open("r", encoding="utf-8") as f:
-                    context_data = json.load(f)
-
-                lang_negation_cues = [
-                    rule["literal"].strip().lower()
-                    for rule in context_data.get("context_rules", [])
-                    if rule.get("category") == "NEGATED_EXISTENCE"
-                    and rule.get("direction") != "PSEUDO"
-                ]
-            except (FileNotFoundError, AttributeError, KeyError):
-                logger.warning(
-                    f"No ConText rules found for lang '{lang}', dependency detection disabled"
-                )
-                return False, False, [], []
-
-        # Load config and resources ONCE (not per token!) - PERFORMANCE FIX
-        user_config_main = load_user_config()
-        language_resources_section = user_config_main.get("language_resources", {})
-
-        normality_cues_resources = load_language_resource(
-            default_resource_filename="normality_cues.json",
-            config_key_for_custom_file="normality_cues_file",
-            language_resources_config_section=language_resources_section,
-        )
-        lang_normality_cues = normality_cues_resources.get(
-            lang, normality_cues_resources.get("en", [])
-        )
+            return False, False, [], []
 
         # Check for negation
         negated_concepts = []
