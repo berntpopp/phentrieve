@@ -8,9 +8,8 @@ Tests defensive programming patterns for handling malformed HPO JSON data:
 - Edge field variants ('sub' vs 'subj')
 """
 
+import json
 import logging
-
-import pytest
 
 from phentrieve.data_processing.hpo_parser import (
     _extract_term_data_for_db,
@@ -293,7 +292,7 @@ class TestExtractTermDataEdgeCases:
 
         term = result[0]
         # Should only extract valid synonyms
-        synonyms = eval(term["synonyms"])  # Parse JSON string
+        synonyms = json.loads(term["synonyms"])  # Parse JSON string safely
         assert synonyms == ["Valid synonym 1", "Valid synonym 2"]
 
     def test_comments_filters_empty_and_non_strings(self):
@@ -318,6 +317,6 @@ class TestExtractTermDataEdgeCases:
         result = _extract_term_data_for_db(node_data)
 
         term = result[0]
-        comments = eval(term["comments"])  # Parse JSON string
+        comments = json.loads(term["comments"])  # Parse JSON string safely
         # Should only keep valid non-empty strings
         assert comments == ["Valid comment 1", "Valid comment 2", "Valid comment 3"]

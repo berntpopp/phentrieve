@@ -11,9 +11,6 @@ These helpers prevent crashes when the HPO Consortium modifies the JSON schema.
 """
 
 import logging
-from typing import Any
-
-import pytest
 
 from phentrieve.data_processing.hpo_parser import (
     log_missing_field,
@@ -294,6 +291,9 @@ class TestLogParsingSummary:
         lines = caplog.text.split("\n")
         # Find lines with field names
         field_lines = [line for line in lines if "Missing" in line]
+
+        # Verify we have exactly 3 field lines before accessing by index
+        assert len(field_lines) == 3, f"Expected 3 field lines, got {len(field_lines)}"
 
         # Should be in alphabetical order
         assert "alpha" in field_lines[0]
