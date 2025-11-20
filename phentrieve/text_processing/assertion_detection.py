@@ -7,6 +7,7 @@ uncertainty in clinical text chunks.
 
 import logging
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Optional
 
@@ -32,6 +33,87 @@ class AssertionStatus(Enum):
     NEGATED = "negated"
     NORMAL = "normal"
     UNCERTAIN = "uncertain"
+
+
+class Direction(Enum):
+    """
+    Direction in which a ConText rule operates from the trigger phrase.
+
+    Based on medspaCy ConText algorithm:
+    - FORWARD: Rule applies to text AFTER the trigger (e.g., "no [fever]")
+    - BACKWARD: Rule applies to text BEFORE the trigger (e.g., "[fever] is absent")
+    - BIDIRECTIONAL: Rule applies to text both before and after (e.g., "neither [A] nor [B]")
+    - TERMINATE: Ends the scope of previous rules (e.g., conjunctions like "but", "however")
+    - PSEUDO: Marks false positives (e.g., "not only", "no increase" - NOT negations)
+    """
+
+    FORWARD = "FORWARD"
+    BACKWARD = "BACKWARD"
+    BIDIRECTIONAL = "BIDIRECTIONAL"
+    TERMINATE = "TERMINATE"
+    PSEUDO = "PSEUDO"
+
+
+class TriggerCategory(Enum):
+    """
+    Category of ConText trigger phrase.
+
+    Based on medspaCy ConText categories:
+    - NEGATED_EXISTENCE: Negates existence of finding (e.g., "no", "denies", "absent")
+    - POSSIBLE_EXISTENCE: Indicates uncertainty (e.g., "possible", "may", "rule out")
+    - HISTORICAL: Indicates past condition (e.g., "history of", "previous")
+    - HYPOTHETICAL: Indicates non-actual condition (e.g., "if", "should", "in case of")
+    - FAMILY: Indicates family member has condition (e.g., "family history", "mother has")
+    - TERMINATE: Ends scope of previous triggers (e.g., "but", "however", "although")
+    - PSEUDO: False positive trigger (e.g., "not only", "no increase")
+    """
+
+    NEGATED_EXISTENCE = "NEGATED_EXISTENCE"
+    POSSIBLE_EXISTENCE = "POSSIBLE_EXISTENCE"
+    HISTORICAL = "HISTORICAL"
+    HYPOTHETICAL = "HYPOTHETICAL"
+    FAMILY = "FAMILY"
+    TERMINATE = "TERMINATE"
+    PSEUDO = "PSEUDO"
+
+
+@dataclass(frozen=True)
+class ConTextRule:
+    """
+    Represents a ConText rule for assertion detection.
+
+    ConText rules define trigger phrases with their semantic category and
+    directionality for identifying negation, uncertainty, temporality, and
+    experiencer in clinical text.
+
+    Attributes:
+        literal: The trigger phrase text (e.g., "no", "kein", "ausgeschlossen")
+        category: Semantic category (NEGATED_EXISTENCE, POSSIBLE_EXISTENCE, etc.)
+        direction: Direction the rule operates (FORWARD, BACKWARD, BIDIRECTIONAL)
+        metadata: Optional dictionary for source tracking, notes, etc.
+
+    Example:
+        >>> rule = ConTextRule(
+        ...     literal="Ausschluss",
+        ...     category=TriggerCategory.NEGATED_EXISTENCE,
+        ...     direction=Direction.FORWARD,
+        ...     metadata={"source": "NegEx-DE"}
+        ... )
+    """
+
+    literal: str
+    category: TriggerCategory
+    direction: Direction
+    metadata: dict[str, Any] | None = None
+
+    def __post_init__(self):
+        """Validate rule after initialization."""
+        if not self.literal or not self.literal.strip():
+            raise ValueError("ConTextRule literal cannot be empty")
+        if not isinstance(self.category, TriggerCategory):
+            raise ValueError(f"Invalid category: {self.category}")
+        if not isinstance(self.direction, Direction):
+            raise ValueError(f"Invalid direction: {self.direction}")
 
 
 # Keyword detection window size (number of words before/after cue)
@@ -99,6 +181,84 @@ def _is_cue_match(text_lower: str, cue_lower: str, index: int) -> bool:
     return (index == 0 and text_lower.startswith(cue_lower)) or (
         index > 0 and f" {cue_lower}" in text_lower
     )
+
+
+def parse_context_rules(context_data: dict[str, Any]) -> list[ConTextRule]:
+    """
+    Parse ConText rules from medspaCy-style JSON format.
+
+    Expected JSON format:
+    {
+      "context_rules": [
+        {
+          "literal": "no",
+          "category": "NEGATED_EXISTENCE",
+          "direction": "FORWARD",
+          "metadata": {"source": "medspaCy", "language": "en"}
+        },
+        ...
+      ]
+    }
+
+    Args:
+        context_data: Dictionary loaded from JSON file
+
+    Returns:
+        List of ConTextRule objects
+
+    Raises:
+        ValueError: If JSON format is invalid or required fields are missing
+        KeyError: If required fields are missing from rule definitions
+    """
+    if "context_rules" not in context_data:
+        raise ValueError("JSON must contain 'context_rules' key")
+
+    rules = []
+    for idx, rule_dict in enumerate(context_data["context_rules"]):
+        try:
+            # Required fields
+            literal = rule_dict["literal"]
+            category_str = rule_dict["category"]
+            direction_str = rule_dict["direction"]
+
+            # Optional metadata
+            metadata = rule_dict.get("metadata", None)
+
+            # Convert string to enum
+            try:
+                category = TriggerCategory[category_str]
+            except KeyError:
+                raise ValueError(
+                    f"Invalid category '{category_str}' at rule {idx}. "
+                    f"Valid categories: {[c.name for c in TriggerCategory]}"
+                )
+
+            try:
+                direction = Direction[direction_str]
+            except KeyError:
+                raise ValueError(
+                    f"Invalid direction '{direction_str}' at rule {idx}. "
+                    f"Valid directions: {[d.name for d in Direction]}"
+                )
+
+            # Create rule (validation happens in __post_init__)
+            rule = ConTextRule(
+                literal=literal,
+                category=category,
+                direction=direction,
+                metadata=metadata,
+            )
+            rules.append(rule)
+
+        except KeyError as e:
+            raise KeyError(
+                f"Missing required field {e} in rule at index {idx}: {rule_dict}"
+            )
+        except ValueError as e:
+            raise ValueError(f"Error parsing rule at index {idx}: {e}")
+
+    logger.info(f"Parsed {len(rules)} ConText rules from JSON")
+    return rules
 
 
 class AssertionDetector(ABC):
