@@ -222,6 +222,14 @@ def process_text_for_hpo_command(
             help="Keep only the top term per chunk",
         ),
     ] = False,
+    include_details: Annotated[
+        bool,
+        typer.Option(
+            "--include-details",
+            "-d",
+            help="Include HPO term definitions and synonyms in output",
+        ),
+    ] = False,
 ) -> None:
     """Process clinical text to extract HPO terms.
 
@@ -462,6 +470,40 @@ def process_text_for_hpo_command(
     except Exception as e:
         typer.secho(f"Error extracting HPO terms: {str(e)}", fg=typer.colors.RED)
         raise typer.Exit(code=1)
+
+    # Enrich with HPO term details if requested
+    if include_details:
+        from phentrieve.retrieval.details_enrichment import enrich_results_with_details
+
+        # Enrich aggregated_results (format: {hpo_id, name, ...})
+        if aggregated_results:
+            # Convert name -> label for enrichment, then convert back
+            aggregated_for_enrichment = [
+                {**r, "label": r["name"]} for r in aggregated_results
+            ]
+            enriched_aggregated = enrich_results_with_details(aggregated_for_enrichment)
+            # Remove temporary label field, keep definition and synonyms
+            aggregated_results = [
+                {
+                    k: v
+                    for k, v in r.items()
+                    if k != "label"  # Remove temp label field
+                }
+                for r in enriched_aggregated
+            ]
+
+        # Enrich chunk_results (format: {id, name, ...})
+        if chunk_results:
+            # Convert id -> hpo_id and name -> label for enrichment
+            chunk_for_enrichment = [
+                {**r, "hpo_id": r["id"], "label": r["name"]} for r in chunk_results
+            ]
+            enriched_chunk = enrich_results_with_details(chunk_for_enrichment)
+            # Remove temporary fields, keep definition and synonyms
+            chunk_results = [
+                {k: v for k, v in r.items() if k not in ["hpo_id", "label"]}
+                for r in enriched_chunk
+            ]
 
     # Output results in the specified format
     # Log debug information about the results
