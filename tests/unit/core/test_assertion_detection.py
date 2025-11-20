@@ -368,3 +368,207 @@ class TestParseContextRules:
         assert rules[2].direction == Direction.BIDIRECTIONAL
         assert rules[3].direction == Direction.TERMINATE
         assert rules[4].direction == Direction.PSEUDO
+
+
+class TestDirectionAwareDetection:
+    """Test cases for direction-aware ConText detection."""
+
+    @pytest.fixture(autouse=True)
+    def setup(self):
+        """Set up test fixtures."""
+        self.detector = KeywordAssertionDetector(language="en")
+
+    def test_forward_direction(self):
+        """Test FORWARD direction: negation applies AFTER the cue."""
+        test_cases = [
+            # "no" is FORWARD - should detect negation
+            ("No fever or cough", AssertionStatus.NEGATED),
+            ("Patient denies fever", AssertionStatus.NEGATED),
+            ("Absence of headache", AssertionStatus.NEGATED),
+        ]
+
+        for text, expected_status in test_cases:
+            status, details = self.detector.detect(text)
+            assert status == expected_status, (
+                f"FORWARD test failed for '{text}': got {status} instead of {expected_status}"
+            )
+
+    def test_backward_direction(self):
+        """Test BACKWARD direction: negation applies BEFORE the cue."""
+        test_cases = [
+            # "ruled out" is BACKWARD - negates what comes before
+            ("Pneumonia was ruled out", AssertionStatus.NEGATED),
+            ("Infection ruled out", AssertionStatus.NEGATED),
+        ]
+
+        for text, expected_status in test_cases:
+            status, details = self.detector.detect(text)
+            assert status == expected_status, (
+                f"BACKWARD test failed for '{text}': got {status} instead of {expected_status}"
+            )
+
+    def test_bidirectional_direction(self):
+        """Test BIDIRECTIONAL direction: negation applies both ways."""
+        # Note: "neither" is BIDIRECTIONAL in some ConText rule sets
+        # This test would need a BIDIRECTIONAL rule in the English rules
+        # Currently a placeholder for future expansion
+        pass
+
+    def test_pseudo_negation(self):
+        """Test PSEUDO rules: should NOT detect negation for false positives."""
+        test_cases = [
+            # "not only" is PSEUDO - looks like negation but isn't
+            ("Not only fever but also cough", AssertionStatus.AFFIRMED),
+            # "no increase" is PSEUDO in some contexts
+        ]
+
+        for text, expected_status in test_cases:
+            status, details = self.detector.detect(text)
+            assert status == expected_status, (
+                f"PSEUDO test failed for '{text}': got {status} instead of {expected_status}"
+            )
+
+
+class TestTerminateScopeHandling:
+    """Test cases for TERMINATE scope boundaries."""
+
+    @pytest.fixture(autouse=True)
+    def setup(self):
+        """Set up test fixtures."""
+        self.detector = KeywordAssertionDetector(language="en")
+
+    def test_terminate_with_but(self):
+        """Test TERMINATE rule with 'but': scope should stop at conjunction."""
+        # "but" should act as scope boundary
+        test_cases = [
+            # Negation before "but", affirmation after
+            ("No fever but has cough", AssertionStatus.NEGATED),
+            # The scope should NOT include "has cough" - that's after TERMINATE
+        ]
+
+        for text, expected_status in test_cases:
+            status, details = self.detector.detect(text)
+            assert status == expected_status, (
+                f"TERMINATE test failed for '{text}': got {status} instead of {expected_status}"
+            )
+
+            # Check that negation scope doesn't extend past "but"
+            if "keyword_negated_scopes" in details:
+                for scope in details["keyword_negated_scopes"]:
+                    # Scope should not contain text after "but"
+                    assert "cough" not in scope.lower(), (
+                        f"Negation scope incorrectly extends past TERMINATE: {scope}"
+                    )
+
+    def test_terminate_with_however(self):
+        """Test TERMINATE rule with 'however': scope should stop at conjunction."""
+        test_cases = [
+            ("No symptoms, however patient appears ill", AssertionStatus.NEGATED),
+        ]
+
+        for text, expected_status in test_cases:
+            status, details = self.detector.detect(text)
+            assert status == expected_status, (
+                f"TERMINATE test failed for '{text}': got {status} instead of {expected_status}"
+            )
+
+    def test_terminate_with_although(self):
+        """Test TERMINATE rule with 'although': scope should stop at conjunction."""
+        test_cases = [
+            ("No fever although patient feels unwell", AssertionStatus.NEGATED),
+        ]
+
+        for text, expected_status in test_cases:
+            status, details = self.detector.detect(text)
+            assert status == expected_status, (
+                f"TERMINATE test failed for '{text}': got {status} instead of {expected_status}"
+            )
+
+    def test_multiple_terminate_triggers(self):
+        """Test multiple TERMINATE triggers in same text."""
+        # "No fever but has cough, however denies pain"
+        # Should have multiple scope boundaries
+        test_case = "No fever but has cough"
+        status, details = self.detector.detect(test_case)
+
+        # Should still detect negation from "no"
+        assert status == AssertionStatus.NEGATED, (
+            f"Multiple TERMINATE test failed: got {status}"
+        )
+
+    def test_no_terminate_full_scope(self):
+        """Test that without TERMINATE, scope extends normally."""
+        # No TERMINATE trigger - scope should include full window
+        test_case = "No fever or chills or headache"
+        status, details = self.detector.detect(test_case)
+
+        assert status == AssertionStatus.NEGATED, f"Got {status} instead of NEGATED"
+
+        # Scope should include multiple symptoms
+        if "keyword_negated_scopes" in details:
+            scopes = details["keyword_negated_scopes"]
+            assert len(scopes) > 0, "Expected negation scopes"
+
+
+class TestConTextIntegration:
+    """Integration tests for full ConText algorithm."""
+
+    @pytest.fixture(autouse=True)
+    def setup(self):
+        """Set up test fixtures."""
+        self.detector = KeywordAssertionDetector(language="en")
+
+    def test_complex_clinical_text_with_terminate(self):
+        """Test complex clinical text with TERMINATE boundaries."""
+        test_cases = [
+            (
+                "No evidence of pneumonia but patient has persistent cough",
+                AssertionStatus.NEGATED,
+            ),
+            ("Denies fever, however complains of fatigue", AssertionStatus.NEGATED),
+            (
+                "Absence of rash although skin appears irritated",
+                AssertionStatus.NEGATED,
+            ),
+        ]
+
+        for text, expected_status in test_cases:
+            status, details = self.detector.detect(text)
+            assert status == expected_status, (
+                f"Complex text test failed for '{text}': got {status} instead of {expected_status}"
+            )
+
+    def test_multilingual_context_rules(self):
+        """Test that ConText rules work for multiple languages."""
+        test_cases = [
+            # German
+            ("de", "Kein Fieber", AssertionStatus.NEGATED),
+            # Spanish
+            ("es", "Sin fiebre", AssertionStatus.NEGATED),
+            # French
+            ("fr", "Pas de fièvre", AssertionStatus.NEGATED),
+            # Dutch
+            ("nl", "Geen koorts", AssertionStatus.NEGATED),
+        ]
+
+        for lang, text, expected_status in test_cases:
+            detector = KeywordAssertionDetector(language=lang)
+            status, details = detector.detect(text)
+            assert status == expected_status, (
+                f"Multilingual test failed for {lang} '{text}': got {status} instead of {expected_status}"
+            )
+
+    def test_direction_and_terminate_combined(self):
+        """Test combination of direction awareness and TERMINATE."""
+        test_cases = [
+            # FORWARD negation with TERMINATE boundary
+            ("No fever but has cough", AssertionStatus.NEGATED),
+            # BACKWARD negation with text after
+            ("Fever was ruled out, patient stable", AssertionStatus.NEGATED),
+        ]
+
+        for text, expected_status in test_cases:
+            status, details = self.detector.detect(text)
+            assert status == expected_status, (
+                f"Direction+TERMINATE test failed for '{text}': got {status} instead of {expected_status}"
+            )

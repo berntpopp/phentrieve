@@ -464,16 +464,35 @@ class KeywordAssertionDetector(AssertionDetector):
         is_normal = False
 
         # First pass: Check for PSEUDO rules (false positives)
+        # Track text spans matched by PSEUDO rules to prevent shorter overlapping matches
         pseudo_matches = set()
+        pseudo_spans: list[tuple[int, int]] = []
         for rule in rules:
             if rule.direction == Direction.PSEUDO:
                 cue_lower = rule.literal.lower()
                 cue_index = text_lower.find(cue_lower)
                 if cue_index >= 0 and _is_cue_match(text_lower, cue_lower, cue_index):
+                    cue_end = cue_index + len(cue_lower)
                     pseudo_matches.add(cue_lower)
-                    logger.debug(f"PSEUDO rule matched: '{rule.literal}' - skipping")
+                    pseudo_spans.append((cue_index, cue_end))
+                    logger.debug(
+                        f"PSEUDO rule matched at {cue_index}-{cue_end}: '{rule.literal}' - skipping"
+                    )
 
-        # Second pass: Process NEGATED_EXISTENCE and other categories
+        # Second pass: Find all TERMINATE trigger positions (scope boundaries)
+        terminate_positions: list[tuple[int, int]] = []
+        for rule in rules:
+            if rule.direction == Direction.TERMINATE:
+                cue_lower = rule.literal.lower()
+                cue_index = text_lower.find(cue_lower)
+                if cue_index >= 0 and _is_cue_match(text_lower, cue_lower, cue_index):
+                    cue_end = cue_index + len(cue_lower)
+                    terminate_positions.append((cue_index, cue_end))
+                    logger.debug(
+                        f"TERMINATE rule matched at {cue_index}-{cue_end}: '{rule.literal}'"
+                    )
+
+        # Third pass: Process NEGATED_EXISTENCE and other categories
         for rule in rules:
             cue_lower = rule.literal.lower()
 
@@ -489,9 +508,24 @@ class KeywordAssertionDetector(AssertionDetector):
             if cue_index < 0 or not _is_cue_match(text_lower, cue_lower, cue_index):
                 continue
 
-            # Found a match - extract scope based on direction
+            # Check if this cue overlaps with any PSEUDO span
+            cue_end = cue_index + len(cue_lower)
+            overlaps_pseudo = False
+            for pseudo_start, pseudo_end in pseudo_spans:
+                # Check for any overlap: cue starts before pseudo ends AND cue ends after pseudo starts
+                if cue_index < pseudo_end and cue_end > pseudo_start:
+                    overlaps_pseudo = True
+                    logger.debug(
+                        f"Skipping '{rule.literal}' at {cue_index}-{cue_end} - overlaps with PSEUDO span {pseudo_start}-{pseudo_end}"
+                    )
+                    break
+
+            if overlaps_pseudo:
+                continue
+
+            # Found a match - extract scope based on direction with TERMINATE boundaries
             scope_text = self._extract_scope(
-                text_lower, cue_index, cue_lower, rule.direction
+                text_lower, cue_index, cue_lower, rule.direction, terminate_positions
             )
 
             if scope_text:
@@ -508,42 +542,89 @@ class KeywordAssertionDetector(AssertionDetector):
         return is_negated, is_normal, negated_scopes, normal_scopes
 
     def _extract_scope(
-        self, text_lower: str, cue_index: int, cue_lower: str, direction: Direction
+        self,
+        text_lower: str,
+        cue_index: int,
+        cue_lower: str,
+        direction: Direction,
+        terminate_positions: list[tuple[int, int]] | None = None,
     ) -> str:
         """
-        Extract scope text based on ConText rule direction.
+        Extract scope text based on ConText rule direction with TERMINATE boundaries.
+
+        TERMINATE rules act as scope boundaries that limit the extent of negation
+        or other assertion modifiers. For example, in "no fever but has cough",
+        the "but" TERMINATE rule prevents negation from affecting "has cough".
 
         Args:
             text_lower: Lowercased text
             cue_index: Position where cue was found
             cue_lower: Lowercased cue text
             direction: Direction to extract scope (FORWARD, BACKWARD, BIDIRECTIONAL)
+            terminate_positions: List of (start, end) positions of TERMINATE triggers
 
         Returns:
-            Extracted scope text
+            Extracted scope text limited by TERMINATE boundaries
         """
         cue_end = cue_index + len(cue_lower)
+        terminate_positions = terminate_positions or []
 
         if direction == Direction.FORWARD:
-            # Extract KEYWORD_WINDOW words AFTER the cue
-            words_after = text_lower[cue_end:].split()
+            # Extract KEYWORD_WINDOW words AFTER the cue, stop at TERMINATE
+            scope_end = len(text_lower)
+
+            # Find first TERMINATE trigger after cue
+            for term_start, term_end in terminate_positions:
+                if term_start > cue_end and term_start < scope_end:
+                    scope_end = term_start
+
+            # Extract text up to scope boundary
+            scope_text = text_lower[cue_end:scope_end]
+            words_after = scope_text.split()
             return " ".join(words_after[:KEYWORD_WINDOW])
 
         elif direction == Direction.BACKWARD:
-            # Extract KEYWORD_WINDOW words BEFORE the cue
-            words_before = text_lower[:cue_index].split()
+            # Extract KEYWORD_WINDOW words BEFORE the cue, stop at TERMINATE
+            scope_start = 0
+
+            # Find last TERMINATE trigger before cue
+            for term_start, term_end in terminate_positions:
+                if term_end < cue_index and term_end > scope_start:
+                    scope_start = term_end
+
+            # Extract text from scope boundary
+            scope_text = text_lower[scope_start:cue_index]
+            words_before = scope_text.split()
             # Take last KEYWORD_WINDOW words (closest to cue)
             relevant_words = words_before[-KEYWORD_WINDOW:] if words_before else []
             return " ".join(relevant_words)
 
         elif direction == Direction.BIDIRECTIONAL:
-            # Extract words both before and after
-            words_before = text_lower[:cue_index].split()
-            words_after = text_lower[cue_end:].split()
+            # Extract words both before and after with TERMINATE boundaries
+            # Find boundaries for backward scope
+            scope_start = 0
+            for term_start, term_end in terminate_positions:
+                if term_end < cue_index and term_end > scope_start:
+                    scope_start = term_end
+
+            # Find boundaries for forward scope
+            scope_end = len(text_lower)
+            for term_start, term_end in terminate_positions:
+                if term_start > cue_end and term_start < scope_end:
+                    scope_end = term_start
+
+            # Extract both scopes
+            before_text = text_lower[scope_start:cue_index]
+            after_text = text_lower[cue_end:scope_end]
+
+            words_before = before_text.split()
+            words_after = after_text.split()
+
             before_scope = (
                 " ".join(words_before[-KEYWORD_WINDOW:]) if words_before else ""
             )
             after_scope = " ".join(words_after[:KEYWORD_WINDOW])
+
             # Combine with cue in the middle
             if before_scope and after_scope:
                 return f"{before_scope} [{cue_lower}] {after_scope}"
