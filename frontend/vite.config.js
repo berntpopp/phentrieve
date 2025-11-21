@@ -1,4 +1,5 @@
 import { fileURLToPath, URL } from 'node:url'
+import { readFileSync } from 'fs'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { configDefaults } from 'vitest/config'
@@ -8,11 +9,17 @@ import viteImagemin from 'vite-plugin-imagemin'
 import iconOptimizer from './vite-icon-optimizer'
 import commonjs from '@rollup/plugin-commonjs'
 
+// Read version from package.json at build time
+const packageJson = JSON.parse(
+  readFileSync(new URL('./package.json', import.meta.url), 'utf-8')
+)
+
 export default defineConfig({
   // Remove Vue devtools and debug code from production builds
   define: {
     __VUE_PROD_DEVTOOLS__: false,
     __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: false,
+    __APP_VERSION__: JSON.stringify(packageJson.version), // Inject version at build time
   },
   optimizeDeps: {
     include: ['google-protobuf'],

@@ -19,7 +19,6 @@ class DatabaseNotFoundError(FileNotFoundError):
     """Raised when HPO database file doesn't exist."""
 
 
-
 @lru_cache(maxsize=1)
 def get_shared_database(db_path_str: str) -> HPODatabase:
     """

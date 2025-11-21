@@ -20,6 +20,7 @@ from api.routers import (  # noqa: E402
     health,
     query_router,
     similarity_router,
+    system,
     text_processing_router,
 )
 from phentrieve.config import (  # noqa: E402
@@ -124,6 +125,9 @@ app.add_middleware(
 # Include routers
 app.include_router(query_router.router, prefix="/api/v1/query", tags=["HPO Term Query"])
 app.include_router(health.router, prefix="/api/v1/health", tags=["Health Check"])
+app.include_router(
+    system.router
+)  # System router (version, health) - prefix set in router
 app.include_router(
     similarity_router.router, prefix="/api/v1/similarity", tags=["HPO Term Similarity"]
 )
