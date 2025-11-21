@@ -324,6 +324,7 @@ async def _process_text_internal(request: TextProcessingRequest):
             translation_dir_path=translation_dir,
             min_confidence_for_aggregated=request.aggregated_term_confidence or 0.35,
             top_term_per_chunk=request.top_term_per_chunk_for_aggregation or False,
+            include_details=request.include_details or False,
         )
 
         # Add HPO matches to each processed chunk from the detailed chunk results
@@ -384,6 +385,8 @@ async def _process_text_internal(request: TextProcessingRequest):
                     max_score_from_evidence=term_data.get("score", 0.0),
                     top_evidence_chunk_id=top_evidence_chunk_id,
                     text_attributions=text_attributions,
+                    definition=term_data.get("definition"),  # Include when available
+                    synonyms=term_data.get("synonyms"),  # Include when available
                     # Keep these for backward compatibility
                     score=term_data.get("score", 0.0),
                     reranker_score=term_data.get("reranker_score"),

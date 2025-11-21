@@ -469,7 +469,7 @@
           <div class="d-flex flex-column">
             <!-- Top Row: ID, Name, Assertion Status -->
             <div class="d-flex align-start mb-1">
-              <div class="flex-grow-1">
+              <div class="flex-grow-1 d-flex align-center">
                 <a
                   :href="`https://hpo.jax.org/browse/term/${term.hpo_id}`"
                   target="_blank"
@@ -481,6 +481,30 @@
                   }}</span>
                   <v-icon size="x-small" class="ml-1" color="primary">mdi-open-in-new</v-icon>
                 </a>
+                <v-btn
+                  v-if="hasDetails(term)"
+                  variant="text"
+                  size="x-small"
+                  icon
+                  density="compact"
+                  class="ml-1"
+                  @click.stop="toggleAggregatedTermDetails(term.hpo_id)"
+                >
+                  <v-icon size="small">
+                    {{
+                      expandedAggregatedTerms.has(term.hpo_id)
+                        ? 'mdi-chevron-up'
+                        : 'mdi-information'
+                    }}
+                  </v-icon>
+                  <v-tooltip activator="parent" location="top">
+                    {{
+                      expandedAggregatedTerms.has(term.hpo_id)
+                        ? $t('resultsDisplay.hideDetails', 'Hide details')
+                        : $t('resultsDisplay.showDetails', 'Show details')
+                    }}
+                  </v-tooltip>
+                </v-btn>
               </div>
               <v-chip
                 v-if="term.status && term.status !== 'unknown'"
@@ -572,29 +596,6 @@
                     }}
                   </v-tooltip>
                 </v-chip>
-                <v-btn
-                  v-if="hasDetails(term)"
-                  variant="text"
-                  size="x-small"
-                  icon
-                  density="compact"
-                  @click.stop="toggleAggregatedTermDetails(term.hpo_id)"
-                >
-                  <v-icon size="small">
-                    {{
-                      expandedAggregatedTerms.has(term.hpo_id)
-                        ? 'mdi-chevron-up'
-                        : 'mdi-information'
-                    }}
-                  </v-icon>
-                  <v-tooltip activator="parent" location="top">
-                    {{
-                      expandedAggregatedTerms.has(term.hpo_id)
-                        ? $t('resultsDisplay.hideDetails', 'Hide details')
-                        : $t('resultsDisplay.showDetails', 'Show details')
-                    }}
-                  </v-tooltip>
-                </v-btn>
               </div>
 
               <v-btn

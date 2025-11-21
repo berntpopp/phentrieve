@@ -36,6 +36,7 @@ def orchestrate_hpo_extraction(
     top_term_per_chunk: bool = False,
     min_confidence_for_aggregated: float = 0.0,
     assertion_statuses: Optional[list[str | None]] = None,
+    include_details: bool = False,
 ) -> tuple[
     list[dict[str, Any]],  # aggregated results
     list[dict[str, Any]],  # chunk results
@@ -60,6 +61,7 @@ def orchestrate_hpo_extraction(
         top_term_per_chunk: If True, only keep top term per chunk
         min_confidence_for_aggregated: Minimum confidence threshold for aggregated terms
         assertion_statuses: Optional list of assertion statuses per chunk
+        include_details: If True, include HPO term definitions and synonyms in results
 
     Returns:
         Tuple containing:
@@ -181,10 +183,11 @@ def orchestrate_hpo_extraction(
             logger.error(f"Failed to process chunk {chunk_idx + 1}: {e}")
             continue
 
-    # OPTIMIZATION: Batch-load ALL synonyms we need in ONE database query
+    # OPTIMIZATION: Batch-load ALL synonyms (and optionally definitions) in ONE database query
     # This replaces the inefficient per-term loading that was loading all 19,534 terms repeatedly
     logger.info("Batch-loading synonyms for all HPO terms")
     hpo_synonyms_cache = {}
+    hpo_definitions_cache = {}  # Only populated when include_details=True
 
     # Collect all unique HPO IDs from all chunks
     all_hpo_ids: set[str] = set()
@@ -193,7 +196,7 @@ def orchestrate_hpo_extraction(
         for match in matches:
             all_hpo_ids.add(match["id"])
 
-    # Load synonyms for all HPO IDs in ONE batch query using the database helper
+    # Load synonyms (and optionally definitions) for all HPO IDs in ONE batch query
     if all_hpo_ids:
         try:
             data_dir = resolve_data_path(None, "data_dir", get_default_data_dir)
@@ -201,23 +204,29 @@ def orchestrate_hpo_extraction(
 
             if db_path.exists():
                 logger.debug(
-                    f"Loading synonyms for {len(all_hpo_ids)} unique HPO terms"
+                    f"Loading {'synonyms and definitions' if include_details else 'synonyms'} "
+                    f"for {len(all_hpo_ids)} unique HPO terms"
                 )
                 db = HPODatabase(db_path)
                 terms_map = db.get_terms_by_ids(list(all_hpo_ids))
                 db.close()
 
-                # Build synonyms cache
+                # Build synonyms cache (always) and definitions cache (when requested)
                 for hpo_id, term_data in terms_map.items():
                     hpo_synonyms_cache[hpo_id] = term_data.get("synonyms", [])
+                    if include_details:
+                        hpo_definitions_cache[hpo_id] = term_data.get("definition")
 
-                logger.info(f"Loaded synonyms for {len(hpo_synonyms_cache)} HPO terms")
+                logger.info(
+                    f"Loaded {'synonyms and definitions' if include_details else 'synonyms'} "
+                    f"for {len(hpo_synonyms_cache)} HPO terms"
+                )
             else:
                 logger.warning(
                     f"HPO database not found: {db_path}. Skipping synonym lookup."
                 )
         except Exception as e:
-            logger.warning(f"Failed to batch-load synonyms: {e}")
+            logger.warning(f"Failed to batch-load HPO term data: {e}")
 
     # Now collect evidence with pre-loaded synonyms
     for chunk_result in chunk_results:
@@ -312,6 +321,11 @@ def orchestrate_hpo_extraction(
         aggregated_term["status"] = (
             assertion_status  # Alias for assertion_status for API consistency
         )
+
+        # Include definition and synonyms when requested (for API include_details=True)
+        if include_details:
+            aggregated_term["definition"] = hpo_definitions_cache.get(hpo_id)
+            aggregated_term["synonyms"] = hpo_synonyms_cache.get(hpo_id, [])
 
         aggregated_results_list.append(aggregated_term)
 
