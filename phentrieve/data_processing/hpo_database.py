@@ -212,6 +212,28 @@ class HPODatabase:
         logger.debug(f"Inserted {len(metadata)} graph metadata records")
         return len(metadata)
 
+    def _deserialize_term_row(self, row: sqlite3.Row) -> dict[str, Any]:
+        """
+        Deserialize database row into term dictionary.
+
+        Single source of truth for JSON field deserialization.
+        Reused by load_all_terms() and get_terms_by_ids().
+
+        Args:
+            row: SQLite Row object with term data
+
+        Returns:
+            Dictionary with deserialized JSON fields
+
+        Note:
+            Following DRY principle - JSON deserialization logic in one place.
+        """
+        term = dict(row)
+        # Deserialize JSON fields (handle None/empty gracefully)
+        term["synonyms"] = json.loads(term.get("synonyms") or "[]")
+        term["comments"] = json.loads(term.get("comments") or "[]")
+        return term
+
     def load_all_terms(self) -> list[dict[str, Any]]:
         """
         Load all HPO terms from database.
@@ -228,13 +250,8 @@ class HPODatabase:
             """
         )
 
-        terms = []
-        for row in cursor:
-            term = dict(row)
-            # Deserialize JSON fields
-            term["synonyms"] = json.loads(term["synonyms"] or "[]")
-            term["comments"] = json.loads(term["comments"] or "[]")
-            terms.append(term)
+        # Use shared helper (DRY)
+        terms = [self._deserialize_term_row(row) for row in cursor]
 
         logger.debug(f"Loaded {len(terms)} HPO terms from database")
         return terms
@@ -284,6 +301,71 @@ class HPODatabase:
 
         logger.debug(f"Loaded {len(label_map)} labels")
         return label_map
+
+    def get_terms_by_ids(self, term_ids: list[str]) -> dict[str, dict[str, Any]]:
+        """
+        Efficiently fetch multiple HPO terms by IDs in a single query.
+
+        Uses parameterized SQL query with IN clause for batch retrieval.
+        Provides O(n) performance where n = len(term_ids).
+
+        Args:
+            term_ids: List of HPO term IDs (e.g., ["HP:0001250", "HP:0002119"])
+
+        Returns:
+            Dictionary mapping {term_id: term_data} where term_data includes:
+            - id: str
+            - label: str
+            - definition: str (empty string if missing)
+            - synonyms: list[str] (deserialized from JSON)
+            - comments: list[str] (deserialized from JSON)
+
+        Performance:
+            - Single SQL query using IN clause (O(n))
+            - Returns empty dict if term_ids is empty (short-circuit)
+            - Handles missing terms gracefully (logs warning, skips)
+
+        Example:
+            >>> db = HPODatabase(Path("hpo_data.db"))
+            >>> terms = db.get_terms_by_ids(["HP:0001250", "HP:0002119"])
+            >>> terms["HP:0001250"]["definition"]
+            "A seizure is an intermittent abnormality..."
+            >>> terms["HP:0001250"]["synonyms"]
+            ["Seizures", "Epileptic seizure"]
+
+        Note:
+            Uses _deserialize_term_row() for DRY consistency with load_all_terms().
+        """
+        if not term_ids:
+            logger.debug("Empty term_ids list provided to get_terms_by_ids")
+            return {}
+
+        conn = self.get_connection()
+
+        # Use parameterized query for SQL injection safety
+        placeholders = ",".join("?" * len(term_ids))
+        query = f"""
+            SELECT id, label, definition, synonyms, comments
+            FROM hpo_terms
+            WHERE id IN ({placeholders})
+        """  # noqa: S608 - False positive: using parameterized query with placeholders
+
+        cursor = conn.execute(query, term_ids)
+
+        # Use shared helper for deserialization (DRY)
+        terms_map = {row["id"]: self._deserialize_term_row(row) for row in cursor}
+
+        # Log warning for any missing terms
+        if len(terms_map) < len(term_ids):
+            found_ids = set(terms_map.keys())
+            missing_ids = set(term_ids) - found_ids
+            # Show first 5 missing IDs (avoid log spam)
+            sample = sorted(missing_ids)[:5]
+            suffix = "..." if len(missing_ids) > 5 else ""
+            logger.warning(f"Terms not found in database: {sample}{suffix}")
+
+        logger.debug(f"Fetched {len(terms_map)}/{len(term_ids)} terms from database")
+        return terms_map
 
     def optimize(self) -> None:
         """

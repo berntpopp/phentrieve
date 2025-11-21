@@ -229,3 +229,68 @@ class TestResolveTranslationDirectory:
         assert result is not None  # Still returns path
         mock_logger.warning.assert_called_once()
         assert "not found" in mock_logger.warning.call_args[0][0]
+
+
+class TestQueryRequestValidation:
+    """Test QueryRequest schema validation."""
+
+    def test_allows_num_results_below_limit_with_details(self):
+        """Test that num_results <= 20 is allowed when include_details=True."""
+        from api.schemas.query_schemas import QueryRequest
+
+        # Should not raise
+        request = QueryRequest(
+            text="test query",
+            num_results=20,
+            include_details=True,
+        )
+        assert request.num_results == 20
+        assert request.include_details is True
+
+    def test_allows_high_num_results_without_details(self):
+        """Test that num_results > 20 is allowed when include_details=False."""
+        from api.schemas.query_schemas import QueryRequest
+
+        # Should not raise (within le=50 constraint)
+        request = QueryRequest(
+            text="test query",
+            num_results=50,
+            include_details=False,
+        )
+        assert request.num_results == 50
+        assert request.include_details is False
+
+    def test_rejects_high_num_results_with_details(self):
+        """Test that num_results > 20 raises error when include_details=True."""
+        from pydantic import ValidationError
+
+        from api.schemas.query_schemas import QueryRequest
+
+        # Should raise ValidationError
+        with pytest.raises(ValidationError) as exc_info:
+            QueryRequest(
+                text="test query",
+                num_results=50,
+                include_details=True,
+            )
+
+        # Verify error message is clear
+        error = str(exc_info.value)
+        assert "Maximum 20 results allowed when include_details=true" in error
+        assert "Requested: 50" in error
+
+    def test_error_message_provides_guidance(self):
+        """Test that error message provides actionable guidance."""
+        from pydantic import ValidationError
+
+        from api.schemas.query_schemas import QueryRequest
+
+        with pytest.raises(ValidationError) as exc_info:
+            QueryRequest(
+                text="test query",
+                num_results=25,
+                include_details=True,
+            )
+
+        error = str(exc_info.value)
+        assert "Reduce num_results or disable include_details" in error

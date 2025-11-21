@@ -108,6 +108,26 @@
                     <span class="hpo-id font-weight-bold">{{ result.hpo_id }}</span>
                     <v-icon size="x-small" class="ml-1">mdi-open-in-new</v-icon>
                   </a>
+                  <v-btn
+                    v-if="hasDetails(result)"
+                    variant="text"
+                    size="x-small"
+                    icon
+                    density="compact"
+                    class="ml-1"
+                    @click.stop="toggleQueryResultDetails(index)"
+                  >
+                    <v-icon size="small">
+                      {{ expandedQueryResults.has(index) ? 'mdi-chevron-up' : 'mdi-information' }}
+                    </v-icon>
+                    <v-tooltip activator="parent" location="top">
+                      {{
+                        expandedQueryResults.has(index)
+                          ? $t('resultsDisplay.hideDetails', 'Hide details')
+                          : $t('resultsDisplay.showDetails', 'Show details')
+                      }}
+                    </v-tooltip>
+                  </v-btn>
                 </div>
                 <div class="d-flex align-center">
                   <span class="text-body-2 text-high-emphasis hpo-label">{{ result.label }}</span>
@@ -176,6 +196,43 @@
                 />
               </div>
             </div>
+
+            <!-- Expandable Details Section -->
+            <v-expand-transition>
+              <div
+                v-if="expandedQueryResults.has(index) && hasDetails(result)"
+                class="mt-3 pt-3 details-section"
+              >
+                <!-- Definition -->
+                <div v-if="result.definition && result.definition.trim()" class="mb-3">
+                  <div class="text-caption text-medium-emphasis mb-1 font-weight-bold">
+                    {{ $t('resultsDisplay.definitionLabel', 'Definition') }}:
+                  </div>
+                  <div class="text-body-2 definition-text">
+                    {{ result.definition }}
+                  </div>
+                </div>
+
+                <!-- Synonyms -->
+                <div v-if="result.synonyms && result.synonyms.length > 0" class="mb-2">
+                  <div class="text-caption text-medium-emphasis mb-1 font-weight-bold">
+                    {{ $t('resultsDisplay.synonymsLabel', 'Synonyms') }}:
+                  </div>
+                  <div class="d-flex flex-wrap ga-1">
+                    <v-chip
+                      v-for="(synonym, synIdx) in result.synonyms"
+                      :key="synIdx"
+                      size="small"
+                      variant="tonal"
+                      color="blue-grey"
+                      class="synonym-chip"
+                    >
+                      {{ synonym }}
+                    </v-chip>
+                  </div>
+                </div>
+              </div>
+            </v-expand-transition>
           </v-list-item-title>
 
           <template #append>
@@ -412,7 +469,7 @@
           <div class="d-flex flex-column">
             <!-- Top Row: ID, Name, Assertion Status -->
             <div class="d-flex align-start mb-1">
-              <div class="flex-grow-1">
+              <div class="flex-grow-1 d-flex align-center">
                 <a
                   :href="`https://hpo.jax.org/browse/term/${term.hpo_id}`"
                   target="_blank"
@@ -424,6 +481,30 @@
                   }}</span>
                   <v-icon size="x-small" class="ml-1" color="primary">mdi-open-in-new</v-icon>
                 </a>
+                <v-btn
+                  v-if="hasDetails(term)"
+                  variant="text"
+                  size="x-small"
+                  icon
+                  density="compact"
+                  class="ml-1"
+                  @click.stop="toggleAggregatedTermDetails(term.hpo_id)"
+                >
+                  <v-icon size="small">
+                    {{
+                      expandedAggregatedTerms.has(term.hpo_id)
+                        ? 'mdi-chevron-up'
+                        : 'mdi-information'
+                    }}
+                  </v-icon>
+                  <v-tooltip activator="parent" location="top">
+                    {{
+                      expandedAggregatedTerms.has(term.hpo_id)
+                        ? $t('resultsDisplay.hideDetails', 'Hide details')
+                        : $t('resultsDisplay.showDetails', 'Show details')
+                    }}
+                  </v-tooltip>
+                </v-btn>
               </div>
               <v-chip
                 v-if="term.status && term.status !== 'unknown'"
@@ -539,6 +620,43 @@
                 "
               />
             </div>
+
+            <!-- Expandable Details Section for Aggregated Terms -->
+            <v-expand-transition>
+              <div
+                v-if="expandedAggregatedTerms.has(term.hpo_id) && hasDetails(term)"
+                class="mt-3 pt-3 details-section"
+              >
+                <!-- Definition -->
+                <div v-if="term.definition && term.definition.trim()" class="mb-3">
+                  <div class="text-caption text-medium-emphasis mb-1 font-weight-bold">
+                    {{ $t('resultsDisplay.definitionLabel', 'Definition') }}:
+                  </div>
+                  <div class="text-body-2 definition-text">
+                    {{ term.definition }}
+                  </div>
+                </div>
+
+                <!-- Synonyms -->
+                <div v-if="term.synonyms && term.synonyms.length > 0" class="mb-2">
+                  <div class="text-caption text-medium-emphasis mb-1 font-weight-bold">
+                    {{ $t('resultsDisplay.synonymsLabel', 'Synonyms') }}:
+                  </div>
+                  <div class="d-flex flex-wrap ga-1">
+                    <v-chip
+                      v-for="(synonym, synIdx) in term.synonyms"
+                      :key="synIdx"
+                      size="small"
+                      variant="tonal"
+                      color="blue-grey"
+                      class="synonym-chip"
+                    >
+                      {{ synonym }}
+                    </v-chip>
+                  </div>
+                </div>
+              </div>
+            </v-expand-transition>
           </div>
         </v-list-item>
       </v-list>
@@ -633,6 +751,8 @@ export default {
       chunkPanelRefs: {},
       openChunkPanels: [],
       modelNameCache: new Map(), // Cache for formatted model names (performance optimization)
+      expandedQueryResults: new Set(), // Track which query results have details expanded
+      expandedAggregatedTerms: new Set(), // Track which aggregated terms have details expanded
     };
   },
   computed: {
@@ -643,6 +763,30 @@ export default {
     },
   },
   methods: {
+    toggleQueryResultDetails(index) {
+      if (this.expandedQueryResults.has(index)) {
+        this.expandedQueryResults.delete(index);
+      } else {
+        this.expandedQueryResults.add(index);
+      }
+      // Force reactivity update
+      this.expandedQueryResults = new Set(this.expandedQueryResults);
+    },
+    toggleAggregatedTermDetails(hpoId) {
+      if (this.expandedAggregatedTerms.has(hpoId)) {
+        this.expandedAggregatedTerms.delete(hpoId);
+      } else {
+        this.expandedAggregatedTerms.add(hpoId);
+      }
+      // Force reactivity update
+      this.expandedAggregatedTerms = new Set(this.expandedAggregatedTerms);
+    },
+    hasDetails(result) {
+      return (
+        (result.definition && result.definition.trim()) ||
+        (result.synonyms && result.synonyms.length > 0)
+      );
+    },
     updateHighlightedAttributions(attributions) {
       this.highlightedAttributions = attributions.map((attr) => ({
         chunkId: attr.chunk_id, // Assumes API sends 1-based chunk_id
@@ -918,6 +1062,22 @@ export default {
   border-radius: 3px;
   padding: 0.5px 2px;
   box-shadow: 0 0 3px rgba(255, 210, 50, 0.5);
+}
+
+.details-section {
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+  background-color: rgba(0, 0, 0, 0.02);
+  padding: 8px 12px;
+  border-radius: 4px;
+}
+
+.definition-text {
+  line-height: 1.6;
+  color: rgba(0, 0, 0, 0.87);
+}
+
+.synonym-chip {
+  font-size: 0.75rem;
 }
 
 .custom-hpo-card {

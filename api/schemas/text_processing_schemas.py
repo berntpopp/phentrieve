@@ -110,6 +110,12 @@ class TextProcessingRequest(BaseModel):
         description="Consider only the top HPO term from each chunk during final aggregation.",
     )
 
+    # HPO Term Details
+    include_details: Optional[bool] = Field(
+        default=True,
+        description="Include HPO term definitions and synonyms in the response.",
+    )
+
 
 class HPOMatchInChunkAPI(BaseModel):
     hpo_id: str
@@ -161,6 +167,14 @@ class AggregatedHPOTermAPI(BaseModel):
     text_attributions: list[TextAttributionSpanAPI] = Field(
         default_factory=list,
         description="Text spans in source chunks attributed to this HPO term.",
+    )
+    # HPO term details (populated when include_details=True)
+    definition: Optional[str] = Field(
+        None, description="Definition of the HPO term (when include_details=True)."
+    )
+    synonyms: Optional[list[str]] = Field(
+        None,
+        description="List of synonyms for the HPO term (when include_details=True).",
     )
     # Keeping these for backward compatibility
     score: Optional[float] = None  # Max bi-encoder score from evidence

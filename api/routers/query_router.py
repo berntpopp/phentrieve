@@ -142,6 +142,7 @@ async def run_hpo_query_get(
     language: Optional[str] = None,  # Will auto-detect if not provided
     num_results: int = 10,
     similarity_threshold: float = 0.3,
+    include_details: bool = False,
     enable_reranker: bool = False,
     reranker_mode: str = "cross-lingual",
     detect_query_assertion: bool = True,
@@ -156,8 +157,9 @@ async def run_hpo_query_get(
     - text: Clinical text to query for HPO terms (required)
     - model_name: Embedding model for HPO retrieval
     - language: ISO 639-1 language code (auto-detected if not provided)
-    - num_results: Number of HPO terms to return
+    - num_results: Number of HPO terms to return (capped at 20 when include_details=True)
     - similarity_threshold: Minimum similarity score
+    - include_details: Include HPO term definitions and synonyms in results
     - enable_reranker: Enable cross-encoder reranking
     - reranker_mode: Either "cross-lingual" or "monolingual"
     """
@@ -168,6 +170,7 @@ async def run_hpo_query_get(
         language=language,
         num_results=num_results,
         similarity_threshold=similarity_threshold,
+        include_details=include_details,
         enable_reranker=enable_reranker,
         reranker_model=DEFAULT_RERANKER_MODEL,
         monolingual_reranker_model=DEFAULT_MONOLINGUAL_RERANKER_MODEL,
@@ -292,6 +295,7 @@ async def run_hpo_query(
         rerank_count=request.rerank_count,
         reranker_mode=request.reranker_mode,
         translation_dir_path=resolved_translation_dir,
+        include_details=request.include_details,
         detect_query_assertion=request.detect_query_assertion,
         query_assertion_language=request.query_assertion_language,
         query_assertion_preference=request.query_assertion_preference,

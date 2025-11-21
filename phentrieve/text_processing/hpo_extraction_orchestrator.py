@@ -15,9 +15,11 @@ from typing import TYPE_CHECKING, Any, Optional
 if TYPE_CHECKING:
     from sentence_transformers import CrossEncoder
 
-from phentrieve.data_processing.document_creator import load_hpo_terms
+from phentrieve.config import DEFAULT_HPO_DB_FILENAME
+from phentrieve.data_processing.hpo_database import HPODatabase
 from phentrieve.retrieval.dense_retriever import DenseRetriever
 from phentrieve.retrieval.text_attribution import get_text_attributions
+from phentrieve.utils import get_default_data_dir, resolve_data_path
 
 logger = logging.getLogger(__name__)
 
@@ -34,6 +36,7 @@ def orchestrate_hpo_extraction(
     top_term_per_chunk: bool = False,
     min_confidence_for_aggregated: float = 0.0,
     assertion_statuses: Optional[list[str | None]] = None,
+    include_details: bool = False,
 ) -> tuple[
     list[dict[str, Any]],  # aggregated results
     list[dict[str, Any]],  # chunk results
@@ -58,6 +61,7 @@ def orchestrate_hpo_extraction(
         top_term_per_chunk: If True, only keep top term per chunk
         min_confidence_for_aggregated: Minimum confidence threshold for aggregated terms
         assertion_statuses: Optional list of assertion statuses per chunk
+        include_details: If True, include HPO term definitions and synonyms in results
 
     Returns:
         Tuple containing:
@@ -166,10 +170,6 @@ def orchestrate_hpo_extraction(
             if top_term_per_chunk and current_hpo_matches:
                 current_hpo_matches = [current_hpo_matches[0]]
 
-            # Get HPO term synonyms for text attribution
-            # Create a cache for HPO term synonyms to avoid repeated loading
-            hpo_synonyms_cache = {}
-
             # Add matches to results
             chunk_results.append(
                 {
@@ -179,50 +179,86 @@ def orchestrate_hpo_extraction(
                 }
             )
 
-            # Collect evidence for each HPO term from this chunk
-            for term in current_hpo_matches:
-                hpo_id = term["id"]
-
-                # Get synonyms for text attribution
-                synonyms = []
-                if hpo_id not in hpo_synonyms_cache:
-                    try:
-                        # Try to get synonyms from HPO terms
-                        hpo_terms = load_hpo_terms()
-                        for hpo_term in hpo_terms:
-                            if hpo_term.get("id") == hpo_id:
-                                synonyms = hpo_term.get("synonyms", [])
-                                break
-                        hpo_synonyms_cache[hpo_id] = synonyms
-                    except Exception as e:
-                        logger.warning(f"Failed to load synonyms for {hpo_id}: {e}")
-                        hpo_synonyms_cache[hpo_id] = []
-                else:
-                    synonyms = hpo_synonyms_cache[hpo_id]
-
-                # Get text attributions for this term in this chunk
-                attributions_in_chunk = get_text_attributions(
-                    source_chunk_text=chunk_text,
-                    hpo_term_label=term["name"],
-                    hpo_term_synonyms=synonyms,
-                    hpo_term_id=hpo_id,
-                )
-
-                # Create evidence detail for this match
-                evidence_detail = {
-                    "score": term["score"],
-                    "chunk_idx": chunk_idx,
-                    "text": chunk_text,
-                    "status": term.get("assertion_status"),
-                    "name": term["name"],
-                    "attributions_in_chunk": attributions_in_chunk,
-                }
-                # Add to evidence map keyed by HPO ID
-                aggregated_hpo_evidence_map[hpo_id].append(evidence_detail)
-
         except Exception as e:
             logger.error(f"Failed to process chunk {chunk_idx + 1}: {e}")
             continue
+
+    # OPTIMIZATION: Batch-load ALL synonyms (and optionally definitions) in ONE database query
+    # This replaces the inefficient per-term loading that was loading all 19,534 terms repeatedly
+    logger.info("Batch-loading synonyms for all HPO terms")
+    hpo_synonyms_cache = {}
+    hpo_definitions_cache = {}  # Only populated when include_details=True
+
+    # Collect all unique HPO IDs from all chunks
+    all_hpo_ids: set[str] = set()
+    for chunk_result in chunk_results:
+        matches: Any = chunk_result.get("matches", [])
+        for match in matches:
+            all_hpo_ids.add(match["id"])
+
+    # Load synonyms (and optionally definitions) for all HPO IDs in ONE batch query
+    if all_hpo_ids:
+        try:
+            data_dir = resolve_data_path(None, "data_dir", get_default_data_dir)
+            db_path = data_dir / DEFAULT_HPO_DB_FILENAME
+
+            if db_path.exists():
+                logger.debug(
+                    f"Loading {'synonyms and definitions' if include_details else 'synonyms'} "
+                    f"for {len(all_hpo_ids)} unique HPO terms"
+                )
+                db = HPODatabase(db_path)
+                terms_map = db.get_terms_by_ids(list(all_hpo_ids))
+                db.close()
+
+                # Build synonyms cache (always) and definitions cache (when requested)
+                for hpo_id, term_data in terms_map.items():
+                    hpo_synonyms_cache[hpo_id] = term_data.get("synonyms", [])
+                    if include_details:
+                        hpo_definitions_cache[hpo_id] = term_data.get("definition")
+
+                logger.info(
+                    f"Loaded {'synonyms and definitions' if include_details else 'synonyms'} "
+                    f"for {len(hpo_synonyms_cache)} HPO terms"
+                )
+            else:
+                logger.warning(
+                    f"HPO database not found: {db_path}. Skipping synonym lookup."
+                )
+        except Exception as e:
+            logger.warning(f"Failed to batch-load HPO term data: {e}")
+
+    # Now collect evidence with pre-loaded synonyms
+    for chunk_result in chunk_results:
+        result_chunk_idx: Any = chunk_result["chunk_idx"]
+        result_chunk_text: Any = chunk_result["chunk_text"]
+        result_matches: Any = chunk_result["matches"]
+
+        for term in result_matches:
+            hpo_id = term["id"]
+
+            # Get synonyms from cache (no database load!)
+            synonyms = hpo_synonyms_cache.get(hpo_id, [])
+
+            # Get text attributions for this term in this chunk
+            attributions_in_chunk = get_text_attributions(
+                source_chunk_text=result_chunk_text,
+                hpo_term_label=term["name"],
+                hpo_term_synonyms=synonyms,
+                hpo_term_id=hpo_id,
+            )
+
+            # Create evidence detail for this match
+            evidence_detail = {
+                "score": term["score"],
+                "chunk_idx": result_chunk_idx,
+                "text": result_chunk_text,
+                "status": term.get("assertion_status"),
+                "name": term["name"],
+                "attributions_in_chunk": attributions_in_chunk,
+            }
+            # Add to evidence map keyed by HPO ID
+            aggregated_hpo_evidence_map[hpo_id].append(evidence_detail)
 
     # Process the aggregated evidence map into the final list format
     aggregated_results_list = []
@@ -285,6 +321,11 @@ def orchestrate_hpo_extraction(
         aggregated_term["status"] = (
             assertion_status  # Alias for assertion_status for API consistency
         )
+
+        # Include definition and synonyms when requested (for API include_details=True)
+        if include_details:
+            aggregated_term["definition"] = hpo_definitions_cache.get(hpo_id)
+            aggregated_term["synonyms"] = hpo_synonyms_cache.get(hpo_id, [])
 
         aggregated_results_list.append(aggregated_term)
 

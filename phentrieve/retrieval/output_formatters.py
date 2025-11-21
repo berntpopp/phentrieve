@@ -72,6 +72,17 @@ def format_results_as_text(
             )
             output_lines.append(line)
 
+            # Add definition and synonyms if available
+            definition = result.get("definition")
+            synonyms = result.get("synonyms")
+
+            if definition:
+                output_lines.append(f"    Definition: {definition}")
+
+            if synonyms:
+                synonyms_str = ", ".join(synonyms)
+                output_lines.append(f"    Synonyms: {synonyms_str}")
+
     return "\n".join(output_lines)
 
 
@@ -120,6 +131,13 @@ def format_results_as_json(
             # Add original rank if available
             if "original_rank" in result:
                 hpo_term["original_rank"] = result["original_rank"]
+
+            # Add definition and synonyms if available
+            if "definition" in result:
+                hpo_term["definition"] = result["definition"]
+
+            if "synonyms" in result:
+                hpo_term["synonyms"] = result["synonyms"]
 
             transformed_result["hpo_terms"].append(hpo_term)
 
@@ -175,6 +193,13 @@ def format_results_as_jsonl(structured_query_results: list[dict[str, Any]]) -> s
             # Add original rank if available
             if "original_rank" in result:
                 hpo_term["original_rank"] = result["original_rank"]
+
+            # Add definition and synonyms if available
+            if "definition" in result:
+                hpo_term["definition"] = result["definition"]
+
+            if "synonyms" in result:
+                hpo_term["synonyms"] = result["synonyms"]
 
             transformed_result["hpo_terms"].append(hpo_term)
 

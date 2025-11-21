@@ -23,10 +23,11 @@ Phentrieve is an AI-powered system for mapping clinical text to Human Phenotype 
 
 **Current Status Highlights**:
 - ✅ Tooling Modernization: 8/9 phases complete (Ruff, uv, mypy, ESLint 9, GHCR, Dependabot, CI/CD)
-- ✅ Testing Infrastructure: 208 tests (166 unit/integration + 42 Docker E2E), improved coverage
+- ✅ Testing Infrastructure: 532 tests (490 unit/integration + 42 Docker E2E), 13% statement coverage
 - ✅ Local Development: 100x faster than Docker with instant hot reload
 - ✅ Code Quality: 0 linting errors, 0 type errors
 - ✅ HPO Parser Resilience: Safe dictionary access (Issue #23)
+- ✅ HPO Term Details: Definitions and synonyms in API responses with batch-loading optimization (Issue #24)
 
 ## Development Commands
 
@@ -331,6 +332,30 @@ lsof -i :5734  # Frontend (custom HPOD port)
 uvicorn api.run_api_local:app --reload --port 8001
 ```
 
+**PyTorch CUDA/NVML warning at startup?**
+
+As of recent updates, PyTorch CUDA/NVML warnings are automatically caught and logged nicely through the application's logger system:
+
+```python
+# In phentrieve/embeddings.py - warning is caught and logged at DEBUG level
+logger.debug("PyTorch CUDA/NVML initialization: GPU monitoring unavailable. Using CPU device.")
+```
+
+**What this means**:
+- NVML (NVIDIA Management Library) is for GPU monitoring
+- PyTorch checks for CUDA/GPU availability at import time
+- NVML initialization may fail in some environments (common behavior)
+- The system correctly falls back to CPU execution
+- **Zero functional impact** - the application works normally
+
+**Implementation**:
+- Warning is caught using Python's `warnings.catch_warnings()` at module import
+- Logged at DEBUG level for visibility without clutter
+- All code has proper conditional checks: `if torch.cuda.is_available():`
+- No raw Python warnings printed to stderr
+
+**No action needed** - the warning is handled automatically and logged cleanly.
+
 #### When to Use Docker vs Local
 
 **Use Local Development (Native) when**:
@@ -556,6 +581,14 @@ See `tests/data/benchmarks/README.md` for complete dataset documentation.
 - Dependency injection pattern in `api/dependencies.py` for model loading and caching
 - Health check and configuration info endpoints
 - API runs on port 8000 by default (configurable in `local_api_config.env`)
+
+**HPO Term Details Feature** (Issue #24):
+- API endpoints support `include_details` parameter to enrich results with definitions and synonyms
+- **Database Layer**: `HPODatabase.get_terms_by_ids()` - Batch query for efficient term lookup
+- **Enrichment Layer**: `enrich_results_with_details()` - Pure function with thread-safe `@lru_cache`
+- **Performance**: Batch-loading optimization prevents N-query problem (1 query instead of N queries)
+- **CLI Support**: `--include-details` flag for `phentrieve query` and `phentrieve text process`
+- **Frontend**: Expandable UI in ResultsDisplay.vue with i18n support (EN, DE, ES, FR, NL)
 
 ### Important Architectural Notes
 

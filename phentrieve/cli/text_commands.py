@@ -222,6 +222,14 @@ def process_text_for_hpo_command(
             help="Keep only the top term per chunk",
         ),
     ] = False,
+    include_details: Annotated[
+        bool,
+        typer.Option(
+            "--include-details",
+            "-d",
+            help="Include HPO term definitions and synonyms in output",
+        ),
+    ] = False,
 ) -> None:
     """Process clinical text to extract HPO terms.
 
@@ -462,6 +470,59 @@ def process_text_for_hpo_command(
     except Exception as e:
         typer.secho(f"Error extracting HPO terms: {str(e)}", fg=typer.colors.RED)
         raise typer.Exit(code=1)
+
+    # Enrich with HPO term details if requested
+    if include_details:
+        from phentrieve.retrieval.details_enrichment import enrich_results_with_details
+
+        def enrich_with_field_adaptation(
+            results: list[dict],
+            fields_to_add: dict[str, str],
+            fields_to_remove: set[str],
+        ) -> list[dict]:
+            """Adapt result fields for enrichment, then clean up temporary fields.
+
+            Args:
+                results: List of result dictionaries to enrich
+                fields_to_add: Mapping of source_field -> target_field to add temporarily
+                fields_to_remove: Set of field names to remove after enrichment
+
+            Returns:
+                Enriched results with temporary fields removed
+            """
+            # Add required fields for enrichment (e.g., name -> label)
+            adapted = [
+                {**r, **{target: r[source] for source, target in fields_to_add.items()}}
+                for r in results
+            ]
+            # Enrich with HPO term details
+            enriched = enrich_results_with_details(adapted)
+            # Remove temporary fields, keeping definition and synonyms
+            cleaned = [
+                {k: v for k, v in r.items() if k not in fields_to_remove}
+                for r in enriched
+            ]
+            return cleaned
+
+        # Enrich aggregated_results (format: {hpo_id, name, ...})
+        # Need to add: name -> label (for enrichment)
+        # Need to remove: label (after enrichment)
+        if aggregated_results:
+            aggregated_results = enrich_with_field_adaptation(
+                aggregated_results,
+                fields_to_add={"name": "label"},
+                fields_to_remove={"label"},
+            )
+
+        # Enrich chunk_results (format: {id, name, ...})
+        # Need to add: id -> hpo_id, name -> label (for enrichment)
+        # Need to remove: hpo_id, label (after enrichment)
+        if chunk_results:
+            chunk_results = enrich_with_field_adaptation(
+                chunk_results,
+                fields_to_add={"id": "hpo_id", "name": "label"},
+                fields_to_remove={"hpo_id", "label"},
+            )
 
     # Output results in the specified format
     # Log debug information about the results
