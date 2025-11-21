@@ -352,7 +352,7 @@ def process_text_for_hpo_command(
             )
         except Exception as e:
             typer.secho(
-                f"Error loading semantic chunker model '{semantic_model_name}': {str(e)}",
+                f"Error loading semantic chunker model '{semantic_model_name}': {e!s}",
                 fg=typer.colors.RED,
             )
             raise typer.Exit(code=1)
@@ -366,14 +366,14 @@ def process_text_for_hpo_command(
             sbert_model_for_semantic_chunking=sbert_model_for_chunking,
         )
     except Exception as e:
-        typer.secho(f"Error creating pipeline: {str(e)}", fg=typer.colors.RED)
+        typer.secho(f"Error creating pipeline: {e!s}", fg=typer.colors.RED)
         raise typer.Exit(code=1)
 
     # Process the text through the pipeline
     try:
         processed_chunks = pipeline.process(raw_text)
     except Exception as e:
-        typer.secho(f"Error processing text: {str(e)}", fg=typer.colors.RED)
+        typer.secho(f"Error processing text: {e!s}", fg=typer.colors.RED)
         raise typer.Exit(code=1)
 
     typer.echo(f"Processed {len(processed_chunks)} text chunks.")
@@ -414,7 +414,7 @@ def process_text_for_hpo_command(
                 )
                 raise typer.Exit(code=1)
         except Exception as e:
-            typer.secho(f"Error initializing retriever: {str(e)}", fg=typer.colors.RED)
+            typer.secho(f"Error initializing retriever: {e!s}", fg=typer.colors.RED)
             raise typer.Exit(code=1)
 
         # Create cross-encoder if reranking is enabled
@@ -468,7 +468,7 @@ def process_text_for_hpo_command(
             assertion_statuses=assertion_statuses,
         )
     except Exception as e:
-        typer.secho(f"Error extracting HPO terms: {str(e)}", fg=typer.colors.RED)
+        typer.secho(f"Error extracting HPO terms: {e!s}", fg=typer.colors.RED)
         raise typer.Exit(code=1)
 
     # Enrich with HPO term details if requested
@@ -700,7 +700,7 @@ def chunk_text_command(
             logger.debug(f"Model type: {type(sbert_model)}")
         except Exception as e:
             typer.secho(
-                f"Error loading model '{model_name}': {str(e)}", fg=typer.colors.RED
+                f"Error loading model '{model_name}': {e!s}", fg=typer.colors.RED
             )
             raise typer.Exit(code=1)
 
@@ -722,14 +722,14 @@ def chunk_text_command(
         )
         logger.debug("Successfully created TextProcessingPipeline")
     except Exception as e:
-        typer.secho(f"Error creating pipeline: {str(e)}", fg=typer.colors.RED)
+        typer.secho(f"Error creating pipeline: {e!s}", fg=typer.colors.RED)
         raise typer.Exit(code=1)
 
     # Process the text
     try:
         processed_chunks = pipeline.process(raw_text)
     except Exception as e:
-        typer.secho(f"Error processing text: {str(e)}", fg=typer.colors.RED)
+        typer.secho(f"Error processing text: {e!s}", fg=typer.colors.RED)
         raise typer.Exit(code=1)
 
     # Output the chunks in the requested format
@@ -832,7 +832,7 @@ def _format_and_output_results(
                         ),
                         "top_evidence": (
                             f"Chunk {result['chunks'][0]}"
-                            if "chunks" in result and result["chunks"]
+                            if result.get("chunks")
                             else ""
                         ),
                     }
