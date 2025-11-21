@@ -26,6 +26,7 @@ import axios from 'axios';
  * console.log(version) // "0.1.0"
  */
 export function getFrontendVersion() {
+  /* global __APP_VERSION__ */
   return __APP_VERSION__; // Injected by Vite at build time
 }
 
