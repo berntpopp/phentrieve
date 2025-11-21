@@ -79,7 +79,7 @@ def format_results_as_text(
             if definition:
                 output_lines.append(f"    Definition: {definition}")
 
-            if synonyms and len(synonyms) > 0:
+            if synonyms:
                 synonyms_str = ", ".join(synonyms)
                 output_lines.append(f"    Synonyms: {synonyms_str}")
 

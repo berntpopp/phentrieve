@@ -74,9 +74,13 @@ class QueryRequest(BaseModel):
 
     @model_validator(mode="after")
     def validate_num_results_with_details(self) -> "QueryRequest":
-        """Cap num_results at 20 when include_details is enabled for performance."""
+        """Validate that num_results doesn't exceed limit when include_details is enabled."""
         if self.include_details and self.num_results > 20:
-            self.num_results = 20
+            raise ValueError(
+                f"Maximum 20 results allowed when include_details=true. "
+                f"Requested: {self.num_results}. "
+                f"Reduce num_results or disable include_details."
+            )
         return self
 
 

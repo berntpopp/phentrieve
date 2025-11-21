@@ -475,35 +475,54 @@ def process_text_for_hpo_command(
     if include_details:
         from phentrieve.retrieval.details_enrichment import enrich_results_with_details
 
+        def enrich_with_field_adaptation(
+            results: list[dict],
+            fields_to_add: dict[str, str],
+            fields_to_remove: set[str],
+        ) -> list[dict]:
+            """Adapt result fields for enrichment, then clean up temporary fields.
+
+            Args:
+                results: List of result dictionaries to enrich
+                fields_to_add: Mapping of source_field -> target_field to add temporarily
+                fields_to_remove: Set of field names to remove after enrichment
+
+            Returns:
+                Enriched results with temporary fields removed
+            """
+            # Add required fields for enrichment (e.g., name -> label)
+            adapted = [
+                {**r, **{target: r[source] for source, target in fields_to_add.items()}}
+                for r in results
+            ]
+            # Enrich with HPO term details
+            enriched = enrich_results_with_details(adapted)
+            # Remove temporary fields, keeping definition and synonyms
+            cleaned = [
+                {k: v for k, v in r.items() if k not in fields_to_remove}
+                for r in enriched
+            ]
+            return cleaned
+
         # Enrich aggregated_results (format: {hpo_id, name, ...})
+        # Need to add: name -> label (for enrichment)
+        # Need to remove: label (after enrichment)
         if aggregated_results:
-            # Convert name -> label for enrichment, then convert back
-            aggregated_for_enrichment = [
-                {**r, "label": r["name"]} for r in aggregated_results
-            ]
-            enriched_aggregated = enrich_results_with_details(aggregated_for_enrichment)
-            # Remove temporary label field, keep definition and synonyms
-            aggregated_results = [
-                {
-                    k: v
-                    for k, v in r.items()
-                    if k != "label"  # Remove temp label field
-                }
-                for r in enriched_aggregated
-            ]
+            aggregated_results = enrich_with_field_adaptation(
+                aggregated_results,
+                fields_to_add={"name": "label"},
+                fields_to_remove={"label"},
+            )
 
         # Enrich chunk_results (format: {id, name, ...})
+        # Need to add: id -> hpo_id, name -> label (for enrichment)
+        # Need to remove: hpo_id, label (after enrichment)
         if chunk_results:
-            # Convert id -> hpo_id and name -> label for enrichment
-            chunk_for_enrichment = [
-                {**r, "hpo_id": r["id"], "label": r["name"]} for r in chunk_results
-            ]
-            enriched_chunk = enrich_results_with_details(chunk_for_enrichment)
-            # Remove temporary fields, keep definition and synonyms
-            chunk_results = [
-                {k: v for k, v in r.items() if k not in ["hpo_id", "label"]}
-                for r in enriched_chunk
-            ]
+            chunk_results = enrich_with_field_adaptation(
+                chunk_results,
+                fields_to_add={"id": "hpo_id", "name": "label"},
+                fields_to_remove={"hpo_id", "label"},
+            )
 
     # Output results in the specified format
     # Log debug information about the results
