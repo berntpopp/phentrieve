@@ -25,7 +25,7 @@ def get_api_version() -> str:
     """
     Read API version from pyproject.toml.
 
-    Uses Python 3.11+ built-in tomllib (no external dependencies).
+    Uses Python 3.11+ built-in tomllib or falls back to tomli for Python 3.10.
     Cached for performance - call .cache_clear() in tests.
 
     Returns:
@@ -37,7 +37,12 @@ def get_api_version() -> str:
         '0.2.0'
     """
     try:
-        import tomllib  # Python 3.11+ built-in
+        # Try Python 3.11+ built-in tomllib first
+        try:
+            import tomllib
+        except ImportError:
+            # Fall back to tomli for Python 3.10
+            import tomli as tomllib  # type: ignore
 
         # Navigate to pyproject.toml (one level up from api/)
         api_dir = Path(__file__).parent
@@ -54,8 +59,8 @@ def get_api_version() -> str:
         logger.debug(f"API version loaded: {version}")
         return version
 
-    except ImportError:
-        logger.error("tomllib not available (requires Python 3.11+)")
+    except ImportError as e:
+        logger.error(f"tomllib/tomli not available: {e}")
         return "unknown"
     except Exception as e:
         logger.error(f"Failed to read API version: {e}")
