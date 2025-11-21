@@ -18,7 +18,6 @@ logger = logging.getLogger(__name__)
 class DatabaseNotFoundError(FileNotFoundError):
     """Raised when HPO database file doesn't exist."""
 
-    pass
 
 
 @lru_cache(maxsize=1)
