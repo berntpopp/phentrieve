@@ -504,12 +504,21 @@ expensive_function.cache_clear()
 
 ### Testing Architecture
 
+**⚠️ CRITICAL: Test Directory Structure**
+
+**NEVER CREATE `tests_new/` FOLDER!** All tests MUST be placed in the `tests/` directory only.
+
+- ✅ **Correct**: `tests/unit/`, `tests/e2e/`, `tests/integration/`
+- ❌ **WRONG**: `tests_new/` (do not create this folder under ANY circumstances)
+
+If you accidentally create `tests_new/`, immediately move all files to `tests/` and delete `tests_new/`.
+
 **Test Structure** (157 total tests, 13% statement coverage):
-- **Unit/Integration Tests** (`tests/`, `tests_new/unit/`): 115 tests covering core functionality
+- **Unit/Integration Tests** (`tests/`): 115 tests covering core functionality
   - Text processing: Chunking, assertion detection, HPO extraction
   - Retrieval: Dense retriever (100% coverage), embeddings (100% coverage), re-ranker (100% coverage)
   - Utilities: Output formatters (100% coverage), semantic metrics
-- **Docker E2E Tests** (`tests_new/e2e/`): 42 tests validating production deployment
+- **Docker E2E Tests** (`tests/e2e/`): 42 tests validating production deployment
   - 12 security tests (non-root, read-only FS, capabilities, limits)
   - 14 health tests (endpoints, uptime, restart policies, OOM)
   - 17 API workflow tests (validation, formats, performance)
