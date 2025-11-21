@@ -172,7 +172,30 @@
               variant="text"
               color="primary"
               aria-label="View project license"
+              class="mr-1"
             />
+          </template>
+        </v-tooltip>
+        <v-tooltip
+          location="top"
+          text="Version & API Status"
+          role="tooltip"
+          aria-label="Version and connection information"
+        >
+          <template #activator="{ props }">
+            <v-btn
+              v-bind="props"
+              icon
+              variant="text"
+              size="small"
+              :color="apiConnected ? 'primary' : 'error'"
+              aria-label="View version and connection status"
+              @click="showVersionDialog = true"
+            >
+              <v-badge :color="apiConnected ? 'success' : 'error'" dot offset-x="-2" offset-y="-2">
+                <v-icon>mdi-information-outline</v-icon>
+              </v-badge>
+            </v-btn>
           </template>
         </v-tooltip>
       </div>
@@ -186,6 +209,81 @@
 
     <!-- Tutorial Overlay -->
     <TutorialOverlay :visible="tutorialVisible" @update:visible="tutorialVisible = $event" />
+
+    <!-- Version & Connection Status Dialog -->
+    <v-dialog v-model="showVersionDialog" max-width="400">
+      <v-card>
+        <v-card-title class="d-flex align-center">
+          <v-icon class="mr-2">mdi-package-variant</v-icon>
+          Version Information
+          <v-spacer />
+          <v-btn
+            icon="mdi-refresh"
+            variant="text"
+            size="small"
+            :loading="loadingVersions"
+            @click="refreshVersions"
+          />
+        </v-card-title>
+
+        <v-divider />
+
+        <v-card-text>
+          <!-- Connection Status -->
+          <div class="mb-3">
+            <v-chip :color="apiConnected ? 'success' : 'error'" size="small" label>
+              <v-icon size="small" start>
+                {{ apiConnected ? 'mdi-lan-connect' : 'mdi-lan-disconnect' }}
+              </v-icon>
+              API {{ apiConnected ? 'Online' : 'Offline' }}
+              <span v-if="apiConnected && responseTime" class="ml-1"> ({{ responseTime }}ms) </span>
+            </v-chip>
+          </div>
+
+          <!-- Frontend Version -->
+          <v-list-item class="px-0">
+            <template #prepend>
+              <v-icon color="success">mdi-vuejs</v-icon>
+            </template>
+            <v-list-item-title>Frontend</v-list-item-title>
+            <v-list-item-subtitle>{{ frontendVersion }} (Vue.js)</v-list-item-subtitle>
+          </v-list-item>
+
+          <!-- API Version -->
+          <v-list-item class="px-0">
+            <template #prepend>
+              <v-icon color="primary">mdi-api</v-icon>
+            </template>
+            <v-list-item-title>API</v-list-item-title>
+            <v-list-item-subtitle>{{ apiVersion }} (FastAPI)</v-list-item-subtitle>
+          </v-list-item>
+
+          <!-- CLI Version -->
+          <v-list-item class="px-0">
+            <template #prepend>
+              <v-icon color="info">mdi-console</v-icon>
+            </template>
+            <v-list-item-title>CLI</v-list-item-title>
+            <v-list-item-subtitle>{{ cliVersion }} (Python)</v-list-item-subtitle>
+          </v-list-item>
+
+          <v-divider class="my-2" />
+
+          <!-- Environment -->
+          <div class="d-flex align-center justify-space-between">
+            <span class="text-caption">Environment:</span>
+            <v-chip :color="getEnvironmentColor(environment)" size="small" label>
+              {{ environment }}
+            </v-chip>
+          </div>
+        </v-card-text>
+
+        <v-card-actions>
+          <v-spacer />
+          <v-btn text @click="showVersionDialog = false">Close</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-app>
 </template>
 
@@ -194,6 +292,8 @@ import { useDisclaimerStore } from './stores/disclaimer';
 import { useLogStore } from './stores/log';
 import { logService } from './services/logService';
 import { tutorialService } from './services/tutorialService';
+import { getAllVersions } from './utils/version';
+import { useApiHealth } from './services/api-health';
 import DisclaimerDialog from './components/DisclaimerDialog.vue';
 import LogViewer from './components/LogViewer.vue';
 import LanguageSwitcher from './components/LanguageSwitcher.vue';
@@ -211,6 +311,12 @@ export default {
     return {
       disclaimerDialogVisible: false,
       tutorialVisible: false,
+      showVersionDialog: false,
+      loadingVersions: false,
+      frontendVersion: 'Loading...',
+      apiVersion: 'Loading...',
+      cliVersion: 'Loading...',
+      environment: 'unknown',
     };
   },
   computed: {
@@ -219,6 +325,14 @@ export default {
     },
     logStore() {
       return useLogStore();
+    },
+    apiConnected() {
+      const { connected } = useApiHealth();
+      return connected.value;
+    },
+    responseTime() {
+      const { responseTime } = useApiHealth();
+      return responseTime.value;
     },
   },
   created() {
@@ -243,7 +357,45 @@ export default {
     // Log application initialization
     logService.info('Application initialized');
   },
+  mounted() {
+    // Fetch version information on mount
+    this.refreshVersions();
+
+    // Start API health monitoring
+    const { startMonitoring } = useApiHealth();
+    startMonitoring();
+    logService.info('API health monitoring started');
+  },
+  beforeUnmount() {
+    // Stop API health monitoring to prevent memory leaks
+    const { stopMonitoring } = useApiHealth();
+    stopMonitoring();
+    logService.info('API health monitoring stopped');
+  },
   methods: {
+    async refreshVersions() {
+      this.loadingVersions = true;
+      try {
+        const versions = await getAllVersions();
+        this.frontendVersion = versions.frontend?.version || 'unknown';
+        this.apiVersion = versions.api?.version || 'unknown';
+        this.cliVersion = versions.cli?.version || 'unknown';
+        this.environment = versions.environment || 'unknown';
+        logService.debug('Versions refreshed', versions);
+      } catch (error) {
+        logService.error('Failed to refresh versions', error);
+      } finally {
+        this.loadingVersions = false;
+      }
+    },
+    getEnvironmentColor(env) {
+      const colors = {
+        production: 'success',
+        staging: 'warning',
+        development: 'info',
+      };
+      return colors[env] || 'default';
+    },
     showDisclaimerDialog() {
       logService.debug('Manual disclaimer dialog trigger');
       this.disclaimerDialogVisible = true;

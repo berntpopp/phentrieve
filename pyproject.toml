@@ -43,7 +43,8 @@ dependencies = [
     "typer>=0.16.0,<0.21.0",                # Pin to 0.16.x (prevent downgrade)
     "rich>=10.0.0",                         # Required for typer CLI features
     "shellingham>=1.3.0",                   # Required for typer shell completion
-    "PyYAML>=6.0"
+    "PyYAML>=6.0",
+    "tomli>=2.0.0; python_version < '3.11'" # TOML parser backport for Python 3.10
 ]
 
 [project.scripts]
@@ -206,3 +207,19 @@ dev = [
     "pytest-docker>=3.1.0",  # For Docker E2E tests (Phase 3)
     "docker>=7.0.0",  # Docker SDK for E2E tests
 ]
+
+[tool.semantic_release]
+# Enable alpha versioning (0.x.x)
+allow_zero_version = true
+major_on_zero = false  # Breaking changes bump MINOR during 0.x
+
+# Version location (for semantic-release to update)
+version_toml = ["pyproject.toml:project.version"]
+
+# Version variables to update across codebase
+version_variables = [
+    "phentrieve/__init__.py:__version__",
+]
+
+# Commit message parsing (Conventional Commits)
+commit_parser = "angular"
