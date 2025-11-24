@@ -234,8 +234,8 @@ def query_hpo(
             model_name=model_name,
             trust_remote_code=trust_remote_code,
             enable_reranker=enable_reranker,
-            reranker_model=reranker_model or "",
-            monolingual_reranker_model=monolingual_reranker_model or "",
+            reranker_model=reranker_model,  # Pass None to use orchestrator defaults
+            monolingual_reranker_model=monolingual_reranker_model,  # Pass None to use orchestrator defaults
             reranker_mode=reranker_mode,
             translation_dir=str(translation_dir_path),
             device_override=device_override,
@@ -349,8 +349,8 @@ def query_hpo(
             sentence_mode=sentence_mode,
             trust_remote_code=trust_remote_code,
             enable_reranker=enable_reranker,
-            reranker_model=reranker_model or "",
-            monolingual_reranker_model=monolingual_reranker_model or "",
+            reranker_model=reranker_model,  # Pass None to use orchestrator defaults
+            monolingual_reranker_model=monolingual_reranker_model,  # Pass None to use orchestrator defaults
             reranker_mode=reranker_mode,
             translation_dir=str(translation_dir_path),
             rerank_count=rerank_count,
