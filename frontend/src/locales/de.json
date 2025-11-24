@@ -20,6 +20,13 @@
     "confirmClearTitle": "Alle Daten löschen?",
     "confirmClearMessage": "Dies wird den gesamten Konversationsverlauf und alle gesammelten Phänotypen dauerhaft löschen. Diese Aktion kann nicht rückgängig gemacht werden."
   },
+  "home": {
+    "logoAlt": "Phentrieve Logo - Klicken zum Zurücksetzen",
+    "resetAriaLabel": "Konversation zurücksetzen",
+    "resetTitle": "Anwendung zurücksetzen?",
+    "resetMessage": "Dies wird den gesamten Konversationsverlauf und alle gesammelten Phänotypen löschen. Ihre Haftungsausschluss-Bestätigung bleibt erhalten.",
+    "resetConfirm": "Zurücksetzen"
+  },
   "models": {
     "biolord": "BioLORD 2023-M",
     "jinaGerman": "Jina German v2",

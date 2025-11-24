@@ -20,6 +20,13 @@
     "confirmClearTitle": "Alle gegevens wissen?",
     "confirmClearMessage": "Dit zal permanent alle gespreksgeschiedenis en verzamelde fenotypes verwijderen. Deze actie kan niet ongedaan worden gemaakt."
   },
+  "home": {
+    "logoAlt": "Phentrieve Logo - Klik om te resetten",
+    "resetAriaLabel": "Gesprek resetten",
+    "resetTitle": "Applicatie resetten?",
+    "resetMessage": "Dit zal alle gespreksgeschiedenis en verzamelde fenotypes wissen. Uw disclaimer-bevestiging blijft behouden.",
+    "resetConfirm": "Resetten"
+  },
   "models": {
     "biolord": "BioLORD 2023-M",
     "jinaGerman": "Jina German v2",

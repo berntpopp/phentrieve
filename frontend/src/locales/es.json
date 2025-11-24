@@ -20,6 +20,13 @@
     "confirmClearTitle": "¿Borrar todos los datos?",
     "confirmClearMessage": "Esto eliminará permanentemente todo el historial de conversación y los fenotipos recopilados. Esta acción no se puede deshacer."
   },
+  "home": {
+    "logoAlt": "Logo de Phentrieve - Clic para reiniciar",
+    "resetAriaLabel": "Reiniciar conversación",
+    "resetTitle": "¿Reiniciar aplicación?",
+    "resetMessage": "Esto eliminará todo el historial de conversación y los fenotipos recopilados. Su reconocimiento del aviso legal se conservará.",
+    "resetConfirm": "Reiniciar"
+  },
   "models": {
     "biolord": "BioLORD 2023-M",
     "jinaGerman": "Jina German v2",

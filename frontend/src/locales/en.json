@@ -20,6 +20,13 @@
     "confirmClearTitle": "Clear All Data?",
     "confirmClearMessage": "This will permanently delete all conversation history and collected phenotypes. This action cannot be undone."
   },
+  "home": {
+    "logoAlt": "Phentrieve Logo - Click to reset",
+    "resetAriaLabel": "Reset conversation",
+    "resetTitle": "Reset Application?",
+    "resetMessage": "This will clear all conversation history and collected phenotypes. Your disclaimer acknowledgment will be preserved.",
+    "resetConfirm": "Reset"
+  },
   "models": {
     "biolord": "BioLORD 2023-M",
     "jinaGerman": "Jina German v2",
