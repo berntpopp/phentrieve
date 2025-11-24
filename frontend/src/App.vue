@@ -379,9 +379,8 @@ export default {
   created() {
     logService.info('App component created');
 
-    // Initialize the store
-    this.disclaimerStore.initialize();
-    logService.debug('Disclaimer store initialized', {
+    // Store state is automatically hydrated by pinia-plugin-persistedstate
+    logService.debug('Disclaimer store state', {
       isAcknowledged: this.disclaimerStore.isAcknowledged,
       timestamp: this.disclaimerStore.acknowledgmentTimestamp,
     });
