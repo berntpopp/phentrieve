@@ -1,0 +1,1258 @@
+2025-11-24 23:20:31,508 - INFO - Logging level set to INFO
+Starting benchmark evaluation...
+2025-11-24 23:20:31,508 - INFO - Running benchmark on single model: FremyCompany/BioLORD-2023-M
+2025-11-24 23:20:31,508 - INFO - Benchmarking model: FremyCompany/BioLORD-2023-M
+2025-11-24 23:20:31,508 - INFO - Loaded 200 test cases from /home/bernt-popp/development/phentrieve/tests/data/benchmarks/german/200cases_gemini_v1.json
+2025-11-24 23:20:31,508 - INFO - Starting benchmark evaluation for model 'FremyCompany/BioLORD-2023-M'
+2025-11-24 23:20:31,508 - INFO - Test file: /home/bernt-popp/development/phentrieve/tests/data/benchmarks/german/200cases_gemini_v1.json (200 test cases)
+2025-11-24 23:20:31,508 - INFO - Loading embedding model: FremyCompany/BioLORD-2023-M on cuda
+2025-11-24 23:20:31,508 - INFO - Loading BioLORD model 'FremyCompany/BioLORD-2023-M' with trust_remote_code=True on cuda
+2025-11-24 23:20:31,508 - INFO - Use pytorch device_name: cuda:0
+2025-11-24 23:20:31,509 - INFO - Load pretrained SentenceTransformer: FremyCompany/BioLORD-2023-M
+2025-11-24 23:20:34,229 - INFO - Successfully loaded and cached model FremyCompany/BioLORD-2023-M on cuda
+2025-11-24 23:20:34,229 - INFO - Loading HPO graph data for semantic similarity calculation
+2025-11-24 23:20:34,230 - INFO - Loading HPO graph data from database: /home/bernt-popp/development/phentrieve/data/hpo_data.db...
+2025-11-24 23:20:34,266 - INFO - Loaded ancestor sets for 19534 HPO terms
+2025-11-24 23:20:34,266 - INFO - Loaded depth values for 19534 HPO terms
+2025-11-24 23:20:34,267 - INFO - Loading cross-encoder model for cross-lingual re-ranking on cuda
+2025-11-24 23:20:34,267 - INFO - Loading cross-encoder model 'BAAI/bge-reranker-v2-m3' on cuda
+2025-11-24 23:20:35,784 - INFO - Successfully loaded cross-encoder model: BAAI/bge-reranker-v2-m3
+2025-11-24 23:20:35,784 - INFO - Successfully loaded cross-encoder model: BAAI/bge-reranker-v2-m3
+2025-11-24 23:20:35,784 - INFO - DenseRetriever.from_model_name: Using explicit index_dir: /home/bernt-popp/development/phentrieve/data/indexes
+2025-11-24 23:20:36,081 - INFO - Connected to collection 'phentrieve_biolord_2023_m' with 19534 docs
+2025-11-24 23:20:36,081 - INFO - Running benchmark on 200 test cases
+Evaluating test cases:   0%|          | 0/200 [00:00<?, ?it/s]2025-11-24 23:20:36,082 - INFO - Processing query: 'Positivität für Anti-HLA-Antikörper'
+2025-11-24 23:20:36,082 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][A
+Batches: 100%|██████████| 1/1 [00:00<00:00,  9.04it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00,  9.03it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 32.19it/s]
+Evaluating test cases:   0%|          | 1/200 [00:00<00:29,  6.81it/s]2025-11-24 23:20:36,229 - INFO - Processing query: 'Kleine Epiphysen der Phalangen der Hand'
+2025-11-24 23:20:36,229 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 533.83it/s]
+2025-11-24 23:20:36,234 - WARNING - Invalid path lengths: term1=7, term2=8, LCA=8
+2025-11-24 23:20:36,234 - WARNING - Invalid path lengths: term1=7, term2=8, LCA=8
+2025-11-24 23:20:36,234 - WARNING - Invalid path lengths: term1=7, term2=8, LCA=8
+2025-11-24 23:20:36,234 - WARNING - Invalid path lengths: term1=7, term2=8, LCA=8
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 222.52it/s]
+2025-11-24 23:20:36,262 - WARNING - Invalid path lengths: term1=7, term2=8, LCA=8
+2025-11-24 23:20:36,263 - WARNING - Invalid path lengths: term1=7, term2=8, LCA=8
+2025-11-24 23:20:36,263 - WARNING - Invalid path lengths: term1=7, term2=8, LCA=8
+2025-11-24 23:20:36,263 - WARNING - Invalid path lengths: term1=7, term2=8, LCA=8
+2025-11-24 23:20:36,263 - INFO - Processing query: 'Anasarka'
+2025-11-24 23:20:36,263 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 568.03it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 200.34it/s]
+2025-11-24 23:20:36,325 - INFO - Processing query: 'Talipes varus'
+2025-11-24 23:20:36,325 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 561.41it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 245.71it/s]
+Evaluating test cases:   2%|▏         | 4/200 [00:00<00:12, 16.06it/s]2025-11-24 23:20:36,356 - INFO - Processing query: 'Abnormale CSF-Carbonsäurekonzentration'
+2025-11-24 23:20:36,356 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 527.19it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 257.13it/s]
+2025-11-24 23:20:36,386 - INFO - Processing query: 'Gerade Schlüsselbeine'
+2025-11-24 23:20:36,386 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 581.25it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 261.90it/s]
+2025-11-24 23:20:36,407 - INFO - Processing query: 'Erhöhter N,N-Dimethylglycinspiegel im Urin'
+2025-11-24 23:20:36,407 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 99.34it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 210.22it/s]
+2025-11-24 23:20:36,452 - INFO - Processing query: 'Knieschmerz'
+2025-11-24 23:20:36,452 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 570.42it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 262.49it/s]
+Evaluating test cases:   4%|▍         | 8/200 [00:00<00:08, 23.46it/s]2025-11-24 23:20:36,476 - INFO - Processing query: 'Dibasischesaminoazidurie'
+2025-11-24 23:20:36,476 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 510.75it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 254.20it/s]
+2025-11-24 23:20:36,502 - INFO - Processing query: 'Gekrümmte 2. Zehenphalanx'
+2025-11-24 23:20:36,502 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 535.47it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 257.70it/s]
+2025-11-24 23:20:36,532 - INFO - Processing query: 'Hirnparenchym-Tuberkulom'
+2025-11-24 23:20:36,532 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 531.40it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 201.86it/s]
+Evaluating test cases:   6%|▌         | 11/200 [00:00<00:07, 23.79it/s]2025-11-24 23:20:36,599 - INFO - Processing query: 'Fokaler kognitiver Anfall mit eingeschränktem Bewusstsein mit Dysgraphie/Agraphie'
+2025-11-24 23:20:36,599 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 377.46it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 235.23it/s]
+2025-11-24 23:20:36,626 - INFO - Processing query: 'Beidseitige Stimmbandparese'
+2025-11-24 23:20:36,626 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 508.40it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 241.86it/s]
+2025-11-24 23:20:36,653 - INFO - Processing query: 'Erhöhte Neutrophilen-Mitochondrien'
+2025-11-24 23:20:36,653 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 525.93it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 234.23it/s]
+2025-11-24 23:20:36,681 - INFO - Processing query: 'Karpometakarpale Synostose'
+2025-11-24 23:20:36,681 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 518.26it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 248.68it/s]
+Evaluating test cases:   8%|▊         | 15/200 [00:00<00:06, 27.71it/s]2025-11-24 23:20:36,712 - INFO - Processing query: 'Aplasie/Hypoplasie der Vagina'
+2025-11-24 23:20:36,712 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 514.20it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 243.30it/s]
+2025-11-24 23:20:36,746 - INFO - Processing query: 'Pseudobulbärparalyse'
+2025-11-24 23:20:36,746 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 527.72it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 225.56it/s]
+2025-11-24 23:20:36,781 - INFO - Processing query: 'Aortenklappenprolaps'
+2025-11-24 23:20:36,781 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 541.48it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 251.40it/s]
+2025-11-24 23:20:36,808 - INFO - Processing query: 'Durchfall'
+2025-11-24 23:20:36,808 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 500.93it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 253.72it/s]
+Evaluating test cases:  10%|▉         | 19/200 [00:00<00:06, 29.84it/s]2025-11-24 23:20:36,829 - INFO - Processing query: 'Acetabuläre Sporne'
+2025-11-24 23:20:36,829 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 554.29it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 257.35it/s]
+2025-11-24 23:20:36,856 - INFO - Processing query: 'Dermale Flammenfiguren'
+2025-11-24 23:20:36,856 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 500.45it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 262.97it/s]
+2025-11-24 23:20:36,882 - INFO - Processing query: 'Verringerter Glukose-6-Phosphat-Dehydrogenase-Spiegel in Leukozyten'
+2025-11-24 23:20:36,882 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 424.95it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 257.90it/s]
+2025-11-24 23:20:36,915 - INFO - Processing query: 'Halsteratom'
+2025-11-24 23:20:36,915 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 568.49it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 241.23it/s]
+Evaluating test cases:  12%|█▏        | 23/200 [00:00<00:05, 30.57it/s]2025-11-24 23:20:36,954 - INFO - Processing query: 'Abnormale B-Zellzahl'
+2025-11-24 23:20:36,954 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 566.03it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 248.98it/s]
+2025-11-24 23:20:36,992 - INFO - Processing query: 'Neuralgie'
+2025-11-24 23:20:36,992 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 528.65it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 238.77it/s]
+2025-11-24 23:20:37,024 - INFO - Processing query: 'Progressive proximale Muskelschwäche'
+2025-11-24 23:20:37,024 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 553.41it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 228.11it/s]
+2025-11-24 23:20:37,059 - INFO - Processing query: 'Akute Leukämie'
+2025-11-24 23:20:37,059 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 549.64it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 261.08it/s]
+Evaluating test cases:  14%|█▎        | 27/200 [00:01<00:05, 30.15it/s]2025-11-24 23:20:37,090 - INFO - Processing query: 'Isolierte systolische Hypertonie'
+2025-11-24 23:20:37,090 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 579.24it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 231.13it/s]
+2025-11-24 23:20:37,124 - INFO - Processing query: 'Lithoptyse'
+2025-11-24 23:20:37,124 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 546.85it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 251.56it/s]
+2025-11-24 23:20:37,156 - INFO - Processing query: 'Fehlende Epiphysen der Zehen'
+2025-11-24 23:20:37,156 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 545.64it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 234.23it/s]
+2025-11-24 23:20:37,192 - INFO - Processing query: 'Schilddrüsenadenom'
+2025-11-24 23:20:37,192 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 475.06it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 213.45it/s]
+Evaluating test cases:  16%|█▌        | 31/200 [00:01<00:05, 30.42it/s]2025-11-24 23:20:37,219 - INFO - Processing query: 'Schwere Zytomegalievirus-Infektion'
+2025-11-24 23:20:37,219 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 483.77it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 227.08it/s]
+2025-11-24 23:20:37,255 - INFO - Processing query: 'Nierenübergangszellkarzinom'
+2025-11-24 23:20:37,255 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 547.13it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 242.31it/s]
+2025-11-24 23:20:37,290 - INFO - Processing query: 'Erhöhte zirkulierende Selenkonzentration'
+2025-11-24 23:20:37,290 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 469.27it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 238.95it/s]
+2025-11-24 23:20:37,322 - INFO - Processing query: 'Tubulointerstitielle Nephritis'
+2025-11-24 23:20:37,322 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 566.19it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 208.00it/s]
+Evaluating test cases:  18%|█▊        | 35/200 [00:01<00:05, 27.88it/s]2025-11-24 23:20:37,389 - INFO - Processing query: 'Erhöhte hepatische Eisenkonzentration'
+2025-11-24 23:20:37,389 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 517.05it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 177.96it/s]
+2025-11-24 23:20:37,462 - INFO - Processing query: 'Selbstverletzendes Verhalten'
+2025-11-24 23:20:37,462 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 466.55it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 245.99it/s]
+2025-11-24 23:20:37,489 - INFO - Processing query: 'Totale intestinale Aganglionose'
+2025-11-24 23:20:37,489 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 533.76it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 237.75it/s]
+Evaluating test cases:  19%|█▉        | 38/200 [00:01<00:06, 26.40it/s]2025-11-24 23:20:37,520 - INFO - Processing query: 'Kraniale Asymmetrie'
+2025-11-24 23:20:37,520 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 544.71it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 249.66it/s]
+2025-11-24 23:20:37,553 - INFO - Processing query: 'Abnormale zirkulierende Konzentration verzweigtkettiger Aminosäuren'
+2025-11-24 23:20:37,553 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 448.25it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 258.68it/s]
+2025-11-24 23:20:37,577 - INFO - Processing query: 'Fokale kortikale Dysplasie Typ Ib'
+2025-11-24 23:20:37,577 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 483.55it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 239.40it/s]
+2025-11-24 23:20:37,613 - INFO - Processing query: 'Sensorineuraler Hörverlust mit Beginn im Kindesalter'
+2025-11-24 23:20:37,613 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 539.74it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 251.41it/s]
+Evaluating test cases:  21%|██        | 42/200 [00:01<00:05, 28.32it/s]2025-11-24 23:20:37,640 - INFO - Processing query: 'Nicht-nekrotisierendes Granulom'
+2025-11-24 23:20:37,640 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 500.57it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 212.63it/s]
+2025-11-24 23:20:37,701 - INFO - Processing query: 'Verringerter Guanidinoessigsäurespiegel im Urin'
+2025-11-24 23:20:37,701 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 474.20it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 261.46it/s]
+2025-11-24 23:20:37,730 - INFO - Processing query: 'Erhöhter Pyrrolin-Hydroxycarbonsäurespiegel im Urin'
+2025-11-24 23:20:37,730 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 440.81it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 221.39it/s]
+Evaluating test cases:  22%|██▎       | 45/200 [00:01<00:06, 25.75it/s]2025-11-24 23:20:37,787 - INFO - Processing query: 'Photophobie'
+2025-11-24 23:20:37,787 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 521.87it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 222.29it/s]
+2025-11-24 23:20:37,825 - INFO - Processing query: 'Scherengang'
+2025-11-24 23:20:37,825 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 497.43it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 221.23it/s]
+2025-11-24 23:20:37,863 - INFO - Processing query: 'Abnormale Hautmorphologie'
+2025-11-24 23:20:37,863 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 532.54it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 262.72it/s]
+2025-11-24 23:20:37,884 - INFO - Processing query: 'Unbestimmte Ventrikelachse'
+2025-11-24 23:20:37,884 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 536.91it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 263.58it/s]
+Evaluating test cases:  24%|██▍       | 49/200 [00:01<00:05, 27.55it/s]2025-11-24 23:20:37,912 - INFO - Processing query: 'Hyperkonvexer Zehennagel'
+2025-11-24 23:20:37,912 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 553.27it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 265.31it/s]
+2025-11-24 23:20:37,936 - INFO - Processing query: 'Papilläres Nierenzellkarzinom Typ 1'
+2025-11-24 23:20:37,936 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 553.34it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 266.34it/s]
+2025-11-24 23:20:37,970 - INFO - Processing query: 'Stenose der Arteria cerebri anterior'
+2025-11-24 23:20:37,970 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 576.46it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 281.95it/s]
+2025-11-24 23:20:37,995 - INFO - Processing query: 'Striae distensae'
+2025-11-24 23:20:37,995 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 567.18it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 250.08it/s]
+Evaluating test cases:  26%|██▋       | 53/200 [00:01<00:05, 29.14it/s]2025-11-24 23:20:38,032 - INFO - Processing query: 'Pinealom'
+2025-11-24 23:20:38,032 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 513.76it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 231.08it/s]
+2025-11-24 23:20:38,069 - INFO - Processing query: 'Sigmaniere'
+2025-11-24 23:20:38,070 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 526.53it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 247.20it/s]
+2025-11-24 23:20:38,103 - INFO - Processing query: 'Ulnardeviation des 3. Fingers'
+2025-11-24 23:20:38,103 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 501.71it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 264.31it/s]
+Evaluating test cases:  28%|██▊       | 56/200 [00:02<00:04, 29.09it/s]2025-11-24 23:20:38,136 - INFO - Processing query: 'Morbilliformer Ausschlag'
+2025-11-24 23:20:38,136 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 565.27it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 253.98it/s]
+2025-11-24 23:20:38,163 - INFO - Processing query: 'Papillenblutung'
+2025-11-24 23:20:38,163 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 571.74it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 245.45it/s]
+2025-11-24 23:20:38,196 - INFO - Processing query: 'Mikrotropie ohne Identität'
+2025-11-24 23:20:38,196 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 498.43it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 185.74it/s]
+2025-11-24 23:20:38,231 - INFO - Processing query: 'Dekortikationsrigidität'
+2025-11-24 23:20:38,231 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 516.22it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 232.77it/s]
+Evaluating test cases:  30%|███       | 60/200 [00:02<00:04, 30.30it/s]2025-11-24 23:20:38,256 - INFO - Processing query: 'Aplasie/Hypoplasie der Uvea'
+2025-11-24 23:20:38,256 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 548.92it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 265.31it/s]
+2025-11-24 23:20:38,279 - INFO - Processing query: 'Abnormale zirkulierende Interleukinkonzentration'
+2025-11-24 23:20:38,279 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 551.37it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 240.80it/s]
+2025-11-24 23:20:38,305 - INFO - Processing query: 'Schmelzagenesie'
+2025-11-24 23:20:38,305 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 326.79it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 219.70it/s]
+2025-11-24 23:20:38,363 - INFO - Processing query: 'Abnormale Leberenzymaktivität oder -konzentration'
+2025-11-24 23:20:38,363 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 443.79it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 261.31it/s]
+Evaluating test cases:  32%|███▏      | 64/200 [00:02<00:04, 30.55it/s]2025-11-24 23:20:38,385 - INFO - Processing query: 'Otosklerose'
+2025-11-24 23:20:38,385 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 586.45it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 232.46it/s]
+2025-11-24 23:20:38,423 - INFO - Processing query: 'Fokaler emotionaler Anfall'
+2025-11-24 23:20:38,423 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 520.84it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 213.02it/s]
+2025-11-24 23:20:38,462 - INFO - Processing query: 'Intraluminale Thromben der kortikalen Radialarterie'
+2025-11-24 23:20:38,462 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 508.71it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 255.33it/s]
+2025-11-24 23:20:38,487 - INFO - Processing query: 'Erhöhter 2-Oxovaleriansäurespiegel im Urin'
+2025-11-24 23:20:38,487 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 445.68it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 267.82it/s]
+Evaluating test cases:  34%|███▍      | 68/200 [00:02<00:04, 30.28it/s]2025-11-24 23:20:38,520 - INFO - Processing query: 'Steckenpferdgang'
+2025-11-24 23:20:38,520 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 557.90it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 254.93it/s]
+2025-11-24 23:20:38,551 - INFO - Processing query: 'Thorakales Aortenaneurysma'
+2025-11-24 23:20:38,551 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 501.05it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 231.58it/s]
+2025-11-24 23:20:38,587 - INFO - Processing query: 'Nasenpolypose'
+2025-11-24 23:20:38,587 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 507.05it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 214.94it/s]
+2025-11-24 23:20:38,626 - INFO - Processing query: 'Positivität für Autoimmunantikörper im Liquor'
+2025-11-24 23:20:38,626 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 503.22it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 268.50it/s]
+Evaluating test cases:  36%|███▌      | 72/200 [00:02<00:04, 29.89it/s]2025-11-24 23:20:38,657 - INFO - Processing query: 'Erhöhter 2-Methyl-3-Hydroxybuttersäurespiegel im Urin'
+2025-11-24 23:20:38,657 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 449.12it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 272.89it/s]
+2025-11-24 23:20:38,689 - INFO - Processing query: 'Larynxzyste'
+2025-11-24 23:20:38,689 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 580.69it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 238.67it/s]
+2025-11-24 23:20:38,726 - INFO - Processing query: 'Irreguläre proximale Tibiaepiphysen'
+2025-11-24 23:20:38,726 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 514.64it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 267.10it/s]
+2025-11-24 23:20:38,749 - INFO - Processing query: 'Foveale Hyperpigmentierung'
+2025-11-24 23:20:38,749 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 563.45it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 274.23it/s]
+Evaluating test cases:  38%|███▊      | 76/200 [00:02<00:03, 31.66it/s]2025-11-24 23:20:38,767 - INFO - Processing query: 'Fehlende distale Phalangen'
+2025-11-24 23:20:38,767 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 578.76it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 217.38it/s]
+2025-11-24 23:20:38,804 - INFO - Processing query: 'Erhöhte zirkulierende Kupferkonzentration'
+2025-11-24 23:20:38,804 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 506.80it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 242.32it/s]
+2025-11-24 23:20:38,829 - INFO - Processing query: 'Reduzierte Spermienmotilität'
+2025-11-24 23:20:38,829 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 516.22it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 243.05it/s]
+2025-11-24 23:20:38,867 - INFO - Processing query: 'Fehlendes Urothion im Urin'
+2025-11-24 23:20:38,867 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 520.32it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 248.48it/s]
+Evaluating test cases:  40%|████      | 80/200 [00:02<00:03, 31.61it/s]2025-11-24 23:20:38,894 - INFO - Processing query: 'Gescheckte Hautdepigmentierung'
+2025-11-24 23:20:38,894 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 358.89it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 200.92it/s]
+2025-11-24 23:20:38,933 - INFO - Processing query: 'Fokaler Anfall mit bewusstem sexuellem Automatismus'
+2025-11-24 23:20:38,933 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 488.39it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 270.20it/s]
+2025-11-24 23:20:38,955 - INFO - Processing query: 'Brauenptose'
+2025-11-24 23:20:38,955 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 553.56it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 230.30it/s]
+2025-11-24 23:20:39,011 - INFO - Processing query: 'Weiche, teigige Haut'
+2025-11-24 23:20:39,011 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 497.90it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 259.71it/s]
+Evaluating test cases:  42%|████▏     | 84/200 [00:02<00:03, 29.81it/s]2025-11-24 23:20:39,046 - INFO - Processing query: 'Anomalie der Glenoidgrube'
+2025-11-24 23:20:39,046 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 513.38it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 234.42it/s]
+2025-11-24 23:20:39,081 - INFO - Processing query: 'Peritonealer Abszess'
+2025-11-24 23:20:39,081 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 552.10it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 201.87it/s]
+2025-11-24 23:20:39,113 - INFO - Processing query: 'Prominenz des Jochbeins'
+2025-11-24 23:20:39,113 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 569.49it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 259.40it/s]
+2025-11-24 23:20:39,144 - INFO - Processing query: 'Hüftsubluxation'
+2025-11-24 23:20:39,144 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 568.56it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 251.68it/s]
+Evaluating test cases:  44%|████▍     | 88/200 [00:03<00:03, 30.81it/s]2025-11-24 23:20:39,165 - INFO - Processing query: 'Dreieckige proximale Phalanx des 3. Fingers'
+2025-11-24 23:20:39,165 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 511.50it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 260.61it/s]
+2025-11-24 23:20:39,191 - INFO - Processing query: 'Konjunktivale Amyloidose'
+2025-11-24 23:20:39,191 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 555.91it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 241.00it/s]
+2025-11-24 23:20:39,223 - INFO - Processing query: 'Dilatation des Trikuspidalrings'
+2025-11-24 23:20:39,223 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 464.59it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 235.01it/s]
+2025-11-24 23:20:39,260 - INFO - Processing query: 'Hautgeschwür'
+2025-11-24 23:20:39,260 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 524.55it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 230.77it/s]
+Evaluating test cases:  46%|████▌     | 92/200 [00:03<00:03, 30.50it/s]2025-11-24 23:20:39,300 - INFO - Processing query: 'Dermatozoenwahn'
+2025-11-24 23:20:39,300 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 409.88it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 222.05it/s]
+2025-11-24 23:20:39,360 - INFO - Processing query: 'Abnormale Adenosindeaminase-Aktivität der Erythrozyten'
+2025-11-24 23:20:39,361 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 433.34it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 247.10it/s]
+2025-11-24 23:20:39,393 - INFO - Processing query: 'Verringerte Partikelgröße von Low-Density-Lipoprotein'
+2025-11-24 23:20:39,393 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 449.55it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 224.17it/s]
+2025-11-24 23:20:39,432 - INFO - Processing query: 'Zyklotropie'
+2025-11-24 23:20:39,432 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 492.23it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 185.64it/s]
+Evaluating test cases:  48%|████▊     | 96/200 [00:03<00:03, 28.04it/s]2025-11-24 23:20:39,469 - INFO - Processing query: 'Extramedulläre Hämatopoese'
+2025-11-24 23:20:39,469 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 531.26it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 224.35it/s]
+2025-11-24 23:20:39,506 - INFO - Processing query: 'Abnormale 1-Methylhistidinkonzentration im Urin'
+2025-11-24 23:20:39,506 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 297.85it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 228.03it/s]
+2025-11-24 23:20:39,537 - INFO - Processing query: 'Subependymale Zysten'
+2025-11-24 23:20:39,537 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 506.74it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 220.21it/s]
+Evaluating test cases:  50%|████▉     | 99/200 [00:03<00:03, 28.28it/s]2025-11-24 23:20:39,572 - INFO - Processing query: 'Status epilepticus mit iktaler Parese'
+2025-11-24 23:20:39,572 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 561.04it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 233.97it/s]
+2025-11-24 23:20:39,630 - INFO - Processing query: 'Beeinträchtigte Augenabduktion'
+2025-11-24 23:20:39,630 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 501.77it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 239.62it/s]
+2025-11-24 23:20:39,656 - INFO - Processing query: 'Heißhunger auf Protein'
+2025-11-24 23:20:39,656 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 462.13it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 214.93it/s]
+Evaluating test cases:  51%|█████     | 102/200 [00:03<00:03, 27.65it/s]2025-11-24 23:20:39,688 - INFO - Processing query: 'Unikoronare Synostose'
+2025-11-24 23:20:39,688 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 482.94it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 221.45it/s]
+2025-11-24 23:20:39,712 - INFO - Processing query: 'Spastische Tetraplegie'
+2025-11-24 23:20:39,712 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 546.06it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 247.55it/s]
+2025-11-24 23:20:39,737 - INFO - Processing query: 'Beeinträchtigte Zytokinsignalübertragung'
+2025-11-24 23:20:39,737 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 565.65it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 266.12it/s]
+2025-11-24 23:20:39,764 - INFO - Processing query: 'Adversiver Status epilepticus'
+2025-11-24 23:20:39,764 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 554.44it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 233.21it/s]
+Evaluating test cases:  53%|█████▎    | 106/200 [00:03<00:03, 28.31it/s]2025-11-24 23:20:39,822 - INFO - Processing query: 'Ventrikuläre Präexzitation mit multiplen akzessorischen Bahnen'
+2025-11-24 23:20:39,822 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 385.01it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 213.67it/s]
+2025-11-24 23:20:39,883 - INFO - Processing query: 'Positivität für Anti-GM1-IgM-Antikörper'
+2025-11-24 23:20:39,883 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 416.27it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 253.16it/s]
+2025-11-24 23:20:39,921 - INFO - Processing query: 'Intima-/Medianekrose der Arteria arcuata'
+2025-11-24 23:20:39,921 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 443.09it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 236.74it/s]
+Evaluating test cases:  55%|█████▍    | 109/200 [00:03<00:03, 27.10it/s]2025-11-24 23:20:39,946 - INFO - Processing query: 'Proximale/mittlere Symphalangie der 3. Zehe'
+2025-11-24 23:20:39,946 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 427.25it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 272.73it/s]
+2025-11-24 23:20:39,971 - INFO - Processing query: 'Masse in der Thoraxbildgebung'
+2025-11-24 23:20:39,971 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 522.07it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 248.52it/s]
+2025-11-24 23:20:39,999 - INFO - Processing query: 'Osteolytische Defekte der Phalangen der Hand'
+2025-11-24 23:20:39,999 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 497.37it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 253.82it/s]
+2025-11-24 23:20:40,023 - INFO - Processing query: 'Turrizephalie'
+2025-11-24 23:20:40,023 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 558.50it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 218.27it/s]
+Evaluating test cases:  56%|█████▋    | 113/200 [00:04<00:03, 27.82it/s]2025-11-24 23:20:40,082 - INFO - Processing query: 'Abnormale Morphologie der Halsblutgefäße'
+2025-11-24 23:20:40,082 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 429.52it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 250.38it/s]
+2025-11-24 23:20:40,110 - INFO - Processing query: 'Hypoplastische Nasenrachenmandeln'
+2025-11-24 23:20:40,110 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 419.93it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 240.40it/s]
+2025-11-24 23:20:40,144 - INFO - Processing query: 'Fokaler autonomer Anfall mit Piloerektion'
+2025-11-24 23:20:40,144 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 503.64it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 235.81it/s]
+2025-11-24 23:20:40,181 - INFO - Processing query: 'Retikulozytose'
+2025-11-24 23:20:40,181 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 458.59it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 222.91it/s]
+Evaluating test cases:  58%|█████▊    | 117/200 [00:04<00:02, 28.65it/s]2025-11-24 23:20:40,213 - INFO - Processing query: 'Fingerknöchelpolster'
+2025-11-24 23:20:40,213 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 503.46it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 234.17it/s]
+2025-11-24 23:20:40,271 - INFO - Processing query: 'Zervikale C2/C3-Wirbelfusion'
+2025-11-24 23:20:40,272 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 480.06it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 233.09it/s]
+2025-11-24 23:20:40,301 - INFO - Processing query: 'Reduzierte Alpha-2-Antiplasmin-Aktivität'
+2025-11-24 23:20:40,301 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 521.16it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 246.93it/s]
+Evaluating test cases:  60%|██████    | 120/200 [00:04<00:02, 27.34it/s]2025-11-24 23:20:40,337 - INFO - Processing query: 'Orotsäure-Kristallurie'
+2025-11-24 23:20:40,337 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 579.72it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 228.36it/s]
+2025-11-24 23:20:40,376 - INFO - Processing query: 'Offenes Operculum'
+2025-11-24 23:20:40,376 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 523.44it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 242.63it/s]
+2025-11-24 23:20:40,403 - INFO - Processing query: 'Erlenmeyerkolben-Deformität der Femora'
+2025-11-24 23:20:40,404 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 529.99it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 251.50it/s]
+2025-11-24 23:20:40,431 - INFO - Processing query: 'Abnormale Fucosylierung der N-Glykosylierung von Proteinen'
+2025-11-24 23:20:40,431 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 448.73it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 243.56it/s]
+Evaluating test cases:  62%|██████▏   | 124/200 [00:04<00:02, 28.45it/s]2025-11-24 23:20:40,466 - INFO - Processing query: 'Prädominanz von Typ-2-Muskelfasern'
+2025-11-24 23:20:40,466 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 539.95it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 233.72it/s]
+2025-11-24 23:20:40,504 - INFO - Processing query: 'Reduzierte hepatische N-Acetylglutamat-Synthase-Aktivität'
+2025-11-24 23:20:40,504 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 419.64it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 242.18it/s]
+2025-11-24 23:20:40,536 - INFO - Processing query: 'Double-Inlet-Rechtsventrikel'
+2025-11-24 23:20:40,536 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 545.28it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 229.17it/s]
+Evaluating test cases:  64%|██████▎   | 127/200 [00:04<00:02, 28.34it/s]2025-11-24 23:20:40,573 - INFO - Processing query: 'Stimmbandpolyp'
+2025-11-24 23:20:40,573 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 563.90it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 237.01it/s]
+2025-11-24 23:20:40,611 - INFO - Processing query: 'Zementom'
+2025-11-24 23:20:40,611 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 482.27it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 237.95it/s]
+2025-11-24 23:20:40,642 - INFO - Processing query: 'Minicore-Myopathie'
+2025-11-24 23:20:40,642 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 547.13it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 197.36it/s]
+2025-11-24 23:20:40,672 - INFO - Processing query: 'Pneumothorax'
+2025-11-24 23:20:40,672 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 544.79it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 231.41it/s]
+Evaluating test cases:  66%|██████▌   | 131/200 [00:04<00:02, 28.75it/s]2025-11-24 23:20:40,708 - INFO - Processing query: 'Konjunktivale Papillen'
+2025-11-24 23:20:40,708 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 555.39it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 252.15it/s]
+2025-11-24 23:20:40,743 - INFO - Processing query: 'Schwere B-Lymphozytopenie'
+2025-11-24 23:20:40,743 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 524.16it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 207.42it/s]
+2025-11-24 23:20:40,813 - INFO - Processing query: 'Abnormales RV/TLC-Verhältnis'
+2025-11-24 23:20:40,813 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 540.16it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 224.03it/s]
+Evaluating test cases:  67%|██████▋   | 134/200 [00:04<00:02, 25.14it/s]2025-11-24 23:20:40,870 - INFO - Processing query: 'Nummuläre Pigmentierung des Fundus'
+2025-11-24 23:20:40,870 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 517.11it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 225.61it/s]
+2025-11-24 23:20:40,905 - INFO - Processing query: 'Nävus'
+2025-11-24 23:20:40,905 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 550.72it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 250.06it/s]
+2025-11-24 23:20:40,943 - INFO - Processing query: 'Geschossförmige proximale Phalanx des 2. Fingers'
+2025-11-24 23:20:40,943 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 427.60it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 264.96it/s]
+2025-11-24 23:20:40,970 - INFO - Processing query: 'Dalen-Fuchs-Knötchen'
+2025-11-24 23:20:40,970 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 549.50it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 256.30it/s]
+Evaluating test cases:  69%|██████▉   | 138/200 [00:04<00:02, 25.38it/s]2025-11-24 23:20:41,024 - INFO - Processing query: 'Gonadale Neoplasie'
+2025-11-24 23:20:41,024 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 564.97it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 207.27it/s]
+2025-11-24 23:20:41,061 - INFO - Processing query: 'Partielle Duplikation der Phalangen des 5. Fingers'
+2025-11-24 23:20:41,061 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 523.31it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 205.93it/s]
+2025-11-24 23:20:41,098 - INFO - Processing query: 'Magenkrebs'
+2025-11-24 23:20:41,098 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 529.45it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 249.35it/s]
+Evaluating test cases:  70%|███████   | 141/200 [00:05<00:02, 26.11it/s]2025-11-24 23:20:41,130 - INFO - Processing query: 'Abnormale Morphologie des Nasenbeins'
+2025-11-24 23:20:41,130 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 544.93it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 252.58it/s]
+2025-11-24 23:20:41,165 - INFO - Processing query: 'Hyperechogene Nieren'
+2025-11-24 23:20:41,165 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 508.15it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 220.18it/s]
+2025-11-24 23:20:41,226 - INFO - Processing query: 'Positiver Test auf Infektionserreger der Atemwege'
+2025-11-24 23:20:41,227 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 497.66it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 239.81it/s]
+Evaluating test cases:  72%|███████▏  | 144/200 [00:05<00:02, 25.75it/s]2025-11-24 23:20:41,251 - INFO - Processing query: 'Pleomorphe Cholangitis'
+2025-11-24 23:20:41,251 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 506.13it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 245.86it/s]
+2025-11-24 23:20:41,288 - INFO - Processing query: 'Konstante Exotropie'
+2025-11-24 23:20:41,288 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 509.39it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 241.94it/s]
+2025-11-24 23:20:41,314 - INFO - Processing query: 'Leichte Ermüdbarkeit'
+2025-11-24 23:20:41,314 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 544.57it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 242.31it/s]
+2025-11-24 23:20:41,350 - INFO - Processing query: 'Pulmonalarterielle Atherosklerose'
+2025-11-24 23:20:41,350 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 490.22it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 238.29it/s]
+Evaluating test cases:  74%|███████▍  | 148/200 [00:05<00:01, 27.07it/s]2025-11-24 23:20:41,384 - INFO - Processing query: 'Positivität für Anti-Angiotensin-Rezeptor-Typ-1-Antikörper'
+2025-11-24 23:20:41,384 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 422.64it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 254.79it/s]
+2025-11-24 23:20:41,420 - INFO - Processing query: 'Erhöhte Annexin-V-Bindung an Plättchen-Phosphatidylserin'
+2025-11-24 23:20:41,420 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 445.16it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 214.48it/s]
+2025-11-24 23:20:41,448 - INFO - Processing query: 'Hirnödem'
+2025-11-24 23:20:41,448 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 521.68it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 218.02it/s]
+Evaluating test cases:  76%|███████▌  | 151/200 [00:05<00:01, 26.08it/s]2025-11-24 23:20:41,511 - INFO - Processing query: 'Mesokardie'
+2025-11-24 23:20:41,511 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 503.46it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 228.44it/s]
+2025-11-24 23:20:41,548 - INFO - Processing query: 'Hypovolämischer Schock'
+2025-11-24 23:20:41,548 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 523.44it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 240.58it/s]
+2025-11-24 23:20:41,575 - INFO - Processing query: 'Verringerter Körperfettanteil'
+2025-11-24 23:20:41,575 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 543.09it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 251.13it/s]
+2025-11-24 23:20:41,606 - INFO - Processing query: 'Beinverkrümmung'
+2025-11-24 23:20:41,606 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 515.14it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 265.31it/s]
+Evaluating test cases:  78%|███████▊  | 155/200 [00:05<00:01, 28.18it/s]2025-11-24 23:20:41,630 - INFO - Processing query: 'Verringerte zirkulierende Asparaginsäurekonzentration'
+2025-11-24 23:20:41,630 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 413.97it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 243.84it/s]
+2025-11-24 23:20:41,658 - INFO - Processing query: 'Ungeschützte Trikuspidalklappe'
+2025-11-24 23:20:41,658 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 560.44it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 239.29it/s]
+2025-11-24 23:20:41,696 - INFO - Processing query: 'Synovialkristalle'
+2025-11-24 23:20:41,696 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 504.06it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 236.94it/s]
+2025-11-24 23:20:41,728 - INFO - Processing query: 'Herabhängende Mundwinkel'
+2025-11-24 23:20:41,728 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 501.53it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 242.35it/s]
+Evaluating test cases:  80%|███████▉  | 159/200 [00:05<00:01, 29.02it/s]2025-11-24 23:20:41,760 - INFO - Processing query: 'Plazenta praevia'
+2025-11-24 23:20:41,760 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 563.37it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 275.36it/s]
+2025-11-24 23:20:41,794 - INFO - Processing query: 'Erhöhte zirkulierende Kreatinkinase-MB-Isoform'
+2025-11-24 23:20:41,794 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 442.90it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 173.35it/s]
+2025-11-24 23:20:41,853 - INFO - Processing query: 'Kurze distale Phalanx der 3. Zehe'
+2025-11-24 23:20:41,853 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 457.05it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 244.37it/s]
+Evaluating test cases:  81%|████████  | 162/200 [00:05<00:01, 27.56it/s]2025-11-24 23:20:41,884 - INFO - Processing query: 'Zerebrales venöses Angiom'
+2025-11-24 23:20:41,884 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 497.72it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 217.74it/s]
+2025-11-24 23:20:41,947 - INFO - Processing query: 'Periphere Dysmyelinisierung'
+2025-11-24 23:20:41,947 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 463.66it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 236.97it/s]
+2025-11-24 23:20:41,980 - INFO - Processing query: 'Temporallappenverkalkung'
+2025-11-24 23:20:41,980 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 484.22it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 242.68it/s]
+Evaluating test cases:  82%|████████▎ | 165/200 [00:05<00:01, 26.63it/s]2025-11-24 23:20:42,007 - INFO - Processing query: 'Hydroa vacciniforme'
+2025-11-24 23:20:42,007 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 550.36it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 238.29it/s]
+2025-11-24 23:20:42,038 - INFO - Processing query: 'Schwerste Intelligenzminderung'
+2025-11-24 23:20:42,038 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 502.19it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 225.91it/s]
+2025-11-24 23:20:42,100 - INFO - Processing query: 'Verringerte zirkulierende Komplement-C8-Konzentration'
+2025-11-24 23:20:42,101 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 404.23it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 223.24it/s]
+Evaluating test cases:  84%|████████▍ | 168/200 [00:06<00:01, 25.49it/s]2025-11-24 23:20:42,138 - INFO - Processing query: 'Abnormale Morphologie der Bowman-Kapsel'
+2025-11-24 23:20:42,138 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 520.39it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 244.77it/s]
+2025-11-24 23:20:42,175 - INFO - Processing query: 'Papilläres Nierenzellkarzinom Typ 2'
+2025-11-24 23:20:42,175 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 513.76it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 252.93it/s]
+2025-11-24 23:20:42,212 - INFO - Processing query: 'Abnormaler emotionaler Zustand'
+2025-11-24 23:20:42,212 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 512.44it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 219.38it/s]
+Evaluating test cases:  86%|████████▌ | 171/200 [00:06<00:01, 25.97it/s]2025-11-24 23:20:42,248 - INFO - Processing query: 'Niedrige Serumosmolalität'
+2025-11-24 23:20:42,248 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 497.84it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 260.32it/s]
+2025-11-24 23:20:42,272 - INFO - Processing query: 'Intrakranielle zystische Läsion'
+2025-11-24 23:20:42,272 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 542.18it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 230.25it/s]
+2025-11-24 23:20:42,309 - INFO - Processing query: 'Süchtiger Amphetaminkonsum'
+2025-11-24 23:20:42,309 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 540.50it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 214.69it/s]
+2025-11-24 23:20:42,342 - INFO - Processing query: 'Übergangszellkarzinom der Blase'
+2025-11-24 23:20:42,342 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 518.07it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 239.85it/s]
+Evaluating test cases:  88%|████████▊ | 175/200 [00:06<00:00, 28.25it/s]2025-11-24 23:20:42,366 - INFO - Processing query: 'Enger innerer Gehörgang'
+2025-11-24 23:20:42,366 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 523.11it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 238.76it/s]
+2025-11-24 23:20:42,391 - INFO - Processing query: 'Unilaterale Ptosis'
+2025-11-24 23:20:42,391 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 499.26it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 231.72it/s]
+2025-11-24 23:20:42,428 - INFO - Processing query: 'Chiari-Malformation Typ I'
+2025-11-24 23:20:42,428 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 515.21it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 240.35it/s]
+Evaluating test cases:  89%|████████▉ | 178/200 [00:06<00:00, 28.42it/s]2025-11-24 23:20:42,470 - INFO - Processing query: 'Abszess'
+2025-11-24 23:20:42,470 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 519.35it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 242.92it/s]
+2025-11-24 23:20:42,495 - INFO - Processing query: 'EMG-Anomalie'
+2025-11-24 23:20:42,495 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 535.74it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 261.44it/s]
+2025-11-24 23:20:42,528 - INFO - Processing query: 'Zerebelläre Gliose'
+2025-11-24 23:20:42,528 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 504.55it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 229.45it/s]
+2025-11-24 23:20:42,565 - INFO - Processing query: 'Reifungsstillstand im Knochenmark'
+2025-11-24 23:20:42,565 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 477.87it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 254.91it/s]
+Evaluating test cases:  91%|█████████ | 182/200 [00:06<00:00, 30.01it/s]2025-11-24 23:20:42,589 - INFO - Processing query: 'Speicherung in Hepatozyten'
+2025-11-24 23:20:42,589 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 343.43it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 210.41it/s]
+2025-11-24 23:20:42,628 - INFO - Processing query: 'Einfache Nierenzyste'
+2025-11-24 23:20:42,628 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 520.77it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 258.64it/s]
+2025-11-24 23:20:42,650 - INFO - Processing query: 'Abnormale Größe der Lidspalten'
+2025-11-24 23:20:42,650 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 511.06it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 237.38it/s]
+2025-11-24 23:20:42,687 - INFO - Processing query: 'Iris-Hypoperfusion'
+2025-11-24 23:20:42,687 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 417.68it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 245.99it/s]
+Evaluating test cases:  93%|█████████▎| 186/200 [00:06<00:00, 30.63it/s]2025-11-24 23:20:42,714 - INFO - Processing query: 'Gekerbter primärer mittlerer Schneidezahn'
+2025-11-24 23:20:42,714 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 519.55it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 221.78it/s]
+2025-11-24 23:20:42,777 - INFO - Processing query: 'Süchtiger Alkoholkonsum'
+2025-11-24 23:20:42,777 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 505.40it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 245.58it/s]
+2025-11-24 23:20:42,811 - INFO - Processing query: 'Epiphysenstippelung der mittleren Phalanx der 3. Zehe'
+2025-11-24 23:20:42,811 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 369.15it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 245.88it/s]
+2025-11-24 23:20:42,838 - INFO - Processing query: 'Aplasie der distalen Phalangen der Zehen'
+2025-11-24 23:20:42,838 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 423.41it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 211.61it/s]
+Evaluating test cases:  95%|█████████▌| 190/200 [00:06<00:00, 28.45it/s]2025-11-24 23:20:42,876 - INFO - Processing query: 'Elfenbeinepiphyse der mittleren Phalanx des 3. Fingers'
+2025-11-24 23:20:42,876 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 439.42it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 274.28it/s]
+2025-11-24 23:20:42,906 - INFO - Processing query: 'Karpale Synostose'
+2025-11-24 23:20:42,906 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 505.46it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 258.30it/s]
+2025-11-24 23:20:42,932 - INFO - Processing query: 'Verringerte zirkulierende Aktivität der alkalischen Phosphatase'
+2025-11-24 23:20:42,932 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 418.59it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 210.40it/s]
+2025-11-24 23:20:42,965 - INFO - Processing query: 'Verlust von subkutanem Fettgewebe in den Gliedmaßen'
+2025-11-24 23:20:42,965 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 419.89it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 230.01it/s]
+Evaluating test cases:  97%|█████████▋| 194/200 [00:06<00:00, 29.68it/s]2025-11-24 23:20:42,998 - INFO - Processing query: 'Hot-Cross-Bun-Zeichen'
+2025-11-24 23:20:42,998 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 492.98it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 219.99it/s]
+2025-11-24 23:20:43,038 - INFO - Processing query: 'Renale kortikale interstitielle Entzündung'
+2025-11-24 23:20:43,038 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 451.24it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 193.21it/s]
+2025-11-24 23:20:43,099 - INFO - Processing query: 'Abnormale Leukozytenzahl'
+2025-11-24 23:20:43,099 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 371.31it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 267.56it/s]
+2025-11-24 23:20:43,123 - INFO - Processing query: 'Mittellinien-Handbewegungen'
+2025-11-24 23:20:43,124 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 535.40it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 217.36it/s]
+Evaluating test cases:  99%|█████████▉| 198/200 [00:07<00:00, 28.03it/s]2025-11-24 23:20:43,159 - INFO - Processing query: 'Hypomaturer Zahnschmelz'
+2025-11-24 23:20:43,159 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 560.51it/s]
+2025-11-24 23:20:43,164 - WARNING - Invalid path lengths: term1=7, term2=6, LCA=9
+2025-11-24 23:20:43,164 - WARNING - Invalid path lengths: term1=7, term2=6, LCA=9
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 233.55it/s]
+2025-11-24 23:20:43,220 - INFO - Processing query: 'Fehlende dermoepidermale Hemidesmosomen'
+2025-11-24 23:20:43,220 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 464.79it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 178.80it/s]
+Evaluating test cases: 100%|██████████| 200/200 [00:07<00:00, 27.78it/s]
+2025-11-24 23:20:43,284 - INFO - Benchmark results for FremyCompany/BioLORD-2023-M:
+2025-11-24 23:20:43,284 - INFO -   === Dense Retrieval Metrics ====
+2025-11-24 23:20:43,284 - INFO -   MRR (Dense): 0.8237
+2025-11-24 23:20:43,284 - INFO -   Hit@1 (Dense): 0.7400
+2025-11-24 23:20:43,284 - INFO -   MaxOntSim@1 (Dense): 0.8632
+2025-11-24 23:20:43,284 - INFO -   Hit@3 (Dense): 0.8950
+2025-11-24 23:20:43,284 - INFO -   MaxOntSim@3 (Dense): 0.9586
+2025-11-24 23:20:43,284 - INFO -   Hit@5 (Dense): 0.9250
+2025-11-24 23:20:43,285 - INFO -   MaxOntSim@5 (Dense): 0.9689
+2025-11-24 23:20:43,285 - INFO -   Hit@10 (Dense): 0.9500
+2025-11-24 23:20:43,285 - INFO -   MaxOntSim@10 (Dense): 0.9812
+2025-11-24 23:20:43,285 - INFO -   === Re-ranked Metrics (cross-lingual mode) ===
+2025-11-24 23:20:43,285 - INFO -   MRR (Re-ranked): 0.8620
+2025-11-24 23:20:43,285 - INFO -   Hit@1 (Re-ranked): 0.8100
+2025-11-24 23:20:43,285 - INFO -   MaxOntSim@1 (Re-ranked): 0.9067
+2025-11-24 23:20:43,285 - INFO -   Hit@3 (Re-ranked): 0.9050
+2025-11-24 23:20:43,285 - INFO -   MaxOntSim@3 (Re-ranked): 0.9586
+2025-11-24 23:20:43,285 - INFO -   Hit@5 (Re-ranked): 0.9350
+2025-11-24 23:20:43,285 - INFO -   MaxOntSim@5 (Re-ranked): 0.9726
+2025-11-24 23:20:43,285 - INFO -   Hit@10 (Re-ranked): 0.9500
+2025-11-24 23:20:43,285 - INFO -   MaxOntSim@10 (Re-ranked): 0.9812
+2025-11-24 23:20:43,285 - INFO - Successfully completed benchmark for model: FremyCompany/BioLORD-2023-M
+Benchmark completed successfully!
