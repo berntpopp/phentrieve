@@ -80,6 +80,13 @@ _DEFAULT_RERANKER_MODE_FALLBACK = "cross-lingual"
 DEFAULT_TRANSLATION_DIR: str | None = None  # Will be resolved at runtime
 _DEFAULT_RERANK_CANDIDATE_COUNT_FALLBACK = 50
 _DEFAULT_ENABLE_RERANKER_FALLBACK = False
+# Protected dense retrieval threshold: Minimum bi-encoder score to protect from cross-encoder demotion
+# This implements research-backed two-stage retrieval for cross-lingual medical queries
+# - High-confidence dense matches (≥threshold) are protected from reranker demotion
+# - Lower-confidence matches (<threshold) are refined by cross-encoder
+# - Default 0.7 preserves BioLORD's strong cross-lingual semantic matches
+# See: BioLORD-2023 RAG design, Multistage BiCross multilingual medical retrieval
+_DEFAULT_DENSE_TRUST_THRESHOLD_FALLBACK = 0.7
 
 # Root for HPO term extraction and depth calculations
 PHENOTYPE_ROOT = "HP:0000118"
@@ -393,6 +400,9 @@ DEFAULT_RERANK_CANDIDATE_COUNT = get_config_value(
 )
 DEFAULT_ENABLE_RERANKER = get_config_value(
     "enable_reranker", _DEFAULT_ENABLE_RERANKER_FALLBACK
+)
+DEFAULT_DENSE_TRUST_THRESHOLD = get_config_value(
+    "dense_trust_threshold", _DEFAULT_DENSE_TRUST_THRESHOLD_FALLBACK
 )
 
 # Text processing

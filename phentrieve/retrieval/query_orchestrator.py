@@ -14,6 +14,7 @@ import pysbd
 import torch
 
 from phentrieve.config import (
+    DEFAULT_DENSE_TRUST_THRESHOLD,
     DEFAULT_ENABLE_RERANKER,
     DEFAULT_MODEL,
     DEFAULT_MONOLINGUAL_RERANKER_MODEL,
@@ -460,25 +461,30 @@ def process_query(
             # Rerank with cross-encoder if available
             if cross_encoder and rerank_count:
                 if debug:
-                    output_func("[DEBUG] Reranking with cross-encoder")
+                    output_func("[DEBUG] Reranking with protected dense retrieval")
                 # Convert results to candidates format
                 candidates = convert_results_to_candidates(
                     results,
                     reranker_mode=reranker_mode,
                     translation_dir=translation_dir,
                 )
-                # Rerank the candidates
-                reranked_candidates = reranker.rerank_with_cross_encoder(
-                    sentence, candidates, cross_encoder
+                # Protected two-stage reranking: preserves high-confidence dense matches
+                reranked_candidates = reranker.protected_dense_rerank(
+                    sentence,
+                    candidates,
+                    cross_encoder,
+                    trust_threshold=DEFAULT_DENSE_TRUST_THRESHOLD,
                 )
                 # Convert back to ChromaDB format
+                # IMPORTANT: Use bi_encoder_score for distances to preserve dense retrieval similarity
+                # The protected ordering is already correct from protected_dense_rerank
                 reranked_results = {
                     "ids": [[c["hpo_id"] for c in reranked_candidates]],
                     "metadatas": [[c["metadata"] for c in reranked_candidates]],
                     "documents": [[c["english_doc"] for c in reranked_candidates]],
                     "distances": [
                         [
-                            1.0 - c.get("cross_encoder_score", 0.0)
+                            1.0 - c.get("bi_encoder_score", 0.0)
                             for c in reranked_candidates
                         ]
                     ],
@@ -528,18 +534,22 @@ def process_query(
                     reranker_mode=reranker_mode,
                     translation_dir=translation_dir,
                 )
-                # Rerank the candidates
-                reranked_candidates = reranker.rerank_with_cross_encoder(
-                    text, candidates, cross_encoder
+                # Protected two-stage reranking: preserves high-confidence dense matches
+                reranked_candidates = reranker.protected_dense_rerank(
+                    text,
+                    candidates,
+                    cross_encoder,
+                    trust_threshold=DEFAULT_DENSE_TRUST_THRESHOLD,
                 )
                 # Convert back to ChromaDB format
+                # IMPORTANT: Use bi_encoder_score for distances to preserve dense retrieval similarity
                 query_result = {
                     "ids": [[c["hpo_id"] for c in reranked_candidates]],
                     "metadatas": [[c["metadata"] for c in reranked_candidates]],
                     "documents": [[c["english_doc"] for c in reranked_candidates]],
                     "distances": [
                         [
-                            1.0 - c.get("cross_encoder_score", 0.0)
+                            1.0 - c.get("bi_encoder_score", 0.0)
                             for c in reranked_candidates
                         ]
                     ],
@@ -580,7 +590,7 @@ def process_query(
         # Perform re-ranking if a cross-encoder is provided
         if cross_encoder and rerank_count is not None:
             if debug:
-                output_func("[DEBUG] Reranking with cross-encoder")
+                output_func("[DEBUG] Reranking with protected dense retrieval")
 
             reranked_result = None
             try:
@@ -590,18 +600,22 @@ def process_query(
                     reranker_mode=reranker_mode,
                     translation_dir=translation_dir,
                 )
-                # Rerank the candidates
-                reranked_candidates = reranker.rerank_with_cross_encoder(
-                    text, candidates, cross_encoder
+                # Protected two-stage reranking: preserves high-confidence dense matches
+                reranked_candidates = reranker.protected_dense_rerank(
+                    text,
+                    candidates,
+                    cross_encoder,
+                    trust_threshold=DEFAULT_DENSE_TRUST_THRESHOLD,
                 )
                 # Convert back to ChromaDB format
+                # IMPORTANT: Use bi_encoder_score for distances to preserve dense retrieval similarity
                 reranked_result = {
                     "ids": [[c["hpo_id"] for c in reranked_candidates]],
                     "metadatas": [[c["metadata"] for c in reranked_candidates]],
                     "documents": [[c["english_doc"] for c in reranked_candidates]],
                     "distances": [
                         [
-                            1.0 - c.get("cross_encoder_score", 0.0)
+                            1.0 - c.get("bi_encoder_score", 0.0)
                             for c in reranked_candidates
                         ]
                     ],
