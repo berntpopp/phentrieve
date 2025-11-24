@@ -10,8 +10,12 @@ import time
 import pytest
 
 # Performance threshold for CLI commands (seconds)
-# WSL2 filesystem overhead + Python startup + CLI framework loading can take 8-10s.
-# Heavy ML imports would add 18+ seconds. 12s threshold catches regressions with margin.
+# Measured baseline performance:
+#   - WSL2 (under load): 8-10s (filesystem overhead + Python startup)
+#   - Native Linux: 5-7s
+#   - macOS: 5-7s
+# Heavy ML imports (sentence-transformers, torch) would add 18+ seconds.
+# 12s threshold catches regressions while allowing headroom for slow environments.
 CLI_PERFORMANCE_THRESHOLD = 12.0
 
 

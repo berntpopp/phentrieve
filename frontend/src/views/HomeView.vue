@@ -109,11 +109,12 @@ export default {
 .logo-icon {
   cursor: pointer;
   transition: transform 0.2s ease-out;
-  will-change: transform;
   border-radius: 8px;
 }
 
 .logo-icon:hover {
+  /* will-change creates compositor layer - only apply when needed for animation */
+  will-change: transform;
   animation: subtle-pulse 1.5s ease-in-out infinite;
 }
 

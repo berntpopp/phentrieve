@@ -8,9 +8,7 @@
  *
  * @component
  */
-import { computed } from 'vue';
-
-const props = defineProps({
+defineProps({
   /**
    * Number of skeleton items to display
    */
@@ -19,13 +17,12 @@ const props = defineProps({
     default: 2,
   },
 });
-
-const skeletonItems = computed(() => Array.from({ length: props.count }, (_, i) => i));
 </script>
 
 <template>
   <div class="conversation-skeleton" role="status" aria-label="Loading conversation history">
-    <div v-for="index in skeletonItems" :key="index" class="skeleton-item">
+    <!-- Vue iterates 1 to count when given a number -->
+    <div v-for="index in count" :key="index" class="skeleton-item">
       <!-- Query skeleton -->
       <div class="skeleton-query">
         <div class="skeleton-avatar shimmer" />

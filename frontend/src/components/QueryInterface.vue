@@ -1004,7 +1004,7 @@ export default {
   watch: {
     'conversationStore.queryHistory': {
       handler() {
-        logService.info('Query history updated', {
+        logService.debug('Query history updated', {
           newHistoryLength: this.conversationStore.queryHistory.length,
         });
         this.$nextTick(() => {

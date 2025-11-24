@@ -54,7 +54,7 @@ def get_api_version() -> str:
 
         with open(pyproject_path, "rb") as f:
             data = tomllib.load(f)
-            version: str = str(data.get("project", {}).get("version", "unknown"))
+            version: str = data.get("project", {}).get("version", "unknown")
 
         logger.debug(f"API version loaded: {version}")
         return version
