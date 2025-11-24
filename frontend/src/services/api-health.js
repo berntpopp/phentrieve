@@ -14,6 +14,7 @@
 
 import { ref } from 'vue';
 import axios from 'axios';
+import { logService } from './logService';
 
 class ApiHealthService {
   constructor() {
@@ -78,11 +79,11 @@ class ApiHealthService {
       this.lastCheck.value = new Date();
       this.responseTime.value = responseTimeMs;
 
-      console.log(`[API Health] Connected (${responseTimeMs}ms)`);
+      logService.debug('API health check successful', { responseTimeMs });
 
       return true;
     } catch (error) {
-      console.error('[API Health] Check failed:', error.message);
+      logService.warn('API health check failed', { error: error.message });
 
       // Update reactive state
       this.connected.value = false;
@@ -99,11 +100,13 @@ class ApiHealthService {
    */
   startMonitoring() {
     if (this.intervalId) {
-      console.warn('[API Health] Monitoring already started');
+      logService.debug('API health monitoring already started');
       return;
     }
 
-    console.log(`[API Health] Starting monitoring (every ${this.checkInterval / 1000}s)`);
+    logService.info('API health monitoring started', {
+      intervalSeconds: this.checkInterval / 1000,
+    });
 
     // Initial check
     this.checkHealth();
@@ -120,7 +123,7 @@ class ApiHealthService {
    */
   stopMonitoring() {
     if (this.intervalId) {
-      console.log('[API Health] Stopping monitoring');
+      logService.info('API health monitoring stopped');
       clearInterval(this.intervalId);
       this.intervalId = null;
     }
