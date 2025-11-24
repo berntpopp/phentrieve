@@ -2,7 +2,7 @@
 
 **Branch:** `fix/reranking-bge-implementation`
 **Date:** 2025-11-24
-**Status:** ✅ Phase 0, Phase 1, and Phase 1.5 COMPLETED
+**Status:** ✅ Phase 0, Phase 1, Phase 1.5, and Parameter Fix COMPLETED
 
 ## 📊 Baseline Metrics (Phase 0)
 
@@ -67,6 +67,63 @@ for idx, match in enumerate(current_hpo_matches[:]):
    - HP:0033259 Non-motor seizure (0.83)
 ✅ Different scores than NLI (0.90, 0.84, 0.83 vs 1.00) - validates proper reranker output
 ```
+
+### Phase 2: Benchmark Parameter Fix (P0) - COMPLETED
+
+**Commit:** `6096968`
+
+**Problem:**
+- Benchmark command with `--enable-reranker` didn't load reranker model
+- Logs showed: `Loading cross-encoder model '' on cuda` (empty string)
+- Prevented automated benchmarking with reranking
+
+**Root Cause:**
+- Lines 117-119 in `benchmark_commands.py` converted `None` to `""` before passing to orchestrator
+- Orchestrator never used its default config values (`DEFAULT_RERANKER_MODEL`)
+- Logic at orchestrator line 165-169 failed when `rerank_mode == ""` instead of `"cross-lingual"`
+
+**Fix:**
+```python
+# benchmark_commands.py: Pass None instead of ""
+reranker_model=reranker_model,  # Don't convert None to ""
+monolingual_reranker_model=monolingual_reranker_model,
+rerank_mode=rerank_mode,
+translation_dir=translation_dir,
+
+# benchmark_orchestrator.py: Accept Optional and use defaults
+reranker_model: str | None = None,
+...
+if reranker_model is None:
+    reranker_model = DEFAULT_RERANKER_MODEL
+```
+
+**Verification:**
+```bash
+✅ Benchmark command now loads BGE reranker from config defaults
+✅ Logs show: "Loading cross-encoder model 'BAAI/bge-reranker-v2-m3' on cuda"
+✅ Successfully completed benchmark for model: FremyCompany/BioLORD-2023-M
+```
+
+**Benchmark Results with BGE Reranker:**
+```
+Test dataset: german/tiny_v1.json (9 test cases)
+
+Dense Retrieval Only (Baseline):
+- MRR: 0.2825
+- Hit@1: 0.1111
+- Hit@3: 0.4444
+- Hit@5: 0.4444
+- Hit@10: 0.6667
+
+With BGE Reranker (cross-lingual mode):
+- MRR: 0.3843 (+36.0% improvement! 🎯)
+- Hit@1: 0.2222 (+100% improvement)
+- Hit@3: 0.5556 (+25.0% improvement)
+- Hit@5: 0.5556 (+25.0% improvement)
+- Hit@10: 0.6667 (no change)
+```
+
+**Impact:** +36% MRR improvement **exceeds** the expected +15-20% from RERANKING-DIAGNOSIS-AND-FIX.md!
 
 ## 🔍 Key Findings
 
