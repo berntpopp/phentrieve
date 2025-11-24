@@ -98,7 +98,8 @@ jobs:
           # Registry cache is more reliable than gha for large ML images (PyTorch ~2GB)
           # See: https://docs.docker.com/build/cache/backends/registry/
           cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME_API }}:buildcache
-          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME_API }}:buildcache,mode=max
+          # Only write cache on push (PRs skip registry login, can only read cache)
+          cache-to: ${{ github.event_name != 'pull_request' && format('type=registry,ref={0}/{1}:buildcache,mode=max', env.REGISTRY, env.IMAGE_NAME_API) || '' }}
           platforms: linux/amd64
           load: ${{ github.event_name == 'pull_request' }}  # Load for scanning on PRs
 
@@ -175,7 +176,8 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           # Registry cache for consistency with API image caching strategy
           cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:buildcache
-          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:buildcache,mode=max
+          # Only write cache on push (PRs skip registry login, can only read cache)
+          cache-to: ${{ github.event_name != 'pull_request' && format('type=registry,ref={0}/{1}:buildcache,mode=max', env.REGISTRY, env.IMAGE_NAME_FRONTEND) || '' }}
           platforms: linux/amd64
           load: ${{ github.event_name == 'pull_request' }}  # Load for scanning on PRs
           build-args: |
