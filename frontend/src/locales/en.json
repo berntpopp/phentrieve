@@ -1,6 +1,24 @@
 {
   "common": {
-    "auto": "Auto-detect"
+    "auto": "Auto-detect",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "reset": "Reset",
+    "close": "Close"
+  },
+  "conversationSettings": {
+    "tooltip": "Conversation Settings",
+    "title": "Conversation Settings",
+    "historyLength": "Maximum History Length",
+    "historyHint": "Lower values improve performance. Higher values keep more history.",
+    "stats": "Current Statistics",
+    "totalQueries": "Total Queries",
+    "totalPhenotypes": "Collected Phenotypes",
+    "storageUsed": "Storage Used",
+    "clearAll": "Clear All",
+    "close": "Close",
+    "confirmClearTitle": "Clear All Data?",
+    "confirmClearMessage": "This will permanently delete all conversation history and collected phenotypes. This action cannot be undone."
   },
   "models": {
     "biolord": "BioLORD 2023-M",
@@ -9,6 +27,7 @@
   },
   "app": {
     "footer": {
+      "homeTooltip": "Go to home",
       "disclaimer": "Disclaimer",
       "disclaimerTooltip": "View important disclaimer and usage information",
       "disclaimerAcknowledgedTooltip": "Acknowledged on {date}",

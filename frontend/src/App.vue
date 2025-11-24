@@ -9,6 +9,41 @@
 
     <v-footer app class="d-flex justify-space-between pa-2" style="z-index: 1" role="contentinfo">
       <div class="d-flex align-center">
+        <!-- Conversation Settings Button -->
+        <ConversationSettings class="mr-1" />
+
+        <!-- Home/Reset Button -->
+        <v-tooltip
+          location="top"
+          :text="$t('app.footer.homeTooltip', 'Go to home / Reset conversation')"
+          role="tooltip"
+        >
+          <template #activator="{ props }">
+            <v-btn
+              v-bind="props"
+              icon
+              variant="text"
+              color="primary"
+              size="small"
+              class="mr-1"
+              aria-label="Go to home"
+              :to="{ name: 'home' }"
+            >
+              <v-badge
+                v-if="conversationStore.hasConversation"
+                color="info"
+                dot
+                offset-x="-2"
+                offset-y="-2"
+              >
+                <v-icon>mdi-home</v-icon>
+              </v-badge>
+              <v-icon v-else>mdi-home</v-icon>
+            </v-btn>
+          </template>
+        </v-tooltip>
+
+        <!-- Disclaimer Button -->
         <v-tooltip
           location="top"
           :text="$t('app.footer.disclaimerTooltip')"
@@ -290,6 +325,7 @@
 <script>
 import { useDisclaimerStore } from './stores/disclaimer';
 import { useLogStore } from './stores/log';
+import { useConversationStore } from './stores/conversation';
 import { logService } from './services/logService';
 import { tutorialService } from './services/tutorialService';
 import { getAllVersions } from './utils/version';
@@ -298,6 +334,7 @@ import DisclaimerDialog from './components/DisclaimerDialog.vue';
 import LogViewer from './components/LogViewer.vue';
 import LanguageSwitcher from './components/LanguageSwitcher.vue';
 import TutorialOverlay from './components/TutorialOverlay.vue';
+import ConversationSettings from './components/ConversationSettings.vue';
 
 export default {
   name: 'App',
@@ -306,6 +343,7 @@ export default {
     LogViewer,
     LanguageSwitcher,
     TutorialOverlay,
+    ConversationSettings,
   },
   data() {
     return {
@@ -325,6 +363,9 @@ export default {
     },
     logStore() {
       return useLogStore();
+    },
+    conversationStore() {
+      return useConversationStore();
     },
     apiConnected() {
       const { connected } = useApiHealth();
