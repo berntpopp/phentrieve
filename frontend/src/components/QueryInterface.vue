@@ -578,7 +578,7 @@
 
     <!-- Chat-like conversation interface -->
     <div ref="conversationContainer" class="conversation-container">
-      <div v-for="(item, index) in queryHistory" :key="index" class="mb-4">
+      <div v-for="item in conversationStore.queryHistory" :key="item.id" class="mb-4">
         <!-- User query -->
         <div class="user-query d-flex">
           <v-tooltip location="top" text="User Input">
@@ -609,11 +609,11 @@
 
             <ResultsDisplay
               v-else
-              :key="'results-' + index"
+              :key="'results-' + item.id"
               :response-data="item.response"
               :result-type="item.type"
               :error="item.error"
-              :collected-phenotypes="collectedPhenotypes"
+              :collected-phenotypes="conversationStore.collectedPhenotypes"
               @add-to-collection="addToPhenotypeCollection"
             />
           </div>
@@ -641,8 +641,8 @@
           @click="toggleCollectionPanel"
         >
           <v-badge
-            :content="collectedPhenotypes.length"
-            :model-value="collectedPhenotypes.length > 0"
+            :content="conversationStore.collectedPhenotypes.length"
+            :model-value="conversationStore.collectedPhenotypes.length > 0"
             color="error"
           >
             <v-icon>mdi-format-list-checks</v-icon>
@@ -653,7 +653,7 @@
 
     <!-- Collection Panel -->
     <v-navigation-drawer
-      v-model="showCollectionPanel"
+      v-model="conversationStore.showCollectionPanel"
       location="right"
       width="400"
       temporary
@@ -679,15 +679,17 @@
 
       <v-divider />
 
-      <v-list v-if="collectedPhenotypes.length > 0" class="pt-0">
+      <v-list v-if="conversationStore.collectedPhenotypes.length > 0" class="pt-0">
         <v-list-subheader>
           {{
-            $t('queryInterface.phenotypeCollection.count', { count: collectedPhenotypes.length })
+            $t('queryInterface.phenotypeCollection.count', {
+              count: conversationStore.collectedPhenotypes.length,
+            })
           }}
         </v-list-subheader>
 
         <v-list-item
-          v-for="(phenotype, index) in collectedPhenotypes"
+          v-for="(phenotype, index) in conversationStore.collectedPhenotypes"
           :key="phenotype.hpo_id + '-' + index"
           density="compact"
           class="py-1"
@@ -848,7 +850,7 @@
             color="primary"
             class="mb-2"
             prepend-icon="mdi-download-box-outline"
-            :disabled="collectedPhenotypes.length === 0"
+            :disabled="conversationStore.collectedPhenotypes.length === 0"
             aria-label="Export collected phenotypes as Phenopacket JSON"
             @click="exportPhenotypesAsPhenopacket"
           >
@@ -860,7 +862,7 @@
             color="primary"
             class="mb-2"
             prepend-icon="mdi-text-box-outline"
-            :disabled="collectedPhenotypes.length === 0"
+            :disabled="conversationStore.collectedPhenotypes.length === 0"
             @click="exportPhenotypes"
           >
             {{ $t('queryInterface.phenotypeCollection.exportText') }}
@@ -870,7 +872,7 @@
             variant="tonal"
             color="error"
             prepend-icon="mdi-delete-sweep-outline"
-            :disabled="collectedPhenotypes.length === 0"
+            :disabled="conversationStore.collectedPhenotypes.length === 0"
             @click="clearPhenotypeCollection"
           >
             {{ $t('queryInterface.phenotypeCollection.clear') }}
@@ -886,12 +888,18 @@ import ResultsDisplay from './ResultsDisplay.vue';
 import PhentrieveService from '../services/PhentrieveService';
 import { logService } from '../services/logService';
 import { useQueryPreferencesStore } from '../stores/queryPreferences';
+import { useConversationStore } from '../stores/conversation';
 // Direct JSON-based implementation instead of using @berntpopp/phenopackets-js
 
 export default {
   name: 'QueryInterface',
   components: {
     ResultsDisplay,
+  },
+  setup() {
+    // Initialize conversation store for use in Options API component
+    const conversationStore = useConversationStore();
+    return { conversationStore };
   },
   data() {
     return {
@@ -931,10 +939,7 @@ export default {
         },
       ],
       isLoading: false,
-      queryHistory: [],
       showAdvancedOptions: false,
-      collectedPhenotypes: [],
-      showCollectionPanel: false,
       lastUserScrollPosition: 0,
       userHasScrolled: false,
       shouldScrollToTop: false,
@@ -985,9 +990,11 @@ export default {
     },
   },
   watch: {
-    queryHistory: {
+    'conversationStore.queryHistory': {
       handler() {
-        logService.info('Query history updated', { newHistoryLength: this.queryHistory.length });
+        logService.info('Query history updated', {
+          newHistoryLength: this.conversationStore.queryHistory.length,
+        });
         this.$nextTick(() => {
           if (this.shouldScrollToTop && !this.userHasScrolled) {
             this.scrollToTop();
@@ -1130,74 +1137,53 @@ export default {
         phenotypeAssertionStatus: phenotype.assertion_status,
       });
 
-      const isDuplicate = this.collectedPhenotypes.some((item) => item.hpo_id === phenotype.hpo_id);
-      if (!isDuplicate) {
-        // Priority order for assertion status:
-        // 1. Use assertion_status directly from phenotype object if available
-        // 2. Use queryAssertionStatus parameter if provided
-        // 3. Fallback to global query assertion status if available
-        // 4. Default to 'affirmed' if nothing else is available
-        let assertionStatus;
-
-        if (phenotype.assertion_status) {
-          // If the phenotype object already has an assertion status, use it with highest priority
-          assertionStatus = phenotype.assertion_status;
-          logService.debug('Using assertion status from phenotype object', { assertionStatus });
-        } else {
-          // Otherwise follow the existing priority logic
-          const currentResponse =
-            this.queryHistory.length > 0 ? this.queryHistory[0].response : null;
-          const responseAssertionStatus = currentResponse?.query_assertion_status || null;
-          assertionStatus = queryAssertionStatus || responseAssertionStatus || 'affirmed';
-          logService.debug('Using computed assertion status', {
-            queryAssertionStatus,
-            responseAssertionStatus,
-            finalAssertionStatus: assertionStatus,
-          });
-        }
-
-        this.collectedPhenotypes.push({
-          ...phenotype,
-          added_at: new Date(),
-          assertion_status: assertionStatus,
+      // Use the conversation store's addPhenotype method
+      const added = this.conversationStore.addPhenotype(phenotype, queryAssertionStatus);
+      if (added) {
+        logService.debug('Phenotype added to collection via store', {
+          hpo_id: phenotype.hpo_id,
         });
-        if (this.collectedPhenotypes.length === 1) this.showCollectionPanel = true;
+      } else {
+        logService.debug('Phenotype was duplicate, not added', {
+          hpo_id: phenotype.hpo_id,
+        });
       }
     },
     removePhenotype(index) {
+      const phenotype = this.conversationStore.collectedPhenotypes[index];
       logService.info('Removing phenotype from collection', {
         index,
-        phenotype: this.collectedPhenotypes[index],
+        phenotype,
       });
-      this.collectedPhenotypes.splice(index, 1);
+      this.conversationStore.removePhenotype(index);
     },
     toggleAssertionStatus(index) {
-      const phenotype = this.collectedPhenotypes[index];
+      this.conversationStore.toggleAssertionStatus(index);
+      const phenotype = this.conversationStore.collectedPhenotypes[index];
       if (phenotype) {
-        const newStatus = phenotype.assertion_status === 'negated' ? 'affirmed' : 'negated';
-        phenotype.assertion_status = newStatus; // Directly mutate for reactivity
         logService.info('Toggled phenotype assertion status', {
           hpo_id: phenotype.hpo_id,
-          newStatus,
+          newStatus: phenotype.assertion_status,
         });
       }
     },
     clearPhenotypeCollection() {
       logService.info('Clearing phenotype collection and subject information');
-      this.collectedPhenotypes = [];
+      this.conversationStore.clearPhenotypes();
       this.phenopacketSubjectId = '';
       this.phenopacketSex = null;
       this.phenopacketDateOfBirth = null;
     },
     toggleCollectionPanel() {
-      this.showCollectionPanel = !this.showCollectionPanel;
+      this.conversationStore.toggleCollectionPanel();
     },
     exportPhenotypes() {
-      logService.info('Exporting phenotypes as text', { count: this.collectedPhenotypes.length });
+      const phenotypes = this.conversationStore.collectedPhenotypes;
+      logService.info('Exporting phenotypes as text', { count: phenotypes.length });
       let exportText = 'HPO Phenotypes Collection\n';
       exportText += 'Exported on: ' + new Date().toLocaleString() + '\n\n';
       exportText += 'ID\tLabel\tAssertion Status\n';
-      this.collectedPhenotypes.forEach((p) => {
+      phenotypes.forEach((p) => {
         exportText += `${p.hpo_id}\t${p.label}\t${p.assertion_status || 'affirmed'}\n`;
       });
       const blob = new Blob([exportText], { type: 'text/plain' });
@@ -1211,12 +1197,13 @@ export default {
       URL.revokeObjectURL(url);
     },
     exportPhenotypesAsPhenopacket() {
-      if (this.collectedPhenotypes.length === 0) {
+      const phenotypes = this.conversationStore.collectedPhenotypes;
+      if (phenotypes.length === 0) {
         logService.warn('Attempted to export empty phenopacket collection');
         return;
       }
       logService.info('Starting Phenopacket export process', {
-        count: this.collectedPhenotypes.length,
+        count: phenotypes.length,
       });
       try {
         const timestamp = new Date().toISOString();
@@ -1258,7 +1245,7 @@ export default {
           }
           if (Object.keys(phenopacket.subject).length === 0) delete phenopacket.subject;
         }
-        this.collectedPhenotypes.forEach((cp) => {
+        phenotypes.forEach((cp) => {
           phenopacket.phenotypicFeatures.push({
             type: { id: cp.hpo_id, label: cp.label },
             excluded: cp.assertion_status === 'negated',
@@ -1290,14 +1277,14 @@ export default {
       const useTextProcessMode = this.isTextProcessModeActive;
       this.isLoading = true;
       const currentQuery = queryTextTrimmed;
-      const historyItem = {
+
+      // Add query to store and get the generated ID
+      const queryId = this.conversationStore.addQuery({
         query: currentQuery,
         loading: true,
-        response: null,
-        error: null,
         type: useTextProcessMode ? 'textProcess' : 'query',
-      };
-      this.queryHistory.unshift(historyItem);
+      });
+
       if (!isAutoSubmit) this.queryText = ''; // Clear input only if not auto-submitting (URL params might be active)
 
       this.shouldScrollToTop = true;
@@ -1345,14 +1332,14 @@ export default {
           logService.info('Sending to /query API', queryData);
           response = await PhentrieveService.queryHpo(queryData);
         }
-        historyItem.response = response;
+        // Update the query response in the store
+        this.conversationStore.updateQueryResponse(queryId, response);
       } catch (error) {
-        historyItem.error = error;
+        // Update with error in the store
+        this.conversationStore.updateQueryResponse(queryId, null, error);
         logService.error('Error submitting query/processing text', error);
       } finally {
-        historyItem.loading = false;
         this.isLoading = false;
-        this.queryHistory = [...this.queryHistory]; // Trigger reactivity
         if (!isAutoSubmit) {
           // Only clear URL params if it wasn't an auto-submit
           const newRouteQuery = { ...this.$route.query };
