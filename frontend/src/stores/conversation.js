@@ -32,6 +32,13 @@ export const useConversationStore = defineStore(
     // ===========================
 
     /**
+     * Whether the store is currently hydrating from localStorage
+     * Used for showing loading skeletons during initial load
+     * @type {import('vue').Ref<boolean>}
+     */
+    const isHydrating = ref(true);
+
+    /**
      * Query history array (newest first)
      * @type {import('vue').Ref<Array<Object>>}
      */
@@ -82,6 +89,12 @@ export const useConversationStore = defineStore(
      * @type {import('vue').ComputedRef<boolean>}
      */
     const hasPhenotypes = computed(() => collectedPhenotypes.value.length > 0);
+
+    /**
+     * Whether the store is ready (hydration complete)
+     * @type {import('vue').ComputedRef<boolean>}
+     */
+    const isReady = computed(() => !isHydrating.value);
 
     // ===========================
     // Query History Actions
@@ -291,12 +304,14 @@ export const useConversationStore = defineStore(
 
     return {
       // State
+      isHydrating,
       queryHistory,
       collectedPhenotypes,
       maxHistoryLength,
       showCollectionPanel,
 
       // Computed
+      isReady,
       conversationLength,
       hasConversation,
       phenotypeCount,
@@ -327,6 +342,14 @@ export const useConversationStore = defineStore(
       key: 'phentrieve-conversation',
       storage: localStorage,
       pick: ['queryHistory', 'collectedPhenotypes', 'maxHistoryLength', 'showCollectionPanel'],
+      // Signal hydration complete after restore for non-blocking UI
+      afterRestore: (ctx) => {
+        // Use nextTick to ensure Vue reactivity cycle completes
+        // This allows the UI to render first, then show restored data
+        requestAnimationFrame(() => {
+          ctx.store.isHydrating = false;
+        });
+      },
     },
   }
 );

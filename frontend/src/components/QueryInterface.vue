@@ -578,47 +578,57 @@
 
     <!-- Chat-like conversation interface -->
     <div ref="conversationContainer" class="conversation-container">
-      <div v-for="item in conversationStore.queryHistory" :key="item.id" class="mb-4">
-        <!-- User query -->
-        <div class="user-query d-flex">
-          <v-tooltip location="top" text="User Input">
-            <template #activator="{ props }">
-              <v-avatar v-bind="props" color="primary" size="36" class="mt-1 mr-2">
-                <span class="white--text">U</span>
-              </v-avatar>
-            </template>
-          </v-tooltip>
-          <div class="query-bubble">
-            <p class="mb-0" style="white-space: pre-wrap">
-              {{ item.query }}
-            </p>
+      <!-- Skeleton loading during hydration -->
+      <ConversationSkeleton
+        v-if="conversationStore.isHydrating"
+        :count="2"
+        class="hydration-skeleton"
+      />
+
+      <!-- Actual conversation history (shown after hydration) -->
+      <template v-else>
+        <div v-for="item in conversationStore.queryHistory" :key="item.id" class="mb-4">
+          <!-- User query -->
+          <div class="user-query d-flex">
+            <v-tooltip location="top" text="User Input">
+              <template #activator="{ props }">
+                <v-avatar v-bind="props" color="primary" size="36" class="mt-1 mr-2">
+                  <span class="white--text">U</span>
+                </v-avatar>
+              </template>
+            </v-tooltip>
+            <div class="query-bubble">
+              <p class="mb-0" style="white-space: pre-wrap">
+                {{ item.query }}
+              </p>
+            </div>
+          </div>
+
+          <!-- API response -->
+          <div v-if="item.loading || item.response || item.error" class="bot-response d-flex mt-2">
+            <v-tooltip location="top" text="Phentrieve Response">
+              <template #activator="{ props }">
+                <v-avatar v-bind="props" color="info" size="36" class="mt-1 mr-2">
+                  <v-icon color="white"> mdi-robot-outline </v-icon>
+                </v-avatar>
+              </template>
+            </v-tooltip>
+            <div class="response-bubble">
+              <v-progress-circular v-if="item.loading" indeterminate color="primary" size="24" />
+
+              <ResultsDisplay
+                v-else
+                :key="'results-' + item.id"
+                :response-data="item.response"
+                :result-type="item.type"
+                :error="item.error"
+                :collected-phenotypes="conversationStore.collectedPhenotypes"
+                @add-to-collection="addToPhenotypeCollection"
+              />
+            </div>
           </div>
         </div>
-
-        <!-- API response -->
-        <div v-if="item.loading || item.response || item.error" class="bot-response d-flex mt-2">
-          <v-tooltip location="top" text="Phentrieve Response">
-            <template #activator="{ props }">
-              <v-avatar v-bind="props" color="info" size="36" class="mt-1 mr-2">
-                <v-icon color="white"> mdi-robot-outline </v-icon>
-              </v-avatar>
-            </template>
-          </v-tooltip>
-          <div class="response-bubble">
-            <v-progress-circular v-if="item.loading" indeterminate color="primary" size="24" />
-
-            <ResultsDisplay
-              v-else
-              :key="'results-' + item.id"
-              :response-data="item.response"
-              :result-type="item.type"
-              :error="item.error"
-              :collected-phenotypes="conversationStore.collectedPhenotypes"
-              @add-to-collection="addToPhenotypeCollection"
-            />
-          </div>
-        </div>
-      </div>
+      </template>
     </div>
 
     <!-- Floating action button for collection panel -->
@@ -885,6 +895,7 @@
 
 <script>
 import ResultsDisplay from './ResultsDisplay.vue';
+import ConversationSkeleton from './ConversationSkeleton.vue';
 import PhentrieveService from '../services/PhentrieveService';
 import { logService } from '../services/logService';
 import { useQueryPreferencesStore } from '../stores/queryPreferences';
@@ -895,6 +906,7 @@ export default {
   name: 'QueryInterface',
   components: {
     ResultsDisplay,
+    ConversationSkeleton,
   },
   setup() {
     // Initialize conversation store for use in Options API component
