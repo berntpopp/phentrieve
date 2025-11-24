@@ -114,10 +114,10 @@ def run_benchmarks(
         create_sample=create_sample,
         trust_remote_code=trust_remote_code,
         enable_reranker=enable_reranker,
-        reranker_model=reranker_model or "",
-        monolingual_reranker_model=monolingual_reranker_model or "",
-        rerank_mode=rerank_mode or "",
-        translation_dir=translation_dir or "",
+        reranker_model=reranker_model,  # Pass None to use orchestrator defaults
+        monolingual_reranker_model=monolingual_reranker_model,  # Pass None to use orchestrator defaults
+        rerank_mode=rerank_mode,  # Pass None to use orchestrator defaults
+        translation_dir=translation_dir,  # Pass None to use orchestrator defaults
         rerank_count=rerank_count,
         similarity_formula=similarity_formula,
     )

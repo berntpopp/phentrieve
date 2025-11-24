@@ -1,0 +1,74 @@
+2025-11-24 23:05:53,394 - INFO - Logging level set to INFO
+Starting benchmark evaluation...
+2025-11-24 23:05:53,394 - INFO - Running benchmark on single model: FremyCompany/BioLORD-2023-M
+2025-11-24 23:05:53,395 - INFO - Benchmarking model: FremyCompany/BioLORD-2023-M
+2025-11-24 23:05:53,395 - INFO - Loaded 9 test cases from /home/bernt-popp/development/phentrieve/tests/data/benchmarks/german/tiny_v1.json
+2025-11-24 23:05:53,395 - INFO - Starting benchmark evaluation for model 'FremyCompany/BioLORD-2023-M'
+2025-11-24 23:05:53,395 - INFO - Test file: /home/bernt-popp/development/phentrieve/tests/data/benchmarks/german/tiny_v1.json (9 test cases)
+2025-11-24 23:05:53,395 - INFO - Loading embedding model: FremyCompany/BioLORD-2023-M on cuda
+2025-11-24 23:05:53,395 - INFO - Loading BioLORD model 'FremyCompany/BioLORD-2023-M' with trust_remote_code=True on cuda
+2025-11-24 23:05:53,395 - INFO - Use pytorch device_name: cuda:0
+2025-11-24 23:05:53,395 - INFO - Load pretrained SentenceTransformer: FremyCompany/BioLORD-2023-M
+2025-11-24 23:05:56,558 - INFO - Successfully loaded and cached model FremyCompany/BioLORD-2023-M on cuda
+2025-11-24 23:05:56,558 - INFO - Loading HPO graph data for semantic similarity calculation
+2025-11-24 23:05:56,558 - INFO - Loading HPO graph data from database: /home/bernt-popp/development/phentrieve/data/hpo_data.db...
+2025-11-24 23:05:56,594 - INFO - Loaded ancestor sets for 19534 HPO terms
+2025-11-24 23:05:56,594 - INFO - Loaded depth values for 19534 HPO terms
+2025-11-24 23:05:56,595 - INFO - Loading cross-encoder model for  re-ranking on cuda
+2025-11-24 23:05:56,595 - INFO - Loading cross-encoder model '' on cuda
+2025-11-24 23:05:56,595 - ERROR - Failed to load cross-encoder model '': Can't load the configuration of ''. If you were trying to load it from 'https://huggingface.co/models', make sure you don't have a local directory with the same name. Otherwise, make sure '' is the correct path to a directory containing a config.json file
+2025-11-24 23:05:56,595 - WARNING - Re-ranking will be disabled
+2025-11-24 23:05:56,595 - WARNING - Failed to load cross-encoder model . Re-ranking will be disabled.
+2025-11-24 23:05:56,595 - INFO - DenseRetriever.from_model_name: Using explicit index_dir: /home/bernt-popp/development/phentrieve/data/indexes
+2025-11-24 23:05:56,876 - INFO - Connected to collection 'phentrieve_biolord_2023_m' with 19534 docs
+2025-11-24 23:05:56,876 - INFO - Running benchmark on 9 test cases
+Evaluating test cases:   0%|          | 0/9 [00:00<?, ?it/s]2025-11-24 23:05:56,876 - INFO - Processing query: 'Hypertrophe Kardiomyopathie mit Septumhypertrophie'
+2025-11-24 23:05:56,876 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 11.25it/s]
+2025-11-24 23:05:56,970 - INFO - Processing query: 'Geistige Behinderung und Tremor'
+2025-11-24 23:05:56,970 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 45.66it/s]
+Evaluating test cases:  22%|██▏       | 2/9 [00:00<00:00, 16.28it/s]2025-11-24 23:05:56,999 - INFO - Processing query: 'Polydaktylie der Zehen und Hände'
+2025-11-24 23:05:56,999 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 513.00it/s]
+2025-11-24 23:05:57,005 - INFO - Processing query: 'Down-Syndrom mit Herzfehler'
+2025-11-24 23:05:57,005 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 535.12it/s]
+2025-11-24 23:05:57,012 - INFO - Processing query: 'Epilepsie mit Anfällen'
+2025-11-24 23:05:57,012 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 509.20it/s]
+2025-11-24 23:05:57,018 - INFO - Processing query: 'Schwere Muskelatrophie mit Hypotonie'
+2025-11-24 23:05:57,018 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 555.68it/s]
+2025-11-24 23:05:57,024 - INFO - Processing query: 'Hörverlust mit Innenohrfehlbildung'
+2025-11-24 23:05:57,024 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 562.92it/s]
+2025-11-24 23:05:57,030 - INFO - Processing query: 'Neutropenie mit wiederkehrenden Infektionen'
+2025-11-24 23:05:57,030 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 573.62it/s]
+2025-11-24 23:05:57,036 - INFO - Processing query: 'Mikrozephalie und Entwicklungsverzögerung'
+2025-11-24 23:05:57,036 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 618.36it/s]
+Evaluating test cases: 100%|██████████| 9/9 [00:00<00:00, 54.46it/s]
+2025-11-24 23:05:57,044 - INFO - Benchmark results for FremyCompany/BioLORD-2023-M:
+2025-11-24 23:05:57,044 - INFO -   === Dense Retrieval Metrics ====
+2025-11-24 23:05:57,044 - INFO -   MRR (Dense): 0.2825
+2025-11-24 23:05:57,044 - INFO -   Hit@1 (Dense): 0.1111
+2025-11-24 23:05:57,044 - INFO -   MaxOntSim@1 (Dense): 0.6560
+2025-11-24 23:05:57,044 - INFO -   Hit@3 (Dense): 0.4444
+2025-11-24 23:05:57,044 - INFO -   MaxOntSim@3 (Dense): 0.8015
+2025-11-24 23:05:57,044 - INFO -   Hit@5 (Dense): 0.4444
+2025-11-24 23:05:57,044 - INFO -   MaxOntSim@5 (Dense): 0.8034
+2025-11-24 23:05:57,044 - INFO -   Hit@10 (Dense): 0.6667
+2025-11-24 23:05:57,044 - INFO -   MaxOntSim@10 (Dense): 0.8937
+2025-11-24 23:05:57,044 - INFO - Successfully completed benchmark for model: FremyCompany/BioLORD-2023-M
+Benchmark completed successfully!

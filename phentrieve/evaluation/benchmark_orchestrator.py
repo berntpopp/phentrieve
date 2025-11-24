@@ -60,9 +60,9 @@ def orchestrate_benchmark(
     create_sample: bool = False,
     trust_remote_code: bool = False,
     enable_reranker: bool = DEFAULT_ENABLE_RERANKER,
-    reranker_model: str = DEFAULT_RERANKER_MODEL,
-    monolingual_reranker_model: str = DEFAULT_MONOLINGUAL_RERANKER_MODEL,
-    rerank_mode: str = DEFAULT_RERANKER_MODE,
+    reranker_model: str | None = None,
+    monolingual_reranker_model: str | None = None,
+    rerank_mode: str | None = None,
     translation_dir: str | None = None,
     rerank_count: int = DEFAULT_RERANK_CANDIDATE_COUNT,
     similarity_formula: str = "hybrid",
@@ -103,6 +103,14 @@ def orchestrate_benchmark(
         format="%(asctime)s - %(levelname)s - %(message)s",
         handlers=[logging.StreamHandler()],
     )
+
+    # Use config defaults for reranking parameters when not specified
+    if reranker_model is None:
+        reranker_model = DEFAULT_RERANKER_MODEL
+    if monolingual_reranker_model is None:
+        monolingual_reranker_model = DEFAULT_MONOLINGUAL_RERANKER_MODEL
+    if rerank_mode is None:
+        rerank_mode = DEFAULT_RERANKER_MODE
 
     # Resolve paths
     resolve_data_path(data_dir_override, "data_dir", get_default_data_dir)
