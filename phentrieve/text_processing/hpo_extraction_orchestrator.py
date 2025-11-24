@@ -9,6 +9,8 @@ from collections import Counter, defaultdict
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Optional
 
+import numpy as np
+
 # NOTE: CrossEncoder is only imported for type hints (TYPE_CHECKING).
 # This module receives CrossEncoder instances but doesn't create them,
 # so we avoid the 18+ second import cost at module load time.
@@ -158,8 +160,18 @@ def orchestrate_hpo_extraction(
                     )
 
                     # Add scores to candidates
+                    # Handle different output formats from various cross-encoder models:
+                    # - NLI models return arrays: [P(entailment), P(neutral), P(contradiction)]
+                    # - Rerankers return single float: relevance_score
                     for idx, match in enumerate(current_hpo_matches[:]):
-                        match["score"] = float(scores[idx])
+                        raw_score = scores[idx]
+                        if isinstance(raw_score, (list, np.ndarray)) and len(raw_score) > 1:
+                            # NLI model: use entailment probability (index 0)
+                            # Note: Suboptimal for semantic relevance - dedicated reranker recommended
+                            match["score"] = float(raw_score[0])
+                        else:
+                            # Proper reranker: single relevance score
+                            match["score"] = float(raw_score)
 
                     # Sort by score
                     current_hpo_matches.sort(key=lambda x: x["score"], reverse=True)
