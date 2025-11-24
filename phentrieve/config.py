@@ -63,9 +63,11 @@ _DEFAULT_K_VALUES_FALLBACK = (1, 3, 5, 10)  # Default k values for hit rate calc
 _DEFAULT_DEVICE_FALLBACK: str | None = None  # Default device (None = auto-detect)
 
 # Cross-encoder re-ranking settings (loaded from YAML with fallbacks)
-_DEFAULT_RERANKER_MODEL_FALLBACK = (
-    "MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7"
-)
+# Changed from NLI model to dedicated reranker for better semantic relevance
+# Previous: "MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7" (NLI model)
+# Current: BAAI/bge-reranker-v2-m3 (dedicated multilingual reranker)
+# See: RERANKING-DIAGNOSIS-AND-FIX.md Section 3.2
+_DEFAULT_RERANKER_MODEL_FALLBACK = "BAAI/bge-reranker-v2-m3"
 _DEFAULT_MONOLINGUAL_RERANKER_MODEL_FALLBACK = (
     "ml6team/cross-encoder-mmarco-german-distilbert-base"
 )

@@ -62,7 +62,9 @@ reranker_mode: "cross-lingual"
 
 # Cross-encoder model for re-ranking
 # Multilingual cross-encoder (cross-lingual mode)
-reranker_model: "MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7"
+# Changed to dedicated reranker for better semantic relevance (RERANKING-DIAGNOSIS-AND-FIX.md)
+# Previous: MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7 (NLI model)
+reranker_model: "BAAI/bge-reranker-v2-m3"
 
 # Monolingual cross-encoder (monolingual mode - German)
 monolingual_reranker_model: "ml6team/cross-encoder-mmarco-german-distilbert-base"
