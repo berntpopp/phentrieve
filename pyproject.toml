@@ -55,6 +55,11 @@ text_processing = [
     "spacy>=3.8.0,<4.0.0",  # spaCy 3.8+ supports NumPy 2.x and typer 0.16+
     "en_core_web_sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl"  # Compatible with spacy 3.8+
 ]
+api = [
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.32.0",
+    "python-dotenv>=1.0.0",
+]
 
 [tool.setuptools]
 
