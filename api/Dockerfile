@@ -31,8 +31,10 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 
 # Download, verify, and build SQLite with checksum validation
 WORKDIR /build
-# hadolint ignore=DL3003
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+# Note: cd is used within RUN because SQLITE_VERSION is a build arg that can't be
+# interpolated in WORKDIR, and we need atomic download-verify-build for security
+# hadolint ignore=DL3003
 RUN set -euxo pipefail && \
     # Download SQLite source (HTTPS for security) \
     wget -q https://www.sqlite.org/${SQLITE_YEAR}/sqlite-autoconf-${SQLITE_VERSION}.tar.gz && \

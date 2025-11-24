@@ -8,6 +8,12 @@ on:
       - 'v*.*.*'
   workflow_dispatch:
 
+# Prevent concurrent builds - API image takes 20+ minutes
+# Cancel in-progress builds when new commits are pushed
+concurrency:
+  group: docker-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME_API: ${{ github.repository }}/api
@@ -38,7 +44,7 @@ jobs:
     name: Build and Push API Image
     runs-on: ubuntu-latest
     needs: lint-dockerfiles
-    timeout-minutes: 30  # Prevent indefinite hangs (VNtyper best practice)
+    timeout-minutes: 60  # ML dependencies (PyTorch, sentence-transformers) need 20-30min
     permissions:
       contents: read
       packages: write
@@ -89,8 +95,10 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          # Registry cache is more reliable than gha for large ML images (PyTorch ~2GB)
+          # See: https://docs.docker.com/build/cache/backends/registry/
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME_API }}:buildcache
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME_API }}:buildcache,mode=max
           platforms: linux/amd64
           load: ${{ github.event_name == 'pull_request' }}  # Load for scanning on PRs
 
@@ -165,8 +173,9 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          # Registry cache for consistency with API image caching strategy
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:buildcache
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:buildcache,mode=max
           platforms: linux/amd64
           load: ${{ github.event_name == 'pull_request' }}  # Load for scanning on PRs
           build-args: |
