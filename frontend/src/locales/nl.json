@@ -1,6 +1,31 @@
 {
   "common": {
-    "auto": "Automatische detectie"
+    "auto": "Automatische detectie",
+    "cancel": "Annuleren",
+    "delete": "Verwijderen",
+    "reset": "Resetten",
+    "close": "Sluiten"
+  },
+  "conversationSettings": {
+    "tooltip": "Gespreksinstellingen",
+    "title": "Gespreksinstellingen",
+    "historyLength": "Maximale geschiedenislengte",
+    "historyHint": "Lagere waarden verbeteren de prestaties. Hogere waarden behouden meer geschiedenis.",
+    "stats": "Huidige statistieken",
+    "totalQueries": "Totaal aantal zoekopdrachten",
+    "totalPhenotypes": "Verzamelde fenotypes",
+    "storageUsed": "Gebruikte opslag",
+    "clearAll": "Alles wissen",
+    "close": "Sluiten",
+    "confirmClearTitle": "Alle gegevens wissen?",
+    "confirmClearMessage": "Dit zal permanent alle gespreksgeschiedenis en verzamelde fenotypes verwijderen. Deze actie kan niet ongedaan worden gemaakt."
+  },
+  "home": {
+    "logoAlt": "Phentrieve Logo - Klik om te resetten",
+    "resetAriaLabel": "Gesprek resetten",
+    "resetTitle": "Applicatie resetten?",
+    "resetMessage": "Dit zal alle gespreksgeschiedenis en verzamelde fenotypes wissen. Uw disclaimer-bevestiging blijft behouden.",
+    "resetConfirm": "Resetten"
   },
   "models": {
     "biolord": "BioLORD 2023-M",
@@ -21,7 +46,8 @@
       "copyright": "© {year} Phentrieve",
       "githubTooltip": "Bekijk broncode op GitHub",
       "docsTooltip": "Bekijk projectdocumentatie",
-      "licenseTooltip": "Bekijk projectlicentie"
+      "licenseTooltip": "Bekijk projectlicentie",
+      "homeTooltip": "Ga naar startpagina"
     }
   },
   "disclaimerDialog": {

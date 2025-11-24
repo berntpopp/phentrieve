@@ -42,7 +42,7 @@ def get_api_version() -> str:
             import tomllib
         except ImportError:
             # Fall back to tomli for Python 3.10
-            import tomli as tomllib  # type: ignore
+            import tomli as tomllib
 
         # Navigate to pyproject.toml (one level up from api/)
         api_dir = Path(__file__).parent
@@ -54,7 +54,7 @@ def get_api_version() -> str:
 
         with open(pyproject_path, "rb") as f:
             data = tomllib.load(f)
-            version = data.get("project", {}).get("version", "unknown")
+            version: str = data.get("project", {}).get("version", "unknown")
 
         logger.debug(f"API version loaded: {version}")
         return version

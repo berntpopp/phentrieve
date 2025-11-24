@@ -9,6 +9,7 @@
 
     <v-footer app class="d-flex justify-space-between pa-2" style="z-index: 1" role="contentinfo">
       <div class="d-flex align-center">
+        <!-- Disclaimer Button (Legal - Left Side) -->
         <v-tooltip
           location="top"
           :text="$t('app.footer.disclaimerTooltip')"
@@ -50,6 +51,8 @@
 
       <div class="d-flex align-center">
         <LanguageSwitcher class="mr-2" />
+        <!-- Conversation Settings Button -->
+        <ConversationSettings class="mr-2" />
         <v-tooltip
           location="top"
           :text="$t('app.footer.tutorialTooltip')"
@@ -290,6 +293,7 @@
 <script>
 import { useDisclaimerStore } from './stores/disclaimer';
 import { useLogStore } from './stores/log';
+import { useConversationStore } from './stores/conversation';
 import { logService } from './services/logService';
 import { tutorialService } from './services/tutorialService';
 import { getAllVersions } from './utils/version';
@@ -298,6 +302,7 @@ import DisclaimerDialog from './components/DisclaimerDialog.vue';
 import LogViewer from './components/LogViewer.vue';
 import LanguageSwitcher from './components/LanguageSwitcher.vue';
 import TutorialOverlay from './components/TutorialOverlay.vue';
+import ConversationSettings from './components/ConversationSettings.vue';
 
 export default {
   name: 'App',
@@ -306,6 +311,7 @@ export default {
     LogViewer,
     LanguageSwitcher,
     TutorialOverlay,
+    ConversationSettings,
   },
   data() {
     return {
@@ -326,6 +332,9 @@ export default {
     logStore() {
       return useLogStore();
     },
+    conversationStore() {
+      return useConversationStore();
+    },
     apiConnected() {
       const { connected } = useApiHealth();
       return connected.value;
@@ -338,9 +347,8 @@ export default {
   created() {
     logService.info('App component created');
 
-    // Initialize the store
-    this.disclaimerStore.initialize();
-    logService.debug('Disclaimer store initialized', {
+    // Store state is automatically hydrated by pinia-plugin-persistedstate
+    logService.debug('Disclaimer store state', {
       isAcknowledged: this.disclaimerStore.isAcknowledged,
       timestamp: this.disclaimerStore.acknowledgmentTimestamp,
     });

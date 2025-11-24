@@ -1,6 +1,31 @@
 {
   "common": {
-    "auto": "Détection automatique"
+    "auto": "Détection automatique",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "reset": "Réinitialiser",
+    "close": "Fermer"
+  },
+  "conversationSettings": {
+    "tooltip": "Paramètres de conversation",
+    "title": "Paramètres de conversation",
+    "historyLength": "Longueur maximale de l'historique",
+    "historyHint": "Des valeurs plus basses améliorent les performances. Des valeurs plus élevées conservent plus d'historique.",
+    "stats": "Statistiques actuelles",
+    "totalQueries": "Total des requêtes",
+    "totalPhenotypes": "Phénotypes collectés",
+    "storageUsed": "Stockage utilisé",
+    "clearAll": "Tout effacer",
+    "close": "Fermer",
+    "confirmClearTitle": "Effacer toutes les données ?",
+    "confirmClearMessage": "Cela supprimera définitivement tout l'historique de conversation et les phénotypes collectés. Cette action est irréversible."
+  },
+  "home": {
+    "logoAlt": "Logo Phentrieve - Cliquez pour réinitialiser",
+    "resetAriaLabel": "Réinitialiser la conversation",
+    "resetTitle": "Réinitialiser l'application ?",
+    "resetMessage": "Cela effacera tout l'historique de conversation et les phénotypes collectés. Votre acceptation de l'avertissement sera conservée.",
+    "resetConfirm": "Réinitialiser"
   },
   "models": {
     "biolord": "BioLORD 2023-M",
@@ -21,7 +46,8 @@
       "copyright": "© {year} Phentrieve",
       "githubTooltip": "Voir le code source sur GitHub",
       "docsTooltip": "Voir la documentation du projet",
-      "licenseTooltip": "Voir la licence du projet"
+      "licenseTooltip": "Voir la licence du projet",
+      "homeTooltip": "Aller à l'accueil"
     }
   },
   "disclaimerDialog": {
