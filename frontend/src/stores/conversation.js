@@ -12,6 +12,30 @@ import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 
 /**
+ * Storage key for persistence - must match persist.key config
+ * @private
+ */
+const STORAGE_KEY = 'phentrieve-conversation';
+
+/**
+ * Check if there's persisted conversation data in localStorage
+ * Used to determine if skeleton loading should be shown
+ * @private
+ * @returns {boolean} True if persisted data with content exists
+ */
+function hasPersistedData() {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (!stored) return false;
+    const parsed = JSON.parse(stored);
+    // Only show skeleton if there's actual conversation history to display
+    return parsed.queryHistory?.length > 0;
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Generate a unique ID for query items
  * @private
  * @returns {string} UUID v4 string
@@ -33,10 +57,10 @@ export const useConversationStore = defineStore(
 
     /**
      * Whether the store is currently hydrating from localStorage
-     * Used for showing loading skeletons during initial load
+     * Only true if there's persisted data to load (avoids showing skeleton for empty state)
      * @type {import('vue').Ref<boolean>}
      */
-    const isHydrating = ref(true);
+    const isHydrating = ref(hasPersistedData());
 
     /**
      * Query history array (newest first)
@@ -339,16 +363,13 @@ export const useConversationStore = defineStore(
   {
     // pinia-plugin-persistedstate v4 configuration
     persist: {
-      key: 'phentrieve-conversation',
+      key: STORAGE_KEY,
       storage: localStorage,
       pick: ['queryHistory', 'collectedPhenotypes', 'maxHistoryLength', 'showCollectionPanel'],
-      // Signal hydration complete after restore for non-blocking UI
-      afterRestore: (ctx) => {
-        // Use nextTick to ensure Vue reactivity cycle completes
-        // This allows the UI to render first, then show restored data
-        requestAnimationFrame(() => {
-          ctx.store.isHydrating = false;
-        });
+      // Signal hydration complete after restore (pinia-plugin-persistedstate v4 hook)
+      afterHydrate: (ctx) => {
+        // Pinia auto-unwraps refs, so direct assignment works
+        ctx.store.isHydrating = false;
       },
     },
   }
