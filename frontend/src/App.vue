@@ -9,41 +9,7 @@
 
     <v-footer app class="d-flex justify-space-between pa-2" style="z-index: 1" role="contentinfo">
       <div class="d-flex align-center">
-        <!-- Conversation Settings Button -->
-        <ConversationSettings class="mr-1" />
-
-        <!-- Home/Reset Button -->
-        <v-tooltip
-          location="top"
-          :text="$t('app.footer.homeTooltip', 'Go to home / Reset conversation')"
-          role="tooltip"
-        >
-          <template #activator="{ props }">
-            <v-btn
-              v-bind="props"
-              icon
-              variant="text"
-              color="primary"
-              size="small"
-              class="mr-1"
-              aria-label="Go to home"
-              :to="{ name: 'home' }"
-            >
-              <v-badge
-                v-if="conversationStore.hasConversation"
-                color="info"
-                dot
-                offset-x="-2"
-                offset-y="-2"
-              >
-                <v-icon>mdi-home</v-icon>
-              </v-badge>
-              <v-icon v-else>mdi-home</v-icon>
-            </v-btn>
-          </template>
-        </v-tooltip>
-
-        <!-- Disclaimer Button -->
+        <!-- Disclaimer Button (Legal - Left Side) -->
         <v-tooltip
           location="top"
           :text="$t('app.footer.disclaimerTooltip')"
@@ -85,6 +51,8 @@
 
       <div class="d-flex align-center">
         <LanguageSwitcher class="mr-2" />
+        <!-- Conversation Settings Button -->
+        <ConversationSettings class="mr-2" />
         <v-tooltip
           location="top"
           :text="$t('app.footer.tutorialTooltip')"
