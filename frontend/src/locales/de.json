@@ -348,7 +348,7 @@
         "questions": {
           "reranking": {
             "question": "Wie funktioniert der Re-Ranking-Prozess?",
-            "answer": "<p>Phentrieve verwendet einen zweistufigen Ansatz:</p><ol><li>Initiale Abruf durch Bi-Encoder-Modelle (BioLORD/Jina)</li><li>Re-Ranking durch Cross-Encoder-Modelle:</li></ol><ul><li>cross-encoder/mmarco-mMiniLMv2-L12-H384-v1 (allgemein mehrsprachig)</li><li>MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7 (mehrsprachig NLI)</li><li>ncbi/MedCPT-Cross-Encoder (biomedizinisch spezifisch)</li></ul>"
+            "answer": "<p>Phentrieve verwendet einen geschützten zweistufigen Retrieval-Ansatz:</p><ol><li><strong>Stufe 1 - Dense Retrieval:</strong> BioLORD Bi-Encoder-Modell führt erste semantische Suche mit hoher Recall-Rate durch</li><li><strong>Schutz:</strong> Ergebnisse mit hoher Konfidenz (Ähnlichkeit ≥0,7) sind vor Herabstufung geschützt und bewahren BioLORDs starke cross-linguale Performance</li><li><strong>Stufe 2 - Cross-Encoder-Verfeinerung:</strong> BAAI/bge-reranker-v2-m3 (mehrsprachig, 568M Parameter) verfeinert nur unsichere Mittelfeld-Kandidaten</li><li><strong>Zusammenführung:</strong> Geschützte Ergebnisse bleiben oben, neu gerankte Ergebnisse füllen darunter</li></ol><p>Dieser Ansatz bewahrt die Qualität des Dense Retrievals und profitiert gleichzeitig von der Cross-Encoder-Präzision für unsichere Treffer.</p>"
           },
           "performance": {
             "question": "Welche Leistung kann ich erwarten?",

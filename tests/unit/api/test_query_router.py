@@ -141,8 +141,8 @@ class TestResolveRerankerModelName:
 
         # Assert
         assert result is not None  # Should use DEFAULT_RERANKER_MODEL
-        # Verify it's the expected default model
-        assert "MoritzLaurer" in result or "cross-encoder" in result
+        # Verify it's the expected default model (BAAI/bge-reranker-v2-m3)
+        assert "bge-reranker" in result or "BAAI" in result
 
     def test_uses_default_monolingual_model_when_none_provided(self):
         """Test uses default monolingual model when not specified."""

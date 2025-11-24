@@ -34,7 +34,7 @@ class QueryRequest(BaseModel):
     enable_reranker: bool = Field(False, description="Enable cross-encoder reranking.")
     reranker_model: Optional[str] = Field(
         None,
-        description="Cross-encoder model for cross-lingual reranking (e.g., 'MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7'). Uses default if None and reranking enabled.",
+        description="Cross-encoder model for cross-lingual reranking (e.g., 'BAAI/bge-reranker-v2-m3'). Uses default if None and reranking enabled.",
     )
     monolingual_reranker_model: Optional[str] = Field(
         None,

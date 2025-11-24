@@ -149,7 +149,7 @@ def process_text_for_hpo_command(
             "--reranker-model",
             help="Cross-encoder model for reranking (if reranking enabled)",
         ),
-    ] = "MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7",
+    ] = None,
     monolingual_reranker_model: Annotated[
         Optional[str],
         typer.Option(

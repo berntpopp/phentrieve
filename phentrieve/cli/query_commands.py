@@ -98,7 +98,7 @@ def query_hpo(
         typer.Option(
             "--reranker-model", "--rm", help="Cross-encoder model for re-ranking"
         ),
-    ] = "MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7",
+    ] = None,
     monolingual_reranker_model: Annotated[
         Optional[str],
         typer.Option(

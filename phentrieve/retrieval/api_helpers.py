@@ -3,7 +3,9 @@ from typing import Any, Optional
 
 from sentence_transformers import CrossEncoder
 
+from phentrieve.config import DEFAULT_DENSE_TRUST_THRESHOLD
 from phentrieve.retrieval.dense_retriever import DenseRetriever
+from phentrieve.retrieval.reranker import protected_dense_rerank
 from phentrieve.text_processing.assertion_detection import (
     CombinedAssertionDetector,
 )
@@ -151,37 +153,20 @@ async def execute_hpo_retrieval_for_api(
     # Apply reranking if enabled
     if enable_reranker and cross_encoder:
         logger.debug(
-            f"Reranking {len(hpo_embeddings_results)} results using {reranker_mode} mode"
+            f"Reranking {len(hpo_embeddings_results)} results using {reranker_mode} mode with protected retrieval"
         )
         try:
-            # Store original ranks for reference
-            for i, result in enumerate(hpo_embeddings_results):
-                result["original_rank"] = i + 1
+            # Map "similarity" field to "bi_encoder_score" for protected_dense_rerank()
+            for item in hpo_embeddings_results:
+                item["bi_encoder_score"] = item["similarity"]
 
-            if reranker_mode == "monolingual" and translation_dir_path:
-                # Load translations for monolingual reranking
-                # This would need the translation loading logic adapted from process_query
-                # For now, placeholder for the translation logic
-                pass
-
-            # Create sentence pairs for the cross-encoder
-            # Format: [(query_text, hpo_term_label), ...]
-            sentence_pairs = [
-                (segment_to_process, item["label"]) for item in hpo_embeddings_results
-            ]
-
-            # Get cross-encoder scores
-            cross_encoder_scores = cross_encoder.predict(sentence_pairs)
-
-            # Add scores to results
-            for i, score in enumerate(cross_encoder_scores):
-                hpo_embeddings_results[i]["cross_encoder_score"] = float(score)
-
-            # Sort by cross-encoder score (descending)
-            hpo_embeddings_results = sorted(
-                hpo_embeddings_results,
-                key=lambda x: x["cross_encoder_score"],
-                reverse=True,
+            # Use protected two-stage retrieval approach
+            # This preserves high-confidence dense matches while refining uncertain candidates
+            hpo_embeddings_results = protected_dense_rerank(
+                query=segment_to_process,
+                candidates=hpo_embeddings_results,
+                cross_encoder_model=cross_encoder,
+                trust_threshold=DEFAULT_DENSE_TRUST_THRESHOLD,
             )
 
         except Exception as e:

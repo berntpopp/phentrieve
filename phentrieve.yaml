@@ -61,9 +61,10 @@ enable_reranker: false
 reranker_mode: "cross-lingual"
 
 # Cross-encoder model for re-ranking
-# Multilingual cross-encoder (cross-lingual mode)
-# Changed to dedicated reranker for better semantic relevance (RERANKING-DIAGNOSIS-AND-FIX.md)
-# Previous: MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7 (NLI model)
+# BAAI/bge-reranker-v2-m3: Multilingual cross-encoder (568M params)
+# - Trained on MS MARCO relevance datasets
+# - Supports 100+ languages for cross-lingual retrieval
+# - Used with protected two-stage retrieval (preserves high-confidence dense matches)
 reranker_model: "BAAI/bge-reranker-v2-m3"
 
 # Monolingual cross-encoder (monolingual mode - German)
@@ -71,6 +72,11 @@ monolingual_reranker_model: "ml6team/cross-encoder-mmarco-german-distilbert-base
 
 # Number of candidates to retrieve before re-ranking
 rerank_candidate_count: 50
+
+# Protected dense retrieval threshold (0.0-1.0)
+# High-confidence dense matches (≥threshold) are protected from reranker demotion
+# Default: 0.7 (preserves BioLORD's strong cross-lingual semantic matches)
+dense_trust_threshold: 0.7
 
 # =============================================================================
 # TEXT PROCESSING

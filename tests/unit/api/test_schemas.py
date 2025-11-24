@@ -57,7 +57,7 @@ class TestQueryRequest:
             num_results=20,
             similarity_threshold=0.5,
             enable_reranker=True,
-            reranker_model="MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7",
+            reranker_model="BAAI/bge-reranker-v2-m3",
             reranker_mode="cross-lingual",
             rerank_count=15,
             detect_query_assertion=False,
@@ -227,7 +227,7 @@ class TestQueryResponse:
             query_text_received="patient has seizures",
             language_detected="en",
             model_used_for_retrieval="FremyCompany/BioLORD-2023-M",
-            reranker_used="MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7",
+            reranker_used="BAAI/bge-reranker-v2-m3",
             query_assertion_status="negated",
             results=[
                 HPOResultItem(
@@ -244,7 +244,7 @@ class TestQueryResponse:
         assert resp.language_detected == "en"
         assert (
             resp.reranker_used
-            == "MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7"
+            == "BAAI/bge-reranker-v2-m3"
         )
         assert resp.query_assertion_status == "negated"
         assert resp.results[0].cross_encoder_score == 0.92
