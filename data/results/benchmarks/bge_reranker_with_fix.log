@@ -1,0 +1,103 @@
+2025-11-24 23:18:23,825 - INFO - Logging level set to INFO
+Starting benchmark evaluation...
+2025-11-24 23:18:23,826 - INFO - Running benchmark on single model: FremyCompany/BioLORD-2023-M
+2025-11-24 23:18:23,826 - INFO - Benchmarking model: FremyCompany/BioLORD-2023-M
+2025-11-24 23:18:23,826 - INFO - Loaded 9 test cases from /home/bernt-popp/development/phentrieve/tests/data/benchmarks/german/tiny_v1.json
+2025-11-24 23:18:23,826 - INFO - Starting benchmark evaluation for model 'FremyCompany/BioLORD-2023-M'
+2025-11-24 23:18:23,826 - INFO - Test file: /home/bernt-popp/development/phentrieve/tests/data/benchmarks/german/tiny_v1.json (9 test cases)
+2025-11-24 23:18:23,826 - INFO - Loading embedding model: FremyCompany/BioLORD-2023-M on cuda
+2025-11-24 23:18:23,826 - INFO - Loading BioLORD model 'FremyCompany/BioLORD-2023-M' with trust_remote_code=True on cuda
+2025-11-24 23:18:23,826 - INFO - Use pytorch device_name: cuda:0
+2025-11-24 23:18:23,826 - INFO - Load pretrained SentenceTransformer: FremyCompany/BioLORD-2023-M
+2025-11-24 23:18:26,885 - INFO - Successfully loaded and cached model FremyCompany/BioLORD-2023-M on cuda
+2025-11-24 23:18:26,885 - INFO - Loading HPO graph data for semantic similarity calculation
+2025-11-24 23:18:26,885 - INFO - Loading HPO graph data from database: /home/bernt-popp/development/phentrieve/data/hpo_data.db...
+2025-11-24 23:18:26,921 - INFO - Loaded ancestor sets for 19534 HPO terms
+2025-11-24 23:18:26,921 - INFO - Loaded depth values for 19534 HPO terms
+2025-11-24 23:18:26,921 - INFO - Loading cross-encoder model for cross-lingual re-ranking on cuda
+2025-11-24 23:18:26,921 - INFO - Loading cross-encoder model 'BAAI/bge-reranker-v2-m3' on cuda
+2025-11-24 23:18:28,461 - INFO - Successfully loaded cross-encoder model: BAAI/bge-reranker-v2-m3
+2025-11-24 23:18:28,461 - INFO - Successfully loaded cross-encoder model: BAAI/bge-reranker-v2-m3
+2025-11-24 23:18:28,461 - INFO - DenseRetriever.from_model_name: Using explicit index_dir: /home/bernt-popp/development/phentrieve/data/indexes
+2025-11-24 23:18:28,748 - INFO - Connected to collection 'phentrieve_biolord_2023_m' with 19534 docs
+2025-11-24 23:18:28,748 - INFO - Running benchmark on 9 test cases
+Evaluating test cases:   0%|          | 0/9 [00:00<?, ?it/s]2025-11-24 23:18:28,748 - INFO - Processing query: 'Hypertrophe Kardiomyopathie mit Septumhypertrophie'
+2025-11-24 23:18:28,748 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][A
+Batches: 100%|██████████| 1/1 [00:00<00:00,  9.96it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00,  9.95it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 11.48it/s]
+Evaluating test cases:  11%|█         | 1/9 [00:00<00:01,  5.17it/s]2025-11-24 23:18:28,942 - INFO - Processing query: 'Geistige Behinderung und Tremor'
+2025-11-24 23:18:28,942 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 466.40it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 214.08it/s]
+2025-11-24 23:18:28,984 - INFO - Processing query: 'Polydaktylie der Zehen und Hände'
+2025-11-24 23:18:28,984 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 498.08it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 214.36it/s]
+Evaluating test cases:  33%|███▎      | 3/9 [00:00<00:00, 10.98it/s]2025-11-24 23:18:29,052 - INFO - Processing query: 'Down-Syndrom mit Herzfehler'
+2025-11-24 23:18:29,052 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 461.62it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 206.87it/s]
+2025-11-24 23:18:29,094 - INFO - Processing query: 'Epilepsie mit Anfällen'
+2025-11-24 23:18:29,094 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 437.54it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 233.50it/s]
+2025-11-24 23:18:29,152 - INFO - Processing query: 'Schwere Muskelatrophie mit Hypotonie'
+2025-11-24 23:18:29,152 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 508.28it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 214.83it/s]
+Evaluating test cases:  67%|██████▋   | 6/9 [00:00<00:00, 14.33it/s]2025-11-24 23:18:29,221 - INFO - Processing query: 'Hörverlust mit Innenohrfehlbildung'
+2025-11-24 23:18:29,221 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 474.84it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 248.65it/s]
+2025-11-24 23:18:29,249 - INFO - Processing query: 'Neutropenie mit wiederkehrenden Infektionen'
+2025-11-24 23:18:29,249 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 563.45it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 228.91it/s]
+2025-11-24 23:18:29,289 - WARNING - Invalid path lengths: term1=7, term2=5, LCA=7
+2025-11-24 23:18:29,289 - INFO - Processing query: 'Mikrozephalie und Entwicklungsverzögerung'
+2025-11-24 23:18:29,289 - INFO - Processing batch query with 1 texts
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 497.78it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 205.03it/s]
+Evaluating test cases: 100%|██████████| 9/9 [00:00<00:00, 17.29it/s]Evaluating test cases: 100%|██████████| 9/9 [00:00<00:00, 14.86it/s]
+2025-11-24 23:18:29,355 - INFO - Benchmark results for FremyCompany/BioLORD-2023-M:
+2025-11-24 23:18:29,356 - INFO -   === Dense Retrieval Metrics ====
+2025-11-24 23:18:29,356 - INFO -   MRR (Dense): 0.2825
+2025-11-24 23:18:29,356 - INFO -   Hit@1 (Dense): 0.1111
+2025-11-24 23:18:29,356 - INFO -   MaxOntSim@1 (Dense): 0.6560
+2025-11-24 23:18:29,356 - INFO -   Hit@3 (Dense): 0.4444
+2025-11-24 23:18:29,356 - INFO -   MaxOntSim@3 (Dense): 0.8015
+2025-11-24 23:18:29,356 - INFO -   Hit@5 (Dense): 0.4444
+2025-11-24 23:18:29,356 - INFO -   MaxOntSim@5 (Dense): 0.8034
+2025-11-24 23:18:29,356 - INFO -   Hit@10 (Dense): 0.6667
+2025-11-24 23:18:29,356 - INFO -   MaxOntSim@10 (Dense): 0.8937
+2025-11-24 23:18:29,356 - INFO -   === Re-ranked Metrics (cross-lingual mode) ===
+2025-11-24 23:18:29,356 - INFO -   MRR (Re-ranked): 0.3843
+2025-11-24 23:18:29,356 - INFO -   Hit@1 (Re-ranked): 0.2222
+2025-11-24 23:18:29,356 - INFO -   MaxOntSim@1 (Re-ranked): 0.5710
+2025-11-24 23:18:29,356 - INFO -   Hit@3 (Re-ranked): 0.5556
+2025-11-24 23:18:29,356 - INFO -   MaxOntSim@3 (Re-ranked): 0.8485
+2025-11-24 23:18:29,356 - INFO -   Hit@5 (Re-ranked): 0.5556
+2025-11-24 23:18:29,356 - INFO -   MaxOntSim@5 (Re-ranked): 0.8915
+2025-11-24 23:18:29,356 - INFO -   Hit@10 (Re-ranked): 0.6667
+2025-11-24 23:18:29,356 - INFO -   MaxOntSim@10 (Re-ranked): 0.8937
+2025-11-24 23:18:29,356 - INFO - Successfully completed benchmark for model: FremyCompany/BioLORD-2023-M
+Benchmark completed successfully!

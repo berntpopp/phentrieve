@@ -22,13 +22,12 @@ from phentrieve.config import (
     DEFAULT_ASSERTION_CONFIG,
     DEFAULT_LANGUAGE,
     DEFAULT_MODEL,
-    DEFAULT_TRANSLATIONS_SUBDIR,
 )
 from phentrieve.text_processing.hpo_extraction_orchestrator import (
     orchestrate_hpo_extraction,
 )
 from phentrieve.text_processing.pipeline import TextProcessingPipeline
-from phentrieve.utils import detect_language, resolve_data_path
+from phentrieve.utils import detect_language
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/v1/text", tags=["Text Processing and HPO Extraction"])
@@ -207,9 +206,6 @@ async def _process_text_internal(request: TextProcessingRequest):
                 )
                 actual_language = DEFAULT_LANGUAGE
 
-        # Resolve translation directory if needed for monolingual reranking
-        translation_dir = resolve_data_path(DEFAULT_TRANSLATIONS_SUBDIR)
-
         # Model loading using cached dependencies (much faster than direct loading!)
         # Determine which models to load, with dynamic defaulting for semantic model
         retrieval_model_name_to_load = request.retrieval_model_name or DEFAULT_MODEL
@@ -320,8 +316,6 @@ async def _process_text_internal(request: TextProcessingRequest):
             language=actual_language,
             chunk_retrieval_threshold=request.chunk_retrieval_threshold or 0.3,
             num_results_per_chunk=request.num_results_per_chunk or 10,
-            reranker_mode=request.reranker_mode or "cross-lingual",
-            translation_dir_path=translation_dir,
             min_confidence_for_aggregated=request.aggregated_term_confidence or 0.35,
             top_term_per_chunk=request.top_term_per_chunk_for_aggregation or False,
             include_details=request.include_details or False,

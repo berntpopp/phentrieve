@@ -123,9 +123,6 @@
       "similarityThreshold": "Seuil de similarité",
       "enableReranking": "Activer le re-classement",
       "includeDetails": "Inclure les détails",
-      "rerankerMode": "Mode de re-classement",
-      "rerankerModeCrossLingual": "Multilingue",
-      "rerankerModeMonolingual": "Monolingue",
       "language": "Langue",
       "processingModeTitle": "Mode de traitement",
       "processingModeLabel": "Mode de traitement",
@@ -155,7 +152,6 @@
       "similarityThreshold": "Définir le score de similarité minimum requis pour les résultats",
       "enableReranking": "Activer le reclassement des résultats avec un cross-encoder",
       "includeDetails": "Inclure les définitions et synonymes des termes HPO dans les résultats de recherche (limité à 20 résultats pour les performances)",
-      "rerankerMode": "Choisir comment les résultats de recherche sont reclassés",
       "language": "Sélectionner la langue pour le traitement des requêtes et la détection des négations",
       "subjectId": "Entrer un identifiant pour le sujet/patient",
       "sex": "Sélectionner le sexe biologique du sujet",
@@ -304,7 +300,7 @@
         "questions": {
           "reranking": {
             "question": "Comment fonctionne le processus de reclassement?",
-            "answer": "Phentrieve utilise une approche en deux étapes:Récupération initiale utilisant des modèles bi-encodeurs (BioLORD/Jina)Reclassement utilisant des modèles cross-encodeurs:cross-encoder/mmarco-mMiniLMv2-L12-H384-v1 (général multilingue)MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7 (NLI multilingue)ncbi/MedCPT-Cross-Encoder (spécifique biomédical)"
+            "answer": "<p>Phentrieve utilise une approche de récupération en deux étapes protégées:</p><ol><li><strong>Étape 1 - Récupération Dense:</strong> Le modèle bi-encodeur BioLORD effectue la recherche sémantique initiale avec un rappel élevé</li><li><strong>Protection:</strong> Les correspondances à haute confiance (similarité ≥0,7) sont protégées contre la dégradation, préservant les fortes performances cross-linguistiques de BioLORD</li><li><strong>Étape 2 - Affinement Cross-Encoder:</strong> BAAI/bge-reranker-v2-m3 (multilingue, 568M paramètres) affine uniquement les candidats de milieu de gamme incertains</li><li><strong>Fusion:</strong> Les résultats protégés restent en haut, les résultats reclassés remplissent en dessous</li></ol><p>Cette approche préserve la qualité de la récupération dense tout en bénéficiant de la précision du cross-encoder pour les correspondances incertaines.</p>"
           },
           "performance": {
             "question": "Quelles performances puis-je attendre?",

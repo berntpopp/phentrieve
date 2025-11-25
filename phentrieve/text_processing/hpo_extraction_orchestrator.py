@@ -6,8 +6,9 @@ pipeline-based approach with dense retrieval and optional cross-encoder rerankin
 
 import logging
 from collections import Counter, defaultdict
-from pathlib import Path
 from typing import TYPE_CHECKING, Any, Optional
+
+import numpy as np
 
 # NOTE: CrossEncoder is only imported for type hints (TYPE_CHECKING).
 # This module receives CrossEncoder instances but doesn't create them,
@@ -30,9 +31,7 @@ def orchestrate_hpo_extraction(
     num_results_per_chunk: int = 10,
     chunk_retrieval_threshold: float = 0.3,
     cross_encoder: Optional["CrossEncoder"] = None,
-    translation_dir_path: Optional[Path] = None,
     language: str = "en",
-    reranker_mode: str = "cross-lingual",
     top_term_per_chunk: bool = False,
     min_confidence_for_aggregated: float = 0.0,
     assertion_statuses: Optional[list[str | None]] = None,
@@ -46,8 +45,7 @@ def orchestrate_hpo_extraction(
     Process involves:
     1. Getting matches for each chunk
     2. Re-ranking matches if enabled
-    3. Processing translations if needed
-    4. Aggregating and deduplicating results
+    3. Aggregating and deduplicating results
 
     Args:
         text_chunks: List of text chunks to process
@@ -55,9 +53,7 @@ def orchestrate_hpo_extraction(
         num_results_per_chunk: Number of results per chunk
         chunk_retrieval_threshold: Min similarity threshold for HPO term matches per chunk
         cross_encoder: Optional cross-encoder model for re-ranking
-        translation_dir_path: Path to translation files directory
         language: Language code (e.g. 'en', 'de')
-        reranker_mode: Mode for re-ranking ('monolingual' or 'cross-lingual')
         top_term_per_chunk: If True, only keep top term per chunk
         min_confidence_for_aggregated: Minimum confidence threshold for aggregated terms
         assertion_statuses: Optional list of assertion statuses per chunk
@@ -89,10 +85,6 @@ def orchestrate_hpo_extraction(
     # Process chunks with pre-fetched results
     for chunk_idx, chunk_text in enumerate(text_chunks):
         try:
-            # Note: In monolingual reranker mode, we keep the query text in its original
-            # language and translate the HPO term candidates instead (done in reranker).
-            # The chunk_text is not translated here.
-
             # Get pre-fetched results for this chunk from the batch query
             query_results = all_query_results[chunk_idx]
 
@@ -158,8 +150,21 @@ def orchestrate_hpo_extraction(
                     )
 
                     # Add scores to candidates
+                    # Handle different output formats from various cross-encoder models:
+                    # - NLI models return arrays: [P(entailment), P(neutral), P(contradiction)]
+                    # - Rerankers return single float: relevance_score
                     for idx, match in enumerate(current_hpo_matches[:]):
-                        match["score"] = float(scores[idx])
+                        raw_score = scores[idx]
+                        if (
+                            isinstance(raw_score, (list, np.ndarray))
+                            and len(raw_score) > 1
+                        ):
+                            # NLI model: use entailment probability (index 0)
+                            # Note: Suboptimal for semantic relevance - dedicated reranker recommended
+                            match["score"] = float(raw_score[0])
+                        else:
+                            # Proper reranker: single relevance score
+                            match["score"] = float(raw_score)
 
                     # Sort by score
                     current_hpo_matches.sort(key=lambda x: x["score"], reverse=True)

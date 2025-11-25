@@ -98,29 +98,6 @@ def query_hpo(
         typer.Option(
             "--reranker-model", "--rm", help="Cross-encoder model for re-ranking"
         ),
-    ] = "MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7",
-    monolingual_reranker_model: Annotated[
-        Optional[str],
-        typer.Option(
-            "--monolingual-reranker-model",
-            help="Language-specific cross-encoder model for monolingual re-ranking",
-        ),
-    ] = "ml6team/cross-encoder-mmarco-german-distilbert-base",
-    reranker_mode: Annotated[
-        str,
-        typer.Option(
-            "--reranker-mode",
-            "--mode",
-            help="Mode for re-ranking (cross-lingual or monolingual)",
-        ),
-    ] = "cross-lingual",
-    translation_dir: Annotated[
-        Optional[str],
-        typer.Option(
-            "--translation-dir",
-            "--td",
-            help="Directory with HPO translations in target language",
-        ),
     ] = None,
     rerank_count: Annotated[
         int,
@@ -195,9 +172,9 @@ def query_hpo(
     - json: Structured JSON output
     - json_lines: JSON Lines format (one JSON object per line)
     """
-    from phentrieve.config import DEFAULT_MODEL, DEFAULT_TRANSLATIONS_SUBDIR
+    from phentrieve.config import DEFAULT_MODEL, DEFAULT_RERANKER_MODEL
     from phentrieve.retrieval.query_orchestrator import orchestrate_query
-    from phentrieve.utils import resolve_data_path, setup_logging_cli
+    from phentrieve.utils import setup_logging_cli
 
     # Set up logging
     setup_logging_cli(debug=debug)
@@ -206,13 +183,6 @@ def query_hpo(
     if model_name is None:
         model_name = DEFAULT_MODEL
         typer.echo(f"Using default model: {model_name}")
-
-    # Use default translation dir if not specified
-    if translation_dir is None:
-        translation_dir = DEFAULT_TRANSLATIONS_SUBDIR
-
-    # Resolve translation directory path
-    translation_dir_path = resolve_data_path(translation_dir)
 
     # Determine device based on CPU flag
     device_override = "cpu" if cpu else None
@@ -234,10 +204,7 @@ def query_hpo(
             model_name=model_name,
             trust_remote_code=trust_remote_code,
             enable_reranker=enable_reranker,
-            reranker_model=reranker_model or "",
-            monolingual_reranker_model=monolingual_reranker_model or "",
-            reranker_mode=reranker_mode,
-            translation_dir=str(translation_dir_path),
+            reranker_model=reranker_model or DEFAULT_RERANKER_MODEL,
             device_override=device_override,
             debug=debug,
             output_func=typer_echo,
@@ -349,10 +316,7 @@ def query_hpo(
             sentence_mode=sentence_mode,
             trust_remote_code=trust_remote_code,
             enable_reranker=enable_reranker,
-            reranker_model=reranker_model or "",
-            monolingual_reranker_model=monolingual_reranker_model or "",
-            reranker_mode=reranker_mode,
-            translation_dir=str(translation_dir_path),
+            reranker_model=reranker_model or DEFAULT_RERANKER_MODEL,
             rerank_count=rerank_count,
             device_override=device_override,
             debug=debug,

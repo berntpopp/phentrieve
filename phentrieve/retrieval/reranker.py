@@ -110,3 +110,144 @@ def rerank_with_cross_encoder(
         logger.error(f"Error during cross-encoder re-ranking: {str(e)}")
         logger.warning("Falling back to original candidate order")
         return candidates
+
+
+def protected_dense_rerank(
+    query: str,
+    candidates: list[dict[str, Any]],
+    cross_encoder_model: CrossEncoder,
+    trust_threshold: float = 0.7,
+) -> list[dict[str, Any]]:
+    """
+    Protected two-stage retrieval that preserves high-confidence dense retrieval matches.
+
+    This implements a research-backed approach for cross-lingual medical retrieval:
+    - Stage 1 (Dense Retrieval): BioLORD provides high-recall semantic matching
+    - Protection: High-confidence matches (≥trust_threshold) are protected from demotion
+    - Stage 2 (Cross-Encoder): Refines only uncertain mid-tier results
+    - Merge: Protected results stay at top, reranked results fill below
+
+    This addresses the problem where cross-encoders can demote correct cross-lingual
+    matches due to lexical bias (e.g., promoting "Bladder stones" over "Nephrolithiasis"
+    for German query "Steine der Niere").
+
+    References:
+        - BioLORD-2023: Designed as DPR model for biomedical RAG pipelines
+        - Multistage BiCross: Multilingual medical information access (PMC8423231)
+        - Two-stage retrieval: Bi-encoder for recall, cross-encoder for precision
+
+    Args:
+        query: Original query string (in source language)
+        candidates: List of candidate dictionaries with 'bi_encoder_score' field
+        cross_encoder_model: Loaded CrossEncoder model
+        trust_threshold: Minimum bi_encoder_score to protect from demotion (default: 0.7)
+
+    Returns:
+        List of candidates with 'cross_encoder_score' added and optimal ordering:
+        - Protected high-confidence dense matches at top (preserved order)
+        - Reranked uncertain matches below (sorted by cross_encoder_score)
+
+    Example:
+        Query: "Steine der Niere" (German)
+
+        Before protection:
+        1. Urolithiasis (dense: 0.91) → Cross-encoder demotes to #10
+        2. Bladder stones (dense: 0.45) → Cross-encoder promotes to #1
+
+        After protection:
+        1. Urolithiasis (dense: 0.91) ← PROTECTED (above 0.7 threshold)
+        2. [Other reranked results...]
+
+    Note:
+        - Candidates must have 'bi_encoder_score' field from dense retrieval
+        - Protected candidates retain original dense retrieval ordering
+        - Cross-encoder scores are still added for all candidates
+        - Protection threshold should be tuned based on dense retriever performance
+    """
+    try:
+        if not candidates:
+            logger.warning("No candidates provided for protected re-ranking")
+            return []
+
+        # ============ STAGE 1: Identify Protected Candidates ============
+        # High-confidence dense matches are protected from cross-encoder demotion
+        protected_candidates = [
+            c for c in candidates if c.get("bi_encoder_score", 0.0) >= trust_threshold
+        ]
+
+        # Lower-confidence candidates can be reranked
+        rerank_candidates = [
+            c for c in candidates if c.get("bi_encoder_score", 0.0) < trust_threshold
+        ]
+
+        logger.info(
+            f"Protected dense retrieval: {len(protected_candidates)} candidates "
+            f"above threshold {trust_threshold:.2f}, "
+            f"{len(rerank_candidates)} candidates for re-ranking"
+        )
+
+        # ============ STAGE 2: Cross-Encoder Refinement ============
+        # ONLY rerank the uncertain mid-tier candidates
+        if rerank_candidates:
+            # Prepare pairs for the cross-encoder
+            pairs = [
+                (
+                    query,
+                    candidate.get("comparison_text", candidate.get("english_doc", "")),
+                )
+                for candidate in rerank_candidates
+            ]
+
+            # Get scores from the cross-encoder
+            scores = cross_encoder_model.predict(pairs)
+
+            # Add scores to rerank candidates
+            for i, candidate in enumerate(rerank_candidates):
+                # Handle different output formats from various cross-encoder models
+                if isinstance(scores[i], (list, np.ndarray)) and len(scores[i]) > 1:
+                    # For NLI models: use entailment score
+                    candidate["cross_encoder_score"] = float(scores[i][0])
+                else:
+                    # For traditional cross-encoders: single score
+                    candidate["cross_encoder_score"] = float(scores[i])
+
+            # Sort reranked candidates by cross-encoder score
+            rerank_candidates.sort(
+                key=lambda x: x.get("cross_encoder_score", 0.0), reverse=True
+            )
+
+            logger.debug(f"Re-ranked {len(rerank_candidates)} uncertain candidates")
+
+        # Also add cross-encoder scores to protected candidates for transparency
+        if protected_candidates:
+            pairs = [
+                (
+                    query,
+                    candidate.get("comparison_text", candidate.get("english_doc", "")),
+                )
+                for candidate in protected_candidates
+            ]
+            scores = cross_encoder_model.predict(pairs)
+
+            for i, candidate in enumerate(protected_candidates):
+                if isinstance(scores[i], (list, np.ndarray)) and len(scores[i]) > 1:
+                    candidate["cross_encoder_score"] = float(scores[i][0])
+                else:
+                    candidate["cross_encoder_score"] = float(scores[i])
+
+        # ============ STAGE 3: Merge with Protection ============
+        # Protected results stay at top (preserve dense retrieval order)
+        # Reranked results fill in below (sorted by cross-encoder)
+        final_candidates = protected_candidates + rerank_candidates
+
+        logger.info(
+            f"Protected re-ranking complete: {len(protected_candidates)} protected, "
+            f"{len(rerank_candidates)} reranked"
+        )
+
+        return final_candidates
+
+    except Exception as e:
+        logger.error(f"Error during protected re-ranking: {str(e)}")
+        logger.warning("Falling back to original candidate order")
+        return candidates

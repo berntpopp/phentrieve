@@ -3,7 +3,9 @@ from typing import Any, Optional
 
 from sentence_transformers import CrossEncoder
 
+from phentrieve.config import DEFAULT_DENSE_TRUST_THRESHOLD
 from phentrieve.retrieval.dense_retriever import DenseRetriever
+from phentrieve.retrieval.reranker import protected_dense_rerank
 from phentrieve.text_processing.assertion_detection import (
     CombinedAssertionDetector,
 )
@@ -20,8 +22,6 @@ async def execute_hpo_retrieval_for_api(
     enable_reranker: bool,
     cross_encoder: Optional[CrossEncoder],
     rerank_count: int,
-    reranker_mode: str,
-    translation_dir_path: Optional[str],
     include_details: bool = False,
     detect_query_assertion: bool = True,
     query_assertion_language: Optional[str] = None,
@@ -43,8 +43,6 @@ async def execute_hpo_retrieval_for_api(
         enable_reranker: Whether to apply cross-encoder reranking
         cross_encoder: Optional CrossEncoder instance for reranking
         rerank_count: Number of top dense results to rerank
-        reranker_mode: Either "cross-lingual" or "monolingual"
-        translation_dir_path: Path to translation directory for monolingual mode
         include_details: Include HPO term definitions and synonyms in results
         detect_query_assertion: Enable assertion detection on query text
         query_assertion_language: Language for assertion detection
@@ -137,51 +135,37 @@ async def execute_hpo_retrieval_for_api(
         )
 
         # Build the HPO item
+        label_text = metadata.get("label", query_results["documents"][0][i])
         hpo_item = {
             "hpo_id": metadata.get("hpo_id", query_results["ids"][0][i]),
-            "label": metadata.get("label", query_results["documents"][0][i]),
+            "label": label_text,
             "similarity": (
                 query_results["similarities"][0][i]
                 if "similarities" in query_results
                 else None
             ),
+            # Add comparison_text for cross-encoder reranking
+            "comparison_text": label_text,
         }
 
         hpo_embeddings_results.append(hpo_item)
     # Apply reranking if enabled
     if enable_reranker and cross_encoder:
         logger.debug(
-            f"Reranking {len(hpo_embeddings_results)} results using {reranker_mode} mode"
+            f"Reranking {len(hpo_embeddings_results)} results with protected retrieval"
         )
         try:
-            # Store original ranks for reference
-            for i, result in enumerate(hpo_embeddings_results):
-                result["original_rank"] = i + 1
+            # Map "similarity" field to "bi_encoder_score" for protected_dense_rerank()
+            for item in hpo_embeddings_results:
+                item["bi_encoder_score"] = item["similarity"]
 
-            if reranker_mode == "monolingual" and translation_dir_path:
-                # Load translations for monolingual reranking
-                # This would need the translation loading logic adapted from process_query
-                # For now, placeholder for the translation logic
-                pass
-
-            # Create sentence pairs for the cross-encoder
-            # Format: [(query_text, hpo_term_label), ...]
-            sentence_pairs = [
-                (segment_to_process, item["label"]) for item in hpo_embeddings_results
-            ]
-
-            # Get cross-encoder scores
-            cross_encoder_scores = cross_encoder.predict(sentence_pairs)
-
-            # Add scores to results
-            for i, score in enumerate(cross_encoder_scores):
-                hpo_embeddings_results[i]["cross_encoder_score"] = float(score)
-
-            # Sort by cross-encoder score (descending)
-            hpo_embeddings_results = sorted(
-                hpo_embeddings_results,
-                key=lambda x: x["cross_encoder_score"],
-                reverse=True,
+            # Use protected two-stage retrieval approach
+            # This preserves high-confidence dense matches while refining uncertain candidates
+            hpo_embeddings_results = protected_dense_rerank(
+                query=segment_to_process,
+                candidates=hpo_embeddings_results,
+                cross_encoder_model=cross_encoder,
+                trust_threshold=DEFAULT_DENSE_TRUST_THRESHOLD,
             )
 
         except Exception as e:

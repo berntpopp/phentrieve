@@ -123,9 +123,6 @@
       "similarityThreshold": "Overeenkomstdrempel",
       "enableReranking": "Herrangschikking inschakelen",
       "includeDetails": "Details opnemen",
-      "rerankerMode": "Herrangschikkingsmodus",
-      "rerankerModeCrossLingual": "Meertalig",
-      "rerankerModeMonolingual": "Eentalig",
       "language": "Taal",
       "processingModeTitle": "Verwerkingsmodus",
       "processingModeLabel": "Verwerkingsmodus",
@@ -155,7 +152,6 @@
       "similarityThreshold": "Stel de minimale overeenkomst in die vereist is voor matches (hoger = nauwkeuriger, minder resultaten)",
       "enableReranking": "Herorden zoekresultaten voor verbeterde nauwkeurigheid",
       "includeDetails": "HPO-termdefinities en synoniemen opnemen in zoekresultaten (beperkt tot 20 resultaten voor prestaties)",
-      "rerankerMode": "Kies hoe zoekresultaten worden geherordend",
       "language": "Selecteer de taal voor verwerking en negatie detectie",
       "subjectId": "Voer een identificatie in voor de patiënt",
       "sex": "Selecteer het biologische geslacht van de patiënt",
@@ -304,7 +300,7 @@
         "questions": {
           "reranking": {
             "question": "Hoe werkt het herrangschikkingsproces?",
-            "answer": "<p>Phentrieve gebruikt een tweefasenaanpak:</p><ol><li>Initiële ophaling met behulp van bi-encoder modellen (BioLORD/Jina)</li><li>Herrangschikking met behulp van cross-encoder modellen:</li></ol><ul><li>cross-encoder/mmarco-mMiniLMv2-L12-H384-v1 (algemeen meertalig)</li><li>MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7 (meertalig NLI)</li><li>ncbi/MedCPT-Cross-Encoder (biomedisch specifiek)</li></ul>"
+            "answer": "<p>Phentrieve gebruikt een beschermde tweefasige ophaalingsaanpak:</p><ol><li><strong>Fase 1 - Dichte Ophaling:</strong> BioLORD bi-encoder model voert initiële semantische zoekopdracht uit met hoge recall</li><li><strong>Bescherming:</strong> Overeenkomsten met hoge betrouwbaarheid (gelijkenis ≥0,7) zijn beschermd tegen degradatie, waarbij de sterke cross-linguale prestaties van BioLORD behouden blijven</li><li><strong>Fase 2 - Cross-Encoder Verfijning:</strong> BAAI/bge-reranker-v2-m3 (meertalig, 568M parameters) verfijnt alleen onzekere middenniveau kandidaten</li><li><strong>Fusie:</strong> Beschermde resultaten blijven bovenaan, opnieuw gerangschikte resultaten vullen eronder</li></ol><p>Deze aanpak behoudt de kwaliteit van dichte ophaling terwijl het profiteert van cross-encoder precisie voor onzekere overeenkomsten.</p>"
           },
           "performance": {
             "question": "Welke prestaties kan ik verwachten?",

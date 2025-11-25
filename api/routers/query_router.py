@@ -1,6 +1,4 @@
 import logging
-import os
-from pathlib import Path
 from typing import Literal, Optional, cast
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -14,9 +12,7 @@ from phentrieve.config import (
     DEFAULT_DEVICE,
     DEFAULT_LANGUAGE,
     DEFAULT_MODEL,
-    DEFAULT_MONOLINGUAL_RERANKER_MODEL,
     DEFAULT_RERANKER_MODEL,
-    DEFAULT_TRANSLATIONS_SUBDIR,
 )
 from phentrieve.retrieval.api_helpers import execute_hpo_retrieval_for_api
 from phentrieve.retrieval.dense_retriever import DenseRetriever
@@ -58,64 +54,6 @@ def _resolve_query_language(
         return default_language
 
 
-def _resolve_reranker_model_name(
-    enable_reranker: bool,
-    reranker_mode: Literal["cross-lingual", "monolingual"],
-    reranker_model: Optional[str] = None,
-    monolingual_reranker_model: Optional[str] = None,
-) -> Optional[str]:
-    """Determine which reranker model to use based on mode.
-
-    Args:
-        enable_reranker: Whether reranking is enabled
-        reranker_mode: Either "cross-lingual" or "monolingual"
-        reranker_model: Cross-lingual reranker model name
-        monolingual_reranker_model: Monolingual reranker model name
-
-    Returns:
-        Model name to use, or None if reranking disabled/no model specified
-    """
-    if not enable_reranker:
-        return None
-
-    if reranker_mode == "monolingual":
-        return monolingual_reranker_model or DEFAULT_MONOLINGUAL_RERANKER_MODEL
-    else:  # cross-lingual
-        return reranker_model or DEFAULT_RERANKER_MODEL
-
-
-def _resolve_translation_directory(
-    enable_reranker: bool,
-    reranker_mode: Literal["cross-lingual", "monolingual"],
-    language: str,
-    translation_dir_name: Optional[str] = None,
-) -> Optional[str]:
-    """Resolve translation directory path for monolingual reranking.
-
-    Args:
-        enable_reranker: Whether reranking is enabled
-        reranker_mode: Either "cross-lingual" or "monolingual"
-        language: Detected/specified language code
-        translation_dir_name: Override translation directory name
-
-    Returns:
-        Translation directory path, or None if not needed
-    """
-    if not enable_reranker or reranker_mode != "monolingual":
-        return None
-
-    base_trans_dir = Path("data") / DEFAULT_TRANSLATIONS_SUBDIR
-    resolved_path = str(base_trans_dir / (translation_dir_name or language))
-
-    if not os.path.exists(resolved_path):
-        logger.warning(
-            f"Monolingual reranking: Translation directory {resolved_path} not found. "
-            "Reranking may be suboptimal or fail for translations."
-        )
-
-    return resolved_path
-
-
 # Helper dependency to extract model_name from request for the retriever
 async def get_retriever_for_request(request: QueryRequest) -> DenseRetriever:
     """Extract model name from request and get retriever dependency"""
@@ -144,7 +82,6 @@ async def run_hpo_query_get(
     similarity_threshold: float = 0.3,
     include_details: bool = False,
     enable_reranker: bool = False,
-    reranker_mode: str = "cross-lingual",
     detect_query_assertion: bool = True,
     query_assertion_language: Optional[str] = None,
     query_assertion_preference: str = "dependency",
@@ -161,7 +98,6 @@ async def run_hpo_query_get(
     - similarity_threshold: Minimum similarity score
     - include_details: Include HPO term definitions and synonyms in results
     - enable_reranker: Enable cross-encoder reranking
-    - reranker_mode: Either "cross-lingual" or "monolingual"
     """
     # Create a QueryRequest object with the provided parameters
     request = QueryRequest(
@@ -173,9 +109,6 @@ async def run_hpo_query_get(
         include_details=include_details,
         enable_reranker=enable_reranker,
         reranker_model=DEFAULT_RERANKER_MODEL,
-        monolingual_reranker_model=DEFAULT_MONOLINGUAL_RERANKER_MODEL,
-        reranker_mode=cast(Literal["cross-lingual", "monolingual"], reranker_mode),
-        translation_dir_name=None,
         rerank_count=10,
         detect_query_assertion=detect_query_assertion,
         query_assertion_language=query_assertion_language,
@@ -253,34 +186,17 @@ async def run_hpo_query(
         )
 
     cross_encoder_instance = None
-    actual_reranker_model_name = _resolve_reranker_model_name(
-        enable_reranker=request.enable_reranker,
-        reranker_mode=request.reranker_mode,
-        reranker_model=request.reranker_model,
-        monolingual_reranker_model=request.monolingual_reranker_model,
-    )
+    actual_reranker_model_name = request.reranker_model or DEFAULT_RERANKER_MODEL
 
     if request.enable_reranker:
-        if actual_reranker_model_name:
-            cross_encoder_instance = await get_cross_encoder_dependency(
-                reranker_model_name=actual_reranker_model_name,
-                device_override=DEFAULT_DEVICE,
-            )
-            if not cross_encoder_instance:
-                logger.warning(
-                    f"Reranking enabled but cross-encoder {actual_reranker_model_name} failed to load. Proceeding without reranking."
-                )
-        else:
+        cross_encoder_instance = await get_cross_encoder_dependency(
+            reranker_model_name=actual_reranker_model_name,
+            device_override=DEFAULT_DEVICE,
+        )
+        if not cross_encoder_instance:
             logger.warning(
-                "Reranking enabled but no reranker model specified for the mode. Proceeding without reranking."
+                f"Reranking enabled but cross-encoder {actual_reranker_model_name} failed to load. Proceeding without reranking."
             )
-
-    resolved_translation_dir = _resolve_translation_directory(
-        enable_reranker=request.enable_reranker,
-        reranker_mode=request.reranker_mode,
-        language=language_to_use,
-        translation_dir_name=request.translation_dir_name,
-    )
 
     # Call the core HPO retrieval logic
     query_results_dict = await execute_hpo_retrieval_for_api(
@@ -293,8 +209,6 @@ async def run_hpo_query(
         and (cross_encoder_instance is not None),
         cross_encoder=cross_encoder_instance,
         rerank_count=request.rerank_count,
-        reranker_mode=request.reranker_mode,
-        translation_dir_path=resolved_translation_dir,
         include_details=request.include_details,
         detect_query_assertion=request.detect_query_assertion,
         query_assertion_language=request.query_assertion_language,

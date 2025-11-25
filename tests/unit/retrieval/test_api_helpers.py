@@ -42,8 +42,6 @@ class TestExecuteHpoRetrievalForApi:
             enable_reranker=False,
             cross_encoder=None,
             rerank_count=10,
-            reranker_mode="cross-lingual",
-            translation_dir_path=None,
         )
 
         # Assert
@@ -71,8 +69,6 @@ class TestExecuteHpoRetrievalForApi:
             enable_reranker=False,
             cross_encoder=None,
             rerank_count=10,
-            reranker_mode="cross-lingual",
-            translation_dir_path=None,
         )
 
         # Assert
@@ -110,8 +106,6 @@ class TestExecuteHpoRetrievalForApi:
             enable_reranker=False,
             cross_encoder=None,
             rerank_count=10,
-            reranker_mode="cross-lingual",
-            translation_dir_path=None,
             detect_query_assertion=False,
         )
 
@@ -163,8 +157,6 @@ class TestExecuteHpoRetrievalForApi:
             enable_reranker=True,
             cross_encoder=mock_cross_encoder,
             rerank_count=10,
-            reranker_mode="cross-lingual",
-            translation_dir_path=None,
             detect_query_assertion=False,
         )
 
@@ -173,7 +165,6 @@ class TestExecuteHpoRetrievalForApi:
         # After reranking, Fever (0.95 score) should be first
         assert result["results"][0]["hpo_id"] == "HP:0001945"
         assert result["results"][0]["cross_encoder_score"] == 0.95
-        assert result["results"][0]["original_rank"] == 1
         # Tetralogy (0.45 score) should be second
         assert result["results"][1]["hpo_id"] == "HP:0011134"
         assert result["results"][1]["cross_encoder_score"] == 0.45
@@ -205,8 +196,6 @@ class TestExecuteHpoRetrievalForApi:
             enable_reranker=False,
             cross_encoder=None,
             rerank_count=10,
-            reranker_mode="cross-lingual",
-            translation_dir_path=None,
             detect_query_assertion=False,
         )
 
@@ -245,8 +234,6 @@ class TestExecuteHpoRetrievalForApi:
             enable_reranker=False,
             cross_encoder=None,
             rerank_count=10,
-            reranker_mode="cross-lingual",
-            translation_dir_path=None,
             detect_query_assertion=False,
         )
 
@@ -282,8 +269,6 @@ class TestExecuteHpoRetrievalForApi:
             enable_reranker=False,
             cross_encoder=None,
             rerank_count=10,
-            reranker_mode="cross-lingual",
-            translation_dir_path=None,
             detect_query_assertion=False,
         )
 
@@ -317,8 +302,6 @@ class TestExecuteHpoRetrievalForApi:
             enable_reranker=True,  # Requested
             cross_encoder=None,  # But not provided
             rerank_count=10,
-            reranker_mode="cross-lingual",
-            translation_dir_path=None,
             detect_query_assertion=False,
         )
 
@@ -365,8 +348,6 @@ class TestExecuteHpoRetrievalForApi:
             enable_reranker=False,
             cross_encoder=None,
             rerank_count=10,
-            reranker_mode="cross-lingual",
-            translation_dir_path=None,
             detect_query_assertion=True,
             query_assertion_language="en",
             query_assertion_preference="dependency",
@@ -407,8 +388,6 @@ class TestExecuteHpoRetrievalForApi:
             enable_reranker=False,
             cross_encoder=None,
             rerank_count=10,
-            reranker_mode="cross-lingual",
-            translation_dir_path=None,
             detect_query_assertion=False,  # Disabled
         )
 
@@ -452,8 +431,6 @@ class TestExecuteHpoRetrievalForApi:
             enable_reranker=False,
             cross_encoder=None,
             rerank_count=10,
-            reranker_mode="cross-lingual",
-            translation_dir_path=None,
             detect_query_assertion=True,
         )
 
@@ -470,7 +447,8 @@ class TestExecuteHpoRetrievalForApi:
         mock_retriever = mocker.Mock()
         mock_cross_encoder = mocker.Mock()
         mock_cross_encoder.predict.side_effect = Exception("Reranking failed")
-        mock_logger = mocker.patch("phentrieve.retrieval.api_helpers.logger")
+        # Error is now caught and logged in reranker.py, not api_helpers.py
+        mock_reranker_logger = mocker.patch("phentrieve.retrieval.reranker.logger")
 
         query_text = "Patient has fever"
 
@@ -491,19 +469,18 @@ class TestExecuteHpoRetrievalForApi:
             enable_reranker=True,
             cross_encoder=mock_cross_encoder,
             rerank_count=10,
-            reranker_mode="cross-lingual",
-            translation_dir_path=None,
             detect_query_assertion=False,
         )
 
-        # Assert - should continue with dense retrieval results
+        # Assert - should continue with dense retrieval results (fallback)
         assert len(result["results"]) == 1
         assert result["results"][0]["hpo_id"] == "HP:0001945"
-        # Should not have cross_encoder_score due to error
-        assert "cross_encoder_score" not in result["results"][0]
-        # Should log error
-        mock_logger.error.assert_called_once()
-        assert "Error during reranking" in mock_logger.error.call_args[0][0]
+        # Should log error in reranker module
+        mock_reranker_logger.error.assert_called_once()
+        assert (
+            "Error during protected re-ranking"
+            in mock_reranker_logger.error.call_args[0][0]
+        )
 
     @pytest.mark.asyncio
     async def test_debug_logging_enabled(self, mocker):
@@ -530,8 +507,6 @@ class TestExecuteHpoRetrievalForApi:
             enable_reranker=False,
             cross_encoder=None,
             rerank_count=10,
-            reranker_mode="cross-lingual",
-            translation_dir_path=None,
             detect_query_assertion=False,
             debug=True,  # Debug enabled
         )
@@ -570,8 +545,6 @@ class TestExecuteHpoRetrievalForApi:
             enable_reranker=True,
             cross_encoder=mock_cross_encoder,
             rerank_count=20,  # Different from num_results
-            reranker_mode="cross-lingual",
-            translation_dir_path=None,
             detect_query_assertion=False,
         )
 

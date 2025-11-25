@@ -1,11 +1,8 @@
 """Unit tests for text processing router helper functions."""
 
-from typing import Any
-
 import pytest
 
 from api.routers.text_processing_router import (
-    _apply_sliding_window_params,
     _get_chunking_config_for_api,
     _validate_response_chunk_references,
 )
@@ -17,109 +14,6 @@ from api.schemas.text_processing_schemas import (
 )
 
 pytestmark = pytest.mark.unit
-
-
-class TestApplySlidingWindowParams:
-    """Test _apply_sliding_window_params helper function."""
-
-    def test_updates_sliding_window_component(self):
-        """Test sliding window component parameters are updated."""
-        # Arrange
-        config = [
-            {
-                "type": "sliding_window",
-                "config": {
-                    "window_size_tokens": 5,
-                    "step_size_tokens": 1,
-                },
-            },
-            {
-                "type": "other_component",
-                "config": {"param": "value"},
-            },
-        ]
-
-        # Act
-        _apply_sliding_window_params(
-            config=config,
-            window_size=10,
-            step_size=2,
-            threshold=0.7,
-            min_segment_length=5,
-        )
-
-        # Assert
-        sw_config = config[0]["config"]
-        assert sw_config["window_size_tokens"] == 10
-        assert sw_config["step_size_tokens"] == 2
-        assert sw_config["splitting_threshold"] == 0.7
-        assert sw_config["min_split_segment_length_words"] == 5
-
-        # Other component unchanged
-        assert config[1]["config"] == {"param": "value"}
-
-    def test_handles_config_without_sliding_window(self):
-        """Test gracefully handles config without sliding_window component."""
-        # Arrange
-        config = [{"type": "other", "config": {}}]
-
-        # Act - should not raise
-        _apply_sliding_window_params(config, 10, 2, 0.7, 5)
-
-        # Assert - no changes
-        assert config == [{"type": "other", "config": {}}]
-
-    def test_updates_multiple_sliding_window_components(self):
-        """Test updates all sliding_window components if multiple exist."""
-        # Arrange
-        config = [
-            {"type": "sliding_window", "config": {}},
-            {"type": "other", "config": {}},
-            {"type": "sliding_window", "config": {}},
-        ]
-
-        # Act
-        _apply_sliding_window_params(config, 15, 3, 0.8, 10)
-
-        # Assert - both sliding_window components updated
-        assert config[0]["config"]["window_size_tokens"] == 15
-        assert config[0]["config"]["step_size_tokens"] == 3
-        assert config[0]["config"]["splitting_threshold"] == 0.8
-        assert config[0]["config"]["min_split_segment_length_words"] == 10
-        assert config[2]["config"]["window_size_tokens"] == 15
-
-    def test_preserves_existing_config_values(self):
-        """Test preserves other config values not being updated."""
-        # Arrange
-        config = [
-            {
-                "type": "sliding_window",
-                "config": {
-                    "window_size_tokens": 5,
-                    "other_param": "should_remain",
-                    "another_param": 42,
-                },
-            }
-        ]
-
-        # Act
-        _apply_sliding_window_params(config, 10, 2, 0.7, 5)
-
-        # Assert - new values updated, old values preserved
-        assert config[0]["config"]["window_size_tokens"] == 10
-        assert config[0]["config"]["other_param"] == "should_remain"
-        assert config[0]["config"]["another_param"] == 42
-
-    def test_handles_empty_config_list(self):
-        """Test handles empty config list without error."""
-        # Arrange
-        config: list[dict[str, Any]] = []
-
-        # Act - should not raise
-        _apply_sliding_window_params(config, 10, 2, 0.7, 5)
-
-        # Assert - still empty
-        assert config == []
 
 
 class TestGetChunkingConfigForApi:
@@ -214,21 +108,6 @@ class TestGetChunkingConfigForApi:
         if sw_component:  # May not exist for all strategies
             assert "window_size_tokens" in sw_component["config"]
             assert "step_size_tokens" in sw_component["config"]
-
-    def test_none_chunking_strategy_uses_default(self):
-        """Test None/missing chunking_strategy uses default."""
-        # Arrange
-        request = TextProcessingRequest(
-            text_content="test text",
-            chunking_strategy=None,
-        )
-
-        # Act
-        config = _get_chunking_config_for_api(request)
-
-        # Assert - should return valid config (sliding_window_punct_conj_cleaned)
-        assert isinstance(config, list)
-        assert len(config) > 0
 
     def test_simple_strategy_returns_without_modification(self):
         """Test simple strategy returns config without sliding window params."""

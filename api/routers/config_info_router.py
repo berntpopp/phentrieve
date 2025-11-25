@@ -66,7 +66,6 @@ async def get_phentrieve_info():
             )
 
         # Available reranker models
-        # In a real implementation, this should be sourced from phentrieve_config if available
         available_rerankers = [
             ModelInfo(
                 id=phentrieve_config.DEFAULT_RERANKER_MODEL,
@@ -75,19 +74,9 @@ async def get_phentrieve_info():
             )
         ]
 
-        # Available monolingual reranker models
-        available_mono_rerankers = [
-            ModelInfo(
-                id=phentrieve_config.DEFAULT_MONOLINGUAL_RERANKER_MODEL,
-                description="German-specific reranker model",
-                is_default=True,
-            )
-        ]
-
         # Default parameters
         default_params = DefaultParametersAPI(
             similarity_threshold=phentrieve_config.DEFAULT_SIMILARITY_THRESHOLD,
-            reranker_mode=phentrieve_config.DEFAULT_RERANKER_MODE,
             top_k=phentrieve_config.DEFAULT_TOP_K,
             enable_reranker=phentrieve_config.DEFAULT_ENABLE_RERANKER,
             rerank_candidate_count=phentrieve_config.DEFAULT_RERANK_CANDIDATE_COUNT,
@@ -129,8 +118,6 @@ async def get_phentrieve_info():
             default_embedding_model=phentrieve_config.DEFAULT_MODEL,
             available_reranker_models=available_rerankers,
             default_reranker_model=phentrieve_config.DEFAULT_RERANKER_MODEL,
-            available_monolingual_reranker_models=available_mono_rerankers,
-            default_monolingual_reranker_model=phentrieve_config.DEFAULT_MONOLINGUAL_RERANKER_MODEL,
             default_parameters=default_params,
             chunking_config=chunking_config,
             hpo_data_status=hpo_data_status,

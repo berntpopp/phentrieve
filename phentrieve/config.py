@@ -20,7 +20,6 @@ if TYPE_CHECKING:
 # Default directory sub-paths and filenames (relative to base dirs)
 # Sub-directories (for data_dir)
 DEFAULT_HPO_TERMS_SUBDIR = "hpo_terms"
-DEFAULT_TRANSLATIONS_SUBDIR = "hpo_translations"  # Directory for HPO term translations
 
 # Benchmark test data configuration (relative to project root)
 BENCHMARK_DATA_DIR = Path("tests/data/benchmarks")
@@ -63,21 +62,20 @@ _DEFAULT_K_VALUES_FALLBACK = (1, 3, 5, 10)  # Default k values for hit rate calc
 _DEFAULT_DEVICE_FALLBACK: str | None = None  # Default device (None = auto-detect)
 
 # Cross-encoder re-ranking settings (loaded from YAML with fallbacks)
-_DEFAULT_RERANKER_MODEL_FALLBACK = (
-    "MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7"
-)
-_DEFAULT_MONOLINGUAL_RERANKER_MODEL_FALLBACK = (
-    "ml6team/cross-encoder-mmarco-german-distilbert-base"
-)
-# Re-ranking mode options:
-# - 'cross-lingual': Query in target language -> English HPO terms
-# - 'monolingual': Query in target language -> HPO terms in same language
-_DEFAULT_RERANKER_MODE_FALLBACK = "cross-lingual"
-# Default directory for HPO term translations
-# Note: Path is resolved at runtime using DEFAULT_TRANSLATIONS_SUBDIR
-DEFAULT_TRANSLATION_DIR: str | None = None  # Will be resolved at runtime
+# BAAI/bge-reranker-v2-m3: Dedicated multilingual reranker (568M parameters)
+# - Trained on MS MARCO relevance datasets
+# - Supports 100+ languages for cross-lingual retrieval
+# - Used with protected two-stage retrieval to preserve dense retrieval quality
+_DEFAULT_RERANKER_MODEL_FALLBACK = "BAAI/bge-reranker-v2-m3"
 _DEFAULT_RERANK_CANDIDATE_COUNT_FALLBACK = 50
 _DEFAULT_ENABLE_RERANKER_FALLBACK = False
+# Protected dense retrieval threshold: Minimum bi-encoder score to protect from cross-encoder demotion
+# This implements research-backed two-stage retrieval for cross-lingual medical queries
+# - High-confidence dense matches (≥threshold) are protected from reranker demotion
+# - Lower-confidence matches (<threshold) are refined by cross-encoder
+# - Default 0.7 preserves BioLORD's strong cross-lingual semantic matches
+# See: BioLORD-2023 RAG design, Multistage BiCross multilingual medical retrieval
+_DEFAULT_DENSE_TRUST_THRESHOLD_FALLBACK = 0.7
 
 # Root for HPO term extraction and depth calculations
 PHENOTYPE_ROOT = "HP:0000118"
@@ -380,17 +378,14 @@ DEFAULT_DEVICE: str | None = get_config_value("device", _DEFAULT_DEVICE_FALLBACK
 DEFAULT_RERANKER_MODEL = get_config_value(
     "reranker_model", _DEFAULT_RERANKER_MODEL_FALLBACK
 )
-DEFAULT_MONOLINGUAL_RERANKER_MODEL = get_config_value(
-    "monolingual_reranker_model", _DEFAULT_MONOLINGUAL_RERANKER_MODEL_FALLBACK
-)
-DEFAULT_RERANKER_MODE = get_config_value(
-    "reranker_mode", _DEFAULT_RERANKER_MODE_FALLBACK
-)
 DEFAULT_RERANK_CANDIDATE_COUNT = get_config_value(
     "rerank_candidate_count", _DEFAULT_RERANK_CANDIDATE_COUNT_FALLBACK
 )
 DEFAULT_ENABLE_RERANKER = get_config_value(
     "enable_reranker", _DEFAULT_ENABLE_RERANKER_FALLBACK
+)
+DEFAULT_DENSE_TRUST_THRESHOLD = get_config_value(
+    "dense_trust_threshold", _DEFAULT_DENSE_TRUST_THRESHOLD_FALLBACK
 )
 
 # Text processing

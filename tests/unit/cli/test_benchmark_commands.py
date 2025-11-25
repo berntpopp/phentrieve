@@ -120,9 +120,6 @@ class TestRunBenchmarks:
             trust_remote_code=True,
             enable_reranker=True,
             reranker_model="cross-encoder",
-            monolingual_reranker_model="mono-encoder",
-            rerank_mode="monolingual",
-            translation_dir="/translations",
             rerank_count=20,
             similarity_formula="simple_resnik_like",
             debug=True,
@@ -142,9 +139,6 @@ class TestRunBenchmarks:
         assert call_kwargs["trust_remote_code"] is True
         assert call_kwargs["enable_reranker"] is True
         assert call_kwargs["reranker_model"] == "cross-encoder"
-        assert call_kwargs["monolingual_reranker_model"] == "mono-encoder"
-        assert call_kwargs["rerank_mode"] == "monolingual"
-        assert call_kwargs["translation_dir"] == "/translations"
         assert call_kwargs["rerank_count"] == 20
         assert call_kwargs["similarity_formula"] == "simple_resnik_like"
         assert call_kwargs["debug"] is True

@@ -34,18 +34,7 @@ class QueryRequest(BaseModel):
     enable_reranker: bool = Field(False, description="Enable cross-encoder reranking.")
     reranker_model: Optional[str] = Field(
         None,
-        description="Cross-encoder model for cross-lingual reranking (e.g., 'MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7'). Uses default if None and reranking enabled.",
-    )
-    monolingual_reranker_model: Optional[str] = Field(
-        None,
-        description="Cross-encoder model for monolingual reranking (e.g., 'ml6team/cross-encoder-mmarco-german-distilbert-base').",
-    )
-    reranker_mode: Literal["cross-lingual", "monolingual"] = Field(
-        "cross-lingual", description="Reranking mode."
-    )
-    translation_dir_name: Optional[str] = Field(
-        None,
-        description="Name of the language-specific subdirectory within the main translations directory (e.g., 'de', 'es') for monolingual reranking. If None, uses default structure.",
+        description="Cross-encoder model for reranking (e.g., 'BAAI/bge-reranker-v2-m3'). Uses default if None and reranking enabled.",
     )
     rerank_count: int = Field(
         10,

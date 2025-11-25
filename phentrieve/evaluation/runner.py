@@ -20,10 +20,8 @@ from tqdm import tqdm
 from phentrieve.config import (
     DEFAULT_K_VALUES,
     DEFAULT_RERANK_CANDIDATE_COUNT,
-    DEFAULT_RERANKER_MODE,
     DEFAULT_RERANKER_MODEL,
     DEFAULT_SIMILARITY_THRESHOLD,
-    DEFAULT_TRANSLATION_DIR,
 )
 from phentrieve.data_processing.test_data_loader import load_test_data
 from phentrieve.embeddings import load_embedding_model
@@ -39,7 +37,7 @@ from phentrieve.retrieval.reranker import (
     load_cross_encoder,
     rerank_with_cross_encoder,
 )
-from phentrieve.utils import get_model_slug, load_translation_text
+from phentrieve.utils import get_model_slug
 
 
 def run_evaluation(
@@ -56,8 +54,6 @@ def run_evaluation(
     enable_reranker: bool = False,
     reranker_model: str = DEFAULT_RERANKER_MODEL,
     rerank_count: int = DEFAULT_RERANK_CANDIDATE_COUNT,
-    reranker_mode: str = DEFAULT_RERANKER_MODE,
-    translation_dir: str | None = DEFAULT_TRANSLATION_DIR,
     similarity_formula: str = "hybrid",
 ) -> Optional[dict[str, Any]]:
     """
@@ -77,8 +73,6 @@ def run_evaluation(
         enable_reranker: Whether to enable cross-encoder re-ranking
         reranker_model: Model name for the cross-encoder
         rerank_count: Number of candidates to re-rank
-        reranker_mode: Re-ranking mode ('cross-lingual' or 'monolingual')
-        translation_dir: Directory containing translations of HPO terms in target language
         similarity_formula: Which similarity formula to use for ontology similarity calculations
 
     Returns:
@@ -135,20 +129,13 @@ def run_evaluation(
                 "cuda" if torch.cuda.is_available() and device != "cpu" else "cpu"
             )
             logging.info(
-                f"Loading cross-encoder model for {reranker_mode} re-ranking on {device_str}"
+                f"Loading cross-encoder model for cross-lingual re-ranking on {device_str}"
             )
             cross_encoder = load_cross_encoder(reranker_model, device=device_str)
 
             if cross_encoder is None:
                 logging.warning(
                     f"Failed to load cross-encoder model {reranker_model}. Re-ranking will be disabled."
-                )
-                enable_reranker = False
-            elif reranker_mode == "monolingual" and (
-                not translation_dir or not os.path.exists(translation_dir)
-            ):
-                logging.warning(
-                    f"Translation directory not found: {translation_dir}. Re-ranking will be disabled."
                 )
                 enable_reranker = False
             else:
@@ -316,21 +303,8 @@ def run_evaluation(
                             )  # Convert distance to similarity score
                             candidate["bi_encoder_score"] = score
 
-                        # For monolingual re-ranking, load translation text in target language
-                        if reranker_mode == "monolingual" and translation_dir:
-                            translated_text = load_translation_text(
-                                candidate["hpo_id"], translation_dir
-                            )
-                            if translated_text:
-                                candidate["comparison_text"] = translated_text
-                            else:
-                                logging.warning(
-                                    f"No translation found for {candidate['hpo_id']}"
-                                )
-                                # Skip this candidate if no translation is available
-                                continue
-                        else:  # cross-lingual mode
-                            candidate["comparison_text"] = candidate["english_doc"]
+                        # Use English document for cross-lingual re-ranking
+                        candidate["comparison_text"] = candidate["english_doc"]
 
                         candidates_to_rerank.append(candidate)
 
@@ -488,7 +462,6 @@ def run_evaluation(
             # Re-ranking configuration
             "reranker_enabled": enable_reranker,
             "reranker_model": reranker_model if enable_reranker else None,
-            "reranker_mode": reranker_mode if enable_reranker else None,
             "rerank_count": rerank_count if enable_reranker else None,
             # Raw values - dense
             "mrr_dense": mrr_dense_values,
@@ -541,7 +514,6 @@ def run_evaluation(
                 # Re-ranking configuration
                 "reranker_enabled": enable_reranker,
                 "reranker_model": reranker_model if enable_reranker else None,
-                "reranker_mode": reranker_mode if enable_reranker else None,
                 "rerank_count": rerank_count if enable_reranker else None,
                 # Dense metrics
                 "mrr_dense": avg_mrr_dense,
@@ -606,7 +578,7 @@ def run_evaluation(
             logging.info(f"  MaxOntSim@{k} (Dense): {avg_max_ont_sim_dense[k]:.4f}")
 
         if enable_reranker:
-            logging.info(f"  === Re-ranked Metrics ({reranker_mode} mode) ===")
+            logging.info("  === Re-ranked Metrics (cross-lingual mode) ===")
             logging.info(f"  MRR (Re-ranked): {avg_mrr_reranked:.4f}")
             for k in k_values:
                 logging.info(f"  Hit@{k} (Re-ranked): {avg_hit_rates_reranked[k]:.4f}")

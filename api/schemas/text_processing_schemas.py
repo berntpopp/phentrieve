@@ -6,8 +6,6 @@ from phentrieve.config import (  # Import defaults from config.py
     DEFAULT_ASSERTION_CONFIG,
     DEFAULT_LANGUAGE,
     DEFAULT_MODEL,
-    DEFAULT_MONOLINGUAL_RERANKER_MODEL,
-    DEFAULT_RERANKER_MODE,
     DEFAULT_RERANKER_MODEL,
 )
 
@@ -74,15 +72,7 @@ class TextProcessingRequest(BaseModel):
     )
     reranker_model_name: Optional[str] = Field(
         default=DEFAULT_RERANKER_MODEL,
-        description="Multilingual/Cross-lingual reranker model.",
-    )
-    monolingual_reranker_model_name: Optional[str] = Field(
-        default=DEFAULT_MONOLINGUAL_RERANKER_MODEL,
-        description="Language-specific monolingual reranker model.",
-    )
-    reranker_mode: Optional[str] = Field(
-        default=DEFAULT_RERANKER_MODE,
-        description="Reranking mode: 'cross-lingual' or 'monolingual'.",
+        description="Cross-lingual reranker model.",
     )
     rerank_count_per_chunk: Optional[int] = Field(
         default=50, ge=1, description="Number of candidates to rerank per chunk."
