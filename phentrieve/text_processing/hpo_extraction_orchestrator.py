@@ -150,20 +150,17 @@ def orchestrate_hpo_extraction(
                     )
 
                     # Add scores to candidates
-                    # Handle different output formats from various cross-encoder models:
-                    # - NLI models return arrays: [P(entailment), P(neutral), P(contradiction)]
-                    # - Rerankers return single float: relevance_score
+                    # Handle different output formats from various cross-encoder models
                     for idx, match in enumerate(current_hpo_matches[:]):
                         raw_score = scores[idx]
                         if (
                             isinstance(raw_score, (list, np.ndarray))
                             and len(raw_score) > 1
                         ):
-                            # NLI model: use entailment probability (index 0)
-                            # Note: Suboptimal for semantic relevance - dedicated reranker recommended
+                            # For models returning array outputs: use first score
                             match["score"] = float(raw_score[0])
                         else:
-                            # Proper reranker: single relevance score
+                            # For standard cross-encoders: single relevance score
                             match["score"] = float(raw_score)
 
                     # Sort by score
