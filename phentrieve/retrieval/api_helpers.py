@@ -22,8 +22,6 @@ async def execute_hpo_retrieval_for_api(
     enable_reranker: bool,
     cross_encoder: Optional[CrossEncoder],
     rerank_count: int,
-    reranker_mode: str,
-    translation_dir_path: Optional[str],
     include_details: bool = False,
     detect_query_assertion: bool = True,
     query_assertion_language: Optional[str] = None,
@@ -45,8 +43,6 @@ async def execute_hpo_retrieval_for_api(
         enable_reranker: Whether to apply cross-encoder reranking
         cross_encoder: Optional CrossEncoder instance for reranking
         rerank_count: Number of top dense results to rerank
-        reranker_mode: Either "cross-lingual" or "monolingual"
-        translation_dir_path: Path to translation directory for monolingual mode
         include_details: Include HPO term definitions and synonyms in results
         detect_query_assertion: Enable assertion detection on query text
         query_assertion_language: Language for assertion detection
@@ -139,21 +135,24 @@ async def execute_hpo_retrieval_for_api(
         )
 
         # Build the HPO item
+        label_text = metadata.get("label", query_results["documents"][0][i])
         hpo_item = {
             "hpo_id": metadata.get("hpo_id", query_results["ids"][0][i]),
-            "label": metadata.get("label", query_results["documents"][0][i]),
+            "label": label_text,
             "similarity": (
                 query_results["similarities"][0][i]
                 if "similarities" in query_results
                 else None
             ),
+            # Add comparison_text for cross-encoder reranking
+            "comparison_text": label_text,
         }
 
         hpo_embeddings_results.append(hpo_item)
     # Apply reranking if enabled
     if enable_reranker and cross_encoder:
         logger.debug(
-            f"Reranking {len(hpo_embeddings_results)} results using {reranker_mode} mode with protected retrieval"
+            f"Reranking {len(hpo_embeddings_results)} results with protected retrieval"
         )
         try:
             # Map "similarity" field to "bi_encoder_score" for protected_dense_rerank()

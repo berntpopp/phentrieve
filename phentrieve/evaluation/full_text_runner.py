@@ -7,7 +7,6 @@ and semantic metrics.
 """
 
 import logging
-from pathlib import Path
 from typing import Any, Optional
 
 from sentence_transformers import CrossEncoder
@@ -37,8 +36,6 @@ def evaluate_single_document_extraction(
     similarity_threshold_per_chunk: float = 0.3,
     num_results_per_chunk: int = 10,
     enable_reranker: bool = False,
-    reranker_mode: str = "cross-lingual",
-    translation_dir_path: Optional[Path] = None,
     rerank_count_per_chunk: int = 3,
     min_confidence_for_aggregated: float = 0.0,
     top_term_per_chunk_for_aggregated: bool = False,
@@ -66,8 +63,6 @@ def evaluate_single_document_extraction(
         similarity_threshold_per_chunk: Min similarity for retrieval
         num_results_per_chunk: Number of HPO terms to retrieve per chunk
         enable_reranker: Whether to use cross-encoder re-ranking
-        reranker_mode: Re-ranking mode (monolingual or cross-lingual)
-        translation_dir_path: Directory with translations for cross-lingual
         rerank_count_per_chunk: Number of terms to re-rank per chunk
         min_confidence_for_aggregated: Min confidence for final results
         top_term_per_chunk_for_aggregated: Whether to keep only top term per chunk
@@ -133,9 +128,7 @@ def evaluate_single_document_extraction(
             num_results_per_chunk=num_results_per_chunk,
             chunk_retrieval_threshold=similarity_threshold_per_chunk,
             cross_encoder=cross_encoder_to_use,
-            translation_dir_path=translation_dir_path,
             language=language,
-            reranker_mode=reranker_mode,
             top_term_per_chunk=top_term_per_chunk_for_aggregated,
             min_confidence_for_aggregated=min_confidence_for_aggregated,
             assertion_statuses=assertion_statuses_for_orchestrator,

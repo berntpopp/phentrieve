@@ -56,24 +56,6 @@ def run_benchmarks(
         Optional[str],
         typer.Option("--reranker-model", help="Cross-encoder model for re-ranking"),
     ] = None,
-    monolingual_reranker_model: Annotated[
-        Optional[str],
-        typer.Option(
-            "--monolingual-reranker-model",
-            help="Language-specific cross-encoder model for monolingual re-ranking",
-        ),
-    ] = None,
-    rerank_mode: Annotated[
-        Optional[str],
-        typer.Option(
-            "--rerank-mode",
-            help="Re-ranking mode: cross-lingual or monolingual",
-        ),
-    ] = None,
-    translation_dir: Annotated[
-        Optional[str],
-        typer.Option("--translation-dir", help="Directory with HPO term translations"),
-    ] = None,
     rerank_count: Annotated[
         int, typer.Option("--rerank-count", help="Number of candidates to rerank")
     ] = 10,
@@ -114,10 +96,7 @@ def run_benchmarks(
         create_sample=create_sample,
         trust_remote_code=trust_remote_code,
         enable_reranker=enable_reranker,
-        reranker_model=reranker_model,  # Pass None to use orchestrator defaults
-        monolingual_reranker_model=monolingual_reranker_model,  # Pass None to use orchestrator defaults
-        rerank_mode=rerank_mode,  # Pass None to use orchestrator defaults
-        translation_dir=translation_dir,  # Pass None to use orchestrator defaults
+        reranker_model=reranker_model,
         rerank_count=rerank_count,
         similarity_formula=similarity_formula,
     )

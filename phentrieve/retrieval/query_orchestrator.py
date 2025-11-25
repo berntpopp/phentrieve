@@ -7,7 +7,6 @@ interactive query script to be usable from the CLI interface.
 """
 
 import logging
-import os
 from typing import Any, Callable, Optional, Union
 
 import pysbd
@@ -17,12 +16,9 @@ from phentrieve.config import (
     DEFAULT_DENSE_TRUST_THRESHOLD,
     DEFAULT_ENABLE_RERANKER,
     DEFAULT_MODEL,
-    DEFAULT_MONOLINGUAL_RERANKER_MODEL,
     DEFAULT_RERANK_CANDIDATE_COUNT,
-    DEFAULT_RERANKER_MODE,
     DEFAULT_RERANKER_MODEL,
     DEFAULT_TOP_K,
-    DEFAULT_TRANSLATIONS_SUBDIR,
     MIN_SIMILARITY_THRESHOLD,
 )
 from phentrieve.embeddings import load_embedding_model
@@ -37,7 +33,6 @@ from phentrieve.text_processing.assertion_detection import (
 from phentrieve.utils import (
     detect_language,
     generate_collection_name,
-    load_translation_text,
 )
 
 # Module-level global variables for interactive mode
@@ -52,16 +47,12 @@ _global_query_assertion_detector: Optional[CombinedAssertionDetector] = None
 
 def convert_results_to_candidates(
     results: dict[str, Any],
-    reranker_mode: str = "cross-lingual",
-    translation_dir: str = DEFAULT_TRANSLATIONS_SUBDIR,
 ) -> list[dict[str, Any]]:
     """
     Convert ChromaDB query results to candidate format for reranking.
 
     Args:
         results: ChromaDB query results dictionary
-        reranker_mode: Reranking mode ('cross-lingual' or 'monolingual')
-        translation_dir: Directory containing translations (should point to language-specific dir for monolingual)
 
     Returns:
         List of candidate dictionaries ready for reranking
@@ -85,20 +76,8 @@ def convert_results_to_candidates(
             "metadata": metadata,
             "rank": j + 1,
             "bi_encoder_score": calculate_similarity(distance),
+            "comparison_text": doc,  # Always use English document
         }
-
-        # Set comparison_text based on mode
-        if reranker_mode == "monolingual":
-            # For monolingual mode, try to load translation
-            translated_text = load_translation_text(hpo_id, translation_dir)
-            if translated_text:
-                candidate["comparison_text"] = translated_text
-            else:
-                # Fall back to English if no translation available
-                candidate["comparison_text"] = doc
-        else:
-            # For cross-lingual mode, use English document
-            candidate["comparison_text"] = doc
 
         candidates.append(candidate)
 
@@ -360,8 +339,6 @@ def process_query(
     debug: bool = False,
     cross_encoder=None,
     rerank_count: int | None = None,
-    reranker_mode: str = DEFAULT_RERANKER_MODE,
-    translation_dir: str = DEFAULT_TRANSLATIONS_SUBDIR,
     output_func: Callable = print,
     query_assertion_detector=None,
 ) -> list[dict[str, Any]]:
@@ -377,8 +354,6 @@ def process_query(
         debug: Whether to enable debug logging
         cross_encoder: Optional cross-encoder model for re-ranking
         rerank_count: Number of candidates to re-rank (if cross_encoder is provided)
-        reranker_mode: Mode for re-ranking ('cross-lingual' or 'monolingual')
-        translation_dir: Directory containing translations of HPO terms in target language
         output_func: Function to use for output (for debug messages only, not for final results)
         query_assertion_detector: Optional query assertion detector
 
@@ -463,11 +438,7 @@ def process_query(
                 if debug:
                     output_func("[DEBUG] Reranking with protected dense retrieval")
                 # Convert results to candidates format
-                candidates = convert_results_to_candidates(
-                    results,
-                    reranker_mode=reranker_mode,
-                    translation_dir=translation_dir,
-                )
+                candidates = convert_results_to_candidates(results)
                 # Protected two-stage reranking: preserves high-confidence dense matches
                 reranked_candidates = reranker.protected_dense_rerank(
                     sentence,
@@ -529,11 +500,7 @@ def process_query(
             # Perform re-ranking if a cross-encoder is provided
             if cross_encoder:
                 # Convert results to candidates format
-                candidates = convert_results_to_candidates(
-                    query_result,
-                    reranker_mode=reranker_mode,
-                    translation_dir=translation_dir,
-                )
+                candidates = convert_results_to_candidates(query_result)
                 # Protected two-stage reranking: preserves high-confidence dense matches
                 reranked_candidates = reranker.protected_dense_rerank(
                     text,
@@ -595,11 +562,7 @@ def process_query(
             reranked_result = None
             try:
                 # Convert results to candidates format
-                candidates = convert_results_to_candidates(
-                    results,
-                    reranker_mode=reranker_mode,
-                    translation_dir=translation_dir,
-                )
+                candidates = convert_results_to_candidates(results)
                 # Protected two-stage reranking: preserves high-confidence dense matches
                 reranked_candidates = reranker.protected_dense_rerank(
                     text,
@@ -664,9 +627,6 @@ def orchestrate_query(
     trust_remote_code: bool = False,
     enable_reranker: bool = DEFAULT_ENABLE_RERANKER,
     reranker_model: str = DEFAULT_RERANKER_MODEL,
-    monolingual_reranker_model: str = DEFAULT_MONOLINGUAL_RERANKER_MODEL,
-    reranker_mode: str = DEFAULT_RERANKER_MODE,
-    translation_dir: str = DEFAULT_TRANSLATIONS_SUBDIR,
     rerank_count: int = DEFAULT_RERANK_CANDIDATE_COUNT,
     device_override: Optional[str] = None,
     debug: bool = False,
@@ -689,9 +649,6 @@ def orchestrate_query(
         trust_remote_code: Trust remote code when loading models
         enable_reranker: Enable cross-encoder reranking
         reranker_model: Cross-encoder model name for reranking
-        monolingual_reranker_model: Monolingual cross-encoder model
-        reranker_mode: Reranking mode (cross-lingual or monolingual)
-        translation_dir: Directory with HPO translations in target language
         rerank_count: Number of candidates to rerank
         device_override: Override device (cpu/cuda)
         debug: Enable debug output
@@ -733,8 +690,6 @@ def orchestrate_query(
             debug=debug,
             cross_encoder=_global_cross_encoder,
             rerank_count=rerank_count if _global_cross_encoder else None,
-            reranker_mode=reranker_mode,
-            translation_dir=translation_dir,
             output_func=output_func,
             query_assertion_detector=_global_query_assertion_detector,
         )
@@ -772,29 +727,14 @@ def orchestrate_query(
         # Load cross-encoder model if re-ranking is enabled
         cross_encoder = None
         if enable_reranker:
-            # Select the appropriate model based on the reranker mode
-            ce_model_name = reranker_model
-            if reranker_mode == "monolingual":
-                # For monolingual mode, use the language-specific model
-                ce_model_name = monolingual_reranker_model
-
-                # Check if translation directory exists
-                if not os.path.exists(translation_dir):
-                    warning_msg = (
-                        f"Translation directory not found: {translation_dir}. "
-                        "Monolingual re-ranking will not work properly."
-                    )
-                    logging.warning(warning_msg)
-                    output_func(warning_msg)
-
-            # Load the selected cross-encoder model
-            cross_encoder = reranker.load_cross_encoder(ce_model_name, device)
+            # Load the cross-encoder model
+            cross_encoder = reranker.load_cross_encoder(reranker_model, device)
             if cross_encoder:
                 logging.info(
-                    f"Cross-encoder re-ranking enabled in {reranker_mode} mode with model: {ce_model_name}"
+                    f"Cross-encoder re-ranking enabled with model: {reranker_model}"
                 )
             else:
-                warning_msg = f"Failed to load cross-encoder model {ce_model_name}, re-ranking will be disabled"
+                warning_msg = f"Failed to load cross-encoder model {reranker_model}, re-ranking will be disabled"
                 logging.warning(warning_msg)
                 output_func(warning_msg)
 
@@ -807,12 +747,7 @@ def orchestrate_query(
         output_func(f"Index entries: {collection_count}")
         output_func(f"Similarity threshold: {similarity_threshold}")
         if cross_encoder:
-            model_display = (
-                reranker_model
-                if reranker_mode == "cross-lingual"
-                else monolingual_reranker_model
-            )
-            output_func(f"Cross-encoder re-ranking: Enabled (using {model_display})")
+            output_func(f"Cross-encoder re-ranking: Enabled (using {reranker_model})")
         else:
             output_func("Cross-encoder re-ranking: Disabled")
 
@@ -888,8 +823,6 @@ def orchestrate_query(
                 cross_encoder if not interactive_mode else _global_cross_encoder
             ),
             rerank_count=rerank_count if enable_reranker else None,
-            reranker_mode=reranker_mode,
-            translation_dir=translation_dir,
             output_func=output_func,
             query_assertion_detector=active_query_assertion_detector,
         )

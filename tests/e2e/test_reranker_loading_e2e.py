@@ -267,10 +267,10 @@ class TestRerankerFunctionalityEndToEnd:
             assert len(result["label"]) > 0, "Should have non-empty label"
 
     @pytest.mark.e2e
-    def test_different_reranker_modes(
+    def test_cross_lingual_reranker_mode(
         self, api_base_url, http_session, sample_query_payload
     ):
-        """Test that different reranker modes work correctly."""
+        """Test that cross-lingual reranker mode works correctly."""
         url = f"{api_base_url}/api/v1/query/"
 
         # Test cross-lingual mode
@@ -281,18 +281,6 @@ class TestRerankerFunctionalityEndToEnd:
         assert response_cross.status_code == 200
         data_cross = response_cross.json()
         assert data_cross["reranker_used"] is not None
-
-        # Test monolingual mode
-        payload_monolingual = sample_query_payload.copy()
-        payload_monolingual["reranker_mode"] = "monolingual"
-
-        response_mono = http_session.post(url, json=payload_monolingual, timeout=30)
-        assert response_mono.status_code == 200
-        data_mono = response_mono.json()
-        assert data_mono["reranker_used"] is not None
-
-        # Different modes might use different models
-        # (implementation detail, but worth checking)
 
 
 class TestPerformanceExpectations:

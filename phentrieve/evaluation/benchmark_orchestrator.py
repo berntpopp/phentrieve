@@ -16,9 +16,7 @@ from phentrieve.config import (
     DEFAULT_DETAILED_SUBDIR,
     DEFAULT_ENABLE_RERANKER,
     DEFAULT_MODEL,
-    DEFAULT_MONOLINGUAL_RERANKER_MODEL,
     DEFAULT_RERANK_CANDIDATE_COUNT,
-    DEFAULT_RERANKER_MODE,
     DEFAULT_RERANKER_MODEL,
     DEFAULT_SUMMARIES_SUBDIR,
 )
@@ -61,9 +59,6 @@ def orchestrate_benchmark(
     trust_remote_code: bool = False,
     enable_reranker: bool = DEFAULT_ENABLE_RERANKER,
     reranker_model: str | None = None,
-    monolingual_reranker_model: str | None = None,
-    rerank_mode: str | None = None,
-    translation_dir: str | None = None,
     rerank_count: int = DEFAULT_RERANK_CANDIDATE_COUNT,
     similarity_formula: str = "hybrid",
     data_dir_override: Optional[str] = None,
@@ -86,10 +81,7 @@ def orchestrate_benchmark(
         create_sample: Create a sample test dataset if none exists
         trust_remote_code: Whether to trust remote code when loading the model
         enable_reranker: Whether to enable cross-encoder re-ranking
-        reranker_model: Model name for the cross-encoder for cross-lingual reranking
-        monolingual_reranker_model: Model name for the cross-encoder for monolingual reranking
-        rerank_mode: Re-ranking mode ('cross-lingual' or 'monolingual')
-        translation_dir: Directory containing translations of HPO terms in target language
+        reranker_model: Model name for the cross-encoder for reranking
         rerank_count: Number of candidates to re-rank
         similarity_formula: Formula to use for ontology semantic similarity calculation ('hybrid' or 'simple_resnik_like')
 
@@ -104,13 +96,9 @@ def orchestrate_benchmark(
         handlers=[logging.StreamHandler()],
     )
 
-    # Use config defaults for reranking parameters when not specified
+    # Use config default for reranker model when not specified
     if reranker_model is None:
         reranker_model = DEFAULT_RERANKER_MODEL
-    if monolingual_reranker_model is None:
-        monolingual_reranker_model = DEFAULT_MONOLINGUAL_RERANKER_MODEL
-    if rerank_mode is None:
-        rerank_mode = DEFAULT_RERANKER_MODE
 
     # Resolve paths
     resolve_data_path(data_dir_override, "data_dir", get_default_data_dir)
@@ -169,13 +157,6 @@ def orchestrate_benchmark(
     for model_name in models_to_run:
         logger.info(f"Benchmarking model: {model_name}")
 
-        # Select appropriate reranker model based on mode
-        active_reranker_model = (
-            reranker_model
-            if rerank_mode == "cross-lingual"
-            else monolingual_reranker_model
-        )
-
         try:
             results = run_evaluation(
                 model_name=model_name,
@@ -188,10 +169,8 @@ def orchestrate_benchmark(
                 results_dir=results_dir,
                 index_dir=index_dir,
                 enable_reranker=enable_reranker,
-                reranker_model=active_reranker_model,
+                reranker_model=reranker_model,
                 rerank_count=rerank_count,
-                reranker_mode=rerank_mode,
-                translation_dir=translation_dir,
                 similarity_formula=similarity_formula,
             )
 

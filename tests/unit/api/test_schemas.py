@@ -119,18 +119,15 @@ class TestQueryRequest:
 
     def test_reranker_mode_literal_validation(self):
         """Test reranker_mode only accepts valid literals."""
-        # Valid modes
+        # Valid mode (cross-lingual only)
         req1 = QueryRequest(text="test", reranker_mode="cross-lingual")
         assert req1.reranker_mode == "cross-lingual"
-
-        req2 = QueryRequest(text="test", reranker_mode="monolingual")
-        assert req2.reranker_mode == "monolingual"
 
         # Invalid mode
         with pytest.raises(ValidationError) as exc_info:
             QueryRequest(text="test", reranker_mode="invalid-mode")
 
-        assert "Input should be 'cross-lingual' or 'monolingual'" in str(exc_info.value)
+        assert "Input should be 'cross-lingual'" in str(exc_info.value)
 
     def test_query_assertion_preference_literals(self):
         """Test query_assertion_preference only accepts valid strategies."""
@@ -242,10 +239,7 @@ class TestQueryResponse:
 
         # Assert
         assert resp.language_detected == "en"
-        assert (
-            resp.reranker_used
-            == "BAAI/bge-reranker-v2-m3"
-        )
+        assert resp.reranker_used == "BAAI/bge-reranker-v2-m3"
         assert resp.query_assertion_status == "negated"
         assert resp.results[0].cross_encoder_score == 0.92
 

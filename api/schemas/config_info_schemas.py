@@ -5,8 +5,6 @@ This module defines the data structures used for the configuration/info API
 endpoint responses, ensuring consistent and well-documented API contracts.
 """
 
-from typing import Optional
-
 from pydantic import BaseModel, ConfigDict, Field
 
 
@@ -38,7 +36,6 @@ class DefaultParametersAPI(BaseModel):
             "examples": [
                 {
                     "similarity_threshold": 0.1,
-                    "reranker_mode": "cross-lingual",
                     "top_k": 10,
                     "enable_reranker": False,
                     "rerank_candidate_count": 30,
@@ -51,9 +48,6 @@ class DefaultParametersAPI(BaseModel):
 
     similarity_threshold: float = Field(
         description="Minimum similarity score for retrieval"
-    )
-    reranker_mode: str = Field(
-        description="Reranker mode (cross-lingual or monolingual)"
     )
     top_k: int = Field(description="Number of top results to return")
     enable_reranker: bool = Field(description="Whether reranking is enabled by default")
@@ -123,17 +117,8 @@ class PhentrieveConfigInfoResponseAPI(BaseModel):
                         }
                     ],
                     "default_reranker_model": "FremyCompany/BioLORD-2023-M",
-                    "available_monolingual_reranker_models": [
-                        {
-                            "id": "FremyCompany/BioLORD-2023-M",
-                            "description": "Domain-specific biomedical model",
-                            "is_default": True,
-                        }
-                    ],
-                    "default_monolingual_reranker_model": "FremyCompany/BioLORD-2023-M",
                     "default_parameters": {
                         "similarity_threshold": 0.1,
-                        "reranker_mode": "cross-lingual",
                         "top_k": 10,
                         "enable_reranker": False,
                         "rerank_candidate_count": 30,
@@ -166,12 +151,6 @@ class PhentrieveConfigInfoResponseAPI(BaseModel):
         description="List of available reranker models"
     )
     default_reranker_model: str = Field(description="Default reranker model ID")
-    available_monolingual_reranker_models: list[ModelInfo] = Field(
-        description="List of available monolingual reranker models"
-    )
-    default_monolingual_reranker_model: Optional[str] = Field(
-        description="Default monolingual reranker model ID"
-    )
     default_parameters: DefaultParametersAPI = Field(
         description="Default operational parameters"
     )

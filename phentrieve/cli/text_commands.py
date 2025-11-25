@@ -150,28 +150,6 @@ def process_text_for_hpo_command(
             help="Cross-encoder model for reranking (if reranking enabled)",
         ),
     ] = None,
-    monolingual_reranker_model: Annotated[
-        Optional[str],
-        typer.Option(
-            "--monolingual-reranker-model",
-            help="Language-specific cross-encoder model for monolingual reranking",
-        ),
-    ] = "ml6team/cross-encoder-mmarco-german-distilbert-base",
-    reranker_mode: Annotated[
-        str,
-        typer.Option(
-            "--reranker-mode",
-            help="Mode for reranking (both, multilingual_only, monolingual_only)",
-        ),
-    ] = "both",
-    reranker_max_pairwise_combinations: Annotated[
-        int,
-        typer.Option(
-            "--reranker-max-combinations",
-            "--rmc",
-            help="Maximum number of pairwise combinations to consider for reranking (reduces computational cost)",
-        ),
-    ] = 100,
     output_format: Annotated[
         str,
         typer.Option(
@@ -423,14 +401,11 @@ def process_text_for_hpo_command(
             try:
                 from sentence_transformers import CrossEncoder
 
-                if reranker_mode in ["monolingual_only", "both"] and language != "en":
-                    logger.info(
-                        f"Loading monolingual reranker: {monolingual_reranker_model}"
-                    )
-                    cross_encoder = CrossEncoder(monolingual_reranker_model)
-                else:
-                    logger.info(f"Loading multilingual reranker: {reranker_model}")
-                    cross_encoder = CrossEncoder(reranker_model)
+                from phentrieve.config import DEFAULT_RERANKER_MODEL
+
+                reranker_to_use = reranker_model or DEFAULT_RERANKER_MODEL
+                logger.info(f"Loading reranker: {reranker_to_use}")
+                cross_encoder = CrossEncoder(reranker_to_use)
             except Exception as e:
                 logger.warning(f"Failed to load cross-encoder: {e}")
 
@@ -462,7 +437,6 @@ def process_text_for_hpo_command(
             chunk_retrieval_threshold=chunk_retrieval_threshold,
             cross_encoder=cross_encoder,
             language=language,
-            reranker_mode=reranker_mode,
             top_term_per_chunk=top_term_per_chunk,
             min_confidence_for_aggregated=aggregated_term_confidence,
             assertion_statuses=assertion_statuses,

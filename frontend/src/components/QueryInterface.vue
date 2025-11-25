@@ -285,41 +285,6 @@
             </v-col>
           </v-row>
 
-          <v-row v-if="enableReranker" dense>
-            <v-col cols="12" md="6" class="pa-1">
-              <v-tooltip
-                location="bottom"
-                :text="$t('queryInterface.tooltips.rerankerMode')"
-                role="tooltip"
-              >
-                <template #activator="{ props }">
-                  <v-select
-                    v-bind="props"
-                    v-model="rerankerMode"
-                    :items="rerankerModes"
-                    item-title="text"
-                    item-value="value"
-                    :disabled="isLoading"
-                    variant="outlined"
-                    density="compact"
-                    aria-label="Select reranker mode"
-                    :aria-description="
-                      'Choose the reranker mode. Currently selected: ' + rerankerMode
-                    "
-                    bg-color="white"
-                    color="primary"
-                    hide-details
-                  >
-                    <template #label>
-                      <span class="text-caption">{{
-                        $t('queryInterface.advancedOptions.rerankerMode')
-                      }}</span>
-                    </template>
-                  </v-select>
-                </template>
-              </v-tooltip>
-            </v-col>
-          </v-row>
 
           <v-divider class="my-2" />
           <div class="text-subtitle-2 mb-1 px-1 font-weight-medium">
@@ -938,18 +903,6 @@ export default {
       similarityThreshold: 0.3,
       numResults: 10,
       enableReranker: false,
-      rerankerMode: 'cross-lingual', // Default for query mode
-      rerankerModes: [
-        // These should match API schema literals
-        {
-          text: this.$t('queryInterface.advancedOptions.rerankerModeCrossLingual'),
-          value: 'cross-lingual',
-        },
-        {
-          text: this.$t('queryInterface.advancedOptions.rerankerModeMonolingual'),
-          value: 'monolingual',
-        },
-      ],
       isLoading: false,
       showAdvancedOptions: false,
       lastUserScrollPosition: 0,
@@ -1022,7 +975,6 @@ export default {
         // Reset some query-specific settings to defaults when model changes
         this.similarityThreshold = 0.3;
         this.enableReranker = false;
-        this.rerankerMode = 'cross-lingual';
         logService.info('Reset query-specific settings to defaults due to model change.');
       }
     },
@@ -1092,13 +1044,6 @@ export default {
       if (queryParams.reranker !== undefined) {
         this.enableReranker = parseBooleanParam(queryParams.reranker);
         advancedOptionsWereSet = true;
-      }
-      if (queryParams.rerankerMode !== undefined && this.enableReranker) {
-        const validModes = this.rerankerModes.map((m) => m.value);
-        if (validModes.includes(queryParams.rerankerMode)) {
-          this.rerankerMode = queryParams.rerankerMode;
-          advancedOptionsWereSet = true;
-        }
       }
       // Add processing for text process specific URL params
       if (queryParams.forceEndpointMode) {
@@ -1319,7 +1264,6 @@ export default {
             chunk_retrieval_threshold: this.chunkRetrievalThreshold,
             num_results_per_chunk: this.numResultsPerChunk,
             enable_reranker: this.enableReranker,
-            reranker_mode: this.rerankerMode,
             no_assertion_detection: this.noAssertionDetectionForTextProcess,
             assertion_preference: this.assertionPreferenceForTextProcess,
             aggregated_term_confidence: this.aggregatedTermConfidence,
@@ -1336,7 +1280,6 @@ export default {
             num_results: this.numResults,
             similarity_threshold: this.similarityThreshold,
             enable_reranker: this.enableReranker,
-            reranker_mode: this.rerankerMode,
             query_assertion_language: this.selectedLanguage, // Pass selected language for query assertion
             detect_query_assertion: true, // Default to true for query mode now
             include_details: this.includeDetails,

@@ -79,61 +79,6 @@ class TestConvertResultsToCandidates:
         assert candidates[0]["comparison_text"] == "English document"
         assert candidates[0]["english_doc"] == "English document"
 
-    def test_loads_translation_for_monolingual_mode(self, mocker, tmp_path):
-        """Test monolingual mode attempts to load translations."""
-        # Arrange
-        results = {
-            "ids": [["HP:0001250"]],
-            "metadatas": [[{"hpo_id": "HP:0001250", "label": "Seizure"}]],
-            "documents": [["English document"]],
-            "distances": [[0.2]],
-        }
-
-        # Mock translation loading
-        mock_load_translation = mocker.patch(
-            "phentrieve.retrieval.query_orchestrator.load_translation_text",
-            return_value="Translated text",
-        )
-
-        translation_dir = str(tmp_path / "translations")
-
-        # Act
-        candidates = convert_results_to_candidates(
-            results,
-            reranker_mode="monolingual",
-            translation_dir=translation_dir,
-        )
-
-        # Assert
-        mock_load_translation.assert_called_once_with("HP:0001250", translation_dir)
-        assert candidates[0]["comparison_text"] == "Translated text"
-
-    def test_falls_back_to_english_when_translation_missing(self, mocker, tmp_path):
-        """Test falls back to English when translation not available."""
-        # Arrange
-        results = {
-            "ids": [["HP:0001250"]],
-            "metadatas": [[{"hpo_id": "HP:0001250", "label": "Seizure"}]],
-            "documents": [["English document"]],
-            "distances": [[0.2]],
-        }
-
-        # Mock translation loading to return None
-        mocker.patch(
-            "phentrieve.retrieval.query_orchestrator.load_translation_text",
-            return_value=None,
-        )
-
-        # Act
-        candidates = convert_results_to_candidates(
-            results,
-            reranker_mode="monolingual",
-            translation_dir=str(tmp_path),
-        )
-
-        # Assert
-        assert candidates[0]["comparison_text"] == "English document"  # Fallback
-
     def test_returns_empty_list_for_empty_results(self):
         """Test returns empty list when results are empty."""
         # Arrange

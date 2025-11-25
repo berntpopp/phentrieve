@@ -20,7 +20,6 @@ if TYPE_CHECKING:
 # Default directory sub-paths and filenames (relative to base dirs)
 # Sub-directories (for data_dir)
 DEFAULT_HPO_TERMS_SUBDIR = "hpo_terms"
-DEFAULT_TRANSLATIONS_SUBDIR = "hpo_translations"  # Directory for HPO term translations
 
 # Benchmark test data configuration (relative to project root)
 BENCHMARK_DATA_DIR = Path("tests/data/benchmarks")
@@ -68,16 +67,6 @@ _DEFAULT_DEVICE_FALLBACK: str | None = None  # Default device (None = auto-detec
 # - Supports 100+ languages for cross-lingual retrieval
 # - Used with protected two-stage retrieval to preserve dense retrieval quality
 _DEFAULT_RERANKER_MODEL_FALLBACK = "BAAI/bge-reranker-v2-m3"
-_DEFAULT_MONOLINGUAL_RERANKER_MODEL_FALLBACK = (
-    "ml6team/cross-encoder-mmarco-german-distilbert-base"
-)
-# Re-ranking mode options:
-# - 'cross-lingual': Query in target language -> English HPO terms
-# - 'monolingual': Query in target language -> HPO terms in same language
-_DEFAULT_RERANKER_MODE_FALLBACK = "cross-lingual"
-# Default directory for HPO term translations
-# Note: Path is resolved at runtime using DEFAULT_TRANSLATIONS_SUBDIR
-DEFAULT_TRANSLATION_DIR: str | None = None  # Will be resolved at runtime
 _DEFAULT_RERANK_CANDIDATE_COUNT_FALLBACK = 50
 _DEFAULT_ENABLE_RERANKER_FALLBACK = False
 # Protected dense retrieval threshold: Minimum bi-encoder score to protect from cross-encoder demotion
@@ -388,12 +377,6 @@ DEFAULT_DEVICE: str | None = get_config_value("device", _DEFAULT_DEVICE_FALLBACK
 # Re-ranking settings
 DEFAULT_RERANKER_MODEL = get_config_value(
     "reranker_model", _DEFAULT_RERANKER_MODEL_FALLBACK
-)
-DEFAULT_MONOLINGUAL_RERANKER_MODEL = get_config_value(
-    "monolingual_reranker_model", _DEFAULT_MONOLINGUAL_RERANKER_MODEL_FALLBACK
-)
-DEFAULT_RERANKER_MODE = get_config_value(
-    "reranker_mode", _DEFAULT_RERANKER_MODE_FALLBACK
 )
 DEFAULT_RERANK_CANDIDATE_COUNT = get_config_value(
     "rerank_candidate_count", _DEFAULT_RERANK_CANDIDATE_COUNT_FALLBACK

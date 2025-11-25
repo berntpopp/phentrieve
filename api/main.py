@@ -26,7 +26,6 @@ from api.routers import (  # noqa: E402
 from phentrieve.config import (  # noqa: E402
     DEFAULT_DEVICE,
     DEFAULT_MODEL,
-    DEFAULT_MONOLINGUAL_RERANKER_MODEL,
     DEFAULT_RERANKER_MODEL,
 )
 
@@ -54,22 +53,14 @@ async def lifespan(app: FastAPI):
             f"Default SBERT model '{DEFAULT_MODEL}' and its retriever pre-loading tasks initiated."
         )
 
-        # Attempt to pre-load default rerankers (optional, good for responsiveness)
+        # Attempt to pre-load default reranker (optional, good for responsiveness)
         if DEFAULT_RERANKER_MODEL:
             await get_cross_encoder_dependency(
                 reranker_model_name=DEFAULT_RERANKER_MODEL,
                 device_override=DEFAULT_DEVICE,
             )
             logger.info(
-                f"Default cross-lingual reranker '{DEFAULT_RERANKER_MODEL}' pre-loading task initiated."
-            )
-        if DEFAULT_MONOLINGUAL_RERANKER_MODEL:
-            await get_cross_encoder_dependency(
-                reranker_model_name=DEFAULT_MONOLINGUAL_RERANKER_MODEL,
-                device_override=DEFAULT_DEVICE,
-            )
-            logger.info(
-                f"Default monolingual reranker '{DEFAULT_MONOLINGUAL_RERANKER_MODEL}' pre-loading task initiated."
+                f"Default reranker '{DEFAULT_RERANKER_MODEL}' pre-loading task initiated."
             )
 
     except HTTPException as http_exc:
