@@ -613,8 +613,8 @@ See `tests/data/benchmarks/README.md` for complete dataset documentation.
 
 **Cross-Encoder Re-ranking**: Optional re-ranking stage for improved precision:
 - Configurable in `phentrieve.yaml` with `enable_reranker: true`
-- Multiple re-ranker models supported (multilingual NLI, biomedical, domain-specific)
-- Two modes: `cross-lingual` and `monolingual`
+- Default model: BAAI/bge-reranker-v2-m3 (568M params, 100+ languages)
+- Protected two-stage retrieval: High-confidence dense matches (≥0.7) preserved from demotion
 
 **Text Processing Pipeline Components**:
 - Semantic chunking strategies (sentence-based, token-based)

@@ -1,78 +1,74 @@
 # Cross-Encoder Reranking
 
-Phentrieve supports re-ranking of retrieved candidate HPO terms using cross-encoder models, which can significantly improve the ranking precision of results.
+Phentrieve uses a two-stage retrieval architecture that combines fast bi-encoder retrieval with precise cross-encoder reranking to improve ranking quality for HPO term matching.
 
-## What is a Cross-Encoder?
+## How It Works
 
-Unlike bi-encoder models (which create separate embeddings for query and document), cross-encoders take both the query and document as input simultaneously. This allows them to directly model the interaction between the query and document, leading to more accurate relevance judgments.
+### Stage 1: Dense Retrieval (Bi-Encoder)
 
-However, cross-encoders are computationally more expensive as they need to process each query-document pair separately, making them unsuitable for initial retrieval from large collections but perfect for re-ranking a small set of candidates.
+The bi-encoder (BioLORD-2023-M) creates separate embeddings for queries and HPO terms, enabling fast similarity search across the entire ontology. This provides high recall but may occasionally rank similar-but-incorrect terms highly.
 
-## Reranking Modes
+### Stage 2: Protected Reranking (Cross-Encoder)
 
-Phentrieve supports two reranking modes:
+The cross-encoder (BAAI/bge-reranker-v2-m3) processes query-document pairs together, enabling more accurate relevance judgments. Phentrieve implements **protected two-stage retrieval**:
 
-### 1. Cross-lingual Reranking (Default)
+1. **High-confidence matches are protected**: Dense retrieval results with similarity ≥0.7 are preserved at top positions
+2. **Uncertain matches are refined**: Lower-confidence candidates are reranked by the cross-encoder
+3. **Results are merged**: Protected matches stay on top, reranked results fill below
 
-Compares non-English queries directly with English HPO term labels using a multilingual cross-encoder model. This approach:
+This approach prevents cross-encoders from demoting correct cross-lingual matches due to lexical bias.
 
-- Avoids the need for translation
-- Maintains the multilingual capability of the system
-- Provides consistent results across languages
+## Default Model
 
-### 2. Monolingual Reranking
+**BAAI/bge-reranker-v2-m3** (568M parameters)
 
-Uses translated HPO term labels in the target language (if available) for comparison. This approach:
+- Dedicated multilingual reranker trained on diverse retrieval tasks
+- Supports 100+ languages for cross-lingual retrieval
+- Optimized for semantic matching without requiring translation
 
-- May provide better performance for specific languages
-- Requires pre-translated HPO terms
-- Is less flexible across languages
-
-## Supported Cross-Encoder Models
-
-Phentrieve has been tested with three different cross-encoder models:
-
-### 1. cross-encoder/mmarco-mMiniLMv2-L12-H384-v1 (Original Implementation)
-
-- General multilingual retrieval model
-- Returns negative scores (higher/less negative = better)
-- Small and efficient, but not domain-specific
-
-### 2. MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7 (Current Default)
-
-- Multilingual natural language inference model
-- Returns probability distributions for entailment/neutral/contradiction
-- Adapted to extract entailment scores for ranking
-- Strong multilingual capabilities but not domain-specific
-
-### 3. ncbi/MedCPT-Cross-Encoder
-
-- Biomedical domain-specific cross-encoder
-- Developed by NCBI specifically for medical text matching
-- Provides better understanding of medical relationships
-- Complements BioLORD bi-encoder which already performs well on medical terminology
-
-## Using Reranking
+## Configuration
 
 ### CLI Usage
 
 ```bash
-# Enable reranking with default settings (cross-lingual mode)
+# Enable reranking with default settings
 phentrieve query --enable-reranker
 
-# Specify a particular cross-encoder model
+# Specify a different cross-encoder model
 phentrieve query --enable-reranker --reranker-model "ncbi/MedCPT-Cross-Encoder"
 
-# Use monolingual reranking (requires translations)
-phentrieve query --enable-reranker --reranker-mode monolingual --translation-dir path/to/translations
+# Control number of candidates to rerank
+phentrieve query --enable-reranker --rerank-count 50
 ```
 
-### Performance Considerations
+### Configuration File
 
-Reranking improves precision but adds computational overhead:
+```yaml
+# phentrieve.yaml
+enable_reranker: true
+reranker_model: "BAAI/bge-reranker-v2-m3"
+rerank_candidate_count: 50
+dense_trust_threshold: 0.7  # Protect matches above this similarity
+```
 
-- Without reranking: Faster but potentially less accurate ranking
-- With reranking: Better ranking quality but slower processing
+## Performance
+
+Benchmark results on German clinical text (200 cases):
+
+| Metric | Without Reranking | With Reranking | Improvement |
+|--------|-------------------|----------------|-------------|
+| MRR | 0.28 | 0.38 | +36% |
+| Hit@1 | 11% | 22% | +100% |
+| Hit@10 | 67% | 67% | — |
+
+## Alternative Models
+
+Other cross-encoder models compatible with Phentrieve:
+
+| Model | Domain | Notes |
+|-------|--------|-------|
+| `ncbi/MedCPT-Cross-Encoder` | Biomedical | NCBI's medical text matcher |
+| `cross-encoder/ms-marco-MiniLM-L-12-v2` | General | Fast, English-focused |
 
 !!! tip "GPU Acceleration"
-    When using reranking, GPU acceleration can significantly improve processing speed. Phentrieve automatically uses GPU acceleration with CUDA when available.
+    Cross-encoder reranking benefits significantly from GPU acceleration. Phentrieve automatically uses CUDA when available.

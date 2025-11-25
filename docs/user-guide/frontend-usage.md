@@ -46,8 +46,8 @@ The frontend allows you to select from available embedding models:
 Enable cross-encoder reranking for improved precision:
 
 1. Check the "Enable Reranker" option in the settings panel
-2. Select a reranking mode (crosslingual or monolingual)
-3. Adjust any other reranking parameters as needed
+2. The system uses protected two-stage retrieval (high-confidence dense matches preserved)
+3. Default model: BAAI/bge-reranker-v2-m3 (multilingual cross-encoder)
 
 ### Results Export
 
@@ -103,7 +103,6 @@ The following URL parameters are supported:
 | `model` | string | Sets the embedding model | `model=FremyCompany/BioLORD-2023-M` |
 | `threshold` | float | Sets the similarity threshold (0.0-1.0) | `threshold=0.4` |
 | `reranker` | boolean | Enables/disables the reranker | `reranker=true` |
-| `rerankerMode` | string | Sets the reranker mode | `rerankerMode=cross-lingual` |
 | `autoSubmit` | boolean | Automatically submits the query if true | `autoSubmit=true` |
 
 #### Examples
@@ -120,7 +119,7 @@ http://localhost:8080/?text=Patient%20has%20headache&autoSubmit=true
 
 **Complete configuration with specific model and settings:**
 ```
-http://localhost:8080/?text=Patient%20has%20headache&model=FremyCompany/BioLORD-2023-M&threshold=0.4&reranker=true&rerankerMode=cross-lingual&autoSubmit=true
+http://localhost:8080/?text=Patient%20has%20headache&model=FremyCompany/BioLORD-2023-M&threshold=0.4&reranker=true&autoSubmit=true
 ```
 
 #### Notes
@@ -129,4 +128,3 @@ http://localhost:8080/?text=Patient%20has%20headache&model=FremyCompany/BioLORD-
 - The `autoSubmit` parameter is removed from the URL after submission to prevent re-submission on page refresh
 - Model names must exactly match one of the available models
 - The threshold must be a number between 0.0 and 1.0
-- Reranker mode is only applied if the reranker is enabled

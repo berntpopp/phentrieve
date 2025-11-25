@@ -45,7 +45,7 @@ data:
 
 models:
   default: "FremyCompany/BioLORD-2023-M"
-  reranker: "MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7"
+  reranker: "BAAI/bge-reranker-v2-m3"
 
 processing:
   chunking_strategy: "semantic"

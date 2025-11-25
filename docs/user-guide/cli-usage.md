@@ -62,8 +62,8 @@ phentrieve query --text "The patient shows microcephaly and seizures"
 - `--num-results`: Maximum number of results to display (default: 5)
 - `--model-name`: Embedding model to use (default: "FremyCompany/BioLORD-2023-M")
 - `--enable-reranker`: Enable cross-encoder reranking for improved precision
-- `--reranker-mode`: Reranking mode, either "crosslingual" (default) or "monolingual"
-- `--reranker-model`: Cross-encoder model to use for reranking
+- `--reranker-model`: Cross-encoder model (default: "BAAI/bge-reranker-v2-m3")
+- `--rerank-count`: Number of candidates to pass to reranker (default: 50)
 
 ### Text Processing
 

@@ -108,12 +108,16 @@ Given query $q$ and candidate documents $C = \{c_1, c_2, ..., c_k\}$ from dense 
 - **Class**: `CrossEncoder`
 - **Module**: `phentrieve.retrieval.reranker`
 - **Key Methods**:
-  - `rerank(query: str, candidates: list[dict], top_k: int) -> list[dict]`
-  - `_compute_scores(pairs: list[tuple[str, str]]) -> list[float]`
+  - `protected_dense_rerank(query, candidates, cross_encoder, trust_threshold)` - Protected two-stage retrieval
+  - `rerank_candidates(query, candidates, cross_encoder)` - Standard reranking
 
-**Mode Options:**
-- `crosslingual`: Query and documents in different languages
-- `monolingual`: Same language matching
+**Protected Two-Stage Retrieval:**
+
+Phentrieve implements protected reranking to prevent cross-encoders from demoting correct cross-lingual matches:
+
+1. **Protection**: Dense matches with similarity ≥0.7 are preserved at top positions
+2. **Refinement**: Lower-confidence candidates are reranked by cross-encoder
+3. **Merge**: Protected results stay on top, reranked results fill below
 
 **Dependencies:**
 - `sentence-transformers.CrossEncoder` - Cross-encoder models
@@ -504,8 +508,8 @@ retrieval:
   num_results: 20
   enable_reranker: true
   reranker_model: "BAAI/bge-reranker-v2-m3"
-  reranker_mode: "crosslingual"
-  reranker_top_k: 20
+  rerank_candidate_count: 50
+  dense_trust_threshold: 0.7  # Protect high-confidence dense matches
 
 chunking_pipeline:
   - type: paragraph

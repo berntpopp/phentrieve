@@ -118,9 +118,9 @@ PHENTRIEVE_RESULTS_DIR=${PHENTRIEVE_DATA_ROOT_DIR}/results
     "default_embedding_model": "FremyCompany/BioLORD-2023-M",
     "default_parameters": {
       "similarity_threshold": 0.1,
-      "reranker_mode": "cross-lingual",
       "top_k": 10,
       "enable_reranker": false,
+      "reranker_model": "BAAI/bge-reranker-v2-m3",
       "similarity_formula": "hybrid",
       "language": "en"
     },
