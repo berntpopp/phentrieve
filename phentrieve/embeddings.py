@@ -80,7 +80,7 @@ def _devices_match(device1: str, device2: str) -> bool:
         True if devices are equivalent, False otherwise
     """
     try:
-        return torch.device(device1) == torch.device(device2)
+        return bool(torch.device(device1) == torch.device(device2))
     except RuntimeError:
         # Fallback to string comparison if torch.device() fails
         return str(device1) == str(device2)
