@@ -91,11 +91,11 @@ def rerank_with_cross_encoder(
         for i, candidate in enumerate(candidates):
             # Handle different output formats from various cross-encoder models
             if isinstance(scores[i], (list, np.ndarray)) and len(scores[i]) > 1:
-                # For NLI models that return probabilities for entailment/neutral/contradiction
-                # Use the entailment score (usually the first index) as the relevance score
+                # For models returning array outputs (e.g., multi-class classifiers)
+                # Use the first score as the relevance score
                 candidate["cross_encoder_score"] = float(scores[i][0])
             else:
-                # For traditional cross-encoders that return a single score
+                # For standard cross-encoders that return a single relevance score
                 candidate["cross_encoder_score"] = float(scores[i])
 
         # Sort by cross_encoder_score in descending order
@@ -205,10 +205,10 @@ def protected_dense_rerank(
             for i, candidate in enumerate(rerank_candidates):
                 # Handle different output formats from various cross-encoder models
                 if isinstance(scores[i], (list, np.ndarray)) and len(scores[i]) > 1:
-                    # For NLI models: use entailment score
+                    # For models returning array outputs: use first score
                     candidate["cross_encoder_score"] = float(scores[i][0])
                 else:
-                    # For traditional cross-encoders: single score
+                    # For standard cross-encoders: single relevance score
                     candidate["cross_encoder_score"] = float(scores[i])
 
             # Sort reranked candidates by cross-encoder score
@@ -230,6 +230,7 @@ def protected_dense_rerank(
             scores = cross_encoder_model.predict(pairs)
 
             for i, candidate in enumerate(protected_candidates):
+                # Handle different output formats from various cross-encoder models
                 if isinstance(scores[i], (list, np.ndarray)) and len(scores[i]) > 1:
                     candidate["cross_encoder_score"] = float(scores[i][0])
                 else:

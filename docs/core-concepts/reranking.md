@@ -22,9 +22,11 @@ This approach prevents cross-encoders from demoting correct cross-lingual matche
 
 **BAAI/bge-reranker-v2-m3** (568M parameters)
 
-- Dedicated multilingual reranker trained on diverse retrieval tasks
-- Supports 100+ languages for cross-lingual retrieval
+- Fine-tuned from [BGE-M3](https://huggingface.co/BAAI/bge-m3) on multilingual datasets
+- Supports 100+ languages via XLM-RoBERTa architecture
 - Optimized for semantic matching without requiring translation
+
+**Reference**: Chen et al. (2024). [BGE M3-Embedding: Multi-Lingual, Multi-Functionality, Multi-Granularity Text Embeddings Through Self-Knowledge Distillation](https://arxiv.org/abs/2402.03216). arXiv:2402.03216.
 
 ## Configuration
 

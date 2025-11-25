@@ -63,8 +63,8 @@ _DEFAULT_DEVICE_FALLBACK: str | None = None  # Default device (None = auto-detec
 
 # Cross-encoder re-ranking settings (loaded from YAML with fallbacks)
 # BAAI/bge-reranker-v2-m3: Dedicated multilingual reranker (568M parameters)
-# - Trained on MS MARCO relevance datasets
-# - Supports 100+ languages for cross-lingual retrieval
+# - Fine-tuned from BGE-M3 on multilingual datasets (bge-m3-data, Quora, FEVER)
+# - Supports 100+ languages for cross-lingual retrieval (XLM-RoBERTa base)
 # - Used with protected two-stage retrieval to preserve dense retrieval quality
 _DEFAULT_RERANKER_MODEL_FALLBACK = "BAAI/bge-reranker-v2-m3"
 _DEFAULT_RERANK_CANDIDATE_COUNT_FALLBACK = 50
