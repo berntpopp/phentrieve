@@ -51,16 +51,6 @@ rerank_candidate_count: 50
 dense_trust_threshold: 0.7  # Protect matches above this similarity
 ```
 
-## Performance
-
-Benchmark results on German clinical text (200 cases):
-
-| Metric | Without Reranking | With Reranking | Improvement |
-|--------|-------------------|----------------|-------------|
-| MRR | 0.28 | 0.38 | +36% |
-| Hit@1 | 11% | 22% | +100% |
-| Hit@10 | 67% | 67% | — |
-
 ## Alternative Models
 
 Other cross-encoder models compatible with Phentrieve:
