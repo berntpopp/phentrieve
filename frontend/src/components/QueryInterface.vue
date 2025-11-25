@@ -285,7 +285,6 @@
             </v-col>
           </v-row>
 
-
           <v-divider class="my-2" />
           <div class="text-subtitle-2 mb-1 px-1 font-weight-medium">
             {{ $t('queryInterface.advancedOptions.processingModeTitle') }}

@@ -47,9 +47,7 @@ class TestConvertResultsToCandidates:
         }
 
         # Act
-        candidates = convert_results_to_candidates(
-            results, reranker_mode="cross-lingual"
-        )
+        candidates = convert_results_to_candidates(results)
 
         # Assert
         assert len(candidates) == 2
@@ -60,8 +58,8 @@ class TestConvertResultsToCandidates:
         assert "bi_encoder_score" in candidates[0]
         assert candidates[1]["rank"] == 2
 
-    def test_uses_english_doc_for_cross_lingual_mode(self):
-        """Test cross-lingual mode uses English documents."""
+    def test_uses_english_doc_for_comparison(self):
+        """Test always uses English documents for cross-lingual comparison."""
         # Arrange
         results = {
             "ids": [["HP:0001250"]],
@@ -71,9 +69,7 @@ class TestConvertResultsToCandidates:
         }
 
         # Act
-        candidates = convert_results_to_candidates(
-            results, reranker_mode="cross-lingual"
-        )
+        candidates = convert_results_to_candidates(results)
 
         # Assert
         assert candidates[0]["comparison_text"] == "English document"

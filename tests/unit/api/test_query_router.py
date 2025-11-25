@@ -4,7 +4,6 @@ import pytest
 
 from api.routers.query_router import (
     _resolve_query_language,
-    _resolve_reranker_model_name,
 )
 
 pytestmark = pytest.mark.unit
@@ -86,48 +85,6 @@ class TestResolveQueryLanguage:
 
         # Assert
         assert result == "de"
-
-
-class TestResolveRerankerModelName:
-    """Test _resolve_reranker_model_name helper function."""
-
-    def test_returns_none_when_reranker_disabled(self):
-        """Test returns None when reranking is disabled."""
-        # Act
-        result = _resolve_reranker_model_name(
-            enable_reranker=False,
-            reranker_mode="cross-lingual",
-            reranker_model="some-model",
-        )
-
-        # Assert
-        assert result is None
-
-    def test_returns_cross_lingual_model(self):
-        """Test returns cross-lingual model when specified."""
-        # Act
-        result = _resolve_reranker_model_name(
-            enable_reranker=True,
-            reranker_mode="cross-lingual",
-            reranker_model="cross-encoder/ms-marco-MiniLM-L-12-v2",
-        )
-
-        # Assert
-        assert result == "cross-encoder/ms-marco-MiniLM-L-12-v2"
-
-    def test_uses_default_cross_lingual_model_when_none_provided(self):
-        """Test uses default cross-lingual model when not specified."""
-        # Act
-        result = _resolve_reranker_model_name(
-            enable_reranker=True,
-            reranker_mode="cross-lingual",
-            reranker_model=None,
-        )
-
-        # Assert
-        assert result is not None  # Should use DEFAULT_RERANKER_MODEL
-        # Verify it's the expected default model (BAAI/bge-reranker-v2-m3)
-        assert "bge-reranker" in result or "BAAI" in result
 
 
 class TestQueryRequestValidation:
