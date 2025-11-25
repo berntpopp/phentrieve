@@ -244,18 +244,14 @@ async def _process_text_internal(request: TextProcessingRequest):
 
         # Get cached cross-encoder if reranking is enabled
         cross_enc = None
-        if request.enable_reranker:
-            reranker_to_load = request.reranker_model_name
-            if request.reranker_mode == "monolingual" and actual_language != "en":
-                reranker_to_load = request.monolingual_reranker_model_name
-            if reranker_to_load:
-                logger.info(f"API: Using reranker model: {reranker_to_load}")
-                cross_enc = await get_cross_encoder_dependency(
-                    reranker_model_name=reranker_to_load
-                )
+        if request.enable_reranker and request.reranker_model_name:
+            logger.info(f"API: Using reranker model: {request.reranker_model_name}")
+            cross_enc = await get_cross_encoder_dependency(
+                reranker_model_name=request.reranker_model_name
+            )
             if not cross_enc:
                 logger.warning(
-                    f"API: Reranker {reranker_to_load} not available, proceeding without reranking."
+                    f"API: Reranker {request.reranker_model_name} not available, proceeding without reranking."
                 )
 
         # Prepare pipeline configuration

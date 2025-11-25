@@ -25,38 +25,38 @@ install-editable: ## Install in editable mode (for development)
 	uv pip install -e .
 
 format: ## Format Python code with Ruff
-	ruff format phentrieve/ api/ tests/
+	uv run ruff format phentrieve/ api/ tests/
 
 lint: ## Lint Python code with Ruff
-	ruff check phentrieve/ api/ tests/
+	uv run ruff check phentrieve/ api/ tests/
 
 lint-fix: ## Lint and auto-fix Python code
-	ruff check phentrieve/ api/ tests/ --fix
+	uv run ruff check phentrieve/ api/ tests/ --fix
 
 typecheck: ## Type check with mypy (incremental with SQLite cache)
-	mypy phentrieve/ api/
+	uv run mypy phentrieve/ api/
 
 typecheck-fast: ## Fast type check using mypy daemon (first run starts daemon)
 	@echo "Using mypy daemon for faster checking..."
-	@dmypy run -- phentrieve/ api/ || (echo "Starting mypy daemon..." && dmypy start && dmypy run -- phentrieve/ api/)
+	@uv run dmypy run -- phentrieve/ api/ || (echo "Starting mypy daemon..." && uv run dmypy start && uv run dmypy run -- phentrieve/ api/)
 
 typecheck-daemon-stop: ## Stop mypy daemon
-	dmypy stop
+	uv run dmypy stop
 
 typecheck-fresh: ## Type check from scratch (clear cache first)
 	rm -rf .mypy_cache/
-	mypy phentrieve/ api/
+	uv run mypy phentrieve/ api/
 
 check: format lint ## Format and lint code
 
 test: ## Run package tests with pytest
-	pytest tests/ -v
+	uv run pytest tests/ -v
 
 test-cov: ## Run package tests with coverage
-	pytest tests/ -v --cov=phentrieve --cov=api --cov-report=html --cov-report=term
+	uv run pytest tests/ -v --cov=phentrieve --cov=api --cov-report=html --cov-report=term
 
 test-scripts: ## Run script tests (scripts/tests/)
-	pytest scripts/tests/ -v --cov=scripts --cov-report=term-missing
+	uv run pytest scripts/tests/ -v --cov=scripts --cov-report=term-missing
 
 test-all: test test-scripts ## Run all tests (package + scripts)
 
