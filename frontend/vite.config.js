@@ -5,7 +5,8 @@ import vue from '@vitejs/plugin-vue'
 import { configDefaults } from 'vitest/config'
 import { visualizer } from 'rollup-plugin-visualizer'
 import viteCompression from 'vite-plugin-compression'
-import viteImagemin from 'vite-plugin-imagemin'
+// vite-plugin-imagemin removed due to unmaintained status and 29+ security vulnerabilities
+// Images are served as-is; consider vite-imagetools for future optimization needs
 import iconOptimizer from './vite-icon-optimizer'
 import commonjs from '@rollup/plugin-commonjs'
 
@@ -44,12 +45,7 @@ export default defineConfig({
       compressionOptions: { level: 11 }, // Maximum compression level
       deleteOriginFile: false // Keep original files
     }),
-    viteImagemin({
-      gifsicle: { optimizationLevel: 7 },
-      mozjpeg: { quality: 80 },
-      pngquant: { quality: [0.7, 0.8] },
-      svgo: true
-    }),
+    // viteImagemin removed - see import comment above
     visualizer({
       filename: 'dist/stats.html',
       open: false,
