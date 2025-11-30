@@ -1,0 +1,146 @@
+name: Security Scanning
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  schedule:
+    # Weekly Monday 6 AM UTC - regular security audits
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+concurrency:
+  group: security-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Python dependency vulnerability scanning
+  pip-audit:
+    name: Python Dependency Scan (pip-audit)
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          version: "latest"
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Cache uv dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/uv
+            .venv
+          key: ${{ runner.os }}-uv-security-${{ hashFiles('uv.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-uv-security-
+            ${{ runner.os }}-uv-
+
+      - name: Install dependencies
+        run: uv sync --all-extras --dev
+
+      - name: Run pip-audit
+        uses: pypa/gh-action-pip-audit@v1.1.0
+        with:
+          vulnerability-service: pypi
+          # Uncomment to ignore specific vulns if needed:
+          # ignore-vulns: |
+          #   GHSA-xxxx-xxxx-xxxx
+
+  # Python SAST with Bandit (standalone for SARIF output)
+  bandit:
+    name: Python SAST (Bandit)
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Run Bandit Security Scan
+        uses: PyCQA/bandit-action@v1
+        with:
+          targets: phentrieve api
+          configfile: pyproject.toml
+          severity: medium
+          confidence: medium
+
+  # JavaScript dependency vulnerability scanning
+  npm-audit:
+    name: JavaScript Dependency Scan (npm audit)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Run npm audit (production dependencies)
+        working-directory: frontend
+        run: npm audit --omit=dev --audit-level=critical
+
+      - name: Run npm audit (full report)
+        working-directory: frontend
+        run: npm audit --audit-level=high || true
+        # Don't fail on high for dev deps - many false positives
+
+  # Security scan summary
+  security-summary:
+    name: Security Summary
+    needs: [pip-audit, bandit, npm-audit]
+    if: always()
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check security scan results
+        run: |
+          echo "## Security Scan Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Scan | Result |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| pip-audit (Python deps) | ${{ needs.pip-audit.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Bandit (Python SAST) | ${{ needs.bandit.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| npm audit (JS deps) | ${{ needs.npm-audit.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Fail if critical scans failed
+          if [[ "${{ needs.pip-audit.result }}" == "failure" ]]; then
+            echo "::error::pip-audit found vulnerabilities in Python dependencies"
+            exit 1
+          fi
+
+          if [[ "${{ needs.bandit.result }}" == "failure" ]]; then
+            echo "::error::Bandit found security issues in Python code"
+            exit 1
+          fi
+
+          # npm-audit failure is warning only (many false positives)
+          if [[ "${{ needs.npm-audit.result }}" == "failure" ]]; then
+            echo "::warning::npm audit found issues - review recommended"
+          fi
+
+          echo "::notice::Security scans completed"

@@ -196,10 +196,33 @@ jobs:
           build-args: |
             ${{ matrix.service == 'frontend' && 'VITE_API_URL=/api/v1' || '' }}
 
+  # Dependency Review - blocks PRs with vulnerable dependencies
+  dependency-review:
+    name: Dependency Review
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: high
+          # Allow common open source licenses
+          allow-licenses: MIT, Apache-2.0, BSD-2-Clause, BSD-3-Clause, ISC, 0BSD, Unlicense, CC0-1.0, Python-2.0, PSF-2.0
+          # Deny copyleft licenses that might conflict
+          deny-licenses: GPL-3.0-only, GPL-3.0-or-later, AGPL-3.0-only, AGPL-3.0-or-later
+          # Comment on PR with summary
+          comment-summary-in-pr: on-failure
+
   # Summary job that requires all checks to pass
   ci-summary:
     name: CI Summary
-    needs: [changes, python-ci, frontend-ci, docker-build-test]
+    needs: [changes, python-ci, frontend-ci, docker-build-test, dependency-review]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -208,12 +231,19 @@ jobs:
           echo "Python CI: ${{ needs.python-ci.result }}"
           echo "Frontend CI: ${{ needs.frontend-ci.result }}"
           echo "Docker Build: ${{ needs.docker-build-test.result }}"
+          echo "Dependency Review: ${{ needs.dependency-review.result }}"
 
           # Fail if any required job failed
           if [[ "${{ needs.python-ci.result }}" == "failure" ]] || \
              [[ "${{ needs.frontend-ci.result }}" == "failure" ]] || \
              [[ "${{ needs.docker-build-test.result }}" == "failure" ]]; then
             echo "❌ One or more CI jobs failed"
+            exit 1
+          fi
+
+          # Dependency review failure on PRs is critical
+          if [[ "${{ needs.dependency-review.result }}" == "failure" ]]; then
+            echo "❌ Dependency review found vulnerabilities"
             exit 1
           fi
 

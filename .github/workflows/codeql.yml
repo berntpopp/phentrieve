@@ -1,0 +1,56 @@
+name: CodeQL Analysis
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  schedule:
+    # Weekly Monday 8 AM UTC - comprehensive security analysis
+    - cron: '0 8 * * 1'
+  workflow_dispatch:
+
+concurrency:
+  group: codeql-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analyze:
+    name: Analyze (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      security-events: write
+      packages: read
+      actions: read
+      contents: read
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [python, javascript]
+        # CodeQL supports: cpp, csharp, go, java, javascript, python, ruby, swift
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          # Extended queries for thorough analysis
+          queries: +security-extended,security-and-quality
+          # Custom config for path filtering (optional)
+          # config-file: .github/codeql/codeql-config.yml
+
+      # Python is interpreted - no build needed
+      # JavaScript source is scanned directly - no build needed
+      # If we were scanning bundled JS, we'd run: npm run build
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{ matrix.language }}"
+          # Upload SARIF to GitHub Security tab
+          upload: true
