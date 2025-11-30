@@ -25,10 +25,15 @@ __all__ = [
     "DEFAULT_BENCHMARK_FILE",
     "DEFAULT_HPO_FILENAME",
     "DEFAULT_HPO_DB_FILENAME",
+    # Benchmark result subdirectories
+    "DEFAULT_SUMMARIES_SUBDIR",
+    "DEFAULT_DETAILED_SUBDIR",
+    "DEFAULT_VISUALIZATIONS_SUBDIR",
     # Models
     "DEFAULT_MODEL",
     "DEFAULT_BIOLORD_MODEL",
     "JINA_MODEL_ID",
+    "BENCHMARK_MODELS",
     # Retrieval settings
     "DEFAULT_TOP_K",
     "DEFAULT_K_VALUES",
@@ -45,6 +50,11 @@ __all__ = [
     "DEFAULT_LANGUAGE",
     # HPO ontology
     "PHENOTYPE_ROOT",
+    # HPO data configuration
+    "HPO_VERSION",
+    "HPO_BASE_URL",
+    "HPO_DOWNLOAD_TIMEOUT",
+    "HPO_CHUNK_SIZE",
     # Chunking configurations
     "DEFAULT_CHUNK_PIPELINE_CONFIG",
     "SIMPLE_CHUNKING_CONFIG",
