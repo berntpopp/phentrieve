@@ -62,9 +62,11 @@ COPY --chown=nginx:nginx nginx.conf /etc/nginx/conf.d/default.conf
 # Copy built application (as nginx user)
 COPY --chown=nginx:nginx --from=builder /app/dist /usr/share/nginx/html
 
-# Remove default configs (need root temporarily)
+# Remove default configs and apply security updates (need root temporarily)
 USER root
 RUN rm -f /etc/nginx/conf.d/*.conf.default && \
+    # Apply security updates to base image packages (addresses openssl CVEs)
+    apk update && apk upgrade --no-cache && \
     # Verify files were copied
     ls -la /usr/share/nginx/html/
 USER nginx
