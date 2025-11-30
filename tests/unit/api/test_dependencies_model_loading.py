@@ -198,8 +198,8 @@ class TestCrossEncoderLoadingWithTimeout:
             )
             await asyncio.sleep(0.05)  # Let it start
 
-            # Complete the loading
-            await task
+            # Complete the loading (result intentionally discarded, we only need the side effects)
+            _ = await task
 
             # Task should be cleaned up
             assert model_name not in dependencies.MODEL_LOADING_TASKS

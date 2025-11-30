@@ -83,10 +83,12 @@ ENV VIRTUAL_ENV=/opt/venv
 RUN python -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
-# Upgrade pip, setuptools, wheel
+# Upgrade pip, setuptools, wheel to patched versions
+# - setuptools >= 70.0.0 fixes CVE-2024-6345 (path traversal) and CVE-2022-40897 (RCE)
+# - pip >= 24.1 fixes symbolic link extraction vulnerability
 # hadolint ignore=DL3042,DL3013
 RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install --upgrade pip setuptools wheel
+    pip install --upgrade "pip>=24.1" "setuptools>=70.0.0" wheel
 
 WORKDIR /build
 
@@ -134,15 +136,23 @@ LABEL org.opencontainers.image.title="Phentrieve API" \
       org.opencontainers.image.documentation="https://github.com/berntpopp/phentrieve/blob/main/README.md" \
       org.opencontainers.image.authors="Bernt Popp <bernt.popp@gmail.com>"
 
-# Install only runtime dependencies
-# hadolint ignore=DL3008
+# Install runtime dependencies and apply security updates
+# The apt-get upgrade fetches latest security patches for base image packages
+# (addresses CVEs in glibc, openssl, perl, linux-pam, openldap, gnutls, ncurses, etc.)
+# hadolint ignore=DL3008,DL3009
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    apt-get update && apt-get install -y --no-install-recommends \
+    apt-get update && \
+    # Apply security updates to base image packages
+    apt-get upgrade -y && \
+    apt-get install -y --no-install-recommends \
         ca-certificates \
         libgomp1 \
         curl \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    # Security hardening: Remove unnecessary setuid/setgid bits (CIS-DI-0008)
+    # These are not needed for the API container runtime
+    && find /usr/bin /usr/sbin /bin /sbin -perm /6000 -type f -exec chmod a-s {} \; || true
 
 # Copy SQLite runtime libraries
 COPY --from=sqlite-builder /usr/local/lib/libsqlite3.* /usr/local/lib/

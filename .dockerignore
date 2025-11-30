@@ -86,11 +86,11 @@ docs/
 mkdocs.yml
 .readthedocs.yml
 
-# Docker
-Dockerfile
-Dockerfile.*
+# Docker (use ** pattern to match in all directories)
+**/Dockerfile
+**/Dockerfile.*
 docker-compose*.yml
-.dockerignore
+**/.dockerignore
 
 # CI/CD
 .github/

@@ -223,17 +223,9 @@ def calculate_semantically_aware_set_based_prf1(
                     best_similarity,
                 )
 
-        # Remove matched terms again
-        available_extracted = [
-            term
-            for i, term in enumerate(available_extracted)
-            if i not in extracted_indices_to_remove
-        ]
-        available_truth = [
-            term
-            for i, term in enumerate(available_truth)
-            if i not in truth_indices_to_remove
-        ]
+        # Note: We intentionally don't reassign available_extracted and available_truth
+        # here since they're not used after this point. The filtered results above
+        # are only used for match counting, not for further processing.
 
     # Calculate overall metrics (exact + semantic)
     fp_count = len(filtered_extracted_terms) - true_positives
