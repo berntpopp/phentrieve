@@ -297,10 +297,8 @@ class TestDockerSecurity:
 
         # Note: If not explicitly set, may be None or 0 (meaning kernel default)
         # For testing, we accept either explicit limit or kernel default
-        if pids_limit is not None and pids_limit > 0:
-            # Explicit limit is set
-            assert pids_limit > 0, f"PIDs limit should be positive, got: {pids_limit}"
-        else:
-            # Using kernel default (acceptable for now)
-            # Could be made stricter by requiring explicit PidsLimit in compose
-            pass
+        # If pids_limit is set and positive, it's properly configured
+        # Otherwise, kernel default is used (acceptable for now)
+        assert pids_limit is None or pids_limit >= 0, (
+            f"PIDs limit should be non-negative or None, got: {pids_limit}"
+        )

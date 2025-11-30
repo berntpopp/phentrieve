@@ -54,7 +54,7 @@ async def execute_hpo_retrieval_for_api(
     """
     if debug:
         logger.setLevel(logging.DEBUG)
-        logger.debug(f"Processing API query with text: {text[:50]}...")
+        logger.debug("Processing API query with text: %s...", text[:50])
     # Validate input
     if not text or not text.strip():
         return {
@@ -72,7 +72,7 @@ async def execute_hpo_retrieval_for_api(
         try:
             # Log the language being used for assertion detection
             logger.info(
-                f"Using language '{assertion_language}' for assertion detection"
+                "Using language '%s' for assertion detection", assertion_language
             )
 
             # Create the assertion detector with the specified language
@@ -84,12 +84,12 @@ async def execute_hpo_retrieval_for_api(
             original_query_assertion_status, details = assertion_detector.detect(text)
 
             logger.info(
-                f"Query assertion status detected: {original_query_assertion_status}"
+                "Query assertion status detected: %s", original_query_assertion_status
             )
             if details:
-                logger.debug(f"Assertion detection details: {details}")
+                logger.debug("Assertion detection details: %s", details)
         except Exception as e:
-            logger.warning(f"Error in assertion detection: {e}")
+            logger.warning("Error in assertion detection: %s", e)
             original_query_assertion_status = None
     if enable_reranker and not cross_encoder:
         logger.warning(
@@ -112,7 +112,7 @@ async def execute_hpo_retrieval_for_api(
     # Check if we have valid results
     if not query_results or not query_results.get("ids") or not query_results["ids"][0]:
         logger.info(
-            f"No HPO terms found for query with threshold {similarity_threshold}"
+            "No HPO terms found for query with threshold %s", similarity_threshold
         )
         return {
             "query_text_processed": segment_to_process,
@@ -152,7 +152,7 @@ async def execute_hpo_retrieval_for_api(
     # Apply reranking if enabled
     if enable_reranker and cross_encoder:
         logger.debug(
-            f"Reranking {len(hpo_embeddings_results)} results with protected retrieval"
+            "Reranking %s results with protected retrieval", len(hpo_embeddings_results)
         )
         try:
             # Map "similarity" field to "bi_encoder_score" for protected_dense_rerank()
@@ -169,7 +169,7 @@ async def execute_hpo_retrieval_for_api(
             )
 
         except Exception as e:
-            logger.error(f"Error during reranking: {e}")
+            logger.error("Error during reranking: %s", e)
             # Continue with dense retrieval results if reranking fails
 
     # Limit to requested number of results

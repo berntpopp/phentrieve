@@ -54,43 +54,32 @@ def calculate_semantically_aware_set_based_prf1(
     filtered_ground_truth_terms = ground_truth_annotations
 
     # Log the original extracted and ground truth terms for debugging
-    logger.info(f"Raw extracted terms: {len(extracted_annotations)} items")
+    logger.info("Raw extracted terms: %s items", len(extracted_annotations))
     for term in extracted_annotations:
         assertion = term.get("assertion_status")
         logger.info(
-            f"Extracted term: {term.get('id')} - {term.get('name')} (assertion: {assertion})"
+            "Extracted term: %s - %s (assertion: %s)",
+            term.get("id"),
+            term.get("name"),
+            assertion,
         )
 
-    logger.info(f"Raw ground truth terms: {len(ground_truth_annotations)} items")
+    logger.info("Raw ground truth terms: %s items", len(ground_truth_annotations))
     for term in ground_truth_annotations:
         term_id = term.get("hpo_id") or term.get("id")
         name = term.get("label") or term.get("name")
         assertion = term.get("assertion_status")
-        logger.info(f"Ground truth term: {term_id} - {name} (assertion: {assertion})")
-
-    # Temporarily disable assertion status filtering for debugging
-    if False and target_assertion_status is not None:
-        filtered_extracted_terms = [
-            term
-            for term in extracted_annotations
-            if term.get("assertion_status") == target_assertion_status
-        ]
-        filtered_ground_truth_terms = [
-            term
-            for term in ground_truth_annotations
-            if term.get("assertion_status") == target_assertion_status
-        ]
-
-        # Log filtered terms
         logger.info(
-            f"After assertion filtering: {len(filtered_extracted_terms)} extracted, {len(filtered_ground_truth_terms)} ground truth"
+            "Ground truth term: %s - %s (assertion: %s)", term_id, name, assertion
         )
-    else:
-        logger.info("No assertion filtering applied - using all terms for matching")
 
-    # Create mutable copies for matching
-    available_extracted = filtered_extracted_terms.copy()
-    available_truth = filtered_ground_truth_terms.copy()
+    # NOTE: Assertion status filtering is currently disabled - using all terms
+    # TODO: Re-enable filtering when assertion detection is stable (Issue #XX)
+    logger.info("No assertion filtering applied - using all terms for matching")
+
+    # Create mutable copies for matching (will be modified during iteration)
+    available_extracted = list(filtered_extracted_terms)
+    available_truth = list(filtered_ground_truth_terms)
 
     # Lists to store matched pairs (needed for assertion accuracy evaluation)
     matched_pairs = []
@@ -123,7 +112,7 @@ def calculate_semantically_aware_set_based_prf1(
 
             # Simple string comparison - the IDs should be in the same format
             if extracted_id == truth_id:
-                logger.info(f"Exact ID match found: {extracted_id} ↔ {truth_id}")
+                logger.info("Exact ID match found: %s ↔ %s", extracted_id, truth_id)
 
                 # Mark as matched
                 true_positives += 1
@@ -138,11 +127,15 @@ def calculate_semantically_aware_set_based_prf1(
 
         if match_found:
             logger.info(
-                f"Matched term pair: {truth_term.get('label')} ↔ {extracted_term.get('name')}"
+                "Matched term pair: %s ↔ %s",
+                truth_term.get("label"),
+                extracted_term.get("name"),
             )
         else:
             logger.info(
-                f"No exact match found for ground truth term: {truth_id} - {truth_term.get('label')}"
+                "No exact match found for ground truth term: %s - %s",
+                truth_id,
+                truth_term.get("label"),
             )
             # Log some of the available extracted terms for debugging
             shown_terms = 0
@@ -151,7 +144,9 @@ def calculate_semantically_aware_set_based_prf1(
                     i not in extracted_indices_to_remove and shown_terms < 5
                 ):  # Limit to 5 terms for clarity
                     logger.info(
-                        f"  Available extracted term: {term.get('id')} - {term.get('name')}"
+                        "  Available extracted term: %s - %s",
+                        term.get("id"),
+                        term.get("name"),
                     )
                     shown_terms += 1
 

@@ -24,24 +24,18 @@ pytestmark = pytest.mark.unit
 @pytest.fixture
 def temp_db():
     """Create temporary in-memory database for testing."""
-    db = HPODatabase(":memory:")
-    db.initialize_schema()
-    try:
+    with HPODatabase(":memory:") as db:
+        db.initialize_schema()
         yield db
-    finally:
-        db.close()
 
 
 @pytest.fixture
 def temp_file_db(tmp_path):
     """Create temporary file-based database for testing."""
     db_path = tmp_path / "test_hpo.db"
-    db = HPODatabase(db_path)
-    db.initialize_schema()
-    try:
+    with HPODatabase(db_path) as db:
+        db.initialize_schema()
         yield db
-    finally:
-        db.close()
 
 
 @pytest.fixture

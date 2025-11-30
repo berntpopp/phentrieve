@@ -161,8 +161,8 @@ class TestPrepareHpoData:
         from phentrieve.cli.data_commands import prepare_hpo_data
 
         # Arrange
-        _mock_setup_logging = mocker.patch("phentrieve.utils.setup_logging_cli")
-        _mock_orchestrate = mocker.patch(
+        mocker.patch("phentrieve.utils.setup_logging_cli")
+        mocker.patch(
             "phentrieve.data_processing.hpo_parser.orchestrate_hpo_preparation",
             return_value=False,  # Failure
         )

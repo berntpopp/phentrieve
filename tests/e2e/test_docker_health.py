@@ -53,6 +53,7 @@ class TestDockerHealth:
         assert response.status_code == 200, "Health check should succeed"
 
         # Verify response is valid JSON
+        data: dict = {}  # Initialize to satisfy static analysis
         try:
             data = response.json()
         except ValueError as e:
@@ -202,6 +203,7 @@ class TestDockerHealth:
         response = requests.get(api_config_endpoint, timeout=5)
         assert response.status_code == 200, "Config check should succeed"
 
+        data: dict = {}  # Initialize to satisfy static analysis
         try:
             data = response.json()
         except ValueError as e:

@@ -81,8 +81,9 @@ class TextProcessingPipeline:
         self.assertion_detector = self._create_assertion_detector()
 
         logger.info(
-            f"Initialized TextProcessingPipeline with {len(self.chunkers)} chunking stages "
-            f"and assertion detection config: {assertion_config}"
+            "Initialized TextProcessingPipeline with %s chunking stages and assertion detection config: %s",
+            len(self.chunkers),
+            assertion_config,
         )
 
     def _create_chunkers(self) -> list[TextChunker]:
@@ -231,7 +232,7 @@ class TextProcessingPipeline:
 
             else:
                 logger.warning(
-                    f"Unknown chunker type '{chunker_type}' in config, skipping"
+                    "Unknown chunker type '%s' in config, skipping", chunker_type
                 )
 
         if not chunkers:
@@ -308,8 +309,10 @@ class TextProcessingPipeline:
         for chunker_idx, chunker_instance in enumerate(self.chunkers):
             chunker_name = chunker_instance.__class__.__name__
             logger.debug(
-                f"Pipeline Stage {chunker_idx + 1}: Applying {chunker_name} "
-                f"to {len(current_segments_for_stage)} segment(s)."
+                "Pipeline Stage %s: Applying %s to %s segment(s).",
+                chunker_idx + 1,
+                chunker_name,
+                len(current_segments_for_stage),
             )
 
             input_segments_to_current_chunker = current_segments_for_stage
@@ -347,7 +350,10 @@ class TextProcessingPipeline:
             current_source_info_list = updated_source_info_list
 
             logger.debug(
-                f"Stage {chunker_idx + 1} ({chunker_name}) produced {len(current_segments_for_stage)} segment(s)."
+                "Stage %s (%s) produced %s segment(s).",
+                chunker_idx + 1,
+                chunker_name,
+                len(current_segments_for_stage),
             )
 
         final_raw_chunks_text_only: list[str] = current_segments_for_stage
@@ -382,6 +388,7 @@ class TextProcessingPipeline:
             )
 
         logger.info(
-            f"TextProcessingPipeline processed text into {len(processed_chunks_with_assertion)} final asserted chunks."
+            "TextProcessingPipeline processed text into %s final asserted chunks.",
+            len(processed_chunks_with_assertion),
         )
         return processed_chunks_with_assertion

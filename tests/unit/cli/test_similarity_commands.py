@@ -34,7 +34,6 @@ class TestEnsureCliHpoLabelCache:
         # Arrange
         # Reset the global cache
         import phentrieve.cli.similarity_commands as sim_module
-        from phentrieve.cli.similarity_commands import _ensure_cli_hpo_label_cache
 
         sim_module._cli_hpo_label_cache = None
 
@@ -47,7 +46,7 @@ class TestEnsureCliHpoLabelCache:
         )
 
         # Act
-        cache = _ensure_cli_hpo_label_cache()
+        cache = sim_module._ensure_cli_hpo_label_cache()
 
         # Assert
         mock_load_terms.assert_called_once()
@@ -59,7 +58,6 @@ class TestEnsureCliHpoLabelCache:
         """Test cache initialization with no HPO terms data."""
         # Arrange
         import phentrieve.cli.similarity_commands as sim_module
-        from phentrieve.cli.similarity_commands import _ensure_cli_hpo_label_cache
 
         sim_module._cli_hpo_label_cache = None
 
@@ -69,7 +67,7 @@ class TestEnsureCliHpoLabelCache:
         )
 
         # Act
-        cache = _ensure_cli_hpo_label_cache()
+        cache = sim_module._ensure_cli_hpo_label_cache()
 
         # Assert
         assert cache == {}
@@ -78,7 +76,6 @@ class TestEnsureCliHpoLabelCache:
         """Test error handling when loading HPO terms fails."""
         # Arrange
         import phentrieve.cli.similarity_commands as sim_module
-        from phentrieve.cli.similarity_commands import _ensure_cli_hpo_label_cache
 
         sim_module._cli_hpo_label_cache = None
 
@@ -88,7 +85,7 @@ class TestEnsureCliHpoLabelCache:
         )
 
         # Act
-        cache = _ensure_cli_hpo_label_cache()
+        cache = sim_module._ensure_cli_hpo_label_cache()
 
         # Assert
         # Should return empty cache rather than crashing
@@ -98,7 +95,6 @@ class TestEnsureCliHpoLabelCache:
         """Test returns existing cache without reloading."""
         # Arrange
         import phentrieve.cli.similarity_commands as sim_module
-        from phentrieve.cli.similarity_commands import _ensure_cli_hpo_label_cache
 
         sim_module._cli_hpo_label_cache = {"HP:0000001": "Cached Term"}
 
@@ -107,7 +103,7 @@ class TestEnsureCliHpoLabelCache:
         )
 
         # Act
-        cache = _ensure_cli_hpo_label_cache()
+        cache = sim_module._ensure_cli_hpo_label_cache()
 
         # Assert
         mock_load_terms.assert_not_called()  # Should not reload
@@ -307,7 +303,7 @@ class TestHpoSimilarityCli:
             "phentrieve.cli.similarity_commands.load_hpo_graph_data",
             return_value=({}, {}),  # Empty data
         )
-        _mock_secho = mocker.patch("typer.secho")
+        mocker.patch("typer.secho")
 
         # Act & Assert
         with pytest.raises(typer.Exit) as exc_info:

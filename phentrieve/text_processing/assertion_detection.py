@@ -278,7 +278,7 @@ def parse_context_rules(context_data: dict[str, Any]) -> list[ConTextRule]:
         except ValueError as e:
             raise ValueError(f"Error parsing rule at index {idx}: {e}")
 
-    logger.info(f"Parsed {len(rules)} ConText rules from JSON")
+    logger.info("Parsed %s ConText rules from JSON", len(rules))
     return rules
 
 
@@ -395,11 +395,13 @@ class KeywordAssertionDetector(AssertionDetector):
 
             if context_data and "context_rules" in context_data:
                 rules = parse_context_rules(context_data)
-                logger.info(f"Loaded {len(rules)} ConText rules for language '{lang}'")
+                logger.info(
+                    "Loaded %s ConText rules for language '%s'", len(rules), lang
+                )
                 return rules
         except (FileNotFoundError, AttributeError):
             logger.debug(
-                f"ConText rules file '{context_filename}' not found for '{lang}'"
+                "ConText rules file '%s' not found for '%s'", context_filename, lang
             )
 
         # Fall back to English ConText rules if available
@@ -415,13 +417,15 @@ class KeywordAssertionDetector(AssertionDetector):
                 if context_data and "context_rules" in context_data:
                     rules = parse_context_rules(context_data)
                     logger.info(
-                        f"Loaded {len(rules)} English ConText rules as fallback for '{lang}'"
+                        "Loaded %s English ConText rules as fallback for '%s'",
+                        len(rules),
+                        lang,
                     )
                     return rules
             except (FileNotFoundError, AttributeError):
                 logger.debug("English ConText rules not found either")
 
-        logger.debug(f"No ConText rules available for language '{lang}'")
+        logger.debug("No ConText rules available for language '%s'", lang)
         return None
 
     def _detect_negation_normality_keyword(

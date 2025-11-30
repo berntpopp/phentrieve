@@ -56,11 +56,10 @@ class TestVersionCallback:
         # Arrange
         mock_echo = mocker.patch("typer.echo")
 
-        # Act - should not raise Exit
-        result = version_callback(False)
+        # Act - should not raise Exit (callback is a procedure, returns None)
+        version_callback(False)
 
-        # Assert
-        assert result is None
+        # Assert - callback should not have printed anything
         mock_echo.assert_not_called()
 
 

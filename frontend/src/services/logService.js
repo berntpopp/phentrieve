@@ -7,9 +7,9 @@
  * @module services/logService
  */
 
-// The useLogStore import is used by components that initialize this service
-// eslint-disable-next-line no-unused-vars
-import { useLogStore } from '../stores/log';
+// Re-export useLogStore for components that initialize this service
+// This allows: import { useLogStore, logService } from '@/services/logService';
+export { useLogStore } from '../stores/log';
 import { LOG_CONFIG, getDefaultMaxEntries } from '../config/logConfig';
 
 /**

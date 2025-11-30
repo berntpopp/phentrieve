@@ -220,7 +220,6 @@ def process_text_for_hpo_command(
     - Process from file with semantic chunking: phentrieve text process -s semantic -i clinical_note.txt
     - Process German text with specialized model: phentrieve text process -l de -m "Jina-v2-base-de" -i german_note.txt
     """
-    import logging
     import time
 
     from phentrieve.config import (
@@ -230,6 +229,7 @@ def process_text_for_hpo_command(
     from phentrieve.text_processing.pipeline import TextProcessingPipeline
     from phentrieve.utils import detect_language, setup_logging_cli
 
+    # Use module-level logging import (line 8) instead of re-importing
     logger = logging.getLogger(__name__)
     start_time = time.time()
     setup_logging_cli(debug=debug)

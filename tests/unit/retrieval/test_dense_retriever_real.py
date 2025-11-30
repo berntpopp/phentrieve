@@ -3,9 +3,9 @@
 from pathlib import Path
 from unittest.mock import Mock, patch
 
-# Import chromadb at test module level to enable mocking
-# (dense_retriever imports it locally inside functions)
-import chromadb  # noqa: F401
+# Import chromadb at module level to enable @patch("chromadb.PersistentClient")
+# This ensures chromadb is in sys.modules before the patch decorator runs
+import chromadb  # noqa: F401 - imported for side effect (enables patching)
 import numpy as np
 import pytest
 

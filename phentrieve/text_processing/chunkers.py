@@ -184,21 +184,25 @@ class FinalChunkCleaner(TextChunker):
             )
 
         logger.info(
-            f"Initialized FinalChunkCleaner for language '{self.language}' with "
-            f"min_chars={self.min_cleaned_chunk_length_chars}, "
-            f"filter_short_low_value_max_words={self.filter_short_low_value_chunks_max_words}, "
-            f"max_passes={self.max_cleanup_passes}."
+            "Initialized FinalChunkCleaner for language '%s' with "
+            "min_chars=%s, filter_short_low_value_max_words=%s, max_passes=%s.",
+            self.language,
+            self.min_cleaned_chunk_length_chars,
+            self.filter_short_low_value_chunks_max_words,
+            self.max_cleanup_passes,
         )
-        logger.debug(f"Leading words for cleanup: {self.leading_words_to_strip}")
-        logger.debug(f"Trailing words for cleanup: {self.trailing_words_to_strip}")
+        logger.debug("Leading words for cleanup: %s", self.leading_words_to_strip)
+        logger.debug("Trailing words for cleanup: %s", self.trailing_words_to_strip)
         logger.debug(
-            f"Leading punctuation for cleanup: '{self.leading_punctuation_to_strip}'"
+            "Leading punctuation for cleanup: '%s'", self.leading_punctuation_to_strip
         )
         logger.debug(
-            f"Trailing punctuation for cleanup: '{self.trailing_punctuation_to_strip}'"
+            "Trailing punctuation for cleanup: '%s'", self.trailing_punctuation_to_strip
         )
         logger.debug(
-            f"Low-value words for lang '{self.language}': {sorted(self.low_value_words)[:20]}..."
+            "Low-value words for lang '%s': %s...",
+            self.language,
+            sorted(self.low_value_words)[:20],
         )
 
     def chunk(self, text_segments: list[str]) -> list[str]:
@@ -839,16 +843,20 @@ class SlidingWindowSemanticSplitter(TextChunker):
         self.tokenizer = lambda text: [token for token in text.split() if token]
 
         logger.info(
-            f"Initialized SlidingWindowSemanticSplitter: "
-            f"window_size={self.window_size_tokens}, step={self.step_size_tokens}, "
-            f"threshold={self.splitting_threshold}, min_seg_len={self.min_split_segment_length_words}"
+            "Initialized SlidingWindowSemanticSplitter: "
+            "window_size=%s, step=%s, threshold=%s, min_seg_len=%s",
+            self.window_size_tokens,
+            self.step_size_tokens,
+            self.splitting_threshold,
+            self.min_split_segment_length_words,
         )
 
         # Log model info
-        logger.debug(f"Using model: {self.model.__class__.__name__}")
+        logger.debug("Using model: %s", self.model.__class__.__name__)
         if hasattr(self.model, "get_sentence_embedding_dimension"):
             logger.debug(
-                f"Model embedding dimension: {self.model.get_sentence_embedding_dimension()}"
+                "Model embedding dimension: %s",
+                self.model.get_sentence_embedding_dimension(),
             )
 
     def chunk(self, text_segments: list[str]) -> list[str]:
@@ -862,26 +870,28 @@ class SlidingWindowSemanticSplitter(TextChunker):
             List of semantically split text segments
         """
         logger.debug(
-            f"SlidingWindowSemanticSplitter received {len(text_segments)} segments to process"
+            "SlidingWindowSemanticSplitter received %s segments to process",
+            len(text_segments),
         )
         output_segments: list[str] = []
 
         for i, segment in enumerate(text_segments):
             # Skip empty segments
             if not segment or not segment.strip():
-                logger.debug(f"Skipping empty segment #{i}")
+                logger.debug("Skipping empty segment #%s", i)
                 continue
 
-            logger.debug(f"Processing segment #{i} (length: {len(segment)} chars)")
+            logger.debug("Processing segment #%s (length: %s chars)", i, len(segment))
             # Process each segment with the sliding window approach
             segment_splits = self._split_one_segment_by_sliding_window(segment)
             logger.debug(
-                f"Segment #{i} was split into {len(segment_splits)} sub-segments"
+                "Segment #%s was split into %s sub-segments", i, len(segment_splits)
             )
             output_segments.extend(segment_splits)
 
         logger.debug(
-            f"SlidingWindowSemanticSplitter produced {len(output_segments)} total segments"
+            "SlidingWindowSemanticSplitter produced %s total segments",
+            len(output_segments),
         )
         return output_segments
 
@@ -902,8 +912,8 @@ class SlidingWindowSemanticSplitter(TextChunker):
         from sklearn.metrics.pairwise import cosine_similarity
 
         logger.debug(
-            f"SlidingWindow: Attempting to split segment: "
-            f'"{current_text_segment[:150]}..."'
+            'SlidingWindow: Attempting to split segment: "%s..."',
+            current_text_segment[:150],
         )
         tokens = self.tokenizer(current_text_segment)
 
@@ -913,8 +923,8 @@ class SlidingWindowSemanticSplitter(TextChunker):
             or len(tokens) < self.min_split_segment_length_words
         ):
             logger.debug(
-                f"Segment too short ('{len(tokens)}' tokens) for window splitting, "
-                f"returning as is."
+                "Segment too short ('%s' tokens) for window splitting, returning as is.",
+                len(tokens),
             )
             return [current_text_segment] if current_text_segment.strip() else []
 
@@ -936,7 +946,7 @@ class SlidingWindowSemanticSplitter(TextChunker):
             )
             return [current_text_segment] if current_text_segment.strip() else []
 
-        logger.debug(f"Generated {len(window_texts)} sliding windows for the segment.")
+        logger.debug("Generated %s sliding windows for the segment.", len(window_texts))
         window_embeddings = self.model.encode(window_texts, show_progress_bar=False)
 
         similarities_between_windows: list[float] = []
@@ -952,8 +962,13 @@ class SlidingWindowSemanticSplitter(TextChunker):
         potential_split_marker_indices: list[int] = []
         for k, sim_score in enumerate(similarities_between_windows):
             logger.debug(
-                f"Similarity between window {k} (tokens {window_token_spans[k]}) and "
-                f"window {k + 1} (tokens {window_token_spans[k + 1]}): {sim_score:.4f}"
+                "Similarity between window %s (tokens %s) and "
+                "window %s (tokens %s): %.4f",
+                k,
+                window_token_spans[k],
+                k + 1,
+                window_token_spans[k + 1],
+                sim_score,
             )
             if sim_score < self.splitting_threshold:
                 potential_split_marker_indices.append(
@@ -985,7 +1000,7 @@ class SlidingWindowSemanticSplitter(TextChunker):
                     and segment_str
                 ):
                     final_segments.append(segment_str)
-                    logger.debug(f"Created segment (split): '{segment_str}'")
+                    logger.debug("Created segment (split): '%s'", segment_str)
                 elif (
                     final_segments and segment_str
                 ):  # Current segment too short, append to previous
@@ -993,11 +1008,12 @@ class SlidingWindowSemanticSplitter(TextChunker):
                         final_segments[-1] + " " + segment_str
                     ).strip()
                     logger.debug(
-                        f"Appended short segment. Previous segment is now: '{final_segments[-1]}'"
+                        "Appended short segment. Previous segment is now: '%s'",
+                        final_segments[-1],
                     )
                 elif segment_str:  # First segment and too short
                     final_segments.append(segment_str)  # Keep it for now
-                    logger.debug(f"Kept short first segment: '{segment_str}'")
+                    logger.debug("Kept short first segment: '%s'", segment_str)
 
             current_segment_start_token_idx = (
                 split_after_token_idx  # Next segment starts after this one ended
@@ -1012,7 +1028,7 @@ class SlidingWindowSemanticSplitter(TextChunker):
                 and last_segment_str
             ):
                 final_segments.append(last_segment_str)
-                logger.debug(f"Added final remaining segment: '{last_segment_str}'")
+                logger.debug("Added final remaining segment: '%s'", last_segment_str)
             elif (
                 final_segments and last_segment_str
             ):  # Last segment too short, append to previous
@@ -1020,11 +1036,12 @@ class SlidingWindowSemanticSplitter(TextChunker):
                     final_segments[-1] + " " + last_segment_str
                 ).strip()
                 logger.debug(
-                    f"Appended short final segment. Previous segment is now: '{final_segments[-1]}'"
+                    "Appended short final segment. Previous segment is now: '%s'",
+                    final_segments[-1],
                 )
             elif last_segment_str:  # Only one segment in total, and it's short
                 final_segments.append(last_segment_str)
-                logger.debug(f"Kept short (only) final segment: '{last_segment_str}'")
+                logger.debug("Kept short (only) final segment: '%s'", last_segment_str)
 
         # Final filter for any empty strings that might have been created
         final_segments = [s for s in final_segments if s]
