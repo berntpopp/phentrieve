@@ -119,6 +119,27 @@ jobs:
           sarif_file: 'trivy-api-results.sarif'
           category: 'trivy-api'
 
+      # Dockle - CIS benchmark compliance checker
+      - name: Run Dockle on API image
+        uses: erzz/dockle-action@v1
+        with:
+          image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_API }}:${{ steps.meta.outputs.version }}
+          report-format: sarif
+          report-name: dockle-api-results
+          failure-threshold: high
+          exit-code: 0  # Don't fail build, just report
+          # Accept known deviations from CIS benchmarks
+          accept-keys: |
+            CIS-DI-0010
+          # CIS-DI-0010: Do not store secrets - we use env vars at runtime
+
+      - name: Upload Dockle API results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v4
+        if: always()
+        with:
+          sarif_file: dockle-api-results.sarif
+          category: 'dockle-api'
+
   build-and-push-frontend:
     name: Build and Push Frontend Image
     runs-on: ubuntu-latest
@@ -198,3 +219,20 @@ jobs:
         with:
           sarif_file: 'trivy-frontend-results.sarif'
           category: 'trivy-frontend'
+
+      # Dockle - CIS benchmark compliance checker
+      - name: Run Dockle on Frontend image
+        uses: erzz/dockle-action@v1
+        with:
+          image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:${{ steps.meta.outputs.version }}
+          report-format: sarif
+          report-name: dockle-frontend-results
+          failure-threshold: high
+          exit-code: 0  # Don't fail build, just report
+
+      - name: Upload Dockle Frontend results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v4
+        if: always()
+        with:
+          sarif_file: dockle-frontend-results.sarif
+          category: 'dockle-frontend'

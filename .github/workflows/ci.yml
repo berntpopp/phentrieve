@@ -196,24 +196,60 @@ jobs:
           build-args: |
             ${{ matrix.service == 'frontend' && 'VITE_API_URL=/api/v1' || '' }}
 
+  # Dependency Review - blocks PRs with vulnerable dependencies
+  dependency-review:
+    name: Dependency Review
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: high
+          # Only check runtime dependencies (skip dev dependencies)
+          fail-on-scopes: runtime
+          # License check disabled - focus on vulnerability scanning
+          # Many Python/JS packages use non-SPDX licenses or multiple licenses
+          license-check: false
+          # Comment on PR with summary
+          comment-summary-in-pr: on-failure
+
   # Summary job that requires all checks to pass
+  # Note: dependency-review only runs on PRs, so we handle 'skipped' state gracefully
   ci-summary:
     name: CI Summary
-    needs: [changes, python-ci, frontend-ci, docker-build-test]
+    needs: [changes, python-ci, frontend-ci, docker-build-test, dependency-review]
     if: always()
     runs-on: ubuntu-latest
     steps:
       - name: Check CI results
         run: |
-          echo "Python CI: ${{ needs.python-ci.result }}"
-          echo "Frontend CI: ${{ needs.frontend-ci.result }}"
-          echo "Docker Build: ${{ needs.docker-build-test.result }}"
+          echo "## CI Results Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Job | Result |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Python CI | ${{ needs.python-ci.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Frontend CI | ${{ needs.frontend-ci.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Docker Build | ${{ needs.docker-build-test.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Dependency Review | ${{ needs.dependency-review.result }} |" >> $GITHUB_STEP_SUMMARY
 
           # Fail if any required job failed
           if [[ "${{ needs.python-ci.result }}" == "failure" ]] || \
              [[ "${{ needs.frontend-ci.result }}" == "failure" ]] || \
              [[ "${{ needs.docker-build-test.result }}" == "failure" ]]; then
             echo "❌ One or more CI jobs failed"
+            exit 1
+          fi
+
+          # Dependency review failure on PRs is critical (skipped on push events is OK)
+          if [[ "${{ needs.dependency-review.result }}" == "failure" ]]; then
+            echo "❌ Dependency review found vulnerabilities"
             exit 1
           fi
 
