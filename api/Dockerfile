@@ -6,9 +6,11 @@
 # ============================================================================
 ARG PYTHON_VERSION=3.11.11
 ARG DEBIAN_VERSION=bookworm
-ARG SQLITE_VERSION=3420000
-ARG SQLITE_YEAR=2023
-ARG SQLITE_SHA256=7abcfd161c6e2742ca5c6c0895d1f853c940f203304a0b49da4e1eca5d088ca6
+# SQLite 3.51.1 fixes CVE-2025-7458 and CVE-2025-6965 (critical integer overflow vulnerabilities)
+ARG SQLITE_VERSION=3510100
+ARG SQLITE_YEAR=2025
+# Note: SQLite 3.51+ uses SHA3-256 checksums (not SHA256)
+ARG SQLITE_SHA3_256=9b2b1e73f577def1d5b75c5541555a7f42e6e073ad19f7a9118478389c9bbd9b
 
 # ============================================================================
 # STAGE 1: SQLite Builder - Build custom SQLite with required extensions
@@ -17,9 +19,10 @@ FROM python:${PYTHON_VERSION}-slim-${DEBIAN_VERSION} AS sqlite-builder
 
 ARG SQLITE_VERSION
 ARG SQLITE_YEAR
-ARG SQLITE_SHA256
+ARG SQLITE_SHA3_256
 
 # Install only necessary build tools
+# Note: openssl is required for SHA3-256 checksum verification (SQLite 3.51+ uses SHA3)
 # hadolint ignore=DL3008
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
@@ -27,6 +30,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
         build-essential \
         wget \
         ca-certificates \
+        openssl \
     && rm -rf /var/lib/apt/lists/*
 
 # Download, verify, and build SQLite with checksum validation
@@ -38,14 +42,16 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN set -euxo pipefail && \
     # Download SQLite source (HTTPS for security) \
     wget -q https://www.sqlite.org/${SQLITE_YEAR}/sqlite-autoconf-${SQLITE_VERSION}.tar.gz && \
-    # Verify checksum (CRITICAL SECURITY - prevents MITM attacks) \
-    echo "${SQLITE_SHA256}  sqlite-autoconf-${SQLITE_VERSION}.tar.gz" | sha256sum -c - && \
+    # Verify SHA3-256 checksum (CRITICAL SECURITY - prevents MITM attacks) \
+    # SQLite 3.51+ uses SHA3-256 instead of SHA256 \
+    COMPUTED_HASH=$(openssl dgst -sha3-256 sqlite-autoconf-${SQLITE_VERSION}.tar.gz | awk '{print $2}') && \
+    [ "$COMPUTED_HASH" = "${SQLITE_SHA3_256}" ] || { echo "SHA3-256 checksum mismatch!"; exit 1; } && \
     # Extract and build with optimizations \
     tar -xzf sqlite-autoconf-${SQLITE_VERSION}.tar.gz && \
     cd sqlite-autoconf-${SQLITE_VERSION} && \
+    # Note: SQLite 3.51+ has JSON1 built-in (--enable-json1 removed)
     ./configure --prefix=/usr/local \
         --enable-fts5 \
-        --enable-json1 \
         --enable-rtree && \
     make -j"$(nproc)" && \
     make install && \
@@ -84,11 +90,12 @@ RUN python -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 # Upgrade pip, setuptools, wheel to patched versions
+# - setuptools >= 78.1.1 fixes CVE-2025-47273 (path traversal/arbitrary file write)
 # - setuptools >= 70.0.0 fixes CVE-2024-6345 (path traversal) and CVE-2022-40897 (RCE)
 # - pip >= 24.1 fixes symbolic link extraction vulnerability
 # hadolint ignore=DL3042,DL3013
 RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install --upgrade "pip>=24.1" "setuptools>=70.0.0" wheel
+    pip install --upgrade "pip>=24.1" "setuptools>=78.1.1" wheel
 
 WORKDIR /build
 
