@@ -17,6 +17,45 @@ from typing import TYPE_CHECKING, Any
 if TYPE_CHECKING:
     import chromadb
 
+# Public API exports - these are imported by other modules
+__all__ = [
+    # Directory and file paths
+    "DEFAULT_HPO_TERMS_SUBDIR",
+    "BENCHMARK_DATA_DIR",
+    "DEFAULT_BENCHMARK_FILE",
+    "DEFAULT_HPO_FILENAME",
+    "DEFAULT_HPO_DB_FILENAME",
+    # Models
+    "DEFAULT_MODEL",
+    "DEFAULT_BIOLORD_MODEL",
+    "JINA_MODEL_ID",
+    # Retrieval settings
+    "DEFAULT_TOP_K",
+    "DEFAULT_K_VALUES",
+    "MIN_SIMILARITY_THRESHOLD",
+    "DEFAULT_SIMILARITY_THRESHOLD",
+    "DEFAULT_SIMILARITY_FORMULA",
+    # Reranker settings
+    "DEFAULT_RERANKER_MODEL",
+    "DEFAULT_RERANK_CANDIDATE_COUNT",
+    "DEFAULT_ENABLE_RERANKER",
+    "DEFAULT_DENSE_TRUST_THRESHOLD",
+    # Device and language
+    "DEFAULT_DEVICE",
+    "DEFAULT_LANGUAGE",
+    # HPO ontology
+    "PHENOTYPE_ROOT",
+    # Chunking configurations
+    "DEFAULT_CHUNK_PIPELINE_CONFIG",
+    "SIMPLE_CHUNKING_CONFIG",
+    "SEMANTIC_CHUNKING_CONFIG",
+    "SLIDING_WINDOW_CONFIG",
+    # Assertion detection
+    "DEFAULT_ASSERTION_CONFIG",
+    # Helper functions
+    "get_config_value",
+]
+
 # Default directory sub-paths and filenames (relative to base dirs)
 # Sub-directories (for data_dir)
 DEFAULT_HPO_TERMS_SUBDIR = "hpo_terms"

@@ -13,6 +13,23 @@ from typing import Any, cast
 
 logger = logging.getLogger(__name__)
 
+# Public API exports - these are imported by other modules
+__all__ = [
+    "API_PORT",
+    "API_HOST",
+    "API_RELOAD",
+    "API_WORKERS",
+    "LOG_LEVEL",
+    "SBERT_LOAD_TIMEOUT",
+    "CROSS_ENCODER_LOAD_TIMEOUT",
+    "ALLOWED_ORIGINS",
+    "CORS_ALLOW_CREDENTIALS",
+    "CORS_ALLOW_METHODS",
+    "CORS_ALLOW_HEADERS",
+    "DATA_ROOT_DIR",
+    "get_api_config_value",
+]
+
 # Default fallback values for API configuration
 _DEFAULT_SERVER_PORT = 8734
 _DEFAULT_SERVER_HOST = "0.0.0.0"
