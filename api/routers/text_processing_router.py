@@ -62,10 +62,10 @@ def _get_chunking_config_for_api(
     logger.debug(
         "API: Building config for '%s': ws=%s, ss=%s, th=%s, msl=%s",
         _sanitize(strategy_name),
-        ws,
-        ss,
-        th,
-        msl,
+        _sanitize(ws),
+        _sanitize(ss),
+        _sanitize(th),
+        _sanitize(msl),
     )
 
     # Use shared resolver

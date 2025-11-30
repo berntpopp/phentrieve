@@ -144,8 +144,9 @@ async def get_hpo_term_similarity(
             missing.append(norm_term1)
         if norm_term2 not in depths:
             missing.append(norm_term2)
-        error_detail = f"One or both HPO terms not found in ontology data: {', '.join(missing)}. Ensure terms are valid and data is prepared."
-        logger.warning("API: %s", error_detail)
+        sanitized_missing = [_sanitize(m) for m in missing]
+        error_detail = f"One or both HPO terms not found in ontology data: {', '.join(sanitized_missing)}. Ensure terms are valid and data is prepared."
+        logger.warning("API: %s", _sanitize(error_detail))
         response_kwargs["error_message"] = error_detail
         # For term not found, 404 is appropriate
         raise HTTPException(status_code=404, detail=response_kwargs)
