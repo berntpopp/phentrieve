@@ -159,7 +159,14 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     && rm -rf /var/lib/apt/lists/* \
     # Security hardening: Remove unnecessary setuid/setgid bits (CIS-DI-0008)
     # These are not needed for the API container runtime
-    && find /usr/bin /usr/sbin /bin /sbin -perm /6000 -type f -exec chmod a-s {} \; || true
+    && find /usr/bin /usr/sbin /bin /sbin -perm /6000 -type f -exec chmod a-s {} \; || true \
+    # Remove vulnerable setuptools from base image system packages (CVE-2025-47273, CVE-2024-6345)
+    # The base python:3.11-slim-bookworm ships with setuptools 65.5.1 which has security vulnerabilities
+    # We use a clean virtual environment with upgraded setuptools, so system setuptools is not needed
+    && pip uninstall -y setuptools 2>/dev/null || true \
+    && rm -rf /usr/local/lib/python*/site-packages/setuptools* \
+              /usr/local/lib/python*/site-packages/_distutils_hack* \
+              /usr/local/lib/python*/site-packages/pkg_resources* 2>/dev/null || true
 
 # Copy SQLite runtime libraries
 COPY --from=sqlite-builder /usr/local/lib/libsqlite3.* /usr/local/lib/
