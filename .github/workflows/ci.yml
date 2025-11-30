@@ -221,6 +221,7 @@ jobs:
           comment-summary-in-pr: on-failure
 
   # Summary job that requires all checks to pass
+  # Note: dependency-review only runs on PRs, so we handle 'skipped' state gracefully
   ci-summary:
     name: CI Summary
     needs: [changes, python-ci, frontend-ci, docker-build-test, dependency-review]
@@ -229,10 +230,14 @@ jobs:
     steps:
       - name: Check CI results
         run: |
-          echo "Python CI: ${{ needs.python-ci.result }}"
-          echo "Frontend CI: ${{ needs.frontend-ci.result }}"
-          echo "Docker Build: ${{ needs.docker-build-test.result }}"
-          echo "Dependency Review: ${{ needs.dependency-review.result }}"
+          echo "## CI Results Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Job | Result |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Python CI | ${{ needs.python-ci.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Frontend CI | ${{ needs.frontend-ci.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Docker Build | ${{ needs.docker-build-test.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Dependency Review | ${{ needs.dependency-review.result }} |" >> $GITHUB_STEP_SUMMARY
 
           # Fail if any required job failed
           if [[ "${{ needs.python-ci.result }}" == "failure" ]] || \
@@ -242,7 +247,7 @@ jobs:
             exit 1
           fi
 
-          # Dependency review failure on PRs is critical
+          # Dependency review failure on PRs is critical (skipped on push events is OK)
           if [[ "${{ needs.dependency-review.result }}" == "failure" ]]; then
             echo "❌ Dependency review found vulnerabilities"
             exit 1
