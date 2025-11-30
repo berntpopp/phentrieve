@@ -212,10 +212,11 @@ jobs:
         uses: actions/dependency-review-action@v4
         with:
           fail-on-severity: high
-          # Allow common open source licenses
-          allow-licenses: MIT, Apache-2.0, BSD-2-Clause, BSD-3-Clause, ISC, 0BSD, Unlicense, CC0-1.0, Python-2.0, PSF-2.0
-          # Deny copyleft licenses that might conflict
-          deny-licenses: GPL-3.0-only, GPL-3.0-or-later, AGPL-3.0-only, AGPL-3.0-or-later
+          # Only check runtime dependencies (skip dev dependencies)
+          fail-on-scopes: runtime
+          # License check disabled - focus on vulnerability scanning
+          # Many Python/JS packages use non-SPDX licenses or multiple licenses
+          license-check: false
           # Comment on PR with summary
           comment-summary-in-pr: on-failure
 

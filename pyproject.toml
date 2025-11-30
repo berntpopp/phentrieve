@@ -226,7 +226,7 @@ dev = [
     "types-PyYAML>=6.0.0",  # Type stubs for PyYAML library
     # Security scanning
     "pip-audit>=2.9.0",  # Python dependency vulnerability scanner
-    "bandit[toml]>=1.9.0",  # Python SAST (standalone for SARIF output)
+    "bandit[toml,sarif]>=1.9.0",  # Python SAST with TOML config and SARIF output
 ]
 
 [tool.semantic_release]
