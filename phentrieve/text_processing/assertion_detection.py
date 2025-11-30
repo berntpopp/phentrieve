@@ -17,6 +17,7 @@ from spacy.language import Language
 # Local imports
 from phentrieve.text_processing.resource_loader import load_language_resource
 from phentrieve.utils import load_user_config
+from phentrieve.utils import sanitize_log_value as _sanitize
 
 logger = logging.getLogger(__name__)
 
@@ -154,19 +155,26 @@ def get_spacy_model(lang_code: str) -> Optional[spacy.language.Language]:
             try:
                 NLP_MODELS[lang_code] = spacy.load(model_name_spacy)
                 logger.info(
-                    f"Loaded spaCy model '{model_name_spacy}' for language '{lang_code}'."
+                    "Loaded spaCy model '%s' for language '%s'.",
+                    _sanitize(model_name_spacy),
+                    _sanitize(lang_code),
                 )
             except OSError:
                 logger.warning(
-                    f"spaCy model '{model_name_spacy}' for lang '{lang_code}' not found. "
-                    f"Download with: python -m spacy download {model_name_spacy}. "
-                    f"Dependency parsing will be skipped for '{lang_code}'."
+                    "spaCy model '%s' for lang '%s' not found. "
+                    "Download with: python -m spacy download %s. "
+                    "Dependency parsing will be skipped for '%s'.",
+                    _sanitize(model_name_spacy),
+                    _sanitize(lang_code),
+                    _sanitize(model_name_spacy),
+                    _sanitize(lang_code),
                 )
                 NLP_MODELS[lang_code] = None
         else:
             logger.warning(
-                f"No spaCy model configured for lang '{lang_code}'. "
-                "Dependency parsing will be skipped."
+                "No spaCy model configured for lang '%s'. "
+                "Dependency parsing will be skipped.",
+                _sanitize(lang_code),
             )
             NLP_MODELS[lang_code] = None
 
@@ -396,12 +404,16 @@ class KeywordAssertionDetector(AssertionDetector):
             if context_data and "context_rules" in context_data:
                 rules = parse_context_rules(context_data)
                 logger.info(
-                    "Loaded %s ConText rules for language '%s'", len(rules), lang
+                    "Loaded %s ConText rules for language '%s'",
+                    len(rules),
+                    _sanitize(lang),
                 )
                 return rules
         except (FileNotFoundError, AttributeError):
             logger.debug(
-                "ConText rules file '%s' not found for '%s'", context_filename, lang
+                "ConText rules file '%s' not found for '%s'",
+                _sanitize(context_filename),
+                _sanitize(lang),
             )
 
         # Fall back to English ConText rules if available
@@ -419,13 +431,13 @@ class KeywordAssertionDetector(AssertionDetector):
                     logger.info(
                         "Loaded %s English ConText rules as fallback for '%s'",
                         len(rules),
-                        lang,
+                        _sanitize(lang),
                     )
                     return rules
             except (FileNotFoundError, AttributeError):
                 logger.debug("English ConText rules not found either")
 
-        logger.debug("No ConText rules available for language '%s'", lang)
+        logger.debug("No ConText rules available for language '%s'", _sanitize(lang))
         return None
 
     def _detect_negation_normality_keyword(
@@ -458,7 +470,8 @@ class KeywordAssertionDetector(AssertionDetector):
 
         if not context_rules:
             logger.warning(
-                f"No ConText rules found for language '{lang}', keyword detection disabled"
+                "No ConText rules found for language '%s', keyword detection disabled",
+                _sanitize(lang),
             )
             return False, False, [], []
 
@@ -505,7 +518,10 @@ class KeywordAssertionDetector(AssertionDetector):
                     pseudo_matches.add(cue_lower)
                     pseudo_spans.append((cue_index, cue_end))
                     logger.debug(
-                        f"PSEUDO rule matched at {cue_index}-{cue_end}: '{rule.literal}' - skipping"
+                        "PSEUDO rule matched at %s-%s: '%s' - skipping",
+                        cue_index,
+                        cue_end,
+                        _sanitize(rule.literal),
                     )
 
         # Second pass: Find all TERMINATE trigger positions (scope boundaries)
@@ -518,7 +534,10 @@ class KeywordAssertionDetector(AssertionDetector):
                     cue_end = cue_index + len(cue_lower)
                     terminate_positions.append((cue_index, cue_end))
                     logger.debug(
-                        f"TERMINATE rule matched at {cue_index}-{cue_end}: '{rule.literal}'"
+                        "TERMINATE rule matched at %s-%s: '%s'",
+                        cue_index,
+                        cue_end,
+                        _sanitize(rule.literal),
                     )
 
         # Third pass: Process NEGATED_EXISTENCE and other categories
@@ -549,7 +568,12 @@ class KeywordAssertionDetector(AssertionDetector):
                 if cue_index < pseudo_end and cue_end > pseudo_start:
                     overlaps_pseudo = True
                     logger.debug(
-                        f"Skipping '{rule.literal}' at {cue_index}-{cue_end} - overlaps with PSEUDO span {pseudo_start}-{pseudo_end}"
+                        "Skipping '%s' at %s-%s - overlaps with PSEUDO span %s-%s",
+                        _sanitize(rule.literal),
+                        cue_index,
+                        cue_end,
+                        pseudo_start,
+                        pseudo_end,
                     )
                     break
 
@@ -775,7 +799,9 @@ class DependencyAssertionDetector(AssertionDetector):
                 and rule.get("direction") != "PSEUDO"
             ]
             logger.info(
-                f"Loaded {len(negation_cues)} negation cues from ConText rules for '{lang}'"
+                "Loaded %s negation cues from ConText rules for '%s'",
+                len(negation_cues),
+                _sanitize(lang),
             )
             return negation_cues
         except (FileNotFoundError, AttributeError, KeyError):
@@ -795,14 +821,17 @@ class DependencyAssertionDetector(AssertionDetector):
                         and rule.get("direction") != "PSEUDO"
                     ]
                     logger.info(
-                        f"Loaded {len(negation_cues)} English negation cues as fallback for '{lang}'"
+                        "Loaded %s English negation cues as fallback for '%s'",
+                        len(negation_cues),
+                        _sanitize(lang),
                     )
                     return negation_cues
                 except (FileNotFoundError, AttributeError, KeyError):
                     pass
 
             logger.warning(
-                f"No ConText rules found for lang '{lang}', returning empty negation cues"
+                "No ConText rules found for lang '%s', returning empty negation cues",
+                _sanitize(lang),
             )
             return []
 
@@ -900,7 +929,8 @@ class DependencyAssertionDetector(AssertionDetector):
 
         if not lang_negation_cues:
             logger.warning(
-                f"No negation cues available for lang '{lang}', dependency detection disabled"
+                "No negation cues available for lang '%s', dependency detection disabled",
+                _sanitize(lang),
             )
             return False, False, [], []
 
@@ -916,7 +946,9 @@ class DependencyAssertionDetector(AssertionDetector):
             neg_term in chunk_lower for neg_term in quick_check_cues
         ):
             is_negated = True
-            negated_concepts.append(f"German negation term found in: {chunk}")
+            negated_concepts.append(
+                f"German negation term found in: {_sanitize(chunk)}"
+            )
 
         # Also check with spaCy's dependency parsing
         for token in doc:

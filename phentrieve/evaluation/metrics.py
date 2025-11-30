@@ -16,7 +16,13 @@ from typing import Any, Optional, Union
 
 from phentrieve.config import DEFAULT_HPO_DB_FILENAME
 from phentrieve.data_processing.hpo_database import HPODatabase
-from phentrieve.utils import calculate_similarity, get_default_data_dir
+from phentrieve.utils import (
+    calculate_similarity,
+    get_default_data_dir,
+)
+from phentrieve.utils import (
+    sanitize_log_value as _sanitize,
+)
 
 
 class SimilarityFormula(Enum):
@@ -43,7 +49,8 @@ class SimilarityFormula(Enum):
             return cls.HYBRID
         else:
             logging.warning(
-                "Unknown similarity formula '%s', defaulting to HYBRID", formula_str
+                "Unknown similarity formula '%s', defaulting to HYBRID",
+                _sanitize(formula_str),
             )
             return cls.HYBRID
 
@@ -100,14 +107,14 @@ def _load_hpo_graph_data_impl(
     try:
         # Check if database exists
         if not os.path.exists(db_path):
-            logging.error("HPO database not found: %s", db_path)
+            logging.error("HPO database not found: %s", _sanitize(db_path))
             logging.error(
                 "Please run 'phentrieve data prepare' to generate the database."
             )
             return {}, {}
 
         # Load graph data from database
-        logging.info("Loading HPO graph data from database: %s...", db_path)
+        logging.info("Loading HPO graph data from database: %s...", _sanitize(db_path))
         db = HPODatabase(db_path)
         ancestors, depths = db.load_graph_data()
         db.close()
@@ -121,13 +128,18 @@ def _load_hpo_graph_data_impl(
             for term in sample_terms:
                 term_ancestors = ancestors.get(term, set())
                 logging.debug(
-                    "Sample term %s has %s ancestors", term, len(term_ancestors)
+                    "Sample term %s has %s ancestors",
+                    _sanitize(term),
+                    len(term_ancestors),
                 )
 
         # Log sample depth data
         if depths:
             sample_terms = list(depths.keys())[:5]
-            logging.debug("Sample depths: %s", [(t, depths[t]) for t in sample_terms])
+            logging.debug(
+                "Sample depths: %s",
+                [(_sanitize(t), depths[t]) for t in sample_terms],
+            )
 
             # Statistics on depth distribution
             depth_values = list(depths.values())
@@ -145,7 +157,7 @@ def _load_hpo_graph_data_impl(
         return ancestors, depths
 
     except Exception as e:
-        logging.error("Error loading HPO graph data: %s", e, exc_info=True)
+        logging.error("Error loading HPO graph data: %s", _sanitize(e), exc_info=True)
         return {}, {}
 
 
@@ -269,7 +281,9 @@ def calculate_resnik_similarity(term1: str, term2: str) -> float:
     lca, lca_depth = find_lowest_common_ancestor(term1, term2)
 
     if lca is None:
-        logging.debug("No LCA found between %s and %s", term1, term2)
+        logging.debug(
+            "No LCA found between %s and %s", _sanitize(term1), _sanitize(term2)
+        )
         return 0.0
 
     # Get depth of the two terms
@@ -279,7 +293,13 @@ def calculate_resnik_similarity(term1: str, term2: str) -> float:
     depth2 = depths_dict.get(term2, float("inf"))
 
     if depth1 == float("inf") or depth2 == float("inf"):
-        logging.debug("Missing depth for %s=%s or %s=%s", term1, depth1, term2, depth2)
+        logging.debug(
+            "Missing depth for %s=%s or %s=%s",
+            _sanitize(term1),
+            depth1,
+            _sanitize(term2),
+            depth2,
+        )
         return 0.0
 
     # Calculate Resnik-like similarity based on LCA depth
@@ -292,9 +312,9 @@ def calculate_resnik_similarity(term1: str, term2: str) -> float:
     if total_path_length < 0:
         logging.warning(
             "Invalid path lengths: term1=%s, term2=%s, LCA=%s",
-            depth1,
-            depth2,
-            lca_depth,
+            _sanitize(depth1),
+            _sanitize(depth2),
+            _sanitize(lca_depth),
         )
         total_path_length = 0
 
@@ -325,10 +345,10 @@ def calculate_resnik_similarity(term1: str, term2: str) -> float:
 
     logging.debug(
         "Similarity between %s and %s: %.4f (LCA=%s, LCA depth=%s, depths=%s,%s)",
-        term1,
-        term2,
+        _sanitize(term1),
+        _sanitize(term2),
         similarity,
-        lca,
+        _sanitize(lca),
         lca_depth,
         depth1,
         depth2,
@@ -353,7 +373,9 @@ def calculate_simple_resnik_similarity(term1: str, term2: str) -> float:
     lca, lca_depth = find_lowest_common_ancestor(term1, term2)
 
     if lca is None:
-        logging.debug("No LCA found between %s and %s", term1, term2)
+        logging.debug(
+            "No LCA found between %s and %s", _sanitize(term1), _sanitize(term2)
+        )
         return 0.0
 
     # Get depth of the ontology (maximum possible depth)
@@ -366,10 +388,10 @@ def calculate_simple_resnik_similarity(term1: str, term2: str) -> float:
 
     logging.debug(
         "Simple similarity between %s and %s: %.4f (LCA=%s, LCA depth=%s)",
-        term1,
-        term2,
+        _sanitize(term1),
+        _sanitize(term2),
         similarity,
-        lca,
+        _sanitize(lca),
         lca_depth,
     )
 
@@ -399,8 +421,8 @@ def calculate_semantic_similarity(
     if expected_term not in ancestors_dict or retrieved_term not in ancestors_dict:
         logging.debug(
             "Missing term data: %s or %s not in ancestors",
-            expected_term,
-            retrieved_term,
+            _sanitize(expected_term),
+            _sanitize(retrieved_term),
         )
         # If terms are identical, return 1.0 even if missing from ancestors dict
         if expected_term == retrieved_term:
@@ -409,7 +431,11 @@ def calculate_semantic_similarity(
 
     # If terms are identical, return 1.0
     if expected_term == retrieved_term:
-        logging.debug("Exact match between %s and %s", expected_term, retrieved_term)
+        logging.debug(
+            "Exact match between %s and %s",
+            _sanitize(expected_term),
+            _sanitize(retrieved_term),
+        )
         return 1.0
 
     # Choose formula based on parameter
@@ -543,7 +569,7 @@ def calculate_test_case_max_ont_sim(
         # If any exact match exists, the max possible similarity is 1.0
         logging.debug(
             "Exact match found for test case (%s), MaxOntSim is 1.0",
-            expected_set.intersection(retrieved_set),
+            _sanitize(expected_set.intersection(retrieved_set)),
         )
         return 1.0
 
@@ -565,7 +591,7 @@ def calculate_test_case_max_ont_sim(
     except Exception as e:
         logging.error(
             "Error during pairwise similarity calculation for MaxOntSim: %s",
-            e,
+            _sanitize(e),
             exc_info=True,
         )
         # Depending on desired behavior, could return 0.0 or raise

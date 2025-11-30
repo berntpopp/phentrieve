@@ -23,6 +23,7 @@ from phentrieve.text_processing.cleaners import (
 )
 from phentrieve.text_processing.resource_loader import load_language_resource
 from phentrieve.utils import load_user_config
+from phentrieve.utils import sanitize_log_value as _sanitize
 
 # Punctuation to be stripped from the ends of segments
 TRAILING_PUNCTUATION_CHARS = ",.;:?!\"')}]"
@@ -186,23 +187,30 @@ class FinalChunkCleaner(TextChunker):
         logger.info(
             "Initialized FinalChunkCleaner for language '%s' with "
             "min_chars=%s, filter_short_low_value_max_words=%s, max_passes=%s.",
-            self.language,
+            _sanitize(self.language),
             self.min_cleaned_chunk_length_chars,
             self.filter_short_low_value_chunks_max_words,
             self.max_cleanup_passes,
         )
-        logger.debug("Leading words for cleanup: %s", self.leading_words_to_strip)
-        logger.debug("Trailing words for cleanup: %s", self.trailing_words_to_strip)
         logger.debug(
-            "Leading punctuation for cleanup: '%s'", self.leading_punctuation_to_strip
+            "Leading words for cleanup: %s", _sanitize(str(self.leading_words_to_strip))
         )
         logger.debug(
-            "Trailing punctuation for cleanup: '%s'", self.trailing_punctuation_to_strip
+            "Trailing words for cleanup: %s",
+            _sanitize(str(self.trailing_words_to_strip)),
+        )
+        logger.debug(
+            "Leading punctuation for cleanup: '%s'",
+            _sanitize(self.leading_punctuation_to_strip),
+        )
+        logger.debug(
+            "Trailing punctuation for cleanup: '%s'",
+            _sanitize(self.trailing_punctuation_to_strip),
         )
         logger.debug(
             "Low-value words for lang '%s': %s...",
-            self.language,
-            sorted(self.low_value_words)[:20],
+            _sanitize(self.language),
+            _sanitize(str(sorted(self.low_value_words)[:20])),
         )
 
     def chunk(self, text_segments: list[str]) -> list[str]:
@@ -234,8 +242,11 @@ class FinalChunkCleaner(TextChunker):
                 or len(edge_cleaned_segment) < self.min_cleaned_chunk_length_chars
             ):
                 logger.debug(
-                    f"Input: '{segment_str_input[:50]}...' -> Edge-Cleaned: '{edge_cleaned_segment}' "
-                    f"(Discarded - empty or below char threshold {self.min_cleaned_chunk_length_chars})"
+                    "Input: '%s...' -> Edge-Cleaned: '%s' "
+                    "(Discarded - empty or below char threshold %s)",
+                    _sanitize(segment_str_input[:50]),
+                    _sanitize(edge_cleaned_segment),
+                    self.min_cleaned_chunk_length_chars,
                 )
                 continue
 
@@ -261,23 +272,30 @@ class FinalChunkCleaner(TextChunker):
                     keep_segment = False
                     discard_reason = (
                         f"short ({num_words} words) and all words are low-value: "
-                        f"'{', '.join(words_in_edge_cleaned_segment)}'"
+                        f"'{_sanitize(', '.join(words_in_edge_cleaned_segment))}'"
                     )
 
             if keep_segment:
                 # IMPORTANT: Append the segment with original casing, not the lowercased one
                 cleaned_segments_accumulator.append(edge_cleaned_segment)
                 logger.debug(
-                    f"Input: '{segment_str_input[:50]}...' -> Final: '{edge_cleaned_segment}' (Kept - words: {num_words})"
+                    "Input: '%s...' -> Final: '%s' (Kept - words: %s)",
+                    _sanitize(segment_str_input[:50]),
+                    _sanitize(edge_cleaned_segment),
+                    num_words,
                 )
             else:
                 logger.debug(
-                    f"Input: '{segment_str_input[:50]}...' -> Edge-Cleaned: '{edge_cleaned_segment}' (Discarded - {discard_reason})"
+                    "Input: '%s...' -> Edge-Cleaned: '%s' (Discarded - %s)",
+                    _sanitize(segment_str_input[:50]),
+                    _sanitize(edge_cleaned_segment),
+                    _sanitize(discard_reason),
                 )
 
         logger.info(
-            f"FinalChunkCleaner processed {len(text_segments)} input segments "
-            f"into {len(cleaned_segments_accumulator)} final segments."
+            "FinalChunkCleaner processed %s input segments into %s final segments.",
+            len(text_segments),
+            len(cleaned_segments_accumulator),
         )
         return cleaned_segments_accumulator
 
@@ -423,7 +441,9 @@ class ParagraphChunker(TextChunker):
             )
 
         logger.debug(
-            f"ParagraphChunker produced {len(all_paragraph_chunks)} segments from {len(text_segments)} input segments."
+            "ParagraphChunker produced %s segments from %s input segments.",
+            len(all_paragraph_chunks),
+            len(text_segments),
         )
         return all_paragraph_chunks
 
@@ -455,8 +475,9 @@ class SentenceChunker(TextChunker):
             all_sentences.extend(sentences_from_segment)
 
         logger.debug(
-            f"SentenceChunker produced {len(all_sentences)} sentences "
-            f"from {len(text_segments)} input segments."
+            "SentenceChunker produced %s sentences from %s input segments.",
+            len(all_sentences),
+            len(text_segments),
         )
         return all_sentences
 
@@ -483,8 +504,11 @@ class SentenceChunker(TextChunker):
             return [s.strip() for s in sentences if s.strip()]
         except Exception as e:
             logger.warning(
-                f"pysbd error for lang '{lang}' on text '{text[:50]}...': {e}. "
-                "Using fallback sentence splitting."
+                "pysbd error for lang '%s' on text '%s...': %s. "
+                "Using fallback sentence splitting.",
+                _sanitize(lang),
+                _sanitize(text[:50]),
+                _sanitize(str(e)),
             )
             # Fallback method for sentence splitting
             processed_lines = []
@@ -621,12 +645,15 @@ class ConjunctionChunker(TextChunker):
                 re.IGNORECASE,
             )
             logger.info(
-                f"ConjunctionChunker for lang '{self.language}' initialized with conjunctions: {self.conjunctions}"
+                "ConjunctionChunker for lang '%s' initialized with conjunctions: %s",
+                _sanitize(self.language),
+                _sanitize(str(self.conjunctions)),
             )
         else:
             self.split_pattern = None
             logger.warning(
-                f"ConjunctionChunker for lang '{self.language}' has no conjunctions defined. Will act as a NoOp."
+                "ConjunctionChunker for lang '%s' has no conjunctions defined. Will act as a NoOp.",
+                _sanitize(self.language),
             )
 
     def chunk(self, text_segments: list[str]) -> list[str]:
@@ -669,8 +696,9 @@ class ConjunctionChunker(TextChunker):
             all_conjunction_split_chunks.extend([p for p in parts if p])
 
         logger.debug(
-            f"ConjunctionChunker produced {len(all_conjunction_split_chunks)} chunks "
-            f"from {len(text_segments)} input segments."
+            "ConjunctionChunker produced %s chunks from %s input segments.",
+            len(all_conjunction_split_chunks),
+            len(text_segments),
         )
         return all_conjunction_split_chunks
 
@@ -852,7 +880,7 @@ class SlidingWindowSemanticSplitter(TextChunker):
         )
 
         # Log model info
-        logger.debug("Using model: %s", self.model.__class__.__name__)
+        logger.debug("Using model: %s", _sanitize(self.model.__class__.__name__))
         if hasattr(self.model, "get_sentence_embedding_dimension"):
             logger.debug(
                 "Model embedding dimension: %s",
@@ -913,7 +941,7 @@ class SlidingWindowSemanticSplitter(TextChunker):
 
         logger.debug(
             'SlidingWindow: Attempting to split segment: "%s..."',
-            current_text_segment[:150],
+            _sanitize(current_text_segment[:150]),
         )
         tokens = self.tokenizer(current_text_segment)
 
@@ -1000,7 +1028,9 @@ class SlidingWindowSemanticSplitter(TextChunker):
                     and segment_str
                 ):
                     final_segments.append(segment_str)
-                    logger.debug("Created segment (split): '%s'", segment_str)
+                    logger.debug(
+                        "Created segment (split): '%s'", _sanitize(segment_str)
+                    )
                 elif (
                     final_segments and segment_str
                 ):  # Current segment too short, append to previous
@@ -1009,11 +1039,13 @@ class SlidingWindowSemanticSplitter(TextChunker):
                     ).strip()
                     logger.debug(
                         "Appended short segment. Previous segment is now: '%s'",
-                        final_segments[-1],
+                        _sanitize(final_segments[-1]),
                     )
                 elif segment_str:  # First segment and too short
                     final_segments.append(segment_str)  # Keep it for now
-                    logger.debug("Kept short first segment: '%s'", segment_str)
+                    logger.debug(
+                        "Kept short first segment: '%s'", _sanitize(segment_str)
+                    )
 
             current_segment_start_token_idx = (
                 split_after_token_idx  # Next segment starts after this one ended
@@ -1028,7 +1060,9 @@ class SlidingWindowSemanticSplitter(TextChunker):
                 and last_segment_str
             ):
                 final_segments.append(last_segment_str)
-                logger.debug("Added final remaining segment: '%s'", last_segment_str)
+                logger.debug(
+                    "Added final remaining segment: '%s'", _sanitize(last_segment_str)
+                )
             elif (
                 final_segments and last_segment_str
             ):  # Last segment too short, append to previous
@@ -1037,11 +1071,13 @@ class SlidingWindowSemanticSplitter(TextChunker):
                 ).strip()
                 logger.debug(
                     "Appended short final segment. Previous segment is now: '%s'",
-                    final_segments[-1],
+                    _sanitize(final_segments[-1]),
                 )
             elif last_segment_str:  # Only one segment in total, and it's short
                 final_segments.append(last_segment_str)
-                logger.debug("Kept short (only) final segment: '%s'", last_segment_str)
+                logger.debug(
+                    "Kept short (only) final segment: '%s'", _sanitize(last_segment_str)
+                )
 
         # Final filter for any empty strings that might have been created
         final_segments = [s for s in final_segments if s]
@@ -1152,8 +1188,12 @@ class SlidingWindowSemanticSplitter(TextChunker):
                         ends_with_neg_word and len(tokenized_next) > 5
                     ):  # Tunable parameter: max 5 words
                         logger.debug(
-                            f"Segment '{current_segment}' ends with negation '{neg_suffix_found_for_log}', "
-                            f"but next segment '{next_segment[:30]}...' (len {len(tokenized_next)}) is long. No merge."
+                            "Segment '%s' ends with negation '%s', "
+                            "but next segment '%s...' (len %s) is long. No merge.",
+                            _sanitize(current_segment),
+                            _sanitize(str(neg_suffix_found_for_log)),
+                            _sanitize(next_segment[:30]),
+                            len(tokenized_next),
                         )
                         attempt_merge = False
 
@@ -1165,10 +1205,14 @@ class SlidingWindowSemanticSplitter(TextChunker):
                 log_reason = (
                     "standalone prefix"
                     if is_standalone_neg_prefix
-                    else f"suffix '{neg_suffix_found_for_log}'"
+                    else f"suffix '{_sanitize(str(neg_suffix_found_for_log))}'"
                 )
                 logger.debug(
-                    f"Merged negation pattern ({log_reason}): '{current_segment}' + '{segments[i + 1]}' -> '{merged_text}'"
+                    "Merged negation pattern (%s): '%s' + '%s' -> '%s'",
+                    _sanitize(log_reason),
+                    _sanitize(current_segment),
+                    _sanitize(segments[i + 1]),
+                    _sanitize(merged_text),
                 )
                 i += 2
             else:
@@ -1176,6 +1220,8 @@ class SlidingWindowSemanticSplitter(TextChunker):
                 i += 1
 
         logger.debug(
-            f"After negation merging: {len(segments)} -> {len(merged_segments)} segments"
+            "After negation merging: %s -> %s segments",
+            len(segments),
+            len(merged_segments),
         )
         return merged_segments

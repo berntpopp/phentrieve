@@ -13,6 +13,8 @@ import numpy as np
 import torch
 from sentence_transformers import CrossEncoder
 
+from phentrieve.utils import sanitize_log_value as _sanitize
+
 logger = logging.getLogger(__name__)
 
 
@@ -39,15 +41,25 @@ def load_cross_encoder(
         if device is None:
             device = "cuda" if torch.cuda.is_available() else "cpu"
 
-        logger.info(f"Loading cross-encoder model '{model_name}' on {device}")
+        logger.info(
+            "Loading cross-encoder model '%s' on %s",
+            _sanitize(model_name),
+            _sanitize(device),
+        )
 
         # Load the cross-encoder model
         model: CrossEncoder = CrossEncoder(model_name, device=device)
-        logger.info(f"Successfully loaded cross-encoder model: {model_name}")
+        logger.info(
+            "Successfully loaded cross-encoder model: %s", _sanitize(model_name)
+        )
         return model
 
     except Exception as e:
-        logger.error(f"Failed to load cross-encoder model '{model_name}': {str(e)}")
+        logger.error(
+            "Failed to load cross-encoder model '%s': %s",
+            _sanitize(model_name),
+            _sanitize(e),
+        )
         logger.warning("Re-ranking will be disabled")
         return None
 
@@ -103,11 +115,13 @@ def rerank_with_cross_encoder(
             candidates, key=lambda x: x.get("cross_encoder_score", 0.0), reverse=True
         )
 
-        logger.debug(f"Re-ranked {len(candidates)} candidates using cross-encoder")
+        logger.debug(
+            "Re-ranked %s candidates using cross-encoder", _sanitize(len(candidates))
+        )
         return reranked_candidates
 
     except Exception as e:
-        logger.error(f"Error during cross-encoder re-ranking: {str(e)}")
+        logger.error("Error during cross-encoder re-ranking: %s", _sanitize(e))
         logger.warning("Falling back to original candidate order")
         return candidates
 
@@ -181,9 +195,10 @@ def protected_dense_rerank(
         ]
 
         logger.info(
-            f"Protected dense retrieval: {len(protected_candidates)} candidates "
-            f"above threshold {trust_threshold:.2f}, "
-            f"{len(rerank_candidates)} candidates for re-ranking"
+            "Protected dense retrieval: %s candidates above threshold %.2f, %s candidates for re-ranking",
+            _sanitize(len(protected_candidates)),
+            _sanitize(trust_threshold),
+            _sanitize(len(rerank_candidates)),
         )
 
         # ============ STAGE 2: Cross-Encoder Refinement ============
@@ -216,7 +231,9 @@ def protected_dense_rerank(
                 key=lambda x: x.get("cross_encoder_score", 0.0), reverse=True
             )
 
-            logger.debug(f"Re-ranked {len(rerank_candidates)} uncertain candidates")
+            logger.debug(
+                "Re-ranked %s uncertain candidates", _sanitize(len(rerank_candidates))
+            )
 
         # Also add cross-encoder scores to protected candidates for transparency
         if protected_candidates:
@@ -242,13 +259,14 @@ def protected_dense_rerank(
         final_candidates = protected_candidates + rerank_candidates
 
         logger.info(
-            f"Protected re-ranking complete: {len(protected_candidates)} protected, "
-            f"{len(rerank_candidates)} reranked"
+            "Protected re-ranking complete: %s protected, %s reranked",
+            _sanitize(len(protected_candidates)),
+            _sanitize(len(rerank_candidates)),
         )
 
         return final_candidates
 
     except Exception as e:
-        logger.error(f"Error during protected re-ranking: {str(e)}")
+        logger.error("Error during protected re-ranking: %s", _sanitize(e))
         logger.warning("Falling back to original candidate order")
         return candidates

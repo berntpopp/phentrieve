@@ -22,6 +22,7 @@ from phentrieve.config import (
     get_sliding_window_punct_cleaned_config,
     get_sliding_window_punct_conj_cleaned_config,
 )
+from phentrieve.utils import sanitize_log_value as _sanitize
 
 logger = logging.getLogger(__name__)
 
@@ -143,12 +144,14 @@ def _load_config_from_file(config_file: Path) -> list[dict[str, Any]]:
         ChunkingConfigError: If file doesn't exist or has invalid format
     """
     if not config_file.exists():
-        raise ChunkingConfigError(f"Config file not found: {config_file}")
+        raise ChunkingConfigError(
+            f"Config file not found: {_sanitize(str(config_file))}"
+        )
 
     suffix = config_file.suffix.lower()
     if suffix not in {".json", ".yaml", ".yml"}:
         raise ChunkingConfigError(
-            f"Unsupported config file format: {suffix}. Use .json, .yaml, or .yml"
+            f"Unsupported config file format: {_sanitize(suffix)}. Use .json, .yaml, or .yml"
         )
 
     try:
@@ -161,14 +164,16 @@ def _load_config_from_file(config_file: Path) -> list[dict[str, Any]]:
         chunking_pipeline = config_data.get("chunking_pipeline")
         if chunking_pipeline is None:
             raise ChunkingConfigError(
-                f"Config file missing 'chunking_pipeline' key: {config_file}"
+                f"Config file missing 'chunking_pipeline' key: {_sanitize(str(config_file))}"
             )
 
         # Type checked: we know this is a list of dicts from the config structure
         return list(chunking_pipeline)
 
     except (json.JSONDecodeError, yaml.YAMLError) as e:
-        raise ChunkingConfigError(f"Failed to parse config file {config_file}: {e}")
+        raise ChunkingConfigError(
+            f"Failed to parse config file {_sanitize(str(config_file))}: {_sanitize(str(e))}"
+        )
 
 
 def _get_strategy_config(strategy_name: str) -> list[dict[str, Any]]:
@@ -202,7 +207,8 @@ def _get_strategy_config(strategy_name: str) -> list[dict[str, Any]]:
         return list(config_func())
     else:
         logger.warning(
-            f"Unknown strategy '{strategy_name}', using sliding_window_punct_conj_cleaned"
+            "Unknown strategy '%s', using sliding_window_punct_conj_cleaned",
+            _sanitize(strategy_name),
         )
         return list(get_sliding_window_punct_conj_cleaned_config())
 

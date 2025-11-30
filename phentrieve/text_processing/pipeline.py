@@ -29,6 +29,7 @@ from phentrieve.text_processing.cleaners import (
     clean_internal_newlines_and_extra_spaces,
     normalize_line_endings,
 )
+from phentrieve.utils import sanitize_log_value as _sanitize
 
 logger = logging.getLogger(__name__)
 
@@ -83,7 +84,7 @@ class TextProcessingPipeline:
         logger.info(
             "Initialized TextProcessingPipeline with %s chunking stages and assertion detection config: %s",
             len(self.chunkers),
-            assertion_config,
+            _sanitize(str(assertion_config)),
         )
 
     def _create_chunkers(self) -> list[TextChunker]:
@@ -197,7 +198,8 @@ class TextProcessingPipeline:
                     cleaner_params["custom_low_value_words"] = custom_low_value_words
 
                 logger.debug(
-                    "Creating FinalChunkCleaner with params: %s", cleaner_params
+                    "Creating FinalChunkCleaner with params: %s",
+                    _sanitize(str(cleaner_params)),
                 )
                 chunkers.append(FinalChunkCleaner(**cleaner_params))
 
@@ -232,7 +234,8 @@ class TextProcessingPipeline:
 
             else:
                 logger.warning(
-                    "Unknown chunker type '%s' in config, skipping", chunker_type
+                    "Unknown chunker type '%s' in config, skipping",
+                    _sanitize(chunker_type),
                 )
 
         if not chunkers:

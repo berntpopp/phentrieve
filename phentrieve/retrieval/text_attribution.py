@@ -10,6 +10,8 @@ import logging
 import re
 from typing import Any, Optional
 
+from phentrieve.utils import sanitize_log_value as _sanitize
+
 logger = logging.getLogger(__name__)
 
 
@@ -35,7 +37,7 @@ def get_text_attributions(
         - matched_text_in_chunk: The exact text that matched.
     """
     if not source_chunk_text:
-        logger.debug(f"Empty source chunk text for HPO term {hpo_term_id}")
+        logger.debug("Empty source chunk text for HPO term %s", _sanitize(hpo_term_id))
         return []
 
     attribution_spans = []
@@ -83,18 +85,28 @@ def get_text_attributions(
                     )
 
                     logger.debug(
-                        f"Found attribution for {hpo_term_id} ({phrase}) at "
-                        f"positions {span[0]}-{span[1]}: '{match.group(0)}'"
+                        "Found attribution for %s (%s) at positions %s-%s: '%s'",
+                        _sanitize(hpo_term_id),
+                        _sanitize(phrase),
+                        _sanitize(span[0]),
+                        _sanitize(span[1]),
+                        _sanitize(match.group(0)),
                     )
         except re.error as e:
-            logger.warning(f"Regex error when searching for '{phrase}' in chunk: {e}")
+            logger.warning(
+                "Regex error when searching for '%s' in chunk: %s",
+                _sanitize(phrase),
+                _sanitize(e),
+            )
             continue
 
     if attribution_spans:
         logger.debug(
-            f"Found {len(attribution_spans)} attribution spans for {hpo_term_id}"
+            "Found %s attribution spans for %s",
+            _sanitize(len(attribution_spans)),
+            _sanitize(hpo_term_id),
         )
     else:
-        logger.debug(f"No attribution spans found for {hpo_term_id}")
+        logger.debug("No attribution spans found for %s", _sanitize(hpo_term_id))
 
     return attribution_spans

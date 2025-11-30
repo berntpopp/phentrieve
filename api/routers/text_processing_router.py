@@ -28,6 +28,7 @@ from phentrieve.text_processing.hpo_extraction_orchestrator import (
 )
 from phentrieve.text_processing.pipeline import TextProcessingPipeline
 from phentrieve.utils import detect_language
+from phentrieve.utils import sanitize_log_value as _sanitize
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/v1/text", tags=["Text Processing and HPO Extraction"])
@@ -60,7 +61,7 @@ def _get_chunking_config_for_api(
 
     logger.debug(
         "API: Building config for '%s': ws=%s, ss=%s, th=%s, msl=%s",
-        strategy_name,
+        _sanitize(strategy_name),
         ws,
         ss,
         th,
@@ -150,8 +151,8 @@ async def process_text_extract_hpo(request: TextProcessingRequest):
     """
     logger.info(
         "API: Received request to process text. Language: %s, Strategy: %s",
-        request.language,
-        request.chunking_strategy,
+        _sanitize(request.language),
+        _sanitize(request.chunking_strategy),
     )
 
     # Calculate adaptive timeout based on text length
@@ -208,11 +209,13 @@ async def _process_text_internal(request: TextProcessingRequest):
                 actual_language = await run_in_threadpool(
                     detect_language, request.text_content, default_lang=DEFAULT_LANGUAGE
                 )
-                logger.info("API: Auto-detected language: %s", actual_language)
+                logger.info(
+                    "API: Auto-detected language: %s", _sanitize(actual_language)
+                )
             except Exception as lang_e:
                 logger.warning(
                     "API: Language detection failed: %s. Defaulting to %s.",
-                    lang_e,
+                    _sanitize(lang_e),
                     DEFAULT_LANGUAGE,
                 )
                 actual_language = DEFAULT_LANGUAGE
@@ -224,10 +227,13 @@ async def _process_text_internal(request: TextProcessingRequest):
             request.semantic_model_name or retrieval_model_name_to_load
         )
 
-        logger.info("API: Effective retrieval model: %s", retrieval_model_name_to_load)
+        logger.info(
+            "API: Effective retrieval model: %s",
+            _sanitize(retrieval_model_name_to_load),
+        )
         logger.info(
             "API: Effective semantic model for chunking: %s",
-            sbert_for_chunking_name_to_load,
+            _sanitize(sbert_for_chunking_name_to_load),
         )
 
         # Get cached retrieval model (will load only once per server lifecycle)
@@ -240,7 +246,7 @@ async def _process_text_internal(request: TextProcessingRequest):
         if sbert_for_chunking_name_to_load != retrieval_model_name_to_load:
             logger.info(
                 "API: Using separate semantic model for chunking: %s",
-                sbert_for_chunking_name_to_load,
+                _sanitize(sbert_for_chunking_name_to_load),
             )
             sbert_for_chunking = await get_sbert_model_dependency(
                 model_name_requested=sbert_for_chunking_name_to_load,
@@ -258,14 +264,16 @@ async def _process_text_internal(request: TextProcessingRequest):
         # Get cached cross-encoder if reranking is enabled
         cross_enc = None
         if request.enable_reranker and request.reranker_model_name:
-            logger.info("API: Using reranker model: %s", request.reranker_model_name)
+            logger.info(
+                "API: Using reranker model: %s", _sanitize(request.reranker_model_name)
+            )
             cross_enc = await get_cross_encoder_dependency(
                 reranker_model_name=request.reranker_model_name
             )
             if not cross_enc:
                 logger.warning(
                     "API: Reranker %s not available, proceeding without reranking.",
-                    request.reranker_model_name,
+                    _sanitize(request.reranker_model_name),
                 )
 
         # Prepare pipeline configuration
@@ -428,13 +436,17 @@ async def _process_text_internal(request: TextProcessingRequest):
     except HTTPException:
         raise
     except ValueError as ve:
-        logger.warning("API: Bad request for text processing: %s", ve, exc_info=True)
+        logger.warning(
+            "API: Bad request for text processing: %s", _sanitize(ve), exc_info=True
+        )
         raise HTTPException(
             status_code=400, detail=f"Invalid input parameter: {str(ve)}"
         )
     except FileNotFoundError as fnfe:
         logger.error(
-            "API: Missing data file during text processing: %s", fnfe, exc_info=True
+            "API: Missing data file during text processing: %s",
+            _sanitize(fnfe),
+            exc_info=True,
         )
         raise HTTPException(
             status_code=503,
@@ -444,8 +456,8 @@ async def _process_text_internal(request: TextProcessingRequest):
         error_type = type(e).__name__
         logger.error(
             "API: Unhandled internal server error during text processing: %s - %s",
-            error_type,
-            e,
+            _sanitize(error_type),
+            _sanitize(e),
             exc_info=True,
         )
         raise HTTPException(

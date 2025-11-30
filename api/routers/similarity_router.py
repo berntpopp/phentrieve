@@ -24,6 +24,7 @@ from phentrieve.evaluation.metrics import (
     load_hpo_graph_data,
 )
 from phentrieve.utils import normalize_id
+from phentrieve.utils import sanitize_log_value as _sanitize
 
 logger = logging.getLogger(__name__)
 router = APIRouter()  # Prefix will be added in main.py
@@ -97,16 +98,16 @@ async def get_hpo_term_similarity(
     except ValueError:
         logger.warning(
             "API: Invalid formula '%s'. Falling back to default '%s'.",
-            formula,
+            _sanitize(formula),
             DEFAULT_SIMILARITY_FORMULA,
         )
         formula_enum = SimilarityFormula(DEFAULT_SIMILARITY_FORMULA)
 
     logger.info(
         "API: Similarity request for T1='%s', T2='%s', Formula='%s'",
-        term1_id,
-        term2_id,
-        formula_enum.value,
+        _sanitize(term1_id),
+        _sanitize(term2_id),
+        _sanitize(formula_enum.value),
     )
 
     ancestors, depths = load_hpo_graph_data()  # Relies on its internal cache
@@ -170,15 +171,17 @@ async def get_hpo_term_similarity(
     except (
         ValueError
     ) as ve:  # Catch specific errors from core logic if they signal bad input
-        logger.warning("API: Value error during similarity calculation: %s", ve)
+        logger.warning(
+            "API: Value error during similarity calculation: %s", _sanitize(ve)
+        )
         response_kwargs["error_message"] = str(ve)
         raise HTTPException(status_code=400, detail=response_kwargs)
     except Exception as e:
         logger.error(
             "API: Unexpected error during similarity calculation for %s, %s: %s",
-            norm_term1,
-            norm_term2,
-            e,
+            _sanitize(norm_term1),
+            _sanitize(norm_term2),
+            _sanitize(e),
             exc_info=True,
         )
         response_kwargs["error_message"] = "An internal server error occurred."

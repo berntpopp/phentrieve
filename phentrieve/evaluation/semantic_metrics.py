@@ -13,6 +13,7 @@ from phentrieve.evaluation.metrics import (
     SimilarityFormula,
     calculate_semantic_similarity,
 )
+from phentrieve.utils import sanitize_log_value as _sanitize
 
 logger = logging.getLogger(__name__)
 
@@ -59,9 +60,9 @@ def calculate_semantically_aware_set_based_prf1(
         assertion = term.get("assertion_status")
         logger.info(
             "Extracted term: %s - %s (assertion: %s)",
-            term.get("id"),
-            term.get("name"),
-            assertion,
+            _sanitize(term.get("id")),
+            _sanitize(term.get("name")),
+            _sanitize(assertion),
         )
 
     logger.info("Raw ground truth terms: %s items", len(ground_truth_annotations))
@@ -70,7 +71,10 @@ def calculate_semantically_aware_set_based_prf1(
         name = term.get("label") or term.get("name")
         assertion = term.get("assertion_status")
         logger.info(
-            "Ground truth term: %s - %s (assertion: %s)", term_id, name, assertion
+            "Ground truth term: %s - %s (assertion: %s)",
+            _sanitize(term_id),
+            _sanitize(name),
+            _sanitize(assertion),
         )
 
     # NOTE: Assertion status filtering is currently disabled - using all terms
@@ -112,7 +116,11 @@ def calculate_semantically_aware_set_based_prf1(
 
             # Simple string comparison - the IDs should be in the same format
             if extracted_id == truth_id:
-                logger.info("Exact ID match found: %s ↔ %s", extracted_id, truth_id)
+                logger.info(
+                    "Exact ID match found: %s ↔ %s",
+                    _sanitize(extracted_id),
+                    _sanitize(truth_id),
+                )
 
                 # Mark as matched
                 true_positives += 1
@@ -128,14 +136,14 @@ def calculate_semantically_aware_set_based_prf1(
         if match_found:
             logger.info(
                 "Matched term pair: %s ↔ %s",
-                truth_term.get("label"),
-                extracted_term.get("name"),
+                _sanitize(truth_term.get("label")),
+                _sanitize(extracted_term.get("name")),
             )
         else:
             logger.info(
                 "No exact match found for ground truth term: %s - %s",
-                truth_id,
-                truth_term.get("label"),
+                _sanitize(truth_id),
+                _sanitize(truth_term.get("label")),
             )
             # Log some of the available extracted terms for debugging
             shown_terms = 0
@@ -145,8 +153,8 @@ def calculate_semantically_aware_set_based_prf1(
                 ):  # Limit to 5 terms for clarity
                     logger.info(
                         "  Available extracted term: %s - %s",
-                        term.get("id"),
-                        term.get("name"),
+                        _sanitize(term.get("id")),
+                        _sanitize(term.get("name")),
                     )
                     shown_terms += 1
 
@@ -206,8 +214,13 @@ def calculate_semantically_aware_set_based_prf1(
                 truth_indices_to_remove.add(best_match_idx)
 
                 logger.debug(
-                    f"Semantic match: {extracted_id} ↔ {available_truth[best_match_idx].get('hpo_id') or available_truth[best_match_idx].get('id')} "
-                    f"(similarity: {best_similarity:.4f})"
+                    "Semantic match: %s ↔ %s (similarity: %.4f)",
+                    _sanitize(extracted_id),
+                    _sanitize(
+                        available_truth[best_match_idx].get("hpo_id")
+                        or available_truth[best_match_idx].get("id")
+                    ),
+                    best_similarity,
                 )
 
         # Remove matched terms again
@@ -282,18 +295,23 @@ def calculate_semantically_aware_set_based_prf1(
     # This is crucial for making sure we don't have matches that aren't classified
     if true_positives != (exact_match_count + semantic_match_count):
         logger.warning(
-            f"Mismatch in match counting! Total TP: {true_positives}, Exact: {exact_match_count}, Semantic: {semantic_match_count}"
+            "Mismatch in match counting! Total TP: %s, Exact: %s, Semantic: %s",
+            true_positives,
+            exact_match_count,
+            semantic_match_count,
         )
         # Force alignment - this is a safety check to ensure all matches are categorized
         if semantic_match_count == 0 and exact_match_count == 0 and true_positives > 0:
             # We have TPs but no categorization - assign to semantic as a fallback
             logger.warning(
-                f"Forced categorization of {true_positives} matches as semantic"
+                "Forced categorization of %s matches as semantic", true_positives
             )
             semantic_match_count = true_positives
 
     logger.info(
-        f"Match breakdown: {exact_match_count} exact matches, {semantic_match_count} semantic matches"
+        "Match breakdown: %s exact matches, %s semantic matches",
+        exact_match_count,
+        semantic_match_count,
     )
 
     return {

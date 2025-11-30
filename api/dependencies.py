@@ -13,8 +13,13 @@ from phentrieve.config import DEFAULT_DEVICE, DEFAULT_MODEL
 from phentrieve.embeddings import load_embedding_model
 from phentrieve.retrieval.dense_retriever import DenseRetriever
 from phentrieve.retrieval.reranker import load_cross_encoder as load_ce_model
+from phentrieve.utils import sanitize_log_value
 
 logger = logging.getLogger(__name__)
+
+
+# Alias for brevity in this module
+_sanitize = sanitize_log_value
 
 # Global cache for models and retrievers
 # Key: model_name (or unique identifier), Value: loaded instance
@@ -49,8 +54,8 @@ async def _load_model_in_background(
     logger.info(
         "Background task started: Loading %s model '%s' on device '%s'.",
         model_type,
-        model_name,
-        device,
+        _sanitize(model_name),
+        _sanitize(device),
     )
     actual_device = device or DEFAULT_DEVICE
     try:
@@ -71,14 +76,15 @@ async def _load_model_in_background(
 
         MODEL_LOADING_STATUS[model_name] = "loaded"
         logger.info(
-            "Background task success: Model '%s' loaded and cached.", model_name
+            "Background task success: Model '%s' loaded and cached.",
+            _sanitize(model_name),
         )
     except Exception as e:
         MODEL_LOADING_STATUS[model_name] = "failed"
         logger.error(
             "Background task error: Failed to load model '%s': %s",
-            model_name,
-            e,
+            _sanitize(model_name),
+            _sanitize(e),
             exc_info=True,
         )
         # Clear from cache if partially added
@@ -101,7 +107,7 @@ async def get_sbert_model_dependency(
     device = device_override or DEFAULT_DEVICE
 
     if model_name in LOADED_SBERT_MODELS:
-        logger.debug("API: Returning cached SBERT model: %s", model_name)
+        logger.debug("API: Returning cached SBERT model: %s", _sanitize(model_name))
         return LOADED_SBERT_MODELS[model_name]
 
     lock = _get_lock_for_model(model_name)
@@ -109,7 +115,8 @@ async def get_sbert_model_dependency(
         # Re-check after acquiring lock
         if model_name in LOADED_SBERT_MODELS:
             logger.debug(
-                "API: Returning cached SBERT model (post-lock): %s", model_name
+                "API: Returning cached SBERT model (post-lock): %s",
+                _sanitize(model_name),
             )
             return LOADED_SBERT_MODELS[model_name]
 
@@ -119,7 +126,7 @@ async def get_sbert_model_dependency(
             # Model is loading - wait for it with timeout
             logger.info(
                 "API: Model '%s' is loading. Waiting up to %ss...",
-                model_name,
+                _sanitize(model_name),
                 SBERT_LOAD_TIMEOUT,
             )
             if model_name in MODEL_LOADING_TASKS:
@@ -132,13 +139,13 @@ async def get_sbert_model_dependency(
                     if model_name in LOADED_SBERT_MODELS:
                         logger.info(
                             "API: Model '%s' finished loading, returning it.",
-                            model_name,
+                            _sanitize(model_name),
                         )
                         return LOADED_SBERT_MODELS[model_name]
                 except asyncio.TimeoutError:
                     logger.warning(
                         "API: Model '%s' loading timeout (%ss). Loading continues in background.",
-                        model_name,
+                        _sanitize(model_name),
                         SBERT_LOAD_TIMEOUT,
                     )
                     raise HTTPException(
@@ -149,7 +156,7 @@ async def get_sbert_model_dependency(
             # Task not found but status is loading - fallback to old behavior
             logger.warning(
                 "API: Model '%s' status is 'loading' but no task found. Advise retry.",
-                model_name,
+                _sanitize(model_name),
             )
             raise HTTPException(
                 status_code=503,
@@ -158,14 +165,18 @@ async def get_sbert_model_dependency(
             )
 
         if current_status == "failed":
-            logger.error("API: Model '%s' failed to load previously.", model_name)
+            logger.error(
+                "API: Model '%s' failed to load previously.", _sanitize(model_name)
+            )
             raise HTTPException(
                 status_code=503,
                 detail=f"Model '{model_name}' failed to load and is unavailable.",
             )
 
         # If 'not_loaded', initiate loading
-        logger.info("API: Initiating background load for SBERT model: %s", model_name)
+        logger.info(
+            "API: Initiating background load for SBERT model: %s", _sanitize(model_name)
+        )
         MODEL_LOADING_STATUS[model_name] = "loading"
 
         # Create task and store it for awaiting
@@ -180,13 +191,14 @@ async def get_sbert_model_dependency(
             # Loading completed successfully, return the model
             if model_name in LOADED_SBERT_MODELS:
                 logger.info(
-                    "API: Model '%s' loaded successfully on first request.", model_name
+                    "API: Model '%s' loaded successfully on first request.",
+                    _sanitize(model_name),
                 )
                 return LOADED_SBERT_MODELS[model_name]
             # Edge case: task completed but model not in cache (should not happen)
             logger.error(
                 "API: Model '%s' loading task completed but model not found in cache.",
-                model_name,
+                _sanitize(model_name),
             )
             raise HTTPException(
                 status_code=500,
@@ -195,7 +207,7 @@ async def get_sbert_model_dependency(
         except asyncio.TimeoutError:
             logger.warning(
                 "API: Model '%s' loading timeout (%ss) on first request. Loading continues in background.",
-                model_name,
+                _sanitize(model_name),
                 SBERT_LOAD_TIMEOUT,
             )
             # Task continues in background - don't cancel it
@@ -215,7 +227,7 @@ async def get_dense_retriever_dependency(
     if retriever_cache_key not in LOADED_RETRIEVERS:
         logger.info(
             "API: Initializing DenseRetriever for model: %s",
-            sbert_model_name_for_retriever,
+            _sanitize(sbert_model_name_for_retriever),
         )
         sbert_instance = await get_sbert_model_dependency(
             model_name_requested=sbert_model_name_for_retriever
@@ -233,7 +245,7 @@ async def get_dense_retriever_dependency(
             logger.error(
                 "API: Failed to init DenseRetriever for %s. "
                 "Ensure index is built and env vars are set correctly.",
-                sbert_model_name_for_retriever,
+                _sanitize(sbert_model_name_for_retriever),
             )
             raise HTTPException(
                 status_code=503,
@@ -246,13 +258,14 @@ async def get_dense_retriever_dependency(
         index_path = getattr(retriever, "index_base_path", "Path not set")
         logger.info(
             "API: DenseRetriever initialized for %s. Index: %s",
-            sbert_model_name_for_retriever,
-            index_path,
+            _sanitize(sbert_model_name_for_retriever),
+            _sanitize(index_path),
         )
         LOADED_RETRIEVERS[retriever_cache_key] = retriever
     else:
         logger.debug(
-            "API: Using cached DenseRetriever for %s", sbert_model_name_for_retriever
+            "API: Using cached DenseRetriever for %s",
+            _sanitize(sbert_model_name_for_retriever),
         )
     return LOADED_RETRIEVERS[retriever_cache_key]
 
@@ -269,7 +282,9 @@ async def get_cross_encoder_dependency(
         reranker_model_name in LOADED_CROSS_ENCODERS
         and LOADED_CROSS_ENCODERS[reranker_model_name] is not None
     ):
-        logger.debug("API: Returning cached CrossEncoder: %s", reranker_model_name)
+        logger.debug(
+            "API: Returning cached CrossEncoder: %s", _sanitize(reranker_model_name)
+        )
         return LOADED_CROSS_ENCODERS[reranker_model_name]
 
     lock = _get_lock_for_model(reranker_model_name)
@@ -281,7 +296,7 @@ async def get_cross_encoder_dependency(
         ):
             logger.debug(
                 "API: Returning cached CrossEncoder (post-lock): %s",
-                reranker_model_name,
+                _sanitize(reranker_model_name),
             )
             return LOADED_CROSS_ENCODERS[reranker_model_name]
 
@@ -291,7 +306,7 @@ async def get_cross_encoder_dependency(
             # Model is loading - wait for it with timeout
             logger.info(
                 "API: CrossEncoder '%s' is loading. Waiting up to %ss...",
-                reranker_model_name,
+                _sanitize(reranker_model_name),
                 CROSS_ENCODER_LOAD_TIMEOUT,
             )
             if reranker_model_name in MODEL_LOADING_TASKS:
@@ -307,13 +322,13 @@ async def get_cross_encoder_dependency(
                     ):
                         logger.info(
                             "API: CrossEncoder '%s' finished loading, returning it.",
-                            reranker_model_name,
+                            _sanitize(reranker_model_name),
                         )
                         return LOADED_CROSS_ENCODERS[reranker_model_name]
                 except asyncio.TimeoutError:
                     logger.warning(
                         "API: CrossEncoder '%s' loading timeout (%ss). Loading continues in background.",
-                        reranker_model_name,
+                        _sanitize(reranker_model_name),
                         CROSS_ENCODER_LOAD_TIMEOUT,
                     )
                     raise HTTPException(
@@ -324,7 +339,7 @@ async def get_cross_encoder_dependency(
             # Task not found but status is loading - fallback to old behavior
             logger.warning(
                 "API: CrossEncoder '%s' status is 'loading' but no task found. Advise retry.",
-                reranker_model_name,
+                _sanitize(reranker_model_name),
             )
             raise HTTPException(
                 status_code=503,
@@ -334,7 +349,8 @@ async def get_cross_encoder_dependency(
 
         if current_status == "failed":
             logger.error(
-                "API: CrossEncoder '%s' failed to load previously.", reranker_model_name
+                "API: CrossEncoder '%s' failed to load previously.",
+                _sanitize(reranker_model_name),
             )
             raise HTTPException(
                 status_code=503,
@@ -343,7 +359,8 @@ async def get_cross_encoder_dependency(
 
         # If 'not_loaded', initiate loading
         logger.info(
-            "API: Initiating background load for CrossEncoder: %s", reranker_model_name
+            "API: Initiating background load for CrossEncoder: %s",
+            _sanitize(reranker_model_name),
         )
         MODEL_LOADING_STATUS[reranker_model_name] = "loading"
 
@@ -365,13 +382,13 @@ async def get_cross_encoder_dependency(
             ):
                 logger.info(
                     "API: CrossEncoder '%s' loaded successfully on first request.",
-                    reranker_model_name,
+                    _sanitize(reranker_model_name),
                 )
                 return LOADED_CROSS_ENCODERS[reranker_model_name]
             # Edge case: task completed but model not in cache (should not happen)
             logger.error(
                 "API: CrossEncoder '%s' loading task completed but model not found in cache.",
-                reranker_model_name,
+                _sanitize(reranker_model_name),
             )
             raise HTTPException(
                 status_code=500,
@@ -381,7 +398,7 @@ async def get_cross_encoder_dependency(
             logger.warning(
                 "API: CrossEncoder '%s' loading timeout (%ss) on first request. "
                 "Loading continues in background.",
-                reranker_model_name,
+                _sanitize(reranker_model_name),
                 CROSS_ENCODER_LOAD_TIMEOUT,
             )
             # Task continues in background - don't cancel it
