@@ -142,7 +142,10 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
         ca-certificates \
         libgomp1 \
         curl \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    # Security hardening: Remove unnecessary setuid/setgid bits (CIS-DI-0008)
+    # These are not needed for the API container runtime
+    && find /usr/bin /usr/sbin /bin /sbin -perm /6000 -type f -exec chmod a-s {} \; || true
 
 # Copy SQLite runtime libraries
 COPY --from=sqlite-builder /usr/local/lib/libsqlite3.* /usr/local/lib/
