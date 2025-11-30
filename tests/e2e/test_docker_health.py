@@ -52,12 +52,12 @@ class TestDockerHealth:
         response = requests.get(api_health_endpoint, timeout=5)
         assert response.status_code == 200, "Health check should succeed"
 
-        # Verify response is valid JSON
-        data: dict = {}  # Initialize to satisfy static analysis
+        # Verify response is valid JSON and parse it
         try:
             data = response.json()
         except ValueError as e:
             pytest.fail(f"Health endpoint should return valid JSON: {e}")
+            raise  # Never reached - satisfies static analysis (pytest.fail raises)
 
         # Verify required fields exist
         assert "status" in data, "Health response should contain 'status' field"
@@ -203,11 +203,12 @@ class TestDockerHealth:
         response = requests.get(api_config_endpoint, timeout=5)
         assert response.status_code == 200, "Config check should succeed"
 
-        data: dict = {}  # Initialize to satisfy static analysis
+        # Parse JSON response
         try:
             data = response.json()
         except ValueError as e:
             pytest.fail(f"Config endpoint should return valid JSON: {e}")
+            raise  # Never reached - satisfies static analysis (pytest.fail raises)
 
         # Should contain some configuration information
         # (exact structure may vary based on API implementation)

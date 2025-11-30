@@ -126,8 +126,10 @@ class TestHpoSimilarityCli:
 
     def test_calculates_similarity_successfully_with_defaults(self, mocker):
         """Test successful similarity calculation with default parameters."""
-        from phentrieve.cli.similarity_commands import hpo_similarity_cli
+        import phentrieve.cli.similarity_commands as sim_module
         from phentrieve.evaluation.metrics import SimilarityFormula
+
+        hpo_similarity_cli = sim_module.hpo_similarity_cli
 
         # Arrange - Mock at the point of USE (similarity_commands), not point of definition
         mock_setup_logging = mocker.patch(
@@ -186,8 +188,10 @@ class TestHpoSimilarityCli:
 
     def test_calculates_similarity_with_different_formula(self, mocker):
         """Test similarity calculation with different formula."""
-        from phentrieve.cli.similarity_commands import hpo_similarity_cli
+        import phentrieve.cli.similarity_commands as sim_module
         from phentrieve.evaluation.metrics import SimilarityFormula
+
+        hpo_similarity_cli = sim_module.hpo_similarity_cli
 
         # Arrange
         mocker.patch("phentrieve.cli.similarity_commands.setup_logging_cli")
@@ -234,7 +238,9 @@ class TestHpoSimilarityCli:
 
     def test_calculates_similarity_with_debug_mode(self, mocker):
         """Test similarity calculation with debug logging enabled."""
-        from phentrieve.cli.similarity_commands import hpo_similarity_cli
+        import phentrieve.cli.similarity_commands as sim_module
+
+        hpo_similarity_cli = sim_module.hpo_similarity_cli
 
         # Arrange
         mock_setup_logging = mocker.patch(
@@ -273,7 +279,9 @@ class TestHpoSimilarityCli:
 
     def test_exits_when_graph_data_not_found(self, mocker):
         """Test exits with error when graph data is not found."""
-        from phentrieve.cli.similarity_commands import hpo_similarity_cli
+        import phentrieve.cli.similarity_commands as sim_module
+
+        hpo_similarity_cli = sim_module.hpo_similarity_cli
 
         # Arrange
         mocker.patch("phentrieve.cli.similarity_commands.setup_logging_cli")
@@ -295,7 +303,9 @@ class TestHpoSimilarityCli:
 
     def test_exits_when_graph_data_empty(self, mocker):
         """Test exits with error when graph data is empty."""
-        from phentrieve.cli.similarity_commands import hpo_similarity_cli
+        import phentrieve.cli.similarity_commands as sim_module
+
+        hpo_similarity_cli = sim_module.hpo_similarity_cli
 
         # Arrange
         mocker.patch("phentrieve.cli.similarity_commands.setup_logging_cli")
@@ -313,7 +323,9 @@ class TestHpoSimilarityCli:
 
     def test_exits_when_graph_data_loading_fails(self, mocker):
         """Test exits with error when loading graph data raises exception."""
-        from phentrieve.cli.similarity_commands import hpo_similarity_cli
+        import phentrieve.cli.similarity_commands as sim_module
+
+        hpo_similarity_cli = sim_module.hpo_similarity_cli
 
         # Arrange
         mocker.patch("phentrieve.cli.similarity_commands.setup_logging_cli")
@@ -334,7 +346,9 @@ class TestHpoSimilarityCli:
 
     def test_exits_when_term_not_found_in_ontology(self, mocker):
         """Test exits with error when term not found in ontology."""
-        from phentrieve.cli.similarity_commands import hpo_similarity_cli
+        import phentrieve.cli.similarity_commands as sim_module
+
+        hpo_similarity_cli = sim_module.hpo_similarity_cli
 
         # Arrange
         mocker.patch("phentrieve.cli.similarity_commands.setup_logging_cli")
@@ -368,7 +382,9 @@ class TestHpoSimilarityCli:
 
     def test_exits_when_both_terms_not_found(self, mocker):
         """Test exits with error when both terms not found in ontology."""
-        from phentrieve.cli.similarity_commands import hpo_similarity_cli
+        import phentrieve.cli.similarity_commands as sim_module
+
+        hpo_similarity_cli = sim_module.hpo_similarity_cli
 
         # Arrange
         mocker.patch("phentrieve.cli.similarity_commands.setup_logging_cli")
@@ -396,7 +412,9 @@ class TestHpoSimilarityCli:
 
     def test_exits_when_similarity_calculation_fails(self, mocker):
         """Test exits with error when similarity calculation raises exception."""
-        from phentrieve.cli.similarity_commands import hpo_similarity_cli
+        import phentrieve.cli.similarity_commands as sim_module
+
+        hpo_similarity_cli = sim_module.hpo_similarity_cli
 
         # Arrange
         mocker.patch("phentrieve.cli.similarity_commands.setup_logging_cli")
@@ -431,7 +449,9 @@ class TestHpoSimilarityCli:
 
     def test_displays_lca_when_found(self, mocker):
         """Test displays LCA information when found."""
-        from phentrieve.cli.similarity_commands import hpo_similarity_cli
+        import phentrieve.cli.similarity_commands as sim_module
+
+        hpo_similarity_cli = sim_module.hpo_similarity_cli
 
         # Arrange
         mocker.patch("phentrieve.cli.similarity_commands.setup_logging_cli")
@@ -474,7 +494,9 @@ class TestHpoSimilarityCli:
 
     def test_displays_no_lca_when_not_found(self, mocker):
         """Test displays appropriate message when LCA not found."""
-        from phentrieve.cli.similarity_commands import hpo_similarity_cli
+        import phentrieve.cli.similarity_commands as sim_module
+
+        hpo_similarity_cli = sim_module.hpo_similarity_cli
 
         # Arrange
         mocker.patch("phentrieve.cli.similarity_commands.setup_logging_cli")
@@ -512,7 +534,9 @@ class TestHpoSimilarityCli:
 
     def test_color_codes_high_similarity(self, mocker):
         """Test uses green color for high similarity scores."""
-        from phentrieve.cli.similarity_commands import hpo_similarity_cli
+        import phentrieve.cli.similarity_commands as sim_module
+
+        hpo_similarity_cli = sim_module.hpo_similarity_cli
 
         # Arrange
         mocker.patch("phentrieve.cli.similarity_commands.setup_logging_cli")
@@ -553,7 +577,9 @@ class TestHpoSimilarityCli:
 
     def test_color_codes_medium_similarity(self, mocker):
         """Test uses yellow color for medium similarity scores."""
-        from phentrieve.cli.similarity_commands import hpo_similarity_cli
+        import phentrieve.cli.similarity_commands as sim_module
+
+        hpo_similarity_cli = sim_module.hpo_similarity_cli
 
         # Arrange
         mocker.patch("phentrieve.cli.similarity_commands.setup_logging_cli")
@@ -593,7 +619,9 @@ class TestHpoSimilarityCli:
 
     def test_color_codes_zero_similarity(self, mocker):
         """Test uses white color for zero similarity scores."""
-        from phentrieve.cli.similarity_commands import hpo_similarity_cli
+        import phentrieve.cli.similarity_commands as sim_module
+
+        hpo_similarity_cli = sim_module.hpo_similarity_cli
 
         # Arrange
         mocker.patch("phentrieve.cli.similarity_commands.setup_logging_cli")
