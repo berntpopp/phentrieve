@@ -3,14 +3,18 @@
 from pathlib import Path
 from unittest.mock import Mock, patch
 
-# Import chromadb at test module level to enable mocking
-# (dense_retriever imports it locally inside functions)
-import chromadb  # noqa: F401
+# Import chromadb at module level to enable @patch("chromadb.PersistentClient")
+# This ensures chromadb is in sys.modules before the patch decorator runs
+import chromadb
 import numpy as np
 import pytest
 
 from phentrieve.config import MIN_SIMILARITY_THRESHOLD
 from phentrieve.retrieval.dense_retriever import DenseRetriever, connect_to_chroma
+
+# Explicit reference to chromadb to satisfy static analysis
+# (the import is required for mocking to work in @patch decorators)
+_ = chromadb.PersistentClient  # noqa: F841 - accessed for side effect
 
 pytestmark = pytest.mark.unit
 

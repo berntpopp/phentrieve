@@ -535,8 +535,8 @@ class TestExecuteHpoRetrievalForApi:
         }
         mock_cross_encoder.predict.return_value = [0.95]
 
-        # Act
-        _result = await execute_hpo_retrieval_for_api(
+        # Act - execute retrieval (result not needed, testing side effects)
+        await execute_hpo_retrieval_for_api(
             text=query_text,
             language="en",
             retriever=mock_retriever,

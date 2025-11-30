@@ -305,12 +305,12 @@ class TestConfigurableTimeouts:
         # Set custom timeout
         monkeypatch.setenv("PHENTRIEVE_CROSS_ENCODER_LOAD_TIMEOUT", "5")
 
-        # Reload module to pick up new env var
+        # Reload module to pick up new env var and reassign
         import importlib
 
-        importlib.reload(dependencies)
+        reloaded_deps = importlib.reload(dependencies)
 
-        assert dependencies.CROSS_ENCODER_LOAD_TIMEOUT == 5.0
+        assert reloaded_deps.CROSS_ENCODER_LOAD_TIMEOUT == 5.0
 
     @pytest.mark.asyncio
     async def test_timeout_enforced_correctly(self, mock_cross_encoder):

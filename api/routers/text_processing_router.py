@@ -28,6 +28,7 @@ from phentrieve.text_processing.hpo_extraction_orchestrator import (
 )
 from phentrieve.text_processing.pipeline import TextProcessingPipeline
 from phentrieve.utils import detect_language
+from phentrieve.utils import sanitize_log_value as _sanitize
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/v1/text", tags=["Text Processing and HPO Extraction"])
@@ -59,7 +60,12 @@ def _get_chunking_config_for_api(
     msl = request.min_segment_length if request.min_segment_length is not None else 3
 
     logger.debug(
-        f"API: Building config for '{strategy_name}': ws={ws}, ss={ss}, th={th}, msl={msl}"
+        "API: Building config for '%s': ws=%s, ss=%s, th=%s, msl=%s",
+        _sanitize(strategy_name),
+        _sanitize(ws),
+        _sanitize(ss),
+        _sanitize(th),
+        _sanitize(msl),
     )
 
     # Use shared resolver
@@ -144,8 +150,9 @@ async def process_text_extract_hpo(request: TextProcessingRequest):
     Includes adaptive timeout based on text length to prevent frontend disconnects.
     """
     logger.info(
-        f"API: Received request to process text. "
-        f"Language: {request.language}, Strategy: {request.chunking_strategy}"
+        "API: Received request to process text. Language: %s, Strategy: %s",
+        _sanitize(request.language),
+        _sanitize(request.chunking_strategy),
     )
 
     # Calculate adaptive timeout based on text length
@@ -159,7 +166,9 @@ async def process_text_extract_hpo(request: TextProcessingRequest):
     else:
         timeout_seconds = 180
 
-    logger.info(f"API: Processing {text_length} chars with {timeout_seconds}s timeout")
+    logger.info(
+        "API: Processing %s chars with %ss timeout", text_length, timeout_seconds
+    )
 
     try:
         # Wrap processing with timeout protection
@@ -168,8 +177,9 @@ async def process_text_extract_hpo(request: TextProcessingRequest):
         )
     except asyncio.TimeoutError:
         logger.error(
-            f"API: Request timed out after {timeout_seconds}s "
-            f"(text length: {text_length} chars)"
+            "API: Request timed out after %ss (text length: %s chars)",
+            timeout_seconds,
+            text_length,
         )
         raise HTTPException(
             status_code=status.HTTP_504_GATEWAY_TIMEOUT,
@@ -199,10 +209,14 @@ async def _process_text_internal(request: TextProcessingRequest):
                 actual_language = await run_in_threadpool(
                     detect_language, request.text_content, default_lang=DEFAULT_LANGUAGE
                 )
-                logger.info(f"API: Auto-detected language: {actual_language}")
+                logger.info(
+                    "API: Auto-detected language: %s", _sanitize(actual_language)
+                )
             except Exception as lang_e:
                 logger.warning(
-                    f"API: Language detection failed: {lang_e}. Defaulting to {DEFAULT_LANGUAGE}."
+                    "API: Language detection failed: %s. Defaulting to %s.",
+                    _sanitize(lang_e),
+                    DEFAULT_LANGUAGE,
                 )
                 actual_language = DEFAULT_LANGUAGE
 
@@ -213,9 +227,13 @@ async def _process_text_internal(request: TextProcessingRequest):
             request.semantic_model_name or retrieval_model_name_to_load
         )
 
-        logger.info(f"API: Effective retrieval model: {retrieval_model_name_to_load}")
         logger.info(
-            f"API: Effective semantic model for chunking: {sbert_for_chunking_name_to_load}"
+            "API: Effective retrieval model: %s",
+            _sanitize(retrieval_model_name_to_load),
+        )
+        logger.info(
+            "API: Effective semantic model for chunking: %s",
+            _sanitize(sbert_for_chunking_name_to_load),
         )
 
         # Get cached retrieval model (will load only once per server lifecycle)
@@ -227,7 +245,8 @@ async def _process_text_internal(request: TextProcessingRequest):
         # Determine whether we need a separate model for chunking
         if sbert_for_chunking_name_to_load != retrieval_model_name_to_load:
             logger.info(
-                f"API: Using separate semantic model for chunking: {sbert_for_chunking_name_to_load}"
+                "API: Using separate semantic model for chunking: %s",
+                _sanitize(sbert_for_chunking_name_to_load),
             )
             sbert_for_chunking = await get_sbert_model_dependency(
                 model_name_requested=sbert_for_chunking_name_to_load,
@@ -245,13 +264,16 @@ async def _process_text_internal(request: TextProcessingRequest):
         # Get cached cross-encoder if reranking is enabled
         cross_enc = None
         if request.enable_reranker and request.reranker_model_name:
-            logger.info(f"API: Using reranker model: {request.reranker_model_name}")
+            logger.info(
+                "API: Using reranker model: %s", _sanitize(request.reranker_model_name)
+            )
             cross_enc = await get_cross_encoder_dependency(
                 reranker_model_name=request.reranker_model_name
             )
             if not cross_enc:
                 logger.warning(
-                    f"API: Reranker {request.reranker_model_name} not available, proceeding without reranking."
+                    "API: Reranker %s not available, proceeding without reranking.",
+                    _sanitize(request.reranker_model_name),
                 )
 
         # Prepare pipeline configuration
@@ -265,7 +287,7 @@ async def _process_text_internal(request: TextProcessingRequest):
         # This matches how the CLI explicitly passes language to the pipeline
         assertion_cfg["language"] = actual_language
 
-        logger.info(f"API: Using assertion configuration: {assertion_cfg}")
+        logger.info("API: Using assertion configuration: %s", assertion_cfg)
 
         text_pipeline = TextProcessingPipeline(
             language=actual_language,
@@ -297,7 +319,8 @@ async def _process_text_internal(request: TextProcessingRequest):
             assertion_statuses_for_orchestrator.append(p_chunk["status"].value)
 
         logger.info(
-            f"API: Running HPO extraction orchestrator on {len(text_chunks_for_orchestrator)} chunks."
+            "API: Running HPO extraction orchestrator on %s chunks.",
+            len(text_chunks_for_orchestrator),
         )
         # Call the core orchestrator function (this is synchronous, so wrap it)
         (
@@ -413,13 +436,17 @@ async def _process_text_internal(request: TextProcessingRequest):
     except HTTPException:
         raise
     except ValueError as ve:
-        logger.warning(f"API: Bad request for text processing: {ve}", exc_info=True)
+        logger.warning(
+            "API: Bad request for text processing: %s", _sanitize(ve), exc_info=True
+        )
         raise HTTPException(
             status_code=400, detail=f"Invalid input parameter: {str(ve)}"
         )
     except FileNotFoundError as fnfe:
         logger.error(
-            f"API: Missing data file during text processing: {fnfe}", exc_info=True
+            "API: Missing data file during text processing: %s",
+            _sanitize(fnfe),
+            exc_info=True,
         )
         raise HTTPException(
             status_code=503,
@@ -428,7 +455,9 @@ async def _process_text_internal(request: TextProcessingRequest):
     except Exception as e:
         error_type = type(e).__name__
         logger.error(
-            f"API: Unhandled internal server error during text processing: {error_type} - {e}",
+            "API: Unhandled internal server error during text processing: %s - %s",
+            _sanitize(error_type),
+            _sanitize(e),
             exc_info=True,
         )
         raise HTTPException(

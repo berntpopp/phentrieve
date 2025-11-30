@@ -25,6 +25,9 @@ from phentrieve.utils import (
     get_default_index_dir,
     resolve_data_path,
 )
+from phentrieve.utils import (
+    sanitize_log_value as _sanitize,
+)
 
 
 def connect_to_chroma(
@@ -79,18 +82,24 @@ def connect_to_chroma(
             collection = client.get_collection(name=collection_name)
             count = collection.count()
             logging.info(
-                f"Connected to collection '{collection_name}' with {count} docs"
+                "Connected to collection '%s' with %s docs",
+                _sanitize(collection_name),
+                _sanitize(count),
             )
             return collection
         except Exception as e:
-            logging.error(f"Error getting collection '{collection_name}': {e}")
+            logging.error(
+                "Error getting collection '%s': %s",
+                _sanitize(collection_name),
+                _sanitize(e),
+            )
 
             # List available collections for debugging
             collections = client.list_collections()
             if collections:
                 collection_names = [c.name for c in collections]
                 collection_list = ", ".join(collection_names)
-                logging.info(f"Available collections: {collection_list}")
+                logging.info("Available collections: %s", _sanitize(collection_list))
 
                 # If model_name is provided, check if we need to create a new format
                 if model_name:
@@ -99,16 +108,20 @@ def connect_to_chroma(
                         alternate_name != collection_name
                         and alternate_name in collection_names
                     ):
-                        logging.info(f"Found alternate collection: {alternate_name}")
+                        logging.info(
+                            "Found alternate collection: %s", _sanitize(alternate_name)
+                        )
                         return client.get_collection(name=alternate_name)
             else:
-                logging.error(f"No collections found in {index_dir}")
+                logging.error("No collections found in %s", _sanitize(index_dir))
                 logging.error("Please run setup script to build the index first.")
 
             return None
 
     except Exception as e:
-        logging.error(f"Error connecting to ChromaDB: {index_dir}: {e}")
+        logging.error(
+            "Error connecting to ChromaDB: %s: %s", _sanitize(index_dir), _sanitize(e)
+        )
         return None
 
 
@@ -166,8 +179,8 @@ class DenseRetriever:
         if index_dir is not None:
             final_index_dir = Path(index_dir)
             logging.info(
-                f"DenseRetriever.from_model_name: Using explicit index_dir: "
-                f"{final_index_dir}"
+                "DenseRetriever.from_model_name: Using explicit index_dir: %s",
+                _sanitize(final_index_dir),
             )
         else:
             # This will use get_default_index_dir(), which checks ENV VARS first
@@ -176,19 +189,21 @@ class DenseRetriever:
                 default_func=get_default_index_dir,
             )
             logging.info(
-                f"DenseRetriever.from_model_name: Resolved index dir: {final_index_dir}"
+                "DenseRetriever.from_model_name: Resolved index dir: %s",
+                _sanitize(final_index_dir),
             )
 
         if not final_index_dir.exists() or not final_index_dir.is_dir():
             logging.error(
-                f"DenseRetriever: Index dir '{final_index_dir}' not found or not a "
-                f"directory."
+                "DenseRetriever: Index dir '%s' not found or not a directory.",
+                _sanitize(final_index_dir),
             )
             env_index_dir_val = os.getenv("PHENTRIEVE_INDEX_DIR")
             env_data_root_val = os.getenv("PHENTRIEVE_DATA_ROOT_DIR")
             logging.error(
-                f"  ENV VARS: PHENTRIEVE_INDEX_DIR='{env_index_dir_val}', "
-                f"PHENTRIEVE_DATA_ROOT_DIR='{env_data_root_val}'"
+                "  ENV VARS: PHENTRIEVE_INDEX_DIR='%s', PHENTRIEVE_DATA_ROOT_DIR='%s'",
+                _sanitize(env_index_dir_val),
+                _sanitize(env_data_root_val),
             )
             return None
 
@@ -203,8 +218,9 @@ class DenseRetriever:
             return instance
         else:
             logging.error(
-                f"DenseRetriever: Failed to connect to Chroma collection "
-                f"'{collection_name}' at '{final_index_dir}'."
+                "DenseRetriever: Failed to connect to Chroma collection '%s' at '%s'.",
+                _sanitize(collection_name),
+                _sanitize(final_index_dir),
             )
             return None
 
@@ -231,7 +247,7 @@ class DenseRetriever:
         if not texts:
             return []
 
-        logging.info(f"Processing batch query with {len(texts)} texts")
+        logging.info("Processing batch query with %s texts", _sanitize(len(texts)))
 
         try:
             # Generate embeddings for all query texts at once (more efficient)
@@ -245,7 +261,9 @@ class DenseRetriever:
             # Get more initial results to allow better filtering
             query_n_results = n_results * 3
             logging.debug(
-                f"Batch querying {len(texts)} texts with {query_n_results} results each"
+                "Batch querying %s texts with %s results each",
+                _sanitize(len(texts)),
+                _sanitize(query_n_results),
             )
 
             # Query ChromaDB with all embeddings at once - this is the key optimization!
@@ -270,8 +288,9 @@ class DenseRetriever:
             # Validate result count matches input count
             if ids_list and len(ids_list) != len(texts):
                 logging.warning(
-                    f"Batch result count mismatch: expected {len(texts)}, "
-                    f"got {len(ids_list)}. Using available results."
+                    "Batch result count mismatch: expected %s, got %s. Using available results.",
+                    _sanitize(len(texts)),
+                    _sanitize(len(ids_list)),
                 )
 
             results_list = []
@@ -279,8 +298,9 @@ class DenseRetriever:
                 # Bounds check to prevent IndexError
                 if ids_list and i >= len(ids_list):
                     logging.warning(
-                        f"Skipping text {i + 1}/{len(texts)}: "
-                        f"no result available from ChromaDB"
+                        "Skipping text %s/%s: no result available from ChromaDB",
+                        _sanitize(i + 1),
+                        _sanitize(len(texts)),
                     )
                     break
 
@@ -305,7 +325,7 @@ class DenseRetriever:
             return results_list
 
         except Exception as e:
-            logging.error(f"Error in batch query to HPO index: {e}")
+            logging.error("Error in batch query to HPO index: %s", _sanitize(e))
             # Return empty results for each text
             return [
                 {"ids": [], "documents": [], "metadatas": [], "distances": []}
@@ -329,7 +349,7 @@ class DenseRetriever:
         Returns:
             Dictionary containing query results with distances and/or similarities
         """
-        logging.info(f"Processing query: '{text}'")
+        logging.info("Processing query: '%s'", _sanitize(text))
 
         # Use query_batch() internally to avoid code duplication
         batch_results = self.query_batch([text], n_results, include_similarities)

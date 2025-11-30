@@ -11,6 +11,7 @@ from functools import lru_cache
 from phentrieve.config import DEFAULT_HPO_DB_FILENAME
 from phentrieve.data_processing.hpo_database import HPODatabase
 from phentrieve.utils import get_default_data_dir, resolve_data_path
+from phentrieve.utils import sanitize_log_value as _sanitize
 
 logger = logging.getLogger(__name__)
 
@@ -110,9 +111,8 @@ def enrich_results_with_details(
     # Check database exists (expected error at startup - handle gracefully)
     if not db_path.exists():
         logger.warning(
-            f"Database not found: {db_path}. "
-            "Returning results without details. "
-            "Run 'phentrieve data prepare' to generate database."
+            "Database not found: %s. Returning results without details. Run 'phentrieve data prepare' to generate database.",
+            _sanitize(db_path),
         )
         # Return NEW dicts with None details (preserve original)
         return [{**result, "definition": None, "synonyms": None} for result in results]
@@ -146,8 +146,9 @@ def enrich_results_with_details(
         enriched_results.append(enriched)
 
     logger.debug(
-        f"Enriched {len(enriched_results)} results with details "
-        f"({len(terms_map)} found in database)"
+        "Enriched %s results with details (%s found in database)",
+        _sanitize(len(enriched_results)),
+        _sanitize(len(terms_map)),
     )
 
     return enriched_results

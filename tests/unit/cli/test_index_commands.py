@@ -256,8 +256,8 @@ class TestBuildIndex:
         from phentrieve.cli.index_commands import build_index
 
         # Arrange
-        _mock_setup_logging = mocker.patch("phentrieve.utils.setup_logging_cli")
-        _mock_orchestrate = mocker.patch(
+        mocker.patch("phentrieve.utils.setup_logging_cli")
+        mocker.patch(
             "phentrieve.indexing.chromadb_orchestrator.orchestrate_index_building",
             return_value=False,  # Failure
         )

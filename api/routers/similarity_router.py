@@ -24,6 +24,7 @@ from phentrieve.evaluation.metrics import (
     load_hpo_graph_data,
 )
 from phentrieve.utils import normalize_id
+from phentrieve.utils import sanitize_log_value as _sanitize
 
 logger = logging.getLogger(__name__)
 router = APIRouter()  # Prefix will be added in main.py
@@ -50,7 +51,7 @@ def _get_hpo_label_map_api() -> dict[str, str]:
         if term_data.get("id") and term_data.get("label")
     }
     logger.info(
-        f"API Router: HPO label map cache initialized with {len(label_map)} terms."
+        "API Router: HPO label map cache initialized with %s terms.", len(label_map)
     )
     return label_map
 
@@ -96,12 +97,17 @@ async def get_hpo_term_similarity(
         formula_enum = SimilarityFormula(formula)
     except ValueError:
         logger.warning(
-            f"API: Invalid formula '{formula}'. Falling back to default '{DEFAULT_SIMILARITY_FORMULA}'."
+            "API: Invalid formula '%s'. Falling back to default '%s'.",
+            _sanitize(formula),
+            DEFAULT_SIMILARITY_FORMULA,
         )
         formula_enum = SimilarityFormula(DEFAULT_SIMILARITY_FORMULA)
 
     logger.info(
-        f"API: Similarity request for T1='{term1_id}', T2='{term2_id}', Formula='{formula_enum.value}'"
+        "API: Similarity request for T1='%s', T2='%s', Formula='%s'",
+        _sanitize(term1_id),
+        _sanitize(term2_id),
+        _sanitize(formula_enum.value),
     )
 
     ancestors, depths = load_hpo_graph_data()  # Relies on its internal cache
@@ -138,8 +144,9 @@ async def get_hpo_term_similarity(
             missing.append(norm_term1)
         if norm_term2 not in depths:
             missing.append(norm_term2)
-        error_detail = f"One or both HPO terms not found in ontology data: {', '.join(missing)}. Ensure terms are valid and data is prepared."
-        logger.warning(f"API: {error_detail}")
+        sanitized_missing = [_sanitize(m) for m in missing]
+        error_detail = f"One or both HPO terms not found in ontology data: {', '.join(sanitized_missing)}. Ensure terms are valid and data is prepared."
+        logger.warning("API: %s", _sanitize(error_detail))
         response_kwargs["error_message"] = error_detail
         # For term not found, 404 is appropriate
         raise HTTPException(status_code=404, detail=response_kwargs)
@@ -165,12 +172,17 @@ async def get_hpo_term_similarity(
     except (
         ValueError
     ) as ve:  # Catch specific errors from core logic if they signal bad input
-        logger.warning(f"API: Value error during similarity calculation: {ve}")
+        logger.warning(
+            "API: Value error during similarity calculation: %s", _sanitize(ve)
+        )
         response_kwargs["error_message"] = str(ve)
         raise HTTPException(status_code=400, detail=response_kwargs)
     except Exception as e:
         logger.error(
-            f"API: Unexpected error during similarity calculation for {norm_term1}, {norm_term2}: {e}",
+            "API: Unexpected error during similarity calculation for %s, %s: %s",
+            _sanitize(norm_term1),
+            _sanitize(norm_term2),
+            _sanitize(e),
             exc_info=True,
         )
         response_kwargs["error_message"] = "An internal server error occurred."

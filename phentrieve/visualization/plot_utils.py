@@ -31,7 +31,7 @@ def _save_plot(
         )
         return output_file
     except Exception as e:
-        logger.error(f"Error saving plot {filename_prefix}: {e}")
+        logger.error("Error saving plot %s: %s", filename_prefix, e)
         plt.close(fig)
         return None
 
@@ -168,22 +168,21 @@ def plot_metric_at_k_bars(
         or "value" not in flat_df.columns
         or flat_df["value"].isnull().all()
     ):
-        logger.warning(f"No data to plot for {metric_name} bar chart.")
+        logger.warning("No data to plot for %s bar chart.", metric_name)
         return None
 
     models = flat_df["model"].unique()
     num_models = len(models)
 
     if num_models == 0:
-        logger.warning(f"No models found in data for {metric_name} bar chart.")
+        logger.warning("No models found in data for %s bar chart.", metric_name)
         return None
 
     if num_models > 1:
         fig, axes = plt.subplots(
             num_models, 1, figsize=(10, 4 * num_models), sharex=True, sharey=True
         )
-        if num_models == 1:  # if only one model, axes is not a list
-            axes = [axes]
+        # Note: axes is always an array when num_models > 1, no wrapping needed
         for i, model_name in enumerate(models):
             model_df = flat_df[flat_df["model"] == model_name]
             ax = axes[i]
@@ -206,7 +205,7 @@ def plot_metric_at_k_bars(
         fig.suptitle(
             f"{metric_name} at K: Dense vs Re-Ranked by Model",
             fontsize=16,
-            y=1.02 if num_models > 1 else 1.0,
+            y=1.02,  # Use elevated y position for multi-model layout
         )
     else:  # Single model case
         fig, ax = plt.subplots(figsize=(10, 6))
@@ -247,7 +246,7 @@ def plot_metric_at_k_lines(
         or "value" not in flat_df.columns
         or flat_df["value"].isnull().all()
     ):
-        logger.warning(f"No data to plot for {metric_name} line chart.")
+        logger.warning("No data to plot for %s line chart.", metric_name)
         return None
 
     # Convert 'k' to integer to avoid categorical warnings
@@ -263,7 +262,7 @@ def plot_metric_at_k_lines(
         )
 
         for i, (model_name, model_df) in enumerate(flat_df.groupby("model")):
-            ax = axes[i] if num_models > 1 else axes
+            ax = axes[i]  # axes is always an array when num_models > 1
 
             # Plot Dense values
             dense_df = model_df[model_df["method"] == "Dense"]
@@ -314,8 +313,8 @@ def plot_metric_at_k_lines(
             ncol=2,
         )
 
-        # Remove individual legends
-        for ax in axes.flatten() if num_models > 1 else [axes]:
+        # Remove individual legends (axes is always array when num_models > 1)
+        for ax in axes.flatten():
             if ax.get_legend() is not None:
                 ax.get_legend().remove()
 

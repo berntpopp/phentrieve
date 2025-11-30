@@ -10,6 +10,13 @@ from fastapi.middleware.cors import CORSMiddleware
 # This needs to be before other project-specific imports
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from api.config import (  # noqa: E402
+    ALLOWED_ORIGINS,
+    CORS_ALLOW_CREDENTIALS,
+    CORS_ALLOW_HEADERS,
+    CORS_ALLOW_METHODS,
+    LOG_LEVEL,
+)
 from api.dependencies import (  # noqa: E402
     get_cross_encoder_dependency,
     get_dense_retriever_dependency,
@@ -30,8 +37,8 @@ from phentrieve.config import (  # noqa: E402
 )
 
 logger = logging.getLogger(__name__)
-# Configure logging for the API
-logging.basicConfig(level=logging.INFO)
+# Configure logging for the API using config value
+logging.basicConfig(level=getattr(logging, LOG_LEVEL, logging.INFO))
 
 
 @asynccontextmanager
@@ -94,21 +101,14 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Phentrieve API", version="0.1.0", lifespan=lifespan)
 
-# Configure CORS
-# Adjust origins as needed for your frontend development and production
-origins = [
-    "http://localhost:8080",  # Default Vue CLI dev server
-    "http://localhost:3000",  # Common React/Next.js dev server
-    "http://localhost:5173",  # Vite default port
-    "https://phentrieve.kidney-genetics.org",  # Production frontend URL
-    # Add your production frontend URL when deployed (placeholder if others needed)
-]
+# Configure CORS using config values
+# Origins can be customized via ALLOWED_ORIGINS env var or api/local_api_config.env
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=ALLOWED_ORIGINS,
+    allow_credentials=CORS_ALLOW_CREDENTIALS,
+    allow_methods=CORS_ALLOW_METHODS,
+    allow_headers=CORS_ALLOW_HEADERS,
 )
 # This content was moved to the lifespan context manager
 

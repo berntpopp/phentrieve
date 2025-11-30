@@ -105,9 +105,12 @@ def test_no_heavy_imports_on_cli_load():
         [  # noqa: S607 - Partial path acceptable for testing Python in PATH
             "python",
             "-c",
-            "import sys; from phentrieve.cli import app; "
-            "heavy = [m for m in sys.modules if 'sentence_transformers' in m or 'torch' in m or 'chromadb' in m]; "
-            "print('HEAVY_IMPORTS:', heavy)",
+            # Explicit concatenation to avoid implicit string concat warning
+            (
+                "import sys; from phentrieve.cli import app; "
+                "heavy = [m for m in sys.modules if 'sentence_transformers' in m or 'torch' in m or 'chromadb' in m]; "
+                "print('HEAVY_IMPORTS:', heavy)"
+            ),
         ],
         capture_output=True,
         text=True,

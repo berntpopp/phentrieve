@@ -26,6 +26,55 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 
+def sanitize_log_value(value: object, max_length: int = 500) -> str:
+    """Sanitize a value for safe logging to prevent log injection attacks.
+
+    Removes newlines, carriage returns, and other control characters that could
+    be used for log forging attacks. Also truncates to max_length to prevent
+    log flooding.
+
+    According to OWASP and CodeQL guidelines, user-provided inputs must be
+    sanitized before logging by removing CRLF characters:
+    - Carriage return (\\r)
+    - Line feed (\\n)
+    - Other control characters
+
+    References:
+    - https://owasp.org/www-community/attacks/Log_Injection
+    - https://codeql.github.com/codeql-query-help/python/py-log-injection/
+
+    Args:
+        value: The value to sanitize (will be converted to string)
+        max_length: Maximum length of the output string (default 500)
+
+    Returns:
+        Sanitized string safe for logging
+    """
+    if value is None:
+        return "None"
+
+    # Convert to string
+    text = str(value)
+
+    # Remove CRLF and control characters following CodeQL recommendation:
+    # name.replace('\r\n','').replace('\n','')
+    sanitized = (
+        text.replace("\r\n", "")
+        .replace("\r", "")
+        .replace("\n", "")
+        .replace("\t", " ")  # Replace tabs with spaces for readability
+    )
+
+    # Remove remaining non-printable control characters
+    sanitized = "".join(char for char in sanitized if ord(char) >= 32)
+
+    # Truncate if too long to prevent log flooding
+    if len(sanitized) > max_length:
+        sanitized = sanitized[:max_length] + "...[truncated]"
+
+    return sanitized
+
+
 def setup_logging_cli(debug: bool = False):
     """Configure logging for CLI commands."""
     level = logging.DEBUG if debug else logging.INFO

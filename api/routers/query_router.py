@@ -17,6 +17,7 @@ from phentrieve.config import (
 from phentrieve.retrieval.api_helpers import execute_hpo_retrieval_for_api
 from phentrieve.retrieval.dense_retriever import DenseRetriever
 from phentrieve.utils import detect_language
+from phentrieve.utils import sanitize_log_value as _sanitize
 
 logger = logging.getLogger(__name__)
 router = APIRouter()  # Prefix will be added in main.py
@@ -45,11 +46,13 @@ def _resolve_query_language(
 
     try:
         detected_lang = detect_language(text, default_lang=default_language)
-        logger.info(f"Auto-detected language: {detected_lang}")
+        logger.info("Auto-detected language: %s", _sanitize(detected_lang))
         return detected_lang
     except Exception as e:
         logger.warning(
-            f"Language detection failed: {e}. Using default: {default_language}"
+            "Language detection failed: %s. Using default: %s",
+            _sanitize(e),
+            default_language,
         )
         return default_language
 
@@ -139,8 +142,9 @@ async def run_hpo_query(
     # Log information about the retriever we're using
     if hasattr(retriever, "model_name"):
         logger.info(
-            f"API: Using retriever '{retriever.model_name}' "
-            f"for request '{sbert_model_to_use_for_retrieval}'"
+            "API: Using retriever '%s' for request '%s'",
+            _sanitize(retriever.model_name),
+            _sanitize(sbert_model_to_use_for_retrieval),
         )
 
     # Ensure retriever is using the correct SBERT model
@@ -150,8 +154,8 @@ async def run_hpo_query(
         or retriever.model_name != sbert_model_to_use_for_retrieval
     ):
         logger.warning(
-            f"Retriever mismatch for {sbert_model_to_use_for_retrieval}. "
-            f"Re-initializing."
+            "Retriever mismatch for %s. Re-initializing.",
+            _sanitize(sbert_model_to_use_for_retrieval),
         )
 
         # Initialize retriever using environment-variable based resolution
@@ -178,11 +182,14 @@ async def run_hpo_query(
     assertion_language = request.query_assertion_language
     if assertion_language:
         logger.info(
-            f"Using explicit assertion language: {assertion_language} (overriding detected language: {language_to_use})"
+            "Using explicit assertion language: %s (overriding detected language: %s)",
+            _sanitize(assertion_language),
+            _sanitize(language_to_use),
         )
     else:
         logger.info(
-            f"No explicit assertion language provided, using query language: {language_to_use}"
+            "No explicit assertion language provided, using query language: %s",
+            _sanitize(language_to_use),
         )
 
     cross_encoder_instance = None
@@ -195,7 +202,8 @@ async def run_hpo_query(
         )
         if not cross_encoder_instance:
             logger.warning(
-                f"Reranking enabled but cross-encoder {actual_reranker_model_name} failed to load. Proceeding without reranking."
+                "Reranking enabled but cross-encoder %s failed to load. Proceeding without reranking.",
+                _sanitize(actual_reranker_model_name),
             )
 
     # Call the core HPO retrieval logic

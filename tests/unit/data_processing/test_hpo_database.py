@@ -24,24 +24,18 @@ pytestmark = pytest.mark.unit
 @pytest.fixture
 def temp_db():
     """Create temporary in-memory database for testing."""
-    db = HPODatabase(":memory:")
-    db.initialize_schema()
-    try:
+    with HPODatabase(":memory:") as db:
+        db.initialize_schema()
         yield db
-    finally:
-        db.close()
 
 
 @pytest.fixture
 def temp_file_db(tmp_path):
     """Create temporary file-based database for testing."""
     db_path = tmp_path / "test_hpo.db"
-    db = HPODatabase(db_path)
-    db.initialize_schema()
-    try:
+    with HPODatabase(db_path) as db:
+        db.initialize_schema()
         yield db
-    finally:
-        db.close()
 
 
 @pytest.fixture
@@ -451,47 +445,41 @@ class TestFileBasedDatabase:
     def test_create_file_database(self, tmp_path):
         """Test creating file-based database."""
         db_path = tmp_path / "hpo.db"
-        db = HPODatabase(db_path)
-        db.initialize_schema()
+        with HPODatabase(db_path) as db:
+            db.initialize_schema()
 
-        # Verify file created
-        assert db_path.exists()
-
-        db.close()
+            # Verify file created
+            assert db_path.exists()
 
     def test_persistence_across_connections(self, tmp_path, sample_terms):
         """Test that data persists across connection closures."""
         db_path = tmp_path / "hpo.db"
 
         # Insert data
-        db1 = HPODatabase(db_path)
-        db1.initialize_schema()
-        db1.bulk_insert_terms(sample_terms)
-        db1.close()
+        with HPODatabase(db_path) as db1:
+            db1.initialize_schema()
+            db1.bulk_insert_terms(sample_terms)
 
         # Reopen and verify
-        db2 = HPODatabase(db_path)
-        terms = db2.load_all_terms()
-        assert len(terms) == 3
-        db2.close()
+        with HPODatabase(db_path) as db2:
+            terms = db2.load_all_terms()
+            assert len(terms) == 3
 
     def test_path_object_and_string_both_work(self, tmp_path, sample_terms):
         """Test that both Path objects and strings work for db_path."""
         # Test with Path object
         db_path = tmp_path / "hpo1.db"
-        db1 = HPODatabase(db_path)
-        db1.initialize_schema()
-        db1.bulk_insert_terms(sample_terms[:1])
-        assert db1.get_term_count() == 1
-        db1.close()
+        with HPODatabase(db_path) as db1:
+            db1.initialize_schema()
+            db1.bulk_insert_terms(sample_terms[:1])
+            assert db1.get_term_count() == 1
 
         # Test with string
         db_path_str = str(tmp_path / "hpo2.db")
-        db2 = HPODatabase(db_path_str)
-        db2.initialize_schema()
-        db2.bulk_insert_terms(sample_terms[:2])
-        assert db2.get_term_count() == 2
-        db2.close()
+        with HPODatabase(db_path_str) as db2:
+            db2.initialize_schema()
+            db2.bulk_insert_terms(sample_terms[:2])
+            assert db2.get_term_count() == 2
 
 
 class TestBatchTermRetrieval:
