@@ -199,6 +199,17 @@ norecursedirs = [
     "api",
 ]
 
+# Bandit security scanner configuration (standalone, complements Ruff "S" rules)
+# Used for SARIF output in CI and detailed security reports
+[tool.bandit]
+exclude_dirs = ["tests", "docs", "data", ".venv", "venv", "build", "dist"]
+# Skip tests that overlap with Ruff or produce false positives
+skips = [
+    "B101",  # assert_used - acceptable in tests (Ruff S101)
+    "B104",  # hardcoded_bind_all_interfaces - local dev only (Ruff S104)
+    "B301",  # pickle - needed for model loading (Ruff S301)
+]
+
 [dependency-groups]
 dev = [
     "ruff>=0.9.1",
@@ -213,6 +224,9 @@ dev = [
     "docker>=7.0.0",  # Docker SDK for E2E tests
     "types-requests>=2.32.0",  # Type stubs for requests library
     "types-PyYAML>=6.0.0",  # Type stubs for PyYAML library
+    # Security scanning
+    "pip-audit>=2.9.0",  # Python dependency vulnerability scanner
+    "bandit[toml]>=1.9.0",  # Python SAST (standalone for SARIF output)
 ]
 
 [tool.semantic_release]

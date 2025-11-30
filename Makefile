@@ -1,4 +1,4 @@
-.PHONY: help format lint typecheck check test test-scripts test-all clean all install install-text-processing lock upgrade add remove clean-venv frontend-install frontend-lint frontend-format frontend-dev frontend-build docker-build docker-up docker-down docker-logs dev-api dev-frontend dev-all test-api test-api-cov test-e2e test-e2e-security test-e2e-health test-e2e-api test-e2e-fast test-e2e-clean test-e2e-logs test-e2e-shell cov-package cov-api cov-frontend cov-all
+.PHONY: help format lint typecheck check test test-scripts test-all clean all install install-text-processing lock upgrade add remove clean-venv frontend-install frontend-lint frontend-format frontend-dev frontend-build docker-build docker-up docker-down docker-logs dev-api dev-frontend dev-all test-api test-api-cov test-e2e test-e2e-security test-e2e-health test-e2e-api test-e2e-fast test-e2e-clean test-e2e-logs test-e2e-shell cov-package cov-api cov-frontend cov-all security security-python security-frontend security-audit security-report
 
 # Default target
 .DEFAULT_GOAL := help
@@ -279,6 +279,60 @@ ci-quick: ## Quick CI check (format + lint only, no tests)
 	@cd frontend && npm run lint
 	@cd frontend && npm run format:check
 	@echo "✅ Quick CI checks passed"
+
+##@ Security Scanning
+
+security: security-python security-frontend  ## Run all security scans
+
+security-python: ## Run Python security scans (pip-audit + Bandit)
+	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+	@echo "  Python Security Scanning"
+	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+	@echo ""
+	@echo "[1/3] Running pip-audit (dependency vulnerabilities)..."
+	@uv run pip-audit --strict || echo "⚠️  pip-audit found vulnerabilities"
+	@echo ""
+	@echo "[2/3] Running Bandit via Ruff (SAST - security rules)..."
+	@uv run ruff check phentrieve/ api/ --select S || echo "⚠️  Bandit/Ruff found security issues"
+	@echo ""
+	@echo "[3/3] Running standalone Bandit (detailed report)..."
+	@uv run bandit -c pyproject.toml -r phentrieve api -f txt || echo "⚠️  Bandit found issues"
+	@echo ""
+	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+	@echo "  ✅ Python Security Scanning Complete"
+	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+security-frontend: ## Run frontend security scans (npm audit + ESLint security)
+	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+	@echo "  Frontend Security Scanning"
+	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+	@echo ""
+	@echo "[1/2] Running npm audit (production dependencies)..."
+	@cd frontend && npm audit --omit=dev --audit-level=critical || echo "⚠️  npm audit found critical issues"
+	@echo ""
+	@echo "[2/2] Running ESLint with security plugin..."
+	@cd frontend && npm run lint || echo "⚠️  ESLint found issues"
+	@echo ""
+	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+	@echo "  ✅ Frontend Security Scanning Complete"
+	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+security-audit: ## Run dependency audits only (pip-audit + npm audit)
+	@echo "Running dependency vulnerability audits..."
+	@echo ""
+	@echo "Python dependencies:"
+	@uv run pip-audit --strict || true
+	@echo ""
+	@echo "JavaScript dependencies:"
+	@cd frontend && npm audit --audit-level=high || true
+
+security-report: ## Generate detailed security report (JSON)
+	@echo "Generating security reports..."
+	@mkdir -p reports/security
+	@uv run pip-audit --format json --output reports/security/pip-audit.json || true
+	@uv run bandit -c pyproject.toml -r phentrieve api -f json -o reports/security/bandit.json || true
+	@cd frontend && npm audit --json > ../reports/security/npm-audit.json || true
+	@echo "✅ Reports saved to reports/security/"
 
 ##@ All-in-one
 

@@ -1,11 +1,15 @@
 import js from '@eslint/js';
 import pluginVue from 'eslint-plugin-vue';
+import pluginSecurity from 'eslint-plugin-security';
 import globals from 'globals';
 
 export default [
   // Base recommended configs
   js.configs.recommended,
   ...pluginVue.configs['flat/recommended'],
+
+  // Security plugin - recommended rules for detecting vulnerabilities
+  pluginSecurity.configs.recommended,
 
   // Global ignores
   {
@@ -42,6 +46,10 @@ export default [
       'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
       'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
       'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+
+      // Security rules - tune to reduce false positives
+      'security/detect-object-injection': 'warn', // Common false positive with array indices
+      'security/detect-non-literal-regexp': 'warn', // May flag legitimate patterns
     },
   },
 
