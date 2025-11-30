@@ -95,8 +95,8 @@ COPY pyproject.toml ./
 
 # Install dependencies in specific order to handle binary compatibility
 # CRITICAL: Remove --no-cache-dir to leverage pip cache mount for 60-90% faster builds
-# hadolint ignore=DL3042,DL3013
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+# hadolint ignore=DL3042,DL3013
 RUN --mount=type=cache,target=/root/.cache/pip \
     set -euxo pipefail && \
     # Install NumPy 2.x first (modern ABI) \

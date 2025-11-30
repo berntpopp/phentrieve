@@ -56,10 +56,18 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Free disk space
-        run: |
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
-          docker system prune -af
+        uses: jlumbroso/free-disk-space@main
+        with:
+          # Remove Android SDK (~12GB), .NET (~2GB), Haskell (~6GB)
+          android: true
+          dotnet: true
+          haskell: true
+          # Remove large packages and docker images to free max space for ML image
+          large-packages: true
+          docker-images: true
+          swap-storage: true
+          # Keep tool cache for faster subsequent runs
+          tool-cache: false
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -156,10 +164,16 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Free disk space
-        run: |
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
-          docker system prune -af
+        uses: jlumbroso/free-disk-space@main
+        with:
+          # Minimal cleanup for frontend (smaller image)
+          android: true
+          dotnet: true
+          haskell: false
+          large-packages: false
+          docker-images: true
+          swap-storage: false
+          tool-cache: false
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
