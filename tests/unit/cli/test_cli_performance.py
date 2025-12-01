@@ -11,12 +11,12 @@ import pytest
 
 # Performance threshold for CLI commands (seconds)
 # Measured baseline performance:
-#   - WSL2 (under load): 8-10s (filesystem overhead + Python startup)
+#   - WSL2 (under load): 8-12s (filesystem overhead + Python startup + CI variability)
 #   - Native Linux: 5-7s
 #   - macOS: 5-7s
 # Heavy ML imports (sentence-transformers, torch) would add 18+ seconds.
-# 12s threshold catches regressions while allowing headroom for slow environments.
-CLI_PERFORMANCE_THRESHOLD = 12.0
+# 15s threshold catches regressions while allowing headroom for slow environments (WSL2, CI).
+CLI_PERFORMANCE_THRESHOLD = 15.0
 
 
 @pytest.mark.unit

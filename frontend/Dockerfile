@@ -72,8 +72,9 @@ RUN rm -f /etc/nginx/conf.d/*.conf.default && \
 USER nginx
 
 # Health check (nginx-unprivileged runs on 8080)
+# Using wget instead of curl - wget is pre-installed in Alpine, curl is not
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-    CMD curl -f http://localhost:8080/health || exit 1
+    CMD wget -q --spider http://localhost:8080/health || exit 1
 
 # Expose non-privileged port
 EXPOSE 8080

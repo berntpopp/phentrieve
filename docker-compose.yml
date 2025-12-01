@@ -2,6 +2,25 @@
 # Production-ready Docker Compose configuration with comprehensive security hardening
 # Based on DOCKER-REFACTORING-PLAN.md Phase 1 implementation
 #
+# =============================================================================
+# ENVIRONMENT FILE SETUP (REQUIRED!)
+# =============================================================================
+# Docker Compose reads .env by default for variable substitution.
+# Setup options:
+#
+#   Option 1 (Recommended): Create symlink
+#     ln -s .env.docker .env
+#
+#   Option 2: Copy template
+#     cp .env.docker.template .env.docker && ln -s .env.docker .env
+#
+#   Option 3: Manual per-command
+#     docker-compose --env-file .env.docker <command>
+#
+# IMPORTANT: The environment file MUST exist with valid paths, otherwise
+# volume mounts will fail silently with empty paths!
+# =============================================================================
+#
 # Usage:
 #   Development: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
 #   Production:  docker-compose up
@@ -80,6 +99,9 @@ services:
       - PYTHONUNBUFFERED=1
       - HF_HOME=/app/.cache/huggingface
       - TRANSFORMERS_CACHE=/app/.cache/huggingface/hub
+      # CORS: Add production frontend URLs (appends to defaults, comma-separated)
+      # Example: CORS_EXTRA_ORIGINS=https://phentrieve.example.com,https://app.example.com
+      - CORS_EXTRA_ORIGINS=${CORS_EXTRA_ORIGINS:-}
 
     # Enhanced health check with longer start period for model loading
     healthcheck:
@@ -145,8 +167,9 @@ services:
       - /var/run:uid=101,gid=101,mode=0755,size=10M
 
     # Enhanced health check using /health endpoint
+    # Using wget instead of curl - wget is pre-installed in Alpine nginx image
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:8080/health || exit 1"]
       interval: 30s       # Check every 30 seconds
       timeout: 5s         # 5 second timeout
       retries: 3          # 3 retries before marking unhealthy

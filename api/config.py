@@ -174,16 +174,50 @@ CROSS_ENCODER_LOAD_TIMEOUT: float = float(
     )
 )
 
+
 # CORS settings
-ALLOWED_ORIGINS: list[str] = (
-    [
-        origin.strip()
-        for origin in os.getenv("ALLOWED_ORIGINS", "").split(",")
-        if origin.strip()
-    ]
-    if os.getenv("ALLOWED_ORIGINS")
-    else get_api_config_value("cors", _DEFAULT_CORS_ORIGINS, "allowed_origins")
-)
+# Priority: ALLOWED_ORIGINS env var (complete override) > api.yaml > defaults
+# CORS_EXTRA_ORIGINS env var appends to the resolved list (for easy production config)
+def _resolve_allowed_origins() -> list[str]:
+    """
+    Resolve CORS allowed origins with support for additive configuration.
+
+    Resolution order:
+    1. If ALLOWED_ORIGINS env var is set: use it as complete override
+    2. Otherwise: use api.yaml config or defaults
+    3. If CORS_EXTRA_ORIGINS env var is set: append those origins (comma-separated)
+
+    This allows production to simply set CORS_EXTRA_ORIGINS without losing defaults.
+    """
+    # Start with base origins (env override or config/defaults)
+    if os.getenv("ALLOWED_ORIGINS"):
+        base_origins = [
+            origin.strip()
+            for origin in os.getenv("ALLOWED_ORIGINS", "").split(",")
+            if origin.strip()
+        ]
+    else:
+        base_origins = get_api_config_value(
+            "cors", _DEFAULT_CORS_ORIGINS, "allowed_origins"
+        )
+
+    # Append extra origins if provided (production use case)
+    extra_origins_env = os.getenv("CORS_EXTRA_ORIGINS", "")
+    if extra_origins_env:
+        extra_origins = [
+            origin.strip() for origin in extra_origins_env.split(",") if origin.strip()
+        ]
+        # Use set to deduplicate while preserving order
+        seen = set(base_origins)
+        for origin in extra_origins:
+            if origin not in seen:
+                base_origins.append(origin)
+                seen.add(origin)
+
+    return base_origins
+
+
+ALLOWED_ORIGINS: list[str] = _resolve_allowed_origins()
 CORS_ALLOW_CREDENTIALS: bool = get_api_config_value(
     "cors", _DEFAULT_CORS_CREDENTIALS, "allow_credentials"
 )

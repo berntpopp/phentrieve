@@ -29,11 +29,23 @@
 # =============================================================================
 # CORS (Cross-Origin Resource Sharing) SETTINGS
 # =============================================================================
+# CORS configuration controls which frontend origins can access the API.
+#
+# Environment Variable Options (recommended for Docker/production):
+#   ALLOWED_ORIGINS     - Complete override of allowed origins (comma-separated)
+#   CORS_EXTRA_ORIGINS  - Append additional origins to defaults (comma-separated)
+#
+# For production deployments, set CORS_EXTRA_ORIGINS in your .env.docker file:
+#   CORS_EXTRA_ORIGINS=https://your-frontend.example.com
+#
+# This appends production URLs while keeping development defaults.
+# See docker-compose.yml for how this is passed to the container.
 
 # cors:
 #   allowed_origins:
-#     - "http://localhost:5734"
-#     - "http://localhost:8734"
+#     - "http://localhost:5734"   # Frontend development (Vite)
+#     - "http://localhost:8734"   # API docs/swagger UI
+#     # Add production URLs here OR use CORS_EXTRA_ORIGINS env var (recommended)
 #   allow_credentials: true
 #   allow_methods: ["*"]
 #   allow_headers: ["*"]

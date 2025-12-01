@@ -56,6 +56,13 @@ make all
 - Test failures indicate regressions
 - **NEVER skip these checks before committing!**
 
+**⚠️ CRITICAL: Never Ignore Test Failures!**
+- **NEVER dismiss test failures as "flaky", "pre-existing", or "environment-specific"**
+- **ALWAYS investigate and fix test failures** - they indicate real problems
+- If a test threshold is too tight (e.g., performance tests), fix the test properly
+- If a test is genuinely unreliable, fix the test design, don't ignore the failure
+- Test failures in CI mean the code cannot be merged - period
+
 **Common mistake:** Running tests locally but forgetting `make check` (formatting) → CI fails!
 
 **For locale file changes (frontend/src/locales/):**

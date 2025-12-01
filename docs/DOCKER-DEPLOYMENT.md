@@ -12,6 +12,7 @@ This guide covers deploying Phentrieve using Docker and Docker Compose for produ
 - [Production Deployment](#production-deployment)
 - [Troubleshooting](#troubleshooting)
 - [Security Considerations](#security-considerations)
+- [Upgrading from Previous Versions](#upgrading-from-previous-versions)
 
 ---
 
@@ -70,14 +71,17 @@ sudo ./scripts/setup-docker-volumes.sh
 
 ### 3. Configure Environment
 
-Create `.env` file with required variables:
+Create `.env.docker` file and symlink for Docker Compose:
 
 ```bash
-# Copy example config
-cp .env.example .env
+# Copy template
+cp .env.docker.template .env.docker
+
+# Create symlink (Docker Compose reads .env by default)
+ln -s .env.docker .env
 
 # Edit with your values
-nano .env
+nano .env.docker
 ```
 
 **Minimum required variables**:
@@ -593,6 +597,198 @@ secrets:
 - Use Let's Encrypt for free certificates
 - Enable HTTP to HTTPS redirect
 - Set HSTS headers
+
+---
+
+## Upgrading from Previous Versions
+
+This section covers breaking changes introduced with the security-hardened Docker configuration and how to migrate existing deployments.
+
+### Breaking Changes Summary
+
+| Change | Before | After | Impact |
+|--------|--------|-------|--------|
+| **Container User** | root (UID 0) | non-root (UID 10001/101) | Data permissions must be updated |
+| **Frontend Port** | 80 | 8080 | Reverse proxy config needs update |
+| **HPO Data Format** | JSON + pickle files | SQLite database | Re-run `phentrieve data prepare` |
+| **CORS Config** | Hardcoded/different | Via `api.yaml` or env var | Add production URL to CORS |
+| **Environment File** | Various | `.env.docker` with `.env` symlink | Update env file setup |
+
+### Step-by-Step Migration Guide
+
+#### Step 1: Stop Current Deployment
+
+```bash
+docker-compose down
+```
+
+#### Step 2: Backup Existing Data
+
+```bash
+# Backup current data (optional but recommended)
+cp -r /path/to/data /path/to/data.backup
+```
+
+#### Step 3: Pull New Images
+
+```bash
+docker-compose pull
+```
+
+#### Step 4: Fix Data Directory Permissions (Linux Only)
+
+The new containers run as non-root users. Existing data owned by root must be updated:
+
+```bash
+# Fix permissions for API container (UID 10001)
+sudo chown -R 10001:10001 /path/to/data/indexes
+sudo chown -R 10001:10001 /path/to/data/hf_cache
+
+# Verify permissions
+ls -la /path/to/data/
+# Expected: drwxr-xr-x 10001 10001 indexes/
+#           drwxr-xr-x 10001 10001 hf_cache/
+```
+
+#### Step 5: Update Environment File Setup
+
+The recommended setup now uses a `.env` symlink:
+
+```bash
+# Create/update .env.docker from template
+cp .env.docker.template .env.docker
+# Edit with your settings
+nano .env.docker
+
+# Create symlink for Docker Compose
+ln -sf .env.docker .env
+```
+
+#### Step 6: Regenerate HPO Database
+
+If you see errors about missing `hpo_data.db` or incompatible data format:
+
+```bash
+# Remove old pickle files (no longer used)
+rm -f /path/to/data/hpo_graph_data.pkl
+rm -f /path/to/data/hpo_label_map.pkl
+
+# Regenerate HPO database
+docker-compose run --rm phentrieve_api phentrieve data prepare
+```
+
+#### Step 7: Configure CORS (Production)
+
+Add your production frontend URL to CORS configuration:
+
+**Option A: Environment variable (recommended)**
+```bash
+# In .env.docker
+CORS_EXTRA_ORIGINS=https://your-frontend.example.com
+```
+
+**Option B: Edit api.yaml**
+```yaml
+# api/api.yaml
+cors:
+  allowed_origins:
+    - "http://localhost:5734"
+    - "https://your-frontend.example.com"
+```
+
+#### Step 8: Update Reverse Proxy Configuration
+
+If using Nginx Proxy Manager or similar, update the frontend proxy:
+
+**Old configuration**:
+- Forward Port: `80`
+
+**New configuration**:
+- Forward Port: `8080`
+
+#### Step 9: Start Updated Deployment
+
+```bash
+docker-compose up -d
+
+# Verify health
+docker-compose ps
+docker-compose logs -f --tail=50
+```
+
+#### Step 10: Verify Functionality
+
+```bash
+# Test API health
+curl http://localhost:8000/api/v1/health
+
+# Test frontend
+curl http://localhost:8080/health
+
+# Test a query (from your frontend URL)
+# Should not show CORS errors in browser console
+```
+
+### Common Migration Issues
+
+#### ChromaDB Permission Denied
+
+**Error**:
+```
+attempt to write a readonly database
+DenseRetriever: Failed to connect to Chroma collection
+```
+
+**Solution**:
+```bash
+sudo chown -R 10001:10001 /path/to/data/indexes
+docker-compose restart phentrieve_api
+```
+
+#### CORS Preflight Failures
+
+**Error**:
+```
+OPTIONS /api/v1/query/ HTTP/1.1" 400 Bad Request
+```
+
+**Solution**:
+Add production URL to `CORS_EXTRA_ORIGINS` in `.env.docker`:
+```bash
+CORS_EXTRA_ORIGINS=https://your-frontend.example.com
+```
+
+#### Frontend Health Check Failing
+
+**Error**:
+```
+/bin/sh: curl: not found
+```
+
+**Solution**:
+This is fixed in the latest version. The health check now uses `wget` instead of `curl`. Pull the latest images:
+```bash
+docker-compose pull
+docker-compose up -d
+```
+
+#### Environment Variables Not Loading
+
+**Error**:
+```
+WARN: The "PHENTRIEVE_HOST_DATA_DIR" variable is not set.
+```
+
+**Solution**:
+Ensure `.env` symlink exists and points to `.env.docker`:
+```bash
+ln -sf .env.docker .env
+```
+
+Or use explicit env file:
+```bash
+docker-compose --env-file .env.docker up -d
+```
 
 ---
 
