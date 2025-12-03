@@ -155,7 +155,7 @@ def process_text_for_hpo_command(
         typer.Option(
             "--output-format",
             "-o",
-            help="Output format for results (json_lines, rich_json_summary, csv_hpo_list)",
+            help="Output format for results (json_lines, rich_json_summary, csv_hpo_list, phenopacket_v2_json)",
         ),
     ] = "json_lines",
     cross_language_hpo_retrieval: Annotated[
@@ -749,6 +749,15 @@ def _format_and_output_results(
         language: The language of the text
         output_format: The output format (json_lines, rich_json_summary, csv_hpo_list)
     """
+    if output_format == "phenopacket_v2_json":
+        from phentrieve.phenopackets.utils import format_as_phenopacket_v2
+
+        phenopacket = format_as_phenopacket_v2(
+            aggregated_results=aggregated_results,
+        )
+        typer.echo(phenopacket)
+        return  # early exit
+
     typer.echo(f"Formatting results in {output_format} format...")
 
     if output_format == "json_lines":
@@ -841,7 +850,7 @@ def _format_and_output_results(
     else:
         typer.secho(
             f"Error: Unknown output format '{output_format}'. "
-            f"Supported formats: json_lines, rich_json_summary, csv_hpo_list",
+            f"Supported formats: json_lines, rich_json_summary, csv_hpo_list, phenopacket_v2_json",
             fg=typer.colors.RED,
         )
         raise typer.Exit(code=1)

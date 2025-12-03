@@ -296,7 +296,7 @@ def query_hpo(
             raise typer.Exit(code=1)
 
         # Validate output format
-        SUPPORTED_OUTPUT_FORMATS = ["text", "json", "json_lines"]
+        SUPPORTED_OUTPUT_FORMATS = ["text", "json", "json_lines", "phenopacket_v2_json"]
         if output_format.lower() not in SUPPORTED_OUTPUT_FORMATS:
             typer.secho(
                 f"Error: Unsupported output format '{output_format}'. "
@@ -350,6 +350,28 @@ def query_hpo(
                 )
             elif output_format.lower() == "json_lines":
                 formatted_output = format_results_as_jsonl(all_query_results)
+            elif output_format.lower() == "phenopacket_v2_json":
+                from phentrieve.phenopackets.utils import format_as_phenopacket_v2
+
+                # Take the first result set if not in sentence mode
+                results_to_format = all_query_results if sentence_mode else [all_query_results[0]]
+
+                # For now, let's just use the first result set to create one phenopacket
+                if results_to_format:
+                    matches = results_to_format[0]["results"]
+                    
+                    aggregated_results = []
+                    for i, match in enumerate(matches):
+                        aggregated_results.append({
+                            "id": match["hpo_id"],
+                            "name": match.get("label") or match.get("name"),
+                            "confidence": match["similarity"],
+                            "rank": i + 1,
+                        })
+                    
+                    formatted_output = format_as_phenopacket_v2(aggregated_results)
+                else:
+                    formatted_output = "{}"
 
         # Output the results (to file or console)
         if output_file:
