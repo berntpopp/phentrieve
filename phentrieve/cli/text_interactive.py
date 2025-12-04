@@ -85,7 +85,9 @@ def _display_interactive_text_results(
                 name = match.get("name", "")
                 score = match.get("score", 0.0)
                 # Format: "HP:0001234 Term Name (0.85)"
-                annotation_lines.append(f"[cyan]{hpo_id}[/cyan] [green]{name}[/green] [dim]({score:.2f})[/dim]")
+                annotation_lines.append(
+                    f"[cyan]{hpo_id}[/cyan] [green]{name}[/green] [dim]({score:.2f})[/dim]"
+                )
 
         # Create annotation text
         if annotation_lines:
@@ -130,7 +132,9 @@ def _display_interactive_text_results(
                     annotation_text,
                     border_style="blue",
                     padding=(0, 1),
-                    title="[bold blue]HPO Terms[/bold blue]" if matches else "[dim]no matches[/dim]",
+                    title="[bold blue]HPO Terms[/bold blue]"
+                    if matches
+                    else "[dim]no matches[/dim]",
                     title_align="left",
                 ),
             )
@@ -454,12 +458,16 @@ def interactive_text_mode(
             if user_input.lower() == "!toggle":
                 show_annotations_above = not show_annotations_above
                 position = "above" if show_annotations_above else "below"
-                console.print(f"[cyan]Annotations will now appear {position} chunks[/cyan]")
+                console.print(
+                    f"[cyan]Annotations will now appear {position} chunks[/cyan]"
+                )
                 continue
 
             if user_input.lower() == "!p":
                 if last_chunk_results is None or last_processed_chunks is None:
-                    console.print("[yellow]No results to export. Process some text first.[/yellow]")
+                    console.print(
+                        "[yellow]No results to export. Process some text first.[/yellow]"
+                    )
                     continue
 
                 # Export as phenopacket JSON
@@ -477,13 +485,17 @@ def interactive_text_mode(
                             else:
                                 chunk_text = chunk_data.get("text", str(chunk_data))
 
-                        chunk_results_with_text.append({
-                            "chunk_idx": chunk_result.get("chunk_idx", i),
-                            "chunk_text": chunk_text,
-                            "matches": chunk_result.get("matches", [])
-                        })
+                        chunk_results_with_text.append(
+                            {
+                                "chunk_idx": chunk_result.get("chunk_idx", i),
+                                "chunk_text": chunk_text,
+                                "matches": chunk_result.get("matches", []),
+                            }
+                        )
 
-                    phenopacket_json = format_as_phenopacket_v2(chunk_results=chunk_results_with_text)
+                    phenopacket_json = format_as_phenopacket_v2(
+                        chunk_results=chunk_results_with_text
+                    )
                     console.print("[green]Phenopacket JSON:[/green]")
                     console.print(phenopacket_json)
                 except Exception as e:

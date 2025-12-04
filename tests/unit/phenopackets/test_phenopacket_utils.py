@@ -19,10 +19,17 @@ class TestPhenopacketUtils(unittest.TestCase):
         """Test basic phenopacket creation from aggregated results."""
         aggregated_results = [
             {"id": "HP:0001250", "name": "Seizure", "confidence": 0.9, "rank": 1},
-            {"id": "HP:0001251", "name": "Absence seizure", "confidence": 0.7, "rank": 2},
+            {
+                "id": "HP:0001251",
+                "name": "Absence seizure",
+                "confidence": 0.7,
+                "rank": 2,
+            },
             {"id": "HP:0002315", "name": "Headache", "confidence": 0.4, "rank": 3},
         ]
-        phenopacket_json = format_as_phenopacket_v2(aggregated_results=aggregated_results)
+        phenopacket_json = format_as_phenopacket_v2(
+            aggregated_results=aggregated_results
+        )
         phenopacket = json.loads(phenopacket_json)
 
         self.assertIn("id", phenopacket)
@@ -33,11 +40,18 @@ class TestPhenopacketUtils(unittest.TestCase):
     def test_format_as_phenopacket_v2_sorting(self):
         """Test if features are sorted by rank."""
         aggregated_results = [
-            {"id": "HP:0001251", "name": "Absence seizure", "confidence": 0.7, "rank": 2},
+            {
+                "id": "HP:0001251",
+                "name": "Absence seizure",
+                "confidence": 0.7,
+                "rank": 2,
+            },
             {"id": "HP:0001250", "name": "Seizure", "confidence": 0.9, "rank": 1},
             {"id": "HP:0002315", "name": "Headache", "confidence": 0.4, "rank": 3},
         ]
-        phenopacket_json = format_as_phenopacket_v2(aggregated_results=aggregated_results)
+        phenopacket_json = format_as_phenopacket_v2(
+            aggregated_results=aggregated_results
+        )
         phenopacket = json.loads(phenopacket_json)
 
         features = phenopacket["phenotypicFeatures"]
@@ -50,7 +64,9 @@ class TestPhenopacketUtils(unittest.TestCase):
         aggregated_results = [
             {"id": "HP:0001250", "name": "Seizure", "confidence": 0.9, "rank": 1},
         ]
-        phenopacket_json = format_as_phenopacket_v2(aggregated_results=aggregated_results)
+        phenopacket_json = format_as_phenopacket_v2(
+            aggregated_results=aggregated_results
+        )
         phenopacket = json.loads(phenopacket_json)
 
         features = phenopacket["phenotypicFeatures"]
@@ -75,15 +91,30 @@ class TestPhenopacketUtils(unittest.TestCase):
                 "chunk_idx": 0,
                 "chunk_text": "Patient has severe headaches",
                 "matches": [
-                    {"id": "HP:0002315", "name": "Headache", "score": 0.9, "assertion_status": "affirmed"},
-                    {"id": "HP:0012228", "name": "Tension-type headache", "score": 0.7, "assertion_status": "affirmed"},
+                    {
+                        "id": "HP:0002315",
+                        "name": "Headache",
+                        "score": 0.9,
+                        "assertion_status": "affirmed",
+                    },
+                    {
+                        "id": "HP:0012228",
+                        "name": "Tension-type headache",
+                        "score": 0.7,
+                        "assertion_status": "affirmed",
+                    },
                 ],
             },
             {
                 "chunk_idx": 1,
                 "chunk_text": "No muscle weakness observed",
                 "matches": [
-                    {"id": "HP:0001324", "name": "Muscle weakness", "score": 0.8, "assertion_status": "negated"},
+                    {
+                        "id": "HP:0001324",
+                        "name": "Muscle weakness",
+                        "score": 0.8,
+                        "assertion_status": "negated",
+                    },
                 ],
             },
         ]
@@ -123,7 +154,9 @@ class TestPhenopacketUtils(unittest.TestCase):
         aggregated_results = [
             {"id": "HP:0001250", "name": "Seizure", "confidence": 0.9, "rank": 1},
         ]
-        phenopacket_json = format_as_phenopacket_v2(aggregated_results=aggregated_results)
+        phenopacket_json = format_as_phenopacket_v2(
+            aggregated_results=aggregated_results
+        )
         phenopacket = json.loads(phenopacket_json)
 
         meta = phenopacket["metaData"]

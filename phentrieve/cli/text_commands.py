@@ -213,6 +213,7 @@ def main_callback(
         if interactive:
             # Call interactive mode directly
             from phentrieve.cli.text_interactive import interactive_text_mode
+
             interactive_text_mode()
         else:
             # Show help if no subcommand and not interactive

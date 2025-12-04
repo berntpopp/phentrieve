@@ -52,12 +52,12 @@ def _format_interactive_results(
     sentence_mode: bool = False,
 ) -> str:
     """Format query results for interactive mode display.
-    
+
     Args:
         query_results: Query results to format
         output_format: Output format (text, json, json_lines, phenopacket_v2_json)
         sentence_mode: Whether sentence mode was used
-        
+
     Returns:
         Formatted output string
     """
@@ -81,12 +81,14 @@ def _format_interactive_results(
 
             aggregated_results = []
             for i, match in enumerate(matches):
-                aggregated_results.append({
-                    "id": match["hpo_id"],
-                    "name": match.get("label") or match.get("name"),
-                    "confidence": match["similarity"],
-                    "rank": i + 1,
-                })
+                aggregated_results.append(
+                    {
+                        "id": match["hpo_id"],
+                        "name": match.get("label") or match.get("name"),
+                        "confidence": match["similarity"],
+                        "rank": i + 1,
+                    }
+                )
 
             return format_as_phenopacket_v2(aggregated_results=aggregated_results)
         return "{}"
@@ -286,15 +288,23 @@ def query_hpo(
                 if user_input.lower() in ["!t", "toggle"]:
                     if interactive_output_format.lower() == "text":
                         interactive_output_format = "phenopacket_v2_json"
-                        typer.secho("Switched to phenopacket output format", fg=typer.colors.CYAN)
+                        typer.secho(
+                            "Switched to phenopacket output format",
+                            fg=typer.colors.CYAN,
+                        )
                     elif interactive_output_format.lower() == "phenopacket_v2_json":
                         interactive_output_format = "text"
-                        typer.secho("Switched to list output format", fg=typer.colors.CYAN)
+                        typer.secho(
+                            "Switched to list output format", fg=typer.colors.CYAN
+                        )
                     else:
                         # If format is json or json_lines, switch to text
                         old_format = interactive_output_format
                         interactive_output_format = "text"
-                        typer.secho(f"Switched from {old_format} to list output format", fg=typer.colors.CYAN)
+                        typer.secho(
+                            f"Switched from {old_format} to list output format",
+                            fg=typer.colors.CYAN,
+                        )
                     continue
 
                 if user_input.lower() in ["exit", "quit", "q"]:
@@ -307,7 +317,11 @@ def query_hpo(
                 # For JSON/phenopacket output, we need to be careful not to mix debug output
                 # so we'll use a no-op output function
                 output_func_to_use = typer_echo
-                if interactive_output_format.lower() in ["json", "json_lines", "phenopacket_v2_json"]:
+                if interactive_output_format.lower() in [
+                    "json",
+                    "json_lines",
+                    "phenopacket_v2_json",
+                ]:
 
                     def output_func_to_use(x):
                         return None  # No-op function to suppress output during query
@@ -344,7 +358,9 @@ def query_hpo(
                     )
                     # Print to console
                     typer.echo(formatted_output)
-                    typer.echo(f"\n[Output format: {interactive_output_format} - Type '!t' to toggle]")
+                    typer.echo(
+                        f"\n[Output format: {interactive_output_format} - Type '!t' to toggle]"
+                    )
 
             except KeyboardInterrupt:
                 typer.echo("\nExiting.")
@@ -422,7 +438,9 @@ def query_hpo(
                 from phentrieve.phenopackets.utils import format_as_phenopacket_v2
 
                 # Take the first result set if not in sentence mode
-                results_to_format = all_query_results if sentence_mode else [all_query_results[0]]
+                results_to_format = (
+                    all_query_results if sentence_mode else [all_query_results[0]]
+                )
 
                 # For query command, we use aggregated results with rankings
                 # since these are direct HPO lookups without text chunks
@@ -431,12 +449,14 @@ def query_hpo(
 
                     aggregated_results = []
                     for i, match in enumerate(matches):
-                        aggregated_results.append({
-                            "id": match["hpo_id"],
-                            "name": match.get("label") or match.get("name"),
-                            "confidence": match["similarity"],
-                            "rank": i + 1,
-                        })
+                        aggregated_results.append(
+                            {
+                                "id": match["hpo_id"],
+                                "name": match.get("label") or match.get("name"),
+                                "confidence": match["similarity"],
+                                "rank": i + 1,
+                            }
+                        )
 
                     # Pass as aggregated_results (first positional parameter)
                     # since query results are not chunk-based
