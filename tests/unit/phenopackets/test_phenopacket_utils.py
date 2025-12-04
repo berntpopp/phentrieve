@@ -99,20 +99,24 @@ class TestPhenopacketUtils(unittest.TestCase):
         self.assertEqual(feature1["type"]["id"], "HP:0002315")
         self.assertEqual(feature1["type"]["label"], "Headache")
         self.assertNotIn("excluded", feature1)  # Not excluded (affirmed)
-        self.assertIn("Patient has severe headaches", feature1["evidence"][0]["reference"]["description"])
-        self.assertIn("Chunk: 1", feature1["evidence"][0]["reference"]["description"])
+        description1 = feature1["evidence"][0]["reference"]["description"]
+        self.assertIn("Patient has severe headaches", description1)
+        self.assertIn("Chunk: 1", description1)
+        self.assertNotIn("Rank:", description1)  # No rank in chunk-based results
 
         # Check second feature (from chunk 0)
         feature2 = phenopacket["phenotypicFeatures"][1]
         self.assertEqual(feature2["type"]["id"], "HP:0012228")
-        self.assertIn("Chunk: 1", feature2["evidence"][0]["reference"]["description"])
+        description2 = feature2["evidence"][0]["reference"]["description"]
+        self.assertIn("Chunk: 1", description2)
 
         # Check third feature (from chunk 1, negated)
         feature3 = phenopacket["phenotypicFeatures"][2]
         self.assertEqual(feature3["type"]["id"], "HP:0001324")
         self.assertTrue(feature3.get("excluded", False))  # Should be excluded (negated)
-        self.assertIn("No muscle weakness observed", feature3["evidence"][0]["reference"]["description"])
-        self.assertIn("Chunk: 2", feature3["evidence"][0]["reference"]["description"])
+        description3 = feature3["evidence"][0]["reference"]["description"]
+        self.assertIn("No muscle weakness observed", description3)
+        self.assertIn("Chunk: 2", description3)
 
     def test_format_as_phenopacket_v2_metadata(self):
         """Test the metaData field structure."""

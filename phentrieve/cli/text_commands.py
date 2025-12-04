@@ -752,9 +752,12 @@ def _format_and_output_results(
     if output_format == "phenopacket_v2_json":
         from phentrieve.phenopackets.utils import format_as_phenopacket_v2
 
-        phenopacket = format_as_phenopacket_v2(
-            aggregated_results=aggregated_results,
-        )
+        # Note: In this function, the variable naming is swapped from the orchestrator:
+        # - 'aggregated_results' here is actually 'chunk_results' from orchestrator
+        #   (contains chunk_idx, chunk_text, and matches per chunk)
+        # - 'chunk_results' here is actually 'aggregated_results' from orchestrator
+        # We use 'aggregated_results' which has the per-chunk structure with text evidence
+        phenopacket = format_as_phenopacket_v2(chunk_results=aggregated_results)
         typer.echo(phenopacket)
         return  # early exit
 
