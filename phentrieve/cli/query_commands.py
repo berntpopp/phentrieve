@@ -356,7 +356,8 @@ def query_hpo(
                 # Take the first result set if not in sentence mode
                 results_to_format = all_query_results if sentence_mode else [all_query_results[0]]
 
-                # For now, let's just use the first result set to create one phenopacket
+                # For query command, we use aggregated results with rankings
+                # since these are direct HPO lookups without text chunks
                 if results_to_format:
                     matches = results_to_format[0]["results"]
                     
@@ -369,7 +370,11 @@ def query_hpo(
                             "rank": i + 1,
                         })
                     
-                    formatted_output = format_as_phenopacket_v2(aggregated_results)
+                    # Pass as aggregated_results (first positional parameter)
+                    # since query results are not chunk-based
+                    formatted_output = format_as_phenopacket_v2(
+                        aggregated_results=aggregated_results
+                    )
                 else:
                     formatted_output = "{}"
 
