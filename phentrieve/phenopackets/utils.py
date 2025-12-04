@@ -6,7 +6,6 @@ from typing import Any, Optional
 
 from google.protobuf.json_format import MessageToJson
 from google.protobuf.timestamp_pb2 import Timestamp
-
 from phenopackets.schema.v2.core.base_pb2 import (
     Evidence,
     ExternalReference,

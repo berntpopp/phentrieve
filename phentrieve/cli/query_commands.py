@@ -63,7 +63,7 @@ def _format_interactive_results(
     """
     if not query_results:
         return ""
-    
+
     if output_format.lower() == "text":
         return format_results_as_text(query_results, sentence_mode=sentence_mode)
     elif output_format.lower() == "json":
@@ -72,13 +72,13 @@ def _format_interactive_results(
         return format_results_as_jsonl(query_results)
     elif output_format.lower() == "phenopacket_v2_json":
         from phentrieve.phenopackets.utils import format_as_phenopacket_v2
-        
+
         # For query command, we use aggregated results with rankings
         results_to_format = query_results if sentence_mode else [query_results[0]]
-        
+
         if results_to_format:
             matches = results_to_format[0]["results"]
-            
+
             aggregated_results = []
             for i, match in enumerate(matches):
                 aggregated_results.append({
@@ -87,7 +87,7 @@ def _format_interactive_results(
                     "confidence": match["similarity"],
                     "rank": i + 1,
                 })
-            
+
             return format_as_phenopacket_v2(aggregated_results=aggregated_results)
         return "{}"
     else:
@@ -272,7 +272,7 @@ def query_hpo(
         # Track output format for toggling in interactive mode
         interactive_output_format = output_format
         last_query_results = None
-        
+
         typer.echo("\nCommands:")
         typer.echo("  Type your query and press Enter to search")
         typer.echo("  Type '!t' to toggle between list and phenopacket output")
@@ -281,7 +281,7 @@ def query_hpo(
         while True:
             try:
                 user_input = typer.prompt("\nEnter text (or 'q' to quit)")
-                
+
                 # Handle toggle command
                 if user_input.lower() in ["!t", "toggle"]:
                     if interactive_output_format.lower() == "text":
@@ -296,7 +296,7 @@ def query_hpo(
                         interactive_output_format = "text"
                         typer.secho(f"Switched from {old_format} to list output format", fg=typer.colors.CYAN)
                     continue
-                
+
                 if user_input.lower() in ["exit", "quit", "q"]:
                     typer.echo("Exiting.")
                     break
@@ -428,7 +428,7 @@ def query_hpo(
                 # since these are direct HPO lookups without text chunks
                 if results_to_format:
                     matches = results_to_format[0]["results"]
-                    
+
                     aggregated_results = []
                     for i, match in enumerate(matches):
                         aggregated_results.append({
@@ -437,7 +437,7 @@ def query_hpo(
                             "confidence": match["similarity"],
                             "rank": i + 1,
                         })
-                    
+
                     # Pass as aggregated_results (first positional parameter)
                     # since query results are not chunk-based
                     formatted_output = format_as_phenopacket_v2(

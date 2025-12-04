@@ -80,7 +80,7 @@ def _display_interactive_text_results(
         # Build annotation text (compact format)
         annotation_lines = []
         if matches:
-            for match in matches[:3]:  # Limit to top 3 matches per chunk
+            for match in matches[:5]:  # Limit to top 5 matches per chunk
                 hpo_id = match.get("id", "")
                 name = match.get("name", "")
                 score = match.get("score", 0.0)

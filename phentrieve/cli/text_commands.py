@@ -6,10 +6,9 @@ This module contains commands for text processing and HPO term extraction.
 import csv
 import json
 import logging
-import traceback
 from io import StringIO
 from pathlib import Path
-from typing import Annotated, Any, Optional
+from typing import Annotated, Optional
 
 import typer
 
@@ -30,11 +29,202 @@ logger = logging.getLogger(__name__)
 app = typer.Typer()
 
 
+@app.command()
+def interactive(
+    language: Annotated[
+        str,
+        typer.Option("--language", "-l", help="Language of the text (en, de, etc.)"),
+    ] = "en",
+    strategy: Annotated[
+        str,
+        typer.Option(
+            "--strategy",
+            "-s",
+            help="Predefined chunking strategy (simple, semantic, detailed, sliding_window, sliding_window_cleaned, sliding_window_punct_cleaned, sliding_window_punct_conj_cleaned)",
+        ),
+    ] = "sliding_window_punct_conj_cleaned",
+    window_size: Annotated[
+        int,
+        typer.Option(
+            "--window-size",
+            "-ws",
+            help="Sliding window size in tokens (only for sliding_window strategy)",
+        ),
+    ] = 3,
+    step_size: Annotated[
+        int,
+        typer.Option(
+            "--step-size",
+            "-ss",
+            help="Sliding window step size in tokens (only for sliding_window strategy)",
+        ),
+    ] = 1,
+    split_threshold: Annotated[
+        float,
+        typer.Option(
+            "--threshold",
+            "-t",
+            help="Similarity threshold for splitting (0-1, only for sliding_window strategy)",
+        ),
+    ] = 0.5,
+    min_segment_length: Annotated[
+        int,
+        typer.Option(
+            "--min-segment",
+            "-ms",
+            help="Minimum segment length in words (only for sliding_window strategy)",
+        ),
+    ] = 2,
+    semantic_chunker_model: Annotated[
+        Optional[str],
+        typer.Option(
+            "--semantic-model",
+            "--s-model",
+            help=f"Model name for semantic chunking (default: {DEFAULT_MODEL})",
+        ),
+    ] = DEFAULT_MODEL,
+    retrieval_model: Annotated[
+        Optional[str],
+        typer.Option("--model", "-m", help="Model name for HPO term retrieval"),
+    ] = None,
+    chunk_retrieval_threshold: Annotated[
+        float,
+        typer.Option(
+            "--chunk-retrieval-threshold",
+            "-crt",
+            help="Minimum similarity score for HPO term matches per chunk (0.0-1.0)",
+        ),
+    ] = 0.3,
+    num_results: Annotated[
+        int,
+        typer.Option(
+            "--num-results",
+            "-n",
+            help="Maximum number of HPO terms to return per chunk",
+        ),
+    ] = 5,
+    no_assertion_detection: Annotated[
+        bool,
+        typer.Option(
+            "--no-assertion",
+            help="Disable assertion detection (treat all chunks as affirmed)",
+        ),
+    ] = False,
+    assertion_preference: Annotated[
+        str,
+        typer.Option(
+            "--assertion-preference",
+            help="Assertion detection strategy preference (dependency, keyword, any_negative)",
+        ),
+    ] = "dependency",
+    enable_reranker: Annotated[
+        bool,
+        typer.Option(
+            "--enable-reranker",
+            "--rerank",
+            help="Enable cross-encoder reranking of results",
+        ),
+    ] = False,
+    reranker_model: Annotated[
+        Optional[str],
+        typer.Option(
+            "--reranker-model",
+            help="Cross-encoder model for reranking (if reranking enabled)",
+        ),
+    ] = None,
+    annotations_above: Annotated[
+        bool,
+        typer.Option(
+            "--annotations-above",
+            "-aa",
+            help="Show annotations above chunks instead of below",
+        ),
+    ] = False,
+    aggregated_term_confidence: Annotated[
+        float,
+        typer.Option(
+            "--aggregated-term-confidence",
+            "-atc",
+            help="Minimum confidence score for aggregated HPO terms",
+        ),
+    ] = 0.35,
+    top_term_per_chunk: Annotated[
+        bool,
+        typer.Option(
+            "--top-term-per-chunk",
+            help="Keep only the top term per chunk",
+        ),
+    ] = False,
+    debug: Annotated[
+        bool,
+        typer.Option("--debug", help="Enable debug logging"),
+    ] = False,
+) -> None:
+    """Interactive text processing mode for HPO term extraction.
+
+    This command enables an interactive session where you can enter clinical text
+    and see the chunking, annotations, and HPO term matches displayed with rich
+    formatting. Each chunk is highlighted with its annotations shown in a box
+    below the chunk text.
+
+    Example usage:
+        phentrieve text interactive
+        phentrieve text interactive -l de --annotations-above
+        phentrieve text interactive -s semantic --enable-reranker
+    """
+    from phentrieve.cli.text_interactive import interactive_text_mode
+
+    interactive_text_mode(
+        language=language,
+        strategy=strategy,
+        window_size=window_size,
+        step_size=step_size,
+        split_threshold=split_threshold,
+        min_segment_length=min_segment_length,
+        semantic_chunker_model=semantic_chunker_model,
+        retrieval_model=retrieval_model,
+        chunk_retrieval_threshold=chunk_retrieval_threshold,
+        num_results=num_results,
+        no_assertion_detection=no_assertion_detection,
+        assertion_preference=assertion_preference,
+        enable_reranker=enable_reranker,
+        reranker_model=reranker_model,
+        annotations_above=annotations_above,
+        aggregated_term_confidence=aggregated_term_confidence,
+        top_term_per_chunk=top_term_per_chunk,
+        debug=debug,
+    )
+
+
+@app.callback(invoke_without_command=True)
+def main_callback(
+    ctx: typer.Context,
+    interactive: Annotated[
+        bool,
+        typer.Option(
+            "--interactive",
+            "-i",
+            help="Enable interactive mode for continuous text processing",
+        ),
+    ] = False,
+):
+    """Text processing commands for clinical text analysis."""
+    if ctx.invoked_subcommand is None:
+        if interactive:
+            # Call interactive mode directly
+            from phentrieve.cli.text_interactive import interactive_text_mode
+            interactive_text_mode()
+        else:
+            # Show help if no subcommand and not interactive
+            typer.echo(ctx.get_help())
+            raise typer.Exit()
+
+
 @app.command("process")
 def process_text_for_hpo_command(
     text: str = typer.Argument(
         None,
-        help="Text to process for HPO term extraction (can be a string or file path)",
+        help="Text to process for HPO term extraction (can be a string or file path). Not required in interactive mode.",
     ),
     input_file: Annotated[
         Optional[Path],
@@ -872,9 +1062,3 @@ def _format_and_output_results(
         f"across {len(processed_chunks)} text chunks.",
         fg=typer.colors.GREEN,
     )
-
-
-# Import and register interactive text mode
-from phentrieve.cli.text_interactive import interactive_text_mode  # noqa: E402
-
-app.command("interactive")(interactive_text_mode)
