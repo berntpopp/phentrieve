@@ -6,9 +6,10 @@ This module contains commands for text processing and HPO term extraction.
 import csv
 import json
 import logging
+import traceback
 from io import StringIO
 from pathlib import Path
-from typing import Annotated, Optional
+from typing import Annotated, Any, Optional
 
 import typer
 
@@ -871,3 +872,9 @@ def _format_and_output_results(
         f"across {len(processed_chunks)} text chunks.",
         fg=typer.colors.GREEN,
     )
+
+
+# Import and register interactive text mode
+from phentrieve.cli.text_interactive import interactive_text_mode  # noqa: E402
+
+app.command("interactive")(interactive_text_mode)
