@@ -204,4 +204,4 @@ def _create_phenopacket_json(
         meta_data=meta_data,
     )
 
-    return MessageToJson(phenopacket, indent=2)
+    return str(MessageToJson(phenopacket, indent=2))

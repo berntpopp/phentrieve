@@ -273,7 +273,6 @@ def query_hpo(
         # Interactive query loop
         # Track output format for toggling in interactive mode
         interactive_output_format = output_format
-        last_query_results = None
 
         typer.echo("\nCommands:")
         typer.echo("  Type your query and press Enter to search")
@@ -339,9 +338,6 @@ def query_hpo(
                     query_assertion_language=query_assertion_language,
                     query_assertion_preference=query_assertion_preference,
                 )
-
-                # Store results for potential toggling
-                last_query_results = query_results
 
                 # Enrich with details if requested
                 if (

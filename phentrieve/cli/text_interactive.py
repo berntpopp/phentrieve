@@ -439,10 +439,8 @@ def interactive_text_mode(
     show_annotations_above = annotations_above
 
     # Store last results for export
-    last_aggregated_results = None
     last_chunk_results = None
     last_processed_chunks = None
-    last_user_input = None
 
     # Interactive loop
     while True:
@@ -583,10 +581,8 @@ def interactive_text_mode(
             elapsed_time = time.time() - start_time
 
             # Store results for export
-            last_aggregated_results = aggregated_results
             last_chunk_results = chunk_results
             last_processed_chunks = processed_chunks
-            last_user_input = user_input
 
             # Display the results with rich formatting
             _display_interactive_text_results(
