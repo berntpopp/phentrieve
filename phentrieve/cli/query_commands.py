@@ -171,7 +171,7 @@ def query_hpo(
         typer.Option(
             "--output-format",
             "-F",
-            help="Format for the output (text, json, json_lines). Default is 'text'.",
+            help="Format for the output (text, json, json_lines, phenopacket_v2_json). Default is 'text'.",
             case_sensitive=False,
         ),
     ] = "text",
