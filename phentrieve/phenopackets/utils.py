@@ -39,12 +39,15 @@ def format_as_phenopacket_v2(
         A JSON string representing the Phenopacket.
     """
     # Use chunk_results if provided, otherwise fall back to aggregated_results
-    if chunk_results:
+    # Note: Explicit length checks prevent empty lists from taking wrong branch
+    if chunk_results is not None and len(chunk_results) > 0:
         return _format_from_chunk_results(chunk_results)
-    elif aggregated_results:
+    elif aggregated_results is not None and len(aggregated_results) > 0:
         return _format_from_aggregated_results(aggregated_results)
     else:
-        return "{}"
+        # Return valid empty Phenopacket instead of raw "{}" string
+        phenopacket_id = f"phentrieve-phenopacket-{uuid.uuid4()}"
+        return _create_phenopacket_json(phenopacket_id, [])
 
 
 def _format_from_chunk_results(chunk_results: list[dict[str, Any]]) -> str:
@@ -104,7 +107,11 @@ def _format_from_chunk_results(chunk_results: list[dict[str, Any]]) -> str:
             )
 
             # Determine if the phenotypic feature is excluded (negated)
-            excluded = assertion_status in ("negated", "NEGATED", "absent")
+            # Use case-insensitive comparison for robustness
+            excluded = assertion_status is not None and assertion_status.lower() in (
+                "negated",
+                "absent",
+            )
 
             # Create PhenotypicFeature
             phenotypic_feature = PhenotypicFeature(

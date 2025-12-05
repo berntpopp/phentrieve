@@ -6,14 +6,22 @@ from phentrieve.phenopackets.utils import format_as_phenopacket_v2
 
 class TestPhenopacketUtils(unittest.TestCase):
     def test_format_as_phenopacket_v2_empty(self):
-        """Test with empty aggregated results."""
+        """Test with empty aggregated results returns valid Phenopacket."""
         phenopacket_json = format_as_phenopacket_v2(aggregated_results=[])
-        self.assertEqual(phenopacket_json, "{}")
+        phenopacket = json.loads(phenopacket_json)
+        # Should return valid Phenopacket structure with no features
+        self.assertIn("id", phenopacket)
+        self.assertIn("metaData", phenopacket)
+        self.assertEqual(len(phenopacket.get("phenotypicFeatures", [])), 0)
 
     def test_format_as_phenopacket_v2_empty_both(self):
-        """Test with no arguments."""
+        """Test with no arguments returns valid Phenopacket."""
         phenopacket_json = format_as_phenopacket_v2()
-        self.assertEqual(phenopacket_json, "{}")
+        phenopacket = json.loads(phenopacket_json)
+        # Should return valid Phenopacket structure with no features
+        self.assertIn("id", phenopacket)
+        self.assertIn("metaData", phenopacket)
+        self.assertEqual(len(phenopacket.get("phenotypicFeatures", [])), 0)
 
     def test_format_as_phenopacket_v2_basic_aggregated(self):
         """Test basic phenopacket creation from aggregated results."""

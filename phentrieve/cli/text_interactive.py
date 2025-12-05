@@ -317,7 +317,7 @@ def interactive_text_mode(
             "  • Type 'q' or 'quit' to exit\n"
             "  • Type '!multi' to enter multi-line mode (end with empty line)\n"
             "  • Type '!toggle' to toggle annotation position (below/above)\n"
-            "  • Type '!p' to export results as JSON phenopacket",
+            "  • Type '!p' to print results as JSON phenopacket",
             border_style="cyan",
         )
     )

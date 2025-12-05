@@ -354,8 +354,10 @@ def query_hpo(
                     )
                     # Print to console
                     typer.echo(formatted_output)
-                    typer.echo(
-                        f"\n[Output format: {interactive_output_format} - Type '!t' to toggle]"
+                    typer.secho(
+                        f"\nOutput format: {interactive_output_format} - Type '!t' to toggle",
+                        fg=typer.colors.CYAN,
+                        dim=True,
                     )
 
             except KeyboardInterrupt:
