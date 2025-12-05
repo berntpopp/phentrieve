@@ -6,14 +6,15 @@ from typing import Any, Optional
 
 from google.protobuf.json_format import MessageToJson
 from google.protobuf.timestamp_pb2 import Timestamp
-from phenopackets.schema.v2.core.base_pb2 import (
+from phenopackets.schema.v2 import (
     Evidence,
     ExternalReference,
+    MetaData,
     OntologyClass,
+    Phenopacket,
+    PhenotypicFeature,
+    Resource,
 )
-from phenopackets.schema.v2.core.meta_data_pb2 import MetaData, Resource
-from phenopackets.schema.v2.core.phenotypic_feature_pb2 import PhenotypicFeature
-from phenopackets.schema.v2.phenopackets_pb2 import Phenopacket
 
 
 def format_as_phenopacket_v2(
