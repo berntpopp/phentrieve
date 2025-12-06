@@ -761,6 +761,13 @@ class DependencyAssertionDetector(AssertionDetector):
             **kwargs: Additional configuration parameters
         """
         super().__init__(language, **kwargs)
+        # Check if spaCy model is available
+        nlp = get_spacy_model(language)
+        if nlp is None:
+            raise RuntimeError(
+                f"spaCy model for language '{language}' is not available. "
+                "Please install the required spaCy model (e.g., 'python -m spacy download en_core_web_sm' for English)."
+            )
         # Cache negation and normality cues per language
         self._negation_cues_cache: dict[str, list[str]] = {}
         self._normality_cues_cache: dict[str, list[str]] = {}
@@ -1123,11 +1130,17 @@ class CombinedAssertionDetector(AssertionDetector):
         self.keyword_detector = (
             KeywordAssertionDetector(language=language) if enable_keyword else None
         )
-        self.dependency_detector = (
-            DependencyAssertionDetector(language=language)
-            if enable_dependency
-            else None
-        )
+        self.dependency_detector = None
+        if enable_dependency:
+            try:
+                self.dependency_detector = DependencyAssertionDetector(
+                    language=language
+                )
+            except RuntimeError:
+                logger.warning(
+                    "Dependency-based assertion detection disabled for language '%s' due to missing spaCy model.",
+                    _sanitize(language),
+                )
 
     def detect(self, text_chunk: str) -> tuple[AssertionStatus, dict[str, Any]]:
         """
@@ -1163,6 +1176,7 @@ class CombinedAssertionDetector(AssertionDetector):
             **dependency_details,
             "keyword_status": keyword_status.value if keyword_status else None,
             "dependency_status": dependency_status.value if dependency_status else None,
+            "dependency_parser": self.dependency_detector is not None,
             "combination_strategy": self.preference,
         }
 
