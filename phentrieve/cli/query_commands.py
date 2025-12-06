@@ -476,7 +476,7 @@ def query_hpo(
                         reranker_model=reranker_model if enable_reranker else None,
                     )
                 else:
-                    formatted_output = "{}"
+                    formatted_output = format_as_phenopacket_v2()
 
         # Output the results (to file or console)
         if output_file:

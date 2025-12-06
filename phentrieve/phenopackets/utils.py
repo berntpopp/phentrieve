@@ -77,7 +77,7 @@ def _get_hpo_version_from_db(db_path: Optional[Path | str] = None) -> str:
 
         return version or "unknown"
     except Exception as e:
-        logger.debug(f"Failed to retrieve HPO version from database: {e}")
+        logger.debug("Failed to retrieve HPO version from database: %s", e)
         return "unknown"
 
 

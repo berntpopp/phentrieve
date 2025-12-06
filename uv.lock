@@ -2635,7 +2635,7 @@ requires-dist = [
     { name = "numpy", specifier = ">=2.0.0,<3.0.0" },
     { name = "pandas", specifier = ">=2.0.0" },
     { name = "phenopackets", specifier = ">=2.0.0,<3.0.0" },
-    { name = "protobuf", specifier = "~=4.25.3" },
+    { name = "protobuf", specifier = ">=4.25.3" },
     { name = "pysbd", specifier = ">=0.3.4" },
     { name = "python-dotenv", marker = "extra == 'api'", specifier = ">=1.0.0" },
     { name = "pyyaml", specifier = ">=6.0" },

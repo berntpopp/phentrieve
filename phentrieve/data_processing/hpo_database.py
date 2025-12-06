@@ -420,7 +420,7 @@ class HPODatabase:
                 """,
                 (key, value),
             )
-        logger.debug(f"Set metadata: {key} = {value}")
+        logger.debug("Set metadata: %s = %s", key, value)
 
     def get_metadata(self, key: str) -> str | None:
         """
@@ -438,9 +438,9 @@ class HPODatabase:
         ).fetchone()
         if result:
             value: str = result[0]
-            logger.debug(f"Retrieved metadata: {key} = {value}")
+            logger.debug("Retrieved metadata: %s = %s", key, value)
             return value
-        logger.debug(f"Metadata not found: {key}")
+        logger.debug("Metadata not found: %s", key)
         return None
 
     def close(self) -> None:

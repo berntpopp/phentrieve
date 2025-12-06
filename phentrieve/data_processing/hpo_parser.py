@@ -809,17 +809,17 @@ def prepare_hpo_data(
         db.set_metadata("hpo_version", HPO_VERSION)
         db.set_metadata("hpo_download_date", datetime.now(timezone.utc).isoformat())
         db.set_metadata("hpo_source_url", HPO_JSON_URL)
-        logger.info(f"Stored HPO version metadata: {HPO_VERSION}")
+        logger.info("Stored HPO version metadata: %s", HPO_VERSION)
     except Exception as e:
-        logger.warning(f"Failed to store HPO metadata: {e}")
+        logger.warning("Failed to store HPO metadata: %s", e)
 
     # Close database connection
     db.close()
 
     logger.info("HPO data preparation completed successfully.")
-    logger.info(f"  Total terms: {len(terms_data)}")
-    logger.info(f"  HPO Version: {HPO_VERSION}")
-    logger.info(f"  Database: {db_path}")
+    logger.info("  Total terms: %d", len(terms_data))
+    logger.info("  HPO Version: %s", HPO_VERSION)
+    logger.info("  Database: %s", db_path)
     return True, None
 
 

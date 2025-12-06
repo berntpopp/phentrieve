@@ -703,8 +703,10 @@ def process_text_for_hpo_command(
                                 if k not in fields_to_remove
                             }
                         )
-                    except Exception:
-                        # Be defensive: if re-attachment fails, skip
+                    except Exception as e:
+                        logger.debug(
+                            f"Failed to re-attach enriched data for chunk {ci}, match {mi}: {e}"
+                        )
                         continue
 
                 return results
