@@ -46,6 +46,56 @@ def enrich_query_results_with_details(
     return structured_query_results
 
 
+def _format_interactive_results(
+    query_results: list[dict[str, Any]],
+    output_format: str,
+    sentence_mode: bool = False,
+) -> str:
+    """Format query results for interactive mode display.
+
+    Args:
+        query_results: Query results to format
+        output_format: Output format (text, json, json_lines, phenopacket_v2_json)
+        sentence_mode: Whether sentence mode was used
+
+    Returns:
+        Formatted output string
+    """
+    if not query_results:
+        return ""
+
+    if output_format.lower() == "text":
+        return format_results_as_text(query_results, sentence_mode=sentence_mode)
+    elif output_format.lower() == "json":
+        return format_results_as_json(query_results, sentence_mode=sentence_mode)
+    elif output_format.lower() == "json_lines":
+        return format_results_as_jsonl(query_results)
+    elif output_format.lower() == "phenopacket_v2_json":
+        from phentrieve.phenopackets.utils import format_as_phenopacket_v2
+
+        # For query command, we use aggregated results with rankings
+        results_to_format = query_results if sentence_mode else [query_results[0]]
+
+        if results_to_format:
+            matches = results_to_format[0]["results"]
+
+            aggregated_results = []
+            for i, match in enumerate(matches):
+                aggregated_results.append(
+                    {
+                        "id": match["hpo_id"],
+                        "name": match.get("label") or match.get("name"),
+                        "confidence": match["similarity"],
+                        "rank": i + 1,
+                    }
+                )
+
+            return format_as_phenopacket_v2(aggregated_results=aggregated_results)
+        return "{}"
+    else:
+        return format_results_as_text(query_results, sentence_mode=sentence_mode)
+
+
 def query_hpo(
     text: Annotated[
         Optional[str], typer.Argument(help="Clinical text to query for HPO terms")
@@ -121,7 +171,7 @@ def query_hpo(
         typer.Option(
             "--output-format",
             "-F",
-            help="Format for the output (text, json, json_lines). Default is 'text'.",
+            help="Format for the output (text, json, json_lines, phenopacket_v2_json). Default is 'text'.",
             case_sensitive=False,
         ),
     ] = "text",
@@ -221,9 +271,41 @@ def query_hpo(
             raise typer.Exit(code=1)
 
         # Interactive query loop
+        # Track output format for toggling in interactive mode
+        interactive_output_format = output_format
+
+        typer.echo("\nCommands:")
+        typer.echo("  Type your query and press Enter to search")
+        typer.echo("  Type '!t' to toggle between list and phenopacket output")
+        typer.echo("  Type 'q' to quit")
+
         while True:
             try:
                 user_input = typer.prompt("\nEnter text (or 'q' to quit)")
+
+                # Handle toggle command
+                if user_input.lower() in ["!t", "toggle"]:
+                    if interactive_output_format.lower() == "text":
+                        interactive_output_format = "phenopacket_v2_json"
+                        typer.secho(
+                            "Switched to phenopacket output format",
+                            fg=typer.colors.CYAN,
+                        )
+                    elif interactive_output_format.lower() == "phenopacket_v2_json":
+                        interactive_output_format = "text"
+                        typer.secho(
+                            "Switched to list output format", fg=typer.colors.CYAN
+                        )
+                    else:
+                        # If format is json or json_lines, switch to text
+                        old_format = interactive_output_format
+                        interactive_output_format = "text"
+                        typer.secho(
+                            f"Switched from {old_format} to list output format",
+                            fg=typer.colors.CYAN,
+                        )
+                    continue
+
                 if user_input.lower() in ["exit", "quit", "q"]:
                     typer.echo("Exiting.")
                     break
@@ -231,10 +313,14 @@ def query_hpo(
                 if not user_input.strip():
                     continue
 
-                # For JSON output, we need to be careful not to mix debug output with the JSON
+                # For JSON/phenopacket output, we need to be careful not to mix debug output
                 # so we'll use a no-op output function
                 output_func_to_use = typer_echo
-                if output_format.lower() in ["json", "json_lines"]:
+                if interactive_output_format.lower() in [
+                    "json",
+                    "json_lines",
+                    "phenopacket_v2_json",
+                ]:
 
                     def output_func_to_use(x):
                         return None  # No-op function to suppress output during query
@@ -261,22 +347,18 @@ def query_hpo(
                 ):
                     query_results = enrich_query_results_with_details(query_results)
 
-                # Format the results based on the selected output format
+                # Format and display the results
                 if query_results and isinstance(query_results, list):
-                    formatted_output = ""
-                    if output_format.lower() == "text":
-                        formatted_output = format_results_as_text(
-                            query_results, sentence_mode=sentence_mode
-                        )
-                    elif output_format.lower() == "json":
-                        formatted_output = format_results_as_json(
-                            query_results, sentence_mode=sentence_mode
-                        )
-                    elif output_format.lower() == "json_lines":
-                        formatted_output = format_results_as_jsonl(query_results)
-
+                    formatted_output = _format_interactive_results(
+                        query_results, interactive_output_format, sentence_mode
+                    )
                     # Print to console
                     typer.echo(formatted_output)
+                    typer.secho(
+                        f"\nOutput format: {interactive_output_format} - Type '!t' to toggle",
+                        fg=typer.colors.CYAN,
+                        dim=True,
+                    )
 
             except KeyboardInterrupt:
                 typer.echo("\nExiting.")
@@ -296,7 +378,7 @@ def query_hpo(
             raise typer.Exit(code=1)
 
         # Validate output format
-        SUPPORTED_OUTPUT_FORMATS = ["text", "json", "json_lines"]
+        SUPPORTED_OUTPUT_FORMATS = ["text", "json", "json_lines", "phenopacket_v2_json"]
         if output_format.lower() not in SUPPORTED_OUTPUT_FORMATS:
             typer.secho(
                 f"Error: Unsupported output format '{output_format}'. "
@@ -350,6 +432,37 @@ def query_hpo(
                 )
             elif output_format.lower() == "json_lines":
                 formatted_output = format_results_as_jsonl(all_query_results)
+            elif output_format.lower() == "phenopacket_v2_json":
+                from phentrieve.phenopackets.utils import format_as_phenopacket_v2
+
+                # Take the first result set if not in sentence mode
+                results_to_format = (
+                    all_query_results if sentence_mode else [all_query_results[0]]
+                )
+
+                # For query command, we use aggregated results with rankings
+                # since these are direct HPO lookups without text chunks
+                if results_to_format:
+                    matches = results_to_format[0]["results"]
+
+                    aggregated_results = []
+                    for i, match in enumerate(matches):
+                        aggregated_results.append(
+                            {
+                                "id": match["hpo_id"],
+                                "name": match.get("label") or match.get("name"),
+                                "confidence": match["similarity"],
+                                "rank": i + 1,
+                            }
+                        )
+
+                    # Pass as aggregated_results (first positional parameter)
+                    # since query results are not chunk-based
+                    formatted_output = format_as_phenopacket_v2(
+                        aggregated_results=aggregated_results
+                    )
+                else:
+                    formatted_output = "{}"
 
         # Output the results (to file or console)
         if output_file:
