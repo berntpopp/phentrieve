@@ -648,6 +648,13 @@ def process_text_for_hpo_command(
         ) -> list[dict]:
             """Adapt result fields for enrichment, then clean up temporary fields.
 
+            This helper supports two input shapes:
+            - Flat results: List[dict] where each dict is an HPO hit (has keys like 'id'/'hpo_id' or 'name'/'label')
+            - Chunked results: List[dict] where each dict represents a chunk and contains a 'matches' list
+
+            For chunked results we flatten all matches, enrich them, then re-attach enriched details to the
+            original chunk structure.
+
             Args:
                 results: List of result dictionaries to enrich
                 fields_to_add: Mapping of source_field -> target_field to add temporarily
@@ -656,12 +663,56 @@ def process_text_for_hpo_command(
             Returns:
                 Enriched results with temporary fields removed
             """
-            # Add required fields for enrichment (e.g., name -> label)
-            adapted = [
-                {**r, **{target: r[source] for source, target in fields_to_add.items()}}
-                for r in results
-            ]
-            # Enrich with HPO term details
+            if not results:
+                return []
+
+            # Detect chunked shape (presence of 'matches' key in first item)
+            first = results[0]
+            if isinstance(first, dict) and "matches" in first and isinstance(first["matches"], list):
+                # Flatten matches for enrichment
+                flat_matches = []
+                match_map = []  # list of tuples (chunk_idx, match_idx)
+                for ci, chunk in enumerate(results):
+                    for mi, match in enumerate(chunk.get("matches", [])):
+                        # Create shallow copy and add temporary fields
+                        mcopy = {**match}
+                        for source, target in fields_to_add.items():
+                            if source in mcopy:
+                                mcopy[target] = mcopy[source]
+                        # Always ensure HPO enrichment key exists: prefer explicit mapping, fallback from 'id'
+                        if "hpo_id" not in mcopy and "id" in mcopy:
+                            mcopy["hpo_id"] = mcopy["id"]
+                        flat_matches.append(mcopy)
+                        match_map.append((ci, mi))
+
+                # Enrich flattened matches
+                enriched_flat = enrich_results_with_details(flat_matches)
+
+                # Re-attach enriched details back to original structure
+                for (ci, mi), enriched in zip(match_map, enriched_flat):
+                    # update the original match dict in-place with definition/synonyms
+                    try:
+                        results[ci]["matches"][mi].update(
+                            {k: v for k, v in enriched.items() if k not in fields_to_remove}
+                        )
+                    except Exception:
+                        # Be defensive: if re-attachment fails, skip
+                        continue
+
+                return results
+
+            # Flat shape: adapt each result dict with temporary fields and enrich directly
+            adapted = []
+            for r in results:
+                rcopy = {**r}
+                for source, target in fields_to_add.items():
+                    if source in rcopy:
+                        rcopy[target] = rcopy[source]
+                # Also ensure hpo_id exists when input uses 'id'
+                if "hpo_id" not in rcopy and "id" in rcopy:
+                    rcopy["hpo_id"] = rcopy["id"]
+                adapted.append(rcopy)
+
             enriched = enrich_results_with_details(adapted)
             # Remove temporary fields, keeping definition and synonyms
             cleaned = [
