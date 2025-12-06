@@ -50,6 +50,8 @@ def _format_interactive_results(
     query_results: list[dict[str, Any]],
     output_format: str,
     sentence_mode: bool = False,
+    embedding_model: Optional[str] = None,
+    reranker_model: Optional[str] = None,
 ) -> str:
     """Format query results for interactive mode display.
 
@@ -57,6 +59,8 @@ def _format_interactive_results(
         query_results: Query results to format
         output_format: Output format (text, json, json_lines, phenopacket_v2_json)
         sentence_mode: Whether sentence mode was used
+        embedding_model: Name of embedding model used for retrieval
+        reranker_model: Name of reranker model used (if enabled)
 
     Returns:
         Formatted output string
@@ -90,7 +94,11 @@ def _format_interactive_results(
                     }
                 )
 
-            return format_as_phenopacket_v2(aggregated_results=aggregated_results)
+            return format_as_phenopacket_v2(
+                aggregated_results=aggregated_results,
+                embedding_model=embedding_model,
+                reranker_model=reranker_model,
+            )
         return "{}"
     else:
         return format_results_as_text(query_results, sentence_mode=sentence_mode)
@@ -350,7 +358,11 @@ def query_hpo(
                 # Format and display the results
                 if query_results and isinstance(query_results, list):
                     formatted_output = _format_interactive_results(
-                        query_results, interactive_output_format, sentence_mode
+                        query_results,
+                        interactive_output_format,
+                        sentence_mode,
+                        embedding_model=model_name,
+                        reranker_model=reranker_model if enable_reranker else None,
                     )
                     # Print to console
                     typer.echo(formatted_output)
@@ -459,7 +471,9 @@ def query_hpo(
                     # Pass as aggregated_results (first positional parameter)
                     # since query results are not chunk-based
                     formatted_output = format_as_phenopacket_v2(
-                        aggregated_results=aggregated_results
+                        aggregated_results=aggregated_results,
+                        embedding_model=model_name,
+                        reranker_model=reranker_model if enable_reranker else None,
                     )
                 else:
                     formatted_output = "{}"

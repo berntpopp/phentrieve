@@ -492,7 +492,9 @@ def interactive_text_mode(
                         )
 
                     phenopacket_json = format_as_phenopacket_v2(
-                        chunk_results=chunk_results_with_text
+                        chunk_results=chunk_results_with_text,
+                        embedding_model=retrieval_model,
+                        reranker_model=reranker_model if enable_reranker else None,
                     )
                     console.print("[green]Phenopacket JSON:[/green]")
                     console.print(phenopacket_json)

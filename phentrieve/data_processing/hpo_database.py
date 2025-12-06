@@ -401,6 +401,48 @@ class HPODatabase:
         result = conn.execute("SELECT COUNT(*) FROM hpo_terms").fetchone()
         return result[0] if result else 0
 
+    def set_metadata(self, key: str, value: str) -> None:
+        """
+        Store metadata key-value pair in database.
+
+        Args:
+            key: Metadata key (e.g., "hpo_version", "hpo_download_date")
+            value: Metadata value
+
+        Raises:
+            sqlite3.Error: On database errors
+        """
+        with self.transaction() as conn:
+            conn.execute(
+                """
+                INSERT OR REPLACE INTO generation_metadata (key, value, updated_at)
+                VALUES (?, ?, datetime('now'))
+                """,
+                (key, value),
+            )
+        logger.debug(f"Set metadata: {key} = {value}")
+
+    def get_metadata(self, key: str) -> str | None:
+        """
+        Retrieve metadata value by key.
+
+        Args:
+            key: Metadata key to retrieve
+
+        Returns:
+            Metadata value if found, None otherwise
+        """
+        conn = self.get_connection()
+        result = conn.execute(
+            "SELECT value FROM generation_metadata WHERE key = ?", (key,)
+        ).fetchone()
+        if result:
+            value: str = result[0]
+            logger.debug(f"Retrieved metadata: {key} = {value}")
+            return value
+        logger.debug(f"Metadata not found: {key}")
+        return None
+
     def close(self) -> None:
         """Close database connection."""
         if self._conn:

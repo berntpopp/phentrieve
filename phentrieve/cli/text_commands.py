@@ -756,9 +756,15 @@ def process_text_for_hpo_command(
         logger.debug(f"First chunk result keys: {list(chunk_results[0].keys())}")
         logger.debug(f"First chunk result sample: {chunk_results[0]}")
 
-    # Call the formatting function
+    # Call the formatting function with model information
     _format_and_output_results(
-        aggregated_results, chunk_results, processed_chunks, language, output_format
+        aggregated_results,
+        chunk_results,
+        processed_chunks,
+        language,
+        output_format,
+        embedding_model=retrieval_model,
+        reranker_model=reranker_model if enable_reranker else None,
     )
 
     elapsed_time = time.time() - start_time
@@ -990,6 +996,8 @@ def _format_and_output_results(
     processed_chunks: list[dict],
     language: str,
     output_format: str,
+    embedding_model: Optional[str] = None,
+    reranker_model: Optional[str] = None,
 ) -> None:
     """Format and output the HPO extraction results according to the specified format.
 
@@ -999,6 +1007,8 @@ def _format_and_output_results(
         processed_chunks: The processed text chunks
         language: The language of the text
         output_format: The output format (json_lines, rich_json_summary, csv_hpo_list)
+        embedding_model: Name of embedding model used for retrieval
+        reranker_model: Name of reranker model used (if enabled)
     """
     if output_format == "phenopacket_v2_json":
         from phentrieve.phenopackets.utils import format_as_phenopacket_v2
@@ -1008,7 +1018,11 @@ def _format_and_output_results(
         #   (contains chunk_idx, chunk_text, and matches per chunk)
         # - 'chunk_results' here is actually 'aggregated_results' from orchestrator
         # We use 'aggregated_results' which has the per-chunk structure with text evidence
-        phenopacket = format_as_phenopacket_v2(chunk_results=aggregated_results)
+        phenopacket = format_as_phenopacket_v2(
+            chunk_results=aggregated_results,
+            embedding_model=embedding_model,
+            reranker_model=reranker_model,
+        )
         typer.echo(phenopacket)
         return  # early exit
 

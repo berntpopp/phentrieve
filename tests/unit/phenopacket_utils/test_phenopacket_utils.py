@@ -158,7 +158,7 @@ class TestPhenopacketUtils(unittest.TestCase):
         self.assertIn("Chunk: 2", description3)
 
     def test_format_as_phenopacket_v2_metadata(self):
-        """Test the metaData field structure."""
+        """Test the metaData field structure with version information."""
         aggregated_results = [
             {"id": "HP:0001250", "name": "Seizure", "confidence": 0.9, "rank": 1},
         ]
@@ -169,7 +169,8 @@ class TestPhenopacketUtils(unittest.TestCase):
 
         meta = phenopacket["metaData"]
         self.assertIn("created", meta)
-        self.assertEqual(meta["createdBy"], "phentrieve")
+        # createdBy should now include version
+        self.assertIn("phentrieve", meta["createdBy"])
         self.assertEqual(meta["phenopacketSchemaVersion"], "2.0.2")
 
         # Check HPO resource
@@ -177,6 +178,39 @@ class TestPhenopacketUtils(unittest.TestCase):
         self.assertEqual(len(resources), 1)
         self.assertEqual(resources[0]["id"], "hp")
         self.assertEqual(resources[0]["namespacePrefix"], "HP")
+
+    def test_format_as_phenopacket_v2_with_metadata_parameters(self):
+        """Test phenopacket with embedding and reranker model metadata."""
+        aggregated_results = [
+            {"id": "HP:0001250", "name": "Seizure", "confidence": 0.9, "rank": 1},
+        ]
+        phenopacket_json = format_as_phenopacket_v2(
+            aggregated_results=aggregated_results,
+            phentrieve_version="0.3.0",
+            embedding_model="BAAI/bge-m3",
+            reranker_model="BAAI/bge-reranker-v2-m3",
+            hpo_version="v2025-03-03",
+        )
+        phenopacket = json.loads(phenopacket_json)
+
+        meta = phenopacket["metaData"]
+        # Check createdBy includes version
+        self.assertEqual(meta["createdBy"], "phentrieve 0.3.0")
+
+        # Check HPO version
+        self.assertEqual(meta["resources"][0]["version"], "v2025-03-03")
+
+        # Check external references for model metadata
+        self.assertIn("externalReferences", meta)
+        ext_refs = meta["externalReferences"]
+        self.assertEqual(len(ext_refs), 2)
+
+        # Find embedding and reranker references
+        refs_by_id = {ref["id"]: ref["description"] for ref in ext_refs}
+        self.assertEqual(refs_by_id["phentrieve:embedding_model"], "BAAI/bge-m3")
+        self.assertEqual(
+            refs_by_id["phentrieve:reranker_model"], "BAAI/bge-reranker-v2-m3"
+        )
 
 
 if __name__ == "__main__":
