@@ -668,7 +668,11 @@ def process_text_for_hpo_command(
 
             # Detect chunked shape (presence of 'matches' key in first item)
             first = results[0]
-            if isinstance(first, dict) and "matches" in first and isinstance(first["matches"], list):
+            if (
+                isinstance(first, dict)
+                and "matches" in first
+                and isinstance(first["matches"], list)
+            ):
                 # Flatten matches for enrichment
                 flat_matches = []
                 match_map = []  # list of tuples (chunk_idx, match_idx)
@@ -693,7 +697,11 @@ def process_text_for_hpo_command(
                     # update the original match dict in-place with definition/synonyms
                     try:
                         results[ci]["matches"][mi].update(
-                            {k: v for k, v in enriched.items() if k not in fields_to_remove}
+                            {
+                                k: v
+                                for k, v in enriched.items()
+                                if k not in fields_to_remove
+                            }
                         )
                     except Exception:
                         # Be defensive: if re-attachment fails, skip
@@ -713,11 +721,11 @@ def process_text_for_hpo_command(
                     rcopy["hpo_id"] = rcopy["id"]
                 adapted.append(rcopy)
 
-            enriched = enrich_results_with_details(adapted)
+            enriched_list = enrich_results_with_details(adapted)
             # Remove temporary fields, keeping definition and synonyms
             cleaned = [
                 {k: v for k, v in r.items() if k not in fields_to_remove}
-                for r in enriched
+                for r in enriched_list
             ]
             return cleaned
 

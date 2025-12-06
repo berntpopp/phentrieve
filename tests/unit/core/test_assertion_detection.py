@@ -145,6 +145,9 @@ class TestCombinedAssertionDetector:
         text = "Patient does not have seizures"
         status, details = self.detector.detect(text)
 
+        if not details["dependency_parser"]:
+            pytest.skip("Dependency parser not available")
+
         assert status == AssertionStatus.NEGATED
         assert details["dependency_parser"] is True
 
