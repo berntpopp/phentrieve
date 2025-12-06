@@ -32,25 +32,46 @@ def _get_hpo_version_from_db(db_path: Optional[Path | str] = None) -> str:
         HPO version string (e.g., "v2025-03-03") or "unknown" if not found
     """
     try:
-        if db_path is None:
-            from phentrieve.config import DEFAULT_HPO_DB_FILENAME
-            from phentrieve.utils import get_default_data_dir
+        from phentrieve.config import DEFAULT_HPO_DB_FILENAME
+        from phentrieve.utils import get_default_data_dir
 
-            db_path = get_default_data_dir() / DEFAULT_HPO_DB_FILENAME
+        candidates: list[Path] = []
 
-        # Check if database exists
-        if isinstance(db_path, str):
-            db_path = Path(db_path)
+        # If caller provided an explicit path, try that first
+        if db_path is not None:
+            candidates.append(Path(db_path))
 
-        if not db_path.exists():
-            logger.debug(f"HPO database not found at {db_path}")
+        # Primary configured data dir (could be ~/.phentrieve/data or env override)
+        candidates.append(get_default_data_dir() / DEFAULT_HPO_DB_FILENAME)
+
+        # Common repo-local data dir (useful when running from project root)
+        candidates.append(Path.cwd() / "data" / DEFAULT_HPO_DB_FILENAME)
+
+        # Package-relative data dir (in case code is executed from installed package)
+        package_root = Path(__file__).resolve().parents[2]
+        candidates.append(package_root / "data" / DEFAULT_HPO_DB_FILENAME)
+
+        # Try candidates in order and pick the first that exists
+        db_file: Path | None = None
+        for p in candidates:
+            try:
+                if p and p.exists():
+                    db_file = p
+                    break
+            except Exception:
+                continue
+
+        if db_file is None:
+            logger.debug("HPO database not found in any known locations: %s", candidates)
             return "unknown"
 
         from phentrieve.data_processing.hpo_database import HPODatabase
 
-        db = HPODatabase(db_path)
-        version = db.get_metadata("hpo_version")
-        db.close()
+        db = HPODatabase(db_file)
+        try:
+            version = db.get_metadata("hpo_version")
+        finally:
+            db.close()
 
         return version or "unknown"
     except Exception as e:
