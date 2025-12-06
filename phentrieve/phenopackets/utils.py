@@ -62,7 +62,9 @@ def _get_hpo_version_from_db(db_path: Optional[Path | str] = None) -> str:
                 continue
 
         if db_file is None:
-            logger.debug("HPO database not found in any known locations: %s", candidates)
+            logger.debug(
+                "HPO database not found in any known locations: %s", candidates
+            )
             return "unknown"
 
         from phentrieve.data_processing.hpo_database import HPODatabase
