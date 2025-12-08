@@ -677,51 +677,43 @@ def run_evaluation(
 
         # Save results if requested
         if save_results:
-            # Create summary dictionary with both dense and re-ranked metrics
-            summary = {
+            # Create summary dictionary with dense metrics
+            summary: dict[str, Any] = {
                 "model": model_slug,
                 "original_model_name": model_name,
                 "timestamp": datetime.now().strftime("%Y%m%d_%H%M%S"),
                 "test_file": os.path.basename(test_file),
                 "num_test_cases": len(test_cases),
-                # Re-ranking configuration
-                "reranker_enabled": enable_reranker,
-                "reranker_model": reranker_model if enable_reranker else None,
-                "rerank_count": rerank_count if enable_reranker else None,
-                # Dense metrics
+                # MRR metric
                 "mrr_dense": avg_mrr_dense,
                 "mrr_dense_per_case": mrr_dense_values,
-                # Re-ranked metrics (if enabled)
-                "mrr_reranked": avg_mrr_reranked if enable_reranker else None,
-                "mrr_reranked_per_case": (
-                    mrr_reranked_values if enable_reranker else None
-                ),
             }
 
-            # Add hit rates and ontology similarity for dense metrics
+            # Add all K-dependent metrics
             for k in k_values:
+                # Hit rate
                 summary[f"hit_rate_dense@{k}"] = avg_hit_rates_dense[k]
-                summary[f"max_ont_similarity_dense@{k}"] = avg_max_ont_sim_dense[k]
-                # Add raw metrics for each k value
                 summary[f"hit_rate_dense@{k}_per_case"] = hit_rate_dense_values[k]
+                # Ontology similarity
+                summary[f"max_ont_similarity_dense@{k}"] = avg_max_ont_sim_dense[k]
                 summary[f"max_ont_similarity_dense@{k}_per_case"] = (
                     max_ont_sim_dense_values[k]
                 )
+                # NDCG
+                summary[f"ndcg_dense@{k}"] = avg_ndcg_dense[k]
+                summary[f"ndcg_dense@{k}_per_case"] = ndcg_dense_values[k]
+                # Recall
+                summary[f"recall_dense@{k}"] = avg_recall_dense[k]
+                summary[f"recall_dense@{k}_per_case"] = recall_dense_values[k]
+                # Precision
+                summary[f"precision_dense@{k}"] = avg_precision_dense[k]
+                summary[f"precision_dense@{k}_per_case"] = precision_dense_values[k]
+                # MAP
+                summary[f"map_dense@{k}"] = avg_map_dense[k]
+                summary[f"map_dense@{k}_per_case"] = map_dense_values[k]
 
-            # Add hit rates and ontology similarity for re-ranked metrics (if enabled)
-            if enable_reranker:
-                for k in k_values:
-                    summary[f"hit_rate_reranked@{k}"] = avg_hit_rates_reranked[k]
-                    summary[f"max_ont_similarity_reranked@{k}"] = (
-                        avg_max_ont_sim_reranked[k]
-                    )
-                    # Add raw metrics for each k value
-                    summary[f"hit_rate_reranked@{k}_per_case"] = (
-                        hit_rate_reranked_values[k]
-                    )
-                    summary[f"max_ont_similarity_reranked@{k}_per_case"] = (
-                        max_ont_sim_reranked_values[k]
-                    )
+            # Add confidence intervals
+            summary["confidence_intervals"] = confidence_intervals
 
             # Save summary to file
             # Type narrowing: these are not None inside save_results block
