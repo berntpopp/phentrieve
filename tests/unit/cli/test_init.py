@@ -36,6 +36,11 @@ class TestVersionCallback:
 
         # Arrange
         mock_echo = mocker.patch("typer.echo")
+        # Mock HPO info to avoid database dependency
+        mocker.patch(
+            "phentrieve.cli._get_hpo_info",
+            return_value={"version": "v2025-03-03", "term_count": 19534},
+        )
 
         # Act & Assert - should raise Exit
         with pytest.raises(typer.Exit) as exc_info:
@@ -44,10 +49,32 @@ class TestVersionCallback:
         # Verify exit code is 0 (success)
         assert exc_info.value.exit_code == 0
 
-        # Verify version was displayed
-        mock_echo.assert_called_once()
-        assert __version__ in mock_echo.call_args[0][0]
-        assert "Phentrieve CLI version:" in mock_echo.call_args[0][0]
+        # Verify version was displayed (2 calls: CLI version + HPO info)
+        assert mock_echo.call_count == 2
+        calls = [call[0][0] for call in mock_echo.call_args_list]
+        assert any(__version__ in call for call in calls)
+        assert any("Phentrieve CLI version:" in call for call in calls)
+        assert any("HPO Data:" in call for call in calls)
+
+    def test_displays_version_without_hpo_data(self, mocker):
+        """Test version callback shows message when HPO data not loaded."""
+        from phentrieve.cli import version_callback
+
+        # Arrange
+        mock_echo = mocker.patch("typer.echo")
+        # Mock HPO info as not available
+        mocker.patch(
+            "phentrieve.cli._get_hpo_info",
+            return_value={"version": None, "term_count": None},
+        )
+
+        # Act & Assert
+        with pytest.raises(typer.Exit):
+            version_callback(True)
+
+        # Verify fallback message
+        calls = [call[0][0] for call in mock_echo.call_args_list]
+        assert any("not loaded" in call for call in calls)
 
     def test_does_nothing_when_false(self, mocker):
         """Test version callback does nothing when value is False."""
@@ -90,13 +117,19 @@ class TestMainCallback:
 
         # Arrange
         mock_echo = mocker.patch("typer.echo")
+        # Mock HPO info to avoid database dependency
+        mocker.patch(
+            "phentrieve.cli._get_hpo_info",
+            return_value={"version": "v2025-03-03", "term_count": 19534},
+        )
 
         # Act & Assert - version_callback will raise Exit
         with pytest.raises(typer.Exit):
             # This simulates what happens when --version is passed
             version_callback(True)
 
-        mock_echo.assert_called_once()
+        # 2 calls: CLI version + HPO info
+        assert mock_echo.call_count == 2
 
 
 # =============================================================================

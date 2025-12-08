@@ -5,7 +5,8 @@ from their respective modules.
 """
 
 import importlib.metadata
-from typing import Annotated
+from pathlib import Path
+from typing import Annotated, Optional
 
 import typer
 
@@ -33,10 +34,55 @@ app = typer.Typer(
 )
 
 
+def _get_hpo_info() -> dict[str, Optional[str | int]]:
+    """Load HPO metadata from database for version display.
+
+    Returns:
+        Dictionary with version and term_count, or None values if unavailable.
+    """
+    result: dict[str, Optional[str | int]] = {"version": None, "term_count": None}
+
+    try:
+        from phentrieve.config import DEFAULT_HPO_DB_FILENAME
+        from phentrieve.data_processing.hpo_database import HPODatabase
+        from phentrieve.utils import get_default_data_dir
+
+        # Try default data directory first
+        db_path = get_default_data_dir() / DEFAULT_HPO_DB_FILENAME
+        if not db_path.exists():
+            # Fallback to relative path
+            db_path = Path.cwd() / "data" / DEFAULT_HPO_DB_FILENAME
+
+        if not db_path.exists():
+            return result
+
+        db = HPODatabase(db_path)
+        try:
+            result["version"] = db.get_metadata("hpo_version")
+            result["term_count"] = db.get_term_count()
+        finally:
+            db.close()
+    except Exception:  # noqa: S110 - intentional silent fail for version display
+        pass
+
+    return result
+
+
 def version_callback(value: bool):
     """Display version information and exit."""
     if value:
         typer.echo(f"Phentrieve CLI version: {__version__}")
+
+        # Show HPO data info if available
+        hpo_info = _get_hpo_info()
+        if hpo_info["version"]:
+            term_info = (
+                f" ({hpo_info['term_count']:,} terms)" if hpo_info["term_count"] else ""
+            )
+            typer.echo(f"HPO Data: {hpo_info['version']}{term_info}")
+        else:
+            typer.echo("HPO Data: not loaded (run 'phentrieve data prepare')")
+
         raise typer.Exit()
 
 
