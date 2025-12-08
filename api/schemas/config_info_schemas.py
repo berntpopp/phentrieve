@@ -5,6 +5,8 @@ This module defines the data structures used for the configuration/info API
 endpoint responses, ensuring consistent and well-documented API contracts.
 """
 
+from typing import Optional
+
 from pydantic import BaseModel, ConfigDict, Field
 
 
@@ -80,11 +82,19 @@ class ChunkingConfig(BaseModel):
 
 
 class HPODataStatusAPI(BaseModel):
-    """Status of HPO data files."""
+    """Status and metadata of HPO data."""
 
     model_config = ConfigDict(
         json_schema_extra={
-            "examples": [{"ancestors_loaded": True, "depths_loaded": True}]
+            "examples": [
+                {
+                    "ancestors_loaded": True,
+                    "depths_loaded": True,
+                    "version": "v2025-03-03",
+                    "download_date": "2025-12-08T10:12:25+00:00",
+                    "term_count": 19534,
+                }
+            ]
         }
     )
 
@@ -92,6 +102,15 @@ class HPODataStatusAPI(BaseModel):
         description="Whether the HPO ancestor data is loaded"
     )
     depths_loaded: bool = Field(description="Whether the HPO depth data is loaded")
+    version: Optional[str] = Field(
+        default=None, description="HPO ontology version (e.g., 'v2025-03-03')"
+    )
+    download_date: Optional[str] = Field(
+        default=None, description="ISO timestamp when HPO data was downloaded"
+    )
+    term_count: Optional[int] = Field(
+        default=None, description="Total number of HPO terms in the database"
+    )
 
 
 class PhentrieveConfigInfoResponseAPI(BaseModel):
@@ -137,6 +156,9 @@ class PhentrieveConfigInfoResponseAPI(BaseModel):
                     "hpo_data_status": {
                         "ancestors_loaded": True,
                         "depths_loaded": True,
+                        "version": "v2025-03-03",
+                        "download_date": "2025-12-08T10:12:25+00:00",
+                        "term_count": 19534,
                     },
                 }
             ]
