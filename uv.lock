@@ -2598,6 +2598,13 @@ dependencies = [
 ]
 
 [package.optional-dependencies]
+all = [
+    { name = "en-core-web-sm" },
+    { name = "fastapi" },
+    { name = "python-dotenv" },
+    { name = "spacy" },
+    { name = "uvicorn", extra = ["standard"] },
+]
 api = [
     { name = "fastapi" },
     { name = "python-dotenv" },
@@ -2635,6 +2642,7 @@ requires-dist = [
     { name = "numpy", specifier = ">=2.0.0,<3.0.0" },
     { name = "pandas", specifier = ">=2.0.0" },
     { name = "phenopackets", specifier = ">=2.0.0,<3.0.0" },
+    { name = "phentrieve", extras = ["text-processing", "api"], marker = "extra == 'all'" },
     { name = "protobuf", specifier = ">=4.25.3" },
     { name = "pysbd", specifier = ">=0.3.4" },
     { name = "python-dotenv", marker = "extra == 'api'", specifier = ">=1.0.0" },
@@ -2653,7 +2661,7 @@ requires-dist = [
     { name = "urllib3", specifier = ">=2.5.0" },
     { name = "uvicorn", extras = ["standard"], marker = "extra == 'api'", specifier = ">=0.32.0" },
 ]
-provides-extras = ["text-processing", "api"]
+provides-extras = ["text-processing", "api", "all"]
 
 [package.metadata.requires-dev]
 dev = [

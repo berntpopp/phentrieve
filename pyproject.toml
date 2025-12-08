@@ -64,6 +64,10 @@ api = [
     "uvicorn[standard]>=0.32.0",
     "python-dotenv>=1.0.0",
 ]
+# Install everything with: pipx install "phentrieve[all]"
+all = [
+    "phentrieve[text_processing,api]",
+]
 
 [tool.setuptools]
 
