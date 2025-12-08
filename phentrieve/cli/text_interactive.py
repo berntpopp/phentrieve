@@ -441,6 +441,7 @@ def interactive_text_mode(
     # Store last results for export
     last_chunk_results = None
     last_processed_chunks = None
+    last_input_text: Optional[str] = None
 
     # Interactive loop
     while True:
@@ -495,6 +496,7 @@ def interactive_text_mode(
                         chunk_results=chunk_results_with_text,
                         embedding_model=retrieval_model,
                         reranker_model=reranker_model if enable_reranker else None,
+                        input_text=last_input_text,
                     )
                     console.print("[green]Phenopacket JSON:[/green]")
                     console.print(phenopacket_json)
@@ -585,6 +587,7 @@ def interactive_text_mode(
             # Store results for export
             last_chunk_results = chunk_results
             last_processed_chunks = processed_chunks
+            last_input_text = user_input
 
             # Display the results with rich formatting
             _display_interactive_text_results(

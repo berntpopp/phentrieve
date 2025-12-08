@@ -52,6 +52,7 @@ def _format_interactive_results(
     sentence_mode: bool = False,
     embedding_model: Optional[str] = None,
     reranker_model: Optional[str] = None,
+    input_text: Optional[str] = None,
 ) -> str:
     """Format query results for display in various output formats.
 
@@ -65,6 +66,7 @@ def _format_interactive_results(
         sentence_mode: Whether sentence mode was used
         embedding_model: Name of embedding model used for retrieval
         reranker_model: Name of reranker model used (if enabled)
+        input_text: Original query text for phenopacket metadata
 
     Returns:
         Formatted output string
@@ -102,8 +104,9 @@ def _format_interactive_results(
                 aggregated_results=aggregated_results,
                 embedding_model=embedding_model,
                 reranker_model=reranker_model,
+                input_text=input_text,
             )
-        return format_as_phenopacket_v2()
+        return format_as_phenopacket_v2(input_text=input_text)
     else:
         return format_results_as_text(query_results, sentence_mode=sentence_mode)
 
@@ -367,6 +370,7 @@ def query_hpo(
                         sentence_mode,
                         embedding_model=model_name,
                         reranker_model=reranker_model if enable_reranker else None,
+                        input_text=user_input,
                     )
                     # Print to console
                     typer.echo(formatted_output)

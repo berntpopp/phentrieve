@@ -767,6 +767,7 @@ def process_text_for_hpo_command(
         output_format,
         embedding_model=retrieval_model,
         reranker_model=reranker_model if enable_reranker else None,
+        input_text=raw_text,
     )
 
     elapsed_time = time.time() - start_time
@@ -1000,6 +1001,7 @@ def _format_and_output_results(
     output_format: str,
     embedding_model: Optional[str] = None,
     reranker_model: Optional[str] = None,
+    input_text: Optional[str] = None,
 ) -> None:
     """Format and output the HPO extraction results according to the specified format.
 
@@ -1011,6 +1013,7 @@ def _format_and_output_results(
         output_format: The output format (json_lines, rich_json_summary, csv_hpo_list)
         embedding_model: Name of embedding model used for retrieval
         reranker_model: Name of reranker model used (if enabled)
+        input_text: Original input text for phenopacket metadata
     """
     if output_format == "phenopacket_v2_json":
         from phentrieve.phenopackets.utils import format_as_phenopacket_v2
@@ -1024,6 +1027,7 @@ def _format_and_output_results(
             chunk_results=aggregated_results,
             embedding_model=embedding_model,
             reranker_model=reranker_model,
+            input_text=input_text,
         )
         typer.echo(phenopacket)
         return  # early exit

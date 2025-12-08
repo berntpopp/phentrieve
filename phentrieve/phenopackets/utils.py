@@ -20,6 +20,9 @@ from phenopackets import (
 
 logger = logging.getLogger(__name__)
 
+# Maximum length for input text in metadata (prevent excessive payload size)
+_MAX_INPUT_TEXT_LENGTH = 1000
+
 
 def _get_hpo_version_from_db(db_path: Optional[Path | str] = None) -> str:
     """
@@ -88,6 +91,7 @@ def format_as_phenopacket_v2(
     embedding_model: Optional[str] = None,
     reranker_model: Optional[str] = None,
     hpo_version: Optional[str] = None,
+    input_text: Optional[str] = None,
 ) -> str:
     """Format HPO extraction results as a Phenopacket v2 JSON string.
 
@@ -106,6 +110,7 @@ def format_as_phenopacket_v2(
         embedding_model: Name of embedding model used (e.g., "BAAI/bge-m3").
         reranker_model: Name of reranker model used (e.g., "BAAI/bge-reranker-v2-m3").
         hpo_version: Version of HPO used (e.g., "v2025-03-03"). If None, retrieved from database.
+        input_text: Original input text/query for provenance tracking in metadata.
 
     Returns:
         A JSON string representing the Phenopacket.
@@ -131,6 +136,7 @@ def format_as_phenopacket_v2(
             embedding_model=embedding_model,
             reranker_model=reranker_model,
             hpo_version=hpo_version,
+            input_text=input_text,
         )
     elif aggregated_results is not None and len(aggregated_results) > 0:
         return _format_from_aggregated_results(
@@ -139,6 +145,7 @@ def format_as_phenopacket_v2(
             embedding_model=embedding_model,
             reranker_model=reranker_model,
             hpo_version=hpo_version,
+            input_text=input_text,
         )
     else:
         # Return valid empty Phenopacket instead of raw "{}" string
@@ -150,6 +157,7 @@ def format_as_phenopacket_v2(
             embedding_model=embedding_model,
             reranker_model=reranker_model,
             hpo_version=hpo_version,
+            input_text=input_text,
         )
 
 
@@ -159,6 +167,7 @@ def _format_from_chunk_results(
     embedding_model: Optional[str] = None,
     reranker_model: Optional[str] = None,
     hpo_version: str = "unknown",
+    input_text: Optional[str] = None,
 ) -> str:
     """Format phenopacket from chunk-level results with text evidence.
 
@@ -173,6 +182,7 @@ def _format_from_chunk_results(
         embedding_model: Name of embedding model used.
         reranker_model: Name of reranker model used.
         hpo_version: HPO version string.
+        input_text: Original input text for metadata.
 
     Returns:
         A JSON string representing the Phenopacket.
@@ -241,6 +251,7 @@ def _format_from_chunk_results(
         embedding_model=embedding_model,
         reranker_model=reranker_model,
         hpo_version=hpo_version,
+        input_text=input_text,
     )
 
 
@@ -250,6 +261,7 @@ def _format_from_aggregated_results(
     embedding_model: Optional[str] = None,
     reranker_model: Optional[str] = None,
     hpo_version: str = "unknown",
+    input_text: Optional[str] = None,
 ) -> str:
     """Format phenopacket from aggregated results (legacy/fallback format).
 
@@ -260,6 +272,7 @@ def _format_from_aggregated_results(
         embedding_model: Name of embedding model used.
         reranker_model: Name of reranker model used.
         hpo_version: HPO version string.
+        input_text: Original input text/query for metadata.
 
     Returns:
         A JSON string representing the Phenopacket.
@@ -306,6 +319,7 @@ def _format_from_aggregated_results(
         embedding_model=embedding_model,
         reranker_model=reranker_model,
         hpo_version=hpo_version,
+        input_text=input_text,
     )
 
 
@@ -316,6 +330,7 @@ def _create_phenopacket_json(
     embedding_model: Optional[str] = None,
     reranker_model: Optional[str] = None,
     hpo_version: str = "unknown",
+    input_text: Optional[str] = None,
 ) -> str:
     """Create the final Phenopacket JSON from components.
 
@@ -326,6 +341,7 @@ def _create_phenopacket_json(
         embedding_model: Name of embedding model used.
         reranker_model: Name of reranker model used.
         hpo_version: HPO version string.
+        input_text: Original input text for provenance tracking.
 
     Returns:
         A JSON string representing the Phenopacket.
@@ -348,6 +364,19 @@ def _create_phenopacket_json(
             ExternalReference(
                 id="phentrieve:reranker_model",
                 description=reranker_model,
+            )
+        )
+    if input_text:
+        # Truncate long input text to prevent excessive payload size
+        truncated = (
+            input_text
+            if len(input_text) <= _MAX_INPUT_TEXT_LENGTH
+            else input_text[:_MAX_INPUT_TEXT_LENGTH] + "..."
+        )
+        external_references.append(
+            ExternalReference(
+                id="phentrieve:input_text",
+                description=truncated,
             )
         )
 
