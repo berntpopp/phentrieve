@@ -82,9 +82,7 @@ def test_bootstrap_ci_reasonable_bounds():
     """Bootstrap CI should produce reasonable confidence bounds."""
     values = [0.1, 0.2, 0.3, 0.4, 0.5]
 
-    point, ci_lower, ci_upper = bootstrap_confidence_interval(
-        values, n_bootstrap=1000
-    )
+    point, ci_lower, ci_upper = bootstrap_confidence_interval(values, n_bootstrap=1000)
 
     # Point estimate should be mean
     assert point == pytest.approx(np.mean(values), abs=1e-6)
