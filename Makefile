@@ -1,5 +1,9 @@
 .PHONY: help format lint typecheck check test test-scripts test-all clean all install install-text-processing lock upgrade add remove clean-venv frontend-install frontend-lint frontend-format frontend-dev frontend-build docker-build docker-up docker-down docker-logs dev-api dev-frontend dev-all test-api test-api-cov test-e2e test-e2e-security test-e2e-health test-e2e-api test-e2e-fast test-e2e-clean test-e2e-logs test-e2e-shell cov-package cov-api cov-frontend cov-all security security-python security-frontend security-audit security-report
 
+# Docker Compose command detection (supports both v1 and v2)
+# Prefer v2 (docker compose) over v1 (docker-compose)
+DOCKER_COMPOSE := $(shell if command -v docker >/dev/null 2>&1 && docker compose version >/dev/null 2>&1; then echo "docker compose"; elif command -v docker-compose >/dev/null 2>&1; then echo "docker-compose"; else echo "docker compose"; fi)
+
 # Default target
 .DEFAULT_GOAL := help
 
@@ -113,19 +117,19 @@ frontend-i18n-report: ## Generate detailed i18n validation report (JSON)
 ##@ Docker
 
 docker-build: ## Build Docker images
-	docker-compose build
+	$(DOCKER_COMPOSE) build
 
 docker-up: ## Start Docker containers
-	docker-compose up -d
+	$(DOCKER_COMPOSE) up -d
 
 docker-down: ## Stop Docker containers
-	docker-compose down
+	$(DOCKER_COMPOSE) down
 
 docker-logs: ## View Docker logs
-	docker-compose logs -f
+	$(DOCKER_COMPOSE) logs -f
 
 docker-dev: ## Start development Docker stack
-	docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+	$(DOCKER_COMPOSE) -f docker-compose.yml -f docker-compose.dev.yml up
 
 ##@ Local Development (Fast - No Docker)
 
@@ -359,7 +363,7 @@ test-e2e:  ## Run all E2E tests (requires Docker)
 	@echo ""
 	@echo "Prerequisites:"
 	@echo "  • Docker Engine running"
-	@echo "  • docker-compose V2 installed"
+	@echo "  • Docker Compose (v1 or v2) installed"
 	@echo "  • HPO data prepared (data/hpo_core_data/)"
 	@echo "  • ~6GB free disk space"
 	@echo "  • ~4GB RAM available"
@@ -398,16 +402,16 @@ test-e2e-fast:  ## Run E2E tests with existing containers (no rebuild)
 .PHONY: test-e2e-clean
 test-e2e-clean:  ## Clean up E2E test Docker resources
 	@echo "Cleaning up E2E test Docker resources..."
-	docker-compose -f docker-compose.test.yml -p phentrieve_e2e_test down -v
+	$(DOCKER_COMPOSE) -f docker-compose.test.yml -p phentrieve_e2e_test down -v
 	@echo "E2E test resources cleaned."
 
 .PHONY: test-e2e-logs
 test-e2e-logs:  ## View E2E test container logs
-	docker-compose -f docker-compose.test.yml -p phentrieve_e2e_test logs -f
+	$(DOCKER_COMPOSE) -f docker-compose.test.yml -p phentrieve_e2e_test logs -f
 
 .PHONY: test-e2e-shell
 test-e2e-shell:  ## Open shell in E2E test API container
-	docker-compose -f docker-compose.test.yml -p phentrieve_e2e_test exec phentrieve_api_test sh
+	$(DOCKER_COMPOSE) -f docker-compose.test.yml -p phentrieve_e2e_test exec phentrieve_api_test sh
 
 ##@ Package Coverage Testing
 
