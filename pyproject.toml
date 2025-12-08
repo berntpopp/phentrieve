@@ -48,26 +48,23 @@ dependencies = [
     "tomli>=2.0.0; python_version < '3.11'", # TOML parser backport for Python 3.10
     "phenopackets>=2.0.0,<3.0.0",
     "protobuf>=4.25.3",
-    "scikit-learn>=1.4.0"
+    "scikit-learn>=1.4.0",
+    # Text processing (required for assertion detection in all CLI commands)
+    "spacy>=3.8.0,<4.0.0",                  # spaCy 3.8+ supports NumPy 2.x and typer 0.16+
+    "en_core_web_sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl",
 ]
 
 [project.scripts]
 phentrieve = "phentrieve.cli:app"
 
 [project.optional-dependencies]
-text_processing = [
-    "spacy>=3.8.0,<4.0.0",  # spaCy 3.8+ supports NumPy 2.x and typer 0.16+
-    "en_core_web_sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl"  # Compatible with spacy 3.8+
-]
+# API server dependencies (for running the FastAPI backend)
 api = [
     "fastapi>=0.115.0",
     "uvicorn[standard]>=0.32.0",
     "python-dotenv>=1.0.0",
 ]
-# Install everything with: pipx install "phentrieve[all]"
-all = [
-    "phentrieve[text_processing,api]",
-]
+# Install CLI + API with: pip install "phentrieve[api]"
 
 [tool.setuptools]
 
