@@ -27,9 +27,9 @@ from phentrieve.retrieval.dense_retriever import (
     DenseRetriever,
     calculate_similarity,
 )
-from phentrieve.text_processing.assertion_detection import (
-    CombinedAssertionDetector,
-)
+
+# Note: CombinedAssertionDetector is imported lazily when needed
+# to avoid requiring spacy (optional dependency) for basic query operations
 from phentrieve.utils import (
     detect_language,
     generate_collection_name,
@@ -42,7 +42,7 @@ _global_retriever: Optional[DenseRetriever] = None
 _global_cross_encoder: Optional[Any] = (
     None  # CrossEncoder type from sentence_transformers
 )
-_global_query_assertion_detector: Optional[CombinedAssertionDetector] = None
+_global_query_assertion_detector: Optional[Any] = None  # CombinedAssertionDetector
 
 
 def convert_results_to_candidates(
@@ -755,6 +755,11 @@ def orchestrate_query(
         query_assertion_detector_to_use = None
 
         if detect_query_assertion:
+            # Lazy import to avoid requiring spacy for basic queries
+            from phentrieve.text_processing.assertion_detection import (
+                CombinedAssertionDetector,
+            )
+
             actual_query_assertion_lang = query_assertion_language
             if not actual_query_assertion_lang and query_text:
                 actual_query_assertion_lang = detect_language(
