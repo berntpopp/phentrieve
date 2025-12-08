@@ -9,6 +9,7 @@ using various metrics including:
 """
 
 import logging
+import math
 import os
 from enum import Enum
 from functools import lru_cache
@@ -688,3 +689,188 @@ def hit_rate_at_k(
             return 1.0
 
     return 0.0
+
+
+def ndcg_at_k(
+    results: dict[str, Any],
+    expected_ids: list[str],
+    k: int = 10,
+    relevance_scores: dict[str, float] | None = None,
+) -> float:
+    """
+    Calculate Normalized Discounted Cumulative Gain at K.
+
+    Args:
+        results: Retrieval results from dense retriever
+        expected_ids: List of relevant HPO IDs
+        k: Number of results to consider
+        relevance_scores: Optional dict mapping HPO ID to relevance score (default: binary)
+
+    Returns:
+        NDCG@K score (0.0 to 1.0)
+    """
+    if not results or not results.get("metadatas") or not expected_ids:
+        return 0.0
+
+    # Extract retrieved HPO IDs with similarity scores
+    retrieved_ids = []
+    for metadata, distance in zip(results["metadatas"][0], results["distances"][0]):
+        hpo_id = metadata.get("hpo_id", "")
+        similarity = calculate_similarity(distance)
+        retrieved_ids.append((hpo_id, similarity))
+
+    # Sort by similarity (descending) to get ranking
+    retrieved_ids.sort(key=lambda x: x[1], reverse=True)
+
+    # Calculate DCG
+    dcg = 0.0
+    for i, (hpo_id, _) in enumerate(retrieved_ids[:k]):
+        if hpo_id in expected_ids:
+            # Binary relevance (1 if relevant, 0 otherwise)
+            # Or use graded relevance if provided
+            rel = relevance_scores.get(hpo_id, 1.0) if relevance_scores else 1.0
+            # Discount factor: 1 / log2(rank + 1)
+            dcg += rel / math.log2(i + 2)  # +2 because rank is 1-indexed
+
+    # Calculate ideal DCG (all relevant docs at top ranks)
+    ideal_rels = sorted(
+        [
+            relevance_scores.get(hpo_id, 1.0) if relevance_scores else 1.0
+            for hpo_id in expected_ids
+        ],
+        reverse=True,
+    )[:k]
+
+    idcg = sum(rel / math.log2(i + 2) for i, rel in enumerate(ideal_rels))
+
+    if idcg == 0:
+        return 0.0
+
+    return dcg / idcg
+
+
+def recall_at_k(
+    results: dict[str, Any],
+    expected_ids: list[str],
+    k: int = 10,
+) -> float:
+    """
+    Calculate Recall at K.
+
+    Args:
+        results: Retrieval results from dense retriever
+        expected_ids: List of relevant HPO IDs
+        k: Number of results to consider
+
+    Returns:
+        Recall@K score (0.0 to 1.0)
+    """
+    if not results or not results.get("metadatas") or not expected_ids:
+        return 0.0
+
+    # Extract retrieved HPO IDs with similarity scores
+    retrieved_ids = []
+    for metadata, distance in zip(results["metadatas"][0], results["distances"][0]):
+        hpo_id = metadata.get("hpo_id", "")
+        similarity = calculate_similarity(distance)
+        retrieved_ids.append((hpo_id, similarity))
+
+    # Sort by similarity (descending)
+    retrieved_ids.sort(key=lambda x: x[1], reverse=True)
+
+    # Take top k
+    top_k_ids = [hpo_id for hpo_id, _ in retrieved_ids[:k]]
+
+    # Count relevant items found
+    relevant_found = len(set(top_k_ids).intersection(set(expected_ids)))
+
+    return relevant_found / len(expected_ids)
+
+
+def precision_at_k(
+    results: dict[str, Any],
+    expected_ids: list[str],
+    k: int = 10,
+) -> float:
+    """
+    Calculate Precision at K.
+
+    Args:
+        results: Retrieval results from dense retriever
+        expected_ids: List of relevant HPO IDs
+        k: Number of results to consider
+
+    Returns:
+        Precision@K score (0.0 to 1.0)
+    """
+    if not results or not results.get("metadatas"):
+        return 0.0
+
+    # Extract retrieved HPO IDs with similarity scores
+    retrieved_ids = []
+    for metadata, distance in zip(results["metadatas"][0], results["distances"][0]):
+        hpo_id = metadata.get("hpo_id", "")
+        similarity = calculate_similarity(distance)
+        retrieved_ids.append((hpo_id, similarity))
+
+    # Sort by similarity (descending)
+    retrieved_ids.sort(key=lambda x: x[1], reverse=True)
+
+    # Take top k
+    top_k_ids = retrieved_ids[:k]
+
+    if not top_k_ids:
+        return 0.0
+
+    # Count relevant items in top K
+    relevant_in_top_k = sum(1 for hpo_id, _ in top_k_ids if hpo_id in expected_ids)
+
+    return relevant_in_top_k / len(top_k_ids)
+
+
+def average_precision_at_k(
+    results: dict[str, Any],
+    expected_ids: list[str],
+    k: int = 10,
+) -> float:
+    """
+    Calculate Average Precision at K for a single query.
+
+    Args:
+        results: Retrieval results from dense retriever
+        expected_ids: List of relevant HPO IDs
+        k: Number of results to consider
+
+    Returns:
+        AP@K score (0.0 to 1.0)
+    """
+    if not results or not results.get("metadatas") or not expected_ids:
+        return 0.0
+
+    # Extract retrieved HPO IDs with similarity scores
+    retrieved_ids = []
+    for metadata, distance in zip(results["metadatas"][0], results["distances"][0]):
+        hpo_id = metadata.get("hpo_id", "")
+        similarity = calculate_similarity(distance)
+        retrieved_ids.append((hpo_id, similarity))
+
+    # Sort by similarity (descending)
+    retrieved_ids.sort(key=lambda x: x[1], reverse=True)
+
+    expected_set = set(expected_ids)
+    relevant_count = 0
+    precision_sum = 0.0
+
+    for i, (hpo_id, _) in enumerate(retrieved_ids[:k]):
+        if hpo_id in expected_set:
+            relevant_count += 1
+            # Precision at this rank
+            precision_at_i = relevant_count / (i + 1)
+            precision_sum += precision_at_i
+
+    if relevant_count == 0:
+        return 0.0
+
+    # Normalize by number of relevant docs (up to k)
+    num_relevant = min(len(expected_ids), k)
+    return precision_sum / num_relevant
