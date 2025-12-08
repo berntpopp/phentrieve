@@ -53,7 +53,11 @@ def _format_interactive_results(
     embedding_model: Optional[str] = None,
     reranker_model: Optional[str] = None,
 ) -> str:
-    """Format query results for interactive mode display.
+    """Format query results for display in various output formats.
+
+    This is a general formatting function used in both interactive and
+    non-interactive contexts. Supports text, JSON, JSON Lines, and
+    Phenopacket v2 JSON output formats.
 
     Args:
         query_results: Query results to format
