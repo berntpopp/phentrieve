@@ -79,9 +79,10 @@ $$Precision@K = \frac{|Retrieved@K \cap Relevant|}{K}$$
 
 The mean of average precision scores for each query, considering only the first K results.
 
-$$AP@K = \frac{1}{\min(K, |Relevant|)} \sum_{k=1}^{K} Precision@k \times rel_k$$
+$$AP@K = \frac{1}{\min(K, |Relevant|)} \sum_{k=1}^{K} Precision@k \times \mathbb{1}(\text{item at rank } k \text{ is relevant})$$
 $$MAP@K = \frac{1}{|Q|} \sum_{i=1}^{|Q|} AP@K_i$$
 
+Where $\mathbb{1}(\text{item at rank } k \text{ is relevant})$ is 1 if the item at position $k$ is relevant, and 0 otherwise.
 ### Maximum Ontology Similarity (MaxOntSim@K)
 
 A domain-specific metric that measures the maximum semantic similarity between any expected HPO term and any retrieved term in the top K results, using ontology-based similarity measures.
