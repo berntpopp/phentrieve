@@ -117,3 +117,14 @@ results_dir: "~/phentrieve_data/results"
 #
 #   # Chunk size for streaming downloads (in bytes)
 #   chunk_size: 8192
+
+# =============================================================================
+# EXTRACTION BENCHMARK CONFIGURATION
+# =============================================================================
+
+extraction_benchmark:
+  averaging_strategy: micro  # micro, macro, weighted
+  enable_assertions: true
+  enable_relaxed_matching: false
+  bootstrap_samples: 1000
+  confidence_level: 0.95

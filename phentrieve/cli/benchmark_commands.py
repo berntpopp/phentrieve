@@ -7,8 +7,17 @@ from typing import Annotated, Optional
 
 import typer
 
+from phentrieve.benchmark.extraction_cli import app as extraction_app
+
 # Create the Typer app for this command group
 app = typer.Typer()
+
+# Add extraction benchmark as subcommand group
+app.add_typer(
+    extraction_app,
+    name="extraction",
+    help="Document-level HPO extraction benchmarking.",
+)
 
 
 @app.command("run")
