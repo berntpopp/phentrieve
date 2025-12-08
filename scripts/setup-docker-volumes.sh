@@ -2,15 +2,21 @@
 # Setup Docker volume permissions for Phentrieve
 #
 # This script ensures that Docker volume directories have correct permissions
-# for the non-root phentrieve user (UID 10001).
+# for both local development and Docker container usage.
+#
+# Features:
+# - Creates necessary directories for data, indexes, and HuggingFace cache
+# - Sets permissions for dual-access (local user + Docker container UID 10001)
+# - Supports multiple permission methods: sudo, Docker-based, or world-writable
 #
 # Platform behavior:
-# - Linux: Requires manual permission setup (this script handles it)
+# - Linux: Sets world-writable (777) permissions for dual local/Docker access
 # - macOS: Docker Desktop handles permissions automatically (no setup needed)
 # - Windows: Docker Desktop handles permissions automatically (no setup needed)
 #
 # Usage:
-#   sudo ./scripts/setup-docker-volumes.sh
+#   ./scripts/setup-docker-volumes.sh          # Tries Docker-based or world-writable
+#   sudo ./scripts/setup-docker-volumes.sh     # Uses sudo for stricter permissions
 #
 # Environment variables:
 #   PHENTRIEVE_HOST_DATA_DIR    - Base data directory (default: ./data)
@@ -28,6 +34,7 @@ HF_CACHE_DIR="${PHENTRIEVE_HOST_HF_CACHE_DIR:-${DATA_DIR}/hf_cache}"
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
+CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
 echo "========================================"
@@ -42,29 +49,74 @@ mkdir -p "${HF_CACHE_DIR}"
 echo "✓ Directories created"
 echo ""
 
-# Check platform
-if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-    echo "Platform: Linux"
-    echo "→ Permission setup required"
-    echo ""
-
-    # Check if running as root or with sudo
-    if [ "$EUID" -ne 0 ]; then
-        echo -e "${RED}⚠️  Error: Not running as root${NC}"
-        echo ""
-        echo "This script must be run with sudo on Linux to change ownership."
-        echo ""
-        echo "Run: ${YELLOW}sudo $0${NC}"
-        echo ""
-        exit 1
+# Function to fix permissions using Docker container
+fix_permissions_with_docker() {
+    echo "Using Docker container to fix permissions..."
+    if docker run --rm -v "$(pwd)/${DATA_DIR}:/data" alpine:3.20 sh -c 'chmod -R 777 /data/indexes /data/hf_cache 2>/dev/null || true' 2>/dev/null; then
+        echo -e "${GREEN}✓ Permissions set via Docker${NC}"
+        return 0
+    else
+        echo -e "${YELLOW}⚠️  Docker-based permission fix failed${NC}"
+        return 1
     fi
+}
 
-    # Set ownership
+# Function to fix permissions with sudo
+fix_permissions_with_sudo() {
     echo "Setting ownership to UID ${PHENTRIEVE_UID}:${PHENTRIEVE_GID}..."
     chown -R "${PHENTRIEVE_UID}:${PHENTRIEVE_GID}" "${DATA_DIR}/indexes"
     chown -R "${PHENTRIEVE_UID}:${PHENTRIEVE_GID}" "${HF_CACHE_DIR}"
-
+    # Also set world-writable for dual-access in development
+    chmod -R 777 "${DATA_DIR}/indexes" "${HF_CACHE_DIR}"
     echo -e "${GREEN}✓ Permissions set successfully${NC}"
+}
+
+# Function to fix permissions with chmod only (no root needed)
+fix_permissions_with_chmod() {
+    echo "Setting world-writable permissions for dual-access..."
+    if chmod -R 777 "${DATA_DIR}/indexes" "${HF_CACHE_DIR}" 2>/dev/null; then
+        echo -e "${GREEN}✓ Permissions set with chmod${NC}"
+        return 0
+    else
+        echo -e "${YELLOW}⚠️  chmod failed (may need different ownership)${NC}"
+        return 1
+    fi
+}
+
+# Check platform
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    echo "Platform: Linux"
+    echo "→ Permission setup for dual-access (local + Docker)"
+    echo ""
+
+    # Check if running as root or with sudo
+    if [ "$EUID" -eq 0 ]; then
+        echo -e "${CYAN}Running as root - using sudo method${NC}"
+        fix_permissions_with_sudo
+    else
+        echo "Not running as root - trying alternative methods..."
+        echo ""
+
+        # Try chmod first (works if user owns the directories)
+        if fix_permissions_with_chmod; then
+            echo ""
+        # Try Docker-based fix if chmod fails
+        elif command -v docker &> /dev/null && fix_permissions_with_docker; then
+            echo ""
+        else
+            echo ""
+            echo -e "${RED}⚠️  Permission fix failed${NC}"
+            echo ""
+            echo "Please run with sudo:"
+            echo "  ${YELLOW}sudo $0${NC}"
+            echo ""
+            echo "Or manually fix permissions:"
+            echo "  sudo chmod -R 777 ${DATA_DIR}/indexes ${HF_CACHE_DIR}"
+            echo ""
+            exit 1
+        fi
+    fi
+
     echo ""
     echo "Directories configured:"
     echo "  - ${DATA_DIR}/indexes"
@@ -88,12 +140,10 @@ else
     echo -e "${YELLOW}⚠️  Warning: Unknown platform${NC}"
     echo ""
     echo "You may need to manually set permissions on:"
-    echo "  - ${DATA_DIR}/indexes (UID:GID = ${PHENTRIEVE_UID}:${PHENTRIEVE_GID})"
-    echo "  - ${HF_CACHE_DIR} (UID:GID = ${PHENTRIEVE_UID}:${PHENTRIEVE_GID})"
+    echo "  - ${DATA_DIR}/indexes"
+    echo "  - ${HF_CACHE_DIR}"
     echo ""
-    echo "On Linux, run:"
-    echo "  sudo chown -R ${PHENTRIEVE_UID}:${PHENTRIEVE_GID} ${DATA_DIR}/indexes"
-    echo "  sudo chown -R ${PHENTRIEVE_UID}:${PHENTRIEVE_GID} ${HF_CACHE_DIR}"
+    echo "Try: chmod -R 777 ${DATA_DIR}/indexes ${HF_CACHE_DIR}"
 fi
 
 echo ""

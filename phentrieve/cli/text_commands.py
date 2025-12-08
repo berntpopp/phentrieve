@@ -29,11 +29,203 @@ logger = logging.getLogger(__name__)
 app = typer.Typer()
 
 
+@app.command()
+def interactive(
+    language: Annotated[
+        str,
+        typer.Option("--language", "-l", help="Language of the text (en, de, etc.)"),
+    ] = "en",
+    strategy: Annotated[
+        str,
+        typer.Option(
+            "--strategy",
+            "-s",
+            help="Predefined chunking strategy (simple, semantic, detailed, sliding_window, sliding_window_cleaned, sliding_window_punct_cleaned, sliding_window_punct_conj_cleaned)",
+        ),
+    ] = "sliding_window_punct_conj_cleaned",
+    window_size: Annotated[
+        int,
+        typer.Option(
+            "--window-size",
+            "-ws",
+            help="Sliding window size in tokens (only for sliding_window strategy)",
+        ),
+    ] = 3,
+    step_size: Annotated[
+        int,
+        typer.Option(
+            "--step-size",
+            "-ss",
+            help="Sliding window step size in tokens (only for sliding_window strategy)",
+        ),
+    ] = 1,
+    split_threshold: Annotated[
+        float,
+        typer.Option(
+            "--threshold",
+            "-t",
+            help="Similarity threshold for splitting (0-1, only for sliding_window strategy)",
+        ),
+    ] = 0.5,
+    min_segment_length: Annotated[
+        int,
+        typer.Option(
+            "--min-segment",
+            "-ms",
+            help="Minimum segment length in words (only for sliding_window strategy)",
+        ),
+    ] = 2,
+    semantic_chunker_model: Annotated[
+        Optional[str],
+        typer.Option(
+            "--semantic-model",
+            "--s-model",
+            help=f"Model name for semantic chunking (default: {DEFAULT_MODEL})",
+        ),
+    ] = DEFAULT_MODEL,
+    retrieval_model: Annotated[
+        Optional[str],
+        typer.Option("--model", "-m", help="Model name for HPO term retrieval"),
+    ] = None,
+    chunk_retrieval_threshold: Annotated[
+        float,
+        typer.Option(
+            "--chunk-retrieval-threshold",
+            "-crt",
+            help="Minimum similarity score for HPO term matches per chunk (0.0-1.0)",
+        ),
+    ] = 0.3,
+    num_results: Annotated[
+        int,
+        typer.Option(
+            "--num-results",
+            "-n",
+            help="Maximum number of HPO terms to return per chunk",
+        ),
+    ] = 5,
+    no_assertion_detection: Annotated[
+        bool,
+        typer.Option(
+            "--no-assertion",
+            help="Disable assertion detection (treat all chunks as affirmed)",
+        ),
+    ] = False,
+    assertion_preference: Annotated[
+        str,
+        typer.Option(
+            "--assertion-preference",
+            help="Assertion detection strategy preference (dependency, keyword, any_negative)",
+        ),
+    ] = "dependency",
+    enable_reranker: Annotated[
+        bool,
+        typer.Option(
+            "--enable-reranker",
+            "--rerank",
+            help="Enable cross-encoder reranking of results",
+        ),
+    ] = False,
+    reranker_model: Annotated[
+        Optional[str],
+        typer.Option(
+            "--reranker-model",
+            help="Cross-encoder model for reranking (if reranking enabled)",
+        ),
+    ] = None,
+    annotations_above: Annotated[
+        bool,
+        typer.Option(
+            "--annotations-above",
+            "-aa",
+            help="Show annotations above chunks instead of below",
+        ),
+    ] = False,
+    aggregated_term_confidence: Annotated[
+        float,
+        typer.Option(
+            "--aggregated-term-confidence",
+            "-atc",
+            help="Minimum confidence score for aggregated HPO terms",
+        ),
+    ] = 0.35,
+    top_term_per_chunk: Annotated[
+        bool,
+        typer.Option(
+            "--top-term-per-chunk",
+            help="Keep only the top term per chunk",
+        ),
+    ] = False,
+    debug: Annotated[
+        bool,
+        typer.Option("--debug", help="Enable debug logging"),
+    ] = False,
+) -> None:
+    """Interactive text processing mode for HPO term extraction.
+
+    This command enables an interactive session where you can enter clinical text
+    and see the chunking, annotations, and HPO term matches displayed with rich
+    formatting. Each chunk is highlighted with its annotations shown in a box
+    below the chunk text.
+
+    Example usage:
+        phentrieve text interactive
+        phentrieve text interactive -l de --annotations-above
+        phentrieve text interactive -s semantic --enable-reranker
+    """
+    from phentrieve.cli.text_interactive import interactive_text_mode
+
+    interactive_text_mode(
+        language=language,
+        strategy=strategy,
+        window_size=window_size,
+        step_size=step_size,
+        split_threshold=split_threshold,
+        min_segment_length=min_segment_length,
+        semantic_chunker_model=semantic_chunker_model,
+        retrieval_model=retrieval_model,
+        chunk_retrieval_threshold=chunk_retrieval_threshold,
+        num_results=num_results,
+        no_assertion_detection=no_assertion_detection,
+        assertion_preference=assertion_preference,
+        enable_reranker=enable_reranker,
+        reranker_model=reranker_model,
+        annotations_above=annotations_above,
+        aggregated_term_confidence=aggregated_term_confidence,
+        top_term_per_chunk=top_term_per_chunk,
+        debug=debug,
+    )
+
+
+@app.callback(invoke_without_command=True)
+def main_callback(
+    ctx: typer.Context,
+    interactive: Annotated[
+        bool,
+        typer.Option(
+            "--interactive",
+            "-i",
+            help="Enable interactive mode for continuous text processing",
+        ),
+    ] = False,
+):
+    """Text processing commands for clinical text analysis."""
+    if ctx.invoked_subcommand is None:
+        if interactive:
+            # Call interactive mode directly
+            from phentrieve.cli.text_interactive import interactive_text_mode
+
+            interactive_text_mode()
+        else:
+            # Show help if no subcommand and not interactive
+            typer.echo(ctx.get_help())
+            raise typer.Exit()
+
+
 @app.command("process")
 def process_text_for_hpo_command(
     text: str = typer.Argument(
         None,
-        help="Text to process for HPO term extraction (can be a string or file path)",
+        help="Text to process for HPO term extraction (can be a string or file path). Not required in interactive mode.",
     ),
     input_file: Annotated[
         Optional[Path],
@@ -155,7 +347,7 @@ def process_text_for_hpo_command(
         typer.Option(
             "--output-format",
             "-o",
-            help="Output format for results (json_lines, rich_json_summary, csv_hpo_list)",
+            help="Output format for results (json_lines, rich_json_summary, csv_hpo_list, phenopacket_v2_json)",
         ),
     ] = "json_lines",
     cross_language_hpo_retrieval: Annotated[
@@ -456,6 +648,13 @@ def process_text_for_hpo_command(
         ) -> list[dict]:
             """Adapt result fields for enrichment, then clean up temporary fields.
 
+            This helper supports two input shapes:
+            - Flat results: List[dict] where each dict is an HPO hit (has keys like 'id'/'hpo_id' or 'name'/'label')
+            - Chunked results: List[dict] where each dict represents a chunk and contains a 'matches' list
+
+            For chunked results we flatten all matches, enrich them, then re-attach enriched details to the
+            original chunk structure.
+
             Args:
                 results: List of result dictionaries to enrich
                 fields_to_add: Mapping of source_field -> target_field to add temporarily
@@ -464,17 +663,71 @@ def process_text_for_hpo_command(
             Returns:
                 Enriched results with temporary fields removed
             """
-            # Add required fields for enrichment (e.g., name -> label)
-            adapted = [
-                {**r, **{target: r[source] for source, target in fields_to_add.items()}}
-                for r in results
-            ]
-            # Enrich with HPO term details
-            enriched = enrich_results_with_details(adapted)
+            if not results:
+                return []
+
+            # Detect chunked shape (presence of 'matches' key in first item)
+            first = results[0]
+            if (
+                isinstance(first, dict)
+                and "matches" in first
+                and isinstance(first["matches"], list)
+            ):
+                # Flatten matches for enrichment
+                flat_matches = []
+                match_map = []  # list of tuples (chunk_idx, match_idx)
+                for ci, chunk in enumerate(results):
+                    for mi, match in enumerate(chunk.get("matches", [])):
+                        # Create shallow copy and add temporary fields
+                        mcopy = {**match}
+                        for source, target in fields_to_add.items():
+                            if source in mcopy:
+                                mcopy[target] = mcopy[source]
+                        # Always ensure HPO enrichment key exists: prefer explicit mapping, fallback from 'id'
+                        if "hpo_id" not in mcopy and "id" in mcopy:
+                            mcopy["hpo_id"] = mcopy["id"]
+                        flat_matches.append(mcopy)
+                        match_map.append((ci, mi))
+
+                # Enrich flattened matches
+                enriched_flat = enrich_results_with_details(flat_matches)
+
+                # Re-attach enriched details back to original structure
+                for (ci, mi), enriched in zip(match_map, enriched_flat):
+                    # update the original match dict in-place with definition/synonyms
+                    try:
+                        results[ci]["matches"][mi].update(
+                            {
+                                k: v
+                                for k, v in enriched.items()
+                                if k not in fields_to_remove
+                            }
+                        )
+                    except Exception as e:
+                        logger.debug(
+                            f"Failed to re-attach enriched data for chunk {ci}, match {mi}: {e}"
+                        )
+                        continue
+
+                return results
+
+            # Flat shape: adapt each result dict with temporary fields and enrich directly
+            adapted = []
+            for r in results:
+                rcopy = {**r}
+                for source, target in fields_to_add.items():
+                    if source in rcopy:
+                        rcopy[target] = rcopy[source]
+                # Also ensure hpo_id exists when input uses 'id'
+                if "hpo_id" not in rcopy and "id" in rcopy:
+                    rcopy["hpo_id"] = rcopy["id"]
+                adapted.append(rcopy)
+
+            enriched_list = enrich_results_with_details(adapted)
             # Remove temporary fields, keeping definition and synonyms
             cleaned = [
                 {k: v for k, v in r.items() if k not in fields_to_remove}
-                for r in enriched
+                for r in enriched_list
             ]
             return cleaned
 
@@ -505,9 +758,16 @@ def process_text_for_hpo_command(
         logger.debug(f"First chunk result keys: {list(chunk_results[0].keys())}")
         logger.debug(f"First chunk result sample: {chunk_results[0]}")
 
-    # Call the formatting function
+    # Call the formatting function with model information
     _format_and_output_results(
-        aggregated_results, chunk_results, processed_chunks, language, output_format
+        aggregated_results,
+        chunk_results,
+        processed_chunks,
+        language,
+        output_format,
+        embedding_model=retrieval_model,
+        reranker_model=reranker_model if enable_reranker else None,
+        input_text=raw_text,
     )
 
     elapsed_time = time.time() - start_time
@@ -739,6 +999,9 @@ def _format_and_output_results(
     processed_chunks: list[dict],
     language: str,
     output_format: str,
+    embedding_model: Optional[str] = None,
+    reranker_model: Optional[str] = None,
+    input_text: Optional[str] = None,
 ) -> None:
     """Format and output the HPO extraction results according to the specified format.
 
@@ -748,7 +1011,27 @@ def _format_and_output_results(
         processed_chunks: The processed text chunks
         language: The language of the text
         output_format: The output format (json_lines, rich_json_summary, csv_hpo_list)
+        embedding_model: Name of embedding model used for retrieval
+        reranker_model: Name of reranker model used (if enabled)
+        input_text: Original input text for phenopacket metadata
     """
+    if output_format == "phenopacket_v2_json":
+        from phentrieve.phenopackets.utils import format_as_phenopacket_v2
+
+        # Note: In this function, the variable naming is swapped from the orchestrator:
+        # - 'aggregated_results' here is actually 'chunk_results' from orchestrator
+        #   (contains chunk_idx, chunk_text, and matches per chunk)
+        # - 'chunk_results' here is actually 'aggregated_results' from orchestrator
+        # We use 'aggregated_results' which has the per-chunk structure with text evidence
+        phenopacket = format_as_phenopacket_v2(
+            chunk_results=aggregated_results,
+            embedding_model=embedding_model,
+            reranker_model=reranker_model,
+            input_text=input_text,
+        )
+        typer.echo(phenopacket)
+        return  # early exit
+
     typer.echo(f"Formatting results in {output_format} format...")
 
     if output_format == "json_lines":
@@ -841,7 +1124,7 @@ def _format_and_output_results(
     else:
         typer.secho(
             f"Error: Unknown output format '{output_format}'. "
-            f"Supported formats: json_lines, rich_json_summary, csv_hpo_list",
+            f"Supported formats: json_lines, rich_json_summary, csv_hpo_list, phenopacket_v2_json",
             fg=typer.colors.RED,
         )
         raise typer.Exit(code=1)

@@ -31,7 +31,7 @@
     "vue-i18n": "^11.2.1",
     "vue-router": "^4.6.3",
     "vue-virtual-scroller": "^2.0.0-beta.8",
-    "vuetify": "^3.10.11"
+    "vuetify": "^3.11.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
@@ -40,7 +40,7 @@
     "@mdi/font": "^7.3.67",
     "@rollup/plugin-commonjs": "^29.0.0",
     "@vitejs/plugin-vue": "^6.0.0",
-    "@vitest/coverage-v8": "^4.0.13",
+    "@vitest/coverage-v8": "^4.0.15",
     "@vitest/ui": "^4.0.9",
     "@vue/test-utils": "^2.4.6",
     "autoprefixer": "^10.4.22",
@@ -51,7 +51,7 @@
     "globals": "^16.5.0",
     "happy-dom": "^20.0.10",
     "postcss": "^8.4.31",
-    "prettier": "^3.6.2",
+    "prettier": "^3.7.4",
     "rollup-plugin-visualizer": "^6.0.5",
     "terser": "^5.44.1",
     "vite": "^6.3.0",
