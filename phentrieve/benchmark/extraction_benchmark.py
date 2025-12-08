@@ -15,6 +15,7 @@ from __future__ import annotations
 import json
 import logging
 from dataclasses import dataclass
+from dataclasses import replace as dataclass_replace
 from datetime import datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -33,6 +34,14 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
+# Mapping from internal assertion status to benchmark format
+ASSERTION_STATUS_MAP: dict[str, str] = {
+    "affirmed": "PRESENT",
+    "negated": "ABSENT",
+    "uncertain": "UNCERTAIN",
+    "normal": "PRESENT",  # normal findings are present
+}
+
 
 @dataclass
 class ExtractionConfig:
@@ -50,6 +59,7 @@ class ExtractionConfig:
     bootstrap_ci: bool = True
     bootstrap_samples: int = 1000
     dataset: str = "all"  # For PhenoBERT: all, GSC_plus, ID_68, GeneReviews
+    detailed_output: bool = False  # Generate detailed chunk-level analysis JSON
 
 
 class HPOExtractor:
@@ -113,25 +123,50 @@ class HPOExtractor:
         Returns:
             List of (hpo_id, assertion) tuples
         """
+        results, _ = self.extract_with_details(text)
+        return results
+
+    def extract_with_details(
+        self, text: str
+    ) -> tuple[list[tuple[str, str]], dict[str, Any]]:
+        """
+        Extract HPO terms with full chunk-level details for analysis.
+
+        Args:
+            text: Clinical text to process
+
+        Returns:
+            Tuple of:
+            - List of (hpo_id, assertion) tuples
+            - Details dict with chunk_results, aggregated_results, and processed_chunks
+        """
         from phentrieve.text_processing.hpo_extraction_orchestrator import (
             orchestrate_hpo_extraction,
         )
 
         self._lazy_init()
-        assert self._pipeline is not None
-        assert self._retriever is not None
+        if self._pipeline is None or self._retriever is None:
+            raise RuntimeError(
+                f"Failed to initialize extraction components for model "
+                f"'{self.config.model_name}'. Ensure the ChromaDB index exists "
+                f"and the embedding model is available."
+            )
 
         # Process text into chunks
         processed_chunks = self._pipeline.process(text)
 
         if not processed_chunks:
-            return []
+            return [], {
+                "chunk_results": [],
+                "aggregated_results": [],
+                "processed_chunks": [],
+            }
 
         text_chunks = [chunk["text"] for chunk in processed_chunks]
         assertion_statuses = [chunk["status"].value for chunk in processed_chunks]
 
-        # Extract HPO terms
-        aggregated_results, _ = orchestrate_hpo_extraction(
+        # Extract HPO terms - NOW CAPTURE chunk_results!
+        aggregated_results, chunk_results = orchestrate_hpo_extraction(
             text_chunks=text_chunks,
             retriever=self._retriever,
             num_results_per_chunk=self.config.num_results_per_chunk,
@@ -144,23 +179,29 @@ class HPOExtractor:
             include_details=False,
         )
 
-        # Convert to (hpo_id, assertion) tuples
-        # Map assertion status to benchmark format
-        assertion_map = {
-            "affirmed": "PRESENT",
-            "negated": "ABSENT",
-            "uncertain": "UNCERTAIN",
-            "normal": "PRESENT",  # normal findings are present
-        }
-
+        # Convert to (hpo_id, assertion) tuples using module-level mapping
         results = []
         for term in aggregated_results:
             hpo_id = term["id"]
             status = term.get("status", term.get("assertion_status", "affirmed"))
-            assertion = assertion_map.get(status, "PRESENT")
+            assertion = ASSERTION_STATUS_MAP.get(status, "PRESENT")
             results.append((hpo_id, assertion))
 
-        return results
+        # Build details for analysis
+        details = {
+            "chunk_results": chunk_results,
+            "aggregated_results": aggregated_results,
+            "processed_chunks": [
+                {
+                    "chunk_idx": i,
+                    "text": chunk["text"],
+                    "assertion_status": chunk["status"].value,
+                }
+                for i, chunk in enumerate(processed_chunks)
+            ],
+        }
+
+        return results, details
 
 
 class ExtractionBenchmark:
@@ -182,24 +223,35 @@ class ExtractionBenchmark:
         config_overrides: dict[str, Any] | None = None,
     ) -> CorpusMetrics:
         """Run extraction benchmark on test dataset."""
-        # Apply config overrides
+        # Create config copy and apply overrides (don't mutate original)
+        config = dataclass_replace(self.config)
         if config_overrides:
             for key, value in config_overrides.items():
-                if hasattr(self.config, key):
-                    setattr(self.config, key, value)
+                if hasattr(config, key):
+                    setattr(config, key, value)
+
+        # Update extractor with new config for this run
+        self.extractor.config = config
 
         # Load test data
         test_data = self._load_test_data(test_file)
 
         # Process each document
         results: list[ExtractionResult] = []
+        detailed_results: list[dict[str, Any]] = []
         total_docs = len(test_data["documents"])
 
         for idx, doc in enumerate(test_data["documents"]):
             logger.info(f"Processing document {idx + 1}/{total_docs}: {doc['id']}")
 
-            # Extract HPO terms
-            extracted = self.extractor.extract(doc["text"])
+            # Extract HPO terms (with details only if detailed_output enabled)
+            if config.detailed_output:
+                extracted, extraction_details = self.extractor.extract_with_details(
+                    doc["text"]
+                )
+            else:
+                extracted = self.extractor.extract(doc["text"])
+                extraction_details = {}
 
             # Parse gold standard
             gold = self._parse_gold_terms(doc["gold_hpo_terms"])
@@ -211,6 +263,18 @@ class ExtractionBenchmark:
                     gold=gold,
                 )
             )
+
+            # Build detailed analysis only if enabled
+            if config.detailed_output:
+                detailed_results.append(
+                    self._build_detailed_analysis(
+                        doc_id=doc["id"],
+                        full_text=doc["text"],
+                        extracted=extracted,
+                        gold_terms=doc["gold_hpo_terms"],
+                        extraction_details=extraction_details,
+                    )
+                )
 
         # Calculate metrics
         evaluator = CorpusExtractionMetrics(averaging=self.config.averaging)
@@ -228,8 +292,14 @@ class ExtractionBenchmark:
                 confidence_intervals=ci,
             )
 
-        # Save results
-        self._save_results(results, metrics, output_dir, test_data.get("metadata", {}))
+        # Save results (pass detailed_results only if enabled)
+        self._save_results(
+            results,
+            metrics,
+            output_dir,
+            test_data.get("metadata", {}),
+            detailed_results if config.detailed_output else None,
+        )
 
         return metrics
 
@@ -250,13 +320,6 @@ class ExtractionBenchmark:
             ID_68/annotations/*.json
             GeneReviews/annotations/*.json
         """
-        # Map assertion statuses from PhenoBERT format to benchmark format
-        assertion_map = {
-            "affirmed": "PRESENT",
-            "negated": "ABSENT",
-            "uncertain": "UNCERTAIN",
-        }
-
         # Determine which subdirectories to load
         dataset_dirs = {
             "GSC_plus": base_dir / "GSC_plus" / "annotations",
@@ -289,9 +352,18 @@ class ExtractionBenchmark:
                 gold_hpo_terms = []
                 for ann in doc_data.get("annotations", []):
                     hpo_id = ann.get("hpo_id", "")
+                    label = ann.get("label", "")
                     status = ann.get("assertion_status", "affirmed")
-                    assertion = assertion_map.get(status, "PRESENT")
-                    gold_hpo_terms.append({"id": hpo_id, "assertion": assertion})
+                    assertion = ASSERTION_STATUS_MAP.get(status, "PRESENT")
+                    evidence_spans = ann.get("evidence_spans", [])
+                    gold_hpo_terms.append(
+                        {
+                            "id": hpo_id,
+                            "label": label,
+                            "assertion": assertion,
+                            "evidence_spans": evidence_spans,
+                        }
+                    )
 
                 documents.append(
                     {
@@ -333,12 +405,196 @@ class ExtractionBenchmark:
             result.append((hpo_id, assertion))
         return result
 
+    def _find_chunk_position_in_text(
+        self, chunk_text: str, full_text: str, search_start: int = 0
+    ) -> tuple[int, int]:
+        """Find the position of a chunk in the full text.
+
+        Args:
+            chunk_text: The chunk text to find
+            full_text: The full document text
+            search_start: Start searching from this position (for duplicate handling)
+
+        Returns:
+            Tuple of (start_char, end_char) or (-1, -1) if not found
+        """
+        # Normalize whitespace for matching
+        normalized_chunk = " ".join(chunk_text.split())
+
+        # Try exact match first
+        pos = full_text.find(chunk_text, search_start)
+        if pos != -1:
+            return (pos, pos + len(chunk_text))
+
+        # Try with normalized whitespace
+        normalized_full = " ".join(full_text.split())
+        pos = normalized_full.find(normalized_chunk)
+        if pos != -1:
+            # Map back to original position (approximate)
+            return (pos, pos + len(normalized_chunk))
+
+        # Try case-insensitive
+        pos = full_text.lower().find(chunk_text.lower(), search_start)
+        if pos != -1:
+            return (pos, pos + len(chunk_text))
+
+        return (-1, -1)
+
+    def _build_detailed_analysis(
+        self,
+        doc_id: str,
+        full_text: str,
+        extracted: list[tuple[str, str]],
+        gold_terms: list[dict],
+        extraction_details: dict[str, Any],
+    ) -> dict[str, Any]:
+        """Build detailed analysis with TP/FP/FN breakdown for a document.
+
+        Args:
+            doc_id: Document identifier
+            full_text: Full document text
+            extracted: List of (hpo_id, assertion) tuples predicted
+            gold_terms: List of gold term dicts with id, label, assertion, evidence_spans
+            extraction_details: Details from extract_with_details()
+
+        Returns:
+            Detailed analysis dict with TP/FP/FN and chunk info
+        """
+        # Build lookup maps
+        predicted_ids = {hpo_id for hpo_id, _ in extracted}
+        gold_ids = {term["id"] for term in gold_terms}
+        gold_by_id = {term["id"]: term for term in gold_terms}
+
+        # Build aggregated results lookup
+        aggregated_by_id = {
+            term["id"]: term
+            for term in extraction_details.get("aggregated_results", [])
+        }
+
+        # Pre-compute chunk positions in full text
+        chunk_positions: dict[int, tuple[int, int]] = {}
+        last_end = 0
+        for chunk_info in extraction_details.get("processed_chunks", []):
+            chunk_idx = chunk_info["chunk_idx"]
+            chunk_text = chunk_info["text"]
+            start, end = self._find_chunk_position_in_text(
+                chunk_text, full_text, last_end
+            )
+            chunk_positions[chunk_idx] = (start, end)
+            if end > 0:
+                last_end = end  # Continue searching from where we left off
+
+        # Helper to enrich chunk info with position
+        def enrich_chunk(cr: dict, match: dict) -> dict:
+            chunk_idx = cr["chunk_idx"]
+            start, end = chunk_positions.get(chunk_idx, (-1, -1))
+            return {
+                "chunk_idx": chunk_idx,
+                "chunk_text": cr["chunk_text"],
+                "score": match.get("score", 0),
+                "start_char": start,
+                "end_char": end,
+            }
+
+        # Calculate TP, FP, FN
+        tp_ids = predicted_ids & gold_ids
+        fp_ids = predicted_ids - gold_ids
+        fn_ids = gold_ids - predicted_ids
+
+        # Build detailed breakdowns
+        true_positives = []
+        for hpo_id in tp_ids:
+            gold_term = gold_by_id.get(hpo_id, {})
+            agg_term = aggregated_by_id.get(hpo_id, {})
+            # Find the chunks that matched this term
+            chunk_results = extraction_details.get("chunk_results", [])
+            matching_chunks = []
+            for cr in chunk_results:
+                for match in cr.get("matches", []):
+                    if match.get("id") == hpo_id:
+                        matching_chunks.append(enrich_chunk(cr, match))
+            true_positives.append(
+                {
+                    "hpo_id": hpo_id,
+                    "label": gold_term.get("label", agg_term.get("name", "")),
+                    "gold_evidence_spans": gold_term.get("evidence_spans", []),
+                    "predicted_score": agg_term.get("score", 0),
+                    "predicted_avg_score": agg_term.get("avg_score", 0),
+                    "matching_chunks": matching_chunks,
+                }
+            )
+
+        false_positives = []
+        for hpo_id in fp_ids:
+            agg_term = aggregated_by_id.get(hpo_id, {})
+            # Find the chunks that caused this false positive
+            chunk_results = extraction_details.get("chunk_results", [])
+            matching_chunks = []
+            for cr in chunk_results:
+                for match in cr.get("matches", []):
+                    if match.get("id") == hpo_id:
+                        matching_chunks.append(enrich_chunk(cr, match))
+            false_positives.append(
+                {
+                    "hpo_id": hpo_id,
+                    "label": agg_term.get("name", ""),
+                    "predicted_score": agg_term.get("score", 0),
+                    "predicted_avg_score": agg_term.get("avg_score", 0),
+                    "matching_chunks": matching_chunks,
+                }
+            )
+
+        false_negatives = []
+        for hpo_id in fn_ids:
+            gold_term = gold_by_id.get(hpo_id, {})
+            false_negatives.append(
+                {
+                    "hpo_id": hpo_id,
+                    "label": gold_term.get("label", ""),
+                    "gold_evidence_spans": gold_term.get("evidence_spans", []),
+                }
+            )
+
+        # Enrich all_chunks with positions
+        all_chunks = []
+        for chunk_info in extraction_details.get("processed_chunks", []):
+            chunk_idx = chunk_info["chunk_idx"]
+            start, end = chunk_positions.get(chunk_idx, (-1, -1))
+            all_chunks.append(
+                {
+                    **chunk_info,
+                    "start_char": start,
+                    "end_char": end,
+                }
+            )
+
+        return {
+            "doc_id": doc_id,
+            "full_text": full_text,
+            "text_length": len(full_text),
+            "num_chunks": len(all_chunks),
+            "metrics": {
+                "true_positives": len(tp_ids),
+                "false_positives": len(fp_ids),
+                "false_negatives": len(fn_ids),
+                "precision": len(tp_ids) / len(predicted_ids) if predicted_ids else 0,
+                "recall": len(tp_ids) / len(gold_ids) if gold_ids else 0,
+            },
+            "analysis": {
+                "true_positives": true_positives,
+                "false_positives": false_positives,
+                "false_negatives": false_negatives,
+            },
+            "all_chunks": all_chunks,
+        }
+
     def _save_results(
         self,
         results: list[ExtractionResult],
         metrics: CorpusMetrics,
         output_dir: Path,
         dataset_metadata: dict,
+        detailed_results: list[dict[str, Any]] | None = None,
     ):
         """Save benchmark results to files."""
         output_dir.mkdir(parents=True, exist_ok=True)
@@ -403,5 +659,23 @@ class ExtractionBenchmark:
                 f,
                 indent=2,
             )
+
+        # Save detailed analysis with chunks (NEW!)
+        if detailed_results:
+            detailed_file = output_dir / "extraction_detailed_analysis.json"
+            with open(detailed_file, "w") as f:
+                json.dump(
+                    {
+                        "metadata": {
+                            "model": self.model_name,
+                            "timestamp": datetime.now().isoformat(),
+                            "description": "Detailed extraction analysis with chunk-level info",
+                        },
+                        "documents": detailed_results,
+                    },
+                    f,
+                    indent=2,
+                )
+            logger.info(f"Detailed analysis saved to {detailed_file}")
 
         logger.info(f"Results saved to {output_dir}")

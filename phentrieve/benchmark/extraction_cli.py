@@ -61,6 +61,11 @@ def run(
     top_term_only: bool = typer.Option(
         False, help="Only keep top term per chunk (more precise, less recall)"
     ),
+    detailed_output: bool = typer.Option(
+        False,
+        "--detailed-output",
+        help="Generate detailed chunk-level analysis JSON (extraction_detailed_analysis.json)",
+    ),
     verbose: bool = typer.Option(
         False, "-v", "--verbose", help="Enable verbose output"
     ),
@@ -106,6 +111,7 @@ def run(
         num_results_per_chunk=num_results,
         top_term_per_chunk=top_term_only,
         dataset=dataset,
+        detailed_output=detailed_output,
     )
 
     # Initialize benchmark

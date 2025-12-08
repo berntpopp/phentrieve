@@ -1,4 +1,5 @@
 import numpy as np
+import numpy.typing as npt
 from sklearn.metrics import confusion_matrix
 
 from phentrieve.evaluation.extraction_metrics import (
@@ -43,11 +44,12 @@ class AssertionMetrics:
 
     def assertion_confusion_matrix(
         self, predicted_assertions: list[str], gold_assertions: list[str]
-    ) -> np.ndarray:
+    ) -> npt.NDArray[np.int64]:
         """Build confusion matrix for assertion types."""
-        return confusion_matrix(
+        result: npt.NDArray[np.int64] = confusion_matrix(
             gold_assertions, predicted_assertions, labels=self.ASSERTION_TYPES
         )
+        return result
 
     def stratified_metrics(
         self, results: list[ExtractionResult]
@@ -97,73 +99,3 @@ class AssertionMetrics:
                 )
 
         return filtered_results
-
-
-class AssertionDetector:
-    """Enhanced assertion detection with joint evaluation."""
-
-    def __init__(self, enable_context: bool = True):
-        self.enable_context = enable_context
-        self.context_analyzer = self._init_context_analyzer()
-
-    def _init_context_analyzer(self):
-        """Initialize context analyzer for assertion detection."""
-        # Placeholder: will implement ConText algorithm later
-        return None
-
-    def detect_assertion(self, text: str, hpo_term: str, span: tuple[int, int]) -> str:
-        """
-        Detect assertion type for HPO term in text.
-        Returns: PRESENT, ABSENT, or UNCERTAIN
-        """
-        if self.enable_context:
-            # Use ConText algorithm
-            return self.context_analyzer.analyze(text, span)
-        else:
-            # Simple keyword-based detection
-            return self._simple_detection(text, span)
-
-    def _simple_detection(self, text: str, span: tuple[int, int]) -> str:
-        """Simple keyword-based assertion detection."""
-        # Extract context around the span
-        start, end = span
-        context_start = max(0, start - 100)
-        context_end = min(len(text), end + 100)
-        context = text[context_start:context_end].lower()
-
-        # Check for negation keywords
-        negation_keywords = [
-            "no",
-            "not",
-            "without",
-            "denies",
-            "denied",
-            "negative",
-            "absent",
-            "lack of",
-            "free of",
-            "rule out",
-            "ruled out",
-        ]
-
-        if any(keyword in context for keyword in negation_keywords):
-            return "ABSENT"
-
-        # Check for uncertainty keywords
-        uncertainty_keywords = [
-            "possible",
-            "potential",
-            "maybe",
-            "uncertain",
-            "questionable",
-            "suspected",
-            "likely",
-            "probable",
-            "differential",
-        ]
-
-        if any(keyword in context for keyword in uncertainty_keywords):
-            return "UNCERTAIN"
-
-        # Default to present
-        return "PRESENT"

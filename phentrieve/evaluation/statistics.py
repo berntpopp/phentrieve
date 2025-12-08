@@ -5,16 +5,18 @@ This module provides functions for calculating confidence intervals and
 significance tests for model comparison in information retrieval benchmarks.
 """
 
+from collections.abc import Sequence
 from typing import Callable
 
 import numpy as np
+import numpy.typing as npt
 
 
 def bootstrap_confidence_interval(
-    values: list[float],
+    values: Sequence[float],
     n_bootstrap: int = 1000,
     confidence_level: float = 0.95,
-    metric_fn: Callable[[list[float]], float] = np.mean,
+    metric_fn: Callable[[npt.ArrayLike], float] = np.mean,  # type: ignore[assignment]
 ) -> tuple[float, float, float]:
     """
     Calculate bootstrap confidence interval for a metric.
@@ -44,9 +46,9 @@ def bootstrap_confidence_interval(
 
     # Calculate confidence interval
     alpha = 1 - confidence_level
-    ci_lower = np.percentile(bootstrap_estimates, 100 * (alpha / 2))
-    ci_upper = np.percentile(bootstrap_estimates, 100 * (1 - alpha / 2))
-    point_estimate = metric_fn(values_array)
+    ci_lower = float(np.percentile(bootstrap_estimates, 100 * (alpha / 2)))
+    ci_upper = float(np.percentile(bootstrap_estimates, 100 * (1 - alpha / 2)))
+    point_estimate = float(metric_fn(values_array))
 
     return point_estimate, ci_lower, ci_upper
 
@@ -203,12 +205,14 @@ def compare_models_with_significance(
         p_value, significant = paired_bootstrap_test(
             results_a["mrr_dense"], results_b["mrr_dense"], n_bootstrap
         )
-        diff = np.mean(results_a["mrr_dense"]) - np.mean(results_b["mrr_dense"])
-        comparison["comparisons"]["mrr_dense"] = {
+        diff = float(np.mean(results_a["mrr_dense"]) - np.mean(results_b["mrr_dense"]))
+        comparisons: dict[str, dict[str, float | bool]] = {}
+        comparisons["mrr_dense"] = {
             "diff": diff,
             "p_value": p_value,
             "significant": significant,
         }
+        comparison["comparisons"] = comparisons
 
     # K-dependent metrics
     metric_types = [
@@ -232,11 +236,16 @@ def compare_models_with_significance(
                 p_value, significant = paired_bootstrap_test(
                     results_a[key], results_b[key], n_bootstrap
                 )
-                diff = np.mean(results_a[key]) - np.mean(results_b[key])
-                comparison["comparisons"][key] = {
-                    "diff": diff,
-                    "p_value": p_value,
-                    "significant": significant,
-                }
+                diff = float(np.mean(results_a[key]) - np.mean(results_b[key]))
+                # Ensure comparisons dict exists
+                if "comparisons" not in comparison:
+                    comparison["comparisons"] = {}
+                comp_dict = comparison["comparisons"]
+                if isinstance(comp_dict, dict):
+                    comp_dict[key] = {
+                        "diff": diff,
+                        "p_value": p_value,
+                        "significant": significant,
+                    }
 
     return comparison

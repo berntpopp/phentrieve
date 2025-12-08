@@ -67,7 +67,7 @@ class HierarchicalMatcher:
     def _is_ancestor(self, ancestor_id: str, descendant_id: str) -> bool:
         """Check if ancestor_id is an ancestor of descendant_id."""
         try:
-            return nx.has_path(self.hpo_graph, ancestor_id, descendant_id)
+            return bool(nx.has_path(self.hpo_graph, ancestor_id, descendant_id))
         except nx.NetworkXError:
             return False
 
@@ -97,7 +97,7 @@ class HierarchicalMatcher:
             distance = nx.shortest_path_length(
                 self.hpo_graph, ancestor_id, descendant_id
             )
-            return max(0.5, 1.0 - (distance * 0.1))
+            return float(max(0.5, 1.0 - (distance * 0.1)))
         except nx.NetworkXError:
             return 0.5
 
@@ -107,6 +107,6 @@ class HierarchicalMatcher:
             distance = nx.shortest_path_length(
                 self.hpo_graph, ancestor_id, descendant_id
             )
-            return max(0.7, 1.0 - (distance * 0.05))
+            return float(max(0.7, 1.0 - (distance * 0.05)))
         except nx.NetworkXError:
             return 0.7

@@ -7,7 +7,7 @@ class ThresholdOptimizer:
 
     def __init__(self, optimization_metric: str = "f1"):
         self.optimization_metric = optimization_metric
-        self.learned_thresholds = {}
+        self.learned_thresholds: dict[str, float] = {}
 
     def optimize_threshold(
         self, scores: np.ndarray, labels: np.ndarray, model_name: str
@@ -25,15 +25,16 @@ class ThresholdOptimizer:
         """
         precisions, recalls, thresholds = precision_recall_curve(labels, scores)
 
+        optimal_idx: int
         if self.optimization_metric == "f1":
             f1_scores = 2 * precisions * recalls / (precisions + recalls + 1e-10)
-            optimal_idx = np.argmax(f1_scores)
+            optimal_idx = int(np.argmax(f1_scores))
         elif self.optimization_metric == "precision_at_recall":
             # Find highest precision at minimum recall (e.g., 0.8)
             min_recall = 0.8
             valid_idx = np.where(recalls >= min_recall)[0]
             if len(valid_idx) > 0:
-                optimal_idx = valid_idx[np.argmax(precisions[valid_idx])]
+                optimal_idx = int(valid_idx[np.argmax(precisions[valid_idx])])
             else:
                 optimal_idx = 0
 
