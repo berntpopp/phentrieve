@@ -99,7 +99,7 @@ def _format_interactive_results(
                 embedding_model=embedding_model,
                 reranker_model=reranker_model,
             )
-        return "{}"
+        return format_as_phenopacket_v2()
     else:
         return format_results_as_text(query_results, sentence_mode=sentence_mode)
 
