@@ -1,4 +1,14 @@
-"""Extraction benchmark for document-level HPO extraction evaluation."""
+"""Extraction benchmark for document-level HPO extraction evaluation.
+
+This module provides tools for evaluating HPO term extraction from clinical
+documents against gold-standard annotations. It calculates precision, recall,
+and F1 scores with support for assertion status (present/absent).
+
+Key components:
+- ExtractionConfig: Configuration for benchmark parameters
+- HPOExtractor: Wrapper for the HPO extraction pipeline
+- ExtractionBenchmark: Main benchmark runner with metrics calculation
+"""
 
 from __future__ import annotations
 
@@ -30,9 +40,10 @@ class ExtractionConfig:
 
     model_name: str = "BAAI/bge-m3"
     language: str = "en"
-    num_results_per_chunk: int = 10
-    chunk_retrieval_threshold: float = 0.3
-    min_confidence_for_aggregated: float = 0.35
+    num_results_per_chunk: int = 3  # Reduced from 10 for better precision
+    chunk_retrieval_threshold: float = 0.5  # Raised from 0.3
+    min_confidence_for_aggregated: float = 0.5  # Raised from 0.35
+    top_term_per_chunk: bool = False  # Only keep best match per chunk
     averaging: str = "micro"
     include_assertions: bool = True
     relaxed_matching: bool = False
@@ -127,7 +138,7 @@ class HPOExtractor:
             chunk_retrieval_threshold=self.config.chunk_retrieval_threshold,
             cross_encoder=None,
             language=self.config.language,
-            top_term_per_chunk=False,
+            top_term_per_chunk=self.config.top_term_per_chunk,
             min_confidence_for_aggregated=self.config.min_confidence_for_aggregated,
             assertion_statuses=assertion_statuses,
             include_details=False,

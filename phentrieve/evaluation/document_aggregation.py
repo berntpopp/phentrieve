@@ -11,10 +11,7 @@ class DocumentAggregator:
         """
         self.strategy = strategy
 
-    def aggregate_chunks(
-        self,
-        chunk_predictions: list[dict[str, float]]
-    ) -> set[str]:
+    def aggregate_chunks(self, chunk_predictions: list[dict[str, float]]) -> set[str]:
         """Aggregate HPO predictions from multiple chunks."""
         if self.strategy == "union":
             return self._union_aggregation(chunk_predictions)
@@ -34,7 +31,9 @@ class DocumentAggregator:
             all_terms.update(chunk_pred.keys())
         return all_terms
 
-    def _intersection_aggregation(self, chunk_predictions: list[dict[str, float]]) -> set[str]:
+    def _intersection_aggregation(
+        self, chunk_predictions: list[dict[str, float]]
+    ) -> set[str]:
         """Take only HPO terms that appear in all chunks."""
         if not chunk_predictions:
             return set()
@@ -48,7 +47,9 @@ class DocumentAggregator:
 
         return common_terms
 
-    def _weighted_aggregation(self, chunk_predictions: list[dict[str, float]]) -> set[str]:
+    def _weighted_aggregation(
+        self, chunk_predictions: list[dict[str, float]]
+    ) -> set[str]:
         """Weight by confidence scores and chunk importance."""
         # Placeholder: simple average of scores
         term_scores = defaultdict(float)
@@ -60,12 +61,16 @@ class DocumentAggregator:
                 term_counts[term] += 1
 
         # Average scores
-        avg_scores = {term: term_scores[term] / term_counts[term] for term in term_scores}
+        avg_scores = {
+            term: term_scores[term] / term_counts[term] for term in term_scores
+        }
 
         # Return terms above threshold (0.5 for now)
         return {term for term, score in avg_scores.items() if score >= 0.5}
 
-    def _threshold_aggregation(self, chunk_predictions: list[dict[str, float]]) -> set[str]:
+    def _threshold_aggregation(
+        self, chunk_predictions: list[dict[str, float]]
+    ) -> set[str]:
         """Apply threshold to individual chunk predictions and union."""
         thresholded_terms = set()
         for chunk_pred in chunk_predictions:

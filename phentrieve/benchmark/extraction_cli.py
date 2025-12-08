@@ -15,7 +15,9 @@ from phentrieve.benchmark.extraction_benchmark import (
 )
 from phentrieve.benchmark.extraction_reporter import ExtractionReporter
 
-app = typer.Typer(help="HPO Extraction Benchmarking")
+app = typer.Typer(
+    help="Document-level HPO extraction benchmarking against gold annotations."
+)
 console = Console()
 logger = logging.getLogger(__name__)
 
@@ -50,16 +52,29 @@ def run(
         1000, help="Number of bootstrap samples for CI"
     ),
     chunk_threshold: float = typer.Option(
-        0.3, help="Minimum similarity threshold for chunk retrieval"
+        0.5, help="Minimum similarity threshold for chunk retrieval"
     ),
     min_confidence: float = typer.Option(
-        0.35, help="Minimum confidence for aggregated results"
+        0.5, help="Minimum confidence for aggregated results"
+    ),
+    num_results: int = typer.Option(3, help="Number of HPO term candidates per chunk"),
+    top_term_only: bool = typer.Option(
+        False, help="Only keep top term per chunk (more precise, less recall)"
     ),
     verbose: bool = typer.Option(
         False, "-v", "--verbose", help="Enable verbose output"
     ),
 ):
-    """Run extraction benchmark on test dataset."""
+    """Run extraction benchmark on test dataset.
+
+    Evaluates document-level HPO extraction against gold-standard annotations.
+    Supports PhenoBERT directory format or single JSON files.
+
+    Examples:
+        phentrieve benchmark extraction run tests/data/en/phenobert/ --dataset GeneReviews
+        phentrieve benchmark extraction run tests/data/en/phenobert/ --top-term-only
+        phentrieve benchmark extraction run my_dataset.json --num-results 5
+    """
     # Setup logging
     if verbose:
         logging.basicConfig(level=logging.INFO)
@@ -88,6 +103,8 @@ def run(
         bootstrap_samples=bootstrap_samples,
         chunk_retrieval_threshold=chunk_threshold,
         min_confidence_for_aggregated=min_confidence,
+        num_results_per_chunk=num_results,
+        top_term_per_chunk=top_term_only,
         dataset=dataset,
     )
 
@@ -113,11 +130,15 @@ def run(
 
 @app.command()
 def compare(
-    result1: Path = typer.Argument(..., help="First result file"),
-    result2: Path = typer.Argument(..., help="Second result file"),
-    output_file: Optional[Path] = typer.Option(None, help="Save comparison"),
+    result1: Path = typer.Argument(..., help="First extraction_results.json file"),
+    result2: Path = typer.Argument(..., help="Second extraction_results.json file"),
+    output_file: Optional[Path] = typer.Option(None, help="Save comparison to JSON"),
 ):
-    """Compare two extraction benchmark results."""
+    """Compare two extraction benchmark results.
+
+    Shows side-by-side metrics comparison and statistical significance
+    based on confidence interval overlap.
+    """
     console.print("[bold cyan]Comparing benchmark results[/bold cyan]")
 
     if not result1.exists():
@@ -168,14 +189,17 @@ def compare(
 @app.command()
 def report(
     results_dir: Path = typer.Argument(
-        ..., help="Directory containing benchmark results"
+        ..., help="Directory containing extraction_results.json files"
     ),
     output_format: str = typer.Option(
         "markdown", help="Output format: markdown, html, or latex"
     ),
     output_file: Optional[Path] = typer.Option(None, help="Save report to file"),
 ):
-    """Generate comprehensive benchmark report."""
+    """Generate benchmark report from multiple runs.
+
+    Aggregates results from all extraction_results.json files in the directory.
+    """
     console.print("[bold cyan]Generating extraction benchmark report[/bold cyan]")
 
     if not results_dir.exists():

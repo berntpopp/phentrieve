@@ -35,6 +35,53 @@ Benchmark results are stored in the `results/` directory:
 - `visualizations/`: Charts and plots comparing model performance
 - `detailed/`: Detailed CSV results
 
+## Extraction Benchmarking
+
+Evaluate document-level HPO extraction against gold-standard annotations:
+
+```bash
+# Run on PhenoBERT test data (306 documents)
+phentrieve benchmark extraction run tests/data/en/phenobert/
+
+# Run on specific dataset (GeneReviews: 10 docs, good for quick tests)
+phentrieve benchmark extraction run tests/data/en/phenobert/ --dataset GeneReviews
+
+# High precision mode (fewer false positives)
+phentrieve benchmark extraction run tests/data/en/phenobert/ --top-term-only
+
+# Custom thresholds
+phentrieve benchmark extraction run tests/data/en/phenobert/ \
+    --chunk-threshold 0.6 --min-confidence 0.6 --num-results 2
+```
+
+### Key Parameters
+
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `--dataset` | all | PhenoBERT subset: `all`, `GSC_plus`, `ID_68`, `GeneReviews` |
+| `--num-results` | 3 | HPO candidates per chunk |
+| `--chunk-threshold` | 0.5 | Minimum similarity for chunk matching |
+| `--min-confidence` | 0.5 | Minimum confidence for final results |
+| `--top-term-only` | false | Keep only best match per chunk |
+
+### Extraction Metrics
+
+- **Precision**: Proportion of predicted terms that are correct
+- **Recall**: Proportion of gold terms that were found
+- **F1 Score**: Harmonic mean of precision and recall
+- **Bootstrap CI**: 95% confidence intervals via bootstrap sampling
+
+### Comparing Results
+
+```bash
+# Compare two benchmark runs
+phentrieve benchmark extraction compare results/run1/extraction_results.json \
+    results/run2/extraction_results.json
+
+# Generate report from multiple runs
+phentrieve benchmark extraction report results/
+```
+
 ## Further Reading
 
 For more advanced benchmarking information, see the [Benchmarking Framework](../advanced-topics/benchmarking-framework.md) page in the Advanced Topics section.

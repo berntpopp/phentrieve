@@ -10,10 +10,7 @@ class ThresholdOptimizer:
         self.learned_thresholds = {}
 
     def optimize_threshold(
-        self,
-        scores: np.ndarray,
-        labels: np.ndarray,
-        model_name: str
+        self, scores: np.ndarray, labels: np.ndarray, model_name: str
     ) -> float:
         """
         Find optimal threshold for a specific model.
@@ -40,21 +37,16 @@ class ThresholdOptimizer:
             else:
                 optimal_idx = 0
 
-        optimal_threshold = thresholds[optimal_idx] if optimal_idx < len(thresholds) else 0.5
+        optimal_threshold = (
+            thresholds[optimal_idx] if optimal_idx < len(thresholds) else 0.5
+        )
 
         # Store for this model
         self.learned_thresholds[model_name] = optimal_threshold
 
         return optimal_threshold
 
-    def apply_threshold(
-        self,
-        scores: dict[str, float],
-        model_name: str
-    ) -> list[str]:
+    def apply_threshold(self, scores: dict[str, float], model_name: str) -> list[str]:
         """Apply learned threshold to filter predictions."""
         threshold = self.learned_thresholds.get(model_name, 0.7)  # Default to 0.7
-        return [
-            hpo_id for hpo_id, score in scores.items()
-            if score >= threshold
-        ]
+        return [hpo_id for hpo_id, score in scores.items() if score >= threshold]

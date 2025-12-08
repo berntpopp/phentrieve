@@ -5,12 +5,14 @@ import networkx as nx
 
 class MatchType(Enum):
     """Types of hierarchical matches."""
+
     EXACT = "exact"
-    ANCESTOR = "ancestor"      # Predicted is ancestor of gold
+    ANCESTOR = "ancestor"  # Predicted is ancestor of gold
     DESCENDANT = "descendant"  # Predicted is descendant of gold
-    SIBLING = "sibling"        # Share immediate parent
-    COUSIN = "cousin"          # Share grandparent
-    UNRELATED = "unrelated"    # No close relationship
+    SIBLING = "sibling"  # Share immediate parent
+    COUSIN = "cousin"  # Share grandparent
+    UNRELATED = "unrelated"  # No close relationship
+
 
 class HierarchicalMatcher:
     """Match predictions with hierarchical relationships."""
@@ -19,11 +21,7 @@ class HierarchicalMatcher:
         self.hpo_graph = hpo_graph
         self.ic_scores = self._calculate_information_content()
 
-    def classify_match(
-        self,
-        predicted_id: str,
-        gold_id: str
-    ) -> MatchType:
+    def classify_match(self, predicted_id: str, gold_id: str) -> MatchType:
         """Classify the relationship between predicted and gold HPO terms."""
         if predicted_id == gold_id:
             return MatchType.EXACT
@@ -50,10 +48,7 @@ class HierarchicalMatcher:
         return MatchType.UNRELATED
 
     def calculate_partial_credit(
-        self,
-        match_type: MatchType,
-        predicted_id: str,
-        gold_id: str
+        self, match_type: MatchType, predicted_id: str, gold_id: str
     ) -> float:
         """
         Calculate partial credit based on match type and distance.
@@ -65,7 +60,7 @@ class HierarchicalMatcher:
             MatchType.DESCENDANT: self._descendant_credit(predicted_id, gold_id),
             MatchType.SIBLING: 0.7,
             MatchType.COUSIN: 0.5,
-            MatchType.UNRELATED: 0.0
+            MatchType.UNRELATED: 0.0,
         }
         return credit_map[match_type]
 
