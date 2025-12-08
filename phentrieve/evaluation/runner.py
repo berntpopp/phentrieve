@@ -27,10 +27,18 @@ from phentrieve.data_processing.test_data_loader import load_test_data
 from phentrieve.embeddings import load_embedding_model
 from phentrieve.evaluation.metrics import (
     SimilarityFormula,
+    average_precision_at_k,
     calculate_test_case_max_ont_sim,
     hit_rate_at_k,
     load_hpo_graph_data,
     mean_reciprocal_rank,
+    ndcg_at_k,
+    precision_at_k,
+    recall_at_k,
+)
+from phentrieve.evaluation.statistics import (
+    calculate_bootstrap_ci_for_metrics,
+    compare_models_with_significance,
 )
 from phentrieve.retrieval.dense_retriever import DenseRetriever
 from phentrieve.retrieval.reranker import (
@@ -171,11 +179,19 @@ def run_evaluation(
         mrr_dense_values = []
         hit_rate_dense_values: dict[int, list[float]] = {k: [] for k in k_values}
         max_ont_sim_dense_values: dict[int, list[float]] = {k: [] for k in k_values}
+        ndcg_dense_values: dict[int, list[float]] = {k: [] for k in k_values}
+        recall_dense_values: dict[int, list[float]] = {k: [] for k in k_values}
+        precision_dense_values: dict[int, list[float]] = {k: [] for k in k_values}
+        map_dense_values: dict[int, list[float]] = {k: [] for k in k_values}
 
         # Re-ranked metrics (will remain empty if re-ranking is disabled)
         mrr_reranked_values = []
         hit_rate_reranked_values: dict[int, list[float]] = {k: [] for k in k_values}
         max_ont_sim_reranked_values: dict[int, list[float]] = {k: [] for k in k_values}
+        ndcg_reranked_values: dict[int, list[float]] = {k: [] for k in k_values}
+        recall_reranked_values: dict[int, list[float]] = {k: [] for k in k_values}
+        precision_reranked_values: dict[int, list[float]] = {k: [] for k in k_values}
+        map_reranked_values: dict[int, list[float]] = {k: [] for k in k_values}
 
         detailed_results = []
 
@@ -236,10 +252,31 @@ def run_evaluation(
                 # Calculate baseline metrics for each k value
                 dense_hit_rates = {}
                 dense_max_ont_sims = {}
+                dense_ndcgs = {}
+                dense_recalls = {}
+                dense_precisions = {}
+                dense_maps = {}
                 for k in k_values:
                     hit = hit_rate_at_k(dense_results, expected_ids, k=k)
                     hit_rate_dense_values[k].append(hit)
                     dense_hit_rates[f"hit_rate_dense@{k}"] = hit
+
+                    # New metrics
+                    ndcg = ndcg_at_k(dense_results, expected_ids, k=k)
+                    ndcg_dense_values[k].append(ndcg)
+                    dense_ndcgs[f"ndcg_dense@{k}"] = ndcg
+
+                    recall = recall_at_k(dense_results, expected_ids, k=k)
+                    recall_dense_values[k].append(recall)
+                    dense_recalls[f"recall_dense@{k}"] = recall
+
+                    precision = precision_at_k(dense_results, expected_ids, k=k)
+                    precision_dense_values[k].append(precision)
+                    dense_precisions[f"precision_dense@{k}"] = precision
+
+                    map_score = average_precision_at_k(dense_results, expected_ids, k=k)
+                    map_dense_values[k].append(map_score)
+                    dense_maps[f"map_dense@{k}"] = map_score
 
                 # Calculate baseline ontology similarity at different K values
                 for k in k_values:
@@ -265,6 +302,10 @@ def run_evaluation(
                 #### RE-RANKING (if enabled) ####
                 reranked_hit_rates = {}
                 reranked_max_ont_sims = {}
+                reranked_ndcgs = {}
+                reranked_recalls = {}
+                reranked_precisions = {}
+                reranked_maps = {}
                 mrr_reranked = None
                 reranked_results = None
                 reranked_candidates = []
@@ -343,6 +384,27 @@ def run_evaluation(
                             hit = hit_rate_at_k(reranked_results, expected_ids, k=k)
                             hit_rate_reranked_values[k].append(hit)
                             reranked_hit_rates[f"hit_rate_reranked@{k}"] = hit
+
+                            # New metrics for reranked
+                            ndcg = ndcg_at_k(reranked_results, expected_ids, k=k)
+                            ndcg_reranked_values[k].append(ndcg)
+                            reranked_ndcgs[f"ndcg_reranked@{k}"] = ndcg
+
+                            recall = recall_at_k(reranked_results, expected_ids, k=k)
+                            recall_reranked_values[k].append(recall)
+                            reranked_recalls[f"recall_reranked@{k}"] = recall
+
+                            precision = precision_at_k(
+                                reranked_results, expected_ids, k=k
+                            )
+                            precision_reranked_values[k].append(precision)
+                            reranked_precisions[f"precision_reranked@{k}"] = precision
+
+                            map_score = average_precision_at_k(
+                                reranked_results, expected_ids, k=k
+                            )
+                            map_reranked_values[k].append(map_score)
+                            reranked_maps[f"map_reranked@{k}"] = map_score
 
                         # Calculate re-ranked maximum ontology similarity
                         for k in k_values:
@@ -425,6 +487,38 @@ def run_evaluation(
             )
             for k in k_values
         }
+        avg_ndcg_dense = {
+            k: (
+                sum(ndcg_dense_values[k]) / len(ndcg_dense_values[k])
+                if ndcg_dense_values[k]
+                else 0
+            )
+            for k in k_values
+        }
+        avg_recall_dense = {
+            k: (
+                sum(recall_dense_values[k]) / len(recall_dense_values[k])
+                if recall_dense_values[k]
+                else 0
+            )
+            for k in k_values
+        }
+        avg_precision_dense = {
+            k: (
+                sum(precision_dense_values[k]) / len(precision_dense_values[k])
+                if precision_dense_values[k]
+                else 0
+            )
+            for k in k_values
+        }
+        avg_map_dense = {
+            k: (
+                sum(map_dense_values[k]) / len(map_dense_values[k])
+                if map_dense_values[k]
+                else 0
+            )
+            for k in k_values
+        }
 
         # Re-ranked metrics (will be 0 if re-ranking was disabled)
         avg_mrr_reranked = (
@@ -445,6 +539,38 @@ def run_evaluation(
                 sum(max_ont_sim_reranked_values[k])
                 / len(max_ont_sim_reranked_values[k])
                 if max_ont_sim_reranked_values[k]
+                else 0
+            )
+            for k in k_values
+        }
+        avg_ndcg_reranked = {
+            k: (
+                sum(ndcg_reranked_values[k]) / len(ndcg_reranked_values[k])
+                if ndcg_reranked_values[k]
+                else 0
+            )
+            for k in k_values
+        }
+        avg_recall_reranked = {
+            k: (
+                sum(recall_reranked_values[k]) / len(recall_reranked_values[k])
+                if recall_reranked_values[k]
+                else 0
+            )
+            for k in k_values
+        }
+        avg_precision_reranked = {
+            k: (
+                sum(precision_reranked_values[k]) / len(precision_reranked_values[k])
+                if precision_reranked_values[k]
+                else 0
+            )
+            for k in k_values
+        }
+        avg_map_reranked = {
+            k: (
+                sum(map_reranked_values[k]) / len(map_reranked_values[k])
+                if map_reranked_values[k]
                 else 0
             )
             for k in k_values
@@ -483,6 +609,26 @@ def run_evaluation(
             results[f"max_ont_similarity_dense@{k}"] = max_ont_sim_dense_values[k]
             results[f"avg_max_ont_similarity_dense@{k}"] = avg_max_ont_sim_dense[k]
 
+        # Add NDCG metrics - dense
+        for k in k_values:
+            results[f"ndcg_dense@{k}"] = ndcg_dense_values[k]
+            results[f"avg_ndcg_dense@{k}"] = avg_ndcg_dense[k]
+
+        # Add Recall metrics - dense
+        for k in k_values:
+            results[f"recall_dense@{k}"] = recall_dense_values[k]
+            results[f"avg_recall_dense@{k}"] = avg_recall_dense[k]
+
+        # Add Precision metrics - dense
+        for k in k_values:
+            results[f"precision_dense@{k}"] = precision_dense_values[k]
+            results[f"avg_precision_dense@{k}"] = avg_precision_dense[k]
+
+        # Add MAP metrics - dense
+        for k in k_values:
+            results[f"map_dense@{k}"] = map_dense_values[k]
+            results[f"avg_map_dense@{k}"] = avg_map_dense[k]
+
         # Add re-ranked metrics if enabled
         if enable_reranker:
             # Add Hit Rate metrics - reranked
@@ -499,56 +645,75 @@ def run_evaluation(
                     avg_max_ont_sim_reranked[k]
                 )
 
+            # Add NDCG metrics - reranked
+            for k in k_values:
+                results[f"ndcg_reranked@{k}"] = ndcg_reranked_values[k]
+                results[f"avg_ndcg_reranked@{k}"] = avg_ndcg_reranked[k]
+
+            # Add Recall metrics - reranked
+            for k in k_values:
+                results[f"recall_reranked@{k}"] = recall_reranked_values[k]
+                results[f"avg_recall_reranked@{k}"] = avg_recall_reranked[k]
+
+            # Add Precision metrics - reranked
+            for k in k_values:
+                results[f"precision_reranked@{k}"] = precision_reranked_values[k]
+                results[f"avg_precision_reranked@{k}"] = avg_precision_reranked[k]
+
+            # Add MAP metrics - reranked
+            for k in k_values:
+                results[f"map_reranked@{k}"] = map_reranked_values[k]
+                results[f"avg_map_reranked@{k}"] = avg_map_reranked[k]
+
         # Add detailed results
         results["detailed_results"] = detailed_results
 
+        # Calculate bootstrap confidence intervals for all metrics
+        logging.info("Calculating bootstrap confidence intervals...")
+        confidence_intervals = calculate_bootstrap_ci_for_metrics(results, k_values)
+
+        # Add confidence intervals to results
+        results["confidence_intervals"] = confidence_intervals
+
         # Save results if requested
         if save_results:
-            # Create summary dictionary with both dense and re-ranked metrics
-            summary = {
+            # Create summary dictionary with dense metrics
+            summary: dict[str, Any] = {
                 "model": model_slug,
                 "original_model_name": model_name,
                 "timestamp": datetime.now().strftime("%Y%m%d_%H%M%S"),
                 "test_file": os.path.basename(test_file),
                 "num_test_cases": len(test_cases),
-                # Re-ranking configuration
-                "reranker_enabled": enable_reranker,
-                "reranker_model": reranker_model if enable_reranker else None,
-                "rerank_count": rerank_count if enable_reranker else None,
-                # Dense metrics
+                # MRR metric
                 "mrr_dense": avg_mrr_dense,
                 "mrr_dense_per_case": mrr_dense_values,
-                # Re-ranked metrics (if enabled)
-                "mrr_reranked": avg_mrr_reranked if enable_reranker else None,
-                "mrr_reranked_per_case": (
-                    mrr_reranked_values if enable_reranker else None
-                ),
             }
 
-            # Add hit rates and ontology similarity for dense metrics
+            # Add all K-dependent metrics
             for k in k_values:
+                # Hit rate
                 summary[f"hit_rate_dense@{k}"] = avg_hit_rates_dense[k]
-                summary[f"max_ont_similarity_dense@{k}"] = avg_max_ont_sim_dense[k]
-                # Add raw metrics for each k value
                 summary[f"hit_rate_dense@{k}_per_case"] = hit_rate_dense_values[k]
+                # Ontology similarity
+                summary[f"max_ont_similarity_dense@{k}"] = avg_max_ont_sim_dense[k]
                 summary[f"max_ont_similarity_dense@{k}_per_case"] = (
                     max_ont_sim_dense_values[k]
                 )
+                # NDCG
+                summary[f"ndcg_dense@{k}"] = avg_ndcg_dense[k]
+                summary[f"ndcg_dense@{k}_per_case"] = ndcg_dense_values[k]
+                # Recall
+                summary[f"recall_dense@{k}"] = avg_recall_dense[k]
+                summary[f"recall_dense@{k}_per_case"] = recall_dense_values[k]
+                # Precision
+                summary[f"precision_dense@{k}"] = avg_precision_dense[k]
+                summary[f"precision_dense@{k}_per_case"] = precision_dense_values[k]
+                # MAP
+                summary[f"map_dense@{k}"] = avg_map_dense[k]
+                summary[f"map_dense@{k}_per_case"] = map_dense_values[k]
 
-            # Add hit rates and ontology similarity for re-ranked metrics (if enabled)
-            if enable_reranker:
-                for k in k_values:
-                    summary[f"hit_rate_reranked@{k}"] = avg_hit_rates_reranked[k]
-                    summary[f"max_ont_similarity_reranked@{k}"] = (
-                        avg_max_ont_sim_reranked[k]
-                    )
-                    # Add raw metrics for each k value
-                    summary[f"hit_rate_reranked@{k}_per_case"] = (
-                        hit_rate_reranked_values[k]
-                    )
-                    summary[f"max_ont_similarity_reranked@{k}_per_case"] = (
-                        max_ont_sim_reranked_values[k]
-                    )
+            # Add confidence intervals
+            summary["confidence_intervals"] = confidence_intervals
 
             # Save summary to file
             # Type narrowing: these are not None inside save_results block
@@ -573,18 +738,96 @@ def run_evaluation(
         logging.info(f"Benchmark results for {model_name}:")
         logging.info("  === Dense Retrieval Metrics ====")
         logging.info(f"  MRR (Dense): {avg_mrr_dense:.4f}")
+        if "mrr_dense" in confidence_intervals:
+            ci = confidence_intervals["mrr_dense"]
+            logging.info(f"    95% CI: [{ci['ci_lower']:.4f}, {ci['ci_upper']:.4f}]")
         for k in k_values:
             logging.info(f"  Hit@{k} (Dense): {avg_hit_rates_dense[k]:.4f}")
+            if f"hit_rate_dense@{k}" in confidence_intervals:
+                ci = confidence_intervals[f"hit_rate_dense@{k}"]
+                logging.info(
+                    f"    95% CI: [{ci['ci_lower']:.4f}, {ci['ci_upper']:.4f}]"
+                )
+            logging.info(f"  NDCG@{k} (Dense): {avg_ndcg_dense[k]:.4f}")
+            if f"ndcg_dense@{k}" in confidence_intervals:
+                ci = confidence_intervals[f"ndcg_dense@{k}"]
+                logging.info(
+                    f"    95% CI: [{ci['ci_lower']:.4f}, {ci['ci_upper']:.4f}]"
+                )
+            logging.info(f"  Recall@{k} (Dense): {avg_recall_dense[k]:.4f}")
+            if f"recall_dense@{k}" in confidence_intervals:
+                ci = confidence_intervals[f"recall_dense@{k}"]
+                logging.info(
+                    f"    95% CI: [{ci['ci_lower']:.4f}, {ci['ci_upper']:.4f}]"
+                )
+            logging.info(f"  Precision@{k} (Dense): {avg_precision_dense[k]:.4f}")
+            if f"precision_dense@{k}" in confidence_intervals:
+                ci = confidence_intervals[f"precision_dense@{k}"]
+                logging.info(
+                    f"    95% CI: [{ci['ci_lower']:.4f}, {ci['ci_upper']:.4f}]"
+                )
+            logging.info(f"  MAP@{k} (Dense): {avg_map_dense[k]:.4f}")
+            if f"map_dense@{k}" in confidence_intervals:
+                ci = confidence_intervals[f"map_dense@{k}"]
+                logging.info(
+                    f"    95% CI: [{ci['ci_lower']:.4f}, {ci['ci_upper']:.4f}]"
+                )
             logging.info(f"  MaxOntSim@{k} (Dense): {avg_max_ont_sim_dense[k]:.4f}")
+            if f"max_ont_similarity_dense@{k}" in confidence_intervals:
+                ci = confidence_intervals[f"max_ont_similarity_dense@{k}"]
+                logging.info(
+                    f"    95% CI: [{ci['ci_lower']:.4f}, {ci['ci_upper']:.4f}]"
+                )
 
         if enable_reranker:
             logging.info("  === Re-ranked Metrics (cross-lingual mode) ===")
             logging.info(f"  MRR (Re-ranked): {avg_mrr_reranked:.4f}")
+            if "mrr_reranked" in confidence_intervals:
+                ci = confidence_intervals["mrr_reranked"]
+                logging.info(
+                    f"    95% CI: [{ci['ci_lower']:.4f}, {ci['ci_upper']:.4f}]"
+                )
             for k in k_values:
                 logging.info(f"  Hit@{k} (Re-ranked): {avg_hit_rates_reranked[k]:.4f}")
+                if f"hit_rate_reranked@{k}" in confidence_intervals:
+                    ci = confidence_intervals[f"hit_rate_reranked@{k}"]
+                    logging.info(
+                        f"    95% CI: [{ci['ci_lower']:.4f}, {ci['ci_upper']:.4f}]"
+                    )
+                logging.info(f"  NDCG@{k} (Re-ranked): {avg_ndcg_reranked[k]:.4f}")
+                if f"ndcg_reranked@{k}" in confidence_intervals:
+                    ci = confidence_intervals[f"ndcg_reranked@{k}"]
+                    logging.info(
+                        f"    95% CI: [{ci['ci_lower']:.4f}, {ci['ci_upper']:.4f}]"
+                    )
+                logging.info(f"  Recall@{k} (Re-ranked): {avg_recall_reranked[k]:.4f}")
+                if f"recall_reranked@{k}" in confidence_intervals:
+                    ci = confidence_intervals[f"recall_reranked@{k}"]
+                    logging.info(
+                        f"    95% CI: [{ci['ci_lower']:.4f}, {ci['ci_upper']:.4f}]"
+                    )
+                logging.info(
+                    f"  Precision@{k} (Re-ranked): {avg_precision_reranked[k]:.4f}"
+                )
+                if f"precision_reranked@{k}" in confidence_intervals:
+                    ci = confidence_intervals[f"precision_reranked@{k}"]
+                    logging.info(
+                        f"    95% CI: [{ci['ci_lower']:.4f}, {ci['ci_upper']:.4f}]"
+                    )
+                logging.info(f"  MAP@{k} (Re-ranked): {avg_map_reranked[k]:.4f}")
+                if f"map_reranked@{k}" in confidence_intervals:
+                    ci = confidence_intervals[f"map_reranked@{k}"]
+                    logging.info(
+                        f"    95% CI: [{ci['ci_lower']:.4f}, {ci['ci_upper']:.4f}]"
+                    )
                 logging.info(
                     f"  MaxOntSim@{k} (Re-ranked): {avg_max_ont_sim_reranked[k]:.4f}"
                 )
+                if f"max_ont_similarity_reranked@{k}" in confidence_intervals:
+                    ci = confidence_intervals[f"max_ont_similarity_reranked@{k}"]
+                    logging.info(
+                        f"    95% CI: [{ci['ci_lower']:.4f}, {ci['ci_upper']:.4f}]"
+                    )
 
         return results
 
@@ -738,6 +981,110 @@ def compare_models(results_list: list[dict[str, Any]]) -> pd.DataFrame:
                     )
                     model_data[f"OntSim@{k} (Diff)"] = reranked_val - dense_val
 
+        # Add NDCG metrics
+        for k in [1, 3, 5, 10]:
+            # Dense retrieval metrics
+            dense_key = f"ndcg_dense@{k}"
+            if dense_key in result:
+                if isinstance(result[dense_key], list):
+                    model_data[f"NDCG@{k} (Dense)"] = (
+                        sum(result[dense_key]) / len(result[dense_key])
+                        if result[dense_key]
+                        else 0
+                    )
+                else:
+                    model_data[f"NDCG@{k} (Dense)"] = result[dense_key]
+
+            # Re-ranked metrics if available
+            reranked_key = f"ndcg_reranked@{k}"
+            if reranked_key in result:
+                if isinstance(result[reranked_key], list):
+                    model_data[f"NDCG@{k} (ReRanked)"] = (
+                        sum(result[reranked_key]) / len(result[reranked_key])
+                        if result[reranked_key]
+                        else 0
+                    )
+                else:
+                    model_data[f"NDCG@{k} (ReRanked)"] = result[reranked_key]
+
+        # Add Recall metrics
+        for k in [1, 3, 5, 10]:
+            # Dense retrieval metrics
+            dense_key = f"recall_dense@{k}"
+            if dense_key in result:
+                if isinstance(result[dense_key], list):
+                    model_data[f"Recall@{k} (Dense)"] = (
+                        sum(result[dense_key]) / len(result[dense_key])
+                        if result[dense_key]
+                        else 0
+                    )
+                else:
+                    model_data[f"Recall@{k} (Dense)"] = result[dense_key]
+
+            # Re-ranked metrics if available
+            reranked_key = f"recall_reranked@{k}"
+            if reranked_key in result:
+                if isinstance(result[reranked_key], list):
+                    model_data[f"Recall@{k} (ReRanked)"] = (
+                        sum(result[reranked_key]) / len(result[reranked_key])
+                        if result[reranked_key]
+                        else 0
+                    )
+                else:
+                    model_data[f"Recall@{k} (ReRanked)"] = result[reranked_key]
+
+        # Add Precision metrics
+        for k in [1, 3, 5, 10]:
+            # Dense retrieval metrics
+            dense_key = f"precision_dense@{k}"
+            if dense_key in result:
+                if isinstance(result[dense_key], list):
+                    model_data[f"Precision@{k} (Dense)"] = (
+                        sum(result[dense_key]) / len(result[dense_key])
+                        if result[dense_key]
+                        else 0
+                    )
+                else:
+                    model_data[f"Precision@{k} (Dense)"] = result[dense_key]
+
+            # Re-ranked metrics if available
+            reranked_key = f"precision_reranked@{k}"
+            if reranked_key in result:
+                if isinstance(result[reranked_key], list):
+                    model_data[f"Precision@{k} (ReRanked)"] = (
+                        sum(result[reranked_key]) / len(result[reranked_key])
+                        if result[reranked_key]
+                        else 0
+                    )
+                else:
+                    model_data[f"Precision@{k} (ReRanked)"] = result[reranked_key]
+
+        # Add MAP metrics
+        for k in [1, 3, 5, 10]:
+            # Dense retrieval metrics
+            dense_key = f"map_dense@{k}"
+            if dense_key in result:
+                if isinstance(result[dense_key], list):
+                    model_data[f"MAP@{k} (Dense)"] = (
+                        sum(result[dense_key]) / len(result[dense_key])
+                        if result[dense_key]
+                        else 0
+                    )
+                else:
+                    model_data[f"MAP@{k} (Dense)"] = result[dense_key]
+
+            # Re-ranked metrics if available
+            reranked_key = f"map_reranked@{k}"
+            if reranked_key in result:
+                if isinstance(result[reranked_key], list):
+                    model_data[f"MAP@{k} (ReRanked)"] = (
+                        sum(result[reranked_key]) / len(result[reranked_key])
+                        if result[reranked_key]
+                        else 0
+                    )
+                else:
+                    model_data[f"MAP@{k} (ReRanked)"] = result[reranked_key]
+
         comparison_data.append(model_data)
 
     # Create and return DataFrame
@@ -748,3 +1095,39 @@ def compare_models(results_list: list[dict[str, Any]]) -> pd.DataFrame:
         df = df.sort_values("MRR (Dense)", ascending=False)
 
     return df
+
+
+def compare_models_with_statistics(
+    results_list: list[dict[str, Any]],
+) -> tuple[pd.DataFrame, list[dict]]:
+    """
+    Compare results across different models with statistical significance testing.
+
+    Args:
+        results_list: List of benchmark result dictionaries
+
+    Returns:
+        Tuple of (comparison_dataframe, significance_tests_list)
+    """
+    if len(results_list) < 2:
+        return compare_models(results_list), []
+
+    # Get the basic comparison table
+    comparison_df = compare_models(results_list)
+
+    # Perform pairwise significance tests
+    significance_tests = []
+    for i in range(len(results_list)):
+        for j in range(i + 1, len(results_list)):
+            model_a = results_list[i]
+            model_b = results_list[j]
+            model_a_name = model_a.get("model_slug", f"Model {i + 1}")
+            model_b_name = model_b.get("model_slug", f"Model {j + 1}")
+
+            # Perform significance testing
+            significance = compare_models_with_significance(
+                model_a, model_b, model_a_name, model_b_name
+            )
+            significance_tests.append(significance)
+
+    return comparison_df, significance_tests
