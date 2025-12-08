@@ -25,7 +25,7 @@ class ThresholdOptimizer:
         """
         precisions, recalls, thresholds = precision_recall_curve(labels, scores)
 
-        optimal_idx: int
+        optimal_idx: int = 0
         if self.optimization_metric == "f1":
             f1_scores = 2 * precisions * recalls / (precisions + recalls + 1e-10)
             optimal_idx = int(np.argmax(f1_scores))
@@ -35,8 +35,6 @@ class ThresholdOptimizer:
             valid_idx = np.where(recalls >= min_recall)[0]
             if len(valid_idx) > 0:
                 optimal_idx = int(valid_idx[np.argmax(precisions[valid_idx])])
-            else:
-                optimal_idx = 0
 
         optimal_threshold = (
             thresholds[optimal_idx] if optimal_idx < len(thresholds) else 0.5
