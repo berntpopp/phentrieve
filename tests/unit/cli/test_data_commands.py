@@ -52,6 +52,7 @@ class TestPrepareHpoData:
             debug=False,
             force_update=False,
             data_dir_override=None,
+            include_obsolete=False,  # Issue #133: Default filters obsolete terms
         )
 
         # Check success message
@@ -102,6 +103,7 @@ class TestPrepareHpoData:
             debug=False,
             force_update=True,
             data_dir_override=None,
+            include_obsolete=False,  # Issue #133: Default filters obsolete terms
         )
 
     def test_prepares_data_with_custom_data_dir(self, mocker):
@@ -126,6 +128,7 @@ class TestPrepareHpoData:
             debug=False,
             force_update=False,
             data_dir_override="/custom/data/path",
+            include_obsolete=False,  # Issue #133: Default filters obsolete terms
         )
 
     def test_prepares_data_with_all_options(self, mocker):
@@ -146,6 +149,7 @@ class TestPrepareHpoData:
             debug=True,
             force=True,
             data_dir="/custom/path",
+            include_obsolete=True,  # Issue #133: Test include_obsolete flag
         )
 
         # Assert
@@ -154,6 +158,7 @@ class TestPrepareHpoData:
             debug=True,
             force_update=True,
             data_dir_override="/custom/path",
+            include_obsolete=True,  # Issue #133: Passed through
         )
 
     def test_preparation_fails_with_error(self, mocker):

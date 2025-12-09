@@ -222,6 +222,106 @@ def log_parsing_summary(stats: dict[str, int], total_terms: int) -> None:
 # --- End Safe Dictionary Access Helpers ---
 
 
+# --- Obsolete Term Detection (Issue #133) ---
+#
+# These helpers detect obsolete HPO terms using OBO Graphs conventions.
+# Obsolete terms should be filtered from the index to prevent retrieval errors.
+#
+# Detection criteria (per HPO Obsoletion Wiki):
+# 1. meta.deprecated == true (OWL:deprecated annotation)
+# 2. Label starts with "obsolete " (case-insensitive)
+#
+# See: https://github.com/obophenotype/human-phenotype-ontology/wiki/Obsoletion
+# See: https://github.com/berntpopp/phentrieve/issues/133
+# ---
+
+
+def is_obsolete_term(node_data: dict) -> bool:
+    """
+    Check if an HPO term is obsolete using OBO Graphs conventions.
+
+    Detection criteria (per HPO Obsoletion Wiki):
+    1. meta.deprecated == true (OWL:deprecated annotation)
+    2. Label starts with "obsolete " (case-insensitive)
+
+    Args:
+        node_data: Raw node dictionary from HPO JSON (OBO Graphs format)
+
+    Returns:
+        True if term is obsolete, False otherwise
+
+    Examples:
+        >>> node = {"lbl": "obsolete Clitoromegaly", "meta": {"deprecated": true}}
+        >>> is_obsolete_term(node)
+        True
+
+        >>> node = {"lbl": "Seizure", "meta": {"definition": {"val": "..."}}}
+        >>> is_obsolete_term(node)
+        False
+
+    Note:
+        Both criteria are typically present together in HPO data, but we check
+        both for robustness against schema variations.
+    """
+    # Check deprecated flag in meta (primary criterion)
+    deprecated = safe_get_nested(node_data, "meta", "deprecated", default=False)
+    if deprecated is True:
+        return True
+
+    # Check label prefix (secondary criterion, case-insensitive)
+    label = node_data.get("lbl", "")
+    if isinstance(label, str) and label.lower().startswith("obsolete "):
+        return True
+
+    return False
+
+
+def get_replacement_term(node_data: dict) -> Optional[str]:
+    """
+    Get the replacement term ID for an obsolete term.
+
+    Uses IAO_0100001 ("term replaced by") annotation from OBO Graphs format.
+    This is useful for tracking term migrations and providing user guidance.
+
+    Args:
+        node_data: Raw node dictionary from HPO JSON
+
+    Returns:
+        Replacement term ID (e.g., "HP:0000510") or None if not specified
+
+    Examples:
+        >>> node = {
+        ...     "meta": {
+        ...         "deprecated": true,
+        ...         "basicPropertyValues": [
+        ...             {"pred": "http://purl.obolibrary.org/obo/IAO_0100001",
+        ...              "val": "HP:0008665"}
+        ...         ]
+        ...     }
+        ... }
+        >>> get_replacement_term(node)
+        'HP:0008665'
+
+    Note:
+        The IAO_0100001 predicate is the standard OBO annotation for
+        "term replaced by". The value may be a full URI or HP ID.
+    """
+    basic_props = safe_get_list(node_data, "meta", "basicPropertyValues", default=[])
+    for prop in basic_props:
+        if not isinstance(prop, dict):
+            continue
+        pred = prop.get("pred", "")
+        # IAO_0100001 is "term replaced by"
+        if "IAO_0100001" in pred:
+            val = prop.get("val", "")
+            if val:
+                return normalize_id(val)
+    return None
+
+
+# --- End Obsolete Term Detection ---
+
+
 def download_hpo_json(hpo_file_path: Path) -> bool:
     """
     Download the latest version of the HPO JSON file.
@@ -275,34 +375,44 @@ def load_hpo_json(hpo_file_path: Path) -> Optional[dict]:
 
 def _parse_hpo_json_to_graphs(
     hpo_data: dict,
+    include_obsolete: bool = False,
 ) -> tuple[
     Optional[dict[str, dict]],
     Optional[dict[str, list[str]]],
     Optional[dict[str, list[str]]],
     Optional[set[str]],
+    int,  # obsolete_count - number of obsolete terms filtered
 ]:
     """
     Parses raw HPO JSON data into term data, parent->child, and child->parent relationships.
 
     Uses safe dictionary access patterns to handle schema variations gracefully (Issue #23).
+    Filters obsolete terms by default to prevent retrieval errors (Issue #133).
 
     Args:
         hpo_data: Raw HPO JSON data (OBOGraph format)
+        include_obsolete: If True, include obsolete terms (for analysis). Default False.
 
     Returns:
-        Tuple of (nodes_data, parent_to_children, child_to_parents, term_ids)
-        Returns (None, None, None, None) if critical structure missing
+        Tuple of (nodes_data, parent_to_children, child_to_parents, term_ids, obsolete_count)
+        Returns (None, None, None, None, 0) if critical structure missing
 
     Resilience (Issue #23):
         - Validates graphs array exists and has content
         - Handles missing 'nodes' or 'edges' arrays gracefully
         - Supports both 'sub' and 'subj' edge field variants
         - Logs detailed error messages for debugging
+
+    Obsolete Filtering (Issue #133):
+        - Filters terms with meta.deprecated == true
+        - Filters terms with label prefix "obsolete "
+        - Logs statistics on filtered terms
     """
     all_nodes_data: dict[str, dict] = {}
     parent_to_children_map: dict[str, list[str]] = defaultdict(list)
     child_to_parents_map: dict[str, list[str]] = defaultdict(list)
     all_term_ids: set[str] = set()
+    obsolete_count = 0  # Track filtered obsolete terms (Issue #133)
 
     logger.debug("Parsing nodes and edges from HPO JSON...")
 
@@ -313,18 +423,18 @@ def _parse_hpo_json_to_graphs(
             f"Invalid HPO JSON structure: 'graphs' field is missing. "
             f"Available top-level keys: {list(hpo_data.keys())}"
         )
-        return None, None, None, None
+        return None, None, None, None, 0
 
     if not isinstance(graphs_data, list):
         logger.error(
             f"Invalid HPO JSON structure: 'graphs' must be a list, "
             f"but got {type(graphs_data).__name__}"
         )
-        return None, None, None, None
+        return None, None, None, None, 0
 
     if len(graphs_data) == 0:
         logger.error("Invalid HPO JSON structure: 'graphs' array is empty")
-        return None, None, None, None
+        return None, None, None, None, 0
 
     graph = graphs_data[0]  # Assume single graph structure
 
@@ -347,6 +457,19 @@ def _parse_hpo_json_to_graphs(
 
         node_id_norm = normalize_id(original_id)
         if node_id_norm and node_id_norm.startswith("HP:"):
+            # FILTER: Skip obsolete terms unless explicitly included (Issue #133)
+            if not include_obsolete and is_obsolete_term(node_obj):
+                obsolete_count += 1
+                # Log first few obsolete terms at debug level
+                if obsolete_count <= 5:
+                    replacement = get_replacement_term(node_obj)
+                    label = node_obj.get("lbl", "N/A")
+                    logger.debug(
+                        f"Filtering obsolete term: {node_id_norm} ({label})"
+                        + (f" -> replaced by {replacement}" if replacement else "")
+                    )
+                continue
+
             all_nodes_data[node_id_norm] = node_obj
             all_term_ids.add(node_id_norm)
         # else: # Optionally log non-HP terms or terms that don't normalize
@@ -406,11 +529,23 @@ def _parse_hpo_json_to_graphs(
     num_parent_child_edges = sum(len(v) for v in parent_to_children_map.values())
     num_child_parent_edges = sum(len(v) for v in child_to_parents_map.values())
 
+    # Log parsing statistics including obsolete filtering (Issue #133)
+    total_hp_nodes = len(all_nodes_data) + obsolete_count
     logger.info(
-        f"Parsed {len(all_nodes_data)} total HPO terms (nodes). "
+        f"Parsed {len(all_nodes_data)} active HPO terms "
+        f"(filtered {obsolete_count} obsolete out of {total_hp_nodes} total). "
         f"Found {num_parent_child_edges} parent->child and "
         f"{num_child_parent_edges} child->parent 'is_a' relationships"
     )
+
+    if obsolete_count > 0:
+        obsolete_pct = (
+            (obsolete_count / total_hp_nodes) * 100 if total_hp_nodes > 0 else 0
+        )
+        logger.info(
+            f"Obsolete term filtering (Issue #133): {obsolete_count} terms "
+            f"({obsolete_pct:.1f}%) excluded from index"
+        )
 
     # Ensure the true ontology root is present if defined
     if TRUE_ONTOLOGY_ROOT not in all_term_ids:
@@ -423,7 +558,13 @@ def _parse_hpo_json_to_graphs(
         # One might consider adding it manually if it's absolutely essential and known to be the root.
         # e.g. if TRUE_ONTOLOGY_ROOT in all_nodes_data: all_term_ids.add(TRUE_ONTOLOGY_ROOT)
 
-    return all_nodes_data, parent_to_children_map, child_to_parents_map, all_term_ids
+    return (
+        all_nodes_data,
+        parent_to_children_map,
+        child_to_parents_map,
+        all_term_ids,
+        obsolete_count,
+    )
 
 
 def compute_ancestors_iterative(
@@ -672,6 +813,7 @@ def prepare_hpo_data(
     force_update: bool = False,
     hpo_file_path: Path | None = None,
     db_path: Path | None = None,
+    include_obsolete: bool = False,
 ) -> tuple[bool, Optional[str]]:
     """
     Core HPO data preparation: download, parse, save ALL terms to SQLite, compute graph data.
@@ -680,6 +822,8 @@ def prepare_hpo_data(
         force_update: Force re-download of HPO JSON file
         hpo_file_path: Path to HPO JSON file
         db_path: Path to SQLite database file
+        include_obsolete: If True, include obsolete terms (for analysis). Default False.
+                         See Issue #133 for details on obsolete term filtering.
 
     Returns:
         Tuple of (success: bool, error_message: Optional[str])
@@ -705,10 +849,15 @@ def prepare_hpo_data(
         return False, f"Failed to load HPO JSON from {hpo_file_path}"
 
     # 2. Parse HPO JSON into structured graphs and node data
+    # Filter obsolete terms by default (Issue #133)
     logger.info("Parsing HPO JSON into node data and graph structures...")
-    all_nodes_data, parent_to_children_map, child_to_parents_map, all_term_ids = (
-        _parse_hpo_json_to_graphs(hpo_data)
-    )
+    (
+        all_nodes_data,
+        parent_to_children_map,
+        child_to_parents_map,
+        all_term_ids,
+        obsolete_count,
+    ) = _parse_hpo_json_to_graphs(hpo_data, include_obsolete=include_obsolete)
 
     if (
         not all_nodes_data
@@ -720,7 +869,11 @@ def prepare_hpo_data(
             False,
             "Failed to parse HPO data into necessary graph structures or node data.",
         )
-    logger.info(f"Successfully parsed data for {len(all_term_ids)} HPO terms.")
+    logger.info(
+        f"Successfully parsed data for {len(all_term_ids)} active HPO terms"
+        + (f" (filtered {obsolete_count} obsolete)" if obsolete_count > 0 else "")
+        + "."
+    )
 
     # 3. Initialize SQLite database
     logger.info(f"Initializing HPO database at {db_path}...")
@@ -801,7 +954,7 @@ def prepare_hpo_data(
     except Exception as e:
         logger.warning(f"Database optimization failed: {e}")
 
-    # 9. Store metadata (HPO version, download date, etc.)
+    # 9. Store metadata (HPO version, download date, obsolete stats, etc.)
     logger.info("Storing HPO metadata in database...")
     try:
         from datetime import datetime, timezone
@@ -809,6 +962,10 @@ def prepare_hpo_data(
         db.set_metadata("hpo_version", HPO_VERSION)
         db.set_metadata("hpo_download_date", datetime.now(timezone.utc).isoformat())
         db.set_metadata("hpo_source_url", HPO_JSON_URL)
+        # Store obsolete term statistics (Issue #133)
+        db.set_metadata("active_terms_count", str(len(terms_data)))
+        db.set_metadata("obsolete_terms_filtered", str(obsolete_count))
+        db.set_metadata("include_obsolete", str(include_obsolete).lower())
         logger.info("Stored HPO version metadata: %s", HPO_VERSION)
     except Exception as e:
         logger.warning("Failed to store HPO metadata: %s", e)
@@ -817,7 +974,8 @@ def prepare_hpo_data(
     db.close()
 
     logger.info("HPO data preparation completed successfully.")
-    logger.info("  Total terms: %d", len(terms_data))
+    logger.info("  Active terms: %d", len(terms_data))
+    logger.info("  Obsolete filtered: %d", obsolete_count)
     logger.info("  HPO Version: %s", HPO_VERSION)
     logger.info("  Database: %s", db_path)
     return True, None
@@ -827,6 +985,7 @@ def orchestrate_hpo_preparation(
     debug: bool = False,  # Logging level handled by CLI caller
     force_update: bool = False,
     data_dir_override: Optional[str] = None,
+    include_obsolete: bool = False,
 ) -> bool:
     """
     Orchestrates HPO data download, extraction of ALL terms to SQLite, and precomputation of graph properties.
@@ -835,6 +994,8 @@ def orchestrate_hpo_preparation(
         debug: Enable debug logging (handled by CLI caller)
         force_update: Force re-download and regeneration of all data
         data_dir_override: Override default data directory
+        include_obsolete: If True, include obsolete terms (for analysis). Default False.
+                         See Issue #133 for details on obsolete term filtering.
 
     Returns:
         True if preparation succeeded, False otherwise
@@ -856,6 +1017,7 @@ def orchestrate_hpo_preparation(
             force_update=force_update,
             hpo_file_path=hpo_file_path,
             db_path=db_path,
+            include_obsolete=include_obsolete,
         )
 
         if not success:
@@ -892,6 +1054,11 @@ if __name__ == "__main__":
         type=str,
         help="Override the default data directory for HPO files.",
     )
+    parser.add_argument(
+        "--include-obsolete",
+        action="store_true",
+        help="Include obsolete HPO terms (for analysis). Default: filter out obsolete terms.",
+    )
     args = parser.parse_args()
 
     # Setup logging (basic for direct script run, CLI in phentrieve.cli will handle richer setup)
@@ -908,7 +1075,10 @@ if __name__ == "__main__":
     # logging.getLogger("urllib3").setLevel(logging.WARNING)
 
     if not orchestrate_hpo_preparation(
-        debug=args.debug, force_update=args.force, data_dir_override=args.data_dir
+        debug=args.debug,
+        force_update=args.force,
+        data_dir_override=args.data_dir,
+        include_obsolete=args.include_obsolete,
     ):
         sys.exit(1)
     sys.exit(0)
