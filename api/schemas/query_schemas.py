@@ -43,6 +43,34 @@ class QueryRequest(BaseModel):
         description="Number of top dense results to pass to the reranker.",
     )
 
+    # Multi-vector parameters (Issue #136)
+    multi_vector: bool = Field(
+        False,
+        description="Use multi-vector index with component-level aggregation.",
+    )
+    aggregation_strategy: Optional[
+        Literal[
+            "label_only",
+            "label_synonyms_min",
+            "label_synonyms_max",
+            "all_weighted",
+            "all_max",
+            "all_min",
+            "custom",
+        ]
+    ] = Field(
+        "label_synonyms_max",
+        description="Aggregation strategy for multi-vector results.",
+    )
+    component_weights: Optional[dict[str, float]] = Field(
+        None,
+        description="Component weights for 'all_weighted' strategy. Example: {'label': 0.5, 'synonyms': 0.3, 'definition': 0.2}",
+    )
+    custom_formula: Optional[str] = Field(
+        None,
+        description="Custom aggregation formula for 'custom' strategy. Example: '0.5 * max(label, max(synonyms)) + 0.5 * definition'",
+    )
+
     # Assertion detection parameters
     detect_query_assertion: bool = Field(
         True, description="Whether to detect assertions (negations) in the query text."
@@ -73,6 +101,14 @@ class QueryRequest(BaseModel):
         return self
 
 
+class ComponentScores(BaseModel):
+    """Component scores for multi-vector results."""
+
+    label: Optional[float] = None
+    synonyms: Optional[list[float]] = None
+    definition: Optional[float] = None
+
+
 class HPOResultItem(BaseModel):
     hpo_id: str
     label: str
@@ -82,6 +118,10 @@ class HPOResultItem(BaseModel):
     definition: Optional[str] = None  # HPO term definition (when include_details=True)
     synonyms: Optional[list[str]] = (
         None  # HPO term synonyms (when include_details=True)
+    )
+    # Multi-vector component scores (Issue #136)
+    component_scores: Optional[ComponentScores] = (
+        None  # Component scores (when multi_vector=True)
     )
 
 

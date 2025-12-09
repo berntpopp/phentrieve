@@ -55,6 +55,9 @@ __all__ = [
     "HPO_BASE_URL",
     "HPO_DOWNLOAD_TIMEOUT",
     "HPO_CHUNK_SIZE",
+    # Multi-vector configuration
+    "DEFAULT_AGGREGATION_STRATEGY",
+    "DEFAULT_COMPONENT_WEIGHTS",
     # Chunking configurations
     "DEFAULT_CHUNK_PIPELINE_CONFIG",
     "SIMPLE_CHUNKING_CONFIG",
@@ -459,6 +462,32 @@ HPO_CHUNK_SIZE: int = int(
     get_config_value("hpo_data", _DEFAULT_HPO_CHUNK_SIZE_FALLBACK, "chunk_size")
 )
 
+# =============================================================================
+# Multi-Vector Configuration (Issue #136)
+# =============================================================================
+# Fallbacks for multi-vector embedding settings
+_DEFAULT_AGGREGATION_STRATEGY_FALLBACK = "label_synonyms_max"
+_DEFAULT_COMPONENT_WEIGHTS_FALLBACK: dict[str, float] = {
+    "label": 0.5,
+    "synonyms": 0.3,
+    "definition": 0.2,
+}
+
+# Multi-vector public constants
+DEFAULT_AGGREGATION_STRATEGY: str = get_config_value(
+    "multi_vector", _DEFAULT_AGGREGATION_STRATEGY_FALLBACK, "aggregation_strategy"
+)
+_loaded_weights = get_config_value(
+    "multi_vector", _DEFAULT_COMPONENT_WEIGHTS_FALLBACK, "component_weights"
+)
+# Validate component weights is a dict with string keys and float values
+if isinstance(_loaded_weights, dict):
+    DEFAULT_COMPONENT_WEIGHTS: dict[str, float] = {
+        str(k): float(v) for k, v in _loaded_weights.items()
+    }
+else:
+    DEFAULT_COMPONENT_WEIGHTS = _DEFAULT_COMPONENT_WEIGHTS_FALLBACK
+
 
 # =============================================================================
 # Vector Store Configuration
@@ -514,6 +543,7 @@ class VectorStoreConfig:
         index_dir: Path,
         distance_metric: str = "cosine",
         custom_settings: dict[str, Any] | None = None,
+        multi_vector: bool = False,
     ) -> "VectorStoreConfig":
         """
         Create a VectorStoreConfig for ChromaDB backend.
@@ -527,6 +557,7 @@ class VectorStoreConfig:
             index_dir: Directory where ChromaDB will store data
             distance_metric: Distance metric for similarity ("cosine", "l2", "ip")
             custom_settings: Optional settings to override defaults
+            multi_vector: If True, append "_multi" to collection name for multi-vector index
 
         Returns:
             VectorStoreConfig instance configured for ChromaDB
@@ -537,12 +568,21 @@ class VectorStoreConfig:
             ...     index_dir=Path("/data/indexes")
             ... )
             >>> config.collection_name
-            'hpo_sentence-transformers_all-MiniLM-L6-v2'
+            'phentrieve_sentence-transformers_all-MiniLM-L6-v2'
+            >>> config_multi = VectorStoreConfig.for_chromadb(
+            ...     model_name="sentence-transformers/all-MiniLM-L6-v2",
+            ...     index_dir=Path("/data/indexes"),
+            ...     multi_vector=True
+            ... )
+            >>> config_multi.collection_name
+            'phentrieve_sentence-transformers_all-MiniLM-L6-v2_multi'
         """
         # Lazy import to avoid circular dependency
         from phentrieve.utils import generate_collection_name
 
         collection_name = generate_collection_name(model_name)
+        if multi_vector:
+            collection_name = f"{collection_name}_multi"
 
         # Default ChromaDB settings
         default_settings = {

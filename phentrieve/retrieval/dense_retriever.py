@@ -19,6 +19,10 @@ if TYPE_CHECKING:
     from sentence_transformers import SentenceTransformer
 
 from phentrieve.config import MIN_SIMILARITY_THRESHOLD, VectorStoreConfig
+from phentrieve.retrieval.aggregation import (
+    AggregationStrategy,
+    aggregate_multi_vector_results,
+)
 from phentrieve.utils import (
     calculate_similarity,
     generate_collection_name,
@@ -153,6 +157,35 @@ class DenseRetriever:
         # These will be set in from_model_name
         self.model_name: Optional[str] = None
         self.index_base_path: Optional[Path] = None
+        self._index_type: Optional[str] = None  # Cached index type
+
+    def detect_index_type(self) -> str:
+        """
+        Detect if collection uses single-vector or multi-vector format.
+
+        Reads the index_type from collection metadata. Returns "single_vector"
+        if not found (backward compatibility).
+
+        Returns:
+            "single_vector" or "multi_vector"
+        """
+        if self._index_type is not None:
+            return self._index_type
+
+        try:
+            metadata = self.collection.metadata
+            self._index_type = metadata.get("index_type", "single_vector")
+            logging.debug(
+                "Detected index type: %s", _sanitize(self._index_type)
+            )
+        except Exception as e:
+            logging.warning(
+                "Could not detect index type, assuming single_vector: %s",
+                _sanitize(e)
+            )
+            self._index_type = "single_vector"
+
+        return self._index_type
 
     @classmethod
     def from_model_name(
@@ -161,6 +194,7 @@ class DenseRetriever:
         model_name: str,
         index_dir: Optional[Union[str, Path]] = None,
         min_similarity: float = MIN_SIMILARITY_THRESHOLD,
+        multi_vector: bool = False,
     ) -> Optional["DenseRetriever"]:
         """
         Create a retriever instance from a model name.
@@ -170,11 +204,14 @@ class DenseRetriever:
             model_name: Name of the model (used for collection naming)
             index_dir: Directory where ChromaDB indices are stored
             min_similarity: Minimum similarity threshold for results
+            multi_vector: Connect to multi-vector index instead of single-vector
 
         Returns:
             DenseRetriever instance or None if connection failed
         """
         collection_name = generate_collection_name(model_name)
+        if multi_vector:
+            collection_name = f"{collection_name}_multi"
         final_index_dir: Path
         if index_dir is not None:
             final_index_dir = Path(index_dir)
@@ -430,3 +467,72 @@ class DenseRetriever:
             "distances": [filtered_distances],
             "similarities": [filtered_similarities],
         }
+
+    def query_multi_vector(
+        self,
+        text: str,
+        n_results: int = 10,
+        aggregation_strategy: str | AggregationStrategy = AggregationStrategy.LABEL_SYNONYMS_MAX,
+        component_weights: Optional[dict[str, float]] = None,
+        custom_formula: Optional[str] = None,
+    ) -> list[dict[str, Any]]:
+        """
+        Query a multi-vector index with score aggregation.
+
+        This method queries the multi-vector index, groups results by HPO ID,
+        and aggregates component scores using the specified strategy.
+
+        Args:
+            text: The input text to query
+            n_results: Number of HPO terms to return (after aggregation)
+            aggregation_strategy: Strategy for combining component scores
+            component_weights: Weights for "all_weighted" strategy
+            custom_formula: Formula for "custom" strategy
+
+        Returns:
+            List of result dictionaries sorted by aggregated score:
+            [
+                {
+                    "hpo_id": "HP:0001250",
+                    "label": "Seizure",
+                    "similarity": 0.92,
+                    "component_scores": {
+                        "label": 0.85,
+                        "synonyms": [0.92, 0.78],
+                        "definition": 0.65,
+                    },
+                }
+            ]
+        """
+        # Verify this is a multi-vector index
+        index_type = self.detect_index_type()
+        if index_type != "multi_vector":
+            logging.warning(
+                "query_multi_vector called on %s index. Results may be incorrect.",
+                _sanitize(index_type)
+            )
+
+        logging.info(
+            "Multi-vector query: '%s' with strategy %s",
+            _sanitize(text[:50] + "..." if len(text) > 50 else text),
+            _sanitize(str(aggregation_strategy))
+        )
+
+        # Request more results to ensure we get enough unique HPO IDs
+        # Multi-vector index has ~5-10x more documents per HPO term
+        raw_n_results = n_results * 5
+
+        # Query the index
+        raw_results = self.query(text, n_results=raw_n_results, include_similarities=True)
+
+        # Aggregate results by HPO ID
+        aggregated = aggregate_multi_vector_results(
+            results=raw_results,
+            strategy=aggregation_strategy,
+            weights=component_weights,
+            custom_formula=custom_formula,
+            min_similarity=self.min_similarity,
+        )
+
+        # Return top n_results
+        return aggregated[:n_results]

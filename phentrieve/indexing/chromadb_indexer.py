@@ -31,6 +31,7 @@ def build_chromadb_index(
     batch_size: int = 100,
     recreate: bool = False,
     index_dir: Path | None = None,
+    index_type: str = "single_vector",
 ) -> bool:
     """
     Build a ChromaDB index for the given documents using the specified embedding model.
@@ -43,6 +44,8 @@ def build_chromadb_index(
         model_name: Name of the model (used for collection naming)
         batch_size: Number of documents to process at once
         recreate: Whether to recreate the collection if it exists
+        index_dir: Directory to store the index
+        index_type: Type of index - "single_vector" or "multi_vector"
 
     Returns:
         bool: True if indexing was successful, False otherwise
@@ -73,9 +76,11 @@ def build_chromadb_index(
         os.makedirs(index_dir_str, exist_ok=True)
 
         # Create vector store configuration
+        multi_vector = index_type == "multi_vector"
         vector_store_config = VectorStoreConfig.for_chromadb(
             model_name=model_name,
             index_dir=index_dir,
+            multi_vector=multi_vector,
         )
 
         # Initialize ChromaDB client with config
@@ -133,6 +138,7 @@ def build_chromadb_index(
                     "dimension": model_dimension,
                     "created_at": time.strftime("%Y-%m-%d %H:%M:%S"),
                     "hnsw:space": vector_store_config.distance_metric,
+                    "index_type": index_type,
                 },
             )
         if not skip_collection_creation:
@@ -190,6 +196,6 @@ def build_chromadb_index(
 
     end_time = time.time()
     logging.info(f"Index built successfully in {end_time - start_time:.2f} seconds!")
-    logging.info(f"Indexed {len(documents)} HPO terms.")
+    logging.info(f"Indexed {len(documents)} documents ({index_type} index).")
     logging.info(f"Index location: {os.path.abspath(str(index_dir))}")
     return True

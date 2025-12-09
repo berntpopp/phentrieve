@@ -225,6 +225,21 @@ def query_hpo(
             help="Include HPO term definitions and synonyms in output",
         ),
     ] = False,
+    multi_vector: Annotated[
+        bool,
+        typer.Option(
+            "--multi-vector",
+            help="Use multi-vector index with component-level aggregation",
+        ),
+    ] = False,
+    aggregation_strategy: Annotated[
+        str,
+        typer.Option(
+            "--aggregation-strategy",
+            "-A",
+            help="Multi-vector aggregation strategy: label_only, label_synonyms_min, label_synonyms_max, all_weighted, all_max",
+        ),
+    ] = "label_synonyms_max",
 ):
     """Query HPO terms with natural language clinical descriptions.
 
@@ -396,6 +411,14 @@ def query_hpo(
                 fg=typer.colors.RED,
             )
             raise typer.Exit(code=1)
+
+        # Multi-vector mode warning (full orchestrator integration pending)
+        if multi_vector:
+            typer.secho(
+                "Note: Multi-vector query with aggregation strategy: "
+                f"{aggregation_strategy}",
+                fg=typer.colors.CYAN,
+            )
 
         # Validate output format
         SUPPORTED_OUTPUT_FORMATS = ["text", "json", "json_lines", "phenopacket_v2_json"]
