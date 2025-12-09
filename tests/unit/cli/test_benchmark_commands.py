@@ -184,7 +184,12 @@ class TestRunBenchmarks:
         mock_secho.assert_called()
 
     def test_benchmark_with_default_parameters(self, mocker):
-        """Test benchmark with default parameter values."""
+        """Test benchmark with default parameter values.
+
+        When CLI receives None for optional string parameters, they should NOT
+        be passed to orchestrate_benchmark, allowing its defaults to be used.
+        This fixes issue #122 where empty strings overrode config defaults.
+        """
         # Arrange
         mocker.patch("phentrieve.utils.setup_logging_cli")
         mock_orchestrate = mocker.patch(
@@ -197,22 +202,53 @@ class TestRunBenchmarks:
         # Act
         run_benchmarks()
 
-        # Assert - Check defaults are passed correctly
+        # Assert - Optional string params should NOT be in kwargs (allows orchestrator defaults)
         call_kwargs = mock_orchestrate.call_args.kwargs
-        assert call_kwargs["test_file"] == ""
-        assert call_kwargs["model_name"] == ""
-        assert call_kwargs["model_list"] == ""
+        assert "test_file" not in call_kwargs  # Not passed, uses orchestrator default
+        assert "model_name" not in call_kwargs  # Not passed, uses orchestrator default
+        assert "model_list" not in call_kwargs  # Not passed, uses orchestrator default
+        assert "output" not in call_kwargs  # Not passed, uses orchestrator default
+        assert (
+            "reranker_model" not in call_kwargs
+        )  # Not passed, uses orchestrator default
+
+        # Assert - Non-optional params are always passed
         assert call_kwargs["all_models"] is False
         assert call_kwargs["similarity_threshold"] == 0.1
         assert call_kwargs["cpu"] is False
         assert call_kwargs["detailed"] is False
-        assert call_kwargs["output"] == ""
         assert call_kwargs["create_sample"] is False
         assert call_kwargs["trust_remote_code"] is False
         assert call_kwargs["enable_reranker"] is False
         assert call_kwargs["rerank_count"] == 10
         assert call_kwargs["similarity_formula"] == "hybrid"
         assert call_kwargs["debug"] is False
+
+    def test_benchmark_passes_explicit_model_name(self, mocker):
+        """Test that explicitly provided model_name is passed to orchestrator.
+
+        Regression test for issue #122: When model_name IS provided, it should
+        be passed. When not provided, it should be omitted (not empty string).
+        """
+        # Arrange
+        mocker.patch("phentrieve.utils.setup_logging_cli")
+        mock_orchestrate = mocker.patch(
+            "phentrieve.evaluation.benchmark_orchestrator.orchestrate_benchmark",
+            return_value={"model": "explicit-model", "mrr": 0.9},
+        )
+        mocker.patch("typer.echo")
+        mocker.patch("typer.secho")
+
+        # Act - explicitly provide model_name
+        run_benchmarks(model_name="FremyCompany/BioLORD-2023-M")
+
+        # Assert - model_name IS in kwargs when explicitly provided
+        call_kwargs = mock_orchestrate.call_args.kwargs
+        assert call_kwargs["model_name"] == "FremyCompany/BioLORD-2023-M"
+
+        # Other optional strings still not passed
+        assert "test_file" not in call_kwargs
+        assert "model_list" not in call_kwargs
 
 
 # =============================================================================
