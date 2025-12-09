@@ -22,11 +22,21 @@ class TestLoadEmbeddingModel:
         clear_model_registry()
 
     @patch("phentrieve.embeddings.SentenceTransformer")
+    @patch("phentrieve.embeddings.torch.backends.mps.is_available")
+    @patch("phentrieve.embeddings.torch.backends.mps.is_built")
     @patch("phentrieve.embeddings.torch.cuda.is_available")
-    def test_default_model_cpu(self, mock_cuda, mock_st):
-        """Test loading default model on CPU."""
-        # Arrange
+    def test_default_model_cpu(
+        self, mock_cuda, mock_mps_built, mock_mps_available, mock_st
+    ):
+        """Test loading default model on CPU when no GPU is available.
+
+        This test ensures CPU is selected when both CUDA and MPS are unavailable.
+        On macOS with Apple Silicon, MPS would be selected if not mocked.
+        """
+        # Arrange - simulate no GPU environment
         mock_cuda.return_value = False
+        mock_mps_built.return_value = False
+        mock_mps_available.return_value = False
         mock_model = Mock()
         mock_st.return_value = mock_model
 
@@ -36,7 +46,6 @@ class TestLoadEmbeddingModel:
         # Assert
         mock_st.assert_called_once_with(DEFAULT_BIOLORD_MODEL, trust_remote_code=True)
         mock_model.to.assert_called_once_with("cpu")
-        # model.to() returns the model itself
 
     @patch("phentrieve.embeddings.SentenceTransformer")
     @patch("phentrieve.embeddings.torch.cuda.is_available")
