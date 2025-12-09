@@ -880,11 +880,9 @@ export default {
   data() {
     return {
       queryText: '',
-      selectedModel: null, // Will be set in mounted
-      availableModels: [
-        // Simplified to BioLORD only - the recommended model with best performance (MRR@10: 0.823)
-        { text: this.$t('models.biolord'), value: 'FremyCompany/BioLORD-2023-M' },
-      ],
+      selectedModel: null, // Will be set from API config
+      availableModels: [], // Populated from API /info endpoint
+      modelsLoading: true, // Track model loading state
       selectedLanguage: null, // Will be set to current locale in created()
       availableLanguages: [
         { text: this.$t('common.auto'), value: null },
@@ -894,7 +892,7 @@ export default {
         { text: 'Spanish (Español)', value: 'es' },
         { text: 'Dutch (Nederlands)', value: 'nl' },
       ],
-      similarityThreshold: 0.3,
+      similarityThreshold: 0.5,
       numResults: 10,
       enableReranker: false,
       isLoading: false,
@@ -967,23 +965,15 @@ export default {
         // Avoid resetting on initial mount
         logService.info('Model changed', { newModel: newModel, oldModel: oldModel });
         // Reset some query-specific settings to defaults when model changes
-        this.similarityThreshold = 0.3;
+        this.similarityThreshold = 0.5;
         this.enableReranker = false;
         logService.info('Reset query-specific settings to defaults due to model change.');
       }
     },
   },
   created() {
-    // Example: Populate availableModels from an API endpoint if needed
-    // PhentrieveService.getConfigInfo().then(config => {
-    //   this.availableModels = config.available_embedding_models.map(m => ({ text: `${m.description} (${m.id.split('/').pop()})`, value: m.id }));
-    //   if (!this.selectedModel && config.default_embedding_model) {
-    //     this.selectedModel = config.default_embedding_model;
-    //   }
-    // }).catch(error => {
-    //   logService.error('Failed to fetch config info for models:', error);
-    // });
-    this.selectedModel = this.availableModels[0].value; // Set a default if not fetched
+    // Fetch available models from API
+    this.fetchAvailableModels();
 
     // Set selectedLanguage based on current locale
     const currentLocale = this.$i18n.locale;
@@ -1005,11 +995,52 @@ export default {
     }
   },
   methods: {
-    // ... (applyUrlParametersAndAutoSubmit, handleUserScroll, addToPhenotypeCollection, etc. remain largely the same) ...
-    // Ensure i18n is used for labels in methods where static text was present
-    // Add padding and scrollbar logic here if applicable within this component's scope.
-    // The methods for data handling (submitQuery, export, etc.) are complex and largely functional,
-    // so changes there will be minimal, focusing on passing the correct state.
+    /**
+     * Fetch available embedding models from API /info endpoint
+     * Falls back to BioLORD if API is unavailable
+     */
+    async fetchAvailableModels() {
+      this.modelsLoading = true;
+      try {
+        const config = await PhentrieveService.getConfigInfo();
+        if (config.available_embedding_models && config.available_embedding_models.length > 0) {
+          this.availableModels = config.available_embedding_models.map((m) => ({
+            // Use the model name (last part of ID) as display text, e.g., "BioLORD-2023-M"
+            text: m.id.split('/').pop(),
+            value: m.id,
+          }));
+          // Set default model from API config
+          if (config.default_embedding_model) {
+            this.selectedModel = config.default_embedding_model;
+          } else {
+            this.selectedModel = this.availableModels[0]?.value || null;
+          }
+          logService.info('Loaded embedding models from API', {
+            count: this.availableModels.length,
+            defaultModel: this.selectedModel,
+          });
+        } else {
+          this.setFallbackModel();
+        }
+      } catch (error) {
+        logService.warn('Failed to fetch models from API, using fallback', {
+          error: error.message,
+        });
+        this.setFallbackModel();
+      } finally {
+        this.modelsLoading = false;
+      }
+    },
+
+    /**
+     * Set fallback model when API is unavailable
+     */
+    setFallbackModel() {
+      this.availableModels = [{ text: 'BioLORD 2023-M', value: 'FremyCompany/BioLORD-2023-M' }];
+      this.selectedModel = 'FremyCompany/BioLORD-2023-M';
+      logService.info('Using fallback embedding model', { model: this.selectedModel });
+    },
+
     applyUrlParametersAndAutoSubmit() {
       const queryParams = this.$route.query;
       logService.debug('Raw URL query parameters:', { ...queryParams });

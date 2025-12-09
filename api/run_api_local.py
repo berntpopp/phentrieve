@@ -76,11 +76,12 @@ def setup_environment():
     logger.info(f"Results Dir: {results_dir}")
 
     # Check if required data files exist
-    ancestors_file = Path(data_dir) / "hpo_ancestors.pkl"
-    if not ancestors_file.exists():
-        logger.warning(f"HPO ancestors file not found: {ancestors_file}")
-        logger.warning("You may need to run the setup script to initialize HPO data.")
-        logger.warning("Try: python -m phentrieve.setup_hpo_index")
+    hpo_db_file = Path(data_dir) / "hpo_data.db"
+    if not hpo_db_file.exists():
+        logger.warning(f"HPO database not found: {hpo_db_file}")
+        logger.warning(
+            "You may need to run 'phentrieve data prepare' to download HPO data."
+        )
 
 
 def main():

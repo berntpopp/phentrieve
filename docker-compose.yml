@@ -120,8 +120,13 @@ services:
       - ${PHENTRIEVE_HOST_HF_CACHE_DIR:-${PHENTRIEVE_HOST_DATA_DIR}/hf_cache}:/app/.cache/huggingface:rw
 
     # Environment variables
+    # NOTE: PHENTRIEVE_DATA_DIR must be set explicitly to override legacy value
+    # baked into GHCR image (which incorrectly used hpo_core_data subdirectory)
     environment:
       - PHENTRIEVE_DATA_ROOT_DIR=/phentrieve_data_mount
+      - PHENTRIEVE_DATA_DIR=/phentrieve_data_mount
+      - PHENTRIEVE_INDEX_DIR=/phentrieve_data_mount/indexes
+      - PHENTRIEVE_RESULTS_DIR=/phentrieve_data_mount/results
       - LOG_LEVEL=${LOG_LEVEL_API:-INFO}
       - PYTHONPATH=/app
       - PYTHONDONTWRITEBYTECODE=1

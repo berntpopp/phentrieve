@@ -78,10 +78,11 @@ Example configuration:
 
 ```
 # Base directory for all Phentrieve data
-PHENTRIEVE_DATA_ROOT_DIR=C:/development/phentrieve
+PHENTRIEVE_DATA_ROOT_DIR=/path/to/phentrieve/data
 
-# Derived paths - these will be created by the code if they don't exist
-PHENTRIEVE_DATA_DIR=${PHENTRIEVE_DATA_ROOT_DIR}/hpo_core_data
+# Data paths - PHENTRIEVE_DATA_DIR defaults to PHENTRIEVE_DATA_ROOT_DIR if not set
+# hpo_data.db is located directly in the data root directory
+PHENTRIEVE_DATA_DIR=${PHENTRIEVE_DATA_ROOT_DIR}
 PHENTRIEVE_INDEX_DIR=${PHENTRIEVE_DATA_ROOT_DIR}/indexes
 PHENTRIEVE_RESULTS_DIR=${PHENTRIEVE_DATA_ROOT_DIR}/results
 ```
