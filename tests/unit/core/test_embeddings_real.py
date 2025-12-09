@@ -48,11 +48,20 @@ class TestLoadEmbeddingModel:
         mock_model.to.assert_called_once_with("cpu")
 
     @patch("phentrieve.embeddings.SentenceTransformer")
+    @patch("phentrieve.embeddings.torch.backends.mps.is_available")
+    @patch("phentrieve.embeddings.torch.backends.mps.is_built")
     @patch("phentrieve.embeddings.torch.cuda.is_available")
-    def test_cuda_device_selection(self, mock_cuda, mock_st):
-        """Test CUDA device selection when available."""
+    def test_cuda_device_selection(
+        self, mock_cuda, mock_mps_built, mock_mps_available, mock_st
+    ):
+        """Test CUDA device selection when available.
+
+        Mocks all device checks for consistent cross-platform behavior.
+        """
         # Arrange
         mock_cuda.return_value = True
+        mock_mps_built.return_value = False
+        mock_mps_available.return_value = False
         mock_model = Mock()
         mock_st.return_value = mock_model
 
