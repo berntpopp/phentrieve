@@ -32,7 +32,6 @@ __all__ = [
     # Models
     "DEFAULT_MODEL",
     "DEFAULT_BIOLORD_MODEL",
-    "JINA_MODEL_ID",
     "BENCHMARK_MODELS",
     # Retrieval settings
     "DEFAULT_TOP_K",
@@ -86,19 +85,12 @@ DEFAULT_VISUALIZATIONS_SUBDIR = "visualizations"
 # Default models (loaded from YAML with fallbacks)
 _DEFAULT_MODEL_FALLBACK = "FremyCompany/BioLORD-2023-M"
 DEFAULT_BIOLORD_MODEL = "FremyCompany/BioLORD-2023-M"  # Kept for backward compatibility
-JINA_MODEL_ID = "jinaai/jina-embeddings-v2-base-de"  # German embeddings model
 
 # All models for benchmarking (loaded from YAML with fallback)
+# Simplified to BioLORD only - the recommended model with best MRR@10 (0.823)
+# Other models remain available via phentrieve.yaml configuration if needed
 _BENCHMARK_MODELS_FALLBACK = [
-    "FremyCompany/BioLORD-2023-M",  # Domain-specific biomedical model
-    "jinaai/jina-embeddings-v2-base-de",  # Language-specific embeddings model (German)
-    "T-Systems-onsite/cross-en-de-roberta-sentence-transformer",  # Cross-lingual model (English-German),
-    "sentence-transformers/paraphrase-multilingual-mpnet-base-v2",
-    "sentence-transformers/distiluse-base-multilingual-cased-v2",
-    "BAAI/bge-m3",
-    "Alibaba-NLP/gte-multilingual-base",
-    "sentence-transformers/LaBSE",
-    "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+    "FremyCompany/BioLORD-2023-M",  # Recommended: Domain-specific biomedical model (MRR@10: 0.823)
 ]
 
 # Default parameters (loaded from YAML with fallbacks)

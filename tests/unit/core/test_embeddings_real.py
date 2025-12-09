@@ -4,7 +4,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from phentrieve.config import DEFAULT_BIOLORD_MODEL, JINA_MODEL_ID
+from phentrieve.config import DEFAULT_BIOLORD_MODEL
 from phentrieve.embeddings import clear_model_registry, load_embedding_model
 
 pytestmark = pytest.mark.unit
@@ -85,21 +85,6 @@ class TestLoadEmbeddingModel:
 
         # Assert
         mock_model.to.assert_called_once_with("cpu")  # Should use explicit CPU
-
-    @patch("phentrieve.embeddings.SentenceTransformer")
-    @patch("phentrieve.embeddings.torch.cuda.is_available")
-    def test_jina_model_special_handling(self, mock_cuda, mock_st):
-        """Test Jina model loads with trust_remote_code=True."""
-        # Arrange
-        mock_cuda.return_value = False
-        mock_model = Mock()
-        mock_st.return_value = mock_model
-
-        # Act
-        load_embedding_model(model_name=JINA_MODEL_ID)
-
-        # Assert
-        mock_st.assert_called_once_with(JINA_MODEL_ID, trust_remote_code=True)
 
     @patch("phentrieve.embeddings.SentenceTransformer")
     @patch("phentrieve.embeddings.torch.cuda.is_available")

@@ -882,13 +882,8 @@ export default {
       queryText: '',
       selectedModel: null, // Will be set in mounted
       availableModels: [
-        // Example, should be fetched from API ideally
+        // Simplified to BioLORD only - the recommended model with best performance (MRR@10: 0.823)
         { text: this.$t('models.biolord'), value: 'FremyCompany/BioLORD-2023-M' },
-        { text: this.$t('models.jinaGerman'), value: 'jinaai/jina-embeddings-v2-base-de' },
-        {
-          text: this.$t('models.distiluse'),
-          value: 'sentence-transformers/distiluse-base-multilingual-cased-v2',
-        }, // Corrected model name
       ],
       selectedLanguage: null, // Will be set to current locale in created()
       availableLanguages: [

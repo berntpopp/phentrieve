@@ -43,6 +43,24 @@ services:
       dockerfile: api/Dockerfile
       args:
         BUILDKIT_INLINE_CACHE: 1
+        # =============================================================================
+        # DATA PREPARATION MODE (three options - see api/Dockerfile for details)
+        # =============================================================================
+        # MODE 1 (Default): Download pre-built bundle (~1-2 min)
+        #   BUNDLE_URL set to GitHub release URL
+        #
+        # MODE 2: Build indexes from scratch (~10-20 min)
+        #   BUNDLE_URL: ""
+        #   BUILD_INDEXES: "true"
+        #   BUILD_MODEL: "FremyCompany/BioLORD-2023-M" (optional)
+        #
+        # MODE 3: External volume mount (no embedded data)
+        #   BUNDLE_URL: ""
+        #   BUILD_INDEXES: "false"
+        # =============================================================================
+        BUNDLE_URL: ${PHENTRIEVE_BUNDLE_URL:-https://github.com/berntpopp/phentrieve/releases/download/data-v2025-11-24/phentrieve-data-v2025-11-24-biolord.tar.gz}
+        BUILD_INDEXES: ${PHENTRIEVE_BUILD_INDEXES:-false}
+        BUILD_MODEL: ${PHENTRIEVE_BUILD_MODEL:-FremyCompany/BioLORD-2023-M}
       cache_from:
         - ghcr.io/berntpopp/phentrieve/api:latest
 
