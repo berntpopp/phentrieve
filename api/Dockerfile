@@ -277,6 +277,8 @@ LABEL org.opencontainers.image.title="Phentrieve API" \
 # NOTE: Security updates should be handled by updating the base image version,
 # not via apt-get upgrade (which is slow, non-cacheable, and non-reproducible).
 # Pin base image versions in CI/CD and update them regularly instead.
+# gosu is required for the entrypoint script to drop privileges after fixing permissions
+# See: https://www.docker.com/blog/understanding-the-docker-user-instruction/
 # hadolint ignore=DL3008,DL3009
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
@@ -285,6 +287,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
         ca-certificates \
         libgomp1 \
         curl \
+        gosu \
     && rm -rf /var/lib/apt/lists/* \
     # Security hardening: Remove unnecessary setuid/setgid bits (CIS-DI-0008)
     # These are not needed for the API container runtime
@@ -320,6 +323,11 @@ WORKDIR /app
 COPY --chown=phentrieve:phentrieve phentrieve/ ./phentrieve/
 COPY --chown=phentrieve:phentrieve api/ ./api/
 
+# Copy entrypoint script (must be executable)
+# The entrypoint handles runtime permission fixing for bind mounts
+# See: https://denibertovic.com/posts/handling-permissions-with-docker-volumes/
+COPY --chmod=755 api/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+
 # Create data mount point with correct permissions
 RUN mkdir -p /phentrieve_data_mount && \
     chown -R phentrieve:phentrieve /phentrieve_data_mount
@@ -346,8 +354,10 @@ ENV PYTHONPATH=/app \
     HF_HOME=/app/.cache/huggingface \
     TRANSFORMERS_CACHE=/app/.cache/huggingface/hub
 
-# Switch to non-root user (SECURITY: CRITICAL)
-USER phentrieve
+# NOTE: No USER directive here - entrypoint starts as root to fix permissions,
+# then drops to non-root user (phentrieve:10001) before running the application.
+# This follows Docker best practices for handling volume permissions:
+# https://www.docker.com/blog/understanding-the-docker-user-instruction/
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=3 \
@@ -356,6 +366,7 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=3 \
 # Expose port
 EXPOSE 8000
 
-# Use exec form for proper signal handling
-ENTRYPOINT ["uvicorn"]
-CMD ["api.main:app", "--host", "0.0.0.0", "--port", "8000", "--proxy-headers"]
+# Use entrypoint script for runtime permission handling
+# The script fixes volume permissions, then drops to non-root user
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
+CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000", "--proxy-headers"]
