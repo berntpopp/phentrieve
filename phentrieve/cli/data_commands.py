@@ -35,11 +35,21 @@ def prepare_hpo_data(
             help="Include obsolete HPO terms (for analysis). Default: filter out.",
         ),
     ] = False,
+    hpo_version: Annotated[
+        Optional[str],
+        typer.Option(
+            "--hpo-version",
+            help="HPO version to download (e.g., 'v2025-11-24'). Default: fetch latest from GitHub.",
+        ),
+    ] = None,
 ):
     """Prepare HPO data for indexing.
 
     Downloads the HPO ontology data, extracts terms, and precomputes
     graph properties needed for similarity calculations.
+
+    By default, fetches the latest HPO version from GitHub. Use --hpo-version
+    to specify a particular version (e.g., --hpo-version v2025-11-24).
 
     By default, obsolete HPO terms are filtered out to prevent retrieval
     errors (Issue #133). Use --include-obsolete for analysis purposes.
@@ -49,7 +59,8 @@ def prepare_hpo_data(
 
     setup_logging_cli(debug=debug)
 
-    typer.echo("Starting HPO data preparation...")
+    version_msg = f" (version: {hpo_version})" if hpo_version else " (latest)"
+    typer.echo(f"Starting HPO data preparation{version_msg}...")
     if include_obsolete:
         typer.echo("Note: Including obsolete terms (--include-obsolete flag set)")
 
@@ -58,6 +69,7 @@ def prepare_hpo_data(
         force_update=force,
         data_dir_override=data_dir,
         include_obsolete=include_obsolete,
+        hpo_version=hpo_version,
     )
 
     if success:
@@ -72,12 +84,11 @@ def prepare_hpo_data(
 @app.command("download")
 def download_bundle(
     model: Annotated[
-        Optional[str],
+        str,
         typer.Option(
             "--model",
             "-m",
-            help="Model name or slug (e.g., 'biolord', 'FremyCompany/BioLORD-2023-M'). "
-            "Use 'minimal' for database only.",
+            help="Model name or slug (e.g., 'biolord', 'FremyCompany/BioLORD-2023-M')",
         ),
     ] = "biolord",
     hpo_version: Annotated[
@@ -98,15 +109,14 @@ def download_bundle(
 ):
     """Download pre-built HPO data bundle from GitHub Releases.
 
-    Pre-built bundles contain the HPO database and optionally pre-computed
-    vector indexes for faster setup (Issue #117).
+    Pre-built bundles contain the HPO database and pre-computed vector indexes
+    for faster setup (Issue #117).
 
-    Available models: biolord, bge-m3, labse, minimal (db only)
+    Available models: biolord (default), bge-m3, labse, and others.
 
     Examples:
         phentrieve data download --model biolord
-        phentrieve data download --model minimal
-        phentrieve data download --model bge-m3 --hpo-version v2025-03-03
+        phentrieve data download --model bge-m3 --hpo-version v2025-11-24
     """
     from phentrieve.data_processing.bundle_downloader import (
         download_and_extract_bundle,
@@ -116,15 +126,12 @@ def download_bundle(
 
     setup_logging_cli(debug=debug)
 
-    # Handle model name
-    model_name = None if model == "minimal" else model
-
     typer.echo(
-        f"Searching for bundle: model={model or 'minimal'}, hpo_version={hpo_version or 'latest'}..."
+        f"Searching for bundle: model={model}, hpo_version={hpo_version or 'latest'}..."
     )
 
     # Find bundle first to show info
-    bundle = find_bundle(model_name=model_name, hpo_version=hpo_version)
+    bundle = find_bundle(model_name=model, hpo_version=hpo_version)
     if not bundle:
         typer.secho(
             "No matching bundle found. Try 'phentrieve data list-bundles' to see available bundles.",
@@ -143,7 +150,7 @@ def download_bundle(
 
     typer.echo("Starting download...")
     manifest = download_and_extract_bundle(
-        model_name=model_name,
+        model_name=model,
         hpo_version=hpo_version,
         target_data_dir=target_dir,
         verify_checksums=not skip_verify,
@@ -284,18 +291,18 @@ app.add_typer(bundle_app, name="bundle")
 
 @bundle_app.command("create")
 def create_bundle_cmd(
+    model: Annotated[
+        str,
+        typer.Option(
+            "--model",
+            "-m",
+            help="Model name for index bundle (e.g., 'FremyCompany/BioLORD-2023-M')",
+        ),
+    ],
     output_dir: Annotated[
         str,
         typer.Option("--output-dir", "-o", help="Output directory for bundle"),
     ] = "./dist",
-    model: Annotated[
-        Optional[str],
-        typer.Option(
-            "--model",
-            "-m",
-            help="Model name for index bundle (omit for minimal bundle)",
-        ),
-    ] = None,
     data_dir: Annotated[
         Optional[str],
         typer.Option("--data-dir", help="Source data directory"),
@@ -310,15 +317,12 @@ def create_bundle_cmd(
 ):
     """Create a data bundle for distribution.
 
-    Creates a tar.gz bundle containing the HPO database and optionally
-    pre-computed vector indexes.
+    Creates a tar.gz bundle containing the HPO database and pre-computed
+    vector indexes for a specific embedding model.
 
     Examples:
-        # Create minimal bundle (database only)
-        phentrieve data bundle create
-
-        # Create bundle with BioLORD index
         phentrieve data bundle create --model 'FremyCompany/BioLORD-2023-M'
+        phentrieve data bundle create -m 'BAAI/bge-m3' -o ./my-bundles
     """
     from phentrieve.data_processing.bundle_packager import create_bundle
     from phentrieve.utils import setup_logging_cli
@@ -328,8 +332,7 @@ def create_bundle_cmd(
     output_path = Path(output_dir)
     source_dir = Path(data_dir) if data_dir else None
 
-    bundle_type = f"with model {model}" if model else "minimal (database only)"
-    typer.echo(f"Creating {bundle_type} bundle...")
+    typer.echo(f"Creating bundle for model {model}...")
 
     try:
         bundle_path = create_bundle(
@@ -377,7 +380,7 @@ def list_local_bundles(
     for bundle in bundles:
         status = bundle["status"]
         model_slug = bundle["model_slug"]
-        model_name = bundle["model_name"] or "(minimal - database only)"
+        model_name = bundle["model_name"]
 
         if status == "ready":
             typer.secho(f"✓ {model_slug}", fg=typer.colors.GREEN)

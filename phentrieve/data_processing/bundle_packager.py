@@ -87,20 +87,28 @@ def create_bundle(
     _populate_manifest_from_db(manifest, db_path)
 
     # Handle embedding model
-    index_dir = None
+    index_base_dir = None
     if model_name:
         index_base_dir = data_dir / "indexes"
         collection_name = generate_collection_name(model_name)
-        index_dir = index_base_dir / collection_name
 
-        if not index_dir.exists():
+        # ChromaDB stores all collections in a single directory with chroma.sqlite3
+        chroma_db_path = index_base_dir / "chroma.sqlite3"
+        if not chroma_db_path.exists():
             raise ValueError(
-                f"Index not found for model '{model_name}' at {index_dir}. "
+                f"ChromaDB index not found at {index_base_dir}. "
+                f"Run 'phentrieve index build --model-name \"{model_name}\"' first."
+            )
+
+        # Verify the collection exists in ChromaDB
+        if not _verify_collection_exists(index_base_dir, collection_name):
+            raise ValueError(
+                f"Collection '{collection_name}' not found in ChromaDB. "
                 f"Run 'phentrieve index build --model-name \"{model_name}\"' first."
             )
 
         # Get embedding dimension from index metadata
-        dimension = _get_index_dimension(index_dir)
+        dimension = _get_index_dimension(index_base_dir)
         manifest.model = EmbeddingModelInfo.from_model_name(
             model_name, dimension=dimension
         )
@@ -118,14 +126,12 @@ def create_bundle(
         logger.info(f"Added database: {DEFAULT_HPO_DB_FILENAME}")
 
         # Copy index if model specified
-        if index_dir and model_name:
-            indexes_dest = (
-                bundle_root / "indexes" / generate_collection_name(model_name)
-            )
-            indexes_dest.parent.mkdir(parents=True)
-            shutil.copytree(index_dir, indexes_dest)
+        if index_base_dir and model_name:
+            indexes_dest = bundle_root / "indexes"
+            # Copy entire ChromaDB directory (includes chroma.sqlite3 and segment dirs)
+            shutil.copytree(index_base_dir, indexes_dest)
             manifest.checksums["indexes/"] = compute_directory_checksum(indexes_dest)
-            logger.info(f"Added index for model: {model_name}")
+            logger.info(f"Added ChromaDB index for model: {model_name}")
 
         # Optionally include hp.json
         if include_hpo_json:
@@ -221,6 +227,29 @@ def _get_index_dimension(index_dir: Path) -> int:
 
     # Default dimension for most models
     return 768
+
+
+def _verify_collection_exists(index_dir: Path, collection_name: str) -> bool:
+    """
+    Verify that a collection exists in ChromaDB.
+
+    Args:
+        index_dir: Path to ChromaDB index directory
+        collection_name: Name of collection to check
+
+    Returns:
+        True if collection exists, False otherwise
+    """
+    try:
+        import chromadb
+
+        client = chromadb.PersistentClient(path=str(index_dir))
+        collections = client.list_collections()
+        collection_names = [c.name for c in collections]
+        return collection_name in collection_names
+    except Exception as e:
+        logger.warning(f"Could not verify collection existence: {e}")
+        return False
 
 
 def extract_bundle(
@@ -327,28 +356,17 @@ def list_available_bundles(
 
     bundles = []
 
-    # Always add minimal bundle option
-    db_path = data_dir / DEFAULT_HPO_DB_FILENAME
-    bundles.append(
-        {
-            "model_name": None,
-            "model_slug": "minimal",
-            "status": "ready" if db_path.exists() else "missing_db",
-            "index_path": None,
-        }
-    )
-
-    # Check each benchmark model
+    # Check each benchmark model - use ChromaDB collection check
     for model_name in BENCHMARK_MODELS:
         collection_name = generate_collection_name(model_name)
-        index_dir = index_base_dir / collection_name
+        has_collection = _verify_collection_exists(index_base_dir, collection_name)
 
         bundles.append(
             {
                 "model_name": model_name,
                 "model_slug": get_model_slug(model_name),
-                "status": "ready" if index_dir.exists() else "missing_index",
-                "index_path": str(index_dir) if index_dir.exists() else None,
+                "status": "ready" if has_collection else "missing_index",
+                "index_path": str(index_base_dir) if has_collection else None,
             }
         )
 

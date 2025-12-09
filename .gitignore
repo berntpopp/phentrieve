@@ -103,3 +103,4 @@ SERENA.md
 
 # Playwright MCP files
 .playwright-mcp/
+data/hp.json

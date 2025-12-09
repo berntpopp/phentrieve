@@ -47,12 +47,13 @@ class TestPrepareHpoData:
 
         # Assert
         mock_setup_logging.assert_called_once_with(debug=False)
-        mock_echo.assert_called_once_with("Starting HPO data preparation...")
+        mock_echo.assert_called_once_with("Starting HPO data preparation (latest)...")
         mock_orchestrate.assert_called_once_with(
             debug=False,
             force_update=False,
             data_dir_override=None,
             include_obsolete=False,  # Issue #133: Default filters obsolete terms
+            hpo_version=None,  # Default to latest
         )
 
         # Check success message
@@ -104,6 +105,7 @@ class TestPrepareHpoData:
             force_update=True,
             data_dir_override=None,
             include_obsolete=False,  # Issue #133: Default filters obsolete terms
+            hpo_version=None,  # Default to latest
         )
 
     def test_prepares_data_with_custom_data_dir(self, mocker):
@@ -129,6 +131,7 @@ class TestPrepareHpoData:
             force_update=False,
             data_dir_override="/custom/data/path",
             include_obsolete=False,  # Issue #133: Default filters obsolete terms
+            hpo_version=None,  # Default to latest
         )
 
     def test_prepares_data_with_all_options(self, mocker):
@@ -159,6 +162,7 @@ class TestPrepareHpoData:
             force_update=True,
             data_dir_override="/custom/path",
             include_obsolete=True,  # Issue #133: Passed through
+            hpo_version=None,  # Default to latest
         )
 
     def test_preparation_fails_with_error(self, mocker):

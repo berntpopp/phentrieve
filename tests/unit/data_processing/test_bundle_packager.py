@@ -71,37 +71,7 @@ class TestCreateBundle:
                     data_dir=data_dir,
                 )
 
-        assert "Index not found" in str(exc_info.value)
-
-    def test_creates_minimal_bundle_successfully(self, tmp_path):
-        """Test successful creation of minimal bundle (no model)."""
-        # Arrange
-        output_dir = tmp_path / "output"
-        data_dir = tmp_path / "data"
-        data_dir.mkdir()
-
-        # Create mock database
-        db_path = data_dir / "hpo_data.db"
-        db_path.write_text("mock database content")
-
-        # Mock the database population
-        with patch(
-            "phentrieve.data_processing.bundle_packager._populate_manifest_from_db"
-        ) as mock_populate:
-            mock_populate.return_value = None
-
-            # Act
-            bundle_path = create_bundle(
-                output_dir=output_dir,
-                model_name=None,
-                data_dir=data_dir,
-                hpo_version="v2025-03-03",
-            )
-
-        # Assert
-        assert bundle_path.exists()
-        assert bundle_path.suffix == ".gz"
-        assert "minimal" in bundle_path.name
+        assert "ChromaDB index not found" in str(exc_info.value)
 
 
 # =============================================================================
@@ -271,43 +241,6 @@ class TestGetIndexDimension:
 class TestListAvailableBundles:
     """Tests for list_available_bundles() function."""
 
-    def test_returns_minimal_bundle_when_db_exists(self, tmp_path):
-        """Test that minimal bundle is ready when database exists."""
-        # Arrange
-        data_dir = tmp_path / "data"
-        data_dir.mkdir()
-
-        db_path = data_dir / "hpo_data.db"
-        db_path.touch()
-
-        with patch(
-            "phentrieve.data_processing.bundle_packager.get_default_data_dir",
-            return_value=data_dir,
-        ):
-            # Act
-            bundles = list_available_bundles(data_dir=data_dir)
-
-        # Assert
-        minimal = next(b for b in bundles if b["model_slug"] == "minimal")
-        assert minimal["status"] == "ready"
-
-    def test_returns_missing_db_when_db_not_exists(self, tmp_path):
-        """Test that status is missing_db when database doesn't exist."""
-        # Arrange
-        data_dir = tmp_path / "data"
-        data_dir.mkdir()
-
-        with patch(
-            "phentrieve.data_processing.bundle_packager.get_default_data_dir",
-            return_value=data_dir,
-        ):
-            # Act
-            bundles = list_available_bundles(data_dir=data_dir)
-
-        # Assert
-        minimal = next(b for b in bundles if b["model_slug"] == "minimal")
-        assert minimal["status"] == "missing_db"
-
     def test_returns_ready_for_models_with_indexes(self, tmp_path):
         """Test that models with indexes are marked as ready."""
         # Arrange
@@ -317,15 +250,15 @@ class TestListAvailableBundles:
         # Create database
         (data_dir / "hpo_data.db").touch()
 
-        # Create index directory for BioLORD with correct naming convention
-        # generate_collection_name returns a sanitized version of the model name
-        with patch(
-            "phentrieve.data_processing.bundle_packager.generate_collection_name",
-            return_value="biolord_index",
-        ):
-            index_dir = data_dir / "indexes" / "biolord_index"
-            index_dir.mkdir(parents=True)
+        # Create indexes directory
+        index_dir = data_dir / "indexes"
+        index_dir.mkdir(parents=True)
 
+        # Mock _verify_collection_exists to return True for BioLORD collection
+        with patch(
+            "phentrieve.data_processing.bundle_packager._verify_collection_exists",
+            side_effect=lambda path, name: name == "phentrieve_biolord_2023_m",
+        ):
             # Act
             bundles = list_available_bundles(data_dir=data_dir)
 
@@ -342,9 +275,10 @@ class TestListAvailableBundles:
         # Create database
         (data_dir / "hpo_data.db").touch()
 
+        # Mock _verify_collection_exists to return False for all collections
         with patch(
-            "phentrieve.data_processing.bundle_packager.get_default_data_dir",
-            return_value=data_dir,
+            "phentrieve.data_processing.bundle_packager._verify_collection_exists",
+            return_value=False,
         ):
             # Act
             bundles = list_available_bundles(data_dir=data_dir)

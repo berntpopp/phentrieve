@@ -322,7 +322,8 @@ DEFAULT_ASSERTION_CONFIG = {
 _DEFAULT_LANGUAGE_FALLBACK = "en"
 
 # Default HPO data configuration (loaded from YAML with fallbacks)
-_DEFAULT_HPO_VERSION_FALLBACK = "v2025-03-03"
+# "latest" means fetch the newest version from GitHub API
+_DEFAULT_HPO_VERSION_FALLBACK = "latest"
 _DEFAULT_HPO_BASE_URL_FALLBACK = (
     "https://github.com/obophenotype/human-phenotype-ontology/releases/download"
 )

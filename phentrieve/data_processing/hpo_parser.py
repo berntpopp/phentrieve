@@ -28,7 +28,6 @@ from phentrieve.config import (
     HPO_BASE_URL,
     HPO_CHUNK_SIZE,
     HPO_DOWNLOAD_TIMEOUT,
-    HPO_VERSION,
 )
 from phentrieve.data_processing.hpo_database import HPODatabase
 from phentrieve.utils import (
@@ -37,8 +36,11 @@ from phentrieve.utils import (
     resolve_data_path,
 )
 
-# HPO download settings (constructed from config)
-HPO_JSON_URL = f"{HPO_BASE_URL}/{HPO_VERSION}/hp.json"
+# HPO GitHub API for fetching latest version
+HPO_GITHUB_API_URL = (
+    "https://api.github.com/repos/obophenotype/human-phenotype-ontology/releases/latest"
+)
+
 TRUE_ONTOLOGY_ROOT = "HP:0000001"  # All of HPO
 
 # HPO branches that are often excluded for *phenotypic abnormality* specific tasks,
@@ -52,6 +54,74 @@ EXCLUDED_ROOTS_FOR_PHENOTYPIC_FILTERING = {
 }
 
 logger = logging.getLogger(__name__)
+
+
+# --- HPO Version Resolution ---
+#
+# Functions for resolving HPO version (fetch latest from GitHub or use specified)
+# ---
+
+
+def get_latest_hpo_version() -> str:
+    """
+    Fetch the latest HPO release version from GitHub API.
+
+    Returns:
+        Latest version tag (e.g., "v2025-11-24")
+
+    Raises:
+        RuntimeError: If unable to fetch latest version from GitHub
+    """
+    logger.info("Fetching latest HPO version from GitHub...")
+    try:
+        response = requests.get(
+            HPO_GITHUB_API_URL,
+            headers={"Accept": "application/vnd.github.v3+json"},
+            timeout=30,
+        )
+        response.raise_for_status()
+        data = response.json()
+        tag_name = data.get("tag_name")
+        if not tag_name or not isinstance(tag_name, str):
+            raise RuntimeError("GitHub API response missing 'tag_name'")
+        logger.info(f"Latest HPO version: {tag_name}")
+        # Type is narrowed to str by isinstance check above
+        result: str = tag_name
+        return result
+    except requests.exceptions.RequestException as e:
+        raise RuntimeError(f"Failed to fetch latest HPO version from GitHub: {e}")
+
+
+def resolve_hpo_version(version: str | None = None) -> str:
+    """
+    Resolve HPO version string to an actual version tag.
+
+    Args:
+        version: Version string. If None or "latest", fetches from GitHub.
+                 Otherwise, returns the provided version.
+
+    Returns:
+        Resolved version tag (e.g., "v2025-11-24")
+
+    Raises:
+        RuntimeError: If version is "latest" and unable to fetch from GitHub
+    """
+    if version is None or version.lower() == "latest":
+        return get_latest_hpo_version()
+    return version
+
+
+def get_hpo_json_url(version: str) -> str:
+    """
+    Construct the HPO JSON download URL for a specific version.
+
+    Args:
+        version: HPO version tag (e.g., "v2025-11-24")
+
+    Returns:
+        Full URL to download hp.json for the specified version
+    """
+    return f"{HPO_BASE_URL}/{version}/hp.json"
 
 
 # --- Safe Dictionary Access Helpers (Issue #23) ---
@@ -322,21 +392,33 @@ def get_replacement_term(node_data: dict) -> Optional[str]:
 # --- End Obsolete Term Detection ---
 
 
-def download_hpo_json(hpo_file_path: Path) -> bool:
+def download_hpo_json(hpo_file_path: Path, version: str | None = None) -> bool:
     """
-    Download the latest version of the HPO JSON file.
+    Download a specific version of the HPO JSON file.
+
+    Args:
+        hpo_file_path: Path to save the downloaded file
+        version: HPO version tag (e.g., "v2025-11-24"). If None or "latest",
+                 fetches the latest version from GitHub.
+
+    Returns:
+        True if download succeeded, False otherwise
     """
+    # Resolve version (fetch latest if needed)
+    resolved_version = resolve_hpo_version(version)
+    download_url = get_hpo_json_url(resolved_version)
+
     os.makedirs(os.path.dirname(hpo_file_path), exist_ok=True)
     logger.info(
-        f"Attempting to download HPO JSON from {HPO_JSON_URL} to {hpo_file_path}"
+        f"Attempting to download HPO JSON ({resolved_version}) from {download_url} to {hpo_file_path}"
     )
     try:
-        response = requests.get(HPO_JSON_URL, stream=True, timeout=HPO_DOWNLOAD_TIMEOUT)
+        response = requests.get(download_url, stream=True, timeout=HPO_DOWNLOAD_TIMEOUT)
         response.raise_for_status()
         with open(hpo_file_path, "wb") as f:
             for chunk in response.iter_content(chunk_size=HPO_CHUNK_SIZE):
                 f.write(chunk)
-        logger.info("HPO JSON file downloaded successfully.")
+        logger.info(f"HPO JSON file ({resolved_version}) downloaded successfully.")
         return True
     except requests.exceptions.RequestException as e:
         logger.error(f"Error downloading HPO JSON file: {e}")
@@ -346,16 +428,21 @@ def download_hpo_json(hpo_file_path: Path) -> bool:
         return False
 
 
-def load_hpo_json(hpo_file_path: Path) -> Optional[dict]:
+def load_hpo_json(hpo_file_path: Path, version: str | None = None) -> Optional[dict]:
     """
-    Load the HPO JSON file.
+    Load the HPO JSON file, downloading if necessary.
+
+    Args:
+        hpo_file_path: Path to the HPO JSON file
+        version: HPO version to download if file doesn't exist.
+                 If None or "latest", fetches the latest version.
     """
     try:
         if not os.path.exists(hpo_file_path):
             logger.warning(
                 f"HPO JSON file not found at {hpo_file_path}. Attempting download."
             )
-            if not download_hpo_json(hpo_file_path):
+            if not download_hpo_json(hpo_file_path, version=version):
                 logger.error("Failed to download HPO JSON file.")
                 return None
 
@@ -814,7 +901,8 @@ def prepare_hpo_data(
     hpo_file_path: Path | None = None,
     db_path: Path | None = None,
     include_obsolete: bool = False,
-) -> tuple[bool, Optional[str]]:
+    hpo_version: str | None = None,
+) -> tuple[bool, Optional[str], str | None]:
     """
     Core HPO data preparation: download, parse, save ALL terms to SQLite, compute graph data.
 
@@ -824,29 +912,38 @@ def prepare_hpo_data(
         db_path: Path to SQLite database file
         include_obsolete: If True, include obsolete terms (for analysis). Default False.
                          See Issue #133 for details on obsolete term filtering.
+        hpo_version: HPO version to download. If None or "latest", fetches the latest
+                    version from GitHub. Otherwise uses the specified version (e.g., "v2025-11-24").
 
     Returns:
-        Tuple of (success: bool, error_message: Optional[str])
+        Tuple of (success: bool, error_message: Optional[str], resolved_version: str | None)
     """
     # Validate required paths
     if hpo_file_path is None:
-        return False, "hpo_file_path is required but was not provided"
+        return False, "hpo_file_path is required but was not provided", None
     if db_path is None:
-        return False, "db_path is required but was not provided"
+        return False, "db_path is required but was not provided", None
+
+    # Resolve HPO version early so we can use it throughout
+    try:
+        resolved_version = resolve_hpo_version(hpo_version)
+        logger.info(f"Using HPO version: {resolved_version}")
+    except RuntimeError as e:
+        return False, str(e), None
 
     # 1. Download/Load HPO JSON
     if force_update or not os.path.exists(hpo_file_path):
         logger.info(
-            f"Force update or file missing. Downloading HPO JSON to {hpo_file_path}..."
+            f"Force update or file missing. Downloading HPO JSON ({resolved_version}) to {hpo_file_path}..."
         )
-        if not download_hpo_json(hpo_file_path):
-            return False, f"Failed to download HPO JSON to {hpo_file_path}"
+        if not download_hpo_json(hpo_file_path, version=resolved_version):
+            return False, f"Failed to download HPO JSON to {hpo_file_path}", None
     else:
         logger.info(f"Using existing HPO JSON: {hpo_file_path}")
 
-    hpo_data = load_hpo_json(hpo_file_path)
+    hpo_data = load_hpo_json(hpo_file_path, version=resolved_version)
     if not hpo_data:
-        return False, f"Failed to load HPO JSON from {hpo_file_path}"
+        return False, f"Failed to load HPO JSON from {hpo_file_path}", None
 
     # 2. Parse HPO JSON into structured graphs and node data
     # Filter obsolete terms by default (Issue #133)
@@ -868,6 +965,7 @@ def prepare_hpo_data(
         return (
             False,
             "Failed to parse HPO data into necessary graph structures or node data.",
+            None,
         )
     logger.info(
         f"Successfully parsed data for {len(all_term_ids)} active HPO terms"
@@ -886,7 +984,7 @@ def prepare_hpo_data(
         db = HPODatabase(db_path)
         db.initialize_schema()
     except Exception as e:
-        return False, f"Failed to initialize database: {e}"
+        return False, f"Failed to initialize database: {e}", None
 
     # 4. Extract and insert HPO terms into database
     logger.info("Extracting HPO term data for database storage...")
@@ -895,7 +993,7 @@ def prepare_hpo_data(
     if not terms_data:
         logger.warning("No terms extracted for database storage")
         db.close()
-        return False, "No HPO terms could be extracted for storage"
+        return False, "No HPO terms could be extracted for storage", None
 
     logger.info(f"Inserting {len(terms_data)} HPO terms into database...")
     try:
@@ -903,7 +1001,7 @@ def prepare_hpo_data(
         logger.info(f"Successfully inserted {num_inserted} HPO terms")
     except Exception as e:
         db.close()
-        return False, f"Failed to insert HPO terms: {e}"
+        return False, f"Failed to insert HPO terms: {e}", None
 
     # 5. Compute Ancestors for ALL terms
     logger.info("Computing ancestor sets for all HPO terms...")
@@ -945,7 +1043,7 @@ def prepare_hpo_data(
         )
     except Exception as e:
         db.close()
-        return False, f"Failed to insert graph metadata: {e}"
+        return False, f"Failed to insert graph metadata: {e}", None
 
     # 8. Optimize database
     logger.info("Optimizing database with ANALYZE...")
@@ -959,14 +1057,16 @@ def prepare_hpo_data(
     try:
         from datetime import datetime, timezone
 
-        db.set_metadata("hpo_version", HPO_VERSION)
+        # Use the resolved version (actual version tag, not "latest")
+        hpo_source_url = get_hpo_json_url(resolved_version)
+        db.set_metadata("hpo_version", resolved_version)
         db.set_metadata("hpo_download_date", datetime.now(timezone.utc).isoformat())
-        db.set_metadata("hpo_source_url", HPO_JSON_URL)
+        db.set_metadata("hpo_source_url", hpo_source_url)
         # Store obsolete term statistics (Issue #133)
         db.set_metadata("active_terms_count", str(len(terms_data)))
         db.set_metadata("obsolete_terms_filtered", str(obsolete_count))
         db.set_metadata("include_obsolete", str(include_obsolete).lower())
-        logger.info("Stored HPO version metadata: %s", HPO_VERSION)
+        logger.info("Stored HPO version metadata: %s", resolved_version)
     except Exception as e:
         logger.warning("Failed to store HPO metadata: %s", e)
 
@@ -976,9 +1076,9 @@ def prepare_hpo_data(
     logger.info("HPO data preparation completed successfully.")
     logger.info("  Active terms: %d", len(terms_data))
     logger.info("  Obsolete filtered: %d", obsolete_count)
-    logger.info("  HPO Version: %s", HPO_VERSION)
+    logger.info("  HPO Version: %s", resolved_version)
     logger.info("  Database: %s", db_path)
-    return True, None
+    return True, None, resolved_version
 
 
 def orchestrate_hpo_preparation(
@@ -986,6 +1086,7 @@ def orchestrate_hpo_preparation(
     force_update: bool = False,
     data_dir_override: Optional[str] = None,
     include_obsolete: bool = False,
+    hpo_version: str | None = None,
 ) -> bool:
     """
     Orchestrates HPO data download, extraction of ALL terms to SQLite, and precomputation of graph properties.
@@ -996,6 +1097,8 @@ def orchestrate_hpo_preparation(
         data_dir_override: Override default data directory
         include_obsolete: If True, include obsolete terms (for analysis). Default False.
                          See Issue #133 for details on obsolete term filtering.
+        hpo_version: HPO version to download. If None or "latest", fetches the latest
+                    version from GitHub. Otherwise uses the specified version (e.g., "v2025-11-24").
 
     Returns:
         True if preparation succeeded, False otherwise
@@ -1013,11 +1116,12 @@ def orchestrate_hpo_preparation(
 
         os.makedirs(data_dir, exist_ok=True)  # Ensure base data_dir exists
 
-        success, error_message = prepare_hpo_data(
+        success, error_message, resolved_version = prepare_hpo_data(
             force_update=force_update,
             hpo_file_path=hpo_file_path,
             db_path=db_path,
             include_obsolete=include_obsolete,
+            hpo_version=hpo_version,
         )
 
         if not success:
@@ -1027,6 +1131,7 @@ def orchestrate_hpo_preparation(
         logger.info("HPO data preparation orchestration completed successfully!")
         logger.info(f"  HPO JSON file: {hpo_file_path}")
         logger.info(f"  HPO database: {db_path}")
+        logger.info(f"  HPO version: {resolved_version}")
         return True
 
     except Exception as e:
@@ -1059,6 +1164,12 @@ if __name__ == "__main__":
         action="store_true",
         help="Include obsolete HPO terms (for analysis). Default: filter out obsolete terms.",
     )
+    parser.add_argument(
+        "--hpo-version",
+        type=str,
+        default=None,
+        help="HPO version to download (e.g., 'v2025-11-24'). Default: fetch latest from GitHub.",
+    )
     args = parser.parse_args()
 
     # Setup logging (basic for direct script run, CLI in phentrieve.cli will handle richer setup)
@@ -1079,6 +1190,7 @@ if __name__ == "__main__":
         force_update=args.force,
         data_dir_override=args.data_dir,
         include_obsolete=args.include_obsolete,
+        hpo_version=args.hpo_version,
     ):
         sys.exit(1)
     sys.exit(0)
