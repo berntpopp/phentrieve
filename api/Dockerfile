@@ -322,6 +322,8 @@ WORKDIR /app
 # Copy application code with correct ownership
 COPY --chown=phentrieve:phentrieve phentrieve/ ./phentrieve/
 COPY --chown=phentrieve:phentrieve api/ ./api/
+# Copy pyproject.toml for version detection at runtime
+COPY --chown=phentrieve:phentrieve pyproject.toml ./
 
 # Copy entrypoint script (must be executable)
 # The entrypoint handles runtime permission fixing for bind mounts
