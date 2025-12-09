@@ -154,7 +154,7 @@ def _parse_bundle_filename(filename: str) -> tuple[str | None, str | None]:
 
 
 def find_bundle(
-    model_name: str | None = None,
+    model_name: str,
     hpo_version: str | None = None,
     release_tag: str | None = None,
 ) -> BundleAsset | None:
@@ -171,7 +171,7 @@ def find_bundle(
         BundleAsset if found, None otherwise
     """
     # Convert model name to slug
-    target_slug = "minimal" if model_name is None else _normalize_model_slug(model_name)
+    target_slug = _normalize_model_slug(model_name)
 
     releases = list_available_releases(include_prereleases=False)
 
@@ -218,7 +218,7 @@ def _normalize_model_slug(model_name: str) -> str:
         Normalized slug
     """
     # Check if it's already a known slug
-    if model_name.lower() in SLUG_TO_MODEL or model_name.lower() == "minimal":
+    if model_name.lower() in SLUG_TO_MODEL:
         return model_name.lower()
 
     # Convert full model name to slug
@@ -282,7 +282,7 @@ def download_bundle(
 
 
 def download_and_extract_bundle(
-    model_name: str | None = None,
+    model_name: str,
     hpo_version: str | None = None,
     target_data_dir: Path | None = None,
     verify_checksums: bool = True,
@@ -294,7 +294,7 @@ def download_and_extract_bundle(
     This is the main entry point for downloading pre-built data.
 
     Args:
-        model_name: Model name or slug (None for minimal bundle)
+        model_name: Model name or slug (e.g., "biolord", "FremyCompany/BioLORD-2023-M")
         hpo_version: Specific HPO version (default: latest)
         target_data_dir: Target data directory (default: from config)
         verify_checksums: Verify checksums after extraction
@@ -393,6 +393,10 @@ def check_for_updates(
     # Use installed model if not specified
     if model_name is None and installed.model:
         model_name = installed.model.name
+
+    # Cannot check updates without a model
+    if model_name is None:
+        return False, "No model specified and no model in installed bundle"
 
     # Find latest available bundle
     latest = find_bundle(model_name=model_name)

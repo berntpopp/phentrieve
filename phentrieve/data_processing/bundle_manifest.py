@@ -139,7 +139,7 @@ class BundleManifest:
     active_terms: int = 0
     obsolete_terms: int = 0
 
-    # Embedding Model (optional for minimal bundles)
+    # Embedding Model (required for bundles)
     model: EmbeddingModelInfo | None = None
 
     # Bundle Metadata
@@ -209,10 +209,11 @@ class BundleManifest:
 
         Examples:
             - phentrieve-data-v2025-03-03-biolord.tar.gz
-            - phentrieve-data-v2025-03-03-minimal.tar.gz (no model)
+            - phentrieve-data-v2025-03-03-bge-m3.tar.gz
         """
-        model_slug = self.model.slug if self.model else "minimal"
-        return f"phentrieve-data-{self.hpo_version}-{model_slug}.tar.gz"
+        if self.model is None:
+            raise ValueError("Bundle requires a model to generate filename")
+        return f"phentrieve-data-{self.hpo_version}-{self.model.slug}.tar.gz"
 
     def verify_checksum(self, file_path: Path, expected_key: str | None = None) -> bool:
         """
