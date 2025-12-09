@@ -92,23 +92,32 @@ def run_benchmarks(
 
     typer.echo("Starting benchmark evaluation...")
 
-    results = orchestrate_benchmark(
-        test_file=test_file or "",
-        model_name=model_name or "",
-        model_list=model_list or "",
-        all_models=all_models,
-        similarity_threshold=similarity_threshold,
-        cpu=cpu,
-        detailed=detailed,
-        output=output or "",
-        debug=debug,
-        create_sample=create_sample,
-        trust_remote_code=trust_remote_code,
-        enable_reranker=enable_reranker,
-        reranker_model=reranker_model,
-        rerank_count=rerank_count,
-        similarity_formula=similarity_formula,
-    )
+    # Build kwargs with only non-None optional values to allow orchestrator defaults
+    kwargs: dict = {
+        "all_models": all_models,
+        "similarity_threshold": similarity_threshold,
+        "cpu": cpu,
+        "detailed": detailed,
+        "debug": debug,
+        "create_sample": create_sample,
+        "trust_remote_code": trust_remote_code,
+        "enable_reranker": enable_reranker,
+        "rerank_count": rerank_count,
+        "similarity_formula": similarity_formula,
+    }
+    # Only add optional string params when provided (allows orchestrator defaults)
+    if test_file is not None:
+        kwargs["test_file"] = test_file
+    if model_name is not None:
+        kwargs["model_name"] = model_name
+    if model_list is not None:
+        kwargs["model_list"] = model_list
+    if output is not None:
+        kwargs["output"] = output
+    if reranker_model is not None:
+        kwargs["reranker_model"] = reranker_model
+
+    results = orchestrate_benchmark(**kwargs)
 
     if results:
         if isinstance(results, list):
