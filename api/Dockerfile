@@ -105,8 +105,8 @@ COPY --link --from=sqlite-builder /usr/local/lib/libsqlite3.* /usr/local/lib/
 COPY --link --from=sqlite-builder /usr/local/bin/sqlite3 /usr/local/bin/
 COPY --link --from=sqlite-builder /usr/local/include/sqlite3*.h /usr/local/include/
 
-# Set SQLite library path with conditional expansion to avoid undefined variable warning
-ENV LD_LIBRARY_PATH=/usr/local/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
+# Set SQLite library path (base image has no custom LD_LIBRARY_PATH to preserve)
+ENV LD_LIBRARY_PATH=/usr/local/lib
 
 # Install build dependencies for Python packages
 # hadolint ignore=DL3008
@@ -300,8 +300,8 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 # Copy SQLite runtime libraries using --link for independent layer rebasing
 COPY --link --from=sqlite-builder /usr/local/lib/libsqlite3.* /usr/local/lib/
 COPY --link --from=sqlite-builder /usr/local/bin/sqlite3 /usr/local/bin/
-# Set SQLite library path with conditional expansion to avoid undefined variable warning
-ENV LD_LIBRARY_PATH=/usr/local/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
+# Set SQLite library path (base image has no custom LD_LIBRARY_PATH to preserve)
+ENV LD_LIBRARY_PATH=/usr/local/lib
 
 # Copy virtual environment from builder using --link for independent layer rebasing
 COPY --link --from=python-builder /opt/venv /opt/venv
@@ -335,11 +335,12 @@ RUN mkdir -p /app/.cache && \
     chown -R phentrieve:phentrieve /app/.cache
 
 # Environment variables
+# Note: PHENTRIEVE_DATA_DIR defaults to PHENTRIEVE_DATA_ROOT_DIR when not set
+# The pre-built bundle puts hpo_data.db directly in the data root (not in a subdirectory)
 ENV PYTHONPATH=/app \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PHENTRIEVE_DATA_ROOT_DIR=/phentrieve_data_mount \
-    PHENTRIEVE_DATA_DIR=/phentrieve_data_mount/hpo_core_data \
     PHENTRIEVE_INDEX_DIR=/phentrieve_data_mount/indexes \
     PHENTRIEVE_RESULTS_DIR=/phentrieve_data_mount/results \
     HF_HOME=/app/.cache/huggingface \
