@@ -2572,12 +2572,14 @@ wheels = [
 
 [[package]]
 name = "phentrieve"
-version = "0.6.0"
+version = "0.7.0"
 source = { editable = "." }
 dependencies = [
     { name = "chromadb" },
     { name = "en-core-web-sm" },
     { name = "matplotlib" },
+    { name = "networkx", version = "3.4.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
+    { name = "networkx", version = "3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
     { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "numpy", version = "2.3.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
     { name = "pandas" },
@@ -2630,6 +2632,7 @@ requires-dist = [
     { name = "en-core-web-sm", url = "https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl" },
     { name = "fastapi", marker = "extra == 'api'", specifier = ">=0.115.0" },
     { name = "matplotlib", specifier = ">=3.7.0" },
+    { name = "networkx", specifier = ">=3.0" },
     { name = "numpy", specifier = ">=2.0.0,<3.0.0" },
     { name = "pandas", specifier = ">=2.0.0" },
     { name = "phenopackets", specifier = ">=2.0.0,<3.0.0" },

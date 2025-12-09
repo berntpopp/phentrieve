@@ -154,8 +154,100 @@ from phentrieve.evaluation.metrics import BaseMetric
 class CustomMetric(BaseMetric):
     def __init__(self):
         super().__init__(name="custom_metric")
-    
+
     def calculate(self, results):
         # Implement your custom metric calculation
         return value
+```
+
+## Extraction Benchmarking
+
+The extraction benchmark evaluates document-level HPO extraction from clinical text against gold-standard annotations.
+
+### Overview
+
+Unlike retrieval benchmarks (which test single-term lookups), extraction benchmarks evaluate the full pipeline:
+
+1. **Text chunking**: Split documents into semantic units
+2. **HPO retrieval**: Find candidate terms for each chunk
+3. **Aggregation**: Deduplicate and rank results across chunks
+4. **Assertion detection**: Identify present vs. absent phenotypes
+
+### Test Data Format
+
+Extraction benchmarks use the PhenoBERT directory format:
+
+```
+tests/data/en/phenobert/
+├── GSC_plus/annotations/     # 228 documents
+├── ID_68/annotations/        # 68 documents
+├── GeneReviews/annotations/  # 10 documents
+└── conversion_report.json
+```
+
+Each annotation file:
+
+```json
+{
+  "doc_id": "GSC+_1003450",
+  "full_text": "Clinical description...",
+  "annotations": [
+    {
+      "hpo_id": "HP:0001250",
+      "assertion_status": "affirmed",
+      "evidence_spans": [{"start_char": 14, "end_char": 27}]
+    }
+  ]
+}
+```
+
+### Extraction Metrics
+
+| Metric | Formula | Description |
+|--------|---------|-------------|
+| Precision | TP / (TP + FP) | Fraction of predictions that are correct |
+| Recall | TP / (TP + FN) | Fraction of gold terms that were found |
+| F1 | 2 × P × R / (P + R) | Harmonic mean of precision and recall |
+
+**Averaging strategies:**
+
+- **Micro**: Aggregate TP/FP/FN across all documents, then calculate
+- **Macro**: Calculate per-document, then average
+- **Weighted**: Weight by document size (gold term count)
+
+### Tuning Parameters
+
+The extraction benchmark exposes key pipeline parameters:
+
+| Parameter | Effect on Precision | Effect on Recall |
+|-----------|--------------------:|----------------:|
+| `--num-results` ↓ | ↑ Higher | ↓ Lower |
+| `--chunk-threshold` ↑ | ↑ Higher | ↓ Lower |
+| `--min-confidence` ↑ | ↑ Higher | ↓ Lower |
+| `--top-term-only` | ↑ Much higher | ↓ Much lower |
+
+### Example Results
+
+GeneReviews dataset (10 documents, 237 annotations):
+
+| Configuration | Precision | Recall | F1 |
+|--------------|----------:|-------:|---:|
+| Default | 0.088 | 0.422 | 0.145 |
+| `--top-term-only` | 0.143 | 0.262 | 0.185 |
+
+### Running Extraction Benchmarks
+
+```bash
+# Quick test (10 documents)
+phentrieve benchmark extraction run tests/data/en/phenobert/ \
+    --dataset GeneReviews --no-bootstrap-ci
+
+# Full evaluation (306 documents)
+phentrieve benchmark extraction run tests/data/en/phenobert/ \
+    --model "FremyCompany/BioLORD-2023-M"
+
+# Compare configurations
+phentrieve benchmark extraction compare \
+    results/default/extraction_results.json \
+    results/top_term/extraction_results.json
 ```

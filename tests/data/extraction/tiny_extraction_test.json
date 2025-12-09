@@ -1,0 +1,37 @@
+{
+  "metadata": {
+    "dataset_name": "tiny_extraction_test",
+    "language": "en",
+    "description": "Small test dataset for extraction benchmark validation",
+    "version": "1.0"
+  },
+  "documents": [
+    {
+      "id": "doc_001",
+      "text": "The patient presents with seizures and developmental delay. No fever was noted during the examination.",
+      "gold_hpo_terms": [
+        {"id": "HP:0001250", "assertion": "PRESENT"},
+        {"id": "HP:0001263", "assertion": "PRESENT"},
+        {"id": "HP:0001945", "assertion": "ABSENT"}
+      ]
+    },
+    {
+      "id": "doc_002",
+      "text": "Physical examination revealed hypotonia and intellectual disability. The patient also has short stature.",
+      "gold_hpo_terms": [
+        {"id": "HP:0001252", "assertion": "PRESENT"},
+        {"id": "HP:0001249", "assertion": "PRESENT"},
+        {"id": "HP:0004322", "assertion": "PRESENT"}
+      ]
+    },
+    {
+      "id": "doc_003",
+      "text": "The child has microcephaly and global developmental delay. There is no evidence of hearing loss.",
+      "gold_hpo_terms": [
+        {"id": "HP:0000252", "assertion": "PRESENT"},
+        {"id": "HP:0001263", "assertion": "PRESENT"},
+        {"id": "HP:0000365", "assertion": "ABSENT"}
+      ]
+    }
+  ]
+}
