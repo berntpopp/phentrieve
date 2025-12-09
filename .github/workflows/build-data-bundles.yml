@@ -1,0 +1,316 @@
+name: Build and Release Data Bundles
+
+# Build pre-computed HPO data bundles for distribution via GitHub Releases
+# See: https://github.com/berntpopp/phentrieve/issues/117
+
+on:
+  # Manual trigger with options
+  workflow_dispatch:
+    inputs:
+      hpo_version:
+        description: 'HPO version (e.g., v2025-03-03)'
+        required: false
+        default: 'latest'
+        type: string
+      models:
+        description: 'Models to build (comma-separated, or "all" for benchmark models)'
+        required: false
+        default: 'FremyCompany/BioLORD-2023-M'
+        type: string
+      create_release:
+        description: 'Create GitHub Release with bundles'
+        required: false
+        default: true
+        type: boolean
+
+  # Trigger on release creation (draft or published)
+  release:
+    types: [created]
+
+# Prevent concurrent bundle builds
+concurrency:
+  group: data-bundles-${{ github.ref }}
+  cancel-in-progress: false  # Don't cancel - builds are expensive
+
+env:
+  PYTHON_VERSION: '3.11'
+  # Default models for release builds
+  DEFAULT_MODELS: |
+    FremyCompany/BioLORD-2023-M
+    BAAI/bge-m3
+    sentence-transformers/LaBSE
+
+jobs:
+  prepare-matrix:
+    name: Prepare Build Matrix
+    runs-on: ubuntu-latest
+    outputs:
+      models: ${{ steps.set-matrix.outputs.models }}
+      hpo_version: ${{ steps.set-matrix.outputs.hpo_version }}
+
+    steps:
+      - name: Determine models to build
+        id: set-matrix
+        run: |
+          # Determine models list
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            INPUT_MODELS="${{ github.event.inputs.models }}"
+            if [ "$INPUT_MODELS" = "all" ]; then
+              # All benchmark models
+              MODELS='["FremyCompany/BioLORD-2023-M","BAAI/bge-m3","sentence-transformers/LaBSE","sentence-transformers/paraphrase-multilingual-mpnet-base-v2","sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2","Alibaba-NLP/gte-multilingual-base","jinaai/jina-embeddings-v2-base-de","T-Systems-onsite/cross-en-de-roberta-sentence-transformer","sentence-transformers/distiluse-base-multilingual-cased-v2"]'
+            else
+              # Convert comma-separated to JSON array
+              MODELS=$(echo "$INPUT_MODELS" | jq -R 'split(",") | map(gsub("^\\s+|\\s+$";""))' -c)
+            fi
+            HPO_VERSION="${{ github.event.inputs.hpo_version }}"
+          else
+            # Release trigger - use default models
+            MODELS='["FremyCompany/BioLORD-2023-M","BAAI/bge-m3","sentence-transformers/LaBSE"]'
+            HPO_VERSION="latest"
+          fi
+
+          echo "models=$MODELS" >> $GITHUB_OUTPUT
+          echo "hpo_version=$HPO_VERSION" >> $GITHUB_OUTPUT
+          echo "Building bundles for models: $MODELS"
+          echo "HPO version: $HPO_VERSION"
+
+  build-minimal-bundle:
+    name: Build Minimal Bundle (DB Only)
+    runs-on: ubuntu-latest
+    needs: prepare-matrix
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+
+      - name: Set up Python
+        run: uv python install ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: uv sync --frozen
+
+      - name: Prepare HPO data
+        run: |
+          HPO_VERSION="${{ needs.prepare-matrix.outputs.hpo_version }}"
+          if [ "$HPO_VERSION" != "latest" ] && [ -n "$HPO_VERSION" ]; then
+            echo "Using HPO version: $HPO_VERSION"
+            # TODO: Add version pinning support to data prepare command
+          fi
+          uv run phentrieve data prepare --debug
+
+      - name: Create minimal bundle
+        run: |
+          mkdir -p dist/bundles
+          uv run python -c "
+          from pathlib import Path
+          from phentrieve.data_processing.bundle_packager import create_bundle
+
+          bundle_path = create_bundle(
+              output_dir=Path('dist/bundles'),
+              model_name=None,  # Minimal bundle - no index
+          )
+          print(f'Created bundle: {bundle_path}')
+          "
+
+      - name: Upload minimal bundle artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bundle-minimal
+          path: dist/bundles/*.tar.gz
+          retention-days: 7
+
+  build-model-bundles:
+    name: Build ${{ matrix.model }} Bundle
+    runs-on: ubuntu-latest
+    needs: [prepare-matrix, build-minimal-bundle]
+    timeout-minutes: 120  # Index building can take time
+    strategy:
+      fail-fast: false
+      matrix:
+        model: ${{ fromJson(needs.prepare-matrix.outputs.models) }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Free disk space
+        uses: jlumbroso/free-disk-space@main
+        with:
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
+          tool-cache: false
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+
+      - name: Set up Python
+        run: uv python install ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: uv sync --frozen
+
+      - name: Cache Hugging Face models
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/huggingface
+          key: hf-${{ matrix.model }}-${{ hashFiles('pyproject.toml') }}
+          restore-keys: |
+            hf-${{ matrix.model }}-
+            hf-
+
+      - name: Prepare HPO data
+        run: uv run phentrieve data prepare --debug
+
+      - name: Build vector index for ${{ matrix.model }}
+        run: |
+          echo "Building index for model: ${{ matrix.model }}"
+          uv run phentrieve index build --model-name "${{ matrix.model }}" --debug
+
+      - name: Create bundle with index
+        id: create-bundle
+        run: |
+          mkdir -p dist/bundles
+          BUNDLE_PATH=$(uv run python -c "
+          from pathlib import Path
+          from phentrieve.data_processing.bundle_packager import create_bundle
+
+          bundle_path = create_bundle(
+              output_dir=Path('dist/bundles'),
+              model_name='${{ matrix.model }}',
+          )
+          print(bundle_path)
+          ")
+          echo "bundle_path=$BUNDLE_PATH" >> $GITHUB_OUTPUT
+          echo "bundle_name=$(basename $BUNDLE_PATH)" >> $GITHUB_OUTPUT
+
+      - name: Get model slug for artifact name
+        id: slug
+        run: |
+          # Convert model name to safe artifact name
+          SLUG=$(echo "${{ matrix.model }}" | sed 's|/|_|g' | sed 's|-|_|g' | tr '[:upper:]' '[:lower:]')
+          echo "slug=$SLUG" >> $GITHUB_OUTPUT
+
+      - name: Upload bundle artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bundle-${{ steps.slug.outputs.slug }}
+          path: dist/bundles/*.tar.gz
+          retention-days: 7
+
+  create-release:
+    name: Upload Bundles to Release
+    runs-on: ubuntu-latest
+    needs: [prepare-matrix, build-minimal-bundle, build-model-bundles]
+    if: |
+      (github.event_name == 'release') ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.create_release == 'true')
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download all bundle artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: bundles
+          pattern: bundle-*
+          merge-multiple: true
+
+      - name: List downloaded bundles
+        run: |
+          echo "Downloaded bundles:"
+          ls -la bundles/
+
+      - name: Get release tag
+        id: release-info
+        run: |
+          if [ "${{ github.event_name }}" = "release" ]; then
+            TAG="${{ github.event.release.tag_name }}"
+          else
+            # Generate tag for workflow_dispatch
+            TAG="data-$(date +%Y%m%d)"
+          fi
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "Release tag: $TAG"
+
+      - name: Upload bundles to release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.release-info.outputs.tag }}
+          files: bundles/*.tar.gz
+          fail_on_unmatched_files: false
+          generate_release_notes: false
+          append_body: true
+          body: |
+
+            ## Pre-built Data Bundles
+
+            Download pre-built HPO data bundles for faster setup:
+
+            | Bundle | Description |
+            |--------|-------------|
+            | `phentrieve-data-*-minimal.tar.gz` | HPO database only (no embeddings) |
+            | `phentrieve-data-*-biolord.tar.gz` | BioLORD-2023-M embeddings (recommended) |
+            | `phentrieve-data-*-bge-m3.tar.gz` | BGE-M3 multilingual embeddings |
+            | `phentrieve-data-*-labse.tar.gz` | LaBSE embeddings |
+
+            ### Usage
+
+            ```bash
+            # Download and extract
+            phentrieve data download --model biolord
+
+            # Or manually
+            curl -LO https://github.com/${{ github.repository }}/releases/download/${{ steps.release-info.outputs.tag }}/phentrieve-data-v2025-03-03-biolord.tar.gz
+            tar -xzf phentrieve-data-v2025-03-03-biolord.tar.gz -C ~/.local/share/phentrieve/
+            ```
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  summary:
+    name: Build Summary
+    runs-on: ubuntu-latest
+    needs: [build-minimal-bundle, build-model-bundles]
+    if: always()
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: bundles
+          pattern: bundle-*
+          merge-multiple: true
+        continue-on-error: true
+
+      - name: Generate summary
+        run: |
+          echo "## Data Bundle Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Bundle | Size |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|------|" >> $GITHUB_STEP_SUMMARY
+
+          if [ -d "bundles" ]; then
+            for bundle in bundles/*.tar.gz; do
+              if [ -f "$bundle" ]; then
+                NAME=$(basename "$bundle")
+                SIZE=$(du -h "$bundle" | cut -f1)
+                echo "| \`$NAME\` | $SIZE |" >> $GITHUB_STEP_SUMMARY
+              fi
+            done
+          else
+            echo "| No bundles found | - |" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Bundles are available as workflow artifacts for 7 days." >> $GITHUB_STEP_SUMMARY

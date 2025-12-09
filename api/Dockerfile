@@ -12,6 +12,11 @@ ARG SQLITE_YEAR=2025
 # Note: SQLite 3.51+ uses SHA3-256 checksums (not SHA256)
 ARG SQLITE_SHA3_256=9b2b1e73f577def1d5b75c5541555a7f42e6e073ad19f7a9118478389c9bbd9b
 
+# Pre-built data bundle arguments (Issue #117)
+# Set BUNDLE_URL to include pre-built data in the image, or leave empty for external mount
+# Example: BUNDLE_URL=https://github.com/berntpopp/phentrieve/releases/download/v1.0.0/phentrieve-data-v2025-03-03-biolord.tar.gz
+ARG BUNDLE_URL=""
+
 # ============================================================================
 # STAGE 1: SQLite Builder - Build custom SQLite with required extensions
 # ============================================================================
@@ -130,9 +135,46 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 SHELL ["/bin/sh", "-c"]
 
 # ============================================================================
-# STAGE 3: Runtime - Minimal production image
+# STAGE 3: Data Bundle (Optional) - Download pre-built data bundle
+# ============================================================================
+# This stage is only used when BUNDLE_URL is provided
+# It downloads and extracts the pre-built HPO data bundle
+FROM python:${PYTHON_VERSION}-slim-${DEBIAN_VERSION} AS data-bundle
+
+ARG BUNDLE_URL
+
+# Install only wget for downloading
+# hadolint ignore=DL3008
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    if [ -n "$BUNDLE_URL" ]; then \
+        apt-get update && apt-get install -y --no-install-recommends wget ca-certificates && \
+        rm -rf /var/lib/apt/lists/*; \
+    fi
+
+# Download and extract bundle if URL is provided
+WORKDIR /data
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+RUN set -euxo pipefail && \
+    if [ -n "$BUNDLE_URL" ]; then \
+        echo "Downloading pre-built data bundle from: $BUNDLE_URL" && \
+        wget -q -O bundle.tar.gz "$BUNDLE_URL" && \
+        tar -xzf bundle.tar.gz && \
+        rm bundle.tar.gz && \
+        echo "Bundle contents:" && \
+        ls -la /data/; \
+    else \
+        echo "No BUNDLE_URL provided, skipping data download" && \
+        mkdir -p /data/placeholder; \
+    fi
+SHELL ["/bin/sh", "-c"]
+
+# ============================================================================
+# STAGE 4: Runtime - Minimal production image
 # ============================================================================
 FROM python:${PYTHON_VERSION}-slim-${DEBIAN_VERSION} AS runtime
+
+ARG BUNDLE_URL
 
 # Metadata labels (OCI standard)
 LABEL org.opencontainers.image.title="Phentrieve API" \
@@ -194,6 +236,11 @@ COPY --chown=phentrieve:phentrieve api/ ./api/
 # Create data mount point with correct permissions
 RUN mkdir -p /phentrieve_data_mount && \
     chown -R phentrieve:phentrieve /phentrieve_data_mount
+
+# Copy pre-built data bundle if BUNDLE_URL was provided (Issue #117)
+# This enables building images with embedded HPO data for faster cold starts
+# The bundle includes: hpo_data.db, indexes/, and manifest.json
+COPY --from=data-bundle --chown=phentrieve:phentrieve /data/ /phentrieve_data_mount/
 
 # Create cache directory for HuggingFace models
 RUN mkdir -p /app/.cache && \
