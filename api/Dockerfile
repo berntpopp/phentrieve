@@ -335,14 +335,20 @@ COPY --chmod=755 api/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN mkdir -p /phentrieve_data_mount && \
     chown -R phentrieve:phentrieve /phentrieve_data_mount
 
-# Copy pre-built data bundle if BUNDLE_URL was provided (Issue #117)
-# This enables building images with embedded HPO data for faster cold starts
-# The bundle includes: hpo_data.db, indexes/, and manifest.json
+# Copy pre-built data bundle to TWO locations (Issue #117, Issue #142):
+# 1. /phentrieve_data_mount/ - Default data location (may be overwritten by volume mount)
+# 2. /app/embedded_data/ - Embedded copy for entrypoint data sync feature
+#
+# The entrypoint script compares manifest.json versions and syncs embedded data
+# to the mounted volume when versions differ. This ensures data format changes
+# (like adding hpo_data.db) are automatically applied on container startup.
+#
 # Using --link for independent layer rebasing (2025 best practice)
 # NOTE: Must use numeric UID:GID (10001:10001) instead of names (phentrieve:phentrieve)
 # because --link creates independent layers that can't resolve named users.
 # See: https://github.com/docker/buildx/issues/1526
 COPY --link --from=data-bundle --chown=10001:10001 /data/ /phentrieve_data_mount/
+COPY --link --from=data-bundle --chown=10001:10001 /data/ /app/embedded_data/
 
 # Create cache directory for HuggingFace models
 RUN mkdir -p /app/.cache && \
