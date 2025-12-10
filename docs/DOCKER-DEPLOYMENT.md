@@ -160,20 +160,21 @@ The API Dockerfile supports three data preparation modes via build arguments:
 
 ### Mode 1: Pre-built Bundle (Default)
 
-The default image includes the BioLORD model bundle (~400MB), which provides the best retrieval performance (MRR@10: 0.823).
+The default image includes the BioLORD multi-vector bundle (~150MB), which provides the best retrieval performance (MRR@10: 0.922).
 
 ```bash
-# Uses default bundle - no build args needed
+# Uses default multi-vector bundle - no build args needed
 docker build -t phentrieve-api ./api
 
 # Or specify a different bundle
 docker build \
-  --build-arg BUNDLE_URL="https://github.com/berntpopp/phentrieve/releases/download/data-v2025-11-24/phentrieve-data-v2025-11-24-biolord.tar.gz" \
+  --build-arg BUNDLE_URL="https://github.com/berntpopp/phentrieve/releases/download/data-v2025-11-24-multivec/phentrieve-data-v2025-11-24-biolord-multivec.tar.gz" \
   -t phentrieve-api ./api
 ```
 
 **Available bundles** (from [GitHub Releases](https://github.com/berntpopp/phentrieve/releases)):
-- `phentrieve-data-v2025-11-24-biolord.tar.gz` - BioLORD-2023-M (recommended)
+- `phentrieve-data-v2025-11-24-biolord-multivec.tar.gz` - BioLORD-2023-M multi-vector (recommended, MRR: 0.922)
+- `phentrieve-data-v2025-11-24-biolord.tar.gz` - BioLORD-2023-M single-vector (legacy, MRR: 0.823)
 
 ### Mode 2: Build from Scratch
 

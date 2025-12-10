@@ -7,7 +7,7 @@ from fastapi.concurrency import run_in_threadpool
 from sentence_transformers import CrossEncoder, SentenceTransformer
 
 from api.config import CROSS_ENCODER_LOAD_TIMEOUT, SBERT_LOAD_TIMEOUT
-from phentrieve.config import DEFAULT_DEVICE, DEFAULT_MODEL
+from phentrieve.config import DEFAULT_DEVICE, DEFAULT_MODEL, DEFAULT_MULTI_VECTOR
 
 # Core loader functions
 from phentrieve.embeddings import load_embedding_model
@@ -221,13 +221,18 @@ async def get_sbert_model_dependency(
 
 async def get_dense_retriever_dependency(
     sbert_model_name_for_retriever: str,  # SBERT model name for retriever
+    multi_vector: bool = DEFAULT_MULTI_VECTOR,  # Use multi-vector index by default
 ) -> DenseRetriever:
-    retriever_cache_key = f"retriever_for_{sbert_model_name_for_retriever}"
+    # Include multi_vector in cache key to support both index types
+    retriever_cache_key = (
+        f"retriever_for_{sbert_model_name_for_retriever}_multi={multi_vector}"
+    )
 
     if retriever_cache_key not in LOADED_RETRIEVERS:
         logger.info(
-            "API: Initializing DenseRetriever for model: %s",
+            "API: Initializing DenseRetriever for model: %s (multi_vector=%s)",
             _sanitize(sbert_model_name_for_retriever),
+            multi_vector,
         )
         sbert_instance = await get_sbert_model_dependency(
             model_name_requested=sbert_model_name_for_retriever
@@ -238,6 +243,7 @@ async def get_dense_retriever_dependency(
         retriever = DenseRetriever.from_model_name(
             model=sbert_instance,
             model_name=sbert_model_name_for_retriever,
+            multi_vector=multi_vector,  # Pass multi_vector flag to retriever
             # No index_dir is passed here.
         )
 

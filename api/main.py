@@ -33,6 +33,7 @@ from api.routers import (  # noqa: E402
 from phentrieve.config import (  # noqa: E402
     DEFAULT_DEVICE,
     DEFAULT_MODEL,
+    DEFAULT_MULTI_VECTOR,
     DEFAULT_RERANKER_MODEL,
 )
 
@@ -53,11 +54,14 @@ async def lifespan(app: FastAPI):
             trust_remote_code=default_trust_remote_code,
         )
         # Pre-load the retriever associated with the default SBERT model
+        # Uses DEFAULT_MULTI_VECTOR to pre-load the correct index type
         await get_dense_retriever_dependency(
-            sbert_model_name_for_retriever=DEFAULT_MODEL
+            sbert_model_name_for_retriever=DEFAULT_MODEL,
+            multi_vector=DEFAULT_MULTI_VECTOR,
         )
         logger.info(
-            f"Default SBERT model '{DEFAULT_MODEL}' and its retriever pre-loading tasks initiated."
+            f"Default SBERT model '{DEFAULT_MODEL}' and its retriever "
+            f"(multi_vector={DEFAULT_MULTI_VECTOR}) pre-loading tasks initiated."
         )
 
         # Attempt to pre-load default reranker (optional, good for responsiveness)

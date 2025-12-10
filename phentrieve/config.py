@@ -55,6 +55,7 @@ __all__ = [
     "HPO_DOWNLOAD_TIMEOUT",
     "HPO_CHUNK_SIZE",
     # Multi-vector configuration
+    "DEFAULT_MULTI_VECTOR",
     "DEFAULT_AGGREGATION_STRATEGY",
     "DEFAULT_COMPONENT_WEIGHTS",
     "MULTI_VECTOR_RESULT_MULTIPLIER",
@@ -486,6 +487,7 @@ HPO_CHUNK_SIZE: int = int(
 # Multi-Vector Configuration (Issue #136)
 # =============================================================================
 # Fallbacks for multi-vector embedding settings
+_DEFAULT_MULTI_VECTOR_FALLBACK = True  # Use multi-vector indexes by default
 _DEFAULT_AGGREGATION_STRATEGY_FALLBACK = "label_synonyms_max"
 _DEFAULT_COMPONENT_WEIGHTS_FALLBACK: dict[str, float] = {
     "label": 0.5,
@@ -494,6 +496,16 @@ _DEFAULT_COMPONENT_WEIGHTS_FALLBACK: dict[str, float] = {
 }
 
 # Multi-vector public constants
+# Whether to use multi-vector indexes by default (provides better retrieval quality)
+_multi_vector_raw = get_config_value(
+    "multi_vector", _DEFAULT_MULTI_VECTOR_FALLBACK, "enabled"
+)
+DEFAULT_MULTI_VECTOR: bool = (
+    _multi_vector_raw
+    if isinstance(_multi_vector_raw, bool)
+    else _DEFAULT_MULTI_VECTOR_FALLBACK
+)
+
 DEFAULT_AGGREGATION_STRATEGY: str = get_config_value(
     "multi_vector", _DEFAULT_AGGREGATION_STRATEGY_FALLBACK, "aggregation_strategy"
 )

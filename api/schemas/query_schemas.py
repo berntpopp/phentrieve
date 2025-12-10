@@ -2,6 +2,8 @@ from typing import Literal, Optional
 
 from pydantic import BaseModel, Field, model_validator
 
+from phentrieve.config import DEFAULT_MULTI_VECTOR
+
 # For assertion status type
 
 
@@ -45,7 +47,7 @@ class QueryRequest(BaseModel):
 
     # Multi-vector parameters (Issue #136)
     multi_vector: bool = Field(
-        False,
+        default=DEFAULT_MULTI_VECTOR,
         description="Use multi-vector index with component-level aggregation.",
     )
     aggregation_strategy: Optional[

@@ -58,6 +58,8 @@ class TestBuildIndex:
             recreate=False,
             debug=False,
             multi_vector=False,
+            index_dir_override=None,
+            data_dir_override=None,
         )
 
         # Check success message
@@ -116,6 +118,8 @@ class TestBuildIndex:
             recreate=False,
             debug=False,
             multi_vector=False,
+            index_dir_override=None,
+            data_dir_override=None,
         )
 
     def test_builds_index_with_recreate_flag(self, mocker):
@@ -254,6 +258,8 @@ class TestBuildIndex:
             recreate=True,
             debug=True,
             multi_vector=False,
+            index_dir_override=None,
+            data_dir_override=None,
         )
 
     def test_index_building_fails_with_error(self, mocker):
