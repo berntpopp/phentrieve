@@ -156,7 +156,13 @@ def _validate_response_chunk_references(
             )
 
 
-@router.post("/process", response_model=TextProcessingResponseAPI)
+@router.post(
+    "/process",
+    response_model=TextProcessingResponseAPI,
+    operation_id="process_clinical_text",
+    summary="Process clinical text to extract HPO terms",
+    description="Process clinical text with chunking, assertion detection, and HPO term extraction.",
+)
 async def process_text_extract_hpo(request: TextProcessingRequest):
     """
     Process clinical text to extract Human Phenotype Ontology (HPO) terms.
