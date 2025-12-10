@@ -82,6 +82,46 @@ phentrieve benchmark extraction compare results/run1/extraction_results.json \
 phentrieve benchmark extraction report results/
 ```
 
+## Multi-Vector vs Single-Vector Comparison
+
+Compare the performance of single-vector embeddings against multi-vector embeddings with different aggregation strategies:
+
+```bash
+# Compare with default strategies
+phentrieve benchmark compare-vectors
+
+# Compare specific strategies on a dataset
+phentrieve benchmark compare-vectors \
+    --test-file german/200cases_gemini_v1.json \
+    --strategies "label_synonyms_max,all_max,label_only"
+
+# Skip single-vector (only compare multi-vector strategies)
+phentrieve benchmark compare-vectors --no-single \
+    --strategies "label_synonyms_max,all_max,all_weighted"
+```
+
+### Aggregation Strategies
+
+| Strategy | Description | Best For |
+|----------|-------------|----------|
+| `label_synonyms_max` | Best match between label and synonyms | **Recommended default** |
+| `label_only` | Match only against label vectors | High precision |
+| `all_max` | Best match across all components | Balanced |
+| `all_weighted` | Weighted combination of all components | Custom tuning |
+
+### Example Results
+
+Results from 200-case German benchmark dataset:
+
+| Mode | Strategy | MRR | Hit@1 | Hit@10 |
+|------|----------|-----|-------|--------|
+| single-vector | - | 0.824 | 74.0% | 95.0% |
+| multi-vector | label_synonyms_max | **0.937** | **91.0%** | **98.0%** |
+| multi-vector | label_only | 0.943 | 92.0% | 97.5% |
+| multi-vector | all_max | 0.934 | 90.5% | 98.5% |
+
+Multi-vector embeddings consistently outperform single-vector by **+13-21% MRR**.
+
 ## Further Reading
 
 For more advanced benchmarking information, see the [Benchmarking Framework](../advanced-topics/benchmarking-framework.md) page in the Advanced Topics section.

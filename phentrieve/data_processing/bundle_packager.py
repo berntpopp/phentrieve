@@ -45,6 +45,7 @@ def create_bundle(
     data_dir: Path | None = None,
     include_hpo_json: bool = False,
     hpo_version: str | None = None,
+    multi_vector: bool = False,
 ) -> Path:
     """
     Create a pre-built data bundle for distribution.
@@ -55,6 +56,7 @@ def create_bundle(
         data_dir: Source data directory (default: from config)
         include_hpo_json: Include original hp.json file
         hpo_version: Override HPO version (default: from config)
+        multi_vector: If True, bundle multi-vector index (with _multi suffix)
 
     Returns:
         Path to created bundle file
@@ -90,7 +92,12 @@ def create_bundle(
     index_base_dir = None
     if model_name:
         index_base_dir = data_dir / "indexes"
-        collection_name = generate_collection_name(model_name)
+        base_collection_name = generate_collection_name(model_name)
+        # Multi-vector collections have "_multi" suffix
+        collection_name = (
+            f"{base_collection_name}_multi" if multi_vector else base_collection_name
+        )
+        index_type_str = "multi-vector" if multi_vector else "single-vector"
 
         # ChromaDB stores all collections in a single directory with chroma.sqlite3
         chroma_db_path = index_base_dir / "chroma.sqlite3"
@@ -102,15 +109,18 @@ def create_bundle(
 
         # Verify the collection exists in ChromaDB
         if not _verify_collection_exists(index_base_dir, collection_name):
+            mv_flag = " --multi-vector" if multi_vector else ""
             raise ValueError(
                 f"Collection '{collection_name}' not found in ChromaDB. "
-                f"Run 'phentrieve index build --model-name \"{model_name}\"' first."
+                f"Run 'phentrieve index build --model-name \"{model_name}\"{mv_flag}' first."
             )
+
+        logger.info(f"Found {index_type_str} collection: {collection_name}")
 
         # Get embedding dimension from index metadata
         dimension = _get_index_dimension(index_base_dir)
         manifest.model = EmbeddingModelInfo.from_model_name(
-            model_name, dimension=dimension
+            model_name, dimension=dimension, multi_vector=multi_vector
         )
 
     # Create bundle in temp directory

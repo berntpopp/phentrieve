@@ -311,6 +311,13 @@ def create_bundle_cmd(
         bool,
         typer.Option("--include-hp-json", help="Include original hp.json file"),
     ] = False,
+    multi_vector: Annotated[
+        bool,
+        typer.Option(
+            "--multi-vector",
+            help="Bundle multi-vector index (separate vectors for label, synonyms, definition)",
+        ),
+    ] = False,
     debug: Annotated[
         bool, typer.Option("--debug", help="Enable debug logging")
     ] = False,
@@ -320,8 +327,12 @@ def create_bundle_cmd(
     Creates a tar.gz bundle containing the HPO database and pre-computed
     vector indexes for a specific embedding model.
 
+    Use --multi-vector to bundle multi-vector indexes which provide separate
+    embeddings for labels, synonyms, and definitions for improved retrieval.
+
     Examples:
         phentrieve data bundle create --model 'FremyCompany/BioLORD-2023-M'
+        phentrieve data bundle create -m 'BAAI/bge-m3' --multi-vector
         phentrieve data bundle create -m 'BAAI/bge-m3' -o ./my-bundles
     """
     from phentrieve.data_processing.bundle_packager import create_bundle
@@ -332,7 +343,8 @@ def create_bundle_cmd(
     output_path = Path(output_dir)
     source_dir = Path(data_dir) if data_dir else None
 
-    typer.echo(f"Creating bundle for model {model}...")
+    index_type = "multi-vector" if multi_vector else "single-vector"
+    typer.echo(f"Creating {index_type} bundle for model {model}...")
 
     try:
         bundle_path = create_bundle(
@@ -340,6 +352,7 @@ def create_bundle_cmd(
             model_name=model,
             data_dir=source_dir,
             include_hpo_json=include_hp_json,
+            multi_vector=multi_vector,
         )
 
         bundle_size = bundle_path.stat().st_size / 1024 / 1024

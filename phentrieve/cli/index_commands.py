@@ -38,12 +38,37 @@ def build_index(
     debug: Annotated[
         bool, typer.Option("--debug", help="Enable debug logging")
     ] = False,
+    multi_vector: Annotated[
+        bool,
+        typer.Option(
+            "--multi-vector",
+            help="Build multi-vector index (separate vectors for label, synonyms, definition)",
+        ),
+    ] = False,
+    index_dir: Annotated[
+        Optional[str],
+        typer.Option(
+            "--index-dir",
+            help="Custom directory for storing the vector index (overrides config)",
+        ),
+    ] = None,
+    data_dir: Annotated[
+        Optional[str],
+        typer.Option(
+            "--data-dir",
+            help="Custom directory containing HPO data (overrides config)",
+        ),
+    ] = None,
 ):
     """Build vector index for HPO terms.
 
     This command creates a ChromaDB vector index from HPO term data
     using the specified embedding model. The index can be later used
     for semantic search of HPO terms.
+
+    Use --multi-vector to create an index with separate embeddings for each
+    component (label, synonyms, definition) enabling fine-grained retrieval
+    with configurable aggregation strategies.
     """
     from phentrieve.indexing.chromadb_orchestrator import orchestrate_index_building
     from phentrieve.utils import setup_logging_cli
@@ -53,7 +78,8 @@ def build_index(
     # Determine device based on CPU flag
     device_override = "cpu" if cpu else None
 
-    typer.echo("Starting index building process")
+    index_type_str = "multi-vector" if multi_vector else "single-vector"
+    typer.echo(f"Starting {index_type_str} index building process")
 
     success = orchestrate_index_building(
         model_name_arg=model_name,
@@ -63,6 +89,9 @@ def build_index(
         device_override=device_override,
         recreate=recreate,
         debug=debug,
+        multi_vector=multi_vector,
+        index_dir_override=index_dir,
+        data_dir_override=data_dir,
     )
 
     if success:

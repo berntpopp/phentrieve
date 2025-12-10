@@ -6,8 +6,12 @@ This module contains commands for running and analyzing benchmarks.
 from typing import Annotated, Optional
 
 import typer
+from rich.console import Console
+from rich.table import Table
 
 from phentrieve.benchmark.extraction_cli import app as extraction_app
+
+console = Console()
 
 # Create the Typer app for this command group
 app = typer.Typer()
@@ -75,6 +79,21 @@ def run_benchmarks(
             help="Formula for similarity calculation (hybrid or simple_resnik_like)",
         ),
     ] = "hybrid",
+    multi_vector: Annotated[
+        bool,
+        typer.Option(
+            "--multi-vector",
+            help="Use multi-vector index with component-level aggregation",
+        ),
+    ] = False,
+    aggregation_strategy: Annotated[
+        str,
+        typer.Option(
+            "--aggregation-strategy",
+            "-A",
+            help="Multi-vector aggregation strategy: label_only, label_synonyms_max, all_max, all_weighted",
+        ),
+    ] = "label_synonyms_max",
     debug: Annotated[
         bool, typer.Option("--debug", help="Enable debug logging")
     ] = False,
@@ -92,6 +111,13 @@ def run_benchmarks(
 
     typer.echo("Starting benchmark evaluation...")
 
+    # Log multi-vector mode
+    if multi_vector:
+        typer.secho(
+            f"Multi-vector mode enabled (strategy: {aggregation_strategy})",
+            fg=typer.colors.CYAN,
+        )
+
     # Build kwargs with only non-None optional values to allow orchestrator defaults
     kwargs: dict = {
         "all_models": all_models,
@@ -104,6 +130,8 @@ def run_benchmarks(
         "enable_reranker": enable_reranker,
         "rerank_count": rerank_count,
         "similarity_formula": similarity_formula,
+        "multi_vector": multi_vector,
+        "aggregation_strategy": aggregation_strategy,
     }
     # Only add optional string params when provided (allows orchestrator defaults)
     if test_file is not None:
@@ -244,3 +272,278 @@ def visualize_benchmarks(
             fg=typer.colors.RED,
         )
         raise typer.Exit(code=1)
+
+
+# Default aggregation strategies to compare
+DEFAULT_STRATEGIES = [
+    "label_only",
+    "label_synonyms_max",
+    "all_max",
+    "all_weighted",
+]
+
+
+@app.command("compare-vectors")
+def compare_vector_modes(
+    test_file: Annotated[
+        Optional[str],
+        typer.Option("--test-file", "-f", help="Test file with benchmark cases"),
+    ] = None,
+    strategies: Annotated[
+        str,
+        typer.Option(
+            "--strategies",
+            "-s",
+            help="Comma-separated aggregation strategies to compare (default: label_only,label_synonyms_max,all_max,all_weighted)",
+        ),
+    ] = "",
+    include_single: Annotated[
+        bool,
+        typer.Option(
+            "--include-single/--no-single",
+            help="Include single-vector baseline in comparison",
+        ),
+    ] = True,
+    model_name: Annotated[
+        Optional[str], typer.Option("--model-name", help="Model name to benchmark")
+    ] = None,
+    similarity_threshold: Annotated[
+        float, typer.Option("--similarity-threshold", help="Minimum similarity score")
+    ] = 0.1,
+    cpu: Annotated[
+        bool, typer.Option("--cpu", help="Force CPU usage even if GPU is available")
+    ] = False,
+    debug: Annotated[
+        bool, typer.Option("--debug", help="Enable debug logging")
+    ] = False,
+):
+    """Compare single-vector vs multi-vector retrieval with different aggregation strategies.
+
+    Runs benchmarks for single-vector and multi-vector modes with various aggregation
+    strategies, then displays a comparison table.
+
+    Available aggregation strategies:
+    - label_only: Only use label similarity
+    - label_synonyms_max: Best match between label and synonyms (default)
+    - label_synonyms_min: Minimum of label and synonym scores (conservative)
+    - all_max: Maximum across all components (label, synonyms, definition)
+    - all_min: Minimum across all components
+    - all_weighted: Weighted combination of all components
+
+    Examples:
+        phentrieve benchmark compare-vectors
+        phentrieve benchmark compare-vectors --test-file german/70cases_gemini_v1.json
+        phentrieve benchmark compare-vectors --strategies label_only,label_synonyms_max,all_max
+        phentrieve benchmark compare-vectors --no-single  # Only compare multi-vector strategies
+    """
+    from phentrieve.evaluation.benchmark_orchestrator import orchestrate_benchmark
+    from phentrieve.utils import setup_logging_cli
+
+    setup_logging_cli(debug=debug)
+
+    # Parse strategies
+    strategy_list = (
+        [s.strip() for s in strategies.split(",") if s.strip()]
+        if strategies
+        else DEFAULT_STRATEGIES
+    )
+
+    # Validate strategies
+    valid_strategies = {
+        "label_only",
+        "label_synonyms_min",
+        "label_synonyms_max",
+        "all_weighted",
+        "all_max",
+        "all_min",
+    }
+    for s in strategy_list:
+        if s not in valid_strategies:
+            typer.secho(
+                f"Invalid strategy: {s}. Valid options: {', '.join(sorted(valid_strategies))}",
+                fg=typer.colors.RED,
+            )
+            raise typer.Exit(code=1)
+
+    console.print(
+        "[bold cyan]Single-Vector vs Multi-Vector Benchmark Comparison[/bold cyan]"
+    )
+    console.print(f"Test file: {test_file or 'default'}")
+    if include_single:
+        console.print("Modes: single-vector + multi-vector")
+    else:
+        console.print("Modes: multi-vector only")
+    console.print(f"Strategies: {', '.join(strategy_list)}")
+    console.print()
+
+    # Build base kwargs
+    base_kwargs: dict = {
+        "similarity_threshold": similarity_threshold,
+        "cpu": cpu,
+        "debug": debug,
+    }
+    if test_file:
+        base_kwargs["test_file"] = test_file
+    if model_name:
+        base_kwargs["model_name"] = model_name
+
+    results_collection: list[dict] = []
+
+    # Run single-vector benchmark if requested
+    if include_single:
+        console.print("[bold]Running single-vector benchmark...[/bold]")
+        with console.status("Processing..."):
+            single_result = orchestrate_benchmark(
+                **base_kwargs,
+                multi_vector=False,
+            )
+        if single_result:
+            if isinstance(single_result, list):
+                single_result = single_result[0]
+            single_result["benchmark_mode"] = "single-vector"
+            single_result["aggregation_strategy"] = "-"
+            results_collection.append(single_result)
+            console.print("[green]✓ Single-vector complete[/green]")
+        else:
+            console.print("[red]✗ Single-vector benchmark failed[/red]")
+
+    # Run multi-vector benchmarks for each strategy
+    for strategy in strategy_list:
+        console.print(
+            f"[bold]Running multi-vector benchmark (strategy: {strategy})...[/bold]"
+        )
+        with console.status("Processing..."):
+            multi_result = orchestrate_benchmark(
+                **base_kwargs,
+                multi_vector=True,
+                aggregation_strategy=strategy,
+            )
+        if multi_result:
+            if isinstance(multi_result, list):
+                multi_result = multi_result[0]
+            multi_result["benchmark_mode"] = "multi-vector"
+            multi_result["aggregation_strategy"] = strategy
+            results_collection.append(multi_result)
+            console.print(f"[green]✓ Multi-vector ({strategy}) complete[/green]")
+        else:
+            console.print(f"[red]✗ Multi-vector ({strategy}) benchmark failed[/red]")
+
+    console.print()
+
+    if not results_collection:
+        typer.secho("No benchmark results collected.", fg=typer.colors.RED)
+        raise typer.Exit(code=1)
+
+    # Display comparison table
+    _display_vector_comparison(results_collection)
+
+    # Save comparison results
+    _save_vector_comparison(results_collection, test_file)
+
+    typer.secho("\nComparison completed successfully!", fg=typer.colors.GREEN)
+
+
+def _display_vector_comparison(results: list[dict]) -> None:
+    """Display comparison table for vector mode benchmarks."""
+    table = Table(title="Vector Mode Benchmark Comparison")
+
+    table.add_column("Mode", style="cyan")
+    table.add_column("Strategy", style="magenta")
+    table.add_column("MRR", justify="right")
+    table.add_column("Hit@1", justify="right")
+    table.add_column("Hit@3", justify="right")
+    table.add_column("Hit@5", justify="right")
+    table.add_column("Hit@10", justify="right")
+    table.add_column("MaxOntSim@1", justify="right")
+
+    # Find best values for highlighting
+    mrr_values = [r.get("avg_mrr_dense", 0) for r in results]
+    best_mrr = max(mrr_values) if mrr_values else 0
+
+    for result in results:
+        mode = result.get("benchmark_mode", "unknown")
+        strategy = result.get("aggregation_strategy", "-")
+        mrr = result.get("avg_mrr_dense", 0)
+        hr1 = result.get("avg_hit_rate_dense@1", 0)
+        hr3 = result.get("avg_hit_rate_dense@3", 0)
+        hr5 = result.get("avg_hit_rate_dense@5", 0)
+        hr10 = result.get("avg_hit_rate_dense@10", 0)
+        ont_sim = result.get("avg_max_ont_similarity_dense@1", 0)
+
+        # Highlight best MRR
+        mrr_str = (
+            f"[bold green]{mrr:.4f}[/bold green]" if mrr == best_mrr else f"{mrr:.4f}"
+        )
+
+        table.add_row(
+            mode,
+            strategy,
+            mrr_str,
+            f"{hr1:.4f}",
+            f"{hr3:.4f}",
+            f"{hr5:.4f}",
+            f"{hr10:.4f}",
+            f"{ont_sim:.4f}",
+        )
+
+    console.print(table)
+
+    # Print improvement summary if single-vector is included
+    single_results = [r for r in results if r.get("benchmark_mode") == "single-vector"]
+    multi_results = [r for r in results if r.get("benchmark_mode") == "multi-vector"]
+
+    if single_results and multi_results:
+        single_mrr = single_results[0].get("avg_mrr_dense", 0)
+        best_multi = max(multi_results, key=lambda r: r.get("avg_mrr_dense", 0))
+        best_multi_mrr = best_multi.get("avg_mrr_dense", 0)
+        best_strategy = best_multi.get("aggregation_strategy", "unknown")
+
+        if single_mrr > 0:
+            improvement = ((best_multi_mrr - single_mrr) / single_mrr) * 100
+            console.print()
+            console.print(f"[bold]Best multi-vector strategy:[/bold] {best_strategy}")
+            console.print(
+                f"[bold]MRR improvement over single-vector:[/bold] "
+                f"{improvement:+.1f}% ({single_mrr:.4f} → {best_multi_mrr:.4f})"
+            )
+
+
+def _save_vector_comparison(results: list[dict], test_file: Optional[str]) -> None:
+    """Save vector comparison results to JSON."""
+    import json
+    from datetime import datetime
+
+    from phentrieve.utils import get_default_results_dir
+
+    results_dir = get_default_results_dir()
+    results_dir.mkdir(parents=True, exist_ok=True)
+
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    output_file = results_dir / f"vector_comparison_{timestamp}.json"
+
+    comparison_data = {
+        "timestamp": timestamp,
+        "test_file": test_file,
+        "results": [
+            {
+                "mode": r.get("benchmark_mode"),
+                "strategy": r.get("aggregation_strategy"),
+                "model": r.get("model_name"),
+                "metrics": {
+                    "mrr": r.get("avg_mrr_dense"),
+                    "hit_rate@1": r.get("avg_hit_rate_dense@1"),
+                    "hit_rate@3": r.get("avg_hit_rate_dense@3"),
+                    "hit_rate@5": r.get("avg_hit_rate_dense@5"),
+                    "hit_rate@10": r.get("avg_hit_rate_dense@10"),
+                    "max_ont_sim@1": r.get("avg_max_ont_similarity_dense@1"),
+                    "max_ont_sim@10": r.get("avg_max_ont_similarity_dense@10"),
+                },
+            }
+            for r in results
+        ],
+    }
+
+    with open(output_file, "w") as f:
+        json.dump(comparison_data, f, indent=2)
+
+    console.print(f"[dim]Results saved to {output_file}[/dim]")

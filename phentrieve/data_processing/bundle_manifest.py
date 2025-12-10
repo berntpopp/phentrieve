@@ -87,10 +87,15 @@ class EmbeddingModelInfo:
     slug: str  # e.g., "biolord"
     dimension: int  # e.g., 768
     distance_metric: str = "cosine"  # e.g., "cosine", "l2", "ip"
+    multi_vector: bool = False  # Whether index uses multi-vector approach
 
     @classmethod
     def from_model_name(
-        cls, model_name: str, dimension: int, distance_metric: str = "cosine"
+        cls,
+        model_name: str,
+        dimension: int,
+        distance_metric: str = "cosine",
+        multi_vector: bool = False,
     ) -> EmbeddingModelInfo:
         """Create from model name with auto-generated slug."""
         return cls(
@@ -98,6 +103,7 @@ class EmbeddingModelInfo:
             slug=get_model_slug(model_name),
             dimension=dimension,
             distance_metric=distance_metric,
+            multi_vector=multi_vector,
         )
 
 
@@ -205,15 +211,16 @@ class BundleManifest:
         """
         Generate bundle filename from manifest metadata.
 
-        Format: phentrieve-data-{hpo_version}-{model_slug}.tar.gz
+        Format: phentrieve-data-{hpo_version}-{model_slug}[-multivec].tar.gz
 
         Examples:
-            - phentrieve-data-v2025-03-03-biolord.tar.gz
-            - phentrieve-data-v2025-03-03-bge-m3.tar.gz
+            - phentrieve-data-v2025-03-03-biolord.tar.gz (single-vector)
+            - phentrieve-data-v2025-03-03-biolord-multivec.tar.gz (multi-vector)
         """
         if self.model is None:
             raise ValueError("Bundle requires a model to generate filename")
-        return f"phentrieve-data-{self.hpo_version}-{self.model.slug}.tar.gz"
+        suffix = "-multivec" if self.model.multi_vector else ""
+        return f"phentrieve-data-{self.hpo_version}-{self.model.slug}{suffix}.tar.gz"
 
     def verify_checksum(self, file_path: Path, expected_key: str | None = None) -> bool:
         """

@@ -46,7 +46,9 @@ class TestBuildIndex:
 
         # Assert
         mock_setup_logging.assert_called_once_with(debug=False)
-        mock_echo.assert_called_once_with("Starting index building process")
+        mock_echo.assert_called_once_with(
+            "Starting single-vector index building process"
+        )
         mock_orchestrate.assert_called_once_with(
             model_name_arg=None,
             all_models=False,
@@ -55,6 +57,9 @@ class TestBuildIndex:
             device_override=None,
             recreate=False,
             debug=False,
+            multi_vector=False,
+            index_dir_override=None,
+            data_dir_override=None,
         )
 
         # Check success message
@@ -112,6 +117,9 @@ class TestBuildIndex:
             device_override=None,
             recreate=False,
             debug=False,
+            multi_vector=False,
+            index_dir_override=None,
+            data_dir_override=None,
         )
 
     def test_builds_index_with_recreate_flag(self, mocker):
@@ -249,6 +257,9 @@ class TestBuildIndex:
             device_override="cpu",
             recreate=True,
             debug=True,
+            multi_vector=False,
+            index_dir_override=None,
+            data_dir_override=None,
         )
 
     def test_index_building_fails_with_error(self, mocker):
@@ -292,7 +303,9 @@ class TestBuildIndex:
         build_index()
 
         # Assert
-        mock_echo.assert_called_once_with("Starting index building process")
+        mock_echo.assert_called_once_with(
+            "Starting single-vector index building process"
+        )
 
     def test_device_override_none_when_cpu_false(self, mocker):
         """Test that device_override is None when CPU flag is False."""

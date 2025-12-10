@@ -3,6 +3,8 @@ Index building orchestration module.
 
 This module provides orchestration functions for building ChromaDB indexes
 from HPO term data using embedding models.
+
+Supports both single-vector and multi-vector index types (see issue #136).
 """
 
 import logging
@@ -14,6 +16,10 @@ from phentrieve.config import BENCHMARK_MODELS, DEFAULT_MODEL
 from phentrieve.data_processing.document_creator import (
     create_hpo_documents,
     load_hpo_terms,
+)
+from phentrieve.data_processing.multi_vector_document_creator import (
+    create_multi_vector_documents,
+    get_component_stats,
 )
 from phentrieve.embeddings import load_embedding_model
 from phentrieve.indexing.chromadb_indexer import build_chromadb_index
@@ -30,6 +36,7 @@ def orchestrate_index_building(
     debug: bool = False,
     index_dir_override: Optional[str] = None,
     data_dir_override: Optional[str] = None,
+    multi_vector: bool = False,
 ) -> bool:
     """Orchestrates loading data, models, and building ChromaDB indexes.
 
@@ -41,19 +48,38 @@ def orchestrate_index_building(
         device_override: Device to use ('cpu', 'cuda', etc.), or None for auto-detection
         recreate: Whether to recreate the index even if it exists
         debug: Enable debug logging
+        index_dir_override: Override for index directory path
+        data_dir_override: Override for data directory path
+        multi_vector: Build multi-vector index (separate vectors per component)
 
     Returns:
         True if all requested indexes were built successfully, False otherwise
     """
     start_time = time.time()
+    index_type = "multi_vector" if multi_vector else "single_vector"
+
     logging.info("Loading HPO terms for indexing...")
     hpo_terms = load_hpo_terms(data_dir_override=data_dir_override)
     if not hpo_terms:
         logging.error("Failed to load HPO terms. Run 'phentrieve data prepare' first.")
         return False
 
-    logging.info("Creating HPO documents for indexing...")
-    documents, metadatas, ids = create_hpo_documents(hpo_terms)
+    # Create documents based on index type
+    if multi_vector:
+        logging.info("Creating multi-vector HPO documents for indexing...")
+        # Show component statistics
+        stats = get_component_stats(hpo_terms)
+        logging.info(
+            f"Component stats: {stats['total_labels']} labels, "
+            f"{stats['total_synonyms']} synonyms, "
+            f"{stats['total_definitions']} definitions"
+        )
+        logging.info(f"Estimated total documents: {stats['estimated_documents']}")
+        documents, metadatas, ids = create_multi_vector_documents(hpo_terms)
+    else:
+        logging.info("Creating single-vector HPO documents for indexing...")
+        documents, metadatas, ids = create_hpo_documents(hpo_terms)
+
     if not documents:
         logging.error("Failed to create documents from HPO terms.")
         return False
@@ -100,6 +126,7 @@ def orchestrate_index_building(
                 batch_size=batch_size,
                 recreate=recreate,
                 index_dir=index_dir,
+                index_type=index_type,
             )
             if result:
                 logging.info(f"✓ Index built successfully for model: {model_name}")

@@ -119,6 +119,36 @@ results_dir: "~/phentrieve_data/results"
 #   chunk_size: 8192
 
 # =============================================================================
+# MULTI-VECTOR EMBEDDING SETTINGS (Issue #136)
+# =============================================================================
+# Multi-vector indexing creates separate embeddings for each HPO term component
+# (label, synonyms, definition) enabling fine-grained retrieval.
+# Multi-vector provides ~10% improvement in MRR (0.823 → 0.922 for BioLORD).
+
+multi_vector:
+  # Whether to use multi-vector indexes by default (recommended: true)
+  # Multi-vector provides better retrieval quality at the cost of larger indexes
+  enabled: true
+
+  # Aggregation strategy for combining component scores
+  # Options: label_only, label_synonyms_min, label_synonyms_max,
+  #          all_weighted, all_max, all_min, custom
+  aggregation_strategy: "label_synonyms_max"
+
+  # Component weights (used when aggregation_strategy is "all_weighted")
+  # Weights should sum to 1.0 for normalized scores
+  # component_weights:
+  #   label: 0.5
+  #   synonyms: 0.3
+  #   definition: 0.2
+
+  # Custom formula (used when aggregation_strategy is "custom")
+  # Available functions: min(), max(), avg()
+  # Available variables: label, synonyms (list), definition
+  # Example: "0.5 * max(label, max(synonyms)) + 0.5 * definition"
+  # custom_formula: null
+
+# =============================================================================
 # EXTRACTION BENCHMARK CONFIGURATION
 # =============================================================================
 
