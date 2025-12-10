@@ -57,6 +57,7 @@ __all__ = [
     # Multi-vector configuration
     "DEFAULT_AGGREGATION_STRATEGY",
     "DEFAULT_COMPONENT_WEIGHTS",
+    "MULTI_VECTOR_RESULT_MULTIPLIER",
     # Chunking configurations
     "DEFAULT_CHUNK_PIPELINE_CONFIG",
     "SIMPLE_CHUNKING_CONFIG",
@@ -495,6 +496,18 @@ _DEFAULT_COMPONENT_WEIGHTS_FALLBACK: dict[str, float] = {
 # Multi-vector public constants
 DEFAULT_AGGREGATION_STRATEGY: str = get_config_value(
     "multi_vector", _DEFAULT_AGGREGATION_STRATEGY_FALLBACK, "aggregation_strategy"
+)
+
+# Multiplier to request more results for multi-vector queries to ensure enough
+# unique HPO IDs after deduplication. Multi-vector indexes have ~5-10 documents
+# per HPO term (1 label + N synonyms + 1 definition).
+_DEFAULT_MULTI_VECTOR_RESULT_MULTIPLIER_FALLBACK = 5
+MULTI_VECTOR_RESULT_MULTIPLIER: int = int(
+    get_config_value(
+        "multi_vector",
+        _DEFAULT_MULTI_VECTOR_RESULT_MULTIPLIER_FALLBACK,
+        "result_multiplier",
+    )
 )
 _loaded_weights = get_config_value(
     "multi_vector", _DEFAULT_COMPONENT_WEIGHTS_FALLBACK, "component_weights"

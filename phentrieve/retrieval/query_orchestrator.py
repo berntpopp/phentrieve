@@ -93,6 +93,42 @@ def convert_multi_vector_to_chromadb_format(
     }
 
 
+def _execute_multi_vector_query(
+    retriever: DenseRetriever,
+    text: str,
+    num_results: int,
+    aggregation_strategy: str,
+    component_weights: Optional[dict[str, float]],
+    custom_formula: Optional[str],
+) -> dict[str, Any]:
+    """
+    Execute a multi-vector query and convert results to ChromaDB format.
+
+    This helper function encapsulates the multi-vector query pattern to avoid
+    code duplication (DRY principle). It performs the query using the retriever's
+    multi-vector method and converts the results to ChromaDB-compatible format.
+
+    Args:
+        retriever: DenseRetriever instance connected to multi-vector index
+        text: Query text to search for
+        num_results: Number of results to return
+        aggregation_strategy: Strategy for aggregating component scores
+        component_weights: Weights for "all_weighted" strategy
+        custom_formula: Formula for "custom" strategy
+
+    Returns:
+        Dictionary in ChromaDB result format with ids, metadatas, documents, distances
+    """
+    multi_results = retriever.query_multi_vector(
+        text,
+        n_results=num_results,
+        aggregation_strategy=aggregation_strategy,
+        component_weights=component_weights,
+        custom_formula=custom_formula,
+    )
+    return convert_multi_vector_to_chromadb_format(multi_results)
+
+
 def convert_results_to_candidates(
     results: dict[str, Any],
 ) -> list[dict[str, Any]]:
@@ -479,14 +515,14 @@ def process_query(
 
             # Multi-vector query path for sentence mode (Issue #136)
             if multi_vector:
-                multi_results = retriever.query_multi_vector(
-                    sentence,
-                    n_results=num_results,
+                results = _execute_multi_vector_query(
+                    retriever=retriever,
+                    text=sentence,
+                    num_results=num_results,
                     aggregation_strategy=aggregation_strategy,
                     component_weights=component_weights,
                     custom_formula=custom_formula,
                 )
-                results = convert_multi_vector_to_chromadb_format(multi_results)
 
                 formatted = format_results(
                     results=results,
@@ -569,14 +605,14 @@ def process_query(
 
             # Multi-vector fallback path (Issue #136)
             if multi_vector:
-                multi_results = retriever.query_multi_vector(
-                    text,
-                    n_results=num_results,
+                query_result = _execute_multi_vector_query(
+                    retriever=retriever,
+                    text=text,
+                    num_results=num_results,
                     aggregation_strategy=aggregation_strategy,
                     component_weights=component_weights,
                     custom_formula=custom_formula,
                 )
-                query_result = convert_multi_vector_to_chromadb_format(multi_results)
 
                 formatted_result = format_results(
                     query_result,
@@ -660,17 +696,15 @@ def process_query(
                     "Using dense retrieval only."
                 )
 
-            # Query using multi-vector aggregation
-            multi_results = retriever.query_multi_vector(
-                text,
-                n_results=num_results,
+            # Query using multi-vector aggregation via helper function (DRY)
+            results = _execute_multi_vector_query(
+                retriever=retriever,
+                text=text,
+                num_results=num_results,
                 aggregation_strategy=aggregation_strategy,
                 component_weights=component_weights,
                 custom_formula=custom_formula,
             )
-
-            # Convert to ChromaDB format for compatibility with format_results
-            results = convert_multi_vector_to_chromadb_format(multi_results)
 
             formatted_result = format_results(
                 results=results,

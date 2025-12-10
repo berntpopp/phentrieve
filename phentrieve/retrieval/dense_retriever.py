@@ -18,7 +18,11 @@ if TYPE_CHECKING:
     import chromadb
     from sentence_transformers import SentenceTransformer
 
-from phentrieve.config import MIN_SIMILARITY_THRESHOLD, VectorStoreConfig
+from phentrieve.config import (
+    MIN_SIMILARITY_THRESHOLD,
+    MULTI_VECTOR_RESULT_MULTIPLIER,
+    VectorStoreConfig,
+)
 from phentrieve.retrieval.aggregation import (
     AggregationStrategy,
     aggregate_multi_vector_results,
@@ -518,7 +522,7 @@ class DenseRetriever:
 
         # Request more results to ensure we get enough unique HPO IDs
         # Multi-vector index has ~5-10x more documents per HPO term
-        raw_n_results = n_results * 5
+        raw_n_results = n_results * MULTI_VECTOR_RESULT_MULTIPLIER
 
         # Query the index
         raw_results = self.query(
