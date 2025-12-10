@@ -119,7 +119,6 @@
       "title": "Geavanceerde opties",
       "embeddingModel": "Embedding-model",
       "similarityThreshold": "Overeenkomstdrempel",
-      "enableReranking": "Herrangschikking inschakelen",
       "includeDetails": "Details opnemen",
       "language": "Taal",
       "processingModeTitle": "Verwerkingsmodus",
@@ -148,7 +147,6 @@
       "phenotypeCollection": "Bekijk en beheer verzamelde fenotypen",
       "embeddingModel": "Selecteer het AI-model dat wordt gebruikt voor tekstembedding",
       "similarityThreshold": "Stel de minimale overeenkomst in die vereist is voor matches (hoger = nauwkeuriger, minder resultaten)",
-      "enableReranking": "Herorden zoekresultaten voor verbeterde nauwkeurigheid",
       "includeDetails": "HPO-termdefinities en synoniemen opnemen in zoekresultaten (beperkt tot 20 resultaten voor prestaties)",
       "language": "Selecteer de taal voor verwerking en negatie detectie",
       "subjectId": "Voer een identificatie in voor de patiënt",
@@ -163,7 +161,6 @@
     "termIdHeader": "HPO-ID",
     "termNameHeader": "Termnaam",
     "similarityLabel": "Gelijkenis score",
-    "rerankLabel": "Herrangschikking score",
     "confidenceLabel": "Betrouwbaarheid score",
     "confidenceHeader": "Betrouwbaarheid",
     "actionsHeader": "Acties",
@@ -171,10 +168,8 @@
     "confidenceTooltip": "Betrouwbaarheidsscore: {score}",
     "viewTermLink": "Bekijk op HPO-website",
     "modelLabel": "Model",
-    "rerankerLabel": "Herrangschikker",
     "languageLabel": "Taal",
     "assertionLabel": "Bewering",
-    "originalRank": "Oorspronkelijke rang",
     "noTermsFound": "Geen HPO-termen gevonden die overeenkomen met uw zoekopdracht met de huidige drempel. Probeer de overeenkomstdrempel te verlagen of uw zoekopdracht te herformuleren.",
     "affirmed": "Bevestigd",
     "negated": "Ontkend",
@@ -296,10 +291,6 @@
       "technical": {
         "title": "Technische Details",
         "questions": {
-          "reranking": {
-            "question": "Hoe werkt het herrangschikkingsproces?",
-            "answer": "<p>Phentrieve gebruikt een beschermde tweefasige ophaalingsaanpak:</p><ol><li><strong>Fase 1 - Dichte Ophaling:</strong> BioLORD bi-encoder model voert initiële semantische zoekopdracht uit met hoge recall</li><li><strong>Bescherming:</strong> Overeenkomsten met hoge betrouwbaarheid (gelijkenis ≥0,7) zijn beschermd tegen degradatie, waarbij de sterke cross-linguale prestaties van BioLORD behouden blijven</li><li><strong>Fase 2 - Cross-Encoder Verfijning:</strong> BAAI/bge-reranker-v2-m3 (meertalig, 568M parameters) verfijnt alleen onzekere middenniveau kandidaten</li><li><strong>Fusie:</strong> Beschermde resultaten blijven bovenaan, opnieuw gerangschikte resultaten vullen eronder</li></ol><p>Deze aanpak behoudt de kwaliteit van dichte ophaling terwijl het profiteert van cross-encoder precisie voor onzekere overeenkomsten.</p>"
-          },
           "performance": {
             "question": "Welke prestaties kan ik verwachten?",
             "answer": "<p>Onze benchmark resultaten tonen:</p><ul><li>BioLORD-2023-M: HR{'@'}1=0.3333, HR{'@'}3=0.6667, HR{'@'}5=0.7778</li><li>Jina-v2-base-de: HR{'@'}1=0.2222, HR{'@'}3=0.4444, HR{'@'}5=0.5556</li></ul><p>De prestaties kunnen variëren afhankelijk van de complexiteit en specificiteit van de invoertekst.</p>"

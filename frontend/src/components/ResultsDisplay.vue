@@ -66,17 +66,6 @@
               </span>
             </div>
           </div>
-
-          <!-- Reranker info on separate line -->
-          <div v-if="responseData.reranker_used" class="info-item mt-2">
-            <v-icon color="info" class="mr-1" size="small"> mdi-filter </v-icon>
-            <span class="model-name">
-              <small class="text-caption text-medium-emphasis"
-                >{{ $t('resultsDisplay.rerankerLabel') }}:</small
-              >
-              {{ displayModelName(responseData.reranker_used) }}
-            </span>
-          </div>
         </v-card-title>
       </v-card>
 
@@ -131,15 +120,6 @@
                 </div>
                 <div class="d-flex align-center">
                   <span class="text-body-2 text-high-emphasis hpo-label">{{ result.label }}</span>
-                  <v-chip
-                    v-if="result.original_rank !== undefined"
-                    class="ml-2"
-                    size="x-small"
-                    color="grey-lighten-1"
-                    label
-                  >
-                    {{ $t('resultsDisplay.originalRank') }}: #{{ result.original_rank }}
-                  </v-chip>
                 </div>
               </div>
 
@@ -149,17 +129,6 @@
                   <SimilarityScore
                     :score="result.similarity"
                     type="similarity"
-                    :decimals="2"
-                    :show-animation="false"
-                  />
-
-                  <SimilarityScore
-                    v-if="
-                      result.cross_encoder_score !== undefined &&
-                      result.cross_encoder_score !== null
-                    "
-                    :score="result.cross_encoder_score"
-                    type="rerank"
                     :decimals="2"
                     :show-animation="false"
                   />
@@ -931,27 +900,6 @@ export default {
       });
 
       this.$emit('add-to-collection', normalizedPhenotype);
-    },
-    formatRerankerScore(score) {
-      logService.debug('Formatting reranker score', { originalScore: score });
-      // Different rerankers use different score ranges/meanings
-      // Some return negative scores (higher/less negative = better)
-      // Others return probabilities (0-1)
-      // NOTE: This function is kept for backward compatibility but is largely replaced by SimilarityScore component
-      let formattedScore;
-      if (score < 0) {
-        // For models like cross-encoder/mmarco-mMiniLMv2-L12-H384-v1
-        // that return negative scores, transform to a 0-5 scale
-        formattedScore = (5 + score).toFixed(1); // Transform range, e.g., -5 to 0 → 0 to 5
-      } else if (score <= 1) {
-        // For models returning probabilities (entailment scores) - display as decimal
-        formattedScore = score.toFixed(2);
-      } else {
-        // For any other type of score
-        formattedScore = score.toFixed(2);
-      }
-      logService.debug('Formatted reranker score', { originalScore: score, formattedScore });
-      return formattedScore;
     },
     displayModelName(name) {
       // Check cache first (performance optimization - prevents excessive re-computation)

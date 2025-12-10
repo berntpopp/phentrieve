@@ -119,7 +119,6 @@
       "title": "Opciones avanzadas",
       "embeddingModel": "Modelo de incrustación",
       "similarityThreshold": "Umbral de similitud",
-      "enableReranking": "Habilitar reclasificación",
       "includeDetails": "Incluir Detalles",
       "language": "Idioma",
       "processingModeTitle": "Modo de procesamiento",
@@ -148,7 +147,6 @@
       "phenotypeCollection": "Ver y gestionar fenotipos recopilados",
       "embeddingModel": "Seleccionar el modelo de IA utilizado para la incrustación de texto",
       "similarityThreshold": "Establecer la puntuación de similitud mínima requerida para los resultados",
-      "enableReranking": "Activar la reclasificación de resultados utilizando un cross-encoder",
       "includeDetails": "Incluir definiciones y sinónimos de términos HPO en los resultados de búsqueda (limitado a 20 resultados por rendimiento)",
       "language": "Seleccionar el idioma para el procesamiento de consultas y la detección de negaciones",
       "subjectId": "Introduzca un identificador para el sujeto/paciente",
@@ -168,14 +166,12 @@
     "confidenceTooltip": "Puntuación de confianza: {score}",
     "viewTermLink": "Ver en el sitio web de HPO",
     "modelLabel": "Modelo",
-    "rerankerLabel": "Reclasificador",
     "languageLabel": "Idioma",
     "assertionLabel": "Aserción",
     "negated": "Negada",
     "affirmed": "Afirmada",
     "unknown": "Desconocido",
     "similarityLabel": "Puntuación de similitud",
-    "rerankLabel": "Puntuación de reclasificación",
     "confidenceLabel": "Puntuación de confianza",
     "cosineSimilarity": "Similitud de coseno",
     "rangeExplanation": "{min} (sin similitud) a {max} (coincidencia perfecta)",
@@ -189,7 +185,6 @@
       "low": "Coincidencia baja",
       "poor": "Coincidencia pobre"
     },
-    "originalRank": "Posición original",
     "noTermsFound": "No se encontraron términos HPO que coincidan con su consulta con el umbral actual. Intente reducir el umbral de similitud o reformular su consulta.",
     "defaultError": "Se produjo un error al procesar su consulta.",
     "addToCollectionTooltip": "Añadir {id} a la colección",
@@ -340,10 +335,6 @@
       "technical": {
         "title": "Detalles Técnicos",
         "questions": {
-          "reranking": {
-            "question": "¿Cómo funciona el proceso de reclasificación?",
-            "answer": "<p>Phentrieve utiliza un enfoque de recuperación de dos etapas protegidas:</p><ol><li><strong>Etapa 1 - Recuperación Densa:</strong> El modelo bi-encoder BioLORD realiza la búsqueda semántica inicial con alta recuperación</li><li><strong>Protección:</strong> Las coincidencias de alta confianza (similitud ≥0,7) están protegidas contra la degradación, preservando el fuerte rendimiento cross-lingüístico de BioLORD</li><li><strong>Etapa 2 - Refinamiento Cross-Encoder:</strong> BAAI/bge-reranker-v2-m3 (multilingüe, 568M parámetros) refina solo los candidatos de nivel medio incierto</li><li><strong>Fusión:</strong> Los resultados protegidos permanecen en la parte superior, los resultados reclasificados llenan debajo</li></ol><p>Este enfoque preserva la calidad de la recuperación densa mientras se beneficia de la precisión del cross-encoder para coincidencias inciertas.</p>"
-          },
           "performance": {
             "question": "¿Qué rendimiento puedo esperar?",
             "answer": "<p>Nuestros resultados de referencia muestran:</p><ul><li>BioLORD-2023-M: HR{'@'}1=0.3333, HR{'@'}3=0.6667, HR{'@'}5=0.7778</li><li>Jina-v2-base-de: HR{'@'}1=0.2222, HR{'@'}3=0.4444, HR{'@'}5=0.5556</li></ul><p>El rendimiento puede variar según la complejidad y especificidad del texto de entrada.</p>"

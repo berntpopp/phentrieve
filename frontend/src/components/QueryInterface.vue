@@ -241,29 +241,6 @@
             <v-col cols="12" md="6" class="pa-1 d-flex align-center">
               <v-tooltip
                 location="bottom"
-                :text="$t('queryInterface.tooltips.enableReranking')"
-                role="tooltip"
-              >
-                <template #activator="{ props }">
-                  <v-switch
-                    v-bind="props"
-                    v-model="enableReranker"
-                    :disabled="isLoading"
-                    :label="$t('queryInterface.advancedOptions.enableReranking')"
-                    color="primary"
-                    inset
-                    density="compact"
-                    hide-details
-                    class="mt-0 pt-0"
-                    aria-label="Enable result re-ranking"
-                  />
-                </template>
-              </v-tooltip>
-            </v-col>
-
-            <v-col cols="12" md="6" class="pa-1 d-flex align-center">
-              <v-tooltip
-                location="bottom"
                 :text="$t('queryInterface.tooltips.includeDetails')"
                 role="tooltip"
               >
@@ -894,7 +871,6 @@ export default {
       ],
       similarityThreshold: 0.5,
       numResults: 10,
-      enableReranker: false,
       isLoading: false,
       showAdvancedOptions: false,
       lastUserScrollPosition: 0,
@@ -966,7 +942,6 @@ export default {
         logService.info('Model changed', { newModel: newModel, oldModel: oldModel });
         // Reset some query-specific settings to defaults when model changes
         this.similarityThreshold = 0.5;
-        this.enableReranker = false;
         logService.info('Reset query-specific settings to defaults due to model change.');
       }
     },
@@ -1065,10 +1040,6 @@ export default {
           this.similarityThreshold = val;
           advancedOptionsWereSet = true;
         }
-      }
-      if (queryParams.reranker !== undefined) {
-        this.enableReranker = parseBooleanParam(queryParams.reranker);
-        advancedOptionsWereSet = true;
       }
       // Add processing for text process specific URL params
       if (queryParams.forceEndpointMode) {
@@ -1288,7 +1259,6 @@ export default {
             trust_remote_code: true,
             chunk_retrieval_threshold: this.chunkRetrievalThreshold,
             num_results_per_chunk: this.numResultsPerChunk,
-            enable_reranker: this.enableReranker,
             no_assertion_detection: this.noAssertionDetectionForTextProcess,
             assertion_preference: this.assertionPreferenceForTextProcess,
             aggregated_term_confidence: this.aggregatedTermConfidence,
@@ -1304,7 +1274,6 @@ export default {
             language: this.selectedLanguage,
             num_results: this.numResults,
             similarity_threshold: this.similarityThreshold,
-            enable_reranker: this.enableReranker,
             query_assertion_language: this.selectedLanguage, // Pass selected language for query assertion
             detect_query_assertion: true, // Default to true for query mode now
             include_details: this.includeDetails,
