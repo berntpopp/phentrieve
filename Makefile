@@ -145,7 +145,7 @@ dev-api: ## Start API with hot reload (custom port 8734)
 	@echo "Press CTRL+C to stop"
 	@echo ""
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-	@cd api && python run_api_local.py
+	@cd api && uv run --project .. python run_api_local.py
 
 dev-frontend: ## Start frontend with Vite HMR (custom port 5734)
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
