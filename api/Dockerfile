@@ -339,7 +339,10 @@ RUN mkdir -p /phentrieve_data_mount && \
 # This enables building images with embedded HPO data for faster cold starts
 # The bundle includes: hpo_data.db, indexes/, and manifest.json
 # Using --link for independent layer rebasing (2025 best practice)
-COPY --link --from=data-bundle --chown=phentrieve:phentrieve /data/ /phentrieve_data_mount/
+# NOTE: Must use numeric UID:GID (10001:10001) instead of names (phentrieve:phentrieve)
+# because --link creates independent layers that can't resolve named users.
+# See: https://github.com/docker/buildx/issues/1526
+COPY --link --from=data-bundle --chown=10001:10001 /data/ /phentrieve_data_mount/
 
 # Create cache directory for HuggingFace models
 RUN mkdir -p /app/.cache && \
