@@ -17,7 +17,16 @@ import typer
 # only happen when commands actually need ML models, not for --help or --version.
 # The import is done inside command functions where the model is actually used.
 from phentrieve.cli.utils import load_text_from_input, resolve_chunking_pipeline_config
-from phentrieve.config import DEFAULT_MODEL
+from phentrieve.config import (
+    DEFAULT_CHUNK_RETRIEVAL_THRESHOLD,
+    DEFAULT_CHUNKING_STRATEGY,
+    DEFAULT_MIN_CONFIDENCE_AGGREGATED,
+    DEFAULT_MIN_SEGMENT_LENGTH_WORDS,
+    DEFAULT_MODEL,
+    DEFAULT_SPLITTING_THRESHOLD,
+    DEFAULT_STEP_SIZE_TOKENS,
+    DEFAULT_WINDOW_SIZE_TOKENS,
+)
 from phentrieve.retrieval.dense_retriever import DenseRetriever
 from phentrieve.text_processing.hpo_extraction_orchestrator import (
     orchestrate_hpo_extraction,
@@ -42,7 +51,7 @@ def interactive(
             "-s",
             help="Predefined chunking strategy (simple, semantic, detailed, sliding_window, sliding_window_cleaned, sliding_window_punct_cleaned, sliding_window_punct_conj_cleaned)",
         ),
-    ] = "sliding_window_punct_conj_cleaned",
+    ] = DEFAULT_CHUNKING_STRATEGY,
     window_size: Annotated[
         int,
         typer.Option(
@@ -50,7 +59,7 @@ def interactive(
             "-ws",
             help="Sliding window size in tokens (only for sliding_window strategy)",
         ),
-    ] = 3,
+    ] = DEFAULT_WINDOW_SIZE_TOKENS,
     step_size: Annotated[
         int,
         typer.Option(
@@ -58,7 +67,7 @@ def interactive(
             "-ss",
             help="Sliding window step size in tokens (only for sliding_window strategy)",
         ),
-    ] = 1,
+    ] = DEFAULT_STEP_SIZE_TOKENS,
     split_threshold: Annotated[
         float,
         typer.Option(
@@ -66,7 +75,7 @@ def interactive(
             "-t",
             help="Similarity threshold for splitting (0-1, only for sliding_window strategy)",
         ),
-    ] = 0.5,
+    ] = DEFAULT_SPLITTING_THRESHOLD,
     min_segment_length: Annotated[
         int,
         typer.Option(
@@ -74,7 +83,7 @@ def interactive(
             "-ms",
             help="Minimum segment length in words (only for sliding_window strategy)",
         ),
-    ] = 2,
+    ] = DEFAULT_MIN_SEGMENT_LENGTH_WORDS,
     semantic_chunker_model: Annotated[
         Optional[str],
         typer.Option(
@@ -94,7 +103,7 @@ def interactive(
             "-crt",
             help="Minimum similarity score for HPO term matches per chunk (0.0-1.0)",
         ),
-    ] = 0.3,
+    ] = DEFAULT_CHUNK_RETRIEVAL_THRESHOLD,
     num_results: Annotated[
         int,
         typer.Option(
@@ -147,7 +156,7 @@ def interactive(
             "-atc",
             help="Minimum confidence score for aggregated HPO terms",
         ),
-    ] = 0.35,
+    ] = DEFAULT_MIN_CONFIDENCE_AGGREGATED,
     top_term_per_chunk: Annotated[
         bool,
         typer.Option(
@@ -252,7 +261,7 @@ def process_text_for_hpo_command(
             "-s",
             help="Predefined chunking strategy. 'simple': paragraph then sentence. 'semantic': paragraph, sentence, then semantic splitting of sentences. 'detailed': paragraph, sentence, punctuation splitting, then semantic splitting of fragments. 'sliding_window': customizable semantic sliding window. 'sliding_window_cleaned': sliding window with final chunk cleaning. 'sliding_window_punct_cleaned': sliding window with punctuation splitting and final cleaning. 'sliding_window_punct_conj_cleaned': sliding window with punctuation, conjunction splitting, and final cleaning (choices: simple, semantic, detailed, sliding_window, sliding_window_cleaned, sliding_window_punct_cleaned, sliding_window_punct_conj_cleaned)",
         ),
-    ] = "sliding_window_punct_conj_cleaned",  # Default: advanced chunking with punctuation and conjunction splitting
+    ] = DEFAULT_CHUNKING_STRATEGY,
     window_size: Annotated[
         int,
         typer.Option(
@@ -260,7 +269,7 @@ def process_text_for_hpo_command(
             "-ws",
             help="Sliding window size in tokens (only for sliding_window strategy)",
         ),
-    ] = 3,
+    ] = DEFAULT_WINDOW_SIZE_TOKENS,
     step_size: Annotated[
         int,
         typer.Option(
@@ -268,7 +277,7 @@ def process_text_for_hpo_command(
             "-ss",
             help="Sliding window step size in tokens (only for sliding_window strategy)",
         ),
-    ] = 1,
+    ] = DEFAULT_STEP_SIZE_TOKENS,
     split_threshold: Annotated[
         float,
         typer.Option(
@@ -276,7 +285,7 @@ def process_text_for_hpo_command(
             "-t",
             help="Similarity threshold for splitting (0-1, only for sliding_window strategy)",
         ),
-    ] = 0.5,
+    ] = DEFAULT_SPLITTING_THRESHOLD,
     min_segment_length: Annotated[
         int,
         typer.Option(
@@ -284,7 +293,7 @@ def process_text_for_hpo_command(
             "-ms",
             help="Minimum segment length in words (only for sliding_window strategy)",
         ),
-    ] = 2,
+    ] = DEFAULT_MIN_SEGMENT_LENGTH_WORDS,
     semantic_chunker_model: Annotated[
         Optional[str],
         typer.Option(
@@ -304,7 +313,7 @@ def process_text_for_hpo_command(
             "-crt",
             help="Minimum similarity score for an HPO term to be considered a match for an individual text chunk (0.0-1.0)",
         ),
-    ] = 0.3,
+    ] = DEFAULT_CHUNK_RETRIEVAL_THRESHOLD,
     num_results: Annotated[
         int,
         typer.Option(
@@ -384,7 +393,7 @@ def process_text_for_hpo_command(
             "-atc",
             help="Minimum confidence score for an aggregated HPO term to be included in the final results",
         ),
-    ] = 0.35,
+    ] = DEFAULT_MIN_CONFIDENCE_AGGREGATED,
     top_term_per_chunk: Annotated[
         bool,
         typer.Option(
@@ -825,9 +834,9 @@ def chunk_text_command(
         typer.Option(
             "--strategy",
             "-s",
-            help="Predefined chunking strategy. 'simple': paragraph then sentence. 'semantic': paragraph, sentence, then semantic splitting of sentences. 'detailed': paragraph, sentence, punctuation splitting, then semantic splitting of fragments. 'sliding_window': customizable semantic sliding window. 'sliding_window_cleaned': sliding window with final chunk cleaning. 'sliding_window_punct_cleaned': sliding window with punctuation splitting and final cleaning. 'sliding_window_punct_conj_cleaned': sliding window with punctuation, conjunction splitting, and final cleaning (choices: simple, semantic, detailed, sliding_window, sliding_window_cleaned, sliding_window_punct_cleaned, sliding_window_punct_conj_cleaned; default: sliding_window)",
+            help="Predefined chunking strategy. 'simple': paragraph then sentence. 'semantic': paragraph, sentence, then semantic splitting of sentences. 'detailed': paragraph, sentence, punctuation splitting, then semantic splitting of fragments. 'sliding_window': customizable semantic sliding window. 'sliding_window_cleaned': sliding window with final chunk cleaning. 'sliding_window_punct_cleaned': sliding window with punctuation splitting and final cleaning. 'sliding_window_punct_conj_cleaned': sliding window with punctuation, conjunction splitting, and final cleaning (choices: simple, semantic, detailed, sliding_window, sliding_window_cleaned, sliding_window_punct_cleaned, sliding_window_punct_conj_cleaned)",
         ),
-    ] = "sliding_window",
+    ] = DEFAULT_CHUNKING_STRATEGY,
     window_size: Annotated[
         int,
         typer.Option(
@@ -835,7 +844,7 @@ def chunk_text_command(
             "-ws",
             help="Sliding window size in tokens (only for sliding_window strategy)",
         ),
-    ] = 3,
+    ] = DEFAULT_WINDOW_SIZE_TOKENS,
     step_size: Annotated[
         int,
         typer.Option(
@@ -843,7 +852,7 @@ def chunk_text_command(
             "-ss",
             help="Sliding window step size in tokens (only for sliding_window strategy)",
         ),
-    ] = 1,
+    ] = DEFAULT_STEP_SIZE_TOKENS,
     split_threshold: Annotated[
         float,
         typer.Option(
@@ -851,7 +860,7 @@ def chunk_text_command(
             "-t",
             help="Similarity threshold for splitting (0-1, only for sliding_window strategy)",
         ),
-    ] = 0.5,
+    ] = DEFAULT_SPLITTING_THRESHOLD,
     min_segment_length: Annotated[
         int,
         typer.Option(
@@ -859,7 +868,7 @@ def chunk_text_command(
             "-ms",
             help="Minimum segment length in words (only for sliding_window strategy)",
         ),
-    ] = 2,
+    ] = DEFAULT_MIN_SEGMENT_LENGTH_WORDS,
     semantic_chunker_model: Annotated[
         Optional[str],
         typer.Option(

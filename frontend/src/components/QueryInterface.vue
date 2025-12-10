@@ -888,17 +888,17 @@ export default {
       inputTextLengthThreshold: 120, // Increased threshold
       forceEndpointMode: null,
       chunkingStrategy: 'sliding_window_punct_conj_cleaned',
-      windowSize: 2, // Default from config
-      stepSize: 1, // Default from config
-      splitThreshold: 0.25, // Default from config
-      minSegmentLength: 1, // Default from config
+      windowSize: 3,
+      stepSize: 1,
+      splitThreshold: 0.5,
+      minSegmentLength: 2,
       semanticModelForChunking: null,
       retrievalModelForTextProcess: null,
-      chunkRetrievalThreshold: 0.5,
+      chunkRetrievalThreshold: 0.7,
       numResultsPerChunk: 3,
       noAssertionDetectionForTextProcess: false,
       assertionPreferenceForTextProcess: 'dependency',
-      aggregatedTermConfidence: 0.4,
+      aggregatedTermConfidence: 0.75,
       topTermPerChunkForAggregation: false,
     };
   },

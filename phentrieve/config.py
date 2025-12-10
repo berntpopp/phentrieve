@@ -59,6 +59,16 @@ __all__ = [
     "SIMPLE_CHUNKING_CONFIG",
     "SEMANTIC_CHUNKING_CONFIG",
     "SLIDING_WINDOW_CONFIG",
+    # Sliding window defaults
+    "DEFAULT_WINDOW_SIZE_TOKENS",
+    "DEFAULT_STEP_SIZE_TOKENS",
+    "DEFAULT_SPLITTING_THRESHOLD",
+    "DEFAULT_MIN_SEGMENT_LENGTH_WORDS",
+    # HPO extraction thresholds
+    "DEFAULT_CHUNK_RETRIEVAL_THRESHOLD",
+    "DEFAULT_MIN_CONFIDENCE_AGGREGATED",
+    # Chunking strategy
+    "DEFAULT_CHUNKING_STRATEGY",
     # Assertion detection
     "DEFAULT_ASSERTION_CONFIG",
     # Helper functions
@@ -118,6 +128,19 @@ _DEFAULT_ENABLE_RERANKER_FALLBACK = False
 # See: BioLORD-2023 RAG design, Multistage BiCross multilingual medical retrieval
 _DEFAULT_DENSE_TRUST_THRESHOLD_FALLBACK = 0.7
 
+# Sliding window chunking defaults (unified across CLI, API, Frontend)
+DEFAULT_WINDOW_SIZE_TOKENS = 3
+DEFAULT_STEP_SIZE_TOKENS = 1
+DEFAULT_SPLITTING_THRESHOLD = 0.5
+DEFAULT_MIN_SEGMENT_LENGTH_WORDS = 2
+
+# HPO extraction thresholds
+_DEFAULT_CHUNK_RETRIEVAL_THRESHOLD_FALLBACK = 0.7
+_DEFAULT_MIN_CONFIDENCE_AGGREGATED_FALLBACK = 0.75
+
+# Default chunking strategy
+DEFAULT_CHUNKING_STRATEGY = "sliding_window_punct_conj_cleaned"
+
 # Root for HPO term extraction and depth calculations
 PHENOTYPE_ROOT = "HP:0000118"
 
@@ -160,7 +183,10 @@ DETAILED_CHUNKING_CONFIG = [
 
 # Most detailed chunking strategy using the sliding window semantic splitter
 def get_sliding_window_config_with_params(
-    window_size=7, step_size=1, threshold=0.5, min_segment_length=3
+    window_size=DEFAULT_WINDOW_SIZE_TOKENS,
+    step_size=DEFAULT_STEP_SIZE_TOKENS,
+    threshold=DEFAULT_SPLITTING_THRESHOLD,
+    min_segment_length=DEFAULT_MIN_SEGMENT_LENGTH_WORDS,
 ):
     """Get a sliding window config with custom parameters.
 
@@ -190,9 +216,6 @@ def get_sliding_window_config_with_params(
 
 # Default sliding window config
 SLIDING_WINDOW_CONFIG = get_sliding_window_config_with_params()
-
-# Default chunking pipeline configuration (using sliding window for better results)
-DEFAULT_CHUNK_PIPELINE_CONFIG = SLIDING_WINDOW_CONFIG
 
 
 # Functions to get fresh copies of the configs to avoid mutation issues
@@ -299,6 +322,9 @@ SLIDING_WINDOW_PUNCT_CONJ_CLEANED_CONFIG = [
 def get_sliding_window_punct_conj_cleaned_config():
     return copy.deepcopy(SLIDING_WINDOW_PUNCT_CONJ_CLEANED_CONFIG)
 
+
+# Default chunking pipeline configuration
+DEFAULT_CHUNK_PIPELINE_CONFIG = SLIDING_WINDOW_PUNCT_CONJ_CLEANED_CONFIG
 
 # Default formula for semantic similarity calculations (loaded from YAML with fallback)
 _DEFAULT_SIMILARITY_FORMULA_FALLBACK = "hybrid"
@@ -450,6 +476,14 @@ HPO_DOWNLOAD_TIMEOUT: int = int(
 )
 HPO_CHUNK_SIZE: int = int(
     get_config_value("hpo_data", _DEFAULT_HPO_CHUNK_SIZE_FALLBACK, "chunk_size")
+)
+
+# HPO extraction thresholds
+DEFAULT_CHUNK_RETRIEVAL_THRESHOLD: float = get_config_value(
+    "extraction", _DEFAULT_CHUNK_RETRIEVAL_THRESHOLD_FALLBACK, "chunk_threshold"
+)
+DEFAULT_MIN_CONFIDENCE_AGGREGATED: float = get_config_value(
+    "extraction", _DEFAULT_MIN_CONFIDENCE_AGGREGATED_FALLBACK, "min_confidence"
 )
 
 

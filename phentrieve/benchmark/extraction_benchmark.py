@@ -20,6 +20,11 @@ from datetime import datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
+from phentrieve.config import (
+    DEFAULT_CHUNK_RETRIEVAL_THRESHOLD,
+    DEFAULT_MIN_CONFIDENCE_AGGREGATED,
+    get_sliding_window_punct_conj_cleaned_config,
+)
 from phentrieve.evaluation.extraction_metrics import (
     CorpusExtractionMetrics,
     CorpusMetrics,
@@ -49,17 +54,17 @@ class ExtractionConfig:
 
     model_name: str = "BAAI/bge-m3"
     language: str = "en"
-    num_results_per_chunk: int = 3  # Reduced from 10 for better precision
-    chunk_retrieval_threshold: float = 0.5  # Raised from 0.3
-    min_confidence_for_aggregated: float = 0.5  # Raised from 0.35
-    top_term_per_chunk: bool = False  # Only keep best match per chunk
+    num_results_per_chunk: int = 3
+    chunk_retrieval_threshold: float = DEFAULT_CHUNK_RETRIEVAL_THRESHOLD
+    min_confidence_for_aggregated: float = DEFAULT_MIN_CONFIDENCE_AGGREGATED
+    top_term_per_chunk: bool = False
     averaging: str = "micro"
     include_assertions: bool = True
     relaxed_matching: bool = False
     bootstrap_ci: bool = True
     bootstrap_samples: int = 1000
-    dataset: str = "all"  # For PhenoBERT: all, GSC_plus, ID_68, GeneReviews
-    detailed_output: bool = False  # Generate detailed chunk-level analysis JSON
+    dataset: str = "all"
+    detailed_output: bool = False
 
 
 class HPOExtractor:
@@ -86,20 +91,7 @@ class HPOExtractor:
         logger.info("Initializing text processing pipeline")
         self._pipeline = TextProcessingPipeline(
             language=self.config.language,
-            chunking_pipeline_config=[
-                {"type": "paragraph"},
-                {"type": "sentence"},
-                {
-                    "type": "sliding_window",
-                    "config": {
-                        "window_size_tokens": 3,
-                        "step_size_tokens": 1,
-                        "splitting_threshold": 0.5,
-                        "min_split_segment_length_words": 2,
-                    },
-                },
-                {"type": "final_chunk_cleaner"},
-            ],
+            chunking_pipeline_config=get_sliding_window_punct_conj_cleaned_config(),
             assertion_config={
                 "disable": not self.config.include_assertions,
                 "strategy_preference": "dependency",

@@ -2,11 +2,18 @@ from typing import Any, Optional, cast
 
 from pydantic import BaseModel, Field
 
-from phentrieve.config import (  # Import defaults from config.py
+from phentrieve.config import (
     DEFAULT_ASSERTION_CONFIG,
+    DEFAULT_CHUNK_RETRIEVAL_THRESHOLD,
+    DEFAULT_CHUNKING_STRATEGY,
     DEFAULT_LANGUAGE,
+    DEFAULT_MIN_CONFIDENCE_AGGREGATED,
+    DEFAULT_MIN_SEGMENT_LENGTH_WORDS,
     DEFAULT_MODEL,
     DEFAULT_RERANKER_MODEL,
+    DEFAULT_SPLITTING_THRESHOLD,
+    DEFAULT_STEP_SIZE_TOKENS,
+    DEFAULT_WINDOW_SIZE_TOKENS,
 )
 
 
@@ -19,26 +26,30 @@ class TextProcessingRequest(BaseModel):
 
     # Chunking Configuration
     chunking_strategy: str = Field(
-        default="sliding_window_punct_conj_cleaned",  # Default strategy for optimal results
+        default=DEFAULT_CHUNKING_STRATEGY,
         description="Predefined chunking strategy (e.g., 'simple', 'semantic', 'detailed', 'sliding_window_cleaned', 'sliding_window_punct_cleaned', 'sliding_window_punct_conj_cleaned'). See Phentrieve documentation for details.",
         json_schema_extra={"example": "sliding_window_punct_conj_cleaned"},
     )
 
     # Sliding window chunking parameters
     window_size: Optional[int] = Field(
-        default=2, ge=1, description="Sliding window size in tokens."
+        default=DEFAULT_WINDOW_SIZE_TOKENS,
+        ge=1,
+        description="Sliding window size in tokens.",
     )
     step_size: Optional[int] = Field(
-        default=1, ge=1, description="Sliding window step size in tokens."
+        default=DEFAULT_STEP_SIZE_TOKENS,
+        ge=1,
+        description="Sliding window step size in tokens.",
     )
     split_threshold: Optional[float] = Field(
-        default=0.3,
+        default=DEFAULT_SPLITTING_THRESHOLD,
         ge=0.0,
         le=1.0,
         description="Similarity threshold for splitting (0-1).",
     )
     min_segment_length: Optional[int] = Field(
-        default=1,
+        default=DEFAULT_MIN_SEGMENT_LENGTH_WORDS,
         ge=1,
         description="Minimum segment length in words for sliding window.",
     )
@@ -59,7 +70,7 @@ class TextProcessingRequest(BaseModel):
 
     # Retrieval & Reranking Parameters
     chunk_retrieval_threshold: Optional[float] = Field(
-        default=0.3,
+        default=DEFAULT_CHUNK_RETRIEVAL_THRESHOLD,
         ge=0.0,
         le=1.0,
         description="Similarity threshold for HPO matches per chunk.",
@@ -89,11 +100,11 @@ class TextProcessingRequest(BaseModel):
 
     # Aggregation
     aggregated_term_confidence: Optional[float] = Field(
-        default=0.35,
+        default=DEFAULT_MIN_CONFIDENCE_AGGREGATED,
         ge=0.0,
-        le=1.0,  # Changed from 0.0 to 0.35 to align with CLI
+        le=1.0,
         description="Minimum confidence score for an aggregated HPO term.",
-        json_schema_extra={"example": 0.35},
+        json_schema_extra={"example": 0.75},
     )
     top_term_per_chunk_for_aggregation: Optional[bool] = Field(
         default=False,
