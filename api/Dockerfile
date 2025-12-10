@@ -160,6 +160,10 @@ RUN --mount=type=cache,target=/root/.cache/pip \
         "python-dotenv>=1.0.0" \
         "pydantic>=2.0.0" \
         "pydantic-settings>=2.0.0" && \
+    # Install MCP (Model Context Protocol) dependencies for HTTP endpoint \
+    # Enables /mcp endpoint when ENABLE_MCP_HTTP=true \
+    pip install \
+        "fastapi-mcp>=0.4.0,<1.0.0" && \
     # Install remaining dependencies from pyproject.toml \
     pip install .
 SHELL ["/bin/sh", "-c"]

@@ -86,7 +86,13 @@ async def get_retriever_for_get_params(
     )
 
 
-@router.get("/", response_model=QueryResponse)
+@router.get(
+    "/",
+    response_model=QueryResponse,
+    operation_id="query_hpo_terms",
+    summary="Query HPO terms from clinical text",
+    description="Extract relevant HPO terms from clinical text using semantic search.",
+)
 async def run_hpo_query_get(
     text: str,
     model_name: Optional[str] = DEFAULT_MODEL,
@@ -141,7 +147,13 @@ async def run_hpo_query_get(
     return await run_hpo_query(request=request, retriever=retriever)
 
 
-@router.post("/", response_model=QueryResponse)
+@router.post(
+    "/",
+    response_model=QueryResponse,
+    operation_id="query_hpo_terms_advanced",
+    summary="Advanced HPO term query with full configuration",
+    description="Execute HPO term query with full control over retrieval parameters.",
+)
 async def run_hpo_query(
     request: QueryRequest,
     retriever: DenseRetriever = Depends(get_retriever_for_request),

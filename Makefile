@@ -1,4 +1,4 @@
-.PHONY: help format lint typecheck check config-validate test test-scripts test-all clean all install install-text-processing lock upgrade add remove clean-venv frontend-install frontend-lint frontend-format frontend-dev frontend-build docker-build docker-up docker-down docker-logs dev-api dev-frontend dev-all test-api test-api-cov test-e2e test-e2e-security test-e2e-health test-e2e-api test-e2e-fast test-e2e-clean test-e2e-logs test-e2e-shell cov-package cov-api cov-frontend cov-all security security-python security-frontend security-audit security-report version version-cli version-api version-frontend bump-cli-patch bump-cli-minor bump-cli-major bump-api-patch bump-api-minor bump-api-major bump-frontend-patch bump-frontend-minor bump-frontend-major benchmark-compare-vectors benchmark-single benchmark-multi
+.PHONY: help format lint typecheck check config-validate test test-scripts test-all clean all install install-text-processing lock upgrade add remove clean-venv frontend-install frontend-lint frontend-format frontend-dev frontend-build docker-build docker-up docker-down docker-logs dev-api dev-frontend dev-all test-api test-api-cov test-e2e test-e2e-security test-e2e-health test-e2e-api test-e2e-fast test-e2e-clean test-e2e-logs test-e2e-shell cov-package cov-api cov-frontend cov-all security security-python security-frontend security-audit security-report version version-cli version-api version-frontend bump-cli-patch bump-cli-minor bump-cli-major bump-api-patch bump-api-minor bump-api-major bump-frontend-patch bump-frontend-minor bump-frontend-major benchmark-compare-vectors benchmark-single benchmark-multi mcp-serve mcp-serve-http mcp-info mcp-install
 
 # Docker Compose command detection (supports both v1 and v2)
 # Prefer v2 (docker compose) over v1 (docker-compose)
@@ -192,6 +192,23 @@ dev-all: ## Display instructions to start both API and frontend
 	@echo "  $$ ./scripts/setup-local-dev.sh"
 	@echo ""
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+##@ MCP Server
+
+mcp-serve: ## Start MCP server (stdio transport for Claude Desktop)
+	@echo "Starting Phentrieve MCP server (stdio)..."
+	@echo "For Claude Desktop integration, use the 'phentrieve mcp serve' command"
+	@uv run --extra mcp phentrieve mcp serve
+
+mcp-serve-http: ## Start MCP server with HTTP transport
+	@echo "Starting Phentrieve MCP server (HTTP)..."
+	@uv run --extra mcp phentrieve mcp serve --http --port 8734
+
+mcp-info: ## Display MCP server configuration
+	@uv run --extra mcp phentrieve mcp info
+
+mcp-install: ## Install MCP dependencies
+	uv sync --extra mcp
 
 ##@ Benchmarking
 

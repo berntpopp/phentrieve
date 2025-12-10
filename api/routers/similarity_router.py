@@ -64,8 +64,9 @@ load_hpo_graph_data()
 @router.get(
     "/{term1_id}/{term2_id}",
     response_model=HPOTermSimilarityResponseAPI,
-    summary="Calculate Semantic Similarity Between Two HPO Terms",
-    description="Calculates the semantic similarity score between two HPO terms using either the 'hybrid' or 'simple_resnik_like' formula. Also provides Lowest Common Ancestor (LCA) details.",
+    operation_id="calculate_term_similarity",
+    summary="Calculate semantic similarity between HPO terms",
+    description="Calculate semantic similarity between two HPO terms using ontology structure.",
 )
 async def get_hpo_term_similarity(
     term1_id: str = FastApiPath(

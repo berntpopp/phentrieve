@@ -57,6 +57,7 @@ dependencies = [
 
 [project.scripts]
 phentrieve = "phentrieve.cli:app"
+phentrieve-mcp = "api.mcp.cli:main"
 
 [project.optional-dependencies]
 # API server dependencies (for running the FastAPI backend)
@@ -65,7 +66,16 @@ api = [
     "uvicorn[standard]>=0.32.0",
     "python-dotenv>=1.0.0",
 ]
+# MCP server dependencies (for Model Context Protocol integration)
+mcp = [
+    "fastapi-mcp>=0.4.0,<1.0.0",
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.32.0",
+    "python-dotenv>=1.0.0",
+    "pydantic-settings>=2.0.0",
+]
 # Install CLI + API with: pip install "phentrieve[api]"
+# Install CLI + MCP with: pip install "phentrieve[mcp]"
 
 [tool.setuptools]
 

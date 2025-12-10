@@ -15,6 +15,7 @@ from phentrieve.cli import (
     benchmark_commands,
     data_commands,
     index_commands,
+    mcp_commands,
     query_commands,
     similarity_commands,
     text_commands,
@@ -114,6 +115,11 @@ app.add_typer(
     similarity_commands.app,
     name="similarity",
     help="Calculate HPO term similarities and related metrics.",
+)
+app.add_typer(
+    mcp_commands.app,
+    name="mcp",
+    help="Model Context Protocol (MCP) server commands.",
 )
 
 # Main command for query
