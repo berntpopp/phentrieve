@@ -1,4 +1,4 @@
-.PHONY: help format lint typecheck check test test-scripts test-all clean all install install-text-processing lock upgrade add remove clean-venv frontend-install frontend-lint frontend-format frontend-dev frontend-build docker-build docker-up docker-down docker-logs dev-api dev-frontend dev-all test-api test-api-cov test-e2e test-e2e-security test-e2e-health test-e2e-api test-e2e-fast test-e2e-clean test-e2e-logs test-e2e-shell cov-package cov-api cov-frontend cov-all security security-python security-frontend security-audit security-report version version-cli version-api version-frontend bump-cli-patch bump-cli-minor bump-cli-major bump-api-patch bump-api-minor bump-api-major bump-frontend-patch bump-frontend-minor bump-frontend-major
+.PHONY: help format lint typecheck check config-validate test test-scripts test-all clean all install install-text-processing lock upgrade add remove clean-venv frontend-install frontend-lint frontend-format frontend-dev frontend-build docker-build docker-up docker-down docker-logs dev-api dev-frontend dev-all test-api test-api-cov test-e2e test-e2e-security test-e2e-health test-e2e-api test-e2e-fast test-e2e-clean test-e2e-logs test-e2e-shell cov-package cov-api cov-frontend cov-all security security-python security-frontend security-audit security-report version version-cli version-api version-frontend bump-cli-patch bump-cli-minor bump-cli-major bump-api-patch bump-api-minor bump-api-major bump-frontend-patch bump-frontend-minor bump-frontend-major
 
 # Docker Compose command detection (supports both v1 and v2)
 # Prefer v2 (docker compose) over v1 (docker-compose)
@@ -52,6 +52,9 @@ typecheck-fresh: ## Type check from scratch (clear cache first)
 	uv run mypy phentrieve/ api/
 
 check: format lint ## Format and lint code
+
+config-validate: ## Validate configuration sync between Python and Frontend
+	uv run python scripts/validate_config_sync.py
 
 test: ## Run package tests with pytest
 	uv run pytest tests/ -v
