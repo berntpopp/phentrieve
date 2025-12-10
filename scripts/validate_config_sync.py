@@ -187,6 +187,10 @@ def check_api_router_defaults() -> tuple[bool, list[str]]:
 
     # Check that router imports from config.py
     required_imports = [
+        "DEFAULT_WINDOW_SIZE_TOKENS",
+        "DEFAULT_STEP_SIZE_TOKENS",
+        "DEFAULT_SPLITTING_THRESHOLD",
+        "DEFAULT_MIN_SEGMENT_LENGTH_WORDS",
         "DEFAULT_CHUNK_RETRIEVAL_THRESHOLD",
         "DEFAULT_MIN_CONFIDENCE_AGGREGATED",
     ]
