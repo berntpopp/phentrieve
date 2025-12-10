@@ -34,6 +34,9 @@ data/*.db
 data/*.db-shm
 data/*.db-wal
 
+# Data bundle manifest (downloaded from releases)
+data/manifest.json
+
 # ChromaDB database files
 *.sqlite3
 *.sqlite3-shm
