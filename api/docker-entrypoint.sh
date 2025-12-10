@@ -272,6 +272,13 @@ main() {
         # Fix permissions on cache directory
         fix_permissions "$CACHE_DIR" "HuggingFace cache"
 
+        # Fix permissions on MCP module if mounted (for dev mode)
+        # MCP needs to be readable by phentrieve user at runtime
+        if [ -d "/app/api/mcp" ]; then
+            chmod -R a+rX /app/api/mcp 2>/dev/null || \
+                log_warn "Could not fix MCP permissions - may affect MCP HTTP endpoint"
+        fi
+
         # Verify required data exists
         if ! verify_data; then
             log_error "Data verification failed - exiting"
