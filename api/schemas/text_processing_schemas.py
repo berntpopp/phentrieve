@@ -106,6 +106,12 @@ class TextProcessingRequest(BaseModel):
         description="Include HPO term definitions and synonyms in the response.",
     )
 
+    # Position Tracking
+    include_chunk_positions: bool = Field(
+        default=False,
+        description="Include character positions (start_char, end_char) for each chunk.",
+    )
+
 
 class HPOMatchInChunkAPI(BaseModel):
     hpo_id: str
@@ -128,6 +134,14 @@ class ProcessedChunkAPI(BaseModel):
     hpo_matches: list[HPOMatchInChunkAPI] = Field(
         default_factory=list,
         description="HPO terms identified as relevant to this specific chunk.",
+    )
+    start_char: Optional[int] = Field(
+        default=None,
+        description="Start position in original document (0-indexed). None if not tracked.",
+    )
+    end_char: Optional[int] = Field(
+        default=None,
+        description="End position in original document (exclusive). None if not tracked.",
     )
 
 

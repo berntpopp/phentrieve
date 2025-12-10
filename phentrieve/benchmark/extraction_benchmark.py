@@ -471,15 +471,23 @@ class ExtractionBenchmark:
             for term in extraction_details.get("aggregated_results", [])
         }
 
-        # Pre-compute chunk positions in full text
+        # Use pipeline-provided positions if available, otherwise fall back to search
         chunk_positions: dict[int, tuple[int, int]] = {}
         last_end = 0
         for chunk_info in extraction_details.get("processed_chunks", []):
             chunk_idx = chunk_info["chunk_idx"]
-            chunk_text = chunk_info["text"]
-            start, end = self._find_chunk_position_in_text(
-                chunk_text, full_text, last_end
-            )
+
+            # Prefer pipeline-provided positions (more accurate)
+            start = chunk_info.get("start_char", -1)
+            end = chunk_info.get("end_char", -1)
+
+            # Fall back to string search if positions not provided
+            if start < 0 or end < 0:
+                chunk_text = chunk_info["text"]
+                start, end = self._find_chunk_position_in_text(
+                    chunk_text, full_text, last_end
+                )
+
             chunk_positions[chunk_idx] = (start, end)
             if end > 0:
                 last_end = end  # Continue searching from where we left off

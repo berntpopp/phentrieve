@@ -539,9 +539,9 @@ def process_text_for_hpo_command(
         typer.secho(f"Error creating pipeline: {e!s}", fg=typer.colors.RED)
         raise typer.Exit(code=1)
 
-    # Process the text through the pipeline
+    # Process the text through the pipeline (always include positions)
     try:
-        processed_chunks = pipeline.process(raw_text)
+        processed_chunks = pipeline.process(raw_text, include_positions=True)
     except Exception as e:
         typer.secho(f"Error processing text: {e!s}", fg=typer.colors.RED)
         raise typer.Exit(code=1)
@@ -636,6 +636,17 @@ def process_text_for_hpo_command(
     except Exception as e:
         typer.secho(f"Error extracting HPO terms: {e!s}", fg=typer.colors.RED)
         raise typer.Exit(code=1)
+
+    # Add chunk positions to aggregated_results (which contains chunk-level data with matches)
+    # Note: Due to unpacking order, 'aggregated_results' has the chunk_idx/chunk_text/matches structure
+    if aggregated_results:
+        for ar in aggregated_results:
+            chunk_idx = ar.get("chunk_idx", -1)
+            if chunk_idx >= 0 and chunk_idx < len(processed_chunks):
+                pc = processed_chunks[chunk_idx]
+                if isinstance(pc, dict):
+                    ar["start_char"] = pc.get("start_char", -1)
+                    ar["end_char"] = pc.get("end_char", -1)
 
     # Enrich with HPO term details if requested
     if include_details:
@@ -994,8 +1005,8 @@ def chunk_text_command(
 
 
 def _format_and_output_results(
-    aggregated_results: list[dict],
-    chunk_results: list[dict],
+    chunk_level_results: list[dict],
+    term_level_results: list[dict],
     processed_chunks: list[dict],
     language: str,
     output_format: str,
@@ -1006,9 +1017,11 @@ def _format_and_output_results(
     """Format and output the HPO extraction results according to the specified format.
 
     Args:
-        aggregated_results: The aggregated HPO term results (already filtered by min_confidence)
-        chunk_results: The chunk-level results
-        processed_chunks: The processed text chunks
+        chunk_level_results: Per-chunk results with chunk_idx, chunk_text, matches,
+            start_char, end_char (from orchestrator's second return value)
+        term_level_results: Per-term aggregated results with id, name, score, chunks
+            (from orchestrator's first return value)
+        processed_chunks: The processed text chunks from pipeline
         language: The language of the text
         output_format: The output format (json_lines, rich_json_summary, csv_hpo_list)
         embedding_model: Name of embedding model used for retrieval
@@ -1018,13 +1031,9 @@ def _format_and_output_results(
     if output_format == "phenopacket_v2_json":
         from phentrieve.phenopackets.utils import format_as_phenopacket_v2
 
-        # Note: In this function, the variable naming is swapped from the orchestrator:
-        # - 'aggregated_results' here is actually 'chunk_results' from orchestrator
-        #   (contains chunk_idx, chunk_text, and matches per chunk)
-        # - 'chunk_results' here is actually 'aggregated_results' from orchestrator
-        # We use 'aggregated_results' which has the per-chunk structure with text evidence
+        # chunk_level_results has chunk_idx, chunk_text, matches, start_char, end_char
         phenopacket = format_as_phenopacket_v2(
-            chunk_results=aggregated_results,
+            chunk_results=chunk_level_results,
             embedding_model=embedding_model,
             reranker_model=reranker_model,
             input_text=input_text,
@@ -1035,41 +1044,52 @@ def _format_and_output_results(
     typer.echo(f"Formatting results in {output_format} format...")
 
     if output_format == "json_lines":
-        # Output each chunk and its matches as a JSON object per line
-        for chunk_result in chunk_results:
+        # Output each term and its info as a JSON object per line
+        for term_result in term_level_results:
             # Convert assertion_status to string if it's an enum
             if (
-                "assertion_status" in chunk_result
-                and chunk_result["assertion_status"] is not None
+                "assertion_status" in term_result
+                and term_result["assertion_status"] is not None
             ):
-                if hasattr(chunk_result["assertion_status"], "value"):
-                    chunk_result["assertion_status"] = chunk_result[
+                if hasattr(term_result["assertion_status"], "value"):
+                    term_result["assertion_status"] = term_result[
                         "assertion_status"
                     ].value
                 else:
-                    chunk_result["assertion_status"] = str(
-                        chunk_result["assertion_status"]
+                    term_result["assertion_status"] = str(
+                        term_result["assertion_status"]
                     )
-            typer.echo(json.dumps(chunk_result))
+            typer.echo(json.dumps(term_result))
 
-        # Output aggregated results as a final JSON object
-        typer.echo(json.dumps({"aggregated_hpo_terms": aggregated_results}))
+        # Output chunk-level results with positions as final JSON object
+        typer.echo(json.dumps({"aggregated_hpo_terms": chunk_level_results}))
 
     elif output_format == "rich_json_summary":
-        # First let's convert any AssertionStatus enums to strings
-        for result in chunk_results:
+        # First convert any AssertionStatus enums to strings
+        for result in term_level_results:
             if "assertion_status" in result and result["assertion_status"] is not None:
                 if hasattr(result["assertion_status"], "value"):
                     result["assertion_status"] = result["assertion_status"].value
                 else:
                     result["assertion_status"] = str(result["assertion_status"])
 
-        # Create a nicely formatted JSON summary
+        # Build chunks info with positions from chunk_level_results
+        chunks_info = [
+            {
+                "chunk_idx": chunk_data.get("chunk_idx", 0),
+                "text": chunk_data.get("chunk_text", ""),
+                "start_char": chunk_data.get("start_char", -1),
+                "end_char": chunk_data.get("end_char", -1),
+            }
+            for chunk_data in chunk_level_results
+        ]
+
         summary = {
             "document": {
                 "language": language,
                 "total_chunks": len(processed_chunks),
-                "total_hpo_terms": len(chunk_results),  # Use chunk_results here instead
+                "total_hpo_terms": len(term_level_results),
+                "chunks": chunks_info,
                 "hpo_terms": [
                     {
                         "hpo_id": result["id"],
@@ -1087,13 +1107,11 @@ def _format_and_output_results(
                         "evidence_count": (
                             len(result["chunks"]) if "chunks" in result else 0
                         ),
-                        "top_evidence": (
-                            f"Chunk {result['chunks'][0]}"
-                            if result.get("chunks")
-                            else ""
+                        "top_evidence_chunk": (
+                            result["chunks"][0] if result.get("chunks") else -1
                         ),
                     }
-                    for result in chunk_results  # Use chunk_results here instead
+                    for result in term_level_results
                 ],
             }
         }
@@ -1102,20 +1120,49 @@ def _format_and_output_results(
         typer.echo(formatted_json)
 
     elif output_format == "csv_hpo_list":
-        # Create a CSV with HPO terms and basic info
+        # Create a CSV with HPO terms and chunk positions
         output = StringIO()
-        fieldnames = ["hpo_id", "name", "confidence", "status", "evidence_count"]
+        fieldnames = [
+            "hpo_id",
+            "name",
+            "confidence",
+            "status",
+            "chunk_idx",
+            "chunk_text",
+            "start_char",
+            "end_char",
+        ]
         writer = csv.DictWriter(output, fieldnames=fieldnames)
         writer.writeheader()
 
-        for r in aggregated_results:
+        # Build a lookup from chunk_idx to positions
+        chunk_positions = {
+            chunk_data.get("chunk_idx", -1): {
+                "chunk_text": chunk_data.get("chunk_text", ""),
+                "start_char": chunk_data.get("start_char", -1),
+                "end_char": chunk_data.get("end_char", -1),
+            }
+            for chunk_data in chunk_level_results
+        }
+
+        for term in term_level_results:
+            hpo_id = term.get("hpo_id") or term.get("id", "")
+            confidence = term.get("confidence") or term.get("score", 0.0)
+            status = term.get("status") or term.get("assertion_status", "")
+            # Get chunk index from the term's evidence
+            chunk_idx = term.get("chunks", [-1])[0] if term.get("chunks") else -1
+            chunk_info = chunk_positions.get(chunk_idx, {})
+
             writer.writerow(
                 {
-                    "hpo_id": r["hpo_id"],
-                    "name": r["name"],
-                    "confidence": r["confidence"],
-                    "status": r["status"],
-                    "evidence_count": r["evidence_count"],
+                    "hpo_id": hpo_id,
+                    "name": term.get("name", ""),
+                    "confidence": confidence,
+                    "status": status,
+                    "chunk_idx": chunk_idx,
+                    "chunk_text": chunk_info.get("chunk_text", ""),
+                    "start_char": chunk_info.get("start_char", -1),
+                    "end_char": chunk_info.get("end_char", -1),
                 }
             )
 
@@ -1130,15 +1177,8 @@ def _format_and_output_results(
         raise typer.Exit(code=1)
 
     # Summary
-    # For rich_json_summary format, use the chunk_results length for HPO term count
-    # as it contains the full list of HPO terms used in the JSON output
-    if output_format == "rich_json_summary":
-        hpo_term_count = len(chunk_results)
-    else:
-        hpo_term_count = len(aggregated_results)
-
     typer.secho(
-        f"\nText processing completed. Found {hpo_term_count} HPO terms "
+        f"\nText processing completed. Found {len(term_level_results)} HPO terms "
         f"across {len(processed_chunks)} text chunks.",
         fg=typer.colors.GREEN,
     )

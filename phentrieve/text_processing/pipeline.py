@@ -29,6 +29,7 @@ from phentrieve.text_processing.cleaners import (
     clean_internal_newlines_and_extra_spaces,
     normalize_line_endings,
 )
+from phentrieve.text_processing.spans import find_span_in_text
 from phentrieve.utils import sanitize_log_value as _sanitize
 
 logger = logging.getLogger(__name__)
@@ -276,21 +277,27 @@ class TextProcessingPipeline:
             preference=preference,
         )
 
-    def process(self, raw_text: str) -> list[dict[str, Any]]:
+    def process(
+        self, raw_text: str, include_positions: bool = False
+    ) -> list[dict[str, Any]]:
         """
         Process raw text through the chunking pipeline and assertion detection.
 
         Args:
             raw_text: The raw text to process
+            include_positions: If True, include start_char/end_char positions
+                in output for each chunk (relative to raw_text)
 
         Returns:
             List of processed chunks with assertion information:
             [
                 {
                     'text': str,                # The chunk text
-                    'status': AssertionStatus, # Enum value indicating assertion status
+                    'status': AssertionStatus,  # Enum value indicating assertion status
                     'assertion_details': Dict,  # Details about the assertion analysis
-                    'source_indices': Dict      # Tracking information about source
+                    'source_indices': Dict,     # Tracking information about source
+                    'start_char': int,          # Position in raw_text (if include_positions)
+                    'end_char': int,            # Position in raw_text (if include_positions)
                 },
                 ...
             ]
@@ -300,6 +307,9 @@ class TextProcessingPipeline:
                 "TextProcessingPipeline.process called with empty input text."
             )
             return []
+
+        # Store original text for position tracking (BEFORE any normalization)
+        original_text = raw_text
 
         normalized_text = normalize_line_endings(raw_text)
         current_segments_for_stage: list[str] = [normalized_text]
@@ -362,7 +372,18 @@ class TextProcessingPipeline:
         final_raw_chunks_text_only: list[str] = current_segments_for_stage
 
         processed_chunks_with_assertion: list[dict[str, Any]] = []
+        search_start = 0  # Track position for sequential search (handles duplicates)
+
         for idx, final_text_chunk in enumerate(final_raw_chunks_text_only):
+            # Calculate position BEFORE cleaning (using pre-cleaned chunk text)
+            # This ensures we find the chunk in original_text even if whitespace differs
+            start_char, end_char = -1, -1
+            if include_positions:
+                span = find_span_in_text(final_text_chunk, original_text, search_start)
+                if span:
+                    start_char, end_char = span.start_char, span.end_char
+                    search_start = span.end_char  # Continue from end of found chunk
+
             cleaned_final_chunk = clean_internal_newlines_and_extra_spaces(
                 final_text_chunk
             )
@@ -379,16 +400,19 @@ class TextProcessingPipeline:
                 else ["unknown_source"]
             )
 
-            processed_chunks_with_assertion.append(
-                {
-                    "text": cleaned_final_chunk,
-                    "status": assertion_status,  # This is the AssertionStatus Enum object
-                    "assertion_details": assertion_details,
-                    "source_indices": {
-                        "processing_stages": source_info_for_chunk
-                    },  # Simplified source info
-                }
-            )
+            chunk_data: dict[str, Any] = {
+                "text": cleaned_final_chunk,
+                "status": assertion_status,
+                "assertion_details": assertion_details,
+                "source_indices": {"processing_stages": source_info_for_chunk},
+            }
+
+            # Only include positions when requested (backward compatibility)
+            if include_positions:
+                chunk_data["start_char"] = start_char
+                chunk_data["end_char"] = end_char
+
+            processed_chunks_with_assertion.append(chunk_data)
 
         logger.info(
             "TextProcessingPipeline processed text into %s final asserted chunks.",

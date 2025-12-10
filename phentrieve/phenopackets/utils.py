@@ -193,6 +193,8 @@ def _format_from_chunk_results(
     for chunk_result in chunk_results:
         chunk_idx = chunk_result.get("chunk_idx", 0)
         chunk_text = chunk_result.get("chunk_text", "")
+        start_char = chunk_result.get("start_char", -1)
+        end_char = chunk_result.get("end_char", -1)
         matches = chunk_result.get("matches", [])
 
         for match in matches:
@@ -204,15 +206,19 @@ def _format_from_chunk_results(
             # Create OntologyClass for the feature type
             feature_type = OntologyClass(id=hpo_id, label=hpo_name)
 
-            # Build description with confidence, chunk info, and source text
+            # Build description with confidence, chunk info, positions, and source text
             # Note: No rank is provided since rankings are not comparable across chunks
             description_parts = [
                 f"Phentrieve retrieval confidence: {score:.4f}",
                 f"Chunk: {chunk_idx + 1}",
-                f"Source text: {chunk_text}",
             ]
+            # Include position info if available (when include_positions was True)
+            if start_char >= 0 and end_char >= 0:
+                description_parts.append(f"Start: {start_char}")
+                description_parts.append(f"End: {end_char}")
             if assertion_status:
-                description_parts.insert(1, f"Assertion: {assertion_status}")
+                description_parts.append(f"Assertion: {assertion_status}")
+            description_parts.append(f"Source text: {chunk_text}")
 
             # Create ExternalReference with evidence details
             external_reference = ExternalReference(

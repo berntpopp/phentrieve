@@ -299,7 +299,9 @@ async def _process_text_internal(request: TextProcessingRequest):
         # Run the pipeline to get chunks and initial assertion statuses
         logger.info("API: Processing text through pipeline...")
         processed_chunks_list = await run_in_threadpool(
-            text_pipeline.process, request.text_content
+            text_pipeline.process,
+            request.text_content,
+            include_positions=request.include_chunk_positions,
         )
 
         api_processed_chunks: list[ProcessedChunkAPI] = []
@@ -313,6 +315,8 @@ async def _process_text_internal(request: TextProcessingRequest):
                     text=p_chunk["text"],
                     status=p_chunk["status"].value,  # Convert Enum to string
                     assertion_details=p_chunk.get("assertion_details"),
+                    start_char=p_chunk.get("start_char"),
+                    end_char=p_chunk.get("end_char"),
                 )
             )
             text_chunks_for_orchestrator.append(p_chunk["text"])
