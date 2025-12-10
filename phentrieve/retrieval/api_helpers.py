@@ -3,7 +3,10 @@ from typing import Any, Optional
 
 from sentence_transformers import CrossEncoder
 
-from phentrieve.config import DEFAULT_DENSE_TRUST_THRESHOLD
+from phentrieve.config import (
+    DEFAULT_AGGREGATION_STRATEGY,
+    DEFAULT_DENSE_TRUST_THRESHOLD,
+)
 from phentrieve.retrieval.dense_retriever import DenseRetriever
 from phentrieve.retrieval.reranker import protected_dense_rerank
 from phentrieve.text_processing.assertion_detection import (
@@ -12,6 +15,87 @@ from phentrieve.text_processing.assertion_detection import (
 from phentrieve.utils import sanitize_log_value as _sanitize
 
 logger = logging.getLogger(__name__)
+
+
+def _convert_single_vector_results(
+    query_results: dict[str, Any],
+    similarity_threshold: float,
+) -> list[dict[str, Any]]:
+    """
+    Convert single-vector ChromaDB results to candidate list format.
+
+    Args:
+        query_results: Raw ChromaDB query results
+        similarity_threshold: Minimum similarity score to include
+
+    Returns:
+        List of candidate dicts with hpo_id, label, similarity, comparison_text
+    """
+    candidates: list[dict[str, Any]] = []
+
+    if not query_results or not query_results.get("ids") or not query_results["ids"][0]:
+        return candidates
+
+    for i in range(len(query_results["ids"][0])):
+        # Skip items below similarity threshold
+        similarity = (
+            query_results["similarities"][0][i]
+            if "similarities" in query_results
+            else None
+        )
+        if similarity is not None and similarity < similarity_threshold:
+            continue
+
+        metadata = (
+            query_results["metadatas"][0][i] if query_results.get("metadatas") else {}
+        )
+        label_text = metadata.get("label", query_results["documents"][0][i])
+
+        candidates.append(
+            {
+                "hpo_id": metadata.get("hpo_id", query_results["ids"][0][i]),
+                "label": label_text,
+                "similarity": similarity,
+                "comparison_text": label_text,
+            }
+        )
+
+    return candidates
+
+
+def _convert_multi_vector_results(
+    multi_vector_results: list[dict[str, Any]],
+    similarity_threshold: float,
+) -> list[dict[str, Any]]:
+    """
+    Convert multi-vector aggregated results to candidate list format.
+
+    Args:
+        multi_vector_results: Aggregated results from query_multi_vector()
+        similarity_threshold: Minimum similarity score to include
+
+    Returns:
+        List of candidate dicts with hpo_id, label, similarity, comparison_text,
+        and component_scores
+    """
+    candidates: list[dict[str, Any]] = []
+
+    for result in multi_vector_results:
+        similarity = result.get("similarity", 0.0)
+        if similarity < similarity_threshold:
+            continue
+
+        candidates.append(
+            {
+                "hpo_id": result["hpo_id"],
+                "label": result["label"],
+                "similarity": similarity,
+                "comparison_text": result["label"],
+                "component_scores": result.get("component_scores"),
+            }
+        )
+
+    return candidates
 
 
 async def execute_hpo_retrieval_for_api(
@@ -28,6 +112,11 @@ async def execute_hpo_retrieval_for_api(
     query_assertion_language: Optional[str] = None,
     query_assertion_preference: str = "dependency",
     debug: bool = False,
+    # Multi-vector parameters (Issue #136)
+    multi_vector: bool = False,
+    aggregation_strategy: str = DEFAULT_AGGREGATION_STRATEGY,
+    component_weights: Optional[dict[str, float]] = None,
+    custom_formula: Optional[str] = None,
 ) -> dict[str, Any]:
     """
     Execute HPO term retrieval for API requests.
@@ -49,6 +138,10 @@ async def execute_hpo_retrieval_for_api(
         query_assertion_language: Language for assertion detection
         query_assertion_preference: Assertion detection strategy
         debug: Enable debug logging
+        multi_vector: Use multi-vector index with aggregation (deduplicates results)
+        aggregation_strategy: Strategy for combining component scores
+        component_weights: Weights for 'all_weighted' strategy
+        custom_formula: Formula for 'custom' strategy
 
     Returns:
         Dictionary with query results matching QueryResponse structure
@@ -102,57 +195,90 @@ async def execute_hpo_retrieval_for_api(
     # Process as a single text segment for now (not sentence mode)
     # Could extract sentence mode logic from process_query if needed later
     segment_to_process = text.strip()
-    # Perform dense retrieval
-    query_results = retriever.query(
-        text=segment_to_process,
-        n_results=rerank_count if enable_reranker else num_results,
-        include_similarities=True,
-    )
 
-    # Convert the dictionary results to a list of HPO items
-    hpo_embeddings_results = []
+    # Determine query method based on multi_vector flag and index type
+    # Multi-vector mode uses aggregation to deduplicate results by HPO ID
+    n_results_for_query = rerank_count if enable_reranker else num_results
 
-    # Check if we have valid results
-    if not query_results or not query_results.get("ids") or not query_results["ids"][0]:
-        logger.info(
-            "No HPO terms found for query with threshold %s",
-            _sanitize(similarity_threshold),
+    if multi_vector:
+        # Detect index type to ensure we're using a multi-vector index
+        index_type = retriever.detect_index_type()
+        if index_type != "multi_vector":
+            logger.warning(
+                "Multi-vector mode requested but index type is '%s'. "
+                "Falling back to single-vector query.",
+                _sanitize(index_type),
+            )
+            multi_vector = False
+
+    if multi_vector:
+        # Use multi-vector query with aggregation (deduplicates by HPO ID)
+        logger.debug(
+            "Using multi-vector query with aggregation strategy: %s",
+            _sanitize(aggregation_strategy),
         )
-        return {
-            "query_text_processed": segment_to_process,
-            "header": f"No HPO terms found with similarity threshold {similarity_threshold}.",
-            "results": [],
-        }
+        multi_vector_results = retriever.query_multi_vector(
+            text=segment_to_process,
+            n_results=n_results_for_query,
+            aggregation_strategy=aggregation_strategy,
+            component_weights=component_weights,
+            custom_formula=custom_formula,
+        )
 
-    # Process the results from query into a usable format
-    for i in range(len(query_results["ids"][0])):
-        # Skip items below similarity threshold
+        # Check for empty results
+        if not multi_vector_results:
+            logger.info(
+                "No HPO terms found for query with threshold %s",
+                _sanitize(similarity_threshold),
+            )
+            return {
+                "query_text_processed": segment_to_process,
+                "header": f"No HPO terms found with similarity threshold {similarity_threshold}.",
+                "results": [],
+                "original_query_assertion_status": (
+                    original_query_assertion_status.value
+                    if original_query_assertion_status
+                    else None
+                ),
+            }
+
+        # Convert multi-vector results to candidate list format
+        hpo_embeddings_results = _convert_multi_vector_results(
+            multi_vector_results, similarity_threshold
+        )
+    else:
+        # Use single-vector query (original behavior)
+        query_results = retriever.query(
+            text=segment_to_process,
+            n_results=n_results_for_query,
+            include_similarities=True,
+        )
+
+        # Check for empty results
         if (
-            "similarities" in query_results
-            and query_results["similarities"][0][i] < similarity_threshold
+            not query_results
+            or not query_results.get("ids")
+            or not query_results["ids"][0]
         ):
-            continue
+            logger.info(
+                "No HPO terms found for query with threshold %s",
+                _sanitize(similarity_threshold),
+            )
+            return {
+                "query_text_processed": segment_to_process,
+                "header": f"No HPO terms found with similarity threshold {similarity_threshold}.",
+                "results": [],
+                "original_query_assertion_status": (
+                    original_query_assertion_status.value
+                    if original_query_assertion_status
+                    else None
+                ),
+            }
 
-        # Get metadata
-        metadata = (
-            query_results["metadatas"][0][i] if query_results.get("metadatas") else {}
+        # Convert single-vector results to candidate list format
+        hpo_embeddings_results = _convert_single_vector_results(
+            query_results, similarity_threshold
         )
-
-        # Build the HPO item
-        label_text = metadata.get("label", query_results["documents"][0][i])
-        hpo_item = {
-            "hpo_id": metadata.get("hpo_id", query_results["ids"][0][i]),
-            "label": label_text,
-            "similarity": (
-                query_results["similarities"][0][i]
-                if "similarities" in query_results
-                else None
-            ),
-            # Add comparison_text for cross-encoder reranking
-            "comparison_text": label_text,
-        }
-
-        hpo_embeddings_results.append(hpo_item)
     # Apply reranking if enabled
     if enable_reranker and cross_encoder:
         logger.debug(

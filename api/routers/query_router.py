@@ -9,9 +9,11 @@ from api.dependencies import (
 )
 from api.schemas.query_schemas import QueryRequest, QueryResponse
 from phentrieve.config import (
+    DEFAULT_AGGREGATION_STRATEGY,
     DEFAULT_DEVICE,
     DEFAULT_LANGUAGE,
     DEFAULT_MODEL,
+    DEFAULT_MULTI_VECTOR,
     DEFAULT_RERANKER_MODEL,
 )
 from phentrieve.retrieval.api_helpers import execute_hpo_retrieval_for_api
@@ -61,18 +63,26 @@ def _resolve_query_language(
 async def get_retriever_for_request(request: QueryRequest) -> DenseRetriever:
     """Extract model name from request and get retriever dependency"""
     model_name_to_use = request.model_name or DEFAULT_MODEL
+    multi_vector_flag = (
+        request.multi_vector
+        if hasattr(request, "multi_vector")
+        else DEFAULT_MULTI_VECTOR
+    )
     return await get_dense_retriever_dependency(
-        sbert_model_name_for_retriever=model_name_to_use
+        sbert_model_name_for_retriever=model_name_to_use,
+        multi_vector=multi_vector_flag,
     )
 
 
 # Helper function for GET params to get retriever for model name
 async def get_retriever_for_get_params(
     model_name: str = DEFAULT_MODEL,
+    multi_vector: bool = DEFAULT_MULTI_VECTOR,
 ) -> DenseRetriever:
     """Get retriever dependency for GET request's model name parameter"""
     return await get_dense_retriever_dependency(
-        sbert_model_name_for_retriever=model_name or DEFAULT_MODEL
+        sbert_model_name_for_retriever=model_name or DEFAULT_MODEL,
+        multi_vector=multi_vector,
     )
 
 
@@ -113,8 +123,8 @@ async def run_hpo_query_get(
         enable_reranker=enable_reranker,
         reranker_model=DEFAULT_RERANKER_MODEL,
         rerank_count=10,
-        # Multi-vector params (default to single-vector for GET endpoint)
-        multi_vector=False,
+        # Multi-vector params (use configured default)
+        multi_vector=DEFAULT_MULTI_VECTOR,
         aggregation_strategy="label_synonyms_max",
         component_weights=None,
         custom_formula=None,
@@ -228,6 +238,12 @@ async def run_hpo_query(
         query_assertion_language=request.query_assertion_language,
         query_assertion_preference=request.query_assertion_preference,
         debug=False,
+        # Multi-vector parameters (Issue #136)
+        multi_vector=request.multi_vector,
+        aggregation_strategy=request.aggregation_strategy
+        or DEFAULT_AGGREGATION_STRATEGY,
+        component_weights=request.component_weights,
+        custom_formula=request.custom_formula,
     )
 
     # Convert results to QueryResponse schema
