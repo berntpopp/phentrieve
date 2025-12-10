@@ -9,6 +9,13 @@ from typing import Optional
 
 import typer
 
+from phentrieve.config import (
+    DEFAULT_MIN_SEGMENT_LENGTH_WORDS,
+    DEFAULT_SPLITTING_THRESHOLD,
+    DEFAULT_STEP_SIZE_TOKENS,
+    DEFAULT_WINDOW_SIZE_TOKENS,
+)
+
 
 def load_text_from_input(text_arg: Optional[str], file_arg: Optional[Path]) -> str:
     """Load text from command line argument, file, or stdin.
@@ -55,10 +62,10 @@ def load_text_from_input(text_arg: Optional[str], file_arg: Optional[Path]) -> s
 def resolve_chunking_pipeline_config(
     chunking_pipeline_config_file: Optional[Path],
     strategy_arg: str,
-    window_size: int = 3,
-    step_size: int = 1,
-    threshold: float = 0.5,
-    min_segment_length: int = 2,
+    window_size: int = DEFAULT_WINDOW_SIZE_TOKENS,
+    step_size: int = DEFAULT_STEP_SIZE_TOKENS,
+    threshold: float = DEFAULT_SPLITTING_THRESHOLD,
+    min_segment_length: int = DEFAULT_MIN_SEGMENT_LENGTH_WORDS,
 ) -> list[dict]:
     """
     Resolve the chunking pipeline configuration from a file or a strategy name.
