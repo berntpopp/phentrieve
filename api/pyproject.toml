@@ -1,0 +1,8 @@
+# API-specific pyproject.toml for version management
+# This file is separate from the main phentrieve pyproject.toml
+# to allow independent versioning of the API component.
+
+[project]
+name = "phentrieve-api"
+version = "0.6.0"
+description = "FastAPI backend for Phentrieve HPO term mapping"

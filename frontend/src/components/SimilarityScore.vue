@@ -89,7 +89,7 @@ import { useI18n } from 'vue-i18n';
 /**
  * Props:
  * @property {number} score - The similarity/confidence score (0.0 to 1.0)
- * @property {'similarity'|'rerank'|'confidence'} [type='similarity'] - Type of score being displayed
+ * @property {'similarity'|'confidence'} [type='similarity'] - Type of score being displayed
  * @property {number} [decimals=2] - Number of decimal places to display
  * @property {boolean} [showAnimation=false] - Whether to show pulsing animation
  */
@@ -102,7 +102,7 @@ const props = defineProps({
   type: {
     type: String,
     default: 'similarity',
-    validator: (value) => ['similarity', 'rerank', 'confidence'].includes(value),
+    validator: (value) => ['similarity', 'confidence'].includes(value),
   },
   decimals: {
     type: Number,
@@ -151,7 +151,6 @@ const chipVariant = computed(() => {
 // Dynamic icon based on score quality
 const scoreIcon = computed(() => {
   const score = props.score;
-  if (props.type === 'rerank') return 'mdi-sort-ascending';
   if (props.type === 'confidence') return 'mdi-shield-check';
 
   // For similarity scores
@@ -179,7 +178,6 @@ const qualityText = computed(() => {
 const tooltipTitle = computed(() => {
   const typeLabels = {
     similarity: t('resultsDisplay.similarityLabel', 'Similarity Score'),
-    rerank: t('resultsDisplay.rerankLabel', 'Re-ranking Score'),
     confidence: t('resultsDisplay.confidenceLabel', 'Confidence Score'),
   };
   return typeLabels[props.type];

@@ -28,9 +28,7 @@
     "resetConfirm": "Reset"
   },
   "models": {
-    "biolord": "BioLORD 2023-M",
-    "jinaGerman": "Jina German v2",
-    "distiluse": "DistilUSE Multilingual"
+    "biolord": "BioLORD 2023-M"
   },
   "app": {
     "footer": {
@@ -121,7 +119,6 @@
       "title": "Advanced Options",
       "embeddingModel": "Embedding Model",
       "similarityThreshold": "Similarity Threshold",
-      "enableReranking": "Enable Re-ranking",
       "includeDetails": "Include Details",
       "language": "Language",
       "processingModeTitle": "Processing Mode",
@@ -150,7 +147,6 @@
       "phenotypeCollection": "View and manage collected phenotypes",
       "embeddingModel": "Select the AI model used for embedding text",
       "similarityThreshold": "Set the minimum similarity score required for results",
-      "enableReranking": "Enable re-ranking of results using a cross-encoder",
       "includeDetails": "Include HPO term definitions and synonyms in search results (limits to 20 results for performance)",
       "language": "Select language for query processing and assertion detection",
       "subjectId": "Enter an identifier for the subject/patient",
@@ -170,10 +166,8 @@
     "confidenceTooltip": "Confidence score: {score}",
     "viewTermLink": "View on HPO website",
     "similarityLabel": "Similarity Score",
-    "rerankLabel": "Re-ranking Score",
     "confidenceLabel": "Confidence Score",
     "modelLabel": "Model",
-    "rerankerLabel": "Reranker",
     "languageLabel": "Language",
     "assertionLabel": "Assertion",
     "noTermsFound": "No matching HPO terms found for your query. Try a different search or adjust the similarity threshold.",
@@ -196,7 +190,6 @@
     "alreadyInCollectionTooltip": "HPO term {id} is already in your collection",
     "addToCollectionAriaLabel": "Add {label} ({id}) to collection",
     "alreadyInCollectionAriaLabel": "{label} ({id}) is already in collection",
-    "originalRank": "Original Rank",
     "showDetails": "Show details",
     "hideDetails": "Hide details",
     "definitionLabel": "Definition",
@@ -342,10 +335,6 @@
       "technical": {
         "title": "Technical Details",
         "questions": {
-          "reranking": {
-            "question": "How does the re-ranking process work?",
-            "answer": "<p>Phentrieve uses a protected two-stage retrieval approach:</p><ol><li><strong>Stage 1 - Dense Retrieval:</strong> BioLORD bi-encoder model performs initial semantic search for high recall</li><li><strong>Protection:</strong> High-confidence matches (similarity ≥0.7) are protected from demotion, preserving BioLORD's strong cross-lingual performance</li><li><strong>Stage 2 - Cross-Encoder Refinement:</strong> BAAI/bge-reranker-v2-m3 (multilingual, 568M params) refines only uncertain mid-tier candidates</li><li><strong>Merge:</strong> Protected results stay at top, reranked results fill below</li></ol><p>This approach preserves the quality of dense retrieval while benefiting from cross-encoder precision for uncertain matches.</p>"
-          },
           "performance": {
             "question": "What performance can I expect?",
             "answer": "<p>Our benchmark results show:</p><ul><li>BioLORD-2023-M: HR{'@'}1=0.3333, HR{'@'}3=0.6667, HR{'@'}5=0.7778</li><li>Jina-v2-base-de: HR{'@'}1=0.2222, HR{'@'}3=0.4444, HR{'@'}5=0.5556</li></ul><p>Performance may vary based on the complexity and specificity of the input text.</p>"

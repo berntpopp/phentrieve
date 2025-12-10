@@ -28,9 +28,7 @@
     "resetConfirm": "Zurücksetzen"
   },
   "models": {
-    "biolord": "BioLORD 2023-M",
-    "jinaGerman": "Jina German v2",
-    "distiluse": "DistilUSE Multilingual"
+    "biolord": "BioLORD 2023-M"
   },
   "app": {
     "footer": {
@@ -121,7 +119,6 @@
       "title": "Erweiterte Optionen",
       "embeddingModel": "Embedding-Modell",
       "similarityThreshold": "Ähnlichkeitsschwelle",
-      "enableReranking": "Neuordnung aktivieren",
       "includeDetails": "Details einbeziehen",
       "language": "Sprache",
       "processingModeTitle": "Verarbeitungsmodus",
@@ -150,7 +147,6 @@
       "phenotypeCollection": "Gesammelte Phänotypen anzeigen und verwalten",
       "embeddingModel": "KI-Modell für die Texteinbettung auswählen",
       "similarityThreshold": "Minimale Ähnlichkeitsbewertung für Ergebnisse festlegen",
-      "enableReranking": "Neuordnung der Ergebnisse mit einem Cross-Encoder aktivieren",
       "includeDetails": "HPO-Begriff-Definitionen und Synonyme in Suchergebnissen einbeziehen (begrenzt auf 20 Ergebnisse für bessere Leistung)",
       "language": "Wählen Sie die Sprache für die Verarbeitung und Negationserkennung",
       "subjectId": "Geben Sie eine Kennung für den Patienten ein",
@@ -170,14 +166,12 @@
     "confidenceTooltip": "Konfidenzwert: {score}",
     "viewTermLink": "Auf HPO-Website anzeigen",
     "modelLabel": "Modell",
-    "rerankerLabel": "Neuordner",
     "languageLabel": "Sprache",
     "assertionLabel": "Aussage",
     "negated": "Negiert",
     "affirmed": "Bejaht",
     "unknown": "Unbekannt",
     "similarityLabel": "Ähnlichkeitswert",
-    "rerankLabel": "Neuordnungswert",
     "confidenceLabel": "Konfidenzwert",
     "cosineSimilarity": "Kosinus-Ähnlichkeit",
     "rangeExplanation": "{min} (keine Ähnlichkeit) bis {max} (perfekte Übereinstimmung)",
@@ -191,7 +185,6 @@
       "low": "Geringe Übereinstimmung",
       "poor": "Schlechte Übereinstimmung"
     },
-    "originalRank": "Ursprünglicher Rang",
     "noTermsFound": "Keine HPO-Begriffe gefunden, die Ihrer Anfrage mit dem aktuellen Schwellenwert entsprechen. Versuchen Sie, den Ähnlichkeitsschwellenwert zu senken oder Ihre Anfrage umzuformulieren.",
     "defaultError": "Bei der Verarbeitung Ihrer Anfrage ist ein Fehler aufgetreten.",
     "addToCollectionTooltip": "{id} zur Sammlung hinzufügen",
@@ -342,10 +335,6 @@
       "technical": {
         "title": "Technische Details",
         "questions": {
-          "reranking": {
-            "question": "Wie funktioniert der Re-Ranking-Prozess?",
-            "answer": "<p>Phentrieve verwendet einen geschützten zweistufigen Retrieval-Ansatz:</p><ol><li><strong>Stufe 1 - Dense Retrieval:</strong> BioLORD Bi-Encoder-Modell führt erste semantische Suche mit hoher Recall-Rate durch</li><li><strong>Schutz:</strong> Ergebnisse mit hoher Konfidenz (Ähnlichkeit ≥0,7) sind vor Herabstufung geschützt und bewahren BioLORDs starke cross-linguale Performance</li><li><strong>Stufe 2 - Cross-Encoder-Verfeinerung:</strong> BAAI/bge-reranker-v2-m3 (mehrsprachig, 568M Parameter) verfeinert nur unsichere Mittelfeld-Kandidaten</li><li><strong>Zusammenführung:</strong> Geschützte Ergebnisse bleiben oben, neu gerankte Ergebnisse füllen darunter</li></ol><p>Dieser Ansatz bewahrt die Qualität des Dense Retrievals und profitiert gleichzeitig von der Cross-Encoder-Präzision für unsichere Treffer.</p>"
-          },
           "performance": {
             "question": "Welche Leistung kann ich erwarten?",
             "answer": "<p>Unsere Benchmark-Ergebnisse zeigen:</p><ul><li>BioLORD-2023-M: HR{'@'}1=0.3333, HR{'@'}3=0.6667, HR{'@'}5=0.7778</li><li>Jina-v2-base-de: HR{'@'}1=0.2222, HR{'@'}3=0.4444, HR{'@'}5=0.5556</li></ul><p>Die Leistung kann je nach Komplexität und Spezifität des Eingabetextes variieren.</p>"

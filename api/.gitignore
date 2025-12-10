@@ -72,3 +72,6 @@ temp/
 
 # local config
 local_api_config.env
+
+# uv lock file (uses parent project's uv.lock)
+uv.lock

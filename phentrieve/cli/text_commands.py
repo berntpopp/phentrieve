@@ -17,7 +17,16 @@ import typer
 # only happen when commands actually need ML models, not for --help or --version.
 # The import is done inside command functions where the model is actually used.
 from phentrieve.cli.utils import load_text_from_input, resolve_chunking_pipeline_config
-from phentrieve.config import DEFAULT_MODEL
+from phentrieve.config import (
+    DEFAULT_CHUNK_RETRIEVAL_THRESHOLD,
+    DEFAULT_CHUNKING_STRATEGY,
+    DEFAULT_MIN_CONFIDENCE_AGGREGATED,
+    DEFAULT_MIN_SEGMENT_LENGTH_WORDS,
+    DEFAULT_MODEL,
+    DEFAULT_SPLITTING_THRESHOLD,
+    DEFAULT_STEP_SIZE_TOKENS,
+    DEFAULT_WINDOW_SIZE_TOKENS,
+)
 from phentrieve.retrieval.dense_retriever import DenseRetriever
 from phentrieve.text_processing.hpo_extraction_orchestrator import (
     orchestrate_hpo_extraction,
@@ -42,7 +51,7 @@ def interactive(
             "-s",
             help="Predefined chunking strategy (simple, semantic, detailed, sliding_window, sliding_window_cleaned, sliding_window_punct_cleaned, sliding_window_punct_conj_cleaned)",
         ),
-    ] = "sliding_window_punct_conj_cleaned",
+    ] = DEFAULT_CHUNKING_STRATEGY,
     window_size: Annotated[
         int,
         typer.Option(
@@ -50,7 +59,7 @@ def interactive(
             "-ws",
             help="Sliding window size in tokens (only for sliding_window strategy)",
         ),
-    ] = 3,
+    ] = DEFAULT_WINDOW_SIZE_TOKENS,
     step_size: Annotated[
         int,
         typer.Option(
@@ -58,7 +67,7 @@ def interactive(
             "-ss",
             help="Sliding window step size in tokens (only for sliding_window strategy)",
         ),
-    ] = 1,
+    ] = DEFAULT_STEP_SIZE_TOKENS,
     split_threshold: Annotated[
         float,
         typer.Option(
@@ -66,7 +75,7 @@ def interactive(
             "-t",
             help="Similarity threshold for splitting (0-1, only for sliding_window strategy)",
         ),
-    ] = 0.5,
+    ] = DEFAULT_SPLITTING_THRESHOLD,
     min_segment_length: Annotated[
         int,
         typer.Option(
@@ -74,7 +83,7 @@ def interactive(
             "-ms",
             help="Minimum segment length in words (only for sliding_window strategy)",
         ),
-    ] = 2,
+    ] = DEFAULT_MIN_SEGMENT_LENGTH_WORDS,
     semantic_chunker_model: Annotated[
         Optional[str],
         typer.Option(
@@ -94,7 +103,7 @@ def interactive(
             "-crt",
             help="Minimum similarity score for HPO term matches per chunk (0.0-1.0)",
         ),
-    ] = 0.3,
+    ] = DEFAULT_CHUNK_RETRIEVAL_THRESHOLD,
     num_results: Annotated[
         int,
         typer.Option(
@@ -147,7 +156,7 @@ def interactive(
             "-atc",
             help="Minimum confidence score for aggregated HPO terms",
         ),
-    ] = 0.35,
+    ] = DEFAULT_MIN_CONFIDENCE_AGGREGATED,
     top_term_per_chunk: Annotated[
         bool,
         typer.Option(
@@ -252,7 +261,7 @@ def process_text_for_hpo_command(
             "-s",
             help="Predefined chunking strategy. 'simple': paragraph then sentence. 'semantic': paragraph, sentence, then semantic splitting of sentences. 'detailed': paragraph, sentence, punctuation splitting, then semantic splitting of fragments. 'sliding_window': customizable semantic sliding window. 'sliding_window_cleaned': sliding window with final chunk cleaning. 'sliding_window_punct_cleaned': sliding window with punctuation splitting and final cleaning. 'sliding_window_punct_conj_cleaned': sliding window with punctuation, conjunction splitting, and final cleaning (choices: simple, semantic, detailed, sliding_window, sliding_window_cleaned, sliding_window_punct_cleaned, sliding_window_punct_conj_cleaned)",
         ),
-    ] = "sliding_window_punct_conj_cleaned",  # Default: advanced chunking with punctuation and conjunction splitting
+    ] = DEFAULT_CHUNKING_STRATEGY,
     window_size: Annotated[
         int,
         typer.Option(
@@ -260,7 +269,7 @@ def process_text_for_hpo_command(
             "-ws",
             help="Sliding window size in tokens (only for sliding_window strategy)",
         ),
-    ] = 3,
+    ] = DEFAULT_WINDOW_SIZE_TOKENS,
     step_size: Annotated[
         int,
         typer.Option(
@@ -268,7 +277,7 @@ def process_text_for_hpo_command(
             "-ss",
             help="Sliding window step size in tokens (only for sliding_window strategy)",
         ),
-    ] = 1,
+    ] = DEFAULT_STEP_SIZE_TOKENS,
     split_threshold: Annotated[
         float,
         typer.Option(
@@ -276,7 +285,7 @@ def process_text_for_hpo_command(
             "-t",
             help="Similarity threshold for splitting (0-1, only for sliding_window strategy)",
         ),
-    ] = 0.5,
+    ] = DEFAULT_SPLITTING_THRESHOLD,
     min_segment_length: Annotated[
         int,
         typer.Option(
@@ -284,7 +293,7 @@ def process_text_for_hpo_command(
             "-ms",
             help="Minimum segment length in words (only for sliding_window strategy)",
         ),
-    ] = 2,
+    ] = DEFAULT_MIN_SEGMENT_LENGTH_WORDS,
     semantic_chunker_model: Annotated[
         Optional[str],
         typer.Option(
@@ -304,7 +313,7 @@ def process_text_for_hpo_command(
             "-crt",
             help="Minimum similarity score for an HPO term to be considered a match for an individual text chunk (0.0-1.0)",
         ),
-    ] = 0.3,
+    ] = DEFAULT_CHUNK_RETRIEVAL_THRESHOLD,
     num_results: Annotated[
         int,
         typer.Option(
@@ -384,7 +393,7 @@ def process_text_for_hpo_command(
             "-atc",
             help="Minimum confidence score for an aggregated HPO term to be included in the final results",
         ),
-    ] = 0.35,
+    ] = DEFAULT_MIN_CONFIDENCE_AGGREGATED,
     top_term_per_chunk: Annotated[
         bool,
         typer.Option(
@@ -434,10 +443,10 @@ def process_text_for_hpo_command(
         # Try to auto-detect the language
         try:
             language = detect_language(raw_text, default_lang=DEFAULT_LANGUAGE)
-            typer.echo(f"Auto-detected language: {language}")
+            typer.echo(f"Auto-detected language: {language}", err=True)
         except ImportError:
             language = DEFAULT_LANGUAGE
-            typer.echo(f"Using default language: {language}")
+            typer.echo(f"Using default language: {language}", err=True)
 
     # Get chunking pipeline configuration using helper function
     chunking_pipeline_config = resolve_chunking_pipeline_config(
@@ -503,11 +512,13 @@ def process_text_for_hpo_command(
         if use_same_model:
             # Load once and share for both purposes (memory optimization)
             typer.echo(
-                f"Loading sentence transformer model (shared for chunking and retrieval): {semantic_model_name}..."
+                f"Loading sentence transformer model (shared for chunking and retrieval): {semantic_model_name}...",
+                err=True,
             )
         else:
             typer.echo(
-                f"Loading sentence transformer model for chunking: {semantic_model_name}..."
+                f"Loading sentence transformer model for chunking: {semantic_model_name}...",
+                err=True,
             )
 
         try:
@@ -524,6 +535,7 @@ def process_text_for_hpo_command(
             typer.secho(
                 f"Error loading semantic chunker model '{semantic_model_name}': {e!s}",
                 fg=typer.colors.RED,
+                err=True,
             )
             raise typer.Exit(code=1)
 
@@ -536,17 +548,17 @@ def process_text_for_hpo_command(
             sbert_model_for_semantic_chunking=sbert_model_for_chunking,
         )
     except Exception as e:
-        typer.secho(f"Error creating pipeline: {e!s}", fg=typer.colors.RED)
+        typer.secho(f"Error creating pipeline: {e!s}", fg=typer.colors.RED, err=True)
         raise typer.Exit(code=1)
 
-    # Process the text through the pipeline
+    # Process the text through the pipeline (always include positions)
     try:
-        processed_chunks = pipeline.process(raw_text)
+        processed_chunks = pipeline.process(raw_text, include_positions=True)
     except Exception as e:
-        typer.secho(f"Error processing text: {e!s}", fg=typer.colors.RED)
+        typer.secho(f"Error processing text: {e!s}", fg=typer.colors.RED, err=True)
         raise typer.Exit(code=1)
 
-    typer.echo(f"Processed {len(processed_chunks)} text chunks.")
+    typer.echo(f"Processed {len(processed_chunks)} text chunks.", err=True)
 
     # Extract HPO terms from the processed chunks
     try:
@@ -581,10 +593,13 @@ def process_text_for_hpo_command(
                 typer.secho(
                     f"Failed to initialize retriever for model: {retrieval_model_name}",
                     fg=typer.colors.RED,
+                    err=True,
                 )
                 raise typer.Exit(code=1)
         except Exception as e:
-            typer.secho(f"Error initializing retriever: {e!s}", fg=typer.colors.RED)
+            typer.secho(
+                f"Error initializing retriever: {e!s}", fg=typer.colors.RED, err=True
+            )
             raise typer.Exit(code=1)
 
         # Create cross-encoder if reranking is enabled
@@ -634,8 +649,22 @@ def process_text_for_hpo_command(
             assertion_statuses=assertion_statuses,
         )
     except Exception as e:
-        typer.secho(f"Error extracting HPO terms: {e!s}", fg=typer.colors.RED)
+        typer.secho(f"Error extracting HPO terms: {e!s}", fg=typer.colors.RED, err=True)
         raise typer.Exit(code=1)
+
+    # Add chunk positions to chunk-level results (unpacked as 'aggregated_results')
+    # Note: orchestrate_hpo_extraction returns (term_results, chunk_results),
+    # but we unpack as (chunk_results, aggregated_results), so variable names
+    # are swapped from their semantic meaning - 'aggregated_results' actually
+    # contains the chunk_idx/chunk_text/matches structure
+    if aggregated_results:
+        for ar in aggregated_results:
+            chunk_idx = ar.get("chunk_idx", -1)
+            if chunk_idx >= 0 and chunk_idx < len(processed_chunks):
+                pc = processed_chunks[chunk_idx]
+                if isinstance(pc, dict):
+                    ar["start_char"] = pc.get("start_char", -1)
+                    ar["end_char"] = pc.get("end_char", -1)
 
     # Enrich with HPO term details if requested
     if include_details:
@@ -805,9 +834,9 @@ def chunk_text_command(
         typer.Option(
             "--strategy",
             "-s",
-            help="Predefined chunking strategy. 'simple': paragraph then sentence. 'semantic': paragraph, sentence, then semantic splitting of sentences. 'detailed': paragraph, sentence, punctuation splitting, then semantic splitting of fragments. 'sliding_window': customizable semantic sliding window. 'sliding_window_cleaned': sliding window with final chunk cleaning. 'sliding_window_punct_cleaned': sliding window with punctuation splitting and final cleaning. 'sliding_window_punct_conj_cleaned': sliding window with punctuation, conjunction splitting, and final cleaning (choices: simple, semantic, detailed, sliding_window, sliding_window_cleaned, sliding_window_punct_cleaned, sliding_window_punct_conj_cleaned; default: sliding_window)",
+            help="Predefined chunking strategy. 'simple': paragraph then sentence. 'semantic': paragraph, sentence, then semantic splitting of sentences. 'detailed': paragraph, sentence, punctuation splitting, then semantic splitting of fragments. 'sliding_window': customizable semantic sliding window. 'sliding_window_cleaned': sliding window with final chunk cleaning. 'sliding_window_punct_cleaned': sliding window with punctuation splitting and final cleaning. 'sliding_window_punct_conj_cleaned': sliding window with punctuation, conjunction splitting, and final cleaning (choices: simple, semantic, detailed, sliding_window, sliding_window_cleaned, sliding_window_punct_cleaned, sliding_window_punct_conj_cleaned)",
         ),
-    ] = "sliding_window",
+    ] = DEFAULT_CHUNKING_STRATEGY,
     window_size: Annotated[
         int,
         typer.Option(
@@ -815,7 +844,7 @@ def chunk_text_command(
             "-ws",
             help="Sliding window size in tokens (only for sliding_window strategy)",
         ),
-    ] = 3,
+    ] = DEFAULT_WINDOW_SIZE_TOKENS,
     step_size: Annotated[
         int,
         typer.Option(
@@ -823,7 +852,7 @@ def chunk_text_command(
             "-ss",
             help="Sliding window step size in tokens (only for sliding_window strategy)",
         ),
-    ] = 1,
+    ] = DEFAULT_STEP_SIZE_TOKENS,
     split_threshold: Annotated[
         float,
         typer.Option(
@@ -831,7 +860,7 @@ def chunk_text_command(
             "-t",
             help="Similarity threshold for splitting (0-1, only for sliding_window strategy)",
         ),
-    ] = 0.5,
+    ] = DEFAULT_SPLITTING_THRESHOLD,
     min_segment_length: Annotated[
         int,
         typer.Option(
@@ -839,7 +868,7 @@ def chunk_text_command(
             "-ms",
             help="Minimum segment length in words (only for sliding_window strategy)",
         ),
-    ] = 2,
+    ] = DEFAULT_MIN_SEGMENT_LENGTH_WORDS,
     semantic_chunker_model: Annotated[
         Optional[str],
         typer.Option(
@@ -887,10 +916,10 @@ def chunk_text_command(
         # Try to auto-detect the language
         try:
             language = detect_language(raw_text, default_lang=DEFAULT_LANGUAGE)
-            typer.echo(f"Auto-detected language: {language}")
+            typer.echo(f"Auto-detected language: {language}", err=True)
         except ImportError:
             language = DEFAULT_LANGUAGE
-            typer.echo(f"Using default language: {language}")
+            typer.echo(f"Using default language: {language}", err=True)
 
     # Get chunking pipeline configuration using helper function
     chunking_pipeline_config = resolve_chunking_pipeline_config(
@@ -924,7 +953,7 @@ def chunk_text_command(
         from phentrieve.embeddings import load_embedding_model
 
         model_name = semantic_chunker_model or DEFAULT_MODEL
-        typer.echo(f"Loading sentence transformer model: {model_name}...")
+        typer.echo(f"Loading sentence transformer model: {model_name}...", err=True)
         try:
             # Use cached model loading (reuses model if already loaded in this process)
             sbert_model = load_embedding_model(
@@ -934,7 +963,9 @@ def chunk_text_command(
             logger.debug(f"Model type: {type(sbert_model)}")
         except Exception as e:
             typer.secho(
-                f"Error loading model '{model_name}': {e!s}", fg=typer.colors.RED
+                f"Error loading model '{model_name}': {e!s}",
+                fg=typer.colors.RED,
+                err=True,
             )
             raise typer.Exit(code=1)
 
@@ -956,14 +987,14 @@ def chunk_text_command(
         )
         logger.debug("Successfully created TextProcessingPipeline")
     except Exception as e:
-        typer.secho(f"Error creating pipeline: {e!s}", fg=typer.colors.RED)
+        typer.secho(f"Error creating pipeline: {e!s}", fg=typer.colors.RED, err=True)
         raise typer.Exit(code=1)
 
     # Process the text
     try:
         processed_chunks = pipeline.process(raw_text)
     except Exception as e:
-        typer.secho(f"Error processing text: {e!s}", fg=typer.colors.RED)
+        typer.secho(f"Error processing text: {e!s}", fg=typer.colors.RED, err=True)
         raise typer.Exit(code=1)
 
     # Output the chunks in the requested format
@@ -983,6 +1014,7 @@ def chunk_text_command(
             f"Error: Unknown output format '{output_format}'. "
             f"Supported formats: lines, json_lines",
             fg=typer.colors.RED,
+            err=True,
         )
         raise typer.Exit(code=1)
 
@@ -990,12 +1022,13 @@ def chunk_text_command(
     typer.secho(
         f"\nText chunking completed. {len(processed_chunks)} chunks generated.",
         fg=typer.colors.GREEN,
+        err=True,
     )
 
 
 def _format_and_output_results(
-    aggregated_results: list[dict],
-    chunk_results: list[dict],
+    chunk_level_results: list[dict],
+    term_level_results: list[dict],
     processed_chunks: list[dict],
     language: str,
     output_format: str,
@@ -1006,9 +1039,11 @@ def _format_and_output_results(
     """Format and output the HPO extraction results according to the specified format.
 
     Args:
-        aggregated_results: The aggregated HPO term results (already filtered by min_confidence)
-        chunk_results: The chunk-level results
-        processed_chunks: The processed text chunks
+        chunk_level_results: Per-chunk results with chunk_idx, chunk_text, matches,
+            start_char, end_char (from orchestrator's second return value)
+        term_level_results: Per-term aggregated results with id, name, score, chunks
+            (from orchestrator's first return value)
+        processed_chunks: The processed text chunks from pipeline
         language: The language of the text
         output_format: The output format (json_lines, rich_json_summary, csv_hpo_list)
         embedding_model: Name of embedding model used for retrieval
@@ -1018,13 +1053,9 @@ def _format_and_output_results(
     if output_format == "phenopacket_v2_json":
         from phentrieve.phenopackets.utils import format_as_phenopacket_v2
 
-        # Note: In this function, the variable naming is swapped from the orchestrator:
-        # - 'aggregated_results' here is actually 'chunk_results' from orchestrator
-        #   (contains chunk_idx, chunk_text, and matches per chunk)
-        # - 'chunk_results' here is actually 'aggregated_results' from orchestrator
-        # We use 'aggregated_results' which has the per-chunk structure with text evidence
+        # chunk_level_results has chunk_idx, chunk_text, matches, start_char, end_char
         phenopacket = format_as_phenopacket_v2(
-            chunk_results=aggregated_results,
+            chunk_results=chunk_level_results,
             embedding_model=embedding_model,
             reranker_model=reranker_model,
             input_text=input_text,
@@ -1032,44 +1063,55 @@ def _format_and_output_results(
         typer.echo(phenopacket)
         return  # early exit
 
-    typer.echo(f"Formatting results in {output_format} format...")
+    typer.echo(f"Formatting results in {output_format} format...", err=True)
 
     if output_format == "json_lines":
-        # Output each chunk and its matches as a JSON object per line
-        for chunk_result in chunk_results:
+        # Output each term and its info as a JSON object per line
+        for term_result in term_level_results:
             # Convert assertion_status to string if it's an enum
             if (
-                "assertion_status" in chunk_result
-                and chunk_result["assertion_status"] is not None
+                "assertion_status" in term_result
+                and term_result["assertion_status"] is not None
             ):
-                if hasattr(chunk_result["assertion_status"], "value"):
-                    chunk_result["assertion_status"] = chunk_result[
+                if hasattr(term_result["assertion_status"], "value"):
+                    term_result["assertion_status"] = term_result[
                         "assertion_status"
                     ].value
                 else:
-                    chunk_result["assertion_status"] = str(
-                        chunk_result["assertion_status"]
+                    term_result["assertion_status"] = str(
+                        term_result["assertion_status"]
                     )
-            typer.echo(json.dumps(chunk_result))
+            typer.echo(json.dumps(term_result))
 
-        # Output aggregated results as a final JSON object
-        typer.echo(json.dumps({"aggregated_hpo_terms": aggregated_results}))
+        # Output chunk-level results with positions as final JSON object
+        typer.echo(json.dumps({"aggregated_hpo_terms": chunk_level_results}))
 
     elif output_format == "rich_json_summary":
-        # First let's convert any AssertionStatus enums to strings
-        for result in chunk_results:
+        # First convert any AssertionStatus enums to strings
+        for result in term_level_results:
             if "assertion_status" in result and result["assertion_status"] is not None:
                 if hasattr(result["assertion_status"], "value"):
                     result["assertion_status"] = result["assertion_status"].value
                 else:
                     result["assertion_status"] = str(result["assertion_status"])
 
-        # Create a nicely formatted JSON summary
+        # Build chunks info with positions from chunk_level_results
+        chunks_info = [
+            {
+                "chunk_idx": chunk_data.get("chunk_idx", 0),
+                "text": chunk_data.get("chunk_text", ""),
+                "start_char": chunk_data.get("start_char", -1),
+                "end_char": chunk_data.get("end_char", -1),
+            }
+            for chunk_data in chunk_level_results
+        ]
+
         summary = {
             "document": {
                 "language": language,
                 "total_chunks": len(processed_chunks),
-                "total_hpo_terms": len(chunk_results),  # Use chunk_results here instead
+                "total_hpo_terms": len(term_level_results),
+                "chunks": chunks_info,
                 "hpo_terms": [
                     {
                         "hpo_id": result["id"],
@@ -1087,13 +1129,11 @@ def _format_and_output_results(
                         "evidence_count": (
                             len(result["chunks"]) if "chunks" in result else 0
                         ),
-                        "top_evidence": (
-                            f"Chunk {result['chunks'][0]}"
-                            if result.get("chunks")
-                            else ""
+                        "top_evidence_chunk": (
+                            result["chunks"][0] if result.get("chunks") else -1
                         ),
                     }
-                    for result in chunk_results  # Use chunk_results here instead
+                    for result in term_level_results
                 ],
             }
         }
@@ -1102,20 +1142,49 @@ def _format_and_output_results(
         typer.echo(formatted_json)
 
     elif output_format == "csv_hpo_list":
-        # Create a CSV with HPO terms and basic info
+        # Create a CSV with HPO terms and chunk positions
         output = StringIO()
-        fieldnames = ["hpo_id", "name", "confidence", "status", "evidence_count"]
+        fieldnames = [
+            "hpo_id",
+            "name",
+            "confidence",
+            "status",
+            "chunk_idx",
+            "chunk_text",
+            "start_char",
+            "end_char",
+        ]
         writer = csv.DictWriter(output, fieldnames=fieldnames)
         writer.writeheader()
 
-        for r in aggregated_results:
+        # Build a lookup from chunk_idx to positions
+        chunk_positions = {
+            chunk_data.get("chunk_idx", -1): {
+                "chunk_text": chunk_data.get("chunk_text", ""),
+                "start_char": chunk_data.get("start_char", -1),
+                "end_char": chunk_data.get("end_char", -1),
+            }
+            for chunk_data in chunk_level_results
+        }
+
+        for term in term_level_results:
+            hpo_id = term.get("hpo_id") or term.get("id", "")
+            confidence = term.get("confidence") or term.get("score", 0.0)
+            status = term.get("status") or term.get("assertion_status", "")
+            # Get chunk index from the term's evidence
+            chunk_idx = term.get("chunks", [-1])[0] if term.get("chunks") else -1
+            chunk_info = chunk_positions.get(chunk_idx, {})
+
             writer.writerow(
                 {
-                    "hpo_id": r["hpo_id"],
-                    "name": r["name"],
-                    "confidence": r["confidence"],
-                    "status": r["status"],
-                    "evidence_count": r["evidence_count"],
+                    "hpo_id": hpo_id,
+                    "name": term.get("name", ""),
+                    "confidence": confidence,
+                    "status": status,
+                    "chunk_idx": chunk_idx,
+                    "chunk_text": chunk_info.get("chunk_text", ""),
+                    "start_char": chunk_info.get("start_char", -1),
+                    "end_char": chunk_info.get("end_char", -1),
                 }
             )
 
@@ -1126,19 +1195,14 @@ def _format_and_output_results(
             f"Error: Unknown output format '{output_format}'. "
             f"Supported formats: json_lines, rich_json_summary, csv_hpo_list, phenopacket_v2_json",
             fg=typer.colors.RED,
+            err=True,
         )
         raise typer.Exit(code=1)
 
     # Summary
-    # For rich_json_summary format, use the chunk_results length for HPO term count
-    # as it contains the full list of HPO terms used in the JSON output
-    if output_format == "rich_json_summary":
-        hpo_term_count = len(chunk_results)
-    else:
-        hpo_term_count = len(aggregated_results)
-
     typer.secho(
-        f"\nText processing completed. Found {hpo_term_count} HPO terms "
+        f"\nText processing completed. Found {len(term_level_results)} HPO terms "
         f"across {len(processed_chunks)} text chunks.",
         fg=typer.colors.GREEN,
+        err=True,
     )

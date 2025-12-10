@@ -3,7 +3,13 @@ name: Deploy Docs to GitHub Pages
 on:
   push:
     branches:
-      - main # Or the primary development branch
+      - main
+    # Only trigger on documentation changes
+    paths:
+      - 'docs/**'
+      - 'mkdocs.yml'
+      - '.github/workflows/deploy-docs.yml'
+  workflow_dispatch:
 
 permissions:
   contents: read

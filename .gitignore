@@ -34,6 +34,9 @@ data/*.db
 data/*.db-shm
 data/*.db-wal
 
+# Data bundle manifest (downloaded from releases)
+data/manifest.json
+
 # ChromaDB database files
 *.sqlite3
 *.sqlite3-shm
@@ -103,3 +106,4 @@ SERENA.md
 
 # Playwright MCP files
 .playwright-mcp/
+data/hp.json

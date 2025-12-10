@@ -20,8 +20,14 @@ from api.schemas.text_processing_schemas import (
 )
 from phentrieve.config import (
     DEFAULT_ASSERTION_CONFIG,
+    DEFAULT_CHUNK_RETRIEVAL_THRESHOLD,
     DEFAULT_LANGUAGE,
+    DEFAULT_MIN_CONFIDENCE_AGGREGATED,
+    DEFAULT_MIN_SEGMENT_LENGTH_WORDS,
     DEFAULT_MODEL,
+    DEFAULT_SPLITTING_THRESHOLD,
+    DEFAULT_STEP_SIZE_TOKENS,
+    DEFAULT_WINDOW_SIZE_TOKENS,
 )
 from phentrieve.text_processing.hpo_extraction_orchestrator import (
     orchestrate_hpo_extraction,
@@ -53,11 +59,25 @@ def _get_chunking_config_for_api(
     # Pydantic schema ensures chunking_strategy always has a default value
     strategy_name = request.chunking_strategy.lower()
 
-    # Extract parameters with defaults
-    ws = request.window_size if request.window_size is not None else 7
-    ss = request.step_size if request.step_size is not None else 1
-    th = request.split_threshold if request.split_threshold is not None else 0.5
-    msl = request.min_segment_length if request.min_segment_length is not None else 3
+    # Extract parameters with defaults from config
+    ws = (
+        request.window_size
+        if request.window_size is not None
+        else DEFAULT_WINDOW_SIZE_TOKENS
+    )
+    ss = (
+        request.step_size if request.step_size is not None else DEFAULT_STEP_SIZE_TOKENS
+    )
+    th = (
+        request.split_threshold
+        if request.split_threshold is not None
+        else DEFAULT_SPLITTING_THRESHOLD
+    )
+    msl = (
+        request.min_segment_length
+        if request.min_segment_length is not None
+        else DEFAULT_MIN_SEGMENT_LENGTH_WORDS
+    )
 
     logger.debug(
         "API: Building config for '%s': ws=%s, ss=%s, th=%s, msl=%s",
@@ -299,7 +319,9 @@ async def _process_text_internal(request: TextProcessingRequest):
         # Run the pipeline to get chunks and initial assertion statuses
         logger.info("API: Processing text through pipeline...")
         processed_chunks_list = await run_in_threadpool(
-            text_pipeline.process, request.text_content
+            text_pipeline.process,
+            request.text_content,
+            include_positions=request.include_chunk_positions,
         )
 
         api_processed_chunks: list[ProcessedChunkAPI] = []
@@ -313,6 +335,8 @@ async def _process_text_internal(request: TextProcessingRequest):
                     text=p_chunk["text"],
                     status=p_chunk["status"].value,  # Convert Enum to string
                     assertion_details=p_chunk.get("assertion_details"),
+                    start_char=p_chunk.get("start_char"),
+                    end_char=p_chunk.get("end_char"),
                 )
             )
             text_chunks_for_orchestrator.append(p_chunk["text"])
@@ -333,9 +357,11 @@ async def _process_text_internal(request: TextProcessingRequest):
             retriever=retriever,
             cross_encoder=cross_enc,
             language=actual_language,
-            chunk_retrieval_threshold=request.chunk_retrieval_threshold or 0.3,
+            chunk_retrieval_threshold=request.chunk_retrieval_threshold
+            or DEFAULT_CHUNK_RETRIEVAL_THRESHOLD,
             num_results_per_chunk=request.num_results_per_chunk or 10,
-            min_confidence_for_aggregated=request.aggregated_term_confidence or 0.35,
+            min_confidence_for_aggregated=request.aggregated_term_confidence
+            or DEFAULT_MIN_CONFIDENCE_AGGREGATED,
             top_term_per_chunk=request.top_term_per_chunk_for_aggregation or False,
             include_details=request.include_details or False,
         )

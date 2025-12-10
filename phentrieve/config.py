@@ -32,7 +32,6 @@ __all__ = [
     # Models
     "DEFAULT_MODEL",
     "DEFAULT_BIOLORD_MODEL",
-    "JINA_MODEL_ID",
     "BENCHMARK_MODELS",
     # Retrieval settings
     "DEFAULT_TOP_K",
@@ -63,6 +62,16 @@ __all__ = [
     "SIMPLE_CHUNKING_CONFIG",
     "SEMANTIC_CHUNKING_CONFIG",
     "SLIDING_WINDOW_CONFIG",
+    # Sliding window defaults
+    "DEFAULT_WINDOW_SIZE_TOKENS",
+    "DEFAULT_STEP_SIZE_TOKENS",
+    "DEFAULT_SPLITTING_THRESHOLD",
+    "DEFAULT_MIN_SEGMENT_LENGTH_WORDS",
+    # HPO extraction thresholds
+    "DEFAULT_CHUNK_RETRIEVAL_THRESHOLD",
+    "DEFAULT_MIN_CONFIDENCE_AGGREGATED",
+    # Chunking strategy
+    "DEFAULT_CHUNKING_STRATEGY",
     # Assertion detection
     "DEFAULT_ASSERTION_CONFIG",
     # Helper functions
@@ -89,19 +98,12 @@ DEFAULT_VISUALIZATIONS_SUBDIR = "visualizations"
 # Default models (loaded from YAML with fallbacks)
 _DEFAULT_MODEL_FALLBACK = "FremyCompany/BioLORD-2023-M"
 DEFAULT_BIOLORD_MODEL = "FremyCompany/BioLORD-2023-M"  # Kept for backward compatibility
-JINA_MODEL_ID = "jinaai/jina-embeddings-v2-base-de"  # German embeddings model
 
 # All models for benchmarking (loaded from YAML with fallback)
+# Simplified to BioLORD only - the recommended model with best MRR@10 (0.823)
+# Other models remain available via phentrieve.yaml configuration if needed
 _BENCHMARK_MODELS_FALLBACK = [
-    "FremyCompany/BioLORD-2023-M",  # Domain-specific biomedical model
-    "jinaai/jina-embeddings-v2-base-de",  # Language-specific embeddings model (German)
-    "T-Systems-onsite/cross-en-de-roberta-sentence-transformer",  # Cross-lingual model (English-German),
-    "sentence-transformers/paraphrase-multilingual-mpnet-base-v2",
-    "sentence-transformers/distiluse-base-multilingual-cased-v2",
-    "BAAI/bge-m3",
-    "Alibaba-NLP/gte-multilingual-base",
-    "sentence-transformers/LaBSE",
-    "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+    "FremyCompany/BioLORD-2023-M",  # Recommended: Domain-specific biomedical model (MRR@10: 0.823)
 ]
 
 # Default parameters (loaded from YAML with fallbacks)
@@ -128,6 +130,19 @@ _DEFAULT_ENABLE_RERANKER_FALLBACK = False
 # - Default 0.7 preserves BioLORD's strong cross-lingual semantic matches
 # See: BioLORD-2023 RAG design, Multistage BiCross multilingual medical retrieval
 _DEFAULT_DENSE_TRUST_THRESHOLD_FALLBACK = 0.7
+
+# Sliding window chunking defaults (unified across CLI, API, Frontend)
+DEFAULT_WINDOW_SIZE_TOKENS = 3
+DEFAULT_STEP_SIZE_TOKENS = 1
+DEFAULT_SPLITTING_THRESHOLD = 0.5
+DEFAULT_MIN_SEGMENT_LENGTH_WORDS = 2
+
+# HPO extraction thresholds
+_DEFAULT_CHUNK_RETRIEVAL_THRESHOLD_FALLBACK = 0.7
+_DEFAULT_MIN_CONFIDENCE_AGGREGATED_FALLBACK = 0.75
+
+# Default chunking strategy
+DEFAULT_CHUNKING_STRATEGY = "sliding_window_punct_conj_cleaned"
 
 # Root for HPO term extraction and depth calculations
 PHENOTYPE_ROOT = "HP:0000118"
@@ -171,7 +186,10 @@ DETAILED_CHUNKING_CONFIG = [
 
 # Most detailed chunking strategy using the sliding window semantic splitter
 def get_sliding_window_config_with_params(
-    window_size=7, step_size=1, threshold=0.5, min_segment_length=3
+    window_size=DEFAULT_WINDOW_SIZE_TOKENS,
+    step_size=DEFAULT_STEP_SIZE_TOKENS,
+    threshold=DEFAULT_SPLITTING_THRESHOLD,
+    min_segment_length=DEFAULT_MIN_SEGMENT_LENGTH_WORDS,
 ):
     """Get a sliding window config with custom parameters.
 
@@ -201,9 +219,6 @@ def get_sliding_window_config_with_params(
 
 # Default sliding window config
 SLIDING_WINDOW_CONFIG = get_sliding_window_config_with_params()
-
-# Default chunking pipeline configuration (using sliding window for better results)
-DEFAULT_CHUNK_PIPELINE_CONFIG = SLIDING_WINDOW_CONFIG
 
 
 # Functions to get fresh copies of the configs to avoid mutation issues
@@ -311,6 +326,9 @@ def get_sliding_window_punct_conj_cleaned_config():
     return copy.deepcopy(SLIDING_WINDOW_PUNCT_CONJ_CLEANED_CONFIG)
 
 
+# Default chunking pipeline configuration
+DEFAULT_CHUNK_PIPELINE_CONFIG = SLIDING_WINDOW_PUNCT_CONJ_CLEANED_CONFIG
+
 # Default formula for semantic similarity calculations (loaded from YAML with fallback)
 _DEFAULT_SIMILARITY_FORMULA_FALLBACK = "hybrid"
 
@@ -325,7 +343,8 @@ DEFAULT_ASSERTION_CONFIG = {
 _DEFAULT_LANGUAGE_FALLBACK = "en"
 
 # Default HPO data configuration (loaded from YAML with fallbacks)
-_DEFAULT_HPO_VERSION_FALLBACK = "v2025-03-03"
+# "latest" means fetch the newest version from GitHub API
+_DEFAULT_HPO_VERSION_FALLBACK = "latest"
 _DEFAULT_HPO_BASE_URL_FALLBACK = (
     "https://github.com/obophenotype/human-phenotype-ontology/releases/download"
 )
@@ -487,6 +506,14 @@ if isinstance(_loaded_weights, dict):
     }
 else:
     DEFAULT_COMPONENT_WEIGHTS = _DEFAULT_COMPONENT_WEIGHTS_FALLBACK
+
+# HPO extraction thresholds
+DEFAULT_CHUNK_RETRIEVAL_THRESHOLD: float = get_config_value(
+    "extraction", _DEFAULT_CHUNK_RETRIEVAL_THRESHOLD_FALLBACK, "chunk_threshold"
+)
+DEFAULT_MIN_CONFIDENCE_AGGREGATED: float = get_config_value(
+    "extraction", _DEFAULT_MIN_CONFIDENCE_AGGREGATED_FALLBACK, "min_confidence"
+)
 
 
 # =============================================================================
