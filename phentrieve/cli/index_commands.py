@@ -45,6 +45,20 @@ def build_index(
             help="Build multi-vector index (separate vectors for label, synonyms, definition)",
         ),
     ] = False,
+    index_dir: Annotated[
+        Optional[str],
+        typer.Option(
+            "--index-dir",
+            help="Custom directory for storing the vector index (overrides config)",
+        ),
+    ] = None,
+    data_dir: Annotated[
+        Optional[str],
+        typer.Option(
+            "--data-dir",
+            help="Custom directory containing HPO data (overrides config)",
+        ),
+    ] = None,
 ):
     """Build vector index for HPO terms.
 
@@ -76,6 +90,8 @@ def build_index(
         recreate=recreate,
         debug=debug,
         multi_vector=multi_vector,
+        index_dir_override=index_dir,
+        data_dir_override=data_dir,
     )
 
     if success:
