@@ -136,6 +136,14 @@ services:
       # CORS: Add production frontend URLs (appends to defaults, comma-separated)
       # Example: CORS_EXTRA_ORIGINS=https://phentrieve.example.com,https://app.example.com
       - CORS_EXTRA_ORIGINS=${CORS_EXTRA_ORIGINS:-}
+      # Environment indicator for version info endpoint (Issue #143)
+      # Values: production, staging, development
+      - ENV=${ENV:-production}
+      # Data sync configuration (Issue #142)
+      # PHENTRIEVE_DATA_SYNC: Enable/disable automatic data sync (default: true)
+      # PHENTRIEVE_DATA_FORCE_SYNC: Force sync even if versions match (default: false)
+      - PHENTRIEVE_DATA_SYNC=${PHENTRIEVE_DATA_SYNC:-true}
+      - PHENTRIEVE_DATA_FORCE_SYNC=${PHENTRIEVE_DATA_FORCE_SYNC:-false}
 
     # Enhanced health check with longer start period for model loading
     healthcheck:
