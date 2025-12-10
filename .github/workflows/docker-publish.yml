@@ -6,6 +6,13 @@ on:
       - main
     tags:
       - 'v*.*.*'
+    paths-ignore:
+      - 'docs/**'
+      - 'mkdocs.yml'
+      - '*.md'
+      - 'plan/**'
+      - 'LICENSE'
+      - '.github/workflows/deploy-docs.yml'
   workflow_dispatch:
 
 # Prevent concurrent builds - API image takes 20+ minutes
