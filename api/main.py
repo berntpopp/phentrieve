@@ -132,6 +132,45 @@ app.include_router(
 )
 
 
+# =============================================================================
+# MCP (Model Context Protocol) HTTP Mounting
+# =============================================================================
+# When ENABLE_MCP_HTTP=true, mount MCP at /mcp on the same domain as the API.
+# This enables LLM clients to access HPO term extraction tools via HTTP.
+#
+# Production URL: https://phentrieve.example.com/mcp
+# Local dev URL:  http://localhost:8734/mcp
+#
+# Environment variables:
+#   ENABLE_MCP_HTTP=true         - Enable MCP HTTP endpoint
+#   PHENTRIEVE_MCP_ENABLE_HTTP=true  - Alternative env var
+# =============================================================================
+def _try_mount_mcp() -> None:
+    """Attempt to mount MCP server at /mcp if enabled and dependencies available."""
+    try:
+        from api.mcp.config import is_mcp_http_enabled
+
+        if not is_mcp_http_enabled():
+            return
+
+        # Import MCP server factory (requires fastapi-mcp optional dependency)
+        from api.mcp.server import create_mcp_server
+
+        mcp = create_mcp_server(app)
+        mcp.mount()  # Mounts at /mcp by default
+        logger.info("MCP server mounted at /mcp (ENABLE_MCP_HTTP=true)")
+    except ImportError:
+        # fastapi-mcp not installed - silently skip
+        logger.debug("MCP dependencies not available - skipping /mcp mount")
+    except Exception as e:
+        # Log unexpected errors but don't crash the API
+        logger.warning(f"Failed to mount MCP server: {e}")
+
+
+# Mount MCP if enabled (runs at module load time)
+_try_mount_mcp()
+
+
 @app.get(
     "/",
     tags=["API Information"],

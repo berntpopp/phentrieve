@@ -144,6 +144,10 @@ services:
       # PHENTRIEVE_DATA_FORCE_SYNC: Force sync even if versions match (default: false)
       - PHENTRIEVE_DATA_SYNC=${PHENTRIEVE_DATA_SYNC:-true}
       - PHENTRIEVE_DATA_FORCE_SYNC=${PHENTRIEVE_DATA_FORCE_SYNC:-false}
+      # MCP (Model Context Protocol) HTTP endpoint configuration
+      # When enabled, mounts MCP server at /mcp on the same domain as the API
+      # URL: https://your-domain.com/mcp (requires fastapi-mcp optional dependency)
+      - ENABLE_MCP_HTTP=${ENABLE_MCP_HTTP:-true}
 
     # Enhanced health check with longer start period for model loading
     healthcheck:
