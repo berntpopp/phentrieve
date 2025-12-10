@@ -65,7 +65,7 @@ cors:
 data:
   # Root directory for phentrieve data (relative to api/ directory)
   # This should point to the project's data directory containing:
-  # - hpo_core_data/ (HPO ontology files)
+  # - hpo_data.db (HPO SQLite database)
   # - indexes/ (ChromaDB vector indexes)
   # - hf_cache/ (Hugging Face model cache)
   root_dir: "../data"

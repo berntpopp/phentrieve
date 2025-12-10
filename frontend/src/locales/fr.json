@@ -28,9 +28,7 @@
     "resetConfirm": "Réinitialiser"
   },
   "models": {
-    "biolord": "BioLORD 2023-M",
-    "jinaGerman": "Jina German v2",
-    "distiluse": "DistilUSE Multilingual"
+    "biolord": "BioLORD 2023-M"
   },
   "app": {
     "footer": {
@@ -121,7 +119,6 @@
       "title": "Options avancées",
       "embeddingModel": "Modèle d'embedding",
       "similarityThreshold": "Seuil de similarité",
-      "enableReranking": "Activer le re-classement",
       "includeDetails": "Inclure les détails",
       "language": "Langue",
       "processingModeTitle": "Mode de traitement",
@@ -150,7 +147,6 @@
       "phenotypeCollection": "Afficher et gérer les phénotypes collectés",
       "embeddingModel": "Sélectionner le modèle d'IA utilisé pour l'embedding du texte",
       "similarityThreshold": "Définir le score de similarité minimum requis pour les résultats",
-      "enableReranking": "Activer le reclassement des résultats avec un cross-encoder",
       "includeDetails": "Inclure les définitions et synonymes des termes HPO dans les résultats de recherche (limité à 20 résultats pour les performances)",
       "language": "Sélectionner la langue pour le traitement des requêtes et la détection des négations",
       "subjectId": "Entrer un identifiant pour le sujet/patient",
@@ -170,14 +166,12 @@
     "confidenceTooltip": "Score de confiance: {score}",
     "viewTermLink": "Voir sur le site HPO",
     "modelLabel": "Modèle",
-    "rerankerLabel": "Re-classeur",
     "languageLabel": "Langue",
     "assertionLabel": "Assertion",
     "negated": "Niée",
     "affirmed": "Affirmée",
     "unknown": "Inconnu",
     "similarityLabel": "Score de similitude",
-    "rerankLabel": "Score de reclassement",
     "confidenceLabel": "Score de confiance",
     "cosineSimilarity": "Similitude cosinus",
     "rangeExplanation": "{min} (aucune similitude) à {max} (correspondance parfaite)",
@@ -191,7 +185,6 @@
       "low": "Faible correspondance",
       "poor": "Mauvaise correspondance"
     },
-    "originalRank": "Rang initial",
     "noTermsFound": "Aucun terme HPO correspondant à votre requête n'a été trouvé avec le seuil actuel. Essayez de réduire le seuil de similarité ou de reformuler votre requête.",
     "defaultError": "Une erreur s'est produite lors du traitement de votre requête.",
     "addToCollectionTooltip": "Ajouter {id} à la collection",
@@ -298,10 +291,6 @@
       "technical": {
         "title": "Détails Techniques",
         "questions": {
-          "reranking": {
-            "question": "Comment fonctionne le processus de reclassement?",
-            "answer": "<p>Phentrieve utilise une approche de récupération en deux étapes protégées:</p><ol><li><strong>Étape 1 - Récupération Dense:</strong> Le modèle bi-encodeur BioLORD effectue la recherche sémantique initiale avec un rappel élevé</li><li><strong>Protection:</strong> Les correspondances à haute confiance (similarité ≥0,7) sont protégées contre la dégradation, préservant les fortes performances cross-linguistiques de BioLORD</li><li><strong>Étape 2 - Affinement Cross-Encoder:</strong> BAAI/bge-reranker-v2-m3 (multilingue, 568M paramètres) affine uniquement les candidats de milieu de gamme incertains</li><li><strong>Fusion:</strong> Les résultats protégés restent en haut, les résultats reclassés remplissent en dessous</li></ol><p>Cette approche préserve la qualité de la récupération dense tout en bénéficiant de la précision du cross-encoder pour les correspondances incertaines.</p>"
-          },
           "performance": {
             "question": "Quelles performances puis-je attendre?",
             "answer": "<p>Nos résultats de benchmark montrent:</p><ul><li>BioLORD-2023-M: HR{'@'}1=0.3333, HR{'@'}3=0.6667, HR{'@'}5=0.7778</li><li>Jina-v2-base-de: HR{'@'}1=0.2222, HR{'@'}3=0.4444, HR{'@'}5=0.5556</li></ul><p>Les performances peuvent varier en fonction de la complexité et de la spécificité du texte d'entrée.</p>"

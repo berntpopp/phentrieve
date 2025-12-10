@@ -6,6 +6,13 @@ on:
       - main
     tags:
       - 'v*.*.*'
+    paths-ignore:
+      - 'docs/**'
+      - 'mkdocs.yml'
+      - '*.md'
+      - 'plan/**'
+      - 'LICENSE'
+      - '.github/workflows/deploy-docs.yml'
   workflow_dispatch:
 
 # Prevent concurrent builds - API image takes 20+ minutes
@@ -110,6 +117,12 @@ jobs:
           cache-to: ${{ github.event_name != 'pull_request' && format('type=registry,ref={0}/{1}:buildcache,mode=max', env.REGISTRY, env.IMAGE_NAME_API) || '' }}
           platforms: linux/amd64
           load: ${{ github.event_name == 'pull_request' }}  # Load for scanning on PRs
+          # Pre-built HPO data bundle configuration (Issue #117, #133)
+          # Mode 1 (default): Download BioLORD bundle from GitHub Releases
+          # This embeds HPO data + vector indexes for instant cold starts
+          build-args: |
+            BUNDLE_URL=https://github.com/berntpopp/phentrieve/releases/download/data-v2025-11-24/phentrieve-data-v2025-11-24-biolord.tar.gz
+            BUILD_INDEXES=false
 
       - name: Scan API image with Trivy
         uses: aquasecurity/trivy-action@0.33.1

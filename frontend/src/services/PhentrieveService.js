@@ -95,6 +95,28 @@ class PhentrieveService {
   }
 
   /**
+   * Fetches configuration info from the API including available models
+   * @returns {Object} Data matching PhentrieveConfigInfoResponseAPI schema
+   */
+  async getConfigInfo() {
+    try {
+      logService.debug('Fetching API configuration info');
+      const response = await axios.get(`${API_URL}/info`);
+      logService.debug('API config info received', {
+        embeddingModelsCount: response.data.available_embedding_models?.length || 0,
+        defaultModel: response.data.default_embedding_model,
+      });
+      return response.data;
+    } catch (error) {
+      logService.error('Error fetching API config info:', {
+        message: error.message,
+        status: error.response?.status,
+      });
+      throw this._createStandardizedError(error, 'fetching configuration info');
+    }
+  }
+
+  /**
    * Creates a standardized error object from an Axios error
    * @param {Error} error - The original Axios error
    * @param {string} contextMessage - Context describing what operation was being performed

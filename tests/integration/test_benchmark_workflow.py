@@ -154,40 +154,6 @@ def test_run_evaluation_includes_confidence_intervals(
     assert "map_dense@1" in ci
 
 
-def test_run_evaluation_saves_results_with_new_metrics(
-    mock_test_data_tiny, temp_results_dir
-):
-    """Saved results should include all new metrics and CIs."""
-    model_name = "sentence-transformers/LaBSE"
-
-    results = run_evaluation(
-        model_name=model_name,
-        test_file=str(mock_test_data_tiny),
-        k_values=(1, 3),
-        enable_reranker=False,
-        save_results=True,
-        results_dir=temp_results_dir,
-    )
-    results = check_results_or_skip(results)
-
-    # Check that summary file was created
-    summary_file = temp_results_dir / f"{model_name.replace('/', '_')}_summary.json"
-    assert summary_file.exists()
-
-    # Load and verify content
-    with open(summary_file) as f:
-        summary = json.load(f)
-
-    # Check new metrics in summary
-    assert "avg_ndcg_dense@1" in summary
-    assert "avg_recall_dense@1" in summary
-    assert "avg_precision_dense@1" in summary
-    assert "avg_map_dense@1" in summary
-
-    # Check confidence intervals in results (not summary)
-    assert "confidence_intervals" in results
-
-
 def test_compare_models_includes_new_metrics(mock_test_data_tiny, temp_results_dir):
     """compare_models should include new metrics in comparison table."""
     # Run evaluation for single model

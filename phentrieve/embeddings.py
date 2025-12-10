@@ -40,7 +40,7 @@ from typing import Optional
 import torch
 from sentence_transformers import SentenceTransformer
 
-from phentrieve.config import DEFAULT_BIOLORD_MODEL, JINA_MODEL_ID
+from phentrieve.config import DEFAULT_BIOLORD_MODEL
 
 # Configure logger
 logger = logging.getLogger(__name__)
@@ -180,15 +180,8 @@ def load_embedding_model(
         logging.info(f"Loading embedding model: {model_name} on {device}")
 
         try:
-            # Special handling for Jina model which requires trust_remote_code=True
-            if model_name == JINA_MODEL_ID:
-                logging.info(
-                    f"Loading Jina model '{model_name}' with trust_remote_code=True on {device}"
-                )
-                # Security note: Only use trust_remote_code=True for trusted sources
-                model = SentenceTransformer(model_name, trust_remote_code=True)
             # Special handling for BioLORD model which may require special authentication
-            elif model_name == DEFAULT_BIOLORD_MODEL or "BioLORD" in model_name:
+            if model_name == DEFAULT_BIOLORD_MODEL or "BioLORD" in model_name:
                 logging.info(
                     f"Loading BioLORD model '{model_name}' with trust_remote_code=True on {device}"
                 )

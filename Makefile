@@ -1,4 +1,4 @@
-.PHONY: help format lint typecheck check test test-scripts test-all clean all install install-text-processing lock upgrade add remove clean-venv frontend-install frontend-lint frontend-format frontend-dev frontend-build docker-build docker-up docker-down docker-logs dev-api dev-frontend dev-all test-api test-api-cov test-e2e test-e2e-security test-e2e-health test-e2e-api test-e2e-fast test-e2e-clean test-e2e-logs test-e2e-shell cov-package cov-api cov-frontend cov-all security security-python security-frontend security-audit security-report
+.PHONY: help format lint typecheck check test test-scripts test-all clean all install install-text-processing lock upgrade add remove clean-venv frontend-install frontend-lint frontend-format frontend-dev frontend-build docker-build docker-up docker-down docker-logs dev-api dev-frontend dev-all test-api test-api-cov test-e2e test-e2e-security test-e2e-health test-e2e-api test-e2e-fast test-e2e-clean test-e2e-logs test-e2e-shell cov-package cov-api cov-frontend cov-all security security-python security-frontend security-audit security-report version version-cli version-api version-frontend bump-cli-patch bump-cli-minor bump-cli-major bump-api-patch bump-api-minor bump-api-major bump-frontend-patch bump-frontend-minor bump-frontend-major
 
 # Docker Compose command detection (supports both v1 and v2)
 # Prefer v2 (docker compose) over v1 (docker-compose)
@@ -463,3 +463,93 @@ cov-all: cov-package cov-api cov-frontend  ## Coverage: Run all package coverage
 	@echo "  • Frontend Package:   frontend/coverage/index.html"
 	@echo ""
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+##@ Version Management
+
+version: ## Show current versions of all components
+	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+	@echo "  Phentrieve Component Versions"
+	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+	@echo ""
+	@printf "  CLI/Library:  %s\n" "$$(grep -m1 'version = ' pyproject.toml | sed 's/.*"\(.*\)".*/\1/')"
+	@printf "  API:          %s\n" "$$(grep -m1 'version = ' api/pyproject.toml | sed 's/.*"\(.*\)".*/\1/')"
+	@printf "  Frontend:     %s\n" "$$(grep -m1 '"version"' frontend/package.json | sed 's/.*"\([0-9.]*\)".*/\1/')"
+	@echo ""
+	@echo "Version files:"
+	@echo "  • CLI:      pyproject.toml"
+	@echo "  • API:      api/pyproject.toml"
+	@echo "  • Frontend: frontend/package.json"
+	@echo ""
+	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+version-cli: ## Show CLI/Library version
+	@grep -m1 'version = ' pyproject.toml | sed 's/.*"\(.*\)".*/\1/'
+
+version-api: ## Show API version
+	@grep -m1 'version = ' api/pyproject.toml | sed 's/.*"\(.*\)".*/\1/'
+
+version-frontend: ## Show Frontend version
+	@grep -m1 '"version"' frontend/package.json | sed 's/.*"\([0-9.]*\)".*/\1/'
+
+# Version bump helpers (usage: make bump-cli-patch, make bump-api-minor, etc.)
+# These use sed for simple in-place version updates
+
+bump-cli-patch: ## Bump CLI patch version (0.8.0 -> 0.8.1)
+	@current=$$(grep -m1 'version = ' pyproject.toml | sed 's/.*"\(.*\)".*/\1/'); \
+	major=$$(echo $$current | cut -d. -f1); \
+	minor=$$(echo $$current | cut -d. -f2); \
+	patch=$$(echo $$current | cut -d. -f3); \
+	new="$$major.$$minor.$$((patch + 1))"; \
+	sed -i "s/version = \"$$current\"/version = \"$$new\"/" pyproject.toml; \
+	echo "CLI version bumped: $$current -> $$new"
+
+bump-cli-minor: ## Bump CLI minor version (0.8.0 -> 0.9.0)
+	@current=$$(grep -m1 'version = ' pyproject.toml | sed 's/.*"\(.*\)".*/\1/'); \
+	major=$$(echo $$current | cut -d. -f1); \
+	minor=$$(echo $$current | cut -d. -f2); \
+	new="$$major.$$((minor + 1)).0"; \
+	sed -i "s/version = \"$$current\"/version = \"$$new\"/" pyproject.toml; \
+	echo "CLI version bumped: $$current -> $$new"
+
+bump-cli-major: ## Bump CLI major version (0.8.0 -> 1.0.0)
+	@current=$$(grep -m1 'version = ' pyproject.toml | sed 's/.*"\(.*\)".*/\1/'); \
+	major=$$(echo $$current | cut -d. -f1); \
+	new="$$((major + 1)).0.0"; \
+	sed -i "s/version = \"$$current\"/version = \"$$new\"/" pyproject.toml; \
+	echo "CLI version bumped: $$current -> $$new"
+
+bump-api-patch: ## Bump API patch version (0.4.0 -> 0.4.1)
+	@current=$$(grep -m1 'version = ' api/pyproject.toml | sed 's/.*"\(.*\)".*/\1/'); \
+	major=$$(echo $$current | cut -d. -f1); \
+	minor=$$(echo $$current | cut -d. -f2); \
+	patch=$$(echo $$current | cut -d. -f3); \
+	new="$$major.$$minor.$$((patch + 1))"; \
+	sed -i "s/version = \"$$current\"/version = \"$$new\"/" api/pyproject.toml; \
+	echo "API version bumped: $$current -> $$new"
+
+bump-api-minor: ## Bump API minor version (0.4.0 -> 0.5.0)
+	@current=$$(grep -m1 'version = ' api/pyproject.toml | sed 's/.*"\(.*\)".*/\1/'); \
+	major=$$(echo $$current | cut -d. -f1); \
+	minor=$$(echo $$current | cut -d. -f2); \
+	new="$$major.$$((minor + 1)).0"; \
+	sed -i "s/version = \"$$current\"/version = \"$$new\"/" api/pyproject.toml; \
+	echo "API version bumped: $$current -> $$new"
+
+bump-api-major: ## Bump API major version (0.4.0 -> 1.0.0)
+	@current=$$(grep -m1 'version = ' api/pyproject.toml | sed 's/.*"\(.*\)".*/\1/'); \
+	major=$$(echo $$current | cut -d. -f1); \
+	new="$$((major + 1)).0.0"; \
+	sed -i "s/version = \"$$current\"/version = \"$$new\"/" api/pyproject.toml; \
+	echo "API version bumped: $$current -> $$new"
+
+bump-frontend-patch: ## Bump Frontend patch version (0.4.0 -> 0.4.1)
+	@cd frontend && npm version patch --no-git-tag-version && \
+	echo "Frontend version bumped to $$(grep -m1 '"version"' package.json | sed 's/.*"\([0-9.]*\)".*/\1/')"
+
+bump-frontend-minor: ## Bump Frontend minor version (0.4.0 -> 0.5.0)
+	@cd frontend && npm version minor --no-git-tag-version && \
+	echo "Frontend version bumped to $$(grep -m1 '"version"' package.json | sed 's/.*"\([0-9.]*\)".*/\1/')"
+
+bump-frontend-major: ## Bump Frontend major version (0.4.0 -> 1.0.0)
+	@cd frontend && npm version major --no-git-tag-version && \
+	echo "Frontend version bumped to $$(grep -m1 '"version"' package.json | sed 's/.*"\([0-9.]*\)".*/\1/')"

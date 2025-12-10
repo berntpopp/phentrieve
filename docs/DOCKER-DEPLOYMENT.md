@@ -7,6 +7,7 @@ This guide covers deploying Phentrieve using Docker and Docker Compose for produ
 - [Overview](#overview)
 - [Prerequisites](#prerequisites)
 - [Quick Start](#quick-start)
+- [Pre-built Data Bundles](#pre-built-data-bundles)
 - [Volume Permissions (Linux Only)](#volume-permissions-linux-only)
 - [Configuration](#configuration)
 - [Production Deployment](#production-deployment)
@@ -97,31 +98,23 @@ VITE_API_URL_PUBLIC=http://your-domain.com/api
 NPM_SHARED_NETWORK_NAME=npm_proxy_network
 ```
 
-### 4. Prepare HPO Data (CRITICAL!)
+### 4. Prepare HPO Data
 
-⚠️ **This step is REQUIRED before first deployment.** The API will fail with 503 errors if HPO data is not prepared.
+> **Note**: If using pre-built Docker images from GHCR (`ghcr.io/berntpopp/phentrieve/api:latest`), HPO data and indexes are **already included**. Skip to Step 5.
 
-Download and prepare HPO ontology data:
+For custom builds or volume-mounted data, prepare HPO data:
 
 ```bash
-# Option 1: Using local Python installation (if phentrieve is installed)
+# Option 1: Using local Python installation
 phentrieve data prepare    # Downloads hp.json, creates hpo_data.db (~12MB)
 phentrieve index build     # Creates ChromaDB vector indexes
 
-# Option 2: Using Docker (recommended for production)
+# Option 2: Using Docker
 docker-compose run --rm phentrieve_api phentrieve data prepare
 docker-compose run --rm phentrieve_api phentrieve index build
 ```
 
-**What this creates**:
-```
-data/
-├── hp.json           # HPO ontology JSON (~21MB, downloaded)
-├── hpo_data.db       # SQLite database (~12MB, generated) ⬅️ REQUIRED!
-└── indexes/          # ChromaDB vector indexes (generated)
-```
-
-**Common Error**: If you see `HPO database not found: .../hpo_data.db`, you need to run `phentrieve data prepare`.
+**Common Error**: If you see `HPO database not found`, either use pre-built images or run `phentrieve data prepare`. See [Pre-built Data Bundles](#pre-built-data-bundles) for details.
 
 ### 5. Start Services
 
@@ -148,6 +141,80 @@ curl http://localhost:8000/api/v1/health
 # Test frontend
 curl http://localhost:8080/health
 ```
+
+---
+
+## Pre-built Data Bundles
+
+Docker images can include **pre-built HPO data and vector indexes**, eliminating the need to run `phentrieve data prepare` and `phentrieve index build` after deployment. This reduces cold start time from ~15 minutes to ~2 minutes.
+
+### Build Modes
+
+The API Dockerfile supports three data preparation modes via build arguments:
+
+| Mode | Build Args | Use Case | Cold Start |
+|------|------------|----------|------------|
+| **Bundle Download** (default) | `BUNDLE_URL=<url>` | Production, fastest startup | ~1-2 min |
+| **Build from Scratch** | `BUNDLE_URL="" BUILD_INDEXES=true` | Custom models, CI/CD | ~15-20 min |
+| **External Volume** | `BUNDLE_URL=""` | Development, shared data | Instant (if data exists) |
+
+### Mode 1: Pre-built Bundle (Default)
+
+The default image includes the BioLORD model bundle (~400MB), which provides the best retrieval performance (MRR@10: 0.823).
+
+```bash
+# Uses default bundle - no build args needed
+docker build -t phentrieve-api ./api
+
+# Or specify a different bundle
+docker build \
+  --build-arg BUNDLE_URL="https://github.com/berntpopp/phentrieve/releases/download/data-v2025-11-24/phentrieve-data-v2025-11-24-biolord.tar.gz" \
+  -t phentrieve-api ./api
+```
+
+**Available bundles** (from [GitHub Releases](https://github.com/berntpopp/phentrieve/releases)):
+- `phentrieve-data-v2025-11-24-biolord.tar.gz` - BioLORD-2023-M (recommended)
+
+### Mode 2: Build from Scratch
+
+Build indexes during image creation. Useful for custom models or air-gapped environments.
+
+```bash
+docker build \
+  --build-arg BUNDLE_URL="" \
+  --build-arg BUILD_INDEXES=true \
+  --build-arg BUILD_MODEL="FremyCompany/BioLORD-2023-M" \
+  -t phentrieve-api ./api
+```
+
+### Mode 3: External Volume Mount
+
+No embedded data - mount a volume containing pre-existing data at runtime.
+
+```bash
+# Build without embedded data
+docker build --build-arg BUNDLE_URL="" -t phentrieve-api ./api
+
+# Run with mounted data volume
+docker run -v /path/to/data:/phentrieve_data_mount phentrieve-api
+```
+
+### Creating Custom Bundles
+
+Use the CLI to create bundles for distribution:
+
+```bash
+# Create bundle with BioLORD model
+phentrieve bundle create --model "FremyCompany/BioLORD-2023-M" --output ./bundles/
+
+# List available bundle configurations
+phentrieve bundle list
+```
+
+Bundle contents:
+- `manifest.json` - Metadata, checksums, model info
+- `hpo_data.db` - SQLite database (~12MB)
+- `indexes/` - ChromaDB vector indexes
 
 ---
 

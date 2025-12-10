@@ -24,10 +24,6 @@
       "title": "Technical Details",
       "questions": [
         {
-          "question": "How does the re-ranking process work?",
-          "answer": "<p>Phentrieve uses a protected two-stage retrieval approach:</p><ol><li><strong>Stage 1 - Dense Retrieval:</strong> BioLORD bi-encoder model performs initial semantic search for high recall</li><li><strong>Protection:</strong> High-confidence matches (similarity ≥0.7) are protected from demotion, preserving BioLORD's strong cross-lingual performance</li><li><strong>Stage 2 - Cross-Encoder Refinement:</strong> BAAI/bge-reranker-v2-m3 (multilingual, 568M params) refines only uncertain mid-tier candidates</li><li><strong>Merge:</strong> Protected results stay at top, reranked results fill below</li></ol><p>This approach preserves the quality of dense retrieval while benefiting from cross-encoder precision for uncertain matches.</p>"
-        },
-        {
           "question": "What performance can I expect?",
           "answer": "<p>Our benchmark results show:</p><ul><li>BioLORD-2023-M: HR@1=0.3333, HR@3=0.6667, HR@5=0.7778</li><li>Jina-v2-base-de: HR@1=0.2222, HR@3=0.4444, HR@5=0.5556</li></ul><p>Performance may vary based on the complexity and specificity of the input text.</p>"
         },
