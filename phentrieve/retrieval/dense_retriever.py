@@ -175,13 +175,10 @@ class DenseRetriever:
         try:
             metadata = self.collection.metadata
             self._index_type = metadata.get("index_type", "single_vector")
-            logging.debug(
-                "Detected index type: %s", _sanitize(self._index_type)
-            )
+            logging.debug("Detected index type: %s", _sanitize(self._index_type))
         except Exception as e:
             logging.warning(
-                "Could not detect index type, assuming single_vector: %s",
-                _sanitize(e)
+                "Could not detect index type, assuming single_vector: %s", _sanitize(e)
             )
             self._index_type = "single_vector"
 
@@ -472,7 +469,8 @@ class DenseRetriever:
         self,
         text: str,
         n_results: int = 10,
-        aggregation_strategy: str | AggregationStrategy = AggregationStrategy.LABEL_SYNONYMS_MAX,
+        aggregation_strategy: str
+        | AggregationStrategy = AggregationStrategy.LABEL_SYNONYMS_MAX,
         component_weights: Optional[dict[str, float]] = None,
         custom_formula: Optional[str] = None,
     ) -> list[dict[str, Any]]:
@@ -509,13 +507,13 @@ class DenseRetriever:
         if index_type != "multi_vector":
             logging.warning(
                 "query_multi_vector called on %s index. Results may be incorrect.",
-                _sanitize(index_type)
+                _sanitize(index_type),
             )
 
         logging.info(
             "Multi-vector query: '%s' with strategy %s",
             _sanitize(text[:50] + "..." if len(text) > 50 else text),
-            _sanitize(str(aggregation_strategy))
+            _sanitize(str(aggregation_strategy)),
         )
 
         # Request more results to ensure we get enough unique HPO IDs
@@ -523,7 +521,9 @@ class DenseRetriever:
         raw_n_results = n_results * 5
 
         # Query the index
-        raw_results = self.query(text, n_results=raw_n_results, include_similarities=True)
+        raw_results = self.query(
+            text, n_results=raw_n_results, include_similarities=True
+        )
 
         # Aggregate results by HPO ID
         aggregated = aggregate_multi_vector_results(

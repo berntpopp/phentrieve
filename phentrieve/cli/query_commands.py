@@ -412,11 +412,10 @@ def query_hpo(
             )
             raise typer.Exit(code=1)
 
-        # Multi-vector mode warning (full orchestrator integration pending)
+        # Log multi-vector mode
         if multi_vector:
             typer.secho(
-                "Note: Multi-vector query with aggregation strategy: "
-                f"{aggregation_strategy}",
+                f"Multi-vector mode enabled (strategy: {aggregation_strategy})",
                 fg=typer.colors.CYAN,
             )
 
@@ -449,6 +448,9 @@ def query_hpo(
             detect_query_assertion=detect_query_assertion,
             query_assertion_language=query_assertion_language,
             query_assertion_preference=query_assertion_preference,
+            # Multi-vector parameters (Issue #136)
+            multi_vector=multi_vector,
+            aggregation_strategy=aggregation_strategy,
         )
 
         # Check if we have results

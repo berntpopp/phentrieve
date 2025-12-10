@@ -13,6 +13,7 @@ import pysbd
 import torch
 
 from phentrieve.config import (
+    DEFAULT_AGGREGATION_STRATEGY,
     DEFAULT_DENSE_TRUST_THRESHOLD,
     DEFAULT_ENABLE_RERANKER,
     DEFAULT_MODEL,
@@ -43,6 +44,53 @@ _global_cross_encoder: Optional[Any] = (
     None  # CrossEncoder type from sentence_transformers
 )
 _global_query_assertion_detector: Optional[Any] = None  # CombinedAssertionDetector
+# Multi-vector settings for interactive mode
+_global_multi_vector: bool = False
+_global_aggregation_strategy: str = "label_synonyms_max"
+_global_component_weights: Optional[dict[str, float]] = None
+_global_custom_formula: Optional[str] = None
+
+
+def convert_multi_vector_to_chromadb_format(
+    multi_vector_results: list[dict[str, Any]],
+) -> dict[str, Any]:
+    """
+    Convert multi-vector aggregated results to ChromaDB-style format.
+
+    This allows reusing existing format_results() and output formatters.
+
+    Args:
+        multi_vector_results: List of aggregated results from query_multi_vector()
+
+    Returns:
+        Dictionary in ChromaDB result format
+    """
+    ids = []
+    metadatas = []
+    documents = []
+    distances = []
+
+    for result in multi_vector_results:
+        ids.append(result["hpo_id"])
+        # Build metadata with component scores
+        metadata = {
+            "hpo_id": result["hpo_id"],
+            "label": result["label"],
+        }
+        # Add component scores if present
+        if "component_scores" in result:
+            metadata["component_scores"] = result["component_scores"]
+        metadatas.append(metadata)
+        documents.append(result["label"])  # Use label as document
+        # Convert similarity to distance (1 - similarity)
+        distances.append(1.0 - result["similarity"])
+
+    return {
+        "ids": [ids],
+        "metadatas": [metadatas],
+        "documents": [documents],
+        "distances": [distances],
+    }
 
 
 def convert_results_to_candidates(
@@ -341,6 +389,11 @@ def process_query(
     rerank_count: int | None = None,
     output_func: Callable = print,
     query_assertion_detector=None,
+    # Multi-vector parameters (Issue #136)
+    multi_vector: bool = False,
+    aggregation_strategy: str = DEFAULT_AGGREGATION_STRATEGY,
+    component_weights: Optional[dict[str, float]] = None,
+    custom_formula: Optional[str] = None,
 ) -> list[dict[str, Any]]:
     """
     Process input text, either as a whole or sentence by sentence.
@@ -424,6 +477,31 @@ def process_query(
             if debug:
                 output_func(f"[DEBUG] Processing sentence {i + 1}: {sentence}")
 
+            # Multi-vector query path for sentence mode (Issue #136)
+            if multi_vector:
+                multi_results = retriever.query_multi_vector(
+                    sentence,
+                    n_results=num_results,
+                    aggregation_strategy=aggregation_strategy,
+                    component_weights=component_weights,
+                    custom_formula=custom_formula,
+                )
+                results = convert_multi_vector_to_chromadb_format(multi_results)
+
+                formatted = format_results(
+                    results=results,
+                    threshold=similarity_threshold,
+                    max_results=num_results,
+                    query=sentence,
+                    reranked=False,
+                    original_query_assertion_status=original_query_assertion_status,
+                    original_query_assertion_details=original_query_assertion_details,
+                )
+                if formatted and formatted["results"]:
+                    all_results.append(formatted)
+                continue  # Skip the single-vector path
+
+            # Single-vector query path
             # Set query count - need more results for reranking
             if cross_encoder and rerank_count is not None:
                 query_count = rerank_count * 2
@@ -489,6 +567,29 @@ def process_query(
             if debug:
                 output_func("[DEBUG] No results from sentence mode, trying full text")
 
+            # Multi-vector fallback path (Issue #136)
+            if multi_vector:
+                multi_results = retriever.query_multi_vector(
+                    text,
+                    n_results=num_results,
+                    aggregation_strategy=aggregation_strategy,
+                    component_weights=component_weights,
+                    custom_formula=custom_formula,
+                )
+                query_result = convert_multi_vector_to_chromadb_format(multi_results)
+
+                formatted_result = format_results(
+                    query_result,
+                    threshold=similarity_threshold,
+                    max_results=num_results,
+                    query=text,
+                    reranked=False,
+                    original_query_assertion_status=original_query_assertion_status,
+                    original_query_assertion_details=original_query_assertion_details,
+                )
+                all_results.extend([formatted_result])
+                return all_results
+
             # Single query mode, no sentence splitting
             query_result = retriever.query(
                 text,
@@ -545,6 +646,46 @@ def process_query(
         if debug:
             output_func(f"[DEBUG] Processing complete text: {text[:50]}...")
 
+        # Multi-vector query path (Issue #136)
+        if multi_vector:
+            if debug:
+                output_func(
+                    f"[DEBUG] Using multi-vector query with strategy: {aggregation_strategy}"
+                )
+
+            # Note: Cross-encoder reranking not yet supported for multi-vector
+            if cross_encoder and rerank_count:
+                output_func(
+                    "[WARNING] Cross-encoder reranking not yet supported with multi-vector mode. "
+                    "Using dense retrieval only."
+                )
+
+            # Query using multi-vector aggregation
+            multi_results = retriever.query_multi_vector(
+                text,
+                n_results=num_results,
+                aggregation_strategy=aggregation_strategy,
+                component_weights=component_weights,
+                custom_formula=custom_formula,
+            )
+
+            # Convert to ChromaDB format for compatibility with format_results
+            results = convert_multi_vector_to_chromadb_format(multi_results)
+
+            formatted_result = format_results(
+                results=results,
+                threshold=similarity_threshold,
+                max_results=num_results,
+                query=text,
+                reranked=False,
+                original_query_assertion_status=original_query_assertion_status,
+                original_query_assertion_details=original_query_assertion_details,
+            )
+            if formatted_result and formatted_result["results"]:
+                all_results.append(formatted_result)
+            return all_results
+
+        # Single-vector query path (original code)
         # Set query count - need more results for reranking
         if cross_encoder and rerank_count is not None:
             query_count = rerank_count * 2
@@ -636,6 +777,11 @@ def orchestrate_query(
     detect_query_assertion: bool = False,
     query_assertion_language: Optional[str] = None,
     query_assertion_preference: str = "dependency",
+    # Multi-vector parameters (Issue #136)
+    multi_vector: bool = False,
+    aggregation_strategy: str = DEFAULT_AGGREGATION_STRATEGY,
+    component_weights: Optional[dict[str, float]] = None,
+    custom_formula: Optional[str] = None,
 ) -> Union[list[dict[str, Any]], bool]:
     """
     Main orchestration function for HPO term queries.
@@ -658,6 +804,10 @@ def orchestrate_query(
         detect_query_assertion: Whether to detect query assertions
         query_assertion_language: Language of the query assertions
         query_assertion_preference: Preference for query assertion detection (dependency or rule-based)
+        multi_vector: Use multi-vector index with component-level aggregation (Issue #136)
+        aggregation_strategy: Strategy for aggregating component scores
+        component_weights: Weights for "all_weighted" strategy
+        custom_formula: Custom formula for "custom" strategy
 
     Returns:
         List of structured result dictionaries, or bool if in interactive_setup mode
@@ -666,7 +816,11 @@ def orchestrate_query(
         _global_model, \
         _global_retriever, \
         _global_cross_encoder, \
-        _global_query_assertion_detector
+        _global_query_assertion_detector, \
+        _global_multi_vector, \
+        _global_aggregation_strategy, \
+        _global_component_weights, \
+        _global_custom_formula
 
     # If in interactive mode, use the cached models
     if interactive_mode:
@@ -692,6 +846,11 @@ def orchestrate_query(
             rerank_count=rerank_count if _global_cross_encoder else None,
             output_func=output_func,
             query_assertion_detector=_global_query_assertion_detector,
+            # Multi-vector parameters (Issue #136)
+            multi_vector=_global_multi_vector,
+            aggregation_strategy=_global_aggregation_strategy,
+            component_weights=_global_component_weights,
+            custom_formula=_global_custom_formula,
         )
 
     # Determine device
@@ -711,11 +870,12 @@ def orchestrate_query(
             device=device,
         )
 
-        # Initialize retriever
+        # Initialize retriever (use multi-vector index if requested)
         retriever = DenseRetriever.from_model_name(
             model=model,
             model_name=model_name,
             min_similarity=similarity_threshold,
+            multi_vector=multi_vector,
         )
 
         if not retriever:
@@ -793,11 +953,22 @@ def orchestrate_query(
             _global_query_assertion_detector = (
                 query_assertion_detector_to_use  # Store for interactive use
             )
+            # Store multi-vector settings (Issue #136)
+            _global_multi_vector = multi_vector
+            _global_aggregation_strategy = aggregation_strategy
+            _global_component_weights = component_weights
+            _global_custom_formula = custom_formula
 
             # Log that assertion detection is ready if requested
             if detect_query_assertion:
                 output_func(
                     f"Query assertion detection enabled (lang: {actual_query_assertion_lang}, pref: {query_assertion_preference})"
+                )
+
+            # Log multi-vector status
+            if multi_vector:
+                output_func(
+                    f"Multi-vector mode enabled (strategy: {aggregation_strategy})"
                 )
 
             return True
@@ -830,6 +1001,11 @@ def orchestrate_query(
             rerank_count=rerank_count if enable_reranker else None,
             output_func=output_func,
             query_assertion_detector=active_query_assertion_detector,
+            # Multi-vector parameters (Issue #136)
+            multi_vector=multi_vector,
+            aggregation_strategy=aggregation_strategy,
+            component_weights=component_weights,
+            custom_formula=custom_formula,
         )
 
     except Exception as e:

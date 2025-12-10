@@ -166,9 +166,10 @@ def _weighted_aggregate(
 
 
 # Safe functions for custom formula evaluation
+# Note: We wrap min/max to handle single-argument case (e.g., max(0.9) fails in Python)
 _SAFE_FUNCTIONS: dict[str, Callable[..., float]] = {
-    "min": min,
-    "max": max,
+    "min": lambda *args: min(args) if len(args) > 1 else (args[0] if args else 0.0),
+    "max": lambda *args: max(args) if len(args) > 1 else (args[0] if args else 0.0),
     "avg": lambda *args: sum(args) / len(args) if args else 0.0,
 }
 
@@ -220,13 +221,19 @@ def _evaluate_custom_formula(
 
     try:
         result = _safe_eval(tree.body, context)
+        # Handle case where formula returns a list (shouldn't happen in well-formed formulas)
+        if isinstance(result, list):
+            return result[0] if result else 0.0
         return float(result)
     except Exception as e:
         raise ValueError(f"Error evaluating formula '{formula}': {e}")
 
 
-def _safe_eval(node: ast.AST, context: dict[str, Any]) -> float:
-    """Safely evaluate an AST node with restricted operations."""
+def _safe_eval(node: ast.AST, context: dict[str, Any]) -> float | list[float]:
+    """Safely evaluate an AST node with restricted operations.
+
+    Returns a float for most expressions, or a list[float] for the 'synonyms' variable.
+    """
     if isinstance(node, ast.Constant):
         if isinstance(node.value, (int, float)):
             return float(node.value)
@@ -234,7 +241,11 @@ def _safe_eval(node: ast.AST, context: dict[str, Any]) -> float:
 
     elif isinstance(node, ast.Name):
         if node.id in context:
-            return context[node.id]
+            value = context[node.id]
+            # synonyms is a list, everything else is float
+            if isinstance(value, list):
+                return value
+            return float(value)
         raise ValueError(f"Unknown variable: {node.id}")
 
     elif isinstance(node, ast.BinOp):
@@ -242,7 +253,7 @@ def _safe_eval(node: ast.AST, context: dict[str, Any]) -> float:
         right = _safe_eval(node.right, context)
         op_type = type(node.op)
         if op_type in _SAFE_OPERATORS:
-            return _SAFE_OPERATORS[op_type](left, right)
+            return float(_SAFE_OPERATORS[op_type](left, right))
         raise ValueError(f"Unsupported operator: {op_type.__name__}")
 
     elif isinstance(node, ast.Call):
@@ -278,9 +289,12 @@ def _safe_eval(node: ast.AST, context: dict[str, Any]) -> float:
     elif isinstance(node, ast.BoolOp):
         # Support "or" for default values: "definition or 0.0"
         if isinstance(node.op, ast.Or):
-            for val in node.values:
-                result = _safe_eval(val, context)
+            for bool_val in node.values:
+                result = _safe_eval(bool_val, context)
                 if result:
+                    # Ensure we return a float, not a list
+                    if isinstance(result, list):
+                        return result[0] if result else 0.0
                     return result
             return 0.0
         raise ValueError(f"Unsupported boolean operator: {type(node.op).__name__}")
@@ -316,7 +330,9 @@ def group_results_by_hpo_id(
 
     # Handle both single query and batch query result formats
     ids_list = results.get("ids", [[]])[0] if results.get("ids") else []
-    metadatas_list = results.get("metadatas", [[]])[0] if results.get("metadatas") else []
+    metadatas_list = (
+        results.get("metadatas", [[]])[0] if results.get("metadatas") else []
+    )
 
     # Get scores - prefer similarities over distances
     if "similarities" in results and results["similarities"]:

@@ -185,7 +185,9 @@ class TestGroupResultsByHpoId:
         """Test converts distances to similarities."""
         results = {
             "ids": [["HP:0001__label__0"]],
-            "metadatas": [[{"hpo_id": "HP:0001", "component": "label", "label": "Term"}]],
+            "metadatas": [
+                [{"hpo_id": "HP:0001", "component": "label", "label": "Term"}]
+            ],
             "distances": [[0.2]],  # distance, not similarity
         }
 
