@@ -18,6 +18,7 @@ import torch
 from tqdm import tqdm
 
 from phentrieve.config import (
+    DEFAULT_AGGREGATION_STRATEGY,
     DEFAULT_K_VALUES,
     DEFAULT_RERANK_CANDIDATE_COUNT,
     DEFAULT_RERANKER_MODEL,
@@ -48,6 +49,48 @@ from phentrieve.retrieval.reranker import (
 from phentrieve.utils import get_model_slug
 
 
+def _convert_multi_vector_to_chromadb_format(
+    multi_vector_results: list[dict[str, Any]],
+) -> dict[str, Any]:
+    """
+    Convert multi-vector query results to ChromaDB-style format for metrics.
+
+    Args:
+        multi_vector_results: Results from query_multi_vector() in format:
+            [{"hpo_id": ..., "label": ..., "similarity": ..., "component_scores": ...}]
+
+    Returns:
+        ChromaDB-style results dict with ids, metadatas, documents, distances
+    """
+    if not multi_vector_results:
+        return {"ids": [[]], "metadatas": [[]], "documents": [[]], "distances": [[]]}
+
+    ids = []
+    metadatas = []
+    documents = []
+    distances = []
+
+    for result in multi_vector_results:
+        ids.append(result.get("hpo_id", ""))
+        metadatas.append(
+            {
+                "hpo_id": result.get("hpo_id", ""),
+                "label": result.get("label", ""),
+                "component_scores": result.get("component_scores", {}),
+            }
+        )
+        documents.append(result.get("label", ""))
+        # Convert similarity to distance (1 - similarity)
+        distances.append(1.0 - result.get("similarity", 0.0))
+
+    return {
+        "ids": [ids],
+        "metadatas": [metadatas],
+        "documents": [documents],
+        "distances": [distances],
+    }
+
+
 def run_evaluation(
     model_name: str,
     test_file: str,
@@ -63,6 +106,9 @@ def run_evaluation(
     reranker_model: str = DEFAULT_RERANKER_MODEL,
     rerank_count: int = DEFAULT_RERANK_CANDIDATE_COUNT,
     similarity_formula: str = "hybrid",
+    # Multi-vector parameters (Issue #136)
+    multi_vector: bool = False,
+    aggregation_strategy: str = DEFAULT_AGGREGATION_STRATEGY,
 ) -> Optional[dict[str, Any]]:
     """
     Run a complete benchmark evaluation for a model on a test dataset.
@@ -82,6 +128,8 @@ def run_evaluation(
         reranker_model: Model name for the cross-encoder
         rerank_count: Number of candidates to re-rank
         similarity_formula: Which similarity formula to use for ontology similarity calculations
+        multi_vector: Use multi-vector index with component-level aggregation (Issue #136)
+        aggregation_strategy: Strategy for aggregating component scores in multi-vector mode
 
     Returns:
         Dictionary containing benchmark results or None if evaluation failed
@@ -168,6 +216,7 @@ def run_evaluation(
             model_name=model_name,
             index_dir=index_dir,
             min_similarity=similarity_threshold,
+            multi_vector=multi_vector,
         )
 
         if retriever is None:
@@ -212,12 +261,27 @@ def run_evaluation(
 
             try:
                 # Query the index with bi-encoder
-                dense_results = retriever.query(
-                    text,
-                    n_results=max(
-                        max(k_values) * 3, rerank_count if enable_reranker else 0
-                    ),
+                n_query_results = max(
+                    max(k_values) * 3, rerank_count if enable_reranker else 0
                 )
+
+                if multi_vector:
+                    # Use multi-vector query with aggregation
+                    multi_results = retriever.query_multi_vector(
+                        text,
+                        n_results=n_query_results,
+                        aggregation_strategy=aggregation_strategy,
+                    )
+                    # Convert to ChromaDB format for metrics calculation
+                    dense_results = _convert_multi_vector_to_chromadb_format(
+                        multi_results
+                    )
+                else:
+                    # Standard single-vector query
+                    dense_results = retriever.query(
+                        text,
+                        n_results=n_query_results,
+                    )
 
                 #### BASELINE DENSE METRICS CALCULATION ####
 
@@ -585,6 +649,9 @@ def run_evaluation(
             "similarity_threshold": similarity_threshold,
             "timestamp": datetime.now().isoformat(),
             "elapsed_time": elapsed_time,
+            # Multi-vector configuration (Issue #136)
+            "multi_vector": multi_vector,
+            "aggregation_strategy": aggregation_strategy if multi_vector else None,
             # Re-ranking configuration
             "reranker_enabled": enable_reranker,
             "reranker_model": reranker_model if enable_reranker else None,
@@ -684,6 +751,9 @@ def run_evaluation(
                 "timestamp": datetime.now().strftime("%Y%m%d_%H%M%S"),
                 "test_file": os.path.basename(test_file),
                 "num_test_cases": len(test_cases),
+                # Multi-vector configuration (Issue #136)
+                "multi_vector": multi_vector,
+                "aggregation_strategy": aggregation_strategy if multi_vector else None,
                 # MRR metric
                 "mrr_dense": avg_mrr_dense,
                 "mrr_dense_per_case": mrr_dense_values,
@@ -723,7 +793,9 @@ def run_evaluation(
             os.makedirs(summaries_dir, exist_ok=True)
             # Use model_slug instead of creating a new safe name
             # This ensures consistency with collection naming
-            summary_path = summaries_dir / f"{model_slug}_summary.json"
+            # Add suffix for multi-vector to distinguish from single-vector results
+            file_suffix = "_multi" if multi_vector else ""
+            summary_path = summaries_dir / f"{model_slug}{file_suffix}_summary.json"
             with open(summary_path, "w") as f:
                 json.dump(summary, f, indent=2)
 
@@ -731,7 +803,7 @@ def run_evaluation(
             os.makedirs(detailed_results_dir, exist_ok=True)
             detailed_df = pd.DataFrame(detailed_results)
             # Use model_slug for CSV files
-            csv_path = detailed_results_dir / f"{model_slug}_detailed.csv"
+            csv_path = detailed_results_dir / f"{model_slug}{file_suffix}_detailed.csv"
             detailed_df.to_csv(csv_path, index=False)
 
         # Log summary of results

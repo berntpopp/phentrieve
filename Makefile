@@ -1,4 +1,4 @@
-.PHONY: help format lint typecheck check test test-scripts test-all clean all install install-text-processing lock upgrade add remove clean-venv frontend-install frontend-lint frontend-format frontend-dev frontend-build docker-build docker-up docker-down docker-logs dev-api dev-frontend dev-all test-api test-api-cov test-e2e test-e2e-security test-e2e-health test-e2e-api test-e2e-fast test-e2e-clean test-e2e-logs test-e2e-shell cov-package cov-api cov-frontend cov-all security security-python security-frontend security-audit security-report
+.PHONY: help format lint typecheck check test test-scripts test-all clean all install install-text-processing lock upgrade add remove clean-venv frontend-install frontend-lint frontend-format frontend-dev frontend-build docker-build docker-up docker-down docker-logs dev-api dev-frontend dev-all test-api test-api-cov test-e2e test-e2e-security test-e2e-health test-e2e-api test-e2e-fast test-e2e-clean test-e2e-logs test-e2e-shell cov-package cov-api cov-frontend cov-all security security-python security-frontend security-audit security-report benchmark-compare benchmark-single benchmark-multi
 
 # Docker Compose command detection (supports both v1 and v2)
 # Prefer v2 (docker compose) over v1 (docker-compose)
@@ -189,6 +189,17 @@ dev-all: ## Display instructions to start both API and frontend
 	@echo "  $$ ./scripts/setup-local-dev.sh"
 	@echo ""
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+##@ Benchmarking
+
+benchmark-compare-vectors: ## Compare single-vector vs multi-vector with different strategies
+	phentrieve benchmark compare-vectors
+
+benchmark-single: ## Run benchmark with single-vector index
+	phentrieve benchmark run
+
+benchmark-multi: ## Run benchmark with multi-vector index
+	phentrieve benchmark run --multi-vector
 
 ##@ Cleaning
 

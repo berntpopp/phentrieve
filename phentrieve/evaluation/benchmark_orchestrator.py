@@ -12,6 +12,7 @@ from typing import Any, Optional, Union
 from phentrieve.config import (
     BENCHMARK_DATA_DIR,
     BENCHMARK_MODELS,
+    DEFAULT_AGGREGATION_STRATEGY,
     DEFAULT_BENCHMARK_FILE,
     DEFAULT_DETAILED_SUBDIR,
     DEFAULT_ENABLE_RERANKER,
@@ -64,6 +65,9 @@ def orchestrate_benchmark(
     data_dir_override: Optional[str] = None,
     index_dir_override: Optional[str] = None,
     results_dir_override: Optional[str] = None,
+    # Multi-vector parameters (Issue #136)
+    multi_vector: bool = False,
+    aggregation_strategy: str = DEFAULT_AGGREGATION_STRATEGY,
 ) -> Union[dict[str, Any], list[dict[str, Any]], None]:
     """
     Run benchmark evaluations for HPO term retrieval.
@@ -84,6 +88,8 @@ def orchestrate_benchmark(
         reranker_model: Model name for the cross-encoder for reranking
         rerank_count: Number of candidates to re-rank
         similarity_formula: Formula to use for ontology semantic similarity calculation ('hybrid' or 'simple_resnik_like')
+        multi_vector: Use multi-vector index with component-level aggregation (Issue #136)
+        aggregation_strategy: Strategy for aggregating component scores in multi-vector mode
 
     Returns:
         Dictionary or list of dictionaries containing benchmark results, or None if evaluation failed
@@ -172,6 +178,8 @@ def orchestrate_benchmark(
                 reranker_model=reranker_model,
                 rerank_count=rerank_count,
                 similarity_formula=similarity_formula,
+                multi_vector=multi_vector,
+                aggregation_strategy=aggregation_strategy,
             )
 
             if results:

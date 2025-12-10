@@ -251,3 +251,114 @@ phentrieve benchmark extraction compare \
     results/default/extraction_results.json \
     results/top_term/extraction_results.json
 ```
+
+## Multi-Vector Embeddings
+
+Phentrieve supports multi-vector embeddings where each HPO term component (label, synonyms, definition) is stored as separate vectors instead of a single concatenated vector.
+
+### Concept
+
+**Single-vector approach** (traditional):
+```
+HP:0001250 "Seizure" → embed("Seizure | Fits, Convulsions | A seizure is...")
+```
+
+**Multi-vector approach**:
+```
+HP:0001250 "Seizure":
+  ├── label:      embed("Seizure")
+  ├── synonym_0:  embed("Fits")
+  ├── synonym_1:  embed("Convulsions")
+  └── definition: embed("A seizure is a transient occurrence...")
+```
+
+### Building Multi-Vector Indexes
+
+```bash
+# Build multi-vector index
+phentrieve index build --multi-vector
+
+# Both indexes can coexist
+data/indexes/
+├── phentrieve_biolord_2023_m/       # Single-vector
+└── phentrieve_biolord_2023_m_multi/ # Multi-vector
+```
+
+### Aggregation Strategies
+
+When querying multi-vector indexes, scores from different components must be aggregated. Available strategies:
+
+| Strategy | Formula | Use Case |
+|----------|---------|----------|
+| `label_only` | `score(label)` | Fast, label-focused |
+| `label_synonyms_min` | `min(label, min(synonyms))` | Best single match |
+| `label_synonyms_max` | `max(label, max(synonyms))` | **Recommended** |
+| `all_max` | `max(label, synonyms, def)` | Any strong match |
+| `all_weighted` | `w₁·label + w₂·max(syns) + w₃·def` | Custom weights |
+
+### Querying Multi-Vector Indexes
+
+```bash
+# Query with multi-vector
+phentrieve query "seizures" --multi-vector
+
+# Specify aggregation strategy
+phentrieve query "seizures" --multi-vector \
+    --aggregation-strategy label_synonyms_max
+```
+
+### Benchmarking Multi-Vector Performance
+
+Compare single-vector vs multi-vector with different strategies:
+
+```bash
+# Full comparison
+phentrieve benchmark compare-vectors \
+    --test-file german/200cases_gemini_v1.json \
+    --strategies "label_synonyms_max,all_max,label_only,all_weighted"
+
+# Quick comparison (tiny dataset)
+phentrieve benchmark compare-vectors
+
+# Compare only multi-vector strategies
+phentrieve benchmark compare-vectors --no-single \
+    --strategies "label_synonyms_max,label_only"
+```
+
+### Multi-Vector Benchmark Results
+
+Comprehensive benchmarking shows multi-vector consistently outperforms single-vector:
+
+**70-case German dataset:**
+
+| Mode | Strategy | MRR | Hit@1 | Hit@10 |
+|------|----------|-----|-------|--------|
+| single-vector | - | 0.805 | 71.4% | 98.6% |
+| multi-vector | label_synonyms_max | **0.976** | **95.7%** | **100%** |
+
+**200-case German dataset:**
+
+| Mode | Strategy | MRR | Hit@1 | Hit@10 |
+|------|----------|-----|-------|--------|
+| single-vector | - | 0.824 | 74.0% | 95.0% |
+| multi-vector | label_synonyms_max | **0.937** | **91.0%** | **98.0%** |
+| multi-vector | label_only | 0.943 | 92.0% | 97.5% |
+| multi-vector | all_max | 0.934 | 90.5% | 98.5% |
+| multi-vector | all_weighted | 0.894 | 84.5% | 96.0% |
+
+**Key findings:**
+- Multi-vector improves MRR by **+13-21%** over single-vector
+- `label_synonyms_max` and `label_only` are the best strategies
+- `all_weighted` underperforms (definition dilutes signal)
+- Multi-vector achieves near-perfect Hit@10 on most datasets
+
+### Trade-offs
+
+| Aspect | Single-Vector | Multi-Vector |
+|--------|---------------|--------------|
+| Index size | ~50-100 MB | ~250-500 MB |
+| Build time | ~2-5 min | ~10-30 min |
+| Query latency | ~30ms | ~40-50ms |
+| Retrieval quality | Good | Excellent |
+
+Multi-vector is recommended for production use cases where retrieval quality is critical.

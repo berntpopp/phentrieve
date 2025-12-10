@@ -113,6 +113,12 @@ async def run_hpo_query_get(
         enable_reranker=enable_reranker,
         reranker_model=DEFAULT_RERANKER_MODEL,
         rerank_count=10,
+        # Multi-vector params (default to single-vector for GET endpoint)
+        multi_vector=False,
+        aggregation_strategy="label_synonyms_max",
+        component_weights=None,
+        custom_formula=None,
+        # Assertion detection
         detect_query_assertion=detect_query_assertion,
         query_assertion_language=query_assertion_language,
         query_assertion_preference=cast(
