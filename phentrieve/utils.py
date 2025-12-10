@@ -83,7 +83,7 @@ def setup_logging_cli(debug: bool = False):
     logging.basicConfig(
         level=level,
         format=log_format,
-        handlers=[logging.StreamHandler(sys.stdout)],
+        handlers=[logging.StreamHandler(sys.stderr)],
         force=True,
     )
     # Optional: Silence overly verbose libraries if needed

@@ -434,10 +434,10 @@ def process_text_for_hpo_command(
         # Try to auto-detect the language
         try:
             language = detect_language(raw_text, default_lang=DEFAULT_LANGUAGE)
-            typer.echo(f"Auto-detected language: {language}")
+            typer.echo(f"Auto-detected language: {language}", err=True)
         except ImportError:
             language = DEFAULT_LANGUAGE
-            typer.echo(f"Using default language: {language}")
+            typer.echo(f"Using default language: {language}", err=True)
 
     # Get chunking pipeline configuration using helper function
     chunking_pipeline_config = resolve_chunking_pipeline_config(
@@ -503,11 +503,13 @@ def process_text_for_hpo_command(
         if use_same_model:
             # Load once and share for both purposes (memory optimization)
             typer.echo(
-                f"Loading sentence transformer model (shared for chunking and retrieval): {semantic_model_name}..."
+                f"Loading sentence transformer model (shared for chunking and retrieval): {semantic_model_name}...",
+                err=True,
             )
         else:
             typer.echo(
-                f"Loading sentence transformer model for chunking: {semantic_model_name}..."
+                f"Loading sentence transformer model for chunking: {semantic_model_name}...",
+                err=True,
             )
 
         try:
@@ -524,6 +526,7 @@ def process_text_for_hpo_command(
             typer.secho(
                 f"Error loading semantic chunker model '{semantic_model_name}': {e!s}",
                 fg=typer.colors.RED,
+                err=True,
             )
             raise typer.Exit(code=1)
 
@@ -536,17 +539,17 @@ def process_text_for_hpo_command(
             sbert_model_for_semantic_chunking=sbert_model_for_chunking,
         )
     except Exception as e:
-        typer.secho(f"Error creating pipeline: {e!s}", fg=typer.colors.RED)
+        typer.secho(f"Error creating pipeline: {e!s}", fg=typer.colors.RED, err=True)
         raise typer.Exit(code=1)
 
     # Process the text through the pipeline (always include positions)
     try:
         processed_chunks = pipeline.process(raw_text, include_positions=True)
     except Exception as e:
-        typer.secho(f"Error processing text: {e!s}", fg=typer.colors.RED)
+        typer.secho(f"Error processing text: {e!s}", fg=typer.colors.RED, err=True)
         raise typer.Exit(code=1)
 
-    typer.echo(f"Processed {len(processed_chunks)} text chunks.")
+    typer.echo(f"Processed {len(processed_chunks)} text chunks.", err=True)
 
     # Extract HPO terms from the processed chunks
     try:
@@ -581,10 +584,13 @@ def process_text_for_hpo_command(
                 typer.secho(
                     f"Failed to initialize retriever for model: {retrieval_model_name}",
                     fg=typer.colors.RED,
+                    err=True,
                 )
                 raise typer.Exit(code=1)
         except Exception as e:
-            typer.secho(f"Error initializing retriever: {e!s}", fg=typer.colors.RED)
+            typer.secho(
+                f"Error initializing retriever: {e!s}", fg=typer.colors.RED, err=True
+            )
             raise typer.Exit(code=1)
 
         # Create cross-encoder if reranking is enabled
@@ -634,7 +640,7 @@ def process_text_for_hpo_command(
             assertion_statuses=assertion_statuses,
         )
     except Exception as e:
-        typer.secho(f"Error extracting HPO terms: {e!s}", fg=typer.colors.RED)
+        typer.secho(f"Error extracting HPO terms: {e!s}", fg=typer.colors.RED, err=True)
         raise typer.Exit(code=1)
 
     # Add chunk positions to aggregated_results (which contains chunk-level data with matches)
@@ -898,10 +904,10 @@ def chunk_text_command(
         # Try to auto-detect the language
         try:
             language = detect_language(raw_text, default_lang=DEFAULT_LANGUAGE)
-            typer.echo(f"Auto-detected language: {language}")
+            typer.echo(f"Auto-detected language: {language}", err=True)
         except ImportError:
             language = DEFAULT_LANGUAGE
-            typer.echo(f"Using default language: {language}")
+            typer.echo(f"Using default language: {language}", err=True)
 
     # Get chunking pipeline configuration using helper function
     chunking_pipeline_config = resolve_chunking_pipeline_config(
@@ -935,7 +941,7 @@ def chunk_text_command(
         from phentrieve.embeddings import load_embedding_model
 
         model_name = semantic_chunker_model or DEFAULT_MODEL
-        typer.echo(f"Loading sentence transformer model: {model_name}...")
+        typer.echo(f"Loading sentence transformer model: {model_name}...", err=True)
         try:
             # Use cached model loading (reuses model if already loaded in this process)
             sbert_model = load_embedding_model(
@@ -945,7 +951,9 @@ def chunk_text_command(
             logger.debug(f"Model type: {type(sbert_model)}")
         except Exception as e:
             typer.secho(
-                f"Error loading model '{model_name}': {e!s}", fg=typer.colors.RED
+                f"Error loading model '{model_name}': {e!s}",
+                fg=typer.colors.RED,
+                err=True,
             )
             raise typer.Exit(code=1)
 
@@ -967,14 +975,14 @@ def chunk_text_command(
         )
         logger.debug("Successfully created TextProcessingPipeline")
     except Exception as e:
-        typer.secho(f"Error creating pipeline: {e!s}", fg=typer.colors.RED)
+        typer.secho(f"Error creating pipeline: {e!s}", fg=typer.colors.RED, err=True)
         raise typer.Exit(code=1)
 
     # Process the text
     try:
         processed_chunks = pipeline.process(raw_text)
     except Exception as e:
-        typer.secho(f"Error processing text: {e!s}", fg=typer.colors.RED)
+        typer.secho(f"Error processing text: {e!s}", fg=typer.colors.RED, err=True)
         raise typer.Exit(code=1)
 
     # Output the chunks in the requested format
@@ -994,6 +1002,7 @@ def chunk_text_command(
             f"Error: Unknown output format '{output_format}'. "
             f"Supported formats: lines, json_lines",
             fg=typer.colors.RED,
+            err=True,
         )
         raise typer.Exit(code=1)
 
@@ -1001,6 +1010,7 @@ def chunk_text_command(
     typer.secho(
         f"\nText chunking completed. {len(processed_chunks)} chunks generated.",
         fg=typer.colors.GREEN,
+        err=True,
     )
 
 
@@ -1041,7 +1051,7 @@ def _format_and_output_results(
         typer.echo(phenopacket)
         return  # early exit
 
-    typer.echo(f"Formatting results in {output_format} format...")
+    typer.echo(f"Formatting results in {output_format} format...", err=True)
 
     if output_format == "json_lines":
         # Output each term and its info as a JSON object per line
@@ -1173,6 +1183,7 @@ def _format_and_output_results(
             f"Error: Unknown output format '{output_format}'. "
             f"Supported formats: json_lines, rich_json_summary, csv_hpo_list, phenopacket_v2_json",
             fg=typer.colors.RED,
+            err=True,
         )
         raise typer.Exit(code=1)
 
@@ -1181,4 +1192,5 @@ def _format_and_output_results(
         f"\nText processing completed. Found {len(term_level_results)} HPO terms "
         f"across {len(processed_chunks)} text chunks.",
         fg=typer.colors.GREEN,
+        err=True,
     )
