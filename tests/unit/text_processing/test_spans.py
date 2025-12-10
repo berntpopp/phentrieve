@@ -115,20 +115,35 @@ class TestFindSpanInText:
         assert find_span_in_text("hello", "hello world", search_start=10) is None
 
     def test_whitespace_fallback(self) -> None:
-        """Test whitespace-normalized fallback matching."""
+        """Test whitespace-normalized fallback matching returns correct positions."""
         # Multiple spaces in haystack, single in needle
-        span = find_span_in_text("hello world", "hello  world")
+        haystack = "hello  world"
+        span = find_span_in_text("hello world", haystack)
         assert span is not None
+        # Verify positions map correctly to original haystack
+        assert span.start_char >= 0
+        assert span.end_char <= len(haystack)
+        assert haystack[span.start_char : span.end_char] == "hello  world"
 
     def test_whitespace_fallback_tabs(self) -> None:
-        """Test whitespace fallback handles tabs."""
-        span = find_span_in_text("hello world", "hello\tworld")
+        """Test whitespace fallback handles tabs and returns correct positions."""
+        haystack = "hello\tworld"
+        span = find_span_in_text("hello world", haystack)
         assert span is not None
+        # Verify positions map correctly to original haystack
+        assert span.start_char >= 0
+        assert span.end_char <= len(haystack)
+        assert haystack[span.start_char : span.end_char] == "hello\tworld"
 
     def test_whitespace_fallback_newlines(self) -> None:
-        """Test whitespace fallback handles newlines."""
-        span = find_span_in_text("hello world", "hello\nworld")
+        """Test whitespace fallback handles newlines and returns correct positions."""
+        haystack = "hello\nworld"
+        span = find_span_in_text("hello world", haystack)
         assert span is not None
+        # Verify positions map correctly to original haystack
+        assert span.start_char >= 0
+        assert span.end_char <= len(haystack)
+        assert haystack[span.start_char : span.end_char] == "hello\nworld"
 
     def test_unicode_german(self) -> None:
         """Test finding German text with umlauts."""

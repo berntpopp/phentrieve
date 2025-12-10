@@ -643,8 +643,11 @@ def process_text_for_hpo_command(
         typer.secho(f"Error extracting HPO terms: {e!s}", fg=typer.colors.RED, err=True)
         raise typer.Exit(code=1)
 
-    # Add chunk positions to aggregated_results (which contains chunk-level data with matches)
-    # Note: Due to unpacking order, 'aggregated_results' has the chunk_idx/chunk_text/matches structure
+    # Add chunk positions to chunk-level results (unpacked as 'aggregated_results')
+    # Note: orchestrate_hpo_extraction returns (term_results, chunk_results),
+    # but we unpack as (chunk_results, aggregated_results), so variable names
+    # are swapped from their semantic meaning - 'aggregated_results' actually
+    # contains the chunk_idx/chunk_text/matches structure
     if aggregated_results:
         for ar in aggregated_results:
             chunk_idx = ar.get("chunk_idx", -1)

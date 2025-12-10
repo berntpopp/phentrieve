@@ -100,16 +100,43 @@ def find_span_in_text(
 
     # Whitespace-normalized fallback for edge cases
     # This handles cases where whitespace was modified during processing
+    # We need to map positions back to the original haystack
     norm_needle = re.sub(r"\s+", " ", needle.strip())
-    norm_haystack = re.sub(r"\s+", " ", haystack)
+    if not norm_needle:
+        return None
 
-    pos = norm_haystack.find(norm_needle, search_start)
-    if pos != -1:
-        # Return original needle text but with normalized position
-        return TextSpan(
-            text=needle,
-            start_char=pos,
-            end_char=pos + len(norm_needle),
-        )
+    # Split into tokens and find their positions in original haystack
+    tokens = norm_needle.split()
+    if not tokens:
+        return None
 
-    return None
+    # Find first token in original haystack
+    first_token_match = re.search(re.escape(tokens[0]), haystack[search_start:])
+    if not first_token_match:
+        return None
+
+    start_char = search_start + first_token_match.start()
+
+    # If single token, end is simply after that token
+    if len(tokens) == 1:
+        end_char = start_char + first_token_match.end() - first_token_match.start()
+    else:
+        # Find last token after start position to determine end
+        # Search for each token sequentially to ensure correct ordering
+        current_pos = start_char + len(tokens[0])
+        for token in tokens[1:]:
+            token_match = re.search(re.escape(token), haystack[current_pos:])
+            if not token_match:
+                return None
+            current_pos = current_pos + token_match.end()
+        end_char = current_pos
+
+    # Verify we found something reasonable
+    if end_char <= start_char:
+        return None
+
+    return TextSpan(
+        text=haystack[start_char:end_char],
+        start_char=start_char,
+        end_char=end_char,
+    )
