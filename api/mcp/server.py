@@ -1,4 +1,4 @@
-"""MCP Server implementation for Phentrieve.
+"""MCP Server factory for Phentrieve.
 
 This module creates an MCP server from the existing FastAPI application
 using fastapi-mcp. It follows the Single Responsibility Principle by
@@ -6,17 +6,22 @@ keeping MCP concerns separate from the main API.
 
 Key design decisions:
 - Uses include_operations (allowlist) instead of exclude (more explicit)
-- Does NOT modify api/main.py (separation of concerns)
+- Does NOT import api/main.py to avoid cyclic imports (see cli.py for entry point)
 - Reuses existing FastAPI schemas (DRY principle)
 - Factory pattern for testability
 
-Usage:
-    # As CLI entry point (stdio transport for Claude Desktop)
-    phentrieve-mcp
+Architecture (avoiding cyclic imports):
+    - api/main.py imports api/mcp/server.py for HTTP mounting
+    - api/mcp/cli.py imports api/main.py for CLI entry point
+    - These are separate files, breaking the import cycle
 
-    # Or programmatically
+Usage:
+    # Programmatically (for HTTP mounting in api/main.py)
     from api.mcp.server import create_mcp_server
     mcp = create_mcp_server(app)
+    mcp.mount()  # Mount at /mcp
+
+    # CLI entry point is in cli.py (phentrieve-mcp command)
 """
 
 from __future__ import annotations
@@ -54,6 +59,11 @@ def create_mcp_server(app: FastAPI) -> Any:  # Returns FastApiMCP when installed
     Note:
         This function does NOT call mcp.mount() - the caller decides
         whether to mount (HTTP mode) or run stdio (CLI mode).
+
+        The CLI entry point (main()) is in cli.py to avoid cyclic imports.
+        This module does NOT import api.main, breaking the import cycle:
+          - api/main.py -> api/mcp/server.py (for HTTP mounting)
+          - api/mcp/cli.py -> api/main.py (for CLI entry point)
     """
     # Import here to make fastapi-mcp an optional dependency
     from fastapi_mcp import FastApiMCP
@@ -76,36 +86,3 @@ def create_mcp_server(app: FastAPI) -> Any:  # Returns FastApiMCP when installed
     )
 
     return mcp
-
-
-def main() -> None:
-    """Entry point for MCP server (stdio transport).
-
-    This is the entry point for the `phentrieve-mcp` command.
-    It runs the MCP server in stdio mode for Claude Desktop integration.
-
-    The server communicates via stdin/stdout using the MCP protocol.
-    Do not print anything to stdout in this mode.
-    """
-    import asyncio
-
-    # Configure logging to stderr only (stdout is for MCP protocol)
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(levelname)s - %(name)s - %(message)s",
-        handlers=[logging.StreamHandler()],  # Goes to stderr by default
-    )
-
-    # Import app here to avoid circular imports
-    from api.main import app
-
-    mcp = create_mcp_server(app)
-
-    logger.info("Starting Phentrieve MCP server (stdio transport)...")
-
-    # Run in stdio mode (for Claude Desktop)
-    asyncio.run(mcp.run_async())
-
-
-if __name__ == "__main__":
-    main()

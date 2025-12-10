@@ -6,7 +6,7 @@ import pytest
 
 # Check if MCP dependencies are installed
 try:
-    from pydantic_settings import BaseSettings  # noqa: F401
+    import pydantic_settings  # noqa: F401
 
     MCP_AVAILABLE = True
 except ImportError:

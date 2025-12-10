@@ -57,7 +57,7 @@ dependencies = [
 
 [project.scripts]
 phentrieve = "phentrieve.cli:app"
-phentrieve-mcp = "api.mcp.server:main"
+phentrieve-mcp = "api.mcp.cli:main"
 
 [project.optional-dependencies]
 # API server dependencies (for running the FastAPI backend)

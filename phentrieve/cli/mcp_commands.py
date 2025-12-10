@@ -77,7 +77,7 @@ def serve_mcp(
         http_main()
     else:
         # stdio transport (default) - no output to stdout (it's for protocol)
-        from api.mcp.server import main as stdio_main
+        from api.mcp.cli import main as stdio_main
 
         stdio_main()
 
