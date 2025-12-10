@@ -321,7 +321,7 @@ def is_obsolete_term(node_data: dict) -> bool:
         True if term is obsolete, False otherwise
 
     Examples:
-        >>> node = {"lbl": "obsolete Clitoromegaly", "meta": {"deprecated": true}}
+        >>> node = {"lbl": "obsolete Clitoromegaly", "meta": {"deprecated": True}}
         >>> is_obsolete_term(node)
         True
 
@@ -362,7 +362,7 @@ def get_replacement_term(node_data: dict) -> Optional[str]:
     Examples:
         >>> node = {
         ...     "meta": {
-        ...         "deprecated": true,
+        ...         "deprecated": True,
         ...         "basicPropertyValues": [
         ...             {"pred": "http://purl.obolibrary.org/obo/IAO_0100001",
         ...              "val": "HP:0008665"}

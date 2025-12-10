@@ -174,8 +174,7 @@ def _populate_manifest_from_db(manifest: BundleManifest, db_path: Path) -> None:
     """
     from phentrieve.data_processing.hpo_database import HPODatabase
 
-    db = HPODatabase(db_path)
-    try:
+    with HPODatabase(db_path) as db:
         # Get metadata
         manifest.hpo_version = db.get_metadata("hpo_version") or manifest.hpo_version
         manifest.hpo_release_date = db.get_metadata("hpo_download_date") or ""
@@ -193,9 +192,6 @@ def _populate_manifest_from_db(manifest: BundleManifest, db_path: Path) -> None:
             manifest.obsolete_terms = int(obsolete_str)
 
         manifest.total_terms = manifest.active_terms + manifest.obsolete_terms
-
-    finally:
-        db.close()
 
 
 def _get_index_dimension(index_dir: Path) -> int:

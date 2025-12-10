@@ -85,9 +85,15 @@ class TestEnrichQueryResults:
         enriched = enrich_query_results_with_details(results)
         assert enriched == []
 
-    def test_enrich_results_structure_preserved(self, sample_structured_results):
+    def test_enrich_results_structure_preserved(
+        self, sample_structured_results, tmp_path
+    ):
         """Test that structure is preserved after enrichment."""
-        enriched = enrich_query_results_with_details(sample_structured_results)
+        # Use non-existent database path to trigger graceful fallback
+        # (function returns results with None details when DB not found)
+        enriched = enrich_query_results_with_details(
+            sample_structured_results, data_dir_override=str(tmp_path)
+        )
 
         # Structure preserved
         assert len(enriched) == 1

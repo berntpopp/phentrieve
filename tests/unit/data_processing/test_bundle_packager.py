@@ -302,7 +302,7 @@ class TestPopulateManifestFromDb:
         manifest = BundleManifest()
         db_path = tmp_path / "test.db"
 
-        # Mock HPODatabase
+        # Mock HPODatabase as context manager (patching at import location)
         with patch(
             "phentrieve.data_processing.hpo_database.HPODatabase"
         ) as MockHPODatabase:
@@ -314,7 +314,9 @@ class TestPopulateManifestFromDb:
                 "active_terms_count": "17000",
                 "obsolete_terms_filtered": "2000",
             }.get(key)
-            MockHPODatabase.return_value = mock_db
+            # Configure context manager protocol
+            MockHPODatabase.return_value.__enter__.return_value = mock_db
+            MockHPODatabase.return_value.__exit__.return_value = None
 
             # Act
             _populate_manifest_from_db(manifest, db_path)
@@ -331,13 +333,15 @@ class TestPopulateManifestFromDb:
         manifest = BundleManifest(hpo_version="default")
         db_path = tmp_path / "test.db"
 
-        # Mock HPODatabase with missing values
+        # Mock HPODatabase as context manager with missing values (patching at import location)
         with patch(
             "phentrieve.data_processing.hpo_database.HPODatabase"
         ) as MockHPODatabase:
             mock_db = MagicMock()
             mock_db.get_metadata.return_value = None
-            MockHPODatabase.return_value = mock_db
+            # Configure context manager protocol
+            MockHPODatabase.return_value.__enter__.return_value = mock_db
+            MockHPODatabase.return_value.__exit__.return_value = None
 
             # Act
             _populate_manifest_from_db(manifest, db_path)
