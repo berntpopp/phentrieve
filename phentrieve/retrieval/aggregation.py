@@ -90,12 +90,12 @@ def aggregate_scores(
         return label_score if label_score is not None else 0.0
 
     elif strategy == AggregationStrategy.LABEL_SYNONYMS_MIN:
-        # Best single match from label or synonyms
+        # Minimum (worst) score from label or synonyms - conservative approach
         label_syn_scores = []
         if label_score is not None:
             label_syn_scores.append(label_score)
         label_syn_scores.extend(synonym_scores)
-        return max(label_syn_scores) if label_syn_scores else 0.0
+        return min(label_syn_scores) if label_syn_scores else 0.0
 
     elif strategy == AggregationStrategy.LABEL_SYNONYMS_MAX:
         # Best match between label and best synonym

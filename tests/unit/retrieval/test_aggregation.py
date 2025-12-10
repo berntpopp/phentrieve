@@ -57,6 +57,26 @@ class TestAggregateScores:
         )
         assert result == 0.95
 
+    def test_label_synonyms_min_takes_worst(self):
+        """Test label_synonyms_min returns min of label and synonyms (conservative)."""
+        result = aggregate_scores(
+            label_score=0.7,
+            synonym_scores=[0.9, 0.6],
+            definition_score=0.5,
+            strategy=AggregationStrategy.LABEL_SYNONYMS_MIN,
+        )
+        assert result == 0.6  # Worst (min) score wins
+
+    def test_label_synonyms_min_label_is_worst(self):
+        """Test label_synonyms_min when label is worst."""
+        result = aggregate_scores(
+            label_score=0.5,
+            synonym_scores=[0.8, 0.7],
+            definition_score=0.9,
+            strategy=AggregationStrategy.LABEL_SYNONYMS_MIN,
+        )
+        assert result == 0.5  # Label is worst, returns label
+
     def test_all_max_strategy(self):
         """Test all_max returns maximum across all components."""
         result = aggregate_scores(

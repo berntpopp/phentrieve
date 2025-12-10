@@ -325,7 +325,7 @@ def compare_vector_modes(
     Available aggregation strategies:
     - label_only: Only use label similarity
     - label_synonyms_max: Best match between label and synonyms (default)
-    - label_synonyms_min: Minimum of label and synonym scores
+    - label_synonyms_min: Minimum of label and synonym scores (conservative)
     - all_max: Maximum across all components (label, synonyms, definition)
     - all_min: Minimum across all components
     - all_weighted: Weighted combination of all components
