@@ -1,9 +1,47 @@
 # Graph-Based Extension Plan for Phentrieve
 
-**Status:** Planning  
+**Status:** Active Implementation  
 **Created:** 2025-12-12  
 **Author:** Engineering Analysis  
 **Scope:** Semantic text graphs, HPO ontology reasoning, hybrid architectures
+
+---
+
+## Design Principles
+
+### Backward Compatibility & Method Preservation
+
+**Critical Requirement:** All existing methods must be preserved intact to enable rigorous A/B comparison between legacy and graph-based approaches.
+
+1. **No Breaking Changes:** Existing `AssertionStatus`, `AssertionDetector`, and orchestration code remain untouched
+2. **Parallel Implementation:** New graph-based methods are additive, not replacements
+3. **Feature Flags:** All graph features are opt-in via configuration
+4. **Comparison Mode:** Built-in infrastructure to run both methods and compare results
+5. **Gradual Migration:** Once validated, graph methods can become defaults without removing legacy code
+
+### Implementation Strategy
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    EXISTING PIPELINE                        │
+│  (AssertionStatus enum, chunk-local detection, averaging)   │
+│                    [PRESERVED - DEFAULT]                    │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              │ opt-in via use_graph_inference=True
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                   GRAPH-BASED EXTENSION                     │
+│  (AssertionVector, semantic graph, propagation, ontology)   │
+│                    [ADDITIVE - OPT-IN]                      │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                   COMPARISON UTILITIES                      │
+│  (side-by-side metrics, A/B testing, decision logging)      │
+└─────────────────────────────────────────────────────────────┘
+```
 
 ---
 
@@ -1130,15 +1168,20 @@ class FinalAssertion:
 ```
 phentrieve/
 ├── text_processing/
-│   ├── assertion_representation.py  # NEW: AssertionVector
-│   ├── semantic_graph.py            # NEW: SemanticDocumentGraph
-│   ├── assertion_propagation.py     # NEW: AssertionPropagator
-│   └── ... (existing files)
-├── reasoning/                        # NEW DIRECTORY
+│   ├── assertion_detection.py        # PRESERVED: Original AssertionStatus, detectors
+│   ├── assertion_representation.py   # NEW: AssertionVector (extends, doesn't replace)
+│   ├── semantic_graph.py             # NEW: SemanticDocumentGraph
+│   ├── assertion_propagation.py      # NEW: AssertionPropagator
+│   └── ... (existing files unchanged)
+├── reasoning/                         # NEW DIRECTORY
 │   ├── __init__.py
-│   ├── hpo_consistency.py           # NEW: HPOConsistencyChecker
-│   └── hybrid_inference.py          # NEW: HybridInferenceEngine
-└── ... (existing directories)
+│   ├── hpo_consistency.py            # NEW: HPOConsistencyChecker
+│   ├── hybrid_inference.py           # NEW: HybridInferenceEngine
+│   └── method_comparison.py          # NEW: A/B comparison utilities
+├── evaluation/
+│   ├── assertion_comparison.py       # NEW: Compare legacy vs graph methods
+│   └── ... (existing files unchanged)
+└── ... (existing directories unchanged)
 
 tests/
 ├── unit/
@@ -1150,24 +1193,114 @@ tests/
 │       ├── test_hpo_consistency.py
 │       └── test_hybrid_inference.py
 └── integration/
-    └── test_graph_inference_pipeline.py
+    ├── test_graph_inference_pipeline.py
+    └── test_method_comparison.py       # NEW: Verify both methods produce valid output
 ```
 
 ---
 
-## 7. Success Metrics
+## 7. Method Preservation & Comparison Strategy
 
-| Metric | Baseline | Target | Measurement |
-|--------|----------|--------|-------------|
-| Assertion conflict rate | N/A (no detection) | <5% unresolved | Integration tests |
-| Negation F1 | Current detector | +5% improvement | Assertion benchmark |
-| Inference latency | N/A | <200ms for typical note | Performance benchmark |
-| Memory overhead | Current | <20% increase | Profiling |
-| API backward compatibility | 100% | 100% | E2E tests |
+### 7.1 Preserved Components (No Modifications)
+
+| Component | File | Reason for Preservation |
+|-----------|------|------------------------|
+| `AssertionStatus` enum | `assertion_detection.py` | Core API contract |
+| `KeywordAssertionDetector` | `assertion_detection.py` | Baseline method |
+| `DependencyAssertionDetector` | `assertion_detection.py` | Baseline method |
+| `CombinedAssertionDetector` | `assertion_detection.py` | Current default |
+| `orchestrate_hpo_extraction()` | `hpo_extraction_orchestrator.py` | Aggregation baseline |
+| `DocumentAggregator` | `document_aggregation.py` | Aggregation strategies |
+
+### 7.2 Comparison Infrastructure
+
+**File:** `phentrieve/reasoning/method_comparison.py`
+
+```python
+from dataclasses import dataclass
+from typing import Any
+
+@dataclass
+class MethodComparisonResult:
+    """Side-by-side comparison of legacy and graph-based methods."""
+    
+    # Input metadata
+    text_length: int
+    num_chunks: int
+    
+    # Legacy method results
+    legacy_assertions: dict[str, str]  # {hpo_id: assertion_status}
+    legacy_latency_ms: float
+    
+    # Graph method results (None if not enabled)
+    graph_assertions: dict[str, "AssertionVector"] | None
+    graph_latency_ms: float | None
+    
+    # Comparison metrics
+    agreement_rate: float  # % of HPO terms with same assertion
+    conflicts: list[dict[str, Any]]  # Terms where methods disagree
+
+class MethodComparator:
+    """Compare legacy and graph-based assertion methods."""
+    
+    def __init__(self, run_both: bool = True):
+        self.run_both = run_both
+    
+    def compare(
+        self,
+        chunks: list[dict[str, Any]],
+        hpo_matches: dict[str, list[int]],
+        legacy_result: dict[str, str],
+        graph_result: dict[str, "AssertionVector"] | None = None,
+    ) -> MethodComparisonResult:
+        """Run comparison and compute agreement metrics."""
+        ...
+```
+
+### 7.3 Feature Flag Configuration
+
+Add to `phentrieve.yaml`:
+
+```yaml
+# Graph-based inference (experimental)
+graph_inference:
+  enabled: false                    # Master switch
+  use_semantic_graph: false         # Build semantic text graph
+  use_assertion_propagation: false  # Run propagation algorithm
+  use_ontology_consistency: false   # Check HPO hierarchy
+  comparison_mode: false            # Run both methods and log comparison
+```
+
+### 7.4 CLI Comparison Flag
+
+```bash
+# Run legacy method only (default)
+phentrieve text process "clinical text..."
+
+# Run graph method only
+phentrieve text process "clinical text..." --use-graph-inference
+
+# Run both methods and compare
+phentrieve text process "clinical text..." --compare-methods
+```
 
 ---
 
-## 8. Risk Mitigation
+## 8. Success Metrics
+
+| Metric | Baseline | Target | Measurement |
+|--------|----------|--------|-------------|
+| Legacy method preserved | N/A | 100% API compatibility | E2E regression tests |
+| Assertion conflict rate | N/A (no detection) | <5% unresolved | Integration tests |
+| Negation F1 (graph) | Current detector F1 | +5% improvement | Assertion benchmark |
+| Agreement rate (legacy vs graph) | N/A | >90% on affirmed terms | Comparison tests |
+| Inference latency (graph) | N/A | <200ms for typical note | Performance benchmark |
+| Memory overhead (graph) | Current | <20% increase | Profiling |
+| Both methods runnable | N/A | 100% | Comparison mode tests |
+
+---
+
+## 9. Risk Mitigation
 
 | Risk | Likelihood | Impact | Mitigation |
 |------|------------|--------|------------|
@@ -1179,7 +1312,7 @@ tests/
 
 ---
 
-## 9. References
+## 10. References
 
 - `phentrieve/text_processing/pipeline.py` - Current pipeline orchestration
 - `phentrieve/text_processing/assertion_detection.py` - Existing assertion infrastructure

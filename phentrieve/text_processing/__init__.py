@@ -2,7 +2,7 @@
 Phentrieve Text Processing Package
 
 This module provides functionality for processing clinical text documents,
-including text chunking, cleaning, and assertion detection.
+including text chunking, cleaning, assertion detection, and graph-based reasoning.
 """
 
 from phentrieve.text_processing.chunkers import (
@@ -20,6 +20,20 @@ from phentrieve.text_processing.cleaners import (
 )
 from phentrieve.text_processing.spans import TextSpan, find_span_in_text
 
+# Graph-based reasoning modules (Phase 1)
+from phentrieve.text_processing.assertion_representation import (
+    AssertionVector,
+    affirmed_vector,
+    negated_vector,
+    normal_vector,
+    uncertain_vector,
+)
+from phentrieve.text_processing.semantic_graph import (
+    ChunkNode,
+    GraphEdge,
+    SemanticDocumentGraph,
+)
+
 __all__ = [
     # Cleaners
     "normalize_line_endings",
@@ -35,4 +49,14 @@ __all__ = [
     # Spans
     "TextSpan",
     "find_span_in_text",
+    # Graph-based assertion representation (Phase 1)
+    "AssertionVector",
+    "affirmed_vector",
+    "negated_vector",
+    "normal_vector",
+    "uncertain_vector",
+    # Semantic document graph (Phase 1)
+    "ChunkNode",
+    "GraphEdge",
+    "SemanticDocumentGraph",
 ]
