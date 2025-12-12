@@ -164,6 +164,14 @@ def interactive(
             help="Keep only the top term per chunk",
         ),
     ] = False,
+    enable_family_history_extraction: Annotated[
+        bool,
+        typer.Option(
+            "--enable-family-history-extraction",
+            "--fhx",
+            help="Extract specific phenotypes from family history contexts (e.g., 'epilepsy' from 'family history of epilepsy')",
+        ),
+    ] = False,
     debug: Annotated[
         bool,
         typer.Option("--debug", help="Enable debug logging"),
@@ -399,6 +407,14 @@ def process_text_for_hpo_command(
         typer.Option(
             "--top-term-per-chunk",
             help="Keep only the top term per chunk",
+        ),
+    ] = False,
+    enable_family_history_extraction: Annotated[
+        bool,
+        typer.Option(
+            "--enable-family-history-extraction",
+            "--fhx",
+            help="Extract specific phenotypes from family history contexts (e.g., 'epilepsy' from 'family history of epilepsy')",
         ),
     ] = False,
     include_details: Annotated[
@@ -647,6 +663,7 @@ def process_text_for_hpo_command(
             top_term_per_chunk=top_term_per_chunk,
             min_confidence_for_aggregated=aggregated_term_confidence,
             assertion_statuses=assertion_statuses,
+            enable_family_history_extraction=enable_family_history_extraction,
         )
     except Exception as e:
         typer.secho(f"Error extracting HPO terms: {e!s}", fg=typer.colors.RED, err=True)
@@ -1055,6 +1072,7 @@ def _format_and_output_results(
 
         # chunk_level_results has chunk_idx, chunk_text, matches, start_char, end_char
         phenopacket = format_as_phenopacket_v2(
+            aggregated_results=term_level_results,
             chunk_results=chunk_level_results,
             embedding_model=embedding_model,
             reranker_model=reranker_model,

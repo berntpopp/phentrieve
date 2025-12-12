@@ -105,7 +105,56 @@ phentrieve text process --output-format json "Patient text here..."
 
 # Output as CSV
 phentrieve text process --output-format csv "Patient text here..."
+
+# Output as Phenopacket v2 JSON
+phentrieve text process --output-format phenopacket_v2_json "Patient text here..."
 ```
+
+## Advanced Features
+
+### Family History Extraction
+
+By default, when clinical text mentions family history (e.g., "Family history is significant for epilepsy in the maternal uncle"), Phentrieve extracts only the general family history context (HP:0032316 - Family history), but the specific phenotype ("epilepsy") may be lost due to semantic dilution.
+
+The `--enable-family-history-extraction` flag enables enhanced processing that:
+
+1. Detects family history mentions in the text
+2. Extracts specific phenotypes from family history contexts
+3. Matches them to HPO terms via dense retrieval
+4. Annotates results with family relationship metadata
+
+**Example:**
+
+```bash
+# Without family history extraction (default)
+echo "Family history: maternal uncle has epilepsy." | \
+  phentrieve text process --chunk-retrieval-threshold 0.5
+
+# Result: Only HP:0032316 (Family history) is extracted
+
+# With family history extraction enabled
+echo "Family history: maternal uncle has epilepsy." | \
+  phentrieve text process --enable-family-history-extraction --chunk-retrieval-threshold 0.5
+
+# Result: Both HP:0032316 (Family history) AND HP:0001250 (Seizure) are extracted
+# The Seizure term includes text attribution pointing to "epilepsy" and
+# metadata indicating it's from family history (maternal uncle)
+```
+
+**Use Cases:**
+
+- Extracting specific conditions mentioned in family history sections
+- Differentiating patient phenotypes from family member phenotypes
+- Capturing detailed family medical history for genetic counseling
+- Generating comprehensive phenopackets with family history annotations
+
+!!! note "Performance Consideration"
+    This feature adds additional retrieval queries for each family history chunk,
+    which may increase processing time for texts with extensive family history sections.
+
+!!! warning "Language Support"
+    Family history extraction patterns are currently optimized for English clinical text.
+    Other languages may require pattern customization.
 
 ## Example Output
 

@@ -118,11 +118,14 @@ Example JSON Lines output:
 
 #### Text Processing Options
 
-- `--min-confidence`: Minimum similarity score threshold (0.0-1.0, default: 0.3)
+- `--chunk-retrieval-threshold`, `-crt`: Minimum similarity score for chunk-level matches (0.0-1.0, default: 0.3)
+- `--aggregated-term-confidence`, `-atc`: Minimum confidence for aggregated results (0.0-1.0, default: 0.75)
 - `--top-term-per-chunk`: Return only the highest-scoring HPO term per chunk (boolean)
 - `--strategy`: Chunking strategy (see above)
 - `--language`: Text language for accurate processing (en, de, es, fr, nl)
-- `--output-format`: Output format (json_lines, rich_json_summary, csv_hpo_list)
+- `--output-format`: Output format (json_lines, rich_json_summary, csv_hpo_list, phenopacket_v2_json)
+- `--enable-family-history-extraction`, `--fhx`: Extract specific phenotypes from family history contexts (disabled by default)
+- `--enable-reranker`, `--rerank`: Enable cross-encoder reranking of results (disabled by default)
 
 **Sliding Window Parameters** (override config for all strategies using sliding window):
 - `--window-size`: Window size in tokens (default: 7)
@@ -134,6 +137,8 @@ Example JSON Lines output:
 - `--input-file`, `-i`: Read text from file instead of argument
 - `--output-file`, `-f`: Save results to file instead of stdout
 - `--cross-language-hpo-retrieval`: Enable retrieval of HPO terms in a different language
+- `--include-details`, `-d`: Include HPO term definitions and synonyms in output
+- `--no-assertion`: Disable assertion detection (treat all chunks as affirmed)
 
 ### HPO Term Similarity
 
