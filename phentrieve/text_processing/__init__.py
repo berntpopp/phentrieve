@@ -34,6 +34,14 @@ from phentrieve.text_processing.semantic_graph import (
     SemanticDocumentGraph,
 )
 
+# Graph-based assertion propagation (Phase 2)
+from phentrieve.text_processing.assertion_propagation import (
+    AssertionPropagator,
+    PropagationConfig,
+    PropagationResult,
+    propagate_assertions,
+)
+
 __all__ = [
     # Cleaners
     "normalize_line_endings",
@@ -59,4 +67,9 @@ __all__ = [
     "ChunkNode",
     "GraphEdge",
     "SemanticDocumentGraph",
+    # Assertion propagation (Phase 2)
+    "AssertionPropagator",
+    "PropagationConfig",
+    "PropagationResult",
+    "propagate_assertions",
 ]
