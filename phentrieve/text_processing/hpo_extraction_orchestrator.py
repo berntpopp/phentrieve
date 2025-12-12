@@ -20,6 +20,9 @@ from phentrieve.config import DEFAULT_HPO_DB_FILENAME
 from phentrieve.data_processing.hpo_database import HPODatabase
 from phentrieve.retrieval.dense_retriever import DenseRetriever
 from phentrieve.retrieval.text_attribution import get_text_attributions
+from phentrieve.text_processing.family_history_processor import (
+    process_family_history_chunks,
+)
 from phentrieve.utils import get_default_data_dir, resolve_data_path
 
 logger = logging.getLogger(__name__)
@@ -36,6 +39,7 @@ def orchestrate_hpo_extraction(
     min_confidence_for_aggregated: float = 0.0,
     assertion_statuses: Optional[list[str | None]] = None,
     include_details: bool = False,
+    enable_family_history_extraction: bool = False,
 ) -> tuple[
     list[dict[str, Any]],  # aggregated results
     list[dict[str, Any]],  # chunk results
@@ -43,21 +47,44 @@ def orchestrate_hpo_extraction(
     """Orchestrate HPO term extraction from text.
 
     Process involves:
-    1. Getting matches for each chunk
-    2. Re-ranking matches if enabled
-    3. Aggregating and deduplicating results
+    1. Getting matches for each chunk via dense retrieval
+    2. Re-ranking matches if cross-encoder is enabled
+    3. Extracting family history phenotypes (if enabled via flag)
+    4. Aggregating and deduplicating results across chunks
+    5. Adding text attributions with precise span locations
+
+    Family History Extraction (Optional):
+        When enabled via `enable_family_history_extraction=True`, this function
+        performs enhanced processing for family history mentions:
+        
+        - Detects chunks containing family history patterns
+        - Extracts specific phenotypes (e.g., "epilepsy" from "family history of epilepsy")
+        - Queries retriever specifically for extracted phenotypes
+        - Annotates results with family relationship metadata
+        - Adds synthetic chunk results for family history phenotypes
+        
+        This addresses the semantic dilution problem where specific phenotypes
+        mentioned in family history contexts get low similarity scores when
+        grouped with generic family history language.
+        
+        Example:
+            Input: "Family history is significant for epilepsy in maternal uncle"
+            Without flag: Only HP:0032316 (Family history) extracted
+            With flag: Both HP:0032316 (Family history) AND HP:0001250 (Seizure)
+                      extracted, with "Seizure" marked as family_history=True
 
     Args:
         text_chunks: List of text chunks to process
         retriever: Dense retriever for HPO terms
-        num_results_per_chunk: Number of results per chunk
-        chunk_retrieval_threshold: Min similarity threshold for HPO term matches per chunk
-        cross_encoder: Optional cross-encoder model for re-ranking
-        language: Language code (e.g. 'en', 'de')
-        top_term_per_chunk: If True, only keep top term per chunk
-        min_confidence_for_aggregated: Minimum confidence threshold for aggregated terms
-        assertion_statuses: Optional list of assertion statuses per chunk
-        include_details: If True, include HPO term definitions and synonyms in results
+        num_results_per_chunk: Number of results per chunk (default: 10)
+        chunk_retrieval_threshold: Min similarity threshold for HPO term matches per chunk (default: 0.3)
+        cross_encoder: Optional cross-encoder model for re-ranking results
+        language: Language code for text processing (e.g. 'en', 'de')
+        top_term_per_chunk: If True, only keep top term per chunk (default: False)
+        min_confidence_for_aggregated: Minimum confidence threshold for aggregated terms (default: 0.0)
+        assertion_statuses: Optional list of assertion statuses per chunk (e.g., ["affirmed", "negated"])
+        include_details: If True, include HPO term definitions and synonyms in results (default: False)
+        enable_family_history_extraction: If True, extract phenotypes from family history contexts (default: False)
 
     Returns:
         Tuple containing:
@@ -185,6 +212,18 @@ def orchestrate_hpo_extraction(
             logger.error(f"Failed to process chunk {chunk_idx + 1}: {e}")
             continue
 
+    # ENHANCEMENT: Extract phenotypes from family history contexts
+    # This identifies specific clinical terms mentioned within family history
+    # and adds them as additional matches with family_history=True annotation
+    if enable_family_history_extraction:
+        logger.info("Processing family history chunks for phenotype extraction")
+        chunk_results = process_family_history_chunks(
+            chunk_results=chunk_results,
+            retriever=retriever,
+            num_results=num_results_per_chunk,
+            retrieval_threshold=chunk_retrieval_threshold,
+        )
+
     # OPTIMIZATION: Batch-load ALL synonyms (and optionally definitions) in ONE database query
     # This replaces the inefficient per-term loading that was loading all 19,534 terms repeatedly
     logger.info("Batch-loading synonyms for all HPO terms")
@@ -249,6 +288,9 @@ def orchestrate_hpo_extraction(
                 hpo_term_synonyms=synonyms,
                 hpo_term_id=hpo_id,
             )
+
+            # Add attributions to the term match
+            term["text_attributions"] = attributions_in_chunk
 
             # Create evidence detail for this match
             evidence_detail = {

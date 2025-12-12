@@ -3,6 +3,7 @@
 import datetime
 import logging
 import uuid
+from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any, Optional
 
@@ -132,6 +133,7 @@ def format_as_phenopacket_v2(
     if chunk_results is not None and len(chunk_results) > 0:
         return _format_from_chunk_results(
             chunk_results,
+            aggregated_results=aggregated_results,
             phentrieve_version=phentrieve_version,
             embedding_model=embedding_model,
             reranker_model=reranker_model,
@@ -163,6 +165,7 @@ def format_as_phenopacket_v2(
 
 def _format_from_chunk_results(
     chunk_results: list[dict[str, Any]],
+    aggregated_results: Optional[list[dict[str, Any]]] = None,
     phentrieve_version: str = "unknown",
     embedding_model: Optional[str] = None,
     reranker_model: Optional[str] = None,
@@ -171,13 +174,15 @@ def _format_from_chunk_results(
 ) -> str:
     """Format phenopacket from chunk-level results with text evidence.
 
-    Each chunk's HPO matches are included as separate phenotypic features,
-    with the source text chunk included in the evidence. No global ranking is
-    provided since rankings cannot be compared across different text chunks.
+    Builds one PhenotypicFeature per HPO term and aggregates evidence across
+    all matching chunks. When aggregated_results are provided, their metadata
+    (assertion status, rank, text_attributions) are used to enrich the output.
 
     Args:
         chunk_results: List of chunk results, each containing 'chunk_idx',
             'chunk_text', and 'matches' (list of HPO term matches).
+        aggregated_results: Optional aggregated results with scores, ranks,
+            assertion statuses, and text_attributions.
         phentrieve_version: Phentrieve version string.
         embedding_model: Name of embedding model used.
         reranker_model: Name of reranker model used.
@@ -188,67 +193,195 @@ def _format_from_chunk_results(
         A JSON string representing the Phenopacket.
     """
     phenopacket_id = f"phentrieve-phenopacket-{uuid.uuid4()}"
-    phenotypic_features = []
 
+    # Build lookup maps from aggregated results (optional)
+    aggregated_map: dict[str, dict[str, Any]] = {}
+    attribution_map: dict[str, dict[int, list[dict[str, Any]]]] = defaultdict(
+        lambda: defaultdict(list)
+    )
+    if aggregated_results:
+        for term in aggregated_results:
+            hpo_id = term.get("id") or term.get("hpo_id")
+            if not hpo_id:
+                continue
+
+            aggregated_map[hpo_id] = {
+                "name": term.get("name", ""),
+                "assertion_status": term.get("assertion_status"),
+                "rank": term.get("rank"),
+                "confidence": term.get("confidence")
+                or term.get("avg_score")
+                or term.get("score"),
+                "text_attributions": term.get("text_attributions", []),
+            }
+
+            for attribution in term.get("text_attributions", []):
+                chunk_idx = attribution.get("chunk_idx")
+                if chunk_idx is None:
+                    continue
+                attribution_map[hpo_id][chunk_idx].append(attribution)
+
+    # Aggregate evidence per HPO term across chunks
+    feature_map: dict[str, dict[str, Any]] = {}
     for chunk_result in chunk_results:
         chunk_idx = chunk_result.get("chunk_idx", 0)
         chunk_text = chunk_result.get("chunk_text", "")
-        start_char = chunk_result.get("start_char", -1)
-        end_char = chunk_result.get("end_char", -1)
+        chunk_start = chunk_result.get("start_char", -1)
+        chunk_end = chunk_result.get("end_char", -1)
         matches = chunk_result.get("matches", [])
 
         for match in matches:
-            hpo_id = match.get("id", "")
-            hpo_name = match.get("name", "")
-            score = match.get("score", 0.0)
+            hpo_id = match.get("id")
+            if not hpo_id:
+                continue
+
+            name = match.get("name") or aggregated_map.get(hpo_id, {}).get(
+                "name", ""
+            )
+            score = float(match.get("score", 0.0) or 0.0)
             assertion_status = match.get("assertion_status")
 
-            # Create OntologyClass for the feature type
-            feature_type = OntologyClass(id=hpo_id, label=hpo_name)
+            feature_entry = feature_map.setdefault(
+                hpo_id,
+                {
+                    "name": name,
+                    "scores": [],
+                    "assertions": [],
+                    "evidence": [],
+                },
+            )
+            if not feature_entry.get("name"):
+                feature_entry["name"] = name
+            feature_entry["scores"].append(score)
+            if assertion_status is not None:
+                feature_entry["assertions"].append(str(assertion_status))
 
-            # Build description with confidence, chunk info, positions, and source text
-            # Note: No rank is provided since rankings are not comparable across chunks
+            # Use text attributions when available to provide span-level evidence
+            spans = match.get("text_attributions", [])
+            if spans:
+                for span in spans:
+                    start_rel = span.get("start_char")
+                    end_rel = span.get("end_char")
+                    matched_text = span.get("matched_text_in_chunk") or chunk_text
+
+                    start_abs = (
+                        chunk_start + start_rel
+                        if start_rel is not None and chunk_start is not None and chunk_start >= 0
+                        else start_rel
+                    )
+                    end_abs = (
+                        chunk_start + end_rel
+                        if end_rel is not None and chunk_start is not None and chunk_start >= 0
+                        else end_rel
+                    )
+
+                    feature_entry["evidence"].append(
+                        {
+                            "score": score,
+                            "chunk_idx": chunk_idx,
+                            "chunk_text": chunk_text,
+                            "start_char": start_abs
+                            if start_abs is not None
+                            else (chunk_start if chunk_start >= 0 else None),
+                            "end_char": end_abs
+                            if end_abs is not None
+                            else (chunk_end if chunk_end >= 0 else None),
+                            "assertion_status": assertion_status,
+                            "matched_text": matched_text,
+                        }
+                    )
+            else:
+                feature_entry["evidence"].append(
+                    {
+                        "score": score,
+                        "chunk_idx": chunk_idx,
+                        "chunk_text": chunk_text,
+                        "start_char": chunk_start if chunk_start >= 0 else None,
+                        "end_char": chunk_end if chunk_end >= 0 else None,
+                        "assertion_status": assertion_status,
+                    }
+                )
+
+    # Determine feature ordering: use aggregated ranks when available, otherwise preserve encounter order
+    def _feature_sort_key(item: tuple[str, dict[str, Any]]):
+        hpo_id, data = item
+        agg = aggregated_map.get(hpo_id)
+        rank = agg.get("rank") if agg else None
+        primary_score = agg.get("confidence") if agg else None
+        if primary_score is None:
+            primary_score = max(data.get("scores", [0.0])) if data.get("scores") else 0.0
+        return (
+            rank if rank is not None else float("inf"),
+            -primary_score,
+        )
+
+    feature_items = (
+        sorted(feature_map.items(), key=_feature_sort_key)
+        if aggregated_map
+        else feature_map.items()
+    )
+
+    # Filter out obsolete HPO terms
+    feature_items = [
+        item for item in feature_items
+        if "obsolete" not in item[1]["name"].lower()
+    ]
+
+    phenotypic_features: list[PhenotypicFeature] = []
+    for hpo_id, data in feature_items:
+        aggregated_status = aggregated_map.get(hpo_id, {}).get("assertion_status")
+        if aggregated_status is None and data.get("assertions"):
+            aggregated_status = Counter(data["assertions"]).most_common(1)[0][0]
+
+        excluded = aggregated_status is not None and str(aggregated_status).lower() in (
+            "negated",
+            "absent",
+        )
+
+        evidence_messages: list[Evidence] = []
+        for evidence_entry in data.get("evidence", []):
             description_parts = [
-                f"Phentrieve retrieval confidence: {score:.4f}",
-                f"Chunk: {chunk_idx + 1}",
+                f"Phentrieve retrieval confidence: {evidence_entry['score']:.4f}",
+                f"Chunk: {evidence_entry['chunk_idx'] + 1}",
             ]
-            # Include position info if available (when include_positions was True)
-            if start_char >= 0 and end_char >= 0:
-                description_parts.append(f"Start: {start_char}")
-                description_parts.append(f"End: {end_char}")
-            if assertion_status:
-                description_parts.append(f"Assertion: {assertion_status}")
-            description_parts.append(f"Source text: {chunk_text}")
+            if evidence_entry.get("start_char") is not None:
+                description_parts.append(f"Start: {evidence_entry['start_char']}")
+            if evidence_entry.get("end_char") is not None:
+                description_parts.append(f"End: {evidence_entry['end_char']}")
+            if evidence_entry.get("assertion_status"):
+                description_parts.append(
+                    f"Assertion: {evidence_entry['assertion_status']}"
+                )
+            if evidence_entry.get("matched_text"):
+                description_parts.append(
+                    f"Match: {evidence_entry['matched_text']}"
+                )
+            description_parts.append(f"Source text: {evidence_entry['chunk_text']}")
 
-            # Create ExternalReference with evidence details
             external_reference = ExternalReference(
                 id="phentrieve",
                 description=" | ".join(description_parts),
             )
 
-            # Create Evidence object
-            evidence = Evidence(
-                evidence_code=OntologyClass(
-                    id="ECO:0007636",
-                    label="computational evidence used in automatic assertion",
-                ),
-                reference=external_reference,
+            evidence_messages.append(
+                Evidence(
+                    evidence_code=OntologyClass(
+                        id="ECO:0007636",
+                        label="computational evidence used in automatic assertion",
+                    ),
+                    reference=external_reference,
+                )
             )
 
-            # Determine if the phenotypic feature is excluded (negated)
-            # Use case-insensitive comparison for robustness
-            excluded = assertion_status is not None and assertion_status.lower() in (
-                "negated",
-                "absent",
-            )
+        feature_type = OntologyClass(id=hpo_id, label=data.get("name", ""))
 
-            # Create PhenotypicFeature
-            phenotypic_feature = PhenotypicFeature(
+        phenotypic_features.append(
+            PhenotypicFeature(
                 type=feature_type,
                 excluded=excluded,
-                evidence=[evidence],
+                evidence=evidence_messages,
             )
-            phenotypic_features.append(phenotypic_feature)
+        )
 
     return _create_phenopacket_json(
         phenopacket_id,
