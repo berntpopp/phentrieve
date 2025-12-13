@@ -300,10 +300,12 @@ class TestBuildFromChunks:
 
         # Mock model that returns identical embeddings
         mock_model = MagicMock()
-        mock_model.encode.return_value = np.array([
-            [1.0, 0.0, 0.0],
-            [1.0, 0.0, 0.0],  # Identical = similarity 1.0
-        ])
+        mock_model.encode.return_value = np.array(
+            [
+                [1.0, 0.0, 0.0],
+                [1.0, 0.0, 0.0],  # Identical = similarity 1.0
+            ]
+        )
 
         graph.build_from_chunks(chunks, model=mock_model)
 

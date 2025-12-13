@@ -10,8 +10,8 @@ Tests cover:
 """
 
 import pytest
-import numpy as np
 
+from phentrieve.reasoning.hpo_consistency import HPOConsistencyChecker
 from phentrieve.reasoning.hybrid_inference import (
     EvidenceSource,
     FinalAssertion,
@@ -22,7 +22,6 @@ from phentrieve.reasoning.hybrid_inference import (
     compare_methods,
     create_inference_engine,
 )
-from phentrieve.reasoning.hpo_consistency import HPOConsistencyChecker
 from phentrieve.text_processing.assertion_propagation import AssertionPropagator
 from phentrieve.text_processing.assertion_representation import (
     AssertionVector,

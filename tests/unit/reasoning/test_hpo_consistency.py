@@ -151,7 +151,8 @@ class TestAncestorConflictDetection:
 
         result = checker.check_consistency(assertions)
         conflicts = [
-            v for v in result.violations
+            v
+            for v in result.violations
             if v.violation_type == ViolationType.ANCESTOR_CONFLICT
         ]
         assert len(conflicts) == 0
@@ -168,7 +169,8 @@ class TestAncestorConflictDetection:
 
         result = checker.check_consistency(assertions)
         conflicts = [
-            v for v in result.violations
+            v
+            for v in result.violations
             if v.violation_type == ViolationType.ANCESTOR_CONFLICT
         ]
         assert len(conflicts) == 1
@@ -186,7 +188,8 @@ class TestAncestorConflictDetection:
 
         result = checker.check_consistency(assertions)
         conflicts = [
-            v for v in result.violations
+            v
+            for v in result.violations
             if v.violation_type == ViolationType.ANCESTOR_CONFLICT
         ]
         assert len(conflicts) == 0
@@ -203,7 +206,8 @@ class TestAncestorConflictDetection:
 
         result = checker.check_consistency(assertions)
         conflicts = [
-            v for v in result.violations
+            v
+            for v in result.violations
             if v.violation_type == ViolationType.ANCESTOR_CONFLICT
         ]
         assert len(conflicts) == 0
@@ -231,7 +235,8 @@ class TestRedundancyDetection:
 
         result = checker.check_consistency(assertions)
         redundancies = [
-            v for v in result.violations
+            v
+            for v in result.violations
             if v.violation_type == ViolationType.REDUNDANT_ANCESTOR
         ]
         assert len(redundancies) == 1
@@ -250,7 +255,8 @@ class TestRedundancyDetection:
 
         result = checker.check_consistency(assertions)
         redundancies = [
-            v for v in result.violations
+            v
+            for v in result.violations
             if v.violation_type == ViolationType.REDUNDANT_ANCESTOR
             and v.hpo_id_primary == "HP:0000001"
         ]

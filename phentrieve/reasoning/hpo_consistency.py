@@ -85,9 +85,7 @@ class ConsistencyCheckResult:
     @property
     def is_consistent(self) -> bool:
         """Returns True if no ERROR-level violations."""
-        return not any(
-            v.severity == ViolationSeverity.ERROR for v in self.violations
-        )
+        return not any(v.severity == ViolationSeverity.ERROR for v in self.violations)
 
     @property
     def error_count(self) -> int:

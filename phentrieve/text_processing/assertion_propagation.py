@@ -209,9 +209,7 @@ class AssertionPropagator:
 
             for edge in incoming_edges:
                 neighbor_idx = edge.source_idx
-                neighbor_assertion = current_assertions.get(
-                    neighbor_idx, np.zeros(3)
-                )
+                neighbor_assertion = current_assertions.get(neighbor_idx, np.zeros(3))
 
                 # Weight by edge type and edge weight
                 edge_type_weight = self.config.edge_type_weights.get(

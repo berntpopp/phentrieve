@@ -24,7 +24,6 @@ from phentrieve.text_processing.assertion_representation import (
 )
 from phentrieve.text_processing.semantic_graph import (
     ChunkNode,
-    GraphEdge,
     SemanticDocumentGraph,
 )
 
@@ -246,7 +245,7 @@ class TestConflictDetection:
 
     def test_detect_hpo_conflict(self):
         """Should detect conflict when same HPO has opposing assertions.
-        
+
         Note: With propagation, values may shift before conflict detection.
         We use high damping factor to preserve original assertions.
         """
@@ -343,7 +342,7 @@ class TestHPOResolution:
 
     def test_resolve_conflict_increases_uncertainty(self):
         """Conflicting assertions should increase uncertainty.
-        
+
         Uses high damping to preserve original assertions through propagation
         so conflict detection works as expected.
         """
@@ -358,7 +357,9 @@ class TestHPOResolution:
             ChunkNode(
                 chunk_idx=1,
                 text="Has fever",
-                assertion_vector=AssertionVector(negation_score=0.1, uncertainty_score=0.1),  # Low negation
+                assertion_vector=AssertionVector(
+                    negation_score=0.1, uncertainty_score=0.1
+                ),  # Low negation
                 hpo_matches=["HP:0001945"],
             ),
         ]

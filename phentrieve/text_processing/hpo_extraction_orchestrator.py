@@ -56,17 +56,17 @@ def orchestrate_hpo_extraction(
     Family History Extraction (Optional):
         When enabled via `enable_family_history_extraction=True`, this function
         performs enhanced processing for family history mentions:
-        
+
         - Detects chunks containing family history patterns
         - Extracts specific phenotypes (e.g., "epilepsy" from "family history of epilepsy")
         - Queries retriever specifically for extracted phenotypes
         - Annotates results with family relationship metadata
         - Adds synthetic chunk results for family history phenotypes
-        
+
         This addresses the semantic dilution problem where specific phenotypes
         mentioned in family history contexts get low similarity scores when
         grouped with generic family history language.
-        
+
         Example:
             Input: "Family history is significant for epilepsy in maternal uncle"
             Without flag: Only HP:0032316 (Family history) extracted

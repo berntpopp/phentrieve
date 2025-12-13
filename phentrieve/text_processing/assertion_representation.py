@@ -22,7 +22,7 @@ if TYPE_CHECKING:
     from phentrieve.text_processing.assertion_detection import AssertionStatus
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)
 class AssertionVector:
     """
     Multi-dimensional assertion representation with confidence scores.
@@ -208,18 +208,18 @@ class AssertionVector:
             >>> updated.negation_score
             0.9
         """
-        current = {
-            "negation_score": self.negation_score,
-            "uncertainty_score": self.uncertainty_score,
-            "normality_score": self.normality_score,
-            "historical": self.historical,
-            "hypothetical": self.hypothetical,
-            "family_history": self.family_history,
-            "evidence_source": self.evidence_source,
-            "evidence_confidence": self.evidence_confidence,
-        }
-        current.update(kwargs)
-        return AssertionVector(**current)
+        return AssertionVector(
+            negation_score=kwargs.get("negation_score", self.negation_score),
+            uncertainty_score=kwargs.get("uncertainty_score", self.uncertainty_score),
+            normality_score=kwargs.get("normality_score", self.normality_score),
+            historical=kwargs.get("historical", self.historical),
+            hypothetical=kwargs.get("hypothetical", self.hypothetical),
+            family_history=kwargs.get("family_history", self.family_history),
+            evidence_source=kwargs.get("evidence_source", self.evidence_source),
+            evidence_confidence=kwargs.get(
+                "evidence_confidence", self.evidence_confidence
+            ),
+        )
 
     def is_affirmed(self, threshold: float = 0.5) -> bool:
         """

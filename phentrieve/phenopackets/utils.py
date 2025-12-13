@@ -235,9 +235,7 @@ def _format_from_chunk_results(
             if not hpo_id:
                 continue
 
-            name = match.get("name") or aggregated_map.get(hpo_id, {}).get(
-                "name", ""
-            )
+            name = match.get("name") or aggregated_map.get(hpo_id, {}).get("name", "")
             score = float(match.get("score", 0.0) or 0.0)
             assertion_status = match.get("assertion_status")
 
@@ -266,12 +264,16 @@ def _format_from_chunk_results(
 
                     start_abs = (
                         chunk_start + start_rel
-                        if start_rel is not None and chunk_start is not None and chunk_start >= 0
+                        if start_rel is not None
+                        and chunk_start is not None
+                        and chunk_start >= 0
                         else start_rel
                     )
                     end_abs = (
                         chunk_start + end_rel
-                        if end_rel is not None and chunk_start is not None and chunk_start >= 0
+                        if end_rel is not None
+                        and chunk_start is not None
+                        and chunk_start >= 0
                         else end_rel
                     )
 
@@ -309,7 +311,9 @@ def _format_from_chunk_results(
         rank = agg.get("rank") if agg else None
         primary_score = agg.get("confidence") if agg else None
         if primary_score is None:
-            primary_score = max(data.get("scores", [0.0])) if data.get("scores") else 0.0
+            primary_score = (
+                max(data.get("scores", [0.0])) if data.get("scores") else 0.0
+            )
         return (
             rank if rank is not None else float("inf"),
             -primary_score,
@@ -323,8 +327,7 @@ def _format_from_chunk_results(
 
     # Filter out obsolete HPO terms
     feature_items = [
-        item for item in feature_items
-        if "obsolete" not in item[1]["name"].lower()
+        item for item in feature_items if "obsolete" not in item[1]["name"].lower()
     ]
 
     phenotypic_features: list[PhenotypicFeature] = []
@@ -353,9 +356,7 @@ def _format_from_chunk_results(
                     f"Assertion: {evidence_entry['assertion_status']}"
                 )
             if evidence_entry.get("matched_text"):
-                description_parts.append(
-                    f"Match: {evidence_entry['matched_text']}"
-                )
+                description_parts.append(f"Match: {evidence_entry['matched_text']}")
             description_parts.append(f"Source text: {evidence_entry['chunk_text']}")
 
             external_reference = ExternalReference(
