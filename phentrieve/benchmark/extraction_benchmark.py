@@ -65,6 +65,7 @@ class ExtractionConfig:
     bootstrap_samples: int = 1000
     dataset: str = "all"
     detailed_output: bool = False
+    extraction_method: str = "chunk"  # "chunk" or "mention"
 
 
 class HPOExtractor:
@@ -122,7 +123,7 @@ class HPOExtractor:
         self, text: str
     ) -> tuple[list[tuple[str, str]], dict[str, Any]]:
         """
-        Extract HPO terms with full chunk-level details for analysis.
+        Extract HPO terms with full details for analysis.
 
         Args:
             text: Clinical text to process
@@ -130,7 +131,18 @@ class HPOExtractor:
         Returns:
             Tuple of:
             - List of (hpo_id, assertion) tuples
-            - Details dict with chunk_results, aggregated_results, and processed_chunks
+            - Details dict with results and metadata
+        """
+        if self.config.extraction_method == "mention":
+            return self._extract_with_mentions(text)
+        else:
+            return self._extract_with_chunks(text)
+
+    def _extract_with_chunks(
+        self, text: str
+    ) -> tuple[list[tuple[str, str]], dict[str, Any]]:
+        """
+        Extract using chunk-based method (original implementation).
         """
         from phentrieve.text_processing.hpo_extraction_orchestrator import (
             orchestrate_hpo_extraction,
@@ -152,12 +164,13 @@ class HPOExtractor:
                 "chunk_results": [],
                 "aggregated_results": [],
                 "processed_chunks": [],
+                "extraction_method": "chunk",
             }
 
         text_chunks = [chunk["text"] for chunk in processed_chunks]
         assertion_statuses = [chunk["status"].value for chunk in processed_chunks]
 
-        # Extract HPO terms - NOW CAPTURE chunk_results!
+        # Extract HPO terms
         aggregated_results, chunk_results = orchestrate_hpo_extraction(
             text_chunks=text_chunks,
             retriever=self._retriever,
@@ -171,7 +184,7 @@ class HPOExtractor:
             include_details=False,
         )
 
-        # Convert to (hpo_id, assertion) tuples using module-level mapping
+        # Convert to (hpo_id, assertion) tuples
         results = []
         for term in aggregated_results:
             hpo_id = term["id"]
@@ -191,6 +204,52 @@ class HPOExtractor:
                 }
                 for i, chunk in enumerate(processed_chunks)
             ],
+            "extraction_method": "chunk",
+        }
+
+        return results, details
+
+    def _extract_with_mentions(
+        self, text: str
+    ) -> tuple[list[tuple[str, str]], dict[str, Any]]:
+        """
+        Extract using mention-based method (new implementation).
+        """
+        from phentrieve.text_processing.mention_extraction_orchestrator import (
+            orchestrate_mention_extraction,
+        )
+
+        self._lazy_init()
+        if self._retriever is None or self._sbert_model is None:
+            raise RuntimeError(
+                f"Failed to initialize extraction components for model "
+                f"'{self.config.model_name}'. Ensure the ChromaDB index exists "
+                f"and the embedding model is available."
+            )
+
+        # Extract HPO terms using mention-based approach
+        result = orchestrate_mention_extraction(
+            text=text,
+            retriever=self._retriever,
+            language=self.config.language,
+            doc_id="benchmark_doc",
+            model=self._sbert_model,
+            dataset_format="phenobert",
+            include_details=True,
+        )
+
+        # Convert benchmark format to (hpo_id, assertion) tuples
+        results = result["benchmark_format"]
+
+        # Build details for analysis
+        details = {
+            "extraction_method": "mention",
+            "num_mentions": result.get("num_mentions", 0),
+            "num_groups": result.get("num_groups", 0),
+            "mentions": result.get("mentions", []),
+            "groups": result.get("groups", []),
+            "terms": result.get("terms", []),
+            "detailed_terms": result.get("detailed_terms", []),
         }
 
         return results, details
@@ -301,7 +360,50 @@ class ExtractionBenchmark:
             return self._load_phenobert_data(test_path)
         else:
             with open(test_path) as f:
-                return json.load(f)  # type: ignore[no-any-return]
+                data = json.load(f)
+            
+            # Check if it's already in benchmark format (has "documents" key)
+            if "documents" in data:
+                return data
+            else:
+                # Convert single document format to benchmark format
+                return self._convert_single_document(data)
+
+    def _convert_single_document(self, doc_data: dict) -> dict[str, Any]:
+        """Convert single PhenoBERT document to benchmark format."""
+        # Convert PhenoBERT format to benchmark format
+        gold_hpo_terms = []
+        for ann in doc_data.get("annotations", []):
+            hpo_id = ann.get("hpo_id", "")
+            label = ann.get("label", "")
+            status = ann.get("assertion_status", "affirmed")
+            assertion = ASSERTION_STATUS_MAP.get(status, "PRESENT")
+            evidence_spans = ann.get("evidence_spans", [])
+            gold_hpo_terms.append(
+                {
+                    "id": hpo_id,
+                    "label": label,
+                    "assertion": assertion,
+                    "evidence_spans": evidence_spans,
+                }
+            )
+
+        documents = [{
+            "id": doc_data.get("doc_id", "single_doc"),
+            "text": doc_data.get("full_text", ""),
+            "gold_hpo_terms": gold_hpo_terms,
+            "source_dataset": doc_data.get("metadata", {}).get("dataset", "unknown"),
+        }]
+
+        return {
+            "metadata": {
+                "dataset_name": "single_document",
+                "source": "phenobert",
+                "total_documents": 1,
+                "total_annotations": len(gold_hpo_terms),
+            },
+            "documents": documents,
+        }
 
     def _load_phenobert_data(self, base_dir: Path) -> dict[str, Any]:
         """Load PhenoBERT-format data from directory structure.
