@@ -225,12 +225,25 @@ class MentionExtractor:
             adj_noun_spans = self._extract_adj_noun_phrases(doc)
             candidates.extend(adj_noun_spans)
 
+        # Extract prepositional noun phrases
+        if self.config.include_noun_phrases:  # Reuse the same flag
+            prep_noun_spans = self._extract_prep_noun_phrases(doc)
+            candidates.extend(prep_noun_spans)
+
         # Extract verb phrases (for symptom descriptions)
         if self.config.include_verb_phrases:
             verb_spans = self._extract_verb_phrases(doc)
             candidates.extend(verb_spans)
 
-        return candidates
+        # Filter out spans containing coordination
+        filtered_candidates = []
+        for span in candidates:
+            # Skip spans that contain coordinating conjunctions
+            if any(token.pos_ == "CCONJ" for token in span):
+                continue
+            filtered_candidates.append(span)
+
+        return filtered_candidates
 
     def _extract_adj_noun_phrases(self, doc: Doc) -> list[Span]:
         """Extract adjective-noun combinations not covered by noun_chunks."""
@@ -252,6 +265,41 @@ class MentionExtractor:
                         for existing in spans
                     ):
                         spans.append(span)
+
+        return spans
+
+    def _extract_prep_noun_phrases(self, doc: Doc) -> list[Span]:
+        """Extract noun phrases with prepositional modifiers."""
+        spans: list[Span] = []
+
+        for token in doc:
+            # Look for prepositions
+            if token.dep_ == "prep" and token.pos_ == "ADP":
+                # Get the head noun and the prepositional object
+                head = token.head
+                pobj = None
+                for child in token.children:
+                    if child.dep_ == "pobj":
+                        pobj = child
+                        break
+                
+                if pobj and head.pos_ in {"NOUN", "PROPN"} and pobj.pos_ in {"NOUN", "PROPN"}:
+                    # Check if head is part of a conjunct structure
+                    conjuncts = [head]
+                    for sibling in head.children:
+                        if sibling.dep_ == "conj":
+                            conjuncts.append(sibling)
+                    
+                    # For each conjunct, create a span with the preposition + object
+                    for conjunct in conjuncts:
+                        if conjunct.pos_ in {"NOUN", "PROPN"}:
+                            start = min(conjunct.i, pobj.i)
+                            end = max(conjunct.i, pobj.i) + 1
+                            span = doc[start:end]
+                            
+                            # Only include short compounds
+                            if len(span.text.split()) <= 3 and span.text != pobj.text:
+                                spans.append(span)
 
         return spans
 

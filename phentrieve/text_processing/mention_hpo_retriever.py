@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 # Default retrieval configuration
 DEFAULT_CANDIDATES_PER_MENTION = 15
-DEFAULT_RETRIEVAL_THRESHOLD = 0.25
+DEFAULT_RETRIEVAL_THRESHOLD = 0.5  # Balanced threshold (0.3-0.6 range works best)
 DEFAULT_BATCH_SIZE = 32
 
 
@@ -40,11 +40,16 @@ class MentionRetrievalConfig:
         use_context: Whether to include context in retrieval query
         context_weight: Weight for context vs. mention text (0-1)
         batch_size: Batch size for embedding computation
+    
+    Note:
+        Context-aware retrieval (use_context=True) significantly improves
+        retrieval quality for short mentions. The context window provides
+        additional semantic information that helps disambiguate ambiguous terms.
     """
 
     candidates_per_mention: int = DEFAULT_CANDIDATES_PER_MENTION
     retrieval_threshold: float = DEFAULT_RETRIEVAL_THRESHOLD
-    use_context: bool = True
+    use_context: bool = True  # Enabled for better retrieval quality
     context_weight: float = 0.3
     batch_size: int = DEFAULT_BATCH_SIZE
 

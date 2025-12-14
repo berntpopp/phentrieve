@@ -36,14 +36,18 @@ class AggregationConfig:
         include_family_history: Include family history findings
         dataset_format: Target dataset for assertion mapping
         include_details: Include detailed mention information
+        include_alternatives: Include alternative HPO candidates above threshold
+        alternative_threshold: Min score for alternatives (relative to top)
     """
 
-    min_confidence: float = 0.0
+    min_confidence: float = 0.0  # No filtering by default to preserve recall
     max_terms: int = 0
     resolve_conflicts: str = "majority"  # "majority", "max_confidence", "first"
     include_family_history: bool = True
     dataset_format: str = "phenobert"
     include_details: bool = False
+    include_alternatives: bool = False  # Disabled - adds too many false positives
+    alternative_threshold: float = 0.95  # Include only very close alternatives
 
 
 class MentionAggregator:
@@ -127,10 +131,11 @@ class MentionAggregator:
             if group.final_hpo is None:
                 continue
 
-            hpo_id = group.final_hpo.hpo_id
             canonical_assertion = group.get_canonical_assertion()
             dataset_assertion = group.get_dataset_assertion(self.config.dataset_format)
-
+            
+            # Collect the final HPO
+            hpo_id = group.final_hpo.hpo_id
             term_info = {
                 "hpo_id": hpo_id,
                 "label": group.final_hpo.label,
@@ -148,8 +153,31 @@ class MentionAggregator:
                     for c in group.ranked_hpo_explanations[:3]
                 ],
             }
-
             term_map[hpo_id].append(term_info)
+            
+            # Also collect alternatives above threshold for better recall
+            if self.config.include_alternatives and group.ranked_hpo_explanations:
+                top_score = group.final_hpo.effective_score
+                threshold = top_score * self.config.alternative_threshold
+                
+                for alt in group.ranked_hpo_explanations[1:]:  # Skip the first (already added)
+                    if alt.effective_score >= threshold and alt.hpo_id != hpo_id:
+                        alt_info = {
+                            "hpo_id": alt.hpo_id,
+                            "label": alt.label,
+                            "score": alt.effective_score,
+                            "canonical_assertion": canonical_assertion,
+                            "dataset_assertion": dataset_assertion,
+                            "group_id": group.group_id,
+                            "num_mentions": group.num_mentions,
+                            "is_family_history": group.final_assertion.family_history
+                            if group.final_assertion
+                            else False,
+                            "confidence": group.confidence * 0.9,  # Slightly lower confidence
+                            "is_alternative": True,
+                            "alternatives": [],
+                        }
+                        term_map[alt.hpo_id].append(alt_info)
 
         # Merge duplicate HPO IDs
         merged_terms: list[dict[str, Any]] = []
