@@ -14,6 +14,17 @@ Phentrieve is an advanced AI-powered system for mapping clinical text to Human P
 * User-friendly interfaces: CLI, FastAPI backend, and Vue.js frontend
 * Support for cross-encoder re-ranking to improve retrieval precision
 
+## Benchmark Results
+
+Performance on 570 German clinical terms (BioLORD-2023-M model):
+
+| Retrieval Mode | MRR | Hit@1 | Hit@10 | Ont Sim@1 |
+|----------------|-----|-------|--------|-----------|
+| Single-vector | 0.695 | 55.8% | 94.0% | 79.9% |
+| Multi-vector (all_max) | **0.892** | **84.0%** | **97.4%** | **91.9%** |
+
+**+28% MRR improvement** with multi-vector retrieval using label, synonym, and definition embeddings.
+
 ## Quick Start
 
 Install Phentrieve using pip:
