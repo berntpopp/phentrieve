@@ -1,0 +1,3992 @@
+[
+  {
+    "text": "Entwicklungsstörung",
+    "expected_hpo_ids": [
+      "HP:0012758"
+    ],
+    "description": "Neurodevelopmental delay"
+  },
+  {
+    "text": "Epilepsie",
+    "expected_hpo_ids": [
+      "HP:0001250"
+    ],
+    "description": "Seizure"
+  },
+  {
+    "text": "Mikrozephalie",
+    "expected_hpo_ids": [
+      "HP:0000252"
+    ],
+    "description": "Microcephaly"
+  },
+  {
+    "text": "Wachstumsstörung",
+    "expected_hpo_ids": [
+      "HP:0001510"
+    ],
+    "description": "Growth delay"
+  },
+  {
+    "text": "Kardiomyopathie",
+    "expected_hpo_ids": [
+      "HP:0001638"
+    ],
+    "description": "Cardiomyopathy"
+  },
+  {
+    "text": "muskuläre Dystrophie",
+    "expected_hpo_ids": [
+      "HP:0003560"
+    ],
+    "description": "Muscular dystrophy"
+  },
+  {
+    "text": "Schwerhörigkeit",
+    "expected_hpo_ids": [
+      "HP:0000365"
+    ],
+    "description": "Hearing impairment"
+  },
+  {
+    "text": "Skoliose",
+    "expected_hpo_ids": [
+      "HP:0002650"
+    ],
+    "description": "Scoliosis"
+  },
+  {
+    "text": "Tumorerkrankung",
+    "expected_hpo_ids": [
+      "HP:0002664"
+    ],
+    "description": "Neoplasm"
+  },
+  {
+    "text": "periphere Neuropathie",
+    "expected_hpo_ids": [
+      "HP:0009830"
+    ],
+    "description": "Peripheral neuropathy"
+  },
+  {
+    "text": "geistige Behinderung",
+    "expected_hpo_ids": [
+      "HP:0001249"
+    ],
+    "description": "Intellectual disability"
+  },
+  {
+    "text": "Nierenerkrankung",
+    "expected_hpo_ids": [
+      "HP:0000112"
+    ],
+    "description": "Nephropathy"
+  },
+  {
+    "text": "Muskelschwäche",
+    "expected_hpo_ids": [
+      "HP:0001324"
+    ],
+    "description": "Muscle weakness"
+  },
+  {
+    "text": "Amyloidose",
+    "expected_hpo_ids": [
+      "HP:0011034"
+    ],
+    "description": "Amyloid deposition"
+  },
+  {
+    "text": "Muskelatrophie",
+    "expected_hpo_ids": [
+      "HP:0003202"
+    ],
+    "description": "Skeletal muscle atrophy"
+  },
+  {
+    "text": "Bewegungsstörungen",
+    "expected_hpo_ids": [
+      "HP:0100022"
+    ],
+    "description": "Abnormality of movement"
+  },
+  {
+    "text": "Hypercholesterinämie",
+    "expected_hpo_ids": [
+      "HP:0003124"
+    ],
+    "description": "Hypercholesterolemia"
+  },
+  {
+    "text": "Herzrhythmusstörungen",
+    "expected_hpo_ids": [
+      "HP:0011675"
+    ],
+    "description": "Arrhythmia"
+  },
+  {
+    "text": "mentaler Retardierung",
+    "expected_hpo_ids": [
+      "HP:0001249"
+    ],
+    "description": "Intellectual disability"
+  },
+  {
+    "text": "Enzephalopathie",
+    "expected_hpo_ids": [
+      "HP:0001298"
+    ],
+    "description": "Encephalopathy"
+  },
+  {
+    "text": "Hypothyreose",
+    "expected_hpo_ids": [
+      "HP:0000821"
+    ],
+    "description": "Hypothyroidism"
+  },
+  {
+    "text": "Hypertrichose",
+    "expected_hpo_ids": [
+      "HP:0000998"
+    ],
+    "description": "Hypertrichosis"
+  },
+  {
+    "text": "dysproportionierter Kleinwuchs",
+    "expected_hpo_ids": [
+      "HP:0003498"
+    ],
+    "description": "Disproportionate short stature"
+  },
+  {
+    "text": "Schlafstörungen",
+    "expected_hpo_ids": [
+      "HP:0002360"
+    ],
+    "description": "Sleep disturbance"
+  },
+  {
+    "text": "Muskelerkrankung",
+    "expected_hpo_ids": [
+      "HP:0003198"
+    ],
+    "description": "Myopathy"
+  },
+  {
+    "text": "Niereninsuffizienz",
+    "expected_hpo_ids": [
+      "HP:0000083"
+    ],
+    "description": "Renal insufficiency"
+  },
+  {
+    "text": "Mikrohämaturie",
+    "expected_hpo_ids": [
+      "HP:0002907"
+    ],
+    "description": "Microscopic hematuria"
+  },
+  {
+    "text": "Ovarialinsuffizienz",
+    "expected_hpo_ids": [
+      "HP:0008209"
+    ],
+    "description": "Premature ovarian insufficiency"
+  },
+  {
+    "text": "Leukämie",
+    "expected_hpo_ids": [
+      "HP:0001909"
+    ],
+    "description": "Leukemia"
+  },
+  {
+    "text": "Retinitis",
+    "expected_hpo_ids": [
+      "HP:0032118"
+    ],
+    "description": "Retinitis"
+  },
+  {
+    "text": "Proteinurie",
+    "expected_hpo_ids": [
+      "HP:0000093"
+    ],
+    "description": "Proteinuria"
+  },
+  {
+    "text": "Gedeihstörungen",
+    "expected_hpo_ids": [
+      "HP:0001508"
+    ],
+    "description": "Failure to thrive"
+  },
+  {
+    "text": "Thrombose",
+    "expected_hpo_ids": [
+      "HP:0001977"
+    ],
+    "description": "Abnormal thrombosis"
+  },
+  {
+    "text": "Pankreatitis",
+    "expected_hpo_ids": [
+      "HP:0001733"
+    ],
+    "description": "Pancreatitis"
+  },
+  {
+    "text": "Knochenreifungsstörung",
+    "expected_hpo_ids": [
+      "HP:0000927"
+    ],
+    "description": "Abnormality of skeletal maturation"
+  },
+  {
+    "text": "Muskelschmerzen",
+    "expected_hpo_ids": [
+      "HP:0003326"
+    ],
+    "description": "Myalgia"
+  },
+  {
+    "text": "Arthritis",
+    "expected_hpo_ids": [
+      "HP:0001369"
+    ],
+    "description": "Arthritis"
+  },
+  {
+    "text": "Pulmonalstenose",
+    "expected_hpo_ids": [
+      "HP:0001642"
+    ],
+    "description": "Pulmonic stenosis"
+  },
+  {
+    "text": "Optikusatrophie",
+    "expected_hpo_ids": [
+      "HP:0000648"
+    ],
+    "description": "Optic atrophy"
+  },
+  {
+    "text": "Sensibilitätsstörungen",
+    "expected_hpo_ids": [
+      "HP:0003474"
+    ],
+    "description": "Somatic sensory dysfunction"
+  },
+  {
+    "text": "Hyperkalzämie",
+    "expected_hpo_ids": [
+      "HP:0003072"
+    ],
+    "description": "Hypercalcemia"
+  },
+  {
+    "text": "Gerinnungsstörungen",
+    "expected_hpo_ids": [
+      "HP:0001928"
+    ],
+    "description": "Abnormality of coagulation"
+  },
+  {
+    "text": "Schluckstörungen",
+    "expected_hpo_ids": [
+      "HP:0002015"
+    ],
+    "description": "Dysphagia"
+  },
+  {
+    "text": "Hypoglykämie",
+    "expected_hpo_ids": [
+      "HP:0001943"
+    ],
+    "description": "Hypoglycemia"
+  },
+  {
+    "text": "Koordinationsstörung",
+    "expected_hpo_ids": [
+      "HP:0001251"
+    ],
+    "description": "Ataxia"
+  },
+  {
+    "text": "Sprachstörungen",
+    "expected_hpo_ids": [
+      "HP:0002167"
+    ],
+    "description": "Abnormality of speech or vocalization"
+  },
+  {
+    "text": "Hemihypertrophie",
+    "expected_hpo_ids": [
+      "HP:0001528"
+    ],
+    "description": "Hemihypertrophy"
+  },
+  {
+    "text": "Osteoporose",
+    "expected_hpo_ids": [
+      "HP:0000939"
+    ],
+    "description": "Osteoporosis"
+  },
+  {
+    "text": "Gleichgewichtsstörungen",
+    "expected_hpo_ids": [
+      "HP:0002172"
+    ],
+    "description": "Postural instability"
+  },
+  {
+    "text": "Arthrose",
+    "expected_hpo_ids": [
+      "HP:0002758"
+    ],
+    "description": "Osteoarthritis"
+  },
+  {
+    "text": "Hypertriglyceridämie",
+    "expected_hpo_ids": [
+      "HP:0002155"
+    ],
+    "description": "Hypertriglyceridemia"
+  },
+  {
+    "text": "Leberzirrhose",
+    "expected_hpo_ids": [
+      "HP:0001394"
+    ],
+    "description": "Cirrhosis"
+  },
+  {
+    "text": "Hyperlipidämie",
+    "expected_hpo_ids": [
+      "HP:0003119"
+    ],
+    "description": "Abnormal circulating lipid concentration"
+  },
+  {
+    "text": "Verhaltensstörungen",
+    "expected_hpo_ids": [
+      "HP:0000708"
+    ],
+    "description": "Abnormal behavior"
+  },
+  {
+    "text": "Nephrokalzinose",
+    "expected_hpo_ids": [
+      "HP:0000121"
+    ],
+    "description": "Nephrocalcinosis"
+  },
+  {
+    "text": "Hydrozephalus",
+    "expected_hpo_ids": [
+      "HP:0000238"
+    ],
+    "description": "Hydrocephalus"
+  },
+  {
+    "text": "Hyperbilirubinämie",
+    "expected_hpo_ids": [
+      "HP:0002904"
+    ],
+    "description": "Hyperbilirubinemia"
+  },
+  {
+    "text": "Neuralrohrdefekte",
+    "expected_hpo_ids": [
+      "HP:0045005"
+    ],
+    "description": "Neural tube defect"
+  },
+  {
+    "text": "Thyreoiditis",
+    "expected_hpo_ids": [
+      "HP:0100646"
+    ],
+    "description": "Thyroiditis"
+  },
+  {
+    "text": "Hyperlordose",
+    "expected_hpo_ids": [
+      "HP:0003307"
+    ],
+    "description": "Hyperlordosis"
+  },
+  {
+    "text": "Kraniosynostose",
+    "expected_hpo_ids": [
+      "HP:0001363"
+    ],
+    "description": "Craniosynostosis"
+  },
+  {
+    "text": "Hepatomegalie",
+    "expected_hpo_ids": [
+      "HP:0002240"
+    ],
+    "description": "Hepatomegaly"
+  },
+  {
+    "text": "Ventrikelseptumdefekt",
+    "expected_hpo_ids": [
+      "HP:0001629"
+    ],
+    "description": "Ventricular septal defect"
+  },
+  {
+    "text": "Enzymdefekte",
+    "expected_hpo_ids": [
+      "HP:0003240"
+    ],
+    "description": "Abnormal enzyme level"
+  },
+  {
+    "text": "Kyphose",
+    "expected_hpo_ids": [
+      "HP:0002808"
+    ],
+    "description": "Kyphosis"
+  },
+  {
+    "text": "Hallux valgus",
+    "expected_hpo_ids": [
+      "HP:0001822"
+    ],
+    "description": "Hallux valgus"
+  },
+  {
+    "text": "Vorhofseptumdefekt",
+    "expected_hpo_ids": [
+      "HP:0001631"
+    ],
+    "description": "Atrial septal defect"
+  },
+  {
+    "text": "Lähmungen",
+    "expected_hpo_ids": [
+      "HP:0003470"
+    ],
+    "description": "Paralysis"
+  },
+  {
+    "text": "Immundefekte",
+    "expected_hpo_ids": [
+      "HP:0002721"
+    ],
+    "description": "Immunodeficiency"
+  },
+  {
+    "text": "Hypokaliämie",
+    "expected_hpo_ids": [
+      "HP:0002900"
+    ],
+    "description": "Hypokalemia"
+  },
+  {
+    "text": "Analatresie",
+    "expected_hpo_ids": [
+      "HP:0002023"
+    ],
+    "description": "Anal atresia"
+  },
+  {
+    "text": "Hepatosplenomegalie",
+    "expected_hpo_ids": [
+      "HP:0001433"
+    ],
+    "description": "Hepatosplenomegaly"
+  },
+  {
+    "text": "Hyperandrogenämie",
+    "expected_hpo_ids": [
+      "HP:0030088"
+    ],
+    "description": "Increased circulating androgen level"
+  },
+  {
+    "text": "chronische Gelenkluxationen",
+    "expected_hpo_ids": [
+      "HP:0031869"
+    ],
+    "description": "Recurrent joint dislocation"
+  },
+  {
+    "text": "Holoprosenzephalie",
+    "expected_hpo_ids": [
+      "HP:0001360"
+    ],
+    "description": "Holoprosencephaly"
+  },
+  {
+    "text": "Colitis",
+    "expected_hpo_ids": [
+      "HP:0002583"
+    ],
+    "description": "Colitis"
+  },
+  {
+    "text": "Hydronephrose",
+    "expected_hpo_ids": [
+      "HP:0000126"
+    ],
+    "description": "Hydronephrosis"
+  },
+  {
+    "text": "Stoffwechselstörungen",
+    "expected_hpo_ids": [
+      "HP:0001939"
+    ],
+    "description": "Abnormality of metabolism/homeostasis"
+  },
+  {
+    "text": "Hyperferritinämie",
+    "expected_hpo_ids": [
+      "HP:0003281"
+    ],
+    "description": "Increased circulating ferritin concentration"
+  },
+  {
+    "text": "Neutropenie",
+    "expected_hpo_ids": [
+      "HP:0001875"
+    ],
+    "description": "Neutropenia"
+  },
+  {
+    "text": "Hyperkeratose",
+    "expected_hpo_ids": [
+      "HP:0000962"
+    ],
+    "description": "Hyperkeratosis"
+  },
+  {
+    "text": "Amaurose",
+    "expected_hpo_ids": [
+      "HP:0100576"
+    ],
+    "description": "Amaurosis fugax"
+  },
+  {
+    "text": "Pankreasinsuffizienz",
+    "expected_hpo_ids": [
+      "HP:0001738"
+    ],
+    "description": "Exocrine pancreatic insufficiency"
+  },
+  {
+    "text": "Bauchwanddefekte",
+    "expected_hpo_ids": [
+      "HP:0002566"
+    ],
+    "description": "Abdominal wall defect"
+  },
+  {
+    "text": "Atemstörungen",
+    "expected_hpo_ids": [
+      "HP:0002878"
+    ],
+    "description": "Respiratory failure"
+  },
+  {
+    "text": "Status epilepticus",
+    "expected_hpo_ids": [
+      "HP:0002133"
+    ],
+    "description": "Status epilepticus"
+  },
+  {
+    "text": "Hemihyperplasie",
+    "expected_hpo_ids": [
+      "HP:0001528"
+    ],
+    "description": "Hemihypertrophy"
+  },
+  {
+    "text": "Angiomyolipome",
+    "expected_hpo_ids": [
+      "HP:0006772"
+    ],
+    "description": "Renal angiomyolipoma"
+  },
+  {
+    "text": "Bronchitis",
+    "expected_hpo_ids": [
+      "HP:0012387"
+    ],
+    "description": "Bronchitis"
+  },
+  {
+    "text": "Divertikulose",
+    "expected_hpo_ids": [
+      "HP:0002253"
+    ],
+    "description": "Colonic diverticula"
+  },
+  {
+    "text": "Mikroangiopathie",
+    "expected_hpo_ids": [
+      "HP:0100659"
+    ],
+    "description": "Abnormality of the cerebral vasculature"
+  },
+  {
+    "text": "Glomerulonephritis",
+    "expected_hpo_ids": [
+      "HP:0000099"
+    ],
+    "description": "Glomerulonephritis"
+  },
+  {
+    "text": "Hypocalcämie",
+    "expected_hpo_ids": [
+      "HP:0002901"
+    ],
+    "description": "Hypocalcemia"
+  },
+  {
+    "text": "Hyperoxalurie",
+    "expected_hpo_ids": [
+      "HP:0003159"
+    ],
+    "description": "Hyperoxaluria"
+  },
+  {
+    "text": "Endokarditis",
+    "expected_hpo_ids": [
+      "HP:0100584"
+    ],
+    "description": "Endocarditis"
+  },
+  {
+    "text": "Aortenstenose",
+    "expected_hpo_ids": [
+      "HP:0001650"
+    ],
+    "description": "Aortic valve stenosis"
+  },
+  {
+    "text": "Hypophosphatämie",
+    "expected_hpo_ids": [
+      "HP:0002148"
+    ],
+    "description": "Hypophosphatemia"
+  },
+  {
+    "text": "Aortenisthmusstenose",
+    "expected_hpo_ids": [
+      "HP:0031053"
+    ],
+    "description": "Coarctation in the transverse aortic arch"
+  },
+  {
+    "text": "Pes planus",
+    "expected_hpo_ids": [
+      "HP:0001763"
+    ],
+    "description": "Pes planus"
+  },
+  {
+    "text": "Lebererkrankungen",
+    "expected_hpo_ids": [
+      "HP:0001392"
+    ],
+    "description": "Abnormality of the liver"
+  },
+  {
+    "text": "Elektrolytstörung",
+    "expected_hpo_ids": [
+      "HP:0003111"
+    ],
+    "description": "Abnormal blood ion concentration"
+  },
+  {
+    "text": "Gastritis",
+    "expected_hpo_ids": [
+      "HP:0005263"
+    ],
+    "description": "Gastritis"
+  },
+  {
+    "text": "Kleinhirnatrophie",
+    "expected_hpo_ids": [
+      "HP:0001272"
+    ],
+    "description": "Cerebellar atrophy"
+  },
+  {
+    "text": "Kardiomegalie",
+    "expected_hpo_ids": [
+      "HP:0001640"
+    ],
+    "description": "Cardiomegaly"
+  },
+  {
+    "text": "Ichthyose",
+    "expected_hpo_ids": [
+      "HP:0008064"
+    ],
+    "description": "Ichthyosis"
+  },
+  {
+    "text": "Aufmerksamkeitsstörung",
+    "expected_hpo_ids": [
+      "HP:5200044"
+    ],
+    "description": "Reduced attention regulation"
+  },
+  {
+    "text": "Phimose",
+    "expected_hpo_ids": [
+      "HP:0001741"
+    ],
+    "description": "Phimosis"
+  },
+  {
+    "text": "Mastozytose",
+    "expected_hpo_ids": [
+      "HP:0200151"
+    ],
+    "description": "Cutaneous mastocytosis"
+  },
+  {
+    "text": "Hauterkrankung",
+    "expected_hpo_ids": [
+      "HP:0000951"
+    ],
+    "description": "Abnormality of the skin"
+  },
+  {
+    "text": "Artikulationsstörung",
+    "expected_hpo_ids": [
+      "HP:0009088"
+    ],
+    "description": "Speech articulation difficulties"
+  },
+  {
+    "text": "Ösophagusatresie",
+    "expected_hpo_ids": [
+      "HP:0002032"
+    ],
+    "description": "Esophageal atresia"
+  },
+  {
+    "text": "Polyurie",
+    "expected_hpo_ids": [
+      "HP:0000103"
+    ],
+    "description": "Polyuria"
+  },
+  {
+    "text": "Hypomagnesiämie",
+    "expected_hpo_ids": [
+      "HP:0002917"
+    ],
+    "description": "Hypomagnesemia"
+  },
+  {
+    "text": "Ventrikulomegalie",
+    "expected_hpo_ids": [
+      "HP:0002119"
+    ],
+    "description": "Ventriculomegaly"
+  },
+  {
+    "text": "Osteopenie",
+    "expected_hpo_ids": [
+      "HP:0000938"
+    ],
+    "description": "Osteopenia"
+  },
+  {
+    "text": "Hyperhomocysteinämie",
+    "expected_hpo_ids": [
+      "HP:0002160"
+    ],
+    "description": "Hyperhomocystinemia"
+  },
+  {
+    "text": "Hypohidrose",
+    "expected_hpo_ids": [
+      "HP:0000966"
+    ],
+    "description": "Hypohidrosis"
+  },
+  {
+    "text": "Hypokalziurie",
+    "expected_hpo_ids": [
+      "HP:0002150"
+    ],
+    "description": "Hypercalciuria"
+  },
+  {
+    "text": "Laktatazidose",
+    "expected_hpo_ids": [
+      "HP:0003128"
+    ],
+    "description": "Lactic acidosis"
+  },
+  {
+    "text": "Gefühlsstörungen",
+    "expected_hpo_ids": [
+      "HP:0002354"
+    ],
+    "description": "Paresthesia"
+  },
+  {
+    "text": "Wahrnehmungsstörung",
+    "expected_hpo_ids": [
+      "HP:5200216"
+    ],
+    "description": "Abnormal perceptual state"
+  },
+  {
+    "text": "Sphärozytose",
+    "expected_hpo_ids": [
+      "HP:0004444"
+    ],
+    "description": "Spherocytosis"
+  },
+  {
+    "text": "Hyperlipoproteinämie",
+    "expected_hpo_ids": [
+      "HP:0003119"
+    ],
+    "description": "Abnormal circulating lipid concentration"
+  },
+  {
+    "text": "Vaskulopathie",
+    "expected_hpo_ids": [
+      "HP:0002597"
+    ],
+    "description": "Abnormality of the vasculature"
+  },
+  {
+    "text": "Perikarditis",
+    "expected_hpo_ids": [
+      "HP:0001701"
+    ],
+    "description": "Pericarditis"
+  },
+  {
+    "text": "Psychose",
+    "expected_hpo_ids": [
+      "HP:0000709"
+    ],
+    "description": "Psychosis"
+  },
+  {
+    "text": "Mangelernährung",
+    "expected_hpo_ids": [
+      "HP:0004395"
+    ],
+    "description": "Malnutrition"
+  },
+  {
+    "text": "Pyelektasie",
+    "expected_hpo_ids": [
+      "HP:0010945"
+    ],
+    "description": "Fetal pyelectasis"
+  },
+  {
+    "text": "Glomerulopathie",
+    "expected_hpo_ids": [
+      "HP:0100820"
+    ],
+    "description": "Glomerulopathy"
+  },
+  {
+    "text": "schwere Intelligenzminderung",
+    "expected_hpo_ids": [
+      "HP:0010864"
+    ],
+    "description": "Severe intellectual disability"
+  },
+  {
+    "text": "entzündlichen Darmerkrankung",
+    "expected_hpo_ids": [
+      "HP:0002037"
+    ],
+    "description": "Inflammation of the large intestine"
+  },
+  {
+    "text": "Sprachverzögerung",
+    "expected_hpo_ids": [
+      "HP:0000750"
+    ],
+    "description": "Delayed speech and language development"
+  },
+  {
+    "text": "Verkrampfungen",
+    "expected_hpo_ids": [
+      "HP:0011097"
+    ],
+    "description": "Epileptic spasm"
+  },
+  {
+    "text": "Aortenklappenstenose",
+    "expected_hpo_ids": [
+      "HP:0001650"
+    ],
+    "description": "Aortic valve stenosis"
+  },
+  {
+    "text": "Pectus excavatum",
+    "expected_hpo_ids": [
+      "HP:0000767"
+    ],
+    "description": "Pectus excavatum"
+  },
+  {
+    "text": "Hormonstörungen",
+    "expected_hpo_ids": [
+      "HP:0000818"
+    ],
+    "description": "Abnormality of the endocrine system"
+  },
+  {
+    "text": "Aortenektasie",
+    "expected_hpo_ids": [
+      "HP:0004942"
+    ],
+    "description": "Aortic aneurysm"
+  },
+  {
+    "text": "Stoffwechseldefekte",
+    "expected_hpo_ids": [
+      "HP:0001939"
+    ],
+    "description": "Abnormality of metabolism/homeostasis"
+  },
+  {
+    "text": "Genu valgum",
+    "expected_hpo_ids": [
+      "HP:0002857"
+    ],
+    "description": "Genu valgum"
+  },
+  {
+    "text": "Pectus carinatum",
+    "expected_hpo_ids": [
+      "HP:0000768"
+    ],
+    "description": "Pectus carinatum"
+  },
+  {
+    "text": "Gehörgangsatresie",
+    "expected_hpo_ids": [
+      "HP:0000413"
+    ],
+    "description": "Atresia of the external auditory canal"
+  },
+  {
+    "text": "Pes cavus",
+    "expected_hpo_ids": [
+      "HP:0001761"
+    ],
+    "description": "Pes cavus"
+  },
+  {
+    "text": "Herzscheidewanddefekte",
+    "expected_hpo_ids": [
+      "HP:0001629"
+    ],
+    "description": "Ventricular septal defect"
+  },
+  {
+    "text": "Atriumseptumdefekt",
+    "expected_hpo_ids": [
+      "HP:0001631"
+    ],
+    "description": "Atrial septal defect"
+  },
+  {
+    "text": "Herzklappeninsuffizienzen",
+    "expected_hpo_ids": [
+      "HP:0031653"
+    ],
+    "description": "Abnormal heart valve physiology"
+  },
+  {
+    "text": "Mittelohrbelüftungsstörung",
+    "expected_hpo_ids": [
+      "HP:0000389"
+    ],
+    "description": "Chronic otitis media"
+  },
+  {
+    "text": "Skelettmuskelstörungen",
+    "expected_hpo_ids": [
+      "HP:0003011"
+    ],
+    "description": "Myopathy"
+  },
+  {
+    "text": "Dermatomyositis",
+    "expected_hpo_ids": [
+      "HP:0003729"
+    ],
+    "description": "Dermatomyositis"
+  },
+  {
+    "text": "Knochenmarksinsuffizienz",
+    "expected_hpo_ids": [
+      "HP:0005528"
+    ],
+    "description": "Bone marrow hypocellularity"
+  },
+  {
+    "text": "Farbsehstörungen",
+    "expected_hpo_ids": [
+      "HP:0000551"
+    ],
+    "description": "Color vision defect"
+  },
+  {
+    "text": "ausgeprägter Kleinwuchs",
+    "expected_hpo_ids": [
+      "HP:0003510"
+    ],
+    "description": "Severe short stature"
+  },
+  {
+    "text": "Sehnervatrophie",
+    "expected_hpo_ids": [
+      "HP:0000648"
+    ],
+    "description": "Optic atrophy"
+  },
+  {
+    "text": "kardiovaskuläre Anomalien",
+    "expected_hpo_ids": [
+      "HP:0001626"
+    ],
+    "description": "Abnormality of the cardiovascular system"
+  },
+  {
+    "text": "Feinmotorikstörung",
+    "expected_hpo_ids": [
+      "HP:0007010"
+    ],
+    "description": "Poor fine motor coordination"
+  },
+  {
+    "text": "Gefäßstörungen",
+    "expected_hpo_ids": [
+      "HP:0002597"
+    ],
+    "description": "Abnormality of the vasculature"
+  },
+  {
+    "text": "Schädelnahtsynostose",
+    "expected_hpo_ids": [
+      "HP:0001363"
+    ],
+    "description": "Craniosynostosis"
+  },
+  {
+    "text": "Pigmentretinopathie",
+    "expected_hpo_ids": [
+      "HP:0000580"
+    ],
+    "description": "Pigmentary retinopathy"
+  },
+  {
+    "text": "Hypophysenhormonmangel",
+    "expected_hpo_ids": [
+      "HP:0040075"
+    ],
+    "description": "Hypopituitarism "
+  },
+  {
+    "text": "Coxa valga",
+    "expected_hpo_ids": [
+      "HP:0002673"
+    ],
+    "description": "Coxa valga"
+  },
+  {
+    "text": "Sprechmotorikstörungen",
+    "expected_hpo_ids": [
+      "HP:0011098"
+    ],
+    "description": "Speech apraxia"
+  },
+  {
+    "text": "Rechtsherzinsuffizienz",
+    "expected_hpo_ids": [
+      "HP:0001708"
+    ],
+    "description": "Right ventricular failure"
+  },
+  {
+    "text": "Lippenzyanose",
+    "expected_hpo_ids": [
+      "HP:0000961"
+    ],
+    "description": "Cyanosis"
+  },
+  {
+    "text": "Hautdefekte",
+    "expected_hpo_ids": [
+      "HP:0000951"
+    ],
+    "description": "Abnormality of the skin"
+  },
+  {
+    "text": "Autoimmunopathie",
+    "expected_hpo_ids": [
+      "HP:0002960"
+    ],
+    "description": "Autoimmunity"
+  },
+  {
+    "text": "Aortenbulbusektasie",
+    "expected_hpo_ids": [
+      "HP:0004970"
+    ],
+    "description": "Ascending aortic dilatation"
+  },
+  {
+    "text": "Endokrinopathie",
+    "expected_hpo_ids": [
+      "HP:0000818"
+    ],
+    "description": "Abnormality of the endocrine system"
+  },
+  {
+    "text": "kardiovaskuläre Fehlbildungen",
+    "expected_hpo_ids": [
+      "HP:0001627"
+    ],
+    "description": "Abnormal heart morphology"
+  },
+  {
+    "text": "Wirbeldefekte",
+    "expected_hpo_ids": [
+      "HP:0003468"
+    ],
+    "description": "Abnormal vertebral morphology"
+  },
+  {
+    "text": "rezidivierende Luxationen",
+    "expected_hpo_ids": [
+      "HP:0031869"
+    ],
+    "description": "Recurrent joint dislocation"
+  },
+  {
+    "text": "Skelettdefekte",
+    "expected_hpo_ids": [
+      "HP:0000924"
+    ],
+    "description": "Abnormality of the skeletal system"
+  },
+  {
+    "text": "Krampfneigung",
+    "expected_hpo_ids": [
+      "HP:0001250"
+    ],
+    "description": "Seizure"
+  },
+  {
+    "text": "Gesichtsfelddefekten",
+    "expected_hpo_ids": [
+      "HP:0001123"
+    ],
+    "description": "Visual field defect"
+  },
+  {
+    "text": "Immunthromopenie",
+    "expected_hpo_ids": [
+      "HP:0001973"
+    ],
+    "description": "Autoimmune thrombocytopenia"
+  },
+  {
+    "text": "renale Anomalien",
+    "expected_hpo_ids": [
+      "HP:0000077"
+    ],
+    "description": "Abnormality of the kidney"
+  },
+  {
+    "text": "Nachtsehstörung",
+    "expected_hpo_ids": [
+      "HP:0000662"
+    ],
+    "description": "Nyctalopia"
+  },
+  {
+    "text": "Herzkranzgefäßerkrankung",
+    "expected_hpo_ids": [
+      "HP:0001677"
+    ],
+    "description": "Coronary artery atherosclerosis"
+  },
+  {
+    "text": "Kammerseptumdefekte",
+    "expected_hpo_ids": [
+      "HP:0001629"
+    ],
+    "description": "Ventricular septal defect"
+  },
+  {
+    "text": "Herzreizleitungsstörung",
+    "expected_hpo_ids": [
+      "HP:0031546"
+    ],
+    "description": "Cardiac conduction abnormality"
+  },
+  {
+    "text": "Gefäßdefekte",
+    "expected_hpo_ids": [
+      "HP:0002597"
+    ],
+    "description": "Abnormality of the vasculature"
+  },
+  {
+    "text": "Lidspaltenasymmetrie",
+    "expected_hpo_ids": [
+      "HP:0000492"
+    ],
+    "description": "Abnormal eyelid morphology"
+  },
+  {
+    "text": "Lichtdermatose",
+    "expected_hpo_ids": [
+      "HP:0000992"
+    ],
+    "description": "Cutaneous photosensitivity"
+  },
+  {
+    "text": "Nagelmykose",
+    "expected_hpo_ids": [
+      "HP:0012203"
+    ],
+    "description": "Onychomycosis"
+  },
+  {
+    "text": "Kontaktdermatitis",
+    "expected_hpo_ids": [
+      "HP:0032282"
+    ],
+    "description": "Contact dermatitis"
+  },
+  {
+    "text": "Netzhautatrophie",
+    "expected_hpo_ids": [
+      "HP:0000546"
+    ],
+    "description": "Retinal degeneration"
+  },
+  {
+    "text": "Pigmentierungsdefekte",
+    "expected_hpo_ids": [
+      "HP:0001000"
+    ],
+    "description": "Abnormality of skin pigmentation"
+  },
+  {
+    "text": "Stauungsdermatitis",
+    "expected_hpo_ids": [
+      "HP:0033564"
+    ],
+    "description": "Stasis dermatitis"
+  },
+  {
+    "text": "Hyperimmunglobulinämie",
+    "expected_hpo_ids": [
+      "HP:0010702"
+    ],
+    "description": "Increased circulating immunoglobulin concentration"
+  },
+  {
+    "text": "Hypertelorismus",
+    "expected_hpo_ids": [
+      "HP:0000316"
+    ],
+    "description": "Hypertelorism"
+  },
+  {
+    "text": "Hypotelorismus",
+    "expected_hpo_ids": [
+      "HP:0000601"
+    ],
+    "description": "Hypotelorism"
+  },
+  {
+    "text": "Epikanthus",
+    "expected_hpo_ids": [
+      "HP:0000286"
+    ],
+    "description": "Epicanthus"
+  },
+  {
+    "text": "Ptosis",
+    "expected_hpo_ids": [
+      "HP:0000508"
+    ],
+    "description": "Ptosis"
+  },
+  {
+    "text": "Mikrogenie",
+    "expected_hpo_ids": [
+      "HP:0000347"
+    ],
+    "description": "Micrognathia"
+  },
+  {
+    "text": "Retrogenie",
+    "expected_hpo_ids": [
+      "HP:0000278"
+    ],
+    "description": "Retrognathia"
+  },
+  {
+    "text": "Prognathie",
+    "expected_hpo_ids": [
+      "HP:0000303"
+    ],
+    "description": "Mandibular prognathia"
+  },
+  {
+    "text": "Mittelgesichtshypoplasie",
+    "expected_hpo_ids": [
+      "HP:0011800"
+    ],
+    "description": "Midface retrusion"
+  },
+  {
+    "text": "Plagiozephalie",
+    "expected_hpo_ids": [
+      "HP:0001357"
+    ],
+    "description": "Plagiocephaly"
+  },
+  {
+    "text": "Brachyzephalie",
+    "expected_hpo_ids": [
+      "HP:0000248"
+    ],
+    "description": "Brachycephaly"
+  },
+  {
+    "text": "Dolichozephalie",
+    "expected_hpo_ids": [
+      "HP:0000268"
+    ],
+    "description": "Dolichocephaly"
+  },
+  {
+    "text": "Hohe Stirn",
+    "expected_hpo_ids": [
+      "HP:0000348"
+    ],
+    "description": "High forehead"
+  },
+  {
+    "text": "Flaches Gesicht",
+    "expected_hpo_ids": [
+      "HP:0012368"
+    ],
+    "description": "Flat face"
+  },
+  {
+    "text": "Breite Nasenwurzel",
+    "expected_hpo_ids": [
+      "HP:0000431"
+    ],
+    "description": "Wide nasal bridge"
+  },
+  {
+    "text": "Verstrichenes Philtrum",
+    "expected_hpo_ids": [
+      "HP:0000319"
+    ],
+    "description": "Smooth philtrum"
+  },
+  {
+    "text": "Schmale Oberlippe",
+    "expected_hpo_ids": [
+      "HP:0000219"
+    ],
+    "description": "Thin upper lip vermilion"
+  },
+  {
+    "text": "Tiefsitzende Ohren",
+    "expected_hpo_ids": [
+      "HP:0000369"
+    ],
+    "description": "Low-set ears"
+  },
+  {
+    "text": "Dysplastische Ohren",
+    "expected_hpo_ids": [
+      "HP:0031703"
+    ],
+    "description": "Abnormal ear morphology"
+  },
+  {
+    "text": "Lippen-Kiefer-Gaumenspalte",
+    "expected_hpo_ids": [
+      "HP:0000202"
+    ],
+    "description": "Orofacial cleft"
+  },
+  {
+    "text": "Gaumenspalte",
+    "expected_hpo_ids": [
+      "HP:0000175"
+    ],
+    "description": "Cleft palate"
+  },
+  {
+    "text": "Lippenspalte",
+    "expected_hpo_ids": [
+      "HP:0410030"
+    ],
+    "description": "Cleft lip"
+  },
+  {
+    "text": "Hoher Gaumen",
+    "expected_hpo_ids": [
+      "HP:0000218"
+    ],
+    "description": "High palate"
+  },
+  {
+    "text": "Kurze Lidspalten",
+    "expected_hpo_ids": [
+      "HP:0012745"
+    ],
+    "description": "Short palpebral fissure"
+  },
+  {
+    "text": "Abfallende Lidspalten",
+    "expected_hpo_ids": [
+      "HP:0000494"
+    ],
+    "description": "Downslanted palpebral fissures"
+  },
+  {
+    "text": "Brachydaktylie",
+    "expected_hpo_ids": [
+      "HP:0001156"
+    ],
+    "description": "Brachydactyly"
+  },
+  {
+    "text": "Syndaktylie",
+    "expected_hpo_ids": [
+      "HP:0001159"
+    ],
+    "description": "Syndactyly"
+  },
+  {
+    "text": "Polydaktylie",
+    "expected_hpo_ids": [
+      "HP:0010442"
+    ],
+    "description": "Polydactyly"
+  },
+  {
+    "text": "Klinodaktylie",
+    "expected_hpo_ids": [
+      "HP:0030084"
+    ],
+    "description": "Clinodactyly"
+  },
+  {
+    "text": "Kamptodaktylie",
+    "expected_hpo_ids": [
+      "HP:0012385"
+    ],
+    "description": "Camptodactyly"
+  },
+  {
+    "text": "Arachnodaktylie",
+    "expected_hpo_ids": [
+      "HP:0001166"
+    ],
+    "description": "Arachnodactyly"
+  },
+  {
+    "text": "Sandalenlücke",
+    "expected_hpo_ids": [
+      "HP:0001852"
+    ],
+    "description": "Sandal gap"
+  },
+  {
+    "text": "Klumpfuß",
+    "expected_hpo_ids": [
+      "HP:0001762"
+    ],
+    "description": "Talipes equinovarus"
+  },
+  {
+    "text": "Spitzfuß",
+    "expected_hpo_ids": [
+      "HP:0001761"
+    ],
+    "description": "Pes cavus"
+  },
+  {
+    "text": "Hohlfuß",
+    "expected_hpo_ids": [
+      "HP:0001761"
+    ],
+    "description": "Pes cavus"
+  },
+  {
+    "text": "Plattfuß",
+    "expected_hpo_ids": [
+      "HP:0001763"
+    ],
+    "description": "Pes planus"
+  },
+  {
+    "text": "Spalthand",
+    "expected_hpo_ids": [
+      "HP:0001171"
+    ],
+    "description": "Split hand"
+  },
+  {
+    "text": "Hypoplastischer Daumen",
+    "expected_hpo_ids": [
+      "HP:0009601"
+    ],
+    "description": "Aplasia/Hypoplasia of the thumb"
+  },
+  {
+    "text": "Radiusaplasie",
+    "expected_hpo_ids": [
+      "HP:0003974"
+    ],
+    "description": "Absent radius"
+  },
+  {
+    "text": "Rhizomelie",
+    "expected_hpo_ids": [
+      "HP:0008905"
+    ],
+    "description": "Rhizomelia"
+  },
+  {
+    "text": "Mesomelie",
+    "expected_hpo_ids": [
+      "HP:0003027"
+    ],
+    "description": "Mesomelia"
+  },
+  {
+    "text": "Akromelie",
+    "expected_hpo_ids": [
+      "HP:0010884"
+    ],
+    "description": "Acromelia"
+  },
+  {
+    "text": "Gelenküberstreckbarkeit",
+    "expected_hpo_ids": [
+      "HP:0001382"
+    ],
+    "description": "Joint hypermobility"
+  },
+  {
+    "text": "Gelenkkontrakturen",
+    "expected_hpo_ids": [
+      "HP:0034392"
+    ],
+    "description": "Joint contracture"
+  },
+  {
+    "text": "Ellenbogenkontraktur",
+    "expected_hpo_ids": [
+      "HP:0002987"
+    ],
+    "description": "Elbow flexion contracture"
+  },
+  {
+    "text": "Hüftluxation",
+    "expected_hpo_ids": [
+      "HP:0002827"
+    ],
+    "description": "Hip dislocation"
+  },
+  {
+    "text": "Hypotonie",
+    "expected_hpo_ids": [
+      "HP:0001252"
+    ],
+    "description": "Hypotonia"
+  },
+  {
+    "text": "Hypertonie",
+    "expected_hpo_ids": [
+      "HP:0001276"
+    ],
+    "description": "Hypertonia"
+  },
+  {
+    "text": "Spastik",
+    "expected_hpo_ids": [
+      "HP:0001257"
+    ],
+    "description": "Spasticity"
+  },
+  {
+    "text": "Rigor",
+    "expected_hpo_ids": [
+      "HP:0002063"
+    ],
+    "description": "Rigidity"
+  },
+  {
+    "text": "Tremor",
+    "expected_hpo_ids": [
+      "HP:0001337"
+    ],
+    "description": "Tremor"
+  },
+  {
+    "text": "Dystonie",
+    "expected_hpo_ids": [
+      "HP:0001332"
+    ],
+    "description": "Dystonia"
+  },
+  {
+    "text": "Chorea",
+    "expected_hpo_ids": [
+      "HP:0002072"
+    ],
+    "description": "Chorea"
+  },
+  {
+    "text": "Athetose",
+    "expected_hpo_ids": [
+      "HP:0002305"
+    ],
+    "description": "Athetosis"
+  },
+  {
+    "text": "Myoklonus",
+    "expected_hpo_ids": [
+      "HP:0001336"
+    ],
+    "description": "Myoclonus"
+  },
+  {
+    "text": "Nystagmus",
+    "expected_hpo_ids": [
+      "HP:0000639"
+    ],
+    "description": "Nystagmus"
+  },
+  {
+    "text": "Aphasie",
+    "expected_hpo_ids": [
+      "HP:0002381"
+    ],
+    "description": "Aphasia"
+  },
+  {
+    "text": "Dysarthrie",
+    "expected_hpo_ids": [
+      "HP:0001260"
+    ],
+    "description": "Dysarthria"
+  },
+  {
+    "text": "Apraxie",
+    "expected_hpo_ids": [
+      "HP:0002186"
+    ],
+    "description": "Apraxia"
+  },
+  {
+    "text": "Agnosie",
+    "expected_hpo_ids": [
+      "HP:0010524"
+    ],
+    "description": "Disturbed sensory perception"
+  },
+  {
+    "text": "Parästhesien",
+    "expected_hpo_ids": [
+      "HP:0003401"
+    ],
+    "description": "Paresthesia"
+  },
+  {
+    "text": "Hyperreflexie",
+    "expected_hpo_ids": [
+      "HP:0001347"
+    ],
+    "description": "Hyperreflexia"
+  },
+  {
+    "text": "Areflexie",
+    "expected_hpo_ids": [
+      "HP:0001284"
+    ],
+    "description": "Areflexia"
+  },
+  {
+    "text": "Spastische Paraplegie",
+    "expected_hpo_ids": [
+      "HP:0001258"
+    ],
+    "description": "Spastic paraplegia"
+  },
+  {
+    "text": "Hemiparese",
+    "expected_hpo_ids": [
+      "HP:0001269"
+    ],
+    "description": "Hemiparesis"
+  },
+  {
+    "text": "Tetraparese",
+    "expected_hpo_ids": [
+      "HP:0002273"
+    ],
+    "description": "Tetraparesis"
+  },
+  {
+    "text": "Hirnödem",
+    "expected_hpo_ids": [
+      "HP:0002181"
+    ],
+    "description": "Cerebral edema"
+  },
+  {
+    "text": "Leukoenzephalopathie",
+    "expected_hpo_ids": [
+      "HP:0002352"
+    ],
+    "description": "Leukoencephalopathy"
+  },
+  {
+    "text": "Katarakt",
+    "expected_hpo_ids": [
+      "HP:0000518"
+    ],
+    "description": "Cataract"
+  },
+  {
+    "text": "Glaukom",
+    "expected_hpo_ids": [
+      "HP:0000501"
+    ],
+    "description": "Glaucoma"
+  },
+  {
+    "text": "Kolobom",
+    "expected_hpo_ids": [
+      "HP:0000589"
+    ],
+    "description": "Coloboma"
+  },
+  {
+    "text": "Anophthalmie",
+    "expected_hpo_ids": [
+      "HP:0000528"
+    ],
+    "description": "Anophthalmia"
+  },
+  {
+    "text": "Mikrophthalmie",
+    "expected_hpo_ids": [
+      "HP:0000568"
+    ],
+    "description": "Microphthalmia"
+  },
+  {
+    "text": "Strabismus",
+    "expected_hpo_ids": [
+      "HP:0000486"
+    ],
+    "description": "Strabismus"
+  },
+  {
+    "text": "Amblyopie",
+    "expected_hpo_ids": [
+      "HP:0000646"
+    ],
+    "description": "Amblyopia"
+  },
+  {
+    "text": "Nachtblindheit",
+    "expected_hpo_ids": [
+      "HP:0000662"
+    ],
+    "description": "Nyctalopia"
+  },
+  {
+    "text": "Photophobie",
+    "expected_hpo_ids": [
+      "HP:0000613"
+    ],
+    "description": "Photophobia"
+  },
+  {
+    "text": "Makuladegeneration",
+    "expected_hpo_ids": [
+      "HP:0000608"
+    ],
+    "description": "Macular degeneration"
+  },
+  {
+    "text": "Netzhautablösung",
+    "expected_hpo_ids": [
+      "HP:0000541"
+    ],
+    "description": "Retinal detachment"
+  },
+  {
+    "text": "Papillenödem",
+    "expected_hpo_ids": [
+      "HP:0001085"
+    ],
+    "description": "Papilledema"
+  },
+  {
+    "text": "Aniridie",
+    "expected_hpo_ids": [
+      "HP:0000526"
+    ],
+    "description": "Aniridia"
+  },
+  {
+    "text": "Heterochromie",
+    "expected_hpo_ids": [
+      "HP:0001100"
+    ],
+    "description": "Heterochromia iridis"
+  },
+  {
+    "text": "Blepharophimose",
+    "expected_hpo_ids": [
+      "HP:0000581"
+    ],
+    "description": "Blepharophimosis"
+  },
+  {
+    "text": "Ektropium",
+    "expected_hpo_ids": [
+      "HP:0000656"
+    ],
+    "description": "Ectropion"
+  },
+  {
+    "text": "Entropium",
+    "expected_hpo_ids": [
+      "HP:0000621"
+    ],
+    "description": "Entropion"
+  },
+  {
+    "text": "Fallot-Tetralogie",
+    "expected_hpo_ids": [
+      "HP:0001636"
+    ],
+    "description": "Tetralogy of Fallot"
+  },
+  {
+    "text": "Transposition der großen Arterien",
+    "expected_hpo_ids": [
+      "HP:0001669"
+    ],
+    "description": "Transposition of the great arteries"
+  },
+  {
+    "text": "Persistierender Ductus arteriosus",
+    "expected_hpo_ids": [
+      "HP:0001643"
+    ],
+    "description": "Patent ductus arteriosus"
+  },
+  {
+    "text": "Trikuspidalatresie",
+    "expected_hpo_ids": [
+      "HP:0011662"
+    ],
+    "description": "Tricuspid atresia"
+  },
+  {
+    "text": "Mitralklappeninsuffizienz",
+    "expected_hpo_ids": [
+      "HP:0001653"
+    ],
+    "description": "Mitral regurgitation"
+  },
+  {
+    "text": "Aorteninsuffizienz",
+    "expected_hpo_ids": [
+      "HP:0001659"
+    ],
+    "description": "Aortic regurgitation"
+  },
+  {
+    "text": "Mitralklappenprolaps",
+    "expected_hpo_ids": [
+      "HP:0001634"
+    ],
+    "description": "Mitral valve prolapse"
+  },
+  {
+    "text": "Dilatative Kardiomyopathie",
+    "expected_hpo_ids": [
+      "HP:0001644"
+    ],
+    "description": "Dilated cardiomyopathy"
+  },
+  {
+    "text": "Hypertrophe Kardiomyopathie",
+    "expected_hpo_ids": [
+      "HP:0001639"
+    ],
+    "description": "Hypertrophic cardiomyopathy"
+  },
+  {
+    "text": "Aortenaneurysma",
+    "expected_hpo_ids": [
+      "HP:0004942"
+    ],
+    "description": "Aortic aneurysm"
+  },
+  {
+    "text": "Aortendissektion",
+    "expected_hpo_ids": [
+      "HP:0002647"
+    ],
+    "description": "Aortic dissection"
+  },
+  {
+    "text": "Dextrokardie",
+    "expected_hpo_ids": [
+      "HP:0001651"
+    ],
+    "description": "Dextrocardia"
+  },
+  {
+    "text": "Bradykardie",
+    "expected_hpo_ids": [
+      "HP:0001662"
+    ],
+    "description": "Bradycardia"
+  },
+  {
+    "text": "Tachykardie",
+    "expected_hpo_ids": [
+      "HP:0001649"
+    ],
+    "description": "Tachycardia"
+  },
+  {
+    "text": "Vorhofflimmern",
+    "expected_hpo_ids": [
+      "HP:0005110"
+    ],
+    "description": "Atrial fibrillation"
+  },
+  {
+    "text": "Long-QT-Syndrom",
+    "expected_hpo_ids": [
+      "HP:0001657"
+    ],
+    "description": "Prolonged QT interval"
+  },
+  {
+    "text": "Dysphagie",
+    "expected_hpo_ids": [
+      "HP:0002015"
+    ],
+    "description": "Dysphagia"
+  },
+  {
+    "text": "Obstipation",
+    "expected_hpo_ids": [
+      "HP:0002019"
+    ],
+    "description": "Constipation"
+  },
+  {
+    "text": "Diarrhoe",
+    "expected_hpo_ids": [
+      "HP:0002014"
+    ],
+    "description": "Diarrhea"
+  },
+  {
+    "text": "Erbrechen",
+    "expected_hpo_ids": [
+      "HP:0002013"
+    ],
+    "description": "Vomiting"
+  },
+  {
+    "text": "Übelkeit",
+    "expected_hpo_ids": [
+      "HP:0002018"
+    ],
+    "description": "Nausea"
+  },
+  {
+    "text": "Aszites",
+    "expected_hpo_ids": [
+      "HP:0001541"
+    ],
+    "description": "Ascites"
+  },
+  {
+    "text": "Ikterus",
+    "expected_hpo_ids": [
+      "HP:0000952"
+    ],
+    "description": "Jaundice"
+  },
+  {
+    "text": "Splenomegalie",
+    "expected_hpo_ids": [
+      "HP:0001744"
+    ],
+    "description": "Splenomegaly"
+  },
+  {
+    "text": "Cholelithiasis",
+    "expected_hpo_ids": [
+      "HP:0001081"
+    ],
+    "description": "Cholelithiasis"
+  },
+  {
+    "text": "Pylorusstenose",
+    "expected_hpo_ids": [
+      "HP:0002021"
+    ],
+    "description": "Pyloric stenosis"
+  },
+  {
+    "text": "Malrotation",
+    "expected_hpo_ids": [
+      "HP:0002566"
+    ],
+    "description": "Intestinal malrotation"
+  },
+  {
+    "text": "Morbus Hirschsprung",
+    "expected_hpo_ids": [
+      "HP:0002251"
+    ],
+    "description": "Aganglionic megacolon"
+  },
+  {
+    "text": "Gastroösophagealer Reflux",
+    "expected_hpo_ids": [
+      "HP:0002020"
+    ],
+    "description": "Gastroesophageal reflux"
+  },
+  {
+    "text": "Ösophagusvarizen",
+    "expected_hpo_ids": [
+      "HP:0002040"
+    ],
+    "description": "Esophageal varix"
+  },
+  {
+    "text": "Steatorrhoe",
+    "expected_hpo_ids": [
+      "HP:0002570"
+    ],
+    "description": "Steatorrhea"
+  },
+  {
+    "text": "Malabsorption",
+    "expected_hpo_ids": [
+      "HP:0002024"
+    ],
+    "description": "Malabsorption"
+  },
+  {
+    "text": "Exanthem",
+    "expected_hpo_ids": [
+      "HP:4000054"
+    ],
+    "description": "Exanthem"
+  },
+  {
+    "text": "Erythem",
+    "expected_hpo_ids": [
+      "HP:0010783"
+    ],
+    "description": "Erythema"
+  },
+  {
+    "text": "Purpura",
+    "expected_hpo_ids": [
+      "HP:0000979"
+    ],
+    "description": "Purpura"
+  },
+  {
+    "text": "Petechien",
+    "expected_hpo_ids": [
+      "HP:0000967"
+    ],
+    "description": "Petechiae"
+  },
+  {
+    "text": "Ekchymosen",
+    "expected_hpo_ids": [
+      "HP:0031364"
+    ],
+    "description": "Ecchymosis"
+  },
+  {
+    "text": "Urtikaria",
+    "expected_hpo_ids": [
+      "HP:0001025"
+    ],
+    "description": "Urticaria"
+  },
+  {
+    "text": "Ekzem",
+    "expected_hpo_ids": [
+      "HP:0000964"
+    ],
+    "description": "Eczematoid dermatitis"
+  },
+  {
+    "text": "Pruritus",
+    "expected_hpo_ids": [
+      "HP:0000989"
+    ],
+    "description": "Pruritus"
+  },
+  {
+    "text": "Hypopigmentierung",
+    "expected_hpo_ids": [
+      "HP:0001010"
+    ],
+    "description": "Hypopigmentation of the skin"
+  },
+  {
+    "text": "Hyperpigmentierung",
+    "expected_hpo_ids": [
+      "HP:0000953"
+    ],
+    "description": "Hyperpigmentation of the skin"
+  },
+  {
+    "text": "Café-au-lait-Flecken",
+    "expected_hpo_ids": [
+      "HP:0000957"
+    ],
+    "description": "Cafe-au-lait spot"
+  },
+  {
+    "text": "Vitiligo",
+    "expected_hpo_ids": [
+      "HP:0001045"
+    ],
+    "description": "Vitiligo"
+  },
+  {
+    "text": "Alopezie",
+    "expected_hpo_ids": [
+      "HP:0001596"
+    ],
+    "description": "Alopecia"
+  },
+  {
+    "text": "Hirsutismus",
+    "expected_hpo_ids": [
+      "HP:0001007"
+    ],
+    "description": "Hirsutism"
+  },
+  {
+    "text": "Xerodermie",
+    "expected_hpo_ids": [
+      "HP:0000958"
+    ],
+    "description": "Dry skin"
+  },
+  {
+    "text": "Cutis laxa",
+    "expected_hpo_ids": [
+      "HP:0000973"
+    ],
+    "description": "Cutis laxa"
+  },
+  {
+    "text": "Striae",
+    "expected_hpo_ids": [
+      "HP:0001065"
+    ],
+    "description": "Striae distensae"
+  },
+  {
+    "text": "Keloide",
+    "expected_hpo_ids": [
+      "HP:0010562"
+    ],
+    "description": "Keloids"
+  },
+  {
+    "text": "Nagelveränderungen",
+    "expected_hpo_ids": [
+      "HP:0001597"
+    ],
+    "description": "Abnormal nail morphology"
+  },
+  {
+    "text": "Koilonychie",
+    "expected_hpo_ids": [
+      "HP:0001598"
+    ],
+    "description": "Concave nail"
+  },
+  {
+    "text": "Hyperglykämie",
+    "expected_hpo_ids": [
+      "HP:0003074"
+    ],
+    "description": "Hyperglycemia"
+  },
+  {
+    "text": "Hyperurikämie",
+    "expected_hpo_ids": [
+      "HP:0002149"
+    ],
+    "description": "Hyperuricemia"
+  },
+  {
+    "text": "Hyperlaktatämie",
+    "expected_hpo_ids": [
+      "HP:0003128"
+    ],
+    "description": "Lactic acidosis"
+  },
+  {
+    "text": "Hyperammonämie",
+    "expected_hpo_ids": [
+      "HP:0001987"
+    ],
+    "description": "Hyperammonemia"
+  },
+  {
+    "text": "Azidose",
+    "expected_hpo_ids": [
+      "HP:0001942"
+    ],
+    "description": "Metabolic acidosis"
+  },
+  {
+    "text": "Alkalose",
+    "expected_hpo_ids": [
+      "HP:0200114"
+    ],
+    "description": "Metabolic alkalosis"
+  },
+  {
+    "text": "Hyponatriämie",
+    "expected_hpo_ids": [
+      "HP:0002902"
+    ],
+    "description": "Hyponatremia"
+  },
+  {
+    "text": "Hypernatriämie",
+    "expected_hpo_ids": [
+      "HP:0003228"
+    ],
+    "description": "Hypernatremia"
+  },
+  {
+    "text": "Hyperkaliämie",
+    "expected_hpo_ids": [
+      "HP:0002153"
+    ],
+    "description": "Hyperkalemia"
+  },
+  {
+    "text": "Anämie",
+    "expected_hpo_ids": [
+      "HP:0001903"
+    ],
+    "description": "Anemia"
+  },
+  {
+    "text": "Polyzythämie",
+    "expected_hpo_ids": [
+      "HP:0001901"
+    ],
+    "description": "Polycythemia"
+  },
+  {
+    "text": "Thrombozytopenie",
+    "expected_hpo_ids": [
+      "HP:0001873"
+    ],
+    "description": "Thrombocytopenia"
+  },
+  {
+    "text": "Thrombozytose",
+    "expected_hpo_ids": [
+      "HP:0001894"
+    ],
+    "description": "Thrombocytosis"
+  },
+  {
+    "text": "Leukopenie",
+    "expected_hpo_ids": [
+      "HP:0001882"
+    ],
+    "description": "Decreased total leukocyte count"
+  },
+  {
+    "text": "Leukozytose",
+    "expected_hpo_ids": [
+      "HP:0001974"
+    ],
+    "description": "Increased total leukocyte count"
+  },
+  {
+    "text": "Panzytopenie",
+    "expected_hpo_ids": [
+      "HP:0001876"
+    ],
+    "description": "Pancytopenia"
+  },
+  {
+    "text": "Koagulopathie",
+    "expected_hpo_ids": [
+      "HP:0001928"
+    ],
+    "description": "Abnormality of coagulation"
+  },
+  {
+    "text": "Ketonurie",
+    "expected_hpo_ids": [
+      "HP:0002919"
+    ],
+    "description": "Ketonuria"
+  },
+  {
+    "text": "Glukosurie",
+    "expected_hpo_ids": [
+      "HP:0003076"
+    ],
+    "description": "Glycosuria"
+  },
+  {
+    "text": "Dyspnoe",
+    "expected_hpo_ids": [
+      "HP:0002094"
+    ],
+    "description": "Dyspnea"
+  },
+  {
+    "text": "Tachypnoe",
+    "expected_hpo_ids": [
+      "HP:0002789"
+    ],
+    "description": "Tachypnea"
+  },
+  {
+    "text": "Apnoe",
+    "expected_hpo_ids": [
+      "HP:0002104"
+    ],
+    "description": "Apnea"
+  },
+  {
+    "text": "Stridor",
+    "expected_hpo_ids": [
+      "HP:0010307"
+    ],
+    "description": "Stridor"
+  },
+  {
+    "text": "Giemen",
+    "expected_hpo_ids": [
+      "HP:0030828"
+    ],
+    "description": "Wheezing"
+  },
+  {
+    "text": "Zyanose",
+    "expected_hpo_ids": [
+      "HP:0000961"
+    ],
+    "description": "Cyanosis"
+  },
+  {
+    "text": "Lungenödem",
+    "expected_hpo_ids": [
+      "HP:0100598"
+    ],
+    "description": "Pulmonary edema"
+  },
+  {
+    "text": "Pneumothorax",
+    "expected_hpo_ids": [
+      "HP:0002107"
+    ],
+    "description": "Pneumothorax"
+  },
+  {
+    "text": "Pleuraerguss",
+    "expected_hpo_ids": [
+      "HP:0002202"
+    ],
+    "description": "Pleural effusion"
+  },
+  {
+    "text": "Bronchiektasen",
+    "expected_hpo_ids": [
+      "HP:0002110"
+    ],
+    "description": "Bronchiectasis"
+  },
+  {
+    "text": "Lungenfibrose",
+    "expected_hpo_ids": [
+      "HP:0002206"
+    ],
+    "description": "Pulmonary fibrosis"
+  },
+  {
+    "text": "Lungenemphysem",
+    "expected_hpo_ids": [
+      "HP:0002097"
+    ],
+    "description": "Emphysema"
+  },
+  {
+    "text": "Pulmonale Hypertonie",
+    "expected_hpo_ids": [
+      "HP:0002092"
+    ],
+    "description": "Pulmonary arterial hypertension"
+  },
+  {
+    "text": "Atelektase",
+    "expected_hpo_ids": [
+      "HP:0100750"
+    ],
+    "description": "Atelectasis"
+  },
+  {
+    "text": "Nierenagenesie",
+    "expected_hpo_ids": [
+      "HP:0000104"
+    ],
+    "description": "Renal agenesis"
+  },
+  {
+    "text": "Hufeisenniere",
+    "expected_hpo_ids": [
+      "HP:0000085"
+    ],
+    "description": "Horseshoe kidney"
+  },
+  {
+    "text": "Zystennieren",
+    "expected_hpo_ids": [
+      "HP:0000113"
+    ],
+    "description": "Polycystic kidney dysplasia"
+  },
+  {
+    "text": "Doppelniere",
+    "expected_hpo_ids": [
+      "HP:0000075"
+    ],
+    "description": "Renal duplication"
+  },
+  {
+    "text": "Vesikoureteraler Reflux",
+    "expected_hpo_ids": [
+      "HP:0000076"
+    ],
+    "description": "Vesicoureteral reflux"
+  },
+  {
+    "text": "Hypospadie",
+    "expected_hpo_ids": [
+      "HP:0000047"
+    ],
+    "description": "Hypospadias"
+  },
+  {
+    "text": "Epispadie",
+    "expected_hpo_ids": [
+      "HP:0000039"
+    ],
+    "description": "Epispadias"
+  },
+  {
+    "text": "Kryptorchismus",
+    "expected_hpo_ids": [
+      "HP:0000028"
+    ],
+    "description": "Cryptorchidism"
+  },
+  {
+    "text": "Harninkontinenz",
+    "expected_hpo_ids": [
+      "HP:0000020"
+    ],
+    "description": "Urinary incontinence"
+  },
+  {
+    "text": "Harnverhalt",
+    "expected_hpo_ids": [
+      "HP:0000016"
+    ],
+    "description": "Urinary retention"
+  },
+  {
+    "text": "Oligurie",
+    "expected_hpo_ids": [
+      "HP:0100520"
+    ],
+    "description": "Oliguria"
+  },
+  {
+    "text": "Anurie",
+    "expected_hpo_ids": [
+      "HP:0100519"
+    ],
+    "description": "Anuria"
+  },
+  {
+    "text": "Hämaturie",
+    "expected_hpo_ids": [
+      "HP:0000790"
+    ],
+    "description": "Hematuria"
+  },
+  {
+    "text": "Nephrolithiasis",
+    "expected_hpo_ids": [
+      "HP:0000787"
+    ],
+    "description": "Nephrolithiasis"
+  },
+  {
+    "text": "Fieber",
+    "expected_hpo_ids": [
+      "HP:0001945"
+    ],
+    "description": "Fever"
+  },
+  {
+    "text": "Hypothermie",
+    "expected_hpo_ids": [
+      "HP:0002045"
+    ],
+    "description": "Hypothermia"
+  },
+  {
+    "text": "Adipositas",
+    "expected_hpo_ids": [
+      "HP:0001513"
+    ],
+    "description": "Obesity"
+  },
+  {
+    "text": "Kachexie",
+    "expected_hpo_ids": [
+      "HP:0004326"
+    ],
+    "description": "Cachexia"
+  },
+  {
+    "text": "Ödeme",
+    "expected_hpo_ids": [
+      "HP:0000969"
+    ],
+    "description": "Edema"
+  },
+  {
+    "text": "Lymphödem",
+    "expected_hpo_ids": [
+      "HP:0001004"
+    ],
+    "description": "Lymphedema"
+  },
+  {
+    "text": "Erschöpfung",
+    "expected_hpo_ids": [
+      "HP:0012378"
+    ],
+    "description": "Fatigue"
+  },
+  {
+    "text": "Lethargie",
+    "expected_hpo_ids": [
+      "HP:0001254"
+    ],
+    "description": "Lethargy"
+  },
+  {
+    "text": "Irritabilität",
+    "expected_hpo_ids": [
+      "HP:0000737"
+    ],
+    "description": "Irritability"
+  },
+  {
+    "text": "Makrosomie",
+    "expected_hpo_ids": [
+      "HP:0001520"
+    ],
+    "description": "Large for gestational age"
+  },
+  {
+    "text": "Proportionierter Kleinwuchs",
+    "expected_hpo_ids": [
+      "HP:0003508"
+    ],
+    "description": "Proportionate short stature"
+  },
+  {
+    "text": "Hochwuchs",
+    "expected_hpo_ids": [
+      "HP:0000098"
+    ],
+    "description": "Tall stature"
+  },
+  {
+    "text": "Asymmetrie",
+    "expected_hpo_ids": [
+      "HP:0100555"
+    ],
+    "description": "Asymmetric growth"
+  },
+  {
+    "text": "Atrophie des Kleinhirns",
+    "expected_hpo_ids": [
+      "HP:0001272"
+    ],
+    "description": "Cerebellar atrophy"
+  },
+  {
+    "text": "Hypoplasie des Kleinhirns",
+    "expected_hpo_ids": [
+      "HP:0001321"
+    ],
+    "description": "Cerebellar hypoplasia"
+  },
+  {
+    "text": "Agenesie des Corpus callosum",
+    "expected_hpo_ids": [
+      "HP:0001274"
+    ],
+    "description": "Agenesis of corpus callosum"
+  },
+  {
+    "text": "Hypoplasie des Corpus callosum",
+    "expected_hpo_ids": [
+      "HP:0002079"
+    ],
+    "description": "Hypoplasia of the corpus callosum"
+  },
+  {
+    "text": "Erweiterung der Ventrikel",
+    "expected_hpo_ids": [
+      "HP:0002119"
+    ],
+    "description": "Ventriculomegaly"
+  },
+  {
+    "text": "Atrophie des Gehirns",
+    "expected_hpo_ids": [
+      "HP:0002059"
+    ],
+    "description": "Cerebral atrophy"
+  },
+  {
+    "text": "Fehlbildung des Gehirns",
+    "expected_hpo_ids": [
+      "HP:0012443"
+    ],
+    "description": "Abnormal brain morphology"
+  },
+  {
+    "text": "Hypoplasie des Hirnstamms",
+    "expected_hpo_ids": [
+      "HP:0002365"
+    ],
+    "description": "Hypoplasia of the brainstem"
+  },
+  {
+    "text": "Atrophie des Sehnervs",
+    "expected_hpo_ids": [
+      "HP:0000648"
+    ],
+    "description": "Optic atrophy"
+  },
+  {
+    "text": "Erweiterung des Subarachnoidalraums",
+    "expected_hpo_ids": [
+      "HP:0012704"
+    ],
+    "description": "Widened subarachnoid space"
+  },
+  {
+    "text": "Zyste der Pinealisdrüse",
+    "expected_hpo_ids": [
+      "HP:0012683"
+    ],
+    "description": "Pineal cyst"
+  },
+  {
+    "text": "Hypoplasie des Nervus opticus",
+    "expected_hpo_ids": [
+      "HP:0000609"
+    ],
+    "description": "Optic nerve hypoplasia"
+  },
+  {
+    "text": "Atrophie der weißen Substanz",
+    "expected_hpo_ids": [
+      "HP:0012762"
+    ],
+    "description": "Cerebral white matter atrophy"
+  },
+  {
+    "text": "Heterotopie der grauen Substanz",
+    "expected_hpo_ids": [
+      "HP:0002282"
+    ],
+    "description": "Gray matter heterotopia"
+  },
+  {
+    "text": "Fehlbildung der hinteren Schädelgrube",
+    "expected_hpo_ids": [
+      "HP:0000932"
+    ],
+    "description": "Abnormal posterior cranial fossa morphology"
+  },
+  {
+    "text": "Hypoplasie des Vermis cerebelli",
+    "expected_hpo_ids": [
+      "HP:0001320"
+    ],
+    "description": "Cerebellar vermis hypoplasia"
+  },
+  {
+    "text": "Läsion der Basalganglien",
+    "expected_hpo_ids": [
+      "HP:0002134"
+    ],
+    "description": "Abnormal basal ganglia morphology"
+  },
+  {
+    "text": "Atrophie der Großhirnrinde",
+    "expected_hpo_ids": [
+      "HP:0002120"
+    ],
+    "description": "Cerebral cortical atrophy"
+  },
+  {
+    "text": "Erweiterung des vierten Ventrikels",
+    "expected_hpo_ids": [
+      "HP:0002198"
+    ],
+    "description": "Dilated fourth ventricle"
+  },
+  {
+    "text": "Insuffizienz der Mitralklappe",
+    "expected_hpo_ids": [
+      "HP:0001653"
+    ],
+    "description": "Mitral regurgitation"
+  },
+  {
+    "text": "Stenose der Aortenklappe",
+    "expected_hpo_ids": [
+      "HP:0001650"
+    ],
+    "description": "Aortic valve stenosis"
+  },
+  {
+    "text": "Defekt des Ventrikelseptums",
+    "expected_hpo_ids": [
+      "HP:0001629"
+    ],
+    "description": "Ventricular septal defect"
+  },
+  {
+    "text": "Defekt des Vorhofseptums",
+    "expected_hpo_ids": [
+      "HP:0001631"
+    ],
+    "description": "Atrial septal defect"
+  },
+  {
+    "text": "Erweiterung der Aorta",
+    "expected_hpo_ids": [
+      "HP:0004942"
+    ],
+    "description": "Aortic aneurysm"
+  },
+  {
+    "text": "Erweiterung der Aortenwurzel",
+    "expected_hpo_ids": [
+      "HP:0002616"
+    ],
+    "description": "Aortic root aneurysm"
+  },
+  {
+    "text": "Stenose der Pulmonalklappe",
+    "expected_hpo_ids": [
+      "HP:0001642"
+    ],
+    "description": "Pulmonic stenosis"
+  },
+  {
+    "text": "Insuffizienz der Trikuspidalklappe",
+    "expected_hpo_ids": [
+      "HP:0005180"
+    ],
+    "description": "Tricuspid regurgitation"
+  },
+  {
+    "text": "Prolaps der Mitralklappe",
+    "expected_hpo_ids": [
+      "HP:0001634"
+    ],
+    "description": "Mitral valve prolapse"
+  },
+  {
+    "text": "Verengung des Aortenisthmus",
+    "expected_hpo_ids": [
+      "HP:0031053"
+    ],
+    "description": "Coarctation in the transverse aortic arch"
+  },
+  {
+    "text": "Persistenz des Ductus arteriosus",
+    "expected_hpo_ids": [
+      "HP:0001643"
+    ],
+    "description": "Patent ductus arteriosus"
+  },
+  {
+    "text": "Hypertrophie des linken Ventrikels",
+    "expected_hpo_ids": [
+      "HP:0001712"
+    ],
+    "description": "Left ventricular hypertrophy"
+  },
+  {
+    "text": "Dilatation des linken Vorhofs",
+    "expected_hpo_ids": [
+      "HP:0031295"
+    ],
+    "description": "Left atrial enlargement"
+  },
+  {
+    "text": "Hypoplasie des linken Herzens",
+    "expected_hpo_ids": [
+      "HP:0004383"
+    ],
+    "description": "Hypoplastic left heart"
+  },
+  {
+    "text": "Aneurysma der Aorta ascendens",
+    "expected_hpo_ids": [
+      "HP:0004970"
+    ],
+    "description": "Ascending tubular aorta aneurysm"
+  },
+  {
+    "text": "Dissezierung der Aorta",
+    "expected_hpo_ids": [
+      "HP:0002647"
+    ],
+    "description": "Aortic dissection"
+  },
+  {
+    "text": "Fibrose des Endokards",
+    "expected_hpo_ids": [
+      "HP:0006685"
+    ],
+    "description": "Endocardial fibrosis"
+  },
+  {
+    "text": "Verkalkung der Herzklappen",
+    "expected_hpo_ids": [
+      "HP:0005146"
+    ],
+    "description": "Cardiac valve calcification"
+  },
+  {
+    "text": "Zysten der Nieren",
+    "expected_hpo_ids": [
+      "HP:0000107"
+    ],
+    "description": "Renal cyst"
+  },
+  {
+    "text": "Agenesie der Niere",
+    "expected_hpo_ids": [
+      "HP:0000104"
+    ],
+    "description": "Renal agenesis"
+  },
+  {
+    "text": "Hypoplasie der Niere",
+    "expected_hpo_ids": [
+      "HP:0000089"
+    ],
+    "description": "Renal hypoplasia"
+  },
+  {
+    "text": "Dysplasie der Niere",
+    "expected_hpo_ids": [
+      "HP:0000110"
+    ],
+    "description": "Renal dysplasia"
+  },
+  {
+    "text": "Ektopie der Niere",
+    "expected_hpo_ids": [
+      "HP:0000086"
+    ],
+    "description": "Ectopic kidney"
+  },
+  {
+    "text": "Dilatation des Nierenbeckens",
+    "expected_hpo_ids": [
+      "HP:0010946"
+    ],
+    "description": "Dilatation of the renal pelvis"
+  },
+  {
+    "text": "Stenose des Harnleiters",
+    "expected_hpo_ids": [
+      "HP:0000071"
+    ],
+    "description": "Ureteral stenosis"
+  },
+  {
+    "text": "Erweiterung des Harnleiters",
+    "expected_hpo_ids": [
+      "HP:0000072"
+    ],
+    "description": "Hydroureter"
+  },
+  {
+    "text": "Reflux des Urins",
+    "expected_hpo_ids": [
+      "HP:0000076"
+    ],
+    "description": "Vesicoureteral reflux"
+  },
+  {
+    "text": "Duplikation des Harnleiters",
+    "expected_hpo_ids": [
+      "HP:0000073"
+    ],
+    "description": "Ureteral duplication"
+  },
+  {
+    "text": "Atresie der Harnröhre",
+    "expected_hpo_ids": [
+      "HP:0000068"
+    ],
+    "description": "Urethral atresia"
+  },
+  {
+    "text": "Stenose der Harnröhre",
+    "expected_hpo_ids": [
+      "HP:0008661"
+    ],
+    "description": "Urethral stenosis"
+  },
+  {
+    "text": "Insuffizienz der Niere",
+    "expected_hpo_ids": [
+      "HP:0000083"
+    ],
+    "description": "Renal insufficiency"
+  },
+  {
+    "text": "Verkalkung der Niere",
+    "expected_hpo_ids": [
+      "HP:0000121"
+    ],
+    "description": "Nephrocalcinosis"
+  },
+  {
+    "text": "Fibrose der Niere",
+    "expected_hpo_ids": [
+      "HP:0030760"
+    ],
+    "description": "Renal fibrosis"
+  },
+  {
+    "text": "Entzündung der Niere",
+    "expected_hpo_ids": [
+      "HP:0000123"
+    ],
+    "description": "Nephritis"
+  },
+  {
+    "text": "Atrophie der Nierenrinde",
+    "expected_hpo_ids": [
+      "HP:0002048"
+    ],
+    "description": "Renal cortical atrophy"
+  },
+  {
+    "text": "Vergrößerung der Leber",
+    "expected_hpo_ids": [
+      "HP:0002240"
+    ],
+    "description": "Hepatomegaly"
+  },
+  {
+    "text": "Fibrose der Leber",
+    "expected_hpo_ids": [
+      "HP:0001395"
+    ],
+    "description": "Hepatic fibrosis"
+  },
+  {
+    "text": "Zirrhose der Leber",
+    "expected_hpo_ids": [
+      "HP:0001394"
+    ],
+    "description": "Cirrhosis"
+  },
+  {
+    "text": "Steatose der Leber",
+    "expected_hpo_ids": [
+      "HP:0001397"
+    ],
+    "description": "Hepatic steatosis"
+  },
+  {
+    "text": "Zysten der Leber",
+    "expected_hpo_ids": [
+      "HP:0001407"
+    ],
+    "description": "Hepatic cysts"
+  },
+  {
+    "text": "Atresie der Gallenwege",
+    "expected_hpo_ids": [
+      "HP:0005912"
+    ],
+    "description": "Biliary atresia"
+  },
+  {
+    "text": "Erweiterung der Gallenwege",
+    "expected_hpo_ids": [
+      "HP:0033149"
+    ],
+    "description": "Intrahepatic bile duct dilatation"
+  },
+  {
+    "text": "Insuffizienz der Leber",
+    "expected_hpo_ids": [
+      "HP:0001410"
+    ],
+    "description": "Decreased liver function"
+  },
+  {
+    "text": "Entzündung der Leber",
+    "expected_hpo_ids": [
+      "HP:0012115"
+    ],
+    "description": "Hepatitis"
+  },
+  {
+    "text": "Nekrose der Leber",
+    "expected_hpo_ids": [
+      "HP:0002605"
+    ],
+    "description": "Hepatic necrosis"
+  },
+  {
+    "text": "Verkalkung der Gallenblase",
+    "expected_hpo_ids": [
+      "HP:6000451"
+    ],
+    "description": "Porcelain gallbladder"
+  },
+  {
+    "text": "Dilatation der Gallengänge",
+    "expected_hpo_ids": [
+      "HP:0006560"
+    ],
+    "description": "Biliary hyperplasia"
+  },
+  {
+    "text": "Hypoplasie der Rippen",
+    "expected_hpo_ids": [
+      "HP:0006712"
+    ],
+    "description": "Aplasia/Hypoplasia of the ribs"
+  },
+  {
+    "text": "Aplasie der Rippen",
+    "expected_hpo_ids": [
+      "HP:0000921"
+    ],
+    "description": "Missing ribs"
+  },
+  {
+    "text": "Fusion der Wirbel",
+    "expected_hpo_ids": [
+      "HP:0002948"
+    ],
+    "description": "Vertebral fusion"
+  },
+  {
+    "text": "Hypoplasie der Wirbel",
+    "expected_hpo_ids": [
+      "HP:0008417"
+    ],
+    "description": "Vertebral hypoplasia"
+  },
+  {
+    "text": "Dysplasie der Hüfte",
+    "expected_hpo_ids": [
+      "HP:0001385"
+    ],
+    "description": "Hip dysplasia"
+  },
+  {
+    "text": "Luxation der Hüfte",
+    "expected_hpo_ids": [
+      "HP:0002827"
+    ],
+    "description": "Hip dislocation"
+  },
+  {
+    "text": "Hypoplasie des Radius",
+    "expected_hpo_ids": [
+      "HP:0002984"
+    ],
+    "description": "Hypoplasia of the radius"
+  },
+  {
+    "text": "Aplasie des Radius",
+    "expected_hpo_ids": [
+      "HP:0003974"
+    ],
+    "description": "Absent radius"
+  },
+  {
+    "text": "Hypoplasie der Ulna",
+    "expected_hpo_ids": [
+      "HP:0003022"
+    ],
+    "description": "Hypoplasia of the ulna"
+  },
+  {
+    "text": "Hypoplasie des Daumens",
+    "expected_hpo_ids": [
+      "HP:0009601"
+    ],
+    "description": "Aplasia/Hypoplasia of the thumb"
+  },
+  {
+    "text": "Aplasie des Daumens",
+    "expected_hpo_ids": [
+      "HP:0009777"
+    ],
+    "description": "Absent thumb"
+  },
+  {
+    "text": "Hypoplasie der Fibula",
+    "expected_hpo_ids": [
+      "HP:0003038"
+    ],
+    "description": "Fibular hypoplasia"
+  },
+  {
+    "text": "Hypoplasie der Tibia",
+    "expected_hpo_ids": [
+      "HP:0005772"
+    ],
+    "description": "Aplasia/Hypoplasia of the tibia"
+  },
+  {
+    "text": "Hypoplasie der Klavikula",
+    "expected_hpo_ids": [
+      "HP:0006710"
+    ],
+    "description": "Aplasia/Hypoplasia of the clavicles"
+  },
+  {
+    "text": "Aplasie der Klavikula",
+    "expected_hpo_ids": [
+      "HP:0006660"
+    ],
+    "description": "Aplastic clavicle"
+  },
+  {
+    "text": "Hypoplasie der Patella",
+    "expected_hpo_ids": [
+      "HP:0003065"
+    ],
+    "description": "Patellar hypoplasia"
+  },
+  {
+    "text": "Aplasie der Patella",
+    "expected_hpo_ids": [
+      "HP:0006443"
+    ],
+    "description": "Patellar aplasia"
+  },
+  {
+    "text": "Dysplasie der Epiphysen",
+    "expected_hpo_ids": [
+      "HP:0002656"
+    ],
+    "description": "Epiphyseal dysplasia"
+  },
+  {
+    "text": "Dysplasie der Metaphysen",
+    "expected_hpo_ids": [
+      "HP:0100255"
+    ],
+    "description": "Metaphyseal dysplasia"
+  },
+  {
+    "text": "Verkrümmung der Wirbelsäule",
+    "expected_hpo_ids": [
+      "HP:0010674"
+    ],
+    "description": "Abnormal curvature of the vertebral column"
+  },
+  {
+    "text": "Deformität des Brustkorbs",
+    "expected_hpo_ids": [
+      "HP:0000765"
+    ],
+    "description": "Abnormal thorax morphology"
+  },
+  {
+    "text": "Hypoplasie des Oberkiefers",
+    "expected_hpo_ids": [
+      "HP:0009117"
+    ],
+    "description": "Aplasia/Hypoplasia of the maxilla"
+  },
+  {
+    "text": "Hypoplasie des Unterkiefers",
+    "expected_hpo_ids": [
+      "HP:0009118"
+    ],
+    "description": "Aplasia/Hypoplasia of the mandible"
+  },
+  {
+    "text": "Hypoplasie des Mittelgesichts",
+    "expected_hpo_ids": [
+      "HP:0011800"
+    ],
+    "description": "Midface retrusion"
+  },
+  {
+    "text": "Spalte des Gaumens",
+    "expected_hpo_ids": [
+      "HP:0000175"
+    ],
+    "description": "Cleft palate"
+  },
+  {
+    "text": "Spalte der Lippe",
+    "expected_hpo_ids": [
+      "HP:0410030"
+    ],
+    "description": "Cleft lip"
+  },
+  {
+    "text": "Fusion der Schädelnähte",
+    "expected_hpo_ids": [
+      "HP:0001363"
+    ],
+    "description": "Craniosynostosis"
+  },
+  {
+    "text": "Hypoplasie der Jochbeine",
+    "expected_hpo_ids": [
+      "HP:0010669"
+    ],
+    "description": "Hypoplasia of the zygomatic bone"
+  },
+  {
+    "text": "Hypoplasie der Nasenknochen",
+    "expected_hpo_ids": [
+      "HP:0004646"
+    ],
+    "description": "Hypoplasia of the nasal bone"
+  },
+  {
+    "text": "Atresie der Choanen",
+    "expected_hpo_ids": [
+      "HP:0000453"
+    ],
+    "description": "Choanal atresia"
+  },
+  {
+    "text": "Stenose der Choanen",
+    "expected_hpo_ids": [
+      "HP:0000452"
+    ],
+    "description": "Choanal stenosis"
+  },
+  {
+    "text": "Hypoplasie der Ohrmuschel",
+    "expected_hpo_ids": [
+      "HP:0008551"
+    ],
+    "description": "Microtia"
+  },
+  {
+    "text": "Atresie des Gehörgangs",
+    "expected_hpo_ids": [
+      "HP:0000413"
+    ],
+    "description": "Atresia of the external auditory canal"
+  },
+  {
+    "text": "Fehlbildung der Ohren",
+    "expected_hpo_ids": [
+      "HP:0031703"
+    ],
+    "description": "Abnormal ear morphology"
+  },
+  {
+    "text": "Hypoplasie der Orbita",
+    "expected_hpo_ids": [
+      "HP:0000315"
+    ],
+    "description": "Abnormality of the orbital region"
+  },
+  {
+    "text": "Spaltung der Uvula",
+    "expected_hpo_ids": [
+      "HP:0000193"
+    ],
+    "description": "Bifid uvula"
+  },
+  {
+    "text": "Atresie des Ösophagus",
+    "expected_hpo_ids": [
+      "HP:0002032"
+    ],
+    "description": "Esophageal atresia"
+  },
+  {
+    "text": "Stenose des Pylorus",
+    "expected_hpo_ids": [
+      "HP:0002021"
+    ],
+    "description": "Pyloric stenosis"
+  },
+  {
+    "text": "Atresie des Duodenums",
+    "expected_hpo_ids": [
+      "HP:0002247"
+    ],
+    "description": "Duodenal atresia"
+  },
+  {
+    "text": "Atresie des Jejunums",
+    "expected_hpo_ids": [
+      "HP:0005235"
+    ],
+    "description": "Jejunal atresia"
+  },
+  {
+    "text": "Atresie des Ileums",
+    "expected_hpo_ids": [
+      "HP:0011102"
+    ],
+    "description": "Ileal atresia"
+  },
+  {
+    "text": "Atresie des Anus",
+    "expected_hpo_ids": [
+      "HP:0002023"
+    ],
+    "description": "Anal atresia"
+  },
+  {
+    "text": "Stenose des Anus",
+    "expected_hpo_ids": [
+      "HP:0002025"
+    ],
+    "description": "Anal stenosis"
+  },
+  {
+    "text": "Malrotation des Darms",
+    "expected_hpo_ids": [
+      "HP:0002566"
+    ],
+    "description": "Intestinal malrotation"
+  },
+  {
+    "text": "Volvulus des Darms",
+    "expected_hpo_ids": [
+      "HP:0002580"
+    ],
+    "description": "Volvulus"
+  },
+  {
+    "text": "Duplikation des Darms",
+    "expected_hpo_ids": [
+      "HP:0100668"
+    ],
+    "description": "Intestinal duplication"
+  },
+  {
+    "text": "Divertikel des Darms",
+    "expected_hpo_ids": [
+      "HP:0002253"
+    ],
+    "description": "Colonic diverticula"
+  },
+  {
+    "text": "Stenose des Ösophagus",
+    "expected_hpo_ids": [
+      "HP:0010450"
+    ],
+    "description": "Esophageal stenosis"
+  },
+  {
+    "text": "Fistel des Ösophagus",
+    "expected_hpo_ids": [
+      "HP:0002031"
+    ],
+    "description": "Abnormal esophagus morphology"
+  },
+  {
+    "text": "Hypertrophie des Pylorus",
+    "expected_hpo_ids": [
+      "HP:0004400"
+    ],
+    "description": "Abnormality of the pylorus"
+  },
+  {
+    "text": "Aganglionose des Kolons",
+    "expected_hpo_ids": [
+      "HP:0011286"
+    ],
+    "description": "Total colonic aganglionosis"
+  },
+  {
+    "text": "Hypoplasie der Lunge",
+    "expected_hpo_ids": [
+      "HP:0002089"
+    ],
+    "description": "Pulmonary hypoplasia"
+  },
+  {
+    "text": "Agenesie der Lunge",
+    "expected_hpo_ids": [
+      "HP:0006703"
+    ],
+    "description": "Aplasia/Hypoplasia of the lungs"
+  },
+  {
+    "text": "Sequestration der Lunge",
+    "expected_hpo_ids": [
+      "HP:0100632"
+    ],
+    "description": "Pulmonary sequestration"
+  },
+  {
+    "text": "Zysten der Lunge",
+    "expected_hpo_ids": [
+      "HP:0032445"
+    ],
+    "description": "Pulmonary cyst"
+  },
+  {
+    "text": "Fibrose der Lunge",
+    "expected_hpo_ids": [
+      "HP:0002206"
+    ],
+    "description": "Pulmonary fibrosis"
+  },
+  {
+    "text": "Emphysem der Lunge",
+    "expected_hpo_ids": [
+      "HP:0002097"
+    ],
+    "description": "Emphysema"
+  },
+  {
+    "text": "Hypertonie der Pulmonalarterien",
+    "expected_hpo_ids": [
+      "HP:0002092"
+    ],
+    "description": "Pulmonary arterial hypertension"
+  },
+  {
+    "text": "Stenose der Trachea",
+    "expected_hpo_ids": [
+      "HP:0002777"
+    ],
+    "description": "Tracheal stenosis"
+  },
+  {
+    "text": "Malazie der Trachea",
+    "expected_hpo_ids": [
+      "HP:0002779"
+    ],
+    "description": "Tracheomalacia"
+  },
+  {
+    "text": "Atresie der Bronchien",
+    "expected_hpo_ids": [
+      "HP:0030715"
+    ],
+    "description": "Bronchial atresia"
+  },
+  {
+    "text": "Dilatation der Bronchien",
+    "expected_hpo_ids": [
+      "HP:0002110"
+    ],
+    "description": "Bronchiectasis"
+  },
+  {
+    "text": "Hypoplasie des Zwerchfells",
+    "expected_hpo_ids": [
+      "HP:0040044"
+    ],
+    "description": "Hypoplasia of the diaphragm"
+  },
+  {
+    "text": "Hernie des Zwerchfells",
+    "expected_hpo_ids": [
+      "HP:0000775"
+    ],
+    "description": "Abnormality of the diaphragm"
+  },
+  {
+    "text": "Kolobom der Iris",
+    "expected_hpo_ids": [
+      "HP:0000612"
+    ],
+    "description": "Iris coloboma"
+  },
+  {
+    "text": "Kolobom der Retina",
+    "expected_hpo_ids": [
+      "HP:0000480"
+    ],
+    "description": "Retinal coloboma"
+  },
+  {
+    "text": "Kolobom des Sehnervs",
+    "expected_hpo_ids": [
+      "HP:0000588"
+    ],
+    "description": "Optic disc coloboma"
+  },
+  {
+    "text": "Hypoplasie des Sehnervs",
+    "expected_hpo_ids": [
+      "HP:0000609"
+    ],
+    "description": "Optic nerve hypoplasia"
+  },
+  {
+    "text": "Dystrophie der Netzhaut",
+    "expected_hpo_ids": [
+      "HP:0000556"
+    ],
+    "description": "Retinal dystrophy"
+  },
+  {
+    "text": "Ablösung der Netzhaut",
+    "expected_hpo_ids": [
+      "HP:0000541"
+    ],
+    "description": "Retinal detachment"
+  },
+  {
+    "text": "Trübung der Linse",
+    "expected_hpo_ids": [
+      "HP:0000518"
+    ],
+    "description": "Cataract"
+  },
+  {
+    "text": "Luxation der Linse",
+    "expected_hpo_ids": [
+      "HP:0012019"
+    ],
+    "description": "Lens luxation"
+  },
+  {
+    "text": "Hypoplasie der Makula",
+    "expected_hpo_ids": [
+      "HP:0001104"
+    ],
+    "description": "Macular hypoplasia"
+  },
+  {
+    "text": "Degeneration der Makula",
+    "expected_hpo_ids": [
+      "HP:0000608"
+    ],
+    "description": "Macular degeneration"
+  },
+  {
+    "text": "Atrophie der Retina",
+    "expected_hpo_ids": [
+      "HP:0001105"
+    ],
+    "description": "Retinal atrophy"
+  },
+  {
+    "text": "Dysplasie der Retina",
+    "expected_hpo_ids": [
+      "HP:0007973"
+    ],
+    "description": "Retinal dysplasia"
+  },
+  {
+    "text": "Hypoplasie der Schilddrüse",
+    "expected_hpo_ids": [
+      "HP:0005990"
+    ],
+    "description": "Thyroid hypoplasia"
+  },
+  {
+    "text": "Agenesie der Schilddrüse",
+    "expected_hpo_ids": [
+      "HP:0008191"
+    ],
+    "description": "Thyroid agenesis"
+  },
+  {
+    "text": "Ektopie der Schilddrüse",
+    "expected_hpo_ids": [
+      "HP:0100028"
+    ],
+    "description": "Ectopic thyroid"
+  },
+  {
+    "text": "Hypoplasie der Nebenniere",
+    "expected_hpo_ids": [
+      "HP:0000835"
+    ],
+    "description": "Adrenal hypoplasia"
+  },
+  {
+    "text": "Hyperplasie der Nebenniere",
+    "expected_hpo_ids": [
+      "HP:0008221"
+    ],
+    "description": "Adrenal hyperplasia"
+  },
+  {
+    "text": "Hypoplasie der Hypophyse",
+    "expected_hpo_ids": [
+      "HP:0012503"
+    ],
+    "description": "Abnormal pituitary gland morphology"
+  },
+  {
+    "text": "Insuffizienz der Hypophyse",
+    "expected_hpo_ids": [
+      "HP:0040075"
+    ],
+    "description": "Hypopituitarism"
+  },
+  {
+    "text": "Hyperplasie der Nebenschilddrüse",
+    "expected_hpo_ids": [
+      "HP:0008208"
+    ],
+    "description": "Parathyroid hyperplasia"
+  },
+  {
+    "text": "Hypoplasie der Gonaden",
+    "expected_hpo_ids": [
+      "HP:0000133"
+    ],
+    "description": "Gonadal dysgenesis"
+  },
+  {
+    "text": "Dysgenesie der Gonaden",
+    "expected_hpo_ids": [
+      "HP:0000133"
+    ],
+    "description": "Gonadal dysgenesis"
+  },
+  {
+    "text": "Insuffizienz der Ovarien",
+    "expected_hpo_ids": [
+      "HP:0008209"
+    ],
+    "description": "Premature ovarian insufficiency"
+  },
+  {
+    "text": "Atrophie der Hoden",
+    "expected_hpo_ids": [
+      "HP:0000029"
+    ],
+    "description": "Testicular atrophy"
+  },
+  {
+    "text": "Atrophie der Muskeln",
+    "expected_hpo_ids": [
+      "HP:0003202"
+    ],
+    "description": "Skeletal muscle atrophy"
+  },
+  {
+    "text": "Hypertrophie der Muskeln",
+    "expected_hpo_ids": [
+      "HP:0003712"
+    ],
+    "description": "Skeletal muscle hypertrophy"
+  },
+  {
+    "text": "Schwäche der proximalen Muskeln",
+    "expected_hpo_ids": [
+      "HP:0003701"
+    ],
+    "description": "Proximal muscle weakness"
+  },
+  {
+    "text": "Schwäche der distalen Muskeln",
+    "expected_hpo_ids": [
+      "HP:0002460"
+    ],
+    "description": "Distal muscle weakness"
+  },
+  {
+    "text": "Atrophie der Zungenmuskulatur",
+    "expected_hpo_ids": [
+      "HP:0000183"
+    ],
+    "description": "Tongue muscle weakness"
+  },
+  {
+    "text": "Schwäche der Gesichtsmuskulatur",
+    "expected_hpo_ids": [
+      "HP:0030319"
+    ],
+    "description": "Weakness of facial musculature"
+  },
+  {
+    "text": "Schwäche der Atemmuskulatur",
+    "expected_hpo_ids": [
+      "HP:0004347"
+    ],
+    "description": "Weakness of muscles of respiration"
+  },
+  {
+    "text": "Atrophie der Handmuskeln",
+    "expected_hpo_ids": [
+      "HP:0009130"
+    ],
+    "description": "Hand muscle atrophy"
+  },
+  {
+    "text": "Atrophie der Thenarmuskulatur",
+    "expected_hpo_ids": [
+      "HP:0003393"
+    ],
+    "description": "Thenar muscle atrophy"
+  },
+  {
+    "text": "Atrophie der Wadenmuskulatur",
+    "expected_hpo_ids": [
+      "HP:0008962"
+    ],
+    "description": "Calf muscle hypoplasia"
+  },
+  {
+    "text": "Hypertrophie der Waden",
+    "expected_hpo_ids": [
+      "HP:0008981"
+    ],
+    "description": "Calf muscle hypertrophy"
+  },
+  {
+    "text": "Pseudohypertrophie der Waden",
+    "expected_hpo_ids": [
+      "HP:0003707"
+    ],
+    "description": "Calf muscle pseudohypertrophy"
+  },
+  {
+    "text": "Hyperelastizität der Haut",
+    "expected_hpo_ids": [
+      "HP:0000974"
+    ],
+    "description": "Hyperextensible skin"
+  },
+  {
+    "text": "Atrophie der Haut",
+    "expected_hpo_ids": [
+      "HP:0004334"
+    ],
+    "description": "Dermal atrophy"
+  },
+  {
+    "text": "Fibrose der Haut",
+    "expected_hpo_ids": [
+      "HP:0011121"
+    ],
+    "description": "Abnormal skin morphology"
+  },
+  {
+    "text": "Verdickung der Haut",
+    "expected_hpo_ids": [
+      "HP:0001072"
+    ],
+    "description": "Thickened skin"
+  },
+  {
+    "text": "Pigmentierung der Haut",
+    "expected_hpo_ids": [
+      "HP:0001000"
+    ],
+    "description": "Abnormality of skin pigmentation"
+  },
+  {
+    "text": "Trockenheit der Haut",
+    "expected_hpo_ids": [
+      "HP:0000958"
+    ],
+    "description": "Dry skin"
+  },
+  {
+    "text": "Verdünnung der Haut",
+    "expected_hpo_ids": [
+      "HP:0000963"
+    ],
+    "description": "Thin skin"
+  },
+  {
+    "text": "Fragilität der Haut",
+    "expected_hpo_ids": [
+      "HP:0001030"
+    ],
+    "description": "Fragile skin"
+  },
+  {
+    "text": "Narbenbildung der Haut",
+    "expected_hpo_ids": [
+      "HP:0100699"
+    ],
+    "description": "Scarring"
+  },
+  {
+    "text": "Hyperkeratose der Handflächen",
+    "expected_hpo_ids": [
+      "HP:0010765"
+    ],
+    "description": "Palmar hyperkeratosis"
+  },
+  {
+    "text": "Hyperkeratose der Fußsohlen",
+    "expected_hpo_ids": [
+      "HP:0007556"
+    ],
+    "description": "Plantar hyperkeratosis"
+  },
+  {
+    "text": "Dystrophie der Nägel",
+    "expected_hpo_ids": [
+      "HP:0008404"
+    ],
+    "description": "Nail dystrophy"
+  },
+  {
+    "text": "Hypoplasie der Nägel",
+    "expected_hpo_ids": [
+      "HP:0008386"
+    ],
+    "description": "Aplasia/Hypoplasia of the nails"
+  },
+  {
+    "text": "Insuffizienz des Knochenmarks",
+    "expected_hpo_ids": [
+      "HP:0005528"
+    ],
+    "description": "Bone marrow hypocellularity"
+  },
+  {
+    "text": "Vergrößerung der Milz",
+    "expected_hpo_ids": [
+      "HP:0001744"
+    ],
+    "description": "Splenomegaly"
+  },
+  {
+    "text": "Vergrößerung der Lymphknoten",
+    "expected_hpo_ids": [
+      "HP:0002716"
+    ],
+    "description": "Lymphadenopathy"
+  },
+  {
+    "text": "Hypoplasie des Thymus",
+    "expected_hpo_ids": [
+      "HP:0000778"
+    ],
+    "description": "Hypoplasia of the thymus"
+  },
+  {
+    "text": "Aplasie des Thymus",
+    "expected_hpo_ids": [
+      "HP:0005359"
+    ],
+    "description": "Aplasia of the thymus"
+  },
+  {
+    "text": "Defizienz der T-Zellen",
+    "expected_hpo_ids": [
+      "HP:0031379"
+    ],
+    "description": "Abnormal T cell proliferation"
+  },
+  {
+    "text": "Defizienz der B-Zellen",
+    "expected_hpo_ids": [
+      "HP:0005357"
+    ],
+    "description": "Defective B cell differentiation"
+  },
+  {
+    "text": "Defizienz der Immunglobuline",
+    "expected_hpo_ids": [
+      "HP:0041078"
+    ],
+    "description": "Decreased immunoglobulin level in body fluid"
+  }
+]
