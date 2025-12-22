@@ -221,7 +221,7 @@ jobs:
 
     steps:
       - name: Download all bundle artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           path: bundles
           pattern: bundle-*
@@ -286,7 +286,7 @@ jobs:
 
     steps:
       - name: Download all artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           path: bundles
           pattern: bundle-*
