@@ -66,6 +66,9 @@ def run(
         "--detailed-output",
         help="Generate detailed chunk-level analysis JSON (extraction_detailed_analysis.json)",
     ),
+    extraction_method: str = typer.Option(
+        "chunk", help="Extraction method: 'chunk' (traditional) or 'mention' (new)"
+    ),
     verbose: bool = typer.Option(
         False, "-v", "--verbose", help="Enable verbose output"
     ),
@@ -112,6 +115,7 @@ def run(
         top_term_per_chunk=top_term_only,
         dataset=dataset,
         detailed_output=detailed_output,
+        extraction_method=extraction_method,
     )
 
     # Initialize benchmark

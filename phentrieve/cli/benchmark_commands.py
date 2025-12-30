@@ -24,6 +24,132 @@ app.add_typer(
 )
 
 
+@app.command("compare-methods")
+def compare_extraction_methods(
+    test_path: Annotated[
+        Optional[str],
+        typer.Option("--test-path", help="Path to test dataset (optional, uses default if not specified)"),
+    ] = None,
+    model: Annotated[
+        str, typer.Option("--model", help="Embedding model to use")
+    ] = "FremyCompany/BioLORD-2023-M",
+    output_dir: Annotated[
+        str, typer.Option("--output-dir", help="Output directory for results")
+    ] = "results/comparison",
+    dataset: Annotated[
+        str, typer.Option("--dataset", help="Dataset to test: all, GSC_plus, ID_68, GeneReviews")
+    ] = "all",
+):
+    """Compare chunk-based vs mention-based HPO extraction methods."""
+    import json
+    from pathlib import Path
+
+    from phentrieve.benchmark.extraction_benchmark import ExtractionBenchmark, ExtractionConfig
+
+    console.print("[bold blue]Comparing HPO Extraction Methods[/bold blue]")
+    console.print(f"Model: {model}")
+    console.print(f"Dataset: {dataset}")
+    console.print()
+
+    # Determine test path
+    if test_path:
+        test_path_obj = Path(test_path)
+    else:
+        # Use default test data path
+        test_path_obj = Path("tests/data/en/phenobert")
+
+    if not test_path_obj.exists():
+        console.print(f"[red]Error: Test path not found: {test_path_obj}[/red]")
+        console.print("Please specify --test-path or ensure test data exists.")
+        raise typer.Exit(1)
+
+    output_path = Path(output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
+
+    # Run chunk-based extraction
+    console.print("[yellow]Running chunk-based extraction...[/yellow]")
+    chunk_config = ExtractionConfig(
+        model_name=model,
+        extraction_method="chunk",
+        dataset=dataset,
+        detailed_output=True,
+        # Use same defaults as CLI
+        chunk_retrieval_threshold=0.5,
+        min_confidence_for_aggregated=0.5,
+    )
+    chunk_benchmark = ExtractionBenchmark(model, config=chunk_config)
+    chunk_metrics = chunk_benchmark.run_benchmark(test_path_obj, output_path / "chunk")
+
+    # Run mention-based extraction
+    console.print("[yellow]Running mention-based extraction...[/yellow]")
+    mention_config = ExtractionConfig(
+        model_name=model,
+        extraction_method="mention",
+        dataset=dataset,
+        detailed_output=True,
+        # Use same defaults as CLI
+        chunk_retrieval_threshold=0.5,
+        min_confidence_for_aggregated=0.5,
+    )
+    mention_benchmark = ExtractionBenchmark(model, config=mention_config)
+    mention_metrics = mention_benchmark.run_benchmark(test_path_obj, output_path / "mention")
+
+    # Compare results
+    console.print("\n[bold green]Comparison Results[/bold green]")
+
+    # Create comparison table
+    table = Table(title="Method Comparison")
+    table.add_column("Metric", style="cyan")
+    table.add_column("Chunk-based", style="magenta")
+    table.add_column("Mention-based", style="green")
+    table.add_column("Difference", style="yellow")
+
+    for metric in ["precision", "recall", "f1_score"]:
+        # Use micro averaging for comparison
+        key = metric.replace("_score", "").replace("f1_score", "f1")
+        chunk_val = chunk_metrics.micro[key]
+        mention_val = mention_metrics.micro[key]
+        diff = mention_val - chunk_val
+        diff_str = f"{diff:+.3f}"
+
+        table.add_row(
+            metric.replace("_", " ").title(),
+            f"{chunk_val:.3f}",
+            f"{mention_val:.3f}",
+            diff_str
+        )
+
+    console.print(table)
+
+    # Save comparison results
+    comparison = {
+        "model": model,
+        "dataset": dataset,
+        "chunk_based": {
+            "micro": chunk_metrics.micro,
+            "macro": chunk_metrics.macro,
+            "weighted": chunk_metrics.weighted,
+        },
+        "mention_based": {
+            "micro": mention_metrics.micro,
+            "macro": mention_metrics.macro,
+            "weighted": mention_metrics.weighted,
+        },
+        "comparison": {
+            "precision_diff": mention_metrics.micro["precision"] - chunk_metrics.micro["precision"],
+            "recall_diff": mention_metrics.micro["recall"] - chunk_metrics.micro["recall"],
+            "f1_diff": mention_metrics.micro["f1"] - chunk_metrics.micro["f1"],
+        }
+    }
+
+    comparison_file = output_path / "method_comparison.json"
+    with open(comparison_file, "w") as f:
+        json.dump(comparison, f, indent=2)
+
+    console.print(f"\nDetailed results saved to: {comparison_file}")
+    console.print("[bold green]Comparison complete![/bold green]")
+
+
 @app.command("run")
 def run_benchmarks(
     test_file: Annotated[
