@@ -26,8 +26,8 @@ class TestBenchmarkDataLoading:
             f for f in benchmark_files if f.name not in ["datasets.json", "README.md"]
         ]
 
-        assert len(benchmark_files) == 6, (
-            f"Expected 6 datasets, found {len(benchmark_files)}"
+        assert len(benchmark_files) == 7, (
+            f"Expected 7 datasets, found {len(benchmark_files)}"
         )
 
         for dataset_file in benchmark_files:
