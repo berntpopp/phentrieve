@@ -52,7 +52,7 @@ jobs:
           python-version: '3.11'
 
       - name: Cache uv dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.cache/uv
@@ -96,7 +96,7 @@ jobs:
           python-version: '3.11'
 
       - name: Cache uv dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.cache/uv
