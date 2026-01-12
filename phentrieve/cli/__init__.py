@@ -57,12 +57,9 @@ def _get_hpo_info() -> dict[str, Optional[str | int]]:
         if not db_path.exists():
             return result
 
-        db = HPODatabase(db_path)
-        try:
+        with HPODatabase(db_path) as db:
             result["version"] = db.get_metadata("hpo_version")
             result["term_count"] = db.get_term_count()
-        finally:
-            db.close()
     except Exception:  # noqa: S110 - intentional silent fail for version display
         pass
 

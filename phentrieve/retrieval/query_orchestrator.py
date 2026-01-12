@@ -36,19 +36,26 @@ from phentrieve.utils import (
     generate_collection_name,
 )
 
-# Module-level global variables for interactive mode
-# These are initialized when orchestrate_query is called with interactive_setup=True
-_global_model: Optional[Any] = None
-_global_retriever: Optional[DenseRetriever] = None
-_global_cross_encoder: Optional[Any] = (
-    None  # CrossEncoder type from sentence_transformers
-)
-_global_query_assertion_detector: Optional[Any] = None  # CombinedAssertionDetector
-# Multi-vector settings for interactive mode
-_global_multi_vector: bool = False
-_global_aggregation_strategy: str = "label_synonyms_max"
-_global_component_weights: Optional[dict[str, float]] = None
-_global_custom_formula: Optional[str] = None
+
+# Module-level state container for interactive mode
+# This encapsulates all state needed across interactive query sessions
+# Using a class avoids CodeQL false positives about "unused global variables"
+class _InteractiveState:
+    """Container for interactive mode state across query sessions."""
+
+    model: Optional[Any] = None
+    retriever: Optional[DenseRetriever] = None
+    cross_encoder: Optional[Any] = None  # CrossEncoder type from sentence_transformers
+    query_assertion_detector: Optional[Any] = None  # CombinedAssertionDetector
+    # Multi-vector settings
+    multi_vector: bool = False
+    aggregation_strategy: str = "label_synonyms_max"
+    component_weights: Optional[dict[str, float]] = None
+    custom_formula: Optional[str] = None
+
+
+# Singleton instance for interactive mode state
+_interactive_state = _InteractiveState()
 
 
 def convert_multi_vector_to_chromadb_format(
@@ -846,45 +853,37 @@ def orchestrate_query(
     Returns:
         List of structured result dictionaries, or bool if in interactive_setup mode
     """
-    global \
-        _global_model, \
-        _global_retriever, \
-        _global_cross_encoder, \
-        _global_query_assertion_detector, \
-        _global_multi_vector, \
-        _global_aggregation_strategy, \
-        _global_component_weights, \
-        _global_custom_formula
-
-    # If in interactive mode, use the cached models
+    # If in interactive mode, use the cached models from _interactive_state
     if interactive_mode:
-        if not all([_global_model, _global_retriever, query_text]):
+        if not all(
+            [_interactive_state.model, _interactive_state.retriever, query_text]
+        ):
             error_msg = "Interactive mode requires initialized models and query text. Run with interactive_setup first."
             logging.error(error_msg)
             output_func(error_msg)
             return []
 
         # Type narrowing: at this point we know these are not None
-        assert _global_retriever is not None
+        assert _interactive_state.retriever is not None
         assert query_text is not None
 
-        # Process the query using the global models
+        # Process the query using the cached models
         return process_query(
             text=query_text,
-            retriever=_global_retriever,
+            retriever=_interactive_state.retriever,
             num_results=num_results,
             sentence_mode=sentence_mode,
             similarity_threshold=similarity_threshold,
             debug=debug,
-            cross_encoder=_global_cross_encoder,
-            rerank_count=rerank_count if _global_cross_encoder else None,
+            cross_encoder=_interactive_state.cross_encoder,
+            rerank_count=rerank_count if _interactive_state.cross_encoder else None,
             output_func=output_func,
-            query_assertion_detector=_global_query_assertion_detector,
+            query_assertion_detector=_interactive_state.query_assertion_detector,
             # Multi-vector parameters (Issue #136)
-            multi_vector=_global_multi_vector,
-            aggregation_strategy=_global_aggregation_strategy,
-            component_weights=_global_component_weights,
-            custom_formula=_global_custom_formula,
+            multi_vector=_interactive_state.multi_vector,
+            aggregation_strategy=_interactive_state.aggregation_strategy,
+            component_weights=_interactive_state.component_weights,
+            custom_formula=_interactive_state.custom_formula,
         )
 
     # Determine device
@@ -979,19 +978,19 @@ def orchestrate_query(
                     f"Query assertion detection enabled (lang: {actual_query_assertion_lang}, pref: {query_assertion_preference})"
                 )
 
-        # If this is just interactive setup, store models and return
+        # If this is just interactive setup, store models in state container and return
         if interactive_setup:
-            _global_model = model
-            _global_retriever = retriever
-            _global_cross_encoder = cross_encoder
-            _global_query_assertion_detector = (
+            _interactive_state.model = model
+            _interactive_state.retriever = retriever
+            _interactive_state.cross_encoder = cross_encoder
+            _interactive_state.query_assertion_detector = (
                 query_assertion_detector_to_use  # Store for interactive use
             )
             # Store multi-vector settings (Issue #136)
-            _global_multi_vector = multi_vector
-            _global_aggregation_strategy = aggregation_strategy
-            _global_component_weights = component_weights
-            _global_custom_formula = custom_formula
+            _interactive_state.multi_vector = multi_vector
+            _interactive_state.aggregation_strategy = aggregation_strategy
+            _interactive_state.component_weights = component_weights
+            _interactive_state.custom_formula = custom_formula
 
             # Log that assertion detection is ready if requested
             if detect_query_assertion:
@@ -1014,9 +1013,9 @@ def orchestrate_query(
             output_func(error_msg)
             return []
 
-        # Determine which assertion detector to use (global for interactive, local for non-interactive)
+        # Determine which assertion detector to use (cached for interactive, local for non-interactive)
         active_query_assertion_detector = (
-            _global_query_assertion_detector
+            _interactive_state.query_assertion_detector
             if interactive_mode
             else query_assertion_detector_to_use
         )
@@ -1024,13 +1023,17 @@ def orchestrate_query(
         # Process the query
         return process_query(
             text=query_text,
-            retriever=retriever if not interactive_mode else _global_retriever,
+            retriever=retriever
+            if not interactive_mode
+            else _interactive_state.retriever,
             num_results=num_results,
             sentence_mode=sentence_mode,
             similarity_threshold=similarity_threshold,
             debug=debug,
             cross_encoder=(
-                cross_encoder if not interactive_mode else _global_cross_encoder
+                cross_encoder
+                if not interactive_mode
+                else _interactive_state.cross_encoder
             ),
             rerank_count=rerank_count if enable_reranker else None,
             output_func=output_func,

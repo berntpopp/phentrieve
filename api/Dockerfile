@@ -293,6 +293,10 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
         curl \
         gosu \
     && rm -rf /var/lib/apt/lists/* \
+    # Security hardening: Remove system SQLite to prevent Trivy false positives (CVE-2025-6965, CVE-2025-7458)
+    # We compile SQLite 3.51.1 from source which includes all security fixes
+    # The system libsqlite3 is unused since we set LD_LIBRARY_PATH=/usr/local/lib
+    && rm -f /usr/lib/*/libsqlite3.so* 2>/dev/null || true \
     # Security hardening: Remove unnecessary setuid/setgid bits (CIS-DI-0008)
     # These are not needed for the API container runtime
     && find /usr/bin /usr/sbin /bin /sbin -perm /6000 -type f -exec chmod a-s {} \; || true \

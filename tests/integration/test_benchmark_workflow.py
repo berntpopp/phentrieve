@@ -39,7 +39,7 @@ def mock_test_data_tiny(benchmark_data_dir):
 
 
 @pytest.fixture
-def available_model():
+def available_model() -> str:
     """Get first available model from ChromaDB or skip."""
     import sqlite3
     from pathlib import Path
@@ -47,6 +47,7 @@ def available_model():
     db_path = Path("data/indexes/chroma.sqlite3")
     if not db_path.exists():
         pytest.skip("No ChromaDB database found")
+        return ""  # Never reached, but satisfies type checker
 
     try:
         conn = sqlite3.connect(db_path)
@@ -56,6 +57,7 @@ def available_model():
 
         if not row:
             pytest.skip("No collections in ChromaDB")
+            return ""  # Never reached, but satisfies type checker
 
         # Convert collection name back to model name
         # phentrieve_biolord_2023_m -> FremyCompany/BioLORD-2023-M
@@ -69,6 +71,7 @@ def available_model():
             return collection_name.replace("_", "-")
     except Exception as e:
         pytest.skip(f"Failed to query ChromaDB: {e}")
+        return ""  # Never reached, but satisfies type checker
 
 
 def check_results_or_skip(results):

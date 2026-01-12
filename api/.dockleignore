@@ -1,0 +1,16 @@
+# Dockle ignore rules for Phentrieve API container
+# See: https://github.com/goodwithtech/dockle#ignore-rules
+
+# CIS-DI-0001: Create a user for the container
+# REASON: The entrypoint starts as root to fix volume permissions, then drops to
+# non-root user (phentrieve:10001) using gosu before running the application.
+# This follows Docker best practices for handling bind mount permissions.
+# See: https://denibertovic.com/posts/handling-permissions-with-docker-volumes/
+CIS-DI-0001
+
+# DKL-DI-0006: Do not store credential in environment variables/files
+# REASON: False positives from third-party library files:
+# - opt/venv/lib/python3.11/site-packages/mcp/server/auth/settings.py (MCP library)
+# - opt/venv/lib/python3.11/site-packages/scipy/_lib/cobyqa/settings.py (SciPy library)
+# These are library configuration files, not credential storage.
+DKL-DI-0006

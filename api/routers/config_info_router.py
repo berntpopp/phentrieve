@@ -55,13 +55,10 @@ def _get_hpo_metadata() -> dict[str, Optional[str | int]]:
             logger.debug("HPO database not found at %s", db_path)
             return result
 
-        db = HPODatabase(db_path)
-        try:
+        with HPODatabase(db_path) as db:
             result["version"] = db.get_metadata("hpo_version")
             result["download_date"] = db.get_metadata("hpo_download_date")
             result["term_count"] = db.get_term_count()
-        finally:
-            db.close()
 
     except Exception as e:
         logger.warning("Failed to load HPO metadata: %s", e)
