@@ -231,17 +231,39 @@ class LLMProvider:
 
         except Exception as e:
             error_msg = str(e)
+            error_lower = error_msg.lower()
+
             # Provide helpful error messages for common issues
-            if "authentication" in error_msg.lower() or "api key" in error_msg.lower():
+
+            # Check for invalid/unknown model errors
+            model_not_found_patterns = [
+                "model not found",
+                "does not exist",
+                "invalid model",
+                "unknown model",
+                "not supported",
+            ]
+            if any(pattern in error_lower for pattern in model_not_found_patterns) or (
+                "models/" in error_lower and "not found" in error_lower
+            ):
+                raise LLMProviderError(
+                    f"Model '{self.model}' not found or not supported. "
+                    f"Check the model name and provider documentation."
+                ) from e
+
+            # Check for authentication errors
+            if "authentication" in error_lower or "api key" in error_lower:
                 raise LLMProviderError(
                     f"Authentication failed for {self.provider}. "
                     f"Please check your API key environment variable."
                 ) from e
-            if "rate limit" in error_msg.lower():
+
+            if "rate limit" in error_lower:
                 raise LLMProviderError(
                     f"Rate limit exceeded for {self.provider}. "
                     f"Please wait and try again."
                 ) from e
+
             raise LLMProviderError(f"LLM request failed: {error_msg}") from e
 
     def complete_with_tools(
@@ -456,29 +478,84 @@ class ToolExecutor:
         if self._text_processor is None:
             # Attempt to use the text processing orchestrator
             try:
-                from phentrieve.text_processing.text_orchestrator import (
-                    run_text_processing,
+                from phentrieve.config import DEFAULT_MODEL
+                from phentrieve.embeddings import load_embedding_model
+                from phentrieve.retrieval.dense_retriever import DenseRetriever
+                from phentrieve.text_processing.hpo_extraction_orchestrator import (
+                    orchestrate_hpo_extraction,
+                )
+                from phentrieve.text_processing.pipeline import TextProcessingPipeline
+
+                # Step 1: Process text into chunks with assertion detection
+                pipeline = TextProcessingPipeline(
+                    language=language if language != "auto" else "en",
+                    chunking_pipeline_config=[{"type": "sentence"}],
+                    assertion_config={"disable": False},
+                )
+                chunks = pipeline.process(text)
+
+                if not chunks:
+                    return []
+
+                # Extract chunk texts and assertion statuses
+                chunk_texts = [c["text"] for c in chunks]
+                assertion_statuses: list[str | None] = []
+                for c in chunks:
+                    status = c.get("status")
+                    if status is None:
+                        assertion_statuses.append("affirmed")
+                    elif isinstance(status, str):
+                        assertion_statuses.append(status)
+                    else:
+                        # AssertionStatus enum - get its value
+                        assertion_statuses.append(status.value)
+
+                # Step 2: Load embedding model and create retriever
+                model_name = DEFAULT_MODEL
+                embedding_model = load_embedding_model(model_name)
+                retriever = DenseRetriever.from_model_name(
+                    model=embedding_model,
+                    model_name=model_name,
                 )
 
-                results = run_text_processing(
-                    text=text,
-                    language=language if language != "auto" else None,
+                if retriever is None:
+                    logger.warning("Failed to initialize retriever")
+                    return []
+
+                # Step 3: Get HPO matches
+                aggregated_results, _chunk_results = orchestrate_hpo_extraction(
+                    text_chunks=chunk_texts,
+                    retriever=retriever,
+                    assertion_statuses=assertion_statuses,
+                    language=language if language != "auto" else "en",
                 )
-                # Convert to standard format
+
+                # Step 4: Format results for LLM consumption
                 output = []
-                for r in results:
+                for result in aggregated_results:
+                    assertion = result.get("assertion_status")
+                    if assertion is None:
+                        assertion = "affirmed"
+
+                    # Build evidence text from text_attributions
+                    evidence_parts = []
+                    for attr in result.get("text_attributions", []):
+                        chunk_text = attr.get("chunk_text", "")
+                        if chunk_text:
+                            evidence_parts.append(chunk_text)
+                    evidence_text = "; ".join(evidence_parts) if evidence_parts else ""
+
                     output.append(
                         {
-                            "hpo_id": r.get("hpo_id", ""),
-                            "term_name": r.get("term_name", ""),
-                            "assertion": r.get("assertion", "affirmed"),
-                            "score": r.get("score", 0.0),
-                            "evidence_text": r.get(
-                                "chunk_text", r.get("evidence_text")
-                            ),
+                            "hpo_id": result.get("id", ""),
+                            "term_name": result.get("name", ""),
+                            "assertion": assertion,
+                            "score": result.get("score", 0.0),
+                            "evidence_text": evidence_text,
                         }
                     )
                 return output
+
             except Exception as e:
                 logger.warning("Failed to process text: %s", e)
                 return []
@@ -540,9 +617,10 @@ def get_available_models() -> dict[str, list[str]]:
             "github/gpt-4o-mini",
         ],
         "gemini": [
+            "gemini/gemini-2.0-flash",
+            "gemini/gemini-2.0-flash-exp",
             "gemini/gemini-1.5-pro",
             "gemini/gemini-1.5-flash",
-            "gemini/gemini-2.0-flash-exp",
         ],
         "anthropic": [
             "anthropic/claude-sonnet-4-20250514",

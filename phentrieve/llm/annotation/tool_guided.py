@@ -51,7 +51,7 @@ class ToolGuidedStrategy(AnnotationStrategy):
         self,
         provider: LLMProvider,
         mode: AnnotationMode = AnnotationMode.TOOL_TEXT,
-        max_iterations: int = 5,
+        max_iterations: int | None = None,
     ) -> None:
         """
         Initialize the tool-guided strategy.
@@ -60,6 +60,8 @@ class ToolGuidedStrategy(AnnotationStrategy):
             provider: The LLM provider to use.
             mode: Either TOOL_TERM or TOOL_TEXT.
             max_iterations: Maximum number of tool call iterations.
+                           Defaults to 2 for TOOL_TEXT (one call + response),
+                           5 for TOOL_TERM (may need multiple queries).
         """
         if mode not in (AnnotationMode.TOOL_TERM, AnnotationMode.TOOL_TEXT):
             raise ValueError(f"Invalid mode for ToolGuidedStrategy: {mode}")
@@ -67,7 +69,13 @@ class ToolGuidedStrategy(AnnotationStrategy):
         super().__init__(provider)
         self.mode = mode
         self.tool_executor = ToolExecutor()
-        self.max_iterations = max_iterations
+
+        # TOOL_TEXT only needs 1-2 iterations (call tool once, get response)
+        # TOOL_TERM may need more iterations for multiple term queries
+        if max_iterations is None:
+            self.max_iterations = 2 if mode == AnnotationMode.TOOL_TEXT else 5
+        else:
+            self.max_iterations = max_iterations
 
     def annotate(
         self,

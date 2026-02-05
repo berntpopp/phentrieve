@@ -12,6 +12,7 @@ Commands:
 
 import json
 import logging
+import os
 import sys
 from pathlib import Path
 from typing import Annotated, Any, Optional
@@ -19,6 +20,9 @@ from typing import Annotated, Any, Optional
 import typer
 
 logger = logging.getLogger(__name__)
+
+# Default LLM model, overridable via environment variable
+DEFAULT_LLM_MODEL = os.environ.get("PHENTRIEVE_LLM_MODEL", "github/gpt-4o")
 
 app = typer.Typer(
     name="llm",
@@ -66,9 +70,10 @@ def annotate(
         typer.Option(
             "--model",
             "-m",
-            help="LLM model to use (e.g., github/gpt-4o, gemini/gemini-1.5-pro).",
+            help="LLM model to use (e.g., github/gpt-4o, gemini/gemini-1.5-pro). "
+            "Default can be set via PHENTRIEVE_LLM_MODEL env var.",
         ),
-    ] = "github/gpt-4o",
+    ] = DEFAULT_LLM_MODEL,
     mode: Annotated[
         str,
         typer.Option(
@@ -246,9 +251,9 @@ def benchmark(
         typer.Option(
             "--model",
             "-m",
-            help="LLM model to use.",
+            help="LLM model to use. Default can be set via PHENTRIEVE_LLM_MODEL env var.",
         ),
-    ] = "github/gpt-4o",
+    ] = DEFAULT_LLM_MODEL,
     mode: Annotated[
         str,
         typer.Option(
@@ -425,9 +430,10 @@ def compare(
         typer.Option(
             "--models",
             "-m",
-            help="Comma-separated list of models to compare.",
+            help="Comma-separated list of models to compare. "
+            "Default can be set via PHENTRIEVE_LLM_MODEL env var.",
         ),
-    ] = "github/gpt-4o",
+    ] = DEFAULT_LLM_MODEL,
     modes: Annotated[
         str,
         typer.Option(
@@ -654,8 +660,6 @@ def list_models() -> None:
 
     Shows model presets organized by provider, with authentication status.
     """
-    import os
-
     from phentrieve.llm import get_available_models
 
     models = get_available_models()
@@ -669,6 +673,13 @@ def list_models() -> None:
 
     typer.echo("Available LLM Models")
     typer.echo("=" * 50)
+
+    # Show current default model
+    env_model = os.environ.get("PHENTRIEVE_LLM_MODEL")
+    if env_model:
+        typer.echo(f"\nDefault model (from PHENTRIEVE_LLM_MODEL): {env_model}")
+    else:
+        typer.echo(f"\nDefault model: {DEFAULT_LLM_MODEL}")
 
     for provider, model_list in models.items():
         # Check auth status
@@ -685,6 +696,8 @@ def list_models() -> None:
 
     typer.echo("\n\nUsage:")
     typer.echo("  phentrieve llm annotate 'text' --model github/gpt-4o")
+    typer.echo("\nTo set default model:")
+    typer.echo("  export PHENTRIEVE_LLM_MODEL=gemini/gemini-2.0-flash")
     typer.echo("\nTo set authentication:")
     typer.echo("  export GITHUB_TOKEN=ghp_...")
     typer.echo("  export GEMINI_API_KEY=...")

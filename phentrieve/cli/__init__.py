@@ -4,14 +4,24 @@ This module defines the main Typer application and imports all subcommands
 from their respective modules.
 """
 
-import importlib.metadata
+# Load .env file BEFORE any other imports that might read environment variables
+# This must happen first to ensure PHENTRIEVE_LLM_MODEL and other env vars are available
 from pathlib import Path
-from typing import Annotated, Optional
 
-import typer
+from dotenv import load_dotenv
+
+# Load .env from current directory if it exists
+_env_file = Path.cwd() / ".env"
+if _env_file.exists():
+    load_dotenv(_env_file)
+
+import importlib.metadata  # noqa: E402
+from typing import Annotated, Optional  # noqa: E402
+
+import typer  # noqa: E402
 
 # Import all command groups
-from phentrieve.cli import (
+from phentrieve.cli import (  # noqa: E402
     benchmark_commands,
     data_commands,
     index_commands,
