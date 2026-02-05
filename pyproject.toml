@@ -74,8 +74,13 @@ mcp = [
     "python-dotenv>=1.0.0",
     "pydantic-settings>=2.0.0",
 ]
+# LLM annotation dependencies (for LLM-based HPO annotation)
+llm = [
+    "litellm>=1.30.0,<2.0.0",  # Unified LLM provider interface
+]
 # Install CLI + API with: pip install "phentrieve[api]"
 # Install CLI + MCP with: pip install "phentrieve[mcp]"
+# Install CLI + LLM with: pip install "phentrieve[llm]"
 
 [tool.setuptools]
 
@@ -86,6 +91,7 @@ include = ["phentrieve*", "api*"]
 
 [tool.setuptools.package-data]
 "phentrieve.text_processing.default_lang_resources" = ["*.json"]
+"phentrieve.llm.prompts.templates" = ["**/*.yaml"]
 
 [tool.ruff]
 line-length = 88

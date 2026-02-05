@@ -25,6 +25,7 @@ from api.dependencies import (  # noqa: E402
 from api.routers import (  # noqa: E402
     config_info_router,
     health,
+    llm_annotation_router,
     query_router,
     similarity_router,
     system,
@@ -130,6 +131,9 @@ app.include_router(config_info_router.router, prefix="/api/v1")
 app.include_router(
     text_processing_router.router, tags=["Text Processing and HPO Extraction"]
 )
+app.include_router(
+    llm_annotation_router.router, prefix="/api/v1/llm", tags=["LLM Annotation"]
+)
 
 
 # =============================================================================
@@ -226,6 +230,21 @@ async def root():
                         "methods": ["GET"],
                         "description": "Check API health status",
                     }
+                ],
+            },
+            "LLM Annotation": {
+                "description": "LLM-based HPO term annotation",
+                "endpoints": [
+                    {
+                        "path": "/api/v1/llm/annotate",
+                        "methods": ["POST"],
+                        "description": "Annotate clinical text with HPO terms using LLM",
+                    },
+                    {
+                        "path": "/api/v1/llm/models",
+                        "methods": ["GET"],
+                        "description": "List available LLM models",
+                    },
                 ],
             },
             "Documentation": {

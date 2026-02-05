@@ -15,6 +15,7 @@ from phentrieve.cli import (
     benchmark_commands,
     data_commands,
     index_commands,
+    llm_commands,
     mcp_commands,
     query_commands,
     similarity_commands,
@@ -117,6 +118,11 @@ app.add_typer(
     mcp_commands.app,
     name="mcp",
     help="Model Context Protocol (MCP) server commands.",
+)
+app.add_typer(
+    llm_commands.app,
+    name="llm",
+    help="LLM-based HPO annotation commands.",
 )
 
 # Main command for query
