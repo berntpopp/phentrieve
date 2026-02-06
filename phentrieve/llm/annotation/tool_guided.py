@@ -98,10 +98,14 @@ class ToolGuidedStrategy(AnnotationStrategy):
         start_time = time.time()
 
         # Load prompt template based on mode
+        t0 = time.time()
         prompt_template = get_prompt(self.mode, language)
-
-        # Build initial messages
         messages = prompt_template.get_messages(text)
+        logger.debug(
+            "[ANNOTATE] Prompt loaded in %.2fs (%d messages)",
+            time.time() - t0,
+            len(messages),
+        )
 
         # Check if provider supports tools
         if self.provider.supports_tools():
@@ -118,19 +122,37 @@ class ToolGuidedStrategy(AnnotationStrategy):
             )
 
         # Parse the final response
+        t0 = time.time()
         annotations = self._parse_response(response.content or "")
+        logger.debug(
+            "[ANNOTATE] Response parsed in %.2fs — %d annotations extracted",
+            time.time() - t0,
+            len(annotations),
+        )
 
         # Filter against tool candidates to prevent hallucination (TOOL_TEXT mode only)
         if self.mode == AnnotationMode.TOOL_TEXT and tool_calls:
+            t0 = time.time()
             logger.debug(
                 "[FILTER] Validating %d LLM annotations against Phentrieve retrieval results",
                 len(annotations),
             )
             annotations = self._filter_against_candidates(annotations, tool_calls)
+            logger.debug(
+                "[FILTER] Hallucination filtering completed in %.2fs — %d annotations remain",
+                time.time() - t0,
+                len(annotations),
+            )
 
         # Validate HPO IDs if requested
         if validate_hpo_ids:
+            t0 = time.time()
             annotations = self._validate_annotations(annotations)
+            logger.debug(
+                "[VALIDATE] HPO ID validation completed in %.2fs — %d annotations remain",
+                time.time() - t0,
+                len(annotations),
+            )
 
         processing_time = time.time() - start_time
 

@@ -110,21 +110,41 @@ class LLMAnnotationPipeline:
 
         # Detect language if auto
         if language == "auto":
+            t0 = time.time()
             language = self._detect_language(text)
+            logger.debug(
+                "[PIPELINE] Language detection: '%s' in %.2fs",
+                language,
+                time.time() - t0,
+            )
 
         # Get or create strategy for mode
+        t0 = time.time()
         strategy = self._get_strategy(mode)
+        logger.debug("[PIPELINE] Strategy ready in %.2fs", time.time() - t0)
 
         # Run primary annotation
+        t0 = time.time()
         result = strategy.annotate(
             text=text,
             language=language,
             validate_hpo_ids=self.validate_hpo_ids,
         )
+        logger.debug(
+            "[PIPELINE] Annotation completed in %.2fs (%d annotations)",
+            time.time() - t0,
+            len(result.annotations),
+        )
 
         # Run post-processing if requested
         if postprocess:
+            t0 = time.time()
             result = self._run_postprocessing(result, postprocess)
+            logger.debug(
+                "[PIPELINE] Post-processing completed in %.2fs (%d annotations remain)",
+                time.time() - t0,
+                len(result.annotations),
+            )
 
         # Update processing time
         result.processing_time_seconds = time.time() - start_time
@@ -166,6 +186,7 @@ class LLMAnnotationPipeline:
     def _get_strategy(self, mode: AnnotationMode) -> AnnotationStrategy:
         """Get or create an annotation strategy for the mode."""
         if mode not in self._strategies:
+            logger.debug("[PIPELINE] Creating new strategy for mode: %s", mode.value)
             if mode == AnnotationMode.DIRECT:
                 self._strategies[mode] = DirectTextStrategy(self.provider)
             elif mode in (AnnotationMode.TOOL_TERM, AnnotationMode.TOOL_TEXT):
@@ -175,6 +196,8 @@ class LLMAnnotationPipeline:
                 )
             else:
                 raise ValueError(f"Unknown annotation mode: {mode}")
+        else:
+            logger.debug("[PIPELINE] Reusing cached strategy for mode: %s", mode.value)
 
         return self._strategies[mode]
 

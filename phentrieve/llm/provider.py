@@ -294,18 +294,53 @@ class LLMProvider:
         current_messages = messages.copy()
         cumulative_usage = TokenUsage()
 
+        logger.debug(
+            "[LLM] Starting tool loop (max %d iterations, %d initial messages)",
+            max_iterations,
+            len(current_messages),
+        )
+
+        import time as _time
+
+        loop_t0 = _time.time()
         for iteration in range(max_iterations):
+            logger.debug(
+                "[LLM] Iteration %d/%d — sending request to %s",
+                iteration + 1,
+                max_iterations,
+                self.model,
+            )
+            api_t0 = _time.time()
             response = self.complete(
                 messages=current_messages,
                 tools=PHENTRIEVE_TOOLS,
                 tool_choice="auto",
             )
+            api_elapsed = _time.time() - api_t0
 
             # Accumulate token usage from this iteration
             cumulative_usage.add(response.usage)
+            cumulative_usage.llm_time_seconds += api_elapsed
+            logger.debug(
+                "[LLM] Iteration %d/%d — response in %.2fs: finish_reason=%s, "
+                "tool_calls=%d, tokens=%s",
+                iteration + 1,
+                max_iterations,
+                api_elapsed,
+                response.finish_reason,
+                len(response.tool_calls),
+                response.usage,
+            )
 
             if not response.tool_calls:
                 # No more tool calls, we're done
+                logger.debug(
+                    "[LLM] Tool loop finished after %d iteration(s) in %.2fs, "
+                    "total tokens: %d",
+                    iteration + 1,
+                    _time.time() - loop_t0,
+                    cumulative_usage.total_tokens,
+                )
                 return response, all_tool_calls, cumulative_usage
 
             # Execute each tool call and add results to messages
@@ -328,7 +363,9 @@ class LLMProvider:
             )
 
             for i, tc in enumerate(response.tool_calls):
+                tool_t0 = _time.time()
                 result = tool_executor.execute(tc.name, tc.arguments)
+                cumulative_usage.tool_time_seconds += _time.time() - tool_t0
                 # Create new ToolCall with result
                 completed_tc = ToolCall(
                     name=tc.name,
@@ -400,6 +437,10 @@ class ToolExecutor:
         """
         self._retriever = retriever
         self._text_processor = text_processor
+        # Cached Phentrieve components (lazy-initialized on first use)
+        self._cached_embedding_model: Any | None = None
+        self._cached_retriever: Any | None = None
+        self._cached_pipelines: dict[str, Any] = {}  # keyed by language
 
     def execute(self, tool_name: str, arguments: dict[str, Any]) -> Any:
         """
@@ -415,66 +456,146 @@ class ToolExecutor:
         Raises:
             ValueError: If the tool name is unknown.
         """
+        import time as _time
+
+        logger.debug(
+            "[TOOL] Executing tool: %s (args: %s)", tool_name, list(arguments.keys())
+        )
+        _t0 = _time.time()
+
         if tool_name == "query_hpo_terms":
-            return self._query_hpo_terms(
+            result = self._query_hpo_terms(
                 query=arguments.get("query", ""),
                 num_results=arguments.get("num_results", 5),
             )
         elif tool_name == "process_clinical_text":
-            return self._process_clinical_text(
+            result = self._process_clinical_text(
                 text=arguments.get("text", ""),
                 language=arguments.get("language", "auto"),
             )
         else:
             raise ValueError(f"Unknown tool: {tool_name}")
 
+        result_count = len(result) if isinstance(result, list) else "n/a"
+        logger.debug(
+            "[TOOL] Tool %s completed in %.2fs — %s results",
+            tool_name,
+            _time.time() - _t0,
+            result_count,
+        )
+        return result
+
     def _query_hpo_terms(
         self, query: str, num_results: int = 5
     ) -> list[dict[str, Any]]:
-        """Execute the query_hpo_terms tool.
+        """Execute the query_hpo_terms tool using the cached retriever."""
+        try:
+            # Ensure retriever is initialized (cached after first call)
+            _embedding_model, _pipeline, retriever = self._get_phentrieve_components(
+                "en"
+            )
+            if retriever is None:
+                return []
 
-        Note: This requires a properly initialized retriever instance.
-        For production use, set self._retriever before calling.
+            raw = retriever.query(query, n_results=num_results)
+
+            # Format ChromaDB-style results into clean dicts
+            output: list[dict[str, Any]] = []
+            metadatas = raw.get("metadatas", [[]])[0]
+            similarities = (
+                raw.get("similarities", [[]])[0] if raw.get("similarities") else []
+            )
+            for i, meta in enumerate(metadatas):
+                score = similarities[i] if i < len(similarities) else 0.0
+                output.append(
+                    {
+                        "hpo_id": meta.get("hpo_id", ""),
+                        "term_name": meta.get("label", ""),
+                        "score": score,
+                    }
+                )
+            return output
+        except Exception as e:
+            logger.warning(
+                "[TOOL] query_hpo_terms failed: %s - returning empty results", e
+            )
+            return []
+
+    def _get_phentrieve_components(self, language: str) -> tuple[Any, Any, Any]:
+        """Get or create cached Phentrieve pipeline components.
+
+        Returns:
+            Tuple of (embedding_model, pipeline, retriever).
         """
-        if self._retriever is None:
-            # Attempt to create using query orchestrator for convenience
-            try:
-                from phentrieve.retrieval.query_orchestrator import orchestrate_query
+        from phentrieve.config import (
+            DEFAULT_MODEL,
+            get_sliding_window_punct_conj_cleaned_config,
+        )
+        from phentrieve.embeddings import load_embedding_model
+        from phentrieve.retrieval.dense_retriever import DenseRetriever
+        from phentrieve.text_processing.pipeline import TextProcessingPipeline
 
-                result = orchestrate_query(
-                    query_text=query,
-                    num_results=num_results,
-                )
-                # Extract results from orchestrator response
-                if isinstance(result, dict) and "results" in result:
-                    raw_results: list[dict[str, Any]] = result.get("results", [])
-                    return [
-                        {
-                            "hpo_id": r.get("hpo_id", ""),
-                            "term_name": r.get("term_name", ""),
-                            "score": r.get("score", 0.0),
-                            "definition": r.get("definition"),
-                        }
-                        for r in raw_results
-                    ]
-                return []
-            except Exception as e:
-                logger.warning(
-                    "[TOOL] query_hpo_terms failed: %s - returning empty results", e
-                )
-                return []
+        lang_key = language if language != "auto" else "en"
 
-        # Use provided retriever
-        results = self._retriever.search(query, top_k=num_results)
-        return [
-            {
-                "hpo_id": r.get("hpo_id", ""),
-                "term_name": r.get("term_name", ""),
-                "score": r.get("score", 0.0),
-                "definition": r.get("definition"),
-            }
-            for r in results
-        ]
+        # Embedding model (cached globally by load_embedding_model)
+        if self._cached_embedding_model is None:
+            model_name = DEFAULT_MODEL
+            logger.debug("[TOOL] Loading embedding model: %s (first use)", model_name)
+            import time as _time
+
+            _t0 = _time.time()
+            self._cached_embedding_model = load_embedding_model(model_name)
+            logger.debug("[TOOL] Embedding model loaded in %.2fs", _time.time() - _t0)
+        else:
+            logger.debug("[TOOL] Embedding model: using cached instance")
+
+        # Text processing pipeline (cached per language)
+        if lang_key not in self._cached_pipelines:
+            logger.debug(
+                "[TOOL] Creating TextProcessingPipeline for language '%s' (first use)",
+                lang_key,
+            )
+            import time as _time
+
+            _t0 = _time.time()
+            self._cached_pipelines[lang_key] = TextProcessingPipeline(
+                language=lang_key,
+                chunking_pipeline_config=get_sliding_window_punct_conj_cleaned_config(),
+                assertion_config={"disable": False},
+                sbert_model_for_semantic_chunking=self._cached_embedding_model,
+            )
+            logger.debug(
+                "[TOOL] TextProcessingPipeline (%s) created in %.2fs",
+                lang_key,
+                _time.time() - _t0,
+            )
+        else:
+            logger.debug(
+                "[TOOL] TextProcessingPipeline (%s): using cached instance", lang_key
+            )
+
+        # Dense retriever (cached, reuses ChromaDB connection)
+        if self._cached_retriever is None:
+            model_name = DEFAULT_MODEL
+            logger.debug(
+                "[TOOL] Creating DenseRetriever for model '%s' (first use)", model_name
+            )
+            import time as _time
+
+            _t0 = _time.time()
+            self._cached_retriever = DenseRetriever.from_model_name(
+                model=self._cached_embedding_model,
+                model_name=model_name,
+            )
+            logger.debug("[TOOL] DenseRetriever created in %.2fs", _time.time() - _t0)
+        else:
+            logger.debug("[TOOL] DenseRetriever: using cached instance")
+
+        return (
+            self._cached_embedding_model,
+            self._cached_pipelines[lang_key],
+            self._cached_retriever,
+        )
 
     def _process_clinical_text(
         self,
@@ -487,38 +608,27 @@ class ToolExecutor:
         For production use, set self._text_processor before calling.
         """
         if self._text_processor is None:
-            # Attempt to use the text processing orchestrator
             try:
-                from phentrieve.config import (
-                    DEFAULT_MODEL,
-                    get_sliding_window_punct_conj_cleaned_config,
-                )
-                from phentrieve.embeddings import load_embedding_model
-                from phentrieve.retrieval.dense_retriever import DenseRetriever
                 from phentrieve.text_processing.hpo_extraction_orchestrator import (
                     orchestrate_hpo_extraction,
                 )
-                from phentrieve.text_processing.pipeline import TextProcessingPipeline
 
-                # Step 1: Load embedding model FIRST (needed for semantic chunking)
-                model_name = DEFAULT_MODEL
-                embedding_model = load_embedding_model(model_name)
-
-                # Step 2: Process text into chunks with assertion detection
-                # Use the full chunking pipeline config (includes conjunction splitting)
-                # to properly separate phenotypes joined by "and", "or", etc.
-                pipeline = TextProcessingPipeline(
-                    language=language if language != "auto" else "en",
-                    chunking_pipeline_config=get_sliding_window_punct_conj_cleaned_config(),
-                    assertion_config={"disable": False},
-                    sbert_model_for_semantic_chunking=embedding_model,
+                _embedding_model, pipeline, retriever = self._get_phentrieve_components(
+                    language
                 )
+
+                if retriever is None:
+                    logger.warning(
+                        "[TOOL] process_clinical_text: retriever initialization failed"
+                    )
+                    return []
+
+                # Process text into chunks with assertion detection
                 chunks = pipeline.process(text)
 
                 if not chunks:
                     return []
 
-                # Step 2 (cont.): Extract chunk texts and assertion statuses
                 chunk_texts = [c["text"] for c in chunks]
                 assertion_statuses: list[str | None] = []
                 for c in chunks:
@@ -528,22 +638,9 @@ class ToolExecutor:
                     elif isinstance(status, str):
                         assertion_statuses.append(status)
                     else:
-                        # AssertionStatus enum - get its value
                         assertion_statuses.append(status.value)
 
-                # Step 3: Create retriever (using model loaded in Step 1)
-                retriever = DenseRetriever.from_model_name(
-                    model=embedding_model,
-                    model_name=model_name,
-                )
-
-                if retriever is None:
-                    logger.warning(
-                        "[TOOL] process_clinical_text: retriever initialization failed"
-                    )
-                    return []
-
-                # Step 4: Get HPO matches
+                # Get HPO matches
                 aggregated_results, _chunk_results = orchestrate_hpo_extraction(
                     text_chunks=chunk_texts,
                     retriever=retriever,
@@ -551,14 +648,13 @@ class ToolExecutor:
                     language=language if language != "auto" else "en",
                 )
 
-                # Step 5: Format results for LLM consumption
+                # Format results for LLM consumption
                 output = []
                 for result in aggregated_results:
                     assertion = result.get("assertion_status")
                     if assertion is None:
                         assertion = "affirmed"
 
-                    # Build evidence text from text_attributions
                     evidence_parts = []
                     for attr in result.get("text_attributions", []):
                         chunk_text = attr.get("chunk_text", "")
