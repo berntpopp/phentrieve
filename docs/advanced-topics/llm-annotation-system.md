@@ -42,10 +42,17 @@ The LLM extracts HPO terms purely from its own knowledge — single API call, no
  │ AnnotationResult  │  .annotations = [HPOAnnotation(...), ...]
  │                   │  .token_usage = TokenUsage(prompt=800, completion=200)
  │                   │  .mode = DIRECT
- └──────────────────┘
+ └────────┬─────────┘
+          │
+          │  Pipeline-level hallucination filter:
+          │  → run process_clinical_text(text) to get Phentrieve candidates
+          │  → remove any LLM annotations not in candidates
+          ▼
+   Final AnnotationResult
 ```
 
-Fast and cheap, but may hallucinate invalid HPO IDs.
+Fast and cheap. LLM may hallucinate HPO IDs from its training data, but the
+pipeline filters them against Phentrieve retrieval results after the LLM call.
 
 ---
 
@@ -108,6 +115,10 @@ The LLM identifies clinical phrases, then searches the HPO database for each one
  └────────────────────────────┬─────────────────────────────────┘
                               │
                               │  _parse_response() + _validate_annotations()
+                              │
+                              │  Hallucination filter:
+                              │  → collect candidate IDs from all query_hpo_terms results
+                              │  → remove any LLM annotations not in candidates
                               ▼
                        AnnotationResult
                          .annotations = [...]
@@ -117,7 +128,7 @@ The LLM identifies clinical phrases, then searches the HPO database for each one
 
 LLM controls which phrases to search. A single API response can request multiple
 tool calls at once (both queries above happen in one round-trip). IDs come from
-the database, reducing hallucinations.
+the database, and any IDs the LLM invents beyond the search results are filtered out.
 
 ---
 
@@ -133,23 +144,17 @@ Phentrieve processes the full text first, then the LLM selects from the candidat
  ┌──────────────────┐
  │  Prompt Assembly  │  get_prompt(mode=TOOL_TEXT, language="en")
  │                   │  → loads prompts/templates/tool_guided/en_text_process.yaml
- │  Builds messages: │  → system: "Call process_clinical_text ONCE,
- │    [system, user] │            select ONLY from returned candidates..."
- │                   │  → user: "Review and select HPO annotations: {text}"
+ │  Builds messages: │  → system: "Select ONLY from returned candidates..."
+ │    [system, user] │  → user: "Review and select HPO annotations: {text}"
  └────────┬─────────┘
           │
-          │  LLMProvider.complete_with_tools(messages, tool_executor, max_iterations=2)
+          │  Pipeline runs process_clinical_text directly
+          │  (no initial API call — results injected into prompt)
           ▼
  ┌──────────────────────────────────────────────────────────────┐
  │                                                              │
- │  API call 1:  LLM receives prompt, requests the tool call   │
- │               (this is protocol overhead — the LLM just does │
- │               what the prompt told it to. For models without │
- │               native tool support, this call is skipped and  │
- │               the pipeline runs directly.)                   │
- │                          │                                   │
- │               ToolExecutor.execute("process_clinical_text",  │
- │                 {text: "Patient has...", language: "en"})     │
+ │  ToolExecutor.execute("process_clinical_text",               │
+ │    {text: "Patient has...", language: "en"})                  │
  │                          │                                   │
  │                          ▼                                   │
  │              ┌──────────────────────────┐                    │
@@ -172,16 +177,14 @@ Phentrieve processes the full text first, then the LLM selects from the candidat
  │              └────────────┬─────────────┘                    │
  │                           │                                  │
  │                           ▼                                  │
- │              tool result (candidates):                       │
+ │              candidates injected into prompt:                │
  │                HP:0001250 Seizure (affirmed, 0.92)           │
  │                HP:0007359 Recurrent seizure (affirmed, 0.95) │
  │                HP:0001627 Cardiac abnormality (negated, 0.89)│
  │                HP:0030680 Cardiac anomaly (negated, 0.72)    │
  │                           │                                  │
- │                           │  appended to conversation        │
  │                           ▼                                  │
- │  API call 2:  LLM receives candidates, selects & annotates  │
- │               (this is the only call that does real work)    │
+ │  Single API call: LLM receives candidates, selects & annotates
  │    content: {"annotations": [                                │
  │      {"hpo_id":"HP:0007359", "assertion":"affirmed"},        │
  │      {"hpo_id":"HP:0001627", "assertion":"negated"},         │
@@ -203,10 +206,8 @@ Phentrieve processes the full text first, then the LLM selects from the candidat
 ```
 
 Most accurate mode. LLM acts as validator/selector, constrained to retrieved candidates.
-
-Note: API call 1 is pure protocol overhead — the LLM just requests the tool it was
-told to use. For models without native tool calling, the code skips this entirely
-and embeds the pipeline results directly into the prompt (1 API call instead of 2).
+The Phentrieve pipeline always runs directly (no overhead API call) — results are
+injected into the prompt, so only a single LLM API call is made.
 
 ---
 

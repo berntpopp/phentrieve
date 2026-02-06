@@ -107,16 +107,23 @@ class ToolGuidedStrategy(AnnotationStrategy):
             len(messages),
         )
 
-        # Check if provider supports tools
-        if self.provider.supports_tools():
-            # Use native tool calling
+        # TOOL_TEXT: Always run the pipeline directly and inject results into
+        # the prompt. The first API call in the tool-calling loop is pure protocol
+        # overhead — the LLM just requests the tool it was told to use. Skipping
+        # it saves one full API round-trip (latency + cost).
+        # TOOL_TERM: Use native tool calling so the LLM decides which phrases
+        # to search for.
+        if self.mode == AnnotationMode.TOOL_TEXT:
+            response, tool_calls, token_usage = self._emulate_tool_calling(
+                messages, text, language
+            )
+        elif self.provider.supports_tools():
             response, tool_calls, token_usage = self.provider.complete_with_tools(
                 messages=messages,
                 tool_executor=self.tool_executor,
                 max_iterations=self.max_iterations,
             )
         else:
-            # Fallback to prompt-based tool emulation
             response, tool_calls, token_usage = self._emulate_tool_calling(
                 messages, text, language
             )
@@ -130,8 +137,8 @@ class ToolGuidedStrategy(AnnotationStrategy):
             len(annotations),
         )
 
-        # Filter against tool candidates to prevent hallucination (TOOL_TEXT mode only)
-        if self.mode == AnnotationMode.TOOL_TEXT and tool_calls:
+        # Filter against tool candidates to prevent hallucination
+        if tool_calls:
             t0 = time.time()
             logger.debug(
                 "[FILTER] Validating %d LLM annotations against Phentrieve retrieval results",
@@ -331,19 +338,19 @@ class ToolGuidedStrategy(AnnotationStrategy):
         Returns:
             Filtered annotations containing only terms that appeared in tool results.
         """
-        # Extract all HPO IDs from process_clinical_text tool results
+        # Extract all HPO IDs from tool results (both process_clinical_text
+        # and query_hpo_terms). Both tools return lists of dicts with "hpo_id".
         candidate_ids: set[str] = set()
 
         for tool_call in tool_calls:
-            if tool_call.name != "process_clinical_text":
+            if tool_call.name not in ("process_clinical_text", "query_hpo_terms"):
                 continue
 
             result = tool_call.result
             if result is None:
                 continue
 
-            # Handle the actual result format: list of {"hpo_id": "...", ...}
-            # This is what _process_clinical_text() returns
+            # Both tools return list of {"hpo_id": "...", ...}
             if isinstance(result, list):
                 for item in result:
                     if isinstance(item, dict):

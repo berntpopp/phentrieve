@@ -20,10 +20,11 @@ from phentrieve.llm.postprocess import (
     RefinementPostProcessor,
     ValidationPostProcessor,
 )
-from phentrieve.llm.provider import LLMProvider
+from phentrieve.llm.provider import LLMProvider, ToolExecutor
 from phentrieve.llm.types import (
     AnnotationMode,
     AnnotationResult,
+    HPOAnnotation,
     PostProcessingStep,
 )
 
@@ -86,6 +87,8 @@ class LLMAnnotationPipeline:
         # Cache strategies
         self._strategies: dict[AnnotationMode, AnnotationStrategy] = {}
         self._postprocessors: dict[PostProcessingStep, PostProcessor] = {}
+        # Lazy-initialized ToolExecutor for hallucination filtering in DIRECT mode
+        self._tool_executor: ToolExecutor | None = None
 
     def run(
         self,
@@ -135,6 +138,19 @@ class LLMAnnotationPipeline:
             time.time() - t0,
             len(result.annotations),
         )
+
+        # For DIRECT mode, run Phentrieve pipeline to get candidate IDs
+        # and filter out hallucinated HPO terms that the LLM invented
+        if mode == AnnotationMode.DIRECT and result.annotations:
+            t0 = time.time()
+            result.annotations = self._filter_direct_against_retrieval(
+                result.annotations, text, language
+            )
+            logger.debug(
+                "[PIPELINE] Direct-mode hallucination filtering in %.2fs (%d annotations remain)",
+                time.time() - t0,
+                len(result.annotations),
+            )
 
         # Run post-processing if requested
         if postprocess:
@@ -254,6 +270,85 @@ class LLMAnnotationPipeline:
         result.post_processing_steps = applied_steps
 
         return result
+
+    def _get_tool_executor(self) -> ToolExecutor:
+        """Get or create a cached ToolExecutor for retrieval-based filtering."""
+        if self._tool_executor is None:
+            self._tool_executor = ToolExecutor()
+        return self._tool_executor
+
+    def _filter_direct_against_retrieval(
+        self,
+        annotations: list[HPOAnnotation],
+        text: str,
+        language: str,
+    ) -> list[HPOAnnotation]:
+        """
+        Filter DIRECT mode annotations against Phentrieve retrieval results.
+
+        Runs the Phentrieve pipeline on the text to get candidate HPO IDs,
+        then removes any LLM annotations not found in the candidates.
+        """
+        try:
+            executor = self._get_tool_executor()
+            candidates = executor.execute(
+                "process_clinical_text",
+                {"text": text, "language": language},
+            )
+
+            # Extract candidate HPO IDs
+            candidate_ids: set[str] = set()
+            if isinstance(candidates, list):
+                for item in candidates:
+                    if isinstance(item, dict):
+                        hpo_id = item.get("hpo_id")
+                        if hpo_id:
+                            candidate_ids.add(hpo_id)
+
+            if not candidate_ids:
+                logger.debug(
+                    "[FILTER] No candidates from Phentrieve retrieval — "
+                    "skipping direct-mode hallucination filter"
+                )
+                return annotations
+
+            logger.debug(
+                "[FILTER] %d Phentrieve candidates for direct-mode filtering",
+                len(candidate_ids),
+            )
+
+            filtered: list[HPOAnnotation] = []
+            removed = 0
+            for annotation in annotations:
+                if annotation.hpo_id in candidate_ids:
+                    filtered.append(annotation)
+                else:
+                    removed += 1
+                    logger.warning(
+                        "[FILTER] Removing %s (%s) — not in Phentrieve retrieval results "
+                        "(likely hallucinated by LLM in direct mode)",
+                        annotation.hpo_id,
+                        annotation.term_name,
+                    )
+
+            if removed > 0:
+                logger.info(
+                    "[FILTER] Direct mode: kept %d of %d annotations, "
+                    "removed %d not found in retrieval",
+                    len(filtered),
+                    len(annotations),
+                    removed,
+                )
+
+            return filtered
+
+        except Exception as e:
+            logger.warning(
+                "[FILTER] Direct-mode hallucination filtering failed (%s) — "
+                "returning unfiltered annotations",
+                e,
+            )
+            return annotations
 
     def _detect_language(self, text: str) -> str:
         """Detect the language of the input text."""
