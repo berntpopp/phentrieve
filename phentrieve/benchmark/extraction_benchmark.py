@@ -20,6 +20,11 @@ from datetime import datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
+from phentrieve.benchmark.data_loader import (
+    ASSERTION_STATUS_MAP,
+    load_phenobert_data,
+    parse_gold_terms,
+)
 from phentrieve.config import (
     DEFAULT_CHUNK_RETRIEVAL_THRESHOLD,
     DEFAULT_MIN_CONFIDENCE_AGGREGATED,
@@ -38,14 +43,6 @@ if TYPE_CHECKING:
     from phentrieve.text_processing.pipeline import TextProcessingPipeline
 
 logger = logging.getLogger(__name__)
-
-# Mapping from internal assertion status to benchmark format
-ASSERTION_STATUS_MAP: dict[str, str] = {
-    "affirmed": "PRESENT",
-    "negated": "ABSENT",
-    "uncertain": "UNCERTAIN",
-    "normal": "PRESENT",  # normal findings are present
-}
 
 
 @dataclass
@@ -306,96 +303,13 @@ class ExtractionBenchmark:
     def _load_phenobert_data(self, base_dir: Path) -> dict[str, Any]:
         """Load PhenoBERT-format data from directory structure.
 
-        Expected structure:
-        base_dir/
-            GSC_plus/annotations/*.json
-            ID_68/annotations/*.json
-            GeneReviews/annotations/*.json
+        Delegates to the shared ``load_phenobert_data()`` function.
         """
-        # Determine which subdirectories to load
-        dataset_dirs = {
-            "GSC_plus": base_dir / "GSC_plus" / "annotations",
-            "ID_68": base_dir / "ID_68" / "annotations",
-            "GeneReviews": base_dir / "GeneReviews" / "annotations",
-        }
-
-        if self.config.dataset != "all":
-            # Load only the specified dataset
-            if self.config.dataset not in dataset_dirs:
-                raise ValueError(
-                    f"Unknown dataset: {self.config.dataset}. "
-                    f"Available: {list(dataset_dirs.keys())}"
-                )
-            dataset_dirs = {self.config.dataset: dataset_dirs[self.config.dataset]}
-
-        documents = []
-        total_annotations = 0
-
-        for dataset_name, annotations_dir in dataset_dirs.items():
-            if not annotations_dir.exists():
-                logger.warning(f"Dataset directory not found: {annotations_dir}")
-                continue
-
-            for json_file in sorted(annotations_dir.glob("*.json")):
-                with open(json_file) as f:
-                    doc_data = json.load(f)
-
-                # Convert PhenoBERT format to benchmark format
-                gold_hpo_terms = []
-                for ann in doc_data.get("annotations", []):
-                    hpo_id = ann.get("hpo_id", "")
-                    label = ann.get("label", "")
-                    status = ann.get("assertion_status", "affirmed")
-                    assertion = ASSERTION_STATUS_MAP.get(status, "PRESENT")
-                    evidence_spans = ann.get("evidence_spans", [])
-                    gold_hpo_terms.append(
-                        {
-                            "id": hpo_id,
-                            "label": label,
-                            "assertion": assertion,
-                            "evidence_spans": evidence_spans,
-                        }
-                    )
-
-                documents.append(
-                    {
-                        "id": doc_data.get("doc_id", json_file.stem),
-                        "text": doc_data.get("full_text", ""),
-                        "gold_hpo_terms": gold_hpo_terms,
-                        "source_dataset": dataset_name,
-                    }
-                )
-                total_annotations += len(gold_hpo_terms)
-
-        logger.info(
-            f"Loaded {len(documents)} documents with {total_annotations} annotations "
-            f"from PhenoBERT data"
-        )
-
-        return {
-            "metadata": {
-                "dataset_name": f"phenobert_{self.config.dataset}",
-                "source": "phenobert",
-                "total_documents": len(documents),
-                "total_annotations": total_annotations,
-            },
-            "documents": documents,
-        }
+        return load_phenobert_data(base_dir, dataset=self.config.dataset)
 
     def _parse_gold_terms(self, gold_hpo_terms: list[dict]) -> list[tuple[str, str]]:
         """Parse gold HPO terms into (id, assertion) tuples."""
-        result = []
-        for term in gold_hpo_terms:
-            if isinstance(term, dict):
-                hpo_id = term.get("id", term.get("hpo_id", ""))
-                assertion = term.get("assertion", "PRESENT")
-            elif isinstance(term, (list, tuple)) and len(term) >= 2:
-                hpo_id, assertion = term[0], term[1]
-            else:
-                hpo_id = str(term)
-                assertion = "PRESENT"
-            result.append((hpo_id, assertion))
-        return result
+        return parse_gold_terms(gold_hpo_terms)
 
     def _find_chunk_position_in_text(
         self, chunk_text: str, full_text: str, search_start: int = 0

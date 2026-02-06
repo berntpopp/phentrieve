@@ -180,9 +180,7 @@ class TestHallucinationFiltering:
             strategy._filter_against_candidates(annotations, tool_calls)
 
         # Check that hallucination warning was logged
-        assert any(
-            "HALLUCINATION DETECTED" in record.message for record in caplog.records
-        )
+        assert any("[FILTER] Removing" in record.message for record in caplog.records)
         assert any("HP:0001324" in record.message for record in caplog.records)
 
     def test_filter_logs_info_summary(self, strategy, caplog):
@@ -199,7 +197,7 @@ class TestHallucinationFiltering:
 
         # Check that summary was logged
         assert any(
-            "1/2 annotations kept" in record.message for record in caplog.records
+            "kept 1 of 2 annotations" in record.message for record in caplog.records
         )
 
     def test_filter_handles_multiple_results_list_format(self, strategy):

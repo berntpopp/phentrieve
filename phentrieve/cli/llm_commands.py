@@ -258,12 +258,10 @@ def annotate(
 
 @app.command(name="benchmark")
 def benchmark(
-    test_file: Annotated[
+    test_path: Annotated[
         Path,
-        typer.Option(
-            "--test-file",
-            "-t",
-            help="Path to benchmark test file (JSON).",
+        typer.Argument(
+            help="Path to PhenoBERT directory or benchmark JSON file.",
             exists=True,
         ),
     ],
@@ -279,9 +277,17 @@ def benchmark(
         str,
         typer.Option(
             "--mode",
-            help="Annotation mode: direct, tool_term, or tool_text.",
+            help="Annotation mode: direct, tool_term, tool_text, or all.",
         ),
     ] = "tool_text",
+    dataset: Annotated[
+        str,
+        typer.Option(
+            "--dataset",
+            "-d",
+            help="PhenoBERT dataset filter: GeneReviews, GSC_plus, ID_68, or all.",
+        ),
+    ] = "all",
     postprocess: Annotated[
         Optional[str],
         typer.Option(
@@ -306,133 +312,149 @@ def benchmark(
             help="Limit number of test cases (for quick testing).",
         ),
     ] = None,
+    include_assertions: Annotated[
+        bool,
+        typer.Option(
+            "--include-assertions/--no-assertions",
+            help="Include assertion status in evaluation (default: yes).",
+        ),
+    ] = True,
+    bootstrap_ci: Annotated[
+        bool,
+        typer.Option(
+            "--bootstrap-ci",
+            help="Calculate bootstrap confidence intervals.",
+        ),
+    ] = False,
+    temperature: Annotated[
+        float,
+        typer.Option(
+            "--temperature",
+            help="Sampling temperature (0.0 = deterministic).",
+            min=0.0,
+            max=2.0,
+        ),
+    ] = 0.0,
+    no_validate: Annotated[
+        bool,
+        typer.Option(
+            "--no-validate",
+            help="Skip HPO ID validation against database.",
+        ),
+    ] = False,
+    debug: Annotated[
+        bool,
+        typer.Option(
+            "--debug",
+            help="Enable debug logging to show every benchmark step "
+            "(resource loading, LLM calls, tool execution, metrics).",
+        ),
+    ] = False,
 ) -> None:
     """
-    Run LLM annotation benchmark.
+    Run LLM annotation benchmark against gold standard data.
 
-    Evaluates LLM annotation performance against a gold standard test set
-    using the existing Phentrieve evaluation metrics.
+    Accepts either a PhenoBERT directory (with GeneReviews/, GSC_plus/, ID_68/
+    subdirectories) or a simple JSON benchmark file.
 
     Examples:
-        # Basic benchmark
-        phentrieve llm benchmark --test-file tests/data/benchmarks/german/tiny_v1.json
+        # PhenoBERT benchmark (single mode)
+        phentrieve llm benchmark tests/data/en/phenobert/ \\
+            --dataset GeneReviews --mode tool_text --model gemini/gemini-3-flash-preview
 
-        # With specific model and mode
-        phentrieve llm benchmark -t tests/data/benchmarks/german/70cases_gemini_v1.json \\
-            --model gemini/gemini-1.5-pro --mode tool_text
+        # All modes comparison
+        phentrieve llm benchmark tests/data/en/phenobert/ \\
+            --dataset GeneReviews --mode all --model gemini/gemini-3-flash-preview
+
+        # Simple JSON format (backward compatible)
+        phentrieve llm benchmark tests/data/benchmarks/german/tiny_v1.json
 
         # Quick test with limit
-        phentrieve llm benchmark -t test.json --limit 5
+        phentrieve llm benchmark tests/data/en/phenobert/ --limit 5
+
+        # Debug mode to trace every step
+        phentrieve llm benchmark tests/data/en/phenobert/ --limit 2 --debug
     """
     _check_litellm_installed()
 
-    from phentrieve.data_processing.test_data_loader import load_test_data
-    from phentrieve.llm import AnnotationMode, LLMAnnotationPipeline, PostProcessingStep
+    from phentrieve.benchmark.llm_benchmark import LLMBenchmark, LLMBenchmarkConfig
+
+    # Determine modes
+    if mode == "all":
+        modes = ["direct", "tool_term", "tool_text"]
+    else:
+        # Validate mode
+        from phentrieve.llm import AnnotationMode
+
+        try:
+            AnnotationMode(mode)
+        except ValueError:
+            typer.echo(
+                f"Error: Invalid mode '{mode}'. "
+                "Use: direct, tool_term, tool_text, or all",
+                err=True,
+            )
+            raise typer.Exit(1)
+        modes = [mode]
+
+    config = LLMBenchmarkConfig(
+        model=model,
+        modes=modes,
+        dataset=dataset,
+        include_assertions=include_assertions,
+        postprocess=postprocess,
+        temperature=temperature,
+        limit=limit,
+        bootstrap_ci=bootstrap_ci,
+        validate_hpo_ids=not no_validate,
+        debug=debug,
+    )
+
+    typer.echo(f"LLM Benchmark: {model}", err=True)
+    typer.echo(f"  Path: {test_path}", err=True)
+    typer.echo(f"  Modes: {', '.join(modes)}", err=True)
+    if test_path.is_dir():
+        typer.echo(f"  Dataset: {dataset}", err=True)
+    if limit:
+        typer.echo(f"  Limit: {limit} documents", err=True)
+    typer.echo("", err=True)
 
     try:
-        annotation_mode = AnnotationMode(mode)
-    except ValueError:
-        typer.echo(f"Error: Invalid mode '{mode}'", err=True)
+        benchmark_runner = LLMBenchmark(config)
+        all_metrics = benchmark_runner.run(test_path, output_dir)
+    except Exception as e:
+        logger.exception("Benchmark failed")
+        typer.echo(f"Error: {e}", err=True)
         raise typer.Exit(1)
-
-    # Parse post-processing steps
-    postprocess_steps: list[PostProcessingStep] = []
-    if postprocess:
-        for step_name in postprocess.split(","):
-            step_name = step_name.strip()
-            try:
-                postprocess_steps.append(PostProcessingStep(step_name))
-            except ValueError:
-                typer.echo(f"Warning: Unknown step '{step_name}'", err=True)
-
-    # Load test data
-    typer.echo(f"Loading test data from: {test_file}", err=True)
-    test_cases = load_test_data(str(test_file))
-
-    if test_cases is None:
-        typer.echo("Error: Failed to load test data.", err=True)
-        raise typer.Exit(1)
-
-    if limit:
-        test_cases = test_cases[:limit]
-        typer.echo(f"Limited to {limit} test cases", err=True)
-
-    typer.echo(f"Running benchmark with {len(test_cases)} cases...", err=True)
-
-    # Create pipeline
-    pipeline = LLMAnnotationPipeline(model=model)
-
-    # Run benchmark
-    results = []
-    for i, case in enumerate(test_cases):
-        typer.echo(f"  [{i + 1}/{len(test_cases)}] Processing...", err=True)
-
-        result = pipeline.run(
-            text=case.get("input_text", case.get("text", "")),
-            mode=annotation_mode,
-            language="auto",
-            postprocess=postprocess_steps if postprocess_steps else None,
-        )
-
-        # Compare to expected
-        expected_ids = set(case.get("expected_hpo_ids", []))
-        predicted_ids = set(result.hpo_ids)
-
-        results.append(
-            {
-                "case_id": case.get("id", i),
-                "input_text": result.input_text[:100] + "...",
-                "expected": list(expected_ids),
-                "predicted": list(predicted_ids),
-                "precision": len(expected_ids & predicted_ids) / len(predicted_ids)
-                if predicted_ids
-                else 0,
-                "recall": len(expected_ids & predicted_ids) / len(expected_ids)
-                if expected_ids
-                else 0,
-                "processing_time": result.processing_time_seconds,
-            }
-        )
-
-    # Calculate overall metrics
-    total_precision = (
-        sum(r["precision"] for r in results) / len(results) if results else 0
-    )
-    total_recall = sum(r["recall"] for r in results) / len(results) if results else 0
-    f1 = (
-        2 * total_precision * total_recall / (total_precision + total_recall)
-        if (total_precision + total_recall) > 0
-        else 0
-    )
-
-    # Save results
-    output_dir.mkdir(parents=True, exist_ok=True)
-    results_file = output_dir / f"benchmark_{model.replace('/', '_')}_{mode}.json"
-
-    benchmark_output = {
-        "model": model,
-        "mode": mode,
-        "postprocess": [s.value for s in postprocess_steps],
-        "metrics": {
-            "precision": total_precision,
-            "recall": total_recall,
-            "f1": f1,
-            "num_cases": len(results),
-        },
-        "results": results,
-    }
-
-    results_file.write_text(json.dumps(benchmark_output, indent=2), encoding="utf-8")
 
     # Display summary
-    typer.echo("\n=== Benchmark Results ===", err=True)
+    typer.echo("\n=== LLM Benchmark Results ===", err=True)
     typer.echo(f"Model: {model}", err=True)
-    typer.echo(f"Mode: {mode}", err=True)
-    typer.echo(f"Cases: {len(results)}", err=True)
-    typer.echo(f"Precision: {total_precision:.3f}", err=True)
-    typer.echo(f"Recall: {total_recall:.3f}", err=True)
-    typer.echo(f"F1: {f1:.3f}", err=True)
-    typer.echo(f"\nResults saved to: {results_file}", err=True)
+
+    for mode_name, metrics in all_metrics.items():
+        typer.echo(f"\nMode: {mode_name}", err=True)
+        typer.echo(
+            f"  Micro  - P: {metrics.micro.get('precision', 0):.3f}  "
+            f"R: {metrics.micro.get('recall', 0):.3f}  "
+            f"F1: {metrics.micro.get('f1', 0):.3f}",
+            err=True,
+        )
+        typer.echo(
+            f"  Macro  - P: {metrics.macro.get('precision', 0):.3f}  "
+            f"R: {metrics.macro.get('recall', 0):.3f}  "
+            f"F1: {metrics.macro.get('f1', 0):.3f}",
+            err=True,
+        )
+
+        if metrics.confidence_intervals:
+            ci = metrics.confidence_intervals
+            typer.echo(
+                f"  95% CI - F1: [{ci.get('f1', (0, 0))[0]:.3f}, "
+                f"{ci.get('f1', (0, 0))[1]:.3f}]",
+                err=True,
+            )
+
+    typer.echo(f"\nResults saved to: {output_dir}", err=True)
 
 
 @app.command(name="compare")
