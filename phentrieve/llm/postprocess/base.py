@@ -3,13 +3,13 @@ Base class for post-processors.
 
 Post-processors refine and validate annotations after the primary
 annotation step. Each processor takes annotations and returns
-modified annotations.
+modified annotations along with token usage statistics.
 """
 
 from abc import ABC, abstractmethod
 
 from phentrieve.llm.provider import LLMProvider
-from phentrieve.llm.types import HPOAnnotation, PostProcessingStep
+from phentrieve.llm.types import HPOAnnotation, PostProcessingStep, TokenUsage
 
 
 class PostProcessor(ABC):
@@ -17,7 +17,7 @@ class PostProcessor(ABC):
     Abstract base class for annotation post-processors.
 
     Post-processors take a list of annotations and the original text,
-    then return a refined list of annotations. They may:
+    then return a refined list of annotations along with token usage. They may:
 
     - Remove false positives
     - Correct assertion status
@@ -46,7 +46,7 @@ class PostProcessor(ABC):
         annotations: list[HPOAnnotation],
         original_text: str,
         language: str = "en",
-    ) -> list[HPOAnnotation]:
+    ) -> tuple[list[HPOAnnotation], TokenUsage]:
         """
         Process and refine annotations.
 
@@ -56,7 +56,7 @@ class PostProcessor(ABC):
             language: Language code for prompt selection.
 
         Returns:
-            Refined list of HPOAnnotation objects.
+            Tuple of (refined annotations, token usage for this step).
         """
         pass
 

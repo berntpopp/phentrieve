@@ -17,6 +17,7 @@ from phentrieve.llm.types import (
     AssertionStatus,
     HPOAnnotation,
     PostProcessingStep,
+    TokenUsage,
 )
 
 logger = logging.getLogger(__name__)
@@ -46,7 +47,7 @@ class ValidationPostProcessor(PostProcessor):
         annotations: list[HPOAnnotation],
         original_text: str,
         language: str = "en",
-    ) -> list[HPOAnnotation]:
+    ) -> tuple[list[HPOAnnotation], TokenUsage]:
         """
         Validate annotations against the original text.
 
@@ -56,10 +57,10 @@ class ValidationPostProcessor(PostProcessor):
             language: Language code for prompt selection.
 
         Returns:
-            Validated list of annotations (false positives removed).
+            Tuple of (validated annotations, token usage).
         """
         if not annotations:
-            return annotations
+            return annotations, TokenUsage()
 
         # Load validation prompt template
         try:
@@ -68,7 +69,7 @@ class ValidationPostProcessor(PostProcessor):
             logger.warning(
                 "Validation prompt not found, returning original annotations"
             )
-            return annotations
+            return annotations, TokenUsage()
 
         # Format annotations for the prompt
         annotations_json = json.dumps(
@@ -85,11 +86,16 @@ class ValidationPostProcessor(PostProcessor):
         # Get validation response
         response = self.provider.complete(messages)
 
+        # Track token usage
+        token_usage = TokenUsage.from_response(response.usage)
+
         # Parse the validation result
-        return self._parse_validation_response(
+        validated = self._parse_validation_response(
             response.content or "",
             annotations,
         )
+
+        return validated, token_usage
 
     def _parse_validation_response(
         self,

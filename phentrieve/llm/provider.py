@@ -24,7 +24,7 @@ import os
 import re
 from typing import Any
 
-from phentrieve.llm.types import LLMResponse, ToolCall
+from phentrieve.llm.types import LLMResponse, TokenUsage, ToolCall
 
 logger = logging.getLogger(__name__)
 
@@ -271,7 +271,7 @@ class LLMProvider:
         messages: list[dict[str, Any]],
         tool_executor: "ToolExecutor",
         max_iterations: int = 5,
-    ) -> tuple[LLMResponse, list[ToolCall]]:
+    ) -> tuple[LLMResponse, list[ToolCall], TokenUsage]:
         """
         Send a completion request and handle tool calls iteratively.
 
@@ -285,13 +285,14 @@ class LLMProvider:
             max_iterations: Maximum number of tool call iterations.
 
         Returns:
-            Tuple of (final_response, all_tool_calls).
+            Tuple of (final_response, all_tool_calls, cumulative_token_usage).
 
         Raises:
             LLMProviderError: If the API request fails.
         """
         all_tool_calls: list[ToolCall] = []
         current_messages = messages.copy()
+        cumulative_usage = TokenUsage()
 
         for iteration in range(max_iterations):
             response = self.complete(
@@ -300,9 +301,12 @@ class LLMProvider:
                 tool_choice="auto",
             )
 
+            # Accumulate token usage from this iteration
+            cumulative_usage.add(response.usage)
+
             if not response.tool_calls:
                 # No more tool calls, we're done
-                return response, all_tool_calls
+                return response, all_tool_calls, cumulative_usage
 
             # Execute each tool call and add results to messages
             current_messages.append(
@@ -344,16 +348,21 @@ class LLMProvider:
                     }
                 )
 
+            tool_names = [tc.name for tc in response.tool_calls]
             logger.debug(
-                "Tool iteration %d/%d: executed %d tool calls",
+                "[LLM] Tool loop iteration %d of %d - executed %d call(s): %s",
                 iteration + 1,
                 max_iterations,
                 len(response.tool_calls),
+                ", ".join(tool_names),
             )
 
         # Max iterations reached
-        logger.warning("Max tool iterations (%d) reached", max_iterations)
-        return response, all_tool_calls
+        logger.warning(
+            "[LLM] Tool loop limit reached (%d iterations) - returning current response",
+            max_iterations,
+        )
+        return response, all_tool_calls, cumulative_usage
 
     def supports_tools(self) -> bool:
         """Check if the current model supports native tool/function calling."""
@@ -450,7 +459,9 @@ class ToolExecutor:
                     ]
                 return []
             except Exception as e:
-                logger.warning("Failed to run query: %s", e)
+                logger.warning(
+                    "[TOOL] query_hpo_terms failed: %s - returning empty results", e
+                )
                 return []
 
         # Use provided retriever
@@ -478,7 +489,10 @@ class ToolExecutor:
         if self._text_processor is None:
             # Attempt to use the text processing orchestrator
             try:
-                from phentrieve.config import DEFAULT_MODEL
+                from phentrieve.config import (
+                    DEFAULT_MODEL,
+                    get_sliding_window_punct_conj_cleaned_config,
+                )
                 from phentrieve.embeddings import load_embedding_model
                 from phentrieve.retrieval.dense_retriever import DenseRetriever
                 from phentrieve.text_processing.hpo_extraction_orchestrator import (
@@ -486,18 +500,25 @@ class ToolExecutor:
                 )
                 from phentrieve.text_processing.pipeline import TextProcessingPipeline
 
-                # Step 1: Process text into chunks with assertion detection
+                # Step 1: Load embedding model FIRST (needed for semantic chunking)
+                model_name = DEFAULT_MODEL
+                embedding_model = load_embedding_model(model_name)
+
+                # Step 2: Process text into chunks with assertion detection
+                # Use the full chunking pipeline config (includes conjunction splitting)
+                # to properly separate phenotypes joined by "and", "or", etc.
                 pipeline = TextProcessingPipeline(
                     language=language if language != "auto" else "en",
-                    chunking_pipeline_config=[{"type": "sentence"}],
+                    chunking_pipeline_config=get_sliding_window_punct_conj_cleaned_config(),
                     assertion_config={"disable": False},
+                    sbert_model_for_semantic_chunking=embedding_model,
                 )
                 chunks = pipeline.process(text)
 
                 if not chunks:
                     return []
 
-                # Extract chunk texts and assertion statuses
+                # Step 2 (cont.): Extract chunk texts and assertion statuses
                 chunk_texts = [c["text"] for c in chunks]
                 assertion_statuses: list[str | None] = []
                 for c in chunks:
@@ -510,19 +531,19 @@ class ToolExecutor:
                         # AssertionStatus enum - get its value
                         assertion_statuses.append(status.value)
 
-                # Step 2: Load embedding model and create retriever
-                model_name = DEFAULT_MODEL
-                embedding_model = load_embedding_model(model_name)
+                # Step 3: Create retriever (using model loaded in Step 1)
                 retriever = DenseRetriever.from_model_name(
                     model=embedding_model,
                     model_name=model_name,
                 )
 
                 if retriever is None:
-                    logger.warning("Failed to initialize retriever")
+                    logger.warning(
+                        "[TOOL] process_clinical_text: retriever initialization failed"
+                    )
                     return []
 
-                # Step 3: Get HPO matches
+                # Step 4: Get HPO matches
                 aggregated_results, _chunk_results = orchestrate_hpo_extraction(
                     text_chunks=chunk_texts,
                     retriever=retriever,
@@ -530,7 +551,7 @@ class ToolExecutor:
                     language=language if language != "auto" else "en",
                 )
 
-                # Step 4: Format results for LLM consumption
+                # Step 5: Format results for LLM consumption
                 output = []
                 for result in aggregated_results:
                     assertion = result.get("assertion_status")
@@ -557,7 +578,10 @@ class ToolExecutor:
                 return output
 
             except Exception as e:
-                logger.warning("Failed to process text: %s", e)
+                logger.warning(
+                    "[TOOL] process_clinical_text failed: %s - returning empty results",
+                    e,
+                )
                 return []
 
         # Use provided text processor

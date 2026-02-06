@@ -204,19 +204,27 @@ class LLMAnnotationPipeline:
         for step in steps:
             try:
                 processor = self._get_postprocessor(step)
-                annotations = processor.process(
+                annotations, step_token_usage = processor.process(
                     annotations=annotations,
                     original_text=result.input_text,
                     language=result.language,
                 )
                 applied_steps.append(step)
+
+                # Accumulate token usage from postprocessor
+                result.token_usage.merge(step_token_usage)
+
                 logger.info(
-                    "Post-processing step '%s' complete: %d annotations",
+                    "[POSTPROCESS] Completed '%s' - %d annotations remain",
                     step.value,
                     len(annotations),
                 )
             except Exception as e:
-                logger.error("Post-processing step '%s' failed: %s", step.value, e)
+                logger.error(
+                    "[POSTPROCESS] Step '%s' failed: %s - continuing with previous annotations",
+                    step.value,
+                    e,
+                )
 
         # Update result with processed annotations
         result.annotations = annotations
@@ -230,12 +238,17 @@ class LLMAnnotationPipeline:
             from phentrieve.text_processing.language_detection import detect_language
 
             result: str = detect_language(text)
+            logger.debug("[PIPELINE] Detected language: %s", result)
             return result
         except ImportError:
-            logger.debug("Language detection not available, defaulting to 'en'")
+            logger.debug(
+                "[PIPELINE] Language detection module not available - using 'en' as default"
+            )
             return "en"
         except Exception as e:
-            logger.warning("Language detection failed: %s, defaulting to 'en'", e)
+            logger.warning(
+                "[PIPELINE] Language detection failed (%s) - using 'en' as default", e
+            )
             return "en"
 
 

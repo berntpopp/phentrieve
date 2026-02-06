@@ -22,6 +22,7 @@ from phentrieve.llm.types import (
     AnnotationResult,
     AssertionStatus,
     HPOAnnotation,
+    TokenUsage,
     ToolCall,
 )
 
@@ -105,17 +106,27 @@ class ToolGuidedStrategy(AnnotationStrategy):
         # Check if provider supports tools
         if self.provider.supports_tools():
             # Use native tool calling
-            response, tool_calls = self.provider.complete_with_tools(
+            response, tool_calls, token_usage = self.provider.complete_with_tools(
                 messages=messages,
                 tool_executor=self.tool_executor,
                 max_iterations=self.max_iterations,
             )
         else:
             # Fallback to prompt-based tool emulation
-            response, tool_calls = self._emulate_tool_calling(messages, text, language)
+            response, tool_calls, token_usage = self._emulate_tool_calling(
+                messages, text, language
+            )
 
         # Parse the final response
         annotations = self._parse_response(response.content or "")
+
+        # Filter against tool candidates to prevent hallucination (TOOL_TEXT mode only)
+        if self.mode == AnnotationMode.TOOL_TEXT and tool_calls:
+            logger.debug(
+                "[FILTER] Validating %d LLM annotations against Phentrieve retrieval results",
+                len(annotations),
+            )
+            annotations = self._filter_against_candidates(annotations, tool_calls)
 
         # Validate HPO IDs if requested
         if validate_hpo_ids:
@@ -134,6 +145,7 @@ class ToolGuidedStrategy(AnnotationStrategy):
             tool_calls=tool_calls,
             raw_llm_response=response.content,
             processing_time_seconds=processing_time,
+            token_usage=token_usage,
         )
 
     def _emulate_tool_calling(
@@ -141,7 +153,7 @@ class ToolGuidedStrategy(AnnotationStrategy):
         messages: list[dict[str, str]],
         text: str,
         language: str,
-    ) -> tuple[Any, list[ToolCall]]:
+    ) -> tuple[Any, list[ToolCall], TokenUsage]:
         """
         Emulate tool calling for models without native support.
 
@@ -173,7 +185,10 @@ class ToolGuidedStrategy(AnnotationStrategy):
         # Get final response
         response = self.provider.complete(messages)
 
-        return response, tool_calls
+        # Track token usage
+        token_usage = TokenUsage.from_response(response.usage)
+
+        return response, tool_calls, token_usage
 
     def _parse_response(self, response_text: str) -> list[HPOAnnotation]:
         """Parse JSON annotations from LLM response."""
@@ -275,18 +290,135 @@ class ToolGuidedStrategy(AnnotationStrategy):
         else:
             return AssertionStatus.AFFIRMED
 
+    def _filter_against_candidates(
+        self,
+        annotations: list[HPOAnnotation],
+        tool_calls: list[ToolCall],
+    ) -> list[HPOAnnotation]:
+        """
+        Filter LLM annotations to only include terms from tool results.
+
+        This prevents LLM hallucination where the model generates HPO terms
+        from its training data rather than selecting from Phentrieve's
+        retrieval results.
+
+        Args:
+            annotations: LLM-generated annotations to filter.
+            tool_calls: Tool calls made during annotation (contains candidate HPO IDs).
+
+        Returns:
+            Filtered annotations containing only terms that appeared in tool results.
+        """
+        # Extract all HPO IDs from process_clinical_text tool results
+        candidate_ids: set[str] = set()
+
+        for tool_call in tool_calls:
+            if tool_call.name != "process_clinical_text":
+                continue
+
+            result = tool_call.result
+            if result is None:
+                continue
+
+            # Handle the actual result format: list of {"hpo_id": "...", ...}
+            # This is what _process_clinical_text() returns
+            if isinstance(result, list):
+                for item in result:
+                    if isinstance(item, dict):
+                        hpo_id = item.get("hpo_id")
+                        if hpo_id:
+                            candidate_ids.add(hpo_id)
+            # Also handle legacy/alternative dict format with nested structure
+            elif isinstance(result, dict):
+                results_list = result.get("results", [])
+                for chunk_result in results_list:
+                    matches = chunk_result.get("matches", [])
+                    for match in matches:
+                        hpo_id = match.get("hpo_id")
+                        if hpo_id:
+                            candidate_ids.add(hpo_id)
+
+        if not candidate_ids:
+            logger.debug(
+                "[FILTER] No HPO candidates from Phentrieve - skipping validation "
+                "(LLM annotations will pass through unfiltered)"
+            )
+            return annotations
+
+        logger.debug(
+            "[FILTER] Found %d valid HPO candidates from Phentrieve: %s",
+            len(candidate_ids),
+            ", ".join(sorted(candidate_ids)[:10])  # Show first 10 for readability
+            + (
+                f" (and {len(candidate_ids) - 10} more)"
+                if len(candidate_ids) > 10
+                else ""
+            ),
+        )
+
+        # Filter annotations to only include candidates
+        filtered: list[HPOAnnotation] = []
+        hallucinated_count = 0
+
+        for annotation in annotations:
+            if annotation.hpo_id in candidate_ids:
+                filtered.append(annotation)
+            else:
+                hallucinated_count += 1
+                logger.warning(
+                    "[FILTER] Removing %s (%s) - not in Phentrieve results "
+                    "(likely hallucinated by LLM)",
+                    annotation.hpo_id,
+                    annotation.term_name,
+                )
+
+        if hallucinated_count > 0:
+            logger.info(
+                "[FILTER] Result: kept %d of %d annotations, removed %d not found in retrieval",
+                len(filtered),
+                len(annotations),
+                hallucinated_count,
+            )
+        else:
+            logger.debug(
+                "[FILTER] All %d LLM annotations verified against Phentrieve results",
+                len(annotations),
+            )
+
+        return filtered
+
     def _validate_annotations(
         self,
         annotations: list[HPOAnnotation],
     ) -> list[HPOAnnotation]:
         """Validate HPO IDs against the database."""
         try:
-            from phentrieve.config import get_config_value
-            from phentrieve.data_processing.hpo_database import HPODatabase
+            from pathlib import Path
 
-            db_path = get_config_value("data", None, "hpo_database_path")
-            if not db_path:
-                logger.debug("No HPO database path configured, skipping validation")
+            from phentrieve.config import DEFAULT_HPO_DB_FILENAME
+            from phentrieve.data_processing.hpo_database import HPODatabase
+            from phentrieve.utils import get_default_data_dir
+
+            # Search multiple locations for the HPO database
+            candidates = [
+                get_default_data_dir() / DEFAULT_HPO_DB_FILENAME,  # User config dir
+                Path.cwd() / "data" / DEFAULT_HPO_DB_FILENAME,  # Project ./data
+                Path(__file__).resolve().parents[3]
+                / "data"
+                / DEFAULT_HPO_DB_FILENAME,  # Package root
+            ]
+
+            db_path = None
+            for candidate in candidates:
+                if candidate.exists():
+                    db_path = candidate
+                    break
+
+            if db_path is None:
+                logger.debug(
+                    "[VALIDATE] HPO database not found - skipping ID validation. "
+                    "Run 'phentrieve data prepare' to download HPO data."
+                )
                 return annotations
 
             db = HPODatabase(db_path)
@@ -295,18 +427,35 @@ class ToolGuidedStrategy(AnnotationStrategy):
             valid_ids = set(valid_terms.keys())
 
             validated = []
+            invalid_count = 0
             for annotation in annotations:
                 if annotation.hpo_id in valid_ids:
                     validated.append(annotation)
                 else:
+                    invalid_count += 1
                     logger.warning(
-                        "Invalid or unknown HPO ID removed: %s (%s)",
+                        "[VALIDATE] Removing %s (%s) - not found in HPO database",
                         annotation.hpo_id,
                         annotation.term_name,
                     )
 
+            if invalid_count > 0:
+                logger.info(
+                    "[VALIDATE] Result: %d of %d annotations have valid HPO IDs",
+                    len(validated),
+                    len(annotations),
+                )
+            else:
+                logger.debug(
+                    "[VALIDATE] All %d HPO IDs verified against database",
+                    len(annotations),
+                )
+
             return validated
 
         except Exception as e:
-            logger.warning("HPO validation failed, returning unvalidated: %s", e)
+            logger.warning(
+                "[VALIDATE] Database validation failed (%s) - annotations not validated",
+                e,
+            )
             return annotations

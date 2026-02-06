@@ -137,6 +137,13 @@ def annotate(
             help="Skip HPO ID validation against database.",
         ),
     ] = False,
+    debug: Annotated[
+        bool,
+        typer.Option(
+            "--debug",
+            help="Enable debug logging to show intermediate steps (tool results, filtering, etc.).",
+        ),
+    ] = False,
 ) -> None:
     """
     Annotate clinical text with HPO terms using an LLM.
@@ -157,6 +164,20 @@ def annotate(
         phentrieve llm annotate -i clinical_note.txt --format phenopacket -o output.json
     """
     _check_litellm_installed()
+
+    # Enable debug logging if requested
+    if debug:
+        llm_logger = logging.getLogger("phentrieve.llm")
+        llm_logger.setLevel(logging.DEBUG)
+        # Add a handler if none exists to ensure debug output is visible
+        if not llm_logger.handlers:
+            handler = logging.StreamHandler()
+            handler.setLevel(logging.DEBUG)
+            handler.setFormatter(
+                logging.Formatter("%(name)s - %(levelname)s - %(message)s")
+            )
+            llm_logger.addHandler(handler)
+        typer.echo("Debug mode enabled - showing intermediate steps", err=True)
 
     # Get input text
     if text:
@@ -757,17 +778,43 @@ def _format_output(result: Any, format_type: str) -> str:
         else:
             lines.append("No annotations found.")
 
+        # Add token usage section
+        if result.token_usage.api_calls > 0:
+            lines.append("")
+            lines.append("Token Usage:")
+            lines.append(f"  Input tokens:  {result.token_usage.prompt_tokens:,}")
+            lines.append(f"  Output tokens: {result.token_usage.completion_tokens:,}")
+            lines.append(f"  Total tokens:  {result.token_usage.total_tokens:,}")
+            lines.append(f"  API calls:     {result.token_usage.api_calls}")
+
         return "\n".join(lines)
 
 
 def _enrich_with_details(result: Any) -> Any:
     """Add HPO definitions and synonyms to annotations."""
     try:
-        from phentrieve.config import get_config_value
-        from phentrieve.data_processing.hpo_database import HPODatabase
+        from pathlib import Path
 
-        db_path: str | None = get_config_value("data", None, "hpo_database_path")
-        if not db_path:
+        from phentrieve.config import DEFAULT_HPO_DB_FILENAME
+        from phentrieve.data_processing.hpo_database import HPODatabase
+        from phentrieve.utils import get_default_data_dir
+
+        # Search multiple locations for the HPO database
+        candidates = [
+            get_default_data_dir() / DEFAULT_HPO_DB_FILENAME,  # User config dir
+            Path.cwd() / "data" / DEFAULT_HPO_DB_FILENAME,  # Project ./data
+            Path(__file__).resolve().parents[2]
+            / "data"
+            / DEFAULT_HPO_DB_FILENAME,  # Package root
+        ]
+
+        db_path = None
+        for candidate in candidates:
+            if candidate.exists():
+                db_path = candidate
+                break
+
+        if db_path is None:
             return result
 
         db = HPODatabase(db_path)

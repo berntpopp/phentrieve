@@ -18,6 +18,7 @@ from phentrieve.llm.types import (
     AssertionStatus,
     HPOAnnotation,
     PostProcessingStep,
+    TokenUsage,
 )
 
 logger = logging.getLogger(__name__)
@@ -47,7 +48,7 @@ class RefinementPostProcessor(PostProcessor):
         annotations: list[HPOAnnotation],
         original_text: str,
         language: str = "en",
-    ) -> list[HPOAnnotation]:
+    ) -> tuple[list[HPOAnnotation], TokenUsage]:
         """
         Refine annotations to use more specific HPO terms.
 
@@ -57,10 +58,10 @@ class RefinementPostProcessor(PostProcessor):
             language: Language code for prompt selection.
 
         Returns:
-            Refined list of annotations (with more specific terms where appropriate).
+            Tuple of (refined annotations, token usage).
         """
         if not annotations:
-            return annotations
+            return annotations, TokenUsage()
 
         # Load refinement prompt template
         try:
@@ -69,7 +70,7 @@ class RefinementPostProcessor(PostProcessor):
             logger.warning(
                 "Refinement prompt not found, returning original annotations"
             )
-            return annotations
+            return annotations, TokenUsage()
 
         # Format annotations for the prompt
         annotations_json = json.dumps(
@@ -93,11 +94,16 @@ class RefinementPostProcessor(PostProcessor):
         else:
             response = self.provider.complete(messages)
 
+        # Track token usage
+        token_usage = TokenUsage.from_response(response.usage)
+
         # Parse the refinement result
-        return self._parse_refinement_response(
+        refined = self._parse_refinement_response(
             response.content or "",
             annotations,
         )
+
+        return refined, token_usage
 
     def _parse_refinement_response(
         self,

@@ -20,6 +20,7 @@ from phentrieve.llm.types import (
     AnnotationResult,
     AssertionStatus,
     HPOAnnotation,
+    TokenUsage,
 )
 
 logger = logging.getLogger(__name__)
@@ -78,6 +79,9 @@ class DirectTextStrategy(AnnotationStrategy):
         # Get completion from LLM
         response = self.provider.complete(messages)
 
+        # Track token usage
+        token_usage = TokenUsage.from_response(response.usage)
+
         # Parse the response
         annotations = self._parse_response(response.content or "")
 
@@ -97,6 +101,7 @@ class DirectTextStrategy(AnnotationStrategy):
             temperature=self.provider.temperature,
             raw_llm_response=response.content,
             processing_time_seconds=processing_time,
+            token_usage=token_usage,
         )
 
     def _parse_response(self, response_text: str) -> list[HPOAnnotation]:
@@ -225,12 +230,32 @@ class DirectTextStrategy(AnnotationStrategy):
         Invalid IDs are logged and removed from the results.
         """
         try:
-            from phentrieve.config import get_config_value
-            from phentrieve.data_processing.hpo_database import HPODatabase
+            from pathlib import Path
 
-            db_path = get_config_value("data", None, "hpo_database_path")
-            if not db_path:
-                logger.debug("No HPO database path configured, skipping validation")
+            from phentrieve.config import DEFAULT_HPO_DB_FILENAME
+            from phentrieve.data_processing.hpo_database import HPODatabase
+            from phentrieve.utils import get_default_data_dir
+
+            # Search multiple locations for the HPO database
+            candidates = [
+                get_default_data_dir() / DEFAULT_HPO_DB_FILENAME,  # User config dir
+                Path.cwd() / "data" / DEFAULT_HPO_DB_FILENAME,  # Project ./data
+                Path(__file__).resolve().parents[3]
+                / "data"
+                / DEFAULT_HPO_DB_FILENAME,  # Package root
+            ]
+
+            db_path = None
+            for candidate in candidates:
+                if candidate.exists():
+                    db_path = candidate
+                    break
+
+            if db_path is None:
+                logger.debug(
+                    "[VALIDATE] HPO database not found - skipping ID validation. "
+                    "Run 'phentrieve data prepare' to download HPO data."
+                )
                 return annotations
 
             db = HPODatabase(db_path)
@@ -239,18 +264,35 @@ class DirectTextStrategy(AnnotationStrategy):
             valid_ids = set(valid_terms.keys())
 
             validated = []
+            invalid_count = 0
             for annotation in annotations:
                 if annotation.hpo_id in valid_ids:
                     validated.append(annotation)
                 else:
+                    invalid_count += 1
                     logger.warning(
-                        "Invalid or unknown HPO ID removed: %s (%s)",
+                        "[VALIDATE] Removing %s (%s) - not found in HPO database",
                         annotation.hpo_id,
                         annotation.term_name,
                     )
 
+            if invalid_count > 0:
+                logger.info(
+                    "[VALIDATE] Result: %d of %d annotations have valid HPO IDs",
+                    len(validated),
+                    len(annotations),
+                )
+            else:
+                logger.debug(
+                    "[VALIDATE] All %d HPO IDs verified against database",
+                    len(annotations),
+                )
+
             return validated
 
         except Exception as e:
-            logger.warning("HPO validation failed, returning unvalidated: %s", e)
+            logger.warning(
+                "[VALIDATE] Database validation failed (%s) - annotations not validated",
+                e,
+            )
             return annotations

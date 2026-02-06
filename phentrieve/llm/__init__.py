@@ -32,6 +32,7 @@ from phentrieve.llm.types import (
     HPOAnnotation,
     LLMResponse,
     PostProcessingStep,
+    TokenUsage,
     ToolCall,
 )
 
@@ -45,6 +46,7 @@ __all__ = [
     "LLMProviderError",
     "LLMResponse",
     "PostProcessingStep",
+    "TokenUsage",
     "ToolCall",
     "create_pipeline",
     "get_available_models",

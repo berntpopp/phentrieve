@@ -16,6 +16,7 @@ from phentrieve.llm.types import (
     AssertionStatus,
     HPOAnnotation,
     PostProcessingStep,
+    TokenUsage,
 )
 
 logger = logging.getLogger(__name__)
@@ -74,7 +75,7 @@ class AssertionReviewPostProcessor(PostProcessor):
         annotations: list[HPOAnnotation],
         original_text: str,
         language: str = "en",
-    ) -> list[HPOAnnotation]:
+    ) -> tuple[list[HPOAnnotation], TokenUsage]:
         """
         Review assertion status for all annotations.
 
@@ -84,10 +85,10 @@ class AssertionReviewPostProcessor(PostProcessor):
             language: Language code (used for context but prompts are in English).
 
         Returns:
-            Annotations with corrected assertion status where needed.
+            Tuple of (annotations with corrected assertion status, token usage).
         """
         if not annotations:
-            return annotations
+            return annotations, TokenUsage()
 
         # Format annotations for the prompt
         annotations_json = json.dumps(
@@ -115,11 +116,16 @@ For each annotation, verify if the assertion status (affirmed/negated/uncertain)
         # Get review response
         response = self.provider.complete(messages)
 
+        # Track token usage
+        token_usage = TokenUsage.from_response(response.usage)
+
         # Parse and apply corrections
-        return self._parse_review_response(
+        reviewed = self._parse_review_response(
             response.content or "",
             annotations,
         )
+
+        return reviewed, token_usage
 
     def _parse_review_response(
         self,

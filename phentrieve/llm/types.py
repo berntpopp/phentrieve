@@ -5,6 +5,8 @@ This module defines the core data types used throughout the LLM annotation
 system, including annotation results, tool calls, and configuration enums.
 """
 
+from __future__ import annotations
+
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
@@ -78,6 +80,78 @@ class ToolCall:
     arguments: dict[str, Any]
     result: Any = None
     timestamp: datetime = field(default_factory=datetime.now)
+
+
+@dataclass(slots=True)
+class TokenUsage:
+    """
+    Token usage statistics for LLM API calls.
+
+    Tracks cumulative token usage across multiple API calls within a single
+    annotation operation (including tool call iterations and post-processing).
+
+    Attributes:
+        prompt_tokens: Total input/prompt tokens used.
+        completion_tokens: Total output/completion tokens generated.
+        total_tokens: Total tokens (prompt + completion).
+        api_calls: Number of API calls made.
+    """
+
+    prompt_tokens: int = 0
+    completion_tokens: int = 0
+    total_tokens: int = 0
+    api_calls: int = 0
+
+    def add(self, usage: dict[str, int]) -> None:
+        """
+        Add token usage from an LLM response.
+
+        Args:
+            usage: Token usage dict from LLMResponse.usage.
+        """
+        self.prompt_tokens += usage.get("prompt_tokens", 0)
+        self.completion_tokens += usage.get("completion_tokens", 0)
+        self.total_tokens += usage.get("total_tokens", 0)
+        self.api_calls += 1
+
+    def merge(self, other: TokenUsage) -> None:
+        """
+        Merge token usage from another TokenUsage instance.
+
+        Args:
+            other: Another TokenUsage instance to merge.
+        """
+        self.prompt_tokens += other.prompt_tokens
+        self.completion_tokens += other.completion_tokens
+        self.total_tokens += other.total_tokens
+        self.api_calls += other.api_calls
+
+    def to_dict(self) -> dict[str, int]:
+        """Convert to dictionary for serialization."""
+        return {
+            "prompt_tokens": self.prompt_tokens,
+            "completion_tokens": self.completion_tokens,
+            "total_tokens": self.total_tokens,
+            "api_calls": self.api_calls,
+        }
+
+    @classmethod
+    def from_response(cls, usage: dict[str, int]) -> TokenUsage:
+        """
+        Create TokenUsage from an LLM response usage dict.
+
+        Args:
+            usage: Token usage dict from LLMResponse.usage.
+
+        Returns:
+            New TokenUsage instance.
+        """
+        return cls(
+            prompt_tokens=usage.get("prompt_tokens", 0),
+            completion_tokens=usage.get("completion_tokens", 0),
+            total_tokens=usage.get("total_tokens", 0),
+            api_calls=1,
+        )
 
 
 @dataclass(slots=True)
@@ -173,6 +247,7 @@ class AnnotationResult:
         post_processing_steps: Which post-processing steps were applied.
         raw_llm_response: The raw response from the LLM for debugging.
         processing_time_seconds: Total time taken for annotation.
+        token_usage: Cumulative token usage across all API calls.
         timestamp: When the annotation was performed.
         error: Error message if annotation failed.
     """
@@ -188,6 +263,7 @@ class AnnotationResult:
     post_processing_steps: list[PostProcessingStep] = field(default_factory=list)
     raw_llm_response: str | None = None
     processing_time_seconds: float | None = None
+    token_usage: TokenUsage = field(default_factory=TokenUsage)
     timestamp: datetime = field(default_factory=datetime.now)
     error: str | None = None
 
@@ -228,6 +304,7 @@ class AnnotationResult:
             "post_processing_steps": [s.value for s in self.post_processing_steps],
             "raw_llm_response": self.raw_llm_response,
             "processing_time_seconds": self.processing_time_seconds,
+            "token_usage": self.token_usage.to_dict(),
             "timestamp": self.timestamp.isoformat(),
             "error": self.error,
         }
