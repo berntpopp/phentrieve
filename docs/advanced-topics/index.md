@@ -14,8 +14,13 @@ Phentrieve's text processing pipeline is highly configurable and can be adapted 
 
 To evaluate and compare different embedding models and configurations, Phentrieve includes a comprehensive benchmarking framework. The [Benchmarking Framework](benchmarking-framework.md) page explains how to run benchmarks and interpret the results.
 
+## LLM Annotation System
+
+Phentrieve includes a modular LLM-based annotation system that uses large language models to extract HPO terms from clinical text. It supports three annotation modes (direct, tool-term, tool-text), optional post-processing stages, and 100+ LLM providers. The [LLM Annotation System](llm-annotation-system.md) page covers the full architecture, workflows, and configuration.
+
 ## Section Contents
 
 - [Algorithms and Packages](algorithms-and-packages.md): Technical reference for algorithms, packages, and methods
 - [Text Processing Pipeline](text-processing-pipeline.md): Detailed explanation of the text processing pipeline architecture
 - [Benchmarking Framework](benchmarking-framework.md): How to run and interpret benchmarks
+- [LLM Annotation System](llm-annotation-system.md): LLM-based HPO annotation workflows, modes, and post-processing
