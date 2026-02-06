@@ -1,0 +1,12 @@
+# LLM pricing table (USD per 1M tokens)
+# Used for cost estimation in benchmarks. Update as prices change.
+# Last updated: 2026-02-06
+models:
+  # Google Gemini
+  "gemini/gemini-3-flash-preview":
+    input_per_1m: 0.25
+    output_per_1m: 1.50
+  "gemini/gemini-3-pro-preview":
+    input_per_1m: 2.00
+    output_per_1m: 12.00
+ 

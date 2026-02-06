@@ -101,6 +101,8 @@ class TokenUsage:
     completion_tokens: int = 0
     total_tokens: int = 0
     api_calls: int = 0
+    llm_time_seconds: float = 0.0
+    tool_time_seconds: float = 0.0
 
     def add(self, usage: dict[str, int]) -> None:
         """
@@ -125,23 +127,28 @@ class TokenUsage:
         self.completion_tokens += other.completion_tokens
         self.total_tokens += other.total_tokens
         self.api_calls += other.api_calls
+        self.llm_time_seconds += other.llm_time_seconds
+        self.tool_time_seconds += other.tool_time_seconds
 
-    def to_dict(self) -> dict[str, int]:
+    def to_dict(self) -> dict[str, int | float]:
         """Convert to dictionary for serialization."""
         return {
             "prompt_tokens": self.prompt_tokens,
             "completion_tokens": self.completion_tokens,
             "total_tokens": self.total_tokens,
             "api_calls": self.api_calls,
+            "llm_time_seconds": round(self.llm_time_seconds, 3),
+            "tool_time_seconds": round(self.tool_time_seconds, 3),
         }
 
     @classmethod
-    def from_response(cls, usage: dict[str, int]) -> TokenUsage:
+    def from_response(cls, usage: dict[str, int], llm_time: float = 0.0) -> TokenUsage:
         """
         Create TokenUsage from an LLM response usage dict.
 
         Args:
             usage: Token usage dict from LLMResponse.usage.
+            llm_time: Time in seconds spent on the LLM API call.
 
         Returns:
             New TokenUsage instance.
@@ -151,6 +158,7 @@ class TokenUsage:
             completion_tokens=usage.get("completion_tokens", 0),
             total_tokens=usage.get("total_tokens", 0),
             api_calls=1,
+            llm_time_seconds=llm_time,
         )
 
 

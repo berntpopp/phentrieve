@@ -24,6 +24,7 @@ Example usage:
 """
 
 from phentrieve.llm.pipeline import LLMAnnotationPipeline, create_pipeline
+from phentrieve.llm.pricing import estimate_cost
 from phentrieve.llm.provider import LLMProvider, LLMProviderError, get_available_models
 from phentrieve.llm.types import (
     AnnotationMode,
@@ -49,5 +50,6 @@ __all__ = [
     "TokenUsage",
     "ToolCall",
     "create_pipeline",
+    "estimate_cost",
     "get_available_models",
 ]
