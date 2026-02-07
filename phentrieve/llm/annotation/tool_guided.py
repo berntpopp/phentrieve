@@ -193,10 +193,12 @@ class ToolGuidedStrategy(AnnotationStrategy):
 
         if self.mode == AnnotationMode.TOOL_TEXT:
             # For text processing mode, run the pipeline and include results
+            tool_t0 = time.time()
             result = self.tool_executor.execute(
                 "process_clinical_text",
                 {"text": text, "language": language},
             )
+            tool_elapsed = time.time() - tool_t0
 
             tool_call = ToolCall(
                 name="process_clinical_text",
@@ -210,12 +212,18 @@ class ToolGuidedStrategy(AnnotationStrategy):
 
             # Modify the last user message to include results
             messages[-1]["content"] += tool_results_text
+        else:
+            tool_elapsed = 0.0
 
         # Get final response
+        llm_t0 = time.time()
         response = self.provider.complete(messages)
+        llm_elapsed = time.time() - llm_t0
 
-        # Track token usage
+        # Track token usage (counts from API response + wall-clock times)
         token_usage = TokenUsage.from_response(response.usage)
+        token_usage.llm_time_seconds = llm_elapsed
+        token_usage.tool_time_seconds = tool_elapsed
 
         return response, tool_calls, token_usage
 
