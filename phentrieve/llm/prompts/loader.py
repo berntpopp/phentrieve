@@ -12,6 +12,7 @@ Template search order:
 
 import logging
 from dataclasses import dataclass, field
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
@@ -113,6 +114,7 @@ def _mode_to_dir(mode: AnnotationMode | PostProcessingStep | str) -> str:
     return str(mode)
 
 
+@lru_cache(maxsize=32)
 def load_prompt_template(
     mode: AnnotationMode | PostProcessingStep | str,
     language: str = "en",
@@ -120,6 +122,9 @@ def load_prompt_template(
 ) -> PromptTemplate:
     """
     Load a prompt template for the given mode and language.
+
+    Results are cached per (mode, language, variant) combination to avoid
+    re-reading YAML files from disk on every call.
 
     Args:
         mode: The annotation mode or post-processing step.

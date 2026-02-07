@@ -7,7 +7,6 @@ text to remove false positives and correct errors.
 
 import json
 import logging
-import re
 import time
 from typing import Any
 
@@ -15,13 +14,13 @@ from phentrieve.llm.postprocess.base import PostProcessor
 from phentrieve.llm.prompts import load_prompt_template
 from phentrieve.llm.provider import LLMProvider
 from phentrieve.llm.types import (
-    AssertionStatus,
     HPOAnnotation,
     PostProcessingStats,
     PostProcessingStep,
     TimingEvent,
     TokenUsage,
 )
+from phentrieve.llm.utils import extract_json, parse_assertion
 
 logger = logging.getLogger(__name__)
 
@@ -136,7 +135,7 @@ class ValidationPostProcessor(PostProcessor):
         Returns:
             Tuple of (validated annotations, removed count, added/corrected count).
         """
-        json_data = self._extract_json(response_text)
+        json_data = extract_json(response_text)
 
         if not json_data:
             logger.warning("Could not parse validation response, returning originals")
@@ -170,24 +169,6 @@ class ValidationPostProcessor(PostProcessor):
 
         return validated, len(removed_items), corrected_count
 
-    def _extract_json(self, text: str) -> dict[str, Any] | None:
-        """Extract JSON from response text."""
-        code_block_match = re.search(r"```(?:json)?\s*\n?(.*?)\n?```", text, re.DOTALL)
-        if code_block_match:
-            json_str = code_block_match.group(1).strip()
-        else:
-            json_match = re.search(r"\{.*\}", text, re.DOTALL)
-            if json_match:
-                json_str = json_match.group(0)
-            else:
-                return None
-
-        try:
-            parsed: dict[str, Any] = json.loads(json_str)
-            return parsed
-        except json.JSONDecodeError:
-            return None
-
     def _find_and_update_annotation(
         self,
         item: dict[str, Any],
@@ -205,7 +186,7 @@ class ValidationPostProcessor(PostProcessor):
                 return HPOAnnotation(
                     hpo_id=orig.hpo_id,
                     term_name=item.get("term_name", orig.term_name),
-                    assertion=self._parse_assertion(
+                    assertion=parse_assertion(
                         item.get("assertion", orig.assertion.value)
                     ),
                     confidence=float(item.get("confidence", orig.confidence)),
@@ -232,23 +213,7 @@ class ValidationPostProcessor(PostProcessor):
         return HPOAnnotation(
             hpo_id=hpo_id,
             term_name=item.get("term_name", ""),
-            assertion=self._parse_assertion(
-                item.get("corrected_assertion", "affirmed")
-            ),
+            assertion=parse_assertion(item.get("corrected_assertion", "affirmed")),
             confidence=float(item.get("confidence", 0.9)),
             evidence_text=item.get("evidence_text"),
         )
-
-    def _parse_assertion(self, assertion_str: str) -> AssertionStatus:
-        """Parse assertion string to enum."""
-        if isinstance(assertion_str, AssertionStatus):
-            return assertion_str
-
-        assertion_str = str(assertion_str).lower().strip()
-
-        if assertion_str in ("negated", "negative", "absent", "excluded"):
-            return AssertionStatus.NEGATED
-        elif assertion_str in ("uncertain", "possible", "suspected"):
-            return AssertionStatus.UNCERTAIN
-        else:
-            return AssertionStatus.AFFIRMED

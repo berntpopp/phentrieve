@@ -7,20 +7,18 @@ each annotation, specifically focusing on negation detection accuracy.
 
 import json
 import logging
-import re
 import time
-from typing import Any
 
 from phentrieve.llm.postprocess.base import PostProcessor
 from phentrieve.llm.provider import LLMProvider
 from phentrieve.llm.types import (
-    AssertionStatus,
     HPOAnnotation,
     PostProcessingStats,
     PostProcessingStep,
     TimingEvent,
     TokenUsage,
 )
+from phentrieve.llm.utils import extract_json, parse_assertion
 
 logger = logging.getLogger(__name__)
 
@@ -162,7 +160,7 @@ For each annotation, verify if the assertion status (affirmed/negated/uncertain)
         Returns:
             Tuple of (reviewed annotations, number of assertions changed).
         """
-        json_data = self._extract_json(response_text)
+        json_data = extract_json(response_text)
 
         if not json_data or "reviewed_annotations" not in json_data:
             logger.warning(
@@ -188,7 +186,7 @@ For each annotation, verify if the assertion status (affirmed/negated/uncertain)
             correct_assertion = item.get("correct_assertion", "")
 
             # Check if assertion changed
-            new_assertion = self._parse_assertion(correct_assertion)
+            new_assertion = parse_assertion(correct_assertion)
 
             if new_assertion != orig.assertion:
                 changed_count += 1
@@ -223,35 +221,3 @@ For each annotation, verify if the assertion status (affirmed/negated/uncertain)
                 result.append(orig)
 
         return result, changed_count
-
-    def _extract_json(self, text: str) -> dict[str, Any] | None:
-        """Extract JSON from response text."""
-        code_block_match = re.search(r"```(?:json)?\s*\n?(.*?)\n?```", text, re.DOTALL)
-        if code_block_match:
-            json_str = code_block_match.group(1).strip()
-        else:
-            json_match = re.search(r"\{.*\}", text, re.DOTALL)
-            if json_match:
-                json_str = json_match.group(0)
-            else:
-                return None
-
-        try:
-            parsed: dict[str, Any] = json.loads(json_str)
-            return parsed
-        except json.JSONDecodeError:
-            return None
-
-    def _parse_assertion(self, assertion_str: str) -> AssertionStatus:
-        """Parse assertion string to enum."""
-        if isinstance(assertion_str, AssertionStatus):
-            return assertion_str
-
-        assertion_str = str(assertion_str).lower().strip()
-
-        if assertion_str in ("negated", "negative", "absent", "excluded"):
-            return AssertionStatus.NEGATED
-        elif assertion_str in ("uncertain", "possible", "suspected"):
-            return AssertionStatus.UNCERTAIN
-        else:
-            return AssertionStatus.AFFIRMED

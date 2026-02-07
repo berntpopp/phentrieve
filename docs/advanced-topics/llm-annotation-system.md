@@ -213,7 +213,11 @@ injected into the prompt, so only a single LLM API call is made.
 
 ## Post-Processing (Optional)
 
-After any mode, one or more refinement steps can be chained. Each step is a separate LLM call that receives the annotations + original text.
+After any mode, one or more refinement steps can be chained. Each step receives the annotations + original text and returns refined annotations.
+
+### Individual Steps
+
+When run individually, each step makes a separate LLM API call:
 
 ```
   Primary Annotations + original text
@@ -261,6 +265,42 @@ After any mode, one or more refinement steps can be chained. Each step is a sepa
 
 Each step is independent and failure-tolerant — if any step errors, the previous annotations carry forward unchanged.
 
+### Combined Post-Processing (`combined`)
+
+When all three individual steps are requested, the pipeline **automatically routes to a single combined LLM call** instead of making 3 separate calls. This eliminates 2 API round-trips (~4–30s saved per document).
+
+```
+  Primary Annotations + original text
+       │
+       │  CombinedPostProcessor.process(annotations, original_text, language)
+       │  (single LLM call covers all 3 tasks)
+       ▼
+ ┌──────────────────────────────────────────────────────────────┐
+ │   Combined Review (1 API call)                               │
+ │                                                              │
+ │   LLM performs in a single pass:                             │
+ │     1. Validation  — remove false positives                  │
+ │     2. Assertion   — correct negation/uncertainty errors     │
+ │     3. Refinement  — upgrade to more specific HPO terms      │
+ │                                                              │
+ │   Output:                                                    │
+ │     validated_annotations: [{hpo_id, assertion, ...}]        │
+ │     removed_annotations:   [{hpo_id, reason}]                │
+ │     refined_annotations:   [{original_hpo_id,                │
+ │                               refined_hpo_id, ...}]          │
+ └────────────────────────────┬─────────────────────────────────┘
+                              │
+                              ▼
+                       PostProcessingStats
+                         .removed = N
+                         .assertions_changed = M
+                         .terms_refined = K
+```
+
+**Auto-routing**: When the pipeline detects all 3 individual steps (`validation`, `assertion_review`, `refinement`) are requested, it automatically uses the combined post-processor. Individual steps remain available when only 1–2 are selected.
+
+**Direct use**: You can also request `combined` explicitly via `--postprocess combined`.
+
 ---
 
 ## CLI Examples
@@ -282,6 +322,14 @@ phentrieve llm annotate "Krampfanfälle und Muskelhypotonie" --language auto
 phentrieve llm annotate --input clinical_note.txt \
     --postprocess validation,assertion_review \
     --format json --output result.json
+
+# Combined post-processing (all 3 steps in a single LLM call)
+phentrieve llm annotate --input clinical_note.txt \
+    --postprocess combined --format json
+
+# All 3 individual steps → auto-routed to combined (same result, 1 API call)
+phentrieve llm annotate --input clinical_note.txt \
+    --postprocess validation,assertion_review,refinement
 
 # Include HPO definitions/synonyms in output
 phentrieve llm annotate "seizures and intellectual disability" --include-details
@@ -329,7 +377,7 @@ phentrieve llm compare -t tests/data/benchmarks/german/tiny_v1.json \
 phentrieve llm compare -t tests/data/benchmarks/german/tiny_v1.json \
     --models github/gpt-4o,gemini/gemini-2.0-flash \
     --modes direct,tool_text \
-    --postprocess none,validation
+    --postprocess none,validation,combined
 ```
 
 ### List models and auth status
@@ -337,3 +385,31 @@ phentrieve llm compare -t tests/data/benchmarks/german/tiny_v1.json \
 ```bash
 phentrieve llm models
 ```
+
+---
+
+## Internal Optimizations
+
+### Prompt Template Caching
+
+Prompt templates are loaded from YAML files on disk. The `load_prompt_template()` function uses `@lru_cache` to cache templates per `(mode, language, variant)` combination, avoiding redundant disk reads when annotating multiple documents.
+
+```python
+# Cache is transparent — no API change
+template = load_prompt_template(PostProcessingStep.VALIDATION, "en")
+
+# Clear cache if needed (e.g., after editing templates during development)
+load_prompt_template.cache_clear()
+```
+
+### Shared Utilities (`phentrieve/llm/utils.py`)
+
+Common helper functions used across annotation strategies and post-processors are consolidated in `phentrieve/llm/utils.py`:
+
+| Function | Purpose |
+|----------|---------|
+| `extract_json(text)` | Extract JSON object from LLM responses (handles markdown code blocks) |
+| `normalize_hpo_id(hpo_id)` | Normalize HPO IDs to `HP:XXXXXXX` format (accepts various separators) |
+| `parse_assertion(assertion_str)` | Parse assertion strings to `AssertionStatus` enum (accepts synonyms like "absent", "denied", "probable") |
+
+These functions are imported by `tool_guided.py`, `direct_text.py`, `validation.py`, `assertion_review.py`, `refinement.py`, and `combined.py`.

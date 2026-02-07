@@ -10,7 +10,6 @@ validating HPO terms. It supports two sub-modes:
 
 import json
 import logging
-import re
 import time
 from typing import Any
 
@@ -20,12 +19,12 @@ from phentrieve.llm.provider import LLMProvider, ToolExecutor
 from phentrieve.llm.types import (
     AnnotationMode,
     AnnotationResult,
-    AssertionStatus,
     HPOAnnotation,
     TimingEvent,
     TokenUsage,
     ToolCall,
 )
+from phentrieve.llm.utils import extract_json, normalize_hpo_id, parse_assertion
 
 logger = logging.getLogger(__name__)
 
@@ -249,7 +248,7 @@ class ToolGuidedStrategy(AnnotationStrategy):
         """Parse JSON annotations from LLM response."""
         annotations: list[HPOAnnotation] = []
 
-        json_data = self._extract_json(response_text)
+        json_data = extract_json(response_text)
 
         if not json_data or "annotations" not in json_data:
             logger.warning("Could not parse annotations from response")
@@ -265,39 +264,18 @@ class ToolGuidedStrategy(AnnotationStrategy):
 
         return annotations
 
-    def _extract_json(self, text: str) -> dict[str, Any] | None:
-        """Extract JSON object from text, handling markdown code blocks."""
-        # Try to find JSON in code block
-        code_block_match = re.search(r"```(?:json)?\s*\n?(.*?)\n?```", text, re.DOTALL)
-        if code_block_match:
-            json_str = code_block_match.group(1).strip()
-        else:
-            # Try to find raw JSON object
-            json_match = re.search(r"\{.*\}", text, re.DOTALL)
-            if json_match:
-                json_str = json_match.group(0)
-            else:
-                return None
-
-        try:
-            parsed: dict[str, Any] = json.loads(json_str)
-            return parsed
-        except json.JSONDecodeError as e:
-            logger.warning("JSON decode error: %s", e)
-            return None
-
     def _parse_annotation_item(self, item: dict[str, Any]) -> HPOAnnotation | None:
         """Parse a single annotation item from JSON."""
         hpo_id = item.get("hpo_id", "")
         if not hpo_id:
             return None
 
-        hpo_id = self._normalize_hpo_id(hpo_id)
+        hpo_id = normalize_hpo_id(hpo_id)
         if not hpo_id:
             return None
 
         assertion_str = item.get("assertion", "affirmed").lower()
-        assertion = self._parse_assertion(assertion_str)
+        assertion = parse_assertion(assertion_str)
 
         return HPOAnnotation(
             hpo_id=hpo_id,
@@ -308,42 +286,6 @@ class ToolGuidedStrategy(AnnotationStrategy):
             source_mode=self.mode,
             raw_score=item.get("score"),
         )
-
-    def _normalize_hpo_id(self, hpo_id: str) -> str | None:
-        """Normalize HPO ID to standard format (HP:XXXXXXX)."""
-        hpo_id = hpo_id.strip().upper()
-
-        if re.match(r"^HP:\d{7}$", hpo_id):
-            return hpo_id
-
-        if re.match(r"^\d{7}$", hpo_id):
-            return f"HP:{hpo_id}"
-
-        match = re.match(r"^HP[:\s_-]?(\d+)$", hpo_id, re.IGNORECASE)
-        if match:
-            number = match.group(1).zfill(7)
-            return f"HP:{number}"
-
-        logger.warning("Invalid HPO ID format: %s", hpo_id)
-        return None
-
-    def _parse_assertion(self, assertion_str: str) -> AssertionStatus:
-        """Parse assertion string to enum."""
-        assertion_str = assertion_str.lower().strip()
-
-        if assertion_str in (
-            "negated",
-            "negative",
-            "absent",
-            "excluded",
-            "no",
-            "denied",
-        ):
-            return AssertionStatus.NEGATED
-        elif assertion_str in ("uncertain", "possible", "suspected", "probable"):
-            return AssertionStatus.UNCERTAIN
-        else:
-            return AssertionStatus.AFFIRMED
 
     def _filter_against_candidates(
         self,

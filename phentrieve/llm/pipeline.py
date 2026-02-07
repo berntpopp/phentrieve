@@ -16,6 +16,7 @@ from phentrieve.llm.annotation import (
 )
 from phentrieve.llm.postprocess import (
     AssertionReviewPostProcessor,
+    CombinedPostProcessor,
     PostProcessor,
     RefinementPostProcessor,
     ValidationPostProcessor,
@@ -227,6 +228,8 @@ class LLMAnnotationPipeline:
                 self._postprocessors[step] = RefinementPostProcessor(self.provider)
             elif step == PostProcessingStep.ASSERTION_REVIEW:
                 self._postprocessors[step] = AssertionReviewPostProcessor(self.provider)
+            elif step == PostProcessingStep.COMBINED:
+                self._postprocessors[step] = CombinedPostProcessor(self.provider)
             else:
                 raise ValueError(f"Unknown post-processing step: {step}")
 
@@ -237,7 +240,24 @@ class LLMAnnotationPipeline:
         result: AnnotationResult,
         steps: list[PostProcessingStep],
     ) -> AnnotationResult:
-        """Run post-processing steps on the result."""
+        """Run post-processing steps on the result.
+
+        When all three individual steps (VALIDATION, ASSERTION_REVIEW, REFINEMENT)
+        are requested, automatically routes to the COMBINED post-processor to
+        reduce API calls from 3 to 1.
+        """
+        # Auto-route to combined when all 3 individual steps are requested
+        individual_steps = {
+            PostProcessingStep.VALIDATION,
+            PostProcessingStep.ASSERTION_REVIEW,
+            PostProcessingStep.REFINEMENT,
+        }
+        if individual_steps.issubset(set(steps)):
+            logger.info(
+                "[POSTPROCESS] All 3 individual steps requested — routing to combined post-processor"
+            )
+            steps = [PostProcessingStep.COMBINED]
+
         annotations = result.annotations
         applied_steps: list[PostProcessingStep] = []
         all_stats: list[PostProcessingStats] = []

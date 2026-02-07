@@ -62,6 +62,7 @@ class PostProcessingStep(str, Enum):
     REFINEMENT = "refinement"
     ASSERTION_REVIEW = "assertion_review"
     CONSISTENCY = "consistency"
+    COMBINED = "combined"
 
 
 @dataclass(frozen=True, slots=True)
