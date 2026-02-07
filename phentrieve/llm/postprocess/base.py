@@ -9,7 +9,12 @@ modified annotations along with token usage statistics.
 from abc import ABC, abstractmethod
 
 from phentrieve.llm.provider import LLMProvider
-from phentrieve.llm.types import HPOAnnotation, PostProcessingStep, TokenUsage
+from phentrieve.llm.types import (
+    HPOAnnotation,
+    PostProcessingStats,
+    PostProcessingStep,
+    TokenUsage,
+)
 
 
 class PostProcessor(ABC):
@@ -46,7 +51,7 @@ class PostProcessor(ABC):
         annotations: list[HPOAnnotation],
         original_text: str,
         language: str = "en",
-    ) -> tuple[list[HPOAnnotation], TokenUsage]:
+    ) -> tuple[list[HPOAnnotation], TokenUsage, PostProcessingStats]:
         """
         Process and refine annotations.
 
@@ -56,7 +61,7 @@ class PostProcessor(ABC):
             language: Language code for prompt selection.
 
         Returns:
-            Tuple of (refined annotations, token usage for this step).
+            Tuple of (refined annotations, token usage, post-processing stats).
         """
         pass
 

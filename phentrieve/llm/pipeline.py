@@ -25,6 +25,7 @@ from phentrieve.llm.types import (
     AnnotationMode,
     AnnotationResult,
     HPOAnnotation,
+    PostProcessingStats,
     PostProcessingStep,
 )
 
@@ -239,16 +240,18 @@ class LLMAnnotationPipeline:
         """Run post-processing steps on the result."""
         annotations = result.annotations
         applied_steps: list[PostProcessingStep] = []
+        all_stats: list[PostProcessingStats] = []
 
         for step in steps:
             try:
                 processor = self._get_postprocessor(step)
-                annotations, step_token_usage = processor.process(
+                annotations, step_token_usage, step_stats = processor.process(
                     annotations=annotations,
                     original_text=result.input_text,
                     language=result.language,
                 )
                 applied_steps.append(step)
+                all_stats.append(step_stats)
 
                 # Accumulate token usage from postprocessor
                 result.token_usage.merge(step_token_usage)
@@ -268,6 +271,7 @@ class LLMAnnotationPipeline:
         # Update result with processed annotations
         result.annotations = annotations
         result.post_processing_steps = applied_steps
+        result.post_processing_stats = all_stats
 
         return result
 

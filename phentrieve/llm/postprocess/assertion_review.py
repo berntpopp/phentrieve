@@ -8,6 +8,7 @@ each annotation, specifically focusing on negation detection accuracy.
 import json
 import logging
 import re
+import time
 from typing import Any
 
 from phentrieve.llm.postprocess.base import PostProcessor
@@ -15,7 +16,9 @@ from phentrieve.llm.provider import LLMProvider
 from phentrieve.llm.types import (
     AssertionStatus,
     HPOAnnotation,
+    PostProcessingStats,
     PostProcessingStep,
+    TimingEvent,
     TokenUsage,
 )
 
@@ -75,7 +78,7 @@ class AssertionReviewPostProcessor(PostProcessor):
         annotations: list[HPOAnnotation],
         original_text: str,
         language: str = "en",
-    ) -> tuple[list[HPOAnnotation], TokenUsage]:
+    ) -> tuple[list[HPOAnnotation], TokenUsage, PostProcessingStats]:
         """
         Review assertion status for all annotations.
 
@@ -85,10 +88,16 @@ class AssertionReviewPostProcessor(PostProcessor):
             language: Language code (used for context but prompts are in English).
 
         Returns:
-            Tuple of (annotations with corrected assertion status, token usage).
+            Tuple of (annotations with corrected assertion status, token usage, stats).
         """
+        annotations_in = len(annotations)
         if not annotations:
-            return annotations, TokenUsage()
+            stats = PostProcessingStats(
+                step="assertion_review",
+                annotations_in=0,
+                annotations_out=0,
+            )
+            return annotations, TokenUsage(), stats
 
         # Format annotations for the prompt
         annotations_json = json.dumps(
@@ -114,38 +123,59 @@ For each annotation, verify if the assertion status (affirmed/negated/uncertain)
         ]
 
         # Get review response
+        t0 = time.time()
         response = self.provider.complete(messages)
+        llm_elapsed = time.time() - t0
 
         # Track token usage
-        token_usage = TokenUsage.from_response(response.usage)
+        token_usage = TokenUsage.from_response(response.usage, llm_time=llm_elapsed)
+        token_usage.timing_events.append(
+            TimingEvent(
+                label=f"postprocess: assertion_review ({self.provider.model})",
+                duration_seconds=llm_elapsed,
+                category="postprocess",
+            )
+        )
 
         # Parse and apply corrections
-        reviewed = self._parse_review_response(
+        reviewed, assertions_changed = self._parse_review_response(
             response.content or "",
             annotations,
         )
 
-        return reviewed, token_usage
+        stats = PostProcessingStats(
+            step="assertion_review",
+            annotations_in=annotations_in,
+            annotations_out=len(reviewed),
+            assertions_changed=assertions_changed,
+        )
+
+        return reviewed, token_usage, stats
 
     def _parse_review_response(
         self,
         response_text: str,
         original_annotations: list[HPOAnnotation],
-    ) -> list[HPOAnnotation]:
-        """Parse review response and apply corrections."""
+    ) -> tuple[list[HPOAnnotation], int]:
+        """Parse review response and apply corrections.
+
+        Returns:
+            Tuple of (reviewed annotations, number of assertions changed).
+        """
         json_data = self._extract_json(response_text)
 
         if not json_data or "reviewed_annotations" not in json_data:
             logger.warning(
                 "Could not parse assertion review response, returning originals"
             )
-            return original_annotations
+            return original_annotations, 0
 
         # Build lookup from original annotations
         orig_by_id = {a.hpo_id: a for a in original_annotations}
 
         result: list[HPOAnnotation] = []
         reviewed_ids: set[str] = set()
+        changed_count = 0
 
         for item in json_data.get("reviewed_annotations", []):
             hpo_id = item.get("hpo_id")
@@ -161,6 +191,7 @@ For each annotation, verify if the assertion status (affirmed/negated/uncertain)
             new_assertion = self._parse_assertion(correct_assertion)
 
             if new_assertion != orig.assertion:
+                changed_count += 1
                 logger.info(
                     "Corrected assertion for %s: %s -> %s (%s)",
                     hpo_id,
@@ -191,7 +222,7 @@ For each annotation, verify if the assertion status (affirmed/negated/uncertain)
             if orig.hpo_id not in reviewed_ids:
                 result.append(orig)
 
-        return result
+        return result, changed_count
 
     def _extract_json(self, text: str) -> dict[str, Any] | None:
         """Extract JSON from response text."""

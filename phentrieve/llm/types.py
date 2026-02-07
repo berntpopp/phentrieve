@@ -65,6 +65,67 @@ class PostProcessingStep(str, Enum):
 
 
 @dataclass(frozen=True, slots=True)
+class TimingEvent:
+    """A single timed operation within the annotation pipeline.
+
+    Attributes:
+        label: Short description of the operation (e.g., "LLM call #1", "tool: process_clinical_text").
+        duration_seconds: Wall-clock time in seconds.
+        category: "llm", "tool", or "postprocess".
+    """
+
+    label: str
+    duration_seconds: float
+    category: str  # "llm" | "tool" | "postprocess"
+
+    def to_dict(self) -> dict[str, Any]:
+        """Convert to dictionary for serialization."""
+        return {
+            "label": self.label,
+            "duration_seconds": round(self.duration_seconds, 3),
+            "category": self.category,
+        }
+
+
+@dataclass(frozen=True, slots=True)
+class PostProcessingStats:
+    """Statistics from a single post-processing step.
+
+    Attributes:
+        step: Which post-processing step produced these stats.
+        annotations_in: Number of annotations before this step.
+        annotations_out: Number of annotations after this step.
+        removed: Number of annotations removed.
+        added: Number of annotations added (e.g., corrected terms).
+        assertions_changed: Number of assertion status corrections.
+        terms_refined: Number of terms upgraded to more specific HPO IDs.
+        details: Optional human-readable detail strings.
+    """
+
+    step: str
+    annotations_in: int = 0
+    annotations_out: int = 0
+    removed: int = 0
+    added: int = 0
+    assertions_changed: int = 0
+    terms_refined: int = 0
+    details: tuple[str, ...] = ()
+
+    def to_dict(self) -> dict[str, Any]:
+        """Convert to dictionary for serialization."""
+        return {
+            "step": self.step,
+            "annotations_in": self.annotations_in,
+            "annotations_out": self.annotations_out,
+            "removed": self.removed,
+            "added": self.added,
+            "assertions_changed": self.assertions_changed,
+            "terms_refined": self.terms_refined,
+            "details": list(self.details),
+        }
+
+
+@dataclass(frozen=True, slots=True)
 class ToolCall:
     """
     Represents a tool call made by the LLM during annotation.
@@ -103,6 +164,7 @@ class TokenUsage:
     api_calls: int = 0
     llm_time_seconds: float = 0.0
     tool_time_seconds: float = 0.0
+    timing_events: list[TimingEvent] = field(default_factory=list)
 
     def add(self, usage: dict[str, int]) -> None:
         """
@@ -129,8 +191,9 @@ class TokenUsage:
         self.api_calls += other.api_calls
         self.llm_time_seconds += other.llm_time_seconds
         self.tool_time_seconds += other.tool_time_seconds
+        self.timing_events.extend(other.timing_events)
 
-    def to_dict(self) -> dict[str, int | float]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for serialization."""
         return {
             "prompt_tokens": self.prompt_tokens,
@@ -139,6 +202,7 @@ class TokenUsage:
             "api_calls": self.api_calls,
             "llm_time_seconds": round(self.llm_time_seconds, 3),
             "tool_time_seconds": round(self.tool_time_seconds, 3),
+            "timing_events": [e.to_dict() for e in self.timing_events],
         }
 
     @classmethod
@@ -269,6 +333,7 @@ class AnnotationResult:
     temperature: float = 0.0
     tool_calls: list[ToolCall] = field(default_factory=list)
     post_processing_steps: list[PostProcessingStep] = field(default_factory=list)
+    post_processing_stats: list[PostProcessingStats] = field(default_factory=list)
     raw_llm_response: str | None = None
     processing_time_seconds: float | None = None
     token_usage: TokenUsage = field(default_factory=TokenUsage)
@@ -310,6 +375,7 @@ class AnnotationResult:
                 for tc in self.tool_calls
             ],
             "post_processing_steps": [s.value for s in self.post_processing_steps],
+            "post_processing_stats": [s.to_dict() for s in self.post_processing_stats],
             "raw_llm_response": self.raw_llm_response,
             "processing_time_seconds": self.processing_time_seconds,
             "token_usage": self.token_usage.to_dict(),

@@ -9,6 +9,7 @@ supported by the text.
 import json
 import logging
 import re
+import time
 from typing import Any
 
 from phentrieve.llm.postprocess.base import PostProcessor
@@ -17,7 +18,9 @@ from phentrieve.llm.provider import PHENTRIEVE_TOOLS, LLMProvider
 from phentrieve.llm.types import (
     AssertionStatus,
     HPOAnnotation,
+    PostProcessingStats,
     PostProcessingStep,
+    TimingEvent,
     TokenUsage,
 )
 
@@ -48,7 +51,7 @@ class RefinementPostProcessor(PostProcessor):
         annotations: list[HPOAnnotation],
         original_text: str,
         language: str = "en",
-    ) -> tuple[list[HPOAnnotation], TokenUsage]:
+    ) -> tuple[list[HPOAnnotation], TokenUsage, PostProcessingStats]:
         """
         Refine annotations to use more specific HPO terms.
 
@@ -58,10 +61,14 @@ class RefinementPostProcessor(PostProcessor):
             language: Language code for prompt selection.
 
         Returns:
-            Tuple of (refined annotations, token usage).
+            Tuple of (refined annotations, token usage, stats).
         """
+        annotations_in = len(annotations)
         if not annotations:
-            return annotations, TokenUsage()
+            stats = PostProcessingStats(
+                step="refinement", annotations_in=0, annotations_out=0
+            )
+            return annotations, TokenUsage(), stats
 
         # Load refinement prompt template
         try:
@@ -70,7 +77,12 @@ class RefinementPostProcessor(PostProcessor):
             logger.warning(
                 "Refinement prompt not found, returning original annotations"
             )
-            return annotations, TokenUsage()
+            stats = PostProcessingStats(
+                step="refinement",
+                annotations_in=annotations_in,
+                annotations_out=annotations_in,
+            )
+            return annotations, TokenUsage(), stats
 
         # Format annotations for the prompt
         annotations_json = json.dumps(
@@ -85,6 +97,7 @@ class RefinementPostProcessor(PostProcessor):
         )
 
         # Get refinement response (with tool access for searching)
+        t0 = time.time()
         if self.provider.supports_tools():
             response = self.provider.complete(
                 messages=messages,
@@ -93,32 +106,52 @@ class RefinementPostProcessor(PostProcessor):
             )
         else:
             response = self.provider.complete(messages)
+        llm_elapsed = time.time() - t0
 
         # Track token usage
-        token_usage = TokenUsage.from_response(response.usage)
+        token_usage = TokenUsage.from_response(response.usage, llm_time=llm_elapsed)
+        token_usage.timing_events.append(
+            TimingEvent(
+                label=f"postprocess: refinement ({self.provider.model})",
+                duration_seconds=llm_elapsed,
+                category="postprocess",
+            )
+        )
 
         # Parse the refinement result
-        refined = self._parse_refinement_response(
+        refined, refined_count = self._parse_refinement_response(
             response.content or "",
             annotations,
         )
 
-        return refined, token_usage
+        stats = PostProcessingStats(
+            step="refinement",
+            annotations_in=annotations_in,
+            annotations_out=len(refined),
+            terms_refined=refined_count,
+        )
+
+        return refined, token_usage, stats
 
     def _parse_refinement_response(
         self,
         response_text: str,
         original_annotations: list[HPOAnnotation],
-    ) -> list[HPOAnnotation]:
-        """Parse refinement response and return updated annotations."""
+    ) -> tuple[list[HPOAnnotation], int]:
+        """Parse refinement response and return updated annotations with count.
+
+        Returns:
+            Tuple of (refined annotations, number of terms refined).
+        """
         json_data = self._extract_json(response_text)
 
         if not json_data:
             logger.warning("Could not parse refinement response, returning originals")
-            return original_annotations
+            return original_annotations, 0
 
         result: list[HPOAnnotation] = []
         processed_ids: set[str] = set()
+        refined_count = 0
 
         # Add kept annotations (already optimal)
         for item in json_data.get("kept_annotations", []):
@@ -135,6 +168,7 @@ class RefinementPostProcessor(PostProcessor):
             annotation = self._create_refined_annotation(item)
             if annotation:
                 result.append(annotation)
+                refined_count += 1
                 # Mark original as processed
                 orig_id = item.get("original_hpo_id")
                 if orig_id:
@@ -153,7 +187,7 @@ class RefinementPostProcessor(PostProcessor):
             if orig.hpo_id not in processed_ids:
                 result.append(orig)
 
-        return result
+        return result, refined_count
 
     def _extract_json(self, text: str) -> dict[str, Any] | None:
         """Extract JSON from response text."""

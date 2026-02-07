@@ -22,6 +22,7 @@ from phentrieve.llm.types import (
     AnnotationResult,
     AssertionStatus,
     HPOAnnotation,
+    TimingEvent,
     TokenUsage,
     ToolCall,
 )
@@ -191,6 +192,8 @@ class ToolGuidedStrategy(AnnotationStrategy):
         """
         tool_calls: list[ToolCall] = []
 
+        timing_events: list[TimingEvent] = []
+
         if self.mode == AnnotationMode.TOOL_TEXT:
             # For text processing mode, run the pipeline and include results
             tool_t0 = time.time()
@@ -199,6 +202,13 @@ class ToolGuidedStrategy(AnnotationStrategy):
                 {"text": text, "language": language},
             )
             tool_elapsed = time.time() - tool_t0
+            timing_events.append(
+                TimingEvent(
+                    label="tool: process_clinical_text (emulated)",
+                    duration_seconds=tool_elapsed,
+                    category="tool",
+                )
+            )
 
             tool_call = ToolCall(
                 name="process_clinical_text",
@@ -219,11 +229,19 @@ class ToolGuidedStrategy(AnnotationStrategy):
         llm_t0 = time.time()
         response = self.provider.complete(messages)
         llm_elapsed = time.time() - llm_t0
+        timing_events.append(
+            TimingEvent(
+                label=f"LLM call ({self.provider.model})",
+                duration_seconds=llm_elapsed,
+                category="llm",
+            )
+        )
 
         # Track token usage (counts from API response + wall-clock times)
         token_usage = TokenUsage.from_response(response.usage)
         token_usage.llm_time_seconds = llm_elapsed
         token_usage.tool_time_seconds = tool_elapsed
+        token_usage.timing_events = timing_events
 
         return response, tool_calls, token_usage
 

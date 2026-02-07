@@ -134,6 +134,10 @@ def load_prompt_template(
     """
     mode_dir = _mode_to_dir(mode)
 
+    # Auto-derive variant from PostProcessingStep value (e.g., "validation", "refinement")
+    if variant is None and isinstance(mode, PostProcessingStep):
+        variant = mode.value
+
     # Build filename based on variant
     if variant:
         filename = f"{language}_{variant}.yaml"

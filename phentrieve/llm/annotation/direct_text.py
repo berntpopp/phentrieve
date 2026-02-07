@@ -20,6 +20,7 @@ from phentrieve.llm.types import (
     AnnotationResult,
     AssertionStatus,
     HPOAnnotation,
+    TimingEvent,
     TokenUsage,
 )
 
@@ -77,10 +78,19 @@ class DirectTextStrategy(AnnotationStrategy):
         messages = prompt_template.get_messages(text)
 
         # Get completion from LLM
+        llm_t0 = time.time()
         response = self.provider.complete(messages)
+        llm_elapsed = time.time() - llm_t0
 
         # Track token usage
-        token_usage = TokenUsage.from_response(response.usage)
+        token_usage = TokenUsage.from_response(response.usage, llm_time=llm_elapsed)
+        token_usage.timing_events.append(
+            TimingEvent(
+                label=f"LLM call ({self.provider.model})",
+                duration_seconds=llm_elapsed,
+                category="llm",
+            )
+        )
 
         # Parse the response
         annotations = self._parse_response(response.content or "")

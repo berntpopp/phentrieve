@@ -24,7 +24,7 @@ import os
 import re
 from typing import Any
 
-from phentrieve.llm.types import LLMResponse, TokenUsage, ToolCall
+from phentrieve.llm.types import LLMResponse, TimingEvent, TokenUsage, ToolCall
 
 logger = logging.getLogger(__name__)
 
@@ -321,6 +321,13 @@ class LLMProvider:
             # Accumulate token usage from this iteration
             cumulative_usage.add(response.usage)
             cumulative_usage.llm_time_seconds += api_elapsed
+            cumulative_usage.timing_events.append(
+                TimingEvent(
+                    label=f"LLM call #{iteration + 1} ({self.model})",
+                    duration_seconds=api_elapsed,
+                    category="llm",
+                )
+            )
             logger.debug(
                 "[LLM] Iteration %d/%d — response in %.2fs: finish_reason=%s, "
                 "tool_calls=%d, tokens=%s",
@@ -365,7 +372,17 @@ class LLMProvider:
             for i, tc in enumerate(response.tool_calls):
                 tool_t0 = _time.time()
                 result = tool_executor.execute(tc.name, tc.arguments)
-                cumulative_usage.tool_time_seconds += _time.time() - tool_t0
+                tool_elapsed = _time.time() - tool_t0
+                cumulative_usage.tool_time_seconds += tool_elapsed
+                cumulative_usage.timing_events.append(
+                    TimingEvent(
+                        label=f"tool: {tc.name}({', '.join(f'{k}={v!r}' for k, v in tc.arguments.items())})"[
+                            :120
+                        ],
+                        duration_seconds=tool_elapsed,
+                        category="tool",
+                    )
+                )
                 # Create new ToolCall with result
                 completed_tc = ToolCall(
                     name=tc.name,

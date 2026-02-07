@@ -8,6 +8,7 @@ text to remove false positives and correct errors.
 import json
 import logging
 import re
+import time
 from typing import Any
 
 from phentrieve.llm.postprocess.base import PostProcessor
@@ -16,7 +17,9 @@ from phentrieve.llm.provider import LLMProvider
 from phentrieve.llm.types import (
     AssertionStatus,
     HPOAnnotation,
+    PostProcessingStats,
     PostProcessingStep,
+    TimingEvent,
     TokenUsage,
 )
 
@@ -47,7 +50,7 @@ class ValidationPostProcessor(PostProcessor):
         annotations: list[HPOAnnotation],
         original_text: str,
         language: str = "en",
-    ) -> tuple[list[HPOAnnotation], TokenUsage]:
+    ) -> tuple[list[HPOAnnotation], TokenUsage, PostProcessingStats]:
         """
         Validate annotations against the original text.
 
@@ -57,10 +60,14 @@ class ValidationPostProcessor(PostProcessor):
             language: Language code for prompt selection.
 
         Returns:
-            Tuple of (validated annotations, token usage).
+            Tuple of (validated annotations, token usage, stats).
         """
+        annotations_in = len(annotations)
         if not annotations:
-            return annotations, TokenUsage()
+            stats = PostProcessingStats(
+                step="validation", annotations_in=0, annotations_out=0
+            )
+            return annotations, TokenUsage(), stats
 
         # Load validation prompt template
         try:
@@ -69,7 +76,12 @@ class ValidationPostProcessor(PostProcessor):
             logger.warning(
                 "Validation prompt not found, returning original annotations"
             )
-            return annotations, TokenUsage()
+            stats = PostProcessingStats(
+                step="validation",
+                annotations_in=annotations_in,
+                annotations_out=annotations_in,
+            )
+            return annotations, TokenUsage(), stats
 
         # Format annotations for the prompt
         annotations_json = json.dumps(
@@ -84,30 +96,51 @@ class ValidationPostProcessor(PostProcessor):
         )
 
         # Get validation response
+        t0 = time.time()
         response = self.provider.complete(messages)
+        llm_elapsed = time.time() - t0
 
         # Track token usage
-        token_usage = TokenUsage.from_response(response.usage)
+        token_usage = TokenUsage.from_response(response.usage, llm_time=llm_elapsed)
+        token_usage.timing_events.append(
+            TimingEvent(
+                label=f"postprocess: validation ({self.provider.model})",
+                duration_seconds=llm_elapsed,
+                category="postprocess",
+            )
+        )
 
         # Parse the validation result
-        validated = self._parse_validation_response(
+        validated, removed_count, added_count = self._parse_validation_response(
             response.content or "",
             annotations,
         )
 
-        return validated, token_usage
+        stats = PostProcessingStats(
+            step="validation",
+            annotations_in=annotations_in,
+            annotations_out=len(validated),
+            removed=removed_count,
+            added=added_count,
+        )
+
+        return validated, token_usage, stats
 
     def _parse_validation_response(
         self,
         response_text: str,
         original_annotations: list[HPOAnnotation],
-    ) -> list[HPOAnnotation]:
-        """Parse validation response and return refined annotations."""
+    ) -> tuple[list[HPOAnnotation], int, int]:
+        """Parse validation response and return refined annotations with counts.
+
+        Returns:
+            Tuple of (validated annotations, removed count, added/corrected count).
+        """
         json_data = self._extract_json(response_text)
 
         if not json_data:
             logger.warning("Could not parse validation response, returning originals")
-            return original_annotations
+            return original_annotations, 0, 0
 
         validated: list[HPOAnnotation] = []
 
@@ -118,13 +151,16 @@ class ValidationPostProcessor(PostProcessor):
                 validated.append(annotation)
 
         # Add corrected annotations
+        corrected_count = 0
         for item in json_data.get("corrected_annotations", []):
             annotation = self._create_corrected_annotation(item)
             if annotation:
                 validated.append(annotation)
+                corrected_count += 1
 
         # Log removed annotations
-        for item in json_data.get("removed_annotations", []):
+        removed_items = json_data.get("removed_annotations", [])
+        for item in removed_items:
             logger.info(
                 "Removed annotation %s (%s): %s",
                 item.get("hpo_id"),
@@ -132,7 +168,7 @@ class ValidationPostProcessor(PostProcessor):
                 item.get("reason"),
             )
 
-        return validated
+        return validated, len(removed_items), corrected_count
 
     def _extract_json(self, text: str) -> dict[str, Any] | None:
         """Extract JSON from response text."""

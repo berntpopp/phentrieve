@@ -277,6 +277,45 @@ class LLMBenchmark:
                     file=sys.stderr,
                 )
 
+                # Print per-event timing breakdown
+                # Build lookup of postprocess timing from timing events
+                pp_timing: dict[str, float] = {}
+                if result.token_usage.timing_events:
+                    for event in result.token_usage.timing_events:
+                        if event.category == "postprocess":
+                            # Extract step name from label like "postprocess: validation (...)"
+                            for ps in result.post_processing_stats:
+                                if ps.step in event.label:
+                                    pp_timing[ps.step] = event.duration_seconds
+                        else:
+                            print(
+                                f"         {event.category:>11}: {event.duration_seconds:>6.2f}s  {event.label}",
+                                file=sys.stderr,
+                            )
+
+                # Print per-document post-processing stats (with timing folded in)
+                if result.post_processing_stats:
+                    for ps in result.post_processing_stats:
+                        pp_parts: list[str] = [
+                            f"{ps.annotations_in}->{ps.annotations_out}"
+                        ]
+                        if ps.removed:
+                            pp_parts.append(f"{ps.removed} removed")
+                        if ps.added:
+                            pp_parts.append(f"{ps.added} added")
+                        if ps.assertions_changed:
+                            pp_parts.append(
+                                f"{ps.assertions_changed} assertions changed"
+                            )
+                        if ps.terms_refined:
+                            pp_parts.append(f"{ps.terms_refined} terms refined")
+                        step_time = pp_timing.get(ps.step)
+                        time_str = f" ({step_time:.1f}s)" if step_time else ""
+                        print(
+                            f"      >> {ps.step}: {', '.join(pp_parts)}{time_str}",
+                            file=sys.stderr,
+                        )
+
                 doc_stats.append(
                     {
                         "doc_id": doc_id,
@@ -285,6 +324,7 @@ class LLMBenchmark:
                         "tool_time": tool_t,
                         "tokens": result.token_usage.total_tokens,
                         "cost": doc_cost,
+                        "pp_stats": [s.to_dict() for s in result.post_processing_stats],
                     }
                 )
 
@@ -348,6 +388,13 @@ class LLMBenchmark:
                 f"{total_token_usage.api_calls} API calls",
                 file=sys.stderr,
             )
+            print(
+                f"  Timing: {total_token_usage.llm_time_seconds:.1f}s LLM + "
+                f"{total_token_usage.tool_time_seconds:.1f}s tool = "
+                f"{total_token_usage.llm_time_seconds + total_token_usage.tool_time_seconds:.1f}s "
+                f"(wall-clock: {mode_elapsed:.1f}s)",
+                file=sys.stderr,
+            )
             total_cost = estimate_cost(total_token_usage, self.config.model)
             if total_cost:
                 print(
@@ -356,6 +403,10 @@ class LLMBenchmark:
                     f"output: ${total_cost['output_cost']:.4f})",
                     file=sys.stderr,
                 )
+
+            # Aggregate post-processing impact table
+            if doc_stats and any(d["pp_stats"] for d in doc_stats):
+                self._print_postprocessing_table(doc_stats)
 
             all_mode_metrics[mode_str] = assertion_metrics
 
@@ -523,6 +574,73 @@ class LLMBenchmark:
             avg_row += f" ${avg_cost:>8.4f}"
         print(avg_row, file=sys.stderr)
 
+    def _print_postprocessing_table(self, doc_stats: list[dict[str, Any]]) -> None:
+        """Print an aggregate post-processing impact table."""
+        # Collect unique step names in order of first appearance
+        step_names: list[str] = []
+        for d in doc_stats:
+            for ps in d["pp_stats"]:
+                if ps["step"] not in step_names:
+                    step_names.append(ps["step"])
+
+        if not step_names:
+            return
+
+        # Aggregate per step
+        agg: dict[str, dict[str, int]] = {}
+        for d in doc_stats:
+            for ps in d["pp_stats"]:
+                name = ps["step"]
+                if name not in agg:
+                    agg[name] = {
+                        "docs": 0,
+                        "in": 0,
+                        "out": 0,
+                        "removed": 0,
+                        "added": 0,
+                        "assertions_changed": 0,
+                        "terms_refined": 0,
+                    }
+                agg[name]["docs"] += 1
+                agg[name]["in"] += ps["annotations_in"]
+                agg[name]["out"] += ps["annotations_out"]
+                agg[name]["removed"] += ps["removed"]
+                agg[name]["added"] += ps["added"]
+                agg[name]["assertions_changed"] += ps["assertions_changed"]
+                agg[name]["terms_refined"] += ps["terms_refined"]
+
+        # Determine which columns have non-zero values
+        show_removed = any(v["removed"] for v in agg.values())
+        show_added = any(v["added"] for v in agg.values())
+        show_assert = any(v["assertions_changed"] for v in agg.values())
+        show_refined = any(v["terms_refined"] for v in agg.values())
+
+        # Header
+        header = f"\n  {'Step':<20} {'Docs':>5} {'In':>5} {'Out':>5}"
+        if show_removed:
+            header += f" {'Removed':>8}"
+        if show_added:
+            header += f" {'Added':>6}"
+        if show_assert:
+            header += f" {'Assert':>8}"
+        if show_refined:
+            header += f" {'Refined':>8}"
+        print(header, file=sys.stderr)
+
+        # Rows
+        for name in step_names:
+            c = agg[name]
+            row = f"  {name:<20} {c['docs']:>5} {c['in']:>5} {c['out']:>5}"
+            if show_removed:
+                row += f" {c['removed']:>8}"
+            if show_added:
+                row += f" {c['added']:>6}"
+            if show_assert:
+                row += f" {c['assertions_changed']:>8}"
+            if show_refined:
+                row += f" {c['terms_refined']:>8}"
+            print(row, file=sys.stderr)
+
     def _save_results(
         self,
         mode_str: str,
@@ -577,6 +695,7 @@ class LLMBenchmark:
                     "timing_breakdown": {
                         "llm_seconds": round(token_usage.llm_time_seconds, 3),
                         "tool_seconds": round(token_usage.tool_time_seconds, 3),
+                        "events": [e.to_dict() for e in token_usage.timing_events],
                     },
                     "estimated_cost": estimated_cost,
                 },
