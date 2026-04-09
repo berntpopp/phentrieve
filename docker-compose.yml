@@ -151,7 +151,7 @@ services:
 
     # Enhanced health check with longer start period for model loading
     healthcheck:
-      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health')\" || exit 1"]
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health', timeout=5)\" || exit 1"]
       interval: 30s       # Check every 30 seconds
       timeout: 10s        # 10 second timeout
       retries: 5          # 5 retries before marking unhealthy

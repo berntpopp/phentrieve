@@ -280,7 +280,7 @@ LABEL org.opencontainers.image.title="Phentrieve API" \
 # Install runtime dependencies and apply security updates
 # gosu is required for the entrypoint script to drop privileges after fixing permissions
 # See: https://www.docker.com/blog/understanding-the-docker-user-instruction/
-# hadolint ignore=DL3008,DL3009
+# hadolint ignore=DL3005,DL3008,DL3009
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     apt-get update && \
@@ -379,7 +379,7 @@ ENV PYTHONPATH=/app \
 
 # Health check (using Python instead of curl to reduce attack surface)
 HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=3 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health')" || exit 1
+    CMD python -c "import urllib.request; r = urllib.request.urlopen('http://localhost:8000/api/v1/health', timeout=5); r.read(); r.close()" || exit 1
 
 # Expose port
 EXPOSE 8000
