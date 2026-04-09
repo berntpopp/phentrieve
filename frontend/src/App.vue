@@ -296,9 +296,9 @@ import { useLogStore } from './stores/log';
 import { useConversationStore } from './stores/conversation';
 import { logService } from './services/logService';
 import { tutorialService } from './services/tutorialService';
-import { getAllVersions } from './utils/version';
 import { useApiHealth } from './services/api-health';
 import { GITHUB_REPO_URL } from './constants/urls';
+import { useVersionCheck } from './composables/useVersionCheck';
 import DisclaimerDialog from './components/DisclaimerDialog.vue';
 import LogViewer from './components/LogViewer.vue';
 import LanguageSwitcher from './components/LanguageSwitcher.vue';
@@ -314,16 +314,22 @@ export default {
     TutorialOverlay,
     ConversationSettings,
   },
+  setup() {
+    const {
+      frontendVersion, apiVersion, cliVersion, environment,
+      loadingVersions, refreshVersions,
+    } = useVersionCheck();
+
+    return {
+      frontendVersion, apiVersion, cliVersion, environment,
+      loadingVersions, refreshVersions,
+    };
+  },
   data() {
     return {
       disclaimerDialogVisible: false,
       tutorialVisible: false,
       showVersionDialog: false,
-      loadingVersions: false,
-      frontendVersion: 'Loading...',
-      apiVersion: 'Loading...',
-      cliVersion: 'Loading...',
-      environment: 'unknown',
       GITHUB_REPO_URL,
     };
   },
@@ -383,21 +389,6 @@ export default {
     logService.info('API health monitoring stopped');
   },
   methods: {
-    async refreshVersions() {
-      this.loadingVersions = true;
-      try {
-        const versions = await getAllVersions();
-        this.frontendVersion = versions.frontend?.version || 'unknown';
-        this.apiVersion = versions.api?.version || 'unknown';
-        this.cliVersion = versions.cli?.version || 'unknown';
-        this.environment = versions.environment || 'unknown';
-        logService.debug('Versions refreshed', versions);
-      } catch (error) {
-        logService.error('Failed to refresh versions', error);
-      } finally {
-        this.loadingVersions = false;
-      }
-    },
     getEnvironmentColor(env) {
       const colors = {
         production: 'success',
