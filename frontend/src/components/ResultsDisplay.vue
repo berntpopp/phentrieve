@@ -241,7 +241,6 @@ export default {
         if (value) {
           logService.debug('Results data received', {
             modelUsed: value.model_used_for_retrieval,
-            rerankerUsed: value.reranker_used,
             resultsCount: value.results?.length,
             language: value.language_detected,
             queryAssertionStatus: value.query_assertion_status,

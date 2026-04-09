@@ -1,20 +1,12 @@
 """Module for orchestrating HPO term extraction from text.
 
 This module provides functionality to extract HPO terms from text using a
-pipeline-based approach with dense retrieval and optional cross-encoder reranking.
+pipeline-based approach with dense retrieval.
 """
 
 import logging
 from collections import Counter, defaultdict
-from typing import TYPE_CHECKING, Any, Optional
-
-import numpy as np
-
-# NOTE: CrossEncoder is only imported for type hints (TYPE_CHECKING).
-# This module receives CrossEncoder instances but doesn't create them,
-# so we avoid the 18+ second import cost at module load time.
-if TYPE_CHECKING:
-    from sentence_transformers import CrossEncoder
+from typing import Any
 
 from phentrieve.config import DEFAULT_HPO_DB_FILENAME
 from phentrieve.data_processing.hpo_database import HPODatabase
@@ -30,7 +22,6 @@ def orchestrate_hpo_extraction(
     retriever: DenseRetriever,
     num_results_per_chunk: int = 10,
     chunk_retrieval_threshold: float = 0.3,
-    cross_encoder: Optional["CrossEncoder"] = None,
     language: str = "en",
     top_term_per_chunk: bool = False,
     min_confidence_for_aggregated: float = 0.0,
@@ -44,15 +35,13 @@ def orchestrate_hpo_extraction(
 
     Process involves:
     1. Getting matches for each chunk
-    2. Re-ranking matches if enabled
-    3. Aggregating and deduplicating results
+    2. Aggregating and deduplicating results
 
     Args:
         text_chunks: List of text chunks to process
         retriever: Dense retriever for HPO terms
         num_results_per_chunk: Number of results per chunk
         chunk_retrieval_threshold: Min similarity threshold for HPO term matches per chunk
-        cross_encoder: Optional cross-encoder model for re-ranking
         language: Language code (e.g. 'en', 'de')
         top_term_per_chunk: If True, only keep top term per chunk
         min_confidence_for_aggregated: Minimum confidence threshold for aggregated terms
@@ -67,11 +56,6 @@ def orchestrate_hpo_extraction(
     # Initialize results
     chunk_results = []  # Store results for each chunk
     aggregated_hpo_evidence_map = defaultdict(list)  # Group evidence by HPO ID
-
-    # Check reranking config
-    if cross_encoder and not retriever:
-        logger.warning("Reranking enabled but no retriever provided")
-        cross_encoder = None
 
     # OPTIMIZATION: Query all chunks at once using batch API (10-20x faster!)
     # This replaces the sequential query loop with a single batch query to ChromaDB
@@ -134,39 +118,6 @@ def orchestrate_hpo_extraction(
                     logger.info(
                         f"  [{idx + 1}] {match['id']} - {match['name']} [score: {score_str}]"
                     )
-
-            # Re-rank if enabled
-            if cross_encoder and current_hpo_matches:
-                try:
-                    # Prepare pairs for cross-encoder
-                    pairs = [
-                        (chunk_text, match["name"]) for match in current_hpo_matches
-                    ]
-
-                    # Get cross-encoder scores
-                    scores = cross_encoder.predict(
-                        pairs,
-                        show_progress_bar=False,
-                    )
-
-                    # Add scores to candidates
-                    # Handle different output formats from various cross-encoder models
-                    for idx, match in enumerate(current_hpo_matches[:]):
-                        raw_score = scores[idx]
-                        if (
-                            isinstance(raw_score, (list, np.ndarray))
-                            and len(raw_score) > 1
-                        ):
-                            # For models returning array outputs: use first score
-                            match["score"] = float(raw_score[0])
-                        else:
-                            # For standard cross-encoders: single relevance score
-                            match["score"] = float(raw_score)
-
-                    # Sort by score
-                    current_hpo_matches.sort(key=lambda x: x["score"], reverse=True)
-                except Exception as e:
-                    logger.warning(f"Re-ranking failed: {e}")
 
             # Filter to top match per chunk if requested
             if top_term_per_chunk and current_hpo_matches:
