@@ -119,12 +119,17 @@ async def _load_model_with_status_tracking(
 - Move MCP mounting (_try_mount_mcp at main.py:171) into lifespan
 - Fix version: replace hardcoded `"0.1.0"` at main.py:106,189 with `get_api_version()`
 
-### A3. Performance (Backend)
+### A3. Cache Ownership Model (Backend)
 
-- Replace unbounded global dicts (`LOADED_SBERT_MODELS`, `LOADED_RETRIEVERS`, `LOADED_CROSS_ENCODERS`) with `cachetools.TTLCache` (bounded maxsize, configurable TTL)
+**Primary model: bounded module-level caches.** The current code in `api/dependencies.py:26-36` and all existing tests are built around module-level global dicts. Moving to `app.state` would require API signature churn (every dependency function needs `Request` parameter) plus rewriting all dependency tests. That's a separate refactor.
+
+This cycle:
+- Replace unbounded global dicts (`LOADED_SBERT_MODELS`, `LOADED_RETRIEVERS`, `LOADED_CROSS_ENCODERS`) with `cachetools.TTLCache` (bounded maxsize, configurable TTL) — **same module-level location, same access pattern, just bounded**
 - Add `threading.Lock` wrapper on each cache (required by cachetools for thread safety)
-- Add explicit cache cleanup in lifespan shutdown handler
-- Store shared resources (models, DB connections) in `app.state` instead of module-level globals
+- Add explicit cache cleanup callable, invoked from lifespan shutdown handler via import (no `app.state` needed)
+- Keep `MODEL_LOADING_STATUS` and `MODEL_LOAD_LOCKS` as module-level dicts (they are coordination state, not cached resources)
+
+**Deferred to future cycle:** Migrate from module-level caches to `app.state` + `Request`-based dependency injection. This is a clean follow-on once the bounded caching and lifespan patterns are proven stable.
 
 ### A: Files touched
 
@@ -154,7 +159,7 @@ Write Vitest component tests locking current behavior before decomposition:
 |-----------|-----|------------|
 | `QueryInterface.vue` | 1483 | Query submission, mode switching, advanced options, phenotype collection, export |
 | `ResultsDisplay.vue` | 1079 | All 3 render paths (query/textProcess/aggregated), attribution, expand/collapse |
-| `App.vue` | 282 script | Disclaimer flow, version fetch, health monitoring |
+| `App.vue` | 598 | Disclaimer flow, version fetch, health monitoring, tutorial DOM management |
 | `queryPreferences.js` | store | Current options-API behavior before migration |
 
 **Strategy**: Mount with `@vue/test-utils`, mock Pinia stores and API service, assert on emitted events and rendered output.
@@ -200,11 +205,12 @@ Extract sub-components:
 
 ### B3. Performance (Frontend)
 
-- Add `v-memo` on result list items keyed on `[item.id, item.selected]`
-- Use `shallowRef` for large read-only datasets (HPO term lists)
-- Replace deep watcher on `conversationStore.queryHistory` (QueryInterface.vue:926) with shallow watch on `.length`
-- Replace `JSON.stringify` in LogViewer's `filteredLogs` with targeted field search
-- Add route-level code splitting via `defineAsyncComponent` for views
+Apply only where profiling or Vue DevTools render-count inspection confirms a measurable benefit. Do not blindly add optimization annotations.
+
+- **Deep watcher fix** (confirmed issue): Replace deep watcher on `conversationStore.queryHistory` (QueryInterface.vue:926) with shallow watch on `.length` — this fires on every nested property change and is always wasteful
+- **JSON.stringify fix** (confirmed issue): Replace `JSON.stringify` in LogViewer's `filteredLogs` with targeted field search — stringify on every filter keystroke is unconditionally expensive
+- **Route-level code splitting**: Add `defineAsyncComponent` for views — standard practice, no profiling needed
+- **Conditional** (apply if profiling shows benefit): `v-memo` on result list items, `shallowRef` for large read-only datasets
 
 ### B: Files touched
 
@@ -247,8 +253,10 @@ Each is an independent commit:
 | Delete dead composable | `frontend/src/composables/useDisclaimer.js` | Delete file |
 | Delete disabled tests | `tests/unit/cli/test_query_commands.py.disabled`, `conftest.py.disabled` | Delete files |
 | Fix Ruff target | `pyproject.toml:92` | `py39` -> `py310` |
-| Fix version hardcode | `api/main.py:106,189` | Use `get_api_version()` |
-| Extract shared utility | `phentrieve/retrieval/utils.py` (new) | Move `_convert_multi_vector_to_chromadb_format()` |
+
+Note: Two quick wins from the original review moved into **Stream A** to eliminate cross-stream file overlap:
+- Fix version hardcode (`api/main.py`) — now part of A2 API lifecycle work
+- Extract shared utility (`phentrieve/retrieval/utils.py`) — now part of A2 orchestrator decomposition
 
 ### C2. Pre-commit Hooks
 
@@ -284,9 +292,11 @@ No pytest in pre-commit (too slow). Tests stay in `make test`.
 
 ### C3. Test Infrastructure Fixes
 
-**Import path fix:**
-- Remove `sys.path` hack from `tests/unit/api/test_dependencies_model_loading.py:17-19`
-- Configure `pythonpath` properly in `pyproject.toml` (un-comment and set to `["."]`)
+**Import path: keep current approach (ACCEPTED).**
+The repo has already tried and rejected 6 approaches to fixing pytest import paths for the `api` module (see `tests/unit/api/README.md:67-86`). Root cause: pytest assertion rewriting runs before any path configuration is processed. The current Makefile/PYTHONPATH solution (`make test-api`) works reliably.
+- Keep the `sys.path` hack in `tests/unit/api/test_dependencies_model_loading.py:17-19` for this cycle
+- Keep `make test-api` as the official way to run API tests
+- Defer `src` layout / packaging cleanup to a dedicated future refactor (noted in Out of Scope)
 
 **Fix 47 zero-assertion tests:**
 - Audit each test — add meaningful value assertions or convert bare `pytest.raises` to include `match=` parameter
@@ -312,9 +322,8 @@ No pytest in pre-commit (too slow). Tests stay in `make test`.
 
 ```
 .pre-commit-config.yaml                          (new)
-pyproject.toml                                    (ruff target, pythonpath, coverage)
+pyproject.toml                                    (ruff target, coverage threshold)
 tests/unit/conftest.py                            (shared fixtures)
-tests/unit/api/test_dependencies_model_loading.py (remove sys.path hack)
 tests/unit/core/test_assertion_detection.py       (parametrize)
 tests/unit/data_processing/test_hpo_parser_edge_cases.py (parametrize)
 tests/unit/api/test_text_processing_router.py     (parametrize + assertions)
@@ -324,6 +333,8 @@ frontend/src/composables/useDisclaimer.js         (delete)
 tests/unit/cli/test_query_commands.py.disabled    (delete)
 tests/unit/cli/conftest.py.disabled               (delete)
 ```
+
+Note: `api/main.py` version fix and `phentrieve/retrieval/utils.py` extraction are now in Stream A. API test import path hack is kept as-is (see C3).
 
 ---
 
@@ -335,6 +346,8 @@ tests/unit/cli/conftest.py.disabled               (delete)
 | Evaluation module tests (24 untested modules) | Too large, separate cycle |
 | Benchmark module tests | Separate cycle |
 | Config unification (3 YAML systems) | Needs architectural decision first |
+| `src` layout / packaging cleanup | 6 workarounds tried and failed (see `tests/unit/api/README.md:67-86`); needs dedicated refactor |
+| Migrate caches to `app.state` | Requires API signature churn + test rewrites; do after bounded caching is stable |
 | Semantic query caching | Needs benchmarking data |
 | Character-offset provenance | Feature addition, not refactoring |
 | Assertion-aware chunking | Active plan exists (`CHUNKING-OPTIMIZATION-PLAN.md`) |
@@ -356,10 +369,41 @@ tests/unit/cli/conftest.py.disabled               (delete)
 | `@pytest.mark.parametrize` usage | 3 files | 8+ files |
 | Coverage threshold | disabled | enabled at baseline, ratcheting up |
 | Pre-commit hooks | none | ruff + mypy + standard hooks |
-| Module-level unbounded global dicts | 6 | 0 (all bounded via cachetools or app.state) |
+| Module-level unbounded resource caches | 3 (SBERT, retrievers, cross-encoders) | 0 (all bounded via cachetools.TTLCache, same module location) |
 | `document.querySelector` in Vue components | 7+ locations | 0 |
 | Dead code files | 3 | 0 |
 | `make all` passes | yes | yes (at every commit) |
+
+---
+
+## Verification Gates
+
+Each stream has explicit required checks beyond `make all`. A stream is not complete until all its gates pass.
+
+### Stream A Gates
+1. `make check` (ruff format + lint) — zero errors
+2. `make typecheck-fast` (mypy daemon) — zero errors
+3. `make test` — all existing tests pass
+4. **New orchestrator unit tests**: all characterization tests from A1 pass against refactored code, covering all 3 query paths (sentence, fallback, full-text), `_InteractiveState`, and multi-vector routing
+5. **New API dependency tests**: status transitions (not_loaded/loading/loaded/failed), timeout behavior, cache hit/miss for unified loader
+6. **New API lifecycle tests**: `create_app()` returns configured app, lifespan initializes/cleans up, no import-time side effects
+7. **Bounded cache verification**: `cachetools.TTLCache` maxsize is respected, eviction works, cleanup callable runs at shutdown
+
+### Stream B Gates
+1. `make frontend-lint` + `make frontend-format` — zero errors
+2. `make frontend-build` — production build succeeds
+3. `make frontend-test` — all existing store tests pass
+4. **New component tests**: Vitest suite for QueryInterface, ResultsDisplay, App covering query submission, mode switching, all 3 render paths, disclaimer flow, export
+5. **Manual smoke test**: run `make dev-frontend` + `make dev-api`, exercise query flow, text processing, phenotype collection, and export end-to-end in browser
+6. `make frontend-i18n-check` — all locale keys still valid after decomposition
+
+### Stream C Gates
+1. `make check` + `make typecheck-fast` — zero errors
+2. `make test` — all tests pass (including newly-fixed zero-assertion tests)
+3. **Pre-commit verification**: `pre-commit run --all-files` passes
+4. **Zero-assertion audit**: grep confirms no test functions with empty bodies or bare `pytest.raises` without `match=`
+5. **Marker audit**: all files in `tests/unit/` have `@pytest.mark.unit`, all in `tests/integration/` have `@pytest.mark.integration`
+6. **Coverage gate**: `--cov-fail-under` enabled and passing at baseline
 
 ---
 
@@ -375,11 +419,12 @@ main
 ```
 
 **Cross-stream dependencies:**
-- Stream A depends on Stream C's quick win #5 (shared utility extraction) — merge C1 quick wins before A2 refactoring begins
-- Stream B depends on Stream C's quick win #1 (dead composable deletion) — or B simply skips that file
+- Stream A and Stream C have **zero file overlap** — backend quick wins (version fix, utility extraction) were moved into Stream A to eliminate the original conflict
+- Stream B depends on Stream C's dead composable deletion — or B simply skips that file (trivial)
 - No dependency between Stream A and Stream B
+- All three streams can branch from `main` simultaneously
 
-Merge order at end of cycle: C first (smallest, foundational), then A, then B. Resolve any conflicts at merge time (expected <5% file overlap).
+Merge order at end of cycle: C first (smallest, foundational), then A, then B. File overlap between streams is <5% (only `pyproject.toml` is touched by both A and C — A for coverage config changes, C for Ruff target).
 
 Within each stream, every logical unit is an atomic commit with `make all` passing.
 
