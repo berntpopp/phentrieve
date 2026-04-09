@@ -18,6 +18,8 @@ from phentrieve.evaluation.metrics import (
     recall_at_k,
 )
 
+pytestmark = pytest.mark.unit
+
 
 @pytest.fixture
 def mock_perfect_results():

@@ -12,7 +12,7 @@ import pytest
 from phentrieve.config import BENCHMARK_DATA_DIR, DEFAULT_BENCHMARK_FILE
 from phentrieve.data_processing.test_data_loader import load_test_data
 
-pytestmark = [pytest.mark.integration, pytest.mark.benchmark]
+pytestmark = [pytest.mark.unit, pytest.mark.integration, pytest.mark.benchmark]
 
 
 class TestBenchmarkDataLoading:

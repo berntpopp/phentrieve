@@ -13,6 +13,8 @@ from unittest.mock import patch
 import pytest
 from fastapi import HTTPException
 
+pytestmark = pytest.mark.unit
+
 # Add project root to sys.path to import from api/ directory
 project_root = Path(__file__).parent.parent.parent.parent
 sys.path.insert(0, str(project_root))

@@ -22,6 +22,8 @@ from phentrieve.data_processing.hpo_parser import (
     is_obsolete_term,
 )
 
+pytestmark = pytest.mark.unit
+
 
 class TestParseHpoJsonEdgeCases:
     """Edge cases for _parse_hpo_json_to_graphs()."""

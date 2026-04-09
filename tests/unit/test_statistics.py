@@ -19,6 +19,8 @@ from phentrieve.evaluation.statistics import (
     paired_bootstrap_test,
 )
 
+pytestmark = pytest.mark.unit
+
 # ============================================================================
 # Bootstrap Confidence Interval Tests
 # ============================================================================

@@ -5,6 +5,8 @@ from unittest.mock import patch
 
 import pytest
 
+pytestmark = pytest.mark.unit
+
 # Check if MCP dependencies are installed
 try:
     import pydantic_settings

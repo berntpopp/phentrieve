@@ -20,6 +20,8 @@ from phentrieve.embeddings import (
     load_embedding_model,
 )
 
+pytestmark = pytest.mark.unit
+
 
 class TestModelCaching:
     """Tests for model caching behavior."""

@@ -13,6 +13,8 @@ from phentrieve.retrieval.aggregation import (
     group_results_by_hpo_id,
 )
 
+pytestmark = pytest.mark.unit
+
 
 class TestAggregateScores:
     """Test individual score aggregation."""

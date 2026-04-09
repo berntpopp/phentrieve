@@ -19,6 +19,8 @@ from api.routers.text_processing_router import (
 )
 from api.schemas.text_processing_schemas import TextProcessingRequest
 
+pytestmark = pytest.mark.unit
+
 
 class TestAdaptiveTimeout:
     """Test adaptive timeout calculation based on text length."""
