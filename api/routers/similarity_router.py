@@ -56,9 +56,8 @@ def _get_hpo_label_map_api() -> dict[str, str]:
     return label_map
 
 
-# Ensure HPO graph data is pre-loaded or loaded efficiently on first use by the API
-# The load_hpo_graph_data function itself uses caching.
-load_hpo_graph_data()
+# HPO graph data is loaded lazily on first use via @lru_cache in load_hpo_graph_data().
+# No eager loading needed at import time.
 
 
 @router.get(

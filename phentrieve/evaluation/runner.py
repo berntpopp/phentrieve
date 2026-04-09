@@ -46,49 +46,11 @@ from phentrieve.retrieval.reranker import (
     load_cross_encoder,
     rerank_with_cross_encoder,
 )
+from phentrieve.retrieval.utils import convert_multi_vector_to_chromadb_format
 from phentrieve.utils import get_model_slug
 
-
-def _convert_multi_vector_to_chromadb_format(
-    multi_vector_results: list[dict[str, Any]],
-) -> dict[str, Any]:
-    """
-    Convert multi-vector query results to ChromaDB-style format for metrics.
-
-    Args:
-        multi_vector_results: Results from query_multi_vector() in format:
-            [{"hpo_id": ..., "label": ..., "similarity": ..., "component_scores": ...}]
-
-    Returns:
-        ChromaDB-style results dict with ids, metadatas, documents, distances
-    """
-    if not multi_vector_results:
-        return {"ids": [[]], "metadatas": [[]], "documents": [[]], "distances": [[]]}
-
-    ids = []
-    metadatas = []
-    documents = []
-    distances = []
-
-    for result in multi_vector_results:
-        ids.append(result.get("hpo_id", ""))
-        metadatas.append(
-            {
-                "hpo_id": result.get("hpo_id", ""),
-                "label": result.get("label", ""),
-                "component_scores": result.get("component_scores", {}),
-            }
-        )
-        documents.append(result.get("label", ""))
-        # Convert similarity to distance (1 - similarity)
-        distances.append(1.0 - result.get("similarity", 0.0))
-
-    return {
-        "ids": [ids],
-        "metadatas": [metadatas],
-        "documents": [documents],
-        "distances": [distances],
-    }
+# Alias for backward compatibility within this module
+_convert_multi_vector_to_chromadb_format = convert_multi_vector_to_chromadb_format
 
 
 def run_evaluation(
