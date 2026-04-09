@@ -346,10 +346,10 @@ export default {
     },
   },
   watch: {
-    'conversationStore.queryHistory': {
-      handler() {
+    'conversationStore.queryHistory.length': {
+      handler(newLength) {
         logService.debug('Query history updated', {
-          newHistoryLength: this.conversationStore.queryHistory.length,
+          newHistoryLength: newLength,
         });
         this.$nextTick(() => {
           if (this.shouldScrollToTop && !this.userHasScrolled) {
@@ -357,7 +357,6 @@ export default {
           }
         });
       },
-      deep: true,
     },
     selectedModel(newModel, oldModel) {
       if (oldModel !== null) {

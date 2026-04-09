@@ -220,11 +220,13 @@ export default {
     const statistics = computed(() => logStore.getStatistics(true));
 
     const filteredLogs = computed(() => {
+      const term = search.value?.toLowerCase();
       return logStore.logs.filter((log) => {
         const matchesSearch =
-          !search.value ||
-          log.message.toLowerCase().includes(search.value.toLowerCase()) ||
-          (log.data && JSON.stringify(log.data).toLowerCase().includes(search.value.toLowerCase()));
+          !term ||
+          (log.message || '').toLowerCase().includes(term) ||
+          (log.level || '').toLowerCase().includes(term) ||
+          (log.source || '').toLowerCase().includes(term);
         const matchesLevel = selectedLevels.value.includes(log.level);
         return matchesSearch && matchesLevel;
       });
