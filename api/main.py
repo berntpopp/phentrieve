@@ -18,6 +18,7 @@ from api.config import (  # noqa: E402
     LOG_LEVEL,
 )
 from api.dependencies import (  # noqa: E402
+    cleanup_model_caches,
     get_cross_encoder_dependency,
     get_dense_retriever_dependency,
     get_sbert_model_dependency,
@@ -140,6 +141,7 @@ async def lifespan(app: FastAPI):
     yield  # This is where the application runs
 
     # Shutdown
+    cleanup_model_caches()
     logger.info("Shutting down Phentrieve API...")
 
 

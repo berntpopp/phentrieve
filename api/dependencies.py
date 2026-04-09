@@ -1,7 +1,9 @@
 import asyncio
 import logging
+import threading
 from typing import Any, Literal, Optional, cast
 
+from cachetools import TTLCache
 from fastapi import HTTPException
 from fastapi.concurrency import run_in_threadpool
 from sentence_transformers import CrossEncoder, SentenceTransformer
@@ -21,12 +23,12 @@ logger = logging.getLogger(__name__)
 # Alias for brevity in this module
 _sanitize = sanitize_log_value
 
-# Global cache for models and retrievers
-# Key: model_name (or unique identifier), Value: loaded instance
-LOADED_SBERT_MODELS: dict[str, SentenceTransformer] = {}
-# Key is now only model name, no need for index_dir in key
-LOADED_RETRIEVERS: dict[str, DenseRetriever] = {}
-LOADED_CROSS_ENCODERS: dict[str, Optional[CrossEncoder]] = {}
+# Bounded model caches with 1-hour TTL and max 10 models
+# TTL prevents stale models in long-running processes
+_cache_lock = threading.Lock()
+LOADED_SBERT_MODELS: TTLCache = TTLCache(maxsize=10, ttl=3600)
+LOADED_RETRIEVERS: TTLCache = TTLCache(maxsize=10, ttl=3600)
+LOADED_CROSS_ENCODERS: TTLCache = TTLCache(maxsize=10, ttl=3600)
 
 # Model loading status tracking
 ModelLoadStatus = Literal["not_loaded", "loading", "loaded", "failed"]
@@ -100,7 +102,7 @@ async def _load_model_in_background(
 
 async def _load_model_with_status_tracking(
     model_name: str,
-    cache_dict: dict[str, Any],
+    cache_dict: Any,  # dict or TTLCache — both support __contains__/getitem/setitem
     is_sbert: bool,
     trust_remote_code: bool,
     device: str | None,
@@ -307,7 +309,7 @@ async def get_dense_retriever_dependency(
             "API: Using cached DenseRetriever for %s",
             _sanitize(sbert_model_name_for_retriever),
         )
-    return LOADED_RETRIEVERS[retriever_cache_key]
+    return cast(DenseRetriever, LOADED_RETRIEVERS[retriever_cache_key])
 
 
 async def get_cross_encoder_dependency(
@@ -329,3 +331,15 @@ async def get_cross_encoder_dependency(
             model_type_label="CrossEncoder",
         ),
     )
+
+
+def cleanup_model_caches() -> None:
+    """Clear all model caches. Called during app shutdown."""
+    with _cache_lock:
+        LOADED_SBERT_MODELS.clear()
+        LOADED_RETRIEVERS.clear()
+        LOADED_CROSS_ENCODERS.clear()
+        MODEL_LOADING_STATUS.clear()
+        MODEL_LOAD_LOCKS.clear()
+        MODEL_LOADING_TASKS.clear()
+    logger.info("API: All model caches cleared.")

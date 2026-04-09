@@ -2774,9 +2774,10 @@ wheels = [
 
 [[package]]
 name = "phentrieve"
-version = "0.12.0"
+version = "0.12.1"
 source = { editable = "." }
 dependencies = [
+    { name = "cachetools" },
     { name = "chromadb" },
     { name = "en-core-web-sm" },
     { name = "matplotlib" },
@@ -2800,6 +2801,7 @@ dependencies = [
     { name = "torch" },
     { name = "tqdm" },
     { name = "typer" },
+    { name = "types-cachetools" },
     { name = "urllib3" },
 ]
 
@@ -2837,6 +2839,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "cachetools", specifier = ">=6.2.2" },
     { name = "chromadb", specifier = ">=1.0.6,<2.0.0" },
     { name = "en-core-web-sm", url = "https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl" },
     { name = "fastapi", marker = "extra == 'api'", specifier = ">=0.115.0" },
@@ -2863,7 +2866,8 @@ requires-dist = [
     { name = "tomli", marker = "python_full_version < '3.11'", specifier = ">=2.0.0" },
     { name = "torch", specifier = ">=2.6.0,<3.0.0" },
     { name = "tqdm", specifier = ">=4.66.1" },
-    { name = "typer", specifier = ">=0.16.0,<0.22.0" },
+    { name = "typer", specifier = ">=0.16.0,<0.25.0" },
+    { name = "types-cachetools", specifier = ">=6.2.0.20260408" },
     { name = "urllib3", specifier = ">=2.5.0" },
     { name = "uvicorn", extras = ["standard"], marker = "extra == 'api'", specifier = ">=0.32.0" },
     { name = "uvicorn", extras = ["standard"], marker = "extra == 'mcp'", specifier = ">=0.32.0" },
@@ -4866,6 +4870,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/8e/45/81b94a52caed434b94da65729c03ad0fb7665fab0f7db9ee54c94e541403/typer_slim-0.20.0.tar.gz", hash = "sha256:9fc6607b3c6c20f5c33ea9590cbeb17848667c51feee27d9e314a579ab07d1a3", size = 106561, upload-time = "2025-10-20T17:03:46.642Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/5e/dd/5cbf31f402f1cc0ab087c94d4669cfa55bd1e818688b910631e131d74e75/typer_slim-0.20.0-py3-none-any.whl", hash = "sha256:f42a9b7571a12b97dddf364745d29f12221865acef7a2680065f9bb29c7dc89d", size = 47087, upload-time = "2025-10-20T17:03:44.546Z" },
+]
+
+[[package]]
+name = "types-cachetools"
+version = "6.2.0.20260408"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/ec/61/475b0e8f4a92e5e33affcc6f4e6344c6dee540824021d22f695ea170da63/types_cachetools-6.2.0.20260408.tar.gz", hash = "sha256:0d8ae2dd5ba0b4cfe6a55c34396dd0415f1be07d0033d84781cdc4ed9c2ebc6b", size = 9854, upload-time = "2026-04-08T04:31:49.665Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/bb/7d/579f50f4f004ee93c7d1baa95339591cac1fe02f4e3fb8fc0f900ee4a80f/types_cachetools-6.2.0.20260408-py3-none-any.whl", hash = "sha256:470e0b274737feae74beed3d764885bf4664002ecc393fba3778846b13ce92cb", size = 9350, upload-time = "2026-04-08T04:31:48.826Z" },
 ]
 
 [[package]]
