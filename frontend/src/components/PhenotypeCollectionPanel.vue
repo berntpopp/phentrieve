@@ -20,11 +20,7 @@
           data-tutorial-step="collection-fab"
           @click="$emit('toggle-panel')"
         >
-          <v-badge
-            :content="phenotypes.length"
-            :model-value="phenotypes.length > 0"
-            color="error"
-          >
+          <v-badge :content="phenotypes.length" :model-value="phenotypes.length > 0" color="error">
             <v-icon>mdi-format-list-checks</v-icon>
           </v-badge>
         </v-btn>

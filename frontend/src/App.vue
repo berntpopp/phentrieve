@@ -316,13 +316,21 @@ export default {
   },
   setup() {
     const {
-      frontendVersion, apiVersion, cliVersion, environment,
-      loadingVersions, refreshVersions,
+      frontendVersion,
+      apiVersion,
+      cliVersion,
+      environment,
+      loadingVersions,
+      refreshVersions,
     } = useVersionCheck();
 
     return {
-      frontendVersion, apiVersion, cliVersion, environment,
-      loadingVersions, refreshVersions,
+      frontendVersion,
+      apiVersion,
+      cliVersion,
+      environment,
+      loadingVersions,
+      refreshVersions,
     };
   },
   data() {

@@ -3,14 +3,15 @@
     <h3 class="text-h6 my-4">
       {{ $t('resultsDisplay.textProcess.chunksTitle', 'Processed Chunks & Per-Chunk HPO Terms') }}
     </h3>
-    <v-expansion-panels
-      v-if="chunks && chunks.length > 0"
-      v-model="openChunkPanels"
-    >
+    <v-expansion-panels v-if="chunks && chunks.length > 0" v-model="openChunkPanels">
       <v-expansion-panel
         v-for="chunk in chunks"
         :key="chunk.chunk_id"
-        :ref="(el) => { if (el) chunkPanelRefs[chunk.chunk_id] = el; }"
+        :ref="
+          (el) => {
+            if (el) chunkPanelRefs[chunk.chunk_id] = el;
+          }
+        "
       >
         <v-expansion-panel-title>
           <div class="d-flex align-center">
@@ -34,10 +35,7 @@
           </div>
         </v-expansion-panel-title>
         <v-expansion-panel-text>
-          <p
-            :id="`chunk-text-${chunk.chunk_id}`"
-            class="font-italic mb-2 chunk-text-displayable"
-          >
+          <p :id="`chunk-text-${chunk.chunk_id}`" class="font-italic mb-2 chunk-text-displayable">
             <span
               v-for="(segment, segIdx) in getHighlightedChunkSegments(chunk)"
               :key="segIdx"
@@ -47,10 +45,12 @@
             </span>
           </p>
           <div v-if="chunk.assertion_details && chunk.assertion_details.final_status">
-            <small>({{ $t('resultsDisplay.textProcess.assertionDetail', 'Assertion Method:') }}
+            <small
+              >({{ $t('resultsDisplay.textProcess.assertionDetail', 'Assertion Method:') }}
               {{ chunk.assertion_details.combination_strategy }},
               {{ $t('resultsDisplay.textProcess.finalStatus', 'Final Status:') }}
-              {{ chunk.assertion_details.final_status }})</small>
+              {{ chunk.assertion_details.final_status }})</small
+            >
           </div>
 
           <!-- Per-chunk HPO terms display -->
@@ -59,7 +59,9 @@
             class="mt-3 per-chunk-matches"
           >
             <h4 class="text-subtitle-2 mb-1">
-              {{ $t('resultsDisplay.textProcess.hpoInChunkTitle', 'HPO Terms found in this Chunk:') }}
+              {{
+                $t('resultsDisplay.textProcess.hpoInChunkTitle', 'HPO Terms found in this Chunk:')
+              }}
             </h4>
             <v-list density="compact" class="pa-0" style="background-color: transparent">
               <v-list-item
@@ -79,7 +81,8 @@
                       rel="noopener noreferrer"
                       class="hpo-link"
                     >
-                      <strong class="mr-1">{{ match.hpo_id }}</strong>{{ match.name }}
+                      <strong class="mr-1">{{ match.hpo_id }}</strong
+                      >{{ match.name }}
                       <v-icon size="x-small" class="ml-1" color="primary">mdi-open-in-new</v-icon>
                     </a>
                   </div>
@@ -95,7 +98,12 @@
             </v-list>
           </div>
           <div v-else class="text-caption text-medium-emphasis mt-2">
-            {{ $t('resultsDisplay.textProcess.noChunkHPOTermsMatched', 'No HPO terms met the retrieval threshold for this specific chunk.') }}
+            {{
+              $t(
+                'resultsDisplay.textProcess.noChunkHPOTermsMatched',
+                'No HPO terms met the retrieval threshold for this specific chunk.'
+              )
+            }}
           </div>
         </v-expansion-panel-text>
       </v-expansion-panel>

@@ -10,33 +10,37 @@
 import { ref } from 'vue';
 import { defineStore } from 'pinia';
 
-export const useQueryPreferencesStore = defineStore('queryPreferences', () => {
-  /**
-   * Whether to include HPO term details (definitions and synonyms) in results
-   * @type {import('vue').Ref<boolean>}
-   */
-  const includeDetails = ref(false);
+export const useQueryPreferencesStore = defineStore(
+  'queryPreferences',
+  () => {
+    /**
+     * Whether to include HPO term details (definitions and synonyms) in results
+     * @type {import('vue').Ref<boolean>}
+     */
+    const includeDetails = ref(false);
 
-  /**
-   * Toggle the include details preference
-   */
-  function toggleIncludeDetails() {
-    includeDetails.value = !includeDetails.value;
+    /**
+     * Toggle the include details preference
+     */
+    function toggleIncludeDetails() {
+      includeDetails.value = !includeDetails.value;
+    }
+
+    /**
+     * Set the include details preference
+     * @param {boolean} value - Whether to include details
+     */
+    function setIncludeDetails(value) {
+      includeDetails.value = Boolean(value);
+    }
+
+    return { includeDetails, toggleIncludeDetails, setIncludeDetails };
+  },
+  {
+    /**
+     * Enable automatic persistence to localStorage
+     * Plugin will automatically save/load state on changes
+     */
+    persist: true,
   }
-
-  /**
-   * Set the include details preference
-   * @param {boolean} value - Whether to include details
-   */
-  function setIncludeDetails(value) {
-    includeDetails.value = Boolean(value);
-  }
-
-  return { includeDetails, toggleIncludeDetails, setIncludeDetails };
-}, {
-  /**
-   * Enable automatic persistence to localStorage
-   * Plugin will automatically save/load state on changes
-   */
-  persist: true,
-});
+);

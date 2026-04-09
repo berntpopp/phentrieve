@@ -3,11 +3,7 @@
     <h3 class="text-h6 my-4">
       {{ $t('resultsDisplay.textProcess.aggregatedTitle', 'Aggregated Document Phenotypes') }}
     </h3>
-    <v-list
-      v-if="terms && terms.length > 0"
-      lines="two"
-      class="rounded-lg mt-2"
-    >
+    <v-list v-if="terms && terms.length > 0" lines="two" class="rounded-lg mt-2">
       <v-list-item
         v-for="(term, index) in terms"
         :key="'agg-' + term.hpo_id + '-' + index"
@@ -64,10 +60,7 @@
               density="comfortable"
             >
               {{
-                $t(
-                  `queryInterface.phenotypeCollection.assertionStatus.${term.status}`,
-                  term.status
-                )
+                $t(`queryInterface.phenotypeCollection.assertionStatus.${term.status}`, term.status)
               }}
             </v-chip>
           </div>
@@ -110,14 +103,21 @@
                 label
                 variant="tonal"
                 style="cursor: pointer"
-                @click="$emit('scroll-to-chunk', term.top_evidence_chunk_id || term.source_chunk_ids[0])"
+                @click="
+                  $emit('scroll-to-chunk', term.top_evidence_chunk_id || term.source_chunk_ids[0])
+                "
               >
                 <v-icon start size="small"> mdi-text-box-search-outline </v-icon>
                 {{ $t('resultsDisplay.textProcess.evidenceFromChunksShort', 'Chunks:') }} #{{
                   term.source_chunk_ids.join(', #')
                 }}
                 <v-tooltip activator="parent" location="top">
-                  {{ $t('resultsDisplay.textProcess.evidenceTooltip', 'Source chunks. Click to see top evidence chunk.') }}
+                  {{
+                    $t(
+                      'resultsDisplay.textProcess.evidenceTooltip',
+                      'Source chunks. Click to see top evidence chunk.'
+                    )
+                  }}
                 </v-tooltip>
               </v-chip>
               <v-chip
@@ -130,7 +130,12 @@
                 {{ term.source_chunk_ids.length }}
                 {{ $t('resultsDisplay.textProcess.hitsText', 'hits') }}
                 <v-tooltip activator="parent" location="top">
-                  {{ $t('resultsDisplay.textProcess.evidenceCountTooltip', 'Number of chunks providing evidence') }}
+                  {{
+                    $t(
+                      'resultsDisplay.textProcess.evidenceCountTooltip',
+                      'Number of chunks providing evidence'
+                    )
+                  }}
                 </v-tooltip>
               </v-chip>
             </div>
@@ -147,10 +152,13 @@
                   ? $t('resultsDisplay.alreadyInCollectionTooltip', { id: term.hpo_id })
                   : $t('resultsDisplay.addToCollectionTooltip', { id: term.hpo_id })
               "
-              @click.stop="$emit('add-to-collection',
-                { hpo_id: term.hpo_id, name: term.name, label: term.name || term.label },
-                term.status || 'affirmed'
-              )"
+              @click.stop="
+                $emit(
+                  'add-to-collection',
+                  { hpo_id: term.hpo_id, name: term.name, label: term.name || term.label },
+                  term.status || 'affirmed'
+                )
+              "
             />
           </div>
 
@@ -220,10 +228,7 @@ function hpoTermUrl(hpoId) {
 }
 
 function hasDetails(term) {
-  return (
-    (term.definition && term.definition.trim()) ||
-    (term.synonyms && term.synonyms.length > 0)
-  );
+  return (term.definition && term.definition.trim()) || (term.synonyms && term.synonyms.length > 0);
 }
 
 function isCollected(hpoId) {
@@ -285,7 +290,9 @@ function toggleDetails(hpoId) {
 }
 
 .custom-hpo-card {
-  transition: box-shadow 0.2s, transform 0.2s;
+  transition:
+    box-shadow 0.2s,
+    transform 0.2s;
 }
 
 .custom-hpo-card:hover {
