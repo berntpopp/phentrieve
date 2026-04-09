@@ -15,10 +15,10 @@ Following best practices:
 import pytest
 
 from phentrieve.retrieval.query_orchestrator import (
-    convert_results_to_candidates,
     format_results,
     segment_text,
 )
+from phentrieve.retrieval.utils import convert_results_to_candidates
 
 pytestmark = pytest.mark.unit
 

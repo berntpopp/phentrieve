@@ -28,14 +28,9 @@ from phentrieve.retrieval.dense_retriever import (
     DenseRetriever,
     calculate_similarity,
 )
-from phentrieve.retrieval.interactive_state import InteractiveState, interactive_state
+from phentrieve.retrieval.interactive_state import interactive_state
 from phentrieve.retrieval.pipeline import execute_single_vector_pipeline
-from phentrieve.retrieval.utils import (
-    convert_multi_vector_to_chromadb_format,
-)
-from phentrieve.retrieval.utils import (
-    convert_results_to_candidates as convert_results_to_candidates,  # noqa: F401 - re-exported
-)
+from phentrieve.retrieval.utils import convert_multi_vector_to_chromadb_format
 
 # Note: CombinedAssertionDetector is imported lazily when needed
 # to avoid requiring spacy (optional dependency) for basic query operations
@@ -44,8 +39,6 @@ from phentrieve.utils import (
     generate_collection_name,
 )
 
-# Backward-compatible aliases for the extracted InteractiveState
-_InteractiveState = InteractiveState
 _interactive_state = interactive_state
 
 

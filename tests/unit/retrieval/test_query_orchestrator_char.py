@@ -8,13 +8,13 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
+from phentrieve.retrieval.interactive_state import InteractiveState
 from phentrieve.retrieval.query_orchestrator import (
-    _InteractiveState,
-    convert_results_to_candidates,
     format_results,
     process_query,
     segment_text,
 )
+from phentrieve.retrieval.utils import convert_results_to_candidates
 
 # Note: convert_multi_vector_to_chromadb_format is tested separately
 # and will move to retrieval/utils.py in Task 4. We do NOT import it here
@@ -233,10 +233,10 @@ class TestSegmentText:
 
 
 class TestInteractiveState:
-    """Tests for _InteractiveState class."""
+    """Tests for InteractiveState class."""
 
     def test_default_values(self):
-        state = _InteractiveState()
+        state = InteractiveState()
         assert state.model is None
         assert state.retriever is None
         assert state.cross_encoder is None
