@@ -434,41 +434,19 @@ export default {
 
     closeAnyOpenPanels() {
       try {
-        // Close the navigation drawer if it's open
-        const navDrawer = document.querySelector('.v-navigation-drawer');
-        if (navDrawer) {
-          // Find any button inside and click it
-          const buttons = navDrawer.querySelectorAll('.v-btn');
-          for (const btn of buttons) {
-            if (btn.offsetParent !== null) {
-              // Check if button is visible
-              btn.click();
-              logService.debug('Clicked button to close collection panel');
-              break;
-            }
-          }
+        // Close the collection panel via reactive state
+        if (this.conversationStore.showCollectionPanel) {
+          this.conversationStore.toggleCollectionPanel();
+          logService.debug('Closed collection panel via store');
         }
 
-        // Close advanced options panel if it's open
-        // First check if there's any button with aria-expanded="true"
-        const expandedButtons = document.querySelectorAll('.v-btn[aria-expanded="true"]');
-        for (const btn of expandedButtons) {
-          if (btn.offsetParent !== null) {
-            // Check if button is visible
-            btn.click();
-            logService.debug('Closed expanded panel');
-          }
-        }
-
-        // Alternative approach for advanced options
-        const tuneIcon = document.querySelector(
-          '.v-icon:contains("mdi-tune"), .v-icon:contains("mdi-cog")'
-        );
-        if (tuneIcon && tuneIcon.closest('.v-btn')) {
-          const advancedPanel = document.querySelector('#advanced-options-panel');
-          if (advancedPanel && advancedPanel.offsetParent !== null) {
-            tuneIcon.closest('.v-btn').click();
-            logService.debug('Closed advanced options using icon button');
+        // Close advanced options panel via data attribute
+        const advancedToggle = document.querySelector('[data-tutorial-step="advanced-options"]');
+        if (advancedToggle) {
+          const isExpanded = advancedToggle.getAttribute('aria-expanded') === 'true';
+          if (isExpanded) {
+            advancedToggle.click();
+            logService.debug('Closed advanced options panel');
           }
         }
       } catch (err) {
@@ -479,80 +457,73 @@ export default {
     initializeTutorialSteps() {
       const steps = [
         {
-          element: '.search-container', // For the first step, target the search container
+          element: '.search-container',
           titleKey: 'tutorial.step1.title',
           contentKey: 'tutorial.step1.content',
           position: 'bottom',
         },
         {
-          element: '.search-input', // Target the search input field (more general selector)
+          element: '.search-input',
           titleKey: 'tutorial.step2.title',
           contentKey: 'tutorial.step2.content',
           position: 'bottom',
         },
         {
-          element: '.v-icon:contains("mdi-magnify")', // Search magnify icon
+          element: '[data-tutorial-step="search-button"]',
           titleKey: 'tutorial.step3.title',
           contentKey: 'tutorial.step3.content',
           position: 'bottom',
         },
         {
-          element: '.conversation-container', // Results area
+          element: '.conversation-container',
           titleKey: 'tutorial.step4.title',
           contentKey: 'tutorial.step4.content',
           position: 'top',
         },
         {
-          element: '.v-icon:contains("mdi-tune"), .v-icon:contains("mdi-cog")', // Advanced options icon
+          element: '[data-tutorial-step="advanced-options"]',
           titleKey: 'tutorial.step5.title',
           contentKey: 'tutorial.step5.content',
           position: 'bottom',
           preAction: () => {
-            // Make sure advanced options panel is closed first
-            const expanded = document.querySelector('.v-btn[aria-expanded="true"]');
-            if (expanded) {
-              expanded.click(); // Close it first
-              setTimeout(() => {}, 100); // Give it a moment
+            // Close advanced options if open
+            const toggle = document.querySelector('[data-tutorial-step="advanced-options"]');
+            if (toggle && toggle.getAttribute('aria-expanded') === 'true') {
+              toggle.click();
             }
           },
         },
         {
-          element: '.collection-fab-position, .collection-fab', // Collection button (more general)
+          element: '[data-tutorial-step="collection-fab"]',
           titleKey: 'tutorial.step6.title',
           contentKey: 'tutorial.step6.content',
           position: 'left',
           preAction: () => {
-            // Force close any open panels first
             this.closeAnyOpenPanels();
           },
         },
         {
-          element: '.v-navigation-drawer', // Collection panel
+          element: '.v-navigation-drawer',
           titleKey: 'tutorial.step7.title',
           contentKey: 'tutorial.step7.content',
           position: 'left',
           preAction: () => {
-            // Close any open panels first
             this.closeAnyOpenPanels();
-            // Then open collection panel
+            // Open collection panel via reactive state
             setTimeout(() => {
-              const collectionButton = document.querySelector(
-                '.collection-fab, .v-btn:has(.v-badge)'
-              );
-              if (collectionButton) {
-                collectionButton.click();
+              if (!this.conversationStore.showCollectionPanel) {
+                this.conversationStore.toggleCollectionPanel();
                 logService.debug('Opened collection panel for tutorial');
               }
             }, 200);
           },
         },
         {
-          element: '.v-footer', // Footer area
+          element: '.v-footer',
           titleKey: 'tutorial.step8.title',
           contentKey: 'tutorial.step8.content',
           position: 'top',
           preAction: () => {
-            // Make sure to close any open panels before showing the footer
             this.closeAnyOpenPanels();
           },
         },

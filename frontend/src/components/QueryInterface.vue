@@ -80,6 +80,7 @@
                   :aria-expanded="showAdvancedOptions.toString()"
                   aria-controls="advanced-options-panel"
                   size="small"
+                  data-tutorial-step="advanced-options"
                   @click="showAdvancedOptions = !showAdvancedOptions"
                 >
                   <v-icon>
@@ -100,6 +101,7 @@
               class="mr-1 mr-sm-2"
               aria-label="Search HPO Terms"
               size="small"
+              data-tutorial-step="search-button"
               @click="submitQuery"
             >
               <v-icon>mdi-magnify</v-icon>
@@ -589,6 +591,7 @@
           size="large"
           elevation="3"
           aria-label="Open HPO Collection Panel"
+          data-tutorial-step="collection-fab"
           @click="toggleCollectionPanel"
         >
           <v-badge
