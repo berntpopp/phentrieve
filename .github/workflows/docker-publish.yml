@@ -125,7 +125,7 @@ jobs:
             BUILD_INDEXES=false
 
       - name: Scan API image with Trivy
-        uses: aquasecurity/trivy-action@0.33.1
+        uses: aquasecurity/trivy-action@0.34.0
         with:
           image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_API }}:${{ steps.meta.outputs.version }}
           format: 'sarif'
@@ -232,7 +232,7 @@ jobs:
             VITE_API_URL=/api/v1
 
       - name: Scan Frontend image with Trivy
-        uses: aquasecurity/trivy-action@0.33.1
+        uses: aquasecurity/trivy-action@0.34.0
         with:
           image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:${{ steps.meta.outputs.version }}
           format: 'sarif'
