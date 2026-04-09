@@ -127,7 +127,7 @@
               v-bind="props"
               icon="mdi-github"
               size="small"
-              href="https://github.com/berntpopp/phentrieve"
+              :href="GITHUB_REPO_URL"
               target="_blank"
               rel="noopener noreferrer"
               variant="text"
@@ -169,7 +169,7 @@
               v-bind="props"
               icon="mdi-license"
               size="small"
-              href="https://github.com/berntpopp/phentrieve/blob/main/LICENSE"
+              :href="`${GITHUB_REPO_URL}/blob/main/LICENSE`"
               target="_blank"
               rel="noopener noreferrer"
               variant="text"
@@ -298,6 +298,7 @@ import { logService } from './services/logService';
 import { tutorialService } from './services/tutorialService';
 import { getAllVersions } from './utils/version';
 import { useApiHealth } from './services/api-health';
+import { GITHUB_REPO_URL } from './constants/urls';
 import DisclaimerDialog from './components/DisclaimerDialog.vue';
 import LogViewer from './components/LogViewer.vue';
 import LanguageSwitcher from './components/LanguageSwitcher.vue';
@@ -323,6 +324,7 @@ export default {
       apiVersion: 'Loading...',
       cliVersion: 'Loading...',
       environment: 'unknown',
+      GITHUB_REPO_URL,
     };
   },
   computed: {

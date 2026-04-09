@@ -841,6 +841,18 @@ import PhentrieveService from '../services/PhentrieveService';
 import { logService } from '../services/logService';
 import { useQueryPreferencesStore } from '../stores/queryPreferences';
 import { useConversationStore } from '../stores/conversation';
+import {
+  DEFAULT_NUM_RESULTS,
+  DEFAULT_SIMILARITY_THRESHOLD,
+  DEFAULT_SPLIT_THRESHOLD,
+  DEFAULT_CHUNK_RETRIEVAL_THRESHOLD,
+  DEFAULT_AGGREGATED_TERM_CONFIDENCE,
+  DEFAULT_INPUT_TEXT_LENGTH_THRESHOLD,
+  DEFAULT_WINDOW_SIZE,
+  DEFAULT_STEP_SIZE,
+  DEFAULT_MIN_SEGMENT_LENGTH,
+  DEFAULT_NUM_RESULTS_PER_CHUNK,
+} from '../constants/defaults';
 // Direct JSON-based implementation instead of using @berntpopp/phenopackets-js
 
 export default {
@@ -869,8 +881,8 @@ export default {
         { text: 'Spanish (Español)', value: 'es' },
         { text: 'Dutch (Nederlands)', value: 'nl' },
       ],
-      similarityThreshold: 0.5,
-      numResults: 10,
+      similarityThreshold: DEFAULT_SIMILARITY_THRESHOLD,
+      numResults: DEFAULT_NUM_RESULTS,
       isLoading: false,
       showAdvancedOptions: false,
       lastUserScrollPosition: 0,
@@ -885,20 +897,20 @@ export default {
         { title: this.$t('phenopacket.sexMale'), value: 2 },
         { title: this.$t('phenopacket.sexOther'), value: 3 },
       ],
-      inputTextLengthThreshold: 120, // Increased threshold
+      inputTextLengthThreshold: DEFAULT_INPUT_TEXT_LENGTH_THRESHOLD,
       forceEndpointMode: null,
       chunkingStrategy: 'sliding_window_punct_conj_cleaned',
-      windowSize: 3,
-      stepSize: 1,
-      splitThreshold: 0.5,
-      minSegmentLength: 2,
+      windowSize: DEFAULT_WINDOW_SIZE,
+      stepSize: DEFAULT_STEP_SIZE,
+      splitThreshold: DEFAULT_SPLIT_THRESHOLD,
+      minSegmentLength: DEFAULT_MIN_SEGMENT_LENGTH,
       semanticModelForChunking: null,
       retrievalModelForTextProcess: null,
-      chunkRetrievalThreshold: 0.7,
-      numResultsPerChunk: 3,
+      chunkRetrievalThreshold: DEFAULT_CHUNK_RETRIEVAL_THRESHOLD,
+      numResultsPerChunk: DEFAULT_NUM_RESULTS_PER_CHUNK,
       noAssertionDetectionForTextProcess: false,
       assertionPreferenceForTextProcess: 'dependency',
-      aggregatedTermConfidence: 0.75,
+      aggregatedTermConfidence: DEFAULT_AGGREGATED_TERM_CONFIDENCE,
       topTermPerChunkForAggregation: false,
     };
   },
@@ -941,7 +953,7 @@ export default {
         // Avoid resetting on initial mount
         logService.info('Model changed', { newModel: newModel, oldModel: oldModel });
         // Reset some query-specific settings to defaults when model changes
-        this.similarityThreshold = 0.5;
+        this.similarityThreshold = DEFAULT_SIMILARITY_THRESHOLD;
         logService.info('Reset query-specific settings to defaults due to model change.');
       }
     },

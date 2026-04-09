@@ -88,7 +88,7 @@
               <div class="flex-grow-1">
                 <div class="d-flex align-center mb-1">
                   <a
-                    :href="`https://hpo.jax.org/browse/term/${result.hpo_id}`"
+                    :href="hpoTermUrl(result.hpo_id)"
                     target="_blank"
                     rel="noopener noreferrer"
                     class="hpo-link"
@@ -380,7 +380,7 @@
                     <!-- Use w-100 for full width -->
                     <div class="text-caption">
                       <a
-                        :href="`https://hpo.jax.org/browse/term/${match.hpo_id}`"
+                        :href="hpoTermUrl(match.hpo_id)"
                         target="_blank"
                         rel="noopener noreferrer"
                         class="hpo-link"
@@ -440,7 +440,7 @@
             <div class="d-flex align-start mb-1">
               <div class="flex-grow-1 d-flex align-center">
                 <a
-                  :href="`https://hpo.jax.org/browse/term/${term.hpo_id}`"
+                  :href="hpoTermUrl(term.hpo_id)"
                   target="_blank"
                   rel="noopener noreferrer"
                   class="hpo-link"
@@ -674,6 +674,7 @@
 <script>
 import { logService } from '../services/logService';
 import SimilarityScore from './SimilarityScore.vue';
+import { HPO_TERM_URL } from '../constants/urls';
 
 export default {
   name: 'ResultsDisplay',
@@ -900,6 +901,9 @@ export default {
       });
 
       this.$emit('add-to-collection', normalizedPhenotype);
+    },
+    hpoTermUrl(hpoId) {
+      return HPO_TERM_URL(hpoId);
     },
     displayModelName(name) {
       // Check cache first (performance optimization - prevents excessive re-computation)
