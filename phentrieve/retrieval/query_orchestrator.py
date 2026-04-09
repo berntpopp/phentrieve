@@ -28,6 +28,7 @@ from phentrieve.retrieval.dense_retriever import (
     DenseRetriever,
     calculate_similarity,
 )
+from phentrieve.retrieval.utils import convert_multi_vector_to_chromadb_format
 
 # Note: CombinedAssertionDetector is imported lazily when needed
 # to avoid requiring spacy (optional dependency) for basic query operations
@@ -56,48 +57,6 @@ class _InteractiveState:
 
 # Singleton instance for interactive mode state
 _interactive_state = _InteractiveState()
-
-
-def convert_multi_vector_to_chromadb_format(
-    multi_vector_results: list[dict[str, Any]],
-) -> dict[str, Any]:
-    """
-    Convert multi-vector aggregated results to ChromaDB-style format.
-
-    This allows reusing existing format_results() and output formatters.
-
-    Args:
-        multi_vector_results: List of aggregated results from query_multi_vector()
-
-    Returns:
-        Dictionary in ChromaDB result format
-    """
-    ids = []
-    metadatas = []
-    documents = []
-    distances = []
-
-    for result in multi_vector_results:
-        ids.append(result["hpo_id"])
-        # Build metadata with component scores
-        metadata = {
-            "hpo_id": result["hpo_id"],
-            "label": result["label"],
-        }
-        # Add component scores if present
-        if "component_scores" in result:
-            metadata["component_scores"] = result["component_scores"]
-        metadatas.append(metadata)
-        documents.append(result["label"])  # Use label as document
-        # Convert similarity to distance (1 - similarity)
-        distances.append(1.0 - result["similarity"])
-
-    return {
-        "ids": [ids],
-        "metadatas": [metadatas],
-        "documents": [documents],
-        "distances": [distances],
-    }
 
 
 def _execute_multi_vector_query(
