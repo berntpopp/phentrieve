@@ -191,7 +191,7 @@ Tests use markers configured in `pyproject.toml`:
 - **`cli/`** - Typer-based CLI commands (query, text, benchmark, data, index, mcp)
 - **`text_processing/`** - Chunking, ConText assertion detection (122 rules, 5 languages), HPO extraction
 - **`indexing/`** - ChromaDB vector indexing
-- **`retrieval/`** - Dense retrieval, cross-encoder re-ranking, aggregation
+- **`retrieval/`** - Dense retrieval, aggregation
 - **`evaluation/`** - Benchmarking, metrics calculation
 - **`data_processing/`** - HPO parsing, SQLite database, data bundling
 
@@ -218,8 +218,6 @@ Thread-safe `@lru_cache` is used throughout for expensive operations (HPO graph 
 **Multilingual Support**: Embedding models are multilingual, HPO translations in `api/hpo_translations/`, text processing adapts via spaCy models, frontend has 5 locales.
 
 **ChromaDB Indexing**: Vector indexes are per-embedding-model in `data/indexes/`. Index names: `{model_name_sanitized}`.
-
-**Cross-Encoder Re-ranking**: Optional via `enable_reranker: true` in `phentrieve.yaml`. Default model: BAAI/bge-reranker-v2-m3. High-confidence dense matches (>=0.7) are preserved from demotion.
 
 **ConText Assertion Detection**: medspaCy-based with direction-aware scope (FORWARD/BACKWARD/BIDIRECTIONAL), TERMINATE boundaries, PSEUDO false positives. 122 rules across EN/DE/ES/FR/NL. See `docs/advanced-topics/negation-detection.md`.
 

@@ -33,5 +33,4 @@ To improve retrieval precision, Phentrieve can use cross-encoder models to re-ra
 ## Section Contents
 
 - [Multilingual Embeddings](multilingual-embeddings.md): How multilingual models enable cross-language matching
-- [Reranking](reranking.md): Advanced re-ranking techniques for improved precision
 - [Ontology Similarity](ontology-similarity.md): Methods for calculating semantic similarity between HPO terms
