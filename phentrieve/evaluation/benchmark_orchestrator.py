@@ -15,10 +15,7 @@ from phentrieve.config import (
     DEFAULT_AGGREGATION_STRATEGY,
     DEFAULT_BENCHMARK_FILE,
     DEFAULT_DETAILED_SUBDIR,
-    DEFAULT_ENABLE_RERANKER,
     DEFAULT_MODEL,
-    DEFAULT_RERANK_CANDIDATE_COUNT,
-    DEFAULT_RERANKER_MODEL,
     DEFAULT_SUMMARIES_SUBDIR,
 )
 from phentrieve.data_processing.test_data_loader import create_sample_test_data
@@ -58,9 +55,6 @@ def orchestrate_benchmark(
     debug: bool = False,
     create_sample: bool = False,
     trust_remote_code: bool = False,
-    enable_reranker: bool = DEFAULT_ENABLE_RERANKER,
-    reranker_model: str | None = None,
-    rerank_count: int = DEFAULT_RERANK_CANDIDATE_COUNT,
     similarity_formula: str = "hybrid",
     data_dir_override: str | None = None,
     index_dir_override: str | None = None,
@@ -84,9 +78,6 @@ def orchestrate_benchmark(
         debug: Whether to enable debug logging
         create_sample: Create a sample test dataset if none exists
         trust_remote_code: Whether to trust remote code when loading the model
-        enable_reranker: Whether to enable cross-encoder re-ranking
-        reranker_model: Model name for the cross-encoder for reranking
-        rerank_count: Number of candidates to re-rank
         similarity_formula: Formula to use for ontology semantic similarity calculation ('hybrid' or 'simple_resnik_like')
         multi_vector: Use multi-vector index with component-level aggregation (Issue #136)
         aggregation_strategy: Strategy for aggregating component scores in multi-vector mode
@@ -101,10 +92,6 @@ def orchestrate_benchmark(
         format="%(asctime)s - %(levelname)s - %(message)s",
         handlers=[logging.StreamHandler()],
     )
-
-    # Use config default for reranker model when not specified
-    if reranker_model is None:
-        reranker_model = DEFAULT_RERANKER_MODEL
 
     # Resolve paths
     resolve_data_path(data_dir_override, "data_dir", get_default_data_dir)
@@ -174,9 +161,6 @@ def orchestrate_benchmark(
                 save_results=True,
                 results_dir=results_dir,
                 index_dir=index_dir,
-                enable_reranker=enable_reranker,
-                reranker_model=reranker_model,
-                rerank_count=rerank_count,
                 similarity_formula=similarity_formula,
                 multi_vector=multi_vector,
                 aggregation_strategy=aggregation_strategy,

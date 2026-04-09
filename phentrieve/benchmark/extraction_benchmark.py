@@ -163,7 +163,6 @@ class HPOExtractor:
             retriever=self._retriever,
             num_results_per_chunk=self.config.num_results_per_chunk,
             chunk_retrieval_threshold=self.config.chunk_retrieval_threshold,
-            cross_encoder=None,
             language=self.config.language,
             top_term_per_chunk=self.config.top_term_per_chunk,
             min_confidence_for_aggregated=self.config.min_confidence_for_aggregated,
