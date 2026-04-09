@@ -844,20 +844,9 @@ import PhentrieveService from '../services/PhentrieveService';
 import { logService } from '../services/logService';
 import { useQueryPreferencesStore } from '../stores/queryPreferences';
 import { useConversationStore } from '../stores/conversation';
-import {
-  DEFAULT_NUM_RESULTS,
-  DEFAULT_SIMILARITY_THRESHOLD,
-  DEFAULT_SPLIT_THRESHOLD,
-  DEFAULT_CHUNK_RETRIEVAL_THRESHOLD,
-  DEFAULT_AGGREGATED_TERM_CONFIDENCE,
-  DEFAULT_INPUT_TEXT_LENGTH_THRESHOLD,
-  DEFAULT_WINDOW_SIZE,
-  DEFAULT_STEP_SIZE,
-  DEFAULT_MIN_SEGMENT_LENGTH,
-  DEFAULT_NUM_RESULTS_PER_CHUNK,
-} from '../constants/defaults';
-import { useFileDownload } from '../composables/useFileDownload';
-// Direct JSON-based implementation instead of using @berntpopp/phenopackets-js
+import { DEFAULT_SIMILARITY_THRESHOLD } from '../constants/defaults';
+import { useAdvancedOptions } from '../composables/useAdvancedOptions';
+import { usePhenotypeCollection } from '../composables/usePhenotypeCollection';
 
 export default {
   name: 'QueryInterface',
@@ -866,10 +855,65 @@ export default {
     ConversationSkeleton,
   },
   setup() {
-    // Initialize conversation store for use in Options API component
     const conversationStore = useConversationStore();
-    const { downloadText, downloadJson } = useFileDownload();
-    return { conversationStore, downloadText, downloadJson };
+
+    const {
+      showAdvancedOptions,
+      numResults,
+      similarityThreshold,
+      splitThreshold,
+      chunkRetrievalThreshold,
+      aggregatedTermConfidence,
+      inputTextLengthThreshold,
+      windowSize,
+      stepSize,
+      minSegmentLength,
+      numResultsPerChunk,
+      toggleAdvancedOptions,
+      resetToDefaults,
+    } = useAdvancedOptions();
+
+    const {
+      phenopacketSubjectId,
+      phenopacketSex,
+      phenopacketDateOfBirth,
+      addPhenotype: addToPhenotypeCollection,
+      removePhenotype,
+      toggleAssertionStatus,
+      clearCollection: clearPhenotypeCollection,
+      toggleCollectionPanel,
+      exportCollectionAsText: exportPhenotypes,
+      exportAsPhenopacket: exportPhenotypesAsPhenopacket,
+    } = usePhenotypeCollection();
+
+    return {
+      conversationStore,
+      // Advanced options
+      showAdvancedOptions,
+      numResults,
+      similarityThreshold,
+      splitThreshold,
+      chunkRetrievalThreshold,
+      aggregatedTermConfidence,
+      inputTextLengthThreshold,
+      windowSize,
+      stepSize,
+      minSegmentLength,
+      numResultsPerChunk,
+      toggleAdvancedOptions,
+      resetToDefaults,
+      // Phenotype collection
+      phenopacketSubjectId,
+      phenopacketSex,
+      phenopacketDateOfBirth,
+      addToPhenotypeCollection,
+      removePhenotype,
+      toggleAssertionStatus,
+      clearPhenotypeCollection,
+      toggleCollectionPanel,
+      exportPhenotypes,
+      exportPhenotypesAsPhenopacket,
+    };
   },
   data() {
     return {
@@ -886,36 +930,22 @@ export default {
         { text: 'Spanish (Español)', value: 'es' },
         { text: 'Dutch (Nederlands)', value: 'nl' },
       ],
-      similarityThreshold: DEFAULT_SIMILARITY_THRESHOLD,
-      numResults: DEFAULT_NUM_RESULTS,
       isLoading: false,
-      showAdvancedOptions: false,
       lastUserScrollPosition: 0,
       userHasScrolled: false,
       shouldScrollToTop: false,
-      phenopacketSubjectId: '',
-      phenopacketSex: null,
-      phenopacketDateOfBirth: null,
       sexOptions: [
         { title: this.$t('phenopacket.sexUnknown'), value: 0 },
         { title: this.$t('phenopacket.sexFemale'), value: 1 },
         { title: this.$t('phenopacket.sexMale'), value: 2 },
         { title: this.$t('phenopacket.sexOther'), value: 3 },
       ],
-      inputTextLengthThreshold: DEFAULT_INPUT_TEXT_LENGTH_THRESHOLD,
       forceEndpointMode: null,
       chunkingStrategy: 'sliding_window_punct_conj_cleaned',
-      windowSize: DEFAULT_WINDOW_SIZE,
-      stepSize: DEFAULT_STEP_SIZE,
-      splitThreshold: DEFAULT_SPLIT_THRESHOLD,
-      minSegmentLength: DEFAULT_MIN_SEGMENT_LENGTH,
       semanticModelForChunking: null,
       retrievalModelForTextProcess: null,
-      chunkRetrievalThreshold: DEFAULT_CHUNK_RETRIEVAL_THRESHOLD,
-      numResultsPerChunk: DEFAULT_NUM_RESULTS_PER_CHUNK,
       noAssertionDetectionForTextProcess: false,
       assertionPreferenceForTextProcess: 'dependency',
-      aggregatedTermConfidence: DEFAULT_AGGREGATED_TERM_CONFIDENCE,
       topTermPerChunkForAggregation: false,
     };
   },
@@ -958,7 +988,7 @@ export default {
         // Avoid resetting on initial mount
         logService.info('Model changed', { newModel: newModel, oldModel: oldModel });
         // Reset some query-specific settings to defaults when model changes
-        this.similarityThreshold = DEFAULT_SIMILARITY_THRESHOLD;
+        this.resetToDefaults();
         logService.info('Reset query-specific settings to defaults due to model change.');
       }
     },
@@ -1097,129 +1127,6 @@ export default {
           container.scrollTo({ top: 0, behavior: 'auto' }); // Use auto for instant jump
         }
       });
-    },
-    addToPhenotypeCollection(phenotype, queryAssertionStatus = null) {
-      // Log the incoming values to help debug
-      logService.info('Adding phenotype to collection', {
-        phenotype,
-        queryAssertionStatus,
-        phenotypeHasAssertionStatus: phenotype.assertion_status ? true : false,
-        phenotypeAssertionStatus: phenotype.assertion_status,
-      });
-
-      // Use the conversation store's addPhenotype method
-      const added = this.conversationStore.addPhenotype(phenotype, queryAssertionStatus);
-      if (added) {
-        logService.debug('Phenotype added to collection via store', {
-          hpo_id: phenotype.hpo_id,
-        });
-      } else {
-        logService.debug('Phenotype was duplicate, not added', {
-          hpo_id: phenotype.hpo_id,
-        });
-      }
-    },
-    removePhenotype(index) {
-      const phenotype = this.conversationStore.collectedPhenotypes[index];
-      logService.info('Removing phenotype from collection', {
-        index,
-        phenotype,
-      });
-      this.conversationStore.removePhenotype(index);
-    },
-    toggleAssertionStatus(index) {
-      this.conversationStore.toggleAssertionStatus(index);
-      const phenotype = this.conversationStore.collectedPhenotypes[index];
-      if (phenotype) {
-        logService.info('Toggled phenotype assertion status', {
-          hpo_id: phenotype.hpo_id,
-          newStatus: phenotype.assertion_status,
-        });
-      }
-    },
-    clearPhenotypeCollection() {
-      logService.info('Clearing phenotype collection and subject information');
-      this.conversationStore.clearPhenotypes();
-      this.phenopacketSubjectId = '';
-      this.phenopacketSex = null;
-      this.phenopacketDateOfBirth = null;
-    },
-    toggleCollectionPanel() {
-      this.conversationStore.toggleCollectionPanel();
-    },
-    exportPhenotypes() {
-      const phenotypes = this.conversationStore.collectedPhenotypes;
-      logService.info('Exporting phenotypes as text', { count: phenotypes.length });
-      let exportText = 'HPO Phenotypes Collection\n';
-      exportText += 'Exported on: ' + new Date().toLocaleString() + '\n\n';
-      exportText += 'ID\tLabel\tAssertion Status\n';
-      phenotypes.forEach((p) => {
-        exportText += `${p.hpo_id}\t${p.label}\t${p.assertion_status || 'affirmed'}\n`;
-      });
-      this.downloadText(exportText, 'hpo_phenotypes.txt');
-    },
-    exportPhenotypesAsPhenopacket() {
-      const phenotypes = this.conversationStore.collectedPhenotypes;
-      if (phenotypes.length === 0) {
-        logService.warn('Attempted to export empty phenopacket collection');
-        return;
-      }
-      logService.info('Starting Phenopacket export process', {
-        count: phenotypes.length,
-      });
-      try {
-        const timestamp = new Date().toISOString();
-        const phenopacketId = `phentrieve-export-${Date.now()}`;
-        const phenopacket = {
-          id: phenopacketId,
-          metaData: {
-            created: timestamp,
-            createdBy: 'Phentrieve Frontend',
-            phenopacketSchemaVersion: '2.0.0',
-            resources: [
-              {
-                id: 'phentrieve',
-                name: 'Phentrieve',
-                namespacePrefix: 'Phentrieve',
-                url: 'https://phentrieve.kidney-genetics.org/',
-                version: import.meta.env.VITE_APP_VERSION || '1.0.0',
-                iriPrefix: 'phentrieve',
-              },
-            ],
-          },
-          phenotypicFeatures: [],
-        };
-        if (
-          this.phenopacketSubjectId ||
-          this.phenopacketSex !== null ||
-          this.phenopacketDateOfBirth
-        ) {
-          phenopacket.subject = {};
-          if (this.phenopacketSubjectId) phenopacket.subject.id = this.phenopacketSubjectId.trim();
-          if (this.phenopacketSex !== null) {
-            const sexMap = { 0: 'UNKNOWN_SEX', 1: 'FEMALE', 2: 'MALE', 3: 'OTHER_SEX' };
-            phenopacket.subject.sex = sexMap[this.phenopacketSex];
-          }
-          if (this.phenopacketDateOfBirth) {
-            const dob = new Date(this.phenopacketDateOfBirth + 'T00:00:00Z');
-            if (!isNaN(dob.getTime()))
-              phenopacket.subject.timeAtLastEncounter = { timestamp: dob.toISOString() };
-          }
-          if (Object.keys(phenopacket.subject).length === 0) delete phenopacket.subject;
-        }
-        phenotypes.forEach((cp) => {
-          phenopacket.phenotypicFeatures.push({
-            type: { id: cp.hpo_id, label: cp.label },
-            excluded: cp.assertion_status === 'negated',
-          });
-        });
-        const filename = `phentrieve_phenopacket_${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
-        this.downloadJson(phenopacket, filename);
-        logService.info('Phenopacket successfully exported', { filename });
-      } catch (error) {
-        logService.error('Error during Phenopacket export', { error });
-        alert('Error exporting Phenopacket. Check console.');
-      }
     },
     async submitQuery(isAutoSubmit = false) {
       const queryTextTrimmed = this.queryText.trim();
