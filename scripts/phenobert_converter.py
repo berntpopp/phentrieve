@@ -21,7 +21,7 @@ from collections.abc import Iterator
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +38,7 @@ class ProvenanceTracker:
     """Tracks provenance information for reproducibility."""
 
     @staticmethod
-    def get_git_version(repo_path: Path) -> Optional[dict[str, Any]]:
+    def get_git_version(repo_path: Path) -> dict[str, Any] | None:
         """
         Extract version information from repository (git or ZIP download).
 
@@ -100,7 +100,7 @@ class ProvenanceTracker:
         return ProvenanceTracker._detect_zip_download(repo_path)
 
     @staticmethod
-    def _detect_zip_download(repo_path: Path) -> Optional[dict[str, Any]]:
+    def _detect_zip_download(repo_path: Path) -> dict[str, Any] | None:
         """
         Detect version info from GitHub ZIP download.
 
@@ -274,7 +274,7 @@ class Annotation:
     end: int
     text: str
     hpo_id: str
-    confidence: Optional[float] = None
+    confidence: float | None = None
 
     def __post_init__(self) -> None:
         """Validate annotation on creation."""
@@ -313,7 +313,7 @@ class ConversionStats:
 
     def set_provenance(
         self,
-        source_version: Optional[dict[str, Any]],
+        source_version: dict[str, Any] | None,
         converter_version: str,
         conversion_date: str,
     ) -> None:
@@ -579,7 +579,7 @@ class AnnotationParser:
                     continue
 
                 try:
-                    confidence_value: Optional[float]
+                    confidence_value: float | None
                     if is_raw:
                         # Raw format: [start::end] HPO_ID | text
                         start, end, hpo_id, text = match.groups()
@@ -655,7 +655,7 @@ class HPOLookup:
 
         logger.info(f"Loaded {len(self.cache)} HPO terms")
 
-    def get_label(self, hpo_id: str) -> Optional[str]:
+    def get_label(self, hpo_id: str) -> str | None:
         """
         Get label for HPO ID.
 

@@ -64,10 +64,10 @@ from phentrieve.embeddings import EmbeddingModel
 def test_embedding_model_initialization():
     # Arrange
     model_name = "FremyCompany/BioLORD-2023-M"
-    
+
     # Act
     model = EmbeddingModel(model_name)
-    
+
     # Assert
     assert model.name == model_name
     assert model.dimension > 0
@@ -77,10 +77,10 @@ def test_embedding_generation():
     # Arrange
     model = EmbeddingModel("FremyCompany/BioLORD-2023-M")
     text = "Microcephaly"
-    
+
     # Act
     embedding = model.embed(text)
-    
+
     # Assert
     assert len(embedding) == model.dimension
 ```
@@ -96,11 +96,11 @@ def test_index_building_with_processor():
     # Arrange
     processor = HPOProcessor()
     builder = IndexBuilder("test_model")
-    
+
     # Act
     terms = processor.process()
     builder.build_index(terms)
-    
+
     # Assert
     assert builder.index_exists()
     assert builder.index_size() > 0
@@ -144,11 +144,11 @@ def test_with_mock(mocker):
     # Mock the ChromaDB client
     mock_client = mocker.patch("phentrieve.indexing.index_builder.chromadb.Client")
     mock_client.return_value.get_collection.return_value.count.return_value = 42
-    
+
     # Act
     builder = IndexBuilder("test_model")
     count = builder.get_document_count()
-    
+
     # Assert
     assert count == 42
 ```

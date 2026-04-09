@@ -129,7 +129,7 @@ async function queryHpoTerms(text, modelName = "FremyCompany/BioLORD-2023-M") {
     num_results: 5,
     similarity_threshold: 0.3
   };
-  
+
   const response = await fetch(url, {
     method: 'POST',
     headers: {
@@ -137,7 +137,7 @@ async function queryHpoTerms(text, modelName = "FremyCompany/BioLORD-2023-M") {
     },
     body: JSON.stringify(payload)
   });
-  
+
   return await response.json();
 }
 

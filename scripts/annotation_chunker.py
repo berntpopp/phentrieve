@@ -163,7 +163,7 @@ def generate_chunk_variants(
     # Generate chunks
     chunks = []
 
-    for ann, (left_bound, right_bound) in zip(annotations, boundaries):
+    for ann, (left_bound, right_bound) in zip(annotations, boundaries, strict=False):
         span = ann["evidence_spans"][0]
         ann_start = span["start_char"]
         ann_end = span["end_char"]

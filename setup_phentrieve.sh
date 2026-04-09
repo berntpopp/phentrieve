@@ -60,7 +60,7 @@ if [ ! -f ".env.docker" ]; then
     echo -e "${YELLOW}IMPORTANT: Review and edit '.env.docker'. Ensure PHENTRIEVE_HOST_DATA_DIR is an absolute path.${NC}"
     echo "   Ensure NPM_SHARED_NETWORK_NAME is set to NPM's actual default network (e.g., 'npm_default')."
     echo "   Set PHENTRIEVE_HOST_HF_CACHE_DIR if you want a custom location for model downloads."
-    
+
     if command -v nano &> /dev/null; then
         echo "Opening .env.docker in nano for you. Save (Ctrl+O, Enter) and Exit (Ctrl+X) when done."
         sleep 2
@@ -73,7 +73,7 @@ fi
 
 echo "Loading environment variables from .env.docker..."
 if [ -f ".env.docker" ]; then
-    set -o allexport 
+    set -o allexport
     source ".env.docker"
     set +o allexport
 else
@@ -93,7 +93,7 @@ echo -e "${GREEN}✓ PHENTRIEVE_HOST_DATA_DIR is set to: $PHENTRIEVE_HOST_DATA_D
 
 # --- Host Directory Structure ---
 echo -e "\n${YELLOW}Step 2: Ensuring Host Data Directory Structure...${NC}"
-HPO_CORE_DATA_SUBDIR_HOST="hpo_core_data" 
+HPO_CORE_DATA_SUBDIR_HOST="hpo_core_data"
 INDEXES_SUBDIR_HOST="indexes"
 TRANSLATIONS_SUBDIR_HOST="hpo_translations"
 RESULTS_SUBDIR_HOST="results"
@@ -101,8 +101,8 @@ HF_CACHE_SUBDIR_HOST_RELATIVE="hf_cache" # Relative to PHENTRIEVE_HOST_DATA_DIR
 
 mkdir -p "$PHENTRIEVE_HOST_DATA_DIR/$HPO_CORE_DATA_SUBDIR_HOST"
 mkdir -p "$PHENTRIEVE_HOST_DATA_DIR/$INDEXES_SUBDIR_HOST"
-mkdir -p "$PHENTRIEVE_HOST_DATA_DIR/$TRANSLATIONS_SUBDIR_HOST/de" 
-mkdir -p "$PHENTRIEVE_HOST_DATA_DIR/$TRANSLATIONS_SUBDIR_HOST/en" 
+mkdir -p "$PHENTRIEVE_HOST_DATA_DIR/$TRANSLATIONS_SUBDIR_HOST/de"
+mkdir -p "$PHENTRIEVE_HOST_DATA_DIR/$TRANSLATIONS_SUBDIR_HOST/en"
 mkdir -p "$PHENTRIEVE_HOST_DATA_DIR/$RESULTS_SUBDIR_HOST/summaries"
 mkdir -p "$PHENTRIEVE_HOST_DATA_DIR/$RESULTS_SUBDIR_HOST/detailed"
 mkdir -p "$PHENTRIEVE_HOST_DATA_DIR/$RESULTS_SUBDIR_HOST/visualizations"
@@ -135,20 +135,20 @@ $COMPOSE_COMMAND -f docker-compose.yml --env-file .env.docker build phentrieve_a
 echo -e "${GREEN}✓ Phentrieve API image build process completed.${NC}"
 
 # --- HPO Data Preparation ---
-CONTAINER_DATA_ROOT_MOUNT_POINT="/phentrieve_data_mount" 
+CONTAINER_DATA_ROOT_MOUNT_POINT="/phentrieve_data_mount"
 CONTAINER_HPO_CORE_DATA_DIR="$CONTAINER_DATA_ROOT_MOUNT_POINT/$HPO_CORE_DATA_SUBDIR_HOST"
 
 echo -e "\n${YELLOW}Step 5: Checking and Preparing HPO Core Data...${NC}"
-HPO_JSON_FILE_HOST="$PHENTRIEVE_HOST_DATA_DIR/$HPO_CORE_DATA_SUBDIR_HOST/hp.json" 
+HPO_JSON_FILE_HOST="$PHENTRIEVE_HOST_DATA_DIR/$HPO_CORE_DATA_SUBDIR_HOST/hp.json"
 
-if [ ! -f "$HPO_JSON_FILE_HOST" ]; then 
+if [ ! -f "$HPO_JSON_FILE_HOST" ]; then
     echo "HPO core data file (hp.json) not found on host at $HPO_JSON_FILE_HOST."
     echo "Running 'phentrieve data prepare' inside a Docker container..."
-    
+
     $COMPOSE_COMMAND -f docker-compose.yml --env-file .env.docker run --rm \
         phentrieve_api phentrieve data prepare --force \
-        --data-dir "$CONTAINER_HPO_CORE_DATA_DIR" 
-    
+        --data-dir "$CONTAINER_HPO_CORE_DATA_DIR"
+
     if [ $? -eq 0 ]; then
         echo -e "${GREEN}✓ HPO core data preparation completed successfully.${NC}"
     else
@@ -180,10 +180,10 @@ INDEX_DIR_HOST="$PHENTRIEVE_HOST_DATA_DIR/$INDEXES_SUBDIR_HOST/phentrieve_$MODEL
 if [ ! -d "$INDEX_DIR_HOST" ] || [ -z "$(ls -A "$INDEX_DIR_HOST" 2>/dev/null)" ]; then
     echo "Index for default model '$DEFAULT_MODEL_FOR_INDEXING' not found or empty in $INDEX_DIR_HOST."
     echo "Running 'phentrieve index build' for the default model inside a Docker container..."
-    
+
     $COMPOSE_COMMAND -f docker-compose.yml --env-file .env.docker run --rm \
         phentrieve_api phentrieve index build --model-name "$DEFAULT_MODEL_FOR_INDEXING" --recreate
-    
+
     if [ $? -eq 0 ]; then
         echo -e "${GREEN}✓ Default model index building completed successfully.${NC}"
     else
@@ -200,7 +200,7 @@ echo -e "${GREEN}=== Phentrieve Setup Script Finished ===${NC}"
 echo -e "\n${YELLOW}IMPORTANT NEXT STEPS:${NC}"
 echo "1.  **DNS Configuration:** Ensure your DNS records point to this server's public IP for the domains:"
 VITE_FRONTEND_URL_PUBLIC_VAL=${VITE_FRONTEND_URL_PUBLIC:-"YOUR_FRONTEND_DOMAIN (e.g., phentrieve.example.com)"}
-VITE_API_URL_PUBLIC_VAL=${VITE_API_URL_PUBLIC:-"YOUR_API_DOMAIN (e.g., api.phentrieve.example.com)"} 
+VITE_API_URL_PUBLIC_VAL=${VITE_API_URL_PUBLIC:-"YOUR_API_DOMAIN (e.g., api.phentrieve.example.com)"}
 VITE_API_URL_PUBLIC_BASE=$(echo $VITE_API_URL_PUBLIC_VAL | sed -E 's|/api/v1/?$||')
 
 echo "    - Frontend: $VITE_FRONTEND_URL_PUBLIC_VAL"
