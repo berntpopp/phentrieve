@@ -13,7 +13,6 @@ class InteractiveState:
 
     model: Any | None = None
     retriever: DenseRetriever | None = None
-    cross_encoder: Any | None = None  # CrossEncoder type from sentence_transformers
     query_assertion_detector: Any | None = None  # CombinedAssertionDetector
     # Multi-vector settings
     multi_vector: bool = False

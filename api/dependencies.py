@@ -6,6 +6,7 @@ from typing import Any, Literal, cast
 from cachetools import TTLCache
 from fastapi import HTTPException
 from fastapi.concurrency import run_in_threadpool
+from phentrieve.retrieval.reranker import load_cross_encoder as load_ce_model
 from sentence_transformers import CrossEncoder, SentenceTransformer
 
 from api.config import CROSS_ENCODER_LOAD_TIMEOUT, SBERT_LOAD_TIMEOUT
@@ -14,7 +15,6 @@ from phentrieve.config import DEFAULT_DEVICE, DEFAULT_MODEL, DEFAULT_MULTI_VECTO
 # Core loader functions
 from phentrieve.embeddings import load_embedding_model
 from phentrieve.retrieval.dense_retriever import DenseRetriever
-from phentrieve.retrieval.reranker import load_cross_encoder as load_ce_model
 from phentrieve.utils import sanitize_log_value
 
 logger = logging.getLogger(__name__)
