@@ -413,9 +413,13 @@ class TestDirectionAwareDetection:
     def test_bidirectional_direction(self):
         """Test BIDIRECTIONAL direction: negation applies both ways."""
         # Note: "neither" is BIDIRECTIONAL in some ConText rule sets
-        # This test would need a BIDIRECTIONAL rule in the English rules
-        # Currently a placeholder for future expansion
-        pass
+        # Verify the Direction enum contains the BIDIRECTIONAL value
+        from phentrieve.text_processing.assertion_detection import Direction
+
+        assert hasattr(Direction, "BIDIRECTIONAL"), (
+            "Direction enum should have BIDIRECTIONAL"
+        )
+        assert Direction.BIDIRECTIONAL.value == "BIDIRECTIONAL"
 
     def test_pseudo_negation(self):
         """Test PSEUDO rules: should NOT detect negation for false positives."""

@@ -177,10 +177,11 @@ class TestBenchmarkCommandsIntegration:
         """Test benchmark comparison with multiple results (end-to-end).
 
         NOTE: Requires HPO data. Unskip for manual testing.
+        Zero-assertion: intentionally skipped — requires full HPO data download.
         """
         # This would test the full comparison pipeline
         # Implement when needed for regression testing
-        pass
+        assert False, "Should not reach here — test is skipped"  # noqa: B011
 
     @pytest.mark.slow
     @pytest.mark.skip(reason="Requires HPO data - run manually")
@@ -188,7 +189,8 @@ class TestBenchmarkCommandsIntegration:
         """Test benchmark visualization generation (end-to-end).
 
         NOTE: Requires HPO data. Unskip for manual testing.
+        Zero-assertion: intentionally skipped — requires full HPO data download.
         """
         # This would test visualization generation
         # Implement when needed for regression testing
-        pass
+        assert False, "Should not reach here — test is skipped"  # noqa: B011

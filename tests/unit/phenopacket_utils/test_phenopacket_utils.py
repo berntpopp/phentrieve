@@ -1,27 +1,30 @@
 import json
-import unittest
+
+import pytest
 
 from phentrieve.phenopackets.utils import format_as_phenopacket_v2
 
+pytestmark = pytest.mark.unit
 
-class TestPhenopacketUtils(unittest.TestCase):
+
+class TestPhenopacketUtils:
     def test_format_as_phenopacket_v2_empty(self):
         """Test with empty aggregated results returns valid Phenopacket."""
         phenopacket_json = format_as_phenopacket_v2(aggregated_results=[])
         phenopacket = json.loads(phenopacket_json)
         # Should return valid Phenopacket structure with no features
-        self.assertIn("id", phenopacket)
-        self.assertIn("metaData", phenopacket)
-        self.assertEqual(len(phenopacket.get("phenotypicFeatures", [])), 0)
+        assert "id" in phenopacket
+        assert "metaData" in phenopacket
+        assert len(phenopacket.get("phenotypicFeatures", [])) == 0
 
     def test_format_as_phenopacket_v2_empty_both(self):
         """Test with no arguments returns valid Phenopacket."""
         phenopacket_json = format_as_phenopacket_v2()
         phenopacket = json.loads(phenopacket_json)
         # Should return valid Phenopacket structure with no features
-        self.assertIn("id", phenopacket)
-        self.assertIn("metaData", phenopacket)
-        self.assertEqual(len(phenopacket.get("phenotypicFeatures", [])), 0)
+        assert "id" in phenopacket
+        assert "metaData" in phenopacket
+        assert len(phenopacket.get("phenotypicFeatures", [])) == 0
 
     def test_format_as_phenopacket_v2_basic_aggregated(self):
         """Test basic phenopacket creation from aggregated results."""
@@ -40,10 +43,10 @@ class TestPhenopacketUtils(unittest.TestCase):
         )
         phenopacket = json.loads(phenopacket_json)
 
-        self.assertIn("id", phenopacket)
-        self.assertIn("phenotypicFeatures", phenopacket)
-        self.assertIn("metaData", phenopacket)
-        self.assertEqual(len(phenopacket["phenotypicFeatures"]), 3)
+        assert "id" in phenopacket
+        assert "phenotypicFeatures" in phenopacket
+        assert "metaData" in phenopacket
+        assert len(phenopacket["phenotypicFeatures"]) == 3
 
     def test_format_as_phenopacket_v2_sorting(self):
         """Test if features are sorted by rank."""
@@ -63,9 +66,9 @@ class TestPhenopacketUtils(unittest.TestCase):
         phenopacket = json.loads(phenopacket_json)
 
         features = phenopacket["phenotypicFeatures"]
-        self.assertEqual(features[0]["type"]["id"], "HP:0001250")
-        self.assertEqual(features[1]["type"]["id"], "HP:0001251")
-        self.assertEqual(features[2]["type"]["id"], "HP:0002315")
+        assert features[0]["type"]["id"] == "HP:0001250"
+        assert features[1]["type"]["id"] == "HP:0001251"
+        assert features[2]["type"]["id"] == "HP:0002315"
 
     def test_format_as_phenopacket_v2_evidence(self):
         """Test that evidence contains confidence and rank information."""
@@ -78,19 +81,19 @@ class TestPhenopacketUtils(unittest.TestCase):
         phenopacket = json.loads(phenopacket_json)
 
         features = phenopacket["phenotypicFeatures"]
-        self.assertEqual(len(features), 1)
+        assert len(features) == 1
 
         evidence = features[0]["evidence"]
-        self.assertEqual(len(evidence), 1)
+        assert len(evidence) == 1
 
         # Check evidence code
-        self.assertEqual(evidence[0]["evidenceCode"]["id"], "ECO:0007636")
-        self.assertIn("computational evidence", evidence[0]["evidenceCode"]["label"])
+        assert evidence[0]["evidenceCode"]["id"] == "ECO:0007636"
+        assert "computational evidence" in evidence[0]["evidenceCode"]["label"]
 
         # Check reference description contains confidence and rank
         description = evidence[0]["reference"]["description"]
-        self.assertIn("0.9000", description)  # confidence
-        self.assertIn("Rank: 1", description)
+        assert "0.9000" in description  # confidence
+        assert "Rank: 1" in description
 
     def test_format_as_phenopacket_v2_chunk_results(self):
         """Test phenopacket creation from chunk results with text evidence."""
@@ -129,33 +132,33 @@ class TestPhenopacketUtils(unittest.TestCase):
         phenopacket_json = format_as_phenopacket_v2(chunk_results=chunk_results)
         phenopacket = json.loads(phenopacket_json)
 
-        self.assertIn("id", phenopacket)
-        self.assertIn("phenotypicFeatures", phenopacket)
-        self.assertEqual(len(phenopacket["phenotypicFeatures"]), 3)
+        assert "id" in phenopacket
+        assert "phenotypicFeatures" in phenopacket
+        assert len(phenopacket["phenotypicFeatures"]) == 3
 
         # Check first feature (from chunk 0)
         feature1 = phenopacket["phenotypicFeatures"][0]
-        self.assertEqual(feature1["type"]["id"], "HP:0002315")
-        self.assertEqual(feature1["type"]["label"], "Headache")
-        self.assertNotIn("excluded", feature1)  # Not excluded (affirmed)
+        assert feature1["type"]["id"] == "HP:0002315"
+        assert feature1["type"]["label"] == "Headache"
+        assert "excluded" not in feature1  # Not excluded (affirmed)
         description1 = feature1["evidence"][0]["reference"]["description"]
-        self.assertIn("Patient has severe headaches", description1)
-        self.assertIn("Chunk: 1", description1)
-        self.assertNotIn("Rank:", description1)  # No rank in chunk-based results
+        assert "Patient has severe headaches" in description1
+        assert "Chunk: 1" in description1
+        assert "Rank:" not in description1  # No rank in chunk-based results
 
         # Check second feature (from chunk 0)
         feature2 = phenopacket["phenotypicFeatures"][1]
-        self.assertEqual(feature2["type"]["id"], "HP:0012228")
+        assert feature2["type"]["id"] == "HP:0012228"
         description2 = feature2["evidence"][0]["reference"]["description"]
-        self.assertIn("Chunk: 1", description2)
+        assert "Chunk: 1" in description2
 
         # Check third feature (from chunk 1, negated)
         feature3 = phenopacket["phenotypicFeatures"][2]
-        self.assertEqual(feature3["type"]["id"], "HP:0001324")
-        self.assertTrue(feature3.get("excluded", False))  # Should be excluded (negated)
+        assert feature3["type"]["id"] == "HP:0001324"
+        assert feature3.get("excluded", False) is True  # Should be excluded (negated)
         description3 = feature3["evidence"][0]["reference"]["description"]
-        self.assertIn("No muscle weakness observed", description3)
-        self.assertIn("Chunk: 2", description3)
+        assert "No muscle weakness observed" in description3
+        assert "Chunk: 2" in description3
 
     def test_format_as_phenopacket_v2_metadata(self):
         """Test the metaData field structure with version information."""
@@ -168,16 +171,16 @@ class TestPhenopacketUtils(unittest.TestCase):
         phenopacket = json.loads(phenopacket_json)
 
         meta = phenopacket["metaData"]
-        self.assertIn("created", meta)
+        assert "created" in meta
         # createdBy should now include version
-        self.assertIn("phentrieve", meta["createdBy"])
-        self.assertEqual(meta["phenopacketSchemaVersion"], "2.0.2")
+        assert "phentrieve" in meta["createdBy"]
+        assert meta["phenopacketSchemaVersion"] == "2.0.2"
 
         # Check HPO resource
         resources = meta["resources"]
-        self.assertEqual(len(resources), 1)
-        self.assertEqual(resources[0]["id"], "hp")
-        self.assertEqual(resources[0]["namespacePrefix"], "HP")
+        assert len(resources) == 1
+        assert resources[0]["id"] == "hp"
+        assert resources[0]["namespacePrefix"] == "HP"
 
     def test_format_as_phenopacket_v2_with_metadata_parameters(self):
         """Test phenopacket with embedding and reranker model metadata."""
@@ -195,23 +198,17 @@ class TestPhenopacketUtils(unittest.TestCase):
 
         meta = phenopacket["metaData"]
         # Check createdBy includes version
-        self.assertEqual(meta["createdBy"], "phentrieve 0.3.0")
+        assert meta["createdBy"] == "phentrieve 0.3.0"
 
         # Check HPO version
-        self.assertEqual(meta["resources"][0]["version"], "v2025-03-03")
+        assert meta["resources"][0]["version"] == "v2025-03-03"
 
         # Check external references for model metadata
-        self.assertIn("externalReferences", meta)
+        assert "externalReferences" in meta
         ext_refs = meta["externalReferences"]
-        self.assertEqual(len(ext_refs), 2)
+        assert len(ext_refs) == 2
 
         # Find embedding and reranker references
         refs_by_id = {ref["id"]: ref["description"] for ref in ext_refs}
-        self.assertEqual(refs_by_id["phentrieve:embedding_model"], "BAAI/bge-m3")
-        self.assertEqual(
-            refs_by_id["phentrieve:reranker_model"], "BAAI/bge-reranker-v2-m3"
-        )
-
-
-if __name__ == "__main__":
-    unittest.main()
+        assert refs_by_id["phentrieve:embedding_model"] == "BAAI/bge-m3"
+        assert refs_by_id["phentrieve:reranker_model"] == "BAAI/bge-reranker-v2-m3"

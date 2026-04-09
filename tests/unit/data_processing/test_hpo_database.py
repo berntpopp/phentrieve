@@ -406,6 +406,9 @@ class TestErrorHandling:
         temp_db.close()
         temp_db.close()  # Should not raise error
 
+        # Assert - connection should be None after close
+        assert temp_db._conn is None
+
     def test_connection_reuse_after_close(self, temp_file_db):
         """Test that new connection is created after close."""
         first_conn = temp_file_db.get_connection()
