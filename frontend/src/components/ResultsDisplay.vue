@@ -221,7 +221,6 @@
 
 <script>
 import { logService } from '../services/logService';
-import SimilarityScore from './SimilarityScore.vue';
 import ResultItem from './ResultItem.vue';
 import ChunkResultsView from './ChunkResultsView.vue';
 import AggregatedTermsView from './AggregatedTermsView.vue';
@@ -230,7 +229,6 @@ import { HPO_TERM_URL } from '../constants/urls';
 export default {
   name: 'ResultsDisplay',
   components: {
-    SimilarityScore,
     ResultItem,
     ChunkResultsView,
     AggregatedTermsView,
