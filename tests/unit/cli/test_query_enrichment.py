@@ -227,10 +227,6 @@ class TestJSONFormatterWithDetails:
         """Test that other fields (rank, hpo_id, etc.) are preserved."""
         import json
 
-        # Add cross-encoder score
-        sample_enriched_results[0]["results"][0]["cross_encoder_score"] = 0.92
-        sample_enriched_results[0]["results"][0]["original_rank"] = 3
-
         output = format_results_as_json(sample_enriched_results, sentence_mode=False)
         data = json.loads(output)
 
@@ -239,8 +235,6 @@ class TestJSONFormatterWithDetails:
         assert first_term["hpo_id"] == "HP:0001250"
         assert first_term["name"] == "Seizure"
         assert first_term["confidence"] == 0.95
-        assert first_term["cross_encoder_score"] == 0.92
-        assert first_term["original_rank"] == 3
         assert "definition" in first_term
         assert "synonyms" in first_term
 

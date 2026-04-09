@@ -183,7 +183,7 @@ class TestPhenopacketUtils:
         assert resources[0]["namespacePrefix"] == "HP"
 
     def test_format_as_phenopacket_v2_with_metadata_parameters(self):
-        """Test phenopacket with embedding and reranker model metadata."""
+        """Test phenopacket with embedding model metadata."""
         aggregated_results = [
             {"id": "HP:0001250", "name": "Seizure", "confidence": 0.9, "rank": 1},
         ]
@@ -191,7 +191,6 @@ class TestPhenopacketUtils:
             aggregated_results=aggregated_results,
             phentrieve_version="0.3.0",
             embedding_model="BAAI/bge-m3",
-            reranker_model="BAAI/bge-reranker-v2-m3",
             hpo_version="v2025-03-03",
         )
         phenopacket = json.loads(phenopacket_json)
@@ -206,9 +205,8 @@ class TestPhenopacketUtils:
         # Check external references for model metadata
         assert "externalReferences" in meta
         ext_refs = meta["externalReferences"]
-        assert len(ext_refs) == 2
+        assert len(ext_refs) == 1
 
-        # Find embedding and reranker references
+        # Find embedding reference
         refs_by_id = {ref["id"]: ref["description"] for ref in ext_refs}
         assert refs_by_id["phentrieve:embedding_model"] == "BAAI/bge-m3"
-        assert refs_by_id["phentrieve:reranker_model"] == "BAAI/bge-reranker-v2-m3"

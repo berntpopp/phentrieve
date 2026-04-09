@@ -118,9 +118,6 @@ class TestRunBenchmarks:
             output="results.csv",
             create_sample=True,
             trust_remote_code=True,
-            enable_reranker=True,
-            reranker_model="cross-encoder",
-            rerank_count=20,
             similarity_formula="simple_resnik_like",
             debug=True,
         )
@@ -137,9 +134,6 @@ class TestRunBenchmarks:
         assert call_kwargs["output"] == "results.csv"
         assert call_kwargs["create_sample"] is True
         assert call_kwargs["trust_remote_code"] is True
-        assert call_kwargs["enable_reranker"] is True
-        assert call_kwargs["reranker_model"] == "cross-encoder"
-        assert call_kwargs["rerank_count"] == 20
         assert call_kwargs["similarity_formula"] == "simple_resnik_like"
         assert call_kwargs["debug"] is True
 
@@ -208,10 +202,6 @@ class TestRunBenchmarks:
         assert "model_name" not in call_kwargs  # Not passed, uses orchestrator default
         assert "model_list" not in call_kwargs  # Not passed, uses orchestrator default
         assert "output" not in call_kwargs  # Not passed, uses orchestrator default
-        assert (
-            "reranker_model" not in call_kwargs
-        )  # Not passed, uses orchestrator default
-
         # Assert - Non-optional params are always passed
         assert call_kwargs["all_models"] is False
         assert call_kwargs["similarity_threshold"] == 0.1
@@ -219,8 +209,6 @@ class TestRunBenchmarks:
         assert call_kwargs["detailed"] is False
         assert call_kwargs["create_sample"] is False
         assert call_kwargs["trust_remote_code"] is False
-        assert call_kwargs["enable_reranker"] is False
-        assert call_kwargs["rerank_count"] == 10
         assert call_kwargs["similarity_formula"] == "hybrid"
         assert call_kwargs["debug"] is False
 

@@ -16,13 +16,11 @@ project_root = Path(__file__).parent.parent.parent.parent
 sys.path.insert(0, str(project_root))
 
 from api.dependencies import (  # noqa: E402
-    LOADED_CROSS_ENCODERS,
     LOADED_SBERT_MODELS,
     MODEL_LOAD_LOCKS,
     MODEL_LOADING_STATUS,
     MODEL_LOADING_TASKS,
     _get_lock_for_model,
-    get_cross_encoder_dependency,
     get_sbert_model_dependency,
 )
 
@@ -33,13 +31,11 @@ pytestmark = pytest.mark.unit
 def clean_global_state():
     """Reset all module-level state between tests."""
     LOADED_SBERT_MODELS.clear()
-    LOADED_CROSS_ENCODERS.clear()
     MODEL_LOADING_STATUS.clear()
     MODEL_LOAD_LOCKS.clear()
     MODEL_LOADING_TASKS.clear()
     yield
     LOADED_SBERT_MODELS.clear()
-    LOADED_CROSS_ENCODERS.clear()
     MODEL_LOADING_STATUS.clear()
     MODEL_LOAD_LOCKS.clear()
     MODEL_LOADING_TASKS.clear()
@@ -80,30 +76,6 @@ class TestSbertModelStatusFailed:
             await get_sbert_model_dependency("test-model")
 
 
-class TestCrossEncoderCacheHit:
-    @pytest.mark.asyncio
-    async def test_returns_cached_cross_encoder(self):
-        mock_ce = MagicMock()
-        LOADED_CROSS_ENCODERS["test-ce"] = mock_ce
-        result = await get_cross_encoder_dependency("test-ce")
-        assert result is mock_ce
-
-    @pytest.mark.asyncio
-    async def test_none_model_returns_none(self):
-        result = await get_cross_encoder_dependency(None)
-        assert result is None
-
-
-class TestCrossEncoderStatusFailed:
-    @pytest.mark.asyncio
-    async def test_failed_status_raises_503(self):
-        MODEL_LOADING_STATUS["test-ce"] = "failed"
-        from fastapi import HTTPException
-
-        with pytest.raises(HTTPException, match="failed to load"):
-            await get_cross_encoder_dependency("test-ce")
-
-
 class TestSbertModelLoadingStatus:
     """Tests for SBERT loading status tracking transitions."""
 
@@ -129,23 +101,3 @@ class TestSbertModelLoadingStatus:
         result2 = await get_sbert_model_dependency("test-model")
         assert result1 is mock_model
         assert result2 is mock_model
-
-
-class TestCrossEncoderLoadingStatus:
-    """Tests for cross-encoder loading status tracking."""
-
-    @pytest.mark.asyncio
-    async def test_loading_status_without_task_raises_503(self):
-        """When status is 'loading' but no task found, raises 503."""
-        MODEL_LOADING_STATUS["test-ce"] = "loading"
-        from fastapi import HTTPException
-
-        with pytest.raises(HTTPException) as exc_info:
-            await get_cross_encoder_dependency("test-ce")
-        assert exc_info.value.status_code == 503
-
-    @pytest.mark.asyncio
-    async def test_empty_string_model_returns_none(self):
-        """Empty string model name returns None."""
-        result = await get_cross_encoder_dependency("")
-        assert result is None

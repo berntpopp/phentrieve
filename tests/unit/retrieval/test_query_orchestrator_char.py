@@ -4,7 +4,7 @@ These tests lock current behavior before refactoring.
 They must pass identically before AND after orchestrator decomposition.
 """
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 
@@ -14,7 +14,6 @@ from phentrieve.retrieval.query_orchestrator import (
     process_query,
     segment_text,
 )
-from phentrieve.retrieval.utils import convert_results_to_candidates
 
 # Note: convert_multi_vector_to_chromadb_format is tested separately
 # and will move to retrieval/utils.py in Task 4. We do NOT import it here
@@ -43,14 +42,6 @@ def mock_retriever():
     return retriever
 
 
-@pytest.fixture
-def mock_cross_encoder_model():
-    """Mock cross-encoder model (not the reranker module)."""
-    model = MagicMock()
-    model.predict.return_value = [0.92, 0.88, 0.70]
-    return model
-
-
 class TestProcessQuerySentenceMode:
     """Tests for process_query with sentence_mode=True."""
 
@@ -68,45 +59,6 @@ class TestProcessQuerySentenceMode:
         assert len(results) >= 1
         # Retriever should be called at least once per sentence
         assert mock_retriever.query.call_count >= 1
-
-    def test_sentence_mode_with_reranking(
-        self, mock_retriever, mock_cross_encoder_model
-    ):
-        """Sentence mode with cross-encoder reranking."""
-        with patch(
-            "phentrieve.retrieval.pipeline.reranker_module"
-        ) as mock_reranker_mod:
-            mock_reranker_mod.protected_dense_rerank.return_value = [
-                {
-                    "hpo_id": "HP:0001250",
-                    "english_doc": "Seizure",
-                    "metadata": {"source": "test"},
-                    "bi_encoder_score": 0.95,
-                    "rank": 1,
-                    "comparison_text": "Seizure",
-                },
-                {
-                    "hpo_id": "HP:0001251",
-                    "english_doc": "Ataxia",
-                    "metadata": {"source": "test"},
-                    "bi_encoder_score": 0.85,
-                    "rank": 2,
-                    "comparison_text": "Ataxia",
-                },
-            ]
-            results = process_query(
-                text="Patient has seizures.",
-                retriever=mock_retriever,
-                cross_encoder=mock_cross_encoder_model,
-                num_results=3,
-                similarity_threshold=0.5,
-                sentence_mode=True,
-                rerank_count=10,
-            )
-            assert isinstance(results, list)
-            assert len(results) >= 1
-            # Reranker should have been called
-            assert mock_reranker_mod.protected_dense_rerank.call_count >= 1
 
     def test_sentence_mode_empty_text_returns_empty(self, mock_retriever):
         """Empty text returns empty results."""
@@ -139,33 +91,6 @@ class TestProcessQueryFullTextMode:
         for result_set in results:
             assert "results" in result_set
 
-    def test_full_text_with_reranking(self, mock_retriever, mock_cross_encoder_model):
-        """Full text with cross-encoder reranking."""
-        with patch(
-            "phentrieve.retrieval.pipeline.reranker_module"
-        ) as mock_reranker_mod:
-            mock_reranker_mod.protected_dense_rerank.return_value = [
-                {
-                    "hpo_id": "HP:0001250",
-                    "english_doc": "Seizure",
-                    "metadata": {"source": "test"},
-                    "bi_encoder_score": 0.95,
-                    "rank": 1,
-                    "comparison_text": "Seizure",
-                },
-            ]
-            results = process_query(
-                text="Patient presents with severe intellectual disability",
-                retriever=mock_retriever,
-                cross_encoder=mock_cross_encoder_model,
-                num_results=3,
-                similarity_threshold=0.5,
-                sentence_mode=False,
-                rerank_count=10,
-            )
-            assert isinstance(results, list)
-            assert mock_reranker_mod.protected_dense_rerank.call_count == 1
-
 
 class TestProcessQueryFallback:
     """Tests for sentence mode falling back to full text when no results."""
@@ -196,30 +121,6 @@ class TestProcessQueryFallback:
         assert mock_retriever.query.call_count >= 2
 
 
-class TestConvertResultsToCandidates:
-    """Tests for convert_results_to_candidates."""
-
-    def test_converts_valid_results(self):
-        results = _make_chromadb_results(
-            ids=["HP:0001250", "HP:0001251"],
-            scores=[0.95, 0.85],
-        )
-        candidates = convert_results_to_candidates(results)
-        assert len(candidates) == 2
-        assert candidates[0]["hpo_id"] == "HP:0001250"
-        assert candidates[0]["rank"] == 1
-        assert abs(candidates[0]["bi_encoder_score"] - 0.95) < 0.01
-
-    def test_empty_results_returns_empty_list(self):
-        results = _make_chromadb_results(ids=[], scores=[])
-        candidates = convert_results_to_candidates(results)
-        assert candidates == []
-
-    def test_none_results_returns_empty_list(self):
-        candidates = convert_results_to_candidates(None)
-        assert candidates == []
-
-
 class TestSegmentText:
     """Tests for segment_text."""
 
@@ -239,7 +140,6 @@ class TestInteractiveState:
         state = InteractiveState()
         assert state.model is None
         assert state.retriever is None
-        assert state.cross_encoder is None
         assert state.multi_vector is False
         assert state.aggregation_strategy == "label_synonyms_max"
 
@@ -372,7 +272,7 @@ class TestProcessQueryMultiVector:
 class TestExecuteSingleVectorPipeline:
     """Tests for the extracted single-vector pipeline."""
 
-    def test_without_reranking(self, mock_retriever):
+    def test_basic_retrieval(self, mock_retriever):
         from phentrieve.retrieval.pipeline import execute_single_vector_pipeline
 
         results = execute_single_vector_pipeline(
@@ -383,73 +283,3 @@ class TestExecuteSingleVectorPipeline:
         assert "ids" in results
         assert len(results["ids"][0]) == 3
         mock_retriever.query.assert_called_once()
-
-    def test_with_reranking(self, mock_retriever, mock_cross_encoder_model):
-        from phentrieve.retrieval.pipeline import execute_single_vector_pipeline
-
-        with patch("phentrieve.retrieval.pipeline.reranker_module") as mock_reranker:
-            mock_reranker.protected_dense_rerank.return_value = [
-                {
-                    "hpo_id": "HP:0001250",
-                    "english_doc": "Seizure",
-                    "metadata": {"source": "test"},
-                    "bi_encoder_score": 0.95,
-                    "rank": 1,
-                    "comparison_text": "Seizure",
-                },
-            ]
-            results = execute_single_vector_pipeline(
-                retriever=mock_retriever,
-                text="seizures",
-                num_results=3,
-                cross_encoder=mock_cross_encoder_model,
-                rerank_count=10,
-            )
-            assert "ids" in results
-            mock_reranker.protected_dense_rerank.assert_called_once()
-
-    def test_reranking_error_falls_back(self, mock_retriever, mock_cross_encoder_model):
-        """When reranking raises an exception, falls back to unranked results."""
-        from phentrieve.retrieval.pipeline import execute_single_vector_pipeline
-
-        with patch("phentrieve.retrieval.pipeline.reranker_module") as mock_reranker:
-            mock_reranker.protected_dense_rerank.side_effect = RuntimeError("fail")
-            results = execute_single_vector_pipeline(
-                retriever=mock_retriever,
-                text="seizures",
-                num_results=3,
-                cross_encoder=mock_cross_encoder_model,
-                rerank_count=10,
-                debug=True,
-                output_func=lambda x: None,
-            )
-            # Should still return results (the unranked ones)
-            assert "ids" in results
-            assert len(results["ids"][0]) == 3
-
-    def test_debug_output(self, mock_retriever, mock_cross_encoder_model):
-        """Debug mode produces output via output_func."""
-        from phentrieve.retrieval.pipeline import execute_single_vector_pipeline
-
-        debug_messages = []
-        with patch("phentrieve.retrieval.pipeline.reranker_module") as mock_reranker:
-            mock_reranker.protected_dense_rerank.return_value = [
-                {
-                    "hpo_id": "HP:0001250",
-                    "english_doc": "Seizure",
-                    "metadata": {"source": "test"},
-                    "bi_encoder_score": 0.95,
-                    "rank": 1,
-                    "comparison_text": "Seizure",
-                },
-            ]
-            execute_single_vector_pipeline(
-                retriever=mock_retriever,
-                text="seizures",
-                num_results=3,
-                cross_encoder=mock_cross_encoder_model,
-                rerank_count=10,
-                debug=True,
-                output_func=debug_messages.append,
-            )
-        assert any("Reranking" in msg for msg in debug_messages)

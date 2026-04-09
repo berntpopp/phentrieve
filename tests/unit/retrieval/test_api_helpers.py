@@ -39,9 +39,6 @@ class TestExecuteHpoRetrievalForApi:
             retriever=mock_retriever,
             num_results=5,
             similarity_threshold=0.5,
-            enable_reranker=False,
-            cross_encoder=None,
-            rerank_count=10,
         )
 
         # Assert
@@ -66,9 +63,6 @@ class TestExecuteHpoRetrievalForApi:
             retriever=mock_retriever,
             num_results=5,
             similarity_threshold=0.5,
-            enable_reranker=False,
-            cross_encoder=None,
-            rerank_count=10,
         )
 
         # Assert
@@ -103,9 +97,6 @@ class TestExecuteHpoRetrievalForApi:
             retriever=mock_retriever,
             num_results=5,
             similarity_threshold=0.5,
-            enable_reranker=False,
-            cross_encoder=None,
-            rerank_count=10,
             detect_query_assertion=False,
         )
 
@@ -124,59 +115,6 @@ class TestExecuteHpoRetrievalForApi:
         )
 
     @pytest.mark.asyncio
-    async def test_successful_retrieval_with_reranking(self, mocker):
-        """Test successful retrieval with cross-encoder reranking."""
-        # Arrange
-        mock_retriever = mocker.Mock()
-        mock_cross_encoder = mocker.Mock()
-        query_text = "Patient has fever"
-
-        # Mock retriever to return results
-        mock_retriever.query.return_value = {
-            "ids": [["HP:0001945", "HP:0011134"]],
-            "documents": [["Fever", "Tetralogy of Fallot"]],
-            "metadatas": [
-                [
-                    {"hpo_id": "HP:0001945", "label": "Fever"},
-                    {"hpo_id": "HP:0011134", "label": "Tetralogy of Fallot"},
-                ]
-            ],
-            "similarities": [[0.85, 0.82]],
-        }
-
-        # Mock cross-encoder to return scores (reverse order to test reranking)
-        mock_cross_encoder.predict.return_value = [0.95, 0.45]
-
-        # Act
-        result = await execute_hpo_retrieval_for_api(
-            text=query_text,
-            language="en",
-            retriever=mock_retriever,
-            num_results=5,
-            similarity_threshold=0.5,
-            enable_reranker=True,
-            cross_encoder=mock_cross_encoder,
-            rerank_count=10,
-            detect_query_assertion=False,
-        )
-
-        # Assert
-        assert len(result["results"]) == 2
-        # After reranking, Fever (0.95 score) should be first
-        assert result["results"][0]["hpo_id"] == "HP:0001945"
-        assert result["results"][0]["cross_encoder_score"] == 0.95
-        # Tetralogy (0.45 score) should be second
-        assert result["results"][1]["hpo_id"] == "HP:0011134"
-        assert result["results"][1]["cross_encoder_score"] == 0.45
-
-        # Verify cross-encoder called with sentence pairs
-        mock_cross_encoder.predict.assert_called_once()
-        call_args = mock_cross_encoder.predict.call_args[0][0]
-        assert len(call_args) == 2
-        assert call_args[0] == (query_text.strip(), "Fever")
-        assert call_args[1] == (query_text.strip(), "Tetralogy of Fallot")
-
-    @pytest.mark.asyncio
     async def test_no_results_found(self, mocker):
         """Test handling when no results are found."""
         # Arrange
@@ -193,9 +131,6 @@ class TestExecuteHpoRetrievalForApi:
             retriever=mock_retriever,
             num_results=5,
             similarity_threshold=0.5,
-            enable_reranker=False,
-            cross_encoder=None,
-            rerank_count=10,
             detect_query_assertion=False,
         )
 
@@ -231,9 +166,6 @@ class TestExecuteHpoRetrievalForApi:
             retriever=mock_retriever,
             num_results=5,
             similarity_threshold=0.5,
-            enable_reranker=False,
-            cross_encoder=None,
-            rerank_count=10,
             detect_query_assertion=False,
         )
 
@@ -266,9 +198,6 @@ class TestExecuteHpoRetrievalForApi:
             retriever=mock_retriever,
             num_results=3,
             similarity_threshold=0.5,
-            enable_reranker=False,
-            cross_encoder=None,
-            rerank_count=10,
             detect_query_assertion=False,
         )
 
@@ -276,42 +205,6 @@ class TestExecuteHpoRetrievalForApi:
         assert len(result["results"]) == 3
         assert result["results"][0]["hpo_id"] == "HP:0001"
         assert result["results"][2]["hpo_id"] == "HP:0003"
-
-    @pytest.mark.asyncio
-    async def test_reranker_disabled_when_cross_encoder_missing(self, mocker):
-        """Test that reranking is disabled if cross_encoder not provided."""
-        # Arrange
-        mock_retriever = mocker.Mock()
-        mock_logger = mocker.patch("phentrieve.retrieval.api_helpers.logger")
-        query_text = "Patient has fever"
-
-        mock_retriever.query.return_value = {
-            "ids": [["HP:0001945"]],
-            "documents": [["Fever"]],
-            "metadatas": [[{"hpo_id": "HP:0001945", "label": "Fever"}]],
-            "similarities": [[0.92]],
-        }
-
-        # Act - enable_reranker=True but cross_encoder=None
-        result = await execute_hpo_retrieval_for_api(
-            text=query_text,
-            language="en",
-            retriever=mock_retriever,
-            num_results=5,
-            similarity_threshold=0.5,
-            enable_reranker=True,  # Requested
-            cross_encoder=None,  # But not provided
-            rerank_count=10,
-            detect_query_assertion=False,
-        )
-
-        # Assert
-        assert len(result["results"]) == 1
-        # Should not have cross_encoder_score
-        assert "cross_encoder_score" not in result["results"][0]
-        # Should log warning
-        mock_logger.warning.assert_called_once()
-        assert "no cross_encoder provided" in mock_logger.warning.call_args[0][0]
 
     @pytest.mark.asyncio
     async def test_assertion_detection_enabled(self, mocker):
@@ -345,9 +238,6 @@ class TestExecuteHpoRetrievalForApi:
             retriever=mock_retriever,
             num_results=5,
             similarity_threshold=0.5,
-            enable_reranker=False,
-            cross_encoder=None,
-            rerank_count=10,
             detect_query_assertion=True,
             query_assertion_language="en",
             query_assertion_preference="dependency",
@@ -385,9 +275,6 @@ class TestExecuteHpoRetrievalForApi:
             retriever=mock_retriever,
             num_results=5,
             similarity_threshold=0.5,
-            enable_reranker=False,
-            cross_encoder=None,
-            rerank_count=10,
             detect_query_assertion=False,  # Disabled
         )
 
@@ -428,9 +315,6 @@ class TestExecuteHpoRetrievalForApi:
             retriever=mock_retriever,
             num_results=5,
             similarity_threshold=0.5,
-            enable_reranker=False,
-            cross_encoder=None,
-            rerank_count=10,
             detect_query_assertion=True,
         )
 
@@ -439,48 +323,6 @@ class TestExecuteHpoRetrievalForApi:
         # Should log warning
         mock_logger.warning.assert_called()
         assert "Error in assertion detection" in mock_logger.warning.call_args[0][0]
-
-    @pytest.mark.asyncio
-    async def test_reranking_error_handling(self, mocker):
-        """Test error handling during reranking."""
-        # Arrange
-        mock_retriever = mocker.Mock()
-        mock_cross_encoder = mocker.Mock()
-        mock_cross_encoder.predict.side_effect = Exception("Reranking failed")
-        # Error is now caught and logged in reranker.py, not api_helpers.py
-        mock_reranker_logger = mocker.patch("phentrieve.retrieval.reranker.logger")
-
-        query_text = "Patient has fever"
-
-        mock_retriever.query.return_value = {
-            "ids": [["HP:0001945"]],
-            "documents": [["Fever"]],
-            "metadatas": [[{"hpo_id": "HP:0001945", "label": "Fever"}]],
-            "similarities": [[0.92]],
-        }
-
-        # Act
-        result = await execute_hpo_retrieval_for_api(
-            text=query_text,
-            language="en",
-            retriever=mock_retriever,
-            num_results=5,
-            similarity_threshold=0.5,
-            enable_reranker=True,
-            cross_encoder=mock_cross_encoder,
-            rerank_count=10,
-            detect_query_assertion=False,
-        )
-
-        # Assert - should continue with dense retrieval results (fallback)
-        assert len(result["results"]) == 1
-        assert result["results"][0]["hpo_id"] == "HP:0001945"
-        # Should log error in reranker module
-        mock_reranker_logger.error.assert_called_once()
-        assert (
-            "Error during protected re-ranking"
-            in mock_reranker_logger.error.call_args[0][0]
-        )
 
     @pytest.mark.asyncio
     async def test_debug_logging_enabled(self, mocker):
@@ -504,9 +346,6 @@ class TestExecuteHpoRetrievalForApi:
             retriever=mock_retriever,
             num_results=5,
             similarity_threshold=0.5,
-            enable_reranker=False,
-            cross_encoder=None,
-            rerank_count=10,
             detect_query_assertion=False,
             debug=True,  # Debug enabled
         )
@@ -518,38 +357,3 @@ class TestExecuteHpoRetrievalForApi:
         # Debug message should be logged
         mock_logger.debug.assert_called()
         assert "Processing API query" in mock_logger.debug.call_args_list[0][0][0]
-
-    @pytest.mark.asyncio
-    async def test_rerank_count_passed_to_retriever(self, mocker):
-        """Test that rerank_count is used when reranking enabled."""
-        # Arrange
-        mock_retriever = mocker.Mock()
-        mock_cross_encoder = mocker.Mock()
-        query_text = "Patient has fever"
-
-        mock_retriever.query.return_value = {
-            "ids": [["HP:0001945"]],
-            "documents": [["Fever"]],
-            "metadatas": [[{"hpo_id": "HP:0001945", "label": "Fever"}]],
-            "similarities": [[0.92]],
-        }
-        mock_cross_encoder.predict.return_value = [0.95]
-
-        # Act - execute retrieval (result not needed, testing side effects)
-        await execute_hpo_retrieval_for_api(
-            text=query_text,
-            language="en",
-            retriever=mock_retriever,
-            num_results=5,
-            similarity_threshold=0.5,
-            enable_reranker=True,
-            cross_encoder=mock_cross_encoder,
-            rerank_count=20,  # Different from num_results
-            detect_query_assertion=False,
-        )
-
-        # Assert
-        # When reranking enabled, should request rerank_count results
-        mock_retriever.query.assert_called_once_with(
-            text=query_text.strip(), n_results=20, include_similarities=True
-        )

@@ -1,7 +1,6 @@
 """Unit tests for query_orchestrator pure functions.
 
 Tests for helper functions used in query orchestration:
-- convert_results_to_candidates: Result format conversion
 - segment_text: Text segmentation
 - format_results: Result formatting and filtering
 
@@ -18,113 +17,8 @@ from phentrieve.retrieval.query_orchestrator import (
     format_results,
     segment_text,
 )
-from phentrieve.retrieval.utils import convert_results_to_candidates
 
 pytestmark = pytest.mark.unit
-
-
-# =============================================================================
-# Tests for convert_results_to_candidates()
-# =============================================================================
-
-
-class TestConvertResultsToCandidates:
-    """Test convert_results_to_candidates() function."""
-
-    def test_converts_valid_chromadb_results_to_candidates(self):
-        """Test converting valid ChromaDB results to candidate format."""
-        # Arrange
-        results = {
-            "ids": [["HP:0001250", "HP:0002066"]],
-            "metadatas": [
-                [
-                    {"hpo_id": "HP:0001250", "label": "Seizure"},
-                    {"hpo_id": "HP:0002066", "label": "Gait ataxia"},
-                ]
-            ],
-            "documents": [["Abnormal electrical discharge", "Walking difficulty"]],
-            "distances": [[0.15, 0.35]],
-        }
-
-        # Act
-        candidates = convert_results_to_candidates(results)
-
-        # Assert
-        assert len(candidates) == 2
-        assert candidates[0]["hpo_id"] == "HP:0001250"
-        assert candidates[0]["english_doc"] == "Abnormal electrical discharge"
-        assert candidates[0]["comparison_text"] == "Abnormal electrical discharge"
-        assert candidates[0]["rank"] == 1
-        assert "bi_encoder_score" in candidates[0]
-        assert candidates[1]["rank"] == 2
-
-    def test_uses_english_doc_for_comparison(self):
-        """Test always uses English documents for cross-lingual comparison."""
-        # Arrange
-        results = {
-            "ids": [["HP:0001250"]],
-            "metadatas": [[{"hpo_id": "HP:0001250", "label": "Seizure"}]],
-            "documents": [["English document"]],
-            "distances": [[0.2]],
-        }
-
-        # Act
-        candidates = convert_results_to_candidates(results)
-
-        # Assert
-        assert candidates[0]["comparison_text"] == "English document"
-        assert candidates[0]["english_doc"] == "English document"
-
-    def test_returns_empty_list_for_empty_results(self):
-        """Test returns empty list when results are empty."""
-        # Arrange
-        results = {"ids": [[]], "metadatas": [[]], "documents": [[]], "distances": [[]]}
-
-        # Act
-        candidates = convert_results_to_candidates(results)
-
-        # Assert
-        assert candidates == []
-
-    def test_returns_empty_list_when_ids_missing(self):
-        """Test returns empty list when ids are missing."""
-        # Arrange
-        results = {}
-
-        # Act
-        candidates = convert_results_to_candidates(results)
-
-        # Assert
-        assert candidates == []
-
-    def test_returns_empty_list_when_ids_none(self):
-        """Test returns empty list when ids is None."""
-        # Arrange
-        results = {"ids": None}
-
-        # Act
-        candidates = convert_results_to_candidates(results)
-
-        # Assert
-        assert candidates == []
-
-    def test_calculates_bi_encoder_similarity_from_distance(self):
-        """Test bi-encoder similarity is calculated from distance."""
-        # Arrange
-        results = {
-            "ids": [["HP:0001250"]],
-            "metadatas": [[{"hpo_id": "HP:0001250", "label": "Seizure"}]],
-            "documents": [["Doc"]],
-            "distances": [[0.1]],  # Small distance = high similarity
-        }
-
-        # Act
-        candidates = convert_results_to_candidates(results)
-
-        # Assert
-        # Distance 0.1 should convert to similarity ~0.9
-        assert candidates[0]["bi_encoder_score"] > 0.8
-        assert candidates[0]["bi_encoder_score"] <= 1.0
 
 
 # =============================================================================
@@ -306,39 +200,6 @@ class TestFormatResults:
 
         # Assert
         assert formatted["results"] == []
-
-    def test_handles_reranked_results(self):
-        """Test handles reranked results with cross_encoder_score."""
-        # Arrange
-        results = {
-            "ids": [["HP:0001250", "HP:0002066"]],
-            "metadatas": [
-                [
-                    {
-                        "hpo_id": "HP:0001250",
-                        "label": "Term 1",
-                        "cross_encoder_score": 0.95,
-                        "original_rank": 2,
-                    },
-                    {
-                        "hpo_id": "HP:0002066",
-                        "label": "Term 2",
-                        "cross_encoder_score": 0.85,
-                        "original_rank": 1,
-                    },
-                ]
-            ],
-            "distances": [[0.2, 0.1]],
-        }
-
-        # Act
-        formatted = format_results(results, max_results=10, reranked=True)
-
-        # Assert
-        # Results should be in order provided (reranked order), not sorted by distance
-        assert len(formatted["results"]) == 2
-        assert formatted["results"][0]["hpo_id"] == "HP:0001250"
-        assert formatted["results"][0]["cross_encoder_score"] == 0.95
 
     def test_coerces_max_results_from_string(self):
         """Test coerces max_results from string to integer."""
