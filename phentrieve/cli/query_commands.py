@@ -51,7 +51,6 @@ def _format_interactive_results(
     output_format: str,
     sentence_mode: bool = False,
     embedding_model: str | None = None,
-    reranker_model: str | None = None,
     input_text: str | None = None,
 ) -> str:
     """Format query results for display in various output formats.
@@ -65,7 +64,6 @@ def _format_interactive_results(
         output_format: Output format (text, json, json_lines, phenopacket_v2_json)
         sentence_mode: Whether sentence mode was used
         embedding_model: Name of embedding model used for retrieval
-        reranker_model: Name of reranker model used (if enabled)
         input_text: Original query text for phenopacket metadata
 
     Returns:
@@ -103,7 +101,6 @@ def _format_interactive_results(
             return format_as_phenopacket_v2(
                 aggregated_results=aggregated_results,
                 embedding_model=embedding_model,
-                reranker_model=reranker_model,
                 input_text=input_text,
             )
         return format_as_phenopacket_v2(input_text=input_text)
@@ -155,19 +152,6 @@ def query_hpo(
             "--trust-remote-code", help="Trust remote code when loading models"
         ),
     ] = False,
-    enable_reranker: Annotated[
-        bool, typer.Option("--enable-reranker", help="Enable cross-encoder re-ranking")
-    ] = False,
-    reranker_model: Annotated[
-        str | None,
-        typer.Option(
-            "--reranker-model", "--rm", help="Cross-encoder model for re-ranking"
-        ),
-    ] = None,
-    rerank_count: Annotated[
-        int,
-        typer.Option("--rerank-count", "--rc", help="Number of candidates to re-rank"),
-    ] = 10,
     output_file: Annotated[
         Path | None,
         typer.Option(
@@ -244,15 +228,14 @@ def query_hpo(
     """Query HPO terms with natural language clinical descriptions.
 
     This command allows querying the HPO term index with clinical text descriptions
-    to find matching HPO terms. It supports various embedding models and optional
-    cross-encoder re-ranking for improved results.
+    to find matching HPO terms. It supports various embedding models.
 
     Results can be printed to the console or saved to a file in various formats:
     - text: Human-readable text output (default)
     - json: Structured JSON output
     - json_lines: JSON Lines format (one JSON object per line)
     """
-    from phentrieve.config import DEFAULT_MODEL, DEFAULT_RERANKER_MODEL
+    from phentrieve.config import DEFAULT_MODEL
     from phentrieve.retrieval.query_orchestrator import orchestrate_query
     from phentrieve.utils import setup_logging_cli
 
@@ -283,8 +266,6 @@ def query_hpo(
             interactive_setup=True,
             model_name=model_name,
             trust_remote_code=trust_remote_code,
-            enable_reranker=enable_reranker,
-            reranker_model=reranker_model or DEFAULT_RERANKER_MODEL,
             device_override=device_override,
             debug=debug,
             output_func=typer_echo,
@@ -384,7 +365,6 @@ def query_hpo(
                         interactive_output_format,
                         sentence_mode,
                         embedding_model=model_name,
-                        reranker_model=reranker_model if enable_reranker else None,
                         input_text=user_input,
                     )
                     # Print to console
@@ -439,9 +419,6 @@ def query_hpo(
             similarity_threshold=similarity_threshold,
             sentence_mode=sentence_mode,
             trust_remote_code=trust_remote_code,
-            enable_reranker=enable_reranker,
-            reranker_model=reranker_model or DEFAULT_RERANKER_MODEL,
-            rerank_count=rerank_count,
             device_override=device_override,
             debug=debug,
             output_func=typer_echo,
@@ -506,7 +483,6 @@ def query_hpo(
                     formatted_output = format_as_phenopacket_v2(
                         aggregated_results=aggregated_results,
                         embedding_model=model_name,
-                        reranker_model=reranker_model if enable_reranker else None,
                     )
                 else:
                     formatted_output = format_as_phenopacket_v2()
