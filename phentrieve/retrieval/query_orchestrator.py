@@ -14,7 +14,6 @@ import torch
 
 from phentrieve.config import (
     DEFAULT_AGGREGATION_STRATEGY,
-    DEFAULT_DENSE_TRUST_THRESHOLD,
     DEFAULT_ENABLE_RERANKER,
     DEFAULT_MODEL,
     DEFAULT_RERANK_CANDIDATE_COUNT,
@@ -29,7 +28,13 @@ from phentrieve.retrieval.dense_retriever import (
     calculate_similarity,
 )
 from phentrieve.retrieval.interactive_state import InteractiveState, interactive_state
-from phentrieve.retrieval.utils import convert_multi_vector_to_chromadb_format
+from phentrieve.retrieval.pipeline import execute_single_vector_pipeline
+from phentrieve.retrieval.utils import (
+    convert_multi_vector_to_chromadb_format,
+)
+from phentrieve.retrieval.utils import (
+    convert_results_to_candidates as convert_results_to_candidates,  # noqa: F401 - re-exported
+)
 
 # Note: CombinedAssertionDetector is imported lazily when needed
 # to avoid requiring spacy (optional dependency) for basic query operations
@@ -77,45 +82,6 @@ def _execute_multi_vector_query(
         custom_formula=custom_formula,
     )
     return convert_multi_vector_to_chromadb_format(multi_results)
-
-
-def convert_results_to_candidates(
-    results: dict[str, Any],
-) -> list[dict[str, Any]]:
-    """
-    Convert ChromaDB query results to candidate format for reranking.
-
-    Args:
-        results: ChromaDB query results dictionary
-
-    Returns:
-        List of candidate dictionaries ready for reranking
-    """
-    candidates: list[dict[str, Any]] = []
-
-    if not results or not results.get("ids") or not results["ids"][0]:
-        return candidates
-
-    ids = results["ids"][0]
-    metadatas = results.get("metadatas", [[]])[0]
-    documents = results.get("documents", [[]])[0]
-    distances = results.get("distances", [[]])[0]
-
-    for j, (hpo_id, metadata, doc, distance) in enumerate(
-        zip(ids, metadatas, documents, distances)
-    ):
-        candidate = {
-            "hpo_id": hpo_id,
-            "english_doc": doc,
-            "metadata": metadata,
-            "rank": j + 1,
-            "bi_encoder_score": calculate_similarity(distance),
-            "comparison_text": doc,  # Always use English document
-        }
-
-        candidates.append(candidate)
-
-    return candidates
 
 
 def segment_text(text: str, lang: str | None = None) -> list[str]:
@@ -487,62 +453,26 @@ def process_query(
                     all_results.append(formatted)
                 continue  # Skip the single-vector path
 
-            # Single-vector query path
-            # Set query count - need more results for reranking
-            if cross_encoder and rerank_count is not None:
-                query_count = rerank_count * 2
-            else:
-                query_count = num_results * 2
-
-            # Query the retriever
-            results = retriever.query(sentence, n_results=query_count)
-
-            # Rerank with cross-encoder if available
-            if cross_encoder and rerank_count:
-                if debug:
-                    output_func("[DEBUG] Reranking with protected dense retrieval")
-                # Convert results to candidates format
-                candidates = convert_results_to_candidates(results)
-                # Protected two-stage reranking: preserves high-confidence dense matches
-                reranked_candidates = reranker.protected_dense_rerank(
-                    sentence,
-                    candidates,
-                    cross_encoder,
-                    trust_threshold=DEFAULT_DENSE_TRUST_THRESHOLD,
-                )
-                # Convert back to ChromaDB format
-                # IMPORTANT: Use bi_encoder_score for distances to preserve dense retrieval similarity
-                # The protected ordering is already correct from protected_dense_rerank
-                reranked_results = {
-                    "ids": [[c["hpo_id"] for c in reranked_candidates]],
-                    "metadatas": [[c["metadata"] for c in reranked_candidates]],
-                    "documents": [[c["english_doc"] for c in reranked_candidates]],
-                    "distances": [
-                        [
-                            1.0 - c.get("bi_encoder_score", 0.0)
-                            for c in reranked_candidates
-                        ]
-                    ],
-                }
-                formatted = format_results(
-                    results=reranked_results,
-                    threshold=similarity_threshold,
-                    max_results=num_results,
-                    query=sentence,
-                    reranked=True,
-                    original_query_assertion_status=original_query_assertion_status,
-                    original_query_assertion_details=original_query_assertion_details,
-                )
-            else:
-                formatted = format_results(
-                    results=results,
-                    threshold=similarity_threshold,
-                    max_results=num_results,
-                    query=sentence,
-                    reranked=False,
-                    original_query_assertion_status=original_query_assertion_status,
-                    original_query_assertion_details=original_query_assertion_details,
-                )
+            # Single-vector query path (delegated to pipeline)
+            results = execute_single_vector_pipeline(
+                retriever=retriever,
+                text=sentence,
+                num_results=num_results,
+                cross_encoder=cross_encoder,
+                rerank_count=rerank_count,
+                debug=debug,
+                output_func=output_func,
+            )
+            reranked = cross_encoder is not None and rerank_count is not None
+            formatted = format_results(
+                results=results,
+                threshold=similarity_threshold,
+                max_results=num_results,
+                query=sentence,
+                reranked=reranked,
+                original_query_assertion_status=original_query_assertion_status,
+                original_query_assertion_details=original_query_assertion_details,
+            )
 
             # Only add if we have valid results
             if formatted and formatted["results"]:
@@ -576,53 +506,27 @@ def process_query(
                 all_results.extend([formatted_result])
                 return all_results
 
-            # Single query mode, no sentence splitting
-            query_result = retriever.query(
-                text,
-                n_results=(
-                    rerank_count if (cross_encoder and rerank_count) else num_results
-                ),
+            # Single-vector fallback (delegated to pipeline)
+            query_result = execute_single_vector_pipeline(
+                retriever=retriever,
+                text=text,
+                num_results=num_results,
+                cross_encoder=cross_encoder,
+                rerank_count=rerank_count,
+                debug=debug,
+                output_func=output_func,
             )
-
-            # Perform re-ranking if a cross-encoder is provided
-            if cross_encoder:
-                # Convert results to candidates format
-                candidates = convert_results_to_candidates(query_result)
-                # Protected two-stage reranking: preserves high-confidence dense matches
-                reranked_candidates = reranker.protected_dense_rerank(
-                    text,
-                    candidates,
-                    cross_encoder,
-                    trust_threshold=DEFAULT_DENSE_TRUST_THRESHOLD,
-                )
-                # Convert back to ChromaDB format
-                # IMPORTANT: Use bi_encoder_score for distances to preserve dense retrieval similarity
-                query_result = {
-                    "ids": [[c["hpo_id"] for c in reranked_candidates]],
-                    "metadatas": [[c["metadata"] for c in reranked_candidates]],
-                    "documents": [[c["english_doc"] for c in reranked_candidates]],
-                    "distances": [
-                        [
-                            1.0 - c.get("bi_encoder_score", 0.0)
-                            for c in reranked_candidates
-                        ]
-                    ],
-                }
-
-            # Format the results into a structured format
+            reranked = cross_encoder is not None and rerank_count is not None
             formatted_result = format_results(
                 query_result,
                 threshold=similarity_threshold,
                 max_results=num_results,
                 query=text,
-                reranked=cross_encoder is not None,
+                reranked=reranked,
                 original_query_assertion_status=original_query_assertion_status,
                 original_query_assertion_details=original_query_assertion_details,
             )
-            structured_results = [formatted_result]
-
-            # Add to the list of results
-            all_results.extend(structured_results)
+            all_results.extend([formatted_result])
 
             output_func("\n---------- Re-Ranked Results (Cross-Encoder) ----------")
             # Return all results collected from sentences
@@ -669,77 +573,28 @@ def process_query(
                 all_results.append(formatted_result)
             return all_results
 
-        # Single-vector query path (original code)
-        # Set query count - need more results for reranking
-        if cross_encoder and rerank_count is not None:
-            query_count = rerank_count * 2
-        else:
-            query_count = num_results * 2
-
-        # Query the retriever
-        results = retriever.query(text, n_results=query_count)
-
-        # Perform re-ranking if a cross-encoder is provided
-        if cross_encoder and rerank_count is not None:
-            if debug:
-                output_func("[DEBUG] Reranking with protected dense retrieval")
-
-            reranked_result = None
-            try:
-                # Convert results to candidates format
-                candidates = convert_results_to_candidates(results)
-                # Protected two-stage reranking: preserves high-confidence dense matches
-                reranked_candidates = reranker.protected_dense_rerank(
-                    text,
-                    candidates,
-                    cross_encoder,
-                    trust_threshold=DEFAULT_DENSE_TRUST_THRESHOLD,
-                )
-                # Convert back to ChromaDB format
-                # IMPORTANT: Use bi_encoder_score for distances to preserve dense retrieval similarity
-                reranked_result = {
-                    "ids": [[c["hpo_id"] for c in reranked_candidates]],
-                    "metadatas": [[c["metadata"] for c in reranked_candidates]],
-                    "documents": [[c["english_doc"] for c in reranked_candidates]],
-                    "distances": [
-                        [
-                            1.0 - c.get("bi_encoder_score", 0.0)
-                            for c in reranked_candidates
-                        ]
-                    ],
-                }
-            except Exception as e:
-                if debug:
-                    output_func(f"[DEBUG] Error during re-ranking: {str(e)}")
-
-            # Format the reranked results if available
-            if reranked_result:
-                formatted_result = format_results(
-                    results=reranked_result,
-                    threshold=similarity_threshold,
-                    max_results=num_results,
-                    query=text,
-                    reranked=True,
-                    original_query_assertion_status=original_query_assertion_status,
-                    original_query_assertion_details=original_query_assertion_details,
-                )
-                if formatted_result and formatted_result["results"]:
-                    all_results.append(formatted_result)
-
-        # Format the original results (or use them if no reranking was done)
-        if not all_results or not cross_encoder:
-            formatted_result = format_results(
-                results=results,
-                threshold=similarity_threshold,
-                max_results=num_results,
-                query=text,
-                reranked=False,
-                original_query_assertion_status=original_query_assertion_status,
-                original_query_assertion_details=original_query_assertion_details,
-            )
-            if formatted_result and formatted_result["results"]:
-                all_results.append(formatted_result)
-            # Return the structured results (could be empty list if no results were found)
+        # Single-vector query path (delegated to pipeline)
+        results = execute_single_vector_pipeline(
+            retriever=retriever,
+            text=text,
+            num_results=num_results,
+            cross_encoder=cross_encoder,
+            rerank_count=rerank_count,
+            debug=debug,
+            output_func=output_func,
+        )
+        reranked = cross_encoder is not None and rerank_count is not None
+        formatted_result = format_results(
+            results=results,
+            threshold=similarity_threshold,
+            max_results=num_results,
+            query=text,
+            reranked=reranked,
+            original_query_assertion_status=original_query_assertion_status,
+            original_query_assertion_details=original_query_assertion_details,
+        )
+        if formatted_result and formatted_result["results"]:
+            all_results.append(formatted_result)
     return all_results
 
 
