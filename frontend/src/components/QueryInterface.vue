@@ -853,6 +853,7 @@ import {
   DEFAULT_MIN_SEGMENT_LENGTH,
   DEFAULT_NUM_RESULTS_PER_CHUNK,
 } from '../constants/defaults';
+import { useFileDownload } from '../composables/useFileDownload';
 // Direct JSON-based implementation instead of using @berntpopp/phenopackets-js
 
 export default {
@@ -864,7 +865,8 @@ export default {
   setup() {
     // Initialize conversation store for use in Options API component
     const conversationStore = useConversationStore();
-    return { conversationStore };
+    const { downloadText, downloadJson } = useFileDownload();
+    return { conversationStore, downloadText, downloadJson };
   },
   data() {
     return {
@@ -1151,15 +1153,7 @@ export default {
       phenotypes.forEach((p) => {
         exportText += `${p.hpo_id}\t${p.label}\t${p.assertion_status || 'affirmed'}\n`;
       });
-      const blob = new Blob([exportText], { type: 'text/plain' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'hpo_phenotypes.txt';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      this.downloadText(exportText, 'hpo_phenotypes.txt');
     },
     exportPhenotypesAsPhenopacket() {
       const phenotypes = this.conversationStore.collectedPhenotypes;
@@ -1216,17 +1210,9 @@ export default {
             excluded: cp.assertion_status === 'negated',
           });
         });
-        const phenopacketJsonString = JSON.stringify(phenopacket, null, 2);
-        const blob = new Blob([phenopacketJsonString], { type: 'application/json;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.download = `phentrieve_phenopacket_${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
-        a.href = url;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        logService.info('Phenopacket successfully exported', { filename: a.download });
+        const filename = `phentrieve_phenopacket_${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+        this.downloadJson(phenopacket, filename);
+        logService.info('Phenopacket successfully exported', { filename });
       } catch (error) {
         logService.error('Error during Phenopacket export', { error });
         alert('Error exporting Phenopacket. Check console.');

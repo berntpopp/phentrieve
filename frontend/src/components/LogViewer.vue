@@ -193,6 +193,7 @@ import { ref, computed, watch } from 'vue';
 import { useLogStore } from '../stores/log';
 import { LogLevel, logService } from '../services/logService';
 import { LOG_CONFIG } from '../config/logConfig';
+import { useFileDownload } from '../composables/useFileDownload';
 
 export default {
   name: 'LogViewer',
@@ -243,17 +244,10 @@ export default {
       return new Date(timestamp).toLocaleTimeString();
     };
 
+    const { downloadJson } = useFileDownload();
+
     const downloadLogs = () => {
-      const content = JSON.stringify(logStore.logs, null, 2);
-      const blob = new Blob([content], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `logs-${new Date().toISOString()}.json`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      downloadJson(logStore.logs, `logs-${new Date().toISOString()}.json`);
     };
 
     const clearLogs = () => {
