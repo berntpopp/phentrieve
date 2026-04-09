@@ -322,7 +322,7 @@ class TestQueryResultsStability:
 
         # Results should match
         for i, (single_result, batch_result) in enumerate(
-            zip(single_results, batch_results)
+            zip(single_results, batch_results, strict=False)
         ):
             assert single_result["ids"] == batch_result["ids"], (
                 f"Query {i}: IDs differ between single and batch"

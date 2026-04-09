@@ -5,7 +5,6 @@ Utility functions for creating benchmark result visualizations.
 
 import logging
 import os
-from typing import Optional
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -19,7 +18,7 @@ K_VALUES_DEFAULT = [1, 3, 5, 10]
 
 def _save_plot(
     fig, output_dir: str, filename_prefix: str, timestamp: str
-) -> Optional[str]:
+) -> str | None:
     """Helper to save a plot and close the figure."""
     try:
         output_file = os.path.join(output_dir, f"{filename_prefix}_{timestamp}.png")
@@ -38,7 +37,7 @@ def _save_plot(
 
 def plot_mrr_comparison(
     summaries_df: pd.DataFrame, output_dir: str, timestamp: str
-) -> Optional[str]:
+) -> str | None:
     """Plots MRR (Dense vs Re-Ranked if available) by model."""
     if summaries_df.empty:
         logger.warning("No data to plot for MRR comparison.")
@@ -161,7 +160,7 @@ def plot_metric_at_k_bars(
     y_label: str,
     output_dir: str,
     timestamp: str,
-) -> Optional[str]:
+) -> str | None:
     """Plots a given metric@K (e.g., Hit Rate, OntSim) as grouped/faceted bar charts."""
     if (
         flat_df.empty
@@ -239,7 +238,7 @@ def plot_metric_at_k_lines(
     y_label: str,
     output_dir: str,
     timestamp: str,
-) -> Optional[str]:
+) -> str | None:
     """Plots a given metric@K as line plots, faceted by model if multiple."""
     if (
         flat_df.empty
@@ -331,7 +330,8 @@ def plot_metric_at_k_lines(
             ["Dense", "Re-Ranked"],
             ["#1f77b4", "#ff7f0e"],
             ["o", "s"],
-            [None, [2, 2]],  # Use list instead of tuple
+            [None, [2, 2]],
+            strict=False,  # Use list instead of tuple
         ):
             method_df = flat_df[flat_df["method"] == method]
             if not method_df.empty:

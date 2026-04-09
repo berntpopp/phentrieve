@@ -7,7 +7,7 @@ between predicted and ground truth HPO terms.
 """
 
 import logging
-from typing import Any, Optional
+from typing import Any
 
 from phentrieve.evaluation.metrics import (
     SimilarityFormula,
@@ -25,9 +25,8 @@ def calculate_semantically_aware_set_based_prf1(
     ground_truth_annotations: list[
         dict[str, Any]
     ],  # List of dicts from full_text_loader
-    target_assertion_status: Optional[
-        str
-    ] = "affirmed",  # e.g., "affirmed", "negated", or None
+    target_assertion_status: str
+    | None = "affirmed",  # e.g., "affirmed", "negated", or None
     semantic_similarity_threshold: float = 0.7,  # Threshold for considering a semantic match
     similarity_formula: SimilarityFormula = SimilarityFormula.HYBRID,
 ) -> dict[str, Any]:

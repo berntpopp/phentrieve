@@ -34,7 +34,7 @@ def orchestrate_hpo_extraction(
     language: str = "en",
     top_term_per_chunk: bool = False,
     min_confidence_for_aggregated: float = 0.0,
-    assertion_statuses: Optional[list[str | None]] = None,
+    assertion_statuses: list[str | None] | None = None,
     include_details: bool = False,
 ) -> tuple[
     list[dict[str, Any]],  # aggregated results

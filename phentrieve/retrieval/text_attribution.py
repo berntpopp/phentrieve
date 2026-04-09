@@ -8,7 +8,7 @@ specific parts of the text.
 
 import logging
 import re
-from typing import Any, Optional
+from typing import Any
 
 from phentrieve.utils import sanitize_log_value as _sanitize
 
@@ -18,8 +18,8 @@ logger = logging.getLogger(__name__)
 def get_text_attributions(
     source_chunk_text: str,
     hpo_term_label: str,
-    hpo_term_synonyms: Optional[list[str]] = None,
-    hpo_term_id: Optional[str] = None,
+    hpo_term_synonyms: list[str] | None = None,
+    hpo_term_id: str | None = None,
 ) -> list[dict[str, Any]]:
     """
     Find text spans in a chunk that correspond to an HPO term or its synonyms.

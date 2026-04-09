@@ -5,7 +5,7 @@ This module contains commands for querying HPO terms.
 
 import traceback
 from pathlib import Path
-from typing import Annotated, Any, Optional
+from typing import Annotated, Any
 
 import typer
 
@@ -50,9 +50,9 @@ def _format_interactive_results(
     query_results: list[dict[str, Any]],
     output_format: str,
     sentence_mode: bool = False,
-    embedding_model: Optional[str] = None,
-    reranker_model: Optional[str] = None,
-    input_text: Optional[str] = None,
+    embedding_model: str | None = None,
+    reranker_model: str | None = None,
+    input_text: str | None = None,
 ) -> str:
     """Format query results for display in various output formats.
 
@@ -113,7 +113,7 @@ def _format_interactive_results(
 
 def query_hpo(
     text: Annotated[
-        Optional[str], typer.Argument(help="Clinical text to query for HPO terms")
+        str | None, typer.Argument(help="Clinical text to query for HPO terms")
     ] = None,
     interactive: Annotated[
         bool,
@@ -124,7 +124,7 @@ def query_hpo(
         ),
     ] = False,
     model_name: Annotated[
-        Optional[str],
+        str | None,
         typer.Option("--model-name", "-m", help="Model name to use for embeddings"),
     ] = "FremyCompany/BioLORD-2023-M",
     num_results: Annotated[
@@ -159,7 +159,7 @@ def query_hpo(
         bool, typer.Option("--enable-reranker", help="Enable cross-encoder re-ranking")
     ] = False,
     reranker_model: Annotated[
-        Optional[str],
+        str | None,
         typer.Option(
             "--reranker-model", "--rm", help="Cross-encoder model for re-ranking"
         ),
@@ -169,7 +169,7 @@ def query_hpo(
         typer.Option("--rerank-count", "--rc", help="Number of candidates to re-rank"),
     ] = 10,
     output_file: Annotated[
-        Optional[Path],
+        Path | None,
         typer.Option(
             "--output-file",
             "-O",
@@ -204,7 +204,7 @@ def query_hpo(
         ),
     ] = False,
     query_assertion_language: Annotated[
-        Optional[str],
+        str | None,
         typer.Option(
             "--query-assertion-language",
             help="Language for query assertion detection (e.g., 'en', 'de'). Defaults to auto-detect or 'en'.",

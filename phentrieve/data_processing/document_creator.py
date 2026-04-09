@@ -7,14 +7,14 @@ into indexable documents with appropriate metadata for vector storage.
 
 import logging
 import os
-from typing import Any, Optional
+from typing import Any
 
 from phentrieve.config import DEFAULT_HPO_DB_FILENAME
 from phentrieve.data_processing.hpo_database import HPODatabase
 from phentrieve.utils import get_default_data_dir, resolve_data_path
 
 
-def load_hpo_terms(data_dir_override: Optional[str] = None) -> list[dict[str, Any]]:
+def load_hpo_terms(data_dir_override: str | None = None) -> list[dict[str, Any]]:
     """
     Load HPO terms from SQLite database.
 

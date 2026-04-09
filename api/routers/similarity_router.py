@@ -7,7 +7,7 @@ between HPO terms using the Human Phenotype Ontology graph structure.
 
 import logging
 from functools import lru_cache
-from typing import Any, Optional
+from typing import Any
 
 from fastapi import APIRouter, HTTPException, Query
 from fastapi import Path as FastApiPath
@@ -81,7 +81,7 @@ async def get_hpo_term_similarity(
         examples=["HP:0000750"],
         pattern=r"^HP:\d{7}$",
     ),
-    formula: Optional[str] = Query(
+    formula: str | None = Query(
         default=DEFAULT_SIMILARITY_FORMULA,
         description="The semantic similarity formula to apply ('hybrid' or 'simple_resnik_like').",
     ),

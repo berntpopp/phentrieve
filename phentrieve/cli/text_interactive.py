@@ -7,7 +7,7 @@ HPO term extraction with rich formatting and visualization.
 import logging
 import time
 import traceback
-from typing import Annotated, Any, Optional
+from typing import Annotated, Any
 
 import typer
 
@@ -202,7 +202,7 @@ def interactive_text_mode(
         ),
     ] = 2,
     semantic_chunker_model: Annotated[
-        Optional[str],
+        str | None,
         typer.Option(
             "--semantic-model",
             "--s-model",
@@ -210,7 +210,7 @@ def interactive_text_mode(
         ),
     ] = DEFAULT_MODEL,
     retrieval_model: Annotated[
-        Optional[str],
+        str | None,
         typer.Option("--model", "-m", help="Model name for HPO term retrieval"),
     ] = None,
     chunk_retrieval_threshold: Annotated[
@@ -252,7 +252,7 @@ def interactive_text_mode(
         ),
     ] = False,
     reranker_model: Annotated[
-        Optional[str],
+        str | None,
         typer.Option(
             "--reranker-model",
             help="Cross-encoder model for reranking (if reranking enabled)",
@@ -441,7 +441,7 @@ def interactive_text_mode(
     # Store last results for export
     last_chunk_results = None
     last_processed_chunks = None
-    last_input_text: Optional[str] = None
+    last_input_text: str | None = None
 
     # Interactive loop
     while True:

@@ -10,7 +10,6 @@ Supports both single-vector and multi-vector index types (see issue #136).
 import logging
 import os
 import time
-from typing import Optional
 
 from phentrieve.config import BENCHMARK_MODELS, DEFAULT_MODEL
 from phentrieve.data_processing.document_creator import (
@@ -27,15 +26,15 @@ from phentrieve.utils import get_default_index_dir, resolve_data_path
 
 
 def orchestrate_index_building(
-    model_name_arg: Optional[str] = None,
+    model_name_arg: str | None = None,
     all_models: bool = False,
     batch_size: int = 100,
     trust_remote_code: bool = False,
-    device_override: Optional[str] = None,
+    device_override: str | None = None,
     recreate: bool = False,
     debug: bool = False,
-    index_dir_override: Optional[str] = None,
-    data_dir_override: Optional[str] = None,
+    index_dir_override: str | None = None,
+    data_dir_override: str | None = None,
     multi_vector: bool = False,
 ) -> bool:
     """Orchestrates loading data, models, and building ChromaDB indexes.

@@ -4,7 +4,7 @@ import datetime
 import logging
 import uuid
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from google.protobuf.json_format import MessageToJson
 from google.protobuf.timestamp_pb2 import Timestamp
@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 _MAX_INPUT_TEXT_LENGTH = 1000
 
 
-def _get_hpo_version_from_db(db_path: Optional[Path | str] = None) -> str:
+def _get_hpo_version_from_db(db_path: Path | str | None = None) -> str:
     """
     Get HPO version from database metadata.
 
@@ -85,13 +85,13 @@ def _get_hpo_version_from_db(db_path: Optional[Path | str] = None) -> str:
 
 
 def format_as_phenopacket_v2(
-    aggregated_results: Optional[list[dict[str, Any]]] = None,
-    chunk_results: Optional[list[dict[str, Any]]] = None,
-    phentrieve_version: Optional[str] = None,
-    embedding_model: Optional[str] = None,
-    reranker_model: Optional[str] = None,
-    hpo_version: Optional[str] = None,
-    input_text: Optional[str] = None,
+    aggregated_results: list[dict[str, Any]] | None = None,
+    chunk_results: list[dict[str, Any]] | None = None,
+    phentrieve_version: str | None = None,
+    embedding_model: str | None = None,
+    reranker_model: str | None = None,
+    hpo_version: str | None = None,
+    input_text: str | None = None,
 ) -> str:
     """Format HPO extraction results as a Phenopacket v2 JSON string.
 
@@ -164,10 +164,10 @@ def format_as_phenopacket_v2(
 def _format_from_chunk_results(
     chunk_results: list[dict[str, Any]],
     phentrieve_version: str = "unknown",
-    embedding_model: Optional[str] = None,
-    reranker_model: Optional[str] = None,
+    embedding_model: str | None = None,
+    reranker_model: str | None = None,
     hpo_version: str = "unknown",
-    input_text: Optional[str] = None,
+    input_text: str | None = None,
 ) -> str:
     """Format phenopacket from chunk-level results with text evidence.
 
@@ -264,10 +264,10 @@ def _format_from_chunk_results(
 def _format_from_aggregated_results(
     aggregated_results: list[dict[str, Any]],
     phentrieve_version: str = "unknown",
-    embedding_model: Optional[str] = None,
-    reranker_model: Optional[str] = None,
+    embedding_model: str | None = None,
+    reranker_model: str | None = None,
     hpo_version: str = "unknown",
-    input_text: Optional[str] = None,
+    input_text: str | None = None,
 ) -> str:
     """Format phenopacket from aggregated results (legacy/fallback format).
 
@@ -333,10 +333,10 @@ def _create_phenopacket_json(
     phenopacket_id: str,
     phenotypic_features: list[PhenotypicFeature],
     phentrieve_version: str = "unknown",
-    embedding_model: Optional[str] = None,
-    reranker_model: Optional[str] = None,
+    embedding_model: str | None = None,
+    reranker_model: str | None = None,
     hpo_version: str = "unknown",
-    input_text: Optional[str] = None,
+    input_text: str | None = None,
 ) -> str:
     """Create the final Phenopacket JSON from components.
 

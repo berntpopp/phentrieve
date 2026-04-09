@@ -6,7 +6,7 @@ of text processing operations including chunking and assertion detection.
 """
 
 import logging
-from typing import Any, Optional
+from typing import Any
 
 from sentence_transformers import SentenceTransformer
 
@@ -48,7 +48,7 @@ class TextProcessingPipeline:
         language: str,
         chunking_pipeline_config: list[dict],
         assertion_config: dict,
-        sbert_model_for_semantic_chunking: Optional[SentenceTransformer] = None,
+        sbert_model_for_semantic_chunking: SentenceTransformer | None = None,
     ):
         """
         Initialize the text processing pipeline.

@@ -1,5 +1,5 @@
 import logging
-from typing import Literal, Optional, cast
+from typing import Literal, cast
 
 from fastapi import APIRouter, Depends, HTTPException
 
@@ -27,7 +27,7 @@ router = APIRouter()  # Prefix will be added in main.py
 
 def _resolve_query_language(
     text: str,
-    language: Optional[str] = None,
+    language: str | None = None,
     default_language: str = DEFAULT_LANGUAGE,
 ) -> str:
     """Resolve the language for a query text.
@@ -95,14 +95,14 @@ async def get_retriever_for_get_params(
 )
 async def run_hpo_query_get(
     text: str,
-    model_name: Optional[str] = DEFAULT_MODEL,
-    language: Optional[str] = None,  # Will auto-detect if not provided
+    model_name: str | None = DEFAULT_MODEL,
+    language: str | None = None,  # Will auto-detect if not provided
     num_results: int = 10,
     similarity_threshold: float = 0.3,
     include_details: bool = False,
     enable_reranker: bool = False,
     detect_query_assertion: bool = True,
-    query_assertion_language: Optional[str] = None,
+    query_assertion_language: str | None = None,
     query_assertion_preference: str = "dependency",
     retriever: DenseRetriever = Depends(
         lambda model=DEFAULT_MODEL: get_retriever_for_get_params(model)

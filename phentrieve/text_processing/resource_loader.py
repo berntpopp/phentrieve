@@ -10,7 +10,7 @@ import importlib.resources
 import json
 import logging
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +26,7 @@ _RESOURCE_CACHE: dict[str, dict[str, list[str]]] = {}
 def load_language_resource(
     default_resource_filename: str,
     config_key_for_custom_file: str,
-    language_resources_config_section: Optional[dict[str, Any]] = None,
+    language_resources_config_section: dict[str, Any] | None = None,
 ) -> dict[str, list[str]]:
     """
     Load a language resource from JSON files, with user overrides if provided.

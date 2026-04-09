@@ -7,7 +7,6 @@ default settings, and system status to clients (e.g., frontend applications).
 
 import logging
 from pathlib import Path
-from typing import Optional
 
 from fastapi import APIRouter, HTTPException
 
@@ -27,14 +26,14 @@ logger = logging.getLogger(__name__)
 router = APIRouter(tags=["Configuration & Information"])
 
 
-def _get_hpo_metadata() -> dict[str, Optional[str | int]]:
+def _get_hpo_metadata() -> dict[str, str | int | None]:
     """Load HPO metadata from database.
 
     Returns:
         Dictionary with version, download_date, and term_count.
         Values are None if database is unavailable.
     """
-    result: dict[str, Optional[str | int]] = {
+    result: dict[str, str | int | None] = {
         "version": None,
         "download_date": None,
         "term_count": None,

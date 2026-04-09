@@ -9,7 +9,7 @@ The primary semantic chunking is handled by SlidingWindowSemanticSplitter in a s
 import logging
 import re
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 # Lazy imports for heavy dependencies
 # This avoids loading torch/transformers at module import time
@@ -83,11 +83,11 @@ class FinalChunkCleaner(TextChunker):
         min_cleaned_chunk_length_chars: int = 1,  # Minimum chars after cleaning
         filter_short_low_value_chunks_max_words: int = 2,  # Max words for low value check
         max_cleanup_passes: int = 3,  # Prevent infinite loops
-        custom_leading_words_to_remove: Optional[list[str]] = None,
-        custom_trailing_words_to_remove: Optional[list[str]] = None,
-        custom_trailing_punctuation: Optional[str] = None,
-        custom_leading_punctuation: Optional[str] = None,
-        custom_low_value_words: Optional[list[str]] = None,  # Custom low-value words
+        custom_leading_words_to_remove: list[str] | None = None,
+        custom_trailing_words_to_remove: list[str] | None = None,
+        custom_trailing_punctuation: str | None = None,
+        custom_leading_punctuation: str | None = None,
+        custom_low_value_words: list[str] | None = None,  # Custom low-value words
         **kwargs,
     ):
         """

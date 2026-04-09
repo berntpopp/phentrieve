@@ -89,7 +89,7 @@ include = ["phentrieve*", "api*"]
 
 [tool.ruff]
 line-length = 88
-target-version = "py39"
+target-version = "py310"
 fix = true
 exclude = [
     ".git",

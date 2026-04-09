@@ -11,7 +11,7 @@ import os
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 import pandas as pd
 import torch
@@ -97,7 +97,7 @@ def run_evaluation(
     k_values: tuple[int, ...] = DEFAULT_K_VALUES,
     similarity_threshold: float = DEFAULT_SIMILARITY_THRESHOLD,
     debug: bool = False,
-    device: Optional[str] = None,
+    device: str | None = None,
     trust_remote_code: bool = False,
     save_results: bool = True,
     results_dir: Path | None = None,
@@ -109,7 +109,7 @@ def run_evaluation(
     # Multi-vector parameters (Issue #136)
     multi_vector: bool = False,
     aggregation_strategy: str = DEFAULT_AGGREGATION_STRATEGY,
-) -> Optional[dict[str, Any]]:
+) -> dict[str, Any] | None:
     """
     Run a complete benchmark evaluation for a model on a test dataset.
 

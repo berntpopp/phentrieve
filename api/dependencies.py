@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from typing import Literal, Optional
+from typing import Literal
 
 from fastapi import HTTPException
 from fastapi.concurrency import run_in_threadpool
@@ -26,7 +26,7 @@ _sanitize = sanitize_log_value
 LOADED_SBERT_MODELS: dict[str, SentenceTransformer] = {}
 # Key is now only model name, no need for index_dir in key
 LOADED_RETRIEVERS: dict[str, DenseRetriever] = {}
-LOADED_CROSS_ENCODERS: dict[str, Optional[CrossEncoder]] = {}
+LOADED_CROSS_ENCODERS: dict[str, CrossEncoder | None] = {}
 
 # Model loading status tracking
 ModelLoadStatus = Literal["not_loaded", "loading", "loaded", "failed"]
@@ -44,7 +44,7 @@ def _get_lock_for_model(model_name: str) -> asyncio.Lock:
 
 
 async def _load_model_in_background(
-    model_name: str, is_sbert: bool, trust_remote_code: bool, device: Optional[str]
+    model_name: str, is_sbert: bool, trust_remote_code: bool, device: str | None
 ):
     """Load the specified model (SBERT or CrossEncoder) in background using run_in_threadpool.
 
@@ -99,9 +99,9 @@ async def _load_model_in_background(
 
 
 async def get_sbert_model_dependency(
-    model_name_requested: Optional[str] = None,
+    model_name_requested: str | None = None,
     trust_remote_code: bool = False,  # From API config
-    device_override: Optional[str] = None,  # From config/request
+    device_override: str | None = None,  # From config/request
 ) -> SentenceTransformer:
     model_name = model_name_requested or DEFAULT_MODEL
     device = device_override or DEFAULT_DEVICE
@@ -277,8 +277,8 @@ async def get_dense_retriever_dependency(
 
 
 async def get_cross_encoder_dependency(
-    reranker_model_name: Optional[str] = None, device_override: Optional[str] = None
-) -> Optional[CrossEncoder]:
+    reranker_model_name: str | None = None, device_override: str | None = None
+) -> CrossEncoder | None:
     if not reranker_model_name:
         return None
 

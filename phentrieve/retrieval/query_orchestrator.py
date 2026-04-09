@@ -7,7 +7,8 @@ interactive query script to be usable from the CLI interface.
 """
 
 import logging
-from typing import Any, Callable, Optional, Union
+from collections.abc import Callable
+from typing import Any
 
 import pysbd
 import torch
@@ -43,15 +44,15 @@ from phentrieve.utils import (
 class _InteractiveState:
     """Container for interactive mode state across query sessions."""
 
-    model: Optional[Any] = None
-    retriever: Optional[DenseRetriever] = None
-    cross_encoder: Optional[Any] = None  # CrossEncoder type from sentence_transformers
-    query_assertion_detector: Optional[Any] = None  # CombinedAssertionDetector
+    model: Any | None = None
+    retriever: DenseRetriever | None = None
+    cross_encoder: Any | None = None  # CrossEncoder type from sentence_transformers
+    query_assertion_detector: Any | None = None  # CombinedAssertionDetector
     # Multi-vector settings
     multi_vector: bool = False
     aggregation_strategy: str = "label_synonyms_max"
-    component_weights: Optional[dict[str, float]] = None
-    custom_formula: Optional[str] = None
+    component_weights: dict[str, float] | None = None
+    custom_formula: str | None = None
 
 
 # Singleton instance for interactive mode state
@@ -105,8 +106,8 @@ def _execute_multi_vector_query(
     text: str,
     num_results: int,
     aggregation_strategy: str,
-    component_weights: Optional[dict[str, float]],
-    custom_formula: Optional[str],
+    component_weights: dict[str, float] | None,
+    custom_formula: str | None,
 ) -> dict[str, Any]:
     """
     Execute a multi-vector query and convert results to ChromaDB format.
@@ -159,7 +160,7 @@ def convert_results_to_candidates(
     distances = results.get("distances", [[]])[0]
 
     for j, (hpo_id, metadata, doc, distance) in enumerate(
-        zip(ids, metadatas, documents, distances)
+        zip(ids, metadatas, documents, distances, strict=False)
     ):
         candidate = {
             "hpo_id": hpo_id,
@@ -272,7 +273,9 @@ def format_results(
     distances = results["distances"][0] if has_distances else [0.0] * len(ids)
 
     # Iterate through all results
-    for i, (_doc_id, metadata, distance) in enumerate(zip(ids, metadatas, distances)):
+    for i, (_doc_id, metadata, distance) in enumerate(
+        zip(ids, metadatas, distances, strict=False)
+    ):
         # Calculate bi-encoder similarity from distance
         bi_encoder_similarity = calculate_similarity(distance)
 
@@ -435,8 +438,8 @@ def process_query(
     # Multi-vector parameters (Issue #136)
     multi_vector: bool = False,
     aggregation_strategy: str = DEFAULT_AGGREGATION_STRATEGY,
-    component_weights: Optional[dict[str, float]] = None,
-    custom_formula: Optional[str] = None,
+    component_weights: dict[str, float] | None = None,
+    custom_formula: str | None = None,
 ) -> list[dict[str, Any]]:
     """
     Process input text, either as a whole or sentence by sentence.
@@ -801,7 +804,7 @@ def process_query(
 
 
 def orchestrate_query(
-    query_text: Optional[str] = None,
+    query_text: str | None = None,
     model_name: str = DEFAULT_MODEL,
     num_results: int = DEFAULT_TOP_K,
     similarity_threshold: float = MIN_SIMILARITY_THRESHOLD,
@@ -810,20 +813,20 @@ def orchestrate_query(
     enable_reranker: bool = DEFAULT_ENABLE_RERANKER,
     reranker_model: str = DEFAULT_RERANKER_MODEL,
     rerank_count: int = DEFAULT_RERANK_CANDIDATE_COUNT,
-    device_override: Optional[str] = None,
+    device_override: str | None = None,
     debug: bool = False,
     output_func: Callable = print,
     interactive_setup: bool = False,
     interactive_mode: bool = False,
     detect_query_assertion: bool = False,
-    query_assertion_language: Optional[str] = None,
+    query_assertion_language: str | None = None,
     query_assertion_preference: str = "dependency",
     # Multi-vector parameters (Issue #136)
     multi_vector: bool = False,
     aggregation_strategy: str = DEFAULT_AGGREGATION_STRATEGY,
-    component_weights: Optional[dict[str, float]] = None,
-    custom_formula: Optional[str] = None,
-) -> Union[list[dict[str, Any]], bool]:
+    component_weights: dict[str, float] | None = None,
+    custom_formula: str | None = None,
+) -> list[dict[str, Any]] | bool:
     """
     Main orchestration function for HPO term queries.
 

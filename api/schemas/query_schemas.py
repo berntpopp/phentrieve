@@ -1,4 +1,4 @@
-from typing import Literal, Optional
+from typing import Literal
 
 from pydantic import BaseModel, Field, model_validator
 
@@ -11,11 +11,11 @@ class QueryRequest(BaseModel):
     text: str = Field(
         ..., min_length=1, description="Clinical text to query for HPO terms."
     )
-    model_name: Optional[str] = Field(
+    model_name: str | None = Field(
         None,
         description="Embedding model for HPO retrieval (e.g., 'FremyCompany/BioLORD-2023-M'). If None, uses default from Phentrieve config.",
     )
-    language: Optional[str] = Field(
+    language: str | None = Field(
         None,
         description="ISO 639-1 language code (e.g., 'en', 'de'). If None, language will be auto-detected.",
     )
@@ -34,7 +34,7 @@ class QueryRequest(BaseModel):
     )
 
     enable_reranker: bool = Field(False, description="Enable cross-encoder reranking.")
-    reranker_model: Optional[str] = Field(
+    reranker_model: str | None = Field(
         None,
         description="Cross-encoder model for reranking (e.g., 'BAAI/bge-reranker-v2-m3'). Uses default if None and reranking enabled.",
     )
@@ -50,7 +50,7 @@ class QueryRequest(BaseModel):
         default=DEFAULT_MULTI_VECTOR,
         description="Use multi-vector index with component-level aggregation.",
     )
-    aggregation_strategy: Optional[
+    aggregation_strategy: (
         Literal[
             "label_only",
             "label_synonyms_min",
@@ -60,15 +60,16 @@ class QueryRequest(BaseModel):
             "all_min",
             "custom",
         ]
-    ] = Field(
+        | None
+    ) = Field(
         "label_synonyms_max",
         description="Aggregation strategy for multi-vector results.",
     )
-    component_weights: Optional[dict[str, float]] = Field(
+    component_weights: dict[str, float] | None = Field(
         None,
         description="Component weights for 'all_weighted' strategy. Example: {'label': 0.5, 'synonyms': 0.3, 'definition': 0.2}",
     )
-    custom_formula: Optional[str] = Field(
+    custom_formula: str | None = Field(
         None,
         description="Custom aggregation formula for 'custom' strategy. Example: '0.5 * max(label, max(synonyms)) + 0.5 * definition'",
     )
@@ -77,7 +78,7 @@ class QueryRequest(BaseModel):
     detect_query_assertion: bool = Field(
         True, description="Whether to detect assertions (negations) in the query text."
     )
-    query_assertion_language: Optional[str] = Field(
+    query_assertion_language: str | None = Field(
         None,
         description="Language for assertion detection (e.g., 'en', 'de'). If None, uses the query language.",
     )
@@ -106,23 +107,21 @@ class QueryRequest(BaseModel):
 class ComponentScores(BaseModel):
     """Component scores for multi-vector results."""
 
-    label: Optional[float] = None
-    synonyms: Optional[list[float]] = None
-    definition: Optional[float] = None
+    label: float | None = None
+    synonyms: list[float] | None = None
+    definition: float | None = None
 
 
 class HPOResultItem(BaseModel):
     hpo_id: str
     label: str
-    similarity: Optional[float] = None  # Score from dense retriever
-    cross_encoder_score: Optional[float] = None  # Score from reranker
-    original_rank: Optional[int] = None  # Rank before reranking
-    definition: Optional[str] = None  # HPO term definition (when include_details=True)
-    synonyms: Optional[list[str]] = (
-        None  # HPO term synonyms (when include_details=True)
-    )
+    similarity: float | None = None  # Score from dense retriever
+    cross_encoder_score: float | None = None  # Score from reranker
+    original_rank: int | None = None  # Rank before reranking
+    definition: str | None = None  # HPO term definition (when include_details=True)
+    synonyms: list[str] | None = None  # HPO term synonyms (when include_details=True)
     # Multi-vector component scores (Issue #136)
-    component_scores: Optional[ComponentScores] = (
+    component_scores: ComponentScores | None = (
         None  # Component scores (when multi_vector=True)
     )
 
@@ -134,11 +133,11 @@ class QueryResponseSegment(BaseModel):  # If processing in segments (e.g. senten
 
 class QueryResponse(BaseModel):
     query_text_received: str  # The original full text query from the user
-    language_detected: Optional[str] = None
+    language_detected: str | None = None
     model_used_for_retrieval: str
-    reranker_used: Optional[str] = None
+    reranker_used: str | None = None
     # Assertion status from query text
-    query_assertion_status: Optional[str] = None
+    query_assertion_status: str | None = None
     # If processing as a single block (initial approach):
     results: list[HPOResultItem]
     # If supporting sentence_mode and returning per-sentence results:

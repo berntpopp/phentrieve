@@ -13,7 +13,7 @@ import math
 import os
 from enum import Enum
 from functools import lru_cache
-from typing import Any, Optional, Union
+from typing import Any
 
 from phentrieve.config import DEFAULT_HPO_DB_FILENAME
 from phentrieve.data_processing.hpo_database import HPODatabase
@@ -223,8 +223,8 @@ load_hpo_graph_data.cache_info = _load_hpo_graph_data_impl.cache_info  # type: i
 
 
 def find_lowest_common_ancestor(
-    term1: str, term2: str, ancestors_dict: Optional[dict[str, set[str]]] = None
-) -> tuple[Optional[str], int | float]:
+    term1: str, term2: str, ancestors_dict: dict[str, set[str]] | None = None
+) -> tuple[str | None, int | float]:
     """
     Find the lowest common ancestor (LCA) of two HPO terms.
 
@@ -450,8 +450,8 @@ def calculate_semantic_similarity(
 
 def calculate_max_similarity(
     expected_terms: list[str],
-    retrieved_terms: Union[list[str], list[dict[str, Any]]],
-    top_k: Optional[int] = None,
+    retrieved_terms: list[str] | list[dict[str, Any]],
+    top_k: int | None = None,
     formula: SimilarityFormula = SimilarityFormula.HYBRID,
 ) -> list[float]:
     """
@@ -514,8 +514,8 @@ def calculate_max_similarity(
 
 def average_max_similarity(
     expected_terms: list[str],
-    retrieved_terms: Union[list[str], list[dict[str, Any]]],
-    top_k: Optional[int] = None,
+    retrieved_terms: list[str] | list[dict[str, Any]],
+    top_k: int | None = None,
     formula: SimilarityFormula = SimilarityFormula.HYBRID,
 ) -> float:
     """
@@ -625,7 +625,12 @@ def mean_reciprocal_rank(results: dict[str, Any], expected_ids: list[str]) -> fl
     # Get all retrieved HPO IDs with their ranks and similarity scores
     retrieved_ids = []
     for i, (hpo_id, metadata, distance) in enumerate(
-        zip(results["ids"][0], results["metadatas"][0], results["distances"][0])
+        zip(
+            results["ids"][0],
+            results["metadatas"][0],
+            results["distances"][0],
+            strict=False,
+        )
     ):
         # Add HPO ID with its actual rank (1-based) and similarity score
         similarity = calculate_similarity(distance)
@@ -672,7 +677,12 @@ def hit_rate_at_k(
     # Get all retrieved HPO IDs with similarity scores
     retrieved_ids = []
     for _i, (hpo_id, metadata, distance) in enumerate(
-        zip(results["ids"][0], results["metadatas"][0], results["distances"][0])
+        zip(
+            results["ids"][0],
+            results["metadatas"][0],
+            results["distances"][0],
+            strict=False,
+        )
     ):
         similarity = calculate_similarity(distance)
         retrieved_ids.append((metadata["hpo_id"], similarity))
@@ -705,7 +715,9 @@ def _extract_ranked_ids(results: dict[str, Any]) -> list[tuple[str, float]]:
         return []
 
     ranked = []
-    for metadata, distance in zip(results["metadatas"][0], results["distances"][0]):
+    for metadata, distance in zip(
+        results["metadatas"][0], results["distances"][0], strict=False
+    ):
         hpo_id = metadata.get("hpo_id", "")
         similarity = calculate_similarity(distance)
         ranked.append((hpo_id, similarity))

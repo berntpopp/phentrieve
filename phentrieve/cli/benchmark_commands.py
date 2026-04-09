@@ -3,7 +3,7 @@
 This module contains commands for running and analyzing benchmarks.
 """
 
-from typing import Annotated, Optional
+from typing import Annotated
 
 import typer
 from rich.console import Console
@@ -27,14 +27,14 @@ app.add_typer(
 @app.command("run")
 def run_benchmarks(
     test_file: Annotated[
-        Optional[str],
+        str | None,
         typer.Option("--test-file", help="Test file with benchmark cases"),
     ] = None,
     model_name: Annotated[
-        Optional[str], typer.Option("--model-name", help="Model name to benchmark")
+        str | None, typer.Option("--model-name", help="Model name to benchmark")
     ] = None,
     model_list: Annotated[
-        Optional[str],
+        str | None,
         typer.Option("--model-list", help="Comma-separated list of models"),
     ] = None,
     all_models: Annotated[
@@ -50,7 +50,7 @@ def run_benchmarks(
         bool, typer.Option("--detailed", help="Show detailed per-test-case results")
     ] = False,
     output: Annotated[
-        Optional[str],
+        str | None,
         typer.Option("--output", help="Output CSV file for detailed results"),
     ] = None,
     create_sample: Annotated[
@@ -66,7 +66,7 @@ def run_benchmarks(
         bool, typer.Option("--enable-reranker", help="Enable cross-encoder re-ranking")
     ] = False,
     reranker_model: Annotated[
-        Optional[str],
+        str | None,
         typer.Option("--reranker-model", help="Cross-encoder model for re-ranking"),
     ] = None,
     rerank_count: Annotated[
@@ -166,11 +166,11 @@ def run_benchmarks(
 @app.command("compare")
 def compare_benchmarks(
     summaries_dir: Annotated[
-        Optional[str],
+        str | None,
         typer.Option("--summaries-dir", help="Directory with summary files"),
     ] = None,
     output_csv: Annotated[
-        Optional[str], typer.Option("--output-csv", help="Path to save comparison CSV")
+        str | None, typer.Option("--output-csv", help="Path to save comparison CSV")
     ] = None,
     debug: Annotated[
         bool, typer.Option("--debug", help="Enable debug logging")
@@ -219,7 +219,7 @@ def compare_benchmarks(
 @app.command("visualize")
 def visualize_benchmarks(
     summaries_dir: Annotated[
-        Optional[str],
+        str | None,
         typer.Option("--summaries-dir", help="Directory with summary files"),
     ] = None,
     metrics: Annotated[
@@ -230,7 +230,7 @@ def visualize_benchmarks(
         ),
     ] = "all",
     output_dir: Annotated[
-        Optional[str],
+        str | None,
         typer.Option("--output-dir", help="Directory to save visualizations"),
     ] = None,
     debug: Annotated[
@@ -286,7 +286,7 @@ DEFAULT_STRATEGIES = [
 @app.command("compare-vectors")
 def compare_vector_modes(
     test_file: Annotated[
-        Optional[str],
+        str | None,
         typer.Option("--test-file", "-f", help="Test file with benchmark cases"),
     ] = None,
     strategies: Annotated[
@@ -305,7 +305,7 @@ def compare_vector_modes(
         ),
     ] = True,
     model_name: Annotated[
-        Optional[str], typer.Option("--model-name", help="Model name to benchmark")
+        str | None, typer.Option("--model-name", help="Model name to benchmark")
     ] = None,
     similarity_threshold: Annotated[
         float, typer.Option("--similarity-threshold", help="Minimum similarity score")
@@ -508,7 +508,7 @@ def _display_vector_comparison(results: list[dict]) -> None:
             )
 
 
-def _save_vector_comparison(results: list[dict], test_file: Optional[str]) -> None:
+def _save_vector_comparison(results: list[dict], test_file: str | None) -> None:
     """Save vector comparison results to JSON."""
     import json
     from datetime import datetime

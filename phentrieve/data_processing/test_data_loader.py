@@ -8,12 +8,12 @@ used in benchmark evaluation of the HPO retrieval system.
 import json
 import logging
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from phentrieve.config import BENCHMARK_DATA_DIR, DEFAULT_BENCHMARK_FILE
 
 
-def load_test_data(test_file: str) -> Optional[list[dict[str, Any]]]:
+def load_test_data(test_file: str) -> list[dict[str, Any]] | None:
     """
     Load test cases from a JSON file.
 
@@ -46,7 +46,7 @@ def load_test_data(test_file: str) -> Optional[list[dict[str, Any]]]:
         return None
 
 
-def create_sample_test_data(output_file: Optional[str] = None) -> list[dict[str, Any]]:
+def create_sample_test_data(output_file: str | None = None) -> list[dict[str, Any]]:
     """
     Create a sample test dataset if none exists.
 

@@ -7,7 +7,7 @@ to provide more accurate relevance scores.
 """
 
 import logging
-from typing import Any, Optional
+from typing import Any
 
 import numpy as np
 import torch
@@ -19,8 +19,8 @@ logger = logging.getLogger(__name__)
 
 
 def load_cross_encoder(
-    model_name: str, device: Optional[str] = None
-) -> Optional[CrossEncoder]:
+    model_name: str, device: str | None = None
+) -> CrossEncoder | None:
     """
     Load a cross-encoder model for re-ranking.
 

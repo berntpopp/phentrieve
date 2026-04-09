@@ -6,7 +6,7 @@ from their respective modules.
 
 import importlib.metadata
 from pathlib import Path
-from typing import Annotated, Optional
+from typing import Annotated
 
 import typer
 
@@ -35,13 +35,13 @@ app = typer.Typer(
 )
 
 
-def _get_hpo_info() -> dict[str, Optional[str | int]]:
+def _get_hpo_info() -> dict[str, str | int | None]:
     """Load HPO metadata from database for version display.
 
     Returns:
         Dictionary with version and term_count, or None values if unavailable.
     """
-    result: dict[str, Optional[str | int]] = {"version": None, "term_count": None}
+    result: dict[str, str | int | None] = {"version": None, "term_count": None}
 
     try:
         from phentrieve.config import DEFAULT_HPO_DB_FILENAME

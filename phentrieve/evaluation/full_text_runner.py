@@ -7,7 +7,7 @@ and semantic metrics.
 """
 
 import logging
-from typing import Any, Optional
+from typing import Any
 
 from sentence_transformers import CrossEncoder
 
@@ -31,7 +31,7 @@ def evaluate_single_document_extraction(
     # --- Phentrieve Components (pre-initialized) ---
     pipeline: TextProcessingPipeline,
     retriever: DenseRetriever,
-    cross_encoder: Optional[CrossEncoder] = None,
+    cross_encoder: CrossEncoder | None = None,
     # --- Extraction Configs (passed to orchestrate_hpo_extraction) ---
     similarity_threshold_per_chunk: float = 0.3,
     num_results_per_chunk: int = 10,
@@ -40,7 +40,7 @@ def evaluate_single_document_extraction(
     min_confidence_for_aggregated: float = 0.0,
     top_term_per_chunk_for_aggregated: bool = False,
     # --- Metrics Configs ---
-    metrics_target_assertion_status: Optional[str] = None,  # For PRF1 calculation
+    metrics_target_assertion_status: str | None = None,  # For PRF1 calculation
     metrics_semantic_similarity_threshold: float = 0.7,  # For PRF1
     metrics_similarity_formula: SimilarityFormula = SimilarityFormula.HYBRID,  # For PRF1
     debug: bool = False,

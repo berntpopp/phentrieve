@@ -8,7 +8,7 @@ import json
 import logging
 from io import StringIO
 from pathlib import Path
-from typing import Annotated, Optional
+from typing import Annotated
 
 import typer
 
@@ -85,7 +85,7 @@ def interactive(
         ),
     ] = DEFAULT_MIN_SEGMENT_LENGTH_WORDS,
     semantic_chunker_model: Annotated[
-        Optional[str],
+        str | None,
         typer.Option(
             "--semantic-model",
             "--s-model",
@@ -93,7 +93,7 @@ def interactive(
         ),
     ] = DEFAULT_MODEL,
     retrieval_model: Annotated[
-        Optional[str],
+        str | None,
         typer.Option("--model", "-m", help="Model name for HPO term retrieval"),
     ] = None,
     chunk_retrieval_threshold: Annotated[
@@ -135,7 +135,7 @@ def interactive(
         ),
     ] = False,
     reranker_model: Annotated[
-        Optional[str],
+        str | None,
         typer.Option(
             "--reranker-model",
             help="Cross-encoder model for reranking (if reranking enabled)",
@@ -237,7 +237,7 @@ def process_text_for_hpo_command(
         help="Text to process for HPO term extraction (can be a string or file path). Not required in interactive mode.",
     ),
     input_file: Annotated[
-        Optional[Path],
+        Path | None,
         typer.Option(
             "--input-file", "-i", help="File to read text from instead of command line"
         ),
@@ -247,7 +247,7 @@ def process_text_for_hpo_command(
         typer.Option("--language", "-l", help="Language of the text (en, de, etc.)"),
     ] = "en",
     chunking_pipeline_config_file: Annotated[
-        Optional[Path],
+        Path | None,
         typer.Option(
             "--config-file",
             "-c",
@@ -295,7 +295,7 @@ def process_text_for_hpo_command(
         ),
     ] = DEFAULT_MIN_SEGMENT_LENGTH_WORDS,
     semantic_chunker_model: Annotated[
-        Optional[str],
+        str | None,
         typer.Option(
             "--semantic-model",
             "--s-model",
@@ -303,7 +303,7 @@ def process_text_for_hpo_command(
         ),
     ] = DEFAULT_MODEL,
     retrieval_model: Annotated[
-        Optional[str],
+        str | None,
         typer.Option("--model", "-m", help="Model name for HPO term retrieval"),
     ] = None,
     chunk_retrieval_threshold: Annotated[
@@ -345,7 +345,7 @@ def process_text_for_hpo_command(
         ),
     ] = False,
     reranker_model: Annotated[
-        Optional[str],
+        str | None,
         typer.Option(
             "--reranker-model",
             help="Cross-encoder model for reranking (if reranking enabled)",
@@ -722,7 +722,7 @@ def process_text_for_hpo_command(
                 enriched_flat = enrich_results_with_details(flat_matches)
 
                 # Re-attach enriched details back to original structure
-                for (ci, mi), enriched in zip(match_map, enriched_flat):
+                for (ci, mi), enriched in zip(match_map, enriched_flat, strict=False):
                     # update the original match dict in-place with definition/synonyms
                     try:
                         results[ci]["matches"][mi].update(
@@ -806,13 +806,13 @@ def process_text_for_hpo_command(
 @app.command("chunk")
 def chunk_text_command(
     text: Annotated[
-        Optional[str],
+        str | None,
         typer.Argument(
             help="Text to chunk (optional, will read from stdin if not provided)"
         ),
     ] = None,
     input_file: Annotated[
-        Optional[Path],
+        Path | None,
         typer.Option(
             "--input-file", "-i", help="File to read text from instead of command line"
         ),
@@ -822,7 +822,7 @@ def chunk_text_command(
         typer.Option("--language", "-l", help="Language of the text (en, de, etc.)"),
     ] = "en",
     chunking_pipeline_config_file: Annotated[
-        Optional[Path],
+        Path | None,
         typer.Option(
             "--config-file",
             "-c",
@@ -870,7 +870,7 @@ def chunk_text_command(
         ),
     ] = DEFAULT_MIN_SEGMENT_LENGTH_WORDS,
     semantic_chunker_model: Annotated[
-        Optional[str],
+        str | None,
         typer.Option(
             "--model",
             "-m",
@@ -1032,9 +1032,9 @@ def _format_and_output_results(
     processed_chunks: list[dict],
     language: str,
     output_format: str,
-    embedding_model: Optional[str] = None,
-    reranker_model: Optional[str] = None,
-    input_text: Optional[str] = None,
+    embedding_model: str | None = None,
+    reranker_model: str | None = None,
+    input_text: str | None = None,
 ) -> None:
     """Format and output the HPO extraction results according to the specified format.
 

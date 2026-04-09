@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Optional
+from typing import Any
 
 from sentence_transformers import CrossEncoder
 
@@ -105,18 +105,18 @@ async def execute_hpo_retrieval_for_api(
     num_results: int,
     similarity_threshold: float,
     enable_reranker: bool,
-    cross_encoder: Optional[CrossEncoder],
+    cross_encoder: CrossEncoder | None,
     rerank_count: int,
     include_details: bool = False,
     detect_query_assertion: bool = True,
-    query_assertion_language: Optional[str] = None,
+    query_assertion_language: str | None = None,
     query_assertion_preference: str = "dependency",
     debug: bool = False,
     # Multi-vector parameters (Issue #136)
     multi_vector: bool = False,
     aggregation_strategy: str = DEFAULT_AGGREGATION_STRATEGY,
-    component_weights: Optional[dict[str, float]] = None,
-    custom_formula: Optional[str] = None,
+    component_weights: dict[str, float] | None = None,
+    custom_formula: str | None = None,
 ) -> dict[str, Any]:
     """
     Execute HPO term retrieval for API requests.

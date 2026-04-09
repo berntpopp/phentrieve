@@ -16,7 +16,7 @@ import os
 import sys
 from collections import defaultdict, deque
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 import requests
 from tqdm import tqdm
@@ -177,7 +177,7 @@ def safe_get_nested(data: dict, *keys: str, default: Any = None) -> Any:
     return result if result is not None else default
 
 
-def safe_get_list(data: dict, *keys: str, default: Optional[list] = None) -> list:
+def safe_get_list(data: dict, *keys: str, default: list | None = None) -> list:
     """
     Safely access a nested list field, ensuring correct type.
 
@@ -346,7 +346,7 @@ def is_obsolete_term(node_data: dict) -> bool:
     return False
 
 
-def get_replacement_term(node_data: dict) -> Optional[str]:
+def get_replacement_term(node_data: dict) -> str | None:
     """
     Get the replacement term ID for an obsolete term.
 
@@ -428,7 +428,7 @@ def download_hpo_json(hpo_file_path: Path, version: str | None = None) -> bool:
         return False
 
 
-def load_hpo_json(hpo_file_path: Path, version: str | None = None) -> Optional[dict]:
+def load_hpo_json(hpo_file_path: Path, version: str | None = None) -> dict | None:
     """
     Load the HPO JSON file, downloading if necessary.
 
@@ -464,10 +464,10 @@ def _parse_hpo_json_to_graphs(
     hpo_data: dict,
     include_obsolete: bool = False,
 ) -> tuple[
-    Optional[dict[str, dict]],
-    Optional[dict[str, list[str]]],
-    Optional[dict[str, list[str]]],
-    Optional[set[str]],
+    dict[str, dict] | None,
+    dict[str, list[str]] | None,
+    dict[str, list[str]] | None,
+    set[str] | None,
     int,  # obsolete_count - number of obsolete terms filtered
 ]:
     """
@@ -902,7 +902,7 @@ def prepare_hpo_data(
     db_path: Path | None = None,
     include_obsolete: bool = False,
     hpo_version: str | None = None,
-) -> tuple[bool, Optional[str], str | None]:
+) -> tuple[bool, str | None, str | None]:
     """
     Core HPO data preparation: download, parse, save ALL terms to SQLite, compute graph data.
 
@@ -1084,7 +1084,7 @@ def prepare_hpo_data(
 def orchestrate_hpo_preparation(
     debug: bool = False,  # Logging level handled by CLI caller
     force_update: bool = False,
-    data_dir_override: Optional[str] = None,
+    data_dir_override: str | None = None,
     include_obsolete: bool = False,
     hpo_version: str | None = None,
 ) -> bool:

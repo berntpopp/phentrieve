@@ -5,8 +5,6 @@ This module defines the data structures used for the configuration/info API
 endpoint responses, ensuring consistent and well-documented API contracts.
 """
 
-from typing import Optional
-
 from pydantic import BaseModel, ConfigDict, Field
 
 
@@ -102,13 +100,13 @@ class HPODataStatusAPI(BaseModel):
         description="Whether the HPO ancestor data is loaded"
     )
     depths_loaded: bool = Field(description="Whether the HPO depth data is loaded")
-    version: Optional[str] = Field(
+    version: str | None = Field(
         default=None, description="HPO ontology version (e.g., 'v2025-03-03')"
     )
-    download_date: Optional[str] = Field(
+    download_date: str | None = Field(
         default=None, description="ISO timestamp when HPO data was downloaded"
     )
-    term_count: Optional[int] = Field(
+    term_count: int | None = Field(
         default=None, description="Total number of HPO terms in the database"
     )
 

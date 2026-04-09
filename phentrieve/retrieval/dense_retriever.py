@@ -8,7 +8,7 @@ relevant HPO terms based on semantic similarity with input text.
 import logging
 import os
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Optional, Union
+from typing import TYPE_CHECKING, Any, Optional
 
 # NOTE: Heavy dependencies (chromadb, SentenceTransformer) are only imported
 # for type hints (TYPE_CHECKING) or lazily inside functions where actually used.
@@ -39,7 +39,7 @@ from phentrieve.utils import (
 
 
 def connect_to_chroma(
-    index_dir: str, collection_name: str, model_name: Optional[str] = None
+    index_dir: str, collection_name: str, model_name: str | None = None
 ) -> Optional["chromadb.Collection"]:
     """
     Connect to the ChromaDB index and retrieve the specified collection.
@@ -159,9 +159,9 @@ class DenseRetriever:
         self.collection = collection
         self.min_similarity = min_similarity
         # These will be set in from_model_name
-        self.model_name: Optional[str] = None
-        self.index_base_path: Optional[Path] = None
-        self._index_type: Optional[str] = None  # Cached index type
+        self.model_name: str | None = None
+        self.index_base_path: Path | None = None
+        self._index_type: str | None = None  # Cached index type
 
     def detect_index_type(self) -> str:
         """
@@ -193,7 +193,7 @@ class DenseRetriever:
         cls,
         model: "SentenceTransformer",
         model_name: str,
-        index_dir: Optional[Union[str, Path]] = None,
+        index_dir: str | Path | None = None,
         min_similarity: float = MIN_SIMILARITY_THRESHOLD,
         multi_vector: bool = False,
     ) -> Optional["DenseRetriever"]:
@@ -407,8 +407,8 @@ class DenseRetriever:
     def filter_results(
         self,
         results: dict[str, Any],
-        min_similarity: Optional[float] = None,
-        max_results: Optional[int] = None,
+        min_similarity: float | None = None,
+        max_results: int | None = None,
     ) -> dict[str, Any]:
         """
         Filter query results by similarity threshold and maximum count.
@@ -475,8 +475,8 @@ class DenseRetriever:
         n_results: int = 10,
         aggregation_strategy: str
         | AggregationStrategy = AggregationStrategy.LABEL_SYNONYMS_MAX,
-        component_weights: Optional[dict[str, float]] = None,
-        custom_formula: Optional[str] = None,
+        component_weights: dict[str, float] | None = None,
+        custom_formula: str | None = None,
     ) -> list[dict[str, Any]]:
         """
         Query a multi-vector index with score aggregation.

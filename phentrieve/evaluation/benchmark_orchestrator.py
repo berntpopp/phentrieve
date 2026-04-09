@@ -7,7 +7,7 @@ for HPO term retrieval, supporting both single-model and multi-model evaluations
 
 import logging
 import os
-from typing import Any, Optional, Union
+from typing import Any
 
 from phentrieve.config import (
     BENCHMARK_DATA_DIR,
@@ -62,13 +62,13 @@ def orchestrate_benchmark(
     reranker_model: str | None = None,
     rerank_count: int = DEFAULT_RERANK_CANDIDATE_COUNT,
     similarity_formula: str = "hybrid",
-    data_dir_override: Optional[str] = None,
-    index_dir_override: Optional[str] = None,
-    results_dir_override: Optional[str] = None,
+    data_dir_override: str | None = None,
+    index_dir_override: str | None = None,
+    results_dir_override: str | None = None,
     # Multi-vector parameters (Issue #136)
     multi_vector: bool = False,
     aggregation_strategy: str = DEFAULT_AGGREGATION_STRATEGY,
-) -> Union[dict[str, Any], list[dict[str, Any]], None]:
+) -> dict[str, Any] | list[dict[str, Any]] | None:
     """
     Run benchmark evaluations for HPO term retrieval.
 
