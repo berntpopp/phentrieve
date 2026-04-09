@@ -98,8 +98,7 @@ async def _load_model_with_status_tracking(
 ) -> Any:
     """Shared model loading with status tracking, locking, and timeout.
 
-    Replaces duplicated logic in get_sbert_model_dependency and
-    get_cross_encoder_dependency.
+    Shared model loading logic with status tracking and timeout handling.
     """
     # Cache hit (fast path)
     if model_name in cache_dict and cache_dict[model_name] is not None:

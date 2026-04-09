@@ -75,7 +75,7 @@ async def get_phentrieve_info():
     """Get Phentrieve configuration and model information.
 
     This endpoint returns comprehensive information about:
-    - Available embedding and reranker models
+    - Available embedding models
     - Default operational parameters
     - Text chunking strategies
     - HPO data status

@@ -427,7 +427,6 @@ async def _process_text_internal(request: TextProcessingRequest):
             "effective_language": actual_language,
             "effective_chunking_strategy_config": chunking_pipeline_cfg,
             "effective_retrieval_model": retriever.model_name if retriever else None,
-            "effective_reranker_model": None,
             "num_processed_chunks": len(api_processed_chunks),
             "num_aggregated_hpo_terms": len(api_aggregated_hpo_terms),
         }
