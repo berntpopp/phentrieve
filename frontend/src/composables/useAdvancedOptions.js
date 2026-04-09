@@ -34,7 +34,16 @@ export function useAdvancedOptions() {
   }
 
   function resetToDefaults() {
+    numResults.value = DEFAULT_NUM_RESULTS;
     similarityThreshold.value = DEFAULT_SIMILARITY_THRESHOLD;
+    splitThreshold.value = DEFAULT_SPLIT_THRESHOLD;
+    chunkRetrievalThreshold.value = DEFAULT_CHUNK_RETRIEVAL_THRESHOLD;
+    aggregatedTermConfidence.value = DEFAULT_AGGREGATED_TERM_CONFIDENCE;
+    inputTextLengthThreshold.value = DEFAULT_INPUT_TEXT_LENGTH_THRESHOLD;
+    windowSize.value = DEFAULT_WINDOW_SIZE;
+    stepSize.value = DEFAULT_STEP_SIZE;
+    minSegmentLength.value = DEFAULT_MIN_SEGMENT_LENGTH;
+    numResultsPerChunk.value = DEFAULT_NUM_RESULTS_PER_CHUNK;
   }
 
   return {

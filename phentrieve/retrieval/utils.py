@@ -75,16 +75,16 @@ def convert_results_to_candidates(
     documents = results.get("documents", [[]])[0]
     distances = results.get("distances", [[]])[0]
 
-    for j, (hpo_id, metadata, doc, distance) in enumerate(
-        zip(ids, metadatas, documents, distances, strict=True)
-    ):
+    # Use min length to handle partial ChromaDB responses gracefully
+    n = min(len(ids), len(metadatas), len(documents), len(distances))
+    for j in range(n):
         candidate = {
-            "hpo_id": hpo_id,
-            "english_doc": doc,
-            "metadata": metadata,
+            "hpo_id": ids[j],
+            "english_doc": documents[j],
+            "metadata": metadatas[j],
             "rank": j + 1,
-            "bi_encoder_score": calculate_similarity(distance),
-            "comparison_text": doc,  # Always use English document
+            "bi_encoder_score": calculate_similarity(distances[j]),
+            "comparison_text": documents[j],  # Always use English document
         }
 
         candidates.append(candidate)

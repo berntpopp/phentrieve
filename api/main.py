@@ -140,8 +140,8 @@ async def lifespan(app: FastAPI):
 
     yield  # This is where the application runs
 
-    # Shutdown
-    cleanup_model_caches()
+    # Shutdown — cancel outstanding loads, then clear caches
+    await cleanup_model_caches()
     logger.info("Shutting down Phentrieve API...")
 
 

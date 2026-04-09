@@ -319,27 +319,41 @@ async def get_cross_encoder_dependency(
     if not reranker_model_name:
         return None
     device = device_override or DEFAULT_DEVICE
-    return cast(
-        CrossEncoder,
-        await _load_model_with_status_tracking(
-            model_name=reranker_model_name,
-            cache_dict=LOADED_CROSS_ENCODERS,
-            is_sbert=False,
-            trust_remote_code=False,
-            device=device,
-            timeout=CROSS_ENCODER_LOAD_TIMEOUT,
-            model_type_label="CrossEncoder",
-        ),
+    result = await _load_model_with_status_tracking(
+        model_name=reranker_model_name,
+        cache_dict=LOADED_CROSS_ENCODERS,
+        is_sbert=False,
+        trust_remote_code=False,
+        device=device,
+        timeout=CROSS_ENCODER_LOAD_TIMEOUT,
+        model_type_label="CrossEncoder",
     )
+    if result is None:
+        raise HTTPException(
+            status_code=503,
+            detail=f"CrossEncoder '{reranker_model_name}' failed to load.",
+        )
+    return cast(CrossEncoder, result)
 
 
-def cleanup_model_caches() -> None:
-    """Clear all model caches. Called during app shutdown."""
+async def cleanup_model_caches() -> None:
+    """Cancel outstanding loading tasks and clear all model caches.
+
+    Called during app shutdown via lifespan. Cancels any in-flight
+    background model loads before clearing caches to prevent
+    repopulation after cleanup.
+    """
+    # Cancel outstanding loading tasks first
+    for model_name, task in list(MODEL_LOADING_TASKS.items()):
+        if not task.done():
+            task.cancel()
+            logger.info("API: Cancelled loading task for %s", model_name)
+    MODEL_LOADING_TASKS.clear()
+
     with _cache_lock:
         LOADED_SBERT_MODELS.clear()
         LOADED_RETRIEVERS.clear()
         LOADED_CROSS_ENCODERS.clear()
         MODEL_LOADING_STATUS.clear()
         MODEL_LOAD_LOCKS.clear()
-        MODEL_LOADING_TASKS.clear()
     logger.info("API: All model caches cleared.")

@@ -174,10 +174,11 @@ def format_results(
     )
     distances = results["distances"][0] if has_distances else [0.0] * len(ids)
 
-    # Iterate through all results
-    for i, (_doc_id, metadata, distance) in enumerate(
-        zip(ids, metadatas, distances, strict=True)
-    ):
+    # Iterate through all results (use min length for defensive handling)
+    n = min(len(ids), len(metadatas), len(distances))
+    for i in range(n):
+        metadata = metadatas[i]
+        distance = distances[i]
         # Calculate bi-encoder similarity from distance
         bi_encoder_similarity = calculate_similarity(distance)
 
