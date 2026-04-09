@@ -4,17 +4,14 @@ from typing import Literal, cast
 from fastapi import APIRouter, Depends, HTTPException
 
 from api.dependencies import (
-    get_cross_encoder_dependency,
     get_dense_retriever_dependency,
 )
 from api.schemas.query_schemas import QueryRequest, QueryResponse
 from phentrieve.config import (
     DEFAULT_AGGREGATION_STRATEGY,
-    DEFAULT_DEVICE,
     DEFAULT_LANGUAGE,
     DEFAULT_MODEL,
     DEFAULT_MULTI_VECTOR,
-    DEFAULT_RERANKER_MODEL,
 )
 from phentrieve.retrieval.api_helpers import execute_hpo_retrieval_for_api
 from phentrieve.retrieval.dense_retriever import DenseRetriever
@@ -100,7 +97,6 @@ async def run_hpo_query_get(
     num_results: int = 10,
     similarity_threshold: float = 0.3,
     include_details: bool = False,
-    enable_reranker: bool = False,
     detect_query_assertion: bool = True,
     query_assertion_language: str | None = None,
     query_assertion_preference: str = "dependency",
@@ -116,7 +112,6 @@ async def run_hpo_query_get(
     - num_results: Number of HPO terms to return (capped at 20 when include_details=True)
     - similarity_threshold: Minimum similarity score
     - include_details: Include HPO term definitions and synonyms in results
-    - enable_reranker: Enable cross-encoder reranking
     """
     # Create a QueryRequest object with the provided parameters
     request = QueryRequest(
@@ -126,9 +121,6 @@ async def run_hpo_query_get(
         num_results=num_results,
         similarity_threshold=similarity_threshold,
         include_details=include_details,
-        enable_reranker=enable_reranker,
-        reranker_model=DEFAULT_RERANKER_MODEL,
-        rerank_count=10,
         # Multi-vector params (use configured default)
         multi_vector=DEFAULT_MULTI_VECTOR,
         aggregation_strategy="label_synonyms_max",
@@ -220,20 +212,6 @@ async def run_hpo_query(
             _sanitize(language_to_use),
         )
 
-    cross_encoder_instance = None
-    actual_reranker_model_name = request.reranker_model or DEFAULT_RERANKER_MODEL
-
-    if request.enable_reranker:
-        cross_encoder_instance = await get_cross_encoder_dependency(
-            reranker_model_name=actual_reranker_model_name,
-            device_override=DEFAULT_DEVICE,
-        )
-        if not cross_encoder_instance:
-            logger.warning(
-                "Reranking enabled but cross-encoder %s failed to load. Proceeding without reranking.",
-                _sanitize(actual_reranker_model_name),
-            )
-
     # Call the core HPO retrieval logic
     query_results_dict = await execute_hpo_retrieval_for_api(
         text=request.text,
@@ -241,10 +219,6 @@ async def run_hpo_query(
         retriever=retriever,
         num_results=request.num_results,
         similarity_threshold=request.similarity_threshold,
-        enable_reranker=request.enable_reranker
-        and (cross_encoder_instance is not None),
-        cross_encoder=cross_encoder_instance,
-        rerank_count=request.rerank_count,
         include_details=request.include_details,
         detect_query_assertion=request.detect_query_assertion,
         query_assertion_language=request.query_assertion_language,
@@ -263,11 +237,6 @@ async def run_hpo_query(
         query_text_received=request.text,
         language_detected=language_to_use,
         model_used_for_retrieval=sbert_model_to_use_for_retrieval,
-        reranker_used=(
-            actual_reranker_model_name
-            if request.enable_reranker and cross_encoder_instance
-            else None
-        ),
         query_assertion_status=query_results_dict.get(
             "original_query_assertion_status"
         ),

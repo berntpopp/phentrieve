@@ -37,8 +37,6 @@ class DefaultParametersAPI(BaseModel):
                 {
                     "similarity_threshold": 0.1,
                     "top_k": 10,
-                    "enable_reranker": False,
-                    "rerank_candidate_count": 30,
                     "similarity_formula": "hybrid",
                     "language": "en",
                 }
@@ -50,8 +48,6 @@ class DefaultParametersAPI(BaseModel):
         description="Minimum similarity score for retrieval"
     )
     top_k: int = Field(description="Number of top results to return")
-    enable_reranker: bool = Field(description="Whether reranking is enabled by default")
-    rerank_candidate_count: int = Field(description="Number of candidates to rerank")
     similarity_formula: str = Field(description="Formula for calculating similarity")
     language: str = Field(description="Default language for queries")
 
@@ -126,19 +122,9 @@ class PhentrieveConfigInfoResponseAPI(BaseModel):
                         }
                     ],
                     "default_embedding_model": "FremyCompany/BioLORD-2023-M",
-                    "available_reranker_models": [
-                        {
-                            "id": "FremyCompany/BioLORD-2023-M",
-                            "description": "Domain-specific biomedical model",
-                            "is_default": True,
-                        }
-                    ],
-                    "default_reranker_model": "FremyCompany/BioLORD-2023-M",
                     "default_parameters": {
                         "similarity_threshold": 0.1,
                         "top_k": 10,
-                        "enable_reranker": False,
-                        "rerank_candidate_count": 30,
                         "similarity_formula": "hybrid",
                         "language": "en",
                     },
@@ -167,10 +153,6 @@ class PhentrieveConfigInfoResponseAPI(BaseModel):
         description="List of available embedding models"
     )
     default_embedding_model: str = Field(description="Default embedding model ID")
-    available_reranker_models: list[ModelInfo] = Field(
-        description="List of available reranker models"
-    )
-    default_reranker_model: str = Field(description="Default reranker model ID")
     default_parameters: DefaultParametersAPI = Field(
         description="Default operational parameters"
     )

@@ -105,21 +105,10 @@ async def get_phentrieve_info():
                 )
             )
 
-        # Available reranker models
-        available_rerankers = [
-            ModelInfo(
-                id=phentrieve_config.DEFAULT_RERANKER_MODEL,
-                description="Multilingual cross-encoder for reranking",
-                is_default=True,
-            )
-        ]
-
         # Default parameters
         default_params = DefaultParametersAPI(
             similarity_threshold=phentrieve_config.DEFAULT_SIMILARITY_THRESHOLD,
             top_k=phentrieve_config.DEFAULT_TOP_K,
-            enable_reranker=phentrieve_config.DEFAULT_ENABLE_RERANKER,
-            rerank_candidate_count=phentrieve_config.DEFAULT_RERANK_CANDIDATE_COUNT,
             similarity_formula=phentrieve_config.DEFAULT_SIMILARITY_FORMULA,
             language=phentrieve_config.DEFAULT_LANGUAGE,
         )
@@ -162,8 +151,6 @@ async def get_phentrieve_info():
         return PhentrieveConfigInfoResponseAPI(
             available_embedding_models=embedding_models,
             default_embedding_model=phentrieve_config.DEFAULT_MODEL,
-            available_reranker_models=available_rerankers,
-            default_reranker_model=phentrieve_config.DEFAULT_RERANKER_MODEL,
             default_parameters=default_params,
             chunking_config=chunking_config,
             hpo_data_status=hpo_data_status,

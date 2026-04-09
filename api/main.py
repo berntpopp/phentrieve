@@ -19,7 +19,6 @@ from api.config import (  # noqa: E402
 )
 from api.dependencies import (  # noqa: E402
     cleanup_model_caches,
-    get_cross_encoder_dependency,
     get_dense_retriever_dependency,
     get_sbert_model_dependency,
 )
@@ -36,7 +35,6 @@ from phentrieve.config import (  # noqa: E402
     DEFAULT_DEVICE,
     DEFAULT_MODEL,
     DEFAULT_MULTI_VECTOR,
-    DEFAULT_RERANKER_MODEL,
 )
 
 logger = logging.getLogger(__name__)
@@ -100,16 +98,6 @@ async def lifespan(app: FastAPI):
             f"Default SBERT model '{DEFAULT_MODEL}' and its retriever "
             f"(multi_vector={DEFAULT_MULTI_VECTOR}) pre-loading tasks initiated."
         )
-
-        # Attempt to pre-load default reranker (optional, good for responsiveness)
-        if DEFAULT_RERANKER_MODEL:
-            await get_cross_encoder_dependency(
-                reranker_model_name=DEFAULT_RERANKER_MODEL,
-                device_override=DEFAULT_DEVICE,
-            )
-            logger.info(
-                f"Default reranker '{DEFAULT_RERANKER_MODEL}' pre-loading task initiated."
-            )
 
     except HTTPException as http_exc:
         if http_exc.status_code == 503 and "is being prepared" in str(http_exc.detail):
@@ -211,7 +199,7 @@ def create_app() -> FastAPI:
                         {
                             "path": "/api/v1/text/process",
                             "methods": ["POST"],
-                            "description": "Process raw clinical text with customizable chunking, reranking, and assertion detection settings",
+                            "description": "Process raw clinical text with customizable chunking and assertion detection settings",
                         }
                     ],
                 },
