@@ -8,11 +8,10 @@ forcing clients to retry with 503 errors.
 import asyncio
 import sys
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 from fastapi import HTTPException
-from sentence_transformers import CrossEncoder, SentenceTransformer
 
 # Add project root to sys.path to import from api/ directory
 project_root = Path(__file__).parent.parent.parent.parent
@@ -38,20 +37,8 @@ def reset_model_cache():
     dependencies.MODEL_LOADING_TASKS.clear()
 
 
-@pytest.fixture
-def mock_cross_encoder():
-    """Create a mock CrossEncoder instance."""
-    mock_ce = MagicMock(spec=CrossEncoder)
-    mock_ce.predict = MagicMock(return_value=[0.9, 0.8, 0.7])
-    return mock_ce
-
-
-@pytest.fixture
-def mock_sbert_model():
-    """Create a mock SentenceTransformer instance."""
-    mock_model = MagicMock(spec=SentenceTransformer)
-    mock_model.encode = MagicMock(return_value=[[0.1, 0.2, 0.3]])
-    return mock_model
+# mock_cross_encoder and mock_sbert_model fixtures are provided by
+# tests/unit/conftest.py — shared across all unit tests
 
 
 class TestCrossEncoderLoadingWithTimeout:
