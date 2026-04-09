@@ -127,7 +127,7 @@
               v-bind="props"
               icon="mdi-github"
               size="small"
-              href="https://github.com/berntpopp/phentrieve"
+              :href="GITHUB_REPO_URL"
               target="_blank"
               rel="noopener noreferrer"
               variant="text"
@@ -169,7 +169,7 @@
               v-bind="props"
               icon="mdi-license"
               size="small"
-              href="https://github.com/berntpopp/phentrieve/blob/main/LICENSE"
+              :href="`${GITHUB_REPO_URL}/blob/main/LICENSE`"
               target="_blank"
               rel="noopener noreferrer"
               variant="text"
@@ -296,8 +296,9 @@ import { useLogStore } from './stores/log';
 import { useConversationStore } from './stores/conversation';
 import { logService } from './services/logService';
 import { tutorialService } from './services/tutorialService';
-import { getAllVersions } from './utils/version';
 import { useApiHealth } from './services/api-health';
+import { GITHUB_REPO_URL } from './constants/urls';
+import { useVersionCheck } from './composables/useVersionCheck';
 import DisclaimerDialog from './components/DisclaimerDialog.vue';
 import LogViewer from './components/LogViewer.vue';
 import LanguageSwitcher from './components/LanguageSwitcher.vue';
@@ -313,16 +314,23 @@ export default {
     TutorialOverlay,
     ConversationSettings,
   },
+  setup() {
+    const {
+      frontendVersion, apiVersion, cliVersion, environment,
+      loadingVersions, refreshVersions,
+    } = useVersionCheck();
+
+    return {
+      frontendVersion, apiVersion, cliVersion, environment,
+      loadingVersions, refreshVersions,
+    };
+  },
   data() {
     return {
       disclaimerDialogVisible: false,
       tutorialVisible: false,
       showVersionDialog: false,
-      loadingVersions: false,
-      frontendVersion: 'Loading...',
-      apiVersion: 'Loading...',
-      cliVersion: 'Loading...',
-      environment: 'unknown',
+      GITHUB_REPO_URL,
     };
   },
   computed: {
@@ -381,21 +389,6 @@ export default {
     logService.info('API health monitoring stopped');
   },
   methods: {
-    async refreshVersions() {
-      this.loadingVersions = true;
-      try {
-        const versions = await getAllVersions();
-        this.frontendVersion = versions.frontend?.version || 'unknown';
-        this.apiVersion = versions.api?.version || 'unknown';
-        this.cliVersion = versions.cli?.version || 'unknown';
-        this.environment = versions.environment || 'unknown';
-        logService.debug('Versions refreshed', versions);
-      } catch (error) {
-        logService.error('Failed to refresh versions', error);
-      } finally {
-        this.loadingVersions = false;
-      }
-    },
     getEnvironmentColor(env) {
       const colors = {
         production: 'success',
@@ -441,41 +434,19 @@ export default {
 
     closeAnyOpenPanels() {
       try {
-        // Close the navigation drawer if it's open
-        const navDrawer = document.querySelector('.v-navigation-drawer');
-        if (navDrawer) {
-          // Find any button inside and click it
-          const buttons = navDrawer.querySelectorAll('.v-btn');
-          for (const btn of buttons) {
-            if (btn.offsetParent !== null) {
-              // Check if button is visible
-              btn.click();
-              logService.debug('Clicked button to close collection panel');
-              break;
-            }
-          }
+        // Close the collection panel via reactive state
+        if (this.conversationStore.showCollectionPanel) {
+          this.conversationStore.toggleCollectionPanel();
+          logService.debug('Closed collection panel via store');
         }
 
-        // Close advanced options panel if it's open
-        // First check if there's any button with aria-expanded="true"
-        const expandedButtons = document.querySelectorAll('.v-btn[aria-expanded="true"]');
-        for (const btn of expandedButtons) {
-          if (btn.offsetParent !== null) {
-            // Check if button is visible
-            btn.click();
-            logService.debug('Closed expanded panel');
-          }
-        }
-
-        // Alternative approach for advanced options
-        const tuneIcon = document.querySelector(
-          '.v-icon:contains("mdi-tune"), .v-icon:contains("mdi-cog")'
-        );
-        if (tuneIcon && tuneIcon.closest('.v-btn')) {
-          const advancedPanel = document.querySelector('#advanced-options-panel');
-          if (advancedPanel && advancedPanel.offsetParent !== null) {
-            tuneIcon.closest('.v-btn').click();
-            logService.debug('Closed advanced options using icon button');
+        // Close advanced options panel via data attribute
+        const advancedToggle = document.querySelector('[data-tutorial-step="advanced-options"]');
+        if (advancedToggle) {
+          const isExpanded = advancedToggle.getAttribute('aria-expanded') === 'true';
+          if (isExpanded) {
+            advancedToggle.click();
+            logService.debug('Closed advanced options panel');
           }
         }
       } catch (err) {
@@ -486,80 +457,73 @@ export default {
     initializeTutorialSteps() {
       const steps = [
         {
-          element: '.search-container', // For the first step, target the search container
+          element: '.search-container',
           titleKey: 'tutorial.step1.title',
           contentKey: 'tutorial.step1.content',
           position: 'bottom',
         },
         {
-          element: '.search-input', // Target the search input field (more general selector)
+          element: '.search-input',
           titleKey: 'tutorial.step2.title',
           contentKey: 'tutorial.step2.content',
           position: 'bottom',
         },
         {
-          element: '.v-icon:contains("mdi-magnify")', // Search magnify icon
+          element: '[data-tutorial-step="search-button"]',
           titleKey: 'tutorial.step3.title',
           contentKey: 'tutorial.step3.content',
           position: 'bottom',
         },
         {
-          element: '.conversation-container', // Results area
+          element: '.conversation-container',
           titleKey: 'tutorial.step4.title',
           contentKey: 'tutorial.step4.content',
           position: 'top',
         },
         {
-          element: '.v-icon:contains("mdi-tune"), .v-icon:contains("mdi-cog")', // Advanced options icon
+          element: '[data-tutorial-step="advanced-options"]',
           titleKey: 'tutorial.step5.title',
           contentKey: 'tutorial.step5.content',
           position: 'bottom',
           preAction: () => {
-            // Make sure advanced options panel is closed first
-            const expanded = document.querySelector('.v-btn[aria-expanded="true"]');
-            if (expanded) {
-              expanded.click(); // Close it first
-              setTimeout(() => {}, 100); // Give it a moment
+            // Close advanced options if open
+            const toggle = document.querySelector('[data-tutorial-step="advanced-options"]');
+            if (toggle && toggle.getAttribute('aria-expanded') === 'true') {
+              toggle.click();
             }
           },
         },
         {
-          element: '.collection-fab-position, .collection-fab', // Collection button (more general)
+          element: '[data-tutorial-step="collection-fab"]',
           titleKey: 'tutorial.step6.title',
           contentKey: 'tutorial.step6.content',
           position: 'left',
           preAction: () => {
-            // Force close any open panels first
             this.closeAnyOpenPanels();
           },
         },
         {
-          element: '.v-navigation-drawer', // Collection panel
+          element: '.v-navigation-drawer',
           titleKey: 'tutorial.step7.title',
           contentKey: 'tutorial.step7.content',
           position: 'left',
           preAction: () => {
-            // Close any open panels first
             this.closeAnyOpenPanels();
-            // Then open collection panel
+            // Open collection panel via reactive state
             setTimeout(() => {
-              const collectionButton = document.querySelector(
-                '.collection-fab, .v-btn:has(.v-badge)'
-              );
-              if (collectionButton) {
-                collectionButton.click();
+              if (!this.conversationStore.showCollectionPanel) {
+                this.conversationStore.toggleCollectionPanel();
                 logService.debug('Opened collection panel for tutorial');
               }
             }, 200);
           },
         },
         {
-          element: '.v-footer', // Footer area
+          element: '.v-footer',
           titleKey: 'tutorial.step8.title',
           contentKey: 'tutorial.step8.content',
           position: 'top',
           preAction: () => {
-            // Make sure to close any open panels before showing the footer
             this.closeAnyOpenPanels();
           },
         },

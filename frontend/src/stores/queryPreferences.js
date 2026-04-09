@@ -1,42 +1,39 @@
 /**
- * Pinia Store for Query Preferences
+ * Pinia Store for Query Preferences (setup store / composition API)
  *
- * Manages user preferences for HPO query options with automatic persistence
- * using pinia-plugin-persistedstate. Preferences are stored in localStorage
- * and automatically hydrated on app load.
+ * Migrated from options API to match the pattern used by all other stores
+ * (conversation.js, disclaimer.js, log.js). State and behavior are identical.
  *
  * @module stores/queryPreferences
  */
 
+import { ref } from 'vue';
 import { defineStore } from 'pinia';
 
-export const useQueryPreferencesStore = defineStore('queryPreferences', {
-  state: () => ({
-    /**
-     * Whether to include HPO term details (definitions and synonyms) in results
-     * @type {boolean}
-     * @default false
-     */
-    includeDetails: false,
-  }),
+export const useQueryPreferencesStore = defineStore('queryPreferences', () => {
+  /**
+   * Whether to include HPO term details (definitions and synonyms) in results
+   * @type {import('vue').Ref<boolean>}
+   */
+  const includeDetails = ref(false);
 
-  actions: {
-    /**
-     * Toggle the include details preference
-     */
-    toggleIncludeDetails() {
-      this.includeDetails = !this.includeDetails;
-    },
+  /**
+   * Toggle the include details preference
+   */
+  function toggleIncludeDetails() {
+    includeDetails.value = !includeDetails.value;
+  }
 
-    /**
-     * Set the include details preference
-     * @param {boolean} value - Whether to include details
-     */
-    setIncludeDetails(value) {
-      this.includeDetails = Boolean(value);
-    },
-  },
+  /**
+   * Set the include details preference
+   * @param {boolean} value - Whether to include details
+   */
+  function setIncludeDetails(value) {
+    includeDetails.value = Boolean(value);
+  }
 
+  return { includeDetails, toggleIncludeDetails, setIncludeDetails };
+}, {
   /**
    * Enable automatic persistence to localStorage
    * Plugin will automatically save/load state on changes

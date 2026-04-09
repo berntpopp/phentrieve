@@ -2,17 +2,21 @@ import { vi } from 'vitest';
 import { config } from '@vue/test-utils';
 
 // Mock global objects
-global.IntersectionObserver = vi.fn(() => ({
-  observe: vi.fn(),
-  unobserve: vi.fn(),
-  disconnect: vi.fn(),
-}));
+global.IntersectionObserver = class IntersectionObserver {
+  constructor() {
+    this.observe = vi.fn();
+    this.unobserve = vi.fn();
+    this.disconnect = vi.fn();
+  }
+};
 
-global.ResizeObserver = vi.fn(() => ({
-  observe: vi.fn(),
-  unobserve: vi.fn(),
-  disconnect: vi.fn(),
-}));
+global.ResizeObserver = class ResizeObserver {
+  constructor() {
+    this.observe = vi.fn();
+    this.unobserve = vi.fn();
+    this.disconnect = vi.fn();
+  }
+};
 
 // Configure Vue Test Utils
 config.global.stubs = {
