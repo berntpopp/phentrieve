@@ -444,52 +444,32 @@ class TestTerminateScopeHandling:
         """Set up test fixtures."""
         self.detector = KeywordAssertionDetector(language="en")
 
-    def test_terminate_with_but(self):
-        """Test TERMINATE rule with 'but': scope should stop at conjunction."""
-        # "but" should act as scope boundary
-        test_cases = [
-            # Negation before "but", affirmation after
-            ("No fever but has cough", AssertionStatus.NEGATED),
-            # The scope should NOT include "has cough" - that's after TERMINATE
-        ]
-
-        for text, expected_status in test_cases:
-            status, details = self.detector.detect(text)
-            assert status == expected_status, (
-                f"TERMINATE test failed for '{text}': got {status} instead of {expected_status}"
-            )
-
-            # Check that negation scope doesn't extend past "but"
-            if "keyword_negated_scopes" in details:
-                for scope in details["keyword_negated_scopes"]:
-                    # Scope should not contain text after "but"
-                    assert "cough" not in scope.lower(), (
-                        f"Negation scope incorrectly extends past TERMINATE: {scope}"
-                    )
-
-    def test_terminate_with_however(self):
-        """Test TERMINATE rule with 'however': scope should stop at conjunction."""
-        test_cases = [
-            ("No symptoms, however patient appears ill", AssertionStatus.NEGATED),
-        ]
-
-        for text, expected_status in test_cases:
-            status, details = self.detector.detect(text)
-            assert status == expected_status, (
-                f"TERMINATE test failed for '{text}': got {status} instead of {expected_status}"
-            )
-
-    def test_terminate_with_although(self):
-        """Test TERMINATE rule with 'although': scope should stop at conjunction."""
-        test_cases = [
-            ("No fever although patient feels unwell", AssertionStatus.NEGATED),
-        ]
-
-        for text, expected_status in test_cases:
-            status, details = self.detector.detect(text)
-            assert status == expected_status, (
-                f"TERMINATE test failed for '{text}': got {status} instead of {expected_status}"
-            )
+    @pytest.mark.parametrize(
+        "text,expected_status",
+        [
+            pytest.param(
+                "No fever but has cough",
+                AssertionStatus.NEGATED,
+                id="terminate-but",
+            ),
+            pytest.param(
+                "No symptoms, however patient appears ill",
+                AssertionStatus.NEGATED,
+                id="terminate-however",
+            ),
+            pytest.param(
+                "No fever although patient feels unwell",
+                AssertionStatus.NEGATED,
+                id="terminate-although",
+            ),
+        ],
+    )
+    def test_terminate_scope_boundary(self, text, expected_status):
+        """Test TERMINATE rules: scope should stop at conjunction."""
+        status, details = self.detector.detect(text)
+        assert status == expected_status, (
+            f"TERMINATE test failed for '{text}': got {status} instead of {expected_status}"
+        )
 
     def test_multiple_terminate_triggers(self):
         """Test multiple TERMINATE triggers in same text."""
@@ -525,45 +505,49 @@ class TestConTextIntegration:
         """Set up test fixtures."""
         self.detector = KeywordAssertionDetector(language="en")
 
-    def test_complex_clinical_text_with_terminate(self):
-        """Test complex clinical text with TERMINATE boundaries."""
-        test_cases = [
-            (
+    @pytest.mark.parametrize(
+        "text,expected_status",
+        [
+            pytest.param(
                 "No evidence of pneumonia but patient has persistent cough",
                 AssertionStatus.NEGATED,
+                id="complex-no-evidence-but",
             ),
-            ("Denies fever, however complains of fatigue", AssertionStatus.NEGATED),
-            (
+            pytest.param(
+                "Denies fever, however complains of fatigue",
+                AssertionStatus.NEGATED,
+                id="complex-denies-however",
+            ),
+            pytest.param(
                 "Absence of rash although skin appears irritated",
                 AssertionStatus.NEGATED,
+                id="complex-absence-although",
             ),
-        ]
+        ],
+    )
+    def test_complex_clinical_text_with_terminate(self, text, expected_status):
+        """Test complex clinical text with TERMINATE boundaries."""
+        status, details = self.detector.detect(text)
+        assert status == expected_status, (
+            f"Complex text test failed for '{text}': got {status} instead of {expected_status}"
+        )
 
-        for text, expected_status in test_cases:
-            status, details = self.detector.detect(text)
-            assert status == expected_status, (
-                f"Complex text test failed for '{text}': got {status} instead of {expected_status}"
-            )
-
-    def test_multilingual_context_rules(self):
+    @pytest.mark.parametrize(
+        "lang,text,expected_status",
+        [
+            pytest.param("de", "Kein Fieber", AssertionStatus.NEGATED, id="german"),
+            pytest.param("es", "Sin fiebre", AssertionStatus.NEGATED, id="spanish"),
+            pytest.param("fr", "Pas de fièvre", AssertionStatus.NEGATED, id="french"),
+            pytest.param("nl", "Geen koorts", AssertionStatus.NEGATED, id="dutch"),
+        ],
+    )
+    def test_multilingual_context_rules(self, lang, text, expected_status):
         """Test that ConText rules work for multiple languages."""
-        test_cases = [
-            # German
-            ("de", "Kein Fieber", AssertionStatus.NEGATED),
-            # Spanish
-            ("es", "Sin fiebre", AssertionStatus.NEGATED),
-            # French
-            ("fr", "Pas de fièvre", AssertionStatus.NEGATED),
-            # Dutch
-            ("nl", "Geen koorts", AssertionStatus.NEGATED),
-        ]
-
-        for lang, text, expected_status in test_cases:
-            detector = KeywordAssertionDetector(language=lang)
-            status, details = detector.detect(text)
-            assert status == expected_status, (
-                f"Multilingual test failed for {lang} '{text}': got {status} instead of {expected_status}"
-            )
+        detector = KeywordAssertionDetector(language=lang)
+        status, details = detector.detect(text)
+        assert status == expected_status, (
+            f"Multilingual test failed for {lang} '{text}': got {status} instead of {expected_status}"
+        )
 
     def test_direction_and_terminate_combined(self):
         """Test combination of direction awareness and TERMINATE."""

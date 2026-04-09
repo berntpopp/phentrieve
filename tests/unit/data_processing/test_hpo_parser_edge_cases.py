@@ -13,6 +13,8 @@ Tests defensive programming patterns for handling malformed HPO JSON data:
 import json
 import logging
 
+import pytest
+
 from phentrieve.data_processing.hpo_parser import (
     _extract_term_data_for_db,
     _parse_hpo_json_to_graphs,
@@ -342,145 +344,157 @@ class TestExtractTermDataEdgeCases:
 class TestIsObsoleteTerm:
     """Tests for is_obsolete_term() function (Issue #133)."""
 
-    def test_detects_deprecated_flag_true(self):
-        """Test detection of meta.deprecated=true."""
-        node = {
-            "id": "HP:0000057",
-            "lbl": "obsolete Clitoromegaly",
-            "meta": {"deprecated": True},
-        }
-        assert is_obsolete_term(node) is True
-
-    def test_detects_obsolete_label_prefix(self):
-        """Test detection of 'obsolete ' prefix in label."""
-        node = {
-            "id": "HP:0000057",
-            "lbl": "obsolete Clitoromegaly",
-            "meta": {},  # No deprecated flag
-        }
-        assert is_obsolete_term(node) is True
-
-    def test_detects_obsolete_label_prefix_case_insensitive(self):
-        """Test that 'OBSOLETE ' prefix is detected case-insensitively."""
-        node = {
-            "id": "HP:0000057",
-            "lbl": "OBSOLETE Clitoromegaly",
-            "meta": {},
-        }
-        assert is_obsolete_term(node) is True
-
-    def test_non_obsolete_term(self):
-        """Test that non-obsolete terms return False."""
-        node = {
-            "id": "HP:0001250",
-            "lbl": "Seizure",
-            "meta": {"definition": {"val": "A seizure is..."}},
-        }
-        assert is_obsolete_term(node) is False
-
-    def test_deprecated_false(self):
-        """Test that deprecated=false returns False."""
-        node = {
-            "id": "HP:0001250",
-            "lbl": "Seizure",
-            "meta": {"deprecated": False},
-        }
-        assert is_obsolete_term(node) is False
-
-    def test_missing_meta_field(self):
-        """Test handling of missing meta field."""
-        node = {
-            "id": "HP:0001250",
-            "lbl": "Seizure",
-            # No 'meta' field
-        }
-        assert is_obsolete_term(node) is False
-
-    def test_empty_label(self):
-        """Test handling of empty label."""
-        node = {
-            "id": "HP:0001250",
-            "lbl": "",
-            "meta": {},
-        }
-        assert is_obsolete_term(node) is False
-
-    def test_none_label(self):
-        """Test handling of None label."""
-        node = {
-            "id": "HP:0001250",
-            "lbl": None,
-            "meta": {},
-        }
-        assert is_obsolete_term(node) is False
+    @pytest.mark.parametrize(
+        "node,expected",
+        [
+            pytest.param(
+                {
+                    "id": "HP:0000057",
+                    "lbl": "obsolete Clitoromegaly",
+                    "meta": {"deprecated": True},
+                },
+                True,
+                id="deprecated-flag-true",
+            ),
+            pytest.param(
+                {
+                    "id": "HP:0000057",
+                    "lbl": "obsolete Clitoromegaly",
+                    "meta": {},
+                },
+                True,
+                id="obsolete-label-prefix",
+            ),
+            pytest.param(
+                {
+                    "id": "HP:0000057",
+                    "lbl": "OBSOLETE Clitoromegaly",
+                    "meta": {},
+                },
+                True,
+                id="obsolete-label-prefix-case-insensitive",
+            ),
+            pytest.param(
+                {
+                    "id": "HP:0001250",
+                    "lbl": "Seizure",
+                    "meta": {"definition": {"val": "A seizure is..."}},
+                },
+                False,
+                id="non-obsolete-term",
+            ),
+            pytest.param(
+                {
+                    "id": "HP:0001250",
+                    "lbl": "Seizure",
+                    "meta": {"deprecated": False},
+                },
+                False,
+                id="deprecated-false",
+            ),
+            pytest.param(
+                {
+                    "id": "HP:0001250",
+                    "lbl": "Seizure",
+                },
+                False,
+                id="missing-meta-field",
+            ),
+            pytest.param(
+                {
+                    "id": "HP:0001250",
+                    "lbl": "",
+                    "meta": {},
+                },
+                False,
+                id="empty-label",
+            ),
+            pytest.param(
+                {
+                    "id": "HP:0001250",
+                    "lbl": None,
+                    "meta": {},
+                },
+                False,
+                id="none-label",
+            ),
+        ],
+    )
+    def test_is_obsolete_term(self, node, expected):
+        """Test is_obsolete_term with various node configurations."""
+        assert is_obsolete_term(node) is expected
 
 
 class TestGetReplacementTerm:
     """Tests for get_replacement_term() function (Issue #133)."""
 
-    def test_extracts_replacement_term(self):
-        """Test extraction of IAO_0100001 (term replaced by) annotation."""
-        node = {
-            "id": "HP:0000057",
-            "lbl": "obsolete Clitoromegaly",
-            "meta": {
-                "deprecated": True,
-                "basicPropertyValues": [
-                    {
-                        "pred": "http://purl.obolibrary.org/obo/IAO_0100001",
-                        "val": "HP:0008665",
+    @pytest.mark.parametrize(
+        "node,expected",
+        [
+            pytest.param(
+                {
+                    "id": "HP:0000057",
+                    "lbl": "obsolete Clitoromegaly",
+                    "meta": {
+                        "deprecated": True,
+                        "basicPropertyValues": [
+                            {
+                                "pred": "http://purl.obolibrary.org/obo/IAO_0100001",
+                                "val": "HP:0008665",
+                            }
+                        ],
+                    },
+                },
+                "HP:0008665",
+                id="extracts-replacement-term",
+            ),
+            pytest.param(
+                {
+                    "meta": {
+                        "basicPropertyValues": [
+                            {
+                                "pred": "http://purl.obolibrary.org/obo/IAO_0100001",
+                                "val": "http://purl.obolibrary.org/obo/HP_0008665",
+                            }
+                        ]
                     }
-                ],
-            },
-        }
-        assert get_replacement_term(node) == "HP:0008665"
-
-    def test_normalizes_full_uri(self):
-        """Test normalization of full URI to HP:XXXXXXX format."""
-        node = {
-            "meta": {
-                "basicPropertyValues": [
-                    {
-                        "pred": "http://purl.obolibrary.org/obo/IAO_0100001",
-                        "val": "http://purl.obolibrary.org/obo/HP_0008665",
+                },
+                "HP:0008665",
+                id="normalizes-full-uri",
+            ),
+            pytest.param(
+                {"meta": {"deprecated": True}},
+                None,
+                id="no-replacement-term",
+            ),
+            pytest.param(
+                {"meta": {"basicPropertyValues": []}},
+                None,
+                id="empty-basic-property-values",
+            ),
+            pytest.param(
+                {"id": "HP:0001250", "lbl": "Seizure"},
+                None,
+                id="missing-meta",
+            ),
+            pytest.param(
+                {
+                    "meta": {
+                        "basicPropertyValues": [
+                            "not_a_dict",
+                            {"pred": "IAO_0100001"},
+                            {"val": "HP:0001234"},
+                        ]
                     }
-                ]
-            }
-        }
-        assert get_replacement_term(node) == "HP:0008665"
-
-    def test_no_replacement_term(self):
-        """Test when no replacement term is specified."""
-        node = {
-            "meta": {
-                "deprecated": True,
-                # No basicPropertyValues with IAO_0100001
-            }
-        }
-        assert get_replacement_term(node) is None
-
-    def test_empty_basic_property_values(self):
-        """Test empty basicPropertyValues array."""
-        node = {"meta": {"basicPropertyValues": []}}
-        assert get_replacement_term(node) is None
-
-    def test_missing_meta(self):
-        """Test handling of missing meta field."""
-        node = {"id": "HP:0001250", "lbl": "Seizure"}
-        assert get_replacement_term(node) is None
-
-    def test_malformed_basic_property_values(self):
-        """Test handling of malformed basicPropertyValues."""
-        node = {
-            "meta": {
-                "basicPropertyValues": [
-                    "not_a_dict",  # Wrong type
-                    {"pred": "IAO_0100001"},  # Missing val
-                    {"val": "HP:0001234"},  # Missing pred
-                ]
-            }
-        }
-        assert get_replacement_term(node) is None
+                },
+                None,
+                id="malformed-basic-property-values",
+            ),
+        ],
+    )
+    def test_get_replacement_term(self, node, expected):
+        """Test get_replacement_term with various node configurations."""
+        assert get_replacement_term(node) == expected
 
 
 class TestObsoleteTermFiltering:
