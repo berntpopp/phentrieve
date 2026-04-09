@@ -28,6 +28,7 @@ from phentrieve.retrieval.dense_retriever import (
     DenseRetriever,
     calculate_similarity,
 )
+from phentrieve.retrieval.interactive_state import InteractiveState, interactive_state
 from phentrieve.retrieval.utils import convert_multi_vector_to_chromadb_format
 
 # Note: CombinedAssertionDetector is imported lazily when needed
@@ -37,26 +38,9 @@ from phentrieve.utils import (
     generate_collection_name,
 )
 
-
-# Module-level state container for interactive mode
-# This encapsulates all state needed across interactive query sessions
-# Using a class avoids CodeQL false positives about "unused global variables"
-class _InteractiveState:
-    """Container for interactive mode state across query sessions."""
-
-    model: Optional[Any] = None
-    retriever: Optional[DenseRetriever] = None
-    cross_encoder: Optional[Any] = None  # CrossEncoder type from sentence_transformers
-    query_assertion_detector: Optional[Any] = None  # CombinedAssertionDetector
-    # Multi-vector settings
-    multi_vector: bool = False
-    aggregation_strategy: str = "label_synonyms_max"
-    component_weights: Optional[dict[str, float]] = None
-    custom_formula: Optional[str] = None
-
-
-# Singleton instance for interactive mode state
-_interactive_state = _InteractiveState()
+# Backward-compatible aliases for the extracted InteractiveState
+_InteractiveState = InteractiveState
+_interactive_state = interactive_state
 
 
 def _execute_multi_vector_query(
