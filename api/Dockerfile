@@ -7,7 +7,7 @@
 # ============================================================================
 # Python 3.12 offers ~5% performance improvement and is the latest stable LTS
 # Keep at 3.11 for now due to dependency compatibility (spaCy, torch, etc.)
-ARG PYTHON_VERSION=3.11.11
+ARG PYTHON_VERSION=3.11.13
 ARG DEBIAN_VERSION=bookworm
 # SQLite 3.51.1 fixes CVE-2025-7458 and CVE-2025-6965 (critical integer overflow vulnerabilities)
 ARG SQLITE_VERSION=3510100
@@ -277,20 +277,18 @@ LABEL org.opencontainers.image.title="Phentrieve API" \
       org.opencontainers.image.documentation="https://github.com/berntpopp/phentrieve/blob/main/README.md" \
       org.opencontainers.image.authors="Bernt Popp <bernt.popp@gmail.com>"
 
-# Install runtime dependencies only
-# NOTE: Security updates should be handled by updating the base image version,
-# not via apt-get upgrade (which is slow, non-cacheable, and non-reproducible).
-# Pin base image versions in CI/CD and update them regularly instead.
+# Install runtime dependencies and apply security updates
 # gosu is required for the entrypoint script to drop privileges after fixing permissions
 # See: https://www.docker.com/blog/understanding-the-docker-user-instruction/
 # hadolint ignore=DL3008,DL3009
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     apt-get update && \
+    # Apply security updates to base image packages (addresses gpgv/GnuPG, libgnutls, openssl CVEs)
+    apt-get upgrade -y && \
     apt-get install -y --no-install-recommends \
         ca-certificates \
         libgomp1 \
-        curl \
         gosu \
     && rm -rf /var/lib/apt/lists/* \
     # Security hardening: Remove system SQLite to prevent Trivy false positives (CVE-2025-6965, CVE-2025-7458)
@@ -379,9 +377,9 @@ ENV PYTHONPATH=/app \
 # This follows Docker best practices for handling volume permissions:
 # https://www.docker.com/blog/understanding-the-docker-user-instruction/
 
-# Health check
+# Health check (using Python instead of curl to reduce attack surface)
 HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=3 \
-    CMD curl -f http://localhost:8000/api/v1/health || exit 1
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health')" || exit 1
 
 # Expose port
 EXPOSE 8000

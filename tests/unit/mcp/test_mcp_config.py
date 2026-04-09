@@ -7,10 +7,8 @@ import pytest
 
 # Check if MCP dependencies are installed
 try:
-    import pydantic_settings
+    import pydantic_settings  # noqa: F401
 
-    # Use the import to satisfy linters - version check confirms availability
-    _MCP_VERSION_CHECK = hasattr(pydantic_settings, "__version__")
     MCP_AVAILABLE = True
 except ImportError:
     MCP_AVAILABLE = False
