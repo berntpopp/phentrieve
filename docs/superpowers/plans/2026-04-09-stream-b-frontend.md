@@ -41,46 +41,48 @@ describe('queryPreferences store (characterization)', () => {
   })
 
   describe('initial state', () => {
-    it('has default model name', () => {
+    it('includeDetails defaults to false', () => {
       const store = useQueryPreferencesStore()
-      expect(store.modelName).toBeDefined()
+      expect(store.includeDetails).toBe(false)
     })
 
-    it('has default num results', () => {
+    it('has no other state properties', () => {
       const store = useQueryPreferencesStore()
-      expect(store.numResults).toBeTypeOf('number')
-      expect(store.numResults).toBeGreaterThan(0)
-    })
-
-    it('has default similarity threshold', () => {
-      const store = useQueryPreferencesStore()
-      expect(store.similarityThreshold).toBeTypeOf('number')
-      expect(store.similarityThreshold).toBeGreaterThanOrEqual(0)
-      expect(store.similarityThreshold).toBeLessThanOrEqual(1)
+      // The store only manages includeDetails — no modelName, numResults, etc.
+      // Those live in QueryInterface.vue component data, not in the store.
+      expect(store.$state).toEqual({ includeDetails: false })
     })
   })
 
   describe('actions', () => {
-    it('updates model name', () => {
+    it('toggleIncludeDetails flips the value', () => {
       const store = useQueryPreferencesStore()
-      const original = store.modelName
-      store.modelName = 'new-model'
-      expect(store.modelName).toBe('new-model')
-      store.modelName = original
+      expect(store.includeDetails).toBe(false)
+      store.toggleIncludeDetails()
+      expect(store.includeDetails).toBe(true)
+      store.toggleIncludeDetails()
+      expect(store.includeDetails).toBe(false)
     })
 
-    it('updates num results', () => {
+    it('setIncludeDetails sets to true', () => {
       const store = useQueryPreferencesStore()
-      store.numResults = 20
-      expect(store.numResults).toBe(20)
+      store.setIncludeDetails(true)
+      expect(store.includeDetails).toBe(true)
     })
-  })
 
-  describe('persistence config', () => {
-    it('has persist enabled', () => {
+    it('setIncludeDetails sets to false', () => {
       const store = useQueryPreferencesStore()
-      // Verify the store is configured for persistence
-      expect(store.$persist).toBeDefined
+      store.setIncludeDetails(true)
+      store.setIncludeDetails(false)
+      expect(store.includeDetails).toBe(false)
+    })
+
+    it('setIncludeDetails coerces truthy values to boolean', () => {
+      const store = useQueryPreferencesStore()
+      store.setIncludeDetails(1)
+      expect(store.includeDetails).toBe(true)
+      store.setIncludeDetails(0)
+      expect(store.includeDetails).toBe(false)
     })
   })
 })
@@ -122,29 +124,39 @@ import { createPinia, setActivePinia } from 'pinia'
 import { createVuetify } from 'vuetify'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
+import { createI18n } from 'vue-i18n'
+import en from '../../locales/en.json'
 
-// Mock the API service
-vi.mock('../../services/PhentrieveService', () => ({
-  default: {
-    query: vi.fn().mockResolvedValue({ data: { results: [] } }),
-    processText: vi.fn().mockResolvedValue({ data: { processed_chunks: [] } }),
-  },
-}))
+// Mock the API service class — methods are queryHpo() and processText()
+// (NOT query() — the real class in services/PhentrieveService.js uses queryHpo)
+vi.mock('../../services/PhentrieveService', () => {
+  const MockService = {
+    queryHpo: vi.fn().mockResolvedValue({ results: [] }),
+    processText: vi.fn().mockResolvedValue({ processed_chunks: [], aggregated_hpo_terms: [] }),
+    getConfigInfo: vi.fn().mockResolvedValue({
+      available_embedding_models: [{ name: 'test-model', loaded: true }],
+      default_embedding_model: 'test-model',
+    }),
+  }
+  return { default: MockService }
+})
 
 const vuetify = createVuetify({ components, directives })
+const i18n = createI18n({ locale: 'en', messages: { en } })
 
-function mountQueryInterface(props = {}) {
+function mountQueryInterface() {
+  // QueryInterface uses Options API with setup() hook, has no props.
+  // It renders a search container with query input.
   return mount(
-    () => import('../../components/QueryInterface.vue'),
+    (await import('../../components/QueryInterface.vue')).default,
     {
       global: {
-        plugins: [createPinia(), vuetify],
+        plugins: [createPinia(), vuetify, i18n],
         stubs: {
           ResultsDisplay: true,
-          TutorialOverlay: true,
+          ConversationSkeleton: true,
         },
       },
-      props,
     }
   )
 }
@@ -155,16 +167,41 @@ describe('QueryInterface (characterization)', () => {
   })
 
   it('mounts without errors', async () => {
-    const wrapper = mountQueryInterface()
+    const wrapper = await mountQueryInterface()
     expect(wrapper.exists()).toBe(true)
   })
 
-  // Additional tests will depend on the actual component API
-  // discovered during Step 1 (reading the component)
+  it('renders the search container', async () => {
+    const wrapper = await mountQueryInterface()
+    expect(wrapper.find('.search-container').exists()).toBe(true)
+  })
+
+  it('initializes with empty query text', async () => {
+    const wrapper = await mountQueryInterface()
+    expect(wrapper.vm.queryText).toBe('')
+  })
+
+  it('initializes with loading false', async () => {
+    const wrapper = await mountQueryInterface()
+    expect(wrapper.vm.isLoading).toBe(false)
+  })
+
+  it('has advanced options hidden by default', async () => {
+    const wrapper = await mountQueryInterface()
+    expect(wrapper.vm.showAdvancedOptions).toBe(false)
+  })
+
+  it('has default threshold values', async () => {
+    const wrapper = await mountQueryInterface()
+    expect(wrapper.vm.similarityThreshold).toBe(0.5)
+    expect(wrapper.vm.numResults).toBe(10)
+    expect(wrapper.vm.chunkRetrievalThreshold).toBe(0.7)
+    expect(wrapper.vm.aggregatedTermConfidence).toBe(0.75)
+  })
 })
 ```
 
-Note: The exact tests depend on the component's props/emits interface. Read the component first, then write tests that cover: query input rendering, mode toggle visibility, submit button state.
+Note: `mountQueryInterface` is async because it uses dynamic import. QueryInterface.vue is an Options API component with a `setup()` hook that only initializes `conversationStore`. Test assertions use `wrapper.vm.*` to access Options API data properties.
 
 - [ ] **Step 2: Run tests**
 
@@ -293,38 +330,54 @@ Read `frontend/src/stores/queryPreferences.js` to understand state, actions, get
 
 - [ ] **Step 2: Rewrite as setup store**
 
-Convert from options API to composition API. Example transformation:
+Replace the entire file content with:
 
 ```javascript
-// Before (options API):
-export const useQueryPreferencesStore = defineStore('queryPreferences', {
-  state: () => ({
-    modelName: 'default-model',
-    numResults: 10,
-  }),
-  actions: {
-    resetDefaults() { ... },
-  },
-  persist: true,
-})
+/**
+ * Pinia Store for Query Preferences (setup store / composition API)
+ *
+ * Migrated from options API to match the pattern used by all other stores
+ * (conversation.js, disclaimer.js, log.js). State and behavior are identical.
+ *
+ * @module stores/queryPreferences
+ */
 
-// After (setup store / composition API):
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
 
 export const useQueryPreferencesStore = defineStore('queryPreferences', () => {
-  const modelName = ref('default-model')
-  const numResults = ref(10)
+  /**
+   * Whether to include HPO term details (definitions and synonyms) in results
+   * @type {import('vue').Ref<boolean>}
+   */
+  const includeDetails = ref(false)
 
-  function resetDefaults() { ... }
+  /**
+   * Toggle the include details preference
+   */
+  function toggleIncludeDetails() {
+    includeDetails.value = !includeDetails.value
+  }
 
-  return { modelName, numResults, resetDefaults }
+  /**
+   * Set the include details preference
+   * @param {boolean} value - Whether to include details
+   */
+  function setIncludeDetails(value) {
+    includeDetails.value = Boolean(value)
+  }
+
+  return { includeDetails, toggleIncludeDetails, setIncludeDetails }
 }, {
+  /**
+   * Enable automatic persistence to localStorage
+   * Plugin will automatically save/load state on changes
+   */
   persist: true,
 })
 ```
 
-Preserve the exact same state keys and persistence behavior. Every `ref` must be returned from the setup function for Pinia to track it.
+Key points: the store ID stays `'queryPreferences'` so existing localStorage data is preserved. The state shape `{ includeDetails }` is identical. Every ref and function is returned so Pinia tracks them.
 
 - [ ] **Step 3: Run characterization tests**
 
@@ -389,31 +442,55 @@ export function useFileDownload() {
 
 - [ ] **Step 2: Replace download patterns in QueryInterface.vue**
 
-Find the 2 locations in `QueryInterface.vue` where `document.createElement('a')` is used for downloads (around lines 1144 and 1210). Replace each with:
+Find the 2 locations in `QueryInterface.vue` where `document.createElement('a')` is used for downloads (around lines 1144 and 1210).
+
+QueryInterface.vue uses Options API, so composables must be called inside `setup()` and their returns must be exposed to the template/methods. Update the existing `setup()` function:
 
 ```javascript
 import { useFileDownload } from '../composables/useFileDownload'
 
-// In setup or methods:
-const { downloadText, downloadJson } = useFileDownload()
-
-// Replace inline download code with:
-downloadText(textContent, 'export.txt')
-// or
-downloadJson(jsonData, 'phenopacket.json')
+export default {
+  // ...
+  setup() {
+    const conversationStore = useConversationStore()
+    const { downloadText, downloadJson } = useFileDownload()
+    return { conversationStore, downloadText, downloadJson }
+  },
+  methods: {
+    exportCollectionAsText() {
+      // Before: document.createElement('a') ... document.body.appendChild ...
+      // After:
+      this.downloadText(textContent, 'phentrieve-export.txt')
+    },
+    exportPhenopacket() {
+      // Before: document.createElement('a') ... document.body.appendChild ...
+      // After:
+      this.downloadJson(phenopacketData, 'phenopacket.json')
+    },
+  },
+}
 ```
 
 - [ ] **Step 3: Replace download pattern in LogViewer.vue**
 
-Find the location in `LogViewer.vue` (around line 250) and replace similarly:
+LogViewer.vue also uses Options API. Read it first to confirm, then apply the same pattern — call `useFileDownload()` inside `setup()` and return the methods:
 
 ```javascript
 import { useFileDownload } from '../composables/useFileDownload'
 
-const { downloadJson } = useFileDownload()
-
-// Replace inline download with:
-downloadJson(logData, 'logs.json')
+export default {
+  setup() {
+    const { downloadJson } = useFileDownload()
+    return { downloadJson }
+  },
+  methods: {
+    downloadLogs() {
+      // Before: document.createElement('a') ... document.body.appendChild ...
+      // After:
+      this.downloadJson(logData, 'phentrieve-logs.json')
+    },
+  },
+}
 ```
 
 - [ ] **Step 4: Verify build and tests pass**
@@ -451,50 +528,72 @@ Read `frontend/src/App.vue` to identify all version-fetching and health-monitori
 Create `frontend/src/composables/useVersionCheck.js`:
 
 ```javascript
-import { ref, onMounted } from 'vue'
-import PhentrieveService from '../services/PhentrieveService'
+import { ref } from 'vue'
+import { getAllVersions } from '../utils/version'
 
 /**
- * Composable for API version checking and health monitoring.
- * Extracted from App.vue to reduce component complexity.
+ * Composable for version fetching.
+ * Extracted from App.vue refreshVersions() method.
+ *
+ * Note: API health monitoring stays in App.vue via useApiHealth()
+ * from services/api-health.js — that composable already exists and
+ * is wired into App.vue's computed properties (apiConnected, responseTime).
+ * We only extract the version-fetching concern here.
  */
 export function useVersionCheck() {
-  const apiVersion = ref(null)
-  const cliVersion = ref(null)
-  const apiHealthy = ref(false)
+  const frontendVersion = ref('Loading...')
+  const apiVersion = ref('Loading...')
+  const cliVersion = ref('Loading...')
+  const environment = ref('unknown')
+  const loadingVersions = ref(false)
 
-  async function checkVersions() {
+  async function refreshVersions() {
+    loadingVersions.value = true
     try {
-      const response = await PhentrieveService.getVersions()
-      if (response.data) {
-        apiVersion.value = response.data.api?.version || null
-        cliVersion.value = response.data.cli?.version || null
-        apiHealthy.value = true
-      }
+      const versions = await getAllVersions()
+      frontendVersion.value = versions.frontend?.version || 'unknown'
+      apiVersion.value = versions.api?.version || 'unknown'
+      cliVersion.value = versions.cli?.version || 'unknown'
+      environment.value = versions.environment || 'unknown'
     } catch {
-      apiHealthy.value = false
+      // Versions stay at their current values on error
+    } finally {
+      loadingVersions.value = false
     }
   }
 
-  onMounted(() => {
-    checkVersions()
-  })
-
-  return { apiVersion, cliVersion, apiHealthy, checkVersions }
+  return {
+    frontendVersion, apiVersion, cliVersion, environment,
+    loadingVersions, refreshVersions,
+  }
 }
 ```
 
 - [ ] **Step 3: Update App.vue to use the composable**
 
-Replace the inline version-fetching logic in App.vue with:
+App.vue uses Options API, so call the composable inside `setup()` and return its values. This replaces the `data()` properties (`frontendVersion`, `apiVersion`, `cliVersion`, `environment`, `loadingVersions`) and the `refreshVersions()` method:
 
 ```javascript
 import { useVersionCheck } from './composables/useVersionCheck'
 
-const { apiVersion, cliVersion, apiHealthy } = useVersionCheck()
-```
+export default {
+  setup() {
+    const {
+      frontendVersion, apiVersion, cliVersion, environment,
+      loadingVersions, refreshVersions,
+    } = useVersionCheck()
 
-Remove the corresponding data properties, methods, and mounted hooks from App.vue.
+    return {
+      frontendVersion, apiVersion, cliVersion, environment,
+      loadingVersions, refreshVersions,
+    }
+  },
+  // Remove from data(): frontendVersion, apiVersion, cliVersion, environment, loadingVersions
+  // Remove from methods: refreshVersions()
+  // Keep in mounted(): call this.refreshVersions() — it now comes from setup()
+  // Keep: useApiHealth() usage in computed (apiConnected, responseTime) — unchanged
+}
+```
 
 - [ ] **Step 4: Verify build passes**
 
@@ -532,30 +631,41 @@ For each `document.querySelector` call:
 2. Use `useTemplateRef()` or `ref()` in the script
 3. Replace `querySelector` with the ref
 
-Example:
+App.vue uses **Options API** (not `<script setup>`), so template refs are accessed via `this.$refs`:
 
 ```html
-<!-- Template: add ref -->
-<v-navigation-drawer ref="navDrawer" ...>
-
-<!-- Script: use ref instead of querySelector -->
-<script setup>
-import { ref } from 'vue'
-
-const navDrawer = ref(null)
-
-function closePanel() {
-  // Before: document.querySelector('.v-navigation-drawer')?.click()
-  // After:
-  if (navDrawer.value) {
-    // Use Vuetify's model value instead of DOM click
-    navDrawer.value.modelValue = false
-  }
-}
-</script>
+<!-- Template: add ref attribute to target elements -->
+<v-navigation-drawer ref="navDrawer" v-model="drawerOpen" ...>
 ```
 
-For tutorial-related DOM queries that target Vuetify internal classes (`.v-btn`, `.v-icon`), replace with event-driven communication (emit/provide-inject) or expose the tutorial step targets via data attributes.
+```javascript
+// Script (Options API methods):
+export default {
+  data() {
+    return {
+      drawerOpen: false, // Use reactive data instead of DOM manipulation
+    }
+  },
+  methods: {
+    closePanel() {
+      // Before: document.querySelector('.v-navigation-drawer')?.click()
+      // After: toggle the reactive v-model binding
+      this.drawerOpen = false
+    },
+  },
+}
+```
+
+**Strategy for each querySelector pattern:**
+
+| Current DOM query | Replacement |
+|---|---|
+| `querySelector('.v-navigation-drawer')` | `v-model` reactive binding on drawer |
+| `querySelector('.v-btn')` inside tutorial | `ref="tutorialTarget"` + `this.$refs.tutorialTarget` |
+| `querySelectorAll(...)` for panel closing | Reactive boolean per panel (`logDrawerOpen`, `settingsDrawerOpen`) |
+| `:contains(...)` selectors (invalid in DOM) | Data attributes: `data-tutorial-step="N"` + `querySelector('[data-tutorial-step="N"]')` |
+
+For tutorial-related DOM queries that target Vuetify internal classes (`.v-btn`, `.v-icon`), replace with `data-tutorial-step` attributes on the target elements. The tutorial service can then use `querySelector('[data-tutorial-step="1"]')` — still a DOM query but on a stable, owned attribute rather than brittle Vuetify internals.
 
 - [ ] **Step 3: Verify build and tests pass**
 

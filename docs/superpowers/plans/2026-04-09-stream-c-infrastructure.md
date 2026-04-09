@@ -142,7 +142,13 @@ repos:
       - id: ruff-format
 ```
 
-Note: mypy hook is omitted intentionally — it's too slow for pre-commit and the project uses `make typecheck-fast` (mypy daemon) instead. Ruff handles the fast feedback loop; mypy runs via `make all` before commits.
+**Spec deviation: mypy hook omitted.** The design spec at `docs/superpowers/specs/2026-04-09-code-quality-improvements-design.md:287` included a `mirrors-mypy` hook. After research, this is omitted because:
+1. mypy in pre-commit runs from scratch on every commit (no daemon), taking 30-60s on this codebase
+2. The project already uses `make typecheck-fast` (mypy daemon, ~3s) which developers run via `make all`
+3. The pre-commit docs recommend against slow hooks that discourage frequent commits
+4. CI enforces mypy as a required check, so untyped code cannot merge
+
+Ruff in pre-commit provides the fast feedback loop (<1s). mypy stays in `make all` and CI.
 
 - [ ] **Step 3: Install the hooks**
 
@@ -169,6 +175,16 @@ commit unformatted or unlinted code. Hooks: trailing-whitespace,
 end-of-file-fixer, check-yaml, check-added-large-files,
 check-merge-conflict, ruff-check --fix, ruff-format."
 ```
+
+---
+
+### Import Path Decision (Non-task — explicit constraint for this stream)
+
+**Decision: Keep current PYTHONPATH/Makefile approach.** The `sys.path` hack in `tests/unit/api/test_dependencies_model_loading.py:17-19` and the `PYTHONPATH=$PWD` in `make test-api` stay as-is for this cycle.
+
+**Rationale:** Six approaches to fixing pytest import paths for the `api` module were attempted and all failed (documented in `tests/unit/api/README.md:67-86`). Root cause: pytest assertion rewriting runs before any path configuration is processed. The `src` layout refactoring is the proper fix but is out of scope (see spec Out of Scope section).
+
+**Implication:** All API test run commands in this plan use `PYTHONPATH=$PWD` or `make test` (which sets it via Makefile). New API test files in Stream A must include the same `sys.path` workaround at the top.
 
 ---
 
@@ -277,44 +293,39 @@ print(f'\nTotal: {len(no_assert)} tests with no assertions')
 
 - [ ] **Step 2: Fix each zero-assertion test**
 
-For each test found, add a meaningful assertion. Common patterns:
+There are exactly **18 zero-assertion tests** across 6 files. Fix each one:
 
-**Pattern A — test that calls a function but doesn't assert:**
-```python
-# Before:
-def test_something():
-    result = my_function(input)
+**File 1: `tests/unit/api/test_text_processing_router.py` (4 tests)**
+- `test_valid_references_pass_validation:204` — call the validator, assert it returns without error AND assert on the returned structure
+- `test_none_top_evidence_chunk_id_passes_validation:395` — assert the response object has expected fields
+- `test_empty_chunks_and_terms_pass_validation:421` — assert the validated response has empty lists
+- `test_multiple_text_attributions_all_valid:430` — assert the number of attributions matches input
 
-# After:
-def test_something():
-    result = my_function(input)
-    assert result is not None
-    assert isinstance(result, ExpectedType)
-    assert result.key == expected_value
-```
+**File 2: `tests/unit/cli/test_benchmark_integration.py` (2 tests)**
+- `test_benchmark_comparison_pipeline:176` — `@pytest.mark.skip` (requires HPO data). Leave as-is — already skipped. Add a comment documenting why.
+- `test_benchmark_visualization_pipeline:187` — same, already skipped.
 
-**Pattern B — test using pytest.raises without match:**
-```python
-# Before:
-def test_invalid_input():
-    with pytest.raises(ValueError):
-        my_function(bad_input)
+**File 3: `tests/unit/core/test_assertion_detection.py` (1 test)**
+- `test_bidirectional_direction:413` — assert on the returned direction enum value
 
-# After:
-def test_invalid_input():
-    with pytest.raises(ValueError, match="expected error substring"):
-        my_function(bad_input)
-```
+**File 4: `tests/unit/data_processing/test_bundle_packager.py` (1 test)**
+- `test_passes_when_checksums_match:156` — assert the function returns True or completes without exception AND assert no side effects
 
-**Pattern C — test that's truly empty/placeholder:**
-```python
-# Delete the test function entirely if it provides no value
-```
+**File 5: `tests/unit/data_processing/test_hpo_database.py` (1 test)**
+- `test_close_idempotent:404` — assert the database connection is closed (check attribute or call)
 
-Work through the priority files first:
-1. `tests/unit/api/test_dependencies_model_loading.py`
-2. `tests/unit/api/test_text_processing_router_performance.py`
-3. `tests/unit/cli/test_benchmark_integration.py`
+**File 6: `tests/unit/mcp/test_mcp_server.py` (1 test)**
+- `test_mcp_check_installed_returns_false_without_package:53` — assert the return value is False
+
+**File 7: `tests/unit/phenopacket_utils/test_phenopacket_utils.py` (8 tests)**
+- `test_format_as_phenopacket_v2_empty:8` — assert result is a valid dict with expected keys (id, subject, phenotypicFeatures)
+- `test_format_as_phenopacket_v2_empty_both:17` — assert same structure with empty phenotypicFeatures list
+- `test_format_as_phenopacket_v2_basic_aggregated:26` — assert phenotypicFeatures length matches input terms
+- `test_format_as_phenopacket_v2_sorting:48` — assert phenotypicFeatures are sorted by confidence descending
+- `test_format_as_phenopacket_v2_evidence:70` — assert evidence objects have expected structure
+- `test_format_as_phenopacket_v2_chunk_results:95` — assert chunk-based results map correctly
+- `test_format_as_phenopacket_v2_metadata:160` — assert metadata fields (created, createdBy, resources) are present
+- `test_format_as_phenopacket_v2_with_metadata_parameters:182` — assert subject ID and sex values are set from parameters
 
 - [ ] **Step 3: Verify all tests pass**
 
@@ -333,7 +344,7 @@ Re-run the script from Step 1. Expected: `Total: 0 tests with no assertions`.
 ```bash
 git add tests/ && git commit -m "test: add assertions to all zero-assertion test functions
 
-Audit found N tests with no assertions, giving false confidence.
+Audit found 18 tests with no assertions, giving false confidence.
 Added meaningful assertions (value checks, match= on pytest.raises)
 to every test function."
 ```
@@ -347,36 +358,50 @@ to every test function."
 - Modify: `tests/unit/data_processing/test_hpo_parser_edge_cases.py`
 - Modify: `tests/unit/api/test_text_processing_router.py`
 
-- [ ] **Step 1: Read test_assertion_detection.py and identify repetitive patterns**
+- [ ] **Step 1: Read all three target files and identify parametrize candidates**
 
-Look for test functions that follow the same structure but differ only in input values (rule type, language, expected output). These are parametrize candidates.
+Read each file, find groups of 3+ test functions that share the same body structure but differ only in input values.
 
-- [ ] **Step 2: Refactor repetitive assertion detection tests**
-
-Example transformation:
-
-```python
-# Before: N separate test functions with same structure
-def test_negation_rule_en():
-    result = detect_assertion("no fever", "en")
-    assert result.status == "negated"
-
-def test_negation_rule_de():
-    result = detect_assertion("kein Fieber", "de")
-    assert result.status == "negated"
-
-# After: Single parametrized test
-@pytest.mark.parametrize("text,lang,expected_status", [
-    ("no fever", "en", "negated"),
-    ("kein Fieber", "de", "negated"),
-    # ... more cases
-])
-def test_negation_detection(text, lang, expected_status):
-    result = detect_assertion(text, lang)
-    assert result.status == expected_status
+Run this to find candidate groups:
+```bash
+for f in tests/unit/core/test_assertion_detection.py tests/unit/data_processing/test_hpo_parser_edge_cases.py tests/unit/api/test_text_processing_router.py; do
+  echo "=== $f ==="
+  grep -n "def test_" "$f" | head -30
+done
 ```
 
-Apply the same pattern to `test_hpo_parser_edge_cases.py` and `test_text_processing_router.py`.
+- [ ] **Step 2: Refactor test_assertion_detection.py**
+
+Read the file. Look for test functions in the assertion detection test that test the same detection function with different inputs (different languages, different rule types, different assertion categories). Group these into `@pytest.mark.parametrize` calls.
+
+For each group:
+1. Identify the common function body
+2. Extract the varying parts as parameters
+3. Replace N functions with 1 parametrized function
+4. Ensure each parametrize case has a descriptive ID using `pytest.param(..., id="...")`
+
+```python
+# Example of the parametrize ID pattern to use:
+@pytest.mark.parametrize("direction,expected", [
+    pytest.param("forward", Direction.FORWARD, id="forward-direction"),
+    pytest.param("backward", Direction.BACKWARD, id="backward-direction"),
+    pytest.param("bidirectional", Direction.BIDIRECTIONAL, id="bidirectional-direction"),
+])
+def test_direction_parsing(direction, expected):
+    result = parse_direction(direction)
+    assert result == expected
+```
+
+- [ ] **Step 3: Refactor test_hpo_parser_edge_cases.py and test_text_processing_router.py**
+
+Apply the same parametrize extraction to both files. Focus on groups of validation tests that test the same validator with different inputs (valid vs invalid, different field combinations).
+
+- [ ] **Step 4: Run tests and verify count changed**
+
+```bash
+make test 2>&1 | tail -3
+```
+Expected: All pass. Total test count may increase (parametrized tests expand) but number of test *functions* decreases.
 
 - [ ] **Step 3: Verify all tests pass**
 
@@ -441,24 +466,18 @@ proper test selection with -m unit."
 **Files:**
 - Modify: `pyproject.toml:188-194`
 
-- [ ] **Step 1: Determine current coverage baseline**
+- [ ] **Step 1: Set coverage threshold**
 
-Run:
-```bash
-make test-cov 2>&1 | grep "TOTAL"
-```
-Note the current total coverage percentage.
+Current coverage baseline is **45%** (8507 statements, 4653 missed, measured 2026-04-09). Set the threshold to 40% (5% below actual) to provide buffer for test variance while preventing regression:
 
-- [ ] **Step 2: Set coverage threshold at baseline**
-
-In `pyproject.toml`, un-comment and set the threshold to 5% below current actual (giving buffer for test variance):
+In `pyproject.toml`, change line 194:
 
 ```toml
 # Before:
     # "--cov-fail-under=80",  # TODO: Enable after migration complete
 
-# After (example, adjust number to actual baseline):
-    "--cov-fail-under=40",  # Ratchet up as coverage improves
+# After:
+    "--cov-fail-under=40",  # Baseline: 45% as of 2026-04-09. Ratchet up as coverage improves.
 ```
 
 - [ ] **Step 3: Verify make test passes with the threshold**

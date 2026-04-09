@@ -40,11 +40,13 @@ from unittest.mock import MagicMock, patch
 from phentrieve.retrieval.query_orchestrator import (
     process_query,
     convert_results_to_candidates,
-    convert_multi_vector_to_chromadb_format,
     format_results,
     segment_text,
     _InteractiveState,
 )
+# Note: convert_multi_vector_to_chromadb_format is tested separately
+# and will move to retrieval/utils.py in Task 4. We do NOT import it here
+# so these characterization tests remain stable through that relocation.
 
 pytestmark = pytest.mark.unit
 
@@ -446,9 +448,14 @@ pytestmark = pytest.mark.unit
 
 @pytest.fixture
 def client():
-    """Create test client. Import app here to isolate import-time effects."""
+    """Create test client with lifespan context manager.
+
+    Using context manager ensures lifespan startup/shutdown events fire,
+    per FastAPI testing docs: https://fastapi.tiangolo.com/advanced/testing-events/
+    """
     from api.main import app
-    return TestClient(app, raise_server_exceptions=False)
+    with TestClient(app, raise_server_exceptions=False) as c:
+        yield c
 
 
 class TestAppStructure:
