@@ -109,7 +109,7 @@ class TestDockerHealth:
         Verify Docker HEALTHCHECK is configured in container.
 
         Expected (from docker-compose.test.yml):
-            Test: curl -f http://localhost:8000/api/v1/health
+            Test: python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health', timeout=3)"
             Interval: 10s
             Timeout: 5s
             Retries: 5
@@ -123,10 +123,13 @@ class TestDockerHealth:
         test_cmd = healthcheck.get("Test", [])
         assert len(test_cmd) > 0, "Health check test command should be defined"
 
-        # Should contain curl command for health endpoint
+        # Should contain Python urllib-based health endpoint check
         test_str = " ".join(test_cmd)
         assert "health" in test_str.lower(), (
             f"Health check should test health endpoint, got: {test_str}"
+        )
+        assert "python" in test_str.lower(), (
+            f"Health check should use python urllib (not curl), got: {test_str}"
         )
 
     def test_container_is_healthy(self, api_container: Container):

@@ -64,7 +64,7 @@ services:
 
     # Health check (shorter timeouts for testing)
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8000/api/v1/health || exit 1"]
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health', timeout=3)\" || exit 1"]
       interval: 10s       # More frequent checks
       timeout: 5s
       retries: 5

@@ -9,9 +9,7 @@ import pytest
 try:
     import pydantic_settings
 
-    # Use the import to satisfy linters - version check confirms availability
-    _MCP_VERSION_CHECK = hasattr(pydantic_settings, "__version__")
-    MCP_AVAILABLE = True
+    MCP_AVAILABLE = bool(pydantic_settings)
 except ImportError:
     MCP_AVAILABLE = False
 
