@@ -1,5 +1,6 @@
 import logging
 from contextlib import asynccontextmanager
+from http import HTTPStatus
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -158,8 +159,6 @@ def create_app() -> FastAPI:
         are intercepted.
         """
         # Slug from status phrase: "Unprocessable Entity" -> "unprocessable_entity"
-        from http import HTTPStatus
-
         try:
             slug = HTTPStatus(exc.status_code).phrase.lower().replace(" ", "_")
         except ValueError:
@@ -167,7 +166,9 @@ def create_app() -> FastAPI:
         body = ErrorResponse(
             status_code=exc.status_code,
             error=slug,
-            detail=str(exc.detail) if exc.detail is not None else slug,
+            # Pass exc.detail through unchanged — preserves str details AND
+            # preserves dict/list details (e.g. similarity_router returns a dict).
+            detail=exc.detail if exc.detail is not None else slug,
         )
         return JSONResponse(
             status_code=exc.status_code,
