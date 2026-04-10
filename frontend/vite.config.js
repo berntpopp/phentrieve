@@ -38,21 +38,26 @@ export default defineConfig({
       include: [/node_modules/]
     }),
     iconOptimizer(),
-    viteCompression({
-      algorithm: 'brotliCompress',
-      ext: '.br',
-      threshold: 1024, // Only compress files larger than 1KB
-      compressionOptions: { level: 11 }, // Maximum compression level
-      deleteOriginFile: false // Keep original files
-    }),
+    // Brotli compression and bundle visualizer are deploy-time concerns.
+    // Skip in CI to save 10-30s per build; keep for local builds so the
+    // dev can inspect stats.html and see the actual deploy-ready payload.
+    !process.env.CI &&
+      viteCompression({
+        algorithm: 'brotliCompress',
+        ext: '.br',
+        threshold: 1024, // Only compress files larger than 1KB
+        compressionOptions: { level: 11 }, // Maximum compression level
+        deleteOriginFile: false, // Keep original files
+      }),
     // viteImagemin removed - see import comment above
-    visualizer({
-      filename: 'dist/stats.html',
-      open: false,
-      gzipSize: true,
-      brotliSize: true,
-    }),
-  ],
+    !process.env.CI &&
+      visualizer({
+        filename: 'dist/stats.html',
+        open: false,
+        gzipSize: true,
+        brotliSize: true,
+      }),
+  ].filter(Boolean),
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
