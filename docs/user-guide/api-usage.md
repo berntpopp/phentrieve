@@ -25,8 +25,7 @@ This endpoint accepts a JSON payload with the following parameters:
   "text": "Der Patient zeigt Mikrozephalie und Krampfanfälle",
   "model_name": "FremyCompany/BioLORD-2023-M",
   "num_results": 5,
-  "similarity_threshold": 0.3,
-  "enable_reranker": true
+  "similarity_threshold": 0.3
 }
 ```
 

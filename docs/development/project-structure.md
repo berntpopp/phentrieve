@@ -80,7 +80,6 @@ Modules for building and managing vector indexes:
 
 Modules for querying indexes and processing results:
 - `query_processor.py`: Core query processing
-- `reranker.py`: Cross-encoder reranking
 
 ### Evaluation (`evaluation/`)
 

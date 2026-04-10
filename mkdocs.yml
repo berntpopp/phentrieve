@@ -49,7 +49,6 @@ nav:
   - 'Core Concepts':
     - 'Overview': 'core-concepts/index.md'
     - 'Multilingual Embeddings': 'core-concepts/multilingual-embeddings.md'
-    - 'Reranking': 'core-concepts/reranking.md'
     - 'Ontology Similarity': 'core-concepts/ontology-similarity.md'
     - 'Logo Design': 'core-concepts/logo.md'
   - 'Advanced Topics':

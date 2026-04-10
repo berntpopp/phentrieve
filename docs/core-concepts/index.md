@@ -26,10 +26,6 @@ These documents are converted into vector embeddings and stored in a vector data
 
 When clinical text is processed, it's embedded using the same model and compared to the stored HPO term vectors using semantic similarity. This allows direct matching between clinical descriptions in any language and English-based HPO terminology.
 
-### Cross-Encoder Re-ranking
-
-To improve retrieval precision, Phentrieve can use cross-encoder models to re-rank the initial results, providing more accurate mappings between clinical text and HPO terms.
-
 ## Section Contents
 
 - [Multilingual Embeddings](multilingual-embeddings.md): How multilingual models enable cross-language matching

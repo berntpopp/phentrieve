@@ -121,7 +121,7 @@ def calculate_bootstrap_ci_for_metrics(
             "ci_level": confidence_level,
         }
 
-    # K-dependent metrics (dense only - reranking removed)
+    # K-dependent metrics
     metric_types = [
         "hit_rate",
         "max_ont_similarity",
@@ -189,7 +189,7 @@ def compare_models_with_significance(
             "significant": significant,
         }
 
-    # K-dependent metrics (dense only - reranking removed)
+    # K-dependent metrics
     metric_types = [
         "hit_rate",
         "max_ont_similarity",

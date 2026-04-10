@@ -45,7 +45,6 @@ data:
 
 models:
   default: "FremyCompany/BioLORD-2023-M"
-  reranker: "BAAI/bge-reranker-v2-m3"
 
 processing:
   chunking_strategy: "semantic"

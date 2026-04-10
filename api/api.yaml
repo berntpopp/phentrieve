@@ -35,10 +35,6 @@ model_loading:
   # Large models can take significant time to download and initialize
   sbert_timeout: 60
 
-  # Timeout for loading cross-encoder re-ranking models (in seconds)
-  # Cross-encoders are typically smaller and load faster
-  cross_encoder_timeout: 10
-
 # =============================================================================
 # CORS (Cross-Origin Resource Sharing) SETTINGS
 # =============================================================================

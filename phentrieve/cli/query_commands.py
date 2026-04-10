@@ -261,7 +261,7 @@ def query_hpo(
         typer.echo("Enter clinical descriptions to find matching HPO terms.")
         typer.echo("Type 'exit', 'quit', or 'q' to exit the program.\n")
 
-        # Initialize the retriever and cross-encoder once for all queries
+        # Initialize the retriever once for all queries
         success = orchestrate_query(
             interactive_setup=True,
             model_name=model_name,
