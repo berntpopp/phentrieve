@@ -1,8 +1,10 @@
 # Code Quality Review — Consolidated
 
-**Date**: 2026-04-09 (original review) · **Updated**: 2026-04-10 (post-PR #191)
+**Date**: 2026-04-09 (original review) · **Updated**: 2026-04-10 (post-PR #191 + Phase 2 + CI speedup)
 
 > **Phase 2 update (2026-04-10)**: See `docs/superpowers/plans/2026-04-10-code-quality-phase-2.md` for the 10-task extension plan that closes the remaining Critical Findings. Commits `a98368a..e3ced7c` on branch `improve/code-quality-2026-04` implement the plan.
+>
+> **CI speedup update (2026-04-10)**: See `plan/01-active/CI-SPEEDUP-PLAN-2026-04-10.md` for the 19-task CI/CD speedup plan (Tier 1 + Tier 2). Commits `1188ca0..5ec647b` on branch `improve/code-quality-2026-04` implement Tasks 1-11 and 14-18 via subagent-driven development with two-stage review per task. Tasks 12 (Docker frontend GHA cache) and 13 (i18n path filter) were skipped as no-ops because the existing implementation already uses registry cache and CI doesn't run i18n check. Task 14 (ESLint --concurrency=auto) was reverted after ESLint's own runtime heuristic flagged the codebase as too small. **Results**: CI wall-clock ~5.1 min baseline → 4.3 min after Tier 2 on warm caches (17% faster); local `make test` 25.9s → 18.5s via pytest-xdist (29% faster); local frontend build 4s → 2.1s via esbuild minifier (47% faster); new `make ci-local` meta-target reproduces full CI on first try.
 **Scope**: Full codebase — `phentrieve/`, `api/`, `frontend/`, tests, packaging, CI/CD, Docker
 **Method**: Two independent review passes (narrative architectural review + parallel 6-agent scored review), consolidated with reconciled ratings
 **Status**: Post-execution update after PR #191 (`improve/code-quality-2026-04`, 54 commits, +5,152 / −7,223)
