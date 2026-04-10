@@ -70,6 +70,8 @@ jobs:
     if: needs.changes.outputs.python == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    env:
+      HF_HOME: ${{ github.workspace }}/.cache/huggingface
     strategy:
       fail-fast: false
       matrix:
@@ -110,6 +112,14 @@ jobs:
         run: |
           uv run mypy phentrieve/ api/
         continue-on-error: true  # Don't fail on type errors (gradual typing)
+
+      - name: Cache HuggingFace models
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/.cache/huggingface
+          key: hf-${{ hashFiles('phentrieve/config.py') }}-BioLORD-MiniLM
+          restore-keys: |
+            hf-
 
       - name: Run pytest
         env:
