@@ -21,11 +21,14 @@ pytestmark = pytest.mark.unit
 def client():
     """Create test client with lifespan context manager.
 
-    Using context manager ensures lifespan startup/shutdown events fire,
-    per FastAPI testing docs: https://fastapi.tiangolo.com/advanced/testing-events/
+    Uses create_app() rather than the module-level singleton so this
+    actually exercises the factory pattern. Using the context manager
+    ensures lifespan startup/shutdown events fire, per FastAPI testing
+    docs: https://fastapi.tiangolo.com/advanced/testing-events/
     """
-    from api.main import app
+    from api.main import create_app
 
+    app = create_app()
     with TestClient(app, raise_server_exceptions=False) as c:
         yield c
 
