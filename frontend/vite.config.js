@@ -58,15 +58,17 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url))
     }
   },
+  // esbuild is Vite 6's default minifier; drop console/debugger in production
+  // builds (replaces terser's drop_console/drop_debugger behavior).
+  esbuild: {
+    drop: ['console', 'debugger'],
+  },
   build: {
     target: 'es2015',
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: true,
-        drop_debugger: true
-      }
-    },
+    // Vite 6's default minifier is esbuild — 30-90x faster than terser with
+    // negligible compression loss. Console/debugger stripping lives in the
+    // top-level `esbuild:` config (see below) so it applies to the default
+    // minify pass.
     commonjsOptions: {
       transformMixedEsModules: true,
       include: [/node_modules/],
@@ -85,7 +87,8 @@ export default defineConfig({
         }
       }
     },
-    chunkSizeWarningLimit: 600
+    chunkSizeWarningLimit: 600,
+    reportCompressedSize: false,  // skip gzip calc on every build (CI speedup)
   },
   server: {
     // Custom port 5734 (matches API 8734 pattern - HPOD project ports)
