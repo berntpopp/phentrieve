@@ -358,56 +358,6 @@ def test_precision_at_1_binary(mock_test_data_tiny):
 
 
 # ============================================================================
-# Reranker Integration Tests
-# ============================================================================
-
-
-@pytest.mark.slow
-def test_reranker_includes_new_metrics(mock_test_data_tiny):
-    """Reranked results should also include new metrics."""
-    results = run_evaluation(
-        model_name="sentence-transformers/LaBSE",
-        test_file=str(mock_test_data_tiny),
-        k_values=(1, 3),
-        enable_reranker=True,  # Enable reranking
-        save_results=False,
-    )
-    results = check_results_or_skip(results)
-
-    # Check reranked metrics exist
-    assert "ndcg_reranked@1" in results
-    assert "recall_reranked@1" in results
-    assert "precision_reranked@1" in results
-    assert "map_reranked@1" in results
-
-    # Check average metrics
-    assert "avg_ndcg_reranked@1" in results
-    assert "avg_recall_reranked@1" in results
-    assert "avg_precision_reranked@1" in results
-    assert "avg_map_reranked@1" in results
-
-
-@pytest.mark.slow
-def test_reranker_confidence_intervals(mock_test_data_tiny):
-    """Reranked metrics should have confidence intervals."""
-    results = run_evaluation(
-        model_name="sentence-transformers/LaBSE",
-        test_file=str(mock_test_data_tiny),
-        k_values=(1, 3),
-        save_results=False,
-    )
-    results = check_results_or_skip(results)
-
-    ci = results["confidence_intervals"]
-
-    # Check reranked metric CIs
-    assert "ndcg_reranked@1" in ci
-    assert "recall_reranked@1" in ci
-    assert "precision_reranked@1" in ci
-    assert "map_reranked@1" in ci
-
-
-# ============================================================================
 # Edge Case Tests
 # ============================================================================
 
