@@ -9,7 +9,7 @@ The primary semantic chunking is handled by SlidingWindowSemanticSplitter in a s
 import logging
 import re
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 # Lazy imports for heavy dependencies
 # This avoids loading torch/transformers at module import time
@@ -68,6 +68,33 @@ class TextChunker(ABC):
         pass
 
 
+def _load_language_word_list(
+    custom: list[str] | None,
+    default_resource_filename: str,
+    config_key_for_custom_file: str,
+    language_resources_section: dict[str, Any],
+    language: str,
+    *,
+    lowercase: bool = True,
+) -> list[str]:
+    """Pick a language-specific word list, preferring a caller-provided custom list.
+
+    Used by FinalChunkCleaner to DRY up the three identical leading/trailing/
+    low-value list loading blocks. Returns the custom list (lowercased when
+    ``lowercase`` is True) if provided; otherwise loads from the default
+    resource file and returns the entry for ``language``, falling back to
+    English.
+    """
+    if custom is not None:
+        return [w.lower() for w in custom] if lowercase else list(custom)
+    resource = load_language_resource(
+        default_resource_filename=default_resource_filename,
+        config_key_for_custom_file=config_key_for_custom_file,
+        language_resources_config_section=language_resources_section,
+    )
+    return resource.get(language.lower(), resource.get("en", []))
+
+
 class FinalChunkCleaner(TextChunker):
     """
     Chunker that post-processes text segments to remove common leading/trailing
@@ -123,35 +150,21 @@ class FinalChunkCleaner(TextChunker):
 
         # Load language-specific or custom lists
         # Ensure custom lists are all lowercase and have correct spacing if provided
-        if custom_leading_words_to_remove is not None:
-            self.leading_words_to_strip = [
-                w.lower() for w in custom_leading_words_to_remove
-            ]
-        else:
-            # Load from resource files with the new mechanism
-            leading_cleanup_resources = load_language_resource(
-                default_resource_filename="leading_cleanup_words.json",
-                config_key_for_custom_file="leading_cleanup_words_file",
-                language_resources_config_section=language_resources_section,
-            )
-            self.leading_words_to_strip = leading_cleanup_resources.get(
-                self.language.lower(), leading_cleanup_resources.get("en", [])
-            )
+        self.leading_words_to_strip = _load_language_word_list(
+            custom=custom_leading_words_to_remove,
+            default_resource_filename="leading_cleanup_words.json",
+            config_key_for_custom_file="leading_cleanup_words_file",
+            language_resources_section=language_resources_section,
+            language=self.language,
+        )
 
-        if custom_trailing_words_to_remove is not None:
-            self.trailing_words_to_strip = [
-                w.lower() for w in custom_trailing_words_to_remove
-            ]
-        else:
-            # Load from resource files with the new mechanism
-            trailing_cleanup_resources = load_language_resource(
-                default_resource_filename="trailing_cleanup_words.json",
-                config_key_for_custom_file="trailing_cleanup_words_file",
-                language_resources_config_section=language_resources_section,
-            )
-            self.trailing_words_to_strip = trailing_cleanup_resources.get(
-                self.language.lower(), trailing_cleanup_resources.get("en", [])
-            )
+        self.trailing_words_to_strip = _load_language_word_list(
+            custom=custom_trailing_words_to_remove,
+            default_resource_filename="trailing_cleanup_words.json",
+            config_key_for_custom_file="trailing_cleanup_words_file",
+            language_resources_section=language_resources_section,
+            language=self.language,
+        )
 
         self.trailing_punctuation_to_strip = (
             custom_trailing_punctuation
@@ -169,20 +182,15 @@ class FinalChunkCleaner(TextChunker):
         self.trailing_words_to_strip.sort(key=len, reverse=True)
 
         # Load low_value_words for filtering short chunks
-        if custom_low_value_words:
-            self.low_value_words = {s.lower() for s in custom_low_value_words}
-        else:
-            # Load from resource files with the new mechanism
-            low_value_resources = load_language_resource(
+        self.low_value_words = set(
+            _load_language_word_list(
+                custom=custom_low_value_words,
                 default_resource_filename="low_semantic_value_words.json",
                 config_key_for_custom_file="low_semantic_value_words_file",
-                language_resources_config_section=language_resources_section,
+                language_resources_section=language_resources_section,
+                language=self.language,
             )
-            self.low_value_words = set(
-                low_value_resources.get(
-                    self.language.lower(), low_value_resources.get("en", [])
-                )
-            )
+        )
 
         logger.info(
             "Initialized FinalChunkCleaner for language '%s' with "
