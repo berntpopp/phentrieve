@@ -67,7 +67,7 @@ export default defineConfig({
     target: 'es2015',
     // Vite 6's default minifier is esbuild — 30-90x faster than terser with
     // negligible compression loss. Console/debugger stripping lives in the
-    // top-level `esbuild:` config (see below) so it applies to the default
+    // top-level `esbuild:` config (see above) so it applies to the default
     // minify pass.
     commonjsOptions: {
       transformMixedEsModules: true,
