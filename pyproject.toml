@@ -213,9 +213,11 @@ norecursedirs = [
     "venv",
     "env",
     "*.egg-info",
-    "phentrieve",
-    "api",
 ]
+# Note: do NOT add "phentrieve" or "api" here. norecursedirs matches at every
+# directory level, so those entries silently exclude tests/unit/api/ and
+# anything under tests that happens to match. testpaths = ["tests"] already
+# scopes collection, so these entries are unnecessary.
 
 # Bandit security scanner configuration (standalone, complements Ruff "S" rules)
 # Used for SARIF output in CI and detailed security reports

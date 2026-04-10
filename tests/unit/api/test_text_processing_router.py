@@ -259,8 +259,8 @@ class TestValidateResponseChunkReferences:
         # Assert - verify the data structures are intact after validation
         assert len(chunks) == 2
         assert len(terms) == 2
-        assert terms[0].hpo_id == "HP:0001250"
-        assert terms[1].hpo_id == "HP:0000729"
+        assert terms[0].id == "HP:0001250"
+        assert terms[1].id == "HP:0000729"
 
     def test_non_sequential_chunk_ids_fail_validation(self):
         """Test non-sequential chunk IDs trigger assertion."""
