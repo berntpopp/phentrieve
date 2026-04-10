@@ -185,6 +185,7 @@ jobs:
           fi
 
       - name: Upload coverage to Codecov
+        if: github.event_name != 'pull_request'
         uses: codecov/codecov-action@v5
         with:
           files: ./frontend/coverage/coverage-final.json

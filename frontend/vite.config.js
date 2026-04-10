@@ -15,7 +15,7 @@ const packageJson = JSON.parse(
   readFileSync(new URL('./package.json', import.meta.url), 'utf-8')
 )
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   // Remove Vue devtools and debug code from production builds
   define: {
     __VUE_PROD_DEVTOOLS__: false,
@@ -64,10 +64,8 @@ export default defineConfig({
     }
   },
   // esbuild is Vite 6's default minifier; drop console/debugger in production
-  // builds (replaces terser's drop_console/drop_debugger behavior).
-  esbuild: {
-    drop: ['console', 'debugger'],
-  },
+  // builds only (not dev server) to preserve the dev debugging experience.
+  esbuild: mode === 'production' ? { drop: ['console', 'debugger'] } : {},
   build: {
     target: 'es2015',
     // Vite 6's default minifier is esbuild — 30-90x faster than terser with
@@ -169,4 +167,4 @@ export default defineConfig({
     },
     exclude: [...configDefaults.exclude, 'e2e/*']
   }
-})
+}))
