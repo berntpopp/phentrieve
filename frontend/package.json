@@ -14,6 +14,7 @@
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:run": "vitest run",
+    "test:ci": "vitest run --no-coverage --reporter=default",
     "test:coverage": "vitest run --coverage",
     "i18n:check": "node scripts/validate-i18n.js && vue-i18n-extract --vueFiles './src/**/*.{vue,js,ts}' --languageFiles './src/locales/**/*.json'",
     "i18n:report": "vue-i18n-extract --output json --vueFiles './src/**/*.{vue,js,ts}' --languageFiles './src/locales/**/*.json' > i18n-report.json",
