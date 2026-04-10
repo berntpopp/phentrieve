@@ -9,9 +9,14 @@ export function useFileDownload() {
     link.href = url;
     link.download = filename;
     document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    try {
+      link.click();
+    } finally {
+      document.body.removeChild(link);
+      // Defer revocation so Safari/WebKit can consume the URL before it is
+      // revoked — immediate revocation can break downloads intermittently.
+      setTimeout(() => URL.revokeObjectURL(url), 0);
+    }
   }
 
   function downloadText(content, filename, mimeType = 'text/plain') {

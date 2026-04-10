@@ -40,6 +40,7 @@ describe('useFileDownload', () => {
   });
 
   it('downloadBlob creates a link, clicks it, and cleans up', () => {
+    vi.useFakeTimers();
     const { downloadBlob } = useFileDownload();
     const blob = new Blob(['test'], { type: 'text/plain' });
 
@@ -48,8 +49,14 @@ describe('useFileDownload', () => {
     expect(createObjectURLSpy).toHaveBeenCalledWith(blob);
     expect(appendChildSpy).toHaveBeenCalled();
     expect(clickSpy).toHaveBeenCalled();
+    // removeChild happens synchronously in the finally block
     expect(removeChildSpy).toHaveBeenCalled();
+    // revokeObjectURL is deferred via setTimeout(0) to avoid Safari/WebKit
+    // race where the URL is revoked before navigation consumes it.
+    expect(revokeObjectURLSpy).not.toHaveBeenCalled();
+    vi.runAllTimers();
     expect(revokeObjectURLSpy).toHaveBeenCalledWith('blob:mock-url');
+    vi.useRealTimers();
   });
 
   it('downloadText creates a Blob with the given content and mimeType', () => {

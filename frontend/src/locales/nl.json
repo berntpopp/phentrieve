@@ -115,6 +115,16 @@
         "affirmed": "Bevestigd",
         "negated": "Ontkend",
         "unknown": "Onbekend"
+      },
+      "aria": {
+        "openPanel": "HPO-verzameling panel openen",
+        "panel": "Fenotype-verzameling",
+        "toggleAssertion": "Bevestigingsstatus voor {label} ({id}) wisselen",
+        "removeItem": "{label} ({id}) uit verzameling verwijderen",
+        "subjectId": "Vul subject-ID in voor Phenopacket",
+        "sex": "Selecteer geslacht van subject voor Phenopacket",
+        "dateOfBirth": "Vul geboortedatum van subject in voor Phenopacket",
+        "exportPhenopacket": "Exporteer verzamelde fenotypen als Phenopacket JSON"
       }
     },
     "advancedOptions": {

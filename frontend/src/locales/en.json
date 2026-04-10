@@ -115,6 +115,16 @@
         "affirmed": "Affirmed",
         "negated": "Negated",
         "unknown": "Unknown"
+      },
+      "aria": {
+        "openPanel": "Open HPO Collection Panel",
+        "panel": "Phenotype collection",
+        "toggleAssertion": "Toggle assertion status for {label} ({id})",
+        "removeItem": "Remove {label} ({id}) from collection",
+        "subjectId": "Enter subject identifier for Phenopacket",
+        "sex": "Select subject sex for Phenopacket",
+        "dateOfBirth": "Enter subject date of birth for Phenopacket",
+        "exportPhenopacket": "Export collected phenotypes as Phenopacket JSON"
       }
     },
     "advancedOptions": {

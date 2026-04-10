@@ -16,7 +16,7 @@
           location="bottom right"
           size="large"
           elevation="3"
-          aria-label="Open HPO Collection Panel"
+          :aria-label="$t('queryInterface.phenotypeCollection.aria.openPanel')"
           data-tutorial-step="collection-fab"
           @click="$emit('toggle-panel')"
         >
@@ -34,7 +34,7 @@
       width="400"
       temporary
       style="z-index: 1500"
-      aria-label="Phenotype collection"
+      :aria-label="$t('queryInterface.phenotypeCollection.aria.panel')"
       @update:model-value="$emit('update:panelOpen', $event)"
     >
       <v-list-item class="pl-2 pr-1">
@@ -110,7 +110,7 @@
                   density="compact"
                   :color="phenotype.assertion_status === 'negated' ? 'success' : 'error'"
                   class="mr-0"
-                  :aria-label="`Toggle assertion status for ${phenotype.label} (${phenotype.hpo_id})`"
+                  :aria-label="$t('queryInterface.phenotypeCollection.aria.toggleAssertion', { label: phenotype.label, id: phenotype.hpo_id })"
                   @click="$emit('toggle-assertion', index)"
                 />
               </template>
@@ -120,7 +120,7 @@
               variant="text"
               density="compact"
               color="grey-darken-1"
-              :aria-label="`Remove ${phenotype.label} (${phenotype.hpo_id}) from collection`"
+              :aria-label="$t('queryInterface.phenotypeCollection.aria.removeItem', { label: phenotype.label, id: phenotype.hpo_id })"
               @click="$emit('remove', index)"
             />
           </template>
@@ -152,7 +152,7 @@
               variant="outlined"
               hide-details="auto"
               class="mb-3"
-              aria-label="Enter subject identifier for Phenopacket"
+              :aria-label="$t('queryInterface.phenotypeCollection.aria.subjectId')"
               bg-color="white"
               color="primary"
               @update:model-value="$emit('update:subjectId', $event)"
@@ -179,7 +179,7 @@
               hide-details="auto"
               class="mb-3"
               clearable
-              aria-label="Select subject sex for Phenopacket"
+              :aria-label="$t('queryInterface.phenotypeCollection.aria.sex')"
               bg-color="white"
               color="primary"
               @update:model-value="$emit('update:sex', $event)"
@@ -207,7 +207,7 @@
               class="mb-3"
               clearable
               type="date"
-              aria-label="Enter subject date of birth for Phenopacket"
+              :aria-label="$t('queryInterface.phenotypeCollection.aria.dateOfBirth')"
               bg-color="white"
               color="primary"
               @update:model-value="$emit('update:dateOfBirth', $event)"
@@ -231,7 +231,7 @@
             class="mb-2"
             prepend-icon="mdi-download-box-outline"
             :disabled="phenotypes.length === 0"
-            aria-label="Export collected phenotypes as Phenopacket JSON"
+            :aria-label="$t('queryInterface.phenotypeCollection.aria.exportPhenopacket')"
             @click="$emit('export-json')"
           >
             {{ $t('queryInterface.phenotypeCollection.exportPhenopacket') }}

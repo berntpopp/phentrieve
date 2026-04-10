@@ -115,6 +115,16 @@
         "affirmed": "Affirmé",
         "negated": "Nié",
         "unknown": "Inconnu"
+      },
+      "aria": {
+        "openPanel": "Ouvrir le panneau de collecte HPO",
+        "panel": "Collecte de phénotypes",
+        "toggleAssertion": "Basculer le statut d'affirmation pour {label} ({id})",
+        "removeItem": "Retirer {label} ({id}) de la collecte",
+        "subjectId": "Saisir l'identifiant du sujet pour le Phenopacket",
+        "sex": "Sélectionner le sexe du sujet pour le Phenopacket",
+        "dateOfBirth": "Saisir la date de naissance du sujet pour le Phenopacket",
+        "exportPhenopacket": "Exporter les phénotypes collectés comme JSON Phenopacket"
       }
     },
     "advancedOptions": {

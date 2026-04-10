@@ -40,8 +40,12 @@ def convert_multi_vector_to_chromadb_format(
             metadata["component_scores"] = result["component_scores"]
         metadatas.append(metadata)
         documents.append(result.get("label", ""))
-        # Convert similarity to distance (1 - similarity)
-        distances.append(1.0 - result.get("similarity", 0.0))
+        # Convert similarity to distance (1 - similarity).
+        # Normalize to float: guard against None (key present but null) which
+        # would raise TypeError in `1.0 - None`.  The legitimate 0.0 case is
+        # handled correctly because `0.0 or 0.0` evaluates to 0.0.
+        similarity = result.get("similarity") or 0.0
+        distances.append(1.0 - similarity)
 
     return {
         "ids": [ids],
