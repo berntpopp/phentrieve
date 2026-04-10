@@ -4,7 +4,8 @@
     "cancel": "Abbrechen",
     "delete": "Löschen",
     "reset": "Zurücksetzen",
-    "close": "Schließen"
+    "close": "Schließen",
+    "dismiss": "Schließen"
   },
   "conversationSettings": {
     "tooltip": "Konversationseinstellungen",
@@ -107,6 +108,7 @@
       "dateOfBirth": "Geburtsdatum",
       "exportPhenopacket": "Als Phenopacket exportieren (JSON)",
       "exportText": "Als Text exportieren",
+      "exportError": "Fehler beim Exportieren des Phenopackets. Details in der Konsole.",
       "clear": "Sammlung leeren",
       "assertionToggle": "Aussagestatus umschalten",
       "assertionStatus": {

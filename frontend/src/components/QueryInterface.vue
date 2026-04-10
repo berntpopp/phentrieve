@@ -203,9 +203,24 @@
       @remove="removePhenotype"
       @toggle-assertion="toggleAssertionStatus"
       @export-text="exportPhenotypes"
-      @export-json="exportPhenotypesAsPhenopacket"
+      @export-json="onExportPhenopacket"
       @clear="clearPhenotypeCollection"
     />
+
+    <v-snackbar
+      v-model="exportErrorVisible"
+      color="error"
+      location="bottom"
+      timeout="6000"
+      role="alert"
+    >
+      {{ exportErrorMessage }}
+      <template #actions>
+        <v-btn variant="text" @click="exportErrorVisible = false">
+          {{ $t('common.dismiss', 'Dismiss') }}
+        </v-btn>
+      </template>
+    </v-snackbar>
   </div>
 </template>
 
@@ -321,6 +336,9 @@ export default {
       noAssertionDetectionForTextProcess: false,
       assertionPreferenceForTextProcess: 'dependency',
       topTermPerChunkForAggregation: false,
+      // Phenopacket export error surface (snackbar feedback)
+      exportErrorVisible: false,
+      exportErrorMessage: '',
     };
   },
   computed: {
@@ -390,6 +408,25 @@ export default {
     }
   },
   methods: {
+    /**
+     * Wrapper around usePhenotypeCollection.exportAsPhenopacket that surfaces
+     * errors via a snackbar instead of letting them propagate unhandled.
+     * The composable throws on failure (intentionally, so it stays testable
+     * and accessibility-friendly); this method catches and renders.
+     */
+    onExportPhenopacket() {
+      try {
+        this.exportPhenotypesAsPhenopacket();
+      } catch (error) {
+        this.exportErrorMessage = this.$t(
+          'queryInterface.phenotypeCollection.exportError',
+          'Error exporting Phenopacket. Check console for details.'
+        );
+        this.exportErrorVisible = true;
+        // The composable already logs via logService.error; no need to re-log.
+        void error;
+      }
+    },
     /**
      * Fetch available embedding models from API /info endpoint
      * Falls back to BioLORD if API is unavailable

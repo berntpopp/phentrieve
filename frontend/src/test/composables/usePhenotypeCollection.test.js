@@ -11,21 +11,27 @@ vi.mock('../../services/logService', () => ({
   },
 }));
 
-// Mock useFileDownload
+// Mutable download mocks so individual tests can make them throw.
+const downloadJsonMock = vi.fn();
+const downloadTextMock = vi.fn();
+
 vi.mock('../../composables/useFileDownload', () => ({
   useFileDownload: () => ({
-    downloadText: vi.fn(),
-    downloadJson: vi.fn(),
+    downloadText: downloadTextMock,
+    downloadJson: downloadJsonMock,
     downloadBlob: vi.fn(),
   }),
 }));
 
 import { usePhenotypeCollection } from '../../composables/usePhenotypeCollection';
+import { useConversationStore } from '../../stores/conversation';
 
 describe('usePhenotypeCollection', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
     vi.clearAllMocks();
+    downloadJsonMock.mockReset();
+    downloadTextMock.mockReset();
   });
 
   it('returns all expected properties and functions', () => {
@@ -66,5 +72,37 @@ describe('usePhenotypeCollection', () => {
     expect(phenopacketSubjectId.value).toBe('');
     expect(phenopacketSex.value).toBeNull();
     expect(phenopacketDateOfBirth.value).toBeNull();
+  });
+
+  describe('exportAsPhenopacket', () => {
+    it('writes DOB to subject.dateOfBirth (NOT timeAtLastEncounter) as Phenopacket v2 requires', () => {
+      const store = useConversationStore();
+      store.addPhenotype({ hpo_id: 'HP:0001250', label: 'Seizure' });
+      const { exportAsPhenopacket, phenopacketDateOfBirth } = usePhenotypeCollection();
+      phenopacketDateOfBirth.value = '2010-05-15';
+      exportAsPhenopacket();
+      expect(downloadJsonMock).toHaveBeenCalledTimes(1);
+      const [phenopacket] = downloadJsonMock.mock.calls[0];
+      // Regression guard — this was a real bug fixed in PR #191.
+      expect(phenopacket.subject.dateOfBirth).toBe('2010-05-15T00:00:00.000Z');
+      expect(phenopacket.subject.timeAtLastEncounter).toBeUndefined();
+    });
+
+    it('is a no-op when the collection is empty', () => {
+      const { exportAsPhenopacket } = usePhenotypeCollection();
+      // Should not throw, and should not attempt to download.
+      expect(() => exportAsPhenopacket()).not.toThrow();
+      expect(downloadJsonMock).not.toHaveBeenCalled();
+    });
+
+    it('throws an Error (instead of calling alert()) when the download fails', () => {
+      const store = useConversationStore();
+      store.addPhenotype({ hpo_id: 'HP:0001250', label: 'Seizure' });
+      downloadJsonMock.mockImplementation(() => {
+        throw new Error('disk full');
+      });
+      const { exportAsPhenopacket } = usePhenotypeCollection();
+      expect(() => exportAsPhenopacket()).toThrow(/disk full/);
+    });
   });
 });

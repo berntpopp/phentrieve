@@ -124,10 +124,11 @@ export function usePhenotypeCollection() {
         }
         if (phenopacketDateOfBirth.value) {
           const dob = new Date(phenopacketDateOfBirth.value + 'T00:00:00Z');
-          if (!isNaN(dob.getTime()))
+          if (!isNaN(dob.getTime())) {
             // Phenopacket v2: subject.dateOfBirth (ISO8601).
             // Do NOT use timeAtLastEncounter — that field has different semantics.
             phenopacket.subject.dateOfBirth = dob.toISOString();
+          }
         }
         if (Object.keys(phenopacket.subject).length === 0) delete phenopacket.subject;
       }
@@ -142,7 +143,9 @@ export function usePhenotypeCollection() {
       logService.info('Phenopacket successfully exported', { filename });
     } catch (error) {
       logService.error('Error during Phenopacket export', { error });
-      alert('Error exporting Phenopacket. Check console.');
+      // Re-throw so the caller can surface this via an accessible notification
+      // (snackbar/toast) rather than a blocking, untestable alert() dialog.
+      throw error instanceof Error ? error : new Error('Error exporting Phenopacket.');
     }
   }
 
