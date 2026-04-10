@@ -1,8 +1,10 @@
 import logging
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from api.config import (
     ALLOWED_ORIGINS,
@@ -24,6 +26,7 @@ from api.routers import (
     system,
     text_processing_router,
 )
+from api.schemas.errors import ErrorResponse
 from api.version import get_api_version
 from phentrieve.config import (
     DEFAULT_DEVICE,
@@ -142,6 +145,35 @@ def create_app() -> FastAPI:
         allow_methods=CORS_ALLOW_METHODS,
         allow_headers=CORS_ALLOW_HEADERS,
     )
+
+    @application.exception_handler(StarletteHTTPException)
+    async def http_exception_handler(
+        _request: Request, exc: StarletteHTTPException
+    ) -> JSONResponse:
+        """Render every HTTPException via ErrorResponse so API consumers
+        see a single stable error shape regardless of which router raised.
+
+        Registers on StarletteHTTPException (the base class) so that both
+        FastAPI routing 404s and explicit HTTPException raises in routers
+        are intercepted.
+        """
+        # Slug from status phrase: "Unprocessable Entity" -> "unprocessable_entity"
+        from http import HTTPStatus
+
+        try:
+            slug = HTTPStatus(exc.status_code).phrase.lower().replace(" ", "_")
+        except ValueError:
+            slug = "http_error"
+        body = ErrorResponse(
+            status_code=exc.status_code,
+            error=slug,
+            detail=str(exc.detail) if exc.detail is not None else slug,
+        )
+        return JSONResponse(
+            status_code=exc.status_code,
+            content=body.model_dump(exclude_none=True),
+            headers=getattr(exc, "headers", None) or None,
+        )
 
     application.include_router(
         query_router.router, prefix="/api/v1/query", tags=["HPO Term Query"]
