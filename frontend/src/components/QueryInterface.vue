@@ -245,7 +245,6 @@ export default {
       stepSize,
       minSegmentLength,
       numResultsPerChunk,
-      toggleAdvancedOptions,
       resetToDefaults,
     } = useAdvancedOptions();
 
@@ -276,7 +275,6 @@ export default {
       stepSize,
       minSegmentLength,
       numResultsPerChunk,
-      toggleAdvancedOptions,
       resetToDefaults,
       // Phenotype collection
       phenopacketSubjectId,

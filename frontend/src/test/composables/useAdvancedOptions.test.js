@@ -27,7 +27,6 @@ describe('useAdvancedOptions', () => {
     expect(result).toHaveProperty('stepSize');
     expect(result).toHaveProperty('minSegmentLength');
     expect(result).toHaveProperty('numResultsPerChunk');
-    expect(result).toHaveProperty('toggleAdvancedOptions');
     expect(result).toHaveProperty('resetToDefaults');
   });
 
@@ -44,15 +43,6 @@ describe('useAdvancedOptions', () => {
     expect(opts.stepSize.value).toBe(DEFAULT_STEP_SIZE);
     expect(opts.minSegmentLength.value).toBe(DEFAULT_MIN_SEGMENT_LENGTH);
     expect(opts.numResultsPerChunk.value).toBe(DEFAULT_NUM_RESULTS_PER_CHUNK);
-  });
-
-  it('toggleAdvancedOptions flips the value', () => {
-    const { showAdvancedOptions, toggleAdvancedOptions } = useAdvancedOptions();
-    expect(showAdvancedOptions.value).toBe(false);
-    toggleAdvancedOptions();
-    expect(showAdvancedOptions.value).toBe(true);
-    toggleAdvancedOptions();
-    expect(showAdvancedOptions.value).toBe(false);
   });
 
   it('resetToDefaults resets similarity threshold', () => {

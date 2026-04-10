@@ -29,10 +29,6 @@ export function useAdvancedOptions() {
   const minSegmentLength = ref(DEFAULT_MIN_SEGMENT_LENGTH);
   const numResultsPerChunk = ref(DEFAULT_NUM_RESULTS_PER_CHUNK);
 
-  function toggleAdvancedOptions() {
-    showAdvancedOptions.value = !showAdvancedOptions.value;
-  }
-
   function resetToDefaults() {
     numResults.value = DEFAULT_NUM_RESULTS;
     similarityThreshold.value = DEFAULT_SIMILARITY_THRESHOLD;
@@ -58,7 +54,6 @@ export function useAdvancedOptions() {
     stepSize,
     minSegmentLength,
     numResultsPerChunk,
-    toggleAdvancedOptions,
     resetToDefaults,
   };
 }
