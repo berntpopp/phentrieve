@@ -35,7 +35,6 @@ Examples:
 import logging
 import threading
 import warnings
-from typing import Optional
 
 import torch
 from sentence_transformers import SentenceTransformer
@@ -87,9 +86,9 @@ def _devices_match(device1: str, device2: str) -> bool:
 
 
 def load_embedding_model(
-    model_name: Optional[str] = None,
+    model_name: str | None = None,
     trust_remote_code: bool = False,
-    device: Optional[str] = None,
+    device: str | None = None,
     force_reload: bool = False,
 ) -> SentenceTransformer:
     """

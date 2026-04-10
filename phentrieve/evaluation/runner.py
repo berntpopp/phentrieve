@@ -11,17 +11,14 @@ import os
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 import pandas as pd
-import torch
 from tqdm import tqdm
 
 from phentrieve.config import (
     DEFAULT_AGGREGATION_STRATEGY,
     DEFAULT_K_VALUES,
-    DEFAULT_RERANK_CANDIDATE_COUNT,
-    DEFAULT_RERANKER_MODEL,
     DEFAULT_SIMILARITY_THRESHOLD,
 )
 from phentrieve.data_processing.test_data_loader import load_test_data
@@ -42,53 +39,11 @@ from phentrieve.evaluation.statistics import (
     compare_models_with_significance,
 )
 from phentrieve.retrieval.dense_retriever import DenseRetriever
-from phentrieve.retrieval.reranker import (
-    load_cross_encoder,
-    rerank_with_cross_encoder,
-)
+from phentrieve.retrieval.utils import convert_multi_vector_to_chromadb_format
 from phentrieve.utils import get_model_slug
 
-
-def _convert_multi_vector_to_chromadb_format(
-    multi_vector_results: list[dict[str, Any]],
-) -> dict[str, Any]:
-    """
-    Convert multi-vector query results to ChromaDB-style format for metrics.
-
-    Args:
-        multi_vector_results: Results from query_multi_vector() in format:
-            [{"hpo_id": ..., "label": ..., "similarity": ..., "component_scores": ...}]
-
-    Returns:
-        ChromaDB-style results dict with ids, metadatas, documents, distances
-    """
-    if not multi_vector_results:
-        return {"ids": [[]], "metadatas": [[]], "documents": [[]], "distances": [[]]}
-
-    ids = []
-    metadatas = []
-    documents = []
-    distances = []
-
-    for result in multi_vector_results:
-        ids.append(result.get("hpo_id", ""))
-        metadatas.append(
-            {
-                "hpo_id": result.get("hpo_id", ""),
-                "label": result.get("label", ""),
-                "component_scores": result.get("component_scores", {}),
-            }
-        )
-        documents.append(result.get("label", ""))
-        # Convert similarity to distance (1 - similarity)
-        distances.append(1.0 - result.get("similarity", 0.0))
-
-    return {
-        "ids": [ids],
-        "metadatas": [metadatas],
-        "documents": [documents],
-        "distances": [distances],
-    }
+# Alias for backward compatibility within this module
+_convert_multi_vector_to_chromadb_format = convert_multi_vector_to_chromadb_format
 
 
 def run_evaluation(
@@ -97,19 +52,16 @@ def run_evaluation(
     k_values: tuple[int, ...] = DEFAULT_K_VALUES,
     similarity_threshold: float = DEFAULT_SIMILARITY_THRESHOLD,
     debug: bool = False,
-    device: Optional[str] = None,
+    device: str | None = None,
     trust_remote_code: bool = False,
     save_results: bool = True,
     results_dir: Path | None = None,
     index_dir: Path | None = None,
-    enable_reranker: bool = False,
-    reranker_model: str = DEFAULT_RERANKER_MODEL,
-    rerank_count: int = DEFAULT_RERANK_CANDIDATE_COUNT,
     similarity_formula: str = "hybrid",
     # Multi-vector parameters (Issue #136)
     multi_vector: bool = False,
     aggregation_strategy: str = DEFAULT_AGGREGATION_STRATEGY,
-) -> Optional[dict[str, Any]]:
+) -> dict[str, Any] | None:
     """
     Run a complete benchmark evaluation for a model on a test dataset.
 
@@ -124,9 +76,6 @@ def run_evaluation(
         save_results: Whether to save results to files
         results_dir: Directory to save results (default: configured RESULTS_DIR)
         index_dir: Directory containing the index files
-        enable_reranker: Whether to enable cross-encoder re-ranking
-        reranker_model: Model name for the cross-encoder
-        rerank_count: Number of candidates to re-rank
         similarity_formula: Which similarity formula to use for ontology similarity calculations
         multi_vector: Use multi-vector index with component-level aggregation (Issue #136)
         aggregation_strategy: Strategy for aggregating component scores in multi-vector mode
@@ -178,27 +127,6 @@ def run_evaluation(
         # Convert similarity formula string to enum
         formula = SimilarityFormula.from_string(similarity_formula)
 
-        # Load cross-encoder model if re-ranking is enabled
-        cross_encoder = None
-        if enable_reranker:
-            device_str = (
-                "cuda" if torch.cuda.is_available() and device != "cpu" else "cpu"
-            )
-            logging.info(
-                f"Loading cross-encoder model for cross-lingual re-ranking on {device_str}"
-            )
-            cross_encoder = load_cross_encoder(reranker_model, device=device_str)
-
-            if cross_encoder is None:
-                logging.warning(
-                    f"Failed to load cross-encoder model {reranker_model}. Re-ranking will be disabled."
-                )
-                enable_reranker = False
-            else:
-                logging.info(
-                    f"Successfully loaded cross-encoder model: {reranker_model}"
-                )
-
         # Initialize retrieval system
         if index_dir is None and not os.path.exists("data"):
             raise ValueError(
@@ -233,15 +161,6 @@ def run_evaluation(
         precision_dense_values: dict[int, list[float]] = {k: [] for k in k_values}
         map_dense_values: dict[int, list[float]] = {k: [] for k in k_values}
 
-        # Re-ranked metrics (will remain empty if re-ranking is disabled)
-        mrr_reranked_values = []
-        hit_rate_reranked_values: dict[int, list[float]] = {k: [] for k in k_values}
-        max_ont_sim_reranked_values: dict[int, list[float]] = {k: [] for k in k_values}
-        ndcg_reranked_values: dict[int, list[float]] = {k: [] for k in k_values}
-        recall_reranked_values: dict[int, list[float]] = {k: [] for k in k_values}
-        precision_reranked_values: dict[int, list[float]] = {k: [] for k in k_values}
-        map_reranked_values: dict[int, list[float]] = {k: [] for k in k_values}
-
         detailed_results = []
 
         # Run benchmark for each test case
@@ -261,9 +180,7 @@ def run_evaluation(
 
             try:
                 # Query the index with bi-encoder
-                n_query_results = max(
-                    max(k_values) * 3, rerank_count if enable_reranker else 0
-                )
+                n_query_results = max(k_values) * 3
 
                 if multi_vector:
                     # Use multi-vector query with aggregation
@@ -287,7 +204,6 @@ def run_evaluation(
 
                 # Extract HPO IDs from the results
                 dense_term_ids = []
-                dense_docs = []
                 dense_metadatas = []
 
                 if (
@@ -301,13 +217,6 @@ def run_evaluation(
                     dense_term_ids = [
                         meta.get("hpo_id", "") for meta in dense_metadatas
                     ]
-
-                    if (
-                        "documents" in dense_results
-                        and dense_results["documents"]
-                        and dense_results["documents"][0]
-                    ):
-                        dense_docs = dense_results["documents"][0]
 
                 # Calculate baseline MRR
                 mrr_dense = mean_reciprocal_rank(dense_results, expected_ids)
@@ -363,153 +272,16 @@ def run_evaluation(
                         max_ont_sim_dense_values[k].append(0.0)
                         dense_max_ont_sims[f"max_ont_similarity_dense@{k}"] = 0.0
 
-                #### RE-RANKING (if enabled) ####
-                reranked_hit_rates = {}
-                reranked_max_ont_sims = {}
-                reranked_ndcgs = {}
-                reranked_recalls = {}
-                reranked_precisions = {}
-                reranked_maps = {}
-                mrr_reranked = None
-                reranked_results = None
-                reranked_candidates = []
-
-                # Perform re-ranking if enabled
-                if (
-                    enable_reranker
-                    and cross_encoder
-                    and dense_term_ids
-                    and len(dense_term_ids) > 0
-                ):
-                    # Prepare candidates for re-ranking
-                    candidates_to_rerank = []
-                    num_to_rerank = min(rerank_count, len(dense_term_ids))
-
-                    for j in range(num_to_rerank):
-                        candidate = {
-                            "hpo_id": dense_term_ids[j],
-                            "english_doc": dense_docs[j] if j < len(dense_docs) else "",
-                            "metadata": (
-                                dense_metadatas[j] if j < len(dense_metadatas) else {}
-                            ),
-                            "bi_encoder_score": 0.0,  # Will be calculated if distances are available
-                            "rank": j + 1,
-                        }
-
-                        # Add bi-encoder score if available
-                        if (
-                            "distances" in dense_results
-                            and dense_results["distances"]
-                            and dense_results["distances"][0]
-                        ):
-                            distance = dense_results["distances"][0][j]
-                            score = (
-                                1.0 - distance
-                            )  # Convert distance to similarity score
-                            candidate["bi_encoder_score"] = score
-
-                        # Use English document for cross-lingual re-ranking
-                        candidate["comparison_text"] = candidate["english_doc"]
-
-                        candidates_to_rerank.append(candidate)
-
-                    # Re-rank candidates if we have valid candidates
-                    if candidates_to_rerank:
-                        reranked_candidates = rerank_with_cross_encoder(
-                            text, candidates_to_rerank, cross_encoder
-                        )
-
-                        # Create results structure for metrics calculation (compatible with original format)
-                        reranked_results = {
-                            "ids": [[c["hpo_id"] for c in reranked_candidates]],
-                            "metadatas": [[c["metadata"] for c in reranked_candidates]],
-                            "documents": [
-                                [c["english_doc"] for c in reranked_candidates]
-                            ],
-                            "distances": [
-                                [
-                                    1.0 - c["cross_encoder_score"]
-                                    for c in reranked_candidates
-                                ]
-                            ],  # Convert score to distance
-                        }
-
-                        # Calculate re-ranked MRR
-                        mrr_reranked = mean_reciprocal_rank(
-                            reranked_results, expected_ids
-                        )
-                        mrr_reranked_values.append(mrr_reranked)
-
-                        # Extract re-ranked term IDs for other metrics
-                        reranked_term_ids = [c["hpo_id"] for c in reranked_candidates]
-
-                        # Calculate re-ranked Hit Rate
-                        for k in k_values:
-                            hit = hit_rate_at_k(reranked_results, expected_ids, k=k)
-                            hit_rate_reranked_values[k].append(hit)
-                            reranked_hit_rates[f"hit_rate_reranked@{k}"] = hit
-
-                            # New metrics for reranked
-                            ndcg = ndcg_at_k(reranked_results, expected_ids, k=k)
-                            ndcg_reranked_values[k].append(ndcg)
-                            reranked_ndcgs[f"ndcg_reranked@{k}"] = ndcg
-
-                            recall = recall_at_k(reranked_results, expected_ids, k=k)
-                            recall_reranked_values[k].append(recall)
-                            reranked_recalls[f"recall_reranked@{k}"] = recall
-
-                            precision = precision_at_k(
-                                reranked_results, expected_ids, k=k
-                            )
-                            precision_reranked_values[k].append(precision)
-                            reranked_precisions[f"precision_reranked@{k}"] = precision
-
-                            map_score = average_precision_at_k(
-                                reranked_results, expected_ids, k=k
-                            )
-                            map_reranked_values[k].append(map_score)
-                            reranked_maps[f"map_reranked@{k}"] = map_score
-
-                        # Calculate re-ranked maximum ontology similarity
-                        for k in k_values:
-                            if reranked_term_ids and len(reranked_term_ids) > 0:
-                                retrieved_ids = (
-                                    reranked_term_ids[:k]
-                                    if k <= len(reranked_term_ids)
-                                    else reranked_term_ids
-                                )
-                                # Calculate maximum ontology similarity for the re-ranked results
-                                max_ont_sim_reranked = calculate_test_case_max_ont_sim(
-                                    expected_ids, retrieved_ids, formula
-                                )
-                                max_ont_sim_reranked_values[k].append(
-                                    max_ont_sim_reranked
-                                )
-                                reranked_max_ont_sims[
-                                    f"max_ont_similarity_reranked@{k}"
-                                ] = max_ont_sim_reranked
-                            else:
-                                max_ont_sim_reranked_values[k].append(0.0)
-                                reranked_max_ont_sims[
-                                    f"max_ont_similarity_reranked@{k}"
-                                ] = 0.0
-
-                # Record detailed results for this test case with both baseline and re-ranked metrics
+                # Record detailed results for this test case
                 case_result = {
                     "case_id": i,
                     "description": description,
                     "text": text,
                     "expected_ids": expected_ids,
                     "mrr_dense": mrr_dense,
-                    "mrr_reranked": mrr_reranked,
                     **dense_hit_rates,
                     **dense_max_ont_sims,
                 }
-
-                # Add re-ranked metrics if available
-                if enable_reranker and reranked_results:
-                    case_result.update(reranked_hit_rates)
-                    case_result.update(reranked_max_ont_sims)
 
                 detailed_results.append(case_result)
 
@@ -584,63 +356,7 @@ def run_evaluation(
             for k in k_values
         }
 
-        # Re-ranked metrics (will be 0 if re-ranking was disabled)
-        avg_mrr_reranked = (
-            sum(mrr_reranked_values) / len(mrr_reranked_values)
-            if mrr_reranked_values
-            else 0
-        )
-        avg_hit_rates_reranked = {
-            k: (
-                sum(hit_rate_reranked_values[k]) / len(hit_rate_reranked_values[k])
-                if hit_rate_reranked_values[k]
-                else 0
-            )
-            for k in k_values
-        }
-        avg_max_ont_sim_reranked = {
-            k: (
-                sum(max_ont_sim_reranked_values[k])
-                / len(max_ont_sim_reranked_values[k])
-                if max_ont_sim_reranked_values[k]
-                else 0
-            )
-            for k in k_values
-        }
-        avg_ndcg_reranked = {
-            k: (
-                sum(ndcg_reranked_values[k]) / len(ndcg_reranked_values[k])
-                if ndcg_reranked_values[k]
-                else 0
-            )
-            for k in k_values
-        }
-        avg_recall_reranked = {
-            k: (
-                sum(recall_reranked_values[k]) / len(recall_reranked_values[k])
-                if recall_reranked_values[k]
-                else 0
-            )
-            for k in k_values
-        }
-        avg_precision_reranked = {
-            k: (
-                sum(precision_reranked_values[k]) / len(precision_reranked_values[k])
-                if precision_reranked_values[k]
-                else 0
-            )
-            for k in k_values
-        }
-        avg_map_reranked = {
-            k: (
-                sum(map_reranked_values[k]) / len(map_reranked_values[k])
-                if map_reranked_values[k]
-                else 0
-            )
-            for k in k_values
-        }
-
-        # Compile final results with both dense and re-ranked metrics
+        # Compile final results with dense metrics
         results = {
             "model_name": model_name,
             "model_slug": model_slug,
@@ -652,18 +368,10 @@ def run_evaluation(
             # Multi-vector configuration (Issue #136)
             "multi_vector": multi_vector,
             "aggregation_strategy": aggregation_strategy if multi_vector else None,
-            # Re-ranking configuration
-            "reranker_enabled": enable_reranker,
-            "reranker_model": reranker_model if enable_reranker else None,
-            "rerank_count": rerank_count if enable_reranker else None,
             # Raw values - dense
             "mrr_dense": mrr_dense_values,
             # Average metrics - dense
             "avg_mrr_dense": avg_mrr_dense,
-            # Raw values - reranked (if enabled)
-            "mrr_reranked": mrr_reranked_values if enable_reranker else [],
-            # Average metrics - reranked (if enabled)
-            "avg_mrr_reranked": avg_mrr_reranked if enable_reranker else 0,
         }
 
         # Add Hit Rate metrics - dense
@@ -695,42 +403,6 @@ def run_evaluation(
         for k in k_values:
             results[f"map_dense@{k}"] = map_dense_values[k]
             results[f"avg_map_dense@{k}"] = avg_map_dense[k]
-
-        # Add re-ranked metrics if enabled
-        if enable_reranker:
-            # Add Hit Rate metrics - reranked
-            for k in k_values:
-                results[f"hit_rate_reranked@{k}"] = hit_rate_reranked_values[k]
-                results[f"avg_hit_rate_reranked@{k}"] = avg_hit_rates_reranked[k]
-
-            # Add maximum ontology similarity metrics - reranked
-            for k in k_values:
-                results[f"max_ont_similarity_reranked@{k}"] = (
-                    max_ont_sim_reranked_values[k]
-                )
-                results[f"avg_max_ont_similarity_reranked@{k}"] = (
-                    avg_max_ont_sim_reranked[k]
-                )
-
-            # Add NDCG metrics - reranked
-            for k in k_values:
-                results[f"ndcg_reranked@{k}"] = ndcg_reranked_values[k]
-                results[f"avg_ndcg_reranked@{k}"] = avg_ndcg_reranked[k]
-
-            # Add Recall metrics - reranked
-            for k in k_values:
-                results[f"recall_reranked@{k}"] = recall_reranked_values[k]
-                results[f"avg_recall_reranked@{k}"] = avg_recall_reranked[k]
-
-            # Add Precision metrics - reranked
-            for k in k_values:
-                results[f"precision_reranked@{k}"] = precision_reranked_values[k]
-                results[f"avg_precision_reranked@{k}"] = avg_precision_reranked[k]
-
-            # Add MAP metrics - reranked
-            for k in k_values:
-                results[f"map_reranked@{k}"] = map_reranked_values[k]
-                results[f"avg_map_reranked@{k}"] = avg_map_reranked[k]
 
         # Add detailed results
         results["detailed_results"] = detailed_results
@@ -851,56 +523,6 @@ def run_evaluation(
                     f"    95% CI: [{ci['ci_lower']:.4f}, {ci['ci_upper']:.4f}]"
                 )
 
-        if enable_reranker:
-            logging.info("  === Re-ranked Metrics (cross-lingual mode) ===")
-            logging.info(f"  MRR (Re-ranked): {avg_mrr_reranked:.4f}")
-            if "mrr_reranked" in confidence_intervals:
-                ci = confidence_intervals["mrr_reranked"]
-                logging.info(
-                    f"    95% CI: [{ci['ci_lower']:.4f}, {ci['ci_upper']:.4f}]"
-                )
-            for k in k_values:
-                logging.info(f"  Hit@{k} (Re-ranked): {avg_hit_rates_reranked[k]:.4f}")
-                if f"hit_rate_reranked@{k}" in confidence_intervals:
-                    ci = confidence_intervals[f"hit_rate_reranked@{k}"]
-                    logging.info(
-                        f"    95% CI: [{ci['ci_lower']:.4f}, {ci['ci_upper']:.4f}]"
-                    )
-                logging.info(f"  NDCG@{k} (Re-ranked): {avg_ndcg_reranked[k]:.4f}")
-                if f"ndcg_reranked@{k}" in confidence_intervals:
-                    ci = confidence_intervals[f"ndcg_reranked@{k}"]
-                    logging.info(
-                        f"    95% CI: [{ci['ci_lower']:.4f}, {ci['ci_upper']:.4f}]"
-                    )
-                logging.info(f"  Recall@{k} (Re-ranked): {avg_recall_reranked[k]:.4f}")
-                if f"recall_reranked@{k}" in confidence_intervals:
-                    ci = confidence_intervals[f"recall_reranked@{k}"]
-                    logging.info(
-                        f"    95% CI: [{ci['ci_lower']:.4f}, {ci['ci_upper']:.4f}]"
-                    )
-                logging.info(
-                    f"  Precision@{k} (Re-ranked): {avg_precision_reranked[k]:.4f}"
-                )
-                if f"precision_reranked@{k}" in confidence_intervals:
-                    ci = confidence_intervals[f"precision_reranked@{k}"]
-                    logging.info(
-                        f"    95% CI: [{ci['ci_lower']:.4f}, {ci['ci_upper']:.4f}]"
-                    )
-                logging.info(f"  MAP@{k} (Re-ranked): {avg_map_reranked[k]:.4f}")
-                if f"map_reranked@{k}" in confidence_intervals:
-                    ci = confidence_intervals[f"map_reranked@{k}"]
-                    logging.info(
-                        f"    95% CI: [{ci['ci_lower']:.4f}, {ci['ci_upper']:.4f}]"
-                    )
-                logging.info(
-                    f"  MaxOntSim@{k} (Re-ranked): {avg_max_ont_sim_reranked[k]:.4f}"
-                )
-                if f"max_ont_similarity_reranked@{k}" in confidence_intervals:
-                    ci = confidence_intervals[f"max_ont_similarity_reranked@{k}"]
-                    logging.info(
-                        f"    95% CI: [{ci['ci_lower']:.4f}, {ci['ci_upper']:.4f}]"
-                    )
-
         return results
 
     except Exception as e:
@@ -941,35 +563,24 @@ def compare_models(results_list: list[dict[str, Any]]) -> pd.DataFrame:
             else:
                 model_data["MRR (Dense)"] = result["mrr_dense"]
 
-        # Add Re-ranked metrics if available
-        if "mrr_reranked" in result:
-            # Check if the value is a list and get the average if so
-            if isinstance(result["mrr_reranked"], list):
-                model_data["MRR (ReRanked)"] = (
-                    sum(result["mrr_reranked"]) / len(result["mrr_reranked"])
-                    if result["mrr_reranked"]
-                    else 0
-                )
-            else:
-                model_data["MRR (ReRanked)"] = result["mrr_reranked"]
-
-            # Calculate difference
-            if "mrr_dense" in result:
-                dense_mrr = (
-                    sum(result["mrr_dense"]) / len(result["mrr_dense"])
-                    if isinstance(result["mrr_dense"], list) and result["mrr_dense"]
-                    else result["mrr_dense"]
-                )
-                # Only calculate reranked MRR and diff if reranking was enabled
-                if result.get("reranker_enabled", False) and result.get("mrr_reranked"):
-                    reranked_mrr = (
-                        sum(result["mrr_reranked"]) / len(result["mrr_reranked"])
-                        if isinstance(result["mrr_reranked"], list)
-                        and result["mrr_reranked"]
-                        else result["mrr_reranked"]
-                    )
-                    if isinstance(reranked_mrr, (int, float)):
-                        model_data["MRR (Diff)"] = reranked_mrr - dense_mrr
+        # Legacy: handle old benchmark files that contain reranked data
+        if (
+            "mrr_reranked" in result
+            and result.get("reranker_enabled", False)
+            and result.get("mrr_reranked")
+        ):
+            dense_mrr = (
+                sum(result["mrr_dense"]) / len(result["mrr_dense"])
+                if isinstance(result["mrr_dense"], list) and result["mrr_dense"]
+                else result["mrr_dense"]
+            )
+            reranked_mrr = (
+                sum(result["mrr_reranked"]) / len(result["mrr_reranked"])
+                if isinstance(result["mrr_reranked"], list) and result["mrr_reranked"]
+                else result["mrr_reranked"]
+            )
+            if isinstance(reranked_mrr, (int, float)):
+                model_data["MRR (Diff)"] = reranked_mrr - dense_mrr
 
         # Add Hit Rate metrics
         for k in [1, 3, 5, 10]:

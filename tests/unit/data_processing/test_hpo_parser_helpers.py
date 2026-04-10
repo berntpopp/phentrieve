@@ -12,12 +12,16 @@ These helpers prevent crashes when the HPO Consortium modifies the JSON schema.
 
 import logging
 
+import pytest
+
 from phentrieve.data_processing.hpo_parser import (
     log_missing_field,
     log_parsing_summary,
     safe_get_list,
     safe_get_nested,
 )
+
+pytestmark = pytest.mark.unit
 
 
 class TestSafeGetNested:

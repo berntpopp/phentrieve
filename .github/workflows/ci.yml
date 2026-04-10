@@ -25,16 +25,16 @@ on:
       - '.github/workflows/deploy-docs.yml'
   workflow_dispatch:
 
-# Cancel in-progress runs for the same workflow and ref
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   # Detect which parts of the codebase changed
   changes:
     name: Detect Changes
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     permissions:
       pull-requests: read
     outputs:
@@ -69,7 +69,11 @@ jobs:
     needs: changes
     if: needs.changes.outputs.python == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      HF_HOME: ${{ github.workspace }}/.cache/huggingface
     strategy:
+      fail-fast: false
       matrix:
         python-version: ['3.10', '3.11', '3.12']
 
@@ -77,26 +81,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
-      - name: Install uv
+      - name: Set up uv
         uses: astral-sh/setup-uv@v7
         with:
-          version: "latest"
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v6
-        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
           python-version: ${{ matrix.python-version }}
-
-      - name: Cache uv dependencies
-        uses: actions/cache@v5
-        with:
-          path: |
-            ~/.cache/uv
-            .venv
-          key: ${{ runner.os }}-uv-${{ matrix.python-version }}-${{ hashFiles('uv.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-uv-${{ matrix.python-version }}-
-            ${{ runner.os }}-uv-
 
       - name: Install dependencies
         run: |
@@ -110,12 +100,30 @@ jobs:
         run: |
           uv run ruff check phentrieve/ api/ tests/
 
+      - name: Cache mypy
+        uses: actions/cache@v4
+        with:
+          path: .mypy_cache
+          key: mypy-${{ matrix.python-version }}-${{ hashFiles('pyproject.toml', 'uv.lock') }}
+          restore-keys: |
+            mypy-${{ matrix.python-version }}-
+
       - name: Run mypy type checking
         run: |
           uv run mypy phentrieve/ api/
         continue-on-error: true  # Don't fail on type errors (gradual typing)
 
+      - name: Cache HuggingFace models
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/.cache/huggingface
+          key: hf-${{ hashFiles('phentrieve/config.py') }}-BioLORD-MiniLM
+          restore-keys: |
+            hf-
+
       - name: Run pytest
+        env:
+          COVERAGE_CORE: sysmon
         run: |
           uv run pytest tests/ -v -m "not e2e" --cov=phentrieve --cov=api --cov-report=xml --cov-report=term
 
@@ -134,6 +142,7 @@ jobs:
     needs: changes
     if: needs.changes.outputs.frontend == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
       - name: Checkout repository
@@ -150,6 +159,14 @@ jobs:
         working-directory: frontend
         run: npm ci
 
+      - name: Cache ESLint
+        uses: actions/cache@v4
+        with:
+          path: frontend/.eslintcache
+          key: eslint-${{ hashFiles('frontend/package-lock.json', 'frontend/eslint.config.*') }}
+          restore-keys: |
+            eslint-
+
       - name: Run ESLint
         working-directory: frontend
         run: npm run lint
@@ -158,11 +175,17 @@ jobs:
         working-directory: frontend
         run: npm run format:check
 
-      - name: Run Vitest tests
+      - name: Run Vitest tests (with coverage on main, no coverage on PRs)
         working-directory: frontend
-        run: npm run test:coverage
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            npm run test:ci
+          else
+            npm run test:coverage
+          fi
 
       - name: Upload coverage to Codecov
+        if: github.event_name != 'pull_request'
         uses: codecov/codecov-action@v5
         with:
           files: ./frontend/coverage/coverage-final.json
@@ -182,6 +205,7 @@ jobs:
     needs: changes
     if: needs.changes.outputs.docker == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     strategy:
       matrix:
         service: [api, frontend]
@@ -214,6 +238,7 @@ jobs:
   dependency-review:
     name: Dependency Review
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     if: github.event_name == 'pull_request'
     permissions:
       contents: read
@@ -241,6 +266,7 @@ jobs:
     needs: [changes, python-ci, frontend-ci, docker-build-test, dependency-review]
     if: always()
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - name: Check CI results
         run: |

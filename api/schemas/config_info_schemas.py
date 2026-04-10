@@ -5,8 +5,6 @@ This module defines the data structures used for the configuration/info API
 endpoint responses, ensuring consistent and well-documented API contracts.
 """
 
-from typing import Optional
-
 from pydantic import BaseModel, ConfigDict, Field
 
 
@@ -39,8 +37,6 @@ class DefaultParametersAPI(BaseModel):
                 {
                     "similarity_threshold": 0.1,
                     "top_k": 10,
-                    "enable_reranker": False,
-                    "rerank_candidate_count": 30,
                     "similarity_formula": "hybrid",
                     "language": "en",
                 }
@@ -52,8 +48,6 @@ class DefaultParametersAPI(BaseModel):
         description="Minimum similarity score for retrieval"
     )
     top_k: int = Field(description="Number of top results to return")
-    enable_reranker: bool = Field(description="Whether reranking is enabled by default")
-    rerank_candidate_count: int = Field(description="Number of candidates to rerank")
     similarity_formula: str = Field(description="Formula for calculating similarity")
     language: str = Field(description="Default language for queries")
 
@@ -102,13 +96,13 @@ class HPODataStatusAPI(BaseModel):
         description="Whether the HPO ancestor data is loaded"
     )
     depths_loaded: bool = Field(description="Whether the HPO depth data is loaded")
-    version: Optional[str] = Field(
+    version: str | None = Field(
         default=None, description="HPO ontology version (e.g., 'v2025-03-03')"
     )
-    download_date: Optional[str] = Field(
+    download_date: str | None = Field(
         default=None, description="ISO timestamp when HPO data was downloaded"
     )
-    term_count: Optional[int] = Field(
+    term_count: int | None = Field(
         default=None, description="Total number of HPO terms in the database"
     )
 
@@ -128,19 +122,9 @@ class PhentrieveConfigInfoResponseAPI(BaseModel):
                         }
                     ],
                     "default_embedding_model": "FremyCompany/BioLORD-2023-M",
-                    "available_reranker_models": [
-                        {
-                            "id": "FremyCompany/BioLORD-2023-M",
-                            "description": "Domain-specific biomedical model",
-                            "is_default": True,
-                        }
-                    ],
-                    "default_reranker_model": "FremyCompany/BioLORD-2023-M",
                     "default_parameters": {
                         "similarity_threshold": 0.1,
                         "top_k": 10,
-                        "enable_reranker": False,
-                        "rerank_candidate_count": 30,
                         "similarity_formula": "hybrid",
                         "language": "en",
                     },
@@ -169,10 +153,6 @@ class PhentrieveConfigInfoResponseAPI(BaseModel):
         description="List of available embedding models"
     )
     default_embedding_model: str = Field(description="Default embedding model ID")
-    available_reranker_models: list[ModelInfo] = Field(
-        description="List of available reranker models"
-    )
-    default_reranker_model: str = Field(description="Default reranker model ID")
     default_parameters: DefaultParametersAPI = Field(
         description="Default operational parameters"
     )

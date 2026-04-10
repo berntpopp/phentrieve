@@ -59,8 +59,7 @@ Call `process_clinical_text` with language-aware parameters:
   "language": "<detected_language_code>",
   "include_details": true,
   "include_chunk_positions": true,
-  "num_results_per_chunk": 5,
-  "enable_reranker": true
+  "num_results_per_chunk": 5
 }
 ```
 
@@ -452,8 +451,7 @@ Return language-annotated refined results:
     "language": "de",
     "include_details": true,
     "include_chunk_positions": true,
-    "num_results_per_chunk": 5,
-    "enable_reranker": true
+    "num_results_per_chunk": 5
   }
 }
 ```

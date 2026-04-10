@@ -11,8 +11,8 @@ import logging
 import os
 import re
 import sys
+from collections.abc import Callable
 from pathlib import Path
-from typing import Callable, Optional
 
 import yaml
 
@@ -116,7 +116,7 @@ def get_embedding_dimension(model_name: str) -> int:
     return dimension_map.get(model_name, 768)
 
 
-def get_model_slug(model_name: Optional[str]) -> str:
+def get_model_slug(model_name: str | None) -> str:
     """
     Create a simple, filesystem-safe string (slug) from the model name.
 
@@ -170,7 +170,7 @@ def get_config_paths() -> list[Path]:
     return [local_config, local_config_alt, user_config, user_config_alt]
 
 
-def get_config_file_path() -> Optional[Path]:
+def get_config_file_path() -> Path | None:
     """Gets the first existing config file path from the priority list.
 
     Returns:
@@ -290,9 +290,9 @@ def load_user_config() -> dict:
 
 
 def resolve_data_path(
-    cli_path: Optional[str] = None,
-    config_key: Optional[str] = None,
-    default_func: Optional[Callable] = None,
+    cli_path: str | None = None,
+    config_key: str | None = None,
+    default_func: Callable | None = None,
 ) -> Path:
     """Resolves data paths based on priority: CLI > User Config > Default."""
     user_config = load_user_config()
@@ -400,7 +400,7 @@ def normalize_id(term_id: str) -> str:
     return term_id
 
 
-def load_translation_text(hpo_id: str, translation_dir: str) -> Optional[str]:
+def load_translation_text(hpo_id: str, translation_dir: str) -> str | None:
     """
     Load translation text for a given HPO ID from a JSON file.
 
@@ -456,7 +456,7 @@ def load_translation_text(hpo_id: str, translation_dir: str) -> Optional[str]:
 
 
 # Alias for backward compatibility
-def load_german_translation_text(hpo_id: str, translation_dir: str) -> Optional[str]:
+def load_german_translation_text(hpo_id: str, translation_dir: str) -> str | None:
     """
     Legacy function for backward compatibility. Use load_translation_text instead.
     """

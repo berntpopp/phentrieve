@@ -14,9 +14,6 @@ phentrieve benchmark run
 
 # Run a benchmark with a specific model
 phentrieve benchmark run --model-name "FremyCompany/BioLORD-2023-M"
-
-# Run a benchmark with re-ranking enabled
-phentrieve benchmark run --enable-reranker
 ```
 
 ## Benchmark Metrics

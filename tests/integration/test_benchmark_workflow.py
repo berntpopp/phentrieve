@@ -94,7 +94,6 @@ def test_run_evaluation_includes_new_metrics(
         model_name=available_model,
         test_file=str(mock_test_data_tiny),
         k_values=(1, 3, 5),
-        enable_reranker=False,
         save_results=True,
         results_dir=temp_results_dir,
     )
@@ -132,7 +131,6 @@ def test_run_evaluation_includes_confidence_intervals(
         model_name="sentence-transformers/LaBSE",
         test_file=str(mock_test_data_tiny),
         k_values=(1, 3),
-        enable_reranker=False,
         save_results=True,
         results_dir=temp_results_dir,
     )
@@ -164,7 +162,6 @@ def test_compare_models_includes_new_metrics(mock_test_data_tiny, temp_results_d
         model_name="sentence-transformers/LaBSE",
         test_file=str(mock_test_data_tiny),
         k_values=(1, 3, 5),
-        enable_reranker=False,
         save_results=False,
     )
     results = check_results_or_skip(results)
@@ -201,7 +198,6 @@ def test_compare_models_with_significance_workflow(
         model_name="sentence-transformers/LaBSE",
         test_file=str(mock_test_data_tiny),
         k_values=(1, 3),
-        enable_reranker=False,
         save_results=False,
     )
     results_a = check_results_or_skip(results_a)
@@ -211,7 +207,6 @@ def test_compare_models_with_significance_workflow(
         model_name="sentence-transformers/LaBSE",
         test_file=str(mock_test_data_tiny),
         k_values=(1, 3),
-        enable_reranker=False,
         save_results=False,
     )
     results_b = check_results_or_skip(results_b)
@@ -254,7 +249,6 @@ def test_metrics_values_are_bounded(mock_test_data_tiny):
         model_name="sentence-transformers/LaBSE",
         test_file=str(mock_test_data_tiny),
         k_values=(1, 3, 5),
-        enable_reranker=False,
         save_results=False,
     )
     results = check_results_or_skip(results)
@@ -288,7 +282,6 @@ def test_confidence_intervals_are_valid(mock_test_data_tiny):
         model_name="sentence-transformers/LaBSE",
         test_file=str(mock_test_data_tiny),
         k_values=(1, 3),
-        enable_reranker=False,
         save_results=False,
     )
     results = check_results_or_skip(results)
@@ -317,7 +310,6 @@ def test_recall_increases_with_k(mock_test_data_tiny):
         model_name="sentence-transformers/LaBSE",
         test_file=str(mock_test_data_tiny),
         k_values=(1, 3, 5, 10),
-        enable_reranker=False,
         save_results=False,
     )
     results = check_results_or_skip(results)
@@ -338,7 +330,6 @@ def test_ndcg_bounded_by_one(mock_test_data_tiny):
         model_name="sentence-transformers/LaBSE",
         test_file=str(mock_test_data_tiny),
         k_values=(1, 3, 5),
-        enable_reranker=False,
         save_results=False,
     )
     results = check_results_or_skip(results)
@@ -356,7 +347,6 @@ def test_precision_at_1_binary(mock_test_data_tiny):
         model_name="sentence-transformers/LaBSE",
         test_file=str(mock_test_data_tiny),
         k_values=(1,),
-        enable_reranker=False,
         save_results=False,
     )
     results = check_results_or_skip(results)
@@ -365,57 +355,6 @@ def test_precision_at_1_binary(mock_test_data_tiny):
     precision_values = results["precision_dense@1"]
     for p in precision_values:
         assert p in [0.0, 1.0], f"Precision@1 should be binary, got {p}"
-
-
-# ============================================================================
-# Reranker Integration Tests
-# ============================================================================
-
-
-@pytest.mark.slow
-def test_reranker_includes_new_metrics(mock_test_data_tiny):
-    """Reranked results should also include new metrics."""
-    results = run_evaluation(
-        model_name="sentence-transformers/LaBSE",
-        test_file=str(mock_test_data_tiny),
-        k_values=(1, 3),
-        enable_reranker=True,  # Enable reranking
-        save_results=False,
-    )
-    results = check_results_or_skip(results)
-
-    # Check reranked metrics exist
-    assert "ndcg_reranked@1" in results
-    assert "recall_reranked@1" in results
-    assert "precision_reranked@1" in results
-    assert "map_reranked@1" in results
-
-    # Check average metrics
-    assert "avg_ndcg_reranked@1" in results
-    assert "avg_recall_reranked@1" in results
-    assert "avg_precision_reranked@1" in results
-    assert "avg_map_reranked@1" in results
-
-
-@pytest.mark.slow
-def test_reranker_confidence_intervals(mock_test_data_tiny):
-    """Reranked metrics should have confidence intervals."""
-    results = run_evaluation(
-        model_name="sentence-transformers/LaBSE",
-        test_file=str(mock_test_data_tiny),
-        k_values=(1, 3),
-        enable_reranker=True,
-        save_results=False,
-    )
-    results = check_results_or_skip(results)
-
-    ci = results["confidence_intervals"]
-
-    # Check reranked metric CIs
-    assert "ndcg_reranked@1" in ci
-    assert "recall_reranked@1" in ci
-    assert "precision_reranked@1" in ci
-    assert "map_reranked@1" in ci
 
 
 # ============================================================================
@@ -443,7 +382,6 @@ def test_single_query_benchmark(benchmark_data_dir, temp_results_dir):
         model_name="sentence-transformers/LaBSE",
         test_file=str(single_query_file),
         k_values=(1,),
-        enable_reranker=False,
         save_results=False,
     )
     results = check_results_or_skip(results)
@@ -464,7 +402,6 @@ def test_empty_benchmark_handles_gracefully(temp_results_dir):
         model_name="sentence-transformers/LaBSE",
         test_file=str(empty_file),
         k_values=(1,),
-        enable_reranker=False,
         save_results=False,
     )
 

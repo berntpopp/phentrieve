@@ -162,8 +162,11 @@ class TestVerifyBundleChecksums:
         manifest = BundleManifest()
         manifest.add_file_checksum(test_file)
 
-        # Act & Assert - should not raise
+        # Act - should not raise (function returns None on success)
         _verify_bundle_checksums(manifest, tmp_path)
+
+        # Assert - manifest still contains the checksum (no side effects)
+        assert len(manifest.checksums) == 1
 
     def test_raises_when_checksum_mismatch(self, tmp_path):
         """Test verification raises when checksum doesn't match."""

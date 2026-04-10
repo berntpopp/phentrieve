@@ -6,7 +6,7 @@ using the Human Phenotype Ontology graph structure.
 """
 
 import logging
-from typing import Annotated, Optional
+from typing import Annotated
 
 import typer
 
@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 app = typer.Typer(name="similarity", help="Tools for HPO term similarity calculations.")
 
 # Simple in-memory cache for HPO labels for CLI (loaded once per command run if needed)
-_cli_hpo_label_cache: Optional[dict[str, str]] = None
+_cli_hpo_label_cache: dict[str, str] | None = None
 
 
 def _ensure_cli_hpo_label_cache() -> dict[str, str]:

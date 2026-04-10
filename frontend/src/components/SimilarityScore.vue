@@ -85,6 +85,13 @@
 <script setup>
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
+import {
+  SCORE_EXCELLENT,
+  SCORE_GOOD,
+  SCORE_MODERATE,
+  SCORE_LOW,
+  SCORE_ANIMATION_TRIGGER,
+} from '../constants/defaults';
 
 /**
  * Props:
@@ -126,26 +133,26 @@ const formattedScore = computed(() => {
 // Determine quality level for color coding
 const qualityLevel = computed(() => {
   const score = props.score;
-  if (score >= 0.9) return 'excellent';
-  if (score >= 0.75) return 'high';
-  if (score >= 0.6) return 'moderate';
-  if (score >= 0.4) return 'low';
+  if (score >= SCORE_EXCELLENT) return 'excellent';
+  if (score >= SCORE_GOOD) return 'high';
+  if (score >= SCORE_MODERATE) return 'moderate';
+  if (score >= SCORE_LOW) return 'low';
   return 'poor';
 });
 
 // Score color based on quality (Material Design 3 color palette)
 const scoreColor = computed(() => {
   const score = props.score;
-  if (score >= 0.9) return 'success';
-  if (score >= 0.75) return 'info';
-  if (score >= 0.6) return 'warning';
-  if (score >= 0.4) return 'orange-darken-2';
+  if (score >= SCORE_EXCELLENT) return 'success';
+  if (score >= SCORE_GOOD) return 'info';
+  if (score >= SCORE_MODERATE) return 'warning';
+  if (score >= SCORE_LOW) return 'orange-darken-2';
   return 'error';
 });
 
 // Chip variant for visual hierarchy
 const chipVariant = computed(() => {
-  return props.score >= 0.75 ? 'elevated' : 'flat';
+  return props.score >= SCORE_GOOD ? 'elevated' : 'flat';
 });
 
 // Dynamic icon based on score quality
@@ -154,9 +161,9 @@ const scoreIcon = computed(() => {
   if (props.type === 'confidence') return 'mdi-shield-check';
 
   // For similarity scores
-  if (score >= 0.9) return 'mdi-star';
-  if (score >= 0.75) return 'mdi-chart-line-variant';
-  if (score >= 0.6) return 'mdi-chart-line';
+  if (score >= SCORE_EXCELLENT) return 'mdi-star';
+  if (score >= SCORE_GOOD) return 'mdi-chart-line-variant';
+  if (score >= SCORE_MODERATE) return 'mdi-chart-line';
   return 'mdi-chart-timeline-variant';
 });
 
@@ -203,7 +210,7 @@ const scaleMarkerStyle = computed(() => {
 
 // Pulsing animation for high scores
 const isPulsing = computed(() => {
-  return props.showAnimation && props.score >= 0.85;
+  return props.showAnimation && props.score >= SCORE_ANIMATION_TRIGGER;
 });
 </script>
 

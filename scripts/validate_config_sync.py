@@ -201,7 +201,10 @@ def check_api_router_defaults() -> tuple[bool, list[str]]:
 
     # Check for hardcoded values that should be constants
     hardcoded_patterns = [
-        (r"chunk_retrieval_threshold\s*=\s*0\.\d+[^,\n]*,", "chunk_retrieval_threshold"),
+        (
+            r"chunk_retrieval_threshold\s*=\s*0\.\d+[^,\n]*,",
+            "chunk_retrieval_threshold",
+        ),
         (r"min_confidence[^=]*=\s*0\.\d+[^,\n]*,", "min_confidence"),
     ]
 

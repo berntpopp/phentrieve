@@ -4,6 +4,8 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
+pytestmark = pytest.mark.unit
+
 # Check if MCP dependencies are installed
 try:
     import pydantic_settings
@@ -52,25 +54,15 @@ class TestMcpCliCommands:
 
     def test_mcp_check_installed_returns_false_without_package(self):
         """Test that _check_mcp_installed returns False when package not installed."""
-        # First, get the actual function that does the import check
+        import sys
 
-        # Test by checking if the function correctly reports unavailability
-        # when we mock the import to fail
-        with patch("builtins.__import__") as mock_import:
+        from phentrieve.cli.mcp_commands import _check_mcp_installed
 
-            def side_effect(name, *args, **kwargs):
-                if name == "fastapi_mcp":
-                    raise ImportError("No module named 'fastapi_mcp'")
-                return MagicMock()
-
-            mock_import.side_effect = side_effect
-            # Force reimport
-            import importlib
-            import sys
-
-            if "phentrieve.cli.mcp_commands" in sys.modules:
-                # Get fresh _check_mcp_installed
-                importlib.reload(sys.modules["phentrieve.cli.mcp_commands"])
+        # Remove fastapi_mcp from sys.modules if cached, then mock import failure
+        with patch.dict(sys.modules, {"fastapi_mcp": None}):
+            # When sys.modules[name] is None, import raises ImportError
+            result = _check_mcp_installed()
+            assert result is False
 
     def test_mcp_check_installed_returns_true_with_package(self):
         """Test that _check_mcp_installed returns True when package is installed."""

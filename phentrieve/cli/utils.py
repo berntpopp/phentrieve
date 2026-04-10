@@ -5,7 +5,6 @@ This module contains shared utility functions used by the CLI commands.
 
 import sys
 from pathlib import Path
-from typing import Optional
 
 import typer
 
@@ -17,7 +16,7 @@ from phentrieve.config import (
 )
 
 
-def load_text_from_input(text_arg: Optional[str], file_arg: Optional[Path]) -> str:
+def load_text_from_input(text_arg: str | None, file_arg: Path | None) -> str:
     """Load text from command line argument, file, or stdin.
 
     Args:
@@ -60,7 +59,7 @@ def load_text_from_input(text_arg: Optional[str], file_arg: Optional[Path]) -> s
 
 
 def resolve_chunking_pipeline_config(
-    chunking_pipeline_config_file: Optional[Path],
+    chunking_pipeline_config_file: Path | None,
     strategy_arg: str,
     window_size: int = DEFAULT_WINDOW_SIZE_TOKENS,
     step_size: int = DEFAULT_STEP_SIZE_TOKENS,

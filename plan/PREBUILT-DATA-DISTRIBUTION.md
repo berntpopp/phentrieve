@@ -655,4 +655,3 @@ def test_docker_container_with_prebuilt_data():
 2. Create GitHub Issue for tracking
 3. Create `phentrieve-data` repository
 4. Implement Phase 1
-

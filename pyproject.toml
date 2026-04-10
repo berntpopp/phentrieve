@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "phentrieve"
-version = "0.12.1"
+version = "0.13.0"
 description = "A CLI tool for retrieving Human Phenotype Ontology (HPO) terms from clinical text using multilingual embeddings."
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -30,20 +30,20 @@ classifiers = [
     "Environment :: Console",
 ]
 dependencies = [
-    "sentence-transformers>=4.1.0,<6.0.0",  # Pin to 4.x (avoid breaking changes in 5.x)
-    "chromadb>=1.0.6,<2.0.0",               # Pin to 1.x (stable version)
+    "sentence-transformers>=4.1.0,<6.0.0", # Pin to 4.x (avoid breaking changes in 5.x)
+    "chromadb>=1.0.6,<2.0.0", # Pin to 1.x (stable version)
     "requests>=2.31.0",
-    "urllib3>=2.5.0",                        # Security: CVE fixes (GHSA-48p4-8xcf-vxj5, GHSA-pq67-6m6q-mj2v)
+    "urllib3>=2.5.0", # Security: CVE fixes (GHSA-48p4-8xcf-vxj5, GHSA-pq67-6m6q-mj2v)
     "pysbd>=0.3.4",
     "tqdm>=4.66.1",
     "pandas>=2.0.0",
-    "torch>=2.6.0,<3.0.0",                  # Pin to 2.x (PyTorch major versions)
-    "numpy>=2.0.0,<3.0.0",                   # NumPy 2.x for modern library compatibility (spacy 3.8+, thinc 8.3+)
+    "torch>=2.6.0,<3.0.0", # Pin to 2.x (PyTorch major versions)
+    "numpy>=2.0.0,<3.0.0", # NumPy 2.x for modern library compatibility (spacy 3.8+, thinc 8.3+)
     "matplotlib>=3.7.0",
     "seaborn>=0.12.0",
-    "typer>=0.16.0,<0.25.0",                # Support typer 0.21.x (drops Python 3.8 which we don't support)
-    "rich>=10.0.0",                         # Required for typer CLI features
-    "shellingham>=1.3.0",                   # Required for typer shell completion
+    "typer>=0.16.0,<0.25.0", # Support typer 0.21.x (drops Python 3.8 which we don't support)
+    "rich>=10.0.0", # Required for typer CLI features
+    "shellingham>=1.3.0", # Required for typer shell completion
     "PyYAML>=6.0",
     "tomli>=2.0.0; python_version < '3.11'", # TOML parser backport for Python 3.10
     "phenopackets>=2.0.0,<3.0.0",
@@ -51,8 +51,9 @@ dependencies = [
     "scikit-learn>=1.4.0",
     "networkx>=3.0",
     # Text processing (required for assertion detection in all CLI commands)
-    "spacy>=3.8.0,<4.0.0",                  # spaCy 3.8+ supports NumPy 2.x and typer 0.16+
+    "spacy>=3.8.0,<4.0.0", # spaCy 3.8+ supports NumPy 2.x and typer 0.16+
     "en_core_web_sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl",
+    "cachetools>=6.2.2",
 ]
 
 [project.scripts]
@@ -89,7 +90,7 @@ include = ["phentrieve*", "api*"]
 
 [tool.ruff]
 line-length = 88
-target-version = "py39"
+target-version = "py310"
 fix = true
 exclude = [
     ".git",
@@ -184,6 +185,7 @@ addopts = [
     "-v",
     "--strict-markers",
     "--tb=short",
+    "-n", "auto",   # pytest-xdist parallelization across CPU cores
 
     # Coverage (80% target - temporarily disabled during migration)
     "--cov=phentrieve",
@@ -191,7 +193,7 @@ addopts = [
     "--cov-report=term-missing",
     "--cov-report=html:htmlcov",
     "--cov-report=xml:coverage.xml",
-    # "--cov-fail-under=80",  # TODO: Enable after migration complete
+    "--cov-fail-under=40",  # Baseline: 45% as of 2026-04-09. Ratchet up as coverage improves.
 
     # Execution - Skip slow and e2e tests by default
     "-m", "not slow and not e2e",  # E2E tests require Docker, run separately
@@ -211,9 +213,11 @@ norecursedirs = [
     "venv",
     "env",
     "*.egg-info",
-    "phentrieve",
-    "api",
 ]
+# Note: do NOT add "phentrieve" or "api" here. norecursedirs matches at every
+# directory level, so those entries silently exclude tests/unit/api/ and
+# anything under tests that happens to match. testpaths = ["tests"] already
+# scopes collection, so these entries are unnecessary.
 
 # Bandit security scanner configuration (standalone, complements Ruff "S" rules)
 # Used for SARIF output in CI and detailed security reports
@@ -240,6 +244,7 @@ dev = [
     "docker>=7.0.0",  # Docker SDK for E2E tests
     "types-requests>=2.32.0",  # Type stubs for requests library
     "types-PyYAML>=6.0.0",  # Type stubs for PyYAML library
+    "types-cachetools>=6.2.0.20260408",  # Type stubs for cachetools (typing-only, not runtime)
     # Security scanning
     "pip-audit>=2.9.0",  # Python dependency vulnerability scanner
     "bandit[toml,sarif]>=1.9.0",  # Python SAST with TOML config and SARIF output

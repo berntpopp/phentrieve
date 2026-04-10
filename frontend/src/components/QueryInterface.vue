@@ -80,6 +80,7 @@
                   :aria-expanded="showAdvancedOptions.toString()"
                   aria-controls="advanced-options-panel"
                   size="small"
+                  data-tutorial-step="advanced-options"
                   @click="showAdvancedOptions = !showAdvancedOptions"
                 >
                   <v-icon>
@@ -100,6 +101,7 @@
               class="mr-1 mr-sm-2"
               aria-label="Search HPO Terms"
               size="small"
+              data-tutorial-step="search-button"
               @click="submitQuery"
             >
               <v-icon>mdi-magnify</v-icon>
@@ -108,413 +110,29 @@
         </div>
       </v-sheet>
 
-      <!-- Advanced Options Panel (Hidden by Default) -->
-      <v-expand-transition>
-        <v-sheet
-          v-if="showAdvancedOptions && !isLoading"
-          id="advanced-options-panel"
-          rounded="lg"
-          elevation="1"
-          class="mt-2 pa-3"
-          role="region"
-          aria-label="Advanced search options"
-          color="white"
-          style="font-size: 0.8rem"
-        >
-          <div class="text-subtitle-2 mb-2 px-1 font-weight-medium">
-            {{ $t('queryInterface.advancedOptions.title') }}
-          </div>
-
-          <v-row dense>
-            <v-col cols="12" md="6" class="pa-1">
-              <v-tooltip
-                location="bottom"
-                :text="$t('queryInterface.tooltips.embeddingModel')"
-                role="tooltip"
-              >
-                <template #activator="{ props }">
-                  <v-select
-                    v-bind="props"
-                    v-model="selectedModel"
-                    :items="availableModels"
-                    item-title="text"
-                    item-value="value"
-                    :disabled="isLoading"
-                    variant="outlined"
-                    density="compact"
-                    aria-label="Select embedding model"
-                    :aria-description="
-                      'Choose the model to use for text embedding. Currently selected: ' +
-                      selectedModel
-                    "
-                    bg-color="white"
-                    color="primary"
-                    hide-details
-                  >
-                    <template #label>
-                      <span class="text-caption">{{
-                        $t('queryInterface.advancedOptions.embeddingModel')
-                      }}</span>
-                    </template>
-                  </v-select>
-                </template>
-              </v-tooltip>
-            </v-col>
-
-            <v-col cols="12" md="6" class="pa-1">
-              <v-tooltip
-                location="bottom"
-                :text="$t('queryInterface.tooltips.similarityThreshold')"
-                role="tooltip"
-              >
-                <template #activator="{ props }">
-                  <div>
-                    <label
-                      :for="'similarity-slider'"
-                      class="text-caption mb-0 d-block"
-                      style="font-size: 0.7rem; padding-left: 4px"
-                      >{{ $t('queryInterface.advancedOptions.similarityThreshold') }}:
-                      {{ similarityThreshold.toFixed(2) }}</label
-                    >
-                    <v-slider
-                      v-bind="props"
-                      id="similarity-slider"
-                      v-model="similarityThreshold"
-                      :disabled="isLoading"
-                      class="mt-0 mb-1"
-                      density="compact"
-                      min="0"
-                      max="1"
-                      step="0.01"
-                      color="primary"
-                      track-color="grey-lighten-2"
-                      thumb-label
-                      hide-details
-                      aria-label="Similarity threshold slider"
-                      :aria-description="
-                        'Adjust minimum similarity threshold. Current value: ' +
-                        similarityThreshold.toFixed(2)
-                      "
-                    />
-                  </div>
-                </template>
-              </v-tooltip>
-            </v-col>
-          </v-row>
-
-          <v-row dense>
-            <v-col cols="12" md="6" class="pa-1">
-              <v-tooltip
-                location="bottom"
-                :text="$t('queryInterface.tooltips.language')"
-                role="tooltip"
-              >
-                <template #activator="{ props }">
-                  <v-select
-                    v-bind="props"
-                    v-model="selectedLanguage"
-                    :items="availableLanguages"
-                    item-title="text"
-                    item-value="value"
-                    :disabled="isLoading"
-                    variant="outlined"
-                    density="compact"
-                    aria-label="Select query language"
-                    :aria-description="
-                      'Choose the language for query processing. Currently selected: ' +
-                      selectedLanguage
-                    "
-                    bg-color="white"
-                    color="primary"
-                    hide-details
-                  >
-                    <template #label>
-                      <span class="text-caption">{{
-                        $t('queryInterface.advancedOptions.language')
-                      }}</span>
-                    </template>
-                  </v-select>
-                </template>
-              </v-tooltip>
-            </v-col>
-
-            <v-col cols="12" md="6" class="pa-1 d-flex align-center">
-              <v-tooltip
-                location="bottom"
-                :text="$t('queryInterface.tooltips.includeDetails')"
-                role="tooltip"
-              >
-                <template #activator="{ props }">
-                  <v-switch
-                    v-bind="props"
-                    v-model="includeDetails"
-                    :disabled="isLoading"
-                    :label="$t('queryInterface.advancedOptions.includeDetails')"
-                    color="primary"
-                    inset
-                    density="compact"
-                    hide-details
-                    class="mt-0 pt-0"
-                    aria-label="Include HPO term definitions and synonyms"
-                  />
-                </template>
-              </v-tooltip>
-            </v-col>
-          </v-row>
-
-          <v-divider class="my-2" />
-          <div class="text-subtitle-2 mb-1 px-1 font-weight-medium">
-            {{ $t('queryInterface.advancedOptions.processingModeTitle') }}
-          </div>
-
-          <v-row dense>
-            <v-col cols="12" class="pa-1">
-              <v-select
-                v-model="forceEndpointMode"
-                :items="[
-                  { title: $t('queryInterface.advancedOptions.modeAutomatic'), value: null },
-                  { title: $t('queryInterface.advancedOptions.modeQuery'), value: 'query' },
-                  {
-                    title: $t('queryInterface.advancedOptions.modeTextProcess'),
-                    value: 'textProcess',
-                  },
-                ]"
-                item-title="title"
-                item-value="value"
-                variant="outlined"
-                density="compact"
-                :disabled="isLoading"
-                bg-color="white"
-                color="primary"
-                hide-details
-              >
-                <template #label>
-                  <span class="text-caption">{{
-                    $t('queryInterface.advancedOptions.processingModeLabel')
-                  }}</span>
-                </template>
-              </v-select>
-            </v-col>
-          </v-row>
-
-          <div v-if="isTextProcessModeActive">
-            <v-divider class="my-2" />
-            <div class="text-subtitle-2 mb-1 px-1 font-weight-medium">
-              {{ $t('queryInterface.advancedOptions.textProcessingTitle') }}
-            </div>
-
-            <v-row dense>
-              <v-col cols="12" md="6" class="pa-1">
-                <v-select
-                  v-model="chunkingStrategy"
-                  :items="[
-                    'simple',
-                    'semantic',
-                    'detailed',
-                    'sliding_window',
-                    'sliding_window_cleaned',
-                    'sliding_window_punct_cleaned',
-                    'sliding_window_punct_conj_cleaned',
-                  ]"
-                  variant="outlined"
-                  density="compact"
-                  bg-color="white"
-                  color="primary"
-                  hide-details
-                >
-                  <template #label>
-                    <span class="text-caption">{{
-                      $t('queryInterface.advancedOptions.chunkingStrategy')
-                    }}</span>
-                  </template>
-                </v-select>
-              </v-col>
-              <v-col cols="12" md="6" class="pa-1">
-                <v-text-field
-                  v-model.number="windowSize"
-                  type="number"
-                  min="1"
-                  variant="outlined"
-                  density="compact"
-                  bg-color="white"
-                  color="primary"
-                  hide-details
-                >
-                  <template #label>
-                    <span class="text-caption">{{
-                      $t('queryInterface.advancedOptions.windowSize')
-                    }}</span>
-                  </template>
-                </v-text-field>
-              </v-col>
-            </v-row>
-
-            <v-row dense>
-              <v-col cols="12" md="6" class="pa-1">
-                <v-text-field
-                  v-model.number="stepSize"
-                  type="number"
-                  min="1"
-                  variant="outlined"
-                  density="compact"
-                  bg-color="white"
-                  color="primary"
-                  hide-details
-                >
-                  <template #label>
-                    <span class="text-caption">{{
-                      $t('queryInterface.advancedOptions.stepSize')
-                    }}</span>
-                  </template>
-                </v-text-field>
-              </v-col>
-              <v-col cols="12" md="6" class="pa-1">
-                <v-text-field
-                  v-model.number="chunkRetrievalThreshold"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  max="1"
-                  variant="outlined"
-                  density="compact"
-                  bg-color="white"
-                  color="primary"
-                  hide-details
-                >
-                  <template #label>
-                    <span class="text-caption">{{
-                      $t('queryInterface.advancedOptions.chunkThreshold')
-                    }}</span>
-                  </template>
-                </v-text-field>
-              </v-col>
-            </v-row>
-
-            <v-row dense>
-              <v-col cols="12" md="6" class="pa-1">
-                <v-text-field
-                  v-model.number="aggregatedTermConfidence"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  max="1"
-                  variant="outlined"
-                  density="compact"
-                  bg-color="white"
-                  color="primary"
-                  hide-details
-                >
-                  <template #label>
-                    <span class="text-caption">{{
-                      $t('queryInterface.advancedOptions.aggConfidence')
-                    }}</span>
-                  </template>
-                </v-text-field>
-              </v-col>
-              <v-col cols="12" md="6" class="pa-1 d-flex align-center">
-                <v-switch
-                  v-model="noAssertionDetectionForTextProcess"
-                  color="primary"
-                  hide-details
-                  density="compact"
-                  inset
-                  :true-value="false"
-                  :false-value="true"
-                >
-                  <template #label>
-                    <span class="text-caption">{{
-                      $t('queryInterface.advancedOptions.detectAssertions')
-                    }}</span>
-                  </template>
-                </v-switch>
-              </v-col>
-            </v-row>
-
-            <v-row dense>
-              <v-col cols="12" md="6" class="pa-1">
-                <v-text-field
-                  v-model.number="splitThreshold"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  max="1"
-                  variant="outlined"
-                  density="compact"
-                  bg-color="white"
-                  color="primary"
-                  hide-details
-                >
-                  <template #label>
-                    <span class="text-caption">{{
-                      $t('queryInterface.advancedOptions.splitThreshold')
-                    }}</span>
-                  </template>
-                </v-text-field>
-              </v-col>
-              <v-col cols="12" md="6" class="pa-1">
-                <v-text-field
-                  v-model.number="minSegmentLength"
-                  type="number"
-                  min="1"
-                  variant="outlined"
-                  density="compact"
-                  bg-color="white"
-                  color="primary"
-                  hide-details
-                >
-                  <template #label>
-                    <span class="text-caption">{{
-                      $t('queryInterface.advancedOptions.minSegmentLength')
-                    }}</span>
-                  </template>
-                </v-text-field>
-              </v-col>
-            </v-row>
-
-            <v-row dense>
-              <v-col cols="12" md="6" class="pa-1">
-                <v-text-field
-                  v-model.number="numResultsPerChunk"
-                  type="number"
-                  min="1"
-                  variant="outlined"
-                  density="compact"
-                  hide-details
-                  class="mb-0"
-                >
-                  <template #label>
-                    <span class="text-caption">{{
-                      $t('queryInterface.advancedOptions.numResultsPerChunk')
-                    }}</span>
-                  </template>
-                </v-text-field>
-              </v-col>
-              <v-col cols="12" md="6" class="pa-1 d-flex align-center">
-                <v-switch
-                  v-model="topTermPerChunkForAggregation"
-                  color="primary"
-                  hide-details
-                  density="compact"
-                  inset
-                >
-                  <template #label>
-                    <span class="text-caption">{{
-                      $t('queryInterface.advancedOptions.topTermPerChunk')
-                    }}</span>
-                  </template>
-                </v-switch>
-              </v-col>
-            </v-row>
-
-            <v-row dense>
-              <!-- Empty col for alignment if needed -->
-              <v-col cols="12" md="6" class="pa-1" />
-              <!-- Empty col for alignment -->
-              <v-col cols="12" md="6" class="pa-1" />
-            </v-row>
-          </div>
-        </v-sheet>
-      </v-expand-transition>
+      <!-- Advanced Options Panel -->
+      <AdvancedOptionsPanel
+        :visible="showAdvancedOptions"
+        :disabled="isLoading"
+        v-model:selected-model="selectedModel"
+        :available-models="availableModels"
+        v-model:selected-language="selectedLanguage"
+        :available-languages="availableLanguages"
+        v-model:include-details="includeDetails"
+        v-model:similarity-threshold="similarityThreshold"
+        v-model:force-endpoint-mode="forceEndpointMode"
+        :is-text-process-mode-active="isTextProcessModeActive"
+        v-model:chunking-strategy="chunkingStrategy"
+        v-model:window-size="windowSize"
+        v-model:step-size="stepSize"
+        v-model:chunk-retrieval-threshold="chunkRetrievalThreshold"
+        v-model:aggregated-term-confidence="aggregatedTermConfidence"
+        v-model:no-assertion-detection-for-text-process="noAssertionDetectionForTextProcess"
+        v-model:split-threshold="splitThreshold"
+        v-model:min-segment-length="minSegmentLength"
+        v-model:num-results-per-chunk="numResultsPerChunk"
+        v-model:top-term-per-chunk-for-aggregation="topTermPerChunkForAggregation"
+      />
     </div>
 
     <!-- Chat-like conversation interface -->
@@ -572,287 +190,119 @@
       </template>
     </div>
 
-    <!-- Floating action button for collection panel -->
-    <v-tooltip
-      location="left"
-      :text="$t('queryInterface.tooltips.phenotypeCollection')"
-      role="tooltip"
+    <!-- Phenotype Collection Panel -->
+    <PhenotypeCollectionPanel
+      :phenotypes="conversationStore.collectedPhenotypes"
+      :panel-open="conversationStore.showCollectionPanel"
+      v-model:subject-id="phenopacketSubjectId"
+      v-model:sex="phenopacketSex"
+      v-model:date-of-birth="phenopacketDateOfBirth"
+      :sex-options="sexOptions"
+      @toggle-panel="toggleCollectionPanel"
+      @update:panel-open="conversationStore.showCollectionPanel = $event"
+      @remove="removePhenotype"
+      @toggle-assertion="toggleAssertionStatus"
+      @export-text="exportPhenotypes"
+      @export-json="onExportPhenopacket"
+      @clear="clearPhenotypeCollection"
+    />
+
+    <v-snackbar
+      v-model="exportErrorVisible"
+      color="error"
+      location="bottom"
+      timeout="6000"
+      role="alert"
     >
-      <template #activator="{ props }">
-        <v-btn
-          v-bind="props"
-          class="collection-fab collection-fab-position"
-          color="secondary"
-          icon
-          position="fixed"
-          location="bottom right"
-          size="large"
-          elevation="3"
-          aria-label="Open HPO Collection Panel"
-          @click="toggleCollectionPanel"
-        >
-          <v-badge
-            :content="conversationStore.collectedPhenotypes.length"
-            :model-value="conversationStore.collectedPhenotypes.length > 0"
-            color="error"
-          >
-            <v-icon>mdi-format-list-checks</v-icon>
-          </v-badge>
+      {{ exportErrorMessage }}
+      <template #actions>
+        <v-btn variant="text" @click="exportErrorVisible = false">
+          {{ $t('common.dismiss', 'Dismiss') }}
         </v-btn>
       </template>
-    </v-tooltip>
-
-    <!-- Collection Panel -->
-    <v-navigation-drawer
-      v-model="conversationStore.showCollectionPanel"
-      location="right"
-      width="400"
-      temporary
-      style="z-index: 1500"
-      aria-label="Phenotype collection"
-    >
-      <v-list-item class="pl-2 pr-1">
-        <v-list-item-title class="text-h6">
-          {{ $t('queryInterface.phenotypeCollection.title') }}
-        </v-list-item-title>
-        <template #append>
-          <v-btn
-            icon
-            :aria-label="$t('queryInterface.phenotypeCollection.close')"
-            variant="text"
-            density="compact"
-            @click="toggleCollectionPanel"
-          >
-            <v-icon>mdi-close</v-icon>
-          </v-btn>
-        </template>
-      </v-list-item>
-
-      <v-divider />
-
-      <v-list v-if="conversationStore.collectedPhenotypes.length > 0" class="pt-0">
-        <v-list-subheader>
-          {{
-            $t('queryInterface.phenotypeCollection.count', {
-              count: conversationStore.collectedPhenotypes.length,
-            })
-          }}
-        </v-list-subheader>
-
-        <v-list-item
-          v-for="(phenotype, index) in conversationStore.collectedPhenotypes"
-          :key="phenotype.hpo_id + '-' + index"
-          density="compact"
-          class="py-1"
-        >
-          <v-list-item-title>
-            <strong>{{ phenotype.hpo_id }}</strong>
-            <v-chip
-              size="x-small"
-              class="ml-2"
-              :color="
-                phenotype.assertion_status === 'negated' ? 'pink-lighten-1' : 'green-lighten-1'
-              "
-              label
-              variant="flat"
-            >
-              {{
-                $t(
-                  `queryInterface.phenotypeCollection.assertionStatus.${phenotype.assertion_status || 'affirmed'}`
-                )
-              }}
-            </v-chip>
-          </v-list-item-title>
-          <v-list-item-subtitle class="wrap-text">
-            {{ phenotype.label }}
-          </v-list-item-subtitle>
-
-          <template #append>
-            <v-tooltip
-              :text="$t('queryInterface.phenotypeCollection.assertionToggle')"
-              location="start"
-            >
-              <template #activator="{ props }">
-                <v-btn
-                  v-bind="props"
-                  :icon="
-                    phenotype.assertion_status === 'negated'
-                      ? 'mdi-check-circle-outline'
-                      : 'mdi-close-circle-outline'
-                  "
-                  variant="text"
-                  density="compact"
-                  :color="phenotype.assertion_status === 'negated' ? 'success' : 'error'"
-                  class="mr-0"
-                  :aria-label="`Toggle assertion status for ${phenotype.label} (${phenotype.hpo_id})`"
-                  @click="toggleAssertionStatus(index)"
-                />
-              </template>
-            </v-tooltip>
-            <v-btn
-              icon="mdi-delete-outline"
-              variant="text"
-              density="compact"
-              color="grey-darken-1"
-              :aria-label="`Remove ${phenotype.label} (${phenotype.hpo_id}) from collection`"
-              @click="removePhenotype(index)"
-            />
-          </template>
-        </v-list-item>
-      </v-list>
-
-      <v-sheet v-else class="pa-4 text-center">
-        <v-icon size="x-large" color="grey-darken-1" class="mb-2"> mdi-tray-plus </v-icon>
-        <div class="text-body-1 text-grey-darken-2">
-          {{ $t('queryInterface.phenotypeCollection.empty') }}
-        </div>
-        <div class="text-caption text-grey-darken-3 mt-2">
-          {{ $t('queryInterface.phenotypeCollection.instructions') }}
-          <v-icon size="small"> mdi-plus-circle-outline </v-icon>
-        </div>
-      </v-sheet>
-
-      <v-divider class="mt-4" />
-      <v-list-subheader>
-        {{ $t('queryInterface.phenotypeCollection.subjectInfoHeader') }}
-      </v-list-subheader>
-      <div class="pa-3">
-        <v-tooltip location="bottom" :text="$t('queryInterface.tooltips.subjectId')" role="tooltip">
-          <template #activator="{ props }">
-            <v-text-field
-              v-bind="props"
-              v-model="phenopacketSubjectId"
-              density="compact"
-              variant="outlined"
-              hide-details="auto"
-              class="mb-3"
-              aria-label="Enter subject identifier for Phenopacket"
-              bg-color="white"
-              color="primary"
-            >
-              <template #label>
-                <span class="text-caption">{{
-                  $t('queryInterface.phenotypeCollection.subjectId')
-                }}</span>
-              </template>
-            </v-text-field>
-          </template>
-        </v-tooltip>
-
-        <v-tooltip location="bottom" :text="$t('queryInterface.tooltips.sex')" role="tooltip">
-          <template #activator="{ props }">
-            <v-select
-              v-bind="props"
-              v-model="phenopacketSex"
-              :items="sexOptions"
-              item-title="title"
-              item-value="value"
-              density="compact"
-              variant="outlined"
-              hide-details="auto"
-              class="mb-3"
-              clearable
-              aria-label="Select subject sex for Phenopacket"
-              bg-color="white"
-              color="primary"
-            >
-              <template #label>
-                <span class="text-caption">{{ $t('queryInterface.phenotypeCollection.sex') }}</span>
-              </template>
-            </v-select>
-          </template>
-        </v-tooltip>
-
-        <v-tooltip
-          location="bottom"
-          :text="$t('queryInterface.tooltips.dateOfBirth')"
-          role="tooltip"
-        >
-          <template #activator="{ props }">
-            <v-text-field
-              v-bind="props"
-              v-model="phenopacketDateOfBirth"
-              placeholder="YYYY-MM-DD"
-              density="compact"
-              variant="outlined"
-              hide-details="auto"
-              class="mb-3"
-              clearable
-              type="date"
-              aria-label="Enter subject date of birth for Phenopacket"
-              bg-color="white"
-              color="primary"
-            >
-              <template #label>
-                <span class="text-caption">{{
-                  $t('queryInterface.phenotypeCollection.dateOfBirth')
-                }}</span>
-              </template>
-            </v-text-field>
-          </template>
-        </v-tooltip>
-      </div>
-
-      <template #append>
-        <v-divider />
-        <div class="pa-3">
-          <v-btn
-            block
-            color="primary"
-            class="mb-2"
-            prepend-icon="mdi-download-box-outline"
-            :disabled="conversationStore.collectedPhenotypes.length === 0"
-            aria-label="Export collected phenotypes as Phenopacket JSON"
-            @click="exportPhenotypesAsPhenopacket"
-          >
-            {{ $t('queryInterface.phenotypeCollection.exportPhenopacket') }}
-          </v-btn>
-          <v-btn
-            block
-            variant="outlined"
-            color="primary"
-            class="mb-2"
-            prepend-icon="mdi-text-box-outline"
-            :disabled="conversationStore.collectedPhenotypes.length === 0"
-            @click="exportPhenotypes"
-          >
-            {{ $t('queryInterface.phenotypeCollection.exportText') }}
-          </v-btn>
-          <v-btn
-            block
-            variant="tonal"
-            color="error"
-            prepend-icon="mdi-delete-sweep-outline"
-            :disabled="conversationStore.collectedPhenotypes.length === 0"
-            @click="clearPhenotypeCollection"
-          >
-            {{ $t('queryInterface.phenotypeCollection.clear') }}
-          </v-btn>
-        </div>
-      </template>
-    </v-navigation-drawer>
+    </v-snackbar>
   </div>
 </template>
 
 <script>
 import ResultsDisplay from './ResultsDisplay.vue';
 import ConversationSkeleton from './ConversationSkeleton.vue';
+import AdvancedOptionsPanel from './AdvancedOptionsPanel.vue';
+import PhenotypeCollectionPanel from './PhenotypeCollectionPanel.vue';
 import PhentrieveService from '../services/PhentrieveService';
 import { logService } from '../services/logService';
 import { useQueryPreferencesStore } from '../stores/queryPreferences';
 import { useConversationStore } from '../stores/conversation';
-// Direct JSON-based implementation instead of using @berntpopp/phenopackets-js
+import { DEFAULT_SIMILARITY_THRESHOLD } from '../constants/defaults';
+import { useAdvancedOptions } from '../composables/useAdvancedOptions';
+import { usePhenotypeCollection } from '../composables/usePhenotypeCollection';
 
 export default {
   name: 'QueryInterface',
   components: {
     ResultsDisplay,
     ConversationSkeleton,
+    AdvancedOptionsPanel,
+    PhenotypeCollectionPanel,
   },
   setup() {
-    // Initialize conversation store for use in Options API component
     const conversationStore = useConversationStore();
-    return { conversationStore };
+
+    const {
+      showAdvancedOptions,
+      numResults,
+      similarityThreshold,
+      splitThreshold,
+      chunkRetrievalThreshold,
+      aggregatedTermConfidence,
+      inputTextLengthThreshold,
+      windowSize,
+      stepSize,
+      minSegmentLength,
+      numResultsPerChunk,
+      resetToDefaults,
+    } = useAdvancedOptions();
+
+    const {
+      phenopacketSubjectId,
+      phenopacketSex,
+      phenopacketDateOfBirth,
+      addPhenotype: addToPhenotypeCollection,
+      removePhenotype,
+      toggleAssertionStatus,
+      clearCollection: clearPhenotypeCollection,
+      toggleCollectionPanel,
+      exportCollectionAsText: exportPhenotypes,
+      exportAsPhenopacket: exportPhenotypesAsPhenopacket,
+    } = usePhenotypeCollection();
+
+    return {
+      conversationStore,
+      // Advanced options
+      showAdvancedOptions,
+      numResults,
+      similarityThreshold,
+      splitThreshold,
+      chunkRetrievalThreshold,
+      aggregatedTermConfidence,
+      inputTextLengthThreshold,
+      windowSize,
+      stepSize,
+      minSegmentLength,
+      numResultsPerChunk,
+      resetToDefaults,
+      // Phenotype collection
+      phenopacketSubjectId,
+      phenopacketSex,
+      phenopacketDateOfBirth,
+      addToPhenotypeCollection,
+      removePhenotype,
+      toggleAssertionStatus,
+      clearPhenotypeCollection,
+      toggleCollectionPanel,
+      exportPhenotypes,
+      exportPhenotypesAsPhenopacket,
+    };
   },
   data() {
     return {
@@ -869,37 +319,26 @@ export default {
         { text: 'Spanish (Español)', value: 'es' },
         { text: 'Dutch (Nederlands)', value: 'nl' },
       ],
-      similarityThreshold: 0.5,
-      numResults: 10,
       isLoading: false,
-      showAdvancedOptions: false,
       lastUserScrollPosition: 0,
       userHasScrolled: false,
       shouldScrollToTop: false,
-      phenopacketSubjectId: '',
-      phenopacketSex: null,
-      phenopacketDateOfBirth: null,
       sexOptions: [
         { title: this.$t('phenopacket.sexUnknown'), value: 0 },
         { title: this.$t('phenopacket.sexFemale'), value: 1 },
         { title: this.$t('phenopacket.sexMale'), value: 2 },
         { title: this.$t('phenopacket.sexOther'), value: 3 },
       ],
-      inputTextLengthThreshold: 120, // Increased threshold
       forceEndpointMode: null,
       chunkingStrategy: 'sliding_window_punct_conj_cleaned',
-      windowSize: 3,
-      stepSize: 1,
-      splitThreshold: 0.5,
-      minSegmentLength: 2,
       semanticModelForChunking: null,
       retrievalModelForTextProcess: null,
-      chunkRetrievalThreshold: 0.7,
-      numResultsPerChunk: 3,
       noAssertionDetectionForTextProcess: false,
       assertionPreferenceForTextProcess: 'dependency',
-      aggregatedTermConfidence: 0.75,
       topTermPerChunkForAggregation: false,
+      // Phenopacket export error surface (snackbar feedback)
+      exportErrorVisible: false,
+      exportErrorMessage: '',
     };
   },
   computed: {
@@ -923,10 +362,10 @@ export default {
     },
   },
   watch: {
-    'conversationStore.queryHistory': {
-      handler() {
+    'conversationStore.queryHistory.length': {
+      handler(newLength) {
         logService.debug('Query history updated', {
-          newHistoryLength: this.conversationStore.queryHistory.length,
+          newHistoryLength: newLength,
         });
         this.$nextTick(() => {
           if (this.shouldScrollToTop && !this.userHasScrolled) {
@@ -934,14 +373,13 @@ export default {
           }
         });
       },
-      deep: true,
     },
     selectedModel(newModel, oldModel) {
       if (oldModel !== null) {
         // Avoid resetting on initial mount
         logService.info('Model changed', { newModel: newModel, oldModel: oldModel });
         // Reset some query-specific settings to defaults when model changes
-        this.similarityThreshold = 0.5;
+        this.resetToDefaults();
         logService.info('Reset query-specific settings to defaults due to model change.');
       }
     },
@@ -970,6 +408,25 @@ export default {
     }
   },
   methods: {
+    /**
+     * Wrapper around usePhenotypeCollection.exportAsPhenopacket that surfaces
+     * errors via a snackbar instead of letting them propagate unhandled.
+     * The composable throws on failure (intentionally, so it stays testable
+     * and accessibility-friendly); this method catches and renders.
+     */
+    onExportPhenopacket() {
+      try {
+        this.exportPhenotypesAsPhenopacket();
+      } catch (error) {
+        this.exportErrorMessage = this.$t(
+          'queryInterface.phenotypeCollection.exportError',
+          'Error exporting Phenopacket. Check console for details.'
+        );
+        this.exportErrorVisible = true;
+        // The composable already logs via logService.error; no need to re-log.
+        void error;
+      }
+    },
     /**
      * Fetch available embedding models from API /info endpoint
      * Falls back to BioLORD if API is unavailable
@@ -1080,145 +537,6 @@ export default {
           container.scrollTo({ top: 0, behavior: 'auto' }); // Use auto for instant jump
         }
       });
-    },
-    addToPhenotypeCollection(phenotype, queryAssertionStatus = null) {
-      // Log the incoming values to help debug
-      logService.info('Adding phenotype to collection', {
-        phenotype,
-        queryAssertionStatus,
-        phenotypeHasAssertionStatus: phenotype.assertion_status ? true : false,
-        phenotypeAssertionStatus: phenotype.assertion_status,
-      });
-
-      // Use the conversation store's addPhenotype method
-      const added = this.conversationStore.addPhenotype(phenotype, queryAssertionStatus);
-      if (added) {
-        logService.debug('Phenotype added to collection via store', {
-          hpo_id: phenotype.hpo_id,
-        });
-      } else {
-        logService.debug('Phenotype was duplicate, not added', {
-          hpo_id: phenotype.hpo_id,
-        });
-      }
-    },
-    removePhenotype(index) {
-      const phenotype = this.conversationStore.collectedPhenotypes[index];
-      logService.info('Removing phenotype from collection', {
-        index,
-        phenotype,
-      });
-      this.conversationStore.removePhenotype(index);
-    },
-    toggleAssertionStatus(index) {
-      this.conversationStore.toggleAssertionStatus(index);
-      const phenotype = this.conversationStore.collectedPhenotypes[index];
-      if (phenotype) {
-        logService.info('Toggled phenotype assertion status', {
-          hpo_id: phenotype.hpo_id,
-          newStatus: phenotype.assertion_status,
-        });
-      }
-    },
-    clearPhenotypeCollection() {
-      logService.info('Clearing phenotype collection and subject information');
-      this.conversationStore.clearPhenotypes();
-      this.phenopacketSubjectId = '';
-      this.phenopacketSex = null;
-      this.phenopacketDateOfBirth = null;
-    },
-    toggleCollectionPanel() {
-      this.conversationStore.toggleCollectionPanel();
-    },
-    exportPhenotypes() {
-      const phenotypes = this.conversationStore.collectedPhenotypes;
-      logService.info('Exporting phenotypes as text', { count: phenotypes.length });
-      let exportText = 'HPO Phenotypes Collection\n';
-      exportText += 'Exported on: ' + new Date().toLocaleString() + '\n\n';
-      exportText += 'ID\tLabel\tAssertion Status\n';
-      phenotypes.forEach((p) => {
-        exportText += `${p.hpo_id}\t${p.label}\t${p.assertion_status || 'affirmed'}\n`;
-      });
-      const blob = new Blob([exportText], { type: 'text/plain' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'hpo_phenotypes.txt';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    },
-    exportPhenotypesAsPhenopacket() {
-      const phenotypes = this.conversationStore.collectedPhenotypes;
-      if (phenotypes.length === 0) {
-        logService.warn('Attempted to export empty phenopacket collection');
-        return;
-      }
-      logService.info('Starting Phenopacket export process', {
-        count: phenotypes.length,
-      });
-      try {
-        const timestamp = new Date().toISOString();
-        const phenopacketId = `phentrieve-export-${Date.now()}`;
-        const phenopacket = {
-          id: phenopacketId,
-          metaData: {
-            created: timestamp,
-            createdBy: 'Phentrieve Frontend',
-            phenopacketSchemaVersion: '2.0.0',
-            resources: [
-              {
-                id: 'phentrieve',
-                name: 'Phentrieve',
-                namespacePrefix: 'Phentrieve',
-                url: 'https://phentrieve.kidney-genetics.org/',
-                version: import.meta.env.VITE_APP_VERSION || '1.0.0',
-                iriPrefix: 'phentrieve',
-              },
-            ],
-          },
-          phenotypicFeatures: [],
-        };
-        if (
-          this.phenopacketSubjectId ||
-          this.phenopacketSex !== null ||
-          this.phenopacketDateOfBirth
-        ) {
-          phenopacket.subject = {};
-          if (this.phenopacketSubjectId) phenopacket.subject.id = this.phenopacketSubjectId.trim();
-          if (this.phenopacketSex !== null) {
-            const sexMap = { 0: 'UNKNOWN_SEX', 1: 'FEMALE', 2: 'MALE', 3: 'OTHER_SEX' };
-            phenopacket.subject.sex = sexMap[this.phenopacketSex];
-          }
-          if (this.phenopacketDateOfBirth) {
-            const dob = new Date(this.phenopacketDateOfBirth + 'T00:00:00Z');
-            if (!isNaN(dob.getTime()))
-              phenopacket.subject.timeAtLastEncounter = { timestamp: dob.toISOString() };
-          }
-          if (Object.keys(phenopacket.subject).length === 0) delete phenopacket.subject;
-        }
-        phenotypes.forEach((cp) => {
-          phenopacket.phenotypicFeatures.push({
-            type: { id: cp.hpo_id, label: cp.label },
-            excluded: cp.assertion_status === 'negated',
-          });
-        });
-        const phenopacketJsonString = JSON.stringify(phenopacket, null, 2);
-        const blob = new Blob([phenopacketJsonString], { type: 'application/json;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.download = `phentrieve_phenopacket_${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
-        a.href = url;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        logService.info('Phenopacket successfully exported', { filename: a.download });
-      } catch (error) {
-        logService.error('Error during Phenopacket export', { error });
-        alert('Error exporting Phenopacket. Check console.');
-      }
     },
     async submitQuery(isAutoSubmit = false) {
       const queryTextTrimmed = this.queryText.trim();

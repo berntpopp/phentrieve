@@ -9,7 +9,7 @@ import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 import spacy
 from spacy.language import Language
@@ -128,7 +128,7 @@ class ConTextRule:
 KEYWORD_WINDOW = 7
 
 
-def get_spacy_model(lang_code: str) -> Optional[spacy.language.Language]:
+def get_spacy_model(lang_code: str) -> spacy.language.Language | None:
     """
     Load and cache a spaCy model for the given language.
 

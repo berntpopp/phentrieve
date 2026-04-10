@@ -11,6 +11,8 @@ from phentrieve.data_processing.multi_vector_document_creator import (
     get_component_stats,
 )
 
+pytestmark = pytest.mark.unit
+
 
 class TestCreateMultiVectorDocuments:
     """Test multi-vector document creation."""

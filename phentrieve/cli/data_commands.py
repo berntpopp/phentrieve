@@ -8,7 +8,7 @@ This module contains commands for managing HPO data:
 """
 
 from pathlib import Path
-from typing import Annotated, Optional
+from typing import Annotated
 
 import typer
 
@@ -25,7 +25,7 @@ def prepare_hpo_data(
         bool, typer.Option("--force", help="Force update even if files exist")
     ] = False,
     data_dir: Annotated[
-        Optional[str],
+        str | None,
         typer.Option("--data-dir", help="Custom directory for HPO data storage"),
     ] = None,
     include_obsolete: Annotated[
@@ -36,7 +36,7 @@ def prepare_hpo_data(
         ),
     ] = False,
     hpo_version: Annotated[
-        Optional[str],
+        str | None,
         typer.Option(
             "--hpo-version",
             help="HPO version to download (e.g., 'v2025-11-24'). Default: fetch latest from GitHub.",
@@ -92,11 +92,11 @@ def download_bundle(
         ),
     ] = "biolord",
     hpo_version: Annotated[
-        Optional[str],
+        str | None,
         typer.Option("--hpo-version", help="Specific HPO version (default: latest)"),
     ] = None,
     data_dir: Annotated[
-        Optional[str],
+        str | None,
         typer.Option("--data-dir", help="Custom directory for data installation"),
     ] = None,
     skip_verify: Annotated[
@@ -223,7 +223,7 @@ def list_bundles(
 @app.command("status")
 def data_status(
     data_dir: Annotated[
-        Optional[str],
+        str | None,
         typer.Option("--data-dir", help="Data directory to check"),
     ] = None,
 ):
@@ -304,7 +304,7 @@ def create_bundle_cmd(
         typer.Option("--output-dir", "-o", help="Output directory for bundle"),
     ] = "./dist",
     data_dir: Annotated[
-        Optional[str],
+        str | None,
         typer.Option("--data-dir", help="Source data directory"),
     ] = None,
     include_hp_json: Annotated[
@@ -373,7 +373,7 @@ def create_bundle_cmd(
 @bundle_app.command("list")
 def list_local_bundles(
     data_dir: Annotated[
-        Optional[str],
+        str | None,
         typer.Option("--data-dir", help="Data directory to check"),
     ] = None,
 ):

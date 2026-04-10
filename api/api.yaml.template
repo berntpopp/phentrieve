@@ -24,7 +24,6 @@
 
 # model_loading:
 #   sbert_timeout: 60
-#   cross_encoder_timeout: 10
 
 # =============================================================================
 # CORS (Cross-Origin Resource Sharing) SETTINGS

@@ -4,7 +4,8 @@
     "cancel": "Annuler",
     "delete": "Supprimer",
     "reset": "Réinitialiser",
-    "close": "Fermer"
+    "close": "Fermer",
+    "dismiss": "Fermer"
   },
   "conversationSettings": {
     "tooltip": "Paramètres de conversation",
@@ -107,12 +108,23 @@
       "dateOfBirth": "Date de naissance",
       "exportPhenopacket": "Exporter en Phenopacket (JSON)",
       "exportText": "Exporter en texte",
+      "exportError": "Erreur lors de l'export du Phenopacket. Vérifiez la console pour plus de détails.",
       "clear": "Effacer la collection",
       "assertionToggle": "Basculer le statut d'affirmation",
       "assertionStatus": {
         "affirmed": "Affirmé",
         "negated": "Nié",
         "unknown": "Inconnu"
+      },
+      "aria": {
+        "openPanel": "Ouvrir le panneau de collecte HPO",
+        "panel": "Collecte de phénotypes",
+        "toggleAssertion": "Basculer le statut d'affirmation pour {label} ({id})",
+        "removeItem": "Retirer {label} ({id}) de la collecte",
+        "subjectId": "Saisir l'identifiant du sujet pour le Phenopacket",
+        "sex": "Sélectionner le sexe du sujet pour le Phenopacket",
+        "dateOfBirth": "Saisir la date de naissance du sujet pour le Phenopacket",
+        "exportPhenopacket": "Exporter les phénotypes collectés comme JSON Phenopacket"
       }
     },
     "advancedOptions": {

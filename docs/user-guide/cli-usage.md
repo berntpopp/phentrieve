@@ -61,9 +61,6 @@ phentrieve query --text "The patient shows microcephaly and seizures"
 - `--similarity-threshold`: Minimum similarity score (0-1) to show results (default: 0.3)
 - `--num-results`: Maximum number of results to display (default: 5)
 - `--model-name`: Embedding model to use (default: "FremyCompany/BioLORD-2023-M")
-- `--enable-reranker`: Enable cross-encoder reranking for improved precision
-- `--reranker-model`: Cross-encoder model (default: "BAAI/bge-reranker-v2-m3")
-- `--rerank-count`: Number of candidates to pass to reranker (default: 50)
 
 ### Text Processing
 
@@ -165,7 +162,6 @@ phentrieve benchmark run --model-name "FremyCompany/BioLORD-2023-M"
 - `--model-name`: Model to benchmark
 - `--test-file`: Path to test cases file
 - `--output-dir`: Directory to save benchmark results
-- `--enable-reranker`: Include reranking in the benchmark
 - `--gpu`: Use GPU acceleration if available
 
 ## Getting Help

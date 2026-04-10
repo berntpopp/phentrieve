@@ -1,28 +1,26 @@
 import logging
-import os
-import sys
 from contextlib import asynccontextmanager
+from http import HTTPStatus
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
-# Add project root to Python path
-# This needs to be before other project-specific imports
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from api.config import (  # noqa: E402
+from api.config import (
     ALLOWED_ORIGINS,
     CORS_ALLOW_CREDENTIALS,
     CORS_ALLOW_HEADERS,
     CORS_ALLOW_METHODS,
     LOG_LEVEL,
 )
-from api.dependencies import (  # noqa: E402
-    get_cross_encoder_dependency,
+from api.dependencies import (
+    cleanup_model_caches,
     get_dense_retriever_dependency,
     get_sbert_model_dependency,
 )
-from api.routers import (  # noqa: E402
+from api.routers import (
     config_info_router,
     health,
     query_router,
@@ -30,16 +28,52 @@ from api.routers import (  # noqa: E402
     system,
     text_processing_router,
 )
-from phentrieve.config import (  # noqa: E402
+from api.schemas.errors import ErrorResponse
+from api.version import get_api_version
+from phentrieve.config import (
     DEFAULT_DEVICE,
     DEFAULT_MODEL,
     DEFAULT_MULTI_VECTOR,
-    DEFAULT_RERANKER_MODEL,
 )
 
 logger = logging.getLogger(__name__)
 # Configure logging for the API using config value
 logging.basicConfig(level=getattr(logging, LOG_LEVEL, logging.INFO))
+
+
+# =============================================================================
+# MCP (Model Context Protocol) HTTP Mounting
+# =============================================================================
+# When ENABLE_MCP_HTTP=true, mount MCP at /mcp on the same domain as the API.
+# This enables LLM clients to access HPO term extraction tools via HTTP.
+#
+# Production URL: https://phentrieve.example.com/mcp
+# Local dev URL:  http://localhost:8734/mcp
+#
+# Environment variables:
+#   ENABLE_MCP_HTTP=true         - Enable MCP HTTP endpoint
+#   PHENTRIEVE_MCP_ENABLE_HTTP=true  - Alternative env var
+# =============================================================================
+def _try_mount_mcp(target_app: FastAPI) -> None:
+    """Attempt to mount MCP server at /mcp if enabled and dependencies available."""
+    try:
+        from api.mcp.config import is_mcp_http_enabled
+
+        if not is_mcp_http_enabled():
+            return
+
+        # Import MCP server factory (requires fastapi-mcp optional dependency)
+        from api.mcp.server import create_mcp_server
+
+        mcp = create_mcp_server(target_app)
+        mcp.mount()  # Mounts at /mcp by default
+        logger.info("MCP server mounted at /mcp (ENABLE_MCP_HTTP=true)")
+    except ImportError:
+        # fastapi-mcp not installed - silently skip
+        logger.debug("MCP dependencies not available - skipping /mcp mount")
+    except Exception as e:
+        # Log unexpected errors but don't crash the API
+        logger.warning(f"Failed to mount MCP server: {e}")
 
 
 @asynccontextmanager
@@ -64,16 +98,6 @@ async def lifespan(app: FastAPI):
             f"(multi_vector={DEFAULT_MULTI_VECTOR}) pre-loading tasks initiated."
         )
 
-        # Attempt to pre-load default reranker (optional, good for responsiveness)
-        if DEFAULT_RERANKER_MODEL:
-            await get_cross_encoder_dependency(
-                reranker_model_name=DEFAULT_RERANKER_MODEL,
-                device_override=DEFAULT_DEVICE,
-            )
-            logger.info(
-                f"Default reranker '{DEFAULT_RERANKER_MODEL}' pre-loading task initiated."
-            )
-
     except HTTPException as http_exc:
         if http_exc.status_code == 503 and "is being prepared" in str(http_exc.detail):
             logger.warning(
@@ -97,151 +121,200 @@ async def lifespan(app: FastAPI):
     logger.info(
         "API startup: Default model pre-loading initiation complete (actual loading may be in background)."
     )
+
+    # Mount MCP if enabled (moved from module-level to lifespan)
+    _try_mount_mcp(app)
+
     yield  # This is where the application runs
 
-    # Shutdown logic (if needed)
+    # Shutdown — cancel outstanding loads, then clear caches
+    await cleanup_model_caches()
     logger.info("Shutting down Phentrieve API...")
 
 
-app = FastAPI(title="Phentrieve API", version="0.1.0", lifespan=lifespan)
+def create_app() -> FastAPI:
+    """Application factory for the Phentrieve API."""
+    application = FastAPI(
+        title="Phentrieve API",
+        version=get_api_version(),
+        lifespan=lifespan,
+    )
 
-# Configure CORS using config values
-# Origins can be customized via ALLOWED_ORIGINS env var or api/local_api_config.env
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=ALLOWED_ORIGINS,
-    allow_credentials=CORS_ALLOW_CREDENTIALS,
-    allow_methods=CORS_ALLOW_METHODS,
-    allow_headers=CORS_ALLOW_HEADERS,
-)
-# This content was moved to the lifespan context manager
+    application.add_middleware(
+        CORSMiddleware,
+        allow_origins=ALLOWED_ORIGINS,
+        allow_credentials=CORS_ALLOW_CREDENTIALS,
+        allow_methods=CORS_ALLOW_METHODS,
+        allow_headers=CORS_ALLOW_HEADERS,
+    )
 
+    def _status_slug(status_code: int, fallback: str = "http_error") -> str:
+        """Derive a machine-readable slug from an HTTP status code."""
+        try:
+            return HTTPStatus(status_code).phrase.lower().replace(" ", "_")
+        except ValueError:
+            return fallback
 
-# Include routers
-app.include_router(query_router.router, prefix="/api/v1/query", tags=["HPO Term Query"])
-app.include_router(health.router, prefix="/api/v1/health", tags=["Health Check"])
-app.include_router(
-    system.router
-)  # System router (version, health) - prefix set in router
-app.include_router(
-    similarity_router.router, prefix="/api/v1/similarity", tags=["HPO Term Similarity"]
-)
-app.include_router(config_info_router.router, prefix="/api/v1")
-app.include_router(
-    text_processing_router.router, tags=["Text Processing and HPO Extraction"]
-)
+    @application.exception_handler(StarletteHTTPException)
+    async def http_exception_handler(
+        _request: Request, exc: StarletteHTTPException
+    ) -> JSONResponse:
+        """Render HTTPException via ErrorResponse.
 
+        Registers on StarletteHTTPException (the base class) so that both
+        FastAPI routing 404s and explicit HTTPException raises in routers
+        are intercepted.
+        """
+        slug = _status_slug(exc.status_code)
+        body = ErrorResponse(
+            status_code=exc.status_code,
+            error=slug,
+            # Pass exc.detail through unchanged — preserves str details AND
+            # preserves dict/list details (e.g. similarity_router returns a dict).
+            detail=exc.detail if exc.detail is not None else slug,
+        )
+        return JSONResponse(
+            status_code=exc.status_code,
+            content=body.model_dump(exclude_none=True),
+            headers=getattr(exc, "headers", None) or None,
+        )
 
-# =============================================================================
-# MCP (Model Context Protocol) HTTP Mounting
-# =============================================================================
-# When ENABLE_MCP_HTTP=true, mount MCP at /mcp on the same domain as the API.
-# This enables LLM clients to access HPO term extraction tools via HTTP.
-#
-# Production URL: https://phentrieve.example.com/mcp
-# Local dev URL:  http://localhost:8734/mcp
-#
-# Environment variables:
-#   ENABLE_MCP_HTTP=true         - Enable MCP HTTP endpoint
-#   PHENTRIEVE_MCP_ENABLE_HTTP=true  - Alternative env var
-# =============================================================================
-def _try_mount_mcp() -> None:
-    """Attempt to mount MCP server at /mcp if enabled and dependencies available."""
-    try:
-        from api.mcp.config import is_mcp_http_enabled
+    @application.exception_handler(RequestValidationError)
+    async def validation_exception_handler(
+        _request: Request, exc: RequestValidationError
+    ) -> JSONResponse:
+        """Render Pydantic/FastAPI validation errors (422) via ErrorResponse.
 
-        if not is_mcp_http_enabled():
-            return
+        Without this, FastAPI returns its default {"detail": [...]} shape
+        which clients would have to parse separately from our ErrorResponse
+        contract.
+        """
+        body = ErrorResponse(
+            status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
+            error="unprocessable_entity",
+            detail=list(exc.errors()),
+        )
+        return JSONResponse(
+            status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
+            content=body.model_dump(exclude_none=True),
+        )
 
-        # Import MCP server factory (requires fastapi-mcp optional dependency)
-        from api.mcp.server import create_mcp_server
+    @application.exception_handler(Exception)
+    async def unhandled_exception_handler(
+        _request: Request, exc: Exception
+    ) -> JSONResponse:
+        """Catch-all 500 handler so unhandled exceptions still conform to
+        the ErrorResponse contract.
 
-        mcp = create_mcp_server(app)
-        mcp.mount()  # Mounts at /mcp by default
-        logger.info("MCP server mounted at /mcp (ENABLE_MCP_HTTP=true)")
-    except ImportError:
-        # fastapi-mcp not installed - silently skip
-        logger.debug("MCP dependencies not available - skipping /mcp mount")
-    except Exception as e:
-        # Log unexpected errors but don't crash the API
-        logger.warning(f"Failed to mount MCP server: {e}")
+        Logs the full traceback server-side and returns a generic
+        ``internal_server_error`` payload without leaking exception
+        internals to clients.
+        """
+        logger.exception("Unhandled exception in request path: %s", type(exc).__name__)
+        body = ErrorResponse(
+            status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+            error="internal_server_error",
+            detail="An unexpected error occurred.",
+        )
+        return JSONResponse(
+            status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+            content=body.model_dump(exclude_none=True),
+        )
 
+    application.include_router(
+        query_router.router, prefix="/api/v1/query", tags=["HPO Term Query"]
+    )
+    application.include_router(
+        health.router, prefix="/api/v1/health", tags=["Health Check"]
+    )
+    application.include_router(system.router)
+    application.include_router(
+        similarity_router.router,
+        prefix="/api/v1/similarity",
+        tags=["HPO Term Similarity"],
+    )
+    application.include_router(config_info_router.router, prefix="/api/v1")
+    application.include_router(
+        text_processing_router.router, tags=["Text Processing and HPO Extraction"]
+    )
 
-# Mount MCP if enabled (runs at module load time)
-_try_mount_mcp()
+    @application.get(
+        "/",
+        tags=["API Information"],
+        summary="API Information",
+        description="Returns information about the Phentrieve API and available endpoints.",
+    )
+    async def root():
+        """API Information endpoint.
 
-
-@app.get(
-    "/",
-    tags=["API Information"],
-    summary="API Information",
-    description="Returns information about the Phentrieve API and available endpoints.",
-)
-async def root():
-    """API Information endpoint.
-
-    Returns information about the Phentrieve API, its purpose, and available endpoints.
-    For full API documentation, visit the /docs endpoint.
-    """
-    return {
-        "api": "Phentrieve API",
-        "version": "0.1.0",
-        "description": "API for Human Phenotype Ontology (HPO) term retrieval and semantic similarity calculation",
-        "endpoints": {
-            "HPO Term Query": {
-                "description": "Query HPO terms based on clinical text",
-                "endpoints": [
-                    {
-                        "path": "/api/v1/query/",
-                        "methods": ["GET", "POST"],
-                        "description": "Retrieve relevant HPO terms for clinical text",
-                    }
-                ],
+        Returns information about the Phentrieve API, its purpose, and available endpoints.
+        For full API documentation, visit the /docs endpoint.
+        """
+        return {
+            "api": "Phentrieve API",
+            "version": get_api_version(),
+            "description": "API for Human Phenotype Ontology (HPO) term retrieval and semantic similarity calculation",
+            "endpoints": {
+                "HPO Term Query": {
+                    "description": "Query HPO terms based on clinical text",
+                    "endpoints": [
+                        {
+                            "path": "/api/v1/query/",
+                            "methods": ["GET", "POST"],
+                            "description": "Retrieve relevant HPO terms for clinical text",
+                        }
+                    ],
+                },
+                "Text Processing": {
+                    "description": "Process clinical text to extract HPO terms with advanced configuration",
+                    "endpoints": [
+                        {
+                            "path": "/api/v1/text/process",
+                            "methods": ["POST"],
+                            "description": "Process raw clinical text with customizable chunking and assertion detection settings",
+                        }
+                    ],
+                },
+                "HPO Term Similarity": {
+                    "description": "Calculate semantic similarity between HPO terms",
+                    "endpoints": [
+                        {
+                            "path": "/api/v1/similarity/{term1_id}/{term2_id}",
+                            "methods": ["GET"],
+                            "description": "Calculate semantic similarity between two HPO terms",
+                        }
+                    ],
+                },
+                "Health Check": {
+                    "description": "API health monitoring",
+                    "endpoints": [
+                        {
+                            "path": "/api/v1/health/",
+                            "methods": ["GET"],
+                            "description": "Check API health status",
+                        }
+                    ],
+                },
+                "Documentation": {
+                    "description": "API documentation",
+                    "endpoints": [
+                        {
+                            "path": "/docs",
+                            "methods": ["GET"],
+                            "description": "Swagger UI documentation",
+                        },
+                        {
+                            "path": "/redoc",
+                            "methods": ["GET"],
+                            "description": "ReDoc documentation",
+                        },
+                    ],
+                },
             },
-            "Text Processing": {
-                "description": "Process clinical text to extract HPO terms with advanced configuration",
-                "endpoints": [
-                    {
-                        "path": "/api/v1/text/process",
-                        "methods": ["POST"],
-                        "description": "Process raw clinical text with customizable chunking, reranking, and assertion detection settings",
-                    }
-                ],
-            },
-            "HPO Term Similarity": {
-                "description": "Calculate semantic similarity between HPO terms",
-                "endpoints": [
-                    {
-                        "path": "/api/v1/similarity/{term1_id}/{term2_id}",
-                        "methods": ["GET"],
-                        "description": "Calculate semantic similarity between two HPO terms",
-                    }
-                ],
-            },
-            "Health Check": {
-                "description": "API health monitoring",
-                "endpoints": [
-                    {
-                        "path": "/api/v1/health/",
-                        "methods": ["GET"],
-                        "description": "Check API health status",
-                    }
-                ],
-            },
-            "Documentation": {
-                "description": "API documentation",
-                "endpoints": [
-                    {
-                        "path": "/docs",
-                        "methods": ["GET"],
-                        "description": "Swagger UI documentation",
-                    },
-                    {
-                        "path": "/redoc",
-                        "methods": ["GET"],
-                        "description": "ReDoc documentation",
-                    },
-                ],
-            },
-        },
-    }
+        }
+
+    return application
+
+
+# Module-level app for uvicorn and existing imports
+app = create_app()

@@ -28,7 +28,7 @@ phentrieve/
 │   ├── indexing/                 # Modules for building indexes
 │   ├── retrieval/                # Modules for querying indexes
 │   ├── evaluation/               # Modules for benchmarking and metrics
-│   ├── text_processing/          # Text chunking and assertion detection 
+│   ├── text_processing/          # Text chunking and assertion detection
 │   └── utils.py                  # Shared utility functions
 │
 ├── docker-compose.yml            # Production Docker deployment
@@ -80,7 +80,6 @@ Modules for building and managing vector indexes:
 
 Modules for querying indexes and processing results:
 - `query_processor.py`: Core query processing
-- `reranker.py`: Cross-encoder reranking
 
 ### Evaluation (`evaluation/`)
 

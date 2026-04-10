@@ -15,7 +15,7 @@ export default function iconOptimizer() {
           }
           return true;
         }).join('\n');
-        
+
         return {
           code: optimizedCode,
           map: null

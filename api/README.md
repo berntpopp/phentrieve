@@ -120,8 +120,6 @@ PHENTRIEVE_RESULTS_DIR=${PHENTRIEVE_DATA_ROOT_DIR}/results
     "default_parameters": {
       "similarity_threshold": 0.1,
       "top_k": 10,
-      "enable_reranker": false,
-      "reranker_model": "BAAI/bge-reranker-v2-m3",
       "similarity_formula": "hybrid",
       "language": "en"
     },

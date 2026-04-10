@@ -4,6 +4,8 @@ import pytest
 
 from phentrieve.text_processing.spans import TextSpan, find_span_in_text
 
+pytestmark = pytest.mark.unit
+
 
 class TestTextSpan:
     """Tests for TextSpan dataclass."""

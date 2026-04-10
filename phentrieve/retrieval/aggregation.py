@@ -11,9 +11,10 @@ See issue #136 for design details.
 import ast
 import logging
 import operator
+from collections.abc import Callable
 from enum import Enum
 from functools import lru_cache
-from typing import Any, Callable
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -343,7 +344,7 @@ def group_results_by_hpo_id(
     else:
         scores_list = []
 
-    for i, (_, metadata) in enumerate(zip(ids_list, metadatas_list)):
+    for i, (_, metadata) in enumerate(zip(ids_list, metadatas_list, strict=False)):
         hpo_id = metadata.get("hpo_id", "")
         component = metadata.get("component", "unknown")
         score = scores_list[i] if i < len(scores_list) else 0.0

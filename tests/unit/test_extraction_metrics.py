@@ -9,6 +9,8 @@ from phentrieve.evaluation.extraction_metrics import (
     _doc_metrics,
 )
 
+pytestmark = pytest.mark.unit
+
 
 class TestHelperFunctions:
     """Test helper functions."""

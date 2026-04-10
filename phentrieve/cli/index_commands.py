@@ -3,7 +3,7 @@
 This module contains commands for managing vector indexes.
 """
 
-from typing import Annotated, Optional
+from typing import Annotated
 
 import typer
 
@@ -14,7 +14,7 @@ app = typer.Typer()
 @app.command("build")
 def build_index(
     model_name: Annotated[
-        Optional[str],
+        str | None,
         typer.Option("--model-name", help="Model name to use for embeddings"),
     ] = None,
     all_models: Annotated[
@@ -46,14 +46,14 @@ def build_index(
         ),
     ] = False,
     index_dir: Annotated[
-        Optional[str],
+        str | None,
         typer.Option(
             "--index-dir",
             help="Custom directory for storing the vector index (overrides config)",
         ),
     ] = None,
     data_dir: Annotated[
-        Optional[str],
+        str | None,
         typer.Option(
             "--data-dir",
             help="Custom directory containing HPO data (overrides config)",

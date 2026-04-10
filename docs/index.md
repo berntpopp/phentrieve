@@ -7,7 +7,6 @@ Phentrieve is a comprehensive system for mapping clinical text in multiple langu
 * **Multilingual HPO Term Mapping**: Map clinical text to HPO terms in multiple languages without translation
 * **Advanced Text Processing**: Process clinical text with semantic chunking and assertion detection
 * **Multiple Embedding Models**: Support for domain-specific, language-specific, and general multilingual models
-* **Cross-Encoder Re-Ranking**: Improve retrieval precision with specialized re-ranking models
 * **Comprehensive Benchmarking**: Evaluate and compare model performance with detailed metrics
 * **Multiple Interfaces**: Command-line tools, FastAPI backend, and Vue.js frontend
 

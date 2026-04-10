@@ -44,7 +44,6 @@ class TestQueryRequest:
         assert req.language is None  # Optional
         assert req.num_results == 10  # Default
         assert req.similarity_threshold == 0.3  # Default
-        assert req.enable_reranker is False  # Default
         assert req.detect_query_assertion is True  # Default
 
     def test_full_request_with_all_fields(self):
@@ -56,9 +55,6 @@ class TestQueryRequest:
             language="de",
             num_results=20,
             similarity_threshold=0.5,
-            enable_reranker=True,
-            reranker_model="BAAI/bge-reranker-v2-m3",
-            rerank_count=15,
             detect_query_assertion=False,
             query_assertion_language="de",
             query_assertion_preference="keyword",
@@ -70,9 +66,9 @@ class TestQueryRequest:
         assert req.language == "de"
         assert req.num_results == 20
         assert req.similarity_threshold == 0.5
-        assert req.enable_reranker is True
-        assert req.reranker_model == "BAAI/bge-reranker-v2-m3"
-        assert req.rerank_count == 15
+        assert req.detect_query_assertion is False
+        assert req.query_assertion_language == "de"
+        assert req.query_assertion_preference == "keyword"
 
     def test_text_min_length_validation(self):
         """Test text must be non-empty (min_length=1)."""
@@ -132,23 +128,6 @@ class TestQueryRequest:
         with pytest.raises(ValidationError):
             QueryRequest(text="test", query_assertion_preference="invalid")
 
-    def test_rerank_count_validation(self):
-        """Test rerank_count must be 1-100."""
-        # Valid boundary
-        req_min = QueryRequest(text="test", rerank_count=1)
-        assert req_min.rerank_count == 1
-
-        req_max = QueryRequest(text="test", rerank_count=100)
-        assert req_max.rerank_count == 100
-
-        # Invalid (0)
-        with pytest.raises(ValidationError):
-            QueryRequest(text="test", rerank_count=0)
-
-        # Invalid (101)
-        with pytest.raises(ValidationError):
-            QueryRequest(text="test", rerank_count=101)
-
 
 class TestHPOResultItem:
     """Test HPOResultItem schema."""
@@ -162,26 +141,20 @@ class TestHPOResultItem:
         assert item.hpo_id == "HP:0001250"
         assert item.label == "Seizure"
         assert item.similarity is None  # Optional
-        assert item.cross_encoder_score is None  # Optional
-        assert item.original_rank is None  # Optional
 
-    def test_full_hpo_result_with_reranking(self):
-        """Test HPO result with all fields (after re-ranking)."""
+    def test_full_hpo_result(self):
+        """Test HPO result with all fields populated."""
         # Arrange & Act
         item = HPOResultItem(
             hpo_id="HP:0001250",
             label="Seizure",
             similarity=0.85,
-            cross_encoder_score=0.92,
-            original_rank=3,
         )
 
         # Assert
         assert item.hpo_id == "HP:0001250"
         assert item.label == "Seizure"
         assert item.similarity == 0.85
-        assert item.cross_encoder_score == 0.92
-        assert item.original_rank == 3
 
 
 class TestQueryResponse:
@@ -201,34 +174,29 @@ class TestQueryResponse:
         assert resp.model_used_for_retrieval == "FremyCompany/BioLORD-2023-M"
         assert len(resp.results) == 1
         assert resp.language_detected is None
-        assert resp.reranker_used is None
         assert resp.query_assertion_status is None
 
-    def test_full_query_response_with_reranking(self):
-        """Test response with language detection, reranking, and assertion."""
+    def test_full_query_response(self):
+        """Test response with language detection and assertion."""
         # Arrange & Act
         resp = QueryResponse(
             query_text_received="patient has seizures",
             language_detected="en",
             model_used_for_retrieval="FremyCompany/BioLORD-2023-M",
-            reranker_used="BAAI/bge-reranker-v2-m3",
             query_assertion_status="negated",
             results=[
                 HPOResultItem(
                     hpo_id="HP:0001250",
                     label="Seizure",
                     similarity=0.85,
-                    cross_encoder_score=0.92,
-                    original_rank=2,
                 )
             ],
         )
 
         # Assert
         assert resp.language_detected == "en"
-        assert resp.reranker_used == "BAAI/bge-reranker-v2-m3"
         assert resp.query_assertion_status == "negated"
-        assert resp.results[0].cross_encoder_score == 0.92
+        assert resp.results[0].similarity == 0.85
 
     def test_empty_results_allowed(self):
         """Test response with no results (valid case)."""
@@ -270,7 +238,6 @@ class TestTextProcessingRequest:
         assert req.text_content == "patient has seizures"
         assert req.language == "en"  # Defaults to DEFAULT_LANGUAGE
         assert req.chunking_strategy == "sliding_window_punct_conj_cleaned"  # Default
-        assert req.enable_reranker is False  # Default
 
     def test_full_text_processing_request(self):
         """Test request with all fields."""
@@ -279,14 +246,12 @@ class TestTextProcessingRequest:
             text_content="Patient has seizures. No heart disease.",
             language="de",
             chunking_strategy="semantic",
-            enable_reranker=True,
         )
 
         # Assert
         assert req.text_content == "Patient has seizures. No heart disease."
         assert req.language == "de"
         assert req.chunking_strategy == "semantic"
-        assert req.enable_reranker is True
 
     def test_window_size_validation(self):
         """Test window_size must be >= 1."""

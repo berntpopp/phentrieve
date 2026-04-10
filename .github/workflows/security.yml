@@ -25,14 +25,15 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: security-${{ github.ref }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   # Python dependency vulnerability scanning
   pip-audit:
     name: Python Dependency Scan (pip-audit)
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
       security-events: write
       contents: read
@@ -77,6 +78,7 @@ jobs:
   bandit:
     name: Python SAST (Bandit)
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
       security-events: write
       contents: read
@@ -128,6 +130,7 @@ jobs:
   npm-audit:
     name: JavaScript Dependency Scan (npm audit)
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
       - name: Checkout repository
@@ -159,6 +162,7 @@ jobs:
     needs: [pip-audit, bandit, npm-audit]
     if: always()
     runs-on: ubuntu-latest
+    timeout-minutes: 5
 
     steps:
       - name: Check security scan results

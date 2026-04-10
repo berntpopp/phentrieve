@@ -21,7 +21,7 @@ module.exports = {
             /bg-.*/, // Vuetify background color classes
             /d-.*/, // Vuetify display classes (d-flex, etc.)
             /justify-.*/, /align-.*/, // Flex alignment
-            /ma-\d+/, /mt-\d+/, /mr-\d+/, /mb-\d+/, /ml-\d+/, /mx-\d+/, /my-\d+/, 
+            /ma-\d+/, /mt-\d+/, /mr-\d+/, /mb-\d+/, /ml-\d+/, /mx-\d+/, /my-\d+/,
             /pa-\d+/, /pt-\d+/, /pr-\d+/, /pb-\d+/, /pl-\d+/, /px-\d+/, /py-\d+/, // Vuetify spacing
             /theme--.*/, // Vuetify theme classes
             /primary.*/, /secondary.*/, /accent.*/, // Theme colors
@@ -62,7 +62,7 @@ module.exports = {
             /v-input--dirty/ // Input states
           ],
           greedy: [
-            /v-ripple/, /transition-.*/, /elevation-.*/, 
+            /v-ripple/, /transition-.*/, /elevation-.*/,
             /scroll-.*/, /data-v-.*/, /v-theme--.*/, /v-layout.*/,
             /--v-theme-overlay-multiplier/, // Theme overlay
             /--v-border-color/, // Border colors

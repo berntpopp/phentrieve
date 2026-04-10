@@ -6,7 +6,7 @@ of text processing operations including chunking and assertion detection.
 """
 
 import logging
-from typing import Any, Optional
+from typing import Any
 
 from sentence_transformers import SentenceTransformer
 
@@ -16,13 +16,7 @@ from phentrieve.text_processing.assertion_detection import (
     CombinedAssertionDetector,
 )
 from phentrieve.text_processing.chunkers import (
-    ConjunctionChunker,
-    FinalChunkCleaner,
-    FineGrainedPunctuationChunker,
     NoOpChunker,
-    ParagraphChunker,
-    SentenceChunker,
-    SlidingWindowSemanticSplitter,
     TextChunker,
 )
 from phentrieve.text_processing.cleaners import (
@@ -48,7 +42,7 @@ class TextProcessingPipeline:
         language: str,
         chunking_pipeline_config: list[dict],
         assertion_config: dict,
-        sbert_model_for_semantic_chunking: Optional[SentenceTransformer] = None,
+        sbert_model_for_semantic_chunking: SentenceTransformer | None = None,
     ):
         """
         Initialize the text processing pipeline.
@@ -89,16 +83,15 @@ class TextProcessingPipeline:
         )
 
     def _create_chunkers(self) -> list[TextChunker]:
-        """
-        Create chunker instances based on configuration.
+        """Create chunker instances based on configuration.
 
-        Returns:
-            List of initialized chunker instances
+        Delegates the per-type construction to the registry in
+        _chunker_registry.py so this method stays a thin loop.
         """
+        from phentrieve.text_processing._chunker_registry import build_chunker
+
         chunkers: list[TextChunker] = []
-
         for stage_config in self.chunking_pipeline_config:
-            # Get chunker configuration
             if isinstance(stage_config, dict):
                 chunker_type = stage_config.get("type", "unknown")
                 chunker_config = stage_config.get("config", {})
@@ -106,146 +99,25 @@ class TextProcessingPipeline:
                 chunker_type = stage_config
                 chunker_config = {}
 
-            params = {"language": self.language}
-
-            if chunker_type == "paragraph":
-                chunkers.append(ParagraphChunker(**params))
-
-            elif chunker_type == "sentence":
-                chunkers.append(SentenceChunker(**params))
-
-            # 'pre_chunk_semantic_grouper' has been removed, use 'sliding_window' instead
-
-            elif chunker_type == "fine_grained_punctuation":
-                chunkers.append(FineGrainedPunctuationChunker(**params))
-
-            elif chunker_type == "conjunction":
-                chunkers.append(ConjunctionChunker(**params))
-
-            elif chunker_type == "noop":
-                chunkers.append(NoOpChunker(**params))
-
-            elif chunker_type == "sliding_window":
-                if not self.sbert_model:
-                    raise ValueError(
-                        "SentenceTransformer model required for sliding window semantic splitting "
-                        "but none was provided"
-                    )
-
-                # Get sliding window specific parameters
-                window_size = chunker_config.get("window_size_tokens", 4)
-                step_size = chunker_config.get("step_size_tokens", 2)
-                threshold = chunker_config.get("splitting_threshold", 0.5)
-                min_segment_length = chunker_config.get(
-                    "min_split_segment_length_words", 50
-                )
-
-                # Create sliding window semantic splitter
-                sliding_window_params = {
-                    **params,
-                    "model": self.sbert_model,
-                    "window_size_tokens": window_size,
-                    "step_size_tokens": step_size,
-                    "splitting_threshold": threshold,
-                    "min_split_segment_length_words": min_segment_length,
-                }
-                chunkers.append(SlidingWindowSemanticSplitter(**sliding_window_params))
-
-            elif chunker_type == "final_chunk_cleaner":
-                # Get FinalChunkCleaner specific parameters with defaults from config
-                min_cleaned_chunk_length_chars = chunker_config.get(
-                    "min_cleaned_chunk_length_chars", 1
-                )
-                filter_short_low_value_chunks_max_words = chunker_config.get(
-                    "filter_short_low_value_chunks_max_words", 2
-                )
-                max_cleanup_passes = chunker_config.get("max_cleanup_passes", 3)
-                custom_leading_words = chunker_config.get(
-                    "custom_leading_words_to_remove"
-                )
-                custom_trailing_words = chunker_config.get(
-                    "custom_trailing_words_to_remove"
-                )
-                custom_leading_punct = chunker_config.get("custom_leading_punctuation")
-                custom_trailing_punct = chunker_config.get(
-                    "custom_trailing_punctuation"
-                )
-                custom_low_value_words = chunker_config.get("custom_low_value_words")
-
-                # Initialize cleaner with default parameters
-                cleaner_params = {
-                    "language": self.language,
-                    "min_cleaned_chunk_length_chars": min_cleaned_chunk_length_chars,
-                    "filter_short_low_value_chunks_max_words": filter_short_low_value_chunks_max_words,
-                    "max_cleanup_passes": max_cleanup_passes,
-                }
-
-                # Add custom parameters only if they are explicitly provided
-                if custom_leading_words is not None:
-                    cleaner_params["custom_leading_words_to_remove"] = (
-                        custom_leading_words
-                    )
-                if custom_trailing_words is not None:
-                    cleaner_params["custom_trailing_words_to_remove"] = (
-                        custom_trailing_words
-                    )
-                if custom_leading_punct is not None:
-                    cleaner_params["custom_leading_punctuation"] = custom_leading_punct
-                if custom_trailing_punct is not None:
-                    cleaner_params["custom_trailing_punctuation"] = (
-                        custom_trailing_punct
-                    )
-                if custom_low_value_words is not None:
-                    cleaner_params["custom_low_value_words"] = custom_low_value_words
-
-                logger.debug(
-                    "Creating FinalChunkCleaner with params: %s",
-                    _sanitize(str(cleaner_params)),
-                )
-                chunkers.append(FinalChunkCleaner(**cleaner_params))
-
-            elif (
-                chunker_type == "sliding_window_semantic"
-                or chunker_type == "sliding_window"
-            ):
-                if not self.sbert_model:
-                    raise ValueError(
-                        "SentenceTransformer model required for sliding window semantic splitting "
-                        "but none was provided"
-                    )
-
-                # Get sliding window specific parameters
-                window_size = chunker_config.get("window_size_tokens", 4)
-                step_size = chunker_config.get("step_size_tokens", 2)
-                threshold = chunker_config.get("splitting_threshold", 0.5)
-                min_segment_length = chunker_config.get(
-                    "min_split_segment_length_words", 50
-                )
-
-                # Create sliding window semantic splitter
-                sliding_window_params = {
-                    **params,
-                    "model": self.sbert_model,
-                    "window_size_tokens": window_size,
-                    "step_size_tokens": step_size,
-                    "splitting_threshold": threshold,
-                    "min_split_segment_length_words": min_segment_length,
-                }
-                chunkers.append(SlidingWindowSemanticSplitter(**sliding_window_params))
-
-            else:
+            chunker = build_chunker(
+                chunker_type=chunker_type,
+                chunker_config=chunker_config,
+                language=self.language,
+                sbert_model=self.sbert_model,
+            )
+            if chunker is None:
                 logger.warning(
                     "Unknown chunker type '%s' in config, skipping",
                     _sanitize(chunker_type),
                 )
+                continue
+            chunkers.append(chunker)
 
         if not chunkers:
-            # Default to NoOpChunker if no valid chunkers specified
             logger.warning(
                 "No valid chunkers specified in config, using NoOpChunker as fallback."
             )
             chunkers.append(NoOpChunker(language=self.language))
-
         return chunkers
 
     def _create_assertion_detector(self) -> AssertionDetector:

@@ -3,7 +3,7 @@
 import json
 import logging
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 import typer
 from rich.console import Console
@@ -138,7 +138,7 @@ def run(
 def compare(
     result1: Path = typer.Argument(..., help="First extraction_results.json file"),
     result2: Path = typer.Argument(..., help="Second extraction_results.json file"),
-    output_file: Optional[Path] = typer.Option(None, help="Save comparison to JSON"),
+    output_file: Path | None = typer.Option(None, help="Save comparison to JSON"),
 ):
     """Compare two extraction benchmark results.
 
@@ -200,7 +200,7 @@ def report(
     output_format: str = typer.Option(
         "markdown", help="Output format: markdown, html, or latex"
     ),
-    output_file: Optional[Path] = typer.Option(None, help="Save report to file"),
+    output_file: Path | None = typer.Option(None, help="Save report to file"),
 ):
     """Generate benchmark report from multiple runs.
 

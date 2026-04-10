@@ -5,8 +5,6 @@ This module defines the data structures used for the similarity API endpoint
 responses, ensuring consistent and well-documented API contracts.
 """
 
-from typing import Optional
-
 from pydantic import BaseModel, ConfigDict, Field
 
 from phentrieve.evaluation.metrics import (
@@ -25,15 +23,15 @@ class LCADetailAPI(BaseModel):
         }
     )
 
-    id: Optional[str] = Field(
+    id: str | None = Field(
         default=None,
         description="HPO ID of the Lowest Common Ancestor (LCA)",
     )
-    label: Optional[str] = Field(
+    label: str | None = Field(
         default=None,
         description="English label of the LCA",
     )
-    depth: Optional[int] = Field(
+    depth: int | None = Field(
         default=None, description="Depth of the LCA in the HPO graph"
     )
 
@@ -66,7 +64,7 @@ class HPOTermSimilarityResponseAPI(BaseModel):
         ...,
         description="First HPO Term ID provided in the request (normalized).",
     )
-    term1_label: Optional[str] = Field(
+    term1_label: str | None = Field(
         default=None,
         description="English label for HPO Term 1",
     )
@@ -74,7 +72,7 @@ class HPOTermSimilarityResponseAPI(BaseModel):
         ...,
         description="Second HPO Term ID provided in the request (normalized).",
     )
-    term2_label: Optional[str] = Field(
+    term2_label: str | None = Field(
         default=None,
         description="English label for HPO Term 2",
     )
@@ -87,11 +85,11 @@ class HPOTermSimilarityResponseAPI(BaseModel):
         ge=0.0,
         le=1.0,
     )
-    lca_details: Optional[LCADetailAPI] = Field(
+    lca_details: LCADetailAPI | None = Field(
         default=None,
         description="Details of the Lowest Common Ancestor, if one is found and applicable.",
     )
-    error_message: Optional[str] = Field(
+    error_message: str | None = Field(
         default=None,
         description="Provides details if an error occurred during processing (e.g., term not found).",
     )

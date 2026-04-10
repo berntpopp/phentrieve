@@ -17,9 +17,10 @@ import json
 import logging
 import re
 import tempfile
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 

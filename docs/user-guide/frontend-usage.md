@@ -41,14 +41,6 @@ The frontend allows you to select from available embedding models:
 2. Select a model from the dropdown menu
 3. The selected model will be used for subsequent queries
 
-### Reranking Options
-
-Enable cross-encoder reranking for improved precision:
-
-1. Check the "Enable Reranker" option in the settings panel
-2. The system uses protected two-stage retrieval (high-confidence dense matches preserved)
-3. Default model: BAAI/bge-reranker-v2-m3 (multilingual cross-encoder)
-
 ### Results Export
 
 Based on our project memories, the Phentrieve frontend integrates with the @berntpopp/phenopackets-js library to enable exporting HPO terms as valid GA4GH Phenopacket v2 JSON:
@@ -102,7 +94,6 @@ The following URL parameters are supported:
 | `text` | string | Pre-fills the query text field | `text=Patient%20has%20headache` |
 | `model` | string | Sets the embedding model | `model=FremyCompany/BioLORD-2023-M` |
 | `threshold` | float | Sets the similarity threshold (0.0-1.0) | `threshold=0.4` |
-| `reranker` | boolean | Enables/disables the reranker | `reranker=true` |
 | `autoSubmit` | boolean | Automatically submits the query if true | `autoSubmit=true` |
 
 #### Examples
@@ -119,7 +110,7 @@ http://localhost:8080/?text=Patient%20has%20headache&autoSubmit=true
 
 **Complete configuration with specific model and settings:**
 ```
-http://localhost:8080/?text=Patient%20has%20headache&model=FremyCompany/BioLORD-2023-M&threshold=0.4&reranker=true&autoSubmit=true
+http://localhost:8080/?text=Patient%20has%20headache&model=FremyCompany/BioLORD-2023-M&threshold=0.4&autoSubmit=true
 ```
 
 #### Notes

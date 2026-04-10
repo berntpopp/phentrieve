@@ -12,7 +12,7 @@ import os
 import re
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -154,14 +154,14 @@ def compare_benchmark_summaries(summaries: list[dict[str, Any]]) -> pd.DataFrame
 
 
 def orchestrate_benchmark_comparison(
-    summaries_dir: Optional[str] = None,
-    output_csv: Optional[str] = None,
+    summaries_dir: str | None = None,
+    output_csv: str | None = None,
     visualize: bool = False,
-    output_dir: Optional[str] = None,
+    output_dir: str | None = None,
     metrics: str = "all",
     debug: bool = False,
-    results_dir_override: Optional[str] = None,
-) -> Optional[pd.DataFrame]:
+    results_dir_override: str | None = None,
+) -> pd.DataFrame | None:
     """
     Orchestrate the benchmark comparison process.
 
@@ -881,7 +881,7 @@ def generate_visualizations(
                     hr_scores = [row[col] for col in hr_metrics]
 
                     # Sort by k value
-                    hr_points = sorted(zip(hr_k_values, hr_scores))
+                    hr_points = sorted(zip(hr_k_values, hr_scores, strict=False))
                     hr_k_values = [p[0] for p in hr_points]
                     hr_scores = [p[1] for p in hr_points]
 
@@ -900,7 +900,7 @@ def generate_visualizations(
                     ont_scores = [row[col] for col in ont_metrics]
 
                     # Sort by k value
-                    ont_points = sorted(zip(ont_k_values, ont_scores))
+                    ont_points = sorted(zip(ont_k_values, ont_scores, strict=False))
                     ont_k_values = [p[0] for p in ont_points]
                     ont_scores = [p[1] for p in ont_points]
 

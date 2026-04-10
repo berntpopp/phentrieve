@@ -70,144 +70,14 @@
       </v-card>
 
       <v-list lines="two" class="rounded-lg mt-2">
-        <v-list-item
+        <ResultItem
           v-for="(result, index) in responseData.results"
-          :key="index"
-          class="mb-1 rounded-lg"
-          :color="collectedPhenotypeIds.has(result.hpo_id) ? 'primary-lighten-5' : 'grey-lighten-5'"
-          border
-          density="compact"
-        >
-          <template #prepend>
-            <v-badge :content="index + 1" color="primary" inline class="mr-2" />
-          </template>
-
-          <v-list-item-title class="pb-2">
-            <div class="d-flex flex-wrap align-center">
-              <!-- HPO ID and Label on the left -->
-              <div class="flex-grow-1">
-                <div class="d-flex align-center mb-1">
-                  <a
-                    :href="`https://hpo.jax.org/browse/term/${result.hpo_id}`"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="hpo-link"
-                    :title="`View ${result.hpo_id} in HPO Browser`"
-                  >
-                    <span class="hpo-id font-weight-bold">{{ result.hpo_id }}</span>
-                    <v-icon size="x-small" class="ml-1">mdi-open-in-new</v-icon>
-                  </a>
-                  <v-btn
-                    v-if="hasDetails(result)"
-                    variant="text"
-                    size="x-small"
-                    icon
-                    density="compact"
-                    class="ml-1"
-                    @click.stop="toggleQueryResultDetails(index)"
-                  >
-                    <v-icon size="small">
-                      {{ expandedQueryResults.has(index) ? 'mdi-chevron-up' : 'mdi-information' }}
-                    </v-icon>
-                    <v-tooltip activator="parent" location="top">
-                      {{
-                        expandedQueryResults.has(index)
-                          ? $t('resultsDisplay.hideDetails', 'Hide details')
-                          : $t('resultsDisplay.showDetails', 'Show details')
-                      }}
-                    </v-tooltip>
-                  </v-btn>
-                </div>
-                <div class="d-flex align-center">
-                  <span class="text-body-2 text-high-emphasis hpo-label">{{ result.label }}</span>
-                </div>
-              </div>
-
-              <!-- Score chips and Add button on the right -->
-              <div class="d-flex align-center ml-auto">
-                <div class="d-flex flex-row align-center gap-1 mr-2 score-chips-container">
-                  <SimilarityScore
-                    :score="result.similarity"
-                    type="similarity"
-                    :decimals="2"
-                    :show-animation="false"
-                  />
-                </div>
-
-                <v-btn
-                  :icon="
-                    collectedPhenotypeIds.has(result.hpo_id)
-                      ? 'mdi-check-circle'
-                      : 'mdi-plus-circle'
-                  "
-                  size="small"
-                  :color="collectedPhenotypeIds.has(result.hpo_id) ? 'success' : 'primary'"
-                  variant="text"
-                  class="flex-shrink-0 add-btn"
-                  :disabled="collectedPhenotypeIds.has(result.hpo_id)"
-                  :title="
-                    collectedPhenotypeIds.has(result.hpo_id)
-                      ? $t('resultsDisplay.alreadyInCollectionTooltip', { id: result.hpo_id })
-                      : $t('resultsDisplay.addToCollectionTooltip', { id: result.hpo_id })
-                  "
-                  :aria-label="
-                    collectedPhenotypeIds.has(result.hpo_id)
-                      ? $t('resultsDisplay.alreadyInCollectionAriaLabel', {
-                          id: result.hpo_id,
-                          label: result.label,
-                        })
-                      : $t('resultsDisplay.addToCollectionAriaLabel', {
-                          id: result.hpo_id,
-                          label: result.label,
-                        })
-                  "
-                  @click.stop="addToCollection(result)"
-                />
-              </div>
-            </div>
-
-            <!-- Expandable Details Section -->
-            <v-expand-transition>
-              <div
-                v-if="expandedQueryResults.has(index) && hasDetails(result)"
-                class="mt-3 pt-3 details-section"
-              >
-                <!-- Definition -->
-                <div v-if="result.definition && result.definition.trim()" class="mb-3">
-                  <div class="text-caption text-medium-emphasis mb-1 font-weight-bold">
-                    {{ $t('resultsDisplay.definitionLabel', 'Definition') }}:
-                  </div>
-                  <div class="text-body-2 definition-text">
-                    {{ result.definition }}
-                  </div>
-                </div>
-
-                <!-- Synonyms -->
-                <div v-if="result.synonyms && result.synonyms.length > 0" class="mb-2">
-                  <div class="text-caption text-medium-emphasis mb-1 font-weight-bold">
-                    {{ $t('resultsDisplay.synonymsLabel', 'Synonyms') }}:
-                  </div>
-                  <div class="d-flex flex-wrap ga-1">
-                    <v-chip
-                      v-for="(synonym, synIdx) in result.synonyms"
-                      :key="synIdx"
-                      size="small"
-                      variant="tonal"
-                      color="blue-grey"
-                      class="synonym-chip"
-                    >
-                      {{ synonym }}
-                    </v-chip>
-                  </div>
-                </div>
-              </div>
-            </v-expand-transition>
-          </v-list-item-title>
-
-          <template #append>
-            <!-- Append content moved to subtitle for better space usage -->
-          </template>
-        </v-list-item>
+          :key="`${result.hpo_id}-${index}`"
+          :result="result"
+          :rank="index + 1"
+          :is-collected="collectedPhenotypeIds.has(result.hpo_id)"
+          @add-to-collection="addToCollection($event)"
+        />
       </v-list>
     </div>
 
@@ -295,343 +165,21 @@
       </v-card>
 
       <!-- Processed Chunks Section -->
-      <h3 class="text-h6 my-4">
-        {{ $t('resultsDisplay.textProcess.chunksTitle', 'Processed Chunks & Per-Chunk HPO Terms') }}
-      </h3>
-      <v-expansion-panels
-        v-if="responseData.processed_chunks && responseData.processed_chunks.length > 0"
-        v-model="openChunkPanels"
-      >
-        <v-expansion-panel
-          v-for="chunk in responseData.processed_chunks"
-          :key="chunk.chunk_id"
-          :ref="
-            (el) => {
-              if (el) chunkPanelRefs[chunk.chunk_id] = el;
-            }
-          "
-        >
-          <v-expansion-panel-title>
-            <div class="d-flex align-center">
-              <span class="text-truncate"
-                >{{ $t('resultsDisplay.textProcess.chunkLabel', 'Chunk') }} {{ chunk.chunk_id }}:
-                {{ chunk.text.substring(0, 50) }}...</span
-              >
-              <v-chip
-                size="small"
-                :color="
-                  chunk.status === 'negated'
-                    ? 'error'
-                    : chunk.status === 'affirmed'
-                      ? 'success'
-                      : 'grey'
-                "
-                class="ml-2"
-              >
-                {{ chunk.status || 'unknown' }}
-              </v-chip>
-            </div>
-          </v-expansion-panel-title>
-          <v-expansion-panel-text>
-            <p
-              :id="`chunk-text-${chunk.chunk_id}`"
-              :ref="`chunk-text-${chunk.chunk_id}`"
-              class="font-italic mb-2 chunk-text-displayable"
-            >
-              <span
-                v-for="(segment, segIdx) in getHighlightedChunkSegments(chunk)"
-                :key="segIdx"
-                :class="{ 'highlighted-text-span': segment.isHighlighted }"
-              >
-                {{ segment.text }}
-              </span>
-            </p>
-            <div v-if="chunk.assertion_details && chunk.assertion_details.final_status">
-              <small
-                >({{ $t('resultsDisplay.textProcess.assertionDetail', 'Assertion Method:') }}
-                {{ chunk.assertion_details.combination_strategy }},
-                {{ $t('resultsDisplay.textProcess.finalStatus', 'Final Status:') }}
-                {{ chunk.assertion_details.final_status }})</small
-              >
-            </div>
-
-            <!-- Per-chunk HPO terms display -->
-            <div
-              v-if="chunk.hpo_matches && chunk.hpo_matches.length > 0"
-              class="mt-3 per-chunk-matches"
-            >
-              <h4 class="text-subtitle-2 mb-1">
-                {{
-                  $t('resultsDisplay.textProcess.hpoInChunkTitle', 'HPO Terms found in this Chunk:')
-                }}
-              </h4>
-              <v-list density="compact" class="pa-0" style="background-color: transparent">
-                <!-- Use transparent background for list -->
-                <v-list-item
-                  v-for="(match, matchIndex) in chunk.hpo_matches"
-                  :key="`chunk-${chunk.chunk_id}-match-${matchIndex}`"
-                  class="mb-1 pa-1"
-                  variant="tonal"
-                  density="compact"
-                  rounded="sm"
-                  color="blue-grey-lighten-5"
-                >
-                  <div class="d-flex justify-space-between align-center w-100">
-                    <!-- Use w-100 for full width -->
-                    <div class="text-caption">
-                      <a
-                        :href="`https://hpo.jax.org/browse/term/${match.hpo_id}`"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        class="hpo-link"
-                      >
-                        <strong class="mr-1">{{ match.hpo_id }}</strong
-                        >{{ match.name }}
-                        <v-icon size="x-small" class="ml-1" color="primary">mdi-open-in-new</v-icon>
-                      </a>
-                    </div>
-                    <SimilarityScore
-                      :score="match.score"
-                      type="similarity"
-                      :decimals="2"
-                      :show-animation="false"
-                      class="ml-2"
-                    />
-                  </div>
-                </v-list-item>
-              </v-list>
-            </div>
-            <div v-else class="text-caption text-medium-emphasis mt-2">
-              {{
-                $t(
-                  'resultsDisplay.textProcess.noChunkHPOTermsMatched',
-                  'No HPO terms met the retrieval threshold for this specific chunk.'
-                )
-              }}
-            </div>
-          </v-expansion-panel-text>
-        </v-expansion-panel>
-      </v-expansion-panels>
-      <v-alert v-else type="info">
-        {{ $t('resultsDisplay.textProcess.noChunksProcessed', 'No text chunks were processed.') }}
-      </v-alert>
+      <ChunkResultsView
+        ref="chunkResultsView"
+        :chunks="responseData.processed_chunks"
+        :highlighted-attributions="highlightedAttributions"
+      />
 
       <!-- Aggregated HPO Terms Section -->
-      <h3 class="text-h6 my-4">
-        {{ $t('resultsDisplay.textProcess.aggregatedTitle', 'Aggregated Document Phenotypes') }}
-      </h3>
-      <v-list
-        v-if="responseData.aggregated_hpo_terms && responseData.aggregated_hpo_terms.length > 0"
-        lines="two"
-        class="rounded-lg mt-2"
-      >
-        <v-list-item
-          v-for="(term, index) in responseData.aggregated_hpo_terms"
-          :key="'agg-' + term.hpo_id + '-' + index"
-          class="mb-2 pa-3 rounded-lg custom-hpo-card"
-          :color="collectedPhenotypeIds.has(term.hpo_id) ? 'blue-grey-lighten-5' : 'white'"
-          elevation="1"
-          border
-          @mouseenter="updateHighlightedAttributions(term.text_attributions || [])"
-          @mouseleave="clearHighlightedAttributions"
-        >
-          <div class="d-flex flex-column">
-            <!-- Top Row: ID, Name, Assertion Status -->
-            <div class="d-flex align-start mb-1">
-              <div class="flex-grow-1 d-flex align-center">
-                <a
-                  :href="`https://hpo.jax.org/browse/term/${term.hpo_id}`"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="hpo-link"
-                >
-                  <span class="hpo-id font-weight-bold text-primary text-body-1">{{
-                    term.hpo_id
-                  }}</span>
-                  <v-icon size="x-small" class="ml-1" color="primary">mdi-open-in-new</v-icon>
-                </a>
-                <v-btn
-                  v-if="hasDetails(term)"
-                  variant="text"
-                  size="x-small"
-                  icon
-                  density="compact"
-                  class="ml-1"
-                  @click.stop="toggleAggregatedTermDetails(term.hpo_id)"
-                >
-                  <v-icon size="small">
-                    {{
-                      expandedAggregatedTerms.has(term.hpo_id)
-                        ? 'mdi-chevron-up'
-                        : 'mdi-information'
-                    }}
-                  </v-icon>
-                  <v-tooltip activator="parent" location="top">
-                    {{
-                      expandedAggregatedTerms.has(term.hpo_id)
-                        ? $t('resultsDisplay.hideDetails', 'Hide details')
-                        : $t('resultsDisplay.showDetails', 'Show details')
-                    }}
-                  </v-tooltip>
-                </v-btn>
-              </div>
-              <v-chip
-                v-if="term.status && term.status !== 'unknown'"
-                size="small"
-                :color="getAssertionColor(term.status)"
-                class="text-uppercase ml-2"
-                label
-                variant="flat"
-                density="comfortable"
-              >
-                {{
-                  $t(
-                    `queryInterface.phenotypeCollection.assertionStatus.${term.status}`,
-                    term.status
-                  )
-                }}
-              </v-chip>
-            </div>
-
-            <!-- Middle Row: HPO Label -->
-            <div class="text-body-1 text-high-emphasis hpo-label mb-2">
-              {{ term.name || term.label }}
-            </div>
-
-            <!-- Bottom Row: Scores, Evidence Details, Add Button -->
-            <div class="d-flex align-center justify-space-between flex-wrap">
-              <div class="d-flex align-center flex-wrap ga-1">
-                <!-- ga-1 for gap -->
-                <SimilarityScore
-                  :score="term.confidence"
-                  type="confidence"
-                  :decimals="2"
-                  :show-animation="false"
-                />
-                <div
-                  v-if="
-                    term.max_score_from_evidence &&
-                    term.max_score_from_evidence.toFixed(2) !== term.confidence.toFixed(2)
-                  "
-                  class="d-flex align-center"
-                >
-                  <v-icon size="small" class="mr-1 text-medium-emphasis">
-                    mdi-arrow-up-bold-hexagon-outline
-                  </v-icon>
-                  <span class="text-caption text-medium-emphasis mr-1">Max:</span>
-                  <SimilarityScore
-                    :score="term.max_score_from_evidence"
-                    type="similarity"
-                    :decimals="2"
-                    :show-animation="false"
-                  />
-                </div>
-                <v-chip
-                  v-if="term.source_chunk_ids && term.source_chunk_ids.length"
-                  size="small"
-                  label
-                  variant="tonal"
-                  style="cursor: pointer"
-                  @click="scrollToChunk(term.top_evidence_chunk_id || term.source_chunk_ids[0])"
-                >
-                  <v-icon start size="small"> mdi-text-box-search-outline </v-icon>
-                  {{ $t('resultsDisplay.textProcess.evidenceFromChunksShort', 'Chunks:') }} #{{
-                    term.source_chunk_ids.join(', #')
-                  }}
-                  <v-tooltip activator="parent" location="top">
-                    {{
-                      $t(
-                        'resultsDisplay.textProcess.evidenceTooltip',
-                        'Source chunks. Click to see top evidence chunk.'
-                      )
-                    }}
-                  </v-tooltip>
-                </v-chip>
-                <v-chip
-                  v-if="term.source_chunk_ids && term.source_chunk_ids.length > 0"
-                  size="small"
-                  label
-                  variant="tonal"
-                >
-                  <v-icon start size="small"> mdi-pound </v-icon>
-                  {{ term.source_chunk_ids.length }}
-                  {{ $t('resultsDisplay.textProcess.hitsText', 'hits') }}
-                  <v-tooltip activator="parent" location="top">
-                    {{
-                      $t(
-                        'resultsDisplay.textProcess.evidenceCountTooltip',
-                        'Number of chunks providing evidence'
-                      )
-                    }}
-                  </v-tooltip>
-                </v-chip>
-              </div>
-
-              <v-btn
-                :icon="
-                  collectedPhenotypeIds.has(term.hpo_id) ? 'mdi-check-circle' : 'mdi-plus-circle'
-                "
-                size="small"
-                :color="collectedPhenotypeIds.has(term.hpo_id) ? 'success' : 'primary'"
-                variant="text"
-                class="flex-shrink-0 add-btn"
-                :disabled="collectedPhenotypeIds.has(term.hpo_id)"
-                :title="
-                  collectedPhenotypeIds.has(term.hpo_id)
-                    ? $t('resultsDisplay.alreadyInCollectionTooltip', { id: term.hpo_id })
-                    : $t('resultsDisplay.addToCollectionTooltip', { id: term.hpo_id })
-                "
-                @click.stop="
-                  addToCollection(
-                    { hpo_id: term.hpo_id, name: term.name, label: term.name || term.label },
-                    term.status || 'affirmed'
-                  )
-                "
-              />
-            </div>
-
-            <!-- Expandable Details Section for Aggregated Terms -->
-            <v-expand-transition>
-              <div
-                v-if="expandedAggregatedTerms.has(term.hpo_id) && hasDetails(term)"
-                class="mt-3 pt-3 details-section"
-              >
-                <!-- Definition -->
-                <div v-if="term.definition && term.definition.trim()" class="mb-3">
-                  <div class="text-caption text-medium-emphasis mb-1 font-weight-bold">
-                    {{ $t('resultsDisplay.definitionLabel', 'Definition') }}:
-                  </div>
-                  <div class="text-body-2 definition-text">
-                    {{ term.definition }}
-                  </div>
-                </div>
-
-                <!-- Synonyms -->
-                <div v-if="term.synonyms && term.synonyms.length > 0" class="mb-2">
-                  <div class="text-caption text-medium-emphasis mb-1 font-weight-bold">
-                    {{ $t('resultsDisplay.synonymsLabel', 'Synonyms') }}:
-                  </div>
-                  <div class="d-flex flex-wrap ga-1">
-                    <v-chip
-                      v-for="(synonym, synIdx) in term.synonyms"
-                      :key="synIdx"
-                      size="small"
-                      variant="tonal"
-                      color="blue-grey"
-                      class="synonym-chip"
-                    >
-                      {{ synonym }}
-                    </v-chip>
-                  </div>
-                </div>
-              </div>
-            </v-expand-transition>
-          </div>
-        </v-list-item>
-      </v-list>
-      <v-alert v-else type="info" class="mb-4">
-        {{ $t('resultsDisplay.textProcess.noAggregatedTerms', 'No aggregated HPO terms found.') }}
-      </v-alert>
+      <AggregatedTermsView
+        :terms="responseData.aggregated_hpo_terms"
+        :collected-phenotype-ids="collectedPhenotypeIds"
+        @add-to-collection="(phenotype, status) => addToCollection(phenotype, status)"
+        @highlight-attributions="updateHighlightedAttributions"
+        @clear-attributions="clearHighlightedAttributions"
+        @scroll-to-chunk="scrollToChunk"
+      />
     </div>
 
     <!-- No Results / Empty States -->
@@ -673,12 +221,17 @@
 
 <script>
 import { logService } from '../services/logService';
-import SimilarityScore from './SimilarityScore.vue';
+import ResultItem from './ResultItem.vue';
+import ChunkResultsView from './ChunkResultsView.vue';
+import AggregatedTermsView from './AggregatedTermsView.vue';
+import { HPO_TERM_URL } from '../constants/urls';
 
 export default {
   name: 'ResultsDisplay',
   components: {
-    SimilarityScore,
+    ResultItem,
+    ChunkResultsView,
+    AggregatedTermsView,
   },
   props: {
     responseData: {
@@ -688,7 +241,6 @@ export default {
         if (value) {
           logService.debug('Results data received', {
             modelUsed: value.model_used_for_retrieval,
-            rerankerUsed: value.reranker_used,
             resultsCount: value.results?.length,
             language: value.language_detected,
             queryAssertionStatus: value.query_assertion_status,
@@ -900,6 +452,9 @@ export default {
       });
 
       this.$emit('add-to-collection', normalizedPhenotype);
+    },
+    hpoTermUrl(hpoId) {
+      return HPO_TERM_URL(hpoId);
     },
     displayModelName(name) {
       // Check cache first (performance optimization - prevents excessive re-computation)

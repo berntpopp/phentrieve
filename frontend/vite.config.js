@@ -15,7 +15,7 @@ const packageJson = JSON.parse(
   readFileSync(new URL('./package.json', import.meta.url), 'utf-8')
 )
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   // Remove Vue devtools and debug code from production builds
   define: {
     __VUE_PROD_DEVTOOLS__: false,
@@ -38,35 +38,40 @@ export default defineConfig({
       include: [/node_modules/]
     }),
     iconOptimizer(),
-    viteCompression({
-      algorithm: 'brotliCompress',
-      ext: '.br',
-      threshold: 1024, // Only compress files larger than 1KB
-      compressionOptions: { level: 11 }, // Maximum compression level
-      deleteOriginFile: false // Keep original files
-    }),
+    // Brotli compression and bundle visualizer are deploy-time concerns.
+    // Skip in CI to save 10-30s per build; keep for local builds so the
+    // dev can inspect stats.html and see the actual deploy-ready payload.
+    !process.env.CI &&
+      viteCompression({
+        algorithm: 'brotliCompress',
+        ext: '.br',
+        threshold: 1024, // Only compress files larger than 1KB
+        compressionOptions: { level: 11 }, // Maximum compression level
+        deleteOriginFile: false, // Keep original files
+      }),
     // viteImagemin removed - see import comment above
-    visualizer({
-      filename: 'dist/stats.html',
-      open: false,
-      gzipSize: true,
-      brotliSize: true,
-    }),
-  ],
+    !process.env.CI &&
+      visualizer({
+        filename: 'dist/stats.html',
+        open: false,
+        gzipSize: true,
+        brotliSize: true,
+      }),
+  ].filter(Boolean),
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
     }
   },
+  // esbuild is Vite 6's default minifier; drop console/debugger in production
+  // builds only (not dev server) to preserve the dev debugging experience.
+  esbuild: mode === 'production' ? { drop: ['console', 'debugger'] } : {},
   build: {
     target: 'es2015',
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: true,
-        drop_debugger: true
-      }
-    },
+    // Vite 6's default minifier is esbuild — 30-90x faster than terser with
+    // negligible compression loss. Console/debugger stripping lives in the
+    // top-level `esbuild:` config (see above) so it applies to the default
+    // minify pass.
     commonjsOptions: {
       transformMixedEsModules: true,
       include: [/node_modules/],
@@ -85,7 +90,8 @@ export default defineConfig({
         }
       }
     },
-    chunkSizeWarningLimit: 600
+    chunkSizeWarningLimit: 600,
+    reportCompressedSize: false,  // skip gzip calc on every build (CI speedup)
   },
   server: {
     // Custom port 5734 (matches API 8734 pattern - HPOD project ports)
@@ -140,7 +146,15 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'happy-dom',
+    pool: 'threads',
     setupFiles: './src/test/setup.js',
+    // Vitest deps inlining — Vuetify's CSS imports must be processed
+    // by Vite, not left to Node's ESM loader (which rejects .css).
+    server: {
+      deps: {
+        inline: ['vuetify'],
+      },
+    },
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
@@ -153,4 +167,4 @@ export default defineConfig({
     },
     exclude: [...configDefaults.exclude, 'e2e/*']
   }
-})
+}))

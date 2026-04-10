@@ -86,44 +86,7 @@ Given a query $q$ and HPO term documents $D = \{d_1, d_2, ..., d_m\}$:
 - `torch` - GPU acceleration for embedding generation
 - `numpy` - Matrix operations
 
-### 3. Cross-Encoder Re-Ranking
-
-#### Algorithm: Cross-Attention Scoring
-
-**Mathematical Foundation:**
-
-Given query $q$ and candidate documents $C = \{c_1, c_2, ..., c_k\}$ from dense retrieval:
-
-1. **Pair Construction**:
-   $$\text{pairs} = \{(q, c_1), (q, c_2), ..., (q, c_k)\}$$
-
-2. **Cross-Attention Scoring**:
-   $$\text{score}_\text{cross}(q, c_i) = \text{CrossEncoder}([q; c_i])$$
-   where $[q; c_i]$ denotes concatenation with separator token
-
-3. **Re-Ranking**:
-   $$\text{results}_\text{reranked} = \text{argsort}_k\{\text{score}_\text{cross}(q, c_i) : c_i \in C\}$$
-
-**Implementation:**
-- **Class**: `CrossEncoder`
-- **Module**: `phentrieve.retrieval.reranker`
-- **Key Methods**:
-  - `protected_dense_rerank(query, candidates, cross_encoder, trust_threshold)` - Protected two-stage retrieval
-  - `rerank_candidates(query, candidates, cross_encoder)` - Standard reranking
-
-**Protected Two-Stage Retrieval:**
-
-Phentrieve implements protected reranking to prevent cross-encoders from demoting correct cross-lingual matches:
-
-1. **Protection**: Dense matches with similarity ≥0.7 are preserved at top positions
-2. **Refinement**: Lower-confidence candidates are reranked by cross-encoder
-3. **Merge**: Protected results stay on top, reranked results fill below
-
-**Dependencies:**
-- `sentence-transformers.CrossEncoder` - Cross-encoder models
-- `torch` - GPU acceleration
-
-### 4. Assertion Detection
+### 3. Assertion Detection
 
 #### Algorithm: Dependency-Based Negation Detection
 
@@ -161,14 +124,11 @@ Phentrieve implements protected reranking to prevent cross-encoders from demotin
 **Key Classes:**
 - `SentenceTransformer`: Bi-encoder for dense retrieval
   - Methods: `encode()`, `encode_multi_process()`
-- `CrossEncoder`: Cross-attention re-ranking
-  - Methods: `predict()`, `rank()`
 
 **Models Used:**
 - `FremyCompany/BioLORD-2023-M` - Biomedical domain (default)
 - `jinaai/jina-embeddings-v2-base-de` - German specialized
 - `BAAI/bge-m3` - Multilingual general purpose
-- `BAAI/bge-reranker-v2-m3` - Multilingual re-ranker
 
 **Usage in Phentrieve:**
 ```python
@@ -176,11 +136,6 @@ Phentrieve implements protected reranking to prevent cross-encoders from demotin
 from sentence_transformers import SentenceTransformer
 model = SentenceTransformer("FremyCompany/BioLORD-2023-M")
 embeddings = model.encode(texts, batch_size=32, show_progress_bar=True)
-
-# Re-ranking
-from sentence_transformers import CrossEncoder
-reranker = CrossEncoder("BAAI/bge-reranker-v2-m3")
-scores = reranker.predict([(query, doc) for doc in candidates])
 ```
 
 #### ChromaDB (v0.4.0+)
@@ -354,7 +309,6 @@ from pydantic import BaseModel, Field
 class HPOQueryRequest(BaseModel):
     text: str = Field(..., min_length=1, max_length=10000)
     num_results: int = Field(default=5, ge=1, le=100)
-    enable_reranker: bool = Field(default=False)
 ```
 
 #### Vue 3 + Vuetify
@@ -376,7 +330,6 @@ class HPOQueryRequest(BaseModel):
 | Semantic Chunking | O(n × w × d) | O(n × d) | n=tokens, w=window, d=dims |
 | Dense Retrieval | O(k × d) | O(m × d) | k=queries, m=docs, d=dims |
 | HNSW Search | O(log m) | O(m × M × d) | M=neighbors per layer |
-| Cross-Encoder | O(k × L²) | O(k × L) | L=sequence length |
 | Dependency Parsing | O(n²) | O(n) | n=sentence tokens |
 
 ### Optimization Techniques
@@ -418,8 +371,7 @@ def get_or_load_model(name: str):
 phentrieve/
 ├── embeddings.py              # Model loading and caching
 ├── retrieval/
-│   ├── dense_retriever.py     # DenseRetriever class
-│   └── reranker.py            # CrossEncoder re-ranking
+│   └── dense_retriever.py     # DenseRetriever class
 ├── text_processing/
 │   ├── chunkers.py            # All chunking classes
 │   ├── assertion_detection.py # Assertion detection
@@ -506,10 +458,6 @@ embeddings:
 
 retrieval:
   num_results: 20
-  enable_reranker: true
-  reranker_model: "BAAI/bge-reranker-v2-m3"
-  rerank_candidate_count: 50
-  dense_trust_threshold: 0.7  # Protect high-confidence dense matches
 
 chunking_pipeline:
   - type: paragraph

@@ -253,8 +253,14 @@ class TestValidateResponseChunkReferences:
             ),
         ]
 
-        # Act & Assert - should not raise
+        # Act - should not raise
         _validate_response_chunk_references(chunks, terms)
+
+        # Assert - verify the data structures are intact after validation
+        assert len(chunks) == 2
+        assert len(terms) == 2
+        assert terms[0].id == "HP:0001250"
+        assert terms[1].id == "HP:0000729"
 
     def test_non_sequential_chunk_ids_fail_validation(self):
         """Test non-sequential chunk IDs trigger assertion."""
@@ -415,8 +421,11 @@ class TestValidateResponseChunkReferences:
             ),
         ]
 
-        # Act & Assert - should not raise
+        # Act - should not raise
         _validate_response_chunk_references(chunks, terms)
+
+        # Assert - None top_evidence_chunk_id is accepted
+        assert terms[0].top_evidence_chunk_id is None
 
     def test_empty_chunks_and_terms_pass_validation(self):
         """Test empty chunks and terms pass validation."""
@@ -424,8 +433,12 @@ class TestValidateResponseChunkReferences:
         chunks: list[ProcessedChunkAPI] = []
         terms: list[AggregatedHPOTermAPI] = []
 
-        # Act & Assert - should not raise
+        # Act - should not raise
         _validate_response_chunk_references(chunks, terms)
+
+        # Assert - empty lists remain empty
+        assert len(chunks) == 0
+        assert len(terms) == 0
 
     def test_multiple_text_attributions_all_valid(self):
         """Test multiple text attributions with valid chunk IDs."""
@@ -467,5 +480,11 @@ class TestValidateResponseChunkReferences:
             ),
         ]
 
-        # Act & Assert - should not raise
+        # Act - should not raise
         _validate_response_chunk_references(chunks, terms)
+
+        # Assert - verify attributions span both chunks
+        assert len(terms) == 1
+        assert len(terms[0].text_attributions) == 2
+        assert terms[0].text_attributions[0].chunk_id == 1
+        assert terms[0].text_attributions[1].chunk_id == 2

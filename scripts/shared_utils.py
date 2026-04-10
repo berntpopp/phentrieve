@@ -9,7 +9,7 @@ Provides common functionality for scripts including:
 import logging
 import subprocess
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 # Version for provenance tracking
 SHARED_UTILS_VERSION = "1.0.0"
@@ -24,7 +24,7 @@ class ProvenanceTracker:
     """
 
     @staticmethod
-    def get_git_version(repo_path: Path) -> Optional[dict[str, Any]]:
+    def get_git_version(repo_path: Path) -> dict[str, Any] | None:
         """
         Extract version information from repository (git or ZIP download).
 
@@ -83,7 +83,7 @@ class ProvenanceTracker:
         return ProvenanceTracker._detect_zip_download(repo_path)
 
     @staticmethod
-    def _detect_zip_download(repo_path: Path) -> Optional[dict[str, Any]]:
+    def _detect_zip_download(repo_path: Path) -> dict[str, Any] | None:
         """
         Detect version info from GitHub ZIP download.
 

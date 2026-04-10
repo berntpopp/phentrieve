@@ -56,20 +56,8 @@ def format_results_as_text(
             label = result["label"]
             similarity = f"{result['similarity']:.2f}"
 
-            # Add re-ranking information if available
-            reranking_info = ""
-            if "cross_encoder_score" in result:
-                ce_score = f"{result['cross_encoder_score']:.2f}"
-                original_rank = result.get("original_rank", "?")
-                reranking_info = (
-                    f" [re-ranked from #{original_rank}, cross-encoder: {ce_score}]"
-                )
-
             # Format the line
-            line = (
-                f"{rank_display:3} {hpo_id:11} {label} "
-                f"(similarity: {similarity}){reranking_info}"
-            )
+            line = f"{rank_display:3} {hpo_id:11} {label} (similarity: {similarity})"
             output_lines.append(line)
 
             # Add definition and synonyms if available
@@ -124,14 +112,6 @@ def format_results_as_json(
                 "confidence": result["similarity"],
             }
 
-            # Add cross-encoder score if available
-            if "cross_encoder_score" in result:
-                hpo_term["cross_encoder_score"] = result["cross_encoder_score"]
-
-            # Add original rank if available
-            if "original_rank" in result:
-                hpo_term["original_rank"] = result["original_rank"]
-
             # Add definition and synonyms if available
             if "definition" in result:
                 hpo_term["definition"] = result["definition"]
@@ -185,14 +165,6 @@ def format_results_as_jsonl(structured_query_results: list[dict[str, Any]]) -> s
                 "name": result["label"],
                 "confidence": result["similarity"],
             }
-
-            # Add cross-encoder score if available
-            if "cross_encoder_score" in result:
-                hpo_term["cross_encoder_score"] = result["cross_encoder_score"]
-
-            # Add original rank if available
-            if "original_rank" in result:
-                hpo_term["original_rank"] = result["original_rank"]
 
             # Add definition and synonyms if available
             if "definition" in result:

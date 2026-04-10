@@ -19,6 +19,8 @@ from api.routers.text_processing_router import (
 )
 from api.schemas.text_processing_schemas import TextProcessingRequest
 
+pytestmark = pytest.mark.unit
+
 
 class TestAdaptiveTimeout:
     """Test adaptive timeout calculation based on text length."""
@@ -255,57 +257,6 @@ class TestModelCaching:
 
                             # Verify cached retriever was requested
                             mock_get_retriever.assert_called_once()
-
-    @pytest.mark.asyncio
-    async def test_uses_cached_cross_encoder_when_enabled(self):
-        """Should use get_cross_encoder_dependency when reranking enabled."""
-        request = TextProcessingRequest(
-            text_content="Test text",
-            enable_reranker=True,
-            reranker_model_name="test-reranker",
-        )
-
-        with patch(
-            "api.routers.text_processing_router.get_sbert_model_dependency"
-        ) as mock_get_model:
-            mock_get_model.return_value = MagicMock()
-
-            with patch(
-                "api.routers.text_processing_router.get_dense_retriever_dependency"
-            ) as mock_get_retriever:
-                mock_retriever = MagicMock()
-                mock_retriever.model_name = "test-model"
-                mock_get_retriever.return_value = mock_retriever
-
-                with patch(
-                    "api.routers.text_processing_router.get_cross_encoder_dependency"
-                ) as mock_get_cross_enc:
-                    mock_get_cross_enc.return_value = MagicMock()
-
-                    with patch(
-                        "api.routers.text_processing_router.run_in_threadpool"
-                    ) as mock_threadpool:
-                        mock_threadpool.return_value = "en"
-
-                        with patch(
-                            "api.routers.text_processing_router.TextProcessingPipeline"
-                        ):
-                            with patch(
-                                "api.routers.text_processing_router.orchestrate_hpo_extraction"
-                            ) as mock_orchestrate:
-                                mock_orchestrate.return_value = ([], [])
-
-                                try:
-                                    await _process_text_internal(request)
-                                except Exception:  # noqa: S110
-                                    # Expected: Full pipeline may fail with mocked dependencies
-                                    # We're only testing that cached dependencies are called
-                                    pass
-
-                                # Verify cross-encoder dependency was called
-                                mock_get_cross_enc.assert_called_once_with(
-                                    reranker_model_name="test-reranker"
-                                )
 
 
 class TestModelReuse:

@@ -4,7 +4,8 @@
     "cancel": "Annuleren",
     "delete": "Verwijderen",
     "reset": "Resetten",
-    "close": "Sluiten"
+    "close": "Sluiten",
+    "dismiss": "Sluiten"
   },
   "conversationSettings": {
     "tooltip": "Gespreksinstellingen",
@@ -107,12 +108,23 @@
       "dateOfBirth": "Geboortedatum",
       "exportPhenopacket": "Exporteren als Phenopacket (JSON)",
       "exportText": "Exporteren als tekst",
+      "exportError": "Fout bij het exporteren van het Phenopacket. Zie de console voor details.",
       "clear": "Verzameling wissen",
       "assertionToggle": "Bevestigingsstatus omschakelen",
       "assertionStatus": {
         "affirmed": "Bevestigd",
         "negated": "Ontkend",
         "unknown": "Onbekend"
+      },
+      "aria": {
+        "openPanel": "HPO-verzameling panel openen",
+        "panel": "Fenotype-verzameling",
+        "toggleAssertion": "Bevestigingsstatus voor {label} ({id}) wisselen",
+        "removeItem": "{label} ({id}) uit verzameling verwijderen",
+        "subjectId": "Vul subject-ID in voor Phenopacket",
+        "sex": "Selecteer geslacht van subject voor Phenopacket",
+        "dateOfBirth": "Vul geboortedatum van subject in voor Phenopacket",
+        "exportPhenopacket": "Exporteer verzamelde fenotypen als Phenopacket JSON"
       }
     },
     "advancedOptions": {

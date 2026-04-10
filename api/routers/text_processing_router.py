@@ -6,7 +6,6 @@ from fastapi import APIRouter, HTTPException, status
 from fastapi.concurrency import run_in_threadpool
 
 from api.dependencies import (
-    get_cross_encoder_dependency,
     get_dense_retriever_dependency,
     get_sbert_model_dependency,
 )
@@ -212,9 +211,8 @@ async def process_text_extract_hpo(request: TextProcessingRequest):
             detail=(
                 f"Text processing timed out after {timeout_seconds} seconds. "
                 f"Text length: {text_length} characters. "
-                f"Suggestions: (1) reduce text length, "
-                f"(2) use 'simple' chunking strategy, or "
-                f"(3) disable reranker."
+                f"Suggestions: (1) reduce text length, or "
+                f"(2) use 'simple' chunking strategy."
             ),
         )
 
@@ -287,21 +285,6 @@ async def _process_text_internal(request: TextProcessingRequest):
             sbert_model_name_for_retriever=retrieval_model_name_to_load
         )
 
-        # Get cached cross-encoder if reranking is enabled
-        cross_enc = None
-        if request.enable_reranker and request.reranker_model_name:
-            logger.info(
-                "API: Using reranker model: %s", _sanitize(request.reranker_model_name)
-            )
-            cross_enc = await get_cross_encoder_dependency(
-                reranker_model_name=request.reranker_model_name
-            )
-            if not cross_enc:
-                logger.warning(
-                    "API: Reranker %s not available, proceeding without reranking.",
-                    _sanitize(request.reranker_model_name),
-                )
-
         # Prepare pipeline configuration
         chunking_pipeline_cfg = _get_chunking_config_for_api(request)
 
@@ -361,7 +344,6 @@ async def _process_text_internal(request: TextProcessingRequest):
             text_chunks=text_chunks_for_orchestrator,
             assertion_statuses=assertion_statuses_for_orchestrator,
             retriever=retriever,
-            cross_encoder=cross_enc,
             language=actual_language,
             chunk_retrieval_threshold=request.chunk_retrieval_threshold
             or DEFAULT_CHUNK_RETRIEVAL_THRESHOLD,
@@ -432,9 +414,8 @@ async def _process_text_internal(request: TextProcessingRequest):
                     text_attributions=text_attributions,
                     definition=term_data.get("definition"),  # Include when available
                     synonyms=term_data.get("synonyms"),  # Include when available
-                    # Keep these for backward compatibility
+                    # Keep for backward compatibility
                     score=term_data.get("score", 0.0),
-                    reranker_score=term_data.get("reranker_score"),
                 )
             )
 
@@ -446,9 +427,6 @@ async def _process_text_internal(request: TextProcessingRequest):
             "effective_language": actual_language,
             "effective_chunking_strategy_config": chunking_pipeline_cfg,
             "effective_retrieval_model": retriever.model_name if retriever else None,
-            "effective_reranker_model": (
-                request.reranker_model_name if cross_enc else None
-            ),
             "num_processed_chunks": len(api_processed_chunks),
             "num_aggregated_hpo_terms": len(api_aggregated_hpo_terms),
         }

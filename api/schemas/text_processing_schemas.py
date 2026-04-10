@@ -1,4 +1,4 @@
-from typing import Any, Optional, cast
+from typing import Any, cast
 
 from pydantic import BaseModel, Field
 
@@ -10,7 +10,6 @@ from phentrieve.config import (
     DEFAULT_MIN_CONFIDENCE_AGGREGATED,
     DEFAULT_MIN_SEGMENT_LENGTH_WORDS,
     DEFAULT_MODEL,
-    DEFAULT_RERANKER_MODEL,
     DEFAULT_SPLITTING_THRESHOLD,
     DEFAULT_STEP_SIZE_TOKENS,
     DEFAULT_WINDOW_SIZE_TOKENS,
@@ -19,7 +18,7 @@ from phentrieve.config import (
 
 class TextProcessingRequest(BaseModel):
     text_content: str = Field(..., description="The raw clinical text to process.")
-    language: Optional[str] = Field(
+    language: str | None = Field(
         default=DEFAULT_LANGUAGE,
         description="ISO 639-1 language code of the text (e.g., 'en', 'de'). If None, language detection might be attempted.",
     )
@@ -32,87 +31,77 @@ class TextProcessingRequest(BaseModel):
     )
 
     # Sliding window chunking parameters
-    window_size: Optional[int] = Field(
+    window_size: int | None = Field(
         default=DEFAULT_WINDOW_SIZE_TOKENS,
         ge=1,
         description="Sliding window size in tokens.",
     )
-    step_size: Optional[int] = Field(
+    step_size: int | None = Field(
         default=DEFAULT_STEP_SIZE_TOKENS,
         ge=1,
         description="Sliding window step size in tokens.",
     )
-    split_threshold: Optional[float] = Field(
+    split_threshold: float | None = Field(
         default=DEFAULT_SPLITTING_THRESHOLD,
         ge=0.0,
         le=1.0,
         description="Similarity threshold for splitting (0-1).",
     )
-    min_segment_length: Optional[int] = Field(
+    min_segment_length: int | None = Field(
         default=DEFAULT_MIN_SEGMENT_LENGTH_WORDS,
         ge=1,
         description="Minimum segment length in words for sliding window.",
     )
 
     # Model Configuration
-    semantic_model_name: Optional[str] = Field(
+    semantic_model_name: str | None = Field(
         default=DEFAULT_MODEL,  # Will be handled in router logic to default to retrieval_model_name
         description=f"Model for semantic-based chunking strategies. If None, defaults to retrieval_model_name or Phentrieve's DEFAULT_MODEL ('{DEFAULT_MODEL}').",
     )
-    retrieval_model_name: Optional[str] = Field(
+    retrieval_model_name: str | None = Field(
         default=DEFAULT_MODEL,
         description=f"Embedding model for HPO term retrieval (default: '{DEFAULT_MODEL}').",
     )
-    trust_remote_code: Optional[bool] = Field(
+    trust_remote_code: bool | None = Field(
         default=False,
         description="Trust remote code when loading models from Hugging Face Hub (use with caution).",
     )
 
-    # Retrieval & Reranking Parameters
-    chunk_retrieval_threshold: Optional[float] = Field(
+    # Retrieval Parameters
+    chunk_retrieval_threshold: float | None = Field(
         default=DEFAULT_CHUNK_RETRIEVAL_THRESHOLD,
         ge=0.0,
         le=1.0,
         description="Similarity threshold for HPO matches per chunk.",
     )
-    num_results_per_chunk: Optional[int] = Field(
+    num_results_per_chunk: int | None = Field(
         default=10, ge=1, description="Max HPO terms to consider from each chunk."
-    )
-    enable_reranker: Optional[bool] = Field(
-        default=False, description="Enable cross-encoder reranking."
-    )
-    reranker_model_name: Optional[str] = Field(
-        default=DEFAULT_RERANKER_MODEL,
-        description="Cross-lingual reranker model.",
-    )
-    rerank_count_per_chunk: Optional[int] = Field(
-        default=50, ge=1, description="Number of candidates to rerank per chunk."
     )
 
     # Assertion Detection
-    no_assertion_detection: Optional[bool] = Field(
+    no_assertion_detection: bool | None = Field(
         default=False, description="Disable assertion detection."
     )
-    assertion_preference: Optional[str] = Field(
+    assertion_preference: str | None = Field(
         default=cast(str, DEFAULT_ASSERTION_CONFIG.get("preference", "dependency")),
         description="Assertion detection preference ('dependency' or 'keyword').",
     )
 
     # Aggregation
-    aggregated_term_confidence: Optional[float] = Field(
+    aggregated_term_confidence: float | None = Field(
         default=DEFAULT_MIN_CONFIDENCE_AGGREGATED,
         ge=0.0,
         le=1.0,
         description="Minimum confidence score for an aggregated HPO term.",
         json_schema_extra={"example": 0.75},
     )
-    top_term_per_chunk_for_aggregation: Optional[bool] = Field(
+    top_term_per_chunk_for_aggregation: bool | None = Field(
         default=False,
         description="Consider only the top HPO term from each chunk during final aggregation.",
     )
 
     # HPO Term Details
-    include_details: Optional[bool] = Field(
+    include_details: bool | None = Field(
         default=True,
         description="Include HPO term definitions and synonyms in the response.",
     )
@@ -141,16 +130,16 @@ class ProcessedChunkAPI(BaseModel):
     chunk_id: int
     text: str
     status: str  # e.g., "affirmed", "negated" (string value of AssertionStatus enum)
-    assertion_details: Optional[dict[str, Any]] = None  # From AssertionDetector
+    assertion_details: dict[str, Any] | None = None  # From AssertionDetector
     hpo_matches: list[HPOMatchInChunkAPI] = Field(
         default_factory=list,
         description="HPO terms identified as relevant to this specific chunk.",
     )
-    start_char: Optional[int] = Field(
+    start_char: int | None = Field(
         default=None,
         description="Start position in original document (0-indexed). None if not tracked.",
     )
-    end_char: Optional[int] = Field(
+    end_char: int | None = Field(
         default=None,
         description="End position in original document (exclusive). None if not tracked.",
     )
@@ -171,11 +160,11 @@ class AggregatedHPOTermAPI(BaseModel):
     source_chunk_ids: list[int] = Field(
         description="List of 1-based chunk_ids that provide evidence."
     )
-    max_score_from_evidence: Optional[float] = Field(
+    max_score_from_evidence: float | None = Field(
         None,
         description="Highest raw score from any single evidence chunk for this term.",
     )
-    top_evidence_chunk_id: Optional[int] = Field(
+    top_evidence_chunk_id: int | None = Field(
         None,
         description="1-based ID of the chunk providing the max_score_from_evidence.",
     )
@@ -184,18 +173,15 @@ class AggregatedHPOTermAPI(BaseModel):
         description="Text spans in source chunks attributed to this HPO term.",
     )
     # HPO term details (populated when include_details=True)
-    definition: Optional[str] = Field(
+    definition: str | None = Field(
         None, description="Definition of the HPO term (when include_details=True)."
     )
-    synonyms: Optional[list[str]] = Field(
+    synonyms: list[str] | None = Field(
         None,
         description="List of synonyms for the HPO term (when include_details=True).",
     )
-    # Keeping these for backward compatibility
-    score: Optional[float] = None  # Max bi-encoder score from evidence
-    reranker_score: Optional[float] = (
-        None  # Max reranker score from evidence (if applicable)
-    )
+    # Keeping for backward compatibility
+    score: float | None = None  # Max bi-encoder score from evidence
 
 
 class TextProcessingResponseAPI(BaseModel):

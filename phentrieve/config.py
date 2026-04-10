@@ -39,11 +39,6 @@ __all__ = [
     "MIN_SIMILARITY_THRESHOLD",
     "DEFAULT_SIMILARITY_THRESHOLD",
     "DEFAULT_SIMILARITY_FORMULA",
-    # Reranker settings
-    "DEFAULT_RERANKER_MODEL",
-    "DEFAULT_RERANK_CANDIDATE_COUNT",
-    "DEFAULT_ENABLE_RERANKER",
-    "DEFAULT_DENSE_TRUST_THRESHOLD",
     # Device and language
     "DEFAULT_DEVICE",
     "DEFAULT_LANGUAGE",
@@ -116,22 +111,6 @@ _DEFAULT_SIMILARITY_THRESHOLD_FALLBACK = (
 _DEFAULT_TOP_K_FALLBACK = 10  # Default number of results to return
 _DEFAULT_K_VALUES_FALLBACK = (1, 3, 5, 10)  # Default k values for hit rate calculation
 _DEFAULT_DEVICE_FALLBACK: str | None = None  # Default device (None = auto-detect)
-
-# Cross-encoder re-ranking settings (loaded from YAML with fallbacks)
-# BAAI/bge-reranker-v2-m3: Dedicated multilingual reranker (568M parameters)
-# - Fine-tuned from BGE-M3 on multilingual datasets (bge-m3-data, Quora, FEVER)
-# - Supports 100+ languages for cross-lingual retrieval (XLM-RoBERTa base)
-# - Used with protected two-stage retrieval to preserve dense retrieval quality
-_DEFAULT_RERANKER_MODEL_FALLBACK = "BAAI/bge-reranker-v2-m3"
-_DEFAULT_RERANK_CANDIDATE_COUNT_FALLBACK = 50
-_DEFAULT_ENABLE_RERANKER_FALLBACK = False
-# Protected dense retrieval threshold: Minimum bi-encoder score to protect from cross-encoder demotion
-# This implements research-backed two-stage retrieval for cross-lingual medical queries
-# - High-confidence dense matches (≥threshold) are protected from reranker demotion
-# - Lower-confidence matches (<threshold) are refined by cross-encoder
-# - Default 0.7 preserves BioLORD's strong cross-lingual semantic matches
-# See: BioLORD-2023 RAG design, Multistage BiCross multilingual medical retrieval
-_DEFAULT_DENSE_TRUST_THRESHOLD_FALLBACK = 0.7
 
 # Sliding window chunking defaults (unified across CLI, API, Frontend)
 DEFAULT_WINDOW_SIZE_TOKENS = 3
@@ -446,20 +425,6 @@ DEFAULT_K_VALUES: tuple[int, ...] = tuple(
     get_config_value("benchmark", list(_DEFAULT_K_VALUES_FALLBACK), "k_values")
 )
 DEFAULT_DEVICE: str | None = get_config_value("device", _DEFAULT_DEVICE_FALLBACK)
-
-# Re-ranking settings
-DEFAULT_RERANKER_MODEL = get_config_value(
-    "reranker_model", _DEFAULT_RERANKER_MODEL_FALLBACK
-)
-DEFAULT_RERANK_CANDIDATE_COUNT = get_config_value(
-    "rerank_candidate_count", _DEFAULT_RERANK_CANDIDATE_COUNT_FALLBACK
-)
-DEFAULT_ENABLE_RERANKER = get_config_value(
-    "enable_reranker", _DEFAULT_ENABLE_RERANKER_FALLBACK
-)
-DEFAULT_DENSE_TRUST_THRESHOLD = get_config_value(
-    "dense_trust_threshold", _DEFAULT_DENSE_TRUST_THRESHOLD_FALLBACK
-)
 
 # Text processing
 DEFAULT_SIMILARITY_FORMULA = get_config_value(

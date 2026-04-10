@@ -7,7 +7,7 @@ between HPO terms using the Human Phenotype Ontology graph structure.
 
 import logging
 from functools import lru_cache
-from typing import Any, Optional
+from typing import Any
 
 from fastapi import APIRouter, HTTPException, Query
 from fastapi import Path as FastApiPath
@@ -56,9 +56,8 @@ def _get_hpo_label_map_api() -> dict[str, str]:
     return label_map
 
 
-# Ensure HPO graph data is pre-loaded or loaded efficiently on first use by the API
-# The load_hpo_graph_data function itself uses caching.
-load_hpo_graph_data()
+# HPO graph data is loaded lazily on first use via @lru_cache in load_hpo_graph_data().
+# No eager loading needed at import time.
 
 
 @router.get(
@@ -81,7 +80,7 @@ async def get_hpo_term_similarity(
         examples=["HP:0000750"],
         pattern=r"^HP:\d{7}$",
     ),
-    formula: Optional[str] = Query(
+    formula: str | None = Query(
         default=DEFAULT_SIMILARITY_FORMULA,
         description="The semantic similarity formula to apply ('hybrid' or 'simple_resnik_like').",
     ),

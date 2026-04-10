@@ -7,7 +7,6 @@ default settings, and system status to clients (e.g., frontend applications).
 
 import logging
 from pathlib import Path
-from typing import Optional
 
 from fastapi import APIRouter, HTTPException
 
@@ -27,14 +26,14 @@ logger = logging.getLogger(__name__)
 router = APIRouter(tags=["Configuration & Information"])
 
 
-def _get_hpo_metadata() -> dict[str, Optional[str | int]]:
+def _get_hpo_metadata() -> dict[str, str | int | None]:
     """Load HPO metadata from database.
 
     Returns:
         Dictionary with version, download_date, and term_count.
         Values are None if database is unavailable.
     """
-    result: dict[str, Optional[str | int]] = {
+    result: dict[str, str | int | None] = {
         "version": None,
         "download_date": None,
         "term_count": None,
@@ -76,7 +75,7 @@ async def get_phentrieve_info():
     """Get Phentrieve configuration and model information.
 
     This endpoint returns comprehensive information about:
-    - Available embedding and reranker models
+    - Available embedding models
     - Default operational parameters
     - Text chunking strategies
     - HPO data status
@@ -106,21 +105,10 @@ async def get_phentrieve_info():
                 )
             )
 
-        # Available reranker models
-        available_rerankers = [
-            ModelInfo(
-                id=phentrieve_config.DEFAULT_RERANKER_MODEL,
-                description="Multilingual cross-encoder for reranking",
-                is_default=True,
-            )
-        ]
-
         # Default parameters
         default_params = DefaultParametersAPI(
             similarity_threshold=phentrieve_config.DEFAULT_SIMILARITY_THRESHOLD,
             top_k=phentrieve_config.DEFAULT_TOP_K,
-            enable_reranker=phentrieve_config.DEFAULT_ENABLE_RERANKER,
-            rerank_candidate_count=phentrieve_config.DEFAULT_RERANK_CANDIDATE_COUNT,
             similarity_formula=phentrieve_config.DEFAULT_SIMILARITY_FORMULA,
             language=phentrieve_config.DEFAULT_LANGUAGE,
         )
@@ -163,8 +151,6 @@ async def get_phentrieve_info():
         return PhentrieveConfigInfoResponseAPI(
             available_embedding_models=embedding_models,
             default_embedding_model=phentrieve_config.DEFAULT_MODEL,
-            available_reranker_models=available_rerankers,
-            default_reranker_model=phentrieve_config.DEFAULT_RERANKER_MODEL,
             default_parameters=default_params,
             chunking_config=chunking_config,
             hpo_data_status=hpo_data_status,

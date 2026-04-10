@@ -141,33 +141,6 @@ class TestFormatResultsAsText:
         # Assert
         assert "Detected Assertion for Original Input Query: UNCERTAIN" in output
 
-    def test_with_reranking_info(self):
-        """Test formatting with cross-encoder re-ranking information."""
-        # Arrange
-        results = [
-            {
-                "query_text_processed": "test query",
-                "header_info": "Found 1 term:",
-                "results": [
-                    {
-                        "rank": 1,
-                        "hpo_id": "HP:0000001",
-                        "label": "Term",
-                        "similarity": 0.9,
-                        "cross_encoder_score": 0.95,
-                        "original_rank": 3,
-                    }
-                ],
-            }
-        ]
-
-        # Act
-        output = format_results_as_text(results, sentence_mode=False)
-
-        # Assert
-        assert "re-ranked from #3" in output
-        assert "cross-encoder: 0.95" in output
-
     def test_empty_results(self):
         """Test formatting with empty results."""
         # Arrange
@@ -276,34 +249,6 @@ class TestFormatResultsAsJson:
         assert len(parsed) == 2
         assert parsed[0]["query_text_processed"] == "query 1"
         assert parsed[1]["query_text_processed"] == "query 2"
-
-    def test_with_cross_encoder_scores(self):
-        """Test JSON formatting with cross-encoder scores."""
-        # Arrange
-        results = [
-            {
-                "query_text_processed": "test query",
-                "header_info": "Found 1 term:",
-                "results": [
-                    {
-                        "rank": 1,
-                        "hpo_id": "HP:0000001",
-                        "label": "Term",
-                        "similarity": 0.9,
-                        "cross_encoder_score": 0.95,
-                        "original_rank": 2,
-                    }
-                ],
-            }
-        ]
-
-        # Act
-        output = format_results_as_json(results, sentence_mode=False)
-        parsed = json.loads(output)
-
-        # Assert
-        assert parsed["hpo_terms"][0]["cross_encoder_score"] == 0.95
-        assert parsed["hpo_terms"][0]["original_rank"] == 2
 
     def test_assertion_status_fallback(self):
         """Test JSON formatting with assertion status fallback."""
@@ -440,34 +385,6 @@ class TestFormatResultsAsJsonl:
         parsed2 = json.loads(lines[1])
         assert parsed1["query_text_processed"] == "query 1"
         assert parsed2["query_text_processed"] == "query 2"
-
-    def test_jsonl_with_cross_encoder(self):
-        """Test JSONL formatting with cross-encoder scores."""
-        # Arrange
-        results = [
-            {
-                "query_text_processed": "test query",
-                "header_info": "Found 1 term:",
-                "results": [
-                    {
-                        "rank": 1,
-                        "hpo_id": "HP:0000001",
-                        "label": "Term",
-                        "similarity": 0.9,
-                        "cross_encoder_score": 0.95,
-                        "original_rank": 3,
-                    }
-                ],
-            }
-        ]
-
-        # Act
-        output = format_results_as_jsonl(results)
-        parsed = json.loads(output)
-
-        # Assert
-        assert parsed["hpo_terms"][0]["cross_encoder_score"] == 0.95
-        assert parsed["hpo_terms"][0]["original_rank"] == 3
 
     def test_jsonl_assertion_status(self):
         """Test JSONL formatting with assertion status."""
