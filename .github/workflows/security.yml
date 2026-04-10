@@ -25,8 +25,8 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: security-${{ github.ref }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   # Python dependency vulnerability scanning

@@ -25,10 +25,9 @@ on:
       - '.github/workflows/deploy-docs.yml'
   workflow_dispatch:
 
-# Cancel in-progress runs for the same workflow and ref
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   # Detect which parts of the codebase changed
