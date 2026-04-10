@@ -64,6 +64,10 @@ pytest tests/test_chunking.py   # Run specific test file
 pytest -k "test_semantic"       # Run tests matching pattern
 pytest -m "slow"                # Run only slow-marked tests
 
+# Tests run in parallel via pytest-xdist (`-n auto` in `pyproject.toml` addopts).
+# For single-threaded debugging (e.g., investigating a deadlock), use
+# `uv run pytest tests/ -n 0 ...`.
+
 # Package management (uv)
 make lock                       # Update uv.lock
 make upgrade                    # Upgrade all dependencies
