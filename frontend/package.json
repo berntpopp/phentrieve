@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "lint": "eslint . --cache --cache-strategy content --cache-location .eslintcache",
+    "lint": "eslint . --cache --cache-strategy content --cache-location .eslintcache --concurrency=auto",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write --cache --cache-strategy content \"src/**/*.{js,vue,css,scss,html}\"",
     "format:check": "prettier --check --cache --cache-strategy content \"src/**/*.{js,vue,css,scss,html}\"",
