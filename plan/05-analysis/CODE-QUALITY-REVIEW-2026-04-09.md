@@ -1,6 +1,8 @@
 # Code Quality Review — Consolidated
 
 **Date**: 2026-04-09 (original review) · **Updated**: 2026-04-10 (post-PR #191)
+
+> **Phase 2 update (2026-04-10)**: See `docs/superpowers/plans/2026-04-10-code-quality-phase-2.md` for the 10-task extension plan that closes the remaining Critical Findings. Commits `a98368a..e3ced7c` on branch `improve/code-quality-2026-04` implement the plan.
 **Scope**: Full codebase — `phentrieve/`, `api/`, `frontend/`, tests, packaging, CI/CD, Docker
 **Method**: Two independent review passes (narrative architectural review + parallel 6-agent scored review), consolidated with reconciled ratings
 **Status**: Post-execution update after PR #191 (`improve/code-quality-2026-04`, 54 commits, +5,152 / −7,223)
@@ -20,16 +22,16 @@ The original pattern observed across backend and frontend — orchestration modu
 | Critical Finding | Original | PR #191 | Status |
 |---|---|---|---|
 | 1. Backend orchestration centralized | 1057 LOC | 715 LOC | ✅ **Mostly fixed** (−32%, DRY eliminated) |
-| 2. HPO extraction orchestration SRP | 297 LOC | 297 LOC | ❌ **Open** (not touched) |
+| 2. HPO extraction orchestration SRP | 297 LOC | 297 LOC | ✅ **Fixed by Task 5** (298 → 103 LOC, 4 helpers extracted, 9 char tests lock behavior) |
 | 3. Hidden global caches | unbounded dicts | `TTLCache` + `_cache_lock` | ✅ **Fixed** |
-| 4. API import-time side effects | MCP + graph + sys.path | factory + lifespan (sys.path remains) | ⚠️ **Mostly fixed** |
+| 4. API import-time side effects | MCP + graph + sys.path | factory + lifespan | ✅ **Fixed by Task 2** (sys.path hack removed) |
 | 5. Duplicated model loader | ~140 LOC | SBERT-only (reranker removed) | ✅ **Fixed** |
-| 6. Over-engineered chunker pipeline | 158-line `_create_chunkers()` | unchanged | ❌ **Open** |
+| 6. Over-engineered chunker pipeline | 158-line `_create_chunkers()` | unchanged | ✅ **Fixed by Tasks 7+8** (registry factory, DRY language resource loading) |
 | 7. Frontend mega-components | 1483/1079/600 LOC | 801/634/570 LOC | ✅ **Fixed** (composables + sub-components) |
 | 8. Test and coverage signals | ~45%, hidden tests | 53.46%, `norecursedirs` fixed, +55 tests exposed | ✅ **Mostly fixed** |
 | 9. Version/config fragmentation | 3 version sources | dynamic `get_api_version()`, config still split | ⚠️ **Partially fixed** |
 | 10. Missing pre-commit hooks | absent | `.pre-commit-config.yaml` added | ✅ **Fixed** |
-| 11. Minor consistency issues | py39 target, Options store, URLs | all addressed except `ErrorResponse` schema | ⚠️ **Mostly fixed** |
+| 11. Minor consistency issues | py39 target, Options store, URLs | all addressed including `ErrorResponse` schema | ✅ **Fixed** (ErrorResponse closed by Task 3) |
 
 Legend: ✅ done · ⚠️ partial · ❌ open
 
@@ -39,13 +41,13 @@ Legend: ✅ done · ⚠️ partial · ❌ open
 
 | Review Area | Original | Post-#191 | Δ |
 |---|---|---|---|
-| **Python Core** | 5.5 | 7.0 | +1.5 |
+| **Python Core** | 5.5 | 8.0 | +2.5 |
 | **FastAPI API** | 6.3 | 8.0 | +1.7 |
 | **Vue.js Frontend** | 6.6 | 8.0 | +1.4 |
 | **Testing** | 6.8 | 7.5 | +0.7 |
-| **Architecture** | 5.7 | 7.0 | +1.3 |
+| **Architecture** | 5.7 | 8.0 | +2.3 |
 | **DevOps/Config** | 8.7 | 9.0 | +0.3 |
-| **Grand Average** | **6.6** | **~7.8** | **+1.2** |
+| **Grand Average** | **6.6** | **~8.2** | **+1.6** |
 
 ---
 
@@ -163,83 +165,24 @@ Legend: ✅ done · ⚠️ partial · ❌ open
 | `queryPreferences.js` legacy Options store | ✅ Migrated to setup store (commit `fadd56ca`) |
 | Hardcoded URLs in `App.vue` | ✅ Extracted to `constants/urls.js` |
 | Magic CSS selectors | ✅ Replaced with `data-tutorial-step` attributes |
-| **API error responses inconsistent** | ❌ **Open** — no `ErrorResponse` Pydantic model in `api/schemas/` |
+| **API error responses inconsistent** | ✅ **Fixed by Task 3** — `ErrorResponse` Pydantic model added to `api/schemas/`, global exception handler wired in |
 
 ---
 
 ## Open Findings — What's Still Left To Do
 
-### Priority 1 (High leverage, not yet addressed)
-
-#### 1. `visualization/plot_utils.py` is now dead code after reranker removal
-
-After PR #191 removed the reranker, `phentrieve/visualization/plot_utils.py` (149 LOC, **0% coverage**) still contains extensive reranker-specific plotting:
-- Line 41: `"""Plots MRR (Dense vs Re-Ranked if available) by model."""`
-- Lines 59–80: `has_reranked_data`, `mrr_reranked_values`, "Re-Ranked" column reads
-- Lines 280–293: Re-Ranked line plotting branch
-- Lines 329–349: Re-Ranked `zip()` color/marker zip
-
-None of this will ever fire because no benchmark run produces a "Re-Ranked" column anymore. **Action**: Delete the re-ranked code paths; keep only the dense plot. Likely reduces the file by ~50–80 LOC. Then add minimal smoke-test coverage so it stops being 0%.
-
-**Effort**: 1–2 hours · **Impact**: Code cleanliness, removes confusing dead branches
-
-#### 2. `text_processing/hpo_extraction_orchestrator.py` SRP violation (Critical Finding #2)
-
-**Not touched by PR #191.** Still 297 LOC handling chunk batch retrieval, threshold filtering, DB access, attribution, evidence aggregation, ranking, and API response shaping in one flow. **9% test coverage** (99 of 109 statements uncovered).
-
-Target decomposition (same pattern as query_orchestrator):
-- Retrieval step → extract to a helper
-- Details enrichment → separate function (already partially in `retrieval/details_enrichment.py`)
-- Attribution generation → already in `retrieval/text_attribution.py`, just wire it
-- Response shaping → separate formatter
-
-**Effort**: 1 day · **Impact**: High — this is the text-processing counterpart of the query orchestrator and it is still a god module. Follow the same pattern as Stream A of PR #191.
-
-#### 3. Over-engineered chunker pipeline (Critical Finding #6)
-
-**Not touched by PR #191.** `TextProcessingPipeline._create_chunkers()` still has deeply nested conditional logic with duplicate `sliding_window` handling. `FinalChunkCleaner.__init__()` in `chunkers.py` (1227 LOC — biggest single file in the repo) still has repeated if/else for three resource types.
-
-**Effort**: 4–6 hours · **Impact**: Medium — affects maintainability of the text-processing path.
-
-#### 4. `api/main.py:11` sys.path hack (Critical Finding #4 residual)
-
-```python
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-```
-
-This runs at import time and mutates global state. It only exists because `api/` is a sibling of `phentrieve/` and the api package sometimes gets imported standalone. The correct fix is to ensure the project is always installed (`pip install -e .`), then delete this line. The two test files that replicate this pattern (`test_dependencies_char.py`, `test_main_char.py`) can then also drop their `sys.path.insert`.
-
-**Effort**: 30 minutes + verification · **Impact**: Medium — operational robustness.
-
 ### Priority 2 (Medium leverage)
 
-#### 5. API error response standardization (Finding #11 residual)
-
-No `ErrorResponse` Pydantic model exists in `api/schemas/`. Error responses across routers are inconsistent — some return a `detail` string, others return dicts. **Action**: Create `api/schemas/errors.py::ErrorResponse` and apply it across all `HTTPException` call sites via the `response_model` parameter on router decorators.
-
-**Effort**: 2–3 hours · **Impact**: Medium — API consumer clarity.
-
-#### 6. Remaining untested modules
+#### 6. Remaining untested modules (coverage ratcheting — ongoing)
 
 | Module | Notes |
 |---|---|
-| `phentrieve/visualization/plot_utils.py` | 0% — dead code first (see #1), then add minimal tests |
-| `phentrieve/text_processing/hpo_extraction_orchestrator.py` | 9% — will grow once refactored per #2 |
+| `phentrieve/text_processing/hpo_extraction_orchestrator.py` | coverage will grow post-Task 5 refactor |
 | `phentrieve/data_processing/` | benchmark subset covered, broader coverage thin |
 | `phentrieve/indexing/` | partially tested |
 | `phentrieve/utils.py` | 68%, parts not exercised |
 
 **Effort**: ongoing · **Impact**: Medium — the coverage ratchet in `pyproject.toml` (40%) has room to go up.
-
-#### 7. Lingering `@lru_cache` globals (Finding #3 residual)
-
-- `phentrieve/embeddings.py` — `load_embedding_model` cached via `@lru_cache`
-- `phentrieve/retrieval/details_enrichment.py` — cached DB access
-- `phentrieve/config.py` — multiple `@lru_cache` on config accessors
-
-These are acceptable but not bounded. For a long-running process with many distinct models queried, they remain unbounded. **Action**: audit whether `cachetools` TTL caching applies here too — or decide they're truly load-once-and-pin and document that.
-
-**Effort**: 1–2 hours · **Impact**: Low-medium.
 
 ### Priority 3 (Low leverage, opportunistic)
 
