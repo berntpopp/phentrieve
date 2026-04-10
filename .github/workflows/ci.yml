@@ -110,6 +110,14 @@ jobs:
         run: |
           uv run ruff check phentrieve/ api/ tests/
 
+      - name: Cache mypy
+        uses: actions/cache@v4
+        with:
+          path: .mypy_cache
+          key: mypy-${{ matrix.python-version }}-${{ hashFiles('pyproject.toml', 'uv.lock') }}
+          restore-keys: |
+            mypy-${{ matrix.python-version }}-
+
       - name: Run mypy type checking
         run: |
           uv run mypy phentrieve/ api/
