@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 from http import HTTPStatus
 
 from fastapi import FastAPI, HTTPException, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
@@ -147,22 +148,24 @@ def create_app() -> FastAPI:
         allow_headers=CORS_ALLOW_HEADERS,
     )
 
+    def _status_slug(status_code: int, fallback: str = "http_error") -> str:
+        """Derive a machine-readable slug from an HTTP status code."""
+        try:
+            return HTTPStatus(status_code).phrase.lower().replace(" ", "_")
+        except ValueError:
+            return fallback
+
     @application.exception_handler(StarletteHTTPException)
     async def http_exception_handler(
         _request: Request, exc: StarletteHTTPException
     ) -> JSONResponse:
-        """Render every HTTPException via ErrorResponse so API consumers
-        see a single stable error shape regardless of which router raised.
+        """Render HTTPException via ErrorResponse.
 
         Registers on StarletteHTTPException (the base class) so that both
         FastAPI routing 404s and explicit HTTPException raises in routers
         are intercepted.
         """
-        # Slug from status phrase: "Unprocessable Entity" -> "unprocessable_entity"
-        try:
-            slug = HTTPStatus(exc.status_code).phrase.lower().replace(" ", "_")
-        except ValueError:
-            slug = "http_error"
+        slug = _status_slug(exc.status_code)
         body = ErrorResponse(
             status_code=exc.status_code,
             error=slug,
@@ -174,6 +177,48 @@ def create_app() -> FastAPI:
             status_code=exc.status_code,
             content=body.model_dump(exclude_none=True),
             headers=getattr(exc, "headers", None) or None,
+        )
+
+    @application.exception_handler(RequestValidationError)
+    async def validation_exception_handler(
+        _request: Request, exc: RequestValidationError
+    ) -> JSONResponse:
+        """Render Pydantic/FastAPI validation errors (422) via ErrorResponse.
+
+        Without this, FastAPI returns its default {"detail": [...]} shape
+        which clients would have to parse separately from our ErrorResponse
+        contract.
+        """
+        body = ErrorResponse(
+            status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
+            error="unprocessable_entity",
+            detail=list(exc.errors()),
+        )
+        return JSONResponse(
+            status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
+            content=body.model_dump(exclude_none=True),
+        )
+
+    @application.exception_handler(Exception)
+    async def unhandled_exception_handler(
+        _request: Request, exc: Exception
+    ) -> JSONResponse:
+        """Catch-all 500 handler so unhandled exceptions still conform to
+        the ErrorResponse contract.
+
+        Logs the full traceback server-side and returns a generic
+        ``internal_server_error`` payload without leaking exception
+        internals to clients.
+        """
+        logger.exception("Unhandled exception in request path: %s", type(exc).__name__)
+        body = ErrorResponse(
+            status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+            error="internal_server_error",
+            detail="An unexpected error occurred.",
+        )
+        return JSONResponse(
+            status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+            content=body.model_dump(exclude_none=True),
         )
 
     application.include_router(

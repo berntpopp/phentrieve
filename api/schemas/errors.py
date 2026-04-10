@@ -1,8 +1,17 @@
 """Standardized error response schema for the Phentrieve API.
 
-All HTTPException responses are rendered through this schema via a
-global exception handler registered in api.main.create_app(), giving
-API consumers a single stable error shape.
+Every 4xx/5xx response from the Phentrieve API is rendered through this
+schema via the exception handlers registered in api.main.create_app():
+
+- ``StarletteHTTPException`` → covers explicit ``HTTPException`` raises
+  in routers AND FastAPI's routing 404s (``HTTPException`` is a subclass).
+- ``RequestValidationError`` → covers Pydantic validation failures (422).
+- ``Exception`` → catch-all 500 handler for anything else that escapes
+  a router. Logs the full traceback server-side and returns a generic
+  ``internal_server_error`` payload without leaking exception details.
+
+This gives API consumers a single stable error shape regardless of the
+failure mode.
 """
 
 from typing import Any

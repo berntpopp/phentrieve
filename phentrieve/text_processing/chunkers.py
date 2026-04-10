@@ -72,7 +72,7 @@ def _load_language_word_list(
     custom: list[str] | None,
     default_resource_filename: str,
     config_key_for_custom_file: str,
-    language_resources_section: dict[str, Any],
+    language_resources_section: dict[str, Any] | None,
     language: str,
     *,
     lowercase: bool = True,

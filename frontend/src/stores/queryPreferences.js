@@ -14,8 +14,13 @@ export const useQueryPreferencesStore = defineStore(
   'queryPreferences',
   () => {
     /**
-     * Whether to include HPO term details (definitions and synonyms) in results
-     * @type {import('vue').Ref<boolean>}
+     * Whether to include HPO term details (definitions and synonyms) in results.
+     *
+     * Implemented internally as `ref(false)` so mutations go through Vue's
+     * reactivity system. Pinia setup stores automatically unwrap returned
+     * refs, so consumers access it as a plain boolean: `store.includeDetails`.
+     *
+     * @type {boolean}
      */
     const includeDetails = ref(false);
 

@@ -86,8 +86,8 @@ def process_chunk_matches(
                     "matches": current_hpo_matches,
                 }
             )
-        except Exception as e:
-            logger.error(f"Failed to process chunk {chunk_idx + 1}: {e}")
+        except Exception:
+            logger.exception("Failed to process chunk %s", chunk_idx + 1)
             continue
     return chunk_results
 
@@ -134,8 +134,8 @@ def load_term_details(
             f"Loaded {'synonyms and definitions' if include_details else 'synonyms'} "
             f"for {len(hpo_synonyms_cache)} HPO terms"
         )
-    except Exception as e:
-        logger.warning(f"Failed to batch-load HPO term data: {e}")
+    except Exception:
+        logger.warning("Failed to batch-load HPO term data", exc_info=True)
 
     return hpo_synonyms_cache, hpo_definitions_cache
 
