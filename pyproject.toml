@@ -185,6 +185,7 @@ addopts = [
     "-v",
     "--strict-markers",
     "--tb=short",
+    "-n", "auto",   # pytest-xdist parallelization across CPU cores
 
     # Coverage (80% target - temporarily disabled during migration)
     "--cov=phentrieve",
