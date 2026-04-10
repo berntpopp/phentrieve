@@ -124,6 +124,8 @@ jobs:
         continue-on-error: true  # Don't fail on type errors (gradual typing)
 
       - name: Run pytest
+        env:
+          COVERAGE_CORE: sysmon
         run: |
           uv run pytest tests/ -v -m "not e2e" --cov=phentrieve --cov=api --cov-report=xml --cov-report=term
 
