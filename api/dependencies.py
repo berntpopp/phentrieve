@@ -1,7 +1,7 @@
 import asyncio
 import logging
 import threading
-from typing import Any, Literal, cast
+from typing import Literal, cast
 
 from cachetools import TTLCache
 from fastapi import HTTPException
@@ -43,9 +43,9 @@ def _get_lock_for_model(model_name: str) -> asyncio.Lock:
     return MODEL_LOAD_LOCKS[model_name]
 
 
-async def _load_model_in_background(
-    model_name: str, is_sbert: bool, trust_remote_code: bool, device: str | None
-):
+async def _load_sbert_in_background(
+    model_name: str, trust_remote_code: bool, device: str | None
+) -> None:
     """Load the specified SBERT model in background using run_in_threadpool.
 
     Updates global cache and loading status. Handles exceptions.
@@ -87,43 +87,43 @@ async def _load_model_in_background(
             del MODEL_LOADING_TASKS[model_name]
 
 
-async def _load_model_with_status_tracking(
-    model_name: str,
-    cache_dict: Any,  # dict or TTLCache — both support __contains__/getitem/setitem
-    is_sbert: bool,
-    trust_remote_code: bool,
-    device: str | None,
-    timeout: float,
-    model_type_label: str,
-) -> Any:
-    """Shared model loading with status tracking, locking, and timeout.
+async def get_sbert_model_dependency(
+    model_name_requested: str | None = None,
+    trust_remote_code: bool = False,
+    device_override: str | None = None,
+) -> SentenceTransformer:
+    """Return a loaded SBERT model, using the shared cache with status tracking.
 
-    Shared model loading logic with status tracking and timeout handling.
+    Handles cache hits, concurrent loading via a per-model asyncio.Lock, and
+    loading timeouts. Uses ``cache.get()`` rather than ``in`` + ``[]`` because
+    the underlying ``TTLCache`` can expire entries between those two calls.
     """
-    # Cache hit (fast path)
-    if model_name in cache_dict and cache_dict[model_name] is not None:
-        logger.debug(
-            "API: Returning cached %s: %s", model_type_label, _sanitize(model_name)
-        )
-        return cache_dict[model_name]
+    model_name = model_name_requested or DEFAULT_MODEL
+    device = device_override or DEFAULT_DEVICE
+    timeout = SBERT_LOAD_TIMEOUT
+
+    # Cache hit (fast path).
+    cached = LOADED_SBERT_MODELS.get(model_name)
+    if cached is not None:
+        logger.debug("API: Returning cached SBERT model: %s", _sanitize(model_name))
+        return cast(SentenceTransformer, cached)
 
     lock = _get_lock_for_model(model_name)
     async with lock:
         # Re-check after acquiring lock
-        if model_name in cache_dict and cache_dict[model_name] is not None:
+        cached = LOADED_SBERT_MODELS.get(model_name)
+        if cached is not None:
             logger.debug(
-                "API: Returning cached %s (post-lock): %s",
-                model_type_label,
+                "API: Returning cached SBERT model (post-lock): %s",
                 _sanitize(model_name),
             )
-            return cache_dict[model_name]
+            return cast(SentenceTransformer, cached)
 
         current_status = MODEL_LOADING_STATUS.get(model_name, "not_loaded")
 
         if current_status == "loading":
             logger.info(
-                "API: %s '%s' is loading. Waiting up to %ss...",
-                model_type_label,
+                "API: SBERT model '%s' is loading. Waiting up to %ss...",
                 _sanitize(model_name),
                 timeout,
             )
@@ -133,24 +133,23 @@ async def _load_model_with_status_tracking(
                         asyncio.shield(MODEL_LOADING_TASKS[model_name]),
                         timeout=timeout,
                     )
-                    if model_name in cache_dict and cache_dict[model_name] is not None:
+                    cached = LOADED_SBERT_MODELS.get(model_name)
+                    if cached is not None:
                         logger.info(
-                            "API: %s '%s' finished loading, returning it.",
-                            model_type_label,
+                            "API: SBERT model '%s' finished loading, returning it.",
                             _sanitize(model_name),
                         )
-                        return cache_dict[model_name]
+                        return cast(SentenceTransformer, cached)
                 except asyncio.TimeoutError:
                     logger.warning(
-                        "API: %s '%s' loading timeout (%ss).",
-                        model_type_label,
+                        "API: SBERT model '%s' loading timeout (%ss).",
                         _sanitize(model_name),
                         timeout,
                     )
                     raise HTTPException(
                         status_code=503,
                         detail=(
-                            f"{model_type_label} '{model_name}' is taking longer "
+                            f"SBERT model '{model_name}' is taking longer "
                             "than expected to load. Please try again."
                         ),
                         headers={"Retry-After": "30"},
@@ -158,7 +157,7 @@ async def _load_model_with_status_tracking(
             raise HTTPException(
                 status_code=503,
                 detail=(
-                    f"{model_type_label} '{model_name}' is currently being prepared. "
+                    f"SBERT model '{model_name}' is currently being prepared. "
                     "Please try again."
                 ),
                 headers={"Retry-After": "30"},
@@ -166,79 +165,55 @@ async def _load_model_with_status_tracking(
 
         if current_status == "failed":
             logger.error(
-                "API: %s '%s' failed to load.",
-                model_type_label,
+                "API: SBERT model '%s' failed to load.",
                 _sanitize(model_name),
             )
             raise HTTPException(
                 status_code=503,
-                detail=f"{model_type_label} '{model_name}' failed to load and is unavailable.",
+                detail=f"SBERT model '{model_name}' failed to load and is unavailable.",
             )
 
         # not_loaded: initiate loading
         logger.info(
-            "API: Initiating load for %s: %s",
-            model_type_label,
+            "API: Initiating load for SBERT model: %s",
             _sanitize(model_name),
         )
         MODEL_LOADING_STATUS[model_name] = "loading"
         task = asyncio.create_task(
-            _load_model_in_background(model_name, is_sbert, trust_remote_code, device)
+            _load_sbert_in_background(model_name, trust_remote_code, device)
         )
         MODEL_LOADING_TASKS[model_name] = task
 
         try:
             await asyncio.wait_for(asyncio.shield(task), timeout=timeout)
-            if model_name in cache_dict and cache_dict[model_name] is not None:
+            cached = LOADED_SBERT_MODELS.get(model_name)
+            if cached is not None:
                 logger.info(
-                    "API: %s '%s' loaded successfully.",
-                    model_type_label,
+                    "API: SBERT model '%s' loaded successfully.",
                     _sanitize(model_name),
                 )
-                return cache_dict[model_name]
+                return cast(SentenceTransformer, cached)
             raise HTTPException(
                 status_code=500,
                 detail=(
-                    f"{model_type_label} '{model_name}' failed to load "
+                    f"SBERT model '{model_name}' failed to load "
                     "due to an internal error."
                 ),
             )
         except asyncio.TimeoutError:
             logger.warning(
-                "API: %s '%s' loading timeout (%ss) on first request.",
-                model_type_label,
+                "API: SBERT model '%s' loading timeout (%ss) on first request.",
                 _sanitize(model_name),
                 timeout,
             )
             raise HTTPException(
                 status_code=503,
                 detail=(
-                    f"{model_type_label} '{model_name}' is taking longer "
+                    f"SBERT model '{model_name}' is taking longer "
                     "than expected to load. Please try again."
                 ),
                 headers={"Retry-After": "30"},
             )
-
-
-async def get_sbert_model_dependency(
-    model_name_requested: str | None = None,
-    trust_remote_code: bool = False,
-    device_override: str | None = None,
-) -> SentenceTransformer:
-    model_name = model_name_requested or DEFAULT_MODEL
-    device = device_override or DEFAULT_DEVICE
-    return cast(
-        SentenceTransformer,
-        await _load_model_with_status_tracking(
-            model_name=model_name,
-            cache_dict=LOADED_SBERT_MODELS,
-            is_sbert=True,
-            trust_remote_code=trust_remote_code,
-            device=device,
-            timeout=SBERT_LOAD_TIMEOUT,
-            model_type_label="SBERT model",
-        ),
-    )
 
 
 async def get_dense_retriever_dependency(
@@ -250,52 +225,55 @@ async def get_dense_retriever_dependency(
         f"retriever_for_{sbert_model_name_for_retriever}_multi={multi_vector}"
     )
 
-    if retriever_cache_key not in LOADED_RETRIEVERS:
-        logger.info(
-            "API: Initializing DenseRetriever for model: %s (multi_vector=%s)",
-            _sanitize(sbert_model_name_for_retriever),
-            multi_vector,
-        )
-        sbert_instance = await get_sbert_model_dependency(
-            model_name_requested=sbert_model_name_for_retriever
-        )
-
-        # Uses internal logic (resolve_data_path -> get_default_index_dir)
-        # to find the index based on environment variables.
-        retriever = DenseRetriever.from_model_name(
-            model=sbert_instance,
-            model_name=sbert_model_name_for_retriever,
-            multi_vector=multi_vector,  # Pass multi_vector flag to retriever
-            # No index_dir is passed here.
-        )
-
-        if not retriever:
-            logger.error(
-                "API: Failed to init DenseRetriever for %s. "
-                "Ensure index is built and env vars are set correctly.",
-                _sanitize(sbert_model_name_for_retriever),
-            )
-            raise HTTPException(
-                status_code=503,
-                detail=(
-                    f"Retriever for model '{sbert_model_name_for_retriever}' "
-                    "is unavailable. Check environment variables and indexes."
-                ),
-            )
-
-        index_path = getattr(retriever, "index_base_path", "Path not set")
-        logger.info(
-            "API: DenseRetriever initialized for %s. Index: %s",
-            _sanitize(sbert_model_name_for_retriever),
-            _sanitize(index_path),
-        )
-        LOADED_RETRIEVERS[retriever_cache_key] = retriever
-    else:
+    # Use .get() to avoid TTLCache race between `in` check and __getitem__.
+    cached_retriever = LOADED_RETRIEVERS.get(retriever_cache_key)
+    if cached_retriever is not None:
         logger.debug(
             "API: Using cached DenseRetriever for %s",
             _sanitize(sbert_model_name_for_retriever),
         )
-    return cast(DenseRetriever, LOADED_RETRIEVERS[retriever_cache_key])
+        return cast(DenseRetriever, cached_retriever)
+
+    logger.info(
+        "API: Initializing DenseRetriever for model: %s (multi_vector=%s)",
+        _sanitize(sbert_model_name_for_retriever),
+        multi_vector,
+    )
+    sbert_instance = await get_sbert_model_dependency(
+        model_name_requested=sbert_model_name_for_retriever
+    )
+
+    # Uses internal logic (resolve_data_path -> get_default_index_dir)
+    # to find the index based on environment variables.
+    retriever = DenseRetriever.from_model_name(
+        model=sbert_instance,
+        model_name=sbert_model_name_for_retriever,
+        multi_vector=multi_vector,  # Pass multi_vector flag to retriever
+        # No index_dir is passed here.
+    )
+
+    if not retriever:
+        logger.error(
+            "API: Failed to init DenseRetriever for %s. "
+            "Ensure index is built and env vars are set correctly.",
+            _sanitize(sbert_model_name_for_retriever),
+        )
+        raise HTTPException(
+            status_code=503,
+            detail=(
+                f"Retriever for model '{sbert_model_name_for_retriever}' "
+                "is unavailable. Check environment variables and indexes."
+            ),
+        )
+
+    index_path = getattr(retriever, "index_base_path", "Path not set")
+    logger.info(
+        "API: DenseRetriever initialized for %s. Index: %s",
+        _sanitize(sbert_model_name_for_retriever),
+        _sanitize(index_path),
+    )
+    LOADED_RETRIEVERS[retriever_cache_key] = retriever
+    return retriever
 
 
 async def cleanup_model_caches() -> None:
