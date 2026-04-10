@@ -1,5 +1,6 @@
 import { ref } from 'vue';
 import { getAllVersions } from '../utils/version';
+import { logService } from '../services/logService';
 
 /**
  * Composable for version fetching.
@@ -16,17 +17,21 @@ export function useVersionCheck() {
   const cliVersion = ref('Loading...');
   const environment = ref('unknown');
   const loadingVersions = ref(false);
+  const versionError = ref(null);
 
   async function refreshVersions() {
     loadingVersions.value = true;
+    versionError.value = null;
     try {
       const versions = await getAllVersions();
       frontendVersion.value = versions.frontend?.version || 'unknown';
       apiVersion.value = versions.api?.version || 'unknown';
       cliVersion.value = versions.cli?.version || 'unknown';
       environment.value = versions.environment || 'unknown';
-    } catch {
-      // Versions stay at their current values on error
+      logService.debug('Versions refreshed', versions);
+    } catch (error) {
+      versionError.value = error;
+      logService.error('Failed to refresh versions', error);
     } finally {
       loadingVersions.value = false;
     }
@@ -38,6 +43,7 @@ export function useVersionCheck() {
     cliVersion,
     environment,
     loadingVersions,
+    versionError,
     refreshVersions,
   };
 }

@@ -272,8 +272,8 @@ defineProps({
   phenotypes: { type: Array, default: () => [] },
   panelOpen: { type: Boolean, default: false },
   subjectId: { type: String, default: '' },
-  sex: { type: [Number, null], default: null },
-  dateOfBirth: { type: [String, null], default: null },
+  sex: { type: Number, default: null },
+  dateOfBirth: { type: String, default: null },
   sexOptions: { type: Array, default: () => [] },
 });
 

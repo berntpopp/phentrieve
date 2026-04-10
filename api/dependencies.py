@@ -305,11 +305,16 @@ async def cleanup_model_caches() -> None:
     background model loads before clearing caches to prevent
     repopulation after cleanup.
     """
-    # Cancel outstanding loading tasks first
+    # Cancel outstanding loading tasks and await their completion
+    pending_tasks = []
     for model_name, task in list(MODEL_LOADING_TASKS.items()):
         if not task.done():
             task.cancel()
+            pending_tasks.append(task)
             logger.info("API: Cancelled loading task for %s", model_name)
+    if pending_tasks:
+        # Wait for all cancelled tasks to finish (deterministic shutdown)
+        await asyncio.gather(*pending_tasks, return_exceptions=True)
     MODEL_LOADING_TASKS.clear()
 
     with _cache_lock:

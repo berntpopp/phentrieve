@@ -141,10 +141,12 @@ export default defineConfig({
     globals: true,
     environment: 'happy-dom',
     setupFiles: './src/test/setup.js',
+    // Vitest deps inlining — Vuetify's CSS imports must be processed
+    // by Vite, not left to Node's ESM loader (which rejects .css).
     server: {
       deps: {
-        inline: ['vuetify']
-      }
+        inline: ['vuetify'],
+      },
     },
     coverage: {
       provider: 'v8',

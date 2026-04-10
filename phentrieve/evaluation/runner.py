@@ -563,23 +563,24 @@ def compare_models(results_list: list[dict[str, Any]]) -> pd.DataFrame:
             else:
                 model_data["MRR (Dense)"] = result["mrr_dense"]
 
-        # Legacy: handle old results that may contain reranked data
-        if "mrr_reranked" in result:
-            if result.get("reranker_enabled", False) and result.get("mrr_reranked"):
-                dense_mrr = (
-                    sum(result["mrr_dense"]) / len(result["mrr_dense"])
-                    if isinstance(result["mrr_dense"], list) and result["mrr_dense"]
-                    else result["mrr_dense"]
-                )
-                if True:  # keep indentation level
-                    reranked_mrr = (
-                        sum(result["mrr_reranked"]) / len(result["mrr_reranked"])
-                        if isinstance(result["mrr_reranked"], list)
-                        and result["mrr_reranked"]
-                        else result["mrr_reranked"]
-                    )
-                    if isinstance(reranked_mrr, (int, float)):
-                        model_data["MRR (Diff)"] = reranked_mrr - dense_mrr
+        # Legacy: handle old benchmark files that contain reranked data
+        if (
+            "mrr_reranked" in result
+            and result.get("reranker_enabled", False)
+            and result.get("mrr_reranked")
+        ):
+            dense_mrr = (
+                sum(result["mrr_dense"]) / len(result["mrr_dense"])
+                if isinstance(result["mrr_dense"], list) and result["mrr_dense"]
+                else result["mrr_dense"]
+            )
+            reranked_mrr = (
+                sum(result["mrr_reranked"]) / len(result["mrr_reranked"])
+                if isinstance(result["mrr_reranked"], list) and result["mrr_reranked"]
+                else result["mrr_reranked"]
+            )
+            if isinstance(reranked_mrr, (int, float)):
+                model_data["MRR (Diff)"] = reranked_mrr - dense_mrr
 
         # Add Hit Rate metrics
         for k in [1, 3, 5, 10]:

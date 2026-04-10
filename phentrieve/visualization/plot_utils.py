@@ -331,7 +331,7 @@ def plot_metric_at_k_lines(
             ["#1f77b4", "#ff7f0e"],
             ["o", "s"],
             [None, [2, 2]],
-            strict=False,  # Use list instead of tuple
+            strict=False,
         ):
             method_df = flat_df[flat_df["method"] == method]
             if not method_df.empty:

@@ -72,7 +72,7 @@
       <v-list lines="two" class="rounded-lg mt-2">
         <ResultItem
           v-for="(result, index) in responseData.results"
-          :key="result.hpo_id"
+          :key="`${result.hpo_id}-${index}`"
           :result="result"
           :rank="index + 1"
           :is-collected="collectedPhenotypeIds.has(result.hpo_id)"
