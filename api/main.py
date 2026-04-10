@@ -1,28 +1,22 @@
 import logging
-import os
-import sys
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
-# Add project root to Python path
-# This needs to be before other project-specific imports
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from api.config import (  # noqa: E402
+from api.config import (
     ALLOWED_ORIGINS,
     CORS_ALLOW_CREDENTIALS,
     CORS_ALLOW_HEADERS,
     CORS_ALLOW_METHODS,
     LOG_LEVEL,
 )
-from api.dependencies import (  # noqa: E402
+from api.dependencies import (
     cleanup_model_caches,
     get_dense_retriever_dependency,
     get_sbert_model_dependency,
 )
-from api.routers import (  # noqa: E402
+from api.routers import (
     config_info_router,
     health,
     query_router,
@@ -30,8 +24,8 @@ from api.routers import (  # noqa: E402
     system,
     text_processing_router,
 )
-from api.version import get_api_version  # noqa: E402
-from phentrieve.config import (  # noqa: E402
+from api.version import get_api_version
+from phentrieve.config import (
     DEFAULT_DEVICE,
     DEFAULT_MODEL,
     DEFAULT_MULTI_VECTOR,

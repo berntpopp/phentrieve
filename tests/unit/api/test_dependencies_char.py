@@ -5,17 +5,11 @@ hit paths. Must pass identically before AND after dependency unification.
 """
 
 import asyncio
-import sys
-from pathlib import Path
 from unittest.mock import MagicMock
 
 import pytest
 
-# API import path workaround (see tests/unit/api/README.md)
-project_root = Path(__file__).parent.parent.parent.parent
-sys.path.insert(0, str(project_root))
-
-from api.dependencies import (  # noqa: E402
+from api.dependencies import (
     LOADED_SBERT_MODELS,
     MODEL_LOAD_LOCKS,
     MODEL_LOADING_STATUS,
