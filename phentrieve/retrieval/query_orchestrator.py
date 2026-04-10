@@ -25,7 +25,6 @@ from phentrieve.retrieval.dense_retriever import (
     calculate_similarity,
 )
 from phentrieve.retrieval.interactive_state import interactive_state
-from phentrieve.retrieval.pipeline import execute_single_vector_pipeline
 from phentrieve.retrieval.utils import convert_multi_vector_to_chromadb_format
 
 # Note: CombinedAssertionDetector is imported lazily when needed
@@ -102,7 +101,6 @@ def format_results(
     threshold: float = MIN_SIMILARITY_THRESHOLD,
     max_results: int = DEFAULT_TOP_K,
     query: str | None = None,
-    reranked: bool = False,
     original_query_assertion_status=None,
     original_query_assertion_details=None,
 ) -> dict[str, Any]:
@@ -114,7 +112,6 @@ def format_results(
         threshold: Minimum similarity score to display
         max_results: Maximum number of results to display
         query: Original query text
-        reranked: Whether the results were re-ranked by a cross-encoder
 
     Returns:
         Dictionary with structured results information suitable for different output formats
@@ -383,7 +380,6 @@ def process_query(
                     threshold=similarity_threshold,
                     max_results=num_results,
                     query=sentence,
-                    reranked=False,
                     original_query_assertion_status=original_query_assertion_status,
                     original_query_assertion_details=original_query_assertion_details,
                 )
@@ -391,20 +387,13 @@ def process_query(
                     all_results.append(formatted)
                 continue  # Skip the single-vector path
 
-            # Single-vector query path (delegated to pipeline)
-            results = execute_single_vector_pipeline(
-                retriever=retriever,
-                text=sentence,
-                num_results=num_results,
-                debug=debug,
-                output_func=output_func,
-            )
+            # Single-vector query path
+            results = retriever.query(sentence, n_results=num_results)
             formatted = format_results(
                 results=results,
                 threshold=similarity_threshold,
                 max_results=num_results,
                 query=sentence,
-                reranked=False,
                 original_query_assertion_status=original_query_assertion_status,
                 original_query_assertion_details=original_query_assertion_details,
             )
@@ -434,27 +423,19 @@ def process_query(
                     threshold=similarity_threshold,
                     max_results=num_results,
                     query=text,
-                    reranked=False,
                     original_query_assertion_status=original_query_assertion_status,
                     original_query_assertion_details=original_query_assertion_details,
                 )
                 all_results.extend([formatted_result])
                 return all_results
 
-            # Single-vector fallback (delegated to pipeline)
-            query_result = execute_single_vector_pipeline(
-                retriever=retriever,
-                text=text,
-                num_results=num_results,
-                debug=debug,
-                output_func=output_func,
-            )
+            # Single-vector fallback
+            query_result = retriever.query(text, n_results=num_results)
             formatted_result = format_results(
                 query_result,
                 threshold=similarity_threshold,
                 max_results=num_results,
                 query=text,
-                reranked=False,
                 original_query_assertion_status=original_query_assertion_status,
                 original_query_assertion_details=original_query_assertion_details,
             )
@@ -488,7 +469,6 @@ def process_query(
                 threshold=similarity_threshold,
                 max_results=num_results,
                 query=text,
-                reranked=False,
                 original_query_assertion_status=original_query_assertion_status,
                 original_query_assertion_details=original_query_assertion_details,
             )
@@ -496,20 +476,13 @@ def process_query(
                 all_results.append(formatted_result)
             return all_results
 
-        # Single-vector query path (delegated to pipeline)
-        results = execute_single_vector_pipeline(
-            retriever=retriever,
-            text=text,
-            num_results=num_results,
-            debug=debug,
-            output_func=output_func,
-        )
+        # Single-vector query path
+        results = retriever.query(text, n_results=num_results)
         formatted_result = format_results(
             results=results,
             threshold=similarity_threshold,
             max_results=num_results,
             query=text,
-            reranked=False,
             original_query_assertion_status=original_query_assertion_status,
             original_query_assertion_details=original_query_assertion_details,
         )

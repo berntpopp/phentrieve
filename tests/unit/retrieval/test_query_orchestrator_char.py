@@ -267,19 +267,3 @@ class TestProcessQueryMultiVector:
         )
         assert isinstance(results, list)
         assert mock_retriever.query_multi_vector.call_count >= 1
-
-
-class TestExecuteSingleVectorPipeline:
-    """Tests for the extracted single-vector pipeline."""
-
-    def test_basic_retrieval(self, mock_retriever):
-        from phentrieve.retrieval.pipeline import execute_single_vector_pipeline
-
-        results = execute_single_vector_pipeline(
-            retriever=mock_retriever,
-            text="seizures",
-            num_results=3,
-        )
-        assert "ids" in results
-        assert len(results["ids"][0]) == 3
-        mock_retriever.query.assert_called_once()
