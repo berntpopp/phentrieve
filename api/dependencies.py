@@ -23,24 +23,43 @@ logger = logging.getLogger(__name__)
 _sanitize = sanitize_log_value
 
 # Bounded model caches with 1-hour TTL and max 10 models
-# TTL prevents stale models in long-running processes
+# TTL prevents stale models in long-running processes.
+# _cache_lock serializes mutations across threads — TTLCache itself is not
+# thread-safe, though in this FastAPI app writes happen on the event loop.
 _cache_lock = threading.Lock()
 LOADED_SBERT_MODELS: TTLCache = TTLCache(maxsize=10, ttl=3600)
 LOADED_RETRIEVERS: TTLCache = TTLCache(maxsize=10, ttl=3600)
 
-# Model loading status tracking
+# Model loading status tracking — also bounded to prevent unbounded growth
+# when many distinct model names are requested over time. maxsize is larger
+# than the model cache because status/lock entries are cheap and we want
+# them to outlive model evictions for a short grace window.
 ModelLoadStatus = Literal["not_loaded", "loading", "loaded", "failed"]
-MODEL_LOADING_STATUS: dict[str, ModelLoadStatus] = {}
-MODEL_LOAD_LOCKS: dict[str, asyncio.Lock] = {}
-# Track active loading tasks to enable awaiting
+MODEL_LOADING_STATUS: TTLCache = TTLCache(maxsize=50, ttl=3600)
+MODEL_LOAD_LOCKS: TTLCache = TTLCache(maxsize=50, ttl=3600)
+# Track active loading tasks to enable awaiting. Cleaned up in the finally
+# block of _load_sbert_in_background, so bounded by concurrency, not by
+# distinct model names over time.
 MODEL_LOADING_TASKS: dict[str, asyncio.Task] = {}
 
 
 def _get_lock_for_model(model_name: str) -> asyncio.Lock:
-    """Get or create a lock for a given model name."""
-    if model_name not in MODEL_LOAD_LOCKS:
-        MODEL_LOAD_LOCKS[model_name] = asyncio.Lock()
-    return MODEL_LOAD_LOCKS[model_name]
+    """Get or create a lock for a given model name.
+
+    Uses TTLCache.get() + locked write to avoid a race between membership
+    check and insertion when the entry has expired.
+    """
+    existing = MODEL_LOAD_LOCKS.get(model_name)
+    if existing is not None:
+        return cast(asyncio.Lock, existing)
+    with _cache_lock:
+        # Re-check under the lock in case another thread inserted it first.
+        existing = MODEL_LOAD_LOCKS.get(model_name)
+        if existing is not None:
+            return cast(asyncio.Lock, existing)
+        new_lock = asyncio.Lock()
+        MODEL_LOAD_LOCKS[model_name] = new_lock
+        return new_lock
 
 
 async def _load_sbert_in_background(
@@ -63,28 +82,28 @@ async def _load_sbert_in_background(
             trust_remote_code=trust_remote_code,
             device=actual_device,
         )
-        LOADED_SBERT_MODELS[model_name] = model_instance
-
-        MODEL_LOADING_STATUS[model_name] = "loaded"
+        with _cache_lock:
+            LOADED_SBERT_MODELS[model_name] = model_instance
+            MODEL_LOADING_STATUS[model_name] = "loaded"
         logger.info(
             "Background task success: Model '%s' loaded and cached.",
             _sanitize(model_name),
         )
     except Exception as e:
-        MODEL_LOADING_STATUS[model_name] = "failed"
+        with _cache_lock:
+            MODEL_LOADING_STATUS[model_name] = "failed"
+            # Clear from cache if partially added. pop() with default is
+            # TTL-safe; no need for membership check that could race.
+            LOADED_SBERT_MODELS.pop(model_name, None)
         logger.error(
             "Background task error: Failed to load model '%s': %s",
             _sanitize(model_name),
             _sanitize(e),
             exc_info=True,
         )
-        # Clear from cache if partially added
-        if model_name in LOADED_SBERT_MODELS:
-            del LOADED_SBERT_MODELS[model_name]
     finally:
         # Clean up the task from tracking dict
-        if model_name in MODEL_LOADING_TASKS:
-            del MODEL_LOADING_TASKS[model_name]
+        MODEL_LOADING_TASKS.pop(model_name, None)
 
 
 async def get_sbert_model_dependency(
@@ -178,7 +197,8 @@ async def get_sbert_model_dependency(
             "API: Initiating load for SBERT model: %s",
             _sanitize(model_name),
         )
-        MODEL_LOADING_STATUS[model_name] = "loading"
+        with _cache_lock:
+            MODEL_LOADING_STATUS[model_name] = "loading"
         task = asyncio.create_task(
             _load_sbert_in_background(model_name, trust_remote_code, device)
         )
@@ -272,7 +292,8 @@ async def get_dense_retriever_dependency(
         _sanitize(sbert_model_name_for_retriever),
         _sanitize(index_path),
     )
-    LOADED_RETRIEVERS[retriever_cache_key] = retriever
+    with _cache_lock:
+        LOADED_RETRIEVERS[retriever_cache_key] = retriever
     return retriever
 
 

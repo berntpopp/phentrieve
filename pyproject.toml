@@ -54,7 +54,6 @@ dependencies = [
     "spacy>=3.8.0,<4.0.0", # spaCy 3.8+ supports NumPy 2.x and typer 0.16+
     "en_core_web_sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl",
     "cachetools>=6.2.2",
-    "types-cachetools>=6.2.0.20260408",
 ]
 
 [project.scripts]
@@ -244,6 +243,7 @@ dev = [
     "docker>=7.0.0",  # Docker SDK for E2E tests
     "types-requests>=2.32.0",  # Type stubs for requests library
     "types-PyYAML>=6.0.0",  # Type stubs for PyYAML library
+    "types-cachetools>=6.2.0.20260408",  # Type stubs for cachetools (typing-only, not runtime)
     # Security scanning
     "pip-audit>=2.9.0",  # Python dependency vulnerability scanner
     "bandit[toml,sarif]>=1.9.0",  # Python SAST with TOML config and SARIF output
