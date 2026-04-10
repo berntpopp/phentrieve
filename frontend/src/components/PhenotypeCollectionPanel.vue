@@ -110,7 +110,12 @@
                   density="compact"
                   :color="phenotype.assertion_status === 'negated' ? 'success' : 'error'"
                   class="mr-0"
-                  :aria-label="$t('queryInterface.phenotypeCollection.aria.toggleAssertion', { label: phenotype.label, id: phenotype.hpo_id })"
+                  :aria-label="
+                    $t('queryInterface.phenotypeCollection.aria.toggleAssertion', {
+                      label: phenotype.label,
+                      id: phenotype.hpo_id,
+                    })
+                  "
                   @click="$emit('toggle-assertion', index)"
                 />
               </template>
@@ -120,7 +125,12 @@
               variant="text"
               density="compact"
               color="grey-darken-1"
-              :aria-label="$t('queryInterface.phenotypeCollection.aria.removeItem', { label: phenotype.label, id: phenotype.hpo_id })"
+              :aria-label="
+                $t('queryInterface.phenotypeCollection.aria.removeItem', {
+                  label: phenotype.label,
+                  id: phenotype.hpo_id,
+                })
+              "
               @click="$emit('remove', index)"
             />
           </template>
