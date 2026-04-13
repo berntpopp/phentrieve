@@ -53,7 +53,7 @@
     "happy-dom": "^20.1.0",
     "postcss": "^8.4.31",
     "prettier": "^3.7.4",
-    "rollup-plugin-visualizer": "^6.0.5",
+    "rollup-plugin-visualizer": "^7.0.1",
     "vite": "^6.3.0",
     "vite-plugin-compression": "^0.5.1",
     "vitest": "^4.0.9",
