@@ -129,7 +129,7 @@ jobs:
 
       - name: Upload coverage to Codecov
         if: matrix.python-version == '3.10'
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v6
         with:
           files: ./coverage.xml
           flags: python
@@ -186,7 +186,7 @@ jobs:
 
       - name: Upload coverage to Codecov
         if: github.event_name != 'pull_request'
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v6
         with:
           files: ./frontend/coverage/coverage-final.json
           flags: frontend
