@@ -35,7 +35,7 @@
     "vuetify": "^3.12.5"
   },
   "devDependencies": {
-    "@eslint/js": "^9.39.2",
+    "@eslint/js": "^10.0.1",
     "@fullhuman/postcss-purgecss": "^5.0.0",
     "@mdi/font": "^7.3.67",
     "@rollup/plugin-commonjs": "^29.0.0",
