@@ -242,7 +242,7 @@ dev = [
     "pytest-asyncio>=0.21.0",
     "pytest-docker>=3.1.0",  # For Docker E2E tests (Phase 3)
     "docker>=7.0.0",  # Docker SDK for E2E tests
-    "types-requests>=2.32.0",  # Type stubs for requests library
+    "types-requests>=2.33.0.20260408",  # Type stubs for requests library
     "types-PyYAML>=6.0.0",  # Type stubs for PyYAML library
     "types-cachetools>=6.2.0.20260408",  # Type stubs for cachetools (typing-only, not runtime)
     # Security scanning
