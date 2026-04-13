@@ -89,7 +89,7 @@ jobs:
 
       - name: Extract metadata (tags, labels) for API
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_API }}
           tags: |
@@ -201,7 +201,7 @@ jobs:
 
       - name: Extract metadata (tags, labels) for Frontend
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}
           tags: |
