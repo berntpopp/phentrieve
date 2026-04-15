@@ -5,7 +5,9 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 from fastapi import HTTPException
+from fastapi.testclient import TestClient
 
+from api.main import app
 from api.routers.text_processing_router import (
     _get_chunking_config_for_api,
     _get_trust_remote_code_for_model,
@@ -21,6 +23,40 @@ from api.schemas.text_processing_schemas import (
 from phentrieve.config import BENCHMARK_MODELS, DEFAULT_MODEL
 
 pytestmark = pytest.mark.unit
+
+
+@pytest.fixture
+def client():
+    with TestClient(app, raise_server_exceptions=False) as test_client:
+        yield test_client
+
+
+def test_text_processing_router_returns_llm_meta(client, monkeypatch):
+    monkeypatch.setattr(
+        "api.routers.text_processing_router.run_full_text_service",
+        lambda **kwargs: {
+            "meta": {
+                "extraction_backend": "llm",
+                "llm_model": "gpt-5.4-mini",
+                "llm_mode": "two_phase",
+            },
+            "processed_chunks": [],
+            "aggregated_hpo_terms": [],
+        },
+    )
+
+    response = client.post(
+        "/api/v1/text/process",
+        json={
+            "text": "Patient had recurrent seizures.",
+            "extraction_backend": "llm",
+            "llm_model": "gpt-5.4-mini",
+            "llm_mode": "two_phase",
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.json()["meta"]["extraction_backend"] == "llm"
 
 
 class TestGetChunkingConfigForApi:

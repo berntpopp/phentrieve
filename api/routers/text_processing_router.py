@@ -17,6 +17,7 @@ from api.schemas.text_processing_schemas import (
     TextProcessingRequest,
     TextProcessingResponseAPI,
 )
+from phentrieve.cli.text_commands import run_full_text_service
 from phentrieve.config import (
     BENCHMARK_MODELS,
     DEFAULT_ASSERTION_CONFIG,
@@ -221,6 +222,11 @@ async def process_text_extract_hpo(request: TextProcessingRequest):
 
     try:
         # Wrap processing with timeout protection
+        if request.extraction_backend == "llm":
+            return await asyncio.wait_for(
+                _process_text_via_shared_service(request), timeout=timeout_seconds
+            )
+
         return await asyncio.wait_for(
             _process_text_internal(request), timeout=timeout_seconds
         )
@@ -239,6 +245,26 @@ async def process_text_extract_hpo(request: TextProcessingRequest):
                 f"(2) use 'simple' chunking strategy."
             ),
         )
+
+
+async def _process_text_via_shared_service(request: TextProcessingRequest):
+    """Process text through the shared full-text service for LLM requests."""
+    service_result = await run_in_threadpool(
+        run_full_text_service,
+        text=request.text_content,
+        extraction_backend=request.extraction_backend,
+        llm_model=request.llm_model,
+        llm_mode=request.llm_mode or "two_phase",
+    )
+
+    meta = dict(service_result.get("meta", {}))
+    if request.extraction_backend == "llm":
+        if request.llm_model is not None:
+            meta.setdefault("llm_model", request.llm_model)
+        meta.setdefault("llm_mode", request.llm_mode or "two_phase")
+
+    service_result = {**service_result, "meta": meta}
+    return TextProcessingResponseAPI.model_validate(service_result)
 
 
 async def _process_text_internal(request: TextProcessingRequest):

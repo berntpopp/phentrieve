@@ -1,6 +1,6 @@
-from typing import Any, cast
+from typing import Any, Literal, cast
 
-from pydantic import BaseModel, Field
+from pydantic import AliasChoices, BaseModel, Field
 
 from phentrieve.config import (
     DEFAULT_ASSERTION_CONFIG,
@@ -18,7 +18,14 @@ from phentrieve.config import (
 
 
 class TextProcessingRequest(BaseModel):
-    text_content: str = Field(..., description="The raw clinical text to process.")
+    text_content: str = Field(
+        ...,
+        validation_alias=AliasChoices("text_content", "text"),
+        description="The raw clinical text to process.",
+    )
+    extraction_backend: Literal["standard", "llm"] = "standard"
+    llm_model: str | None = None
+    llm_mode: Literal["two_phase"] | None = None
     language: str | None = Field(
         default=DEFAULT_LANGUAGE,
         description="ISO 639-1 language code of the text (e.g., 'en', 'de'). If None, language detection might be attempted.",
