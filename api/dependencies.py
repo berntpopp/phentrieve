@@ -3,7 +3,7 @@ import logging
 import threading
 from typing import Literal, cast
 
-from cachetools import TTLCache
+from cachetools import TTLCache  # type: ignore[import-untyped]
 from fastapi import HTTPException
 from fastapi.concurrency import run_in_threadpool
 from sentence_transformers import CrossEncoder, SentenceTransformer
