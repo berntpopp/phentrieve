@@ -145,13 +145,10 @@ def check_llm_quota_or_raise(http_request: Request) -> QuotaStatus:
 
 
 def _record_llm_quota_success(quota_status: QuotaStatus) -> None:
-    try:
-        _get_llm_quota_store().record_success(
-            subject_key=quota_status.subject_key,
-            usage_date_utc=quota_status.usage_date_utc,
-        )
-    except Exception as exc:  # noqa: BLE001
-        logger.warning("API: Failed to persist LLM quota usage: %s", exc)
+    _get_llm_quota_store().record_success(
+        subject_key=quota_status.subject_key,
+        usage_date_utc=quota_status.usage_date_utc,
+    )
 
 
 def _get_chunking_config_for_api(
@@ -528,7 +525,21 @@ async def process_text_extract_hpo(
             _process_text_via_shared_service(request), timeout=timeout_seconds
         )
         if quota_status is not None:
-            _record_llm_quota_success(quota_status)
+            try:
+                _record_llm_quota_success(quota_status)
+            except QuotaExceededError as exc:
+                raise HTTPException(
+                    status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                    detail=exc.to_detail(),
+                ) from exc
+            except Exception as exc:  # noqa: BLE001
+                raise HTTPException(
+                    status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                    detail=(
+                        "Unable to persist LLM quota usage. Verify "
+                        "PHENTRIEVE_LLM_QUOTA_DB_PATH and filesystem permissions."
+                    ),
+                ) from exc
         return response
     except asyncio.exceptions.TimeoutError:
         logger.error(

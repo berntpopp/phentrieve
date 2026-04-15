@@ -240,32 +240,67 @@ class DailyQuotaStore:
         usage_date_utc: str,
     ) -> QuotaStatus:
         updated_at = datetime.now(UTC).isoformat()
+        quota_limit = max(self.daily_limit, 0)
         with closing(self._connect()) as connection:
-            connection.execute("BEGIN IMMEDIATE")
-            connection.execute(
-                """
-                INSERT INTO llm_daily_quota (
-                    subject_key,
-                    usage_date_utc,
-                    success_count,
-                    updated_at
-                ) VALUES (?, ?, 1, ?)
-                ON CONFLICT(subject_key, usage_date_utc)
-                DO UPDATE SET
-                    success_count = success_count + 1,
-                    updated_at = excluded.updated_at
-                """,
-                (subject_key, usage_date_utc, updated_at),
-            )
-            row = connection.execute(
-                """
-                SELECT success_count
-                FROM llm_daily_quota
-                WHERE subject_key = ? AND usage_date_utc = ?
-                """,
-                (subject_key, usage_date_utc),
-            ).fetchone()
-        success_count = int(row[0]) if row is not None else 0
+            try:
+                connection.execute("BEGIN IMMEDIATE")
+                row = connection.execute(
+                    """
+                    SELECT success_count
+                    FROM llm_daily_quota
+                    WHERE subject_key = ? AND usage_date_utc = ?
+                    """,
+                    (subject_key, usage_date_utc),
+                ).fetchone()
+                current_success_count = int(row[0]) if row is not None else 0
+
+                if current_success_count >= quota_limit:
+                    raise QuotaExceededError(
+                        quota_used=current_success_count,
+                        quota_limit=quota_limit,
+                        quota_remaining=0,
+                        usage_date_utc=usage_date_utc,
+                    )
+
+                next_success_count = current_success_count + 1
+                if row is None:
+                    connection.execute(
+                        """
+                        INSERT INTO llm_daily_quota (
+                            subject_key,
+                            usage_date_utc,
+                            success_count,
+                            updated_at
+                        ) VALUES (?, ?, ?, ?)
+                        """,
+                        (
+                            subject_key,
+                            usage_date_utc,
+                            next_success_count,
+                            updated_at,
+                        ),
+                    )
+                else:
+                    connection.execute(
+                        """
+                        UPDATE llm_daily_quota
+                        SET success_count = ?, updated_at = ?
+                        WHERE subject_key = ? AND usage_date_utc = ?
+                        """,
+                        (
+                            next_success_count,
+                            updated_at,
+                            subject_key,
+                            usage_date_utc,
+                        ),
+                    )
+                connection.commit()
+            except Exception:
+                if connection.in_transaction:
+                    connection.rollback()
+                raise
+
+        success_count = next_success_count
         return self._build_status(
             subject_key=subject_key,
             usage_date_utc=usage_date_utc,

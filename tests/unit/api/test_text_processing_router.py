@@ -1,11 +1,13 @@
 """Unit tests for text processing router helper functions."""
 
+from datetime import UTC, datetime
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from fastapi import HTTPException
 from fastapi.testclient import TestClient
 
+from api.llm_quota import DailyQuotaStore, hash_subject_key
 from api.main import app
 from api.routers.text_processing_router import (
     QuotaExceededError,
@@ -109,6 +111,111 @@ def test_text_processing_router_returns_503_when_subject_resolution_is_untrusted
 
     assert response.status_code == 503
     assert "trusted anonymous subject" in response.json()["detail"]
+
+
+def test_text_processing_router_counts_successes_and_skips_failed_requests(
+    tmp_path, monkeypatch
+):
+    quota_db = tmp_path / "llm_quota.db"
+    monkeypatch.setattr(
+        "api.config.PHENTRIEVE_ENV",
+        "production",
+        raising=False,
+    )
+    monkeypatch.setattr(
+        "api.config.PHENTRIEVE_TRUSTED_PROXY_CIDRS",
+        "172.16.0.0/12",
+        raising=False,
+    )
+    monkeypatch.setattr(
+        "api.config.PHENTRIEVE_LLM_DAILY_LIMIT",
+        2,
+        raising=False,
+    )
+    monkeypatch.setattr(
+        "api.config.PHENTRIEVE_LLM_QUOTA_DB_PATH",
+        str(quota_db),
+        raising=False,
+    )
+
+    service_state = {"mode": "success"}
+
+    def run_service(**kwargs):
+        if service_state["mode"] == "fail":
+            raise RuntimeError("llm backend failed")
+        return {
+            "meta": {
+                "extraction_backend": "llm",
+                "llm_model": kwargs.get("llm_model", "gpt-5.4-mini"),
+                "llm_mode": kwargs.get("llm_mode", "two_phase"),
+            },
+            "processed_chunks": [],
+            "aggregated_hpo_terms": [],
+        }
+
+    monkeypatch.setattr(
+        "api.routers.text_processing_router.run_full_text_service",
+        run_service,
+    )
+
+    store = DailyQuotaStore(quota_db, daily_limit=2)
+    headers = {"X-Forwarded-For": "203.0.113.5"}
+    payload = {"text": "note", "extraction_backend": "llm"}
+    subject_key = hash_subject_key("203.0.113.5")
+    usage_date_utc = datetime.now(UTC).date().isoformat()
+
+    with TestClient(
+        app,
+        raise_server_exceptions=False,
+        client=("172.18.0.10", 50000),
+    ) as local_client:
+        first = local_client.post("/api/v1/text/process", json=payload, headers=headers)
+        assert first.status_code == 200
+        assert (
+            store.get_status(
+                subject_key=subject_key,
+                usage_date_utc=usage_date_utc,
+            ).quota_used
+            == 1
+        )
+
+        service_state["mode"] = "fail"
+        failed = local_client.post(
+            "/api/v1/text/process",
+            json=payload,
+            headers=headers,
+        )
+        assert failed.status_code == 500
+        assert (
+            store.get_status(
+                subject_key=subject_key,
+                usage_date_utc=usage_date_utc,
+            ).quota_used
+            == 1
+        )
+
+        service_state["mode"] = "success"
+        second = local_client.post(
+            "/api/v1/text/process",
+            json=payload,
+            headers=headers,
+        )
+        assert second.status_code == 200
+        assert (
+            store.get_status(
+                subject_key=subject_key,
+                usage_date_utc=usage_date_utc,
+            ).quota_used
+            == 2
+        )
+
+        exhausted = local_client.post(
+            "/api/v1/text/process",
+            json=payload,
+            headers=headers,
+        )
+        assert exhausted.status_code == 429
+        assert exhausted.json()["detail"]["quota_remaining"] == 0
 
 
 def test_text_processing_router_returns_standard_extraction_backend_contract(
