@@ -118,7 +118,7 @@ jobs:
 
       - name: Validate pytest collection
         run: |
-          uv run pytest tests/ --collect-only -q
+          uv run pytest -o addopts='' tests/ --collect-only -q
 
       - name: Run pytest
         env:
