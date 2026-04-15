@@ -111,6 +111,7 @@ def _adapt_aggregated_terms(
 ) -> list[dict[str, Any]]:
     adapted_terms: list[dict[str, Any]] = []
     for term in aggregated_results:
+        adapted_term = dict(term)
         source_chunk_ids = [chunk_idx + 1 for chunk_idx in term.get("chunks", [])]
         top_evidence_chunk_idx = term.get("top_evidence_chunk_idx")
         text_attributions: list[dict[str, Any]] = []
@@ -124,10 +125,8 @@ def _adapt_aggregated_terms(
                 }
             )
 
-        adapted_terms.append(
+        adapted_term.update(
             {
-                "id": term.get("id"),
-                "name": term.get("name"),
                 "confidence": term.get("confidence", term.get("avg_score", 0.0)),
                 "status": term.get("status", term.get("assertion_status", "unknown")),
                 "evidence_count": term.get("evidence_count", term.get("count", 0)),
@@ -142,6 +141,7 @@ def _adapt_aggregated_terms(
                 "score": term.get("score", 0.0),
             }
         )
+        adapted_terms.append(adapted_term)
 
     return adapted_terms
 
@@ -295,7 +295,12 @@ class FullTextService:
         extraction_backend: str,
         **kwargs: Any,
     ) -> StableBackendResponse:
-        backend_name = extraction_backend.lower()
+        backend_name = extraction_backend.strip().lower()
+        if backend_name not in {"standard", "llm"}:
+            raise ValueError(
+                f"Unsupported extraction backend: {extraction_backend!r}. "
+                "Expected one of: standard, llm."
+            )
         backend = self._llm_backend if backend_name == "llm" else self._standard_backend
         response = backend(text=text, **kwargs)
         return adapt_full_text_response(response, extraction_backend=backend_name)

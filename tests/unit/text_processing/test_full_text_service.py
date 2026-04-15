@@ -1,4 +1,9 @@
-from phentrieve.text_processing.full_text_service import FullTextService
+import pytest
+
+from phentrieve.text_processing.full_text_service import (
+    FullTextService,
+    adapt_standard_response,
+)
 
 
 def test_full_text_service_uses_standard_backend(mocker):
@@ -32,3 +37,82 @@ def test_full_text_service_llm_response_can_return_empty_chunks(mocker):
 
     assert result["processed_chunks"] == []
     assert result["meta"]["extraction_backend"] == "llm"
+
+
+def test_adapt_standard_response_preserves_optional_term_fields():
+    result = adapt_standard_response(
+        [
+            {
+                "text": "chunk one",
+                "status": "affirmed",
+                "assertion_details": {"source": "pipeline"},
+                "start_char": 0,
+                "end_char": 9,
+            }
+        ],
+        (
+            [
+                {
+                    "id": "HP:0001250",
+                    "name": "Seizure",
+                    "confidence": 0.9,
+                    "status": "affirmed",
+                    "evidence_count": 1,
+                    "chunks": [0],
+                    "top_evidence_chunk_idx": 0,
+                    "text_attributions": [
+                        {
+                            "chunk_idx": 0,
+                            "start_char": 0,
+                            "end_char": 7,
+                            "matched_text_in_chunk": "seizure",
+                        }
+                    ],
+                    "score": 0.95,
+                    "reranker_score": 0.88,
+                    "definition": "A seizure.",
+                    "synonyms": ["convulsion"],
+                }
+            ],
+            [
+                {
+                    "chunk_idx": 0,
+                    "chunk_text": "chunk one",
+                    "matches": [
+                        {
+                            "id": "HP:0001250",
+                            "name": "Seizure",
+                            "score": 0.95,
+                            "assertion_status": "affirmed",
+                        }
+                    ],
+                }
+            ],
+        ),
+    )
+
+    term = result["aggregated_hpo_terms"][0]
+    assert term["definition"] == "A seizure."
+    assert term["synonyms"] == ["convulsion"]
+    assert term["reranker_score"] == 0.88
+    assert term["source_chunk_ids"] == [1]
+    assert term["top_evidence_chunk_id"] == 1
+    assert term["text_attributions"][0]["chunk_id"] == 1
+
+
+def test_full_text_service_normalizes_backend_and_rejects_unknown(mocker):
+    standard_backend = mocker.Mock(return_value={"meta": {}})
+    llm_backend = mocker.Mock(return_value={"meta": {}})
+    service = FullTextService(
+        standard_backend=standard_backend,
+        llm_backend=llm_backend,
+    )
+
+    llm_result = service.process(text="clinical text", extraction_backend=" llm ")
+
+    assert llm_result["meta"]["extraction_backend"] == "llm"
+    llm_backend.assert_called_once()
+    standard_backend.assert_not_called()
+
+    with pytest.raises(ValueError, match="Unsupported extraction backend"):
+        service.process(text="clinical text", extraction_backend="bogus")
