@@ -206,7 +206,7 @@ async def process_text_extract_hpo(request: TextProcessingRequest):
     )
 
     # Calculate adaptive timeout based on text length
-    text_length = len(request.text_content)
+    text_length = len(request.text)
     if text_length < 500:
         timeout_seconds = 30
     elif text_length < 2000:
@@ -222,13 +222,8 @@ async def process_text_extract_hpo(request: TextProcessingRequest):
 
     try:
         # Wrap processing with timeout protection
-        if request.extraction_backend == "llm":
-            return await asyncio.wait_for(
-                _process_text_via_shared_service(request), timeout=timeout_seconds
-            )
-
         return await asyncio.wait_for(
-            _process_text_internal(request), timeout=timeout_seconds
+            _process_text_via_shared_service(request), timeout=timeout_seconds
         )
     except asyncio.exceptions.TimeoutError:
         logger.error(
@@ -248,22 +243,47 @@ async def process_text_extract_hpo(request: TextProcessingRequest):
 
 
 async def _process_text_via_shared_service(request: TextProcessingRequest):
-    """Process text through the shared full-text service for LLM requests."""
+    """Process text through the shared full-text service for all requests."""
     service_result = await run_in_threadpool(
         run_full_text_service,
-        text=request.text_content,
+        text=request.text,
         extraction_backend=request.extraction_backend,
+        language=request.language,
+        chunking_pipeline_config=_get_chunking_config_for_api(request),
+        assertion_config={
+            **DEFAULT_ASSERTION_CONFIG,
+            "disable": request.no_assertion_detection,
+            "preference": request.assertion_preference,
+            "language": request.language or DEFAULT_LANGUAGE,
+        },
+        retrieval_model_name=request.retrieval_model_name,
+        chunk_retrieval_threshold=(
+            request.chunk_retrieval_threshold
+            if request.chunk_retrieval_threshold is not None
+            else DEFAULT_CHUNK_RETRIEVAL_THRESHOLD
+        ),
+        num_results_per_chunk=(
+            request.num_results_per_chunk
+            if request.num_results_per_chunk is not None
+            else 10
+        ),
+        min_confidence_for_aggregated=(
+            request.aggregated_term_confidence
+            if request.aggregated_term_confidence is not None
+            else DEFAULT_MIN_CONFIDENCE_AGGREGATED
+        ),
+        top_term_per_chunk=(
+            request.top_term_per_chunk_for_aggregation
+            if request.top_term_per_chunk_for_aggregation is not None
+            else False
+        ),
+        include_details=(
+            request.include_details if request.include_details is not None else False
+        ),
+        include_positions=request.include_chunk_positions,
         llm_model=request.llm_model,
         llm_mode=request.llm_mode or "two_phase",
     )
-
-    meta = dict(service_result.get("meta", {}))
-    if request.extraction_backend == "llm":
-        if request.llm_model is not None:
-            meta.setdefault("llm_model", request.llm_model)
-        meta.setdefault("llm_mode", request.llm_mode or "two_phase")
-
-    service_result = {**service_result, "meta": meta}
     return TextProcessingResponseAPI.model_validate(service_result)
 
 

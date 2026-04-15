@@ -18,9 +18,9 @@ from phentrieve.config import (
 
 
 class TextProcessingRequest(BaseModel):
-    text_content: str = Field(
+    text: str = Field(
         ...,
-        validation_alias=AliasChoices("text_content", "text"),
+        validation_alias=AliasChoices("text", "text_content"),
         description="The raw clinical text to process.",
     )
     extraction_backend: Literal["standard", "llm"] = "standard"
@@ -136,6 +136,11 @@ class TextProcessingRequest(BaseModel):
         default=False,
         description="Include character positions (start_char, end_char) for each chunk.",
     )
+
+    @property
+    def text_content(self) -> str:
+        """Backward-compatible access for older callers."""
+        return self.text
 
 
 class HPOMatchInChunkAPI(BaseModel):

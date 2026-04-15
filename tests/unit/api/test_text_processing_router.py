@@ -59,6 +59,27 @@ def test_text_processing_router_returns_llm_meta(client, monkeypatch):
     assert response.json()["meta"]["extraction_backend"] == "llm"
 
 
+def test_text_processing_router_returns_standard_meta(client, monkeypatch):
+    monkeypatch.setattr(
+        "api.routers.text_processing_router.run_full_text_service",
+        lambda **kwargs: {
+            "meta": {"extraction_backend": "standard"},
+            "processed_chunks": [],
+            "aggregated_hpo_terms": [],
+        },
+    )
+
+    response = client.post(
+        "/api/v1/text/process",
+        json={
+            "text": "Patient had recurrent seizures.",
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.json()["meta"]["extraction_backend"] == "standard"
+
+
 class TestGetChunkingConfigForApi:
     """Test _get_chunking_config_for_api function."""
 
