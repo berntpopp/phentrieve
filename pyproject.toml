@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "phentrieve"
-version = "0.13.1"
+version = "0.13.2"
 description = "A CLI tool for retrieving Human Phenotype Ontology (HPO) terms from clinical text using multilingual embeddings."
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -196,6 +196,7 @@ addopts = [
 markers = [
     "unit: Fast unit tests (mocked dependencies)",
     "integration: Integration tests (real dependencies)",
+    "benchmark: Benchmark dataset and evaluation tests",
     "e2e: End-to-end Docker tests",
     "slow: Slow tests (>5s)",
 ]

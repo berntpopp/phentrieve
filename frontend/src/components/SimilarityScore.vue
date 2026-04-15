@@ -19,6 +19,7 @@
         :open-delay="300"
         max-width="320"
         content-class="score-tooltip-content"
+        :content-props="{ 'aria-label': tooltipTitle }"
       >
         <div class="score-tooltip">
           <!-- Tooltip header -->

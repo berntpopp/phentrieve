@@ -20,7 +20,7 @@
           <v-tooltip
             location="bottom"
             :text="$t('queryInterface.tooltips.embeddingModel')"
-            role="tooltip"
+            :content-props="{ 'aria-label': $t('queryInterface.tooltips.embeddingModel') }"
           >
             <template #activator="{ props }">
               <v-select
@@ -55,7 +55,9 @@
           <v-tooltip
             location="bottom"
             :text="$t('queryInterface.tooltips.similarityThreshold')"
-            role="tooltip"
+            :content-props="{
+              'aria-label': $t('queryInterface.tooltips.similarityThreshold'),
+            }"
           >
             <template #activator="{ props }">
               <div>
@@ -98,7 +100,7 @@
           <v-tooltip
             location="bottom"
             :text="$t('queryInterface.tooltips.language')"
-            role="tooltip"
+            :content-props="{ 'aria-label': $t('queryInterface.tooltips.language') }"
           >
             <template #activator="{ props }">
               <v-select
@@ -134,7 +136,7 @@
           <v-tooltip
             location="bottom"
             :text="$t('queryInterface.tooltips.includeDetails')"
-            role="tooltip"
+            :content-props="{ 'aria-label': $t('queryInterface.tooltips.includeDetails') }"
           >
             <template #activator="{ props }">
               <v-switch

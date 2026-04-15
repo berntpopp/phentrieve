@@ -115,7 +115,10 @@ jobs:
       - name: Run mypy type checking
         run: |
           uv run mypy phentrieve/ api/
-        continue-on-error: true
+
+      - name: Validate pytest collection
+        run: |
+          uv run pytest -o addopts='' tests/ --collect-only -q --strict-markers -m "not slow and not e2e"
 
       - name: Run pytest
         env:

@@ -4,7 +4,7 @@
     <v-tooltip
       location="left"
       :text="$t('queryInterface.tooltips.phenotypeCollection')"
-      role="tooltip"
+      :content-props="{ 'aria-label': $t('queryInterface.tooltips.phenotypeCollection') }"
     >
       <template #activator="{ props }">
         <v-btn
@@ -97,6 +97,9 @@
             <v-tooltip
               :text="$t('queryInterface.phenotypeCollection.assertionToggle')"
               location="start"
+              :content-props="{
+                'aria-label': $t('queryInterface.phenotypeCollection.assertionToggle'),
+              }"
             >
               <template #activator="{ props }">
                 <v-btn
@@ -153,7 +156,11 @@
         {{ $t('queryInterface.phenotypeCollection.subjectInfoHeader') }}
       </v-list-subheader>
       <div class="pa-3">
-        <v-tooltip location="bottom" :text="$t('queryInterface.tooltips.subjectId')" role="tooltip">
+        <v-tooltip
+          location="bottom"
+          :text="$t('queryInterface.tooltips.subjectId')"
+          :content-props="{ 'aria-label': $t('queryInterface.tooltips.subjectId') }"
+        >
           <template #activator="{ props }">
             <v-text-field
               v-bind="props"
@@ -176,7 +183,11 @@
           </template>
         </v-tooltip>
 
-        <v-tooltip location="bottom" :text="$t('queryInterface.tooltips.sex')" role="tooltip">
+        <v-tooltip
+          location="bottom"
+          :text="$t('queryInterface.tooltips.sex')"
+          :content-props="{ 'aria-label': $t('queryInterface.tooltips.sex') }"
+        >
           <template #activator="{ props }">
             <v-select
               v-bind="props"
@@ -204,7 +215,7 @@
         <v-tooltip
           location="bottom"
           :text="$t('queryInterface.tooltips.dateOfBirth')"
-          role="tooltip"
+          :content-props="{ 'aria-label': $t('queryInterface.tooltips.dateOfBirth') }"
         >
           <template #activator="{ props }">
             <v-text-field

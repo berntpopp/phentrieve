@@ -49,7 +49,13 @@ function handleResetAll() {
           :aria-label="t('conversationSettings.tooltip', 'Conversation Settings')"
         >
           <v-icon>mdi-cog</v-icon>
-          <v-tooltip activator="parent" location="top">
+          <v-tooltip
+            activator="parent"
+            location="top"
+            :content-props="{
+              'aria-label': t('conversationSettings.tooltip', 'Conversation Settings'),
+            }"
+          >
             {{ t('conversationSettings.tooltip', 'Conversation Settings') }}
           </v-tooltip>
         </v-btn>

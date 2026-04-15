@@ -201,17 +201,18 @@ uv sync --all-extras          # Everything (recommended for dev)
 For working on the Vue 3 frontend:
 
 ```bash
-# Navigate to frontend directory
-cd frontend
+make frontend-install
+make dev-frontend
+```
 
-# Install dependencies (first time only)
-npm install
+The frontend dev server runs on `http://localhost:5734` with Vite HMR.
 
-# Development server with HMR
-npm run dev
+For the full local development workflow from the project root:
 
-# Or use Makefile from project root
-make frontend-dev
+```bash
+make install-dev
+make dev-api
+make dev-frontend
 ```
 
 ### Frontend Commands
@@ -505,12 +506,11 @@ pipx install uv
 uv --version
 ```
 
-### Virtual Environment Not Activated
+### Virtual Environment Path Issues
 
 ```bash
-# Activate manually
-source .venv/bin/activate  # Linux/macOS
-.venv\Scripts\activate     # Windows
+# Run commands through uv without manual activation
+uv run phentrieve --version
 ```
 
 ### Port Conflicts
