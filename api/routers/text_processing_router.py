@@ -1,13 +1,23 @@
 import asyncio
 import logging
+from datetime import UTC, datetime
+from pathlib import Path
 from typing import Any
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, Request, status
 from fastapi.concurrency import run_in_threadpool
 
+import api.config as api_config
 from api.dependencies import (
     get_dense_retriever_dependency,
     get_sbert_model_dependency,
+)
+from api.llm_quota import (
+    DailyQuotaStore,
+    QuotaExceededError,
+    QuotaStatus,
+    hash_subject_key,
+    resolve_subject_ip,
 )
 from api.schemas.text_processing_schemas import (
     AggregatedHPOTermAPI,
@@ -69,6 +79,79 @@ def _get_trust_remote_code_for_model(model_name: str) -> bool:
     """Return the server-owned trust policy for an allowed text-processing model."""
     normalized_name = model_name.lower()
     return "biolord" in normalized_name or "jina" in normalized_name
+
+
+def _is_production_environment() -> bool:
+    return api_config.PHENTRIEVE_ENV.strip().lower() == "production"
+
+
+def _get_trusted_proxy_cidrs() -> list[str]:
+    return [
+        cidr.strip()
+        for cidr in api_config.PHENTRIEVE_TRUSTED_PROXY_CIDRS.split(",")
+        if cidr.strip()
+    ]
+
+
+def _get_llm_quota_store() -> DailyQuotaStore:
+    return DailyQuotaStore(
+        db_path=Path(api_config.PHENTRIEVE_LLM_QUOTA_DB_PATH),
+        daily_limit=api_config.PHENTRIEVE_LLM_DAILY_LIMIT,
+    )
+
+
+def check_llm_quota_or_raise(http_request: Request) -> QuotaStatus:
+    client_host = http_request.client.host if http_request.client else None
+    subject_ip = resolve_subject_ip(
+        client_host=client_host,
+        x_forwarded_for=http_request.headers.get("x-forwarded-for"),
+        trusted_proxy_cidrs=_get_trusted_proxy_cidrs(),
+    )
+    if subject_ip is None:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=(
+                "Unable to resolve a trusted anonymous subject for LLM quota "
+                "enforcement. Verify proxy forwarding headers and "
+                "PHENTRIEVE_TRUSTED_PROXY_CIDRS."
+            ),
+        )
+
+    usage_date_utc = datetime.now(UTC).date().isoformat()
+    subject_key = hash_subject_key(subject_ip)
+    try:
+        quota_status = _get_llm_quota_store().get_status(
+            subject_key=subject_key,
+            usage_date_utc=usage_date_utc,
+        )
+    except Exception as exc:  # noqa: BLE001
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=(
+                "Unable to evaluate LLM quota state. Verify "
+                "PHENTRIEVE_LLM_QUOTA_DB_PATH and filesystem permissions."
+            ),
+        ) from exc
+
+    if quota_status.quota_remaining <= 0:
+        raise QuotaExceededError(
+            quota_used=quota_status.quota_used,
+            quota_limit=quota_status.quota_limit,
+            quota_remaining=quota_status.quota_remaining,
+            usage_date_utc=quota_status.usage_date_utc,
+        )
+
+    return quota_status
+
+
+def _record_llm_quota_success(quota_status: QuotaStatus) -> None:
+    try:
+        _get_llm_quota_store().record_success(
+            subject_key=quota_status.subject_key,
+            usage_date_utc=quota_status.usage_date_utc,
+        )
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("API: Failed to persist LLM quota usage: %s", exc)
 
 
 def _get_chunking_config_for_api(
@@ -393,7 +476,10 @@ def _adapt_shared_service_response_to_api(
     summary="Process clinical text to extract HPO terms",
     description="Process clinical text with chunking, assertion detection, and HPO term extraction.",
 )
-async def process_text_extract_hpo(request: TextProcessingRequest):
+async def process_text_extract_hpo(
+    http_request: Request,
+    request: TextProcessingRequest,
+):
     """
     Process clinical text to extract Human Phenotype Ontology (HPO) terms.
 
@@ -426,11 +512,24 @@ async def process_text_extract_hpo(request: TextProcessingRequest):
         "API: Processing %s chars with %ss timeout", text_length, timeout_seconds
     )
 
+    quota_status: QuotaStatus | None = None
+    if request.extraction_backend == "llm" and _is_production_environment():
+        try:
+            quota_status = check_llm_quota_or_raise(http_request)
+        except QuotaExceededError as exc:
+            raise HTTPException(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                detail=exc.to_detail(),
+            ) from exc
+
     try:
         # Wrap processing with timeout protection
-        return await asyncio.wait_for(
+        response = await asyncio.wait_for(
             _process_text_via_shared_service(request), timeout=timeout_seconds
         )
+        if quota_status is not None:
+            _record_llm_quota_success(quota_status)
+        return response
     except asyncio.exceptions.TimeoutError:
         logger.error(
             "API: Request timed out after %ss (text length: %s chars)",

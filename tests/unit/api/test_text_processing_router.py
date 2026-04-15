@@ -8,6 +8,7 @@ from fastapi.testclient import TestClient
 
 from api.main import app
 from api.routers.text_processing_router import (
+    QuotaExceededError,
     _get_chunking_config_for_api,
     _get_trust_remote_code_for_model,
     _prepare_standard_request_context,
@@ -57,6 +58,35 @@ def test_text_processing_router_returns_llm_meta(client, monkeypatch):
 
     assert response.status_code == 200
     assert response.json()["meta"]["extraction_backend"] == "llm"
+
+
+def test_text_processing_router_returns_429_when_quota_exhausted(client, monkeypatch):
+    monkeypatch.setattr(
+        "api.config.PHENTRIEVE_ENV",
+        "production",
+        raising=False,
+    )
+
+    def raise_quota(*args, **kwargs):
+        raise QuotaExceededError(
+            quota_used=3,
+            quota_limit=3,
+            quota_remaining=0,
+            usage_date_utc="2026-04-15",
+        )
+
+    monkeypatch.setattr(
+        "api.routers.text_processing_router.check_llm_quota_or_raise",
+        raise_quota,
+    )
+
+    response = client.post(
+        "/api/v1/text/process",
+        json={"text": "note", "extraction_backend": "llm"},
+    )
+
+    assert response.status_code == 429
+    assert response.json()["detail"]["quota_remaining"] == 0
 
 
 def test_text_processing_router_returns_standard_extraction_backend_contract(
