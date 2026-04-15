@@ -75,7 +75,7 @@ mcp = [
     "pydantic-settings>=2.0.0",
 ]
 llm = [
-    "openai>=2.0.0",
+    "openai>=2.0.0,<3.0.0",
 ]
 # Install CLI + API with: pip install "phentrieve[api]"
 # Install CLI + MCP with: pip install "phentrieve[mcp]"

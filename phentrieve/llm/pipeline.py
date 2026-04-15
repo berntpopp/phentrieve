@@ -1,5 +1,10 @@
 from phentrieve.llm.prompts.loader import load_prompt_template
-from phentrieve.llm.types import LLMExtractionResult, LLMMeta, LLMPipelineConfig
+from phentrieve.llm.types import (
+    LLMExtractionResult,
+    LLMMeta,
+    LLMPipelineConfig,
+    LLMTermsResult,
+)
 
 
 class TwoPhaseLLMPipeline:
@@ -12,13 +17,12 @@ class TwoPhaseLLMPipeline:
         parsed = self.provider.run_structured_prompt(
             system_prompt=system_prompt,
             user_prompt=user_prompt,
-            response_model=LLMExtractionResult,
+            response_model=LLMTermsResult,
         )
-        return parsed.model_copy(
-            update={
-                "meta": LLMMeta(
-                    llm_model=config.model,
-                    llm_mode=config.mode,
-                )
-            }
+        return LLMExtractionResult(
+            terms=parsed.terms,
+            meta=LLMMeta(
+                llm_model=config.model,
+                llm_mode=config.mode,
+            ),
         )

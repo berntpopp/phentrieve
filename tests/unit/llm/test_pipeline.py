@@ -9,6 +9,7 @@ from phentrieve.llm.types import (
     LLMMeta,
     LLMPhenotype,
     LLMPipelineConfig,
+    LLMTermsResult,
 )
 
 
@@ -65,14 +66,7 @@ def test_two_phase_pipeline_normalizes_structured_terms():
                     "evidence": "Patient had recurrent seizures",
                     "assertion": "present",
                 }
-            ],
-            "meta": {
-                "llm_model": "gpt-5.4-mini",
-                "llm_mode": "two_phase",
-                "prompt_version": "v1",
-                "token_input": None,
-                "token_output": None,
-            },
+            ]
         }
     )
     pipeline = TwoPhaseLLMPipeline(provider=provider)
@@ -86,7 +80,7 @@ def test_two_phase_pipeline_normalizes_structured_terms():
         {
             "system_prompt": system_prompt,
             "user_prompt": user_prompt,
-            "response_model": LLMExtractionResult,
+            "response_model": LLMTermsResult,
         }
     ]
     assert result.terms == [
