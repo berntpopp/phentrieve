@@ -30,9 +30,6 @@ from phentrieve.config import (
     DEFAULT_STEP_SIZE_TOKENS,
     DEFAULT_WINDOW_SIZE_TOKENS,
 )
-from phentrieve.text_processing.hpo_extraction_orchestrator import (
-    orchestrate_hpo_extraction,
-)
 from phentrieve.text_processing.pipeline import TextProcessingPipeline
 from phentrieve.utils import detect_language
 from phentrieve.utils import sanitize_log_value as _sanitize
@@ -373,13 +370,20 @@ def _adapt_shared_service_response_to_api(
         meta.setdefault("num_processed_chunks", len(processed_chunks))
         meta.setdefault("num_aggregated_hpo_terms", len(aggregated_terms))
 
-    return TextProcessingResponseAPI.model_validate(
+    response = TextProcessingResponseAPI.model_validate(
         {
             "meta": meta,
             "processed_chunks": processed_chunks,
             "aggregated_hpo_terms": aggregated_terms,
         }
     )
+
+    if __debug__:
+        _validate_response_chunk_references(
+            response.processed_chunks, response.aggregated_hpo_terms
+        )
+
+    return response
 
 
 @router.post(
@@ -517,286 +521,5 @@ async def _process_text_via_shared_service(request: TextProcessingRequest):
 
 
 async def _process_text_internal(request: TextProcessingRequest):
-    """
-    Internal processing function for text extraction.
-
-    Separated from the main endpoint to enable timeout wrapping.
-    Uses cached model dependencies for improved performance.
-    """
-
-    try:
-        # Determine language
-        actual_language = request.language
-        if not actual_language or actual_language.lower() == "auto":
-            try:
-                actual_language = await run_in_threadpool(
-                    detect_language, request.text_content, default_lang=DEFAULT_LANGUAGE
-                )
-                logger.info(
-                    "API: Auto-detected language: %s", _sanitize(actual_language)
-                )
-            except Exception as lang_e:
-                logger.warning(
-                    "API: Language detection failed: %s. Defaulting to %s.",
-                    _sanitize(lang_e),
-                    DEFAULT_LANGUAGE,
-                )
-                actual_language = DEFAULT_LANGUAGE
-
-        # Model loading using cached dependencies (much faster than direct loading!)
-        # Validate caller-provided model names against the server allowlist.
-        retrieval_model_name_to_load = _validate_model_name(
-            "retrieval_model_name", request.retrieval_model_name
-        )
-        sbert_for_chunking_name_to_load = _validate_model_name(
-            "semantic_model_name",
-            request.semantic_model_name
-            if request.semantic_model_name is not None
-            else retrieval_model_name_to_load,
-        )
-
-        logger.info(
-            "API: Effective retrieval model: %s",
-            _sanitize(retrieval_model_name_to_load),
-        )
-        logger.info(
-            "API: Effective semantic model for chunking: %s",
-            _sanitize(sbert_for_chunking_name_to_load),
-        )
-
-        # Get cached retrieval model (will load only once per server lifecycle)
-        retrieval_sbert_model = await get_sbert_model_dependency(
-            model_name_requested=retrieval_model_name_to_load,
-            trust_remote_code=_get_trust_remote_code_for_model(
-                retrieval_model_name_to_load
-            ),
-        )
-
-        # Determine whether we need a separate model for chunking
-        if sbert_for_chunking_name_to_load != retrieval_model_name_to_load:
-            logger.info(
-                "API: Using separate semantic model for chunking: %s",
-                _sanitize(sbert_for_chunking_name_to_load),
-            )
-            sbert_for_chunking = await get_sbert_model_dependency(
-                model_name_requested=sbert_for_chunking_name_to_load,
-                trust_remote_code=_get_trust_remote_code_for_model(
-                    sbert_for_chunking_name_to_load
-                ),
-            )
-        else:
-            # Reuse retrieval model for chunking
-            sbert_for_chunking = retrieval_sbert_model
-
-        # Get cached retriever (initializes only once per model)
-        retriever = await get_dense_retriever_dependency(
-            sbert_model_name_for_retriever=retrieval_model_name_to_load
-        )
-
-        # Prepare pipeline configuration
-        chunking_pipeline_cfg = _get_chunking_config_for_api(request)
-
-        assertion_cfg = dict(DEFAULT_ASSERTION_CONFIG)
-        assertion_cfg["disable"] = request.no_assertion_detection
-        assertion_cfg["preference"] = request.assertion_preference
-
-        # Important: We need to ensure the language is explicitly set in assertion_cfg
-        # This matches how the CLI explicitly passes language to the pipeline
-        assertion_cfg["language"] = actual_language
-
-        logger.info("API: Using assertion configuration: %s", assertion_cfg)
-
-        text_pipeline = TextProcessingPipeline(
-            language=actual_language,
-            chunking_pipeline_config=chunking_pipeline_cfg,
-            assertion_config=assertion_cfg,
-            sbert_model_for_semantic_chunking=sbert_for_chunking,
-        )
-
-        # Run the pipeline to get chunks and initial assertion statuses
-        logger.info("API: Processing text through pipeline...")
-        processed_chunks_list = await run_in_threadpool(
-            text_pipeline.process,
-            request.text_content,
-            include_positions=request.include_chunk_positions,
-        )
-
-        api_processed_chunks: list[ProcessedChunkAPI] = []
-        text_chunks_for_orchestrator: list[str] = []
-        assertion_statuses_for_orchestrator: list[str | None] = []
-
-        for idx, p_chunk in enumerate(processed_chunks_list):
-            api_processed_chunks.append(
-                ProcessedChunkAPI(
-                    chunk_id=idx + 1,  # 1-based for display/API
-                    text=p_chunk["text"],
-                    status=p_chunk["status"].value,  # Convert Enum to string
-                    assertion_details=p_chunk.get("assertion_details"),
-                    start_char=p_chunk.get("start_char"),
-                    end_char=p_chunk.get("end_char"),
-                )
-            )
-            text_chunks_for_orchestrator.append(p_chunk["text"])
-            assertion_statuses_for_orchestrator.append(p_chunk["status"].value)
-
-        logger.info(
-            "API: Running HPO extraction orchestrator on %s chunks.",
-            len(text_chunks_for_orchestrator),
-        )
-        # Call the core orchestrator function (this is synchronous, so wrap it)
-        (
-            aggregated_hpo_terms_internal,
-            detailed_chunk_results_internal,
-        ) = await run_in_threadpool(
-            orchestrate_hpo_extraction,
-            text_chunks=text_chunks_for_orchestrator,
-            assertion_statuses=assertion_statuses_for_orchestrator,
-            retriever=retriever,
-            language=actual_language,
-            chunk_retrieval_threshold=(
-                request.chunk_retrieval_threshold
-                if request.chunk_retrieval_threshold is not None
-                else DEFAULT_CHUNK_RETRIEVAL_THRESHOLD
-            ),
-            num_results_per_chunk=(
-                request.num_results_per_chunk
-                if request.num_results_per_chunk is not None
-                else 10
-            ),
-            min_confidence_for_aggregated=(
-                request.aggregated_term_confidence
-                if request.aggregated_term_confidence is not None
-                else DEFAULT_MIN_CONFIDENCE_AGGREGATED
-            ),
-            top_term_per_chunk=(
-                request.top_term_per_chunk_for_aggregation
-                if request.top_term_per_chunk_for_aggregation is not None
-                else False
-            ),
-            include_details=(
-                request.include_details
-                if request.include_details is not None
-                else False
-            ),
-        )
-
-        # Add HPO matches to each processed chunk from the detailed chunk results
-        chunk_id_to_processed_chunk = {
-            chunk.chunk_id: chunk for chunk in api_processed_chunks
-        }
-        for chunk_result in detailed_chunk_results_internal:
-            chunk_idx = chunk_result.get("chunk_idx", 0)
-            chunk_id = chunk_idx + 1  # Convert 0-based to 1-based for API
-
-            if chunk_id in chunk_id_to_processed_chunk:
-                processed_chunk = chunk_id_to_processed_chunk[chunk_id]
-                # Add HPO matches to the processed chunk
-                for match in chunk_result.get("matches", []):
-                    processed_chunk.hpo_matches.append(
-                        HPOMatchInChunkAPI(
-                            hpo_id=match.get("id"),
-                            name=match.get("name"),
-                            score=match.get("score", 0.0),
-                        )
-                    )
-
-        # Convert internal aggregated results to API schema
-        api_aggregated_hpo_terms: list[AggregatedHPOTermAPI] = []
-        for term_data in aggregated_hpo_terms_internal:
-            # Create text attribution spans
-            text_attributions = []
-            for attribution in term_data.get("text_attributions", []):
-                text_attributions.append(
-                    TextAttributionSpanAPI(
-                        chunk_id=attribution.get("chunk_idx", 0)
-                        + 1,  # Convert 0-based to 1-based
-                        start_char=attribution.get("start_char", 0),
-                        end_char=attribution.get("end_char", 0),
-                        matched_text_in_chunk=attribution.get(
-                            "matched_text_in_chunk", ""
-                        ),
-                    )
-                )
-
-            # Convert internal 0-based chunk indices to 1-based API indices
-            source_chunk_ids = [
-                chunk_idx + 1 for chunk_idx in term_data.get("chunks", [])
-            ]
-            top_evidence_chunk_id = None
-            top_evidence_chunk_idx = term_data.get("top_evidence_chunk_idx")
-            if top_evidence_chunk_idx is not None:
-                top_evidence_chunk_id = top_evidence_chunk_idx + 1
-
-            api_aggregated_hpo_terms.append(
-                AggregatedHPOTermAPI(
-                    hpo_id=term_data["id"],  # ID should always be present
-                    name=term_data["name"],  # Name should always be present
-                    confidence=term_data.get("confidence", 0.0),
-                    status=term_data.get("status", "unknown"),
-                    evidence_count=term_data.get("evidence_count", 1),
-                    source_chunk_ids=source_chunk_ids,
-                    max_score_from_evidence=term_data.get("score", 0.0),
-                    top_evidence_chunk_id=top_evidence_chunk_id,
-                    text_attributions=text_attributions,
-                    definition=term_data.get("definition"),  # Include when available
-                    synonyms=term_data.get("synonyms"),  # Include when available
-                    # Keep for backward compatibility
-                    score=term_data.get("score", 0.0),
-                )
-            )
-
-        # Construct meta information for the response
-        response_meta = {
-            "request_parameters": request.dict(
-                exclude_none=True
-            ),  # Using dict for Pydantic v1.x compatibility
-            "effective_language": actual_language,
-            "effective_chunking_strategy_config": chunking_pipeline_cfg,
-            "effective_retrieval_model": retriever.model_name if retriever else None,
-            "num_processed_chunks": len(api_processed_chunks),
-            "num_aggregated_hpo_terms": len(api_aggregated_hpo_terms),
-        }
-
-        # Validate response invariants (only when assertions enabled)
-        if __debug__:
-            _validate_response_chunk_references(
-                api_processed_chunks, api_aggregated_hpo_terms
-            )
-
-        return TextProcessingResponseAPI(
-            meta=response_meta,
-            processed_chunks=api_processed_chunks,
-            aggregated_hpo_terms=api_aggregated_hpo_terms,
-        )
-
-    except HTTPException:
-        raise
-    except ValueError as ve:
-        logger.warning(
-            "API: Bad request for text processing: %s", _sanitize(ve), exc_info=True
-        )
-        raise HTTPException(
-            status_code=400, detail=f"Invalid input parameter: {str(ve)}"
-        )
-    except FileNotFoundError as fnfe:
-        logger.error(
-            "API: Missing data file during text processing: %s",
-            _sanitize(fnfe),
-            exc_info=True,
-        )
-        raise HTTPException(
-            status_code=503,
-            detail=f"Service temporarily unavailable due to missing data. Details: {str(fnfe)}",
-        )
-    except Exception as e:
-        error_type = type(e).__name__
-        logger.error(
-            "API: Unhandled internal server error during text processing: %s - %s",
-            _sanitize(error_type),
-            _sanitize(e),
-            exc_info=True,
-        )
-        raise HTTPException(
-            status_code=500,
-            detail=f"An unexpected internal server error occurred ({error_type}). Please check server logs.",
-        )
+    """Compatibility wrapper for the shared-service-based text processing path."""
+    return await _process_text_via_shared_service(request)

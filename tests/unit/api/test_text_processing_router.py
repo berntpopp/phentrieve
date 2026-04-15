@@ -1,6 +1,5 @@
 """Unit tests for text processing router helper functions."""
 
-from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -11,7 +10,8 @@ from api.main import app
 from api.routers.text_processing_router import (
     _get_chunking_config_for_api,
     _get_trust_remote_code_for_model,
-    _process_text_internal,
+    _prepare_standard_request_context,
+    _process_text_via_shared_service,
     _validate_response_chunk_references,
 )
 from api.schemas.text_processing_schemas import (
@@ -345,23 +345,6 @@ class TestTextProcessingModelValidation:
                     mock_pipeline_cls.return_value = mock_pipeline
 
                     async def fake_run_in_threadpool(func, *args, **kwargs):
-                        if func is mock_pipeline.process:
-                            return [
-                                {
-                                    "text": "chunk",
-                                    "status": SimpleNamespace(value="affirmed"),
-                                    "assertion_details": None,
-                                    "start_char": 0,
-                                    "end_char": 5,
-                                }
-                            ]
-
-                        if (
-                            getattr(func, "__name__", "")
-                            == "orchestrate_hpo_extraction"
-                        ):
-                            return ([], [])
-
                         raise AssertionError(f"Unexpected callable: {func!r}")
 
                     with patch(
@@ -369,7 +352,7 @@ class TestTextProcessingModelValidation:
                         side_effect=fake_run_in_threadpool,
                     ):
                         with pytest.raises(HTTPException) as exc_info:
-                            await _process_text_internal(request)
+                            await _prepare_standard_request_context(request)
 
         assert exc_info.value.status_code == 400
         assert "retrieval_model_name" in str(exc_info.value.detail)
@@ -403,30 +386,13 @@ class TestTextProcessingModelValidation:
                     mock_pipeline_cls.return_value = mock_pipeline
 
                     async def fake_run_in_threadpool(func, *args, **kwargs):
-                        if func is mock_pipeline.process:
-                            return [
-                                {
-                                    "text": "chunk",
-                                    "status": SimpleNamespace(value="affirmed"),
-                                    "assertion_details": None,
-                                    "start_char": 0,
-                                    "end_char": 5,
-                                }
-                            ]
-
-                        if (
-                            getattr(func, "__name__", "")
-                            == "orchestrate_hpo_extraction"
-                        ):
-                            return ([], [])
-
                         raise AssertionError(f"Unexpected callable: {func!r}")
 
                     with patch(
                         "api.routers.text_processing_router.run_in_threadpool",
                         side_effect=fake_run_in_threadpool,
                     ):
-                        await _process_text_internal(request)
+                        await _prepare_standard_request_context(request)
 
         mock_get_model.assert_called_once_with(
             model_name_requested=DEFAULT_MODEL,
@@ -463,30 +429,13 @@ class TestTextProcessingModelValidation:
                     mock_pipeline_cls.return_value = mock_pipeline
 
                     async def fake_run_in_threadpool(func, *args, **kwargs):
-                        if func is mock_pipeline.process:
-                            return [
-                                {
-                                    "text": "chunk",
-                                    "status": SimpleNamespace(value="affirmed"),
-                                    "assertion_details": None,
-                                    "start_char": 0,
-                                    "end_char": 5,
-                                }
-                            ]
-
-                        if (
-                            getattr(func, "__name__", "")
-                            == "orchestrate_hpo_extraction"
-                        ):
-                            return ([], [])
-
                         raise AssertionError(f"Unexpected callable: {func!r}")
 
                     with patch(
                         "api.routers.text_processing_router.run_in_threadpool",
                         side_effect=fake_run_in_threadpool,
                     ):
-                        await _process_text_internal(request)
+                        await _prepare_standard_request_context(request)
 
         mock_get_model.assert_called_once_with(
             model_name_requested=self.SUPPORTED_NON_DEFAULT_MODEL,
@@ -526,30 +475,13 @@ class TestTextProcessingModelValidation:
                     mock_pipeline_cls.return_value = mock_pipeline
 
                     async def fake_run_in_threadpool(func, *args, **kwargs):
-                        if func is mock_pipeline.process:
-                            return [
-                                {
-                                    "text": "chunk",
-                                    "status": SimpleNamespace(value="affirmed"),
-                                    "assertion_details": None,
-                                    "start_char": 0,
-                                    "end_char": 5,
-                                }
-                            ]
-
-                        if (
-                            getattr(func, "__name__", "")
-                            == "orchestrate_hpo_extraction"
-                        ):
-                            return ([], [])
-
                         raise AssertionError(f"Unexpected callable: {func!r}")
 
                     with patch(
                         "api.routers.text_processing_router.run_in_threadpool",
                         side_effect=fake_run_in_threadpool,
                     ):
-                        await _process_text_internal(request)
+                        await _prepare_standard_request_context(request)
 
         mock_get_model.assert_called_once()
         _, kwargs = mock_get_model.call_args
@@ -561,8 +493,8 @@ class TestTextProcessingModelValidation:
         }
 
     @pytest.mark.asyncio
-    async def test_preserves_explicit_zero_values_for_orchestrator(self):
-        """Explicit 0.0 values should reach orchestrate_hpo_extraction unchanged."""
+    async def test_preserves_explicit_zero_values_for_extraction_backend(self):
+        """Explicit 0.0 values should reach the shared-service kwargs unchanged."""
         request = TextProcessingRequest(
             text_content="test text",
             language="en",
@@ -570,56 +502,89 @@ class TestTextProcessingModelValidation:
             aggregated_term_confidence=0.0,
         )
 
-        recorded_orchestrator_call: dict[str, object] = {}
+        standard_context = {
+            "actual_language": "en",
+            "retrieval_model_name": DEFAULT_MODEL,
+            "chunking_pipeline_config": [{"type": "simple"}],
+            "retriever": MagicMock(),
+            "text_pipeline": MagicMock(sbert_model=MagicMock()),
+        }
+        captured_kwargs: dict[str, object] = {}
 
         with patch(
-            "api.routers.text_processing_router.get_sbert_model_dependency"
-        ) as mock_get_model:
-            mock_get_model.return_value = MagicMock()
-
+            "api.routers.text_processing_router._prepare_standard_request_context",
+            AsyncMock(return_value=standard_context),
+        ):
             with patch(
-                "api.routers.text_processing_router.get_dense_retriever_dependency"
-            ) as mock_get_retriever:
-                mock_get_retriever.return_value = MagicMock()
+                "api.routers.text_processing_router.run_full_text_service",
+                side_effect=lambda **kwargs: (
+                    captured_kwargs.update(kwargs)
+                    or {
+                        "meta": {"extraction_backend": "standard"},
+                        "processed_chunks": [],
+                        "aggregated_hpo_terms": [],
+                    }
+                ),
+            ):
+                await _process_text_via_shared_service(request)
 
-                with patch(
-                    "api.routers.text_processing_router.TextProcessingPipeline"
-                ) as mock_pipeline_cls:
-                    mock_pipeline = MagicMock()
-                    mock_pipeline.process = MagicMock()
-                    mock_pipeline_cls.return_value = mock_pipeline
+        assert captured_kwargs["chunk_retrieval_threshold"] == 0.0
+        assert captured_kwargs["min_confidence_for_aggregated"] == 0.0
 
-                    async def fake_run_in_threadpool(func, *args, **kwargs):
-                        if func is mock_pipeline.process:
-                            return [
-                                {
-                                    "text": "chunk",
-                                    "status": SimpleNamespace(value="affirmed"),
-                                    "assertion_details": None,
-                                    "start_char": 0,
-                                    "end_char": 5,
-                                }
-                            ]
-
-                        if (
-                            getattr(func, "__name__", "")
-                            == "orchestrate_hpo_extraction"
-                        ):
-                            recorded_orchestrator_call["kwargs"] = kwargs
-                            return ([], [])
-
-                        raise AssertionError(f"Unexpected callable: {func!r}")
-
-                    with patch(
-                        "api.routers.text_processing_router.run_in_threadpool",
-                        side_effect=fake_run_in_threadpool,
-                    ):
-                        await _process_text_internal(request)
-
-        assert recorded_orchestrator_call["kwargs"]["chunk_retrieval_threshold"] == 0.0
-        assert (
-            recorded_orchestrator_call["kwargs"]["min_confidence_for_aggregated"] == 0.0
+    @pytest.mark.asyncio
+    async def test_standard_extraction_backend_shared_service_path_validates_adapted_response(
+        self,
+    ):
+        """Standard shared-service responses should still hit the invariant check."""
+        request = TextProcessingRequest(
+            text_content="test text",
+            language="en",
         )
+
+        standard_context = {
+            "actual_language": "en",
+            "retrieval_model_name": DEFAULT_MODEL,
+            "chunking_pipeline_config": [{"type": "simple"}],
+            "retriever": MagicMock(),
+            "text_pipeline": MagicMock(sbert_model=MagicMock()),
+        }
+
+        with patch(
+            "api.routers.text_processing_router._prepare_standard_request_context",
+            AsyncMock(return_value=standard_context),
+        ):
+            with patch(
+                "api.routers.text_processing_router.run_full_text_service",
+                return_value={
+                    "meta": {"extraction_backend": "standard"},
+                    "processed_chunks": [
+                        {
+                            "chunk_id": 1,
+                            "text": "chunk",
+                            "status": "affirmed",
+                            "hpo_matches": [{"id": "HP:0001250", "name": "Seizure"}],
+                        }
+                    ],
+                    "aggregated_hpo_terms": [
+                        {
+                            "id": "HP:0001250",
+                            "name": "Seizure",
+                            "confidence": 0.9,
+                            "status": "affirmed",
+                            "evidence_count": 1,
+                            "chunks": [0],
+                            "text_attributions": [],
+                            "score": 0.9,
+                        }
+                    ],
+                },
+            ):
+                with patch(
+                    "api.routers.text_processing_router._validate_response_chunk_references"
+                ) as mock_validate:
+                    await _process_text_via_shared_service(request)
+
+        mock_validate.assert_called_once()
 
 
 class TestValidateResponseChunkReferences:
