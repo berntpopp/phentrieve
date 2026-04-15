@@ -63,7 +63,7 @@ function loadLocales(localesDir) {
       const content = fs.readFileSync(filePath, 'utf-8');
       locales[locale] = JSON.parse(content);
     } catch (error) {
-      throw new Error(`Failed to parse ${file}: ${error.message}`);
+      throw new Error(`Failed to parse ${file}: ${error.message}`, { cause: error });
     }
   });
 
@@ -294,7 +294,9 @@ function formatReport(locales, structureIssues, paramIssues) {
 
     Object.entries(structureIssues).forEach(([locale, { missing, extra }]) => {
       if (missing.length > 0) {
-        console.log(`${colors.bright}${locale}.json${colors.reset} - Missing keys (present in ${referenceLocale}.json):`);
+        console.log(
+          `${colors.bright}${locale}.json${colors.reset} - Missing keys (present in ${referenceLocale}.json):`
+        );
         missing.forEach((key) => {
           console.log(`  ${colors.red}✗${colors.reset} ${key}`);
         });
@@ -302,7 +304,9 @@ function formatReport(locales, structureIssues, paramIssues) {
       }
 
       if (extra.length > 0) {
-        console.log(`${colors.bright}${locale}.json${colors.reset} - Extra keys (not in ${referenceLocale}.json):`);
+        console.log(
+          `${colors.bright}${locale}.json${colors.reset} - Extra keys (not in ${referenceLocale}.json):`
+        );
         extra.forEach((key) => {
           console.log(`  ${colors.yellow}⚠${colors.reset} ${key}`);
         });
@@ -322,8 +326,12 @@ function formatReport(locales, structureIssues, paramIssues) {
 
     paramIssues.forEach(({ locale, key, expected, actual }) => {
       console.log(`${colors.bright}Key:${colors.reset} ${key}`);
-      console.log(`  ${referenceLocale}.json: {${expected.join('}, {')}} ${colors.green}✓${colors.reset}`);
-      console.log(`  ${locale}.json: {${actual.join('}, {')}} ${colors.red}✗ Mismatch!${colors.reset}`);
+      console.log(
+        `  ${referenceLocale}.json: {${expected.join('}, {')}} ${colors.green}✓${colors.reset}`
+      );
+      console.log(
+        `  ${locale}.json: {${actual.join('}, {')}} ${colors.red}✗ Mismatch!${colors.reset}`
+      );
       console.log(`  ${colors.yellow}Expected: {${expected.join('}, {')}${colors.reset}\n`);
     });
   } else {
@@ -335,10 +343,14 @@ function formatReport(locales, structureIssues, paramIssues) {
   const totalIssues = Object.keys(structureIssues).length + paramIssues.length;
 
   if (totalIssues === 0) {
-    console.log(`\n${colors.bright}${colors.green}✅ All i18n validation checks passed!${colors.reset}\n`);
+    console.log(
+      `\n${colors.bright}${colors.green}✅ All i18n validation checks passed!${colors.reset}\n`
+    );
     return 0; // Success
   } else {
-    console.log(`\n${colors.bright}${colors.red}✗ i18n validation failed with ${totalIssues} issue(s)${colors.reset}\n`);
+    console.log(
+      `\n${colors.bright}${colors.red}✗ i18n validation failed with ${totalIssues} issue(s)${colors.reset}\n`
+    );
     return 1; // Failure
   }
 }
@@ -358,7 +370,9 @@ function main() {
     // Load all locales
     const locales = loadLocales(localesDir);
 
-    console.log(`${colors.green}✓${colors.reset} Loaded ${Object.keys(locales).length} locale files\n`);
+    console.log(
+      `${colors.green}✓${colors.reset} Loaded ${Object.keys(locales).length} locale files\n`
+    );
 
     // Run validations
     const structureIssues = checkStructureCongruence(locales);

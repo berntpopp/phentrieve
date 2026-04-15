@@ -93,11 +93,8 @@ class TestVectorStoreConfigCreation:
             index_dir=temp_index_dir,
         )
 
-        # Attempt to modify frozen dataclass should raise AttributeError
-        # (Python 3.9-3.10) or FrozenInstanceError (Python 3.11+)
-        with pytest.raises(
-            (AttributeError, Exception)
-        ):  # Compatible with all Python 3.9+
+        # Attempting to modify a frozen dataclass should raise an exception.
+        with pytest.raises((AttributeError, Exception)):
             config.path = "/new/path"  # type: ignore[misc]
 
     def test_config_custom_settings_override_defaults(self, temp_index_dir):
@@ -322,7 +319,7 @@ class TestQueryResultsStability:
 
         # Results should match
         for i, (single_result, batch_result) in enumerate(
-            zip(single_results, batch_results, strict=False)
+            zip(single_results, batch_results, strict=True)
         ):
             assert single_result["ids"] == batch_result["ids"], (
                 f"Query {i}: IDs differ between single and batch"

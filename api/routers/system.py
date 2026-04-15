@@ -5,6 +5,7 @@ Public endpoints (no authentication required) for monitoring and debugging.
 """
 
 import logging
+from datetime import UTC
 
 from fastapi import APIRouter
 
@@ -67,11 +68,11 @@ async def health_check() -> dict:
             "timestamp": "2025-11-21T10:30:00+00:00"
         }
     """
-    from datetime import datetime, timezone
+    from datetime import datetime
 
     return {
         "status": "healthy",
         "service": "phentrieve-api",
         "version": get_api_version(),
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
     }

@@ -35,6 +35,7 @@ Examples:
 import logging
 import threading
 import warnings
+from typing import cast
 
 import torch
 from sentence_transformers import SentenceTransformer
@@ -156,7 +157,7 @@ def load_embedding_model(
             logging.debug(
                 f"Moving cached model {model_name} from {cached_model.device} to {device}"
             )
-            cached_model = cached_model.to(device)
+            cached_model.to(device)
             # Update registry with device-moved model
             with _REGISTRY_LOCK:
                 _MODEL_REGISTRY[model_name] = cached_model
@@ -171,7 +172,7 @@ def load_embedding_model(
             # Move to requested device if needed
             if not _devices_match(str(cached_model.device), device):
                 logging.debug(f"Moving cached model {model_name} to {device}")
-                cached_model = cached_model.to(device)
+                cached_model.to(device)
                 _MODEL_REGISTRY[model_name] = cached_model
             return cached_model
 
@@ -197,7 +198,7 @@ def load_embedding_model(
                 model = SentenceTransformer(model_name)
 
             # Move model to specified device
-            model = model.to(device)
+            model.to(device)
 
             # Store in registry for future reuse
             _MODEL_REGISTRY[model_name] = model
@@ -205,7 +206,7 @@ def load_embedding_model(
                 f"Successfully loaded and cached model {model_name} on {device}"
             )
 
-            return model
+            return cast(SentenceTransformer, model)
 
         except Exception as e:
             error_msg = f"Error loading SentenceTransformer model '{model_name}': {e}"

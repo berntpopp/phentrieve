@@ -62,6 +62,16 @@ def run_benchmarks(
             "--trust-remote-code", help="Trust remote code when loading models"
         ),
     ] = False,
+    enable_reranker: Annotated[
+        bool, typer.Option("--enable-reranker", help="Enable cross-encoder re-ranking")
+    ] = False,
+    reranker_model: Annotated[
+        str | None,
+        typer.Option("--reranker-model", help="Cross-encoder model for re-ranking"),
+    ] = None,
+    rerank_count: Annotated[
+        int, typer.Option("--rerank-count", help="Number of candidates to rerank")
+    ] = 10,
     similarity_formula: Annotated[
         str,
         typer.Option(
@@ -117,6 +127,8 @@ def run_benchmarks(
         "debug": debug,
         "create_sample": create_sample,
         "trust_remote_code": trust_remote_code,
+        "enable_reranker": enable_reranker,
+        "rerank_count": rerank_count,
         "similarity_formula": similarity_formula,
         "multi_vector": multi_vector,
         "aggregation_strategy": aggregation_strategy,
@@ -130,6 +142,8 @@ def run_benchmarks(
         kwargs["model_list"] = model_list
     if output is not None:
         kwargs["output"] = output
+    if reranker_model is not None:
+        kwargs["reranker_model"] = reranker_model
 
     results = orchestrate_benchmark(**kwargs)
 

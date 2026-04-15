@@ -11,9 +11,8 @@ try:
     __version__ = version("phentrieve")
 except PackageNotFoundError:
     # Package not installed, read from pyproject.toml
-    from pathlib import Path
-
     import tomllib
+    from pathlib import Path
 
     pyproject_path = Path(__file__).parent.parent / "pyproject.toml"
     with open(pyproject_path, "rb") as f:

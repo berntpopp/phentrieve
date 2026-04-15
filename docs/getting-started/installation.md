@@ -4,7 +4,7 @@ This guide covers the installation of Phentrieve for both users and developers.
 
 ## Prerequisites
 
-*   **Python 3.10+** (Required for modern type hinting features)
+*   **Python 3.11+** (Required by the current dependency stack)
 *   **Git**
 *   **Docker & Docker Compose** (Recommended for running the full stack)
 *   **uv** (Recommended for fast Python dependency management)

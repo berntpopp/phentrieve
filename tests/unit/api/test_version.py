@@ -42,13 +42,10 @@ def test_get_all_versions():
     assert versions["api"]["name"] == "phentrieve-api"
 
 
-def test_version_reading_works_with_python_310_and_311():
-    """Test that version reading works with both tomllib (3.11+) and tomli (3.10)."""
-    # This test verifies that the fallback mechanism works
-    # If running on Python 3.10, tomli should be used
-    # If running on Python 3.11+, tomllib should be used
+def test_version_reading_works_with_tomllib():
+    """Test that version reading works with the stdlib TOML parser."""
     version = get_api_version()
 
     assert version is not None
     assert version != "unknown"
-    # Should successfully read version regardless of Python version
+    # Should successfully read version from pyproject.toml

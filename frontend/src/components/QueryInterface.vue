@@ -477,7 +477,6 @@ export default {
       const queryParams = this.$route.query;
       logService.debug('Raw URL query parameters:', { ...queryParams });
       let advancedOptionsWereSet = false;
-      let performAutoSubmit = false;
       const parseBooleanParam = (val) =>
         typeof val === 'string' && (val.toLowerCase() === 'true' || val === '1');
 
@@ -510,7 +509,7 @@ export default {
 
       if (advancedOptionsWereSet) this.showAdvancedOptions = true;
 
-      performAutoSubmit =
+      const performAutoSubmit =
         queryParams.autoSubmit !== undefined
           ? parseBooleanParam(queryParams.autoSubmit)
           : queryParams.text !== undefined;

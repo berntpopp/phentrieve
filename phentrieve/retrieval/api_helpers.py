@@ -1,10 +1,14 @@
 import logging
 from typing import Any
 
+from sentence_transformers import CrossEncoder
+
 from phentrieve.config import (
     DEFAULT_AGGREGATION_STRATEGY,
+    DEFAULT_DENSE_TRUST_THRESHOLD,
 )
 from phentrieve.retrieval.dense_retriever import DenseRetriever
+from phentrieve.retrieval.reranker import protected_dense_rerank
 from phentrieve.text_processing.assertion_detection import (
     CombinedAssertionDetector,
 )
@@ -100,6 +104,9 @@ async def execute_hpo_retrieval_for_api(
     retriever: DenseRetriever,
     num_results: int,
     similarity_threshold: float,
+    enable_reranker: bool,
+    cross_encoder: CrossEncoder | None,
+    rerank_count: int,
     include_details: bool = False,
     detect_query_assertion: bool = True,
     query_assertion_language: str | None = None,
@@ -123,6 +130,9 @@ async def execute_hpo_retrieval_for_api(
         retriever: Initialized DenseRetriever instance
         num_results: Number of HPO terms to return
         similarity_threshold: Minimum similarity score for results
+        enable_reranker: Whether to apply cross-encoder reranking
+        cross_encoder: Optional CrossEncoder instance for reranking
+        rerank_count: Number of top dense results to rerank
         include_details: Include HPO term definitions and synonyms in results
         detect_query_assertion: Enable assertion detection on query text
         query_assertion_language: Language for assertion detection
@@ -177,13 +187,18 @@ async def execute_hpo_retrieval_for_api(
         except Exception as e:
             logger.warning("Error in assertion detection: %s", _sanitize(e))
             original_query_assertion_status = None
+    if enable_reranker and not cross_encoder:
+        logger.warning(
+            "Reranking requested but no cross_encoder provided. Disabling reranking."
+        )
+        enable_reranker = False
     # Process as a single text segment for now (not sentence mode)
     # Could extract sentence mode logic from process_query if needed later
     segment_to_process = text.strip()
 
     # Determine query method based on multi_vector flag and index type
     # Multi-vector mode uses aggregation to deduplicate results by HPO ID
-    n_results_for_query = num_results
+    n_results_for_query = rerank_count if enable_reranker else num_results
 
     if multi_vector:
         # Detect index type to ensure we're using a multi-vector index
@@ -264,6 +279,30 @@ async def execute_hpo_retrieval_for_api(
         hpo_embeddings_results = _convert_single_vector_results(
             query_results, similarity_threshold
         )
+    # Apply reranking if enabled
+    if enable_reranker and cross_encoder:
+        logger.debug(
+            "Reranking %s results with protected retrieval",
+            _sanitize(len(hpo_embeddings_results)),
+        )
+        try:
+            # Map "similarity" field to "bi_encoder_score" for protected_dense_rerank()
+            for item in hpo_embeddings_results:
+                item["bi_encoder_score"] = item["similarity"]
+
+            # Use protected two-stage retrieval approach
+            # This preserves high-confidence dense matches while refining uncertain candidates
+            hpo_embeddings_results = protected_dense_rerank(
+                query=segment_to_process,
+                candidates=hpo_embeddings_results,
+                cross_encoder_model=cross_encoder,
+                trust_threshold=DEFAULT_DENSE_TRUST_THRESHOLD,
+            )
+
+        except Exception as e:
+            logger.error("Error during reranking: %s", _sanitize(e))
+            # Continue with dense retrieval results if reranking fails
+
     # Limit to requested number of results
     if len(hpo_embeddings_results) > num_results:
         hpo_embeddings_results = hpo_embeddings_results[:num_results]
@@ -276,6 +315,12 @@ async def execute_hpo_retrieval_for_api(
             "label": item["label"],
             "similarity": item["similarity"],
         }
+
+        # Add reranking info if available
+        if "cross_encoder_score" in item:
+            result_item["cross_encoder_score"] = item["cross_encoder_score"]
+        if "original_rank" in item:
+            result_item["original_rank"] = item["original_rank"]
 
         formatted_results.append(result_item)
 

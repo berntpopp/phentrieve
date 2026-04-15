@@ -881,7 +881,7 @@ def generate_visualizations(
                     hr_scores = [row[col] for col in hr_metrics]
 
                     # Sort by k value
-                    hr_points = sorted(zip(hr_k_values, hr_scores, strict=False))
+                    hr_points = sorted(zip(hr_k_values, hr_scores, strict=True))
                     hr_k_values = [p[0] for p in hr_points]
                     hr_scores = [p[1] for p in hr_points]
 
@@ -900,7 +900,7 @@ def generate_visualizations(
                     ont_scores = [row[col] for col in ont_metrics]
 
                     # Sort by k value
-                    ont_points = sorted(zip(ont_k_values, ont_scores, strict=False))
+                    ont_points = sorted(zip(ont_k_values, ont_scores, strict=True))
                     ont_k_values = [p[0] for p in ont_points]
                     ont_scores = [p[1] for p in ont_points]
 
