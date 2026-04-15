@@ -255,4 +255,4 @@ To modify or extend the conversion:
    python scripts/convert_phenobert_data.py --log-level DEBUG ...
    ```
 
-See `plan/01-active/PHENOBERT-CORPUS-CONVERSION-PLAN.md` for architecture details.
+See `.planning/active/PHENOBERT-CORPUS-CONVERSION-PLAN.md` for architecture details.

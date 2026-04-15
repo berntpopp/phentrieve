@@ -340,7 +340,7 @@ jobs:
 - **Production Docker Setup**: `docker-compose.yml`
 - **Security Hardening**: `api/Dockerfile`
 - **Testing Modernization Plan**: `TESTING-MODERNIZATION-PLAN.md`
-- **Local Development**: `plan/LOCAL-DEV-ENVIRONMENT.md`
+- **Local Development**: `.planning/completed/LOCAL-DEV-ENVIRONMENT.md`
 
 ## Future Enhancements
 

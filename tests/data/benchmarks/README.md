@@ -240,7 +240,7 @@ pytest tests/unit/cli/test_benchmark_integration.py::TestBenchmarkDataLoading -v
 1. Add entry to the dataset table in this README
 2. Document the source and purpose
 3. Note any special characteristics
-4. Add to CLAUDE.md if needed
+4. Add to AGENTS.md if needed
 
 ### 6. Test with Actual Benchmark
 
@@ -333,12 +333,12 @@ phentrieve benchmark run --test-file /full/path/to/file.json
 
 - [Human Phenotype Ontology (HPO)](https://hpo.jax.org/)
 - [HPO GitHub Repository](https://github.com/obophenotype/human-phenotype-ontology)
-- [Project Documentation](../../../CLAUDE.md)
-- [Testing Plan](../../../plan/02-completed/TESTING-MODERNIZATION-PLAN.md)
+- [Project Documentation](../../../AGENTS.md)
+- [Testing Plan](../../../.planning/completed/TESTING-MODERNIZATION-PLAN.md)
 
 ## Support
 
 For questions or issues:
-1. Check [CLAUDE.md](../../../CLAUDE.md) for usage examples
-2. Review [STATUS.md](../../../plan/STATUS.md) for project status
+1. Check [AGENTS.md](../../../AGENTS.md) for project commands and guidance
+2. Review [Planning README](../../../.planning/README.md) for planning status and layout
 3. Open an issue on GitHub with `benchmark` label

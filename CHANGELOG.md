@@ -110,7 +110,7 @@ full CI pipeline by ~17% on warm caches.
 ### ⚡ Performance
 
 **CI pipeline (Tier 1 + Tier 2 speedup — 17 tasks, plan at
-`plan/01-active/CI-SPEEDUP-PLAN-2026-04-10.md`):**
+`.planning/active/CI-SPEEDUP-PLAN-2026-04-10.md`):**
 
 - **`pytest-xdist -n auto`** enabled in `pyproject.toml` addopts →
   `make test` 25.9s → 18.5s (−29%), 927 tests parallelized across CPU cores
@@ -185,13 +185,13 @@ full CI pipeline by ~17% on warm caches.
   `.pre-commit-config.yaml`.
 - TTLCache vs `@lru_cache` caching decisions documented in
   `docs/architecture/caching.md`.
-- Review dashboard at `plan/05-analysis/CODE-QUALITY-REVIEW-2026-04-09.md`
+- Review dashboard at `.planning/analysis/CODE-QUALITY-REVIEW-2026-04-09.md`
   updated with post-refactor status (all Critical findings closed).
-- Phase 2 plan (`docs/superpowers/plans/2026-04-10-code-quality-phase-2.md`)
-  and CI speedup plan (`plan/01-active/CI-SPEEDUP-PLAN-2026-04-10.md`)
+- Phase 2 plan (`.planning/completed/2026-04-10-code-quality-phase-2.md`)
+  and CI speedup plan (`.planning/active/CI-SPEEDUP-PLAN-2026-04-10.md`)
   saved for future reference.
 - Stale reranker references removed from docs and config.
-- `CLAUDE.md` notes the `pytest -n 0` escape hatch for single-threaded
+- `AGENTS.md` notes the `pytest -n 0` escape hatch for single-threaded
   debugging when the default `-n auto` causes issues.
 
 ### 🧹 Chore
