@@ -74,6 +74,9 @@ mcp = [
     "python-dotenv>=1.0.0",
     "pydantic-settings>=2.0.0",
 ]
+llm = [
+    "openai>=2.0.0",
+]
 # Install CLI + API with: pip install "phentrieve[api]"
 # Install CLI + MCP with: pip install "phentrieve[mcp]"
 
@@ -86,6 +89,7 @@ include = ["phentrieve*", "api*"]
 
 [tool.setuptools.package-data]
 "phentrieve.text_processing.default_lang_resources" = ["*.json"]
+"phentrieve.llm.prompts" = ["templates/*.txt"]
 
 [tool.ruff]
 line-length = 88
