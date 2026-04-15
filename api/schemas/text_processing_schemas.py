@@ -56,8 +56,13 @@ class TextProcessingRequest(BaseModel):
 
     # Model Configuration
     semantic_model_name: str | None = Field(
-        default=DEFAULT_MODEL,  # Will be handled in router logic to default to retrieval_model_name
-        description=f"Model for semantic-based chunking strategies. If None, defaults to retrieval_model_name or Phentrieve's DEFAULT_MODEL ('{DEFAULT_MODEL}').",
+        default=None,
+        description=(
+            "Model for semantic-based chunking strategies. "
+            f"If omitted or null, defaults to retrieval_model_name "
+            f"(or Phentrieve's DEFAULT_MODEL '{DEFAULT_MODEL}' when retrieval_model_name "
+            "also uses its default)."
+        ),
     )
     retrieval_model_name: str | None = Field(
         default=DEFAULT_MODEL,

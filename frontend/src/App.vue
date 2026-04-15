@@ -13,8 +13,7 @@
         <v-tooltip
           location="top"
           :text="$t('app.footer.disclaimerTooltip')"
-          role="tooltip"
-          aria-label="Disclaimer information"
+          :content-props="{ 'aria-label': $t('app.footer.disclaimerTooltip') }"
         >
           <template #activator="{ props }">
             <div class="d-flex align-center">
@@ -30,20 +29,32 @@
               >
                 <v-icon>mdi-scale-balance</v-icon>
               </v-btn>
-              <v-icon
+              <v-tooltip
                 v-if="disclaimerStore.isAcknowledged"
-                v-tooltip="
+                location="top"
+                :text="
                   $t('app.footer.disclaimerAcknowledgedTooltip', {
                     date: disclaimerStore.formattedAcknowledgmentDate,
                   })
                 "
-                size="small"
-                color="success"
-                class="mr-2"
-                aria-label="Disclaimer acknowledged"
+                :content-props="{
+                  'aria-label': $t('app.footer.disclaimerAcknowledgedTooltip', {
+                    date: disclaimerStore.formattedAcknowledgmentDate,
+                  }),
+                }"
               >
-                mdi-check-circle
-              </v-icon>
+                <template #activator="{ props: acknowledgedProps }">
+                  <v-icon
+                    v-bind="acknowledgedProps"
+                    size="small"
+                    color="success"
+                    class="mr-2"
+                    aria-label="Disclaimer acknowledged"
+                  >
+                    mdi-check-circle
+                  </v-icon>
+                </template>
+              </v-tooltip>
             </div>
           </template>
         </v-tooltip>
@@ -56,8 +67,7 @@
         <v-tooltip
           location="top"
           :text="$t('app.footer.tutorialTooltip')"
-          role="tooltip"
-          aria-label="Tutorial information"
+          :content-props="{ 'aria-label': $t('app.footer.tutorialTooltip') }"
         >
           <template #activator="{ props }">
             <v-btn
@@ -77,8 +87,7 @@
         <v-tooltip
           location="top"
           :text="$t('app.footer.faqTooltip')"
-          role="tooltip"
-          aria-label="FAQ information"
+          :content-props="{ 'aria-label': $t('app.footer.faqTooltip') }"
         >
           <template #activator="{ props }">
             <v-btn
@@ -98,8 +107,7 @@
         <v-tooltip
           location="top"
           :text="$t('app.footer.logsTooltip')"
-          role="tooltip"
-          aria-label="Log viewer information"
+          :content-props="{ 'aria-label': $t('app.footer.logsTooltip') }"
         >
           <template #activator="{ props }">
             <v-btn
@@ -119,8 +127,7 @@
         <v-tooltip
           location="top"
           :text="$t('app.footer.githubTooltip')"
-          role="tooltip"
-          aria-label="GitHub repository link"
+          :content-props="{ 'aria-label': $t('app.footer.githubTooltip') }"
         >
           <template #activator="{ props }">
             <v-btn
@@ -140,8 +147,7 @@
         <v-tooltip
           location="top"
           :text="$t('app.footer.docsTooltip')"
-          role="tooltip"
-          aria-label="Documentation link"
+          :content-props="{ 'aria-label': $t('app.footer.docsTooltip') }"
         >
           <template #activator="{ props }">
             <v-btn
@@ -161,8 +167,7 @@
         <v-tooltip
           location="top"
           :text="$t('app.footer.licenseTooltip')"
-          role="tooltip"
-          aria-label="License link"
+          :content-props="{ 'aria-label': $t('app.footer.licenseTooltip') }"
         >
           <template #activator="{ props }">
             <v-btn
@@ -182,8 +187,7 @@
         <v-tooltip
           location="top"
           text="Version & API Status"
-          role="tooltip"
-          aria-label="Version and connection information"
+          :content-props="{ 'aria-label': 'Version & API Status' }"
         >
           <template #activator="{ props }">
             <v-btn

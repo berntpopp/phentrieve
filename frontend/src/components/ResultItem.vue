@@ -36,7 +36,15 @@
               <v-icon size="small">
                 {{ detailsExpanded ? 'mdi-chevron-up' : 'mdi-information' }}
               </v-icon>
-              <v-tooltip activator="parent" location="top">
+              <v-tooltip
+                activator="parent"
+                location="top"
+                :content-props="{
+                  'aria-label': detailsExpanded
+                    ? $t('resultsDisplay.hideDetails', 'Hide details')
+                    : $t('resultsDisplay.showDetails', 'Show details'),
+                }"
+              >
                 {{
                   detailsExpanded
                     ? $t('resultsDisplay.hideDetails', 'Hide details')

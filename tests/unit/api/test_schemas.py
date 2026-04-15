@@ -211,6 +211,17 @@ class TestQueryResponse:
         assert resp.results == []
 
 
+class TestTextProcessingRequestDefaults:
+    """Test TextProcessingRequest schema defaults that drive router behavior."""
+
+    def test_semantic_model_name_defaults_to_none(self):
+        """Omitted semantic model should stay unset so the router can follow retrieval."""
+        req = TextProcessingRequest(text_content="patient has seizures")
+
+        assert req.semantic_model_name is None
+        assert req.retrieval_model_name is not None
+
+
 # =============================================================================
 # Similarity Schemas (api/schemas/similarity_schemas.py)
 # =============================================================================

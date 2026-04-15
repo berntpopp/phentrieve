@@ -64,7 +64,7 @@
             <v-tooltip
               location="top"
               :text="$t('queryInterface.tooltips.advancedOptions')"
-              role="tooltip"
+              :content-props="{ 'aria-label': $t('queryInterface.tooltips.advancedOptions') }"
             >
               <template #activator="{ props }">
                 <v-btn
@@ -149,7 +149,11 @@
         <div v-for="item in conversationStore.queryHistory" :key="item.id" class="mb-4">
           <!-- User query -->
           <div class="user-query d-flex">
-            <v-tooltip location="top" text="User Input">
+            <v-tooltip
+              location="top"
+              text="User Input"
+              :content-props="{ 'aria-label': 'User Input' }"
+            >
               <template #activator="{ props }">
                 <v-avatar v-bind="props" color="primary" size="36" class="mt-1 mr-2">
                   <span class="white--text">U</span>
@@ -165,7 +169,11 @@
 
           <!-- API response -->
           <div v-if="item.loading || item.response || item.error" class="bot-response d-flex mt-2">
-            <v-tooltip location="top" text="Phentrieve Response">
+            <v-tooltip
+              location="top"
+              text="Phentrieve Response"
+              :content-props="{ 'aria-label': 'Phentrieve Response' }"
+            >
               <template #activator="{ props }">
                 <v-avatar v-bind="props" color="info" size="36" class="mt-1 mr-2">
                   <v-icon color="white"> mdi-robot-outline </v-icon>

@@ -41,7 +41,15 @@
                 <v-icon size="small">
                   {{ expandedTerms.has(term.hpo_id) ? 'mdi-chevron-up' : 'mdi-information' }}
                 </v-icon>
-                <v-tooltip activator="parent" location="top">
+                <v-tooltip
+                  activator="parent"
+                  location="top"
+                  :content-props="{
+                    'aria-label': expandedTerms.has(term.hpo_id)
+                      ? $t('resultsDisplay.hideDetails', 'Hide details')
+                      : $t('resultsDisplay.showDetails', 'Show details'),
+                  }"
+                >
                   {{
                     expandedTerms.has(term.hpo_id)
                       ? $t('resultsDisplay.hideDetails', 'Hide details')
@@ -111,7 +119,16 @@
                 {{ $t('resultsDisplay.textProcess.evidenceFromChunksShort', 'Chunks:') }} #{{
                   term.source_chunk_ids.join(', #')
                 }}
-                <v-tooltip activator="parent" location="top">
+                <v-tooltip
+                  activator="parent"
+                  location="top"
+                  :content-props="{
+                    'aria-label': $t(
+                      'resultsDisplay.textProcess.evidenceTooltip',
+                      'Source chunks. Click to see top evidence chunk.'
+                    ),
+                  }"
+                >
                   {{
                     $t(
                       'resultsDisplay.textProcess.evidenceTooltip',
@@ -129,7 +146,16 @@
                 <v-icon start size="small"> mdi-pound </v-icon>
                 {{ term.source_chunk_ids.length }}
                 {{ $t('resultsDisplay.textProcess.hitsText', 'hits') }}
-                <v-tooltip activator="parent" location="top">
+                <v-tooltip
+                  activator="parent"
+                  location="top"
+                  :content-props="{
+                    'aria-label': $t(
+                      'resultsDisplay.textProcess.evidenceCountTooltip',
+                      'Number of chunks providing evidence'
+                    ),
+                  }"
+                >
                   {{
                     $t(
                       'resultsDisplay.textProcess.evidenceCountTooltip',
