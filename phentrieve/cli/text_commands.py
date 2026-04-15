@@ -616,7 +616,7 @@ def process_text_for_hpo_command(
                 note_parts.append(f"model={llm_model}")
             if llm_mode:
                 note_parts.append(f"mode={llm_mode}")
-            typer.echo(f"LLM metadata: {', '.join(note_parts)}")
+            typer.echo(f"LLM metadata: {', '.join(note_parts)}", err=True)
 
     chunk_level_results = _stable_chunks_to_chunk_level_results(chunks)
 
