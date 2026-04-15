@@ -14,42 +14,34 @@ Phentrieve uses pytest as its testing framework. Tests are organized into:
 
 ### Running the Full Test Suite
 
-To run all tests:
+Use the repository standard commands from the project root:
 
 ```bash
-# Activate your virtual environment
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Run all tests
-pytest
+make test
+make check
+make typecheck-fast
 ```
 
 ### Running Specific Test Categories
 
 ```bash
-# Run only unit tests
-pytest tests/unit/
-
-# Run only integration tests
-pytest tests/integration/
-
-# Run tests for a specific module
-pytest tests/unit/test_embeddings.py
+uv run pytest tests/unit/api/ -n 0 -v
+uv run pytest tests/ --collect-only -q
 ```
 
 ### Test Coverage
 
-To run tests with coverage reporting:
+Coverage is configured in the default pytest settings. The full suite writes HTML
+and XML reports automatically when you run the standard test commands.
+
+For targeted local work, prefer focused commands:
 
 ```bash
-# Run tests with coverage
-pytest --cov=phentrieve
-
-# Generate an HTML coverage report
-pytest --cov=phentrieve --cov-report=html
+uv run pytest tests/unit/api/test_text_processing_router.py -n 0 -v --no-cov
 ```
 
-The HTML report will be available in the `htmlcov` directory.
+The HTML report is written to the `htmlcov` directory during the default
+coverage-enabled runs.
 
 ## Writing Tests
 
@@ -126,13 +118,12 @@ def test_with_fixture(test_model):
 
 ## Test Configuration
 
-Tests are configured in the `pytest.ini` file:
+Tests are configured in [pyproject.toml](../../pyproject.toml):
 
-```ini
-[pytest]
-testpaths = tests
-python_files = test_*.py
-python_functions = test_*
+```toml
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
 ```
 
 ## Mocking
@@ -155,4 +146,5 @@ def test_with_mock(mocker):
 
 ## Continuous Integration
 
-Tests are automatically run on GitHub Actions for every pull request and push to the main branch. The CI configuration is in `.github/workflows/tests.yml`.
+Tests run automatically in GitHub Actions for pull requests and pushes. The main
+Python workflow is defined in `.github/workflows/ci.yml`.

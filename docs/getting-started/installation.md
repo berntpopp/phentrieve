@@ -70,11 +70,10 @@ This command runs `uv sync --all-extras`, installing:
 - Development tools (Ruff, mypy, pytest)
 
 ### 3. Verify Installation
-Activate the virtual environment and check the CLI:
+Verify the installation directly through `uv run`:
 
 ```bash
-source .venv/bin/activate
-phentrieve --version
+uv run phentrieve --version
 ```
 
 You should see output like:
@@ -86,15 +85,15 @@ Phentrieve version 0.1.0
 
 ### Using pip (Not Recommended)
 
-While `uv` is strongly recommended for its speed (10-100x faster than pip), you can still use pip:
+While `uv` is the supported primary workflow, you can still use `pip` as a
+fallback if needed:
 
 ```bash
 # Create virtual environment
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
 
 # Install from source
-pip install -e ".[all]"
+venv/bin/pip install -e ".[all]"  # Windows: venv\Scripts\pip install -e ".[all]"
 ```
 
 **Note**: This method is significantly slower and does not benefit from uv's advanced dependency resolution.
