@@ -42,6 +42,16 @@ router = APIRouter(prefix="/api/v1/text", tags=["Text Processing and HPO Extract
 ALLOWED_TEXT_PROCESSING_MODELS = {DEFAULT_MODEL, *BENCHMARK_MODELS}
 
 
+def _coerce_response_items(value: Any) -> list[Any]:
+    if value is None:
+        return []
+    if isinstance(value, list):
+        return list(value)
+    if isinstance(value, tuple):
+        return list(value)
+    return []
+
+
 def _validate_model_name(field_name: str, model_name: str | None) -> str:
     """Validate a caller-supplied model name against the server allowlist."""
     if model_name is None:
@@ -180,6 +190,198 @@ def _validate_response_chunk_references(
             )
 
 
+async def _prepare_standard_request_context(
+    request: TextProcessingRequest,
+) -> dict[str, Any]:
+    """Prepare standard-backend dependencies and config using the legacy API path."""
+    actual_language = request.language
+    if not actual_language or actual_language.lower() == "auto":
+        try:
+            actual_language = await run_in_threadpool(
+                detect_language, request.text, default_lang=DEFAULT_LANGUAGE
+            )
+            logger.info("API: Auto-detected language: %s", _sanitize(actual_language))
+        except Exception as lang_e:  # noqa: BLE001
+            logger.warning(
+                "API: Language detection failed: %s. Defaulting to %s.",
+                _sanitize(lang_e),
+                DEFAULT_LANGUAGE,
+            )
+            actual_language = DEFAULT_LANGUAGE
+
+    retrieval_model_name_to_load = _validate_model_name(
+        "retrieval_model_name", request.retrieval_model_name
+    )
+    sbert_for_chunking_name_to_load = _validate_model_name(
+        "semantic_model_name",
+        request.semantic_model_name
+        if request.semantic_model_name is not None
+        else retrieval_model_name_to_load,
+    )
+
+    logger.info(
+        "API: Effective retrieval model: %s",
+        _sanitize(retrieval_model_name_to_load),
+    )
+    logger.info(
+        "API: Effective semantic model for chunking: %s",
+        _sanitize(sbert_for_chunking_name_to_load),
+    )
+
+    retrieval_sbert_model = await get_sbert_model_dependency(
+        model_name_requested=retrieval_model_name_to_load,
+        trust_remote_code=_get_trust_remote_code_for_model(
+            retrieval_model_name_to_load
+        ),
+    )
+
+    if sbert_for_chunking_name_to_load != retrieval_model_name_to_load:
+        logger.info(
+            "API: Using separate semantic model for chunking: %s",
+            _sanitize(sbert_for_chunking_name_to_load),
+        )
+        sbert_for_chunking = await get_sbert_model_dependency(
+            model_name_requested=sbert_for_chunking_name_to_load,
+            trust_remote_code=_get_trust_remote_code_for_model(
+                sbert_for_chunking_name_to_load
+            ),
+        )
+    else:
+        sbert_for_chunking = retrieval_sbert_model
+
+    retriever = await get_dense_retriever_dependency(
+        sbert_model_name_for_retriever=retrieval_model_name_to_load
+    )
+
+    chunking_pipeline_cfg = _get_chunking_config_for_api(request)
+
+    assertion_cfg = dict(DEFAULT_ASSERTION_CONFIG)
+    assertion_cfg["disable"] = request.no_assertion_detection
+    assertion_cfg["preference"] = request.assertion_preference
+    assertion_cfg["language"] = actual_language
+
+    logger.info("API: Using assertion configuration: %s", assertion_cfg)
+
+    text_pipeline = TextProcessingPipeline(
+        language=actual_language,
+        chunking_pipeline_config=chunking_pipeline_cfg,
+        assertion_config=assertion_cfg,
+        sbert_model_for_semantic_chunking=sbert_for_chunking,
+    )
+
+    return {
+        "actual_language": actual_language,
+        "retrieval_model_name": retrieval_model_name_to_load,
+        "chunking_pipeline_config": chunking_pipeline_cfg,
+        "retriever": retriever,
+        "text_pipeline": text_pipeline,
+    }
+
+
+def _adapt_shared_service_response_to_api(
+    service_result: dict[str, Any],
+    *,
+    request: TextProcessingRequest,
+    standard_context: dict[str, Any] | None = None,
+) -> TextProcessingResponseAPI:
+    """Convert shared-service output into the API response contract."""
+    service_meta = service_result.get("meta")
+    meta: dict[str, Any] = dict(service_meta) if isinstance(service_meta, dict) else {}
+
+    processed_chunks: list[ProcessedChunkAPI] = []
+    for idx, chunk in enumerate(
+        _coerce_response_items(service_result.get("processed_chunks"))
+    ):
+        if not isinstance(chunk, dict):
+            continue
+
+        chunk_id = chunk.get("chunk_id")
+        if not isinstance(chunk_id, int):
+            chunk_id = idx + 1
+
+        processed_chunks.append(
+            ProcessedChunkAPI(
+                chunk_id=chunk_id,
+                text=chunk.get("text", ""),
+                status=str(chunk.get("status", "unknown")),
+                assertion_details=chunk.get("assertion_details"),
+                hpo_matches=[
+                    HPOMatchInChunkAPI(
+                        hpo_id=match.get("hpo_id") or match.get("id"),
+                        name=match.get("name", ""),
+                        score=match.get("score", 0.0),
+                    )
+                    for match in _coerce_response_items(chunk.get("hpo_matches"))
+                    if isinstance(match, dict)
+                ],
+                start_char=chunk.get("start_char"),
+                end_char=chunk.get("end_char"),
+            )
+        )
+
+    aggregated_terms: list[AggregatedHPOTermAPI] = []
+    for term in _coerce_response_items(service_result.get("aggregated_hpo_terms")):
+        if not isinstance(term, dict):
+            continue
+
+        aggregated_terms.append(
+            AggregatedHPOTermAPI(
+                hpo_id=term.get("hpo_id") or term.get("id"),
+                name=term.get("name", ""),
+                confidence=term.get("confidence", 0.0),
+                status=term.get("status", "unknown"),
+                evidence_count=term.get("evidence_count", 0),
+                source_chunk_ids=term.get("source_chunk_ids")
+                or [chunk_idx + 1 for chunk_idx in term.get("chunks", [])],
+                max_score_from_evidence=term.get(
+                    "max_score_from_evidence", term.get("score")
+                ),
+                top_evidence_chunk_id=term.get("top_evidence_chunk_id"),
+                text_attributions=[
+                    TextAttributionSpanAPI(
+                        chunk_id=attr.get("chunk_id")
+                        if isinstance(attr.get("chunk_id"), int)
+                        else attr.get("chunk_idx", 0) + 1,
+                        start_char=attr.get("start_char", 0),
+                        end_char=attr.get("end_char", 0),
+                        matched_text_in_chunk=attr.get("matched_text_in_chunk", ""),
+                    )
+                    for attr in _coerce_response_items(term.get("text_attributions"))
+                    if isinstance(attr, dict)
+                ],
+                definition=term.get("definition"),
+                synonyms=term.get("synonyms"),
+                score=term.get("score"),
+                reranker_score=term.get("reranker_score"),
+            )
+        )
+
+    if standard_context is not None:
+        meta.update(
+            {
+                "request_parameters": request.model_dump(exclude_none=True),
+                "effective_language": standard_context["actual_language"],
+                "effective_chunking_strategy_config": standard_context[
+                    "chunking_pipeline_config"
+                ],
+                "effective_retrieval_model": standard_context["retrieval_model_name"],
+                "num_processed_chunks": len(processed_chunks),
+                "num_aggregated_hpo_terms": len(aggregated_terms),
+            }
+        )
+    else:
+        meta.setdefault("num_processed_chunks", len(processed_chunks))
+        meta.setdefault("num_aggregated_hpo_terms", len(aggregated_terms))
+
+    return TextProcessingResponseAPI.model_validate(
+        {
+            "meta": meta,
+            "processed_chunks": processed_chunks,
+            "aggregated_hpo_terms": aggregated_terms,
+        }
+    )
+
+
 @router.post(
     "/process",
     response_model=TextProcessingResponseAPI,
@@ -244,47 +446,74 @@ async def process_text_extract_hpo(request: TextProcessingRequest):
 
 async def _process_text_via_shared_service(request: TextProcessingRequest):
     """Process text through the shared full-text service for all requests."""
-    service_result = await run_in_threadpool(
-        run_full_text_service,
-        text=request.text,
-        extraction_backend=request.extraction_backend,
-        language=request.language,
-        chunking_pipeline_config=_get_chunking_config_for_api(request),
-        assertion_config={
-            **DEFAULT_ASSERTION_CONFIG,
-            "disable": request.no_assertion_detection,
-            "preference": request.assertion_preference,
-            "language": request.language or DEFAULT_LANGUAGE,
-        },
-        retrieval_model_name=request.retrieval_model_name,
-        chunk_retrieval_threshold=(
-            request.chunk_retrieval_threshold
-            if request.chunk_retrieval_threshold is not None
-            else DEFAULT_CHUNK_RETRIEVAL_THRESHOLD
-        ),
-        num_results_per_chunk=(
-            request.num_results_per_chunk
-            if request.num_results_per_chunk is not None
-            else 10
-        ),
-        min_confidence_for_aggregated=(
-            request.aggregated_term_confidence
-            if request.aggregated_term_confidence is not None
-            else DEFAULT_MIN_CONFIDENCE_AGGREGATED
-        ),
-        top_term_per_chunk=(
-            request.top_term_per_chunk_for_aggregation
-            if request.top_term_per_chunk_for_aggregation is not None
-            else False
-        ),
-        include_details=(
-            request.include_details if request.include_details is not None else False
-        ),
-        include_positions=request.include_chunk_positions,
-        llm_model=request.llm_model,
-        llm_mode=request.llm_mode or "two_phase",
+    standard_context: dict[str, Any] | None = None
+    service_kwargs: dict[str, Any] = {
+        "text": request.text,
+        "extraction_backend": request.extraction_backend,
+    }
+
+    if request.extraction_backend == "standard":
+        standard_context = await _prepare_standard_request_context(request)
+        service_kwargs.update(
+            {
+                "language": standard_context["actual_language"],
+                "chunking_pipeline_config": standard_context[
+                    "chunking_pipeline_config"
+                ],
+                "assertion_config": {
+                    **DEFAULT_ASSERTION_CONFIG,
+                    "disable": request.no_assertion_detection,
+                    "preference": request.assertion_preference,
+                    "language": standard_context["actual_language"],
+                },
+                "retrieval_model_name": standard_context["retrieval_model_name"],
+                "text_pipeline": standard_context["text_pipeline"],
+                "retriever": standard_context["retriever"],
+                "sbert_model_for_semantic_chunking": standard_context[
+                    "text_pipeline"
+                ].sbert_model,
+                "chunk_retrieval_threshold": (
+                    request.chunk_retrieval_threshold
+                    if request.chunk_retrieval_threshold is not None
+                    else DEFAULT_CHUNK_RETRIEVAL_THRESHOLD
+                ),
+                "num_results_per_chunk": (
+                    request.num_results_per_chunk
+                    if request.num_results_per_chunk is not None
+                    else 10
+                ),
+                "min_confidence_for_aggregated": (
+                    request.aggregated_term_confidence
+                    if request.aggregated_term_confidence is not None
+                    else DEFAULT_MIN_CONFIDENCE_AGGREGATED
+                ),
+                "top_term_per_chunk": (
+                    request.top_term_per_chunk_for_aggregation
+                    if request.top_term_per_chunk_for_aggregation is not None
+                    else False
+                ),
+                "include_details": (
+                    request.include_details
+                    if request.include_details is not None
+                    else False
+                ),
+                "include_positions": request.include_chunk_positions,
+            }
+        )
+    else:
+        service_kwargs.update(
+            {
+                "llm_model": request.llm_model,
+                "llm_mode": request.llm_mode or "two_phase",
+            }
+        )
+
+    service_result = await run_in_threadpool(run_full_text_service, **service_kwargs)
+    return _adapt_shared_service_response_to_api(
+        service_result,
+        request=request,
+        standard_context=standard_context,
     )
-    return TextProcessingResponseAPI.model_validate(service_result)
 
 
 async def _process_text_internal(request: TextProcessingRequest):

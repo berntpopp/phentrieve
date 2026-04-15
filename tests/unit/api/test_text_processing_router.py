@@ -1,7 +1,7 @@
 """Unit tests for text processing router helper functions."""
 
 from types import SimpleNamespace
-from unittest.mock import MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from fastapi import HTTPException
@@ -59,25 +59,73 @@ def test_text_processing_router_returns_llm_meta(client, monkeypatch):
     assert response.json()["meta"]["extraction_backend"] == "llm"
 
 
-def test_text_processing_router_returns_standard_meta(client, monkeypatch):
+def test_text_processing_router_returns_standard_extraction_backend_contract(
+    client, monkeypatch
+):
+    monkeypatch.setattr(
+        "api.routers.text_processing_router.get_sbert_model_dependency",
+        AsyncMock(return_value=MagicMock(model_name="FremyCompany/BioLORD-2023-M")),
+    )
+    monkeypatch.setattr(
+        "api.routers.text_processing_router.get_dense_retriever_dependency",
+        AsyncMock(return_value=MagicMock(model_name="FremyCompany/BioLORD-2023-M")),
+    )
     monkeypatch.setattr(
         "api.routers.text_processing_router.run_full_text_service",
         lambda **kwargs: {
             "meta": {"extraction_backend": "standard"},
-            "processed_chunks": [],
-            "aggregated_hpo_terms": [],
+            "processed_chunks": [
+                {
+                    "chunk_id": 1,
+                    "text": "Patient had recurrent seizures.",
+                    "status": "affirmed",
+                    "hpo_matches": [
+                        {"id": "HP:0001250", "name": "Seizure", "score": 0.91}
+                    ],
+                    "start_char": 0,
+                    "end_char": 31,
+                }
+            ],
+            "aggregated_hpo_terms": [
+                {
+                    "id": "HP:0001250",
+                    "name": "Seizure",
+                    "confidence": 0.91,
+                    "status": "affirmed",
+                    "evidence_count": 1,
+                    "chunks": [0],
+                    "text_attributions": [
+                        {
+                            "chunk_idx": 0,
+                            "start_char": 15,
+                            "end_char": 24,
+                            "matched_text_in_chunk": "seizures",
+                        }
+                    ],
+                    "score": 0.91,
+                }
+            ],
         },
     )
 
     response = client.post(
         "/api/v1/text/process",
         json={
-            "text": "Patient had recurrent seizures.",
+            "text_content": "Patient had recurrent seizures.",
         },
     )
 
     assert response.status_code == 200
-    assert response.json()["meta"]["extraction_backend"] == "standard"
+    body = response.json()
+    assert body["meta"]["extraction_backend"] == "standard"
+    assert body["meta"]["effective_language"] == "en"
+    assert body["meta"]["effective_retrieval_model"] == "FremyCompany/BioLORD-2023-M"
+    assert (
+        body["meta"]["request_parameters"]["text"] == "Patient had recurrent seizures."
+    )
+    assert body["meta"]["num_processed_chunks"] == 1
+    assert body["processed_chunks"][0]["hpo_matches"][0]["hpo_id"] == "HP:0001250"
+    assert body["aggregated_hpo_terms"][0]["hpo_id"] == "HP:0001250"
 
 
 class TestGetChunkingConfigForApi:

@@ -279,6 +279,18 @@ class TestTextProcessingRequest:
         assert request.extraction_backend == "llm"
         assert request.llm_mode == "two_phase"
 
+    def test_text_processing_request_accepts_text_content_extraction_backend_alias(
+        self,
+    ):
+        request = TextProcessingRequest.model_validate(
+            {
+                "text_content": "Patient had recurrent seizures.",
+            }
+        )
+
+        assert request.text == "Patient had recurrent seizures."
+        assert request.text_content == "Patient had recurrent seizures."
+
     def test_window_size_validation(self):
         """Test window_size must be >= 1."""
         # Valid
