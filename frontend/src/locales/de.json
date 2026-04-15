@@ -139,6 +139,11 @@
       "modeQuery": "Abfragemodus (kurzer Text)",
       "modeTextProcess": "Textverarbeitungsmodus (Dokument)",
       "textProcessingTitle": "Textverarbeitungseinstellungen",
+      "extractionBackend": "Extraktions-Backend",
+      "standardExtraction": "Standardextraktion",
+      "llmExtraction": "LLM-Extraktion",
+      "llmModel": "LLM-Modell",
+      "llmMode": "LLM-Modus",
       "chunkingStrategy": "Aufteilungsstrategie",
       "windowSize": "Fenstergröße (Tokens)",
       "stepSize": "Schrittgröße",
@@ -231,6 +236,7 @@
       "confidenceTooltip": "Durchschnittlicher Konfidenzwert aus allen Evidenzabschnitten",
       "sourceChunks": "Quellenabschnitte",
       "topEvidence": "Beste Evidenz",
+      "llmLimitedNotice": "Eingeschränkte Demo-Version: 3 LLM-Analysen pro Tag.",
       "noChunksProcessed": "Es wurden keine Textabschnitte verarbeitet.",
       "noAggregatedTerms": "Keine aggregierten HPO-Begriffe gefunden.",
       "assertionDetail": "Bestimmungsmethode:",
@@ -275,7 +281,8 @@
       "notFound": "Die angeforderte Ressource konnte nicht gefunden werden. (Status: {status})",
       "notFoundModel": "Das angeforderte Modell konnte auf dem Server nicht gefunden werden. (Status: {status})",
       "serverError": "Ein Serverfehler ist aufgetreten. Bitte versuchen Sie es später erneut. (Status: {status})",
-      "serviceUnavailable": "Der Dienst ist vorübergehend nicht verfügbar. Bitte versuchen Sie es später erneut. (Status: {status})"
+      "serviceUnavailable": "Der Dienst ist vorübergehend nicht verfügbar. Bitte versuchen Sie es später erneut. (Status: {status})",
+      "llmQuotaExceeded": "Das LLM-Limit für den heutigen Volltext ist erreicht."
     }
   },
   "tutorial": {

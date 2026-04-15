@@ -139,6 +139,11 @@
       "modeQuery": "Mode requête (texte court)",
       "modeTextProcess": "Mode traitement de texte (document)",
       "textProcessingTitle": "Paramètres de traitement de texte",
+      "extractionBackend": "Backend d'extraction",
+      "standardExtraction": "Extraction standard",
+      "llmExtraction": "Extraction LLM",
+      "llmModel": "Modèle LLM",
+      "llmMode": "Mode LLM",
       "chunkingStrategy": "Stratégie de découpage",
       "windowSize": "Taille de fenêtre (tokens)",
       "stepSize": "Taille de pas",
@@ -231,6 +236,7 @@
       "confidenceTooltip": "Score de confiance moyen de tous les fragments de preuve",
       "sourceChunks": "Fragments sources",
       "topEvidence": "Meilleure preuve",
+      "llmLimitedNotice": "Version de démonstration limitée : 3 analyses LLM par jour.",
       "noChunksProcessed": "Aucun fragment de texte n'a été traité.",
       "noAggregatedTerms": "Aucun terme HPO agrégé trouvé.",
       "assertionDetail": "Méthode d'assertion:",
@@ -272,7 +278,8 @@
       "notFound": "La ressource demandée est introuvable. (Statut: {status})",
       "notFoundModel": "Le modèle demandé est introuvable sur le serveur. (Statut: {status})",
       "serverError": "Une erreur serveur s'est produite. Veuillez réessayer plus tard. (Statut: {status})",
-      "serviceUnavailable": "Le service est temporairement indisponible. Veuillez réessayer plus tard. (Statut: {status})"
+      "serviceUnavailable": "Le service est temporairement indisponible. Veuillez réessayer plus tard. (Statut: {status})",
+      "llmQuotaExceeded": "La limite LLM pour le texte complet est atteinte aujourd'hui."
     }
   },
   "languageSwitcher": {

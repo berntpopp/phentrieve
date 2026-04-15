@@ -112,16 +112,12 @@
 
       <!-- Advanced Options Panel -->
       <AdvancedOptionsPanel
-        :visible="showAdvancedOptions"
-        :disabled="isLoading"
         v-model:selected-model="selectedModel"
-        :available-models="availableModels"
         v-model:selected-language="selectedLanguage"
-        :available-languages="availableLanguages"
         v-model:include-details="includeDetails"
         v-model:similarity-threshold="similarityThreshold"
         v-model:force-endpoint-mode="forceEndpointMode"
-        :is-text-process-mode-active="isTextProcessModeActive"
+        v-model:text-process-options="textProcessOptions"
         v-model:chunking-strategy="chunkingStrategy"
         v-model:window-size="windowSize"
         v-model:step-size="stepSize"
@@ -132,6 +128,11 @@
         v-model:min-segment-length="minSegmentLength"
         v-model:num-results-per-chunk="numResultsPerChunk"
         v-model:top-term-per-chunk-for-aggregation="topTermPerChunkForAggregation"
+        :visible="showAdvancedOptions"
+        :disabled="isLoading"
+        :available-models="availableModels"
+        :available-languages="availableLanguages"
+        :is-text-process-mode-active="isTextProcessModeActive"
       />
     </div>
 
@@ -200,11 +201,11 @@
 
     <!-- Phenotype Collection Panel -->
     <PhenotypeCollectionPanel
-      :phenotypes="conversationStore.collectedPhenotypes"
-      :panel-open="conversationStore.showCollectionPanel"
       v-model:subject-id="phenopacketSubjectId"
       v-model:sex="phenopacketSex"
       v-model:date-of-birth="phenopacketDateOfBirth"
+      :phenotypes="conversationStore.collectedPhenotypes"
+      :panel-open="conversationStore.showCollectionPanel"
       :sex-options="sexOptions"
       @toggle-panel="toggleCollectionPanel"
       @update:panel-open="conversationStore.showCollectionPanel = $event"
@@ -241,7 +242,6 @@ import PhentrieveService from '../services/PhentrieveService';
 import { logService } from '../services/logService';
 import { useQueryPreferencesStore } from '../stores/queryPreferences';
 import { useConversationStore } from '../stores/conversation';
-import { DEFAULT_SIMILARITY_THRESHOLD } from '../constants/defaults';
 import { useAdvancedOptions } from '../composables/useAdvancedOptions';
 import { usePhenotypeCollection } from '../composables/usePhenotypeCollection';
 
@@ -338,6 +338,11 @@ export default {
         { title: this.$t('phenopacket.sexOther'), value: 3 },
       ],
       forceEndpointMode: null,
+      textProcessOptions: {
+        extractionBackend: 'standard',
+        llmModel: 'gpt-5.4-mini',
+        llmMode: 'two_phase',
+      },
       chunkingStrategy: 'sliding_window_punct_conj_cleaned',
       semanticModelForChunking: null,
       retrievalModelForTextProcess: null,
@@ -572,23 +577,26 @@ export default {
         let response;
         if (useTextProcessMode) {
           const textProcessData = {
-            text_content: currentQuery,
+            text: currentQuery,
+            extractionBackend: this.textProcessOptions.extractionBackend,
+            llmModel: this.textProcessOptions.llmModel,
+            llmMode: this.textProcessOptions.llmMode,
             language: this.selectedLanguage,
-            chunking_strategy: this.chunkingStrategy,
-            window_size: this.windowSize,
-            step_size: this.stepSize,
-            split_threshold: this.splitThreshold,
-            min_segment_length: this.minSegmentLength,
-            semantic_model_name: this.semanticModelForChunking || this.selectedModel,
-            retrieval_model_name: this.retrievalModelForTextProcess || this.selectedModel,
-            trust_remote_code: true,
-            chunk_retrieval_threshold: this.chunkRetrievalThreshold,
-            num_results_per_chunk: this.numResultsPerChunk,
-            no_assertion_detection: this.noAssertionDetectionForTextProcess,
-            assertion_preference: this.assertionPreferenceForTextProcess,
-            aggregated_term_confidence: this.aggregatedTermConfidence,
-            top_term_per_chunk: this.topTermPerChunkForAggregation,
-            include_details: this.includeDetails,
+            chunkingStrategy: this.chunkingStrategy,
+            windowSize: this.windowSize,
+            stepSize: this.stepSize,
+            splitThreshold: this.splitThreshold,
+            minSegmentLength: this.minSegmentLength,
+            semanticModelForChunking: this.semanticModelForChunking || this.selectedModel,
+            retrievalModelForTextProcess: this.retrievalModelForTextProcess || this.selectedModel,
+            trustRemoteCode: true,
+            chunkRetrievalThreshold: this.chunkRetrievalThreshold,
+            numResultsPerChunk: this.numResultsPerChunk,
+            noAssertionDetectionForTextProcess: this.noAssertionDetectionForTextProcess,
+            assertionPreferenceForTextProcess: this.assertionPreferenceForTextProcess,
+            aggregatedTermConfidence: this.aggregatedTermConfidence,
+            topTermPerChunkForAggregation: this.topTermPerChunkForAggregation,
+            includeDetails: this.includeDetails,
           };
           logService.info('Sending to /text/process API', textProcessData);
           response = await PhentrieveService.processText(textProcessData);

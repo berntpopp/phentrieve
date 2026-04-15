@@ -82,20 +82,22 @@
     </div>
 
     <!-- Text Processing Results Display -->
-    <div
-      v-else-if="
-        resultType === 'textProcess' &&
-        responseData &&
-        responseData.processed_chunks &&
-        responseData.aggregated_hpo_terms
-      "
-    >
+    <div v-else-if="hasTextProcessResults">
       <!-- Meta Information Card -->
       <v-card class="mb-4 info-card">
         <v-card-title class="text-subtitle-1 pa-2 pa-sm-4">
           <div class="d-flex flex-wrap align-center">
-            <!-- Processing Strategy -->
-            <div class="info-item mr-4 mb-1">
+            <div v-if="extractionBackend === 'llm'" class="info-item mr-4 mb-1">
+              <v-icon color="info" class="mr-1" size="small"> mdi-robot-outline </v-icon>
+              <span>
+                <small class="text-caption text-medium-emphasis"
+                  >{{ $t('queryInterface.advancedOptions.llmExtraction') }}:</small
+                >
+                {{ $t('queryInterface.advancedOptions.llmExtraction') }}
+              </span>
+            </div>
+
+            <div v-else class="info-item mr-4 mb-1">
               <v-icon color="info" class="mr-1" size="small"> mdi-information </v-icon>
               <span class="model-name">
                 <small class="text-caption text-medium-emphasis"
@@ -108,18 +110,16 @@
               </span>
             </div>
 
-            <!-- Number of Chunks -->
-            <div class="info-item mr-4 mb-1">
+            <div v-if="processedChunks.length > 0" class="info-item mr-4 mb-1">
               <v-icon color="info" class="mr-1" size="small"> mdi-file-document-multiple </v-icon>
               <span>
                 <small class="text-caption text-medium-emphasis"
                   >{{ $t('resultsDisplay.textProcess.chunksLabel', 'Chunks') }}:</small
                 >
-                {{ responseData.processed_chunks.length }}
+                {{ processedChunks.length }}
               </span>
             </div>
 
-            <!-- Language info -->
             <div
               v-if="
                 responseData.meta?.effective_language ||
@@ -133,18 +133,27 @@
                   >{{ $t('resultsDisplay.languageLabel') }}:</small
                 >
                 {{
-                  responseData.meta.effective_language ||
-                  responseData.meta.request_parameters?.language
+                  responseData.meta?.effective_language ||
+                  responseData.meta?.request_parameters?.language
                 }}
               </span>
             </div>
           </div>
 
-          <!-- Model info on separate line -->
+          <div v-if="showQuotaNotice" class="info-item mt-2 d-flex align-center">
+            <v-icon color="warning" class="mr-1" size="small"> mdi-counter </v-icon>
+            <span class="text-caption text-medium-emphasis">
+              {{ $t('resultsDisplay.textProcess.llmLimitedNotice') }}
+              {{ quotaRemaining }} / {{ quotaLimit }}
+            </span>
+          </div>
+
           <div
             v-if="
               responseData.meta?.effective_retrieval_model ||
-              responseData.meta?.request_parameters?.retrieval_model_name
+              responseData.meta?.request_parameters?.retrieval_model_name ||
+              responseData.meta?.llm_model ||
+              responseData.meta?.request_parameters?.llm_model
             "
             class="info-item mt-2"
           >
@@ -155,8 +164,10 @@
               >
               {{
                 displayModelName(
-                  responseData.meta.effective_retrieval_model ||
-                    responseData.meta.request_parameters?.retrieval_model_name
+                  responseData.meta?.effective_retrieval_model ||
+                    responseData.meta?.request_parameters?.retrieval_model_name ||
+                    responseData.meta?.llm_model ||
+                    responseData.meta?.request_parameters?.llm_model
                 )
               }}
             </span>
@@ -166,8 +177,9 @@
 
       <!-- Processed Chunks Section -->
       <ChunkResultsView
+        v-if="processedChunks.length > 0"
         ref="chunkResultsView"
-        :chunks="responseData.processed_chunks"
+        :chunks="processedChunks"
         :highlighted-attributions="highlightedAttributions"
       />
 
@@ -199,7 +211,8 @@
       v-else-if="
         resultType === 'textProcess' &&
         responseData &&
-        (!responseData.processed_chunks || responseData.processed_chunks.length === 0)
+        processedChunks.length === 0 &&
+        extractionBackend !== 'llm'
       "
     >
       <v-alert color="warning" icon="mdi-alert-circle">
@@ -281,6 +294,33 @@ export default {
     // This prevents reactive dependency issues when checking collection status in templates
     collectedPhenotypeIds() {
       return new Set(this.collectedPhenotypes.map((item) => item.hpo_id));
+    },
+    processedChunks() {
+      return this.responseData?.processed_chunks ?? [];
+    },
+    extractionBackend() {
+      return this.responseData?.meta?.extraction_backend ?? 'standard';
+    },
+    quotaRemaining() {
+      return this.responseData?.meta?.quota_remaining;
+    },
+    quotaLimit() {
+      return this.responseData?.meta?.quota_limit;
+    },
+    showQuotaNotice() {
+      return (
+        this.extractionBackend === 'llm' &&
+        this.quotaRemaining != null &&
+        this.quotaLimit != null
+      );
+    },
+    hasTextProcessResults() {
+      return (
+        this.resultType === 'textProcess' &&
+        !!this.responseData &&
+        !!this.responseData.aggregated_hpo_terms &&
+        (this.processedChunks.length > 0 || this.extractionBackend === 'llm')
+      );
     },
   },
   methods: {

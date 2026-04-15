@@ -54,13 +54,15 @@ class PhentrieveService {
    */
   async processText(textProcessingData) {
     try {
+      const normalizedPayload = this._normalizeTextProcessPayload(textProcessingData);
       logService.info('Calling Text Processing API', {
-        requestSize: JSON.stringify(textProcessingData).length,
-        textLength: textProcessingData.text_content?.length || 0,
-        model: textProcessingData.retrieval_model_name,
+        requestSize: JSON.stringify(normalizedPayload).length,
+        textLength: normalizedPayload.text?.length || 0,
+        backend: normalizedPayload.extraction_backend,
+        model: normalizedPayload.llm_model || normalizedPayload.retrieval_model_name,
       });
 
-      const response = await axios.post(`${API_URL}/text/process`, textProcessingData);
+      const response = await axios.post(`${API_URL}/text/process`, normalizedPayload);
 
       logService.debug('Text Processing API response received', {
         status: response.status,
@@ -94,6 +96,66 @@ class PhentrieveService {
     }
   }
 
+  _normalizeTextProcessPayload(textProcessingData) {
+    const extractionBackend =
+      textProcessingData.extraction_backend ?? textProcessingData.extractionBackend ?? 'standard';
+
+    return {
+      text: textProcessingData.text ?? textProcessingData.text_content ?? '',
+      extraction_backend: extractionBackend,
+      llm_model:
+        textProcessingData.llm_model ??
+        textProcessingData.llmModel ??
+        textProcessingData.model_name ??
+        null,
+      llm_mode: textProcessingData.llm_mode ?? textProcessingData.llmMode ?? null,
+      language: textProcessingData.language ?? null,
+      chunking_strategy:
+        textProcessingData.chunking_strategy ?? textProcessingData.chunkingStrategy ?? null,
+      window_size: textProcessingData.window_size ?? textProcessingData.windowSize ?? null,
+      step_size: textProcessingData.step_size ?? textProcessingData.stepSize ?? null,
+      split_threshold: textProcessingData.split_threshold ?? textProcessingData.splitThreshold ?? null,
+      min_segment_length:
+        textProcessingData.min_segment_length ?? textProcessingData.minSegmentLength ?? null,
+      semantic_model_name:
+        textProcessingData.semantic_model_name ??
+        textProcessingData.semanticModelForChunking ??
+        textProcessingData.semanticModelName ??
+        textProcessingData.selectedModel ??
+        null,
+      retrieval_model_name:
+        textProcessingData.retrieval_model_name ??
+        textProcessingData.retrievalModelForTextProcess ??
+        textProcessingData.retrievalModelName ??
+        textProcessingData.selectedModel ??
+        null,
+      trust_remote_code: textProcessingData.trust_remote_code ?? textProcessingData.trustRemoteCode,
+      chunk_retrieval_threshold:
+        textProcessingData.chunk_retrieval_threshold ??
+        textProcessingData.chunkRetrievalThreshold ??
+        null,
+      num_results_per_chunk:
+        textProcessingData.num_results_per_chunk ?? textProcessingData.numResultsPerChunk ?? null,
+      no_assertion_detection:
+        textProcessingData.no_assertion_detection ??
+        textProcessingData.noAssertionDetectionForTextProcess ??
+        null,
+      assertion_preference:
+        textProcessingData.assertion_preference ??
+        textProcessingData.assertionPreferenceForTextProcess ??
+        null,
+      aggregated_term_confidence:
+        textProcessingData.aggregated_term_confidence ??
+        textProcessingData.aggregatedTermConfidence ??
+        null,
+      top_term_per_chunk:
+        textProcessingData.top_term_per_chunk ??
+        textProcessingData.topTermPerChunkForAggregation ??
+        null,
+      include_details: textProcessingData.include_details ?? textProcessingData.includeDetails,
+    };
+  }
+
   /**
    * Fetches configuration info from the API including available models
    * @returns {Object} Data matching PhentrieveConfigInfoResponseAPI schema
@@ -124,6 +186,7 @@ class PhentrieveService {
    * @private
    */
   _createStandardizedError(error, contextMessage = 'interacting with the API') {
+    const responseData = error.response?.data;
     const standardError = {
       status: error.response?.status || 0,
       type: 'UNKNOWN_ERROR',
@@ -132,7 +195,8 @@ class PhentrieveService {
       originalErrorDetails: {
         message: error.message,
         code: error.code,
-        apiResponseMessage: error.response?.data?.detail,
+        apiResponseMessage: responseData?.detail,
+        apiResponseData: responseData,
         configUrl: error.config?.url,
       },
     };
@@ -144,10 +208,21 @@ class PhentrieveService {
       standardError.type = 'API_ERROR';
       const { key, params } = this._getErrorMessageKeyForStatus(
         error.response.status,
-        error.response.data?.detail
+        responseData?.detail
       );
       standardError.userMessageKey = key;
       standardError.userMessageParams = params;
+      if (error.response.status === 429) {
+        standardError.userMessageKey = 'errors.api.llmQuotaExceeded';
+        standardError.userMessageParams = {
+          quotaRemaining: responseData?.quota_remaining,
+          quotaLimit: responseData?.quota_limit,
+          extractionBackend: responseData?.extraction_backend,
+        };
+        standardError.quotaRemaining = responseData?.quota_remaining;
+        standardError.quotaLimit = responseData?.quota_limit;
+        standardError.extractionBackend = responseData?.extraction_backend;
+      }
     } else {
       // Generic client-side error or unexpected issue
       standardError.userMessageKey = 'errors.api.clientSide';

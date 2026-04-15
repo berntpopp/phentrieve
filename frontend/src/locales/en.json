@@ -139,6 +139,11 @@
       "modeQuery": "Query Mode (short text)",
       "modeTextProcess": "Text Processing Mode (document)",
       "textProcessingTitle": "Text Processing Settings",
+      "extractionBackend": "Extraction Backend",
+      "standardExtraction": "Standard extraction",
+      "llmExtraction": "LLM extraction",
+      "llmModel": "LLM Model",
+      "llmMode": "LLM Mode",
       "chunkingStrategy": "Chunking Strategy",
       "windowSize": "Window Size (tokens)",
       "stepSize": "Step Size",
@@ -231,6 +236,7 @@
       "confidenceTooltip": "Average confidence score from all evidence chunks",
       "sourceChunks": "Source chunks",
       "topEvidence": "Top evidence",
+      "llmLimitedNotice": "Limited production demo: 3 LLM analyses per day.",
       "noChunksProcessed": "No text chunks were processed.",
       "noAggregatedTerms": "No aggregated HPO terms found.",
       "assertionDetail": "Assertion Method:",
@@ -249,7 +255,8 @@
       "notFound": "The requested resource could not be found. (Status: {status})",
       "notFoundModel": "The requested model could not be found on the server. (Status: {status})",
       "serverError": "A server error occurred. Please try again later. (Status: {status})",
-      "serviceUnavailable": "The service is temporarily unavailable. Please try again later. (Status: {status})"
+      "serviceUnavailable": "The service is temporarily unavailable. Please try again later. (Status: {status})",
+      "llmQuotaExceeded": "LLM full-text limit reached for today."
     }
   },
   "logViewer": {

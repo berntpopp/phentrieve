@@ -139,6 +139,11 @@
       "modeQuery": "Zoekmodus (korte tekst)",
       "modeTextProcess": "Tekstverwerking (document)",
       "textProcessingTitle": "Tekstverwerkingsinstellingen",
+      "extractionBackend": "Extractie-backend",
+      "standardExtraction": "Standaardextractie",
+      "llmExtraction": "LLM-extractie",
+      "llmModel": "LLM-model",
+      "llmMode": "LLM-modus",
       "chunkingStrategy": "Opdelingsstrategie",
       "windowSize": "Venstergrootte (tokens)",
       "stepSize": "Stapgrootte",
@@ -231,6 +236,7 @@
       "confidenceTooltip": "Gemiddelde betrouwbaarheidsscore van alle bewijsfragmenten",
       "sourceChunks": "Bronfragmenten",
       "topEvidence": "Beste bewijs",
+      "llmLimitedNotice": "Beperkte demoversie: 3 LLM-analyses per dag.",
       "noChunksProcessed": "Er zijn geen tekstfragmenten verwerkt.",
       "noAggregatedTerms": "Geen geaggregeerde HPO-termen gevonden.",
       "assertionDetail": "Bevestigingsmethode:",
@@ -275,7 +281,8 @@
       "notFound": "De gevraagde bron kon niet worden gevonden. (Status: {status})",
       "notFoundModel": "Het gevraagde model kon niet worden gevonden op de server. (Status: {status})",
       "serverError": "Er is een serverfout opgetreden. Probeer het later opnieuw. (Status: {status})",
-      "serviceUnavailable": "De dienst is tijdelijk niet beschikbaar. Probeer het later opnieuw. (Status: {status})"
+      "serviceUnavailable": "De dienst is tijdelijk niet beschikbaar. Probeer het later opnieuw. (Status: {status})",
+      "llmQuotaExceeded": "De dagelijkse LLM-limiet voor volledige tekst is bereikt."
     }
   },
   "faq": {

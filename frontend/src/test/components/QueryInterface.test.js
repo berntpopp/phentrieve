@@ -100,4 +100,15 @@ describe('QueryInterface (characterization)', () => {
     expect(wrapper.vm.chunkRetrievalThreshold).toBe(0.7);
     expect(wrapper.vm.aggregatedTermConfidence).toBe(0.75);
   });
+
+  it('shows the LLM backend selector only in text-processing mode', async () => {
+    const wrapper = await mountQueryInterface();
+
+    await wrapper.setData({
+      forceEndpointMode: 'textProcess',
+    });
+    await wrapper.find('button[aria-label="Open Advanced Options"]').trigger('click');
+
+    expect(wrapper.text()).toContain('LLM extraction');
+  });
 });
