@@ -608,7 +608,6 @@ def process_text_for_hpo_command(
     chunks = service_result["processed_chunks"]
 
     if meta.get("extraction_backend") == "llm":
-        typer.echo("Extraction backend: llm")
         llm_model = meta.get("llm_model")
         llm_mode = meta.get("llm_mode")
         if llm_model or llm_mode:
