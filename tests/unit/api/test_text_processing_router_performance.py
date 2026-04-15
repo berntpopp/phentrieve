@@ -17,6 +17,7 @@ from api.routers.text_processing_router import (
     process_text_extract_hpo,
 )
 from api.schemas.text_processing_schemas import TextProcessingRequest
+from phentrieve.config import DEFAULT_MODEL
 
 pytestmark = pytest.mark.unit
 
@@ -266,7 +267,7 @@ class TestModelReuse:
         """Should reuse retrieval model for chunking when no separate model specified."""
         request = TextProcessingRequest(
             text_content="Test text",
-            retrieval_model_name="test-model",
+            retrieval_model_name=DEFAULT_MODEL,
             # No semantic_model_name specified
         )
 
@@ -280,7 +281,7 @@ class TestModelReuse:
                 "api.routers.text_processing_router.get_dense_retriever_dependency"
             ) as mock_get_retriever:
                 mock_retriever = MagicMock()
-                mock_retriever.model_name = "test-model"
+                mock_retriever.model_name = DEFAULT_MODEL
                 mock_get_retriever.return_value = mock_retriever
 
                 with patch(
