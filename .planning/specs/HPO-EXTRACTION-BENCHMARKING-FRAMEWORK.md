@@ -14,7 +14,7 @@
 
 This document covers **full-text HPO extraction** evaluation - the end-to-end process of extracting phenotype terms from clinical documents.
 
-**This framework is INDEPENDENT from the Single-Term Retrieval Benchmark** (see `SINGLE-TERM-RETRIEVAL-BENCHMARK.md`).
+**This framework is INDEPENDENT from the Single-Term Retrieval Benchmark** (see `.planning/specs/SINGLE-TERM-RETRIEVAL-BENCHMARK.md`).
 
 | Aspect | Full-Text Extraction (THIS DOC) | Single-Term Retrieval (SEPARATE) |
 |--------|--------------------------------|----------------------------------|

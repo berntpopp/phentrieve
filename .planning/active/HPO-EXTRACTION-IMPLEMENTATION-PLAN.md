@@ -3,7 +3,7 @@
 **Status:** Active Implementation
 **Created:** 2025-12-08
 **Timeline:** 4 weeks
-**Framework Document:** [HPO-EXTRACTION-BENCHMARKING-FRAMEWORK.md](./HPO-EXTRACTION-BENCHMARKING-FRAMEWORK.md)
+**Framework Document:** [HPO-EXTRACTION-BENCHMARKING-FRAMEWORK.md](../specs/HPO-EXTRACTION-BENCHMARKING-FRAMEWORK.md)
 **Primary Issue:** [#17 - Full Clinical Text HPO Extraction Benchmark](https://github.com/berntpopp/phentrieve/issues/17)
 
 ## Executive Summary
@@ -872,7 +872,7 @@ extraction_benchmark:
 
 ## References
 
-- [HPO Extraction Framework Document](./HPO-EXTRACTION-BENCHMARKING-FRAMEWORK.md)
-- [Single-Term Retrieval Benchmark](../02-completed/SINGLE-TERM-RETRIEVAL-BENCHMARK.md)
+- [HPO Extraction Framework Document](../specs/HPO-EXTRACTION-BENCHMARKING-FRAMEWORK.md)
+- [Single-Term Retrieval Benchmark](../specs/SINGLE-TERM-RETRIEVAL-BENCHMARK.md)
 - [SemEval Clinical Concept Extraction](https://www.aclweb.org/anthology/S13-2056/)
 - [Information Content in Ontologies](https://doi.org/10.1186/1471-2105-7-302)

@@ -1311,7 +1311,7 @@ python scripts/compare_profiles.py \
 
 ### Advanced Chunking Optimizations
 
-From `CHUNKING-OPTIMIZATION-PLAN.md`:
+From `.planning/archived/CHUNKING-OPTIMIZATION-PLAN.md`:
 - Adaptive window sizing
 - Medical abbreviation handling
 - Annotation-based chunking
@@ -1323,7 +1323,7 @@ From `CHUNKING-OPTIMIZATION-PLAN.md`:
 
 ### Benchmarking Framework
 
-From `CHUNKING-OPTIMIZATION-PLAN.md`:
+From `.planning/archived/CHUNKING-OPTIMIZATION-PLAN.md`:
 - Systematic strategy comparison
 - Span-based metrics
 - Automated reporting
@@ -1536,7 +1536,7 @@ This master plan consolidates and supersedes:
 
 1. ❌ ~~`TECHNICAL-OPTIMIZATIONS-PLAN.md`~~ - Over-engineered, premature
 2. ❌ ~~`CRITICAL-PERFORMANCE-FIXES.md`~~ - Merged into Phase 0
-3. ⏸️ `CHUNKING-OPTIMIZATION-PLAN.md` - Deferred to Phase 4 (algorithm improvements)
+3. ⏸️ `.planning/archived/CHUNKING-OPTIMIZATION-PLAN.md` - Deferred to Phase 4 (algorithm improvements)
 
 **Active Plans:**
 - ✅ `PERFORMANCE-MASTER-PLAN.md` (THIS FILE) - Single source of truth

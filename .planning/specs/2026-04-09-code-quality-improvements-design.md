@@ -350,7 +350,7 @@ Note: `api/main.py` version fix and `phentrieve/retrieval/utils.py` extraction a
 | Migrate caches to `app.state` | Requires API signature churn + test rewrites; do after bounded caching is stable |
 | Semantic query caching | Needs benchmarking data |
 | Character-offset provenance | Feature addition, not refactoring |
-| Assertion-aware chunking | Active plan exists (`CHUNKING-OPTIMIZATION-PLAN.md`) |
+| Assertion-aware chunking | Historical plan exists (`.planning/archived/CHUNKING-OPTIMIZATION-PLAN.md`) |
 | Virtual scrolling | Only if list sizes become a real problem |
 | `eslint-plugin-vuejs-accessibility` | Deferred with accessibility work |
 

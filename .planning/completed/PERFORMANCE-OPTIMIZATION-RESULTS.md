@@ -285,7 +285,7 @@ grep -roh "v-tooltip\|v-ripple\|v-intersect" src/ --include="*.vue" | sort -u
 - `frontend/src/plugins/vuetify.js` (129 lines)
 - `frontend/scripts/check-vuetify-components.sh` (audit tool)
 - `plan/01-active/PERFORMANCE-OPTIMIZATION-RESULTS.md` (this file)
-- `plan/01-active/PERFORMANCE-REVIEW-ANTIPATTERNS.md` (review doc)
+- `.planning/analysis/PERFORMANCE-REVIEW-ANTIPATTERNS.md` (review doc)
 
 **Modified**:
 - `frontend/vite.config.js` (+5 lines: define block)

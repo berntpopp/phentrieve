@@ -27,7 +27,7 @@ This folder contains comprehensive planning documentation for implementing a uni
    - Research findings from web search
    - **Read this for technical deep dive**
 
-3. **[UNIFIED-OUTPUT-FORMAT-PHENOPACKETS-REVIEW.md](./UNIFIED-OUTPUT-FORMAT-PHENOPACKETS-REVIEW.md)**
+3. **[UNIFIED-OUTPUT-FORMAT-PHENOPACKETS-REVIEW.md](../../analysis/UNIFIED-OUTPUT-FORMAT-PHENOPACKETS-REVIEW.md)**
    - Senior developer code review
    - SOLID/DRY/KISS/YAGNI analysis
    - Critical issues and recommendations

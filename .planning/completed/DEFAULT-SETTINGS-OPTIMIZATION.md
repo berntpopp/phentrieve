@@ -4,7 +4,7 @@
 **Date:** 2025-12-10
 **Completed:** 2025-12-10
 **PR:** #141
-**Related Analysis:** `plan/05-analysis/EXTRACTION-BENCHMARK-ACTION-PLAN.md`, `plan/05-analysis/EXTRACTION-BENCHMARK-DEEP-ANALYSIS.md`
+**Related Analysis:** `.planning/archived/EXTRACTION-BENCHMARK-ACTION-PLAN.md`, `.planning/analysis/EXTRACTION-BENCHMARK-DEEP-ANALYSIS.md`
 **Priority:** High
 **Design Principles:** DRY, KISS, SOLID, Modularization
 
@@ -104,7 +104,7 @@ Add new constants section after line 119:
 # Sliding Window Chunking Defaults (Unified)
 # =============================================================================
 # These defaults are used by all components: CLI, API, Frontend
-# Validated via benchmarking - see plan/05-analysis/EXTRACTION-BENCHMARK-ACTION-PLAN.md
+# Validated via benchmarking - see .planning/archived/EXTRACTION-BENCHMARK-ACTION-PLAN.md
 
 DEFAULT_WINDOW_SIZE_TOKENS = 3
 DEFAULT_STEP_SIZE_TOKENS = 1
@@ -510,5 +510,5 @@ Update `_lazy_init()` chunking pipeline (lines 89-102):
 
 ## References
 
-- `plan/05-analysis/EXTRACTION-BENCHMARK-ACTION-PLAN.md` - Benchmark validation
+- `.planning/archived/EXTRACTION-BENCHMARK-ACTION-PLAN.md` - Historical benchmark validation
 - `plan/05-analysis/EXTRACTION-BENCHMARK-DEEP-ANALYSIS.md` - FP/FN analysis

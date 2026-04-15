@@ -123,7 +123,7 @@ With BGE Reranker (cross-lingual mode):
 - Hit@10: 0.6667 (no change)
 ```
 
-**Impact:** +36% MRR improvement **exceeds** the expected +15-20% from RERANKING-DIAGNOSIS-AND-FIX.md!
+**Impact:** +36% MRR improvement **exceeds** the expected +15-20% from `.planning/analysis/RERANKING-DIAGNOSIS-AND-FIX.md`!
 
 ### Comprehensive Validation (200 Cases)
 
@@ -235,7 +235,7 @@ uv run phentrieve benchmark run \
 
 ## 🎯 Expected vs Actual Impact
 
-Based on RERANKING-DIAGNOSIS-AND-FIX.md validation:
+Based on `.planning/analysis/RERANKING-DIAGNOSIS-AND-FIX.md` validation:
 
 ### Phase 1 (Bug Fix)
 - **Expected:** 0-2% MRR change (stability fix)
@@ -251,7 +251,7 @@ Based on RERANKING-DIAGNOSIS-AND-FIX.md validation:
 ## 📚 References
 
 ### Implemented According to:
-- ✅ [RERANKING-DIAGNOSIS-AND-FIX.md](plan/01-active/RERANKING-DIAGNOSIS-AND-FIX.md)
+- ✅ [RERANKING-DIAGNOSIS-AND-FIX.md](../analysis/RERANKING-DIAGNOSIS-AND-FIX.md)
 - ✅ [Sentence-Transformers CrossEncoder Docs](https://sbert.net/docs/package_reference/cross_encoder/cross_encoder.html)
 - ✅ [BGE Reranker Documentation](https://huggingface.co/BAAI/bge-reranker-v2-m3)
 - ✅ [BGE Official Docs](https://bge-model.com/bge/bge_reranker_v2.html)
