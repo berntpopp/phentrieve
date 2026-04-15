@@ -115,7 +115,10 @@ jobs:
       - name: Run mypy type checking
         run: |
           uv run mypy phentrieve/ api/
-        continue-on-error: true
+
+      - name: Validate pytest collection
+        run: |
+          uv run pytest tests/ --collect-only -q
 
       - name: Run pytest
         env:
