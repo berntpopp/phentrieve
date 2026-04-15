@@ -1,7 +1,9 @@
 import asyncio
 import logging
-from typing import Literal
+import threading
+from typing import Literal, cast
 
+from cachetools import TTLCache  # type: ignore[import-untyped]
 from fastapi import HTTPException
 from fastapi.concurrency import run_in_threadpool
 from sentence_transformers import CrossEncoder, SentenceTransformer
@@ -21,26 +23,32 @@ logger = logging.getLogger(__name__)
 # Alias for brevity in this module
 _sanitize = sanitize_log_value
 
-# Global cache for models and retrievers
-# Key: model_name (or unique identifier), Value: loaded instance
-LOADED_SBERT_MODELS: dict[str, SentenceTransformer] = {}
-# Key is now only model name, no need for index_dir in key
-LOADED_RETRIEVERS: dict[str, DenseRetriever] = {}
-LOADED_CROSS_ENCODERS: dict[str, CrossEncoder | None] = {}
+# Bounded caches prevent unbounded model growth in long-running API processes.
+_cache_lock = threading.Lock()
+LOADED_SBERT_MODELS: TTLCache = TTLCache(maxsize=10, ttl=3600)
+LOADED_RETRIEVERS: TTLCache = TTLCache(maxsize=10, ttl=3600)
+LOADED_CROSS_ENCODERS: TTLCache = TTLCache(maxsize=10, ttl=3600)
 
 # Model loading status tracking
 ModelLoadStatus = Literal["not_loaded", "loading", "loaded", "failed"]
-MODEL_LOADING_STATUS: dict[str, ModelLoadStatus] = {}
-MODEL_LOAD_LOCKS: dict[str, asyncio.Lock] = {}
+MODEL_LOADING_STATUS: TTLCache = TTLCache(maxsize=50, ttl=3600)
+MODEL_LOAD_LOCKS: TTLCache = TTLCache(maxsize=50, ttl=3600)
 # Track active loading tasks to enable awaiting
 MODEL_LOADING_TASKS: dict[str, asyncio.Task] = {}
 
 
 def _get_lock_for_model(model_name: str) -> asyncio.Lock:
     """Get or create a lock for a given model name."""
-    if model_name not in MODEL_LOAD_LOCKS:
-        MODEL_LOAD_LOCKS[model_name] = asyncio.Lock()
-    return MODEL_LOAD_LOCKS[model_name]
+    existing = MODEL_LOAD_LOCKS.get(model_name)
+    if existing is not None:
+        return cast(asyncio.Lock, existing)
+    with _cache_lock:
+        existing = MODEL_LOAD_LOCKS.get(model_name)
+        if existing is not None:
+            return cast(asyncio.Lock, existing)
+        new_lock = asyncio.Lock()
+        MODEL_LOAD_LOCKS[model_name] = new_lock
+        return new_lock
 
 
 async def _load_model_in_background(
@@ -66,21 +74,25 @@ async def _load_model_in_background(
                 trust_remote_code=trust_remote_code,
                 device=actual_device,
             )
-            LOADED_SBERT_MODELS[model_name] = model_instance
+            with _cache_lock:
+                LOADED_SBERT_MODELS[model_name] = model_instance
         else:
             # Explicit type annotation for cross-encoder loading
             ce_model_instance: CrossEncoder | None = await run_in_threadpool(
                 load_ce_model, model_name=model_name, device=actual_device
             )
-            LOADED_CROSS_ENCODERS[model_name] = ce_model_instance
+            with _cache_lock:
+                LOADED_CROSS_ENCODERS[model_name] = ce_model_instance
 
-        MODEL_LOADING_STATUS[model_name] = "loaded"
+        with _cache_lock:
+            MODEL_LOADING_STATUS[model_name] = "loaded"
         logger.info(
             "Background task success: Model '%s' loaded and cached.",
             _sanitize(model_name),
         )
     except Exception as e:
-        MODEL_LOADING_STATUS[model_name] = "failed"
+        with _cache_lock:
+            MODEL_LOADING_STATUS[model_name] = "failed"
         logger.error(
             "Background task error: Failed to load model '%s': %s",
             _sanitize(model_name),
@@ -88,10 +100,11 @@ async def _load_model_in_background(
             exc_info=True,
         )
         # Clear from cache if partially added
-        if is_sbert and model_name in LOADED_SBERT_MODELS:
-            del LOADED_SBERT_MODELS[model_name]
-        if not is_sbert and model_name in LOADED_CROSS_ENCODERS:
-            del LOADED_CROSS_ENCODERS[model_name]
+        with _cache_lock:
+            if is_sbert:
+                LOADED_SBERT_MODELS.pop(model_name, None)
+            else:
+                LOADED_CROSS_ENCODERS.pop(model_name, None)
     finally:
         # Clean up the task from tracking dict
         if model_name in MODEL_LOADING_TASKS:
@@ -108,7 +121,7 @@ async def get_sbert_model_dependency(
 
     if model_name in LOADED_SBERT_MODELS:
         logger.debug("API: Returning cached SBERT model: %s", _sanitize(model_name))
-        return LOADED_SBERT_MODELS[model_name]
+        return cast(SentenceTransformer, LOADED_SBERT_MODELS[model_name])
 
     lock = _get_lock_for_model(model_name)
     async with lock:
@@ -118,7 +131,7 @@ async def get_sbert_model_dependency(
                 "API: Returning cached SBERT model (post-lock): %s",
                 _sanitize(model_name),
             )
-            return LOADED_SBERT_MODELS[model_name]
+            return cast(SentenceTransformer, LOADED_SBERT_MODELS[model_name])
 
         current_status = MODEL_LOADING_STATUS.get(model_name, "not_loaded")
 
@@ -141,8 +154,10 @@ async def get_sbert_model_dependency(
                             "API: Model '%s' finished loading, returning it.",
                             _sanitize(model_name),
                         )
-                        return LOADED_SBERT_MODELS[model_name]
-                except TimeoutError:
+                        return cast(
+                            SentenceTransformer, LOADED_SBERT_MODELS[model_name]
+                        )
+                except asyncio.exceptions.TimeoutError:
                     logger.warning(
                         "API: Model '%s' loading timeout (%ss). Loading continues in background.",
                         _sanitize(model_name),
@@ -177,7 +192,8 @@ async def get_sbert_model_dependency(
         logger.info(
             "API: Initiating background load for SBERT model: %s", _sanitize(model_name)
         )
-        MODEL_LOADING_STATUS[model_name] = "loading"
+        with _cache_lock:
+            MODEL_LOADING_STATUS[model_name] = "loading"
 
         # Create task and store it for awaiting
         task = asyncio.create_task(
@@ -194,7 +210,7 @@ async def get_sbert_model_dependency(
                     "API: Model '%s' loaded successfully on first request.",
                     _sanitize(model_name),
                 )
-                return LOADED_SBERT_MODELS[model_name]
+                return cast(SentenceTransformer, LOADED_SBERT_MODELS[model_name])
             # Edge case: task completed but model not in cache (should not happen)
             logger.error(
                 "API: Model '%s' loading task completed but model not found in cache.",
@@ -204,7 +220,7 @@ async def get_sbert_model_dependency(
                 status_code=500,
                 detail=f"Model '{model_name}' failed to load due to an internal error.",
             )
-        except TimeoutError:
+        except asyncio.exceptions.TimeoutError:
             logger.warning(
                 "API: Model '%s' loading timeout (%ss) on first request. Loading continues in background.",
                 _sanitize(model_name),
@@ -267,13 +283,14 @@ async def get_dense_retriever_dependency(
             _sanitize(sbert_model_name_for_retriever),
             _sanitize(index_path),
         )
-        LOADED_RETRIEVERS[retriever_cache_key] = retriever
+        with _cache_lock:
+            LOADED_RETRIEVERS[retriever_cache_key] = retriever
     else:
         logger.debug(
             "API: Using cached DenseRetriever for %s",
             _sanitize(sbert_model_name_for_retriever),
         )
-    return LOADED_RETRIEVERS[retriever_cache_key]
+    return cast(DenseRetriever, LOADED_RETRIEVERS[retriever_cache_key])
 
 
 async def get_cross_encoder_dependency(
@@ -291,7 +308,7 @@ async def get_cross_encoder_dependency(
         logger.debug(
             "API: Returning cached CrossEncoder: %s", _sanitize(reranker_model_name)
         )
-        return LOADED_CROSS_ENCODERS[reranker_model_name]
+        return cast(CrossEncoder, LOADED_CROSS_ENCODERS[reranker_model_name])
 
     lock = _get_lock_for_model(reranker_model_name)
     async with lock:
@@ -304,7 +321,7 @@ async def get_cross_encoder_dependency(
                 "API: Returning cached CrossEncoder (post-lock): %s",
                 _sanitize(reranker_model_name),
             )
-            return LOADED_CROSS_ENCODERS[reranker_model_name]
+            return cast(CrossEncoder, LOADED_CROSS_ENCODERS[reranker_model_name])
 
         current_status = MODEL_LOADING_STATUS.get(reranker_model_name, "not_loaded")
 
@@ -330,8 +347,10 @@ async def get_cross_encoder_dependency(
                             "API: CrossEncoder '%s' finished loading, returning it.",
                             _sanitize(reranker_model_name),
                         )
-                        return LOADED_CROSS_ENCODERS[reranker_model_name]
-                except TimeoutError:
+                    return cast(
+                        CrossEncoder, LOADED_CROSS_ENCODERS[reranker_model_name]
+                    )
+                except asyncio.exceptions.TimeoutError:
                     logger.warning(
                         "API: CrossEncoder '%s' loading timeout (%ss). Loading continues in background.",
                         _sanitize(reranker_model_name),
@@ -368,7 +387,8 @@ async def get_cross_encoder_dependency(
             "API: Initiating background load for CrossEncoder: %s",
             _sanitize(reranker_model_name),
         )
-        MODEL_LOADING_STATUS[reranker_model_name] = "loading"
+        with _cache_lock:
+            MODEL_LOADING_STATUS[reranker_model_name] = "loading"
 
         # Create task and store it for awaiting
         task = asyncio.create_task(
@@ -390,7 +410,7 @@ async def get_cross_encoder_dependency(
                     "API: CrossEncoder '%s' loaded successfully on first request.",
                     _sanitize(reranker_model_name),
                 )
-                return LOADED_CROSS_ENCODERS[reranker_model_name]
+                return cast(CrossEncoder, LOADED_CROSS_ENCODERS[reranker_model_name])
             # Edge case: task completed but model not in cache (should not happen)
             logger.error(
                 "API: CrossEncoder '%s' loading task completed but model not found in cache.",
@@ -400,7 +420,7 @@ async def get_cross_encoder_dependency(
                 status_code=500,
                 detail=f"CrossEncoder '{reranker_model_name}' failed to load due to an internal error.",
             )
-        except TimeoutError:
+        except asyncio.exceptions.TimeoutError:
             logger.warning(
                 "API: CrossEncoder '%s' loading timeout (%ss) on first request. "
                 "Loading continues in background.",

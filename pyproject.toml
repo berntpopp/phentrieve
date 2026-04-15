@@ -208,8 +208,6 @@ norecursedirs = [
     "venv",
     "env",
     "*.egg-info",
-    "phentrieve",
-    "api",
 ]
 
 # Bandit security scanner configuration (standalone, complements Ruff "S" rules)

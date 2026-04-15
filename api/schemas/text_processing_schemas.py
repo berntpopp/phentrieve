@@ -79,14 +79,20 @@ class TextProcessingRequest(BaseModel):
         default=10, ge=1, description="Max HPO terms to consider from each chunk."
     )
     enable_reranker: bool | None = Field(
-        default=False, description="Enable cross-encoder reranking."
+        default=False,
+        deprecated=True,
+        description="Deprecated: reranking is not currently supported by the text-processing endpoint and this parameter is ignored.",
     )
     reranker_model_name: str | None = Field(
         default=DEFAULT_RERANKER_MODEL,
-        description="Cross-lingual reranker model.",
+        deprecated=True,
+        description="Deprecated: reranking is not currently supported by the text-processing endpoint and this parameter is ignored.",
     )
     rerank_count_per_chunk: int | None = Field(
-        default=50, ge=1, description="Number of candidates to rerank per chunk."
+        default=50,
+        ge=1,
+        deprecated=True,
+        description="Deprecated: reranking is not currently supported by the text-processing endpoint and this parameter is ignored.",
     )
 
     # Assertion Detection

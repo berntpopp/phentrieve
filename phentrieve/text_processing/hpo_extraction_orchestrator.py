@@ -123,7 +123,7 @@ def orchestrate_hpo_extraction(
                             matches_added += 1
 
             # Log matches
-            logger.info(
+            logger.debug(
                 f"Found {len(current_hpo_matches)} matches for chunk {chunk_idx + 1}"
             )
 
@@ -131,7 +131,7 @@ def orchestrate_hpo_extraction(
             if current_hpo_matches:
                 for idx, match in enumerate(current_hpo_matches):
                     score_str = f"{match['score']:.4f}" if "score" in match else "N/A"
-                    logger.info(
+                    logger.debug(
                         f"  [{idx + 1}] {match['id']} - {match['name']} [score: {score_str}]"
                     )
 

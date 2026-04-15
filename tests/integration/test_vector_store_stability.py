@@ -21,6 +21,7 @@ Design Rationale:
 """
 
 import tempfile
+from dataclasses import FrozenInstanceError
 from pathlib import Path
 
 import pytest
@@ -94,7 +95,7 @@ class TestVectorStoreConfigCreation:
         )
 
         # Attempting to modify a frozen dataclass should raise an exception.
-        with pytest.raises((AttributeError, Exception)):
+        with pytest.raises(FrozenInstanceError):
             config.path = "/new/path"  # type: ignore[misc]
 
     def test_config_custom_settings_override_defaults(self, temp_index_dir):

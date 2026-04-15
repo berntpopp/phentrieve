@@ -257,7 +257,7 @@ async def run_hpo_query(
         language_detected=language_to_use,
         model_used_for_retrieval=sbert_model_to_use_for_retrieval,
         reranker_used=(
-            request.reranker_model or DEFAULT_RERANKER_MODEL
+            (request.reranker_model or DEFAULT_RERANKER_MODEL)
             if request.enable_reranker
             else None
         ),
