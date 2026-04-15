@@ -8,9 +8,7 @@ import vuetify from '../../plugins/vuetify';
 vi.mock('../../services/PhentrieveService', () => {
   const MockService = {
     queryHpo: vi.fn().mockResolvedValue({ results: [] }),
-    processText: vi
-      .fn()
-      .mockResolvedValue({ processed_chunks: [], aggregated_hpo_terms: [] }),
+    processText: vi.fn().mockResolvedValue({ processed_chunks: [], aggregated_hpo_terms: [] }),
     getConfigInfo: vi.fn().mockResolvedValue({
       available_embedding_models: [{ name: 'test-model', id: 'test-model', loaded: true }],
       default_embedding_model: 'test-model',
