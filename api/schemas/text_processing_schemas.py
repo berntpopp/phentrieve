@@ -63,10 +63,6 @@ class TextProcessingRequest(BaseModel):
         default=DEFAULT_MODEL,
         description=f"Embedding model for HPO term retrieval (default: '{DEFAULT_MODEL}').",
     )
-    trust_remote_code: bool | None = Field(
-        default=False,
-        description="Trust remote code when loading models from Hugging Face Hub (use with caution).",
-    )
 
     # Retrieval & Reranking Parameters
     chunk_retrieval_threshold: float | None = Field(

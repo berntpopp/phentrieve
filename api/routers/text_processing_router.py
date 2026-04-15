@@ -37,6 +37,23 @@ from phentrieve.utils import sanitize_log_value as _sanitize
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/v1/text", tags=["Text Processing and HPO Extraction"])
+ALLOWED_TEXT_PROCESSING_MODELS = {DEFAULT_MODEL}
+
+
+def _validate_model_name(field_name: str, model_name: str | None) -> str:
+    """Validate a caller-supplied model name against the server allowlist."""
+    if model_name is None:
+        return DEFAULT_MODEL
+    if model_name not in ALLOWED_TEXT_PROCESSING_MODELS:
+        allowed_models = ", ".join(sorted(ALLOWED_TEXT_PROCESSING_MODELS))
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=(
+                f"Unsupported {field_name}: {model_name}. "
+                f"Allowed values: {allowed_models}."
+            ),
+        )
+    return model_name
 
 
 def _get_chunking_config_for_api(
@@ -245,10 +262,15 @@ async def _process_text_internal(request: TextProcessingRequest):
                 actual_language = DEFAULT_LANGUAGE
 
         # Model loading using cached dependencies (much faster than direct loading!)
-        # Determine which models to load, with dynamic defaulting for semantic model
-        retrieval_model_name_to_load = request.retrieval_model_name or DEFAULT_MODEL
-        sbert_for_chunking_name_to_load = (
-            request.semantic_model_name or retrieval_model_name_to_load
+        # Validate caller-provided model names against the server allowlist.
+        retrieval_model_name_to_load = _validate_model_name(
+            "retrieval_model_name", request.retrieval_model_name
+        )
+        sbert_for_chunking_name_to_load = _validate_model_name(
+            "semantic_model_name",
+            request.semantic_model_name
+            if request.semantic_model_name is not None
+            else retrieval_model_name_to_load,
         )
 
         logger.info(
@@ -263,7 +285,7 @@ async def _process_text_internal(request: TextProcessingRequest):
         # Get cached retrieval model (will load only once per server lifecycle)
         retrieval_sbert_model = await get_sbert_model_dependency(
             model_name_requested=retrieval_model_name_to_load,
-            trust_remote_code=request.trust_remote_code or False,
+            trust_remote_code=False,
         )
 
         # Determine whether we need a separate model for chunking
@@ -274,7 +296,7 @@ async def _process_text_internal(request: TextProcessingRequest):
             )
             sbert_for_chunking = await get_sbert_model_dependency(
                 model_name_requested=sbert_for_chunking_name_to_load,
-                trust_remote_code=request.trust_remote_code or False,
+                trust_remote_code=False,
             )
         else:
             # Reuse retrieval model for chunking
@@ -345,13 +367,31 @@ async def _process_text_internal(request: TextProcessingRequest):
             assertion_statuses=assertion_statuses_for_orchestrator,
             retriever=retriever,
             language=actual_language,
-            chunk_retrieval_threshold=request.chunk_retrieval_threshold
-            or DEFAULT_CHUNK_RETRIEVAL_THRESHOLD,
-            num_results_per_chunk=request.num_results_per_chunk or 10,
-            min_confidence_for_aggregated=request.aggregated_term_confidence
-            or DEFAULT_MIN_CONFIDENCE_AGGREGATED,
-            top_term_per_chunk=request.top_term_per_chunk_for_aggregation or False,
-            include_details=request.include_details or False,
+            chunk_retrieval_threshold=(
+                request.chunk_retrieval_threshold
+                if request.chunk_retrieval_threshold is not None
+                else DEFAULT_CHUNK_RETRIEVAL_THRESHOLD
+            ),
+            num_results_per_chunk=(
+                request.num_results_per_chunk
+                if request.num_results_per_chunk is not None
+                else 10
+            ),
+            min_confidence_for_aggregated=(
+                request.aggregated_term_confidence
+                if request.aggregated_term_confidence is not None
+                else DEFAULT_MIN_CONFIDENCE_AGGREGATED
+            ),
+            top_term_per_chunk=(
+                request.top_term_per_chunk_for_aggregation
+                if request.top_term_per_chunk_for_aggregation is not None
+                else False
+            ),
+            include_details=(
+                request.include_details
+                if request.include_details is not None
+                else False
+            ),
         )
 
         # Add HPO matches to each processed chunk from the detailed chunk results
