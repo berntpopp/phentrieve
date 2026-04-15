@@ -18,6 +18,12 @@ from phentrieve.text_processing.cleaners import (
     clean_internal_newlines_and_extra_spaces,
     normalize_line_endings,
 )
+from phentrieve.text_processing.full_text_service import (
+    FullTextService,
+    adapt_full_text_response,
+    adapt_standard_response,
+    run_standard_backend,
+)
 from phentrieve.text_processing.spans import TextSpan, find_span_in_text
 
 __all__ = [
@@ -32,6 +38,11 @@ __all__ = [
     "FineGrainedPunctuationChunker",
     "SlidingWindowSemanticSplitter",
     "ConjunctionChunker",
+    # Full-text service
+    "FullTextService",
+    "adapt_full_text_response",
+    "adapt_standard_response",
+    "run_standard_backend",
     # Spans
     "TextSpan",
     "find_span_in_text",
