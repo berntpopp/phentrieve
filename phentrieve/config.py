@@ -510,14 +510,10 @@ _DEFAULT_RERANK_CANDIDATE_COUNT_FALLBACK = 10
 _DEFAULT_DENSE_TRUST_THRESHOLD_FALLBACK = 0.7
 
 DEFAULT_ENABLE_RERANKER: bool = bool(
-    get_config_value(
-        "reranker", _DEFAULT_ENABLE_RERANKER_FALLBACK, "enabled"
-    )
+    get_config_value("reranker", _DEFAULT_ENABLE_RERANKER_FALLBACK, "enabled")
 )
 DEFAULT_RERANKER_MODEL: str = str(
-    get_config_value(
-        "reranker", _DEFAULT_RERANKER_MODEL_FALLBACK, "model"
-    )
+    get_config_value("reranker", _DEFAULT_RERANKER_MODEL_FALLBACK, "model")
 )
 DEFAULT_RERANK_CANDIDATE_COUNT: int = int(
     get_config_value(
