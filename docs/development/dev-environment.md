@@ -4,7 +4,7 @@ This page explains how to set up a development environment for contributing to t
 
 ## Prerequisites
 
-- **Python 3.10+** (Required for modern type hints)
+- **Python 3.11+** (Required by the current dependency stack)
 - **Git** for version control
 - **uv** (Recommended package manager - 10-100x faster than pip)
 - **Node.js 18+** and npm (for frontend development)

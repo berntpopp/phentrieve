@@ -33,6 +33,18 @@ class QueryRequest(BaseModel):
         description="Include HPO term definitions and synonyms in results. When enabled, num_results is capped at 20 for performance.",
     )
 
+    enable_reranker: bool = Field(False, description="Enable cross-encoder reranking.")
+    reranker_model: str | None = Field(
+        None,
+        description="Cross-encoder model for reranking (e.g., 'BAAI/bge-reranker-v2-m3'). Uses default if None and reranking enabled.",
+    )
+    rerank_count: int = Field(
+        10,
+        gt=0,
+        le=100,
+        description="Number of top dense results to pass to the reranker.",
+    )
+
     # Multi-vector parameters (Issue #136)
     multi_vector: bool = Field(
         default=DEFAULT_MULTI_VECTOR,
@@ -104,6 +116,8 @@ class HPOResultItem(BaseModel):
     hpo_id: str
     label: str
     similarity: float | None = None  # Score from dense retriever
+    cross_encoder_score: float | None = None  # Score from reranker
+    original_rank: int | None = None  # Rank before reranking
     definition: str | None = None  # HPO term definition (when include_details=True)
     synonyms: list[str] | None = None  # HPO term synonyms (when include_details=True)
     # Multi-vector component scores (Issue #136)
@@ -121,6 +135,7 @@ class QueryResponse(BaseModel):
     query_text_received: str  # The original full text query from the user
     language_detected: str | None = None
     model_used_for_retrieval: str
+    reranker_used: str | None = None
     # Assertion status from query text
     query_assertion_status: str | None = None
     # If processing as a single block (initial approach):

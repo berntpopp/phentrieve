@@ -4,14 +4,18 @@ from typing import Literal, cast
 from fastapi import APIRouter, Depends, HTTPException
 
 from api.dependencies import (
+    get_cross_encoder_dependency,
     get_dense_retriever_dependency,
 )
 from api.schemas.query_schemas import QueryRequest, QueryResponse
 from phentrieve.config import (
     DEFAULT_AGGREGATION_STRATEGY,
+    DEFAULT_ENABLE_RERANKER,
     DEFAULT_LANGUAGE,
     DEFAULT_MODEL,
     DEFAULT_MULTI_VECTOR,
+    DEFAULT_RERANK_CANDIDATE_COUNT,
+    DEFAULT_RERANKER_MODEL,
 )
 from phentrieve.retrieval.api_helpers import execute_hpo_retrieval_for_api
 from phentrieve.retrieval.dense_retriever import DenseRetriever
@@ -83,6 +87,14 @@ async def get_retriever_for_get_params(
     )
 
 
+async def get_cross_encoder_for_request(request: QueryRequest):
+    """Resolve an optional cross-encoder dependency for reranking."""
+    if not request.enable_reranker:
+        return None
+    reranker_model = request.reranker_model or DEFAULT_RERANKER_MODEL
+    return await get_cross_encoder_dependency(reranker_model_name=reranker_model)
+
+
 @router.get(
     "/",
     response_model=QueryResponse,
@@ -121,6 +133,9 @@ async def run_hpo_query_get(
         num_results=num_results,
         similarity_threshold=similarity_threshold,
         include_details=include_details,
+        enable_reranker=DEFAULT_ENABLE_RERANKER,
+        reranker_model=DEFAULT_RERANKER_MODEL,
+        rerank_count=DEFAULT_RERANK_CANDIDATE_COUNT,
         # Multi-vector params (use configured default)
         multi_vector=DEFAULT_MULTI_VECTOR,
         aggregation_strategy="label_synonyms_max",
@@ -149,6 +164,7 @@ async def run_hpo_query_get(
 async def run_hpo_query(
     request: QueryRequest,
     retriever: DenseRetriever = Depends(get_retriever_for_request),
+    cross_encoder=Depends(get_cross_encoder_for_request),
 ):
     """Execute an HPO term query with full control over parameters.
 
@@ -219,6 +235,9 @@ async def run_hpo_query(
         retriever=retriever,
         num_results=request.num_results,
         similarity_threshold=request.similarity_threshold,
+        enable_reranker=request.enable_reranker,
+        cross_encoder=cross_encoder,
+        rerank_count=request.rerank_count,
         include_details=request.include_details,
         detect_query_assertion=request.detect_query_assertion,
         query_assertion_language=request.query_assertion_language,
@@ -237,6 +256,11 @@ async def run_hpo_query(
         query_text_received=request.text,
         language_detected=language_to_use,
         model_used_for_retrieval=sbert_model_to_use_for_retrieval,
+        reranker_used=(
+            (request.reranker_model or DEFAULT_RERANKER_MODEL)
+            if request.enable_reranker
+            else None
+        ),
         query_assertion_status=query_results_dict.get(
             "original_query_assertion_status"
         ),

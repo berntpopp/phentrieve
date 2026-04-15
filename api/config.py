@@ -21,6 +21,7 @@ __all__ = [
     "API_WORKERS",
     "LOG_LEVEL",
     "SBERT_LOAD_TIMEOUT",
+    "CROSS_ENCODER_LOAD_TIMEOUT",
     "ALLOWED_ORIGINS",
     "CORS_ALLOW_CREDENTIALS",
     "CORS_ALLOW_METHODS",
@@ -38,6 +39,7 @@ _DEFAULT_SERVER_WORKERS = 1
 _DEFAULT_LOG_LEVEL = "INFO"
 
 _DEFAULT_SBERT_TIMEOUT = 60
+_DEFAULT_CROSS_ENCODER_TIMEOUT = 60
 
 _DEFAULT_CORS_ORIGINS = ["http://localhost:5734", "http://localhost:8734"]
 _DEFAULT_CORS_CREDENTIALS = True
@@ -161,6 +163,16 @@ SBERT_LOAD_TIMEOUT: float = float(
     os.getenv(
         "PHENTRIEVE_SBERT_LOAD_TIMEOUT",
         get_api_config_value("model_loading", _DEFAULT_SBERT_TIMEOUT, "sbert_timeout"),
+    )
+)
+CROSS_ENCODER_LOAD_TIMEOUT: float = float(
+    os.getenv(
+        "PHENTRIEVE_CROSS_ENCODER_LOAD_TIMEOUT",
+        get_api_config_value(
+            "model_loading",
+            _DEFAULT_CROSS_ENCODER_TIMEOUT,
+            "cross_encoder_timeout",
+        ),
     )
 )
 

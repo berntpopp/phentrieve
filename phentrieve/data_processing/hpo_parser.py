@@ -15,6 +15,7 @@ import logging
 import os
 import sys
 from collections import defaultdict, deque
+from datetime import UTC
 from pathlib import Path
 from typing import Any
 
@@ -1055,12 +1056,12 @@ def prepare_hpo_data(
     # 9. Store metadata (HPO version, download date, obsolete stats, etc.)
     logger.info("Storing HPO metadata in database...")
     try:
-        from datetime import datetime, timezone
+        from datetime import datetime
 
         # Use the resolved version (actual version tag, not "latest")
         hpo_source_url = get_hpo_json_url(resolved_version)
         db.set_metadata("hpo_version", resolved_version)
-        db.set_metadata("hpo_download_date", datetime.now(timezone.utc).isoformat())
+        db.set_metadata("hpo_download_date", datetime.now(UTC).isoformat())
         db.set_metadata("hpo_source_url", hpo_source_url)
         # Store obsolete term statistics (Issue #133)
         db.set_metadata("active_terms_count", str(len(terms_data)))

@@ -54,6 +54,11 @@ __all__ = [
     "DEFAULT_AGGREGATION_STRATEGY",
     "DEFAULT_COMPONENT_WEIGHTS",
     "MULTI_VECTOR_RESULT_MULTIPLIER",
+    # Reranker configuration
+    "DEFAULT_ENABLE_RERANKER",
+    "DEFAULT_RERANKER_MODEL",
+    "DEFAULT_RERANK_CANDIDATE_COUNT",
+    "DEFAULT_DENSE_TRUST_THRESHOLD",
     # Chunking configurations
     "DEFAULT_CHUNK_PIPELINE_CONFIG",
     "SIMPLE_CHUNKING_CONFIG",
@@ -496,6 +501,34 @@ if isinstance(_loaded_weights, dict):
     }
 else:
     DEFAULT_COMPONENT_WEIGHTS = _DEFAULT_COMPONENT_WEIGHTS_FALLBACK
+
+# Reranker defaults kept for API/CLI compatibility while the feature remains
+# available on this branch.
+_DEFAULT_ENABLE_RERANKER_FALLBACK = False
+_DEFAULT_RERANKER_MODEL_FALLBACK = "BAAI/bge-reranker-v2-m3"
+_DEFAULT_RERANK_CANDIDATE_COUNT_FALLBACK = 10
+_DEFAULT_DENSE_TRUST_THRESHOLD_FALLBACK = 0.7
+
+DEFAULT_ENABLE_RERANKER: bool = bool(
+    get_config_value("reranker", _DEFAULT_ENABLE_RERANKER_FALLBACK, "enabled")
+)
+DEFAULT_RERANKER_MODEL: str = str(
+    get_config_value("reranker", _DEFAULT_RERANKER_MODEL_FALLBACK, "model")
+)
+DEFAULT_RERANK_CANDIDATE_COUNT: int = int(
+    get_config_value(
+        "reranker",
+        _DEFAULT_RERANK_CANDIDATE_COUNT_FALLBACK,
+        "candidate_count",
+    )
+)
+DEFAULT_DENSE_TRUST_THRESHOLD: float = float(
+    get_config_value(
+        "reranker",
+        _DEFAULT_DENSE_TRUST_THRESHOLD_FALLBACK,
+        "dense_trust_threshold",
+    )
+)
 
 # HPO extraction thresholds
 DEFAULT_CHUNK_RETRIEVAL_THRESHOLD: float = get_config_value(

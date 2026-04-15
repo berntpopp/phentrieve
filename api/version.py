@@ -17,7 +17,7 @@ Following DRY, KISS, SOLID principles:
 
 import logging
 import os
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from functools import lru_cache
 from pathlib import Path
 from typing import Any
@@ -26,15 +26,10 @@ logger = logging.getLogger(__name__)
 
 
 def _load_toml() -> Any:
-    """Load tomllib module (Python 3.11+) or tomli fallback."""
-    try:
-        import tomllib
+    """Load the stdlib TOML parser available in Python 3.11+."""
+    import tomllib
 
-        return tomllib
-    except ImportError:
-        import tomli as tomllib
-
-        return tomllib
+    return tomllib
 
 
 def _read_version_from_toml(pyproject_path: Path, component: str) -> str:
@@ -63,7 +58,7 @@ def _read_version_from_toml(pyproject_path: Path, component: str) -> str:
         return version
 
     except ImportError as e:
-        logger.error(f"tomllib/tomli not available: {e}")
+        logger.error(f"tomllib not available: {e}")
         return "unknown"
     except Exception as e:
         logger.error(f"Failed to read {component} version: {e}")
@@ -79,12 +74,12 @@ def get_api_version() -> str:
     Cached for performance - call .cache_clear() in tests.
 
     Returns:
-        Version string (e.g., "0.4.0") or "unknown" on error
+        Version string (e.g., "0.8.1") or "unknown" on error
 
     Example:
         >>> version = get_api_version()
         >>> print(version)
-        '0.4.0'
+        '0.8.1'
     """
     api_dir = Path(__file__).parent
     pyproject_path = api_dir / "pyproject.toml"
@@ -100,12 +95,12 @@ def get_cli_version() -> str:
     Cached for performance - call .cache_clear() in tests.
 
     Returns:
-        Version string (e.g., "0.8.0") or "unknown" on error
+        Version string (e.g., "0.13.1") or "unknown" on error
 
     Example:
         >>> version = get_cli_version()
         >>> print(version)
-        '0.8.0'
+        '0.13.1'
     """
     api_dir = Path(__file__).parent
     pyproject_path = api_dir.parent / "pyproject.toml"
@@ -127,9 +122,9 @@ def get_all_versions() -> dict[str, Any]:
     Example:
         >>> versions = get_all_versions()
         >>> versions["api"]["version"]
-        '0.4.0'
+        '0.8.1'
         >>> versions["cli"]["version"]
-        '0.8.0'
+        '0.13.1'
     """
     return {
         "cli": {
@@ -143,5 +138,5 @@ def get_all_versions() -> dict[str, Any]:
             "type": "FastAPI",
         },
         "environment": os.getenv("ENV", os.getenv("ENVIRONMENT", "development")),
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
     }

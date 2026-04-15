@@ -200,7 +200,7 @@ async def process_text_extract_hpo(request: TextProcessingRequest):
         return await asyncio.wait_for(
             _process_text_internal(request), timeout=timeout_seconds
         )
-    except asyncio.TimeoutError:
+    except asyncio.exceptions.TimeoutError:
         logger.error(
             "API: Request timed out after %ss (text length: %s chars)",
             timeout_seconds,

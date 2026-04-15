@@ -7,7 +7,6 @@ Tests cover:
 - Graceful timeout handling
 """
 
-import asyncio
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -132,7 +131,7 @@ class TestTimeoutHandling:
 
         with patch("api.routers.text_processing_router.asyncio.wait_for") as mock_wait:
             # Simulate timeout
-            mock_wait.side_effect = asyncio.TimeoutError()
+            mock_wait.side_effect = TimeoutError()
 
             with pytest.raises(HTTPException) as exc_info:
                 await process_text_extract_hpo(request)
@@ -154,7 +153,7 @@ class TestTimeoutHandling:
         )
 
         with patch("api.routers.text_processing_router.asyncio.wait_for") as mock_wait:
-            mock_wait.side_effect = asyncio.TimeoutError()
+            mock_wait.side_effect = TimeoutError()
 
             with pytest.raises(HTTPException) as exc_info:
                 await process_text_extract_hpo(request)

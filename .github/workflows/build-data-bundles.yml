@@ -221,7 +221,7 @@ jobs:
 
     steps:
       - name: Download all bundle artifacts
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           path: bundles
           pattern: bundle-*
@@ -245,7 +245,7 @@ jobs:
           echo "Release tag: $TAG"
 
       - name: Upload bundles to release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ steps.release-info.outputs.tag }}
           files: bundles/*.tar.gz
@@ -286,7 +286,7 @@ jobs:
 
     steps:
       - name: Download all artifacts
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           path: bundles
           pattern: bundle-*

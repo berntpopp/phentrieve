@@ -12,14 +12,14 @@ import ast
 import logging
 import operator
 from collections.abc import Callable
-from enum import Enum
+from enum import StrEnum
 from functools import lru_cache
 from typing import Any
 
 logger = logging.getLogger(__name__)
 
 
-class AggregationStrategy(str, Enum):
+class AggregationStrategy(StrEnum):
     """Preset aggregation strategies for multi-vector results."""
 
     LABEL_ONLY = "label_only"
