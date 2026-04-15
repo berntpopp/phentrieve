@@ -74,12 +74,12 @@ def get_api_version() -> str:
     Cached for performance - call .cache_clear() in tests.
 
     Returns:
-        Version string (e.g., "0.4.0") or "unknown" on error
+        Version string (e.g., "0.8.1") or "unknown" on error
 
     Example:
         >>> version = get_api_version()
         >>> print(version)
-        '0.4.0'
+        '0.8.1'
     """
     api_dir = Path(__file__).parent
     pyproject_path = api_dir / "pyproject.toml"
@@ -95,12 +95,12 @@ def get_cli_version() -> str:
     Cached for performance - call .cache_clear() in tests.
 
     Returns:
-        Version string (e.g., "0.8.0") or "unknown" on error
+        Version string (e.g., "0.13.1") or "unknown" on error
 
     Example:
         >>> version = get_cli_version()
         >>> print(version)
-        '0.8.0'
+        '0.13.1'
     """
     api_dir = Path(__file__).parent
     pyproject_path = api_dir.parent / "pyproject.toml"
@@ -122,9 +122,9 @@ def get_all_versions() -> dict[str, Any]:
     Example:
         >>> versions = get_all_versions()
         >>> versions["api"]["version"]
-        '0.4.0'
+        '0.8.1'
         >>> versions["cli"]["version"]
-        '0.8.0'
+        '0.13.1'
     """
     return {
         "cli": {

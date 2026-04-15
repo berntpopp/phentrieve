@@ -26,12 +26,12 @@ async def get_version() -> dict:
     Returns:
         {
             "cli": {
-                "version": "0.2.0",
+                "version": "0.13.1",
                 "name": "phentrieve",
                 "type": "Python CLI/Library"
             },
             "api": {
-                "version": "0.2.0",
+                "version": "0.8.1",
                 "name": "phentrieve-api",
                 "type": "FastAPI"
             },
@@ -64,7 +64,7 @@ async def health_check() -> dict:
         {
             "status": "healthy",
             "service": "phentrieve-api",
-            "version": "0.2.0",
+            "version": "0.8.1",
             "timestamp": "2025-11-21T10:30:00+00:00"
         }
     """
