@@ -24,4 +24,4 @@ class LLMPipelineConfig(BaseModel):
 
 class LLMExtractionResult(BaseModel):
     terms: list[LLMPhenotype] = Field(default_factory=list)
-    meta: LLMMeta = Field(default_factory=lambda: LLMMeta(llm_model="", llm_mode=""))
+    meta: LLMMeta
