@@ -17,6 +17,7 @@ from api.schemas.text_processing_schemas import (
     TextAttributionSpanAPI,
     TextProcessingRequest,
 )
+from phentrieve.config import DEFAULT_MODEL
 
 pytestmark = pytest.mark.unit
 
@@ -261,6 +262,65 @@ class TestTextProcessingModelValidation:
 
         assert exc_info.value.status_code == 400
         assert "retrieval_model_name" in str(exc_info.value.detail)
+
+    @pytest.mark.asyncio
+    async def test_accepts_explicit_default_retrieval_model_and_uses_safe_loading(
+        self,
+    ):
+        """Allowlisted default model should pass through to loading with trust_remote_code=False."""
+        request = TextProcessingRequest(
+            text_content="test text",
+            language="en",
+            retrieval_model_name=DEFAULT_MODEL,
+        )
+
+        with patch(
+            "api.routers.text_processing_router.get_sbert_model_dependency"
+        ) as mock_get_model:
+            mock_get_model.return_value = MagicMock()
+
+            with patch(
+                "api.routers.text_processing_router.get_dense_retriever_dependency"
+            ) as mock_get_retriever:
+                mock_get_retriever.return_value = MagicMock()
+
+                with patch(
+                    "api.routers.text_processing_router.TextProcessingPipeline"
+                ) as mock_pipeline_cls:
+                    mock_pipeline = MagicMock()
+                    mock_pipeline.process = MagicMock()
+                    mock_pipeline_cls.return_value = mock_pipeline
+
+                    async def fake_run_in_threadpool(func, *args, **kwargs):
+                        if func is mock_pipeline.process:
+                            return [
+                                {
+                                    "text": "chunk",
+                                    "status": SimpleNamespace(value="affirmed"),
+                                    "assertion_details": None,
+                                    "start_char": 0,
+                                    "end_char": 5,
+                                }
+                            ]
+
+                        if (
+                            getattr(func, "__name__", "")
+                            == "orchestrate_hpo_extraction"
+                        ):
+                            return ([], [])
+
+                        raise AssertionError(f"Unexpected callable: {func!r}")
+
+                    with patch(
+                        "api.routers.text_processing_router.run_in_threadpool",
+                        side_effect=fake_run_in_threadpool,
+                    ):
+                        await _process_text_internal(request)
+
+        mock_get_model.assert_called_once_with(
+            model_name_requested=DEFAULT_MODEL,
+            trust_remote_code=False,
+        )
 
     @pytest.mark.asyncio
     async def test_preserves_explicit_zero_values_for_orchestrator(self):
