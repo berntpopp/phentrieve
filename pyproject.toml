@@ -196,6 +196,7 @@ addopts = [
 markers = [
     "unit: Fast unit tests (mocked dependencies)",
     "integration: Integration tests (real dependencies)",
+    "benchmark: Benchmark dataset and evaluation tests",
     "e2e: End-to-end Docker tests",
     "slow: Slow tests (>5s)",
 ]
