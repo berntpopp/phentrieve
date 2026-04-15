@@ -38,6 +38,7 @@ from phentrieve.utils import sanitize_log_value as _sanitize
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/v1/text", tags=["Text Processing and HPO Extraction"])
 ALLOWED_TEXT_PROCESSING_MODELS = {DEFAULT_MODEL}
+TEXT_PROCESSING_MODEL_TRUST_REMOTE_CODE = {DEFAULT_MODEL: True}
 
 
 def _validate_model_name(field_name: str, model_name: str | None) -> str:
@@ -54,6 +55,11 @@ def _validate_model_name(field_name: str, model_name: str | None) -> str:
             ),
         )
     return model_name
+
+
+def _get_trust_remote_code_for_model(model_name: str) -> bool:
+    """Return the server-owned trust policy for an allowed text-processing model."""
+    return TEXT_PROCESSING_MODEL_TRUST_REMOTE_CODE.get(model_name, False)
 
 
 def _get_chunking_config_for_api(
@@ -285,7 +291,9 @@ async def _process_text_internal(request: TextProcessingRequest):
         # Get cached retrieval model (will load only once per server lifecycle)
         retrieval_sbert_model = await get_sbert_model_dependency(
             model_name_requested=retrieval_model_name_to_load,
-            trust_remote_code=False,
+            trust_remote_code=_get_trust_remote_code_for_model(
+                retrieval_model_name_to_load
+            ),
         )
 
         # Determine whether we need a separate model for chunking
@@ -296,7 +304,9 @@ async def _process_text_internal(request: TextProcessingRequest):
             )
             sbert_for_chunking = await get_sbert_model_dependency(
                 model_name_requested=sbert_for_chunking_name_to_load,
-                trust_remote_code=False,
+                trust_remote_code=_get_trust_remote_code_for_model(
+                    sbert_for_chunking_name_to_load
+                ),
             )
         else:
             # Reuse retrieval model for chunking

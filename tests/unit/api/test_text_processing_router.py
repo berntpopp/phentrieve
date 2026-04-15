@@ -319,7 +319,7 @@ class TestTextProcessingModelValidation:
 
         mock_get_model.assert_called_once_with(
             model_name_requested=DEFAULT_MODEL,
-            trust_remote_code=False,
+            trust_remote_code=True,
         )
 
     @pytest.mark.asyncio
