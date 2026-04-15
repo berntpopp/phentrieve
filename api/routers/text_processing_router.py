@@ -18,6 +18,7 @@ from api.schemas.text_processing_schemas import (
     TextProcessingResponseAPI,
 )
 from phentrieve.config import (
+    BENCHMARK_MODELS,
     DEFAULT_ASSERTION_CONFIG,
     DEFAULT_CHUNK_RETRIEVAL_THRESHOLD,
     DEFAULT_LANGUAGE,
@@ -37,8 +38,7 @@ from phentrieve.utils import sanitize_log_value as _sanitize
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/v1/text", tags=["Text Processing and HPO Extraction"])
-ALLOWED_TEXT_PROCESSING_MODELS = {DEFAULT_MODEL}
-TEXT_PROCESSING_MODEL_TRUST_REMOTE_CODE = {DEFAULT_MODEL: True}
+ALLOWED_TEXT_PROCESSING_MODELS = {DEFAULT_MODEL, *BENCHMARK_MODELS}
 
 
 def _validate_model_name(field_name: str, model_name: str | None) -> str:
@@ -59,7 +59,8 @@ def _validate_model_name(field_name: str, model_name: str | None) -> str:
 
 def _get_trust_remote_code_for_model(model_name: str) -> bool:
     """Return the server-owned trust policy for an allowed text-processing model."""
-    return TEXT_PROCESSING_MODEL_TRUST_REMOTE_CODE.get(model_name, False)
+    normalized_name = model_name.lower()
+    return "biolord" in normalized_name or "jina" in normalized_name
 
 
 def _get_chunking_config_for_api(
