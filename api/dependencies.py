@@ -414,3 +414,21 @@ async def get_cross_encoder_dependency(
                 detail=f"CrossEncoder '{reranker_model_name}' is taking longer than expected to load. Please try again in 10 seconds.",
                 headers={"Retry-After": "10"},
             )
+
+
+async def cleanup_model_caches() -> None:
+    """Clear cached models and cancel any in-flight background loading tasks."""
+    pending_tasks = []
+    for task in MODEL_LOADING_TASKS.values():
+        if not task.done():
+            task.cancel()
+            pending_tasks.append(task)
+    if pending_tasks:
+        await asyncio.gather(*pending_tasks, return_exceptions=True)
+
+    MODEL_LOADING_TASKS.clear()
+    MODEL_LOADING_STATUS.clear()
+    MODEL_LOAD_LOCKS.clear()
+    LOADED_SBERT_MODELS.clear()
+    LOADED_RETRIEVERS.clear()
+    LOADED_CROSS_ENCODERS.clear()

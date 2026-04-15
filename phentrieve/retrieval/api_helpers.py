@@ -6,6 +6,8 @@ from sentence_transformers import CrossEncoder
 from phentrieve.config import (
     DEFAULT_AGGREGATION_STRATEGY,
     DEFAULT_DENSE_TRUST_THRESHOLD,
+    DEFAULT_ENABLE_RERANKER,
+    DEFAULT_RERANK_CANDIDATE_COUNT,
 )
 from phentrieve.retrieval.dense_retriever import DenseRetriever
 from phentrieve.retrieval.reranker import protected_dense_rerank
@@ -104,9 +106,9 @@ async def execute_hpo_retrieval_for_api(
     retriever: DenseRetriever,
     num_results: int,
     similarity_threshold: float,
-    enable_reranker: bool,
-    cross_encoder: CrossEncoder | None,
-    rerank_count: int,
+    enable_reranker: bool = DEFAULT_ENABLE_RERANKER,
+    cross_encoder: CrossEncoder | None = None,
+    rerank_count: int = DEFAULT_RERANK_CANDIDATE_COUNT,
     include_details: bool = False,
     detect_query_assertion: bool = True,
     query_assertion_language: str | None = None,
