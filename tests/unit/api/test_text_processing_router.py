@@ -89,6 +89,28 @@ def test_text_processing_router_returns_429_when_quota_exhausted(client, monkeyp
     assert response.json()["detail"]["quota_remaining"] == 0
 
 
+def test_text_processing_router_returns_503_when_subject_resolution_is_untrusted(
+    client, monkeypatch
+):
+    monkeypatch.setattr(
+        "api.config.PHENTRIEVE_ENV",
+        "production",
+        raising=False,
+    )
+    monkeypatch.setattr(
+        "api.routers.text_processing_router.resolve_subject_ip",
+        lambda **kwargs: None,
+    )
+
+    response = client.post(
+        "/api/v1/text/process",
+        json={"text": "note", "extraction_backend": "llm"},
+    )
+
+    assert response.status_code == 503
+    assert "trusted anonymous subject" in response.json()["detail"]
+
+
 def test_text_processing_router_returns_standard_extraction_backend_contract(
     client, monkeypatch
 ):
