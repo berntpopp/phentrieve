@@ -8,7 +8,7 @@ import json
 import logging
 from io import StringIO
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, Any, Literal
 
 import typer
 
@@ -27,12 +27,72 @@ from phentrieve.config import (
     DEFAULT_STEP_SIZE_TOKENS,
     DEFAULT_WINDOW_SIZE_TOKENS,
 )
-from phentrieve.retrieval.dense_retriever import DenseRetriever
-from phentrieve.text_processing.hpo_extraction_orchestrator import (
-    orchestrate_hpo_extraction,
+from phentrieve.text_processing.full_text_service import (
+    FullTextService,
+    run_standard_backend,
 )
 
 logger = logging.getLogger(__name__)
+
+
+def _run_llm_backend(*, text: str, **kwargs: Any) -> dict[str, Any]:
+    """Placeholder LLM backend wired through the shared full-text service."""
+    meta: dict[str, Any] = {}
+    llm_model = kwargs.get("model_name") or kwargs.get("llm_model")
+    if llm_model:
+        meta["llm_model"] = llm_model
+    llm_mode = kwargs.get("llm_mode")
+    if llm_mode:
+        meta["llm_mode"] = llm_mode
+
+    return {
+        "meta": meta,
+        "processed_chunks": [],
+        "aggregated_hpo_terms": [],
+    }
+
+
+_FULL_TEXT_SERVICE = FullTextService(
+    standard_backend=run_standard_backend,
+    llm_backend=_run_llm_backend,
+)
+
+
+def run_full_text_service(
+    *, text: str, extraction_backend: str, **kwargs: Any
+) -> dict[str, Any]:
+    """Run the shared full-text service boundary used by the CLI."""
+    return _FULL_TEXT_SERVICE.process(
+        text=text,
+        extraction_backend=extraction_backend,
+        **kwargs,
+    )
+
+
+def _stable_chunks_to_chunk_level_results(
+    chunks: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """Convert stable processed chunks into the legacy chunk-result shape."""
+    chunk_level_results: list[dict[str, Any]] = []
+    for idx, chunk in enumerate(chunks):
+        chunk_id = chunk.get("chunk_id")
+        if isinstance(chunk_id, int) and chunk_id > 0:
+            chunk_idx = chunk_id - 1
+        else:
+            chunk_idx = idx
+
+        chunk_level_results.append(
+            {
+                "chunk_idx": chunk_idx,
+                "chunk_text": chunk.get("text", ""),
+                "matches": chunk.get("hpo_matches", []),
+                "start_char": chunk.get("start_char"),
+                "end_char": chunk.get("end_char"),
+            }
+        )
+
+    return chunk_level_results
+
 
 # Create the Typer app for this command group
 app = typer.Typer()
@@ -306,6 +366,13 @@ def process_text_for_hpo_command(
         str | None,
         typer.Option("--model", "-m", help="Model name for HPO term retrieval"),
     ] = None,
+    extraction_backend: Annotated[
+        Literal["standard", "llm"],
+        typer.Option(
+            "--extraction-backend",
+            help="Choose full-text extraction backend: standard or llm.",
+        ),
+    ] = "standard",
     chunk_retrieval_threshold: Annotated[
         float,
         typer.Option(
@@ -423,24 +490,16 @@ def process_text_for_hpo_command(
     """
     import time
 
-    from phentrieve.config import (
-        DEFAULT_LANGUAGE,
-        DEFAULT_MODEL,
-    )
-    from phentrieve.text_processing.pipeline import TextProcessingPipeline
+    from phentrieve.config import DEFAULT_LANGUAGE, DEFAULT_MODEL
     from phentrieve.utils import detect_language, setup_logging_cli
 
-    # Use module-level logging import (line 8) instead of re-importing
     logger = logging.getLogger(__name__)
     start_time = time.time()
     setup_logging_cli(debug=debug)
 
-    # Load the raw text using helper function
     raw_text = load_text_from_input(text, input_file)
 
-    # Detect or set the language
     if not language:
-        # Try to auto-detect the language
         try:
             language = detect_language(raw_text, default_lang=DEFAULT_LANGUAGE)
             typer.echo(f"Auto-detected language: {language}", err=True)
@@ -448,7 +507,6 @@ def process_text_for_hpo_command(
             language = DEFAULT_LANGUAGE
             typer.echo(f"Using default language: {language}", err=True)
 
-    # Get chunking pipeline configuration using helper function
     chunking_pipeline_config = resolve_chunking_pipeline_config(
         chunking_pipeline_config_file=chunking_pipeline_config_file,
         strategy_arg=strategy,
@@ -458,349 +516,129 @@ def process_text_for_hpo_command(
         min_segment_length=min_segment_length,
     )
 
-    # Assertion detection configuration
     assertion_config = {
         "disable": no_assertion_detection,
         "strategy_preference": assertion_preference,
     }
-
-    # Output the configuration
     logger.debug(f"Chunking pipeline config: {chunking_pipeline_config}")
     logger.debug(f"Assertion config: {assertion_config}")
 
-    # Determine the bi-encoder model to use
     model_name = retrieval_model or DEFAULT_MODEL
-    logger.info(f"Using model: {model_name}")
+    logger.info("Using model: %s", model_name)
 
-    # Determine if we need a semantic model for chunking
-    needs_semantic_model = False
-    for chunk_config in chunking_pipeline_config:
-        chunk_type = (
-            chunk_config.get("type") if isinstance(chunk_config, dict) else chunk_config
-        )
-        if chunk_type in [
-            "semantic",
-            "pre_chunk_semantic_grouper",
-            "sliding_window_semantic",
-            "sliding_window",
-        ]:
-            needs_semantic_model = True
-            break
-
-    # Determine model names for chunking and retrieval
-    semantic_model_name = semantic_chunker_model or DEFAULT_MODEL
-    retrieval_model_name = retrieval_model or DEFAULT_MODEL
-
-    # Check for GPU availability
-    import torch
-
-    device = "cuda" if torch.cuda.is_available() else "cpu"
-    logger.info(f"Using device: {device}")
-
-    # Optimization: If same model is needed for both chunking and retrieval,
-    # load it once and share the instance (avoids double loading into VRAM)
-    use_same_model = (
-        needs_semantic_model and semantic_model_name == retrieval_model_name
-    )
-
-    # Load the SBERT model if needed for semantic chunking
     sbert_model_for_chunking = None
-    if needs_semantic_model:
-        # Lazy import - only load heavy ML dependencies when actually needed
-        from phentrieve.embeddings import load_embedding_model
-
-        if use_same_model:
-            # Load once and share for both purposes (memory optimization)
-            typer.echo(
-                f"Loading sentence transformer model (shared for chunking and retrieval): {semantic_model_name}...",
-                err=True,
+    if extraction_backend == "standard":
+        needs_semantic_model = False
+        for chunk_config in chunking_pipeline_config:
+            chunk_type = (
+                chunk_config.get("type")
+                if isinstance(chunk_config, dict)
+                else chunk_config
             )
-        else:
+            if chunk_type in [
+                "semantic",
+                "pre_chunk_semantic_grouper",
+                "sliding_window_semantic",
+                "sliding_window",
+            ]:
+                needs_semantic_model = True
+                break
+
+        if needs_semantic_model:
+            from phentrieve.embeddings import load_embedding_model
+
+            semantic_model_name = semantic_chunker_model or DEFAULT_MODEL
             typer.echo(
                 f"Loading sentence transformer model for chunking: {semantic_model_name}...",
                 err=True,
             )
-
-        try:
-            sbert_model_for_chunking = load_embedding_model(
-                model_name=semantic_model_name,
-                device=device
-                if use_same_model
-                else None,  # Use GPU if sharing, CPU-only for chunking-only
-            )
-            logger.debug(
-                f"Successfully loaded model for chunking: {semantic_model_name}"
-            )
-        except Exception as e:
-            typer.secho(
-                f"Error loading semantic chunker model '{semantic_model_name}': {e!s}",
-                fg=typer.colors.RED,
-                err=True,
-            )
-            raise typer.Exit(code=1)
-
-    # Initialize text processing pipeline
-    try:
-        pipeline = TextProcessingPipeline(
-            language=language,
-            chunking_pipeline_config=chunking_pipeline_config,
-            assertion_config=assertion_config,
-            sbert_model_for_semantic_chunking=sbert_model_for_chunking,
-        )
-    except Exception as e:
-        typer.secho(f"Error creating pipeline: {e!s}", fg=typer.colors.RED, err=True)
-        raise typer.Exit(code=1)
-
-    # Process the text through the pipeline (always include positions)
-    try:
-        processed_chunks = pipeline.process(raw_text, include_positions=True)
-    except Exception as e:
-        typer.secho(f"Error processing text: {e!s}", fg=typer.colors.RED, err=True)
-        raise typer.Exit(code=1)
-
-    typer.echo(f"Processed {len(processed_chunks)} text chunks.", err=True)
-
-    # Extract HPO terms from the processed chunks
-    try:
-        # Initialize the retriever
-        try:
-            # Lazy import - only load heavy ML dependencies when actually needed
-            from phentrieve.embeddings import load_embedding_model
-
-            # Load the SentenceTransformer model (reuses cached instance if already loaded)
-            if use_same_model and sbert_model_for_chunking is not None:
-                # Reuse the model we already loaded for chunking (memory optimization)
-                logger.info(
-                    f"Reusing cached model instance for retrieval: {retrieval_model_name}"
+            try:
+                sbert_model_for_chunking = load_embedding_model(
+                    model_name=semantic_model_name,
                 )
-                st_model = sbert_model_for_chunking
-            else:
-                # Load the model fresh (or from cache if previously loaded)
-                logger.info(
-                    f"Loading SentenceTransformer model for retrieval: {retrieval_model_name}"
+                logger.debug(
+                    "Successfully loaded model for chunking: %s",
+                    semantic_model_name,
                 )
-                st_model = load_embedding_model(
-                    model_name=retrieval_model_name,
-                    device=device,
-                )
-
-            # Initialize the retriever with the model
-            retriever = DenseRetriever.from_model_name(
-                model=st_model, model_name=retrieval_model_name
-            )
-
-            if not retriever:
+            except Exception as e:
                 typer.secho(
-                    f"Failed to initialize retriever for model: {retrieval_model_name}",
+                    f"Error loading semantic chunker model '{semantic_model_name}': {e!s}",
                     fg=typer.colors.RED,
                     err=True,
                 )
                 raise typer.Exit(code=1)
+
+    cross_encoder = None
+    if extraction_backend == "standard" and enable_reranker:
+        try:
+            from sentence_transformers import CrossEncoder
+
+            from phentrieve.config import DEFAULT_RERANKER_MODEL
+
+            reranker_to_use = reranker_model or DEFAULT_RERANKER_MODEL
+            logger.info("Loading reranker: %s", reranker_to_use)
+            cross_encoder = CrossEncoder(reranker_to_use)
         except Exception as e:
-            typer.secho(
-                f"Error initializing retriever: {e!s}", fg=typer.colors.RED, err=True
-            )
-            raise typer.Exit(code=1)
+            logger.warning("Failed to load cross-encoder: %s", e)
 
-        # Create cross-encoder if reranking is enabled
-        cross_encoder = None
-        if enable_reranker:
-            try:
-                from sentence_transformers import CrossEncoder
-
-                from phentrieve.config import DEFAULT_RERANKER_MODEL
-
-                reranker_to_use = reranker_model or DEFAULT_RERANKER_MODEL
-                logger.info(f"Loading reranker: {reranker_to_use}")
-                cross_encoder = CrossEncoder(reranker_to_use)
-            except Exception as e:
-                logger.warning(f"Failed to load cross-encoder: {e}")
-
-        # Extract text and assertion statuses from processed chunks
-        text_chunks: list[str] = []
-        assertion_statuses: list[str | None] = []
-        for chunk in processed_chunks:
-            # Handle both formats: string or dict with text/status
-            if isinstance(chunk, str):
-                text_chunks.append(chunk)
-                assertion_statuses.append(None)
-            else:
-                text_chunks.append(chunk.get("text", str(chunk)))
-                # Convert AssertionStatus enum to string if present
-                status = chunk.get("status")
-                if status is not None and hasattr(status, "value"):
-                    status = status.value
-                # Ensure status is str or None
-                assertion_statuses.append(str(status) if status is not None else None)
-
-        logger.debug(
-            f"Extracted {len(text_chunks)} text chunks with assertion statuses"
-        )
-
-        chunk_results, aggregated_results = orchestrate_hpo_extraction(
-            text_chunks=text_chunks,
-            retriever=retriever,
+    try:
+        service_result = run_full_text_service(
+            text=raw_text,
+            extraction_backend=extraction_backend,
+            language=language,
+            chunking_pipeline_config=chunking_pipeline_config,
+            assertion_config=assertion_config,
+            include_positions=True,
+            model_name=model_name,
+            retrieval_model_name=model_name,
+            sbert_model_for_semantic_chunking=sbert_model_for_chunking,
             num_results_per_chunk=num_results,
             chunk_retrieval_threshold=chunk_retrieval_threshold,
             cross_encoder=cross_encoder,
-            language=language,
             top_term_per_chunk=top_term_per_chunk,
             min_confidence_for_aggregated=aggregated_term_confidence,
-            assertion_statuses=assertion_statuses,
+            include_details=include_details,
         )
     except Exception as e:
-        typer.secho(f"Error extracting HPO terms: {e!s}", fg=typer.colors.RED, err=True)
+        typer.secho(f"Error processing text: {e!s}", fg=typer.colors.RED, err=True)
         raise typer.Exit(code=1)
 
-    # Add chunk positions to chunk-level results (unpacked as 'aggregated_results')
-    # Note: orchestrate_hpo_extraction returns (term_results, chunk_results),
-    # but we unpack as (chunk_results, aggregated_results), so variable names
-    # are swapped from their semantic meaning - 'aggregated_results' actually
-    # contains the chunk_idx/chunk_text/matches structure
-    if aggregated_results:
-        for ar in aggregated_results:
-            chunk_idx = ar.get("chunk_idx", -1)
-            if chunk_idx >= 0 and chunk_idx < len(processed_chunks):
-                pc = processed_chunks[chunk_idx]
-                if isinstance(pc, dict):
-                    ar["start_char"] = pc.get("start_char", -1)
-                    ar["end_char"] = pc.get("end_char", -1)
+    meta = service_result["meta"]
+    terms = service_result["aggregated_hpo_terms"]
+    chunks = service_result["processed_chunks"]
 
-    # Enrich with HPO term details if requested
-    if include_details:
-        from phentrieve.retrieval.details_enrichment import enrich_results_with_details
+    if meta.get("extraction_backend") == "llm":
+        typer.echo("Extraction backend: llm")
+        llm_model = meta.get("llm_model")
+        llm_mode = meta.get("llm_mode")
+        if llm_model or llm_mode:
+            note_parts: list[str] = []
+            if llm_model:
+                note_parts.append(f"model={llm_model}")
+            if llm_mode:
+                note_parts.append(f"mode={llm_mode}")
+            typer.echo(f"LLM metadata: {', '.join(note_parts)}")
 
-        def enrich_with_field_adaptation(
-            results: list[dict],
-            fields_to_add: dict[str, str],
-            fields_to_remove: set[str],
-        ) -> list[dict]:
-            """Adapt result fields for enrichment, then clean up temporary fields.
+    chunk_level_results = _stable_chunks_to_chunk_level_results(chunks)
 
-            This helper supports two input shapes:
-            - Flat results: List[dict] where each dict is an HPO hit (has keys like 'id'/'hpo_id' or 'name'/'label')
-            - Chunked results: List[dict] where each dict represents a chunk and contains a 'matches' list
+    logger.debug("Aggregated results count: %s", len(terms))
+    if chunk_level_results:
+        logger.debug("First chunk result keys: %s", list(chunk_level_results[0].keys()))
+        logger.debug("First chunk result sample: %s", chunk_level_results[0])
 
-            For chunked results we flatten all matches, enrich them, then re-attach enriched details to the
-            original chunk structure.
-
-            Args:
-                results: List of result dictionaries to enrich
-                fields_to_add: Mapping of source_field -> target_field to add temporarily
-                fields_to_remove: Set of field names to remove after enrichment
-
-            Returns:
-                Enriched results with temporary fields removed
-            """
-            if not results:
-                return []
-
-            # Detect chunked shape (presence of 'matches' key in first item)
-            first = results[0]
-            if (
-                isinstance(first, dict)
-                and "matches" in first
-                and isinstance(first["matches"], list)
-            ):
-                # Flatten matches for enrichment
-                flat_matches = []
-                match_map = []  # list of tuples (chunk_idx, match_idx)
-                for ci, chunk in enumerate(results):
-                    for mi, match in enumerate(chunk.get("matches", [])):
-                        # Create shallow copy and add temporary fields
-                        mcopy = {**match}
-                        for source, target in fields_to_add.items():
-                            if source in mcopy:
-                                mcopy[target] = mcopy[source]
-                        # Always ensure HPO enrichment key exists: prefer explicit mapping, fallback from 'id'
-                        if "hpo_id" not in mcopy and "id" in mcopy:
-                            mcopy["hpo_id"] = mcopy["id"]
-                        flat_matches.append(mcopy)
-                        match_map.append((ci, mi))
-
-                # Enrich flattened matches
-                enriched_flat = enrich_results_with_details(flat_matches)
-
-                # Re-attach enriched details back to original structure
-                for (ci, mi), enriched in zip(match_map, enriched_flat, strict=True):
-                    # update the original match dict in-place with definition/synonyms
-                    try:
-                        results[ci]["matches"][mi].update(
-                            {
-                                k: v
-                                for k, v in enriched.items()
-                                if k not in fields_to_remove
-                            }
-                        )
-                    except Exception as e:
-                        logger.debug(
-                            f"Failed to re-attach enriched data for chunk {ci}, match {mi}: {e}"
-                        )
-                        continue
-
-                return results
-
-            # Flat shape: adapt each result dict with temporary fields and enrich directly
-            adapted = []
-            for r in results:
-                rcopy = {**r}
-                for source, target in fields_to_add.items():
-                    if source in rcopy:
-                        rcopy[target] = rcopy[source]
-                # Also ensure hpo_id exists when input uses 'id'
-                if "hpo_id" not in rcopy and "id" in rcopy:
-                    rcopy["hpo_id"] = rcopy["id"]
-                adapted.append(rcopy)
-
-            enriched_list = enrich_results_with_details(adapted)
-            # Remove temporary fields, keeping definition and synonyms
-            cleaned = [
-                {k: v for k, v in r.items() if k not in fields_to_remove}
-                for r in enriched_list
-            ]
-            return cleaned
-
-        # Enrich aggregated_results (format: {hpo_id, name, ...})
-        # Need to add: name -> label (for enrichment)
-        # Need to remove: label (after enrichment)
-        if aggregated_results:
-            aggregated_results = enrich_with_field_adaptation(
-                aggregated_results,
-                fields_to_add={"name": "label"},
-                fields_to_remove={"label"},
-            )
-
-        # Enrich chunk_results (format: {id, name, ...})
-        # Need to add: id -> hpo_id, name -> label (for enrichment)
-        # Need to remove: hpo_id, label (after enrichment)
-        if chunk_results:
-            chunk_results = enrich_with_field_adaptation(
-                chunk_results,
-                fields_to_add={"id": "hpo_id", "name": "label"},
-                fields_to_remove={"hpo_id", "label"},
-            )
-
-    # Output results in the specified format
-    # Log debug information about the results
-    logger.debug(f"Aggregated results count: {len(aggregated_results)}")
-    if chunk_results and len(chunk_results) > 0:
-        logger.debug(f"First chunk result keys: {list(chunk_results[0].keys())}")
-        logger.debug(f"First chunk result sample: {chunk_results[0]}")
-
-    # Call the formatting function with model information
     _format_and_output_results(
-        aggregated_results,
-        chunk_results,
-        processed_chunks,
+        chunk_level_results,
+        terms,
+        chunks,
         language,
         output_format,
-        embedding_model=retrieval_model,
+        embedding_model=model_name,
         reranker_model=reranker_model if enable_reranker else None,
         input_text=raw_text,
     )
 
     elapsed_time = time.time() - start_time
-    logger.info(f"Total processing time: {elapsed_time:.2f} seconds")
+    logger.info("Total processing time: %.2f seconds", elapsed_time)
 
 
 @app.command("chunk")
@@ -1055,7 +893,8 @@ def _format_and_output_results(
 
         # chunk_level_results has chunk_idx, chunk_text, matches, start_char, end_char
         phenopacket = format_as_phenopacket_v2(
-            chunk_results=chunk_level_results,
+            chunk_results=chunk_level_results if chunk_level_results else None,
+            aggregated_results=term_level_results if not chunk_level_results else None,
             embedding_model=embedding_model,
             reranker_model=reranker_model,
             input_text=input_text,
@@ -1083,8 +922,10 @@ def _format_and_output_results(
                     )
             typer.echo(json.dumps(term_result))
 
-        # Output chunk-level results with positions as final JSON object
-        typer.echo(json.dumps({"aggregated_hpo_terms": chunk_level_results}))
+        # Output chunk-level results with positions as final JSON object when present.
+        # LLM mode can legitimately return no chunks, so skip the preview in that case.
+        if chunk_level_results:
+            typer.echo(json.dumps({"aggregated_hpo_terms": chunk_level_results}))
 
     elif output_format == "rich_json_summary":
         # First convert any AssertionStatus enums to strings
