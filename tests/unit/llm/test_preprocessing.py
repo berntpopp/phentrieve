@@ -49,11 +49,20 @@ def _assert_preserves_original_chunk_ids(
 ) -> None:
     original_chunk_ids = [chunk.chunk_id for chunk in grounded_chunks]
     flattened_chunk_ids = _flatten(groups)
-    unique_group_chunk_ids = list(dict.fromkeys(flattened_chunk_ids))
+    first_occurrence_ids = list(dict.fromkeys(flattened_chunk_ids))
 
-    assert unique_group_chunk_ids == original_chunk_ids
+    assert first_occurrence_ids == original_chunk_ids
+    assert flattened_chunk_ids[0] == original_chunk_ids[0]
+    assert flattened_chunk_ids[-1] == original_chunk_ids[-1]
     assert set(flattened_chunk_ids) == set(original_chunk_ids)
     assert all(chunk_id in original_chunk_ids for chunk_id in flattened_chunk_ids)
+    for chunk_id in original_chunk_ids:
+        positions = [
+            index
+            for index, value in enumerate(flattened_chunk_ids)
+            if value == chunk_id
+        ]
+        assert positions == list(range(positions[0], positions[-1] + 1))
 
 
 def test_build_extraction_groups_preserves_chunk_ids_and_positions() -> None:
@@ -165,3 +174,21 @@ def test_build_extraction_groups_keeps_adjacent_context_overlap_small() -> None:
         group.chunk_ids == list(range(group.chunk_ids[0], group.chunk_ids[-1] + 1))
         for group in groups
     )
+
+
+def test_build_extraction_groups_rejects_oversized_single_chunk() -> None:
+    provider = FakeTokenCountingProvider(token_value_per_chunk=50)
+    grounded_chunks = [_chunk(1, "Oversized chunk.", start_char=0, end_char=16)]
+
+    try:
+        build_extraction_groups(
+            grounded_chunks=grounded_chunks,
+            provider=provider,
+            system_prompt="system prompt",
+            max_prompt_tokens=25,
+            neighbor_overlap=1,
+        )
+    except ValueError as exc:
+        assert "Single grounded chunk exceeds max_prompt_tokens" in str(exc)
+    else:
+        raise AssertionError("Expected oversized single chunk to be rejected")

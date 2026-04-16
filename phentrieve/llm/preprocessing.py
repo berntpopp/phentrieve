@@ -38,9 +38,14 @@ def build_grounded_chunks_from_text_pipeline(
 
     text_pipeline = TextProcessingPipeline(
         language=language,
-        chunking_pipeline_config=chunking_pipeline_config
-        or get_default_chunk_pipeline_config(),
-        assertion_config=assertion_config or {"disable": True},
+        chunking_pipeline_config=(
+            get_default_chunk_pipeline_config()
+            if chunking_pipeline_config is None
+            else chunking_pipeline_config
+        ),
+        assertion_config=(
+            {"disable": True} if assertion_config is None else assertion_config
+        ),
         sbert_model_for_semantic_chunking=load_embedding_model(retrieval_model_name),
     )
     processed_chunks = text_pipeline.process(text, include_positions=include_positions)
@@ -106,6 +111,13 @@ def build_extraction_groups(
                 or token_counts.get("total_tokens")
                 or 0
             )
+            if best_tokens > max_prompt_tokens:
+                chunk = candidate_chunks[0]
+                raise ValueError(
+                    "Single grounded chunk exceeds max_prompt_tokens "
+                    f"(chunk_id={chunk.chunk_id}, prompt_tokens={best_tokens}, "
+                    f"max_prompt_tokens={max_prompt_tokens})"
+                )
 
         group_chunks = ordered_chunks[start_index : best_end + 1]
         groups.append(
