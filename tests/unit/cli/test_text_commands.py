@@ -8,6 +8,14 @@ from phentrieve.cli import app
 from phentrieve.cli.text_commands import _run_llm_backend
 
 
+@pytest.fixture(autouse=True)
+def stub_grounded_chunks(monkeypatch):
+    monkeypatch.setattr(
+        "phentrieve.text_processing.full_text_service._build_grounded_chunks",
+        lambda **kwargs: [{"chunk_id": 1, "text": kwargs["text"]}],
+    )
+
+
 def test_text_process_accepts_llm_backend(monkeypatch):
     runner = CliRunner()
     monkeypatch.setenv("PHENTRIEVE_LLM_MODEL", "gpt-4o-mini")

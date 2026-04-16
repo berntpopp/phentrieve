@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
-from phentrieve.llm.pipeline import TwoPhaseLLMPipeline
+from phentrieve.llm.pipeline import LLMPipelinePhaseError, TwoPhaseLLMPipeline
 from phentrieve.llm.prompts.loader import (
     PromptTemplate,
     get_mapping_prompt,
@@ -217,6 +217,14 @@ def test_two_phase_pipeline_maps_phrase_via_retrieved_candidates():
             evidence="recurrent seizures",
             assertion="present",
             category="abnormal",
+            evidence_records=[
+                LLMPhenotypeEvidence(
+                    phrase="recurrent seizures",
+                    evidence_text="recurrent seizures",
+                    chunk_ids=[1],
+                    match_method="local",
+                )
+            ],
         )
     ]
     assert result.meta.llm_model == "gemini-2.5-flash"
@@ -373,6 +381,14 @@ def test_two_phase_pipeline_uses_mapping_prompt_for_unresolved_phrase():
             evidence="frequent falls",
             assertion="present",
             category="abnormal",
+            evidence_records=[
+                LLMPhenotypeEvidence(
+                    phrase="frequent falls",
+                    evidence_text="frequent falls",
+                    chunk_ids=[1],
+                    match_method="local",
+                )
+            ],
         )
     ]
     assert len(provider.structured_calls) == 2
@@ -557,6 +573,14 @@ def test_two_phase_pipeline_batches_unresolved_phrase_mapping_calls():
             evidence="frequent falls",
             assertion="present",
             category="abnormal",
+            evidence_records=[
+                LLMPhenotypeEvidence(
+                    phrase="frequent falls",
+                    evidence_text="frequent falls",
+                    chunk_ids=[1],
+                    match_method="local",
+                )
+            ],
         ),
         LLMPhenotype(
             term_id="HP:0002360",
@@ -564,6 +588,14 @@ def test_two_phase_pipeline_batches_unresolved_phrase_mapping_calls():
             evidence="sleep disturbances",
             assertion="present",
             category="abnormal",
+            evidence_records=[
+                LLMPhenotypeEvidence(
+                    phrase="sleep disturbances",
+                    evidence_text="sleep disturbances",
+                    chunk_ids=[1],
+                    match_method="local",
+                )
+            ],
         ),
     ]
     assert len(provider.structured_calls) == 2
@@ -640,6 +672,14 @@ def test_two_phase_pipeline_batch_mapping_accepts_normalized_returned_phrase_key
             evidence="knock-knee (genu valgum)",
             assertion="present",
             category="abnormal",
+            evidence_records=[
+                LLMPhenotypeEvidence(
+                    phrase="knock-knee (genu valgum)",
+                    evidence_text="knock-knee (genu valgum)",
+                    chunk_ids=[1],
+                    match_method="local",
+                )
+            ],
         ),
         LLMPhenotype(
             term_id="HP:0005743",
@@ -647,6 +687,14 @@ def test_two_phase_pipeline_batch_mapping_accepts_normalized_returned_phrase_key
             evidence="Legg Perthes disease",
             assertion="present",
             category="abnormal",
+            evidence_records=[
+                LLMPhenotypeEvidence(
+                    phrase="Legg Perthes disease",
+                    evidence_text="Legg Perthes disease",
+                    chunk_ids=[1],
+                    match_method="local",
+                )
+            ],
         ),
     ]
 
@@ -900,8 +948,7 @@ def test_two_phase_pipeline_logs_malformed_phase1_content(caplog):
     assert not caplog.records
 
 
-def test_two_phase_pipeline_logs_malformed_phase1_structure(caplog):
-    caplog.set_level(logging.WARNING, logger="phentrieve.llm.pipeline")
+def test_two_phase_pipeline_logs_malformed_phase1_structure():
     provider = FakeProvider(
         responses=[
             {
@@ -923,16 +970,14 @@ def test_two_phase_pipeline_logs_malformed_phase1_structure(caplog):
         provider=provider, tool_executor=FakeToolExecutor([])
     )
 
-    result = pipeline.run(
-        text="Patient had recurrent seizures.",
-        config=LLMPipelineConfig(model="gemini-2.5-flash", mode="two_phase"),
-    )
+    with pytest.raises(LLMPipelinePhaseError) as exc_info:
+        pipeline.run(
+            text="Patient had recurrent seizures.",
+            config=LLMPipelineConfig(model="gemini-2.5-flash", mode="two_phase"),
+        )
 
-    assert result.terms == []
-    assert any(
-        "Phase 1 structured extraction failed" in record.message
-        for record in caplog.records
-    )
+    assert exc_info.value.phase == "phase1"
+    assert str(exc_info.value) == "Structured extraction failed"
 
 
 def test_two_phase_pipeline_falls_back_to_local_match_after_invalid_mapping_selection(
@@ -994,6 +1039,14 @@ def test_two_phase_pipeline_falls_back_to_local_match_after_invalid_mapping_sele
             evidence="frequent falls",
             assertion="present",
             category="abnormal",
+            evidence_records=[
+                LLMPhenotypeEvidence(
+                    phrase="frequent falls",
+                    evidence_text="frequent falls",
+                    chunk_ids=[1],
+                    match_method="local",
+                )
+            ],
         )
     ]
     assert pipeline._try_local_match.call_count == 2

@@ -20,8 +20,8 @@ def test_get_mapping_prompt_loads_packaged_template() -> None:
     template = loader.get_mapping_prompt("fr")
 
     assert template.language == "en"
-    assert template.version == "v3.1.0"
-    assert "Human Phenotype Ontology terms" in template.system_prompt
+    assert template.version == "v4.0.0"
+    assert "You map clinical phenotype phrases to HPO terms." in template.system_prompt
 
 
 def test_load_prompt_template_prefers_user_override(monkeypatch, tmp_path) -> None:
@@ -53,7 +53,7 @@ def test_load_prompt_template_prefers_user_override(monkeypatch, tmp_path) -> No
 def test_prompt_template_builds_messages_with_examples() -> None:
     template = loader.get_mapping_prompt("en")
     messages = template.get_messages(
-        '{"phrase": "scoliosis", "original_sentence": "scoliosis", "candidates": []}',
+        '{"phrase": "scoliosis", "grounded_context": {}, "candidates": []}',
         include_examples=True,
     )
 

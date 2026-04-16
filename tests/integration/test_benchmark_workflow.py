@@ -491,6 +491,10 @@ def test_llm_benchmark_smoke_supports_phenobert_directory(
         "phentrieve.benchmark.llm_benchmark.TwoPhaseLLMPipeline",
         _FakePipeline,
     )
+    monkeypatch.setattr(
+        "phentrieve.benchmark.llm_benchmark._build_grounded_chunks",
+        lambda **kwargs: [{"chunk_id": 1, "text": kwargs["text"]}],
+    )
 
     result = run_llm_benchmark_cli(
         test_file=str(Path("tests/data/en/phenobert")),

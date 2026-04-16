@@ -404,6 +404,10 @@ class TwoPhaseLLMPipeline:
                 raw_result = dict(raw_results[index])
                 raw_result.setdefault("phrase", phrase)
                 raw_result.setdefault("category", category)
+                raw_result.setdefault("chunk_ids", list(item.get("chunk_ids", [])))
+                raw_result.setdefault("evidence_text", item.get("evidence_text"))
+                raw_result.setdefault("start_char", item.get("start_char"))
+                raw_result.setdefault("end_char", item.get("end_char"))
                 raw_result.setdefault(
                     "grounded_context",
                     self._build_grounded_context(
@@ -421,6 +425,10 @@ class TwoPhaseLLMPipeline:
                 {
                     "phrase": phrase,
                     "category": category,
+                    "chunk_ids": list(item.get("chunk_ids", [])),
+                    "evidence_text": item.get("evidence_text"),
+                    "start_char": item.get("start_char"),
+                    "end_char": item.get("end_char"),
                     "grounded_context": self._build_grounded_context(
                         item=item,
                         grounded_chunks=grounded_chunks,
@@ -649,6 +657,7 @@ class TwoPhaseLLMPipeline:
         batch: list[dict[str, Any]],
         mapping_prompt,
     ) -> tuple[LLMMappingSelection | LLMBatchMappingSelections, dict[str, int]]:
+        response_model: type[LLMMappingSelection] | type[LLMBatchMappingSelections]
         if len(batch) == 1:
             item = batch[0]
             normalized_phrase = str(item["phrase"]).lower().replace("-", " ").strip()
@@ -656,7 +665,7 @@ class TwoPhaseLLMPipeline:
                 {
                     "phrase": normalized_phrase,
                     "category": item["category"],
-                    "grounded_context": item["grounded_context"],
+                    "grounded_context": item.get("grounded_context", {}),
                     "candidates": [
                         {"id": candidate["hpo_id"], "term": candidate["term_name"]}
                         for candidate in item["candidates"]
@@ -675,7 +684,7 @@ class TwoPhaseLLMPipeline:
                             .replace("-", " ")
                             .strip(),
                             "category": item["category"],
-                            "grounded_context": item["grounded_context"],
+                            "grounded_context": item.get("grounded_context", {}),
                             "candidates": [
                                 {
                                     "id": candidate["hpo_id"],
@@ -872,6 +881,8 @@ class TwoPhaseLLMPipeline:
     ) -> dict[str, str | None]:
         if len(batch) == 1:
             item = batch[0]
+            if not isinstance(mapping_response, LLMMappingSelection):
+                return {str(item["phrase"]): None}
             return {
                 str(item["phrase"]): cls._select_candidate_id(
                     mapping_response=mapping_response,

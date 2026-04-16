@@ -10,6 +10,15 @@ from phentrieve.benchmark import llm_benchmark, llm_cli
 pytestmark = pytest.mark.unit
 
 
+@pytest.fixture(autouse=True)
+def stub_grounded_chunks(monkeypatch):
+    monkeypatch.setattr(
+        llm_benchmark,
+        "_build_grounded_chunks",
+        lambda **kwargs: [{"chunk_id": 1, "text": kwargs["text"]}],
+    )
+
+
 def test_run_llm_benchmark_defaults_to_genereviews_dataset(monkeypatch):
     captured: dict[str, object] = {}
 

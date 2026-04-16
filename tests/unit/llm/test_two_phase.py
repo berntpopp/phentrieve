@@ -1,28 +1,18 @@
 from __future__ import annotations
 
-import json
-
 from phentrieve.llm.pipeline import TwoPhaseLLMPipeline
 from phentrieve.llm.prompts.loader import get_mapping_prompt
 from phentrieve.llm.provider import LLMProvider
-from phentrieve.llm.types import LLMResponse
 
 
 class FakeProvider(LLMProvider):
-    def __init__(self, responses: list[str]):
+    def __init__(self, responses: list[dict[str, object]]):
         super().__init__()
         self.responses = list(responses)
-        self.calls: list[list[dict[str, str]]] = []
+        self.structured_calls: list[dict[str, str]] = []
 
     def complete(self, messages):
-        self.calls.append(messages)
-        return LLMResponse(
-            content=self.responses.pop(0),
-            model="gemini-2.5-flash",
-            provider="gemini",
-            finish_reason="stop",
-            usage={"prompt_tokens": 10, "completion_tokens": 5, "total_tokens": 15},
-        )
+        raise AssertionError("unused")
 
     def run_structured_prompt(
         self,
@@ -32,7 +22,19 @@ class FakeProvider(LLMProvider):
         response_model,
         max_output_tokens=None,
     ):
-        raise NotImplementedError
+        self.structured_calls.append(
+            {
+                "system_prompt": system_prompt,
+                "user_prompt": user_prompt,
+            }
+        )
+        response = self.responses.pop(0)
+        self.last_usage = {
+            "prompt_tokens": 10,
+            "completion_tokens": 5,
+            "total_tokens": 15,
+        }
+        return response_model.model_validate(response.get("parsed", response))
 
 
 def test_try_local_match_requires_multiword_substring_boundary():
@@ -76,7 +78,9 @@ def test_try_local_match_prefers_exact_token_set_over_broader_subset():
 
 
 def test_resolve_with_mapping_prompt_normalizes_phrase_before_llm_call():
-    provider = FakeProvider([json.dumps({"hpo_id": "HP:0002355"})])
+    provider = FakeProvider(
+        [{"parsed": {"phrase": "frequent falls", "hpo_id": "HP:0002355"}}]
+    )
     pipeline = TwoPhaseLLMPipeline(provider=provider)
     mapping_prompt = get_mapping_prompt("en")
 
@@ -92,7 +96,9 @@ def test_resolve_with_mapping_prompt_normalizes_phrase_before_llm_call():
             {
                 "phrase": "Frequent-Falls",
                 "category": "Abnormal",
-                "original_sentence": "The child has frequent falls while walking.",
+                "grounded_context": {
+                    "primary_chunk_text": "The child has frequent falls while walking."
+                },
                 "candidates": [
                     {
                         "hpo_id": "HP:0002355",
@@ -107,4 +113,4 @@ def test_resolve_with_mapping_prompt_normalizes_phrase_before_llm_call():
     assert resolved_terms
     assert prompt_tokens == 10
     assert completion_tokens == 5
-    assert '"phrase": "frequent falls"' in provider.calls[0][-1]["content"]
+    assert '"phrase": "frequent falls"' in provider.structured_calls[0]["user_prompt"]
