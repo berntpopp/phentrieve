@@ -161,15 +161,21 @@ def _render_group_chunk_index_text(
     )
 
 
+def _normalize_grounded_text(text: Any) -> str:
+    return str(text or "").strip()
+
+
 def _compact_mapping_item(item: dict[str, Any]) -> dict[str, Any]:
     grounded_context = dict(item.get("grounded_context", {}) or {})
     neighbor_texts = [
-        str(text).strip()
+        _normalize_grounded_text(text)
         for text in grounded_context.get("neighbor_chunk_texts", [])
-        if str(text).strip()
+        if _normalize_grounded_text(text)
     ]
     compact_item: dict[str, Any] = {
-        "primary_chunk_text": str(grounded_context.get("primary_chunk_text", "")),
+        "primary_chunk_text": _normalize_grounded_text(
+            grounded_context.get("primary_chunk_text")
+        ),
         "neighbor_chunk_text": "\n".join(neighbor_texts),
         "phrase": str(item["phrase"]).lower().replace("-", " ").strip(),
         "category": item["category"],

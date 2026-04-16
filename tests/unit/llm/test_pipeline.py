@@ -8,6 +8,7 @@ from pydantic import ValidationError
 from phentrieve.llm.pipeline import LLMPipelinePhaseError, TwoPhaseLLMPipeline
 from phentrieve.llm.prompts.loader import (
     PromptTemplate,
+    get_batch_mapping_prompt,
     get_mapping_prompt,
     get_prompt,
     load_prompt_template,
@@ -1262,6 +1263,80 @@ def test_mapping_prompt_uses_compact_grounded_context() -> None:
             {"id": "HP:0002355", "term": "Difficulty walking"},
             {"id": "HP:0002317", "term": "Unsteady gait"},
         ],
+    }
+
+
+def test_batch_mapping_prompt_compacts_items_into_payload_list() -> None:
+    provider = FakeProvider(
+        responses=[
+            {
+                "parsed": {
+                    "mappings": [
+                        {"phrase": "frequent falls", "hpo_id": "HP:0002355"},
+                        {"phrase": "sleep disturbances", "hpo_id": "HP:0002360"},
+                    ]
+                }
+            }
+        ]
+    )
+    pipeline = TwoPhaseLLMPipeline(
+        provider=provider,
+        tool_executor=FakeToolExecutor([]),
+    )
+
+    pipeline._run_mapping_batch(
+        batch=[
+            {
+                "phrase": "frequent falls",
+                "category": "abnormal",
+                "grounded_context": {
+                    "primary_chunk_text": None,
+                    "neighbor_chunk_texts": [None, " The child walks independently. "],
+                },
+                "candidates": [
+                    {"hpo_id": "HP:0002355", "term_name": "Difficulty walking"},
+                ],
+            },
+            {
+                "phrase": "sleep disturbances",
+                "category": "abnormal",
+                "grounded_context": {
+                    "primary_chunk_text": "Sleep disturbances were reported.",
+                    "neighbor_chunk_texts": [],
+                },
+                "candidates": [
+                    {"hpo_id": "HP:0002360", "term_name": "Sleep abnormality"},
+                ],
+            },
+        ],
+        mapping_prompt=get_batch_mapping_prompt("en"),
+    )
+
+    payload = extract_mapping_payload_from_prompt(
+        provider.structured_calls[0]["user_prompt"]
+    )
+
+    assert payload == {
+        "items": [
+            {
+                "primary_chunk_text": "",
+                "neighbor_chunk_text": "The child walks independently.",
+                "phrase": "frequent falls",
+                "category": "abnormal",
+                "candidates": [
+                    {"id": "HP:0002355", "term": "Difficulty walking"},
+                ],
+            },
+            {
+                "primary_chunk_text": "Sleep disturbances were reported.",
+                "neighbor_chunk_text": "",
+                "phrase": "sleep disturbances",
+                "category": "abnormal",
+                "candidates": [
+                    {"id": "HP:0002360", "term": "Sleep abnormality"},
+                ],
+            },
+        ]
     }
     assert "grounded_context" not in payload
     assert "chunk_ids" not in payload
