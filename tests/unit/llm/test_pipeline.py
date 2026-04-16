@@ -1396,6 +1396,78 @@ def test_two_phase_pipeline_accumulates_usage_and_logs_phases(caplog):
     )
 
 
+def test_two_phase_pipeline_separates_llm_mappings_from_local_fallbacks(
+    mocker,
+) -> None:
+    provider = FakeProvider(
+        responses=[
+            {
+                "parsed": {
+                    "phenotypes": [grounded_phenotype("frequent falls", "Abnormal")]
+                },
+                "request_count": 1,
+            },
+            {
+                "parsed": {
+                    "phrase": "frequent falls",
+                    "hpo_id": None,
+                },
+                "request_count": 1,
+            },
+        ]
+    )
+    tool_executor = FakeToolExecutor(
+        batch_results=[
+            {
+                "phrase": "frequent falls",
+                "candidates": [
+                    {
+                        "hpo_id": "HP:0002355",
+                        "term_name": "Frequent falls",
+                        "score": 0.8,
+                    }
+                ],
+            }
+        ]
+    )
+    pipeline = TwoPhaseLLMPipeline(provider=provider, tool_executor=tool_executor)
+    mocker.patch.object(
+        pipeline,
+        "_try_local_match",
+        side_effect=[
+            None,
+            {
+                "hpo_id": "HP:0002355",
+                "term_name": "Frequent falls",
+                "score": 0.8,
+            },
+        ],
+    )
+
+    result = pipeline.run(
+        text="The child has frequent falls.",
+        config=LLMPipelineConfig(model="gemini-2.5-flash", mode="two_phase"),
+    )
+
+    assert [term.term_id for term in result.terms] == ["HP:0002355"]
+    assert result.meta.phase_counts["unresolved_phrases"] == 1
+    assert result.meta.phase_counts["local_matches"] == 0
+    assert result.meta.phase_counts["llm_mapped_phrases"] == 0
+    assert result.meta.phase_counts["local_fallbacks"] == 1
+    assert result.meta.trace["phase2b_llm"]["resolved"] == [
+        {
+            "phrase": "frequent falls",
+            "selected_id": None,
+            "term_id": "HP:0002355",
+            "label": "Frequent falls",
+            "assertion": "present",
+            "category": "abnormal",
+            "match_method": "llm",
+            "local_fallback": True,
+        }
+    ]
+
+
 def test_two_phase_pipeline_logs_malformed_phase1_content(caplog):
     caplog.set_level(logging.WARNING, logger="phentrieve.llm.pipeline")
     provider = FakeProvider(

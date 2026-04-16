@@ -285,6 +285,20 @@ def run_llm_benchmark(
                         "error_message": str(exc),
                     }
                 )
+                assertion_results.append(
+                    ExtractionResult(
+                        doc_id=doc_id,
+                        predicted=[],
+                        gold=gold_terms,
+                    )
+                )
+                id_only_results.append(
+                    ExtractionResult(
+                        doc_id=doc_id,
+                        predicted=[],
+                        gold=gold_ids_only,
+                    )
+                )
                 continue
             doc_elapsed = time.perf_counter() - doc_start_time
             prompt_tokens = int(pipeline_result.meta.token_input or 0)

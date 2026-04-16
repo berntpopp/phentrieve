@@ -383,12 +383,14 @@ class TwoPhaseLLMPipeline:
                 request_count_total += mapping_request_count
                 phase_request_counts["phase2b_llm_requests"] = mapping_request_count
                 resolved_terms.extend(mapped_terms)
-                phase_counts["llm_mapped_phrases"] = len(mapped_terms)
                 phase_counts["local_fallbacks"] = local_fallback_count
+                phase_counts["llm_mapped_phrases"] = (
+                    len(mapped_terms) - local_fallback_count
+                )
                 trace["phase2b_llm"] = {"resolved": mapping_trace}
                 logger.debug(
                     "Phase 2B-llm complete: mapped=%d prompt_tokens=%d completion_tokens=%d",
-                    len(mapped_terms),
+                    phase_counts["llm_mapped_phrases"],
                     mapping_prompt_tokens,
                     mapping_completion_tokens,
                 )
