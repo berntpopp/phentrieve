@@ -117,6 +117,13 @@ FAILED_GENEREVIEWS_DOC = json.loads(
 )
 
 
+def extract_mapping_payload_from_prompt(user_prompt: str) -> dict[str, object]:
+    payload_marker = "Payload:\n"
+    if payload_marker in user_prompt:
+        user_prompt = user_prompt.split(payload_marker, 1)[1].strip()
+    return json.loads(user_prompt)
+
+
 def grounded_phenotype(
     phrase: str,
     category: str,
@@ -1199,6 +1206,68 @@ def test_phase2_mapping_uses_structured_prompt():
     )
 
     assert provider.structured_calls
+
+
+def test_mapping_prompt_uses_compact_grounded_context() -> None:
+    provider = FakeProvider(
+        responses=[
+            {
+                "parsed": {
+                    "phrase": "frequent falls",
+                    "hpo_id": "HP:0002355",
+                }
+            }
+        ]
+    )
+    pipeline = TwoPhaseLLMPipeline(
+        provider=provider, tool_executor=FakeToolExecutor([])
+    )
+
+    pipeline._run_mapping_batch(
+        batch=[
+            {
+                "phrase": "frequent falls",
+                "category": "abnormal",
+                "chunk_ids": [2],
+                "evidence_text": "frequent falls while walking",
+                "start_char": 33,
+                "end_char": 55,
+                "grounded_context": {
+                    "chunk_ids": [2],
+                    "primary_chunk_text": "The child has frequent falls while walking.",
+                    "neighbor_chunk_texts": [
+                        "The child walks independently.",
+                        "No seizures were reported.",
+                    ],
+                },
+                "candidates": [
+                    {"hpo_id": "HP:0002355", "term_name": "Difficulty walking"},
+                    {"hpo_id": "HP:0002317", "term_name": "Unsteady gait"},
+                ],
+            }
+        ],
+        mapping_prompt=get_mapping_prompt("en"),
+    )
+
+    payload = extract_mapping_payload_from_prompt(
+        provider.structured_calls[0]["user_prompt"]
+    )
+
+    assert payload == {
+        "primary_chunk_text": "The child has frequent falls while walking.",
+        "neighbor_chunk_text": "The child walks independently.\nNo seizures were reported.",
+        "phrase": "frequent falls",
+        "category": "abnormal",
+        "candidates": [
+            {"id": "HP:0002355", "term": "Difficulty walking"},
+            {"id": "HP:0002317", "term": "Unsteady gait"},
+        ],
+    }
+    assert "grounded_context" not in payload
+    assert "chunk_ids" not in payload
+    assert "evidence_text" not in payload
+    assert "start_char" not in payload
+    assert "end_char" not in payload
 
 
 def test_two_phase_pipeline_uses_mapping_prompt_for_unresolved_phrase():

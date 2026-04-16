@@ -1,4 +1,4 @@
-version: "v4.0.0"
+version: "v4.1.0"
 
 system_prompt: |
   You map clinical phenotype phrases to HPO terms.
@@ -7,7 +7,7 @@ system_prompt: |
   - phrase
   - category
   - primary_chunk_text
-  - neighbor_chunk_texts
+  - neighbor_chunk_text
   - candidates
 
   Rules:
@@ -25,10 +25,24 @@ system_prompt: |
   {"phrase": "example", "hpo_id": null}
 
 user_prompt_template: |
+  Map the following JSON payload to the best HPO candidate.
+  Return JSON only.
+
+  Payload:
   {text}
 
 few_shot_examples:
-  - input: '{"phrase": "scoliosis", "category": "abnormal", "grounded_context": {"primary_chunk_text": "Physical examination revealed scoliosis and joint hypermobility", "neighbor_chunk_texts": []}, "candidates": [{"id": "HP:0002650", "term": "Scoliosis"}, {"id": "HP:0100884", "term": "Compensatory scoliosis"}]}'
+  - input: |
+      Map the following JSON payload to the best HPO candidate.
+      Return JSON only.
+
+      Payload:
+      {"primary_chunk_text": "Physical examination revealed scoliosis and joint hypermobility", "neighbor_chunk_text": "", "phrase": "scoliosis", "category": "abnormal", "candidates": [{"id": "HP:0002650", "term": "Scoliosis"}, {"id": "HP:0100884", "term": "Compensatory scoliosis"}]}
     output: '{"phrase": "scoliosis", "hpo_id": "HP:0002650"}'
-  - input: '{"phrase": "frequent falls", "category": "abnormal", "grounded_context": {"primary_chunk_text": "The child has frequent falls while walking.", "neighbor_chunk_texts": []}, "candidates": [{"id": "HP:0002355", "term": "Difficulty walking"}, {"id": "HP:0002317", "term": "Unsteady gait"}]}'
+  - input: |
+      Map the following JSON payload to the best HPO candidate.
+      Return JSON only.
+
+      Payload:
+      {"primary_chunk_text": "The child has frequent falls while walking.", "neighbor_chunk_text": "", "phrase": "frequent falls", "category": "abnormal", "candidates": [{"id": "HP:0002355", "term": "Difficulty walking"}, {"id": "HP:0002317", "term": "Unsteady gait"}]}
     output: '{"phrase": "frequent falls", "hpo_id": "HP:0002355"}'

@@ -63,6 +63,25 @@ def test_prompt_template_builds_messages_with_examples() -> None:
     assert any(message["role"] == "assistant" for message in messages)
 
 
+def test_mapping_prompt_prefix_stays_stable_before_variable_context() -> None:
+    template = loader.get_mapping_prompt("en")
+
+    first_prompt = template.render_user_prompt('{"phrase":"alpha"}')
+    second_prompt = template.render_user_prompt('{"phrase":"beta"}')
+
+    expected_prefix = (
+        "Map the following JSON payload to the best HPO candidate.\n"
+        "Return JSON only.\n\n"
+        "Payload:\n"
+    )
+
+    assert first_prompt.startswith(expected_prefix)
+    assert second_prompt.startswith(expected_prefix)
+    assert first_prompt.index('{"phrase":"alpha"}') > len(expected_prefix) - 1
+    assert second_prompt.index('{"phrase":"beta"}') > len(expected_prefix) - 1
+    assert first_prompt[: len(expected_prefix)] == second_prompt[: len(expected_prefix)]
+
+
 def test_list_available_prompts_includes_benchmark_families() -> None:
     available = loader.list_available_prompts()
 

@@ -161,6 +161,26 @@ def _render_group_chunk_index_text(
     )
 
 
+def _compact_mapping_item(item: dict[str, Any]) -> dict[str, Any]:
+    grounded_context = dict(item.get("grounded_context", {}) or {})
+    neighbor_texts = [
+        str(text).strip()
+        for text in grounded_context.get("neighbor_chunk_texts", [])
+        if str(text).strip()
+    ]
+    compact_item: dict[str, Any] = {
+        "primary_chunk_text": str(grounded_context.get("primary_chunk_text", "")),
+        "neighbor_chunk_text": "\n".join(neighbor_texts),
+        "phrase": str(item["phrase"]).lower().replace("-", " ").strip(),
+        "category": item["category"],
+        "candidates": [
+            {"id": candidate["hpo_id"], "term": candidate["term_name"]}
+            for candidate in item["candidates"]
+        ],
+    }
+    return compact_item
+
+
 def _phase1_extraction_dedup_key(item: dict[str, Any]) -> tuple[Any, ...]:
     return (
         str(item.get("phrase", "")).strip().lower(),
@@ -1086,43 +1106,14 @@ class TwoPhaseLLMPipeline:
     ) -> tuple[LLMMappingSelection | LLMBatchMappingSelections, dict[str, int]]:
         response_model: type[LLMMappingSelection] | type[LLMBatchMappingSelections]
         if len(batch) == 1:
-            item = batch[0]
-            normalized_phrase = str(item["phrase"]).lower().replace("-", " ").strip()
             candidate_payload = json.dumps(
-                {
-                    "phrase": normalized_phrase,
-                    "category": item["category"],
-                    "grounded_context": item.get("grounded_context", {}),
-                    "candidates": [
-                        {"id": candidate["hpo_id"], "term": candidate["term_name"]}
-                        for candidate in item["candidates"]
-                    ],
-                },
+                _compact_mapping_item(batch[0]),
                 ensure_ascii=False,
             )
             response_model = LLMMappingSelection
         else:
             candidate_payload = json.dumps(
-                {
-                    "items": [
-                        {
-                            "phrase": str(item["phrase"])
-                            .lower()
-                            .replace("-", " ")
-                            .strip(),
-                            "category": item["category"],
-                            "grounded_context": item.get("grounded_context", {}),
-                            "candidates": [
-                                {
-                                    "id": candidate["hpo_id"],
-                                    "term": candidate["term_name"],
-                                }
-                                for candidate in item["candidates"]
-                            ],
-                        }
-                        for item in batch
-                    ]
-                },
+                {"items": [_compact_mapping_item(item) for item in batch]},
                 ensure_ascii=False,
             )
             response_model = LLMBatchMappingSelections
