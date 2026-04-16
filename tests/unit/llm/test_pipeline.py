@@ -1328,6 +1328,9 @@ def test_two_phase_pipeline_accumulates_usage_and_logs_phases(caplog):
         "llm_mapped_phrases": 1,
         "local_fallbacks": 0,
     }
+    assert "phase1_completed_groups" not in result.meta.phase_counts
+    assert "phase1_failed_groups" not in result.meta.phase_counts
+    assert "phase1_partial_failures" not in result.meta.phase_counts
     assert any(
         "Phase 1: extracting phenotype phrases" in record.message
         for record in caplog.records

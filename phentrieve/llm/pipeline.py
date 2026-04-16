@@ -232,9 +232,6 @@ class TwoPhaseLLMPipeline:
             "local_matches": 0,
             "llm_mapped_phrases": 0,
             "local_fallbacks": 0,
-            "phase1_completed_groups": 0,
-            "phase1_failed_groups": 0,
-            "phase1_partial_failures": 0,
         }
         phase_request_counts: dict[str, int] = {
             "phase1_requests": phase1_request_count,

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import inspect
 import logging
 import time
 from collections.abc import Callable
@@ -74,6 +75,15 @@ def _build_grounded_chunks(
             retrieval_model_name=retrieval_model_name,
         )
     ]
+
+
+def _pipeline_run_supports_extraction_groups(pipeline: Any) -> bool:
+    """Detect whether a pipeline.run implementation accepts extraction_groups."""
+    try:
+        signature = inspect.signature(pipeline.run)
+    except (TypeError, ValueError):
+        return False
+    return "extraction_groups" in signature.parameters
 
 
 def run_llm_benchmark(
@@ -235,12 +245,16 @@ def run_llm_benchmark(
                     except (NotImplementedError, TypeError):
                         extraction_groups = []
             try:
-                pipeline_result = pipeline.run(
-                    text=document["text"],
-                    grounded_chunks=grounded_chunks,
-                    extraction_groups=extraction_groups,
-                    config=config,
-                )
+                run_kwargs: dict[str, Any] = {
+                    "text": document["text"],
+                    "grounded_chunks": grounded_chunks,
+                    "config": config,
+                }
+                if extraction_groups and _pipeline_run_supports_extraction_groups(
+                    pipeline
+                ):
+                    run_kwargs["extraction_groups"] = extraction_groups
+                pipeline_result = pipeline.run(**run_kwargs)
             except LLMPipelinePhaseError as exc:
                 logger.exception(
                     "Benchmark document failed: %d/%d doc_id=%s phase=%s",
