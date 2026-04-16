@@ -27,8 +27,8 @@ from phentrieve.llm.prompts.loader import (
 from phentrieve.llm.provider import ToolExecutor
 from phentrieve.llm.types import (
     AnnotationMode,
-    LLMExtractedPhenotypes,
     LLMExtractionResult,
+    LLMGroundedExtractedPhenotypes,
     LLMMeta,
     LLMPhenotype,
     LLMPipelineConfig,
@@ -131,6 +131,7 @@ class TwoPhaseLLMPipeline:
         phase1_start = time.perf_counter()
         extracted, phase1_usage = self._extract_phase1_phenotypes(
             text=text,
+            grounded_chunks=grounded_chunks,
             extraction_prompt=extraction_prompt,
         )
         phase1_elapsed = round(time.perf_counter() - phase1_start, 6)
@@ -141,9 +142,9 @@ class TwoPhaseLLMPipeline:
             phase1_usage.get("completion_tokens"),
         )
         actionable = [
-            (phrase, category)
-            for phrase, category in extracted
-            if _normalize_category(category) in ACTIONABLE_CATEGORIES
+            item
+            for item in extracted
+            if _normalize_category(str(item["category"])) in ACTIONABLE_CATEGORIES
         ]
 
         resolved_terms: list[LLMPhenotype] = []
@@ -174,12 +175,14 @@ class TwoPhaseLLMPipeline:
             "phase1": {
                 "extracted": [
                     {
-                        "phrase": phrase,
-                        "category": category,
-                        "actionable": _normalize_category(category)
+                        "phrase": str(item["phrase"]),
+                        "category": _normalize_category(str(item["category"])),
+                        "chunk_ids": list(item.get("chunk_ids", [])),
+                        "evidence_text": item.get("evidence_text"),
+                        "actionable": _normalize_category(str(item["category"]))
                         in ACTIONABLE_CATEGORIES,
                     }
-                    for phrase, category in extracted
+                    for item in extracted
                 ]
             }
         }
@@ -321,42 +324,29 @@ class TwoPhaseLLMPipeline:
             self.tool_executor.warmup(language=language)
 
     @staticmethod
-    def _parse_phase1_response(response_text: str) -> list[tuple[str, str]]:
-        json_data = extract_json(response_text)
-        if not json_data:
-            logger.warning(
-                "Phase 1 response could not be parsed as JSON; treating extraction as empty."
-            )
-            return []
-
-        phenotypes = json_data.get("phenotypes")
-        if not isinstance(phenotypes, list):
-            logger.warning(
-                "Phase 1 response missing a valid phenotypes list; treating extraction as empty."
-            )
-            return []
-
-        parsed: list[tuple[str, str]] = []
-        for phenotype in phenotypes:
-            if not isinstance(phenotype, dict):
-                continue
-            phrase = str(phenotype.get("phrase", "")).strip()
-            category = str(phenotype.get("category", "")).strip()
-            if phrase and category:
-                parsed.append((phrase, category))
-        return parsed
+    def _render_chunk_index(grounded_chunks: list[dict[str, Any]]) -> str:
+        if not grounded_chunks:
+            return "[]"
+        return "\n".join(
+            f"- chunk_id={chunk['chunk_id']}: {chunk.get('text', '')}"
+            for chunk in grounded_chunks
+        )
 
     def _extract_phase1_phenotypes(
         self,
         *,
         text: str,
+        grounded_chunks: list[dict[str, Any]],
         extraction_prompt,
-    ) -> tuple[list[tuple[str, str]], dict[str, int]]:
+    ) -> tuple[list[dict[str, Any]], dict[str, int]]:
         try:
             response = self.provider.run_structured_prompt(
                 system_prompt=extraction_prompt.render_system_prompt(),
-                user_prompt=extraction_prompt.render_user_prompt(text),
-                response_model=LLMExtractedPhenotypes,
+                user_prompt=extraction_prompt.render_user_prompt(
+                    text,
+                    chunk_index=self._render_chunk_index(grounded_chunks),
+                ),
+                response_model=LLMGroundedExtractedPhenotypes,
                 max_output_tokens=DEFAULT_PHASE1_MAX_OUTPUT_TOKENS,
             )
         except Exception:
@@ -369,22 +359,28 @@ class TwoPhaseLLMPipeline:
             return [], {}
 
         usage = dict(getattr(self.provider, "last_usage", {}) or {})
-        parsed: list[tuple[str, str]] = []
+        parsed: list[dict[str, Any]] = []
         for phenotype in response.phenotypes:
-            phrase = phenotype.phrase.strip()
-            category = _normalize_category(phenotype.category)
-            if phrase and category:
-                parsed.append((phrase, category))
+            parsed.append(
+                {
+                    "phrase": phenotype.phrase.strip(),
+                    "category": _normalize_category(phenotype.category),
+                    "chunk_ids": list(phenotype.chunk_ids),
+                    "evidence_text": phenotype.evidence_text,
+                    "start_char": phenotype.start_char,
+                    "end_char": phenotype.end_char,
+                }
+            )
         return parsed, usage
 
     def _retrieve_candidates(
         self,
         *,
-        actionable: list[tuple[str, str]],
+        actionable: list[dict[str, Any]],
         text: str,
         language: str,
     ) -> list[dict[str, Any]]:
-        phrases = [phrase for phrase, _category in actionable]
+        phrases = [str(item["phrase"]) for item in actionable]
         raw_results = self.tool_executor.query_batch_hpo_terms(
             phrases=phrases,
             language=language,
@@ -392,7 +388,9 @@ class TwoPhaseLLMPipeline:
         )
 
         results: list[dict[str, Any]] = []
-        for index, (phrase, category) in enumerate(actionable):
+        for index, item in enumerate(actionable):
+            phrase = str(item["phrase"])
+            category = str(item["category"])
             if index < len(raw_results) and "candidates" in raw_results[index]:
                 raw_result = dict(raw_results[index])
                 raw_result.setdefault("phrase", phrase)

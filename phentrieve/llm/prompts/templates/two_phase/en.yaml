@@ -1,7 +1,9 @@
-version: "v2.1.0"
+version: "v3.0.0"
 
 system_prompt: |
-  You are an expert clinical geneticist. Your task is to extract all phenotype-related phrases from clinical text and categorize each one.
+  You are an expert clinical geneticist. Extract source-faithful phenotype phrases
+  from the full note. Each phenotype must reference one or more chunk_ids from the
+  provided chunk index. Preserve source wording.
 
   Read the note sentence by sentence. For each sentence, identify every phenotype-relevant phrase and assign one category:
   - Abnormal: the phenotype is present in the patient
@@ -12,6 +14,7 @@ system_prompt: |
 
   Extraction rules:
   - Preserve the wording from the note whenever possible
+  - Every extracted phenotype must include one or more chunk_ids from the provided chunk index
   - Split combined mentions into individual phenotype phrases
   - Do not duplicate the same concept multiple times
   - Do not emit onset modifiers, inheritance patterns, ages, or measurements as phenotypes
@@ -20,12 +23,20 @@ system_prompt: |
   Output JSON only:
   {
     "phenotypes": [
-      {"phrase": "specific phenotype phrase", "category": "Abnormal"}
+      {
+        "phrase": "recurrent seizures",
+        "category": "Abnormal",
+        "chunk_ids": [3],
+        "evidence_text": "recurrent seizures"
+      }
     ]
   }
 
 user_prompt_template: |
   Extract all phenotype phrases from the following clinical text.
+
+  Chunk index:
+  {chunk_index}
 
   ---
   {text}
@@ -41,11 +52,11 @@ few_shot_examples:
     output: |
       {
         "phenotypes": [
-          {"phrase": "DCM", "category": "Abnormal"},
-          {"phrase": "progressive heart failure", "category": "Abnormal"},
-          {"phrase": "bilateral sensorineural hearing loss", "category": "Abnormal"},
-          {"phrase": "retinitis pigmentosa", "category": "Abnormal"},
-          {"phrase": "skeletal anomalies", "category": "Normal"},
-          {"phrase": "hearing loss", "category": "Family_History"}
+          {"phrase": "DCM", "category": "Abnormal", "chunk_ids": [1], "evidence_text": "DCM"},
+          {"phrase": "progressive heart failure", "category": "Abnormal", "chunk_ids": [1], "evidence_text": "progressive heart failure"},
+          {"phrase": "bilateral sensorineural hearing loss", "category": "Abnormal", "chunk_ids": [1], "evidence_text": "bilateral sensorineural hearing loss"},
+          {"phrase": "retinitis pigmentosa", "category": "Abnormal", "chunk_ids": [1], "evidence_text": "retinitis pigmentosa"},
+          {"phrase": "skeletal anomalies", "category": "Normal", "chunk_ids": [1], "evidence_text": "skeletal anomalies"},
+          {"phrase": "hearing loss", "category": "Family_History", "chunk_ids": [1], "evidence_text": "hearing loss"}
         ]
       }

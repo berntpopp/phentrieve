@@ -99,6 +99,21 @@ FAILED_GENEREVIEWS_DOC = json.loads(
 )
 
 
+def grounded_phenotype(
+    phrase: str,
+    category: str,
+    *,
+    chunk_ids: list[int] | None = None,
+    evidence_text: str | None = None,
+) -> dict[str, object]:
+    return {
+        "phrase": phrase,
+        "category": category,
+        "chunk_ids": list(chunk_ids or [1]),
+        "evidence_text": evidence_text or phrase,
+    }
+
+
 def test_grounded_extracted_phenotype_requires_chunk_ids() -> None:
     with pytest.raises(ValidationError):
         LLMGroundedExtractedPhenotype(phrase="seizures", category="Abnormal")
@@ -145,9 +160,7 @@ def test_two_phase_pipeline_maps_phrase_via_retrieved_candidates():
         responses=[
             {
                 "parsed": {
-                    "phenotypes": [
-                        {"phrase": "recurrent seizures", "category": "Abnormal"}
-                    ]
+                    "phenotypes": [grounded_phenotype("recurrent seizures", "Abnormal")]
                 },
             },
             {"content": '{"hpo_id":"HP:0001250"}'},
@@ -199,12 +212,42 @@ def test_two_phase_pipeline_maps_phrase_via_retrieved_candidates():
     assert len(provider.calls) == 1
 
 
+def test_phase1_returns_chunk_ids_and_evidence_text():
+    provider = FakeProvider(
+        responses=[
+            {
+                "parsed": {
+                    "phenotypes": [
+                        {
+                            "phrase": "recurrent seizures",
+                            "category": "Abnormal",
+                            "chunk_ids": [1],
+                            "evidence_text": "recurrent seizures",
+                        }
+                    ]
+                }
+            }
+        ]
+    )
+    pipeline = TwoPhaseLLMPipeline(
+        provider=provider, tool_executor=FakeToolExecutor([])
+    )
+
+    result = pipeline._extract_phase1_phenotypes(
+        text="Patient had recurrent seizures.",
+        grounded_chunks=[{"chunk_id": 1, "text": "Patient had recurrent seizures."}],
+        extraction_prompt=get_prompt(AnnotationMode.TWO_PHASE, "en"),
+    )
+
+    assert result[0][0]["chunk_ids"] == [1]
+
+
 def test_two_phase_pipeline_uses_mapping_prompt_for_unresolved_phrase():
     provider = FakeProvider(
         responses=[
             {
                 "parsed": {
-                    "phenotypes": [{"phrase": "frequent falls", "category": "Abnormal"}]
+                    "phenotypes": [grounded_phenotype("frequent falls", "Abnormal")]
                 },
             },
             {"content": '{"hpo_id":"HP:0002355"}'},
@@ -256,8 +299,8 @@ def test_two_phase_pipeline_records_trace_for_extraction_and_mapping():
             {
                 "parsed": {
                     "phenotypes": [
-                        {"phrase": "frequent falls", "category": "Abnormal"},
-                        {"phrase": "normal intelligence", "category": "Normal"},
+                        grounded_phenotype("frequent falls", "Abnormal"),
+                        grounded_phenotype("normal intelligence", "Normal"),
                     ]
                 },
                 "request_count": 1,
@@ -312,8 +355,20 @@ def test_two_phase_pipeline_records_trace_for_extraction_and_mapping():
     )
 
     assert result.meta.trace["phase1"]["extracted"] == [
-        {"phrase": "frequent falls", "category": "abnormal", "actionable": True},
-        {"phrase": "normal intelligence", "category": "normal", "actionable": True},
+        {
+            "phrase": "frequent falls",
+            "category": "abnormal",
+            "chunk_ids": [1],
+            "evidence_text": "frequent falls",
+            "actionable": True,
+        },
+        {
+            "phrase": "normal intelligence",
+            "category": "normal",
+            "chunk_ids": [1],
+            "evidence_text": "normal intelligence",
+            "actionable": True,
+        },
     ]
     assert (
         result.meta.trace["phase2a"]["candidate_sets"][0]["phrase"] == "frequent falls"
@@ -357,8 +412,8 @@ def test_two_phase_pipeline_batches_unresolved_phrase_mapping_calls():
             {
                 "parsed": {
                     "phenotypes": [
-                        {"phrase": "frequent falls", "category": "Abnormal"},
-                        {"phrase": "sleep disturbances", "category": "Abnormal"},
+                        grounded_phenotype("frequent falls", "Abnormal"),
+                        grounded_phenotype("sleep disturbances", "Abnormal"),
                     ]
                 },
             },
@@ -434,8 +489,8 @@ def test_two_phase_pipeline_batch_mapping_accepts_normalized_returned_phrase_key
             {
                 "parsed": {
                     "phenotypes": [
-                        {"phrase": "knock-knee (genu valgum)", "category": "Abnormal"},
-                        {"phrase": "Legg Perthes disease", "category": "Abnormal"},
+                        grounded_phenotype("knock-knee (genu valgum)", "Abnormal"),
+                        grounded_phenotype("Legg Perthes disease", "Abnormal"),
                     ]
                 },
             },
@@ -510,11 +565,11 @@ def test_two_phase_pipeline_retrieves_all_categories_and_preserves_assertions():
             {
                 "parsed": {
                     "phenotypes": [
-                        {"phrase": "recurrent seizures", "category": "Abnormal"},
-                        {"phrase": "nystagmus", "category": "Suspected"},
-                        {"phrase": "skeletal anomalies", "category": "Normal"},
-                        {"phrase": "hearing loss", "category": "Family_History"},
-                        {"phrase": "onset in infancy", "category": "Other"},
+                        grounded_phenotype("recurrent seizures", "Abnormal"),
+                        grounded_phenotype("nystagmus", "Suspected"),
+                        grounded_phenotype("skeletal anomalies", "Normal"),
+                        grounded_phenotype("hearing loss", "Family_History"),
+                        grounded_phenotype("onset in infancy", "Other"),
                     ]
                 },
             }
@@ -644,7 +699,7 @@ def test_two_phase_pipeline_accumulates_usage_and_logs_phases(caplog):
         responses=[
             {
                 "parsed": {
-                    "phenotypes": [{"phrase": "frequent falls", "category": "Abnormal"}]
+                    "phenotypes": [grounded_phenotype("frequent falls", "Abnormal")]
                 },
                 "usage": {
                     "prompt_tokens": 11,
@@ -792,7 +847,7 @@ def test_two_phase_pipeline_falls_back_to_local_match_after_invalid_mapping_sele
         responses=[
             {
                 "parsed": {
-                    "phenotypes": [{"phrase": "frequent falls", "category": "Abnormal"}]
+                    "phenotypes": [grounded_phenotype("frequent falls", "Abnormal")]
                 },
             },
             {"content": '{"hpo_id":"HP:9999999"}'},
@@ -850,10 +905,10 @@ def test_two_phase_pipeline_handles_empty_batch_result_shape_without_crashing():
             {
                 "parsed": {
                     "phenotypes": [
-                        {
-                            "phrase": "progressive central nervous system dysfunction",
-                            "category": "Abnormal",
-                        }
+                        grounded_phenotype(
+                            "progressive central nervous system dysfunction",
+                            "Abnormal",
+                        )
                     ]
                 }
             }
@@ -881,7 +936,7 @@ def test_two_phase_pipeline_handles_empty_batch_result_shape_without_crashing():
 
 def test_two_phase_pipeline_chunks_large_failed_genereviews_document_queries():
     phrases = [
-        {"phrase": f"failed-doc-phenotype-{index}", "category": "Abnormal"}
+        grounded_phenotype(f"failed-doc-phenotype-{index}", "Abnormal")
         for index in range(56)
     ]
     provider = FakeProvider(responses=[{"parsed": {"phenotypes": phrases}}])
