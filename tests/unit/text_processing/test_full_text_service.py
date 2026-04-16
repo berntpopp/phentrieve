@@ -80,6 +80,39 @@ def test_run_llm_backend_surfaces_token_usage(mocker):
     assert result["meta"]["prompt_version"] == "v9"
 
 
+def test_run_llm_backend_builds_grounded_chunks_for_pipeline(mocker):
+    provider = mocker.Mock()
+    pipeline = mocker.Mock()
+    pipeline.run.return_value = LLMExtractionResult(
+        terms=[],
+        meta=LLMMeta(
+            llm_model="gemini-2.5-flash",
+            llm_mode="two_phase",
+            prompt_version="v1",
+        ),
+    )
+
+    mocker.patch(
+        "phentrieve.text_processing.full_text_service.get_llm_provider",
+        return_value=provider,
+    )
+    mocker.patch(
+        "phentrieve.text_processing.full_text_service.TwoPhaseLLMPipeline",
+        return_value=pipeline,
+    )
+
+    run_llm_backend(
+        text="Patient had recurrent seizures.",
+        llm_model="gemini-2.5-flash",
+        llm_mode="two_phase",
+        language="en",
+    )
+
+    grounded_chunks = pipeline.run.call_args.kwargs["grounded_chunks"]
+    assert grounded_chunks
+    assert grounded_chunks[0]["chunk_id"] == 1
+
+
 def test_adapt_standard_response_preserves_optional_term_fields():
     result = adapt_standard_response(
         [

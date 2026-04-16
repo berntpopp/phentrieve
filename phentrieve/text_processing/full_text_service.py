@@ -46,6 +46,39 @@ def _normalize_status(status: Any) -> str:
     return str(status)
 
 
+def _build_grounded_chunks(
+    *,
+    text: str,
+    language: str,
+    chunking_pipeline_config: list[dict[str, Any]] | None,
+    assertion_config: dict[str, Any] | None,
+    retrieval_model_name: str,
+    include_positions: bool = True,
+) -> list[dict[str, Any]]:
+    from phentrieve.config import get_default_chunk_pipeline_config
+    from phentrieve.embeddings import load_embedding_model
+    from phentrieve.text_processing.pipeline import TextProcessingPipeline
+
+    text_pipeline = TextProcessingPipeline(
+        language=language,
+        chunking_pipeline_config=chunking_pipeline_config
+        or get_default_chunk_pipeline_config(),
+        assertion_config=assertion_config or {"disable": True},
+        sbert_model_for_semantic_chunking=load_embedding_model(retrieval_model_name),
+    )
+    processed_chunks = text_pipeline.process(text, include_positions=include_positions)
+    return [
+        {
+            "chunk_id": idx + 1,
+            "text": chunk.get("text", ""),
+            "start_char": chunk.get("start_char"),
+            "end_char": chunk.get("end_char"),
+            "status": _normalize_status(chunk.get("status")),
+        }
+        for idx, chunk in enumerate(processed_chunks)
+    ]
+
+
 def adapt_full_text_response(
     response: Mapping[str, Any] | None,
     *,
@@ -308,10 +341,19 @@ def run_llm_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
         len(text),
     )
 
+    grounded_chunks = _build_grounded_chunks(
+        text=text,
+        language=kwargs.get("language") or DEFAULT_LANGUAGE,
+        chunking_pipeline_config=kwargs.get("chunking_pipeline_config"),
+        assertion_config={"disable": True},
+        retrieval_model_name=kwargs.get("retrieval_model_name", DEFAULT_MODEL),
+    )
+
     provider = provider_factory(llm_model=llm_model)
     pipeline = pipeline_factory(provider=provider)
     result = pipeline.run(
         text=text,
+        grounded_chunks=grounded_chunks,
         config=LLMPipelineConfig(
             model=llm_model,
             mode=llm_mode,

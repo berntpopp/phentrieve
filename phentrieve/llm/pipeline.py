@@ -106,7 +106,14 @@ class TwoPhaseLLMPipeline:
         self.local_match_threshold = local_match_threshold
         self.mapping_batch_size = max(int(mapping_batch_size), 1)
 
-    def run(self, *, text: str, config: LLMPipelineConfig) -> LLMExtractionResult:
+    def run(
+        self,
+        *,
+        text: str,
+        grounded_chunks: list[dict[str, Any]] | None = None,
+        config: LLMPipelineConfig,
+    ) -> LLMExtractionResult:
+        grounded_chunks = list(grounded_chunks or [])
         mode = AnnotationMode(config.mode)
         if mode != AnnotationMode.TWO_PHASE:
             raise ValueError(
