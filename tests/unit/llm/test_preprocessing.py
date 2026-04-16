@@ -42,6 +42,20 @@ def _flatten(grouped: Sequence[ExtractionGroup]) -> list[int]:
     return [chunk_id for group in grouped for chunk_id in group.chunk_ids]
 
 
+def _assert_preserves_original_chunk_ids(
+    *,
+    grounded_chunks: Sequence[GroundedChunk],
+    groups: Sequence[ExtractionGroup],
+) -> None:
+    original_chunk_ids = [chunk.chunk_id for chunk in grounded_chunks]
+    flattened_chunk_ids = _flatten(groups)
+    unique_group_chunk_ids = list(dict.fromkeys(flattened_chunk_ids))
+
+    assert unique_group_chunk_ids == original_chunk_ids
+    assert set(flattened_chunk_ids) == set(original_chunk_ids)
+    assert all(chunk_id in original_chunk_ids for chunk_id in flattened_chunk_ids)
+
+
 def test_build_extraction_groups_preserves_chunk_ids_and_positions() -> None:
     provider = FakeTokenCountingProvider()
     grounded_chunks = [
@@ -59,6 +73,10 @@ def test_build_extraction_groups_preserves_chunk_ids_and_positions() -> None:
         neighbor_overlap=1,
     )
 
+    _assert_preserves_original_chunk_ids(
+        grounded_chunks=grounded_chunks,
+        groups=groups,
+    )
     chunk_text_by_id = {chunk.chunk_id: chunk.text for chunk in grounded_chunks}
 
     assert [group.group_id for group in groups] == list(range(1, len(groups) + 1))
@@ -96,6 +114,10 @@ def test_build_extraction_groups_respects_token_budget() -> None:
         neighbor_overlap=1,
     )
 
+    _assert_preserves_original_chunk_ids(
+        grounded_chunks=grounded_chunks,
+        groups=groups,
+    )
     assert [group.group_id for group in groups] == list(range(1, len(groups) + 1))
     assert all(group.estimated_prompt_tokens <= 21 for group in groups)
     assert all(
@@ -125,6 +147,10 @@ def test_build_extraction_groups_keeps_adjacent_context_overlap_small() -> None:
         neighbor_overlap=1,
     )
 
+    _assert_preserves_original_chunk_ids(
+        grounded_chunks=grounded_chunks,
+        groups=groups,
+    )
     chunk_to_group_ids: dict[int, list[int]] = {}
     for index, group in enumerate(groups):
         for chunk_id in group.chunk_ids:
