@@ -574,6 +574,10 @@ def test_llm_benchmark_smoke_persists_grounded_trace_fields(tmp_path, monkeypatc
         output_path=str(output_path),
     )
 
+    observability = result["prediction_records"][0]["metadata"]["observability"]
+    assert observability["phase1_completed_groups"] == 0
+    assert observability["phase1_failed_groups"] == 0
+    assert observability["phase1_partial_failures"] == 0
     assert result["prediction_records"][0]["trace"]["phase1"]["extracted"][0][
         "chunk_ids"
     ] == [1]
@@ -726,7 +730,19 @@ def test_benchmark_trace_persists_group_failures(tmp_path, monkeypatch):
         {"chunk_id": 1, "text": "Patient has seizures."},
         {"chunk_id": 2, "text": "Additional chunk."},
     ]
-    phase1_trace = result["prediction_records"][0]["trace"]["phase1"]
+    prediction_record = result["prediction_records"][0]
+    observability = prediction_record["metadata"]["observability"]
+    phase1_trace = prediction_record["trace"]["phase1"]
+    assert observability == {
+        "request_count": 0,
+        "extracted_phrases": 1,
+        "actionable_phrases": 1,
+        "phase1_completed_groups": 1,
+        "phase1_failed_groups": 1,
+        "phase1_partial_failures": 1,
+        "phase1_requests": 0,
+        "phase2b_llm_requests": 0,
+    }
     assert phase1_trace["groups"] == [
         {
             "group_id": 1,

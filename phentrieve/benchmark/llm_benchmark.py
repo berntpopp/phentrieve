@@ -744,11 +744,11 @@ def _build_prediction_record(
                 "tool_seconds": 0.0,
                 **phase_timings,
             },
-            "observability": {
-                "request_count": request_count,
-                **phase_counts,
-                **phase_request_counts,
-            },
+            "observability": _build_observability_counts(
+                phase_counts=phase_counts,
+                phase_request_counts=phase_request_counts,
+                request_count=request_count,
+            ),
             "estimated_cost": estimated_cost,
         },
         "trace": trace,
@@ -779,6 +779,30 @@ def _serialize_predicted_terms(
             }
         )
     return predicted_terms
+
+
+def _build_observability_counts(
+    *,
+    phase_counts: dict[str, int],
+    phase_request_counts: dict[str, int],
+    request_count: int,
+) -> dict[str, int]:
+    """Keep prediction metadata observability shape stable across phase-1 modes."""
+    return {
+        "request_count": request_count,
+        **phase_counts,
+        "phase1_completed_groups": int(
+            phase_counts.get("phase1_completed_groups", 0) or 0
+        ),
+        "phase1_failed_groups": int(phase_counts.get("phase1_failed_groups", 0) or 0),
+        "phase1_partial_failures": int(
+            phase_counts.get("phase1_partial_failures", 0) or 0
+        ),
+        "phase1_requests": int(phase_request_counts.get("phase1_requests", 0) or 0),
+        "phase2b_llm_requests": int(
+            phase_request_counts.get("phase2b_llm_requests", 0) or 0
+        ),
+    }
 
 
 def _project_assertion_for_dataset(
