@@ -18,7 +18,7 @@ phentrieve text process --extraction-backend llm --llm-model gpt-5.4-mini note.t
 ### Standard backend
 
 ```bash
-curl -X POST "http://localhost:8734/api/v1/text/process/" \
+curl -X POST "http://localhost:8734/api/v1/text/process" \
   -H "Content-Type: application/json" \
   -d '{
     "text": "The patient exhibits microcephaly and frequent seizures.",
@@ -29,7 +29,7 @@ curl -X POST "http://localhost:8734/api/v1/text/process/" \
 ### LLM backend
 
 ```bash
-curl -X POST "http://localhost:8734/api/v1/text/process/" \
+curl -X POST "http://localhost:8734/api/v1/text/process" \
   -H "Content-Type: application/json" \
   -d '{
     "text": "The patient exhibits microcephaly and frequent seizures.",

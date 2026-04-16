@@ -93,9 +93,14 @@ class PhentrieveService {
             }
           : null,
       });
+      const extractionBackend =
+        normalizedPayload?.extraction_backend ??
+        textProcessingData?.extraction_backend ??
+        textProcessingData?.extractionBackend ??
+        'standard';
       throw this._createStandardizedError(error, 'processing text for HPO extraction', {
         isTextProcessing: true,
-        extractionBackend: normalizedPayload.extraction_backend,
+        extractionBackend,
       });
     }
   }
@@ -118,7 +123,8 @@ class PhentrieveService {
         textProcessingData.chunking_strategy ?? textProcessingData.chunkingStrategy ?? null,
       window_size: textProcessingData.window_size ?? textProcessingData.windowSize ?? null,
       step_size: textProcessingData.step_size ?? textProcessingData.stepSize ?? null,
-      split_threshold: textProcessingData.split_threshold ?? textProcessingData.splitThreshold ?? null,
+      split_threshold:
+        textProcessingData.split_threshold ?? textProcessingData.splitThreshold ?? null,
       min_segment_length:
         textProcessingData.min_segment_length ?? textProcessingData.minSegmentLength ?? null,
       semantic_model_name:

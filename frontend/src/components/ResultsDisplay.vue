@@ -103,7 +103,10 @@
                 <small class="text-caption text-medium-emphasis"
                   >{{ $t('resultsDisplay.textProcess.strategyLabel') }}:</small
                 >
-                {{ responseData.meta?.request_parameters?.chunking_strategy || $t('resultsDisplay.textProcess.strategyUnknown') }}
+                {{
+                  responseData.meta?.request_parameters?.chunking_strategy ||
+                  $t('resultsDisplay.textProcess.strategyUnknown')
+                }}
               </span>
             </div>
 
@@ -304,9 +307,7 @@ export default {
     },
     showQuotaNotice() {
       return (
-        this.extractionBackend === 'llm' &&
-        this.quotaRemaining != null &&
-        this.quotaLimit != null
+        this.extractionBackend === 'llm' && this.quotaRemaining != null && this.quotaLimit != null
       );
     },
     hasTextProcessResults() {

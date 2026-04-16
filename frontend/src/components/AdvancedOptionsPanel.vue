@@ -223,7 +223,12 @@
               </template>
             </v-select>
           </v-col>
-          <v-col v-if="textProcessOptions.extractionBackend === 'llm'" cols="12" md="6" class="pa-1">
+          <v-col
+            v-if="textProcessOptions.extractionBackend === 'llm'"
+            cols="12"
+            md="6"
+            class="pa-1"
+          >
             <v-text-field
               :model-value="resolvedTextProcessOptions.llmModel"
               variant="outlined"
@@ -272,9 +277,7 @@
               "
             >
               <template #label>
-                <span class="text-caption">{{
-                  $t('queryInterface.advancedOptions.llmMode')
-                }}</span>
+                <span class="text-caption">{{ $t('queryInterface.advancedOptions.llmMode') }}</span>
               </template>
             </v-select>
           </v-col>

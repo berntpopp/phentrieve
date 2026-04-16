@@ -88,7 +88,7 @@ describe('ResultsDisplay', () => {
     const secondFlashChunkText = vi.fn();
     const firstChunkResultsView = {
       chunkPanelRefs: {
-        '2': {
+        2: {
           $el: { scrollIntoView: firstScrollIntoView },
         },
       },
@@ -97,7 +97,7 @@ describe('ResultsDisplay', () => {
     };
     const secondChunkResultsView = {
       chunkPanelRefs: {
-        '2': {
+        2: {
           $el: { scrollIntoView: vi.fn() },
         },
       },

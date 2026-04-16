@@ -1,32 +1,118 @@
 """Main CLI entry point for Phentrieve.
 
-This module defines the main Typer application and imports all subcommands
-from their respective modules.
+This module defines the main Typer application and imports lightweight
+subcommands eagerly while lazily loading heavy command groups.
 """
 
+import importlib
 import importlib.metadata
 from pathlib import Path
 from typing import Annotated
 
+import click
 import typer
+from typer.core import TyperGroup
+from typer.main import get_command
 
 # Import all command groups
 from phentrieve.cli import (
     benchmark_commands,
-    data_commands,
     index_commands,
     mcp_commands,
     query_commands,
-    similarity_commands,
-    text_commands,
 )
 
 # Read version from pyproject.toml
 __version__ = importlib.metadata.version("phentrieve")
 
+
+class _LazyTyperProxy(click.Group):
+    """Proxy command group that loads a Typer app on first real use."""
+
+    def __init__(self, *, import_path: str, help_text: str):
+        name = import_path.rsplit(":", 1)[0].rsplit(".", 1)[-1].replace("_commands", "")
+        super().__init__(name=name, help=help_text)
+        self._import_path = import_path
+        self._loaded_command: click.Command | None = None
+
+    def _load(self) -> click.Command:
+        if self._loaded_command is None:
+            module_path, attr_name = self._import_path.split(":", 1)
+            module = importlib.import_module(module_path)
+            target = getattr(module, attr_name)
+            self._loaded_command = get_command(target)
+            self.params = list(self._loaded_command.params)
+            self.callback = self._loaded_command.callback
+            self.help = self._loaded_command.help
+            self.short_help = self._loaded_command.short_help
+            self.epilog = self._loaded_command.epilog
+        return self._loaded_command
+
+    def get_command(self, ctx: click.Context, cmd_name: str) -> click.Command | None:
+        loaded = self._load()
+        if isinstance(loaded, click.Group):
+            return loaded.get_command(ctx, cmd_name)
+        return None
+
+    def list_commands(self, ctx: click.Context) -> list[str]:
+        loaded = self._load()
+        if isinstance(loaded, click.Group):
+            return loaded.list_commands(ctx)
+        return []
+
+    def invoke(self, ctx: click.Context) -> object:
+        loaded = self._load()
+        return loaded.invoke(ctx)
+
+
+class _LazyRootGroup(TyperGroup):
+    """Root Typer group that exposes selected lazy subcommands."""
+
+    _lazy_commands: list[tuple[str, _LazyTyperProxy]] = [
+        (
+            "data",
+            _LazyTyperProxy(
+                import_path="phentrieve.cli.data_commands:app",
+                help_text="Manage HPO data.",
+            ),
+        ),
+        (
+            "text",
+            _LazyTyperProxy(
+                import_path="phentrieve.cli.text_commands:app",
+                help_text="Process and analyze clinical text.",
+            ),
+        ),
+        (
+            "similarity",
+            _LazyTyperProxy(
+                import_path="phentrieve.cli.similarity_commands:app",
+                help_text="Calculate HPO term similarities and related metrics.",
+            ),
+        ),
+    ]
+
+    def list_commands(self, ctx: click.Context) -> list[str]:
+        names = super().list_commands(ctx)
+        for name, _command in self._lazy_commands:
+            if name not in names:
+                names.append(name)
+        return names
+
+    def get_command(self, ctx: click.Context, cmd_name: str) -> click.Command | None:
+        for name, lazy_command in self._lazy_commands:
+            if name == cmd_name:
+                return lazy_command
+        command = super().get_command(ctx, cmd_name)
+        if command is not None:
+            return command
+        return None
+
+
 # Create the main Typer app
 app = typer.Typer(
     name="phentrieve",
+    cls=_LazyRootGroup,
     help="Phentrieve - AI-powered HPO term mapping using Retrieval-Augmented Generation (RAG)",
     no_args_is_help=True,
     rich_markup_mode="rich",
@@ -102,14 +188,14 @@ def main_callback(
 
 
 # Register command groups
-app.add_typer(data_commands.app, name="data", help="Manage HPO data.")
+app.add_typer(typer.Typer(), name="data", help="Manage HPO data.")
 app.add_typer(index_commands.app, name="index", help="Manage vector indexes.")
-app.add_typer(text_commands.app, name="text", help="Process and analyze clinical text.")
+app.add_typer(typer.Typer(), name="text", help="Process and analyze clinical text.")
 app.add_typer(
     benchmark_commands.app, name="benchmark", help="Run and manage benchmarks."
 )
 app.add_typer(
-    similarity_commands.app,
+    typer.Typer(),
     name="similarity",
     help="Calculate HPO term similarities and related metrics.",
 )

@@ -28,18 +28,39 @@ from phentrieve.config import (
     DEFAULT_STEP_SIZE_TOKENS,
     DEFAULT_WINDOW_SIZE_TOKENS,
 )
-from phentrieve.llm.pipeline import TwoPhaseLLMPipeline
-from phentrieve.llm.provider import get_llm_provider
-from phentrieve.text_processing.full_text_service import (
-    run_full_text_service,
-    run_llm_backend,
-)
 
 logger = logging.getLogger(__name__)
 
 
+def get_llm_provider(**kwargs: Any) -> Any:
+    """Lazy wrapper around the shared LLM provider factory."""
+    from phentrieve.llm.provider import get_llm_provider as _get_llm_provider
+
+    return _get_llm_provider(**kwargs)
+
+
+class TwoPhaseLLMPipeline:
+    """Lazy wrapper that preserves the module-level patch point for tests."""
+
+    def __new__(cls, *args: Any, **kwargs: Any) -> Any:
+        from phentrieve.llm.pipeline import TwoPhaseLLMPipeline as _TwoPhaseLLMPipeline
+
+        return _TwoPhaseLLMPipeline(*args, **kwargs)
+
+
+def run_full_text_service(*args: Any, **kwargs: Any) -> dict[str, Any]:
+    """Lazy wrapper around the shared full-text service."""
+    from phentrieve.text_processing.full_text_service import (
+        run_full_text_service as _run_full_text_service,
+    )
+
+    return _run_full_text_service(*args, **kwargs)
+
+
 def _run_llm_backend(*, text: str, **kwargs: Any) -> dict[str, Any]:
     """Backward-compatible CLI wrapper around the shared LLM backend."""
+    from phentrieve.text_processing.full_text_service import run_llm_backend
+
     kwargs.setdefault("provider_factory", get_llm_provider)
     kwargs.setdefault("pipeline_factory", TwoPhaseLLMPipeline)
     return dict(run_llm_backend(text=text, **kwargs))
