@@ -14,7 +14,9 @@ Following best practices:
 
 import pytest
 import typer
+from typer.testing import CliRunner
 
+from phentrieve.cli import app as cli_app
 from phentrieve.cli.benchmark_commands import (
     compare_benchmarks,
     run_benchmarks,
@@ -237,6 +239,70 @@ class TestRunBenchmarks:
         # Other optional strings still not passed
         assert "test_file" not in call_kwargs
         assert "model_list" not in call_kwargs
+
+
+def test_benchmark_group_exposes_llm_subcommand():
+    runner = CliRunner()
+
+    result = runner.invoke(cli_app, ["benchmark", "--help"])
+
+    assert result.exit_code == 0
+    assert "llm" in result.stdout
+
+
+def test_benchmark_llm_command_shows_friendly_error_for_missing_file(tmp_path):
+    runner = CliRunner()
+    missing_file = tmp_path / "does-not-exist.json"
+
+    result = runner.invoke(
+        cli_app,
+        [
+            "benchmark",
+            "llm",
+            "--test-file",
+            str(missing_file),
+            "--llm-model",
+            "gemini-2.5-flash",
+        ],
+    )
+
+    assert result.exit_code == 1
+    assert "Benchmark test file not found" in result.stderr
+    assert "Traceback" not in result.stderr
+
+
+def test_benchmark_llm_command_accepts_phenobert_directory(tmp_path, monkeypatch):
+    runner = CliRunner()
+    phenobert_dir = tmp_path / "phenobert"
+    phenobert_dir.mkdir()
+
+    monkeypatch.setattr(
+        "phentrieve.benchmark.llm_cli.run_llm_benchmark_cli",
+        lambda **kwargs: {
+            "cases": 10,
+            "llm_model": kwargs["llm_model"],
+            "llm_mode": kwargs["llm_mode"],
+            "dataset": kwargs["dataset"],
+            "output_path": str(tmp_path / "result.json"),
+        },
+    )
+
+    result = runner.invoke(
+        cli_app,
+        [
+            "benchmark",
+            "llm",
+            "--test-file",
+            str(phenobert_dir),
+            "--dataset",
+            "GeneReviews",
+            "--llm-model",
+            "gemini-2.5-flash",
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert "LLM benchmark complete" in result.stdout
 
 
 # =============================================================================

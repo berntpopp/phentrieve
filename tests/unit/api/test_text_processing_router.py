@@ -62,6 +62,19 @@ def test_text_processing_router_returns_llm_meta(client, monkeypatch):
     assert response.json()["meta"]["extraction_backend"] == "llm"
 
 
+def test_text_processing_router_rejects_llm_without_model(client):
+    response = client.post(
+        "/api/v1/text/process",
+        json={
+            "text": "Patient had recurrent seizures.",
+            "extraction_backend": "llm",
+        },
+    )
+
+    assert response.status_code == 422
+    assert "llm_model" in response.text
+
+
 def test_text_processing_router_returns_429_when_quota_exhausted(client, monkeypatch):
     monkeypatch.setattr(
         "api.config.PHENTRIEVE_ENV",
@@ -84,7 +97,11 @@ def test_text_processing_router_returns_429_when_quota_exhausted(client, monkeyp
 
     response = client.post(
         "/api/v1/text/process",
-        json={"text": "note", "extraction_backend": "llm"},
+        json={
+            "text": "note",
+            "extraction_backend": "llm",
+            "llm_model": "gpt-5.4-mini",
+        },
     )
 
     assert response.status_code == 429
@@ -106,7 +123,11 @@ def test_text_processing_router_returns_503_when_subject_resolution_is_untrusted
 
     response = client.post(
         "/api/v1/text/process",
-        json={"text": "note", "extraction_backend": "llm"},
+        json={
+            "text": "note",
+            "extraction_backend": "llm",
+            "llm_model": "gpt-5.4-mini",
+        },
     )
 
     assert response.status_code == 503
@@ -160,7 +181,11 @@ def test_text_processing_router_counts_successes_and_skips_failed_requests(
 
     store = DailyQuotaStore(quota_db, daily_limit=2)
     headers = {"X-Forwarded-For": "203.0.113.5"}
-    payload = {"text": "note", "extraction_backend": "llm"}
+    payload = {
+        "text": "note",
+        "extraction_backend": "llm",
+        "llm_model": "gpt-5.4-mini",
+    }
     subject_key = hash_subject_key("203.0.113.5")
     usage_date_utc = datetime.now(UTC).date().isoformat()
 
@@ -171,6 +196,8 @@ def test_text_processing_router_counts_successes_and_skips_failed_requests(
     ) as local_client:
         first = local_client.post("/api/v1/text/process", json=payload, headers=headers)
         assert first.status_code == 200
+        assert first.json()["meta"]["quota_limit"] == 2
+        assert first.json()["meta"]["quota_remaining"] == 1
         assert (
             store.get_status(
                 subject_key=subject_key,
@@ -201,6 +228,8 @@ def test_text_processing_router_counts_successes_and_skips_failed_requests(
             headers=headers,
         )
         assert second.status_code == 200
+        assert second.json()["meta"]["quota_limit"] == 2
+        assert second.json()["meta"]["quota_remaining"] == 0
         assert (
             store.get_status(
                 subject_key=subject_key,

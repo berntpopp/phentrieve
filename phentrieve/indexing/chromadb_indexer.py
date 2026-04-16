@@ -185,7 +185,7 @@ def build_chromadb_index(
             collection.add(
                 documents=batch_docs,
                 embeddings=embeddings.tolist(),
-                metadatas=batch_meta,  # type: ignore[arg-type]
+                metadatas=batch_meta,
                 ids=batch_ids,
             )
         except Exception as e:

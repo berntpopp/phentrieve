@@ -6,7 +6,7 @@ and LLM extraction backends while normalizing responses into a stable shape.
 
 from __future__ import annotations
 
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, Mapping, Sequence
 from typing import Any
 
 from phentrieve.config import (
@@ -147,8 +147,8 @@ def _adapt_aggregated_terms(
 
 
 def adapt_standard_response(
-    pipeline_result: list[Mapping[str, Any]] | Mapping[str, Any] | None,
-    extraction_result: tuple[list[Mapping[str, Any]], list[Mapping[str, Any]]]
+    pipeline_result: Sequence[Mapping[str, Any]] | Mapping[str, Any] | None,
+    extraction_result: tuple[Sequence[Mapping[str, Any]], Sequence[Mapping[str, Any]]]
     | Mapping[str, Any]
     | None,
 ) -> StableBackendResponse:
@@ -173,7 +173,8 @@ def adapt_standard_response(
         aggregated_results = []
         chunk_results = []
     else:
-        aggregated_results, chunk_results = extraction_result
+        aggregated_results = list(extraction_result[0])
+        chunk_results = list(extraction_result[1])
 
     adapted_chunks = _adapt_processed_chunks(processed_chunks, chunk_results)
     adapted_terms = _adapt_aggregated_terms(aggregated_results)
@@ -250,7 +251,7 @@ def run_standard_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
         return adapt_standard_response([], ([], []))
 
     text_chunks = [chunk["text"] for chunk in processed_chunks]
-    assertion_statuses = [
+    assertion_statuses: list[str | None] = [
         _normalize_status(chunk.get("status")) for chunk in processed_chunks
     ]
 

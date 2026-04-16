@@ -1,6 +1,6 @@
 from typing import Any, Literal, cast
 
-from pydantic import AliasChoices, BaseModel, Field
+from pydantic import AliasChoices, BaseModel, Field, model_validator
 
 from phentrieve.config import (
     DEFAULT_ASSERTION_CONFIG,
@@ -136,6 +136,12 @@ class TextProcessingRequest(BaseModel):
         default=False,
         description="Include character positions (start_char, end_char) for each chunk.",
     )
+
+    @model_validator(mode="after")
+    def validate_llm_configuration(self) -> "TextProcessingRequest":
+        if self.extraction_backend == "llm" and not self.llm_model:
+            raise ValueError("llm_model is required when extraction_backend='llm'.")
+        return self
 
     @property
     def text_content(self) -> str:

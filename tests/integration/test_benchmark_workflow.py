@@ -19,6 +19,11 @@ from pathlib import Path
 
 import pytest
 
+from phentrieve.benchmark.extraction_benchmark import (
+    ExtractionBenchmark,
+    ExtractionConfig,
+)
+from phentrieve.benchmark.llm_cli import run_llm_benchmark_cli
 from phentrieve.evaluation.runner import compare_models, run_evaluation
 from phentrieve.evaluation.statistics import (
     compare_models_with_significance,
@@ -407,3 +412,177 @@ def test_empty_benchmark_handles_gracefully(temp_results_dir):
 
     # Empty test file should result in None return
     assert results is None
+
+
+def test_llm_benchmark_smoke_writes_result_file(tmp_path, monkeypatch):
+    output_path = tmp_path / "llm_benchmark_result.json"
+
+    monkeypatch.setattr(
+        "phentrieve.benchmark.llm_benchmark.run_llm_benchmark",
+        lambda **kwargs: {
+            "cases": 1,
+            "llm_model": kwargs["llm_model"],
+            "llm_mode": kwargs["llm_mode"],
+            "output_path": str(output_path),
+        },
+    )
+
+    result = run_llm_benchmark_cli(
+        test_file="tests/data/benchmarks/german/tiny_v1.json",
+        llm_model="gemini-2.5-flash",
+        llm_mode="two_phase",
+        output_path=str(output_path),
+    )
+
+    assert result["cases"] == 1
+    assert Path(result["output_path"]).exists()
+    assert json.loads(output_path.read_text(encoding="utf-8"))["llm_model"] == (
+        "gemini-2.5-flash"
+    )
+
+
+def test_llm_benchmark_cli_rejects_missing_input_file(tmp_path):
+    missing_file = tmp_path / "missing.json"
+
+    with pytest.raises(ValueError, match="Benchmark test file not found"):
+        run_llm_benchmark_cli(
+            test_file=str(missing_file),
+            llm_model="gemini-2.5-flash",
+        )
+
+
+def test_llm_benchmark_cli_rejects_invalid_json_input(tmp_path):
+    invalid_file = tmp_path / "invalid.json"
+    invalid_file.write_text("{not json}", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="must be valid JSON"):
+        run_llm_benchmark_cli(
+            test_file=str(invalid_file),
+            llm_model="gemini-2.5-flash",
+        )
+
+
+def test_llm_benchmark_smoke_supports_phenobert_directory(
+    tmp_path, monkeypatch, benchmark_data_dir
+):
+    output_path = tmp_path / "llm_benchmark_gene_reviews.json"
+
+    class _FakePipeline:
+        def __init__(self, provider):
+            self.provider = provider
+
+        def run(self, *, text, config):
+            from phentrieve.llm.types import LLMExtractionResult, LLMMeta
+
+            assert text
+            return LLMExtractionResult(
+                terms=[],
+                meta=LLMMeta(
+                    llm_model=config.model,
+                    llm_mode=config.mode,
+                ),
+            )
+
+    monkeypatch.setattr(
+        "phentrieve.benchmark.llm_benchmark.get_llm_provider",
+        lambda llm_model: object(),
+    )
+    monkeypatch.setattr(
+        "phentrieve.benchmark.llm_benchmark.TwoPhaseLLMPipeline",
+        _FakePipeline,
+    )
+
+    result = run_llm_benchmark_cli(
+        test_file=str(Path("tests/data/en/phenobert")),
+        dataset="GeneReviews",
+        llm_model="gemini-2.5-flash",
+        llm_mode="two_phase",
+        output_path=str(output_path),
+    )
+
+    assert result["cases"] == 10
+    assert result["dataset"] == "GeneReviews"
+    assert result["test_file"] == str(Path("tests/data/en/phenobert"))
+    assert Path(result["output_path"]).exists()
+
+
+def test_llm_benchmark_rejects_unknown_phenobert_dataset(tmp_path):
+    with pytest.raises(ValueError, match="Unknown dataset"):
+        run_llm_benchmark_cli(
+            test_file=str(Path("tests/data/en/phenobert")),
+            dataset="not_a_dataset",
+            llm_model="gemini-2.5-flash",
+            output_path=str(tmp_path / "result.json"),
+        )
+
+
+def test_llm_benchmark_rejects_invalid_phenobert_root(tmp_path):
+    invalid_root = tmp_path / "GeneReviews"
+    invalid_root.mkdir()
+
+    with pytest.raises(ValueError, match="No benchmark documents found"):
+        run_llm_benchmark_cli(
+            test_file=str(invalid_root),
+            dataset="GeneReviews",
+            llm_model="gemini-2.5-flash",
+            output_path=str(tmp_path / "result.json"),
+        )
+
+
+def test_extraction_benchmark_uses_effective_config_overrides(tmp_path, monkeypatch):
+    benchmark = ExtractionBenchmark(
+        model_name="sentence-transformers/LaBSE",
+        config=ExtractionConfig(
+            model_name="sentence-transformers/LaBSE",
+            dataset="all",
+            averaging="micro",
+            bootstrap_ci=False,
+        ),
+    )
+
+    captured: dict[str, object] = {}
+
+    def _fake_load_benchmark_data(test_path, dataset):
+        captured["dataset"] = dataset
+        return {
+            "metadata": {
+                "dataset_name": f"phenobert_{dataset}",
+                "source": "phenobert",
+                "total_documents": 1,
+                "total_annotations": 1,
+            },
+            "documents": [
+                {
+                    "id": "doc-1",
+                    "text": "Clinical text",
+                    "gold_hpo_terms": [{"id": "HP:0001250", "assertion": "PRESENT"}],
+                    "source_dataset": dataset,
+                }
+            ],
+        }
+
+    monkeypatch.setattr(
+        "phentrieve.benchmark.extraction_benchmark.load_benchmark_data",
+        _fake_load_benchmark_data,
+    )
+    monkeypatch.setattr(benchmark.extractor, "extract", lambda text: [])
+
+    output_dir = tmp_path / "results"
+    benchmark.run_benchmark(
+        test_file=tmp_path,
+        output_dir=output_dir,
+        config_overrides={
+            "dataset": "GeneReviews",
+            "averaging": "macro",
+        },
+    )
+
+    saved_payload = json.loads(
+        (output_dir / "extraction_results.json").read_text(encoding="utf-8")
+    )
+
+    assert captured["dataset"] == "GeneReviews"
+    assert saved_payload["metadata"]["config"]["averaging"] == "macro"
+    assert saved_payload["metadata"]["dataset"]["dataset_name"] == (
+        "phenobert_GeneReviews"
+    )

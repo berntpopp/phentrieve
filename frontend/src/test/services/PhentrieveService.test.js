@@ -38,10 +38,12 @@ describe('PhentrieveService', () => {
       response: {
         status: 429,
         data: {
-          detail: 'LLM full-text limit reached for today.',
-          quota_remaining: 0,
-          quota_limit: 3,
-          extraction_backend: 'llm',
+          detail: {
+            quota_remaining: 0,
+            quota_limit: 3,
+            usage_date_utc: '2026-04-16',
+            error_message: 'LLM daily quota exhausted.',
+          },
         },
       },
     });
@@ -60,12 +62,140 @@ describe('PhentrieveService', () => {
       quotaLimit: 3,
       extractionBackend: 'llm',
       originalErrorDetails: expect.objectContaining({
+        apiResponseMessage: 'LLM daily quota exhausted.',
+      }),
+    });
+
+    await expect(
+      PhentrieveService.processText({
+        text: 'Patient had recurrent seizures.',
+        extractionBackend: 'llm',
+        llmModel: 'gpt-5.4-mini',
+        llmMode: 'two_phase',
+      })
+    ).rejects.not.toHaveProperty('usageDateUtc');
+
+    await expect(
+      PhentrieveService.processText({
+        text: 'Patient had recurrent seizures.',
+        extractionBackend: 'llm',
+        llmModel: 'gpt-5.4-mini',
+        llmMode: 'two_phase',
+      })
+    ).rejects.toMatchObject({
+      originalErrorDetails: expect.objectContaining({
         apiResponseData: expect.objectContaining({
-          quota_remaining: 0,
-          quota_limit: 3,
-          extraction_backend: 'llm',
+          detail: expect.objectContaining({
+            quota_remaining: 0,
+            quota_limit: 3,
+            usage_date_utc: '2026-04-16',
+            error_message: 'LLM daily quota exhausted.',
+          }),
         }),
       }),
     });
+  });
+
+  it('keeps generic handling for llm 429 responses without quota fields', async () => {
+    axios.post.mockRejectedValue({
+      isAxiosError: true,
+      message: 'Request failed with status code 429',
+      response: {
+        status: 429,
+        data: {
+          detail: {
+            message: 'Too many requests for this LLM endpoint.',
+          },
+        },
+      },
+    });
+
+    await expect(
+      PhentrieveService.processText({
+        text: 'Patient had recurrent seizures.',
+        extractionBackend: 'llm',
+        llmModel: 'gpt-5.4-mini',
+        llmMode: 'two_phase',
+      })
+    ).rejects.toMatchObject({
+      status: 429,
+      userMessageKey: 'errors.api.unknown',
+    });
+
+    await expect(
+      PhentrieveService.processText({
+        text: 'Patient had recurrent seizures.',
+        extractionBackend: 'llm',
+        llmModel: 'gpt-5.4-mini',
+        llmMode: 'two_phase',
+      })
+    ).rejects.not.toHaveProperty('quotaRemaining');
+    await expect(
+      PhentrieveService.processText({
+        text: 'Patient had recurrent seizures.',
+        extractionBackend: 'llm',
+        llmModel: 'gpt-5.4-mini',
+        llmMode: 'two_phase',
+      })
+    ).rejects.not.toHaveProperty('quotaLimit');
+  });
+
+  it('keeps generic handling for non-LLM 429 responses', async () => {
+    axios.post.mockRejectedValue({
+      isAxiosError: true,
+      message: 'Request failed with status code 429',
+      response: {
+        status: 429,
+        data: {
+          detail: {
+            message: 'Too many requests for this endpoint.',
+          },
+        },
+      },
+    });
+
+    await expect(
+      PhentrieveService.processText({
+        text: 'Patient had recurrent seizures.',
+        extractionBackend: 'standard',
+        chunkingStrategy: 'simple',
+      })
+    ).rejects.toMatchObject({
+      status: 429,
+      userMessageKey: 'errors.api.unknown',
+    });
+
+    await expect(
+      PhentrieveService.processText({
+        text: 'Patient had recurrent seizures.',
+        extractionBackend: 'standard',
+        chunkingStrategy: 'simple',
+      })
+    ).rejects.not.toHaveProperty('quotaRemaining');
+    await expect(
+      PhentrieveService.processText({
+        text: 'Patient had recurrent seizures.',
+        extractionBackend: 'standard',
+        chunkingStrategy: 'simple',
+      })
+    ).rejects.not.toHaveProperty('quotaLimit');
+  });
+
+  it('maps topTermPerChunkForAggregation to top_term_per_chunk_for_aggregation', async () => {
+    axios.post.mockResolvedValue({ data: { meta: { extraction_backend: 'standard' } } });
+
+    await PhentrieveService.processText({
+      text: 'Patient had recurrent seizures.',
+      extractionBackend: 'standard',
+      topTermPerChunkForAggregation: true,
+    });
+
+    expect(axios.post).toHaveBeenCalledWith(
+      '/api/v1/text/process',
+      expect.objectContaining({
+        top_term_per_chunk_for_aggregation: true,
+      })
+    );
+    expect(axios.post.mock.calls[0][1]).not.toHaveProperty('top_term_per_chunk');
   });
 });

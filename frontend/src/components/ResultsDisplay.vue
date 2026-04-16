@@ -49,7 +49,7 @@
               </v-icon>
               <span>
                 <small class="text-caption text-medium-emphasis"
-                  >{{ $t('resultsDisplay.assertionLabel', 'Assertion') }}:</small
+                  >{{ $t('resultsDisplay.assertionLabel') }}:</small
                 >
                 <v-chip
                   size="x-small"
@@ -59,8 +59,8 @@
                 >
                   {{
                     responseData.query_assertion_status === 'negated'
-                      ? $t('resultsDisplay.negated', 'Negated')
-                      : $t('resultsDisplay.affirmed', 'Affirmed')
+                      ? $t('resultsDisplay.negated')
+                      : $t('resultsDisplay.affirmed')
                   }}
                 </v-chip>
               </span>
@@ -91,7 +91,7 @@
               <v-icon color="info" class="mr-1" size="small"> mdi-robot-outline </v-icon>
               <span>
                 <small class="text-caption text-medium-emphasis"
-                  >{{ $t('queryInterface.advancedOptions.llmExtraction') }}:</small
+                  >{{ $t('queryInterface.advancedOptions.extractionBackend') }}:</small
                 >
                 {{ $t('queryInterface.advancedOptions.llmExtraction') }}
               </span>
@@ -101,12 +101,9 @@
               <v-icon color="info" class="mr-1" size="small"> mdi-information </v-icon>
               <span class="model-name">
                 <small class="text-caption text-medium-emphasis"
-                  >{{ $t('resultsDisplay.textProcess.strategyLabel', 'Strategy') }}:</small
+                  >{{ $t('resultsDisplay.textProcess.strategyLabel') }}:</small
                 >
-                {{
-                  responseData.meta?.request_parameters?.chunking_strategy ||
-                  'sliding_window_cleaned'
-                }}
+                {{ responseData.meta?.request_parameters?.chunking_strategy || $t('resultsDisplay.textProcess.strategyUnknown') }}
               </span>
             </div>
 
@@ -114,7 +111,7 @@
               <v-icon color="info" class="mr-1" size="small"> mdi-file-document-multiple </v-icon>
               <span>
                 <small class="text-caption text-medium-emphasis"
-                  >{{ $t('resultsDisplay.textProcess.chunksLabel', 'Chunks') }}:</small
+                  >{{ $t('resultsDisplay.textProcess.chunksLabel') }}:</small
                 >
                 {{ processedChunks.length }}
               </span>
@@ -143,7 +140,7 @@
           <div v-if="showQuotaNotice" class="info-item mt-2 d-flex align-center">
             <v-icon color="warning" class="mr-1" size="small"> mdi-counter </v-icon>
             <span class="text-caption text-medium-emphasis">
-              {{ $t('resultsDisplay.textProcess.llmLimitedNotice') }}
+              {{ $t('resultsDisplay.textProcess.llmLimitedNotice', { quotaLimit }) }}
               {{ quotaRemaining }} / {{ quotaLimit }}
             </span>
           </div>
@@ -216,7 +213,7 @@
       "
     >
       <v-alert color="warning" icon="mdi-alert-circle">
-        {{ $t('resultsDisplay.textProcess.noChunksProcessed', 'No text chunks were processed.') }}
+        {{ $t('resultsDisplay.textProcess.noChunksProcessed') }}
       </v-alert>
     </div>
     <div v-else-if="error">
@@ -282,8 +279,6 @@ export default {
   data() {
     return {
       highlightedAttributions: [],
-      chunkPanelRefs: {},
-      openChunkPanels: [],
       modelNameCache: new Map(), // Cache for formatted model names (performance optimization)
       expandedQueryResults: new Set(), // Track which query results have details expanded
       expandedAggregatedTerms: new Set(), // Track which aggregated terms have details expanded
@@ -432,34 +427,49 @@ export default {
 
       logService.debug(`Attempting to scroll to and open chunk ID: ${chunkId}`);
 
-      const panelComponent = this.chunkPanelRefs[chunkId];
+      const panelComponent = this.findChunkPanelComponent(chunkId);
       if (panelComponent && panelComponent.$el) {
         panelComponent.$el.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
         // Open the panel if closed
         const panelValueToOpen = chunkId - 1; // Assuming panel value is its 0-based index
-        if (this.openChunkPanels === undefined) this.openChunkPanels = []; // Initialize if not array
-        if (!Array.isArray(this.openChunkPanels)) this.openChunkPanels = [this.openChunkPanels]; // Ensure array for multiple
+        const openChunkPanels = this.getOpenChunkPanels();
 
-        if (!this.openChunkPanels.includes(panelValueToOpen)) {
-          // If multiple panels can be open:
-          this.openChunkPanels.push(panelValueToOpen);
+        if (openChunkPanels && !openChunkPanels.includes(panelValueToOpen)) {
+          openChunkPanels.push(panelValueToOpen);
         }
 
         // Flash highlight effect
         setTimeout(() => {
-          const textDisplayEl = this.$refs[`chunk-text-${chunkId}`];
-          if (textDisplayEl && textDisplayEl[0]) {
-            textDisplayEl[0].classList.add('flash-highlight');
-            setTimeout(() => {
-              if (textDisplayEl && textDisplayEl[0])
-                textDisplayEl[0].classList.remove('flash-highlight');
-            }, 1500);
-          }
+          this.flashChunkTextForChunk(chunkId);
         }, 300); // Small delay to allow panel to open
       } else {
         logService.warn(`Panel ref for chunk ID ${chunkId} not found.`);
       }
+    },
+
+    flashChunkTextForChunk(chunkId) {
+      return this.$refs.chunkResultsView?.flashChunkText?.(chunkId) ?? false;
+    },
+
+    findChunkPanelComponent(chunkId) {
+      const chunkKey = String(chunkId);
+      const chunkPanelRefs = this.$refs.chunkResultsView?.chunkPanelRefs ?? {};
+      return Object.entries(chunkPanelRefs).find(([key]) => key === chunkKey)?.[1] ?? null;
+    },
+
+    getOpenChunkPanels() {
+      const openChunkPanels = this.$refs.chunkResultsView?.openChunkPanels;
+
+      if (Array.isArray(openChunkPanels)) {
+        return openChunkPanels;
+      }
+
+      if (openChunkPanels && Array.isArray(openChunkPanels.value)) {
+        return openChunkPanels.value;
+      }
+
+      return null;
     },
 
     getAssertionColor(status) {
@@ -584,20 +594,6 @@ export default {
   background-color: rgba(255, 235, 59, 0.5);
   border-radius: 2px;
   padding: 0 2px;
-}
-
-.flash-highlight {
-  animation: flashHighlightAnimation 0.75s 2 ease-in-out;
-}
-
-@keyframes flashHighlightAnimation {
-  0%,
-  100% {
-    background-color: transparent;
-  }
-  50% {
-    background-color: rgba(var(--v-theme-primary), 0.15);
-  }
 }
 
 .highlighted-text-span {

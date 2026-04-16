@@ -175,7 +175,7 @@ def prepare_flat_dataframe_for_plotting(
                 and isinstance(per_case_data_dense, list)
                 and len(per_case_data_dense) > 1
             ):
-                dense_std_dev = np.std(per_case_data_dense)
+                dense_std_dev = float(np.std(per_case_data_dense))
 
             if not np.isnan(dense_value):
                 plot_data.append(
@@ -201,7 +201,7 @@ def prepare_flat_dataframe_for_plotting(
                     and isinstance(per_case_data_reranked, list)
                     and len(per_case_data_reranked) > 1
                 ):
-                    reranked_std_dev = np.std(per_case_data_reranked)
+                    reranked_std_dev = float(np.std(per_case_data_reranked))
 
                 if not np.isnan(reranked_value):
                     plot_data.append(

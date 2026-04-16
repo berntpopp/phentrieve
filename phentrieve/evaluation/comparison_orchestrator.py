@@ -861,15 +861,12 @@ def generate_visualizations(
             fig, axes = plt.subplots(
                 1, n_models, figsize=(n_models * 4, 5), sharey=True
             )
-
-            # If there's only one model, axes won't be an array
-            if n_models == 1:
-                axes = [axes]  # type: ignore[assignment]
+            axes_list = np.atleast_1d(axes).tolist()
 
             # For each model, create a line plot showing how metrics vary with k
             for i, (_idx, row) in enumerate(comparison_df.iterrows()):
                 model_name = row["Model"]
-                ax = axes[i]
+                ax = axes_list[i]
 
                 # Prepare data for HR@k metrics
                 if len(hr_metrics) >= 2:

@@ -6,6 +6,7 @@ This module contains commands for text processing and HPO term extraction.
 import csv
 import json
 import logging
+import os
 from io import StringIO
 from pathlib import Path
 from typing import Annotated, Any, Literal
@@ -27,6 +28,9 @@ from phentrieve.config import (
     DEFAULT_STEP_SIZE_TOKENS,
     DEFAULT_WINDOW_SIZE_TOKENS,
 )
+from phentrieve.llm.pipeline import TwoPhaseLLMPipeline
+from phentrieve.llm.provider import get_llm_provider
+from phentrieve.llm.types import LLMPipelineConfig
 from phentrieve.text_processing.full_text_service import (
     FullTextService,
     run_standard_backend,
@@ -36,19 +40,46 @@ logger = logging.getLogger(__name__)
 
 
 def _run_llm_backend(*, text: str, **kwargs: Any) -> dict[str, Any]:
-    """Placeholder LLM backend wired through the shared full-text service."""
-    meta: dict[str, Any] = {}
-    llm_model = kwargs.get("model_name") or kwargs.get("llm_model")
-    if llm_model:
-        meta["llm_model"] = llm_model
-    llm_mode = kwargs.get("llm_mode")
-    if llm_mode:
-        meta["llm_mode"] = llm_mode
+    """Run the real LLM backend through the shared full-text service."""
+    llm_model = kwargs.get("llm_model") or os.getenv("PHENTRIEVE_LLM_MODEL")
+    if not llm_model:
+        raise RuntimeError(
+            "No LLM model configured. Provide --llm-model or set PHENTRIEVE_LLM_MODEL."
+        )
+
+    llm_mode = (kwargs.get("llm_mode") or "two_phase").strip()
+    if llm_mode != "two_phase":
+        raise ValueError(f"Unsupported LLM mode: {llm_mode!r}. Expected 'two_phase'.")
+
+    provider = get_llm_provider(llm_model=llm_model)
+    pipeline = TwoPhaseLLMPipeline(provider=provider)
+    result = pipeline.run(
+        text=text,
+        config=LLMPipelineConfig(
+            model=llm_model,
+            mode=llm_mode,
+            language=kwargs.get("language"),
+        ),
+    )
 
     return {
-        "meta": meta,
+        "meta": {
+            "extraction_backend": "llm",
+            "llm_model": result.meta.llm_model,
+            "llm_mode": result.meta.llm_mode,
+            "prompt_version": result.meta.prompt_version,
+            "num_aggregated_hpo_terms": len(result.terms),
+        },
         "processed_chunks": [],
-        "aggregated_hpo_terms": [],
+        "aggregated_hpo_terms": [
+            {
+                "id": term.term_id,
+                "name": term.label,
+                "evidence": term.evidence,
+                "status": term.assertion,
+            }
+            for term in result.terms
+        ],
     }
 
 
@@ -373,6 +404,20 @@ def process_text_for_hpo_command(
             help="Choose full-text extraction backend: standard or llm.",
         ),
     ] = "standard",
+    llm_model: Annotated[
+        str | None,
+        typer.Option(
+            "--llm-model",
+            help="Gemini model for LLM full-text extraction.",
+        ),
+    ] = None,
+    llm_mode: Annotated[
+        Literal["two_phase"],
+        typer.Option(
+            "--llm-mode",
+            help="LLM extraction mode.",
+        ),
+    ] = "two_phase",
     chunk_retrieval_threshold: Annotated[
         float,
         typer.Option(
@@ -523,6 +568,17 @@ def process_text_for_hpo_command(
     logger.debug(f"Chunking pipeline config: {chunking_pipeline_config}")
     logger.debug(f"Assertion config: {assertion_config}")
 
+    if extraction_backend == "llm" and not (
+        llm_model or os.getenv("PHENTRIEVE_LLM_MODEL")
+    ):
+        typer.secho(
+            "Error processing text: No LLM model configured. "
+            "Provide --llm-model or set PHENTRIEVE_LLM_MODEL.",
+            fg=typer.colors.RED,
+            err=True,
+        )
+        raise typer.Exit(code=1)
+
     model_name = retrieval_model or DEFAULT_MODEL
     logger.info("Using model: %s", model_name)
 
@@ -586,6 +642,8 @@ def process_text_for_hpo_command(
             text=raw_text,
             extraction_backend=extraction_backend,
             language=language,
+            llm_model=llm_model,
+            llm_mode=llm_mode,
             chunking_pipeline_config=chunking_pipeline_config,
             assertion_config=assertion_config,
             include_positions=True,
@@ -958,19 +1016,20 @@ def _format_and_output_results(
                         "name": result["name"],
                         "confidence": (
                             float(result["score"])
-                            if isinstance(result["score"], (int, float))
+                            if isinstance(result.get("score"), (int, float))
                             else 0.0
                         ),
-                        "status": (
-                            result["assertion_status"]
-                            if "assertion_status" in result
-                            else None
-                        ),
+                        "status": result.get("assertion_status", result.get("status")),
                         "evidence_count": (
-                            len(result["chunks"]) if "chunks" in result else 0
+                            len(result["chunks"])
+                            if isinstance(result.get("chunks"), list)
+                            else int(bool(result.get("evidence")))
                         ),
                         "top_evidence_chunk": (
-                            result["chunks"][0] if result.get("chunks") else -1
+                            result["chunks"][0]
+                            if isinstance(result.get("chunks"), list)
+                            and result["chunks"]
+                            else -1
                         ),
                     }
                     for result in term_level_results

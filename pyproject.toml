@@ -75,6 +75,7 @@ mcp = [
     "pydantic-settings>=2.0.0",
 ]
 llm = [
+    "google-genai>=1.22.0,<2.0.0",
     "openai>=2.0.0,<3.0.0",
 ]
 # Install CLI + API with: pip install "phentrieve[api]"
@@ -152,6 +153,7 @@ warn_unused_ignores = true
 no_implicit_optional = true
 strict_optional = true
 show_error_codes = true
+follow_imports = "skip"
 
 # Performance optimizations
 cache_dir = ".mypy_cache"
@@ -175,6 +177,15 @@ module = [
     "seaborn.*",
 ]
 ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = [
+    "google",
+    "google.*",
+    "google.genai",
+    "google.genai.*",
+]
+follow_imports = "skip"
 
 [tool.pytest.ini_options]
 python_files = ["test_*.py"]

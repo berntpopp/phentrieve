@@ -53,8 +53,9 @@ class PhentrieveService {
    * @returns {Object} Data matching TextProcessingResponseAPI schema
    */
   async processText(textProcessingData) {
+    let normalizedPayload;
     try {
-      const normalizedPayload = this._normalizeTextProcessPayload(textProcessingData);
+      normalizedPayload = this._normalizeTextProcessPayload(textProcessingData);
       logService.info('Calling Text Processing API', {
         requestSize: JSON.stringify(normalizedPayload).length,
         textLength: normalizedPayload.text?.length || 0,
@@ -92,7 +93,10 @@ class PhentrieveService {
             }
           : null,
       });
-      throw this._createStandardizedError(error, 'processing text for HPO extraction');
+      throw this._createStandardizedError(error, 'processing text for HPO extraction', {
+        isTextProcessing: true,
+        extractionBackend: normalizedPayload.extraction_backend,
+      });
     }
   }
 
@@ -148,8 +152,8 @@ class PhentrieveService {
         textProcessingData.aggregated_term_confidence ??
         textProcessingData.aggregatedTermConfidence ??
         null,
-      top_term_per_chunk:
-        textProcessingData.top_term_per_chunk ??
+      top_term_per_chunk_for_aggregation:
+        textProcessingData.top_term_per_chunk_for_aggregation ??
         textProcessingData.topTermPerChunkForAggregation ??
         null,
       include_details: textProcessingData.include_details ?? textProcessingData.includeDetails,
@@ -185,8 +189,15 @@ class PhentrieveService {
    * @returns {Object} Standardized error object
    * @private
    */
-  _createStandardizedError(error, contextMessage = 'interacting with the API') {
+  _createStandardizedError(
+    error,
+    contextMessage = 'interacting with the API',
+    { isTextProcessing = false, extractionBackend = null } = {}
+  ) {
     const responseData = error.response?.data;
+    const responseDetail = responseData?.detail;
+    const quotaData =
+      responseDetail && typeof responseDetail === 'object' ? responseDetail : responseData;
     const standardError = {
       status: error.response?.status || 0,
       type: 'UNKNOWN_ERROR',
@@ -195,7 +206,10 @@ class PhentrieveService {
       originalErrorDetails: {
         message: error.message,
         code: error.code,
-        apiResponseMessage: responseData?.detail,
+        apiResponseMessage:
+          typeof responseDetail === 'string'
+            ? responseDetail
+            : responseDetail?.error_message || responseDetail?.message,
         apiResponseData: responseData,
         configUrl: error.config?.url,
       },
@@ -208,20 +222,27 @@ class PhentrieveService {
       standardError.type = 'API_ERROR';
       const { key, params } = this._getErrorMessageKeyForStatus(
         error.response.status,
-        responseData?.detail
+        typeof responseDetail === 'string'
+          ? responseDetail
+          : responseDetail?.error_message || responseDetail?.message || ''
       );
       standardError.userMessageKey = key;
       standardError.userMessageParams = params;
-      if (error.response.status === 429) {
+      if (
+        error.response.status === 429 &&
+        isTextProcessing &&
+        extractionBackend === 'llm' &&
+        this._hasQuotaDetails(quotaData)
+      ) {
         standardError.userMessageKey = 'errors.api.llmQuotaExceeded';
         standardError.userMessageParams = {
-          quotaRemaining: responseData?.quota_remaining,
-          quotaLimit: responseData?.quota_limit,
-          extractionBackend: responseData?.extraction_backend,
+          quotaRemaining: quotaData?.quota_remaining,
+          quotaLimit: quotaData?.quota_limit,
+          extractionBackend: quotaData?.extraction_backend ?? extractionBackend,
         };
-        standardError.quotaRemaining = responseData?.quota_remaining;
-        standardError.quotaLimit = responseData?.quota_limit;
-        standardError.extractionBackend = responseData?.extraction_backend;
+        standardError.quotaRemaining = quotaData?.quota_remaining;
+        standardError.quotaLimit = quotaData?.quota_limit;
+        standardError.extractionBackend = quotaData?.extraction_backend ?? extractionBackend;
       }
     } else {
       // Generic client-side error or unexpected issue
@@ -229,6 +250,19 @@ class PhentrieveService {
       standardError.userMessageParams = { context: contextMessage };
     }
     return standardError;
+  }
+
+  _hasQuotaDetails(quotaData) {
+    if (!quotaData || typeof quotaData !== 'object') {
+      return false;
+    }
+
+    return (
+      quotaData.quota_remaining !== undefined ||
+      quotaData.quota_limit !== undefined ||
+      quotaData.quota_used !== undefined ||
+      quotaData.usage_date_utc !== undefined
+    );
   }
 
   /**

@@ -1,124 +1,95 @@
 # Benchmarking Guide
 
-This page provides a guide to using Phentrieve's benchmarking capabilities for evaluating model performance.
+This page shows the concrete benchmark commands for retrieval and LLM full-text
+validation.
 
-## Introduction
-
-Benchmarking is essential for evaluating the performance of different embedding models and configurations. Phentrieve includes a comprehensive benchmarking framework that allows you to compare model performance using standardized metrics.
-
-## Running Benchmarks
+## Retrieval Benchmark
 
 ```bash
-# Run a benchmark with default settings
-phentrieve benchmark run
-
-# Run a benchmark with a specific model
-phentrieve benchmark run --model-name "FremyCompany/BioLORD-2023-M"
+phentrieve benchmark run \
+  --test-file tests/data/benchmarks/german/tiny_v1.json \
+  --model-name "sentence-transformers/LaBSE"
 ```
 
-## Benchmark Metrics
+## LLM Full-Text Benchmark
 
-The benchmarking framework calculates several information retrieval metrics:
-
-- **Mean Reciprocal Rank (MRR)**: Average position of the first relevant result
-- **Hit Rate at K (HR@K)**: Proportion of queries with a relevant result in the top K positions
-- **Recall**: Proportion of relevant items that are retrieved
-
-## Interpreting Results
-
-Benchmark results are stored in the `results/` directory:
-
-- `summaries/`: JSON summaries for each model
-- `visualizations/`: Charts and plots comparing model performance
-- `detailed/`: Detailed CSV results
-
-## Extraction Benchmarking
-
-Evaluate document-level HPO extraction against gold-standard annotations:
+The primary LLM benchmark workflow uses the converted PhenoBERT full-text
+corpus under `tests/data/en/phenobert/`. The benchmark instantiates the LLM
+pipeline directly and does not go through the FastAPI quota layer.
 
 ```bash
-# Run on PhenoBERT test data (306 documents)
-phentrieve benchmark extraction run tests/data/en/phenobert/
-
-# Run on specific dataset (GeneReviews: 10 docs, good for quick tests)
-phentrieve benchmark extraction run tests/data/en/phenobert/ --dataset GeneReviews
-
-# High precision mode (fewer false positives)
-phentrieve benchmark extraction run tests/data/en/phenobert/ --top-term-only
-
-# Custom thresholds
-phentrieve benchmark extraction run tests/data/en/phenobert/ \
-    --chunk-threshold 0.6 --min-confidence 0.6 --num-results 2
+phentrieve benchmark llm \
+  --test-file tests/data/en/phenobert \
+  --dataset GeneReviews \
+  --llm-model gemini-2.5-flash
 ```
 
-### Key Parameters
+The converted corpus contains these dataset subsets:
 
-| Parameter | Default | Description |
-|-----------|---------|-------------|
-| `--dataset` | all | PhenoBERT subset: `all`, `GSC_plus`, `ID_68`, `GeneReviews` |
-| `--num-results` | 3 | HPO candidates per chunk |
-| `--chunk-threshold` | 0.5 | Minimum similarity for chunk matching |
-| `--min-confidence` | 0.5 | Minimum confidence for final results |
-| `--top-term-only` | false | Keep only best match per chunk |
+- `GSC_plus`
+- `ID_68`
+- `GeneReviews`
+- `all`
 
-### Extraction Metrics
+The output JSON includes:
 
-- **Precision**: Proportion of predicted terms that are correct
-- **Recall**: Proportion of gold terms that were found
-- **F1 Score**: Harmonic mean of precision and recall
-- **Bootstrap CI**: 95% confidence intervals via bootstrap sampling
+- `cases`
+- `dataset`
+- `llm_model`
+- `llm_mode`
+- `dataset_metadata`
+- `metrics`
+- `results`
+- `output_path`
 
-### Comparing Results
+## Corpus Acquisition And Conversion
+
+If you need to rebuild the corpus, use the reproducible PhenoBERT download and
+conversion workflow already documented in this repo:
+
+- `scripts/PHENOBERT-DOWNLOAD-GUIDE.md`
+- `scripts/README.md`
+- `scripts/convert_phenobert_data.py`
+
+Typical conversion flow:
 
 ```bash
-# Compare two benchmark runs
-phentrieve benchmark extraction compare results/run1/extraction_results.json \
-    results/run2/extraction_results.json
-
-# Generate report from multiple runs
-phentrieve benchmark extraction report results/
+python scripts/convert_phenobert_data.py \
+  --phenobert-data /path/to/PhenoBERT/phenobert/data \
+  --output tests/data/en/phenobert \
+  --hpo-data data/hpo_core_data
 ```
 
-## Multi-Vector vs Single-Vector Comparison
+Use a specific upstream PhenoBERT commit for reproducibility and keep the
+generated `conversion_report.json`.
 
-Compare the performance of single-vector embeddings against multi-vector embeddings with different aggregation strategies:
+## Legacy Smoke Datasets
+
+The small JSON files under `tests/data/benchmarks/` remain useful for quick
+smoke validation, but they are not the primary full-text benchmark workflow.
 
 ```bash
-# Compare with default strategies
-phentrieve benchmark compare-vectors
-
-# Compare specific strategies on a dataset
-phentrieve benchmark compare-vectors \
-    --test-file german/200cases_gemini_v1.json \
-    --strategies "label_synonyms_max,all_max,label_only"
-
-# Skip single-vector (only compare multi-vector strategies)
-phentrieve benchmark compare-vectors --no-single \
-    --strategies "label_synonyms_max,all_max,all_weighted"
+phentrieve benchmark llm \
+  --test-file tests/data/benchmarks/german/tiny_v1.json \
+  --llm-model gemini-2.5-flash
 ```
 
-### Aggregation Strategies
+## Example CLI LLM Run
 
-| Strategy | Description | Best For |
-|----------|-------------|----------|
-| `label_synonyms_max` | Best match between label and synonyms | **Recommended default** |
-| `label_only` | Match only against label vectors | High precision |
-| `all_max` | Best match across all components | Balanced |
-| `all_weighted` | Weighted combination of all components | Custom tuning |
+```bash
+phentrieve text process clinical_note.txt \
+  --extraction-backend llm \
+  --llm-model gpt-5.4-mini
+```
 
-### Example Results
+## API Quota Environment
 
-Results from 200-case German benchmark dataset:
+These variables matter for API and frontend validation. They do not gate the
+direct benchmark command above.
 
-| Mode | Strategy | MRR | Hit@1 | Hit@10 |
-|------|----------|-----|-------|--------|
-| single-vector | - | 0.824 | 74.0% | 95.0% |
-| multi-vector | label_synonyms_max | **0.937** | **91.0%** | **98.0%** |
-| multi-vector | label_only | 0.943 | 92.0% | 97.5% |
-| multi-vector | all_max | 0.934 | 90.5% | 98.5% |
-
-Multi-vector embeddings consistently outperform single-vector by **+13-21% MRR**.
-
-## Further Reading
-
-For more advanced benchmarking information, see the [Benchmarking Framework](../advanced-topics/benchmarking-framework.md) page in the Advanced Topics section.
+```bash
+export PHENTRIEVE_ENV=production
+export PHENTRIEVE_TRUSTED_PROXY_CIDRS="127.0.0.1/32,10.0.0.0/8"
+export PHENTRIEVE_LLM_DAILY_LIMIT=3
+export PHENTRIEVE_LLM_QUOTA_DB_PATH="../data/app/llm_quota.db"
+```

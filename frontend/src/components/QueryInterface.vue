@@ -17,17 +17,14 @@
             rows="3"
             auto-grow
             clearable
-            aria-label="Clinical document input for text processing"
-            :aria-description="
-              'Enter longer clinical text for document processing' +
-              (isLoading ? '. Processing in progress' : '')
-            "
+            :aria-label="$t('queryInterface.accessibility.textProcessInputLabel')"
+            :aria-description="getTextProcessInputDescription()"
             @keydown.enter.prevent="!isLoading && queryText.trim() ? submitQuery() : null"
           >
             <template #label>
               <span class="text-high-emphasis"
                 >{{ $t('queryInterface.inputLabel') }} ({{
-                  $t('queryInterface.documentModeLabel', 'Document Mode')
+                  $t('queryInterface.documentModeLabel')
                 }})</span
               >
             </template>
@@ -44,17 +41,14 @@
             bg-color="white"
             color="primary"
             clearable
-            aria-label="Clinical text input field"
-            :aria-description="
-              'Enter clinical text to search for HPO terms' +
-              (isLoading ? '. Search in progress' : '')
-            "
+            :aria-label="$t('queryInterface.accessibility.queryInputLabel')"
+            :aria-description="getQueryInputDescription()"
             @keydown.enter.prevent="!isLoading && queryText.trim() ? submitQuery() : null"
           >
             <template #label>
               <span class="text-high-emphasis"
                 >{{ $t('queryInterface.inputLabel') }} ({{
-                  $t('queryInterface.queryModeLabel', 'Query Mode')
+                  $t('queryInterface.queryModeLabel')
                 }})</span
               >
             </template>
@@ -74,9 +68,7 @@
                   color="primary"
                   class="mx-1 mx-sm-2"
                   :disabled="isLoading"
-                  :aria-label="
-                    showAdvancedOptions ? 'Close Advanced Options' : 'Open Advanced Options'
-                  "
+                  :aria-label="getAdvancedOptionsToggleLabel()"
                   :aria-expanded="showAdvancedOptions.toString()"
                   aria-controls="advanced-options-panel"
                   size="small"
@@ -99,7 +91,7 @@
               :loading="isLoading"
               :disabled="!queryText.trim()"
               class="mr-1 mr-sm-2"
-              aria-label="Search HPO Terms"
+              :aria-label="$t('queryInterface.accessibility.searchButton')"
               size="small"
               data-tutorial-step="search-button"
               @click="submitQuery"
@@ -128,6 +120,8 @@
         v-model:min-segment-length="minSegmentLength"
         v-model:num-results-per-chunk="numResultsPerChunk"
         v-model:top-term-per-chunk-for-aggregation="topTermPerChunkForAggregation"
+        :default-llm-model="defaultTextProcessLlmOptions.llmModel"
+        :default-llm-mode="defaultTextProcessLlmOptions.llmMode"
         :visible="showAdvancedOptions"
         :disabled="isLoading"
         :available-models="availableModels"
@@ -152,8 +146,8 @@
           <div class="user-query d-flex">
             <v-tooltip
               location="top"
-              text="User Input"
-              :content-props="{ 'aria-label': 'User Input' }"
+              :text="$t('queryInterface.accessibility.userInput')"
+              :content-props="{ 'aria-label': $t('queryInterface.accessibility.userInput') }"
             >
               <template #activator="{ props }">
                 <v-avatar v-bind="props" color="primary" size="36" class="mt-1 mr-2">
@@ -172,8 +166,8 @@
           <div v-if="item.loading || item.response || item.error" class="bot-response d-flex mt-2">
             <v-tooltip
               location="top"
-              text="Phentrieve Response"
-              :content-props="{ 'aria-label': 'Phentrieve Response' }"
+              :text="$t('queryInterface.accessibility.response')"
+              :content-props="{ 'aria-label': $t('queryInterface.accessibility.response') }"
             >
               <template #activator="{ props }">
                 <v-avatar v-bind="props" color="info" size="36" class="mt-1 mr-2">
@@ -226,7 +220,7 @@
       {{ exportErrorMessage }}
       <template #actions>
         <v-btn variant="text" @click="exportErrorVisible = false">
-          {{ $t('common.dismiss', 'Dismiss') }}
+          {{ $t('common.dismiss') }}
         </v-btn>
       </template>
     </v-snackbar>
@@ -244,6 +238,11 @@ import { useQueryPreferencesStore } from '../stores/queryPreferences';
 import { useConversationStore } from '../stores/conversation';
 import { useAdvancedOptions } from '../composables/useAdvancedOptions';
 import { usePhenotypeCollection } from '../composables/usePhenotypeCollection';
+
+const DEFAULT_TEXT_PROCESS_LLM_OPTIONS = Object.freeze({
+  llmModel: 'gpt-5.4-mini',
+  llmMode: 'two_phase',
+});
 
 export default {
   name: 'QueryInterface',
@@ -338,10 +337,10 @@ export default {
         { title: this.$t('phenopacket.sexOther'), value: 3 },
       ],
       forceEndpointMode: null,
+      defaultTextProcessLlmOptions: DEFAULT_TEXT_PROCESS_LLM_OPTIONS,
       textProcessOptions: {
         extractionBackend: 'standard',
-        llmModel: 'gpt-5.4-mini',
-        llmMode: 'two_phase',
+        ...DEFAULT_TEXT_PROCESS_LLM_OPTIONS,
       },
       chunkingStrategy: 'sliding_window_punct_conj_cleaned',
       semanticModelForChunking: null,
@@ -431,10 +430,7 @@ export default {
       try {
         this.exportPhenotypesAsPhenopacket();
       } catch (error) {
-        this.exportErrorMessage = this.$t(
-          'queryInterface.phenotypeCollection.exportError',
-          'Error exporting Phenopacket. Check console for details.'
-        );
+        this.exportErrorMessage = this.$t('queryInterface.phenotypeCollection.exportError');
         this.exportErrorVisible = true;
         // The composable already logs via logService.error; no need to re-log.
         void error;
@@ -549,6 +545,23 @@ export default {
           container.scrollTo({ top: 0, behavior: 'auto' }); // Use auto for instant jump
         }
       });
+    },
+    getTextProcessInputDescription() {
+      const base = this.$t('queryInterface.accessibility.textProcessInputDescription');
+      return this.isLoading
+        ? `${base} ${this.$t('queryInterface.accessibility.processingInProgress')}`
+        : base;
+    },
+    getQueryInputDescription() {
+      const base = this.$t('queryInterface.accessibility.queryInputDescription');
+      return this.isLoading
+        ? `${base} ${this.$t('queryInterface.accessibility.searchInProgress')}`
+        : base;
+    },
+    getAdvancedOptionsToggleLabel() {
+      return this.showAdvancedOptions
+        ? this.$t('queryInterface.accessibility.closeAdvancedOptions')
+        : this.$t('queryInterface.accessibility.openAdvancedOptions');
     },
     async submitQuery(isAutoSubmit = false) {
       const queryTextTrimmed = this.queryText.trim();

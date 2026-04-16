@@ -35,7 +35,15 @@
           </div>
         </v-expansion-panel-title>
         <v-expansion-panel-text>
-          <p :id="`chunk-text-${chunk.chunk_id}`" class="font-italic mb-2 chunk-text-displayable">
+          <p
+            :ref="
+              (el) => {
+                if (el) chunkTextRefs.set(chunk.chunk_id, el);
+                else chunkTextRefs.delete(chunk.chunk_id);
+              }
+            "
+            class="font-italic mb-2 chunk-text-displayable"
+          >
             <span
               v-for="(segment, segIdx) in getHighlightedChunkSegments(chunk)"
               :key="segIdx"
@@ -115,7 +123,7 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue';
+import { reactive, ref } from 'vue';
 import SimilarityScore from './SimilarityScore.vue';
 import { HPO_TERM_URL } from '../constants/urls';
 
@@ -126,6 +134,7 @@ const props = defineProps({
 
 const openChunkPanels = ref([]);
 const chunkPanelRefs = reactive({});
+const chunkTextRefs = new Map();
 
 function hpoTermUrl(hpoId) {
   return HPO_TERM_URL(hpoId);
@@ -160,8 +169,22 @@ function getHighlightedChunkSegments(chunk) {
   return segments;
 }
 
+function flashChunkText(chunkId) {
+  const chunkTextElement = chunkTextRefs.get(chunkId);
+  if (!chunkTextElement) {
+    return false;
+  }
+
+  chunkTextElement.classList.add('flash-highlight');
+  setTimeout(() => {
+    chunkTextElement.classList.remove('flash-highlight');
+  }, 1500);
+
+  return true;
+}
+
 // Expose for parent scrollToChunk
-defineExpose({ chunkPanelRefs, openChunkPanels });
+defineExpose({ chunkPanelRefs, flashChunkText, openChunkPanels });
 </script>
 
 <style scoped>
@@ -182,5 +205,19 @@ defineExpose({ chunkPanelRefs, openChunkPanels });
   border-radius: 3px;
   padding: 0.5px 2px;
   box-shadow: 0 0 3px rgba(255, 210, 50, 0.5);
+}
+
+.flash-highlight {
+  animation: flashHighlightAnimation 0.75s 2 ease-in-out;
+}
+
+@keyframes flashHighlightAnimation {
+  0%,
+  100% {
+    background-color: transparent;
+  }
+  50% {
+    background-color: rgba(var(--v-theme-primary), 0.15);
+  }
 }
 </style>

@@ -7,7 +7,7 @@
       elevation="1"
       class="mt-2 pa-3"
       role="region"
-      aria-label="Advanced search options"
+      :aria-label="$t('queryInterface.accessibility.advancedOptionsRegion')"
       color="white"
       style="font-size: 0.8rem"
     >
@@ -32,10 +32,8 @@
                 :disabled="disabled"
                 variant="outlined"
                 density="compact"
-                aria-label="Select embedding model"
-                :aria-description="
-                  'Choose the model to use for text embedding. Currently selected: ' + selectedModel
-                "
+                :aria-label="$t('queryInterface.accessibility.selectEmbeddingModel')"
+                :aria-description="getEmbeddingModelDescription()"
                 bg-color="white"
                 color="primary"
                 hide-details
@@ -82,11 +80,8 @@
                   track-color="grey-lighten-2"
                   thumb-label
                   hide-details
-                  aria-label="Similarity threshold slider"
-                  :aria-description="
-                    'Adjust minimum similarity threshold. Current value: ' +
-                    similarityThreshold.toFixed(2)
-                  "
+                  :aria-label="$t('queryInterface.accessibility.similarityThresholdSlider')"
+                  :aria-description="getSimilarityThresholdDescription()"
                   @update:model-value="$emit('update:similarityThreshold', $event)"
                 />
               </div>
@@ -112,11 +107,8 @@
                 :disabled="disabled"
                 variant="outlined"
                 density="compact"
-                aria-label="Select query language"
-                :aria-description="
-                  'Choose the language for query processing. Currently selected: ' +
-                  selectedLanguage
-                "
+                :aria-label="$t('queryInterface.accessibility.selectQueryLanguage')"
+                :aria-description="getQueryLanguageDescription()"
                 bg-color="white"
                 color="primary"
                 hide-details
@@ -149,7 +141,7 @@
                 density="compact"
                 hide-details
                 class="mt-0 pt-0"
-                aria-label="Include HPO term definitions and synonyms"
+                :aria-label="$t('queryInterface.accessibility.includeDetailsSwitch')"
                 @update:model-value="$emit('update:includeDetails', $event)"
               />
             </template>
@@ -226,14 +218,14 @@
             >
               <template #label>
                 <span class="text-caption">{{
-                  $t('queryInterface.advancedOptions.llmExtraction')
+                  $t('queryInterface.advancedOptions.extractionBackend')
                 }}</span>
               </template>
             </v-select>
           </v-col>
           <v-col v-if="textProcessOptions.extractionBackend === 'llm'" cols="12" md="6" class="pa-1">
             <v-text-field
-              :model-value="textProcessOptions.llmModel"
+              :model-value="resolvedTextProcessOptions.llmModel"
               variant="outlined"
               density="compact"
               bg-color="white"
@@ -258,8 +250,13 @@
         <v-row v-if="textProcessOptions.extractionBackend === 'llm'" dense>
           <v-col cols="12" md="6" class="pa-1">
             <v-select
-              :model-value="textProcessOptions.llmMode"
-              :items="[{ title: 'two_phase', value: 'two_phase' }]"
+              :model-value="resolvedTextProcessOptions.llmMode"
+              :items="[
+                {
+                  title: t('queryInterface.advancedOptions.llmModes.twoPhase'),
+                  value: resolvedTextProcessOptions.llmMode,
+                },
+              ]"
               item-title="title"
               item-value="value"
               variant="outlined"
@@ -507,7 +504,12 @@
  * AdvancedOptionsPanel - Sub-component for advanced query options.
  * Extracted from QueryInterface.vue to reduce component complexity.
  */
-defineProps({
+import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
+
+const panelProps = defineProps({
   visible: { type: Boolean, default: false },
   disabled: { type: Boolean, default: false },
   selectedModel: { type: [String, null], default: null },
@@ -518,12 +520,12 @@ defineProps({
   similarityThreshold: { type: Number, default: 0.5 },
   forceEndpointMode: { type: [String, null], default: null },
   isTextProcessModeActive: { type: Boolean, default: false },
+  defaultLlmModel: { type: [String, null], default: null },
+  defaultLlmMode: { type: [String, null], default: null },
   textProcessOptions: {
     type: Object,
     default: () => ({
       extractionBackend: 'standard',
-      llmModel: 'gpt-5.4-mini',
-      llmMode: 'two_phase',
     }),
   },
   chunkingStrategy: { type: String, default: 'sliding_window_punct_conj_cleaned' },
@@ -537,6 +539,28 @@ defineProps({
   numResultsPerChunk: { type: Number, default: 3 },
   topTermPerChunkForAggregation: { type: Boolean, default: false },
 });
+
+const resolvedTextProcessOptions = computed(() => ({
+  extractionBackend: 'standard',
+  llmModel: panelProps.defaultLlmModel,
+  llmMode: panelProps.defaultLlmMode,
+  ...panelProps.textProcessOptions,
+}));
+
+const getEmbeddingModelDescription = () =>
+  t('queryInterface.accessibility.embeddingModelDescription', {
+    selectedModel: panelProps.selectedModel,
+  });
+
+const getSimilarityThresholdDescription = () =>
+  t('queryInterface.accessibility.similarityThresholdDescription', {
+    similarityThreshold: panelProps.similarityThreshold.toFixed(2),
+  });
+
+const getQueryLanguageDescription = () =>
+  t('queryInterface.accessibility.queryLanguageDescription', {
+    selectedLanguage: panelProps.selectedLanguage,
+  });
 
 defineEmits([
   'update:selectedModel',

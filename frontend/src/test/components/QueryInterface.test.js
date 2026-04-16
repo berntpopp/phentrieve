@@ -101,14 +101,23 @@ describe('QueryInterface (characterization)', () => {
     expect(wrapper.vm.aggregatedTermConfidence).toBe(0.75);
   });
 
-  it('shows the LLM backend selector only in text-processing mode', async () => {
+  it('renders the closed input for the forced processing mode', async () => {
     const wrapper = await mountQueryInterface();
+    const queryModeLabel = `${en.queryInterface.inputLabel} (${en.queryInterface.queryModeLabel})`;
+    const documentModeLabel = `${en.queryInterface.inputLabel} (${en.queryInterface.documentModeLabel})`;
 
-    await wrapper.setData({
-      forceEndpointMode: 'textProcess',
-    });
-    await wrapper.find('button[aria-label="Open Advanced Options"]').trigger('click');
+    await wrapper.setData({ forceEndpointMode: 'query' });
 
-    expect(wrapper.text()).toContain('LLM extraction');
+    expect(wrapper.findComponent({ name: 'VTextField' }).exists()).toBe(true);
+    expect(wrapper.findComponent({ name: 'VTextarea' }).exists()).toBe(false);
+    expect(wrapper.text()).toContain(queryModeLabel);
+    expect(wrapper.text()).not.toContain(documentModeLabel);
+
+    await wrapper.setData({ forceEndpointMode: 'textProcess' });
+
+    expect(wrapper.findComponent({ name: 'VTextField' }).exists()).toBe(false);
+    expect(wrapper.findComponent({ name: 'VTextarea' }).exists()).toBe(true);
+    expect(wrapper.text()).toContain(documentModeLabel);
+    expect(wrapper.text()).not.toContain(queryModeLabel);
   });
 });

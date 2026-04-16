@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 from http import HTTPStatus
 
 from fastapi import FastAPI, HTTPException, Request
+from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -192,7 +193,7 @@ def create_app() -> FastAPI:
         body = ErrorResponse(
             status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
             error="unprocessable_entity",
-            detail=list(exc.errors()),
+            detail=jsonable_encoder(exc.errors()),
         )
         return JSONResponse(
             status_code=HTTPStatus.UNPROCESSABLE_ENTITY,

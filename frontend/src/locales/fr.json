@@ -144,6 +144,9 @@
       "llmExtraction": "Extraction LLM",
       "llmModel": "Modèle LLM",
       "llmMode": "Mode LLM",
+      "llmModes": {
+        "twoPhase": "Extraction en deux phases"
+      },
       "chunkingStrategy": "Stratégie de découpage",
       "windowSize": "Taille de fenêtre (tokens)",
       "stepSize": "Taille de pas",
@@ -169,6 +172,27 @@
       "subjectId": "Entrer un identifiant pour le sujet/patient",
       "sex": "Sélectionner le sexe biologique du sujet",
       "dateOfBirth": "Entrer la date de naissance du sujet"
+    },
+    "accessibility": {
+      "textProcessInputLabel": "Champ de saisie du document clinique pour le traitement de texte",
+      "textProcessInputDescription": "Saisissez un texte clinique plus long pour le traitement du document.",
+      "queryInputLabel": "Champ de saisie du texte clinique",
+      "queryInputDescription": "Saisissez un texte clinique pour rechercher des termes HPO.",
+      "processingInProgress": "Traitement en cours.",
+      "searchInProgress": "Recherche en cours.",
+      "openAdvancedOptions": "Ouvrir les options avancées",
+      "closeAdvancedOptions": "Fermer les options avancées",
+      "searchButton": "Rechercher des termes HPO",
+      "userInput": "Saisie utilisateur",
+      "response": "Réponse de Phentrieve",
+      "advancedOptionsRegion": "Options de recherche avancées",
+      "selectEmbeddingModel": "Sélectionner le modèle d'embedding",
+      "embeddingModelDescription": "Choisissez le modèle à utiliser pour l'embedding du texte. Sélection actuelle : {selectedModel}",
+      "similarityThresholdSlider": "Curseur du seuil de similarité",
+      "similarityThresholdDescription": "Ajustez le seuil de similarité minimal. Valeur actuelle : {similarityThreshold}",
+      "selectQueryLanguage": "Sélectionner la langue de requête",
+      "queryLanguageDescription": "Choisissez la langue pour le traitement de la requête. Sélection actuelle : {selectedLanguage}",
+      "includeDetailsSwitch": "Inclure les définitions et synonymes des termes HPO"
     }
   },
   "resultsDisplay": {
@@ -236,9 +260,10 @@
       "confidenceTooltip": "Score de confiance moyen de tous les fragments de preuve",
       "sourceChunks": "Fragments sources",
       "topEvidence": "Meilleure preuve",
-      "llmLimitedNotice": "Version de démonstration limitée : 3 analyses LLM par jour.",
+      "llmLimitedNotice": "Version de démonstration limitée : {quotaLimit} analyses LLM par jour.",
       "noChunksProcessed": "Aucun fragment de texte n'a été traité.",
       "noAggregatedTerms": "Aucun terme HPO agrégé trouvé.",
+      "strategyUnknown": "Stratégie inconnue",
       "assertionDetail": "Méthode d'assertion:",
       "finalStatus": "Statut final:"
     }

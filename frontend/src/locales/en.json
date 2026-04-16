@@ -144,6 +144,9 @@
       "llmExtraction": "LLM extraction",
       "llmModel": "LLM Model",
       "llmMode": "LLM Mode",
+      "llmModes": {
+        "twoPhase": "Two-phase extraction"
+      },
       "chunkingStrategy": "Chunking Strategy",
       "windowSize": "Window Size (tokens)",
       "stepSize": "Step Size",
@@ -169,6 +172,27 @@
       "subjectId": "Enter an identifier for the subject/patient",
       "sex": "Select the subject's biological sex",
       "dateOfBirth": "Enter the subject's date of birth"
+    },
+    "accessibility": {
+      "textProcessInputLabel": "Clinical document input for text processing",
+      "textProcessInputDescription": "Enter longer clinical text for document processing.",
+      "queryInputLabel": "Clinical text input field",
+      "queryInputDescription": "Enter clinical text to search for HPO terms.",
+      "processingInProgress": "Processing in progress.",
+      "searchInProgress": "Search in progress.",
+      "openAdvancedOptions": "Open advanced options",
+      "closeAdvancedOptions": "Close advanced options",
+      "searchButton": "Search HPO terms",
+      "userInput": "User input",
+      "response": "Phentrieve response",
+      "advancedOptionsRegion": "Advanced search options",
+      "selectEmbeddingModel": "Select embedding model",
+      "embeddingModelDescription": "Choose the model to use for text embedding. Currently selected: {selectedModel}",
+      "similarityThresholdSlider": "Similarity threshold slider",
+      "similarityThresholdDescription": "Adjust minimum similarity threshold. Current value: {similarityThreshold}",
+      "selectQueryLanguage": "Select query language",
+      "queryLanguageDescription": "Choose the language for query processing. Currently selected: {selectedLanguage}",
+      "includeDetailsSwitch": "Include HPO term definitions and synonyms"
     }
   },
   "resultsDisplay": {
@@ -236,9 +260,10 @@
       "confidenceTooltip": "Average confidence score from all evidence chunks",
       "sourceChunks": "Source chunks",
       "topEvidence": "Top evidence",
-      "llmLimitedNotice": "Limited production demo: 3 LLM analyses per day.",
+      "llmLimitedNotice": "Limited production demo: {quotaLimit} LLM analyses per day.",
       "noChunksProcessed": "No text chunks were processed.",
       "noAggregatedTerms": "No aggregated HPO terms found.",
+      "strategyUnknown": "Unknown strategy",
       "assertionDetail": "Assertion Method:",
       "finalStatus": "Final Status:"
     }

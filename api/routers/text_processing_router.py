@@ -2,7 +2,7 @@ import asyncio
 import logging
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from fastapi import APIRouter, HTTPException, Request, status
 from fastapi.concurrency import run_in_threadpool
@@ -57,6 +57,18 @@ def _coerce_response_items(value: Any) -> list[Any]:
     if isinstance(value, tuple):
         return list(value)
     return []
+
+
+def _coerce_text_attribution_chunk_id(attr: dict[str, Any]) -> int:
+    chunk_id = attr.get("chunk_id")
+    if isinstance(chunk_id, int):
+        return chunk_id
+
+    chunk_idx = attr.get("chunk_idx")
+    if isinstance(chunk_idx, int):
+        return chunk_idx + 1
+
+    return 1
 
 
 def _validate_model_name(field_name: str, model_name: str | None) -> str:
@@ -144,8 +156,8 @@ def check_llm_quota_or_raise(http_request: Request) -> QuotaStatus:
     return quota_status
 
 
-def _record_llm_quota_success(quota_status: QuotaStatus) -> None:
-    _get_llm_quota_store().record_success(
+def _record_llm_quota_success(quota_status: QuotaStatus) -> QuotaStatus:
+    return _get_llm_quota_store().record_success(
         subject_key=quota_status.subject_key,
         usage_date_utc=quota_status.usage_date_utc,
     )
@@ -384,7 +396,7 @@ def _adapt_shared_service_response_to_api(
                 assertion_details=chunk.get("assertion_details"),
                 hpo_matches=[
                     HPOMatchInChunkAPI(
-                        hpo_id=match.get("hpo_id") or match.get("id"),
+                        hpo_id=str(match.get("hpo_id") or match.get("id") or ""),
                         name=match.get("name", ""),
                         score=match.get("score", 0.0),
                     )
@@ -403,7 +415,7 @@ def _adapt_shared_service_response_to_api(
 
         aggregated_terms.append(
             AggregatedHPOTermAPI(
-                hpo_id=term.get("hpo_id") or term.get("id"),
+                hpo_id=str(term.get("hpo_id") or term.get("id") or ""),
                 name=term.get("name", ""),
                 confidence=term.get("confidence", 0.0),
                 status=term.get("status", "unknown"),
@@ -416,9 +428,7 @@ def _adapt_shared_service_response_to_api(
                 top_evidence_chunk_id=term.get("top_evidence_chunk_id"),
                 text_attributions=[
                     TextAttributionSpanAPI(
-                        chunk_id=attr.get("chunk_id")
-                        if isinstance(attr.get("chunk_id"), int)
-                        else attr.get("chunk_idx", 0) + 1,
+                        chunk_id=_coerce_text_attribution_chunk_id(attr),
                         start_char=attr.get("start_char", 0),
                         end_char=attr.get("end_char", 0),
                         matched_text_in_chunk=attr.get("matched_text_in_chunk", ""),
@@ -450,12 +460,15 @@ def _adapt_shared_service_response_to_api(
         meta.setdefault("num_processed_chunks", len(processed_chunks))
         meta.setdefault("num_aggregated_hpo_terms", len(aggregated_terms))
 
-    response = TextProcessingResponseAPI.model_validate(
-        {
-            "meta": meta,
-            "processed_chunks": processed_chunks,
-            "aggregated_hpo_terms": aggregated_terms,
-        }
+    response = cast(
+        TextProcessingResponseAPI,
+        TextProcessingResponseAPI.model_validate(
+            {
+                "meta": meta,
+                "processed_chunks": processed_chunks,
+                "aggregated_hpo_terms": aggregated_terms,
+            }
+        ),
     )
 
     if __debug__:
@@ -526,7 +539,7 @@ async def process_text_extract_hpo(
         )
         if quota_status is not None:
             try:
-                _record_llm_quota_success(quota_status)
+                updated_quota_status = _record_llm_quota_success(quota_status)
             except QuotaExceededError as exc:
                 raise HTTPException(
                     status_code=status.HTTP_429_TOO_MANY_REQUESTS,
@@ -540,6 +553,8 @@ async def process_text_extract_hpo(
                         "PHENTRIEVE_LLM_QUOTA_DB_PATH and filesystem permissions."
                     ),
                 ) from exc
+            response.meta["quota_limit"] = updated_quota_status.quota_limit
+            response.meta["quota_remaining"] = updated_quota_status.quota_remaining
         return response
     except asyncio.exceptions.TimeoutError:
         logger.error(
