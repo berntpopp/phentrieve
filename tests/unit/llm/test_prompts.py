@@ -21,7 +21,7 @@ def test_get_mapping_prompt_loads_packaged_template() -> None:
     template = loader.get_mapping_prompt("fr")
 
     assert template.language == "en"
-    assert template.version == "v4.0.0"
+    assert template.version == "v4.1.0"
     assert "You map clinical phenotype phrases to HPO terms." in template.system_prompt
 
 
@@ -103,6 +103,18 @@ def test_batch_mapping_prompt_prefix_stays_stable_before_variable_context() -> N
         second_prompt.index('{"items":[{"phrase":"beta"}]}') > len(expected_prefix) - 1
     )
     assert first_prompt[: len(expected_prefix)] == second_prompt[: len(expected_prefix)]
+
+
+def test_batch_mapping_prompt_requires_item_id_based_selections() -> None:
+    template = loader.get_batch_mapping_prompt("en")
+
+    assert "- item_id" in template.system_prompt
+    assert "original item_id" in template.system_prompt
+    assert '{"mappings": [{"item_id": "item_1", "hpo_id": "HP:XXXXXXX"}]}' in (
+        template.system_prompt
+    )
+    assert '"item_id": "item_1"' in template.few_shot_examples[0]["input"]
+    assert '"item_id": "item_1"' in template.few_shot_examples[0]["output"]
 
 
 def test_list_available_prompts_includes_benchmark_families() -> None:

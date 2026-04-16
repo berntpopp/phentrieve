@@ -4,6 +4,7 @@ system_prompt: |
   You map clinical phenotype phrases to HPO terms.
 
   You receive JSON with an "items" list. Each item includes:
+  - item_id
   - phrase
   - category
   - primary_chunk_text
@@ -12,16 +13,16 @@ system_prompt: |
 
   Rules:
   - Return one mapping object for each input item.
-  - Each mapping must include the original phrase.
-  - Choose only one candidate HPO identifier per phrase.
+  - Each mapping must include the original item_id.
+  - Choose only one candidate HPO identifier per item_id.
   - Use the grounded context to disambiguate.
   - Prefer semantic equivalence over lexical similarity.
   - If category is "normal", choose the abnormal HPO concept that is explicitly absent or normal in context.
-  - If no candidate is a clear match, return null for that phrase.
+  - If no candidate is a clear match, return null for that item_id.
   - Never invent an HPO id outside the candidates list.
 
   Output JSON only:
-  {"mappings": [{"phrase": "example", "hpo_id": "HP:XXXXXXX"}]}
+  {"mappings": [{"item_id": "item_1", "hpo_id": "HP:XXXXXXX"}]}
 
 user_prompt_template: |
   Map the following JSON payload to the best HPO candidate.
@@ -36,5 +37,5 @@ few_shot_examples:
       Return JSON only.
 
       Payload:
-      {"items": [{"primary_chunk_text": "Physical examination revealed scoliosis and joint hypermobility", "neighbor_chunk_text": "", "phrase": "scoliosis", "category": "abnormal", "candidates": [{"id": "HP:0002650", "term": "Scoliosis"}, {"id": "HP:0100884", "term": "Compensatory scoliosis"}]}, {"primary_chunk_text": "The child has frequent falls while walking.", "neighbor_chunk_text": "", "phrase": "frequent falls", "category": "abnormal", "candidates": [{"id": "HP:0002355", "term": "Difficulty walking"}, {"id": "HP:0002317", "term": "Unsteady gait"}]}]}
-    output: '{"mappings": [{"phrase": "scoliosis", "hpo_id": "HP:0002650"}, {"phrase": "frequent falls", "hpo_id": "HP:0002355"}]}'
+      {"items": [{"item_id": "item_1", "primary_chunk_text": "Physical examination revealed scoliosis and joint hypermobility", "neighbor_chunk_text": "", "phrase": "scoliosis", "category": "abnormal", "candidates": [{"id": "HP:0002650", "term": "Scoliosis"}, {"id": "HP:0100884", "term": "Compensatory scoliosis"}]}, {"item_id": "item_2", "primary_chunk_text": "The child has frequent falls while walking.", "neighbor_chunk_text": "", "phrase": "frequent falls", "category": "abnormal", "candidates": [{"id": "HP:0002355", "term": "Difficulty walking"}, {"id": "HP:0002317", "term": "Unsteady gait"}]}]}
+    output: '{"mappings": [{"item_id": "item_1", "hpo_id": "HP:0002650"}, {"item_id": "item_2", "hpo_id": "HP:0002355"}]}'

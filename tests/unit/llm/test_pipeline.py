@@ -1272,8 +1272,8 @@ def test_batch_mapping_prompt_compacts_items_into_payload_list() -> None:
             {
                 "parsed": {
                     "mappings": [
-                        {"phrase": "frequent falls", "hpo_id": "HP:0002355"},
-                        {"phrase": "sleep disturbances", "hpo_id": "HP:0002360"},
+                        {"item_id": "item_1", "hpo_id": "HP:0002355"},
+                        {"item_id": "item_2", "hpo_id": "HP:0002360"},
                     ]
                 }
             }
@@ -1319,6 +1319,7 @@ def test_batch_mapping_prompt_compacts_items_into_payload_list() -> None:
     assert payload == {
         "items": [
             {
+                "item_id": "item_1",
                 "primary_chunk_text": "",
                 "neighbor_chunk_text": "The child walks independently.",
                 "phrase": "frequent falls",
@@ -1328,6 +1329,7 @@ def test_batch_mapping_prompt_compacts_items_into_payload_list() -> None:
                 ],
             },
             {
+                "item_id": "item_2",
                 "primary_chunk_text": "Sleep disturbances were reported.",
                 "neighbor_chunk_text": "",
                 "phrase": "sleep disturbances",
@@ -1421,11 +1423,7 @@ def test_two_phase_pipeline_records_trace_for_extraction_and_mapping():
                 },
                 "request_count": 1,
             },
-            {
-                "parsed": {
-                    "mappings": [{"phrase": "frequent falls", "hpo_id": "HP:0002355"}]
-                }
-            },
+            {"parsed": {"mappings": [{"item_id": "item_1", "hpo_id": "HP:0002355"}]}},
         ]
     )
     tool_executor = FakeToolExecutor(
@@ -1598,8 +1596,8 @@ def test_two_phase_pipeline_batches_unresolved_phrase_mapping_calls():
             {
                 "parsed": {
                     "mappings": [
-                        {"phrase": "frequent falls", "hpo_id": "HP:0002355"},
-                        {"phrase": "sleep disturbances", "hpo_id": "HP:0002360"},
+                        {"item_id": "item_1", "hpo_id": "HP:0002355"},
+                        {"item_id": "item_2", "hpo_id": "HP:0002360"},
                     ]
                 }
             },
@@ -1811,7 +1809,7 @@ def test_unresolved_mapping_batches_skip_duplicate_phrase_candidate_sets() -> No
     ]
 
 
-def test_two_phase_pipeline_batch_mapping_accepts_normalized_returned_phrase_keys():
+def test_two_phase_pipeline_batch_mapping_uses_item_ids_for_batch_selections():
     provider = FakeProvider(
         responses=[
             {
@@ -1826,11 +1824,11 @@ def test_two_phase_pipeline_batch_mapping_accepts_normalized_returned_phrase_key
                 "parsed": {
                     "mappings": [
                         {
-                            "phrase": "knock knee (genu valgum)",
+                            "item_id": "item_1",
                             "hpo_id": "HP:0002857",
                         },
                         {
-                            "phrase": "legg perthes disease",
+                            "item_id": "item_2",
                             "hpo_id": "HP:0005743",
                         },
                     ]
@@ -1902,6 +1900,138 @@ def test_two_phase_pipeline_batch_mapping_accepts_normalized_returned_phrase_key
                     phrase="Legg Perthes disease",
                     evidence_text="Legg Perthes disease",
                     chunk_ids=[1],
+                    match_method="llm",
+                )
+            ],
+        ),
+    ]
+
+
+def test_two_phase_pipeline_batch_mapping_disambiguates_duplicate_phrase_text() -> None:
+    provider = FakeProvider(
+        responses=[
+            {
+                "parsed": {
+                    "phenotypes": [
+                        grounded_phenotype("motor issues", "Abnormal", chunk_ids=[1]),
+                        grounded_phenotype("motor issues", "Suspected", chunk_ids=[2]),
+                    ]
+                },
+            },
+            {
+                "parsed": {
+                    "mappings": [
+                        {"item_id": "item_1", "hpo_id": "HP:0001251"},
+                        {"item_id": "item_2", "hpo_id": "HP:0033894"},
+                    ]
+                }
+            },
+        ]
+    )
+    tool_executor = FakeToolExecutor(
+        batch_results=[
+            {
+                "phrase": "motor issues",
+                "candidates": [
+                    {
+                        "hpo_id": "HP:0001251",
+                        "term_name": "Ataxia",
+                        "score": 0.95,
+                    },
+                    {
+                        "hpo_id": "HP:0002066",
+                        "term_name": "Gait ataxia",
+                        "score": 0.88,
+                    },
+                ],
+            },
+            {
+                "phrase": "motor issues",
+                "candidates": [
+                    {
+                        "hpo_id": "HP:0033894",
+                        "term_name": "Episodic ataxia",
+                        "score": 0.93,
+                    },
+                    {
+                        "hpo_id": "HP:0001251",
+                        "term_name": "Ataxia",
+                        "score": 0.89,
+                    },
+                ],
+            },
+        ]
+    )
+    pipeline = TwoPhaseLLMPipeline(
+        provider=provider,
+        tool_executor=tool_executor,
+        local_match_threshold=101.0,
+        mapping_batch_size=2,
+    )
+
+    result = pipeline.run(
+        text="The patient has motor issues. Intermittent motor issues are also suspected.",
+        grounded_chunks=[
+            {"chunk_id": 1, "text": "The patient has motor issues."},
+            {"chunk_id": 2, "text": "Intermittent motor issues are also suspected."},
+        ],
+        config=LLMPipelineConfig(model="gemini-2.5-flash", mode="two_phase"),
+    )
+
+    payload = extract_mapping_payload_from_prompt(
+        provider.structured_calls[1]["user_prompt"]
+    )
+    assert payload["items"] == [
+        {
+            "item_id": "item_1",
+            "primary_chunk_text": "The patient has motor issues.",
+            "neighbor_chunk_text": "Intermittent motor issues are also suspected.",
+            "phrase": "motor issues",
+            "category": "abnormal",
+            "candidates": [
+                {"id": "HP:0001251", "term": "Ataxia"},
+                {"id": "HP:0002066", "term": "Gait ataxia"},
+            ],
+        },
+        {
+            "item_id": "item_2",
+            "primary_chunk_text": "Intermittent motor issues are also suspected.",
+            "neighbor_chunk_text": "The patient has motor issues.",
+            "phrase": "motor issues",
+            "category": "suspected",
+            "candidates": [
+                {"id": "HP:0033894", "term": "Episodic ataxia"},
+                {"id": "HP:0001251", "term": "Ataxia"},
+            ],
+        },
+    ]
+    assert result.terms == [
+        LLMPhenotype(
+            term_id="HP:0001251",
+            label="Ataxia",
+            evidence="motor issues",
+            assertion="present",
+            category="abnormal",
+            evidence_records=[
+                LLMPhenotypeEvidence(
+                    phrase="motor issues",
+                    evidence_text="motor issues",
+                    chunk_ids=[1],
+                    match_method="llm",
+                )
+            ],
+        ),
+        LLMPhenotype(
+            term_id="HP:0033894",
+            label="Episodic ataxia",
+            evidence="motor issues",
+            assertion="uncertain",
+            category="suspected",
+            evidence_records=[
+                LLMPhenotypeEvidence(
+                    phrase="motor issues",
+                    evidence_text="motor issues",
+                    chunk_ids=[2],
                     match_method="llm",
                 )
             ],

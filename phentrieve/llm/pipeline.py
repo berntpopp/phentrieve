@@ -165,7 +165,15 @@ def _normalize_grounded_text(text: Any) -> str:
     return str(text or "").strip()
 
 
-def _compact_mapping_item(item: dict[str, Any]) -> dict[str, Any]:
+def _mapping_batch_item_id(index: int) -> str:
+    return f"item_{index + 1}"
+
+
+def _compact_mapping_item(
+    item: dict[str, Any],
+    *,
+    item_id: str | None = None,
+) -> dict[str, Any]:
     grounded_context = dict(item.get("grounded_context", {}) or {})
     neighbor_texts = [
         _normalize_grounded_text(text)
@@ -184,6 +192,8 @@ def _compact_mapping_item(item: dict[str, Any]) -> dict[str, Any]:
             for candidate in item["candidates"]
         ],
     }
+    if item_id is not None:
+        compact_item["item_id"] = item_id
     return compact_item
 
 
@@ -1048,10 +1058,10 @@ class TwoPhaseLLMPipeline:
                 mapping_response=mapping_response,
                 batch=batch,
             )
-            for item in batch:
+            for index, item in enumerate(batch):
                 dedupe_key = _downstream_dedupe_key(item, include_candidate_ids=True)
                 grouped_items = unresolved_groups[dedupe_key]
-                selected_id = selected_ids.get(str(item["phrase"]))
+                selected_id = selected_ids.get(_mapping_batch_item_id(index))
                 (
                     item_resolved,
                     item_local_fallback_count,
@@ -1119,7 +1129,15 @@ class TwoPhaseLLMPipeline:
             response_model = LLMMappingSelection
         else:
             candidate_payload = json.dumps(
-                {"items": [_compact_mapping_item(item) for item in batch]},
+                {
+                    "items": [
+                        _compact_mapping_item(
+                            item,
+                            item_id=_mapping_batch_item_id(index),
+                        )
+                        for index, item in enumerate(batch)
+                    ]
+                },
                 ensure_ascii=False,
             )
             response_model = LLMBatchMappingSelections
@@ -1319,40 +1337,35 @@ class TwoPhaseLLMPipeline:
         if len(batch) == 1:
             item = batch[0]
             if not isinstance(mapping_response, LLMMappingSelection):
-                return {str(item["phrase"]): None}
+                return {_mapping_batch_item_id(0): None}
             return {
-                str(item["phrase"]): cls._select_candidate_id(
+                _mapping_batch_item_id(0): cls._select_candidate_id(
                     mapping_response=mapping_response,
                     candidates=item["candidates"],
                 )
             }
 
-        selected: dict[str, str | None] = {str(item["phrase"]): None for item in batch}
+        selected: dict[str, str | None] = {
+            _mapping_batch_item_id(index): None for index, _ in enumerate(batch)
+        }
         if not isinstance(mapping_response, LLMBatchMappingSelections):
             return selected
 
-        candidates_by_phrase = {
-            str(item["phrase"]): {
+        candidates_by_item_id = {
+            _mapping_batch_item_id(index): {
                 candidate["hpo_id"] for candidate in item["candidates"]
             }
-            for item in batch
-        }
-        original_phrase_by_normalized = {
-            _normalize_mapping_phrase_key(str(item["phrase"])): str(item["phrase"])
-            for item in batch
+            for index, item in enumerate(batch)
         }
         for mapping in mapping_response.mappings:
-            phrase = mapping.phrase
-            original_phrase = original_phrase_by_normalized.get(
-                _normalize_mapping_phrase_key(phrase)
-            )
+            item_id = mapping.item_id
             selected_id = mapping.hpo_id
             if (
                 isinstance(selected_id, str)
-                and original_phrase in candidates_by_phrase
-                and selected_id in candidates_by_phrase[original_phrase]
+                and item_id in candidates_by_item_id
+                and selected_id in candidates_by_item_id[item_id]
             ):
-                selected[original_phrase] = selected_id
+                selected[item_id] = selected_id
         return selected
 
     @staticmethod

@@ -95,8 +95,13 @@ class LLMMappingSelection(BaseModel):
     hpo_id: str | None = None
 
 
+class LLMBatchMappingSelection(BaseModel):
+    item_id: str
+    hpo_id: str | None = None
+
+
 class LLMBatchMappingSelections(BaseModel):
-    mappings: list[LLMMappingSelection] = Field(default_factory=list)
+    mappings: list[LLMBatchMappingSelection] = Field(default_factory=list)
 
 
 class LLMMeta(BaseModel):
