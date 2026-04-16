@@ -1121,13 +1121,16 @@ class TwoPhaseLLMPipeline:
         mapping_prompt,
     ) -> tuple[LLMMappingSelection | LLMBatchMappingSelections, dict[str, int]]:
         response_model: type[LLMMappingSelection] | type[LLMBatchMappingSelections]
+        batch_mapping_prompt = mapping_prompt
         if len(batch) == 1:
+            batch_mapping_prompt = get_mapping_prompt(mapping_prompt.language)
             candidate_payload = json.dumps(
                 _compact_mapping_item(batch[0]),
                 ensure_ascii=False,
             )
             response_model = LLMMappingSelection
         else:
+            batch_mapping_prompt = get_batch_mapping_prompt(mapping_prompt.language)
             candidate_payload = json.dumps(
                 {
                     "items": [
@@ -1142,8 +1145,8 @@ class TwoPhaseLLMPipeline:
             )
             response_model = LLMBatchMappingSelections
         response = self.provider.run_structured_prompt(
-            system_prompt=mapping_prompt.render_system_prompt(),
-            user_prompt=mapping_prompt.render_user_prompt(candidate_payload),
+            system_prompt=batch_mapping_prompt.render_system_prompt(),
+            user_prompt=batch_mapping_prompt.render_user_prompt(candidate_payload),
             response_model=response_model,
         )
         usage = dict(getattr(self.provider, "last_usage", {}) or {})

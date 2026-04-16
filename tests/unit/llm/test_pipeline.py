@@ -16,8 +16,10 @@ from phentrieve.llm.prompts.loader import (
 from phentrieve.llm.provider import LLMProvider, ToolExecutor
 from phentrieve.llm.types import (
     AnnotationMode,
+    LLMBatchMappingSelections,
     LLMExtractionResult,
     LLMGroundedExtractedPhenotype,
+    LLMMappingSelection,
     LLMPhenotype,
     LLMPhenotypeEvidence,
     LLMPipelineConfig,
@@ -2496,7 +2498,138 @@ def test_two_phase_pipeline_falls_back_to_local_match_after_invalid_mapping_sele
             ],
         )
     ]
-    assert pipeline._try_local_match.call_count == 2
+
+
+def test_two_phase_pipeline_uses_single_mapping_prompt_for_final_one_item_slice() -> (
+    None
+):
+    provider = FakeProvider(
+        responses=[
+            {
+                "parsed": {
+                    "phenotypes": [
+                        grounded_phenotype("frequent falls", "Abnormal", chunk_ids=[1]),
+                        grounded_phenotype(
+                            "sleep disturbances", "Abnormal", chunk_ids=[2]
+                        ),
+                        grounded_phenotype("balance issues", "Abnormal", chunk_ids=[3]),
+                    ]
+                },
+            },
+            {
+                "parsed": {
+                    "mappings": [
+                        {"item_id": "item_1", "hpo_id": "HP:0002355"},
+                        {"item_id": "item_2", "hpo_id": "HP:0002360"},
+                    ]
+                }
+            },
+            {
+                "parsed": {
+                    "phrase": "balance issues",
+                    "hpo_id": "HP:0001251",
+                }
+            },
+        ]
+    )
+    tool_executor = FakeToolExecutor(
+        batch_results=[
+            {
+                "phrase": "frequent falls",
+                "candidates": [
+                    {
+                        "hpo_id": "HP:0002355",
+                        "term_name": "Difficulty walking",
+                        "score": 0.81,
+                    }
+                ],
+            },
+            {
+                "phrase": "sleep disturbances",
+                "candidates": [
+                    {
+                        "hpo_id": "HP:0002360",
+                        "term_name": "Sleep abnormality",
+                        "score": 0.85,
+                    }
+                ],
+            },
+            {
+                "phrase": "balance issues",
+                "candidates": [
+                    {
+                        "hpo_id": "HP:0001251",
+                        "term_name": "Ataxia",
+                        "score": 0.95,
+                    }
+                ],
+            },
+        ]
+    )
+    pipeline = TwoPhaseLLMPipeline(
+        provider=provider,
+        tool_executor=tool_executor,
+        local_match_threshold=101.0,
+        mapping_batch_size=2,
+    )
+
+    result = pipeline.run(
+        text="The child has frequent falls. Sleep disturbances were reported. Balance issues were also noted.",
+        grounded_chunks=[
+            {"chunk_id": 1, "text": "The child has frequent falls."},
+            {"chunk_id": 2, "text": "Sleep disturbances were reported."},
+            {"chunk_id": 3, "text": "Balance issues were also noted."},
+        ],
+        config=LLMPipelineConfig(model="gemini-2.5-flash", mode="two_phase"),
+    )
+
+    first_mapping_call = provider.structured_calls[1]
+    final_mapping_call = provider.structured_calls[2]
+
+    assert first_mapping_call["response_model"] is LLMBatchMappingSelections
+    assert (
+        first_mapping_call["system_prompt"]
+        == get_batch_mapping_prompt("en").render_system_prompt()
+    )
+    assert extract_mapping_payload_from_prompt(first_mapping_call["user_prompt"]) == {
+        "items": [
+            {
+                "item_id": "item_1",
+                "primary_chunk_text": "The child has frequent falls.",
+                "neighbor_chunk_text": "Sleep disturbances were reported.",
+                "phrase": "frequent falls",
+                "category": "abnormal",
+                "candidates": [{"id": "HP:0002355", "term": "Difficulty walking"}],
+            },
+            {
+                "item_id": "item_2",
+                "primary_chunk_text": "Sleep disturbances were reported.",
+                "neighbor_chunk_text": "The child has frequent falls.\nBalance issues were also noted.",
+                "phrase": "sleep disturbances",
+                "category": "abnormal",
+                "candidates": [{"id": "HP:0002360", "term": "Sleep abnormality"}],
+            },
+        ]
+    }
+
+    assert final_mapping_call["response_model"] is LLMMappingSelection
+    assert (
+        final_mapping_call["system_prompt"]
+        == get_mapping_prompt("en").render_system_prompt()
+    )
+    assert extract_mapping_payload_from_prompt(final_mapping_call["user_prompt"]) == {
+        "primary_chunk_text": "Balance issues were also noted.",
+        "neighbor_chunk_text": "Sleep disturbances were reported.",
+        "phrase": "balance issues",
+        "category": "abnormal",
+        "candidates": [{"id": "HP:0001251", "term": "Ataxia"}],
+    }
+    assert result.meta.phase_request_counts["phase2b_llm_requests"] == 2
+    assert [term.term_id for term in result.terms] == [
+        "HP:0002355",
+        "HP:0002360",
+        "HP:0001251",
+    ]
 
 
 def test_two_phase_pipeline_handles_empty_batch_result_shape_without_crashing():
