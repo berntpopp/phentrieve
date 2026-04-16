@@ -265,8 +265,9 @@ def test_run_llm_backend_uses_pipeline_and_provider(monkeypatch):
         def __init__(self, *, provider):
             calls["provider"] = provider
 
-        def run(self, *, text, config):
+        def run(self, *, text, grounded_chunks, config):
             calls["text"] = text
+            calls["grounded_chunks"] = grounded_chunks
             calls["config"] = config
             from phentrieve.llm.types import LLMExtractionResult, LLMMeta, LLMPhenotype
 
@@ -303,6 +304,7 @@ def test_run_llm_backend_uses_pipeline_and_provider(monkeypatch):
 
     assert calls["provider"] is fake_provider
     assert calls["text"] == "Patient had recurrent seizures."
+    assert isinstance(calls["grounded_chunks"], list)
     assert result["meta"]["extraction_backend"] == "llm"
     assert result["meta"]["llm_model"] == "gemini-2.5-flash"
     assert result["meta"]["llm_mode"] == "two_phase"
@@ -312,6 +314,7 @@ def test_run_llm_backend_uses_pipeline_and_provider(monkeypatch):
             "name": "Seizure",
             "evidence": "Patient had recurrent seizures.",
             "status": "present",
+            "evidence_records": [],
         }
     ]
 
@@ -323,8 +326,9 @@ def test_run_llm_backend_supports_injected_factories_for_supported_mode():
         def __init__(self, *, provider):
             calls["provider"] = provider
 
-        def run(self, *, text, config):
+        def run(self, *, text, grounded_chunks, config):
             calls["text"] = text
+            calls["grounded_chunks"] = grounded_chunks
             calls["config"] = config
             from phentrieve.llm.types import LLMExtractionResult, LLMMeta
 
@@ -347,6 +351,7 @@ def test_run_llm_backend_supports_injected_factories_for_supported_mode():
 
     assert calls["provider"] is fake_provider
     assert calls["text"] == "Patient had recurrent seizures."
+    assert isinstance(calls["grounded_chunks"], list)
     assert calls["config"].mode == "two_phase"
     assert result["meta"]["llm_mode"] == "two_phase"
 
@@ -379,7 +384,7 @@ def test_run_llm_backend_logs_completion_once(caplog):
         def __init__(self, *, provider):
             self.provider = provider
 
-        def run(self, *, text, config):
+        def run(self, *, text, grounded_chunks, config):
             from phentrieve.llm.types import LLMExtractionResult, LLMMeta
 
             return LLMExtractionResult(
@@ -445,6 +450,46 @@ def test_text_process_passes_llm_options_to_service(monkeypatch):
     assert result.exit_code == 0
     assert calls["llm_model"] == "gemini-2.5-flash"
     assert calls["llm_mode"] == "two_phase"
+
+
+def test_text_process_passes_llm_internal_mode_to_service(monkeypatch):
+    runner = CliRunner()
+    calls: dict[str, object] = {}
+
+    def fake_run_full_text_service(**kwargs):
+        calls.update(kwargs)
+        return {
+            "meta": {
+                "extraction_backend": "llm",
+                "llm_model": kwargs["llm_model"],
+                "llm_mode": kwargs["llm_mode"],
+            },
+            "processed_chunks": [],
+            "aggregated_hpo_terms": [],
+        }
+
+    monkeypatch.setattr(
+        "phentrieve.cli.text_commands.run_full_text_service",
+        fake_run_full_text_service,
+    )
+
+    result = runner.invoke(
+        app,
+        [
+            "text",
+            "process",
+            "Patient had recurrent seizures.",
+            "--extraction-backend",
+            "llm",
+            "--llm-model",
+            "gemini-2.5-flash",
+            "--llm-internal-mode",
+            "whole_document_grounded",
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert calls["llm_internal_mode"] == "whole_document_grounded"
 
 
 def test_text_process_honors_assertion_preference_key(monkeypatch):

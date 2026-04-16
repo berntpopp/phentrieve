@@ -20,12 +20,14 @@ from phentrieve.config import (
 )
 from phentrieve.llm.config import DEFAULT_LLM_MODE
 from phentrieve.llm.pipeline import TwoPhaseLLMPipeline
+from phentrieve.llm.prompts.loader import get_prompt
 from phentrieve.llm.provider import get_llm_provider
-from phentrieve.llm.types import LLMPipelineConfig
+from phentrieve.llm.types import AnnotationMode, LLMPipelineConfig
 
 StableBackendResponse = dict[str, Any]
 BackendCallable = Callable[..., StableBackendResponse | Mapping[str, Any] | None]
 logger = logging.getLogger(__name__)
+MAX_GROUNDED_PHASE1_INPUT_TOKENS = 30000
 
 
 def _coerce_list(value: Any) -> list[Any]:
@@ -330,6 +332,16 @@ def run_llm_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
         raise ValueError(
             f"Unsupported LLM mode: {llm_mode!r}. Expected {DEFAULT_LLM_MODE!r}."
         )
+    llm_internal_mode = kwargs.get("llm_internal_mode", "whole_document_grounded")
+    if llm_internal_mode not in {
+        "whole_document_legacy",
+        "whole_document_grounded",
+    }:
+        raise ValueError(
+            "Unsupported llm_internal_mode: "
+            f"{llm_internal_mode!r}. Expected 'whole_document_legacy' or "
+            "'whole_document_grounded'."
+        )
 
     provider_factory = kwargs.get("provider_factory") or get_llm_provider
     pipeline_factory = kwargs.get("pipeline_factory") or TwoPhaseLLMPipeline
@@ -341,15 +353,52 @@ def run_llm_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
         len(text),
     )
 
-    grounded_chunks = _build_grounded_chunks(
-        text=text,
-        language=kwargs.get("language") or DEFAULT_LANGUAGE,
-        chunking_pipeline_config=kwargs.get("chunking_pipeline_config"),
-        assertion_config={"disable": True},
-        retrieval_model_name=kwargs.get("retrieval_model_name", DEFAULT_MODEL),
-    )
-
     provider = provider_factory(llm_model=llm_model)
+    grounded_chunks: list[dict[str, Any]] = []
+    if llm_internal_mode == "whole_document_grounded":
+        grounded_chunks = _build_grounded_chunks(
+            text=text,
+            language=kwargs.get("language") or DEFAULT_LANGUAGE,
+            chunking_pipeline_config=kwargs.get("chunking_pipeline_config"),
+            assertion_config={"disable": True},
+            retrieval_model_name=kwargs.get("retrieval_model_name", DEFAULT_MODEL),
+        )
+        logger.info(
+            "LLM grounding summary: language=%s chunks=%d mode=%s",
+            kwargs.get("language") or DEFAULT_LANGUAGE,
+            len(grounded_chunks),
+            llm_internal_mode,
+        )
+        try:
+            extraction_prompt = get_prompt(
+                AnnotationMode.TWO_PHASE,
+                kwargs.get("language") or DEFAULT_LANGUAGE,
+            )
+            chunk_index = (
+                "\n".join(
+                    f"- chunk_id={chunk['chunk_id']}: {chunk.get('text', '')}"
+                    for chunk in grounded_chunks
+                )
+                or "[]"
+            )
+            if not hasattr(provider, "count_tokens"):
+                raise NotImplementedError
+            token_counts = provider.count_tokens(
+                system_prompt=extraction_prompt.render_system_prompt(),
+                user_prompt=extraction_prompt.render_user_prompt(
+                    text,
+                    chunk_index=chunk_index,
+                ),
+            )
+            if (
+                isinstance(token_counts, dict)
+                and int(token_counts.get("total_tokens", 0) or 0)
+                > MAX_GROUNDED_PHASE1_INPUT_TOKENS
+            ):
+                logger.warning("LLM phase1 prompt exceeds configured token budget")
+        except (AttributeError, NotImplementedError):
+            logger.debug("Provider does not support token preflight counting")
+
     pipeline = pipeline_factory(provider=provider)
     result = pipeline.run(
         text=text,
@@ -366,6 +415,7 @@ def run_llm_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
             "extraction_backend": "llm",
             "llm_model": result.meta.llm_model,
             "llm_mode": result.meta.llm_mode,
+            "llm_internal_mode": llm_internal_mode,
             "prompt_version": result.meta.prompt_version,
             "num_aggregated_hpo_terms": len(result.terms),
             "token_input": result.meta.token_input,

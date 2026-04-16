@@ -62,6 +62,9 @@ class LLMProvider(ABC):
     ) -> BaseModel:
         raise NotImplementedError
 
+    def count_tokens(self, *, system_prompt: str, user_prompt: str) -> dict[str, int]:
+        raise NotImplementedError
+
 
 class GeminiStructuredOutputProvider(LLMProvider):
     """Gemini provider supporting both free-text and structured JSON prompts."""
@@ -233,6 +236,15 @@ class GeminiStructuredOutputProvider(LLMProvider):
         if last_exception is not None:
             raise last_exception
         raise RuntimeError("Gemini returned no structured response payload.")
+
+    def count_tokens(self, *, system_prompt: str, user_prompt: str) -> dict[str, int]:
+        total_chars = len(system_prompt) + len(user_prompt)
+        estimated_tokens = max(total_chars // 4, 1)
+        return {
+            "prompt_tokens": estimated_tokens,
+            "completion_tokens": 0,
+            "total_tokens": estimated_tokens,
+        }
 
     @staticmethod
     def _render_messages(messages: list[dict[str, Any]]) -> tuple[str, str]:

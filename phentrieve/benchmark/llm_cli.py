@@ -39,6 +39,7 @@ def run_llm_benchmark_cli(
     test_file: str,
     llm_model: str,
     llm_mode: str = DEFAULT_LLM_BENCHMARK_MODE,
+    llm_internal_mode: str = "whole_document_grounded",
     dataset: str = DEFAULT_LLM_BENCHMARK_DATASET,
     doc_ids: list[str] | None = None,
     output_path: str | None = None,
@@ -114,6 +115,7 @@ def run_llm_benchmark_cli(
         test_file=test_file,
         llm_model=llm_model,
         llm_mode=llm_mode,
+        llm_internal_mode=llm_internal_mode,
         dataset=dataset,
         doc_ids=doc_ids,
         language=language,
@@ -260,6 +262,13 @@ def benchmark_llm(
             "--llm-mode", help="LLM extraction mode. Only 'two_phase' is supported."
         ),
     ] = cast(Literal["two_phase"], DEFAULT_LLM_BENCHMARK_MODE),
+    llm_internal_mode: Annotated[
+        Literal["whole_document_legacy", "whole_document_grounded"],
+        typer.Option(
+            "--llm-internal-mode",
+            help="Internal grounding mode for benchmarking.",
+        ),
+    ] = "whole_document_grounded",
     dataset: Annotated[
         str,
         typer.Option(
@@ -328,6 +337,7 @@ def benchmark_llm(
             test_file=test_file,
             llm_model=llm_model,
             llm_mode=llm_mode,
+            llm_internal_mode=llm_internal_mode,
             dataset=dataset,
             doc_ids=doc_ids,
             output_path=output_path,

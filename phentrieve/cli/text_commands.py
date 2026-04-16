@@ -384,6 +384,13 @@ def process_text_for_hpo_command(
             help="LLM extraction mode.",
         ),
     ] = "two_phase",
+    llm_internal_mode: Annotated[
+        Literal["whole_document_legacy", "whole_document_grounded"],
+        typer.Option(
+            "--llm-internal-mode",
+            help="Internal grounding mode for the LLM backend.",
+        ),
+    ] = "whole_document_grounded",
     chunk_retrieval_threshold: Annotated[
         float,
         typer.Option(
@@ -548,9 +555,10 @@ def process_text_for_hpo_command(
     logger.info("Using full-text extraction backend: %s", extraction_backend)
     if extraction_backend == "llm":
         logger.debug(
-            "LLM backend configuration: model=%s, mode=%s, language=%s",
+            "LLM backend configuration: model=%s, mode=%s, internal_mode=%s, language=%s",
             llm_model or os.getenv("PHENTRIEVE_LLM_MODEL"),
             llm_mode,
+            llm_internal_mode,
             language,
         )
 
@@ -619,6 +627,7 @@ def process_text_for_hpo_command(
             language=language,
             llm_model=llm_model,
             llm_mode=llm_mode,
+            llm_internal_mode=llm_internal_mode,
             chunking_pipeline_config=chunking_pipeline_config,
             assertion_config=assertion_config,
             include_positions=True,
