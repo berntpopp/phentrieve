@@ -54,6 +54,12 @@ CATEGORY_TO_ASSERTION = {
 ACTIONABLE_CATEGORIES = frozenset({"abnormal", "normal", "suspected", "family_history"})
 
 
+class LLMPipelinePhaseError(RuntimeError):
+    def __init__(self, phase: str, message: str) -> None:
+        super().__init__(message)
+        self.phase = phase
+
+
 def _normalize_category(category: str) -> str:
     normalized = category.strip().lower().replace("-", "_").replace(" ", "_")
     return {
@@ -143,6 +149,11 @@ class TwoPhaseLLMPipeline:
             len(extracted),
             phase1_usage.get("prompt_tokens"),
             phase1_usage.get("completion_tokens"),
+        )
+        logger.info(
+            "Phase 1 anchor resolution: extracted=%d anchored=%d",
+            len(extracted),
+            sum(1 for item in extracted if item.get("chunk_ids")),
         )
         actionable = [
             item
@@ -353,13 +364,8 @@ class TwoPhaseLLMPipeline:
                 max_output_tokens=DEFAULT_PHASE1_MAX_OUTPUT_TOKENS,
             )
         except Exception:
-            logger.warning(
-                "Phase 1 structured extraction failed; treating extraction as empty "
-                "(finish_reason=%s).",
-                getattr(self.provider, "last_finish_reason", None),
-                exc_info=True,
-            )
-            return [], {}
+            logger.exception("Phase 1 structured extraction failed")
+            raise LLMPipelinePhaseError("phase1", "Structured extraction failed")
 
         usage = dict(getattr(self.provider, "last_usage", {}) or {})
         parsed: list[dict[str, Any]] = []

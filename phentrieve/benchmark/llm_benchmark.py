@@ -19,7 +19,7 @@ from phentrieve.evaluation.extraction_metrics import (
     ExtractionResult,
 )
 from phentrieve.llm.config import DEFAULT_LLM_LANGUAGE
-from phentrieve.llm.pipeline import TwoPhaseLLMPipeline
+from phentrieve.llm.pipeline import LLMPipelinePhaseError, TwoPhaseLLMPipeline
 from phentrieve.llm.prompts import loader as prompt_loader
 from phentrieve.llm.provider import get_llm_provider
 from phentrieve.llm.types import LLMPipelineConfig
@@ -156,7 +156,35 @@ def run_llm_benchmark(
                 (hpo_id, DEFAULT_ID_ONLY_ASSERTION) for hpo_id, _ in gold_terms
             ]
             doc_start_time = time.perf_counter()
-            pipeline_result = pipeline.run(text=document["text"], config=config)
+            try:
+                pipeline_result = pipeline.run(text=document["text"], config=config)
+            except LLMPipelinePhaseError as exc:
+                logger.exception(
+                    "Benchmark document failed: %d/%d doc_id=%s phase=%s",
+                    index,
+                    len(documents),
+                    doc_id,
+                    exc.phase,
+                )
+                result_record = {
+                    "case_index": index,
+                    "doc_id": document["id"],
+                    "source_dataset": document.get("source_dataset"),
+                    "status": "failed",
+                    "error_phase": exc.phase,
+                    "error_message": str(exc),
+                }
+                results.append(result_record)
+                prediction_records.append(
+                    {
+                        "case_index": index,
+                        "doc_id": document["id"],
+                        "status": "failed",
+                        "error_phase": exc.phase,
+                        "error_message": str(exc),
+                    }
+                )
+                continue
             doc_elapsed = time.perf_counter() - doc_start_time
             prompt_tokens = int(pipeline_result.meta.token_input or 0)
             completion_tokens = int(pipeline_result.meta.token_output or 0)

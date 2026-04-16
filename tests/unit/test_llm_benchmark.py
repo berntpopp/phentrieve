@@ -565,6 +565,43 @@ def test_run_llm_benchmark_includes_trace_with_projected_scoring(monkeypatch):
     ]
 
 
+def test_run_llm_benchmark_records_failed_documents(monkeypatch):
+    def fake_load_benchmark_data(test_path: Path, dataset: str):
+        return {
+            "metadata": {"dataset_name": "phenobert_GeneReviews"},
+            "documents": [
+                {
+                    "id": "doc-1",
+                    "text": "Patient has seizures.",
+                    "gold_hpo_terms": [],
+                    "source_dataset": "GeneReviews",
+                }
+            ],
+        }
+
+    class _FailingPipeline:
+        def __init__(self, provider):
+            self.provider = provider
+
+        def run(self, *, text, config):
+            raise llm_benchmark.LLMPipelinePhaseError(
+                "phase1", "Structured extraction failed"
+            )
+
+    monkeypatch.setattr(llm_benchmark, "load_benchmark_data", fake_load_benchmark_data)
+    monkeypatch.setattr(llm_benchmark, "get_llm_provider", lambda llm_model: object())
+    monkeypatch.setattr(llm_benchmark, "TwoPhaseLLMPipeline", _FailingPipeline)
+
+    result = llm_benchmark.run_llm_benchmark(
+        test_file="tests/data/en/phenobert",
+        llm_model="gemini-2.5-flash",
+    )
+
+    assert result["results"][0]["status"] == "failed"
+    assert result["results"][0]["error_phase"] == "phase1"
+    assert result["results"][0]["error_message"] == "Structured extraction failed"
+
+
 def test_run_llm_benchmark_logs_case_progress_at_info(monkeypatch, caplog):
     def fake_load_benchmark_data(test_path: Path, dataset: str):
         return {

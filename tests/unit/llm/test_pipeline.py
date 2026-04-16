@@ -93,6 +93,21 @@ class FakeToolExecutor:
         return list(self.batch_results)
 
 
+class FailingStructuredProvider(LLMProvider):
+    def complete(self, messages):
+        raise RuntimeError("unused")
+
+    def run_structured_prompt(
+        self,
+        *,
+        system_prompt,
+        user_prompt,
+        response_model,
+        max_output_tokens=None,
+    ):
+        raise RuntimeError("boom")
+
+
 FAILED_GENEREVIEWS_DOC = json.loads(
     Path(
         "tests/data/en/phenobert/GeneReviews/annotations/GeneReviews_NBK532447.json"
@@ -1075,6 +1090,23 @@ def test_deduplicate_terms_keeps_assertion_variants():
     deduped = TwoPhaseLLMPipeline._deduplicate_terms(terms)
 
     assert len(deduped) == 2
+
+
+def test_phase1_failure_is_recorded_in_trace_not_silenced(caplog):
+    caplog.set_level(logging.ERROR, logger="phentrieve.llm.pipeline")
+    provider = FailingStructuredProvider()
+    pipeline = TwoPhaseLLMPipeline(
+        provider=provider, tool_executor=FakeToolExecutor([])
+    )
+
+    with pytest.raises(RuntimeError):
+        pipeline.run(
+            text="Patient had recurrent seizures.",
+            grounded_chunks=[
+                {"chunk_id": 1, "text": "Patient had recurrent seizures."}
+            ],
+            config=LLMPipelineConfig(model="gemini-2.5-flash", mode="two_phase"),
+        )
 
 
 def test_two_phase_pipeline_rejects_unsupported_mode():
