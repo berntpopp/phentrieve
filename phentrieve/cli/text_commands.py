@@ -30,74 +30,19 @@ from phentrieve.config import (
 )
 from phentrieve.llm.pipeline import TwoPhaseLLMPipeline
 from phentrieve.llm.provider import get_llm_provider
-from phentrieve.llm.types import LLMPipelineConfig
 from phentrieve.text_processing.full_text_service import (
-    FullTextService,
-    run_standard_backend,
+    run_full_text_service,
+    run_llm_backend,
 )
 
 logger = logging.getLogger(__name__)
 
 
 def _run_llm_backend(*, text: str, **kwargs: Any) -> dict[str, Any]:
-    """Run the real LLM backend through the shared full-text service."""
-    llm_model = kwargs.get("llm_model") or os.getenv("PHENTRIEVE_LLM_MODEL")
-    if not llm_model:
-        raise RuntimeError(
-            "No LLM model configured. Provide --llm-model or set PHENTRIEVE_LLM_MODEL."
-        )
-
-    llm_mode = (kwargs.get("llm_mode") or "two_phase").strip()
-    if llm_mode != "two_phase":
-        raise ValueError(f"Unsupported LLM mode: {llm_mode!r}. Expected 'two_phase'.")
-
-    provider = get_llm_provider(llm_model=llm_model)
-    pipeline = TwoPhaseLLMPipeline(provider=provider)
-    result = pipeline.run(
-        text=text,
-        config=LLMPipelineConfig(
-            model=llm_model,
-            mode=llm_mode,
-            language=kwargs.get("language"),
-        ),
-    )
-
-    return {
-        "meta": {
-            "extraction_backend": "llm",
-            "llm_model": result.meta.llm_model,
-            "llm_mode": result.meta.llm_mode,
-            "prompt_version": result.meta.prompt_version,
-            "num_aggregated_hpo_terms": len(result.terms),
-        },
-        "processed_chunks": [],
-        "aggregated_hpo_terms": [
-            {
-                "id": term.term_id,
-                "name": term.label,
-                "evidence": term.evidence,
-                "status": term.assertion,
-            }
-            for term in result.terms
-        ],
-    }
-
-
-_FULL_TEXT_SERVICE = FullTextService(
-    standard_backend=run_standard_backend,
-    llm_backend=_run_llm_backend,
-)
-
-
-def run_full_text_service(
-    *, text: str, extraction_backend: str, **kwargs: Any
-) -> dict[str, Any]:
-    """Run the shared full-text service boundary used by the CLI."""
-    return _FULL_TEXT_SERVICE.process(
-        text=text,
-        extraction_backend=extraction_backend,
-        **kwargs,
-    )
+    """Backward-compatible CLI wrapper around the shared LLM backend."""
+    kwargs.setdefault("provider_factory", get_llm_provider)
+    kwargs.setdefault("pipeline_factory", TwoPhaseLLMPipeline)
+    return dict(run_llm_backend(text=text, **kwargs))
 
 
 def _stable_chunks_to_chunk_level_results(
@@ -408,7 +353,7 @@ def process_text_for_hpo_command(
         str | None,
         typer.Option(
             "--llm-model",
-            help="Gemini model for LLM full-text extraction.",
+            help="LLM model for full-text extraction.",
         ),
     ] = None,
     llm_mode: Annotated[
@@ -563,7 +508,7 @@ def process_text_for_hpo_command(
 
     assertion_config = {
         "disable": no_assertion_detection,
-        "strategy_preference": assertion_preference,
+        "preference": assertion_preference,
     }
     logger.debug(f"Chunking pipeline config: {chunking_pipeline_config}")
     logger.debug(f"Assertion config: {assertion_config}")
@@ -578,6 +523,15 @@ def process_text_for_hpo_command(
             err=True,
         )
         raise typer.Exit(code=1)
+
+    logger.info("Using full-text extraction backend: %s", extraction_backend)
+    if extraction_backend == "llm":
+        logger.debug(
+            "LLM backend configuration: model=%s, mode=%s, language=%s",
+            llm_model or os.getenv("PHENTRIEVE_LLM_MODEL"),
+            llm_mode,
+            language,
+        )
 
     model_name = retrieval_model or DEFAULT_MODEL
     logger.info("Using model: %s", model_name)
@@ -668,13 +622,35 @@ def process_text_for_hpo_command(
     if meta.get("extraction_backend") == "llm":
         llm_model = meta.get("llm_model")
         llm_mode = meta.get("llm_mode")
+        token_input = meta.get("token_input")
+        token_output = meta.get("token_output")
         if llm_model or llm_mode:
             note_parts: list[str] = []
             if llm_model:
                 note_parts.append(f"model={llm_model}")
             if llm_mode:
                 note_parts.append(f"mode={llm_mode}")
-            typer.echo(f"LLM metadata: {', '.join(note_parts)}", err=True)
+            if token_input is not None or token_output is not None:
+                note_parts.append(
+                    f"tokens_in={token_input if token_input is not None else 'unknown'}"
+                )
+                note_parts.append(
+                    f"tokens_out={token_output if token_output is not None else 'unknown'}"
+                )
+            logger.info("LLM metadata: %s", ", ".join(note_parts))
+        if token_input is not None or token_output is not None:
+            logger.info(
+                "LLM token usage: input=%s output=%s",
+                token_input if token_input is not None else "unknown",
+                token_output if token_output is not None else "unknown",
+            )
+
+    logger.info(
+        "Full-text extraction completed: backend=%s, terms=%d, chunks=%d",
+        meta.get("extraction_backend", extraction_backend),
+        len(terms),
+        len(chunks),
+    )
 
     chunk_level_results = _stable_chunks_to_chunk_level_results(chunks)
 

@@ -11,13 +11,15 @@ See issue #136 for design details.
 import logging
 from typing import Any
 
+from chromadb.api.types import Metadatas
+
 
 def create_multi_vector_documents(
     hpo_terms: list[dict[str, Any]],
     include_label: bool = True,
     include_synonyms: bool = True,
     include_definition: bool = True,
-) -> tuple[list[str], list[dict[str, Any]], list[str]]:
+) -> tuple[list[str], Metadatas, list[str]]:
     """
     Create per-component documents for multi-vector HPO term indexing.
 
@@ -52,7 +54,7 @@ def create_multi_vector_documents(
     logging.info("Creating multi-vector HPO documents for indexing...")
 
     documents: list[str] = []
-    metadatas: list[dict[str, Any]] = []
+    metadatas: Metadatas = []
     ids: list[str] = []
 
     label_count = 0

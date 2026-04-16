@@ -12,10 +12,11 @@ Tests cover:
 
 import json
 import sqlite3
+from unittest.mock import MagicMock
 
 import pytest
 
-from phentrieve.data_processing.hpo_database import HPODatabase
+from phentrieve.data_processing.hpo_database import TERM_LOOKUP_BATCH_SIZE, HPODatabase
 
 # Mark all tests in this file as unit tests
 pytestmark = pytest.mark.unit
@@ -576,6 +577,20 @@ class TestBatchTermRetrieval:
         assert "HP:0000001" in result
         assert "HP:0000118" in result
         assert "HP:0001250" in result
+
+    def test_get_terms_by_ids_chunks_large_batches(self, temp_db, monkeypatch):
+        """Large lookups should be split to avoid SQLite variable limits."""
+        term_ids = [f"HP:{index:07d}" for index in range(TERM_LOOKUP_BATCH_SIZE + 5)]
+        execute_spy = MagicMock(return_value=[])
+        monkeypatch.setattr(
+            temp_db, "get_connection", lambda: MagicMock(execute=execute_spy)
+        )
+
+        temp_db.get_terms_by_ids(term_ids)
+
+        assert execute_spy.call_count == 2
+        assert len(execute_spy.call_args_list[0].args[1]) == TERM_LOOKUP_BATCH_SIZE
+        assert len(execute_spy.call_args_list[1].args[1]) == 5
 
 
 class TestDeserializeHelper:

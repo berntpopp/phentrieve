@@ -1,4 +1,5 @@
 import json
+import logging
 
 import pytest
 from typer.testing import CliRunner
@@ -38,6 +39,41 @@ def test_text_process_accepts_llm_backend(monkeypatch):
     assert "LLM metadata:" in result.stderr
     assert "model=gpt-4o-mini" in result.stderr
     assert "mode=two_phase" in result.stderr
+
+
+def test_text_process_logs_llm_token_usage(monkeypatch):
+    runner = CliRunner()
+    monkeypatch.setenv("PHENTRIEVE_LLM_MODEL", "gpt-4o-mini")
+    monkeypatch.setattr(
+        "phentrieve.cli.text_commands.run_full_text_service",
+        lambda **kwargs: {
+            "meta": {
+                "extraction_backend": "llm",
+                "llm_model": "gpt-4o-mini",
+                "llm_mode": "two_phase",
+                "token_input": 12,
+                "token_output": 34,
+            },
+            "processed_chunks": [],
+            "aggregated_hpo_terms": [],
+        },
+    )
+
+    result = runner.invoke(
+        app,
+        [
+            "text",
+            "process",
+            "Patient had recurrent seizures.",
+            "--extraction-backend",
+            "llm",
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert "LLM token usage:" in result.stderr
+    assert "input=12" in result.stderr
+    assert "output=34" in result.stderr
 
 
 def test_text_process_suppresses_llm_note_without_metadata(monkeypatch):
@@ -280,6 +316,96 @@ def test_run_llm_backend_uses_pipeline_and_provider(monkeypatch):
     ]
 
 
+def test_run_llm_backend_supports_injected_factories_for_supported_mode():
+    calls: dict[str, object] = {}
+
+    class FakePipeline:
+        def __init__(self, *, provider):
+            calls["provider"] = provider
+
+        def run(self, *, text, config):
+            calls["text"] = text
+            calls["config"] = config
+            from phentrieve.llm.types import LLMExtractionResult, LLMMeta
+
+            return LLMExtractionResult(
+                terms=[],
+                meta=LLMMeta(
+                    llm_model=config.model,
+                    llm_mode=config.mode,
+                ),
+            )
+
+    fake_provider = object()
+    result = _run_llm_backend(
+        text="Patient had recurrent seizures.",
+        llm_model="gemini-2.5-flash",
+        llm_mode="two_phase",
+        provider_factory=lambda **kwargs: fake_provider,
+        pipeline_factory=FakePipeline,
+    )
+
+    assert calls["provider"] is fake_provider
+    assert calls["text"] == "Patient had recurrent seizures."
+    assert calls["config"].mode == "two_phase"
+    assert result["meta"]["llm_mode"] == "two_phase"
+
+
+def test_run_llm_backend_rejects_invalid_mode_before_provider(monkeypatch):
+    calls = {"provider_called": False}
+
+    def provider_factory(**kwargs):
+        calls["provider_called"] = True
+        raise AssertionError("provider_factory should not be called for invalid mode")
+
+    with pytest.raises(ValueError, match="Unsupported LLM mode: 'bogus'"):
+        _run_llm_backend(
+            text="Patient had recurrent seizures.",
+            llm_model="gemini-2.5-flash",
+            llm_mode="bogus",
+            provider_factory=provider_factory,
+            pipeline_factory=lambda **kwargs: None,
+        )
+
+    assert calls["provider_called"] is False
+
+
+def test_run_llm_backend_logs_completion_once(caplog):
+    caplog.set_level(
+        logging.INFO, logger="phentrieve.text_processing.full_text_service"
+    )
+
+    class FakePipeline:
+        def __init__(self, *, provider):
+            self.provider = provider
+
+        def run(self, *, text, config):
+            from phentrieve.llm.types import LLMExtractionResult, LLMMeta
+
+            return LLMExtractionResult(
+                terms=[],
+                meta=LLMMeta(
+                    llm_model=config.model,
+                    llm_mode=config.mode,
+                ),
+            )
+
+    _run_llm_backend(
+        text="Patient had recurrent seizures.",
+        llm_model="gemini-2.5-flash",
+        llm_mode="two_phase",
+        provider_factory=lambda **kwargs: object(),
+        pipeline_factory=FakePipeline,
+    )
+
+    completion_logs = [
+        record.message
+        for record in caplog.records
+        if record.message.startswith("LLM backend completed:")
+    ]
+    assert len(completion_logs) == 1
+
+
 def test_text_process_passes_llm_options_to_service(monkeypatch):
     runner = CliRunner()
     calls: dict[str, object] = {}
@@ -319,6 +445,94 @@ def test_text_process_passes_llm_options_to_service(monkeypatch):
     assert result.exit_code == 0
     assert calls["llm_model"] == "gemini-2.5-flash"
     assert calls["llm_mode"] == "two_phase"
+
+
+def test_text_process_honors_assertion_preference_key(monkeypatch):
+    runner = CliRunner()
+    calls: dict[str, object] = {}
+
+    monkeypatch.setattr(
+        "phentrieve.cli.text_commands.resolve_chunking_pipeline_config",
+        lambda **kwargs: [{"type": "paragraph"}],
+    )
+
+    def fake_run_full_text_service(**kwargs):
+        calls.update(kwargs)
+        return {
+            "meta": {"extraction_backend": "standard"},
+            "processed_chunks": [],
+            "aggregated_hpo_terms": [],
+        }
+
+    monkeypatch.setattr(
+        "phentrieve.cli.text_commands.run_full_text_service",
+        fake_run_full_text_service,
+    )
+
+    result = runner.invoke(
+        app,
+        [
+            "text",
+            "process",
+            "Patient had recurrent seizures.",
+            "--assertion-preference",
+            "keyword",
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert calls["assertion_config"] == {
+        "disable": False,
+        "preference": "keyword",
+    }
+
+
+def test_text_process_logs_llm_backend_configuration(monkeypatch, caplog):
+    runner = CliRunner()
+    caplog.set_level(logging.DEBUG, logger="phentrieve.cli.text_commands")
+
+    monkeypatch.setattr(
+        "phentrieve.utils.setup_logging_cli",
+        lambda debug=False: None,
+    )
+    monkeypatch.setattr(
+        "phentrieve.cli.text_commands.run_full_text_service",
+        lambda **kwargs: {
+            "meta": {
+                "extraction_backend": "llm",
+                "llm_model": kwargs["llm_model"],
+                "llm_mode": kwargs["llm_mode"],
+            },
+            "processed_chunks": [],
+            "aggregated_hpo_terms": [],
+        },
+    )
+
+    result = runner.invoke(
+        app,
+        [
+            "text",
+            "process",
+            "Patient had recurrent seizures.",
+            "--extraction-backend",
+            "llm",
+            "--llm-model",
+            "gemini-2.5-flash",
+            "--llm-mode",
+            "two_phase",
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert any(
+        record.message == "Using full-text extraction backend: llm"
+        for record in caplog.records
+    )
+    assert any(
+        "LLM backend configuration: model=gemini-2.5-flash, mode=two_phase"
+        in record.message
+        for record in caplog.records
+    )
 
 
 def test_text_process_rejects_llm_backend_without_model(monkeypatch):

@@ -9,22 +9,19 @@ import logging
 import os
 import time
 from pathlib import Path
-from typing import Any
 
 import chromadb
+from chromadb.api.types import Metadatas
 from sentence_transformers import SentenceTransformer
 from tqdm import tqdm
 
 from phentrieve.config import VectorStoreConfig
-from phentrieve.utils import (
-    get_embedding_dimension,
-    get_model_slug,
-)
+from phentrieve.utils import get_embedding_dimension, get_model_slug
 
 
 def build_chromadb_index(
     documents: list[str],
-    metadatas: list[dict[str, Any]],
+    metadatas: Metadatas,
     ids: list[str],
     model: SentenceTransformer,
     model_name: str,
@@ -185,7 +182,7 @@ def build_chromadb_index(
             collection.add(
                 documents=batch_docs,
                 embeddings=embeddings.tolist(),
-                metadatas=batch_meta,
+                metadatas=list(batch_meta),
                 ids=batch_ids,
             )
         except Exception as e:

@@ -76,7 +76,6 @@ mcp = [
 ]
 llm = [
     "google-genai>=1.22.0,<2.0.0",
-    "openai>=2.0.0,<3.0.0",
 ]
 # Install CLI + API with: pip install "phentrieve[api]"
 # Install CLI + MCP with: pip install "phentrieve[mcp]"
@@ -90,7 +89,13 @@ include = ["phentrieve*", "api*"]
 
 [tool.setuptools.package-data]
 "phentrieve.text_processing.default_lang_resources" = ["*.json"]
-"phentrieve.llm.prompts" = ["templates/*.txt"]
+"phentrieve.llm.prompts" = [
+    "templates/*.txt",
+    "templates/direct_text/*.yaml",
+    "templates/tool_guided/*.yaml",
+    "templates/two_phase/*.yaml",
+    "templates/postprocess/*.yaml",
+]
 
 [tool.ruff]
 line-length = 88
@@ -153,7 +158,6 @@ warn_unused_ignores = true
 no_implicit_optional = true
 strict_optional = true
 show_error_codes = true
-follow_imports = "skip"
 
 # Performance optimizations
 cache_dir = ".mypy_cache"

@@ -1,8 +1,10 @@
 import pytest
 
+from phentrieve.llm.types import LLMExtractionResult, LLMMeta, LLMPhenotype
 from phentrieve.text_processing.full_text_service import (
     FullTextService,
     adapt_standard_response,
+    run_llm_backend,
 )
 
 
@@ -37,6 +39,45 @@ def test_full_text_service_llm_response_can_return_empty_chunks(mocker):
 
     assert result["processed_chunks"] == []
     assert result["meta"]["extraction_backend"] == "llm"
+
+
+def test_run_llm_backend_surfaces_token_usage(mocker):
+    provider = mocker.Mock()
+    pipeline = mocker.Mock()
+    pipeline.run.return_value = LLMExtractionResult(
+        terms=[
+            LLMPhenotype(
+                term_id="HP:0001250",
+                label="Seizure",
+                evidence="Patient had recurrent seizures.",
+            )
+        ],
+        meta=LLMMeta(
+            llm_model="gpt-4o-mini",
+            llm_mode="two_phase",
+            prompt_version="v9",
+            token_input=12,
+            token_output=34,
+        ),
+    )
+    mocker.patch(
+        "phentrieve.text_processing.full_text_service.get_llm_provider",
+        return_value=provider,
+    )
+    mocker.patch(
+        "phentrieve.text_processing.full_text_service.TwoPhaseLLMPipeline",
+        return_value=pipeline,
+    )
+
+    result = run_llm_backend(
+        text="Patient had recurrent seizures.",
+        llm_model="gpt-4o-mini",
+        llm_mode="two_phase",
+    )
+
+    assert result["meta"]["token_input"] == 12
+    assert result["meta"]["token_output"] == 34
+    assert result["meta"]["prompt_version"] == "v9"
 
 
 def test_adapt_standard_response_preserves_optional_term_fields():

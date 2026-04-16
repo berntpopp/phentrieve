@@ -22,6 +22,8 @@ from phentrieve.text_processing.full_text_service import (
     FullTextService,
     adapt_full_text_response,
     adapt_standard_response,
+    run_full_text_service,
+    run_llm_backend,
     run_standard_backend,
 )
 from phentrieve.text_processing.spans import TextSpan, find_span_in_text
@@ -42,6 +44,8 @@ __all__ = [
     "FullTextService",
     "adapt_full_text_response",
     "adapt_standard_response",
+    "run_full_text_service",
+    "run_llm_backend",
     "run_standard_backend",
     # Spans
     "TextSpan",

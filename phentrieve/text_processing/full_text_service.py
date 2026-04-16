@@ -6,6 +6,8 @@ and LLM extraction backends while normalizing responses into a stable shape.
 
 from __future__ import annotations
 
+import logging
+import os
 from collections.abc import Callable, Mapping, Sequence
 from typing import Any
 
@@ -16,9 +18,14 @@ from phentrieve.config import (
     DEFAULT_MIN_CONFIDENCE_AGGREGATED,
     DEFAULT_MODEL,
 )
+from phentrieve.llm.config import DEFAULT_LLM_MODE
+from phentrieve.llm.pipeline import TwoPhaseLLMPipeline
+from phentrieve.llm.provider import get_llm_provider
+from phentrieve.llm.types import LLMPipelineConfig
 
 StableBackendResponse = dict[str, Any]
 BackendCallable = Callable[..., StableBackendResponse | Mapping[str, Any] | None]
+logger = logging.getLogger(__name__)
 
 
 def _coerce_list(value: Any) -> list[Any]:
@@ -277,6 +284,72 @@ def run_standard_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
     )
 
 
+def run_llm_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
+    """Run the shared LLM backend through the full-text service boundary."""
+    llm_model = kwargs.get("llm_model") or os.getenv("PHENTRIEVE_LLM_MODEL")
+    if not llm_model:
+        raise RuntimeError(
+            "No LLM model configured. Provide --llm-model or set PHENTRIEVE_LLM_MODEL."
+        )
+
+    llm_mode = (kwargs.get("llm_mode") or "two_phase").strip()
+    if llm_mode != DEFAULT_LLM_MODE:
+        raise ValueError(
+            f"Unsupported LLM mode: {llm_mode!r}. Expected {DEFAULT_LLM_MODE!r}."
+        )
+
+    provider_factory = kwargs.get("provider_factory") or get_llm_provider
+    pipeline_factory = kwargs.get("pipeline_factory") or TwoPhaseLLMPipeline
+
+    logger.info("Running LLM backend: model=%s, mode=%s", llm_model, llm_mode)
+    logger.debug(
+        "LLM backend request context: language=%s, text_chars=%d",
+        kwargs.get("language") or "en",
+        len(text),
+    )
+
+    provider = provider_factory(llm_model=llm_model)
+    pipeline = pipeline_factory(provider=provider)
+    result = pipeline.run(
+        text=text,
+        config=LLMPipelineConfig(
+            model=llm_model,
+            mode=llm_mode,
+            language=kwargs.get("language"),
+        ),
+    )
+
+    result_payload = {
+        "meta": {
+            "extraction_backend": "llm",
+            "llm_model": result.meta.llm_model,
+            "llm_mode": result.meta.llm_mode,
+            "prompt_version": result.meta.prompt_version,
+            "num_aggregated_hpo_terms": len(result.terms),
+            "token_input": result.meta.token_input,
+            "token_output": result.meta.token_output,
+        },
+        "processed_chunks": [],
+        "aggregated_hpo_terms": [
+            {
+                "id": term.term_id,
+                "name": term.label,
+                "evidence": term.evidence,
+                "status": term.assertion,
+            }
+            for term in result.terms
+        ],
+    }
+
+    logger.info(
+        "LLM backend completed: model=%s, mode=%s, terms=%d",
+        result.meta.llm_model,
+        result.meta.llm_mode,
+        len(result.terms),
+    )
+    return result_payload
+
+
 class FullTextService:
     """Dispatch between full-text extraction backends and normalize responses."""
 
@@ -305,3 +378,20 @@ class FullTextService:
         backend = self._llm_backend if backend_name == "llm" else self._standard_backend
         response = backend(text=text, **kwargs)
         return adapt_full_text_response(response, extraction_backend=backend_name)
+
+
+_DEFAULT_FULL_TEXT_SERVICE = FullTextService(
+    standard_backend=run_standard_backend,
+    llm_backend=run_llm_backend,
+)
+
+
+def run_full_text_service(
+    *, text: str, extraction_backend: str, **kwargs: Any
+) -> StableBackendResponse:
+    """Run the shared full-text service boundary used by CLI and API paths."""
+    return _DEFAULT_FULL_TEXT_SERVICE.process(
+        text=text,
+        extraction_backend=extraction_backend,
+        **kwargs,
+    )

@@ -2,7 +2,7 @@ import asyncio
 import logging
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, cast
+from typing import Any
 
 from fastapi import APIRouter, HTTPException, Request, status
 from fastapi.concurrency import run_in_threadpool
@@ -27,7 +27,6 @@ from api.schemas.text_processing_schemas import (
     TextProcessingRequest,
     TextProcessingResponseAPI,
 )
-from phentrieve.cli.text_commands import run_full_text_service
 from phentrieve.config import (
     BENCHMARK_MODELS,
     DEFAULT_ASSERTION_CONFIG,
@@ -40,6 +39,7 @@ from phentrieve.config import (
     DEFAULT_STEP_SIZE_TOKENS,
     DEFAULT_WINDOW_SIZE_TOKENS,
 )
+from phentrieve.text_processing.full_text_service import run_full_text_service
 from phentrieve.text_processing.pipeline import TextProcessingPipeline
 from phentrieve.utils import detect_language
 from phentrieve.utils import sanitize_log_value as _sanitize
@@ -460,15 +460,12 @@ def _adapt_shared_service_response_to_api(
         meta.setdefault("num_processed_chunks", len(processed_chunks))
         meta.setdefault("num_aggregated_hpo_terms", len(aggregated_terms))
 
-    response = cast(
-        TextProcessingResponseAPI,
-        TextProcessingResponseAPI.model_validate(
-            {
-                "meta": meta,
-                "processed_chunks": processed_chunks,
-                "aggregated_hpo_terms": aggregated_terms,
-            }
-        ),
+    response = TextProcessingResponseAPI.model_validate(
+        {
+            "meta": meta,
+            "processed_chunks": processed_chunks,
+            "aggregated_hpo_terms": aggregated_terms,
+        }
     )
 
     if __debug__:
