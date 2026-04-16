@@ -611,6 +611,68 @@ def test_run_llm_benchmark_records_failed_documents(monkeypatch):
     assert result["results"][0]["error_message"] == "Structured extraction failed"
 
 
+def test_run_llm_benchmark_treats_grounded_preprocessing_failures_as_document_failures(
+    monkeypatch,
+):
+    def fake_load_benchmark_data(test_path: Path, dataset: str):
+        return {
+            "metadata": {"dataset_name": "phenobert_GeneReviews"},
+            "documents": [
+                {
+                    "id": "doc-1",
+                    "text": "Patient has seizures.",
+                    "gold_hpo_terms": [],
+                    "source_dataset": "GeneReviews",
+                },
+                {
+                    "id": "doc-2",
+                    "text": "Patient has ataxia.",
+                    "gold_hpo_terms": [],
+                    "source_dataset": "GeneReviews",
+                },
+            ],
+        }
+
+    class _Pipeline:
+        def __init__(self, provider):
+            self.provider = provider
+
+        def run(self, *, text, grounded_chunks, config):
+            from phentrieve.llm.types import LLMExtractionResult, LLMMeta
+
+            return LLMExtractionResult(
+                terms=[],
+                meta=LLMMeta(llm_model=config.model, llm_mode=config.mode),
+            )
+
+    def fake_build_grounded_chunks(**kwargs):
+        if "seizures" in kwargs["text"]:
+            raise RuntimeError("chunking failed")
+        return [{"chunk_id": 1, "text": kwargs["text"]}]
+
+    monkeypatch.setattr(llm_benchmark, "load_benchmark_data", fake_load_benchmark_data)
+    monkeypatch.setattr(llm_benchmark, "get_llm_provider", lambda llm_model: object())
+    monkeypatch.setattr(llm_benchmark, "TwoPhaseLLMPipeline", _Pipeline)
+    monkeypatch.setattr(
+        llm_benchmark,
+        "_build_grounded_chunks",
+        fake_build_grounded_chunks,
+    )
+
+    result = llm_benchmark.run_llm_benchmark(
+        test_file="tests/data/en/phenobert",
+        llm_model="gemini-2.5-flash",
+        llm_internal_mode="whole_document_grounded",
+    )
+
+    assert [record["doc_id"] for record in result["results"]] == ["doc-1", "doc-2"]
+    assert result["results"][0]["status"] == "failed"
+    assert result["results"][0]["error_phase"] == "phase1"
+    assert result["results"][0]["error_message"] == "Grounded preprocessing failed"
+    assert "error_phase" not in result["results"][1]
+    assert "error_message" not in result["results"][1]
+
+
 def test_run_llm_benchmark_counts_failed_documents_as_metric_misses(monkeypatch):
     def fake_load_benchmark_data(test_path: Path, dataset: str):
         return {

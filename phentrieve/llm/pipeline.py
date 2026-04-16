@@ -137,6 +137,17 @@ def _render_group_chunk_index_text(
     )
 
 
+def _phase1_extraction_dedup_key(item: dict[str, Any]) -> tuple[Any, ...]:
+    return (
+        str(item.get("phrase", "")).strip().lower(),
+        _normalize_category(str(item.get("category", ""))),
+        tuple(int(chunk_id) for chunk_id in item.get("chunk_ids", [])),
+        item.get("evidence_text"),
+        item.get("start_char"),
+        item.get("end_char"),
+    )
+
+
 class TwoPhaseLLMPipeline:
     def __init__(
         self,
@@ -579,6 +590,8 @@ class TwoPhaseLLMPipeline:
                 "Structured extraction failed for all extraction groups",
             )
 
+        extracted = self._deduplicate_phase1_extractions(extracted)
+
         return (
             extracted,
             {
@@ -732,6 +745,20 @@ class TwoPhaseLLMPipeline:
                 )
         return selected
 
+    @staticmethod
+    def _deduplicate_phase1_extractions(
+        extracted: list[dict[str, Any]],
+    ) -> list[dict[str, Any]]:
+        deduplicated: list[dict[str, Any]] = []
+        seen_keys: set[tuple[Any, ...]] = set()
+        for item in extracted:
+            key = _phase1_extraction_dedup_key(item)
+            if key in seen_keys:
+                continue
+            seen_keys.add(key)
+            deduplicated.append(item)
+        return deduplicated
+
     def _resolve_local_matches(
         self,
         phrase_candidates: list[dict[str, Any]],
@@ -758,16 +785,7 @@ class TwoPhaseLLMPipeline:
                 continue
 
             resolved.append(
-                LLMPhenotype(
-                    term_id=local_match["hpo_id"],
-                    label=local_match["term_name"],
-                    evidence=item["phrase"],
-                    assertion=CATEGORY_TO_ASSERTION.get(
-                        _normalize_category(str(item.get("category", ""))),
-                        PRESENT_ASSERTION,
-                    ),
-                    category=_normalize_category(str(item.get("category", ""))),
-                )
+                self._phenotype_from_candidate(item=item, candidate=local_match)
             )
             logger.debug(
                 "Phase 2B-local: phrase=%r matched=%s",

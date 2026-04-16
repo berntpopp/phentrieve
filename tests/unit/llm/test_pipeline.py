@@ -491,6 +491,93 @@ def test_grouped_phase1_aggregates_mentions_before_retrieval() -> None:
     assert result.meta.phase_counts["actionable_phrases"] == 2
 
 
+def test_grouped_phase1_deduplicates_mentions_across_groups() -> None:
+    provider = FakeProvider(
+        responses=[
+            {
+                "parsed": {
+                    "phenotypes": [
+                        grounded_phenotype(
+                            "recurrent seizures",
+                            "Abnormal",
+                            chunk_ids=[1],
+                        )
+                    ]
+                }
+            },
+            {
+                "parsed": {
+                    "phenotypes": [
+                        grounded_phenotype(
+                            "recurrent seizures",
+                            "Abnormal",
+                            chunk_ids=[1],
+                        )
+                    ]
+                }
+            },
+        ]
+    )
+    tool_executor = FakeToolExecutor(
+        batch_results=[
+            {
+                "phrase": "recurrent seizures",
+                "candidates": [
+                    {
+                        "hpo_id": "HP:0001250",
+                        "term_name": "Recurrent seizures",
+                        "score": 0.95,
+                    }
+                ],
+            }
+        ]
+    )
+    pipeline = TwoPhaseLLMPipeline(
+        provider=provider,
+        tool_executor=tool_executor,
+    )
+
+    result = pipeline.run(
+        text="Patient had recurrent seizures.",
+        grounded_chunks=[
+            {"chunk_id": 1, "text": "Chunk one."},
+            {"chunk_id": 2, "text": "Chunk two."},
+        ],
+        extraction_groups=[
+            {
+                "group_id": 1,
+                "chunk_ids": [1],
+                "text": "chunk_id=1: Chunk one.",
+            },
+            {
+                "group_id": 2,
+                "chunk_ids": [1, 2],
+                "text": "chunk_id=1: Chunk one.\nchunk_id=2: Chunk two.",
+            },
+        ],
+        config=LLMPipelineConfig(model="gemini-2.5-flash", mode="two_phase"),
+    )
+
+    assert tool_executor.queries == [
+        {
+            "phrases": ["recurrent seizures"],
+            "language": "en",
+            "n_results": 50,
+        }
+    ]
+    assert result.meta.phase_counts["extracted_phrases"] == 1
+    assert result.meta.phase_counts["actionable_phrases"] == 1
+    assert result.meta.trace["phase1"]["extracted"] == [
+        {
+            "phrase": "recurrent seizures",
+            "category": "abnormal",
+            "chunk_ids": [1],
+            "evidence_text": "recurrent seizures",
+            "actionable": True,
+        }
+    ]
+
+
 def test_grouped_phase1_keeps_group_chunk_ids_in_trace() -> None:
     provider = FakeProvider(
         responses=[
@@ -980,6 +1067,68 @@ def test_two_phase_pipeline_records_trace_for_extraction_and_mapping():
     ]
 
 
+def test_two_phase_pipeline_preserves_evidence_records_for_local_matches() -> None:
+    provider = FakeProvider(
+        responses=[
+            {
+                "parsed": {
+                    "phenotypes": [
+                        grounded_phenotype(
+                            "recurrent seizures",
+                            "Abnormal",
+                            chunk_ids=[4],
+                            evidence_text="Patient had recurrent seizures.",
+                        )
+                    ]
+                }
+            }
+        ]
+    )
+    tool_executor = FakeToolExecutor(
+        batch_results=[
+            {
+                "phrase": "recurrent seizures",
+                "evidence_text": "Patient had recurrent seizures.",
+                "chunk_ids": [4],
+                "candidates": [
+                    {
+                        "hpo_id": "HP:0001250",
+                        "term_name": "Recurrent seizures",
+                        "score": 0.99,
+                    }
+                ],
+            }
+        ]
+    )
+    pipeline = TwoPhaseLLMPipeline(provider=provider, tool_executor=tool_executor)
+
+    result = pipeline.run(
+        text="Patient had recurrent seizures.",
+        grounded_chunks=[
+            {"chunk_id": 4, "text": "Patient had recurrent seizures."},
+        ],
+        config=LLMPipelineConfig(model="gemini-2.5-flash", mode="two_phase"),
+    )
+
+    assert result.terms == [
+        LLMPhenotype(
+            term_id="HP:0001250",
+            label="Recurrent seizures",
+            evidence="recurrent seizures",
+            assertion="present",
+            category="abnormal",
+            evidence_records=[
+                LLMPhenotypeEvidence(
+                    phrase="recurrent seizures",
+                    evidence_text="Patient had recurrent seizures.",
+                    chunk_ids=[4],
+                    match_method="local",
+                )
+            ],
+        )
+    ]
+
+
 def test_two_phase_pipeline_batches_unresolved_phrase_mapping_calls():
     provider = FakeProvider(
         responses=[
@@ -1278,6 +1427,14 @@ def test_two_phase_pipeline_retrieves_all_categories_and_preserves_assertions():
             evidence="recurrent seizures",
             assertion="present",
             category="abnormal",
+            evidence_records=[
+                LLMPhenotypeEvidence(
+                    phrase="recurrent seizures",
+                    evidence_text="recurrent seizures",
+                    chunk_ids=[1],
+                    match_method="local",
+                )
+            ],
         ),
         LLMPhenotype(
             term_id="HP:0000639",
@@ -1285,6 +1442,14 @@ def test_two_phase_pipeline_retrieves_all_categories_and_preserves_assertions():
             evidence="nystagmus",
             assertion="uncertain",
             category="suspected",
+            evidence_records=[
+                LLMPhenotypeEvidence(
+                    phrase="nystagmus",
+                    evidence_text="nystagmus",
+                    chunk_ids=[1],
+                    match_method="local",
+                )
+            ],
         ),
         LLMPhenotype(
             term_id="HP:0000924",
@@ -1292,6 +1457,14 @@ def test_two_phase_pipeline_retrieves_all_categories_and_preserves_assertions():
             evidence="skeletal anomalies",
             assertion="negated",
             category="normal",
+            evidence_records=[
+                LLMPhenotypeEvidence(
+                    phrase="skeletal anomalies",
+                    evidence_text="skeletal anomalies",
+                    chunk_ids=[1],
+                    match_method="local",
+                )
+            ],
         ),
         LLMPhenotype(
             term_id="HP:0000365",
@@ -1299,6 +1472,14 @@ def test_two_phase_pipeline_retrieves_all_categories_and_preserves_assertions():
             evidence="hearing loss",
             assertion="family_history",
             category="family_history",
+            evidence_records=[
+                LLMPhenotypeEvidence(
+                    phrase="hearing loss",
+                    evidence_text="hearing loss",
+                    chunk_ids=[1],
+                    match_method="local",
+                )
+            ],
         ),
     ]
     assert result.meta.phase_counts["extracted_phrases"] == 5

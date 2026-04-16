@@ -215,40 +215,47 @@ def run_llm_benchmark(
             doc_start_time = time.perf_counter()
             grounded_chunks: list[dict[str, Any]] = []
             extraction_groups: list[dict[str, Any]] = []
-            if llm_internal_mode == "whole_document_grounded":
-                grounded_chunks = _build_grounded_chunks(
-                    text=document["text"],
-                    language=language,
-                    chunking_pipeline_config=None,
-                    assertion_config={"disable": True},
-                    retrieval_model_name="FremyCompany/BioLORD-2023-M",
-                )
-                token_count_fn = getattr(provider, "count_tokens", None)
-                if callable(token_count_fn):
-                    extraction_prompt = get_prompt(AnnotationMode.TWO_PHASE, language)
-                    grounded_chunk_models = [
-                        GroundedChunk(
-                            chunk_id=int(chunk["chunk_id"]),
-                            text=str(chunk.get("text", "")),
-                            start_char=chunk.get("start_char"),
-                            end_char=chunk.get("end_char"),
-                            status=str(chunk.get("status", "unknown")),
-                        )
-                        for chunk in grounded_chunks
-                    ]
-                    try:
-                        extraction_groups = [
-                            asdict(group)
-                            for group in build_extraction_groups(
-                                grounded_chunks=grounded_chunk_models,
-                                provider=provider,
-                                system_prompt=extraction_prompt.render_system_prompt(),
-                                max_prompt_tokens=30000,
-                            )
-                        ]
-                    except (NotImplementedError, TypeError):
-                        extraction_groups = []
             try:
+                if llm_internal_mode == "whole_document_grounded":
+                    try:
+                        grounded_chunks = _build_grounded_chunks(
+                            text=document["text"],
+                            language=language,
+                            chunking_pipeline_config=None,
+                            assertion_config={"disable": True},
+                            retrieval_model_name="FremyCompany/BioLORD-2023-M",
+                        )
+                        token_count_fn = getattr(provider, "count_tokens", None)
+                        if callable(token_count_fn):
+                            extraction_prompt = get_prompt(
+                                AnnotationMode.TWO_PHASE, language
+                            )
+                            grounded_chunk_models = [
+                                GroundedChunk(
+                                    chunk_id=int(chunk["chunk_id"]),
+                                    text=str(chunk.get("text", "")),
+                                    start_char=chunk.get("start_char"),
+                                    end_char=chunk.get("end_char"),
+                                    status=str(chunk.get("status", "unknown")),
+                                )
+                                for chunk in grounded_chunks
+                            ]
+                            try:
+                                extraction_groups = [
+                                    asdict(group)
+                                    for group in build_extraction_groups(
+                                        grounded_chunks=grounded_chunk_models,
+                                        provider=provider,
+                                        system_prompt=extraction_prompt.render_system_prompt(),
+                                        max_prompt_tokens=30000,
+                                    )
+                                ]
+                            except (NotImplementedError, TypeError):
+                                extraction_groups = []
+                    except Exception as exc:
+                        raise LLMPipelinePhaseError(
+                            "phase1", "Grounded preprocessing failed"
+                        ) from exc
                 run_kwargs: dict[str, Any] = {
                     "text": document["text"],
                     "grounded_chunks": grounded_chunks,
