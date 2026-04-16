@@ -79,9 +79,9 @@ def preprocess_grounded_document(
         include_positions=include_positions,
     )
     extraction_groups: list[dict[str, Any]] = []
-    try:
-        token_count_fn = provider.count_tokens
-        if callable(token_count_fn):
+    token_count_fn = getattr(provider, "count_tokens", None)
+    if callable(token_count_fn):
+        try:
             extraction_groups = [
                 asdict(group)
                 for group in build_extraction_groups(
@@ -91,8 +91,8 @@ def preprocess_grounded_document(
                     max_prompt_tokens=MAX_GROUNDED_PHASE1_INPUT_TOKENS,
                 )
             ]
-    except (AttributeError, TypeError, ValueError):
-        extraction_groups = []
+        except (NotImplementedError, TypeError):
+            extraction_groups = []
     return _PreprocessedGroundedDocument(
         grounded_chunks=[asdict(chunk) for chunk in grounded_chunks],
         extraction_groups=extraction_groups,
@@ -398,33 +398,62 @@ def run_llm_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
             llm_internal_mode,
         )
         try:
-            user_prompt = _render_phase1_user_prompt(
-                extraction_prompt=extraction_prompt,
-                text=text,
-                grounded_chunks=grounded_chunks,
-            )
-            if not hasattr(provider, "count_tokens"):
-                raise NotImplementedError
-            token_counts = provider.count_tokens(
-                system_prompt=extraction_prompt.render_system_prompt(),
-                user_prompt=user_prompt,
-            )
-            logger.debug(
-                "LLM phase1 preflight: prompt_tokens=%s total_tokens=%s text_chars=%d grounded_chunks=%d extraction_groups=%d user_prompt_chars=%d",
-                token_counts.get("prompt_tokens"),
-                token_counts.get("total_tokens"),
-                len(text),
-                len(grounded_chunks),
-                len(extraction_groups),
-                len(user_prompt),
-            )
-            if (
-                isinstance(token_counts, dict)
-                and int(token_counts.get("total_tokens", 0) or 0)
-                > MAX_GROUNDED_PHASE1_INPUT_TOKENS
-            ):
-                logger.warning("LLM phase1 prompt exceeds configured token budget")
-        except (AttributeError, NotImplementedError, TypeError, ValueError):
+            if extraction_groups:
+                grouped_prompt_tokens_total = sum(
+                    int(group.get("estimated_prompt_tokens", 0) or 0)
+                    for group in extraction_groups
+                )
+                grouped_prompt_tokens_max = max(
+                    (
+                        int(group.get("estimated_prompt_tokens", 0) or 0)
+                        for group in extraction_groups
+                    ),
+                    default=0,
+                )
+                grouped_prompt_chars_total = sum(
+                    len(str(group.get("text", ""))) for group in extraction_groups
+                )
+                logger.debug(
+                    "LLM phase1 preflight: grouped_prompt_tokens_max=%s grouped_prompt_tokens_total=%s grouped_prompt_chars_total=%s text_chars=%d grounded_chunks=%d extraction_groups=%d",
+                    grouped_prompt_tokens_max,
+                    grouped_prompt_tokens_total,
+                    grouped_prompt_chars_total,
+                    len(text),
+                    len(grounded_chunks),
+                    len(extraction_groups),
+                )
+                if grouped_prompt_tokens_max > MAX_GROUNDED_PHASE1_INPUT_TOKENS:
+                    logger.warning(
+                        "LLM phase1 grouped prompt exceeds configured token budget"
+                    )
+            else:
+                user_prompt = _render_phase1_user_prompt(
+                    extraction_prompt=extraction_prompt,
+                    text=text,
+                    grounded_chunks=grounded_chunks,
+                )
+                if not hasattr(provider, "count_tokens"):
+                    raise NotImplementedError
+                token_counts = provider.count_tokens(
+                    system_prompt=extraction_prompt.render_system_prompt(),
+                    user_prompt=user_prompt,
+                )
+                logger.debug(
+                    "LLM phase1 preflight: prompt_tokens=%s total_tokens=%s text_chars=%d grounded_chunks=%d extraction_groups=%d user_prompt_chars=%d",
+                    token_counts.get("prompt_tokens"),
+                    token_counts.get("total_tokens"),
+                    len(text),
+                    len(grounded_chunks),
+                    len(extraction_groups),
+                    len(user_prompt),
+                )
+                if (
+                    isinstance(token_counts, dict)
+                    and int(token_counts.get("total_tokens", 0) or 0)
+                    > MAX_GROUNDED_PHASE1_INPUT_TOKENS
+                ):
+                    logger.warning("LLM phase1 prompt exceeds configured token budget")
+        except (AttributeError, NotImplementedError):
             logger.debug("Provider does not support token preflight counting")
 
     pipeline = pipeline_factory(provider=provider)
@@ -439,18 +468,7 @@ def run_llm_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
     }
     if llm_internal_mode == "whole_document_grounded":
         pipeline_kwargs["extraction_groups"] = extraction_groups
-    try:
-        result = pipeline.run(**pipeline_kwargs)
-    except TypeError as exc:
-        if (
-            llm_internal_mode == "whole_document_grounded"
-            and "extraction_groups" in str(exc)
-            and "unexpected keyword argument" in str(exc)
-        ):
-            pipeline_kwargs.pop("extraction_groups", None)
-            result = pipeline.run(**pipeline_kwargs)
-        else:
-            raise
+    result = pipeline.run(**pipeline_kwargs)
 
     result_payload = {
         "meta": {
