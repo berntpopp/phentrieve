@@ -33,6 +33,7 @@ from phentrieve.llm.types import (
     LLMMappingSelection,
     LLMMeta,
     LLMPhenotype,
+    LLMPhenotypeEvidence,
     LLMPipelineConfig,
 )
 from phentrieve.llm.utils import token_sort_similarity
@@ -823,6 +824,14 @@ class TwoPhaseLLMPipeline:
         item: dict[str, Any],
         candidate: dict[str, Any],
     ) -> LLMPhenotype:
+        evidence = LLMPhenotypeEvidence(
+            phrase=str(item["phrase"]),
+            evidence_text=item.get("evidence_text"),
+            chunk_ids=list(item.get("chunk_ids", [])),
+            start_char=item.get("start_char"),
+            end_char=item.get("end_char"),
+            match_method="local",
+        )
         return LLMPhenotype(
             term_id=candidate["hpo_id"],
             label=candidate["term_name"],
@@ -832,6 +841,7 @@ class TwoPhaseLLMPipeline:
                 PRESENT_ASSERTION,
             ),
             category=_normalize_category(str(item.get("category", ""))),
+            evidence_records=[evidence],
         )
 
     @staticmethod
@@ -893,7 +903,13 @@ class TwoPhaseLLMPipeline:
 
     @staticmethod
     def _deduplicate_terms(terms: list[LLMPhenotype]) -> list[LLMPhenotype]:
-        deduplicated: dict[str, LLMPhenotype] = {}
+        deduplicated: dict[tuple[str, str], LLMPhenotype] = {}
         for term in terms:
-            deduplicated.setdefault(term.term_id, term)
+            key = (term.term_id, term.assertion)
+            if key not in deduplicated:
+                deduplicated[key] = term
+                continue
+            deduplicated[key].evidence_records.extend(term.evidence_records)
+            if not deduplicated[key].evidence and term.evidence:
+                deduplicated[key].evidence = term.evidence
         return list(deduplicated.values())

@@ -1056,6 +1056,27 @@ def test_two_phase_pipeline_chunks_large_failed_genereviews_document_queries():
     assert [len(call) for call in retriever.calls] == [25, 25, 6]
 
 
+def test_deduplicate_terms_keeps_assertion_variants():
+    terms = [
+        LLMPhenotype(
+            term_id="HP:0001250",
+            label="Seizure",
+            assertion="present",
+            category="abnormal",
+        ),
+        LLMPhenotype(
+            term_id="HP:0001250",
+            label="Seizure",
+            assertion="negated",
+            category="normal",
+        ),
+    ]
+
+    deduped = TwoPhaseLLMPipeline._deduplicate_terms(terms)
+
+    assert len(deduped) == 2
+
+
 def test_two_phase_pipeline_rejects_unsupported_mode():
     provider = FakeProvider(responses=[])
     pipeline = TwoPhaseLLMPipeline(

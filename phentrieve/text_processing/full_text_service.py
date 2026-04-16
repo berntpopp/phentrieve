@@ -378,6 +378,9 @@ def run_llm_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
                 "name": term.label,
                 "evidence": term.evidence,
                 "status": term.assertion,
+                "evidence_records": [
+                    record.model_dump() for record in term.evidence_records
+                ],
             }
             for term in result.terms
         ],
