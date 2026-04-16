@@ -680,6 +680,96 @@ def test_grouped_phase1_deduplicates_overlapping_mentions_and_merges_grounding()
     ]
 
 
+def test_grouped_phase1_keeps_far_apart_mentions_separate() -> None:
+    provider = FakeProvider(
+        responses=[
+            {
+                "parsed": {
+                    "phenotypes": [
+                        {
+                            "phrase": "recurrent seizures",
+                            "category": "Abnormal",
+                            "chunk_ids": [1, 2],
+                            "evidence_text": "recurrent seizures",
+                            "start_char": 12,
+                            "end_char": 30,
+                        }
+                    ]
+                }
+            },
+            {
+                "parsed": {
+                    "phenotypes": [
+                        {
+                            "phrase": "recurrent seizures",
+                            "category": "Abnormal",
+                            "chunk_ids": [2, 3],
+                            "evidence_text": "recurrent seizures",
+                            "start_char": 112,
+                            "end_char": 130,
+                        }
+                    ]
+                }
+            },
+        ]
+    )
+    tool_executor = FakeToolExecutor(
+        batch_results=[
+            {
+                "phrase": "recurrent seizures",
+                "candidates": [
+                    {
+                        "hpo_id": "HP:0001250",
+                        "term_name": "Recurrent seizures",
+                        "score": 0.95,
+                    }
+                ],
+            }
+        ]
+    )
+    pipeline = TwoPhaseLLMPipeline(provider=provider, tool_executor=tool_executor)
+
+    result = pipeline.run(
+        text="Patient had recurrent seizures twice in the note.",
+        grounded_chunks=[
+            {"chunk_id": 1, "text": "Patient had recurrent"},
+            {"chunk_id": 2, "text": "recurrent seizures"},
+            {"chunk_id": 3, "text": "seizures twice in the note."},
+        ],
+        extraction_groups=[
+            {
+                "group_id": 1,
+                "chunk_ids": [1, 2],
+                "text": "chunk_id=1: Patient had recurrent\nchunk_id=2: recurrent seizures",
+            },
+            {
+                "group_id": 2,
+                "chunk_ids": [2, 3],
+                "text": "chunk_id=2: recurrent seizures\nchunk_id=3: seizures twice in the note.",
+            },
+        ],
+        config=LLMPipelineConfig(model="gemini-2.5-flash", mode="two_phase"),
+    )
+
+    assert result.meta.phase_counts["extracted_phrases"] == 2
+    assert result.meta.trace["phase1"]["extracted"] == [
+        {
+            "phrase": "recurrent seizures",
+            "category": "abnormal",
+            "chunk_ids": [1, 2],
+            "evidence_text": "recurrent seizures",
+            "actionable": True,
+        },
+        {
+            "phrase": "recurrent seizures",
+            "category": "abnormal",
+            "chunk_ids": [2, 3],
+            "evidence_text": "recurrent seizures",
+            "actionable": True,
+        },
+    ]
+
+
 def test_grouped_phase1_keeps_group_chunk_ids_in_trace() -> None:
     provider = FakeProvider(
         responses=[

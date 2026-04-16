@@ -179,6 +179,19 @@ def _merge_optional_bounds(
     return min(current, incoming) if pick == "min" else max(current, incoming)
 
 
+def _spans_overlap(
+    start_a: int | None,
+    end_a: int | None,
+    start_b: int | None,
+    end_b: int | None,
+) -> bool:
+    if None in (start_a, end_a, start_b, end_b):
+        return False
+    if end_a <= start_a or end_b <= start_b:
+        return False
+    return max(start_a, start_b) < min(end_a, end_b)
+
+
 class TwoPhaseLLMPipeline:
     def __init__(
         self,
@@ -821,6 +834,20 @@ class TwoPhaseLLMPipeline:
         if not existing_chunk_ids or not incoming_chunk_ids:
             return False
         if not (existing_chunk_ids & incoming_chunk_ids):
+            return False
+
+        if (
+            existing.get("start_char") is not None
+            and existing.get("end_char") is not None
+            and incoming.get("start_char") is not None
+            and incoming.get("end_char") is not None
+            and not _spans_overlap(
+                int(existing["start_char"]),
+                int(existing["end_char"]),
+                int(incoming["start_char"]),
+                int(incoming["end_char"]),
+            )
+        ):
             return False
 
         existing_evidence = _normalized_evidence_text(existing)
