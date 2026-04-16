@@ -1,3 +1,5 @@
+from types import SimpleNamespace
+
 import pytest
 
 from phentrieve.llm.types import LLMExtractionResult, LLMMeta, LLMPhenotype
@@ -182,6 +184,126 @@ def test_run_llm_backend_supports_grounded_internal_mode(mocker):
     )
 
     assert pipeline.run.call_args.kwargs["grounded_chunks"]
+
+
+def test_run_llm_backend_uses_shared_preprocessing_for_grounded_mode(mocker):
+    provider = mocker.Mock()
+    pipeline = mocker.Mock()
+    preprocessed = SimpleNamespace(
+        grounded_chunks=[
+            {"chunk_id": 1, "text": "Chunk one.", "start_char": 0, "end_char": 10},
+            {"chunk_id": 2, "text": "Chunk two.", "start_char": 11, "end_char": 21},
+        ],
+        extraction_groups=[
+            {
+                "group_id": 1,
+                "chunk_ids": [1, 2],
+                "text": "chunk_id=1: Chunk one.\nchunk_id=2: Chunk two.",
+                "estimated_prompt_tokens": 17,
+            }
+        ],
+    )
+    pipeline.run.return_value = LLMExtractionResult(
+        terms=[],
+        meta=LLMMeta(
+            llm_model="gemini-2.5-flash",
+            llm_mode="two_phase",
+        ),
+    )
+
+    preprocess = mocker.patch(
+        "phentrieve.text_processing.full_text_service.preprocess_grounded_document",
+        return_value=preprocessed,
+    )
+    mocker.patch(
+        "phentrieve.text_processing.full_text_service.get_llm_provider",
+        return_value=provider,
+    )
+    mocker.patch(
+        "phentrieve.text_processing.full_text_service.TwoPhaseLLMPipeline",
+        return_value=pipeline,
+    )
+
+    run_llm_backend(
+        text="Patient had recurrent seizures.",
+        llm_model="gemini-2.5-flash",
+        llm_mode="two_phase",
+        llm_internal_mode="whole_document_grounded",
+        language="en",
+    )
+
+    preprocess.assert_called_once()
+    assert (
+        pipeline.run.call_args.kwargs["grounded_chunks"] == preprocessed.grounded_chunks
+    )
+    assert (
+        pipeline.run.call_args.kwargs["extraction_groups"]
+        == preprocessed.extraction_groups
+    )
+
+
+def test_run_llm_backend_logs_group_preflight_details(mocker, caplog):
+    provider = mocker.Mock()
+    provider.count_tokens.return_value = {
+        "prompt_tokens": 17,
+        "completion_tokens": 0,
+        "total_tokens": 17,
+    }
+    pipeline = mocker.Mock()
+    preprocessed = SimpleNamespace(
+        grounded_chunks=[
+            {"chunk_id": 1, "text": "Chunk one.", "start_char": 0, "end_char": 10},
+            {"chunk_id": 2, "text": "Chunk two.", "start_char": 11, "end_char": 21},
+        ],
+        extraction_groups=[
+            {
+                "group_id": 1,
+                "chunk_ids": [1, 2],
+                "text": "chunk_id=1: Chunk one.\nchunk_id=2: Chunk two.",
+                "estimated_prompt_tokens": 17,
+            }
+        ],
+    )
+    pipeline.run.return_value = LLMExtractionResult(
+        terms=[],
+        meta=LLMMeta(
+            llm_model="gemini-2.5-flash",
+            llm_mode="two_phase",
+        ),
+    )
+
+    mocker.patch(
+        "phentrieve.text_processing.full_text_service.preprocess_grounded_document",
+        return_value=preprocessed,
+    )
+    mocker.patch(
+        "phentrieve.text_processing.full_text_service.get_llm_provider",
+        return_value=provider,
+    )
+    mocker.patch(
+        "phentrieve.text_processing.full_text_service.TwoPhaseLLMPipeline",
+        return_value=pipeline,
+    )
+
+    with caplog.at_level("DEBUG"):
+        run_llm_backend(
+            text="Patient had recurrent seizures.",
+            llm_model="gemini-2.5-flash",
+            llm_mode="two_phase",
+            llm_internal_mode="whole_document_grounded",
+            language="en",
+        )
+
+    preflight_messages = [
+        record.message
+        for record in caplog.records
+        if "LLM phase1 preflight" in record.message
+    ]
+    assert preflight_messages
+    assert any("grounded_chunks=2" in message for message in preflight_messages)
+    assert any("extraction_groups=1" in message for message in preflight_messages)
+    assert any("prompt_tokens=17" in message for message in preflight_messages)
+    assert any("total_tokens=17" in message for message in preflight_messages)
 
 
 def test_adapt_standard_response_preserves_optional_term_fields():

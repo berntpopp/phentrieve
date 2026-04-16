@@ -9,6 +9,7 @@ from __future__ import annotations
 import logging
 import os
 from collections.abc import Callable, Mapping, Sequence
+from dataclasses import asdict, dataclass
 from typing import Any
 
 from phentrieve.config import (
@@ -20,6 +21,10 @@ from phentrieve.config import (
 )
 from phentrieve.llm.config import DEFAULT_LLM_MODE
 from phentrieve.llm.pipeline import TwoPhaseLLMPipeline, _render_phase1_user_prompt
+from phentrieve.llm.preprocessing import (
+    build_extraction_groups,
+    build_grounded_chunks_from_text_pipeline,
+)
 from phentrieve.llm.prompts.loader import get_prompt
 from phentrieve.llm.provider import get_llm_provider
 from phentrieve.llm.types import AnnotationMode, LLMPipelineConfig
@@ -48,37 +53,50 @@ def _normalize_status(status: Any) -> str:
     return str(status)
 
 
-def _build_grounded_chunks(
+@dataclass(frozen=True)
+class _PreprocessedGroundedDocument:
+    grounded_chunks: list[dict[str, Any]]
+    extraction_groups: list[dict[str, Any]]
+
+
+def preprocess_grounded_document(
     *,
     text: str,
     language: str,
+    provider: Any,
+    extraction_prompt: Any,
     chunking_pipeline_config: list[dict[str, Any]] | None,
     assertion_config: dict[str, Any] | None,
     retrieval_model_name: str,
     include_positions: bool = True,
-) -> list[dict[str, Any]]:
-    from phentrieve.config import get_default_chunk_pipeline_config
-    from phentrieve.embeddings import load_embedding_model
-    from phentrieve.text_processing.pipeline import TextProcessingPipeline
-
-    text_pipeline = TextProcessingPipeline(
+) -> _PreprocessedGroundedDocument:
+    grounded_chunks = build_grounded_chunks_from_text_pipeline(
+        text=text,
         language=language,
-        chunking_pipeline_config=chunking_pipeline_config
-        or get_default_chunk_pipeline_config(),
-        assertion_config=assertion_config or {"disable": True},
-        sbert_model_for_semantic_chunking=load_embedding_model(retrieval_model_name),
+        chunking_pipeline_config=chunking_pipeline_config,
+        assertion_config=assertion_config,
+        retrieval_model_name=retrieval_model_name,
+        include_positions=include_positions,
     )
-    processed_chunks = text_pipeline.process(text, include_positions=include_positions)
-    return [
-        {
-            "chunk_id": idx + 1,
-            "text": chunk.get("text", ""),
-            "start_char": chunk.get("start_char"),
-            "end_char": chunk.get("end_char"),
-            "status": _normalize_status(chunk.get("status")),
-        }
-        for idx, chunk in enumerate(processed_chunks)
-    ]
+    extraction_groups: list[dict[str, Any]] = []
+    try:
+        token_count_fn = provider.count_tokens
+        if callable(token_count_fn):
+            extraction_groups = [
+                asdict(group)
+                for group in build_extraction_groups(
+                    grounded_chunks=grounded_chunks,
+                    provider=provider,
+                    system_prompt=extraction_prompt.render_system_prompt(),
+                    max_prompt_tokens=MAX_GROUNDED_PHASE1_INPUT_TOKENS,
+                )
+            ]
+    except (AttributeError, TypeError, ValueError):
+        extraction_groups = []
+    return _PreprocessedGroundedDocument(
+        grounded_chunks=[asdict(chunk) for chunk in grounded_chunks],
+        extraction_groups=extraction_groups,
+    )
 
 
 def adapt_full_text_response(
@@ -354,26 +372,32 @@ def run_llm_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
     )
 
     provider = provider_factory(llm_model=llm_model)
+    extraction_prompt = get_prompt(
+        AnnotationMode.TWO_PHASE,
+        kwargs.get("language") or DEFAULT_LANGUAGE,
+    )
     grounded_chunks: list[dict[str, Any]] = []
+    extraction_groups: list[dict[str, Any]] = []
     if llm_internal_mode == "whole_document_grounded":
-        grounded_chunks = _build_grounded_chunks(
+        preprocessed = preprocess_grounded_document(
             text=text,
             language=kwargs.get("language") or DEFAULT_LANGUAGE,
+            provider=provider,
+            extraction_prompt=extraction_prompt,
             chunking_pipeline_config=kwargs.get("chunking_pipeline_config"),
             assertion_config={"disable": True},
             retrieval_model_name=kwargs.get("retrieval_model_name", DEFAULT_MODEL),
         )
+        grounded_chunks = preprocessed.grounded_chunks
+        extraction_groups = preprocessed.extraction_groups
         logger.info(
-            "LLM grounding summary: language=%s chunks=%d mode=%s",
+            "LLM grounding summary: language=%s chunks=%d groups=%d mode=%s",
             kwargs.get("language") or DEFAULT_LANGUAGE,
             len(grounded_chunks),
+            len(extraction_groups),
             llm_internal_mode,
         )
         try:
-            extraction_prompt = get_prompt(
-                AnnotationMode.TWO_PHASE,
-                kwargs.get("language") or DEFAULT_LANGUAGE,
-            )
             user_prompt = _render_phase1_user_prompt(
                 extraction_prompt=extraction_prompt,
                 text=text,
@@ -385,16 +409,13 @@ def run_llm_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
                 system_prompt=extraction_prompt.render_system_prompt(),
                 user_prompt=user_prompt,
             )
-            chunk_index_chars = sum(
-                len(f"- chunk_id={chunk['chunk_id']}: {chunk.get('text', '')}\n")
-                for chunk in grounded_chunks
-            )
             logger.debug(
-                "LLM phase1 preflight: prompt_tokens=%s text_chars=%d chunk_index_chars=%d grounded_chunks=%d user_prompt_chars=%d",
+                "LLM phase1 preflight: prompt_tokens=%s total_tokens=%s text_chars=%d grounded_chunks=%d extraction_groups=%d user_prompt_chars=%d",
+                token_counts.get("prompt_tokens"),
                 token_counts.get("total_tokens"),
                 len(text),
-                chunk_index_chars,
                 len(grounded_chunks),
+                len(extraction_groups),
                 len(user_prompt),
             )
             if (
@@ -403,19 +424,33 @@ def run_llm_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
                 > MAX_GROUNDED_PHASE1_INPUT_TOKENS
             ):
                 logger.warning("LLM phase1 prompt exceeds configured token budget")
-        except (AttributeError, NotImplementedError):
+        except (AttributeError, NotImplementedError, TypeError, ValueError):
             logger.debug("Provider does not support token preflight counting")
 
     pipeline = pipeline_factory(provider=provider)
-    result = pipeline.run(
-        text=text,
-        grounded_chunks=grounded_chunks,
-        config=LLMPipelineConfig(
+    pipeline_kwargs: dict[str, Any] = {
+        "text": text,
+        "grounded_chunks": grounded_chunks,
+        "config": LLMPipelineConfig(
             model=llm_model,
             mode=llm_mode,
             language=kwargs.get("language"),
         ),
-    )
+    }
+    if llm_internal_mode == "whole_document_grounded":
+        pipeline_kwargs["extraction_groups"] = extraction_groups
+    try:
+        result = pipeline.run(**pipeline_kwargs)
+    except TypeError as exc:
+        if (
+            llm_internal_mode == "whole_document_grounded"
+            and "extraction_groups" in str(exc)
+            and "unexpected keyword argument" in str(exc)
+        ):
+            pipeline_kwargs.pop("extraction_groups", None)
+            result = pipeline.run(**pipeline_kwargs)
+        else:
+            raise
 
     result_payload = {
         "meta": {
