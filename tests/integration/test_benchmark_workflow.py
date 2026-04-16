@@ -726,6 +726,42 @@ def test_benchmark_trace_persists_group_failures(tmp_path, monkeypatch):
         {"chunk_id": 1, "text": "Patient has seizures."},
         {"chunk_id": 2, "text": "Additional chunk."},
     ]
+    phase1_trace = result["prediction_records"][0]["trace"]["phase1"]
+    assert phase1_trace["groups"] == [
+        {
+            "group_id": 1,
+            "chunk_ids": [1],
+            "status": "completed",
+            "extracted_count": 1,
+            "extracted": [
+                {
+                    "phrase": "seizures",
+                    "category": "abnormal",
+                    "chunk_ids": [1],
+                    "evidence_text": "seizures",
+                    "actionable": True,
+                }
+            ],
+        },
+        {
+            "group_id": 2,
+            "chunk_ids": [2],
+            "status": "failed",
+            "error": "Structured extraction failed",
+            "error_type": "LLMPipelinePhaseError",
+            "extracted_count": 0,
+            "extracted": [],
+        },
+    ]
+    assert phase1_trace["extracted"] == [
+        {
+            "phrase": "seizures",
+            "category": "abnormal",
+            "chunk_ids": [1],
+            "evidence_text": "seizures",
+            "actionable": True,
+        }
+    ]
     assert result["results"][0]["partial_failure_counts"] == {
         "phase1_completed_groups": 1,
         "phase1_failed_groups": 1,
