@@ -6,6 +6,7 @@ import logging
 import time
 from collections.abc import Callable
 from contextlib import contextmanager
+from dataclasses import asdict
 from pathlib import Path
 from typing import Any
 
@@ -20,10 +21,14 @@ from phentrieve.evaluation.extraction_metrics import (
 )
 from phentrieve.llm.config import DEFAULT_LLM_LANGUAGE
 from phentrieve.llm.pipeline import LLMPipelinePhaseError, TwoPhaseLLMPipeline
-from phentrieve.llm.preprocessing import build_grounded_chunks_from_text_pipeline
+from phentrieve.llm.preprocessing import (
+    build_extraction_groups,
+    build_grounded_chunks_from_text_pipeline,
+)
 from phentrieve.llm.prompts import loader as prompt_loader
+from phentrieve.llm.prompts.loader import get_prompt
 from phentrieve.llm.provider import get_llm_provider
-from phentrieve.llm.types import LLMPipelineConfig
+from phentrieve.llm.types import AnnotationMode, GroundedChunk, LLMPipelineConfig
 
 logger = logging.getLogger(__name__)
 
@@ -194,20 +199,46 @@ def run_llm_benchmark(
                 (hpo_id, DEFAULT_ID_ONLY_ASSERTION) for hpo_id, _ in gold_terms
             ]
             doc_start_time = time.perf_counter()
+            grounded_chunks: list[dict[str, Any]] = []
+            extraction_groups: list[dict[str, Any]] = []
+            if llm_internal_mode == "whole_document_grounded":
+                grounded_chunks = _build_grounded_chunks(
+                    text=document["text"],
+                    language=language,
+                    chunking_pipeline_config=None,
+                    assertion_config={"disable": True},
+                    retrieval_model_name="FremyCompany/BioLORD-2023-M",
+                )
+                token_count_fn = getattr(provider, "count_tokens", None)
+                if callable(token_count_fn):
+                    extraction_prompt = get_prompt(AnnotationMode.TWO_PHASE, language)
+                    grounded_chunk_models = [
+                        GroundedChunk(
+                            chunk_id=int(chunk["chunk_id"]),
+                            text=str(chunk.get("text", "")),
+                            start_char=chunk.get("start_char"),
+                            end_char=chunk.get("end_char"),
+                            status=str(chunk.get("status", "unknown")),
+                        )
+                        for chunk in grounded_chunks
+                    ]
+                    try:
+                        extraction_groups = [
+                            asdict(group)
+                            for group in build_extraction_groups(
+                                grounded_chunks=grounded_chunk_models,
+                                provider=provider,
+                                system_prompt=extraction_prompt.render_system_prompt(),
+                                max_prompt_tokens=30000,
+                            )
+                        ]
+                    except (NotImplementedError, TypeError):
+                        extraction_groups = []
             try:
                 pipeline_result = pipeline.run(
                     text=document["text"],
-                    grounded_chunks=(
-                        _build_grounded_chunks(
-                            text=document["text"],
-                            language=language,
-                            chunking_pipeline_config=None,
-                            assertion_config={"disable": True},
-                            retrieval_model_name="FremyCompany/BioLORD-2023-M",
-                        )
-                        if llm_internal_mode == "whole_document_grounded"
-                        else []
-                    ),
+                    grounded_chunks=grounded_chunks,
+                    extraction_groups=extraction_groups,
                     config=config,
                 )
             except LLMPipelinePhaseError as exc:

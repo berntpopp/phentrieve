@@ -555,7 +555,10 @@ class TwoPhaseLLMPipeline:
                 }
             )
 
-        if extraction_groups and not extracted:
+        any_group_succeeded = any(
+            group.get("status") == "completed" for group in phase1_groups_trace
+        )
+        if extraction_groups and not any_group_succeeded:
             raise LLMPipelinePhaseError(
                 "phase1",
                 "Structured extraction failed for all extraction groups",

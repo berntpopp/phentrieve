@@ -28,6 +28,7 @@ from phentrieve.evaluation.runner import compare_models, run_evaluation
 from phentrieve.evaluation.statistics import (
     compare_models_with_significance,
 )
+from phentrieve.llm.types import ExtractionGroup
 
 
 @pytest.fixture
@@ -580,16 +581,42 @@ def test_llm_benchmark_smoke_persists_grounded_trace_fields(tmp_path, monkeypatc
 
 def test_benchmark_trace_persists_group_failures(tmp_path, monkeypatch):
     output_path = tmp_path / "llm_benchmark_group_failures.json"
+    captured_calls: list[dict[str, object]] = []
+
+    class _FakeProvider:
+        def count_tokens(self, *, system_prompt, user_prompt):
+            return {"prompt_tokens": 12, "total_tokens": 12}
 
     class _FakePipeline:
         def __init__(self, provider):
             self.provider = provider
 
-        def run(self, *, text, grounded_chunks, config):
+        def run(self, *, text, grounded_chunks, extraction_groups, config):
             from phentrieve.llm.types import LLMExtractionResult, LLMMeta, LLMPhenotype
 
+            captured_calls.append(
+                {
+                    "text": text,
+                    "grounded_chunks": grounded_chunks,
+                    "extraction_groups": extraction_groups,
+                }
+            )
             assert text
             assert grounded_chunks[0]["chunk_id"] == 1
+            assert extraction_groups == [
+                {
+                    "group_id": 1,
+                    "chunk_ids": [1],
+                    "text": "chunk_id=1: Patient has seizures.",
+                    "estimated_prompt_tokens": 12,
+                },
+                {
+                    "group_id": 2,
+                    "chunk_ids": [2],
+                    "text": "chunk_id=2: Additional chunk.",
+                    "estimated_prompt_tokens": 11,
+                },
+            ]
             return LLMExtractionResult(
                 terms=[
                     LLMPhenotype(
@@ -654,7 +681,7 @@ def test_benchmark_trace_persists_group_failures(tmp_path, monkeypatch):
 
     monkeypatch.setattr(
         "phentrieve.benchmark.llm_benchmark.get_llm_provider",
-        lambda llm_model: object(),
+        lambda llm_model: _FakeProvider(),
     )
     monkeypatch.setattr(
         "phentrieve.benchmark.llm_benchmark.TwoPhaseLLMPipeline",
@@ -662,7 +689,27 @@ def test_benchmark_trace_persists_group_failures(tmp_path, monkeypatch):
     )
     monkeypatch.setattr(
         "phentrieve.benchmark.llm_benchmark._build_grounded_chunks",
-        lambda **kwargs: [{"chunk_id": 1, "text": "Patient has seizures."}],
+        lambda **kwargs: [
+            {"chunk_id": 1, "text": "Patient has seizures."},
+            {"chunk_id": 2, "text": "Additional chunk."},
+        ],
+    )
+    monkeypatch.setattr(
+        "phentrieve.benchmark.llm_benchmark.build_extraction_groups",
+        lambda **kwargs: [
+            ExtractionGroup(
+                group_id=1,
+                chunk_ids=[1],
+                text="chunk_id=1: Patient has seizures.",
+                estimated_prompt_tokens=12,
+            ),
+            ExtractionGroup(
+                group_id=2,
+                chunk_ids=[2],
+                text="chunk_id=2: Additional chunk.",
+                estimated_prompt_tokens=11,
+            ),
+        ],
     )
 
     result = run_llm_benchmark_cli(
@@ -674,6 +721,11 @@ def test_benchmark_trace_persists_group_failures(tmp_path, monkeypatch):
         output_path=str(output_path),
     )
 
+    assert captured_calls
+    assert captured_calls[0]["grounded_chunks"] == [
+        {"chunk_id": 1, "text": "Patient has seizures."},
+        {"chunk_id": 2, "text": "Additional chunk."},
+    ]
     assert result["results"][0]["partial_failure_counts"] == {
         "phase1_completed_groups": 1,
         "phase1_failed_groups": 1,

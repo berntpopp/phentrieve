@@ -648,6 +648,57 @@ def test_group_failure_is_recorded_without_zeroing_document(caplog) -> None:
     assert "Continuing after grouped phase 1 failure" in caplog.text
 
 
+def test_grouped_phase1_zero_hit_success_does_not_raise() -> None:
+    provider = FakeProvider(
+        responses=[
+            {"parsed": {"phenotypes": []}, "request_count": 1},
+            {"parsed": {"phenotypes": []}, "request_count": 1},
+        ]
+    )
+    pipeline = TwoPhaseLLMPipeline(
+        provider=provider,
+        tool_executor=FakeToolExecutor([]),
+    )
+
+    result = pipeline.run(
+        text="Clinical note without phenotype mentions.",
+        grounded_chunks=[
+            {"chunk_id": 1, "text": "Chunk one."},
+            {"chunk_id": 2, "text": "Chunk two."},
+        ],
+        extraction_groups=[
+            {
+                "group_id": 1,
+                "chunk_ids": [1],
+                "text": "chunk_id=1: Chunk one.",
+            },
+            {
+                "group_id": 2,
+                "chunk_ids": [2],
+                "text": "chunk_id=2: Chunk two.",
+            },
+        ],
+        config=LLMPipelineConfig(model="gemini-2.5-flash", mode="two_phase"),
+    )
+
+    assert result.terms == []
+    assert result.meta.phase_counts["extracted_phrases"] == 0
+    assert result.meta.phase_counts["phase1_completed_groups"] == 2
+    assert result.meta.phase_counts["phase1_failed_groups"] == 0
+    assert result.meta.phase_counts["phase1_partial_failures"] == 0
+    assert [group["status"] for group in result.meta.trace["phase1"]["groups"]] == [
+        "completed",
+        "completed",
+    ]
+    assert [
+        group["extracted_count"] for group in result.meta.trace["phase1"]["groups"]
+    ] == [
+        0,
+        0,
+    ]
+    assert result.meta.trace["phase1"]["extracted"] == []
+
+
 def test_retrieval_uses_grounded_context_instead_of_original_sentence():
     item = {
         "phrase": "frequent falls",
