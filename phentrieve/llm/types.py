@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import dataclass, field
 from enum import StrEnum
 from typing import Any, Literal
 
@@ -140,3 +141,20 @@ class LLMResponse(BaseModel):
     usage: dict[str, int] = Field(default_factory=dict)
     tool_calls: list[LLMToolCall] = Field(default_factory=list)
     temperature: float = DEFAULT_PROVIDER_TEMPERATURE
+
+
+@dataclass(frozen=True)
+class GroundedChunk:
+    chunk_id: int
+    text: str
+    start_char: int | None
+    end_char: int | None
+    status: str
+
+
+@dataclass(frozen=True)
+class ExtractionGroup:
+    group_id: int
+    chunk_ids: list[int] = field(default_factory=list)
+    text: str = ""
+    estimated_prompt_tokens: int = 0
