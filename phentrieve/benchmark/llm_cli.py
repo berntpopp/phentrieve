@@ -42,6 +42,7 @@ def run_llm_benchmark_cli(
     dataset: str = DEFAULT_LLM_BENCHMARK_DATASET,
     doc_ids: list[str] | None = None,
     output_path: str | None = None,
+    checkpoint_path: str | None = None,
     artifacts_dir: str | None = None,
     language: str = DEFAULT_LLM_LANGUAGE,
     prompt_templates_dir: str | None = None,
@@ -71,6 +72,44 @@ def run_llm_benchmark_cli(
                 f"Benchmark test file must be valid JSON: {test_file}"
             ) from exc
 
+    resolved_output_path = Path(output_path) if output_path else _default_output_path()
+    resolved_checkpoint_path = (
+        Path(checkpoint_path) if checkpoint_path else resolved_output_path
+    )
+    resolved_artifacts_dir = (
+        Path(artifacts_dir)
+        if artifacts_dir
+        else _default_artifacts_dir(resolved_output_path)
+    )
+    resolved_output_path.parent.mkdir(parents=True, exist_ok=True)
+    resolved_checkpoint_path.parent.mkdir(parents=True, exist_ok=True)
+    resolved_artifacts_dir.mkdir(parents=True, exist_ok=True)
+
+    existing_checkpoint = _load_checkpoint_payload(
+        path=resolved_checkpoint_path,
+        current_run={
+            "test_file": str(test_file_path),
+            "dataset": dataset,
+            "llm_model": llm_model,
+            "llm_mode": llm_mode,
+            "language": language,
+            "prompt_templates_dir": prompt_templates_dir,
+            "requested_doc_ids": list(doc_ids) if doc_ids else None,
+        },
+        allow_completed=checkpoint_path is not None,
+    )
+
+    def _persist_checkpoint(snapshot: dict[str, Any]) -> None:
+        checkpoint_payload = dict(snapshot)
+        checkpoint_payload["output_path"] = str(resolved_output_path)
+        checkpoint_payload["checkpoint_path"] = str(resolved_checkpoint_path)
+        checkpoint_payload["artifacts_dir"] = str(resolved_artifacts_dir)
+        _write_json_atomic(resolved_checkpoint_path, checkpoint_payload)
+        _write_benchmark_artifacts(
+            artifacts_dir=resolved_artifacts_dir,
+            benchmark_payload=checkpoint_payload,
+        )
+
     result = llm_benchmark.run_llm_benchmark(
         test_file=test_file,
         llm_model=llm_model,
@@ -81,23 +120,15 @@ def run_llm_benchmark_cli(
         prompt_templates_dir=prompt_templates_dir,
         input_cost_per_1m_tokens=input_cost_per_1m_tokens,
         output_cost_per_1m_tokens=output_cost_per_1m_tokens,
+        checkpoint_state=existing_checkpoint,
+        progress_callback=_persist_checkpoint,
     )
-    resolved_output_path = Path(output_path) if output_path else _default_output_path()
-    resolved_artifacts_dir = (
-        Path(artifacts_dir)
-        if artifacts_dir
-        else _default_artifacts_dir(resolved_output_path)
-    )
-    resolved_output_path.parent.mkdir(parents=True, exist_ok=True)
-    resolved_artifacts_dir.mkdir(parents=True, exist_ok=True)
 
     payload = dict(result)
     payload["output_path"] = str(resolved_output_path)
+    payload["checkpoint_path"] = str(resolved_checkpoint_path)
     payload["artifacts_dir"] = str(resolved_artifacts_dir)
-    resolved_output_path.write_text(
-        json.dumps(payload, indent=2),
-        encoding="utf-8",
-    )
+    _write_json_atomic(resolved_output_path, payload)
     metrics_path, predictions_dir = _write_benchmark_artifacts(
         artifacts_dir=resolved_artifacts_dir,
         benchmark_payload=payload,
@@ -106,12 +137,45 @@ def run_llm_benchmark_cli(
         payload["metrics_path"] = str(metrics_path)
     if predictions_dir is not None:
         payload["predictions_dir"] = str(predictions_dir)
-    resolved_output_path.write_text(
-        json.dumps(payload, indent=2),
-        encoding="utf-8",
-    )
+    _write_json_atomic(resolved_output_path, payload)
+    _write_json_atomic(resolved_checkpoint_path, payload)
     logger.info("Saved LLM benchmark summary to %s", resolved_output_path)
     return payload
+
+
+def _write_json_atomic(path: Path, payload: dict[str, Any]) -> None:
+    temp_path = path.with_suffix(f"{path.suffix}.tmp")
+    temp_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+    temp_path.replace(path)
+
+
+def _load_checkpoint_payload(
+    *,
+    path: Path,
+    current_run: dict[str, Any],
+    allow_completed: bool,
+) -> dict[str, Any] | None:
+    if not path.exists():
+        return None
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except ValueError as exc:
+        raise ValueError(f"Checkpoint file must be valid JSON: {path}") from exc
+    if not isinstance(payload, dict):
+        return None
+    if not _checkpoint_matches_run(payload=payload, current_run=current_run):
+        raise ValueError(f"Checkpoint does not match current benchmark run: {path}")
+    if payload.get("status") != "running" and not allow_completed:
+        return None
+    return payload
+
+
+def _checkpoint_matches_run(
+    *,
+    payload: dict[str, Any],
+    current_run: dict[str, Any],
+) -> bool:
+    return all(payload.get(key) == value for key, value in current_run.items())
 
 
 def _write_benchmark_artifacts(
@@ -120,6 +184,7 @@ def _write_benchmark_artifacts(
     benchmark_payload: dict[str, Any],
 ) -> tuple[Path | None, Path | None]:
     predictions_dir: Path | None = None
+    traces_dir: Path | None = None
     prediction_records = benchmark_payload.get("prediction_records")
     if isinstance(prediction_records, list):
         predictions_dir = (
@@ -132,6 +197,16 @@ def _write_benchmark_artifacts(
                 json.dumps(record, indent=2),
                 encoding="utf-8",
             )
+            if isinstance(record.get("trace"), dict):
+                if traces_dir is None:
+                    traces_dir = (
+                        artifacts_dir / "traces" / str(benchmark_payload["llm_mode"])
+                    )
+                    traces_dir.mkdir(parents=True, exist_ok=True)
+                (traces_dir / f"{doc_id}.json").write_text(
+                    json.dumps(record["trace"], indent=2),
+                    encoding="utf-8",
+                )
 
     metrics_path: Path | None = None
     metrics = benchmark_payload.get("metrics")
@@ -203,6 +278,13 @@ def benchmark_llm(
         str | None,
         typer.Option("--output-path", help="Path to save the benchmark summary JSON."),
     ] = None,
+    checkpoint_path: Annotated[
+        str | None,
+        typer.Option(
+            "--checkpoint-path",
+            help="Path to save per-document benchmark checkpoint state.",
+        ),
+    ] = None,
     artifacts_dir: Annotated[
         str | None,
         typer.Option(
@@ -249,6 +331,7 @@ def benchmark_llm(
             dataset=dataset,
             doc_ids=doc_ids,
             output_path=output_path,
+            checkpoint_path=checkpoint_path,
             artifacts_dir=artifacts_dir,
             language=language,
             prompt_templates_dir=prompt_templates_dir,

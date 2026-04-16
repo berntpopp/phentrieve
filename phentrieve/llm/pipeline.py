@@ -3,10 +3,12 @@ from __future__ import annotations
 import json
 import logging
 import re
+import time
 from typing import Any
 
 from phentrieve.llm.config import (
     DEFAULT_LLM_LANGUAGE,
+    DEFAULT_LLM_MAPPING_BATCH_SIZE,
     DEFAULT_LOCAL_MATCH_THRESHOLD,
     DEFAULT_MAX_UNIQUE_CANDIDATES,
     DEFAULT_MIN_UNIQUE_CANDIDATES,
@@ -17,7 +19,11 @@ from phentrieve.llm.config import (
     PRESENT_ASSERTION,
     UNCERTAIN_ASSERTION,
 )
-from phentrieve.llm.prompts.loader import get_mapping_prompt, get_prompt
+from phentrieve.llm.prompts.loader import (
+    get_batch_mapping_prompt,
+    get_mapping_prompt,
+    get_prompt,
+)
 from phentrieve.llm.provider import ToolExecutor
 from phentrieve.llm.types import (
     AnnotationMode,
@@ -38,9 +44,19 @@ CATEGORY_TO_ASSERTION = {
     "abnormal": PRESENT_ASSERTION,
     "normal": NEGATED_ASSERTION,
     "suspected": UNCERTAIN_ASSERTION,
+    "family_history": "family_history",
+    "other": "other",
 }
 
-ACTIONABLE_CATEGORIES = frozenset({"abnormal"})
+ACTIONABLE_CATEGORIES = frozenset({"abnormal", "normal", "suspected", "family_history"})
+
+
+def _normalize_category(category: str) -> str:
+    normalized = category.strip().lower().replace("-", "_").replace(" ", "_")
+    return {
+        "family_history": "family_history",
+        "familyhistory": "family_history",
+    }.get(normalized, normalized)
 
 
 def _normalize_token(token: str) -> str:
@@ -64,6 +80,10 @@ def _clean_text(text: str) -> str:
     return " ".join(text.split())
 
 
+def _normalize_mapping_phrase_key(text: str) -> str:
+    return " ".join(str(text or "").lower().replace("-", " ").split())
+
+
 class TwoPhaseLLMPipeline:
     def __init__(
         self,
@@ -75,6 +95,7 @@ class TwoPhaseLLMPipeline:
         min_unique_candidates: int = DEFAULT_MIN_UNIQUE_CANDIDATES,
         max_unique_candidates: int = DEFAULT_MAX_UNIQUE_CANDIDATES,
         local_match_threshold: float = DEFAULT_LOCAL_MATCH_THRESHOLD,
+        mapping_batch_size: int = DEFAULT_LLM_MAPPING_BATCH_SIZE,
     ) -> None:
         self.provider = provider
         self.tool_executor = tool_executor or ToolExecutor()
@@ -83,6 +104,7 @@ class TwoPhaseLLMPipeline:
         self.min_unique_candidates = min_unique_candidates
         self.max_unique_candidates = max_unique_candidates
         self.local_match_threshold = local_match_threshold
+        self.mapping_batch_size = max(int(mapping_batch_size), 1)
 
     def run(self, *, text: str, config: LLMPipelineConfig) -> LLMExtractionResult:
         mode = AnnotationMode(config.mode)
@@ -99,10 +121,12 @@ class TwoPhaseLLMPipeline:
             language,
             len(text),
         )
+        phase1_start = time.perf_counter()
         extracted, phase1_usage = self._extract_phase1_phenotypes(
             text=text,
             extraction_prompt=extraction_prompt,
         )
+        phase1_elapsed = round(time.perf_counter() - phase1_start, 6)
         logger.debug(
             "Phase 1 complete: extracted=%d prompt_tokens=%s completion_tokens=%s",
             len(extracted),
@@ -112,23 +136,79 @@ class TwoPhaseLLMPipeline:
         actionable = [
             (phrase, category)
             for phrase, category in extracted
-            if category.lower() in ACTIONABLE_CATEGORIES
+            if _normalize_category(category) in ACTIONABLE_CATEGORIES
         ]
 
         resolved_terms: list[LLMPhenotype] = []
         prompt_tokens_total = int(phase1_usage.get("prompt_tokens", 0) or 0)
         completion_tokens_total = int(phase1_usage.get("completion_tokens", 0) or 0)
+        request_count_total = int(getattr(self.provider, "last_request_count", 0) or 0)
         prompt_version = extraction_prompt.version
+        phase_timings: dict[str, float] = {
+            "phase1_seconds": phase1_elapsed,
+            "phase2a_seconds": 0.0,
+            "phase2b_local_seconds": 0.0,
+            "phase2b_llm_seconds": 0.0,
+        }
+        phase_counts: dict[str, int] = {
+            "extracted_phrases": len(extracted),
+            "actionable_phrases": len(actionable),
+            "candidate_sets": 0,
+            "unresolved_phrases": 0,
+            "local_matches": 0,
+            "llm_mapped_phrases": 0,
+            "local_fallbacks": 0,
+        }
+        phase_request_counts: dict[str, int] = {
+            "phase1_requests": request_count_total,
+            "phase2b_llm_requests": 0,
+        }
+        trace: dict[str, Any] = {
+            "phase1": {
+                "extracted": [
+                    {
+                        "phrase": phrase,
+                        "category": category,
+                        "actionable": _normalize_category(category)
+                        in ACTIONABLE_CATEGORIES,
+                    }
+                    for phrase, category in extracted
+                ]
+            }
+        }
         if actionable:
             logger.debug(
                 "Phase 2A: retrieving candidates for actionable_phrases=%d",
                 len(actionable),
             )
+            phase2a_start = time.perf_counter()
             phrase_candidates = self._retrieve_candidates(
                 actionable=actionable,
                 text=text,
                 language=language,
             )
+            phase_timings["phase2a_seconds"] = round(
+                time.perf_counter() - phase2a_start, 6
+            )
+            phase_counts["candidate_sets"] = len(phrase_candidates)
+            trace["phase2a"] = {
+                "candidate_sets": [
+                    {
+                        "phrase": str(item.get("phrase", "")),
+                        "category": _normalize_category(str(item.get("category", ""))),
+                        "original_sentence": str(item.get("original_sentence", "")),
+                        "candidates": [
+                            {
+                                "term_id": str(candidate.get("hpo_id", "")),
+                                "label": str(candidate.get("term_name", "")),
+                                "score": float(candidate.get("score", 0.0) or 0.0),
+                            }
+                            for candidate in item.get("candidates", [])
+                        ],
+                    }
+                    for item in phrase_candidates
+                ]
+            }
             logger.debug(
                 "Phase 2A complete: candidate_sets=%d",
                 len(phrase_candidates),
@@ -137,31 +217,75 @@ class TwoPhaseLLMPipeline:
                 "Phase 2B-local: resolving local matches for candidate_sets=%d",
                 len(phrase_candidates),
             )
+            phase2b_local_start = time.perf_counter()
             locally_resolved, unresolved = self._resolve_local_matches(
                 phrase_candidates
             )
+            phase_timings["phase2b_local_seconds"] = round(
+                time.perf_counter() - phase2b_local_start, 6
+            )
+            phase_counts["unresolved_phrases"] = len(unresolved)
+            phase_counts["local_matches"] = len(locally_resolved)
             resolved_terms.extend(locally_resolved)
+            trace["phase2b_local"] = {
+                "resolved": [
+                    {
+                        "phrase": term.evidence,
+                        "term_id": term.term_id,
+                        "label": term.label,
+                        "assertion": term.assertion,
+                        "category": term.category,
+                        "match_method": "local",
+                    }
+                    for term in locally_resolved
+                ],
+                "unresolved": [
+                    {
+                        "phrase": str(item.get("phrase", "")),
+                        "category": _normalize_category(str(item.get("category", ""))),
+                    }
+                    for item in unresolved
+                ],
+            }
             logger.debug(
                 "Phase 2B-local complete: matched=%d unresolved=%d",
                 len(locally_resolved),
                 len(unresolved),
             )
             if unresolved:
-                mapping_prompt = get_mapping_prompt(language)
+                mapping_prompt = (
+                    get_batch_mapping_prompt(language)
+                    if len(unresolved) > 1 and self.mapping_batch_size > 1
+                    else get_mapping_prompt(language)
+                )
                 prompt_version = f"{prompt_version}+{mapping_prompt.version}"
                 logger.debug(
                     "Phase 2B-llm: mapping unresolved phrases=%d",
                     len(unresolved),
                 )
-                mapped_terms, mapping_prompt_tokens, mapping_completion_tokens = (
-                    self._resolve_with_mapping_prompt(
-                        unresolved=unresolved,
-                        mapping_prompt=mapping_prompt,
-                    )
+                phase2b_llm_start = time.perf_counter()
+                (
+                    mapped_terms,
+                    mapping_prompt_tokens,
+                    mapping_completion_tokens,
+                    mapping_request_count,
+                    local_fallback_count,
+                    mapping_trace,
+                ) = self._resolve_with_mapping_prompt(
+                    unresolved=unresolved,
+                    mapping_prompt=mapping_prompt,
+                )
+                phase_timings["phase2b_llm_seconds"] = round(
+                    time.perf_counter() - phase2b_llm_start, 6
                 )
                 prompt_tokens_total += mapping_prompt_tokens
                 completion_tokens_total += mapping_completion_tokens
+                request_count_total += mapping_request_count
+                phase_request_counts["phase2b_llm_requests"] = mapping_request_count
                 resolved_terms.extend(mapped_terms)
+                phase_counts["llm_mapped_phrases"] = len(mapped_terms)
+                phase_counts["local_fallbacks"] = local_fallback_count
+                trace["phase2b_llm"] = {"resolved": mapping_trace}
                 logger.debug(
                     "Phase 2B-llm complete: mapped=%d prompt_tokens=%d completion_tokens=%d",
                     len(mapped_terms),
@@ -177,8 +301,17 @@ class TwoPhaseLLMPipeline:
                 prompt_version=prompt_version,
                 token_input=prompt_tokens_total,
                 token_output=completion_tokens_total,
+                request_count=request_count_total,
+                phase_timings=phase_timings,
+                phase_counts=phase_counts,
+                phase_request_counts=phase_request_counts,
+                trace=trace,
             ),
         )
+
+    def warmup(self, *, language: str) -> None:
+        if hasattr(self.tool_executor, "warmup"):
+            self.tool_executor.warmup(language=language)
 
     @staticmethod
     def _parse_phase1_response(response_text: str) -> list[tuple[str, str]]:
@@ -232,7 +365,7 @@ class TwoPhaseLLMPipeline:
         parsed: list[tuple[str, str]] = []
         for phenotype in response.phenotypes:
             phrase = phenotype.phrase.strip()
-            category = phenotype.category.strip()
+            category = _normalize_category(phenotype.category)
             if phrase and category:
                 parsed.append((phrase, category))
         return parsed, usage
@@ -386,9 +519,10 @@ class TwoPhaseLLMPipeline:
                     label=local_match["term_name"],
                     evidence=item["phrase"],
                     assertion=CATEGORY_TO_ASSERTION.get(
-                        str(item.get("category", "")).lower(),
+                        _normalize_category(str(item.get("category", ""))),
                         PRESENT_ASSERTION,
                     ),
+                    category=_normalize_category(str(item.get("category", ""))),
                 )
             )
             logger.debug(
@@ -439,11 +573,61 @@ class TwoPhaseLLMPipeline:
         *,
         unresolved: list[dict[str, Any]],
         mapping_prompt,
-    ) -> tuple[list[LLMPhenotype], int, int]:
+    ) -> tuple[list[LLMPhenotype], int, int, int, int, list[dict[str, Any]]]:
         resolved: list[LLMPhenotype] = []
         prompt_tokens_total = 0
         completion_tokens_total = 0
-        for item in unresolved:
+        request_count_total = 0
+        local_fallback_count = 0
+        mapping_trace: list[dict[str, Any]] = []
+        for start in range(0, len(unresolved), self.mapping_batch_size):
+            batch = unresolved[start : start + self.mapping_batch_size]
+            batch_response = self._run_mapping_batch(
+                batch=batch,
+                mapping_prompt=mapping_prompt,
+            )
+            request_count_total += int(
+                getattr(self.provider, "last_request_count", 0) or 0
+            )
+            prompt_tokens_total += int(
+                batch_response.usage.get("prompt_tokens", 0) or 0
+            )
+            completion_tokens_total += int(
+                batch_response.usage.get("completion_tokens", 0) or 0
+            )
+            selected_ids = self._select_candidate_ids(
+                response_text=batch_response.content or "",
+                batch=batch,
+            )
+            for item in batch:
+                (
+                    item_resolved,
+                    item_local_fallback_count,
+                    item_trace,
+                ) = self._resolve_mapping_selection(
+                    item=item,
+                    selected_id=selected_ids.get(str(item["phrase"])),
+                )
+                resolved.extend(item_resolved)
+                local_fallback_count += item_local_fallback_count
+                mapping_trace.append(item_trace)
+        return (
+            resolved,
+            prompt_tokens_total,
+            completion_tokens_total,
+            request_count_total,
+            local_fallback_count,
+            mapping_trace,
+        )
+
+    def _run_mapping_batch(
+        self,
+        *,
+        batch: list[dict[str, Any]],
+        mapping_prompt,
+    ):
+        if len(batch) == 1:
+            item = batch[0]
             normalized_phrase = str(item["phrase"]).lower().replace("-", " ").strip()
             candidate_payload = json.dumps(
                 {
@@ -457,91 +641,176 @@ class TwoPhaseLLMPipeline:
                 },
                 ensure_ascii=False,
             )
-            response = self.provider.complete(
-                mapping_prompt.get_messages(candidate_payload, include_examples=True)
+        else:
+            candidate_payload = json.dumps(
+                {
+                    "items": [
+                        {
+                            "phrase": str(item["phrase"])
+                            .lower()
+                            .replace("-", " ")
+                            .strip(),
+                            "category": item["category"],
+                            "original_sentence": item["original_sentence"],
+                            "candidates": [
+                                {
+                                    "id": candidate["hpo_id"],
+                                    "term": candidate["term_name"],
+                                }
+                                for candidate in item["candidates"]
+                            ],
+                        }
+                        for item in batch
+                    ]
+                },
+                ensure_ascii=False,
             )
-            prompt_tokens_total += int(response.usage.get("prompt_tokens", 0) or 0)
-            completion_tokens_total += int(
-                response.usage.get("completion_tokens", 0) or 0
+        return self.provider.complete(
+            mapping_prompt.get_messages(candidate_payload, include_examples=True)
+        )
+
+    def _resolve_mapping_selection(
+        self,
+        *,
+        item: dict[str, Any],
+        selected_id: str | None,
+    ) -> tuple[list[LLMPhenotype], int, dict[str, Any]]:
+        if not selected_id:
+            logger.warning(
+                "Phase 2B-llm: phrase=%r produced no valid mapping; trying local fallback",
+                item["phrase"],
             )
-            selected_id = self._select_candidate_id(
-                response_text=response.content or "",
-                candidates=item["candidates"],
-            )
-            if not selected_id:
-                logger.warning(
-                    "Phase 2B-llm: phrase=%r produced no valid mapping; trying local fallback",
-                    item["phrase"],
+            fallback = self._try_local_match(item["phrase"], item["candidates"])
+            if fallback is None:
+                return (
+                    [],
+                    0,
+                    {
+                        "phrase": str(item["phrase"]),
+                        "selected_id": None,
+                        "term_id": None,
+                        "label": None,
+                        "assertion": CATEGORY_TO_ASSERTION.get(
+                            _normalize_category(str(item.get("category", ""))),
+                            PRESENT_ASSERTION,
+                        ),
+                        "category": _normalize_category(str(item.get("category", ""))),
+                        "match_method": "llm",
+                        "local_fallback": False,
+                    },
                 )
-                fallback = self._try_local_match(item["phrase"], item["candidates"])
-                if fallback is not None:
-                    resolved.append(
-                        LLMPhenotype(
-                            term_id=fallback["hpo_id"],
-                            label=fallback["term_name"],
-                            evidence=item["phrase"],
-                            assertion=CATEGORY_TO_ASSERTION.get(
-                                str(item.get("category", "")).lower(),
-                                PRESENT_ASSERTION,
-                            ),
-                        )
-                    )
-                    logger.debug(
-                        "Phase 2B-llm: phrase=%r local fallback resolved=%s",
-                        item["phrase"],
-                        fallback["hpo_id"],
-                    )
-                continue
-            candidate = next(
-                (
-                    candidate
-                    for candidate in item["candidates"]
-                    if candidate["hpo_id"] == selected_id
-                ),
-                None,
-            )
-            if candidate is None:
-                logger.warning(
-                    "Phase 2B-llm: phrase=%r selected_id=%s not in candidates; trying local fallback",
-                    item["phrase"],
-                    selected_id,
-                )
-                fallback = self._try_local_match(item["phrase"], item["candidates"])
-                if fallback is not None:
-                    resolved.append(
-                        LLMPhenotype(
-                            term_id=fallback["hpo_id"],
-                            label=fallback["term_name"],
-                            evidence=item["phrase"],
-                            assertion=CATEGORY_TO_ASSERTION.get(
-                                str(item.get("category", "")).lower(),
-                                PRESENT_ASSERTION,
-                            ),
-                        )
-                    )
-                    logger.debug(
-                        "Phase 2B-llm: phrase=%r local fallback resolved=%s",
-                        item["phrase"],
-                        fallback["hpo_id"],
-                    )
-                continue
-            resolved.append(
-                LLMPhenotype(
-                    term_id=candidate["hpo_id"],
-                    label=candidate["term_name"],
-                    evidence=item["phrase"],
-                    assertion=CATEGORY_TO_ASSERTION.get(
-                        str(item.get("category", "")).lower(),
-                        PRESENT_ASSERTION,
-                    ),
-                )
-            )
             logger.debug(
-                "Phase 2B-llm: phrase=%r mapped=%s",
+                "Phase 2B-llm: phrase=%r local fallback resolved=%s",
+                item["phrase"],
+                fallback["hpo_id"],
+            )
+            phenotype = self._phenotype_from_candidate(item=item, candidate=fallback)
+            return (
+                [phenotype],
+                1,
+                {
+                    "phrase": str(item["phrase"]),
+                    "selected_id": None,
+                    "term_id": phenotype.term_id,
+                    "label": phenotype.label,
+                    "assertion": phenotype.assertion,
+                    "category": phenotype.category,
+                    "match_method": "llm",
+                    "local_fallback": True,
+                },
+            )
+
+        candidate = next(
+            (
+                candidate
+                for candidate in item["candidates"]
+                if candidate["hpo_id"] == selected_id
+            ),
+            None,
+        )
+        if candidate is None:
+            logger.warning(
+                "Phase 2B-llm: phrase=%r selected_id=%s not in candidates; trying local fallback",
                 item["phrase"],
                 selected_id,
             )
-        return resolved, prompt_tokens_total, completion_tokens_total
+            fallback = self._try_local_match(item["phrase"], item["candidates"])
+            if fallback is None:
+                return (
+                    [],
+                    0,
+                    {
+                        "phrase": str(item["phrase"]),
+                        "selected_id": selected_id,
+                        "term_id": None,
+                        "label": None,
+                        "assertion": CATEGORY_TO_ASSERTION.get(
+                            _normalize_category(str(item.get("category", ""))),
+                            PRESENT_ASSERTION,
+                        ),
+                        "category": _normalize_category(str(item.get("category", ""))),
+                        "match_method": "llm",
+                        "local_fallback": False,
+                    },
+                )
+            logger.debug(
+                "Phase 2B-llm: phrase=%r local fallback resolved=%s",
+                item["phrase"],
+                fallback["hpo_id"],
+            )
+            phenotype = self._phenotype_from_candidate(item=item, candidate=fallback)
+            return (
+                [phenotype],
+                1,
+                {
+                    "phrase": str(item["phrase"]),
+                    "selected_id": selected_id,
+                    "term_id": phenotype.term_id,
+                    "label": phenotype.label,
+                    "assertion": phenotype.assertion,
+                    "category": phenotype.category,
+                    "match_method": "llm",
+                    "local_fallback": True,
+                },
+            )
+
+        logger.debug(
+            "Phase 2B-llm: phrase=%r mapped=%s",
+            item["phrase"],
+            selected_id,
+        )
+        phenotype = self._phenotype_from_candidate(item=item, candidate=candidate)
+        return (
+            [phenotype],
+            0,
+            {
+                "phrase": str(item["phrase"]),
+                "selected_id": selected_id,
+                "term_id": phenotype.term_id,
+                "label": phenotype.label,
+                "assertion": phenotype.assertion,
+                "category": phenotype.category,
+                "match_method": "llm",
+                "local_fallback": False,
+            },
+        )
+
+    @staticmethod
+    def _phenotype_from_candidate(
+        *,
+        item: dict[str, Any],
+        candidate: dict[str, Any],
+    ) -> LLMPhenotype:
+        return LLMPhenotype(
+            term_id=candidate["hpo_id"],
+            label=candidate["term_name"],
+            evidence=item["phrase"],
+            assertion=CATEGORY_TO_ASSERTION.get(
+                _normalize_category(str(item.get("category", ""))),
+                PRESENT_ASSERTION,
+            ),
+            category=_normalize_category(str(item.get("category", ""))),
+        )
 
     @staticmethod
     def _select_candidate_id(
@@ -561,6 +830,54 @@ class TwoPhaseLLMPipeline:
         if fallback_id in candidate_ids:
             return fallback_id
         return None
+
+    @classmethod
+    def _select_candidate_ids(
+        cls,
+        *,
+        response_text: str,
+        batch: list[dict[str, Any]],
+    ) -> dict[str, str | None]:
+        if len(batch) == 1:
+            item = batch[0]
+            return {
+                str(item["phrase"]): cls._select_candidate_id(
+                    response_text=response_text,
+                    candidates=item["candidates"],
+                )
+            }
+
+        selected: dict[str, str | None] = {str(item["phrase"]): None for item in batch}
+        json_data = extract_json(response_text)
+        mappings = json_data.get("mappings") if isinstance(json_data, dict) else None
+        if not isinstance(mappings, list):
+            return selected
+
+        candidates_by_phrase = {
+            str(item["phrase"]): {
+                candidate["hpo_id"] for candidate in item["candidates"]
+            }
+            for item in batch
+        }
+        original_phrase_by_normalized = {
+            _normalize_mapping_phrase_key(str(item["phrase"])): str(item["phrase"])
+            for item in batch
+        }
+        for mapping in mappings:
+            if not isinstance(mapping, dict):
+                continue
+            phrase = str(mapping.get("phrase", ""))
+            original_phrase = original_phrase_by_normalized.get(
+                _normalize_mapping_phrase_key(phrase)
+            )
+            selected_id = mapping.get("hpo_id")
+            if (
+                isinstance(selected_id, str)
+                and original_phrase in candidates_by_phrase
+                and selected_id in candidates_by_phrase[original_phrase]
+            ):
+                selected[original_phrase] = selected_id
+        return selected
 
     @staticmethod
     def _deduplicate_terms(terms: list[LLMPhenotype]) -> list[LLMPhenotype]:

@@ -39,6 +39,7 @@ class LLMPhenotype(BaseModel):
     label: str
     evidence: str | None = None
     assertion: str = AssertionStatus.PRESENT.value
+    category: str | None = None
 
 
 class LLMExtractedPhenotype(BaseModel):
@@ -47,7 +48,6 @@ class LLMExtractedPhenotype(BaseModel):
             "A concise phenotype phrase copied from the source text. "
             "Use short noun phrases rather than full sentences."
         ),
-        max_length=160,
     )
     category: Literal["Abnormal", "Normal", "Suspected", "Family_History", "Other"] = (
         Field(
@@ -63,7 +63,6 @@ class LLMExtractedPhenotypes(BaseModel):
     phenotypes: list[LLMExtractedPhenotype] = Field(
         default_factory=list,
         description="Distinct phenotype phrases extracted from the clinical text.",
-        max_length=128,
     )
 
 
@@ -73,6 +72,11 @@ class LLMMeta(BaseModel):
     prompt_version: str = "v1"
     token_input: int | None = None
     token_output: int | None = None
+    request_count: int = 0
+    phase_timings: dict[str, float] = Field(default_factory=dict)
+    phase_counts: dict[str, int] = Field(default_factory=dict)
+    phase_request_counts: dict[str, int] = Field(default_factory=dict)
+    trace: dict[str, Any] = Field(default_factory=dict)
 
 
 class LLMPipelineConfig(BaseModel):

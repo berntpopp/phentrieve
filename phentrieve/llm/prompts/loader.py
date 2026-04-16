@@ -22,6 +22,7 @@ USER_TEMPLATES_DIR = Path.home() / ".phentrieve" / "prompts"
 
 TOOL_TERM_VARIANT = "term_search"
 TOOL_TEXT_VARIANT = "text_process"
+MAPPING_BATCH_VARIANT = "mapping_batch"
 
 
 @dataclass(slots=True)
@@ -188,6 +189,14 @@ def get_mapping_prompt(language: str = DEFAULT_LLM_LANGUAGE) -> PromptTemplate:
         AnnotationMode.TWO_PHASE,
         language,
         variant=PROMPT_VARIANT_MAPPING,
+    )
+
+
+def get_batch_mapping_prompt(language: str = DEFAULT_LLM_LANGUAGE) -> PromptTemplate:
+    return load_prompt_template(
+        AnnotationMode.TWO_PHASE,
+        language,
+        variant=MAPPING_BATCH_VARIANT,
     )
 
 

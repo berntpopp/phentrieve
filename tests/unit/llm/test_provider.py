@@ -22,6 +22,7 @@ from phentrieve.llm.types import LLMExtractedPhenotypes
 class FakeRetriever:
     def __init__(self) -> None:
         self.calls: list[tuple[str, int, bool]] = []
+        self.multi_vector_calls: list[tuple[str, int, str]] = []
 
     def query(self, query: str, n_results: int, include_similarities: bool = False):
         self.calls.append((query, n_results, include_similarities))
@@ -40,6 +41,24 @@ class FakeRetriever:
                 "similarities": [[0.95]],
             }
             for _ in texts
+        ]
+
+    def query_multi_vector(
+        self,
+        text: str,
+        n_results: int = 10,
+        aggregation_strategy: str = "label_synonyms_max",
+        component_weights: dict[str, float] | None = None,
+        custom_formula: str | None = None,
+    ):
+        del component_weights, custom_formula
+        self.multi_vector_calls.append((text, n_results, aggregation_strategy))
+        return [
+            {
+                "hpo_id": "HP:0001250",
+                "label": "Seizure",
+                "similarity": 0.95,
+            }
         ]
 
 
@@ -76,7 +95,7 @@ def test_llm_provider_complete_signature_is_message_only() -> None:
 
 def test_tool_executor_caps_query_results_and_formats_matches() -> None:
     retriever = FakeRetriever()
-    executor = ToolExecutor(retriever=retriever, max_num_results=3)
+    executor = ToolExecutor(retriever=retriever, max_num_results=3, multi_vector=False)
 
     result = executor.execute(
         "query_hpo_terms",
@@ -108,7 +127,11 @@ def test_tool_executor_process_clinical_text_uses_injected_processor() -> None:
 
 def test_tool_executor_chunks_large_batch_queries() -> None:
     retriever = FakeRetriever()
-    executor = ToolExecutor(retriever=retriever, retrieval_batch_size=2)
+    executor = ToolExecutor(
+        retriever=retriever,
+        retrieval_batch_size=2,
+        multi_vector=False,
+    )
 
     result = executor.query_batch_hpo_terms(
         phrases=["one", "two", "three", "four", "five"],
@@ -122,6 +145,36 @@ def test_tool_executor_chunks_large_batch_queries() -> None:
         ("__batch__", 1, True),
     ]
     assert len(result) == 5
+
+
+def test_tool_executor_uses_multi_vector_queries_when_enabled() -> None:
+    retriever = FakeRetriever()
+    executor = ToolExecutor(retriever=retriever, multi_vector=True)
+
+    result = executor.query_batch_hpo_terms(
+        phrases=["seizures", "ataxia"],
+        language="en",
+        n_results=5,
+    )
+
+    assert retriever.multi_vector_calls == [
+        ("seizures", 5, "label_synonyms_max"),
+        ("ataxia", 5, "label_synonyms_max"),
+    ]
+    assert result == [
+        {
+            "phrase": "seizures",
+            "candidates": [
+                {"hpo_id": "HP:0001250", "term_name": "Seizure", "score": 0.95}
+            ],
+        },
+        {
+            "phrase": "ataxia",
+            "candidates": [
+                {"hpo_id": "HP:0001250", "term_name": "Seizure", "score": 0.95}
+            ],
+        },
+    ]
 
 
 def test_process_clinical_text_defaults_come_from_config(monkeypatch) -> None:
@@ -332,15 +385,22 @@ def test_structured_prompt_uses_json_schema_and_manual_validation(monkeypatch) -
         "Other",
     ]
     assert (
-        config_kwargs["response_json_schema"]["properties"]["phenotypes"]["maxItems"]
-        == llm_config.DEFAULT_PHASE1_MAX_PHENOTYPES
+        "maxItems"
+        not in config_kwargs["response_json_schema"]["properties"]["phenotypes"]
     )
     assert (
-        config_kwargs["response_json_schema"]["properties"]["phenotypes"]["items"][
-            "properties"
-        ]["phrase"]["maxLength"]
-        == 160
+        "maxLength"
+        not in config_kwargs["response_json_schema"]["properties"]["phenotypes"][
+            "items"
+        ]["properties"]["phrase"]
     )
+    assert (
+        config_kwargs["response_json_schema"]["properties"]["phenotypes"]["description"]
+        == "Distinct phenotype phrases extracted from the clinical text."
+    )
+    assert config_kwargs["response_json_schema"]["properties"]["phenotypes"]["items"][
+        "properties"
+    ]["phrase"]["description"].startswith("A concise phenotype phrase")
     assert config_kwargs["max_output_tokens"] == 8192
     assert provider.last_usage["total_tokens"] == 20
 
@@ -384,6 +444,7 @@ def test_structured_prompt_retries_after_invalid_json(monkeypatch) -> None:
     assert fake_models.calls[0]["config"].kwargs["max_output_tokens"] == 8192
     assert fake_models.calls[1]["config"].kwargs["max_output_tokens"] == 16384
     assert provider.last_finish_reason == "STOP"
+    assert provider.last_usage["total_tokens"] == 40
 
 
 def test_structured_prompt_retries_after_extra_data_json_error(monkeypatch) -> None:
@@ -424,13 +485,12 @@ def test_structured_prompt_retries_after_extra_data_json_error(monkeypatch) -> N
     assert len(fake_models.calls) == 2
 
 
-def test_structured_prompt_falls_back_to_relaxed_schema_after_state_limit_error(
+def test_structured_prompt_uses_single_relaxed_schema_without_size_constraints(
     monkeypatch,
 ) -> None:
     fake_models = _install_fake_google_genai(
         monkeypatch,
         [
-            _FakeResponse(),
             _FakeResponse(
                 text='{"phenotypes":[{"phrase":"recurrent seizures","category":"Abnormal"}]}',
                 parsed=None,
@@ -438,11 +498,8 @@ def test_structured_prompt_falls_back_to_relaxed_schema_after_state_limit_error(
                 prompt_tokens=11,
                 completion_tokens=9,
                 total_tokens=20,
-            ),
+            )
         ],
-    )
-    fake_models._responses[0] = fake_models.client_error(
-        400, "too many states for serving"
     )
     provider = GeminiStructuredOutputProvider(
         model_name="gemini-2.5-flash",
@@ -455,23 +512,78 @@ def test_structured_prompt_falls_back_to_relaxed_schema_after_state_limit_error(
         response_model=LLMExtractedPhenotypes,
     )
 
-    first_schema = fake_models.calls[0]["config"].kwargs["response_json_schema"]
-    second_schema = fake_models.calls[1]["config"].kwargs["response_json_schema"]
+    schema = fake_models.calls[0]["config"].kwargs["response_json_schema"]
     assert result.phenotypes[0].category == "Abnormal"
-    assert first_schema["properties"]["phenotypes"]["maxItems"] == 128
-    assert (
-        first_schema["properties"]["phenotypes"]["items"]["properties"]["phrase"][
-            "maxLength"
-        ]
-        == 160
-    )
-    assert "maxItems" not in second_schema["properties"]["phenotypes"]
+    assert len(fake_models.calls) == 1
+    assert "maxItems" not in schema["properties"]["phenotypes"]
     assert (
         "maxLength"
-        not in second_schema["properties"]["phenotypes"]["items"]["properties"][
-            "phrase"
-        ]
+        not in schema["properties"]["phenotypes"]["items"]["properties"]["phrase"]
     )
+    assert schema["properties"]["phenotypes"]["items"]["properties"]["phrase"][
+        "description"
+    ]
+
+
+def test_structured_prompt_accepts_long_phrase_when_served_schema_is_relaxed(
+    monkeypatch,
+) -> None:
+    long_phrase = "phenotype detail " * 76
+    fake_models = _install_fake_google_genai(
+        monkeypatch,
+        [
+            _FakeResponse(
+                text=(
+                    '{"phenotypes":[{"phrase":"'
+                    + long_phrase
+                    + '","category":"Other"}]}'
+                ),
+                parsed=None,
+                finish_reason="STOP",
+                prompt_tokens=11,
+                completion_tokens=9,
+                total_tokens=20,
+            )
+        ],
+    )
+    provider = GeminiStructuredOutputProvider(
+        model_name="gemini-2.5-flash",
+        api_key="test-key",
+    )
+
+    result = provider.run_structured_prompt(
+        system_prompt="system",
+        user_prompt="user",
+        response_model=LLMExtractedPhenotypes,
+    )
+
+    assert result.phenotypes[0].phrase == long_phrase
+    assert len(fake_models.calls) == 1
+
+
+def test_structured_prompt_does_not_retry_non_retryable_schema_client_error(
+    monkeypatch,
+) -> None:
+    fake_models = _install_fake_google_genai(
+        monkeypatch,
+        [_FakeResponse()],
+    )
+    fake_models._responses[0] = fake_models.client_error(
+        400, "too many states for serving"
+    )
+    provider = GeminiStructuredOutputProvider(
+        model_name="gemini-2.5-flash",
+        api_key="test-key",
+    )
+
+    with pytest.raises(Exception, match="too many states for serving"):
+        provider.run_structured_prompt(
+            system_prompt="system",
+            user_prompt="user",
+            response_model=LLMExtractedPhenotypes,
+        )
+
+    assert len(fake_models.calls) == 1
 
 
 def test_complete_retries_after_transient_server_error(monkeypatch) -> None:

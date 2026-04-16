@@ -11,6 +11,7 @@ from pydantic import BaseModel, ValidationError
 
 from phentrieve.config import DEFAULT_MODEL
 from phentrieve.llm.config import (
+    DEFAULT_LLM_MULTI_VECTOR_AGGREGATION_STRATEGY,
     DEFAULT_LLM_RETRIEVAL_BATCH_SIZE,
     DEFAULT_PROCESS_CLINICAL_TEXT_CHUNK_RETRIEVAL_THRESHOLD,
     DEFAULT_PROCESS_CLINICAL_TEXT_NUM_RESULTS_PER_CHUNK,
@@ -39,10 +40,12 @@ class LLMProvider(ABC):
     temperature: float = DEFAULT_PROVIDER_TEMPERATURE
     last_usage: dict[str, int]
     last_finish_reason: str | None
+    last_request_count: int
 
     def __init__(self) -> None:
         self.last_usage = {}
         self.last_finish_reason = None
+        self.last_request_count = 0
 
     @abstractmethod
     def complete(self, messages: list[dict[str, Any]]) -> LLMResponse:
@@ -124,9 +127,10 @@ class GeminiStructuredOutputProvider(LLMProvider):
 
         self.last_usage = {}
         self.last_finish_reason = None
+        self.last_request_count = 0
         system_prompt, user_prompt = self._render_messages(messages)
 
-        response = self._generate_with_transient_retry(
+        response, request_count = self._generate_with_transient_retry(
             genai_module=genai,
             model=self.model_name,
             contents=user_prompt,
@@ -140,6 +144,7 @@ class GeminiStructuredOutputProvider(LLMProvider):
         usage = self._extract_usage(response)
         self.last_usage = usage
         self.last_finish_reason = self._extract_finish_reason(response)
+        self.last_request_count = request_count
         response_text = getattr(response, "text", None)
         return LLMResponse(
             content=response_text if isinstance(response_text, str) else None,
@@ -169,76 +174,61 @@ class GeminiStructuredOutputProvider(LLMProvider):
 
         self.last_usage = {}
         self.last_finish_reason = None
+        self.last_request_count = 0
         last_exception: Exception | None = None
-        schema_variants = (True, False)
-        for include_size_constraints in schema_variants:
-            response_schema = self._build_response_json_schema(
-                response_model,
-                include_size_constraints=include_size_constraints,
+        aggregate_usage = {
+            "prompt_tokens": 0,
+            "completion_tokens": 0,
+            "total_tokens": 0,
+        }
+        response_schema = self._build_response_json_schema(response_model)
+        output_tokens = max_output_tokens or self.max_tokens
+
+        for attempt in range(1, self.structured_retries + 2):
+            response, request_count = self._generate_with_transient_retry(
+                genai_module=genai,
+                model=self.model_name,
+                contents=user_prompt,
+                config=types.GenerateContentConfig(
+                    system_instruction=system_prompt,
+                    response_mime_type="application/json",
+                    response_json_schema=response_schema,
+                    temperature=self.temperature,
+                    max_output_tokens=output_tokens,
+                    http_options=types.HttpOptions(timeout=self.timeout_seconds * 1000),
+                ),
+                structured=True,
             )
-            output_tokens = max_output_tokens or self.max_tokens
 
-            for attempt in range(1, self.structured_retries + 2):
-                try:
-                    response = self._generate_with_transient_retry(
-                        genai_module=genai,
-                        model=self.model_name,
-                        contents=user_prompt,
-                        config=types.GenerateContentConfig(
-                            system_instruction=system_prompt,
-                            response_mime_type="application/json",
-                            response_json_schema=response_schema,
-                            temperature=self.temperature,
-                            max_output_tokens=output_tokens,
-                            http_options=types.HttpOptions(
-                                timeout=self.timeout_seconds * 1000
-                            ),
-                        ),
-                        structured=True,
-                    )
-                except Exception as exc:
-                    last_exception = exc
-                    if include_size_constraints and self._is_schema_state_limit_error(
-                        exc
-                    ):
-                        logger.warning(
-                            "Gemini rejected constrained structured schema for model=%s; "
-                            "retrying with relaxed served schema: %s",
-                            self.model_name,
-                            exc,
-                        )
-                        break
+            self.last_request_count += request_count
+            response_usage = self._extract_usage(response)
+            for key, value in response_usage.items():
+                aggregate_usage[key] = int(aggregate_usage.get(key, 0) or 0) + int(
+                    value or 0
+                )
+            self.last_usage = dict(aggregate_usage)
+            self.last_finish_reason = self._extract_finish_reason(response)
+            try:
+                return self._validate_structured_response(
+                    response=response,
+                    response_model=response_model,
+                )
+            except (ValidationError, ValueError, RuntimeError) as exc:
+                last_exception = exc
+                if (
+                    attempt > self.structured_retries
+                    or not self._is_retryable_structured_error(exc)
+                ):
                     raise
-
-                self.last_usage = self._extract_usage(response)
-                self.last_finish_reason = self._extract_finish_reason(response)
-                try:
-                    return self._validate_structured_response(
-                        response=response,
-                        response_model=response_model,
-                    )
-                except (ValidationError, ValueError, RuntimeError) as exc:
-                    last_exception = exc
-                    if (
-                        attempt > self.structured_retries
-                        or not self._is_retryable_structured_error(exc)
-                    ):
-                        raise
-                    logger.warning(
-                        "Gemini structured response validation failed on attempt %d/%d "
-                        "(finish_reason=%s): %s",
-                        attempt,
-                        self.structured_retries + 1,
-                        self.last_finish_reason,
-                        exc,
-                    )
-                    output_tokens = self._next_retry_output_tokens(output_tokens)
-            else:
-                continue
-
-            if include_size_constraints:
-                continue
-            break
+                logger.warning(
+                    "Gemini structured response validation failed on attempt %d/%d "
+                    "(finish_reason=%s): %s",
+                    attempt,
+                    self.structured_retries + 1,
+                    self.last_finish_reason,
+                    exc,
+                )
+                output_tokens = self._next_retry_output_tokens(output_tokens)
 
         if last_exception is not None:
             raise last_exception
@@ -329,14 +319,11 @@ class GeminiStructuredOutputProvider(LLMProvider):
     def _build_response_json_schema(
         cls,
         response_model: type[BaseModel],
-        *,
-        include_size_constraints: bool,
     ) -> dict[str, Any]:
         full_schema = response_model.model_json_schema()
         return cls._compact_json_schema(
             schema=full_schema,
             definitions=full_schema.get("$defs", {}),
-            include_size_constraints=include_size_constraints,
         )
 
     @classmethod
@@ -345,7 +332,6 @@ class GeminiStructuredOutputProvider(LLMProvider):
         *,
         schema: dict[str, Any],
         definitions: dict[str, Any],
-        include_size_constraints: bool,
     ) -> dict[str, Any]:
         ref = schema.get("$ref")
         if isinstance(ref, str) and ref.startswith("#/$defs/"):
@@ -355,7 +341,6 @@ class GeminiStructuredOutputProvider(LLMProvider):
                 return cls._compact_json_schema(
                     schema=definition,
                     definitions=definitions,
-                    include_size_constraints=include_size_constraints,
                 )
 
         compact: dict[str, Any] = {}
@@ -366,14 +351,9 @@ class GeminiStructuredOutputProvider(LLMProvider):
         if "enum" in schema and isinstance(schema["enum"], list):
             compact["enum"] = list(schema["enum"])
 
-        if include_size_constraints:
-            max_items = schema.get("maxItems")
-            if isinstance(max_items, int):
-                compact["maxItems"] = max_items
-
-            max_length = schema.get("maxLength")
-            if isinstance(max_length, int):
-                compact["maxLength"] = max_length
+        description = schema.get("description")
+        if isinstance(description, str) and description.strip():
+            compact["description"] = description
 
         properties = schema.get("properties")
         if isinstance(properties, dict):
@@ -381,7 +361,6 @@ class GeminiStructuredOutputProvider(LLMProvider):
                 key: cls._compact_json_schema(
                     schema=value,
                     definitions=definitions,
-                    include_size_constraints=include_size_constraints,
                 )
                 for key, value in properties.items()
                 if isinstance(value, dict)
@@ -392,7 +371,6 @@ class GeminiStructuredOutputProvider(LLMProvider):
             compact["items"] = cls._compact_json_schema(
                 schema=items,
                 definitions=definitions,
-                include_size_constraints=include_size_constraints,
             )
 
         required = schema.get("required")
@@ -406,15 +384,9 @@ class GeminiStructuredOutputProvider(LLMProvider):
             compact["additionalProperties"] = cls._compact_json_schema(
                 schema=additional_properties,
                 definitions=definitions,
-                include_size_constraints=include_size_constraints,
             )
 
         return compact
-
-    @staticmethod
-    def _is_schema_state_limit_error(exc: Exception) -> bool:
-        message = str(exc).lower()
-        return "too many states for serving" in message
 
     def _next_retry_output_tokens(self, current_output_tokens: int) -> int:
         if self.structured_retry_token_multiplier <= 1:
@@ -429,16 +401,19 @@ class GeminiStructuredOutputProvider(LLMProvider):
         contents: str,
         config: Any,
         structured: bool = False,
-    ) -> Any:
+    ) -> tuple[Any, int]:
         last_exception: Exception | None = None
+        request_count = 0
         for attempt in range(1, self.transient_retries + 2):
             try:
                 with genai_module.Client(api_key=self._api_key) as client:
-                    return client.models.generate_content(
+                    request_count += 1
+                    response = client.models.generate_content(
                         model=model,
                         contents=contents,
                         config=config,
                     )
+                    return response, request_count
             except Exception as exc:
                 last_exception = exc
                 if (
@@ -496,15 +471,22 @@ class ToolExecutor:
         max_num_results: int = DEFAULT_TOOL_QUERY_RESULTS,
         retrieval_batch_size: int = DEFAULT_LLM_RETRIEVAL_BATCH_SIZE,
         multi_vector: bool = True,
+        multi_vector_aggregation_strategy: str = (
+            DEFAULT_LLM_MULTI_VECTOR_AGGREGATION_STRATEGY
+        ),
     ) -> None:
         self._retriever = retriever
         self._text_processor = text_processor
         self.max_num_results = max_num_results
         self.retrieval_batch_size = retrieval_batch_size
         self.multi_vector = multi_vector
+        self.multi_vector_aggregation_strategy = multi_vector_aggregation_strategy
         self._cached_embedding_model: Any | None = None
         self._cached_retriever: Any | None = None
         self._cached_pipelines: dict[str, Any] = {}
+
+    def warmup(self, *, language: str) -> None:
+        self._get_phentrieve_components(language)
 
     def query_hpo_terms(
         self,
@@ -517,6 +499,21 @@ class ToolExecutor:
             return []
 
         capped_results = min(int(num_results), self.max_num_results)
+        if self.multi_vector and hasattr(retriever, "query_multi_vector"):
+            multi_vector_results = retriever.query_multi_vector(
+                query,
+                n_results=capped_results,
+                aggregation_strategy=self.multi_vector_aggregation_strategy,
+            )
+            return [
+                {
+                    "hpo_id": result.get("hpo_id", ""),
+                    "term_name": result.get("label", ""),
+                    "score": float(result.get("similarity", 0.0)),
+                }
+                for result in multi_vector_results
+            ]
+
         raw = retriever.query(query, n_results=capped_results)
         metadatas = raw.get("metadatas", [[]])[0]
         similarities = (
@@ -547,14 +544,37 @@ class ToolExecutor:
         )
         if retriever is None:
             return []
-        if hasattr(retriever, "query_batch"):
+        if self.multi_vector and hasattr(retriever, "query_multi_vector"):
             results: list[dict[str, Any]] = []
-            for start in range(0, len(phrases), self.retrieval_batch_size):
-                batch_phrases = phrases[start : start + self.retrieval_batch_size]
-                results.extend(
-                    list(retriever.query_batch(batch_phrases, n_results=n_results))
+            capped_results = min(int(n_results), self.max_num_results)
+            for phrase in phrases:
+                multi_vector_results = retriever.query_multi_vector(
+                    phrase,
+                    n_results=capped_results,
+                    aggregation_strategy=self.multi_vector_aggregation_strategy,
+                )
+                results.append(
+                    {
+                        "phrase": phrase,
+                        "candidates": [
+                            {
+                                "hpo_id": result.get("hpo_id", ""),
+                                "term_name": result.get("label", ""),
+                                "score": float(result.get("similarity", 0.0)),
+                            }
+                            for result in multi_vector_results
+                        ],
+                    }
                 )
             return results
+        if hasattr(retriever, "query_batch"):
+            batch_results: list[dict[str, Any]] = []
+            for start in range(0, len(phrases), self.retrieval_batch_size):
+                batch_phrases = phrases[start : start + self.retrieval_batch_size]
+                batch_results.extend(
+                    list(retriever.query_batch(batch_phrases, n_results=n_results))
+                )
+            return batch_results
         return [
             {
                 "metadatas": [

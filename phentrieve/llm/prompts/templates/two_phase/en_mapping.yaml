@@ -12,6 +12,8 @@ system_prompt: |
   - Choose only one candidate HPO identifier
   - Use the sentence context to disambiguate
   - Prefer semantic equivalence over lexical similarity
+  - If category is "normal", choose the abnormal HPO concept that is explicitly absent or normal in context
+  - For example, "normal intelligence" should map to "Intellectual disability"; assertion handling happens outside this step
   - If no candidate is a clear match, return null
   - Never invent an HPO id outside the candidates list
 

@@ -80,23 +80,28 @@ def test_resolve_with_mapping_prompt_normalizes_phrase_before_llm_call():
     pipeline = TwoPhaseLLMPipeline(provider=provider)
     mapping_prompt = get_mapping_prompt("en")
 
-    resolved_terms, prompt_tokens, completion_tokens = (
-        pipeline._resolve_with_mapping_prompt(
-            unresolved=[
-                {
-                    "phrase": "Frequent-Falls",
-                    "category": "Abnormal",
-                    "original_sentence": "The child has frequent falls while walking.",
-                    "candidates": [
-                        {
-                            "hpo_id": "HP:0002355",
-                            "term_name": "Difficulty walking",
-                        }
-                    ],
-                }
-            ],
-            mapping_prompt=mapping_prompt,
-        )
+    (
+        resolved_terms,
+        prompt_tokens,
+        completion_tokens,
+        _request_count,
+        _local_fallback_count,
+        _mapping_trace,
+    ) = pipeline._resolve_with_mapping_prompt(
+        unresolved=[
+            {
+                "phrase": "Frequent-Falls",
+                "category": "Abnormal",
+                "original_sentence": "The child has frequent falls while walking.",
+                "candidates": [
+                    {
+                        "hpo_id": "HP:0002355",
+                        "term_name": "Difficulty walking",
+                    }
+                ],
+            }
+        ],
+        mapping_prompt=mapping_prompt,
     )
 
     assert resolved_terms
