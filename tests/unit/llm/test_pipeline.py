@@ -242,6 +242,32 @@ def test_phase1_returns_chunk_ids_and_evidence_text():
     assert result[0][0]["chunk_ids"] == [1]
 
 
+def test_retrieval_uses_grounded_context_instead_of_original_sentence():
+    item = {
+        "phrase": "frequent falls",
+        "category": "abnormal",
+        "chunk_ids": [2],
+        "evidence_text": "frequent falls",
+    }
+    grounded_chunks = [
+        {"chunk_id": 1, "text": "The child walks independently."},
+        {"chunk_id": 2, "text": "The child has frequent falls while walking."},
+    ]
+    pipeline = TwoPhaseLLMPipeline(
+        provider=FakeProvider([]), tool_executor=FakeToolExecutor([])
+    )
+
+    context = pipeline._build_grounded_context(
+        item=item,
+        grounded_chunks=grounded_chunks,
+    )
+
+    assert (
+        context["primary_chunk_text"] == "The child has frequent falls while walking."
+    )
+    assert "original_sentence" not in context
+
+
 def test_two_phase_pipeline_uses_mapping_prompt_for_unresolved_phrase():
     provider = FakeProvider(
         responses=[
@@ -290,7 +316,7 @@ def test_two_phase_pipeline_uses_mapping_prompt_for_unresolved_phrase():
         )
     ]
     assert len(provider.calls) == 1
-    assert "original_sentence" in provider.calls[0][-1]["content"]
+    assert "primary_chunk_text" in provider.calls[0][-1]["content"]
 
 
 def test_two_phase_pipeline_records_trace_for_extraction_and_mapping():

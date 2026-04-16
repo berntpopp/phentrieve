@@ -194,7 +194,7 @@ class TwoPhaseLLMPipeline:
             phase2a_start = time.perf_counter()
             phrase_candidates = self._retrieve_candidates(
                 actionable=actionable,
-                text=text,
+                grounded_chunks=grounded_chunks,
                 language=language,
             )
             phase_timings["phase2a_seconds"] = round(
@@ -206,7 +206,7 @@ class TwoPhaseLLMPipeline:
                     {
                         "phrase": str(item.get("phrase", "")),
                         "category": _normalize_category(str(item.get("category", ""))),
-                        "original_sentence": str(item.get("original_sentence", "")),
+                        "grounded_context": dict(item.get("grounded_context", {})),
                         "candidates": [
                             {
                                 "term_id": str(candidate.get("hpo_id", "")),
@@ -377,7 +377,7 @@ class TwoPhaseLLMPipeline:
         self,
         *,
         actionable: list[dict[str, Any]],
-        text: str,
+        grounded_chunks: list[dict[str, Any]],
         language: str,
     ) -> list[dict[str, Any]]:
         phrases = [str(item["phrase"]) for item in actionable]
@@ -396,8 +396,11 @@ class TwoPhaseLLMPipeline:
                 raw_result.setdefault("phrase", phrase)
                 raw_result.setdefault("category", category)
                 raw_result.setdefault(
-                    "original_sentence",
-                    self._find_original_sentence(phrase, text),
+                    "grounded_context",
+                    self._build_grounded_context(
+                        item=item,
+                        grounded_chunks=grounded_chunks,
+                    ),
                 )
                 results.append(raw_result)
                 continue
@@ -409,7 +412,10 @@ class TwoPhaseLLMPipeline:
                 {
                     "phrase": phrase,
                     "category": category,
-                    "original_sentence": self._find_original_sentence(phrase, text),
+                    "grounded_context": self._build_grounded_context(
+                        item=item,
+                        grounded_chunks=grounded_chunks,
+                    ),
                     "candidates": self._hybrid_select_candidates(
                         phrase=phrase,
                         metadatas=metadatas,
@@ -436,22 +442,29 @@ class TwoPhaseLLMPipeline:
         return first if isinstance(first, list) else []
 
     @staticmethod
-    def _find_original_sentence(phrase: str, text: str) -> str:
-        sentences = [
-            sentence.strip() for sentence in text.split(".") if sentence.strip()
+    def _build_grounded_context(
+        *,
+        item: dict[str, Any],
+        grounded_chunks: list[dict[str, Any]],
+    ) -> dict[str, Any]:
+        chunk_lookup = {chunk["chunk_id"]: chunk for chunk in grounded_chunks}
+        chunk_ids = [int(chunk_id) for chunk_id in item.get("chunk_ids", [])]
+        primary = chunk_lookup.get(chunk_ids[0]) if chunk_ids else None
+        neighbor_ids = [chunk_ids[0] - 1, chunk_ids[0] + 1] if chunk_ids else []
+        neighbors = [
+            chunk_lookup[cid]
+            for cid in neighbor_ids
+            if cid in chunk_lookup and chunk_lookup[cid] is not primary
         ]
-        if not sentences:
-            return phrase
-
-        phrase_tokens = _tokenize(phrase)
-        best_sentence = phrase
-        best_overlap = 0
-        for sentence in sentences:
-            overlap = len(phrase_tokens & _tokenize(sentence))
-            if overlap > best_overlap:
-                best_overlap = overlap
-                best_sentence = sentence
-        return best_sentence
+        return {
+            "chunk_ids": chunk_ids,
+            "primary_chunk_text": (
+                primary.get("text", "")
+                if primary
+                else item.get("evidence_text", item.get("phrase", ""))
+            ),
+            "neighbor_chunk_texts": [chunk.get("text", "") for chunk in neighbors],
+        }
 
     def _hybrid_select_candidates(
         self,
@@ -638,7 +651,7 @@ class TwoPhaseLLMPipeline:
                 {
                     "phrase": normalized_phrase,
                     "category": item["category"],
-                    "original_sentence": item["original_sentence"],
+                    "grounded_context": item["grounded_context"],
                     "candidates": [
                         {"id": candidate["hpo_id"], "term": candidate["term_name"]}
                         for candidate in item["candidates"]
@@ -656,7 +669,7 @@ class TwoPhaseLLMPipeline:
                             .replace("-", " ")
                             .strip(),
                             "category": item["category"],
-                            "original_sentence": item["original_sentence"],
+                            "grounded_context": item["grounded_context"],
                             "candidates": [
                                 {
                                     "id": candidate["hpo_id"],
