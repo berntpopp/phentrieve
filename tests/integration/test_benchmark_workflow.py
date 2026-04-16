@@ -471,7 +471,7 @@ def test_llm_benchmark_smoke_supports_phenobert_directory(
         def __init__(self, provider):
             self.provider = provider
 
-        def run(self, *, text, config):
+        def run(self, *, text, grounded_chunks, config):
             from phentrieve.llm.types import LLMExtractionResult, LLMMeta
 
             assert text
@@ -504,6 +504,74 @@ def test_llm_benchmark_smoke_supports_phenobert_directory(
     assert result["dataset"] == "GeneReviews"
     assert result["test_file"] == str(Path("tests/data/en/phenobert"))
     assert Path(result["output_path"]).exists()
+
+
+def test_llm_benchmark_smoke_persists_grounded_trace_fields(tmp_path, monkeypatch):
+    output_path = tmp_path / "llm_benchmark_grounded_trace.json"
+
+    class _FakePipeline:
+        def __init__(self, provider):
+            self.provider = provider
+
+        def run(self, *, text, grounded_chunks, config):
+            from phentrieve.llm.types import LLMExtractionResult, LLMMeta, LLMPhenotype
+
+            assert text
+            assert grounded_chunks[0]["chunk_id"] == 1
+            return LLMExtractionResult(
+                terms=[
+                    LLMPhenotype(
+                        term_id="HP:0001250",
+                        label="Seizure",
+                        evidence="seizures",
+                        assertion="present",
+                        category="abnormal",
+                    )
+                ],
+                meta=LLMMeta(
+                    llm_model=config.model,
+                    llm_mode=config.mode,
+                    trace={
+                        "phase1": {
+                            "extracted": [
+                                {
+                                    "phrase": "seizures",
+                                    "category": "abnormal",
+                                    "chunk_ids": [1],
+                                    "evidence_text": "seizures",
+                                    "actionable": True,
+                                }
+                            ]
+                        }
+                    },
+                ),
+            )
+
+    monkeypatch.setattr(
+        "phentrieve.benchmark.llm_benchmark.get_llm_provider",
+        lambda llm_model: object(),
+    )
+    monkeypatch.setattr(
+        "phentrieve.benchmark.llm_benchmark.TwoPhaseLLMPipeline",
+        _FakePipeline,
+    )
+    monkeypatch.setattr(
+        "phentrieve.benchmark.llm_benchmark._build_grounded_chunks",
+        lambda **kwargs: [{"chunk_id": 1, "text": "Patient has seizures."}],
+    )
+
+    result = run_llm_benchmark_cli(
+        test_file=str(Path("tests/data/en/phenobert")),
+        dataset="GeneReviews",
+        llm_model="gemini-2.5-flash",
+        llm_mode="two_phase",
+        llm_internal_mode="whole_document_grounded",
+        output_path=str(output_path),
+    )
+
+    assert result["prediction_records"][0]["trace"]["phase1"]["extracted"][0][
+        "chunk_ids"
+    ] == [1]
 
 
 def test_llm_benchmark_rejects_unknown_phenobert_dataset(tmp_path):

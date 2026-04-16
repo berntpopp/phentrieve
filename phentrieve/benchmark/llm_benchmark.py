@@ -23,6 +23,7 @@ from phentrieve.llm.pipeline import LLMPipelinePhaseError, TwoPhaseLLMPipeline
 from phentrieve.llm.prompts import loader as prompt_loader
 from phentrieve.llm.provider import get_llm_provider
 from phentrieve.llm.types import LLMPipelineConfig
+from phentrieve.text_processing.full_text_service import _build_grounded_chunks
 
 logger = logging.getLogger(__name__)
 
@@ -49,6 +50,7 @@ def run_llm_benchmark(
     test_file: str,
     llm_model: str,
     llm_mode: str = DEFAULT_LLM_BENCHMARK_MODE,
+    llm_internal_mode: str = "whole_document_grounded",
     dataset: str = DEFAULT_LLM_BENCHMARK_DATASET,
     doc_ids: list[str] | None = None,
     language: str = DEFAULT_LLM_LANGUAGE,
@@ -63,13 +65,23 @@ def run_llm_benchmark(
         raise ValueError(
             f"Unsupported llm_mode: {llm_mode!r}. Expected {DEFAULT_LLM_BENCHMARK_MODE!r}."
         )
+    if llm_internal_mode not in {
+        "whole_document_legacy",
+        "whole_document_grounded",
+    }:
+        raise ValueError(
+            "Unsupported llm_internal_mode: "
+            f"{llm_internal_mode!r}. Expected 'whole_document_legacy' or "
+            "'whole_document_grounded'."
+        )
 
     test_path = Path(test_file)
     logger.info(
-        "Starting LLM benchmark: test_file=%s model=%s mode=%s dataset=%s",
+        "Starting LLM benchmark: test_file=%s model=%s mode=%s internal_mode=%s dataset=%s",
         test_path,
         llm_model,
         llm_mode,
+        llm_internal_mode,
         dataset,
     )
     test_data = load_benchmark_data(test_path, dataset=dataset)
@@ -157,7 +169,21 @@ def run_llm_benchmark(
             ]
             doc_start_time = time.perf_counter()
             try:
-                pipeline_result = pipeline.run(text=document["text"], config=config)
+                pipeline_result = pipeline.run(
+                    text=document["text"],
+                    grounded_chunks=(
+                        _build_grounded_chunks(
+                            text=document["text"],
+                            language=language,
+                            chunking_pipeline_config=None,
+                            assertion_config={"disable": True},
+                            retrieval_model_name="FremyCompany/BioLORD-2023-M",
+                        )
+                        if llm_internal_mode == "whole_document_grounded"
+                        else []
+                    ),
+                    config=config,
+                )
             except LLMPipelinePhaseError as exc:
                 logger.exception(
                     "Benchmark document failed: %d/%d doc_id=%s phase=%s",
@@ -289,6 +315,7 @@ def run_llm_benchmark(
                         documents=documents,
                         llm_model=llm_model,
                         llm_mode=llm_mode,
+                        llm_internal_mode=llm_internal_mode,
                         language=language,
                         prompt_templates_dir=prompt_templates_dir,
                         dataset_metadata=test_data.get("metadata", {}),
@@ -324,6 +351,7 @@ def run_llm_benchmark(
         documents=documents,
         llm_model=llm_model,
         llm_mode=llm_mode,
+        llm_internal_mode=llm_internal_mode,
         language=language,
         prompt_templates_dir=prompt_templates_dir,
         dataset_metadata=test_data.get("metadata", {}),
@@ -452,6 +480,7 @@ def _build_benchmark_payload(
     documents: list[dict[str, Any]],
     llm_model: str,
     llm_mode: str,
+    llm_internal_mode: str,
     language: str,
     prompt_templates_dir: str | None,
     dataset_metadata: dict[str, Any],
@@ -473,6 +502,7 @@ def _build_benchmark_payload(
         "cases": len(documents),
         "llm_model": llm_model,
         "llm_mode": llm_mode,
+        "llm_internal_mode": llm_internal_mode,
         "language": language,
         "prompt_templates_dir": prompt_templates_dir,
         "requested_doc_ids": list(requested_doc_ids) if requested_doc_ids else None,

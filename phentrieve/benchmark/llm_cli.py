@@ -93,6 +93,7 @@ def run_llm_benchmark_cli(
             "dataset": dataset,
             "llm_model": llm_model,
             "llm_mode": llm_mode,
+            "llm_internal_mode": llm_internal_mode,
             "language": language,
             "prompt_templates_dir": prompt_templates_dir,
             "requested_doc_ids": list(doc_ids) if doc_ids else None,

@@ -37,7 +37,7 @@ def test_run_llm_benchmark_defaults_to_genereviews_dataset(monkeypatch):
         def __init__(self, provider):
             self.provider = provider
 
-        def run(self, *, text, config):
+        def run(self, *, text, grounded_chunks, config):
             from phentrieve.llm.types import LLMExtractionResult, LLMMeta
 
             return LLMExtractionResult(
@@ -84,7 +84,7 @@ def test_run_llm_benchmark_filters_to_requested_doc_ids(monkeypatch):
         def __init__(self, provider):
             self.provider = provider
 
-        def run(self, *, text, config):
+        def run(self, *, text, grounded_chunks, config):
             from phentrieve.llm.types import LLMExtractionResult, LLMMeta
 
             return LLMExtractionResult(
@@ -130,7 +130,7 @@ def test_run_llm_benchmark_preserves_requested_doc_id_order(monkeypatch):
         def __init__(self, provider):
             self.provider = provider
 
-        def run(self, *, text, config):
+        def run(self, *, text, grounded_chunks, config):
             from phentrieve.llm.types import LLMExtractionResult, LLMMeta
 
             return LLMExtractionResult(
@@ -208,7 +208,7 @@ def test_run_llm_benchmark_returns_benchmark_grade_metadata(monkeypatch):
         def __init__(self, provider):
             self.provider = provider
 
-        def run(self, *, text, config):
+        def run(self, *, text, grounded_chunks, config):
             from phentrieve.llm.types import LLMExtractionResult, LLMMeta, LLMPhenotype
 
             captured["language"] = config.language
@@ -315,7 +315,7 @@ def test_run_llm_benchmark_excludes_other_category_from_scored_predictions(
         def warmup(self, *, language: str) -> None:
             return None
 
-        def run(self, *, text, config):
+        def run(self, *, text, grounded_chunks, config):
             from phentrieve.llm.types import LLMExtractionResult, LLMMeta, LLMPhenotype
 
             return LLMExtractionResult(
@@ -383,7 +383,7 @@ def test_run_llm_benchmark_projects_assertions_to_dataset_granularity(monkeypatc
         def warmup(self, *, language: str) -> None:
             return None
 
-        def run(self, *, text, config):
+        def run(self, *, text, grounded_chunks, config):
             from phentrieve.llm.types import LLMExtractionResult, LLMMeta, LLMPhenotype
 
             return LLMExtractionResult(
@@ -483,7 +483,7 @@ def test_run_llm_benchmark_includes_trace_with_projected_scoring(monkeypatch):
         def warmup(self, *, language: str) -> None:
             return None
 
-        def run(self, *, text, config):
+        def run(self, *, text, grounded_chunks, config):
             from phentrieve.llm.types import LLMExtractionResult, LLMMeta, LLMPhenotype
 
             return LLMExtractionResult(
@@ -583,7 +583,7 @@ def test_run_llm_benchmark_records_failed_documents(monkeypatch):
         def __init__(self, provider):
             self.provider = provider
 
-        def run(self, *, text, config):
+        def run(self, *, text, grounded_chunks, config):
             raise llm_benchmark.LLMPipelinePhaseError(
                 "phase1", "Structured extraction failed"
             )
@@ -620,7 +620,7 @@ def test_run_llm_benchmark_logs_case_progress_at_info(monkeypatch, caplog):
         def __init__(self, provider):
             self.provider = provider
 
-        def run(self, *, text, config):
+        def run(self, *, text, grounded_chunks, config):
             from phentrieve.llm.types import LLMExtractionResult, LLMMeta
 
             return LLMExtractionResult(
@@ -703,7 +703,7 @@ def test_run_llm_benchmark_warms_pipeline_once_per_run(monkeypatch):
         def warmup(self, *, language: str) -> None:
             warmup_calls.append(language)
 
-        def run(self, *, text, config):
+        def run(self, *, text, grounded_chunks, config):
             from phentrieve.llm.types import LLMExtractionResult, LLMMeta
 
             seen_texts.append(text)
@@ -747,7 +747,7 @@ def test_run_llm_benchmark_logs_warmup_start_and_end(monkeypatch, caplog):
         def warmup(self, *, language: str) -> None:
             assert language == "en"
 
-        def run(self, *, text, config):
+        def run(self, *, text, grounded_chunks, config):
             from phentrieve.llm.types import LLMExtractionResult, LLMMeta
 
             return LLMExtractionResult(
@@ -798,7 +798,7 @@ def test_run_llm_benchmark_resumes_completed_cases_from_checkpoint(monkeypatch):
         def __init__(self, provider):
             self.provider = provider
 
-        def run(self, *, text, config):
+        def run(self, *, text, grounded_chunks, config):
             from phentrieve.llm.types import LLMExtractionResult, LLMMeta, LLMPhenotype
 
             seen_texts.append(text)
@@ -913,7 +913,7 @@ def test_run_llm_benchmark_temporarily_overrides_prompt_templates_dir(
         def __init__(self, provider):
             self.provider = provider
 
-        def run(self, *, text, config):
+        def run(self, *, text, grounded_chunks, config):
             from phentrieve.llm.types import LLMExtractionResult, LLMMeta
 
             captured["templates_dir_during_run"] = (
