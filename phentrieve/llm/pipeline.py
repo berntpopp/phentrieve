@@ -479,7 +479,6 @@ class TwoPhaseLLMPipeline:
                 text=text,
                 grounded_chunks=group_grounded_chunks,
                 extraction_prompt=extraction_prompt,
-                chunk_index_text=str(group.get("text", "")),
             )
             group_elapsed = round(time.perf_counter() - group_started, 6)
             group_request_count = int(

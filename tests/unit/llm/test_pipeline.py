@@ -335,12 +335,12 @@ def test_phase1_runs_once_per_extraction_group() -> None:
             {
                 "group_id": 1,
                 "chunk_ids": [1, 2],
-                "text": "chunk_id=1: Chunk one.\nchunk_id=2: Chunk two.",
+                "text": "chunk_id=1: WRONG.\nchunk_id=2: WRONG.",
             },
             {
                 "group_id": 2,
                 "chunk_ids": [3],
-                "text": "chunk_id=3: Chunk three.",
+                "text": "chunk_id=3: WRONG.",
             },
         ],
         config=LLMPipelineConfig(model="gemini-2.5-flash", mode="two_phase"),
@@ -348,10 +348,10 @@ def test_phase1_runs_once_per_extraction_group() -> None:
 
     assert len(provider.structured_calls) == 2
     assert provider.structured_calls[0]["user_prompt"].endswith(
-        "chunk_id=1: Chunk one.\nchunk_id=2: Chunk two.\n"
+        "- chunk_id=1: Chunk one.\n- chunk_id=2: Chunk two.\n"
     )
     assert provider.structured_calls[1]["user_prompt"].endswith(
-        "chunk_id=3: Chunk three.\n"
+        "- chunk_id=3: Chunk three.\n"
     )
 
 
