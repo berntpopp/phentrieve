@@ -100,7 +100,15 @@ def _render_phase1_user_prompt(
     extraction_prompt: PromptTemplate,
     text: str,
     grounded_chunks: list[dict[str, Any]],
+    chunk_index_text: str | None = None,
 ) -> str:
+    if chunk_index_text is not None:
+        chunk_index = chunk_index_text or "[]"
+        return (
+            "Extract all phenotype phrases from the provided chunk index.\n\n"
+            "Chunk index:\n"
+            f"{chunk_index}\n"
+        )
     if grounded_chunks:
         chunk_index = (
             "\n".join(
@@ -144,9 +152,11 @@ class TwoPhaseLLMPipeline:
         *,
         text: str,
         grounded_chunks: list[dict[str, Any]] | None = None,
+        extraction_groups: list[dict[str, Any]] | None = None,
         config: LLMPipelineConfig,
     ) -> LLMExtractionResult:
         grounded_chunks = list(grounded_chunks or [])
+        extraction_groups = list(extraction_groups or [])
         mode = AnnotationMode(config.mode)
         if mode != AnnotationMode.TWO_PHASE:
             raise ValueError(
@@ -161,13 +171,31 @@ class TwoPhaseLLMPipeline:
             language,
             len(text),
         )
-        phase1_start = time.perf_counter()
-        extracted, phase1_usage = self._extract_phase1_phenotypes(
-            text=text,
-            grounded_chunks=grounded_chunks,
-            extraction_prompt=extraction_prompt,
-        )
-        phase1_elapsed = round(time.perf_counter() - phase1_start, 6)
+        if extraction_groups:
+            (
+                extracted,
+                phase1_usage,
+                phase1_request_count,
+                phase1_elapsed,
+                phase1_groups_trace,
+            ) = self._extract_grouped_phase1_phenotypes(
+                text=text,
+                grounded_chunks=grounded_chunks,
+                extraction_groups=extraction_groups,
+                extraction_prompt=extraction_prompt,
+            )
+        else:
+            phase1_start = time.perf_counter()
+            extracted, phase1_usage = self._extract_phase1_phenotypes(
+                text=text,
+                grounded_chunks=grounded_chunks,
+                extraction_prompt=extraction_prompt,
+            )
+            phase1_elapsed = round(time.perf_counter() - phase1_start, 6)
+            phase1_request_count = int(
+                getattr(self.provider, "last_request_count", 0) or 0
+            )
+            phase1_groups_trace = []
         logger.debug(
             "Phase 1 complete: extracted=%d prompt_tokens=%s completion_tokens=%s",
             len(extracted),
@@ -188,7 +216,7 @@ class TwoPhaseLLMPipeline:
         resolved_terms: list[LLMPhenotype] = []
         prompt_tokens_total = int(phase1_usage.get("prompt_tokens", 0) or 0)
         completion_tokens_total = int(phase1_usage.get("completion_tokens", 0) or 0)
-        request_count_total = int(getattr(self.provider, "last_request_count", 0) or 0)
+        request_count_total = phase1_request_count
         prompt_version = extraction_prompt.version
         phase_timings: dict[str, float] = {
             "phase1_seconds": phase1_elapsed,
@@ -206,7 +234,7 @@ class TwoPhaseLLMPipeline:
             "local_fallbacks": 0,
         }
         phase_request_counts: dict[str, int] = {
-            "phase1_requests": request_count_total,
+            "phase1_requests": phase1_request_count,
             "phase2b_llm_requests": 0,
         }
         trace: dict[str, Any] = {
@@ -221,7 +249,8 @@ class TwoPhaseLLMPipeline:
                         in ACTIONABLE_CATEGORIES,
                     }
                     for item in extracted
-                ]
+                ],
+                "groups": phase1_groups_trace,
             }
         }
         if actionable:
@@ -376,15 +405,17 @@ class TwoPhaseLLMPipeline:
         text: str,
         grounded_chunks: list[dict[str, Any]],
         extraction_prompt,
+        chunk_index_text: str | None = None,
     ) -> tuple[list[dict[str, Any]], dict[str, int]]:
         user_prompt = _render_phase1_user_prompt(
             extraction_prompt=extraction_prompt,
             text=text,
             grounded_chunks=grounded_chunks,
+            chunk_index_text=chunk_index_text,
         )
         max_output_tokens = (
             DEFAULT_GROUNDED_PHASE1_MAX_OUTPUT_TOKENS
-            if grounded_chunks
+            if grounded_chunks or chunk_index_text is not None
             else DEFAULT_PHASE1_MAX_OUTPUT_TOKENS
         )
         logger.debug(
@@ -419,6 +450,81 @@ class TwoPhaseLLMPipeline:
                 }
             )
         return parsed, usage
+
+    def _extract_grouped_phase1_phenotypes(
+        self,
+        *,
+        text: str,
+        grounded_chunks: list[dict[str, Any]],
+        extraction_groups: list[dict[str, Any]],
+        extraction_prompt,
+    ) -> tuple[list[dict[str, Any]], dict[str, int], int, float, list[dict[str, Any]]]:
+        extracted: list[dict[str, Any]] = []
+        prompt_tokens_total = 0
+        completion_tokens_total = 0
+        total_request_count = 0
+        phase1_groups_trace: list[dict[str, Any]] = []
+        chunk_lookup = {chunk["chunk_id"]: chunk for chunk in grounded_chunks}
+        phase1_started = time.perf_counter()
+
+        for group in extraction_groups:
+            group_chunk_ids = [int(chunk_id) for chunk_id in group.get("chunk_ids", [])]
+            group_grounded_chunks = [
+                chunk_lookup[chunk_id]
+                for chunk_id in group_chunk_ids
+                if chunk_id in chunk_lookup
+            ]
+            group_started = time.perf_counter()
+            group_extracted, group_usage = self._extract_phase1_phenotypes(
+                text=text,
+                grounded_chunks=group_grounded_chunks,
+                extraction_prompt=extraction_prompt,
+                chunk_index_text=str(group.get("text", "")),
+            )
+            group_elapsed = round(time.perf_counter() - group_started, 6)
+            group_request_count = int(
+                getattr(self.provider, "last_request_count", 0) or 0
+            )
+
+            prompt_tokens_total += int(group_usage.get("prompt_tokens", 0) or 0)
+            completion_tokens_total += int(group_usage.get("completion_tokens", 0) or 0)
+            total_request_count += group_request_count
+            extracted.extend(group_extracted)
+            phase1_groups_trace.append(
+                {
+                    "group_id": group.get("group_id"),
+                    "source_chunk_ids": group_chunk_ids,
+                    "prompt_tokens": int(group_usage.get("prompt_tokens", 0) or 0),
+                    "completion_tokens": int(
+                        group_usage.get("completion_tokens", 0) or 0
+                    ),
+                    "request_count": group_request_count,
+                    "elapsed_seconds": group_elapsed,
+                    "extracted": [
+                        {
+                            "phrase": str(item["phrase"]),
+                            "category": _normalize_category(str(item["category"])),
+                            "chunk_ids": list(item.get("chunk_ids", [])),
+                            "evidence_text": item.get("evidence_text"),
+                            "actionable": _normalize_category(str(item["category"]))
+                            in ACTIONABLE_CATEGORIES,
+                        }
+                        for item in group_extracted
+                    ],
+                }
+            )
+
+        return (
+            extracted,
+            {
+                "prompt_tokens": prompt_tokens_total,
+                "completion_tokens": completion_tokens_total,
+                "total_tokens": prompt_tokens_total + completion_tokens_total,
+            },
+            total_request_count,
+            round(time.perf_counter() - phase1_started, 6),
+            phase1_groups_trace,
+        )
 
     def _retrieve_candidates(
         self,

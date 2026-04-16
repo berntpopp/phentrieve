@@ -271,6 +271,284 @@ def test_phase1_returns_chunk_ids_and_evidence_text():
     assert result[0][0]["chunk_ids"] == [1]
 
 
+def test_phase1_runs_once_per_extraction_group() -> None:
+    provider = FakeProvider(
+        responses=[
+            {
+                "parsed": {
+                    "phenotypes": [
+                        grounded_phenotype(
+                            "recurrent seizures",
+                            "Abnormal",
+                            chunk_ids=[1, 2],
+                        )
+                    ]
+                }
+            },
+            {
+                "parsed": {
+                    "phenotypes": [
+                        grounded_phenotype(
+                            "ataxia",
+                            "Abnormal",
+                            chunk_ids=[3],
+                        )
+                    ]
+                }
+            },
+        ]
+    )
+    tool_executor = FakeToolExecutor(
+        batch_results=[
+            {
+                "phrase": "recurrent seizures",
+                "candidates": [
+                    {
+                        "hpo_id": "HP:0001250",
+                        "term_name": "Recurrent seizures",
+                        "score": 0.95,
+                    }
+                ],
+            },
+            {
+                "phrase": "ataxia",
+                "candidates": [
+                    {
+                        "hpo_id": "HP:0001251",
+                        "term_name": "Ataxia",
+                        "score": 0.95,
+                    }
+                ],
+            },
+        ]
+    )
+    pipeline = TwoPhaseLLMPipeline(provider=provider, tool_executor=tool_executor)
+
+    pipeline.run(
+        text="Patient had recurrent seizures and ataxia.",
+        grounded_chunks=[
+            {"chunk_id": 1, "text": "Chunk one."},
+            {"chunk_id": 2, "text": "Chunk two."},
+            {"chunk_id": 3, "text": "Chunk three."},
+        ],
+        extraction_groups=[
+            {
+                "group_id": 1,
+                "chunk_ids": [1, 2],
+                "text": "chunk_id=1: Chunk one.\nchunk_id=2: Chunk two.",
+            },
+            {
+                "group_id": 2,
+                "chunk_ids": [3],
+                "text": "chunk_id=3: Chunk three.",
+            },
+        ],
+        config=LLMPipelineConfig(model="gemini-2.5-flash", mode="two_phase"),
+    )
+
+    assert len(provider.structured_calls) == 2
+    assert provider.structured_calls[0]["user_prompt"].endswith(
+        "chunk_id=1: Chunk one.\nchunk_id=2: Chunk two.\n"
+    )
+    assert provider.structured_calls[1]["user_prompt"].endswith(
+        "chunk_id=3: Chunk three.\n"
+    )
+
+
+def test_grouped_phase1_aggregates_mentions_before_retrieval() -> None:
+    provider = FakeProvider(
+        responses=[
+            {
+                "parsed": {
+                    "phenotypes": [
+                        grounded_phenotype(
+                            "recurrent seizures",
+                            "Abnormal",
+                            chunk_ids=[1, 2],
+                        )
+                    ]
+                }
+            },
+            {
+                "parsed": {
+                    "phenotypes": [
+                        grounded_phenotype(
+                            "normal cognition",
+                            "Normal",
+                            chunk_ids=[3],
+                        )
+                    ]
+                }
+            },
+        ]
+    )
+    tool_executor = FakeToolExecutor(
+        batch_results=[
+            {
+                "phrase": "recurrent seizures",
+                "candidates": [
+                    {
+                        "hpo_id": "HP:0001250",
+                        "term_name": "Recurrent seizures",
+                        "score": 0.95,
+                    }
+                ],
+            },
+            {
+                "phrase": "normal cognition",
+                "candidates": [
+                    {
+                        "hpo_id": "HP:0011446",
+                        "term_name": "Normal cognition",
+                        "score": 0.95,
+                    }
+                ],
+            },
+        ]
+    )
+    pipeline = TwoPhaseLLMPipeline(
+        provider=provider,
+        tool_executor=tool_executor,
+        mapping_batch_size=10,
+    )
+
+    result = pipeline.run(
+        text="Patient had recurrent seizures. Cognition remained normal.",
+        grounded_chunks=[
+            {"chunk_id": 1, "text": "Chunk one."},
+            {"chunk_id": 2, "text": "Chunk two."},
+            {"chunk_id": 3, "text": "Chunk three."},
+        ],
+        extraction_groups=[
+            {
+                "group_id": 1,
+                "chunk_ids": [1, 2],
+                "text": "chunk_id=1: Chunk one.\nchunk_id=2: Chunk two.",
+            },
+            {
+                "group_id": 2,
+                "chunk_ids": [3],
+                "text": "chunk_id=3: Chunk three.",
+            },
+        ],
+        config=LLMPipelineConfig(model="gemini-2.5-flash", mode="two_phase"),
+    )
+
+    assert tool_executor.queries == [
+        {
+            "phrases": ["recurrent seizures", "normal cognition"],
+            "language": "en",
+            "n_results": 50,
+        }
+    ]
+    assert result.meta.phase_counts["extracted_phrases"] == 2
+    assert result.meta.phase_counts["actionable_phrases"] == 2
+
+
+def test_grouped_phase1_keeps_group_chunk_ids_in_trace() -> None:
+    provider = FakeProvider(
+        responses=[
+            {
+                "parsed": {
+                    "phenotypes": [
+                        grounded_phenotype(
+                            "recurrent seizures",
+                            "Abnormal",
+                            chunk_ids=[1, 2],
+                        )
+                    ]
+                },
+                "request_count": 1,
+            },
+            {
+                "parsed": {
+                    "phenotypes": [
+                        grounded_phenotype(
+                            "ataxia",
+                            "Abnormal",
+                            chunk_ids=[3],
+                        )
+                    ]
+                },
+                "request_count": 1,
+            },
+        ]
+    )
+    tool_executor = FakeToolExecutor(
+        batch_results=[
+            {
+                "phrase": "recurrent seizures",
+                "candidates": [
+                    {
+                        "hpo_id": "HP:0001250",
+                        "term_name": "Recurrent seizures",
+                        "score": 0.95,
+                    }
+                ],
+            },
+            {
+                "phrase": "ataxia",
+                "candidates": [
+                    {
+                        "hpo_id": "HP:0001251",
+                        "term_name": "Ataxia",
+                        "score": 0.95,
+                    }
+                ],
+            },
+        ]
+    )
+    pipeline = TwoPhaseLLMPipeline(provider=provider, tool_executor=tool_executor)
+
+    result = pipeline.run(
+        text="Patient had recurrent seizures and ataxia.",
+        grounded_chunks=[
+            {"chunk_id": 1, "text": "Chunk one."},
+            {"chunk_id": 2, "text": "Chunk two."},
+            {"chunk_id": 3, "text": "Chunk three."},
+        ],
+        extraction_groups=[
+            {
+                "group_id": 7,
+                "chunk_ids": [1, 2],
+                "text": "chunk_id=1: Chunk one.\nchunk_id=2: Chunk two.",
+            },
+            {
+                "group_id": 8,
+                "chunk_ids": [3],
+                "text": "chunk_id=3: Chunk three.",
+            },
+        ],
+        config=LLMPipelineConfig(model="gemini-2.5-flash", mode="two_phase"),
+    )
+
+    assert [group["group_id"] for group in result.meta.trace["phase1"]["groups"]] == [
+        7,
+        8,
+    ]
+    assert [
+        group["source_chunk_ids"] for group in result.meta.trace["phase1"]["groups"]
+    ] == [[1, 2], [3]]
+    assert result.meta.trace["phase1"]["groups"][0]["extracted"] == [
+        {
+            "phrase": "recurrent seizures",
+            "category": "abnormal",
+            "chunk_ids": [1, 2],
+            "evidence_text": "recurrent seizures",
+            "actionable": True,
+        }
+    ]
+    assert result.meta.trace["phase1"]["groups"][1]["extracted"] == [
+        {
+            "phrase": "ataxia",
+            "category": "abnormal",
+            "chunk_ids": [3],
+            "evidence_text": "ataxia",
+            "actionable": True,
+        }
+    ]
+
+
 def test_retrieval_uses_grounded_context_instead_of_original_sentence():
     item = {
         "phrase": "frequent falls",
