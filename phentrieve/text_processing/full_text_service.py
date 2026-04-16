@@ -19,7 +19,7 @@ from phentrieve.config import (
     DEFAULT_MODEL,
 )
 from phentrieve.llm.config import DEFAULT_LLM_MODE
-from phentrieve.llm.pipeline import TwoPhaseLLMPipeline
+from phentrieve.llm.pipeline import TwoPhaseLLMPipeline, _render_phase1_user_prompt
 from phentrieve.llm.prompts.loader import get_prompt
 from phentrieve.llm.provider import get_llm_provider
 from phentrieve.llm.types import AnnotationMode, LLMPipelineConfig
@@ -374,21 +374,28 @@ def run_llm_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
                 AnnotationMode.TWO_PHASE,
                 kwargs.get("language") or DEFAULT_LANGUAGE,
             )
-            chunk_index = (
-                "\n".join(
-                    f"- chunk_id={chunk['chunk_id']}: {chunk.get('text', '')}"
-                    for chunk in grounded_chunks
-                )
-                or "[]"
+            user_prompt = _render_phase1_user_prompt(
+                extraction_prompt=extraction_prompt,
+                text=text,
+                grounded_chunks=grounded_chunks,
             )
             if not hasattr(provider, "count_tokens"):
                 raise NotImplementedError
             token_counts = provider.count_tokens(
                 system_prompt=extraction_prompt.render_system_prompt(),
-                user_prompt=extraction_prompt.render_user_prompt(
-                    text,
-                    chunk_index=chunk_index,
-                ),
+                user_prompt=user_prompt,
+            )
+            chunk_index_chars = sum(
+                len(f"- chunk_id={chunk['chunk_id']}: {chunk.get('text', '')}\n")
+                for chunk in grounded_chunks
+            )
+            logger.debug(
+                "LLM phase1 preflight: prompt_tokens=%s text_chars=%d chunk_index_chars=%d grounded_chunks=%d user_prompt_chars=%d",
+                token_counts.get("total_tokens"),
+                len(text),
+                chunk_index_chars,
+                len(grounded_chunks),
+                len(user_prompt),
             )
             if (
                 isinstance(token_counts, dict)

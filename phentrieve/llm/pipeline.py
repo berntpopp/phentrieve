@@ -7,6 +7,7 @@ import time
 from typing import Any
 
 from phentrieve.llm.config import (
+    DEFAULT_GROUNDED_PHASE1_MAX_OUTPUT_TOKENS,
     DEFAULT_LLM_LANGUAGE,
     DEFAULT_LLM_MAPPING_BATCH_SIZE,
     DEFAULT_LOCAL_MATCH_THRESHOLD,
@@ -20,6 +21,7 @@ from phentrieve.llm.config import (
     UNCERTAIN_ASSERTION,
 )
 from phentrieve.llm.prompts.loader import (
+    PromptTemplate,
     get_batch_mapping_prompt,
     get_mapping_prompt,
     get_prompt,
@@ -91,6 +93,28 @@ def _clean_text(text: str) -> str:
 
 def _normalize_mapping_phrase_key(text: str) -> str:
     return " ".join(str(text or "").lower().replace("-", " ").split())
+
+
+def _render_phase1_user_prompt(
+    *,
+    extraction_prompt: PromptTemplate,
+    text: str,
+    grounded_chunks: list[dict[str, Any]],
+) -> str:
+    if grounded_chunks:
+        chunk_index = (
+            "\n".join(
+                f"- chunk_id={chunk['chunk_id']}: {chunk.get('text', '')}"
+                for chunk in grounded_chunks
+            )
+            or "[]"
+        )
+        return (
+            "Extract all phenotype phrases from the provided chunk index.\n\n"
+            "Chunk index:\n"
+            f"{chunk_index}\n"
+        )
+    return extraction_prompt.render_user_prompt(text, chunk_index="[]")
 
 
 class TwoPhaseLLMPipeline:
@@ -353,15 +377,29 @@ class TwoPhaseLLMPipeline:
         grounded_chunks: list[dict[str, Any]],
         extraction_prompt,
     ) -> tuple[list[dict[str, Any]], dict[str, int]]:
+        user_prompt = _render_phase1_user_prompt(
+            extraction_prompt=extraction_prompt,
+            text=text,
+            grounded_chunks=grounded_chunks,
+        )
+        max_output_tokens = (
+            DEFAULT_GROUNDED_PHASE1_MAX_OUTPUT_TOKENS
+            if grounded_chunks
+            else DEFAULT_PHASE1_MAX_OUTPUT_TOKENS
+        )
+        logger.debug(
+            "Phase 1 request shape: grounded=%s chunk_count=%d user_prompt_chars=%d max_output_tokens=%d",
+            bool(grounded_chunks),
+            len(grounded_chunks),
+            len(user_prompt),
+            max_output_tokens,
+        )
         try:
             response = self.provider.run_structured_prompt(
                 system_prompt=extraction_prompt.render_system_prompt(),
-                user_prompt=extraction_prompt.render_user_prompt(
-                    text,
-                    chunk_index=self._render_chunk_index(grounded_chunks),
-                ),
+                user_prompt=user_prompt,
                 response_model=LLMGroundedExtractedPhenotypes,
-                max_output_tokens=DEFAULT_PHASE1_MAX_OUTPUT_TOKENS,
+                max_output_tokens=max_output_tokens,
             )
         except Exception:
             logger.exception("Phase 1 structured extraction failed")

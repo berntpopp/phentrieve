@@ -291,10 +291,15 @@ def _install_fake_google_genai(monkeypatch, responses: list[_FakeResponse]):
         def __init__(self, *, timeout: int) -> None:
             self.timeout = timeout
 
+    class _FakeCountTokensConfig:
+        def __init__(self, **kwargs) -> None:
+            self.kwargs = kwargs
+
     class _FakeModels:
         def __init__(self, queued_responses: list[_FakeResponse | Exception]) -> None:
             self._responses = list(queued_responses)
             self.calls: list[dict[str, Any]] = []
+            self.count_token_calls: list[dict[str, Any]] = []
 
         def generate_content(self, *, model, contents, config):
             self.calls.append(
@@ -308,6 +313,16 @@ def _install_fake_google_genai(monkeypatch, responses: list[_FakeResponse]):
             if isinstance(next_item, Exception):
                 raise next_item
             return next_item
+
+        def count_tokens(self, *, model, contents, config=None):
+            self.count_token_calls.append(
+                {
+                    "model": model,
+                    "contents": contents,
+                    "config": config,
+                }
+            )
+            return SimpleNamespace(total_tokens=1234)
 
     fake_models = _FakeModels(responses)
 
@@ -327,6 +342,7 @@ def _install_fake_google_genai(monkeypatch, responses: list[_FakeResponse]):
     types_module = ModuleType("google.genai.types")
     errors_module = ModuleType("google.genai.errors")
     types_module.GenerateContentConfig = _FakeGenerateContentConfig
+    types_module.CountTokensConfig = _FakeCountTokensConfig
     types_module.HttpOptions = _FakeHttpOptions
     genai_module.Client = _FakeClient
     genai_module.types = types_module
@@ -403,6 +419,32 @@ def test_structured_prompt_uses_json_schema_and_manual_validation(monkeypatch) -
     ]["phrase"]["description"].startswith("A concise phenotype phrase")
     assert config_kwargs["max_output_tokens"] == 8192
     assert provider.last_usage["total_tokens"] == 20
+
+
+def test_count_tokens_uses_sdk_count_tokens_api(monkeypatch) -> None:
+    fake_models = _install_fake_google_genai(monkeypatch, [])
+    provider = GeminiStructuredOutputProvider(
+        model_name="gemini-2.5-flash",
+        api_key="test-key",
+    )
+
+    counts = provider.count_tokens(
+        system_prompt="system prompt",
+        user_prompt="user prompt",
+    )
+
+    assert counts == {
+        "prompt_tokens": 1234,
+        "completion_tokens": 0,
+        "total_tokens": 1234,
+    }
+    assert len(fake_models.count_token_calls) == 1
+    assert fake_models.count_token_calls[0]["model"] == "gemini-2.5-flash"
+    assert fake_models.count_token_calls[0]["contents"] == "user prompt"
+    assert (
+        fake_models.count_token_calls[0]["config"].kwargs["systemInstruction"]
+        == "system prompt"
+    )
 
 
 def test_structured_prompt_retries_after_invalid_json(monkeypatch) -> None:

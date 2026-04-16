@@ -11,6 +11,7 @@ from pydantic import BaseModel, ValidationError
 
 from phentrieve.config import DEFAULT_MODEL
 from phentrieve.llm.config import (
+    DEFAULT_GROUNDED_PHASE1_MAX_OUTPUT_TOKENS,
     DEFAULT_LLM_MULTI_VECTOR_AGGREGATION_STRATEGY,
     DEFAULT_LLM_RETRIEVAL_BATCH_SIZE,
     DEFAULT_PROCESS_CLINICAL_TEXT_CHUNK_RETRIEVAL_THRESHOLD,
@@ -238,12 +239,28 @@ class GeminiStructuredOutputProvider(LLMProvider):
         raise RuntimeError("Gemini returned no structured response payload.")
 
     def count_tokens(self, *, system_prompt: str, user_prompt: str) -> dict[str, int]:
-        total_chars = len(system_prompt) + len(user_prompt)
-        estimated_tokens = max(total_chars // 4, 1)
+        try:
+            from google import genai
+            from google.genai import types
+        except ImportError as exc:
+            raise RuntimeError(
+                "Gemini support requires the optional llm dependencies. "
+                "Install them with `uv sync --extra llm`."
+            ) from exc
+
+        with genai.Client(api_key=self._api_key) as client:
+            response = client.models.count_tokens(
+                model=self.model_name,
+                contents=user_prompt,
+                config=types.CountTokensConfig(
+                    systemInstruction=system_prompt,
+                ),
+            )
+        total_tokens = int(getattr(response, "total_tokens", 0) or 0)
         return {
-            "prompt_tokens": estimated_tokens,
+            "prompt_tokens": total_tokens,
             "completion_tokens": 0,
-            "total_tokens": estimated_tokens,
+            "total_tokens": total_tokens,
         }
 
     @staticmethod
@@ -403,7 +420,10 @@ class GeminiStructuredOutputProvider(LLMProvider):
     def _next_retry_output_tokens(self, current_output_tokens: int) -> int:
         if self.structured_retry_token_multiplier <= 1:
             return current_output_tokens
-        return current_output_tokens * self.structured_retry_token_multiplier
+        return min(
+            current_output_tokens * self.structured_retry_token_multiplier,
+            max(self.max_tokens, DEFAULT_GROUNDED_PHASE1_MAX_OUTPUT_TOKENS),
+        )
 
     def _generate_with_transient_retry(
         self,

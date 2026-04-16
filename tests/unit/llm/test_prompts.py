@@ -4,6 +4,7 @@ from pathlib import Path
 
 import pytest
 
+from phentrieve.llm import pipeline as pipeline_module
 from phentrieve.llm.config import DEFAULT_TOOL_QUERY_RESULTS
 from phentrieve.llm.prompts import loader
 from phentrieve.llm.types import AnnotationMode, PostProcessingStep
@@ -100,3 +101,34 @@ def test_tool_guided_prompt_sources_use_placeholder_not_hardcoded_default() -> N
     for template_path in templates_dir.glob("en*.yaml"):
         content = template_path.read_text(encoding="utf-8")
         assert "{tool_query_results}" in content
+
+
+def test_grounded_phase1_prompt_uses_chunk_index_without_repeating_full_text() -> None:
+    template = loader.get_prompt(AnnotationMode.TWO_PHASE, "en")
+
+    rendered = pipeline_module._render_phase1_user_prompt(
+        extraction_prompt=template,
+        text="FULL NOTE SENTINEL",
+        grounded_chunks=[
+            {"chunk_id": 1, "text": "recurrent seizures"},
+            {"chunk_id": 2, "text": "no skeletal anomalies"},
+        ],
+    )
+
+    assert "Chunk index:" in rendered
+    assert "chunk_id=1" in rendered
+    assert "FULL NOTE SENTINEL" not in rendered
+
+
+def test_legacy_phase1_prompt_keeps_full_text_when_no_grounding() -> None:
+    template = loader.get_prompt(AnnotationMode.TWO_PHASE, "en")
+
+    rendered = pipeline_module._render_phase1_user_prompt(
+        extraction_prompt=template,
+        text="FULL NOTE SENTINEL",
+        grounded_chunks=[],
+    )
+
+    assert "FULL NOTE SENTINEL" in rendered
+    assert "Chunk index:" in rendered
+    assert "[]" in rendered
