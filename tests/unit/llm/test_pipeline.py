@@ -680,6 +680,125 @@ def test_grouped_phase1_deduplicates_overlapping_mentions_and_merges_grounding()
     ]
 
 
+def test_grouped_mentions_deduplicate_before_retrieval() -> None:
+    provider = FakeProvider(
+        responses=[
+            {
+                "parsed": {
+                    "phenotypes": [
+                        {
+                            "phrase": "progressive ataxia",
+                            "category": "Abnormal",
+                            "chunk_ids": [1, 2],
+                            "evidence_text": "difficulty with balance",
+                            "start_char": 12,
+                            "end_char": 30,
+                        }
+                    ]
+                }
+            },
+            {
+                "parsed": {
+                    "phenotypes": [
+                        {
+                            "phrase": "progressive ataxia",
+                            "category": "Abnormal",
+                            "chunk_ids": [2, 3],
+                            "evidence_text": "unsteady gait",
+                            "start_char": 64,
+                            "end_char": 78,
+                        }
+                    ]
+                }
+            },
+        ]
+    )
+    tool_executor = FakeToolExecutor(
+        batch_results=[
+            {
+                "phrase": "progressive ataxia",
+                "candidates": [
+                    {
+                        "hpo_id": "HP:0001251",
+                        "term_name": "Progressive ataxia",
+                        "score": 0.99,
+                    }
+                ],
+            },
+            {
+                "phrase": "progressive ataxia",
+                "candidates": [
+                    {
+                        "hpo_id": "HP:0001251",
+                        "term_name": "Progressive ataxia",
+                        "score": 0.99,
+                    }
+                ],
+            },
+        ]
+    )
+    pipeline = TwoPhaseLLMPipeline(provider=provider, tool_executor=tool_executor)
+
+    result = pipeline.run(
+        text="The child had difficulty with balance. Later notes describe an unsteady gait.",
+        grounded_chunks=[
+            {"chunk_id": 1, "text": "The child had difficulty"},
+            {"chunk_id": 2, "text": "with balance. Later notes"},
+            {"chunk_id": 3, "text": "describe an unsteady gait."},
+        ],
+        extraction_groups=[
+            {
+                "group_id": 1,
+                "chunk_ids": [1, 2],
+                "text": "chunk_id=1: The child had difficulty\nchunk_id=2: with balance. Later notes",
+            },
+            {
+                "group_id": 2,
+                "chunk_ids": [2, 3],
+                "text": "chunk_id=2: with balance. Later notes\nchunk_id=3: describe an unsteady gait.",
+            },
+        ],
+        config=LLMPipelineConfig(model="gemini-2.5-flash", mode="two_phase"),
+    )
+
+    assert tool_executor.queries == [
+        {
+            "phrases": ["progressive ataxia"],
+            "language": "en",
+            "n_results": 50,
+        }
+    ]
+    assert result.meta.phase_counts["extracted_phrases"] == 2
+    assert result.meta.phase_counts["candidate_sets"] == 2
+    assert result.terms == [
+        LLMPhenotype(
+            term_id="HP:0001251",
+            label="Progressive ataxia",
+            evidence="progressive ataxia",
+            assertion="present",
+            category="abnormal",
+            evidence_records=[
+                LLMPhenotypeEvidence(
+                    phrase="progressive ataxia",
+                    evidence_text="difficulty with balance",
+                    chunk_ids=[1, 2],
+                    start_char=12,
+                    end_char=30,
+                    match_method="local",
+                ),
+                LLMPhenotypeEvidence(
+                    phrase="progressive ataxia",
+                    evidence_text="unsteady gait",
+                    chunk_ids=[2, 3],
+                    start_char=64,
+                    end_char=78,
+                    match_method="local",
+                ),
+            ],
+        )
+    ]
+
+
 def test_grouped_phase1_keeps_far_apart_mentions_separate() -> None:
     provider = FakeProvider(
         responses=[
@@ -1115,7 +1234,7 @@ def test_two_phase_pipeline_uses_mapping_prompt_for_unresolved_phrase():
                         "score": 0.78,
                     },
                 ],
-            }
+            },
         ]
     )
     pipeline = TwoPhaseLLMPipeline(provider=provider, tool_executor=tool_executor)
@@ -1412,6 +1531,114 @@ def test_two_phase_pipeline_batches_unresolved_phrase_mapping_calls():
         ),
     ]
     assert len(provider.structured_calls) == 2
+
+
+def test_unresolved_mapping_batches_skip_duplicate_phrase_candidate_sets() -> None:
+    provider = FakeProvider(
+        responses=[
+            {
+                "parsed": {
+                    "phenotypes": [
+                        {
+                            "phrase": "frequent falls",
+                            "category": "Abnormal",
+                            "chunk_ids": [1],
+                            "evidence_text": "The child has frequent falls while walking.",
+                            "start_char": 14,
+                            "end_char": 28,
+                        },
+                        {
+                            "phrase": "frequent falls",
+                            "category": "Abnormal",
+                            "chunk_ids": [3],
+                            "evidence_text": "Frequent falls were also reported at school.",
+                            "start_char": 52,
+                            "end_char": 66,
+                        },
+                    ]
+                },
+            },
+            {
+                "parsed": {
+                    "phrase": "frequent falls",
+                    "hpo_id": "HP:0002355",
+                }
+            },
+        ]
+    )
+    tool_executor = FakeToolExecutor(
+        batch_results=[
+            {
+                "phrase": "frequent falls",
+                "candidates": [
+                    {
+                        "hpo_id": "HP:0002355",
+                        "term_name": "Difficulty walking",
+                        "score": 0.81,
+                    },
+                    {
+                        "hpo_id": "HP:0002317",
+                        "term_name": "Unsteady gait",
+                        "score": 0.78,
+                    },
+                ],
+            }
+        ]
+    )
+    pipeline = TwoPhaseLLMPipeline(
+        provider=provider,
+        tool_executor=tool_executor,
+        mapping_batch_size=1,
+    )
+
+    result = pipeline.run(
+        text="The child has frequent falls while walking. Frequent falls were also reported at school.",
+        grounded_chunks=[
+            {"chunk_id": 1, "text": "The child has frequent falls while walking."},
+            {"chunk_id": 2, "text": "Bridge chunk."},
+            {"chunk_id": 3, "text": "Frequent falls were also reported at school."},
+        ],
+        config=LLMPipelineConfig(model="gemini-2.5-flash", mode="two_phase"),
+    )
+
+    assert tool_executor.queries == [
+        {
+            "phrases": ["frequent falls"],
+            "language": "en",
+            "n_results": 50,
+        }
+    ]
+    assert len(provider.structured_calls) == 2
+    assert result.meta.phase_request_counts["phase2b_llm_requests"] == 1
+    assert result.meta.phase_counts["unresolved_phrases"] == 2
+    assert result.meta.phase_counts["llm_mapped_phrases"] == 2
+    assert result.terms == [
+        LLMPhenotype(
+            term_id="HP:0002355",
+            label="Difficulty walking",
+            evidence="frequent falls",
+            assertion="present",
+            category="abnormal",
+            evidence_records=[
+                LLMPhenotypeEvidence(
+                    phrase="frequent falls",
+                    evidence_text="The child has frequent falls while walking.",
+                    chunk_ids=[1],
+                    start_char=14,
+                    end_char=28,
+                    match_method="llm",
+                ),
+                LLMPhenotypeEvidence(
+                    phrase="frequent falls",
+                    evidence_text="Frequent falls were also reported at school.",
+                    chunk_ids=[3],
+                    start_char=52,
+                    end_char=66,
+                    match_method="llm",
+                ),
+            ],
+        )
+    ]
 
 
 def test_two_phase_pipeline_batch_mapping_accepts_normalized_returned_phrase_keys():

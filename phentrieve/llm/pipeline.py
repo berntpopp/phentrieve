@@ -95,6 +95,30 @@ def _normalize_mapping_phrase_key(text: str) -> str:
     return " ".join(str(text or "").lower().replace("-", " ").split())
 
 
+def _candidate_id_tuple(item: dict[str, Any]) -> tuple[str, ...]:
+    return tuple(
+        sorted(
+            {
+                str(candidate.get("hpo_id", "")).strip()
+                for candidate in item.get("candidates", [])
+                if str(candidate.get("hpo_id", "")).strip()
+            }
+        )
+    )
+
+
+def _downstream_dedupe_key(
+    item: dict[str, Any],
+    *,
+    include_candidate_ids: bool,
+) -> tuple[str, str, tuple[str, ...]]:
+    return (
+        _normalize_mapping_phrase_key(str(item.get("phrase", ""))),
+        _normalize_category(str(item.get("category", ""))),
+        _candidate_id_tuple(item) if include_candidate_ids else (),
+    )
+
+
 def _render_phase1_user_prompt(
     *,
     extraction_prompt: PromptTemplate,
@@ -655,62 +679,69 @@ class TwoPhaseLLMPipeline:
         grounded_chunks: list[dict[str, Any]],
         language: str,
     ) -> list[dict[str, Any]]:
-        phrases = [str(item["phrase"]) for item in actionable]
+        unique_actionable: list[dict[str, Any]] = []
+        actionable_groups: dict[
+            tuple[str, str, tuple[str, ...]], list[dict[str, Any]]
+        ] = {}
+        for item in actionable:
+            dedupe_key = _downstream_dedupe_key(item, include_candidate_ids=False)
+            actionable_groups.setdefault(dedupe_key, []).append(item)
+            if len(actionable_groups[dedupe_key]) == 1:
+                unique_actionable.append(item)
+
+        phrases = [str(item["phrase"]) for item in unique_actionable]
         raw_results = self.tool_executor.query_batch_hpo_terms(
             phrases=phrases,
             language=language,
             n_results=self.n_results_per_phrase,
         )
 
-        results: list[dict[str, Any]] = []
-        for index, item in enumerate(actionable):
+        shared_results: dict[tuple[str, str, tuple[str, ...]], dict[str, Any]] = {}
+        for index, item in enumerate(unique_actionable):
             phrase = str(item["phrase"])
             category = str(item["category"])
+            dedupe_key = _downstream_dedupe_key(item, include_candidate_ids=False)
             if index < len(raw_results) and "candidates" in raw_results[index]:
                 raw_result = dict(raw_results[index])
                 raw_result.setdefault("phrase", phrase)
                 raw_result.setdefault("category", category)
-                raw_result.setdefault("chunk_ids", list(item.get("chunk_ids", [])))
-                raw_result.setdefault("evidence_text", item.get("evidence_text"))
-                raw_result.setdefault("start_char", item.get("start_char"))
-                raw_result.setdefault("end_char", item.get("end_char"))
-                raw_result.setdefault(
-                    "grounded_context",
-                    self._build_grounded_context(
-                        item=item,
-                        grounded_chunks=grounded_chunks,
-                    ),
-                )
-                results.append(raw_result)
+                shared_results[dedupe_key] = raw_result
                 continue
 
             batch_result = raw_results[index] if index < len(raw_results) else {}
             metadatas = self._extract_first_result_list(batch_result, "metadatas")
             similarities = self._extract_first_result_list(batch_result, "similarities")
-            results.append(
-                {
-                    "phrase": phrase,
-                    "category": category,
-                    "chunk_ids": list(item.get("chunk_ids", [])),
-                    "evidence_text": item.get("evidence_text"),
-                    "start_char": item.get("start_char"),
-                    "end_char": item.get("end_char"),
-                    "grounded_context": self._build_grounded_context(
-                        item=item,
-                        grounded_chunks=grounded_chunks,
-                    ),
-                    "candidates": self._hybrid_select_candidates(
-                        phrase=phrase,
-                        metadatas=metadatas,
-                        similarities=similarities,
-                    ),
-                }
-            )
+            shared_results[dedupe_key] = {
+                "phrase": phrase,
+                "category": category,
+                "candidates": self._hybrid_select_candidates(
+                    phrase=phrase,
+                    metadatas=metadatas,
+                    similarities=similarities,
+                ),
+            }
             logger.debug(
                 "Phase 2A candidate retrieval: phrase=%r candidates=%d",
                 phrase,
-                len(results[-1]["candidates"]),
+                len(shared_results[dedupe_key]["candidates"]),
             )
+
+        results: list[dict[str, Any]] = []
+        for item in actionable:
+            dedupe_key = _downstream_dedupe_key(item, include_candidate_ids=False)
+            shared_result = dict(shared_results.get(dedupe_key, {}))
+            shared_result.setdefault("phrase", str(item["phrase"]))
+            shared_result.setdefault("category", str(item["category"]))
+            shared_result["chunk_ids"] = list(item.get("chunk_ids", []))
+            shared_result["evidence_text"] = item.get("evidence_text")
+            shared_result["start_char"] = item.get("start_char")
+            shared_result["end_char"] = item.get("end_char")
+            shared_result["grounded_context"] = self._build_grounded_context(
+                item=item,
+                grounded_chunks=grounded_chunks,
+            )
+            shared_result["candidates"] = list(shared_result.get("candidates", []))
+            results.append(shared_result)
         return results
 
     @staticmethod
@@ -966,8 +997,18 @@ class TwoPhaseLLMPipeline:
         request_count_total = 0
         local_fallback_count = 0
         mapping_trace: list[dict[str, Any]] = []
-        for start in range(0, len(unresolved), self.mapping_batch_size):
-            batch = unresolved[start : start + self.mapping_batch_size]
+        unresolved_groups: dict[
+            tuple[str, str, tuple[str, ...]], list[dict[str, Any]]
+        ] = {}
+        unique_unresolved: list[dict[str, Any]] = []
+        for item in unresolved:
+            dedupe_key = _downstream_dedupe_key(item, include_candidate_ids=True)
+            unresolved_groups.setdefault(dedupe_key, []).append(item)
+            if len(unresolved_groups[dedupe_key]) == 1:
+                unique_unresolved.append(item)
+
+        for start in range(0, len(unique_unresolved), self.mapping_batch_size):
+            batch = unique_unresolved[start : start + self.mapping_batch_size]
             mapping_response, batch_usage = self._run_mapping_batch(
                 batch=batch,
                 mapping_prompt=mapping_prompt,
@@ -982,16 +1023,27 @@ class TwoPhaseLLMPipeline:
                 batch=batch,
             )
             for item in batch:
+                dedupe_key = _downstream_dedupe_key(item, include_candidate_ids=True)
+                grouped_items = unresolved_groups[dedupe_key]
+                selected_id = selected_ids.get(str(item["phrase"]))
                 (
                     item_resolved,
                     item_local_fallback_count,
                     item_trace,
-                ) = self._resolve_mapping_selection(
-                    item=item,
-                    selected_id=selected_ids.get(str(item["phrase"])),
-                )
+                ) = self._resolve_mapping_selection(item=item, selected_id=selected_id)
                 resolved.extend(item_resolved)
                 local_fallback_count += item_local_fallback_count
+                for grouped_item in grouped_items[1:]:
+                    (
+                        grouped_resolved,
+                        grouped_local_fallback_count,
+                        _,
+                    ) = self._resolve_mapping_selection(
+                        item=grouped_item,
+                        selected_id=selected_id,
+                    )
+                    resolved.extend(grouped_resolved)
+                    local_fallback_count += grouped_local_fallback_count
                 mapping_trace.append(item_trace)
         return (
             resolved,
