@@ -1612,6 +1612,32 @@ def test_unresolved_mapping_batches_skip_duplicate_phrase_candidate_sets() -> No
     assert result.meta.phase_request_counts["phase2b_llm_requests"] == 1
     assert result.meta.phase_counts["unresolved_phrases"] == 2
     assert result.meta.phase_counts["llm_mapped_phrases"] == 2
+    assert result.meta.trace["phase2b_llm"]["resolved"] == [
+        {
+            "phrase": "frequent falls",
+            "selected_id": "HP:0002355",
+            "term_id": "HP:0002355",
+            "label": "Difficulty walking",
+            "assertion": "present",
+            "category": "abnormal",
+            "match_method": "llm",
+            "local_fallback": False,
+        },
+        {
+            "phrase": "frequent falls",
+            "selected_id": "HP:0002355",
+            "term_id": "HP:0002355",
+            "label": "Difficulty walking",
+            "assertion": "present",
+            "category": "abnormal",
+            "match_method": "llm",
+            "local_fallback": False,
+            "evidence_text": "Frequent falls were also reported at school.",
+            "chunk_ids": [3],
+            "start_char": 52,
+            "end_char": 66,
+        },
+    ]
     assert result.terms == [
         LLMPhenotype(
             term_id="HP:0002355",

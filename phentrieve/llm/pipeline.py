@@ -1033,18 +1033,24 @@ class TwoPhaseLLMPipeline:
                 ) = self._resolve_mapping_selection(item=item, selected_id=selected_id)
                 resolved.extend(item_resolved)
                 local_fallback_count += item_local_fallback_count
+                mapping_trace.append(item_trace)
                 for grouped_item in grouped_items[1:]:
                     (
                         grouped_resolved,
                         grouped_local_fallback_count,
-                        _,
+                        grouped_item_trace,
                     ) = self._resolve_mapping_selection(
                         item=grouped_item,
                         selected_id=selected_id,
                     )
                     resolved.extend(grouped_resolved)
                     local_fallback_count += grouped_local_fallback_count
-                mapping_trace.append(item_trace)
+                    mapping_trace.append(
+                        self._annotate_mapping_trace_with_provenance(
+                            grouped_item_trace,
+                            grouped_item,
+                        )
+                    )
         return (
             resolved,
             prompt_tokens_total,
@@ -1053,6 +1059,24 @@ class TwoPhaseLLMPipeline:
             local_fallback_count,
             mapping_trace,
         )
+
+    @staticmethod
+    def _annotate_mapping_trace_with_provenance(
+        trace_entry: dict[str, Any],
+        item: dict[str, Any],
+    ) -> dict[str, Any]:
+        if not trace_entry:
+            return trace_entry
+        annotated = dict(trace_entry)
+        if item.get("evidence_text") is not None:
+            annotated["evidence_text"] = item.get("evidence_text")
+        if item.get("chunk_ids") is not None:
+            annotated["chunk_ids"] = list(item.get("chunk_ids", []))
+        if item.get("start_char") is not None:
+            annotated["start_char"] = item.get("start_char")
+        if item.get("end_char") is not None:
+            annotated["end_char"] = item.get("end_char")
+        return annotated
 
     def _run_mapping_batch(
         self,
