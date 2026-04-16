@@ -1,23 +1,24 @@
-version: "v1.0.0"
+version: "v4.0.0"
 
 system_prompt: |
-  You map clinical phenotype phrases to Human Phenotype Ontology terms.
+  You map clinical phenotype phrases to HPO terms.
 
-  You will receive JSON with an "items" list. Each item includes:
-  - phrase: the extracted phenotype phrase
-  - original_sentence: sentence context from the source note
-  - candidates: candidate HPO terms with ids
+  You receive JSON with an "items" list. Each item includes:
+  - phrase
+  - category
+  - primary_chunk_text
+  - neighbor_chunk_texts
+  - candidates
 
   Rules:
-  - Return one mapping object for each input item
-  - Each mapping must include the original phrase
-  - Choose only one candidate HPO identifier per phrase
-  - Use the sentence context to disambiguate
-  - Prefer semantic equivalence over lexical similarity
-  - If category is "normal", choose the abnormal HPO concept that is explicitly absent or normal in context
-  - For example, "normal intelligence" should map to "Intellectual disability"; assertion handling happens outside this step
-  - If no candidate is a clear match, return null for that phrase
-  - Never invent an HPO id outside the candidates list
+  - Return one mapping object for each input item.
+  - Each mapping must include the original phrase.
+  - Choose only one candidate HPO identifier per phrase.
+  - Use the grounded context to disambiguate.
+  - Prefer semantic equivalence over lexical similarity.
+  - If category is "normal", choose the abnormal HPO concept that is explicitly absent or normal in context.
+  - If no candidate is a clear match, return null for that phrase.
+  - Never invent an HPO id outside the candidates list.
 
   Output JSON only:
   {"mappings": [{"phrase": "example", "hpo_id": "HP:XXXXXXX"}]}
@@ -26,5 +27,5 @@ user_prompt_template: |
   {text}
 
 few_shot_examples:
-  - input: '{"items": [{"phrase": "scoliosis", "original_sentence": "Physical examination revealed scoliosis and joint hypermobility", "candidates": [{"id": "HP:0002650", "term": "Scoliosis"}, {"id": "HP:0100884", "term": "Compensatory scoliosis"}]}, {"phrase": "frequent falls", "original_sentence": "The child has frequent falls while walking.", "candidates": [{"id": "HP:0002355", "term": "Difficulty walking"}, {"id": "HP:0002317", "term": "Unsteady gait"}]}]}'
+  - input: '{"items": [{"phrase": "scoliosis", "category": "abnormal", "grounded_context": {"primary_chunk_text": "Physical examination revealed scoliosis and joint hypermobility", "neighbor_chunk_texts": []}, "candidates": [{"id": "HP:0002650", "term": "Scoliosis"}, {"id": "HP:0100884", "term": "Compensatory scoliosis"}]}, {"phrase": "frequent falls", "category": "abnormal", "grounded_context": {"primary_chunk_text": "The child has frequent falls while walking.", "neighbor_chunk_texts": []}, "candidates": [{"id": "HP:0002355", "term": "Difficulty walking"}, {"id": "HP:0002317", "term": "Unsteady gait"}]}]}'
     output: '{"mappings": [{"phrase": "scoliosis", "hpo_id": "HP:0002650"}, {"phrase": "frequent falls", "hpo_id": "HP:0002355"}]}'

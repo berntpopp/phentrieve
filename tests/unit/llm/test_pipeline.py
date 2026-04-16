@@ -8,6 +8,7 @@ from pydantic import ValidationError
 from phentrieve.llm.pipeline import TwoPhaseLLMPipeline
 from phentrieve.llm.prompts.loader import (
     PromptTemplate,
+    get_mapping_prompt,
     get_prompt,
     load_prompt_template,
 )
@@ -163,7 +164,12 @@ def test_two_phase_pipeline_maps_phrase_via_retrieved_candidates():
                     "phenotypes": [grounded_phenotype("recurrent seizures", "Abnormal")]
                 },
             },
-            {"content": '{"hpo_id":"HP:0001250"}'},
+            {
+                "parsed": {
+                    "phrase": "recurrent seizures",
+                    "hpo_id": "HP:0001250",
+                }
+            },
         ]
     )
     tool_executor = FakeToolExecutor(
@@ -201,7 +207,7 @@ def test_two_phase_pipeline_maps_phrase_via_retrieved_candidates():
     assert result.meta.llm_model == "gemini-2.5-flash"
     assert result.meta.llm_mode == "two_phase"
     assert result.meta.prompt_version
-    assert len(provider.structured_calls) == 1
+    assert len(provider.structured_calls) == 2
     assert tool_executor.queries == [
         {
             "phrases": ["recurrent seizures"],
@@ -209,7 +215,7 @@ def test_two_phase_pipeline_maps_phrase_via_retrieved_candidates():
             "n_results": 50,
         }
     ]
-    assert len(provider.calls) == 1
+    assert len(provider.calls) == 0
 
 
 def test_phase1_returns_chunk_ids_and_evidence_text():
@@ -268,6 +274,40 @@ def test_retrieval_uses_grounded_context_instead_of_original_sentence():
     assert "original_sentence" not in context
 
 
+def test_phase2_mapping_uses_structured_prompt():
+    provider = FakeProvider(
+        responses=[
+            {
+                "parsed": {
+                    "phrase": "frequent falls",
+                    "hpo_id": "HP:0002355",
+                }
+            }
+        ]
+    )
+    pipeline = TwoPhaseLLMPipeline(
+        provider=provider, tool_executor=FakeToolExecutor([])
+    )
+
+    pipeline._run_mapping_batch(
+        batch=[
+            {
+                "phrase": "frequent falls",
+                "category": "abnormal",
+                "grounded_context": {
+                    "primary_chunk_text": "The child has frequent falls while walking."
+                },
+                "candidates": [
+                    {"hpo_id": "HP:0002355", "term_name": "Difficulty walking"}
+                ],
+            }
+        ],
+        mapping_prompt=get_mapping_prompt("en"),
+    )
+
+    assert provider.structured_calls
+
+
 def test_two_phase_pipeline_uses_mapping_prompt_for_unresolved_phrase():
     provider = FakeProvider(
         responses=[
@@ -276,7 +316,12 @@ def test_two_phase_pipeline_uses_mapping_prompt_for_unresolved_phrase():
                     "phenotypes": [grounded_phenotype("frequent falls", "Abnormal")]
                 },
             },
-            {"content": '{"hpo_id":"HP:0002355"}'},
+            {
+                "parsed": {
+                    "phrase": "frequent falls",
+                    "hpo_id": "HP:0002355",
+                }
+            },
         ]
     )
     tool_executor = FakeToolExecutor(
@@ -315,8 +360,8 @@ def test_two_phase_pipeline_uses_mapping_prompt_for_unresolved_phrase():
             category="abnormal",
         )
     ]
-    assert len(provider.calls) == 1
-    assert "primary_chunk_text" in provider.calls[0][-1]["content"]
+    assert len(provider.structured_calls) == 2
+    assert "primary_chunk_text" in provider.structured_calls[1]["user_prompt"]
 
 
 def test_two_phase_pipeline_records_trace_for_extraction_and_mapping():
@@ -332,9 +377,9 @@ def test_two_phase_pipeline_records_trace_for_extraction_and_mapping():
                 "request_count": 1,
             },
             {
-                "content": (
-                    '{"mappings":[{"phrase":"frequent falls","hpo_id":"HP:0002355"}]}'
-                )
+                "parsed": {
+                    "mappings": [{"phrase": "frequent falls", "hpo_id": "HP:0002355"}]
+                }
             },
         ]
     )
@@ -444,12 +489,12 @@ def test_two_phase_pipeline_batches_unresolved_phrase_mapping_calls():
                 },
             },
             {
-                "content": (
-                    '{"mappings":['
-                    '{"phrase":"frequent falls","hpo_id":"HP:0002355"},'
-                    '{"phrase":"sleep disturbances","hpo_id":"HP:0002360"}'
-                    "]}"
-                )
+                "parsed": {
+                    "mappings": [
+                        {"phrase": "frequent falls", "hpo_id": "HP:0002355"},
+                        {"phrase": "sleep disturbances", "hpo_id": "HP:0002360"},
+                    ]
+                }
             },
         ]
     )
@@ -506,7 +551,7 @@ def test_two_phase_pipeline_batches_unresolved_phrase_mapping_calls():
             category="abnormal",
         ),
     ]
-    assert len(provider.calls) == 1
+    assert len(provider.structured_calls) == 2
 
 
 def test_two_phase_pipeline_batch_mapping_accepts_normalized_returned_phrase_keys():
@@ -521,12 +566,18 @@ def test_two_phase_pipeline_batch_mapping_accepts_normalized_returned_phrase_key
                 },
             },
             {
-                "content": (
-                    '{"mappings":['
-                    '{"phrase":"knock knee (genu valgum)","hpo_id":"HP:0002857"},'
-                    '{"phrase":"legg perthes disease","hpo_id":"HP:0005743"}'
-                    "]}"
-                )
+                "parsed": {
+                    "mappings": [
+                        {
+                            "phrase": "knock knee (genu valgum)",
+                            "hpo_id": "HP:0002857",
+                        },
+                        {
+                            "phrase": "legg perthes disease",
+                            "hpo_id": "HP:0005743",
+                        },
+                    ]
+                }
             },
         ]
     )
@@ -735,7 +786,10 @@ def test_two_phase_pipeline_accumulates_usage_and_logs_phases(caplog):
                 "request_count": 2,
             },
             {
-                "content": '{"hpo_id":"HP:0002355"}',
+                "parsed": {
+                    "phrase": "frequent falls",
+                    "hpo_id": "HP:0002355",
+                },
                 "usage": {
                     "prompt_tokens": 13,
                     "completion_tokens": 17,
@@ -876,7 +930,12 @@ def test_two_phase_pipeline_falls_back_to_local_match_after_invalid_mapping_sele
                     "phenotypes": [grounded_phenotype("frequent falls", "Abnormal")]
                 },
             },
-            {"content": '{"hpo_id":"HP:9999999"}'},
+            {
+                "parsed": {
+                    "phrase": "frequent falls",
+                    "hpo_id": "HP:9999999",
+                }
+            },
         ]
     )
     tool_executor = FakeToolExecutor(

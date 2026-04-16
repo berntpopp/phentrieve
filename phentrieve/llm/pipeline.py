@@ -27,13 +27,15 @@ from phentrieve.llm.prompts.loader import (
 from phentrieve.llm.provider import ToolExecutor
 from phentrieve.llm.types import (
     AnnotationMode,
+    LLMBatchMappingSelections,
     LLMExtractionResult,
     LLMGroundedExtractedPhenotypes,
+    LLMMappingSelection,
     LLMMeta,
     LLMPhenotype,
     LLMPipelineConfig,
 )
-from phentrieve.llm.utils import extract_hpo_id, extract_json, token_sort_similarity
+from phentrieve.llm.utils import token_sort_similarity
 
 logger = logging.getLogger(__name__)
 
@@ -600,21 +602,17 @@ class TwoPhaseLLMPipeline:
         mapping_trace: list[dict[str, Any]] = []
         for start in range(0, len(unresolved), self.mapping_batch_size):
             batch = unresolved[start : start + self.mapping_batch_size]
-            batch_response = self._run_mapping_batch(
+            mapping_response, batch_usage = self._run_mapping_batch(
                 batch=batch,
                 mapping_prompt=mapping_prompt,
             )
             request_count_total += int(
                 getattr(self.provider, "last_request_count", 0) or 0
             )
-            prompt_tokens_total += int(
-                batch_response.usage.get("prompt_tokens", 0) or 0
-            )
-            completion_tokens_total += int(
-                batch_response.usage.get("completion_tokens", 0) or 0
-            )
+            prompt_tokens_total += int(batch_usage.get("prompt_tokens", 0) or 0)
+            completion_tokens_total += int(batch_usage.get("completion_tokens", 0) or 0)
             selected_ids = self._select_candidate_ids(
-                response_text=batch_response.content or "",
+                mapping_response=mapping_response,
                 batch=batch,
             )
             for item in batch:
@@ -643,7 +641,7 @@ class TwoPhaseLLMPipeline:
         *,
         batch: list[dict[str, Any]],
         mapping_prompt,
-    ):
+    ) -> tuple[LLMMappingSelection | LLMBatchMappingSelections, dict[str, int]]:
         if len(batch) == 1:
             item = batch[0]
             normalized_phrase = str(item["phrase"]).lower().replace("-", " ").strip()
@@ -659,6 +657,7 @@ class TwoPhaseLLMPipeline:
                 },
                 ensure_ascii=False,
             )
+            response_model = LLMMappingSelection
         else:
             candidate_payload = json.dumps(
                 {
@@ -683,9 +682,14 @@ class TwoPhaseLLMPipeline:
                 },
                 ensure_ascii=False,
             )
-        return self.provider.complete(
-            mapping_prompt.get_messages(candidate_payload, include_examples=True)
+            response_model = LLMBatchMappingSelections
+        response = self.provider.run_structured_prompt(
+            system_prompt=mapping_prompt.render_system_prompt(),
+            user_prompt=mapping_prompt.render_user_prompt(candidate_payload),
+            response_model=response_model,
         )
+        usage = dict(getattr(self.provider, "last_usage", {}) or {})
+        return response, usage
 
     def _resolve_mapping_selection(
         self,
@@ -833,42 +837,34 @@ class TwoPhaseLLMPipeline:
     @staticmethod
     def _select_candidate_id(
         *,
-        response_text: str,
+        mapping_response: LLMMappingSelection,
         candidates: list[dict[str, Any]],
     ) -> str | None:
         candidate_ids = {candidate["hpo_id"] for candidate in candidates}
-        json_data = extract_json(response_text)
-        if json_data:
-            for key in ("hpo_id", "id", "HPO_ID"):
-                selected = json_data.get(key)
-                if isinstance(selected, str) and selected in candidate_ids:
-                    return selected
-
-        fallback_id = extract_hpo_id(response_text)
-        if fallback_id in candidate_ids:
-            return fallback_id
-        return None
+        return (
+            mapping_response.hpo_id
+            if mapping_response.hpo_id in candidate_ids
+            else None
+        )
 
     @classmethod
     def _select_candidate_ids(
         cls,
         *,
-        response_text: str,
+        mapping_response: LLMMappingSelection | LLMBatchMappingSelections,
         batch: list[dict[str, Any]],
     ) -> dict[str, str | None]:
         if len(batch) == 1:
             item = batch[0]
             return {
                 str(item["phrase"]): cls._select_candidate_id(
-                    response_text=response_text,
+                    mapping_response=mapping_response,
                     candidates=item["candidates"],
                 )
             }
 
         selected: dict[str, str | None] = {str(item["phrase"]): None for item in batch}
-        json_data = extract_json(response_text)
-        mappings = json_data.get("mappings") if isinstance(json_data, dict) else None
-        if not isinstance(mappings, list):
+        if not isinstance(mapping_response, LLMBatchMappingSelections):
             return selected
 
         candidates_by_phrase = {
@@ -881,14 +877,12 @@ class TwoPhaseLLMPipeline:
             _normalize_mapping_phrase_key(str(item["phrase"])): str(item["phrase"])
             for item in batch
         }
-        for mapping in mappings:
-            if not isinstance(mapping, dict):
-                continue
-            phrase = str(mapping.get("phrase", ""))
+        for mapping in mapping_response.mappings:
+            phrase = mapping.phrase
             original_phrase = original_phrase_by_normalized.get(
                 _normalize_mapping_phrase_key(phrase)
             )
-            selected_id = mapping.get("hpo_id")
+            selected_id = mapping.hpo_id
             if (
                 isinstance(selected_id, str)
                 and original_phrase in candidates_by_phrase

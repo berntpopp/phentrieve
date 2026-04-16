@@ -89,6 +89,15 @@ class LLMPhenotypeEvidence(BaseModel):
     match_method: str = "unknown"
 
 
+class LLMMappingSelection(BaseModel):
+    phrase: str
+    hpo_id: str | None = None
+
+
+class LLMBatchMappingSelections(BaseModel):
+    mappings: list[LLMMappingSelection] = Field(default_factory=list)
+
+
 class LLMMeta(BaseModel):
     llm_model: str
     llm_mode: str
