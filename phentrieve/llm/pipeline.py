@@ -148,6 +148,37 @@ def _phase1_extraction_dedup_key(item: dict[str, Any]) -> tuple[Any, ...]:
     )
 
 
+def _sorted_chunk_ids(chunk_ids: list[Any]) -> list[int]:
+    return sorted({int(chunk_id) for chunk_id in chunk_ids})
+
+
+def _normalized_evidence_text(item: dict[str, Any]) -> str:
+    return _clean_text(str(item.get("evidence_text") or item.get("phrase") or ""))
+
+
+def _prefer_richer_text(current: str | None, incoming: str | None) -> str | None:
+    current_text = str(current or "").strip()
+    incoming_text = str(incoming or "").strip()
+    if not current_text:
+        return incoming_text or None
+    if not incoming_text:
+        return current_text
+    return incoming_text if len(incoming_text) > len(current_text) else current_text
+
+
+def _merge_optional_bounds(
+    current: int | None,
+    incoming: int | None,
+    *,
+    pick: str,
+) -> int | None:
+    if current is None:
+        return incoming
+    if incoming is None:
+        return current
+    return min(current, incoming) if pick == "min" else max(current, incoming)
+
+
 class TwoPhaseLLMPipeline:
     def __init__(
         self,
@@ -756,8 +787,74 @@ class TwoPhaseLLMPipeline:
             if key in seen_keys:
                 continue
             seen_keys.add(key)
-            deduplicated.append(item)
+            merged = False
+            for existing in deduplicated:
+                if not TwoPhaseLLMPipeline._should_merge_phase1_extractions(
+                    existing, item
+                ):
+                    continue
+                TwoPhaseLLMPipeline._merge_phase1_extraction(existing, item)
+                merged = True
+                break
+            if merged:
+                continue
+            deduplicated.append(dict(item))
         return deduplicated
+
+    @staticmethod
+    def _should_merge_phase1_extractions(
+        existing: dict[str, Any],
+        incoming: dict[str, Any],
+    ) -> bool:
+        if (
+            str(existing.get("phrase", "")).strip().lower()
+            != str(incoming.get("phrase", "")).strip().lower()
+        ):
+            return False
+        if _normalize_category(
+            str(existing.get("category", ""))
+        ) != _normalize_category(str(incoming.get("category", ""))):
+            return False
+
+        existing_chunk_ids = set(_sorted_chunk_ids(existing.get("chunk_ids", [])))
+        incoming_chunk_ids = set(_sorted_chunk_ids(incoming.get("chunk_ids", [])))
+        if not existing_chunk_ids or not incoming_chunk_ids:
+            return False
+        if not (existing_chunk_ids & incoming_chunk_ids):
+            return False
+
+        existing_evidence = _normalized_evidence_text(existing)
+        incoming_evidence = _normalized_evidence_text(incoming)
+        if not existing_evidence or not incoming_evidence:
+            return False
+        return (
+            existing_evidence == incoming_evidence
+            or existing_evidence in incoming_evidence
+            or incoming_evidence in existing_evidence
+        )
+
+    @staticmethod
+    def _merge_phase1_extraction(
+        existing: dict[str, Any],
+        incoming: dict[str, Any],
+    ) -> None:
+        existing["chunk_ids"] = _sorted_chunk_ids(
+            [*existing.get("chunk_ids", []), *incoming.get("chunk_ids", [])]
+        )
+        existing["evidence_text"] = _prefer_richer_text(
+            existing.get("evidence_text"),
+            incoming.get("evidence_text"),
+        )
+        existing["start_char"] = _merge_optional_bounds(
+            existing.get("start_char"),
+            incoming.get("start_char"),
+            pick="min",
+        )
+        existing["end_char"] = _merge_optional_bounds(
+            existing.get("end_char"),
+            incoming.get("end_char"),
+            pick="max",
+        )
 
     def _resolve_local_matches(
         self,
@@ -969,7 +1066,11 @@ class TwoPhaseLLMPipeline:
                 item["phrase"],
                 fallback["hpo_id"],
             )
-            phenotype = self._phenotype_from_candidate(item=item, candidate=fallback)
+            phenotype = self._phenotype_from_candidate(
+                item=item,
+                candidate=fallback,
+                match_method="local",
+            )
             return (
                 [phenotype],
                 1,
@@ -1023,7 +1124,11 @@ class TwoPhaseLLMPipeline:
                 item["phrase"],
                 fallback["hpo_id"],
             )
-            phenotype = self._phenotype_from_candidate(item=item, candidate=fallback)
+            phenotype = self._phenotype_from_candidate(
+                item=item,
+                candidate=fallback,
+                match_method="local",
+            )
             return (
                 [phenotype],
                 1,
@@ -1044,7 +1149,11 @@ class TwoPhaseLLMPipeline:
             item["phrase"],
             selected_id,
         )
-        phenotype = self._phenotype_from_candidate(item=item, candidate=candidate)
+        phenotype = self._phenotype_from_candidate(
+            item=item,
+            candidate=candidate,
+            match_method="llm",
+        )
         return (
             [phenotype],
             0,
@@ -1065,6 +1174,7 @@ class TwoPhaseLLMPipeline:
         *,
         item: dict[str, Any],
         candidate: dict[str, Any],
+        match_method: str = "local",
     ) -> LLMPhenotype:
         evidence = LLMPhenotypeEvidence(
             phrase=str(item["phrase"]),
@@ -1072,7 +1182,7 @@ class TwoPhaseLLMPipeline:
             chunk_ids=list(item.get("chunk_ids", [])),
             start_char=item.get("start_char"),
             end_char=item.get("end_char"),
-            match_method="local",
+            match_method=match_method,
         )
         return LLMPhenotype(
             term_id=candidate["hpo_id"],

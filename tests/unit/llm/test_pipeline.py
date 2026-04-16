@@ -224,7 +224,7 @@ def test_two_phase_pipeline_maps_phrase_via_retrieved_candidates():
                     phrase="recurrent seizures",
                     evidence_text="recurrent seizures",
                     chunk_ids=[1],
-                    match_method="local",
+                    match_method="llm",
                 )
             ],
         )
@@ -575,6 +575,108 @@ def test_grouped_phase1_deduplicates_mentions_across_groups() -> None:
             "evidence_text": "recurrent seizures",
             "actionable": True,
         }
+    ]
+
+
+def test_grouped_phase1_deduplicates_overlapping_mentions_and_merges_grounding() -> (
+    None
+):
+    provider = FakeProvider(
+        responses=[
+            {
+                "parsed": {
+                    "phenotypes": [
+                        {
+                            "phrase": "recurrent seizures",
+                            "category": "Abnormal",
+                            "chunk_ids": [1, 2],
+                            "evidence_text": "Patient had recurrent seizures",
+                            "start_char": 12,
+                            "end_char": 30,
+                        }
+                    ]
+                }
+            },
+            {
+                "parsed": {
+                    "phenotypes": [
+                        {
+                            "phrase": "recurrent seizures",
+                            "category": "Abnormal",
+                            "chunk_ids": [2, 3],
+                            "evidence_text": "Patient had recurrent seizures since infancy",
+                            "start_char": 12,
+                            "end_char": 44,
+                        }
+                    ]
+                }
+            },
+        ]
+    )
+    tool_executor = FakeToolExecutor(
+        batch_results=[
+            {
+                "phrase": "recurrent seizures",
+                "candidates": [
+                    {
+                        "hpo_id": "HP:0001250",
+                        "term_name": "Recurrent seizures",
+                        "score": 0.95,
+                    }
+                ],
+            }
+        ]
+    )
+    pipeline = TwoPhaseLLMPipeline(provider=provider, tool_executor=tool_executor)
+
+    result = pipeline.run(
+        text="Patient had recurrent seizures since infancy.",
+        grounded_chunks=[
+            {"chunk_id": 1, "text": "Patient had recurrent"},
+            {"chunk_id": 2, "text": "recurrent seizures"},
+            {"chunk_id": 3, "text": "since infancy."},
+        ],
+        extraction_groups=[
+            {
+                "group_id": 1,
+                "chunk_ids": [1, 2],
+                "text": "chunk_id=1: Patient had recurrent\nchunk_id=2: recurrent seizures",
+            },
+            {
+                "group_id": 2,
+                "chunk_ids": [2, 3],
+                "text": "chunk_id=2: recurrent seizures\nchunk_id=3: since infancy.",
+            },
+        ],
+        config=LLMPipelineConfig(model="gemini-2.5-flash", mode="two_phase"),
+    )
+
+    assert tool_executor.queries == [
+        {
+            "phrases": ["recurrent seizures"],
+            "language": "en",
+            "n_results": 50,
+        }
+    ]
+    assert result.meta.phase_counts["extracted_phrases"] == 1
+    assert result.meta.trace["phase1"]["extracted"] == [
+        {
+            "phrase": "recurrent seizures",
+            "category": "abnormal",
+            "chunk_ids": [1, 2, 3],
+            "evidence_text": "Patient had recurrent seizures since infancy",
+            "actionable": True,
+        }
+    ]
+    assert result.terms[0].evidence_records == [
+        LLMPhenotypeEvidence(
+            phrase="recurrent seizures",
+            evidence_text="Patient had recurrent seizures since infancy",
+            chunk_ids=[1, 2, 3],
+            start_char=12,
+            end_char=44,
+            match_method="local",
+        )
     ]
 
 
@@ -945,7 +1047,7 @@ def test_two_phase_pipeline_uses_mapping_prompt_for_unresolved_phrase():
                     phrase="frequent falls",
                     evidence_text="frequent falls",
                     chunk_ids=[1],
-                    match_method="local",
+                    match_method="llm",
                 )
             ],
         )
@@ -1199,7 +1301,7 @@ def test_two_phase_pipeline_batches_unresolved_phrase_mapping_calls():
                     phrase="frequent falls",
                     evidence_text="frequent falls",
                     chunk_ids=[1],
-                    match_method="local",
+                    match_method="llm",
                 )
             ],
         ),
@@ -1214,7 +1316,7 @@ def test_two_phase_pipeline_batches_unresolved_phrase_mapping_calls():
                     phrase="sleep disturbances",
                     evidence_text="sleep disturbances",
                     chunk_ids=[1],
-                    match_method="local",
+                    match_method="llm",
                 )
             ],
         ),
@@ -1298,7 +1400,7 @@ def test_two_phase_pipeline_batch_mapping_accepts_normalized_returned_phrase_key
                     phrase="knock-knee (genu valgum)",
                     evidence_text="knock-knee (genu valgum)",
                     chunk_ids=[1],
-                    match_method="local",
+                    match_method="llm",
                 )
             ],
         ),
@@ -1313,7 +1415,7 @@ def test_two_phase_pipeline_batch_mapping_accepts_normalized_returned_phrase_key
                     phrase="Legg Perthes disease",
                     evidence_text="Legg Perthes disease",
                     chunk_ids=[1],
-                    match_method="local",
+                    match_method="llm",
                 )
             ],
         ),
