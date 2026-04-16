@@ -20,10 +20,10 @@ from phentrieve.evaluation.extraction_metrics import (
 )
 from phentrieve.llm.config import DEFAULT_LLM_LANGUAGE
 from phentrieve.llm.pipeline import LLMPipelinePhaseError, TwoPhaseLLMPipeline
+from phentrieve.llm.preprocessing import build_grounded_chunks_from_text_pipeline
 from phentrieve.llm.prompts import loader as prompt_loader
 from phentrieve.llm.provider import get_llm_provider
 from phentrieve.llm.types import LLMPipelineConfig
-from phentrieve.text_processing.full_text_service import _build_grounded_chunks
 
 logger = logging.getLogger(__name__)
 
@@ -43,6 +43,32 @@ DATASET_ASSERTION_PROJECTION: dict[str, dict[str, str | None]] = {
         "other": None,
     }
 }
+
+
+def _build_grounded_chunks(
+    *,
+    text: str,
+    language: str,
+    chunking_pipeline_config: list[dict[str, Any]] | None,
+    assertion_config: dict[str, Any] | None,
+    retrieval_model_name: str,
+) -> list[dict[str, Any]]:
+    return [
+        {
+            "chunk_id": chunk.chunk_id,
+            "text": chunk.text,
+            "start_char": chunk.start_char,
+            "end_char": chunk.end_char,
+            "status": chunk.status,
+        }
+        for chunk in build_grounded_chunks_from_text_pipeline(
+            text=text,
+            language=language,
+            chunking_pipeline_config=chunking_pipeline_config,
+            assertion_config=assertion_config,
+            retrieval_model_name=retrieval_model_name,
+        )
+    ]
 
 
 def run_llm_benchmark(
@@ -265,6 +291,24 @@ def run_llm_benchmark(
                     "completion_tokens": completion_tokens,
                     "total_tokens": total_tokens,
                     "api_calls": request_count,
+                },
+                "partial_failure_counts": {
+                    "phase1_completed_groups": int(
+                        pipeline_result.meta.phase_counts.get(
+                            "phase1_completed_groups", 0
+                        )
+                        or 0
+                    ),
+                    "phase1_failed_groups": int(
+                        pipeline_result.meta.phase_counts.get("phase1_failed_groups", 0)
+                        or 0
+                    ),
+                    "phase1_partial_failures": int(
+                        pipeline_result.meta.phase_counts.get(
+                            "phase1_partial_failures", 0
+                        )
+                        or 0
+                    ),
                 },
                 "estimated_cost": estimated_cost,
             }

@@ -232,6 +232,9 @@ class TwoPhaseLLMPipeline:
             "local_matches": 0,
             "llm_mapped_phrases": 0,
             "local_fallbacks": 0,
+            "phase1_completed_groups": 0,
+            "phase1_failed_groups": 0,
+            "phase1_partial_failures": 0,
         }
         phase_request_counts: dict[str, int] = {
             "phase1_requests": phase1_request_count,
@@ -253,6 +256,17 @@ class TwoPhaseLLMPipeline:
                 "groups": phase1_groups_trace,
             }
         }
+        if extraction_groups:
+            phase_counts["phase1_completed_groups"] = sum(
+                1 for group in phase1_groups_trace if group.get("status") == "completed"
+            )
+            phase_counts["phase1_failed_groups"] = sum(
+                1 for group in phase1_groups_trace if group.get("status") == "failed"
+            )
+            phase_counts["phase1_partial_failures"] = int(
+                phase_counts["phase1_failed_groups"] > 0
+                and phase_counts["phase1_completed_groups"] > 0
+            )
         if actionable:
             logger.debug(
                 "Phase 2A: retrieving candidates for actionable_phrases=%d",
@@ -475,11 +489,35 @@ class TwoPhaseLLMPipeline:
                 if chunk_id in chunk_lookup
             ]
             group_started = time.perf_counter()
-            group_extracted, group_usage = self._extract_phase1_phenotypes(
-                text=text,
-                grounded_chunks=group_grounded_chunks,
-                extraction_prompt=extraction_prompt,
-            )
+            try:
+                group_extracted, group_usage = self._extract_phase1_phenotypes(
+                    text=text,
+                    grounded_chunks=group_grounded_chunks,
+                    extraction_prompt=extraction_prompt,
+                )
+            except LLMPipelinePhaseError as exc:
+                group_elapsed = round(time.perf_counter() - group_started, 6)
+                logger.warning(
+                    "Continuing after grouped phase 1 failure: group_id=%s chunk_ids=%s error=%s",
+                    group.get("group_id"),
+                    group_chunk_ids,
+                    str(exc),
+                )
+                phase1_groups_trace.append(
+                    {
+                        "group_id": group.get("group_id"),
+                        "chunk_ids": group_chunk_ids,
+                        "source_chunk_ids": group_chunk_ids,
+                        "status": "failed",
+                        "error": str(exc),
+                        "error_type": type(exc).__name__,
+                        "extracted_count": 0,
+                        "extracted": [],
+                        "elapsed_seconds": group_elapsed,
+                    }
+                )
+                continue
+
             group_elapsed = round(time.perf_counter() - group_started, 6)
             group_request_count = int(
                 getattr(self.provider, "last_request_count", 0) or 0
@@ -489,28 +527,38 @@ class TwoPhaseLLMPipeline:
             completion_tokens_total += int(group_usage.get("completion_tokens", 0) or 0)
             total_request_count += group_request_count
             extracted.extend(group_extracted)
+            group_trace_extracted = [
+                {
+                    "phrase": str(item["phrase"]),
+                    "category": _normalize_category(str(item["category"])),
+                    "chunk_ids": list(item.get("chunk_ids", [])),
+                    "evidence_text": item.get("evidence_text"),
+                    "actionable": _normalize_category(str(item["category"]))
+                    in ACTIONABLE_CATEGORIES,
+                }
+                for item in group_extracted
+            ]
             phase1_groups_trace.append(
                 {
                     "group_id": group.get("group_id"),
+                    "chunk_ids": group_chunk_ids,
                     "source_chunk_ids": group_chunk_ids,
+                    "status": "completed",
+                    "extracted_count": len(group_trace_extracted),
                     "prompt_tokens": int(group_usage.get("prompt_tokens", 0) or 0),
                     "completion_tokens": int(
                         group_usage.get("completion_tokens", 0) or 0
                     ),
                     "request_count": group_request_count,
                     "elapsed_seconds": group_elapsed,
-                    "extracted": [
-                        {
-                            "phrase": str(item["phrase"]),
-                            "category": _normalize_category(str(item["category"])),
-                            "chunk_ids": list(item.get("chunk_ids", [])),
-                            "evidence_text": item.get("evidence_text"),
-                            "actionable": _normalize_category(str(item["category"]))
-                            in ACTIONABLE_CATEGORIES,
-                        }
-                        for item in group_extracted
-                    ],
+                    "extracted": group_trace_extracted,
                 }
+            )
+
+        if extraction_groups and not extracted:
+            raise LLMPipelinePhaseError(
+                "phase1",
+                "Structured extraction failed for all extraction groups",
             )
 
         return (
