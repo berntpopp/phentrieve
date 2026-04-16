@@ -3,6 +3,7 @@ import logging
 from pathlib import Path
 
 import pytest
+from pydantic import ValidationError
 
 from phentrieve.llm.pipeline import TwoPhaseLLMPipeline
 from phentrieve.llm.prompts.loader import (
@@ -14,7 +15,9 @@ from phentrieve.llm.provider import LLMProvider, ToolExecutor
 from phentrieve.llm.types import (
     AnnotationMode,
     LLMExtractionResult,
+    LLMGroundedExtractedPhenotype,
     LLMPhenotype,
+    LLMPhenotypeEvidence,
     LLMPipelineConfig,
     LLMResponse,
 )
@@ -94,6 +97,30 @@ FAILED_GENEREVIEWS_DOC = json.loads(
         "tests/data/en/phenobert/GeneReviews/annotations/GeneReviews_NBK532447.json"
     ).read_text(encoding="utf-8")
 )
+
+
+def test_grounded_extracted_phenotype_requires_chunk_ids() -> None:
+    with pytest.raises(ValidationError):
+        LLMGroundedExtractedPhenotype(phrase="seizures", category="Abnormal")
+
+
+def test_llm_phenotype_can_store_multiple_evidence_records() -> None:
+    phenotype = LLMPhenotype(
+        term_id="HP:0001250",
+        label="Seizure",
+        evidence_records=[
+            LLMPhenotypeEvidence(
+                phrase="recurrent seizures",
+                evidence_text="recurrent seizures",
+                chunk_ids=[2],
+                start_char=14,
+                end_char=32,
+                match_method="local",
+            )
+        ],
+    )
+
+    assert phenotype.evidence_records[0].chunk_ids == [2]
 
 
 def test_load_prompt_template_reads_yaml_template():

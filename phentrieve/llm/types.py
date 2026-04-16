@@ -40,6 +40,7 @@ class LLMPhenotype(BaseModel):
     evidence: str | None = None
     assertion: str = AssertionStatus.PRESENT.value
     category: str | None = None
+    evidence_records: list[LLMPhenotypeEvidence] = Field(default_factory=list)
 
 
 class LLMExtractedPhenotype(BaseModel):
@@ -64,6 +65,28 @@ class LLMExtractedPhenotypes(BaseModel):
         default_factory=list,
         description="Distinct phenotype phrases extracted from the clinical text.",
     )
+
+
+class LLMGroundedExtractedPhenotype(BaseModel):
+    phrase: str = Field(...)
+    category: Literal["Abnormal", "Normal", "Suspected", "Family_History", "Other"]
+    chunk_ids: list[int] = Field(min_length=1)
+    evidence_text: str | None = None
+    start_char: int | None = None
+    end_char: int | None = None
+
+
+class LLMGroundedExtractedPhenotypes(BaseModel):
+    phenotypes: list[LLMGroundedExtractedPhenotype] = Field(default_factory=list)
+
+
+class LLMPhenotypeEvidence(BaseModel):
+    phrase: str
+    evidence_text: str | None = None
+    chunk_ids: list[int] = Field(default_factory=list)
+    start_char: int | None = None
+    end_char: int | None = None
+    match_method: str = "unknown"
 
 
 class LLMMeta(BaseModel):
