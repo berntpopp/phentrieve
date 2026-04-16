@@ -51,6 +51,10 @@ DATASET_ASSERTION_PROJECTION: dict[str, dict[str, str | None]] = {
 }
 
 
+def _checkpoint_record_is_reusable(record: dict[str, Any]) -> bool:
+    return str(record.get("status", "")).lower() != "failed"
+
+
 def _build_grounded_chunks(
     *,
     text: str,
@@ -501,7 +505,11 @@ def _restore_checkpoint_state(
         }
 
     restored_results = sorted(
-        (record for record in raw_results if isinstance(record, dict)),
+        (
+            record
+            for record in raw_results
+            if isinstance(record, dict) and _checkpoint_record_is_reusable(record)
+        ),
         key=lambda record: int(record.get("case_index", 0) or 0),
     )
     completed_case_indexes: set[int] = set()
@@ -540,7 +548,9 @@ def _restore_checkpoint_state(
         "id_only_results": id_only_results,
         "results": restored_results,
         "prediction_records": [
-            record for record in raw_prediction_records if isinstance(record, dict)
+            record
+            for record in raw_prediction_records
+            if isinstance(record, dict) and _checkpoint_record_is_reusable(record)
         ],
         "total_prompt_tokens": sum(
             int(record.get("token_usage", {}).get("prompt_tokens", 0) or 0)

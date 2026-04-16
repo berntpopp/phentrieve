@@ -350,11 +350,55 @@ def test_phase1_runs_once_per_extraction_group() -> None:
 
     assert len(provider.structured_calls) == 2
     assert provider.structured_calls[0]["user_prompt"].endswith(
-        "- chunk_id=1: Chunk one.\n- chunk_id=2: Chunk two.\n"
+        "chunk_id=1: WRONG.\nchunk_id=2: WRONG.\n"
     )
-    assert provider.structured_calls[1]["user_prompt"].endswith(
-        "- chunk_id=3: Chunk three.\n"
+    assert provider.structured_calls[1]["user_prompt"].endswith("chunk_id=3: WRONG.\n")
+
+
+def test_grouped_phase1_uses_budgeted_group_payload_text() -> None:
+    provider = FakeProvider(
+        responses=[
+            {
+                "parsed": {
+                    "phenotypes": [
+                        grounded_phenotype(
+                            "recurrent seizures",
+                            "Abnormal",
+                            chunk_ids=[1, 2],
+                        )
+                    ]
+                }
+            }
+        ]
     )
+    pipeline = TwoPhaseLLMPipeline(
+        provider=provider,
+        tool_executor=FakeToolExecutor([]),
+    )
+
+    pipeline.run(
+        text="Patient had recurrent seizures.",
+        grounded_chunks=[
+            {"chunk_id": 1, "text": "Canonical chunk one."},
+            {"chunk_id": 2, "text": "Canonical chunk two."},
+        ],
+        extraction_groups=[
+            {
+                "group_id": 1,
+                "chunk_ids": [1, 2],
+                "text": "chunk_id=1: Budgeted chunk one.\nchunk_id=2: Budgeted chunk two.",
+                "estimated_prompt_tokens": 12,
+            }
+        ],
+        config=LLMPipelineConfig(model="gemini-2.5-flash", mode="two_phase"),
+    )
+
+    assert len(provider.structured_calls) == 1
+    assert provider.structured_calls[0]["user_prompt"].endswith(
+        "chunk_id=1: Budgeted chunk one.\nchunk_id=2: Budgeted chunk two.\n"
+    )
+    assert "Canonical chunk one." not in provider.structured_calls[0]["user_prompt"]
+    assert "Canonical chunk two." not in provider.structured_calls[0]["user_prompt"]
 
 
 def test_grouped_phase1_aggregates_mentions_before_retrieval() -> None:

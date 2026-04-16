@@ -947,6 +947,85 @@ def test_run_llm_benchmark_temporarily_overrides_prompt_templates_dir(
     assert llm_benchmark.prompt_loader.USER_TEMPLATES_DIR == original_templates_dir
 
 
+def test_run_llm_benchmark_retries_failed_checkpoint_cases(monkeypatch):
+    seen_texts: list[str] = []
+
+    def fake_load_benchmark_data(test_path: Path, dataset: str):
+        return {
+            "metadata": {"dataset_name": "phenobert_GeneReviews"},
+            "documents": [
+                {
+                    "id": "doc-1",
+                    "text": "Patient has seizures.",
+                    "gold_hpo_terms": [],
+                    "source_dataset": "GeneReviews",
+                },
+                {
+                    "id": "doc-2",
+                    "text": "Patient has ataxia.",
+                    "gold_hpo_terms": [],
+                    "source_dataset": "GeneReviews",
+                },
+            ],
+        }
+
+    class _FakePipeline:
+        def __init__(self, provider):
+            self.provider = provider
+
+        def run(self, *, text, grounded_chunks, config):
+            from phentrieve.llm.types import LLMExtractionResult, LLMMeta
+
+            seen_texts.append(text)
+            return LLMExtractionResult(
+                terms=[],
+                meta=LLMMeta(
+                    llm_model=config.model,
+                    llm_mode=config.mode,
+                    request_count=1,
+                ),
+            )
+
+    checkpoint_payload = {
+        "status": "running",
+        "cases": 2,
+        "timing_breakdown": {"wall_clock_seconds": 4.0},
+        "results": [
+            {
+                "case_index": 1,
+                "doc_id": "doc-1",
+                "source_dataset": "GeneReviews",
+                "status": "failed",
+                "error_phase": "phase1",
+                "error_message": "Structured extraction failed",
+            }
+        ],
+        "prediction_records": [
+            {
+                "case_index": 1,
+                "doc_id": "doc-1",
+                "status": "failed",
+                "error_phase": "phase1",
+                "error_message": "Structured extraction failed",
+            }
+        ],
+    }
+
+    monkeypatch.setattr(llm_benchmark, "load_benchmark_data", fake_load_benchmark_data)
+    monkeypatch.setattr(llm_benchmark, "get_llm_provider", lambda llm_model: object())
+    monkeypatch.setattr(llm_benchmark, "TwoPhaseLLMPipeline", _FakePipeline)
+
+    result = llm_benchmark.run_llm_benchmark(
+        test_file="tests/data/en/phenobert",
+        llm_model="gemini-2.5-flash",
+        checkpoint_state=checkpoint_payload,
+    )
+
+    assert seen_texts == ["Patient has seizures.", "Patient has ataxia."]
+    assert [record["doc_id"] for record in result["results"]] == ["doc-1", "doc-2"]
+    assert all(record.get("status") != "failed" for record in result["results"])
+
+
 def test_run_llm_benchmark_cli_writes_prediction_and_metrics_artifacts(
     tmp_path, monkeypatch
 ):

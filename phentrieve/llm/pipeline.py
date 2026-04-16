@@ -125,6 +125,18 @@ def _render_phase1_user_prompt(
     return extraction_prompt.render_user_prompt(text, chunk_index="[]")
 
 
+def _render_group_chunk_index_text(
+    *, group: dict[str, Any], grounded_chunks: list[dict[str, Any]]
+) -> str:
+    group_text = group.get("text")
+    if isinstance(group_text, str) and group_text.strip():
+        return group_text
+    return "\n".join(
+        f"chunk_id={chunk['chunk_id']}: {chunk.get('text', '')}"
+        for chunk in grounded_chunks
+    )
+
+
 class TwoPhaseLLMPipeline:
     def __init__(
         self,
@@ -490,6 +502,10 @@ class TwoPhaseLLMPipeline:
                 group_extracted, group_usage = self._extract_phase1_phenotypes(
                     text=text,
                     grounded_chunks=group_grounded_chunks,
+                    chunk_index_text=_render_group_chunk_index_text(
+                        group=group,
+                        grounded_chunks=group_grounded_chunks,
+                    ),
                     extraction_prompt=extraction_prompt,
                 )
             except LLMPipelinePhaseError as exc:
