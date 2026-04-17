@@ -1378,8 +1378,16 @@ def test_mapping_prompt_uses_compact_grounded_context() -> None:
                     ],
                 },
                 "candidates": [
-                    {"hpo_id": "HP:0002355", "term_name": "Difficulty walking"},
-                    {"hpo_id": "HP:0002317", "term_name": "Unsteady gait"},
+                    {
+                        "hpo_id": "HP:0002355",
+                        "term_name": "Difficulty walking",
+                        "score": 0.93,
+                    },
+                    {
+                        "hpo_id": "HP:0002317",
+                        "term_name": "Unsteady gait",
+                        "score": 0.61,
+                    },
                 ],
             }
         ],
@@ -1396,8 +1404,16 @@ def test_mapping_prompt_uses_compact_grounded_context() -> None:
         "phrase": "frequent falls",
         "category": "abnormal",
         "candidates": [
-            {"id": "HP:0002355", "term": "Difficulty walking"},
-            {"id": "HP:0002317", "term": "Unsteady gait"},
+            {
+                "id": "HP:0002355",
+                "term": "Difficulty walking",
+                "retrieval_score": 0.93,
+            },
+            {
+                "id": "HP:0002317",
+                "term": "Unsteady gait",
+                "retrieval_score": 0.61,
+            },
         ],
     }
 
@@ -1430,7 +1446,11 @@ def test_batch_mapping_prompt_compacts_items_into_payload_list() -> None:
                     "neighbor_chunk_texts": [None, " The child walks independently. "],
                 },
                 "candidates": [
-                    {"hpo_id": "HP:0002355", "term_name": "Difficulty walking"},
+                    {
+                        "hpo_id": "HP:0002355",
+                        "term_name": "Difficulty walking",
+                        "score": 0.93,
+                    },
                 ],
             },
             {
@@ -1441,7 +1461,11 @@ def test_batch_mapping_prompt_compacts_items_into_payload_list() -> None:
                     "neighbor_chunk_texts": [],
                 },
                 "candidates": [
-                    {"hpo_id": "HP:0002360", "term_name": "Sleep abnormality"},
+                    {
+                        "hpo_id": "HP:0002360",
+                        "term_name": "Sleep abnormality",
+                        "score": 0.78,
+                    },
                 ],
             },
         ],
@@ -1461,7 +1485,11 @@ def test_batch_mapping_prompt_compacts_items_into_payload_list() -> None:
                 "phrase": "frequent falls",
                 "category": "abnormal",
                 "candidates": [
-                    {"id": "HP:0002355", "term": "Difficulty walking"},
+                    {
+                        "id": "HP:0002355",
+                        "term": "Difficulty walking",
+                        "retrieval_score": 0.93,
+                    },
                 ],
             },
             {
@@ -1471,7 +1499,11 @@ def test_batch_mapping_prompt_compacts_items_into_payload_list() -> None:
                 "phrase": "sleep disturbances",
                 "category": "abnormal",
                 "candidates": [
-                    {"id": "HP:0002360", "term": "Sleep abnormality"},
+                    {
+                        "id": "HP:0002360",
+                        "term": "Sleep abnormality",
+                        "retrieval_score": 0.78,
+                    },
                 ],
             },
         ]
@@ -1481,6 +1513,61 @@ def test_batch_mapping_prompt_compacts_items_into_payload_list() -> None:
     assert "evidence_text" not in payload
     assert "start_char" not in payload
     assert "end_char" not in payload
+
+
+def test_mapping_prompt_keeps_shared_english_template_for_german_language() -> None:
+    provider = FakeProvider(
+        responses=[
+            {
+                "parsed": {
+                    "phrase": "deutliche skoliose",
+                    "hpo_id": "HP:0002650",
+                }
+            }
+        ]
+    )
+    pipeline = TwoPhaseLLMPipeline(
+        provider=provider,
+        tool_executor=FakeToolExecutor([]),
+    )
+
+    pipeline._run_mapping_batch(
+        batch=[
+            {
+                "phrase": "deutliche skoliose",
+                "category": "abnormal",
+                "grounded_context": {
+                    "primary_chunk_text": "deutliche skoliose der wirbelsaeule",
+                    "neighbor_chunk_texts": [],
+                },
+                "candidates": [
+                    {
+                        "hpo_id": "HP:0002650",
+                        "term_name": "Skoliose",
+                        "score": 0.89,
+                    },
+                ],
+            }
+        ],
+        mapping_prompt=get_mapping_prompt("de"),
+    )
+
+    structured_call = provider.structured_calls[0]
+
+    assert (
+        "You map clinical phenotype phrases to HPO terms."
+        in structured_call["system_prompt"]
+    )
+    assert "de" in structured_call["system_prompt"]
+    assert extract_mapping_payload_from_prompt(structured_call["user_prompt"]) == {
+        "primary_chunk_text": "deutliche skoliose der wirbelsaeule",
+        "neighbor_chunk_text": "",
+        "phrase": "deutliche skoliose",
+        "category": "abnormal",
+        "candidates": [
+            {"id": "HP:0002650", "term": "Skoliose", "retrieval_score": 0.89},
+        ],
+    }
 
 
 def test_two_phase_pipeline_uses_mapping_prompt_for_unresolved_phrase():
@@ -2326,8 +2413,16 @@ def test_two_phase_pipeline_batch_mapping_disambiguates_duplicate_phrase_text() 
             "phrase": "motor issues",
             "category": "abnormal",
             "candidates": [
-                {"id": "HP:0001251", "term": "Ataxia"},
-                {"id": "HP:0002066", "term": "Gait ataxia"},
+                {
+                    "id": "HP:0001251",
+                    "term": "Ataxia",
+                    "retrieval_score": 0.95,
+                },
+                {
+                    "id": "HP:0002066",
+                    "term": "Gait ataxia",
+                    "retrieval_score": 0.88,
+                },
             ],
         },
         {
@@ -2337,8 +2432,16 @@ def test_two_phase_pipeline_batch_mapping_disambiguates_duplicate_phrase_text() 
             "phrase": "motor issues",
             "category": "suspected",
             "candidates": [
-                {"id": "HP:0033894", "term": "Episodic ataxia"},
-                {"id": "HP:0001251", "term": "Ataxia"},
+                {
+                    "id": "HP:0033894",
+                    "term": "Episodic ataxia",
+                    "retrieval_score": 0.93,
+                },
+                {
+                    "id": "HP:0001251",
+                    "term": "Ataxia",
+                    "retrieval_score": 0.89,
+                },
             ],
         },
     ]
@@ -2943,10 +3046,9 @@ def test_two_phase_pipeline_uses_single_mapping_prompt_for_final_one_item_slice(
     final_mapping_call = provider.structured_calls[2]
 
     assert first_mapping_call["response_model"] is LLMBatchMappingSelections
-    assert (
-        first_mapping_call["system_prompt"]
-        == get_batch_mapping_prompt("en").render_system_prompt()
-    )
+    assert first_mapping_call["system_prompt"] == get_batch_mapping_prompt(
+        "en"
+    ).render_system_prompt(language="en")
     assert extract_mapping_payload_from_prompt(first_mapping_call["user_prompt"]) == {
         "items": [
             {
@@ -2955,7 +3057,13 @@ def test_two_phase_pipeline_uses_single_mapping_prompt_for_final_one_item_slice(
                 "neighbor_chunk_text": "Sleep disturbances were reported.",
                 "phrase": "frequent falls",
                 "category": "abnormal",
-                "candidates": [{"id": "HP:0002355", "term": "Difficulty walking"}],
+                "candidates": [
+                    {
+                        "id": "HP:0002355",
+                        "term": "Difficulty walking",
+                        "retrieval_score": 0.81,
+                    }
+                ],
             },
             {
                 "item_id": "item_2",
@@ -2963,22 +3071,27 @@ def test_two_phase_pipeline_uses_single_mapping_prompt_for_final_one_item_slice(
                 "neighbor_chunk_text": "The child has frequent falls.\nBalance issues were also noted.",
                 "phrase": "sleep disturbances",
                 "category": "abnormal",
-                "candidates": [{"id": "HP:0002360", "term": "Sleep abnormality"}],
+                "candidates": [
+                    {
+                        "id": "HP:0002360",
+                        "term": "Sleep abnormality",
+                        "retrieval_score": 0.85,
+                    }
+                ],
             },
         ]
     }
 
     assert final_mapping_call["response_model"] is LLMMappingSelection
-    assert (
-        final_mapping_call["system_prompt"]
-        == get_mapping_prompt("en").render_system_prompt()
-    )
+    assert final_mapping_call["system_prompt"] == get_mapping_prompt(
+        "en"
+    ).render_system_prompt(language="en")
     assert extract_mapping_payload_from_prompt(final_mapping_call["user_prompt"]) == {
         "primary_chunk_text": "Balance issues were also noted.",
         "neighbor_chunk_text": "Sleep disturbances were reported.",
         "phrase": "balance issues",
         "category": "abnormal",
-        "candidates": [{"id": "HP:0001251", "term": "Ataxia"}],
+        "candidates": [{"id": "HP:0001251", "term": "Ataxia", "retrieval_score": 0.95}],
     }
     assert result.meta.phase_request_counts["phase2b_llm_requests"] == 2
     assert [term.term_id for term in result.terms] == [

@@ -20,9 +20,20 @@ def clear_prompt_loader_cache() -> None:
 def test_get_mapping_prompt_loads_packaged_template() -> None:
     template = loader.get_mapping_prompt("fr")
 
-    assert template.language == "en"
+    assert template.language == "fr"
     assert template.version == "v4.1.0"
     assert "You map clinical phenotype phrases to HPO terms." in template.system_prompt
+    assert template.source_path.endswith("two_phase/en_mapping.yaml")
+
+
+def test_get_batch_mapping_prompt_uses_shared_english_template_with_requested_language() -> (
+    None
+):
+    template = loader.get_batch_mapping_prompt("de")
+
+    assert template.language == "de"
+    assert template.version == "v4.1.0"
+    assert template.source_path.endswith("two_phase/en_mapping_batch.yaml")
 
 
 def test_load_prompt_template_prefers_user_override(monkeypatch, tmp_path) -> None:
@@ -80,6 +91,16 @@ def test_mapping_prompt_prefix_stays_stable_before_variable_context() -> None:
     assert first_prompt.index('{"phrase":"alpha"}') > len(expected_prefix) - 1
     assert second_prompt.index('{"phrase":"beta"}') > len(expected_prefix) - 1
     assert first_prompt[: len(expected_prefix)] == second_prompt[: len(expected_prefix)]
+
+
+def test_mapping_prompt_renders_requested_language_in_system_prompt() -> None:
+    template = loader.get_mapping_prompt("de")
+
+    rendered = template.render_system_prompt(language=template.language)
+
+    assert "de" in rendered
+    assert "source language" in rendered
+    assert "retrieval_score" in rendered
 
 
 def test_batch_mapping_prompt_prefix_stays_stable_before_variable_context() -> None:

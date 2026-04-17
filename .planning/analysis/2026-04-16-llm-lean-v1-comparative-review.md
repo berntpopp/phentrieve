@@ -485,28 +485,33 @@ External:
 ### Current benchmark reality on this branch
 
 Since the original comparative review, `feat/llm-full-text-lean-v1` has
-completed a full grounded whole-note hardening pass plus the shared-chunk
-internal refactor. The benchmark state is now:
+completed a full grounded whole-note hardening pass, the shared-chunk
+internal refactor, and a follow-up regression-fix pass for routing and
+grounded whole-note fallback behavior. The benchmark state is now:
 
 | Variant | Wall clock | API calls | Prompt tokens | Completion tokens | Total tokens | Micro F1 | Macro F1 |
 |---|---:|---:|---:|---:|---:|---:|---:|
 | Legacy baseline (`llm_benchmark_20260416T_full_genereviews_phrasefix.json`) | 668.23 s | 49 | 66,088 | 14,531 | 80,619 | 0.7629 | 0.7918 |
 | Grounded fixed pre-refactor (`pr216_grounded_benchmark_fix1.json`) | 744.10 s | 49 | 64,056 | 24,539 | 88,595 | 0.7682 | 0.7780 |
 | Grounded shared-chunk refactor (`pr216_grounded_chunkrefactor.json`) | 1051.52 s | 60 | 68,686 | 23,206 | 91,892 | 0.7631 | 0.7746 |
+| Grounded routing + concurrency regression (`pr216_grounded_routing_phase1_parallel.json`) | 1158.07 s | 83 | 84,880 | 23,343 | 108,223 | 0.7288 | 0.7404 |
+| Grounded routing + concurrency fixed (`pr216_grounded_routing_phase1_parallel_fix4.json`) | 899.95 s | 55 | 75,562 | 19,834 | 95,396 | 0.7764 | 0.7870 |
 
 Interpretation:
 
 - The grounded path is no longer broken. The `NBK1277` truncation failure was
   fixed and the CLI/benchmark path is operationally stable.
-- The shared-chunk refactor is currently a regression in wall-clock and token
-  cost, with only slightly worse quality than the grounded fixed baseline.
-- The current bottleneck is not architectural correctness. It is excess remote
-  LLM work: too many calls, too much Phase-2B payload, and still-serial Phase-1
-  grouped execution.
+- The routing/concurrency regression was real, but it has now been corrected.
+  The fixed rerun beats the shared-chunk refactor on all headline metrics and
+  exceeds the grounded fixed baseline on micro F1.
+- The remaining bottleneck is no longer the accidental grouped whole-note path.
+  It is residual remote LLM work in Phase 2B and still-heavy grounded context /
+  prompt structure costs.
 
 This materially changes the priority order. Another large internal
 architecture refactor is not the next highest-value move. The next gains are
-in routing, concurrency, and prompt/payload structure.
+in mapping prompt/payload structure, adaptive context, and remaining token /
+call reduction.
 
 ### Branch strategy
 
@@ -550,8 +555,11 @@ calls from 49 to 60. That is the cleanest measurable regression signal.
 - Token cost: high
 - Accuracy: likely positive or neutral if thresholds are conservative
 
-**Status vs prior review:** not implemented. Current code has local matching and
-score plumbing, but it still sends too many phrases into the LLM mapping path.
+**Status vs prior review:** implemented in a conservative form. The current
+pipeline now routes some high-confidence English matches locally, preserves a
+more conservative German path, logs routing counts in benchmark artifacts, and
+has recovered the worst regression. The remaining work is calibration, not
+first-time implementation.
 
 #### PR B — Parallelize Phase-1 grouped extraction
 
@@ -570,8 +578,13 @@ pay additive remote latency.
 - Token cost: none
 - Accuracy: neutral
 
-**Status vs prior review:** not implemented. The group loop in
-`phentrieve/llm/pipeline.py` remains sequential.
+**Status vs prior review:** implemented with bounded concurrency and
+thread-local provider accounting. One important correction was required after
+the first landing: singleton whole-note cases must stay on the original
+grounded whole-note path, otherwise prompt-shape drift hurts both speed and
+quality. Multi-group notes now use the concurrent grouped path; the current
+10-doc GeneReviews set mostly exercises the whole-note fallback rather than
+true multi-group concurrency.
 
 #### PR C — Mapping prompt restructure plus retrieval score
 
@@ -593,8 +606,10 @@ promising place to recover quality without adding calls.
 - Token cost: medium
 - Accuracy: medium to high
 
-**Status vs prior review:** retrieval scores are present in candidate data but
-not yet fully exploited in the prompt contract.
+**Status vs prior review:** still open. Retrieval scores are present in
+candidate data but are not yet part of a redesigned stable-prefix mapping
+contract, and the KEEP-default language has not yet been benchmarked as a
+prompt-level change.
 
 #### PR D — Adaptive grounded context
 
@@ -614,7 +629,7 @@ inflating every Phase-2B request even when the primary chunk is sufficient.
 - Token cost: medium to high
 - Accuracy: neutral to positive if the expansion heuristic is careful
 
-**Status vs prior review:** not implemented. Neighbor context is still always on.
+**Status vs prior review:** still open. Neighbor context is still always on.
 
 #### PR E — Heuristic token preflight with real-token fallback
 
@@ -634,8 +649,12 @@ builder and add synchronous latency with no quality upside.
 - Token cost: none
 - Accuracy: neutral
 
-**Status vs prior review:** partially implemented in spirit, but still backed by
-  real provider token counting on every group build.
+**Status vs prior review:** partially implemented. The worst case has been
+removed: the code now does a single whole-note budget check first and only
+builds extraction groups when the note actually exceeds the grounded prompt
+budget. However, this is still real provider token counting rather than a
+heuristic estimator with near-boundary fallback, so there is still speed left
+to recover here.
 
 ### Items from the original top-five that are already present
 
@@ -659,31 +678,38 @@ Do not merge this branch to `main` until all of the following are true:
    English:
    - micro F1 >= 0.7682
    - no benchmark failures
+   - **Current status:** met (`0.7764`, no failures)
 2. Wall-clock materially improves from the current shared-chunk regression:
    - target <= 800 s on the 10-doc GeneReviews benchmark
    - stretch target <= 744 s to match the best grounded baseline
+   - **Current status:** improved but not yet met (`899.95 s`)
 3. Total token usage materially improves from the current shared-chunk run:
    - target <= 88,595 total tokens
+   - **Current status:** improved but not yet met (`95,396`)
 4. API calls return to baseline territory:
    - target <= 49 calls on the 10-doc benchmark
+   - **Current status:** improved but not yet met (`55`)
 5. German path has a defended non-regression story:
    - either a benchmark set or a documented holdout evaluation with explicit
      limitations
+   - **Current status:** not yet met
 6. Repo verification stays green on every landing step:
    - `make check`
    - `make typecheck-fast`
    - `make test`
+   - **Current status:** met for the latest landing, with the usual `dmypy`
+     crash/restart caveat in `make typecheck-fast`
 
 ### Recommended execution order on this branch
 
 Land the next optimization sequence on `feat/llm-full-text-lean-v1` in this
 order:
 
-1. Confidence-gated Phase-2B routing
-2. Phase-1 grouped-call parallelism
-3. Mapping prompt restructure with retrieval score and KEEP-default framing
-4. Adaptive grounded context
-5. Token preflight heuristic
+1. Mapping prompt restructure with retrieval score and KEEP-default framing
+2. Adaptive grounded context
+3. Token preflight heuristic
+4. Per-language calibration harness for routing thresholds
+5. German non-regression evaluation set / documented holdout
 
 This is the best order if the objective is a mature CLI path with better speed,
 lower cost, and no quality backslide.

@@ -190,7 +190,11 @@ def _compact_mapping_item(
         "phrase": str(item["phrase"]).lower().replace("-", " ").strip(),
         "category": item["category"],
         "candidates": [
-            {"id": candidate["hpo_id"], "term": candidate["term_name"]}
+            {
+                "id": candidate["hpo_id"],
+                "term": candidate["term_name"],
+                "retrieval_score": candidate.get("score"),
+            }
             for candidate in item["candidates"]
         ],
     }
@@ -1314,8 +1318,13 @@ class TwoPhaseLLMPipeline:
             )
             response_model = LLMBatchMappingSelections
         response = self.provider.run_structured_prompt(
-            system_prompt=batch_mapping_prompt.render_system_prompt(),
-            user_prompt=batch_mapping_prompt.render_user_prompt(candidate_payload),
+            system_prompt=batch_mapping_prompt.render_system_prompt(
+                language=batch_mapping_prompt.language
+            ),
+            user_prompt=batch_mapping_prompt.render_user_prompt(
+                candidate_payload,
+                language=batch_mapping_prompt.language,
+            ),
             response_model=response_model,
         )
         usage = dict(getattr(self.provider, "last_usage", {}) or {})

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 import re
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from functools import lru_cache
 from pathlib import Path
 from typing import Any
@@ -187,19 +187,21 @@ def get_prompt(
 
 
 def get_mapping_prompt(language: str = DEFAULT_LLM_LANGUAGE) -> PromptTemplate:
-    return load_prompt_template(
+    template = load_prompt_template(
         AnnotationMode.TWO_PHASE,
-        language,
+        DEFAULT_LLM_LANGUAGE,
         variant=PROMPT_VARIANT_MAPPING,
     )
+    return replace(template, language=language)
 
 
 def get_batch_mapping_prompt(language: str = DEFAULT_LLM_LANGUAGE) -> PromptTemplate:
-    return load_prompt_template(
+    template = load_prompt_template(
         AnnotationMode.TWO_PHASE,
-        language,
+        DEFAULT_LLM_LANGUAGE,
         variant=MAPPING_BATCH_VARIANT,
     )
+    return replace(template, language=language)
 
 
 def list_available_prompts() -> dict[str, list[str]]:
