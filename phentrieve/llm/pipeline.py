@@ -686,8 +686,8 @@ class TwoPhaseLLMPipeline:
         for (
             _group_index,
             group,
-            group_extracted,
-            group_usage,
+            group_extracted_opt,
+            group_usage_opt,
             group_request_count,
             group_elapsed,
             group_error,
@@ -715,8 +715,10 @@ class TwoPhaseLLMPipeline:
                 )
                 continue
 
-            assert group_extracted is not None
-            assert group_usage is not None
+            assert group_extracted_opt is not None
+            assert group_usage_opt is not None
+            group_extracted = group_extracted_opt
+            group_usage = group_usage_opt
             prompt_tokens_total += int(group_usage.get("prompt_tokens", 0) or 0)
             completion_tokens_total += int(group_usage.get("completion_tokens", 0) or 0)
             total_request_count += group_request_count
