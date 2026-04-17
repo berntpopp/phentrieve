@@ -17,7 +17,10 @@ existing structured extraction workflow against multiple providers:
 
 Phase one implementation and testing will start with Ollama, using
 `qwen3.5:35b` as the primary local validation model and `qwen3.5:27b` as the
-fallback local validation model.
+fallback local validation model, assuming current Ollama library availability
+at implementation time. If those tags move before implementation, the plan
+should switch to the nearest official Qwen 3.5 Ollama tags rather than
+hardcoding stale model names.
 
 ## 2. Current State
 
@@ -26,8 +29,8 @@ The current provider surface is narrower than the CLI suggests:
 - The CLI and benchmark paths accept `--llm-model`, but not a first-class
   provider field.
 - The provider factory in `phentrieve/llm/provider.py` reads
-  `PHENTRIEVE_LLM_PROVIDER` but explicitly rejects anything other than
-  `gemini`.
+  `PHENTRIEVE_LLM_PROVIDER` from the environment, but explicitly rejects
+  anything other than `gemini`. There is no CLI-level provider flag today.
 - `LLMPipelineConfig` carries model, mode, language, and seed, but not
   provider identity or base URL.
 - The shared pipeline depends mainly on the `LLMProvider` contract and is
@@ -132,9 +135,31 @@ Recommended defaults:
 - default provider remains repo-configurable in `phentrieve/llm/config.py`
 - default model remains repo-configurable in `phentrieve/llm/config.py`
 
+Base URL semantics:
+
+- Ollama gets a concrete default base URL.
+- Cloud providers may also accept an explicit base URL for enterprise proxies,
+  gateways, or compatible deployments, but they should not have a hardcoded
+  non-standard default.
+
+Per-provider timeout defaults should be represented explicitly instead of
+reusing Gemini-tuned values across every provider. In particular, Ollama
+should get a longer default timeout to tolerate cold starts and large local
+model runs, with a starting design target of 300 seconds unless local testing
+supports a tighter value.
+
 Provider-specific defaults should be represented separately from global
 defaults so the code can evolve without encoding Gemini assumptions as the
 general case.
+
+Dependency strategy:
+
+- Ollama should use plain HTTP against its native API rather than adding a
+  hard dependency on an Ollama SDK.
+- The Python `llm` extra should be expanded to include whatever official SDKs
+  or minimal client dependencies are required for OpenAI and Anthropic support.
+- Dependency layout should remain simple unless optional extras become large
+  enough to justify provider-specific splits later.
 
 ## 7. Internal Architecture
 
@@ -150,6 +175,12 @@ Introduce a small typed normalization object, conceptually:
 
 This object is constructed once in the CLI/service boundary and passed into the
 provider factory.
+
+`LLMPipelineConfig` should be extended explicitly to carry at least
+`provider`, and optionally `base_url` if downstream tracing or behavior needs
+that field. `LLMMeta` should also gain `llm_provider` so benchmark and service
+metadata preserve provider identity beyond the lifetime of the live provider
+instance.
 
 ### 7.2 Factory dispatch
 
@@ -197,6 +228,8 @@ Requirements:
 - set low temperature, defaulting to `0` for extraction tasks
 - validate returned JSON locally with Pydantic
 - support explicit `base_url`, defaulting to `http://localhost:11434`
+- use an Ollama-specific retry and timeout policy rather than inheriting
+  Gemini's structured retry behavior mechanically
 
 The implementation should not rely on Ollama's OpenAI compatibility endpoint
 for strict schema handling in the first phase.
@@ -206,17 +239,22 @@ for strict schema handling in the first phase.
 Use native structured output support on the current official API path selected
 at implementation time. The adapter must handle structured-output refusal or
 non-schema terminal states explicitly and keep local validation in place.
+OpenAI-specific retry and timeout behavior should live in the OpenAI adapter.
 
 ### 8.3 Anthropic
 
 Use current Claude API structured outputs on the GA path, using
-`output_config.format` semantics. Preserve local validation and provider-level
-error mapping.
+`output_config.format` semantics where supported by the selected model family.
+Preserve local validation and provider-level error mapping. If a chosen Claude
+model lacks GA structured outputs, the adapter must fail clearly or use a
+documented fallback path rather than silently pretending native support exists.
 
 ### 8.4 Gemini
 
 Retain Gemini support, but move it behind the same provider registry so Gemini
 is no longer the hardcoded default behavior for the entire provider layer.
+Gemini-specific retry and timeout behavior should remain adapter-owned rather
+than treated as the global policy template.
 
 ## 9. Metadata And Observability
 
@@ -229,6 +267,8 @@ Record provider-specific metadata in the Python path:
 
 Benchmark metadata and CLI-visible metadata should stop treating `llm_model`
 alone as sufficient identity for cross-provider comparisons.
+`LLMResponse.provider` is not sufficient on its own; durable pipeline and
+benchmark metadata should include provider identity through `LLMMeta`.
 
 ## 10. Token Counting
 
@@ -240,6 +280,13 @@ Token counting behavior should be explicit:
 
 Token-counting uncertainty must not silently mix with exact values in
 benchmarking or observability.
+
+Existing bare model-name behavior must remain backward compatible:
+
+- a bare model name such as `gemini-3.1-flash-lite-preview` should continue to
+  resolve through the configured default provider
+- prefixed model names become the new cross-provider path, not a breaking
+  replacement for existing Gemini workflows
 
 ## 11. Testing Strategy
 
@@ -253,8 +300,10 @@ Add or update tests for:
 - Ollama base URL normalization
 - provider dispatch behavior
 - provider-specific structured-output request shaping
+- provider-specific retry behavior
 - metadata propagation including provider identity
 - exact vs estimated token count metadata
+- redaction of API keys and other secrets in logged errors
 
 ### 11.2 Pipeline coverage
 
@@ -313,7 +362,8 @@ Reasoning:
 - the development machine has an NVIDIA RTX 5090 with 32 GB VRAM
 - `qwen3.5` is a current official Ollama family with a practical middle tier
   suitable for local validation
-- `qwen3.5:35b` is the best first attempt for capability-per-local-run
+- `qwen3.5:35b` is the best first attempt for capability-per-local-run on a
+  quantized local deployment
 - `qwen3.5:27b` gives a lower-risk fallback if memory pressure, latency, or
   schema reliability is better there
 - `gpt-oss:20b` is a useful later comparison because it is also positioned for
@@ -322,14 +372,16 @@ Reasoning:
 ## 14. Risks
 
 - token preflight logic may drift if providers differ in token accounting
-- provider retries may need provider-specific tuning rather than one global
-  policy
+- provider retries and timeouts need provider-specific tuning rather than one
+  global policy
 - structured-output schema support differs by provider and may require
   provider-specific shaping
 - benchmark result identity may become ambiguous if metadata is not updated
   consistently
 - Ollama can still return schema-shaped but semantically bad data, so local
   validation and extraction-focused tests remain necessary
+- normalization objects that carry secrets increase the chance of accidental
+  key leakage in logs unless errors are redacted consistently
 
 ## 15. Implementation Entry Points
 
