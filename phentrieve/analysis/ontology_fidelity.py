@@ -175,3 +175,69 @@ def sample_pairs(
         out.append((u, v))
 
     return np.array(out, dtype=np.int64)
+
+
+def _cosine_distance_rows(a: np.ndarray, b: np.ndarray) -> np.ndarray:
+    """Elementwise cosine distance between paired rows of a and b. Shape (n,)."""
+    num = np.sum(a * b, axis=1)
+    denom = np.linalg.norm(a, axis=1) * np.linalg.norm(b, axis=1)
+    # Avoid division-by-zero; zero-norm rows get 1.0 (max distance).
+    sim = np.where(denom > 0, num / np.maximum(denom, 1e-12), 0.0)
+    return 1.0 - sim
+
+
+def global_distance_correlation(
+    term_ids: list[str],
+    embeddings: np.ndarray,
+    ancestors: dict[str, set[str]],
+    depths: dict[str, int],
+    ic: dict[str, float],
+    n_pairs: int = 50_000,
+    seed: int = 42,
+) -> dict[str, float | int]:
+    """Spearman rho between embedding cosine distance and (shortest-path, Resnik).
+
+    Returns a dict with keys 'spearman_shortest_path', 'spearman_resnik',
+    'n_pairs'. Uses sampled pairs; seed controls pair selection.
+    """
+    from scipy.stats import spearmanr
+
+    rng = np.random.default_rng(seed)
+    pairs = sample_pairs(len(term_ids), n_pairs, rng)
+    if pairs.size == 0:
+        return {
+            "spearman_shortest_path": float("nan"),
+            "spearman_resnik": float("nan"),
+            "n_pairs": 0,
+        }
+
+    u_ids = [term_ids[i] for i in pairs[:, 0]]
+    v_ids = [term_ids[i] for i in pairs[:, 1]]
+
+    cosine = _cosine_distance_rows(embeddings[pairs[:, 0]], embeddings[pairs[:, 1]])
+    shortest = np.array(
+        [
+            graph_shortest_path(u, v, ancestors, depths)
+            for u, v in zip(u_ids, v_ids, strict=True)
+        ],
+        dtype=np.float64,
+    )
+    resnik = np.array(
+        [
+            resnik_similarity(u, v, ancestors, ic)
+            for u, v in zip(u_ids, v_ids, strict=True)
+        ],
+        dtype=np.float64,
+    )
+
+    # Spearman expects distance-like arrays to correlate in the same direction.
+    # Cosine distance is larger for dissimilar pairs; shortest-path also larger;
+    # so a positive rho means agreement. Resnik is a similarity -- negate for agreement.
+    rho_sp, _ = spearmanr(cosine, shortest)
+    rho_rk, _ = spearmanr(cosine, -resnik)
+
+    return {
+        "spearman_shortest_path": float(rho_sp) if rho_sp == rho_sp else float("nan"),
+        "spearman_resnik": float(rho_rk) if rho_rk == rho_rk else float("nan"),
+        "n_pairs": int(len(pairs)),
+    }

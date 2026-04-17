@@ -247,3 +247,59 @@ def test_sample_pairs_clamps_when_requested_exceeds_available():
     pairs = sample_pairs(5, 100, np.random.default_rng(0))
     assert pairs.shape[0] <= 10
     assert (pairs[:, 0] != pairs[:, 1]).all()
+
+
+def test_global_distance_correlation_returns_expected_keys(tiny_dag):
+    import numpy as np
+
+    from phentrieve.analysis.ontology_fidelity import (
+        build_descendants_index,
+        global_distance_correlation,
+        information_content,
+    )
+
+    ancestors, depths = tiny_dag
+    descendants = build_descendants_index(ancestors)
+    ic = information_content(descendants)
+
+    term_ids = list(depths.keys())
+    rng = np.random.default_rng(0)
+    embeddings = rng.standard_normal((len(term_ids), 16)).astype(np.float32)
+
+    result = global_distance_correlation(
+        term_ids, embeddings, ancestors, depths, ic, n_pairs=20, seed=0
+    )
+
+    assert set(result) >= {
+        "spearman_shortest_path",
+        "spearman_resnik",
+        "n_pairs",
+    }
+    assert isinstance(result["n_pairs"], int)
+    assert result["n_pairs"] <= 20
+
+
+def test_global_distance_correlation_seeded_is_deterministic(tiny_dag):
+    import numpy as np
+
+    from phentrieve.analysis.ontology_fidelity import (
+        build_descendants_index,
+        global_distance_correlation,
+        information_content,
+    )
+
+    ancestors, depths = tiny_dag
+    descendants = build_descendants_index(ancestors)
+    ic = information_content(descendants)
+
+    term_ids = list(depths.keys())
+    rng = np.random.default_rng(7)
+    embeddings = rng.standard_normal((len(term_ids), 16)).astype(np.float32)
+
+    a = global_distance_correlation(
+        term_ids, embeddings, ancestors, depths, ic, n_pairs=15, seed=11
+    )
+    b = global_distance_correlation(
+        term_ids, embeddings, ancestors, depths, ic, n_pairs=15, seed=11
+    )
+    assert a == b
