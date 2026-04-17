@@ -11,7 +11,7 @@ system_prompt: |
   - phrase
   - category
   - primary_chunk_text
-  - neighbor_chunk_text
+  - neighbor_chunk_texts
   - candidates with id, term, retrieval_score
 
   Rules:
@@ -41,5 +41,5 @@ few_shot_examples:
       Return JSON only.
 
       Payload:
-      {"items": [{"item_id": "item_1", "primary_chunk_text": "Physical examination revealed scoliosis and joint hypermobility", "neighbor_chunk_text": "", "phrase": "scoliosis", "category": "abnormal", "candidates": [{"id": "HP:0002650", "term": "Scoliosis", "retrieval_score": 0.99}, {"id": "HP:0100884", "term": "Compensatory scoliosis", "retrieval_score": 0.42}]}, {"item_id": "item_2", "primary_chunk_text": "The child has frequent falls while walking.", "neighbor_chunk_text": "", "phrase": "frequent falls", "category": "abnormal", "candidates": [{"id": "HP:0002355", "term": "Difficulty walking", "retrieval_score": 0.93}, {"id": "HP:0002317", "term": "Unsteady gait", "retrieval_score": 0.67}]}]}
+      {"items": [{"item_id": "item_1", "primary_chunk_text": "Physical examination revealed scoliosis and joint hypermobility", "neighbor_chunk_texts": [], "phrase": "scoliosis", "category": "abnormal", "candidates": [{"id": "HP:0002650", "term": "Scoliosis", "retrieval_score": 0.99}, {"id": "HP:0100884", "term": "Compensatory scoliosis", "retrieval_score": 0.42}]}, {"item_id": "item_2", "primary_chunk_text": "The child has frequent falls while walking.", "neighbor_chunk_texts": [], "phrase": "frequent falls", "category": "abnormal", "candidates": [{"id": "HP:0002355", "term": "Difficulty walking", "retrieval_score": 0.93}, {"id": "HP:0002317", "term": "Unsteady gait", "retrieval_score": 0.67}]}]}
     output: '{"mappings": [{"item_id": "item_1", "hpo_id": "HP:0002650"}, {"item_id": "item_2", "hpo_id": "HP:0002355"}]}'

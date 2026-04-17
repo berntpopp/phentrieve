@@ -19,7 +19,7 @@ from phentrieve.config import (
     DEFAULT_MIN_CONFIDENCE_AGGREGATED,
     DEFAULT_MODEL,
 )
-from phentrieve.llm.config import DEFAULT_LLM_MODE
+from phentrieve.llm.config import DEFAULT_LLM_MODE, DEFAULT_LLM_MODEL
 from phentrieve.llm.pipeline import TwoPhaseLLMPipeline, _render_phase1_user_prompt
 from phentrieve.llm.preprocessing import (
     build_extraction_groups,
@@ -355,11 +355,11 @@ def run_standard_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
 
 def run_llm_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
     """Run the shared LLM backend through the full-text service boundary."""
-    llm_model = kwargs.get("llm_model") or os.getenv("PHENTRIEVE_LLM_MODEL")
-    if not llm_model:
-        raise RuntimeError(
-            "No LLM model configured. Provide --llm-model or set PHENTRIEVE_LLM_MODEL."
-        )
+    llm_model = (
+        kwargs.get("llm_model")
+        or os.getenv("PHENTRIEVE_LLM_MODEL")
+        or DEFAULT_LLM_MODEL
+    )
 
     llm_mode = (kwargs.get("llm_mode") or "two_phase").strip()
     if llm_mode != DEFAULT_LLM_MODE:

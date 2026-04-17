@@ -135,7 +135,7 @@ describe('AdvancedOptionsPanel', () => {
         isTextProcessModeActive: true,
         textProcessOptions: {
           extractionBackend: 'llm',
-          llmModel: 'gpt-5.4-mini',
+          llmModel: 'gemini-3.1-flash-lite-preview',
           llmMode: 'two_phase',
         },
       },
@@ -161,7 +161,7 @@ describe('AdvancedOptionsPanel', () => {
       props: {
         visible: true,
         isTextProcessModeActive: true,
-        defaultLlmModel: 'gpt-5.4-mini',
+        defaultLlmModel: 'gemini-3.1-flash-lite-preview',
         defaultLlmMode: 'two_phase',
         textProcessOptions: {
           extractionBackend: 'llm',
@@ -177,7 +177,9 @@ describe('AdvancedOptionsPanel', () => {
       .findAllComponents({ name: 'VSelect' })
       .find((select) => select.props('modelValue') === 'two_phase');
 
-    expect(textFields.some((field) => field.props('modelValue') === 'gpt-5.4-mini')).toBe(true);
+    expect(
+      textFields.some((field) => field.props('modelValue') === 'gemini-3.1-flash-lite-preview')
+    ).toBe(true);
     expect(llmModeSelect).toBeDefined();
   });
 });

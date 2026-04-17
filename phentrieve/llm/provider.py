@@ -8,6 +8,7 @@ from random import SystemRandom
 from threading import local
 from typing import Any
 
+import httpx
 from pydantic import BaseModel, ValidationError
 
 from phentrieve.config import DEFAULT_MODEL
@@ -500,6 +501,9 @@ class GeminiStructuredOutputProvider(LLMProvider):
         raise RuntimeError("Gemini request failed without returning a response.")
 
     def _is_retryable_provider_error(self, exc: Exception) -> bool:
+        if isinstance(exc, httpx.TransportError):
+            return True
+
         status_code = getattr(exc, "status_code", None)
         if isinstance(status_code, int) and status_code in self.retryable_status_codes:
             return True

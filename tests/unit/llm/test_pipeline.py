@@ -1400,7 +1400,10 @@ def test_mapping_prompt_uses_compact_grounded_context() -> None:
 
     assert payload == {
         "primary_chunk_text": "The child has frequent falls while walking.",
-        "neighbor_chunk_text": "The child walks independently.\nNo seizures were reported.",
+        "neighbor_chunk_texts": [
+            "The child walks independently.",
+            "No seizures were reported.",
+        ],
         "phrase": "frequent falls",
         "category": "abnormal",
         "candidates": [
@@ -1481,7 +1484,7 @@ def test_batch_mapping_prompt_compacts_items_into_payload_list() -> None:
             {
                 "item_id": "item_1",
                 "primary_chunk_text": "",
-                "neighbor_chunk_text": "The child walks independently.",
+                "neighbor_chunk_texts": ["The child walks independently."],
                 "phrase": "frequent falls",
                 "category": "abnormal",
                 "candidates": [
@@ -1495,7 +1498,7 @@ def test_batch_mapping_prompt_compacts_items_into_payload_list() -> None:
             {
                 "item_id": "item_2",
                 "primary_chunk_text": "Sleep disturbances were reported.",
-                "neighbor_chunk_text": "",
+                "neighbor_chunk_texts": [],
                 "phrase": "sleep disturbances",
                 "category": "abnormal",
                 "candidates": [
@@ -1561,7 +1564,7 @@ def test_mapping_prompt_keeps_shared_english_template_for_german_language() -> N
     assert "de" in structured_call["system_prompt"]
     assert extract_mapping_payload_from_prompt(structured_call["user_prompt"]) == {
         "primary_chunk_text": "deutliche skoliose der wirbelsaeule",
-        "neighbor_chunk_text": "",
+        "neighbor_chunk_texts": [],
         "phrase": "deutliche skoliose",
         "category": "abnormal",
         "candidates": [
@@ -2409,7 +2412,7 @@ def test_two_phase_pipeline_batch_mapping_disambiguates_duplicate_phrase_text() 
         {
             "item_id": "item_1",
             "primary_chunk_text": "The patient has motor issues.",
-            "neighbor_chunk_text": "Intermittent motor issues are also suspected.",
+            "neighbor_chunk_texts": ["Intermittent motor issues are also suspected."],
             "phrase": "motor issues",
             "category": "abnormal",
             "candidates": [
@@ -2428,7 +2431,7 @@ def test_two_phase_pipeline_batch_mapping_disambiguates_duplicate_phrase_text() 
         {
             "item_id": "item_2",
             "primary_chunk_text": "Intermittent motor issues are also suspected.",
-            "neighbor_chunk_text": "The patient has motor issues.",
+            "neighbor_chunk_texts": ["The patient has motor issues."],
             "phrase": "motor issues",
             "category": "suspected",
             "candidates": [
@@ -3054,7 +3057,7 @@ def test_two_phase_pipeline_uses_single_mapping_prompt_for_final_one_item_slice(
             {
                 "item_id": "item_1",
                 "primary_chunk_text": "The child has frequent falls.",
-                "neighbor_chunk_text": "Sleep disturbances were reported.",
+                "neighbor_chunk_texts": ["Sleep disturbances were reported."],
                 "phrase": "frequent falls",
                 "category": "abnormal",
                 "candidates": [
@@ -3068,7 +3071,10 @@ def test_two_phase_pipeline_uses_single_mapping_prompt_for_final_one_item_slice(
             {
                 "item_id": "item_2",
                 "primary_chunk_text": "Sleep disturbances were reported.",
-                "neighbor_chunk_text": "The child has frequent falls.\nBalance issues were also noted.",
+                "neighbor_chunk_texts": [
+                    "The child has frequent falls.",
+                    "Balance issues were also noted.",
+                ],
                 "phrase": "sleep disturbances",
                 "category": "abnormal",
                 "candidates": [
@@ -3088,7 +3094,7 @@ def test_two_phase_pipeline_uses_single_mapping_prompt_for_final_one_item_slice(
     ).render_system_prompt(language="en")
     assert extract_mapping_payload_from_prompt(final_mapping_call["user_prompt"]) == {
         "primary_chunk_text": "Balance issues were also noted.",
-        "neighbor_chunk_text": "Sleep disturbances were reported.",
+        "neighbor_chunk_texts": ["Sleep disturbances were reported."],
         "phrase": "balance issues",
         "category": "abnormal",
         "candidates": [{"id": "HP:0001251", "term": "Ataxia", "retrieval_score": 0.95}],

@@ -12,7 +12,7 @@ Local API development runs on `http://localhost:8734`.
 ### CLI example
 
 ```bash
-phentrieve text process --extraction-backend llm --llm-model gpt-5.4-mini note.txt
+phentrieve text process --extraction-backend llm note.txt
 ```
 
 ### Standard backend
@@ -34,7 +34,7 @@ curl -X POST "http://localhost:8734/api/v1/text/process" \
   -d '{
     "text": "The patient exhibits microcephaly and frequent seizures.",
     "extraction_backend": "llm",
-    "llm_model": "gpt-5.4-mini",
+    "llm_model": "gemini-3.1-flash-lite-preview",
     "llm_mode": "two_phase"
   }'
 ```

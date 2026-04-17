@@ -352,7 +352,6 @@ def run_llm_benchmark(
             token_usage = _normalize_token_usage(pipeline_result.meta)
             prompt_tokens = int(token_usage.get("prompt_tokens", 0) or 0)
             completion_tokens = int(token_usage.get("completion_tokens", 0) or 0)
-            total_tokens = int(token_usage.get("total_tokens", 0) or 0)
             request_count = int(token_usage.get("api_calls", 0) or 0)
             total_prompt_tokens += prompt_tokens
             total_completion_tokens += completion_tokens

@@ -164,6 +164,38 @@ def test_run_llm_backend_builds_grounded_chunks_for_pipeline(mocker):
     assert grounded_chunks[0]["chunk_id"] == 1
 
 
+def test_run_llm_backend_uses_default_llm_model(mocker, monkeypatch):
+    provider = mocker.Mock()
+    pipeline = mocker.Mock()
+    pipeline.run.return_value = LLMExtractionResult(
+        terms=[],
+        meta=LLMMeta(
+            llm_model="gemini-3.1-flash-lite-preview",
+            llm_mode="two_phase",
+        ),
+    )
+
+    monkeypatch.delenv("PHENTRIEVE_LLM_MODEL", raising=False)
+    mocker.patch(
+        "phentrieve.text_processing.full_text_service.get_llm_provider",
+        return_value=provider,
+    )
+    mocker.patch(
+        "phentrieve.text_processing.full_text_service.TwoPhaseLLMPipeline",
+        return_value=pipeline,
+    )
+
+    run_llm_backend(
+        text="Patient had recurrent seizures.",
+        llm_mode="two_phase",
+        language="en",
+    )
+
+    assert (
+        pipeline.run.call_args.kwargs["config"].model == "gemini-3.1-flash-lite-preview"
+    )
+
+
 def test_run_llm_backend_supports_grounded_internal_mode(mocker):
     provider = mocker.Mock()
     pipeline = mocker.Mock()

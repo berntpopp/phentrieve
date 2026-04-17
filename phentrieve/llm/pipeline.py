@@ -186,7 +186,7 @@ def _compact_mapping_item(
         "primary_chunk_text": _normalize_grounded_text(
             grounded_context.get("primary_chunk_text")
         ),
-        "neighbor_chunk_text": "\n".join(neighbor_texts),
+        "neighbor_chunk_texts": neighbor_texts,
         "phrase": str(item["phrase"]).lower().replace("-", " ").strip(),
         "category": item["category"],
         "candidates": [

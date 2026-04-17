@@ -11,7 +11,7 @@ extraction.
 ## Running an LLM Full-Text Analysis
 
 ```bash
-phentrieve text process --extraction-backend llm --llm-model gpt-5.4-mini note.txt
+phentrieve text process --extraction-backend llm note.txt
 ```
 
 1. Start the API with your LLM environment configured.
@@ -19,7 +19,7 @@ phentrieve text process --extraction-backend llm --llm-model gpt-5.4-mini note.t
 3. Paste clinical text into the main input.
 4. Open Advanced Options.
 5. Select the `llm` extraction backend.
-6. Enter a model such as `gpt-5.4-mini`.
+6. The shared default model is `gemini-3.1-flash-lite-preview`; override it only for targeted experiments.
 7. Keep `two_phase` as the mode.
 8. Submit the analysis.
 

@@ -28,6 +28,7 @@ from phentrieve.config import (
     DEFAULT_STEP_SIZE_TOKENS,
     DEFAULT_WINDOW_SIZE_TOKENS,
 )
+from phentrieve.llm import config as llm_config
 
 logger = logging.getLogger(__name__)
 
@@ -541,22 +542,16 @@ def process_text_for_hpo_command(
     logger.debug(f"Chunking pipeline config: {chunking_pipeline_config}")
     logger.debug(f"Assertion config: {assertion_config}")
 
-    if extraction_backend == "llm" and not (
-        llm_model or os.getenv("PHENTRIEVE_LLM_MODEL")
-    ):
-        typer.secho(
-            "Error processing text: No LLM model configured. "
-            "Provide --llm-model or set PHENTRIEVE_LLM_MODEL.",
-            fg=typer.colors.RED,
-            err=True,
-        )
-        raise typer.Exit(code=1)
-
     logger.info("Using full-text extraction backend: %s", extraction_backend)
     if extraction_backend == "llm":
+        resolved_llm_model = (
+            llm_model
+            or os.getenv("PHENTRIEVE_LLM_MODEL")
+            or llm_config.DEFAULT_LLM_MODEL
+        )
         logger.debug(
             "LLM backend configuration: model=%s, mode=%s, internal_mode=%s, language=%s",
-            llm_model or os.getenv("PHENTRIEVE_LLM_MODEL"),
+            resolved_llm_model,
             llm_mode,
             llm_internal_mode,
             language,

@@ -592,9 +592,22 @@ def test_text_process_logs_llm_backend_configuration(monkeypatch, caplog):
     )
 
 
-def test_text_process_rejects_llm_backend_without_model(monkeypatch):
+def test_text_process_uses_default_llm_model_when_not_explicitly_configured(
+    monkeypatch,
+):
     runner = CliRunner()
     monkeypatch.delenv("PHENTRIEVE_LLM_MODEL", raising=False)
+    monkeypatch.setattr(
+        "phentrieve.cli.text_commands.run_full_text_service",
+        lambda **kwargs: {
+            "meta": {
+                "llm_model": kwargs["llm_model"],
+                "llm_mode": kwargs["llm_mode"],
+            },
+            "processed_chunks": [],
+            "aggregated_hpo_terms": [],
+        },
+    )
 
     result = runner.invoke(
         app,
@@ -607,12 +620,42 @@ def test_text_process_rejects_llm_backend_without_model(monkeypatch):
         ],
     )
 
-    assert result.exit_code == 1
-    assert "Provide --llm-model or set PHENTRIEVE_LLM_MODEL" in result.stderr
+    assert result.exit_code == 0
 
 
-def test_run_llm_backend_requires_explicit_model(monkeypatch):
+def test_run_llm_backend_uses_default_model_when_not_explicitly_configured(
+    monkeypatch,
+):
     monkeypatch.delenv("PHENTRIEVE_LLM_MODEL", raising=False)
 
-    with pytest.raises(RuntimeError, match="No LLM model configured"):
-        _run_llm_backend(text="Patient had recurrent seizures.")
+    calls: dict[str, object] = {}
+
+    class FakePipeline:
+        def __init__(self, *, provider):
+            calls["provider"] = provider
+
+        def warmup(self, language: str) -> None:
+            calls["warmup_language"] = language
+
+        def run(self, *, text, grounded_chunks, config, extraction_groups=None):
+            calls["config"] = config
+            from phentrieve.llm.types import LLMExtractionResult, LLMMeta
+
+            return LLMExtractionResult(
+                terms=[],
+                meta=LLMMeta(llm_model=config.model, llm_mode=config.mode),
+            )
+
+    monkeypatch.setattr(
+        "phentrieve.cli.text_commands.get_llm_provider",
+        lambda **kwargs: object(),
+    )
+    monkeypatch.setattr(
+        "phentrieve.cli.text_commands.TwoPhaseLLMPipeline",
+        FakePipeline,
+    )
+
+    result = _run_llm_backend(text="Patient had recurrent seizures.")
+
+    assert calls["config"].model == "gemini-3.1-flash-lite-preview"
+    assert result["meta"]["llm_model"] == "gemini-3.1-flash-lite-preview"

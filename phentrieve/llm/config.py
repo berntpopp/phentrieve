@@ -2,6 +2,7 @@ from __future__ import annotations
 
 DEFAULT_LLM_LANGUAGE = "en"
 DEFAULT_LLM_MODE = "two_phase"
+DEFAULT_LLM_MODEL = "gemini-3.1-flash-lite-preview"
 
 DEFAULT_PROVIDER_NAME = "gemini"
 DEFAULT_PROVIDER_TEMPERATURE = 0.0

@@ -10,7 +10,7 @@ system_prompt: |
   - phrase
   - category
   - primary_chunk_text
-  - neighbor_chunk_text
+  - neighbor_chunk_texts
   - candidates with id, term, retrieval_score
 
   Rules:
@@ -41,5 +41,5 @@ few_shot_examples:
       Return JSON only.
 
       Payload:
-      {"primary_chunk_text": "The child has frequent falls while walking.", "neighbor_chunk_text": "", "phrase": "frequent falls", "category": "abnormal", "candidates": [{"id": "HP:0002355", "term": "Difficulty walking", "retrieval_score": 0.93}, {"id": "HP:0002317", "term": "Unsteady gait", "retrieval_score": 0.67}]}
+      {"primary_chunk_text": "The child has frequent falls while walking.", "neighbor_chunk_texts": [], "phrase": "frequent falls", "category": "abnormal", "candidates": [{"id": "HP:0002355", "term": "Difficulty walking", "retrieval_score": 0.93}, {"id": "HP:0002317", "term": "Unsteady gait", "retrieval_score": 0.67}]}
     output: '{"phrase": "frequent falls", "hpo_id": "HP:0002355"}'

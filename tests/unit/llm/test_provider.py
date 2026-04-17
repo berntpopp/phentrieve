@@ -8,6 +8,7 @@ from threading import Barrier
 from types import ModuleType, SimpleNamespace
 from typing import Any
 
+import httpx
 import pytest
 
 from phentrieve.llm import config as llm_config
@@ -867,6 +868,77 @@ def test_complete_retries_after_rate_limit_client_error(monkeypatch) -> None:
     result = provider.complete([{"role": "user", "content": "hello"}])
 
     assert result.content == "ok"
+    assert len(fake_models.calls) == 2
+    assert sleep_calls[0] > 0.0
+
+
+def test_complete_retries_after_transport_error(monkeypatch) -> None:
+    fake_models = _install_fake_google_genai(
+        monkeypatch,
+        [
+            httpx.ConnectError("network is unreachable"),
+            _FakeResponse(
+                text="ok",
+                finish_reason="STOP",
+                prompt_tokens=6,
+                completion_tokens=2,
+                total_tokens=8,
+            ),
+        ],
+    )
+    sleep_calls: list[float] = []
+    monkeypatch.setattr(
+        provider_module,
+        "time",
+        SimpleNamespace(sleep=sleep_calls.append),
+        raising=False,
+    )
+    provider = GeminiStructuredOutputProvider(
+        model_name="gemini-2.5-flash",
+        api_key="test-key",
+    )
+
+    result = provider.complete([{"role": "user", "content": "hello"}])
+
+    assert result.content == "ok"
+    assert len(fake_models.calls) == 2
+    assert sleep_calls[0] > 0.0
+
+
+def test_structured_prompt_retries_after_transport_error(monkeypatch) -> None:
+    fake_models = _install_fake_google_genai(
+        monkeypatch,
+        [
+            httpx.ConnectError("network is unreachable"),
+            _FakeResponse(
+                text='{"phenotypes":[{"phrase":"recurrent seizures","category":"Abnormal"}]}',
+                parsed=None,
+                finish_reason="STOP",
+                prompt_tokens=11,
+                completion_tokens=9,
+                total_tokens=20,
+            ),
+        ],
+    )
+    sleep_calls: list[float] = []
+    monkeypatch.setattr(
+        provider_module,
+        "time",
+        SimpleNamespace(sleep=sleep_calls.append),
+        raising=False,
+    )
+    provider = GeminiStructuredOutputProvider(
+        model_name="gemini-2.5-flash",
+        api_key="test-key",
+    )
+
+    result = provider.run_structured_prompt(
+        system_prompt="system",
+        user_prompt="user",
+        response_model=LLMExtractedPhenotypes,
+    )
+
+    assert result.phenotypes[0].phrase == "recurrent seizures"
     assert len(fake_models.calls) == 2
     assert sleep_calls[0] > 0.0
 

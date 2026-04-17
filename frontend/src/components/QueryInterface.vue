@@ -240,7 +240,7 @@ import { useAdvancedOptions } from '../composables/useAdvancedOptions';
 import { usePhenotypeCollection } from '../composables/usePhenotypeCollection';
 
 const DEFAULT_TEXT_PROCESS_LLM_OPTIONS = Object.freeze({
-  llmModel: 'gpt-5.4-mini',
+  llmModel: 'gemini-3.1-flash-lite-preview',
   llmMode: 'two_phase',
 });
 

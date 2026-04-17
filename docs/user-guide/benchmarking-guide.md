@@ -79,7 +79,7 @@ phentrieve benchmark llm \
 ```bash
 phentrieve text process clinical_note.txt \
   --extraction-backend llm \
-  --llm-model gpt-5.4-mini
+  --llm-model gemini-3.1-flash-lite-preview
 ```
 
 ## API Quota Environment

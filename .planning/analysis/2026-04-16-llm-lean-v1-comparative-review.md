@@ -874,3 +874,56 @@ Given the new evidence, the recommended order on this branch is now:
 5. Token preflight heuristic
 6. Per-language calibration harness for routing thresholds
 7. German non-regression evaluation set / documented holdout
+
+## 8. 2026-04-17 model-selection update
+
+### Final branch evidence
+
+Two full 10-document GeneReviews reruns on this branch materially changed the
+deployment recommendation:
+
+| Model | Wall clock (s) | API calls | Total tokens | Estimated cost (USD) | Micro precision | Micro recall | Micro F1 | Macro F1 | Thoughts tokens |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| `gemini-3.1-flash-lite-preview` | 109.640 | 48 | 123,106 | 0.0546 | 0.8291 | 0.8186 | 0.8238 | 0.8308 | 0 |
+| `gemini-3.1-pro-preview` | 809.809 | 58 | 215,192 | 1.3362 | 0.8008 | 0.8481 | 0.8238 | 0.8312 | 69,214 |
+
+Compared with the strongest earlier branch-local `gemini-2.5-flash` results:
+
+- `pr216_grounded_routing_phase1_parallel_fix4.json`
+  - wall clock `899.95s`
+  - API calls `55`
+  - total tokens `95,396`
+  - micro-F1 `0.7764`
+- `pr216_shared_mapping_prompt.json`
+  - wall clock `912.65s`
+  - API calls `55`
+  - total tokens `141,582`
+  - micro-F1 `0.7846`
+
+### Interpretation
+
+- `gemini-3.1-flash-lite-preview` is not just cheaper than `gemini-3.1-pro-preview`;
+  it is effectively **tied on micro-F1** on the full 10-document set.
+- `gemini-3.1-pro-preview` buys recall at the cost of precision, but the net
+  quality result is a statistical wash at this benchmark size.
+- The Pro cost profile is dominated by **reasoning tokens** (`69,214`
+  thought tokens), which explains both the wall-clock and cost explosion.
+- `gemini-3.1-flash-lite-preview` materially outperforms the earlier
+  `gemini-2.5-flash` branch baselines on quality while also reducing latency
+  by roughly an order of magnitude.
+
+### Updated recommendation
+
+For this branch and workflow, the default model should be:
+
+- **`gemini-3.1-flash-lite-preview`**
+
+Rationale:
+
+- best quality-speed-cost frontier on the full benchmark
+- no evidence that `gemini-3.1-pro-preview` is worth its latency/cost premium
+- no thought-token expansion in the observed benchmark artifacts
+
+`gemini-3.1-pro-preview` should remain a documentation / comparison baseline
+only, not the operational default, unless a future broader evaluation shows a
+clear quality gap on harder datasets or non-English holdouts.
