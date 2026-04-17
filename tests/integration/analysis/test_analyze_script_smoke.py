@@ -51,11 +51,12 @@ def _write_stub_cache(tmp_path: Path, term_ids: list[str]) -> Path:
 def test_analyze_script_smoke(tmp_path, monkeypatch):
     """Run the script against a real HPO DB with a stubbed embedding cache."""
     from phentrieve.data_processing.hpo_database import HPODatabase
-    from phentrieve.utils import get_default_data_dir
+    from phentrieve.utils import get_default_data_dir, resolve_data_path
 
-    db_path = get_default_data_dir() / "hpo_data.db"
+    data_dir = resolve_data_path(None, "data_dir", get_default_data_dir)
+    db_path = data_dir / "hpo_data.db"
     if not db_path.exists():
-        pytest.skip("HPO SQLite DB not present on this machine")
+        pytest.skip(f"HPO SQLite DB not present at {db_path}")
 
     db = HPODatabase(db_path)
     try:
