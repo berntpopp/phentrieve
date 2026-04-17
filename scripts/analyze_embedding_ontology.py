@@ -286,6 +286,229 @@ def write_summary_json(
     out_path.write_text(json.dumps(payload, indent=2, default=str))
 
 
+def run_umap(
+    embeddings: np.ndarray,
+    args: Args,
+) -> np.ndarray:
+    """Return 2-D UMAP coordinates with shape (n, 2)."""
+    import umap
+
+    reducer = umap.UMAP(
+        n_neighbors=args.umap_neighbors,
+        min_dist=args.umap_min_dist,
+        metric=args.metric,
+        n_components=2,
+        random_state=args.seed,
+    )
+    return reducer.fit_transform(embeddings)
+
+
+def write_umap_coords_csv(
+    out_path: Path,
+    aligned_terms: list[dict],
+    coords: np.ndarray,
+    branch_info: dict[str, tuple[str | None, frozenset[str]]],
+    fidelity_by_id: dict[str, float],
+    depths: dict[str, int],
+) -> None:
+    import csv
+
+    labels = {t["id"]: t.get("label", "") for t in aligned_terms}
+    with open(out_path, "w", newline="") as f:
+        w = csv.writer(f)
+        w.writerow(
+            ["hpo_id", "label", "umap_x", "umap_y", "branch", "fidelity", "depth"]
+        )
+        for term, (x, y) in zip(aligned_terms, coords, strict=False):
+            tid = term["id"]
+            branch, _ = branch_info[tid]
+            w.writerow(
+                [
+                    tid,
+                    labels.get(tid, ""),
+                    f"{x:.6f}",
+                    f"{y:.6f}",
+                    branch if branch is not None else "",
+                    f"{fidelity_by_id.get(tid, float('nan')):.6f}",
+                    depths.get(tid, -1),
+                ]
+            )
+
+
+def plot_umap_by_branch(
+    out_path: Path,
+    coords: np.ndarray,
+    aligned_terms: list[dict],
+    branch_info: dict[str, tuple[str | None, frozenset[str]]],
+) -> None:
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    branches = [branch_info[t["id"]][0] or "ROOT" for t in aligned_terms]
+    unique = sorted(set(branches))
+    cmap = plt.get_cmap("tab20", len(unique))
+    color_of = {b: cmap(i) for i, b in enumerate(unique)}
+    colors = [color_of[b] for b in branches]
+
+    fig, ax = plt.subplots(figsize=(12, 9), dpi=120)
+    ax.scatter(coords[:, 0], coords[:, 1], s=3, c=colors, alpha=0.7, linewidths=0)
+    ax.set_title("HPO embedding UMAP — colored by top-level branch")
+    ax.set_xlabel("UMAP 1")
+    ax.set_ylabel("UMAP 2")
+    handles = [
+        plt.Line2D(
+            [0], [0], marker="o", linestyle="", color=color_of[b], label=b, markersize=6
+        )
+        for b in unique
+    ]
+    ax.legend(handles=handles, loc="best", fontsize=7, ncol=1, frameon=False)
+    fig.tight_layout()
+    fig.savefig(out_path)
+    plt.close(fig)
+
+
+def plot_umap_by_fidelity(
+    out_path: Path,
+    coords: np.ndarray,
+    aligned_terms: list[dict],
+    fidelity_by_id: dict[str, float],
+) -> None:
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    fid = [fidelity_by_id.get(t["id"], 0.0) for t in aligned_terms]
+    fig, ax = plt.subplots(figsize=(12, 9), dpi=120)
+    sc = ax.scatter(
+        coords[:, 0],
+        coords[:, 1],
+        s=4,
+        c=fid,
+        cmap="RdBu",
+        vmin=0.0,
+        vmax=1.0,
+        alpha=0.8,
+        linewidths=0,
+    )
+    ax.set_title("HPO embedding UMAP — colored by per-term fidelity")
+    ax.set_xlabel("UMAP 1")
+    ax.set_ylabel("UMAP 2")
+    cb = fig.colorbar(sc, ax=ax)
+    cb.set_label("fidelity (0=disagree, 1=agree)")
+    fig.tight_layout()
+    fig.savefig(out_path)
+    plt.close(fig)
+
+
+def plot_distance_correlation(
+    out_path: Path,
+    aligned_terms: list[dict],
+    aligned_embeddings: np.ndarray,
+    ancestors: dict[str, set[str]],
+    depths: dict[str, int],
+    args: Args,
+) -> dict[str, float]:
+    """Hexbin: cosine distance vs (shortest-path, Resnik), two subplots."""
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    import numpy as np
+    from scipy.stats import spearmanr
+
+    from phentrieve.analysis.ontology_fidelity import (
+        _cosine_distance_rows,  # type: ignore[attr-defined]
+        build_descendants_index,
+        graph_shortest_path,
+        information_content,
+        resnik_similarity,
+        sample_pairs,
+    )
+
+    descendants = build_descendants_index(ancestors)
+    ic = information_content(descendants)
+    term_ids = [t["id"] for t in aligned_terms]
+    rng = np.random.default_rng(args.seed)
+    pairs = sample_pairs(len(term_ids), args.n_pairs, rng)
+    if pairs.size == 0:
+        return {"spearman_shortest_path": float("nan"), "spearman_resnik": float("nan")}
+
+    cos = _cosine_distance_rows(
+        aligned_embeddings[pairs[:, 0]], aligned_embeddings[pairs[:, 1]]
+    )
+    u_ids = [term_ids[i] for i in pairs[:, 0]]
+    v_ids = [term_ids[i] for i in pairs[:, 1]]
+    shortest = np.array(
+        [
+            graph_shortest_path(u, v, ancestors, depths)
+            for u, v in zip(u_ids, v_ids, strict=False)
+        ],
+        dtype=np.float64,
+    )
+    resnik = np.array(
+        [
+            resnik_similarity(u, v, ancestors, ic)
+            for u, v in zip(u_ids, v_ids, strict=False)
+        ],
+        dtype=np.float64,
+    )
+    rho_sp, _ = spearmanr(cos, shortest)
+    rho_rk, _ = spearmanr(cos, -resnik)
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6), dpi=120)
+    ax1.hexbin(shortest, cos, gridsize=40, cmap="viridis", mincnt=1)
+    ax1.set_xlabel("HPO shortest-path distance")
+    ax1.set_ylabel("embedding cosine distance")
+    ax1.set_title(f"shortest-path  ρ={rho_sp:.3f}  (n={len(pairs)})")
+    ax2.hexbin(-resnik, cos, gridsize=40, cmap="viridis", mincnt=1)
+    ax2.set_xlabel("−Resnik similarity  (larger = more distant)")
+    ax2.set_ylabel("embedding cosine distance")
+    ax2.set_title(f"Resnik  ρ={rho_rk:.3f}")
+    fig.tight_layout()
+    fig.savefig(out_path)
+    plt.close(fig)
+
+    return {"spearman_shortest_path": float(rho_sp), "spearman_resnik": float(rho_rk)}
+
+
+def plot_branch_fidelity(
+    out_path: Path,
+    purity: dict,
+    fidelity_rows: list[dict],
+    branch_info: dict[str, tuple[str | None, frozenset[str]]],
+) -> None:
+    """Horizontal bar chart of per-branch MEAN FIDELITY (not purity).
+    Purity is a separate metric surfaced in summary.json.
+    """
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    import numpy as np
+
+    by_branch: dict[str, list[float]] = {}
+    for row in fidelity_rows:
+        branch, _ = branch_info[row["id"]]
+        if branch is None:
+            continue
+        by_branch.setdefault(branch, []).append(row["fidelity"])
+    ordered = sorted(by_branch.items(), key=lambda kv: np.mean(kv[1]))
+    branches = [b for b, _ in ordered]
+    means = [float(np.mean(v)) for _, v in ordered]
+
+    fig, ax = plt.subplots(figsize=(10, max(4, 0.35 * len(branches))), dpi=120)
+    ax.barh(branches, means, color="#3b82f6")
+    ax.set_xlim(0.0, 1.0)
+    ax.set_xlabel("mean per-term fidelity")
+    ax.set_title("Fidelity by top-level HPO branch")
+    fig.tight_layout()
+    fig.savefig(out_path)
+    plt.close(fig)
+
+
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
     setup_logging(args.log_level)
@@ -364,6 +587,44 @@ def main(argv: list[str] | None = None) -> int:
         len(aligned_terms),
     )
     logger.info("Metrics written. Next: UMAP and plots.")
+
+    logger.info(
+        "Running UMAP (n_neighbors=%d, min_dist=%s) ...",
+        args.umap_neighbors,
+        args.umap_min_dist,
+    )
+    coords = run_umap(aligned_embeddings, args)
+    fidelity_by_id = {r["id"]: r["fidelity"] for r in fidelity_rows}
+
+    write_umap_coords_csv(
+        out_root / "umap_coords.csv",
+        aligned_terms,
+        coords,
+        branch_info,
+        fidelity_by_id,
+        depths,
+    )
+    plot_umap_by_branch(
+        out_root / "umap_by_branch.png", coords, aligned_terms, branch_info
+    )
+    plot_umap_by_fidelity(
+        out_root / "umap_by_fidelity.png", coords, aligned_terms, fidelity_by_id
+    )
+    plot_distance_correlation(
+        out_root / "distance_correlation.png",
+        aligned_terms,
+        aligned_embeddings,
+        ancestors,
+        depths,
+        args,
+    )
+    plot_branch_fidelity(
+        out_root / "branch_fidelity.png",
+        summary["metrics"]["branch_knn_purity"],
+        fidelity_rows,
+        branch_info,
+    )
+    logger.info("Static plots written.")
     return 0
 
 
