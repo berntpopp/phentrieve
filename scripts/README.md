@@ -282,7 +282,13 @@ fidelity CSV, and five plots.
    phentrieve index build --model-name FremyCompany/BioLORD-2023-M
    ```
 
-> **Note:** The script uses the ChromaDB index at the location determined by `PHENTRIEVE_INDEX_DIR` (or defaults to `data/indexes`). In dev/local setups, if you have a non-standard index layout, either set `PHENTRIEVE_INDEX_DIR` before running, or pass a custom index directory via the script's `--index-dir-override` flag (if available). See `python scripts/analyze_embedding_ontology.py --help` for all options.
+> **Note:** The embedding cache reads the Chroma index location from the `PHENTRIEVE_INDEX_DIR` environment variable (falling back to `~/.phentrieve/hpo_chroma_index/`). When running from a dev checkout whose index lives under the repo's `data/indexes/`, export it first:
+>
+> ```bash
+> export PHENTRIEVE_INDEX_DIR=$PWD/data/indexes
+> ```
+>
+> Run `python scripts/analyze_embedding_ontology.py --help` for all flags.
 
 **Usage:**
 
