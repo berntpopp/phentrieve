@@ -166,6 +166,126 @@ def align_terms_and_embeddings(
     return aligned_terms, aligned_embeddings
 
 
+def compute_metrics(
+    aligned_terms: list[dict],
+    aligned_embeddings: np.ndarray,
+    ancestors: dict[str, set[str]],
+    depths: dict[str, int],
+    args: Args,
+) -> tuple[dict, list[dict], dict[str, tuple[str | None, frozenset[str]]]]:
+    """Run all four metrics. Return (summary_dict, per_term_rows, branch_info)."""
+    from phentrieve.analysis.ontology_fidelity import (
+        branch_knn_purity,
+        build_descendants_index,
+        depth_correlation,
+        global_distance_correlation,
+        information_content,
+        per_term_fidelity,
+        top_level_branch,
+    )
+
+    term_ids = [t["id"] for t in aligned_terms]
+    descendants = build_descendants_index(ancestors)
+    ic = information_content(descendants)
+
+    branch_info = {tid: top_level_branch(tid, ancestors, depths) for tid in term_ids}
+    branch_map: dict[str, str | None] = {tid: branch_info[tid][0] for tid in term_ids}
+    multi_parent_count = sum(1 for tid in term_ids if len(branch_info[tid][1]) > 1)
+
+    corr = global_distance_correlation(
+        term_ids,
+        aligned_embeddings,
+        ancestors,
+        depths,
+        ic,
+        n_pairs=args.n_pairs,
+        seed=args.seed,
+    )
+    fidelity_rows = per_term_fidelity(
+        term_ids, aligned_embeddings, ancestors, descendants, ic, k=args.k
+    )
+    purity = branch_knn_purity(term_ids, aligned_embeddings, branch_map, k=args.k)
+    depth_rho = depth_correlation(term_ids, aligned_embeddings, depths)
+
+    summary: dict = {
+        "metrics": {
+            "global_distance_correlation": corr,
+            "per_term_fidelity_mean": float(
+                sum(r["fidelity"] for r in fidelity_rows) / max(len(fidelity_rows), 1)
+            ),
+            "branch_knn_purity": purity,
+            "depth_correlation_spearman": depth_rho,
+        },
+        "meta": {
+            "multi_parent_term_count": multi_parent_count,
+            "n_terms_analyzed": len(term_ids),
+            "embedding_dim": int(aligned_embeddings.shape[1]),
+        },
+    }
+    return summary, fidelity_rows, branch_info
+
+
+def write_per_term_csv(
+    out_path: Path,
+    fidelity_rows: list[dict],
+    aligned_terms: list[dict],
+    branch_info: dict[str, tuple[str | None, frozenset[str]]],
+    depths: dict[str, int],
+) -> None:
+    import csv
+
+    labels = {t["id"]: t.get("label", "") for t in aligned_terms}
+    rows_sorted = sorted(fidelity_rows, key=lambda r: r["fidelity"])
+    with open(out_path, "w", newline="") as f:
+        w = csv.writer(f)
+        w.writerow(
+            ["hpo_id", "label", "branch", "all_branches", "depth", "fidelity", "rank"]
+        )
+        for rank, row in enumerate(rows_sorted, start=1):
+            tid = row["id"]
+            branch, all_branches = branch_info[tid]
+            w.writerow(
+                [
+                    tid,
+                    labels.get(tid, ""),
+                    branch if branch is not None else "",
+                    ";".join(sorted(all_branches)),
+                    depths.get(tid, -1),
+                    f"{row['fidelity']:.6f}",
+                    rank,
+                ]
+            )
+
+
+def write_summary_json(
+    out_path: Path,
+    summary: dict,
+    args: Args,
+    hpo_version: str | None,
+    db_path: Path,
+    aligned_n: int,
+) -> None:
+    import json
+
+    payload = {
+        **summary,
+        "config": {
+            "model_name": args.model_name,
+            "hpo_db_path": str(db_path),
+            "hpo_version": hpo_version,
+            "k": args.k,
+            "n_pairs": args.n_pairs,
+            "umap_neighbors": args.umap_neighbors,
+            "umap_min_dist": args.umap_min_dist,
+            "metric": args.metric,
+            "sample": args.sample,
+            "seed": args.seed,
+        },
+        "aligned_n_terms": aligned_n,
+    }
+    out_path.write_text(json.dumps(payload, indent=2, default=str))
+
+
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
     setup_logging(args.log_level)
@@ -215,7 +335,35 @@ def main(argv: list[str] | None = None) -> int:
         "Aligned: %d terms × %d dims", len(aligned_terms), aligned_embeddings.shape[1]
     )
 
-    # Metrics, UMAP, and writers are added in subsequent tasks.
+    from datetime import datetime
+
+    from phentrieve.utils import get_model_slug
+
+    slug = get_model_slug(args.model_name)
+    ts = datetime.now().strftime("%Y%m%d-%H%M%S")
+    out_root = args.output_dir / f"{slug}_{ts}"
+    out_root.mkdir(parents=True, exist_ok=True)
+    logger.info("Output directory: %s", out_root)
+
+    summary, fidelity_rows, branch_info = compute_metrics(
+        aligned_terms, aligned_embeddings, ancestors, depths, args
+    )
+    write_per_term_csv(
+        out_root / "per_term_fidelity.csv",
+        fidelity_rows,
+        aligned_terms,
+        branch_info,
+        depths,
+    )
+    write_summary_json(
+        out_root / "summary.json",
+        summary,
+        args,
+        hpo_version,
+        db_path,
+        len(aligned_terms),
+    )
+    logger.info("Metrics written. Next: UMAP and plots.")
     return 0
 
 
