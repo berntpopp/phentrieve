@@ -35,7 +35,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
-          python-version: '3.9' # Adjust to match Phentrieve's Python version
+          python-version: '3.11'
 
       - name: Install MkDocs and dependencies
         run: |

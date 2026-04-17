@@ -16,6 +16,22 @@ together:
 
 ---
 
+## [0.15.0] — 2026-04-17
+
+**Component versions**: phentrieve `0.15.0`, phentrieve-api `0.8.2`, phentrieve-frontend `0.7.3`
+
+Post-merge stabilization and release follow-up.
+
+### Fixed
+
+- repaired the GitHub Pages documentation deployment by aligning the docs
+  workflow Python version with the project baseline and fixing a strict MkDocs
+  warning caused by an invalid repository-root link in the test documentation
+
+### Release
+
+- bumped the Phentrieve CLI/library minor version to `0.15.0`
+
 ## [0.14.0] — 2026-04-17
 
 **Component versions**: phentrieve `0.14.0`, phentrieve-api `0.8.2`, phentrieve-frontend `0.7.0`
