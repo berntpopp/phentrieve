@@ -118,7 +118,7 @@ def test_with_fixture(test_model):
 
 ## Test Configuration
 
-Tests are configured in [pyproject.toml](../../pyproject.toml):
+Tests are configured in the repository root `pyproject.toml` file:
 
 ```toml
 [tool.pytest.ini_options]
