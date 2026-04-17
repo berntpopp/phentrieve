@@ -44,7 +44,7 @@ class FakeToolExecutor:
 
 
 @pytest.mark.integration
-def test_grounded_llm_pipeline_preserves_english_chunk_provenance():
+def test_grounded_llm_pipeline_grouped_path_preserves_english_provenance():
     provider = FakeProvider(
         responses=[
             {
@@ -53,8 +53,8 @@ def test_grounded_llm_pipeline_preserves_english_chunk_provenance():
                         {
                             "phrase": "recurrent seizures",
                             "category": "Abnormal",
-                            "chunk_ids": [1],
-                            "evidence_text": "recurrent seizures",
+                            "chunk_ids": [2],
+                            "evidence_text": "seizures with loss of awareness.",
                         }
                     ]
                 }
@@ -76,7 +76,7 @@ def test_grounded_llm_pipeline_preserves_english_chunk_provenance():
                     "candidates": [
                         {
                             "hpo_id": "HP:0001250",
-                            "term_name": "Paroxysmal event",
+                            "term_name": "Recurrent seizures",
                             "score": 0.97,
                         }
                     ],
@@ -86,14 +86,44 @@ def test_grounded_llm_pipeline_preserves_english_chunk_provenance():
     )
 
     result: LLMExtractionResult = pipeline.run(
-        text="Patient had recurrent seizures.",
+        text=("Patient has recurrent\nseizures with loss of awareness.\nNo headaches."),
         grounded_chunks=[
             {
                 "chunk_id": 1,
-                "text": "Patient had recurrent seizures.",
+                "text": "Patient has recurrent",
                 "start_char": 0,
-                "end_char": 31,
-            }
+                "end_char": 21,
+            },
+            {
+                "chunk_id": 2,
+                "text": "seizures with loss of awareness.",
+                "start_char": 22,
+                "end_char": 54,
+            },
+            {
+                "chunk_id": 3,
+                "text": "No headaches.",
+                "start_char": 55,
+                "end_char": 68,
+            },
+        ],
+        extraction_groups=[
+            {
+                "group_id": 11,
+                "chunk_ids": [1, 2],
+                "text": (
+                    "chunk_id=1: Patient has recurrent\n"
+                    "chunk_id=2: seizures with loss of awareness."
+                ),
+            },
+            {
+                "group_id": 12,
+                "chunk_ids": [2, 3],
+                "text": (
+                    "chunk_id=2: seizures with loss of awareness.\n"
+                    "chunk_id=3: No headaches."
+                ),
+            },
         ],
         config=LLMPipelineConfig(
             model="gemini-2.5-flash",
@@ -102,17 +132,23 @@ def test_grounded_llm_pipeline_preserves_english_chunk_provenance():
         ),
     )
 
-    assert result.meta.trace["phase1"]["extracted"][0]["chunk_ids"] == [1]
-    assert (
-        result.meta.trace["phase2a"]["candidate_sets"][0]["grounded_context"][
-            "primary_chunk_text"
-        ]
-        == "Patient had recurrent seizures."
-    )
+    phase1_groups = result.meta.trace["phase1"]["groups"]
+    assert [group["source_chunk_ids"] for group in phase1_groups] == [[1, 2], [2, 3]]
+    assert phase1_groups[0]["extracted"][0]["chunk_ids"] == [2]
+    assert result.meta.trace["phase1"]["extracted"][0]["chunk_ids"] == [2]
+    grounded_context = result.meta.trace["phase2a"]["candidate_sets"][0][
+        "grounded_context"
+    ]
+    assert grounded_context["chunk_ids"] == [2]
+    assert grounded_context["primary_chunk_text"] == "seizures with loss of awareness."
+    assert grounded_context["neighbor_chunk_texts"] == [
+        "Patient has recurrent",
+        "No headaches.",
+    ]
 
 
 @pytest.mark.integration
-def test_grounded_llm_pipeline_preserves_german_chunk_provenance():
+def test_grounded_llm_pipeline_grouped_path_preserves_german_provenance():
     provider = FakeProvider(
         responses=[
             {
@@ -121,8 +157,8 @@ def test_grounded_llm_pipeline_preserves_german_chunk_provenance():
                         {
                             "phrase": "wiederkehrende Anfaelle",
                             "category": "Abnormal",
-                            "chunk_ids": [1],
-                            "evidence_text": "wiederkehrende Anfaelle",
+                            "chunk_ids": [2],
+                            "evidence_text": "wiederkehrende Anfaelle und Schwindel.",
                         }
                     ]
                 }
@@ -144,7 +180,7 @@ def test_grounded_llm_pipeline_preserves_german_chunk_provenance():
                     "candidates": [
                         {
                             "hpo_id": "HP:0001250",
-                            "term_name": "Paroxysmal event",
+                            "term_name": "wiederkehrende Anfaelle",
                             "score": 0.96,
                         }
                     ],
@@ -154,14 +190,48 @@ def test_grounded_llm_pipeline_preserves_german_chunk_provenance():
     )
 
     result: LLMExtractionResult = pipeline.run(
-        text="Patientin hat wiederkehrende Anfaelle.",
+        text=(
+            "Die Patientin berichtet ueber\n"
+            "wiederkehrende Anfaelle und Schwindel.\n"
+            "Keine Kopfschmerzen."
+        ),
         grounded_chunks=[
             {
                 "chunk_id": 1,
-                "text": "Patientin hat wiederkehrende Anfaelle.",
+                "text": "Die Patientin berichtet ueber",
                 "start_char": 0,
-                "end_char": 39,
-            }
+                "end_char": 29,
+            },
+            {
+                "chunk_id": 2,
+                "text": "wiederkehrende Anfaelle und Schwindel.",
+                "start_char": 30,
+                "end_char": 68,
+            },
+            {
+                "chunk_id": 3,
+                "text": "Keine Kopfschmerzen.",
+                "start_char": 69,
+                "end_char": 89,
+            },
+        ],
+        extraction_groups=[
+            {
+                "group_id": 21,
+                "chunk_ids": [1, 2],
+                "text": (
+                    "chunk_id=1: Die Patientin berichtet ueber\n"
+                    "chunk_id=2: wiederkehrende Anfaelle und Schwindel."
+                ),
+            },
+            {
+                "group_id": 22,
+                "chunk_ids": [2, 3],
+                "text": (
+                    "chunk_id=2: wiederkehrende Anfaelle und Schwindel.\n"
+                    "chunk_id=3: Keine Kopfschmerzen."
+                ),
+            },
         ],
         config=LLMPipelineConfig(
             model="gemini-2.5-flash",
@@ -170,10 +240,18 @@ def test_grounded_llm_pipeline_preserves_german_chunk_provenance():
         ),
     )
 
-    assert any(item["chunk_ids"] for item in result.meta.trace["phase1"]["extracted"])
-    assert (
-        result.meta.trace["phase2a"]["candidate_sets"][0]["grounded_context"][
-            "primary_chunk_text"
-        ]
-        == "Patientin hat wiederkehrende Anfaelle."
+    phase1_groups = result.meta.trace["phase1"]["groups"]
+    assert [group["source_chunk_ids"] for group in phase1_groups] == [[1, 2], [2, 3]]
+    assert phase1_groups[0]["extracted"][0]["chunk_ids"] == [2]
+    assert result.meta.trace["phase1"]["extracted"][0]["chunk_ids"] == [2]
+    grounded_context = result.meta.trace["phase2a"]["candidate_sets"][0][
+        "grounded_context"
+    ]
+    assert grounded_context["chunk_ids"] == [2]
+    assert grounded_context["primary_chunk_text"] == (
+        "wiederkehrende Anfaelle und Schwindel."
     )
+    assert grounded_context["neighbor_chunk_texts"] == [
+        "Die Patientin berichtet ueber",
+        "Keine Kopfschmerzen.",
+    ]
