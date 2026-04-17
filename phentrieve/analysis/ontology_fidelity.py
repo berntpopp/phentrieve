@@ -100,3 +100,31 @@ def resnik_similarity(
             "graph is disconnected or root not reachable."
         )
     return max(ic[c] for c in common)
+
+
+def top_level_branch(
+    term_id: str,
+    ancestors: dict[str, set[str]],
+    depths: dict[str, int],
+) -> tuple[str | None, frozenset[str]]:
+    """Return (deterministic_branch, all_depth_1_ancestors_including_self_if_depth1).
+
+    Rules (from spec's determinism section):
+    - depth 0 (the root): returns (None, empty frozenset).
+    - depth 1: returns (term_id, {term_id}).
+    - depth > 1: collect all depth-1 ancestors of term_id; the deterministic
+      branch is the lexicographically smallest HPO ID in that set.
+    """
+    d = depths.get(term_id)
+    if d is None:
+        raise KeyError(f"Unknown term {term_id!r}")
+    if d == 0:
+        return None, frozenset()
+    if d == 1:
+        return term_id, frozenset({term_id})
+
+    depth_one_ancs = {a for a in ancestors[term_id] if depths.get(a) == 1}
+    if not depth_one_ancs:
+        # Should not happen in a well-formed HPO DAG, but guard anyway.
+        return None, frozenset()
+    return min(depth_one_ancs), frozenset(depth_one_ancs)

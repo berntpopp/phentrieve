@@ -177,3 +177,38 @@ def test_resnik_similarity_cross_branch_is_root_ic(tiny_dag):
     # HP:0010 is only under HP:0001. HP:0020 is only under HP:0002. The only
     # common ancestor is the root, so Resnik = IC(root) = 0.
     assert resnik_similarity("HP:0010", "HP:0020", ancestors, ic) == pytest.approx(0.0)
+
+
+def test_top_level_branch_for_depth_0_term_is_none(tiny_dag):
+    from phentrieve.analysis.ontology_fidelity import top_level_branch
+
+    ancestors, depths = tiny_dag
+    assert top_level_branch("HP:0000001", ancestors, depths) == (None, frozenset())
+
+
+def test_top_level_branch_for_depth_1_term_is_self(tiny_dag):
+    from phentrieve.analysis.ontology_fidelity import top_level_branch
+
+    ancestors, depths = tiny_dag
+    branch, all_branches = top_level_branch("HP:0001", ancestors, depths)
+    assert branch == "HP:0001"
+    assert all_branches == frozenset({"HP:0001"})
+
+
+def test_top_level_branch_single_parent_chain(tiny_dag):
+    from phentrieve.analysis.ontology_fidelity import top_level_branch
+
+    ancestors, depths = tiny_dag
+    branch, all_branches = top_level_branch("HP:0030", ancestors, depths)
+    assert branch == "HP:0002"
+    assert all_branches == frozenset({"HP:0002"})
+
+
+def test_top_level_branch_multi_parent_picks_lex_smallest(tiny_dag):
+    from phentrieve.analysis.ontology_fidelity import top_level_branch
+
+    ancestors, depths = tiny_dag
+    # HP:0011 has depth-1 ancestors HP:0001 and HP:0002; "HP:0001" < "HP:0002".
+    branch, all_branches = top_level_branch("HP:0011", ancestors, depths)
+    assert branch == "HP:0001"
+    assert all_branches == frozenset({"HP:0001", "HP:0002"})
