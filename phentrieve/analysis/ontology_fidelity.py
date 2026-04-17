@@ -48,3 +48,34 @@ def information_content(
     return {
         term: -math.log(len(desc) / root_count) for term, desc in descendants.items()
     }
+
+
+def _include_self(ancestors_of_t: set[str], t: str) -> set[str]:
+    """Return ancestors(t) ∪ {t}. Useful for LCA computation."""
+    return ancestors_of_t | {t}
+
+
+def graph_shortest_path(
+    u: str,
+    v: str,
+    ancestors: dict[str, set[str]],
+    depths: dict[str, int],
+) -> int:
+    """Shortest-path distance on the HPO is_a DAG.
+
+    dist(u, v) = depth(u) + depth(v) - 2 * depth(LCA(u, v))
+
+    LCA is chosen as the common (ancestor-or-self) term with maximum depth.
+    Ties between equal-depth common ancestors are irrelevant for the distance
+    formula, so we do not break them deterministically.
+    """
+    if u == v:
+        return 0
+    common = _include_self(ancestors[u], u) & _include_self(ancestors[v], v)
+    if not common:
+        raise ValueError(
+            f"No common ancestor between {u!r} and {v!r}; "
+            "graph is disconnected or root not reachable."
+        )
+    lca_depth = max(depths[c] for c in common)
+    return depths[u] + depths[v] - 2 * lca_depth

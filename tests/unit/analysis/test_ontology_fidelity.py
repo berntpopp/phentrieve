@@ -103,3 +103,27 @@ def test_information_content_monotone_with_depth(tiny_dag):
 
     # A descendant must have IC >= its ancestor.
     assert ic["HP:0030"] >= ic["HP:0020"] >= ic["HP:0002"] >= ic["HP:0000001"]
+
+
+def test_graph_shortest_path_identical_terms_is_zero(tiny_dag):
+    from phentrieve.analysis.ontology_fidelity import graph_shortest_path
+
+    ancestors, depths = tiny_dag
+    assert graph_shortest_path("HP:0030", "HP:0030", ancestors, depths) == 0
+
+
+def test_graph_shortest_path_known_pairs(tiny_dag):
+    from phentrieve.analysis.ontology_fidelity import graph_shortest_path
+
+    ancestors, depths = tiny_dag
+
+    # HP:0010 -> HP:0001 -> HP:0011 : distance 2
+    assert graph_shortest_path("HP:0010", "HP:0011", ancestors, depths) == 2
+    # HP:0030 -> HP:0020 -> HP:0002 : distance 2
+    assert graph_shortest_path("HP:0030", "HP:0002", ancestors, depths) == 2
+    # HP:0010 (branch 1) and HP:0020 (branch 2): LCA is root (depth 0).
+    # distance = 2 + 2 - 0 = 4
+    assert graph_shortest_path("HP:0010", "HP:0020", ancestors, depths) == 4
+    # Multi-parent: HP:0011 has two parents; LCA with HP:0020 is HP:0002 (depth 1).
+    # depths: HP:0011=2, HP:0020=2; distance = 2 + 2 - 2*1 = 2
+    assert graph_shortest_path("HP:0011", "HP:0020", ancestors, depths) == 2
