@@ -157,6 +157,21 @@ def test_tool_guided_prompt_sources_use_placeholder_not_hardcoded_default() -> N
         assert "{tool_query_results}" in content
 
 
+def test_prompt_template_does_not_rewrite_placeholder_text_inside_payload() -> None:
+    template = loader.PromptTemplate(
+        system_prompt="System {tool_query_results}",
+        user_prompt_template="Payload:\n{text}",
+    )
+
+    rendered = template.render_user_prompt(
+        "Patient literal {tool_query_results} and {text} tokens."
+    )
+
+    assert (
+        rendered == "Payload:\nPatient literal {tool_query_results} and {text} tokens."
+    )
+
+
 def test_grounded_phase1_prompt_uses_chunk_index_without_repeating_full_text() -> None:
     template = loader.get_prompt(AnnotationMode.TWO_PHASE, "en")
 

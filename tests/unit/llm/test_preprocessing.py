@@ -192,3 +192,22 @@ def test_build_extraction_groups_rejects_oversized_single_chunk() -> None:
         assert "Single grounded chunk exceeds max_prompt_tokens" in str(exc)
     else:
         raise AssertionError("Expected oversized single chunk to be rejected")
+
+
+def test_build_extraction_groups_does_not_emit_overlap_only_tail_group() -> None:
+    provider = FakeTokenCountingProvider()
+    grounded_chunks = [
+        _chunk(1, "First chunk.", start_char=0, end_char=12),
+        _chunk(2, "Second chunk.", start_char=13, end_char=26),
+        _chunk(3, "Third chunk.", start_char=27, end_char=39),
+    ]
+
+    groups = build_extraction_groups(
+        grounded_chunks=grounded_chunks,
+        provider=provider,
+        system_prompt="system prompt",
+        max_prompt_tokens=100,
+        neighbor_overlap=1,
+    )
+
+    assert [group.chunk_ids for group in groups] == [[1, 2, 3]]

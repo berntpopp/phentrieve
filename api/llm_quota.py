@@ -107,7 +107,7 @@ def _parse_trusted_networks(
         try:
             networks.append(ipaddress.ip_network(cidr_value, strict=False))
         except ValueError:
-            logger.warning("Ignoring invalid trusted proxy CIDR: %s", cidr_value)
+            logger.warning("Ignoring invalid trusted proxy CIDR entry.")
             continue
     return networks
 
@@ -131,7 +131,7 @@ def resolve_subject_ip(
 
     trusted_networks = _parse_trusted_networks(trusted_proxy_cidrs)
     if trusted_proxy_cidrs and not trusted_networks:
-        return None
+        return client_ip.compressed
 
     forwarded_for = [
         candidate.strip()

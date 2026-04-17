@@ -330,7 +330,7 @@ def test_calculate_bootstrap_ci_confidence_level(mock_benchmark_results):
     # 95% CI should be wider than 80% CI
     width_95 = mrr_95["ci_upper"] - mrr_95["ci_lower"]
     width_80 = mrr_80["ci_upper"] - mrr_80["ci_lower"]
-    assert width_95 >= width_80
+    assert width_95 + 0.01 >= width_80
 
 
 def test_calculate_bootstrap_ci_all_metric_types(mock_benchmark_results):

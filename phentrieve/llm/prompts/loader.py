@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import re
 from dataclasses import dataclass, field
 from functools import lru_cache
 from pathlib import Path
@@ -23,6 +24,7 @@ USER_TEMPLATES_DIR = Path.home() / ".phentrieve" / "prompts"
 TOOL_TERM_VARIANT = "term_search"
 TOOL_TEXT_VARIANT = "text_process"
 MAPPING_BATCH_VARIANT = "mapping_batch"
+PLACEHOLDER_PATTERN = re.compile(r"\{([a-zA-Z_][a-zA-Z0-9_]*)\}")
 
 
 @dataclass(slots=True)
@@ -37,10 +39,10 @@ class PromptTemplate:
 
     def _render_prompt_text(self, template: str, **kwargs: Any) -> str:
         prompt_kwargs = {"tool_query_results": DEFAULT_TOOL_QUERY_RESULTS, **kwargs}
-        rendered = template
-        for key, value in prompt_kwargs.items():
-            rendered = rendered.replace(f"{{{key}}}", str(value))
-        return rendered
+        return PLACEHOLDER_PATTERN.sub(
+            lambda match: str(prompt_kwargs.get(match.group(1), match.group(0))),
+            template,
+        )
 
     def render_system_prompt(self, **kwargs: Any) -> str:
         return self._render_prompt_text(self.system_prompt, **kwargs)

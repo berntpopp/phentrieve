@@ -75,48 +75,50 @@ def build_extraction_groups(
     groups: list[ExtractionGroup] = []
     start_index = 0
     overlap = max(int(neighbor_overlap), 0)
+    prompt_token_cache: dict[tuple[int, int], int] = {}
+
+    def _prompt_tokens_for_window(window_start: int, window_end: int) -> int:
+        cache_key = (window_start, window_end)
+        cached_tokens = prompt_token_cache.get(cache_key)
+        if cached_tokens is not None:
+            return cached_tokens
+
+        candidate_chunks = ordered_chunks[window_start : window_end + 1]
+        candidate_text = _render_group_text(candidate_chunks)
+        token_counts = provider.count_tokens(
+            system_prompt=system_prompt,
+            user_prompt=candidate_text,
+        )
+        prompt_tokens = int(
+            token_counts.get("prompt_tokens") or token_counts.get("total_tokens") or 0
+        )
+        prompt_token_cache[cache_key] = prompt_tokens
+        return prompt_tokens
 
     while start_index < len(ordered_chunks):
-        best_end = start_index
-        best_tokens = 0
+        single_chunk_tokens = _prompt_tokens_for_window(start_index, start_index)
+        if single_chunk_tokens > max_prompt_tokens:
+            chunk = ordered_chunks[start_index]
+            raise ValueError(
+                "Single grounded chunk exceeds max_prompt_tokens "
+                f"(chunk_id={chunk.chunk_id}, prompt_tokens={single_chunk_tokens}, "
+                f"max_prompt_tokens={max_prompt_tokens})"
+            )
 
-        for candidate_end in range(start_index, len(ordered_chunks)):
-            candidate_chunks = ordered_chunks[start_index : candidate_end + 1]
-            candidate_text = _render_group_text(candidate_chunks)
-            token_counts = provider.count_tokens(
-                system_prompt=system_prompt,
-                user_prompt=candidate_text,
-            )
-            prompt_tokens = int(
-                token_counts.get("prompt_tokens")
-                or token_counts.get("total_tokens")
-                or 0
-            )
+        low = start_index
+        high = len(ordered_chunks) - 1
+        best_end = start_index
+        best_tokens = single_chunk_tokens
+
+        while low <= high:
+            candidate_end = (low + high) // 2
+            prompt_tokens = _prompt_tokens_for_window(start_index, candidate_end)
             if prompt_tokens <= max_prompt_tokens:
                 best_end = candidate_end
                 best_tokens = prompt_tokens
-                continue
-            break
-
-        if best_end == start_index and best_tokens == 0:
-            candidate_chunks = ordered_chunks[start_index : start_index + 1]
-            candidate_text = _render_group_text(candidate_chunks)
-            token_counts = provider.count_tokens(
-                system_prompt=system_prompt,
-                user_prompt=candidate_text,
-            )
-            best_tokens = int(
-                token_counts.get("prompt_tokens")
-                or token_counts.get("total_tokens")
-                or 0
-            )
-            if best_tokens > max_prompt_tokens:
-                chunk = candidate_chunks[0]
-                raise ValueError(
-                    "Single grounded chunk exceeds max_prompt_tokens "
-                    f"(chunk_id={chunk.chunk_id}, prompt_tokens={best_tokens}, "
-                    f"max_prompt_tokens={max_prompt_tokens})"
-                )
+                low = candidate_end + 1
+            else:
+                high = candidate_end - 1
 
         group_chunks = ordered_chunks[start_index : best_end + 1]
         groups.append(
@@ -127,6 +129,9 @@ def build_extraction_groups(
                 estimated_prompt_tokens=best_tokens,
             )
         )
+
+        if best_end >= len(ordered_chunks) - 1:
+            break
 
         next_start = max(best_end + 1 - overlap, start_index + 1)
         start_index = next_start

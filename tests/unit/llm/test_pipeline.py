@@ -1202,6 +1202,7 @@ def test_two_phase_pipeline_grouped_phase1_keeps_stable_merge_order(mocker) -> N
             ],
             {"prompt_tokens": 10, "completion_tokens": 2, "total_tokens": 12},
             1,
+            0.1,
         )
 
     run_group = mocker.patch.object(
@@ -1256,6 +1257,7 @@ def test_two_phase_pipeline_grouped_phase1_tracks_partial_failures_under_concurr
             ],
             {"prompt_tokens": 10, "completion_tokens": 2, "total_tokens": 12},
             1,
+            0.1,
         )
 
     run_group = mocker.patch.object(
@@ -1818,6 +1820,91 @@ def test_two_phase_pipeline_tracks_no_candidate_skip_in_phase2_routing() -> None
     assert counts["phase2b_local_accept_count"] == 0
     assert counts["phase2b_deferred_count"] == 0
     assert counts["phase2b_no_candidate_skip_count"] == 1
+
+
+def test_two_phase_pipeline_routes_high_similarity_plural_match_locally() -> None:
+    pipeline = TwoPhaseLLMPipeline(
+        provider=FakeProvider(responses=[]),
+        tool_executor=FakeToolExecutor(batch_results=[]),
+    )
+    item = {
+        "phrase": "sleep disturbances",
+        "category": "Abnormal",
+        "candidates": [
+            {
+                "hpo_id": "HP:0002360",
+                "term_name": "Sleep disturbance",
+                "score": 1.0,
+            },
+            {
+                "hpo_id": "HP:5200297",
+                "term_name": "Abnormal transition from wakefulness to sleep",
+                "score": 0.953,
+            },
+        ],
+        "grounded_context": {
+            "chunk_ids": [1],
+            "primary_chunk_text": "Sleep disturbances were reported.",
+            "neighbor_chunk_texts": [],
+        },
+        "chunk_ids": [1],
+        "evidence_text": "sleep disturbances",
+    }
+
+    resolved, unresolved, counts = pipeline._route_phase2_candidates(
+        phrase_candidates=[item],
+        language="en",
+    )
+
+    assert [term.term_id for term in resolved] == ["HP:0002360"]
+    assert unresolved == []
+    assert counts["phase2b_local_accept_count"] == 1
+    assert counts["phase2b_deferred_count"] == 0
+
+
+def test_two_phase_pipeline_routes_high_similarity_specific_match_locally() -> None:
+    pipeline = TwoPhaseLLMPipeline(
+        provider=FakeProvider(responses=[]),
+        tool_executor=FakeToolExecutor(batch_results=[]),
+    )
+    item = {
+        "phrase": "moderate-to-severe intellectual disability",
+        "category": "Abnormal",
+        "candidates": [
+            {
+                "hpo_id": "HP:0002342",
+                "term_name": "Moderate intellectual disability",
+                "score": 0.9598326086997986,
+            },
+            {
+                "hpo_id": "HP:0001256",
+                "term_name": "Mild intellectual disability",
+                "score": 0.9061711430549622,
+            },
+            {
+                "hpo_id": "HP:0010864",
+                "term_name": "Severe intellectual disability",
+                "score": 0.8755526542663574,
+            },
+        ],
+        "grounded_context": {
+            "chunk_ids": [6, 7, 42],
+            "primary_chunk_text": "females with moderate-to-severe",
+            "neighbor_chunk_texts": ["intellectual disability"],
+        },
+        "chunk_ids": [6, 7, 42],
+        "evidence_text": "moderate-to-severe intellectual disability",
+    }
+
+    resolved, unresolved, counts = pipeline._route_phase2_candidates(
+        phrase_candidates=[item],
+        language="en",
+    )
+
+    assert [term.term_id for term in resolved] == ["HP:0010864"]
+    assert unresolved == []
+    assert counts["phase2b_local_accept_count"] == 1
+    assert counts["phase2b_deferred_count"] == 0
 
 
 def test_two_phase_pipeline_batches_unresolved_phrase_mapping_calls():

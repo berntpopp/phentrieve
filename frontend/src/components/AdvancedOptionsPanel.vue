@@ -259,7 +259,7 @@
               :items="[
                 {
                   title: t('queryInterface.advancedOptions.llmModes.twoPhase'),
-                  value: resolvedTextProcessOptions.llmMode,
+                  value: 'two_phase',
                 },
               ]"
               item-title="title"
@@ -546,7 +546,7 @@ const panelProps = defineProps({
 const resolvedTextProcessOptions = computed(() => ({
   extractionBackend: 'standard',
   llmModel: panelProps.defaultLlmModel,
-  llmMode: panelProps.defaultLlmMode,
+  llmMode: panelProps.defaultLlmMode ?? 'two_phase',
   ...panelProps.textProcessOptions,
 }));
 

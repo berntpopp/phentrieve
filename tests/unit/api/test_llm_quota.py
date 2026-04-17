@@ -70,4 +70,4 @@ def test_resolve_subject_ip_ignores_invalid_trusted_proxy_cidrs(caplog):
     )
 
     assert subject_ip == "203.0.113.5"
-    assert "Ignoring invalid trusted proxy CIDR: not-a-cidr" in caplog.text
+    assert "Ignoring invalid trusted proxy CIDR entry." in caplog.text

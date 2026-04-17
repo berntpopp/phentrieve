@@ -209,4 +209,4 @@ def _get_case_text(case: dict[str, Any]) -> str:
         value = case.get(key)
         if isinstance(value, str) and value.strip():
             return value
-    raise ValueError("Each LLM benchmark case must provide non-empty text.")
+    raise ValueError("Each benchmark case must provide non-empty text.")
