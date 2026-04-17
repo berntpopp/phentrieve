@@ -127,3 +127,53 @@ def test_graph_shortest_path_known_pairs(tiny_dag):
     # Multi-parent: HP:0011 has two parents; LCA with HP:0020 is HP:0002 (depth 1).
     # depths: HP:0011=2, HP:0020=2; distance = 2 + 2 - 2*1 = 2
     assert graph_shortest_path("HP:0011", "HP:0020", ancestors, depths) == 2
+
+
+def test_resnik_similarity_identical_terms_equals_own_ic(tiny_dag):
+    from phentrieve.analysis.ontology_fidelity import (
+        build_descendants_index,
+        information_content,
+        resnik_similarity,
+    )
+
+    ancestors, _ = tiny_dag
+    descendants = build_descendants_index(ancestors)
+    ic = information_content(descendants)
+
+    assert resnik_similarity("HP:0030", "HP:0030", ancestors, ic) == pytest.approx(
+        ic["HP:0030"]
+    )
+
+
+def test_resnik_similarity_siblings_is_ic_of_parent(tiny_dag):
+    from phentrieve.analysis.ontology_fidelity import (
+        build_descendants_index,
+        information_content,
+        resnik_similarity,
+    )
+
+    ancestors, _ = tiny_dag
+    descendants = build_descendants_index(ancestors)
+    ic = information_content(descendants)
+
+    # HP:0010 and HP:0011 share HP:0001 as a parent; HP:0001 is also their
+    # most-informative common ancestor in the tiny DAG (higher IC than root,
+    # and HP:0011 shares HP:0002 with HP:0010 only via root).
+    got = resnik_similarity("HP:0010", "HP:0011", ancestors, ic)
+    assert got == pytest.approx(ic["HP:0001"])
+
+
+def test_resnik_similarity_cross_branch_is_root_ic(tiny_dag):
+    from phentrieve.analysis.ontology_fidelity import (
+        build_descendants_index,
+        information_content,
+        resnik_similarity,
+    )
+
+    ancestors, _ = tiny_dag
+    descendants = build_descendants_index(ancestors)
+    ic = information_content(descendants)
+
+    # HP:0010 is only under HP:0001. HP:0020 is only under HP:0002. The only
+    # common ancestor is the root, so Resnik = IC(root) = 0.
+    assert resnik_similarity("HP:0010", "HP:0020", ancestors, ic) == pytest.approx(0.0)

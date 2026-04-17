@@ -79,3 +79,24 @@ def graph_shortest_path(
         )
     lca_depth = max(depths[c] for c in common)
     return depths[u] + depths[v] - 2 * lca_depth
+
+
+def resnik_similarity(
+    u: str,
+    v: str,
+    ancestors: dict[str, set[str]],
+    ic: dict[str, float],
+) -> float:
+    """Resnik similarity: IC of the most-informative common ancestor.
+
+    Returns 0.0 when the only common ancestor is the root (IC(root) == 0).
+    """
+    if u == v:
+        return ic[u]
+    common = _include_self(ancestors[u], u) & _include_self(ancestors[v], v)
+    if not common:
+        raise ValueError(
+            f"No common ancestor between {u!r} and {v!r}; "
+            "graph is disconnected or root not reachable."
+        )
+    return max(ic[c] for c in common)
