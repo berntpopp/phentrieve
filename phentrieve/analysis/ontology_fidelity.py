@@ -241,3 +241,79 @@ def global_distance_correlation(
         "spearman_resnik": float(rho_rk) if rho_rk == rho_rk else float("nan"),
         "n_pairs": int(len(pairs)),
     }
+
+
+def _embedding_knn(embeddings: np.ndarray, k: int) -> np.ndarray:
+    """Return indices of the k nearest non-self neighbors per row, cosine metric.
+
+    Shape: (n, k) of int64. Self is always excluded.
+    """
+    from sklearn.neighbors import NearestNeighbors
+
+    # k+1 because the query point itself is always its own nearest neighbor.
+    nn = NearestNeighbors(n_neighbors=k + 1, metric="cosine", algorithm="brute")
+    nn.fit(embeddings)
+    _, idx = nn.kneighbors(embeddings, return_distance=True)
+    # idx[:, 0] is the self-hit in almost all cases. Drop it robustly:
+    n = idx.shape[0]
+    out = np.empty((n, k), dtype=np.int64)
+    for i in range(n):
+        row = [j for j in idx[i] if j != i][:k]
+        # Pad in case of degenerate metric behavior (duplicate self rows, etc.)
+        while len(row) < k:
+            row.append(row[-1] if row else 0)
+        out[i] = row
+    return out
+
+
+def _resnik_top_k(
+    query: str,
+    candidates: list[str],
+    ancestors: dict[str, set[str]],
+    ic: dict[str, float],
+    k: int,
+) -> list[str]:
+    """Return the k candidates with highest Resnik similarity to `query`,
+    ties broken by ascending HPO ID. Query itself is excluded.
+    """
+    scored = []
+    for c in candidates:
+        if c == query:
+            continue
+        scored.append((-resnik_similarity(query, c, ancestors, ic), c))
+    # (-resnik, id): primary ascending on -resnik (i.e. descending resnik);
+    # secondary ascending on id -- this is exactly the tie-break rule.
+    scored.sort()
+    return [c for _, c in scored[:k]]
+
+
+def per_term_fidelity(
+    term_ids: list[str],
+    embeddings: np.ndarray,
+    ancestors: dict[str, set[str]],
+    descendants: dict[str, set[str]],
+    ic: dict[str, float],
+    k: int = 10,
+) -> list[dict]:
+    """Per-term fidelity: |embedding-kNN intersection Resnik-top-k| / k, in [0, 1].
+
+    Returns a list of {id, fidelity, nn_embedding, nn_dag} dicts, one per term,
+    in the same order as `term_ids`.
+    """
+    if k < 1:
+        raise ValueError("k must be >= 1")
+    nn_idx = _embedding_knn(embeddings, k)
+    rows: list[dict] = []
+    for i, query in enumerate(term_ids):
+        nn_embedding = [term_ids[j] for j in nn_idx[i]]
+        nn_dag = _resnik_top_k(query, term_ids, ancestors, ic, k)
+        overlap = len(set(nn_embedding) & set(nn_dag))
+        rows.append(
+            {
+                "id": query,
+                "fidelity": overlap / k,
+                "nn_embedding": nn_embedding,
+                "nn_dag": nn_dag,
+            }
+        )
+    return rows

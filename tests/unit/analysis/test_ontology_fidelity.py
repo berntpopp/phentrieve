@@ -303,3 +303,89 @@ def test_global_distance_correlation_seeded_is_deterministic(tiny_dag):
         term_ids, embeddings, ancestors, depths, ic, n_pairs=15, seed=11
     )
     assert a == b
+
+
+def test_per_term_fidelity_bounds_0_to_1(tiny_dag):
+    import numpy as np
+
+    from phentrieve.analysis.ontology_fidelity import (
+        build_descendants_index,
+        information_content,
+        per_term_fidelity,
+    )
+
+    ancestors, depths = tiny_dag
+    descendants = build_descendants_index(ancestors)
+    ic = information_content(descendants)
+
+    term_ids = list(depths.keys())
+    rng = np.random.default_rng(0)
+    embeddings = rng.standard_normal((len(term_ids), 8)).astype(np.float32)
+
+    rows = per_term_fidelity(term_ids, embeddings, ancestors, descendants, ic, k=3)
+    assert len(rows) == len(term_ids)
+    for row in rows:
+        assert 0.0 <= row["fidelity"] <= 1.0
+        assert len(row["nn_embedding"]) == 3
+        assert len(row["nn_dag"]) == 3
+        # Self must be excluded from both neighborhoods.
+        assert row["id"] not in row["nn_embedding"]
+        assert row["id"] not in row["nn_dag"]
+
+
+def test_per_term_fidelity_tiebreak_is_lexicographic():
+    """Equal Resnik scores across candidates break by ascending HPO ID."""
+    import numpy as np
+
+    from phentrieve.analysis.ontology_fidelity import (
+        build_descendants_index,
+        information_content,
+        per_term_fidelity,
+    )
+
+    # Flat DAG: root + three depth-1 children. All sibling pairs have
+    # Resnik = IC(root) = 0, so ties. HP:0010 < HP:0020 < HP:0030.
+    ancestors = {
+        "HP:0000001": set(),
+        "HP:0010": {"HP:0000001"},
+        "HP:0020": {"HP:0000001"},
+        "HP:0030": {"HP:0000001"},
+    }
+    descendants = build_descendants_index(ancestors)
+    ic = information_content(descendants)
+    term_ids = ["HP:0000001", "HP:0010", "HP:0020", "HP:0030"]
+    embeddings = np.eye(4, dtype=np.float32)
+
+    rows = per_term_fidelity(term_ids, embeddings, ancestors, descendants, ic, k=2)
+    by_id = {r["id"]: r for r in rows}
+    # For HP:0030 the two lex-smallest non-self terms are HP:0000001 and HP:0010.
+    assert by_id["HP:0030"]["nn_dag"] == ["HP:0000001", "HP:0010"]
+
+
+def test_per_term_fidelity_identical_embeddings_yields_uniform_baseline():
+    """If all embeddings are identical, embedding k-NN is just the lex-smallest
+    non-self terms, which matches the Resnik-tiebreak fallback for a flat DAG --
+    so fidelity should be 1.0 on every term."""
+    import numpy as np
+
+    from phentrieve.analysis.ontology_fidelity import (
+        build_descendants_index,
+        information_content,
+        per_term_fidelity,
+    )
+
+    ancestors = {
+        "HP:0000001": set(),
+        "HP:0010": {"HP:0000001"},
+        "HP:0020": {"HP:0000001"},
+        "HP:0030": {"HP:0000001"},
+        "HP:0040": {"HP:0000001"},
+    }
+    descendants = build_descendants_index(ancestors)
+    ic = information_content(descendants)
+    term_ids = sorted(ancestors.keys())
+    embeddings = np.ones((len(term_ids), 4), dtype=np.float32)
+
+    rows = per_term_fidelity(term_ids, embeddings, ancestors, descendants, ic, k=2)
+    for row in rows:
+        assert row["fidelity"] == pytest.approx(1.0)
