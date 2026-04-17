@@ -469,6 +469,9 @@ def run_llm_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
     if llm_internal_mode == "whole_document_grounded":
         pipeline_kwargs["extraction_groups"] = extraction_groups
     result = pipeline.run(**pipeline_kwargs)
+    phase_counts = dict(result.meta.phase_counts)
+    phase_request_counts = dict(result.meta.phase_request_counts)
+    trace = dict(result.meta.trace)
 
     result_payload = {
         "meta": {
@@ -480,6 +483,32 @@ def run_llm_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
             "num_aggregated_hpo_terms": len(result.terms),
             "token_input": result.meta.token_input,
             "token_output": result.meta.token_output,
+            "observability": {
+                "request_count": int(result.meta.request_count or 0),
+                **phase_counts,
+                "grounded_chunks": len(grounded_chunks),
+                "extraction_groups": len(extraction_groups),
+                "failed_groups": int(phase_counts.get("phase1_failed_groups", 0) or 0),
+                "deduplicated_phase1_mentions": _count_deduplicated_phase1_mentions(
+                    trace
+                ),
+                "deduplicated_unresolved_mappings": _count_deduplicated_mappings(trace),
+                "phase1_completed_groups": int(
+                    phase_counts.get("phase1_completed_groups", 0) or 0
+                ),
+                "phase1_failed_groups": int(
+                    phase_counts.get("phase1_failed_groups", 0) or 0
+                ),
+                "phase1_partial_failures": int(
+                    phase_counts.get("phase1_partial_failures", 0) or 0
+                ),
+                "phase1_requests": int(
+                    phase_request_counts.get("phase1_requests", 0) or 0
+                ),
+                "phase2b_llm_requests": int(
+                    phase_request_counts.get("phase2b_llm_requests", 0) or 0
+                ),
+            },
         },
         "processed_chunks": [],
         "aggregated_hpo_terms": [
@@ -503,6 +532,46 @@ def run_llm_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
         len(result.terms),
     )
     return result_payload
+
+
+def _count_deduplicated_phase1_mentions(trace: dict[str, Any]) -> int:
+    phase1_trace = trace.get("phase1")
+    if not isinstance(phase1_trace, dict):
+        return 0
+    phase1_groups = phase1_trace.get("groups", [])
+    phase1_extracted = phase1_trace.get("extracted", [])
+    if not isinstance(phase1_groups, list) or not isinstance(phase1_extracted, list):
+        return 0
+    raw_mentions = sum(
+        int(group.get("extracted_count", 0) or 0)
+        for group in phase1_groups
+        if isinstance(group, dict)
+    )
+    return max(raw_mentions - len(phase1_extracted), 0)
+
+
+def _count_deduplicated_mappings(trace: dict[str, Any]) -> int:
+    phase2b_llm_trace = trace.get("phase2b_llm")
+    if not isinstance(phase2b_llm_trace, dict):
+        return 0
+    resolved = phase2b_llm_trace.get("resolved", [])
+    if not isinstance(resolved, list):
+        return 0
+    unique_keys = {
+        (
+            str(item.get("phrase", "")),
+            str(item.get("category", "")),
+            str(item.get("selected_id", "")),
+            str(item.get("term_id", "")),
+            str(item.get("label", "")),
+            str(item.get("assertion", "")),
+            bool(item.get("local_fallback", False)),
+            str(item.get("match_method", "")),
+        )
+        for item in resolved
+        if isinstance(item, dict)
+    }
+    return max(len(resolved) - len(unique_keys), 0)
 
 
 class FullTextService:

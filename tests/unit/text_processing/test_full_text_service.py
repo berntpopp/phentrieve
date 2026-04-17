@@ -496,3 +496,111 @@ def test_full_text_service_normalizes_backend_and_rejects_unknown(mocker):
 
     with pytest.raises(ValueError, match="Unsupported extraction backend"):
         service.process(text="clinical text", extraction_backend="bogus")
+
+
+def test_run_llm_backend_surfaces_grouped_observability(mocker):
+    provider = mocker.Mock()
+    pipeline = mocker.Mock()
+    preprocessed = SimpleNamespace(
+        grounded_chunks=[
+            {"chunk_id": 1, "text": "Chunk one.", "start_char": 0, "end_char": 10},
+            {"chunk_id": 2, "text": "Chunk two.", "start_char": 11, "end_char": 21},
+        ],
+        extraction_groups=[
+            {"group_id": 1, "chunk_ids": [1], "text": "Chunk one."},
+            {"group_id": 2, "chunk_ids": [2], "text": "Chunk two."},
+        ],
+    )
+    pipeline.run.return_value = LLMExtractionResult(
+        terms=[],
+        meta=LLMMeta(
+            llm_model="gemini-2.5-flash",
+            llm_mode="two_phase",
+            request_count=3,
+            phase_counts={
+                "extracted_phrases": 1,
+                "actionable_phrases": 2,
+                "phase1_completed_groups": 1,
+                "phase1_failed_groups": 1,
+                "phase1_partial_failures": 1,
+            },
+            phase_request_counts={"phase1_requests": 2, "phase2b_llm_requests": 1},
+            trace={
+                "phase1": {
+                    "extracted": [
+                        {
+                            "phrase": "seizures",
+                            "category": "abnormal",
+                            "chunk_ids": [1, 2],
+                        }
+                    ],
+                    "groups": [
+                        {"group_id": 1, "extracted_count": 1},
+                        {"group_id": 2, "extracted_count": 1},
+                    ],
+                },
+                "phase2b_llm": {
+                    "resolved": [
+                        {
+                            "phrase": "seizures",
+                            "selected_id": "HP:0001250",
+                            "term_id": "HP:0001250",
+                            "label": "Seizure",
+                            "assertion": "present",
+                            "category": "abnormal",
+                            "match_method": "llm",
+                            "local_fallback": False,
+                            "chunk_ids": [1],
+                        },
+                        {
+                            "phrase": "seizures",
+                            "selected_id": "HP:0001250",
+                            "term_id": "HP:0001250",
+                            "label": "Seizure",
+                            "assertion": "present",
+                            "category": "abnormal",
+                            "match_method": "llm",
+                            "local_fallback": False,
+                            "chunk_ids": [2],
+                        },
+                    ]
+                },
+            },
+        ),
+    )
+    mocker.patch(
+        "phentrieve.text_processing.full_text_service.preprocess_grounded_document",
+        return_value=preprocessed,
+    )
+    mocker.patch(
+        "phentrieve.text_processing.full_text_service.get_llm_provider",
+        return_value=provider,
+    )
+    mocker.patch(
+        "phentrieve.text_processing.full_text_service.TwoPhaseLLMPipeline",
+        return_value=pipeline,
+    )
+
+    result = run_llm_backend(
+        text="Patient had recurrent seizures.",
+        llm_model="gemini-2.5-flash",
+        llm_mode="two_phase",
+        llm_internal_mode="whole_document_grounded",
+        language="en",
+    )
+
+    assert result["meta"]["observability"] == {
+        "request_count": 3,
+        "extracted_phrases": 1,
+        "actionable_phrases": 2,
+        "grounded_chunks": 2,
+        "extraction_groups": 2,
+        "failed_groups": 1,
+        "deduplicated_phase1_mentions": 1,
+        "deduplicated_unresolved_mappings": 1,
+        "phase1_completed_groups": 1,
+        "phase1_failed_groups": 1,
+        "phase1_partial_failures": 1,
+        "phase1_requests": 2,
+        "phase2b_llm_requests": 1,
+    }

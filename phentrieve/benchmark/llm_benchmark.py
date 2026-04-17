@@ -386,6 +386,8 @@ def run_llm_benchmark(
                 document=document,
                 config=config,
                 pipeline_result=pipeline_result,
+                grounded_chunks=grounded_chunks,
+                extraction_groups=extraction_groups,
                 predicted_terms=predicted_terms,
                 language=language,
                 processing_time_seconds=doc_elapsed,
@@ -705,6 +707,8 @@ def _build_prediction_record(
     document: dict[str, Any],
     config: LLMPipelineConfig,
     pipeline_result: Any,
+    grounded_chunks: list[dict[str, Any]],
+    extraction_groups: list[dict[str, Any]],
     predicted_terms: list[dict[str, str | None]],
     language: str,
     processing_time_seconds: float,
@@ -779,6 +783,9 @@ def _build_prediction_record(
                 phase_counts=phase_counts,
                 phase_request_counts=phase_request_counts,
                 request_count=request_count,
+                grounded_chunk_count=len(grounded_chunks),
+                extraction_group_count=len(extraction_groups),
+                trace=trace,
             ),
             "estimated_cost": estimated_cost,
         },
@@ -817,11 +824,59 @@ def _build_observability_counts(
     phase_counts: dict[str, int],
     phase_request_counts: dict[str, int],
     request_count: int,
+    grounded_chunk_count: int,
+    extraction_group_count: int,
+    trace: dict[str, Any],
 ) -> dict[str, int]:
     """Keep prediction metadata observability shape stable across phase-1 modes."""
+    phase1_trace = trace.get("phase1")
+    phase1_groups = (
+        list(phase1_trace.get("groups", [])) if isinstance(phase1_trace, dict) else []
+    )
+    phase1_extracted = (
+        list(phase1_trace.get("extracted", []))
+        if isinstance(phase1_trace, dict)
+        else []
+    )
+    raw_phase1_mentions = sum(
+        int(group.get("extracted_count", 0) or 0)
+        for group in phase1_groups
+        if isinstance(group, dict)
+    )
+    phase2b_llm_trace = trace.get("phase2b_llm")
+    mapping_resolved = (
+        list(phase2b_llm_trace.get("resolved", []))
+        if isinstance(phase2b_llm_trace, dict)
+        else []
+    )
+    unique_mapping_keys = {
+        (
+            str(item.get("phrase", "")),
+            str(item.get("category", "")),
+            str(item.get("selected_id", "")),
+            str(item.get("term_id", "")),
+            str(item.get("label", "")),
+            str(item.get("assertion", "")),
+            bool(item.get("local_fallback", False)),
+            str(item.get("match_method", "")),
+        )
+        for item in mapping_resolved
+        if isinstance(item, dict)
+    }
     return {
         "request_count": request_count,
         **phase_counts,
+        "grounded_chunks": grounded_chunk_count,
+        "extraction_groups": extraction_group_count,
+        "failed_groups": int(phase_counts.get("phase1_failed_groups", 0) or 0),
+        "deduplicated_phase1_mentions": max(
+            raw_phase1_mentions - len(phase1_extracted),
+            0,
+        ),
+        "deduplicated_unresolved_mappings": max(
+            len(mapping_resolved) - len(unique_mapping_keys),
+            0,
+        ),
         "phase1_completed_groups": int(
             phase_counts.get("phase1_completed_groups", 0) or 0
         ),
