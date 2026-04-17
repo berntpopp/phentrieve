@@ -440,11 +440,10 @@ def test_count_tokens_uses_sdk_count_tokens_api(monkeypatch) -> None:
     }
     assert len(fake_models.count_token_calls) == 1
     assert fake_models.count_token_calls[0]["model"] == "gemini-2.5-flash"
-    assert fake_models.count_token_calls[0]["contents"] == "user prompt"
     assert (
-        fake_models.count_token_calls[0]["config"].kwargs["systemInstruction"]
-        == "system prompt"
+        fake_models.count_token_calls[0]["contents"] == "system prompt\n\nuser prompt"
     )
+    assert fake_models.count_token_calls[0]["config"] is None
 
 
 def test_structured_prompt_retries_after_invalid_json(monkeypatch) -> None:

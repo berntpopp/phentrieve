@@ -241,20 +241,17 @@ class GeminiStructuredOutputProvider(LLMProvider):
     def count_tokens(self, *, system_prompt: str, user_prompt: str) -> dict[str, int]:
         try:
             from google import genai
-            from google.genai import types
         except ImportError as exc:
             raise RuntimeError(
                 "Gemini support requires the optional llm dependencies. "
                 "Install them with `uv sync --extra llm`."
             ) from exc
 
+        contents = f"{system_prompt}\n\n{user_prompt}" if system_prompt else user_prompt
         with genai.Client(api_key=self._api_key) as client:
             response = client.models.count_tokens(
                 model=self.model_name,
-                contents=user_prompt,
-                config=types.CountTokensConfig(
-                    systemInstruction=system_prompt,
-                ),
+                contents=contents,
             )
         total_tokens = int(getattr(response, "total_tokens", 0) or 0)
         return {

@@ -30,6 +30,7 @@ from phentrieve.llm.provider import ToolExecutor
 from phentrieve.llm.types import (
     AnnotationMode,
     LLMBatchMappingSelections,
+    LLMExtractedPhenotypes,
     LLMExtractionResult,
     LLMGroundedExtractedPhenotypes,
     LLMMappingSelection,
@@ -247,6 +248,10 @@ def _spans_overlap(
 ) -> bool:
     if None in (start_a, end_a, start_b, end_b):
         return False
+    assert start_a is not None
+    assert end_a is not None
+    assert start_b is not None
+    assert end_b is not None
     if end_a <= start_a or end_b <= start_b:
         return False
     return max(start_a, start_b) < min(end_a, end_b)
@@ -565,11 +570,16 @@ class TwoPhaseLLMPipeline:
             len(user_prompt),
             max_output_tokens,
         )
+        response_model = (
+            LLMGroundedExtractedPhenotypes
+            if grounded_chunks or chunk_index_text is not None
+            else LLMExtractedPhenotypes
+        )
         try:
             response = self.provider.run_structured_prompt(
                 system_prompt=extraction_prompt.render_system_prompt(),
                 user_prompt=user_prompt,
-                response_model=LLMGroundedExtractedPhenotypes,
+                response_model=response_model,
                 max_output_tokens=max_output_tokens,
             )
         except Exception:
@@ -583,10 +593,10 @@ class TwoPhaseLLMPipeline:
                 {
                     "phrase": phenotype.phrase.strip(),
                     "category": _normalize_category(phenotype.category),
-                    "chunk_ids": list(phenotype.chunk_ids),
-                    "evidence_text": phenotype.evidence_text,
-                    "start_char": phenotype.start_char,
-                    "end_char": phenotype.end_char,
+                    "chunk_ids": list(getattr(phenotype, "chunk_ids", [])),
+                    "evidence_text": getattr(phenotype, "evidence_text", None),
+                    "start_char": getattr(phenotype, "start_char", None),
+                    "end_char": getattr(phenotype, "end_char", None),
                 }
             )
         return parsed, usage

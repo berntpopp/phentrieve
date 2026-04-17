@@ -648,12 +648,113 @@ Focused validation completed:
 - isolated reruns for `GeneReviews_NBK1277` in grounded and legacy modes
 - full 10-document grounded benchmark rerun
 - `make check`
+- `make typecheck-fresh`
 - `make test`
 
-`make typecheck-fast` did not complete cleanly because `dmypy` crashed inside a
-third-party package (`cryptography.x509.extensions`) with a mypy internal
-error. That appears to be an environment/tooling problem rather than a project
-type error, but it still blocks claiming a fully clean local typecheck run.
+### Task 9 outcome
+
+The internal shared-chunk refactor is now functionally complete and benchmarked.
+The final Task 9 work also fixed two verification regressions discovered late:
+
+- legacy phase-1 schema selection was incorrectly using grounded structured
+  output requirements, which broke `whole_document_legacy` runs
+- Gemini `count_tokens` was being called with unsupported `systemInstruction`
+  config during grouped preprocessing
+
+Those were corrected by:
+
+- selecting `LLMExtractedPhenotypes` for non-grounded legacy phase-1 requests
+- using Gemini `countTokens` against the effective rendered prompt content
+  rather than the unsupported `systemInstruction` field
+- updating CLI and pipeline tests so non-grounded paths do not incorrectly
+  expect grounded provenance unless grounded chunks are actually supplied
+
+Final repo verification completed cleanly:
+
+- `make check`
+- `make typecheck-fresh`
+- `make test`
+
+### Final benchmark comparison
+
+Benchmarks compared:
+
+- legacy baseline:
+  `results/llm/llm_benchmark_20260416T_full_genereviews_phrasefix.json`
+- fixed grounded pre-refactor:
+  `results/llm/pr216_grounded_benchmark_fix1.json`
+- post-refactor grounded:
+  `results/llm/pr216_grounded_chunkrefactor.json`
+- post-refactor legacy control:
+  `results/llm/pr216_legacy_control_postrefactor.json`
+
+Key result:
+
+- the shared-chunk refactor is correct and stable, but it did not meet the
+  latency target
+
+Measured outcomes:
+
+- fixed grounded pre-refactor:
+  - wall clock `744.10s`
+  - avg/case `74.41s`
+  - micro F1 `0.7682`
+  - macro F1 `0.7780`
+  - weighted F1 `0.7666`
+  - tokens `88,595`
+  - API calls `49`
+- post-refactor grounded:
+  - wall clock `1051.52s`
+  - avg/case `105.15s`
+  - micro F1 `0.7631`
+  - macro F1 `0.7746`
+  - weighted F1 `0.7620`
+  - tokens `91,892`
+  - API calls `60`
+- post-refactor legacy control:
+  - wall clock `321.23s`
+  - avg/case `32.12s`
+  - micro F1 `0.6364`
+  - macro F1 `0.4644`
+  - weighted F1 `0.5456`
+  - tokens `40,262`
+  - API calls `30`
+
+Interpretation:
+
+- the grouped grounded path preserved benchmark quality roughly near the prior
+  grounded run, but slightly lower on micro, macro, and weighted F1
+- the grouped grounded path became substantially slower and more expensive
+- the legacy control is now much faster and cheaper, but its quality is too low
+  to treat as a viable production fallback
+
+Slowest post-refactor grounded documents:
+
+1. `GeneReviews_NBK321516` `149.50s`
+2. `GeneReviews_NBK532447` `130.96s`
+3. `GeneReviews_NBK550349` `126.65s`
+
+For those slowest cases, the dominant time remained remote Gemini work:
+
+- `NBK321516`: `phase2b_llm` dominated (`78.18s`), with large `phase1`
+  contribution (`46.91s`)
+- `NBK532447`: `phase2b_llm` dominated (`71.84s`)
+- `NBK550349`: `phase1` dominated (`70.76s`), with `phase2b_llm` still large
+  (`35.29s`)
+
+Across the 10-doc slice, the dominant phase split was even:
+
+- grouped grounded: `phase1` dominant in 5 docs, `phase2b_llm` dominant in 5
+  docs
+- legacy control: `phase1` dominant in 5 docs, `phase2b_llm` dominant in 5
+  docs
+
+So the original diagnosis still holds:
+
+- local retrieval is not the bottleneck
+- the refactor shifted too much cost into multi-group phase-1 and repeated
+  phase-2B mapping calls
+- simply "using the shared chunk pipeline" is not enough to improve latency
 
 ### Refined next steps
 
@@ -664,23 +765,24 @@ cost.
 
 The highest-signal next steps are:
 
-1. reduce phase-2B LLM workload before chasing more phase-1 changes
-2. keep grounded provenance benefits while lowering completion-token volume
+1. reduce phase-2B LLM workload before further architectural chunking changes
+2. keep grounded provenance benefits while lowering request fanout
 3. preserve the new logging so future regressions are diagnosable from
    artifacts
 
 Concrete follow-up candidates:
 
-1. move more unresolved phrase decisions out of `phase2b_llm` via stronger
+1. reduce grouped request fanout by merging only when the token budget gain is
+   real, not merely available
+2. move more unresolved phrase decisions out of `phase2b_llm` via stronger
    local or retrieval-side narrowing
-2. make phase-2 structured outputs more compact if current mapping schemas are
+3. deduplicate unresolved mappings more aggressively across neighboring groups
+4. make phase-2 structured outputs more compact if current mapping schemas are
    verbose
-3. add per-document token and phase breakdown summaries to benchmark output so
+5. keep per-document token and phase breakdown summaries in benchmark output so
    regressions are visible without log scraping
-4. investigate persistent Gemini client reuse and other provider-side latency
+6. investigate persistent Gemini client reuse and other provider-side latency
    reductions
-5. rerun type checking with a non-daemon fallback if the mypy daemon crash
-   persists
 
 This narrows the original review conclusion:
 
@@ -688,8 +790,8 @@ This narrows the original review conclusion:
 - the biggest remaining opportunity is not "fix sentence splitting first"
 - the next meaningful speed win is likely in mapping-time LLM usage, not only
   in phase-1 extraction
-- multilingual chunking integration is still a valid medium-term direction, but
-  it is no longer the only blocking issue for grounded mode
+- multilingual chunking integration is now implemented internally, but the next
+  optimization step must focus on request fanout and mapping-time LLM cost
 
 ## Sources
 

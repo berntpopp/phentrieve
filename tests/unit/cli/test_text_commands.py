@@ -1,5 +1,6 @@
 import json
 import logging
+from types import SimpleNamespace
 
 import pytest
 from typer.testing import CliRunner
@@ -11,8 +12,11 @@ from phentrieve.cli.text_commands import _run_llm_backend
 @pytest.fixture(autouse=True)
 def stub_grounded_chunks(monkeypatch):
     monkeypatch.setattr(
-        "phentrieve.text_processing.full_text_service._build_grounded_chunks",
-        lambda **kwargs: [{"chunk_id": 1, "text": kwargs["text"]}],
+        "phentrieve.text_processing.full_text_service.preprocess_grounded_document",
+        lambda **kwargs: SimpleNamespace(
+            grounded_chunks=[{"chunk_id": 1, "text": kwargs["text"]}],
+            extraction_groups=[],
+        ),
     )
 
 
@@ -273,7 +277,7 @@ def test_run_llm_backend_uses_pipeline_and_provider(monkeypatch):
         def __init__(self, *, provider):
             calls["provider"] = provider
 
-        def run(self, *, text, grounded_chunks, config):
+        def run(self, *, text, grounded_chunks, config, extraction_groups=None):
             calls["text"] = text
             calls["grounded_chunks"] = grounded_chunks
             calls["config"] = config
@@ -334,7 +338,7 @@ def test_run_llm_backend_supports_injected_factories_for_supported_mode():
         def __init__(self, *, provider):
             calls["provider"] = provider
 
-        def run(self, *, text, grounded_chunks, config):
+        def run(self, *, text, grounded_chunks, config, extraction_groups=None):
             calls["text"] = text
             calls["grounded_chunks"] = grounded_chunks
             calls["config"] = config
@@ -392,7 +396,7 @@ def test_run_llm_backend_logs_completion_once(caplog):
         def __init__(self, *, provider):
             self.provider = provider
 
-        def run(self, *, text, grounded_chunks, config):
+        def run(self, *, text, grounded_chunks, config, extraction_groups=None):
             from phentrieve.llm.types import LLMExtractionResult, LLMMeta
 
             return LLMExtractionResult(

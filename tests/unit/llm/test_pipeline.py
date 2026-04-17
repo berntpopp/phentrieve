@@ -17,6 +17,7 @@ from phentrieve.llm.provider import LLMProvider, ToolExecutor
 from phentrieve.llm.types import (
     AnnotationMode,
     LLMBatchMappingSelections,
+    LLMExtractedPhenotypes,
     LLMExtractionResult,
     LLMGroundedExtractedPhenotype,
     LLMMappingSelection,
@@ -218,6 +219,9 @@ def test_two_phase_pipeline_maps_phrase_via_retrieved_candidates():
 
     result = pipeline.run(
         text="Patient had recurrent seizures since infancy.",
+        grounded_chunks=[
+            {"chunk_id": 1, "text": "Patient had recurrent seizures since infancy."}
+        ],
         config=LLMPipelineConfig(model="gemini-2.5-flash", mode="two_phase"),
     )
 
@@ -281,6 +285,36 @@ def test_phase1_returns_chunk_ids_and_evidence_text():
     )
 
     assert result[0][0]["chunk_ids"] == [1]
+
+
+def test_phase1_uses_legacy_schema_without_grounding() -> None:
+    provider = FakeProvider(
+        responses=[
+            {
+                "parsed": {
+                    "phenotypes": [
+                        {
+                            "phrase": "recurrent seizures",
+                            "category": "Abnormal",
+                        }
+                    ]
+                }
+            }
+        ]
+    )
+    pipeline = TwoPhaseLLMPipeline(
+        provider=provider, tool_executor=FakeToolExecutor([])
+    )
+
+    result = pipeline._extract_phase1_phenotypes(
+        text="Patient had recurrent seizures.",
+        grounded_chunks=[],
+        extraction_prompt=get_prompt(AnnotationMode.TWO_PHASE, "en"),
+    )
+
+    assert provider.structured_calls[0]["response_model"] is LLMExtractedPhenotypes
+    assert result[0][0]["chunk_ids"] == []
+    assert result[0][0]["evidence_text"] is None
 
 
 def test_phase1_runs_once_per_extraction_group() -> None:
@@ -1389,6 +1423,9 @@ def test_two_phase_pipeline_uses_mapping_prompt_for_unresolved_phrase():
 
     result = pipeline.run(
         text="The child has frequent falls while walking.",
+        grounded_chunks=[
+            {"chunk_id": 1, "text": "The child has frequent falls while walking."}
+        ],
         config=LLMPipelineConfig(model="gemini-2.5-flash", mode="two_phase"),
     )
 
@@ -1467,6 +1504,12 @@ def test_two_phase_pipeline_records_trace_for_extraction_and_mapping():
 
     result = pipeline.run(
         text="The child has frequent falls while walking. The child has normal intelligence.",
+        grounded_chunks=[
+            {
+                "chunk_id": 1,
+                "text": "The child has frequent falls while walking. The child has normal intelligence.",
+            }
+        ],
         config=LLMPipelineConfig(model="gemini-2.5-flash", mode="two_phase"),
     )
 
@@ -1639,6 +1682,12 @@ def test_two_phase_pipeline_batches_unresolved_phrase_mapping_calls():
 
     result = pipeline.run(
         text="The child has frequent falls while walking. Sleep disturbances were reported.",
+        grounded_chunks=[
+            {
+                "chunk_id": 1,
+                "text": "The child has frequent falls while walking. Sleep disturbances were reported.",
+            }
+        ],
         config=LLMPipelineConfig(model="gemini-2.5-flash", mode="two_phase"),
     )
 
@@ -1872,6 +1921,12 @@ def test_two_phase_pipeline_batch_mapping_uses_item_ids_for_batch_selections():
 
     result = pipeline.run(
         text="The child has knock-knee (genu valgum). The child has Legg Perthes disease.",
+        grounded_chunks=[
+            {
+                "chunk_id": 1,
+                "text": "The child has knock-knee (genu valgum). The child has Legg Perthes disease.",
+            }
+        ],
         config=LLMPipelineConfig(model="gemini-2.5-flash", mode="two_phase"),
     )
 
@@ -2126,6 +2181,18 @@ def test_two_phase_pipeline_retrieves_all_categories_and_preserves_assertions():
             "The mother has hearing loss. "
             "Symptoms began in infancy."
         ),
+        grounded_chunks=[
+            {
+                "chunk_id": 1,
+                "text": (
+                    "Patient had recurrent seizures since infancy. "
+                    "Nystagmus was suspected clinically. "
+                    "No skeletal anomalies were noted. "
+                    "The mother has hearing loss. "
+                    "Symptoms began in infancy."
+                ),
+            }
+        ],
         config=LLMPipelineConfig(model="gemini-2.5-flash", mode="two_phase"),
     )
 
@@ -2255,6 +2322,9 @@ def test_two_phase_pipeline_accumulates_usage_and_logs_phases(caplog):
 
     result = pipeline.run(
         text="The child has frequent falls while walking.",
+        grounded_chunks=[
+            {"chunk_id": 1, "text": "The child has frequent falls while walking."}
+        ],
         config=LLMPipelineConfig(model="gemini-2.5-flash", mode="two_phase"),
     )
 
@@ -2478,6 +2548,9 @@ def test_two_phase_pipeline_falls_back_to_local_match_after_invalid_mapping_sele
 
     result = pipeline.run(
         text="The child has frequent falls while walking.",
+        grounded_chunks=[
+            {"chunk_id": 1, "text": "The child has frequent falls while walking."}
+        ],
         config=LLMPipelineConfig(model="gemini-2.5-flash", mode="two_phase"),
     )
 
