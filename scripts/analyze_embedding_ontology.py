@@ -19,6 +19,8 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
+import numpy as np
+
 logger = logging.getLogger("analyze_embedding_ontology")
 
 
@@ -114,16 +116,106 @@ def load_hpo_bundle(
     return terms, ancestors, depths, hpo_version, db_path
 
 
+def align_terms_and_embeddings(
+    terms: list[dict],
+    hpo_ids: list[str],
+    embeddings: np.ndarray,
+    symmetric_diff_tolerance: float = 0.05,
+) -> tuple[list[dict], np.ndarray]:
+    """Filter both sides to the intersection of (HPO DB IDs) and (cache IDs).
+
+    - If |symmetric difference| / min(|A|, |B|) > tolerance, raise ValueError —
+      the cache is likely stale.
+    - Otherwise, log a warning with counts and proceed on the intersection.
+    - Preserves cache row order for returned embeddings.
+    """
+    db_ids = {t["id"] for t in terms}
+    cache_ids = set(hpo_ids)
+    inter = db_ids & cache_ids
+    only_db = db_ids - cache_ids
+    only_cache = cache_ids - db_ids
+
+    sym_diff = len(only_db) + len(only_cache)
+    denom = max(min(len(db_ids), len(cache_ids)), 1)
+    if sym_diff / denom > symmetric_diff_tolerance:
+        raise ValueError(
+            f"HPO DB / embedding cache divergence too large: "
+            f"{sym_diff} mismatched IDs out of min({len(db_ids)}, {len(cache_ids)}) "
+            f"({sym_diff / denom:.1%} > {symmetric_diff_tolerance:.0%}). "
+            "Rebuild the index or refresh the cache (--refresh-cache)."
+        )
+    if sym_diff:
+        logger.warning(
+            "HPO DB / embedding cache mismatch: %d only in DB, %d only in cache",
+            len(only_db),
+            len(only_cache),
+        )
+    if not inter:
+        raise ValueError("Zero overlap between HPO DB and embedding cache.")
+
+    keep_cache_rows = [i for i, hid in enumerate(hpo_ids) if hid in inter]
+    aligned_embeddings = embeddings[keep_cache_rows]
+    aligned_ids_set = {hpo_ids[i] for i in keep_cache_rows}
+    aligned_terms = [t for t in terms if t["id"] in aligned_ids_set]
+
+    # Sort aligned_terms into the same order as aligned_embeddings rows.
+    ordered_ids = [hpo_ids[i] for i in keep_cache_rows]
+    by_id = {t["id"]: t for t in aligned_terms}
+    aligned_terms = [by_id[i] for i in ordered_ids]
+
+    return aligned_terms, aligned_embeddings
+
+
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
     setup_logging(args.log_level)
+
     try:
         terms, ancestors, depths, hpo_version, db_path = load_hpo_bundle()
     except FileNotFoundError as e:
         logger.error("%s", e)
         return 1
-    logger.info("Loaded %d HPO terms (DB: %s)", len(terms), db_path)
-    # Further stages added in subsequent tasks.
+
+    from phentrieve.analysis.embedding_cache import load_cached_embeddings
+
+    try:
+        hpo_ids, embeddings = load_cached_embeddings(
+            model_name=args.model_name,
+            refresh=args.refresh_cache,
+        )
+    except FileNotFoundError as e:
+        logger.error("%s", e)
+        return 1
+
+    try:
+        aligned_terms, aligned_embeddings = align_terms_and_embeddings(
+            terms, hpo_ids, embeddings
+        )
+    except ValueError as e:
+        logger.error("%s", e)
+        return 1
+
+    if args.sample is not None and args.sample < len(aligned_terms):
+        import numpy as np
+
+        rng = np.random.default_rng(args.seed)
+        sample_idx = rng.choice(len(aligned_terms), size=args.sample, replace=False)
+        sample_idx.sort()
+        aligned_terms = [aligned_terms[i] for i in sample_idx]
+        aligned_embeddings = aligned_embeddings[sample_idx]
+        logger.info("Sampled %d terms (seed=%d)", len(aligned_terms), args.seed)
+    elif args.sample is not None:
+        logger.info(
+            "Requested --sample %d >= %d aligned terms; using all.",
+            args.sample,
+            len(aligned_terms),
+        )
+
+    logger.info(
+        "Aligned: %d terms × %d dims", len(aligned_terms), aligned_embeddings.shape[1]
+    )
+
+    # Metrics, UMAP, and writers are added in subsequent tasks.
     return 0
 
 
