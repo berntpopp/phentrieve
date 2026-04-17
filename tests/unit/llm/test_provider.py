@@ -24,6 +24,7 @@ from phentrieve.llm.provider import (
 from phentrieve.llm.types import (
     LLMExtractedPhenotype,
     LLMExtractedPhenotypes,
+    LLMGroundedExtractedPhenotypes,
     LLMMeta,
     LLMPipelineConfig,
 )
@@ -195,6 +196,26 @@ def test_ollama_structured_prompt_posts_native_chat_schema(mocker) -> None:
     _, kwargs = post.call_args
     assert kwargs["json"]["format"]["type"] == "object"
     assert kwargs["json"]["options"]["temperature"] == 0
+
+
+def test_ollama_structured_prompt_includes_schema_in_prompt(mocker) -> None:
+    provider = OllamaStructuredOutputProvider(
+        model_name="qwen3.5:35b",
+        base_url="http://localhost:11434",
+    )
+    post = mocker.patch("httpx.Client.post")
+    post.return_value = _fake_ollama_response(content='{"phenotypes": []}')
+
+    provider.run_structured_prompt(
+        system_prompt="system",
+        user_prompt="user",
+        response_model=LLMExtractedPhenotypes,
+    )
+
+    _, kwargs = post.call_args
+    prompt = kwargs["json"]["messages"][1]["content"]
+    assert "JSON schema" in prompt
+    assert '"phenotypes"' in prompt
 
 
 def test_ollama_provider_sets_estimated_token_count_source_when_counting_missing() -> (
@@ -822,6 +843,47 @@ def test_structured_prompt_uses_single_relaxed_schema_without_size_constraints(
     assert schema["properties"]["phenotypes"]["items"]["properties"]["phrase"][
         "description"
     ]
+
+
+def test_structured_prompt_schema_preserves_nullable_optional_field_types(
+    monkeypatch,
+) -> None:
+    fake_models = _install_fake_google_genai(
+        monkeypatch,
+        [
+            _FakeResponse(
+                text=(
+                    '{"phenotypes":[{"phrase":"recurrent seizures",'
+                    '"category":"Abnormal","chunk_ids":[1],"evidence_text":null}]}'
+                ),
+                parsed=None,
+                finish_reason="STOP",
+                prompt_tokens=11,
+                completion_tokens=9,
+                total_tokens=20,
+            )
+        ],
+    )
+    provider = GeminiStructuredOutputProvider(
+        model_name="gemini-2.5-flash",
+        api_key="test-key",
+    )
+
+    provider.run_structured_prompt(
+        system_prompt="system",
+        user_prompt="user",
+        response_model=LLMGroundedExtractedPhenotypes,
+    )
+
+    schema = fake_models.calls[0]["config"].kwargs["response_json_schema"]
+    evidence_text_schema = schema["properties"]["phenotypes"]["items"]["properties"][
+        "evidence_text"
+    ]
+    start_char_schema = schema["properties"]["phenotypes"]["items"]["properties"][
+        "start_char"
+    ]
+    assert evidence_text_schema["anyOf"] == [{"type": "string"}, {"type": "null"}]
+    assert start_char_schema["anyOf"] == [{"type": "integer"}, {"type": "null"}]
 
 
 def test_structured_prompt_accepts_long_phrase_when_served_schema_is_relaxed(

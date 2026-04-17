@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import logging
 import os
 import time
@@ -423,6 +424,28 @@ class GeminiStructuredOutputProvider(LLMProvider):
         if "enum" in schema and isinstance(schema["enum"], list):
             compact["enum"] = list(schema["enum"])
 
+        any_of = schema.get("anyOf")
+        if isinstance(any_of, list):
+            compact["anyOf"] = [
+                cls._compact_json_schema(
+                    schema=item,
+                    definitions=definitions,
+                )
+                for item in any_of
+                if isinstance(item, dict)
+            ]
+
+        one_of = schema.get("oneOf")
+        if isinstance(one_of, list):
+            compact["oneOf"] = [
+                cls._compact_json_schema(
+                    schema=item,
+                    definitions=definitions,
+                )
+                for item in one_of
+                if isinstance(item, dict)
+            ]
+
         description = schema.get("description")
         if isinstance(description, str) and description.strip():
             compact["description"] = description
@@ -615,16 +638,23 @@ class OllamaStructuredOutputProvider(LLMProvider):
             "temperature": self.temperature,
             "num_predict": max_output_tokens or DEFAULT_PROVIDER_MAX_TOKENS,
         }
+        response_schema = GeminiStructuredOutputProvider._build_response_json_schema(
+            response_model
+        )
         payload: dict[str, Any] = {
             "model": self.model_name,
             "stream": False,
             "messages": [
                 {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt},
+                {
+                    "role": "user",
+                    "content": self._augment_prompt_with_schema(
+                        user_prompt=user_prompt,
+                        response_schema=response_schema,
+                    ),
+                },
             ],
-            "format": GeminiStructuredOutputProvider._build_response_json_schema(
-                response_model
-            ),
+            "format": response_schema,
             "options": options,
         }
         if self.seed is not None:
@@ -640,6 +670,24 @@ class OllamaStructuredOutputProvider(LLMProvider):
         self.last_finish_reason = body.get("done_reason")
         content = str(body.get("message", {}).get("content", "") or "")
         return response_model.model_validate_json(content)
+
+    @staticmethod
+    def _augment_prompt_with_schema(
+        *,
+        user_prompt: str,
+        response_schema: dict[str, Any],
+    ) -> str:
+        schema_text = json.dumps(
+            response_schema,
+            separators=(",", ":"),
+            ensure_ascii=True,
+            sort_keys=True,
+        )
+        return (
+            f"{user_prompt}\n\n"
+            "Return JSON only. Follow this JSON schema exactly:\n"
+            f"{schema_text}"
+        )
 
     def count_tokens(self, *, system_prompt: str, user_prompt: str) -> dict[str, int]:
         estimated_total = max(1, (len(system_prompt) + len(user_prompt)) // 4)
