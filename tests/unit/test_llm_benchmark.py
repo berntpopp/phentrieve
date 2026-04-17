@@ -296,6 +296,60 @@ def test_run_llm_benchmark_returns_benchmark_grade_metadata(monkeypatch):
     )
 
 
+def test_run_llm_benchmark_surfaces_phase2_routing_counts(monkeypatch):
+    def fake_load_benchmark_data(test_path: Path, dataset: str):
+        return {
+            "metadata": {
+                "dataset_name": f"phenobert_{dataset}",
+                "source": "phenobert",
+                "total_documents": 1,
+                "total_annotations": 0,
+            },
+            "documents": [
+                {
+                    "id": "doc-1",
+                    "text": "Patient has scoliosis.",
+                    "gold_hpo_terms": [],
+                    "source_dataset": "GeneReviews",
+                }
+            ],
+        }
+
+    class _FakePipeline:
+        def __init__(self, provider):
+            self.provider = provider
+
+        def run(self, *, text, grounded_chunks, config):
+            from phentrieve.llm.types import LLMExtractionResult, LLMMeta
+
+            return LLMExtractionResult(
+                terms=[],
+                meta=LLMMeta(
+                    llm_model=config.model,
+                    llm_mode=config.mode,
+                    phase_counts={
+                        "phase2b_local_accept_count": 3,
+                        "phase2b_deferred_count": 2,
+                        "phase2b_no_candidate_skip_count": 1,
+                    },
+                ),
+            )
+
+    monkeypatch.setattr(llm_benchmark, "load_benchmark_data", fake_load_benchmark_data)
+    monkeypatch.setattr(llm_benchmark, "get_llm_provider", lambda llm_model: object())
+    monkeypatch.setattr(llm_benchmark, "TwoPhaseLLMPipeline", _FakePipeline)
+
+    result = llm_benchmark.run_llm_benchmark(
+        test_file="tests/data/en/phenobert",
+        llm_model="gemini-2.5-flash",
+    )
+
+    observability = result["prediction_records"][0]["metadata"]["observability"]
+    assert observability["phase2b_local_accept_count"] == 3
+    assert observability["phase2b_deferred_count"] == 2
+    assert observability["phase2b_no_candidate_skip_count"] == 1
+
+
 def test_run_llm_benchmark_excludes_other_category_from_scored_predictions(
     monkeypatch,
 ):

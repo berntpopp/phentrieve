@@ -593,6 +593,9 @@ def test_run_llm_backend_surfaces_grouped_observability(mocker):
         "request_count": 3,
         "extracted_phrases": 1,
         "actionable_phrases": 2,
+        "phase2b_local_accept_count": 0,
+        "phase2b_deferred_count": 0,
+        "phase2b_no_candidate_skip_count": 0,
         "grounded_chunks": 2,
         "extraction_groups": 2,
         "failed_groups": 1,
@@ -604,3 +607,38 @@ def test_run_llm_backend_surfaces_grouped_observability(mocker):
         "phase1_requests": 2,
         "phase2b_llm_requests": 1,
     }
+
+
+def test_run_llm_backend_surfaces_phase2_routing_counts(mocker) -> None:
+    provider = mocker.Mock()
+    pipeline = mocker.Mock()
+    pipeline.run.return_value = LLMExtractionResult(
+        terms=[],
+        meta=LLMMeta(
+            llm_model="gemini-2.5-flash",
+            llm_mode="two_phase",
+            phase_counts={
+                "phase2b_local_accept_count": 3,
+                "phase2b_deferred_count": 2,
+                "phase2b_no_candidate_skip_count": 1,
+            },
+        ),
+    )
+    mocker.patch(
+        "phentrieve.text_processing.full_text_service.get_llm_provider",
+        return_value=provider,
+    )
+    mocker.patch(
+        "phentrieve.text_processing.full_text_service.TwoPhaseLLMPipeline",
+        return_value=pipeline,
+    )
+
+    result = run_llm_backend(
+        text="Patient had recurrent seizures.",
+        llm_model="gemini-2.5-flash",
+        llm_mode="two_phase",
+    )
+
+    assert result["meta"]["observability"]["phase2b_local_accept_count"] == 3
+    assert result["meta"]["observability"]["phase2b_deferred_count"] == 2
+    assert result["meta"]["observability"]["phase2b_no_candidate_skip_count"] == 1

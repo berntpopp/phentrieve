@@ -866,6 +866,15 @@ def _build_observability_counts(
     return {
         "request_count": request_count,
         **phase_counts,
+        "phase2b_local_accept_count": int(
+            phase_counts.get("phase2b_local_accept_count", 0) or 0
+        ),
+        "phase2b_deferred_count": int(
+            phase_counts.get("phase2b_deferred_count", 0) or 0
+        ),
+        "phase2b_no_candidate_skip_count": int(
+            phase_counts.get("phase2b_no_candidate_skip_count", 0) or 0
+        ),
         "grounded_chunks": grounded_chunk_count,
         "extraction_groups": extraction_group_count,
         "failed_groups": int(phase_counts.get("phase1_failed_groups", 0) or 0),

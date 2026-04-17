@@ -486,6 +486,15 @@ def run_llm_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
             "observability": {
                 "request_count": int(result.meta.request_count or 0),
                 **phase_counts,
+                "phase2b_local_accept_count": int(
+                    phase_counts.get("phase2b_local_accept_count", 0) or 0
+                ),
+                "phase2b_deferred_count": int(
+                    phase_counts.get("phase2b_deferred_count", 0) or 0
+                ),
+                "phase2b_no_candidate_skip_count": int(
+                    phase_counts.get("phase2b_no_candidate_skip_count", 0) or 0
+                ),
                 "grounded_chunks": len(grounded_chunks),
                 "extraction_groups": len(extraction_groups),
                 "failed_groups": int(phase_counts.get("phase1_failed_groups", 0) or 0),
