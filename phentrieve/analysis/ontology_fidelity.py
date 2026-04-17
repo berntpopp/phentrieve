@@ -13,6 +13,8 @@ from __future__ import annotations
 
 import math
 
+import numpy as np
+
 
 def build_descendants_index(
     ancestors: dict[str, set[str]],
@@ -128,3 +130,48 @@ def top_level_branch(
         # Should not happen in a well-formed HPO DAG, but guard anyway.
         return None, frozenset()
     return min(depth_one_ancs), frozenset(depth_one_ancs)
+
+
+def sample_pairs(
+    n_terms: int,
+    n_pairs: int,
+    rng: np.random.Generator,
+) -> np.ndarray:
+    """Return `n_pairs` distinct unordered index pairs in [0, n_terms), as (n_pairs, 2) int64.
+
+    - No self-pairs ((i, i) excluded).
+    - If n_pairs exceeds the total number of distinct unordered pairs, the
+      result is clamped to the maximum available (len <= n_terms*(n_terms-1)/2).
+    - Deterministic given the same rng state.
+    """
+    if n_terms < 2:
+        return np.empty((0, 2), dtype=np.int64)
+
+    max_pairs = n_terms * (n_terms - 1) // 2
+    target = min(n_pairs, max_pairs)
+
+    # Sample with rejection — simpler and faster than enumerating pairs for
+    # realistic n_terms (~18k) and target (~50k). Fall back to exhaustive
+    # enumeration when target is close to max_pairs.
+    if target >= max_pairs * 0.5:
+        rows, cols = np.triu_indices(n_terms, k=1)
+        all_pairs = np.stack([rows, cols], axis=1)
+        idx = rng.choice(len(all_pairs), size=target, replace=False)
+        return all_pairs[idx].astype(np.int64)
+
+    seen: set[tuple[int, int]] = set()
+    out: list[tuple[int, int]] = []
+    attempts = 0
+    max_attempts = max(target * 10, 1000)
+    while len(out) < target and attempts < max_attempts:
+        attempts += 1
+        a, b = rng.integers(0, n_terms, size=2)
+        if a == b:
+            continue
+        u, v = (int(a), int(b)) if a < b else (int(b), int(a))
+        if (u, v) in seen:
+            continue
+        seen.add((u, v))
+        out.append((u, v))
+
+    return np.array(out, dtype=np.int64)

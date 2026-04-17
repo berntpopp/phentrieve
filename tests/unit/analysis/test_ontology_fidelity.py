@@ -212,3 +212,38 @@ def test_top_level_branch_multi_parent_picks_lex_smallest(tiny_dag):
     branch, all_branches = top_level_branch("HP:0011", ancestors, depths)
     assert branch == "HP:0001"
     assert all_branches == frozenset({"HP:0001", "HP:0002"})
+
+
+def test_sample_pairs_shape_and_bounds():
+    import numpy as np
+
+    from phentrieve.analysis.ontology_fidelity import sample_pairs
+
+    rng = np.random.default_rng(42)
+    pairs = sample_pairs(n_terms=100, n_pairs=500, rng=rng)
+    assert pairs.shape == (500, 2)
+    assert pairs.min() >= 0
+    assert pairs.max() < 100
+    # No self-pairs.
+    assert (pairs[:, 0] != pairs[:, 1]).all()
+
+
+def test_sample_pairs_deterministic_given_seed():
+    import numpy as np
+
+    from phentrieve.analysis.ontology_fidelity import sample_pairs
+
+    a = sample_pairs(1000, 200, np.random.default_rng(7))
+    b = sample_pairs(1000, 200, np.random.default_rng(7))
+    np.testing.assert_array_equal(a, b)
+
+
+def test_sample_pairs_clamps_when_requested_exceeds_available():
+    import numpy as np
+
+    from phentrieve.analysis.ontology_fidelity import sample_pairs
+
+    # For 5 terms there are only 5*4/2 = 10 unordered distinct pairs.
+    pairs = sample_pairs(5, 100, np.random.default_rng(0))
+    assert pairs.shape[0] <= 10
+    assert (pairs[:, 0] != pairs[:, 1]).all()
