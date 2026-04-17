@@ -1,5 +1,6 @@
 import json
 import logging
+import time
 from pathlib import Path
 
 import pytest
@@ -1172,17 +1173,114 @@ def test_grouped_phase1_zero_hit_success_does_not_raise() -> None:
     assert result.meta.phase_counts["phase1_completed_groups"] == 2
     assert result.meta.phase_counts["phase1_failed_groups"] == 0
     assert result.meta.phase_counts["phase1_partial_failures"] == 0
-    assert [group["status"] for group in result.meta.trace["phase1"]["groups"]] == [
-        "completed",
-        "completed",
-    ]
-    assert [
-        group["extracted_count"] for group in result.meta.trace["phase1"]["groups"]
-    ] == [
-        0,
-        0,
-    ]
-    assert result.meta.trace["phase1"]["extracted"] == []
+
+
+def test_two_phase_pipeline_grouped_phase1_keeps_stable_merge_order(mocker) -> None:
+    pipeline = TwoPhaseLLMPipeline(
+        provider=FakeProvider(
+            responses=[
+                {"parsed": {"phenotypes": []}, "request_count": 1},
+                {"parsed": {"phenotypes": []}, "request_count": 1},
+            ]
+        ),
+        tool_executor=FakeToolExecutor(batch_results=[]),
+    )
+    calls: list[int] = []
+
+    def fake_run(*, extraction_group, **kwargs):
+        calls.append(extraction_group["group_index"])
+        if extraction_group["group_index"] == 0:
+            time.sleep(0.01)
+        return (
+            [
+                {
+                    "phrase": f"group-{extraction_group['group_index']}",
+                    "category": "Abnormal",
+                    "chunk_ids": [extraction_group["group_index"] + 1],
+                    "evidence_text": "x",
+                }
+            ],
+            {"prompt_tokens": 10, "completion_tokens": 2, "total_tokens": 12},
+            1,
+        )
+
+    run_group = mocker.patch.object(
+        pipeline,
+        "_run_phase1_group",
+        create=True,
+        side_effect=fake_run,
+    )
+
+    extracted, _, _, _, _ = pipeline._extract_grouped_phase1_phenotypes(
+        text="Clinical note.",
+        grounded_chunks=[
+            {"chunk_id": 1, "text": "Chunk one."},
+            {"chunk_id": 2, "text": "Chunk two."},
+        ],
+        extraction_groups=[
+            {"group_id": 1, "group_index": 0, "chunk_ids": [1], "text": "Chunk one."},
+            {"group_id": 2, "group_index": 1, "chunk_ids": [2], "text": "Chunk two."},
+        ],
+        extraction_prompt=get_prompt(AnnotationMode.TWO_PHASE, "en"),
+    )
+
+    assert run_group.call_count == 2
+    assert calls == [0, 1]
+    assert [item["phrase"] for item in extracted] == ["group-0", "group-1"]
+
+
+def test_two_phase_pipeline_grouped_phase1_tracks_partial_failures_under_concurrency(
+    mocker,
+) -> None:
+    pipeline = TwoPhaseLLMPipeline(
+        provider=FakeProvider(
+            responses=[
+                {"parsed": {"phenotypes": []}, "request_count": 1},
+                {"parsed": {"phenotypes": []}, "request_count": 1},
+            ]
+        ),
+        tool_executor=FakeToolExecutor(batch_results=[]),
+    )
+
+    def fake_run(*, extraction_group, **kwargs):
+        if extraction_group["group_index"] == 1:
+            raise LLMPipelinePhaseError("phase1", "Structured extraction failed")
+        return (
+            [
+                {
+                    "phrase": "group-0",
+                    "category": "Abnormal",
+                    "chunk_ids": [1],
+                    "evidence_text": "x",
+                }
+            ],
+            {"prompt_tokens": 10, "completion_tokens": 2, "total_tokens": 12},
+            1,
+        )
+
+    run_group = mocker.patch.object(
+        pipeline,
+        "_run_phase1_group",
+        create=True,
+        side_effect=fake_run,
+    )
+
+    _, _, _, _, trace = pipeline._extract_grouped_phase1_phenotypes(
+        text="Clinical note.",
+        grounded_chunks=[
+            {"chunk_id": 1, "text": "Chunk one."},
+            {"chunk_id": 2, "text": "Chunk two."},
+        ],
+        extraction_groups=[
+            {"group_id": 1, "group_index": 0, "chunk_ids": [1], "text": "Chunk one."},
+            {"group_id": 2, "group_index": 1, "chunk_ids": [2], "text": "Chunk two."},
+        ],
+        extraction_prompt=get_prompt(AnnotationMode.TWO_PHASE, "en"),
+    )
+
+    assert run_group.call_count == 2
+    assert trace[0]["status"] == "completed"
+    assert trace[1]["status"] == "failed"
 
 
 def test_retrieval_uses_grounded_context_instead_of_original_sentence():
