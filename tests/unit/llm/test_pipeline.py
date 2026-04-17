@@ -30,12 +30,13 @@ from phentrieve.llm.types import (
 
 
 class FakeProvider(LLMProvider):
-    def __init__(self, responses):
+    def __init__(self, responses, provider_name: str = "gemini"):
         super().__init__()
         self.responses = list(responses)
         self.calls = []
         self.structured_calls = []
         self.last_request_count = 0
+        self.provider_name = provider_name
 
     def complete(self, messages):
         self.calls.append(messages)
@@ -166,6 +167,27 @@ def test_llm_phenotype_can_store_multiple_evidence_records() -> None:
     )
 
     assert phenotype.evidence_records[0].chunk_ids == [2]
+
+
+def test_pipeline_result_meta_records_provider() -> None:
+    provider = FakeProvider(
+        responses=[{"parsed": {"phenotypes": []}}],
+        provider_name="ollama",
+    )
+    pipeline = TwoPhaseLLMPipeline(provider=provider)
+
+    result = pipeline.run(
+        text="Patient has seizures.",
+        grounded_chunks=[{"chunk_id": 1, "text": "Patient has seizures."}],
+        config=LLMPipelineConfig(
+            provider="ollama",
+            model="qwen3.5:35b",
+            mode="two_phase",
+            language="en",
+        ),
+    )
+
+    assert result.meta.llm_provider == "ollama"
 
 
 def test_load_prompt_template_reads_yaml_template():

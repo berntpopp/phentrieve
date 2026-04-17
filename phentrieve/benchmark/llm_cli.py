@@ -51,7 +51,9 @@ def _artifact_filename_stem(record: dict[str, Any]) -> str:
 def run_llm_benchmark_cli(
     *,
     test_file: str,
+    llm_provider: str | None = None,
     llm_model: str,
+    llm_base_url: str | None = None,
     llm_seed: int | None = None,
     llm_mode: str = DEFAULT_LLM_BENCHMARK_MODE,
     llm_internal_mode: str = "whole_document_grounded",
@@ -108,7 +110,9 @@ def run_llm_benchmark_cli(
             current_run={
                 "test_file": str(test_file_path),
                 "dataset": dataset,
+                "llm_provider": llm_provider,
                 "llm_model": llm_model,
+                "llm_base_url": llm_base_url,
                 "llm_seed": llm_seed,
                 "llm_mode": llm_mode,
                 "llm_internal_mode": llm_internal_mode,
@@ -135,7 +139,9 @@ def run_llm_benchmark_cli(
 
     result = llm_benchmark.run_llm_benchmark(
         test_file=test_file,
+        llm_provider=llm_provider,
         llm_model=llm_model,
+        llm_base_url=llm_base_url,
         llm_seed=llm_seed,
         llm_mode=llm_mode,
         llm_internal_mode=llm_internal_mode,
@@ -290,13 +296,24 @@ def benchmark_llm(
     ],
     llm_model: Annotated[
         str,
-        typer.Option("--llm-model", help="Gemini model to benchmark."),
+        typer.Option("--llm-model", help="LLM model to benchmark."),
     ],
+    llm_provider: Annotated[
+        str | None,
+        typer.Option("--llm-provider", help="Optional LLM provider to benchmark."),
+    ] = None,
+    llm_base_url: Annotated[
+        str | None,
+        typer.Option(
+            "--llm-base-url",
+            help="Optional LLM provider base URL for local or proxied deployments.",
+        ),
+    ] = None,
     llm_seed: Annotated[
         int | None,
         typer.Option(
             "--llm-seed",
-            help="Optional Gemini seed for best-effort reproducibility.",
+            help="Optional provider seed for best-effort reproducibility.",
         ),
     ] = None,
     llm_mode: Annotated[
@@ -385,7 +402,9 @@ def benchmark_llm(
     try:
         result = run_llm_benchmark_cli(
             test_file=test_file,
+            llm_provider=llm_provider,
             llm_model=llm_model,
+            llm_base_url=llm_base_url,
             llm_seed=llm_seed,
             llm_mode=llm_mode,
             llm_internal_mode=llm_internal_mode,

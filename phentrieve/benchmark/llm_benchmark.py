@@ -102,10 +102,34 @@ def _provider_factory_supports_seed(provider_factory: Any) -> bool:
     return "seed" in signature.parameters
 
 
+def _build_provider_factory_kwargs(
+    provider_factory: Any,
+    **candidate_kwargs: Any,
+) -> dict[str, Any]:
+    try:
+        signature = inspect.signature(provider_factory)
+    except (TypeError, ValueError):
+        return candidate_kwargs
+
+    if any(
+        parameter.kind == inspect.Parameter.VAR_KEYWORD
+        for parameter in signature.parameters.values()
+    ):
+        return candidate_kwargs
+
+    return {
+        key: value
+        for key, value in candidate_kwargs.items()
+        if key in signature.parameters
+    }
+
+
 def run_llm_benchmark(
     *,
     test_file: str,
+    llm_provider: str | None = None,
     llm_model: str,
+    llm_base_url: str | None = None,
     llm_seed: int | None = None,
     llm_mode: str = DEFAULT_LLM_BENCHMARK_MODE,
     llm_internal_mode: str = "whole_document_grounded",
@@ -163,10 +187,23 @@ def run_llm_benchmark(
         len(documents),
         test_data.get("metadata", {}).get("dataset_name", test_path.stem),
     )
-    if _provider_factory_supports_seed(get_llm_provider):
-        provider = get_llm_provider(llm_model=llm_model, seed=llm_seed)
+    provider_factory_kwargs = _build_provider_factory_kwargs(
+        get_llm_provider,
+        llm_model=llm_model,
+        llm_provider=llm_provider,
+        llm_base_url=llm_base_url,
+        seed=llm_seed,
+    )
+    if "seed" in provider_factory_kwargs or not _provider_factory_supports_seed(
+        get_llm_provider
+    ):
+        provider = get_llm_provider(**provider_factory_kwargs)
     else:
         provider = get_llm_provider(llm_model=llm_model)
+    resolved_provider_name = getattr(
+        provider, "provider_name", llm_provider or "gemini"
+    )
+    resolved_model_name = getattr(provider, "model_name", llm_model)
     logger.debug(
         "Initialized benchmark pipeline for model=%s mode=%s",
         llm_model,
@@ -200,7 +237,9 @@ def run_llm_benchmark(
     with _temporary_prompt_templates_dir(prompt_templates_dir):
         pipeline = TwoPhaseLLMPipeline(provider=provider)
         config = LLMPipelineConfig(
-            model=llm_model,
+            provider=resolved_provider_name,
+            model=resolved_model_name,
+            base_url=llm_base_url,
             mode=llm_mode,
             language=language,
             seed=llm_seed,
@@ -504,7 +543,9 @@ def run_llm_benchmark(
         test_path=test_path,
         dataset=dataset,
         documents=documents,
-        llm_model=llm_model,
+        llm_provider=resolved_provider_name,
+        llm_model=resolved_model_name,
+        llm_base_url=llm_base_url,
         llm_seed=llm_seed,
         llm_mode=llm_mode,
         llm_internal_mode=llm_internal_mode,
@@ -670,7 +711,9 @@ def _build_benchmark_payload(
     test_path: Path,
     dataset: str,
     documents: list[dict[str, Any]],
+    llm_provider: str | None,
     llm_model: str,
+    llm_base_url: str | None,
     llm_seed: int | None,
     llm_mode: str,
     llm_internal_mode: str,
@@ -693,7 +736,9 @@ def _build_benchmark_payload(
         "test_file": str(test_path),
         "dataset": dataset,
         "cases": len(documents),
+        "llm_provider": llm_provider,
         "llm_model": llm_model,
+        "llm_base_url": llm_base_url,
         "llm_seed": llm_seed,
         "llm_mode": llm_mode,
         "llm_internal_mode": llm_internal_mode,

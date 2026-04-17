@@ -542,11 +542,17 @@ class TwoPhaseLLMPipeline:
         return LLMExtractionResult(
             terms=self._deduplicate_terms(resolved_terms),
             meta=LLMMeta(
+                llm_provider=config.provider,
                 llm_model=config.model,
                 llm_mode=config.mode,
                 prompt_version=prompt_version,
                 token_input=prompt_tokens_total,
                 token_output=completion_tokens_total,
+                token_count_source=getattr(
+                    self.provider,
+                    "token_count_source",
+                    None,
+                ),
                 token_usage=token_usage_total,
                 request_count=request_count_total,
                 phase_timings=phase_timings,

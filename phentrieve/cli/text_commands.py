@@ -378,6 +378,20 @@ def process_text_for_hpo_command(
             help="LLM model for full-text extraction.",
         ),
     ] = None,
+    llm_provider: Annotated[
+        str | None,
+        typer.Option(
+            "--llm-provider",
+            help="LLM provider for full-text extraction.",
+        ),
+    ] = None,
+    llm_base_url: Annotated[
+        str | None,
+        typer.Option(
+            "--llm-base-url",
+            help="Optional LLM provider base URL.",
+        ),
+    ] = None,
     llm_mode: Annotated[
         Literal["two_phase"],
         typer.Option(
@@ -620,7 +634,9 @@ def process_text_for_hpo_command(
             text=raw_text,
             extraction_backend=extraction_backend,
             language=language,
+            llm_provider=llm_provider,
             llm_model=llm_model,
+            llm_base_url=llm_base_url,
             llm_mode=llm_mode,
             llm_internal_mode=llm_internal_mode,
             chunking_pipeline_config=chunking_pipeline_config,

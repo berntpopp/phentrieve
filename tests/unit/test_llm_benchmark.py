@@ -192,6 +192,59 @@ def test_run_llm_benchmark_cli_sets_up_logging(tmp_path, mocker, monkeypatch):
     assert output_path.exists()
 
 
+def test_run_llm_benchmark_passes_provider_to_factory(monkeypatch) -> None:
+    captured: dict[str, object] = {}
+
+    def fake_load_benchmark_data(test_path: Path, dataset: str):
+        return {
+            "metadata": {"dataset_name": f"phenobert_{dataset}"},
+            "documents": [
+                {
+                    "id": "doc-1",
+                    "text": "Clinical text",
+                    "gold_hpo_terms": [],
+                    "source_dataset": "GeneReviews",
+                }
+            ],
+        }
+
+    class _FakeProvider:
+        provider_name = "ollama"
+        model_name = "qwen3.5:35b"
+
+    class _FakePipeline:
+        def __init__(self, provider):
+            self.provider = provider
+
+        def run(self, *, text, grounded_chunks, config):
+            from phentrieve.llm.types import LLMExtractionResult, LLMMeta
+
+            return LLMExtractionResult(
+                terms=[],
+                meta=LLMMeta(
+                    llm_provider=config.provider,
+                    llm_model=config.model,
+                    llm_mode=config.mode,
+                ),
+            )
+
+    def fake_get_llm_provider(**kwargs):
+        captured.update(kwargs)
+        return _FakeProvider()
+
+    monkeypatch.setattr(llm_benchmark, "load_benchmark_data", fake_load_benchmark_data)
+    monkeypatch.setattr(llm_benchmark, "get_llm_provider", fake_get_llm_provider)
+    monkeypatch.setattr(llm_benchmark, "TwoPhaseLLMPipeline", _FakePipeline)
+
+    llm_benchmark.run_llm_benchmark(
+        test_file="tests/data/en/phenobert",
+        llm_provider="ollama",
+        llm_model="qwen3.5:35b",
+    )
+
+    assert captured["llm_provider"] == "ollama"
+
+
 def test_run_llm_benchmark_returns_benchmark_grade_metadata(monkeypatch):
     captured: dict[str, object] = {}
 

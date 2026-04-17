@@ -355,11 +355,13 @@ def run_standard_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
 
 def run_llm_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
     """Run the shared LLM backend through the full-text service boundary."""
+    llm_provider = kwargs.get("llm_provider") or os.getenv("PHENTRIEVE_LLM_PROVIDER")
     llm_model = (
         kwargs.get("llm_model")
         or os.getenv("PHENTRIEVE_LLM_MODEL")
         or DEFAULT_LLM_MODEL
     )
+    llm_base_url = kwargs.get("llm_base_url") or os.getenv("PHENTRIEVE_LLM_BASE_URL")
 
     llm_mode = (kwargs.get("llm_mode") or "two_phase").strip()
     if llm_mode != DEFAULT_LLM_MODE:
@@ -387,7 +389,11 @@ def run_llm_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
         len(text),
     )
 
-    provider = provider_factory(llm_model=llm_model)
+    provider = provider_factory(
+        llm_model=llm_model,
+        llm_provider=llm_provider,
+        llm_base_url=llm_base_url,
+    )
     extraction_prompt = get_prompt(
         AnnotationMode.TWO_PHASE,
         kwargs.get("language") or DEFAULT_LANGUAGE,
@@ -478,11 +484,21 @@ def run_llm_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
             logger.debug("Provider does not support token preflight counting")
 
     pipeline = pipeline_factory(provider=provider)
+    resolved_provider_name = getattr(provider, "provider_name", None)
+    if not isinstance(resolved_provider_name, str) or not resolved_provider_name:
+        resolved_provider_name = llm_provider or "gemini"
+
+    resolved_model_name = getattr(provider, "model_name", None)
+    if not isinstance(resolved_model_name, str) or not resolved_model_name:
+        resolved_model_name = llm_model
+
     pipeline_kwargs: dict[str, Any] = {
         "text": text,
         "grounded_chunks": grounded_chunks,
         "config": LLMPipelineConfig(
-            model=llm_model,
+            provider=resolved_provider_name,
+            model=resolved_model_name,
+            base_url=llm_base_url,
             mode=llm_mode,
             language=kwargs.get("language"),
         ),
@@ -497,6 +513,7 @@ def run_llm_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
     result_payload = {
         "meta": {
             "extraction_backend": "llm",
+            "llm_provider": result.meta.llm_provider,
             "llm_model": result.meta.llm_model,
             "llm_mode": result.meta.llm_mode,
             "llm_internal_mode": llm_internal_mode,
