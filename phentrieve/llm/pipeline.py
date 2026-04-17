@@ -4,6 +4,7 @@ import json
 import logging
 import re
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Any
 
 from phentrieve.llm.config import (
@@ -622,32 +623,82 @@ class TwoPhaseLLMPipeline:
         phase1_groups_trace: list[dict[str, Any]] = []
         chunk_lookup = {chunk["chunk_id"]: chunk for chunk in grounded_chunks}
         phase1_started = time.perf_counter()
-
-        for group in extraction_groups:
-            group_chunk_ids = [int(chunk_id) for chunk_id in group.get("chunk_ids", [])]
-            group_grounded_chunks = [
-                chunk_lookup[chunk_id]
-                for chunk_id in group_chunk_ids
-                if chunk_id in chunk_lookup
+        indexed_groups = [
+            {"group_index": index, **dict(group)}
+            for index, group in enumerate(extraction_groups)
+        ]
+        indexed_results: list[
+            tuple[
+                int,
+                dict[str, Any],
+                list[dict[str, Any]] | None,
+                dict[str, int] | None,
+                int,
+                float,
+                LLMPipelinePhaseError | None,
             ]
-            group_started = time.perf_counter()
-            try:
-                group_extracted, group_usage = self._extract_phase1_phenotypes(
+        ] = []
+        max_workers = min(len(indexed_groups), 2) or 1
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            futures = {
+                executor.submit(
+                    self._run_phase1_group,
+                    extraction_group=group,
                     text=text,
-                    grounded_chunks=group_grounded_chunks,
-                    chunk_index_text=_render_group_chunk_index_text(
-                        group=group,
-                        grounded_chunks=group_grounded_chunks,
-                    ),
                     extraction_prompt=extraction_prompt,
-                )
-            except LLMPipelinePhaseError as exc:
-                group_elapsed = round(time.perf_counter() - group_started, 6)
+                    chunk_lookup=chunk_lookup,
+                ): group
+                for group in indexed_groups
+            }
+            for future in as_completed(futures):
+                group = futures[future]
+                group_index = int(group.get("group_index", 0))
+                group_started = time.perf_counter()
+                try:
+                    group_extracted, group_usage, group_request_count = future.result()
+                    indexed_results.append(
+                        (
+                            group_index,
+                            group,
+                            group_extracted,
+                            group_usage,
+                            group_request_count,
+                            0.0,
+                            None,
+                        )
+                    )
+                except LLMPipelinePhaseError as exc:
+                    group_elapsed = round(time.perf_counter() - group_started, 6)
+                    indexed_results.append(
+                        (
+                            group_index,
+                            group,
+                            None,
+                            None,
+                            0,
+                            group_elapsed,
+                            exc,
+                        )
+                    )
+
+        indexed_results.sort(key=lambda item: item[0])
+
+        for (
+            _group_index,
+            group,
+            group_extracted,
+            group_usage,
+            group_request_count,
+            group_elapsed,
+            group_error,
+        ) in indexed_results:
+            group_chunk_ids = [int(chunk_id) for chunk_id in group.get("chunk_ids", [])]
+            if group_error is not None:
                 logger.warning(
                     "Continuing after grouped phase 1 failure: group_id=%s chunk_ids=%s error=%s",
                     group.get("group_id"),
                     group_chunk_ids,
-                    str(exc),
+                    str(group_error),
                 )
                 phase1_groups_trace.append(
                     {
@@ -655,8 +706,8 @@ class TwoPhaseLLMPipeline:
                         "chunk_ids": group_chunk_ids,
                         "source_chunk_ids": group_chunk_ids,
                         "status": "failed",
-                        "error": str(exc),
-                        "error_type": type(exc).__name__,
+                        "error": str(group_error),
+                        "error_type": type(group_error).__name__,
                         "extracted_count": 0,
                         "extracted": [],
                         "elapsed_seconds": group_elapsed,
@@ -664,11 +715,8 @@ class TwoPhaseLLMPipeline:
                 )
                 continue
 
-            group_elapsed = round(time.perf_counter() - group_started, 6)
-            group_request_count = int(
-                getattr(self.provider, "last_request_count", 0) or 0
-            )
-
+            assert group_extracted is not None
+            assert group_usage is not None
             prompt_tokens_total += int(group_usage.get("prompt_tokens", 0) or 0)
             completion_tokens_total += int(group_usage.get("completion_tokens", 0) or 0)
             total_request_count += group_request_count
@@ -723,6 +771,34 @@ class TwoPhaseLLMPipeline:
             round(time.perf_counter() - phase1_started, 6),
             phase1_groups_trace,
         )
+
+    def _run_phase1_group(
+        self,
+        *,
+        extraction_group: dict[str, Any],
+        text: str,
+        extraction_prompt: PromptTemplate,
+        chunk_lookup: dict[int, dict[str, Any]],
+    ) -> tuple[list[dict[str, Any]], dict[str, int], int]:
+        group_chunk_ids = [
+            int(chunk_id) for chunk_id in extraction_group.get("chunk_ids", [])
+        ]
+        group_grounded_chunks = [
+            chunk_lookup[chunk_id]
+            for chunk_id in group_chunk_ids
+            if chunk_id in chunk_lookup
+        ]
+        group_extracted, group_usage = self._extract_phase1_phenotypes(
+            text=text,
+            grounded_chunks=group_grounded_chunks,
+            chunk_index_text=_render_group_chunk_index_text(
+                group=extraction_group,
+                grounded_chunks=group_grounded_chunks,
+            ),
+            extraction_prompt=extraction_prompt,
+        )
+        group_request_count = int(getattr(self.provider, "last_request_count", 0) or 0)
+        return group_extracted, group_usage, group_request_count
 
     def _retrieve_candidates(
         self,
