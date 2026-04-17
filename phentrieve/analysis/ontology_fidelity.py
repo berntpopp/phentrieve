@@ -287,6 +287,45 @@ def _resnik_top_k(
     return [c for _, c in scored[:k]]
 
 
+def branch_knn_purity(
+    term_ids: list[str],
+    embeddings: np.ndarray,
+    branch_map: dict[str, str | None],
+    k: int = 10,
+) -> dict:
+    """Mean per-term branch purity over the embedding k-NN.
+
+    Terms whose branch is None (i.e. the HPO root) are excluded from both the
+    per-branch breakdown and the overall mean.
+
+    Returns {'overall': float, 'per_branch': {branch_id: float}, 'n_evaluated': int}.
+    """
+    if k < 1:
+        raise ValueError("k must be >= 1")
+    nn_idx = _embedding_knn(embeddings, k)
+
+    per_branch_scores: dict[str, list[float]] = {}
+    all_scores: list[float] = []
+
+    for i, query in enumerate(term_ids):
+        query_branch = branch_map.get(query)
+        if query_branch is None:
+            continue
+        neighbor_branches = [branch_map.get(term_ids[j]) for j in nn_idx[i]]
+        matches = sum(1 for nb in neighbor_branches if nb == query_branch)
+        score = matches / k
+        all_scores.append(score)
+        per_branch_scores.setdefault(query_branch, []).append(score)
+
+    overall = float(np.mean(all_scores)) if all_scores else float("nan")
+    per_branch = {b: float(np.mean(s)) for b, s in per_branch_scores.items()}
+    return {
+        "overall": overall,
+        "per_branch": per_branch,
+        "n_evaluated": len(all_scores),
+    }
+
+
 def per_term_fidelity(
     term_ids: list[str],
     embeddings: np.ndarray,

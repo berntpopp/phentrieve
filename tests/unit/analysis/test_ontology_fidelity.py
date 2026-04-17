@@ -389,3 +389,37 @@ def test_per_term_fidelity_identical_embeddings_yields_uniform_baseline():
     rows = per_term_fidelity(term_ids, embeddings, ancestors, descendants, ic, k=2)
     for row in rows:
         assert row["fidelity"] == pytest.approx(1.0)
+
+
+def test_branch_knn_purity_monocluster_equals_one():
+    import numpy as np
+
+    from phentrieve.analysis.ontology_fidelity import branch_knn_purity
+
+    term_ids = ["HP:0010", "HP:0011", "HP:0012"]
+    branch_map = {"HP:0010": "HP:0001", "HP:0011": "HP:0001", "HP:0012": "HP:0001"}
+    # All identical embeddings -> every neighbor in the same branch.
+    embeddings = np.ones((3, 4), dtype=np.float32)
+    result = branch_knn_purity(term_ids, embeddings, branch_map, k=2)
+    assert result["overall"] == pytest.approx(1.0)
+    assert result["per_branch"]["HP:0001"] == pytest.approx(1.0)
+
+
+def test_branch_knn_purity_excludes_root_from_denominator():
+    """Terms whose branch is None (the HPO root) must not appear in per_branch
+    totals and must not contribute to the overall mean."""
+    import numpy as np
+
+    from phentrieve.analysis.ontology_fidelity import branch_knn_purity
+
+    term_ids = ["HP:0000001", "HP:0010", "HP:0011"]
+    branch_map = {"HP:0000001": None, "HP:0010": "HP:0001", "HP:0011": "HP:0001"}
+    embeddings = np.array([[0.0, 0.0], [1.0, 0.0], [1.0, 0.0]], dtype=np.float32)
+    result = branch_knn_purity(term_ids, embeddings, branch_map, k=1)
+    assert "HP:0001" in result["per_branch"]
+    assert None not in result["per_branch"]
+    # HP:0010's 1-NN is HP:0011 (same branch) -> purity 1.0.
+    # HP:0011's 1-NN is HP:0010 (same branch) -> purity 1.0.
+    # HP:0000001 excluded from denominator.
+    assert result["overall"] == pytest.approx(1.0)
+    assert result["n_evaluated"] == 2
