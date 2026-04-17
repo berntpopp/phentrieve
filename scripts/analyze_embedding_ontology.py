@@ -509,6 +509,99 @@ def plot_branch_fidelity(
     plt.close(fig)
 
 
+def plot_umap_interactive(
+    out_path: Path,
+    coords: np.ndarray,
+    aligned_terms: list[dict],
+    branch_info: dict[str, tuple[str | None, frozenset[str]]],
+    fidelity_by_id: dict[str, float],
+) -> None:
+    """Single HTML with two traces (branch + fidelity) toggled by legend groups."""
+    import plotly.graph_objects as go
+
+    ids = [t["id"] for t in aligned_terms]
+    labels = [t.get("label", "") for t in aligned_terms]
+    defs = [t.get("definition", "") or "" for t in aligned_terms]
+    branches = [branch_info[t["id"]][0] or "ROOT" for t in aligned_terms]
+    fid = [fidelity_by_id.get(t["id"], float("nan")) for t in aligned_terms]
+
+    hover = [
+        f"<b>{hid}</b><br>{lab}<br>branch: {br}<br>fidelity: {f:.3f}<br>{d[:160]}"
+        for hid, lab, br, f, d in zip(ids, labels, branches, fid, defs, strict=False)
+    ]
+
+    unique_branches = sorted(set(branches))
+    branch_to_color = {b: i for i, b in enumerate(unique_branches)}
+    branch_colors = [branch_to_color[b] for b in branches]
+
+    fig = go.Figure()
+    fig.add_trace(
+        go.Scattergl(
+            x=coords[:, 0],
+            y=coords[:, 1],
+            mode="markers",
+            marker={
+                "size": 5,
+                "color": branch_colors,
+                "colorscale": "Viridis",
+                "showscale": False,
+                "opacity": 0.8,
+            },
+            text=hover,
+            hoverinfo="text",
+            name="by branch",
+            visible=True,
+        )
+    )
+    fig.add_trace(
+        go.Scattergl(
+            x=coords[:, 0],
+            y=coords[:, 1],
+            mode="markers",
+            marker={
+                "size": 5,
+                "color": fid,
+                "colorscale": "RdBu",
+                "cmin": 0.0,
+                "cmax": 1.0,
+                "showscale": True,
+                "colorbar": {"title": "fidelity"},
+                "opacity": 0.85,
+            },
+            text=hover,
+            hoverinfo="text",
+            name="by fidelity",
+            visible=False,
+        )
+    )
+    fig.update_layout(
+        title="HPO embedding UMAP — interactive",
+        xaxis_title="UMAP 1",
+        yaxis_title="UMAP 2",
+        updatemenus=[
+            {
+                "type": "buttons",
+                "direction": "right",
+                "x": 0.0,
+                "y": 1.08,
+                "buttons": [
+                    {
+                        "label": "by branch",
+                        "method": "update",
+                        "args": [{"visible": [True, False]}],
+                    },
+                    {
+                        "label": "by fidelity",
+                        "method": "update",
+                        "args": [{"visible": [False, True]}],
+                    },
+                ],
+            }
+        ],
+    )
+    fig.write_html(out_path, include_plotlyjs="cdn", full_html=True)
+
+
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
     setup_logging(args.log_level)
@@ -625,6 +718,25 @@ def main(argv: list[str] | None = None) -> int:
         branch_info,
     )
     logger.info("Static plots written.")
+
+    if not args.skip_interactive:
+        try:
+            plot_umap_interactive(
+                out_root / "umap_interactive.html",
+                coords,
+                aligned_terms,
+                branch_info,
+                fidelity_by_id,
+            )
+            logger.info("Interactive HTML written.")
+        except ImportError:
+            logger.error(
+                "plotly not installed. Install with: uv sync --extra analysis  "
+                "(or pass --skip-interactive to skip this output)."
+            )
+            return 1
+    else:
+        logger.info("Skipping interactive HTML (--skip-interactive).")
     return 0
 
 
