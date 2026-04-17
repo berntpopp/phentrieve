@@ -1627,6 +1627,101 @@ def test_two_phase_pipeline_preserves_evidence_records_for_local_matches() -> No
     ]
 
 
+def test_two_phase_pipeline_routes_high_confidence_english_match_locally() -> None:
+    pipeline = TwoPhaseLLMPipeline(
+        provider=FakeProvider(responses=[]),
+        tool_executor=FakeToolExecutor(batch_results=[]),
+    )
+    item = {
+        "phrase": "scoliosis",
+        "category": "Abnormal",
+        "candidates": [
+            {"hpo_id": "HP:0002650", "term_name": "Scoliosis", "score": 0.97},
+            {"hpo_id": "HP:0000001", "term_name": "All", "score": 0.21},
+        ],
+        "grounded_context": {
+            "chunk_ids": [1],
+            "primary_chunk_text": "scoliosis",
+            "neighbor_chunk_texts": [],
+        },
+        "chunk_ids": [1],
+        "evidence_text": "scoliosis",
+    }
+
+    resolved, unresolved, counts = pipeline._route_phase2_candidates(
+        phrase_candidates=[item],
+        language="en",
+    )
+
+    assert [term.term_id for term in resolved] == ["HP:0002650"]
+    assert unresolved == []
+    assert counts["phase2b_local_accept_count"] == 1
+    assert counts["phase2b_deferred_count"] == 0
+
+
+def test_two_phase_pipeline_keeps_german_substring_match_deferred() -> None:
+    pipeline = TwoPhaseLLMPipeline(
+        provider=FakeProvider(responses=[]),
+        tool_executor=FakeToolExecutor(batch_results=[]),
+    )
+    item = {
+        "phrase": "deutliche skoliose der wirbelsaeule",
+        "category": "Abnormal",
+        "candidates": [
+            {"hpo_id": "HP:0002650", "term_name": "Skoliose", "score": 0.89},
+            {"hpo_id": "HP:0001627", "term_name": "Myokarditis", "score": 0.62},
+        ],
+        "grounded_context": {
+            "chunk_ids": [1],
+            "primary_chunk_text": "deutliche skoliose der wirbelsaeule",
+            "neighbor_chunk_texts": [],
+        },
+        "chunk_ids": [1],
+        "evidence_text": "deutliche skoliose der wirbelsaeule",
+    }
+
+    resolved, unresolved, counts = pipeline._route_phase2_candidates(
+        phrase_candidates=[item],
+        language="de",
+    )
+
+    assert resolved == []
+    assert len(unresolved) == 1
+    assert counts["phase2b_local_accept_count"] == 0
+    assert counts["phase2b_deferred_count"] == 1
+
+
+def test_two_phase_pipeline_tracks_no_candidate_skip_in_phase2_routing() -> None:
+    pipeline = TwoPhaseLLMPipeline(
+        provider=FakeProvider(responses=[]),
+        tool_executor=FakeToolExecutor(batch_results=[]),
+    )
+
+    resolved, unresolved, counts = pipeline._route_phase2_candidates(
+        phrase_candidates=[
+            {
+                "phrase": "scoliosis",
+                "category": "Abnormal",
+                "candidates": [],
+                "grounded_context": {
+                    "chunk_ids": [1],
+                    "primary_chunk_text": "scoliosis",
+                    "neighbor_chunk_texts": [],
+                },
+                "chunk_ids": [1],
+                "evidence_text": "scoliosis",
+            }
+        ],
+        language="en",
+    )
+
+    assert resolved == []
+    assert unresolved == []
+    assert counts["phase2b_local_accept_count"] == 0
+    assert counts["phase2b_deferred_count"] == 0
+    assert counts["phase2b_no_candidate_skip_count"] == 1
+
+
 def test_two_phase_pipeline_batches_unresolved_phrase_mapping_calls():
     provider = FakeProvider(
         responses=[
