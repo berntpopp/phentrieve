@@ -94,10 +94,19 @@ def _pipeline_run_supports_extraction_groups(pipeline: Any) -> bool:
     return "extraction_groups" in signature.parameters
 
 
+def _provider_factory_supports_seed(provider_factory: Any) -> bool:
+    try:
+        signature = inspect.signature(provider_factory)
+    except (TypeError, ValueError):
+        return False
+    return "seed" in signature.parameters
+
+
 def run_llm_benchmark(
     *,
     test_file: str,
     llm_model: str,
+    llm_seed: int | None = None,
     llm_mode: str = DEFAULT_LLM_BENCHMARK_MODE,
     llm_internal_mode: str = "whole_document_grounded",
     dataset: str = DEFAULT_LLM_BENCHMARK_DATASET,
@@ -106,6 +115,7 @@ def run_llm_benchmark(
     prompt_templates_dir: str | None = None,
     input_cost_per_1m_tokens: float | None = None,
     output_cost_per_1m_tokens: float | None = None,
+    cached_input_cost_per_1m_tokens: float | None = None,
     checkpoint_state: dict[str, Any] | None = None,
     progress_callback: Callable[[dict[str, Any]], None] | None = None,
 ) -> dict[str, Any]:
@@ -153,7 +163,10 @@ def run_llm_benchmark(
         len(documents),
         test_data.get("metadata", {}).get("dataset_name", test_path.stem),
     )
-    provider = get_llm_provider(llm_model=llm_model)
+    if _provider_factory_supports_seed(get_llm_provider):
+        provider = get_llm_provider(llm_model=llm_model, seed=llm_seed)
+    else:
+        provider = get_llm_provider(llm_model=llm_model)
     logger.debug(
         "Initialized benchmark pipeline for model=%s mode=%s",
         llm_model,
@@ -190,6 +203,7 @@ def run_llm_benchmark(
             model=llm_model,
             mode=llm_mode,
             language=language,
+            seed=llm_seed,
         )
         if len(completed_case_indexes) < len(documents) and hasattr(pipeline, "warmup"):
             logger.info("Benchmark warmup start: language=%s", language)
@@ -335,18 +349,19 @@ def run_llm_benchmark(
                 )
                 continue
             doc_elapsed = time.perf_counter() - doc_start_time
-            prompt_tokens = int(pipeline_result.meta.token_input or 0)
-            completion_tokens = int(pipeline_result.meta.token_output or 0)
-            total_tokens = prompt_tokens + completion_tokens
-            request_count = int(pipeline_result.meta.request_count or 0)
+            token_usage = _normalize_token_usage(pipeline_result.meta)
+            prompt_tokens = int(token_usage.get("prompt_tokens", 0) or 0)
+            completion_tokens = int(token_usage.get("completion_tokens", 0) or 0)
+            total_tokens = int(token_usage.get("total_tokens", 0) or 0)
+            request_count = int(token_usage.get("api_calls", 0) or 0)
             total_prompt_tokens += prompt_tokens
             total_completion_tokens += completion_tokens
             total_api_calls += request_count
             estimated_cost = _estimate_cost(
-                prompt_tokens=prompt_tokens,
-                completion_tokens=completion_tokens,
+                token_usage=token_usage,
                 input_cost_per_1m_tokens=input_cost_per_1m_tokens,
                 output_cost_per_1m_tokens=output_cost_per_1m_tokens,
+                cached_input_cost_per_1m_tokens=cached_input_cost_per_1m_tokens,
             )
 
             predicted_terms = _serialize_predicted_terms(
@@ -383,12 +398,7 @@ def run_llm_benchmark(
                 ),
                 "predicted_terms": predicted_terms,
                 "timing_seconds": round(doc_elapsed, 6),
-                "token_usage": {
-                    "prompt_tokens": prompt_tokens,
-                    "completion_tokens": completion_tokens,
-                    "total_tokens": total_tokens,
-                    "api_calls": request_count,
-                },
+                "token_usage": token_usage,
                 "partial_failure_counts": {
                     "phase1_completed_groups": int(
                         pipeline_result.meta.phase_counts.get(
@@ -457,6 +467,7 @@ def run_llm_benchmark(
                         dataset=dataset,
                         documents=documents,
                         llm_model=llm_model,
+                        llm_seed=llm_seed,
                         llm_mode=llm_mode,
                         llm_internal_mode=llm_internal_mode,
                         language=language,
@@ -468,10 +479,12 @@ def run_llm_benchmark(
                         wall_clock_seconds=prior_wall_clock_seconds
                         + (time.perf_counter() - benchmark_start_time),
                         estimated_cost=_estimate_cost(
-                            prompt_tokens=total_prompt_tokens,
-                            completion_tokens=total_completion_tokens,
+                            token_usage=_sum_token_usage(results),
                             input_cost_per_1m_tokens=input_cost_per_1m_tokens,
                             output_cost_per_1m_tokens=output_cost_per_1m_tokens,
+                            cached_input_cost_per_1m_tokens=(
+                                cached_input_cost_per_1m_tokens
+                            ),
                         ),
                         requested_doc_ids=doc_ids,
                         results=results,
@@ -493,6 +506,7 @@ def run_llm_benchmark(
         dataset=dataset,
         documents=documents,
         llm_model=llm_model,
+        llm_seed=llm_seed,
         llm_mode=llm_mode,
         llm_internal_mode=llm_internal_mode,
         language=language,
@@ -503,10 +517,10 @@ def run_llm_benchmark(
         total_api_calls=total_api_calls,
         wall_clock_seconds=wall_clock_seconds,
         estimated_cost=_estimate_cost(
-            prompt_tokens=total_prompt_tokens,
-            completion_tokens=total_completion_tokens,
+            token_usage=_sum_token_usage(results),
             input_cost_per_1m_tokens=input_cost_per_1m_tokens,
             output_cost_per_1m_tokens=output_cost_per_1m_tokens,
+            cached_input_cost_per_1m_tokens=cached_input_cost_per_1m_tokens,
         ),
         requested_doc_ids=doc_ids,
         results=results,
@@ -593,6 +607,7 @@ def _restore_checkpoint_state(
             )
         )
 
+    restored_usage = _sum_token_usage(restored_results)
     return {
         "assertion_results": assertion_results,
         "id_only_results": id_only_results,
@@ -602,18 +617,9 @@ def _restore_checkpoint_state(
             for record in raw_prediction_records
             if isinstance(record, dict) and _checkpoint_record_is_reusable(record)
         ],
-        "total_prompt_tokens": sum(
-            int(record.get("token_usage", {}).get("prompt_tokens", 0) or 0)
-            for record in restored_results
-        ),
-        "total_completion_tokens": sum(
-            int(record.get("token_usage", {}).get("completion_tokens", 0) or 0)
-            for record in restored_results
-        ),
-        "total_api_calls": sum(
-            int(record.get("token_usage", {}).get("api_calls", 0) or 0)
-            for record in restored_results
-        ),
+        "total_prompt_tokens": int(restored_usage.get("prompt_tokens", 0) or 0),
+        "total_completion_tokens": int(restored_usage.get("completion_tokens", 0) or 0),
+        "total_api_calls": int(restored_usage.get("api_calls", 0) or 0),
         "wall_clock_seconds": float(
             checkpoint_state.get("timing_breakdown", {}).get("wall_clock_seconds", 0.0)
             or 0.0
@@ -622,12 +628,51 @@ def _restore_checkpoint_state(
     }
 
 
+def _normalize_token_usage(meta: Any) -> dict[str, int]:
+    usage = dict(getattr(meta, "token_usage", {}) or {})
+    if not usage:
+        prompt_tokens = int(getattr(meta, "token_input", 0) or 0)
+        completion_tokens = int(getattr(meta, "token_output", 0) or 0)
+        usage = {
+            "prompt_tokens": prompt_tokens,
+            "completion_tokens": completion_tokens,
+            "total_tokens": prompt_tokens + completion_tokens,
+            "api_calls": int(getattr(meta, "request_count", 0) or 0),
+        }
+    usage.setdefault("prompt_tokens", int(getattr(meta, "token_input", 0) or 0))
+    usage.setdefault("completion_tokens", int(getattr(meta, "token_output", 0) or 0))
+    usage.setdefault(
+        "total_tokens",
+        int(usage.get("prompt_tokens", 0) or 0)
+        + int(usage.get("completion_tokens", 0) or 0),
+    )
+    usage.setdefault("api_calls", int(getattr(meta, "request_count", 0) or 0))
+    return {key: int(value or 0) for key, value in usage.items()}
+
+
+def _sum_token_usage(records: list[dict[str, Any]]) -> dict[str, int]:
+    totals = {
+        "prompt_tokens": 0,
+        "completion_tokens": 0,
+        "total_tokens": 0,
+        "api_calls": 0,
+    }
+    for record in records:
+        token_usage = record.get("token_usage", {})
+        if not isinstance(token_usage, dict):
+            continue
+        for key, value in token_usage.items():
+            totals[key] = int(totals.get(key, 0) or 0) + int(value or 0)
+    return totals
+
+
 def _build_benchmark_payload(
     *,
     test_path: Path,
     dataset: str,
     documents: list[dict[str, Any]],
     llm_model: str,
+    llm_seed: int | None,
     llm_mode: str,
     llm_internal_mode: str,
     language: str,
@@ -650,6 +695,7 @@ def _build_benchmark_payload(
         "dataset": dataset,
         "cases": len(documents),
         "llm_model": llm_model,
+        "llm_seed": llm_seed,
         "llm_mode": llm_mode,
         "llm_internal_mode": llm_internal_mode,
         "language": language,
@@ -657,9 +703,9 @@ def _build_benchmark_payload(
         "requested_doc_ids": list(requested_doc_ids) if requested_doc_ids else None,
         "dataset_metadata": dataset_metadata,
         "token_usage": {
+            **_sum_token_usage(results),
             "prompt_tokens": total_prompt_tokens,
             "completion_tokens": total_completion_tokens,
-            "total_tokens": total_prompt_tokens + total_completion_tokens,
             "api_calls": total_api_calls,
         },
         "timing_breakdown": {
@@ -712,20 +758,38 @@ def _temporary_prompt_templates_dir(prompt_templates_dir: str | None):
 
 def _estimate_cost(
     *,
-    prompt_tokens: int,
-    completion_tokens: int,
+    token_usage: dict[str, int],
     input_cost_per_1m_tokens: float | None,
     output_cost_per_1m_tokens: float | None,
-) -> dict[str, float] | None:
+    cached_input_cost_per_1m_tokens: float | None = None,
+) -> dict[str, float | int] | None:
     if input_cost_per_1m_tokens is None or output_cost_per_1m_tokens is None:
         return None
 
-    input_cost = prompt_tokens / 1_000_000 * input_cost_per_1m_tokens
-    output_cost = completion_tokens / 1_000_000 * output_cost_per_1m_tokens
+    prompt_tokens = int(token_usage.get("prompt_tokens", 0) or 0)
+    completion_tokens = int(token_usage.get("completion_tokens", 0) or 0)
+    thoughts_tokens = int(token_usage.get("thoughts_tokens", 0) or 0)
+    cached_content_tokens = int(token_usage.get("cached_content_tokens", 0) or 0)
+
+    billable_cached_tokens = min(prompt_tokens, max(cached_content_tokens, 0))
+    billable_input_tokens = max(prompt_tokens - billable_cached_tokens, 0)
+    billable_output_tokens = max(completion_tokens + thoughts_tokens, 0)
+
+    input_cost = billable_input_tokens / 1_000_000 * input_cost_per_1m_tokens
+    cached_input_cost = 0.0
+    if cached_input_cost_per_1m_tokens is not None:
+        cached_input_cost = (
+            billable_cached_tokens / 1_000_000 * cached_input_cost_per_1m_tokens
+        )
+    output_cost = billable_output_tokens / 1_000_000 * output_cost_per_1m_tokens
     return {
         "input_cost": round(input_cost, 8),
+        "cached_input_cost": round(cached_input_cost, 8),
         "output_cost": round(output_cost, 8),
-        "total_cost": round(input_cost + output_cost, 8),
+        "total_cost": round(input_cost + cached_input_cost + output_cost, 8),
+        "billable_input_tokens": billable_input_tokens,
+        "billable_cached_tokens": billable_cached_tokens,
+        "billable_output_tokens": billable_output_tokens,
     }
 
 
@@ -743,13 +807,11 @@ def _build_prediction_record(
     estimated_cost: dict[str, float] | None,
     dataset: str,
 ) -> dict[str, Any]:
-    prompt_tokens = int(pipeline_result.meta.token_input or 0)
-    completion_tokens = int(pipeline_result.meta.token_output or 0)
-    total_tokens = prompt_tokens + completion_tokens
+    token_usage = _normalize_token_usage(pipeline_result.meta)
     phase_timings = dict(pipeline_result.meta.phase_timings)
     phase_counts = dict(pipeline_result.meta.phase_counts)
     phase_request_counts = dict(pipeline_result.meta.phase_request_counts)
-    request_count = int(pipeline_result.meta.request_count or 0)
+    request_count = int(token_usage.get("api_calls", 0) or 0)
     final_annotations = [
         {
             "term_id": term.term_id,
@@ -791,14 +853,10 @@ def _build_prediction_record(
         "metadata": {
             "model": config.model,
             "mode": config.mode,
+            "seed": config.seed,
             "prompt_version": pipeline_result.meta.prompt_version,
             "prompt_templates_dir": prompt_templates_dir,
-            "token_usage": {
-                "prompt_tokens": prompt_tokens,
-                "completion_tokens": completion_tokens,
-                "total_tokens": total_tokens,
-                "api_calls": request_count,
-            },
+            "token_usage": token_usage,
             "processing_time_seconds": round(processing_time_seconds, 6),
             "timing_breakdown": {
                 "total_seconds": round(processing_time_seconds, 6),

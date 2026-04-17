@@ -98,6 +98,7 @@ class GeminiStructuredOutputProvider(LLMProvider):
         *,
         model_name: str,
         api_key: str | None = None,
+        seed: int | None = None,
         temperature: float = DEFAULT_PROVIDER_TEMPERATURE,
         max_tokens: int = DEFAULT_PROVIDER_MAX_TOKENS,
         timeout_seconds: int = DEFAULT_PROVIDER_TIMEOUT_SECONDS,
@@ -118,6 +119,7 @@ class GeminiStructuredOutputProvider(LLMProvider):
     ) -> None:
         super().__init__()
         self.model_name = model_name
+        self.seed = seed
         self.temperature = temperature
         self.max_tokens = max_tokens
         self.timeout_seconds = timeout_seconds
@@ -165,6 +167,7 @@ class GeminiStructuredOutputProvider(LLMProvider):
                 system_instruction=system_prompt,
                 temperature=self.temperature,
                 max_output_tokens=self.max_tokens,
+                seed=self.seed,
                 http_options=types.HttpOptions(timeout=self.timeout_seconds * 1000),
             ),
         )
@@ -222,6 +225,7 @@ class GeminiStructuredOutputProvider(LLMProvider):
                     response_json_schema=response_schema,
                     temperature=self.temperature,
                     max_output_tokens=output_tokens,
+                    seed=self.seed,
                     http_options=types.HttpOptions(timeout=self.timeout_seconds * 1000),
                 ),
                 structured=True,
@@ -317,6 +321,10 @@ class GeminiStructuredOutputProvider(LLMProvider):
             "prompt_tokens": int(getattr(usage, "prompt_token_count", 0) or 0),
             "completion_tokens": int(getattr(usage, "candidates_token_count", 0) or 0),
             "total_tokens": int(getattr(usage, "total_token_count", 0) or 0),
+            "thoughts_tokens": int(getattr(usage, "thoughts_token_count", 0) or 0),
+            "cached_content_tokens": int(
+                getattr(usage, "cached_content_token_count", 0) or 0
+            ),
         }
 
     @staticmethod
@@ -805,6 +813,7 @@ def get_llm_provider(
     *,
     llm_model: str,
     api_key: str | None = None,
+    seed: int | None = None,
 ) -> LLMProvider:
     resolved_provider = os.getenv("PHENTRIEVE_LLM_PROVIDER", DEFAULT_PROVIDER_NAME)
     if resolved_provider.strip().lower() != DEFAULT_PROVIDER_NAME:
@@ -818,4 +827,8 @@ def get_llm_provider(
             f"Gemini-only provider factory does not support model {llm_model!r}."
         )
 
-    return GeminiStructuredOutputProvider(model_name=llm_model, api_key=api_key)
+    return GeminiStructuredOutputProvider(
+        model_name=llm_model,
+        api_key=api_key,
+        seed=seed,
+    )

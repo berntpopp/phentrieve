@@ -234,6 +234,14 @@ def test_run_llm_benchmark_returns_benchmark_grade_metadata(monkeypatch):
                     llm_model=config.model,
                     llm_mode=config.mode,
                     prompt_version="test-v1",
+                    token_usage={
+                        "prompt_tokens": 120,
+                        "completion_tokens": 30,
+                        "total_tokens": 150,
+                        "api_calls": 4,
+                        "thoughts_tokens": 9,
+                        "cached_content_tokens": 12,
+                    },
                     token_input=120,
                     token_output=30,
                     request_count=4,
@@ -272,6 +280,8 @@ def test_run_llm_benchmark_returns_benchmark_grade_metadata(monkeypatch):
     assert result["token_usage"]["completion_tokens"] == 30
     assert result["token_usage"]["total_tokens"] == 150
     assert result["token_usage"]["api_calls"] == 4
+    assert result["token_usage"]["thoughts_tokens"] == 9
+    assert result["token_usage"]["cached_content_tokens"] == 12
     assert result["timing_breakdown"]["wall_clock_seconds"] >= 0.0
     assert result["estimated_cost"]["input_cost"] > 0.0
     assert result["estimated_cost"]["output_cost"] > 0.0
@@ -279,6 +289,10 @@ def test_run_llm_benchmark_returns_benchmark_grade_metadata(monkeypatch):
     assert (
         result["prediction_records"][0]["metadata"]["token_usage"]["total_tokens"]
         == 150
+    )
+    assert (
+        result["prediction_records"][0]["metadata"]["token_usage"]["thoughts_tokens"]
+        == 9
     )
     assert (
         result["prediction_records"][0]["metadata"]["timing_breakdown"]["total_seconds"]
@@ -294,6 +308,77 @@ def test_run_llm_benchmark_returns_benchmark_grade_metadata(monkeypatch):
         result["prediction_records"][0]["metadata"]["observability"]["request_count"]
         == 4
     )
+
+
+def test_estimate_cost_uses_cached_and_thought_tokens() -> None:
+    estimated = llm_benchmark._estimate_cost(
+        token_usage={
+            "prompt_tokens": 100,
+            "completion_tokens": 20,
+            "thoughts_tokens": 30,
+            "cached_content_tokens": 40,
+        },
+        input_cost_per_1m_tokens=1.0,
+        output_cost_per_1m_tokens=2.0,
+        cached_input_cost_per_1m_tokens=0.5,
+    )
+
+    assert estimated == {
+        "input_cost": 0.00006,
+        "cached_input_cost": 0.00002,
+        "output_cost": 0.0001,
+        "total_cost": 0.00018,
+        "billable_input_tokens": 60,
+        "billable_cached_tokens": 40,
+        "billable_output_tokens": 50,
+    }
+
+
+def test_run_llm_benchmark_passes_seed_to_provider(monkeypatch):
+    captured: dict[str, object] = {}
+
+    def fake_load_benchmark_data(test_path: Path, dataset: str):
+        return {
+            "metadata": {"dataset_name": f"phenobert_{dataset}"},
+            "documents": [
+                {
+                    "id": "doc-1",
+                    "text": "Clinical text",
+                    "gold_hpo_terms": [],
+                    "source_dataset": "GeneReviews",
+                }
+            ],
+        }
+
+    class _FakePipeline:
+        def __init__(self, provider):
+            self.provider = provider
+
+        def run(self, *, text, grounded_chunks, config):
+            from phentrieve.llm.types import LLMExtractionResult, LLMMeta
+
+            return LLMExtractionResult(
+                terms=[],
+                meta=LLMMeta(llm_model=config.model, llm_mode=config.mode),
+            )
+
+    def fake_get_llm_provider(*, llm_model: str, api_key=None, seed=None):
+        captured["llm_model"] = llm_model
+        captured["api_key"] = api_key
+        captured["seed"] = seed
+        return object()
+
+    monkeypatch.setattr(llm_benchmark, "load_benchmark_data", fake_load_benchmark_data)
+    monkeypatch.setattr(llm_benchmark, "get_llm_provider", fake_get_llm_provider)
+    monkeypatch.setattr(llm_benchmark, "TwoPhaseLLMPipeline", _FakePipeline)
+
+    llm_benchmark.run_llm_benchmark(
+        test_file="tests/data/en/phenobert",
+        llm_model="gemini-2.5-flash",
+        llm_seed=123,
+    )
+
+    assert captured["seed"] == 123
 
 
 def test_run_llm_benchmark_surfaces_phase2_routing_counts(monkeypatch):

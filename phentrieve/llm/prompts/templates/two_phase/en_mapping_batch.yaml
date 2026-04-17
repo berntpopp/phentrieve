@@ -3,10 +3,8 @@ version: "v4.1.0"
 system_prompt: |
   You map clinical phenotype phrases to HPO terms.
 
-  The input text may be in {language}. Interpret phenotype phrases and grounded
-  evidence in that source language. Choose the HPO identifier that best matches
-  the clinical meaning regardless of language. Preserve source-language wording
-  mentally when judging the evidence and do not rely on translation artifacts.
+  The input may be in {language}; interpret each phrase and its evidence in
+  that language, but choose the best language-agnostic HPO identifier.
 
   You receive JSON with an "items" list. Each item includes:
   - item_id
@@ -14,15 +12,14 @@ system_prompt: |
   - category
   - primary_chunk_text
   - neighbor_chunk_text
-  - candidates
-  - each candidate has id, term, retrieval_score
+  - candidates with id, term, retrieval_score
 
   Rules:
   - Return one mapping object for each input item.
   - Each mapping must include the original item_id.
   - Choose only one candidate HPO identifier per item_id.
   - Use the grounded context to disambiguate.
-  - Treat retrieval_score as a retrieval hint, not as the sole decision rule.
+  - Treat retrieval_score as a hint, not the only decision rule.
   - Prefer semantic equivalence over lexical similarity.
   - If category is "normal", choose the abnormal HPO concept that is explicitly absent or normal in context.
   - If no candidate is a clear match, return null for that item_id.

@@ -3,23 +3,20 @@ version: "v4.1.0"
 system_prompt: |
   You map clinical phenotype phrases to HPO terms.
 
-  The input text may be in {language}. Interpret phenotype phrases and grounded
-  evidence in that source language. Choose the HPO identifier that best matches
-  the clinical meaning regardless of language. Preserve source-language wording
-  mentally when judging the evidence and do not rely on translation artifacts.
+  The input may be in {language}; interpret the phrase and evidence in that
+  language, but choose the best language-agnostic HPO identifier.
 
   You receive:
   - phrase
   - category
   - primary_chunk_text
   - neighbor_chunk_text
-  - candidates
-  - each candidate has id, term, retrieval_score
+  - candidates with id, term, retrieval_score
 
   Rules:
   - Choose only one candidate HPO identifier.
   - Use the grounded context to disambiguate.
-  - Treat retrieval_score as a retrieval hint, not as the sole decision rule.
+  - Treat retrieval_score as a hint, not the only decision rule.
   - Prefer semantic equivalence over lexical similarity.
   - If category is "normal", choose the abnormal HPO concept that is explicitly absent or normal in context.
   - If no candidate is a clear match, return null.
@@ -39,13 +36,6 @@ user_prompt_template: |
   {text}
 
 few_shot_examples:
-  - input: |
-      Map the following JSON payload to the best HPO candidate.
-      Return JSON only.
-
-      Payload:
-      {"primary_chunk_text": "Physical examination revealed scoliosis and joint hypermobility", "neighbor_chunk_text": "", "phrase": "scoliosis", "category": "abnormal", "candidates": [{"id": "HP:0002650", "term": "Scoliosis", "retrieval_score": 0.99}, {"id": "HP:0100884", "term": "Compensatory scoliosis", "retrieval_score": 0.42}]}
-    output: '{"phrase": "scoliosis", "hpo_id": "HP:0002650"}'
   - input: |
       Map the following JSON payload to the best HPO candidate.
       Return JSON only.

@@ -262,6 +262,14 @@ def _spans_overlap(
     return max(start_a, start_b) < min(end_a, end_b)
 
 
+def _sum_usage_dicts(*usage_dicts: dict[str, int]) -> dict[str, int]:
+    totals: dict[str, int] = {}
+    for usage in usage_dicts:
+        for key, value in usage.items():
+            totals[key] = int(totals.get(key, 0) or 0) + int(value or 0)
+    return totals
+
+
 class TwoPhaseLLMPipeline:
     def __init__(
         self,
@@ -352,6 +360,7 @@ class TwoPhaseLLMPipeline:
         resolved_terms: list[LLMPhenotype] = []
         prompt_tokens_total = int(phase1_usage.get("prompt_tokens", 0) or 0)
         completion_tokens_total = int(phase1_usage.get("completion_tokens", 0) or 0)
+        token_usage_total = _sum_usage_dicts(phase1_usage)
         request_count_total = phase1_request_count
         prompt_version = extraction_prompt.version
         phase_timings: dict[str, float] = {
@@ -498,6 +507,7 @@ class TwoPhaseLLMPipeline:
                     mapped_terms,
                     mapping_prompt_tokens,
                     mapping_completion_tokens,
+                    mapping_token_usage,
                     mapping_request_count,
                     local_fallback_count,
                     mapping_trace,
@@ -510,6 +520,10 @@ class TwoPhaseLLMPipeline:
                 )
                 prompt_tokens_total += mapping_prompt_tokens
                 completion_tokens_total += mapping_completion_tokens
+                token_usage_total = _sum_usage_dicts(
+                    token_usage_total,
+                    mapping_token_usage,
+                )
                 request_count_total += mapping_request_count
                 phase_request_counts["phase2b_llm_requests"] = mapping_request_count
                 resolved_terms.extend(mapped_terms)
@@ -533,6 +547,7 @@ class TwoPhaseLLMPipeline:
                 prompt_version=prompt_version,
                 token_input=prompt_tokens_total,
                 token_output=completion_tokens_total,
+                token_usage=token_usage_total,
                 request_count=request_count_total,
                 phase_timings=phase_timings,
                 phase_counts=phase_counts,
@@ -1200,10 +1215,19 @@ class TwoPhaseLLMPipeline:
         *,
         unresolved: list[dict[str, Any]],
         mapping_prompt,
-    ) -> tuple[list[LLMPhenotype], int, int, int, int, list[dict[str, Any]]]:
+    ) -> tuple[
+        list[LLMPhenotype],
+        int,
+        int,
+        dict[str, int],
+        int,
+        int,
+        list[dict[str, Any]],
+    ]:
         resolved: list[LLMPhenotype] = []
         prompt_tokens_total = 0
         completion_tokens_total = 0
+        token_usage_total: dict[str, int] = {}
         request_count_total = 0
         local_fallback_count = 0
         mapping_trace: list[dict[str, Any]] = []
@@ -1226,6 +1250,7 @@ class TwoPhaseLLMPipeline:
             request_count_total += int(
                 getattr(self.provider, "last_request_count", 0) or 0
             )
+            token_usage_total = _sum_usage_dicts(token_usage_total, batch_usage)
             prompt_tokens_total += int(batch_usage.get("prompt_tokens", 0) or 0)
             completion_tokens_total += int(batch_usage.get("completion_tokens", 0) or 0)
             selected_ids = self._select_candidate_ids(
@@ -1265,6 +1290,7 @@ class TwoPhaseLLMPipeline:
             resolved,
             prompt_tokens_total,
             completion_tokens_total,
+            token_usage_total,
             request_count_total,
             local_fallback_count,
             mapping_trace,

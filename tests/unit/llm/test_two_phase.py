@@ -88,6 +88,7 @@ def test_resolve_with_mapping_prompt_normalizes_phrase_before_llm_call():
         resolved_terms,
         prompt_tokens,
         completion_tokens,
+        _token_usage,
         _request_count,
         _local_fallback_count,
         _mapping_trace,

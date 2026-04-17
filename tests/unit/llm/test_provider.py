@@ -18,7 +18,7 @@ from phentrieve.llm.provider import (
     ToolExecutor,
     get_llm_provider,
 )
-from phentrieve.llm.types import LLMExtractedPhenotypes
+from phentrieve.llm.types import LLMExtractedPhenotype, LLMExtractedPhenotypes
 
 
 class FakeRetriever:
@@ -297,10 +297,20 @@ def test_packaged_prompt_families_exclude_agentic_judge() -> None:
 
 
 class _FakeUsageMetadata:
-    def __init__(self, prompt: int, completion: int, total: int) -> None:
+    def __init__(
+        self,
+        prompt: int,
+        completion: int,
+        total: int,
+        *,
+        thoughts: int = 0,
+        cached: int = 0,
+    ) -> None:
         self.prompt_token_count = prompt
         self.candidates_token_count = completion
         self.total_token_count = total
+        self.thoughts_token_count = thoughts
+        self.cached_content_token_count = cached
 
 
 class _FakeResponse:
@@ -313,6 +323,8 @@ class _FakeResponse:
         prompt_tokens: int = 0,
         completion_tokens: int = 0,
         total_tokens: int = 0,
+        thoughts_tokens: int = 0,
+        cached_content_tokens: int = 0,
     ) -> None:
         self.text = text
         self.parsed = parsed
@@ -321,6 +333,8 @@ class _FakeResponse:
             prompt_tokens,
             completion_tokens,
             total_tokens,
+            thoughts=thoughts_tokens,
+            cached=cached_content_tokens,
         )
 
 
@@ -471,6 +485,50 @@ def test_structured_prompt_uses_json_schema_and_manual_validation(monkeypatch) -
     ]["phrase"]["description"].startswith("A concise phenotype phrase")
     assert config_kwargs["max_output_tokens"] == 8192
     assert provider.last_usage["total_tokens"] == 20
+
+
+def test_structured_prompt_forwards_seed_and_extended_usage(monkeypatch) -> None:
+    fake_models = _install_fake_google_genai(
+        monkeypatch,
+        [
+            _FakeResponse(
+                parsed=LLMExtractedPhenotypes(
+                    phenotypes=[
+                        LLMExtractedPhenotype(
+                            phrase="recurrent seizures",
+                            category="Abnormal",
+                        )
+                    ]
+                ),
+                prompt_tokens=11,
+                completion_tokens=7,
+                total_tokens=23,
+                thoughts_tokens=5,
+                cached_content_tokens=3,
+            )
+        ],
+    )
+    provider = GeminiStructuredOutputProvider(
+        model_name="gemini-2.5-flash",
+        api_key="test-key",
+        seed=42,
+    )
+
+    provider.run_structured_prompt(
+        system_prompt="system",
+        user_prompt="user",
+        response_model=LLMExtractedPhenotypes,
+    )
+
+    config_kwargs = fake_models.calls[0]["config"].kwargs
+    assert config_kwargs["seed"] == 42
+    assert provider.last_usage == {
+        "prompt_tokens": 11,
+        "completion_tokens": 7,
+        "total_tokens": 23,
+        "thoughts_tokens": 5,
+        "cached_content_tokens": 3,
+    }
 
 
 def test_count_tokens_uses_sdk_count_tokens_api(monkeypatch) -> None:

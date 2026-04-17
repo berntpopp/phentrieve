@@ -52,6 +52,7 @@ def run_llm_benchmark_cli(
     *,
     test_file: str,
     llm_model: str,
+    llm_seed: int | None = None,
     llm_mode: str = DEFAULT_LLM_BENCHMARK_MODE,
     llm_internal_mode: str = "whole_document_grounded",
     dataset: str = DEFAULT_LLM_BENCHMARK_DATASET,
@@ -63,6 +64,7 @@ def run_llm_benchmark_cli(
     prompt_templates_dir: str | None = None,
     input_cost_per_1m_tokens: float | None = None,
     output_cost_per_1m_tokens: float | None = None,
+    cached_input_cost_per_1m_tokens: float | None = None,
     debug: bool = False,
 ) -> dict[str, Any]:
     """Run the LLM benchmark and persist summary plus comparison artifacts."""
@@ -107,6 +109,7 @@ def run_llm_benchmark_cli(
                 "test_file": str(test_file_path),
                 "dataset": dataset,
                 "llm_model": llm_model,
+                "llm_seed": llm_seed,
                 "llm_mode": llm_mode,
                 "llm_internal_mode": llm_internal_mode,
                 "language": language,
@@ -133,6 +136,7 @@ def run_llm_benchmark_cli(
     result = llm_benchmark.run_llm_benchmark(
         test_file=test_file,
         llm_model=llm_model,
+        llm_seed=llm_seed,
         llm_mode=llm_mode,
         llm_internal_mode=llm_internal_mode,
         dataset=dataset,
@@ -288,6 +292,13 @@ def benchmark_llm(
         str,
         typer.Option("--llm-model", help="Gemini model to benchmark."),
     ],
+    llm_seed: Annotated[
+        int | None,
+        typer.Option(
+            "--llm-seed",
+            help="Optional Gemini seed for best-effort reproducibility.",
+        ),
+    ] = None,
     llm_mode: Annotated[
         Literal["two_phase"],
         typer.Option(
@@ -358,6 +369,13 @@ def benchmark_llm(
             help="Optional output token price used for estimated benchmark cost reporting.",
         ),
     ] = None,
+    cached_input_cost_per_1m_tokens: Annotated[
+        float | None,
+        typer.Option(
+            "--cached-input-cost-per-1m-tokens",
+            help="Optional cached-input token price used for estimated benchmark cost reporting.",
+        ),
+    ] = None,
     debug: Annotated[
         bool,
         typer.Option("--debug", help="Enable debug logging for the benchmark run."),
@@ -368,6 +386,7 @@ def benchmark_llm(
         result = run_llm_benchmark_cli(
             test_file=test_file,
             llm_model=llm_model,
+            llm_seed=llm_seed,
             llm_mode=llm_mode,
             llm_internal_mode=llm_internal_mode,
             dataset=dataset,
@@ -379,6 +398,7 @@ def benchmark_llm(
             prompt_templates_dir=prompt_templates_dir,
             input_cost_per_1m_tokens=input_cost_per_1m_tokens,
             output_cost_per_1m_tokens=output_cost_per_1m_tokens,
+            cached_input_cost_per_1m_tokens=cached_input_cost_per_1m_tokens,
             debug=debug,
         )
     except ValueError as exc:

@@ -99,8 +99,16 @@ def test_mapping_prompt_renders_requested_language_in_system_prompt() -> None:
     rendered = template.render_system_prompt(language=template.language)
 
     assert "de" in rendered
-    assert "source language" in rendered
+    assert "The input may be in de" in rendered
     assert "retrieval_score" in rendered
+
+
+def test_mapping_prompts_keep_single_compact_example() -> None:
+    single = loader.get_mapping_prompt("en")
+    batch = loader.get_batch_mapping_prompt("en")
+
+    assert len(single.few_shot_examples) == 1
+    assert len(batch.few_shot_examples) == 1
 
 
 def test_batch_mapping_prompt_prefix_stays_stable_before_variable_context() -> None:
