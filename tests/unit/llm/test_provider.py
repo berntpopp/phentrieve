@@ -19,7 +19,12 @@ from phentrieve.llm.provider import (
     ToolExecutor,
     get_llm_provider,
 )
-from phentrieve.llm.types import LLMExtractedPhenotype, LLMExtractedPhenotypes
+from phentrieve.llm.types import (
+    LLMExtractedPhenotype,
+    LLMExtractedPhenotypes,
+    LLMMeta,
+    LLMPipelineConfig,
+)
 
 
 class FakeRetriever:
@@ -76,6 +81,34 @@ class FakeTextProcessor:
                 "evidence_text": text,
             }
         ]
+
+
+def test_llm_pipeline_config_includes_provider() -> None:
+    config = LLMPipelineConfig(
+        provider="ollama",
+        model="qwen3.5:35b",
+        mode="two_phase",
+        language="en",
+    )
+
+    assert config.provider == "ollama"
+    assert config.model == "qwen3.5:35b"
+
+
+def test_llm_meta_includes_provider_identity() -> None:
+    meta = LLMMeta(
+        llm_provider="ollama",
+        llm_model="qwen3.5:35b",
+        llm_mode="two_phase",
+    )
+
+    assert meta.llm_provider == "ollama"
+
+
+def test_provider_config_exposes_ollama_defaults() -> None:
+    assert llm_config.DEFAULT_PROVIDER_NAME == "gemini"
+    assert llm_config.DEFAULT_OLLAMA_BASE_URL == "http://localhost:11434"
+    assert llm_config.DEFAULT_OLLAMA_TIMEOUT_SECONDS == 300
 
 
 def test_get_llm_provider_defaults_to_gemini(monkeypatch) -> None:

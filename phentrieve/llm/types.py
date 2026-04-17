@@ -105,11 +105,13 @@ class LLMBatchMappingSelections(BaseModel):
 
 
 class LLMMeta(BaseModel):
+    llm_provider: str = "gemini"
     llm_model: str
     llm_mode: str
     prompt_version: str = "v1"
     token_input: int | None = None
     token_output: int | None = None
+    token_count_source: Literal["exact", "estimated"] | None = None
     token_usage: dict[str, int] = Field(default_factory=dict)
     request_count: int = 0
     phase_timings: dict[str, float] = Field(default_factory=dict)
@@ -119,7 +121,9 @@ class LLMMeta(BaseModel):
 
 
 class LLMPipelineConfig(BaseModel):
+    provider: str = "gemini"
     model: str
+    base_url: str | None = None
     mode: str = DEFAULT_LLM_MODE
     language: str | None = DEFAULT_LLM_LANGUAGE
     seed: int | None = None
