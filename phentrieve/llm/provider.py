@@ -4,6 +4,7 @@ import logging
 import os
 import time
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 from random import SystemRandom
 from threading import local
 from typing import Any
@@ -16,6 +17,8 @@ from phentrieve.llm.config import (
     DEFAULT_GROUNDED_PHASE1_MAX_OUTPUT_TOKENS,
     DEFAULT_LLM_MULTI_VECTOR_AGGREGATION_STRATEGY,
     DEFAULT_LLM_RETRIEVAL_BATCH_SIZE,
+    DEFAULT_OLLAMA_BASE_URL,
+    DEFAULT_OLLAMA_TIMEOUT_SECONDS,
     DEFAULT_PROCESS_CLINICAL_TEXT_CHUNK_RETRIEVAL_THRESHOLD,
     DEFAULT_PROCESS_CLINICAL_TEXT_NUM_RESULTS_PER_CHUNK,
     DEFAULT_PROVIDER_MAX_TOKENS,
@@ -31,6 +34,7 @@ from phentrieve.llm.config import (
     DEFAULT_PROVIDER_TIMEOUT_SECONDS,
     DEFAULT_PROVIDER_TRANSIENT_RETRIES,
     DEFAULT_TOOL_QUERY_RESULTS,
+    SUPPORTED_PROVIDER_NAMES,
 )
 from phentrieve.llm.types import LLMResponse
 
@@ -39,6 +43,7 @@ _retry_rng = SystemRandom()
 
 
 class LLMProvider(ABC):
+    provider_name: str = ""
     model_name: str = ""
     temperature: float = DEFAULT_PROVIDER_TEMPERATURE
 
@@ -89,6 +94,15 @@ class LLMProvider(ABC):
 
     def count_tokens(self, *, system_prompt: str, user_prompt: str) -> dict[str, int]:
         raise NotImplementedError
+
+
+@dataclass(frozen=True)
+class ResolvedLLMProviderRequest:
+    provider: str
+    model: str
+    base_url: str | None = None
+    api_key: str | None = None
+    seed: int | None = None
 
 
 class GeminiStructuredOutputProvider(LLMProvider):
@@ -526,6 +540,124 @@ class GeminiStructuredOutputProvider(LLMProvider):
         return min(bounded_delay + jitter, self.retry_max_backoff_seconds)
 
 
+class OllamaStructuredOutputProvider(LLMProvider):
+    provider_name = "ollama"
+
+    def __init__(
+        self,
+        *,
+        model_name: str,
+        base_url: str,
+        seed: int | None = None,
+        temperature: float = DEFAULT_PROVIDER_TEMPERATURE,
+        timeout_seconds: int = DEFAULT_OLLAMA_TIMEOUT_SECONDS,
+        transient_retries: int = DEFAULT_PROVIDER_TRANSIENT_RETRIES,
+    ) -> None:
+        super().__init__()
+        self.model_name = model_name
+        self.base_url = base_url.rstrip("/")
+        self.seed = seed
+        self.temperature = temperature
+        self.timeout_seconds = timeout_seconds
+        self.transient_retries = transient_retries
+        self._counting_mode = "estimated"
+
+    @property
+    def token_count_source(self) -> str:
+        return self._counting_mode
+
+    def complete(self, messages: list[dict[str, Any]]) -> LLMResponse:
+        self.last_usage = {}
+        self.last_finish_reason = None
+        self.last_request_count = 0
+        payload = {
+            "model": self.model_name,
+            "stream": False,
+            "messages": messages,
+            "options": {
+                "temperature": self.temperature,
+            },
+        }
+        if self.seed is not None:
+            payload["options"]["seed"] = self.seed
+
+        with httpx.Client(timeout=self.timeout_seconds) as client:
+            response = client.post(f"{self.base_url}/api/chat", json=payload)
+            response.raise_for_status()
+
+        body = response.json()
+        usage = self._extract_ollama_usage(body)
+        self.last_usage = usage
+        self.last_finish_reason = body.get("done_reason")
+        self.last_request_count = 1
+        return LLMResponse(
+            content=str(body.get("message", {}).get("content", "") or ""),
+            model=self.model_name,
+            provider=self.provider_name,
+            finish_reason=self.last_finish_reason,
+            usage=usage,
+            temperature=self.temperature,
+        )
+
+    def run_structured_prompt(
+        self,
+        *,
+        system_prompt: str,
+        user_prompt: str,
+        response_model: type[BaseModel],
+        max_output_tokens: int | None = None,
+    ) -> BaseModel:
+        self.last_usage = {}
+        self.last_finish_reason = None
+        self.last_request_count = 0
+        payload = {
+            "model": self.model_name,
+            "stream": False,
+            "messages": [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt},
+            ],
+            "format": GeminiStructuredOutputProvider._build_response_json_schema(
+                response_model
+            ),
+            "options": {
+                "temperature": self.temperature,
+                "num_predict": max_output_tokens or DEFAULT_PROVIDER_MAX_TOKENS,
+            },
+        }
+        if self.seed is not None:
+            payload["options"]["seed"] = self.seed
+
+        with httpx.Client(timeout=self.timeout_seconds) as client:
+            response = client.post(f"{self.base_url}/api/chat", json=payload)
+            response.raise_for_status()
+
+        body = response.json()
+        self.last_usage = self._extract_ollama_usage(body)
+        self.last_request_count = 1
+        self.last_finish_reason = body.get("done_reason")
+        content = str(body.get("message", {}).get("content", "") or "")
+        return response_model.model_validate_json(content)
+
+    def count_tokens(self, *, system_prompt: str, user_prompt: str) -> dict[str, int]:
+        estimated_total = max(1, (len(system_prompt) + len(user_prompt)) // 4)
+        return {
+            "prompt_tokens": estimated_total,
+            "completion_tokens": 0,
+            "total_tokens": estimated_total,
+        }
+
+    @staticmethod
+    def _extract_ollama_usage(body: dict[str, Any]) -> dict[str, int]:
+        prompt_tokens = int(body.get("prompt_eval_count", 0) or 0)
+        completion_tokens = int(body.get("eval_count", 0) or 0)
+        return {
+            "prompt_tokens": prompt_tokens,
+            "completion_tokens": completion_tokens,
+            "total_tokens": prompt_tokens + completion_tokens,
+        }
+
+
 class ToolExecutor:
     def __init__(
         self,
@@ -816,23 +948,84 @@ class ToolExecutor:
 def get_llm_provider(
     *,
     llm_model: str,
+    llm_provider: str | None = None,
+    llm_base_url: str | None = None,
     api_key: str | None = None,
     seed: int | None = None,
 ) -> LLMProvider:
-    resolved_provider = os.getenv("PHENTRIEVE_LLM_PROVIDER", DEFAULT_PROVIDER_NAME)
-    if resolved_provider.strip().lower() != DEFAULT_PROVIDER_NAME:
-        raise ValueError(
-            f"Gemini-only provider factory does not support provider "
-            f"{resolved_provider!r}."
+    request = resolve_llm_provider_request(
+        llm_provider=llm_provider,
+        llm_model=llm_model,
+        llm_base_url=llm_base_url,
+        api_key=api_key,
+        seed=seed,
+    )
+
+    if request.provider == "gemini":
+        return GeminiStructuredOutputProvider(
+            model_name=request.model,
+            api_key=request.api_key,
+            seed=request.seed,
+        )
+    if request.provider == "ollama":
+        return OllamaStructuredOutputProvider(
+            model_name=request.model,
+            base_url=request.base_url or DEFAULT_OLLAMA_BASE_URL,
+            seed=request.seed,
         )
 
-    if "/" in llm_model and not llm_model.startswith("gemini/"):
+    raise ValueError(f"Provider {request.provider!r} is not implemented in phase one.")
+
+
+def resolve_llm_provider_request(
+    *,
+    llm_provider: str | None,
+    llm_model: str,
+    llm_base_url: str | None = None,
+    api_key: str | None = None,
+    seed: int | None = None,
+) -> ResolvedLLMProviderRequest:
+    inferred_provider: str | None = None
+    model_name = llm_model
+
+    if "/" in llm_model:
+        prefix, remainder = llm_model.split("/", 1)
+        normalized_prefix = prefix.strip().lower()
+        if normalized_prefix not in SUPPORTED_PROVIDER_NAMES:
+            raise ValueError(
+                f"Unknown provider prefix {prefix!r} in model {llm_model!r}."
+            )
+        inferred_provider = normalized_prefix
+        model_name = remainder
+
+    explicit_provider = llm_provider.strip().lower() if llm_provider else None
+    env_provider = os.getenv("PHENTRIEVE_LLM_PROVIDER")
+    resolved_provider = (
+        explicit_provider
+        or inferred_provider
+        or (env_provider.strip().lower() if env_provider else DEFAULT_PROVIDER_NAME)
+    )
+
+    if (
+        inferred_provider
+        and explicit_provider
+        and explicit_provider != inferred_provider
+    ):
         raise ValueError(
-            f"Gemini-only provider factory does not support model {llm_model!r}."
+            f"Explicit llm_provider={explicit_provider!r} does not match model prefix "
+            f"{inferred_provider!r}."
         )
 
-    return GeminiStructuredOutputProvider(
-        model_name=llm_model,
+    resolved_base_url = (
+        llm_base_url
+        or os.getenv("PHENTRIEVE_LLM_BASE_URL")
+        or (DEFAULT_OLLAMA_BASE_URL if resolved_provider == "ollama" else None)
+    )
+
+    return ResolvedLLMProviderRequest(
+        provider=resolved_provider,
+        model=model_name,
+        base_url=resolved_base_url,
         api_key=api_key,
         seed=seed,
     )

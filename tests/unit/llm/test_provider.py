@@ -10,12 +10,14 @@ from typing import Any
 
 import httpx
 import pytest
+from pydantic import ValidationError
 
 from phentrieve.llm import config as llm_config
 from phentrieve.llm import provider as provider_module
 from phentrieve.llm.provider import (
     GeminiStructuredOutputProvider,
     LLMProvider,
+    OllamaStructuredOutputProvider,
     ToolExecutor,
     get_llm_provider,
 )
@@ -83,6 +85,25 @@ class FakeTextProcessor:
         ]
 
 
+def _fake_ollama_response(
+    *,
+    content: str,
+    prompt_eval_count: int = 0,
+    eval_count: int = 0,
+    done_reason: str = "stop",
+) -> httpx.Response:
+    return httpx.Response(
+        status_code=200,
+        request=httpx.Request("POST", "http://localhost:11434/api/chat"),
+        json={
+            "message": {"content": content},
+            "prompt_eval_count": prompt_eval_count,
+            "eval_count": eval_count,
+            "done_reason": done_reason,
+        },
+    )
+
+
 def test_llm_pipeline_config_includes_provider() -> None:
     config = LLMPipelineConfig(
         provider="ollama",
@@ -118,9 +139,102 @@ def test_get_llm_provider_defaults_to_gemini(monkeypatch) -> None:
     assert provider.model_name == "gemini-2.5-flash"
 
 
-def test_get_llm_provider_rejects_non_gemini_models() -> None:
-    with pytest.raises(ValueError, match="Gemini-only"):
-        get_llm_provider(llm_model="openai/gpt-4o")
+def test_get_llm_provider_infers_ollama_from_prefixed_model() -> None:
+    provider = get_llm_provider(llm_model="ollama/qwen3.5:35b")
+
+    assert provider.provider_name == "ollama"
+    assert provider.model_name == "qwen3.5:35b"
+
+
+def test_get_llm_provider_accepts_bare_gemini_model_for_backwards_compat(
+    monkeypatch,
+) -> None:
+    monkeypatch.setenv("PHENTRIEVE_GEMINI_API_KEY", "test-key")
+    provider = get_llm_provider(llm_model="gemini-2.5-flash")
+
+    assert provider.provider_name == "gemini"
+    assert provider.model_name == "gemini-2.5-flash"
+
+
+def test_get_llm_provider_rejects_mismatched_explicit_provider() -> None:
+    with pytest.raises(ValueError, match="does not match"):
+        get_llm_provider(
+            llm_provider="anthropic",
+            llm_model="ollama/qwen3.5:35b",
+        )
+
+
+def test_get_llm_provider_defaults_ollama_base_url() -> None:
+    provider = get_llm_provider(
+        llm_provider="ollama",
+        llm_model="qwen3.5:35b",
+    )
+
+    assert provider.base_url == "http://localhost:11434"
+
+
+def test_ollama_structured_prompt_posts_native_chat_schema(mocker) -> None:
+    provider = OllamaStructuredOutputProvider(
+        model_name="qwen3.5:35b",
+        base_url="http://localhost:11434",
+    )
+    post = mocker.patch("httpx.Client.post")
+    post.return_value = _fake_ollama_response(
+        content='{"phenotypes": []}',
+        prompt_eval_count=12,
+        eval_count=5,
+    )
+
+    result = provider.run_structured_prompt(
+        system_prompt="system",
+        user_prompt="user",
+        response_model=LLMExtractedPhenotypes,
+    )
+
+    assert isinstance(result, LLMExtractedPhenotypes)
+    _, kwargs = post.call_args
+    assert kwargs["json"]["format"]["type"] == "object"
+    assert kwargs["json"]["options"]["temperature"] == 0
+
+
+def test_ollama_provider_sets_estimated_token_count_source_when_counting_missing() -> (
+    None
+):
+    provider = OllamaStructuredOutputProvider(
+        model_name="qwen3.5:35b",
+        base_url="http://localhost:11434",
+    )
+
+    token_counts = provider.count_tokens(
+        system_prompt="system",
+        user_prompt="user",
+    )
+
+    assert token_counts["total_tokens"] >= 1
+    assert provider.token_count_source is not None
+    assert provider.token_count_source.startswith("est")
+
+
+def test_ollama_invalid_json_raises_validation_error(mocker) -> None:
+    provider = OllamaStructuredOutputProvider(
+        model_name="qwen3.5:35b",
+        base_url="http://localhost:11434",
+    )
+    mocker.patch(
+        "httpx.Client.post",
+        return_value=_fake_ollama_response(
+            content='{"phenotypes": [}',
+            prompt_eval_count=1,
+            eval_count=1,
+        ),
+    )
+
+    with pytest.raises((ValidationError, ValueError)):
+        provider.run_structured_prompt(
+            system_prompt="system",
+            user_prompt="user",
+            response_model=LLMExtractedPhenotypes,
+        )
 
 
 def test_llm_provider_complete_signature_is_message_only() -> None:
