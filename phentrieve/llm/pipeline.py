@@ -438,14 +438,20 @@ class TwoPhaseLLMPipeline:
                 len(phrase_candidates),
             )
             phase2b_local_start = time.perf_counter()
-            locally_resolved, unresolved = self._resolve_local_matches(
-                phrase_candidates
+            (
+                locally_resolved,
+                unresolved,
+                routing_counts,
+            ) = self._route_phase2_candidates(
+                phrase_candidates=phrase_candidates,
+                language=language,
             )
             phase_timings["phase2b_local_seconds"] = round(
                 time.perf_counter() - phase2b_local_start, 6
             )
             phase_counts["unresolved_phrases"] = len(unresolved)
             phase_counts["local_matches"] = len(locally_resolved)
+            phase_counts.update(routing_counts)
             resolved_terms.extend(locally_resolved)
             trace["phase2b_local"] = {
                 "resolved": [
@@ -964,8 +970,25 @@ class TwoPhaseLLMPipeline:
         self,
         phrase_candidates: list[dict[str, Any]],
     ) -> tuple[list[LLMPhenotype], list[dict[str, Any]]]:
+        resolved, unresolved, _ = self._route_phase2_candidates(
+            phrase_candidates=phrase_candidates,
+            language=DEFAULT_LLM_LANGUAGE,
+        )
+        return resolved, unresolved
+
+    def _route_phase2_candidates(
+        self,
+        *,
+        phrase_candidates: list[dict[str, Any]],
+        language: str,
+    ) -> tuple[list[LLMPhenotype], list[dict[str, Any]], dict[str, int]]:
         resolved: list[LLMPhenotype] = []
         unresolved: list[dict[str, Any]] = []
+        counts = {
+            "phase2b_local_accept_count": 0,
+            "phase2b_deferred_count": 0,
+            "phase2b_no_candidate_skip_count": 0,
+        }
 
         for item in phrase_candidates:
             candidates = item.get("candidates", [])
@@ -974,10 +997,13 @@ class TwoPhaseLLMPipeline:
                     "Phase 2B-local: phrase=%r has no candidates; skipping mapping",
                     item["phrase"],
                 )
+                counts["phase2b_no_candidate_skip_count"] += 1
                 continue
-            local_match = self._try_local_match(item["phrase"], candidates)
-            if local_match is None:
+
+            decision = self._decide_phase2_routing(item=item, language=language)
+            if decision != "local":
                 unresolved.append(item)
+                counts["phase2b_deferred_count"] += 1
                 logger.debug(
                     "Phase 2B-local: phrase=%r unresolved_candidates=%d",
                     item["phrase"],
@@ -985,15 +1011,57 @@ class TwoPhaseLLMPipeline:
                 )
                 continue
 
+            local_match = self._try_local_match(item["phrase"], candidates)
+            if local_match is None:
+                unresolved.append(item)
+                counts["phase2b_deferred_count"] += 1
+                logger.debug(
+                    "Phase 2B-local: phrase=%r deferred_after_missing_local_match",
+                    item["phrase"],
+                )
+                continue
+
             resolved.append(
                 self._phenotype_from_candidate(item=item, candidate=local_match)
             )
+            counts["phase2b_local_accept_count"] += 1
             logger.debug(
                 "Phase 2B-local: phrase=%r matched=%s",
                 item["phrase"],
                 local_match["hpo_id"],
             )
-        return resolved, unresolved
+        return resolved, unresolved, counts
+
+    def _decide_phase2_routing(self, *, item: dict[str, Any], language: str) -> str:
+        candidates = list(item.get("candidates", []))
+        local_match = self._try_local_match(str(item["phrase"]), candidates)
+        if local_match is None:
+            return "defer"
+
+        top_score = float(candidates[0].get("score", 0.0) or 0.0) if candidates else 0.0
+        second_score = (
+            float(candidates[1].get("score", 0.0) or 0.0)
+            if len(candidates) > 1
+            else 0.0
+        )
+        margin = top_score - second_score
+        normalized_language = (language or "").strip().lower()
+        phrase_clean = _clean_text(str(item["phrase"]))
+        term_clean = _clean_text(str(local_match["term_name"]))
+
+        if normalized_language == "en":
+            if phrase_clean == term_clean and top_score >= 0.85:
+                return "local"
+            if top_score >= 0.94 and margin >= 0.08:
+                return "local"
+            return "defer"
+
+        if normalized_language == "de":
+            if phrase_clean == term_clean and top_score >= 0.85:
+                return "local"
+            return "defer"
+
+        return "defer"
 
     def _try_local_match(
         self,

@@ -2438,6 +2438,9 @@ def test_two_phase_pipeline_accumulates_usage_and_logs_phases(caplog):
         "local_matches": 0,
         "llm_mapped_phrases": 1,
         "local_fallbacks": 0,
+        "phase2b_local_accept_count": 0,
+        "phase2b_deferred_count": 1,
+        "phase2b_no_candidate_skip_count": 0,
     }
     assert "phase1_completed_groups" not in result.meta.phase_counts
     assert "phase1_failed_groups" not in result.meta.phase_counts
