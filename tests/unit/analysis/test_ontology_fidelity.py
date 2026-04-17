@@ -423,3 +423,18 @@ def test_branch_knn_purity_excludes_root_from_denominator():
     # HP:0000001 excluded from denominator.
     assert result["overall"] == pytest.approx(1.0)
     assert result["n_evaluated"] == 2
+
+
+def test_depth_correlation_returns_scalar_in_expected_range():
+    import numpy as np
+
+    from phentrieve.analysis.ontology_fidelity import depth_correlation
+
+    term_ids = [f"HP:{i:07d}" for i in range(20)]
+    depths = {tid: i % 5 for i, tid in enumerate(term_ids)}
+    rng = np.random.default_rng(0)
+    embeddings = rng.standard_normal((20, 8)).astype(np.float32)
+
+    rho = depth_correlation(term_ids, embeddings, depths)
+    assert isinstance(rho, float)
+    assert -1.0 <= rho <= 1.0

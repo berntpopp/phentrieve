@@ -326,6 +326,25 @@ def branch_knn_purity(
     }
 
 
+def depth_correlation(
+    term_ids: list[str],
+    embeddings: np.ndarray,
+    depths: dict[str, int],
+) -> float:
+    """Spearman ρ between term depth and Euclidean distance from the aligned centroid.
+
+    The centroid is computed on the provided embeddings (the aligned set),
+    not on any larger matrix.
+    """
+    from scipy.stats import spearmanr
+
+    centroid = embeddings.mean(axis=0)
+    dists = np.linalg.norm(embeddings - centroid, axis=1)
+    depth_arr = np.array([depths[tid] for tid in term_ids], dtype=np.float64)
+    rho, _ = spearmanr(depth_arr, dists)
+    return float(rho) if rho == rho else float("nan")
+
+
 def per_term_fidelity(
     term_ids: list[str],
     embeddings: np.ndarray,
