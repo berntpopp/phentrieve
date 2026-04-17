@@ -9,36 +9,38 @@ from typing import Any
 logger = logging.getLogger(__name__)
 
 JSON_BLOCK_PATTERN = re.compile(r"```(?:json)?\s*\n?(.*?)\n?```", re.DOTALL)
-JSON_OBJECT_PATTERN = re.compile(r"\{.*\}", re.DOTALL)
-HPO_ID_PATTERN = re.compile(r"(HP:\d{6,7})")
+HPO_ID_PATTERN = re.compile(r"\b(HP[:\s_-]?\d{1,7})\b", re.IGNORECASE)
 
 
 def extract_json(text: str) -> dict[str, Any] | None:
-    code_block_match = JSON_BLOCK_PATTERN.search(text)
-    if code_block_match:
+    decoder = json.JSONDecoder()
+
+    for code_block_match in JSON_BLOCK_PATTERN.finditer(text):
         payload = code_block_match.group(1).strip()
-    else:
-        json_match = JSON_OBJECT_PATTERN.search(text)
-        if not json_match:
-            return None
-        payload = json_match.group(0)
+        try:
+            parsed = json.loads(payload)
+        except json.JSONDecodeError:
+            continue
+        if isinstance(parsed, dict):
+            return parsed
 
-    try:
-        parsed = json.loads(payload)
-    except json.JSONDecodeError:
-        logger.debug("Failed to parse JSON payload from LLM response.")
-        return None
+    for brace_match in re.finditer(r"\{", text):
+        try:
+            parsed, _ = decoder.raw_decode(text[brace_match.start() :])
+        except json.JSONDecodeError:
+            continue
+        if isinstance(parsed, dict):
+            return parsed
 
-    if not isinstance(parsed, dict):
-        return None
-    return parsed
+    logger.debug("Failed to parse JSON payload from LLM response.")
+    return None
 
 
 def extract_hpo_id(text: str) -> str | None:
     match = HPO_ID_PATTERN.search(text)
-    if match:
-        return match.group(1)
-    return None
+    if not match:
+        return None
+    return normalize_hpo_id(match.group(1))
 
 
 def token_sort_similarity(left: str, right: str) -> float:

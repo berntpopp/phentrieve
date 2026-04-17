@@ -2,12 +2,15 @@ from __future__ import annotations
 
 import hashlib
 import ipaddress
+import logging
 import sqlite3
 from contextlib import closing
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 CREATE_LLM_DAILY_QUOTA_TABLE_SQL = """
 CREATE TABLE IF NOT EXISTS llm_daily_quota (
@@ -104,7 +107,8 @@ def _parse_trusted_networks(
         try:
             networks.append(ipaddress.ip_network(cidr_value, strict=False))
         except ValueError:
-            return []
+            logger.warning("Ignoring invalid trusted proxy CIDR: %s", cidr_value)
+            continue
     return networks
 
 

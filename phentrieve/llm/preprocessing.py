@@ -6,9 +6,8 @@ from phentrieve.llm.types import ExtractionGroup, GroundedChunk
 
 
 class _TokenCountingProvider(Protocol):
-    def count_tokens(
-        self, *, system_prompt: str, user_prompt: str
-    ) -> dict[str, int]: ...
+    def count_tokens(self, *, system_prompt: str, user_prompt: str) -> dict[str, int]:
+        pass
 
 
 def _normalize_status(status: Any) -> str:

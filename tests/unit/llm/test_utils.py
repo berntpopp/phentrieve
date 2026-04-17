@@ -15,13 +15,24 @@ def test_extract_json_handles_code_blocks_and_raw_json() -> None:
     {"hpo_id": "HP:0001250"}
     ```"""
     raw = 'prefix {"hpo_id": "HP:0001250"} suffix'
+    multiple_blocks = """```json
+    not valid
+    ```
+    ```json
+    {"hpo_id": "HP:0001250"}
+    ```"""
+    multiple_objects = 'prefix {"ignored": true} middle {"hpo_id": "HP:0001250"} suffix'
 
     assert extract_json(code_block) == {"hpo_id": "HP:0001250"}
     assert extract_json(raw) == {"hpo_id": "HP:0001250"}
+    assert extract_json(multiple_blocks) == {"hpo_id": "HP:0001250"}
+    assert extract_json(multiple_objects) == {"ignored": True}
 
 
 def test_extract_hpo_id_and_normalization_helpers() -> None:
     assert extract_hpo_id("recurrent seizures (HP:0001250)") == "HP:0001250"
+    assert extract_hpo_id("recurrent seizures (hp-1250)") == "HP:0001250"
+    assert extract_hpo_id("recurrent seizures (HP 1250)") == "HP:0001250"
     assert normalize_hpo_id("hp-1250") == "HP:0001250"
 
 

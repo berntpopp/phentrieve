@@ -58,3 +58,16 @@ def test_resolve_subject_ip_uses_forwarded_ip_from_trusted_proxy():
     )
 
     assert subject_ip == "203.0.113.5"
+
+
+def test_resolve_subject_ip_ignores_invalid_trusted_proxy_cidrs(caplog):
+    caplog.set_level("WARNING")
+
+    subject_ip = resolve_subject_ip(
+        client_host="172.18.0.10",
+        x_forwarded_for="203.0.113.5",
+        trusted_proxy_cidrs=["not-a-cidr", "172.16.0.0/12"],
+    )
+
+    assert subject_ip == "203.0.113.5"
+    assert "Ignoring invalid trusted proxy CIDR: not-a-cidr" in caplog.text

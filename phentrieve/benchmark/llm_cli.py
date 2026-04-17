@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import json
 import logging
+import os
+import tempfile
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Annotated, Any, Literal, cast
@@ -86,19 +88,23 @@ def run_llm_benchmark_cli(
     resolved_checkpoint_path.parent.mkdir(parents=True, exist_ok=True)
     resolved_artifacts_dir.mkdir(parents=True, exist_ok=True)
 
-    existing_checkpoint = _load_checkpoint_payload(
-        path=resolved_checkpoint_path,
-        current_run={
-            "test_file": str(test_file_path),
-            "dataset": dataset,
-            "llm_model": llm_model,
-            "llm_mode": llm_mode,
-            "llm_internal_mode": llm_internal_mode,
-            "language": language,
-            "prompt_templates_dir": prompt_templates_dir,
-            "requested_doc_ids": list(doc_ids) if doc_ids else None,
-        },
-        allow_completed=checkpoint_path is not None,
+    existing_checkpoint = (
+        _load_checkpoint_payload(
+            path=resolved_checkpoint_path,
+            current_run={
+                "test_file": str(test_file_path),
+                "dataset": dataset,
+                "llm_model": llm_model,
+                "llm_mode": llm_mode,
+                "llm_internal_mode": llm_internal_mode,
+                "language": language,
+                "prompt_templates_dir": prompt_templates_dir,
+                "requested_doc_ids": list(doc_ids) if doc_ids else None,
+            },
+            allow_completed=True,
+        )
+        if checkpoint_path is not None
+        else None
     )
 
     def _persist_checkpoint(snapshot: dict[str, Any]) -> None:
@@ -147,9 +153,22 @@ def run_llm_benchmark_cli(
 
 
 def _write_json_atomic(path: Path, payload: dict[str, Any]) -> None:
-    temp_path = path.with_suffix(f"{path.suffix}.tmp")
-    temp_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
-    temp_path.replace(path)
+    temp_path: Path | None = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            mode="w",
+            encoding="utf-8",
+            dir=path.parent,
+            prefix=f".{path.stem}.{os.getpid()}.",
+            suffix=f"{path.suffix}.tmp",
+            delete=False,
+        ) as temp_file:
+            temp_file.write(json.dumps(payload, indent=2))
+            temp_path = Path(temp_file.name)
+        temp_path.replace(path)
+    finally:
+        if temp_path is not None and temp_path.exists():
+            temp_path.unlink(missing_ok=True)
 
 
 def _load_checkpoint_payload(

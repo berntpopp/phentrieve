@@ -1314,3 +1314,75 @@ def test_run_llm_benchmark_cli_rejects_mismatched_checkpoint(tmp_path):
             checkpoint_path=str(checkpoint_path),
             output_path=str(tmp_path / "summary.json"),
         )
+
+
+def test_run_llm_benchmark_cli_overwrites_existing_output_without_checkpoint(
+    tmp_path, monkeypatch
+):
+    test_file = tmp_path / "cases.json"
+    test_file.write_text("[]", encoding="utf-8")
+    output_path = tmp_path / "summary.json"
+    output_path.write_text(
+        json.dumps(
+            {
+                "test_file": str(test_file),
+                "dataset": "GeneReviews",
+                "llm_model": "gemini-2.5-pro",
+                "llm_mode": "two_phase",
+                "llm_internal_mode": "whole_document_grounded",
+                "language": "en",
+                "prompt_templates_dir": None,
+                "requested_doc_ids": None,
+                "status": "completed",
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    def fake_run_llm_benchmark(**kwargs):
+        assert kwargs["checkpoint_state"] is None
+        return {
+            "status": "completed",
+            "cases": 0,
+            "llm_model": kwargs["llm_model"],
+            "llm_mode": kwargs["llm_mode"],
+            "llm_internal_mode": kwargs["llm_internal_mode"],
+            "dataset": kwargs["dataset"],
+            "language": kwargs["language"],
+            "prompt_templates_dir": kwargs["prompt_templates_dir"],
+            "requested_doc_ids": None,
+            "dataset_metadata": {"dataset_name": "phenobert_GeneReviews"},
+            "token_usage": {
+                "prompt_tokens": 0,
+                "completion_tokens": 0,
+                "total_tokens": 0,
+                "api_calls": 0,
+            },
+            "timing_breakdown": {
+                "wall_clock_seconds": 0.0,
+                "avg_seconds_per_case": 0.0,
+            },
+            "prediction_records": [],
+            "results": [],
+            "metrics": {
+                "assertion_aware": {"micro": {"f1": 0.0}},
+                "id_only": {"micro": {"f1": 0.0}},
+            },
+            "estimated_cost": None,
+        }
+
+    monkeypatch.setattr(
+        llm_cli.llm_benchmark, "run_llm_benchmark", fake_run_llm_benchmark
+    )
+
+    result = llm_cli.run_llm_benchmark_cli(
+        test_file=str(test_file),
+        llm_model="gemini-2.5-flash",
+        output_path=str(output_path),
+    )
+
+    assert result["llm_model"] == "gemini-2.5-flash"
+    assert (
+        json.loads(output_path.read_text(encoding="utf-8"))["llm_model"]
+        == "gemini-2.5-flash"
+    )

@@ -1131,7 +1131,6 @@ class TwoPhaseLLMPipeline:
         mapping_prompt,
     ) -> tuple[LLMMappingSelection | LLMBatchMappingSelections, dict[str, int]]:
         response_model: type[LLMMappingSelection] | type[LLMBatchMappingSelections]
-        batch_mapping_prompt = mapping_prompt
         if len(batch) == 1:
             batch_mapping_prompt = get_mapping_prompt(mapping_prompt.language)
             candidate_payload = json.dumps(
