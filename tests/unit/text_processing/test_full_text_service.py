@@ -9,6 +9,7 @@ from phentrieve.llm.types import (
     LLMPhenotype,
 )
 from phentrieve.text_processing.full_text_service import (
+    MAX_GROUNDED_PHASE1_INPUT_TOKENS,
     FullTextService,
     adapt_standard_response,
     preprocess_grounded_document,
@@ -242,10 +243,7 @@ def test_run_llm_backend_uses_shared_preprocessing_for_grounded_mode(mocker):
     assert (
         pipeline.run.call_args.kwargs["grounded_chunks"] == preprocessed.grounded_chunks
     )
-    assert (
-        pipeline.run.call_args.kwargs["extraction_groups"]
-        == preprocessed.extraction_groups
-    )
+    assert "extraction_groups" not in pipeline.run.call_args.kwargs
 
 
 def test_run_llm_backend_does_not_retry_without_extraction_groups(mocker):
@@ -280,7 +278,7 @@ def test_run_llm_backend_does_not_retry_without_extraction_groups(mocker):
         )
 
     assert pipeline.run.call_count == 1
-    assert "extraction_groups" in pipeline.run.call_args.kwargs
+    assert "extraction_groups" not in pipeline.run.call_args.kwargs
 
 
 def test_run_llm_backend_logs_group_preflight_details(mocker, caplog):
@@ -299,10 +297,16 @@ def test_run_llm_backend_logs_group_preflight_details(mocker, caplog):
         extraction_groups=[
             {
                 "group_id": 1,
-                "chunk_ids": [1, 2],
-                "text": "chunk_id=1: Chunk one.\nchunk_id=2: Chunk two.",
-                "estimated_prompt_tokens": 17,
-            }
+                "chunk_ids": [1],
+                "text": "chunk_id=1: Chunk one.",
+                "estimated_prompt_tokens": 8,
+            },
+            {
+                "group_id": 2,
+                "chunk_ids": [2],
+                "text": "chunk_id=2: Chunk two.",
+                "estimated_prompt_tokens": 9,
+            },
         ],
     )
     pipeline.run.return_value = LLMExtractionResult(
@@ -342,21 +346,26 @@ def test_run_llm_backend_logs_group_preflight_details(mocker, caplog):
     ]
     assert preflight_messages
     assert any(
-        "grouped_prompt_tokens_max=17" in message for message in preflight_messages
+        "grouped_prompt_tokens_max=9" in message for message in preflight_messages
     )
     assert any(
         "grouped_prompt_tokens_total=17" in message for message in preflight_messages
     )
     assert any(
-        "grouped_prompt_chars_total=45" in message for message in preflight_messages
+        "grouped_prompt_chars_total=44" in message for message in preflight_messages
     )
     assert any("grounded_chunks=2" in message for message in preflight_messages)
-    assert any("extraction_groups=1" in message for message in preflight_messages)
+    assert any("extraction_groups=2" in message for message in preflight_messages)
     assert all("prompt_tokens=99" not in message for message in preflight_messages)
 
 
 def test_preprocess_grounded_document_propagates_group_budget_value_error(mocker):
     provider = mocker.Mock()
+    provider.count_tokens.return_value = {
+        "prompt_tokens": MAX_GROUNDED_PHASE1_INPUT_TOKENS + 1,
+        "completion_tokens": 0,
+        "total_tokens": MAX_GROUNDED_PHASE1_INPUT_TOKENS + 1,
+    }
     extraction_prompt = mocker.Mock()
     extraction_prompt.render_system_prompt.return_value = "system prompt"
     mocker.patch(
@@ -416,6 +425,45 @@ def test_preprocess_grounded_document_skips_group_build_without_count_tokens(moc
         retrieval_model_name="gemini-2.5-flash",
     )
 
+    assert result.extraction_groups == []
+
+
+def test_preprocess_grounded_document_skips_group_build_when_whole_prompt_fits(mocker):
+    provider = mocker.Mock()
+    provider.count_tokens.return_value = {
+        "prompt_tokens": 42,
+        "completion_tokens": 0,
+        "total_tokens": 42,
+    }
+    extraction_prompt = mocker.Mock()
+    extraction_prompt.render_system_prompt.return_value = "system prompt"
+    mocker.patch(
+        "phentrieve.text_processing.full_text_service.build_grounded_chunks_from_text_pipeline",
+        return_value=[
+            GroundedChunk(
+                chunk_id=1,
+                text="Chunk one.",
+                start_char=0,
+                end_char=10,
+                status="grounded",
+            )
+        ],
+    )
+    build_groups = mocker.patch(
+        "phentrieve.text_processing.full_text_service.build_extraction_groups"
+    )
+
+    result = preprocess_grounded_document(
+        text="clinical text",
+        language="en",
+        provider=provider,
+        extraction_prompt=extraction_prompt,
+        chunking_pipeline_config=None,
+        assertion_config=None,
+        retrieval_model_name="gemini-2.5-flash",
+    )
+
+    build_groups.assert_not_called()
     assert result.extraction_groups == []
 
 
@@ -589,6 +637,10 @@ def test_run_llm_backend_surfaces_grouped_observability(mocker):
         language="en",
     )
 
+    assert (
+        pipeline.run.call_args.kwargs["extraction_groups"]
+        == preprocessed.extraction_groups
+    )
     assert result["meta"]["observability"] == {
         "request_count": 3,
         "extracted_phrases": 1,

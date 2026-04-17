@@ -589,7 +589,7 @@ def test_benchmark_trace_persists_group_failures(tmp_path, monkeypatch):
 
     class _FakeProvider:
         def count_tokens(self, *, system_prompt, user_prompt):
-            return {"prompt_tokens": 12, "total_tokens": 12}
+            return {"prompt_tokens": 30001, "total_tokens": 30001}
 
     class _FakePipeline:
         def __init__(self, provider):
@@ -795,7 +795,7 @@ def test_benchmark_artifact_persists_group_counts_and_phase1_group_timings(
 
     class _FakeProvider:
         def count_tokens(self, *, system_prompt, user_prompt):
-            return {"prompt_tokens": 18, "total_tokens": 18}
+            return {"prompt_tokens": 30001, "total_tokens": 30001}
 
     class _FakePipeline:
         def __init__(self, provider):
@@ -987,7 +987,7 @@ def test_benchmark_record_includes_partial_failure_counts(tmp_path, monkeypatch)
 
     class _FakeProvider:
         def count_tokens(self, *, system_prompt, user_prompt):
-            return {"prompt_tokens": 12, "total_tokens": 12}
+            return {"prompt_tokens": 30001, "total_tokens": 30001}
 
     class _FakePipeline:
         def __init__(self, provider):
@@ -1140,7 +1140,7 @@ def test_benchmark_grouped_execution_keeps_legacy_pipeline_call_surface(
 
     class _FakeProvider:
         def count_tokens(self, *, system_prompt, user_prompt):
-            return {"prompt_tokens": 12, "total_tokens": 12}
+            return {"prompt_tokens": 30001, "total_tokens": 30001}
 
     class _FakePipeline:
         def __init__(self, provider):

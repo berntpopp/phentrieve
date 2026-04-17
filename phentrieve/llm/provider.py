@@ -5,6 +5,7 @@ import os
 import time
 from abc import ABC, abstractmethod
 from random import SystemRandom
+from threading import local
 from typing import Any
 
 from pydantic import BaseModel, ValidationError
@@ -39,14 +40,36 @@ _retry_rng = SystemRandom()
 class LLMProvider(ABC):
     model_name: str = ""
     temperature: float = DEFAULT_PROVIDER_TEMPERATURE
-    last_usage: dict[str, int]
-    last_finish_reason: str | None
-    last_request_count: int
 
     def __init__(self) -> None:
+        self._thread_state = local()
         self.last_usage = {}
         self.last_finish_reason = None
         self.last_request_count = 0
+
+    @property
+    def last_usage(self) -> dict[str, int]:
+        return dict(getattr(self._thread_state, "last_usage", {}) or {})
+
+    @last_usage.setter
+    def last_usage(self, value: dict[str, int]) -> None:
+        self._thread_state.last_usage = dict(value or {})
+
+    @property
+    def last_finish_reason(self) -> str | None:
+        return getattr(self._thread_state, "last_finish_reason", None)
+
+    @last_finish_reason.setter
+    def last_finish_reason(self, value: str | None) -> None:
+        self._thread_state.last_finish_reason = value
+
+    @property
+    def last_request_count(self) -> int:
+        return int(getattr(self._thread_state, "last_request_count", 0) or 0)
+
+    @last_request_count.setter
+    def last_request_count(self, value: int) -> None:
+        self._thread_state.last_request_count = int(value or 0)
 
     @abstractmethod
     def complete(self, messages: list[dict[str, Any]]) -> LLMResponse:

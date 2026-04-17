@@ -82,15 +82,31 @@ def preprocess_grounded_document(
     token_count_fn = getattr(provider, "count_tokens", None)
     if callable(token_count_fn):
         try:
-            extraction_groups = [
-                asdict(group)
-                for group in build_extraction_groups(
-                    grounded_chunks=grounded_chunks,
-                    provider=provider,
-                    system_prompt=extraction_prompt.render_system_prompt(),
-                    max_prompt_tokens=MAX_GROUNDED_PHASE1_INPUT_TOKENS,
-                )
-            ]
+            grounded_chunk_payload = [asdict(chunk) for chunk in grounded_chunks]
+            user_prompt = _render_phase1_user_prompt(
+                extraction_prompt=extraction_prompt,
+                text=text,
+                grounded_chunks=grounded_chunk_payload,
+            )
+            token_counts = provider.count_tokens(
+                system_prompt=extraction_prompt.render_system_prompt(),
+                user_prompt=user_prompt,
+            )
+            total_tokens = int(
+                token_counts.get("total_tokens")
+                or token_counts.get("prompt_tokens")
+                or 0
+            )
+            if total_tokens > MAX_GROUNDED_PHASE1_INPUT_TOKENS:
+                extraction_groups = [
+                    asdict(group)
+                    for group in build_extraction_groups(
+                        grounded_chunks=grounded_chunks,
+                        provider=provider,
+                        system_prompt=extraction_prompt.render_system_prompt(),
+                        max_prompt_tokens=MAX_GROUNDED_PHASE1_INPUT_TOKENS,
+                    )
+                ]
         except (NotImplementedError, TypeError):
             extraction_groups = []
     return _PreprocessedGroundedDocument(
@@ -378,6 +394,7 @@ def run_llm_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
     )
     grounded_chunks: list[dict[str, Any]] = []
     extraction_groups: list[dict[str, Any]] = []
+    active_extraction_groups: list[dict[str, Any]] = []
     if llm_internal_mode == "whole_document_grounded":
         preprocessed = preprocess_grounded_document(
             text=text,
@@ -390,6 +407,9 @@ def run_llm_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
         )
         grounded_chunks = preprocessed.grounded_chunks
         extraction_groups = preprocessed.extraction_groups
+        active_extraction_groups = (
+            extraction_groups if len(extraction_groups) > 1 else []
+        )
         logger.info(
             "LLM grounding summary: language=%s chunks=%d groups=%d mode=%s",
             kwargs.get("language") or DEFAULT_LANGUAGE,
@@ -398,20 +418,21 @@ def run_llm_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
             llm_internal_mode,
         )
         try:
-            if extraction_groups:
+            if active_extraction_groups:
                 grouped_prompt_tokens_total = sum(
                     int(group.get("estimated_prompt_tokens", 0) or 0)
-                    for group in extraction_groups
+                    for group in active_extraction_groups
                 )
                 grouped_prompt_tokens_max = max(
                     (
                         int(group.get("estimated_prompt_tokens", 0) or 0)
-                        for group in extraction_groups
+                        for group in active_extraction_groups
                     ),
                     default=0,
                 )
                 grouped_prompt_chars_total = sum(
-                    len(str(group.get("text", ""))) for group in extraction_groups
+                    len(str(group.get("text", "")))
+                    for group in active_extraction_groups
                 )
                 logger.debug(
                     "LLM phase1 preflight: grouped_prompt_tokens_max=%s grouped_prompt_tokens_total=%s grouped_prompt_chars_total=%s text_chars=%d grounded_chunks=%d extraction_groups=%d",
@@ -420,7 +441,7 @@ def run_llm_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
                     grouped_prompt_chars_total,
                     len(text),
                     len(grounded_chunks),
-                    len(extraction_groups),
+                    len(active_extraction_groups),
                 )
                 if grouped_prompt_tokens_max > MAX_GROUNDED_PHASE1_INPUT_TOKENS:
                     logger.warning(
@@ -444,7 +465,7 @@ def run_llm_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
                     token_counts.get("total_tokens"),
                     len(text),
                     len(grounded_chunks),
-                    len(extraction_groups),
+                    len(active_extraction_groups),
                     len(user_prompt),
                 )
                 if (
@@ -466,8 +487,8 @@ def run_llm_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
             language=kwargs.get("language"),
         ),
     }
-    if llm_internal_mode == "whole_document_grounded":
-        pipeline_kwargs["extraction_groups"] = extraction_groups
+    if llm_internal_mode == "whole_document_grounded" and active_extraction_groups:
+        pipeline_kwargs["extraction_groups"] = active_extraction_groups
     result = pipeline.run(**pipeline_kwargs)
     phase_counts = dict(result.meta.phase_counts)
     phase_request_counts = dict(result.meta.phase_request_counts)
@@ -496,7 +517,7 @@ def run_llm_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
                     phase_counts.get("phase2b_no_candidate_skip_count", 0) or 0
                 ),
                 "grounded_chunks": len(grounded_chunks),
-                "extraction_groups": len(extraction_groups),
+                "extraction_groups": len(active_extraction_groups),
                 "failed_groups": int(phase_counts.get("phase1_failed_groups", 0) or 0),
                 "deduplicated_phase1_mentions": _count_deduplicated_phase1_mentions(
                     trace

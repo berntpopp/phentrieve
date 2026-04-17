@@ -21,7 +21,11 @@ from phentrieve.evaluation.extraction_metrics import (
     ExtractionResult,
 )
 from phentrieve.llm.config import DEFAULT_LLM_LANGUAGE
-from phentrieve.llm.pipeline import LLMPipelinePhaseError, TwoPhaseLLMPipeline
+from phentrieve.llm.pipeline import (
+    LLMPipelinePhaseError,
+    TwoPhaseLLMPipeline,
+    _render_phase1_user_prompt,
+)
 from phentrieve.llm.preprocessing import (
     build_extraction_groups,
     build_grounded_chunks_from_text_pipeline,
@@ -215,6 +219,7 @@ def run_llm_benchmark(
             doc_start_time = time.perf_counter()
             grounded_chunks: list[dict[str, Any]] = []
             extraction_groups: list[dict[str, Any]] = []
+            active_extraction_groups: list[dict[str, Any]] = []
             try:
                 if llm_internal_mode == "whole_document_grounded":
                     try:
@@ -241,17 +246,38 @@ def run_llm_benchmark(
                                 for chunk in grounded_chunks
                             ]
                             try:
-                                extraction_groups = [
-                                    asdict(group)
-                                    for group in build_extraction_groups(
-                                        grounded_chunks=grounded_chunk_models,
-                                        provider=provider,
-                                        system_prompt=extraction_prompt.render_system_prompt(),
-                                        max_prompt_tokens=30000,
+                                user_prompt = _render_phase1_user_prompt(
+                                    extraction_prompt=extraction_prompt,
+                                    text=document["text"],
+                                    grounded_chunks=grounded_chunks,
+                                )
+                                token_counts = provider.count_tokens(
+                                    system_prompt=extraction_prompt.render_system_prompt(),
+                                    user_prompt=user_prompt,
+                                )
+                                total_tokens = int(
+                                    token_counts.get("total_tokens")
+                                    or token_counts.get("prompt_tokens")
+                                    or 0
+                                )
+                                if total_tokens > 30000:
+                                    extraction_groups = [
+                                        asdict(group)
+                                        for group in build_extraction_groups(
+                                            grounded_chunks=grounded_chunk_models,
+                                            provider=provider,
+                                            system_prompt=extraction_prompt.render_system_prompt(),
+                                            max_prompt_tokens=30000,
+                                        )
+                                    ]
+                                    active_extraction_groups = (
+                                        extraction_groups
+                                        if len(extraction_groups) > 1
+                                        else []
                                     )
-                                ]
                             except (NotImplementedError, TypeError):
                                 extraction_groups = []
+                                active_extraction_groups = []
                     except Exception as exc:
                         raise LLMPipelinePhaseError(
                             "phase1", "Grounded preprocessing failed"
@@ -261,10 +287,11 @@ def run_llm_benchmark(
                     "grounded_chunks": grounded_chunks,
                     "config": config,
                 }
-                if extraction_groups and _pipeline_run_supports_extraction_groups(
-                    pipeline
+                if (
+                    active_extraction_groups
+                    and _pipeline_run_supports_extraction_groups(pipeline)
                 ):
-                    run_kwargs["extraction_groups"] = extraction_groups
+                    run_kwargs["extraction_groups"] = active_extraction_groups
                 pipeline_result = pipeline.run(**run_kwargs)
             except LLMPipelinePhaseError as exc:
                 logger.exception(
@@ -387,7 +414,7 @@ def run_llm_benchmark(
                 config=config,
                 pipeline_result=pipeline_result,
                 grounded_chunks=grounded_chunks,
-                extraction_groups=extraction_groups,
+                extraction_groups=active_extraction_groups,
                 predicted_terms=predicted_terms,
                 language=language,
                 processing_time_seconds=doc_elapsed,

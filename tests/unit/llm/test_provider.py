@@ -3,6 +3,8 @@ from __future__ import annotations
 import inspect
 import sys
 import tomllib
+from concurrent.futures import ThreadPoolExecutor
+from threading import Barrier
 from types import ModuleType, SimpleNamespace
 from typing import Any
 
@@ -221,6 +223,56 @@ def test_tool_executor_rejects_unknown_tool() -> None:
 
     with pytest.raises(ValueError, match="Unknown tool"):
         executor.execute("not_a_tool", {})
+
+
+def test_llm_provider_tracks_usage_per_thread() -> None:
+    barrier = Barrier(2)
+
+    class ThreadAwareProvider(LLMProvider):
+        def complete(self, messages):
+            raise RuntimeError("unused")
+
+        def run_structured_prompt(
+            self,
+            *,
+            system_prompt,
+            user_prompt,
+            response_model,
+            max_output_tokens=None,
+        ):
+            del system_prompt, max_output_tokens
+            marker = int(user_prompt)
+            self.last_usage = {
+                "prompt_tokens": marker,
+                "completion_tokens": marker + 1,
+                "total_tokens": marker + 2,
+            }
+            self.last_request_count = marker
+            barrier.wait()
+            return response_model.model_validate({"phenotypes": []})
+
+    provider = ThreadAwareProvider()
+
+    def run_prompt(marker: int) -> tuple[dict[str, int], int]:
+        provider.run_structured_prompt(
+            system_prompt="system",
+            user_prompt=str(marker),
+            response_model=LLMExtractedPhenotypes,
+        )
+        return provider.last_usage, provider.last_request_count
+
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        first_future = executor.submit(run_prompt, 1)
+        second_future = executor.submit(run_prompt, 2)
+
+    assert first_future.result() == (
+        {"prompt_tokens": 1, "completion_tokens": 2, "total_tokens": 3},
+        1,
+    )
+    assert second_future.result() == (
+        {"prompt_tokens": 2, "completion_tokens": 3, "total_tokens": 4},
+        2,
+    )
 
 
 def test_llm_extra_matches_supported_runtime_dependencies() -> None:

@@ -790,6 +790,63 @@ def test_run_llm_benchmark_counts_failed_documents_as_metric_misses(monkeypatch)
     assert id_only_micro == {"precision": 1.0, "recall": 0.5, "f1": 2 / 3}
 
 
+def test_run_llm_benchmark_skips_singleton_extraction_groups(monkeypatch):
+    captured: dict[str, object] = {}
+
+    def fake_load_benchmark_data(test_path: Path, dataset: str):
+        return {
+            "metadata": {"dataset_name": "phenobert_GeneReviews"},
+            "documents": [
+                {
+                    "id": "doc-1",
+                    "text": "Clinical text",
+                    "gold_hpo_terms": [],
+                    "source_dataset": "GeneReviews",
+                }
+            ],
+        }
+
+    class _Provider:
+        def count_tokens(self, *, system_prompt: str, user_prompt: str):
+            return {"prompt_tokens": 12, "completion_tokens": 0, "total_tokens": 12}
+
+    class _FakePipeline:
+        def __init__(self, provider):
+            self.provider = provider
+
+        def run(self, *, text, grounded_chunks, config, extraction_groups=None):
+            from phentrieve.llm.types import LLMExtractionResult, LLMMeta
+
+            captured["extraction_groups"] = extraction_groups
+            return LLMExtractionResult(
+                terms=[],
+                meta=LLMMeta(llm_model=config.model, llm_mode=config.mode),
+            )
+
+    monkeypatch.setattr(llm_benchmark, "load_benchmark_data", fake_load_benchmark_data)
+    monkeypatch.setattr(
+        llm_benchmark,
+        "get_llm_provider",
+        lambda llm_model: _Provider(),
+    )
+    monkeypatch.setattr(llm_benchmark, "TwoPhaseLLMPipeline", _FakePipeline)
+    monkeypatch.setattr(
+        llm_benchmark,
+        "build_extraction_groups",
+        lambda **kwargs: (_ for _ in ()).throw(
+            AssertionError("build_extraction_groups should not run for fitting notes")
+        ),
+    )
+
+    llm_benchmark.run_llm_benchmark(
+        test_file="tests/data/en/phenobert",
+        llm_model="gemini-2.5-flash",
+        llm_internal_mode="whole_document_grounded",
+    )
+
+    assert captured["extraction_groups"] is None
+
+
 def test_run_llm_benchmark_logs_case_progress_at_info(monkeypatch, caplog):
     def fake_load_benchmark_data(test_path: Path, dataset: str):
         return {

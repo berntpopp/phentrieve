@@ -319,15 +319,14 @@ class TwoPhaseLLMPipeline:
             )
         else:
             phase1_start = time.perf_counter()
-            extracted, phase1_usage = self._extract_phase1_phenotypes(
-                text=text,
-                grounded_chunks=grounded_chunks,
-                extraction_prompt=extraction_prompt,
+            extracted, phase1_usage, phase1_request_count = (
+                self._extract_phase1_phenotypes(
+                    text=text,
+                    grounded_chunks=grounded_chunks,
+                    extraction_prompt=extraction_prompt,
+                )
             )
             phase1_elapsed = round(time.perf_counter() - phase1_start, 6)
-            phase1_request_count = int(
-                getattr(self.provider, "last_request_count", 0) or 0
-            )
             phase1_groups_trace = []
         logger.debug(
             "Phase 1 complete: extracted=%d prompt_tokens=%s completion_tokens=%s",
@@ -558,7 +557,7 @@ class TwoPhaseLLMPipeline:
         grounded_chunks: list[dict[str, Any]],
         extraction_prompt,
         chunk_index_text: str | None = None,
-    ) -> tuple[list[dict[str, Any]], dict[str, int]]:
+    ) -> tuple[list[dict[str, Any]], dict[str, int], int]:
         user_prompt = _render_phase1_user_prompt(
             extraction_prompt=extraction_prompt,
             text=text,
@@ -594,6 +593,7 @@ class TwoPhaseLLMPipeline:
             raise LLMPipelinePhaseError("phase1", "Structured extraction failed")
 
         usage = dict(getattr(self.provider, "last_usage", {}) or {})
+        request_count = int(getattr(self.provider, "last_request_count", 0) or 0)
         parsed: list[dict[str, Any]] = []
         for phenotype in response.phenotypes:
             parsed.append(
@@ -606,7 +606,7 @@ class TwoPhaseLLMPipeline:
                     "end_char": getattr(phenotype, "end_char", None),
                 }
             )
-        return parsed, usage
+        return parsed, usage, request_count
 
     def _extract_grouped_phase1_phenotypes(
         self,
@@ -653,9 +653,13 @@ class TwoPhaseLLMPipeline:
             for future in as_completed(futures):
                 group = futures[future]
                 group_index = int(group.get("group_index", 0))
-                group_started = time.perf_counter()
                 try:
-                    group_extracted, group_usage, group_request_count = future.result()
+                    (
+                        group_extracted,
+                        group_usage,
+                        group_request_count,
+                        group_elapsed,
+                    ) = future.result()
                     indexed_results.append(
                         (
                             group_index,
@@ -663,12 +667,11 @@ class TwoPhaseLLMPipeline:
                             group_extracted,
                             group_usage,
                             group_request_count,
-                            0.0,
+                            group_elapsed,
                             None,
                         )
                     )
                 except LLMPipelinePhaseError as exc:
-                    group_elapsed = round(time.perf_counter() - group_started, 6)
                     indexed_results.append(
                         (
                             group_index,
@@ -781,7 +784,7 @@ class TwoPhaseLLMPipeline:
         text: str,
         extraction_prompt: PromptTemplate,
         chunk_lookup: dict[int, dict[str, Any]],
-    ) -> tuple[list[dict[str, Any]], dict[str, int], int]:
+    ) -> tuple[list[dict[str, Any]], dict[str, int], int, float]:
         group_chunk_ids = [
             int(chunk_id) for chunk_id in extraction_group.get("chunk_ids", [])
         ]
@@ -790,17 +793,24 @@ class TwoPhaseLLMPipeline:
             for chunk_id in group_chunk_ids
             if chunk_id in chunk_lookup
         ]
-        group_extracted, group_usage = self._extract_phase1_phenotypes(
-            text=text,
-            grounded_chunks=group_grounded_chunks,
-            chunk_index_text=_render_group_chunk_index_text(
-                group=extraction_group,
+        group_started = time.perf_counter()
+        group_extracted, group_usage, group_request_count = (
+            self._extract_phase1_phenotypes(
+                text=text,
                 grounded_chunks=group_grounded_chunks,
-            ),
-            extraction_prompt=extraction_prompt,
+                chunk_index_text=_render_group_chunk_index_text(
+                    group=extraction_group,
+                    grounded_chunks=group_grounded_chunks,
+                ),
+                extraction_prompt=extraction_prompt,
+            )
         )
-        group_request_count = int(getattr(self.provider, "last_request_count", 0) or 0)
-        return group_extracted, group_usage, group_request_count
+        return (
+            group_extracted,
+            group_usage,
+            group_request_count,
+            round(time.perf_counter() - group_started, 6),
+        )
 
     def _retrieve_candidates(
         self,
@@ -1116,26 +1126,30 @@ class TwoPhaseLLMPipeline:
         if local_match is None:
             return "defer"
 
-        top_score = float(candidates[0].get("score", 0.0) or 0.0) if candidates else 0.0
-        second_score = (
-            float(candidates[1].get("score", 0.0) or 0.0)
-            if len(candidates) > 1
-            else 0.0
-        )
-        margin = top_score - second_score
         normalized_language = (language or "").strip().lower()
         phrase_clean = _clean_text(str(item["phrase"]))
         term_clean = _clean_text(str(local_match["term_name"]))
+        phrase_tokens = _tokenize(str(item["phrase"]))
+        term_tokens = _tokenize(str(local_match["term_name"]))
+        match_score = float(local_match.get("score", 0.0) or 0.0)
 
         if normalized_language == "en":
-            if phrase_clean == term_clean and top_score >= 0.85:
-                return "local"
-            if top_score >= 0.94 and margin >= 0.08:
-                return "local"
+            if phrase_clean == term_clean or (
+                phrase_tokens and term_tokens and phrase_tokens == term_tokens
+            ):
+                return "local" if match_score >= 0.85 else "defer"
+            if term_clean and re.search(rf"\b{re.escape(term_clean)}\b", phrase_clean):
+                return "local" if match_score >= 0.85 else "defer"
+            if token_sort_similarity(phrase_clean, term_clean) >= max(
+                self.local_match_threshold, 90.0
+            ):
+                return "local" if match_score >= 0.85 else "defer"
             return "defer"
 
         if normalized_language == "de":
-            if phrase_clean == term_clean and top_score >= 0.85:
+            if phrase_clean == term_clean or (
+                phrase_tokens and term_tokens and phrase_tokens == term_tokens
+            ):
                 return "local"
             return "defer"
 
