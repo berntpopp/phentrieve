@@ -62,15 +62,19 @@ def test_resolve_subject_ip_uses_forwarded_ip_from_trusted_proxy():
 
 def test_resolve_subject_ip_ignores_invalid_trusted_proxy_cidrs(caplog):
     caplog.set_level("WARNING")
+    invalid_cidr = "not-a-cidr"
 
     subject_ip = resolve_subject_ip(
         client_host="172.18.0.10",
         x_forwarded_for="203.0.113.5",
-        trusted_proxy_cidrs=["not-a-cidr", "172.16.0.0/12"],
+        trusted_proxy_cidrs=[invalid_cidr, "172.16.0.0/12"],
     )
 
     assert subject_ip == "203.0.113.5"
-    assert "Ignoring invalid trusted proxy CIDR entry 'not-a-cidr'" in caplog.text
+    assert "Ignoring invalid trusted proxy CIDR entry at index 0" in caplog.text
+    assert "length=10" in caplog.text
+    assert "ValueError" in caplog.text
+    assert invalid_cidr not in caplog.text
 
 
 def test_daily_quota_store_enables_sqlite_wal_mode(tmp_path):

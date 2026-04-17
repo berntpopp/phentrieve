@@ -100,7 +100,7 @@ def _parse_trusted_networks(
     trusted_proxy_cidrs: list[str],
 ) -> list[ipaddress.IPv4Network | ipaddress.IPv6Network]:
     networks: list[ipaddress.IPv4Network | ipaddress.IPv6Network] = []
-    for cidr in trusted_proxy_cidrs:
+    for index, cidr in enumerate(trusted_proxy_cidrs):
         cidr_value = cidr.strip()
         if not cidr_value:
             continue
@@ -108,9 +108,10 @@ def _parse_trusted_networks(
             networks.append(ipaddress.ip_network(cidr_value, strict=False))
         except ValueError as exc:
             logger.warning(
-                "Ignoring invalid trusted proxy CIDR entry %r: %s",
-                cidr_value,
-                exc,
+                "Ignoring invalid trusted proxy CIDR entry at index %d (length=%d): %s",
+                index,
+                len(cidr_value),
+                type(exc).__name__,
             )
             continue
     return networks
