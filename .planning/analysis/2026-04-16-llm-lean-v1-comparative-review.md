@@ -770,34 +770,66 @@ that the current version adds too much repeated prefix material per call.
 
 Official Gemini docs now point to a sharper optimization strategy:
 
-- Google documents that Gemini 2.5 Flash has **thinking enabled by default**,
-  and explicitly says higher latency or token usage can come from that; if
-  speed/cost matter, you can adjust or disable thinking.
-  Source: <https://ai.google.dev/gemini-api/docs/troubleshooting>
-- The thinking guide states that **Gemini 2.5 Flash supports
-  `thinkingBudget = 0`** to disable thinking.
+- Google documents that Gemini 2.5 Flash has **dynamic thinking enabled by
+  default** and that `thinkingBudget = 0` is supported on 2.5 Flash if you want
+  to disable it. That makes thinking a valid optimization lever, but not a
+  blanket recommendation.
   Source: <https://ai.google.dev/gemini-api/docs/thinking>
-- The prompting guide says to use few-shot examples, but also notes that
-  **too many examples can overfit** and that if examples are clear enough you
-  can remove instructions.
-  Source: <https://ai.google.dev/gemini-api/docs/prompting-strategies>
-- The structured-output guide emphasizes **clear schema descriptions** and
-  prompt clarity, which suggests some of our new prompt text may be better
-  carried by schema/property descriptions than repeated prose.
+- Google also documents that Gemini API pricing bills **output price including
+  thinking tokens**, so thought-token expansion is a real cost driver, not just
+  an observability detail.
+  Source: <https://ai.google.dev/gemini-api/docs/pricing>
+- Google recommends using **`usage_metadata` from `generateContent`** for actual
+  token accounting, while `countTokens` is for input sizing and planning. That
+  means cost/debugging should be driven by post-response usage, not by preflight
+  token counts alone.
+  Source: <https://ai.google.dev/api/tokens>
+- The structured-output guide emphasizes **clear schema descriptions, strong
+  typing, prompt clarity, and app-side validation**, which supports moving some
+  repeated prompt guidance into schema descriptions instead of paying for it in
+  every Phase-2B prompt prefix.
   Source: <https://ai.google.dev/gemini-api/docs/structured-output>
-- The long-context guide says **do not pass tokens you do not need** and notes
-  that longer queries generally increase latency.
-  Source: <https://ai.google.dev/gemini-api/docs/long-context>
-- The caching guide says Gemini 2.5 models have **implicit caching** and that
+- The caching guide says Gemini 2.5 models have **implicit caching** by default;
   cache hits are helped by putting large common content at the beginning of the
-  prompt and by reusing similar prefixes close together; cache-hit information
-  is available in `usage_metadata`.
+  prompt and reusing similar prefixes close together. Cache-hit counts are
+  surfaced in `usage_metadata`.
   Source: <https://ai.google.dev/gemini-api/docs/caching/>
+- The Vertex/Google Cloud inference reference documents `seed` as **best effort
+  only** and explicitly says deterministic output is not guaranteed even with a
+  fixed seed.
+  Source: <https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/inference>
+
+### New live evidence from this branch
+
+Follow-up instrumentation and real Gemini runs materially changed the picture:
+
+- A seeded, costed single-document benchmark (`GeneReviews_NBK321516`,
+  `gemini-2.5-flash`, `seed=123`) reported:
+  - `prompt_tokens = 19,142`
+  - `completion_tokens = 3,188`
+  - `thoughts_tokens = 20,324`
+  - `cached_content_tokens = 0`
+  - `total_tokens = 42,654`
+  - estimated cost `= $0.0645`
+- On that sample, **thought tokens exceeded visible completion tokens**, so
+  output-side reasoning is currently the dominant cost bucket.
+- The same sample also showed that **same-seed runs still varied** in tokens and
+  F1, matching Google's "best effort" wording for reproducibility.
+- Most importantly, the live experiment that paired prompt compression with
+  `thinkingBudget=0` caused a Phase-2 structured call to fail with
+  `finish_reason=RECITATION`, followed by
+  `RuntimeError: Gemini returned no structured response payload`. Prompt
+  compression alone completed; the instability appeared only once thinking was
+  forcibly disabled.
+
+This changes the recommendation materially: the docs make `thinkingBudget=0`
+available, but our workflow evidence says **blanket thinking-off is not safe for
+structured clinical mapping on this branch today**.
 
 ### Revised recommendation
 
 Do **not** revert the shared-language prompt idea. Keep the quality gain, but
-optimize the implementation in this order:
+optimize with a measurement-first policy:
 
 1. **Trim the repeated mapping prefix aggressively**
    - Collapse the language contract to one short sentence.
@@ -808,16 +840,25 @@ optimize the implementation in this order:
 2. **Move guidance from prose into schema where possible**
    - Use response-schema descriptions to carry some behavioral guidance instead
      of repeating it in the prompt text.
-3. **Add Gemini thinking control to the provider**
-   - For `gemini-2.5-flash` structured extraction/mapping, benchmark
-     `thinkingBudget=0` first.
-   - This is the highest-ROI next experiment for speed/cost because it targets
-     both latency and hidden reasoning-token expansion.
-4. **Instrument cache effectiveness**
+3. **Instrument thought-token usage per phase before any new thinking change**
+   - Persist `thoughts_tokens` and `cached_content_tokens` per request and per
+     benchmark artifact, then attribute them to Phase 1 vs Phase 2B.
+   - The next decision is not "should we disable thinking globally?" but
+     "which exact call types actually earn their thought tokens?"
+4. **Treat thinking control as a targeted experiment, not a default**
+   - Only re-test `thinkingBudget=0` or reduced budgets on narrowly scoped
+     calls, with live structured-output verification and RECITATION/no-payload
+     monitoring.
+   - The likely safe candidates are simpler extraction or high-confidence
+     mapping paths, not the full low-confidence grounded Phase-2B path.
+5. **Instrument and then exploit cache effectiveness**
    - Surface cache-hit metadata from `usage_metadata` if the SDK exposes it.
-   - If repeated mapping prefixes clear the minimum threshold, consider
-     explicit caching for shared mapping/extraction prefixes.
-5. **Keep adaptive grounded context next**
+   - For Gemini 2.5 Flash, implicit caching only becomes relevant once requests
+     have at least a 1,024-token shared prefix; keep stable common prefixes at
+     the beginning of prompts and send similar requests close together.
+   - If Phase-2B prefixes consistently clear that threshold and are reused
+     heavily, explicit caching becomes worth evaluating.
+6. **Keep adaptive grounded context next**
    - Primary-only context remains the next best branch-local optimization once
      repeated prefix cost is reduced.
 
@@ -825,8 +866,11 @@ optimize the implementation in this order:
 
 Given the new evidence, the recommended order on this branch is now:
 
-1. Shared mapping prompt compression + Gemini thinking control
+1. Shared mapping prompt compression, schema tightening, and phase-level token
+   attribution
 2. Adaptive grounded context
-3. Token preflight heuristic
-4. Per-language calibration harness for routing thresholds
-5. German non-regression evaluation set / documented holdout
+3. Selective thinking-budget experiments on specific call types only
+4. Cache-hit optimization / possible explicit caching for repeated prefixes
+5. Token preflight heuristic
+6. Per-language calibration harness for routing thresholds
+7. German non-regression evaluation set / documented holdout
