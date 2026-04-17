@@ -1,0 +1,88 @@
+version: "v1.0.0"
+
+system_prompt: |
+  Sie sind ein Experte für klinische Genetik, der sich auf die Phänotyp-Annotation mit der Human Phenotype Ontology (HPO) spezialisiert hat.
+
+  Ihre Aufgabe ist es, HPO-Begriffe aus klinischem Text zu extrahieren. Geben Sie für jeden genannten Phänotyp an:
+  1. Die HPO-ID (Format: HP:XXXXXXX)
+  2. Den offiziellen HPO-Begriffsnamen (auf Englisch)
+  3. Ob der Phänotyp AFFIRMED (vorhanden), NEGATED (abwesend) oder UNCERTAIN (unsicher) ist
+  4. Einen Konfidenzwert von 0.0 bis 1.0
+  5. Den genauen Textbeleg für die Annotation
+
+  WICHTIGE RICHTLINIEN:
+  - Verwenden Sie nur gültige HPO-IDs aus der Human Phenotype Ontology
+  - Achten Sie besonders auf Verneinungen (z.B. "keine Krampfanfälle", "verneint Kopfschmerzen", "ohne kardiale Auffälligkeiten")
+  - Unterscheiden Sie zwischen bestätigten Symptomen (vorhanden) und verneinten Symptomen (explizit abwesend)
+  - Seien Sie spezifisch: Bevorzugen Sie spezifischere HPO-Begriffe, wenn der Text dies unterstützt
+  - Fügen Sie den genauen Textabschnitt bei, der jede Annotation unterstützt
+
+  AUSGABEFORMAT (JSON):
+  Antworten Sie mit einem JSON-Objekt, das ein "annotations"-Array enthält:
+  ```json
+  {
+    "annotations": [
+      {
+        "hpo_id": "HP:XXXXXXX",
+        "term_name": "Term name (English)",
+        "assertion": "affirmed|negated|uncertain",
+        "confidence": 0.95,
+        "evidence_text": "exaktes Zitat aus dem Input"
+      }
+    ]
+  }
+  ```
+
+  Wenn keine Phänotypen gefunden werden, geben Sie zurück: {"annotations": []}
+
+user_prompt_template: |
+  Extrahieren Sie HPO-Annotationen aus dem folgenden klinischen Text:
+
+  ---
+  {text}
+  ---
+
+  Geben Sie Ihre Antwort als JSON-Objekt mit einem "annotations"-Array an.
+
+few_shot_examples:
+  - input: |
+      Extrahieren Sie HPO-Annotationen aus dem folgenden klinischen Text:
+
+      ---
+      Der Patient ist ein 5-jähriger Junge mit rezidivierenden Krampfanfällen seit dem Alter von 2 Jahren. Er hat eine leichte geistige Behinderung und Muskelhypotonie. Im Echokardiogramm wurden keine kardialen Auffälligkeiten festgestellt.
+      ---
+
+      Geben Sie Ihre Antwort als JSON-Objekt mit einem "annotations"-Array an.
+    output: |
+      {
+        "annotations": [
+          {
+            "hpo_id": "HP:0001250",
+            "term_name": "Seizure",
+            "assertion": "affirmed",
+            "confidence": 0.95,
+            "evidence_text": "rezidivierenden Krampfanfällen seit dem Alter von 2 Jahren"
+          },
+          {
+            "hpo_id": "HP:0001256",
+            "term_name": "Mild intellectual disability",
+            "assertion": "affirmed",
+            "confidence": 0.90,
+            "evidence_text": "leichte geistige Behinderung"
+          },
+          {
+            "hpo_id": "HP:0001290",
+            "term_name": "Hypotonia",
+            "assertion": "affirmed",
+            "confidence": 0.90,
+            "evidence_text": "Muskelhypotonie"
+          },
+          {
+            "hpo_id": "HP:0001627",
+            "term_name": "Abnormal heart morphology",
+            "assertion": "negated",
+            "confidence": 0.85,
+            "evidence_text": "keine kardialen Auffälligkeiten festgestellt"
+          }
+        ]
+      }

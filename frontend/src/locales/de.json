@@ -139,6 +139,14 @@
       "modeQuery": "Abfragemodus (kurzer Text)",
       "modeTextProcess": "Textverarbeitungsmodus (Dokument)",
       "textProcessingTitle": "Textverarbeitungseinstellungen",
+      "extractionBackend": "Extraktions-Backend",
+      "standardExtraction": "Standardextraktion",
+      "llmExtraction": "LLM-Extraktion",
+      "llmModel": "LLM-Modell",
+      "llmMode": "LLM-Modus",
+      "llmModes": {
+        "twoPhase": "Zweistufige Extraktion"
+      },
       "chunkingStrategy": "Aufteilungsstrategie",
       "windowSize": "Fenstergröße (Tokens)",
       "stepSize": "Schrittgröße",
@@ -164,6 +172,27 @@
       "subjectId": "Geben Sie eine Kennung für den Patienten ein",
       "sex": "Wählen Sie das biologische Geschlecht des Patienten",
       "dateOfBirth": "Geben Sie das Geburtsdatum des Patienten ein"
+    },
+    "accessibility": {
+      "textProcessInputLabel": "Eingabefeld für klinische Dokumente zur Textverarbeitung",
+      "textProcessInputDescription": "Längeren klinischen Text zur Dokumentenverarbeitung eingeben.",
+      "queryInputLabel": "Eingabefeld für klinischen Text",
+      "queryInputDescription": "Klinischen Text eingeben, um nach HPO-Begriffen zu suchen.",
+      "processingInProgress": "Verarbeitung läuft.",
+      "searchInProgress": "Suche läuft.",
+      "openAdvancedOptions": "Erweiterte Optionen öffnen",
+      "closeAdvancedOptions": "Erweiterte Optionen schließen",
+      "searchButton": "HPO-Begriffe suchen",
+      "userInput": "Benutzereingabe",
+      "response": "Phentrieve-Antwort",
+      "advancedOptionsRegion": "Erweiterte Suchoptionen",
+      "selectEmbeddingModel": "Einbettungsmodell auswählen",
+      "embeddingModelDescription": "Wählen Sie das Modell für die Texteinbettung. Aktuell ausgewählt: {selectedModel}",
+      "similarityThresholdSlider": "Schieberegler für Ähnlichkeitsschwelle",
+      "similarityThresholdDescription": "Mindest-Ähnlichkeitsschwelle anpassen. Aktueller Wert: {similarityThreshold}",
+      "selectQueryLanguage": "Abfragesprache auswählen",
+      "queryLanguageDescription": "Sprache für die Abfrageverarbeitung auswählen. Aktuell ausgewählt: {selectedLanguage}",
+      "includeDetailsSwitch": "HPO-Begriff-Definitionen und Synonyme einschließen"
     }
   },
   "resultsDisplay": {
@@ -231,8 +260,10 @@
       "confidenceTooltip": "Durchschnittlicher Konfidenzwert aus allen Evidenzabschnitten",
       "sourceChunks": "Quellenabschnitte",
       "topEvidence": "Beste Evidenz",
+      "llmLimitedNotice": "Eingeschränkte Demo-Version: {quotaLimit} LLM-Analysen pro Tag.",
       "noChunksProcessed": "Es wurden keine Textabschnitte verarbeitet.",
       "noAggregatedTerms": "Keine aggregierten HPO-Begriffe gefunden.",
+      "strategyUnknown": "Unbekannte Strategie",
       "assertionDetail": "Bestimmungsmethode:",
       "finalStatus": "Endgültiger Status:"
     }
@@ -275,7 +306,8 @@
       "notFound": "Die angeforderte Ressource konnte nicht gefunden werden. (Status: {status})",
       "notFoundModel": "Das angeforderte Modell konnte auf dem Server nicht gefunden werden. (Status: {status})",
       "serverError": "Ein Serverfehler ist aufgetreten. Bitte versuchen Sie es später erneut. (Status: {status})",
-      "serviceUnavailable": "Der Dienst ist vorübergehend nicht verfügbar. Bitte versuchen Sie es später erneut. (Status: {status})"
+      "serviceUnavailable": "Der Dienst ist vorübergehend nicht verfügbar. Bitte versuchen Sie es später erneut. (Status: {status})",
+      "llmQuotaExceeded": "Das LLM-Limit für den heutigen Volltext ist erreicht."
     }
   },
   "tutorial": {

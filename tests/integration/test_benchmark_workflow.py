@@ -19,10 +19,16 @@ from pathlib import Path
 
 import pytest
 
+from phentrieve.benchmark.extraction_benchmark import (
+    ExtractionBenchmark,
+    ExtractionConfig,
+)
+from phentrieve.benchmark.llm_cli import run_llm_benchmark_cli
 from phentrieve.evaluation.runner import compare_models, run_evaluation
 from phentrieve.evaluation.statistics import (
     compare_models_with_significance,
 )
+from phentrieve.llm.types import ExtractionGroup
 
 
 @pytest.fixture
@@ -407,3 +413,895 @@ def test_empty_benchmark_handles_gracefully(temp_results_dir):
 
     # Empty test file should result in None return
     assert results is None
+
+
+def test_llm_benchmark_smoke_writes_result_file(tmp_path, monkeypatch):
+    output_path = tmp_path / "llm_benchmark_result.json"
+
+    monkeypatch.setattr(
+        "phentrieve.benchmark.llm_benchmark.run_llm_benchmark",
+        lambda **kwargs: {
+            "cases": 1,
+            "llm_model": kwargs["llm_model"],
+            "llm_mode": kwargs["llm_mode"],
+            "output_path": str(output_path),
+        },
+    )
+
+    result = run_llm_benchmark_cli(
+        test_file="tests/data/benchmarks/german/tiny_v1.json",
+        llm_model="gemini-2.5-flash",
+        llm_mode="two_phase",
+        output_path=str(output_path),
+    )
+
+    assert result["cases"] == 1
+    assert Path(result["output_path"]).exists()
+    assert json.loads(output_path.read_text(encoding="utf-8"))["llm_model"] == (
+        "gemini-2.5-flash"
+    )
+
+
+def test_llm_benchmark_cli_rejects_missing_input_file(tmp_path):
+    missing_file = tmp_path / "missing.json"
+
+    with pytest.raises(ValueError, match="Benchmark test file not found"):
+        run_llm_benchmark_cli(
+            test_file=str(missing_file),
+            llm_model="gemini-2.5-flash",
+        )
+
+
+def test_llm_benchmark_cli_rejects_invalid_json_input(tmp_path):
+    invalid_file = tmp_path / "invalid.json"
+    invalid_file.write_text("{not json}", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="must be valid JSON"):
+        run_llm_benchmark_cli(
+            test_file=str(invalid_file),
+            llm_model="gemini-2.5-flash",
+        )
+
+
+def test_llm_benchmark_smoke_supports_phenobert_directory(
+    tmp_path, monkeypatch, benchmark_data_dir
+):
+    output_path = tmp_path / "llm_benchmark_gene_reviews.json"
+
+    class _FakePipeline:
+        def __init__(self, provider):
+            self.provider = provider
+
+        def run(self, *, text, grounded_chunks, config):
+            from phentrieve.llm.types import LLMExtractionResult, LLMMeta
+
+            assert text
+            return LLMExtractionResult(
+                terms=[],
+                meta=LLMMeta(
+                    llm_model=config.model,
+                    llm_mode=config.mode,
+                ),
+            )
+
+    monkeypatch.setattr(
+        "phentrieve.benchmark.llm_benchmark.get_llm_provider",
+        lambda llm_model: object(),
+    )
+    monkeypatch.setattr(
+        "phentrieve.benchmark.llm_benchmark.TwoPhaseLLMPipeline",
+        _FakePipeline,
+    )
+    monkeypatch.setattr(
+        "phentrieve.benchmark.llm_benchmark._build_grounded_chunks",
+        lambda **kwargs: [{"chunk_id": 1, "text": kwargs["text"]}],
+    )
+
+    result = run_llm_benchmark_cli(
+        test_file=str(Path("tests/data/en/phenobert")),
+        dataset="GeneReviews",
+        llm_model="gemini-2.5-flash",
+        llm_mode="two_phase",
+        output_path=str(output_path),
+    )
+
+    assert result["cases"] == 10
+    assert result["dataset"] == "GeneReviews"
+    assert result["test_file"] == str(Path("tests/data/en/phenobert"))
+    assert Path(result["output_path"]).exists()
+
+
+def test_llm_benchmark_smoke_persists_grounded_trace_fields(tmp_path, monkeypatch):
+    output_path = tmp_path / "llm_benchmark_grounded_trace.json"
+
+    class _FakePipeline:
+        def __init__(self, provider):
+            self.provider = provider
+
+        def run(self, *, text, grounded_chunks, config):
+            from phentrieve.llm.types import LLMExtractionResult, LLMMeta, LLMPhenotype
+
+            assert text
+            assert grounded_chunks[0]["chunk_id"] == 1
+            return LLMExtractionResult(
+                terms=[
+                    LLMPhenotype(
+                        term_id="HP:0001250",
+                        label="Seizure",
+                        evidence="seizures",
+                        assertion="present",
+                        category="abnormal",
+                    )
+                ],
+                meta=LLMMeta(
+                    llm_model=config.model,
+                    llm_mode=config.mode,
+                    trace={
+                        "phase1": {
+                            "extracted": [
+                                {
+                                    "phrase": "seizures",
+                                    "category": "abnormal",
+                                    "chunk_ids": [1],
+                                    "evidence_text": "seizures",
+                                    "actionable": True,
+                                }
+                            ]
+                        }
+                    },
+                ),
+            )
+
+    monkeypatch.setattr(
+        "phentrieve.benchmark.llm_benchmark.get_llm_provider",
+        lambda llm_model: object(),
+    )
+    monkeypatch.setattr(
+        "phentrieve.benchmark.llm_benchmark.TwoPhaseLLMPipeline",
+        _FakePipeline,
+    )
+    monkeypatch.setattr(
+        "phentrieve.benchmark.llm_benchmark._build_grounded_chunks",
+        lambda **kwargs: [{"chunk_id": 1, "text": "Patient has seizures."}],
+    )
+
+    result = run_llm_benchmark_cli(
+        test_file=str(Path("tests/data/en/phenobert")),
+        dataset="GeneReviews",
+        llm_model="gemini-2.5-flash",
+        llm_mode="two_phase",
+        llm_internal_mode="whole_document_grounded",
+        output_path=str(output_path),
+    )
+
+    observability = result["prediction_records"][0]["metadata"]["observability"]
+    assert observability["phase1_completed_groups"] == 0
+    assert observability["phase1_failed_groups"] == 0
+    assert observability["phase1_partial_failures"] == 0
+    assert result["prediction_records"][0]["trace"]["phase1"]["extracted"][0][
+        "chunk_ids"
+    ] == [1]
+
+
+def test_benchmark_trace_persists_group_failures(tmp_path, monkeypatch):
+    output_path = tmp_path / "llm_benchmark_group_failures.json"
+    captured_calls: list[dict[str, object]] = []
+
+    class _FakeProvider:
+        def count_tokens(self, *, system_prompt, user_prompt):
+            return {"prompt_tokens": 30001, "total_tokens": 30001}
+
+    class _FakePipeline:
+        def __init__(self, provider):
+            self.provider = provider
+
+        def run(self, *, text, grounded_chunks, extraction_groups, config):
+            from phentrieve.llm.types import LLMExtractionResult, LLMMeta, LLMPhenotype
+
+            captured_calls.append(
+                {
+                    "text": text,
+                    "grounded_chunks": grounded_chunks,
+                    "extraction_groups": extraction_groups,
+                }
+            )
+            assert text
+            assert grounded_chunks[0]["chunk_id"] == 1
+            assert extraction_groups == [
+                {
+                    "group_id": 1,
+                    "chunk_ids": [1],
+                    "text": "chunk_id=1: Patient has seizures.",
+                    "estimated_prompt_tokens": 12,
+                },
+                {
+                    "group_id": 2,
+                    "chunk_ids": [2],
+                    "text": "chunk_id=2: Additional chunk.",
+                    "estimated_prompt_tokens": 11,
+                },
+            ]
+            return LLMExtractionResult(
+                terms=[
+                    LLMPhenotype(
+                        term_id="HP:0001250",
+                        label="Seizure",
+                        evidence="seizures",
+                        assertion="present",
+                        category="abnormal",
+                    )
+                ],
+                meta=LLMMeta(
+                    llm_model=config.model,
+                    llm_mode=config.mode,
+                    phase_counts={
+                        "extracted_phrases": 1,
+                        "actionable_phrases": 1,
+                        "phase1_completed_groups": 1,
+                        "phase1_failed_groups": 1,
+                        "phase1_partial_failures": 1,
+                    },
+                    trace={
+                        "phase1": {
+                            "extracted": [
+                                {
+                                    "phrase": "seizures",
+                                    "category": "abnormal",
+                                    "chunk_ids": [1],
+                                    "evidence_text": "seizures",
+                                    "actionable": True,
+                                }
+                            ],
+                            "groups": [
+                                {
+                                    "group_id": 1,
+                                    "chunk_ids": [1],
+                                    "status": "completed",
+                                    "extracted_count": 1,
+                                    "extracted": [
+                                        {
+                                            "phrase": "seizures",
+                                            "category": "abnormal",
+                                            "chunk_ids": [1],
+                                            "evidence_text": "seizures",
+                                            "actionable": True,
+                                        }
+                                    ],
+                                },
+                                {
+                                    "group_id": 2,
+                                    "chunk_ids": [2],
+                                    "status": "failed",
+                                    "error": "Structured extraction failed",
+                                    "error_type": "LLMPipelinePhaseError",
+                                    "extracted_count": 0,
+                                    "extracted": [],
+                                },
+                            ],
+                        }
+                    },
+                ),
+            )
+
+    monkeypatch.setattr(
+        "phentrieve.benchmark.llm_benchmark.get_llm_provider",
+        lambda llm_model: _FakeProvider(),
+    )
+    monkeypatch.setattr(
+        "phentrieve.benchmark.llm_benchmark.TwoPhaseLLMPipeline",
+        _FakePipeline,
+    )
+    monkeypatch.setattr(
+        "phentrieve.benchmark.llm_benchmark._build_grounded_chunks",
+        lambda **kwargs: [
+            {"chunk_id": 1, "text": "Patient has seizures."},
+            {"chunk_id": 2, "text": "Additional chunk."},
+        ],
+    )
+    monkeypatch.setattr(
+        "phentrieve.benchmark.llm_benchmark.build_extraction_groups",
+        lambda **kwargs: [
+            ExtractionGroup(
+                group_id=1,
+                chunk_ids=[1],
+                text="chunk_id=1: Patient has seizures.",
+                estimated_prompt_tokens=12,
+            ),
+            ExtractionGroup(
+                group_id=2,
+                chunk_ids=[2],
+                text="chunk_id=2: Additional chunk.",
+                estimated_prompt_tokens=11,
+            ),
+        ],
+    )
+
+    result = run_llm_benchmark_cli(
+        test_file=str(Path("tests/data/en/phenobert")),
+        dataset="GeneReviews",
+        llm_model="gemini-2.5-flash",
+        llm_mode="two_phase",
+        llm_internal_mode="whole_document_grounded",
+        output_path=str(output_path),
+    )
+
+    assert captured_calls
+    assert captured_calls[0]["grounded_chunks"] == [
+        {"chunk_id": 1, "text": "Patient has seizures."},
+        {"chunk_id": 2, "text": "Additional chunk."},
+    ]
+    prediction_record = result["prediction_records"][0]
+    observability = prediction_record["metadata"]["observability"]
+    phase1_trace = prediction_record["trace"]["phase1"]
+    assert observability["request_count"] == 0
+    assert observability["extracted_phrases"] == 1
+    assert observability["actionable_phrases"] == 1
+    assert observability["phase1_completed_groups"] == 1
+    assert observability["phase1_failed_groups"] == 1
+    assert observability["phase1_partial_failures"] == 1
+    assert observability["grounded_chunks"] == 2
+    assert observability["extraction_groups"] == 2
+    assert observability["failed_groups"] == 1
+    assert observability["deduplicated_phase1_mentions"] == 0
+    assert observability["deduplicated_unresolved_mappings"] == 0
+    assert observability["phase1_requests"] == 0
+    assert observability["phase2b_llm_requests"] == 0
+    assert phase1_trace["groups"] == [
+        {
+            "group_id": 1,
+            "chunk_ids": [1],
+            "status": "completed",
+            "extracted_count": 1,
+            "extracted": [
+                {
+                    "phrase": "seizures",
+                    "category": "abnormal",
+                    "chunk_ids": [1],
+                    "evidence_text": "seizures",
+                    "actionable": True,
+                }
+            ],
+        },
+        {
+            "group_id": 2,
+            "chunk_ids": [2],
+            "status": "failed",
+            "error": "Structured extraction failed",
+            "error_type": "LLMPipelinePhaseError",
+            "extracted_count": 0,
+            "extracted": [],
+        },
+    ]
+    assert phase1_trace["extracted"] == [
+        {
+            "phrase": "seizures",
+            "category": "abnormal",
+            "chunk_ids": [1],
+            "evidence_text": "seizures",
+            "actionable": True,
+        }
+    ]
+    assert result["results"][0]["partial_failure_counts"] == {
+        "phase1_completed_groups": 1,
+        "phase1_failed_groups": 1,
+        "phase1_partial_failures": 1,
+    }
+
+
+def test_benchmark_artifact_persists_group_counts_and_phase1_group_timings(
+    tmp_path, monkeypatch
+):
+    output_path = tmp_path / "llm_benchmark_group_observability.json"
+
+    class _FakeProvider:
+        def count_tokens(self, *, system_prompt, user_prompt):
+            return {"prompt_tokens": 30001, "total_tokens": 30001}
+
+    class _FakePipeline:
+        def __init__(self, provider):
+            self.provider = provider
+
+        def run(self, *, text, grounded_chunks, extraction_groups, config):
+            from phentrieve.llm.types import LLMExtractionResult, LLMMeta, LLMPhenotype
+
+            assert text
+            assert len(grounded_chunks) == 2
+            assert len(extraction_groups) == 2
+            return LLMExtractionResult(
+                terms=[
+                    LLMPhenotype(
+                        term_id="HP:0001250",
+                        label="Seizure",
+                        evidence="seizures",
+                        assertion="present",
+                        category="abnormal",
+                    )
+                ],
+                meta=LLMMeta(
+                    llm_model=config.model,
+                    llm_mode=config.mode,
+                    phase_counts={
+                        "extracted_phrases": 1,
+                        "actionable_phrases": 2,
+                        "candidate_sets": 2,
+                        "unresolved_phrases": 2,
+                        "local_matches": 0,
+                        "llm_mapped_phrases": 2,
+                        "local_fallbacks": 0,
+                        "phase1_completed_groups": 2,
+                        "phase1_failed_groups": 0,
+                        "phase1_partial_failures": 0,
+                    },
+                    trace={
+                        "phase1": {
+                            "extracted": [
+                                {
+                                    "phrase": "seizures",
+                                    "category": "abnormal",
+                                    "chunk_ids": [1, 2],
+                                    "evidence_text": "seizures",
+                                    "actionable": True,
+                                }
+                            ],
+                            "groups": [
+                                {
+                                    "group_id": 1,
+                                    "chunk_ids": [1],
+                                    "status": "completed",
+                                    "extracted_count": 1,
+                                    "prompt_tokens": 10,
+                                    "completion_tokens": 3,
+                                    "request_count": 1,
+                                    "elapsed_seconds": 0.41,
+                                    "extracted": [
+                                        {
+                                            "phrase": "seizures",
+                                            "category": "abnormal",
+                                            "chunk_ids": [1],
+                                            "evidence_text": "seizures",
+                                            "actionable": True,
+                                        }
+                                    ],
+                                },
+                                {
+                                    "group_id": 2,
+                                    "chunk_ids": [2],
+                                    "status": "completed",
+                                    "extracted_count": 1,
+                                    "prompt_tokens": 9,
+                                    "completion_tokens": 4,
+                                    "request_count": 1,
+                                    "elapsed_seconds": 0.63,
+                                    "extracted": [
+                                        {
+                                            "phrase": "seizures",
+                                            "category": "abnormal",
+                                            "chunk_ids": [2],
+                                            "evidence_text": "seizures",
+                                            "actionable": True,
+                                        }
+                                    ],
+                                },
+                            ],
+                        },
+                        "phase2b_llm": {
+                            "resolved": [
+                                {
+                                    "phrase": "seizures",
+                                    "selected_id": "HP:0001250",
+                                    "term_id": "HP:0001250",
+                                    "label": "Seizure",
+                                    "assertion": "present",
+                                    "category": "abnormal",
+                                    "match_method": "llm",
+                                    "local_fallback": False,
+                                    "chunk_ids": [1],
+                                    "evidence_text": "seizures",
+                                },
+                                {
+                                    "phrase": "seizures",
+                                    "selected_id": "HP:0001250",
+                                    "term_id": "HP:0001250",
+                                    "label": "Seizure",
+                                    "assertion": "present",
+                                    "category": "abnormal",
+                                    "match_method": "llm",
+                                    "local_fallback": False,
+                                    "chunk_ids": [2],
+                                    "evidence_text": "seizures",
+                                },
+                            ]
+                        },
+                    },
+                ),
+            )
+
+    monkeypatch.setattr(
+        "phentrieve.benchmark.llm_benchmark.get_llm_provider",
+        lambda llm_model: _FakeProvider(),
+    )
+    monkeypatch.setattr(
+        "phentrieve.benchmark.llm_benchmark.TwoPhaseLLMPipeline",
+        _FakePipeline,
+    )
+    monkeypatch.setattr(
+        "phentrieve.benchmark.llm_benchmark._build_grounded_chunks",
+        lambda **kwargs: [
+            {"chunk_id": 1, "text": "Patient has seizures."},
+            {"chunk_id": 2, "text": "Repeated mention of seizures."},
+        ],
+    )
+    monkeypatch.setattr(
+        "phentrieve.benchmark.llm_benchmark.build_extraction_groups",
+        lambda **kwargs: [
+            ExtractionGroup(
+                group_id=1,
+                chunk_ids=[1],
+                text="chunk_id=1: Patient has seizures.",
+                estimated_prompt_tokens=10,
+            ),
+            ExtractionGroup(
+                group_id=2,
+                chunk_ids=[2],
+                text="chunk_id=2: Repeated mention of seizures.",
+                estimated_prompt_tokens=9,
+            ),
+        ],
+    )
+
+    result = run_llm_benchmark_cli(
+        test_file=str(Path("tests/data/en/phenobert")),
+        dataset="GeneReviews",
+        llm_model="gemini-2.5-flash",
+        llm_mode="two_phase",
+        llm_internal_mode="whole_document_grounded",
+        output_path=str(output_path),
+    )
+
+    prediction_record = result["prediction_records"][0]
+    observability = prediction_record["metadata"]["observability"]
+    phase1_groups = prediction_record["trace"]["phase1"]["groups"]
+    persisted = json.loads(output_path.read_text(encoding="utf-8"))
+    persisted_prediction = persisted["prediction_records"][0]
+    persisted_observability = persisted_prediction["metadata"]["observability"]
+    persisted_phase1_groups = persisted_prediction["trace"]["phase1"]["groups"]
+    assert observability["grounded_chunks"] == 2
+    assert observability["extraction_groups"] == 2
+    assert observability["failed_groups"] == 0
+    assert observability["deduplicated_phase1_mentions"] == 1
+    assert observability["deduplicated_unresolved_mappings"] == 1
+    assert phase1_groups[0]["elapsed_seconds"] == 0.41
+    assert phase1_groups[1]["elapsed_seconds"] == 0.63
+    assert phase1_groups[0]["prompt_tokens"] == 10
+    assert phase1_groups[1]["completion_tokens"] == 4
+    assert persisted_observability["grounded_chunks"] == 2
+    assert persisted_observability["extraction_groups"] == 2
+    assert persisted_observability["deduplicated_phase1_mentions"] == 1
+    assert persisted_observability["deduplicated_unresolved_mappings"] == 1
+    assert persisted_phase1_groups[0]["elapsed_seconds"] == 0.41
+    assert persisted_phase1_groups[1]["elapsed_seconds"] == 0.63
+
+
+def test_benchmark_record_includes_partial_failure_counts(tmp_path, monkeypatch):
+    output_path = tmp_path / "llm_benchmark_partial_failure_counts.json"
+
+    class _FakeProvider:
+        def count_tokens(self, *, system_prompt, user_prompt):
+            return {"prompt_tokens": 30001, "total_tokens": 30001}
+
+    class _FakePipeline:
+        def __init__(self, provider):
+            self.provider = provider
+
+        def run(self, *, text, grounded_chunks, extraction_groups, config):
+            from phentrieve.llm.types import LLMExtractionResult, LLMMeta, LLMPhenotype
+
+            assert text
+            assert grounded_chunks
+            assert extraction_groups
+            return LLMExtractionResult(
+                terms=[
+                    LLMPhenotype(
+                        term_id="HP:0001250",
+                        label="Seizure",
+                        evidence="seizures",
+                        assertion="present",
+                        category="abnormal",
+                    )
+                ],
+                meta=LLMMeta(
+                    llm_model=config.model,
+                    llm_mode=config.mode,
+                    phase_counts={
+                        "extracted_phrases": 1,
+                        "actionable_phrases": 1,
+                        "candidate_sets": 1,
+                        "unresolved_phrases": 0,
+                        "local_matches": 1,
+                        "llm_mapped_phrases": 0,
+                        "local_fallbacks": 0,
+                        "phase1_completed_groups": 1,
+                        "phase1_failed_groups": 1,
+                        "phase1_partial_failures": 1,
+                    },
+                    trace={
+                        "phase1": {
+                            "extracted": [
+                                {
+                                    "phrase": "seizures",
+                                    "category": "abnormal",
+                                    "chunk_ids": [1],
+                                    "evidence_text": "seizures",
+                                    "actionable": True,
+                                }
+                            ],
+                            "groups": [
+                                {
+                                    "group_id": 1,
+                                    "chunk_ids": [1],
+                                    "status": "completed",
+                                    "extracted_count": 1,
+                                    "elapsed_seconds": 0.4,
+                                    "extracted": [
+                                        {
+                                            "phrase": "seizures",
+                                            "category": "abnormal",
+                                            "chunk_ids": [1],
+                                            "evidence_text": "seizures",
+                                            "actionable": True,
+                                        }
+                                    ],
+                                },
+                                {
+                                    "group_id": 2,
+                                    "chunk_ids": [2],
+                                    "status": "failed",
+                                    "error": "Structured extraction failed",
+                                    "error_type": "LLMPipelinePhaseError",
+                                    "extracted_count": 0,
+                                    "elapsed_seconds": 0.2,
+                                    "extracted": [],
+                                },
+                            ],
+                        }
+                    },
+                ),
+            )
+
+    monkeypatch.setattr(
+        "phentrieve.benchmark.llm_benchmark.get_llm_provider",
+        lambda llm_model: _FakeProvider(),
+    )
+    monkeypatch.setattr(
+        "phentrieve.benchmark.llm_benchmark.TwoPhaseLLMPipeline",
+        _FakePipeline,
+    )
+    monkeypatch.setattr(
+        "phentrieve.benchmark.llm_benchmark._build_grounded_chunks",
+        lambda **kwargs: [
+            {"chunk_id": 1, "text": "Patient has seizures."},
+            {"chunk_id": 2, "text": "Additional chunk."},
+        ],
+    )
+    monkeypatch.setattr(
+        "phentrieve.benchmark.llm_benchmark.build_extraction_groups",
+        lambda **kwargs: [
+            ExtractionGroup(
+                group_id=1,
+                chunk_ids=[1],
+                text="chunk_id=1: Patient has seizures.",
+                estimated_prompt_tokens=12,
+            ),
+            ExtractionGroup(
+                group_id=2,
+                chunk_ids=[2],
+                text="chunk_id=2: Additional chunk.",
+                estimated_prompt_tokens=11,
+            ),
+        ],
+    )
+
+    result = run_llm_benchmark_cli(
+        test_file=str(Path("tests/data/en/phenobert")),
+        dataset="GeneReviews",
+        llm_model="gemini-2.5-flash",
+        llm_mode="two_phase",
+        llm_internal_mode="whole_document_grounded",
+        output_path=str(output_path),
+    )
+
+    prediction_record = result["prediction_records"][0]
+    observability = prediction_record["metadata"]["observability"]
+    persisted = json.loads(output_path.read_text(encoding="utf-8"))
+    persisted_record = persisted["results"][0]
+    persisted_observability = persisted["prediction_records"][0]["metadata"][
+        "observability"
+    ]
+    assert observability["failed_groups"] == 1
+    assert result["results"][0]["partial_failure_counts"] == {
+        "phase1_completed_groups": 1,
+        "phase1_failed_groups": 1,
+        "phase1_partial_failures": 1,
+    }
+    assert persisted_observability["failed_groups"] == 1
+    assert persisted_record["partial_failure_counts"] == {
+        "phase1_completed_groups": 1,
+        "phase1_failed_groups": 1,
+        "phase1_partial_failures": 1,
+    }
+
+
+def test_benchmark_grouped_execution_keeps_legacy_pipeline_call_surface(
+    tmp_path, monkeypatch
+):
+    output_path = tmp_path / "llm_benchmark_legacy_pipeline.json"
+    build_extraction_groups_calls: list[dict[str, object]] = []
+    captured_calls: list[dict[str, object]] = []
+
+    class _FakeProvider:
+        def count_tokens(self, *, system_prompt, user_prompt):
+            return {"prompt_tokens": 30001, "total_tokens": 30001}
+
+    class _FakePipeline:
+        def __init__(self, provider):
+            self.provider = provider
+
+        def run(self, *, text, grounded_chunks, config):
+            from phentrieve.llm.types import LLMExtractionResult, LLMMeta, LLMPhenotype
+
+            captured_calls.append(
+                {
+                    "text": text,
+                    "grounded_chunks": grounded_chunks,
+                    "config": config,
+                }
+            )
+            return LLMExtractionResult(
+                terms=[
+                    LLMPhenotype(
+                        term_id="HP:0001250",
+                        label="Seizure",
+                        evidence="seizures",
+                        assertion="present",
+                        category="abnormal",
+                    )
+                ],
+                meta=LLMMeta(llm_model=config.model, llm_mode=config.mode),
+            )
+
+    monkeypatch.setattr(
+        "phentrieve.benchmark.llm_benchmark.get_llm_provider",
+        lambda llm_model: _FakeProvider(),
+    )
+    monkeypatch.setattr(
+        "phentrieve.benchmark.llm_benchmark.TwoPhaseLLMPipeline",
+        _FakePipeline,
+    )
+    monkeypatch.setattr(
+        "phentrieve.benchmark.llm_benchmark._build_grounded_chunks",
+        lambda **kwargs: [
+            {"chunk_id": 1, "text": "Patient has seizures."},
+            {"chunk_id": 2, "text": "Additional chunk."},
+        ],
+    )
+
+    def _fake_build_extraction_groups(**kwargs):
+        build_extraction_groups_calls.append(kwargs)
+        return [
+            ExtractionGroup(
+                group_id=1,
+                chunk_ids=[1],
+                text="chunk_id=1: Patient has seizures.",
+                estimated_prompt_tokens=12,
+            ),
+            ExtractionGroup(
+                group_id=2,
+                chunk_ids=[2],
+                text="chunk_id=2: Additional chunk.",
+                estimated_prompt_tokens=11,
+            ),
+        ]
+
+    monkeypatch.setattr(
+        "phentrieve.benchmark.llm_benchmark.build_extraction_groups",
+        _fake_build_extraction_groups,
+    )
+
+    result = run_llm_benchmark_cli(
+        test_file=str(Path("tests/data/en/phenobert")),
+        dataset="GeneReviews",
+        llm_model="gemini-2.5-flash",
+        llm_mode="two_phase",
+        llm_internal_mode="whole_document_grounded",
+        output_path=str(output_path),
+    )
+
+    assert build_extraction_groups_calls
+    assert captured_calls
+    assert captured_calls[0]["grounded_chunks"] == [
+        {"chunk_id": 1, "text": "Patient has seizures."},
+        {"chunk_id": 2, "text": "Additional chunk."},
+    ]
+    assert result["results"][0]["predicted_hpo_ids"] == ["HP:0001250"]
+
+
+def test_llm_benchmark_rejects_unknown_phenobert_dataset(tmp_path):
+    with pytest.raises(ValueError, match="Unknown dataset"):
+        run_llm_benchmark_cli(
+            test_file=str(Path("tests/data/en/phenobert")),
+            dataset="not_a_dataset",
+            llm_model="gemini-2.5-flash",
+            output_path=str(tmp_path / "result.json"),
+        )
+
+
+def test_llm_benchmark_rejects_invalid_phenobert_root(tmp_path):
+    invalid_root = tmp_path / "GeneReviews"
+    invalid_root.mkdir()
+
+    with pytest.raises(ValueError, match="No benchmark documents found"):
+        run_llm_benchmark_cli(
+            test_file=str(invalid_root),
+            dataset="GeneReviews",
+            llm_model="gemini-2.5-flash",
+            output_path=str(tmp_path / "result.json"),
+        )
+
+
+def test_extraction_benchmark_uses_effective_config_overrides(tmp_path, monkeypatch):
+    benchmark = ExtractionBenchmark(
+        model_name="sentence-transformers/LaBSE",
+        config=ExtractionConfig(
+            model_name="sentence-transformers/LaBSE",
+            dataset="all",
+            averaging="micro",
+            bootstrap_ci=False,
+        ),
+    )
+
+    captured: dict[str, object] = {}
+
+    def _fake_load_benchmark_data(test_path, dataset):
+        captured["dataset"] = dataset
+        return {
+            "metadata": {
+                "dataset_name": f"phenobert_{dataset}",
+                "source": "phenobert",
+                "total_documents": 1,
+                "total_annotations": 1,
+            },
+            "documents": [
+                {
+                    "id": "doc-1",
+                    "text": "Clinical text",
+                    "gold_hpo_terms": [{"id": "HP:0001250", "assertion": "PRESENT"}],
+                    "source_dataset": dataset,
+                }
+            ],
+        }
+
+    monkeypatch.setattr(
+        "phentrieve.benchmark.extraction_benchmark.load_benchmark_data",
+        _fake_load_benchmark_data,
+    )
+    monkeypatch.setattr(benchmark.extractor, "extract", lambda text: [])
+
+    output_dir = tmp_path / "results"
+    benchmark.run_benchmark(
+        test_file=tmp_path,
+        output_dir=output_dir,
+        config_overrides={
+            "dataset": "GeneReviews",
+            "averaging": "macro",
+        },
+    )
+
+    saved_payload = json.loads(
+        (output_dir / "extraction_results.json").read_text(encoding="utf-8")
+    )
+
+    assert captured["dataset"] == "GeneReviews"
+    assert saved_payload["metadata"]["config"]["averaging"] == "macro"
+    assert saved_payload["metadata"]["dataset"]["dataset_name"] == (
+        "phenobert_GeneReviews"
+    )

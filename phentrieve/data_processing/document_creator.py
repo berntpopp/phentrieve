@@ -9,6 +9,8 @@ import logging
 import os
 from typing import Any
 
+from chromadb.api.types import Metadatas
+
 from phentrieve.config import DEFAULT_HPO_DB_FILENAME
 from phentrieve.data_processing.hpo_database import HPODatabase
 from phentrieve.utils import get_default_data_dir, resolve_data_path
@@ -62,7 +64,7 @@ def load_hpo_terms(data_dir_override: str | None = None) -> list[dict[str, Any]]
 
 def create_hpo_documents(
     hpo_terms: list[dict[str, Any]],
-) -> tuple[list[str], list[dict[str, Any]], list[str]]:
+) -> tuple[list[str], Metadatas, list[str]]:
     """
     Create descriptive documents for each HPO term suitable for embedding and indexing.
 
@@ -80,7 +82,7 @@ def create_hpo_documents(
     """
     logging.info("Creating HPO documents for indexing...")
     documents = []
-    metadatas = []
+    metadatas: Metadatas = []
     ids = []
 
     for term in hpo_terms:

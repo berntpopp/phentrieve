@@ -16,6 +16,33 @@ together:
 
 ---
 
+## [0.14.0] — 2026-04-17
+
+**Component versions**: phentrieve `0.14.0`, phentrieve-api `0.8.2`, phentrieve-frontend `0.7.0`
+
+Focused LLM CLI stabilization and provider-quality release.
+
+### Changed
+
+- default LLM model changed to `gemini-3.1-flash-lite-preview` after full-run
+  GeneReviews benchmarking
+- benchmark observability now records richer Gemini usage and cost accounting,
+  including thought and cached-token usage
+- Gemini retries now cover transient transport/network failures so long-running
+  CLI and benchmark executions do not fail on a single connectivity blip
+- grounded routing, grouped Phase-1 extraction, and shared mapping prompt
+  behavior were stabilized after regression investigation and reruns
+- invalid trusted-proxy CIDR values are no longer logged in clear text
+
+### Benchmarks
+
+- `gemini-3.1-flash-lite-preview` full 10-doc GeneReviews run:
+  - wall clock `109.640s`
+  - micro precision `0.8291`
+  - micro recall `0.8186`
+  - micro F1 `0.8238`
+  - estimated cost `$0.0546`
+
 ## [0.13.0] — 2026-04-10
 
 **Component versions**: phentrieve `0.13.0`, phentrieve-api `0.8.0`, phentrieve-frontend `0.7.0`

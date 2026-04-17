@@ -1,150 +1,70 @@
 # API Usage
 
-This page explains how to use the Phentrieve API for integrating HPO term mapping into your applications.
+This page shows the concrete API calls for full-text extraction, including the
+LLM-backed path added for end-to-end validation.
 
-## API Overview
+## Base URL
 
-Phentrieve provides a FastAPI-based REST API that exposes core functionality through a set of endpoints. The API allows you to:
+Local API development runs on `http://localhost:8734`.
 
-- Query for HPO terms based on text input
-- Process clinical text to extract HPO terms
-- Manage indexes and data
+## Full-Text Extraction
 
-## API Endpoints
-
-### Main Query Endpoint
-
-```
-POST /api/v1/query/
-```
-
-This endpoint accepts a JSON payload with the following parameters:
-
-```json
-{
-  "text": "Der Patient zeigt Mikrozephalie und Krampfanfälle",
-  "model_name": "FremyCompany/BioLORD-2023-M",
-  "num_results": 5,
-  "similarity_threshold": 0.3
-}
-```
-
-#### Response Format
-
-```json
-{
-  "results": [
-    {
-      "id": "HP:0000252",
-      "name": "Microcephaly",
-      "similarity": 0.85,
-      "definition": "A condition in which head circumference is smaller than normal...",
-      "synonyms": ["Abnormally small skull", "Decreased head circumference", "..."]
-    },
-    {
-      "id": "HP:0001250",
-      "name": "Seizures",
-      "similarity": 0.78,
-      "definition": "Seizures are an intermittent abnormality of the central nervous system...",
-      "synonyms": ["Convulsions", "Fits", "..."]
-    }
-  ]
-}
-```
-
-### Text Processing Endpoint
-
-```
-POST /api/v1/text/process/
-```
-
-This endpoint processes clinical text and extracts HPO terms:
-
-```json
-{
-  "text": "The patient exhibits microcephaly and frequent seizures.",
-  "model_name": "FremyCompany/BioLORD-2023-M",
-  "strategy": "semantic",
-  "min_confidence": 0.4,
-  "top_term_per_chunk": false
-}
-```
-
-## Authentication
-
-By default, the API does not require authentication for local usage. For production deployments, you can enable authentication by setting the following environment variables:
-
-- `PHENTRIEVE_API_AUTH_ENABLED=true`
-- `PHENTRIEVE_API_KEY=your_secret_key`
-
-Then include the API key in your requests:
+### CLI example
 
 ```bash
-curl -X POST "http://localhost:8000/api/v1/query/" \
-  -H "Content-Type: application/json" \
-  -H "X-API-Key: your_secret_key" \
-  -d '{"text": "Microcephaly"}'
+phentrieve text process --extraction-backend llm note.txt
 ```
+
+### Standard backend
+
+```bash
+curl -X POST "http://localhost:8734/api/v1/text/process" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "text": "The patient exhibits microcephaly and frequent seizures.",
+    "extraction_backend": "standard"
+  }'
+```
+
+### LLM backend
+
+```bash
+curl -X POST "http://localhost:8734/api/v1/text/process" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "text": "The patient exhibits microcephaly and frequent seizures.",
+    "extraction_backend": "llm",
+    "llm_model": "gemini-3.1-flash-lite-preview",
+    "llm_mode": "two_phase"
+  }'
+```
+
+The LLM response keeps the same top-level shape and includes metadata such as
+`extraction_backend`, `llm_model`, and `llm_mode`.
+
+## Production Environment
+
+The FastAPI layer uses these environment variables for production LLM handling:
+
+```bash
+export PHENTRIEVE_ENV=production
+export PHENTRIEVE_TRUSTED_PROXY_CIDRS="127.0.0.1/32,10.0.0.0/8"
+export PHENTRIEVE_LLM_DAILY_LIMIT=3
+export PHENTRIEVE_LLM_QUOTA_DB_PATH="../data/app/llm_quota.db"
+```
+
+- `PHENTRIEVE_ENV` controls whether the API is running in development or
+  production mode.
+- `PHENTRIEVE_TRUSTED_PROXY_CIDRS` defines which proxy networks are allowed to
+  forward client IPs for quota tracking.
+- `PHENTRIEVE_LLM_DAILY_LIMIT` sets the number of successful anonymous LLM API
+  analyses allowed per UTC day.
+- `PHENTRIEVE_LLM_QUOTA_DB_PATH` points to the SQLite database used for API
+  quota persistence.
 
 ## API Documentation
 
-When running the API, full OpenAPI documentation is available at:
+When the API is running, the OpenAPI pages are available at:
 
-- Swagger UI: `/docs`
-- ReDoc: `/redoc`
-
-## Example Code
-
-### Python Client
-
-```python
-import requests
-import json
-
-def query_hpo_terms(text, model_name="FremyCompany/BioLORD-2023-M"):
-    url = "http://localhost:8000/api/v1/query/"
-    payload = {
-        "text": text,
-        "model_name": model_name,
-        "num_results": 5,
-        "similarity_threshold": 0.3
-    }
-    response = requests.post(url, json=payload)
-    return response.json()
-
-results = query_hpo_terms("The patient exhibits microcephaly")
-for result in results["results"]:
-    print(f"{result['id']} - {result['name']}: {result['similarity']}")
-```
-
-### JavaScript Client
-
-```javascript
-async function queryHpoTerms(text, modelName = "FremyCompany/BioLORD-2023-M") {
-  const url = "http://localhost:8000/api/v1/query/";
-  const payload = {
-    text: text,
-    model_name: modelName,
-    num_results: 5,
-    similarity_threshold: 0.3
-  };
-
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(payload)
-  });
-
-  return await response.json();
-}
-
-// Usage
-queryHpoTerms("The patient exhibits microcephaly")
-  .then(data => {
-    data.results.forEach(result => {
-      console.log(`${result.id} - ${result.name}: ${result.similarity}`);
-    });
-  });
-```
+- Swagger UI: `http://localhost:8734/docs`
+- ReDoc: `http://localhost:8734/redoc`

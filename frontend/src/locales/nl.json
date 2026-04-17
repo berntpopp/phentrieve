@@ -139,6 +139,14 @@
       "modeQuery": "Zoekmodus (korte tekst)",
       "modeTextProcess": "Tekstverwerking (document)",
       "textProcessingTitle": "Tekstverwerkingsinstellingen",
+      "extractionBackend": "Extractie-backend",
+      "standardExtraction": "Standaardextractie",
+      "llmExtraction": "LLM-extractie",
+      "llmModel": "LLM-model",
+      "llmMode": "LLM-modus",
+      "llmModes": {
+        "twoPhase": "Extractie in twee fasen"
+      },
       "chunkingStrategy": "Opdelingsstrategie",
       "windowSize": "Venstergrootte (tokens)",
       "stepSize": "Stapgrootte",
@@ -164,6 +172,27 @@
       "subjectId": "Voer een identificatie in voor de patiënt",
       "sex": "Selecteer het biologische geslacht van de patiënt",
       "dateOfBirth": "Voer de geboortedatum van de patiënt in"
+    },
+    "accessibility": {
+      "textProcessInputLabel": "Invoerveld voor klinisch document voor tekstverwerking",
+      "textProcessInputDescription": "Voer langere klinische tekst in voor documentverwerking.",
+      "queryInputLabel": "Invoerveld voor klinische tekst",
+      "queryInputDescription": "Voer klinische tekst in om te zoeken naar HPO-termen.",
+      "processingInProgress": "Verwerking loopt.",
+      "searchInProgress": "Zoeken loopt.",
+      "openAdvancedOptions": "Geavanceerde opties openen",
+      "closeAdvancedOptions": "Geavanceerde opties sluiten",
+      "searchButton": "Zoek HPO-termen",
+      "userInput": "Gebruikersinvoer",
+      "response": "Phentrieve-antwoord",
+      "advancedOptionsRegion": "Geavanceerde zoekopties",
+      "selectEmbeddingModel": "Inbeddingsmodel selecteren",
+      "embeddingModelDescription": "Kies het model voor tekstinbedding. Momenteel geselecteerd: {selectedModel}",
+      "similarityThresholdSlider": "Schuifregelaar voor gelijkenisdrempel",
+      "similarityThresholdDescription": "Pas de minimale gelijkenisdrempel aan. Huidige waarde: {similarityThreshold}",
+      "selectQueryLanguage": "Zoektaal selecteren",
+      "queryLanguageDescription": "Kies de taal voor zoekverwerking. Momenteel geselecteerd: {selectedLanguage}",
+      "includeDetailsSwitch": "HPO-termdefinities en synoniemen opnemen"
     }
   },
   "resultsDisplay": {
@@ -231,8 +260,10 @@
       "confidenceTooltip": "Gemiddelde betrouwbaarheidsscore van alle bewijsfragmenten",
       "sourceChunks": "Bronfragmenten",
       "topEvidence": "Beste bewijs",
+      "llmLimitedNotice": "Beperkte demoversie: {quotaLimit} LLM-analyses per dag.",
       "noChunksProcessed": "Er zijn geen tekstfragmenten verwerkt.",
       "noAggregatedTerms": "Geen geaggregeerde HPO-termen gevonden.",
+      "strategyUnknown": "Onbekende strategie",
       "assertionDetail": "Bevestigingsmethode:",
       "finalStatus": "Uiteindelijke status:"
     }
@@ -275,7 +306,8 @@
       "notFound": "De gevraagde bron kon niet worden gevonden. (Status: {status})",
       "notFoundModel": "Het gevraagde model kon niet worden gevonden op de server. (Status: {status})",
       "serverError": "Er is een serverfout opgetreden. Probeer het later opnieuw. (Status: {status})",
-      "serviceUnavailable": "De dienst is tijdelijk niet beschikbaar. Probeer het later opnieuw. (Status: {status})"
+      "serviceUnavailable": "De dienst is tijdelijk niet beschikbaar. Probeer het later opnieuw. (Status: {status})",
+      "llmQuotaExceeded": "De dagelijkse LLM-limiet voor volledige tekst is bereikt."
     }
   },
   "faq": {

@@ -1,0 +1,67 @@
+version: "v1.0.0"
+
+system_prompt: |
+  You are an expert clinical geneticist reviewing HPO annotations for specificity and accuracy.
+
+  Your task is to REFINE the following annotations by checking if more specific HPO terms could be used:
+
+  The Human Phenotype Ontology is hierarchical:
+  - More general terms (e.g., "Seizure" HP:0001250) have more specific descendants
+  - More specific terms (e.g., "Recurrent seizures" HP:0002123) are preferred when supported by text
+
+  For each annotation, consider:
+  1. Does the clinical text support a more specific HPO term?
+  2. Is the current term the most accurate representation?
+  3. Would a different term in the same family be more appropriate?
+
+  You have access to the query_hpo_terms tool to search for more specific terms.
+
+  OUTPUT:
+  Return a JSON object with:
+  - "kept_annotations": annotations that are already optimal
+  - "refined_annotations": annotations upgraded to more specific terms
+
+  ```json
+  {
+    "kept_annotations": [
+      {
+        "hpo_id": "HP:XXXXXXX",
+        "term_name": "Term name",
+        "assertion": "affirmed|negated",
+        "confidence": 0.95,
+        "evidence_text": "exact quote",
+        "reason_kept": "Optional explanation for keeping this term"
+      }
+    ],
+    "refined_annotations": [
+      {
+        "original_hpo_id": "HP:XXXXXXX",
+        "original_term_name": "Original term",
+        "refined_hpo_id": "HP:YYYYYYY",
+        "refined_term_name": "More specific term",
+        "assertion": "affirmed|negated",
+        "confidence": 0.90,
+        "evidence_text": "evidence supporting the refined term",
+        "refinement_reason": "Explanation of why this term is more appropriate"
+      }
+    ]
+  }
+  ```
+
+user_prompt_template: |
+  Please review the following HPO annotations and suggest more specific terms where appropriate.
+
+  ORIGINAL TEXT:
+  ---
+  {text}
+  ---
+
+  ANNOTATIONS TO REFINE:
+  {annotations}
+
+  For each annotation:
+  1. Consider if a more specific HPO term would be more accurate
+  2. Use query_hpo_terms to search for more specific alternatives if needed
+  3. Return kept_annotations (optimal as-is) and refined_annotations (upgraded)
+
+few_shot_examples: []

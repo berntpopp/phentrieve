@@ -53,14 +53,17 @@ class PhentrieveService {
    * @returns {Object} Data matching TextProcessingResponseAPI schema
    */
   async processText(textProcessingData) {
+    let normalizedPayload;
     try {
+      normalizedPayload = this._normalizeTextProcessPayload(textProcessingData);
       logService.info('Calling Text Processing API', {
-        requestSize: JSON.stringify(textProcessingData).length,
-        textLength: textProcessingData.text_content?.length || 0,
-        model: textProcessingData.retrieval_model_name,
+        requestSize: JSON.stringify(normalizedPayload).length,
+        textLength: normalizedPayload.text?.length || 0,
+        backend: normalizedPayload.extraction_backend,
+        model: normalizedPayload.llm_model || normalizedPayload.retrieval_model_name,
       });
 
-      const response = await axios.post(`${API_URL}/text/process`, textProcessingData);
+      const response = await axios.post(`${API_URL}/text/process`, normalizedPayload);
 
       logService.debug('Text Processing API response received', {
         status: response.status,
@@ -90,8 +93,81 @@ class PhentrieveService {
             }
           : null,
       });
-      throw this._createStandardizedError(error, 'processing text for HPO extraction');
+      const extractionBackend =
+        normalizedPayload?.extraction_backend ??
+        textProcessingData?.extraction_backend ??
+        textProcessingData?.extractionBackend ??
+        'standard';
+      throw this._createStandardizedError(error, 'processing text for HPO extraction', {
+        isTextProcessing: true,
+        extractionBackend,
+      });
     }
+  }
+
+  _normalizeTextProcessPayload(textProcessingData) {
+    const extractionBackend =
+      textProcessingData.extraction_backend ?? textProcessingData.extractionBackend ?? 'standard';
+
+    const payload = {
+      text: textProcessingData.text ?? textProcessingData.text_content ?? '',
+      extraction_backend: extractionBackend,
+      llm_model:
+        textProcessingData.llm_model ??
+        textProcessingData.llmModel ??
+        textProcessingData.model_name ??
+        null,
+      llm_mode: textProcessingData.llm_mode ?? textProcessingData.llmMode ?? null,
+      language: textProcessingData.language ?? null,
+      chunking_strategy:
+        textProcessingData.chunking_strategy ?? textProcessingData.chunkingStrategy ?? null,
+      window_size: textProcessingData.window_size ?? textProcessingData.windowSize ?? null,
+      step_size: textProcessingData.step_size ?? textProcessingData.stepSize ?? null,
+      split_threshold:
+        textProcessingData.split_threshold ?? textProcessingData.splitThreshold ?? null,
+      min_segment_length:
+        textProcessingData.min_segment_length ?? textProcessingData.minSegmentLength ?? null,
+      semantic_model_name:
+        textProcessingData.semantic_model_name ??
+        textProcessingData.semanticModelForChunking ??
+        textProcessingData.semanticModelName ??
+        textProcessingData.selectedModel ??
+        null,
+      retrieval_model_name:
+        textProcessingData.retrieval_model_name ??
+        textProcessingData.retrievalModelForTextProcess ??
+        textProcessingData.retrievalModelName ??
+        textProcessingData.selectedModel ??
+        null,
+      trust_remote_code: textProcessingData.trust_remote_code ?? textProcessingData.trustRemoteCode,
+      chunk_retrieval_threshold:
+        textProcessingData.chunk_retrieval_threshold ??
+        textProcessingData.chunkRetrievalThreshold ??
+        null,
+      num_results_per_chunk:
+        textProcessingData.num_results_per_chunk ?? textProcessingData.numResultsPerChunk ?? null,
+      no_assertion_detection:
+        textProcessingData.no_assertion_detection ??
+        textProcessingData.noAssertionDetectionForTextProcess ??
+        null,
+      assertion_preference:
+        textProcessingData.assertion_preference ??
+        textProcessingData.assertionPreferenceForTextProcess ??
+        null,
+      aggregated_term_confidence:
+        textProcessingData.aggregated_term_confidence ??
+        textProcessingData.aggregatedTermConfidence ??
+        null,
+      top_term_per_chunk_for_aggregation:
+        textProcessingData.top_term_per_chunk_for_aggregation ??
+        textProcessingData.topTermPerChunkForAggregation ??
+        null,
+      include_details: textProcessingData.include_details ?? textProcessingData.includeDetails,
+    };
+
+    return Object.fromEntries(
+      Object.entries(payload).filter(([, value]) => value !== null && value !== undefined)
+    );
   }
 
   /**
@@ -123,7 +199,15 @@ class PhentrieveService {
    * @returns {Object} Standardized error object
    * @private
    */
-  _createStandardizedError(error, contextMessage = 'interacting with the API') {
+  _createStandardizedError(
+    error,
+    contextMessage = 'interacting with the API',
+    { isTextProcessing = false, extractionBackend = null } = {}
+  ) {
+    const responseData = error.response?.data;
+    const responseDetail = responseData?.detail;
+    const quotaData =
+      responseDetail && typeof responseDetail === 'object' ? responseDetail : responseData;
     const standardError = {
       status: error.response?.status || 0,
       type: 'UNKNOWN_ERROR',
@@ -132,7 +216,11 @@ class PhentrieveService {
       originalErrorDetails: {
         message: error.message,
         code: error.code,
-        apiResponseMessage: error.response?.data?.detail,
+        apiResponseMessage:
+          typeof responseDetail === 'string'
+            ? responseDetail
+            : responseDetail?.error_message || responseDetail?.message,
+        apiResponseData: responseData,
         configUrl: error.config?.url,
       },
     };
@@ -144,16 +232,47 @@ class PhentrieveService {
       standardError.type = 'API_ERROR';
       const { key, params } = this._getErrorMessageKeyForStatus(
         error.response.status,
-        error.response.data?.detail
+        typeof responseDetail === 'string'
+          ? responseDetail
+          : responseDetail?.error_message || responseDetail?.message || ''
       );
       standardError.userMessageKey = key;
       standardError.userMessageParams = params;
+      if (
+        error.response.status === 429 &&
+        isTextProcessing &&
+        extractionBackend === 'llm' &&
+        this._hasQuotaDetails(quotaData)
+      ) {
+        standardError.userMessageKey = 'errors.api.llmQuotaExceeded';
+        standardError.userMessageParams = {
+          quotaRemaining: quotaData?.quota_remaining,
+          quotaLimit: quotaData?.quota_limit,
+          extractionBackend: quotaData?.extraction_backend ?? extractionBackend,
+        };
+        standardError.quotaRemaining = quotaData?.quota_remaining;
+        standardError.quotaLimit = quotaData?.quota_limit;
+        standardError.extractionBackend = quotaData?.extraction_backend ?? extractionBackend;
+      }
     } else {
       // Generic client-side error or unexpected issue
       standardError.userMessageKey = 'errors.api.clientSide';
       standardError.userMessageParams = { context: contextMessage };
     }
     return standardError;
+  }
+
+  _hasQuotaDetails(quotaData) {
+    if (!quotaData || typeof quotaData !== 'object') {
+      return false;
+    }
+
+    return (
+      quotaData.quota_remaining !== undefined ||
+      quotaData.quota_limit !== undefined ||
+      quotaData.quota_used !== undefined ||
+      quotaData.usage_date_utc !== undefined
+    );
   }
 
   /**

@@ -1,7 +1,10 @@
 """Benchmark modules for Phentrieve evaluation."""
 
-from phentrieve.benchmark.extraction_benchmark import (
+from phentrieve.benchmark.data_loader import (
     ASSERTION_STATUS_MAP,
+    PHENOBERT_DATASETS,
+)
+from phentrieve.benchmark.extraction_benchmark import (
     ExtractionBenchmark,
     ExtractionConfig,
     HPOExtractor,
@@ -9,6 +12,7 @@ from phentrieve.benchmark.extraction_benchmark import (
 
 __all__ = [
     "ASSERTION_STATUS_MAP",
+    "PHENOBERT_DATASETS",
     "ExtractionBenchmark",
     "ExtractionConfig",
     "HPOExtractor",

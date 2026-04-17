@@ -1,6 +1,6 @@
-from typing import Any, cast
+from typing import Any, Literal, cast
 
-from pydantic import BaseModel, Field
+from pydantic import AliasChoices, BaseModel, Field, model_validator
 
 from phentrieve.config import (
     DEFAULT_ASSERTION_CONFIG,
@@ -18,7 +18,14 @@ from phentrieve.config import (
 
 
 class TextProcessingRequest(BaseModel):
-    text_content: str = Field(..., description="The raw clinical text to process.")
+    text: str = Field(
+        ...,
+        validation_alias=AliasChoices("text", "text_content"),
+        description="The raw clinical text to process.",
+    )
+    extraction_backend: Literal["standard", "llm"] = "standard"
+    llm_model: str | None = None
+    llm_mode: Literal["two_phase"] | None = None
     language: str | None = Field(
         default=DEFAULT_LANGUAGE,
         description="ISO 639-1 language code of the text (e.g., 'en', 'de'). If None, language detection might be attempted.",
@@ -129,6 +136,17 @@ class TextProcessingRequest(BaseModel):
         default=False,
         description="Include character positions (start_char, end_char) for each chunk.",
     )
+
+    @model_validator(mode="after")
+    def validate_llm_configuration(self) -> "TextProcessingRequest":
+        if self.extraction_backend == "llm" and not self.llm_model:
+            raise ValueError("llm_model is required when extraction_backend='llm'.")
+        return self
+
+    @property
+    def text_content(self) -> str:
+        """Backward-compatible access for older callers."""
+        return self.text
 
 
 class HPOMatchInChunkAPI(BaseModel):

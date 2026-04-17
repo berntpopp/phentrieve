@@ -27,6 +27,10 @@ __all__ = [
     "CORS_ALLOW_METHODS",
     "CORS_ALLOW_HEADERS",
     "DATA_ROOT_DIR",
+    "PHENTRIEVE_ENV",
+    "PHENTRIEVE_TRUSTED_PROXY_CIDRS",
+    "PHENTRIEVE_LLM_DAILY_LIMIT",
+    "PHENTRIEVE_LLM_QUOTA_DB_PATH",
     "get_api_config_value",
 ]
 
@@ -234,4 +238,12 @@ CORS_ALLOW_HEADERS: list[str] = get_api_config_value(
 DATA_ROOT_DIR: str = os.getenv(
     "PHENTRIEVE_DATA_ROOT_DIR",
     get_api_config_value("data", _DEFAULT_DATA_ROOT_DIR, "root_dir"),
+)
+
+PHENTRIEVE_ENV: str = os.getenv("PHENTRIEVE_ENV", "development")
+PHENTRIEVE_TRUSTED_PROXY_CIDRS: str = os.getenv("PHENTRIEVE_TRUSTED_PROXY_CIDRS", "")
+PHENTRIEVE_LLM_DAILY_LIMIT: int = int(os.getenv("PHENTRIEVE_LLM_DAILY_LIMIT", "3"))
+PHENTRIEVE_LLM_QUOTA_DB_PATH: str = os.getenv(
+    "PHENTRIEVE_LLM_QUOTA_DB_PATH",
+    "../data/app/llm_quota.db",
 )

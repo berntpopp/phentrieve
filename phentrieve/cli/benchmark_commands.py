@@ -10,6 +10,7 @@ from rich.console import Console
 from rich.table import Table
 
 from phentrieve.benchmark.extraction_cli import app as extraction_app
+from phentrieve.benchmark.llm_cli import app as llm_app
 
 console = Console()
 
@@ -21,6 +22,11 @@ app.add_typer(
     extraction_app,
     name="extraction",
     help="Document-level HPO extraction benchmarking.",
+)
+app.add_typer(
+    llm_app,
+    name="llm",
+    help="Benchmark LLM full-text extraction.",
 )
 
 

@@ -264,6 +264,33 @@ class TestTextProcessingRequest:
         assert req.language == "de"
         assert req.chunking_strategy == "semantic"
 
+    def test_text_processing_request_accepts_llm_backend(self):
+        request = TextProcessingRequest.model_validate(
+            {
+                "text": "Patient had recurrent seizures.",
+                "extraction_backend": "llm",
+                "llm_model": "gpt-5.4-mini",
+                "llm_mode": "two_phase",
+            }
+        )
+
+        assert request.text == "Patient had recurrent seizures."
+        assert request.text_content == "Patient had recurrent seizures."
+        assert request.extraction_backend == "llm"
+        assert request.llm_mode == "two_phase"
+
+    def test_text_processing_request_accepts_text_content_extraction_backend_alias(
+        self,
+    ):
+        request = TextProcessingRequest.model_validate(
+            {
+                "text_content": "Patient had recurrent seizures.",
+            }
+        )
+
+        assert request.text == "Patient had recurrent seizures."
+        assert request.text_content == "Patient had recurrent seizures."
+
     def test_window_size_validation(self):
         """Test window_size must be >= 1."""
         # Valid

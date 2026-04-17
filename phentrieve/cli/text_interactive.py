@@ -336,7 +336,7 @@ def interactive_text_mode(
     # Assertion detection configuration
     assertion_config = {
         "disable": no_assertion_detection,
-        "strategy_preference": assertion_preference,
+        "preference": assertion_preference,
     }
 
     # Determine if we need a semantic model for chunking

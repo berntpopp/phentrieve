@@ -7,7 +7,7 @@
       elevation="1"
       class="mt-2 pa-3"
       role="region"
-      aria-label="Advanced search options"
+      :aria-label="$t('queryInterface.accessibility.advancedOptionsRegion')"
       color="white"
       style="font-size: 0.8rem"
     >
@@ -32,10 +32,8 @@
                 :disabled="disabled"
                 variant="outlined"
                 density="compact"
-                aria-label="Select embedding model"
-                :aria-description="
-                  'Choose the model to use for text embedding. Currently selected: ' + selectedModel
-                "
+                :aria-label="$t('queryInterface.accessibility.selectEmbeddingModel')"
+                :aria-description="getEmbeddingModelDescription()"
                 bg-color="white"
                 color="primary"
                 hide-details
@@ -82,11 +80,8 @@
                   track-color="grey-lighten-2"
                   thumb-label
                   hide-details
-                  aria-label="Similarity threshold slider"
-                  :aria-description="
-                    'Adjust minimum similarity threshold. Current value: ' +
-                    similarityThreshold.toFixed(2)
-                  "
+                  :aria-label="$t('queryInterface.accessibility.similarityThresholdSlider')"
+                  :aria-description="getSimilarityThresholdDescription()"
                   @update:model-value="$emit('update:similarityThreshold', $event)"
                 />
               </div>
@@ -112,11 +107,8 @@
                 :disabled="disabled"
                 variant="outlined"
                 density="compact"
-                aria-label="Select query language"
-                :aria-description="
-                  'Choose the language for query processing. Currently selected: ' +
-                  selectedLanguage
-                "
+                :aria-label="$t('queryInterface.accessibility.selectQueryLanguage')"
+                :aria-description="getQueryLanguageDescription()"
                 bg-color="white"
                 color="primary"
                 hide-details
@@ -149,7 +141,7 @@
                 density="compact"
                 hide-details
                 class="mt-0 pt-0"
-                aria-label="Include HPO term definitions and synonyms"
+                :aria-label="$t('queryInterface.accessibility.includeDetailsSwitch')"
                 @update:model-value="$emit('update:includeDetails', $event)"
               />
             </template>
@@ -202,215 +194,309 @@
         <v-row dense>
           <v-col cols="12" md="6" class="pa-1">
             <v-select
-              :model-value="chunkingStrategy"
+              :model-value="textProcessOptions.extractionBackend"
               :items="[
-                'simple',
-                'semantic',
-                'detailed',
-                'sliding_window',
-                'sliding_window_cleaned',
-                'sliding_window_punct_cleaned',
-                'sliding_window_punct_conj_cleaned',
+                {
+                  title: $t('queryInterface.advancedOptions.standardExtraction'),
+                  value: 'standard',
+                },
+                { title: $t('queryInterface.advancedOptions.llmExtraction'), value: 'llm' },
               ]"
+              item-title="title"
+              item-value="value"
               variant="outlined"
               density="compact"
               bg-color="white"
               color="primary"
               hide-details
-              @update:model-value="$emit('update:chunkingStrategy', $event)"
+              @update:model-value="
+                $emit('update:textProcessOptions', {
+                  ...textProcessOptions,
+                  extractionBackend: $event,
+                })
+              "
             >
               <template #label>
                 <span class="text-caption">{{
-                  $t('queryInterface.advancedOptions.chunkingStrategy')
+                  $t('queryInterface.advancedOptions.extractionBackend')
                 }}</span>
               </template>
             </v-select>
           </v-col>
-          <v-col cols="12" md="6" class="pa-1">
+          <v-col
+            v-if="textProcessOptions.extractionBackend === 'llm'"
+            cols="12"
+            md="6"
+            class="pa-1"
+          >
             <v-text-field
-              :model-value="windowSize"
-              type="number"
-              min="1"
+              :model-value="resolvedTextProcessOptions.llmModel"
               variant="outlined"
               density="compact"
               bg-color="white"
               color="primary"
               hide-details
-              @update:model-value="$emit('update:windowSize', Number($event))"
+              @update:model-value="
+                $emit('update:textProcessOptions', {
+                  ...textProcessOptions,
+                  llmModel: $event,
+                })
+              "
             >
               <template #label>
                 <span class="text-caption">{{
-                  $t('queryInterface.advancedOptions.windowSize')
+                  $t('queryInterface.advancedOptions.llmModel')
                 }}</span>
               </template>
             </v-text-field>
           </v-col>
         </v-row>
 
-        <v-row dense>
+        <v-row v-if="textProcessOptions.extractionBackend === 'llm'" dense>
           <v-col cols="12" md="6" class="pa-1">
-            <v-text-field
-              :model-value="stepSize"
-              type="number"
-              min="1"
+            <v-select
+              :model-value="resolvedTextProcessOptions.llmMode"
+              :items="[
+                {
+                  title: t('queryInterface.advancedOptions.llmModes.twoPhase'),
+                  value: 'two_phase',
+                },
+              ]"
+              item-title="title"
+              item-value="value"
               variant="outlined"
               density="compact"
               bg-color="white"
               color="primary"
               hide-details
-              @update:model-value="$emit('update:stepSize', Number($event))"
+              @update:model-value="
+                $emit('update:textProcessOptions', {
+                  ...textProcessOptions,
+                  llmMode: $event,
+                })
+              "
             >
               <template #label>
-                <span class="text-caption">{{
-                  $t('queryInterface.advancedOptions.stepSize')
-                }}</span>
+                <span class="text-caption">{{ $t('queryInterface.advancedOptions.llmMode') }}</span>
               </template>
-            </v-text-field>
-          </v-col>
-          <v-col cols="12" md="6" class="pa-1">
-            <v-text-field
-              :model-value="chunkRetrievalThreshold"
-              type="number"
-              step="0.01"
-              min="0"
-              max="1"
-              variant="outlined"
-              density="compact"
-              bg-color="white"
-              color="primary"
-              hide-details
-              @update:model-value="$emit('update:chunkRetrievalThreshold', Number($event))"
-            >
-              <template #label>
-                <span class="text-caption">{{
-                  $t('queryInterface.advancedOptions.chunkThreshold')
-                }}</span>
-              </template>
-            </v-text-field>
+            </v-select>
           </v-col>
         </v-row>
 
-        <v-row dense>
-          <v-col cols="12" md="6" class="pa-1">
-            <v-text-field
-              :model-value="aggregatedTermConfidence"
-              type="number"
-              step="0.01"
-              min="0"
-              max="1"
-              variant="outlined"
-              density="compact"
-              bg-color="white"
-              color="primary"
-              hide-details
-              @update:model-value="$emit('update:aggregatedTermConfidence', Number($event))"
-            >
-              <template #label>
-                <span class="text-caption">{{
-                  $t('queryInterface.advancedOptions.aggConfidence')
-                }}</span>
-              </template>
-            </v-text-field>
-          </v-col>
-          <v-col cols="12" md="6" class="pa-1 d-flex align-center">
-            <v-switch
-              :model-value="noAssertionDetectionForTextProcess"
-              color="primary"
-              hide-details
-              density="compact"
-              inset
-              :true-value="false"
-              :false-value="true"
-              @update:model-value="$emit('update:noAssertionDetectionForTextProcess', $event)"
-            >
-              <template #label>
-                <span class="text-caption">{{
-                  $t('queryInterface.advancedOptions.detectAssertions')
-                }}</span>
-              </template>
-            </v-switch>
-          </v-col>
-        </v-row>
+        <div v-if="textProcessOptions.extractionBackend === 'standard'">
+          <v-row dense>
+            <v-col cols="12" md="6" class="pa-1">
+              <v-select
+                :model-value="chunkingStrategy"
+                :items="[
+                  'simple',
+                  'semantic',
+                  'detailed',
+                  'sliding_window',
+                  'sliding_window_cleaned',
+                  'sliding_window_punct_cleaned',
+                  'sliding_window_punct_conj_cleaned',
+                ]"
+                variant="outlined"
+                density="compact"
+                bg-color="white"
+                color="primary"
+                hide-details
+                @update:model-value="$emit('update:chunkingStrategy', $event)"
+              >
+                <template #label>
+                  <span class="text-caption">{{
+                    $t('queryInterface.advancedOptions.chunkingStrategy')
+                  }}</span>
+                </template>
+              </v-select>
+            </v-col>
+            <v-col cols="12" md="6" class="pa-1">
+              <v-text-field
+                :model-value="windowSize"
+                type="number"
+                min="1"
+                variant="outlined"
+                density="compact"
+                bg-color="white"
+                color="primary"
+                hide-details
+                @update:model-value="$emit('update:windowSize', Number($event))"
+              >
+                <template #label>
+                  <span class="text-caption">{{
+                    $t('queryInterface.advancedOptions.windowSize')
+                  }}</span>
+                </template>
+              </v-text-field>
+            </v-col>
+          </v-row>
 
-        <v-row dense>
-          <v-col cols="12" md="6" class="pa-1">
-            <v-text-field
-              :model-value="splitThreshold"
-              type="number"
-              step="0.01"
-              min="0"
-              max="1"
-              variant="outlined"
-              density="compact"
-              bg-color="white"
-              color="primary"
-              hide-details
-              @update:model-value="$emit('update:splitThreshold', Number($event))"
-            >
-              <template #label>
-                <span class="text-caption">{{
-                  $t('queryInterface.advancedOptions.splitThreshold')
-                }}</span>
-              </template>
-            </v-text-field>
-          </v-col>
-          <v-col cols="12" md="6" class="pa-1">
-            <v-text-field
-              :model-value="minSegmentLength"
-              type="number"
-              min="1"
-              variant="outlined"
-              density="compact"
-              bg-color="white"
-              color="primary"
-              hide-details
-              @update:model-value="$emit('update:minSegmentLength', Number($event))"
-            >
-              <template #label>
-                <span class="text-caption">{{
-                  $t('queryInterface.advancedOptions.minSegmentLength')
-                }}</span>
-              </template>
-            </v-text-field>
-          </v-col>
-        </v-row>
+          <v-row dense>
+            <v-col cols="12" md="6" class="pa-1">
+              <v-text-field
+                :model-value="stepSize"
+                type="number"
+                min="1"
+                variant="outlined"
+                density="compact"
+                bg-color="white"
+                color="primary"
+                hide-details
+                @update:model-value="$emit('update:stepSize', Number($event))"
+              >
+                <template #label>
+                  <span class="text-caption">{{
+                    $t('queryInterface.advancedOptions.stepSize')
+                  }}</span>
+                </template>
+              </v-text-field>
+            </v-col>
+            <v-col cols="12" md="6" class="pa-1">
+              <v-text-field
+                :model-value="chunkRetrievalThreshold"
+                type="number"
+                step="0.01"
+                min="0"
+                max="1"
+                variant="outlined"
+                density="compact"
+                bg-color="white"
+                color="primary"
+                hide-details
+                @update:model-value="$emit('update:chunkRetrievalThreshold', Number($event))"
+              >
+                <template #label>
+                  <span class="text-caption">{{
+                    $t('queryInterface.advancedOptions.chunkThreshold')
+                  }}</span>
+                </template>
+              </v-text-field>
+            </v-col>
+          </v-row>
 
-        <v-row dense>
-          <v-col cols="12" md="6" class="pa-1">
-            <v-text-field
-              :model-value="numResultsPerChunk"
-              type="number"
-              min="1"
-              variant="outlined"
-              density="compact"
-              hide-details
-              class="mb-0"
-              @update:model-value="$emit('update:numResultsPerChunk', Number($event))"
-            >
-              <template #label>
-                <span class="text-caption">{{
-                  $t('queryInterface.advancedOptions.numResultsPerChunk')
-                }}</span>
-              </template>
-            </v-text-field>
-          </v-col>
-          <v-col cols="12" md="6" class="pa-1 d-flex align-center">
-            <v-switch
-              :model-value="topTermPerChunkForAggregation"
-              color="primary"
-              hide-details
-              density="compact"
-              inset
-              @update:model-value="$emit('update:topTermPerChunkForAggregation', $event)"
-            >
-              <template #label>
-                <span class="text-caption">{{
-                  $t('queryInterface.advancedOptions.topTermPerChunk')
-                }}</span>
-              </template>
-            </v-switch>
-          </v-col>
-        </v-row>
+          <v-row dense>
+            <v-col cols="12" md="6" class="pa-1">
+              <v-text-field
+                :model-value="aggregatedTermConfidence"
+                type="number"
+                step="0.01"
+                min="0"
+                max="1"
+                variant="outlined"
+                density="compact"
+                bg-color="white"
+                color="primary"
+                hide-details
+                @update:model-value="$emit('update:aggregatedTermConfidence', Number($event))"
+              >
+                <template #label>
+                  <span class="text-caption">{{
+                    $t('queryInterface.advancedOptions.aggConfidence')
+                  }}</span>
+                </template>
+              </v-text-field>
+            </v-col>
+            <v-col cols="12" md="6" class="pa-1 d-flex align-center">
+              <v-switch
+                :model-value="noAssertionDetectionForTextProcess"
+                color="primary"
+                hide-details
+                density="compact"
+                inset
+                :true-value="false"
+                :false-value="true"
+                @update:model-value="$emit('update:noAssertionDetectionForTextProcess', $event)"
+              >
+                <template #label>
+                  <span class="text-caption">{{
+                    $t('queryInterface.advancedOptions.detectAssertions')
+                  }}</span>
+                </template>
+              </v-switch>
+            </v-col>
+          </v-row>
+
+          <v-row dense>
+            <v-col cols="12" md="6" class="pa-1">
+              <v-text-field
+                :model-value="splitThreshold"
+                type="number"
+                step="0.01"
+                min="0"
+                max="1"
+                variant="outlined"
+                density="compact"
+                bg-color="white"
+                color="primary"
+                hide-details
+                @update:model-value="$emit('update:splitThreshold', Number($event))"
+              >
+                <template #label>
+                  <span class="text-caption">{{
+                    $t('queryInterface.advancedOptions.splitThreshold')
+                  }}</span>
+                </template>
+              </v-text-field>
+            </v-col>
+            <v-col cols="12" md="6" class="pa-1">
+              <v-text-field
+                :model-value="minSegmentLength"
+                type="number"
+                min="1"
+                variant="outlined"
+                density="compact"
+                bg-color="white"
+                color="primary"
+                hide-details
+                @update:model-value="$emit('update:minSegmentLength', Number($event))"
+              >
+                <template #label>
+                  <span class="text-caption">{{
+                    $t('queryInterface.advancedOptions.minSegmentLength')
+                  }}</span>
+                </template>
+              </v-text-field>
+            </v-col>
+          </v-row>
+
+          <v-row dense>
+            <v-col cols="12" md="6" class="pa-1">
+              <v-text-field
+                :model-value="numResultsPerChunk"
+                type="number"
+                min="1"
+                variant="outlined"
+                density="compact"
+                hide-details
+                class="mb-0"
+                @update:model-value="$emit('update:numResultsPerChunk', Number($event))"
+              >
+                <template #label>
+                  <span class="text-caption">{{
+                    $t('queryInterface.advancedOptions.numResultsPerChunk')
+                  }}</span>
+                </template>
+              </v-text-field>
+            </v-col>
+            <v-col cols="12" md="6" class="pa-1 d-flex align-center">
+              <v-switch
+                :model-value="topTermPerChunkForAggregation"
+                color="primary"
+                hide-details
+                density="compact"
+                inset
+                @update:model-value="$emit('update:topTermPerChunkForAggregation', $event)"
+              >
+                <template #label>
+                  <span class="text-caption">{{
+                    $t('queryInterface.advancedOptions.topTermPerChunk')
+                  }}</span>
+                </template>
+              </v-switch>
+            </v-col>
+          </v-row>
+        </div>
       </div>
     </v-sheet>
   </v-expand-transition>
@@ -421,7 +507,12 @@
  * AdvancedOptionsPanel - Sub-component for advanced query options.
  * Extracted from QueryInterface.vue to reduce component complexity.
  */
-defineProps({
+import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
+
+const panelProps = defineProps({
   visible: { type: Boolean, default: false },
   disabled: { type: Boolean, default: false },
   selectedModel: { type: [String, null], default: null },
@@ -432,6 +523,14 @@ defineProps({
   similarityThreshold: { type: Number, default: 0.5 },
   forceEndpointMode: { type: [String, null], default: null },
   isTextProcessModeActive: { type: Boolean, default: false },
+  defaultLlmModel: { type: [String, null], default: null },
+  defaultLlmMode: { type: [String, null], default: null },
+  textProcessOptions: {
+    type: Object,
+    default: () => ({
+      extractionBackend: 'standard',
+    }),
+  },
   chunkingStrategy: { type: String, default: 'sliding_window_punct_conj_cleaned' },
   windowSize: { type: Number, default: 3 },
   stepSize: { type: Number, default: 1 },
@@ -444,12 +543,35 @@ defineProps({
   topTermPerChunkForAggregation: { type: Boolean, default: false },
 });
 
+const resolvedTextProcessOptions = computed(() => ({
+  extractionBackend: 'standard',
+  llmModel: panelProps.defaultLlmModel,
+  llmMode: panelProps.defaultLlmMode ?? 'two_phase',
+  ...panelProps.textProcessOptions,
+}));
+
+const getEmbeddingModelDescription = () =>
+  t('queryInterface.accessibility.embeddingModelDescription', {
+    selectedModel: panelProps.selectedModel,
+  });
+
+const getSimilarityThresholdDescription = () =>
+  t('queryInterface.accessibility.similarityThresholdDescription', {
+    similarityThreshold: panelProps.similarityThreshold.toFixed(2),
+  });
+
+const getQueryLanguageDescription = () =>
+  t('queryInterface.accessibility.queryLanguageDescription', {
+    selectedLanguage: panelProps.selectedLanguage,
+  });
+
 defineEmits([
   'update:selectedModel',
   'update:selectedLanguage',
   'update:includeDetails',
   'update:similarityThreshold',
   'update:forceEndpointMode',
+  'update:textProcessOptions',
   'update:chunkingStrategy',
   'update:windowSize',
   'update:stepSize',

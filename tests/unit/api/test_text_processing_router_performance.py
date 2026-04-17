@@ -43,7 +43,7 @@ class TestAdaptiveTimeout:
             ) as mock_wait:
                 mock_wait.return_value = {"test": "result"}
 
-                await process_text_extract_hpo(request)
+                await process_text_extract_hpo(MagicMock(), request)
 
                 # Verify wait_for was called with correct timeout
                 mock_wait.assert_called_once()
@@ -67,7 +67,7 @@ class TestAdaptiveTimeout:
             ) as mock_wait:
                 mock_wait.return_value = {"test": "result"}
 
-                await process_text_extract_hpo(request)
+                await process_text_extract_hpo(MagicMock(), request)
 
                 # Verify 60s timeout
                 args, kwargs = mock_wait.call_args
@@ -90,7 +90,7 @@ class TestAdaptiveTimeout:
             ) as mock_wait:
                 mock_wait.return_value = {"test": "result"}
 
-                await process_text_extract_hpo(request)
+                await process_text_extract_hpo(MagicMock(), request)
 
                 # Verify 120s timeout
                 args, kwargs = mock_wait.call_args
@@ -113,7 +113,7 @@ class TestAdaptiveTimeout:
             ) as mock_wait:
                 mock_wait.return_value = {"test": "result"}
 
-                await process_text_extract_hpo(request)
+                await process_text_extract_hpo(MagicMock(), request)
 
                 # Verify 180s timeout
                 args, kwargs = mock_wait.call_args
@@ -135,7 +135,7 @@ class TestTimeoutHandling:
             mock_wait.side_effect = TimeoutError()
 
             with pytest.raises(HTTPException) as exc_info:
-                await process_text_extract_hpo(request)
+                await process_text_extract_hpo(MagicMock(), request)
 
             # Verify 504 status code
             assert exc_info.value.status_code == 504
@@ -157,7 +157,7 @@ class TestTimeoutHandling:
             mock_wait.side_effect = TimeoutError()
 
             with pytest.raises(HTTPException) as exc_info:
-                await process_text_extract_hpo(request)
+                await process_text_extract_hpo(MagicMock(), request)
 
             detail = exc_info.value.detail.lower()
 
@@ -195,26 +195,23 @@ class TestModelCaching:
                 with patch(
                     "api.routers.text_processing_router.run_in_threadpool"
                 ) as mock_threadpool:
-                    # Mock all threadpool operations
-                    mock_threadpool.return_value = "en"
+                    mock_threadpool.return_value = {
+                        "meta": {},
+                        "processed_chunks": [],
+                        "aggregated_hpo_terms": [],
+                    }
 
                     with patch(
                         "api.routers.text_processing_router.TextProcessingPipeline"
-                    ):
-                        with patch(
-                            "api.routers.text_processing_router.orchestrate_hpo_extraction"
-                        ) as mock_orchestrate:
-                            mock_orchestrate.return_value = ([], [])
+                    ) as mock_pipeline_cls:
+                        mock_pipeline = MagicMock()
+                        mock_pipeline.sbert_model = MagicMock()
+                        mock_pipeline_cls.return_value = mock_pipeline
 
-                            try:
-                                await _process_text_internal(request)
-                            except Exception:  # noqa: S110
-                                # Expected: Full pipeline may fail with mocked dependencies
-                                # We're only testing that cached dependencies are called
-                                pass
+                        await _process_text_internal(request)
 
-                            # Verify cached dependency was called
-                            mock_get_model.assert_called()
+                        # Verify cached dependency was called
+                        mock_get_model.assert_called()
 
     @pytest.mark.asyncio
     async def test_uses_cached_retriever(self):
@@ -238,25 +235,23 @@ class TestModelCaching:
                 with patch(
                     "api.routers.text_processing_router.run_in_threadpool"
                 ) as mock_threadpool:
-                    mock_threadpool.return_value = "en"
+                    mock_threadpool.return_value = {
+                        "meta": {},
+                        "processed_chunks": [],
+                        "aggregated_hpo_terms": [],
+                    }
 
                     with patch(
                         "api.routers.text_processing_router.TextProcessingPipeline"
-                    ):
-                        with patch(
-                            "api.routers.text_processing_router.orchestrate_hpo_extraction"
-                        ) as mock_orchestrate:
-                            mock_orchestrate.return_value = ([], [])
+                    ) as mock_pipeline_cls:
+                        mock_pipeline = MagicMock()
+                        mock_pipeline.sbert_model = MagicMock()
+                        mock_pipeline_cls.return_value = mock_pipeline
 
-                            try:
-                                await _process_text_internal(request)
-                            except Exception:  # noqa: S110
-                                # Expected: Full pipeline may fail with mocked dependencies
-                                # We're only testing that cached dependencies are called
-                                pass
+                        await _process_text_internal(request)
 
-                            # Verify cached retriever was requested
-                            mock_get_retriever.assert_called_once()
+                        # Verify cached retriever was requested
+                        mock_get_retriever.assert_called_once()
 
 
 class TestModelReuse:
@@ -287,25 +282,23 @@ class TestModelReuse:
                 with patch(
                     "api.routers.text_processing_router.run_in_threadpool"
                 ) as mock_threadpool:
-                    mock_threadpool.return_value = "en"
+                    mock_threadpool.return_value = {
+                        "meta": {},
+                        "processed_chunks": [],
+                        "aggregated_hpo_terms": [],
+                    }
 
                     with patch(
                         "api.routers.text_processing_router.TextProcessingPipeline"
-                    ):
-                        with patch(
-                            "api.routers.text_processing_router.orchestrate_hpo_extraction"
-                        ) as mock_orchestrate:
-                            mock_orchestrate.return_value = ([], [])
+                    ) as mock_pipeline_cls:
+                        mock_pipeline = MagicMock()
+                        mock_pipeline.sbert_model = MagicMock()
+                        mock_pipeline_cls.return_value = mock_pipeline
 
-                            try:
-                                await _process_text_internal(request)
-                            except Exception:  # noqa: S110
-                                # Expected: Full pipeline may fail with mocked dependencies
-                                # We're only testing that cached dependencies are called
-                                pass
+                        await _process_text_internal(request)
 
-                            # Should call get_sbert_model_dependency at least once
-                            # (may be called twice: once for retrieval check, once for actual use)
-                            # Note: We can't test actual caching behavior with mocks - the mock
-                            # always returns the same value. Actual caching is tested in integration tests.
-                            assert mock_get_model.call_count >= 1
+                        # Should call get_sbert_model_dependency at least once
+                        # (may be called twice: once for retrieval check, once for actual use)
+                        # Note: We can't test actual caching behavior with mocks - the mock
+                        # always returns the same value. Actual caching is tested in integration tests.
+                        assert mock_get_model.call_count >= 1

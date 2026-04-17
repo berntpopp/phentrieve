@@ -100,4 +100,24 @@ describe('QueryInterface (characterization)', () => {
     expect(wrapper.vm.chunkRetrievalThreshold).toBe(0.7);
     expect(wrapper.vm.aggregatedTermConfidence).toBe(0.75);
   });
+
+  it('renders the closed input for the forced processing mode', async () => {
+    const wrapper = await mountQueryInterface();
+    const queryModeLabel = `${en.queryInterface.inputLabel} (${en.queryInterface.queryModeLabel})`;
+    const documentModeLabel = `${en.queryInterface.inputLabel} (${en.queryInterface.documentModeLabel})`;
+
+    await wrapper.setData({ forceEndpointMode: 'query' });
+
+    expect(wrapper.findComponent({ name: 'VTextField' }).exists()).toBe(true);
+    expect(wrapper.findComponent({ name: 'VTextarea' }).exists()).toBe(false);
+    expect(wrapper.text()).toContain(queryModeLabel);
+    expect(wrapper.text()).not.toContain(documentModeLabel);
+
+    await wrapper.setData({ forceEndpointMode: 'textProcess' });
+
+    expect(wrapper.findComponent({ name: 'VTextField' }).exists()).toBe(false);
+    expect(wrapper.findComponent({ name: 'VTextarea' }).exists()).toBe(true);
+    expect(wrapper.text()).toContain(documentModeLabel);
+    expect(wrapper.text()).not.toContain(queryModeLabel);
+  });
 });

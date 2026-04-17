@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "phentrieve"
-version = "0.13.3"
+version = "0.14.0"
 description = "A CLI tool for retrieving Human Phenotype Ontology (HPO) terms from clinical text using multilingual embeddings."
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -74,6 +74,9 @@ mcp = [
     "python-dotenv>=1.0.0",
     "pydantic-settings>=2.0.0",
 ]
+llm = [
+    "google-genai>=1.22.0,<2.0.0",
+]
 # Install CLI + API with: pip install "phentrieve[api]"
 # Install CLI + MCP with: pip install "phentrieve[mcp]"
 
@@ -86,6 +89,13 @@ include = ["phentrieve*", "api*"]
 
 [tool.setuptools.package-data]
 "phentrieve.text_processing.default_lang_resources" = ["*.json"]
+"phentrieve.llm.prompts" = [
+    "templates/*.txt",
+    "templates/direct_text/*.yaml",
+    "templates/tool_guided/*.yaml",
+    "templates/two_phase/*.yaml",
+    "templates/postprocess/*.yaml",
+]
 
 [tool.ruff]
 line-length = 88
@@ -171,6 +181,15 @@ module = [
     "seaborn.*",
 ]
 ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = [
+    "google",
+    "google.*",
+    "google.genai",
+    "google.genai.*",
+]
+follow_imports = "skip"
 
 [tool.pytest.ini_options]
 python_files = ["test_*.py"]

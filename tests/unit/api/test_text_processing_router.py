@@ -1,15 +1,20 @@
 """Unit tests for text processing router helper functions."""
 
-from types import SimpleNamespace
-from unittest.mock import MagicMock, patch
+from datetime import UTC, datetime
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from fastapi import HTTPException
+from fastapi.testclient import TestClient
 
+from api.llm_quota import DailyQuotaStore, hash_subject_key
+from api.main import app
 from api.routers.text_processing_router import (
+    QuotaExceededError,
     _get_chunking_config_for_api,
     _get_trust_remote_code_for_model,
-    _process_text_internal,
+    _prepare_standard_request_context,
+    _process_text_via_shared_service,
     _validate_response_chunk_references,
 )
 from api.schemas.text_processing_schemas import (
@@ -21,6 +26,294 @@ from api.schemas.text_processing_schemas import (
 from phentrieve.config import BENCHMARK_MODELS, DEFAULT_MODEL
 
 pytestmark = pytest.mark.unit
+
+
+@pytest.fixture
+def client():
+    with TestClient(app, raise_server_exceptions=False) as test_client:
+        yield test_client
+
+
+def test_text_processing_router_returns_llm_meta(client, monkeypatch):
+    monkeypatch.setattr(
+        "api.routers.text_processing_router.run_full_text_service",
+        lambda **kwargs: {
+            "meta": {
+                "extraction_backend": "llm",
+                "llm_model": "gpt-5.4-mini",
+                "llm_mode": "two_phase",
+            },
+            "processed_chunks": [],
+            "aggregated_hpo_terms": [],
+        },
+    )
+
+    response = client.post(
+        "/api/v1/text/process",
+        json={
+            "text": "Patient had recurrent seizures.",
+            "extraction_backend": "llm",
+            "llm_model": "gpt-5.4-mini",
+            "llm_mode": "two_phase",
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.json()["meta"]["extraction_backend"] == "llm"
+
+
+def test_text_processing_router_rejects_llm_without_model(client):
+    response = client.post(
+        "/api/v1/text/process",
+        json={
+            "text": "Patient had recurrent seizures.",
+            "extraction_backend": "llm",
+        },
+    )
+
+    assert response.status_code == 422
+    assert "llm_model" in response.text
+
+
+def test_text_processing_router_returns_429_when_quota_exhausted(client, monkeypatch):
+    monkeypatch.setattr(
+        "api.config.PHENTRIEVE_ENV",
+        "production",
+        raising=False,
+    )
+
+    def raise_quota(*args, **kwargs):
+        raise QuotaExceededError(
+            quota_used=3,
+            quota_limit=3,
+            quota_remaining=0,
+            usage_date_utc="2026-04-15",
+        )
+
+    monkeypatch.setattr(
+        "api.routers.text_processing_router.check_llm_quota_or_raise",
+        raise_quota,
+    )
+
+    response = client.post(
+        "/api/v1/text/process",
+        json={
+            "text": "note",
+            "extraction_backend": "llm",
+            "llm_model": "gpt-5.4-mini",
+        },
+    )
+
+    assert response.status_code == 429
+    assert response.json()["detail"]["quota_remaining"] == 0
+
+
+def test_text_processing_router_returns_503_when_subject_resolution_is_untrusted(
+    client, monkeypatch
+):
+    monkeypatch.setattr(
+        "api.config.PHENTRIEVE_ENV",
+        "production",
+        raising=False,
+    )
+    monkeypatch.setattr(
+        "api.routers.text_processing_router.resolve_subject_ip",
+        lambda **kwargs: None,
+    )
+
+    response = client.post(
+        "/api/v1/text/process",
+        json={
+            "text": "note",
+            "extraction_backend": "llm",
+            "llm_model": "gpt-5.4-mini",
+        },
+    )
+
+    assert response.status_code == 503
+    assert "trusted anonymous subject" in response.json()["detail"]
+
+
+def test_text_processing_router_counts_successes_and_skips_failed_requests(
+    tmp_path, monkeypatch
+):
+    quota_db = tmp_path / "llm_quota.db"
+    monkeypatch.setattr(
+        "api.config.PHENTRIEVE_ENV",
+        "production",
+        raising=False,
+    )
+    monkeypatch.setattr(
+        "api.config.PHENTRIEVE_TRUSTED_PROXY_CIDRS",
+        "172.16.0.0/12",
+        raising=False,
+    )
+    monkeypatch.setattr(
+        "api.config.PHENTRIEVE_LLM_DAILY_LIMIT",
+        2,
+        raising=False,
+    )
+    monkeypatch.setattr(
+        "api.config.PHENTRIEVE_LLM_QUOTA_DB_PATH",
+        str(quota_db),
+        raising=False,
+    )
+
+    service_state = {"mode": "success"}
+
+    def run_service(**kwargs):
+        if service_state["mode"] == "fail":
+            raise RuntimeError("llm backend failed")
+        return {
+            "meta": {
+                "extraction_backend": "llm",
+                "llm_model": kwargs.get("llm_model", "gpt-5.4-mini"),
+                "llm_mode": kwargs.get("llm_mode", "two_phase"),
+            },
+            "processed_chunks": [],
+            "aggregated_hpo_terms": [],
+        }
+
+    monkeypatch.setattr(
+        "api.routers.text_processing_router.run_full_text_service",
+        run_service,
+    )
+
+    store = DailyQuotaStore(quota_db, daily_limit=2)
+    headers = {"X-Forwarded-For": "203.0.113.5"}
+    payload = {
+        "text": "note",
+        "extraction_backend": "llm",
+        "llm_model": "gpt-5.4-mini",
+    }
+    subject_key = hash_subject_key("203.0.113.5")
+    usage_date_utc = datetime.now(UTC).date().isoformat()
+
+    with TestClient(
+        app,
+        raise_server_exceptions=False,
+        client=("172.18.0.10", 50000),
+    ) as local_client:
+        first = local_client.post("/api/v1/text/process", json=payload, headers=headers)
+        assert first.status_code == 200
+        assert first.json()["meta"]["quota_limit"] == 2
+        assert first.json()["meta"]["quota_remaining"] == 1
+        assert (
+            store.get_status(
+                subject_key=subject_key,
+                usage_date_utc=usage_date_utc,
+            ).quota_used
+            == 1
+        )
+
+        service_state["mode"] = "fail"
+        failed = local_client.post(
+            "/api/v1/text/process",
+            json=payload,
+            headers=headers,
+        )
+        assert failed.status_code == 500
+        assert (
+            store.get_status(
+                subject_key=subject_key,
+                usage_date_utc=usage_date_utc,
+            ).quota_used
+            == 1
+        )
+
+        service_state["mode"] = "success"
+        second = local_client.post(
+            "/api/v1/text/process",
+            json=payload,
+            headers=headers,
+        )
+        assert second.status_code == 200
+        assert second.json()["meta"]["quota_limit"] == 2
+        assert second.json()["meta"]["quota_remaining"] == 0
+        assert (
+            store.get_status(
+                subject_key=subject_key,
+                usage_date_utc=usage_date_utc,
+            ).quota_used
+            == 2
+        )
+
+        exhausted = local_client.post(
+            "/api/v1/text/process",
+            json=payload,
+            headers=headers,
+        )
+        assert exhausted.status_code == 429
+        assert exhausted.json()["detail"]["quota_remaining"] == 0
+
+
+def test_text_processing_router_returns_standard_extraction_backend_contract(
+    client, monkeypatch
+):
+    monkeypatch.setattr(
+        "api.routers.text_processing_router.get_sbert_model_dependency",
+        AsyncMock(return_value=MagicMock(model_name="FremyCompany/BioLORD-2023-M")),
+    )
+    monkeypatch.setattr(
+        "api.routers.text_processing_router.get_dense_retriever_dependency",
+        AsyncMock(return_value=MagicMock(model_name="FremyCompany/BioLORD-2023-M")),
+    )
+    monkeypatch.setattr(
+        "api.routers.text_processing_router.run_full_text_service",
+        lambda **kwargs: {
+            "meta": {"extraction_backend": "standard"},
+            "processed_chunks": [
+                {
+                    "chunk_id": 1,
+                    "text": "Patient had recurrent seizures.",
+                    "status": "affirmed",
+                    "hpo_matches": [
+                        {"id": "HP:0001250", "name": "Seizure", "score": 0.91}
+                    ],
+                    "start_char": 0,
+                    "end_char": 31,
+                }
+            ],
+            "aggregated_hpo_terms": [
+                {
+                    "id": "HP:0001250",
+                    "name": "Seizure",
+                    "confidence": 0.91,
+                    "status": "affirmed",
+                    "evidence_count": 1,
+                    "chunks": [0],
+                    "text_attributions": [
+                        {
+                            "chunk_idx": 0,
+                            "start_char": 15,
+                            "end_char": 24,
+                            "matched_text_in_chunk": "seizures",
+                        }
+                    ],
+                    "score": 0.91,
+                }
+            ],
+        },
+    )
+
+    response = client.post(
+        "/api/v1/text/process",
+        json={
+            "text_content": "Patient had recurrent seizures.",
+        },
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["meta"]["extraction_backend"] == "standard"
+    assert body["meta"]["effective_language"] == "en"
+    assert body["meta"]["effective_retrieval_model"] == "FremyCompany/BioLORD-2023-M"
+    assert (
+        body["meta"]["request_parameters"]["text"] == "Patient had recurrent seizures."
+    )
+    assert body["meta"]["num_processed_chunks"] == 1
+    assert body["processed_chunks"][0]["hpo_matches"][0]["hpo_id"] == "HP:0001250"
+    assert body["aggregated_hpo_terms"][0]["hpo_id"] == "HP:0001250"
 
 
 class TestGetChunkingConfigForApi:
@@ -240,23 +533,6 @@ class TestTextProcessingModelValidation:
                     mock_pipeline_cls.return_value = mock_pipeline
 
                     async def fake_run_in_threadpool(func, *args, **kwargs):
-                        if func is mock_pipeline.process:
-                            return [
-                                {
-                                    "text": "chunk",
-                                    "status": SimpleNamespace(value="affirmed"),
-                                    "assertion_details": None,
-                                    "start_char": 0,
-                                    "end_char": 5,
-                                }
-                            ]
-
-                        if (
-                            getattr(func, "__name__", "")
-                            == "orchestrate_hpo_extraction"
-                        ):
-                            return ([], [])
-
                         raise AssertionError(f"Unexpected callable: {func!r}")
 
                     with patch(
@@ -264,7 +540,7 @@ class TestTextProcessingModelValidation:
                         side_effect=fake_run_in_threadpool,
                     ):
                         with pytest.raises(HTTPException) as exc_info:
-                            await _process_text_internal(request)
+                            await _prepare_standard_request_context(request)
 
         assert exc_info.value.status_code == 400
         assert "retrieval_model_name" in str(exc_info.value.detail)
@@ -298,30 +574,13 @@ class TestTextProcessingModelValidation:
                     mock_pipeline_cls.return_value = mock_pipeline
 
                     async def fake_run_in_threadpool(func, *args, **kwargs):
-                        if func is mock_pipeline.process:
-                            return [
-                                {
-                                    "text": "chunk",
-                                    "status": SimpleNamespace(value="affirmed"),
-                                    "assertion_details": None,
-                                    "start_char": 0,
-                                    "end_char": 5,
-                                }
-                            ]
-
-                        if (
-                            getattr(func, "__name__", "")
-                            == "orchestrate_hpo_extraction"
-                        ):
-                            return ([], [])
-
                         raise AssertionError(f"Unexpected callable: {func!r}")
 
                     with patch(
                         "api.routers.text_processing_router.run_in_threadpool",
                         side_effect=fake_run_in_threadpool,
                     ):
-                        await _process_text_internal(request)
+                        await _prepare_standard_request_context(request)
 
         mock_get_model.assert_called_once_with(
             model_name_requested=DEFAULT_MODEL,
@@ -358,30 +617,13 @@ class TestTextProcessingModelValidation:
                     mock_pipeline_cls.return_value = mock_pipeline
 
                     async def fake_run_in_threadpool(func, *args, **kwargs):
-                        if func is mock_pipeline.process:
-                            return [
-                                {
-                                    "text": "chunk",
-                                    "status": SimpleNamespace(value="affirmed"),
-                                    "assertion_details": None,
-                                    "start_char": 0,
-                                    "end_char": 5,
-                                }
-                            ]
-
-                        if (
-                            getattr(func, "__name__", "")
-                            == "orchestrate_hpo_extraction"
-                        ):
-                            return ([], [])
-
                         raise AssertionError(f"Unexpected callable: {func!r}")
 
                     with patch(
                         "api.routers.text_processing_router.run_in_threadpool",
                         side_effect=fake_run_in_threadpool,
                     ):
-                        await _process_text_internal(request)
+                        await _prepare_standard_request_context(request)
 
         mock_get_model.assert_called_once_with(
             model_name_requested=self.SUPPORTED_NON_DEFAULT_MODEL,
@@ -421,30 +663,13 @@ class TestTextProcessingModelValidation:
                     mock_pipeline_cls.return_value = mock_pipeline
 
                     async def fake_run_in_threadpool(func, *args, **kwargs):
-                        if func is mock_pipeline.process:
-                            return [
-                                {
-                                    "text": "chunk",
-                                    "status": SimpleNamespace(value="affirmed"),
-                                    "assertion_details": None,
-                                    "start_char": 0,
-                                    "end_char": 5,
-                                }
-                            ]
-
-                        if (
-                            getattr(func, "__name__", "")
-                            == "orchestrate_hpo_extraction"
-                        ):
-                            return ([], [])
-
                         raise AssertionError(f"Unexpected callable: {func!r}")
 
                     with patch(
                         "api.routers.text_processing_router.run_in_threadpool",
                         side_effect=fake_run_in_threadpool,
                     ):
-                        await _process_text_internal(request)
+                        await _prepare_standard_request_context(request)
 
         mock_get_model.assert_called_once()
         _, kwargs = mock_get_model.call_args
@@ -456,8 +681,8 @@ class TestTextProcessingModelValidation:
         }
 
     @pytest.mark.asyncio
-    async def test_preserves_explicit_zero_values_for_orchestrator(self):
-        """Explicit 0.0 values should reach orchestrate_hpo_extraction unchanged."""
+    async def test_preserves_explicit_zero_values_for_extraction_backend(self):
+        """Explicit 0.0 values should reach the shared-service kwargs unchanged."""
         request = TextProcessingRequest(
             text_content="test text",
             language="en",
@@ -465,56 +690,89 @@ class TestTextProcessingModelValidation:
             aggregated_term_confidence=0.0,
         )
 
-        recorded_orchestrator_call: dict[str, object] = {}
+        standard_context = {
+            "actual_language": "en",
+            "retrieval_model_name": DEFAULT_MODEL,
+            "chunking_pipeline_config": [{"type": "simple"}],
+            "retriever": MagicMock(),
+            "text_pipeline": MagicMock(sbert_model=MagicMock()),
+        }
+        captured_kwargs: dict[str, object] = {}
 
         with patch(
-            "api.routers.text_processing_router.get_sbert_model_dependency"
-        ) as mock_get_model:
-            mock_get_model.return_value = MagicMock()
-
+            "api.routers.text_processing_router._prepare_standard_request_context",
+            AsyncMock(return_value=standard_context),
+        ):
             with patch(
-                "api.routers.text_processing_router.get_dense_retriever_dependency"
-            ) as mock_get_retriever:
-                mock_get_retriever.return_value = MagicMock()
+                "api.routers.text_processing_router.run_full_text_service",
+                side_effect=lambda **kwargs: (
+                    captured_kwargs.update(kwargs)
+                    or {
+                        "meta": {"extraction_backend": "standard"},
+                        "processed_chunks": [],
+                        "aggregated_hpo_terms": [],
+                    }
+                ),
+            ):
+                await _process_text_via_shared_service(request)
 
-                with patch(
-                    "api.routers.text_processing_router.TextProcessingPipeline"
-                ) as mock_pipeline_cls:
-                    mock_pipeline = MagicMock()
-                    mock_pipeline.process = MagicMock()
-                    mock_pipeline_cls.return_value = mock_pipeline
+        assert captured_kwargs["chunk_retrieval_threshold"] == 0.0
+        assert captured_kwargs["min_confidence_for_aggregated"] == 0.0
 
-                    async def fake_run_in_threadpool(func, *args, **kwargs):
-                        if func is mock_pipeline.process:
-                            return [
-                                {
-                                    "text": "chunk",
-                                    "status": SimpleNamespace(value="affirmed"),
-                                    "assertion_details": None,
-                                    "start_char": 0,
-                                    "end_char": 5,
-                                }
-                            ]
-
-                        if (
-                            getattr(func, "__name__", "")
-                            == "orchestrate_hpo_extraction"
-                        ):
-                            recorded_orchestrator_call["kwargs"] = kwargs
-                            return ([], [])
-
-                        raise AssertionError(f"Unexpected callable: {func!r}")
-
-                    with patch(
-                        "api.routers.text_processing_router.run_in_threadpool",
-                        side_effect=fake_run_in_threadpool,
-                    ):
-                        await _process_text_internal(request)
-
-        assert recorded_orchestrator_call["kwargs"]["chunk_retrieval_threshold"] == 0.0
-        assert (
-            recorded_orchestrator_call["kwargs"]["min_confidence_for_aggregated"] == 0.0
+    @pytest.mark.asyncio
+    async def test_standard_extraction_backend_shared_service_path_validates_adapted_response(
+        self,
+    ):
+        """Standard shared-service responses should still hit the invariant check."""
+        request = TextProcessingRequest(
+            text_content="test text",
+            language="en",
         )
+
+        standard_context = {
+            "actual_language": "en",
+            "retrieval_model_name": DEFAULT_MODEL,
+            "chunking_pipeline_config": [{"type": "simple"}],
+            "retriever": MagicMock(),
+            "text_pipeline": MagicMock(sbert_model=MagicMock()),
+        }
+
+        with patch(
+            "api.routers.text_processing_router._prepare_standard_request_context",
+            AsyncMock(return_value=standard_context),
+        ):
+            with patch(
+                "api.routers.text_processing_router.run_full_text_service",
+                return_value={
+                    "meta": {"extraction_backend": "standard"},
+                    "processed_chunks": [
+                        {
+                            "chunk_id": 1,
+                            "text": "chunk",
+                            "status": "affirmed",
+                            "hpo_matches": [{"id": "HP:0001250", "name": "Seizure"}],
+                        }
+                    ],
+                    "aggregated_hpo_terms": [
+                        {
+                            "id": "HP:0001250",
+                            "name": "Seizure",
+                            "confidence": 0.9,
+                            "status": "affirmed",
+                            "evidence_count": 1,
+                            "chunks": [0],
+                            "text_attributions": [],
+                            "score": 0.9,
+                        }
+                    ],
+                },
+            ):
+                with patch(
+                    "api.routers.text_processing_router._validate_response_chunk_references"
+                ) as mock_validate:
+                    await _process_text_via_shared_service(request)
+
+        mock_validate.assert_called_once()
 
 
 class TestValidateResponseChunkReferences:

@@ -15,6 +15,7 @@ from pathlib import Path
 from typing import Any
 
 logger = logging.getLogger(__name__)
+TERM_LOOKUP_BATCH_SIZE = 400
 
 # Schema SQL with performance optimizations
 SCHEMA_SQL = """
@@ -342,18 +343,19 @@ class HPODatabase:
 
         conn = self.get_connection()
 
-        # Use parameterized query for SQL injection safety
-        placeholders = ",".join("?" * len(term_ids))
-        query = f"""
-            SELECT id, label, definition, synonyms, comments
-            FROM hpo_terms
-            WHERE id IN ({placeholders})
-        """  # noqa: S608 - False positive: using parameterized query with placeholders
-
-        cursor = conn.execute(query, term_ids)
-
-        # Use shared helper for deserialization (DRY)
-        terms_map = {row["id"]: self._deserialize_term_row(row) for row in cursor}
+        terms_map: dict[str, dict[str, Any]] = {}
+        for start in range(0, len(term_ids), TERM_LOOKUP_BATCH_SIZE):
+            batch_ids = term_ids[start : start + TERM_LOOKUP_BATCH_SIZE]
+            placeholders = ",".join("?" * len(batch_ids))
+            query = f"""
+                SELECT id, label, definition, synonyms, comments
+                FROM hpo_terms
+                WHERE id IN ({placeholders})
+            """  # noqa: S608 - False positive: using parameterized query with placeholders
+            cursor = conn.execute(query, batch_ids)
+            terms_map.update(
+                {row["id"]: self._deserialize_term_row(row) for row in cursor}
+            )
 
         # Log warning for any missing terms
         if len(terms_map) < len(term_ids):
