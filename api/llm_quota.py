@@ -106,8 +106,12 @@ def _parse_trusted_networks(
             continue
         try:
             networks.append(ipaddress.ip_network(cidr_value, strict=False))
-        except ValueError:
-            logger.warning("Ignoring invalid trusted proxy CIDR entry.")
+        except ValueError as exc:
+            logger.warning(
+                "Ignoring invalid trusted proxy CIDR entry %r: %s",
+                cidr_value,
+                exc,
+            )
             continue
     return networks
 
@@ -178,6 +182,8 @@ class DailyQuotaStore:
 
     def _connect(self) -> sqlite3.Connection:
         connection = sqlite3.connect(self.db_path)
+        connection.execute("PRAGMA journal_mode = WAL")
+        connection.execute("PRAGMA synchronous = NORMAL")
         connection.execute("PRAGMA busy_timeout = 5000")
         return connection
 

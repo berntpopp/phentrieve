@@ -1326,9 +1326,66 @@ def test_run_llm_benchmark_cli_writes_prediction_and_metrics_artifacts(
     )
 
     assert result["output_path"] == str(output_path)
-    assert (artifacts_dir / "predictions" / "two_phase" / "doc-1.json").exists()
-    assert (artifacts_dir / "traces" / "two_phase" / "doc-1.json").exists()
+    assert (artifacts_dir / "predictions" / "two_phase" / "case_doc-1.json").exists()
+    assert (artifacts_dir / "traces" / "two_phase" / "case_doc-1.json").exists()
     assert (artifacts_dir / "metrics" / "benchmark_two_phase.json").exists()
+
+
+def test_run_llm_benchmark_cli_sanitizes_artifact_filenames(tmp_path, monkeypatch):
+    test_file = tmp_path / "cases.json"
+    test_file.write_text("[]", encoding="utf-8")
+    output_path = tmp_path / "summary.json"
+    artifacts_dir = tmp_path / "artifacts"
+
+    monkeypatch.setattr(
+        llm_cli.llm_benchmark,
+        "run_llm_benchmark",
+        lambda **kwargs: {
+            "cases": 1,
+            "llm_model": kwargs["llm_model"],
+            "llm_mode": kwargs["llm_mode"],
+            "dataset": kwargs["dataset"],
+            "dataset_metadata": {"dataset_name": "phenobert_GeneReviews"},
+            "metrics": {
+                "assertion_aware": {"micro": {"f1": 1.0}},
+                "id_only": {"micro": {"f1": 1.0}},
+            },
+            "token_usage": {
+                "prompt_tokens": 10,
+                "completion_tokens": 5,
+                "total_tokens": 15,
+            },
+            "timing_breakdown": {"wall_clock_seconds": 1.0},
+            "estimated_cost": None,
+            "prediction_records": [
+                {
+                    "case_index": 7,
+                    "doc_id": "folder/unsafe doc:id",
+                    "annotations": [],
+                    "trace": {"phase1": {"extracted": []}},
+                }
+            ],
+            "results": [{"doc_id": "folder/unsafe doc:id"}],
+        },
+    )
+
+    llm_cli.run_llm_benchmark_cli(
+        test_file=str(test_file),
+        llm_model="gemini-2.5-flash",
+        output_path=str(output_path),
+        artifacts_dir=str(artifacts_dir),
+    )
+
+    prediction_path = (
+        artifacts_dir / "predictions" / "two_phase" / "case_7_folder_unsafe_doc_id.json"
+    )
+    trace_path = (
+        artifacts_dir / "traces" / "two_phase" / "case_7_folder_unsafe_doc_id.json"
+    )
+
+    assert prediction_path.exists()
+    assert trace_path.exists()
+    assert not (artifacts_dir / "predictions" / "two_phase" / "folder").exists()
 
 
 def test_run_llm_benchmark_cli_writes_checkpoint_snapshot(tmp_path, monkeypatch):

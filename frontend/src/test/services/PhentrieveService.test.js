@@ -198,4 +198,31 @@ describe('PhentrieveService', () => {
     );
     expect(axios.post.mock.calls[0][1]).not.toHaveProperty('top_term_per_chunk');
   });
+
+  it('omits null and undefined text process fields from the API payload', async () => {
+    axios.post.mockResolvedValue({ data: { meta: { extraction_backend: 'llm' } } });
+
+    await PhentrieveService.processText({
+      text: 'Patient had recurrent seizures.',
+      extractionBackend: 'llm',
+      llmModel: 'gpt-5.4-mini',
+      trustRemoteCode: false,
+      chunkingStrategy: null,
+      windowSize: undefined,
+      llmMode: null,
+      retrievalModelName: null,
+    });
+
+    const payload = axios.post.mock.calls[0][1];
+    expect(payload).toMatchObject({
+      text: 'Patient had recurrent seizures.',
+      extraction_backend: 'llm',
+      llm_model: 'gpt-5.4-mini',
+      trust_remote_code: false,
+    });
+    expect(payload).not.toHaveProperty('chunking_strategy');
+    expect(payload).not.toHaveProperty('window_size');
+    expect(payload).not.toHaveProperty('llm_mode');
+    expect(payload).not.toHaveProperty('retrieval_model_name');
+  });
 });

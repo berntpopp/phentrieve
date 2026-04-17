@@ -70,4 +70,15 @@ def test_resolve_subject_ip_ignores_invalid_trusted_proxy_cidrs(caplog):
     )
 
     assert subject_ip == "203.0.113.5"
-    assert "Ignoring invalid trusted proxy CIDR entry." in caplog.text
+    assert "Ignoring invalid trusted proxy CIDR entry 'not-a-cidr'" in caplog.text
+
+
+def test_daily_quota_store_enables_sqlite_wal_mode(tmp_path):
+    store = DailyQuotaStore(tmp_path / "quota.db", daily_limit=3)
+
+    with store._connect() as connection:
+        journal_mode = connection.execute("PRAGMA journal_mode").fetchone()[0]
+        synchronous = connection.execute("PRAGMA synchronous").fetchone()[0]
+
+    assert str(journal_mode).lower() == "wal"
+    assert int(synchronous) == 1

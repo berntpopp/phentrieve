@@ -109,7 +109,7 @@ class PhentrieveService {
     const extractionBackend =
       textProcessingData.extraction_backend ?? textProcessingData.extractionBackend ?? 'standard';
 
-    return {
+    const payload = {
       text: textProcessingData.text ?? textProcessingData.text_content ?? '',
       extraction_backend: extractionBackend,
       llm_model:
@@ -164,6 +164,10 @@ class PhentrieveService {
         null,
       include_details: textProcessingData.include_details ?? textProcessingData.includeDetails,
     };
+
+    return Object.fromEntries(
+      Object.entries(payload).filter(([, value]) => value !== null && value !== undefined)
+    );
   }
 
   /**

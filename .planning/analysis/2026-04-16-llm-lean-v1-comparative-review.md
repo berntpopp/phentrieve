@@ -713,3 +713,120 @@ order:
 
 This is the best order if the objective is a mature CLI path with better speed,
 lower cost, and no quality backslide.
+
+---
+
+## 6. 2026-04-17 follow-up: shared mapping prompt landed, but cost regressed
+
+### What was tested
+
+The branch now includes a shared English mapping prompt for all languages with
+an explicit `{language}` instruction and `retrieval_score` in the compact
+mapping payload.
+
+Benchmark artifact:
+
+- `results/llm/pr216_shared_mapping_prompt.json`
+
+### Measured outcome vs the last fixed grounded baseline
+
+Compared against `pr216_grounded_routing_phase1_parallel_fix4.json`:
+
+- **Quality improved**: micro-F1 `0.7764 -> 0.7846` (`+0.0083`)
+- **Wall-clock regressed slightly**: `899.95 s -> 912.65 s`
+- **API calls were flat**: `55 -> 55`
+- **Total tokens regressed heavily**: `95,396 -> 141,582` (`+46,186`)
+
+Compared against the older chunkrefactor baseline:
+
+- micro-F1 `0.7631 -> 0.7846`
+- wall-clock `1051.52 s -> 912.65 s`
+- API calls `60 -> 55`
+
+So PR C in its current form is a **quality win but a cost regression**.
+
+### Root-cause diagnosis from local traces
+
+The regression is dominated by **prompt-token growth**, not by more
+completions:
+
+- `GeneReviews_NBK321516`: prompt tokens `11,564 -> 20,659`, completions
+  `3,473 -> 3,141`
+- `GeneReviews_NBK532447`: prompt tokens `10,468 -> 17,148`, completions
+  `2,959 -> 3,085`
+- `GeneReviews_NBK169825`: prompt tokens `8,982 -> 15,133`, completions
+  `2,540 -> 2,540`
+
+The mapping templates grew by **547 characters each** in the landed change,
+and those extra instructions/examples are paid repeatedly across the many
+Phase-2B mapping calls in a benchmark run. That matches the per-document token
+delta: roughly **500-1000 extra total tokens per API call**, with API-call
+count mostly unchanged.
+
+This means the shared prompt itself is not inherently the problem; the issue is
+that the current version adds too much repeated prefix material per call.
+
+### External guidance that changes the recommendation
+
+Official Gemini docs now point to a sharper optimization strategy:
+
+- Google documents that Gemini 2.5 Flash has **thinking enabled by default**,
+  and explicitly says higher latency or token usage can come from that; if
+  speed/cost matter, you can adjust or disable thinking.
+  Source: <https://ai.google.dev/gemini-api/docs/troubleshooting>
+- The thinking guide states that **Gemini 2.5 Flash supports
+  `thinkingBudget = 0`** to disable thinking.
+  Source: <https://ai.google.dev/gemini-api/docs/thinking>
+- The prompting guide says to use few-shot examples, but also notes that
+  **too many examples can overfit** and that if examples are clear enough you
+  can remove instructions.
+  Source: <https://ai.google.dev/gemini-api/docs/prompting-strategies>
+- The structured-output guide emphasizes **clear schema descriptions** and
+  prompt clarity, which suggests some of our new prompt text may be better
+  carried by schema/property descriptions than repeated prose.
+  Source: <https://ai.google.dev/gemini-api/docs/structured-output>
+- The long-context guide says **do not pass tokens you do not need** and notes
+  that longer queries generally increase latency.
+  Source: <https://ai.google.dev/gemini-api/docs/long-context>
+- The caching guide says Gemini 2.5 models have **implicit caching** and that
+  cache hits are helped by putting large common content at the beginning of the
+  prompt and by reusing similar prefixes close together; cache-hit information
+  is available in `usage_metadata`.
+  Source: <https://ai.google.dev/gemini-api/docs/caching/>
+
+### Revised recommendation
+
+Do **not** revert the shared-language prompt idea. Keep the quality gain, but
+optimize the implementation in this order:
+
+1. **Trim the repeated mapping prefix aggressively**
+   - Collapse the language contract to one short sentence.
+   - Keep `retrieval_score` in the runtime payload, but remove it from verbose
+     few-shot examples if it is not needed for the example to teach the task.
+   - Reduce the number and verbosity of few-shot examples; keep only the
+     highest-signal example per prompt if quality holds.
+2. **Move guidance from prose into schema where possible**
+   - Use response-schema descriptions to carry some behavioral guidance instead
+     of repeating it in the prompt text.
+3. **Add Gemini thinking control to the provider**
+   - For `gemini-2.5-flash` structured extraction/mapping, benchmark
+     `thinkingBudget=0` first.
+   - This is the highest-ROI next experiment for speed/cost because it targets
+     both latency and hidden reasoning-token expansion.
+4. **Instrument cache effectiveness**
+   - Surface cache-hit metadata from `usage_metadata` if the SDK exposes it.
+   - If repeated mapping prefixes clear the minimum threshold, consider
+     explicit caching for shared mapping/extraction prefixes.
+5. **Keep adaptive grounded context next**
+   - Primary-only context remains the next best branch-local optimization once
+     repeated prefix cost is reduced.
+
+### Updated next-step order
+
+Given the new evidence, the recommended order on this branch is now:
+
+1. Shared mapping prompt compression + Gemini thinking control
+2. Adaptive grounded context
+3. Token preflight heuristic
+4. Per-language calibration harness for routing thresholds
+5. German non-regression evaluation set / documented holdout

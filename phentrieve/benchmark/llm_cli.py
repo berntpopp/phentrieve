@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+import re
 import tempfile
 from datetime import UTC, datetime
 from pathlib import Path
@@ -34,6 +35,17 @@ def _default_output_path() -> Path:
 
 def _default_artifacts_dir(output_path: Path) -> Path:
     return output_path.parent / output_path.stem
+
+
+def _artifact_filename_stem(record: dict[str, Any]) -> str:
+    case_index = record.get("case_index")
+    case_prefix = f"case_{case_index}" if case_index is not None else "case"
+    doc_id = str(record.get("doc_id", "")).strip()
+    sanitized_doc_id = re.sub(r"[^A-Za-z0-9._-]+", "_", doc_id).strip("._")
+    if not sanitized_doc_id:
+        return case_prefix
+    sanitized_doc_id = re.sub(r"_+", "_", sanitized_doc_id)
+    return f"{case_prefix}_{sanitized_doc_id}"
 
 
 def run_llm_benchmark_cli(
@@ -214,8 +226,8 @@ def _write_benchmark_artifacts(
         )
         predictions_dir.mkdir(parents=True, exist_ok=True)
         for record in prediction_records:
-            doc_id = str(record["doc_id"])
-            (predictions_dir / f"{doc_id}.json").write_text(
+            artifact_stem = _artifact_filename_stem(record)
+            (predictions_dir / f"{artifact_stem}.json").write_text(
                 json.dumps(record, indent=2),
                 encoding="utf-8",
             )
@@ -225,7 +237,7 @@ def _write_benchmark_artifacts(
                         artifacts_dir / "traces" / str(benchmark_payload["llm_mode"])
                     )
                     traces_dir.mkdir(parents=True, exist_ok=True)
-                (traces_dir / f"{doc_id}.json").write_text(
+                (traces_dir / f"{artifact_stem}.json").write_text(
                     json.dumps(record["trace"], indent=2),
                     encoding="utf-8",
                 )
