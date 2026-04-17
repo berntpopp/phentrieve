@@ -570,16 +570,17 @@ class OllamaStructuredOutputProvider(LLMProvider):
         self.last_usage = {}
         self.last_finish_reason = None
         self.last_request_count = 0
-        payload = {
+        options: dict[str, Any] = {
+            "temperature": self.temperature,
+        }
+        payload: dict[str, Any] = {
             "model": self.model_name,
             "stream": False,
             "messages": messages,
-            "options": {
-                "temperature": self.temperature,
-            },
+            "options": options,
         }
         if self.seed is not None:
-            payload["options"]["seed"] = self.seed
+            options["seed"] = self.seed
 
         with httpx.Client(timeout=self.timeout_seconds) as client:
             response = client.post(f"{self.base_url}/api/chat", json=payload)
@@ -610,7 +611,11 @@ class OllamaStructuredOutputProvider(LLMProvider):
         self.last_usage = {}
         self.last_finish_reason = None
         self.last_request_count = 0
-        payload = {
+        options: dict[str, Any] = {
+            "temperature": self.temperature,
+            "num_predict": max_output_tokens or DEFAULT_PROVIDER_MAX_TOKENS,
+        }
+        payload: dict[str, Any] = {
             "model": self.model_name,
             "stream": False,
             "messages": [
@@ -620,13 +625,10 @@ class OllamaStructuredOutputProvider(LLMProvider):
             "format": GeminiStructuredOutputProvider._build_response_json_schema(
                 response_model
             ),
-            "options": {
-                "temperature": self.temperature,
-                "num_predict": max_output_tokens or DEFAULT_PROVIDER_MAX_TOKENS,
-            },
+            "options": options,
         }
         if self.seed is not None:
-            payload["options"]["seed"] = self.seed
+            options["seed"] = self.seed
 
         with httpx.Client(timeout=self.timeout_seconds) as client:
             response = client.post(f"{self.base_url}/api/chat", json=payload)
