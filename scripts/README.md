@@ -256,3 +256,63 @@ To modify or extend the conversion:
    ```
 
 See `.planning/active/PHENOBERT-CORPUS-CONVERSION-PLAN.md` for architecture details.
+
+---
+
+### `analyze_embedding_ontology.py`
+
+Ontology–embedding fidelity analysis. Loads BioLORD HPO embeddings from the
+existing ChromaDB collection (cached to `.npy` on first run), computes four
+correlation metrics between the embedding space and the curated HPO DAG, and
+produces a timestamped results directory with a summary JSON, a per-term
+fidelity CSV, and five plots.
+
+**Prerequisites:**
+
+1. Phentrieve installed with the `analysis` extra:
+   ```bash
+   uv sync --extra analysis
+   ```
+2. HPO SQLite DB prepared:
+   ```bash
+   phentrieve data prepare
+   ```
+3. BioLORD index built:
+   ```bash
+   phentrieve index build --model-name FremyCompany/BioLORD-2023-M
+   ```
+
+> **Note:** The embedding cache reads the Chroma index location from the `PHENTRIEVE_INDEX_DIR` environment variable (falling back to `~/.phentrieve/hpo_chroma_index/`). When running from a dev checkout whose index lives under the repo's `data/indexes/`, export it first:
+>
+> ```bash
+> export PHENTRIEVE_INDEX_DIR=$PWD/data/indexes
+> ```
+>
+> Run `python scripts/analyze_embedding_ontology.py --help` for all flags.
+
+**Usage:**
+
+```bash
+python scripts/analyze_embedding_ontology.py \
+    --model-name FremyCompany/BioLORD-2023-M \
+    --k 10 \
+    --n-pairs 50000
+```
+
+Full flag set: see `--help`.
+
+**Outputs** — under `data/results/ontology_fidelity/<model-slug>_<YYYYMMDD-HHMMSS>/`:
+
+| File | Description |
+|---|---|
+| `summary.json` | Spearman ρ (shortest-path & Resnik), mean per-term fidelity, branch k-NN purity, depth correlation, config echo. |
+| `per_term_fidelity.csv` | Per-term fidelity, sorted ascending (worst first). |
+| `umap_coords.csv` | UMAP coordinates for each HPO term. |
+| `umap_by_branch.png` | UMAP colored by top-level HPO branch. |
+| `umap_by_fidelity.png` | UMAP colored by per-term fidelity (RdBu). |
+| `umap_interactive.html` | Interactive Plotly; toggle between branch and fidelity colorings. |
+| `distance_correlation.png` | Hexbin of embedding cosine vs graph distance (two panels). |
+| `branch_fidelity.png` | Per-branch mean fidelity bar chart. |
+
+See [`.planning/specs/2026-04-17-ontology-embedding-fidelity-design.md`](../.planning/specs/2026-04-17-ontology-embedding-fidelity-design.md)
+for the full contract and metric definitions.
