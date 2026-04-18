@@ -46,6 +46,8 @@ pricing inputs, but it has three gaps:
   reported separately.
 - Existing manual pricing flags should remain supported for backward
   compatibility.
+- Existing `estimated_cost` output should remain available as a compatibility
+  alias for token-pricing data during the initial rollout.
 - Benchmark output should make missing assumptions explicit rather than
   inventing estimates.
 - Local Ollama cost should be based on measured or tool-estimated energy, not a
@@ -108,13 +110,11 @@ Conceptually:
   - `input_cost_per_1m_tokens`
   - `output_cost_per_1m_tokens`
   - `cached_input_cost_per_1m_tokens`
-  - `cache_storage_cost_per_1m_tokens_hour` optional
-  - `thoughts_cost_per_1m_tokens` optional for providers that might diverge in
-    the future
 - local energy inputs:
   - `measure_energy`
   - `electricity_cost_per_kwh`
   - `carbon_kg_per_kwh`
+  - `currency` for user-supplied money-denominated estimates
   - CodeCarbon location/config fields as needed for offline estimation
 
 ### 6.2 CLI surface
@@ -125,8 +125,14 @@ Keep the existing token pricing flags for compatibility and add:
 - `--measure-energy / --no-measure-energy`
 - `--electricity-cost-per-kwh FLOAT`
 - `--carbon-kg-per-kwh FLOAT`
+- `--currency TEXT`
+- `--per-document-energy / --no-per-document-energy`
 - optional CodeCarbon location flags such as country or region if needed by the
   implementation path
+
+Typer options should follow existing benchmark CLI style, using explicit typed
+`Annotated[...]` parameters and `typer.Option(...)` metadata in
+`phentrieve/benchmark/llm_cli.py`.
 
 Precedence rules:
 
@@ -153,6 +159,7 @@ Example shape:
     "measure_energy": true,
     "electricity_cost_per_kwh": 0.30,
     "carbon_kg_per_kwh": 0.35,
+    "currency": "EUR",
     "country_iso_code": "DEU"
   }
 }
@@ -160,6 +167,14 @@ Example shape:
 
 The config is intentionally generic rather than keyed by provider/model. Users
 can keep separate files per benchmark target if they want model-specific rates.
+
+Example pricing files should live in a repository location such as:
+
+- `phentrieve/benchmark/pricing_examples/gemini.json`
+- `phentrieve/benchmark/pricing_examples/anthropic.json`
+- `phentrieve/benchmark/pricing_examples/ollama_local.json`
+
+These files are examples only, not authoritative pricing data.
 
 ## 7. Output Design
 
@@ -173,32 +188,41 @@ Replace the single `estimated_cost` concept with an additive accounting block:
 
 Each block should be omitted or `null` when its prerequisites are missing.
 
+For backward compatibility, keep `estimated_cost` as an alias of
+`estimated_token_cost` for one release cycle. After that, the alias can be
+removed in a follow-up schema cleanup once downstream consumers are updated.
+
 `estimated_token_cost` includes:
 
-- input, cached input, cache storage, thoughts, and output subtotals when
-  available
+- input, cached input, and output subtotals when available
 - billable token counts used to compute them
 
 `estimated_energy_cost` includes:
 
 - `energy_kwh`
-- `electricity_cost_usd` when `electricity_cost_per_kwh` is provided
+- `electricity_cost` when `electricity_cost_per_kwh` is provided
 - `carbon_kg` when enough carbon-intensity information is provided
 - measurement source metadata such as `measured`, `estimated`, or `disabled`
+- `currency` when money-denominated fields are present
 
 `estimated_total_cost` should only be present when at least one cost component
   is available. It may include:
 
-- `token_cost_usd`
-- `energy_cost_usd`
-- `total_cost_usd`
+- `token_cost`
+- `energy_cost`
+- `total_cost`
+- `currency`
 
 ### 7.2 Per-document payload
 
-Per-document prediction records should include the same accounting structure so
-users can compare expensive or energy-heavy documents directly.
+Per-document prediction records should always include token accounting when
+available so users can compare expensive documents directly.
 
-This preserves aggregation and document-level debugging symmetry.
+Per-document energy accounting should be opt-in through
+`--per-document-energy`, because CodeCarbon's sampling cadence and estimation
+noise can make short-document measurements misleading.
+
+Without `--per-document-energy`, energy accounting is run-level only.
 
 ## 8. Internal Architecture
 
@@ -208,10 +232,13 @@ Introduce a typed internal config model, likely in the benchmark layer rather
 than the provider layer, because these settings affect reporting rather than
 LLM request semantics.
 
+This config should be a Pydantic model so malformed files, invalid types, and
+negative numeric values can be rejected consistently at the boundary.
+
 Suggested units:
 
-- token prices in USD per 1M tokens
-- electricity in USD per kWh
+- token prices in user-supplied currency per 1M tokens
+- electricity in user-supplied currency per kWh
 - emissions in kg CO2e per kWh
 
 ### 8.2 Token cost estimation
@@ -224,8 +251,9 @@ typed config. It should continue to use normalized token usage keys:
 - `thoughts_tokens`
 - `cached_content_tokens`
 
-Cache storage cost should remain optional because the current benchmark does
-not track cache TTL/storage hours directly.
+The current v1 token accounting should not add fields for cache-storage-hour or
+thoughts-specific pricing because the benchmark does not have a real compute
+path for those categories today.
 
 ### 8.3 Energy measurement
 
@@ -239,9 +267,29 @@ requirements:
 The implementation should prefer a small wrapper around CodeCarbon so the rest
 of the benchmark code only sees a stable local interface.
 
+CodeCarbon should be added as an optional dependency group or extra, such as an
+`energy` extra, and imported lazily behind the wrapper boundary. Missing
+CodeCarbon must not prevent benchmark execution when energy accounting is not
+enabled.
+
 If CodeCarbon is unavailable or unsupported on the host, benchmark execution
 must continue with an explicit disabled/unavailable accounting result rather
 than failing the benchmark.
+
+The design should explicitly account for CodeCarbon caveats:
+
+- the default sampling cadence is relatively coarse, so short per-document runs
+  may measure as zero or mostly noise
+- concurrent benchmark execution can distort process-attributed energy
+  estimates
+
+Accordingly:
+
+- run-level energy accounting is the default
+- per-document energy accounting is opt-in
+- when `--measure-energy` is enabled, benchmark execution should run in a
+  single-process mode or clearly document that the energy results are
+  aggregate-only and not safe to interpret per worker
 
 ### 8.4 Provider independence
 
@@ -269,6 +317,7 @@ This keeps the feature orthogonal to provider routing.
 Add unit coverage for:
 
 - pricing config parsing and precedence
+- end-to-end precedence behavior: CLI override > file override > default
 - token cost estimation with and without cached/thought tokens
 - additive total-cost aggregation
 - disabled energy accounting
@@ -285,7 +334,9 @@ across developer machines and CI runners.
 2. Refactor existing token-cost computation onto the new config
 3. Expand benchmark output schema to split token, energy, and total accounting
 4. Add optional energy tracker abstraction and mocked tests
-5. Wire CLI and benchmark summaries together without changing API or frontend
+5. Wire CLI and benchmark summaries together without changing API or frontend,
+   then update CLI help text plus any benchmark fixtures or snapshots affected
+   by the schema change
 
 ## 12. Open Questions Resolved
 
