@@ -867,6 +867,10 @@ class AnthropicStructuredOutputProvider(LLMProvider):
             "total_tokens": prompt_tokens,
         }
 
+    def _supports_sampling_parameters(self) -> bool:
+        # Claude Opus 4.7 and later reject explicit sampling parameters entirely.
+        return not self.model_name.startswith("claude-opus-4-7")
+
     def _create_message_with_transient_retry(
         self,
         *,
@@ -896,8 +900,9 @@ class AnthropicStructuredOutputProvider(LLMProvider):
                     ),
                     "system": system_prompt or None,
                     "messages": [{"role": "user", "content": user_prompt}],
-                    "temperature": self.temperature,
                 }
+                if self._supports_sampling_parameters():
+                    create_kwargs["temperature"] = self.temperature
                 if output_schema is not None:
                     create_kwargs["output_config"] = {
                         "format": {

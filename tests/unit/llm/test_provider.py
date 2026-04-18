@@ -952,6 +952,27 @@ def test_anthropic_complete_uses_messages_api(monkeypatch) -> None:
     assert provider.last_finish_reason == "end_turn"
 
 
+def test_anthropic_opus_47_omits_deprecated_sampling_parameters(monkeypatch) -> None:
+    fake_messages = _install_fake_anthropic(
+        monkeypatch,
+        [_FakeAnthropicResponse(text='{"phenotypes":[]}')],
+    )
+    provider = AnthropicStructuredOutputProvider(
+        model_name="claude-opus-4-7",
+        api_key="test-key",
+        temperature=0,
+    )
+
+    provider.run_structured_prompt(
+        system_prompt="system",
+        user_prompt="user",
+        response_model=LLMExtractedPhenotypes,
+    )
+
+    create_kwargs = fake_messages.create_calls[0]
+    assert "temperature" not in create_kwargs
+
+
 def test_anthropic_count_tokens_uses_messages_count_tokens(monkeypatch) -> None:
     fake_messages = _install_fake_anthropic(monkeypatch, [])
     provider = AnthropicStructuredOutputProvider(
