@@ -1021,6 +1021,7 @@ def _build_prediction_record(
             for term in pipeline_result.terms
         ],
         "metadata": {
+            "llm_provider": pipeline_result.meta.llm_provider,
             "model": config.model,
             "mode": config.mode,
             "seed": config.seed,
@@ -1041,6 +1042,7 @@ def _build_prediction_record(
                 grounded_chunk_count=len(grounded_chunks),
                 extraction_group_count=len(extraction_groups),
                 trace=trace,
+                token_count_source=pipeline_result.meta.token_count_source,
             ),
             "estimated_cost": estimated_cost,
             **(
@@ -1087,7 +1089,8 @@ def _build_observability_counts(
     grounded_chunk_count: int,
     extraction_group_count: int,
     trace: dict[str, Any],
-) -> dict[str, int]:
+    token_count_source: str | None,
+) -> dict[str, int | str]:
     """Keep prediction metadata observability shape stable across phase-1 modes."""
     phase1_trace = trace.get("phase1")
     phase1_groups = (
@@ -1125,6 +1128,11 @@ def _build_observability_counts(
     }
     return {
         "request_count": request_count,
+        **(
+            {"token_count_source": token_count_source}
+            if token_count_source is not None
+            else {}
+        ),
         **phase_counts,
         "phase2b_local_accept_count": int(
             phase_counts.get("phase2b_local_accept_count", 0) or 0

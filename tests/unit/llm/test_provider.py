@@ -19,6 +19,7 @@ from phentrieve.llm.provider import (
     GeminiStructuredOutputProvider,
     LLMProvider,
     OllamaStructuredOutputProvider,
+    OpenAIStructuredOutputProvider,
     ToolExecutor,
     get_llm_provider,
     resolve_llm_provider_request,
@@ -155,6 +156,14 @@ def test_get_llm_provider_infers_anthropic_from_prefixed_model(monkeypatch) -> N
 
     assert provider.provider_name == "anthropic"
     assert provider.model_name == "claude-sonnet-4-6"
+
+
+def test_get_llm_provider_infers_openai_from_prefixed_model(monkeypatch) -> None:
+    monkeypatch.setenv("PHENTRIEVE_OPENAI_API_KEY", "test-key")
+    provider = get_llm_provider(llm_model="openai/gpt-5.4")
+
+    assert provider.provider_name == "openai"
+    assert provider.model_name == "gpt-5.4"
 
 
 def test_get_llm_provider_accepts_bare_gemini_model_for_backwards_compat(
@@ -331,6 +340,30 @@ def test_get_llm_provider_requires_anthropic_api_key() -> None:
         get_llm_provider(
             llm_provider="anthropic",
             llm_model="claude-sonnet-4-6",
+        )
+
+
+def test_get_llm_provider_uses_chatgpt_api_key_fallback(monkeypatch) -> None:
+    monkeypatch.delenv("PHENTRIEVE_OPENAI_API_KEY", raising=False)
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    monkeypatch.setenv("CHATGPT_API_KEY", "chatgpt-key")
+
+    provider = get_llm_provider(
+        llm_provider="openai",
+        llm_model="gpt-5.4-mini",
+    )
+
+    assert provider.provider_name == "openai"
+    assert provider.model_name == "gpt-5.4-mini"
+
+
+def test_get_llm_provider_rejects_unsupported_openai_model(monkeypatch) -> None:
+    monkeypatch.setenv("PHENTRIEVE_OPENAI_API_KEY", "test-key")
+
+    with pytest.raises(ValueError, match="structured outputs"):
+        get_llm_provider(
+            llm_provider="openai",
+            llm_model="gpt-5.4-pro",
         )
 
 
@@ -540,7 +573,7 @@ def test_llm_extra_matches_supported_runtime_dependencies() -> None:
 
     assert any(dep.startswith("google-genai") for dep in llm_extra)
     assert any(dep.startswith("anthropic") for dep in llm_extra)
-    assert not any(dep.startswith("openai") for dep in llm_extra)
+    assert any(dep.startswith("openai") for dep in llm_extra)
 
 
 def test_packaged_prompt_families_exclude_agentic_judge() -> None:
@@ -710,6 +743,110 @@ class _FakeAnthropicResponse:
             input_tokens=input_tokens,
             output_tokens=output_tokens,
         )
+
+
+class _FakeOpenAIUsage:
+    def __init__(self, *, input_tokens: int, output_tokens: int) -> None:
+        self.input_tokens = input_tokens
+        self.output_tokens = output_tokens
+        self.total_tokens = input_tokens + output_tokens
+
+
+class _FakeOpenAIOutputText:
+    def __init__(self, text: str) -> None:
+        self.type = "output_text"
+        self.text = text
+
+
+class _FakeOpenAIOutputMessage:
+    def __init__(self, text: str) -> None:
+        self.type = "message"
+        self.content = [_FakeOpenAIOutputText(text)]
+
+
+class _FakeOpenAIRefusal:
+    def __init__(self, refusal: str) -> None:
+        self.type = "refusal"
+        self.refusal = refusal
+
+
+class _FakeOpenAIResponse:
+    def __init__(
+        self,
+        *,
+        output_text: str | None = None,
+        refusal: str | None = None,
+        finish_reason: str = "stop",
+        input_tokens: int = 0,
+        output_tokens: int = 0,
+    ) -> None:
+        self.output = []
+        if output_text is not None:
+            self.output.append(_FakeOpenAIOutputMessage(output_text))
+            self.output_text = output_text
+        else:
+            self.output_text = ""
+        if refusal is not None:
+            self.output.append(_FakeOpenAIRefusal(refusal))
+        self.status = "completed"
+        self.usage = _FakeOpenAIUsage(
+            input_tokens=input_tokens,
+            output_tokens=output_tokens,
+        )
+        self.incomplete_details = (
+            SimpleNamespace(reason=finish_reason) if finish_reason else None
+        )
+
+
+def _install_fake_openai(monkeypatch, responses: list[Any]):
+    class _FakeRateLimitError(Exception):
+        status_code = 429
+
+    class _FakeInternalServerError(Exception):
+        status_code = 500
+
+    class _FakeAPIConnectionError(Exception):
+        pass
+
+    class _FakeResponses:
+        def __init__(self, queued_responses: list[Any]) -> None:
+            self._responses = list(queued_responses)
+            self.create_calls: list[dict[str, Any]] = []
+
+        def create(self, **kwargs):
+            self.create_calls.append(kwargs)
+            next_item = self._responses.pop(0)
+            if isinstance(next_item, Exception):
+                raise next_item
+            return next_item
+
+    fake_responses = _FakeResponses(responses)
+
+    class _FakeClient:
+        def __init__(
+            self,
+            *,
+            api_key: str,
+            base_url: str | None = None,
+            timeout: int | None = None,
+            max_retries: int = 0,
+        ) -> None:
+            self.api_key = api_key
+            self.base_url = base_url
+            self.timeout = timeout
+            self.max_retries = max_retries
+            self.responses = fake_responses
+
+    openai_module = ModuleType("openai")
+    openai_module.OpenAI = _FakeClient
+    openai_module.RateLimitError = _FakeRateLimitError
+    openai_module.InternalServerError = _FakeInternalServerError
+    openai_module.APIConnectionError = _FakeAPIConnectionError
+    monkeypatch.setitem(sys.modules, "openai", openai_module)
+    fake_responses.rate_limit_error = _FakeRateLimitError
+    fake_responses.internal_server_error = _FakeInternalServerError
+    fake_responses.api_connection_error = _FakeAPIConnectionError
+    return fake_responses
 
 
 def _install_fake_anthropic(monkeypatch, responses: list[Any]):
@@ -994,6 +1131,116 @@ def test_anthropic_count_tokens_uses_messages_count_tokens(monkeypatch) -> None:
     assert fake_messages.count_calls[0]["messages"] == [
         {"role": "user", "content": "hello"}
     ]
+
+
+def test_openai_structured_prompt_uses_responses_api_json_schema(
+    monkeypatch,
+) -> None:
+    fake_responses = _install_fake_openai(
+        monkeypatch,
+        [
+            _FakeOpenAIResponse(
+                output_text='{"phenotypes":[{"phrase":"recurrent seizures","category":"Abnormal"}]}',
+                input_tokens=42,
+                output_tokens=11,
+            )
+        ],
+    )
+    provider = OpenAIStructuredOutputProvider(
+        model_name="gpt-5.4",
+        api_key="test-key",
+    )
+
+    result = provider.run_structured_prompt(
+        system_prompt="system",
+        user_prompt="user",
+        response_model=LLMExtractedPhenotypes,
+    )
+
+    create_kwargs = fake_responses.create_calls[0]
+    assert isinstance(result, LLMExtractedPhenotypes)
+    assert create_kwargs["model"] == "gpt-5.4"
+    assert create_kwargs["input"] == [
+        {"role": "system", "content": "system"},
+        {"role": "user", "content": "user"},
+    ]
+    assert create_kwargs["text"]["format"]["type"] == "json_schema"
+    assert create_kwargs["text"]["format"]["strict"] is True
+    assert create_kwargs["text"]["format"]["schema"]["type"] == "object"
+    assert provider.last_usage == {
+        "prompt_tokens": 42,
+        "completion_tokens": 11,
+        "total_tokens": 53,
+    }
+
+
+def test_openai_complete_uses_responses_api(monkeypatch) -> None:
+    fake_responses = _install_fake_openai(
+        monkeypatch,
+        [_FakeOpenAIResponse(output_text="ok", input_tokens=10, output_tokens=4)],
+    )
+    provider = OpenAIStructuredOutputProvider(
+        model_name="gpt-5.4-mini",
+        api_key="test-key",
+    )
+
+    result = provider.complete(
+        [
+            {"role": "system", "content": "system"},
+            {"role": "user", "content": "hello"},
+        ]
+    )
+
+    create_kwargs = fake_responses.create_calls[0]
+    assert result.content == "ok"
+    assert create_kwargs["model"] == "gpt-5.4-mini"
+    assert create_kwargs["input"] == [
+        {"role": "system", "content": "system"},
+        {"role": "user", "content": "hello"},
+    ]
+
+
+def test_openai_structured_prompt_raises_on_refusal(monkeypatch) -> None:
+    _install_fake_openai(
+        monkeypatch,
+        [_FakeOpenAIResponse(refusal="cannot comply", input_tokens=9, output_tokens=1)],
+    )
+    provider = OpenAIStructuredOutputProvider(
+        model_name="gpt-5.4",
+        api_key="test-key",
+    )
+
+    with pytest.raises(RuntimeError, match="refusal"):
+        provider.run_structured_prompt(
+            system_prompt="system",
+            user_prompt="user",
+            response_model=LLMExtractedPhenotypes,
+        )
+
+
+def test_openai_does_not_retry_billing_not_active_rate_limit(monkeypatch) -> None:
+    fake_responses = _install_fake_openai(monkeypatch, [])
+    fake_responses._responses.append(  # type: ignore[attr-defined]
+        fake_responses.rate_limit_error("billing_not_active")
+    )
+    sleep_calls: list[float] = []
+    monkeypatch.setattr(
+        provider_module,
+        "time",
+        SimpleNamespace(sleep=sleep_calls.append),
+        raising=False,
+    )
+    provider = OpenAIStructuredOutputProvider(
+        model_name="gpt-5.4-mini",
+        api_key="test-key",
+        transient_retries=3,
+    )
+
+    with pytest.raises(Exception, match="billing_not_active"):
+        provider.complete([{"role": "user", "content": "hello"}])
+
+    assert len(fake_responses.create_calls) == 1
+    assert sleep_calls == []
 
 
 def test_structured_prompt_forwards_seed_and_extended_usage(monkeypatch) -> None:
