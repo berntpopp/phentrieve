@@ -1,0 +1,9 @@
+{
+  "energy_accounting": {
+    "measure_energy": true,
+    "electricity_cost_per_kwh": 0.3,
+    "carbon_kg_per_kwh": 0.35,
+    "currency": "EUR",
+    "country_iso_code": "DEU"
+  }
+}

@@ -11,6 +11,9 @@ from dataclasses import asdict
 from pathlib import Path
 from typing import Any
 
+from pydantic import BaseModel, Field, field_validator
+
+from phentrieve.benchmark import energy
 from phentrieve.benchmark.data_loader import (
     LLM_ASSERTION_TO_BENCHMARK,
     load_benchmark_data,
@@ -53,6 +56,89 @@ DATASET_ASSERTION_PROJECTION: dict[str, dict[str, str | None]] = {
         "other": None,
     }
 }
+
+
+class TokenPricingConfig(BaseModel):
+    input_cost_per_1m_tokens: float | None = None
+    output_cost_per_1m_tokens: float | None = None
+    cached_input_cost_per_1m_tokens: float | None = None
+
+    @field_validator("*")
+    @classmethod
+    def validate_non_negative(cls, value: float | None) -> float | None:
+        if value is not None and value < 0:
+            raise ValueError("pricing values must be non-negative")
+        return value
+
+
+class EnergyAccountingConfig(BaseModel):
+    measure_energy: bool = False
+    per_document_energy: bool = False
+    electricity_cost_per_kwh: float | None = None
+    carbon_kg_per_kwh: float | None = None
+    currency: str | None = None
+    country_iso_code: str | None = None
+    region: str | None = None
+
+    @field_validator("electricity_cost_per_kwh", "carbon_kg_per_kwh")
+    @classmethod
+    def validate_non_negative(cls, value: float | None) -> float | None:
+        if value is not None and value < 0:
+            raise ValueError("pricing values must be non-negative")
+        return value
+
+
+class BenchmarkAccountingConfig(BaseModel):
+    token_pricing: TokenPricingConfig = Field(default_factory=TokenPricingConfig)
+    energy_accounting: EnergyAccountingConfig = Field(
+        default_factory=EnergyAccountingConfig
+    )
+
+
+def _build_accounting_config(
+    *,
+    accounting_config: BenchmarkAccountingConfig | None,
+    input_cost_per_1m_tokens: float | None,
+    output_cost_per_1m_tokens: float | None,
+    cached_input_cost_per_1m_tokens: float | None,
+) -> BenchmarkAccountingConfig:
+    if accounting_config is not None:
+        return accounting_config
+    return BenchmarkAccountingConfig(
+        token_pricing=TokenPricingConfig(
+            input_cost_per_1m_tokens=input_cost_per_1m_tokens,
+            output_cost_per_1m_tokens=output_cost_per_1m_tokens,
+            cached_input_cost_per_1m_tokens=cached_input_cost_per_1m_tokens,
+        )
+    )
+
+
+def _build_energy_cost(
+    *,
+    run_energy: dict[str, Any],
+    config: EnergyAccountingConfig,
+) -> dict[str, Any] | None:
+    measurement_source = str(run_energy.get("measurement_source", "disabled"))
+    payload: dict[str, Any] = {"measurement_source": measurement_source}
+    if "reason" in run_energy:
+        payload["reason"] = run_energy["reason"]
+
+    energy_kwh = run_energy.get("energy_kwh")
+    if energy_kwh is not None:
+        payload["energy_kwh"] = round(float(energy_kwh), 6)
+
+    carbon_kg = run_energy.get("carbon_kg")
+    if carbon_kg is not None:
+        payload["carbon_kg"] = round(float(carbon_kg), 6)
+
+    if energy_kwh is not None and config.electricity_cost_per_kwh is not None:
+        payload["electricity_cost"] = round(
+            float(energy_kwh) * config.electricity_cost_per_kwh, 8
+        )
+        if config.currency:
+            payload["currency"] = config.currency
+
+    return payload
 
 
 def _checkpoint_record_is_reusable(record: dict[str, Any]) -> bool:
@@ -141,6 +227,7 @@ def run_llm_benchmark(
     input_cost_per_1m_tokens: float | None = None,
     output_cost_per_1m_tokens: float | None = None,
     cached_input_cost_per_1m_tokens: float | None = None,
+    accounting_config: BenchmarkAccountingConfig | None = None,
     checkpoint_state: dict[str, Any] | None = None,
     progress_callback: Callable[[dict[str, Any]], None] | None = None,
 ) -> dict[str, Any]:
@@ -187,6 +274,12 @@ def run_llm_benchmark(
         "Loaded %d benchmark documents from %s",
         len(documents),
         test_data.get("metadata", {}).get("dataset_name", test_path.stem),
+    )
+    resolved_accounting_config = _build_accounting_config(
+        accounting_config=accounting_config,
+        input_cost_per_1m_tokens=input_cost_per_1m_tokens,
+        output_cost_per_1m_tokens=output_cost_per_1m_tokens,
+        cached_input_cost_per_1m_tokens=cached_input_cost_per_1m_tokens,
     )
     provider_factory_kwargs = _build_provider_factory_kwargs(
         get_llm_provider,
@@ -237,6 +330,10 @@ def run_llm_benchmark(
         )
 
     benchmark_start_time = time.perf_counter()
+    run_energy_tracker = energy.create_energy_tracker(
+        resolved_accounting_config.energy_accounting
+    )
+    run_energy_tracker.start_run()
     evaluator = CorpusExtractionMetrics(averaging=DEFAULT_METRIC_AVERAGING)
 
     with _temporary_prompt_templates_dir(prompt_templates_dir):
@@ -274,6 +371,12 @@ def run_llm_benchmark(
             gold_ids_only = [
                 (hpo_id, DEFAULT_ID_ONLY_ASSERTION) for hpo_id, _ in gold_terms
             ]
+            doc_energy_tracker = None
+            if resolved_accounting_config.energy_accounting.per_document_energy:
+                doc_energy_tracker = energy.create_energy_tracker(
+                    resolved_accounting_config.energy_accounting
+                )
+                doc_energy_tracker.start_run()
             doc_start_time = time.perf_counter()
             grounded_chunks: list[dict[str, Any]] = []
             extraction_groups: list[dict[str, Any]] = []
@@ -352,6 +455,8 @@ def run_llm_benchmark(
                     run_kwargs["extraction_groups"] = active_extraction_groups
                 pipeline_result = pipeline.run(**run_kwargs)
             except LLMPipelinePhaseError as exc:
+                if doc_energy_tracker is not None:
+                    doc_energy_tracker.stop_run()
                 logger.exception(
                     "Benchmark document failed: %d/%d doc_id=%s phase=%s",
                     index,
@@ -393,6 +498,12 @@ def run_llm_benchmark(
                 )
                 continue
             doc_elapsed = time.perf_counter() - doc_start_time
+            doc_estimated_energy_cost = None
+            if doc_energy_tracker is not None:
+                doc_estimated_energy_cost = _build_energy_cost(
+                    run_energy=doc_energy_tracker.stop_run(),
+                    config=resolved_accounting_config.energy_accounting,
+                )
             token_usage = _normalize_token_usage(pipeline_result.meta)
             prompt_tokens = int(token_usage.get("prompt_tokens", 0) or 0)
             completion_tokens = int(token_usage.get("completion_tokens", 0) or 0)
@@ -402,9 +513,7 @@ def run_llm_benchmark(
             total_api_calls += request_count
             estimated_cost = _estimate_cost(
                 token_usage=token_usage,
-                input_cost_per_1m_tokens=input_cost_per_1m_tokens,
-                output_cost_per_1m_tokens=output_cost_per_1m_tokens,
-                cached_input_cost_per_1m_tokens=cached_input_cost_per_1m_tokens,
+                pricing=resolved_accounting_config.token_pricing,
             )
 
             predicted_terms = _serialize_predicted_terms(
@@ -473,6 +582,7 @@ def run_llm_benchmark(
                 processing_time_seconds=doc_elapsed,
                 prompt_templates_dir=prompt_templates_dir,
                 estimated_cost=estimated_cost,
+                estimated_energy_cost=doc_estimated_energy_cost,
                 dataset=dataset,
             )
             results.append(result_record)
@@ -526,16 +636,13 @@ def run_llm_benchmark(
                         + (time.perf_counter() - benchmark_start_time),
                         estimated_cost=_estimate_cost(
                             token_usage=_sum_token_usage(results),
-                            input_cost_per_1m_tokens=input_cost_per_1m_tokens,
-                            output_cost_per_1m_tokens=output_cost_per_1m_tokens,
-                            cached_input_cost_per_1m_tokens=(
-                                cached_input_cost_per_1m_tokens
-                            ),
+                            pricing=resolved_accounting_config.token_pricing,
                         ),
                         requested_doc_ids=doc_ids,
                         results=results,
                         prediction_records=prediction_records,
                         metrics=None,
+                        estimated_energy_cost=None,
                         status="running",
                     )
                 )
@@ -545,6 +652,10 @@ def run_llm_benchmark(
     logger.info("Calculated benchmark metrics for %d documents", len(results))
     wall_clock_seconds = prior_wall_clock_seconds + (
         time.perf_counter() - benchmark_start_time
+    )
+    estimated_energy_cost = _build_energy_cost(
+        run_energy=run_energy_tracker.stop_run(),
+        config=resolved_accounting_config.energy_accounting,
     )
 
     return _build_benchmark_payload(
@@ -567,10 +678,9 @@ def run_llm_benchmark(
         wall_clock_seconds=wall_clock_seconds,
         estimated_cost=_estimate_cost(
             token_usage=_sum_token_usage(results),
-            input_cost_per_1m_tokens=input_cost_per_1m_tokens,
-            output_cost_per_1m_tokens=output_cost_per_1m_tokens,
-            cached_input_cost_per_1m_tokens=cached_input_cost_per_1m_tokens,
+            pricing=resolved_accounting_config.token_pricing,
         ),
+        estimated_energy_cost=estimated_energy_cost,
         requested_doc_ids=doc_ids,
         results=results,
         prediction_records=prediction_records,
@@ -735,6 +845,7 @@ def _build_benchmark_payload(
     total_api_calls: int,
     wall_clock_seconds: float,
     estimated_cost: dict[str, float] | None,
+    estimated_energy_cost: dict[str, Any] | None,
     requested_doc_ids: list[str] | None,
     results: list[dict[str, Any]],
     prediction_records: list[dict[str, Any]],
@@ -769,7 +880,9 @@ def _build_benchmark_payload(
             if documents
             else 0.0,
         },
+        "estimated_token_cost": estimated_cost,
         "estimated_cost": estimated_cost,
+        "estimated_energy_cost": estimated_energy_cost,
         "prediction_records": list(prediction_records),
         "results": list(results),
     }
@@ -814,11 +927,12 @@ def _temporary_prompt_templates_dir(prompt_templates_dir: str | None):
 def _estimate_cost(
     *,
     token_usage: dict[str, int],
-    input_cost_per_1m_tokens: float | None,
-    output_cost_per_1m_tokens: float | None,
-    cached_input_cost_per_1m_tokens: float | None = None,
+    pricing: TokenPricingConfig,
 ) -> dict[str, float | int] | None:
-    if input_cost_per_1m_tokens is None or output_cost_per_1m_tokens is None:
+    if (
+        pricing.input_cost_per_1m_tokens is None
+        or pricing.output_cost_per_1m_tokens is None
+    ):
         return None
 
     prompt_tokens = int(token_usage.get("prompt_tokens", 0) or 0)
@@ -830,13 +944,13 @@ def _estimate_cost(
     billable_input_tokens = max(prompt_tokens - billable_cached_tokens, 0)
     billable_output_tokens = max(completion_tokens + thoughts_tokens, 0)
 
-    input_cost = billable_input_tokens / 1_000_000 * input_cost_per_1m_tokens
+    input_cost = billable_input_tokens / 1_000_000 * pricing.input_cost_per_1m_tokens
     cached_input_cost = 0.0
-    if cached_input_cost_per_1m_tokens is not None:
+    if pricing.cached_input_cost_per_1m_tokens is not None:
         cached_input_cost = (
-            billable_cached_tokens / 1_000_000 * cached_input_cost_per_1m_tokens
+            billable_cached_tokens / 1_000_000 * pricing.cached_input_cost_per_1m_tokens
         )
-    output_cost = billable_output_tokens / 1_000_000 * output_cost_per_1m_tokens
+    output_cost = billable_output_tokens / 1_000_000 * pricing.output_cost_per_1m_tokens
     return {
         "input_cost": round(input_cost, 8),
         "cached_input_cost": round(cached_input_cost, 8),
@@ -860,6 +974,7 @@ def _build_prediction_record(
     processing_time_seconds: float,
     prompt_templates_dir: str | None,
     estimated_cost: dict[str, float] | None,
+    estimated_energy_cost: dict[str, Any] | None,
     dataset: str,
 ) -> dict[str, Any]:
     token_usage = _normalize_token_usage(pipeline_result.meta)
@@ -928,6 +1043,11 @@ def _build_prediction_record(
                 trace=trace,
             ),
             "estimated_cost": estimated_cost,
+            **(
+                {"estimated_energy_cost": estimated_energy_cost}
+                if estimated_energy_cost is not None
+                else {}
+            ),
         },
         "trace": trace,
     }

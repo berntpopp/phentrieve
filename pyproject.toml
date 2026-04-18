@@ -78,6 +78,9 @@ llm = [
     "google-genai>=1.22.0,<2.0.0",
     "anthropic>=0.73.0,<1.0.0",
 ]
+energy = [
+    "codecarbon>=3.2,<4.0",
+]
 # Install CLI + API with: pip install "phentrieve[api]"
 # Install CLI + MCP with: pip install "phentrieve[mcp]"
 

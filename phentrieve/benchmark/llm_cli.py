@@ -65,9 +65,15 @@ def run_llm_benchmark_cli(
     artifacts_dir: str | None = None,
     language: str = DEFAULT_LLM_LANGUAGE,
     prompt_templates_dir: str | None = None,
+    pricing_config: str | None = None,
     input_cost_per_1m_tokens: float | None = None,
     output_cost_per_1m_tokens: float | None = None,
     cached_input_cost_per_1m_tokens: float | None = None,
+    measure_energy: bool = False,
+    per_document_energy: bool = False,
+    electricity_cost_per_kwh: float | None = None,
+    carbon_kg_per_kwh: float | None = None,
+    currency: str | None = None,
     debug: bool = False,
 ) -> dict[str, Any]:
     """Run the LLM benchmark and persist summary plus comparison artifacts."""
@@ -104,6 +110,17 @@ def run_llm_benchmark_cli(
     resolved_output_path.parent.mkdir(parents=True, exist_ok=True)
     resolved_checkpoint_path.parent.mkdir(parents=True, exist_ok=True)
     resolved_artifacts_dir.mkdir(parents=True, exist_ok=True)
+    accounting_config = _load_accounting_config(
+        pricing_config_path=pricing_config,
+        input_cost_per_1m_tokens=input_cost_per_1m_tokens,
+        output_cost_per_1m_tokens=output_cost_per_1m_tokens,
+        cached_input_cost_per_1m_tokens=cached_input_cost_per_1m_tokens,
+        measure_energy=measure_energy,
+        per_document_energy=per_document_energy,
+        electricity_cost_per_kwh=electricity_cost_per_kwh,
+        carbon_kg_per_kwh=carbon_kg_per_kwh,
+        currency=currency,
+    )
 
     existing_checkpoint = (
         _load_checkpoint_payload(
@@ -154,6 +171,8 @@ def run_llm_benchmark_cli(
         prompt_templates_dir=prompt_templates_dir,
         input_cost_per_1m_tokens=input_cost_per_1m_tokens,
         output_cost_per_1m_tokens=output_cost_per_1m_tokens,
+        cached_input_cost_per_1m_tokens=cached_input_cost_per_1m_tokens,
+        accounting_config=accounting_config,
         checkpoint_state=existing_checkpoint,
         progress_callback=_persist_checkpoint,
     )
@@ -175,6 +194,54 @@ def run_llm_benchmark_cli(
     _write_json_atomic(resolved_checkpoint_path, payload)
     logger.info("Saved LLM benchmark summary to %s", resolved_output_path)
     return payload
+
+
+def _load_accounting_config(
+    *,
+    pricing_config_path: str | None,
+    input_cost_per_1m_tokens: float | None,
+    output_cost_per_1m_tokens: float | None,
+    cached_input_cost_per_1m_tokens: float | None,
+    measure_energy: bool,
+    per_document_energy: bool,
+    electricity_cost_per_kwh: float | None,
+    carbon_kg_per_kwh: float | None,
+    currency: str | None,
+) -> llm_benchmark.BenchmarkAccountingConfig:
+    payload: dict[str, Any] = {}
+    if pricing_config_path is not None:
+        pricing_path = Path(pricing_config_path)
+        try:
+            payload = json.loads(pricing_path.read_text(encoding="utf-8"))
+        except FileNotFoundError as exc:
+            raise ValueError(
+                f"Pricing config file not found: {pricing_config_path}"
+            ) from exc
+        except ValueError as exc:
+            raise ValueError(
+                f"Pricing config file must be valid JSON: {pricing_config_path}"
+            ) from exc
+
+    config = llm_benchmark.BenchmarkAccountingConfig.model_validate(payload or {})
+    if input_cost_per_1m_tokens is not None:
+        config.token_pricing.input_cost_per_1m_tokens = input_cost_per_1m_tokens
+    if output_cost_per_1m_tokens is not None:
+        config.token_pricing.output_cost_per_1m_tokens = output_cost_per_1m_tokens
+    if cached_input_cost_per_1m_tokens is not None:
+        config.token_pricing.cached_input_cost_per_1m_tokens = (
+            cached_input_cost_per_1m_tokens
+        )
+    if measure_energy:
+        config.energy_accounting.measure_energy = True
+    if per_document_energy:
+        config.energy_accounting.per_document_energy = True
+    if electricity_cost_per_kwh is not None:
+        config.energy_accounting.electricity_cost_per_kwh = electricity_cost_per_kwh
+    if carbon_kg_per_kwh is not None:
+        config.energy_accounting.carbon_kg_per_kwh = carbon_kg_per_kwh
+    if currency is not None:
+        config.energy_accounting.currency = currency
+    return config
 
 
 def _write_json_atomic(path: Path, payload: dict[str, Any]) -> None:
@@ -278,6 +345,12 @@ def _write_benchmark_artifacts(
                     "id_only_metrics": metrics.get("id_only", {}),
                     "token_usage": benchmark_payload.get("token_usage", {}),
                     "timing_breakdown": benchmark_payload.get("timing_breakdown", {}),
+                    "estimated_token_cost": benchmark_payload.get(
+                        "estimated_token_cost"
+                    ),
+                    "estimated_energy_cost": benchmark_payload.get(
+                        "estimated_energy_cost"
+                    ),
                     "estimated_cost": benchmark_payload.get("estimated_cost"),
                 },
                 indent=2,
@@ -382,6 +455,13 @@ def benchmark_llm(
             help="Override the user prompt template directory for this benchmark run.",
         ),
     ] = None,
+    pricing_config: Annotated[
+        str | None,
+        typer.Option(
+            "--pricing-config",
+            help="Optional JSON file with benchmark pricing and energy configuration.",
+        ),
+    ] = None,
     input_cost_per_1m_tokens: Annotated[
         float | None,
         typer.Option(
@@ -401,6 +481,41 @@ def benchmark_llm(
         typer.Option(
             "--cached-input-cost-per-1m-tokens",
             help="Optional cached-input token price used for estimated benchmark cost reporting.",
+        ),
+    ] = None,
+    measure_energy: Annotated[
+        bool,
+        typer.Option(
+            "--measure-energy/--no-measure-energy",
+            help="Enable optional local benchmark energy accounting.",
+        ),
+    ] = False,
+    per_document_energy: Annotated[
+        bool,
+        typer.Option(
+            "--per-document-energy/--no-per-document-energy",
+            help="Capture per-document energy estimates when energy accounting is enabled.",
+        ),
+    ] = False,
+    electricity_cost_per_kwh: Annotated[
+        float | None,
+        typer.Option(
+            "--electricity-cost-per-kwh",
+            help="Optional electricity price used with local energy accounting.",
+        ),
+    ] = None,
+    carbon_kg_per_kwh: Annotated[
+        float | None,
+        typer.Option(
+            "--carbon-kg-per-kwh",
+            help="Optional carbon intensity used with local energy accounting.",
+        ),
+    ] = None,
+    currency: Annotated[
+        str | None,
+        typer.Option(
+            "--currency",
+            help="Optional currency label for user-supplied monetary estimates.",
         ),
     ] = None,
     debug: Annotated[
@@ -426,9 +541,15 @@ def benchmark_llm(
             artifacts_dir=artifacts_dir,
             language=language,
             prompt_templates_dir=prompt_templates_dir,
+            pricing_config=pricing_config,
             input_cost_per_1m_tokens=input_cost_per_1m_tokens,
             output_cost_per_1m_tokens=output_cost_per_1m_tokens,
             cached_input_cost_per_1m_tokens=cached_input_cost_per_1m_tokens,
+            measure_energy=measure_energy,
+            per_document_energy=per_document_energy,
+            electricity_cost_per_kwh=electricity_cost_per_kwh,
+            carbon_kg_per_kwh=carbon_kg_per_kwh,
+            currency=currency,
             debug=debug,
         )
     except ValueError as exc:
