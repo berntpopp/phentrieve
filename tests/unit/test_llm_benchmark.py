@@ -240,9 +240,11 @@ def test_run_llm_benchmark_passes_provider_to_factory(monkeypatch) -> None:
         test_file="tests/data/en/phenobert",
         llm_provider="ollama",
         llm_model="qwen3.5:35b",
+        llm_timeout_seconds=900,
     )
 
     assert captured["llm_provider"] == "ollama"
+    assert captured["timeout_seconds"] == 900
 
 
 def test_run_llm_benchmark_returns_benchmark_grade_metadata(monkeypatch):

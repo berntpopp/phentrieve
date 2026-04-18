@@ -54,6 +54,7 @@ def run_llm_benchmark_cli(
     llm_provider: str | None = None,
     llm_model: str,
     llm_base_url: str | None = None,
+    llm_timeout_seconds: int | None = None,
     llm_seed: int | None = None,
     llm_mode: str = DEFAULT_LLM_BENCHMARK_MODE,
     llm_internal_mode: str = "whole_document_grounded",
@@ -113,6 +114,7 @@ def run_llm_benchmark_cli(
                 "llm_provider": llm_provider,
                 "llm_model": llm_model,
                 "llm_base_url": llm_base_url,
+                "llm_timeout_seconds": llm_timeout_seconds,
                 "llm_seed": llm_seed,
                 "llm_mode": llm_mode,
                 "llm_internal_mode": llm_internal_mode,
@@ -142,6 +144,7 @@ def run_llm_benchmark_cli(
         llm_provider=llm_provider,
         llm_model=llm_model,
         llm_base_url=llm_base_url,
+        llm_timeout_seconds=llm_timeout_seconds,
         llm_seed=llm_seed,
         llm_mode=llm_mode,
         llm_internal_mode=llm_internal_mode,
@@ -309,6 +312,13 @@ def benchmark_llm(
             help="Optional LLM provider base URL for local or proxied deployments.",
         ),
     ] = None,
+    llm_timeout_seconds: Annotated[
+        int | None,
+        typer.Option(
+            "--llm-timeout-seconds",
+            help="Optional provider request timeout in seconds.",
+        ),
+    ] = None,
     llm_seed: Annotated[
         int | None,
         typer.Option(
@@ -405,6 +415,7 @@ def benchmark_llm(
             llm_provider=llm_provider,
             llm_model=llm_model,
             llm_base_url=llm_base_url,
+            llm_timeout_seconds=llm_timeout_seconds,
             llm_seed=llm_seed,
             llm_mode=llm_mode,
             llm_internal_mode=llm_internal_mode,

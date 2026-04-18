@@ -174,6 +174,16 @@ def test_get_llm_provider_defaults_ollama_base_url() -> None:
     assert provider.base_url == "http://localhost:11434"
 
 
+def test_get_llm_provider_passes_timeout_override_to_ollama() -> None:
+    provider = get_llm_provider(
+        llm_provider="ollama",
+        llm_model="qwen3.5:35b",
+        timeout_seconds=900,
+    )
+
+    assert provider.timeout_seconds == 900
+
+
 def test_ollama_structured_prompt_posts_native_chat_schema(mocker) -> None:
     provider = OllamaStructuredOutputProvider(
         model_name="qwen3.5:35b",

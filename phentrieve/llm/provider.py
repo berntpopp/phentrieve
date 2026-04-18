@@ -1002,6 +1002,7 @@ def get_llm_provider(
     llm_base_url: str | None = None,
     api_key: str | None = None,
     seed: int | None = None,
+    timeout_seconds: int | None = None,
 ) -> LLMProvider:
     request = resolve_llm_provider_request(
         llm_provider=llm_provider,
@@ -1016,12 +1017,14 @@ def get_llm_provider(
             model_name=request.model,
             api_key=request.api_key,
             seed=request.seed,
+            timeout_seconds=timeout_seconds or DEFAULT_PROVIDER_TIMEOUT_SECONDS,
         )
     if request.provider == "ollama":
         return OllamaStructuredOutputProvider(
             model_name=request.model,
             base_url=request.base_url or DEFAULT_OLLAMA_BASE_URL,
             seed=request.seed,
+            timeout_seconds=timeout_seconds or DEFAULT_OLLAMA_TIMEOUT_SECONDS,
         )
 
     raise ValueError(f"Provider {request.provider!r} is not implemented in phase one.")
