@@ -94,6 +94,7 @@ def test_run_llm_backend_passes_provider_into_factory(mocker) -> None:
     factory.return_value = SimpleNamespace(
         provider_name="ollama",
         model_name="qwen3.5:35b",
+        base_url="http://localhost:11434",
     )
     pipeline = mocker.Mock()
     pipeline.run.return_value = LLMExtractionResult(
@@ -119,6 +120,7 @@ def test_run_llm_backend_passes_provider_into_factory(mocker) -> None:
         llm_provider="ollama",
         llm_base_url=None,
     )
+    assert pipeline.run.call_args.kwargs["config"].base_url == "http://localhost:11434"
 
 
 def test_run_llm_backend_surfaces_evidence_records(mocker):

@@ -206,6 +206,9 @@ def run_llm_benchmark(
         provider, "provider_name", llm_provider or "gemini"
     )
     resolved_model_name = getattr(provider, "model_name", llm_model)
+    resolved_base_url = getattr(provider, "base_url", None)
+    if not isinstance(resolved_base_url, str) or not resolved_base_url:
+        resolved_base_url = llm_base_url
     logger.debug(
         "Initialized benchmark pipeline for model=%s mode=%s",
         llm_model,
@@ -241,7 +244,7 @@ def run_llm_benchmark(
         config = LLMPipelineConfig(
             provider=resolved_provider_name,
             model=resolved_model_name,
-            base_url=llm_base_url,
+            base_url=resolved_base_url,
             mode=llm_mode,
             language=language,
             seed=llm_seed,
@@ -508,7 +511,7 @@ def run_llm_benchmark(
                         documents=documents,
                         llm_provider=resolved_provider_name,
                         llm_model=resolved_model_name,
-                        llm_base_url=llm_base_url,
+                        llm_base_url=resolved_base_url,
                         llm_timeout_seconds=llm_timeout_seconds,
                         llm_seed=llm_seed,
                         llm_mode=llm_mode,
@@ -550,7 +553,7 @@ def run_llm_benchmark(
         documents=documents,
         llm_provider=resolved_provider_name,
         llm_model=resolved_model_name,
-        llm_base_url=llm_base_url,
+        llm_base_url=resolved_base_url,
         llm_timeout_seconds=llm_timeout_seconds,
         llm_seed=llm_seed,
         llm_mode=llm_mode,

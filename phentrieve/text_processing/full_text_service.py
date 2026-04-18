@@ -491,6 +491,9 @@ def run_llm_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
     resolved_model_name = getattr(provider, "model_name", None)
     if not isinstance(resolved_model_name, str) or not resolved_model_name:
         resolved_model_name = llm_model
+    resolved_base_url = getattr(provider, "base_url", None)
+    if not isinstance(resolved_base_url, str) or not resolved_base_url:
+        resolved_base_url = llm_base_url
 
     pipeline_kwargs: dict[str, Any] = {
         "text": text,
@@ -498,7 +501,7 @@ def run_llm_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
         "config": LLMPipelineConfig(
             provider=resolved_provider_name,
             model=resolved_model_name,
-            base_url=llm_base_url,
+            base_url=resolved_base_url,
             mode=llm_mode,
             language=kwargs.get("language"),
         ),

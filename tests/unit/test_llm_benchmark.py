@@ -211,6 +211,7 @@ def test_run_llm_benchmark_passes_provider_to_factory(monkeypatch) -> None:
     class _FakeProvider:
         provider_name = "ollama"
         model_name = "qwen3.5:35b"
+        base_url = "http://localhost:11434"
 
     class _FakePipeline:
         def __init__(self, provider):
@@ -245,6 +246,56 @@ def test_run_llm_benchmark_passes_provider_to_factory(monkeypatch) -> None:
 
     assert captured["llm_provider"] == "ollama"
     assert captured["timeout_seconds"] == 900
+
+
+def test_run_llm_benchmark_records_resolved_provider_base_url(monkeypatch) -> None:
+    def fake_load_benchmark_data(test_path: Path, dataset: str):
+        return {
+            "metadata": {"dataset_name": f"phenobert_{dataset}"},
+            "documents": [
+                {
+                    "id": "doc-1",
+                    "text": "Clinical text",
+                    "gold_hpo_terms": [],
+                    "source_dataset": "GeneReviews",
+                }
+            ],
+        }
+
+    class _FakeProvider:
+        provider_name = "ollama"
+        model_name = "qwen3.5:35b"
+        base_url = "http://localhost:11434"
+
+    class _FakePipeline:
+        def __init__(self, provider):
+            self.provider = provider
+
+        def run(self, *, text, grounded_chunks, config):
+            from phentrieve.llm.types import LLMExtractionResult, LLMMeta
+
+            return LLMExtractionResult(
+                terms=[],
+                meta=LLMMeta(
+                    llm_provider=config.provider,
+                    llm_model=config.model,
+                    llm_mode=config.mode,
+                ),
+            )
+
+    monkeypatch.setattr(llm_benchmark, "load_benchmark_data", fake_load_benchmark_data)
+    monkeypatch.setattr(
+        llm_benchmark, "get_llm_provider", lambda **kwargs: _FakeProvider()
+    )
+    monkeypatch.setattr(llm_benchmark, "TwoPhaseLLMPipeline", _FakePipeline)
+
+    result = llm_benchmark.run_llm_benchmark(
+        test_file="tests/data/en/phenobert",
+        llm_provider="ollama",
+        llm_model="qwen3.5:35b",
+    )
+
+    assert result["llm_base_url"] == "http://localhost:11434"
 
 
 def test_run_llm_benchmark_returns_benchmark_grade_metadata(monkeypatch):

@@ -15,11 +15,13 @@ from pydantic import ValidationError
 from phentrieve.llm import config as llm_config
 from phentrieve.llm import provider as provider_module
 from phentrieve.llm.provider import (
+    AnthropicStructuredOutputProvider,
     GeminiStructuredOutputProvider,
     LLMProvider,
     OllamaStructuredOutputProvider,
     ToolExecutor,
     get_llm_provider,
+    resolve_llm_provider_request,
 )
 from phentrieve.llm.types import (
     LLMExtractedPhenotype,
@@ -147,6 +149,14 @@ def test_get_llm_provider_infers_ollama_from_prefixed_model() -> None:
     assert provider.model_name == "qwen3.5:35b"
 
 
+def test_get_llm_provider_infers_anthropic_from_prefixed_model(monkeypatch) -> None:
+    monkeypatch.setenv("PHENTRIEVE_ANTHROPIC_API_KEY", "test-key")
+    provider = get_llm_provider(llm_model="anthropic/claude-sonnet-4-6")
+
+    assert provider.provider_name == "anthropic"
+    assert provider.model_name == "claude-sonnet-4-6"
+
+
 def test_get_llm_provider_accepts_bare_gemini_model_for_backwards_compat(
     monkeypatch,
 ) -> None:
@@ -162,6 +172,26 @@ def test_get_llm_provider_rejects_mismatched_explicit_provider() -> None:
         get_llm_provider(
             llm_provider="anthropic",
             llm_model="ollama/qwen3.5:35b",
+        )
+
+
+def test_resolve_llm_provider_request_rejects_unknown_explicit_provider() -> None:
+    with pytest.raises(ValueError, match="Unknown provider"):
+        resolve_llm_provider_request(
+            llm_provider="ollmaa",
+            llm_model="qwen3.5:35b",
+        )
+
+
+def test_resolve_llm_provider_request_rejects_unknown_env_provider(
+    monkeypatch,
+) -> None:
+    monkeypatch.setenv("PHENTRIEVE_LLM_PROVIDER", "ollmaa")
+
+    with pytest.raises(ValueError, match="Unknown provider"):
+        resolve_llm_provider_request(
+            llm_provider=None,
+            llm_model="qwen3.5:35b",
         )
 
 
@@ -265,6 +295,42 @@ def test_ollama_invalid_json_raises_validation_error(mocker) -> None:
             system_prompt="system",
             user_prompt="user",
             response_model=LLMExtractedPhenotypes,
+        )
+
+
+def test_ollama_complete_retries_transient_timeout(mocker) -> None:
+    provider = OllamaStructuredOutputProvider(
+        model_name="qwen3.5:35b",
+        base_url="http://localhost:11434",
+        transient_retries=1,
+    )
+    post = mocker.patch("httpx.Client.post")
+    post.side_effect = [
+        httpx.ReadTimeout("timed out"),
+        _fake_ollama_response(content="ok", prompt_eval_count=3, eval_count=1),
+    ]
+    sleep = mocker.patch("time.sleep")
+
+    result = provider.complete([{"role": "user", "content": "hello"}])
+
+    assert result.content == "ok"
+    assert provider.last_request_count == 2
+    assert post.call_count == 2
+    sleep.assert_called_once()
+
+
+def test_gemini_provider_exposes_exact_token_count_source(monkeypatch) -> None:
+    monkeypatch.setenv("PHENTRIEVE_GEMINI_API_KEY", "test-key")
+    provider = get_llm_provider(llm_model="gemini-2.5-flash")
+
+    assert provider.token_count_source == "exact"  # noqa: S105
+
+
+def test_get_llm_provider_requires_anthropic_api_key() -> None:
+    with pytest.raises(RuntimeError, match="Anthropic API key not configured"):
+        get_llm_provider(
+            llm_provider="anthropic",
+            llm_model="claude-sonnet-4-6",
         )
 
 
@@ -461,6 +527,7 @@ def test_llm_extra_matches_supported_runtime_dependencies() -> None:
     llm_extra = pyproject["project"]["optional-dependencies"]["llm"]
 
     assert any(dep.startswith("google-genai") for dep in llm_extra)
+    assert any(dep.startswith("anthropic") for dep in llm_extra)
     assert not any(dep.startswith("openai") for dep in llm_extra)
 
 
@@ -604,6 +671,95 @@ def _install_fake_google_genai(monkeypatch, responses: list[_FakeResponse]):
     return fake_models
 
 
+class _FakeAnthropicUsage:
+    def __init__(self, *, input_tokens: int, output_tokens: int) -> None:
+        self.input_tokens = input_tokens
+        self.output_tokens = output_tokens
+
+
+class _FakeAnthropicTextBlock:
+    def __init__(self, text: str) -> None:
+        self.type = "text"
+        self.text = text
+
+
+class _FakeAnthropicResponse:
+    def __init__(
+        self,
+        *,
+        text: str,
+        stop_reason: str = "end_turn",
+        input_tokens: int = 0,
+        output_tokens: int = 0,
+    ) -> None:
+        self.content = [_FakeAnthropicTextBlock(text)]
+        self.stop_reason = stop_reason
+        self.usage = _FakeAnthropicUsage(
+            input_tokens=input_tokens,
+            output_tokens=output_tokens,
+        )
+
+
+def _install_fake_anthropic(monkeypatch, responses: list[Any]):
+    class _FakeRateLimitError(Exception):
+        status_code = 429
+
+    class _FakeInternalServerError(Exception):
+        status_code = 500
+
+    class _FakeAPIConnectionError(Exception):
+        pass
+
+    class _FakeMessageTokensCount:
+        def __init__(self, input_tokens: int) -> None:
+            self.input_tokens = input_tokens
+
+    class _FakeMessages:
+        def __init__(self, queued_responses: list[Any]) -> None:
+            self._responses = list(queued_responses)
+            self.create_calls: list[dict[str, Any]] = []
+            self.count_calls: list[dict[str, Any]] = []
+
+        def create(self, **kwargs):
+            self.create_calls.append(kwargs)
+            next_item = self._responses.pop(0)
+            if isinstance(next_item, Exception):
+                raise next_item
+            return next_item
+
+        def count_tokens(self, **kwargs):
+            self.count_calls.append(kwargs)
+            return _FakeMessageTokensCount(input_tokens=321)
+
+    fake_messages = _FakeMessages(responses)
+
+    class _FakeClient:
+        def __init__(
+            self,
+            *,
+            api_key: str,
+            base_url: str | None = None,
+            timeout: int | None = None,
+            max_retries: int = 0,
+        ) -> None:
+            self.api_key = api_key
+            self.base_url = base_url
+            self.timeout = timeout
+            self.max_retries = max_retries
+            self.messages = fake_messages
+
+    anthropic_module = ModuleType("anthropic")
+    anthropic_module.Anthropic = _FakeClient
+    anthropic_module.RateLimitError = _FakeRateLimitError
+    anthropic_module.InternalServerError = _FakeInternalServerError
+    anthropic_module.APIConnectionError = _FakeAPIConnectionError
+    monkeypatch.setitem(sys.modules, "anthropic", anthropic_module)
+    fake_messages.rate_limit_error = _FakeRateLimitError
+    fake_messages.internal_server_error = _FakeInternalServerError
+    fake_messages.api_connection_error = _FakeAPIConnectionError
+    return fake_messages
+
+
 def test_structured_prompt_uses_json_schema_and_manual_validation(monkeypatch) -> None:
     fake_models = _install_fake_google_genai(
         monkeypatch,
@@ -664,6 +820,101 @@ def test_structured_prompt_uses_json_schema_and_manual_validation(monkeypatch) -
     ]["phrase"]["description"].startswith("A concise phenotype phrase")
     assert config_kwargs["max_output_tokens"] == 8192
     assert provider.last_usage["total_tokens"] == 20
+
+
+def test_anthropic_structured_prompt_uses_output_config_json_schema(
+    monkeypatch,
+) -> None:
+    fake_messages = _install_fake_anthropic(
+        monkeypatch,
+        [
+            _FakeAnthropicResponse(
+                text='{"phenotypes":[{"phrase":"recurrent seizures","category":"Abnormal"}]}',
+                input_tokens=14,
+                output_tokens=9,
+            )
+        ],
+    )
+    provider = AnthropicStructuredOutputProvider(
+        model_name="claude-sonnet-4-6",
+        api_key="test-key",
+    )
+
+    result = provider.run_structured_prompt(
+        system_prompt="system",
+        user_prompt="user",
+        response_model=LLMExtractedPhenotypes,
+    )
+
+    create_kwargs = fake_messages.create_calls[0]
+    assert result.phenotypes[0].phrase == "recurrent seizures"
+    assert create_kwargs["model"] == "claude-sonnet-4-6"
+    assert create_kwargs["system"] == "system"
+    assert create_kwargs["messages"] == [{"role": "user", "content": "user"}]
+    assert create_kwargs["output_config"]["format"]["type"] == "json_schema"
+    assert (
+        create_kwargs["output_config"]["format"]["schema"]["additionalProperties"]
+        is False
+    )
+    assert provider.last_usage == {
+        "prompt_tokens": 14,
+        "completion_tokens": 9,
+        "total_tokens": 23,
+    }
+    assert provider.token_count_source == "estimated"  # noqa: S105
+
+
+def test_anthropic_complete_uses_messages_api(monkeypatch) -> None:
+    fake_messages = _install_fake_anthropic(
+        monkeypatch,
+        [
+            _FakeAnthropicResponse(
+                text="ok",
+                input_tokens=10,
+                output_tokens=4,
+            )
+        ],
+    )
+    provider = AnthropicStructuredOutputProvider(
+        model_name="claude-sonnet-4-6",
+        api_key="test-key",
+    )
+
+    result = provider.complete(
+        [
+            {"role": "system", "content": "system"},
+            {"role": "user", "content": "hello"},
+        ]
+    )
+
+    create_kwargs = fake_messages.create_calls[0]
+    assert result.content == "ok"
+    assert create_kwargs["system"] == "system"
+    assert create_kwargs["messages"] == [{"role": "user", "content": "hello"}]
+    assert provider.last_finish_reason == "end_turn"
+
+
+def test_anthropic_count_tokens_uses_messages_count_tokens(monkeypatch) -> None:
+    fake_messages = _install_fake_anthropic(monkeypatch, [])
+    provider = AnthropicStructuredOutputProvider(
+        model_name="claude-sonnet-4-6",
+        api_key="test-key",
+    )
+
+    result = provider.count_tokens(
+        system_prompt="system",
+        user_prompt="hello",
+    )
+
+    assert result == {
+        "prompt_tokens": 321,
+        "completion_tokens": 0,
+        "total_tokens": 321,
+    }
+    assert fake_messages.count_calls[0]["system"] == "system"
+    assert fake_messages.count_calls[0]["messages"] == [
+        {"role": "user", "content": "hello"}
+    ]
 
 
 def test_structured_prompt_forwards_seed_and_extended_usage(monkeypatch) -> None:
