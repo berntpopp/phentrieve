@@ -765,6 +765,8 @@ class OllamaStructuredOutputProvider(LLMProvider):
 class AnthropicStructuredOutputProvider(LLMProvider):
     provider_name = "anthropic"
     token_count_source = "estimated"  # noqa: S105
+    _DEFAULT_MODEL_MAX_OUTPUT_TOKENS = 64000
+    _OPUS_MODEL_MAX_OUTPUT_TOKENS = 128000
 
     def __init__(
         self,
@@ -790,11 +792,12 @@ class AnthropicStructuredOutputProvider(LLMProvider):
             api_key
             or os.getenv("PHENTRIEVE_ANTHROPIC_API_KEY")
             or os.getenv("ANTHROPIC_API_KEY")
+            or os.getenv("CLAUDE_API_KEY")
         )
         if not self._api_key:
             raise RuntimeError(
                 "Anthropic API key not configured. Set PHENTRIEVE_ANTHROPIC_API_KEY "
-                "or ANTHROPIC_API_KEY."
+                "ANTHROPIC_API_KEY, or CLAUDE_API_KEY."
             )
 
     def complete(self, messages: list[dict[str, Any]]) -> LLMResponse:
@@ -888,7 +891,9 @@ class AnthropicStructuredOutputProvider(LLMProvider):
                 request_count += 1
                 create_kwargs: dict[str, Any] = {
                     "model": self.model_name,
-                    "max_tokens": max_output_tokens or self.max_tokens,
+                    "max_tokens": self._resolve_max_output_tokens(
+                        requested_max_tokens=max_output_tokens or self.max_tokens
+                    ),
                     "system": system_prompt or None,
                     "messages": [{"role": "user", "content": user_prompt}],
                     "temperature": self.temperature,
@@ -982,6 +987,12 @@ class AnthropicStructuredOutputProvider(LLMProvider):
         )
         jitter = _retry_rng.uniform(0.0, DEFAULT_PROVIDER_RETRY_JITTER_SECONDS)
         return min(bounded_delay + jitter, DEFAULT_PROVIDER_RETRY_MAX_BACKOFF_SECONDS)
+
+    def _resolve_max_output_tokens(self, *, requested_max_tokens: int) -> int:
+        model_name = self.model_name.lower()
+        if "opus" in model_name:
+            return min(requested_max_tokens, self._OPUS_MODEL_MAX_OUTPUT_TOKENS)
+        return min(requested_max_tokens, self._DEFAULT_MODEL_MAX_OUTPUT_TOKENS)
 
 
 class ToolExecutor:

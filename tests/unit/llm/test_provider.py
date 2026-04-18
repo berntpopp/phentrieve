@@ -334,6 +334,18 @@ def test_get_llm_provider_requires_anthropic_api_key() -> None:
         )
 
 
+def test_get_llm_provider_accepts_claude_api_key_env(monkeypatch) -> None:
+    monkeypatch.setenv("CLAUDE_API_KEY", "test-key")
+
+    provider = get_llm_provider(
+        llm_provider="anthropic",
+        llm_model="claude-sonnet-4-6",
+    )
+
+    assert provider.provider_name == "anthropic"
+    assert provider.model_name == "claude-sonnet-4-6"
+
+
 def test_llm_provider_complete_signature_is_message_only() -> None:
     signature = inspect.signature(LLMProvider.complete)
 
@@ -862,6 +874,52 @@ def test_anthropic_structured_prompt_uses_output_config_json_schema(
         "total_tokens": 23,
     }
     assert provider.token_count_source == "estimated"  # noqa: S105
+
+
+def test_anthropic_structured_prompt_caps_max_tokens_for_64k_models(
+    monkeypatch,
+) -> None:
+    fake_messages = _install_fake_anthropic(
+        monkeypatch,
+        [_FakeAnthropicResponse(text='{"phenotypes":[]}')],
+    )
+    provider = AnthropicStructuredOutputProvider(
+        model_name="claude-haiku-4-5",
+        api_key="test-key",
+        max_tokens=65536,
+    )
+
+    provider.run_structured_prompt(
+        system_prompt="system",
+        user_prompt="user",
+        response_model=LLMExtractedPhenotypes,
+        max_output_tokens=65536,
+    )
+
+    assert fake_messages.create_calls[0]["max_tokens"] == 64000
+
+
+def test_anthropic_structured_prompt_keeps_max_tokens_for_opus_128k_models(
+    monkeypatch,
+) -> None:
+    fake_messages = _install_fake_anthropic(
+        monkeypatch,
+        [_FakeAnthropicResponse(text='{"phenotypes":[]}')],
+    )
+    provider = AnthropicStructuredOutputProvider(
+        model_name="claude-opus-4-6",
+        api_key="test-key",
+        max_tokens=65536,
+    )
+
+    provider.run_structured_prompt(
+        system_prompt="system",
+        user_prompt="user",
+        response_model=LLMExtractedPhenotypes,
+        max_output_tokens=65536,
+    )
+
+    assert fake_messages.create_calls[0]["max_tokens"] == 65536
 
 
 def test_anthropic_complete_uses_messages_api(monkeypatch) -> None:
