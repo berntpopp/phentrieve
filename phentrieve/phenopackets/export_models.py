@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-from collections.abc import Mapping
+from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass, field
 from typing import Any, Literal, Self
 
@@ -34,16 +34,16 @@ def _normalize_assertion(value: str | None) -> AssertionValue:
     return _ASSERTION_ALIASES.get(normalized, "unknown")
 
 
-def _normalize_chunk_ids(value: Any) -> tuple[int, ...]:
+def _normalize_chunk_ids(value: Any) -> list[int]:
     if value is None:
-        return ()
+        return []
     if isinstance(value, int):
-        return (value,)
+        return [value]
     if isinstance(value, tuple):
-        return tuple(int(chunk_id) for chunk_id in value)
+        return [int(chunk_id) for chunk_id in value]
     if isinstance(value, list):
-        return tuple(int(chunk_id) for chunk_id in value)
-    return (int(value),)
+        return [int(chunk_id) for chunk_id in value]
+    return [int(value)]
 
 
 def _span_payload(span: NormalizedSpan) -> dict[str, Any]:
@@ -60,12 +60,7 @@ def _record_payload(record: NormalizedPhenotypeExportRecord) -> dict[str, Any]:
         "hpo_id": record.hpo_id,
         "label": record.label,
         "assertion": record.assertion,
-        "confidence": record.confidence,
-        "evidence_text": record.evidence_text,
-        "spans": [_span_payload(span) for span in record.spans],
-        "chunk_ids": list(record.chunk_ids),
-        "source_mode": record.source_mode,
-        "match_method": record.match_method,
+        "chunk_refs": list(record.chunk_refs),
     }
 
 
@@ -82,21 +77,44 @@ def _build_sidecar_linkage_key(
     return f"phentrieve:{digest}"
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True, slots=True, init=False)
 class NormalizedSpan:
     """Normalized span for a mapped phenotype mention."""
 
     evidence_text: str
     start_char: int
     end_char: int
-    chunk_ids: tuple[int, ...] = field(default_factory=tuple)
+    chunk_ids: list[int] = field(default_factory=list)
 
-    def __post_init__(self) -> None:
-        if self.start_char < 0:
+    def __init__(
+        self,
+        *,
+        text: str | None = None,
+        evidence_text: str | None = None,
+        start_char: int,
+        end_char: int,
+        chunk_ids: Sequence[int] | int | None = None,
+        chunk_refs: Sequence[int] | int | None = None,
+    ) -> None:
+        resolved_text = evidence_text if evidence_text is not None else text
+        if not isinstance(resolved_text, str) or not resolved_text:
+            raise ValueError("NormalizedSpan requires text or evidence_text")
+        if start_char < 0:
             raise ValueError("start_char must be non-negative")
-        if self.end_char < self.start_char:
+        if end_char < start_char:
             raise ValueError("end_char must be greater than or equal to start_char")
-        object.__setattr__(self, "chunk_ids", _normalize_chunk_ids(self.chunk_ids))
+
+        resolved_chunk_ids = _normalize_chunk_ids(
+            chunk_ids if chunk_ids is not None else chunk_refs
+        )
+        object.__setattr__(self, "evidence_text", resolved_text)
+        object.__setattr__(self, "start_char", int(start_char))
+        object.__setattr__(self, "end_char", int(end_char))
+        object.__setattr__(self, "chunk_ids", resolved_chunk_ids)
+
+    @property
+    def text(self) -> str:
+        return self.evidence_text
 
     @classmethod
     def from_legacy_dict(cls, legacy: Mapping[str, Any]) -> Self:
@@ -122,14 +140,14 @@ class NormalizedSpan:
             chunk_ids = legacy["chunk_id"]
 
         return cls(
-            evidence_text=evidence_text,
+            text=evidence_text,
             start_char=int(start_char),
             end_char=int(end_char),
             chunk_ids=_normalize_chunk_ids(chunk_ids),
         )
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True, slots=True, init=False)
 class NormalizedPhenotypeExportRecord:
     """Normalized phenotype record for export and sidecar linkage."""
 
@@ -138,39 +156,70 @@ class NormalizedPhenotypeExportRecord:
     assertion: AssertionValue
     confidence: float | None = None
     evidence_text: str | None = None
-    spans: tuple[NormalizedSpan, ...] = field(default_factory=tuple)
-    chunk_ids: tuple[int, ...] = field(default_factory=tuple)
+    spans: list[NormalizedSpan] = field(default_factory=list)
+    chunk_refs: list[int] = field(default_factory=list)
     source_mode: str | None = None
     match_method: str | None = None
     sidecar_linkage_key: str = field(init=False)
 
-    def __post_init__(self) -> None:
-        object.__setattr__(self, "assertion", _normalize_assertion(self.assertion))
-        object.__setattr__(self, "spans", tuple(self.spans))
-        object.__setattr__(self, "chunk_ids", _normalize_chunk_ids(self.chunk_ids))
+    def __init__(
+        self,
+        *,
+        hpo_id: str,
+        label: str,
+        assertion: AssertionValue | str,
+        confidence: float | None = None,
+        evidence_text: str | None = None,
+        spans: Iterable[NormalizedSpan | Mapping[str, Any]] | None = None,
+        chunk_refs: Sequence[int] | int | None = None,
+        chunk_ids: Sequence[int] | int | None = None,
+        source_mode: str | None = None,
+        match_method: str | None = None,
+    ) -> None:
+        if not hpo_id or not label:
+            raise ValueError(
+                "NormalizedPhenotypeExportRecord requires hpo_id and label"
+            )
 
-        normalized_spans = tuple(
+        normalized_spans = [
             span
             if isinstance(span, NormalizedSpan)
             else NormalizedSpan.from_legacy_dict(span)
-            for span in self.spans
+            for span in (spans or ())
+        ]
+        resolved_chunk_refs = _normalize_chunk_ids(
+            chunk_refs if chunk_refs is not None else chunk_ids
         )
-        object.__setattr__(self, "spans", normalized_spans)
-
-        if self.evidence_text is None and normalized_spans:
-            object.__setattr__(self, "evidence_text", normalized_spans[0].evidence_text)
-
-        if not self.chunk_ids and normalized_spans:
-            span_chunk_ids: list[int] = []
+        if not resolved_chunk_refs and normalized_spans:
+            span_chunk_refs: list[int] = []
             for span in normalized_spans:
-                for chunk_id in span.chunk_ids:
-                    if chunk_id not in span_chunk_ids:
-                        span_chunk_ids.append(chunk_id)
-            object.__setattr__(self, "chunk_ids", tuple(span_chunk_ids))
+                for chunk_ref in span.chunk_ids:
+                    if chunk_ref not in span_chunk_refs:
+                        span_chunk_refs.append(chunk_ref)
+            resolved_chunk_refs = span_chunk_refs
 
+        resolved_evidence_text = evidence_text
+        if resolved_evidence_text is None and normalized_spans:
+            resolved_evidence_text = normalized_spans[0].evidence_text
+
+        object.__setattr__(self, "hpo_id", str(hpo_id))
+        object.__setattr__(self, "label", str(label))
+        object.__setattr__(self, "assertion", _normalize_assertion(str(assertion)))
+        object.__setattr__(
+            self, "confidence", float(confidence) if confidence is not None else None
+        )
+        object.__setattr__(self, "evidence_text", resolved_evidence_text)
+        object.__setattr__(self, "spans", normalized_spans)
+        object.__setattr__(self, "chunk_refs", resolved_chunk_refs)
+        object.__setattr__(self, "source_mode", source_mode)
+        object.__setattr__(self, "match_method", match_method)
         object.__setattr__(
             self, "sidecar_linkage_key", _build_sidecar_linkage_key(self)
         )
+
+    @property
+    def chunk_ids(self) -> list[int]:
+        return list(self.chunk_refs)
 
     @classmethod
     def from_legacy_dict(cls, legacy: Mapping[str, Any]) -> Self:
@@ -190,20 +239,20 @@ class NormalizedPhenotypeExportRecord:
         )
 
         raw_spans = legacy.get("spans") or ()
-        spans = tuple(
+        spans = [
             span
             if isinstance(span, NormalizedSpan)
             else NormalizedSpan.from_legacy_dict(span)
             for span in raw_spans
-        )
+        ]
 
-        chunk_ids = legacy.get("chunk_ids")
-        if chunk_ids is None and "chunk_refs" in legacy:
-            chunk_ids = legacy["chunk_refs"]
-        if chunk_ids is None and "chunk_idx" in legacy:
-            chunk_ids = legacy["chunk_idx"]
-        if chunk_ids is None and "chunk_id" in legacy:
-            chunk_ids = legacy["chunk_id"]
+        chunk_refs = legacy.get("chunk_refs")
+        if chunk_refs is None and "chunk_ids" in legacy:
+            chunk_refs = legacy["chunk_ids"]
+        if chunk_refs is None and "chunk_idx" in legacy:
+            chunk_refs = legacy["chunk_idx"]
+        if chunk_refs is None and "chunk_id" in legacy:
+            chunk_refs = legacy["chunk_id"]
 
         source_mode = legacy.get("source_mode")
         if source_mode is None:
@@ -212,8 +261,8 @@ class NormalizedPhenotypeExportRecord:
                 if (
                     "chunk_idx" in legacy
                     or "chunk_id" in legacy
-                    or "chunk_ids" in legacy
                     or "chunk_refs" in legacy
+                    or "chunk_ids" in legacy
                     or "chunk_text" in legacy
                 )
                 else "aggregated"
@@ -234,7 +283,7 @@ class NormalizedPhenotypeExportRecord:
             confidence=float(confidence) if confidence is not None else None,
             evidence_text=str(evidence_text) if evidence_text is not None else None,
             spans=spans,
-            chunk_ids=_normalize_chunk_ids(chunk_ids),
+            chunk_refs=_normalize_chunk_ids(chunk_refs),
             source_mode=str(source_mode) if source_mode is not None else None,
             match_method=str(match_method) if match_method is not None else None,
         )

@@ -219,23 +219,23 @@ class TestPhenopacketUtils:
 class TestNormalizedExportModels:
     def test_normalized_span_direct_construction_and_legacy_dict_constructor(self):
         span = NormalizedSpan(
-            evidence_text="recurrent seizures",
+            text="recurrent seizures",
             start_char=10,
             end_char=28,
-            chunk_ids=(4,),
+            chunk_ids=[4],
         )
 
         assert span.evidence_text == "recurrent seizures"
         assert span.start_char == 10
         assert span.end_char == 28
-        assert span.chunk_ids == (4,)
+        assert span.chunk_ids == [4]
 
         legacy_span = NormalizedSpan.from_legacy_dict(
             {
                 "text": "recurrent seizures",
                 "start_char": 10,
                 "end_char": 28,
-                "chunk_idx": 4,
+                "chunk_ids": [4],
             }
         )
 
@@ -245,10 +245,10 @@ class TestNormalizedExportModels:
         self,
     ):
         span = NormalizedSpan(
-            evidence_text="recurrent seizures",
+            text="recurrent seizures",
             start_char=10,
             end_char=28,
-            chunk_ids=(4,),
+            chunk_ids=[4],
         )
 
         record = NormalizedPhenotypeExportRecord(
@@ -256,9 +256,9 @@ class TestNormalizedExportModels:
             label="Seizure",
             assertion="affirmed",
             confidence=0.91,
-            spans=(span,),
+            spans=[span],
             evidence_text="recurrent seizures",
-            chunk_ids=(4,),
+            chunk_refs=[4],
             source_mode="two_phase",
             match_method="llm_mapping",
         )
@@ -267,9 +267,9 @@ class TestNormalizedExportModels:
         assert record.label == "Seizure"
         assert record.assertion == "affirmed"
         assert record.confidence == 0.91
-        assert record.spans == (span,)
+        assert record.spans == [span]
         assert record.evidence_text == "recurrent seizures"
-        assert record.chunk_ids == (4,)
+        assert record.chunk_refs == [4]
         assert record.source_mode == "two_phase"
         assert record.match_method == "llm_mapping"
         assert record.sidecar_linkage_key
@@ -278,12 +278,19 @@ class TestNormalizedExportModels:
             hpo_id="HP:0001250",
             label="Seizure",
             assertion="affirmed",
-            confidence=0.91,
-            spans=(span,),
-            evidence_text="recurrent seizures",
-            chunk_ids=(4,),
-            source_mode="two_phase",
-            match_method="llm_mapping",
+            confidence=0.12,
+            spans=[
+                NormalizedSpan(
+                    text="expanded recurrent seizures",
+                    start_char=0,
+                    end_char=27,
+                    chunk_ids=[4],
+                )
+            ],
+            evidence_text="expanded recurrent seizures",
+            chunk_refs=[4],
+            source_mode="chunk",
+            match_method="different",
         )
 
         assert identical_record.sidecar_linkage_key == record.sidecar_linkage_key
@@ -296,8 +303,8 @@ class TestNormalizedExportModels:
         assert aggregated_legacy.label == "Seizure"
         assert aggregated_legacy.assertion == "affirmed"
         assert aggregated_legacy.confidence == 0.9
-        assert aggregated_legacy.spans == ()
-        assert aggregated_legacy.chunk_ids == ()
+        assert aggregated_legacy.spans == []
+        assert aggregated_legacy.chunk_refs == []
         assert aggregated_legacy.source_mode == "aggregated"
         assert aggregated_legacy.match_method == "legacy_dict"
         assert aggregated_legacy.sidecar_linkage_key
@@ -309,7 +316,7 @@ class TestNormalizedExportModels:
                 "score": 0.8,
                 "assertion_status": "negated",
                 "evidence_text": "No muscle weakness observed",
-                "chunk_idx": 2,
+                "chunk_refs": [2],
             }
         )
 
@@ -318,7 +325,7 @@ class TestNormalizedExportModels:
         assert chunk_legacy.assertion == "negated"
         assert chunk_legacy.confidence == 0.8
         assert chunk_legacy.evidence_text == "No muscle weakness observed"
-        assert chunk_legacy.chunk_ids == (2,)
+        assert chunk_legacy.chunk_refs == [2]
         assert chunk_legacy.source_mode == "chunk"
         assert chunk_legacy.match_method == "legacy_dict"
         assert chunk_legacy.sidecar_linkage_key
