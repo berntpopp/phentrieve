@@ -318,6 +318,13 @@ def test_ollama_structured_prompt_posts_native_chat_schema(mocker) -> None:
     _, kwargs = post.call_args
     assert kwargs["json"]["format"]["type"] == "object"
     assert kwargs["json"]["options"]["temperature"] == 0
+    assert provider.last_usage == {
+        "prompt_tokens": 12,
+        "completion_tokens": 5,
+        "total_tokens": 17,
+    }
+    assert provider.last_finish_reason == "stop"
+    assert provider.last_request_count == 1
 
 
 def test_ollama_structured_prompt_includes_schema_in_prompt(mocker) -> None:
@@ -428,7 +435,9 @@ def test_anthropic_does_not_retry_structured_refusal(monkeypatch) -> None:
     assert provider.last_request_count == 1
 
 
-def test_ollama_structured_retry_expands_output_budget(monkeypatch) -> None:
+def test_ollama_structured_retry_does_not_shrink_large_requested_budget(
+    monkeypatch,
+) -> None:
     fake_http = _install_fake_ollama_http(
         monkeypatch,
         json_bodies=[
@@ -452,11 +461,38 @@ def test_ollama_structured_retry_expands_output_budget(monkeypatch) -> None:
         system_prompt="system",
         user_prompt="user",
         response_model=LLMExtractedPhenotypes,
-        max_output_tokens=8192,
+        max_output_tokens=100000,
     )
 
-    assert fake_http.requests[0]["json"]["options"]["num_predict"] == 8192
-    assert fake_http.requests[1]["json"]["options"]["num_predict"] == 16384
+    assert fake_http.requests[0]["json"]["options"]["num_predict"] == 100000
+    assert fake_http.requests[1]["json"]["options"]["num_predict"] == 100000
+
+
+def test_ollama_structured_prompt_does_not_retry_plain_text_refusal(
+    monkeypatch,
+) -> None:
+    fake_http = _install_fake_ollama_http(
+        monkeypatch,
+        json_bodies=[
+            {
+                "message": {"content": "I cannot comply with that request."},
+                "prompt_eval_count": 5,
+                "eval_count": 1,
+                "done_reason": "stop",
+            }
+        ],
+    )
+    provider = get_llm_provider(llm_provider="ollama", llm_model="qwen3:32b")
+
+    with pytest.raises(RuntimeError, match="non-JSON|refusal"):
+        provider.run_structured_prompt(
+            system_prompt="system",
+            user_prompt="user",
+            response_model=LLMExtractedPhenotypes,
+        )
+
+    assert len(fake_http.requests) == 1
+    assert provider.last_request_count == 1
 
 
 def test_ollama_complete_retries_transient_timeout(mocker) -> None:

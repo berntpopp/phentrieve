@@ -191,7 +191,10 @@ class LLMProvider(ABC):
 
     def _is_retryable_structured_error(self, exc: Exception) -> bool:
         message = str(exc).lower()
-        if any(token in message for token in ("refusal", "billing", "unsupported")):
+        if any(
+            token in message
+            for token in ("refusal", "billing", "unsupported", "non-json")
+        ):
             return False
         return (
             "invalid json" in message
@@ -462,6 +465,12 @@ class GeminiStructuredOutputProvider(LLMProvider):
             ) from exc
 
         response_schema = build_response_json_schema(response_model)
+        initial_output_tokens = max_output_tokens or self.max_tokens
+        retry_output_tokens = max(
+            initial_output_tokens,
+            self.max_tokens,
+            DEFAULT_GROUNDED_PHASE1_MAX_OUTPUT_TOKENS,
+        )
         return self._run_structured_with_recovery(
             invoke=lambda output_tokens: self._generate_with_transient_retry(
                 genai_module=genai,
@@ -482,10 +491,8 @@ class GeminiStructuredOutputProvider(LLMProvider):
                 response=response,
                 response_model=response_model,
             ),
-            initial_output_tokens=max_output_tokens or self.max_tokens,
-            max_output_tokens=max(
-                self.max_tokens, DEFAULT_GROUNDED_PHASE1_MAX_OUTPUT_TOKENS
-            ),
+            initial_output_tokens=initial_output_tokens,
+            max_output_tokens=retry_output_tokens,
             structured_retries=self.structured_retries,
             structured_retry_token_multiplier=self.structured_retry_token_multiplier,
         )
@@ -726,6 +733,12 @@ class OllamaStructuredOutputProvider(LLMProvider):
         max_output_tokens: int | None = None,
     ) -> BaseModel:
         response_schema = build_response_json_schema(response_model)
+        initial_output_tokens = max_output_tokens or self.max_tokens
+        retry_output_tokens = max(
+            initial_output_tokens,
+            self.max_tokens,
+            DEFAULT_GROUNDED_PHASE1_MAX_OUTPUT_TOKENS,
+        )
         return self._run_structured_with_recovery(
             invoke=lambda output_tokens: self._post_structured_with_transient_retry(
                 system_prompt=system_prompt,
@@ -737,13 +750,22 @@ class OllamaStructuredOutputProvider(LLMProvider):
                 response=response,
                 response_model=response_model,
             ),
-            initial_output_tokens=max_output_tokens or self.max_tokens,
-            max_output_tokens=max(
-                self.max_tokens, DEFAULT_GROUNDED_PHASE1_MAX_OUTPUT_TOKENS
-            ),
+            initial_output_tokens=initial_output_tokens,
+            max_output_tokens=retry_output_tokens,
             structured_retries=self.structured_retries,
             structured_retry_token_multiplier=self.structured_retry_token_multiplier,
         )
+
+    @staticmethod
+    def _extract_structured_usage(response: Any) -> dict[str, int]:
+        body = response.json()
+        return OllamaStructuredOutputProvider._extract_ollama_usage(body)
+
+    @staticmethod
+    def _extract_structured_finish_reason(response: Any) -> str | None:
+        body = response.json()
+        done_reason = body.get("done_reason")
+        return str(done_reason) if done_reason is not None else None
 
     @staticmethod
     def _augment_prompt_with_schema(
@@ -882,6 +904,9 @@ class OllamaStructuredOutputProvider(LLMProvider):
         content = str(body.get("message", {}).get("content", "") or "")
         if not content.strip():
             raise RuntimeError("Ollama returned no structured response payload.")
+        first_non_whitespace = content.lstrip()[:1]
+        if first_non_whitespace not in {"{", "["}:
+            raise RuntimeError("Ollama returned non-JSON structured response payload.")
         return response_model.model_validate_json(content)
 
 
@@ -957,6 +982,12 @@ class AnthropicStructuredOutputProvider(LLMProvider):
         self.last_finish_reason = None
         self.last_request_count = 0
         response_schema = build_response_json_schema(response_model)
+        initial_output_tokens = max_output_tokens or self.max_tokens
+        retry_output_tokens = max(
+            initial_output_tokens,
+            self.max_tokens,
+            DEFAULT_GROUNDED_PHASE1_MAX_OUTPUT_TOKENS,
+        )
         return self._run_structured_with_recovery(
             invoke=lambda output_tokens: self._create_message_with_transient_retry(
                 system_prompt=system_prompt,
@@ -968,10 +999,8 @@ class AnthropicStructuredOutputProvider(LLMProvider):
                 response=response,
                 response_model=response_model,
             ),
-            initial_output_tokens=max_output_tokens or self.max_tokens,
-            max_output_tokens=max(
-                self.max_tokens, DEFAULT_GROUNDED_PHASE1_MAX_OUTPUT_TOKENS
-            ),
+            initial_output_tokens=initial_output_tokens,
+            max_output_tokens=retry_output_tokens,
             structured_retries=self.structured_retries,
             structured_retry_token_multiplier=self.structured_retry_token_multiplier,
         )
@@ -1225,6 +1254,12 @@ class OpenAIStructuredOutputProvider(LLMProvider):
         self.last_finish_reason = None
         self.last_request_count = 0
         response_schema = self._build_openai_response_schema(response_model)
+        initial_output_tokens = max_output_tokens or self.max_tokens
+        retry_output_tokens = max(
+            initial_output_tokens,
+            self.max_tokens,
+            DEFAULT_GROUNDED_PHASE1_MAX_OUTPUT_TOKENS,
+        )
         return self._run_structured_with_recovery(
             invoke=lambda output_tokens: self._create_response_with_transient_retry(
                 messages=[
@@ -1243,10 +1278,8 @@ class OpenAIStructuredOutputProvider(LLMProvider):
                 response=response,
                 response_model=response_model,
             ),
-            initial_output_tokens=max_output_tokens or self.max_tokens,
-            max_output_tokens=max(
-                self.max_tokens, DEFAULT_GROUNDED_PHASE1_MAX_OUTPUT_TOKENS
-            ),
+            initial_output_tokens=initial_output_tokens,
+            max_output_tokens=retry_output_tokens,
             structured_retries=self.structured_retries,
             structured_retry_token_multiplier=self.structured_retry_token_multiplier,
         )
