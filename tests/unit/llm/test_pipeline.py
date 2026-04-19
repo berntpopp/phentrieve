@@ -1079,7 +1079,7 @@ def test_grouped_phase1_keeps_group_chunk_ids_in_trace() -> None:
     ]
 
 
-def test_group_failure_is_recorded_without_zeroing_document(caplog) -> None:
+def test_non_regroupable_group_failure_raises_instead_of_succeeding(caplog) -> None:
     caplog.set_level(logging.WARNING, logger="phentrieve.llm.pipeline")
     provider = FakeProvider(
         responses=[
@@ -1117,41 +1117,42 @@ def test_group_failure_is_recorded_without_zeroing_document(caplog) -> None:
     )
     pipeline = TwoPhaseLLMPipeline(provider=provider, tool_executor=tool_executor)
 
-    result = pipeline.run(
-        text="Patient had recurrent seizures and later worsening gait instability.",
-        grounded_chunks=[
-            {"chunk_id": 1, "text": "Chunk one."},
-            {"chunk_id": 2, "text": "Chunk two."},
-            {"chunk_id": 3, "text": "Chunk three."},
-        ],
-        extraction_groups=[
-            {
-                "group_id": 1,
-                "chunk_ids": [1, 2],
-                "text": "chunk_id=1: Chunk one.\nchunk_id=2: Chunk two.",
-            },
-            {
-                "group_id": 2,
-                "chunk_ids": [3],
-                "text": "chunk_id=3: Chunk three.",
-            },
-        ],
-        config=LLMPipelineConfig(model="gemini-2.5-flash", mode="two_phase"),
-    )
+    with pytest.raises(LLMPipelinePhaseError) as exc_info:
+        pipeline.run(
+            text="Patient had recurrent seizures and later worsening gait instability.",
+            grounded_chunks=[
+                {"chunk_id": 1, "text": "Chunk one."},
+                {"chunk_id": 2, "text": "Chunk two."},
+                {"chunk_id": 3, "text": "Chunk three."},
+            ],
+            extraction_groups=[
+                {
+                    "group_id": 1,
+                    "chunk_ids": [1, 2],
+                    "text": "chunk_id=1: Chunk one.\nchunk_id=2: Chunk two.",
+                },
+                {
+                    "group_id": 2,
+                    "chunk_ids": [3],
+                    "text": "chunk_id=3: Chunk three.",
+                },
+            ],
+            config=LLMPipelineConfig(model="gemini-2.5-flash", mode="two_phase"),
+        )
 
-    assert [term.term_id for term in result.terms] == ["HP:0001250"]
-    assert result.meta.phase_counts["extracted_phrases"] == 1
-    assert result.meta.phase_counts["phase1_partial_failures"] == 1
-    assert result.meta.trace["phase1"]["extracted"] == [
-        {
-            "phrase": "recurrent seizures",
-            "category": "abnormal",
-            "chunk_ids": [1, 2],
-            "evidence_text": "recurrent seizures",
-            "actionable": True,
-        }
-    ]
-    phase1_groups = result.meta.trace["phase1"]["groups"]
+    exc = exc_info.value
+    assert exc.initial_mode == "grouped_large"
+    assert exc.final_mode == "grouped_large"
+    assert exc.failure_class == "provider_execution_error"
+    assert exc.fallback_triggered is False
+    assert exc.phase_counts["phase1_partial_failures"] == 1
+    assert exc.phase_counts["phase1_failed_groups"] == 1
+    assert exc.phase_counts["phase1_completed_groups"] == 1
+    assert exc.phase1_trace["attempts"][0]["status"] == "failed"
+    assert (
+        exc.phase1_trace["attempts"][0]["failure_class"] == "provider_execution_error"
+    )
+    phase1_groups = exc.phase1_trace["groups"]
     assert len(phase1_groups) == 2
     assert phase1_groups[0]["group_id"] == 1
     assert phase1_groups[0]["chunk_ids"] == [1, 2]

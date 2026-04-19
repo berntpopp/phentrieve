@@ -105,6 +105,8 @@ def _phase1_failure_message(exc: Exception) -> str:
 
 
 def _classify_phase1_failure(exc: Exception) -> Phase1FailureClass:
+    if isinstance(exc, LLMPipelinePhaseError) and exc.failure_class is not None:
+        return exc.failure_class
     message = _phase1_failure_message(exc)
     if "refusal" in message:
         return "structured_refusal"
@@ -486,11 +488,24 @@ class TwoPhaseLLMPipeline:
                     retry_grounded_chunks,
                     retry_failure_class,
                     retained_groups_trace,
+                    terminal_failure_class,
                 ) = self._phase1_partial_retry_chunks(
                     mode=current_phase1_mode,
                     grounded_chunks=current_grounded_chunks,
                     groups_trace=attempt_phase1_groups_trace,
                 )
+                if terminal_failure_class is not None:
+                    phase1_failure_class = terminal_failure_class
+                    terminal_exc = LLMPipelinePhaseError(
+                        "phase1",
+                        "Structured extraction failed for one or more extraction groups",
+                        usage=attempt_phase1_usage,
+                        request_count=attempt_phase1_request_count,
+                        elapsed_seconds=attempt_phase1_elapsed,
+                        groups_trace=attempt_phase1_groups_trace,
+                    )
+                    terminal_exc.failure_class = terminal_failure_class
+                    raise terminal_exc
                 if retry_grounded_chunks:
                     if phase1_failure_class is None:
                         phase1_failure_class = retry_failure_class
@@ -1183,14 +1198,20 @@ class TwoPhaseLLMPipeline:
         mode: Phase1Mode,
         grounded_chunks: list[dict[str, Any]],
         groups_trace: list[dict[str, Any]],
-    ) -> tuple[list[dict[str, Any]], Phase1FailureClass, list[dict[str, Any]]]:
+    ) -> tuple[
+        list[dict[str, Any]],
+        Phase1FailureClass,
+        list[dict[str, Any]],
+        Phase1FailureClass,
+    ]:
         if mode != "grouped_large":
-            return [], None, list(groups_trace)
+            return [], None, list(groups_trace), None
 
         next_mode = _next_phase1_mode(mode)
         retry_chunk_ids: set[int] = set()
         retained_groups_trace: list[dict[str, Any]] = []
         retry_failure_class: Phase1FailureClass = None
+        terminal_failure_class: Phase1FailureClass = None
 
         for group in groups_trace:
             if group.get("status") != "failed":
@@ -1208,16 +1229,25 @@ class TwoPhaseLLMPipeline:
                 retry_chunk_ids.update(_group_source_chunk_ids(group))
                 continue
             retained_groups_trace.append(group)
+            if terminal_failure_class is None:
+                terminal_failure_class = failure_class
 
+        if terminal_failure_class is not None:
+            return [], None, list(groups_trace), terminal_failure_class
         if not retry_chunk_ids:
-            return [], None, list(groups_trace)
+            return [], None, list(groups_trace), None
 
         retry_grounded_chunks = [
             chunk
             for chunk in grounded_chunks
             if int(chunk.get("chunk_id", 0)) in retry_chunk_ids
         ]
-        return retry_grounded_chunks, retry_failure_class, retained_groups_trace
+        return (
+            retry_grounded_chunks,
+            retry_failure_class,
+            retained_groups_trace,
+            None,
+        )
 
     def _should_fallback_phase1(
         self,
