@@ -102,6 +102,8 @@ providers behind an OpenAI-compatible shim.
 - Improve benchmark signal quality so reliability gains are measurable.
 - Stay quality-first and evidence-driven; do not add configuration layers that
   are not yet justified by benchmark signal.
+- Keep default retry behavior conservative so quality gains do not silently
+  multiply latency or cost.
 
 ## Scope
 
@@ -155,6 +157,16 @@ Excluded:
 Add a shared structured-response recovery behavior that providers can opt into
 through the same interface.
 
+Implementation location:
+
+- a protected helper on `LLMProvider` should own the common structured-recovery
+  loop and accounting behavior
+- provider adapters should continue owning provider-native request creation and
+  provider-specific retryability hooks
+- small module-level helpers are acceptable for exception classification, but
+  the orchestration should stay in the provider abstraction rather than in the
+  benchmark layer
+
 The recovery contract should cover failures that happen after a successful API
 response but before a valid `BaseModel` can be returned, including:
 
@@ -170,9 +182,44 @@ The design should standardize:
 - retry eligibility rules
 - output-token expansion on retry where the provider supports it
 - retry accounting in metadata and benchmark artifacts
+- terminal-failure behavior so clearly non-retryable cases do not burn cost
+
+Retryability rules should be explicit:
+
+- retryable:
+  - malformed or truncated JSON
+  - empty structured payload
+  - schema-validation failures that indicate incomplete or structurally
+    unusable output rather than a semantically wrong but well-formed object
+  - provider timeouts or transient transport failures already classified as
+    retryable
+- terminal by default:
+  - explicit provider refusal
+  - billing, quota, or auth errors
+  - unsupported-model errors
+  - schema-too-complex request rejection
+  - semantically poor but valid structured output
+
+`structured_refusal` should be treated as terminal and non-retryable unless
+later benchmark evidence shows a provider-specific exception.
 
 Gemini's current implementation is the starting point, but it should be
 generalized instead of copied ad hoc into each adapter.
+
+### Cost ceiling principle
+
+The stabilization defaults should have a bounded cost-amplification ceiling.
+
+Initial default target:
+
+- at most one structured retry beyond the first attempt
+- default retry token multiplier of `2`
+- effective worst-case amplification per structured request should therefore
+  remain bounded to roughly one extra request and at most double the configured
+  completion-token budget on the retry path
+
+Higher settings may be exposed for benchmark experiments, but they should not
+be the default runtime behavior.
 
 ### 2. Provider-aware phase 1 stabilization
 
@@ -181,11 +228,37 @@ schema-constrained extraction pass over grounded clinical chunks.
 
 The pipeline should support a bounded fallback path:
 
-1. try the current grouped or non-grouped phase 1 request shape
-2. if it fails with a retryable structured or timeout failure, switch to a
-   smaller grouped extraction mode
-3. continue collecting partial successes when some groups fail
-4. surface the fallback clearly in observability and benchmark artifacts
+1. try the initial phase 1 mode selected by the current pipeline configuration
+2. if the initial mode is `ungrouped` and it fails with a retryable structured
+   or timeout failure, fall back to grouped extraction
+3. if the initial mode is already grouped and it fails in a retryable way,
+   fall back to a smaller grouped mode with reduced chunk-group payload size
+4. continue collecting partial successes when some groups fail
+5. surface the fallback clearly in observability and benchmark artifacts
+
+For this iteration, the phase 1 mode domain should be explicit:
+
+- `ungrouped`
+- `grouped_large`
+- `grouped_small`
+
+Where:
+
+- `ungrouped` means one phase 1 extraction request over the current grounded
+  payload
+- `grouped_large` means the current grouped extraction behavior and default
+  group sizing
+- `grouped_small` means the same grouped extraction algorithm with smaller
+  groups chosen specifically as a stabilization fallback
+
+The fallback axis is therefore:
+
+- `ungrouped -> grouped_large`
+- `grouped_large -> grouped_small`
+
+This spec does not require `ungrouped -> grouped_small` as the first fallback
+unless later benchmarking shows that skipping `grouped_large` is clearly better
+for fragile providers.
 
 This is intentionally narrower than full provider-specific routing. The goal is
 to reduce failure blast radius for fragile models without changing the meaning
@@ -314,6 +387,7 @@ Add or extend unit tests for:
 
 - provider structured retry parity across Gemini, Anthropic, OpenAI, and Ollama
 - retryable vs non-retryable structured failures
+- refusal or other terminal failure does not trigger structured retry
 - output-token expansion on structured retry where supported
 - phase 1 fallback activation after timeout or structured failure
 - partial-success grouped extraction under fallback mode
@@ -345,6 +419,15 @@ verify:
 - fewer empty or malformed structured outputs
 - equal or improved F1 for non-Gemini providers where stabilization applies
 - no regression to the strongest Gemini baseline
+
+Live validation should stay bounded to a practical engineering budget:
+
+- one representative model per provider family is sufficient for the first
+  implementation pass
+- default expectation is single-run comparison on the existing 10-document
+  GeneReviews set rather than broad multi-model sweeps
+- if cost or runtime becomes high, prioritize OpenAI mini, Anthropic Sonnet,
+  Gemini flash-lite, and one local Ollama model before expanding coverage
 
 ## Risks
 
@@ -398,3 +481,8 @@ Primary sources:
   https://developers.openai.com/api/docs/guides/structured-outputs
 - Ollama structured outputs:
   https://docs.ollama.com/capabilities/structured-outputs
+
+OpenAI source note:
+
+- the GPT-5.4, GPT-5.4 mini, and structured-outputs URLs above were re-verified
+  as resolving successfully during this spec review on 2026-04-19
