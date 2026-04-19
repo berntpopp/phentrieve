@@ -466,10 +466,10 @@ class GeminiStructuredOutputProvider(LLMProvider):
 
         response_schema = build_response_json_schema(response_model)
         initial_output_tokens = max_output_tokens or self.max_tokens
-        retry_output_tokens = max(
-            initial_output_tokens,
-            self.max_tokens,
-            DEFAULT_GROUNDED_PHASE1_MAX_OUTPUT_TOKENS,
+        retry_output_tokens = (
+            max_output_tokens
+            if max_output_tokens is not None
+            else max(self.max_tokens, DEFAULT_GROUNDED_PHASE1_MAX_OUTPUT_TOKENS)
         )
         return self._run_structured_with_recovery(
             invoke=lambda output_tokens: self._generate_with_transient_retry(
@@ -734,10 +734,10 @@ class OllamaStructuredOutputProvider(LLMProvider):
     ) -> BaseModel:
         response_schema = build_response_json_schema(response_model)
         initial_output_tokens = max_output_tokens or self.max_tokens
-        retry_output_tokens = max(
-            initial_output_tokens,
-            self.max_tokens,
-            DEFAULT_GROUNDED_PHASE1_MAX_OUTPUT_TOKENS,
+        retry_output_tokens = (
+            max_output_tokens
+            if max_output_tokens is not None
+            else max(self.max_tokens, DEFAULT_GROUNDED_PHASE1_MAX_OUTPUT_TOKENS)
         )
         return self._run_structured_with_recovery(
             invoke=lambda output_tokens: self._post_structured_with_transient_retry(
@@ -983,10 +983,10 @@ class AnthropicStructuredOutputProvider(LLMProvider):
         self.last_request_count = 0
         response_schema = build_response_json_schema(response_model)
         initial_output_tokens = max_output_tokens or self.max_tokens
-        retry_output_tokens = max(
-            initial_output_tokens,
-            self.max_tokens,
-            DEFAULT_GROUNDED_PHASE1_MAX_OUTPUT_TOKENS,
+        retry_output_tokens = (
+            max_output_tokens
+            if max_output_tokens is not None
+            else max(self.max_tokens, DEFAULT_GROUNDED_PHASE1_MAX_OUTPUT_TOKENS)
         )
         return self._run_structured_with_recovery(
             invoke=lambda output_tokens: self._create_message_with_transient_retry(
@@ -1255,10 +1255,10 @@ class OpenAIStructuredOutputProvider(LLMProvider):
         self.last_request_count = 0
         response_schema = self._build_openai_response_schema(response_model)
         initial_output_tokens = max_output_tokens or self.max_tokens
-        retry_output_tokens = max(
-            initial_output_tokens,
-            self.max_tokens,
-            DEFAULT_GROUNDED_PHASE1_MAX_OUTPUT_TOKENS,
+        retry_output_tokens = (
+            max_output_tokens
+            if max_output_tokens is not None
+            else max(self.max_tokens, DEFAULT_GROUNDED_PHASE1_MAX_OUTPUT_TOKENS)
         )
         return self._run_structured_with_recovery(
             invoke=lambda output_tokens: self._create_response_with_transient_retry(

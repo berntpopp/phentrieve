@@ -468,6 +468,39 @@ def test_ollama_structured_retry_does_not_shrink_large_requested_budget(
     assert fake_http.requests[1]["json"]["options"]["num_predict"] == 100000
 
 
+def test_ollama_structured_retry_does_not_expand_small_requested_budget(
+    monkeypatch,
+) -> None:
+    fake_http = _install_fake_ollama_http(
+        monkeypatch,
+        json_bodies=[
+            {
+                "message": {"content": '{"phenotypes": ['},
+                "prompt_eval_count": 5,
+                "eval_count": 1,
+                "done_reason": "stop",
+            },
+            {
+                "message": {"content": '{"phenotypes":[]}'},
+                "prompt_eval_count": 5,
+                "eval_count": 2,
+                "done_reason": "stop",
+            },
+        ],
+    )
+    provider = get_llm_provider(llm_provider="ollama", llm_model="qwen3:32b")
+
+    provider.run_structured_prompt(
+        system_prompt="system",
+        user_prompt="user",
+        response_model=LLMExtractedPhenotypes,
+        max_output_tokens=1000,
+    )
+
+    assert fake_http.requests[0]["json"]["options"]["num_predict"] == 1000
+    assert fake_http.requests[1]["json"]["options"]["num_predict"] == 1000
+
+
 def test_ollama_structured_prompt_does_not_retry_plain_text_refusal(
     monkeypatch,
 ) -> None:
