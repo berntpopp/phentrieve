@@ -1,6 +1,8 @@
 import json
 
 import pytest
+from google.protobuf.json_format import Parse
+from phenopackets import Phenopacket
 
 from phentrieve.phenopackets.export_models import (
     NormalizedPhenotypeExportRecord,
@@ -181,7 +183,7 @@ class TestPhenopacketUtils:
         assert "created" in meta
         # createdBy should now include version
         assert "phentrieve" in meta["createdBy"]
-        assert meta["phenopacketSchemaVersion"] == "2.0.2"
+        assert meta["phenopacketSchemaVersion"] == "2.0"
 
         # Check HPO resource
         resources = meta["resources"]
@@ -217,6 +219,43 @@ class TestPhenopacketUtils:
         # Find embedding reference
         refs_by_id = {ref["id"]: ref["description"] for ref in ext_refs}
         assert refs_by_id["phentrieve:embedding_model"] == "BAAI/bge-m3"
+
+    def test_phenopacket_export_uses_verified_v2_schema_string(self):
+        phenopacket_json = format_as_phenopacket_v2(
+            aggregated_results=[
+                {"id": "HP:0001250", "name": "Seizure", "confidence": 0.9, "rank": 1}
+            ]
+        )
+        phenopacket = json.loads(phenopacket_json)
+
+        assert phenopacket["metaData"]["phenopacketSchemaVersion"] == "2.0"
+
+    def test_phenopacket_export_round_trips_through_protobuf_parser(self):
+        phenopacket_json = format_as_phenopacket_v2(
+            aggregated_results=[
+                {"id": "HP:0001250", "name": "Seizure", "confidence": 0.9, "rank": 1}
+            ]
+        )
+
+        packet = Phenopacket()
+        Parse(phenopacket_json, packet, ignore_unknown_fields=False)
+
+        assert packet.id
+
+    def test_negated_assertion_maps_to_excluded_true(self):
+        phenopacket_json = format_as_phenopacket_v2(
+            aggregated_results=[
+                {
+                    "hpo_id": "HP:0001324",
+                    "term_name": "Muscle weakness",
+                    "assertion": "negated",
+                    "score": 0.8,
+                }
+            ]
+        )
+        phenopacket = json.loads(phenopacket_json)
+
+        assert phenopacket["phenotypicFeatures"][0]["excluded"] is True
 
 
 class TestNormalizedExportModels:

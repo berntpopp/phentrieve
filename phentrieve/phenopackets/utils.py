@@ -24,6 +24,7 @@ logger = logging.getLogger(__name__)
 
 # Maximum length for input text in metadata (prevent excessive payload size)
 _MAX_INPUT_TEXT_LENGTH = 1000
+VERIFIED_PHENOPACKET_SCHEMA_VERSION = "2.0"
 
 
 def _get_hpo_version_from_db(db_path: Path | str | None = None) -> str:
@@ -315,8 +316,10 @@ def _format_from_aggregated_results(
             reference=external_reference,
         )
 
+        excluded = result.assertion == "negated"
         phenotypic_feature = PhenotypicFeature(
             type=feature_type,
+            excluded=excluded,
             evidence=[evidence],
         )
         phenotypic_features.append(phenotypic_feature)
@@ -412,7 +415,7 @@ def _create_phenopacket_json(
                 iri_prefix="http://purl.obolibrary.org/obo/HP_",
             )
         ],
-        phenopacket_schema_version="2.0.2",
+        phenopacket_schema_version=VERIFIED_PHENOPACKET_SCHEMA_VERSION,
     )
 
     # Create Phenopacket
