@@ -24,10 +24,17 @@ LLM_ASSERTION_TO_BENCHMARK: dict[str, str] = {
     "uncertain": "UNCERTAIN",
 }
 
-PHENOBERT_DATASETS: tuple[str, ...] = ("GSC_plus", "ID_68", "GeneReviews")
+PHENOBERT_DATASETS: tuple[str, ...] = (
+    "GSC_plus",
+    "ID_68",
+    "GeneReviews",
+    "CSC",
+    "GSC",
+)
 DEFAULT_PHENOBERT_DATASET = "all"
 DEFAULT_SIMPLE_ASSERTION = "PRESENT"
 BENCHMARK_TEXT_KEYS: tuple[str, ...] = ("text", "input_text")
+RAG_HPO_PAPER_DATASETS: tuple[str, ...] = ("CSC", "GSC")
 
 
 def load_benchmark_data(
@@ -87,8 +94,8 @@ def load_phenobert_data(
 
     return {
         "metadata": {
-            "dataset_name": f"phenobert_{dataset}",
-            "source": "phenobert",
+            "dataset_name": _directory_dataset_name(dataset),
+            "source": _directory_dataset_source(dataset),
             "total_documents": len(documents),
             "total_annotations": total_annotations,
         },
@@ -210,3 +217,14 @@ def _get_case_text(case: dict[str, Any]) -> str:
         if isinstance(value, str) and value.strip():
             return value
     raise ValueError("Each benchmark case must provide non-empty text.")
+
+
+def _directory_dataset_source(dataset: str) -> str:
+    if dataset in RAG_HPO_PAPER_DATASETS:
+        return "rag_hpo_paper"
+    return "phenobert"
+
+
+def _directory_dataset_name(dataset: str) -> str:
+    source = _directory_dataset_source(dataset)
+    return f"{source}_{dataset}"

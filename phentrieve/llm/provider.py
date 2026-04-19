@@ -1630,6 +1630,8 @@ class ToolExecutor:
                                 "hpo_id": result.get("hpo_id", ""),
                                 "term_name": result.get("label", ""),
                                 "score": float(result.get("similarity", 0.0)),
+                                "matched_text": result.get("matched_text"),
+                                "matched_component": result.get("matched_component"),
                             }
                             for result in multi_vector_results
                         ],

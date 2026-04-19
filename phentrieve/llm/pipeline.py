@@ -225,6 +225,13 @@ def _clean_text(text: str) -> str:
     return " ".join(text.split())
 
 
+def _candidate_match_text(candidate: dict[str, Any]) -> str:
+    matched_text = str(candidate.get("matched_text", "") or "").strip()
+    if matched_text:
+        return matched_text
+    return str(candidate.get("term_name", "") or "")
+
+
 def _normalize_mapping_phrase_key(text: str) -> str:
     return " ".join(str(text or "").lower().replace("-", " ").split())
 
@@ -321,15 +328,19 @@ def _compact_mapping_item(
         "neighbor_chunk_texts": neighbor_texts,
         "phrase": str(item["phrase"]).lower().replace("-", " ").strip(),
         "category": item["category"],
-        "candidates": [
-            {
-                "id": candidate["hpo_id"],
-                "term": candidate["term_name"],
-                "retrieval_score": candidate.get("score"),
-            }
-            for candidate in item["candidates"]
-        ],
+        "candidates": [],
     }
+    for candidate in item["candidates"]:
+        compact_candidate = {
+            "id": candidate["hpo_id"],
+            "term": candidate["term_name"],
+            "retrieval_score": candidate.get("score"),
+        }
+        if candidate.get("matched_text"):
+            compact_candidate["matched_text"] = candidate.get("matched_text")
+        if candidate.get("matched_component"):
+            compact_candidate["matched_component"] = candidate.get("matched_component")
+        compact_item["candidates"].append(compact_candidate)
     if item_id is not None:
         compact_item["item_id"] = item_id
     return compact_item
@@ -695,6 +706,8 @@ class TwoPhaseLLMPipeline:
                                 "term_id": str(candidate.get("hpo_id", "")),
                                 "label": str(candidate.get("term_name", "")),
                                 "score": float(candidate.get("score", 0.0) or 0.0),
+                                "matched_text": candidate.get("matched_text"),
+                                "matched_component": candidate.get("matched_component"),
                             }
                             for candidate in item.get("candidates", [])
                         ],
@@ -1707,9 +1720,9 @@ class TwoPhaseLLMPipeline:
 
         normalized_language = (language or "").strip().lower()
         phrase_clean = _clean_text(str(item["phrase"]))
-        term_clean = _clean_text(str(local_match["term_name"]))
+        term_clean = _clean_text(_candidate_match_text(local_match))
         phrase_tokens = _tokenize(str(item["phrase"]))
-        term_tokens = _tokenize(str(local_match["term_name"]))
+        term_tokens = _tokenize(_candidate_match_text(local_match))
         match_score = float(local_match.get("score", 0.0) or 0.0)
 
         if normalized_language == "en":
@@ -1743,19 +1756,19 @@ class TwoPhaseLLMPipeline:
         phrase_tokens = _tokenize(phrase)
 
         for candidate in candidates:
-            label_tokens = _tokenize(candidate["term_name"])
-            if phrase_tokens and label_tokens and phrase_tokens == label_tokens:
+            match_tokens = _tokenize(_candidate_match_text(candidate))
+            if phrase_tokens and match_tokens and phrase_tokens == match_tokens:
                 return candidate
 
         for candidate in candidates:
-            if _clean_text(candidate["term_name"]) == phrase_clean:
+            if _clean_text(_candidate_match_text(candidate)) == phrase_clean:
                 return candidate
 
         if len(phrase_tokens) > 1:
             for candidate in candidates:
-                label_clean = _clean_text(candidate["term_name"])
-                if label_clean and re.search(
-                    rf"\b{re.escape(label_clean)}\b", phrase_clean
+                match_clean = _clean_text(_candidate_match_text(candidate))
+                if match_clean and re.search(
+                    rf"\b{re.escape(match_clean)}\b", phrase_clean
                 ):
                     return candidate
 
@@ -1763,7 +1776,7 @@ class TwoPhaseLLMPipeline:
         best_score = 0.0
         for candidate in candidates:
             score = token_sort_similarity(
-                phrase_clean, _clean_text(candidate["term_name"])
+                phrase_clean, _clean_text(_candidate_match_text(candidate))
             )
             if score >= self.local_match_threshold and score > best_score:
                 best_candidate = candidate

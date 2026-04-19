@@ -54,7 +54,25 @@ DATASET_ASSERTION_PROJECTION: dict[str, dict[str, str | None]] = {
         "absent": None,
         "family_history": None,
         "other": None,
-    }
+    },
+    "CSC": {
+        "present": "PRESENT",
+        "affirmed": "PRESENT",
+        "uncertain": None,
+        "negated": None,
+        "absent": None,
+        "family_history": None,
+        "other": None,
+    },
+    "GSC": {
+        "present": "PRESENT",
+        "affirmed": "PRESENT",
+        "uncertain": None,
+        "negated": None,
+        "absent": None,
+        "family_history": None,
+        "other": None,
+    },
 }
 
 

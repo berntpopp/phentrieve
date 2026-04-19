@@ -1296,6 +1296,96 @@ def test_run_llm_benchmark_includes_trace_with_projected_scoring(monkeypatch):
     ]
 
 
+def test_run_llm_benchmark_projects_csc_to_present_only(monkeypatch):
+    def fake_load_benchmark_data(test_path: Path, dataset: str):
+        assert dataset == "CSC"
+        return {
+            "metadata": {
+                "dataset_name": "rag_hpo_paper_CSC",
+                "source": "rag_hpo_paper",
+                "total_documents": 1,
+                "total_annotations": 1,
+            },
+            "documents": [
+                {
+                    "id": "CSC_1",
+                    "text": "Clinical text",
+                    "gold_hpo_terms": [{"id": "HP:0001250", "assertion": "PRESENT"}],
+                    "source_dataset": "CSC",
+                }
+            ],
+        }
+
+    class _FakePipeline:
+        def __init__(self, provider):
+            self.provider = provider
+
+        def warmup(self, *, language: str) -> None:
+            return None
+
+        def run(self, *, text, grounded_chunks, config):
+            from phentrieve.llm.types import LLMExtractionResult, LLMMeta, LLMPhenotype
+
+            return LLMExtractionResult(
+                terms=[
+                    LLMPhenotype(
+                        term_id="HP:0001250",
+                        label="Seizure",
+                        evidence="seizures",
+                        assertion="present",
+                        category="abnormal",
+                    ),
+                    LLMPhenotype(
+                        term_id="HP:0001249",
+                        label="Intellectual disability",
+                        evidence="normal intelligence",
+                        assertion="negated",
+                        category="normal",
+                    ),
+                    LLMPhenotype(
+                        term_id="HP:0000365",
+                        label="Hearing impairment",
+                        evidence="mother has hearing loss",
+                        assertion="family_history",
+                        category="family_history",
+                    ),
+                    LLMPhenotype(
+                        term_id="HP:0000639",
+                        label="Nystagmus",
+                        evidence="possible nystagmus",
+                        assertion="uncertain",
+                        category="suspected",
+                    ),
+                ],
+                meta=LLMMeta(llm_model=config.model, llm_mode=config.mode),
+            )
+
+    monkeypatch.setattr(llm_benchmark, "load_benchmark_data", fake_load_benchmark_data)
+    monkeypatch.setattr(llm_benchmark, "get_llm_provider", lambda llm_model: object())
+    monkeypatch.setattr(llm_benchmark, "TwoPhaseLLMPipeline", _FakePipeline)
+
+    result = llm_benchmark.run_llm_benchmark(
+        test_file="tests/data/en/phenobert",
+        llm_model="gemini-2.5-flash",
+        dataset="CSC",
+    )
+
+    assert result["results"][0]["predicted_hpo_ids"] == ["HP:0001250"]
+    assert result["results"][0]["predicted_terms"] == [
+        {
+            "term_id": "HP:0001250",
+            "label": "Seizure",
+            "assertion": "PRESENT",
+            "evidence": "seizures",
+            "category": "abnormal",
+        }
+    ]
+    assert (
+        result["prediction_records"][0]["trace"]["projection"]["assertion_projection"]
+        == llm_benchmark.DATASET_ASSERTION_PROJECTION["CSC"]
+    )
+
+
 def test_run_llm_benchmark_records_failed_documents(monkeypatch):
     def fake_load_benchmark_data(test_path: Path, dataset: str):
         return {

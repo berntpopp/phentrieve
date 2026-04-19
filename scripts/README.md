@@ -81,6 +81,127 @@ tests/data/en/phenobert/         # Test data organized by language
 
 ---
 
+### `convert_raghpo_paper_data.py`
+
+Convert the released RAG-HPO paper benchmark artifacts into the same
+per-document JSON fixture shape already used by the converted PhenoBERT
+datasets in this repository.
+
+This is intended for the released files from:
+
+- `Test_Cases.csv`
+- `RAG-HPO Tests and Data Analysis copy.xlsx`
+
+The converter currently extracts the paper's two benchmark datasets:
+
+- `CSC`
+- `GSC`
+
+**Prerequisites:**
+1. Download the released benchmark files from the RAG-HPO repository:
+   - <https://github.com/PoseyPod/RAG-HPO>
+2. Ensure Phentrieve is installed:
+   ```bash
+   make install  # or: uv sync
+   ```
+3. Prepare HPO data (if not already done):
+   ```bash
+   phentrieve data prepare
+   ```
+
+**Usage:**
+
+```bash
+# Convert both released benchmark datasets
+python scripts/convert_raghpo_paper_data.py \
+    --workbook path/to/'RAG-HPO Tests and Data Analysis copy.xlsx' \
+    --test-cases-csv path/to/Test_Cases.csv \
+    --hpo-terms data/hpo_core_data/hpo_terms.tsv \
+    --output tests/data/en/raghpo_paper
+
+# Convert only the CSC subset
+python scripts/convert_raghpo_paper_data.py \
+    --workbook path/to/'RAG-HPO Tests and Data Analysis copy.xlsx' \
+    --test-cases-csv path/to/Test_Cases.csv \
+    --hpo-terms data/hpo_core_data/hpo_terms.tsv \
+    --output tests/data/en/raghpo_paper \
+    --dataset CSC
+
+# Convert CSC and normalize obsolete HPO IDs to current replacements
+python scripts/convert_raghpo_paper_data.py \
+    --workbook path/to/'RAG-HPO Tests and Data Analysis copy.xlsx' \
+    --test-cases-csv path/to/Test_Cases.csv \
+    --hpo-terms data/hpo_core_data/hpo_terms.tsv \
+    --hpo-json data/hp.json \
+    --output tests/data/en/raghpo_paper \
+    --dataset CSC \
+    --normalize-obsolete-ids
+
+# Strict current-term mode: also drop obsolete IDs that still have no replacement
+python scripts/convert_raghpo_paper_data.py \
+    --workbook path/to/'RAG-HPO Tests and Data Analysis copy.xlsx' \
+    --test-cases-csv path/to/Test_Cases.csv \
+    --hpo-terms data/hpo_core_data/hpo_terms.tsv \
+    --hpo-json data/hp.json \
+    --output tests/data/en/raghpo_paper \
+    --dataset CSC \
+    --normalize-obsolete-ids \
+    --drop-obsolete-without-replacement
+```
+
+**Output Structure:**
+
+```
+tests/data/en/raghpo_paper/
+├── CSC/
+│   └── annotations/
+│       ├── CSC_1.json
+│       └── ...
+├── GSC/
+│   └── annotations/
+│       ├── GSC_1.json
+│       └── ...
+└── conversion_report.json
+```
+
+**Compatibility Notes:**
+
+- Output documents follow the same basic JSON contract as the converted
+  PhenoBERT fixtures:
+  - `doc_id`
+  - `language`
+  - `source`
+  - `full_text`
+  - `metadata`
+  - `annotations`
+- `evidence_spans` are derived by matching each released
+  `hpo_description` phrase back into the source note text.
+- If a released phrase cannot be found exactly in the note text, conversion
+  continues and that annotation receives an empty `evidence_spans` list.
+  These cases are recorded in `conversion_report.json`.
+- By default, released HPO IDs are preserved exactly as published. If
+  `--normalize-obsolete-ids` is enabled, obsolete IDs are replaced with their
+  current ontology terms using replacement mappings from the supplied
+  `--hpo-json` ontology export, and each normalization is recorded as a warning
+  in `conversion_report.json`.
+- If `--drop-obsolete-without-replacement` is also enabled, any obsolete term
+  that still cannot be mapped to a current HPO ID is omitted from the converted
+  annotations and recorded in `conversion_report.json`.
+
+**Options:**
+
+- `--workbook PATH` - Path to `RAG-HPO Tests and Data Analysis copy.xlsx` (required)
+- `--test-cases-csv PATH` - Path to `Test_Cases.csv` (required)
+- `--hpo-terms PATH` - Path to `data/hpo_core_data/hpo_terms.tsv` (required)
+- `--output PATH` - Output directory for converted files (required)
+- `--dataset {CSC,GSC,all}` - Dataset subset to convert (default: all)
+- `--normalize-obsolete-ids` - Replace obsolete released HPO IDs with current ontology replacements
+- `--hpo-json PATH` - Path to an HPO ontology JSON export such as `data/hp.json` (required with `--normalize-obsolete-ids`)
+- `--drop-obsolete-without-replacement` - When normalizing, drop obsolete IDs that still have no current replacement
+- `--log-level {DEBUG,INFO,WARNING,ERROR}` - Logging level (default: INFO)
+
+---
+
 ### `generate_chunking_variants.py`
 
 Generate ground-truth chunking variants for annotated documents using the Voronoi boundary algorithm. This creates chunks at multiple expansion levels for benchmarking Phentrieve's semantic chunking strategies.

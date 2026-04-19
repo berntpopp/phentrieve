@@ -324,6 +324,9 @@ def group_results_by_hpo_id(
                 "synonyms": [0.92, 0.78],
                 "definition": 0.65,
                 "label_text": "Seizure",
+                "matched_component": "synonym",
+                "matched_text": "Convulsions",
+                "matched_score": 0.92,
             }
         }
     """
@@ -349,6 +352,11 @@ def group_results_by_hpo_id(
         component = metadata.get("component", "unknown")
         score = scores_list[i] if i < len(scores_list) else 0.0
         label_text = metadata.get("label", "")
+        matched_text = label_text
+        if component == "synonym":
+            matched_text = metadata.get("synonym_text", label_text)
+        elif component == "definition":
+            matched_text = metadata.get("definition_text", label_text)
 
         if hpo_id not in grouped:
             grouped[hpo_id] = {
@@ -356,6 +364,9 @@ def group_results_by_hpo_id(
                 "synonyms": [],
                 "definition": None,
                 "label_text": label_text,
+                "matched_component": component,
+                "matched_text": matched_text,
+                "matched_score": score,
             }
 
         if component == "label":
@@ -368,6 +379,11 @@ def group_results_by_hpo_id(
         # Preserve label text
         if label_text and not grouped[hpo_id]["label_text"]:
             grouped[hpo_id]["label_text"] = label_text
+
+        if score >= grouped[hpo_id]["matched_score"]:
+            grouped[hpo_id]["matched_component"] = component
+            grouped[hpo_id]["matched_text"] = matched_text
+            grouped[hpo_id]["matched_score"] = score
 
     return grouped
 
@@ -430,6 +446,8 @@ def aggregate_multi_vector_results(
                         "synonyms": components["synonyms"],
                         "definition": components["definition"],
                     },
+                    "matched_component": components["matched_component"],
+                    "matched_text": components["matched_text"],
                 }
             )
 
