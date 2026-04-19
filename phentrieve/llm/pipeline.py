@@ -83,12 +83,20 @@ class LLMPipelinePhaseError(RuntimeError):
         self.request_count = int(request_count or 0)
         self.elapsed_seconds = elapsed_seconds
         self.groups_trace = list(groups_trace or [])
+        self.phase1_trace: dict[str, Any] = {}
+        self.phase_counts: dict[str, int] = {}
+        self.phase_request_counts: dict[str, int] = {}
+        self.initial_mode: Phase1Mode | None = None
+        self.final_mode: Phase1Mode | None = None
+        self.fallback_triggered = False
+        self.failure_class: Phase1FailureClass = None
 
 
 def _phase1_failure_message(exc: Exception) -> str:
     parts: list[str] = []
     current: BaseException | None = exc
     while current is not None:
+        parts.append(type(current).__name__.lower())
         message = str(current).strip().lower()
         if message:
             parts.append(message)
@@ -100,11 +108,56 @@ def _classify_phase1_failure(exc: Exception) -> Phase1FailureClass:
     message = _phase1_failure_message(exc)
     if "refusal" in message:
         return "structured_refusal"
-    if "timeout" in message or "deadline_exceeded" in message:
+    if "timeout" in message or "deadline_exceeded" in message or "timed out" in message:
         return "provider_timeout"
-    if "json" in message:
+    if (
+        "json" in message
+        or "unterminated" in message
+        or "no structured response payload" in message
+    ):
         return "structured_json_invalid"
-    return "structured_schema_validation_failed"
+    if (
+        "validationerror" in message
+        or "schema" in message
+        or "field required" in message
+        or "input should" in message
+        or "literal" in message
+        or "pydantic" in message
+    ):
+        return "structured_schema_validation_failed"
+    if (
+        "unauthorized" in message
+        or "forbidden" in message
+        or "authentication" in message
+        or "api key" in message
+        or "permission" in message
+        or "billing" in message
+        or "quota" in message
+        or "401" in message
+        or "403" in message
+    ):
+        return "provider_auth_error"
+    if (
+        "connection" in message
+        or "network" in message
+        or "transport" in message
+        or "dns" in message
+        or "ssl" in message
+        or "remoteprotocol" in message
+        or "readerror" in message
+        or "connecterror" in message
+    ):
+        return "provider_transport_error"
+    if (
+        "unsupported" in message
+        or "misconfig" in message
+        or "configuration" in message
+        or "invalid base_url" in message
+        or "model not found" in message
+        or "unknown provider" in message
+    ):
+        return "provider_config_error"
+    return "provider_execution_error"
 
 
 def _next_phase1_mode(current_mode: Phase1Mode) -> Phase1Mode | None:
@@ -113,6 +166,25 @@ def _next_phase1_mode(current_mode: Phase1Mode) -> Phase1Mode | None:
     if current_mode == "grouped_large":
         return "grouped_small"
     return None
+
+
+def _build_phase1_attempt_trace(
+    *,
+    mode: Phase1Mode,
+    status: str,
+    groups_trace: list[dict[str, Any]],
+    request_count: int,
+    elapsed_seconds: float,
+    failure_class: Phase1FailureClass = None,
+) -> dict[str, Any]:
+    return {
+        "mode": mode,
+        "status": status,
+        "request_count": request_count,
+        "elapsed_seconds": elapsed_seconds,
+        "failure_class": failure_class,
+        "groups": list(groups_trace),
+    }
 
 
 def _normalize_category(category: str) -> str:
@@ -371,53 +443,84 @@ class TwoPhaseLLMPipeline:
             extraction_groups=extraction_groups
         )
         phase1_final_mode = phase1_initial_mode
-        phase1_fallback_triggered = False
+        phase1_fallback_count = 0
         phase1_failure_class: Phase1FailureClass = None
-        try:
-            (
-                extracted,
-                phase1_usage,
-                phase1_request_count,
-                phase1_elapsed,
-                phase1_groups_trace,
-            ) = self._run_phase1_mode(
-                mode=phase1_initial_mode,
-                text=text,
-                grounded_chunks=grounded_chunks,
-                extraction_groups=extraction_groups,
-                extraction_prompt=extraction_prompt,
-            )
-        except LLMPipelinePhaseError as exc:
-            phase1_failure_class = _classify_phase1_failure(exc)
-            next_mode = _next_phase1_mode(phase1_initial_mode)
-            if self._should_fallback_phase1(
-                exc=exc,
-                grounded_chunks=grounded_chunks,
-                next_mode=next_mode,
-            ):
-                assert next_mode is not None
-                phase1_fallback_triggered = True
-                phase1_final_mode = next_mode
-                failed_phase1_usage = dict(exc.usage)
-                failed_phase1_request_count = exc.request_count
-                failed_phase1_elapsed = float(exc.elapsed_seconds or 0.0)
+        phase1_attempts_trace: list[dict[str, Any]] = []
+        phase1_usage = {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}
+        phase1_request_count = 0
+        phase1_elapsed = 0.0
+        phase1_groups_trace: list[dict[str, Any]] = []
+        current_phase1_mode = phase1_initial_mode
+
+        while True:
+            try:
                 (
                     extracted,
-                    phase1_usage,
-                    phase1_request_count,
-                    phase1_elapsed,
-                    phase1_groups_trace,
+                    attempt_phase1_usage,
+                    attempt_phase1_request_count,
+                    attempt_phase1_elapsed,
+                    attempt_phase1_groups_trace,
                 ) = self._run_phase1_mode(
-                    mode=phase1_final_mode,
+                    mode=current_phase1_mode,
                     text=text,
                     grounded_chunks=grounded_chunks,
                     extraction_groups=extraction_groups,
                     extraction_prompt=extraction_prompt,
                 )
-                phase1_usage = _sum_usage_dicts(failed_phase1_usage, phase1_usage)
-                phase1_request_count += failed_phase1_request_count
-                phase1_elapsed = round(failed_phase1_elapsed + phase1_elapsed, 6)
-            else:
+                phase1_usage = _sum_usage_dicts(phase1_usage, attempt_phase1_usage)
+                phase1_request_count += attempt_phase1_request_count
+                phase1_elapsed = round(phase1_elapsed + attempt_phase1_elapsed, 6)
+                phase1_final_mode = current_phase1_mode
+                phase1_groups_trace = attempt_phase1_groups_trace
+                phase1_attempts_trace.append(
+                    _build_phase1_attempt_trace(
+                        mode=current_phase1_mode,
+                        status="completed",
+                        groups_trace=attempt_phase1_groups_trace,
+                        request_count=attempt_phase1_request_count,
+                        elapsed_seconds=attempt_phase1_elapsed,
+                    )
+                )
+                break
+            except LLMPipelinePhaseError as exc:
+                failure_class = _classify_phase1_failure(exc)
+                phase1_failure_class = failure_class
+                phase1_usage = _sum_usage_dicts(phase1_usage, exc.usage)
+                phase1_request_count += exc.request_count
+                phase1_elapsed = round(
+                    phase1_elapsed + float(exc.elapsed_seconds or 0.0), 6
+                )
+                phase1_final_mode = current_phase1_mode
+                phase1_groups_trace = list(exc.groups_trace)
+                phase1_attempts_trace.append(
+                    _build_phase1_attempt_trace(
+                        mode=current_phase1_mode,
+                        status="failed",
+                        groups_trace=exc.groups_trace,
+                        request_count=exc.request_count,
+                        elapsed_seconds=float(exc.elapsed_seconds or 0.0),
+                        failure_class=failure_class,
+                    )
+                )
+                next_mode = _next_phase1_mode(current_phase1_mode)
+                if self._should_fallback_phase1(
+                    failure_class=failure_class,
+                    grounded_chunks=grounded_chunks,
+                    next_mode=next_mode,
+                ):
+                    assert next_mode is not None
+                    phase1_fallback_count += 1
+                    current_phase1_mode = next_mode
+                    continue
+                self._attach_phase1_failure_context(
+                    exc=exc,
+                    initial_mode=phase1_initial_mode,
+                    final_mode=current_phase1_mode,
+                    fallback_count=phase1_fallback_count,
+                    failure_class=failure_class,
+                    final_groups_trace=phase1_groups_trace,
+                    attempts_trace=phase1_attempts_trace,
+                )
                 raise
         if phase1_failure_class is None:
             phase1_failure_class = self._phase1_failure_class_from_groups(
@@ -460,7 +563,7 @@ class TwoPhaseLLMPipeline:
             "local_matches": 0,
             "llm_mapped_phrases": 0,
             "local_fallbacks": 0,
-            "phase1_fallbacks": int(phase1_fallback_triggered),
+            "phase1_fallbacks": phase1_fallback_count,
         }
         phase_request_counts: dict[str, int] = {
             "phase1_requests": phase1_request_count,
@@ -480,18 +583,24 @@ class TwoPhaseLLMPipeline:
                     for item in extracted
                 ],
                 "groups": phase1_groups_trace,
+                "attempts": phase1_attempts_trace,
                 "initial_mode": phase1_initial_mode,
                 "final_mode": phase1_final_mode,
-                "fallback_triggered": phase1_fallback_triggered,
+                "fallback_triggered": phase1_fallback_count > 0,
                 "failure_class": phase1_failure_class,
             }
         }
-        if extraction_groups:
+        all_phase1_groups = [
+            group
+            for attempt in phase1_attempts_trace
+            for group in attempt.get("groups", [])
+        ]
+        if all_phase1_groups:
             phase_counts["phase1_completed_groups"] = sum(
-                1 for group in phase1_groups_trace if group.get("status") == "completed"
+                1 for group in all_phase1_groups if group.get("status") == "completed"
             )
             phase_counts["phase1_failed_groups"] = sum(
-                1 for group in phase1_groups_trace if group.get("status") == "failed"
+                1 for group in all_phase1_groups if group.get("status") == "failed"
             )
             phase_counts["phase1_partial_failures"] = int(
                 phase_counts["phase1_failed_groups"] > 0
@@ -1014,7 +1123,7 @@ class TwoPhaseLLMPipeline:
     def _should_fallback_phase1(
         self,
         *,
-        exc: LLMPipelinePhaseError,
+        failure_class: Phase1FailureClass,
         grounded_chunks: list[dict[str, Any]],
         next_mode: Phase1Mode | None,
     ) -> bool:
@@ -1022,7 +1131,11 @@ class TwoPhaseLLMPipeline:
             return False
         if next_mode is None or not grounded_chunks:
             return False
-        return _classify_phase1_failure(exc) != "structured_refusal"
+        return failure_class in {
+            "provider_timeout",
+            "structured_json_invalid",
+            "structured_schema_validation_failed",
+        }
 
     def _build_large_extraction_groups(
         self,
@@ -1044,27 +1157,16 @@ class TwoPhaseLLMPipeline:
             for chunk in grounded_chunks
         ]
         try:
-            user_prompt = _render_phase1_user_prompt(
-                extraction_prompt=extraction_prompt,
-                text=text,
-                grounded_chunks=grounded_chunks,
-            )
-            token_counts = self.provider.count_tokens(
-                system_prompt=extraction_prompt.render_system_prompt(),
-                user_prompt=user_prompt,
-            )
-            max_prompt_tokens = int(
-                token_counts.get("total_tokens")
-                or token_counts.get("prompt_tokens")
-                or DEFAULT_PHASE1_LARGE_GROUP_MAX_PROMPT_TOKENS
-            )
             return [
                 asdict(group)
                 for group in build_extraction_groups(
                     grounded_chunks=grounded_chunk_models,
                     provider=self.provider,
                     system_prompt=extraction_prompt.render_system_prompt(),
-                    max_prompt_tokens=max(max_prompt_tokens, 1),
+                    max_prompt_tokens=max(
+                        int(DEFAULT_PHASE1_LARGE_GROUP_MAX_PROMPT_TOKENS),
+                        1,
+                    ),
                 )
             ]
         except (NotImplementedError, TypeError):
@@ -1114,6 +1216,51 @@ class TwoPhaseLLMPipeline:
             if isinstance(failure_class, str):
                 return cast(Phase1FailureClass, failure_class)
         return None
+
+    @staticmethod
+    def _attach_phase1_failure_context(
+        *,
+        exc: LLMPipelinePhaseError,
+        initial_mode: Phase1Mode,
+        final_mode: Phase1Mode,
+        fallback_count: int,
+        failure_class: Phase1FailureClass,
+        final_groups_trace: list[dict[str, Any]],
+        attempts_trace: list[dict[str, Any]],
+    ) -> None:
+        exc.initial_mode = initial_mode
+        exc.final_mode = final_mode
+        exc.fallback_triggered = fallback_count > 0
+        exc.failure_class = failure_class
+        exc.phase1_trace = {
+            "initial_mode": initial_mode,
+            "final_mode": final_mode,
+            "fallback_triggered": fallback_count > 0,
+            "failure_class": failure_class,
+            "groups": list(final_groups_trace),
+            "attempts": list(attempts_trace),
+        }
+        all_groups = [
+            group for attempt in attempts_trace for group in attempt.get("groups", [])
+        ]
+        exc.phase_counts = {
+            "phase1_fallbacks": fallback_count,
+            "phase1_completed_groups": sum(
+                1 for group in all_groups if group.get("status") == "completed"
+            ),
+            "phase1_failed_groups": sum(
+                1 for group in all_groups if group.get("status") == "failed"
+            ),
+        }
+        exc.phase_counts["phase1_partial_failures"] = int(
+            exc.phase_counts["phase1_completed_groups"] > 0
+            and exc.phase_counts["phase1_failed_groups"] > 0
+        )
+        exc.phase_request_counts = {
+            "phase1_requests": sum(
+                int(attempt.get("request_count", 0) or 0) for attempt in attempts_trace
+            )
+        }
 
     def _retrieve_candidates(
         self,

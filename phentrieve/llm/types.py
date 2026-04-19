@@ -42,6 +42,10 @@ Phase1FailureClass = (
         "provider_timeout",
         "structured_json_invalid",
         "structured_schema_validation_failed",
+        "provider_transport_error",
+        "provider_auth_error",
+        "provider_config_error",
+        "provider_execution_error",
     ]
     | None
 )

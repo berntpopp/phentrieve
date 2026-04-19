@@ -1,5 +1,6 @@
 import pytest
 
+import phentrieve.llm.pipeline as pipeline_module
 from phentrieve.llm.pipeline import TwoPhaseLLMPipeline
 from phentrieve.llm.provider import LLMProvider
 from phentrieve.llm.types import LLMExtractionResult, LLMPipelineConfig, LLMResponse
@@ -278,13 +279,34 @@ def test_grounded_llm_pipeline_grouped_path_preserves_german_provenance():
 
 
 @pytest.mark.integration
-def test_grounded_llm_pipeline_falls_back_to_grouped_small_and_preserves_provenance():
+def test_grounded_llm_pipeline_chains_fallback_to_grouped_small_and_preserves_provenance(
+    monkeypatch,
+):
+    monkeypatch.setattr(
+        pipeline_module,
+        "DEFAULT_PHASE1_LARGE_GROUP_MAX_PROMPT_TOKENS",
+        21,
+    )
+    monkeypatch.setattr(
+        pipeline_module,
+        "DEFAULT_PHASE1_SMALL_GROUP_MAX_CHUNKS",
+        1,
+    )
     provider = FakeProvider(
         responses=[
             {
                 "exception": RuntimeError("invalid json payload"),
                 "request_count": 1,
             },
+            {
+                "exception": RuntimeError("invalid json payload"),
+                "request_count": 1,
+            },
+            {
+                "exception": RuntimeError("invalid json payload"),
+                "request_count": 1,
+            },
+            {"parsed": {"phenotypes": []}, "request_count": 1},
             {
                 "parsed": {
                     "phenotypes": [
@@ -298,10 +320,7 @@ def test_grounded_llm_pipeline_falls_back_to_grouped_small_and_preserves_provena
                 },
                 "request_count": 1,
             },
-            {
-                "parsed": {"phenotypes": []},
-                "request_count": 1,
-            },
+            {"parsed": {"phenotypes": []}, "request_count": 1},
             {
                 "parsed": {
                     "phrase": "recurrent seizures",
@@ -351,30 +370,32 @@ def test_grounded_llm_pipeline_falls_back_to_grouped_small_and_preserves_provena
                 "end_char": 68,
             },
         ],
-        extraction_groups=[
-            {
-                "group_id": 11,
-                "chunk_ids": [1, 2, 3],
-                "text": (
-                    "chunk_id=1: Patient has recurrent\n"
-                    "chunk_id=2: seizures with loss of awareness.\n"
-                    "chunk_id=3: No headaches."
-                ),
-            }
-        ],
+        extraction_groups=[],
         config=LLMPipelineConfig(
             model="gemini-2.5-flash",
             mode="two_phase",
             language="en",
         ),
     )
-
-    assert result.meta.trace["phase1"]["initial_mode"] == "grouped_large"
+    assert result.meta.trace["phase1"]["initial_mode"] == "ungrouped"
     assert result.meta.trace["phase1"]["final_mode"] == "grouped_small"
     assert result.meta.trace["phase1"]["fallback_triggered"] is True
+    assert [attempt["mode"] for attempt in result.meta.trace["phase1"]["attempts"]] == [
+        "ungrouped",
+        "grouped_large",
+        "grouped_small",
+    ]
     phase1_groups = result.meta.trace["phase1"]["groups"]
-    assert [group["source_chunk_ids"] for group in phase1_groups] == [[1, 2], [2, 3]]
-    assert phase1_groups[0]["extracted"][0]["chunk_ids"] == [2]
+    assert [group["source_chunk_ids"] for group in phase1_groups] == [[1], [2], [3]]
+    assert result.meta.trace["phase1"]["attempts"][1]["groups"][0][
+        "source_chunk_ids"
+    ] == [
+        1,
+        2,
+    ]
+    assert result.meta.trace["phase1"]["attempts"][2]["groups"][1]["extracted"][0][
+        "chunk_ids"
+    ] == [2]
     assert result.meta.trace["phase1"]["extracted"][0]["chunk_ids"] == [2]
     grounded_context = result.meta.trace["phase2a"]["candidate_sets"][0][
         "grounded_context"

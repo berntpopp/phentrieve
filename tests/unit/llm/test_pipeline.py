@@ -6,6 +6,7 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
+import phentrieve.llm.pipeline as pipeline_module
 from phentrieve.llm.pipeline import LLMPipelinePhaseError, TwoPhaseLLMPipeline
 from phentrieve.llm.prompts.loader import (
     PromptTemplate,
@@ -1259,15 +1260,34 @@ def test_pipeline_fallback_from_ungrouped_to_grouped_large_records_initial_mode_
     assert result.meta.phase_request_counts["phase1_requests"] == 2
 
 
-def test_pipeline_fallback_from_grouped_large_to_grouped_small_records_final_mode() -> (
-    None
-):
+def test_pipeline_chains_phase1_fallback_from_ungrouped_to_grouped_large_to_grouped_small(
+    monkeypatch,
+) -> None:
+    monkeypatch.setattr(
+        pipeline_module,
+        "DEFAULT_PHASE1_LARGE_GROUP_MAX_PROMPT_TOKENS",
+        21,
+    )
+    monkeypatch.setattr(
+        pipeline_module,
+        "DEFAULT_PHASE1_SMALL_GROUP_MAX_CHUNKS",
+        1,
+    )
     provider = FakeProvider(
         responses=[
             {
                 "exception": RuntimeError("invalid json payload"),
                 "request_count": 1,
             },
+            {
+                "exception": RuntimeError("invalid json payload"),
+                "request_count": 1,
+            },
+            {
+                "exception": RuntimeError("invalid json payload"),
+                "request_count": 1,
+            },
+            {"parsed": {"phenotypes": []}, "request_count": 1},
             {
                 "parsed": {
                     "phenotypes": [
@@ -1276,10 +1296,7 @@ def test_pipeline_fallback_from_grouped_large_to_grouped_small_records_final_mod
                 },
                 "request_count": 1,
             },
-            {
-                "parsed": {"phenotypes": []},
-                "request_count": 1,
-            },
+            {"parsed": {"phenotypes": []}, "request_count": 1},
         ],
         provider_name="openai",
     )
@@ -1295,49 +1312,49 @@ def test_pipeline_fallback_from_grouped_large_to_grouped_small_records_final_mod
             {"chunk_id": 2, "text": "Seizures were noted in the middle sentence."},
             {"chunk_id": 3, "text": "Closing sentence."},
         ],
-        extraction_groups=[
-            {
-                "group_id": 11,
-                "chunk_ids": [1, 2, 3],
-                "text": (
-                    "chunk_id=1: Opening sentence.\n"
-                    "chunk_id=2: Seizures were noted in the middle sentence.\n"
-                    "chunk_id=3: Closing sentence."
-                ),
-            }
-        ],
+        extraction_groups=[],
         config=LLMPipelineConfig(
             provider="openai",
             model="gpt-5.4-mini",
             mode="two_phase",
         ),
     )
-
-    assert result.meta.trace["phase1"]["initial_mode"] == "grouped_large"
+    phase1_trace = result.meta.trace["phase1"]
+    assert phase1_trace["initial_mode"] == "ungrouped"
     assert result.meta.trace["phase1"]["final_mode"] == "grouped_small"
     assert result.meta.trace["phase1"]["fallback_triggered"] is True
     assert result.meta.trace["phase1"]["failure_class"] == "structured_json_invalid"
+    assert [attempt["mode"] for attempt in phase1_trace["attempts"]] == [
+        "ungrouped",
+        "grouped_large",
+        "grouped_small",
+    ]
+    assert phase1_trace["attempts"][0]["status"] == "failed"
+    assert phase1_trace["attempts"][1]["status"] == "failed"
+    assert phase1_trace["attempts"][2]["status"] == "completed"
+    assert [
+        group["source_chunk_ids"] for group in phase1_trace["attempts"][1]["groups"]
+    ] == [[1, 2], [2, 3]]
+    assert [
+        group["source_chunk_ids"] for group in phase1_trace["attempts"][2]["groups"]
+    ] == [
+        [1],
+        [2],
+        [3],
+    ]
     assert [
         group["source_chunk_ids"] for group in result.meta.trace["phase1"]["groups"]
-    ] == [
-        [1, 2],
-        [2, 3],
-    ]
-    assert result.meta.phase_counts["phase1_fallbacks"] == 1
-    assert result.meta.phase_request_counts["phase1_requests"] == 3
+    ] == [[1], [2], [3]]
+    assert result.meta.phase_counts["phase1_fallbacks"] == 2
+    assert result.meta.phase_counts["phase1_completed_groups"] == 3
+    assert result.meta.phase_counts["phase1_failed_groups"] == 2
+    assert result.meta.phase_counts["phase1_partial_failures"] == 1
+    assert result.meta.phase_request_counts["phase1_requests"] == 6
 
 
-def test_pipeline_records_terminal_phase1_failure_class_without_fallback() -> None:
+def test_pipeline_terminal_refusal_does_not_fallback() -> None:
     provider = FakeProvider(
         responses=[
-            {
-                "parsed": {
-                    "phenotypes": [
-                        grounded_phenotype("seizures", "Other", chunk_ids=[1])
-                    ]
-                },
-                "request_count": 1,
-            },
             {
                 "exception": RuntimeError("provider refusal"),
                 "request_count": 1,
@@ -1350,36 +1367,62 @@ def test_pipeline_records_terminal_phase1_failure_class_without_fallback() -> No
         tool_executor=FakeToolExecutor([]),
     )
 
-    result = pipeline.run(
-        text="Seizures were noted.",
-        grounded_chunks=[
-            {"chunk_id": 1, "text": "Seizures were noted."},
-            {"chunk_id": 2, "text": "No headaches were noted."},
-        ],
-        extraction_groups=[
+    with pytest.raises(LLMPipelinePhaseError) as exc_info:
+        pipeline.run(
+            text="Seizures were noted.",
+            grounded_chunks=[
+                {"chunk_id": 1, "text": "Seizures were noted."},
+            ],
+            extraction_groups=[],
+            config=LLMPipelineConfig(
+                provider="anthropic",
+                model="claude-sonnet-4-6",
+                mode="two_phase",
+            ),
+        )
+
+    exc = exc_info.value
+    assert exc.phase == "phase1"
+    assert exc.initial_mode == "ungrouped"
+    assert exc.final_mode == "ungrouped"
+    assert exc.failure_class == "structured_refusal"
+    assert exc.fallback_triggered is False
+    assert [attempt["mode"] for attempt in exc.phase1_trace["attempts"]] == [
+        "ungrouped"
+    ]
+    assert exc.phase1_trace["attempts"][0]["failure_class"] == "structured_refusal"
+
+
+def test_pipeline_does_not_fallback_for_non_regroupable_transport_error() -> None:
+    provider = FakeProvider(
+        responses=[
             {
-                "group_id": 1,
-                "chunk_ids": [1],
-                "text": "chunk_id=1: Seizures were noted.",
-            },
-            {
-                "group_id": 2,
-                "chunk_ids": [2],
-                "text": "chunk_id=2: No headaches were noted.",
+                "exception": RuntimeError("connection reset by peer"),
+                "request_count": 1,
             },
         ],
-        config=LLMPipelineConfig(
-            provider="anthropic",
-            model="claude-sonnet-4-6",
-            mode="two_phase",
-        ),
+        provider_name="openai",
+    )
+    pipeline = TwoPhaseLLMPipeline(
+        provider=provider,
+        tool_executor=FakeToolExecutor([]),
     )
 
-    assert result.meta.trace["phase1"]["initial_mode"] == "grouped_large"
-    assert result.meta.trace["phase1"]["final_mode"] == "grouped_large"
-    assert result.meta.trace["phase1"]["failure_class"] == "structured_refusal"
-    assert result.meta.trace["phase1"]["fallback_triggered"] is False
-    assert result.meta.phase_counts["phase1_fallbacks"] == 0
+    with pytest.raises(LLMPipelinePhaseError) as exc_info:
+        pipeline.run(
+            text="Seizures were noted.",
+            grounded_chunks=[{"chunk_id": 1, "text": "Seizures were noted."}],
+            extraction_groups=[],
+            config=LLMPipelineConfig(
+                provider="openai",
+                model="gpt-5.4-mini",
+                mode="two_phase",
+            ),
+        )
+
+    exc = exc_info.value
+    assert exc.failure_class == "provider_transport_error"
+    assert exc.fallback_triggered is False
 
 
 def test_two_phase_pipeline_grouped_phase1_keeps_stable_merge_order(mocker) -> None:
