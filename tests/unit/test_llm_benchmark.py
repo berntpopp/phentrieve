@@ -906,6 +906,64 @@ def test_run_llm_benchmark_passes_seed_to_provider(monkeypatch):
     assert captured["seed"] == 123
 
 
+def test_run_llm_benchmark_uses_filtered_kwargs_and_default_provider_name(
+    monkeypatch,
+):
+    def fake_load_benchmark_data(test_path: Path, dataset: str):
+        return {
+            "metadata": {"dataset_name": f"phenobert_{dataset}"},
+            "documents": [
+                {
+                    "id": "doc-1",
+                    "text": "Clinical text",
+                    "gold_hpo_terms": [],
+                    "source_dataset": "GeneReviews",
+                }
+            ],
+        }
+
+    class _FakeProvider:
+        model_name = "gemini-2.5-flash"
+        base_url = None
+
+    class _FakePipeline:
+        def __init__(self, provider):
+            self.provider = provider
+
+        def run(self, *, text, grounded_chunks, config):
+            from phentrieve.llm.types import LLMExtractionResult, LLMMeta
+
+            return LLMExtractionResult(
+                terms=[],
+                meta=LLMMeta(llm_model=config.model, llm_mode=config.mode),
+            )
+
+    def fake_get_llm_provider(*, llm_model: str):
+        assert llm_model == "gemini-2.5-flash"
+        return _FakeProvider()
+
+    def fail_if_called(_provider_factory):
+        raise AssertionError("_provider_factory_supports_seed should not be called")
+
+    monkeypatch.setattr(llm_benchmark, "load_benchmark_data", fake_load_benchmark_data)
+    monkeypatch.setattr(llm_benchmark, "get_llm_provider", fake_get_llm_provider)
+    monkeypatch.setattr(
+        llm_benchmark,
+        "_provider_factory_supports_seed",
+        fail_if_called,
+        raising=False,
+    )
+    monkeypatch.setattr(llm_benchmark, "TwoPhaseLLMPipeline", _FakePipeline)
+    monkeypatch.setattr(llm_benchmark, "DEFAULT_PROVIDER_NAME", "ollama")
+
+    result = llm_benchmark.run_llm_benchmark(
+        test_file="tests/data/en/phenobert",
+        llm_model="gemini-2.5-flash",
+    )
+
+    assert result["llm_provider"] == "ollama"
+
+
 def test_run_llm_benchmark_surfaces_phase2_routing_counts(monkeypatch):
     def fake_load_benchmark_data(test_path: Path, dataset: str):
         return {

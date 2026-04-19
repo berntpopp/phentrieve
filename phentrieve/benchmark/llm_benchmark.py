@@ -23,7 +23,7 @@ from phentrieve.evaluation.extraction_metrics import (
     CorpusExtractionMetrics,
     ExtractionResult,
 )
-from phentrieve.llm.config import DEFAULT_LLM_LANGUAGE
+from phentrieve.llm.config import DEFAULT_LLM_LANGUAGE, DEFAULT_PROVIDER_NAME
 from phentrieve.llm.pipeline import (
     LLMPipelinePhaseError,
     TwoPhaseLLMPipeline,
@@ -180,14 +180,6 @@ def _pipeline_run_supports_extraction_groups(pipeline: Any) -> bool:
     return "extraction_groups" in signature.parameters
 
 
-def _provider_factory_supports_seed(provider_factory: Any) -> bool:
-    try:
-        signature = inspect.signature(provider_factory)
-    except (TypeError, ValueError):
-        return False
-    return "seed" in signature.parameters
-
-
 def _build_provider_factory_kwargs(
     provider_factory: Any,
     **candidate_kwargs: Any,
@@ -289,14 +281,9 @@ def run_llm_benchmark(
         timeout_seconds=llm_timeout_seconds,
         seed=llm_seed,
     )
-    if "seed" in provider_factory_kwargs or not _provider_factory_supports_seed(
-        get_llm_provider
-    ):
-        provider = get_llm_provider(**provider_factory_kwargs)
-    else:
-        provider = get_llm_provider(llm_model=llm_model)
+    provider = get_llm_provider(**provider_factory_kwargs)
     resolved_provider_name = getattr(
-        provider, "provider_name", llm_provider or "gemini"
+        provider, "provider_name", llm_provider or DEFAULT_PROVIDER_NAME
     )
     resolved_model_name = getattr(provider, "model_name", llm_model)
     resolved_base_url = getattr(provider, "base_url", None)

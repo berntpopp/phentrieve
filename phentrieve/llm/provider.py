@@ -944,7 +944,7 @@ class AnthropicStructuredOutputProvider(LLMProvider):
         )
         if not self._api_key:
             raise RuntimeError(
-                "Anthropic API key not configured. Set PHENTRIEVE_ANTHROPIC_API_KEY "
+                "Anthropic API key not configured. Set PHENTRIEVE_ANTHROPIC_API_KEY, "
                 "ANTHROPIC_API_KEY, or CLAUDE_API_KEY."
             )
 
@@ -1828,14 +1828,22 @@ def get_llm_provider(
             model_name=request.model,
             api_key=request.api_key,
             seed=request.seed,
-            timeout_seconds=timeout_seconds or DEFAULT_PROVIDER_TIMEOUT_SECONDS,
+            timeout_seconds=(
+                DEFAULT_PROVIDER_TIMEOUT_SECONDS
+                if timeout_seconds is None
+                else timeout_seconds
+            ),
         )
     if request.provider == "ollama":
         return OllamaStructuredOutputProvider(
             model_name=request.model,
             base_url=request.base_url or DEFAULT_OLLAMA_BASE_URL,
             seed=request.seed,
-            timeout_seconds=timeout_seconds or DEFAULT_OLLAMA_TIMEOUT_SECONDS,
+            timeout_seconds=(
+                DEFAULT_OLLAMA_TIMEOUT_SECONDS
+                if timeout_seconds is None
+                else timeout_seconds
+            ),
         )
     if request.provider == "anthropic":
         return AnthropicStructuredOutputProvider(
@@ -1843,7 +1851,11 @@ def get_llm_provider(
             api_key=request.api_key,
             base_url=request.base_url,
             seed=request.seed,
-            timeout_seconds=timeout_seconds or DEFAULT_PROVIDER_TIMEOUT_SECONDS,
+            timeout_seconds=(
+                DEFAULT_PROVIDER_TIMEOUT_SECONDS
+                if timeout_seconds is None
+                else timeout_seconds
+            ),
         )
     if request.provider == "openai":
         return OpenAIStructuredOutputProvider(
@@ -1851,7 +1863,11 @@ def get_llm_provider(
             api_key=request.api_key,
             base_url=request.base_url,
             seed=request.seed,
-            timeout_seconds=timeout_seconds or DEFAULT_OPENAI_TIMEOUT_SECONDS,
+            timeout_seconds=(
+                DEFAULT_OPENAI_TIMEOUT_SECONDS
+                if timeout_seconds is None
+                else timeout_seconds
+            ),
         )
 
     raise ValueError(f"Provider {request.provider!r} is not implemented in phase one.")

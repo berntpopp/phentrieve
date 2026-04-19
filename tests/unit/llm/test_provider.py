@@ -296,6 +296,33 @@ def test_get_llm_provider_passes_timeout_override_to_ollama() -> None:
     assert provider.timeout_seconds == 900
 
 
+@pytest.mark.parametrize(
+    ("provider_name", "model_name", "env_var"),
+    [
+        ("gemini", "gemini-2.5-flash", "PHENTRIEVE_GEMINI_API_KEY"),
+        ("ollama", "qwen3.5:35b", None),
+        ("anthropic", "claude-sonnet-4-6", "PHENTRIEVE_ANTHROPIC_API_KEY"),
+        ("openai", "gpt-5.4-mini", "PHENTRIEVE_OPENAI_API_KEY"),
+    ],
+)
+def test_get_llm_provider_respects_zero_timeout_override(
+    monkeypatch,
+    provider_name: str,
+    model_name: str,
+    env_var: str | None,
+) -> None:
+    if env_var is not None:
+        monkeypatch.setenv(env_var, "test-key")
+
+    provider = get_llm_provider(
+        llm_provider=provider_name,
+        llm_model=model_name,
+        timeout_seconds=0,
+    )
+
+    assert provider.timeout_seconds == 0
+
+
 def test_ollama_structured_prompt_posts_native_chat_schema(mocker) -> None:
     provider = OllamaStructuredOutputProvider(
         model_name="qwen3.5:35b",
@@ -558,6 +585,17 @@ def test_gemini_provider_exposes_exact_token_count_source(monkeypatch) -> None:
 
 def test_get_llm_provider_requires_anthropic_api_key() -> None:
     with pytest.raises(RuntimeError, match="Anthropic API key not configured"):
+        get_llm_provider(
+            llm_provider="anthropic",
+            llm_model="claude-sonnet-4-6",
+        )
+
+
+def test_get_llm_provider_lists_anthropic_api_key_env_vars_clearly() -> None:
+    with pytest.raises(
+        RuntimeError,
+        match=("PHENTRIEVE_ANTHROPIC_API_KEY, ANTHROPIC_API_KEY, or CLAUDE_API_KEY"),
+    ):
         get_llm_provider(
             llm_provider="anthropic",
             llm_model="claude-sonnet-4-6",

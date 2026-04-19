@@ -9,6 +9,7 @@ from pydantic import BaseModel, Field
 from phentrieve.llm.config import (
     DEFAULT_LLM_LANGUAGE,
     DEFAULT_LLM_MODE,
+    DEFAULT_PROVIDER_NAME,
     DEFAULT_PROVIDER_TEMPERATURE,
 )
 
@@ -121,7 +122,7 @@ class LLMBatchMappingSelections(BaseModel):
 
 
 class LLMMeta(BaseModel):
-    llm_provider: str = "gemini"
+    llm_provider: str = DEFAULT_PROVIDER_NAME
     llm_model: str
     llm_mode: str
     prompt_version: str = "v1"
@@ -137,7 +138,7 @@ class LLMMeta(BaseModel):
 
 
 class LLMPipelineConfig(BaseModel):
-    provider: str = "gemini"
+    provider: str = DEFAULT_PROVIDER_NAME
     model: str
     base_url: str | None = None
     mode: str = DEFAULT_LLM_MODE
