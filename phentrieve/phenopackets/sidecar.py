@@ -32,7 +32,7 @@ def build_annotation_sidecar(
 
     for feature_index, record in enumerate(records):
         annotation: dict[str, Any] = {
-            "annotation_id": record.sidecar_linkage_key,
+            "annotation_id": f"ann-{feature_index + 1:04d}",
             "phenotypic_feature_index": feature_index,
             "hpo_id": record.hpo_id,
             "label": record.label,
@@ -53,6 +53,9 @@ def build_annotation_sidecar(
 
         if record.confidence is not None:
             annotation["confidence"] = record.confidence
+        certainty = getattr(record, "certainty", None)
+        if certainty is not None:
+            annotation["certainty"] = certainty
         if record.evidence_text is not None:
             annotation["evidence_text"] = record.evidence_text
         if record.source_mode is not None:

@@ -440,11 +440,44 @@ class TestNormalizedExportModels:
         )
 
         assert sidecar["phenopacket_id"] == "packet-1"
+        assert sidecar["annotations"][0]["annotation_id"] == "ann-0001"
         assert sidecar["annotations"][0]["phenotypic_feature_index"] == 0
+        assert sidecar["annotations"][0]["chunk_refs"] == []
+
+    def test_build_annotation_sidecar_uses_deterministic_annotation_sequence(
+        self,
+    ) -> None:
+        records = [
+            NormalizedPhenotypeExportRecord(
+                hpo_id="HP:0001250",
+                label="Seizure",
+                assertion="affirmed",
+            ),
+            NormalizedPhenotypeExportRecord(
+                hpo_id="HP:0001324",
+                label="Muscle weakness",
+                assertion="negated",
+            ),
+        ]
+
+        sidecar = build_annotation_sidecar(
+            phenopacket_id="packet-1",
+            records=records,
+            generated_by_version="0.16.0",
+        )
+
+        assert [item["annotation_id"] for item in sidecar["annotations"]] == [
+            "ann-0001",
+            "ann-0002",
+        ]
 
     def test_annotation_sidecar_validates_against_checked_in_schema(self) -> None:
         schema = load_annotation_sidecar_schema()
         assert schema["properties"]["schema_version"]["const"] == "1.0.0"
+        assert "certainty" in schema["properties"]["annotations"]["items"]["properties"]
+        assert (
+            "chunk_refs" not in schema["properties"]["annotations"]["items"]["required"]
+        )
 
         records = [
             NormalizedPhenotypeExportRecord(
@@ -458,5 +491,7 @@ class TestNormalizedExportModels:
             records=records,
             generated_by_version="0.16.0",
         )
+
+        sidecar["annotations"][0].pop("chunk_refs")
 
         validate_annotation_sidecar(sidecar)

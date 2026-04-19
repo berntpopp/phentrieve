@@ -43,7 +43,6 @@
           "label",
           "assertion",
           "spans",
-          "chunk_refs",
           "provenance"
         ],
         "properties": {
@@ -73,6 +72,9 @@
             "type": "number",
             "minimum": 0.0,
             "maximum": 1.0
+          },
+          "certainty": {
+            "type": "string"
           },
           "evidence_text": {
             "type": "string"
