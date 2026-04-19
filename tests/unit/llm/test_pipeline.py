@@ -35,6 +35,7 @@ class FakeProvider(LLMProvider):
         self.responses = list(responses)
         self.calls = []
         self.structured_calls = []
+        self.count_token_calls = []
         self.last_request_count = 0
         self.provider_name = provider_name
 
@@ -74,6 +75,8 @@ class FakeProvider(LLMProvider):
         )
         response = self.responses.pop(0)
         if "exception" in response:
+            self.last_usage = response.get("usage") or {}
+            self.last_request_count = response.get("request_count", 1)
             raise response["exception"]
         self.last_usage = response.get("usage") or {
             "prompt_tokens": 10,
@@ -83,6 +86,21 @@ class FakeProvider(LLMProvider):
         self.last_request_count = response.get("request_count", 1)
         payload = response.get("parsed", response)
         return response_model.model_validate(payload)
+
+    def count_tokens(self, *, system_prompt: str, user_prompt: str) -> dict[str, int]:
+        self.count_token_calls.append(
+            {
+                "system_prompt": system_prompt,
+                "user_prompt": user_prompt,
+            }
+        )
+        chunk_count = max(user_prompt.count("chunk_id="), 1)
+        prompt_tokens = chunk_count * 10
+        return {
+            "prompt_tokens": prompt_tokens,
+            "completion_tokens": 0,
+            "total_tokens": prompt_tokens,
+        }
 
 
 class FakeToolExecutor:
@@ -1195,6 +1213,173 @@ def test_grouped_phase1_zero_hit_success_does_not_raise() -> None:
     assert result.meta.phase_counts["phase1_completed_groups"] == 2
     assert result.meta.phase_counts["phase1_failed_groups"] == 0
     assert result.meta.phase_counts["phase1_partial_failures"] == 0
+
+
+def test_pipeline_fallback_from_ungrouped_to_grouped_large_records_initial_mode_and_final_mode() -> (
+    None
+):
+    provider = FakeProvider(
+        responses=[
+            {
+                "exception": RuntimeError("invalid json payload"),
+                "request_count": 1,
+            },
+            {
+                "parsed": {
+                    "phenotypes": [
+                        grounded_phenotype("seizures", "Other", chunk_ids=[1])
+                    ]
+                },
+                "request_count": 1,
+            },
+        ],
+        provider_name="openai",
+    )
+    pipeline = TwoPhaseLLMPipeline(
+        provider=provider,
+        tool_executor=FakeToolExecutor([]),
+    )
+
+    result = pipeline.run(
+        text="Seizures were noted.",
+        grounded_chunks=[{"chunk_id": 1, "text": "Seizures were noted."}],
+        extraction_groups=[],
+        config=LLMPipelineConfig(
+            provider="openai",
+            model="gpt-5.4-mini",
+            mode="two_phase",
+        ),
+    )
+
+    assert result.meta.trace["phase1"]["initial_mode"] == "ungrouped"
+    assert result.meta.trace["phase1"]["final_mode"] == "grouped_large"
+    assert result.meta.trace["phase1"]["fallback_triggered"] is True
+    assert result.meta.trace["phase1"]["failure_class"] == "structured_json_invalid"
+    assert result.meta.phase_counts["phase1_fallbacks"] == 1
+    assert result.meta.phase_request_counts["phase1_requests"] == 2
+
+
+def test_pipeline_fallback_from_grouped_large_to_grouped_small_records_final_mode() -> (
+    None
+):
+    provider = FakeProvider(
+        responses=[
+            {
+                "exception": RuntimeError("invalid json payload"),
+                "request_count": 1,
+            },
+            {
+                "parsed": {
+                    "phenotypes": [
+                        grounded_phenotype("seizures", "Other", chunk_ids=[2])
+                    ]
+                },
+                "request_count": 1,
+            },
+            {
+                "parsed": {"phenotypes": []},
+                "request_count": 1,
+            },
+        ],
+        provider_name="openai",
+    )
+    pipeline = TwoPhaseLLMPipeline(
+        provider=provider,
+        tool_executor=FakeToolExecutor([]),
+    )
+
+    result = pipeline.run(
+        text="Seizures were noted in the middle sentence.",
+        grounded_chunks=[
+            {"chunk_id": 1, "text": "Opening sentence."},
+            {"chunk_id": 2, "text": "Seizures were noted in the middle sentence."},
+            {"chunk_id": 3, "text": "Closing sentence."},
+        ],
+        extraction_groups=[
+            {
+                "group_id": 11,
+                "chunk_ids": [1, 2, 3],
+                "text": (
+                    "chunk_id=1: Opening sentence.\n"
+                    "chunk_id=2: Seizures were noted in the middle sentence.\n"
+                    "chunk_id=3: Closing sentence."
+                ),
+            }
+        ],
+        config=LLMPipelineConfig(
+            provider="openai",
+            model="gpt-5.4-mini",
+            mode="two_phase",
+        ),
+    )
+
+    assert result.meta.trace["phase1"]["initial_mode"] == "grouped_large"
+    assert result.meta.trace["phase1"]["final_mode"] == "grouped_small"
+    assert result.meta.trace["phase1"]["fallback_triggered"] is True
+    assert result.meta.trace["phase1"]["failure_class"] == "structured_json_invalid"
+    assert [
+        group["source_chunk_ids"] for group in result.meta.trace["phase1"]["groups"]
+    ] == [
+        [1, 2],
+        [2, 3],
+    ]
+    assert result.meta.phase_counts["phase1_fallbacks"] == 1
+    assert result.meta.phase_request_counts["phase1_requests"] == 3
+
+
+def test_pipeline_records_terminal_phase1_failure_class_without_fallback() -> None:
+    provider = FakeProvider(
+        responses=[
+            {
+                "parsed": {
+                    "phenotypes": [
+                        grounded_phenotype("seizures", "Other", chunk_ids=[1])
+                    ]
+                },
+                "request_count": 1,
+            },
+            {
+                "exception": RuntimeError("provider refusal"),
+                "request_count": 1,
+            },
+        ],
+        provider_name="anthropic",
+    )
+    pipeline = TwoPhaseLLMPipeline(
+        provider=provider,
+        tool_executor=FakeToolExecutor([]),
+    )
+
+    result = pipeline.run(
+        text="Seizures were noted.",
+        grounded_chunks=[
+            {"chunk_id": 1, "text": "Seizures were noted."},
+            {"chunk_id": 2, "text": "No headaches were noted."},
+        ],
+        extraction_groups=[
+            {
+                "group_id": 1,
+                "chunk_ids": [1],
+                "text": "chunk_id=1: Seizures were noted.",
+            },
+            {
+                "group_id": 2,
+                "chunk_ids": [2],
+                "text": "chunk_id=2: No headaches were noted.",
+            },
+        ],
+        config=LLMPipelineConfig(
+            provider="anthropic",
+            model="claude-sonnet-4-6",
+            mode="two_phase",
+        ),
+    )
+
+    assert result.meta.trace["phase1"]["initial_mode"] == "grouped_large"
+    assert result.meta.trace["phase1"]["final_mode"] == "grouped_large"
+    assert result.meta.trace["phase1"]["failure_class"] == "structured_refusal"
+    assert result.meta.trace["phase1"]["fallback_triggered"] is False
+    assert result.meta.phase_counts["phase1_fallbacks"] == 0
 
 
 def test_two_phase_pipeline_grouped_phase1_keeps_stable_merge_order(mocker) -> None:
@@ -2751,6 +2936,7 @@ def test_two_phase_pipeline_accumulates_usage_and_logs_phases(caplog):
         "local_matches": 0,
         "llm_mapped_phrases": 1,
         "local_fallbacks": 0,
+        "phase1_fallbacks": 0,
         "phase2b_local_accept_count": 0,
         "phase2b_deferred_count": 1,
         "phase2b_no_candidate_skip_count": 0,

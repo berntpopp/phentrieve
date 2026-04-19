@@ -5,7 +5,8 @@ import logging
 import re
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from typing import Any
+from dataclasses import asdict
+from typing import Any, cast
 
 from phentrieve.llm.config import (
     DEFAULT_GROUNDED_PHASE1_MAX_OUTPUT_TOKENS,
@@ -14,13 +15,17 @@ from phentrieve.llm.config import (
     DEFAULT_LOCAL_MATCH_THRESHOLD,
     DEFAULT_MAX_UNIQUE_CANDIDATES,
     DEFAULT_MIN_UNIQUE_CANDIDATES,
+    DEFAULT_PHASE1_FALLBACK_ENABLED,
+    DEFAULT_PHASE1_LARGE_GROUP_MAX_PROMPT_TOKENS,
     DEFAULT_PHASE1_MAX_OUTPUT_TOKENS,
+    DEFAULT_PHASE1_SMALL_GROUP_MAX_CHUNKS,
     DEFAULT_QUERY_RESULTS_PER_PHRASE,
     DEFAULT_SIMILARITY_THRESHOLD,
     NEGATED_ASSERTION,
     PRESENT_ASSERTION,
     UNCERTAIN_ASSERTION,
 )
+from phentrieve.llm.preprocessing import build_extraction_groups
 from phentrieve.llm.prompts.loader import (
     PromptTemplate,
     get_batch_mapping_prompt,
@@ -30,6 +35,7 @@ from phentrieve.llm.prompts.loader import (
 from phentrieve.llm.provider import ToolExecutor
 from phentrieve.llm.types import (
     AnnotationMode,
+    GroundedChunk,
     LLMBatchMappingSelections,
     LLMExtractedPhenotypes,
     LLMExtractionResult,
@@ -39,6 +45,8 @@ from phentrieve.llm.types import (
     LLMPhenotype,
     LLMPhenotypeEvidence,
     LLMPipelineConfig,
+    Phase1FailureClass,
+    Phase1Mode,
 )
 from phentrieve.llm.utils import token_sort_similarity
 
@@ -59,9 +67,52 @@ ACTIONABLE_CATEGORIES = frozenset({"abnormal", "normal", "suspected", "family_hi
 
 
 class LLMPipelinePhaseError(RuntimeError):
-    def __init__(self, phase: str, message: str) -> None:
+    def __init__(
+        self,
+        phase: str,
+        message: str,
+        *,
+        usage: dict[str, int] | None = None,
+        request_count: int = 0,
+        elapsed_seconds: float | None = None,
+        groups_trace: list[dict[str, Any]] | None = None,
+    ) -> None:
         super().__init__(message)
         self.phase = phase
+        self.usage = dict(usage or {})
+        self.request_count = int(request_count or 0)
+        self.elapsed_seconds = elapsed_seconds
+        self.groups_trace = list(groups_trace or [])
+
+
+def _phase1_failure_message(exc: Exception) -> str:
+    parts: list[str] = []
+    current: BaseException | None = exc
+    while current is not None:
+        message = str(current).strip().lower()
+        if message:
+            parts.append(message)
+        current = current.__cause__
+    return " ".join(parts)
+
+
+def _classify_phase1_failure(exc: Exception) -> Phase1FailureClass:
+    message = _phase1_failure_message(exc)
+    if "refusal" in message:
+        return "structured_refusal"
+    if "timeout" in message or "deadline_exceeded" in message:
+        return "provider_timeout"
+    if "json" in message:
+        return "structured_json_invalid"
+    return "structured_schema_validation_failed"
+
+
+def _next_phase1_mode(current_mode: Phase1Mode) -> Phase1Mode | None:
+    if current_mode == "ungrouped":
+        return "grouped_large"
+    if current_mode == "grouped_large":
+        return "grouped_small"
+    return None
 
 
 def _normalize_category(category: str) -> str:
@@ -316,30 +367,62 @@ class TwoPhaseLLMPipeline:
             language,
             len(text),
         )
-        if extraction_groups:
+        phase1_initial_mode = self._resolve_initial_phase1_mode(
+            extraction_groups=extraction_groups
+        )
+        phase1_final_mode = phase1_initial_mode
+        phase1_fallback_triggered = False
+        phase1_failure_class: Phase1FailureClass = None
+        try:
             (
                 extracted,
                 phase1_usage,
                 phase1_request_count,
                 phase1_elapsed,
                 phase1_groups_trace,
-            ) = self._extract_grouped_phase1_phenotypes(
+            ) = self._run_phase1_mode(
+                mode=phase1_initial_mode,
                 text=text,
                 grounded_chunks=grounded_chunks,
                 extraction_groups=extraction_groups,
                 extraction_prompt=extraction_prompt,
             )
-        else:
-            phase1_start = time.perf_counter()
-            extracted, phase1_usage, phase1_request_count = (
-                self._extract_phase1_phenotypes(
+        except LLMPipelinePhaseError as exc:
+            phase1_failure_class = _classify_phase1_failure(exc)
+            next_mode = _next_phase1_mode(phase1_initial_mode)
+            if self._should_fallback_phase1(
+                exc=exc,
+                grounded_chunks=grounded_chunks,
+                next_mode=next_mode,
+            ):
+                assert next_mode is not None
+                phase1_fallback_triggered = True
+                phase1_final_mode = next_mode
+                failed_phase1_usage = dict(exc.usage)
+                failed_phase1_request_count = exc.request_count
+                failed_phase1_elapsed = float(exc.elapsed_seconds or 0.0)
+                (
+                    extracted,
+                    phase1_usage,
+                    phase1_request_count,
+                    phase1_elapsed,
+                    phase1_groups_trace,
+                ) = self._run_phase1_mode(
+                    mode=phase1_final_mode,
                     text=text,
                     grounded_chunks=grounded_chunks,
+                    extraction_groups=extraction_groups,
                     extraction_prompt=extraction_prompt,
                 )
+                phase1_usage = _sum_usage_dicts(failed_phase1_usage, phase1_usage)
+                phase1_request_count += failed_phase1_request_count
+                phase1_elapsed = round(failed_phase1_elapsed + phase1_elapsed, 6)
+            else:
+                raise
+        if phase1_failure_class is None:
+            phase1_failure_class = self._phase1_failure_class_from_groups(
+                phase1_groups_trace
             )
-            phase1_elapsed = round(time.perf_counter() - phase1_start, 6)
-            phase1_groups_trace = []
         logger.debug(
             "Phase 1 complete: extracted=%d prompt_tokens=%s completion_tokens=%s",
             len(extracted),
@@ -377,6 +460,7 @@ class TwoPhaseLLMPipeline:
             "local_matches": 0,
             "llm_mapped_phrases": 0,
             "local_fallbacks": 0,
+            "phase1_fallbacks": int(phase1_fallback_triggered),
         }
         phase_request_counts: dict[str, int] = {
             "phase1_requests": phase1_request_count,
@@ -396,6 +480,10 @@ class TwoPhaseLLMPipeline:
                     for item in extracted
                 ],
                 "groups": phase1_groups_trace,
+                "initial_mode": phase1_initial_mode,
+                "final_mode": phase1_final_mode,
+                "fallback_triggered": phase1_fallback_triggered,
+                "failure_class": phase1_failure_class,
             }
         }
         if extraction_groups:
@@ -613,9 +701,14 @@ class TwoPhaseLLMPipeline:
                 response_model=response_model,
                 max_output_tokens=max_output_tokens,
             )
-        except Exception:
+        except Exception as exc:
             logger.exception("Phase 1 structured extraction failed")
-            raise LLMPipelinePhaseError("phase1", "Structured extraction failed")
+            raise LLMPipelinePhaseError(
+                "phase1",
+                "Structured extraction failed",
+                usage=dict(getattr(self.provider, "last_usage", {}) or {}),
+                request_count=int(getattr(self.provider, "last_request_count", 0) or 0),
+            ) from exc
 
         usage = dict(getattr(self.provider, "last_usage", {}) or {})
         request_count = int(getattr(self.provider, "last_request_count", 0) or 0)
@@ -702,14 +795,15 @@ class TwoPhaseLLMPipeline:
                             group_index,
                             group,
                             None,
-                            None,
-                            0,
-                            group_elapsed,
+                            exc.usage,
+                            exc.request_count,
+                            float(exc.elapsed_seconds or 0.0),
                             exc,
                         )
                     )
 
         indexed_results.sort(key=lambda item: item[0])
+        first_group_error: LLMPipelinePhaseError | None = None
 
         for (
             _group_index,
@@ -722,6 +816,15 @@ class TwoPhaseLLMPipeline:
         ) in indexed_results:
             group_chunk_ids = [int(chunk_id) for chunk_id in group.get("chunk_ids", [])]
             if group_error is not None:
+                if first_group_error is None:
+                    first_group_error = group_error
+                prompt_tokens_total += int(
+                    (group_usage_opt or {}).get("prompt_tokens", 0) or 0
+                )
+                completion_tokens_total += int(
+                    (group_usage_opt or {}).get("completion_tokens", 0) or 0
+                )
+                total_request_count += group_request_count
                 logger.warning(
                     "Continuing after grouped phase 1 failure: group_id=%s chunk_ids=%s error=%s",
                     group.get("group_id"),
@@ -736,6 +839,7 @@ class TwoPhaseLLMPipeline:
                         "status": "failed",
                         "error": str(group_error),
                         "error_type": type(group_error).__name__,
+                        "failure_class": _classify_phase1_failure(group_error),
                         "extracted_count": 0,
                         "extracted": [],
                         "elapsed_seconds": group_elapsed,
@@ -786,7 +890,15 @@ class TwoPhaseLLMPipeline:
             raise LLMPipelinePhaseError(
                 "phase1",
                 "Structured extraction failed for all extraction groups",
-            )
+                usage={
+                    "prompt_tokens": prompt_tokens_total,
+                    "completion_tokens": completion_tokens_total,
+                    "total_tokens": prompt_tokens_total + completion_tokens_total,
+                },
+                request_count=total_request_count,
+                elapsed_seconds=round(time.perf_counter() - phase1_started, 6),
+                groups_trace=phase1_groups_trace,
+            ) from first_group_error
 
         extracted = self._deduplicate_phase1_extractions(extracted)
 
@@ -819,23 +931,189 @@ class TwoPhaseLLMPipeline:
             if chunk_id in chunk_lookup
         ]
         group_started = time.perf_counter()
-        group_extracted, group_usage, group_request_count = (
-            self._extract_phase1_phenotypes(
-                text=text,
-                grounded_chunks=group_grounded_chunks,
-                chunk_index_text=_render_group_chunk_index_text(
-                    group=extraction_group,
+        try:
+            group_extracted, group_usage, group_request_count = (
+                self._extract_phase1_phenotypes(
+                    text=text,
                     grounded_chunks=group_grounded_chunks,
-                ),
-                extraction_prompt=extraction_prompt,
+                    chunk_index_text=_render_group_chunk_index_text(
+                        group=extraction_group,
+                        grounded_chunks=group_grounded_chunks,
+                    ),
+                    extraction_prompt=extraction_prompt,
+                )
             )
-        )
+        except LLMPipelinePhaseError as exc:
+            exc.elapsed_seconds = round(time.perf_counter() - group_started, 6)
+            raise
         return (
             group_extracted,
             group_usage,
             group_request_count,
             round(time.perf_counter() - group_started, 6),
         )
+
+    def _resolve_initial_phase1_mode(
+        self,
+        *,
+        extraction_groups: list[dict[str, Any]],
+    ) -> Phase1Mode:
+        return "grouped_large" if extraction_groups else "ungrouped"
+
+    def _run_phase1_mode(
+        self,
+        *,
+        mode: Phase1Mode,
+        text: str,
+        grounded_chunks: list[dict[str, Any]],
+        extraction_groups: list[dict[str, Any]],
+        extraction_prompt: PromptTemplate,
+    ) -> tuple[list[dict[str, Any]], dict[str, int], int, float, list[dict[str, Any]]]:
+        phase1_started = time.perf_counter()
+        try:
+            if mode == "ungrouped":
+                extracted, phase1_usage, phase1_request_count = (
+                    self._extract_phase1_phenotypes(
+                        text=text,
+                        grounded_chunks=grounded_chunks,
+                        extraction_prompt=extraction_prompt,
+                    )
+                )
+                return (
+                    extracted,
+                    phase1_usage,
+                    phase1_request_count,
+                    round(time.perf_counter() - phase1_started, 6),
+                    [],
+                )
+
+            active_extraction_groups = (
+                extraction_groups
+                if mode == "grouped_large" and extraction_groups
+                else self._build_large_extraction_groups(
+                    text=text,
+                    grounded_chunks=grounded_chunks,
+                    extraction_prompt=extraction_prompt,
+                )
+                if mode == "grouped_large"
+                else self._build_small_extraction_groups(
+                    grounded_chunks=grounded_chunks
+                )
+            )
+            return self._extract_grouped_phase1_phenotypes(
+                text=text,
+                grounded_chunks=grounded_chunks,
+                extraction_groups=active_extraction_groups,
+                extraction_prompt=extraction_prompt,
+            )
+        except LLMPipelinePhaseError as exc:
+            if exc.elapsed_seconds is None:
+                exc.elapsed_seconds = round(time.perf_counter() - phase1_started, 6)
+            raise
+
+    def _should_fallback_phase1(
+        self,
+        *,
+        exc: LLMPipelinePhaseError,
+        grounded_chunks: list[dict[str, Any]],
+        next_mode: Phase1Mode | None,
+    ) -> bool:
+        if not DEFAULT_PHASE1_FALLBACK_ENABLED:
+            return False
+        if next_mode is None or not grounded_chunks:
+            return False
+        return _classify_phase1_failure(exc) != "structured_refusal"
+
+    def _build_large_extraction_groups(
+        self,
+        *,
+        text: str,
+        grounded_chunks: list[dict[str, Any]],
+        extraction_prompt: PromptTemplate,
+    ) -> list[dict[str, Any]]:
+        if not grounded_chunks:
+            return []
+        grounded_chunk_models = [
+            GroundedChunk(
+                chunk_id=int(chunk["chunk_id"]),
+                text=str(chunk.get("text", "")),
+                start_char=chunk.get("start_char"),
+                end_char=chunk.get("end_char"),
+                status=str(chunk.get("status", "unknown")),
+            )
+            for chunk in grounded_chunks
+        ]
+        try:
+            user_prompt = _render_phase1_user_prompt(
+                extraction_prompt=extraction_prompt,
+                text=text,
+                grounded_chunks=grounded_chunks,
+            )
+            token_counts = self.provider.count_tokens(
+                system_prompt=extraction_prompt.render_system_prompt(),
+                user_prompt=user_prompt,
+            )
+            max_prompt_tokens = int(
+                token_counts.get("total_tokens")
+                or token_counts.get("prompt_tokens")
+                or DEFAULT_PHASE1_LARGE_GROUP_MAX_PROMPT_TOKENS
+            )
+            return [
+                asdict(group)
+                for group in build_extraction_groups(
+                    grounded_chunks=grounded_chunk_models,
+                    provider=self.provider,
+                    system_prompt=extraction_prompt.render_system_prompt(),
+                    max_prompt_tokens=max(max_prompt_tokens, 1),
+                )
+            ]
+        except (NotImplementedError, TypeError):
+            pass
+
+        return [
+            {
+                "group_id": 1,
+                "chunk_ids": [int(chunk["chunk_id"]) for chunk in grounded_chunks],
+                "text": self._render_chunk_index(grounded_chunks),
+                "estimated_prompt_tokens": 0,
+            }
+        ]
+
+    def _build_small_extraction_groups(
+        self,
+        *,
+        grounded_chunks: list[dict[str, Any]],
+    ) -> list[dict[str, Any]]:
+        if not grounded_chunks:
+            return []
+
+        max_chunks = max(int(DEFAULT_PHASE1_SMALL_GROUP_MAX_CHUNKS), 1)
+        groups: list[dict[str, Any]] = []
+        start_index = 0
+        while start_index < len(grounded_chunks):
+            group_chunks = grounded_chunks[start_index : start_index + max_chunks]
+            groups.append(
+                {
+                    "group_id": len(groups) + 1,
+                    "chunk_ids": [int(chunk["chunk_id"]) for chunk in group_chunks],
+                    "text": self._render_chunk_index(group_chunks),
+                    "estimated_prompt_tokens": 0,
+                }
+            )
+            if start_index + max_chunks >= len(grounded_chunks):
+                break
+            start_index += max_chunks - 1 if max_chunks > 1 else 1
+        return groups
+
+    @staticmethod
+    def _phase1_failure_class_from_groups(
+        phase1_groups_trace: list[dict[str, Any]],
+    ) -> Phase1FailureClass:
+        for group in phase1_groups_trace:
+            failure_class = group.get("failure_class")
+            if isinstance(failure_class, str):
+                return cast(Phase1FailureClass, failure_class)
+        return None
 
     def _retrieve_candidates(
         self,

@@ -35,6 +35,18 @@ class PostProcessingStep(StrEnum):
     COMBINED = "combined"
 
 
+Phase1Mode = Literal["ungrouped", "grouped_large", "grouped_small"]
+Phase1FailureClass = (
+    Literal[
+        "structured_refusal",
+        "provider_timeout",
+        "structured_json_invalid",
+        "structured_schema_validation_failed",
+    ]
+    | None
+)
+
+
 class LLMPhenotype(BaseModel):
     term_id: str
     label: str

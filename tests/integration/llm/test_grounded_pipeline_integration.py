@@ -12,6 +12,7 @@ class FakeProvider(LLMProvider):
         super().__init__()
         self.responses = list(responses)
         self.last_request_count = 0
+        self.count_token_calls = []
 
     def complete(self, messages) -> LLMResponse:
         raise AssertionError("unused in grounded integration tests")
@@ -25,6 +26,10 @@ class FakeProvider(LLMProvider):
         max_output_tokens=None,
     ):
         response = self.responses.pop(0)
+        if "exception" in response:
+            self.last_usage = response.get("usage") or {}
+            self.last_request_count = response.get("request_count", 1)
+            raise response["exception"]
         payload = response.get("parsed", response)
         self.last_usage = response.get("usage") or {
             "prompt_tokens": 10,
@@ -33,6 +38,21 @@ class FakeProvider(LLMProvider):
         }
         self.last_request_count = response.get("request_count", 1)
         return response_model.model_validate(payload)
+
+    def count_tokens(self, *, system_prompt: str, user_prompt: str) -> dict[str, int]:
+        self.count_token_calls.append(
+            {
+                "system_prompt": system_prompt,
+                "user_prompt": user_prompt,
+            }
+        )
+        chunk_count = max(user_prompt.count("chunk_id="), 1)
+        prompt_tokens = chunk_count * 10
+        return {
+            "prompt_tokens": prompt_tokens,
+            "completion_tokens": 0,
+            "total_tokens": prompt_tokens,
+        }
 
 
 class FakeToolExecutor:
@@ -254,4 +274,114 @@ def test_grounded_llm_pipeline_grouped_path_preserves_german_provenance():
     assert grounded_context["neighbor_chunk_texts"] == [
         "Die Patientin berichtet ueber",
         "Keine Kopfschmerzen.",
+    ]
+
+
+@pytest.mark.integration
+def test_grounded_llm_pipeline_falls_back_to_grouped_small_and_preserves_provenance():
+    provider = FakeProvider(
+        responses=[
+            {
+                "exception": RuntimeError("invalid json payload"),
+                "request_count": 1,
+            },
+            {
+                "parsed": {
+                    "phenotypes": [
+                        {
+                            "phrase": "recurrent seizures",
+                            "category": "Abnormal",
+                            "chunk_ids": [2],
+                            "evidence_text": "seizures with loss of awareness.",
+                        }
+                    ]
+                },
+                "request_count": 1,
+            },
+            {
+                "parsed": {"phenotypes": []},
+                "request_count": 1,
+            },
+            {
+                "parsed": {
+                    "phrase": "recurrent seizures",
+                    "hpo_id": "HP:0001250",
+                },
+                "request_count": 1,
+            },
+        ]
+    )
+    pipeline = TwoPhaseLLMPipeline(
+        provider=provider,
+        tool_executor=FakeToolExecutor(
+            [
+                {
+                    "phrase": "recurrent seizures",
+                    "candidates": [
+                        {
+                            "hpo_id": "HP:0001250",
+                            "term_name": "Recurrent seizures",
+                            "score": 0.97,
+                        }
+                    ],
+                }
+            ]
+        ),
+    )
+
+    result: LLMExtractionResult = pipeline.run(
+        text=("Patient has recurrent\nseizures with loss of awareness.\nNo headaches."),
+        grounded_chunks=[
+            {
+                "chunk_id": 1,
+                "text": "Patient has recurrent",
+                "start_char": 0,
+                "end_char": 21,
+            },
+            {
+                "chunk_id": 2,
+                "text": "seizures with loss of awareness.",
+                "start_char": 22,
+                "end_char": 54,
+            },
+            {
+                "chunk_id": 3,
+                "text": "No headaches.",
+                "start_char": 55,
+                "end_char": 68,
+            },
+        ],
+        extraction_groups=[
+            {
+                "group_id": 11,
+                "chunk_ids": [1, 2, 3],
+                "text": (
+                    "chunk_id=1: Patient has recurrent\n"
+                    "chunk_id=2: seizures with loss of awareness.\n"
+                    "chunk_id=3: No headaches."
+                ),
+            }
+        ],
+        config=LLMPipelineConfig(
+            model="gemini-2.5-flash",
+            mode="two_phase",
+            language="en",
+        ),
+    )
+
+    assert result.meta.trace["phase1"]["initial_mode"] == "grouped_large"
+    assert result.meta.trace["phase1"]["final_mode"] == "grouped_small"
+    assert result.meta.trace["phase1"]["fallback_triggered"] is True
+    phase1_groups = result.meta.trace["phase1"]["groups"]
+    assert [group["source_chunk_ids"] for group in phase1_groups] == [[1, 2], [2, 3]]
+    assert phase1_groups[0]["extracted"][0]["chunk_ids"] == [2]
+    assert result.meta.trace["phase1"]["extracted"][0]["chunk_ids"] == [2]
+    grounded_context = result.meta.trace["phase2a"]["candidate_sets"][0][
+        "grounded_context"
+    ]
+    assert grounded_context["chunk_ids"] == [2]
+    assert grounded_context["primary_chunk_text"] == "seizures with loss of awareness."
+    assert grounded_context["neighbor_chunk_texts"] == [
+        "Patient has recurrent",
+        "No headaches.",
     ]
