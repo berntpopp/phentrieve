@@ -18,6 +18,8 @@ from phenopackets import (
     Resource,
 )
 
+from phentrieve.phenopackets.export_models import NormalizedPhenotypeExportRecord
+
 logger = logging.getLogger(__name__)
 
 # Maximum length for input text in metadata (prevent excessive payload size)
@@ -285,24 +287,26 @@ def _format_from_aggregated_results(
     """
     phenopacket_id = f"phentrieve-phenopacket-{uuid.uuid4()}"
 
-    # Sort results by rank
     sorted_results = sorted(aggregated_results, key=lambda x: x.get("rank", 0))
+    normalized_results = _normalize_aggregated_results(sorted_results)
 
     phenotypic_features = []
-    for result in sorted_results:
-        confidence = result.get("confidence", 0.0)
-        rank = result.get("rank")
+    for index, (legacy_result, result) in enumerate(
+        zip(sorted_results, normalized_results, strict=True),
+        start=1,
+    ):
+        confidence = result.confidence or 0.0
+        rank = legacy_result.get("rank", index)
 
-        # Create OntologyClass for the feature type
-        feature_type = OntologyClass(id=result["id"], label=result["name"])
+        feature_type = OntologyClass(id=result.hpo_id, label=result.label)
 
-        # Create ExternalReference to store confidence and rank
         external_reference = ExternalReference(
             id="phentrieve",
-            description=f"Phentrieve retrieval confidence: {confidence:.4f}, Rank: {rank}",
+            description=(
+                f"Phentrieve retrieval confidence: {confidence:.4f}, Rank: {rank}"
+            ),
         )
 
-        # Create Evidence object with an evidence code and the external reference
         evidence = Evidence(
             evidence_code=OntologyClass(
                 id="ECO:0007636",
@@ -311,7 +315,6 @@ def _format_from_aggregated_results(
             reference=external_reference,
         )
 
-        # Create PhenotypicFeature
         phenotypic_feature = PhenotypicFeature(
             type=feature_type,
             evidence=[evidence],
@@ -327,6 +330,15 @@ def _format_from_aggregated_results(
         hpo_version=hpo_version,
         input_text=input_text,
     )
+
+
+def _normalize_aggregated_results(
+    aggregated_results: list[dict[str, Any]],
+) -> list[NormalizedPhenotypeExportRecord]:
+    return [
+        NormalizedPhenotypeExportRecord.from_legacy_dict(result)
+        for result in aggregated_results
+    ]
 
 
 def _create_phenopacket_json(

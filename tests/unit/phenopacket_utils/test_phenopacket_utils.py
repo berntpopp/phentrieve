@@ -6,7 +6,10 @@ from phentrieve.phenopackets.export_models import (
     NormalizedPhenotypeExportRecord,
     NormalizedSpan,
 )
-from phentrieve.phenopackets.utils import format_as_phenopacket_v2
+from phentrieve.phenopackets.utils import (
+    _normalize_aggregated_results,
+    format_as_phenopacket_v2,
+)
 
 pytestmark = pytest.mark.unit
 
@@ -329,3 +332,41 @@ class TestNormalizedExportModels:
         assert chunk_legacy.source_mode == "chunk"
         assert chunk_legacy.match_method == "legacy_dict"
         assert chunk_legacy.sidecar_linkage_key
+
+    def test_normalize_aggregated_results_accepts_legacy_id_name_confidence_keys(
+        self,
+    ):
+        records = _normalize_aggregated_results(
+            [
+                {
+                    "id": "HP:0001250",
+                    "name": "Seizure",
+                    "confidence": 0.9,
+                    "rank": 1,
+                }
+            ]
+        )
+
+        assert records[0].hpo_id == "HP:0001250"
+        assert records[0].label == "Seizure"
+        assert records[0].confidence == 0.9
+
+    def test_normalize_aggregated_results_accepts_llm_style_hpo_id_term_name_score_keys(
+        self,
+    ):
+        records = _normalize_aggregated_results(
+            [
+                {
+                    "hpo_id": "HP:0001250",
+                    "term_name": "Seizure",
+                    "score": 0.8,
+                    "assertion": "affirmed",
+                    "evidence_text": "recurrent seizures",
+                }
+            ]
+        )
+
+        assert records[0].hpo_id == "HP:0001250"
+        assert records[0].label == "Seizure"
+        assert records[0].assertion == "affirmed"
+        assert records[0].evidence_text == "recurrent seizures"
