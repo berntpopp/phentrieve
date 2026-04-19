@@ -459,6 +459,13 @@ def process_text_for_hpo_command(
             help="Output format for results (json_lines, rich_json_summary, csv_hpo_list, phenopacket_v2_json)",
         ),
     ] = "json_lines",
+    phenopacket_sidecar: Annotated[
+        bool,
+        typer.Option(
+            "--phenopacket-sidecar/--no-phenopacket-sidecar",
+            help="Emit an additional linked annotation sidecar when using phenopacket output.",
+        ),
+    ] = False,
     cross_language_hpo_retrieval: Annotated[
         bool,
         typer.Option(
@@ -709,6 +716,7 @@ def process_text_for_hpo_command(
         embedding_model=model_name,
         reranker_model=reranker_model if enable_reranker else None,
         input_text=raw_text,
+        phenopacket_sidecar=phenopacket_sidecar,
     )
 
     elapsed_time = time.time() - start_time
@@ -947,6 +955,7 @@ def _format_and_output_results(
     embedding_model: str | None = None,
     reranker_model: str | None = None,
     input_text: str | None = None,
+    phenopacket_sidecar: bool = False,
 ) -> None:
     """Format and output the HPO extraction results according to the specified format.
 
@@ -963,17 +972,20 @@ def _format_and_output_results(
         input_text: Original input text for phenopacket metadata
     """
     if output_format == "phenopacket_v2_json":
-        from phentrieve.phenopackets.utils import format_as_phenopacket_v2
+        from phentrieve.phenopackets.utils import export_phenopacket_bundle
 
         # chunk_level_results has chunk_idx, chunk_text, matches, start_char, end_char
-        phenopacket = format_as_phenopacket_v2(
+        bundle = export_phenopacket_bundle(
             chunk_results=chunk_level_results if chunk_level_results else None,
             aggregated_results=term_level_results if not chunk_level_results else None,
             embedding_model=embedding_model,
             reranker_model=reranker_model,
             input_text=input_text,
+            include_annotation_sidecar=phenopacket_sidecar,
         )
-        typer.echo(phenopacket)
+        typer.echo(bundle["phenopacket_json"])
+        if phenopacket_sidecar and bundle["annotation_sidecar"] is not None:
+            typer.echo(json.dumps(bundle["annotation_sidecar"], indent=2), err=True)
         return  # early exit
 
     typer.echo(f"Formatting results in {output_format} format...", err=True)
