@@ -8,6 +8,11 @@ from phentrieve.phenopackets.export_models import (
     NormalizedPhenotypeExportRecord,
     NormalizedSpan,
 )
+from phentrieve.phenopackets.sidecar import (
+    build_annotation_sidecar,
+    load_annotation_sidecar_schema,
+    validate_annotation_sidecar,
+)
 from phentrieve.phenopackets.utils import (
     _normalize_aggregated_results,
     format_as_phenopacket_v2,
@@ -409,3 +414,49 @@ class TestNormalizedExportModels:
         assert records[0].label == "Seizure"
         assert records[0].assertion == "affirmed"
         assert records[0].evidence_text == "recurrent seizures"
+
+    def test_build_annotation_sidecar_uses_feature_indexes(self) -> None:
+        records = [
+            NormalizedPhenotypeExportRecord(
+                hpo_id="HP:0001250",
+                label="Seizure",
+                assertion="affirmed",
+                confidence=0.91,
+                evidence_text="recurrent seizures",
+                spans=[
+                    NormalizedSpan(
+                        start_char=10,
+                        end_char=28,
+                        text="recurrent seizures",
+                    )
+                ],
+            )
+        ]
+
+        sidecar = build_annotation_sidecar(
+            phenopacket_id="packet-1",
+            records=records,
+            generated_by_version="0.16.0",
+        )
+
+        assert sidecar["phenopacket_id"] == "packet-1"
+        assert sidecar["annotations"][0]["phenotypic_feature_index"] == 0
+
+    def test_annotation_sidecar_validates_against_checked_in_schema(self) -> None:
+        schema = load_annotation_sidecar_schema()
+        assert schema["properties"]["schema_version"]["const"] == "1.0.0"
+
+        records = [
+            NormalizedPhenotypeExportRecord(
+                hpo_id="HP:0001250",
+                label="Seizure",
+                assertion="affirmed",
+            )
+        ]
+        sidecar = build_annotation_sidecar(
+            phenopacket_id="packet-1",
+            records=records,
+            generated_by_version="0.16.0",
+        )
+
+        validate_annotation_sidecar(sidecar)
