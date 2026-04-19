@@ -861,6 +861,11 @@ class OllamaStructuredOutputProvider(LLMProvider):
         jitter = _retry_rng.uniform(0.0, DEFAULT_PROVIDER_RETRY_JITTER_SECONDS)
         return min(bounded_delay + jitter, DEFAULT_PROVIDER_RETRY_MAX_BACKOFF_SECONDS)
 
+    def _should_disable_thinking(self) -> bool:
+        normalized_name = self.model_name.strip().lower()
+        base_name = normalized_name.split(":", 1)[0]
+        return base_name == "gemma4"
+
     def _post_structured_with_transient_retry(
         self,
         *,
@@ -889,6 +894,8 @@ class OllamaStructuredOutputProvider(LLMProvider):
             "format": response_schema,
             "options": options,
         }
+        if self._should_disable_thinking():
+            payload["think"] = False
         if self.seed is not None:
             options["seed"] = self.seed
 
@@ -904,10 +911,15 @@ class OllamaStructuredOutputProvider(LLMProvider):
         content = str(body.get("message", {}).get("content", "") or "")
         if not content.strip():
             raise RuntimeError("Ollama returned no structured response payload.")
-        first_non_whitespace = content.lstrip()[:1]
+        stripped_content = content.strip()
+        if stripped_content.startswith("```"):
+            fence_lines = stripped_content.splitlines()
+            if len(fence_lines) >= 3 and fence_lines[-1].strip() == "```":
+                stripped_content = "\n".join(fence_lines[1:-1]).strip()
+        first_non_whitespace = stripped_content.lstrip()[:1]
         if first_non_whitespace not in {"{", "["}:
             raise RuntimeError("Ollama returned non-JSON structured response payload.")
-        return response_model.model_validate_json(content)
+        return response_model.model_validate_json(stripped_content)
 
 
 class AnthropicStructuredOutputProvider(LLMProvider):

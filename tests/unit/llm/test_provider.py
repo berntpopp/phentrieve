@@ -374,6 +374,24 @@ def test_ollama_structured_prompt_includes_schema_in_prompt(mocker) -> None:
     assert '"phenotypes"' in prompt
 
 
+def test_ollama_structured_prompt_disables_thinking_for_gemma4(mocker) -> None:
+    provider = OllamaStructuredOutputProvider(
+        model_name="gemma4:31b",
+        base_url="http://localhost:11434",
+    )
+    post = mocker.patch("httpx.Client.post")
+    post.return_value = _fake_ollama_response(content='{"phenotypes": []}')
+
+    provider.run_structured_prompt(
+        system_prompt="system",
+        user_prompt="user",
+        response_model=LLMExtractedPhenotypes,
+    )
+
+    _, kwargs = post.call_args
+    assert kwargs["json"]["think"] is False
+
+
 def test_ollama_provider_sets_estimated_token_count_source_when_counting_missing() -> (
     None
 ):
@@ -412,6 +430,30 @@ def test_ollama_invalid_json_raises_validation_error(mocker) -> None:
             user_prompt="user",
             response_model=LLMExtractedPhenotypes,
         )
+
+
+def test_ollama_structured_prompt_accepts_markdown_fenced_json(mocker) -> None:
+    provider = OllamaStructuredOutputProvider(
+        model_name="gemma4:31b",
+        base_url="http://localhost:11434",
+    )
+    mocker.patch(
+        "httpx.Client.post",
+        return_value=_fake_ollama_response(
+            content='```json\n{"phenotypes": []}\n```',
+            prompt_eval_count=1,
+            eval_count=1,
+        ),
+    )
+
+    result = provider.run_structured_prompt(
+        system_prompt="system",
+        user_prompt="user",
+        response_model=LLMExtractedPhenotypes,
+    )
+
+    assert isinstance(result, LLMExtractedPhenotypes)
+    assert result.phenotypes == []
 
 
 def test_openai_retries_retryable_structured_payload_failure(monkeypatch) -> None:
