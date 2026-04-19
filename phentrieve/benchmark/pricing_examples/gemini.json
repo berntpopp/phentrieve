@@ -1,0 +1,7 @@
+{
+  "token_pricing": {
+    "input_cost_per_1m_tokens": 0.125,
+    "output_cost_per_1m_tokens": 0.75,
+    "cached_input_cost_per_1m_tokens": 0.0125
+  }
+}

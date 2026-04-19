@@ -16,14 +16,14 @@ pytestmark = pytest.mark.integration
 @pytest.fixture(scope="module")
 def small_model():
     """Small embedding model for testing (module-scoped)."""
-    return SentenceTransformer("paraphrase-MiniLM-L3-v2")
+    return SentenceTransformer("paraphrase-MiniLM-L3-v2", device="cpu")
 
 
 @pytest.fixture(scope="module")
 def biolord_model():
     """BioLORD model for clinical testing (module-scoped)."""
     logging.basicConfig(level=logging.ERROR)
-    return SentenceTransformer("FremyCompany/BioLORD-2023-M")
+    return SentenceTransformer("FremyCompany/BioLORD-2023-M", device="cpu")
 
 
 class TestSlidingWindowSplitter:

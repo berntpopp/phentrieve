@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 import pytest
+from pydantic import ValidationError
 
 from phentrieve.benchmark import llm_benchmark, llm_cli
 
@@ -192,6 +193,174 @@ def test_run_llm_benchmark_cli_sets_up_logging(tmp_path, mocker, monkeypatch):
     assert output_path.exists()
 
 
+def test_run_llm_benchmark_passes_provider_to_factory(monkeypatch) -> None:
+    captured: dict[str, object] = {}
+
+    def fake_load_benchmark_data(test_path: Path, dataset: str):
+        return {
+            "metadata": {"dataset_name": f"phenobert_{dataset}"},
+            "documents": [
+                {
+                    "id": "doc-1",
+                    "text": "Clinical text",
+                    "gold_hpo_terms": [],
+                    "source_dataset": "GeneReviews",
+                }
+            ],
+        }
+
+    class _FakeProvider:
+        provider_name = "ollama"
+        model_name = "qwen3.5:35b"
+        base_url = "http://localhost:11434"
+
+    class _FakePipeline:
+        def __init__(self, provider):
+            self.provider = provider
+
+        def run(self, *, text, grounded_chunks, config):
+            from phentrieve.llm.types import LLMExtractionResult, LLMMeta
+
+            return LLMExtractionResult(
+                terms=[],
+                meta=LLMMeta(
+                    llm_provider=config.provider,
+                    llm_model=config.model,
+                    llm_mode=config.mode,
+                ),
+            )
+
+    def fake_get_llm_provider(**kwargs):
+        captured.update(kwargs)
+        return _FakeProvider()
+
+    monkeypatch.setattr(llm_benchmark, "load_benchmark_data", fake_load_benchmark_data)
+    monkeypatch.setattr(llm_benchmark, "get_llm_provider", fake_get_llm_provider)
+    monkeypatch.setattr(llm_benchmark, "TwoPhaseLLMPipeline", _FakePipeline)
+
+    llm_benchmark.run_llm_benchmark(
+        test_file="tests/data/en/phenobert",
+        llm_provider="ollama",
+        llm_model="qwen3.5:35b",
+        llm_timeout_seconds=900,
+    )
+
+    assert captured["llm_provider"] == "ollama"
+    assert captured["timeout_seconds"] == 900
+
+
+def test_run_llm_benchmark_records_resolved_provider_base_url(monkeypatch) -> None:
+    def fake_load_benchmark_data(test_path: Path, dataset: str):
+        return {
+            "metadata": {"dataset_name": f"phenobert_{dataset}"},
+            "documents": [
+                {
+                    "id": "doc-1",
+                    "text": "Clinical text",
+                    "gold_hpo_terms": [],
+                    "source_dataset": "GeneReviews",
+                }
+            ],
+        }
+
+    class _FakeProvider:
+        provider_name = "ollama"
+        model_name = "qwen3.5:35b"
+        base_url = "http://localhost:11434"
+
+    class _FakePipeline:
+        def __init__(self, provider):
+            self.provider = provider
+
+        def run(self, *, text, grounded_chunks, config):
+            from phentrieve.llm.types import LLMExtractionResult, LLMMeta
+
+            return LLMExtractionResult(
+                terms=[],
+                meta=LLMMeta(
+                    llm_provider=config.provider,
+                    llm_model=config.model,
+                    llm_mode=config.mode,
+                ),
+            )
+
+    monkeypatch.setattr(llm_benchmark, "load_benchmark_data", fake_load_benchmark_data)
+    monkeypatch.setattr(
+        llm_benchmark, "get_llm_provider", lambda **kwargs: _FakeProvider()
+    )
+    monkeypatch.setattr(llm_benchmark, "TwoPhaseLLMPipeline", _FakePipeline)
+
+    result = llm_benchmark.run_llm_benchmark(
+        test_file="tests/data/en/phenobert",
+        llm_provider="ollama",
+        llm_model="qwen3.5:35b",
+    )
+
+    assert result["llm_base_url"] == "http://localhost:11434"
+
+
+def test_run_llm_benchmark_records_openai_provider_metadata(monkeypatch) -> None:
+    def fake_load_benchmark_data(test_path: Path, dataset: str):
+        return {
+            "metadata": {"dataset_name": f"phenobert_{dataset}"},
+            "documents": [
+                {
+                    "id": "doc-1",
+                    "text": "Clinical text",
+                    "gold_hpo_terms": [],
+                    "source_dataset": "GeneReviews",
+                }
+            ],
+        }
+
+    class _FakeProvider:
+        provider_name = "openai"
+        model_name = "gpt-5.4-mini"
+        base_url = "https://api.openai.com/v1"
+        token_count_source = "estimated"  # noqa: S105
+
+    class _FakePipeline:
+        def __init__(self, provider):
+            self.provider = provider
+
+        def run(self, *, text, grounded_chunks, config):
+            from phentrieve.llm.types import LLMExtractionResult, LLMMeta
+
+            return LLMExtractionResult(
+                terms=[],
+                meta=LLMMeta(
+                    llm_provider=config.provider,
+                    llm_model=config.model,
+                    llm_mode=config.mode,
+                    token_count_source="estimated",  # noqa: S106
+                ),
+            )
+
+    monkeypatch.setattr(llm_benchmark, "load_benchmark_data", fake_load_benchmark_data)
+    monkeypatch.setattr(
+        llm_benchmark, "get_llm_provider", lambda **kwargs: _FakeProvider()
+    )
+    monkeypatch.setattr(llm_benchmark, "TwoPhaseLLMPipeline", _FakePipeline)
+
+    result = llm_benchmark.run_llm_benchmark(
+        test_file="tests/data/en/phenobert",
+        llm_provider="openai",
+        llm_model="gpt-5.4-mini",
+    )
+
+    assert result["llm_provider"] == "openai"
+    assert result["llm_model"] == "gpt-5.4-mini"
+    assert result["llm_base_url"] == "https://api.openai.com/v1"
+    assert result["prediction_records"][0]["metadata"]["llm_provider"] == "openai"
+    assert result["prediction_records"][0]["metadata"]["model"] == "gpt-5.4-mini"
+    assert (
+        result["prediction_records"][0]["metadata"]["observability"][
+            "token_count_source"
+        ]
+        == "estimated"  # noqa: S105
+    )
+
+
 def test_run_llm_benchmark_returns_benchmark_grade_metadata(monkeypatch):
     captured: dict[str, object] = {}
 
@@ -318,9 +487,11 @@ def test_estimate_cost_uses_cached_and_thought_tokens() -> None:
             "thoughts_tokens": 30,
             "cached_content_tokens": 40,
         },
-        input_cost_per_1m_tokens=1.0,
-        output_cost_per_1m_tokens=2.0,
-        cached_input_cost_per_1m_tokens=0.5,
+        pricing=llm_benchmark.TokenPricingConfig(
+            input_cost_per_1m_tokens=1.0,
+            output_cost_per_1m_tokens=2.0,
+            cached_input_cost_per_1m_tokens=0.5,
+        ),
     )
 
     assert estimated == {
@@ -331,6 +502,360 @@ def test_estimate_cost_uses_cached_and_thought_tokens() -> None:
         "billable_input_tokens": 60,
         "billable_cached_tokens": 40,
         "billable_output_tokens": 50,
+    }
+
+
+def test_run_llm_benchmark_emits_token_cost_blocks_and_compat_alias(monkeypatch):
+    def fake_load_benchmark_data(test_path: Path, dataset: str):
+        return {
+            "metadata": {"dataset_name": f"phenobert_{dataset}"},
+            "documents": [
+                {
+                    "id": "doc-1",
+                    "text": "Clinical text",
+                    "gold_hpo_terms": [],
+                    "source_dataset": "GeneReviews",
+                }
+            ],
+        }
+
+    class _FakePipeline:
+        def __init__(self, provider):
+            self.provider = provider
+
+        def run(self, *, text, grounded_chunks, config):
+            from phentrieve.llm.types import LLMExtractionResult, LLMMeta
+
+            return LLMExtractionResult(
+                terms=[],
+                meta=LLMMeta(
+                    llm_model=config.model,
+                    llm_mode=config.mode,
+                    token_usage={
+                        "prompt_tokens": 100,
+                        "completion_tokens": 20,
+                        "thoughts_tokens": 30,
+                        "cached_content_tokens": 40,
+                        "total_tokens": 150,
+                    },
+                ),
+            )
+
+    monkeypatch.setattr(llm_benchmark, "load_benchmark_data", fake_load_benchmark_data)
+    monkeypatch.setattr(llm_benchmark, "get_llm_provider", lambda llm_model: object())
+    monkeypatch.setattr(llm_benchmark, "TwoPhaseLLMPipeline", _FakePipeline)
+
+    result = llm_benchmark.run_llm_benchmark(
+        test_file="tests/data/en/phenobert",
+        llm_model="gemini-2.5-flash",
+        input_cost_per_1m_tokens=0.1,
+        output_cost_per_1m_tokens=0.4,
+    )
+
+    assert result["estimated_token_cost"]["total_cost"] > 0.0
+    assert result["estimated_cost"] == result["estimated_token_cost"]
+
+
+def test_benchmark_accounting_config_rejects_negative_values() -> None:
+    with pytest.raises(ValidationError):
+        llm_benchmark.BenchmarkAccountingConfig(
+            token_pricing=llm_benchmark.TokenPricingConfig(
+                input_cost_per_1m_tokens=-1.0
+            )
+        )
+
+
+def test_run_llm_benchmark_cli_prefers_cli_pricing_over_file(
+    tmp_path, monkeypatch
+) -> None:
+    test_file = tmp_path / "cases.json"
+    test_file.write_text("[]", encoding="utf-8")
+    output_path = tmp_path / "result.json"
+    pricing_path = tmp_path / "pricing.json"
+    pricing_path.write_text(
+        json.dumps(
+            {
+                "token_pricing": {
+                    "input_cost_per_1m_tokens": 0.2,
+                    "output_cost_per_1m_tokens": 0.3,
+                }
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    captured: dict[str, object] = {}
+
+    def fake_run_llm_benchmark(**kwargs):
+        captured.update(kwargs)
+        return {
+            "cases": 0,
+            "llm_model": kwargs["llm_model"],
+            "llm_mode": kwargs["llm_mode"],
+        }
+
+    monkeypatch.setattr(
+        llm_cli.llm_benchmark, "run_llm_benchmark", fake_run_llm_benchmark
+    )
+
+    llm_cli.run_llm_benchmark_cli(
+        test_file=str(test_file),
+        llm_model="gemini-2.5-flash",
+        pricing_config=str(pricing_path),
+        input_cost_per_1m_tokens=0.9,
+        output_path=str(output_path),
+    )
+
+    accounting_config = captured["accounting_config"]
+    assert accounting_config.token_pricing.input_cost_per_1m_tokens == 0.9
+    assert accounting_config.token_pricing.output_cost_per_1m_tokens == 0.3
+
+
+def test_run_llm_benchmark_marks_energy_unavailable_when_tracker_missing(
+    monkeypatch,
+) -> None:
+    def fake_load_benchmark_data(test_path: Path, dataset: str):
+        return {
+            "metadata": {"dataset_name": f"phenobert_{dataset}"},
+            "documents": [
+                {
+                    "id": "doc-1",
+                    "text": "Clinical text",
+                    "gold_hpo_terms": [],
+                    "source_dataset": "GeneReviews",
+                }
+            ],
+        }
+
+    class _FakePipeline:
+        def __init__(self, provider):
+            self.provider = provider
+
+        def run(self, *, text, grounded_chunks, config):
+            from phentrieve.llm.types import LLMExtractionResult, LLMMeta
+
+            return LLMExtractionResult(
+                terms=[],
+                meta=LLMMeta(llm_model=config.model, llm_mode=config.mode),
+            )
+
+    monkeypatch.setattr(llm_benchmark, "load_benchmark_data", fake_load_benchmark_data)
+    monkeypatch.setattr(llm_benchmark, "get_llm_provider", lambda llm_model: object())
+    monkeypatch.setattr(llm_benchmark, "TwoPhaseLLMPipeline", _FakePipeline)
+    monkeypatch.setattr(
+        llm_benchmark.energy,
+        "create_energy_tracker",
+        lambda config: llm_benchmark.energy.UnavailableEnergyTracker(
+            reason="codecarbon_not_installed"
+        ),
+    )
+
+    result = llm_benchmark.run_llm_benchmark(
+        test_file="tests/data/en/phenobert",
+        llm_model="gemini-2.5-flash",
+        accounting_config=llm_benchmark.BenchmarkAccountingConfig(
+            energy_accounting=llm_benchmark.EnergyAccountingConfig(measure_energy=True)
+        ),
+    )
+
+    assert result["estimated_energy_cost"]["measurement_source"] == "unavailable"
+    assert result["estimated_energy_cost"]["reason"] == "codecarbon_not_installed"
+
+
+def test_run_llm_benchmark_uses_energy_rate_for_run_level_cost(monkeypatch) -> None:
+    def fake_load_benchmark_data(test_path: Path, dataset: str):
+        return {
+            "metadata": {"dataset_name": f"phenobert_{dataset}"},
+            "documents": [
+                {
+                    "id": "doc-1",
+                    "text": "Clinical text",
+                    "gold_hpo_terms": [],
+                    "source_dataset": "GeneReviews",
+                }
+            ],
+        }
+
+    class _FakePipeline:
+        def __init__(self, provider):
+            self.provider = provider
+
+        def run(self, *, text, grounded_chunks, config):
+            from phentrieve.llm.types import LLMExtractionResult, LLMMeta
+
+            return LLMExtractionResult(
+                terms=[],
+                meta=LLMMeta(llm_model=config.model, llm_mode=config.mode),
+            )
+
+    class _FakeTracker:
+        measurement_source = "measured"
+
+        def start_run(self) -> None:
+            return None
+
+        def stop_run(self) -> dict[str, float | str]:
+            return {
+                "measurement_source": "measured",
+                "energy_kwh": 0.5,
+                "carbon_kg": 0.2,
+            }
+
+    monkeypatch.setattr(llm_benchmark, "load_benchmark_data", fake_load_benchmark_data)
+    monkeypatch.setattr(llm_benchmark, "get_llm_provider", lambda llm_model: object())
+    monkeypatch.setattr(llm_benchmark, "TwoPhaseLLMPipeline", _FakePipeline)
+    monkeypatch.setattr(
+        llm_benchmark.energy,
+        "create_energy_tracker",
+        lambda config: _FakeTracker(),
+    )
+
+    result = llm_benchmark.run_llm_benchmark(
+        test_file="tests/data/en/phenobert",
+        llm_model="gemini-2.5-flash",
+        accounting_config=llm_benchmark.BenchmarkAccountingConfig(
+            energy_accounting=llm_benchmark.EnergyAccountingConfig(
+                measure_energy=True,
+                electricity_cost_per_kwh=0.4,
+                currency="EUR",
+            )
+        ),
+    )
+
+    assert result["estimated_energy_cost"]["energy_kwh"] == 0.5
+    assert result["estimated_energy_cost"]["electricity_cost"] == 0.2
+    assert result["estimated_energy_cost"]["currency"] == "EUR"
+
+
+def test_prediction_records_only_include_energy_when_enabled(monkeypatch) -> None:
+    def fake_load_benchmark_data(test_path: Path, dataset: str):
+        return {
+            "metadata": {"dataset_name": f"phenobert_{dataset}"},
+            "documents": [
+                {
+                    "id": "doc-1",
+                    "text": "Clinical text",
+                    "gold_hpo_terms": [],
+                    "source_dataset": "GeneReviews",
+                }
+            ],
+        }
+
+    class _FakePipeline:
+        def __init__(self, provider):
+            self.provider = provider
+
+        def run(self, *, text, grounded_chunks, config):
+            from phentrieve.llm.types import LLMExtractionResult, LLMMeta
+
+            return LLMExtractionResult(
+                terms=[],
+                meta=LLMMeta(llm_model=config.model, llm_mode=config.mode),
+            )
+
+    class _FakeTracker:
+        def start_run(self) -> None:
+            return None
+
+        def stop_run(self) -> dict[str, float | str]:
+            return {
+                "measurement_source": "measured",
+                "energy_kwh": 0.5,
+                "carbon_kg": 0.2,
+            }
+
+    monkeypatch.setattr(llm_benchmark, "load_benchmark_data", fake_load_benchmark_data)
+    monkeypatch.setattr(llm_benchmark, "get_llm_provider", lambda llm_model: object())
+    monkeypatch.setattr(llm_benchmark, "TwoPhaseLLMPipeline", _FakePipeline)
+    monkeypatch.setattr(
+        llm_benchmark.energy,
+        "create_energy_tracker",
+        lambda config: _FakeTracker(),
+    )
+
+    result = llm_benchmark.run_llm_benchmark(
+        test_file="tests/data/en/phenobert",
+        llm_model="gemini-2.5-flash",
+        accounting_config=llm_benchmark.BenchmarkAccountingConfig(
+            energy_accounting=llm_benchmark.EnergyAccountingConfig(
+                measure_energy=True,
+                per_document_energy=False,
+                electricity_cost_per_kwh=0.4,
+                currency="EUR",
+            )
+        ),
+    )
+
+    assert "estimated_energy_cost" not in result["prediction_records"][0]["metadata"]
+
+
+def test_prediction_records_include_energy_when_per_document_enabled(
+    monkeypatch,
+) -> None:
+    def fake_load_benchmark_data(test_path: Path, dataset: str):
+        return {
+            "metadata": {"dataset_name": f"phenobert_{dataset}"},
+            "documents": [
+                {
+                    "id": "doc-1",
+                    "text": "Clinical text",
+                    "gold_hpo_terms": [],
+                    "source_dataset": "GeneReviews",
+                }
+            ],
+        }
+
+    class _FakePipeline:
+        def __init__(self, provider):
+            self.provider = provider
+
+        def run(self, *, text, grounded_chunks, config):
+            from phentrieve.llm.types import LLMExtractionResult, LLMMeta
+
+            return LLMExtractionResult(
+                terms=[],
+                meta=LLMMeta(llm_model=config.model, llm_mode=config.mode),
+            )
+
+    class _FakeTracker:
+        def start_run(self) -> None:
+            return None
+
+        def stop_run(self) -> dict[str, float | str]:
+            return {
+                "measurement_source": "measured",
+                "energy_kwh": 0.5,
+                "carbon_kg": 0.2,
+            }
+
+    monkeypatch.setattr(llm_benchmark, "load_benchmark_data", fake_load_benchmark_data)
+    monkeypatch.setattr(llm_benchmark, "get_llm_provider", lambda llm_model: object())
+    monkeypatch.setattr(llm_benchmark, "TwoPhaseLLMPipeline", _FakePipeline)
+    monkeypatch.setattr(
+        llm_benchmark.energy,
+        "create_energy_tracker",
+        lambda config: _FakeTracker(),
+    )
+
+    result = llm_benchmark.run_llm_benchmark(
+        test_file="tests/data/en/phenobert",
+        llm_model="gemini-2.5-flash",
+        accounting_config=llm_benchmark.BenchmarkAccountingConfig(
+            energy_accounting=llm_benchmark.EnergyAccountingConfig(
+                measure_energy=True,
+                per_document_energy=True,
+                electricity_cost_per_kwh=0.4,
+                currency="EUR",
+            )
+        ),
+    )
+
+    assert result["prediction_records"][0]["metadata"]["estimated_energy_cost"] == {
+        "measurement_source": "measured",
+        "energy_kwh": 0.5,
+        "carbon_kg": 0.2,
+        "electricity_cost": 0.2,
+        "currency": "EUR",
     }
 
 
@@ -379,6 +904,64 @@ def test_run_llm_benchmark_passes_seed_to_provider(monkeypatch):
     )
 
     assert captured["seed"] == 123
+
+
+def test_run_llm_benchmark_uses_filtered_kwargs_and_default_provider_name(
+    monkeypatch,
+):
+    def fake_load_benchmark_data(test_path: Path, dataset: str):
+        return {
+            "metadata": {"dataset_name": f"phenobert_{dataset}"},
+            "documents": [
+                {
+                    "id": "doc-1",
+                    "text": "Clinical text",
+                    "gold_hpo_terms": [],
+                    "source_dataset": "GeneReviews",
+                }
+            ],
+        }
+
+    class _FakeProvider:
+        model_name = "gemini-2.5-flash"
+        base_url = None
+
+    class _FakePipeline:
+        def __init__(self, provider):
+            self.provider = provider
+
+        def run(self, *, text, grounded_chunks, config):
+            from phentrieve.llm.types import LLMExtractionResult, LLMMeta
+
+            return LLMExtractionResult(
+                terms=[],
+                meta=LLMMeta(llm_model=config.model, llm_mode=config.mode),
+            )
+
+    def fake_get_llm_provider(*, llm_model: str):
+        assert llm_model == "gemini-2.5-flash"
+        return _FakeProvider()
+
+    def fail_if_called(_provider_factory):
+        raise AssertionError("_provider_factory_supports_seed should not be called")
+
+    monkeypatch.setattr(llm_benchmark, "load_benchmark_data", fake_load_benchmark_data)
+    monkeypatch.setattr(llm_benchmark, "get_llm_provider", fake_get_llm_provider)
+    monkeypatch.setattr(
+        llm_benchmark,
+        "_provider_factory_supports_seed",
+        fail_if_called,
+        raising=False,
+    )
+    monkeypatch.setattr(llm_benchmark, "TwoPhaseLLMPipeline", _FakePipeline)
+    monkeypatch.setattr(llm_benchmark, "DEFAULT_PROVIDER_NAME", "ollama")
+
+    result = llm_benchmark.run_llm_benchmark(
+        test_file="tests/data/en/phenobert",
+        llm_model="gemini-2.5-flash",
+    )
+
+    assert result["llm_provider"] == "ollama"
 
 
 def test_run_llm_benchmark_surfaces_phase2_routing_counts(monkeypatch):

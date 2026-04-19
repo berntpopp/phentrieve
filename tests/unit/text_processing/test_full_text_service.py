@@ -89,6 +89,79 @@ def test_run_llm_backend_surfaces_token_usage(mocker):
     assert result["meta"]["prompt_version"] == "v9"
 
 
+def test_run_llm_backend_passes_provider_into_factory(mocker) -> None:
+    factory = mocker.Mock()
+    factory.return_value = SimpleNamespace(
+        provider_name="ollama",
+        model_name="qwen3.5:35b",
+        base_url="http://localhost:11434",
+    )
+    pipeline = mocker.Mock()
+    pipeline.run.return_value = LLMExtractionResult(
+        terms=[],
+        meta=LLMMeta(
+            llm_provider="ollama",
+            llm_model="qwen3.5:35b",
+            llm_mode="two_phase",
+        ),
+    )
+
+    run_llm_backend(
+        text="Patient has seizures.",
+        llm_provider="ollama",
+        llm_model="qwen3.5:35b",
+        llm_internal_mode="whole_document_legacy",
+        provider_factory=factory,
+        pipeline_factory=mocker.Mock(return_value=pipeline),
+    )
+
+    factory.assert_called_once_with(
+        llm_model="qwen3.5:35b",
+        llm_provider="ollama",
+        llm_base_url=None,
+    )
+    assert pipeline.run.call_args.kwargs["config"].base_url == "http://localhost:11434"
+
+
+def test_run_llm_backend_filters_factory_kwargs_and_uses_default_provider_name(
+    mocker, monkeypatch
+) -> None:
+    captured: dict[str, object] = {}
+
+    def fake_factory(*, llm_model: str):
+        captured["llm_model"] = llm_model
+        return SimpleNamespace(
+            model_name=llm_model,
+            base_url="http://localhost:11434",
+        )
+
+    pipeline = mocker.Mock()
+    pipeline.run.return_value = LLMExtractionResult(
+        terms=[],
+        meta=LLMMeta(
+            llm_model="qwen3.5:35b",
+            llm_mode="two_phase",
+        ),
+    )
+    monkeypatch.setattr(
+        "phentrieve.text_processing.full_text_service.DEFAULT_PROVIDER_NAME",
+        "ollama",
+        raising=False,
+    )
+
+    run_llm_backend(
+        text="Patient has seizures.",
+        llm_model="qwen3.5:35b",
+        llm_internal_mode="whole_document_legacy",
+        provider_factory=fake_factory,
+        pipeline_factory=mocker.Mock(return_value=pipeline),
+    )
+
+    assert captured == {"llm_model": "qwen3.5:35b"}
+    assert pipeline.run.call_args.kwargs["config"].provider == "ollama"
+    assert pipeline.run.call_args.kwargs["config"].base_url == "http://localhost:11434"
+
+
 def test_run_llm_backend_surfaces_evidence_records(mocker):
     provider = mocker.Mock()
     pipeline = mocker.Mock()

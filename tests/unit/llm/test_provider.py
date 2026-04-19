@@ -10,16 +10,27 @@ from typing import Any
 
 import httpx
 import pytest
+from pydantic import ValidationError
 
 from phentrieve.llm import config as llm_config
 from phentrieve.llm import provider as provider_module
 from phentrieve.llm.provider import (
+    AnthropicStructuredOutputProvider,
     GeminiStructuredOutputProvider,
     LLMProvider,
+    OllamaStructuredOutputProvider,
+    OpenAIStructuredOutputProvider,
     ToolExecutor,
     get_llm_provider,
+    resolve_llm_provider_request,
 )
-from phentrieve.llm.types import LLMExtractedPhenotype, LLMExtractedPhenotypes
+from phentrieve.llm.types import (
+    LLMExtractedPhenotype,
+    LLMExtractedPhenotypes,
+    LLMGroundedExtractedPhenotypes,
+    LLMMeta,
+    LLMPipelineConfig,
+)
 
 
 class FakeRetriever:
@@ -78,6 +89,126 @@ class FakeTextProcessor:
         ]
 
 
+def _fake_ollama_response(
+    *,
+    content: str,
+    prompt_eval_count: int = 0,
+    eval_count: int = 0,
+    done_reason: str = "stop",
+) -> httpx.Response:
+    return httpx.Response(
+        status_code=200,
+        request=httpx.Request("POST", "http://localhost:11434/api/chat"),
+        json={
+            "message": {"content": content},
+            "prompt_eval_count": prompt_eval_count,
+            "eval_count": eval_count,
+            "done_reason": done_reason,
+        },
+    )
+
+
+def _fake_openai_response(
+    *,
+    output_text: str | None = None,
+    refusal: str | None = None,
+    finish_reason: str = "stop",
+    input_tokens: int = 0,
+    output_tokens: int = 0,
+):
+    return _FakeOpenAIResponse(
+        output_text=output_text,
+        refusal=refusal,
+        finish_reason=finish_reason,
+        input_tokens=input_tokens,
+        output_tokens=output_tokens,
+    )
+
+
+def _fake_anthropic_response(
+    *,
+    text: str,
+    stop_reason: str = "end_turn",
+    input_tokens: int = 0,
+    output_tokens: int = 0,
+):
+    return _FakeAnthropicResponse(
+        text=text,
+        stop_reason=stop_reason,
+        input_tokens=input_tokens,
+        output_tokens=output_tokens,
+    )
+
+
+def _install_fake_ollama_http(
+    monkeypatch,
+    *,
+    json_bodies: list[dict[str, Any]],
+):
+    class _FakeResponse:
+        def __init__(self, body: dict[str, Any]) -> None:
+            self._body = body
+
+        def raise_for_status(self) -> None:
+            return None
+
+        def json(self) -> dict[str, Any]:
+            return self._body
+
+    class _FakeClient:
+        def __init__(self, *, timeout: int) -> None:
+            self.timeout = timeout
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            return False
+
+        def post(self, url: str, json: dict[str, Any]):
+            fake_http.requests.append({"url": url, "json": json})
+            if not fake_http._bodies:
+                raise AssertionError("unexpected Ollama request")
+            return _FakeResponse(fake_http._bodies.pop(0))
+
+    class _FakeHttp:
+        def __init__(self, bodies: list[dict[str, Any]]) -> None:
+            self._bodies = list(bodies)
+            self.requests: list[dict[str, Any]] = []
+
+    fake_http = _FakeHttp(json_bodies)
+    monkeypatch.setattr(provider_module.httpx, "Client", _FakeClient, raising=True)
+    return fake_http
+
+
+def test_llm_pipeline_config_includes_provider() -> None:
+    config = LLMPipelineConfig(
+        provider="ollama",
+        model="qwen3.5:35b",
+        mode="two_phase",
+        language="en",
+    )
+
+    assert config.provider == "ollama"
+    assert config.model == "qwen3.5:35b"
+
+
+def test_llm_meta_includes_provider_identity() -> None:
+    meta = LLMMeta(
+        llm_provider="ollama",
+        llm_model="qwen3.5:35b",
+        llm_mode="two_phase",
+    )
+
+    assert meta.llm_provider == "ollama"
+
+
+def test_provider_config_exposes_ollama_defaults() -> None:
+    assert llm_config.DEFAULT_PROVIDER_NAME == "gemini"
+    assert llm_config.DEFAULT_OLLAMA_BASE_URL == "http://localhost:11434"
+    assert llm_config.DEFAULT_OLLAMA_TIMEOUT_SECONDS == 300
+
+
 def test_get_llm_provider_defaults_to_gemini(monkeypatch) -> None:
     monkeypatch.setenv("PHENTRIEVE_GEMINI_API_KEY", "test-key")
     provider = get_llm_provider(llm_model="gemini-2.5-flash")
@@ -85,9 +216,468 @@ def test_get_llm_provider_defaults_to_gemini(monkeypatch) -> None:
     assert provider.model_name == "gemini-2.5-flash"
 
 
-def test_get_llm_provider_rejects_non_gemini_models() -> None:
-    with pytest.raises(ValueError, match="Gemini-only"):
-        get_llm_provider(llm_model="openai/gpt-4o")
+def test_get_llm_provider_infers_ollama_from_prefixed_model() -> None:
+    provider = get_llm_provider(llm_model="ollama/qwen3.5:35b")
+
+    assert provider.provider_name == "ollama"
+    assert provider.model_name == "qwen3.5:35b"
+
+
+def test_get_llm_provider_infers_anthropic_from_prefixed_model(monkeypatch) -> None:
+    monkeypatch.setenv("PHENTRIEVE_ANTHROPIC_API_KEY", "test-key")
+    provider = get_llm_provider(llm_model="anthropic/claude-sonnet-4-6")
+
+    assert provider.provider_name == "anthropic"
+    assert provider.model_name == "claude-sonnet-4-6"
+
+
+def test_get_llm_provider_infers_openai_from_prefixed_model(monkeypatch) -> None:
+    monkeypatch.setenv("PHENTRIEVE_OPENAI_API_KEY", "test-key")
+    provider = get_llm_provider(llm_model="openai/gpt-5.4")
+
+    assert provider.provider_name == "openai"
+    assert provider.model_name == "gpt-5.4"
+
+
+def test_get_llm_provider_accepts_bare_gemini_model_for_backwards_compat(
+    monkeypatch,
+) -> None:
+    monkeypatch.setenv("PHENTRIEVE_GEMINI_API_KEY", "test-key")
+    provider = get_llm_provider(llm_model="gemini-2.5-flash")
+
+    assert provider.provider_name == "gemini"
+    assert provider.model_name == "gemini-2.5-flash"
+
+
+def test_get_llm_provider_rejects_mismatched_explicit_provider() -> None:
+    with pytest.raises(ValueError, match="does not match"):
+        get_llm_provider(
+            llm_provider="anthropic",
+            llm_model="ollama/qwen3.5:35b",
+        )
+
+
+def test_resolve_llm_provider_request_rejects_unknown_explicit_provider() -> None:
+    with pytest.raises(ValueError, match="Unknown provider"):
+        resolve_llm_provider_request(
+            llm_provider="ollmaa",
+            llm_model="qwen3.5:35b",
+        )
+
+
+def test_resolve_llm_provider_request_rejects_unknown_env_provider(
+    monkeypatch,
+) -> None:
+    monkeypatch.setenv("PHENTRIEVE_LLM_PROVIDER", "ollmaa")
+
+    with pytest.raises(ValueError, match="Unknown provider"):
+        resolve_llm_provider_request(
+            llm_provider=None,
+            llm_model="qwen3.5:35b",
+        )
+
+
+def test_get_llm_provider_defaults_ollama_base_url() -> None:
+    provider = get_llm_provider(
+        llm_provider="ollama",
+        llm_model="qwen3.5:35b",
+    )
+
+    assert provider.base_url == "http://localhost:11434"
+
+
+def test_get_llm_provider_passes_timeout_override_to_ollama() -> None:
+    provider = get_llm_provider(
+        llm_provider="ollama",
+        llm_model="qwen3.5:35b",
+        timeout_seconds=900,
+    )
+
+    assert provider.timeout_seconds == 900
+
+
+@pytest.mark.parametrize(
+    ("provider_name", "model_name", "env_var"),
+    [
+        ("gemini", "gemini-2.5-flash", "PHENTRIEVE_GEMINI_API_KEY"),
+        ("ollama", "qwen3.5:35b", None),
+        ("anthropic", "claude-sonnet-4-6", "PHENTRIEVE_ANTHROPIC_API_KEY"),
+        ("openai", "gpt-5.4-mini", "PHENTRIEVE_OPENAI_API_KEY"),
+    ],
+)
+def test_get_llm_provider_respects_zero_timeout_override(
+    monkeypatch,
+    provider_name: str,
+    model_name: str,
+    env_var: str | None,
+) -> None:
+    if env_var is not None:
+        monkeypatch.setenv(env_var, "test-key")
+
+    provider = get_llm_provider(
+        llm_provider=provider_name,
+        llm_model=model_name,
+        timeout_seconds=0,
+    )
+
+    assert provider.timeout_seconds == 0
+
+
+def test_ollama_structured_prompt_posts_native_chat_schema(mocker) -> None:
+    provider = OllamaStructuredOutputProvider(
+        model_name="qwen3.5:35b",
+        base_url="http://localhost:11434",
+    )
+    post = mocker.patch("httpx.Client.post")
+    post.return_value = _fake_ollama_response(
+        content='{"phenotypes": []}',
+        prompt_eval_count=12,
+        eval_count=5,
+    )
+
+    result = provider.run_structured_prompt(
+        system_prompt="system",
+        user_prompt="user",
+        response_model=LLMExtractedPhenotypes,
+    )
+
+    assert isinstance(result, LLMExtractedPhenotypes)
+    _, kwargs = post.call_args
+    assert kwargs["json"]["format"]["type"] == "object"
+    assert kwargs["json"]["options"]["temperature"] == 0
+    assert provider.last_usage == {
+        "prompt_tokens": 12,
+        "completion_tokens": 5,
+        "total_tokens": 17,
+    }
+    assert provider.last_finish_reason == "stop"
+    assert provider.last_request_count == 1
+
+
+def test_ollama_structured_prompt_includes_schema_in_prompt(mocker) -> None:
+    provider = OllamaStructuredOutputProvider(
+        model_name="qwen3.5:35b",
+        base_url="http://localhost:11434",
+    )
+    post = mocker.patch("httpx.Client.post")
+    post.return_value = _fake_ollama_response(content='{"phenotypes": []}')
+
+    provider.run_structured_prompt(
+        system_prompt="system",
+        user_prompt="user",
+        response_model=LLMExtractedPhenotypes,
+    )
+
+    _, kwargs = post.call_args
+    prompt = kwargs["json"]["messages"][1]["content"]
+    assert "JSON schema" in prompt
+    assert '"phenotypes"' in prompt
+
+
+def test_ollama_structured_prompt_disables_thinking_for_gemma4(mocker) -> None:
+    provider = OllamaStructuredOutputProvider(
+        model_name="gemma4:31b",
+        base_url="http://localhost:11434",
+    )
+    post = mocker.patch("httpx.Client.post")
+    post.return_value = _fake_ollama_response(content='{"phenotypes": []}')
+
+    provider.run_structured_prompt(
+        system_prompt="system",
+        user_prompt="user",
+        response_model=LLMExtractedPhenotypes,
+    )
+
+    _, kwargs = post.call_args
+    assert kwargs["json"]["think"] is False
+
+
+def test_ollama_provider_sets_estimated_token_count_source_when_counting_missing() -> (
+    None
+):
+    provider = OllamaStructuredOutputProvider(
+        model_name="qwen3.5:35b",
+        base_url="http://localhost:11434",
+    )
+
+    token_counts = provider.count_tokens(
+        system_prompt="system",
+        user_prompt="user",
+    )
+
+    assert token_counts["total_tokens"] >= 1
+    assert provider.token_count_source is not None
+    assert provider.token_count_source.startswith("est")
+
+
+def test_ollama_invalid_json_raises_validation_error(mocker) -> None:
+    provider = OllamaStructuredOutputProvider(
+        model_name="qwen3.5:35b",
+        base_url="http://localhost:11434",
+    )
+    mocker.patch(
+        "httpx.Client.post",
+        return_value=_fake_ollama_response(
+            content='{"phenotypes": [}',
+            prompt_eval_count=1,
+            eval_count=1,
+        ),
+    )
+
+    with pytest.raises((ValidationError, ValueError)):
+        provider.run_structured_prompt(
+            system_prompt="system",
+            user_prompt="user",
+            response_model=LLMExtractedPhenotypes,
+        )
+
+
+def test_ollama_structured_prompt_accepts_markdown_fenced_json(mocker) -> None:
+    provider = OllamaStructuredOutputProvider(
+        model_name="gemma4:31b",
+        base_url="http://localhost:11434",
+    )
+    mocker.patch(
+        "httpx.Client.post",
+        return_value=_fake_ollama_response(
+            content='```json\n{"phenotypes": []}\n```',
+            prompt_eval_count=1,
+            eval_count=1,
+        ),
+    )
+
+    result = provider.run_structured_prompt(
+        system_prompt="system",
+        user_prompt="user",
+        response_model=LLMExtractedPhenotypes,
+    )
+
+    assert isinstance(result, LLMExtractedPhenotypes)
+    assert result.phenotypes == []
+
+
+def test_openai_retries_retryable_structured_payload_failure(monkeypatch) -> None:
+    monkeypatch.setenv("PHENTRIEVE_OPENAI_API_KEY", "test-key")
+    _install_fake_openai(
+        monkeypatch,
+        responses=[
+            _fake_openai_response(
+                output_text='{"phenotypes": [',
+                input_tokens=10,
+                output_tokens=2,
+            ),
+            _fake_openai_response(
+                output_text='{"phenotypes":[]}',
+                input_tokens=11,
+                output_tokens=3,
+            ),
+        ],
+    )
+    provider = get_llm_provider(llm_provider="openai", llm_model="gpt-5.4-mini")
+
+    result = provider.run_structured_prompt(
+        system_prompt="system",
+        user_prompt="user",
+        response_model=LLMExtractedPhenotypes,
+    )
+
+    assert result.phenotypes == []
+    assert provider.last_request_count == 2
+    assert provider.last_usage["total_tokens"] == 26
+
+
+def test_anthropic_does_not_retry_structured_refusal(monkeypatch) -> None:
+    monkeypatch.setenv("PHENTRIEVE_ANTHROPIC_API_KEY", "test-key")
+    _install_fake_anthropic(
+        monkeypatch,
+        responses=[_fake_anthropic_response(text="", stop_reason="refusal")],
+    )
+    provider = get_llm_provider(llm_provider="anthropic", llm_model="claude-sonnet-4-6")
+
+    with pytest.raises(RuntimeError, match="refusal|structured"):
+        provider.run_structured_prompt(
+            system_prompt="system",
+            user_prompt="user",
+            response_model=LLMExtractedPhenotypes,
+        )
+
+    assert provider.last_request_count == 1
+
+
+def test_ollama_structured_retry_does_not_shrink_large_requested_budget(
+    monkeypatch,
+) -> None:
+    fake_http = _install_fake_ollama_http(
+        monkeypatch,
+        json_bodies=[
+            {
+                "message": {"content": '{"phenotypes": ['},
+                "prompt_eval_count": 5,
+                "eval_count": 1,
+                "done_reason": "stop",
+            },
+            {
+                "message": {"content": '{"phenotypes":[]}'},
+                "prompt_eval_count": 5,
+                "eval_count": 2,
+                "done_reason": "stop",
+            },
+        ],
+    )
+    provider = get_llm_provider(llm_provider="ollama", llm_model="qwen3:32b")
+
+    provider.run_structured_prompt(
+        system_prompt="system",
+        user_prompt="user",
+        response_model=LLMExtractedPhenotypes,
+        max_output_tokens=100000,
+    )
+
+    assert fake_http.requests[0]["json"]["options"]["num_predict"] == 100000
+    assert fake_http.requests[1]["json"]["options"]["num_predict"] == 100000
+
+
+def test_ollama_structured_retry_does_not_expand_small_requested_budget(
+    monkeypatch,
+) -> None:
+    fake_http = _install_fake_ollama_http(
+        monkeypatch,
+        json_bodies=[
+            {
+                "message": {"content": '{"phenotypes": ['},
+                "prompt_eval_count": 5,
+                "eval_count": 1,
+                "done_reason": "stop",
+            },
+            {
+                "message": {"content": '{"phenotypes":[]}'},
+                "prompt_eval_count": 5,
+                "eval_count": 2,
+                "done_reason": "stop",
+            },
+        ],
+    )
+    provider = get_llm_provider(llm_provider="ollama", llm_model="qwen3:32b")
+
+    provider.run_structured_prompt(
+        system_prompt="system",
+        user_prompt="user",
+        response_model=LLMExtractedPhenotypes,
+        max_output_tokens=1000,
+    )
+
+    assert fake_http.requests[0]["json"]["options"]["num_predict"] == 1000
+    assert fake_http.requests[1]["json"]["options"]["num_predict"] == 1000
+
+
+def test_ollama_structured_prompt_does_not_retry_plain_text_refusal(
+    monkeypatch,
+) -> None:
+    fake_http = _install_fake_ollama_http(
+        monkeypatch,
+        json_bodies=[
+            {
+                "message": {"content": "I cannot comply with that request."},
+                "prompt_eval_count": 5,
+                "eval_count": 1,
+                "done_reason": "stop",
+            }
+        ],
+    )
+    provider = get_llm_provider(llm_provider="ollama", llm_model="qwen3:32b")
+
+    with pytest.raises(RuntimeError, match="non-JSON|refusal"):
+        provider.run_structured_prompt(
+            system_prompt="system",
+            user_prompt="user",
+            response_model=LLMExtractedPhenotypes,
+        )
+
+    assert len(fake_http.requests) == 1
+    assert provider.last_request_count == 1
+
+
+def test_ollama_complete_retries_transient_timeout(mocker) -> None:
+    provider = OllamaStructuredOutputProvider(
+        model_name="qwen3.5:35b",
+        base_url="http://localhost:11434",
+        transient_retries=1,
+    )
+    post = mocker.patch("httpx.Client.post")
+    post.side_effect = [
+        httpx.ReadTimeout("timed out"),
+        _fake_ollama_response(content="ok", prompt_eval_count=3, eval_count=1),
+    ]
+    sleep = mocker.patch("time.sleep")
+
+    result = provider.complete([{"role": "user", "content": "hello"}])
+
+    assert result.content == "ok"
+    assert provider.last_request_count == 2
+    assert post.call_count == 2
+    sleep.assert_called_once()
+
+
+def test_gemini_provider_exposes_exact_token_count_source(monkeypatch) -> None:
+    monkeypatch.setenv("PHENTRIEVE_GEMINI_API_KEY", "test-key")
+    provider = get_llm_provider(llm_model="gemini-2.5-flash")
+
+    assert provider.token_count_source == "exact"  # noqa: S105
+
+
+def test_get_llm_provider_requires_anthropic_api_key() -> None:
+    with pytest.raises(RuntimeError, match="Anthropic API key not configured"):
+        get_llm_provider(
+            llm_provider="anthropic",
+            llm_model="claude-sonnet-4-6",
+        )
+
+
+def test_get_llm_provider_lists_anthropic_api_key_env_vars_clearly() -> None:
+    with pytest.raises(
+        RuntimeError,
+        match=("PHENTRIEVE_ANTHROPIC_API_KEY, ANTHROPIC_API_KEY, or CLAUDE_API_KEY"),
+    ):
+        get_llm_provider(
+            llm_provider="anthropic",
+            llm_model="claude-sonnet-4-6",
+        )
+
+
+def test_get_llm_provider_uses_chatgpt_api_key_fallback(monkeypatch) -> None:
+    monkeypatch.delenv("PHENTRIEVE_OPENAI_API_KEY", raising=False)
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    monkeypatch.setenv("CHATGPT_API_KEY", "chatgpt-key")
+
+    provider = get_llm_provider(
+        llm_provider="openai",
+        llm_model="gpt-5.4-mini",
+    )
+
+    assert provider.provider_name == "openai"
+    assert provider.model_name == "gpt-5.4-mini"
+
+
+def test_get_llm_provider_rejects_unsupported_openai_model(monkeypatch) -> None:
+    monkeypatch.setenv("PHENTRIEVE_OPENAI_API_KEY", "test-key")
+
+    with pytest.raises(ValueError, match="structured outputs"):
+        get_llm_provider(
+            llm_provider="openai",
+            llm_model="gpt-5.4-pro",
+        )
+
+
+def test_get_llm_provider_accepts_claude_api_key_env(monkeypatch) -> None:
+    monkeypatch.setenv("CLAUDE_API_KEY", "test-key")
+
+    provider = get_llm_provider(
+        llm_provider="anthropic",
+        llm_model="claude-sonnet-4-6",
+    )
+
+    assert provider.provider_name == "anthropic"
+    assert provider.model_name == "claude-sonnet-4-6"
 
 
 def test_llm_provider_complete_signature_is_message_only() -> None:
@@ -283,7 +873,8 @@ def test_llm_extra_matches_supported_runtime_dependencies() -> None:
     llm_extra = pyproject["project"]["optional-dependencies"]["llm"]
 
     assert any(dep.startswith("google-genai") for dep in llm_extra)
-    assert not any(dep.startswith("openai") for dep in llm_extra)
+    assert any(dep.startswith("anthropic") for dep in llm_extra)
+    assert any(dep.startswith("openai") for dep in llm_extra)
 
 
 def test_packaged_prompt_families_exclude_agentic_judge() -> None:
@@ -426,6 +1017,199 @@ def _install_fake_google_genai(monkeypatch, responses: list[_FakeResponse]):
     return fake_models
 
 
+class _FakeAnthropicUsage:
+    def __init__(self, *, input_tokens: int, output_tokens: int) -> None:
+        self.input_tokens = input_tokens
+        self.output_tokens = output_tokens
+
+
+class _FakeAnthropicTextBlock:
+    def __init__(self, text: str) -> None:
+        self.type = "text"
+        self.text = text
+
+
+class _FakeAnthropicResponse:
+    def __init__(
+        self,
+        *,
+        text: str,
+        stop_reason: str = "end_turn",
+        input_tokens: int = 0,
+        output_tokens: int = 0,
+    ) -> None:
+        self.content = [_FakeAnthropicTextBlock(text)]
+        self.stop_reason = stop_reason
+        self.usage = _FakeAnthropicUsage(
+            input_tokens=input_tokens,
+            output_tokens=output_tokens,
+        )
+
+
+class _FakeOpenAIUsage:
+    def __init__(self, *, input_tokens: int, output_tokens: int) -> None:
+        self.input_tokens = input_tokens
+        self.output_tokens = output_tokens
+        self.total_tokens = input_tokens + output_tokens
+
+
+class _FakeOpenAIOutputText:
+    def __init__(self, text: str) -> None:
+        self.type = "output_text"
+        self.text = text
+
+
+class _FakeOpenAIOutputMessage:
+    def __init__(self, text: str) -> None:
+        self.type = "message"
+        self.content = [_FakeOpenAIOutputText(text)]
+
+
+class _FakeOpenAIRefusal:
+    def __init__(self, refusal: str) -> None:
+        self.type = "refusal"
+        self.refusal = refusal
+
+
+class _FakeOpenAIResponse:
+    def __init__(
+        self,
+        *,
+        output_text: str | None = None,
+        refusal: str | None = None,
+        finish_reason: str = "stop",
+        input_tokens: int = 0,
+        output_tokens: int = 0,
+    ) -> None:
+        self.output = []
+        if output_text is not None:
+            self.output.append(_FakeOpenAIOutputMessage(output_text))
+            self.output_text = output_text
+        else:
+            self.output_text = ""
+        if refusal is not None:
+            self.output.append(_FakeOpenAIRefusal(refusal))
+        self.status = "completed"
+        self.usage = _FakeOpenAIUsage(
+            input_tokens=input_tokens,
+            output_tokens=output_tokens,
+        )
+        self.incomplete_details = (
+            SimpleNamespace(reason=finish_reason) if finish_reason else None
+        )
+
+
+def _install_fake_openai(monkeypatch, responses: list[Any]):
+    class _FakeRateLimitError(Exception):
+        status_code = 429
+
+    class _FakeInternalServerError(Exception):
+        status_code = 500
+
+    class _FakeAPIConnectionError(Exception):
+        pass
+
+    class _FakeResponses:
+        def __init__(self, queued_responses: list[Any]) -> None:
+            self._responses = list(queued_responses)
+            self.create_calls: list[dict[str, Any]] = []
+
+        def create(self, **kwargs):
+            self.create_calls.append(kwargs)
+            next_item = self._responses.pop(0)
+            if isinstance(next_item, Exception):
+                raise next_item
+            return next_item
+
+    fake_responses = _FakeResponses(responses)
+
+    class _FakeClient:
+        def __init__(
+            self,
+            *,
+            api_key: str,
+            base_url: str | None = None,
+            timeout: int | None = None,
+            max_retries: int = 0,
+        ) -> None:
+            self.api_key = api_key
+            self.base_url = base_url
+            self.timeout = timeout
+            self.max_retries = max_retries
+            self.responses = fake_responses
+
+    openai_module = ModuleType("openai")
+    openai_module.OpenAI = _FakeClient
+    openai_module.RateLimitError = _FakeRateLimitError
+    openai_module.InternalServerError = _FakeInternalServerError
+    openai_module.APIConnectionError = _FakeAPIConnectionError
+    monkeypatch.setitem(sys.modules, "openai", openai_module)
+    fake_responses.rate_limit_error = _FakeRateLimitError
+    fake_responses.internal_server_error = _FakeInternalServerError
+    fake_responses.api_connection_error = _FakeAPIConnectionError
+    return fake_responses
+
+
+def _install_fake_anthropic(monkeypatch, responses: list[Any]):
+    class _FakeRateLimitError(Exception):
+        status_code = 429
+
+    class _FakeInternalServerError(Exception):
+        status_code = 500
+
+    class _FakeAPIConnectionError(Exception):
+        pass
+
+    class _FakeMessageTokensCount:
+        def __init__(self, input_tokens: int) -> None:
+            self.input_tokens = input_tokens
+
+    class _FakeMessages:
+        def __init__(self, queued_responses: list[Any]) -> None:
+            self._responses = list(queued_responses)
+            self.create_calls: list[dict[str, Any]] = []
+            self.count_calls: list[dict[str, Any]] = []
+
+        def create(self, **kwargs):
+            self.create_calls.append(kwargs)
+            next_item = self._responses.pop(0)
+            if isinstance(next_item, Exception):
+                raise next_item
+            return next_item
+
+        def count_tokens(self, **kwargs):
+            self.count_calls.append(kwargs)
+            return _FakeMessageTokensCount(input_tokens=321)
+
+    fake_messages = _FakeMessages(responses)
+
+    class _FakeClient:
+        def __init__(
+            self,
+            *,
+            api_key: str,
+            base_url: str | None = None,
+            timeout: int | None = None,
+            max_retries: int = 0,
+        ) -> None:
+            self.api_key = api_key
+            self.base_url = base_url
+            self.timeout = timeout
+            self.max_retries = max_retries
+            self.messages = fake_messages
+
+    anthropic_module = ModuleType("anthropic")
+    anthropic_module.Anthropic = _FakeClient
+    anthropic_module.RateLimitError = _FakeRateLimitError
+    anthropic_module.InternalServerError = _FakeInternalServerError
+    anthropic_module.APIConnectionError = _FakeAPIConnectionError
+    monkeypatch.setitem(sys.modules, "anthropic", anthropic_module)
+    fake_messages.rate_limit_error = _FakeRateLimitError
+    fake_messages.internal_server_error = _FakeInternalServerError
+    fake_messages.api_connection_error = _FakeAPIConnectionError
+    return fake_messages
+
+
 def test_structured_prompt_uses_json_schema_and_manual_validation(monkeypatch) -> None:
     fake_models = _install_fake_google_genai(
         monkeypatch,
@@ -486,6 +1270,278 @@ def test_structured_prompt_uses_json_schema_and_manual_validation(monkeypatch) -
     ]["phrase"]["description"].startswith("A concise phenotype phrase")
     assert config_kwargs["max_output_tokens"] == 8192
     assert provider.last_usage["total_tokens"] == 20
+
+
+def test_anthropic_structured_prompt_uses_output_config_json_schema(
+    monkeypatch,
+) -> None:
+    fake_messages = _install_fake_anthropic(
+        monkeypatch,
+        [
+            _FakeAnthropicResponse(
+                text='{"phenotypes":[{"phrase":"recurrent seizures","category":"Abnormal"}]}',
+                input_tokens=14,
+                output_tokens=9,
+            )
+        ],
+    )
+    provider = AnthropicStructuredOutputProvider(
+        model_name="claude-sonnet-4-6",
+        api_key="test-key",
+    )
+
+    result = provider.run_structured_prompt(
+        system_prompt="system",
+        user_prompt="user",
+        response_model=LLMExtractedPhenotypes,
+    )
+
+    create_kwargs = fake_messages.create_calls[0]
+    assert result.phenotypes[0].phrase == "recurrent seizures"
+    assert create_kwargs["model"] == "claude-sonnet-4-6"
+    assert create_kwargs["system"] == "system"
+    assert create_kwargs["messages"] == [{"role": "user", "content": "user"}]
+    assert create_kwargs["output_config"]["format"]["type"] == "json_schema"
+    assert (
+        create_kwargs["output_config"]["format"]["schema"]["additionalProperties"]
+        is False
+    )
+    assert provider.last_usage == {
+        "prompt_tokens": 14,
+        "completion_tokens": 9,
+        "total_tokens": 23,
+    }
+    assert provider.token_count_source == "estimated"  # noqa: S105
+
+
+def test_anthropic_structured_prompt_caps_max_tokens_for_64k_models(
+    monkeypatch,
+) -> None:
+    fake_messages = _install_fake_anthropic(
+        monkeypatch,
+        [_FakeAnthropicResponse(text='{"phenotypes":[]}')],
+    )
+    provider = AnthropicStructuredOutputProvider(
+        model_name="claude-haiku-4-5",
+        api_key="test-key",
+        max_tokens=65536,
+    )
+
+    provider.run_structured_prompt(
+        system_prompt="system",
+        user_prompt="user",
+        response_model=LLMExtractedPhenotypes,
+        max_output_tokens=65536,
+    )
+
+    assert fake_messages.create_calls[0]["max_tokens"] == 64000
+
+
+def test_anthropic_structured_prompt_keeps_max_tokens_for_opus_128k_models(
+    monkeypatch,
+) -> None:
+    fake_messages = _install_fake_anthropic(
+        monkeypatch,
+        [_FakeAnthropicResponse(text='{"phenotypes":[]}')],
+    )
+    provider = AnthropicStructuredOutputProvider(
+        model_name="claude-opus-4-6",
+        api_key="test-key",
+        max_tokens=65536,
+    )
+
+    provider.run_structured_prompt(
+        system_prompt="system",
+        user_prompt="user",
+        response_model=LLMExtractedPhenotypes,
+        max_output_tokens=65536,
+    )
+
+    assert fake_messages.create_calls[0]["max_tokens"] == 65536
+
+
+def test_anthropic_complete_uses_messages_api(monkeypatch) -> None:
+    fake_messages = _install_fake_anthropic(
+        monkeypatch,
+        [
+            _FakeAnthropicResponse(
+                text="ok",
+                input_tokens=10,
+                output_tokens=4,
+            )
+        ],
+    )
+    provider = AnthropicStructuredOutputProvider(
+        model_name="claude-sonnet-4-6",
+        api_key="test-key",
+    )
+
+    result = provider.complete(
+        [
+            {"role": "system", "content": "system"},
+            {"role": "user", "content": "hello"},
+        ]
+    )
+
+    create_kwargs = fake_messages.create_calls[0]
+    assert result.content == "ok"
+    assert create_kwargs["system"] == "system"
+    assert create_kwargs["messages"] == [{"role": "user", "content": "hello"}]
+    assert provider.last_finish_reason == "end_turn"
+
+
+def test_anthropic_opus_47_omits_deprecated_sampling_parameters(monkeypatch) -> None:
+    fake_messages = _install_fake_anthropic(
+        monkeypatch,
+        [_FakeAnthropicResponse(text='{"phenotypes":[]}')],
+    )
+    provider = AnthropicStructuredOutputProvider(
+        model_name="claude-opus-4-7",
+        api_key="test-key",
+        temperature=0,
+    )
+
+    provider.run_structured_prompt(
+        system_prompt="system",
+        user_prompt="user",
+        response_model=LLMExtractedPhenotypes,
+    )
+
+    create_kwargs = fake_messages.create_calls[0]
+    assert "temperature" not in create_kwargs
+
+
+def test_anthropic_count_tokens_uses_messages_count_tokens(monkeypatch) -> None:
+    fake_messages = _install_fake_anthropic(monkeypatch, [])
+    provider = AnthropicStructuredOutputProvider(
+        model_name="claude-sonnet-4-6",
+        api_key="test-key",
+    )
+
+    result = provider.count_tokens(
+        system_prompt="system",
+        user_prompt="hello",
+    )
+
+    assert result == {
+        "prompt_tokens": 321,
+        "completion_tokens": 0,
+        "total_tokens": 321,
+    }
+    assert fake_messages.count_calls[0]["system"] == "system"
+    assert fake_messages.count_calls[0]["messages"] == [
+        {"role": "user", "content": "hello"}
+    ]
+
+
+def test_openai_structured_prompt_uses_responses_api_json_schema(
+    monkeypatch,
+) -> None:
+    fake_responses = _install_fake_openai(
+        monkeypatch,
+        [
+            _FakeOpenAIResponse(
+                output_text='{"phenotypes":[{"phrase":"recurrent seizures","category":"Abnormal"}]}',
+                input_tokens=42,
+                output_tokens=11,
+            )
+        ],
+    )
+    provider = OpenAIStructuredOutputProvider(
+        model_name="gpt-5.4",
+        api_key="test-key",
+    )
+
+    result = provider.run_structured_prompt(
+        system_prompt="system",
+        user_prompt="user",
+        response_model=LLMExtractedPhenotypes,
+    )
+
+    create_kwargs = fake_responses.create_calls[0]
+    assert isinstance(result, LLMExtractedPhenotypes)
+    assert create_kwargs["model"] == "gpt-5.4"
+    assert create_kwargs["input"] == [
+        {"role": "system", "content": "system"},
+        {"role": "user", "content": "user"},
+    ]
+    assert create_kwargs["text"]["format"]["type"] == "json_schema"
+    assert create_kwargs["text"]["format"]["strict"] is True
+    assert create_kwargs["text"]["format"]["schema"]["type"] == "object"
+    assert provider.last_usage == {
+        "prompt_tokens": 42,
+        "completion_tokens": 11,
+        "total_tokens": 53,
+    }
+
+
+def test_openai_complete_uses_responses_api(monkeypatch) -> None:
+    fake_responses = _install_fake_openai(
+        monkeypatch,
+        [_FakeOpenAIResponse(output_text="ok", input_tokens=10, output_tokens=4)],
+    )
+    provider = OpenAIStructuredOutputProvider(
+        model_name="gpt-5.4-mini",
+        api_key="test-key",
+    )
+
+    result = provider.complete(
+        [
+            {"role": "system", "content": "system"},
+            {"role": "user", "content": "hello"},
+        ]
+    )
+
+    create_kwargs = fake_responses.create_calls[0]
+    assert result.content == "ok"
+    assert create_kwargs["model"] == "gpt-5.4-mini"
+    assert create_kwargs["input"] == [
+        {"role": "system", "content": "system"},
+        {"role": "user", "content": "hello"},
+    ]
+
+
+def test_openai_structured_prompt_raises_on_refusal(monkeypatch) -> None:
+    _install_fake_openai(
+        monkeypatch,
+        [_FakeOpenAIResponse(refusal="cannot comply", input_tokens=9, output_tokens=1)],
+    )
+    provider = OpenAIStructuredOutputProvider(
+        model_name="gpt-5.4",
+        api_key="test-key",
+    )
+
+    with pytest.raises(RuntimeError, match="refusal"):
+        provider.run_structured_prompt(
+            system_prompt="system",
+            user_prompt="user",
+            response_model=LLMExtractedPhenotypes,
+        )
+
+
+def test_openai_does_not_retry_billing_not_active_rate_limit(monkeypatch) -> None:
+    fake_responses = _install_fake_openai(monkeypatch, [])
+    fake_responses._responses.append(  # type: ignore[attr-defined]
+        fake_responses.rate_limit_error("billing_not_active")
+    )
+    sleep_calls: list[float] = []
+    monkeypatch.setattr(
+        provider_module,
+        "time",
+        SimpleNamespace(sleep=sleep_calls.append),
+        raising=False,
+    )
+    provider = OpenAIStructuredOutputProvider(
+        model_name="gpt-5.4-mini",
+        api_key="test-key",
+        transient_retries=3,
+    )
+
+    with pytest.raises(Exception, match="billing_not_active"):
+        provider.complete([{"role": "user", "content": "hello"}])
+
+    assert len(fake_responses.create_calls) == 1
+    assert sleep_calls == []
 
 
 def test_structured_prompt_forwards_seed_and_extended_usage(monkeypatch) -> None:
@@ -675,6 +1731,47 @@ def test_structured_prompt_uses_single_relaxed_schema_without_size_constraints(
     assert schema["properties"]["phenotypes"]["items"]["properties"]["phrase"][
         "description"
     ]
+
+
+def test_structured_prompt_schema_preserves_nullable_optional_field_types(
+    monkeypatch,
+) -> None:
+    fake_models = _install_fake_google_genai(
+        monkeypatch,
+        [
+            _FakeResponse(
+                text=(
+                    '{"phenotypes":[{"phrase":"recurrent seizures",'
+                    '"category":"Abnormal","chunk_ids":[1],"evidence_text":null}]}'
+                ),
+                parsed=None,
+                finish_reason="STOP",
+                prompt_tokens=11,
+                completion_tokens=9,
+                total_tokens=20,
+            )
+        ],
+    )
+    provider = GeminiStructuredOutputProvider(
+        model_name="gemini-2.5-flash",
+        api_key="test-key",
+    )
+
+    provider.run_structured_prompt(
+        system_prompt="system",
+        user_prompt="user",
+        response_model=LLMGroundedExtractedPhenotypes,
+    )
+
+    schema = fake_models.calls[0]["config"].kwargs["response_json_schema"]
+    evidence_text_schema = schema["properties"]["phenotypes"]["items"]["properties"][
+        "evidence_text"
+    ]
+    start_char_schema = schema["properties"]["phenotypes"]["items"]["properties"][
+        "start_char"
+    ]
+    assert evidence_text_schema["anyOf"] == [{"type": "string"}, {"type": "null"}]
+    assert start_char_schema["anyOf"] == [{"type": "integer"}, {"type": "null"}]
 
 
 def test_structured_prompt_accepts_long_phrase_when_served_schema_is_relaxed(

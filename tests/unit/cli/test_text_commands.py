@@ -464,6 +464,87 @@ def test_text_process_passes_llm_options_to_service(monkeypatch):
     assert calls["llm_mode"] == "two_phase"
 
 
+def test_text_process_passes_provider_and_base_url_to_service(monkeypatch) -> None:
+    runner = CliRunner()
+    calls: dict[str, object] = {}
+
+    def fake_run_full_text_service(**kwargs):
+        calls.update(kwargs)
+        return {
+            "meta": {
+                "extraction_backend": "llm",
+                "llm_model": kwargs["llm_model"],
+                "llm_mode": kwargs["llm_mode"],
+            },
+            "processed_chunks": [],
+            "aggregated_hpo_terms": [],
+        }
+
+    monkeypatch.setattr(
+        "phentrieve.cli.text_commands.run_full_text_service",
+        fake_run_full_text_service,
+    )
+
+    result = runner.invoke(
+        app,
+        [
+            "text",
+            "process",
+            "--extraction-backend",
+            "llm",
+            "--llm-provider",
+            "ollama",
+            "--llm-model",
+            "qwen3.5:35b",
+            "--llm-base-url",
+            "http://localhost:11434",
+            "Patient has seizures.",
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert calls["llm_provider"] == "ollama"
+    assert calls["llm_base_url"] == "http://localhost:11434"
+
+
+def test_text_process_keeps_bare_gemini_model_compatible(monkeypatch) -> None:
+    runner = CliRunner()
+    calls: dict[str, object] = {}
+
+    def fake_run_full_text_service(**kwargs):
+        calls.update(kwargs)
+        return {
+            "meta": {
+                "extraction_backend": "llm",
+                "llm_model": kwargs["llm_model"],
+                "llm_mode": kwargs["llm_mode"],
+            },
+            "processed_chunks": [],
+            "aggregated_hpo_terms": [],
+        }
+
+    monkeypatch.setattr(
+        "phentrieve.cli.text_commands.run_full_text_service",
+        fake_run_full_text_service,
+    )
+
+    result = runner.invoke(
+        app,
+        [
+            "text",
+            "process",
+            "--extraction-backend",
+            "llm",
+            "--llm-model",
+            "gemini-2.5-flash",
+            "Patient has seizures.",
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert calls["llm_model"] == "gemini-2.5-flash"
+
+
 def test_text_process_passes_llm_internal_mode_to_service(monkeypatch):
     runner = CliRunner()
     calls: dict[str, object] = {}

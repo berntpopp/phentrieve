@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "phentrieve"
-version = "0.15.0"
+version = "0.16.0"
 description = "A CLI tool for retrieving Human Phenotype Ontology (HPO) terms from clinical text using multilingual embeddings."
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -76,6 +76,11 @@ mcp = [
 ]
 llm = [
     "google-genai>=1.22.0,<2.0.0",
+    "anthropic>=0.73.0,<1.0.0",
+    "openai>=2.0.0,<3.0.0",
+]
+energy = [
+    "codecarbon>=3.2,<4.0",
 ]
 # Install CLI + API with: pip install "phentrieve[api]"
 # Install CLI + MCP with: pip install "phentrieve[mcp]"

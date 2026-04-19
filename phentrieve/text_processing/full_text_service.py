@@ -6,6 +6,7 @@ and LLM extraction backends while normalizing responses into a stable shape.
 
 from __future__ import annotations
 
+import inspect
 import logging
 import os
 from collections.abc import Callable, Mapping, Sequence
@@ -19,7 +20,11 @@ from phentrieve.config import (
     DEFAULT_MIN_CONFIDENCE_AGGREGATED,
     DEFAULT_MODEL,
 )
-from phentrieve.llm.config import DEFAULT_LLM_MODE, DEFAULT_LLM_MODEL
+from phentrieve.llm.config import (
+    DEFAULT_LLM_MODE,
+    DEFAULT_LLM_MODEL,
+    DEFAULT_PROVIDER_NAME,
+)
 from phentrieve.llm.pipeline import TwoPhaseLLMPipeline, _render_phase1_user_prompt
 from phentrieve.llm.preprocessing import (
     build_extraction_groups,
@@ -51,6 +56,28 @@ def _normalize_status(status: Any) -> str:
     if status is None:
         return "unknown"
     return str(status)
+
+
+def _build_provider_factory_kwargs(
+    provider_factory: Any,
+    **candidate_kwargs: Any,
+) -> dict[str, Any]:
+    try:
+        signature = inspect.signature(provider_factory)
+    except (TypeError, ValueError):
+        return candidate_kwargs
+
+    if any(
+        parameter.kind == inspect.Parameter.VAR_KEYWORD
+        for parameter in signature.parameters.values()
+    ):
+        return candidate_kwargs
+
+    return {
+        key: value
+        for key, value in candidate_kwargs.items()
+        if key in signature.parameters
+    }
 
 
 @dataclass(frozen=True)
@@ -355,11 +382,13 @@ def run_standard_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
 
 def run_llm_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
     """Run the shared LLM backend through the full-text service boundary."""
+    llm_provider = kwargs.get("llm_provider") or os.getenv("PHENTRIEVE_LLM_PROVIDER")
     llm_model = (
         kwargs.get("llm_model")
         or os.getenv("PHENTRIEVE_LLM_MODEL")
         or DEFAULT_LLM_MODEL
     )
+    llm_base_url = kwargs.get("llm_base_url") or os.getenv("PHENTRIEVE_LLM_BASE_URL")
 
     llm_mode = (kwargs.get("llm_mode") or "two_phase").strip()
     if llm_mode != DEFAULT_LLM_MODE:
@@ -387,7 +416,13 @@ def run_llm_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
         len(text),
     )
 
-    provider = provider_factory(llm_model=llm_model)
+    provider_factory_kwargs = _build_provider_factory_kwargs(
+        provider_factory,
+        llm_model=llm_model,
+        llm_provider=llm_provider,
+        llm_base_url=llm_base_url,
+    )
+    provider = provider_factory(**provider_factory_kwargs)
     extraction_prompt = get_prompt(
         AnnotationMode.TWO_PHASE,
         kwargs.get("language") or DEFAULT_LANGUAGE,
@@ -478,11 +513,24 @@ def run_llm_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
             logger.debug("Provider does not support token preflight counting")
 
     pipeline = pipeline_factory(provider=provider)
+    resolved_provider_name = getattr(provider, "provider_name", None)
+    if not isinstance(resolved_provider_name, str) or not resolved_provider_name:
+        resolved_provider_name = llm_provider or DEFAULT_PROVIDER_NAME
+
+    resolved_model_name = getattr(provider, "model_name", None)
+    if not isinstance(resolved_model_name, str) or not resolved_model_name:
+        resolved_model_name = llm_model
+    resolved_base_url = getattr(provider, "base_url", None)
+    if not isinstance(resolved_base_url, str) or not resolved_base_url:
+        resolved_base_url = llm_base_url
+
     pipeline_kwargs: dict[str, Any] = {
         "text": text,
         "grounded_chunks": grounded_chunks,
         "config": LLMPipelineConfig(
-            model=llm_model,
+            provider=resolved_provider_name,
+            model=resolved_model_name,
+            base_url=resolved_base_url,
             mode=llm_mode,
             language=kwargs.get("language"),
         ),
@@ -497,6 +545,7 @@ def run_llm_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
     result_payload = {
         "meta": {
             "extraction_backend": "llm",
+            "llm_provider": result.meta.llm_provider,
             "llm_model": result.meta.llm_model,
             "llm_mode": result.meta.llm_mode,
             "llm_internal_mode": llm_internal_mode,

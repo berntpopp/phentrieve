@@ -341,6 +341,45 @@ def test_benchmark_llm_defaults_to_genereviews_dataset(tmp_path, monkeypatch):
     assert captured["dataset"] == "GeneReviews"
 
 
+def test_benchmark_cli_passes_provider_to_runner(tmp_path, monkeypatch) -> None:
+    runner = CliRunner()
+    test_file = tmp_path / "cases.json"
+    test_file.write_text("[]", encoding="utf-8")
+    captured: dict[str, object] = {}
+
+    def fake_run_llm_benchmark_cli(**kwargs):
+        captured.update(kwargs)
+        return {
+            "cases": 0,
+            "llm_model": kwargs["llm_model"],
+            "llm_mode": kwargs["llm_mode"],
+            "dataset": kwargs["dataset"],
+            "output_path": str(tmp_path / "result.json"),
+        }
+
+    monkeypatch.setattr(
+        "phentrieve.benchmark.llm_cli.run_llm_benchmark_cli",
+        fake_run_llm_benchmark_cli,
+    )
+
+    result = runner.invoke(
+        cli_app,
+        [
+            "benchmark",
+            "llm",
+            "--test-file",
+            str(test_file),
+            "--llm-provider",
+            "ollama",
+            "--llm-model",
+            "qwen3.5:35b",
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert captured["llm_provider"] == "ollama"
+
+
 def test_benchmark_llm_command_passes_language_and_prompt_templates_dir(
     tmp_path, monkeypatch
 ):
@@ -427,6 +466,47 @@ def test_benchmark_llm_command_passes_doc_ids(tmp_path, monkeypatch):
         "GeneReviews_NBK1277",
         "GeneReviews_NBK148668",
     ]
+
+
+def test_benchmark_llm_command_passes_timeout_override(tmp_path, monkeypatch):
+    runner = CliRunner()
+    test_file = tmp_path / "cases.json"
+    test_file.write_text("[]", encoding="utf-8")
+    captured: dict[str, object] = {}
+
+    def fake_run_llm_benchmark_cli(**kwargs):
+        captured.update(kwargs)
+        return {
+            "cases": 0,
+            "llm_model": kwargs["llm_model"],
+            "llm_mode": kwargs["llm_mode"],
+            "dataset": kwargs["dataset"],
+            "output_path": str(tmp_path / "result.json"),
+        }
+
+    monkeypatch.setattr(
+        "phentrieve.benchmark.llm_cli.run_llm_benchmark_cli",
+        fake_run_llm_benchmark_cli,
+    )
+
+    result = runner.invoke(
+        cli_app,
+        [
+            "benchmark",
+            "llm",
+            "--test-file",
+            str(test_file),
+            "--llm-provider",
+            "ollama",
+            "--llm-model",
+            "qwen3:32b",
+            "--llm-timeout-seconds",
+            "900",
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert captured["llm_timeout_seconds"] == 900
 
 
 # =============================================================================
