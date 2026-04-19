@@ -187,6 +187,13 @@ def _build_phase1_attempt_trace(
     }
 
 
+def _group_source_chunk_ids(group_trace: dict[str, Any]) -> list[int]:
+    chunk_ids = group_trace.get("source_chunk_ids")
+    if not isinstance(chunk_ids, list):
+        chunk_ids = group_trace.get("chunk_ids", [])
+    return [int(chunk_id) for chunk_id in chunk_ids]
+
+
 def _normalize_category(category: str) -> str:
     normalized = category.strip().lower().replace("-", "_").replace(" ", "_")
     return {
@@ -450,7 +457,11 @@ class TwoPhaseLLMPipeline:
         phase1_request_count = 0
         phase1_elapsed = 0.0
         phase1_groups_trace: list[dict[str, Any]] = []
+        phase1_carried_groups_trace: list[dict[str, Any]] = []
+        phase1_carried_extracted: list[dict[str, Any]] = []
         current_phase1_mode = phase1_initial_mode
+        current_grounded_chunks = list(grounded_chunks)
+        current_extraction_groups = list(extraction_groups)
 
         while True:
             try:
@@ -463,15 +474,50 @@ class TwoPhaseLLMPipeline:
                 ) = self._run_phase1_mode(
                     mode=current_phase1_mode,
                     text=text,
-                    grounded_chunks=grounded_chunks,
-                    extraction_groups=extraction_groups,
+                    grounded_chunks=current_grounded_chunks,
+                    extraction_groups=current_extraction_groups,
                     extraction_prompt=extraction_prompt,
                 )
                 phase1_usage = _sum_usage_dicts(phase1_usage, attempt_phase1_usage)
                 phase1_request_count += attempt_phase1_request_count
                 phase1_elapsed = round(phase1_elapsed + attempt_phase1_elapsed, 6)
                 phase1_final_mode = current_phase1_mode
-                phase1_groups_trace = attempt_phase1_groups_trace
+                (
+                    retry_grounded_chunks,
+                    retry_failure_class,
+                    retained_groups_trace,
+                ) = self._phase1_partial_retry_chunks(
+                    mode=current_phase1_mode,
+                    grounded_chunks=current_grounded_chunks,
+                    groups_trace=attempt_phase1_groups_trace,
+                )
+                if retry_grounded_chunks:
+                    if phase1_failure_class is None:
+                        phase1_failure_class = retry_failure_class
+                    phase1_carried_extracted.extend(extracted)
+                    phase1_carried_groups_trace.extend(retained_groups_trace)
+                    phase1_groups_trace = list(phase1_carried_groups_trace)
+                    phase1_attempts_trace.append(
+                        _build_phase1_attempt_trace(
+                            mode=current_phase1_mode,
+                            status="partial",
+                            groups_trace=attempt_phase1_groups_trace,
+                            request_count=attempt_phase1_request_count,
+                            elapsed_seconds=attempt_phase1_elapsed,
+                            failure_class=retry_failure_class,
+                        )
+                    )
+                    phase1_fallback_count += 1
+                    current_phase1_mode = "grouped_small"
+                    current_grounded_chunks = retry_grounded_chunks
+                    current_extraction_groups = []
+                    continue
+                extracted = self._deduplicate_phase1_extractions(
+                    phase1_carried_extracted + extracted
+                )
+                phase1_groups_trace = (
+                    list(phase1_carried_groups_trace) + attempt_phase1_groups_trace
+                )
                 phase1_attempts_trace.append(
                     _build_phase1_attempt_trace(
                         mode=current_phase1_mode,
@@ -491,7 +537,9 @@ class TwoPhaseLLMPipeline:
                     phase1_elapsed + float(exc.elapsed_seconds or 0.0), 6
                 )
                 phase1_final_mode = current_phase1_mode
-                phase1_groups_trace = list(exc.groups_trace)
+                phase1_groups_trace = list(phase1_carried_groups_trace) + list(
+                    exc.groups_trace
+                )
                 phase1_attempts_trace.append(
                     _build_phase1_attempt_trace(
                         mode=current_phase1_mode,
@@ -505,7 +553,7 @@ class TwoPhaseLLMPipeline:
                 next_mode = _next_phase1_mode(current_phase1_mode)
                 if self._should_fallback_phase1(
                     failure_class=failure_class,
-                    grounded_chunks=grounded_chunks,
+                    grounded_chunks=current_grounded_chunks,
                     next_mode=next_mode,
                 ):
                     assert next_mode is not None
@@ -1119,6 +1167,57 @@ class TwoPhaseLLMPipeline:
             if exc.elapsed_seconds is None:
                 exc.elapsed_seconds = round(time.perf_counter() - phase1_started, 6)
             raise
+        except Exception as exc:
+            raise LLMPipelinePhaseError(
+                "phase1",
+                f"Phase 1 grouped setup failed: {exc}",
+                usage={"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0},
+                request_count=0,
+                elapsed_seconds=round(time.perf_counter() - phase1_started, 6),
+                groups_trace=[],
+            ) from exc
+
+    def _phase1_partial_retry_chunks(
+        self,
+        *,
+        mode: Phase1Mode,
+        grounded_chunks: list[dict[str, Any]],
+        groups_trace: list[dict[str, Any]],
+    ) -> tuple[list[dict[str, Any]], Phase1FailureClass, list[dict[str, Any]]]:
+        if mode != "grouped_large":
+            return [], None, list(groups_trace)
+
+        next_mode = _next_phase1_mode(mode)
+        retry_chunk_ids: set[int] = set()
+        retained_groups_trace: list[dict[str, Any]] = []
+        retry_failure_class: Phase1FailureClass = None
+
+        for group in groups_trace:
+            if group.get("status") != "failed":
+                retained_groups_trace.append(group)
+                continue
+
+            failure_class = cast(Phase1FailureClass, group.get("failure_class"))
+            if self._should_fallback_phase1(
+                failure_class=failure_class,
+                grounded_chunks=grounded_chunks,
+                next_mode=next_mode,
+            ):
+                if retry_failure_class is None:
+                    retry_failure_class = failure_class
+                retry_chunk_ids.update(_group_source_chunk_ids(group))
+                continue
+            retained_groups_trace.append(group)
+
+        if not retry_chunk_ids:
+            return [], None, list(groups_trace)
+
+        retry_grounded_chunks = [
+            chunk
+            for chunk in grounded_chunks
+            if int(chunk.get("chunk_id", 0)) in retry_chunk_ids
+        ]
+        return retry_grounded_chunks, retry_failure_class, retained_groups_trace
 
     def _should_fallback_phase1(
         self,

@@ -1352,6 +1352,115 @@ def test_pipeline_chains_phase1_fallback_from_ungrouped_to_grouped_large_to_grou
     assert result.meta.phase_request_counts["phase1_requests"] == 6
 
 
+def test_pipeline_retries_only_failed_grouped_large_windows_in_grouped_small(
+    mocker, monkeypatch
+) -> None:
+    monkeypatch.setattr(
+        pipeline_module,
+        "DEFAULT_PHASE1_SMALL_GROUP_MAX_CHUNKS",
+        1,
+    )
+    pipeline = TwoPhaseLLMPipeline(
+        provider=FakeProvider(responses=[]),
+        tool_executor=FakeToolExecutor([]),
+    )
+
+    def fake_run(*, extraction_group, **kwargs):
+        chunk_ids = list(extraction_group["chunk_ids"])
+        if chunk_ids == [1, 2]:
+            raise LLMPipelinePhaseError(
+                "phase1",
+                "invalid json payload",
+                usage={"prompt_tokens": 10, "completion_tokens": 1, "total_tokens": 11},
+                request_count=1,
+            )
+        if chunk_ids == [2, 3]:
+            return (
+                [
+                    grounded_phenotype(
+                        "seizures",
+                        "Other",
+                        chunk_ids=[2],
+                    )
+                ],
+                {"prompt_tokens": 10, "completion_tokens": 2, "total_tokens": 12},
+                1,
+                0.1,
+            )
+        return (
+            [],
+            {"prompt_tokens": 6, "completion_tokens": 1, "total_tokens": 7},
+            1,
+            0.1,
+        )
+
+    run_group = mocker.patch.object(
+        pipeline,
+        "_run_phase1_group",
+        create=True,
+        side_effect=fake_run,
+    )
+
+    result = pipeline.run(
+        text="Opening. Seizures. Closing.",
+        grounded_chunks=[
+            {"chunk_id": 1, "text": "Opening sentence."},
+            {"chunk_id": 2, "text": "Seizures were noted."},
+            {"chunk_id": 3, "text": "Closing sentence."},
+        ],
+        extraction_groups=[
+            {
+                "group_id": 1,
+                "chunk_ids": [1, 2],
+                "text": "chunk_id=1: Opening sentence.\nchunk_id=2: Seizures were noted.",
+            },
+            {
+                "group_id": 2,
+                "chunk_ids": [2, 3],
+                "text": "chunk_id=2: Seizures were noted.\nchunk_id=3: Closing sentence.",
+            },
+        ],
+        config=LLMPipelineConfig(
+            provider="openai",
+            model="gpt-5.4-mini",
+            mode="two_phase",
+        ),
+    )
+
+    assert run_group.call_count == 4
+    phase1_trace = result.meta.trace["phase1"]
+    assert phase1_trace["initial_mode"] == "grouped_large"
+    assert phase1_trace["final_mode"] == "grouped_small"
+    assert phase1_trace["fallback_triggered"] is True
+    assert phase1_trace["failure_class"] == "structured_json_invalid"
+    assert [attempt["mode"] for attempt in phase1_trace["attempts"]] == [
+        "grouped_large",
+        "grouped_small",
+    ]
+    assert phase1_trace["attempts"][0]["status"] == "partial"
+    assert phase1_trace["attempts"][1]["status"] == "completed"
+    assert [
+        group["source_chunk_ids"] for group in phase1_trace["attempts"][0]["groups"]
+    ] == [[1, 2], [2, 3]]
+    assert [
+        group["source_chunk_ids"] for group in phase1_trace["attempts"][1]["groups"]
+    ] == [[1], [2]]
+    assert phase1_trace["extracted"] == [
+        {
+            "phrase": "seizures",
+            "category": "other",
+            "chunk_ids": [2],
+            "evidence_text": "seizures",
+            "actionable": False,
+        }
+    ]
+    assert result.meta.phase_counts["phase1_fallbacks"] == 1
+    assert result.meta.phase_counts["phase1_completed_groups"] == 3
+    assert result.meta.phase_counts["phase1_failed_groups"] == 1
+    assert result.meta.phase_counts["phase1_partial_failures"] == 1
+    assert result.meta.phase_request_counts["phase1_requests"] == 4
+
+
 def test_pipeline_terminal_refusal_does_not_fallback() -> None:
     provider = FakeProvider(
         responses=[
@@ -1423,6 +1532,58 @@ def test_pipeline_does_not_fallback_for_non_regroupable_transport_error() -> Non
     exc = exc_info.value
     assert exc.failure_class == "provider_transport_error"
     assert exc.fallback_triggered is False
+
+
+def test_pipeline_wraps_oversized_grouped_large_construction_failure(
+    monkeypatch,
+) -> None:
+    monkeypatch.setattr(
+        pipeline_module,
+        "DEFAULT_PHASE1_LARGE_GROUP_MAX_PROMPT_TOKENS",
+        5,
+    )
+    provider = FakeProvider(
+        responses=[
+            {
+                "exception": RuntimeError("invalid json payload"),
+                "request_count": 1,
+            },
+        ],
+        provider_name="openai",
+    )
+    pipeline = TwoPhaseLLMPipeline(
+        provider=provider,
+        tool_executor=FakeToolExecutor([]),
+    )
+
+    with pytest.raises(LLMPipelinePhaseError) as exc_info:
+        pipeline.run(
+            text="Single oversized chunk.",
+            grounded_chunks=[
+                {
+                    "chunk_id": 1,
+                    "text": "Single oversized chunk that cannot be regrouped.",
+                }
+            ],
+            extraction_groups=[],
+            config=LLMPipelineConfig(
+                provider="openai",
+                model="gpt-5.4-mini",
+                mode="two_phase",
+            ),
+        )
+
+    exc = exc_info.value
+    assert exc.initial_mode == "ungrouped"
+    assert exc.final_mode == "grouped_large"
+    assert exc.fallback_triggered is True
+    assert exc.failure_class == "provider_execution_error"
+    assert [attempt["mode"] for attempt in exc.phase1_trace["attempts"]] == [
+        "ungrouped",
+        "grouped_large",
+    ]
+    assert exc.phase1_trace["attempts"][1]["request_count"] == 0
+    assert "Single grounded chunk exceeds max_prompt_tokens" in str(exc)
 
 
 def test_two_phase_pipeline_grouped_phase1_keeps_stable_merge_order(mocker) -> None:
