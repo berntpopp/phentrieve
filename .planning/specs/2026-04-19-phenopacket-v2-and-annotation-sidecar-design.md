@@ -110,6 +110,22 @@ to ignore unknown fields. Therefore, if direct drop-in Phenopacket compatibility
 matters, the primary Phenopacket JSON artifact should not include custom
 non-standard top-level fields.
 
+### 3.5 Phenopacket schema version string
+
+The current exporter emits `phenopacket_schema_version="2.0.2"`, but the
+official documentation page for `MetaData` describes the schema version field
+using `2.0` as the v2 identifier. Because documentation and generated bindings
+can diverge in patch-level display, implementation should first verify the exact
+accepted value against the Phenopackets Python/protobuf behavior used by this
+repository and then standardize on that value consistently.
+
+For planning purposes, the intended correction is:
+
+- stop using an arbitrary exporter-local string without verification
+- anchor the emitted value to one explicit source of truth
+- add a parsing/round-trip validation test so the chosen value is proven
+  acceptable to the actual Phenopackets library in use
+
 ## 4. Design Principles
 
 - The default Phenopacket artifact must be strict and standard-compatible.
@@ -188,6 +204,13 @@ General metadata:
 The sidecar should be a generic annotation bundle, not a raw dump of current
 internal objects.
 
+The sidecar must itself have an explicit JSON Schema checked into the repository,
+for example under:
+
+- `phentrieve/phenopackets/schemas/phenotype_annotation_bundle_v1.schema.json`
+
+This schema becomes the source of truth for `schema_version`.
+
 Recommended top-level structure:
 
 ```json
@@ -202,7 +225,7 @@ Recommended top-level structure:
   "annotations": [
     {
       "annotation_id": "ann-0001",
-      "phenotypic_feature_ref": "feature-0001",
+      "phenotypic_feature_index": 0,
       "hpo_id": "HP:0001250",
       "label": "Seizure",
       "assertion": "affirmed",
@@ -231,7 +254,8 @@ Recommended top-level structure:
 Required sidecar concepts:
 
 - stable annotation id
-- stable reference back to the exported phenotypic feature
+- stable reference back to the exported phenotypic feature by array position
+  using `phenotypic_feature_index`
 - HPO id and label
 - assertion
 - confidence if available
@@ -247,37 +271,50 @@ Optional sidecar concepts:
 - match method
 - provider/model metadata
 
+Normative sidecar rules:
+
+- `confidence`, when present, is a numeric score in `[0.0, 1.0]`
+- `confidence` is an application score and is not assumed to be a calibrated
+  probability unless the producing pipeline explicitly documents that guarantee
+- `assertion` values are exactly: `affirmed`, `negated`, `uncertain`,
+  `family_history`, `unknown`
+- multiple annotation entries may share the same `phenotypic_feature_index` when
+  one exported PhenotypicFeature is supported by multiple spans or provenance
+  records
+
 ### 6.3 Assertion and certainty semantics
 
 The design should distinguish:
 
-- assertion: present / absent / uncertain / family history / other
-- certainty: optional confidence-style semantic label distinct from numeric score
+- assertion: `affirmed`, `negated`, `uncertain`, `family_history`, `unknown`
+- certainty: optional semantic assessment distinct from numeric score
 
 The strict Phenopacket projection should map only what the standard models well:
 
-- absent -> `excluded=true`
-- present -> `excluded=false`
+- negated/absent -> `excluded=true`
+- affirmed/present -> `excluded=false`
 
 Other assertion states should remain preserved in the sidecar unless and until a
 clear ontology-backed mapping is adopted.
 
-### 6.4 Feature identifiers
+### 6.4 Feature linkage
 
 Because `PhenotypicFeature` itself does not expose a general id field in the JSON
-representation, linkage must be handled carefully.
+representation, linkage must avoid overloading fields that are meant to carry
+external identifiers.
 
 Recommended linkage strategy:
 
-- generate a deterministic or stable exported feature reference id in the export
-  layer, such as `feature-0001`
-- store it in the sidecar as `phenotypic_feature_ref`
-- also include the same reference in the corresponding PhenotypicFeature's
-  evidence reference identifier, for example through `Evidence.reference.id`
-  or another standard-compatible reference slot
+- the sidecar references exported features by deterministic array position using
+  `phenotypic_feature_index`
+- the ordering of `phenotypic_features` in the Phenopacket export becomes part of
+  the paired-artifact contract for sidecar-enabled exports
+- if an external link is desired from the Phenopacket to the sidecar itself, use
+  a standard `File` or `ExternalReference` pointing to the sidecar artifact, not
+  a local pseudo-CURIE stuffed into `ExternalReference.id`
 
-This makes sidecar-to-feature linkage explicit without altering the Phenopacket
-schema.
+This keeps the Phenopacket strict while making sidecar-to-feature linkage stable
+and machine-readable.
 
 ## 7. Linking Strategy
 
@@ -311,17 +348,28 @@ This makes the link bidirectional and robust for downstream consumers.
 
 The current exporter should be revised to:
 
-- emit `phenopacket_schema_version="2.0"`
+- emit the verified schema version value chosen per Section 3.5
 - stop treating `ExternalReference.description` as the authoritative structured
   home for spans and provenance
 - preserve `excluded` behavior for absent findings
 - keep HPO resource metadata standards-aligned
 
-### 8.2 Legacy descriptive strings
+### 8.2 Transitional descriptive strings
 
-Short descriptive strings can still be included where useful for human
-readability, but they should no longer be the only machine-readable home for
-important provenance.
+Phase 1 of the rollout should not create information loss. Until the sidecar is
+implemented, the exporter may continue to include short descriptive strings in
+`ExternalReference.description` as a transitional compatibility measure for span,
+assertion, and confidence hints.
+
+However, during this phase:
+
+- those strings are explicitly transitional and non-authoritative
+- no existing information currently available in exports should disappear
+- the authoritative machine-readable home for richer provenance only shifts once
+  sidecar support lands
+
+Phase 2 may then reduce or simplify the descriptive strings after sidecar export
+exists and tests prove there is no regression in information availability.
 
 ### 8.3 Input contracts
 
@@ -364,12 +412,41 @@ Add typed internal export models for:
 These should live near the Phenopacket export code or in a small dedicated export
 module, rather than inside provider-specific LLM code.
 
+One concrete normalized record should be part of the implementation contract to
+avoid ambiguity during planning and execution. For example:
+
+```python
+@dataclass(frozen=True)
+class NormalizedPhenotypeExportRecord:
+    hpo_id: str
+    label: str
+    assertion: Literal[
+        "affirmed", "negated", "uncertain", "family_history", "unknown"
+    ]
+    confidence: float | None
+    evidence_text: str | None
+    spans: list[NormalizedSpan]
+    chunk_refs: list[int]
+    source_mode: str | None
+    match_method: str | None
+
+@dataclass(frozen=True)
+class NormalizedSpan:
+    start_char: int
+    end_char: int
+    text: str | None = None
+```
+
+All current export inputs should be normalized into this shape before any
+Phenopacket or sidecar serialization occurs.
+
 ## 10. Testing Strategy
 
 Add or revise tests for:
 
 - strict Phenopacket export remains valid JSON for the Phenopacket message shape
-- exported `phenopacket_schema_version` is `2.0`
+- exported schema version value matches the verified accepted value chosen in
+  implementation
 - absent findings map to `excluded=true`
 - present findings do not set `excluded=true`
 - optional sidecar export writes a second artifact with stable linkage ids
@@ -378,6 +455,9 @@ Add or revise tests for:
   sidecar when available
 - legacy aggregated export paths still work, with explicit normalization
 - malformed ad hoc result dicts fail clearly during normalization
+- Phenopacket JSON round-trips through actual Phenopacket protobuf parsing with
+  strict unknown-field handling
+- sidecar JSON validates against its checked-in JSON Schema
 
 ## 11. Rollout Plan
 
