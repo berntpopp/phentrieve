@@ -2,11 +2,9 @@
 
 from __future__ import annotations
 
+import importlib.resources
 import json
-from pathlib import Path
 from typing import Any, cast
-
-import jsonschema
 
 from phentrieve.phenopackets.export_models import NormalizedPhenotypeExportRecord
 
@@ -17,8 +15,12 @@ _ARTIFACT_TYPE = "phenotype_annotation_bundle"
 
 def load_annotation_sidecar_schema() -> dict[str, Any]:
     """Load the checked-in JSON Schema for annotation sidecars."""
-    schema_path = Path(__file__).resolve().parent / "schemas" / _SCHEMA_FILENAME
-    return cast(dict[str, Any], json.loads(schema_path.read_text(encoding="utf-8")))
+    schema_text = (
+        importlib.resources.files("phentrieve.phenopackets")
+        .joinpath("schemas", _SCHEMA_FILENAME)
+        .read_text(encoding="utf-8")
+    )
+    return cast(dict[str, Any], json.loads(schema_text))
 
 
 def build_annotation_sidecar(
@@ -46,16 +48,13 @@ def build_annotation_sidecar(
                 for span in record.spans
             ],
             "chunk_refs": list(record.chunk_refs),
-            "provenance": {
-                "sidecar_linkage_key": record.sidecar_linkage_key,
-            },
+            "provenance": {},
         }
 
         if record.confidence is not None:
             annotation["confidence"] = record.confidence
-        certainty = getattr(record, "certainty", None)
-        if certainty is not None:
-            annotation["certainty"] = certainty
+        if record.certainty is not None:
+            annotation["certainty"] = record.certainty
         if record.evidence_text is not None:
             annotation["evidence_text"] = record.evidence_text
         if record.source_mode is not None:
@@ -79,4 +78,6 @@ def build_annotation_sidecar(
 
 def validate_annotation_sidecar(sidecar: dict[str, Any]) -> None:
     """Validate a sidecar against the checked-in JSON Schema."""
+    import jsonschema
+
     jsonschema.validate(instance=sidecar, schema=load_annotation_sidecar_schema())

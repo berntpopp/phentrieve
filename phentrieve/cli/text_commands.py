@@ -466,6 +466,13 @@ def process_text_for_hpo_command(
             help="Emit an additional linked annotation sidecar when using phenopacket output.",
         ),
     ] = False,
+    phenopacket_sidecar_output_file: Annotated[
+        Path | None,
+        typer.Option(
+            "--phenopacket-sidecar-output-file",
+            help="Write the annotation sidecar to this file when using phenopacket output.",
+        ),
+    ] = None,
     cross_language_hpo_retrieval: Annotated[
         bool,
         typer.Option(
@@ -717,6 +724,7 @@ def process_text_for_hpo_command(
         reranker_model=reranker_model if enable_reranker else None,
         input_text=raw_text,
         phenopacket_sidecar=phenopacket_sidecar,
+        phenopacket_sidecar_output_file=phenopacket_sidecar_output_file,
     )
 
     elapsed_time = time.time() - start_time
@@ -956,6 +964,7 @@ def _format_and_output_results(
     reranker_model: str | None = None,
     input_text: str | None = None,
     phenopacket_sidecar: bool = False,
+    phenopacket_sidecar_output_file: Path | None = None,
 ) -> None:
     """Format and output the HPO extraction results according to the specified format.
 
@@ -974,6 +983,14 @@ def _format_and_output_results(
     if output_format == "phenopacket_v2_json":
         from phentrieve.phenopackets.utils import export_phenopacket_bundle
 
+        if phenopacket_sidecar and phenopacket_sidecar_output_file is None:
+            typer.secho(
+                "Error: --phenopacket-sidecar requires --phenopacket-sidecar-output-file.",
+                fg=typer.colors.RED,
+                err=True,
+            )
+            raise typer.Exit(code=1)
+
         # chunk_level_results has chunk_idx, chunk_text, matches, start_char, end_char
         bundle = export_phenopacket_bundle(
             chunk_results=chunk_level_results if chunk_level_results else None,
@@ -985,7 +1002,12 @@ def _format_and_output_results(
         )
         typer.echo(bundle["phenopacket_json"])
         if phenopacket_sidecar and bundle["annotation_sidecar"] is not None:
-            typer.echo(json.dumps(bundle["annotation_sidecar"], indent=2), err=True)
+            sidecar_output_file = phenopacket_sidecar_output_file
+            assert sidecar_output_file is not None
+            sidecar_output_file.write_text(
+                json.dumps(bundle["annotation_sidecar"], indent=2) + "\n",
+                encoding="utf-8",
+            )
         return  # early exit
 
     typer.echo(f"Formatting results in {output_format} format...", err=True)

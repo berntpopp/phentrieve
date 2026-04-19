@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import hashlib
-import json
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass, field
 from typing import Any, Literal, Self
@@ -44,37 +42,6 @@ def _normalize_chunk_ids(value: Any) -> list[int]:
     if isinstance(value, list):
         return [int(chunk_id) for chunk_id in value]
     return [int(value)]
-
-
-def _span_payload(span: NormalizedSpan) -> dict[str, Any]:
-    return {
-        "evidence_text": span.evidence_text,
-        "start_char": span.start_char,
-        "end_char": span.end_char,
-        "chunk_ids": list(span.chunk_ids),
-    }
-
-
-def _record_payload(record: NormalizedPhenotypeExportRecord) -> dict[str, Any]:
-    return {
-        "hpo_id": record.hpo_id,
-        "label": record.label,
-        "assertion": record.assertion,
-        "chunk_refs": list(record.chunk_refs),
-    }
-
-
-def _build_sidecar_linkage_key(
-    record: NormalizedPhenotypeExportRecord,
-) -> str:
-    payload = json.dumps(
-        _record_payload(record),
-        sort_keys=True,
-        separators=(",", ":"),
-        ensure_ascii=True,
-    )
-    digest = hashlib.sha256(payload.encode("utf-8")).hexdigest()[:16]
-    return f"phentrieve:{digest}"
 
 
 @dataclass(frozen=True, slots=True, init=False)
@@ -154,13 +121,13 @@ class NormalizedPhenotypeExportRecord:
     hpo_id: str
     label: str
     assertion: AssertionValue
+    certainty: str | None = None
     confidence: float | None = None
     evidence_text: str | None = None
     spans: list[NormalizedSpan] = field(default_factory=list)
     chunk_refs: list[int] = field(default_factory=list)
     source_mode: str | None = None
     match_method: str | None = None
-    sidecar_linkage_key: str = field(init=False)
 
     def __init__(
         self,
@@ -168,6 +135,7 @@ class NormalizedPhenotypeExportRecord:
         hpo_id: str,
         label: str,
         assertion: AssertionValue | str,
+        certainty: str | None = None,
         confidence: float | None = None,
         evidence_text: str | None = None,
         spans: Iterable[NormalizedSpan | Mapping[str, Any]] | None = None,
@@ -205,6 +173,7 @@ class NormalizedPhenotypeExportRecord:
         object.__setattr__(self, "hpo_id", str(hpo_id))
         object.__setattr__(self, "label", str(label))
         object.__setattr__(self, "assertion", _normalize_assertion(str(assertion)))
+        object.__setattr__(self, "certainty", certainty)
         object.__setattr__(
             self, "confidence", float(confidence) if confidence is not None else None
         )
@@ -213,9 +182,6 @@ class NormalizedPhenotypeExportRecord:
         object.__setattr__(self, "chunk_refs", resolved_chunk_refs)
         object.__setattr__(self, "source_mode", source_mode)
         object.__setattr__(self, "match_method", match_method)
-        object.__setattr__(
-            self, "sidecar_linkage_key", _build_sidecar_linkage_key(self)
-        )
 
     @property
     def chunk_ids(self) -> list[int]:
@@ -231,6 +197,7 @@ class NormalizedPhenotypeExportRecord:
         confidence = legacy.get("confidence")
         if confidence is None:
             confidence = legacy.get("score")
+        certainty = legacy.get("certainty")
 
         evidence_text = (
             legacy.get("evidence_text")
@@ -280,6 +247,7 @@ class NormalizedPhenotypeExportRecord:
                     or "affirmed"
                 )
             ),
+            certainty=str(certainty) if certainty is not None else None,
             confidence=float(confidence) if confidence is not None else None,
             evidence_text=str(evidence_text) if evidence_text is not None else None,
             spans=spans,

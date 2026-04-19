@@ -280,6 +280,34 @@ class TestPhenopacketUtils:
             bundle["annotation_sidecar"]["annotations"][0]["phenotypic_feature_index"]
             == 0
         )
+        validate_annotation_sidecar(bundle["annotation_sidecar"])
+        phenopacket = json.loads(bundle["phenopacket_json"])
+        refs = phenopacket["metaData"]["externalReferences"]
+        assert any(ref["id"] == "phentrieve:annotation_sidecar" for ref in refs)
+
+    def test_export_phenopacket_bundle_sorts_sidecar_with_aggregated_rank_order(
+        self,
+    ) -> None:
+        bundle = export_phenopacket_bundle(
+            aggregated_results=[
+                {
+                    "id": "HP:0001251",
+                    "name": "Absence seizure",
+                    "confidence": 0.7,
+                    "rank": 2,
+                },
+                {"id": "HP:0001250", "name": "Seizure", "confidence": 0.9, "rank": 1},
+            ],
+            include_annotation_sidecar=True,
+        )
+
+        phenopacket = json.loads(bundle["phenopacket_json"])
+        annotation = bundle["annotation_sidecar"]["annotations"][0]
+
+        assert phenopacket["phenotypicFeatures"][0]["type"]["id"] == "HP:0001250"
+        assert annotation["phenotypic_feature_index"] == 0
+        assert annotation["hpo_id"] == "HP:0001250"
+        validate_annotation_sidecar(bundle["annotation_sidecar"])
 
     def test_export_phenopacket_bundle_keeps_default_single_artifact_behavior(
         self,
@@ -293,6 +321,26 @@ class TestPhenopacketUtils:
 
         assert "phenopacket_json" in bundle
         assert bundle["annotation_sidecar"] is None
+
+    def test_chunk_export_rejects_malformed_match_consistently(self) -> None:
+        chunk_results = [
+            {
+                "chunk_idx": 0,
+                "chunk_text": "clinical text",
+                "start_char": 0,
+                "end_char": 13,
+                "matches": [{"id": "", "name": "", "score": 0.5}],
+            }
+        ]
+
+        with pytest.raises(ValueError, match="hpo_id and label"):
+            format_as_phenopacket_v2(chunk_results=chunk_results)
+
+        with pytest.raises(ValueError, match="hpo_id and label"):
+            export_phenopacket_bundle(
+                chunk_results=chunk_results,
+                include_annotation_sidecar=True,
+            )
 
 
 class TestNormalizedExportModels:
@@ -334,6 +382,7 @@ class TestNormalizedExportModels:
             hpo_id="HP:0001250",
             label="Seizure",
             assertion="affirmed",
+            certainty="confirmed",
             confidence=0.91,
             spans=[span],
             evidence_text="recurrent seizures",
@@ -345,13 +394,13 @@ class TestNormalizedExportModels:
         assert record.hpo_id == "HP:0001250"
         assert record.label == "Seizure"
         assert record.assertion == "affirmed"
+        assert record.certainty == "confirmed"
         assert record.confidence == 0.91
         assert record.spans == [span]
         assert record.evidence_text == "recurrent seizures"
         assert record.chunk_refs == [4]
         assert record.source_mode == "two_phase"
         assert record.match_method == "llm_mapping"
-        assert record.sidecar_linkage_key
 
         identical_record = NormalizedPhenotypeExportRecord(
             hpo_id="HP:0001250",
@@ -371,22 +420,28 @@ class TestNormalizedExportModels:
             source_mode="chunk",
             match_method="different",
         )
-
-        assert identical_record.sidecar_linkage_key == record.sidecar_linkage_key
+        assert identical_record.hpo_id == record.hpo_id
+        assert identical_record.label == record.label
 
         aggregated_legacy = NormalizedPhenotypeExportRecord.from_legacy_dict(
-            {"id": "HP:0001250", "name": "Seizure", "confidence": 0.9, "rank": 1}
+            {
+                "id": "HP:0001250",
+                "name": "Seizure",
+                "confidence": 0.9,
+                "rank": 1,
+                "certainty": "probable",
+            }
         )
 
         assert aggregated_legacy.hpo_id == "HP:0001250"
         assert aggregated_legacy.label == "Seizure"
         assert aggregated_legacy.assertion == "affirmed"
+        assert aggregated_legacy.certainty == "probable"
         assert aggregated_legacy.confidence == 0.9
         assert aggregated_legacy.spans == []
         assert aggregated_legacy.chunk_refs == []
         assert aggregated_legacy.source_mode == "aggregated"
         assert aggregated_legacy.match_method == "legacy_dict"
-        assert aggregated_legacy.sidecar_linkage_key
 
         chunk_legacy = NormalizedPhenotypeExportRecord.from_legacy_dict(
             {
@@ -407,7 +462,6 @@ class TestNormalizedExportModels:
         assert chunk_legacy.chunk_refs == [2]
         assert chunk_legacy.source_mode == "chunk"
         assert chunk_legacy.match_method == "legacy_dict"
-        assert chunk_legacy.sidecar_linkage_key
 
     def test_normalize_aggregated_results_accepts_legacy_id_name_confidence_keys(
         self,
@@ -447,6 +501,36 @@ class TestNormalizedExportModels:
         assert records[0].assertion == "affirmed"
         assert records[0].evidence_text == "recurrent seizures"
 
+    def test_normalized_span_rejects_invalid_offsets(self):
+        with pytest.raises(ValueError, match="start_char must be non-negative"):
+            NormalizedSpan(text="bad", start_char=-1, end_char=2)
+
+        with pytest.raises(
+            ValueError, match="end_char must be greater than or equal to start_char"
+        ):
+            NormalizedSpan(text="bad", start_char=5, end_char=2)
+
+    def test_normalized_record_normalizes_assertion_aliases_and_infers_chunk_refs(self):
+        record = NormalizedPhenotypeExportRecord.from_legacy_dict(
+            {
+                "id": "HP:0001250",
+                "name": "Seizure",
+                "assertion_status": "absent",
+                "spans": [
+                    {
+                        "text": "no seizures",
+                        "start_char": 10,
+                        "end_char": 21,
+                        "chunk_refs": [3],
+                    }
+                ],
+            }
+        )
+
+        assert record.assertion == "negated"
+        assert record.chunk_refs == [3]
+        assert record.evidence_text == "no seizures"
+
     def test_build_annotation_sidecar_uses_feature_indexes(self) -> None:
         records = [
             NormalizedPhenotypeExportRecord(
@@ -475,6 +559,24 @@ class TestNormalizedExportModels:
         assert sidecar["annotations"][0]["annotation_id"] == "ann-0001"
         assert sidecar["annotations"][0]["phenotypic_feature_index"] == 0
         assert sidecar["annotations"][0]["chunk_refs"] == []
+
+    def test_build_annotation_sidecar_includes_certainty_when_present(self) -> None:
+        records = [
+            NormalizedPhenotypeExportRecord(
+                hpo_id="HP:0001250",
+                label="Seizure",
+                assertion="affirmed",
+                certainty="confirmed",
+            )
+        ]
+
+        sidecar = build_annotation_sidecar(
+            phenopacket_id="packet-1",
+            records=records,
+            generated_by_version="0.16.0",
+        )
+
+        assert sidecar["annotations"][0]["certainty"] == "confirmed"
 
     def test_build_annotation_sidecar_uses_deterministic_annotation_sequence(
         self,
@@ -505,6 +607,7 @@ class TestNormalizedExportModels:
 
     def test_annotation_sidecar_validates_against_checked_in_schema(self) -> None:
         schema = load_annotation_sidecar_schema()
+        assert schema["$id"].endswith("phenotype_annotation_bundle_v1.schema.json")
         assert schema["properties"]["schema_version"]["const"] == "1.0.0"
         assert "certainty" in schema["properties"]["annotations"]["items"]["properties"]
         assert (
