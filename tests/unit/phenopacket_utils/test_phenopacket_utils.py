@@ -2,6 +2,10 @@ import json
 
 import pytest
 
+from phentrieve.phenopackets.export_models import (
+    NormalizedPhenotypeExportRecord,
+    NormalizedSpan,
+)
 from phentrieve.phenopackets.utils import format_as_phenopacket_v2
 
 pytestmark = pytest.mark.unit
@@ -210,3 +214,111 @@ class TestPhenopacketUtils:
         # Find embedding reference
         refs_by_id = {ref["id"]: ref["description"] for ref in ext_refs}
         assert refs_by_id["phentrieve:embedding_model"] == "BAAI/bge-m3"
+
+
+class TestNormalizedExportModels:
+    def test_normalized_span_direct_construction_and_legacy_dict_constructor(self):
+        span = NormalizedSpan(
+            evidence_text="recurrent seizures",
+            start_char=10,
+            end_char=28,
+            chunk_ids=(4,),
+        )
+
+        assert span.evidence_text == "recurrent seizures"
+        assert span.start_char == 10
+        assert span.end_char == 28
+        assert span.chunk_ids == (4,)
+
+        legacy_span = NormalizedSpan.from_legacy_dict(
+            {
+                "text": "recurrent seizures",
+                "start_char": 10,
+                "end_char": 28,
+                "chunk_idx": 4,
+            }
+        )
+
+        assert legacy_span == span
+
+    def test_normalized_phenotype_export_record_direct_construction_and_legacy_dict_constructor(
+        self,
+    ):
+        span = NormalizedSpan(
+            evidence_text="recurrent seizures",
+            start_char=10,
+            end_char=28,
+            chunk_ids=(4,),
+        )
+
+        record = NormalizedPhenotypeExportRecord(
+            hpo_id="HP:0001250",
+            label="Seizure",
+            assertion="affirmed",
+            confidence=0.91,
+            spans=(span,),
+            evidence_text="recurrent seizures",
+            chunk_ids=(4,),
+            source_mode="two_phase",
+            match_method="llm_mapping",
+        )
+
+        assert record.hpo_id == "HP:0001250"
+        assert record.label == "Seizure"
+        assert record.assertion == "affirmed"
+        assert record.confidence == 0.91
+        assert record.spans == (span,)
+        assert record.evidence_text == "recurrent seizures"
+        assert record.chunk_ids == (4,)
+        assert record.source_mode == "two_phase"
+        assert record.match_method == "llm_mapping"
+        assert record.sidecar_linkage_key
+
+        identical_record = NormalizedPhenotypeExportRecord(
+            hpo_id="HP:0001250",
+            label="Seizure",
+            assertion="affirmed",
+            confidence=0.91,
+            spans=(span,),
+            evidence_text="recurrent seizures",
+            chunk_ids=(4,),
+            source_mode="two_phase",
+            match_method="llm_mapping",
+        )
+
+        assert identical_record.sidecar_linkage_key == record.sidecar_linkage_key
+
+        aggregated_legacy = NormalizedPhenotypeExportRecord.from_legacy_dict(
+            {"id": "HP:0001250", "name": "Seizure", "confidence": 0.9, "rank": 1}
+        )
+
+        assert aggregated_legacy.hpo_id == "HP:0001250"
+        assert aggregated_legacy.label == "Seizure"
+        assert aggregated_legacy.assertion == "affirmed"
+        assert aggregated_legacy.confidence == 0.9
+        assert aggregated_legacy.spans == ()
+        assert aggregated_legacy.chunk_ids == ()
+        assert aggregated_legacy.source_mode == "aggregated"
+        assert aggregated_legacy.match_method == "legacy_dict"
+        assert aggregated_legacy.sidecar_linkage_key
+
+        chunk_legacy = NormalizedPhenotypeExportRecord.from_legacy_dict(
+            {
+                "hpo_id": "HP:0001324",
+                "term_name": "Muscle weakness",
+                "score": 0.8,
+                "assertion_status": "negated",
+                "evidence_text": "No muscle weakness observed",
+                "chunk_idx": 2,
+            }
+        )
+
+        assert chunk_legacy.hpo_id == "HP:0001324"
+        assert chunk_legacy.label == "Muscle weakness"
+        assert chunk_legacy.assertion == "negated"
+        assert chunk_legacy.confidence == 0.8
+        assert chunk_legacy.evidence_text == "No muscle weakness observed"
+        assert chunk_legacy.chunk_ids == (2,)
+        assert chunk_legacy.source_mode == "chunk"
+        assert chunk_legacy.match_method == "legacy_dict"
+        assert chunk_legacy.sidecar_linkage_key
