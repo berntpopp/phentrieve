@@ -1,6 +1,7 @@
 """This module provides utilities for creating and handling Phenopackets."""
 
 import datetime
+import json
 import logging
 import uuid
 from pathlib import Path
@@ -19,6 +20,7 @@ from phenopackets import (
 )
 
 from phentrieve.phenopackets.export_models import NormalizedPhenotypeExportRecord
+from phentrieve.phenopackets.sidecar import build_annotation_sidecar
 
 logger = logging.getLogger(__name__)
 
@@ -162,6 +164,60 @@ def format_as_phenopacket_v2(
             hpo_version=hpo_version,
             input_text=input_text,
         )
+
+
+def export_phenopacket_bundle(
+    *,
+    aggregated_results: list[dict[str, Any]] | None = None,
+    chunk_results: list[dict[str, Any]] | None = None,
+    phentrieve_version: str | None = None,
+    embedding_model: str | None = None,
+    reranker_model: str | None = None,
+    hpo_version: str | None = None,
+    input_text: str | None = None,
+    include_annotation_sidecar: bool = False,
+) -> dict[str, Any]:
+    """Export a strict Phenopacket JSON string and optional annotation sidecar."""
+    resolved_phentrieve_version = phentrieve_version
+    if resolved_phentrieve_version is None:
+        try:
+            from phentrieve import __version__
+
+            resolved_phentrieve_version = __version__
+        except ImportError:
+            resolved_phentrieve_version = "unknown"
+
+    resolved_hpo_version = hpo_version
+    if resolved_hpo_version is None:
+        resolved_hpo_version = _get_hpo_version_from_db()
+
+    phenopacket_json = format_as_phenopacket_v2(
+        aggregated_results=aggregated_results,
+        chunk_results=chunk_results,
+        phentrieve_version=resolved_phentrieve_version,
+        embedding_model=embedding_model,
+        reranker_model=reranker_model,
+        hpo_version=resolved_hpo_version,
+        input_text=input_text,
+    )
+
+    annotation_sidecar = None
+    if include_annotation_sidecar:
+        normalized_records = _normalize_export_records(
+            aggregated_results=aggregated_results,
+            chunk_results=chunk_results,
+        )
+        phenopacket_id = json.loads(phenopacket_json)["id"]
+        annotation_sidecar = build_annotation_sidecar(
+            phenopacket_id=phenopacket_id,
+            records=normalized_records,
+            generated_by_version=resolved_phentrieve_version,
+        )
+
+    return {
+        "phenopacket_json": phenopacket_json,
+        "annotation_sidecar": annotation_sidecar,
+    }
 
 
 def _format_from_chunk_results(
@@ -342,6 +398,50 @@ def _normalize_aggregated_results(
         NormalizedPhenotypeExportRecord.from_legacy_dict(result)
         for result in aggregated_results
     ]
+
+
+def _normalize_export_records(
+    *,
+    aggregated_results: list[dict[str, Any]] | None = None,
+    chunk_results: list[dict[str, Any]] | None = None,
+) -> list[NormalizedPhenotypeExportRecord]:
+    if chunk_results is not None and len(chunk_results) > 0:
+        normalized_records: list[NormalizedPhenotypeExportRecord] = []
+        for chunk_result in chunk_results:
+            chunk_idx = chunk_result.get("chunk_idx", 0)
+            chunk_text = chunk_result.get("chunk_text")
+            start_char = chunk_result.get("start_char")
+            end_char = chunk_result.get("end_char")
+            matches = chunk_result.get("matches", [])
+
+            for match in matches:
+                normalized_match = dict(match)
+                normalized_match.setdefault("hpo_id", normalized_match.get("id"))
+                normalized_match.setdefault(
+                    "label",
+                    normalized_match.get("name") or normalized_match.get("term_name"),
+                )
+                normalized_match["evidence_text"] = chunk_text
+                normalized_match["chunk_refs"] = [chunk_idx]
+                if start_char is not None and end_char is not None:
+                    normalized_match["spans"] = [
+                        {
+                            "text": chunk_text,
+                            "start_char": start_char,
+                            "end_char": end_char,
+                            "chunk_refs": [chunk_idx],
+                        }
+                    ]
+                normalized_records.append(
+                    NormalizedPhenotypeExportRecord.from_legacy_dict(normalized_match)
+                )
+
+        return normalized_records
+
+    if aggregated_results is not None and len(aggregated_results) > 0:
+        return _normalize_aggregated_results(aggregated_results)
+
+    return []
 
 
 def _create_phenopacket_json(

@@ -15,6 +15,7 @@ from phentrieve.phenopackets.sidecar import (
 )
 from phentrieve.phenopackets.utils import (
     _normalize_aggregated_results,
+    export_phenopacket_bundle,
     format_as_phenopacket_v2,
 )
 
@@ -261,6 +262,37 @@ class TestPhenopacketUtils:
         phenopacket = json.loads(phenopacket_json)
 
         assert phenopacket["phenotypicFeatures"][0]["excluded"] is True
+
+    def test_export_phenopacket_bundle_returns_strict_packet_and_optional_sidecar(
+        self,
+    ) -> None:
+        bundle = export_phenopacket_bundle(
+            aggregated_results=[
+                {"id": "HP:0001250", "name": "Seizure", "confidence": 0.9, "rank": 1}
+            ],
+            phentrieve_version="0.16.0",
+            include_annotation_sidecar=True,
+        )
+
+        assert "phenopacket_json" in bundle
+        assert "annotation_sidecar" in bundle
+        assert (
+            bundle["annotation_sidecar"]["annotations"][0]["phenotypic_feature_index"]
+            == 0
+        )
+
+    def test_export_phenopacket_bundle_keeps_default_single_artifact_behavior(
+        self,
+    ) -> None:
+        bundle = export_phenopacket_bundle(
+            aggregated_results=[
+                {"id": "HP:0001250", "name": "Seizure", "confidence": 0.9, "rank": 1}
+            ],
+            include_annotation_sidecar=False,
+        )
+
+        assert "phenopacket_json" in bundle
+        assert bundle["annotation_sidecar"] is None
 
 
 class TestNormalizedExportModels:
