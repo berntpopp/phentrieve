@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import jsonschema
 
@@ -18,7 +18,7 @@ _ARTIFACT_TYPE = "phenotype_annotation_bundle"
 def load_annotation_sidecar_schema() -> dict[str, Any]:
     """Load the checked-in JSON Schema for annotation sidecars."""
     schema_path = Path(__file__).resolve().parent / "schemas" / _SCHEMA_FILENAME
-    return json.loads(schema_path.read_text(encoding="utf-8"))
+    return cast(dict[str, Any], json.loads(schema_path.read_text(encoding="utf-8")))
 
 
 def build_annotation_sidecar(
