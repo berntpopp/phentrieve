@@ -108,6 +108,79 @@ def _fake_ollama_response(
     )
 
 
+def _fake_openai_response(
+    *,
+    output_text: str | None = None,
+    refusal: str | None = None,
+    finish_reason: str = "stop",
+    input_tokens: int = 0,
+    output_tokens: int = 0,
+):
+    return _FakeOpenAIResponse(
+        output_text=output_text,
+        refusal=refusal,
+        finish_reason=finish_reason,
+        input_tokens=input_tokens,
+        output_tokens=output_tokens,
+    )
+
+
+def _fake_anthropic_response(
+    *,
+    text: str,
+    stop_reason: str = "end_turn",
+    input_tokens: int = 0,
+    output_tokens: int = 0,
+):
+    return _FakeAnthropicResponse(
+        text=text,
+        stop_reason=stop_reason,
+        input_tokens=input_tokens,
+        output_tokens=output_tokens,
+    )
+
+
+def _install_fake_ollama_http(
+    monkeypatch,
+    *,
+    json_bodies: list[dict[str, Any]],
+):
+    class _FakeResponse:
+        def __init__(self, body: dict[str, Any]) -> None:
+            self._body = body
+
+        def raise_for_status(self) -> None:
+            return None
+
+        def json(self) -> dict[str, Any]:
+            return self._body
+
+    class _FakeClient:
+        def __init__(self, *, timeout: int) -> None:
+            self.timeout = timeout
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            return False
+
+        def post(self, url: str, json: dict[str, Any]):
+            fake_http.requests.append({"url": url, "json": json})
+            if not fake_http._bodies:
+                raise AssertionError("unexpected Ollama request")
+            return _FakeResponse(fake_http._bodies.pop(0))
+
+    class _FakeHttp:
+        def __init__(self, bodies: list[dict[str, Any]]) -> None:
+            self._bodies = list(bodies)
+            self.requests: list[dict[str, Any]] = []
+
+    fake_http = _FakeHttp(json_bodies)
+    monkeypatch.setattr(provider_module.httpx, "Client", _FakeClient, raising=True)
+    return fake_http
+
+
 def test_llm_pipeline_config_includes_provider() -> None:
     config = LLMPipelineConfig(
         provider="ollama",
@@ -305,6 +378,85 @@ def test_ollama_invalid_json_raises_validation_error(mocker) -> None:
             user_prompt="user",
             response_model=LLMExtractedPhenotypes,
         )
+
+
+def test_openai_retries_retryable_structured_payload_failure(monkeypatch) -> None:
+    monkeypatch.setenv("PHENTRIEVE_OPENAI_API_KEY", "test-key")
+    _install_fake_openai(
+        monkeypatch,
+        responses=[
+            _fake_openai_response(
+                output_text='{"phenotypes": [',
+                input_tokens=10,
+                output_tokens=2,
+            ),
+            _fake_openai_response(
+                output_text='{"phenotypes":[]}',
+                input_tokens=11,
+                output_tokens=3,
+            ),
+        ],
+    )
+    provider = get_llm_provider(llm_provider="openai", llm_model="gpt-5.4-mini")
+
+    result = provider.run_structured_prompt(
+        system_prompt="system",
+        user_prompt="user",
+        response_model=LLMExtractedPhenotypes,
+    )
+
+    assert result.phenotypes == []
+    assert provider.last_request_count == 2
+    assert provider.last_usage["total_tokens"] == 26
+
+
+def test_anthropic_does_not_retry_structured_refusal(monkeypatch) -> None:
+    monkeypatch.setenv("PHENTRIEVE_ANTHROPIC_API_KEY", "test-key")
+    _install_fake_anthropic(
+        monkeypatch,
+        responses=[_fake_anthropic_response(text="", stop_reason="refusal")],
+    )
+    provider = get_llm_provider(llm_provider="anthropic", llm_model="claude-sonnet-4-6")
+
+    with pytest.raises(RuntimeError, match="refusal|structured"):
+        provider.run_structured_prompt(
+            system_prompt="system",
+            user_prompt="user",
+            response_model=LLMExtractedPhenotypes,
+        )
+
+    assert provider.last_request_count == 1
+
+
+def test_ollama_structured_retry_expands_output_budget(monkeypatch) -> None:
+    fake_http = _install_fake_ollama_http(
+        monkeypatch,
+        json_bodies=[
+            {
+                "message": {"content": '{"phenotypes": ['},
+                "prompt_eval_count": 5,
+                "eval_count": 1,
+                "done_reason": "stop",
+            },
+            {
+                "message": {"content": '{"phenotypes":[]}'},
+                "prompt_eval_count": 5,
+                "eval_count": 2,
+                "done_reason": "stop",
+            },
+        ],
+    )
+    provider = get_llm_provider(llm_provider="ollama", llm_model="qwen3:32b")
+
+    provider.run_structured_prompt(
+        system_prompt="system",
+        user_prompt="user",
+        response_model=LLMExtractedPhenotypes,
+        max_output_tokens=8192,
+    )
+
+    assert fake_http.requests[0]["json"]["options"]["num_predict"] == 8192
+    assert fake_http.requests[1]["json"]["options"]["num_predict"] == 16384
 
 
 def test_ollama_complete_retries_transient_timeout(mocker) -> None:

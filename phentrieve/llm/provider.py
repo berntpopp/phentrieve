@@ -5,13 +5,14 @@ import logging
 import os
 import time
 from abc import ABC, abstractmethod
+from collections.abc import Callable
 from dataclasses import dataclass
 from random import SystemRandom
 from threading import local
 from typing import Any
 
 import httpx
-from pydantic import BaseModel, ValidationError
+from pydantic import BaseModel
 
 from phentrieve.config import DEFAULT_MODEL
 from phentrieve.llm.config import (
@@ -54,6 +55,10 @@ class LLMProvider(ABC):
         self.last_usage = {}
         self.last_finish_reason = None
         self.last_request_count = 0
+        self.structured_retries = DEFAULT_PROVIDER_STRUCTURED_RETRIES
+        self.structured_retry_token_multiplier = (
+            DEFAULT_PROVIDER_STRUCTURED_RETRY_TOKEN_MULTIPLIER
+        )
 
     @property
     def last_usage(self) -> dict[str, int]:
@@ -96,6 +101,121 @@ class LLMProvider(ABC):
 
     def count_tokens(self, *, system_prompt: str, user_prompt: str) -> dict[str, int]:
         raise NotImplementedError
+
+    def _run_structured_with_recovery(
+        self,
+        *,
+        invoke: Callable[[int], tuple[Any, int]],
+        parse: Callable[[Any], BaseModel],
+        initial_output_tokens: int,
+        max_output_tokens: int,
+        structured_retries: int,
+        structured_retry_token_multiplier: int,
+    ) -> BaseModel:
+        current_output_tokens = initial_output_tokens
+        aggregate_usage = {
+            "prompt_tokens": 0,
+            "completion_tokens": 0,
+            "total_tokens": 0,
+        }
+        last_exception: Exception | None = None
+        self.last_usage = {}
+        self.last_finish_reason = None
+        self.last_request_count = 0
+
+        for attempt in range(1, structured_retries + 2):
+            response, request_count = invoke(current_output_tokens)
+            self._record_structured_attempt(
+                response=response,
+                request_count=request_count,
+                aggregate_usage=aggregate_usage,
+            )
+            try:
+                return parse(response)
+            except Exception as exc:
+                last_exception = exc
+                if (
+                    attempt > structured_retries
+                    or not self._is_retryable_structured_error(exc)
+                ):
+                    raise
+                logger.warning(
+                    "%s structured response validation failed on attempt %d/%d "
+                    "(finish_reason=%s): %s",
+                    self.__class__.__name__.removesuffix("StructuredOutputProvider"),
+                    attempt,
+                    structured_retries + 1,
+                    self.last_finish_reason,
+                    exc,
+                )
+                current_output_tokens = self._next_retry_output_tokens(
+                    current_output_tokens,
+                    max_output_tokens=max_output_tokens,
+                    retry_token_multiplier=structured_retry_token_multiplier,
+                )
+
+        if last_exception is not None:
+            raise last_exception
+        raise RuntimeError("Structured response request failed without a payload.")
+
+    def _record_structured_attempt(
+        self,
+        *,
+        response: Any,
+        request_count: int,
+        aggregate_usage: dict[str, int],
+    ) -> None:
+        self.last_request_count += int(request_count or 0)
+        response_usage = self._extract_structured_usage(response)
+        for key, value in response_usage.items():
+            aggregate_usage[key] = int(aggregate_usage.get(key, 0) or 0) + int(
+                value or 0
+            )
+        self.last_usage = dict(aggregate_usage)
+        self.last_finish_reason = self._extract_structured_finish_reason(response)
+
+    def _extract_structured_usage(self, response: Any) -> dict[str, int]:
+        extractor = getattr(self, "_extract_usage", None)
+        if callable(extractor):
+            usage = extractor(response)
+            if isinstance(usage, dict):
+                return usage
+        return {}
+
+    def _extract_structured_finish_reason(self, response: Any) -> str | None:
+        extractor = getattr(self, "_extract_finish_reason", None)
+        if not callable(extractor):
+            return None
+        finish_reason = extractor(response)
+        return str(finish_reason) if finish_reason is not None else None
+
+    def _is_retryable_structured_error(self, exc: Exception) -> bool:
+        message = str(exc).lower()
+        if any(token in message for token in ("refusal", "billing", "unsupported")):
+            return False
+        return (
+            "invalid json" in message
+            or "json_invalid" in message
+            or "unterminated" in message
+            or "eof while parsing" in message
+            or "expecting value" in message
+            or "extra data" in message
+            or "no structured response payload" in message
+        )
+
+    def _next_retry_output_tokens(
+        self,
+        current_output_tokens: int,
+        *,
+        max_output_tokens: int,
+        retry_token_multiplier: int,
+    ) -> int:
+        if retry_token_multiplier <= 1:
+            return current_output_tokens
+        return min(
+            current_output_tokens * retry_token_multiplier,
+            max_output_tokens,
+        )
 
 
 @dataclass(frozen=True)
@@ -341,20 +461,9 @@ class GeminiStructuredOutputProvider(LLMProvider):
                 "Install them with `uv sync --extra llm`."
             ) from exc
 
-        self.last_usage = {}
-        self.last_finish_reason = None
-        self.last_request_count = 0
-        last_exception: Exception | None = None
-        aggregate_usage = {
-            "prompt_tokens": 0,
-            "completion_tokens": 0,
-            "total_tokens": 0,
-        }
         response_schema = build_response_json_schema(response_model)
-        output_tokens = max_output_tokens or self.max_tokens
-
-        for attempt in range(1, self.structured_retries + 2):
-            response, request_count = self._generate_with_transient_retry(
+        return self._run_structured_with_recovery(
+            invoke=lambda output_tokens: self._generate_with_transient_retry(
                 genai_module=genai,
                 model=self.model_name,
                 contents=user_prompt,
@@ -368,41 +477,18 @@ class GeminiStructuredOutputProvider(LLMProvider):
                     http_options=types.HttpOptions(timeout=self.timeout_seconds * 1000),
                 ),
                 structured=True,
-            )
-
-            self.last_request_count += request_count
-            response_usage = self._extract_usage(response)
-            for key, value in response_usage.items():
-                aggregate_usage[key] = int(aggregate_usage.get(key, 0) or 0) + int(
-                    value or 0
-                )
-            self.last_usage = dict(aggregate_usage)
-            self.last_finish_reason = self._extract_finish_reason(response)
-            try:
-                return self._validate_structured_response(
-                    response=response,
-                    response_model=response_model,
-                )
-            except (ValidationError, ValueError, RuntimeError) as exc:
-                last_exception = exc
-                if (
-                    attempt > self.structured_retries
-                    or not self._is_retryable_structured_error(exc)
-                ):
-                    raise
-                logger.warning(
-                    "Gemini structured response validation failed on attempt %d/%d "
-                    "(finish_reason=%s): %s",
-                    attempt,
-                    self.structured_retries + 1,
-                    self.last_finish_reason,
-                    exc,
-                )
-                output_tokens = self._next_retry_output_tokens(output_tokens)
-
-        if last_exception is not None:
-            raise last_exception
-        raise RuntimeError("Gemini returned no structured response payload.")
+            ),
+            parse=lambda response: self._validate_structured_response(
+                response=response,
+                response_model=response_model,
+            ),
+            initial_output_tokens=max_output_tokens or self.max_tokens,
+            max_output_tokens=max(
+                self.max_tokens, DEFAULT_GROUNDED_PHASE1_MAX_OUTPUT_TOKENS
+            ),
+            structured_retries=self.structured_retries,
+            structured_retry_token_multiplier=self.structured_retry_token_multiplier,
+        )
 
     def count_tokens(self, *, system_prompt: str, user_prompt: str) -> dict[str, int]:
         try:
@@ -486,12 +572,18 @@ class GeminiStructuredOutputProvider(LLMProvider):
             or "no structured response payload" in message
         )
 
-    def _next_retry_output_tokens(self, current_output_tokens: int) -> int:
-        if self.structured_retry_token_multiplier <= 1:
+    def _next_retry_output_tokens(
+        self,
+        current_output_tokens: int,
+        *,
+        max_output_tokens: int,
+        retry_token_multiplier: int,
+    ) -> int:
+        if retry_token_multiplier <= 1:
             return current_output_tokens
         return min(
-            current_output_tokens * self.structured_retry_token_multiplier,
-            max(self.max_tokens, DEFAULT_GROUNDED_PHASE1_MAX_OUTPUT_TOKENS),
+            current_output_tokens * retry_token_multiplier,
+            max_output_tokens,
         )
 
     def _generate_with_transient_retry(
@@ -584,6 +676,7 @@ class OllamaStructuredOutputProvider(LLMProvider):
         self.base_url = base_url.rstrip("/")
         self.seed = seed
         self.temperature = temperature
+        self.max_tokens = DEFAULT_PROVIDER_MAX_TOKENS
         self.timeout_seconds = timeout_seconds
         self.transient_retries = transient_retries
         self._counting_mode = "estimated"
@@ -632,41 +725,25 @@ class OllamaStructuredOutputProvider(LLMProvider):
         response_model: type[BaseModel],
         max_output_tokens: int | None = None,
     ) -> BaseModel:
-        self.last_usage = {}
-        self.last_finish_reason = None
-        self.last_request_count = 0
-        options: dict[str, Any] = {
-            "temperature": self.temperature,
-            "num_predict": max_output_tokens or DEFAULT_PROVIDER_MAX_TOKENS,
-        }
         response_schema = build_response_json_schema(response_model)
-        payload: dict[str, Any] = {
-            "model": self.model_name,
-            "stream": False,
-            "messages": [
-                {"role": "system", "content": system_prompt},
-                {
-                    "role": "user",
-                    "content": self._augment_prompt_with_schema(
-                        user_prompt=user_prompt,
-                        response_schema=response_schema,
-                    ),
-                },
-            ],
-            "format": response_schema,
-            "options": options,
-        }
-        if self.seed is not None:
-            options["seed"] = self.seed
-
-        response, request_count = self._post_with_transient_retry(payload=payload)
-
-        body = response.json()
-        self.last_usage = self._extract_ollama_usage(body)
-        self.last_request_count = request_count
-        self.last_finish_reason = body.get("done_reason")
-        content = str(body.get("message", {}).get("content", "") or "")
-        return response_model.model_validate_json(content)
+        return self._run_structured_with_recovery(
+            invoke=lambda output_tokens: self._post_structured_with_transient_retry(
+                system_prompt=system_prompt,
+                user_prompt=user_prompt,
+                response_schema=response_schema,
+                max_output_tokens=output_tokens,
+            ),
+            parse=lambda response: self._parse_ollama_structured_response(
+                response=response,
+                response_model=response_model,
+            ),
+            initial_output_tokens=max_output_tokens or self.max_tokens,
+            max_output_tokens=max(
+                self.max_tokens, DEFAULT_GROUNDED_PHASE1_MAX_OUTPUT_TOKENS
+            ),
+            structured_retries=self.structured_retries,
+            structured_retry_token_multiplier=self.structured_retry_token_multiplier,
+        )
 
     @staticmethod
     def _augment_prompt_with_schema(
@@ -762,6 +839,51 @@ class OllamaStructuredOutputProvider(LLMProvider):
         jitter = _retry_rng.uniform(0.0, DEFAULT_PROVIDER_RETRY_JITTER_SECONDS)
         return min(bounded_delay + jitter, DEFAULT_PROVIDER_RETRY_MAX_BACKOFF_SECONDS)
 
+    def _post_structured_with_transient_retry(
+        self,
+        *,
+        system_prompt: str,
+        user_prompt: str,
+        response_schema: dict[str, Any],
+        max_output_tokens: int,
+    ) -> tuple[httpx.Response, int]:
+        options: dict[str, Any] = {
+            "temperature": self.temperature,
+            "num_predict": max_output_tokens,
+        }
+        payload: dict[str, Any] = {
+            "model": self.model_name,
+            "stream": False,
+            "messages": [
+                {"role": "system", "content": system_prompt},
+                {
+                    "role": "user",
+                    "content": self._augment_prompt_with_schema(
+                        user_prompt=user_prompt,
+                        response_schema=response_schema,
+                    ),
+                },
+            ],
+            "format": response_schema,
+            "options": options,
+        }
+        if self.seed is not None:
+            options["seed"] = self.seed
+
+        return self._post_with_transient_retry(payload=payload)
+
+    @staticmethod
+    def _parse_ollama_structured_response(
+        *,
+        response: Any,
+        response_model: type[BaseModel],
+    ) -> BaseModel:
+        body = response.json()
+        content = str(body.get("message", {}).get("content", "") or "")
+        if not content.strip():
+            raise RuntimeError("Ollama returned no structured response payload.")
+        return response_model.model_validate_json(content)
+
 
 class AnthropicStructuredOutputProvider(LLMProvider):
     provider_name = "anthropic"
@@ -835,16 +957,24 @@ class AnthropicStructuredOutputProvider(LLMProvider):
         self.last_finish_reason = None
         self.last_request_count = 0
         response_schema = build_response_json_schema(response_model)
-        response, request_count = self._create_message_with_transient_retry(
-            system_prompt=system_prompt,
-            user_prompt=user_prompt,
-            max_output_tokens=max_output_tokens,
-            output_schema=response_schema,
+        return self._run_structured_with_recovery(
+            invoke=lambda output_tokens: self._create_message_with_transient_retry(
+                system_prompt=system_prompt,
+                user_prompt=user_prompt,
+                max_output_tokens=output_tokens,
+                output_schema=response_schema,
+            ),
+            parse=lambda response: self._parse_anthropic_structured_response(
+                response=response,
+                response_model=response_model,
+            ),
+            initial_output_tokens=max_output_tokens or self.max_tokens,
+            max_output_tokens=max(
+                self.max_tokens, DEFAULT_GROUNDED_PHASE1_MAX_OUTPUT_TOKENS
+            ),
+            structured_retries=self.structured_retries,
+            structured_retry_token_multiplier=self.structured_retry_token_multiplier,
         )
-        self.last_usage = self._extract_usage(response)
-        self.last_finish_reason = self._extract_finish_reason(response)
-        self.last_request_count = request_count
-        return response_model.model_validate_json(self._extract_text_content(response))
 
     def count_tokens(self, *, system_prompt: str, user_prompt: str) -> dict[str, int]:
         try:
@@ -1007,6 +1137,20 @@ class AnthropicStructuredOutputProvider(LLMProvider):
             return min(requested_max_tokens, self._OPUS_MODEL_MAX_OUTPUT_TOKENS)
         return min(requested_max_tokens, self._DEFAULT_MODEL_MAX_OUTPUT_TOKENS)
 
+    def _parse_anthropic_structured_response(
+        self,
+        *,
+        response: Any,
+        response_model: type[BaseModel],
+    ) -> BaseModel:
+        refusal = self._extract_finish_reason(response)
+        if refusal is not None and "refusal" in refusal.lower():
+            raise RuntimeError(f"Anthropic structured output refusal: {refusal}")
+        content = self._extract_text_content(response)
+        if not content.strip():
+            raise RuntimeError("Anthropic returned no structured response payload.")
+        return response_model.model_validate_json(content)
+
 
 class OpenAIStructuredOutputProvider(LLMProvider):
     provider_name = "openai"
@@ -1080,29 +1224,32 @@ class OpenAIStructuredOutputProvider(LLMProvider):
         self.last_usage = {}
         self.last_finish_reason = None
         self.last_request_count = 0
-        response, request_count = self._create_response_with_transient_retry(
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt},
-            ],
-            text_format={
-                "type": "json_schema",
-                "name": response_model.__name__,
-                "strict": True,
-                "schema": self._build_openai_response_schema(response_model),
-            },
-            max_output_tokens=max_output_tokens,
+        response_schema = self._build_openai_response_schema(response_model)
+        return self._run_structured_with_recovery(
+            invoke=lambda output_tokens: self._create_response_with_transient_retry(
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt},
+                ],
+                text_format={
+                    "type": "json_schema",
+                    "name": response_model.__name__,
+                    "strict": True,
+                    "schema": response_schema,
+                },
+                max_output_tokens=output_tokens,
+            ),
+            parse=lambda response: self._parse_openai_structured_response(
+                response=response,
+                response_model=response_model,
+            ),
+            initial_output_tokens=max_output_tokens or self.max_tokens,
+            max_output_tokens=max(
+                self.max_tokens, DEFAULT_GROUNDED_PHASE1_MAX_OUTPUT_TOKENS
+            ),
+            structured_retries=self.structured_retries,
+            structured_retry_token_multiplier=self.structured_retry_token_multiplier,
         )
-        self.last_usage = self._extract_usage(response)
-        self.last_finish_reason = self._extract_finish_reason(response)
-        self.last_request_count = request_count
-        refusal = self._extract_refusal(response)
-        if refusal is not None:
-            raise RuntimeError(f"OpenAI structured output refusal: {refusal}")
-        content = self._extract_text_content(response)
-        if not content.strip():
-            raise RuntimeError("OpenAI returned no structured response payload.")
-        return response_model.model_validate_json(content)
 
     def count_tokens(self, *, system_prompt: str, user_prompt: str) -> dict[str, int]:
         estimated_total = max(1, (len(system_prompt) + len(user_prompt)) // 4)
@@ -1323,6 +1470,20 @@ class OpenAIStructuredOutputProvider(LLMProvider):
         )
         jitter = _retry_rng.uniform(0.0, DEFAULT_PROVIDER_RETRY_JITTER_SECONDS)
         return min(bounded_delay + jitter, DEFAULT_PROVIDER_RETRY_MAX_BACKOFF_SECONDS)
+
+    def _parse_openai_structured_response(
+        self,
+        *,
+        response: Any,
+        response_model: type[BaseModel],
+    ) -> BaseModel:
+        refusal = self._extract_refusal(response)
+        if refusal is not None:
+            raise RuntimeError(f"OpenAI structured output refusal: {refusal}")
+        content = self._extract_text_content(response)
+        if not content.strip():
+            raise RuntimeError("OpenAI returned no structured response payload.")
+        return response_model.model_validate_json(content)
 
 
 class ToolExecutor:
