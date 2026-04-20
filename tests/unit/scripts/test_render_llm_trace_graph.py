@@ -165,7 +165,7 @@ def test_build_trace_graph_creates_expected_stage_nodes_and_edges() -> None:
     assert "chunk:1" in node_ids
     assert "chunk:2" in node_ids
     assert "phrase:symptomatic anaemia" in node_ids
-    assert "candidate:phrase:symptomatic anaemia:HP:0001903:0" in node_ids
+    assert "candidate-summary:symptomatic anaemia" in node_ids
     assert "local:phrase:symptomatic anaemia" in node_ids
     assert "llm:phrase:tongue biting" in node_ids
     assert "final:HP:0012169:1" in node_ids
@@ -175,11 +175,11 @@ def test_build_trace_graph_creates_expected_stage_nodes_and_edges() -> None:
     assert ("chunk:1", "phrase:symptomatic anaemia", "phase1") in edges
     assert (
         "phrase:symptomatic anaemia",
-        "candidate:phrase:symptomatic anaemia:HP:0001903:0",
-        "retrieved",
+        "candidate-summary:symptomatic anaemia",
+        "truncated",
     ) in edges
     assert (
-        "candidate:phrase:symptomatic anaemia:HP:0001903:0",
+        "phrase:symptomatic anaemia",
         "local:phrase:symptomatic anaemia",
         "accepted",
     ) in edges
@@ -189,13 +189,23 @@ def test_build_trace_graph_limits_candidates_and_skips_neighbors_by_default() ->
     graph = render_llm_trace_graph.build_trace_graph(
         _sample_trace(),
         title="CSC_2",
+    )
+    node_ids = {node["id"] for node in graph["nodes"]}
+    assert "candidate:phrase:symptomatic anaemia:HP:0001903:0" not in node_ids
+    assert "candidate:phrase:symptomatic anaemia:HP:0020062:1" not in node_ids
+    assert "candidate-summary:symptomatic anaemia" in node_ids
+    assert not any(node["group"] == "neighbor_chunk" for node in graph["nodes"])
+
+
+def test_build_trace_graph_can_render_inline_candidates_when_requested() -> None:
+    graph = render_llm_trace_graph.build_trace_graph(
+        _sample_trace(),
+        title="CSC_2",
         max_candidates_per_phrase=1,
     )
     node_ids = {node["id"] for node in graph["nodes"]}
     assert "candidate:phrase:symptomatic anaemia:HP:0001903:0" in node_ids
     assert "candidate:phrase:symptomatic anaemia:HP:0020062:1" not in node_ids
-    assert "candidate-summary:symptomatic anaemia" in node_ids
-    assert not any(node["group"] == "neighbor_chunk" for node in graph["nodes"])
 
 
 def test_build_trace_graph_unwraps_prediction_record_shape() -> None:
@@ -213,7 +223,7 @@ def test_render_html_embeds_graph_payload_and_vis_network_loader() -> None:
     assert "Trace Viewer: CSC_2" in html
     assert "GRAPH_PAYLOAD" in html
     assert "matched_text_exact" in html
-    assert "Max candidates per phrase" in html
+    assert "Inline candidates per phrase" in html
     assert "hideEdgesOnDrag" in html
 
     start = html.index("const GRAPH_PAYLOAD = ") + len("const GRAPH_PAYLOAD = ")

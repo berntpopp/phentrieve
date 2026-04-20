@@ -251,6 +251,12 @@ python scripts/render_llm_trace_graph.py \
 python scripts/render_llm_trace_graph.py \
     /tmp/raghpo-csc-trace-debug/traces/two_phase/case_CSC_2.json \
     --output-html /tmp/case_CSC_2_trace.html \
+    --title CSC_2
+
+# If you want individual candidate nodes inline, opt in explicitly
+python scripts/render_llm_trace_graph.py \
+    /tmp/raghpo-csc-trace-debug/traces/two_phase/case_CSC_2.json \
+    --output-html /tmp/case_CSC_2_trace.html \
     --title CSC_2 \
     --max-candidates-per-phrase 5
 ```
@@ -269,7 +275,7 @@ python scripts/render_llm_trace_graph.py \
 - `TRACE_JSON` - Path to a single trace JSON file
 - `--output-html PATH` - Output HTML path (default: `<trace>.html`)
 - `--title TEXT` - Optional title override for the viewer
-- `--max-candidates-per-phrase N` - Limit rendered candidates per phrase (default: `5`)
+- `--max-candidates-per-phrase N` - Limit inline rendered candidates per phrase (default: `0`)
 - `--include-neighbor-chunks` - Include neighbor chunk nodes; off by default for faster rendering on dense traces
 
 ---

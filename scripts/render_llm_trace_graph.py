@@ -57,7 +57,7 @@ def build_trace_graph(
     payload: dict[str, Any],
     *,
     title: str,
-    max_candidates_per_phrase: int = 5,
+    max_candidates_per_phrase: int = 0,
     include_neighbor_chunks: bool = False,
 ) -> dict[str, Any]:
     trace = _unwrap_trace_payload(payload)
@@ -235,7 +235,11 @@ def build_trace_graph(
             add_edge(phrase_node_id, empty_id, label="retrieval miss")
             continue
 
-        visible_candidates = candidates[:max_candidates_per_phrase]
+        visible_candidates = (
+            candidates[:max_candidates_per_phrase]
+            if max_candidates_per_phrase > 0
+            else []
+        )
         hidden_candidate_count = max(len(candidates) - len(visible_candidates), 0)
 
         for candidate_index, candidate in enumerate(visible_candidates):
@@ -271,6 +275,7 @@ def build_trace_graph(
                     "phrase": phrase,
                     "hidden_candidate_count": hidden_candidate_count,
                     "max_candidates_per_phrase": max_candidates_per_phrase,
+                    "candidates": candidates,
                 },
             )
             add_edge(
@@ -526,7 +531,7 @@ def render_trace_html(graph: dict[str, Any], *, title: str) -> str:
       <h2>Summary</h2>
       <ul>{summary_items}</ul>
       <div class="muted" style="margin-top:8px;">Edges: {graph["meta"]["edge_count"]}</div>
-      <div class="muted" style="margin-top:8px;">Max candidates per phrase: {graph["meta"]["max_candidates_per_phrase"]}</div>
+      <div class="muted" style="margin-top:8px;">Inline candidates per phrase: {graph["meta"]["max_candidates_per_phrase"]}</div>
       <div class="muted" style="margin-top:4px;">Neighbor chunks included: {"yes" if graph["meta"]["include_neighbor_chunks"] else "no"}</div>
 
       <h2>Filters</h2>
@@ -680,8 +685,8 @@ def main() -> None:
     parser.add_argument(
         "--max-candidates-per-phrase",
         type=int,
-        default=5,
-        help="Maximum number of candidates to render per phrase (default: 5)",
+        default=0,
+        help="Maximum number of candidates to render inline per phrase (default: 0)",
     )
     parser.add_argument(
         "--include-neighbor-chunks",
@@ -695,7 +700,7 @@ def main() -> None:
     graph = build_trace_graph(
         payload,
         title=title,
-        max_candidates_per_phrase=max(args.max_candidates_per_phrase, 1),
+        max_candidates_per_phrase=max(args.max_candidates_per_phrase, 0),
         include_neighbor_chunks=args.include_neighbor_chunks,
     )
     html = render_trace_html(graph, title=title)
