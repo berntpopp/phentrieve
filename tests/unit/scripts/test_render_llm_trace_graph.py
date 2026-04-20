@@ -185,6 +185,19 @@ def test_build_trace_graph_creates_expected_stage_nodes_and_edges() -> None:
     ) in edges
 
 
+def test_build_trace_graph_limits_candidates_and_skips_neighbors_by_default() -> None:
+    graph = render_llm_trace_graph.build_trace_graph(
+        _sample_trace(),
+        title="CSC_2",
+        max_candidates_per_phrase=1,
+    )
+    node_ids = {node["id"] for node in graph["nodes"]}
+    assert "candidate:phrase:symptomatic anaemia:HP:0001903:0" in node_ids
+    assert "candidate:phrase:symptomatic anaemia:HP:0020062:1" not in node_ids
+    assert "candidate-summary:symptomatic anaemia" in node_ids
+    assert not any(node["group"] == "neighbor_chunk" for node in graph["nodes"])
+
+
 def test_build_trace_graph_unwraps_prediction_record_shape() -> None:
     wrapped = {"case_id": "CSC_2", "trace": _sample_trace()}
     graph = render_llm_trace_graph.build_trace_graph(wrapped, title="wrapped")
@@ -200,6 +213,8 @@ def test_render_html_embeds_graph_payload_and_vis_network_loader() -> None:
     assert "Trace Viewer: CSC_2" in html
     assert "GRAPH_PAYLOAD" in html
     assert "matched_text_exact" in html
+    assert "Max candidates per phrase" in html
+    assert "hideEdgesOnDrag" in html
 
     start = html.index("const GRAPH_PAYLOAD = ") + len("const GRAPH_PAYLOAD = ")
     end = html.index(";\n", start)

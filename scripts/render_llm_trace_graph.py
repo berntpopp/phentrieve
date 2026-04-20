@@ -10,8 +10,9 @@ from html import escape
 from pathlib import Path
 from typing import Any
 
-VIS_NETWORK_CDN = "https://unpkg.com/vis-network@9.1.9/dist/vis-network.min.js"
-VIS_NETWORK_CSS_CDN = "https://unpkg.com/vis-network@9.1.9/styles/vis-network.min.css"
+VIS_NETWORK_CDN = (
+    "https://unpkg.com/vis-network@9.1.9/standalone/umd/vis-network.min.js"
+)
 
 GROUP_STYLE = {
     "document": {"color": "#374151", "shape": "box"},
@@ -20,6 +21,7 @@ GROUP_STYLE = {
     "neighbor_chunk": {"color": "#67e8f9", "shape": "box"},
     "phrase": {"color": "#0f766e", "shape": "ellipse"},
     "candidate": {"color": "#7c3aed", "shape": "dot"},
+    "candidate_summary": {"color": "#a78bfa", "shape": "box"},
     "empty_candidate_set": {"color": "#dc2626", "shape": "diamond"},
     "local_resolution": {"color": "#16a34a", "shape": "box"},
     "llm_resolution": {"color": "#f59e0b", "shape": "box"},
@@ -51,7 +53,13 @@ def _safe_chunk_id(chunk_id: Any) -> str:
     )
 
 
-def build_trace_graph(payload: dict[str, Any], *, title: str) -> dict[str, Any]:
+def build_trace_graph(
+    payload: dict[str, Any],
+    *,
+    title: str,
+    max_candidates_per_phrase: int = 5,
+    include_neighbor_chunks: bool = False,
+) -> dict[str, Any]:
     trace = _unwrap_trace_payload(payload)
     nodes: list[dict[str, Any]] = []
     edges: list[dict[str, Any]] = []
@@ -185,16 +193,17 @@ def build_trace_graph(payload: dict[str, Any], *, title: str) -> dict[str, Any]:
             add_edge("document", node_id, label="contains", details=details)
             add_edge(node_id, phrase_node_id, label="phase1")
 
-        for neighbor_index, text in enumerate(neighbor_texts, start=1):
-            neighbor_id = f"neighbor:{phrase}:{neighbor_index}"
-            add_node(
-                neighbor_id,
-                label=f"Neighbor\n{_truncate(text, 48)}",
-                group="neighbor_chunk",
-                level=2,
-                details={"phrase": phrase, "text": text},
-            )
-            add_edge(neighbor_id, phrase_node_id, label="context")
+        if include_neighbor_chunks:
+            for neighbor_index, text in enumerate(neighbor_texts, start=1):
+                neighbor_id = f"neighbor:{phrase}:{neighbor_index}"
+                add_node(
+                    neighbor_id,
+                    label=f"Neighbor\n{_truncate(text, 48)}",
+                    group="neighbor_chunk",
+                    level=2,
+                    details={"phrase": phrase, "text": text},
+                )
+                add_edge(neighbor_id, phrase_node_id, label="context")
 
         matching_extracted = next(
             (entry for entry in phase1_extracted if entry.get("phrase") == phrase),
@@ -226,7 +235,10 @@ def build_trace_graph(payload: dict[str, Any], *, title: str) -> dict[str, Any]:
             add_edge(phrase_node_id, empty_id, label="retrieval miss")
             continue
 
-        for candidate_index, candidate in enumerate(candidates):
+        visible_candidates = candidates[:max_candidates_per_phrase]
+        hidden_candidate_count = max(len(candidates) - len(visible_candidates), 0)
+
+        for candidate_index, candidate in enumerate(visible_candidates):
             candidate_id = str(candidate.get("id", candidate.get("hpo_id", "")) or "")
             candidate_label = str(
                 candidate.get(
@@ -246,6 +258,26 @@ def build_trace_graph(payload: dict[str, Any], *, title: str) -> dict[str, Any]:
                 node_id,
                 label="retrieved",
                 details={"score": candidate.get("score")},
+            )
+
+        if hidden_candidate_count:
+            summary_id = f"candidate-summary:{phrase}"
+            add_node(
+                summary_id,
+                label=f"+{hidden_candidate_count} more candidates",
+                group="candidate_summary",
+                level=4,
+                details={
+                    "phrase": phrase,
+                    "hidden_candidate_count": hidden_candidate_count,
+                    "max_candidates_per_phrase": max_candidates_per_phrase,
+                },
+            )
+            add_edge(
+                phrase_node_id,
+                summary_id,
+                label="truncated",
+                details={"hidden_candidate_count": hidden_candidate_count},
             )
 
     for item in (
@@ -374,6 +406,8 @@ def build_trace_graph(payload: dict[str, Any], *, title: str) -> dict[str, Any]:
             "title": title,
             "node_counts": dict(node_counts),
             "edge_count": len(edges),
+            "max_candidates_per_phrase": max_candidates_per_phrase,
+            "include_neighbor_chunks": include_neighbor_chunks,
         },
         "nodes": nodes,
         "edges": edges,
@@ -400,7 +434,6 @@ def render_trace_html(graph: dict[str, Any], *, title: str) -> str:
 <head>
   <meta charset="utf-8">
   <title>Trace Viewer: {escape(title)}</title>
-  <link rel="stylesheet" href="{VIS_NETWORK_CSS_CDN}">
   <style>
     body {{
       margin: 0;
@@ -493,6 +526,8 @@ def render_trace_html(graph: dict[str, Any], *, title: str) -> str:
       <h2>Summary</h2>
       <ul>{summary_items}</ul>
       <div class="muted" style="margin-top:8px;">Edges: {graph["meta"]["edge_count"]}</div>
+      <div class="muted" style="margin-top:8px;">Max candidates per phrase: {graph["meta"]["max_candidates_per_phrase"]}</div>
+      <div class="muted" style="margin-top:4px;">Neighbor chunks included: {"yes" if graph["meta"]["include_neighbor_chunks"] else "no"}</div>
 
       <h2>Filters</h2>
       <div class="controls">{filter_controls}</div>
@@ -515,7 +550,10 @@ def render_trace_html(graph: dict[str, Any], *, title: str) -> str:
   <script src="{VIS_NETWORK_CDN}"></script>
   <script>
     const GRAPH_PAYLOAD = {payload_json};
-    const allNodes = GRAPH_PAYLOAD.nodes.map((node) => ({{ ...node }}));
+    const allNodes = GRAPH_PAYLOAD.nodes.map((node) => ({{
+      ...node,
+      searchText: JSON.stringify(node).toLowerCase()
+    }}));
     const allEdges = GRAPH_PAYLOAD.edges.map((edge, index) => ({{
       id: `edge:${{index}}`,
       ...edge,
@@ -541,11 +579,13 @@ def render_trace_html(graph: dict[str, Any], *, title: str) -> str:
         physics: false,
         interaction: {{
           hover: true,
+          hideEdgesOnDrag: true,
+          hideEdgesOnZoom: true,
           navigationButtons: true,
           keyboard: true
         }},
         edges: {{
-          smooth: true,
+          smooth: false,
           arrows: {{ to: {{ enabled: true, scaleFactor: 0.7 }} }},
           font: {{ size: 11, color: '#475569' }}
         }},
@@ -572,8 +612,7 @@ def render_trace_html(graph: dict[str, Any], *, title: str) -> str:
       const visibleNodes = new Set();
 
       for (const node of allNodes) {{
-        const text = JSON.stringify(node).toLowerCase();
-        const visible = enabled.has(node.group) && (!query || text.includes(query));
+        const visible = enabled.has(node.group) && (!query || node.searchText.includes(query));
         nodes.update({{ id: node.id, hidden: !visible }});
         if (visible) visibleNodes.add(node.id);
       }}
@@ -638,11 +677,27 @@ def main() -> None:
         type=str,
         help="Optional title override for the HTML viewer",
     )
+    parser.add_argument(
+        "--max-candidates-per-phrase",
+        type=int,
+        default=5,
+        help="Maximum number of candidates to render per phrase (default: 5)",
+    )
+    parser.add_argument(
+        "--include-neighbor-chunks",
+        action="store_true",
+        help="Include neighbor chunk nodes in the rendered graph",
+    )
     args = parser.parse_args()
 
     payload = json.loads(args.trace_json.read_text(encoding="utf-8"))
     title = args.title or args.trace_json.stem
-    graph = build_trace_graph(payload, title=title)
+    graph = build_trace_graph(
+        payload,
+        title=title,
+        max_candidates_per_phrase=max(args.max_candidates_per_phrase, 1),
+        include_neighbor_chunks=args.include_neighbor_chunks,
+    )
     html = render_trace_html(graph, title=title)
     output_path = args.output_html or _derive_default_output_path(args.trace_json)
     output_path.parent.mkdir(parents=True, exist_ok=True)
