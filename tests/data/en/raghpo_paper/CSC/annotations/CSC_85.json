@@ -1,0 +1,232 @@
+{
+  "doc_id": "CSC_85",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A 30-year-old unmarried male presented with insidious-onset gradually progressive difficulty in walking, maintaining balance and change in speech for the last 5 years with frequent falls. There is no history of weakness, paresthesia, difficulty in micturition or defecation, seizure, visual symptoms or headache. He was born out of a non-consanguineous marriage with a normal perinatal and developmental history. However, there is a history of similar illness in his elder brother who had difficulty in walking and poorly developed secondary sexual characteristics. General examination showed a pulse of 78 /min, regular, normal volume and character, blood pressure of 120/70 mm Hg and respiratory rate of 14 /min, without pallor, icterus, oedema, joint tenderness or swelling or rash. However, there was a characteristic absence of facial hairs, sparse axillary and pubic hairs with a stretch penile length of 5 cm and bilateral low testicular volume of 10 mL. Neurocutaneous markers were not seen. There was evidence of cataract in both eyes. Neurological examination showed normal higher mental functions and cranial nerves including fundus examination. Motor examination revealed normal tone, power of limbs, deep tendon reflexes and flexor plantar response. The examination of gait showed a broad-based ataxic gait, with swaying to both sides and a tendency to fall during turns. The patient also had dysmetria, dysarthria (scanning speech) and mild intention tremor in the upper limbs. Sensory examination was normal with absent Rhomberg’s sign. His laboratorical workup showed a normal hemogram, renal profile, liver function and electrolytes. Blood work showed hypogonadotropic hypogonadism (testosterone level of 11.39 ng/dL (normal lab range of 400–1080 ng/dL), luteinising hormone 0.11 mIU/mL (normal 1.5–9.3 mIU/mL), follicle stimulating hormone <0.3mIU/mL (normal 1.4–18.1 mIU/mL)) with normal thyroid stimulating hormone, cortisol and prolactin levels. MRI of the brain showed non-enhancing symmetric T2/FLAIR (Fluid-attenuated inversion recovery) hyperintense lesions within the subcortical white matter, thalamus and basal ganglia, with cerebellar atrophy, with no pituitary or hypothalamic lesion.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "85",
+    "text_length_chars": 2214,
+    "num_annotations": 20,
+    "conversion_date": "2026-04-20T06:13:55.476284+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000044",
+      "label": "Hypogonadotropic hypogonadism",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1669,
+          "end_char": 1698,
+          "text_snippet": "hypogonadotropic hypogonadism"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000054",
+      "label": "Micropenis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 886,
+          "end_char": 915,
+          "text_snippet": "stretch penile length of 5 cm"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000518",
+      "label": "Cataract",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1022,
+          "end_char": 1043,
+          "text_snippet": "cataract in both eyes"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001260",
+      "label": "Dysarthria",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1417,
+          "end_char": 1427,
+          "text_snippet": "dysarthria"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001272",
+      "label": "Cerebellar atrophy",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2153,
+          "end_char": 2171,
+          "text_snippet": "cerebellar atrophy"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001310",
+      "label": "Dysmetria",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1406,
+          "end_char": 1415,
+          "text_snippet": "dysmetria"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002080",
+      "label": "Intention tremor",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1450,
+          "end_char": 1490,
+          "text_snippet": "mild intention tremor in the upper limbs"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002167",
+      "label": "Abnormal speech pattern",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 129,
+          "end_char": 145,
+          "text_snippet": "change in speech"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002168",
+      "label": "Scanning speech",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1429,
+          "end_char": 1444,
+          "text_snippet": "scanning speech"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002172",
+      "label": "Postural instability",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002215",
+      "label": "Sparse axillary hair",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 847,
+          "end_char": 878,
+          "text_snippet": "sparse axillary and pubic hairs"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002225",
+      "label": "Sparse pubic hair",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 847,
+          "end_char": 878,
+          "text_snippet": "sparse axillary and pubic hairs"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001288",
+      "label": "Gait disturbance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 82,
+          "end_char": 103,
+          "text_snippet": "difficulty in walking"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002359",
+      "label": "Frequent falls",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 172,
+          "end_char": 186,
+          "text_snippet": "frequent falls"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002550",
+      "label": "Absent facial hair",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 822,
+          "end_char": 845,
+          "text_snippet": "absence of facial hairs"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0007183",
+      "label": "Focal T2 hyperintense basal ganglia lesion",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0007240",
+      "label": "Progressive gait ataxia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0008734",
+      "label": "Decreased testicular size",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 920,
+          "end_char": 951,
+          "text_snippet": "bilateral low testicular volume"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012692",
+      "label": "Focal T2 hyperintense thalamic lesion",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0030890",
+      "label": "Hyperintensity of cerebral white matter on MRI",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2062,
+          "end_char": 2147,
+          "text_snippet": "hyperintense lesions within the subcortical white matter, thalamus and basal ganglia,"
+        }
+      ]
+    }
+  ]
+}

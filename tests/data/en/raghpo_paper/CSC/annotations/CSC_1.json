@@ -1,0 +1,94 @@
+{
+  "doc_id": "CSC_1",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A 44-year- old super-morbidly- obese man body mass index (BMI 63) underwent sleeve gastrectomy for weight loss and was found to have multiple adenomatous fundic gland polyps on final pathology. Subsequent workup included esophagogastroduodenoscopy which revealed innumerable polyps of the remaining gastric fundus and body consistent with fundic gland polyps, normal duodenum without polyps, and Barrett’s oesophagus. Colonoscopy was significant for innumerable polyps of varying sizes up to 1.5 cm throughout the colon, with relative rectal sparing. Biopsies were consistent with tubular adenoma and hyperplastic polyps. Thyroid ultrasound was within normal limits and abdominal CT was significant for left-sided 3.4 cm mesenteric mass representing scarring versus possible desmoid. Family history was significant for colon cancer diagnosed in his maternal grandfather at age 72, paternal grandmother who died of metastatic cancer at age 50 with unknown primary and mother diagnosed with thyroid cancer at age 40. Physical examination was notable for morbid obesity (BMI 45), cardiopulmonary examination within normal limits and abdomen with well-healing surgical scars from prior sleeve gastrectomy.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "1",
+    "text_length_chars": 1201,
+    "num_annotations": 8,
+    "conversion_date": "2026-04-20T06:13:55.465197+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001513",
+      "label": "Obesity",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1059,
+          "end_char": 1066,
+          "text_snippet": "obesity"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004394",
+      "label": "Multiple gastric polyps",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 263,
+          "end_char": 281,
+          "text_snippet": "innumerable polyps"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0005227",
+      "label": "Adenomatous colonic polyposis",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0012183",
+      "label": "Hyperplastic colonic polyposis",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0025501",
+      "label": "Class III obesity",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 15,
+          "end_char": 1066,
+          "text_snippet": "super-morbidly- obese man body mass index (BMI 63) underwent sleeve gastrectomy for weight loss and was found to have multiple adenomatous fundic gland polyps on final pathology. Subsequent workup included esophagogastroduodenoscopy which revealed innumerable polyps of the remaining gastric fundus and body consistent with fundic gland polyps, normal duodenum without polyps, and Barrett’s oesophagus. Colonoscopy was significant for innumerable polyps of varying sizes up to 1.5 cm throughout the colon, with relative rectal sparing. Biopsies were consistent with tubular adenoma and hyperplastic polyps. Thyroid ultrasound was within normal limits and abdominal CT was significant for left-sided 3.4 cm mesenteric mass representing scarring versus possible desmoid. Family history was significant for colon cancer diagnosed in his maternal grandfather at age 72, paternal grandmother who died of metastatic cancer at age 50 with unknown primary and mother diagnosed with thyroid cancer at age 40. Physical examination was notable for morbid obesity"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0031500",
+      "label": "Abdominal mass",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 721,
+          "end_char": 736,
+          "text_snippet": "mesenteric mass"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0033769",
+      "label": "Fundic gland polyposis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 133,
+          "end_char": 173,
+          "text_snippet": "multiple adenomatous fundic gland polyps"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100580",
+      "label": "Barrett esophagus",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    }
+  ]
+}

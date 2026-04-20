@@ -1,0 +1,220 @@
+{
+  "doc_id": "CSC_70",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "An male child aged 11 months born out of a consanguineous marriage with history of normal delivery and no history of perinatal asphyxia presented to our department for investigation. Patient had an unremarkable neonatal period until 5 months of age. After that he started suffering from fever, intermittent episodes of myoclonic seizures and regression of milestones. Patient was the first and only child of the parents. Similar history and presentation was not present in any of the first-degree relatives.On clinical examination, patient had sparse, kinky and hypopigmented hair with easy pluckability. This patient had fair complexion, was hypotonic and irritable. Head circumference of the patient was 42.8 cm, which was below third percentile for that age. MRI findings revealed bilateral subdural hygromas on both T2 weighted sequence (T2W) and Fluid attenuated inversion recovery (FLAIR) images with associated cerebral atrophy. T2W axial and coronal images showed bilateral cerebral and cerebellar atrophy. Axial diffusion-weighted imaging (DWI) and ADC showed white matter lesion with restricted diffusion on both sides. MR angiography (time-of-flight) images showed tortuous extracranial and intracranial vessels. After MRI, patient was advised biochemical investigations. Findings revealed low serum copper 40 mg/dL (normal range 70–140 mg/dL) and low ceruloplasmin level 5 mg/dL (normal 15–60 mg/dL).",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "70",
+    "text_length_chars": 1412,
+    "num_annotations": 19,
+    "conversion_date": "2026-04-20T06:13:55.473666+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000252",
+      "label": "Microcephaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000737",
+      "label": "Irritability",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001252",
+      "label": "Hypotonia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 643,
+          "end_char": 652,
+          "text_snippet": "hypotonic"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001272",
+      "label": "Cerebellar atrophy",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 995,
+          "end_char": 1013,
+          "text_snippet": "cerebellar atrophy"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001945",
+      "label": "Fever",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 287,
+          "end_char": 292,
+          "text_snippet": "fever"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002059",
+      "label": "Cerebral atrophy",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 918,
+          "end_char": 934,
+          "text_snippet": "cerebral atrophy"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002224",
+      "label": "Woolly hair",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 552,
+          "end_char": 580,
+          "text_snippet": "kinky and hypopigmented hair"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002376",
+      "label": "Developmental regression",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0004938",
+      "label": "Tortuous cerebral arteries",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1176,
+          "end_char": 1222,
+          "text_snippet": "tortuous extracranial and intracranial vessels"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004955",
+      "label": "Generalized arterial tortuosity",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1176,
+          "end_char": 1222,
+          "text_snippet": "tortuous extracranial and intracranial vessels"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0007513",
+      "label": "Generalized hypopigmentation",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 622,
+          "end_char": 637,
+          "text_snippet": "fair complexion"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0008070",
+      "label": "Sparse hair",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 544,
+          "end_char": 580,
+          "text_snippet": "sparse, kinky and hypopigmented hair"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010837",
+      "label": "Decreased circulating ceruloplasmin concentration",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1359,
+          "end_char": 1376,
+          "text_snippet": "low ceruloplasmin"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0011358",
+      "label": "Generalized hypopigmentation of hair",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 562,
+          "end_char": 580,
+          "text_snippet": "hypopigmented hair"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0011967",
+      "label": "Decreased circulating copper concentration",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1301,
+          "end_char": 1317,
+          "text_snippet": "low serum copper"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0030890",
+      "label": "Hyperintensity of cerebral white matter on MRI",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0032794",
+      "label": "Myoclonic seizure",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 319,
+          "end_char": 337,
+          "text_snippet": "myoclonic seizures"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0040169",
+      "label": "Loose anagen hair",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 576,
+          "end_char": 603,
+          "text_snippet": "hair with easy pluckability"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0410263",
+      "label": "Brain imaging abnormality",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 784,
+          "end_char": 811,
+          "text_snippet": "bilateral subdural hygromas"
+        }
+      ]
+    }
+  ]
+}

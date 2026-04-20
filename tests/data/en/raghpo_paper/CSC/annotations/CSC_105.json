@@ -1,0 +1,124 @@
+{
+  "doc_id": "CSC_105",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A male patient in his early childhood, previously well with no perinatal or postnatal concerns, born at term, was presented with his biological parents to a tertiary paediatric centre in the United Kingdom with fever, general malaise and a 2 cm by 2 cm oral ulcer at the border of his soft and hard palate, adjacent to areas of visible scarring. There was associated tender cervical lymphadenopathy and a healing ulcer in his right axilla measuring 0.5 cm with a clear border. The patient had a history of a hoarse, croaky voice since birth and recurrent oral ulcerations since his toddler years (figure 1). Ulcerations were not usually associated with fever and were of variable size, predominantly found on the tongue and lower gums. Lesions would last about 5–10 days and would recur every 8–12 weeks, becoming more frequent in the months leading to his presentation. These lesions were repeatedly treated by the general practitioner with antibiotics, to no effect. Oral lesions were associated with recurrent erythematous, papular skin lesions, predominantly on the back, upper limbs and axilla, occurring every 4–6 weeks (figure 2). Lesions would not blister nor appear pustular. They would last on average 6–12 months, leaving visible scars in a linear and patchy orientation. There were no lesions on the bottom nor were there any lesions on the genitalia. The patient was started on oral co-amoxiclav, prednisolone mouth wash gargle along with hydrocortisone ointment 1% topically two times per day to the areas of skin ulceration. Serological tests were also undertaken",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "105",
+    "text_length_chars": 1578,
+    "num_annotations": 11,
+    "conversion_date": "2026-04-20T06:13:55.479478+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000155",
+      "label": "Oral ulcer",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 253,
+          "end_char": 263,
+          "text_snippet": "oral ulcer"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001073",
+      "label": "Cigarette-paper scars",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001609",
+      "label": "Hoarse voice",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 508,
+          "end_char": 528,
+          "text_snippet": "hoarse, croaky voice"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001945",
+      "label": "Fever",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 211,
+          "end_char": 216,
+          "text_snippet": "fever"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010783",
+      "label": "Erythema",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1013,
+          "end_char": 1047,
+          "text_snippet": "erythematous, papular skin lesions"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0011107",
+      "label": "Recurrent aphthous stomatitis",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0025289",
+      "label": "Cervical lymphadenopathy",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 367,
+          "end_char": 398,
+          "text_snippet": "tender cervical lymphadenopathy"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0033834",
+      "label": "Malaise",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 226,
+          "end_char": 233,
+          "text_snippet": "malaise"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100699",
+      "label": "Scarring",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0200034",
+      "label": "Papule",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1027,
+          "end_char": 1039,
+          "text_snippet": "papular skin"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0200042",
+      "label": "Skin ulcer",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    }
+  ]
+}

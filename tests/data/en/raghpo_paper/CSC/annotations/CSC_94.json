@@ -1,0 +1,190 @@
+{
+  "doc_id": "CSC_94",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A 20-year-old man presented to the emergency department (ED) in a tertiary care center in Northern India with acute psychosis manifesting as agitation, irritability, and restlessness with his father and paternal aunt. He was immediately managed with intravenous (IV) lorazepam 2 mg and IV haloperidol 5 mg, after which he became drowsy. There was a 1 to 1.5–year history of “presence of different entities” and weird noises made by the patient, noticed by his family members with a continuous fluctuating course. The patient complained of a burning sensation, uncontrollable trembling, abnormal movements, and hearing internal voices in these episodes, during which he felt a loss of identity. The family felt that he was overtaken by another personality, spirit, or external force, and they noticed he was talking in different voices, varying in pitch, tone, and volume. They observed a snake crawling and hissing, “Lady Mustafa,” a Mujra dancer, and a personality with frequent crying spells. The patient shared 2 additional entities, “Paris” and “Christopher,” and explained how he met his personalities in his mind, calling them his “friends.”  The disorder affected his daily life with decreased appetite and sleep, loss of interest (eg, getting up from bed or daily religious recitals), and missing college (he was a first-year undergraduate engineering student). He became irritable and decreased his interaction with family.  Prior to admission to the hospital, the patient left home without informing anyone, roamed the streets the entire night, and was “roaring like a lion” when he was brought home. The next day the patient deliberately harmed himself by banging his head on the wall and by hitting himself on the head with a broken coconut shell. On examination, the patient had self-induced abrasions and cuts on his forehead and restraint marks on his wrist. In a later interview, he was still drowsy but euthymic and denied any abnormal perception at the time. He started to suddenly behave and talk like a different accented girl mid-interview and later returned to his normal self. Throughout the hospital course, the patient exhibited different “identities” in a random pattern with no noticeable triggers.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "94",
+    "text_length_chars": 2225,
+    "num_annotations": 18,
+    "conversion_date": "2026-04-20T06:13:55.477798+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000709",
+      "label": "Psychosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 110,
+          "end_char": 125,
+          "text_snippet": "acute psychosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000711",
+      "label": "Restlessness",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 170,
+          "end_char": 182,
+          "text_snippet": "restlessness"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000713",
+      "label": "Agitation",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 141,
+          "end_char": 150,
+          "text_snippet": "agitation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000737",
+      "label": "Irritability",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1373,
+          "end_char": 1389,
+          "text_snippet": "became irritable"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000741",
+      "label": "Apathy",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1221,
+          "end_char": 1237,
+          "text_snippet": "loss of interest"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000742",
+      "label": "Self-mutilation",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1792,
+          "end_char": 1814,
+          "text_snippet": "self-induced abrasions"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000751",
+      "label": "Personality changes",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001337",
+      "label": "Tremor",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002167",
+      "label": "Abnormal speech pattern",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 411,
+          "end_char": 423,
+          "text_snippet": "weird noises"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004396",
+      "label": "Poor appetite",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0008765",
+      "label": "Auditory hallucination",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0012075",
+      "label": "Personality disorder",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 387,
+          "end_char": 2175,
+          "text_snippet": "different entities” and weird noises made by the patient, noticed by his family members with a continuous fluctuating course. The patient complained of a burning sensation, uncontrollable trembling, abnormal movements, and hearing internal voices in these episodes, during which he felt a loss of identity. The family felt that he was overtaken by another personality, spirit, or external force, and they noticed he was talking in different voices, varying in pitch, tone, and volume. They observed a snake crawling and hissing, “Lady Mustafa,” a Mujra dancer, and a personality with frequent crying spells. The patient shared 2 additional entities, “Paris” and “Christopher,” and explained how he met his personalities in his mind, calling them his “friends.”  The disorder affected his daily life with decreased appetite and sleep, loss of interest (eg, getting up from bed or daily religious recitals), and missing college (he was a first-year undergraduate engineering student). He became irritable and decreased his interaction with family.  Prior to admission to the hospital, the patient left home without informing anyone, roamed the streets the entire night, and was “roaring like a lion” when he was brought home. The next day the patient deliberately harmed himself by banging his head on the wall and by hitting himself on the head with a broken coconut shell. On examination, the patient had self-induced abrasions and cuts on his forehead and restraint marks on his wrist. In a later interview, he was still drowsy but euthymic and denied any abnormal perception at the time. He started to suddenly behave and talk like a different accented girl mid-interview and later returned to his normal self. Throughout the hospital course, the patient exhibited different “identities"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012534",
+      "label": "Dysesthesia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0033705",
+      "label": "Tearfulness",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 971,
+          "end_char": 993,
+          "text_snippet": "frequent crying spells"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100716",
+      "label": "Self-injurious behavior",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1649,
+          "end_char": 1663,
+          "text_snippet": "harmed himself"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100785",
+      "label": "Insomnia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0004305",
+      "label": "Involuntary movements",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:5200217",
+      "label": "Depersonalization",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 676,
+          "end_char": 692,
+          "text_snippet": "loss of identity"
+        }
+      ]
+    }
+  ]
+}

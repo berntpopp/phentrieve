@@ -1,0 +1,100 @@
+{
+  "doc_id": "CSC_58",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A 50-year-old man presented to his local cardiology service with chest pain. He was normotensive, with a history of dyslipidaemia but not other risk factors for coronary artery disease. His ECG had left ventricular hypertrophy by voltage criteria and repolarisation abnormalities. Echocardiography confirmed the presence of concentric LVH which was associated with diastolic dysfunction. Coronary angiography revealed unobstructed coronary arteries and Holter monitoring non-sustained ventricular tachycardia (VT). He had proteinuria with normal creatinine clearance. He was found to have reduced plasma -galactosidase A activity (0.6 nmol/h/ml, normal:4–21.9 nmol/h/ml).",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "58",
+    "text_length_chars": 671,
+    "num_annotations": 9,
+    "conversion_date": "2026-04-20T06:13:55.472171+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000093",
+      "label": "Proteinuria",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 522,
+          "end_char": 533,
+          "text_snippet": "proteinuria"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001712",
+      "label": "Left ventricular hypertrophy",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0003119",
+      "label": "Abnormal circulating lipid concentration",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 116,
+          "end_char": 129,
+          "text_snippet": "dyslipidaemia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004756",
+      "label": "Ventricular tachycardia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 471,
+          "end_char": 508,
+          "text_snippet": "non-sustained ventricular tachycardia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0005135",
+      "label": "Abnormal T-wave",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0005157",
+      "label": "Concentric hypertrophic cardiomyopathy",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0025168",
+      "label": "Left ventricular diastolic dysfunction",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0034864",
+      "label": "Decreased alpha-galactosidase A activity",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 589,
+          "end_char": 629,
+          "text_snippet": "reduced plasma -galactosidase A activity"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100749",
+      "label": "Chest pain",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 65,
+          "end_char": 75,
+          "text_snippet": "chest pain"
+        }
+      ]
+    }
+  ]
+}

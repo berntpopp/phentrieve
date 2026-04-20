@@ -1,0 +1,208 @@
+{
+  "doc_id": "CSC_72",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "An 8-year-old boy was referred to our paediatric endocrinology clinic due to progressive fatigue and generalised hyperpigmentation beginning at 2-years old. He had no episodes of loss of consciousness, salt-craving or gastrointestinal complaints of nausea and vomiting. The patient attended the third grade and had been retained because of learning disabilities. There were no other relevant facts of his medical history. He was the third child of unrelated healthy parents with uneventful family history, namely no relatives with identified psychiatric, neurological or endocrine disorders. On clinical examination, he presented with prominent adynamia and muscle weakness. He had generalised skin hyperpigmentation, especially of palmar creases and of the buccal mucosa. Pubic hair growth was absent and testicular volume was estimated inferior to 4 ml bilaterally (Tanner stage I). There was no hypotension and growth parameters (weight on 10th–25th percentile, stature on 10th percentile) were normal for sex and age. His mental status and neurological evaluation were normal. There were no other significant findings in the remaining clinical examination. Laboratory results showed hyponatraemia (124 mmol/l, normal range 135–145 mmol/l) and hyperkalaemia (6.5 mmol/l, normal range 3.5–4.6 mmol/l). Serum concentrations for creatinine, blood urea nitrogen, calcium and complete blood count were within normal limits. Plasma renin activity (46.5 ng/ml/h, normal range 0.9–1.9 ng/ml/h) and aldosterone (15 pg/ml, normal range 40–760 pg/ml) serum concentrations confirmed mineralocorticoid deficiency. The measurement of morning cortisol (2.9 μg/dl, normal range 5.0–11.0 μg/dl) and ACTH levels (9279.0 pg/ml, normal range 0.0–46.0 pg/ml) established the diagnosis of adrenal insufficiency. Antiadrenal antibody levels were negative excluding autoimmune adrenal insufficiency. Testosterone concentrations (552 ng/dl, normal range 166–811 ng/dl), dehydroepiandrosterone sulphate (61.4 μg/dl, normal range 70.2–492.0 μg/dl), serum follicle-stimulating hormone and luteinising hormone (3.16 mUI/ml and 2.58 mUI/ml, respectively) were within normal limits. Given the laboratory findings concentrations of VLCFA in the plasma were determined and proved to be increased (C26:0, 0.8 μg/ml (normal 0.16–0.57 μg/ml), C24:0/C22:0 ratio 1.48 (normal ratio 0.63–1.10), C26:0/C22:0, 0.047 (normal ratio 0.004–0.022)) establishing the diagnosis of X-ALD. Abdominal MRI showed no structural abnormalities. Brain MRI revealed symmetrical T2-weighted signal intensities of the posterior peritrigonal regions bilaterally, and involvement of the splenium of the corpus callosum (Loes pattern 1), without calcification areas. Spinal cord and cervical MRI was normal.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "72",
+    "text_length_chars": 2748,
+    "num_annotations": 20,
+    "conversion_date": "2026-04-20T06:13:55.474363+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000841",
+      "label": "Hyperactive renin-angiotensin system",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1422,
+          "end_char": 1488,
+          "text_snippet": "Plasma renin activity (46.5 ng/ml/h, normal range 0.9–1.9 ng/ml/h)"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000846",
+      "label": "Adrenal insufficiency",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1770,
+          "end_char": 1791,
+          "text_snippet": "adrenal insufficiency"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000953",
+      "label": "Hyperpigmentation of the skin",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 694,
+          "end_char": 716,
+          "text_snippet": "skin hyperpigmentation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001273",
+      "label": "Abnormal corpus callosum morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2610,
+          "end_char": 2660,
+          "text_snippet": "involvement of the splenium of the corpus callosum"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001324",
+      "label": "Muscle weakness",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 658,
+          "end_char": 673,
+          "text_snippet": "muscle weakness"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001328",
+      "label": "Specific learning disability",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 340,
+          "end_char": 361,
+          "text_snippet": "learning disabilities"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002153",
+      "label": "Hyperkalemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002225",
+      "label": "Sparse pubic hair",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002902",
+      "label": "Hyponatremia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0003118",
+      "label": "Increased circulating cortisol level",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1631,
+          "end_char": 1680,
+          "text_snippet": "cortisol (2.9 μg/dl, normal range 5.0–11.0 μg/dl)"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004319",
+      "label": "Decreased circulating aldosterone concentration",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0007440",
+      "label": "Generalized hyperpigmentation",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 682,
+          "end_char": 716,
+          "text_snippet": "generalised skin hyperpigmentation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0008734",
+      "label": "Decreased testicular size",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0010284",
+      "label": "Intra-oral hyperpigmentation",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0011749",
+      "label": "Adrenocorticotropic hormone excess",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1685,
+          "end_char": 1740,
+          "text_snippet": "ACTH levels (9279.0 pg/ml, normal range 0.0–46.0 pg/ml)"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012432",
+      "label": "Chronic fatigue",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0025406",
+      "label": "Asthenia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 645,
+          "end_char": 653,
+          "text_snippet": "adynamia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0030891",
+      "label": "Periventricular white matter hyperintensities",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2524,
+          "end_char": 2592,
+          "text_snippet": "T2-weighted signal intensities of the posterior peritrigonal regions"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0033643",
+      "label": "Increased circulating very long-chain fatty acid concentration",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0040328",
+      "label": "Focal hyperintensity of cerebral white matter on MRI",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2524,
+          "end_char": 2660,
+          "text_snippet": "T2-weighted signal intensities of the posterior peritrigonal regions bilaterally, and involvement of the splenium of the corpus callosum"
+        }
+      ]
+    }
+  ]
+}

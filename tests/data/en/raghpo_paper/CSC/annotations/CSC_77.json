@@ -1,0 +1,130 @@
+{
+  "doc_id": "CSC_77",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A 17-year-old unmarried girl from Bodo community (an ethnic community of Assam), resident of Barpeta district of Assam, born of nonconsanguineous marriage, with normal birth and developmental history, presented with imbalance while walking since around 2 years ago, with tendency to reel and fall in an unpredictable direction, along with in-coordination of both hands since same duration, causing difficulty in writing, eating, and operating appliances. The above symptoms were progressive in nature. Her medical history was otherwise unremarkable. There was no relevant past history. There was no history of exposure to alcohol, drugs, or toxins. There was history of similar symptoms in her mother and maternal uncle, suggestive of autosomal dominant inheritance; however, this could not be confirmed by molecular studies. Examination: She had normal vitals and general examination; mental status and speech were normal. Cranial nerves examination including fundii did not reveal any abnormality. Motor system examination revealed normal bulk and power, normal tone and deep tendon reflexes in all four limbs, and plantars bilateral flexor. All modalities of sensation were intact. There were cerebellar signs in both upper and lower limbs with ataxic gait. Normal routine blood, liver function test, renal function test, no K-F ring seen on slit lamp examination. MRI brain revealed cerebellar atrophy.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "77",
+    "text_length_chars": 1406,
+    "num_annotations": 10,
+    "conversion_date": "2026-04-20T06:13:55.475265+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 735,
+          "end_char": 765,
+          "text_snippet": "autosomal dominant inheritance"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001272",
+      "label": "Cerebellar atrophy",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1387,
+          "end_char": 1405,
+          "text_snippet": "cerebellar atrophy"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001317",
+      "label": "Abnormal cerebellum morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1196,
+          "end_char": 1242,
+          "text_snippet": "cerebellar signs in both upper and lower limbs"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002066",
+      "label": "Gait ataxia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1248,
+          "end_char": 1259,
+          "text_snippet": "ataxic gait"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002141",
+      "label": "Gait imbalance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 216,
+          "end_char": 239,
+          "text_snippet": "imbalance while walking"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002172",
+      "label": "Postural instability",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 271,
+          "end_char": 296,
+          "text_snippet": "tendency to reel and fall"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0007057",
+      "label": "Poor hand-eye coordination",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0010526",
+      "label": "Dysgraphia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 398,
+          "end_char": 419,
+          "text_snippet": "difficulty in writing"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0011968",
+      "label": "Feeding difficulties",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 398,
+          "end_char": 427,
+          "text_snippet": "difficulty in writing, eating"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0031058",
+      "label": "Impairment of activities of daily living",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 398,
+          "end_char": 453,
+          "text_snippet": "difficulty in writing, eating, and operating appliances"
+        }
+      ]
+    }
+  ]
+}

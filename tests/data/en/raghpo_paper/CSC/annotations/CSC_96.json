@@ -1,0 +1,100 @@
+{
+  "doc_id": "CSC_96",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "Olfactory reference syndrome (ORS) is a psychiatric condition characterized by concerns about perceived body odor, which may be accompanied by repetitive behaviors to mask body odor and avoidance of social situations. Ms A, a 23-year-old Creole woman with no history of physical disease, had been suffering from ORS symptoms for 10 years. She was diagnosed (DSM-IV criteria) with generalized anxiety disorder (GAD), which developed after the onset of ORS symptoms. She had an overvalued idea that she emitted a sweaty body odor that disgusted people around her. She interpreted other people’s frowning or distancing themselves as proof for her beliefs. She experienced severe distress in confined spaces (classroom and public transport) where people could smell her presumed odor. She regularly checked her odor, showered every time she left home, and used excessive amounts of deodorant. She repeatedly sought consultation with dermatologists. Due to avoidance and distress, her study performance and social life were impaired. She had received supportive psychotherapy, which was associated with limited improvement. Ms A was therefore referred for assessment and further treatment. Pretreatment physical, neurologic, and laboratory evaluation showed no abnormalities.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "96",
+    "text_length_chars": 1270,
+    "num_annotations": 9,
+    "conversion_date": "2026-04-20T06:13:55.478109+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000708",
+      "label": "Atypical behavior",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000713",
+      "label": "Agitation",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 676,
+          "end_char": 684,
+          "text_snippet": "distress"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000733",
+      "label": "Motor stereotypy",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 143,
+          "end_char": 162,
+          "text_snippet": "repetitive behavior"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012760",
+      "label": "Reduced social responsiveness",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000739",
+      "label": "Anxiety",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 380,
+          "end_char": 399,
+          "text_snippet": "generalized anxiety"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001249",
+      "label": "Intellectual disability",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0034004",
+      "label": "Parosmia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 79,
+          "end_char": 113,
+          "text_snippet": "concerns about perceived body odor"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:5200320",
+      "label": "Diminishment of relationship seeking",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:5200402",
+      "label": "Overvalued idea",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 476,
+          "end_char": 491,
+          "text_snippet": "overvalued idea"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+{
+  "doc_id": "CSC_42",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A 45-year-old previously healthy man presented to our hospital with first episode of palpitations associated with dizziness. These symptoms were followed by severe central chest pain which prompted his visit to the emergency room. The patient denied any recent constitutional symptoms. He does not take any prescribed or over the counter medications. Review of systems, medical, surgical and family history was unremarkable. He was physically active, and works in a local grocery store. There is no history of tobacco, alcohol or illicit drug use. Physical examination in the emergency room revealed a well built man, in mild distress. Core body temperature was 38°C and respiratory rate 18 breaths/min. His blood pressure was 150/90 mm Hg and heart rate 90 bpm. His general physical, cardiac and rest of the clinical examination were normal. Baseline laboratory investigations including serum electrolytes, lipid profile, complete blood count, liver and kidney function tests were normal. His chest X-ray was unremarkable. Echocardiogram showed chambers with normal size and function. The pericardium, the valves and other cardiac structures were normal. Cardiac biomarkers followed a typical myocardial infarction pattern with rapid rise and fall of troponin I and creatine kinase (figure 1). Presentation troponin I and CK-MB of 0.72 and 12.2 mg/dL peaked at 9.3 and 50.6 mg/dL, respectively within 24 h prior to declining. Cardiac catheterisation showed angiographically normal coronaries.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "42",
+    "text_length_chars": 1493,
+    "num_annotations": 9,
+    "conversion_date": "2026-04-20T06:13:55.470125+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000822",
+      "label": "Hypertension",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001945",
+      "label": "Fever",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001962",
+      "label": "Palpitations",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002321",
+      "label": "Vertigo",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0003236",
+      "label": "Elevated circulating creatine kinase concentration",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0033834",
+      "label": "Malaise",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001658",
+      "label": "Myocardial infarction",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0100749",
+      "label": "Chest pain",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 157,
+          "end_char": 182,
+          "text_snippet": "severe central chest pain"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0410173",
+      "label": "Increased circulating troponin I concentration",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    }
+  ]
+}

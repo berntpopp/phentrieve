@@ -1,0 +1,112 @@
+{
+  "doc_id": "CSC_18",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A 55-year-old woman presented with an 8-week history of a gradually enlarging lesion on the neck (figure 1). Medical history included uterine cancer in 2007 which was treated with hysterectomy, radiotherapy and chemotherapy. No family history of skin cancer was noted. A recent diagnosis of diabetes was revealed during serial attendances in the context of a postoperative wound infection. Histology demonstrated an ulcerated, markedly inflamed tumour, composed of lobules of sebocytes without surrounding desmoplasia and prominent mitoses; this raised suspicions about a diagnosis of a low-grade sebaceous carcinoma (figure 2A, B). The report, discussed further at a dermatopathology meeting, suggested that extraocular sebaceous carcinomas tend not to be associated with underlying malignancy but may recur locally. At a follow-up clinic, 11 months postsurgery, it emerged that a series of reviews by other medical specialities had recently culminated in a right hemicolectomy for excision of a bowel mass. Family history revealed multiple cases positive for bowel cancer, and the non-linked digital pathology records identified a history of rare clear cell endometrial carcinoma and mucinous adenocarcinoma of the bowel. Loosely placed among other numerous, random reports in the patient's chart was a genetics report, performed by the Oncology services posthysterectomy, noting a c.942+3A>T splice mutation in IVS5 of the MSH2 gene. This confirmed our suspicion of hereditary non-polyposis colorectal cancer (HNPCC) and therefore, Muir-Torre syndrome (MTS). Although the patient had discussed this diagnosis with a number of other physicians in the past, she had not disclosed this to us as she assumed that all physicians would be aware of her diagnosis. It was revealed that with the exception of regular gynaecological review, no other screening of the patient had occurred.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "18",
+    "text_length_chars": 1881,
+    "num_annotations": 9,
+    "conversion_date": "2026-04-20T06:13:55.467631+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000819",
+      "label": "Diabetes mellitus",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 291,
+          "end_char": 299,
+          "text_snippet": "diabetes"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0006716",
+      "label": "Hereditary nonpolyposis colorectal carcinoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0008069",
+      "label": "Neoplasm of the skin",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 416,
+          "end_char": 451,
+          "text_snippet": "ulcerated, markedly inflamed tumour"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010784",
+      "label": "Uterine neoplasm",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 134,
+          "end_char": 148,
+          "text_snippet": "uterine cancer"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012114",
+      "label": "Endometrial carcinoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1149,
+          "end_char": 1181,
+          "text_snippet": "clear cell endometrial carcinoma"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0030410",
+      "label": "Sebaceous gland carcinoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 587,
+          "end_char": 616,
+          "text_snippet": "low-grade sebaceous carcinoma"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0031497",
+      "label": "Mucinous colorectal carcinoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1186,
+          "end_char": 1222,
+          "text_snippet": "mucinous adenocarcinoma of the bowel"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0031500",
+      "label": "Abdominal mass",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0100658",
+      "label": "Cellulitis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 359,
+          "end_char": 388,
+          "text_snippet": "postoperative wound infection"
+        }
+      ]
+    }
+  ]
+}

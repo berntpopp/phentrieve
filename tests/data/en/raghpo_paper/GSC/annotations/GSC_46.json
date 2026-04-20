@@ -1,0 +1,88 @@
+{
+  "doc_id": "GSC_46",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "We report 9 subjects from 2 families with the syndrome of cerebral gigantism, seven of the patients also had jaw cyst basal cell naevoid syndrome. Neurological, radiological, somatic and biochemical features of this hitherto unreported association are described. Neurological symptoms included mild hydrocephalus, ventricular malformation, cerebellar syndrome, intracranial calcification, oculomotor disturbances, EEG abnormalities and rarely, mild peripheral nervous disorders. A disturbance of calcium metabolism appears to be a prominent feature of the genetically determined nonprogressive syndrome.",
+  "metadata": {
+    "dataset": "GSC",
+    "original_dataset": "GSC",
+    "original_doc_id": "6882181",
+    "text_length_chars": 603,
+    "num_annotations": 6,
+    "conversion_date": "2026-04-20T06:13:55.489769+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0002353",
+      "label": "EEG abnormality",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 414,
+          "end_char": 431,
+          "text_snippet": "EEG abnormalities"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0430048",
+      "label": "Intracranial calcification",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 361,
+          "end_char": 387,
+          "text_snippet": "intracranial calcification"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010603",
+      "label": "Odontogenic keratocysts of the jaw",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 109,
+          "end_char": 145,
+          "text_snippet": "jaw cyst basal cell naevoid syndrome"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000238",
+      "label": "Hydrocephalus",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 294,
+          "end_char": 312,
+          "text_snippet": "mild hydrocephalus"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000496",
+      "label": "Abnormality of eye movement",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 389,
+          "end_char": 412,
+          "text_snippet": "oculomotor disturbances"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002118",
+      "label": "Abnormal cerebral ventricle morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 314,
+          "end_char": 338,
+          "text_snippet": "ventricular malformation"
+        }
+      ]
+    }
+  ]
+}

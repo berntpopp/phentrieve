@@ -1,0 +1,214 @@
+{
+  "doc_id": "CSC_61",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A 24-year-old male presented with > 4 years of repeated limb weakness and a relapse of 1 d. Four years ago, the patient developed limb weakness and fatigue, especially in the lower limbs, which could be relieved spontaneously after rest. He could walk and hold objects with both hands. During the period without a specific diagnosis and treatment, the above symptoms occasionally occurred without aggravation but could be relieved spontaneously after rest. One day ago, the patient was bitten by ants and showed weakness in the lower limbs. His blood potassium level was 1.66 mmol/L when examined in the Emergency Department. Following oral and intravenous potassium supplementation and intravenous magnesium supplementation, his blood potassium was reexamined and was found to be 2.22 mmol/L, and the patient was admitted to our department with hypokalemia. Physical examination revealed a thin man, 156 cm in height, and 33.5 kg in weight. His temperature was 36.5 ℃, respiratory rate was 20 breaths/min, and blood pressure was 116/53 mmHg with a regular heart rate of 100 bpm. Thyroid palpation revealed that his thyroid was normal. Chest auscultation revealed that his lungs were clear and heart sounds were normal. Muscle strength of his left lower limb was grade 4, and that of the right lower and both upper limbs was grade 5. We confirmed the persistence of a hypokalemic state secondary to renal potassium wasting, while serum potassium levels remained at approximately 1.66–2.83 mmol/L, and urinary potassium excretion was increased from 102.43 to 120.08 mmol/d. Intriguingly, we observed hypomagnesemia (0.4 mmol/L), hypocalciuria (1.51-2.46 mmol/d), and metabolic alkalosis (7.47-7.54). Urinalysis did not show any alterations. Serum creatinine and creatinine clearance were slightly higher than normal. Glycosylated hemoglobin and plasma cortisol were within the normal range. Echocardiography and renal ultrasound did not show any abnormalities. Liver function, thyroid function, and other biochemical parameters were normal. Secondary hyperreninemic hyperaldosteronism was detected in the supine and upright positions (PRA 6.4 and 16.45 ng/mL/h and aldosterone 330.64 and 756.82 pg/mL, respectively) Computed tomography revealed hyperplasia at the junction of the left adrenal gland and calcification of the diverticulum in the right renal pelvis. Electrocardiography showed sinus rhythm and low T wave level. The patient was diagnosed with hypokalemia, hypomagnesia, hypocalciuria, alkalosis, low serum chlorine, increased renin-angiotensin-aldosterone activity, normal blood calcium, and normal blood pressure.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "61",
+    "text_length_chars": 2627,
+    "num_annotations": 18,
+    "conversion_date": "2026-04-20T06:13:55.472565+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000128",
+      "label": "Renal potassium wasting",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1399,
+          "end_char": 1422,
+          "text_snippet": "renal potassium wasting"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000841",
+      "label": "Hyperactive renin-angiotensin system",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2529,
+          "end_char": 2577,
+          "text_snippet": "increased renin-angiotensin-aldosterone activity"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001533",
+      "label": "Slender build",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 891,
+          "end_char": 899,
+          "text_snippet": "thin man"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002900",
+      "label": "Hypokalemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 846,
+          "end_char": 857,
+          "text_snippet": "hypokalemia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002917",
+      "label": "Hypomagnesemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1599,
+          "end_char": 1613,
+          "text_snippet": "hypomagnesemia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003081",
+      "label": "Increased urinary potassium",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1501,
+          "end_char": 1542,
+          "text_snippet": "urinary potassium excretion was increased"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003113",
+      "label": "Hypochloremia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2509,
+          "end_char": 2527,
+          "text_snippet": "low serum chlorine"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003127",
+      "label": "Hypocalciuria",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1628,
+          "end_char": 1641,
+          "text_snippet": "hypocalciuria"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003473",
+      "label": "Fatigable weakness",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0003690",
+      "label": "Limb muscle weakness",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 56,
+          "end_char": 69,
+          "text_snippet": "limb weakness"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004724",
+      "label": "Calcium nephrolithiasis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2302,
+          "end_char": 2361,
+          "text_snippet": "calcification of the diverticulum in the right renal pelvis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0005135",
+      "label": "Abnormal T-wave",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0007340",
+      "label": "Lower limb muscle weakness",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 47,
+          "end_char": 186,
+          "text_snippet": "repeated limb weakness and a relapse of 1 d. Four years ago, the patient developed limb weakness and fatigue, especially in the lower limbs"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0008221",
+      "label": "Adrenal hyperplasia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0011741",
+      "label": "Secondary hyperaldosteronism",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2040,
+          "end_char": 2083,
+          "text_snippet": "Secondary hyperreninemic hyperaldosteronism"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012378",
+      "label": "Fatigue",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 148,
+          "end_char": 155,
+          "text_snippet": "fatigue"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100877",
+      "label": "Renal diverticulum",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2323,
+          "end_char": 2361,
+          "text_snippet": "diverticulum in the right renal pelvis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0200114",
+      "label": "Metabolic alkalosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1666,
+          "end_char": 1685,
+          "text_snippet": "metabolic alkalosis"
+        }
+      ]
+    }
+  ]
+}

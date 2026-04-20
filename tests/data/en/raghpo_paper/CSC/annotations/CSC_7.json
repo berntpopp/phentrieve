@@ -1,0 +1,316 @@
+{
+  "doc_id": "CSC_7",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A 43-year-old Caucasian female experienced MCAS symptoms at age 18: specific foods and odours caused flushing, rashes, itching, wheezing, dizziness and nausea. At age 20, she noted problems with postprandial bloating/pain, constipation, evacuating stool and flatus with rotten egg odour. Restless legs syndrome (RLS) gradually developed. At age 23, she developed orthostatic lightheadedness and tachycardia, body pain, generalised weakness and painful dependent leg oedema. Ultimately, she suffered from 45 individual clinically significant symptoms (table 1). For 6 years, she became disabled owing to orthostatic symptoms, fatigue and body pain. Faecal evacuation resulted in syncope with efforts >3 min. Early satiety led to a liquid diet. Pressure-induced hives and angioedema, paraesthesia and nocturnal urination (seven times nightly) interfered with sleep. Over 16 years, 19 physicians failed to diagnose POTS and MCAS which were established at a second location of the Mayo Clinic. Supine pulse of 80 beats/min increased to 160 after standing 10 min. Facial rash and oedema, cold, blue hands, Terry’s fingernails and dermatographism were present.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "7",
+    "text_length_chars": 1154,
+    "num_annotations": 29,
+    "conversion_date": "2026-04-20T06:13:55.466022+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000017",
+      "label": "Nocturia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000969",
+      "label": "Edema",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 467,
+          "end_char": 472,
+          "text_snippet": "edema"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000988",
+      "label": "Skin rash",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 111,
+          "end_char": 115,
+          "text_snippet": "rash"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000989",
+      "label": "Pruritus",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 119,
+          "end_char": 126,
+          "text_snippet": "itching"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001063",
+      "label": "Acrocyanosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1089,
+          "end_char": 1099,
+          "text_snippet": "blue hands"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001278",
+      "label": "Orthostatic hypotension",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 363,
+          "end_char": 390,
+          "text_snippet": "orthostatic lightheadedness"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001279",
+      "label": "Syncope",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 678,
+          "end_char": 685,
+          "text_snippet": "syncope"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001649",
+      "label": "Tachycardia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 395,
+          "end_char": 406,
+          "text_snippet": "tachycardia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001820",
+      "label": "Leukonychia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002018",
+      "label": "Nausea",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 152,
+          "end_char": 158,
+          "text_snippet": "nausea"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002019",
+      "label": "Constipation",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 223,
+          "end_char": 235,
+          "text_snippet": "constipation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002321",
+      "label": "Vertigo",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 138,
+          "end_char": 147,
+          "text_snippet": "dizziness"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003270",
+      "label": "Abdominal distention",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 195,
+          "end_char": 216,
+          "text_snippet": "postprandial bloating"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003324",
+      "label": "Generalized muscle weakness",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 431,
+          "end_char": 439,
+          "text_snippet": "weakness"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003401",
+      "label": "Paresthesia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0010741",
+      "label": "Pedal edema",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 297,
+          "end_char": 472,
+          "text_snippet": "legs syndrome (RLS) gradually developed. At age 23, she developed orthostatic lightheadedness and tachycardia, body pain, generalised weakness and painful dependent leg oedema"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0011971",
+      "label": "Dermatographic urticaria",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1125,
+          "end_char": 1140,
+          "text_snippet": "dermatographism"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012173",
+      "label": "Orthostatic tachycardia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 363,
+          "end_char": 406,
+          "text_snippet": "orthostatic lightheadedness and tachycardia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012378",
+      "label": "Fatigue",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 625,
+          "end_char": 632,
+          "text_snippet": "fatigue"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012452",
+      "label": "Restless legs",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0012531",
+      "label": "Pain",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 419,
+          "end_char": 448,
+          "text_snippet": "generalised weakness and pain"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0025143",
+      "label": "Chills",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1083,
+          "end_char": 1087,
+          "text_snippet": "cold"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0025300",
+      "label": "Malar rash",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0030828",
+      "label": "Wheezing",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 128,
+          "end_char": 136,
+          "text_snippet": "wheezing"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0031284",
+      "label": "Flushing",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0033047",
+      "label": "Body ache",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 408,
+          "end_char": 417,
+          "text_snippet": "body pain"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0033842",
+      "label": "Early satiety",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0100665",
+      "label": "Angioedema",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 770,
+          "end_char": 780,
+          "text_snippet": "angioedema"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0410134",
+      "label": "Physical urticaria",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    }
+  ]
+}

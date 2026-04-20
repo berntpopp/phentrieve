@@ -1,0 +1,130 @@
+{
+  "doc_id": "CSC_13",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "We present a 33-year-old woman, without family history of TSC, with clinical diagnosis of TSC since 12 years old. A mutation in TSC2 gene was detected later. She had dermatological (facial angiofibromas and subungual fibromas), neurological (SEGA), renal (angiomyolipomas) and pulmonary (lymphangioleiomyomatosis) involvement, and was in period of reduction the dose of levetiracetam because she was considering to get pregnant. She did not take any mTOR inhibitor medication for the same reason. She presented complaints of reduced visual acuity, horizontal binocular diplopia and right eye (RE) esotropia, for the last 3 days. She denied headache, vomiting or nausea. The neuro-ophthalmological examination revealed: right abducens nerve palsy, best-corrected visual acuity (BCVA) of 7/10 in the RE and 8/10 in the left eye (LE), and in the ocular fundus signs of pale oedema of both optic discs and lesions consistent with retinal hamartomas bilaterally.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "13",
+    "text_length_chars": 957,
+    "num_annotations": 11,
+    "conversion_date": "2026-04-20T06:13:55.467152+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000565",
+      "label": "Esotropia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 597,
+          "end_char": 606,
+          "text_snippet": "esotropia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000651",
+      "label": "Diplopia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 569,
+          "end_char": 577,
+          "text_snippet": "diplopia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001085",
+      "label": "Papilledema",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0006772",
+      "label": "Renal angiomyolipoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 256,
+          "end_char": 271,
+          "text_snippet": "angiomyolipomas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0006897",
+      "label": "Abducens palsy",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 719,
+          "end_char": 745,
+          "text_snippet": "right abducens nerve palsy"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0007663",
+      "label": "Reduced visual acuity",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 525,
+          "end_char": 546,
+          "text_snippet": "reduced visual acuity"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009594",
+      "label": "Retinal hamartoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0009718",
+      "label": "Subependymal giant-cell astrocytoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 242,
+          "end_char": 246,
+          "text_snippet": "SEGA"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009720",
+      "label": "Adenoma sebaceum",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 182,
+          "end_char": 201,
+          "text_snippet": "facial angiofibroma"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009724",
+      "label": "Subungual fibromas",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0012798",
+      "label": "Pulmonary lymphangiomyomatosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 288,
+          "end_char": 312,
+          "text_snippet": "lymphangioleiomyomatosis"
+        }
+      ]
+    }
+  ]
+}

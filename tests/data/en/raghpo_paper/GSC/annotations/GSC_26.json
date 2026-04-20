@@ -1,0 +1,112 @@
+{
+  "doc_id": "GSC_26",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "Bilateral acoustic neurofibromatosis (BANF) is a severe autosomal dominant disorder involving development of multiple tumours of the nervous system including meningiomas, gliomas, neurofibromas and particularly bilateral acoustic neuromas. We have used genetic linkage analysis with DNA markers to establish that the defective gene causing BANF is on chromosome 22, and is therefore distinct from the gene for the von Recklinghausen form of neurofibromatosis, which maps to chromosome 17. Linked DNA markers will be particularly valuable in BANF, facilitating early detection of tumours and thereby permitting more effective surgical intervention. In view of the reported loss of genes on chromosome 22 in meningiomas and acoustic neuromas, the genetic localization of the primary BANF defect strongly supports the concept that the disease locus encodes a 'tumour suppressor' gene. Isolation of this gene should provide insights into the pathogenesis of acoustic neuromas and other nervous system tumours, as well as into the control of proliferation and differentiation of neural crest cells.",
+  "metadata": {
+    "dataset": "GSC",
+    "original_dataset": "GSC",
+    "original_doc_id": "2888021",
+    "text_length_chars": 1093,
+    "num_annotations": 8,
+    "conversion_date": "2026-04-20T06:13:55.489313+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0009588",
+      "label": "Vestibular schwannoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 221,
+          "end_char": 237,
+          "text_snippet": "acoustic neuroma"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 56,
+          "end_char": 83,
+          "text_snippet": "autosomal dominant disorder"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009589",
+      "label": "Bilateral vestibular schwannoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 211,
+          "end_char": 238,
+          "text_snippet": "bilateral acoustic neuromas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009733",
+      "label": "Glioma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 171,
+          "end_char": 178,
+          "text_snippet": "gliomas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002858",
+      "label": "Meningioma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 158,
+          "end_char": 169,
+          "text_snippet": "meningiomas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001067",
+      "label": "Neurofibroma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 180,
+          "end_char": 193,
+          "text_snippet": "neurofibromas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002664",
+      "label": "Neoplasm",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 118,
+          "end_char": 880,
+          "text_snippet": "tumours of the nervous system including meningiomas, gliomas, neurofibromas and particularly bilateral acoustic neuromas. We have used genetic linkage analysis with DNA markers to establish that the defective gene causing BANF is on chromosome 22, and is therefore distinct from the gene for the von Recklinghausen form of neurofibromatosis, which maps to chromosome 17. Linked DNA markers will be particularly valuable in BANF, facilitating early detection of tumours and thereby permitting more effective surgical intervention. In view of the reported loss of genes on chromosome 22 in meningiomas and acoustic neuromas, the genetic localization of the primary BANF defect strongly supports the concept that the disease locus encodes a 'tumour suppressor' gene"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004375",
+      "label": "Neoplasm of the nervous system",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 118,
+          "end_char": 147,
+          "text_snippet": "tumours of the nervous system"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "doc_id": "GSC_38",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "The family on which this report is based is of interest because it contains individuals with the branchio-oto-renal (BOR) syndrome who have renal hypoplasia or malformations of the kidney or collecting system including duplication; only branchial and ear anomalies; and apparent nonpenetrance of the syndrome. This report provides evidence to support the hypothesis that in some families variable expressivity includes duplication of the urinary collecting system in individuals with other manifestations of the BOR syndrome as well as individuals with branchial and ear anomalies who have apparently normal kidneys.",
+  "metadata": {
+    "dataset": "GSC",
+    "original_dataset": "GSC",
+    "original_doc_id": "3799714",
+    "text_length_chars": 616,
+    "num_annotations": 4,
+    "conversion_date": "2026-04-20T06:13:55.489674+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0009794",
+      "label": "Branchial anomaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 237,
+          "end_char": 264,
+          "text_snippet": "branchial and ear anomalies"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000598",
+      "label": "Abnormality of the ear",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 251,
+          "end_char": 264,
+          "text_snippet": "ear anomalies"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012210",
+      "label": "Abnormal renal morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 160,
+          "end_char": 208,
+          "text_snippet": "malformations of the kidney or collecting system"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000089",
+      "label": "Renal hypoplasia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 140,
+          "end_char": 156,
+          "text_snippet": "renal hypoplasia"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,184 @@
+{
+  "doc_id": "CSC_92",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A 52-year-old man with severe alcohol use disorder (per DSM-5 criteria) was referred to our institution to undergo treatment for his addiction. At admission, he displayed agitation, severe impairment of attention, imbalance, postural tremor, a wide-based gait, and disorientation in time, space, and person. He reported zoopsias, initial insomnia, and paresthesias of the lower limbs. Neither ophthalmoplegia nor nystagmus was present. There was no history of seizures or fever. Laboratory results showed decreased hemoglobin (11.9 g/dL), increased mean globular volume (115.1fL), increased γ-glutamyl transferase (69U/L), and decreased vitamin B12 (174pg/mL). The computed tomography scan was unremarkable. Given this presentation, severe alcohol withdrawal syndrome was considered the likeliest diagnostic hypothesis. The patient subsequently received intravenous hydration, folic acid 5 mg/d, haloperidol 10 mg/d, diazepam 10 mg/d, and parenteral thiamine 500 mg/d. Over the course of 8 days, the patient did not improve. He was examined by neurology specialists, who ruled out Wernicke’s encephalopathy. The magnetic resonance imaging (MRI) solicited at admission was then conducted, revealing bilateral ovaloid hyperintense areas on T2-weighted images and hypointense areas on T1-weighted images in the splenium of the corpus callosum. There was also a discrete atrophy in the posterior body of the callosal commissure. These features were highly suggestive of MBD. Given the likely diagnosis of MBD, the patient’s therapy was adjusted. He was given a 7-day course of parenteral thiamine 1,500 mg/d, oral B-complex vitamins, and intramuscular (IM) cyanocobalamin 1 mg/d. We witnessed a gradual improvement of the patient’s clinical status following this therapeutic adjustment. His agitation ceased, and he displayed progressively more adequate behavior. His attention, orientation, speech, gait, and tremor improved, and the visual hallucinations disappeared",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "92",
+    "text_length_chars": 1964,
+    "num_annotations": 18,
+    "conversion_date": "2026-04-20T06:13:55.477561+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000713",
+      "label": "Agitation",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001289",
+      "label": "Confusion",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 265,
+          "end_char": 279,
+          "text_snippet": "disorientation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001903",
+      "label": "Anemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 505,
+          "end_char": 525,
+          "text_snippet": "decreased hemoglobin"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002136",
+      "label": "Broad-based gait",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002172",
+      "label": "Postural instability",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002174",
+      "label": "Postural tremor",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002367",
+      "label": "Visual hallucination",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0003401",
+      "label": "Paresthesia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0005518",
+      "label": "Increased mean corpuscular volume",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 539,
+          "end_char": 569,
+          "text_snippet": "increased mean globular volume"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0007018",
+      "label": "Attention deficit hyperactivity disorder",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0030786",
+      "label": "Photopsia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 320,
+          "end_char": 328,
+          "text_snippet": "zoopsias"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0030948",
+      "label": "Elevated gamma-glutamyltransferase level",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 581,
+          "end_char": 613,
+          "text_snippet": "increased γ-glutamyl transferase"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0030955",
+      "label": "Addictive alcohol use",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 30,
+          "end_char": 50,
+          "text_snippet": "alcohol use disorder"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0031354",
+      "label": "Sleep onset insomnia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 330,
+          "end_char": 346,
+          "text_snippet": "initial insomnia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0034007",
+      "label": "Posterior atrophy of corpus callosum",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1358,
+          "end_char": 1423,
+          "text_snippet": "discrete atrophy in the posterior body of the callosal commissure"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0040328",
+      "label": "Focal hyperintensity of cerebral white matter on MRI",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0040331",
+      "label": "Focal hypointensity of cerebral white matter on MRI",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1261,
+          "end_char": 1340,
+          "text_snippet": "hypointense areas on T1-weighted images in the splenium of the corpus callosum."
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100502",
+      "label": "Decreased circulating vitamin B12 concentration",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 627,
+          "end_char": 648,
+          "text_snippet": "decreased vitamin B12"
+        }
+      ]
+    }
+  ]
+}

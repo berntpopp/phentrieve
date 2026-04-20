@@ -1,0 +1,100 @@
+{
+  "doc_id": "GSC_36",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "Two unrelated females, age 15 and 5 years respectively, were studied cytogenetically because of severe mental retardation, seizures and ataxia-like incoordination. A similar deletion of the proximal long arm of chromosome 15 was found in both patients. Re-evaluation showed no voracious appetite or obesity; normal size of hands and feet, minimal to no hypotonia by history or examination and facial features not typical of the Prader-Willi syndrome. However, the facial appearance of the girls was similar to each other with mild hypertelorism. The similarity of these girls and dissimilarity to Prader-Willi syndrome suggest a different syndrome, perhaps the result of deletion of a different segment of 15q. The findings of ataxic-like movements, frequent, unprovoked and prolonged bouts of laughter and facial appearance are more compatible with the diagnosis of Angelman syndrome.",
+  "metadata": {
+    "dataset": "GSC",
+    "original_dataset": "GSC",
+    "original_doc_id": "3688021",
+    "text_length_chars": 885,
+    "num_annotations": 7,
+    "conversion_date": "2026-04-20T06:13:55.489638+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0002311",
+      "label": "Incoordination",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 136,
+          "end_char": 162,
+          "text_snippet": "ataxia-like incoordination"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001251",
+      "label": "Ataxia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 727,
+          "end_char": 748,
+          "text_snippet": "ataxic-like movements"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000749",
+      "label": "Paroxysmal bursts of laughter",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 750,
+          "end_char": 802,
+          "text_snippet": "frequent, unprovoked and prolonged bouts of laughter"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000748",
+      "label": "Inappropriate laughter",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 794,
+          "end_char": 802,
+          "text_snippet": "laughter"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000316",
+      "label": "Hypertelorism",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 526,
+          "end_char": 544,
+          "text_snippet": "mild hypertelorism"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001250",
+      "label": "Seizure",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 123,
+          "end_char": 131,
+          "text_snippet": "seizures"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010864",
+      "label": "Intellectual disability, severe",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 96,
+          "end_char": 121,
+          "text_snippet": "severe mental retardation"
+        }
+      ]
+    }
+  ]
+}

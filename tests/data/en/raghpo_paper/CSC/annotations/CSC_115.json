@@ -1,0 +1,166 @@
+{
+  "doc_id": "CSC_115",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A man in his 40s was referred by his general practice to the movement disorder clinic with a long history of tremor affecting his hands, which had gotten progressively worse in the previous 5 years. He was initially diagnosed with essential tremor and trialled with beta-blockers and primidone; however, he did not receive any clinical benefit and had, therefore, been referred for consideration of DBS to treat essential tremor. The patient’s medical history was otherwise unremarkable except for chronic back pain. His regular medications included diazepam, amitriptyline and tramadol for the treatment of his chronic back pain. The patient then went on to have an MRI Brain for stereotactic DBS lead placement planning which included T1-weighted volumetric imaging sequences, and T2-weighted sequences, providing high-resolution demonstration of cerebral and thalamic anatomy. The MRI scan showed multiple abnormal features in the posterior fossa including a high T2 signal in the middle cerebellar peduncles bilaterally extending into the deep white matter of the cerebellar hemisphere, a high T2 signal seen within the superior cerebellar peduncles crossing towards the decussation of the superior cerebellar peduncles, the pons is relatively atrophic and there is an element of increased signal in the medial menisci bilaterally and in the median pontine raphe (see figure 1). The radiological features were concordant with the patient’s clinical symptoms and drew the movement disorder team’s focus towards the clinical differentials of spinocerebellar ataxia and FXTAS. Following the MRI scan, blood tests were arranged to screen for autoimmune and metabolic disease, and the patient was referred for genetic testing for mitochondrial disease, spinocerebellar ataxia and FXTAS.The patient complained predominantly of a tremor in his hands; however, he occasionally noticed a tremor in his legs, head or a shake throughout his body. The tremor was worse in his right hand, and he experienced intermittently numbness in the same hand. This led to difficulties doing shirt buttons, cooking, dropping things and poor writing legibility. He described being able to stop the tremor by shaking his hands. He had chronic numbness of the right leg and felt unsteady on his feet requiring a crutch to stabilise. The patient also reported chronic back pain in recent years. Overall, the patient had not been able to work due to the plethora of symptoms. On examination, there was no evidence of dystonia, rigidity or bradykinesia. There was a severe bilateral postural and intentional tremor affecting the upper limbs and head. The patient was mildly unsteady, uncoordinated and had gait ataxia. He had normal tone and power in all four limbs. In his right lower limb, there was reduced pin prick sensation in a patchy distribution. His cranial nerve examination was normal",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "115",
+    "text_length_chars": 2870,
+    "num_annotations": 17,
+    "conversion_date": "2026-04-20T06:13:55.480940+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001337",
+      "label": "Tremor",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 109,
+          "end_char": 115,
+          "text_snippet": "tremor"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002066",
+      "label": "Gait ataxia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1560,
+          "end_char": 1566,
+          "text_snippet": "ataxia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002080",
+      "label": "Intention tremor",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002172",
+      "label": "Postural instability",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002174",
+      "label": "Postural tremor",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002311",
+      "label": "Incoordination",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002378",
+      "label": "Hand tremor",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 109,
+          "end_char": 135,
+          "text_snippet": "tremor affecting his hands"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002936",
+      "label": "Distal sensory impairment",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1897,
+          "end_char": 2022,
+          "text_snippet": "legs, head or a shake throughout his body. The tremor was worse in his right hand, and he experienced intermittently numbness"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003418",
+      "label": "Back pain",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 498,
+          "end_char": 515,
+          "text_snippet": "chronic back pain"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0006879",
+      "label": "Pontocerebellar atrophy",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0007328",
+      "label": "Impaired pain sensation",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0011931",
+      "label": "Abnormal cerebellar peduncle morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0011932",
+      "label": "Abnormal superior cerebellar peduncle morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0012532",
+      "label": "Chronic pain",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 498,
+          "end_char": 515,
+          "text_snippet": "chronic back pain"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0033660",
+      "label": "Hand paresthesia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 130,
+          "end_char": 2022,
+          "text_snippet": "hands, which had gotten progressively worse in the previous 5 years. He was initially diagnosed with essential tremor and trialled with beta-blockers and primidone; however, he did not receive any clinical benefit and had, therefore, been referred for consideration of DBS to treat essential tremor. The patient’s medical history was otherwise unremarkable except for chronic back pain. His regular medications included diazepam, amitriptyline and tramadol for the treatment of his chronic back pain. The patient then went on to have an MRI Brain for stereotactic DBS lead placement planning which included T1-weighted volumetric imaging sequences, and T2-weighted sequences, providing high-resolution demonstration of cerebral and thalamic anatomy. The MRI scan showed multiple abnormal features in the posterior fossa including a high T2 signal in the middle cerebellar peduncles bilaterally extending into the deep white matter of the cerebellar hemisphere, a high T2 signal seen within the superior cerebellar peduncles crossing towards the decussation of the superior cerebellar peduncles, the pons is relatively atrophic and there is an element of increased signal in the medial menisci bilaterally and in the median pontine raphe (see figure 1). The radiological features were concordant with the patient’s clinical symptoms and drew the movement disorder team’s focus towards the clinical differentials of spinocerebellar ataxia and FXTAS. Following the MRI scan, blood tests were arranged to screen for autoimmune and metabolic disease, and the patient was referred for genetic testing for mitochondrial disease, spinocerebellar ataxia and FXTAS.The patient complained predominantly of a tremor in his hands; however, he occasionally noticed a tremor in his legs, head or a shake throughout his body. The tremor was worse in his right hand, and he experienced intermittently numbness"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0200085",
+      "label": "Limb tremor",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 109,
+          "end_char": 1901,
+          "text_snippet": "tremor affecting his hands, which had gotten progressively worse in the previous 5 years. He was initially diagnosed with essential tremor and trialled with beta-blockers and primidone; however, he did not receive any clinical benefit and had, therefore, been referred for consideration of DBS to treat essential tremor. The patient’s medical history was otherwise unremarkable except for chronic back pain. His regular medications included diazepam, amitriptyline and tramadol for the treatment of his chronic back pain. The patient then went on to have an MRI Brain for stereotactic DBS lead placement planning which included T1-weighted volumetric imaging sequences, and T2-weighted sequences, providing high-resolution demonstration of cerebral and thalamic anatomy. The MRI scan showed multiple abnormal features in the posterior fossa including a high T2 signal in the middle cerebellar peduncles bilaterally extending into the deep white matter of the cerebellar hemisphere, a high T2 signal seen within the superior cerebellar peduncles crossing towards the decussation of the superior cerebellar peduncles, the pons is relatively atrophic and there is an element of increased signal in the medial menisci bilaterally and in the median pontine raphe (see figure 1). The radiological features were concordant with the patient’s clinical symptoms and drew the movement disorder team’s focus towards the clinical differentials of spinocerebellar ataxia and FXTAS. Following the MRI scan, blood tests were arranged to screen for autoimmune and metabolic disease, and the patient was referred for genetic testing for mitochondrial disease, spinocerebellar ataxia and FXTAS.The patient complained predominantly of a tremor in his hands; however, he occasionally noticed a tremor in his legs"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:6000416",
+      "label": "T2 hyperintense cerebellar lesion",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    }
+  ]
+}

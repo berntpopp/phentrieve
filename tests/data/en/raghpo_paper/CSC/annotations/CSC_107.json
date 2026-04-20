@@ -1,0 +1,94 @@
+{
+  "doc_id": "CSC_107",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "An Afghan 14-year-old girl was referred to the Pediatric Unit of Maiwand Teaching Hospital due to chest discomfort. On arrival, she complained of one attack of localized middle-chest paint that lasted 30 min and was relieved by rest. Her past medical and family history was unremarkable. On general physical examination, a blood pressure of 110/70, a respiratory rate of 20/min, a heart rate of 69/min, and an oxygen saturation of 94% were recorded. By systemic examination of the chest, a soft early systolic murmur (Levine III/VI) was found. No abnormal clinical findings were detected in other systems. Blood investigations were within normal limits. The chest x-ray showed cardiomegaly, with a cardiothoracic ratio of 62.5%, and bilateral costophrenic angles were sharp with no congestion (Fig. 1). The electrocardiography (ECG) showed a heart rate of 69 beats per minute, a normal sinus rhythm, an axis of +50, a PQ of 0.16 s, a QRS of 0.08 s, a QT/QTc of 0.36/0.36 s, and no significant ST segment shift was noted (Fig. 2). On day three of admission, transthoracic echocardiography revealed an ectopic opening of the coronary artery, a blood-stealing phenomenon at the pulmonary artery, and abnormal coronary circulation (Fig. 3), as well as pulsed color doppler confirming abnormal flow within the pulmonary artery. Pulsed-wave doppler showed a left coronary wave pattern (Fig. 4). These echocardiographic findings suggested BWGS. Furthermore, there was all-segment normokinesis, a left ventricular end-diastolic volume (LVEDV) of 72.9 ml, a left ventricular end-systolic volume (LVESV) of 24.9 ml, and a left ventricular ejection fraction (LVEF) of 66.1%. Based on ECG and cardiac echocardiography findings, BWGS was suspected; hence, chest computed tomography (CT) and cardiac catheterization were advised. The chest CT scan of the patient revealed the origin of the left coronary artery from the pulmonary artery, along with an aneurysm of the LCA (Fig. 5). Coronary angiography showed an aneurysm or dilatation of the left coronary artery (Fig. 6). She had a stable condition during her three-day hospital stay and on discharge and was referred to an advanced setting abroad for the surgical management of BWGS. It was impossible to follow up once she left the country",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "107",
+    "text_length_chars": 2279,
+    "num_annotations": 8,
+    "conversion_date": "2026-04-20T06:13:55.479595+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001640",
+      "label": "Cardiomegaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 677,
+          "end_char": 689,
+          "text_snippet": "cardiomegaly"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004414",
+      "label": "Abnormality of the pulmonary artery",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0011638",
+      "label": "Anomalous origin of left coronary artery from the pulmonary artery",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0025496",
+      "label": "Abnormal coronary artery physiology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1197,
+          "end_char": 1226,
+          "text_snippet": "abnormal coronary circulation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0030882",
+      "label": "Coronary artery aneurysm",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1954,
+          "end_char": 2007,
+          "text_snippet": "LCA (Fig. 5). Coronary angiography showed an aneurysm"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0030967",
+      "label": "Abnormal pulmonary artery physiology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1280,
+          "end_char": 1321,
+          "text_snippet": "abnormal flow within the pulmonary artery"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0031664",
+      "label": "Systolic heart murmur",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 501,
+          "end_char": 516,
+          "text_snippet": "systolic murmur"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100749",
+      "label": "Chest pain",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    }
+  ]
+}

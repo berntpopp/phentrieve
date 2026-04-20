@@ -1,0 +1,34 @@
+{
+  "doc_id": "CSC_40",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "Case 1: a female newborn was delivered at 38 weeks’ gestation. Pregnancy and labour were uneventful. The newborn was evaluated on day 1 of life for asymptomatic sinus bradycardia observed in the nursery. ECG recording showed a prolonged QT interval (QTc of 555 ms) and was otherwise normal (figure 1). The newborn had a short period of supraventricular tachycardia during the first week of life with spontaneous resolution. Oral propranolol was initiated and titrated to 3 mg/kg/day. Otoacoustic emissions excluded neurosensorial deafness. Genetic testing revealed an heterozygous variant in the KCNH2 gene NM_000238.4: c.772C>T, p.(Pro241Leu) in exon 4 which has been reported in individuals with LQTS. First-degree relatives were asymptomatic and had normal QTc on ECG recording. Their genetic testing is underway.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "40",
+    "text_length_chars": 816,
+    "num_annotations": 3,
+    "conversion_date": "2026-04-20T06:13:55.469918+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001657",
+      "label": "Prolonged QT interval",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001688",
+      "label": "Sinus bradycardia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0004755",
+      "label": "Supraventricular tachycardia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    }
+  ]
+}

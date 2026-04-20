@@ -1,0 +1,94 @@
+{
+  "doc_id": "CSC_97",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A female infant born at 38 weeks and 2 days via induced vaginal delivery was admitted to the neonatal intensive care unit (NICU) for respiratory distress soon after birth. The patient’s prenatal course was complicated by findings of a right fetal unilateral dysplastic kidney on anatomy scan and a need for induction of labour due to decreased fetal movement and severe pre-eclampsia. After delivery, the infant was brought to the NICU due to respiratory distress requiring treatment with continuous positive airway pressure (CPAP). Her respiratory distress resolved after 1 hour on CPAP. However, the infant was noted to have aphonia on examination, prompting bedside laryngoscopy on day of life (DOL) 1. The laryngoscopy was notable for findings concerning for a glottic web. Subsequent direct laryngoscopy and bronchoscopy on DOL 2 confirmed diagnosis of a Cohen grade IV anterior glottic web (75% occlusion) and a grade I subglottic stenosis (40% stenosis) (figure 1). Surgical correction by lysis of the glottic web, as well as balloon dilation occurred on DOL 3. The patient’s postoperative course was complicated by upper airway stenosis from readhesion after the procedures, as well as two failed extubations. The patient required tracheostomy and keel placement. Once stabilised, the patient underwent genetics work-up to evaluate for possible genetic causes of the dysplastic kidney and large glottic web. The evaluation included spinal, head and abdominal ultrasounds (all normal, except for the known right multicystic dysplastic kidney), and an echocardiogram showing mild mitral regurgitation and mild left pulmonary artery stenosis. Karyotype and microarray testing both resulted normal. The decision was made not to pursue further genetic testing at that time. On discharge from the NICU, the infant required gastrostomy tube placement due to poor feeding by mouth.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "97",
+    "text_length_chars": 1881,
+    "num_annotations": 11,
+    "conversion_date": "2026-04-20T06:13:55.478267+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000003",
+      "label": "Multicystic kidney dysplasia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001558",
+      "label": "Decreased fetal movement",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001607",
+      "label": "Subglottic stenosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001653",
+      "label": "Mitral regurgitation",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001686",
+      "label": "Loss of voice",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002643",
+      "label": "Neonatal respiratory distress",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 93,
+          "end_char": 153,
+          "text_snippet": "neonatal intensive care unit (NICU) for respiratory distress"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004415",
+      "label": "Pulmonary artery stenosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0005950",
+      "label": "Laryngeal web",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0008718",
+      "label": "Unilateral renal dysplasia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 235,
+          "end_char": 275,
+          "text_snippet": "right fetal unilateral dysplastic kidney"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0011968",
+      "label": "Feeding difficulties",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0100602",
+      "label": "Preeclampsia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    }
+  ]
+}

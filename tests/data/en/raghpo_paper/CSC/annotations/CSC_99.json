@@ -1,0 +1,70 @@
+{
+  "doc_id": "CSC_99",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "Our patient was a young adult who had presented two episodes of spontaneous pneumothorax in a 10-month interval, first in the right lung, then in the left (figure 1). The second episode prompted video-assisted thoracic surgery and left pleural talcage. He underwent resection of large bullae in the apical segment of the lower lobe and in the anterior segment and apex of the upper lobe and was discharged 4 days later. Besides a chest radiograph at 10 days, he had no other long-term follow-up. The patient was a former smoker (5–10 pack-years), had already reduced his smoking habits after the first episode and entirely quit smoking after the second. He described a first subcutaneous neurofibroma as having appeared on his right flank in middle childhood. He presented with several café-au-lait macules, multiple millimetric cutaneous and some larger (centimetric) subcutaneous neurofibromas, mostly on the back, bilateral axillary freckling and Lisch nodules. Both his father and paternal aunt were known for neurofibromatosis, with medical follow-up and molecular confirmation by genetic testing only for the latter",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "99",
+    "text_length_chars": 1121,
+    "num_annotations": 7,
+    "conversion_date": "2026-04-20T06:13:55.478550+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000957",
+      "label": "Cafe-au-lait spot",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000997",
+      "label": "Axillary freckling",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001067",
+      "label": "Neurofibroma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 678,
+          "end_char": 700,
+          "text_snippet": "cutaneous neurofibroma"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002108",
+      "label": "Spontaneous pneumothorax",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0009737",
+      "label": "Lisch nodules",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 950,
+          "end_char": 963,
+          "text_snippet": "Lisch nodules"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0032446",
+      "label": "Pulmonary bulla",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0100698",
+      "label": "Subcutaneous neurofibroma",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    }
+  ]
+}

@@ -1,0 +1,190 @@
+{
+  "doc_id": "CSC_36",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "In September 2017, a 19-year-old girl, of Asian Indian ancestry, without any significant medical history, presented with high grade fever of 10 days duration, accompanied by malaise, anorexia and arthralgia. On third day of fever, she developed a reddish, pruritic rash over abdomen, back, forearm, palms and tips of fingers and front of thighs. Her mother also noted swelling on both sides of throat with reddening and watering of eyes without complaints of photophobia. The patient noted difficulty in swallowing both solids and liquids with pain in throat. After 5 days of onset of rash, she noted that it began to fade and that the skin ‘peeled off’. There was no history of headache, altered sensorium, rhinorrhoea, cough, pain abdomen, dysuria, yellowish discolouration of eyes or urine or bleeding manifestations. On examination, higher mental functions were intact and there were no meningeal signs. She was febrile with a high pulse rate (110 beats/min, regular) and normotensive. Respiratory rate was increased (24 breaths/min) and pallor was noted on general survey. Ocular examination was significant for the presence of bilateral conjunctival injection. There was periungual peeling of skin, with desquamated macular rash over front of torso and back, forearms and thighs (figure 1). Her tongue was fissured and erythematous with the presence of reddish-white spots over its dorsum (figure 2). No definite nail changes were noted. Palpation around neck revealed non-tender cervical lymphadenopathy of size 2 cm. Abdominal examination did not reveal any organomegaly. Breath sounds were equally heard on both sides of chest and cardiac examination was uneventful except for the presence of a loud first heart sound (S1).",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "36",
+    "text_length_chars": 1732,
+    "num_annotations": 21,
+    "conversion_date": "2026-04-20T06:13:55.469546+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000221",
+      "label": "Furrowed tongue",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000980",
+      "label": "Pallor",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1042,
+          "end_char": 1048,
+          "text_snippet": "pallor"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000988",
+      "label": "Skin rash",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 636,
+          "end_char": 1234,
+          "text_snippet": "skin ‘peeled off’. There was no history of headache, altered sensorium, rhinorrhoea, cough, pain abdomen, dysuria, yellowish discolouration of eyes or urine or bleeding manifestations. On examination, higher mental functions were intact and there were no meningeal signs. She was febrile with a high pulse rate (110 beats/min, regular) and normotensive. Respiratory rate was increased (24 breaths/min) and pallor was noted on general survey. Ocular examination was significant for the presence of bilateral conjunctival injection. There was periungual peeling of skin, with desquamated macular rash"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000989",
+      "label": "Pruritus",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 256,
+          "end_char": 269,
+          "text_snippet": "pruritic rash"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001945",
+      "label": "Fever",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002015",
+      "label": "Dysphagia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002039",
+      "label": "Anorexia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002789",
+      "label": "Tachypnea",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002829",
+      "label": "Arthralgia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0009926",
+      "label": "Epiphora",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 420,
+          "end_char": 436,
+          "text_snippet": "watering of eyes"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0011855",
+      "label": "Pharyngeal edema",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0025289",
+      "label": "Cervical lymphadenopathy",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1475,
+          "end_char": 1510,
+          "text_snippet": "non-tender cervical lymphadenopathy"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0025337",
+      "label": "Red eye",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 406,
+          "end_char": 436,
+          "text_snippet": "reddening and watering of eyes"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0030953",
+      "label": "Conjunctival hyperemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0031042",
+      "label": "Strawberry tongue",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0031660",
+      "label": "Loud first heart sound",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1704,
+          "end_char": 1726,
+          "text_snippet": "loud first heart sound"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0033050",
+      "label": "Pharyngalgia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 544,
+          "end_char": 558,
+          "text_snippet": "pain in throat"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0033834",
+      "label": "Malaise",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0034418",
+      "label": "Erythematous oral mucosa",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0040186",
+      "label": "Maculopapular exanthema",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0040189",
+      "label": "Scaling skin",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "doc_id": "CSC_17",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "An asymptomatic 56-year-old woman with a history of multiple basal cell carcinomas (BCCs) and odontogenic keratocysts was referred to the metabolic clinic for assessment of bone density. On examination, there were no plantar or palmar pits, facial abnormalities or macrocephaly and the family history was also unremarkable. Osteoporosis was excluded, but plain films showed multiple cysts throughout the long bones (figure 1) and subsequent abdominal CT revealed multiple large mesenteric cysts (figure 2). Multiplex ligation-dependent probe amplification analysis confirmed a heterozygous pathogenic deletion in patched 1, consistent with a diagnosis of Gorlin syndrome.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "17",
+    "text_length_chars": 671,
+    "num_annotations": 4,
+    "conversion_date": "2026-04-20T06:13:55.467539+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0002671",
+      "label": "Basal cell carcinoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 52,
+          "end_char": 82,
+          "text_snippet": "multiple basal cell carcinomas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010603",
+      "label": "Odontogenic keratocysts of the jaw",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 94,
+          "end_char": 117,
+          "text_snippet": "odontogenic keratocysts"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012065",
+      "label": "Multiple bony cystic lesions",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 52,
+          "end_char": 414,
+          "text_snippet": "multiple basal cell carcinomas (BCCs) and odontogenic keratocysts was referred to the metabolic clinic for assessment of bone density. On examination, there were no plantar or palmar pits, facial abnormalities or macrocephaly and the family history was also unremarkable. Osteoporosis was excluded, but plain films showed multiple cysts throughout the long bones"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0030451",
+      "label": "Mesenteric cyst",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 463,
+          "end_char": 494,
+          "text_snippet": "multiple large mesenteric cysts"
+        }
+      ]
+    }
+  ]
+}

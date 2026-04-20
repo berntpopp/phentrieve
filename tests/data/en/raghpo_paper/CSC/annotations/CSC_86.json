@@ -1,0 +1,364 @@
+{
+  "doc_id": "CSC_86",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A young teenager, known with non-disjunction type trisomy 13, was presented at our emergency department because of abdominal pain and fever since 1 day. Furthermore, she had anuria since 1 day and also minimal menstruation. A medical history included uneventful term birth, agenesis of the corpus callosum, small muscular VSD, central apnea, intellectual disability, recurrent airway tract infections, epilepsy, hearing difficulties, recurrent urinary tract infections with bladder retention and pyelectasis in both kidneys. Physical examination showed a painful, uncooperative girl with a distended and tense abdomen. Her temperature was 38.2°C. Because of a retention bladder and urinary tract infection, ceftabuten was started and a urinary catheter was given. Because of persistent fever and no clinical improvement after 2 days, we switched to intravenous cefuroxime with good effect. Blood culture remained negative. Pain and fever recurred on day 4. Ultrasound of the abdomen showed a mass in the lower abdomen, suggestive of a periappendicular abscess. CRP remained low (maximum 33 mg/L), but haemoglobin level dropped remarkably from 9.0 to 5.8 g/dL for which a blood transfusion was given. At a second ultrasound of the abdomen the drain appeared to be inserted in an ovary/salpinx without a sign of a (recent) appendicitis as described before. Hydrometrocolpos was suspected, secondarily leading to urinary retention and urinary tract infection. MRI confirmed an uterus didelphys and haematocolpos of the right part. Colposcopy showed a transverse vaginal septum with hymen imperforatus of the right part, both successfully resected. Anticonceptive therapy was started to prevent menstruation. A few year later in her mid-teens, she presented at our emergency department again, this time with fatigue, vomiting and stomach pain since 1 day. Physical and laboratory examination showed no abnormalities, specifically no signs of infection. During the admission for rehydration by nasal-gastric tube, she developed respiratory failure, requiring oxygenation via non-rebreather mask. Physical examination revealed a new-onset heart murmur and diffuse crepitations bilaterally. No other signs of cardiac congestion were found and ECG was normal. PCR for respiratory viruses was negative. Amoxicillin clavulanic acid was started because of possible aspiration pneumonia on chest X-ray. Transthoracic echocardiogram and CT angiography were performed when she developed cardiogenic shock, showing SVA with communication between ascending aorta and right atrium. With high-flow nasal canula and low-dose diuretics, breathing and circulation improved. During an angiography, a Konar MF Occluder 8/6 was successfully placed in the wide sinus of Valsalva, bluntly ending in a 5 mm fistula, shunting from right coronary artery to right atrium. Also, lifelong acetylsalicylic acid was started.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "86",
+    "text_length_chars": 2890,
+    "num_annotations": 30,
+    "conversion_date": "2026-04-20T06:13:55.476353+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000010",
+      "label": "Recurrent urinary tract infections",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 434,
+          "end_char": 468,
+          "text_snippet": "recurrent urinary tract infections"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000016",
+      "label": "Urinary retention",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 474,
+          "end_char": 491,
+          "text_snippet": "bladder retention"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000145",
+      "label": "Transverse vaginal septum",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1548,
+          "end_char": 1573,
+          "text_snippet": "transverse vaginal septum"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000365",
+      "label": "Hearing impairment",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 412,
+          "end_char": 432,
+          "text_snippet": "hearing difficulties"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000876",
+      "label": "Oligomenorrhea",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 202,
+          "end_char": 222,
+          "text_snippet": "minimal menstruation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001249",
+      "label": "Intellectual disability",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 342,
+          "end_char": 365,
+          "text_snippet": "intellectual disability"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001250",
+      "label": "Seizure",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 402,
+          "end_char": 410,
+          "text_snippet": "epilepsy"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001274",
+      "label": "Agenesis of corpus callosum",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 274,
+          "end_char": 305,
+          "text_snippet": "agenesis of the corpus callosum"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001693",
+      "label": "Cardiac shunt",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2789,
+          "end_char": 2840,
+          "text_snippet": "shunting from right coronary artery to right atrium"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001945",
+      "label": "Fever",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 134,
+          "end_char": 139,
+          "text_snippet": "fever"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002013",
+      "label": "Vomiting",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1813,
+          "end_char": 1821,
+          "text_snippet": "vomiting"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002027",
+      "label": "Abdominal pain",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 115,
+          "end_char": 129,
+          "text_snippet": "abdominal pain"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002788",
+      "label": "Recurrent upper respiratory tract infections",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 367,
+          "end_char": 400,
+          "text_snippet": "recurrent airway tract infections"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002871",
+      "label": "Central apnea",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 327,
+          "end_char": 340,
+          "text_snippet": "central apnea"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002878",
+      "label": "Respiratory failure",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2023,
+          "end_char": 2042,
+          "text_snippet": "respiratory failure"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003270",
+      "label": "Abdominal distention",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 590,
+          "end_char": 617,
+          "text_snippet": "distended and tense abdomen"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003762",
+      "label": "Uterus didelphys",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1474,
+          "end_char": 1490,
+          "text_snippet": "uterus didelphys"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010945",
+      "label": "Fetal pyelectasis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 496,
+          "end_char": 523,
+          "text_snippet": "pyelectasis in both kidneys"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0011567",
+      "label": "Sinus venosus atrial septal defect",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0011623",
+      "label": "Muscular ventricular septal defect",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 313,
+          "end_char": 325,
+          "text_snippet": "muscular VSD"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012378",
+      "label": "Fatigue",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1804,
+          "end_char": 1811,
+          "text_snippet": "fatigue"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0025615",
+      "label": "Abscess",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1035,
+          "end_char": 1059,
+          "text_snippet": "periappendicular abscess"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0030010",
+      "label": "Hydrometrocolpos",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1355,
+          "end_char": 1371,
+          "text_snippet": "Hydrometrocolpos"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0030011",
+      "label": "Imperforate hymen",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1579,
+          "end_char": 1597,
+          "text_snippet": "hymen imperforatus"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0030148",
+      "label": "Heart murmur",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2133,
+          "end_char": 2145,
+          "text_snippet": "heart murmur"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0030149",
+      "label": "Cardiogenic shock",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2473,
+          "end_char": 2490,
+          "text_snippet": "cardiogenic shock"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0030830",
+      "label": "Crackles",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0031923",
+      "label": "Hematocolpos",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1495,
+          "end_char": 1508,
+          "text_snippet": "haematocolpos"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0032545",
+      "label": "Abdominal rigidity",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 604,
+          "end_char": 617,
+          "text_snippet": "tense abdomen"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100519",
+      "label": "Anuria",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 174,
+          "end_char": 180,
+          "text_snippet": "anuria"
+        }
+      ]
+    }
+  ]
+}

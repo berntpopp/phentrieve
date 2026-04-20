@@ -1,0 +1,100 @@
+{
+  "doc_id": "CSC_45",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A 3-year-old female child, born full term from uncomplicated pregnancy, was referred for persistent right lung volume loss with mediastinal shift towards right on chest X-ray. The parents reported that the child had experienced breathing difficulties from infancy. The patient often required albuterol via nebuliser for wheezing; she was also using inhaled fluticasone with little improvement in her symptoms. Neither parent smoked or described a family history of asthma or atopy. The patient had a respiratory infection secondary to influenza during infancy, but she did not require hospitalisation at that time. She was later admitted to the hospital when she was 2 years old for respiratory syncytial virus pneumonia and was found at that time to have right lung volume loss with mediastinal shift to the right on chest X-ray (figure 1). After recovery, the parents of the child noticed that the patient had increased frequency of dry coughing episodes. They also described respiratory distress on exertion with reduced exercise tolerance. A follow-up chest radiograph at the age of 3 years showed similar findings of right lung volume loss with mediastinal shift, which prompted the referral to pulmonology (figure 2). Prior to that, she had been evaluated at a different facility by a pulmonologist. The appearance of dextrocardia on imaging with a few episodes of otitis media had raised a concern for PCD. However, the work-up was not done for PCD as the patient was lost to follow-up. On presentation to the clinic, the patient had vital signs within normal limits and was in no respiratory distress. She had symmetric chest movement with good air exchange. No wheezing, rhonchi or rales were observed. Cardiovascular examination was normal. No clubbing, cyanosis or oedema was noted.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "45",
+    "text_length_chars": 1793,
+    "num_annotations": 11,
+    "conversion_date": "2026-04-20T06:13:55.470282+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000403",
+      "label": "Recurrent otitis media",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001651",
+      "label": "Dextrocardia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002090",
+      "label": "Pneumonia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 711,
+          "end_char": 720,
+          "text_snippet": "pneumonia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002098",
+      "label": "Respiratory distress",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002875",
+      "label": "Exertional dyspnea",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0003546",
+      "label": "Exercise intolerance",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0011947",
+      "label": "Respiratory tract infection",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 500,
+          "end_char": 521,
+          "text_snippet": "respiratory infection"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0030828",
+      "label": "Wheezing",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0031246",
+      "label": "Nonproductive cough",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0033169",
+      "label": "Reduced total lung capacity",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 106,
+          "end_char": 122,
+          "text_snippet": "lung volume loss"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:6000012",
+      "label": "Mediastinal shift",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    }
+  ]
+}

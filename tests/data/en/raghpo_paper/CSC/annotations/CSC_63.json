@@ -1,0 +1,172 @@
+{
+  "doc_id": "CSC_63",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "An 8 yr old boy was referred to Pediatrics Neurologic Clinic Mashhad, Iran; due to developmental delay and seizure attacks from 6 yr ago. He was the second child of non relative healthy parents; there was no evidence of seizure or mental retardation in his family. He was born at term by a vaginal delivery with normal APGAR score and birth weight. He had a history of neonatal icterus and phototherapy. He had a happy face and the parents noticed developmental delay at 2 yr old. He was admitted in a hospital because of tonic-colonic seizures and valproate sodium was administered for him. He was able to walk independently at 4 yr old. At the age of 6 yr, he was referred to Children Neurology Department in Mashhad due to hyperactivity, where received risperidone. On physical examination, he had mandibular prognathism, strabismus and unusual laughing facial expression. His head circumference was 51 cm. His walking was unsteady, but muscles tone, force and deep tendon reflexes were normal. Joints range of motion was normal. Besides, he had speech disability and could walk independently, but could not run. He had restricted communicative abilities and suffered from severe mental retardation. Laboratory findings were normal. Brain MRI and CBC test were normal. Thyroid function test showed hypothyroidism, controlled by levothyroxine since 2 yr old. In our patient, seizure attacks have been continued from the age of 2 yr, despite various pharmacologic treatments.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "63",
+    "text_length_chars": 1476,
+    "num_annotations": 14,
+    "conversion_date": "2026-04-20T06:13:55.472685+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000303",
+      "label": "Mandibular prognathia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 801,
+          "end_char": 823,
+          "text_snippet": "mandibular prognathism"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000486",
+      "label": "Strabismus",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 825,
+          "end_char": 835,
+          "text_snippet": "strabismus"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000750",
+      "label": "Delayed speech and language development",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1049,
+          "end_char": 1066,
+          "text_snippet": "speech disability"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000752",
+      "label": "Hyperactivity",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 726,
+          "end_char": 739,
+          "text_snippet": "hyperactivity"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000821",
+      "label": "Hypothyroidism",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1301,
+          "end_char": 1315,
+          "text_snippet": "hypothyroidism"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000952",
+      "label": "Jaundice",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 369,
+          "end_char": 402,
+          "text_snippet": "neonatal icterus and phototherapy"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001250",
+      "label": "Seizure",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 107,
+          "end_char": 122,
+          "text_snippet": "seizure attacks"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001263",
+      "label": "Global developmental delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 83,
+          "end_char": 102,
+          "text_snippet": "developmental delay"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002069",
+      "label": "Bilateral tonic-clonic seizure",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002317",
+      "label": "Unsteady gait",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 914,
+          "end_char": 934,
+          "text_snippet": "walking was unsteady"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002474",
+      "label": "Expressive language delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1123,
+          "end_char": 1157,
+          "text_snippet": "restricted communicative abilities"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010864",
+      "label": "Intellectual disability, severe",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1176,
+          "end_char": 1201,
+          "text_snippet": "severe mental retardation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0031936",
+      "label": "Delayed ability to walk",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 607,
+          "end_char": 637,
+          "text_snippet": "walk independently at 4 yr old"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100024",
+      "label": "Conspicuously happy disposition",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    }
+  ]
+}

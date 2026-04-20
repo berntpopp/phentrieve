@@ -1,0 +1,76 @@
+{
+  "doc_id": "CSC_68",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A previously well six-year-old male with no significant past medical or family history presented with a three-day history of worsening altered sensorium associated with fever. Of interest, it was noted that he had generalized skin hyperpigmentation involving his face, trunk, limbs, and mucous membranes. This finding was not observed in his immediate family members. Initial blood investigations showed no evidence of infection, but his serum sodium was low (126 mmol/ L). An urgent non-contrasted, computed tomographic (CT) scan of his brain initially reported a large cavum septum pellucidum et cavum vergi with hydrocephalus. Further delineation with a follow-up magnetic resonance imaging (MRI) brain demonstrated there was an enlarged cyst of the cavum vergi measuring up to 3.2 cm in diameter. This structure was interpreted as causing obstructive hydrocephalus with transependymal seepage of cerebrospinal fluid (CSF). Intraoperatively, the cyst fluid was observed to be under high pressure and turbid. At this point in time, the working diagnosis was that of symptomatic hydrocephalus secondary to meningoencephalitis. Further tests demonstrated that the hyponatremia was secondary to the syndrome of inappropriate antidiuretic hormone secretion (SIADH). Fluid from the CVC had a high protein level (11 g/L) but was otherwise negative for any infective or autoimmune markers. The genetics team was consulted to assess his unusual pattern of skin hyperpigmentation. A failed short Synacthen test confirmed primary adrenal insufficiency. The workup for peroxisomal disorders showed that his very long-chain fatty acid (VLCFA) analysis had a high concentration of hexacosanoic acid (C26) with concurrent abnormal ratios of other VLCFAs (C26: C22 and C24: C22). This profile was consistent with a diagnosis of X-ALD. Next, a closer review of the preoperative MRI brain images noted there were symmetrical areas of increased T2-weighted/fluid-attenuated inversion recovery (FLAIR) signal changes in the periventricular white matter of bilateral parieto-occipital regions, involving the corpus callosum, thalami, cerebral peduncles, midbrain, and pons. Based on the neuroimaging criteria, his Loes score was 9-10.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "68",
+    "text_length_chars": 2216,
+    "num_annotations": 10,
+    "conversion_date": "2026-04-20T06:13:55.473415+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000050",
+      "label": "Hypoplastic male external genitalia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000505",
+      "label": "Visual impairment",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000510",
+      "label": "Rod-cone dystrophy",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000540",
+      "label": "Hypermetropia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000639",
+      "label": "Nystagmus",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0007286",
+      "label": "Horizontal jerk nystagmus",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0007703",
+      "label": "Abnormality of retinal pigmentation",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0011346",
+      "label": "Mild expressive language delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0011516",
+      "label": "Achromatopsia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0025502",
+      "label": "Overweight",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    }
+  ]
+}

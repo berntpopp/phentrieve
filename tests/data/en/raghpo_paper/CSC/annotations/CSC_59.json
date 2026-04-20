@@ -1,0 +1,238 @@
+{
+  "doc_id": "CSC_59",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A 24-year-old Caucasian man presented to the emergency department with a week’s progressive swelling of his legs. There was no recent infection or other relevant personal or family history of disease. He was a smoker, was under no chronic medication and did not take any illicit drugs. Previous routine laboratory results made 8 months before were available showing a serum creatinine of 87 µmol/L. On physical examination, there was marked lower limbs oedema with no other findings. The initial laboratory evaluation showed massive proteinuria (11 g on 24-hour urine collection), hypoalbuminaemia (20 g/L) and acute renal injury (Cr: 150 µmol/L). Total and low-density lipoprotein cholesterol were normal (4.8 mmol/L and 3.00 mmol/L, respectively) and the triglycerides were moderately elevated (2.3 mmol/L); the C reactive protein was negative (<0 mg/dL). Urine analysis was positive for proteinuria and haematuria, the urinary sediment showing many erythrocyte casts. The chest radiograph obtained on admission was interpreted as within normal limits and the renal ultrasound scan showed no changes. Additional investigations were performed including: antinuclear antibodies (positive, titre of 1/160—dense thin granular pattern), negative serology for hepatitis C virus and HIV and showing immunity for hepatitis B virus, negative extractable nuclear antigens and antineutrophil cytoplasmic antibodies (ELISA test by Euroimmun for proteinase 3 and myeloperoxidase), negative anti-GBM antibodies (ELISA test by Euroimmun, specific for alpha-3 chain of type IV collagen isolated from bovine kidney), normal C3, C4 and CH50 levels, negative anticardiolipin antibodies and normal tumour markers. Serum immunoglobulin analysis was significant for an IgG decrease; serum protein immunofixation was negative for the presence of a monoclonal component. The urinary electrophoresis showed non-selective glomerular proteinuria. A percutaneous renal biopsy of the left kidney was performed. The light microscopy had 21 glomeruli for analysis. Ten glomeruli had significant global sclerosis; the remaining glomeruli showed endocapillary and extracapillary proliferation with crescents present in about 30%; there was slight interstitial fibrosis and no vascular abnormalities. The immunofluorescence (IF) fragment, with nine glomeruli, was analysed for IgG, IgA, IgM, C3, C4 and C1q. All glomeruli showed intense IgG deposits (+++) in a linear parietal pattern; there were also C3 (+) and IgM (+) deposits with a focal and segmental parietal and granular mesangial pattern; it was not possible to stain for IgG subclasses or light chains nor was it possible to perform electron microscopy since these technics are not routinely available in our centre.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "59",
+    "text_length_chars": 2744,
+    "num_annotations": 20,
+    "conversion_date": "2026-04-20T06:13:55.472353+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000093",
+      "label": "Proteinuria",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 533,
+          "end_char": 544,
+          "text_snippet": "proteinuria"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000097",
+      "label": "Focal segmental glomerulosclerosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2012,
+          "end_char": 2564,
+          "text_snippet": "glomeruli for analysis. Ten glomeruli had significant global sclerosis; the remaining glomeruli showed endocapillary and extracapillary proliferation with crescents present in about 30%; there was slight interstitial fibrosis and no vascular abnormalities. The immunofluorescence (IF) fragment, with nine glomeruli, was analysed for IgG, IgA, IgM, C3, C4 and C1q. All glomeruli showed intense IgG deposits (+++) in a linear parietal pattern; there were also C3 (+) and IgM (+) deposits with a focal and segmental parietal and granular mesangial pattern"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000790",
+      "label": "Hematuria",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 906,
+          "end_char": 916,
+          "text_snippet": "haematuria"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001919",
+      "label": "Acute kidney injury",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 611,
+          "end_char": 629,
+          "text_snippet": "acute renal injury"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002155",
+      "label": "Hypertriglyceridemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 757,
+          "end_char": 795,
+          "text_snippet": "triglycerides were moderately elevated"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003073",
+      "label": "Hypoalbuminemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 581,
+          "end_char": 597,
+          "text_snippet": "hypoalbuminaemia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003493",
+      "label": "Antinuclear antibody positivity",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1155,
+          "end_char": 1233,
+          "text_snippet": "antinuclear antibodies (positive, titre of 1/160—dense thin granular pattern),"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004315",
+      "label": "Decreased circulating IgG concentration",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0004737",
+      "label": "Global glomerulosclerosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2012,
+          "end_char": 2082,
+          "text_snippet": "glomeruli for analysis. Ten glomeruli had significant global sclerosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0006530",
+      "label": "Abnormal pulmonary interstitial morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2216,
+          "end_char": 2237,
+          "text_snippet": "interstitial fibrosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010741",
+      "label": "Pedal edema",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 80,
+          "end_char": 112,
+          "text_snippet": "progressive swelling of his legs"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012576",
+      "label": "Glomerular C3 deposition",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0012597",
+      "label": "Heavy proteinuria",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 525,
+          "end_char": 579,
+          "text_snippet": "massive proteinuria (11 g on 24-hour urine collection)"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012617",
+      "label": "Erythrocyte cylindruria",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 952,
+          "end_char": 969,
+          "text_snippet": "erythrocyte casts"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0025363",
+      "label": "Glomerular endocapillary hypercellularity",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2115,
+          "end_char": 2161,
+          "text_snippet": "endocapillary and extracapillary proliferation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0025364",
+      "label": "Glomerular extracapillary hypercellularity",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2133,
+          "end_char": 2161,
+          "text_snippet": "extracapillary proliferation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0032948",
+      "label": "Renal interstitial fibrosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0033295",
+      "label": "Mesangial Immune complex deposition",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2012,
+          "end_char": 2564,
+          "text_snippet": "glomeruli for analysis. Ten glomeruli had significant global sclerosis; the remaining glomeruli showed endocapillary and extracapillary proliferation with crescents present in about 30%; there was slight interstitial fibrosis and no vascular abnormalities. The immunofluorescence (IF) fragment, with nine glomeruli, was analysed for IgG, IgA, IgM, C3, C4 and C1q. All glomeruli showed intense IgG deposits (+++) in a linear parietal pattern; there were also C3 (+) and IgM (+) deposits with a focal and segmental parietal and granular mesangial pattern"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0033316",
+      "label": "Glomerular crescent formation",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1898,
+          "end_char": 2176,
+          "text_snippet": "glomerular proteinuria. A percutaneous renal biopsy of the left kidney was performed. The light microscopy had 21 glomeruli for analysis. Ten glomeruli had significant global sclerosis; the remaining glomeruli showed endocapillary and extracapillary proliferation with crescents"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:4000058",
+      "label": "Glomerular proteinuria",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1884,
+          "end_char": 1920,
+          "text_snippet": "non-selective glomerular proteinuria"
+        }
+      ]
+    }
+  ]
+}

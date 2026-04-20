@@ -1,0 +1,100 @@
+{
+  "doc_id": "GSC_88",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "Neurofibromatosis type 2 (NF2) is a highly penetrant autosomal dominant condition predisposing affected individuals to schwannomas and meningiomas. The proportion of children presenting with meningioma or schwannoma who have NF2 is not well described, and neither is the mode of presentation in most children with the inherited disease.\n\nTo determine the frequency of childhood meningioma and schwannoma cases caused by NF2 and the mode of presentation.\n\nThe records of the Manchester Children's Tumour Registry from 1954 were searched for cases of meningioma and schwannoma. Paediatric presentation in a large UK series of NF2 was also studied.\n\n18% (61/334) of patients with NF2 on the UK database presented in the paediatric age group (0-15 years), frequently with the symptoms of an isolated tumour. More than half had no family history to alert the clinician to their susceptibility. Three of 22 children presenting with a meningioma on the Manchester Children's Tumour Registry have gone on to develop classic features of NF2.\n\nClinicians should suspect NF2 in children presenting with meningioma, schwannoma, and skin features, such as neurofibromas/schwannomas, but fewer than 6 caf√© au lait patches, who thus fall short of a diagnosis of neurofibromatosis type 1.",
+  "metadata": {
+    "dataset": "GSC",
+    "original_dataset": "GSC",
+    "original_doc_id": "10569966",
+    "text_length_chars": 1273,
+    "num_annotations": 7,
+    "conversion_date": "2026-04-20T06:13:55.490907+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 53,
+          "end_char": 81,
+          "text_snippet": "autosomal dominant condition"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000957",
+      "label": "Cafe-au-lait spot",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1187,
+          "end_char": 1208,
+          "text_snippet": "caf√© au lait patches"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002858",
+      "label": "Meningioma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 135,
+          "end_char": 145,
+          "text_snippet": "meningioma"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001067",
+      "label": "Neurofibroma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1143,
+          "end_char": 1155,
+          "text_snippet": "neurofibroma"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100008",
+      "label": "Schwannoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 119,
+          "end_char": 129,
+          "text_snippet": "schwannoma"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000951",
+      "label": "Abnormality of the skin",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1120,
+          "end_char": 1133,
+          "text_snippet": "skin features"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002664",
+      "label": "Neoplasm",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 796,
+          "end_char": 802,
+          "text_snippet": "tumour"
+        }
+      ]
+    }
+  ]
+}

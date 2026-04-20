@@ -1,0 +1,286 @@
+{
+  "doc_id": "CSC_66",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A woman in her late 60s reported a 6-week history of progressive bilateral lower limb weakness, paraesthesia and numbness spreading proximally. She also noted a month of abdominal bloating and 1 kg of unintentional weight loss. Examination showed reduced power at hip flexion medical research council muscle power assessment grade 2/5 in the left and 3/5 in the right. Lower limb reflexes were absent and her plantars mute. There was a pinprick sensory level to T4 and impaired proprioception to the ankles. Upper limb and cranial nerve examination was normal. The remainder of her physical examination was normal. An MRI of the spine showed longitudinally extensive transverse myelitis extending from C2 to T5, with associated swelling and cord expansion at T2 level. MRI brain was normal. Serum analysis was positive for anti-AQP4 antibodies and hepatitis B core antigen and negative for anti-MOG (Myelin oligodendrocyte glycoprotein) antibodies, HIV and syphilis serology. Cerebrospinal fluid analysis showed normal range white blood cells, lactate, no oligoclonal bands and no elevated immunoglobulins. A diagnosis of NMOSD was made, and as part of her further work up, CT imaging identified extensive para-aortic and pelvic side wall lymphadenopathy, a bulky multifibroid uterus and an adjacent enhancing nodule raising concern of an ovarian lesion. MRI pelvis showed fibroids, with well-visualised and normal appearing ovaries. Positron emission tomography (PET)-CT scan showed an FDG (fluorodeoxyglucose)-avid conglomerate of lymph nodes in the left para-aortic, common iliac, internal iliac, external iliac, right supraclavicular and bilateral subpectoral regions. Subsequent histology of a CT-guided lymph node biopsy identified small to medium-sized lymphoid cells arranged in a vague nodular pattern. Immunohistochemistry showed lymphoid cells positive for CD20, CD79a, CD19, BCL-2, CD10 and BCL-6 and confirmed a low-grade follicular lymphoma. Cyclin-D1 was negative and Ki-67 stained less than 5% of all cells. The patient had a follicular lymphoma international prognostic index (FLIPI) score of 4 (based on age >60-years old, greater than four nodal sites, haemoglobin of <120 g/L and stage 3 disease).",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "66",
+    "text_length_chars": 2217,
+    "num_annotations": 25,
+    "conversion_date": "2026-04-20T06:13:55.473238+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000131",
+      "label": "Uterine leiomyoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1264,
+          "end_char": 1283,
+          "text_snippet": "multifibroid uterus"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000137",
+      "label": "Abnormality of the ovary",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001824",
+      "label": "Weight loss",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 201,
+          "end_char": 226,
+          "text_snippet": "unintentional weight loss"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002522",
+      "label": "Areflexia of lower limbs",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 369,
+          "end_char": 400,
+          "text_snippet": "Lower limb reflexes were absent"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003270",
+      "label": "Abdominal distention",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 170,
+          "end_char": 188,
+          "text_snippet": "abdominal bloating"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003401",
+      "label": "Paresthesia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 96,
+          "end_char": 108,
+          "text_snippet": "paraesthesia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0006562",
+      "label": "Viral hepatitis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 810,
+          "end_char": 872,
+          "text_snippet": "positive for anti-AQP4 antibodies and hepatitis B core antigen"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0006858",
+      "label": "Impaired distal proprioception",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 469,
+          "end_char": 506,
+          "text_snippet": "impaired proprioception to the ankles"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0007328",
+      "label": "Impaired pain sensation",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 436,
+          "end_char": 464,
+          "text_snippet": "pinprick sensory level to T4"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0007340",
+      "label": "Lower limb muscle weakness",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 53,
+          "end_char": 94,
+          "text_snippet": "progressive bilateral lower limb weakness"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0008940",
+      "label": "Generalized lymphadenopathy",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1206,
+          "end_char": 1254,
+          "text_snippet": "para-aortic and pelvic side wall lymphadenopathy"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012486",
+      "label": "Myelitis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 667,
+          "end_char": 710,
+          "text_snippet": "transverse myelitis extending from C2 to T5"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012515",
+      "label": "Hip flexor weakness",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 247,
+          "end_char": 275,
+          "text_snippet": "reduced power at hip flexion"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0020061",
+      "label": "Abnormal hemoglobin concentration",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0020236",
+      "label": "Vaguely nodular lymph-node architecture",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1760,
+          "end_char": 1811,
+          "text_snippet": "lymphoid cells arranged in a vague nodular pattern."
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0020288",
+      "label": "Abnormal lymph-node cellular B-cell marker expression",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0020291",
+      "label": "Increased lymph-node cellular CD20 expression",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1855,
+          "end_char": 1872,
+          "text_snippet": "positive for CD20"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0020294",
+      "label": "Increased lymph-node cellular CD19 expression",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0020296",
+      "label": "Germinal center B-lymphocyte BCL2 expression",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 810,
+          "end_char": 1892,
+          "text_snippet": "positive for anti-AQP4 antibodies and hepatitis B core antigen and negative for anti-MOG (Myelin oligodendrocyte glycoprotein) antibodies, HIV and syphilis serology. Cerebrospinal fluid analysis showed normal range white blood cells, lactate, no oligoclonal bands and no elevated immunoglobulins. A diagnosis of NMOSD was made, and as part of her further work up, CT imaging identified extensive para-aortic and pelvic side wall lymphadenopathy, a bulky multifibroid uterus and an adjacent enhancing nodule raising concern of an ovarian lesion. MRI pelvis showed fibroids, with well-visualised and normal appearing ovaries. Positron emission tomography (PET)-CT scan showed an FDG (fluorodeoxyglucose)-avid conglomerate of lymph nodes in the left para-aortic, common iliac, internal iliac, external iliac, right supraclavicular and bilateral subpectoral regions. Subsequent histology of a CT-guided lymph node biopsy identified small to medium-sized lymphoid cells arranged in a vague nodular pattern. Immunohistochemistry showed lymphoid cells positive for CD20, CD79a, CD19, BCL-2"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0033125",
+      "label": "Follicular lymphoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1925,
+          "end_char": 1954,
+          "text_snippet": "low-grade follicular lymphoma"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0033342",
+      "label": "Anti-aquaporin 4 antibody positivity",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 810,
+          "end_char": 843,
+          "text_snippet": "positive for anti-AQP4 antibodies"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0033748",
+      "label": "Hypoesthesia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 113,
+          "end_char": 142,
+          "text_snippet": "numbness spreading proximally"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0034582",
+      "label": "Abnormal lymph node cell composition",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1487,
+          "end_char": 1544,
+          "text_snippet": "FDG (fluorodeoxyglucose)-avid conglomerate of lymph nodes"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0040272",
+      "label": "Hyperintensity of MRI T2 signal of the spinal cord",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0100878",
+      "label": "Enlarged uterus",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1258,
+          "end_char": 1283,
+          "text_snippet": "bulky multifibroid uterus"
+        }
+      ]
+    }
+  ]
+}

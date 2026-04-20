@@ -77,19 +77,24 @@ class ConversionStats:
 
 
 class HPOTermLookup:
-    """Resolve HPO labels from a TSV export."""
+    """Resolve HPO labels from TSV or ontology JSON exports."""
 
-    def __init__(self, hpo_terms_path: Path, hpo_json_path: Path | None = None) -> None:
+    def __init__(
+        self,
+        hpo_terms_path: Path | None,
+        hpo_json_path: Path | None = None,
+    ) -> None:
         self._labels: dict[str, str] = {}
         self._replacements: dict[str, str] = {}
         self._deprecated_ids: set[str] = set()
-        with hpo_terms_path.open(encoding="utf-8", newline="") as handle:
-            reader = csv.DictReader(handle, delimiter="\t")
-            for row in reader:
-                term_id = str(row.get("id", "")).strip()
-                label = str(row.get("name", "")).strip()
-                if term_id:
-                    self._labels[term_id] = label or term_id
+        if hpo_terms_path is not None:
+            with hpo_terms_path.open(encoding="utf-8", newline="") as handle:
+                reader = csv.DictReader(handle, delimiter="\t")
+                for row in reader:
+                    term_id = str(row.get("id", "")).strip()
+                    label = str(row.get("name", "")).strip()
+                    if term_id:
+                        self._labels[term_id] = label or term_id
         if hpo_json_path is not None:
             self._load_replacements(hpo_json_path)
 
@@ -141,7 +146,7 @@ class RagHpoPaperConverter:
 
     def __init__(
         self,
-        hpo_terms_path: Path,
+        hpo_terms_path: Path | None,
         *,
         hpo_json_path: Path | None = None,
         normalize_obsolete_ids: bool = False,

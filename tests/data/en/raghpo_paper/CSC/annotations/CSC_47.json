@@ -1,0 +1,64 @@
+{
+  "doc_id": "CSC_47",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A 38-year-old woman was referred to rapid access lung cancer clinic owing to recurrent lower respiratory tract infections and weight loss of greater than a stone over the past 6 months. Of note, she was a smoker of 20-pack year. There was no history of recent travel. Her background history was non-contributory. She was not on any medication. On examination, she looked cachectic and her weight was around 48.3 kg. Her vitals were normal. There was no evidence of clubbing, lymphadenopathy or hepatosplenomegaly. Chest was clear on auscultation with reduced air-entry bilaterally. Blood tests were normal, including inflammatory markers. Chest x-ray (CXR) (figure 1) on admission showed multifocal infiltrates throughout both lungs. This suggested either a peribronchial or endobronchial pattern of disease, or tuberculosis (TB), both of which needed to be excluded. No osseous involvement was seen on skeletal radiograph. The patient tested negative for both antineutrophil cytoplasmic antibody and HIV. The patient then underwent CT of chest, which showed that both lungs were diffusely abnormal. CT brain was normal. There were ill-defined pulmonary nodules measuring 8 mm with small cavitating lung lesions (figure 2).",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "47",
+    "text_length_chars": 1223,
+    "num_annotations": 8,
+    "conversion_date": "2026-04-20T06:13:55.470622+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001824",
+      "label": "Weight loss",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002113",
+      "label": "Pulmonary infiltrates",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002783",
+      "label": "Recurrent lower respiratory tract infections",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0004326",
+      "label": "Cachexia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0012496",
+      "label": "Reduced maximal inspiratory pressure",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0032500",
+      "label": "Exacerbated by tobacco use",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0033608",
+      "label": "Pulmonary nodule",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0034015",
+      "label": "Cavitating pulmonary nodule",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    }
+  ]
+}

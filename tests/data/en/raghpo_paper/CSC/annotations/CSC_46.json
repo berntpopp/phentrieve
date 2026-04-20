@@ -1,0 +1,154 @@
+{
+  "doc_id": "CSC_46",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "On February 2013, a 24-year-old man was referred to the Outpatient clinic of Imam Khomeini Hospital of Tehran University of Medical Sciences, with a history of productive cough and rhinorrhea from 4 years ago. He also reported blood-streaked sputum during the last 5 days. The volume of the sputum was <50 ml per day. The patient also had low-grade fever, fatigue and sweating. He had undergone functional endoscopic sinus surgery for evaluation of the productive cough and rhinorrhea 2 years ago and bilateral paranasal sinusitis and polyps had been reported. He also had a history of hospital admission about 7 years ago for the evaluation of recurrent abdominal pain; familial Mediterranean fever (FMF) was considered as probable diagnosis and Colchicine was prescribed. He refused to use colchicine and the abdominal pain subsided spontaneously. A review of his previous medical documents revealed cyanosis at the time of birth, sepsis 20 days after that and seizure attacks when he was 2 weeks old. During infancy he underwent a gastro-esophageal reflux repair surgery. His growth and development, physical activities at home and at school, learning in school and other activities did not show any significant difference from his other peers. His parents were not relatives. All five of his siblings were healthy. Three of them were married with no history of infertility, and their children were also well. Physical examination revealed a pulse rate of 88/min with regular rhythm; blood pressure 110/70 mmHg; respiratory rate 18/min; oral temperature 37.8°C at the time of admission; weight 67 kg and height 171 cm. Coarse crackles were heard on lungs auscultation and the examination of heart and abdomen were normal. Examination for cyanosis, clubbing and edema were negative. Complete blood count revealed Hb of 14.1 g/dl, WBC 6400/µl and Plt of 322000/µl. Blood sugar, urea, creatinine, electrolytes and liver function tests were all within normal ranges. C-reactive protein of 152 mg/l (normal: 0–10), ESR: 50 mm/h. Sputum culture and sensitivity was negative, including for Ziehl Neelsen. RF, ANA, ANCA, anti-dsDNA, HBsAg, HCV Ab and HIV Ab were all negative. Serum immunoelectrophoresis was normal. Semen analysis showed azoospermia. Urine analysis was normal. ECG and ultrasonography of the abdomen were normal. Spirometry revealed a mild obstructive pattern. On chest X-ray, bilateral peribronchial thickening and suspicious bronchiectatic changes were evident. A high-resolution computed tomography (HRCT) scan of the thorax revealed a bilateral scattered tree in bud pattern, peribronchial thickening and some bronchiectatic changes in the apex and middle zones (Fig. 1).",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "46",
+    "text_length_chars": 2688,
+    "num_annotations": 21,
+    "conversion_date": "2026-04-20T06:13:55.470529+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000027",
+      "label": "Azoospermia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000246",
+      "label": "Sinusitis",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000975",
+      "label": "Hyperhidrosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001250",
+      "label": "Seizure",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002020",
+      "label": "Gastroesophageal reflux",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1034,
+          "end_char": 1058,
+          "text_snippet": "gastro-esophageal reflux"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002105",
+      "label": "Hemoptysis",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002110",
+      "label": "Bronchiectasis",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002574",
+      "label": "Episodic abdominal pain",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0003565",
+      "label": "Elevated erythrocyte sedimentation rate",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0006536",
+      "label": "Airway obstruction",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0011134",
+      "label": "Low-grade fever",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0011227",
+      "label": "Elevated circulating C-reactive protein concentration",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0012378",
+      "label": "Fatigue",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0030830",
+      "label": "Crackles",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1622,
+          "end_char": 1670,
+          "text_snippet": "Coarse crackles were heard on lungs auscultation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0031245",
+      "label": "Productive cough",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0031417",
+      "label": "Rhinorrhea",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0032174",
+      "label": "Tree-in-bud pattern",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0033542",
+      "label": "Bronchial wall thickening",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0034032",
+      "label": "Central cyanosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0100582",
+      "label": "Nasal polyposis",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0100806",
+      "label": "Sepsis",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    }
+  ]
+}

@@ -1,0 +1,298 @@
+{
+  "doc_id": "CSC_76",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "The triplets were born via cesarean section at 29 weeks gestation. Two boys were identical twins and one was fraternal. The mother had suffered from fetal alcohol syndrome and had a history of developmental delay and depression. Aside from bed rest, the pregnancy was unremarkable. Their Apgar scores were 8 and 8 at 1 and 5 minutes respectively. They had a typical neonatal intensive care unit course, which included evaluation for sepsis and possible necrotizing enterocolitis, apnea and bradycardia. Cranial ultrasounds revealed no intracranial hemorrhage. The triplets were in the neonatal intensive care unit for approximately two months and then discharged home on routine oral feedings without a requirement for supplemental oxygen or medications. Initially, developmental progress was achieved in all domains. The triplets rolled over at 10 months, sat up at 11 months, began crawling at 12 months and walking at 15 months. By 16 months they were speaking in 2 to 3 word sentences, feeding themselves with utensils and adequately navigating through fine motor tasks. Around 16 months of age, there was a rapid and striking change in development in the three boys. Regression in motor skills was recognized first. The gross motor skills were more affected than the fine motor skills. They lost their ability to walk, crawl, sit up, and roll over. Loss of head control followed. During that time, the family noted left-sided ptosis in all three. Over the next few weeks their speech and language skills declined to the expression of one-syllable words. They also lost fine motor skills and pincer grasp. Deep tendon reflexes were preserved. A battery of metabolic and genetic testing was performed, including plasma amino acids, urine organic acids, cerebrospinal fluid neurotransmitters and amino acids. All were within normal range. A brain MRI showed T2 hyperintense periventricular lesions that were difficult to distinguish from normal terminal myelination zones. Measurement of arylsulfatase A activity in leukocytes showed levels of 4.5, 7.8 and 8.1 nmol/h/mg protein in the triplets versus a normal mean of about 80 nmol/h/mg protein. Urine analysis showed an increase in sulfatides. DNA analysis revealed one copy of the common LI mutation (G459+1A) in each child. The other mutation in these children is a deletion starting between intron 6 and exon 8 and extending beyond the end of the gene. These are both severe mutations likely to lead to a late infantile presentation. By 24 months of age, they developed progressive truncal hypotonia with peripheral spasticity. All three displayed persistent fisting of the hands, facial weakness, and diffuse hyperreflexia. A nerve conduction study revealed normal conduction velocities in the median, ulnar, tibial and peroneal nerves. At 36 months of age they began to complain of pain with minimal passive movement of the limbs, particularly the legs. This was aggravated during activities such as dressing and physical activity but did not occur at rest or when unprovoked. Pain episodes led to increased dystonia and worsened spasticity. Progressive lower extremity spasticity, especially in the gastrocnemius, led to plantar flexion of the feet at rest. Baclofen was initiated to alleviate the worsening spasticity. Hip radiographs did not reveal uncovering of subluxation of the femoral heads. Regarding development, they continued to use single words, identify body parts through pointing, smile and have meaningful interactions with their parents and caregivers. In the subsequent months they developed oromotor dysfunction and difficulty with weight gain. A swallow study documented aspiration of thin liquids. All three children underwent surgery for gastric tube placement. For the next several months, no aspiration problems or airway obstruction occurred. None of the triplets had seizures, either clinically or electrographically. Gastric motility slowed and continuous feeds with frequent breaks and venting were required to maintain comfort. Gabapentin was initiated to help with neuropathic-enteral pain. Over time, the boys’ nutritional status declined secondary to the feeding intolerance. They developed iron deficiency. A follow-up MRI was performed at 4 years of age and confirmed radiographic progression of white matter disease in all three. The boys became less interactive and required increased levels of voice and tactile stimulation to respond.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "76",
+    "text_length_chars": 4432,
+    "num_annotations": 27,
+    "conversion_date": "2026-04-20T06:13:55.475197+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001188",
+      "label": "Hand clenching",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2616,
+          "end_char": 2636,
+          "text_snippet": "fisting of the hands"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001332",
+      "label": "Dystonia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 3067,
+          "end_char": 3075,
+          "text_snippet": "dystonia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001508",
+      "label": "Failure to thrive",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 3595,
+          "end_char": 3622,
+          "text_snippet": "difficulty with weight gain"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001662",
+      "label": "Bradycardia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 490,
+          "end_char": 501,
+          "text_snippet": "bradycardia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002061",
+      "label": "Lower limb spasticity",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001257",
+      "label": "Spasticity",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2562,
+          "end_char": 2583,
+          "text_snippet": "peripheral spasticity"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002421",
+      "label": "Poor head control",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002500",
+      "label": "Abnormal cerebral white matter morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2527,
+          "end_char": 4310,
+          "text_snippet": "progressive truncal hypotonia with peripheral spasticity. All three displayed persistent fisting of the hands, facial weakness, and diffuse hyperreflexia. A nerve conduction study revealed normal conduction velocities in the median, ulnar, tibial and peroneal nerves. At 36 months of age they began to complain of pain with minimal passive movement of the limbs, particularly the legs. This was aggravated during activities such as dressing and physical activity but did not occur at rest or when unprovoked. Pain episodes led to increased dystonia and worsened spasticity. Progressive lower extremity spasticity, especially in the gastrocnemius, led to plantar flexion of the feet at rest. Baclofen was initiated to alleviate the worsening spasticity. Hip radiographs did not reveal uncovering of subluxation of the femoral heads. Regarding development, they continued to use single words, identify body parts through pointing, smile and have meaningful interactions with their parents and caregivers. In the subsequent months they developed oromotor dysfunction and difficulty with weight gain. A swallow study documented aspiration of thin liquids. All three children underwent surgery for gastric tube placement. For the next several months, no aspiration problems or airway obstruction occurred. None of the triplets had seizures, either clinically or electrographically. Gastric motility slowed and continuous feeds with frequent breaks and venting were required to maintain comfort. Gabapentin was initiated to help with neuropathic-enteral pain. Over time, the boys’ nutritional status declined secondary to the feeding intolerance. They developed iron deficiency. A follow-up MRI was performed at 4 years of age and confirmed radiographic progression of white matter disease"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002578",
+      "label": "Gastroparesis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 3720,
+          "end_char": 3927,
+          "text_snippet": "gastric tube placement. For the next several months, no aspiration problems or airway obstruction occurred. None of the triplets had seizures, either clinically or electrographically. Gastric motility slowed"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002835",
+      "label": "Aspiration",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 3651,
+          "end_char": 3677,
+          "text_snippet": "aspiration of thin liquids"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0007010",
+      "label": "Poor fine motor coordination",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0007034",
+      "label": "Generalized hyperreflexia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2659,
+          "end_char": 2680,
+          "text_snippet": "diffuse hyperreflexia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0007064",
+      "label": "Progressive language deterioration",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1482,
+          "end_char": 1517,
+          "text_snippet": "speech and language skills declined"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0007301",
+      "label": "Oromotor apraxia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 3570,
+          "end_char": 3590,
+          "text_snippet": "oromotor dysfunction"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0007687",
+      "label": "Unilateral ptosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1420,
+          "end_char": 1437,
+          "text_snippet": "left-sided ptosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0008112",
+      "label": "Plantar flexion contracture",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 3181,
+          "end_char": 3208,
+          "text_snippet": "plantar flexion of the feet"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0008936",
+      "label": "Axial hypotonia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2527,
+          "end_char": 2556,
+          "text_snippet": "progressive truncal hypotonia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009763",
+      "label": "Limb pain",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2841,
+          "end_char": 2888,
+          "text_snippet": "pain with minimal passive movement of the limbs"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012531",
+      "label": "Pain",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0030319",
+      "label": "Weakness of facial musculature",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2638,
+          "end_char": 2653,
+          "text_snippet": "facial weakness"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0030891",
+      "label": "Periventricular white matter hyperintensities",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1860,
+          "end_char": 1899,
+          "text_snippet": "T2 hyperintense periventricular lesions"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0033044",
+      "label": "Motor regression",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1172,
+          "end_char": 1198,
+          "text_snippet": "Regression in motor skills"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0034236",
+      "label": "Apnea of prematurity",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0034863",
+      "label": "Reduced leukocyte arylsulfatase A activity",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0040303",
+      "label": "Decreased circulating iron concentration",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 4183,
+          "end_char": 4198,
+          "text_snippet": "iron deficiency"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:6000040",
+      "label": "Neuropathic pain",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 4055,
+          "end_char": 4079,
+          "text_snippet": "neuropathic-enteral pain"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:6000120",
+      "label": "Elevated urinary sulfatide level",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    }
+  ]
+}

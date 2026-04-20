@@ -1,0 +1,64 @@
+{
+  "doc_id": "GSC_29",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "Bilateral acoustic neurofibromatosis (BANF) is a genetic defect associated with multiple tumors of neural crest origin. Specific loss of alleles from chromosome 22 was detected with polymorphic DNA markers in two acoustic neuromas, two neurofibromas, and one meningioma from BANF patients. This indicates a common pathogenetic mechanism for all three tumor types. The two neurofibromas were among three taken from the same patient, and both showed loss of identical alleles demonstrating that the same chromosome suffered deletion in both tumors. The third neurofibroma from this patient showed no detectable loss of heterozygosity, which suggests the possibility of a more subtle mutational event that affects chromosome 22. In the two acoustic neuromas, only a portion of chromosome 22 was deleted, narrowing the possible chromosomal location of the gene that causes BANF to the region distal to the D22S9 locus in band 22q11. The identification of progressively smaller deletions on chromosome 22 in these tumor types may well provide a means to clone and characterize the defect.",
+  "metadata": {
+    "dataset": "GSC",
+    "original_dataset": "GSC",
+    "original_doc_id": "3105060",
+    "text_length_chars": 1083,
+    "num_annotations": 4,
+    "conversion_date": "2026-04-20T06:13:55.489364+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0009588",
+      "label": "Vestibular schwannoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 213,
+          "end_char": 230,
+          "text_snippet": "acoustic neuromas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001067",
+      "label": "Neurofibroma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 0,
+          "end_char": 43,
+          "text_snippet": "Bilateral acoustic neurofibromatosis (BANF)"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002858",
+      "label": "Meningioma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 259,
+          "end_char": 269,
+          "text_snippet": "meningioma"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0030065",
+      "label": "Primitive neuroectodermal tumor",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 89,
+          "end_char": 118,
+          "text_snippet": "tumors of neural crest origin"
+        }
+      ]
+    }
+  ]
+}

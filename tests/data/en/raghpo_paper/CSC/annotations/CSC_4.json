@@ -1,0 +1,160 @@
+{
+  "doc_id": "CSC_4",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A 30-year-old man with a history of chronic abdominal pain episodes, constipation and rectal bleeding was seen at our unit. Physical examination revealed the presence of hyperchromic spots on the lips and in the mucosal palate, with no other relevant findings. His father was diagnosed with PJS at the age of 35 years. A colonoscopy was performed, revealing the presence of multiple sessile polypoid lesions of different sizes from 3 mm to 5 cm along the entire colon and terminal ileum. Histopathology reported multilobulated polyps with a papillary surface and branching bands of smooth muscle covered by hyperplastic glandular mucosa, consistent with hamartomatous polyps. Thus, PJS diagnosis was established in our patient and a surveillance programme was offered. Upper gastrointestinal (GI) endoscopy and small bowel capsule endoscopy were performed, revealing multiple hamartomatous polyps along the small bowel with no suspicion of gastrointestinal malignancies. Three months later, the patient was seen at the emergency department because of the abrupt onset of severe anal pain with a foreign body sensation in the anal canal and rectal bleeding. Physical examination revealed a giant, reddish-blue prolapsed polyp with a necrotic aspect.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "4",
+    "text_length_chars": 1248,
+    "num_annotations": 13,
+    "conversion_date": "2026-04-20T06:13:55.465571+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0002019",
+      "label": "Constipation",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 69,
+          "end_char": 81,
+          "text_snippet": "constipation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002027",
+      "label": "Abdominal pain",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 36,
+          "end_char": 58,
+          "text_snippet": "chronic abdominal pain"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002035",
+      "label": "Rectal prolapse",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1196,
+          "end_char": 1224,
+          "text_snippet": "reddish-blue prolapsed polyp"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002573",
+      "label": "Hematochezia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 86,
+          "end_char": 101,
+          "text_snippet": "rectal bleeding"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004390",
+      "label": "Hamartomatous polyposis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 654,
+          "end_char": 674,
+          "text_snippet": "hamartomatous polyps"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0005266",
+      "label": "Intestinal polyp",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 512,
+          "end_char": 533,
+          "text_snippet": "multilobulated polyps"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0007482",
+      "label": "Generalized papillary lesions",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 541,
+          "end_char": 558,
+          "text_snippet": "papillary surface"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010284",
+      "label": "Intra-oral hyperpigmentation",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0030935",
+      "label": "Abnormal intestinal smooth muscle morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0032222",
+      "label": "Serrated intestinal polyps",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 374,
+          "end_char": 407,
+          "text_snippet": "multiple sessile polypoid lesions"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100816",
+      "label": "Lip hyperpigmentation",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 170,
+          "end_char": 200,
+          "text_snippet": "hyperchromic spots on the lips"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100896",
+      "label": "Rectal polyposis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 86,
+          "end_char": 533,
+          "text_snippet": "rectal bleeding was seen at our unit. Physical examination revealed the presence of hyperchromic spots on the lips and in the mucosal palate, with no other relevant findings. His father was diagnosed with PJS at the age of 35 years. A colonoscopy was performed, revealing the presence of multiple sessile polypoid lesions of different sizes from 3 mm to 5 cm along the entire colon and terminal ileum. Histopathology reported multilobulated polyps"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0500005",
+      "label": "Anal pain",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1071,
+          "end_char": 1087,
+          "text_snippet": "severe anal pain"
+        }
+      ]
+    }
+  ]
+}

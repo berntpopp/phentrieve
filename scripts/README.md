@@ -98,13 +98,11 @@ The converter currently extracts the paper's two benchmark datasets:
 - `GSC`
 
 **Prerequisites:**
-1. Download the released benchmark files from the RAG-HPO repository:
-   - <https://github.com/PoseyPod/RAG-HPO>
-2. Ensure Phentrieve is installed:
+1. Ensure Phentrieve is installed:
    ```bash
    make install  # or: uv sync
    ```
-3. Prepare HPO data (if not already done):
+2. Prepare HPO data (if not already done):
    ```bash
    phentrieve data prepare
    ```
@@ -116,14 +114,14 @@ The converter currently extracts the paper's two benchmark datasets:
 python scripts/convert_raghpo_paper_data.py \
     --workbook path/to/'RAG-HPO Tests and Data Analysis copy.xlsx' \
     --test-cases-csv path/to/Test_Cases.csv \
-    --hpo-terms data/hpo_core_data/hpo_terms.tsv \
+    --hpo-json data/hp.json \
     --output tests/data/en/raghpo_paper
 
 # Convert only the CSC subset
 python scripts/convert_raghpo_paper_data.py \
     --workbook path/to/'RAG-HPO Tests and Data Analysis copy.xlsx' \
     --test-cases-csv path/to/Test_Cases.csv \
-    --hpo-terms data/hpo_core_data/hpo_terms.tsv \
+    --hpo-json data/hp.json \
     --output tests/data/en/raghpo_paper \
     --dataset CSC
 
@@ -131,7 +129,6 @@ python scripts/convert_raghpo_paper_data.py \
 python scripts/convert_raghpo_paper_data.py \
     --workbook path/to/'RAG-HPO Tests and Data Analysis copy.xlsx' \
     --test-cases-csv path/to/Test_Cases.csv \
-    --hpo-terms data/hpo_core_data/hpo_terms.tsv \
     --hpo-json data/hp.json \
     --output tests/data/en/raghpo_paper \
     --dataset CSC \
@@ -141,7 +138,16 @@ python scripts/convert_raghpo_paper_data.py \
 python scripts/convert_raghpo_paper_data.py \
     --workbook path/to/'RAG-HPO Tests and Data Analysis copy.xlsx' \
     --test-cases-csv path/to/Test_Cases.csv \
-    --hpo-terms data/hpo_core_data/hpo_terms.tsv \
+    --hpo-json data/hp.json \
+    --output tests/data/en/raghpo_paper \
+    --dataset CSC \
+    --normalize-obsolete-ids \
+    --drop-obsolete-without-replacement
+
+# Download the released source files automatically into a local cache
+python scripts/convert_raghpo_paper_data.py \
+    --download-source \
+    --download-dir tests/data/en/raghpo_paper/source \
     --hpo-json data/hp.json \
     --output tests/data/en/raghpo_paper \
     --dataset CSC \
@@ -176,6 +182,9 @@ tests/data/en/raghpo_paper/
   - `annotations`
 - `evidence_spans` are derived by matching each released
   `hpo_description` phrase back into the source note text.
+- Labels can be resolved either from `--hpo-terms` or directly from
+  `--hpo-json`. In this repository, `data/hp.json` is sufficient for a full
+  real conversion run.
 - If a released phrase cannot be found exactly in the note text, conversion
   continues and that annotation receives an empty `evidence_spans` list.
   These cases are recorded in `conversion_report.json`.
@@ -184,19 +193,25 @@ tests/data/en/raghpo_paper/
   current ontology terms using replacement mappings from the supplied
   `--hpo-json` ontology export, and each normalization is recorded as a warning
   in `conversion_report.json`.
+- If `--download-source` is enabled, the CLI downloads the released workbook
+  and `Test_Cases.csv` from the upstream RAG-HPO repository into
+  `--download-dir` and reuses the cached copies on subsequent runs. The default
+  cache path is `tests/data/en/raghpo_paper/source`.
 - If `--drop-obsolete-without-replacement` is also enabled, any obsolete term
   that still cannot be mapped to a current HPO ID is omitted from the converted
   annotations and recorded in `conversion_report.json`.
 
 **Options:**
 
-- `--workbook PATH` - Path to `RAG-HPO Tests and Data Analysis copy.xlsx` (required)
-- `--test-cases-csv PATH` - Path to `Test_Cases.csv` (required)
-- `--hpo-terms PATH` - Path to `data/hpo_core_data/hpo_terms.tsv` (required)
+- `--workbook PATH` - Path to `RAG-HPO Tests and Data Analysis copy.xlsx` (required unless `--download-source` is used)
+- `--test-cases-csv PATH` - Path to `Test_Cases.csv` (required unless `--download-source` is used)
+- `--download-source` - Download the released workbook and `Test_Cases.csv` into a local cache when not available locally
+- `--download-dir PATH` - Cache directory for downloaded RAG-HPO source files (default: `tests/data/en/raghpo_paper/source`)
+- `--hpo-terms PATH` - Path to `data/hpo_core_data/hpo_terms.tsv` (optional if `--hpo-json` is supplied)
 - `--output PATH` - Output directory for converted files (required)
 - `--dataset {CSC,GSC,all}` - Dataset subset to convert (default: all)
 - `--normalize-obsolete-ids` - Replace obsolete released HPO IDs with current ontology replacements
-- `--hpo-json PATH` - Path to an HPO ontology JSON export such as `data/hp.json` (required with `--normalize-obsolete-ids`)
+- `--hpo-json PATH` - Path to an HPO ontology JSON export such as `data/hp.json` (required with `--normalize-obsolete-ids`, and sufficient on its own for label resolution)
 - `--drop-obsolete-without-replacement` - When normalizing, drop obsolete IDs that still have no current replacement
 - `--log-level {DEBUG,INFO,WARNING,ERROR}` - Logging level (default: INFO)
 

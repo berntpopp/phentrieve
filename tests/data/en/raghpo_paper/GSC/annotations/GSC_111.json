@@ -1,0 +1,202 @@
+{
+  "doc_id": "GSC_111",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "Angelman syndrome (AS) is a neurogenetic disorder characterized by severe mental retardation, speech disorder, stereotyped jerky movements, and a peculiar behavioral profile, with a happy disposition and outbursts of laughter. Most patients with AS present with epilepsy and suggestive electroencephalographic patterns, which may be used as diagnostic criteria.\n\nTo study epilepsy and response to treatment in a series of patients with AS determined by deletion.\n\nParent and caregiver interview and medical record review.\n\nEpilepsy Center at the University of S√£o Paulo.\n\nNineteen patients with AS determined by deletion of chromosome 15q11-13.\n\nEpilepsy severity, epilepsy evolution, and response to antiepileptic drug treatment.\n\nAll patients with AS in this group had generalized epilepsy, and 10 (53%) also had partial epilepsy. Main seizure types were atypical absences and myoclonic and tonic-clonic seizures. Mean age at onset was 1 year 1 month. Epilepsy aggravated by fever occurred in 10 patients (53%) and status epilepticus in 16 (84%). Eighteen patients (95%) had previous or current history of daily seizures, of which 14 (64%) had disabling seizures. Multiple seizure types were observed in 13 patients (53%). History of refractory epilepsy was reported in 16 patients (84%). Parents reported improvement, characterized by decrease in seizure frequency or seizure control, at the mean age of 5.3 years. Therefore, most of these patients had a period of refractory epilepsy; however, improvement occurred during late childhood and puberty. The best therapeutic response was obtained with valproic acid alone or in association with phenobarbital or clonazepam. Epilepsy was aggravated by carbamazepine, oxcarbazepine, and vigabatrin.\n\nPatients with AS with deletion have epilepsy with early onset and stereotyped electroclinical profile regarding seizure type, severity, and response to antiepileptic drug treatment. Another feature of AS is the age-related improvement, even in refractory cases, during late childhood and puberty. These characteristics are not specific to this syndrome but, when inserted in the proper clinical context, may anticipate diagnosis. We believe that AS should be considered a differential diagnosis in developmentally delayed infants with severe, generalized, cryptogenic epilepsy; however, a proper electroclinical delineation of each genetic group is mandatory.",
+  "metadata": {
+    "dataset": "GSC",
+    "original_dataset": "GSC",
+    "original_doc_id": "16401744",
+    "text_length_chars": 2408,
+    "num_annotations": 16,
+    "conversion_date": "2026-04-20T06:13:55.491476+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0007270",
+      "label": "Atypical absence seizure",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 858,
+          "end_char": 875,
+          "text_snippet": "atypical absences"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001263",
+      "label": "Global developmental delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2247,
+          "end_char": 2270,
+          "text_snippet": "developmentally delayed"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002353",
+      "label": "EEG abnormality",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 286,
+          "end_char": 318,
+          "text_snippet": "electroencephalographic patterns"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001945",
+      "label": "Fever",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 978,
+          "end_char": 983,
+          "text_snippet": "fever"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002197",
+      "label": "Generalized-onset seizure",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 772,
+          "end_char": 792,
+          "text_snippet": "generalized epilepsy"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100024",
+      "label": "Conspicuously happy disposition",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 182,
+          "end_char": 199,
+          "text_snippet": "happy disposition"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002123",
+      "label": "Generalized myoclonic seizure",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 880,
+          "end_char": 889,
+          "text_snippet": "myoclonic"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000749",
+      "label": "Paroxysmal bursts of laughter",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 204,
+          "end_char": 225,
+          "text_snippet": "outbursts of laughter"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0007359",
+      "label": "Focal-onset seizure",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 816,
+          "end_char": 832,
+          "text_snippet": "partial epilepsy"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000708",
+      "label": "Atypical behavior",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001250",
+      "label": "Seizure",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1237,
+          "end_char": 1256,
+          "text_snippet": "refractory epilepsy"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010864",
+      "label": "Intellectual disability, severe",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 67,
+          "end_char": 92,
+          "text_snippet": "severe mental retardation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000750",
+      "label": "Delayed speech and language development",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 94,
+          "end_char": 109,
+          "text_snippet": "speech disorder"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002133",
+      "label": "Status epilepticus",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1018,
+          "end_char": 1036,
+          "text_snippet": "status epilepticus"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000733",
+      "label": "Motor stereotypy",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 111,
+          "end_char": 138,
+          "text_snippet": "stereotyped jerky movements"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002069",
+      "label": "Bilateral tonic-clonic seizure",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 894,
+          "end_char": 915,
+          "text_snippet": "tonic-clonic seizures"
+        }
+      ]
+    }
+  ]
+}

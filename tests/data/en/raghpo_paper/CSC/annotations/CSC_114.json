@@ -1,0 +1,94 @@
+{
+  "doc_id": "CSC_114",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A man in his late 40s came to our emergency department with right flank pain and a fever of up to 39°C for the past week without urinary symptoms. His medical history included tobacco use (30 pack-years), a body mass index of 26.7 (overweight) and cocaine abuse for the past 15 years. The patient denied other medical history or daily medications. Symptoms began after he had been inhaling cocaine for 3 consecutive days. On presentation, his vital signs were as follows: blood pressure of 140/70 mm Hg, heart rate of 69 beats/min, room air oxygen saturation of 99%, respiratory rate of 28 breaths/min, temperature of 38.5°C. The patient’s physical examination findings were normal: he had right flank tenderness without abdominal pain or rash. Bowel sounds were normal, and lungs were clear. Laboratory tests showed the following: leucocytes of 13.23 x 109/L, haemoglobin of 137 g/L, platelets of 256 x 109/L, creatinine of 1.02 mg/dL, Na+/K+ of 137/4.6 mmol/L, aspartate transaminase/alanine aminotransferase of 29/60 U/L, C reactive protein of 8.14 mg/dL. His urinalysis was normal. His chest X-ray showed no evidence of an acute disease process. A contrast-enhanced CT scan of the abdomen showed an extensive right renal cortical tract with no contrast enhancement, markedly hypodense if compared with normal renal cortex (figure 1A: arterial phase, figure 1B: venous phase); such enhancement defect persisted in the venous phase and was evident in the coronal and three-dimensional (3D) reconstruction (figure 2A: 3D reconstruction, figure 2B,C: arterial and venous coronal reformatting), findings suggestive of infarction. The patient was hospitalised for 5 days and treated with enoxaparin and acetylsalicylic acid, resulting in a rapid improvement in inflammatory markers and almost complete resolution of the symptoms",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "114",
+    "text_length_chars": 1826,
+    "num_annotations": 9,
+    "conversion_date": "2026-04-20T06:13:55.480491+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000822",
+      "label": "Hypertension",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001945",
+      "label": "Fever",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 83,
+          "end_char": 88,
+          "text_snippet": "fever"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001974",
+      "label": "Leukocytosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002789",
+      "label": "Tachypnea",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0011035",
+      "label": "Abnormal renal cortex morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0011227",
+      "label": "Elevated circulating C-reactive protein concentration",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0025418",
+      "label": "Renal cortical necrosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1219,
+          "end_char": 1627,
+          "text_snippet": "renal cortical tract with no contrast enhancement, markedly hypodense if compared with normal renal cortex (figure 1A: arterial phase, figure 1B: venous phase); such enhancement defect persisted in the venous phase and was evident in the coronal and three-dimensional (3D) reconstruction (figure 2A: 3D reconstruction, figure 2B,C: arterial and venous coronal reformatting), findings suggestive of infarction"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0025502",
+      "label": "Overweight",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 232,
+          "end_char": 242,
+          "text_snippet": "overweight"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0030157",
+      "label": "Flank pain",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 60,
+          "end_char": 76,
+          "text_snippet": "right flank pain"
+        }
+      ]
+    }
+  ]
+}

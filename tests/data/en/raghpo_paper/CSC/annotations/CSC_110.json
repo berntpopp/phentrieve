@@ -1,0 +1,94 @@
+{
+  "doc_id": "CSC_110",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "On June 13th of 2022, a 10-year-old female was admitted to the children’s hospital of Damascus complaining of pain in her left chest for the last 4 years, the pain was recurrent every one and a half to two months and was partially alleviated by regular painkillers and was always accompanied by a fever partially responsive to simple medication. FMF was suspected clinically six months prior by another doctor and she was started on colchicine but was stopped by the parents. Hyperpigmentated skin lesions started to evolve around that time initially on the posterior right thigh and gradually grew in size and the mother noted retraced skin over the affected area (see Fig. 1), similar lesions soon appeared on her other limbs (see Figs 2 and 3). The child has no past medical or surgical history and there is a case of vitiligo and G6PD deficiency in the girl’s cousins and a demise due to presumable pemphigus vulgaris. Physical examination of the respiratory, cardiovascular, intestinal and the central nervous system showed no anomalies. No musculoskeletal deformities were present and examination of the joints showed no swelling or pain or limitation in movement except limited flexion in the right leg along with greater skin retraction in the right leg (see Fig. 4) and a stiffness in palpitation. Scleroderma was also suspected. Negative Anti-Scl70 and Anti Centromere Antibody and the absence of systemic presentations suggested a localized morphea affecting the stated limbs. ESR (Erythrocyte sedimentation Rate) was tested multiple times all in which it showed elevation, other lab findings were within the normal range (including liver and renal function tests). Testing was positive (homogenous) for ANA-HEP-2(Anti-Nuclear Antibody) at 1/60 dilution. The symptoms which the patient presented with suggested a co-existing case of FMF. The main 26 FMF genes (MEFV) were investigated and she tested positive for V726A and M680I mutations and heterozygosity confirming the diagnosis.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "110",
+    "text_length_chars": 1994,
+    "num_annotations": 9,
+    "conversion_date": "2026-04-20T06:13:55.479890+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001034",
+      "label": "Hypermelanotic macule",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001945",
+      "label": "Fever",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 297,
+          "end_char": 302,
+          "text_snippet": "fever"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003493",
+      "label": "Antinuclear antibody positivity",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0003565",
+      "label": "Elevated erythrocyte sedimentation rate",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0006389",
+      "label": "Limited knee flexion",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0012344",
+      "label": "Morphea",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1452,
+          "end_char": 1459,
+          "text_snippet": "morphea"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0030053",
+      "label": "Stiff skin",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0032141",
+      "label": "Precordial pain",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 122,
+          "end_char": 163,
+          "text_snippet": "left chest for the last 4 years, the pain"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100679",
+      "label": "Lack of skin elasticity",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1229,
+          "end_char": 1244,
+          "text_snippet": "skin retraction"
+        }
+      ]
+    }
+  ]
+}

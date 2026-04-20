@@ -1,0 +1,226 @@
+{
+  "doc_id": "CSC_2",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A 32-year-old man presented to a regional general surgical unit for severe symptomatic anaemia. Within a span of 4 months his haemoglobin dropped by 62 points from 137 gL (N: 135–180 gL). His medical history included epilepsy on Valproate, heart arrhythmia on Flecainide, carpal tunnel syndrome and C5 nerve root compression. He is a non-smoker, rare alcohol user, has two dogs at home, and two children. His family history included his grandfather who had bowel cancer diagnosed at 78 years old, and a grandmother with breast cancer. The first imaging modality was a CT scan showing a large fungating mass in the body of the stomach extending into the pylorus and first part of the duodenum. He underwent upper gastrointestinal endoscopy (UGE) to investigate the pathology. Histopathology frequently returned as benign hyperplastic tissue. The first histopathology results reported gastric mucosa with minor foveolar hyperplasia, stromal oedema with minor increase in chronic inflammatory cells. There was no evidence of helicobacter organisms, active gastritis or atypia. Initial scope findings showed carpet-like polyps lining the gastric antrum and body. On a second UGE, tunnel biopsies were performed, showing the carpet-like polyps have progressed into the first part of the duodenum, in comparison to previous UGE The biopsy returned as Helicobacter heilmannii-associated chronic gastritis with hyperplastic changes of fundic gland polyp. Serum ANA, ANCA, antiparietal cell antibodies, Cytomegalovirus infection serology, hepatitis panel, serum protein electrophoresis, Helicobacter serology and CA 72–4 tumour marker were ordered. Results came back negative except for a positive Helicobacter IgG serology. H. heilmannii was treated with two courses of Helicobacter eradication regime. Repeat UGE, 2 months later, showed no evidence of Helicobacter organism. Histopathology results were hyperplastic gastric polyp with background of mild chronic inflammation. Repeat UGE 3 months after the initial UGE showed Paris classification 0-Isp in the duodenum and the polyps have extended further into the oesophagus. An endoscopic mucosal resection was performed on the oesophageal polyp with histopathology returning as juvenile polyp. Narrow-band imaging of a polyp in the gastric body showed irregular microvascular and irregular microsurface pattern. A colonoscopy revealed two 2–3 mm polyps in the ascending colon and caecum, and one 5 mm semipedunculated polyp in the sigmoid colon. The colonic lesions resembled Kudo’s Pit pattern. Histopathology of caecum and descending colon polyps returned as inflammatory juvenile polyps. Capsule endoscopy revealed scattered 0–1 p small bowel polyps and areas of telangiectasia.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "2",
+    "text_length_chars": 2726,
+    "num_annotations": 21,
+    "conversion_date": "2026-04-20T06:13:55.465440+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000969",
+      "label": "Edema",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 931,
+          "end_char": 945,
+          "text_snippet": "stromal oedema"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001009",
+      "label": "Telangiectasia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2711,
+          "end_char": 2725,
+          "text_snippet": "telangiectasia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001250",
+      "label": "Seizure",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 217,
+          "end_char": 225,
+          "text_snippet": "epilepsy"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001903",
+      "label": "Anemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0003406",
+      "label": "Peripheral nerve compression",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 299,
+          "end_char": 324,
+          "text_snippet": "C5 nerve root compression"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004295",
+      "label": "Abnormal gastric mucosa morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 909,
+          "end_char": 929,
+          "text_snippet": "foveolar hyperplasia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004386",
+      "label": "Gastrointestinal inflammation",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0004394",
+      "label": "Multiple gastric polyps",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1104,
+          "end_char": 1122,
+          "text_snippet": "carpet-like polyps"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004783",
+      "label": "Duodenal polyposis",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0004784",
+      "label": "Juvenile gastrointestinal polyposis",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0005202",
+      "label": "Helicobacter pylori infection",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0005231",
+      "label": "Chronic gastritis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1380,
+          "end_char": 1397,
+          "text_snippet": "chronic gastritis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0005263",
+      "label": "Gastritis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 883,
+          "end_char": 945,
+          "text_snippet": "gastric mucosa with minor foveolar hyperplasia, stromal oedema"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0006753",
+      "label": "Neoplasm of the stomach",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0011675",
+      "label": "Arrhythmia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 240,
+          "end_char": 256,
+          "text_snippet": "heart arrhythmia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0200063",
+      "label": "Colorectal polyposis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2581,
+          "end_char": 2593,
+          "text_snippet": "colon polyps"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012185",
+      "label": "Constrictive median neuropathy",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 272,
+          "end_char": 294,
+          "text_snippet": "carpal tunnel syndrome"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012737",
+      "label": "Small intestinal polyp",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2679,
+          "end_char": 2697,
+          "text_snippet": "small bowel polyps"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0020062",
+      "label": "Decreased hemoglobin concentration",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 126,
+          "end_char": 145,
+          "text_snippet": "haemoglobin dropped"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0025016",
+      "label": "Abnormal capillary morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0033769",
+      "label": "Fundic gland polyposis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1427,
+          "end_char": 2075,
+          "text_snippet": "fundic gland polyp. Serum ANA, ANCA, antiparietal cell antibodies, Cytomegalovirus infection serology, hepatitis panel, serum protein electrophoresis, Helicobacter serology and CA 72–4 tumour marker were ordered. Results came back negative except for a positive Helicobacter IgG serology. H. heilmannii was treated with two courses of Helicobacter eradication regime. Repeat UGE, 2 months later, showed no evidence of Helicobacter organism. Histopathology results were hyperplastic gastric polyp with background of mild chronic inflammation. Repeat UGE 3 months after the initial UGE showed Paris classification 0-Isp in the duodenum and the polyps"
+        }
+      ]
+    }
+  ]
+}

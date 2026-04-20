@@ -1,0 +1,190 @@
+{
+  "doc_id": "CSC_95",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "Ms A is a 44-year-old married white woman with a previous history of difficulty initiating sleep, which gradually disappeared but still left her with symptoms of excessive sleepiness associated with sudden “sleep attacks” lasting 2-3 days at a stretch and occurring 1 to 2 times a month. Although she had previously started a sleep log, she reported never completing it but stated that her normal sleep pattern between episodes had been about 5 hours nightly. The patient recalls having her first sleep attack 16 years previously in Saudi Arabia where she served voluntarily as a cook in the US Army for 4 months. She attributes major stress as a significant contributing factor to the onset of her periodic hypersomnia given the documented nerve gas exposure and chemical warfare she was exposed to during Desert Storm while in Saudi Arabia. (It is important to state here that Ms A, along with others who had similar toxic exposures in Saudi Arabia, are currently involved in ongoing research to determine the presence and extent of effects or complications from any of these exposures.)  Preceding each episode, the patient reports feeling very hungry and having a strong desire for sex, and she has been told that her face looks like it is “melting off” because of its characteristic drooping eyes and facial dullness. She remarks that despite being very hungry before her sleep attacks, she is too tired to eat and has to be fed by her family members before falling into a deep sleep. Recently, Ms A has had increased urinary frequency a day before each sleep episode, which now serves as a strong indication that her sleep attack is going to occur within 24-48 hours. She also described a sense of weakness lasting about 30-40 minutes before the onset of each episode. During these prolonged sleep episodes, the patient is unresponsive to any attempts to awaken her and she becomes angry with family members because of their attempts to wake her. She denies the loss of bladder control during these episodes and often wakes feeling refreshed, but with a migraine.  There is no family history of KLS or of any other sleep disorder. The patient’s past medical history includes restless legs syndrome (RLS), fibromyalgia, and depression for which she takes gabapentin 900 mg, venlafaxine 75 mg, and fluoxetine 40 mg daily, respectively. She had undergone magnetic resonance imaging and computed tomography brain scans, which appeared normal. A polysomnogram (PSG) performed in 2012 supported the diagnosis of RLS, and another in 2016 supported the diagnosis of hypersomnia. The PSG revealed an increased periodic limb movement index of 20/h and an unremarkable apnea-hypopnea index of 1.4/h. Multiple sleep latency testing showed clinically significant mean sleep latency of 6 minutes but with no REM sleep, providing objective documentation of a non-narcoleptic form of hypersomnia. The patient also had an elevated Epworth Sleepiness Scale (ESS) score of 14. A continuous video electroencephalography (cv-EEG) done on 1 occasion of her sleep spells indicated a short latency to sleep without epileptiform activity interictally. Also, drug testing done on the same occasion was negative.  Also stated in the patient’s past medical history are low vitamin D, potassium, and magnesium.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "95",
+    "text_length_chars": 3287,
+    "num_annotations": 16,
+    "conversion_date": "2026-04-20T06:13:55.477991+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000338",
+      "label": "Hypomimic face",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000508",
+      "label": "Ptosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1288,
+          "end_char": 1301,
+          "text_snippet": "drooping eyes"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000716",
+      "label": "Depression",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2229,
+          "end_char": 2239,
+          "text_snippet": "depression"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002076",
+      "label": "Migraine",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002591",
+      "label": "Polyphagia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1143,
+          "end_char": 1154,
+          "text_snippet": "very hungry"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002900",
+      "label": "Hypokalemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 3247,
+          "end_char": 3271,
+          "text_snippet": "low vitamin D, potassium"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002917",
+      "label": "Hypomagnesemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 3247,
+          "end_char": 3286,
+          "text_snippet": "low vitamin D, potassium, and magnesium"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0007200",
+      "label": "Episodic hypersomnia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 699,
+          "end_char": 719,
+          "text_snippet": "periodic hypersomnia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012452",
+      "label": "Restless legs",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2181,
+          "end_char": 2203,
+          "text_snippet": "restless legs syndrome"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0025237",
+      "label": "Confusional arousal",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0025406",
+      "label": "Asthenia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1695,
+          "end_char": 1712,
+          "text_snippet": "sense of weakness"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:5200321",
+      "label": "Amplification of sexual behavior",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1168,
+          "end_char": 1189,
+          "text_snippet": "strong desire for sex"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0031354",
+      "label": "Sleep onset insomnia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 69,
+          "end_char": 96,
+          "text_snippet": "difficulty initiating sleep"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100512",
+      "label": "Decreased circulating vitamin D concentration",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 3247,
+          "end_char": 3276,
+          "text_snippet": "low vitamin D, potassium, and"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100515",
+      "label": "Pollakisuria",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1513,
+          "end_char": 1540,
+          "text_snippet": "increased urinary frequency"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002330",
+      "label": "Paroxysmal drowsiness",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 199,
+          "end_char": 220,
+          "text_snippet": "sudden “sleep attacks"
+        }
+      ]
+    }
+  ]
+}

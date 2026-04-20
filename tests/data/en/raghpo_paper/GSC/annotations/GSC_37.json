@@ -1,0 +1,148 @@
+{
+  "doc_id": "GSC_37",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "Branchio-oto-renal dysplasia, often called the BOR syndrome, in its full expression consists of hearing loss of conductive, sensorineural, or mixed type; preauricular pits; auricular deformities; lateral cervical sinuses, cysts, or fistulas; and renal malformations. The condition is inherited in an autosomal dominant mode. The findings in three affected families are described, and pertinent genetic and clinical aspects are discussed. The potential seriousness of the renal and aural malformations stresses the importance of early recognition of this syndrome.",
+  "metadata": {
+    "dataset": "GSC",
+    "original_dataset": "GSC",
+    "original_doc_id": "3740720",
+    "text_length_chars": 563,
+    "num_annotations": 11,
+    "conversion_date": "2026-04-20T06:13:55.489653+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000377",
+      "label": "Abnormal pinna morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 173,
+          "end_char": 194,
+          "text_snippet": "auricular deformities"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 300,
+          "end_char": 318,
+          "text_snippet": "autosomal dominant"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000405",
+      "label": "Conductive hearing impairment",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 112,
+          "end_char": 122,
+          "text_snippet": "conductive"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009796",
+      "label": "Branchial cyst",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 222,
+          "end_char": 227,
+          "text_snippet": "cysts"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009795",
+      "label": "Branchial fistula",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 232,
+          "end_char": 239,
+          "text_snippet": "fistula"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000365",
+      "label": "Hearing impairment",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 96,
+          "end_char": 108,
+          "text_snippet": "hearing loss"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100272",
+      "label": "Branchial sinus",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 196,
+          "end_char": 220,
+          "text_snippet": "lateral cervical sinuses"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000410",
+      "label": "Mixed hearing impairment",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 142,
+          "end_char": 152,
+          "text_snippet": "mixed type"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004467",
+      "label": "Preauricular pit",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 154,
+          "end_char": 171,
+          "text_snippet": "preauricular pits"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012210",
+      "label": "Abnormal renal morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 246,
+          "end_char": 265,
+          "text_snippet": "renal malformations"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000407",
+      "label": "Sensorineural hearing impairment",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 124,
+          "end_char": 137,
+          "text_snippet": "sensorineural"
+        }
+      ]
+    }
+  ]
+}

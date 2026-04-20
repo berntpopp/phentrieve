@@ -1,0 +1,202 @@
+{
+  "doc_id": "CSC_8",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A full-term, 2710 g male infant was born at 39 weeks through spontaneous vaginal delivery. Routine antenatal ultrasounds found intrauterine growth restriction, left kidney agenesis, persistent left superior vena cava and suspicion of intestinal atresia. There was a history of polyhydramnios. Parents were not consanguineous and there was no relevant family history of congenital malformations on either parent’s side. At birth, Apgar scores were 5, 10 and 10 at 1, 5 and 10 min, respectively. Physical examination showed increased oral secretions, difficult breathing requiring supplemental oxygen through face-mask ventilation and abdominal distension. An orogastric tube could not be passed into the stomach, and a chest and abdominal X-ray diagnosed oesophageal atresia with distal tracheo-oesophageal fistula and intestinal obstruction, later confirmed during surgery. No other dysmorphic findings were present. Antibiotics were then started and a replogle tube was placed into the upper oesophageal pouch for continuous suctioning of the saliva. Vertebral defects, Anal atresia, Cardiac anomalies, Tacheo-Esophageal fistula, Renal anomalies, and Limb anomalies (VACTERL) workup included renal ultrasound, which confirmed renal agenesis, and echocardiography, thus revealing interventricular communication and patent ductus arteriosus. The patient underwent exploratory laparotomy, performed on the first day of life. Perioperative bronchoscopy confirmed a distal tracheo-oesophageal fistula. Laparotomy revealed gastric distension and a type IIIa ileal atresia with an intestinal perforation of the proximal ileal pouch and a microcolon. A gastrostomy and a diverting ileostomy were created. Due to clinical instability, the abdominal oesophagus was encircled by a silicone rubber 6F tube placed around the gastro-oesophageal junction simulating a Pringle manoeuvre. Additionally, both ends of the tube were brought through the abdominal incision to provide extracorporeal occlusion of the abdominal oesophagus, thus preventing aspiration and overdistension of the stomach due to the tracheo-oesophageal fistula. Eight days later, the patient underwent thoracoscopy and tracheo-oesophageal fistula closure, without primary oesophageal anastomosis due to a long-gap oesophageal atresia diagnosis. Postoperatively, the patient was kept on enteral feedings by gastrostomy and suctioning of the upper oesophageal pouch. A water-soluble contrast enema was performed on the 27th day of life to determine colon anatomy and revealed a non-fixed coiled microcolon in the right abdominal quadrants. A daily saline rectal enema was then initiated to enlarge the colon. Subsequently, an ileocaecal anastomosis was performed at 7 weeks of life; a microcolon was still present.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "8",
+    "text_length_chars": 2769,
+    "num_annotations": 19,
+    "conversion_date": "2026-04-20T06:13:55.466184+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000104",
+      "label": "Renal agenesis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1227,
+          "end_char": 1241,
+          "text_snippet": "renal agenesis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000122",
+      "label": "Unilateral renal agenesis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 160,
+          "end_char": 1241,
+          "text_snippet": "left kidney agenesis, persistent left superior vena cava and suspicion of intestinal atresia. There was a history of polyhydramnios. Parents were not consanguineous and there was no relevant family history of congenital malformations on either parent’s side. At birth, Apgar scores were 5, 10 and 10 at 1, 5 and 10 min, respectively. Physical examination showed increased oral secretions, difficult breathing requiring supplemental oxygen through face-mask ventilation and abdominal distension. An orogastric tube could not be passed into the stomach, and a chest and abdominal X-ray diagnosed oesophageal atresia with distal tracheo-oesophageal fistula and intestinal obstruction, later confirmed during surgery. No other dysmorphic findings were present. Antibiotics were then started and a replogle tube was placed into the upper oesophageal pouch for continuous suctioning of the saliva. Vertebral defects, Anal atresia, Cardiac anomalies, Tacheo-Esophageal fistula, Renal anomalies, and Limb anomalies (VACTERL) workup included renal ultrasound, which confirmed renal agenesis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001511",
+      "label": "Intrauterine growth retardation",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001561",
+      "label": "Polyhydramnios",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001643",
+      "label": "Patent ductus arteriosus",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1315,
+          "end_char": 1339,
+          "text_snippet": "patent ductus arteriosus"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002032",
+      "label": "Esophageal atresia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 755,
+          "end_char": 773,
+          "text_snippet": "esophageal atresia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002094",
+      "label": "Dyspnea",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002098",
+      "label": "Respiratory distress",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002575",
+      "label": "Tracheoesophageal fistula",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0003270",
+      "label": "Abdominal distention",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0003781",
+      "label": "Excessive salivation",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 522,
+          "end_char": 547,
+          "text_snippet": "increased oral secretions"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004388",
+      "label": "Microcolon",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1632,
+          "end_char": 1642,
+          "text_snippet": "microcolon"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0005214",
+      "label": "Intestinal obstruction",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 818,
+          "end_char": 840,
+          "text_snippet": "intestinal obstruction"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0005301",
+      "label": "Persistent left superior vena cava",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 182,
+          "end_char": 216,
+          "text_snippet": "persistent left superior vena cava"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0011100",
+      "label": "Intestinal atresia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 234,
+          "end_char": 252,
+          "text_snippet": "intestinal atresia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0011102",
+      "label": "Ileal atresia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1553,
+          "end_char": 1566,
+          "text_snippet": "ileal atresia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0011621",
+      "label": "Gerbode ventricular septal defect",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1280,
+          "end_char": 1310,
+          "text_snippet": "interventricular communication"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0031368",
+      "label": "Intestinal perforation",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1575,
+          "end_char": 1597,
+          "text_snippet": "intestinal perforation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100682",
+      "label": "Tracheal atresia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    }
+  ]
+}

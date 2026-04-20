@@ -1,0 +1,328 @@
+{
+  "doc_id": "CSC_112",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A 14-year-old male patient presented with a 3-month history of non-painful patches of skin hyper and hypo-pigmentations, distributed over the trunk area. The patient initially sought medical advice from a dermatologist who treated him with antifungals as a case of fungal skin infection without improvement. At that time, he had no history of fever, night sweats, lymphadenopathy, arthralgia, hematuria or previous episodes. Over the next months, he developed fatigue and exertional shortness of breath upon activity and reported occasional night sweats with undocumented weight loss. However, he didn’t seek medical advice until 3 months had elapsed, when he developed yellowish discoloration of his sclera associated with dark urine and no change in stool color. On examination, patient had scleral icterus and hepatosplenomegaly. Laboratory tests revealed hemolysis with hemoglobin levels of 5 g/dl, mean cell volume of 122.7 fL with normal folate and vitamin B12 levels, elevated reticulocyte count of 17.2%, red blood cells (RBCs) 0.79 × 106/μl, with leukocytosis and eosinophilia (25 × 103/μl and 7% respectively) and normal platelet count. Anisocytosis was found on peripheral blood smear, with teardrops, microcytic hypochromic cells, schistocytes and nucleated RBCs consistent with acute hemolysis. Coombs test was significantly positive, indicating autoimmune hemolytic anemia, high lactate dehydrogenase 576 U/L and bilirubin 4 mg/dl, Direct Bilirubin 0.21 mg/dl, decreased haptoglobin levels and normal liver enzymes. Erythrocyte sedimentation rate was elevated to 94 mm by the end of the first hour and the C-reactive protein was 19 mg/dl. Body fluids tested negative for microbiology. The viral panel was negative for Epstein–Barr virus, Herpes simplex virus, cytomegalovirus, human immunodeficiency virus, Brucella and toxoplasma. Coagulation, autoantibodies and kidney function profiles, urinalysis, complement levels were all normal. Immunoglobulin levels were normal except for elevated IgE: 459 IU/ml. Abdominal ultrasound showed a liver span of 14.5 cm and spleen of 16 cm with otherwise normal findings. Chest and abdominal computed tomography revealed enlarged lymph nodes in the perihilar regions of the lungs with hepatosplenomegaly. The symptoms continued with a progressive course. The patient was ill-looking, but stable vitally except for tachycardia. He was maintained on supportive care and was given packed red blood cells. A lymph node biopsy taken from the mediastinum via video-assisted thoracoscopic surgery showed sinusoids filled with S100 and CD68-positive but CD1a-negative, confirming the diagnosis of RDD",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "112",
+    "text_length_chars": 2645,
+    "num_annotations": 33,
+    "conversion_date": "2026-04-20T06:13:55.480220+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001433",
+      "label": "Hepatosplenomegaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 813,
+          "end_char": 831,
+          "text_snippet": "hepatosplenomegaly"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001649",
+      "label": "Tachycardia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2367,
+          "end_char": 2378,
+          "text_snippet": "tachycardia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001744",
+      "label": "Splenomegaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 819,
+          "end_char": 831,
+          "text_snippet": "splenomegaly"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001824",
+      "label": "Weight loss",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001878",
+      "label": "Hemolytic anemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1291,
+          "end_char": 1306,
+          "text_snippet": "acute hemolysis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001880",
+      "label": "Eosinophilia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1073,
+          "end_char": 1085,
+          "text_snippet": "eosinophilia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001890",
+      "label": "Autoimmune hemolytic anemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1359,
+          "end_char": 1386,
+          "text_snippet": "autoimmune hemolytic anemia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001903",
+      "label": "Anemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001923",
+      "label": "Reticulocytosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001974",
+      "label": "Leukocytosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1056,
+          "end_char": 1068,
+          "text_snippet": "leukocytosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001981",
+      "label": "Schistocytosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1243,
+          "end_char": 1255,
+          "text_snippet": "schistocytes"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002240",
+      "label": "Hepatomegaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002875",
+      "label": "Exertional dyspnea",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 472,
+          "end_char": 502,
+          "text_snippet": "exertional shortness of breath"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002904",
+      "label": "Hyperbilirubinemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0003212",
+      "label": "Increased circulating IgE concentration",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1996,
+          "end_char": 2008,
+          "text_snippet": "elevated IgE"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003565",
+      "label": "Elevated erythrocyte sedimentation rate",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0003573",
+      "label": "Increased total bilirubin",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0004840",
+      "label": "Hypochromic microcytic anemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1213,
+          "end_char": 1241,
+          "text_snippet": "microcytic hypochromic cells"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0005518",
+      "label": "Increased mean corpuscular volume",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0007509",
+      "label": "Patchy hypo- and hyperpigmentation",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0011227",
+      "label": "Elevated circulating C-reactive protein concentration",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0011273",
+      "label": "Anisocytosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0012378",
+      "label": "Fatigue",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 460,
+          "end_char": 467,
+          "text_snippet": "fatigue"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0020062",
+      "label": "Decreased hemoglobin concentration",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0020181",
+      "label": "Reduced haptoglobin level",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1475,
+          "end_char": 1496,
+          "text_snippet": "decreased haptoglobin"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0025435",
+      "label": "Increased circulating lactate dehydrogenase concentration",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1388,
+          "end_char": 1414,
+          "text_snippet": "high lactate dehydrogenase"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0030166",
+      "label": "Night sweats",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 350,
+          "end_char": 362,
+          "text_snippet": "night sweats"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0032106",
+      "label": "Conjunctival icterus",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 793,
+          "end_char": 808,
+          "text_snippet": "scleral icterus"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0032366",
+      "label": "Positive direct antiglobulin test",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0032563",
+      "label": "Dacryocytosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1202,
+          "end_char": 1241,
+          "text_snippet": "teardrops, microcytic hypochromic cells"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0033281",
+      "label": "Circulating nucleated red blood cells",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1260,
+          "end_char": 1274,
+          "text_snippet": "nucleated RBCs"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0034388",
+      "label": "Hilar lymph node enlargement",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0040319",
+      "label": "Dark urine",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 724,
+          "end_char": 734,
+          "text_snippet": "dark urine"
+        }
+      ]
+    }
+  ]
+}

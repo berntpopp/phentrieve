@@ -1,0 +1,136 @@
+{
+  "doc_id": "CSC_93",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "The patient, Ms A, was a married 53-year-old woman, who had completed 6th grade and was working at a pig farm. She had no prior history of personal or family psychiatric disorders. She reported no known medical disorders and was not taking any medication. In June 2020, she was taken to the psychiatry emergency department complaining that her skin was infested by bugs. She first noticed this in April and believed she had caught the bugs at her work. Ms A stated that she could feel the bugs making tunnels under her skin, adding she could see the “little black bugs” and even had removed some with a tweezer. She had already seen a dermatologist in May, who suggested she had a mental disorder and offered to refer her to a psychiatric appointment, but she refused. At first glance, Ms A looked very thin and disheveled. On further inspection, there were several self-inflicted lesions all over her body, at different healing stages, produced as an attempt to remove the bugs. A particularly prominent lesion with inflammatory signs on her thigh warranted an evaluation from a general surgeon, who prescribed piperacillin/tazobactam intravenous for 7 days. The mental status examination revealed the presence of delusional ideas of infestation, visual and haptic hallucinations (formication), insomnia, and a complete lack of insight into her condition. She passively accepted admission to an acute psychiatric ward with the proposed diagnosis of primary delusional parasitosis (per DSM-5 criteria). Antipsychotic treatment with olanzapine was initiated and slowly titrated. During her hospitalization, she revealed that, 1 year prior (June 2019), she started having feelings of sadness and worthlessness, accompanied by a significant loss of appetite (and later weight) and onset of insomnia. She attributed these symptoms to her 1-year-old grandson’s motor deficiency and her daughter being a victim of domestic violence. Major depressive disorder was diagnosed (per DSM-5 criteria), and she was started on mirtazapine, which was later titrated to 30 mg/d",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "93",
+    "text_length_chars": 2060,
+    "num_annotations": 12,
+    "conversion_date": "2026-04-20T06:13:55.477654+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000716",
+      "label": "Depression",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000742",
+      "label": "Self-mutilation",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 866,
+          "end_char": 888,
+          "text_snippet": "self-inflicted lesions"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000757",
+      "label": "Lack of insight",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1321,
+          "end_char": 1336,
+          "text_snippet": "lack of insight"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001824",
+      "label": "Weight loss",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002367",
+      "label": "Visual hallucination",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0004396",
+      "label": "Poor appetite",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1738,
+          "end_char": 1754,
+          "text_snippet": "loss of appetite"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0011123",
+      "label": "Inflammatory abnormality of the skin",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1017,
+          "end_char": 1035,
+          "text_snippet": "inflammatory signs"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0031469",
+      "label": "Low self-esteem",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1694,
+          "end_char": 1707,
+          "text_snippet": "worthlessness"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0033694",
+      "label": "Tactile hallucination",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1259,
+          "end_char": 1280,
+          "text_snippet": "haptic hallucinations"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100785",
+      "label": "Insomnia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:5200273",
+      "label": "Abnormal sadness",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1682,
+          "end_char": 1689,
+          "text_snippet": "sadness"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:5200426",
+      "label": "Delusions of infestation",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1215,
+          "end_char": 1246,
+          "text_snippet": "delusional ideas of infestation"
+        }
+      ]
+    }
+  ]
+}

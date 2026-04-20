@@ -1,0 +1,508 @@
+{
+  "doc_id": "CSC_53",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A 35-year-old woman presented to the medical emergency department with low-grade fever for 3 weeks, vomiting for 1 week and anuria for 3 days. She also reported dysuria and breathlessness for 1 week. There was no history of decreased urine output, dialysis, effort intolerance, chest pain or palpitation, dyspnoea and weight loss. Menstrual history was within normal limit but she reported gradually progressive loss of appetite. Family history included smoky urine in her younger brother in his childhood, who died in an accident. On general survey, the patient was conscious and alert. She was dyspnoeic and febrile. Severe pallor was present with mild pedal oedema. Blood pressure was 180/100 mm Hg and pulse rate of 116/min regular. No evidence of jaundice, clubbing cyanosis or lymphadenopathy was found. Physical examination revealed bibasilar end-inspiratory crepitations in lungs and suprapubic tenderness. There was no hepatosplenomegaly or ascites. Cardiac examination was normal. She was found to have severe bilateral hearing loss, which was gradually progressive for 5 years. The fundi were bilaterally pale. The patient was referred to the department of ophthalmology for a comprehensive eye examination. Her visual acuity was documented as 6/18 in both eyes with no obvious lenticular opacity. Slit-lamp examination showed bilateral anterior lentiglobus with posterior lenticonus. Distant direct ophthalmoscopy revealed oil droplet sign (a suggestive confirmation of the presence of lenticonus); and peripheral retina revealed multiple yellowish white lesion-like flecks in the mid-periphery, and few blot haemorrhages indicative of hypertensive changes. Haemogram showed haemoglobin (Hb) 5.7 g/dL, erythrocyte sedimentation rate 15 mm in first hour, white cell count 17 200/µL with 82% polymorphs, adequate platelets and mean corpuscular volume 83.3 fL. Peripheral smear showed normocytic normochromic anaemia with mild anisocytosis. Fasting sugar 78 mg/dL, blood urea 325 mg/dL, serum creatinine 11.2 mg/dL and uric acid 8.3 mg/dL. Liver function tests were within normal limit as were serum electrolytes, except serum calcium (conc.) 5.8 mg/dL (adjusted with serum albumin). Lipid profile and iron profile were also normal. HIV and viral markers for HbsAg and hepatitis C virus were non-reactive. ECG showed sinus tachycardia with features of left ventricular hypertrophy and chest X-ray posteroanterior view revealed cardiomegaly. Urinalysis showed full field of pus cells with 35–40 RBCs/hpf and 3(+) proteinuria. Urine samples for cultures were sent which reported pure growth of Escherichia coli. Spot urine for protein:creatinine ratio was 2.07 g/g Cr. She underwent pure tone audiometry which revealed features suggestive of severe bilateral sensorineural hearing loss (SHNL). Ultrasound of the abdomen showed bilateral contracted kidneys: right measured 6.7×2.3 cm and left 7.8×3 cm, with increased cortical echogenecity and loss of corticomedullary differentiation, suggestive of medical renal disease. Two-dimensional Echo reported dilated left ventricular cavity with mild mitral regurgitation and ejection fraction of 55%. Renal and skin biopsies were conducted and specimens were sent for light and electron microscopy (EM). Renal tissue on H&E stain was reported as focal segmental glomerulonephritis (FSGS). Ultrathin sections of EM study of renal tissue revealed disruption of glomerular basement membrane (GBM) with diffuse thickening of glomerular capillary wall. Dermal tissue depicted discontinuity of lamina densa with basket weaving pattern under EM.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "53",
+    "text_length_chars": 3589,
+    "num_annotations": 48,
+    "conversion_date": "2026-04-20T06:13:55.471412+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000093",
+      "label": "Proteinuria",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2516,
+          "end_char": 2532,
+          "text_snippet": "3(+) proteinuria"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000097",
+      "label": "Focal segmental glomerulosclerosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 3297,
+          "end_char": 3338,
+          "text_snippet": "focal segmental glomerulonephritis (FSGS)"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000365",
+      "label": "Hearing impairment",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1020,
+          "end_char": 1042,
+          "text_snippet": "bilateral hearing loss"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000407",
+      "label": "Sensorineural hearing impairment",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2749,
+          "end_char": 2792,
+          "text_snippet": "severe bilateral sensorineural hearing loss"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000822",
+      "label": "Hypertension",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000980",
+      "label": "Pallor",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001640",
+      "label": "Cardiomegaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2436,
+          "end_char": 2448,
+          "text_snippet": "cardiomegaly"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001653",
+      "label": "Mitral regurgitation",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 3096,
+          "end_char": 3121,
+          "text_snippet": "mild mitral regurgitation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001712",
+      "label": "Left ventricular hypertrophy",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2361,
+          "end_char": 2389,
+          "text_snippet": "left ventricular hypertrophy"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001730",
+      "label": "Progressive hearing impairment",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 400,
+          "end_char": 1042,
+          "text_snippet": "progressive loss of appetite. Family history included smoky urine in her younger brother in his childhood, who died in an accident. On general survey, the patient was conscious and alert. She was dyspnoeic and febrile. Severe pallor was present with mild pedal oedema. Blood pressure was 180/100 mm Hg and pulse rate of 116/min regular. No evidence of jaundice, clubbing cyanosis or lymphadenopathy was found. Physical examination revealed bibasilar end-inspiratory crepitations in lungs and suprapubic tenderness. There was no hepatosplenomegaly or ascites. Cardiac examination was normal. She was found to have severe bilateral hearing loss"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001895",
+      "label": "Normochromic anemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1905,
+          "end_char": 1925,
+          "text_snippet": "normochromic anaemia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001897",
+      "label": "Normocytic anemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1894,
+          "end_char": 1925,
+          "text_snippet": "normocytic normochromic anaemia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001903",
+      "label": "Anemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002013",
+      "label": "Vomiting",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 100,
+          "end_char": 108,
+          "text_snippet": "vomiting"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002027",
+      "label": "Abdominal pain",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 892,
+          "end_char": 913,
+          "text_snippet": "suprapubic tenderness"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002094",
+      "label": "Dyspnea",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002149",
+      "label": "Hyperuricemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002901",
+      "label": "Hypocalcemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0003138",
+      "label": "Increased blood urea nitrogen",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0003259",
+      "label": "Elevated circulating creatinine concentration",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1996,
+          "end_char": 2023,
+          "text_snippet": "serum creatinine 11.2 mg/dL"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004396",
+      "label": "Poor appetite",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 412,
+          "end_char": 428,
+          "text_snippet": "loss of appetite"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0005564",
+      "label": "Absence of renal corticomedullary differentiation",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2950,
+          "end_char": 2990,
+          "text_snippet": "loss of corticomedullary differentiation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0008625",
+      "label": "Severe sensorineural hearing impairment",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2756,
+          "end_char": 2792,
+          "text_snippet": "bilateral sensorineural hearing loss"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010741",
+      "label": "Pedal edema",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 655,
+          "end_char": 667,
+          "text_snippet": "pedal oedema"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0011134",
+      "label": "Low-grade fever",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 71,
+          "end_char": 86,
+          "text_snippet": "low-grade fever"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0011273",
+      "label": "Anisocytosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1931,
+          "end_char": 1948,
+          "text_snippet": "mild anisocytosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0011501",
+      "label": "Anterior lenticonus",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1338,
+          "end_char": 1368,
+          "text_snippet": "bilateral anterior lentiglobus"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0011502",
+      "label": "Posterior lenticonus",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1374,
+          "end_char": 1394,
+          "text_snippet": "posterior lenticonus"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0011527",
+      "label": "Lentiglobus",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0011703",
+      "label": "Sinus tachycardia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2326,
+          "end_char": 2343,
+          "text_snippet": "sinus tachycardia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0011897",
+      "label": "Neutrophilia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1798,
+          "end_char": 1812,
+          "text_snippet": "82% polymorphs"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012085",
+      "label": "Pyuria",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0012461",
+      "label": "Bacteriuria",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0012586",
+      "label": "Bilateral renal atrophy",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2834,
+          "end_char": 2862,
+          "text_snippet": "bilateral contracted kidneys"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012587",
+      "label": "Macroscopic hematuria",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0012614",
+      "label": "Abnormal urine cytology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1845,
+          "end_char": 2629,
+          "text_snippet": "puscular volume 83.3 fL. Peripheral smear showed normocytic normochromic anaemia with mild anisocytosis. Fasting sugar 78 mg/dL, blood urea 325 mg/dL, serum creatinine 11.2 mg/dL and uric acid 8.3 mg/dL. Liver function tests were within normal limit as were serum electrolytes, except serum calcium (conc.) 5.8 mg/dL (adjusted with serum albumin). Lipid profile and iron profile were also normal. HIV and viral markers for HbsAg and hepatitis C virus were non-reactive. ECG showed sinus tachycardia with features of left ventricular hypertrophy and chest X-ray posteroanterior view revealed cardiomegaly. Urinalysis showed full field of pus cells with 35–40 RBCs/hpf and 3(+) proteinuria. Urine samples for cultures were sent which reported pure growth of Escherichia coli. Spot urine"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0025005",
+      "label": "Thickening of glomerular capillary wall",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0025242",
+      "label": "Dot-and-blot retinal hemorrhage",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0012045",
+      "label": "Retinal flecks",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1515,
+          "end_char": 1606,
+          "text_snippet": "peripheral retina revealed multiple yellowish white lesion-like flecks in the mid-periphery"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0031998",
+      "label": "Late inspiratory crackles",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 840,
+          "end_char": 887,
+          "text_snippet": "bibasilar end-inspiratory crepitations in lungs"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0032037",
+      "label": "Mildly reduced visual acuity",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0033132",
+      "label": "Renal cortical hyperechogenicity",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2914,
+          "end_char": 2945,
+          "text_snippet": "increased cortical echogenecity"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0033485",
+      "label": "Glomerular basement membrane disruption",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 3396,
+          "end_char": 3438,
+          "text_snippet": "disruption of glomerular basement membrane"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0033803",
+      "label": "Sub-lamina densa cleavage",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 3522,
+          "end_char": 3551,
+          "text_snippet": "discontinuity of lamina densa"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100518",
+      "label": "Dysuria",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 161,
+          "end_char": 168,
+          "text_snippet": "dysuria"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100519",
+      "label": "Anuria",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 124,
+          "end_char": 130,
+          "text_snippet": "anuria"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:4000141",
+      "label": "Left ventricular dilatation",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 3059,
+          "end_char": 3090,
+          "text_snippet": "dilated left ventricular cavity"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:6000027",
+      "label": "Oil-drop brown pigmentation of the corneal limbus",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1435,
+          "end_char": 1451,
+          "text_snippet": "oil droplet sign"
+        }
+      ]
+    }
+  ]
+}

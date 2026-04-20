@@ -1,0 +1,244 @@
+{
+  "doc_id": "GSC_49",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "We report on 44 patients (18 with additional affected family members), with congenital distal limb contractures identified from a large study of over 350 patients with congenital joint contractures. Fourteen propositi (seven familial cases, seven isolated cases) had a newly recognized form of arthrogryposis, which we have designated distal arthrogryposis type 1, with the predominant manifestations of autosomal dominant inheritance; tightly clenched fists at birth, with medially overlapping fingers, ulnar deviation, and camptodactyly in adults; and positional foot deformities. Contractures at other major joints are variable. There are no associated visceral anomalies; intelligence is normal. There can be marked intrafamilial and interfamilial variability. Twenty-two propositi with similar distal contractures had additional findings and were classified into five subcategories of distal arthrogryposis (type IIA-E). Among type II patients cleft palate, cleft lip, small tongue, trismus, ptosis, epicanthal folds, keratoconus, short stature, scoliosis, a unique hand position, and dull normal intelligence were seen. These characteristics were seen in various combinations and patterns and allowed sorting into groups that were the basis for the categorization. The remaining eight propositi were recognized to have previously described conditions with distal contractures and autosomal dominant inheritance, ie, the Freeman-Sheldon syndrome, trismus-pseudo-camptodactyly syndrome, congenital contractural arachnodactyly, and familial camptodactyly. Pathogenetically we postulate similar underlying defects of abnormal tendon attachments, attenuation, and absence; careful nosologic comparisons are important for prognostic counseling and habilitative management.",
+  "metadata": {
+    "dataset": "GSC",
+    "original_dataset": "GSC",
+    "original_doc_id": "7039311",
+    "text_length_chars": 1772,
+    "num_annotations": 19,
+    "conversion_date": "2026-04-20T06:13:55.489960+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0002804",
+      "label": "Arthrogryposis multiplex congenita",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 294,
+          "end_char": 308,
+          "text_snippet": "arthrogryposis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 404,
+          "end_char": 434,
+          "text_snippet": "autosomal dominant inheritance"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012385",
+      "label": "Camptodactyly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 525,
+          "end_char": 548,
+          "text_snippet": "camptodactyly in adults"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0410030",
+      "label": "Cleft lip",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 963,
+          "end_char": 972,
+          "text_snippet": "cleft lip"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000175",
+      "label": "Cleft palate",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 949,
+          "end_char": 961,
+          "text_snippet": "cleft palate"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001166",
+      "label": "Arachnodactyly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1491,
+          "end_char": 1529,
+          "text_snippet": "congenital contractural arachnodactyly"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003121",
+      "label": "Limb joint contracture",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 76,
+          "end_char": 111,
+          "text_snippet": "congenital distal limb contractures"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0005684",
+      "label": "Distal arthrogryposis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 335,
+          "end_char": 363,
+          "text_snippet": "distal arthrogryposis type 1"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000286",
+      "label": "Epicanthus",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1005,
+          "end_char": 1021,
+          "text_snippet": "epicanthal folds"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000563",
+      "label": "Keratoconus",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1023,
+          "end_char": 1034,
+          "text_snippet": "keratoconus"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010557",
+      "label": "Overlapping fingers",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 474,
+          "end_char": 502,
+          "text_snippet": "medially overlapping fingers"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0005656",
+      "label": "Positional foot deformity",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 554,
+          "end_char": 581,
+          "text_snippet": "positional foot deformities"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000508",
+      "label": "Ptosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 997,
+          "end_char": 1003,
+          "text_snippet": "ptosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002650",
+      "label": "Scoliosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1051,
+          "end_char": 1060,
+          "text_snippet": "scoliosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004322",
+      "label": "Short stature",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1036,
+          "end_char": 1049,
+          "text_snippet": "short stature"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000171",
+      "label": "Microglossia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 974,
+          "end_char": 986,
+          "text_snippet": "small tongue"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001188",
+      "label": "Hand clenching",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 436,
+          "end_char": 458,
+          "text_snippet": "tightly clenched fists"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000211",
+      "label": "Trismus",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 988,
+          "end_char": 995,
+          "text_snippet": "trismus"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009465",
+      "label": "Ulnar deviation of finger",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 504,
+          "end_char": 519,
+          "text_snippet": "ulnar deviation"
+        }
+      ]
+    }
+  ]
+}

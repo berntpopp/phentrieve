@@ -1,0 +1,130 @@
+{
+  "doc_id": "CSC_103",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A female patient in her late 60s (a second-degree relative of patients 1 and 2) was found to harbour the same TGFBR1 mutation through cascade testing within her family. She had a recent diagnosis of left hemidiaphragm paralysis. The examination was notable for hypermobility, striae atrophica, pectus deformity, downsloping palpebral fissures, micrognathia, bifid uvula, tall palate, bluish sclera, flat feet, and soft, velvety and translucent skin with visible veins. Head to pelvis imaging demonstrated aortic root dilation measuring 44 mm. Mild carotid and vertebral artery tortuosity were noted, and in the abdomen, there was a 12 mm jejunal artery aneurysm at a bifurcation point, and several smaller mesenteric branch aneurysms measuring 4–6 mm (figure 3). The patient did not have any high-risk features for aortic dissection and a shared decision was made to continue regular imaging surveillance of the dilated aortic root with a surgical threshold of ≥45 mm.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "103",
+    "text_length_chars": 968,
+    "num_annotations": 18,
+    "conversion_date": "2026-04-20T06:13:55.479199+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000193",
+      "label": "Bifid uvula",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000218",
+      "label": "High palate",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000347",
+      "label": "Micrognathia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000494",
+      "label": "Downslanted palpebral fissures",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000592",
+      "label": "Blue sclerae",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000766",
+      "label": "Abnormal sternum morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000977",
+      "label": "Soft skin",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001015",
+      "label": "Prominent superficial veins",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001065",
+      "label": "Striae distensae",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001382",
+      "label": "Joint hypermobility",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001763",
+      "label": "Pes planus",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002616",
+      "label": "Aortic root aneurysm",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0005302",
+      "label": "Carotid artery tortuosity",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0006597",
+      "label": "Diaphragmatic paralysis",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0010648",
+      "label": "Dermal translucency",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0011934",
+      "label": "Dilatation of mesenteric artery",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0033981",
+      "label": "Vertebral artery tortuosity",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 560,
+          "end_char": 587,
+          "text_snippet": "vertebral artery tortuosity"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100859",
+      "label": "Dilatation of superior mesenteric artery",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    }
+  ]
+}

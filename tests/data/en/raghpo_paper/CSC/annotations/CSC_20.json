@@ -1,0 +1,208 @@
+{
+  "doc_id": "CSC_20",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A 15-year-old boy presented with progressive proximal weakness of the lower limbs starting at 4 years of age followed by involvement of the upper limbs. He is the product of a consanguineous marriage; he had a family history of similar disease in a second-degree cousin and also had a history of delayed motor developmental milestones since birth. Clinically, he had flaccid quadriparesis with wasting and contractures without any sensory or neurological involvement. His weakness worsened leading to an inability to walk without support by the age of 9 and total wheelchair dependence by the age of 12. He was frequently admitted to hospital with chest infections. The patient's creatine kinase was 2600 IU/L (normal 50–150 IU/L) and muscle biopsy from left quadriceps showed rounded small muscle fibres with evidence of degeneration and an absence of dystrophin protein. He was diagnosed as a case of duchenne muscular dystrophy. He is presently bed bound with weakness and contractures of all limbs and spinal deformities as shown in figure 1. He developed scoliosis at the age of 12 which has gradually worsened to the present state as shown in figures 2 and 3.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "20",
+    "text_length_chars": 1165,
+    "num_annotations": 20,
+    "conversion_date": "2026-04-20T06:13:55.467863+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001270",
+      "label": "Motor delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 296,
+          "end_char": 334,
+          "text_snippet": "delayed motor developmental milestones"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001324",
+      "label": "Muscle weakness",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 54,
+          "end_char": 62,
+          "text_snippet": "weakness"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002273",
+      "label": "Tetraparesis",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002540",
+      "label": "Inability to walk",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 504,
+          "end_char": 521,
+          "text_snippet": "inability to walk"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002650",
+      "label": "Scoliosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002783",
+      "label": "Recurrent lower respiratory tract infections",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 648,
+          "end_char": 664,
+          "text_snippet": "chest infections"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003202",
+      "label": "Skeletal muscle atrophy",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0003236",
+      "label": "Elevated circulating creatine kinase concentration",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0003391",
+      "label": "Gowers sign",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0003484",
+      "label": "Upper limb muscle weakness",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 140,
+          "end_char": 480,
+          "text_snippet": "upper limbs. He is the product of a consanguineous marriage; he had a family history of similar disease in a second-degree cousin and also had a history of delayed motor developmental milestones since birth. Clinically, he had flaccid quadriparesis with wasting and contractures without any sensory or neurological involvement. His weakness"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003560",
+      "label": "Muscular dystrophy",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0003700",
+      "label": "Generalized amyotrophy",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 394,
+          "end_char": 401,
+          "text_snippet": "wasting"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0006532",
+      "label": "Recurrent pneumonia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0007340",
+      "label": "Lower limb muscle weakness",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 70,
+          "end_char": 480,
+          "text_snippet": "lower limbs starting at 4 years of age followed by involvement of the upper limbs. He is the product of a consanguineous marriage; he had a family history of similar disease in a second-degree cousin and also had a history of delayed motor developmental milestones since birth. Clinically, he had flaccid quadriparesis with wasting and contractures without any sensory or neurological involvement. His weakness"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0008443",
+      "label": "Neuropathic spinal arthropathy",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1006,
+          "end_char": 1024,
+          "text_snippet": "spinal deformities"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009073",
+      "label": "Progressive proximal muscle weakness",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 33,
+          "end_char": 62,
+          "text_snippet": "progressive proximal weakness"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0030097",
+      "label": "Absent muscle dystrophin expression",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0031062",
+      "label": "Impaired transferring ability",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 948,
+          "end_char": 957,
+          "text_snippet": "bed bound"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0034392",
+      "label": "Joint contracture",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 406,
+          "end_char": 418,
+          "text_snippet": "contractures"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100295",
+      "label": "Muscle fiber atrophy",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 735,
+          "end_char": 834,
+          "text_snippet": "muscle biopsy from left quadriceps showed rounded small muscle fibres with evidence of degeneration"
+        }
+      ]
+    }
+  ]
+}

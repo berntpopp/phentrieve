@@ -1,0 +1,82 @@
+{
+  "doc_id": "GSC_48",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "The results of a systematic study of the otological aspects in 13 cases of earpit-deafness syndrome are reported. The audiometric, radiological and vestibular findings as well as the results of exploratory tympanotomies with and without stapedectomies are discussed together with the results reported in the literature. A convincing explanation of the poor results of exploratory tympanotomies in cases with mixed hearing loss is not furnished. If the hearing loss is confined to conduction and ankylosis of the stapes or a disconnection of the ossicular chain is suspected, exploratory tympanotomy can be expected to be successful.",
+  "metadata": {
+    "dataset": "GSC",
+    "original_dataset": "GSC",
+    "original_doc_id": "6973119",
+    "text_length_chars": 632,
+    "num_annotations": 6,
+    "conversion_date": "2026-04-20T06:13:55.489928+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000381",
+      "label": "Stapes ankylosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 495,
+          "end_char": 518,
+          "text_snippet": "ankylosis of the stapes"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000405",
+      "label": "Conductive hearing impairment",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0004452",
+      "label": "Abnormality of the middle ear ossicles",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 524,
+          "end_char": 560,
+          "text_snippet": "disconnection of the ossicular chain"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000365",
+      "label": "Hearing impairment",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 414,
+          "end_char": 426,
+          "text_snippet": "hearing loss"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000410",
+      "label": "Mixed hearing impairment",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 408,
+          "end_char": 426,
+          "text_snippet": "mixed hearing loss"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001751",
+      "label": "Abnormal vestibular function",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 148,
+          "end_char": 167,
+          "text_snippet": "vestibular findings"
+        }
+      ]
+    }
+  ]
+}

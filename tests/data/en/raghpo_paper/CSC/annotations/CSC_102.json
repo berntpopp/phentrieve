@@ -1,0 +1,148 @@
+{
+  "doc_id": "CSC_102",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "After patient 1 was diagnosed with LDS, this female was found to harbour the same TGFBR1 variant in her late 50s. Examination detected striae atrophica, soft, velvety and translucent skin with visible veins, varicose veins, bluish sclera, hypertelorism, a broad uvula with a raphe, abnormal teeth enamel, an elongated face, malar hypoplasia and pes planus. Head to pelvis imaging at the time of genetic diagnosis demonstrated internal carotid artery tortuosity, but no aortic or peripheral artery aneurysms. The patient did not return for follow-up until 8 years later when she was in her mid-60s. Surveillance imaging then identified interval development of multiple aneurysms in the mesenteric vasculature. There were two aneurysms of jejunal branches of the SMA, the larger and more distally located measuring 15 mm and the smaller 9 mm (figure 2). There was an additional inferior mesenteric artery (IMA) aneurysm measuring 8 mm. Adjacent mesenteric vessels, coeliac and hepatic arteries were highly tortuous and mildly dilated, and there was ectasia of the femoral vessels and their branches. Cerebral imaging demonstrated markedly tortuous cervical carotid arteries but no aneurysms. The patient’s aortic dimensions remained normal. The patient underwent successful endovascular stenting of the larger of the two jejunal branch aneurysms. Coil embolisation of the smaller more proximal jejunal artery aneurysm was abandoned due to severe branch tortuosity.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "102",
+    "text_length_chars": 1462,
+    "num_annotations": 22,
+    "conversion_date": "2026-04-20T06:13:55.479084+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000272",
+      "label": "Malar flattening",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000276",
+      "label": "Long face",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000316",
+      "label": "Hypertelorism",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000592",
+      "label": "Blue sclerae",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000682",
+      "label": "Abnormal dental enamel morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000977",
+      "label": "Soft skin",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001015",
+      "label": "Prominent superficial veins",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001065",
+      "label": "Striae distensae",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001718",
+      "label": "Mitral stenosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001763",
+      "label": "Pes planus",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002619",
+      "label": "Varicose veins",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0004948",
+      "label": "Vascular tortuosity",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0004950",
+      "label": "Peripheral arterial stenosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0005116",
+      "label": "Arterial tortuosity",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0005302",
+      "label": "Carotid artery tortuosity",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0006689",
+      "label": "Bacterial endocarditis",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0010648",
+      "label": "Dermal translucency",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0010809",
+      "label": "Broad uvula",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0011934",
+      "label": "Dilatation of mesenteric artery",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0035012",
+      "label": "Abnormal femoral artery morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0100858",
+      "label": "Dilatation of celiac artery",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0100860",
+      "label": "Dilatation of Inferior mesenteric artery",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    }
+  ]
+}

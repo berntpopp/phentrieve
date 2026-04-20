@@ -1,0 +1,274 @@
+{
+  "doc_id": "CSC_54",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A 64-year-old male presented to our hospital complaining of polyuria, polydipsia, generalized edema, frequent nocturia and postvoid dribbling. His history included refractory hypertension for 7 years, though he was receiving multiple antihypertensive drugs, including Valsartan (320 mg), Atenolol (50 mg), amlodipine (10 mg), spironolactone (75 mg) and hydrochlorothiazide (75 mg). He also had a history of intracranial haemorrhage with complete recovery. His family history indicated a deceased cousin due to end-stage renal disease. On examination, he had elevated blood pressure (180/90), a distended but soft abdomen and a liver edge palpable 2 cm below the costal ribs. Abdominal ultrasonography revealed abdominal aortic aneurysm (AAA) in addition to multiple cysts in both kidneys. These findings were consistent with the ones in Multi-Slice Computerized Tomography (MSCT), in which three variable-sized cystic lesions were detected in both kidneys with a diameter of 32, 38 and 47 mm. The MSCT also showed the AAA that measured 3.6 cm, in addition to prostate hyperplasia. Furthermore, thorax MSCT images showed multiple aneurysms larger than 22 mm arising from the left anterior descending (LAD) artery, the left circumflex and the right coronary artery. On echocardiography, there was an eccentric left ventricle hypertrophy with an ejection fraction (EF) of 60%, while the electrocardiogram (ECG) uncovered a prominent left axis deviation. Magnetic Resonance Imaging of the brain showed an increased size of the cerebral ventricles in addition to multiple hypertensive lesions of 2–24 mm on Fluid-Attenuated Inversion Recovery and T2-Weighted Image. Laboratory tests revealed high levels of serum creatinine (6 mg/dl), urea (105 mg/dl), haemoglobin (9.1 g/dl) and platelets count (187*103/dl). Twenty-four hours urinalysis showed an additional massive proteinuria of 4200 mg/dl, in addition to a trace of red blood cells without cellular casts in microscopic examination. The patient underwent a coronary catheterization in order to prepare him for renal transplantation, which clearly revealed ecstatic coronary arteries with multiple aneurysmal dilations in the three main coronary arteries.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "54",
+    "text_length_chars": 2204,
+    "num_annotations": 25,
+    "conversion_date": "2026-04-20T06:13:55.471655+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000017",
+      "label": "Nocturia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 110,
+          "end_char": 118,
+          "text_snippet": "nocturia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000103",
+      "label": "Polyuria",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 60,
+          "end_char": 68,
+          "text_snippet": "polyuria"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000822",
+      "label": "Hypertension",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 175,
+          "end_char": 187,
+          "text_snippet": "hypertension"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001712",
+      "label": "Left ventricular hypertrophy",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1308,
+          "end_char": 1334,
+          "text_snippet": "left ventricle hypertrophy"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001903",
+      "label": "Anemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1748,
+          "end_char": 1770,
+          "text_snippet": "haemoglobin (9.1 g/dl)"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001959",
+      "label": "Polydipsia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 70,
+          "end_char": 80,
+          "text_snippet": "polydipsia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002119",
+      "label": "Ventriculomegaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1501,
+          "end_char": 1542,
+          "text_snippet": "increased size of the cerebral ventricles"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002170",
+      "label": "Intracranial hemorrhage",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 407,
+          "end_char": 431,
+          "text_snippet": "intracranial haemorrhage"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002240",
+      "label": "Hepatomegaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 627,
+          "end_char": 673,
+          "text_snippet": "liver edge palpable 2 cm below the costal ribs"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002617",
+      "label": "Vascular dilatation",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2138,
+          "end_char": 2167,
+          "text_snippet": "multiple aneurysmal dilations"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002907",
+      "label": "Microscopic hematuria",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0003138",
+      "label": "Increased blood urea nitrogen",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1687,
+          "end_char": 1746,
+          "text_snippet": "high levels of serum creatinine (6 mg/dl), urea (105 mg/dl)"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003259",
+      "label": "Elevated circulating creatinine concentration",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1687,
+          "end_char": 1718,
+          "text_snippet": "high levels of serum creatinine"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003270",
+      "label": "Abdominal distention",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 594,
+          "end_char": 620,
+          "text_snippet": "distended but soft abdomen"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004959",
+      "label": "Descending thoracic aorta aneurysm",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0005112",
+      "label": "Abdominal aortic aneurysm",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 710,
+          "end_char": 735,
+          "text_snippet": "abdominal aortic aneurysm"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0005562",
+      "label": "Multiple renal cysts",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0007430",
+      "label": "Generalized edema",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 82,
+          "end_char": 99,
+          "text_snippet": "generalized edema"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0008711",
+      "label": "Benign prostatic hyperplasia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1059,
+          "end_char": 1079,
+          "text_snippet": "prostate hyperplasia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012597",
+      "label": "Heavy proteinuria",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1855,
+          "end_char": 1888,
+          "text_snippet": "massive proteinuria of 4200 mg/dl"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0030882",
+      "label": "Coronary artery aneurysm",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0030890",
+      "label": "Hyperintensity of cerebral white matter on MRI",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0031678",
+      "label": "Atherosclerotic lesion",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1567,
+          "end_char": 1587,
+          "text_snippet": "hypertensive lesions"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0033568",
+      "label": "Left axis deviation",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0430034",
+      "label": "Hypertension resistant to conventional therapy",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    }
+  ]
+}

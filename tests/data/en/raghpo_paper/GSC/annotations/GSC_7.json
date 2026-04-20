@@ -1,0 +1,130 @@
+{
+  "doc_id": "GSC_7",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A woman with the autosomal dominant syndrome of preauricular pits, cervical fistulae, and partial deafness gave birth to two children with preauricular pits and severe renal dysgenesis. The facies had some features of the Potter facies of renal agenesis. One child died soon after birth because of pneumothorax and immature development of the lungs. We suggest that all infants with renal agenesis or dysgenesis be examined for preauricular pits because of the high recurrence risk of renal anomalies in families with this syndrome.",
+  "metadata": {
+    "dataset": "GSC",
+    "original_dataset": "GSC",
+    "original_doc_id": "998578",
+    "text_length_chars": 532,
+    "num_annotations": 10,
+    "conversion_date": "2026-04-20T06:13:55.488931+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 17,
+          "end_char": 44,
+          "text_snippet": "autosomal dominant syndrome"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009795",
+      "label": "Branchial fistula",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 67,
+          "end_char": 84,
+          "text_snippet": "cervical fistulae"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000077",
+      "label": "Abnormality of the kidney",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 461,
+          "end_char": 531,
+          "text_snippet": "high recurrence risk of renal anomalies in families with this syndrome"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000271",
+      "label": "Abnormality of the face",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 315,
+          "end_char": 348,
+          "text_snippet": "immature development of the lungs"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000365",
+      "label": "Hearing impairment",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 90,
+          "end_char": 106,
+          "text_snippet": "partial deafness"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002107",
+      "label": "Pneumothorax",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 298,
+          "end_char": 310,
+          "text_snippet": "pneumothorax"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002009",
+      "label": "Potter facies",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0004467",
+      "label": "Preauricular pit",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 48,
+          "end_char": 65,
+          "text_snippet": "preauricular pits"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000104",
+      "label": "Renal agenesis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 239,
+          "end_char": 253,
+          "text_snippet": "renal agenesis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012210",
+      "label": "Abnormal renal morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 161,
+          "end_char": 184,
+          "text_snippet": "severe renal dysgenesis"
+        }
+      ]
+    }
+  ]
+}

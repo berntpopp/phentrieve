@@ -1,0 +1,94 @@
+{
+  "doc_id": "CSC_29",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A 16-year-old Caucasian male patient with HS diagnosed in infancy presented to our emergency department with chest pain. He reported a 4-day history of left-sided chest pain radiating to his shoulder tip with associated lethargy. He had already started a course of clarithromycin prescribed by the general practitioner for a presumed lower respiratory tract infection. There was no other significant medical history and no previous hospital admissions with complications of HS. The patient was fully immunised, except for the pneumococcal vaccination which was not part of the childhood vaccination schedule during the patient's infancy. There was a strong family history of HS; his grandfather, mother and sister were all affected by HS. On presentation, he had a low-grade fever and was mildly tachycardic, but oxygen saturations were 97% in room air. On examination there were no signs of respiratory distress and he was pale, but not visibly icteric. He had a tender palpable spleen measuring 8 cm from the costal edge. Initial blood tests revealed significant anaemia (haemoglobin 56 g/L) and a serum bilirubin of 52 µmol/L. He had a positive antiglobulin test with cold agglutinin disease. The chest X-ray did not show any lobar consolidation, but the abdominal ultrasound scan showed a spleen measuring up to 20 cm with a small established infarct near the inferior pole and a more acute infarct in the mid-pole region.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "29",
+    "text_length_chars": 1426,
+    "num_annotations": 12,
+    "conversion_date": "2026-04-20T06:13:55.468656+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000980",
+      "label": "Pallor",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001254",
+      "label": "Lethargy",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001649",
+      "label": "Tachycardia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001744",
+      "label": "Splenomegaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001903",
+      "label": "Anemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002904",
+      "label": "Hyperbilirubinemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0011134",
+      "label": "Low-grade fever",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0031484",
+      "label": "Cold-induced hemolysis",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0032141",
+      "label": "Precordial pain",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 152,
+          "end_char": 173,
+          "text_snippet": "left-sided chest pain"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0032366",
+      "label": "Positive direct antiglobulin test",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0034336",
+      "label": "Splenic infarction",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0100749",
+      "label": "Chest pain",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    }
+  ]
+}

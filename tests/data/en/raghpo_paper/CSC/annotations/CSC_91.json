@@ -1,0 +1,118 @@
+{
+  "doc_id": "CSC_91",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A woman in her late adolescence with DS was planned for hysteroscopy, dilatation and curettage with Mirena insertion to manage her menstrual cycle and improve control of her catamenial epilepsy associated with DS. Catamenial epilepsy is a sex-specific seizure condition marked by the occurrence of seizure clusters during particular phases of the menstrual cycle due to hormonal fluctuations, largely occurring during the fall of progesterone levels from peak to steady state.12 It is likely that the perimenstrual increase in basal body temperature may also have been contributing to the patient’s seizure occurrences in the setting of DS. The patient was diagnosed with DS in a large tertiary hospital at the age of 5 following seizures since her first year of life, which were initially unilateral prior to becoming GTC and were frequently triggered by temperature fluctuations. This clinical diagnosis was reinforced by an autosomal dominant pattern of SCN1A gene mutation. Neither of the patient’s parents had clinical DS nor were genetic carriers. She and her family have since relocated to a small regional town, where her ongoing follow-up has been conducted through telehealth with her treating neurologist. At baseline, she has limited verbal communication and severe intellectual impairment, relying on full-time care. Her DS is managed by avoiding all seizure triggers (including overexertion, hot water, and infection risk) and medication, including sodium valproate, stiripentol, clobazam, topiramate and cannabidiol. Her epilepsy control has improved over the years, with seizure frequency prior to Mirena insertion occurring approximately once per fortnight, typically GTC in nature lasting around 30 s. Seizures were often associated with menstruation and were extremely distressing for the patient.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "91",
+    "text_length_chars": 1816,
+    "num_annotations": 11,
+    "conversion_date": "2026-04-20T06:13:55.477343+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 927,
+          "end_char": 953,
+          "text_snippet": "autosomal dominant pattern"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001250",
+      "label": "Seizure",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 174,
+          "end_char": 193,
+          "text_snippet": "catamenial epilepsy"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002465",
+      "label": "Poor speech",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1238,
+          "end_char": 1266,
+          "text_snippet": "limited verbal communication"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0006813",
+      "label": "Focal hemiclonic seizure",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0010864",
+      "label": "Intellectual disability, severe",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1271,
+          "end_char": 1301,
+          "text_snippet": "severe intellectual impairment"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0020209",
+      "label": "Hot water-induced seizure",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0025190",
+      "label": "Bilateral tonic-clonic seizure with generalized onset",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0025220",
+      "label": "Triggered by menstruation",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 315,
+          "end_char": 362,
+          "text_snippet": "during particular phases of the menstrual cycle"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0025377",
+      "label": "Triggered by exertion",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0032892",
+      "label": "Infection-related seizure",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0033349",
+      "label": "Seizure cluster",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 298,
+          "end_char": 314,
+          "text_snippet": "seizure clusters"
+        }
+      ]
+    }
+  ]
+}

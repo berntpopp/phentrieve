@@ -1,0 +1,250 @@
+{
+  "doc_id": "CSC_88",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A 21-year-old man of Afro-Germanic descent and known background of SCD of Sickle Cell Anaemia (HbSS)-type presented to the accident and emergency department with worsening body pain. On examination, he was found tachycardic, tachypnoeic, feverish and drowsy. His haemoglobin level had dropped from a baseline of 97 to 72 g/L on presentation, then further down to 55 g/L within less than 4 hours. The patient was admitted to the intensive treatment unit (ITU) for red blood cell (RBC) exchange transfusion and later required continuous positive airway pressure ventilatory support, as the arterial blood gasses showed rising CO2 levels. CT of the chest showed bilateral lower lobe consolidations. Despite these measures, he had a fluctuating level of consciousness that was 5–7 initially on the Glasgow Coma Scale then fell to 3. Due to a drop in his consciousness, falling respiratory rates and apnoeic spells, he was intubated and mechanically ventilated. Concerns about his level of consciousness led to neuroimaging with a CT scan of the head. The scan revealed a subacute infarct in the right frontal region. As the patient’s reduced conscious level did not improve and seemed disproportionate to the size and area of his stroke, MRI imaging of the brain was also performed 4 days after the CT scan. The MRI confirmed the right frontal lobe infarct and revealed widespread lesions in the deep white matter in both hemispheres in keeping with cerebral fat embolism (CFE). A normal MR angiogram (MRA) of the cerebral vasculature ruled out moyamoya-like vasculopathy, also favouring the diagnosis of CFE. Interestingly, MRI imaging did not show any evidence of silent cerebral infarcts, an otherwise common feature in HbSS disease. Clinical examination revealed mild tetraparesis, more pronounced on the left with altered sensation, proprioception and neuropathic pain in the lower limbs. Neurological investigations demonstrated critical illness neuromyopathy based on a mixed electromyography (EMG) picture. Cardiac investigations with a bubble echocardiogram disclosed a patent foramen ovale (PFO). He also had severe painful flexion contractures of both knees and moderate flexion contractures of both hips. Lower limb X-rays showed extensive heterotopic ossification (HO) around his knee joints. Worthy of note, he had bilateral painful knee swellings 3 weeks beforehand, but X-rays found no bony abnormality at the time. He was managed with intravenous pamidronate, as well as naproxen, pregabalin and transdermal fentanyl patches. He continued on his established regime for SCD with hydroxycarbamide (18 mg/kg) 1 g from Monday to Friday and 1.5 g on Saturday and Sunday, along with penicillin prophylaxis.  When better, the patient was transferred to a cardiac centre where he underwent transcatheter closure of the PFO with a 35 mm Occlutech ASD Occlude (Occlutech International AB, Helsingborg, Sweden). On his return from cardiac treatment, he was reviewed by the orthopaedic team for consideration for surgery for his severe bilateral knee HO; surgery was deemed futile at that time due to the risk of worsening recurrence and possibility of limiting the patient to a wheelchair long term. Furthermore, on reviewing the patient, his cognitive impairment became apparent as he was unable to retain or recall information or previous conversations for reasonable lengths of time and he found decision-making challenging. This factor added further complexity to his rehabilitation.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "88",
+    "text_length_chars": 3489,
+    "num_annotations": 24,
+    "conversion_date": "2026-04-20T06:13:55.476839+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001371",
+      "label": "Flexion contracture",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2115,
+          "end_char": 2150,
+          "text_snippet": "severe painful flexion contractures"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001649",
+      "label": "Tachycardia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001655",
+      "label": "Patent foramen ovale",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001903",
+      "label": "Anemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 263,
+          "end_char": 292,
+          "text_snippet": "haemoglobin level had dropped"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001945",
+      "label": "Fever",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002104",
+      "label": "Apnea",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 895,
+          "end_char": 909,
+          "text_snippet": "apnoeic spells"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002273",
+      "label": "Tetraparesis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1768,
+          "end_char": 1780,
+          "text_snippet": "tetraparesis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002329",
+      "label": "Drowsiness",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002354",
+      "label": "Memory impairment",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 3292,
+          "end_char": 3330,
+          "text_snippet": "unable to retain or recall information"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002789",
+      "label": "Tachypnea",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0003198",
+      "label": "Myopathy",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1931,
+          "end_char": 1961,
+          "text_snippet": "critical illness neuromyopathy"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003273",
+      "label": "Hip contracture",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2178,
+          "end_char": 2211,
+          "text_snippet": "flexion contractures of both hips"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004887",
+      "label": "Respiratory failure requiring assisted ventilation",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0006380",
+      "label": "Knee flexion contracture",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2130,
+          "end_char": 2164,
+          "text_snippet": "flexion contractures of both knees"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0006858",
+      "label": "Impaired distal proprioception",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1815,
+          "end_char": 1888,
+          "text_snippet": "altered sensation, proprioception and neuropathic pain in the lower limbs"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002936",
+      "label": "Distal sensory impairment",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1815,
+          "end_char": 1889,
+          "text_snippet": "altered sensation, proprioception and neuropathic pain in the lower limbs."
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0007159",
+      "label": "Fluctuations in consciousness",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 729,
+          "end_char": 763,
+          "text_snippet": "fluctuating level of consciousness"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0011986",
+      "label": "Ectopic ossification",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0012531",
+      "label": "Pain",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0025722",
+      "label": "Cerebral infarct",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1067,
+          "end_char": 1112,
+          "text_snippet": "subacute infarct in the right frontal region."
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0030839",
+      "label": "Knee pain",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0032177",
+      "label": "Parenchymal consolidation",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 659,
+          "end_char": 694,
+          "text_snippet": "bilateral lower lobe consolidations"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100543",
+      "label": "Cognitive impairment",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 3245,
+          "end_char": 3265,
+          "text_snippet": "cognitive impairment"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:6000040",
+      "label": "Neuropathic pain",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1853,
+          "end_char": 1869,
+          "text_snippet": "neuropathic pain"
+        }
+      ]
+    }
+  ]
+}

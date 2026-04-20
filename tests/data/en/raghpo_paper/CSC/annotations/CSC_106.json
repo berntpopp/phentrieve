@@ -1,0 +1,112 @@
+{
+  "doc_id": "CSC_106",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A 15-year-old female with a nonsignificant past medical history and no previous hospital admissions was initially brought to the emergency department in a post-ictal state following her first-ever tonic–clonic seizure, which lasted approximately three minutes. The seizure was associated with tongue biting, frothy oral secretions, and urinary incontinence. On physical examination, she appeared drowsy but was otherwise unremarkable. Initial laboratory workup, including a CBC, showed no abnormalities except for microcytic anemia. A head CT scan revealed no abnormalities. A plan was made for admission to observe and conduct further investigations, including MRI and an EEG. However, she was discharged the same day against medical advice, and follow-up was lost. Two months later, she was brought back to the emergency department after experiencing generalized convulsive status epilepticus (GCSE). Upon arrival, her parents reported a 20-minute episode of tonic-clonic activity with loss of consciousness. The patient had no recent history of infection, head trauma, drug use, travel, tick bites, academic decline, childhood febrile seizures, or a family history of thyroid disease or epilepsy/seizure activity. In infancy, there were no reports of seizures or febrile seizures. She appeared to be of appropriate weight and height for her age, with good nutritional status and normal cognitive development. During the initial resuscitation, the patient received two doses of intravenous diazepam at 0.15 mg/kg each, followed by a loading dose of phenytoin at 20 mg/kg over 30 min with no response. Due to continuous seizure activity after 20 min, a rapid sequence intubation using general anesthesia was performed, and the patient was transferred to the medical ICU. A thorough investigation was conducted to identify the cause of the status epilepticus. This included CBC, comprehensive metabolic profile, random blood glucose, infectious workup, urine toxicology screen, CSF analysis and cultures, ECG, and cardiac echocardiography, all of which yielded normal results. Head CT and brain MRI with IV contrast (Fig. 1 A and B) also showed no abnormalities, and the EEG was unremarkable. An abdominal ultrasound was done and found no abnormalities",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "106",
+    "text_length_chars": 2252,
+    "num_annotations": 9,
+    "conversion_date": "2026-04-20T06:13:55.479532+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000020",
+      "label": "Urinary incontinence",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001935",
+      "label": "Microcytic anemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 514,
+          "end_char": 531,
+          "text_snippet": "microcytic anemia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002069",
+      "label": "Bilateral tonic-clonic seizure",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 961,
+          "end_char": 1145,
+          "text_snippet": "tonic-clonic activity with loss of consciousness. The patient had no recent history of infection, head trauma, drug use, travel, tick bites, academic decline, childhood febrile seizure"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002133",
+      "label": "Status epilepticus",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 876,
+          "end_char": 894,
+          "text_snippet": "status epilepticus"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002329",
+      "label": "Drowsiness",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 396,
+          "end_char": 402,
+          "text_snippet": "drowsy"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0007185",
+      "label": "Loss of consciousness",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 988,
+          "end_char": 1009,
+          "text_snippet": "loss of consciousness"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012169",
+      "label": "Self-biting",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 293,
+          "end_char": 306,
+          "text_snippet": "tongue biting"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0032661",
+      "label": "Generalized convulsive status epilepticus",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0100755",
+      "label": "Abnormality of salivation",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 308,
+          "end_char": 330,
+          "text_snippet": "frothy oral secretions"
+        }
+      ]
+    }
+  ]
+}

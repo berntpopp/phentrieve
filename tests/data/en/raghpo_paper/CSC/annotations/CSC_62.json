@@ -1,0 +1,130 @@
+{
+  "doc_id": "CSC_62",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A 15-year-old Chinese boy who had been experiencing headache and vomiting for 1 week was admitted to the hospital. Ophthalmic examination did not reveal any obvious abnormalities, there were no neurological symptoms, and he did not exhibit short stature. His clinical symptoms were sudden and severe, and mainly manifested as hypertension and severe kidney failure. His blood pressure was 170/123 mmHg, his serum creatinine level was 1,026.2 μmol/L, and no prior symptoms were reported. His parents were consanguineous (first cousins), and his older brother had succumbed to an undiagnosed kidney disease at 8 years of age, without a kidney biopsy.  Ultrasonography depicted small kidneys and diffuse lesions (85–90 mm in diameter) in both kidneys, but no cystic enlargement of the kidneys. Laboratory tests revealed a hemoglobin level of 67 g/L and a urinary protein level of 1.05 g/24 h. Chest computed tomography was normal. Laboratory investigations on admission included screening for hepatitis B virus surface antigen, antinuclear antibodies, anti-double-stranded DNA antibodies, anti-glomerular basement membrane antibodies, and anti-neutrophil cytoplasmic antibodies, all of which were negative. The patient was started on hemodialysis. Fortunately he received a kidney transplant after 2 months of dialysis. He is currently recovering well, with a serum creatinine level of 117 μmol/L and an estimated glomerular filtration rate of 79.6 ml/min/1.73 mm2.  Laboratory results included urinary protein 1.05 g/24 h, urine erythrocyte count 5/high-power field, serum creatinine 1,026.2 μmol/L, and an estimated glomerular filtration rate of 5.8 ml/min/1.73 mm2. Extrarenal features mainly manifested as hypertension and moderate anemia.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "62",
+    "text_length_chars": 1740,
+    "num_annotations": 11,
+    "conversion_date": "2026-04-20T06:13:55.472630+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000083",
+      "label": "Renal insufficiency",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000089",
+      "label": "Renal hypoplasia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 675,
+          "end_char": 688,
+          "text_snippet": "small kidneys"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000093",
+      "label": "Proteinuria",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 852,
+          "end_char": 889,
+          "text_snippet": "urinary protein level of 1.05 g/24 h."
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000790",
+      "label": "Hematuria",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000822",
+      "label": "Hypertension",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 326,
+          "end_char": 338,
+          "text_snippet": "hypertension"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001903",
+      "label": "Anemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1724,
+          "end_char": 1739,
+          "text_snippet": "moderate anemia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002013",
+      "label": "Vomiting",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 65,
+          "end_char": 73,
+          "text_snippet": "vomiting"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002315",
+      "label": "Headache",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 52,
+          "end_char": 60,
+          "text_snippet": "headache"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003259",
+      "label": "Elevated circulating creatinine concentration",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 403,
+          "end_char": 448,
+          "text_snippet": "his serum creatinine level was 1,026.2 μmol/L"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012210",
+      "label": "Abnormal renal morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0012213",
+      "label": "Decreased glomerular filtration rate",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1605,
+          "end_char": 1664,
+          "text_snippet": "estimated glomerular filtration rate of 5.8 ml/min/1.73 mm2"
+        }
+      ]
+    }
+  ]
+}

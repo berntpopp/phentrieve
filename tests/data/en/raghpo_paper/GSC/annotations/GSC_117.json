@@ -1,0 +1,178 @@
+{
+  "doc_id": "GSC_117",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "Popliteal pterygium syndrome (PPS) and Van der Woude syndrome (VWS) are caused by mutations in the gene interferon regulatory factor 6 (IRF6). Skeletal, genital malformations and involvement of the skin occur in PPS and orofacial clefting and lip pits occur in both. We report on a patient with unilateral cleft lip and palate, ankyloblepharon, paramedian lip pits, unilateral renal aplasia, and a coronal hypospadias. By sequencing IRF6, we detected a novel missense mutation (Arg339Ile). The other family members were unaffected and had no IRF6 mutations, including the patient's brother who was also born with hypospadias. The patient and his brother were both conceived by in vitro fertilization (IVF). It is discussed whether the renal malformation in the patient is related to the IVF procedure or to the IRF6 mutation.",
+  "metadata": {
+    "dataset": "GSC",
+    "original_dataset": "GSC",
+    "original_doc_id": "18478600",
+    "text_length_chars": 825,
+    "num_annotations": 15,
+    "conversion_date": "2026-04-20T06:13:55.491686+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0009755",
+      "label": "Ankyloblepharon",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 328,
+          "end_char": 343,
+          "text_snippet": "ankyloblepharon"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0410030",
+      "label": "Cleft lip",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 306,
+          "end_char": 315,
+          "text_snippet": "cleft lip"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0008743",
+      "label": "Coronal hypospadias",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 398,
+          "end_char": 417,
+          "text_snippet": "coronal hypospadias"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000047",
+      "label": "Hypospadias",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 406,
+          "end_char": 417,
+          "text_snippet": "hypospadias"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000951",
+      "label": "Abnormality of the skin",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 179,
+          "end_char": 202,
+          "text_snippet": "involvement of the skin"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100267",
+      "label": "Lip pit",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 243,
+          "end_char": 251,
+          "text_snippet": "lip pits"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000202",
+      "label": "Orofacial cleft",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 220,
+          "end_char": 238,
+          "text_snippet": "orofacial clefting"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100269",
+      "label": "Paramedian lip pit",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 345,
+          "end_char": 364,
+          "text_snippet": "paramedian lip pits"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009756",
+      "label": "Popliteal pterygium",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 0,
+          "end_char": 34,
+          "text_snippet": "Popliteal pterygium syndrome (PPS)"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012210",
+      "label": "Abnormal renal morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 735,
+          "end_char": 753,
+          "text_snippet": "renal malformation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000924",
+      "label": "Abnormality of the skeletal system",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000078",
+      "label": "Abnormality of the genital system",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0100333",
+      "label": "Unilateral cleft lip",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 295,
+          "end_char": 326,
+          "text_snippet": "unilateral cleft lip and palate"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100334",
+      "label": "Unilateral cleft palate",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0008718",
+      "label": "Unilateral renal dysplasia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 366,
+          "end_char": 390,
+          "text_snippet": "unilateral renal aplasia"
+        }
+      ]
+    }
+  ]
+}

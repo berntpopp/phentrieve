@@ -1,0 +1,136 @@
+{
+  "doc_id": "GSC_4",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "Three families are presented, one with branchio-oto-renal dysplasia (BOR) and two with branchio-oto dysplasia (BO). The former syndrome is characterized by external ear malformations, cervical fistulae, mixed hearing loss and renal anomalies of varying severity. The latter syndrome differs in that there are no renal anomalies and that the sensorineural component of the hearing loss may be absent. The external ear malformations are quite variable in both syndromes. Evidence is presented which supports the idea that these two syndromes are not phenotypic variants of the same autosomal dominant mutation but distinct disease entities. The BOR syndrome appears to belong to a larger group of hereditary ear dysplasia-renal adysplasia syndromes that must be carefully ruled out in all patients with familial branchial arch malformations as well as in the parents and siblings of infants with \"Potter facies\" in the presence of auricular malformation and renal adysplasia.",
+  "metadata": {
+    "dataset": "GSC",
+    "original_dataset": "GSC",
+    "original_doc_id": "657583",
+    "text_length_chars": 973,
+    "num_annotations": 10,
+    "conversion_date": "2026-04-20T06:13:55.488844+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000377",
+      "label": "Abnormal pinna morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 929,
+          "end_char": 951,
+          "text_snippet": "auricular malformation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 580,
+          "end_char": 607,
+          "text_snippet": "autosomal dominant mutation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009795",
+      "label": "Branchial fistula",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 184,
+          "end_char": 201,
+          "text_snippet": "cervical fistulae"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000356",
+      "label": "Abnormality of the outer ear",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 156,
+          "end_char": 182,
+          "text_snippet": "external ear malformations"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009794",
+      "label": "Branchial anomaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 801,
+          "end_char": 838,
+          "text_snippet": "familial branchial arch malformations"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000365",
+      "label": "Hearing impairment",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 209,
+          "end_char": 221,
+          "text_snippet": "hearing loss"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000410",
+      "label": "Mixed hearing impairment",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 203,
+          "end_char": 221,
+          "text_snippet": "mixed hearing loss"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002009",
+      "label": "Potter facies",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 895,
+          "end_char": 908,
+          "text_snippet": "Potter facies"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000110",
+      "label": "Renal dysplasia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 720,
+          "end_char": 736,
+          "text_snippet": "renal adysplasia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000077",
+      "label": "Abnormality of the kidney",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 226,
+          "end_char": 241,
+          "text_snippet": "renal anomalies"
+        }
+      ]
+    }
+  ]
+}

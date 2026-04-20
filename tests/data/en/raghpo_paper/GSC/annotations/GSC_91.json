@@ -1,0 +1,172 @@
+{
+  "doc_id": "GSC_91",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "In addition to craniofacial, auricular, ophthalmologic, and oral anomalies, the distinctive phenotype of the branchio-oculo-facial (BOF) syndrome (MIM 113620) includes skin defects in the neck or infra/supra-auricular region. These unusual areas of thin, erythematous wrinkled skin differ from the discrete cervical pits, cysts, and fistulas of the branchio-oto-renal (BOR) syndrome (MIM 113650). Although the BOF and BOR syndromes are sufficiently distinctive that they should not be confused, both can be associated with nasolacrimal duct stenosis, deafness, prehelical pits, malformed pinna, and renal anomalies. Furthermore, a reported father and son [Legius et al., 1990, Clin Genet 37:347-500] had features of both conditions. It was not clear whether they had an atypical presentation of either BOR or BOF syndrome, or represented a private syndrome. In light of these issues, we selected the BOR locus (EYA1) as a possible gene mutation for the BOF syndrome. In five BOF patients, there were no mutations detected in the EYA1 gene, suggesting that it is not allelic to the BOR syndrome.",
+  "metadata": {
+    "dataset": "GSC",
+    "original_dataset": "GSC",
+    "original_doc_id": "10767004",
+    "text_length_chars": 1094,
+    "num_annotations": 13,
+    "conversion_date": "2026-04-20T06:13:55.491037+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0100678",
+      "label": "Premature skin wrinkling",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 268,
+          "end_char": 281,
+          "text_snippet": "wrinkled skin"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000377",
+      "label": "Abnormal pinna morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 29,
+          "end_char": 74,
+          "text_snippet": "auricular, ophthalmologic, and oral anomalies"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000271",
+      "label": "Abnormality of the face",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 15,
+          "end_char": 74,
+          "text_snippet": "craniofacial, auricular, ophthalmologic, and oral anomalies"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009796",
+      "label": "Branchial cyst",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 322,
+          "end_char": 327,
+          "text_snippet": "cysts"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000365",
+      "label": "Hearing impairment",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 551,
+          "end_char": 559,
+          "text_snippet": "deafness"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009795",
+      "label": "Branchial fistula",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 333,
+          "end_char": 341,
+          "text_snippet": "fistulas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0007678",
+      "label": "Lacrimal duct stenosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 523,
+          "end_char": 549,
+          "text_snippet": "nasolacrimal duct stenosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012372",
+      "label": "Abnormal eye morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 40,
+          "end_char": 74,
+          "text_snippet": "ophthalmologic, and oral anomalies"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000153",
+      "label": "Abnormality of the mouth",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 60,
+          "end_char": 74,
+          "text_snippet": "oral anomalies"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004467",
+      "label": "Preauricular pit",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 561,
+          "end_char": 576,
+          "text_snippet": "prehelical pits"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000077",
+      "label": "Abnormality of the kidney",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 599,
+          "end_char": 614,
+          "text_snippet": "renal anomalies"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000951",
+      "label": "Abnormality of the skin",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 168,
+          "end_char": 180,
+          "text_snippet": "skin defects"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010783",
+      "label": "Erythema",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 249,
+          "end_char": 281,
+          "text_snippet": "thin, erythematous wrinkled skin"
+        }
+      ]
+    }
+  ]
+}

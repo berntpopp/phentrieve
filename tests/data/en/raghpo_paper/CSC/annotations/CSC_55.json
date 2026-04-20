@@ -1,0 +1,274 @@
+{
+  "doc_id": "CSC_55",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A 2-year, 9-month-old boy born to non-consanguineous parents presented with acute dysentery for 5 days. At the end of the fifth day, the dysentery settled, but he developed abdominal pain and anuria. He was developmentally normal with nil significant antenatal and postnatal history. Anthropometry revealed a weight of 10 kg and height of 90 cm. He was found to have tachycardia with a heart rate of 140 beats/min, tachypnoea with a respiratory rate of 45 breaths/min and a blood pressure of 130/80 mm Hg (>99th percentile for his age and height). He also had periorbital puffiness, pitting pedal oedema and ascites. His sensorium was normal on admission. Other systemic findings were not contributory. His initial blood investigations showed reduced haemoglobin and platelets. His peripheral smear showed thrombocytopenia with evidence of haemolysis in the form of schistocytes. He also had deranged renal parameters and dyselectrolytaemia. His lactate dehydrogenase and reticulocyte count were high. His complement C3 level was low, but autoimmune work-up including complement C4 and direct Coombs test were negative. Blood culture was sterile. Urine routine revealed proteinuria and haematuria. Stool culture for shiga toxin was not performed as it is not available in our region. Ultrasound showed enlarged hyperechogenic kidneys.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "55",
+    "text_length_chars": 1334,
+    "num_annotations": 22,
+    "conversion_date": "2026-04-20T06:13:55.471747+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000093",
+      "label": "Proteinuria",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1170,
+          "end_char": 1181,
+          "text_snippet": "proteinuria"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000105",
+      "label": "Enlarged kidney",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1302,
+          "end_char": 1333,
+          "text_snippet": "enlarged hyperechogenic kidneys"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000629",
+      "label": "Periorbital fullness",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 560,
+          "end_char": 581,
+          "text_snippet": "periorbital puffiness"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000790",
+      "label": "Hematuria",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1186,
+          "end_char": 1196,
+          "text_snippet": "haematuria"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000822",
+      "label": "Hypertension",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 474,
+          "end_char": 522,
+          "text_snippet": "blood pressure of 130/80 mm Hg (>99th percentile"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001541",
+      "label": "Ascites",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 608,
+          "end_char": 615,
+          "text_snippet": "ascites"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001649",
+      "label": "Tachycardia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 367,
+          "end_char": 378,
+          "text_snippet": "tachycardia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001873",
+      "label": "Thrombocytopenia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 806,
+          "end_char": 822,
+          "text_snippet": "thrombocytopenia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001878",
+      "label": "Hemolytic anemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 828,
+          "end_char": 850,
+          "text_snippet": "evidence of haemolysis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001903",
+      "label": "Anemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 743,
+          "end_char": 762,
+          "text_snippet": "reduced haemoglobin"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001923",
+      "label": "Reticulocytosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 972,
+          "end_char": 1000,
+          "text_snippet": "reticulocyte count were high"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001981",
+      "label": "Schistocytosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 840,
+          "end_char": 878,
+          "text_snippet": "haemolysis in the form of schistocytes"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002027",
+      "label": "Abdominal pain",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 173,
+          "end_char": 187,
+          "text_snippet": "abdominal pain"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002789",
+      "label": "Tachypnea",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 415,
+          "end_char": 425,
+          "text_snippet": "tachypnoea"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003111",
+      "label": "Abnormal blood ion concentration",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 922,
+          "end_char": 940,
+          "text_snippet": "dyselectrolytaemia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004719",
+      "label": "Hyperechogenic kidneys",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1311,
+          "end_char": 1333,
+          "text_snippet": "hyperechogenic kidneys"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0005421",
+      "label": "Decreased circulating complement C3 concentration",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0010741",
+      "label": "Pedal edema",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 583,
+          "end_char": 603,
+          "text_snippet": "pitting pedal oedema"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012211",
+      "label": "Abnormal renal physiology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 892,
+          "end_char": 917,
+          "text_snippet": "deranged renal parameters"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0025085",
+      "label": "Bloody diarrhea",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 76,
+          "end_char": 91,
+          "text_snippet": "acute dysentery"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0025435",
+      "label": "Increased circulating lactate dehydrogenase concentration",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 946,
+          "end_char": 1000,
+          "text_snippet": "lactate dehydrogenase and reticulocyte count were high"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100519",
+      "label": "Anuria",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 192,
+          "end_char": 198,
+          "text_snippet": "anuria"
+        }
+      ]
+    }
+  ]
+}

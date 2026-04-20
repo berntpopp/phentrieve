@@ -1,0 +1,250 @@
+{
+  "doc_id": "CSC_9",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A 7-year-old female child was brought with complaints of tightness of skin since the past 1 year, starting on the lower limbs and gradually progressing to involve the whole body. Joint contractures resulting in severe disability were present since 5 months. She had no history of trauma or vaccination. There was no personal or family history of autoimmune disease, Raynaud's phenomenon, difficulty in swallowing, or retrosternal burning pain. On examination, there was generalized sclerosis of the skin involving the extremities, trunk, and face. Dyspigmented sclerotic plaques, few of them crusted, were seen all over the body. Her limbs were fixed by contractures to an extent that she could not walk [Figures ​[Figures11 and ​and2].2]. Chest expansion was reduced due to chest wall sclerosis. There was bilateral lagophthalmos and ectropion. Scars of previous healed ulcerations were seen on legs. Investigations showed hemoglobin of 7.1 g/dl and erythrocyte sedimentation rate of 53 mm in the first hour. Anti-nuclear antibody was positive (1:80, speckled pattern), anti-dsDNA and anti Scl-70 antibodies were negative. Chest radiograph and high resolution computed tomography-thorax were normal. Barium swallow showed evidence of gastroesophageal reflux. Pulmonary function test was not possible as patient was unable to blow. Radiographs of the limb bones were normal. Histopathology showed a sclerotic dermis with tightly packed collagen fibers, sclerosis involving the deeper layers of subcutaneous tissue and fascia with marked reduction of skin adnexae and a small amount of lymphohistiocytic inflammatory infiltrate. Patient was started on tablet methotrexate 7.5 mg/week. However, after 3 months, as there was no improvement, inj. methylprednisolone 15 mg/kg intravenously as a pulse for 3 consecutive days was added. The condition of the patient continued to deteriorate with increasing sclerosis, most evident in periorbital area [Figure 3], development of recalcitrant cutaneous ulcers, and cicatricial alopecia over scalp. Meanwhile, she started developing cyanotic discoloration of the digits of the right foot [Figure 4]. On evaluation, patient was found to have thrombosis of right dorsalis pedis artery. A normal 2D echocardiography ruled out a cardiac source. Heparin followed by oral warfarin, aspirin, and clopidogrel failed in preventing gangrene and autoamputation of the 2nd right toe. At this time, PUVA with 8-methoxypsoralen was started. However, she could take only 2 sittings before succumbing due to septicemia.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "9",
+    "text_length_chars": 2543,
+    "num_annotations": 29,
+    "conversion_date": "2026-04-20T06:13:55.466503+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000606",
+      "label": "Abnormality of the periorbital region",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000656",
+      "label": "Ectropion",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 835,
+          "end_char": 844,
+          "text_snippet": "ectropion"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001371",
+      "label": "Flexion contracture",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001903",
+      "label": "Anemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002020",
+      "label": "Gastroesophageal reflux",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001288",
+      "label": "Gait disturbance",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002641",
+      "label": "Peripheral thrombosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002828",
+      "label": "Multiple joint contractures",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0003493",
+      "label": "Antinuclear antibody positivity",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0003565",
+      "label": "Elevated erythrocyte sedimentation rate",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0004552",
+      "label": "Scarring alopecia of scalp",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0006596",
+      "label": "Restricted chest movement",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 775,
+          "end_char": 795,
+          "text_snippet": "chest wall sclerosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000765",
+      "label": "Abnormal thorax morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 775,
+          "end_char": 795,
+          "text_snippet": "chest wall sclerosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0007460",
+      "label": "Autoamputation of digits",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2375,
+          "end_char": 2410,
+          "text_snippet": "autoamputation of the 2nd right toe"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0011138",
+      "label": "Abnormal skin adnexa morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1550,
+          "end_char": 1562,
+          "text_snippet": "skin adnexae"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0025276",
+      "label": "Abnormality of skin adnexa physiology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1550,
+          "end_char": 1562,
+          "text_snippet": "skin adnexae"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012344",
+      "label": "Morphea",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0030001",
+      "label": "Lagophthalmos",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0031190",
+      "label": "Superficial dermal perivascular inflammatory infiltrate",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0031359",
+      "label": "Cutaneous sclerotic plaque",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0034033",
+      "label": "Peripheral cyanosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0100324",
+      "label": "Scleroderma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 70,
+          "end_char": 491,
+          "text_snippet": "skin since the past 1 year, starting on the lower limbs and gradually progressing to involve the whole body. Joint contractures resulting in severe disability were present since 5 months. She had no history of trauma or vaccination. There was no personal or family history of autoimmune disease, Raynaud's phenomenon, difficulty in swallowing, or retrosternal burning pain. On examination, there was generalized sclerosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012344",
+      "label": "Morphea",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 70,
+          "end_char": 491,
+          "text_snippet": "skin since the past 1 year, starting on the lower limbs and gradually progressing to involve the whole body. Joint contractures resulting in severe disability were present since 5 months. She had no history of trauma or vaccination. There was no personal or family history of autoimmune disease, Raynaud's phenomenon, difficulty in swallowing, or retrosternal burning pain. On examination, there was generalized sclerosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100679",
+      "label": "Lack of skin elasticity",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0100699",
+      "label": "Scarring",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0100758",
+      "label": "Gangrene",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2362,
+          "end_char": 2370,
+          "text_snippet": "gangrene"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100806",
+      "label": "Sepsis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2532,
+          "end_char": 2542,
+          "text_snippet": "septicemia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0200035",
+      "label": "Skin plaque",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0200042",
+      "label": "Skin ulcer",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    }
+  ]
+}

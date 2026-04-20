@@ -1,0 +1,142 @@
+{
+  "doc_id": "CSC_38",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "An 84-year-old man was admitted to our Department of Internal Medicine for exertional dyspnea. His medical history showed he had been diagnosed with hypertensive cardiomyopathy with heart failure a few years before admission and a permanent pacemaker had also been implanted after a syncope. During physical examination his general condition was discrete. The patient was alert, cooperative and eupneic at rest. His blood pressure was 115/60 mm Hg, pulse rate was 68 beats/min, and respiratory rate was 12 breaths/min. Oxygen saturation was 95% in room air. Cardiac tones were attenuated without murmurs, and basal crackles were present in both lungs. Laboratory tests showed raised troponin (0.056 ng/mL, vn <0.015) and NTproBNP (2627 pg/mL; vn <450) levels. ECG showed sinus rhythm, 1st degree A-V block and left ventricle hypertrophy. Chest X-ray was not significant. Echocardiography showed severe left ventricular concentric hypertrophy with sparkling myocardium, mildly reduced ejection fraction with severe diastolic dysfunction (restrictive pattern), biatrial dilatation and severe aortic stenosis (AVA 0.6 cm2, 0.38 cm2/m2) with a low transvalvular gradient due to the reduced stroke volume secondary to left ventricle hypertrophy (paradoxical ’low-flow low-gradient'). Dobutamine stress echocardiography was not performed.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "38",
+    "text_length_chars": 1332,
+    "num_annotations": 15,
+    "conversion_date": "2026-04-20T06:13:55.469750+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001635",
+      "label": "Congestive heart failure",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001637",
+      "label": "Abnormal myocardium morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001639",
+      "label": "Hypertrophic cardiomyopathy",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001650",
+      "label": "Aortic valve stenosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1090,
+          "end_char": 1105,
+          "text_snippet": "aortic stenosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001712",
+      "label": "Left ventricular hypertrophy",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002875",
+      "label": "Exertional dyspnea",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0005157",
+      "label": "Concentric hypertrophic cardiomyopathy",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 902,
+          "end_char": 941,
+          "text_snippet": "left ventricular concentric hypertrophy"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0011705",
+      "label": "First degree atrioventricular block",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 785,
+          "end_char": 805,
+          "text_snippet": "1st degree A-V block"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012663",
+      "label": "Mildly reduced left ventricular ejection fraction",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 976,
+          "end_char": 1001,
+          "text_snippet": "reduced ejection fraction"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0025168",
+      "label": "Left ventricular diastolic dysfunction",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1014,
+          "end_char": 1035,
+          "text_snippet": "diastolic dysfunction"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0030718",
+      "label": "Right atrial enlargement",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1061,
+          "end_char": 1078,
+          "text_snippet": "atrial dilatation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0030830",
+      "label": "Crackles",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0031185",
+      "label": "Increased circulating NT-proBNP concentration",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0031657",
+      "label": "Abnormal heart sound",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0410173",
+      "label": "Increased circulating troponin I concentration",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    }
+  ]
+}

@@ -1,0 +1,82 @@
+{
+  "doc_id": "GSC_74",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "We present an 8-year-old African-American boy with medulloblastoma and nevoid basal cell carcinoma syndrome (NBCCS) who exhibited the radiosensitive response of basal cell carcinoma (BCC) formation in the area irradiated for medulloblastoma. Such a response is well-documented in Caucasian NBCCS patients with medulloblastoma. The propositus was diagnosed with medulloblastoma at the age of 2 years and underwent surgery, chemotherapy, and craniospinal irradiation. At the age of 6 years, he was diagnosed with NBCCS following his presentation with a large odontogenic keratocyst of the mandible, pits of the palms and soles and numerous BCCs in the area of the back and neck that had been irradiated previously for medulloblastoma. Examination of other relatives showed that the propositus' mother also had NBCCS but was more mildly affected; in particular, she had no BCCs. This case illustrates complex gene-environment interaction, in that increased skin pigmentation in African-Americans is presumably protective against ultraviolet, but not ionizing, radiation. This case and other similar cases in the literature show the importance of considering NBCCS in the differential diagnosis of any patient who presents with a medulloblastoma, especially before the age of 5 years, and of examining other close relatives for signs of NBCCS to determine the patient's at-risk status. Finally, for individuals who are radiosensitive, protocols that utilize chemotherapy in lieu of radiotherapy should be considered.",
+  "metadata": {
+    "dataset": "GSC",
+    "original_dataset": "GSC",
+    "original_doc_id": "9096762",
+    "text_length_chars": 1512,
+    "num_annotations": 6,
+    "conversion_date": "2026-04-20T06:13:55.490640+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000953",
+      "label": "Hyperpigmentation of the skin",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 944,
+          "end_char": 971,
+          "text_snippet": "increased skin pigmentation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010603",
+      "label": "Odontogenic keratocysts of the jaw",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 551,
+          "end_char": 595,
+          "text_snippet": "large odontogenic keratocyst of the mandible"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002885",
+      "label": "Medulloblastoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 51,
+          "end_char": 66,
+          "text_snippet": "medulloblastoma"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002671",
+      "label": "Basal cell carcinoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 71,
+          "end_char": 115,
+          "text_snippet": "nevoid basal cell carcinoma syndrome (NBCCS)"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010610",
+      "label": "Palmar pits",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 597,
+          "end_char": 624,
+          "text_snippet": "pits of the palms and soles"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010612",
+      "label": "Plantar pits",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    }
+  ]
+}

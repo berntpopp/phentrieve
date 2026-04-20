@@ -1,0 +1,64 @@
+{
+  "doc_id": "CSC_27",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A 49 year-old woman was referred to endocrinology clinic by sports medicine specialist to rule an underlying metabolic bone disease given multiple recurrent stress fractures. The patient was in her usual state of health until about 2 years prior to presentation when she had a metatarsal stress fracture while running. She had been an avid runner for about 5 years prior to that. Her stress fracture was attributed to high-volume running. However, over the next 24 months, she had six other stress fractures, including multiple metatarsal stress fractures, a left proximal femoral shaft stress fracture (with periosteal oedema) and a rib fracture, all associated with minimal to no trauma. The time of healing varied and depended on the location and severity of the fractures but ranged between 8 and 12 weeks. In all instances, the patient kept a close follow-up with the sports medicine specialist and physical therapist and followed a return to run protocol based on their recommendations. The patient denies having major dental problems, although she did report having numerous cavities as a child. She has never had kidney stones. She denied exposure to steroids. She had regular menstrual cycles. Patient’s past medical history was positive for anxiety, treated with buspirone. She had no pertinent surgical history. She was not taking any over-the-counter supplements. Family history was negative for bone disorders, but she did report that her son has had major dental problems since childhood. She was a former smoker, having quit smoking at age 42. On examination, her vital signs were within normal limits. Her body mass index was 23.82 kg/m2. General examination was unremarkable. Oral examination showed no evidence of dental abnormalities, although she had a number of treated cavities with fillings. She did not report any premature tooth loss. Thyroid examination was unremarkable. She did not have any bone or joint deformities or tenderness and did not exhibit muscle weakness. Physical examination was negative for a moon facies, buffalo hump, cervical fullness or purple striae.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "27",
+    "text_length_chars": 2098,
+    "num_annotations": 8,
+    "conversion_date": "2026-04-20T06:13:55.468356+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000670",
+      "label": "Carious teeth",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000739",
+      "label": "Anxiety",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002757",
+      "label": "Recurrent fractures",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0031846",
+      "label": "Femur fracture",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0032537",
+      "label": "Delayed fracture healing",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0040165",
+      "label": "Periostitis",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0041159",
+      "label": "Fractured rib",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0041162",
+      "label": "Metatarsal fracture",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    }
+  ]
+}

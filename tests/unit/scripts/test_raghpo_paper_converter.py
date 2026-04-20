@@ -273,6 +273,31 @@ def test_converter_writes_csc_documents_in_existing_benchmark_shape(
     assert report["datasets"]["CSC"]["documents"] == 1
 
 
+def test_converter_can_resolve_labels_from_hpo_json_without_terms_tsv(
+    tmp_path: Path,
+) -> None:
+    csv_path = tmp_path / "Test_Cases.csv"
+    workbook_path = tmp_path / "RAG-HPO Tests and Data Analysis copy.xlsx"
+    hpo_json_path = tmp_path / "hp.json"
+    output_dir = tmp_path / "converted"
+
+    _write_test_cases_csv(csv_path)
+    _write_raghpo_workbook(workbook_path)
+    _write_hpo_json(hpo_json_path)
+
+    converter = RagHpoPaperConverter(hpo_terms_path=None, hpo_json_path=hpo_json_path)
+    converter.convert(
+        workbook_path=workbook_path,
+        test_cases_csv_path=csv_path,
+        output_root=output_dir,
+        dataset="CSC",
+    )
+
+    output_file = output_dir / "CSC" / "annotations" / "CSC_1.json"
+    converted = json.loads(output_file.read_text(encoding="utf-8"))
+    assert converted["annotations"][0]["label"] == "Obesity"
+
+
 def test_converter_writes_gsc_documents_from_workbook_inputs(
     tmp_path: Path, raghpo_source_files: dict[str, Path]
 ) -> None:

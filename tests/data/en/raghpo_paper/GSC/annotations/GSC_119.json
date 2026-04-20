@@ -1,0 +1,184 @@
+{
+  "doc_id": "GSC_119",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "Neurofibromatosis type 2 is an autosomal-dominant multiple neoplasia syndrome that results from mutations in the NF2 tumour suppressor gene located on chromosome 22q. It has a frequency of one in 25,000 livebirths and nearly 100% penetrance by 60 years of age. Half of patients inherit a germline mutation from an affected parent and the remainder acquire a de novo mutation for neurofibromatosis type 2. Patients develop nervous system tumours (schwannomas, meningiomas, ependymomas, astrocytomas, and neurofibromas), peripheral neuropathy, ophthalmological lesions (cataracts, epiretinal membranes, and retinal hamartomas), and cutaneous lesions (skin tumours). Optimum treatment is multidisciplinary because of the complexities associated with management of the multiple, progressive, and protean lesions associated with the disorder. We review the molecular pathogenesis, genetics, clinical findings, and management strategies for neurofibromatosis type 2.",
+  "metadata": {
+    "dataset": "GSC",
+    "original_dataset": "GSC",
+    "original_doc_id": "19476995",
+    "text_length_chars": 960,
+    "num_annotations": 14,
+    "conversion_date": "2026-04-20T06:13:55.491713+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0009592",
+      "label": "Astrocytoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 485,
+          "end_char": 496,
+          "text_snippet": "astrocytoma"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 31,
+          "end_char": 49,
+          "text_snippet": "autosomal-dominant"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000518",
+      "label": "Cataract",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 568,
+          "end_char": 577,
+          "text_snippet": "cataracts"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0011355",
+      "label": "Localized skin lesion",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 630,
+          "end_char": 647,
+          "text_snippet": "cutaneous lesions"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002888",
+      "label": "Ependymoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 472,
+          "end_char": 482,
+          "text_snippet": "ependymoma"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100014",
+      "label": "Epiretinal membrane",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 579,
+          "end_char": 599,
+          "text_snippet": "epiretinal membranes"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002858",
+      "label": "Meningioma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 459,
+          "end_char": 469,
+          "text_snippet": "meningioma"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004375",
+      "label": "Neoplasm of the nervous system",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 422,
+          "end_char": 444,
+          "text_snippet": "nervous system tumours"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001067",
+      "label": "Neurofibroma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 379,
+          "end_char": 391,
+          "text_snippet": "neurofibroma"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000478",
+      "label": "Abnormality of the eye",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 542,
+          "end_char": 566,
+          "text_snippet": "ophthalmological lesions"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009830",
+      "label": "Peripheral neuropathy",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 519,
+          "end_char": 540,
+          "text_snippet": "peripheral neuropathy"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009594",
+      "label": "Retinal hamartoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 605,
+          "end_char": 623,
+          "text_snippet": "retinal hamartomas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100008",
+      "label": "Schwannoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 446,
+          "end_char": 457,
+          "text_snippet": "schwannomas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0008069",
+      "label": "Neoplasm of the skin",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 649,
+          "end_char": 661,
+          "text_snippet": "skin tumours"
+        }
+      ]
+    }
+  ]
+}
