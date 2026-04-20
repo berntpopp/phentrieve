@@ -561,3 +561,56 @@ def test_converter_can_drop_obsolete_ids_without_replacement_when_enabled(
         "dropped obsolete HPO term HP:1234567" in warning
         for warning in report["warnings"]
     )
+
+
+def test_converter_closes_excel_workbook_via_context_manager(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    workbook_path = tmp_path / "benchmark.xlsx"
+    csv_path = tmp_path / "cases.csv"
+    output_dir = tmp_path / "converted"
+    hpo_terms_path = tmp_path / "hpo_terms.tsv"
+    _write_test_cases_csv(csv_path)
+    _write_hpo_terms(hpo_terms_path)
+
+    class FakeExcelFile:
+        entered = False
+        exited = False
+
+        def __init__(self, path: Path) -> None:
+            assert path == workbook_path
+
+        def __enter__(self) -> FakeExcelFile:
+            type(self).entered = True
+            return self
+
+        def __exit__(self, exc_type, exc, tb) -> None:
+            type(self).exited = True
+
+    monkeypatch.setattr("raghpo_paper_converter.pd.ExcelFile", FakeExcelFile)
+
+    converter = RagHpoPaperConverter(hpo_terms_path=hpo_terms_path)
+    monkeypatch.setattr(
+        converter, "_load_csc_cases", lambda _: {"1": {"full_text": ""}}
+    )
+    monkeypatch.setattr(converter, "_load_csc_annotations", lambda _: {"1": []})
+    monkeypatch.setattr(
+        converter,
+        "_filter_cases_to_annotations",
+        lambda **kwargs: kwargs["cases"],
+    )
+    monkeypatch.setattr(converter, "_load_gsc_cases", lambda _: {})
+    monkeypatch.setattr(converter, "_load_gsc_annotations", lambda _: {})
+    monkeypatch.setattr(converter, "_build_documents", lambda **kwargs: [])
+    monkeypatch.setattr(converter, "_write_documents", lambda *args, **kwargs: None)
+
+    converter.convert(
+        workbook_path=workbook_path,
+        test_cases_csv_path=csv_path,
+        output_root=output_dir,
+        dataset="CSC",
+    )
+
+    assert FakeExcelFile.entered is True
+    assert FakeExcelFile.exited is True

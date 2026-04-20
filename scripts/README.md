@@ -101,6 +101,7 @@ The converter currently extracts the paper's two benchmark datasets:
 1. Ensure Phentrieve is installed:
    ```bash
    make install  # or: uv sync
+   uv sync --extra benchmarks
    ```
 2. Prepare HPO data (if not already done):
    ```bash
@@ -197,6 +198,8 @@ tests/data/en/raghpo_paper/
   and `Test_Cases.csv` from the upstream RAG-HPO repository into
   `--download-dir` and reuses the cached copies on subsequent runs. The default
   cache path is `tests/data/en/raghpo_paper/source`.
+- Excel-based conversion requires the optional `benchmarks` dependency extra
+  because workbook loading uses `openpyxl`.
 - If `--drop-obsolete-without-replacement` is also enabled, any obsolete term
   that still cannot be mapped to a current HPO ID is omitted from the converted
   annotations and recorded in `conversion_report.json`.

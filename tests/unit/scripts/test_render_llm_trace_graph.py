@@ -179,10 +179,11 @@ def test_build_trace_graph_creates_expected_stage_nodes_and_edges() -> None:
         "truncated",
     ) in edges
     assert (
-        "phrase:symptomatic anaemia",
+        "candidate-summary:symptomatic anaemia",
         "local:phrase:symptomatic anaemia",
         "accepted",
     ) in edges
+    assert ("phrase:tongue biting", "llm:phrase:tongue biting", "llm resolved") in edges
 
 
 def test_build_trace_graph_limits_candidates_and_skips_neighbors_by_default() -> None:
@@ -250,3 +251,22 @@ def test_build_trace_graph_accepts_string_evidence_in_final_annotations() -> Non
         or ("llm:phrase:symptomatic anaemia", "final:HP:0001903:0", "final") in edges
         or ("phrase:symptomatic anaemia", "final:HP:0001903:0", "final") in edges
     )
+
+
+def test_build_trace_graph_accepts_benchmark_term_id_and_label_shape() -> None:
+    trace = _sample_trace()
+    trace["final_annotations"] = [
+        {
+            "term_id": "HP:0001903",
+            "label": "Anemia",
+            "assertion": "present",
+            "evidence": "symptomatic anaemia",
+        }
+    ]
+    graph = render_llm_trace_graph.build_trace_graph(trace, title="CSC_2")
+    final_nodes = [
+        node for node in graph["nodes"] if node["group"] == "final_annotation"
+    ]
+    assert len(final_nodes) == 1
+    assert final_nodes[0]["id"] == "final:HP:0001903:0"
+    assert final_nodes[0]["label"] == "Anemia\nHP:0001903"

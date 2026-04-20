@@ -78,6 +78,27 @@ def build_annotation_sidecar(
 
 def validate_annotation_sidecar(sidecar: dict[str, Any]) -> None:
     """Validate a sidecar against the checked-in JSON Schema."""
-    import jsonschema
+    try:
+        import jsonschema
+    except ImportError as exc:  # pragma: no cover - depends on installation extras
+        raise ImportError(
+            "Annotation sidecar validation requires jsonschema. "
+            "Install phentrieve[phenopackets] to enable this feature."
+        ) from exc
 
-    jsonschema.validate(instance=sidecar, schema=load_annotation_sidecar_schema())
+    try:
+        jsonschema.validate(instance=sidecar, schema=load_annotation_sidecar_schema())
+    except jsonschema.ValidationError as exc:
+        path_parts = ["$"]
+        for part in exc.absolute_path:
+            if isinstance(part, int):
+                path_parts.append(f"[{part}]")
+            else:
+                path_parts.append(f".{part}")
+        instance_path = "".join(path_parts)
+        raise ValueError(
+            "Invalid annotation sidecar at "
+            f"{instance_path}: {exc.message}. "
+            "Check that the sidecar matches schema version "
+            f"{_SCHEMA_VERSION} and includes all required fields."
+        ) from exc

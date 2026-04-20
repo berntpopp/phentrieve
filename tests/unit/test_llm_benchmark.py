@@ -1301,8 +1301,9 @@ def test_run_llm_benchmark_projects_csc_to_present_only(monkeypatch):
         assert dataset == "CSC"
         return {
             "metadata": {
-                "dataset_name": "rag_hpo_paper_CSC",
+                "dataset_name": "phenobert_CSC",
                 "source": "rag_hpo_paper",
+                "dataset_namespace": "rag_hpo_paper",
                 "total_documents": 1,
                 "total_annotations": 1,
             },

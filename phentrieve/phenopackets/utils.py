@@ -418,7 +418,15 @@ def _normalize_export_records(
                 )
                 normalized_match["evidence_text"] = chunk_text
                 normalized_match["chunk_refs"] = [chunk_idx]
-                if start_char is not None and end_char is not None:
+                valid_span = (
+                    isinstance(start_char, int)
+                    and isinstance(end_char, int)
+                    and start_char >= 0
+                    and end_char >= start_char
+                    and isinstance(chunk_text, str)
+                    and bool(chunk_text)
+                )
+                if valid_span:
                     normalized_match["spans"] = [
                         {
                             "text": chunk_text,

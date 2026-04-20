@@ -2854,11 +2854,9 @@ dependencies = [
     { name = "cachetools" },
     { name = "chromadb" },
     { name = "en-core-web-sm" },
-    { name = "jsonschema" },
     { name = "matplotlib" },
     { name = "networkx" },
     { name = "numpy" },
-    { name = "openpyxl" },
     { name = "pandas" },
     { name = "phenopackets" },
     { name = "protobuf" },
@@ -2883,6 +2881,9 @@ api = [
     { name = "python-dotenv" },
     { name = "uvicorn", extra = ["standard"] },
 ]
+benchmarks = [
+    { name = "openpyxl" },
+]
 energy = [
     { name = "codecarbon" },
 ]
@@ -2897,6 +2898,9 @@ mcp = [
     { name = "pydantic-settings" },
     { name = "python-dotenv" },
     { name = "uvicorn", extra = ["standard"] },
+]
+phenopackets = [
+    { name = "jsonschema" },
 ]
 
 [package.dev-dependencies]
@@ -2928,12 +2932,12 @@ requires-dist = [
     { name = "fastapi", marker = "extra == 'mcp'", specifier = ">=0.115.0" },
     { name = "fastapi-mcp", marker = "extra == 'mcp'", specifier = ">=0.4.0,<1.0.0" },
     { name = "google-genai", marker = "extra == 'llm'", specifier = ">=1.22.0,<2.0.0" },
-    { name = "jsonschema", specifier = ">=4.25.1,<5.0.0" },
+    { name = "jsonschema", marker = "extra == 'phenopackets'", specifier = ">=4.25.1,<5.0.0" },
     { name = "matplotlib", specifier = ">=3.10.8" },
     { name = "networkx", specifier = ">=3.0" },
     { name = "numpy", specifier = ">=2.0.0,<3.0.0" },
     { name = "openai", marker = "extra == 'llm'", specifier = ">=2.0.0,<3.0.0" },
-    { name = "openpyxl", specifier = ">=3.1.0" },
+    { name = "openpyxl", marker = "extra == 'benchmarks'", specifier = ">=3.1.0" },
     { name = "pandas", specifier = ">=2.0.0" },
     { name = "phenopackets", specifier = ">=2.0.2.post5,<3.0.0" },
     { name = "protobuf", specifier = ">=4.25.3" },
@@ -2956,7 +2960,7 @@ requires-dist = [
     { name = "uvicorn", extras = ["standard"], marker = "extra == 'api'", specifier = ">=0.32.0" },
     { name = "uvicorn", extras = ["standard"], marker = "extra == 'mcp'", specifier = ">=0.32.0" },
 ]
-provides-extras = ["api", "mcp", "llm", "energy"]
+provides-extras = ["api", "mcp", "llm", "benchmarks", "phenopackets", "energy"]
 
 [package.metadata.requires-dev]
 dev = [

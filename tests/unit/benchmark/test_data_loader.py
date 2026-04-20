@@ -48,7 +48,13 @@ def test_load_phenobert_data_accepts_raghpo_paper_datasets(tmp_path) -> None:
                         "label": "Obesity",
                         "assertion_status": "affirmed",
                         "evidence_spans": [],
-                    }
+                    },
+                    {
+                        "hpo_id": "HP:0001250",
+                        "label": "Seizure",
+                        "assertion_status": "family_history",
+                        "evidence_spans": [],
+                    },
                 ],
             }
         ),
@@ -57,7 +63,16 @@ def test_load_phenobert_data_accepts_raghpo_paper_datasets(tmp_path) -> None:
 
     payload = load_phenobert_data(tmp_path, dataset="CSC")
 
-    assert payload["metadata"]["dataset_name"] == "rag_hpo_paper_CSC"
+    assert payload["metadata"]["dataset_name"] == "phenobert_CSC"
     assert payload["metadata"]["source"] == "rag_hpo_paper"
+    assert payload["metadata"]["dataset_namespace"] == "rag_hpo_paper"
     assert payload["documents"][0]["id"] == "CSC_1"
     assert payload["documents"][0]["source_dataset"] == "CSC"
+    assert payload["documents"][0]["gold_hpo_terms"] == [
+        {
+            "id": "HP:0001513",
+            "label": "Obesity",
+            "assertion": "PRESENT",
+            "evidence_spans": [],
+        }
+    ]

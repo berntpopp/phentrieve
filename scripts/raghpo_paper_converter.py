@@ -178,17 +178,18 @@ class RagHpoPaperConverter:
             },
         }
 
-        workbook = pd.ExcelFile(workbook_path)
         csc_cases = self._load_csc_cases(test_cases_csv_path)
-        csc_annotations = self._load_csc_annotations(workbook)
-        csc_cases = self._filter_cases_to_annotations(
-            dataset_name="CSC",
-            cases=csc_cases,
-            annotations_by_case=csc_annotations,
-            stats=stats,
-        )
-        gsc_cases = self._load_gsc_cases(workbook)
-        gsc_annotations = self._load_gsc_annotations(workbook)
+        self._ensure_excel_dependencies()
+        with pd.ExcelFile(workbook_path) as workbook:
+            csc_annotations = self._load_csc_annotations(workbook)
+            csc_cases = self._filter_cases_to_annotations(
+                dataset_name="CSC",
+                cases=csc_cases,
+                annotations_by_case=csc_annotations,
+                stats=stats,
+            )
+            gsc_cases = self._load_gsc_cases(workbook)
+            gsc_annotations = self._load_gsc_annotations(workbook)
 
         for dataset_name in selected_datasets:
             if dataset_name == "CSC":
@@ -217,6 +218,15 @@ class RagHpoPaperConverter:
             encoding="utf-8",
         )
         return report
+
+    def _ensure_excel_dependencies(self) -> None:
+        try:
+            import openpyxl  # noqa: F401
+        except ImportError as exc:  # pragma: no cover - depends on installation extras
+            raise ImportError(
+                "RAG-HPO workbook conversion requires openpyxl. "
+                "Install phentrieve[benchmarks] to enable Excel-based dataset conversion."
+            ) from exc
 
     def _select_datasets(self, dataset: str) -> tuple[str, ...]:
         if dataset == "all":

@@ -53,6 +53,30 @@ def _safe_chunk_id(chunk_id: Any) -> str:
     )
 
 
+def _term_id(payload: dict[str, Any]) -> str:
+    return str(payload.get("term_id", payload.get("hpo_id", "")) or "")
+
+
+def _term_label(payload: dict[str, Any]) -> str:
+    return str(
+        payload.get("label", payload.get("term_name", payload.get("term", ""))) or ""
+    )
+
+
+def _retrieval_hub_id(
+    *,
+    phrase: str,
+    seen_nodes: set[str],
+    candidate_match: str | None = None,
+) -> str:
+    if candidate_match:
+        return candidate_match
+    summary_id = f"candidate-summary:{phrase}"
+    if summary_id in seen_nodes:
+        return summary_id
+    return f"phrase:{phrase}"
+
+
 def build_trace_graph(
     payload: dict[str, Any],
     *,
@@ -310,7 +334,11 @@ def build_trace_graph(
             ),
             None,
         )
-        source_id = candidate_match or f"phrase:{phrase}"
+        source_id = _retrieval_hub_id(
+            phrase=phrase,
+            seen_nodes=seen_nodes,
+            candidate_match=candidate_match,
+        )
         add_edge(source_id, node_id, label="accepted", details=item)
 
     for item in (
@@ -327,7 +355,12 @@ def build_trace_graph(
             level=5,
             details=item,
         )
-        add_edge(f"phrase:{phrase}", node_id, label="unresolved", details=item)
+        add_edge(
+            _retrieval_hub_id(phrase=phrase, seen_nodes=seen_nodes),
+            node_id,
+            label="unresolved",
+            details=item,
+        )
 
     for item in (
         phase2b_llm.get("resolved", []) if isinstance(phase2b_llm, dict) else []
@@ -343,11 +376,18 @@ def build_trace_graph(
             level=6,
             details=item,
         )
-        add_edge(f"phrase:{phrase}", node_id, label="llm resolved", details=item)
+        add_edge(
+            _retrieval_hub_id(phrase=phrase, seen_nodes=seen_nodes),
+            node_id,
+            label="llm resolved",
+            details=item,
+        )
 
     for index, annotation in enumerate(trace.get("final_annotations", []) or []):
-        node_id = f"final:{annotation.get('hpo_id', 'unknown')}:{index}"
-        label = f"{annotation.get('term_name', annotation.get('hpo_id', 'unknown'))}\n{annotation.get('hpo_id', '')}"
+        annotation_term_id = _term_id(annotation) or "unknown"
+        annotation_label = _term_label(annotation) or annotation_term_id
+        node_id = f"final:{annotation_term_id}:{index}"
+        label = f"{annotation_label}\n{annotation_term_id if annotation_term_id != 'unknown' else ''}".rstrip()
         add_node(
             node_id,
             label=label,

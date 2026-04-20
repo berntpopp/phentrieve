@@ -15,6 +15,7 @@ from phentrieve.phenopackets.sidecar import (
 )
 from phentrieve.phenopackets.utils import (
     _normalize_aggregated_results,
+    _normalize_export_records,
     export_phenopacket_bundle,
     format_as_phenopacket_v2,
 )
@@ -630,3 +631,87 @@ class TestNormalizedExportModels:
         sidecar["annotations"][0].pop("chunk_refs")
 
         validate_annotation_sidecar(sidecar)
+
+    def test_build_annotation_sidecar_round_trips_with_optional_fields(self) -> None:
+        records = [
+            NormalizedPhenotypeExportRecord(
+                hpo_id="HP:0001250",
+                label="Seizure",
+                assertion="affirmed",
+                confidence=0.83,
+                certainty="confirmed",
+                evidence_text="recurrent seizures",
+                spans=[
+                    NormalizedSpan(
+                        start_char=10,
+                        end_char=28,
+                        text="recurrent seizures",
+                    )
+                ],
+                chunk_refs=[4],
+                source_mode="two_phase",
+                match_method="llm_mapping",
+            )
+        ]
+
+        sidecar = build_annotation_sidecar(
+            phenopacket_id="packet-1",
+            records=records,
+            generated_by_version="0.16.0",
+        )
+
+        validate_annotation_sidecar(sidecar)
+
+        annotation = sidecar["annotations"][0]
+        assert annotation["confidence"] == 0.83
+        assert annotation["certainty"] == "confirmed"
+        assert annotation["evidence_text"] == "recurrent seizures"
+        assert annotation["chunk_refs"] == [4]
+        assert annotation["provenance"] == {
+            "source_mode": "two_phase",
+            "match_method": "llm_mapping",
+        }
+
+    def test_validate_annotation_sidecar_reports_json_path(self) -> None:
+        invalid_sidecar = {
+            "schema_version": "1.0.0",
+            "artifact_type": "phenotype_annotation_bundle",
+            "generated_by": {"tool": "phentrieve", "version": "0.16.0"},
+            "phenopacket_id": "packet-1",
+            "annotations": [
+                {
+                    "annotation_id": "ann-0001",
+                    "phenotypic_feature_index": 0,
+                    "hpo_id": "HP:0001250",
+                }
+            ],
+        }
+
+        with pytest.raises(
+            ValueError,
+            match=r"Invalid annotation sidecar at \$\.annotations\[0\]",
+        ):
+            validate_annotation_sidecar(invalid_sidecar)
+
+    def test_chunk_export_ignores_negative_span_offsets(self) -> None:
+        records = _normalize_export_records(
+            chunk_results=[
+                {
+                    "chunk_idx": 1,
+                    "chunk_text": "unmapped evidence text",
+                    "start_char": -1,
+                    "end_char": -1,
+                    "matches": [
+                        {
+                            "id": "HP:0001250",
+                            "name": "Seizure",
+                            "assertion_status": "affirmed",
+                        }
+                    ],
+                }
+            ]
+        )
+
+        assert len(records) == 1
+        assert records[0].spans == []
+        assert records[0].evidence_text == "unmapped evidence text"

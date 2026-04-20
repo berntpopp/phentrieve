@@ -355,8 +355,6 @@ def group_results_by_hpo_id(
         matched_text = label_text
         if component == "synonym":
             matched_text = metadata.get("synonym_text", label_text)
-        elif component == "definition":
-            matched_text = metadata.get("definition_text", label_text)
 
         if hpo_id not in grouped:
             grouped[hpo_id] = {
@@ -380,7 +378,7 @@ def group_results_by_hpo_id(
         if label_text and not grouped[hpo_id]["label_text"]:
             grouped[hpo_id]["label_text"] = label_text
 
-        if score >= grouped[hpo_id]["matched_score"]:
+        if score > grouped[hpo_id]["matched_score"]:
             grouped[hpo_id]["matched_component"] = component
             grouped[hpo_id]["matched_text"] = matched_text
             grouped[hpo_id]["matched_score"] = score
