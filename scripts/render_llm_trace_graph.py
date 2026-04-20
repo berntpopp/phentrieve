@@ -318,7 +318,20 @@ def build_trace_graph(payload: dict[str, Any], *, title: str) -> dict[str, Any]:
             level=7,
             details=annotation,
         )
-        evidence_items = annotation.get("evidence", []) or []
+        raw_evidence = annotation.get("evidence", []) or []
+        if isinstance(raw_evidence, list):
+            evidence_items = [item for item in raw_evidence if isinstance(item, dict)]
+        elif isinstance(raw_evidence, dict):
+            evidence_items = [raw_evidence]
+        elif isinstance(raw_evidence, str) and raw_evidence.strip():
+            evidence_items = [
+                {
+                    "phrase": raw_evidence.strip(),
+                    "evidence_text": raw_evidence,
+                }
+            ]
+        else:
+            evidence_items = []
         linked = False
         for evidence in evidence_items:
             phrase = str(evidence.get("phrase", "")).strip()

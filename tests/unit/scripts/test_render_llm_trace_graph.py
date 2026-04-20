@@ -206,3 +206,22 @@ def test_render_html_embeds_graph_payload_and_vis_network_loader() -> None:
     payload = json.loads(html[start:end])
     assert payload["meta"]["title"] == "CSC_2"
     assert len(payload["nodes"]) == len(graph["nodes"])
+
+
+def test_build_trace_graph_accepts_string_evidence_in_final_annotations() -> None:
+    trace = _sample_trace()
+    trace["final_annotations"] = [
+        {
+            "hpo_id": "HP:0001903",
+            "term_name": "Anemia",
+            "assertion_status": "present",
+            "evidence": "symptomatic anaemia",
+        }
+    ]
+    graph = render_llm_trace_graph.build_trace_graph(trace, title="CSC_2")
+    edges = {(edge["from"], edge["to"], edge["label"]) for edge in graph["edges"]}
+    assert (
+        ("local:phrase:symptomatic anaemia", "final:HP:0001903:0", "final") in edges
+        or ("llm:phrase:symptomatic anaemia", "final:HP:0001903:0", "final") in edges
+        or ("phrase:symptomatic anaemia", "final:HP:0001903:0", "final") in edges
+    )
