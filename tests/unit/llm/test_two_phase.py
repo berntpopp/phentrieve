@@ -77,6 +77,31 @@ def test_try_local_match_prefers_exact_token_set_over_broader_subset():
     assert matched["hpo_id"] == "HP:0001290"
 
 
+def test_try_local_match_prefers_matched_surface_over_canonical_label():
+    pipeline = TwoPhaseLLMPipeline(provider=FakeProvider([]))
+
+    matched = pipeline._try_local_match(
+        "difficulty in walking",
+        [
+            {
+                "hpo_id": "HP:0001288",
+                "term_name": "Gait disturbance",
+                "matched_text": "Difficulty walking",
+                "matched_component": "synonym",
+                "score": 0.91,
+            },
+            {
+                "hpo_id": "HP:0002317",
+                "term_name": "Unsteady gait",
+                "score": 0.89,
+            },
+        ],
+    )
+
+    assert matched is not None
+    assert matched["hpo_id"] == "HP:0001288"
+
+
 def test_resolve_with_mapping_prompt_normalizes_phrase_before_llm_call():
     provider = FakeProvider(
         [{"parsed": {"phrase": "frequent falls", "hpo_id": "HP:0002355"}}]
@@ -103,7 +128,9 @@ def test_resolve_with_mapping_prompt_normalizes_phrase_before_llm_call():
                 "candidates": [
                     {
                         "hpo_id": "HP:0002355",
-                        "term_name": "Difficulty walking",
+                        "term_name": "Gait disturbance",
+                        "matched_text": "Difficulty walking",
+                        "matched_component": "synonym",
                     }
                 ],
             }
@@ -115,3 +142,7 @@ def test_resolve_with_mapping_prompt_normalizes_phrase_before_llm_call():
     assert prompt_tokens == 10
     assert completion_tokens == 5
     assert '"phrase": "frequent falls"' in provider.structured_calls[0]["user_prompt"]
+    assert (
+        '"matched_text": "Difficulty walking"'
+        in provider.structured_calls[0]["user_prompt"]
+    )

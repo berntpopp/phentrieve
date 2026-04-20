@@ -1,0 +1,112 @@
+{
+  "doc_id": "CSC_16",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A 40-year-old woman hailing from a village in eastern India presented with a 6-year history of generalised asymptomatic pigmentary skin alterations. Her medical history was significant for diabetes mellitus for which she was on oral hypoglycaemic agent for past 4 years. She had no history of any pre-existing dermatoses. She reported that some of her village neighbours also had similar cutaneous ailments. None of her immediate family members were affected. The primary source of drinking water in her village was a deep tube well. She had previously been treated by the village quack without any improvement. Examination revealed multiple, discrete, guttate hypopigmented macules (2–4 mm) symmetrically dispersed over a hyperpigmented background that involved the trunk and extremities giving a ‘raindrop’ appearance (figure 1). Few well-demarcated brownish scaly plaques with irregular border were noted over back, abdomen and dorsum of right hand. Histopathology of one such excised lesion reported Bowen’s disease. Multiple keratotic papules over palms and soles with gritty sensation on palpation were also noted (figure 1B). Other mucocutaneous sites were unaffected. Systemic examination did not reveal any abnormality. Basic laboratory investigations only revealed mild anaemia. The clinical diagnosis of chronic arsenicosis was further established by markedly elevated arsenic levels in hair, nail and drinking water samples. She was counselled to avoid arsenic-contaminated tube well water. Palmoplantar hyperkeratosis substantially flattened over 3 months with regular use of keratolytic ointment. Topical 5% 5-fluorouracil for lesions of bowen’s disease led to improvement. No new-onset cutaneous premalignant or malignant transformation was noted on routine follow-ups.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "16",
+    "text_length_chars": 1784,
+    "num_annotations": 10,
+    "conversion_date": "2026-04-20T06:13:55.467512+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000819",
+      "label": "Diabetes mellitus",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 189,
+          "end_char": 206,
+          "text_snippet": "diabetes mellitus"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000953",
+      "label": "Hyperpigmentation of the skin",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000972",
+      "label": "Palmoplantar hyperkeratosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001000",
+      "label": "Abnormality of skin pigmentation",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 107,
+          "end_char": 147,
+          "text_snippet": "asymptomatic pigmentary skin alterations"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001903",
+      "label": "Anemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0006739",
+      "label": "Squamous cell carcinoma of the skin",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0020073",
+      "label": "Hypopigmented macule",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 653,
+          "end_char": 682,
+          "text_snippet": "guttate hypopigmented macules"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0032450",
+      "label": "Positive blood arsenic test",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1315,
+          "end_char": 1334,
+          "text_snippet": "chronic arsenicosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0045059",
+      "label": "Hyperkeratotic papule",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1030,
+          "end_char": 1068,
+          "text_snippet": "keratotic papules over palms and soles"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0200035",
+      "label": "Skin plaque",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 852,
+          "end_char": 896,
+          "text_snippet": "brownish scaly plaques with irregular border"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,88 @@
+{
+  "doc_id": "GSC_13",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "Branchiootorenal syndrome is an autosomal dominant disorder that affects an estimated 2% of profoundly deaf children. In addition to hearing impairment, it is characterized by a lop-ear deformity, preauricular pits, branchial cleft sinus tracts, and renal anomalies. The pathogenesis of the disease remains unknown; however, the defective gene has been localized to chromosome 8q by family linkage studies.",
+  "metadata": {
+    "dataset": "GSC",
+    "original_dataset": "GSC",
+    "original_doc_id": "1478663",
+    "text_length_chars": 406,
+    "num_annotations": 6,
+    "conversion_date": "2026-04-20T06:13:55.489040+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 32,
+          "end_char": 59,
+          "text_snippet": "autosomal dominant disorder"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100272",
+      "label": "Branchial sinus",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 216,
+          "end_char": 244,
+          "text_snippet": "branchial cleft sinus tracts"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000365",
+      "label": "Hearing impairment",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 133,
+          "end_char": 151,
+          "text_snippet": "hearing impairment"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000394",
+      "label": "Lop ear",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 178,
+          "end_char": 195,
+          "text_snippet": "lop-ear deformity"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004467",
+      "label": "Preauricular pit",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 197,
+          "end_char": 214,
+          "text_snippet": "preauricular pits"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000077",
+      "label": "Abnormality of the kidney",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 250,
+          "end_char": 265,
+          "text_snippet": "renal anomalies"
+        }
+      ]
+    }
+  ]
+}

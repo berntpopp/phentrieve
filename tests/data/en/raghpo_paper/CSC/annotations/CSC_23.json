@@ -1,0 +1,58 @@
+{
+  "doc_id": "CSC_23",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A 19-year-old man presented with a 15-month history of progressively worsening shortness of breath, orthopnoea, exertional dyspnea and paroxysmal nocturnal dyspnea. He was found to have a left ventricular ejection fraction (LVEF) of 25% and was eventually diagnosed with NIDCM. The patient was not dysmorphic and his physical examination was otherwise normal including a normal neurological examination. His tone was normal as were his deep tendon reflexes. He had no muscle weakness or atrophy and there were no signs of primary liver disease. His medical history was only significant for crystal methamphetamine abuse, although he denied using it in the 2-year period prior to this presentation. After his LVEF depreciated to 10%–15%, an implantable cardioverter defibrillator was implanted and a left ventricular assist device placed as a bridge to eventual orthotopic heart transplantation which took place 5 months after his initial presentation. His family history was not notable for heart disease, myopathy, hepatic dysfunction, developmental delays, neurodegenerative disease or any known genetic conditions (figure 1). The proband’s parents were from the same town in Mexico, but consanguinity was denied.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "23",
+    "text_length_chars": 1215,
+    "num_annotations": 6,
+    "conversion_date": "2026-04-20T06:13:55.467984+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001644",
+      "label": "Dilated cardiomyopathy",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002094",
+      "label": "Dyspnea",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002875",
+      "label": "Exertional dyspnea",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 112,
+          "end_char": 130,
+          "text_snippet": "exertional dyspnea"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012666",
+      "label": "Severely reduced left ventricular ejection fraction",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0012764",
+      "label": "Orthopnea",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0034807",
+      "label": "Paroxysmal nocturnal dyspnea",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    }
+  ]
+}

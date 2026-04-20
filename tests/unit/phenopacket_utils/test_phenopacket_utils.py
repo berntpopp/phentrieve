@@ -1,8 +1,24 @@
 import json
 
 import pytest
+from google.protobuf.json_format import Parse
+from phenopackets import Phenopacket
 
-from phentrieve.phenopackets.utils import format_as_phenopacket_v2
+from phentrieve.phenopackets.export_models import (
+    NormalizedPhenotypeExportRecord,
+    NormalizedSpan,
+)
+from phentrieve.phenopackets.sidecar import (
+    build_annotation_sidecar,
+    load_annotation_sidecar_schema,
+    validate_annotation_sidecar,
+)
+from phentrieve.phenopackets.utils import (
+    _normalize_aggregated_results,
+    _normalize_export_records,
+    export_phenopacket_bundle,
+    format_as_phenopacket_v2,
+)
 
 pytestmark = pytest.mark.unit
 
@@ -174,7 +190,7 @@ class TestPhenopacketUtils:
         assert "created" in meta
         # createdBy should now include version
         assert "phentrieve" in meta["createdBy"]
-        assert meta["phenopacketSchemaVersion"] == "2.0.2"
+        assert meta["phenopacketSchemaVersion"] == "2.0"
 
         # Check HPO resource
         resources = meta["resources"]
@@ -210,3 +226,492 @@ class TestPhenopacketUtils:
         # Find embedding reference
         refs_by_id = {ref["id"]: ref["description"] for ref in ext_refs}
         assert refs_by_id["phentrieve:embedding_model"] == "BAAI/bge-m3"
+
+    def test_phenopacket_export_uses_verified_v2_schema_string(self):
+        phenopacket_json = format_as_phenopacket_v2(
+            aggregated_results=[
+                {"id": "HP:0001250", "name": "Seizure", "confidence": 0.9, "rank": 1}
+            ]
+        )
+        phenopacket = json.loads(phenopacket_json)
+
+        assert phenopacket["metaData"]["phenopacketSchemaVersion"] == "2.0"
+
+    def test_phenopacket_export_round_trips_through_protobuf_parser(self):
+        phenopacket_json = format_as_phenopacket_v2(
+            aggregated_results=[
+                {"id": "HP:0001250", "name": "Seizure", "confidence": 0.9, "rank": 1}
+            ]
+        )
+
+        packet = Phenopacket()
+        Parse(phenopacket_json, packet, ignore_unknown_fields=False)
+
+        assert packet.id
+
+    def test_negated_assertion_maps_to_excluded_true(self):
+        phenopacket_json = format_as_phenopacket_v2(
+            aggregated_results=[
+                {
+                    "hpo_id": "HP:0001324",
+                    "term_name": "Muscle weakness",
+                    "assertion": "negated",
+                    "score": 0.8,
+                }
+            ]
+        )
+        phenopacket = json.loads(phenopacket_json)
+
+        assert phenopacket["phenotypicFeatures"][0]["excluded"] is True
+
+    def test_export_phenopacket_bundle_returns_strict_packet_and_optional_sidecar(
+        self,
+    ) -> None:
+        bundle = export_phenopacket_bundle(
+            aggregated_results=[
+                {"id": "HP:0001250", "name": "Seizure", "confidence": 0.9, "rank": 1}
+            ],
+            phentrieve_version="0.16.0",
+            include_annotation_sidecar=True,
+        )
+
+        assert "phenopacket_json" in bundle
+        assert "annotation_sidecar" in bundle
+        assert (
+            bundle["annotation_sidecar"]["annotations"][0]["phenotypic_feature_index"]
+            == 0
+        )
+        validate_annotation_sidecar(bundle["annotation_sidecar"])
+        phenopacket = json.loads(bundle["phenopacket_json"])
+        refs = phenopacket["metaData"]["externalReferences"]
+        assert any(ref["id"] == "phentrieve:annotation_sidecar" for ref in refs)
+
+    def test_export_phenopacket_bundle_sorts_sidecar_with_aggregated_rank_order(
+        self,
+    ) -> None:
+        bundle = export_phenopacket_bundle(
+            aggregated_results=[
+                {
+                    "id": "HP:0001251",
+                    "name": "Absence seizure",
+                    "confidence": 0.7,
+                    "rank": 2,
+                },
+                {"id": "HP:0001250", "name": "Seizure", "confidence": 0.9, "rank": 1},
+            ],
+            include_annotation_sidecar=True,
+        )
+
+        phenopacket = json.loads(bundle["phenopacket_json"])
+        annotation = bundle["annotation_sidecar"]["annotations"][0]
+
+        assert phenopacket["phenotypicFeatures"][0]["type"]["id"] == "HP:0001250"
+        assert annotation["phenotypic_feature_index"] == 0
+        assert annotation["hpo_id"] == "HP:0001250"
+        validate_annotation_sidecar(bundle["annotation_sidecar"])
+
+    def test_export_phenopacket_bundle_keeps_default_single_artifact_behavior(
+        self,
+    ) -> None:
+        bundle = export_phenopacket_bundle(
+            aggregated_results=[
+                {"id": "HP:0001250", "name": "Seizure", "confidence": 0.9, "rank": 1}
+            ],
+            include_annotation_sidecar=False,
+        )
+
+        assert "phenopacket_json" in bundle
+        assert bundle["annotation_sidecar"] is None
+
+    def test_chunk_export_rejects_malformed_match_consistently(self) -> None:
+        chunk_results = [
+            {
+                "chunk_idx": 0,
+                "chunk_text": "clinical text",
+                "start_char": 0,
+                "end_char": 13,
+                "matches": [{"id": "", "name": "", "score": 0.5}],
+            }
+        ]
+
+        with pytest.raises(ValueError, match="hpo_id and label"):
+            format_as_phenopacket_v2(chunk_results=chunk_results)
+
+        with pytest.raises(ValueError, match="hpo_id and label"):
+            export_phenopacket_bundle(
+                chunk_results=chunk_results,
+                include_annotation_sidecar=True,
+            )
+
+
+class TestNormalizedExportModels:
+    def test_normalized_span_direct_construction_and_legacy_dict_constructor(self):
+        span = NormalizedSpan(
+            text="recurrent seizures",
+            start_char=10,
+            end_char=28,
+            chunk_ids=[4],
+        )
+
+        assert span.evidence_text == "recurrent seizures"
+        assert span.start_char == 10
+        assert span.end_char == 28
+        assert span.chunk_ids == [4]
+
+        legacy_span = NormalizedSpan.from_legacy_dict(
+            {
+                "text": "recurrent seizures",
+                "start_char": 10,
+                "end_char": 28,
+                "chunk_ids": [4],
+            }
+        )
+
+        assert legacy_span == span
+
+    def test_normalized_phenotype_export_record_direct_construction_and_legacy_dict_constructor(
+        self,
+    ):
+        span = NormalizedSpan(
+            text="recurrent seizures",
+            start_char=10,
+            end_char=28,
+            chunk_ids=[4],
+        )
+
+        record = NormalizedPhenotypeExportRecord(
+            hpo_id="HP:0001250",
+            label="Seizure",
+            assertion="affirmed",
+            certainty="confirmed",
+            confidence=0.91,
+            spans=[span],
+            evidence_text="recurrent seizures",
+            chunk_refs=[4],
+            source_mode="two_phase",
+            match_method="llm_mapping",
+        )
+
+        assert record.hpo_id == "HP:0001250"
+        assert record.label == "Seizure"
+        assert record.assertion == "affirmed"
+        assert record.certainty == "confirmed"
+        assert record.confidence == 0.91
+        assert record.spans == [span]
+        assert record.evidence_text == "recurrent seizures"
+        assert record.chunk_refs == [4]
+        assert record.source_mode == "two_phase"
+        assert record.match_method == "llm_mapping"
+
+        identical_record = NormalizedPhenotypeExportRecord(
+            hpo_id="HP:0001250",
+            label="Seizure",
+            assertion="affirmed",
+            confidence=0.12,
+            spans=[
+                NormalizedSpan(
+                    text="expanded recurrent seizures",
+                    start_char=0,
+                    end_char=27,
+                    chunk_ids=[4],
+                )
+            ],
+            evidence_text="expanded recurrent seizures",
+            chunk_refs=[4],
+            source_mode="chunk",
+            match_method="different",
+        )
+        assert identical_record.hpo_id == record.hpo_id
+        assert identical_record.label == record.label
+
+        aggregated_legacy = NormalizedPhenotypeExportRecord.from_legacy_dict(
+            {
+                "id": "HP:0001250",
+                "name": "Seizure",
+                "confidence": 0.9,
+                "rank": 1,
+                "certainty": "probable",
+            }
+        )
+
+        assert aggregated_legacy.hpo_id == "HP:0001250"
+        assert aggregated_legacy.label == "Seizure"
+        assert aggregated_legacy.assertion == "affirmed"
+        assert aggregated_legacy.certainty == "probable"
+        assert aggregated_legacy.confidence == 0.9
+        assert aggregated_legacy.spans == []
+        assert aggregated_legacy.chunk_refs == []
+        assert aggregated_legacy.source_mode == "aggregated"
+        assert aggregated_legacy.match_method == "legacy_dict"
+
+        chunk_legacy = NormalizedPhenotypeExportRecord.from_legacy_dict(
+            {
+                "hpo_id": "HP:0001324",
+                "term_name": "Muscle weakness",
+                "score": 0.8,
+                "assertion_status": "negated",
+                "evidence_text": "No muscle weakness observed",
+                "chunk_refs": [2],
+            }
+        )
+
+        assert chunk_legacy.hpo_id == "HP:0001324"
+        assert chunk_legacy.label == "Muscle weakness"
+        assert chunk_legacy.assertion == "negated"
+        assert chunk_legacy.confidence == 0.8
+        assert chunk_legacy.evidence_text == "No muscle weakness observed"
+        assert chunk_legacy.chunk_refs == [2]
+        assert chunk_legacy.source_mode == "chunk"
+        assert chunk_legacy.match_method == "legacy_dict"
+
+    def test_normalize_aggregated_results_accepts_legacy_id_name_confidence_keys(
+        self,
+    ):
+        records = _normalize_aggregated_results(
+            [
+                {
+                    "id": "HP:0001250",
+                    "name": "Seizure",
+                    "confidence": 0.9,
+                    "rank": 1,
+                }
+            ]
+        )
+
+        assert records[0].hpo_id == "HP:0001250"
+        assert records[0].label == "Seizure"
+        assert records[0].confidence == 0.9
+
+    def test_normalize_aggregated_results_accepts_llm_style_hpo_id_term_name_score_keys(
+        self,
+    ):
+        records = _normalize_aggregated_results(
+            [
+                {
+                    "hpo_id": "HP:0001250",
+                    "term_name": "Seizure",
+                    "score": 0.8,
+                    "assertion": "affirmed",
+                    "evidence_text": "recurrent seizures",
+                }
+            ]
+        )
+
+        assert records[0].hpo_id == "HP:0001250"
+        assert records[0].label == "Seizure"
+        assert records[0].assertion == "affirmed"
+        assert records[0].evidence_text == "recurrent seizures"
+
+    def test_normalized_span_rejects_invalid_offsets(self):
+        with pytest.raises(ValueError, match="start_char must be non-negative"):
+            NormalizedSpan(text="bad", start_char=-1, end_char=2)
+
+        with pytest.raises(
+            ValueError, match="end_char must be greater than or equal to start_char"
+        ):
+            NormalizedSpan(text="bad", start_char=5, end_char=2)
+
+    def test_normalized_record_normalizes_assertion_aliases_and_infers_chunk_refs(self):
+        record = NormalizedPhenotypeExportRecord.from_legacy_dict(
+            {
+                "id": "HP:0001250",
+                "name": "Seizure",
+                "assertion_status": "absent",
+                "spans": [
+                    {
+                        "text": "no seizures",
+                        "start_char": 10,
+                        "end_char": 21,
+                        "chunk_refs": [3],
+                    }
+                ],
+            }
+        )
+
+        assert record.assertion == "negated"
+        assert record.chunk_refs == [3]
+        assert record.evidence_text == "no seizures"
+
+    def test_build_annotation_sidecar_uses_feature_indexes(self) -> None:
+        records = [
+            NormalizedPhenotypeExportRecord(
+                hpo_id="HP:0001250",
+                label="Seizure",
+                assertion="affirmed",
+                confidence=0.91,
+                evidence_text="recurrent seizures",
+                spans=[
+                    NormalizedSpan(
+                        start_char=10,
+                        end_char=28,
+                        text="recurrent seizures",
+                    )
+                ],
+            )
+        ]
+
+        sidecar = build_annotation_sidecar(
+            phenopacket_id="packet-1",
+            records=records,
+            generated_by_version="0.16.0",
+        )
+
+        assert sidecar["phenopacket_id"] == "packet-1"
+        assert sidecar["annotations"][0]["annotation_id"] == "ann-0001"
+        assert sidecar["annotations"][0]["phenotypic_feature_index"] == 0
+        assert sidecar["annotations"][0]["chunk_refs"] == []
+
+    def test_build_annotation_sidecar_includes_certainty_when_present(self) -> None:
+        records = [
+            NormalizedPhenotypeExportRecord(
+                hpo_id="HP:0001250",
+                label="Seizure",
+                assertion="affirmed",
+                certainty="confirmed",
+            )
+        ]
+
+        sidecar = build_annotation_sidecar(
+            phenopacket_id="packet-1",
+            records=records,
+            generated_by_version="0.16.0",
+        )
+
+        assert sidecar["annotations"][0]["certainty"] == "confirmed"
+
+    def test_build_annotation_sidecar_uses_deterministic_annotation_sequence(
+        self,
+    ) -> None:
+        records = [
+            NormalizedPhenotypeExportRecord(
+                hpo_id="HP:0001250",
+                label="Seizure",
+                assertion="affirmed",
+            ),
+            NormalizedPhenotypeExportRecord(
+                hpo_id="HP:0001324",
+                label="Muscle weakness",
+                assertion="negated",
+            ),
+        ]
+
+        sidecar = build_annotation_sidecar(
+            phenopacket_id="packet-1",
+            records=records,
+            generated_by_version="0.16.0",
+        )
+
+        assert [item["annotation_id"] for item in sidecar["annotations"]] == [
+            "ann-0001",
+            "ann-0002",
+        ]
+
+    def test_annotation_sidecar_validates_against_checked_in_schema(self) -> None:
+        schema = load_annotation_sidecar_schema()
+        assert schema["$id"].endswith("phenotype_annotation_bundle_v1.schema.json")
+        assert schema["properties"]["schema_version"]["const"] == "1.0.0"
+        assert "certainty" in schema["properties"]["annotations"]["items"]["properties"]
+        assert (
+            "chunk_refs" not in schema["properties"]["annotations"]["items"]["required"]
+        )
+
+        records = [
+            NormalizedPhenotypeExportRecord(
+                hpo_id="HP:0001250",
+                label="Seizure",
+                assertion="affirmed",
+            )
+        ]
+        sidecar = build_annotation_sidecar(
+            phenopacket_id="packet-1",
+            records=records,
+            generated_by_version="0.16.0",
+        )
+
+        sidecar["annotations"][0].pop("chunk_refs")
+
+        validate_annotation_sidecar(sidecar)
+
+    def test_build_annotation_sidecar_round_trips_with_optional_fields(self) -> None:
+        records = [
+            NormalizedPhenotypeExportRecord(
+                hpo_id="HP:0001250",
+                label="Seizure",
+                assertion="affirmed",
+                confidence=0.83,
+                certainty="confirmed",
+                evidence_text="recurrent seizures",
+                spans=[
+                    NormalizedSpan(
+                        start_char=10,
+                        end_char=28,
+                        text="recurrent seizures",
+                    )
+                ],
+                chunk_refs=[4],
+                source_mode="two_phase",
+                match_method="llm_mapping",
+            )
+        ]
+
+        sidecar = build_annotation_sidecar(
+            phenopacket_id="packet-1",
+            records=records,
+            generated_by_version="0.16.0",
+        )
+
+        validate_annotation_sidecar(sidecar)
+
+        annotation = sidecar["annotations"][0]
+        assert annotation["confidence"] == 0.83
+        assert annotation["certainty"] == "confirmed"
+        assert annotation["evidence_text"] == "recurrent seizures"
+        assert annotation["chunk_refs"] == [4]
+        assert annotation["provenance"] == {
+            "source_mode": "two_phase",
+            "match_method": "llm_mapping",
+        }
+
+    def test_validate_annotation_sidecar_reports_json_path(self) -> None:
+        invalid_sidecar = {
+            "schema_version": "1.0.0",
+            "artifact_type": "phenotype_annotation_bundle",
+            "generated_by": {"tool": "phentrieve", "version": "0.16.0"},
+            "phenopacket_id": "packet-1",
+            "annotations": [
+                {
+                    "annotation_id": "ann-0001",
+                    "phenotypic_feature_index": 0,
+                    "hpo_id": "HP:0001250",
+                }
+            ],
+        }
+
+        with pytest.raises(
+            ValueError,
+            match=r"Invalid annotation sidecar at \$\.annotations\[0\]",
+        ):
+            validate_annotation_sidecar(invalid_sidecar)
+
+    def test_chunk_export_ignores_negative_span_offsets(self) -> None:
+        records = _normalize_export_records(
+            chunk_results=[
+                {
+                    "chunk_idx": 1,
+                    "chunk_text": "unmapped evidence text",
+                    "start_char": -1,
+                    "end_char": -1,
+                    "matches": [
+                        {
+                            "id": "HP:0001250",
+                            "name": "Seizure",
+                            "assertion_status": "affirmed",
+                        }
+                    ],
+                }
+            ]
+        )
+
+        assert len(records) == 1
+        assert records[0].spans == []
+        assert records[0].evidence_text == "unmapped evidence text"

@@ -1,0 +1,64 @@
+{
+  "doc_id": "GSC_24",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "Clinical and genetic data of 10 patients with neurofibromatosis 2 (NF-2) are presented. Interestingly, no family history of neurofibromatosis was detectable in any of them, which indicates that these are sporadic cases of NF-2, most likely due to a new mutational event. According to our own results and the data in the literature, sporadic cases of NF-2 are clinically characterized by a high incidence of multiple meningiomas and spinal tumors in addition to the bilateral occurrence of acoustic neurinomas. The clinical heterogeneity of NF-2 is pointed out and the possible existence of different forms of this disease is discussed.",
+  "metadata": {
+    "dataset": "GSC",
+    "original_dataset": "GSC",
+    "original_doc_id": "2282716",
+    "text_length_chars": 635,
+    "num_annotations": 4,
+    "conversion_date": "2026-04-20T06:13:55.489228+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0009589",
+      "label": "Bilateral vestibular schwannoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 465,
+          "end_char": 508,
+          "text_snippet": "bilateral occurrence of acoustic neurinomas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0033714",
+      "label": "Multiple meningiomas",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 407,
+          "end_char": 427,
+          "text_snippet": "multiple meningiomas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001067",
+      "label": "Neurofibroma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 46,
+          "end_char": 72,
+          "text_snippet": "neurofibromatosis 2 (NF-2)"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010302",
+      "label": "Spinal cord tumor",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 432,
+          "end_char": 445,
+          "text_snippet": "spinal tumors"
+        }
+      ]
+    }
+  ]
+}

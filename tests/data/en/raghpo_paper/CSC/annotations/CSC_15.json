@@ -1,0 +1,112 @@
+{
+  "doc_id": "CSC_15",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A 22-year-old illiterate farmer who was psychologically subdued due to social ridicule reported to our hospital in January 2010 with reports of severe pain and discharge from his left eye since the past 15 days. Further detailed history revealed a progressively increasing hard swelling in his left lower lid since 10 years associated with proptosis, since 5 years. On general examination an irregular, hard lesion of 4×5 cm was present in the left inferior orbital region (figure 1A–C), a cystic swelling of 6×7 cm in the left high parietal region and another similar one of 3×4 cm in the lower lumbar region. In addition, two firm swellings of 1×1 cm in the right paraorbital region and a 2×2 cm in the right forearm were concomitantly present. On ophthalmological examination, corneal opacity and parapapillary atrophy was present (figure 2A, B). On the basis of these findings, a presumptive diagnosis of GS was made. Moving on the same track the per abdominal examination was found to be normal and on repeated probing no abnormality was detected apart from a history of his father's death due to some unknown abdominal condition.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "15",
+    "text_length_chars": 1135,
+    "num_annotations": 9,
+    "conversion_date": "2026-04-20T06:13:55.467428+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000520",
+      "label": "Proptosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 340,
+          "end_char": 349,
+          "text_snippet": "proptosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000629",
+      "label": "Periorbital fullness",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 628,
+          "end_char": 684,
+          "text_snippet": "firm swellings of 1×1 cm in the right paraorbital region"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0007957",
+      "label": "Corneal opacity",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 780,
+          "end_char": 795,
+          "text_snippet": "corneal opacity"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0011355",
+      "label": "Localized skin lesion",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 392,
+          "end_char": 472,
+          "text_snippet": "irregular, hard lesion of 4×5 cm was present in the left inferior orbital region"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012531",
+      "label": "Pain",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0012568",
+      "label": "Lower eyelid edema",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 273,
+          "end_char": 308,
+          "text_snippet": "hard swelling in his left lower lid"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0034427",
+      "label": "Purulent eye discharge",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 160,
+          "end_char": 187,
+          "text_snippet": "discharge from his left eye"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0500087",
+      "label": "Peripapillary atrophy",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:6000840",
+      "label": "Localized soft-tissue swelling on extremity",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 278,
+          "end_char": 718,
+          "text_snippet": "swelling in his left lower lid since 10 years associated with proptosis, since 5 years. On general examination an irregular, hard lesion of 4×5 cm was present in the left inferior orbital region (figure 1A–C), a cystic swelling of 6×7 cm in the left high parietal region and another similar one of 3×4 cm in the lower lumbar region. In addition, two firm swellings of 1×1 cm in the right paraorbital region and a 2×2 cm in the right forearm"
+        }
+      ]
+    }
+  ]
+}

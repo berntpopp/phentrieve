@@ -1,0 +1,82 @@
+{
+  "doc_id": "CSC_48",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A 37-year-old female patient initially presented to the emergency department with a history of central pleuritic chest pain and acute onset of shortness of breath. She had also been experiencing coryzal symptoms and was expectorating some white sputum. All her observations were stable, her oxygen saturations were 100% and she had no fever. A full examination did not reveal any focal abnormalities. She was treated at that time for a chest infection. Of note she had a medical history of an atrial-septal defect repair 12 years previously. As part of her investigations for infertility she had been found to have polycystic ovaries. Two years prior to her presentation she had been treated for a skin tag near to her nipple, which was thought be a papilloma. There was no history of exposure to pneumotoxins and she was a life-long non-smoker. She was originally born in Pakistan but had lived in the UK from the age of 2 years. A travel history demonstrated occasional visits to Pakistan. Her family history only revealed her father and sister to have asthma.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "48",
+    "text_length_chars": 1062,
+    "num_annotations": 8,
+    "conversion_date": "2026-04-20T06:13:55.470680+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000147",
+      "label": "Polycystic ovaries",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000789",
+      "label": "Infertility",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 576,
+          "end_char": 587,
+          "text_snippet": "infertility"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001631",
+      "label": "Atrial septal defect",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 493,
+          "end_char": 513,
+          "text_snippet": "atrial-septal defect"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002094",
+      "label": "Dyspnea",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0010609",
+      "label": "Skin tags",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 698,
+          "end_char": 706,
+          "text_snippet": "skin tag"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012740",
+      "label": "Papilloma",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0032016",
+      "label": "Abnormal sputum",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0033771",
+      "label": "Pleuritic chest pain",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    }
+  ]
+}

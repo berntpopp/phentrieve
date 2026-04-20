@@ -1,0 +1,412 @@
+{
+  "doc_id": "CSC_79",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A two-day-old female neonate was referred to the pediatrics department with the mother of the baby complaining of laxity of skin, thin body stature, a progeroid feature, bilateral claw-like hands, and mild respiratory distress. This female infant was the first live child born to healthy parents with a history of third-degree consanguinity of marriage and without a significant history of congenital abnormalities in the family. The mother, aged 22 years, had regular ante-natal check-ups, consisting of three doctor visits in the first trimester and six doctor visits in the third trimester. There was no history of fever or rash in the first trimester. She was not on any medication for other conditions. Her thyroid function tests were normal. Iron and folic acid (IFA) prophylaxis and two doses of tetanus toxoid were administered in the second trimester. The mother had a history of first-trimester abortion one year ago. There was no history of anemia, pregnancy-induced hypertension (PIH), or exposure to radiation or chemicals during pregnancy. Intrauterine growth retardation (IUGR) was noted in the third trimester. The mother underwent a normal vaginal delivery at full term of gestational age. The child did not cry immediately after birth. The infant’s birth weight was 1500 g, birth length was 44 cm, head circumference was 30.8 cm, chest circumference was 29.7 cm, and ponderal index was 1.88. The vital signs of the patient were within normal limits. The appearance of the child is progeroid with frontal bossing, dysmorphic facies, micropthalmia with strabismus, and a long philtrum The anterior and posterior fontanels were wide. The ears were low-set with large ear lobes. There were excessive skin folds over the limbs and generalized hypotonia. The upper limbs showed flexion deformity of the wrists and hyper-extensible metacarpophalangeal joints associated with clawing of the hands. The chest wall showed marked pectus excavatum. The skin over the abdomen and thorax was very thin and transparent. There were visible veins over the chest and abdomen. Examination of the external genitalia revealed mild clitoromegaly. Examination of the eyes revealed hypotelorism, bilateral corneal opacities, and cataract formation. Rooting and sucking reflexes were normal with incomplete Moro’s reflexes. The dermatological evaluation revealed wrinkled, thin, atrophic skin with reduced subcutaneous fat. Verhoeff-van Gieson's staining of the tissue from the skin biopsy demonstrated scanty, tiny, and fragmented elastic fibers, as well as a noticeably reduced amount of elastic tissue fibres in the lower dermis. The infant was brought to the hospital after one month with complaints of cold, cough, and immobility of the right lower limb. There was no improvement in this infant’s condition. Corneal opacities became more apparent. The skin folds were also prominent, with visible veins over the thorax and abdomen. Bilateral clawing of hands was noted.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "79",
+    "text_length_chars": 2967,
+    "num_annotations": 36,
+    "conversion_date": "2026-04-20T06:13:55.475591+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000239",
+      "label": "Large fontanelles",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000343",
+      "label": "Long philtrum",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1587,
+          "end_char": 1600,
+          "text_snippet": "long philtrum"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000369",
+      "label": "Low-set ears",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000486",
+      "label": "Strabismus",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1569,
+          "end_char": 1579,
+          "text_snippet": "strabismus"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000519",
+      "label": "Developmental cataract",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000601",
+      "label": "Hypotelorism",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2176,
+          "end_char": 2188,
+          "text_snippet": "hypotelorism"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000767",
+      "label": "Pectus excavatum",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1937,
+          "end_char": 1953,
+          "text_snippet": "pectus excavatum"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000963",
+      "label": "Thin skin",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 130,
+          "end_char": 1718,
+          "text_snippet": "thin body stature, a progeroid feature, bilateral claw-like hands, and mild respiratory distress. This female infant was the first live child born to healthy parents with a history of third-degree consanguinity of marriage and without a significant history of congenital abnormalities in the family. The mother, aged 22 years, had regular ante-natal check-ups, consisting of three doctor visits in the first trimester and six doctor visits in the third trimester. There was no history of fever or rash in the first trimester. She was not on any medication for other conditions. Her thyroid function tests were normal. Iron and folic acid (IFA) prophylaxis and two doses of tetanus toxoid were administered in the second trimester. The mother had a history of first-trimester abortion one year ago. There was no history of anemia, pregnancy-induced hypertension (PIH), or exposure to radiation or chemicals during pregnancy. Intrauterine growth retardation (IUGR) was noted in the third trimester. The mother underwent a normal vaginal delivery at full term of gestational age. The child did not cry immediately after birth. The infant’s birth weight was 1500 g, birth length was 44 cm, head circumference was 30.8 cm, chest circumference was 29.7 cm, and ponderal index was 1.88. The vital signs of the patient were within normal limits. The appearance of the child is progeroid with frontal bossing, dysmorphic facies, micropthalmia with strabismus, and a long philtrum The anterior and posterior fontanels were wide. The ears were low-set with large ear lobes. There were excessive skin"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000973",
+      "label": "Cutis laxa",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 114,
+          "end_char": 128,
+          "text_snippet": "laxity of skin"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001015",
+      "label": "Prominent superficial veins",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2034,
+          "end_char": 2047,
+          "text_snippet": "visible veins"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001290",
+      "label": "Generalized hypotonia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1744,
+          "end_char": 1765,
+          "text_snippet": "generalized hypotonia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001376",
+      "label": "Limitation of joint mobility",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2717,
+          "end_char": 2751,
+          "text_snippet": "immobility of the right lower limb"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001511",
+      "label": "Intrauterine growth retardation",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1054,
+          "end_char": 1085,
+          "text_snippet": "Intrauterine growth retardation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001533",
+      "label": "Slender build",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 130,
+          "end_char": 147,
+          "text_snippet": "thin body stature"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001999",
+      "label": "Abnormal facial shape",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1531,
+          "end_char": 1548,
+          "text_snippet": "dysmorphic facies"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002007",
+      "label": "Frontal bossing",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1514,
+          "end_char": 1529,
+          "text_snippet": "frontal bossing"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002643",
+      "label": "Neonatal respiratory distress",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 201,
+          "end_char": 226,
+          "text_snippet": "mild respiratory distress"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003758",
+      "label": "Reduced subcutaneous adipose tissue",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2391,
+          "end_char": 2415,
+          "text_snippet": "reduced subcutaneous fat"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004334",
+      "label": "Dermal atrophy",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2372,
+          "end_char": 2385,
+          "text_snippet": "atrophic skin"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004491",
+      "label": "Large posterior fontanelle",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0005328",
+      "label": "Progeroid facial appearance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 151,
+          "end_char": 168,
+          "text_snippet": "progeroid feature"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0006099",
+      "label": "Metacarpophalangeal joint hyperextensibility",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1826,
+          "end_char": 1869,
+          "text_snippet": "hyper-extensible metacarpophalangeal joints"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0007522",
+      "label": "Increased number of skin folds",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1704,
+          "end_char": 1724,
+          "text_snippet": "excessive skin folds"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0007633",
+      "label": "Bilateral microphthalmos",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0007957",
+      "label": "Corneal opacity",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2190,
+          "end_char": 2217,
+          "text_snippet": "bilateral corneal opacities"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0008665",
+      "label": "Clitoral hypertrophy",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2128,
+          "end_char": 2141,
+          "text_snippet": "clitoromegaly"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009748",
+      "label": "Large earlobe",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0010648",
+      "label": "Dermal translucency",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2010,
+          "end_char": 2385,
+          "text_snippet": "transparent. There were visible veins over the chest and abdomen. Examination of the external genitalia revealed mild clitoromegaly. Examination of the eyes revealed hypotelorism, bilateral corneal opacities, and cataract formation. Rooting and sucking reflexes were normal with incomplete Moro’s reflexes. The dermatological evaluation revealed wrinkled, thin, atrophic skin"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0011947",
+      "label": "Respiratory tract infection",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2700,
+          "end_char": 2704,
+          "text_snippet": "cold"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012453",
+      "label": "Bilateral wrist flexion contracture",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1790,
+          "end_char": 1821,
+          "text_snippet": "flexion deformity of the wrists"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012735",
+      "label": "Cough",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2706,
+          "end_char": 2711,
+          "text_snippet": "cough"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0025167",
+      "label": "Fragmented elastic fibers in the dermis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2496,
+          "end_char": 2539,
+          "text_snippet": "scanty, tiny, and fragmented elastic fibers"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0031826",
+      "label": "Abnormal reflex",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2289,
+          "end_char": 2315,
+          "text_snippet": "incomplete Moro’s reflexes"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0034337",
+      "label": "Claw hand deformity",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 180,
+          "end_char": 195,
+          "text_snippet": "claw-like hands"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0034837",
+      "label": "Absent dermal elastic fibers",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2565,
+          "end_char": 2604,
+          "text_snippet": "reduced amount of elastic tissue fibres"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100678",
+      "label": "Premature skin wrinkling",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2356,
+          "end_char": 2385,
+          "text_snippet": "wrinkled, thin, atrophic skin"
+        }
+      ]
+    }
+  ]
+}

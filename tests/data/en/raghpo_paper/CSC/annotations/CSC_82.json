@@ -1,0 +1,64 @@
+{
+  "doc_id": "CSC_82",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "The case concerns a 52-year-old male referred for phacoemulsification under general anesthesia. Preoperative assessment revealed a corticonuclear cataract in both eyes, with dislocation of the crystalline lens in the left eye in an area of zonular dehiscence. Upon careful examination, both eyes showed a microspherophakic lens with an increased lens thickness and the lens equator being visible over 360° in the left eye. The patient denied any trauma or medical conditions.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "82",
+    "text_length_chars": 475,
+    "num_annotations": 5,
+    "conversion_date": "2026-04-20T06:13:55.475914+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001083",
+      "label": "Ectopia lentis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 174,
+          "end_char": 209,
+          "text_snippet": "dislocation of the crystalline lens"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010920",
+      "label": "Zonular cataract",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0030961",
+      "label": "Microspherophakia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 305,
+          "end_char": 327,
+          "text_snippet": "microspherophakic lens"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100018",
+      "label": "Nuclear cataract",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 138,
+          "end_char": 154,
+          "text_snippet": "nuclear cataract"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100019",
+      "label": "Cortical cataract",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    }
+  ]
+}

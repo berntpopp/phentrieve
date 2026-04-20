@@ -1,0 +1,76 @@
+{
+  "doc_id": "GSC_96",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "The diagnosis of Angelman syndrome (AS) can be confirmed by genetic laboratory in about 80% of cases. In 20%, the diagnosis remains clinical, but often there is uncertainty about the correctness of the clinical diagnosis and alternative diagnoses may be investigated. In evaluating individuals for AS in our center since 1989, we have encountered several mimicking conditions, and additional ones have been reported in the literature. Mimicking conditions can be grouped into the areas of chromosome, single gene, and symptom complex anomalies. Microdeletions or microduplications include chromosome regions 2,4,17, 22, and 15. Single gene conditions include methylene tetrahydrofolate reductase deficiency (MTHFR), Rett syndrome, alpha-thalassemia retardation syndrome (ATR-X), and Gurrieri syndrome. Symptom complexes include cerebral palsy, static encephalopathy, Lennox-Gastaut syndrome, autism spectrum disorder, pervasive developmental delay (PDD), and mitochondrial disorders. We present a review of these mimicking disorders to increase the awareness about conditions that can lead to an incorrect clinical diagnosis of AS.",
+  "metadata": {
+    "dataset": "GSC",
+    "original_dataset": "GSC",
+    "original_doc_id": "11343340",
+    "text_length_chars": 1131,
+    "num_annotations": 5,
+    "conversion_date": "2026-04-20T06:13:55.491114+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000729",
+      "label": "Autistic behavior",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 892,
+          "end_char": 916,
+          "text_snippet": "autism spectrum disorder"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000729",
+      "label": "Autistic behavior",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 918,
+          "end_char": 953,
+          "text_snippet": "pervasive developmental delay (PDD)"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003287",
+      "label": "Abnormality of mitochondrial metabolism",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 959,
+          "end_char": 982,
+          "text_snippet": "mitochondrial disorders"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0007069",
+      "label": "Profound static encephalopathy",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 844,
+          "end_char": 865,
+          "text_snippet": "static encephalopathy"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100021",
+      "label": "Cerebral palsy",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 828,
+          "end_char": 842,
+          "text_snippet": "cerebral palsy"
+        }
+      ]
+    }
+  ]
+}

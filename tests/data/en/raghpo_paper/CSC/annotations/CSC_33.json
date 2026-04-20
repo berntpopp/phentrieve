@@ -1,0 +1,76 @@
+{
+  "doc_id": "CSC_33",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A 45-year-old man came to our hospital for a routine health examination and had an unexpectedly low HbA1c concentration of 3.9%. The results of fasting blood glucose and glycated albumin were normal. The chromatogram showed no abnormalities, thus excluding interference from hemoglobin variants. The blood routine results indicated a decrease in the number of red blood cells and hemoglobin concentration and an increase in reticulocyte count. Biochemical examination indicated a slight increase in direct bilirubin (Table 1). Mild hemolysis was present in the serum. These results supported the presence of hemolytic anemia in patients. The blood smear result indicated that the patient had an increase in oval-shaped red blood cells with varying cell sizes. Teardrops, fragments, and rod-shaped red blood cells were visible (Figure 1). In addition, the patient’s Coombs test was negative.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "33",
+    "text_length_chars": 890,
+    "num_annotations": 10,
+    "conversion_date": "2026-04-20T06:13:55.469204+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001878",
+      "label": "Hemolytic anemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001923",
+      "label": "Reticulocytosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001943",
+      "label": "Hypoglycemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001981",
+      "label": "Schistocytosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002908",
+      "label": "Conjugated hyperbilirubinemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0004445",
+      "label": "Elliptocytosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0011273",
+      "label": "Anisocytosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0020060",
+      "label": "Decreased red blood cell count",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0020062",
+      "label": "Decreased hemoglobin concentration",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0032563",
+      "label": "Dacryocytosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    }
+  ]
+}

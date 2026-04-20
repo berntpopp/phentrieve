@@ -1,0 +1,274 @@
+{
+  "doc_id": "CSC_64",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A 41-year-old medically retired nurse was admitted to hospital with a 6 month history of declining mobility, generalised apathy, behavioural disturbance and a gradual deterioration in her vision. She was wheel-chair bound and incontinent of urine with excoriated skin upon admission. At the age of 38 years she developed progressive visual loss to 6/60 bilaterally over a 6-month period necessitating early retirement from her nursing career. Initial investigations showed visual evoked potentials were delayed with small amplitude bilaterally. MRI of brain demonstrated extensive diffuse white matter changes. The patient then defaulted from follow-up until her current admission. Her functional decline meant her husband was acting as her full-time carer upon admission. On examination she was orientated but unable to follow 1 stage commands consistently. She required a hoist for transfer and was bed bound. Visual acuity was reduced to finger counting bilaterally with bilateral pallor of the optic discs. There was spasticity of all four limbs (Ashworth scale 3 bilaterally) with sustained clonus in the lower limbs and pyramidal weakness grade 3/5. She was hyper-reflexic and the plantar responses were extensor. Sensation was normal. Initial investigations demonstrated a low folate (1.6 µg/L, normal range 3.1–17.5 µg/L) and borderline low vitamin B12 (211 ng/L, normal range 200–940 ng/L). Her tyrosine was 56 µmol/L with an elevated phenylalanine 1564 µmol/L (120–480 µmol/L), consistent with untreated PKU. MRI brain showed extensive abnormal T2 high signal affecting grey matter and subcortical white matter within the frontal and parietal lobes with some atrophy. The following tests were either normal or negative: HIV, antinuclear body, extractable nuclear antigen, antineutrophil cytoplasmic antibody plasma viscosity, syphilis antibody, vitamin B6, full blood count, liver function tests, thyroid function tests, protein electrophoresis and urine Bence-Jones protein, chest X-ray, pelvis and hip X-ray.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "64",
+    "text_length_chars": 2020,
+    "num_annotations": 24,
+    "conversion_date": "2026-04-20T06:13:55.472893+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000020",
+      "label": "Urinary incontinence",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 226,
+          "end_char": 246,
+          "text_snippet": "incontinent of urine"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000529",
+      "label": "Progressive visual loss",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 321,
+          "end_char": 344,
+          "text_snippet": "progressive visual loss"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000543",
+      "label": "Optic disc pallor",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 974,
+          "end_char": 1009,
+          "text_snippet": "bilateral pallor of the optic discs"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000708",
+      "label": "Atypical behavior",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 129,
+          "end_char": 152,
+          "text_snippet": "behavioural disturbance"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000741",
+      "label": "Apathy",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 109,
+          "end_char": 127,
+          "text_snippet": "generalised apathy"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001285",
+      "label": "Spastic tetraparesis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1021,
+          "end_char": 1049,
+          "text_snippet": "spasticity of all four limbs"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001347",
+      "label": "Hyperreflexia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1164,
+          "end_char": 1178,
+          "text_snippet": "hyper-reflexic"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002169",
+      "label": "Clonus",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1086,
+          "end_char": 1121,
+          "text_snippet": "sustained clonus in the lower limbs"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002344",
+      "label": "Progressive neurologic deterioration",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001288",
+      "label": "Gait disturbance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 89,
+          "end_char": 107,
+          "text_snippet": "declining mobility"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003487",
+      "label": "Babinski sign",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1187,
+          "end_char": 1218,
+          "text_snippet": "plantar responses were extensor"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004923",
+      "label": "Hyperphenylalaninemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1435,
+          "end_char": 1457,
+          "text_snippet": "elevated phenylalanine"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0006913",
+      "label": "Frontal cortical atrophy",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0007204",
+      "label": "Diffuse white matter abnormalities",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 571,
+          "end_char": 609,
+          "text_snippet": "extensive diffuse white matter changes"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0007256",
+      "label": "Abnormal pyramidal sign",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1126,
+          "end_char": 1144,
+          "text_snippet": "pyramidal weakness"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0007663",
+      "label": "Reduced visual acuity",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0007924",
+      "label": "Slow decrease in visual acuity",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 159,
+          "end_char": 194,
+          "text_snippet": "gradual deterioration in her vision"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012104",
+      "label": "Parietal cortical atrophy",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0030457",
+      "label": "Abnormal amplitude of pattern onset/offset visual evoked potentials",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0030458",
+      "label": "Abnormal timing of pattern onset/offset visual evoked potentials",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 473,
+          "end_char": 510,
+          "text_snippet": "visual evoked potentials were delayed"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0030892",
+      "label": "Deep cerebral white matter hyperintensities",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1546,
+          "end_char": 1620,
+          "text_snippet": "abnormal T2 high signal affecting grey matter and subcortical white matter"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0040189",
+      "label": "Scaling skin",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 252,
+          "end_char": 267,
+          "text_snippet": "excoriated skin"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100502",
+      "label": "Decreased circulating vitamin B12 concentration",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1334,
+          "end_char": 1360,
+          "text_snippet": "borderline low vitamin B12"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100507",
+      "label": "Reduced blood folate concentration",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1280,
+          "end_char": 1290,
+          "text_snippet": "low folate"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,106 @@
+{
+  "doc_id": "CSC_34",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "The proband was a 12-years-old girl presenting with chronic compensated hemolysis, Gilbert syndrome, and recurrent abdominal pain. The blood count showed: hemoglobin 13 g/dL, red blood cell counts 4.020.000/mm3, Mean Corpuscular Volume (MCV) 90.3 fL, Mean Content Hemoglobin (MCH) 32.1 pg, mean corpuscular hemoglobin concentration (MCHC) 38.3 g/dL, reticulocytosis, and indirect hyperbilirubinemia. The complete blood work-up is shown in Table 1. The ultrasound of the abdomen did not show gallstones, hepatomegaly and splenomegaly. The patient was a single-born from non-consanguineous Italian parents (Fig. 1a). The remote case history reported neonatal jaundice treated with phototherapy. The family anamnesis revealed that the father presented jaundice during his childhood, recurrent episodes of abdominal pain resolved after splenectomy (performed at the age of 23 years-old) and gallstones for which he had undergone a cholecystectomy. The paternal uncle also had gallbladder stones. To investigate the cause of hemolysis in our patient, laboratory investigations were carried out. The peripheral blood smear showed anisocytosis with the presence of red blood cells with specific shape: stomatocytes (5%), ovalocytes (4%), schistocytes (3%) and rare spherocytes (Fig. 1b). The direct antiglobulin test (DAT) was negative, thus excluding an autoimmune origin of the hemolysis. Structural hemoglobin alterations have also been excluded performing electrophoresis and molecular assessment of the genes encoding beta and alpha-globin chains. The activity of red blood cell metabolism enzymes (Hexokinase, Glucose-6-phosphate isomerase, 6-Phosphofruttochinase, Glyceraldehyde phosphate dehydrogenase, Phosphoglycerate kinase, Pyruvate kinase, Glucose 6 phosphate dehydrogenase, Adenylate 6-Phosphogluconate dehydrogenase kinase) was normal. The family history showed an autosomal dominant inheritance of the condition. To investigate the possible presence of a spherocytosis condition, the most frequent erythrocyte structural defect, a combination of tests was performed. First, the eosin-5′-maleimide binding test (EMA test), a cytometric analysis in which a fluoresceinated (eosin-5′-maleimide) substance binds to the plasma membrane proteins of red blood cells, mainly to the band 3 protein [1, 9]. The average fluorescence of RBCs with EMA staining in patients with spherocytosis is lower than that of control RBCs due to the decrease in the number of target proteins. In our case, this examination was in the normal range with a value of 12% (normal test value> 11%). The other complementary investigations carried out were the osmotic resistance tests such as the glycerol lysis test (AGLT50) and the Pink test. These tests were normal in our patient. Furthermore, quantitative analysis of membrane proteins was carried out using Sodium Dodecyl Sulphate-PolyAcrylamide Gel Electrophoresis (SDS-PAGE), and resulted not altered. We also performed the ektacytometry that evaluates the erythrocyte deformability by subjecting them to an increasing osmotic gradient with constant shear stress [12]. Ektacytometry showed a left shift of the osmolarity curve suggestive of DHS. In agreement with the clinical suspicion, genetic testing was carried out both in the patient and in the parents by a targeted-NGS custom panel composed of 86 causative genes of hereditary anemias. This panel is an updated version of a similar previously published one [15]. We found in both subjects the missense variant c.1815G > A, p.Met605Ile in PIEZO1 gene (NM_001142864, CCDS54058) in heterozygous state. According to the guidelines of American College of Medical Genetics and Genomics (ACMG), we evaluated the pathogenicity of this variant by gathering evidence from various sources: population data, computational and predictive data, functional data, and segregation data [16]. First, the variant segregated in the affected father (Fig. 1a). Currently, this variant is annotated neither in population databases nor in databases of known variant. Moreover, it is predicted by several tools as probably damaging (MutationTaster score 0.999 Disease causing; FATHMM Score − 1.59; LRT prediction Deleterious; PolyPhen2 score HumVar 0.968 Probably damaging; PROVEAN Score-2.95 Damaging).",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "34",
+    "text_length_chars": 4271,
+    "num_annotations": 11,
+    "conversion_date": "2026-04-20T06:13:55.469309+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001923",
+      "label": "Reticulocytosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 350,
+          "end_char": 365,
+          "text_snippet": "reticulocytosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001981",
+      "label": "Schistocytosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002574",
+      "label": "Episodic abdominal pain",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0004444",
+      "label": "Spherocytosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0004445",
+      "label": "Elliptocytosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0004446",
+      "label": "Stomatocytosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0004863",
+      "label": "Compensated hemolytic anemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 60,
+          "end_char": 81,
+          "text_snippet": "compensated hemolysis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004870",
+      "label": "Chronic hemolytic anemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0006579",
+      "label": "Prolonged neonatal jaundice",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 648,
+          "end_char": 665,
+          "text_snippet": "neonatal jaundice"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0008282",
+      "label": "Unconjugated hyperbilirubinemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 371,
+          "end_char": 398,
+          "text_snippet": "indirect hyperbilirubinemia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0011273",
+      "label": "Anisocytosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    }
+  ]
+}

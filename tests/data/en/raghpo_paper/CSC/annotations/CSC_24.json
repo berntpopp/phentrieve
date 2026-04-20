@@ -1,0 +1,58 @@
+{
+  "doc_id": "CSC_24",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "We present an 18-year-old young woman, born from an incestuous relation, with prior history of oligophrenia, alopecia and bilateral hearing impairment. Patient was otherwise healthy until her menarche when she began experiencing acute inflammatory pain on the hip area during the premenstrual period, with progressive increase in volume and rigidity of both hips.  She presented with a waddling gait, limited and painful mobility of both hips (0-0-75°) with hard and prominent bilateral masses (figure 1). There were no records of any traumatic events. Plain pelvic radiography (figure 2) and CT scan (figure 3) showed exuberant soft tissues calcifications, enveloping both hips and thighs. There was no involvement of the surrounding skeleton, and no other anomalous tissue was found on the calcifications location. Patient was otherwise fit, with no recent history of weight loss, fever or other systemic signs of illness.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "24",
+    "text_length_chars": 924,
+    "num_annotations": 7,
+    "conversion_date": "2026-04-20T06:13:55.468068+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000365",
+      "label": "Hearing impairment",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001596",
+      "label": "Alopecia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002515",
+      "label": "Waddling gait",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0003365",
+      "label": "Arthralgia of the hip",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0003761",
+      "label": "Calcinosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0008800",
+      "label": "Limited hip movement",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0030838",
+      "label": "Hip pain",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    }
+  ]
+}

@@ -1,0 +1,118 @@
+{
+  "doc_id": "CSC_12",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A male patient in his late 70s who was a known case of hypertension and controlled with indapamide was seen at our facility. His medical history included a postspinal tumour that had been treated with surgery and radiation more than 40 years ago and had a residual left-sided hemiplegia. He presented to the otolaryngology clinic at Al-Hada Armed Forces Hospital having right ear pain and purulent discharge. His pain had started 6 months before presenting to the clinic and was constant and progressive since then. The pain was associated with a bilateral decrease in hearing for a long time. Local right ear examination revealed a right ear soft granular tissue mass occupying the right EAC mainly in the posterior wall of the canal with bleeding on touch. The right tympanic membrane could not be visualised. The first clinical impression was otitis externa after which a culture was taken from the discharge. The patient was managed with betamethasone and fucidin and given an appointment to assess the response to local medications. By the time of the follow-up appointment, the culture showed no growth; however, the patient did not improve, and right ear otalgia and the purulent discharge had increased in severity. An examination revealed an oedematous canal with pus and a non-visible tympanic membrane.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "12",
+    "text_length_chars": 1313,
+    "num_annotations": 10,
+    "conversion_date": "2026-04-20T06:13:55.467095+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000365",
+      "label": "Hearing impairment",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000372",
+      "label": "Abnormal auditory canal morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000822",
+      "label": "Hypertension",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 55,
+          "end_char": 67,
+          "text_snippet": "hypertension"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0006751",
+      "label": "Paraspinal neurofibroma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 156,
+          "end_char": 173,
+          "text_snippet": "postspinal tumour"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0011889",
+      "label": "Bleeding with minor or no trauma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 740,
+          "end_char": 757,
+          "text_snippet": "bleeding on touch"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012780",
+      "label": "Neoplasm of the ear",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 648,
+          "end_char": 692,
+          "text_snippet": "granular tissue mass occupying the right EAC"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0030766",
+      "label": "Ear pain",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 370,
+          "end_char": 384,
+          "text_snippet": "right ear pain"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0040090",
+      "label": "Abnormal tympanic membrane morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0040292",
+      "label": "Left hemiplegia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 265,
+          "end_char": 286,
+          "text_snippet": "left-sided hemiplegia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0410017",
+      "label": "Otitis externa",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 846,
+          "end_char": 860,
+          "text_snippet": "otitis externa"
+        }
+      ]
+    }
+  ]
+}

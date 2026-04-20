@@ -1,0 +1,196 @@
+{
+  "doc_id": "CSC_73",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A previously healthy 52-year-old man was sent to the Internal Medicine outpatient clinic to investigate an accidentally discovered pancytopenia. The patient had been reporting of asthenia, anorexia and non-quantified weight loss for some time. The initial workup revealed an unexplained splenomegaly and only the thrombocytopenia persisted. He was diagnosed with a dyslipidaemia. Liver function was completely normal and viral serologies were negative (cytomegalovirus, Epstein-Barr virus, hepatitis C and B, HIV and parvovirus). Antinuclear antibodies were also negative and serum protein electrophoresis, immunophenotyping and β-2-microglobulin were normal. The splenomegaly was heterogeneous with some hypodense nodules. CT of the lungs showed a generalised interstitial pattern and pulmonary function tests revealed low diffusing capacity of carbon monoxide (DLCO) and hypoxaemia. While the patient was waiting for a bone marrow aspiration and biopsy, he was admitted in the emergency department with an acute, sharp, left flank abdominal pain, accompanied by syncope. His haemoglobin was 7.9 g/dL and the CT scan showed a splenic rupture. The patient was submitted to emergency splenectomy and the histological findings were consistent with diffuse histiocytosis. The patient finally had a bone marrow biopsy, which revealed sea-blue histiocytosis, a sign of a storage disease. The NPD was confirmed when residual activity of ASM in peripheral blood leucocytes and cultured skin fibroblasts of less than 10% of that of controls was detected (sphingomyelinase activity 0.0 nmol/h/mg with a normal range between 0.84 and 3.36 in peripheral blood and 3 nmol/h/mg with a normal range between 18 and 300 in cultivated fibroblasts of the skin).",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "73",
+    "text_length_chars": 1743,
+    "num_annotations": 18,
+    "conversion_date": "2026-04-20T06:13:55.474567+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001279",
+      "label": "Syncope",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1064,
+          "end_char": 1071,
+          "text_snippet": "syncope"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001744",
+      "label": "Splenomegaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001824",
+      "label": "Weight loss",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 217,
+          "end_char": 228,
+          "text_snippet": "weight loss"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001873",
+      "label": "Thrombocytopenia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 313,
+          "end_char": 329,
+          "text_snippet": "thrombocytopenia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001876",
+      "label": "Pancytopenia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 131,
+          "end_char": 143,
+          "text_snippet": "pancytopenia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001903",
+      "label": "Anemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1077,
+          "end_char": 1101,
+          "text_snippet": "haemoglobin was 7.9 g/dL"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001982",
+      "label": "Sea-blue histiocytosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002039",
+      "label": "Anorexia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 189,
+          "end_char": 197,
+          "text_snippet": "anorexia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003119",
+      "label": "Abnormal circulating lipid concentration",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0012223",
+      "label": "Splenic rupture",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1127,
+          "end_char": 1142,
+          "text_snippet": "splenic rupture"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012418",
+      "label": "Hypoxemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0025389",
+      "label": "Pulmonary interstitial high-resolution computed tomography abnormality",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 724,
+          "end_char": 781,
+          "text_snippet": "CT of the lungs showed a generalised interstitial pattern"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0025406",
+      "label": "Asthenia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 179,
+          "end_char": 187,
+          "text_snippet": "asthenia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0025408",
+      "label": "Abnormal spleen morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0030157",
+      "label": "Flank pain",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1008,
+          "end_char": 1047,
+          "text_snippet": "acute, sharp, left flank abdominal pain"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0034300",
+      "label": "Decreased acid sphingomyelinase activity",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1410,
+          "end_char": 1532,
+          "text_snippet": "residual activity of ASM in peripheral blood leucocytes and cultured skin fibroblasts of less than 10% of that of controls"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0045051",
+      "label": "Decreased DLCO",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 820,
+          "end_char": 861,
+          "text_snippet": "low diffusing capacity of carbon monoxide"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100727",
+      "label": "Histiocytosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    }
+  ]
+}

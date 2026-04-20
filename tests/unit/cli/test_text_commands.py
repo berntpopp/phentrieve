@@ -270,6 +270,104 @@ def test_text_process_rejects_invalid_backend():
     assert "invalid value" in result.stderr.lower()
 
 
+def test_text_process_phenopacket_output_can_request_sidecar(monkeypatch, tmp_path):
+    runner = CliRunner()
+    sidecar_path = tmp_path / "packet.annotations.json"
+    monkeypatch.setattr(
+        "phentrieve.phenopackets.utils.export_phenopacket_bundle",
+        lambda **kwargs: {
+            "phenopacket_json": '{"id": "packet-1"}',
+            "annotation_sidecar": {"schema_version": "1.0.0", "annotations": []},
+        },
+    )
+    monkeypatch.setattr(
+        "phentrieve.cli.text_commands.run_full_text_service",
+        lambda **kwargs: {
+            "meta": {"extraction_backend": "standard"},
+            "processed_chunks": [],
+            "aggregated_hpo_terms": [],
+        },
+    )
+
+    result = runner.invoke(
+        app,
+        [
+            "text",
+            "process",
+            "clinical note",
+            "--output-format",
+            "phenopacket_v2_json",
+            "--phenopacket-sidecar",
+            "--phenopacket-sidecar-output-file",
+            str(sidecar_path),
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert json.loads(result.stdout)["id"] == "packet-1"
+    assert json.loads(sidecar_path.read_text())["schema_version"] == "1.0.0"
+
+
+def test_text_process_phenopacket_output_defaults_to_no_sidecar(monkeypatch):
+    runner = CliRunner()
+    monkeypatch.setattr(
+        "phentrieve.phenopackets.utils.export_phenopacket_bundle",
+        lambda **kwargs: {
+            "phenopacket_json": '{"id": "packet-1"}',
+            "annotation_sidecar": None,
+        },
+    )
+    monkeypatch.setattr(
+        "phentrieve.cli.text_commands.run_full_text_service",
+        lambda **kwargs: {
+            "meta": {"extraction_backend": "standard"},
+            "processed_chunks": [],
+            "aggregated_hpo_terms": [],
+        },
+    )
+
+    result = runner.invoke(
+        app,
+        [
+            "text",
+            "process",
+            "clinical note",
+            "--output-format",
+            "phenopacket_v2_json",
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert json.loads(result.stdout)["id"] == "packet-1"
+
+
+def test_text_process_phenopacket_sidecar_requires_output_file(monkeypatch):
+    runner = CliRunner()
+    monkeypatch.setattr(
+        "phentrieve.cli.text_commands.run_full_text_service",
+        lambda **kwargs: {
+            "meta": {"extraction_backend": "standard"},
+            "processed_chunks": [],
+            "aggregated_hpo_terms": [],
+        },
+    )
+
+    result = runner.invoke(
+        app,
+        [
+            "text",
+            "process",
+            "clinical note",
+            "--output-format",
+            "phenopacket_v2_json",
+            "--phenopacket-sidecar",
+        ],
+    )
+
+    assert result.exit_code == 1
+    assert "--phenopacket-sidecar-output-file" in result.stderr
+
+
 def test_run_llm_backend_uses_pipeline_and_provider(monkeypatch):
     calls: dict[str, object] = {}
 

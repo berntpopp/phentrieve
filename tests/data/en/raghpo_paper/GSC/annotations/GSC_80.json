@@ -1,0 +1,82 @@
+{
+  "doc_id": "GSC_80",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "Nevoid basal cell carcinoma syndrome (NBCCS) is rare in black persons. We describe an 11-year-old black boy with NBCCS who presented with exotropia and a painful, expanding, cystic mass in the left posterior alveolar ridge. Further examination revealed odontogenic keratocysts with palmar and plantar pitting. Less than 5% of reported patients with NBCCS are black. To our knowledge, this is the first report of a black patient with NBCCS presenting with exotropia and an impacted molar displaced into the orbit by an odontogenic keratocyst.",
+  "metadata": {
+    "dataset": "GSC",
+    "original_dataset": "GSC",
+    "original_doc_id": "9486718",
+    "text_length_chars": 541,
+    "num_annotations": 6,
+    "conversion_date": "2026-04-20T06:13:55.490812+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0006477",
+      "label": "Abnormal alveolar ridge morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 174,
+          "end_char": 222,
+          "text_snippet": "cystic mass in the left posterior alveolar ridge"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000577",
+      "label": "Exotropia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 138,
+          "end_char": 147,
+          "text_snippet": "exotropia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002671",
+      "label": "Basal cell carcinoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 0,
+          "end_char": 44,
+          "text_snippet": "Nevoid basal cell carcinoma syndrome (NBCCS)"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010603",
+      "label": "Odontogenic keratocysts of the jaw",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 253,
+          "end_char": 275,
+          "text_snippet": "odontogenic keratocyst"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010610",
+      "label": "Palmar pits",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 282,
+          "end_char": 308,
+          "text_snippet": "palmar and plantar pitting"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010612",
+      "label": "Plantar pits",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    }
+  ]
+}

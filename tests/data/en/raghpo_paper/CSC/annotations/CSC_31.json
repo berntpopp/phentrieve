@@ -1,0 +1,130 @@
+{
+  "doc_id": "CSC_31",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A 28-year-old man presented with a history of intermittent haematuria over the past 10 years. At the age of 18, he developed haematuria during an episode of enteric fever that persisted for 6–8 weeks after the fever subsided. He required repeated transfusions during the episode and as per the available record direct and indirect Coombs tests were positive and a diagnosis of autoimmune haemolytic anaemia was made by the treating physician on the basis of splenomegaly and positive Coombs test and steroids in the form of prednisolone were started at a dose of 1 mg/kg. The patient took treatment for 4 weeks and as haematuria did not subside and development of steroid facies, he defaulted on treatment. The patient improved spontaneously and did not follow-up. The patient continued to intermittently have haematuria and would go to local doctors and received blood transfusions for it. His episodes initially were associated with fever and would usually last for 2–3 weeks on average. But subsequently the episodes occurred spontaneously even without fever. Another evaluation performed elsewhere some years previously showed only indirect Coombs being positive and direct being negative. When he presented to our hospital the patient's main symptoms were tiredness, passing dark coloured urine for the past 1 week and slight icterus of eyes, as noticed by his brother. There was no history of fever so no medications were taken for it. There was no family history of any similar disorder or any history suggestive of haemolytic anaemia. Urine output was normal and there was no history of chest pain, difficulty in swallowing or early satiety. Investigations revealed a haemoglobin level of 5.4 g/dL, total leucocyte count 2000 cells/µL and platelet count 60 000/µL. He had an uncorrected reticulocyte count of 20.4% and serum lactate dehydrogenase level was elevated. Bone marrow showed a hypercellular marrow with erythroid-to-myeloid ratio of 5:1 and no iron stores (figure 1). Serum B12 levels were normal and urine was positive for haemosiderin in three separate samples. Antinuclear antibodies were negative and a Donath-Landsteiner (DL) antibodies test was negative ruling out paroxysmal cold haemoglobinuria (PCH). Ultrasound abdomen was performed which showed mild splenomegaly with normal-sized liver. There was absence of IgM agglutinins in his blood and glucose-6-phosphate dehydrogenase deficiency (G6PD) levels were normal. Ham's test could not be performed in absence of suitable control and flow cytometry was ordered for CD55 and CD59 antigens which showed a partial deficiency of CD59 antigen consistent with a diagnosis of type II PNH (figure 2).",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "31",
+    "text_length_chars": 2671,
+    "num_annotations": 18,
+    "conversion_date": "2026-04-20T06:13:55.468947+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000790",
+      "label": "Hematuria",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001744",
+      "label": "Splenomegaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 458,
+          "end_char": 470,
+          "text_snippet": "splenomegaly"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001873",
+      "label": "Thrombocytopenia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001882",
+      "label": "Leukopenia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001890",
+      "label": "Autoimmune hemolytic anemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001891",
+      "label": "Iron deficiency anemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001903",
+      "label": "Anemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001923",
+      "label": "Reticulocytosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001945",
+      "label": "Fever",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0004818",
+      "label": "Paroxysmal nocturnal hemoglobinuria",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0012378",
+      "label": "Fatigue",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0012543",
+      "label": "Hemosiderinuria",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0025435",
+      "label": "Increased circulating lactate dehydrogenase concentration",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0031020",
+      "label": "Bone marrow hypercellularity",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0031555",
+      "label": "Reduced granulocyte CD59 level",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0032106",
+      "label": "Conjunctival icterus",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0040319",
+      "label": "Dark urine",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0500011",
+      "label": "Moon facies",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    }
+  ]
+}

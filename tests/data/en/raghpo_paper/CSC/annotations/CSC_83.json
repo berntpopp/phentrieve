@@ -1,0 +1,166 @@
+{
+  "doc_id": "CSC_83",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A woman in her late 20s presented with symptoms of shortness of breath on exertion, dry cough and recurrent mild hemoptysis over the last 5 years, which aggravated over the last month. The patient had a history of respiratory infection in early childhood. She was diagnosed with microbiologically confirmed pulmonary tuberculosis 8 years ago, for which she took 6 months of antitubercular treatment. Her chest X-ray showed a hyperlucent area in the right lower zone with cystic shadows in the right paracardiac area. Spirometry showed a restrictive pattern with reduced forced expiratory volume in 1 s (FEV1) of 0.84 L, forced vital capacity (FVC) of 0.98 L and FEV1/FVC ratio of 85.71%. The mid-forced expiratory flow (25–75%) was 27% of the predicted, suggesting small airway obstruction. A high-resolution CT scan of the thorax revealed the right middle lobe and bilateral lower lobe bronchiectasis with a collapsed right lower lobe and areas of decreased attenuation, suggesting hyperinflation surrounding the affected area on the right side. The area of decreased attenuation showed a reduced number and calibre of blood vessels, suggesting decreased pulmonary blood flow. A few small calcified granulomas in the lateral segment of the right middle lobe with bronchiectatic changes were suggestive of an old infection. Active tuberculosis was ruled out, and the patient was started on inhaled bronchodilators and inhaled corticosteroids.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "83",
+    "text_length_chars": 1442,
+    "num_annotations": 15,
+    "conversion_date": "2026-04-20T06:13:55.476067+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0002091",
+      "label": "Restrictive ventilatory defect",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002105",
+      "label": "Hemoptysis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 98,
+          "end_char": 123,
+          "text_snippet": "recurrent mild hemoptysis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002110",
+      "label": "Bronchiectasis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 844,
+          "end_char": 901,
+          "text_snippet": "right middle lobe and bilateral lower lobe bronchiectasis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002875",
+      "label": "Exertional dyspnea",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 51,
+          "end_char": 82,
+          "text_snippet": "shortness of breath on exertion"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004930",
+      "label": "Abnormality of the pulmonary vasculature",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0006536",
+      "label": "Airway obstruction",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 765,
+          "end_char": 789,
+          "text_snippet": "small airway obstruction"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0025396",
+      "label": "Decreased attenuation pattern on pulmonary HRCT",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0030250",
+      "label": "Pulmonary granulomatosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0031246",
+      "label": "Nonproductive cough",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 84,
+          "end_char": 93,
+          "text_snippet": "dry cough"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0032262",
+      "label": "Pulmonary tuberculosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 307,
+          "end_char": 329,
+          "text_snippet": "pulmonary tuberculosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0032342",
+      "label": "Reduced forced expiratory volume in one second",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0033240",
+      "label": "Elevated RV/TLC ratio",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 307,
+          "end_char": 997,
+          "text_snippet": "pulmonary tuberculosis 8 years ago, for which she took 6 months of antitubercular treatment. Her chest X-ray showed a hyperlucent area in the right lower zone with cystic shadows in the right paracardiac area. Spirometry showed a restrictive pattern with reduced forced expiratory volume in 1 s (FEV1) of 0.84 L, forced vital capacity (FVC) of 0.98 L and FEV1/FVC ratio of 85.71%. The mid-forced expiratory flow (25–75%) was 27% of the predicted, suggesting small airway obstruction. A high-resolution CT scan of the thorax revealed the right middle lobe and bilateral lower lobe bronchiectasis with a collapsed right lower lobe and areas of decreased attenuation, suggesting hyperinflation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0033674",
+      "label": "Pulmonary blood flow redistribution",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1146,
+          "end_char": 1176,
+          "text_snippet": "decreased pulmonary blood flow"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100632",
+      "label": "Pulmonary sequestration",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 471,
+          "end_char": 485,
+          "text_snippet": "cystic shadows"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100750",
+      "label": "Atelectasis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 909,
+          "end_char": 935,
+          "text_snippet": "collapsed right lower lobe"
+        }
+      ]
+    }
+  ]
+}

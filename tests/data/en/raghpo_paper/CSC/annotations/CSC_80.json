@@ -1,0 +1,148 @@
+{
+  "doc_id": "CSC_80",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A 28-year-old man presented to us with swelling in front of the neck since 3 years. The patient was apparently asymptomatic till the age of 25 years. The swelling had gradually increased in size and he had come to us with cosmetic concerns. There was no voice change or difficulty in swallowing. There were no paroxysms of sweating or palpitation. He did not have diarrhoea or any other gastrointestinal symptoms. The patient had no family history of similar neck swelling. After examination, he was found to have firm thyromegaly with enlargement of both lobes of thyroid. No nodules or neck nodes were palpable. The patient also had thick bumpy lips and mucosal neuroma involving the vermilion border of the upper lip. Slit-lamp evaluation showed hypertrophic medullated corneal nerves. He had normal blood pressure during the office visit. The patient was admitted for suspected multiple endocrine neoplasia. During the hospital stay, the patient was found to have labile hypertension. Serum calcitonin level was grossly elevated (1363.2 pmol/l [normal value<48 pmol/l]) and plasma-free metaphrine was 1318.2 pmol/l [normal value <456 pmol/l]) values were elevated. Contrast-enhanced CT adrenal was done which showed a well-defined enhancing lesion in the right adrenal gland, suggestive of phaeochromocytoma. MIBG scan was done which showed avid tracer uptake in the right adrenal and thyroid. This confirmed the presence of medullary thyroid carcinoma and phaeochromocytoma.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "80",
+    "text_length_chars": 1479,
+    "num_annotations": 11,
+    "conversion_date": "2026-04-20T06:13:55.475707+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000159",
+      "label": "Abnormal lip morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 641,
+          "end_char": 651,
+          "text_snippet": "bumpy lips"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000853",
+      "label": "Goiter",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 519,
+          "end_char": 530,
+          "text_snippet": "thyromegaly"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002865",
+      "label": "Medullary thyroid carcinoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1429,
+          "end_char": 1456,
+          "text_snippet": "medullary thyroid carcinoma"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003334",
+      "label": "Elevated circulating catecholamine level",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1078,
+          "end_char": 1167,
+          "text_snippet": "plasma-free metaphrine was 1318.2 pmol/l [normal value <456 pmol/l]) values were elevated"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003528",
+      "label": "Elevated circulating calcitonin concentration",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 989,
+          "end_char": 1032,
+          "text_snippet": "Serum calcitonin level was grossly elevated"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0006748",
+      "label": "Adrenal pheochromocytoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1294,
+          "end_char": 1311,
+          "text_snippet": "phaeochromocytoma"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010726",
+      "label": "Prominent corneal nerve fibers",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 749,
+          "end_char": 788,
+          "text_snippet": "hypertrophic medullated corneal nerves."
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012471",
+      "label": "Thick vermilion border",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 635,
+          "end_char": 651,
+          "text_snippet": "thick bumpy lips"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0031023",
+      "label": "Multiple mucosal neuromas",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 656,
+          "end_char": 671,
+          "text_snippet": "mucosal neuroma"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:6000176",
+      "label": "Anterior neck swelling",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 39,
+          "end_char": 68,
+          "text_snippet": "swelling in front of the neck"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:6000321",
+      "label": "Labile Hypertension",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 968,
+          "end_char": 987,
+          "text_snippet": "labile hypertension"
+        }
+      ]
+    }
+  ]
+}

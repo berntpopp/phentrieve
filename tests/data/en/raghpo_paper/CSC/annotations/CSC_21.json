@@ -1,0 +1,46 @@
+{
+  "doc_id": "CSC_21",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A 21-year-old woman presented at the endocrinology clinic complaining of short stature compared with her siblings and peers. She had a medical history of precocious puberty; her mother narrated that irregular menses started at the age of 3 years and only become regular when she was 9 years. Patients’ breasts were also reported to develop since early childhood however galactorrhoea was not observed. There was no history of bone fractures. The rest of patient and social history was not significant. Physical examination revealed a young woman with short stature: height: 1.37 m, weight: 37 kg, temperature: 36.7°C, pulse rate: 86 beats per minute, blood pressure: 115/68 mm Hg, café-au-lait skin spots were found on the middle line of the back (figure 1) and lower abdomen. Both breasts were well developed (Tarner V), with adequate pubic hair distribution (Tarner IV), normal external female genitalia and normal clitoris. Visual fields and hearing were normal.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "21",
+    "text_length_chars": 965,
+    "num_annotations": 5,
+    "conversion_date": "2026-04-20T06:13:55.467923+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000826",
+      "label": "Precocious puberty",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000858",
+      "label": "Irregular menstruation",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000957",
+      "label": "Cafe-au-lait spot",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0004322",
+      "label": "Short stature",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0010314",
+      "label": "Premature thelarche",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    }
+  ]
+}

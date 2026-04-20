@@ -1,0 +1,64 @@
+{
+  "doc_id": "GSC_23",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "This paper reports on a family with popliteal pterygium syndrome (PPS), which was ascertained through a baby with most of the major signs of the syndrome. The mother, who had a repaired cleft palate and toe syndactyly, had been aware that her syndactyly was familial, but her unpreparedness for the birth of a child with PPS led to interest in, and a subsequent review of, the differnetial diagnosis and the variable expression of the clinical manifestations of this syndrome. Upon review, some earlier reported cases were excluded as PPS, and certain ascertainment and reporting biases that could affect such an analysis were considered.",
+  "metadata": {
+    "dataset": "GSC",
+    "original_dataset": "GSC",
+    "original_doc_id": "2164325",
+    "text_length_chars": 638,
+    "num_annotations": 4,
+    "conversion_date": "2026-04-20T06:13:55.489222+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000175",
+      "label": "Cleft palate",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 186,
+          "end_char": 198,
+          "text_snippet": "cleft palate"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009756",
+      "label": "Popliteal pterygium",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 36,
+          "end_char": 70,
+          "text_snippet": "popliteal pterygium syndrome (PPS)"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001159",
+      "label": "Syndactyly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 243,
+          "end_char": 266,
+          "text_snippet": "syndactyly was familial"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001770",
+      "label": "Toe syndactyly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 203,
+          "end_char": 217,
+          "text_snippet": "toe syndactyly"
+        }
+      ]
+    }
+  ]
+}

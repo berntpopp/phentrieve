@@ -279,6 +279,70 @@ class TestAggregateMultiVectorResults:
         assert aggregated[0]["component_scores"]["label"] == 0.9
         assert aggregated[0]["component_scores"]["synonyms"] == [0.8]
 
+    def test_includes_best_matching_component_metadata(self):
+        """Test aggregated results preserve the best matching component surface."""
+        results = {
+            "ids": [["HP:0001__label__0", "HP:0001__synonym__0"]],
+            "metadatas": [
+                [
+                    {"hpo_id": "HP:0001", "component": "label", "label": "Term 1"},
+                    {
+                        "hpo_id": "HP:0001",
+                        "component": "synonym",
+                        "label": "Term 1",
+                        "synonym_text": "Better matching synonym",
+                    },
+                ]
+            ],
+            "similarities": [[0.7, 0.92]],
+        }
+
+        aggregated = aggregate_multi_vector_results(results)
+
+        assert aggregated[0]["matched_component"] == "synonym"
+        assert aggregated[0]["matched_text"] == "Better matching synonym"
+
+    def test_definition_match_falls_back_to_label_when_definition_surface_missing(self):
+        """Definition matches should not invent unavailable definition metadata."""
+        results = {
+            "ids": [["HP:0001__label__0", "HP:0001__definition__0"]],
+            "metadatas": [
+                [
+                    {"hpo_id": "HP:0001", "component": "label", "label": "Term 1"},
+                    {"hpo_id": "HP:0001", "component": "definition", "label": "Term 1"},
+                ]
+            ],
+            "similarities": [[0.7, 0.92]],
+        }
+
+        aggregated = aggregate_multi_vector_results(results)
+
+        assert aggregated[0]["matched_component"] == "definition"
+        assert aggregated[0]["matched_text"] == "Term 1"
+
+    def test_equal_score_tie_keeps_first_component_metadata(self):
+        """Equal-score ties should stay stable instead of overwriting later."""
+        results = {
+            "ids": [["HP:0001__label__0", "HP:0001__synonym__0"]],
+            "metadatas": [
+                [
+                    {"hpo_id": "HP:0001", "component": "label", "label": "Term 1"},
+                    {
+                        "hpo_id": "HP:0001",
+                        "component": "synonym",
+                        "label": "Term 1",
+                        "synonym_text": "Equal synonym",
+                    },
+                ]
+            ],
+            "similarities": [[0.92, 0.92]],
+        }
+
+        aggregated = aggregate_multi_vector_results(results)
+
+        assert aggregated[0]["matched_component"] == "label"
+        assert aggregated[0]["matched_text"] == "Term 1"
+
     def test_filters_by_min_similarity(self):
         """Test results below threshold are filtered."""
         results = {

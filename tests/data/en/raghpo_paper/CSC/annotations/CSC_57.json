@@ -1,0 +1,214 @@
+{
+  "doc_id": "CSC_57",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A 56-year-old man presented to us with a history of frothy urine and leg oedema for the last 6 months. There was no history of fever, cough, shortness of breath and decrease urine output. There is no significant past medical history. No family member was suffering from similar illness. On examination, bilateral pedal oedema was present, the spleen was palpable 2 cm below left costal margin, rest examination was unremarkable. On further biochemical and haematological investigations, urine microscopy revealed significant proteinuria, a 24-hour urinary protein was 3.1 g and serum creatinine was 2.1 mg/dL. Complete blood count revealed haemoglobin (Hb)—13.0 g/dL, white cell count—28×109/L and platelet count of 842×109/L (table 1). The peripheral blood smear was suggestive of the leucoerythroblastic picture with few tear drop cells. Serum lactate dehydrogenase (LDH) was raised (1142 IU/L). To confirm the diagnosis of myeloproliferative disorders, bone marrow biopsy was done which was suggestive of PMF(figures 1 and 2). Our patient was classified in intermediate risk-1 according to Dynamic International Prognostic Scoring System. The patient was put on cytoreductive therapy with hydroxyurea (1000 mg/day). Subsequently, the patient was referred to nephrology department to determine the cause of progressive renal dysfunction. After 2 weeks, the patient presented in nephrology department with repeat urinalysis showing persistent nephrotic range proteinuria and serum creatinine of 2.3 mg/dL. Ultrasound abdomen was suggestive of the mild renal parenchymal disease. Viral markers (HbsAg, antihepatitis C virus, HIV) were negative. Serum electrophoresis study and antinuclear antibodies were negative (table 1). Renal biopsy was performed to know the underlying cause of rapidly declining renal dysfunction and proteinuria. Light microscopy section of kidney biopsy shows total 22 glomeruli out of which, 10 are globally sclerosed, 1 of the glomeruli shows ischaemic wrinkling and 2 of the glomeruli show segmental sclerosis (figure 3). All the medium-sized vessels and arterioles show medial thickening and luminal narrowing with hyaline arteriosclerosis (figure 4).",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "57",
+    "text_length_chars": 2180,
+    "num_annotations": 21,
+    "conversion_date": "2026-04-20T06:13:55.472072+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000093",
+      "label": "Proteinuria",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 525,
+          "end_char": 536,
+          "text_snippet": "proteinuria"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000112",
+      "label": "Nephropathy",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001744",
+      "label": "Splenomegaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001881",
+      "label": "Abnormal leukocyte morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001894",
+      "label": "Thrombocytosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 698,
+          "end_char": 725,
+          "text_snippet": "platelet count of 842×109/L"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001974",
+      "label": "Leukocytosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 668,
+          "end_char": 693,
+          "text_snippet": "white cell count—28×109/L"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003259",
+      "label": "Elevated circulating creatinine concentration",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 578,
+          "end_char": 608,
+          "text_snippet": "serum creatinine was 2.1 mg/dL"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004737",
+      "label": "Global glomerulosclerosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1925,
+          "end_char": 1963,
+          "text_snippet": "globally sclerosed, 1 of the glomeruli"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0005547",
+      "label": "Myeloproliferative disorder",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 926,
+          "end_char": 953,
+          "text_snippet": "myeloproliferative disorder"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0011974",
+      "label": "Myelofibrosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0012593",
+      "label": "Nephrotic range proteinuria",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1433,
+          "end_char": 1471,
+          "text_snippet": "persistent nephrotic range proteinuria"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012622",
+      "label": "Chronic kidney disease",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0025435",
+      "label": "Increased circulating lactate dehydrogenase concentration",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 840,
+          "end_char": 884,
+          "text_snippet": "Serum lactate dehydrogenase (LDH) was raised"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0031504",
+      "label": "Foamy urine",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 52,
+          "end_char": 64,
+          "text_snippet": "frothy urine"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0032563",
+      "label": "Dacryocytosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 823,
+          "end_char": 838,
+          "text_snippet": "tear drop cells"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0033045",
+      "label": "Bipedal edema",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 303,
+          "end_char": 325,
+          "text_snippet": "bilateral pedal oedema"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0033289",
+      "label": "Glomerular basement membrane wrinkling",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0033495",
+      "label": "Segmental glomerulosclerosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1894,
+          "end_char": 2037,
+          "text_snippet": "glomeruli out of which, 10 are globally sclerosed, 1 of the glomeruli shows ischaemic wrinkling and 2 of the glomeruli show segmental sclerosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0033904",
+      "label": "Renal arteriole intima/media hyalinosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0033918",
+      "label": "Renal arteriole medial hypertrophy",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0100545",
+      "label": "Arterial stenosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    }
+  ]
+}

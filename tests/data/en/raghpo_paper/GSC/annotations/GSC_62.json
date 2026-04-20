@@ -1,0 +1,88 @@
+{
+  "doc_id": "GSC_62",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "This prospective study of 96 individuals from 29 families with neurofibromatosis 2, 49 of whom were affected, confirms in an extended series the previously reported association between posterior subcapsular/capsular cataract and neurofibromatosis 2. Posterior subcapsular/capsular cataracts were found in 36 (80%) of the 45 affected individuals (four individuals were excluded from statistical analyses). In addition, the association of peripheral cortical lens opacities with neurofibromatosis 2 was found to be statistically significant. Seventeen of the patients with neurofibromatosis 2 (37.8%) had peripheral cortical cataracts in comparison with none of the unaffected family members (p < 0.0001). In three patients peripheral cortical opacities were present despite the absence of posterior subcapsular/capsular cataracts. These findings support the inclusion of cortical cataracts of early onset, in addition to posterior subcapsular/capsular cataracts, in the diagnostic criteria of neurofibromatosis 2.",
+  "metadata": {
+    "dataset": "GSC",
+    "original_dataset": "GSC",
+    "original_doc_id": "8318482",
+    "text_length_chars": 1012,
+    "num_annotations": 6,
+    "conversion_date": "2026-04-20T06:13:55.490243+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0100017",
+      "label": "Capsular cataract",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 207,
+          "end_char": 224,
+          "text_snippet": "capsular cataract"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001067",
+      "label": "Neurofibroma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 63,
+          "end_char": 82,
+          "text_snippet": "neurofibromatosis 2"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0008011",
+      "label": "Peripheral opacification of the cornea",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 603,
+          "end_char": 632,
+          "text_snippet": "peripheral cortical cataracts"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100019",
+      "label": "Cortical cataract",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 437,
+          "end_char": 471,
+          "text_snippet": "peripheral cortical lens opacities"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0007787",
+      "label": "Posterior subcapsular cataract",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 185,
+          "end_char": 224,
+          "text_snippet": "posterior subcapsular/capsular cataract"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000523",
+      "label": "Subcapsular cataract",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 195,
+          "end_char": 224,
+          "text_snippet": "subcapsular/capsular cataract"
+        }
+      ]
+    }
+  ]
+}

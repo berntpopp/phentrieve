@@ -1,0 +1,94 @@
+{
+  "doc_id": "CSC_14",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A non-smoking 57-year-old female presented with long-standing mild dyspnea and dry cough. Her medical history was remarkable for a subcutaneous right cervical nodule which corresponded pathologically to a neurofibroma. There were no other signs for type 1 neurofibromatosis as she had no family history of neurofibromatosis, no «café au lait» macules, no axillary or groin freckling, no plexiform neurofibroma, no cutaneous/subcutaneous neurofibroma and no Lisch nodules. Genetic testing for the Neurofibromin 1 (NF1) gene mutations was negative. MRI of the brain, spine and pelvis was normal, except for the right cervical neurofibroma measuring 4.5 cm in greatest diameter. Pulmonary function tests showed no obstructive or restrictive pattern. The chest radiograph demonstrated enlargement of the upper mediastinum with bilateral non-cavitating lobulated opacities (figure 1). Thoracic CT scan showed multiple bilateral round and non-compressive nodules and masses in the superior, anterior and posterior mediastinum, along with mediastinal lymphadenopathies (figure 2).",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "14",
+    "text_length_chars": 1073,
+    "num_annotations": 8,
+    "conversion_date": "2026-04-20T06:13:55.467272+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001067",
+      "label": "Neurofibroma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 205,
+          "end_char": 217,
+          "text_snippet": "neurofibroma"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001482",
+      "label": "Subcutaneous nodule",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 131,
+          "end_char": 165,
+          "text_snippet": "subcutaneous right cervical nodule"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002094",
+      "label": "Dyspnea",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 48,
+          "end_char": 74,
+          "text_snippet": "long-standing mild dyspnea"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0006751",
+      "label": "Paraspinal neurofibroma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 609,
+          "end_char": 636,
+          "text_snippet": "right cervical neurofibroma"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0031246",
+      "label": "Nonproductive cough",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 79,
+          "end_char": 88,
+          "text_snippet": "dry cough"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0033823",
+      "label": "Mediastinal mass",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0034501",
+      "label": "Widened mediastinum",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0100721",
+      "label": "Mediastinal lymphadenopathy",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    }
+  ]
+}

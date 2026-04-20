@@ -1,0 +1,130 @@
+{
+  "doc_id": "CSC_98",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A late adolescent primigravida presented for a first-trimester ultrasound at 12 3/7 weeks’ gestation. Sonographic findings were significant for cystic hygroma and shortened limbs. Detailed personal and family histories revealed no known skeletal disorders. The patient was counselled about the differential diagnosis including, but not limited to, aneuploidy and skeletal dysplasia and underwent CVS and microarray testing. The patient returned 4 weeks later for an early second-trimester detailed sonographic evaluation. Transvaginal and transabdominal ultrasounds demonstrated abnormalities of upper and lower extremities. The limbs appeared to be replaced by soft-tissue masses ending in digit-like projections, forming hand-like and foot-like structures bilaterally (figures 1–4). No humerus, radius, ulna, femur, tibia or fibula were identified. The scapula and clavicle were identified. A thorough skeletal evaluation revealed normal ossification of the skull with midfacial hypoplasia and a flattened nasal bridge. The spine was noted to be poorly ossified (figure 5). The ossified ribs were short extending only halfway around the thoracic circumference, with the edge of the ribs being flared or bell-shaped, bilaterally (figures 6 and 7). The chest was noted to be hypoplastic. The patient was informed of the severe nature of the skeletal dysplasia and received genetic counselling",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "98",
+    "text_length_chars": 1392,
+    "num_annotations": 19,
+    "conversion_date": "2026-04-20T06:13:55.478483+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000476",
+      "label": "Cystic hygroma",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000773",
+      "label": "Short ribs",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001591",
+      "label": "Bell-shaped thorax",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002652",
+      "label": "Skeletal dysplasia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002814",
+      "label": "Abnormality of the lower limb",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002817",
+      "label": "Abnormality of the upper limb",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002990",
+      "label": "Fibular aplasia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0003862",
+      "label": "Absent humerus",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0003974",
+      "label": "Absent radius",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0003982",
+      "label": "Aplasia of the ulna",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0005257",
+      "label": "Thoracic hypoplasia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0005280",
+      "label": "Depressed nasal bridge",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0005927",
+      "label": "Aplasia/hypoplasia involving bones of the hand",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0006603",
+      "label": "Flared, irregular rib ends",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0006615",
+      "label": "Absent in utero rib ossification",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0009556",
+      "label": "Absent tibia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0009815",
+      "label": "Aplasia/hypoplasia of the extremities",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0011800",
+      "label": "Midface retrusion",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0100856",
+      "label": "Poorly ossified vertebrae",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    }
+  ]
+}

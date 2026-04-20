@@ -1,0 +1,120 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://phentrieve.org/schemas/phenotype_annotation_bundle_v1.schema.json",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "artifact_type",
+    "generated_by",
+    "phenopacket_id",
+    "annotations"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "artifact_type": {
+      "const": "phenotype_annotation_bundle"
+    },
+    "generated_by": {
+      "type": "object",
+      "required": ["tool", "version"],
+      "properties": {
+        "tool": {
+          "const": "phentrieve"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "phenopacket_id": {
+      "type": "string"
+    },
+    "annotations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "annotation_id",
+          "phenotypic_feature_index",
+          "hpo_id",
+          "label",
+          "assertion",
+          "spans",
+          "provenance"
+        ],
+        "properties": {
+          "annotation_id": {
+            "type": "string"
+          },
+          "phenotypic_feature_index": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "hpo_id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "assertion": {
+            "enum": [
+              "affirmed",
+              "negated",
+              "uncertain",
+              "family_history",
+              "unknown"
+            ]
+          },
+          "confidence": {
+            "type": "number",
+            "minimum": 0.0,
+            "maximum": 1.0
+          },
+          "certainty": {
+            "type": "string"
+          },
+          "evidence_text": {
+            "type": "string"
+          },
+          "spans": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["start_char", "end_char"],
+              "properties": {
+                "start_char": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "end_char": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "text": {
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "chunk_refs": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "provenance": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

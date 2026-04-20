@@ -1,0 +1,148 @@
+{
+  "doc_id": "CSC_60",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "The patient was a 12-year-old boy who was the first child of non-consanguineous healthy parents. His growth and development had been normal. He had been followed at another hospital since the age of 3 years because of glycosuria and proteinuria of unknown cause. At the first visit to our hospital, there were no specific physical findings. Laboratory findings showed a low serum uric acid level (2 mg/dL), a high urinary β-2 microglobulin level (78,600 μg/L; normal < 250 μg/L), glycosuria (4+), proteinuria (urinary total protein/creatinine: 1.08 [73 mg/dL/67.1 mg/dL]), and aminoaciduria consistent with Fanconi syndrome. Serum potassium and phosphate levels were within the lower normal limits. Blood gas analysis showed a normal bicarbonate ion value. His estimated glomerular filtration rate (eGFR) was 66.8 mL/min/1.73 m2. Levels of serum copper ceruloplasmin, lactic acid, and pyruvic acid indicated that Wilson disease and mitochondrial disease were not the cause of Fanconi syndrome. A recent slit-lamp examination showed cystine crystals in the cornea. He had undergone an ophthalmological examination, including a slit-lamp examination, every 1 or 2 years because of seasonal pollen-allergic conjunctivitis until at least 2 years before referral to our hospital. A cystine-binding protein assay showed a high free cystine content in granulocytes (6.36 nmol half-cystine/mg protein, normal: <0.15). He was finally diagnosed with nephropathic juvenile cystinosis. He had no signs of endocrine involvement, such as hypothyroidism, hypogonadism, or rickets. A renal biopsy showed multinucleated podocytes, tubular atrophy, and interstitial fibrosis. Cystine crystals were detected by electron microscopy. These findings are consistent with cystinosis.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "60",
+    "text_length_chars": 1759,
+    "num_annotations": 12,
+    "conversion_date": "2026-04-20T06:13:55.472452+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000092",
+      "label": "Renal tubular atrophy",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1568,
+          "end_char": 1629,
+          "text_snippet": "renal biopsy showed multinucleated podocytes, tubular atrophy"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000093",
+      "label": "Proteinuria",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 233,
+          "end_char": 244,
+          "text_snippet": "proteinuria"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000531",
+      "label": "Corneal crystals",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1032,
+          "end_char": 1062,
+          "text_snippet": "cystine crystals in the cornea"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001994",
+      "label": "Renal Fanconi syndrome",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0003076",
+      "label": "Glycosuria",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 218,
+          "end_char": 228,
+          "text_snippet": "glycosuria"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003355",
+      "label": "Aminoaciduria",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 577,
+          "end_char": 590,
+          "text_snippet": "aminoaciduria"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003358",
+      "label": "Elevated intracellular cystine",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0003537",
+      "label": "Hypouricemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 370,
+          "end_char": 389,
+          "text_snippet": "low serum uric acid"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0025466",
+      "label": "Beta 2-microglobulinuria",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 409,
+          "end_char": 445,
+          "text_snippet": "high urinary β-2 microglobulin level"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0032639",
+      "label": "Elevated leukocyte cystine",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1316,
+          "end_char": 1357,
+          "text_snippet": "high free cystine content in granulocytes"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0032948",
+      "label": "Renal interstitial fibrosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1568,
+          "end_char": 1656,
+          "text_snippet": "renal biopsy showed multinucleated podocytes, tubular atrophy, and interstitial fibrosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0033297",
+      "label": "Multinucleated visceral epithelial cells",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1568,
+          "end_char": 1612,
+          "text_snippet": "renal biopsy showed multinucleated podocytes"
+        }
+      ]
+    }
+  ]
+}

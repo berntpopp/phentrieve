@@ -1,0 +1,112 @@
+{
+  "doc_id": "CSC_5",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "An 85-year-old man was referred to rheumatology with walking difficulties and elevation of serum creatine kinase (CK). Initial tests revealed elevated erythrocyte sedimentation rate (ESR) 76 mm/hour; normal C reactive protein (CRP) and serum CK of 525 IU/L. Antinuclear and extractable nuclear antibodies (including anti-Jo1) were negative. Investigations for myopathy included MRI Stir sequence (figure 1) demonstrated increased signal in the hip adductors bilaterally, consistent with symmetrical myositis. CT scan of the chest, abdomen and pelvis, requested to exclude occult cancer, revealed diffuse infiltration of the mesentery and retroperitoneal fat (figure 2), despite lack of abdominal symptoms. This appearance was initially considered suspicious of malignancy without an obvious primary lesion; however, mesenteric biopsy reported only hyaline fatty sclerosis. On follow-up, the patient described spontaneous bruising. Serum protein electrophoresis was initially normal, although urine for Bence-Jones protein showed Lambda light chain of 0.03 g/24 hours. The possibility of amyloidosis was considered, and Congo Red stain of the existing mesenteric biopsy was requested, which was positive. Bone marrow biopsy showed 15% plasma cells, and serum analysis demonstrated raised free light Lambda chain of 102 mg/L. The final diagnosis was systemic AL (lambda-type) amyloidosis, with muscle infiltration mimicking myositis. Two patterns of peritoneal amyloid have been described on imaging: diffuse and nodular types. Our patient had the diffuse pattern of peritoneal amyloid",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "5",
+    "text_length_chars": 1583,
+    "num_annotations": 11,
+    "conversion_date": "2026-04-20T06:13:55.465734+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001288",
+      "label": "Gait disturbance",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0003216",
+      "label": "Generalized amyloid deposition",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0003236",
+      "label": "Elevated circulating creatine kinase concentration",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0003565",
+      "label": "Elevated erythrocyte sedimentation rate",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 142,
+          "end_char": 181,
+          "text_snippet": "elevated erythrocyte sedimentation rate"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0007420",
+      "label": "Spontaneous hematomas",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 909,
+          "end_char": 929,
+          "text_snippet": "spontaneous bruising"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0011034",
+      "label": "Amyloidosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0012548",
+      "label": "Fatty replacement of skeletal muscle",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1392,
+          "end_char": 1411,
+          "text_snippet": "muscle infiltration"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0030150",
+      "label": "Plasmacytosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 420,
+          "end_char": 1246,
+          "text_snippet": "increased signal in the hip adductors bilaterally, consistent with symmetrical myositis. CT scan of the chest, abdomen and pelvis, requested to exclude occult cancer, revealed diffuse infiltration of the mesentery and retroperitoneal fat (figure 2), despite lack of abdominal symptoms. This appearance was initially considered suspicious of malignancy without an obvious primary lesion; however, mesenteric biopsy reported only hyaline fatty sclerosis. On follow-up, the patient described spontaneous bruising. Serum protein electrophoresis was initially normal, although urine for Bence-Jones protein showed Lambda light chain of 0.03 g/24 hours. The possibility of amyloidosis was considered, and Congo Red stain of the existing mesenteric biopsy was requested, which was positive. Bone marrow biopsy showed 15% plasma cells"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0032295",
+      "label": "Monoclonal elevation of IgG lambda chain",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0032303",
+      "label": "Lambda Bence Jones proteinuria",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0100614",
+      "label": "Myositis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 487,
+          "end_char": 507,
+          "text_snippet": "symmetrical myositis"
+        }
+      ]
+    }
+  ]
+}

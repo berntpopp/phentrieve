@@ -1,0 +1,256 @@
+{
+  "doc_id": "CSC_78",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A seven-year-old male patient, born from a non-consanguineous couple, presented with unaltered development until three years of age, when he displayed refractory epilepsy characterized by generalized tonic-clonic, focal motor, and absences seizures, progressing to daily myoclonic-atonic seizures. Ataxia and neuropsychomotor regression of development were also observed from the age of 4.5 years, when treatment with valproic acid was introduced. EEG evaluations as follows: a) at the age of 4 years, EEG showed absence of sleep spindles and spike-wave discharges in the posterior region of the brain; b) at the age of 6 years, the second EEG showed a worsening of the background activity of sleep and an increase in epileptiform discharges with a multifocal pattern, in addition to generalized spike-waves and c) at the age of 7 years, the third EEG showed a more pronounced increase in generalized epileptiform discharges followed by a transient attenuation of background activity. Of note, photoparoxysmal response was absent in all the three EEGs. These enzyme evaluations were performed when the patient was at 5 years and 6 months of age. The results revealed a reduced enzymatic activity of TTP1 (0.4 nmol/h/ml; normal range from 4.0 to 23 nmol/h/ml) and mild reduction in PTT1 (7.1 nmol/h/ml of a normal range from 9.4 to 11 nmol/h/ml). At the most recent evaluation (at 8 years of age), the patient was restricted to bed without active interactions with the environment or other people. The patient displayed lack of speech, apathy, axial-predominant hypotonia, tetraparesis with hyperreflexia and bilateral signs of pyramidal release such as clonus and Babinski sign. Gastrostomy has been performed for nutritional support.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "78",
+    "text_length_chars": 1734,
+    "num_annotations": 21,
+    "conversion_date": "2026-04-20T06:13:55.475398+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000741",
+      "label": "Apathy",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1535,
+          "end_char": 1541,
+          "text_snippet": "apathy"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001250",
+      "label": "Seizure",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001251",
+      "label": "Ataxia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 298,
+          "end_char": 304,
+          "text_snippet": "Ataxia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001347",
+      "label": "Hyperreflexia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1590,
+          "end_char": 1603,
+          "text_snippet": "hyperreflexia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002121",
+      "label": "Generalized non-motor (absence) seizure",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 231,
+          "end_char": 248,
+          "text_snippet": "absences seizures"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002169",
+      "label": "Clonus",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1653,
+          "end_char": 1659,
+          "text_snippet": "clonus"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002273",
+      "label": "Tetraparesis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1572,
+          "end_char": 1584,
+          "text_snippet": "tetraparesis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002371",
+      "label": "Loss of speech",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0003487",
+      "label": "Babinski sign",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1664,
+          "end_char": 1677,
+          "text_snippet": "Babinski sign"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0007256",
+      "label": "Abnormal pyramidal sign",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1608,
+          "end_char": 1644,
+          "text_snippet": "bilateral signs of pyramidal release"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0008936",
+      "label": "Axial hypotonia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1543,
+          "end_char": 1570,
+          "text_snippet": "axial-predominant hypotonia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010841",
+      "label": "Multifocal epileptiform discharges",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 718,
+          "end_char": 767,
+          "text_snippet": "epileptiform discharges with a multifocal pattern"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010850",
+      "label": "EEG with spike-wave complexes",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 543,
+          "end_char": 643,
+          "text_snippet": "spike-wave discharges in the posterior region of the brain; b) at the age of 6 years, the second EEG"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0011153",
+      "label": "Focal motor seizure",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 214,
+          "end_char": 248,
+          "text_snippet": "focal motor, and absences seizures"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0011170",
+      "label": "Generalized myoclonic-atonic seizure",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 271,
+          "end_char": 296,
+          "text_snippet": "myoclonic-atonic seizures"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012000",
+      "label": "EEG with generalized spikes",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 784,
+          "end_char": 807,
+          "text_snippet": "generalized spike-waves"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0025190",
+      "label": "Bilateral tonic-clonic seizure with generalized onset",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 188,
+          "end_char": 248,
+          "text_snippet": "generalized tonic-clonic, focal motor, and absences seizures"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002376",
+      "label": "Developmental regression",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 309,
+          "end_char": 351,
+          "text_snippet": "neuropsychomotor regression of development"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:5200298",
+      "label": "Abnormal sleep architecture",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 231,
+          "end_char": 643,
+          "text_snippet": "absences seizures, progressing to daily myoclonic-atonic seizures. Ataxia and neuropsychomotor regression of development were also observed from the age of 4.5 years, when treatment with valproic acid was introduced. EEG evaluations as follows: a) at the age of 4 years, EEG showed absence of sleep spindles and spike-wave discharges in the posterior region of the brain; b) at the age of 6 years, the second EEG"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:6000571",
+      "label": "Reduced tissue tripeptidyl peptidase 1 activity",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1169,
+          "end_char": 1203,
+          "text_snippet": "reduced enzymatic activity of TTP1"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:6000783",
+      "label": "Reduced tissue palmitoyl-protein thioesterase activity",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1263,
+          "end_char": 1285,
+          "text_snippet": "mild reduction in PTT1"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,124 @@
+{
+  "doc_id": "CSC_19",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A 40-year-old woman, affected by achondroplasia, presented to our department with pain and swelling, owing to severe left KOA. The patient was treated conservatively for several years with physiotherapy, diet and lifestyle modification, medical treatment and articular injections, but with poor results. Between the ages of 12 and 17 years, due to dwarfism, the patient underwent surgery to lengthen the lower limbs and correct the valgus deformity by osteotomy, using an external fixation. At the level of the femur, the bone was lengthened on the right and the left side by 18 cm, using a monolateral external fixation and slight acute deformity correction; at the level of the tibia, the bone was lengthened by 15 cm with gradual deformity correction, using a circular external fixation. The patient also underwent arm lengthening of 5 cm. On physical examination, she was 4 ft, 9 inches tall, weighed 102 lbs and had a body mass index of 22.1, in good general condition. The left knee presented a coronal valgus malalignment of 10°, joint effusion, and mediolateral instability due to collateral medial ligament laxity and stiffness, with a range of motion from 0° to 80°. Therefore, the patient was experiencing difficulties when carrying out regular daily activities. The right knee presented with clinical and radiological signs of moderate osteoarthritis, with little discomfort. No differences in lower limb length were present. Blood tests and history excluded conditions that can cause secondary osteoarthritis (eg, gout, rheumatoid arthritis, diabetes, hormone disorders, etc). A plain X-ray, in a standing position, with an anteroposterior and lateral view (figure 1A, B), revealed a valgus deformity of the left knee with severe osteoarthritis, flared metaphysis, and coronal and sagittal metaphyseal angulation.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "19",
+    "text_length_chars": 1826,
+    "num_annotations": 12,
+    "conversion_date": "2026-04-20T06:13:55.467716+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001376",
+      "label": "Limitation of joint mobility",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001386",
+      "label": "Joint swelling",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001382",
+      "label": "Joint hypermobility",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001513",
+      "label": "Obesity",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002857",
+      "label": "Genu valgum",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0003015",
+      "label": "Flared metaphysis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1759,
+          "end_char": 1776,
+          "text_snippet": "flared metaphysis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003088",
+      "label": "Premature osteoarthritis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1736,
+          "end_char": 1757,
+          "text_snippet": "severe osteoarthritis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003510",
+      "label": "Severe short stature",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 348,
+          "end_char": 356,
+          "text_snippet": "dwarfism"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0005086",
+      "label": "Knee osteoarthritis",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0008081",
+      "label": "Pes valgus",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 432,
+          "end_char": 448,
+          "text_snippet": "valgus deformity"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012531",
+      "label": "Pain",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 82,
+          "end_char": 86,
+          "text_snippet": "pain"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0025263",
+      "label": "Stiff knee",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 984,
+          "end_char": 1136,
+          "text_snippet": "knee presented a coronal valgus malalignment of 10°, joint effusion, and mediolateral instability due to collateral medial ligament laxity and stiffness"
+        }
+      ]
+    }
+  ]
+}

@@ -14,6 +14,7 @@ ASSERTION_STATUS_MAP: dict[str, str] = {
     "negated": "ABSENT",
     "uncertain": "UNCERTAIN",
     "normal": "PRESENT",
+    "family_history": "FAMILY_HISTORY",
 }
 
 LLM_ASSERTION_TO_BENCHMARK: dict[str, str] = {
@@ -25,9 +26,32 @@ LLM_ASSERTION_TO_BENCHMARK: dict[str, str] = {
 }
 
 PHENOBERT_DATASETS: tuple[str, ...] = ("GSC_plus", "ID_68", "GeneReviews")
+RAG_HPO_PAPER_DATASETS: tuple[str, ...] = ("CSC", "GSC")
+DIRECTORY_BENCHMARK_DATASETS: tuple[str, ...] = (
+    "GSC_plus",
+    "ID_68",
+    "GeneReviews",
+    "CSC",
+    "GSC",
+)
 DEFAULT_PHENOBERT_DATASET = "all"
 DEFAULT_SIMPLE_ASSERTION = "PRESENT"
 BENCHMARK_TEXT_KEYS: tuple[str, ...] = ("text", "input_text")
+
+DATASET_GOLD_ASSERTION_PROJECTION: dict[str, dict[str, str | None]] = {
+    "CSC": {
+        "PRESENT": "PRESENT",
+        "ABSENT": None,
+        "UNCERTAIN": None,
+        "FAMILY_HISTORY": None,
+    },
+    "GSC": {
+        "PRESENT": "PRESENT",
+        "ABSENT": None,
+        "UNCERTAIN": None,
+        "FAMILY_HISTORY": None,
+    },
+}
 
 
 def load_benchmark_data(
@@ -46,13 +70,14 @@ def load_phenobert_data(
 ) -> dict[str, Any]:
     """Load converted PhenoBERT benchmark documents from a directory."""
     dataset_dirs = {
-        name: base_dir / name / "annotations" for name in PHENOBERT_DATASETS
+        name: base_dir / name / "annotations" for name in DIRECTORY_BENCHMARK_DATASETS
     }
 
     if dataset != DEFAULT_PHENOBERT_DATASET:
         if dataset not in dataset_dirs:
             raise ValueError(
-                f"Unknown dataset: {dataset}. Available: {list(PHENOBERT_DATASETS)}"
+                "Unknown dataset: "
+                f"{dataset}. Available: {list(DIRECTORY_BENCHMARK_DATASETS)}"
             )
         dataset_dirs = {dataset: dataset_dirs[dataset]}
 
@@ -67,7 +92,8 @@ def load_phenobert_data(
         for json_file in sorted(annotations_dir.glob("*.json")):
             doc_data = json.loads(json_file.read_text(encoding="utf-8"))
             gold_hpo_terms = _convert_phenobert_annotations(
-                doc_data.get("annotations", [])
+                doc_data.get("annotations", []),
+                dataset_name=dataset_name,
             )
             documents.append(
                 {
@@ -87,8 +113,9 @@ def load_phenobert_data(
 
     return {
         "metadata": {
-            "dataset_name": f"phenobert_{dataset}",
-            "source": "phenobert",
+            "dataset_name": _directory_dataset_name(dataset),
+            "source": _directory_dataset_source(dataset),
+            "dataset_namespace": _directory_dataset_source(dataset),
             "total_documents": len(documents),
             "total_annotations": total_annotations,
         },
@@ -176,17 +203,28 @@ def parse_gold_terms(gold_hpo_terms: list[Any]) -> list[tuple[str, str]]:
 
 def _convert_phenobert_annotations(
     annotations: list[dict[str, Any]],
+    *,
+    dataset_name: str | None = None,
 ) -> list[dict[str, Any]]:
     gold_terms: list[dict[str, Any]] = []
+    projection = None
+    if dataset_name is not None:
+        projection = DATASET_GOLD_ASSERTION_PROJECTION.get(dataset_name)
     for annotation in annotations:
+        assertion = ASSERTION_STATUS_MAP.get(
+            str(annotation.get("assertion_status", "affirmed")),
+            DEFAULT_SIMPLE_ASSERTION,
+        )
+        if projection is not None:
+            projected_assertion = projection.get(assertion)
+            if projected_assertion is None:
+                continue
+            assertion = projected_assertion
         gold_terms.append(
             {
                 "id": annotation.get("hpo_id", ""),
                 "label": annotation.get("label", ""),
-                "assertion": ASSERTION_STATUS_MAP.get(
-                    str(annotation.get("assertion_status", "affirmed")),
-                    DEFAULT_SIMPLE_ASSERTION,
-                ),
+                "assertion": assertion,
                 "evidence_spans": annotation.get("evidence_spans", []),
             }
         )
@@ -210,3 +248,13 @@ def _get_case_text(case: dict[str, Any]) -> str:
         if isinstance(value, str) and value.strip():
             return value
     raise ValueError("Each benchmark case must provide non-empty text.")
+
+
+def _directory_dataset_source(dataset: str) -> str:
+    if dataset in RAG_HPO_PAPER_DATASETS:
+        return "rag_hpo_paper"
+    return "phenobert"
+
+
+def _directory_dataset_name(dataset: str) -> str:
+    return f"phenobert_{dataset}"

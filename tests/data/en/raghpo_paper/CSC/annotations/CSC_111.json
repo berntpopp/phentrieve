@@ -1,0 +1,88 @@
+{
+  "doc_id": "CSC_111",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A 9-year-old girl, born in Thailand, was diagnosed with B-cell acute lymphoblastic leukemia (B-cell ALL) and presented with epistaxis. She underwent chemotherapy as per the very-high-risk ALL protocol, including vincristine, doxorubicin, L-asparaginase, prednisolone and intrathecal methotrexate. Before starting chemotherapy, her chest X-ray was normal, and tuberculin skin test reported 0 mm. However, she failed to respond to the induction phase and required augmented-consolidation treatment with cyclophosphamide, high-dose cytarabine, mercaptopurine and intrathecal methotrexate. After a week of augmented-consolidation treatment, the patient developed febrile neutropenia, characterized by a complete absence of neutrophils. Despite receiving IV piperacillin/tazobactam for 4 days, she continued to experience prolonged febrile neutropenia for duration 4 days. Hemoculture, urine culture and serum Aspergillus galactomannan results were reported as negative. To investigate further, a computed tomography (CT) chest scan was performed, revealing an air crescent sign at the anterior segment of the right upper lobe (2.7 × 2.2 × 2.3 cm3) and multiple nodules in the lungs, indicating invasive pulmonary aspergillosis",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "111",
+    "text_length_chars": 1222,
+    "num_annotations": 8,
+    "conversion_date": "2026-04-20T06:13:55.479957+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000421",
+      "label": "Epistaxis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 124,
+          "end_char": 133,
+          "text_snippet": "epistaxis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001875",
+      "label": "Neutropenia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 659,
+          "end_char": 678,
+          "text_snippet": "febrile neutropenia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004812",
+      "label": "B Acute Lymphoblastic Leukemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0012234",
+      "label": "Agranulocytosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 699,
+          "end_char": 730,
+          "text_snippet": "complete absence of neutrophils"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0020103",
+      "label": "Invasive pulmonary aspergillosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1190,
+          "end_char": 1222,
+          "text_snippet": "invasive pulmonary aspergillosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0020174",
+      "label": "Refractory drug response",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0032172",
+      "label": "Air crescent sign",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0033608",
+      "label": "Pulmonary nodule",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    }
+  ]
+}

@@ -1,0 +1,250 @@
+{
+  "doc_id": "CSC_90",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A 34-year-old G3P2 11-week 6-day-old pregnant female patient presented to the emergency department with a history of confusion, nausea and vomiting. Prior to this, she was admitted a month ago for hyperemesis. At that point, thyroid function tests showed a suppressed thyroid-stimulating hormone (TSH) of 0.01 (0.27–4.2 ng/dL) and high free thyroxine (FT4) of 3.88 (0.9–1.7 ng/dL). Thyroid-stimulating immunoglobulin and thyroid receptor antibody were negative ruling out Graves’ disease. She was diagnosed as having gestational hyperthyroidism and treated with hydration and antiemetics, no thionamides were given; her FT4 trended downwards and she was discharged. Since discharge, she continued to have vomiting, and also developed worsening of her mental status. Although she was prescribed prenatal vitamins, she was unable to take them secondary to persistent vomiting. She had a 30 lb weight loss in the last 1 month. Vitals on admission showed tachycardia of 134 beats/min and a temperature of 98.1. On examination, she was cachectic and had difficulty answering questions. No exophthalmos or thyromegaly was noted. Heart and lung examination was normal except for the tachycardia as described above. Neurological examination revealed a left-sided nystagmus, equal and reactive pupils, power of 4/5 and decreased reflexes were noted in all extremities. Gait assessment, finger to nose test and Romberg’s test could not be performed. Lab assessment (table 1) revealed elevated blood urea nitrogen, creatinine, aspartate transaminase, alanine transaminase and bilirubin. TSH was suppressed, FT4 was very high. CT scan of the head done to evaluate mental status changes was unremarkable. Renal ultrasound, done for the evaluation of renal failure, did not show any obstructive pathology. Lumbar puncture did not reveal any infectious pathology, and electroencephalogram showed non-specific cerebral dysfunction. Thiamine levels were checked and were found to be low. MRI of the brain showed T2 hyperintensities and restricted diffusion in the medial thalami, periaqueductal grey matter and dorsal medulla consistent with Wernicke’s encephalopathy.  On follow-up in the clinic 1 month after discharge, the patient’s mental status improved significantly; however, she still had nystagmus and ataxia. She gave birth to a healthy baby boy at 37 weeks weighing 3150 g. After 18 months of extensive rehabilitation, her gait is still very unsteady, and she is a wheelchair user for the most part. She continues to have bilateral nystagmus; however, her mental faculties have improved and are back to baseline.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "90",
+    "text_length_chars": 2606,
+    "num_annotations": 26,
+    "conversion_date": "2026-04-20T06:13:55.477146+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000639",
+      "label": "Nystagmus",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1244,
+          "end_char": 1264,
+          "text_snippet": "left-sided nystagmus"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000836",
+      "label": "Hyperthyroidism",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 529,
+          "end_char": 544,
+          "text_snippet": "hyperthyroidism"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001251",
+      "label": "Ataxia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001265",
+      "label": "Hyporeflexia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001289",
+      "label": "Confusion",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001298",
+      "label": "Encephalopathy",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001649",
+      "label": "Tachycardia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001824",
+      "label": "Weight loss",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 891,
+          "end_char": 902,
+          "text_snippet": "weight loss"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002013",
+      "label": "Vomiting",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002018",
+      "label": "Nausea",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002317",
+      "label": "Unsteady gait",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2417,
+          "end_char": 2444,
+          "text_snippet": "gait is still very unsteady"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002904",
+      "label": "Hyperbilirubinemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1474,
+          "end_char": 1574,
+          "text_snippet": "elevated blood urea nitrogen, creatinine, aspartate transaminase, alanine transaminase and bilirubin"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003138",
+      "label": "Increased blood urea nitrogen",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1474,
+          "end_char": 1502,
+          "text_snippet": "elevated blood urea nitrogen"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003259",
+      "label": "Elevated circulating creatinine concentration",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1474,
+          "end_char": 1514,
+          "text_snippet": "elevated blood urea nitrogen, creatinine"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004326",
+      "label": "Cachexia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0011441",
+      "label": "Abnormal medulla oblongata morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0011446",
+      "label": "Abnormality of mental function",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 734,
+          "end_char": 764,
+          "text_snippet": "worsening of her mental status"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012188",
+      "label": "Hyperemesis gravidarum",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0012692",
+      "label": "Focal T2 hyperintense thalamic lesion",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1995,
+          "end_char": 2061,
+          "text_snippet": "T2 hyperintensities and restricted diffusion in the medial thalami"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0031098",
+      "label": "Decreased thyroid-stimulating hormone level",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0031506",
+      "label": "Increased circulating T4 concentration",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 331,
+          "end_char": 356,
+          "text_snippet": "high free thyroxine (FT4)"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0031956",
+      "label": "Elevated circulating aspartate aminotransferase concentration",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1474,
+          "end_char": 1538,
+          "text_snippet": "elevated blood urea nitrogen, creatinine, aspartate transaminase"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0031964",
+      "label": "Elevated circulating alanine aminotransferase concentration",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1474,
+          "end_char": 1560,
+          "text_snippet": "elevated blood urea nitrogen, creatinine, aspartate transaminase, alanine transaminase"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0032615",
+      "label": "Abnormal diffusion weighted cerebral MRI morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0034778",
+      "label": "Maternal hyperthyroidism",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 517,
+          "end_char": 544,
+          "text_snippet": "gestational hyperthyroidism"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100503",
+      "label": "Decreased circulating vitamin B1 concentration",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    }
+  ]
+}

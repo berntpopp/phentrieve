@@ -1,6 +1,7 @@
 """This module provides utilities for creating and handling Phenopackets."""
 
 import datetime
+import json
 import logging
 import uuid
 from pathlib import Path
@@ -18,10 +19,50 @@ from phenopackets import (
     Resource,
 )
 
+from phentrieve.phenopackets.export_models import NormalizedPhenotypeExportRecord
+from phentrieve.phenopackets.sidecar import (
+    build_annotation_sidecar,
+    validate_annotation_sidecar,
+)
+
 logger = logging.getLogger(__name__)
 
 # Maximum length for input text in metadata (prevent excessive payload size)
 _MAX_INPUT_TEXT_LENGTH = 1000
+VERIFIED_PHENOPACKET_SCHEMA_VERSION = "2.0"
+_SIDECAR_EXTERNAL_REFERENCE_ID = "phentrieve:annotation_sidecar"
+
+
+def _coerce_rank(value: Any) -> int:
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return 0
+
+
+def _build_phenotypic_feature(
+    record: NormalizedPhenotypeExportRecord,
+    *,
+    description_parts: list[str] | None = None,
+) -> PhenotypicFeature:
+    feature_type = OntologyClass(id=record.hpo_id, label=record.label)
+    external_reference = None
+    if description_parts:
+        external_reference = ExternalReference(
+            id="phentrieve",
+            description=" | ".join(description_parts),
+        )
+    evidence = [
+        Evidence(
+            evidence_code=OntologyClass(
+                id="ECO:0007636",
+                label="computational evidence used in automatic assertion",
+            ),
+            reference=external_reference,
+        )
+    ]
+    excluded = record.assertion == "negated"
+    return PhenotypicFeature(type=feature_type, excluded=excluded, evidence=evidence)
 
 
 def _get_hpo_version_from_db(db_path: Path | str | None = None) -> str:
@@ -161,6 +202,75 @@ def format_as_phenopacket_v2(
         )
 
 
+def export_phenopacket_bundle(
+    *,
+    aggregated_results: list[dict[str, Any]] | None = None,
+    chunk_results: list[dict[str, Any]] | None = None,
+    phentrieve_version: str | None = None,
+    embedding_model: str | None = None,
+    reranker_model: str | None = None,
+    hpo_version: str | None = None,
+    input_text: str | None = None,
+    include_annotation_sidecar: bool = False,
+) -> dict[str, Any]:
+    """Export a strict Phenopacket JSON string and optional annotation sidecar."""
+    resolved_phentrieve_version = phentrieve_version
+    if resolved_phentrieve_version is None:
+        try:
+            from phentrieve import __version__
+
+            resolved_phentrieve_version = __version__
+        except ImportError:
+            resolved_phentrieve_version = "unknown"
+
+    resolved_hpo_version = hpo_version
+    if resolved_hpo_version is None:
+        resolved_hpo_version = _get_hpo_version_from_db()
+
+    phenopacket_json = format_as_phenopacket_v2(
+        aggregated_results=aggregated_results,
+        chunk_results=chunk_results,
+        phentrieve_version=resolved_phentrieve_version,
+        embedding_model=embedding_model,
+        reranker_model=reranker_model,
+        hpo_version=resolved_hpo_version,
+        input_text=input_text,
+    )
+
+    annotation_sidecar = None
+    if include_annotation_sidecar:
+        normalized_records = _normalize_export_records(
+            aggregated_results=aggregated_results,
+            chunk_results=chunk_results,
+        )
+        phenopacket_id = json.loads(phenopacket_json)["id"]
+        annotation_sidecar = build_annotation_sidecar(
+            phenopacket_id=phenopacket_id,
+            records=normalized_records,
+            generated_by_version=resolved_phentrieve_version,
+        )
+        validate_annotation_sidecar(annotation_sidecar)
+        phenopacket_payload = json.loads(phenopacket_json)
+        meta = phenopacket_payload.setdefault("metaData", {})
+        external_references = meta.setdefault("externalReferences", [])
+        external_references.append(
+            {
+                "id": _SIDECAR_EXTERNAL_REFERENCE_ID,
+                "reference": (
+                    f"urn:phentrieve:phenotype-annotation-bundle:"
+                    f"{annotation_sidecar['schema_version']}:{phenopacket_id}"
+                ),
+                "description": "Linked phenotype annotation sidecar emitted with this Phenopacket bundle.",
+            }
+        )
+        phenopacket_json = json.dumps(phenopacket_payload, indent=2)
+
+    return {
+        "phenopacket_json": phenopacket_json,
+        "annotation_sidecar": annotation_sidecar,
+    }
+
+
 def _format_from_chunk_results(
     chunk_results: list[dict[str, Any]],
     phentrieve_version: str = "unknown",
@@ -188,67 +298,25 @@ def _format_from_chunk_results(
         A JSON string representing the Phenopacket.
     """
     phenopacket_id = f"phentrieve-phenopacket-{uuid.uuid4()}"
+    normalized_records = _normalize_export_records(chunk_results=chunk_results)
     phenotypic_features = []
 
-    for chunk_result in chunk_results:
-        chunk_idx = chunk_result.get("chunk_idx", 0)
-        chunk_text = chunk_result.get("chunk_text", "")
-        start_char = chunk_result.get("start_char", -1)
-        end_char = chunk_result.get("end_char", -1)
-        matches = chunk_result.get("matches", [])
-
-        for match in matches:
-            hpo_id = match.get("id", "")
-            hpo_name = match.get("name", "")
-            score = match.get("score", 0.0)
-            assertion_status = match.get("assertion_status")
-
-            # Create OntologyClass for the feature type
-            feature_type = OntologyClass(id=hpo_id, label=hpo_name)
-
-            # Build description with confidence, chunk info, positions, and source text
-            # Note: No rank is provided since rankings are not comparable across chunks
-            description_parts = [
-                f"Phentrieve retrieval confidence: {score:.4f}",
-                f"Chunk: {chunk_idx + 1}",
-            ]
-            # Include position info if available (when include_positions was True)
-            if start_char >= 0 and end_char >= 0:
-                description_parts.append(f"Start: {start_char}")
-                description_parts.append(f"End: {end_char}")
-            if assertion_status:
-                description_parts.append(f"Assertion: {assertion_status}")
-            description_parts.append(f"Source text: {chunk_text}")
-
-            # Create ExternalReference with evidence details
-            external_reference = ExternalReference(
-                id="phentrieve",
-                description=" | ".join(description_parts),
-            )
-
-            # Create Evidence object
-            evidence = Evidence(
-                evidence_code=OntologyClass(
-                    id="ECO:0007636",
-                    label="computational evidence used in automatic assertion",
-                ),
-                reference=external_reference,
-            )
-
-            # Determine if the phenotypic feature is excluded (negated)
-            # Use case-insensitive comparison for robustness
-            excluded = assertion_status is not None and assertion_status.lower() in (
-                "negated",
-                "absent",
-            )
-
-            # Create PhenotypicFeature
-            phenotypic_feature = PhenotypicFeature(
-                type=feature_type,
-                excluded=excluded,
-                evidence=[evidence],
-            )
-            phenotypic_features.append(phenotypic_feature)
+    for record in normalized_records:
+        description_parts = [
+            f"Phentrieve retrieval confidence: {(record.confidence or 0.0):.4f}",
+        ]
+        if record.chunk_refs:
+            description_parts.append(f"Chunk: {record.chunk_refs[0] + 1}")
+        if record.spans:
+            description_parts.append(f"Start: {record.spans[0].start_char}")
+            description_parts.append(f"End: {record.spans[0].end_char}")
+        if record.assertion:
+            description_parts.append(f"Assertion: {record.assertion}")
+        if record.evidence_text:
+            description_parts.append(f"Source text: {record.evidence_text}")
+        phenotypic_features.append(
+            _build_phenotypic_feature(record, description_parts=description_parts)
+        )
 
     return _create_phenopacket_json(
         phenopacket_id,
@@ -285,38 +353,27 @@ def _format_from_aggregated_results(
     """
     phenopacket_id = f"phentrieve-phenopacket-{uuid.uuid4()}"
 
-    # Sort results by rank
-    sorted_results = sorted(aggregated_results, key=lambda x: x.get("rank", 0))
+    sorted_results = sorted(
+        aggregated_results, key=lambda x: _coerce_rank(x.get("rank", 0))
+    )
+    normalized_results = _normalize_aggregated_results(sorted_results)
 
     phenotypic_features = []
-    for result in sorted_results:
-        confidence = result.get("confidence", 0.0)
-        rank = result.get("rank")
+    for index, (legacy_result, result) in enumerate(
+        zip(sorted_results, normalized_results, strict=True),
+        start=1,
+    ):
+        confidence = result.confidence or 0.0
+        rank = legacy_result.get("rank", index)
 
-        # Create OntologyClass for the feature type
-        feature_type = OntologyClass(id=result["id"], label=result["name"])
-
-        # Create ExternalReference to store confidence and rank
-        external_reference = ExternalReference(
-            id="phentrieve",
-            description=f"Phentrieve retrieval confidence: {confidence:.4f}, Rank: {rank}",
+        phenotypic_features.append(
+            _build_phenotypic_feature(
+                result,
+                description_parts=[
+                    f"Phentrieve retrieval confidence: {confidence:.4f}, Rank: {rank}"
+                ],
+            )
         )
-
-        # Create Evidence object with an evidence code and the external reference
-        evidence = Evidence(
-            evidence_code=OntologyClass(
-                id="ECO:0007636",
-                label="computational evidence used in automatic assertion",
-            ),
-            reference=external_reference,
-        )
-
-        # Create PhenotypicFeature
-        phenotypic_feature = PhenotypicFeature(
-            type=feature_type,
-            evidence=[evidence],
-        )
-        phenotypic_features.append(phenotypic_feature)
 
     return _create_phenopacket_json(
         phenopacket_id,
@@ -327,6 +384,70 @@ def _format_from_aggregated_results(
         hpo_version=hpo_version,
         input_text=input_text,
     )
+
+
+def _normalize_aggregated_results(
+    aggregated_results: list[dict[str, Any]],
+) -> list[NormalizedPhenotypeExportRecord]:
+    return [
+        NormalizedPhenotypeExportRecord.from_legacy_dict(result)
+        for result in aggregated_results
+    ]
+
+
+def _normalize_export_records(
+    *,
+    aggregated_results: list[dict[str, Any]] | None = None,
+    chunk_results: list[dict[str, Any]] | None = None,
+) -> list[NormalizedPhenotypeExportRecord]:
+    if chunk_results is not None and len(chunk_results) > 0:
+        normalized_records: list[NormalizedPhenotypeExportRecord] = []
+        for chunk_result in chunk_results:
+            chunk_idx = chunk_result.get("chunk_idx", 0)
+            chunk_text = chunk_result.get("chunk_text")
+            start_char = chunk_result.get("start_char")
+            end_char = chunk_result.get("end_char")
+            matches = chunk_result.get("matches", [])
+
+            for match in matches:
+                normalized_match = dict(match)
+                normalized_match.setdefault("hpo_id", normalized_match.get("id"))
+                normalized_match.setdefault(
+                    "label",
+                    normalized_match.get("name") or normalized_match.get("term_name"),
+                )
+                normalized_match["evidence_text"] = chunk_text
+                normalized_match["chunk_refs"] = [chunk_idx]
+                valid_span = (
+                    isinstance(start_char, int)
+                    and isinstance(end_char, int)
+                    and start_char >= 0
+                    and end_char >= start_char
+                    and isinstance(chunk_text, str)
+                    and bool(chunk_text)
+                )
+                if valid_span:
+                    normalized_match["spans"] = [
+                        {
+                            "text": chunk_text,
+                            "start_char": start_char,
+                            "end_char": end_char,
+                            "chunk_refs": [chunk_idx],
+                        }
+                    ]
+                normalized_records.append(
+                    NormalizedPhenotypeExportRecord.from_legacy_dict(normalized_match)
+                )
+
+        return normalized_records
+
+    if aggregated_results is not None and len(aggregated_results) > 0:
+        sorted_results = sorted(
+            aggregated_results, key=lambda x: _coerce_rank(x.get("rank", 0))
+        )
+        return _normalize_aggregated_results(sorted_results)
+
+    return []
 
 
 def _create_phenopacket_json(
@@ -400,7 +521,7 @@ def _create_phenopacket_json(
                 iri_prefix="http://purl.obolibrary.org/obo/HP_",
             )
         ],
-        phenopacket_schema_version="2.0.2",
+        phenopacket_schema_version=VERIFIED_PHENOPACKET_SCHEMA_VERSION,
     )
 
     # Create Phenopacket

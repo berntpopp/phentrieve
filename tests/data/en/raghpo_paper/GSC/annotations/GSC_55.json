@@ -1,0 +1,76 @@
+{
+  "doc_id": "GSC_55",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "Nineteen of 421 white children in Montreal schools for the deaf had preauricular pits. The branchio-oto-renal (BOR syndrome was identified in four of the nine families who agreed to family investigation, including audiograms and intravenous pyelograms (IVPs) and may have been present in several others. The penetrance of this autosomal dominant syndrome appears to be high. It is estimated that severe renal dysplasia occurs in about 6% of heterozygotes. The presence of a preauricular pit at birth suggests that the child has at least one chance in 200 of severe hearing loss, and this warrants a careful family history, as well as alertness for any signs of hearing impairment. Offspring of affected individuals are eligible for parental diagnosis of renal dysplasia.",
+  "metadata": {
+    "dataset": "GSC",
+    "original_dataset": "GSC",
+    "original_doc_id": "7468659",
+    "text_length_chars": 770,
+    "num_annotations": 5,
+    "conversion_date": "2026-04-20T06:13:55.490038+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 327,
+          "end_char": 354,
+          "text_snippet": "autosomal dominant syndrome"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000365",
+      "label": "Hearing impairment",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 661,
+          "end_char": 679,
+          "text_snippet": "hearing impairment"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004467",
+      "label": "Preauricular pit",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 68,
+          "end_char": 85,
+          "text_snippet": "preauricular pits"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012714",
+      "label": "Severe hearing impairment",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 558,
+          "end_char": 577,
+          "text_snippet": "severe hearing loss"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000110",
+      "label": "Renal dysplasia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 396,
+          "end_char": 418,
+          "text_snippet": "severe renal dysplasia"
+        }
+      ]
+    }
+  ]
+}

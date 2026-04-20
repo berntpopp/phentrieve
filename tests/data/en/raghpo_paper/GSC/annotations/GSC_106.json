@@ -1,0 +1,130 @@
+{
+  "doc_id": "GSC_106",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "Brachydactyly type C (BDC) is characterized by shortening of the middle phalanges of the index, middle, and little finger with hyperphalangy, usually of the index and middle finger. Heterozygous mutations of the cartilage derived morphogenetic protein-1 (CDMP1) resulting in a loss of function have been reported in BDC. We here describe a large kindred with a semi-dominant form of BDC and pronounced ulnar deviation of the second and third digits. In this family a novel homozygous missense mutation was identified (517A > G) changing methionine to valine at amino acid position 173. The mutation is located within a highly conserved seven amino acid region of the prodomain of CDMP1. Hand radiographs of heterozygous mutation carriers showed mild shortening of the metacarpals IV and V; a finding confirmed by the analysis of their metacarpophalangeal profiles (MCPPs). The mutation described here points toward an important function of the prodomain for the folding, secretion, and availability of biologically active CDMP1.",
+  "metadata": {
+    "dataset": "GSC",
+    "original_dataset": "GSC",
+    "original_doc_id": "14735582",
+    "text_length_chars": 1028,
+    "num_annotations": 10,
+    "conversion_date": "2026-04-20T06:13:55.491369+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0009373",
+      "label": "Type C brachydactyly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 0,
+          "end_char": 26,
+          "text_snippet": "Brachydactyly type C (BDC)"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0030367",
+      "label": "Finger hyperphalangy",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 127,
+          "end_char": 140,
+          "text_snippet": "hyperphalangy"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0031010",
+      "label": "Hyperphalangy of the 3rd finger",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 65,
+          "end_char": 140,
+          "text_snippet": "middle phalanges of the index, middle, and little finger with hyperphalangy"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010049",
+      "label": "Short metacarpal",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 745,
+          "end_char": 788,
+          "text_snippet": "mild shortening of the metacarpals IV and V"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010047",
+      "label": "Short 5th metacarpal",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 47,
+          "end_char": 782,
+          "text_snippet": "shortening of the middle phalanges of the index, middle, and little finger with hyperphalangy, usually of the index and middle finger. Heterozygous mutations of the cartilage derived morphogenetic protein-1 (CDMP1) resulting in a loss of function have been reported in BDC. We here describe a large kindred with a semi-dominant form of BDC and pronounced ulnar deviation of the second and third digits. In this family a novel homozygous missense mutation was identified (517A > G) changing methionine to valine at amino acid position 173. The mutation is located within a highly conserved seven amino acid region of the prodomain of CDMP1. Hand radiographs of heterozygous mutation carriers showed mild shortening of the metacarpals IV"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010044",
+      "label": "Short 4th metacarpal",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 47,
+          "end_char": 782,
+          "text_snippet": "shortening of the middle phalanges of the index, middle, and little finger with hyperphalangy, usually of the index and middle finger. Heterozygous mutations of the cartilage derived morphogenetic protein-1 (CDMP1) resulting in a loss of function have been reported in BDC. We here describe a large kindred with a semi-dominant form of BDC and pronounced ulnar deviation of the second and third digits. In this family a novel homozygous missense mutation was identified (517A > G) changing methionine to valine at amino acid position 173. The mutation is located within a highly conserved seven amino acid region of the prodomain of CDMP1. Hand radiographs of heterozygous mutation carriers showed mild shortening of the metacarpals IV"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0005819",
+      "label": "Short middle phalanx of finger",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 47,
+          "end_char": 121,
+          "text_snippet": "shortening of the middle phalanges of the index, middle, and little finger"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001193",
+      "label": "Ulnar deviation of the hand or of fingers of the hand",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 402,
+          "end_char": 417,
+          "text_snippet": "ulnar deviation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009463",
+      "label": "Ulnar deviation of the 3rd finger",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 402,
+          "end_char": 448,
+          "text_snippet": "ulnar deviation of the second and third digits"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009464",
+      "label": "Ulnar deviation of the 2nd finger",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    }
+  ]
+}

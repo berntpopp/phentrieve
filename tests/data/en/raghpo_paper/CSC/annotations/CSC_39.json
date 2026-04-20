@@ -1,0 +1,118 @@
+{
+  "doc_id": "CSC_39",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A 22-year-old man presented to our clinic with exertional dyspnoea of New York Heart Association (NYHA) class-I for the past 6 months. He was born of a non-consanguineous marriage and was first in birth order. The second sibling died of congenital heart disease with heart failure (certified by a paediatrician) at the age of 1 month. However, other details were not available. The other siblings were surviving uneventfully so far. The patient had normal growth except for delay in mentation. He had poor scholastic performance as well. He had characteristic dysmorphic features, which included triangular facies, ptosis, epicanthal folds, low set ears, low hair line, webbed neck, widely spaced nipples and syndactyly of toes. His height (168 cm) was appropriate for his age. He had underdeveloped and undescended testes for which he underwent bilateral orchidectomy in childhood, but the secondary sexual characters developed normally. Genotyping showed normal male (XY) karyotype.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "39",
+    "text_length_chars": 984,
+    "num_annotations": 15,
+    "conversion_date": "2026-04-20T06:13:55.469885+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000028",
+      "label": "Cryptorchidism",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000286",
+      "label": "Epicanthus",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000325",
+      "label": "Triangular face",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 596,
+          "end_char": 613,
+          "text_snippet": "triangular facies"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000369",
+      "label": "Low-set ears",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000465",
+      "label": "Webbed neck",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000508",
+      "label": "Ptosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001249",
+      "label": "Intellectual disability",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001263",
+      "label": "Global developmental delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001627",
+      "label": "Abnormal heart morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001635",
+      "label": "Congestive heart failure",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 79,
+          "end_char": 280,
+          "text_snippet": "Heart Association (NYHA) class-I for the past 6 months. He was born of a non-consanguineous marriage and was first in birth order. The second sibling died of congenital heart disease with heart failure"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001770",
+      "label": "Toe syndactyly",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002162",
+      "label": "Low posterior hairline",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002875",
+      "label": "Exertional dyspnea",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0006610",
+      "label": "Wide intermamillary distance",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0010468",
+      "label": "Aplasia/Hypoplasia of the testes",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    }
+  ]
+}

@@ -1,0 +1,208 @@
+{
+  "doc_id": "CSC_113",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A 15-year-old, otherwise healthy, Caucasian girl was referred to us by our orthopaedic colleague for detailed assessment following a T12 wedge fracture caused by a low impact trampoline injury. There were features of osteoporosis and a significantly reduced Z score on a DEXA scan. She also complained of progressive fatigue with persistent low back pain and back stiffness for the past 8 months. Thoracolumbar X-ray showed widespread biconcave and plate depression over the thoracic and lumbar vertebrae (Fig. 1), with minor loss of T9 vertebral body height and minor depression of the superior endplate of T8. Physical examination noted a slim body habitus with mild kyphosis. Her body mass index was 16.9 kg/m2 at third percentile (Fig. 2) with a weight of mere 36.2 kg, well below the fourth percentile for her age and height. In view of the multiple wedge-shaped compression fractures throughout the thoracolumbar region on imaging that were likely to be related to significant insufficiency of the endplate, our orthopaedic team has considered the diagnosis of Scheuermann disease, especially in view of other signs to suggest haematological disorder and no prior history of prolonged steroid therapy. She was then referred to a dietician and was given a review appointment. However, 5 months later, she was readmitted for lethargy with patches of ecchymoses noted over bilateral knees. Examination also revealed perifollicular purpuric macules over bilateral lower limb and forearms (Fig. 3), claimed to be present since the past 2 years with no abrupt worsening. There were no joint swelling, joint tenderness, palpable masses or lymphadenopathies on peripheral examination. Other systemic examinations were unremarkable. Her blood pressure was normal for her age and height with a normal resting heart rate. Our first clinical impression at that point was autoimmune disorders or vasculitis. An extensive work-up was performed (including serum electrolytes, trace minerals and thyroid function) with equivocal results. Her renal, liver functions, coagulation profile, Vitamin B12 and folate level were within normal limits, and Vitamin D level and iron studies were within acceptable range. Her immunological screening with rheumatoid factor and anti-nuclear antibody came back negative. Her erythrocyte sedimentation rate was mildly elevated at 42 mls/h (N:0–20 mls/h) and C-reactive protein was 6 mg/L",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "113",
+    "text_length_chars": 2412,
+    "num_annotations": 19,
+    "conversion_date": "2026-04-20T06:13:55.480400+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000939",
+      "label": "Osteoporosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 217,
+          "end_char": 229,
+          "text_snippet": "osteoporosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001254",
+      "label": "Lethargy",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1329,
+          "end_char": 1337,
+          "text_snippet": "lethargy"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001533",
+      "label": "Slender build",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 641,
+          "end_char": 658,
+          "text_snippet": "slim body habitus"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002808",
+      "label": "Kyphosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 664,
+          "end_char": 677,
+          "text_snippet": "mild kyphosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002953",
+      "label": "Vertebral compression fracture",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0003301",
+      "label": "Irregular vertebral endplates",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0003306",
+      "label": "Spinal rigidity",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 359,
+          "end_char": 373,
+          "text_snippet": "back stiffness"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003419",
+      "label": "Low back pain",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 341,
+          "end_char": 354,
+          "text_snippet": "low back pain"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003565",
+      "label": "Elevated erythrocyte sedimentation rate",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0004325",
+      "label": "Decreased body weight",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 124,
+          "end_char": 756,
+          "text_snippet": "lowing a T12 wedge fracture caused by a low impact trampoline injury. There were features of osteoporosis and a significantly reduced Z score on a DEXA scan. She also complained of progressive fatigue with persistent low back pain and back stiffness for the past 8 months. Thoracolumbar X-ray showed widespread biconcave and plate depression over the thoracic and lumbar vertebrae (Fig. 1), with minor loss of T9 vertebral body height and minor depression of the superior endplate of T8. Physical examination noted a slim body habitus with mild kyphosis. Her body mass index was 16.9 kg/m2 at third percentile (Fig. 2) with a weight"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004349",
+      "label": "Reduced bone mineral density",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0004586",
+      "label": "Biconcave vertebral bodies",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0008422",
+      "label": "Vertebral wedging",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 137,
+          "end_char": 889,
+          "text_snippet": "wedge fracture caused by a low impact trampoline injury. There were features of osteoporosis and a significantly reduced Z score on a DEXA scan. She also complained of progressive fatigue with persistent low back pain and back stiffness for the past 8 months. Thoracolumbar X-ray showed widespread biconcave and plate depression over the thoracic and lumbar vertebrae (Fig. 1), with minor loss of T9 vertebral body height and minor depression of the superior endplate of T8. Physical examination noted a slim body habitus with mild kyphosis. Her body mass index was 16.9 kg/m2 at third percentile (Fig. 2) with a weight of mere 36.2 kg, well below the fourth percentile for her age and height. In view of the multiple wedge-shaped compression fractures"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0011227",
+      "label": "Elevated circulating C-reactive protein concentration",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0012378",
+      "label": "Fatigue",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 305,
+          "end_char": 324,
+          "text_snippet": "progressive fatigue"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012733",
+      "label": "Macule",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1419,
+          "end_char": 1450,
+          "text_snippet": "perifollicular purpuric macules"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0031364",
+      "label": "Ecchymosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1354,
+          "end_char": 1364,
+          "text_snippet": "ecchymoses"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0041084",
+      "label": "Compression-fractured thoracic vertebra",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 520,
+          "end_char": 558,
+          "text_snippet": "minor loss of T9 vertebral body height"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0045082",
+      "label": "Decreased body mass index",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 124,
+          "end_char": 698,
+          "text_snippet": "lowing a T12 wedge fracture caused by a low impact trampoline injury. There were features of osteoporosis and a significantly reduced Z score on a DEXA scan. She also complained of progressive fatigue with persistent low back pain and back stiffness for the past 8 months. Thoracolumbar X-ray showed widespread biconcave and plate depression over the thoracic and lumbar vertebrae (Fig. 1), with minor loss of T9 vertebral body height and minor depression of the superior endplate of T8. Physical examination noted a slim body habitus with mild kyphosis. Her body mass index"
+        }
+      ]
+    }
+  ]
+}

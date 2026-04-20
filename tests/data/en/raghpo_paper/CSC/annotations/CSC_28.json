@@ -1,0 +1,148 @@
+{
+  "doc_id": "CSC_28",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A 14 year old male patient presented to our endocrine outpatient clinic primarily with complaints of short stature. The patient gave history of episodes of seizures a week prior to being seen in our outpatient department and had been admitted to a local hospital for the treatment. On biochemical evaluation the cause for the seizures was discerned to be due to hypocalcaemia. He was treated with I.V calcium and referred to us for further evaluation. Chvostek’s and Trousseau’s sign were both positive. He was a product of non-consanguineous marriage with a normal birth and developmental history. On further enquiry, his past medical history revealed that he was hypothyroid since the age of 2 and is replaced with 50 µg of thyroxine. On taking the family history, we found that the patient is the younger of two siblings and we identified that his elder sister 18 years of age is of normal height and weight for her age and is medically normal. However, we found on examination that his mother had a short 4th toe on her left foot. On physical examination, the boy weighed 57 kg, measured 141 cm in height and at Tanner stage-4 of puberty corresponding to 12.5–14 years. He had a round face, short stubby fingers, depressed 4th knuckle on both hands (Fig. 1a) and brachymetatarsia of the 3rd & 4th toes on both feet (Fig. 1b). Café au lait spots were noted on his back and right side of his thigh. His penile length was 6 cm (normal 10 cm), testicular volume: is 12 ml bilaterally (normal—12–20 ml). X-rays of both the upper limbs, lower limbs and skull were taken. Roentgenogram pictures of limbs revealed bilateral short metacarpals (Fig. 2a) and short 3rd, 4th, 5th (Fig. 2b) metatarsals. Lateral view of skull radiograph showed thickened calvarium and an open bite (Fig. 2c). Mothers radiograph of left foot also showed short 4th metatarsal (Fig. 3). Bone mineral density examination showed a generalized osteopenia. Nuclear imaging confirmed presence of a severe degree of osteoporosis (Fig. 4). His baseline endocrine and biochemical values are shown in Table 1. All routine biochemical parameters are analyzed on Roche fully automated biochemistry analyzer c311 with dedicated reagents. All hormonal analysis is done by ECLIA on Roche e411 except for DHEAS, IGF-1 and Growth Hormone which were analyzed by ECLIA on Immulite 2000 (Seimens fully automated Immunoassay analyzer).",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "28",
+    "text_length_chars": 2386,
+    "num_annotations": 19,
+    "conversion_date": "2026-04-20T06:13:55.468535+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000054",
+      "label": "Micropenis",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000311",
+      "label": "Round face",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000821",
+      "label": "Hypothyroidism",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000938",
+      "label": "Osteopenia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000957",
+      "label": "Cafe-au-lait spot",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001250",
+      "label": "Seizure",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002684",
+      "label": "Thickened calvaria",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002901",
+      "label": "Hypocalcemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0004322",
+      "label": "Short stature",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0005720",
+      "label": "Shortening of all metacarpals",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0005897",
+      "label": "Severe generalized osteoporosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0008093",
+      "label": "Short 4th toe",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1003,
+          "end_char": 1016,
+          "text_snippet": "short 4th toe"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0008734",
+      "label": "Decreased testicular size",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0009381",
+      "label": "Short finger",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0009816",
+      "label": "Lower limb undergrowth",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1267,
+          "end_char": 1283,
+          "text_snippet": "brachymetatarsia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010049",
+      "label": "Short metacarpal",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0010743",
+      "label": "Short metatarsal",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 101,
+          "end_char": 1693,
+          "text_snippet": "short stature. The patient gave history of episodes of seizures a week prior to being seen in our outpatient department and had been admitted to a local hospital for the treatment. On biochemical evaluation the cause for the seizures was discerned to be due to hypocalcaemia. He was treated with I.V calcium and referred to us for further evaluation. Chvostek’s and Trousseau’s sign were both positive. He was a product of non-consanguineous marriage with a normal birth and developmental history. On further enquiry, his past medical history revealed that he was hypothyroid since the age of 2 and is replaced with 50 µg of thyroxine. On taking the family history, we found that the patient is the younger of two siblings and we identified that his elder sister 18 years of age is of normal height and weight for her age and is medically normal. However, we found on examination that his mother had a short 4th toe on her left foot. On physical examination, the boy weighed 57 kg, measured 141 cm in height and at Tanner stage-4 of puberty corresponding to 12.5–14 years. He had a round face, short stubby fingers, depressed 4th knuckle on both hands (Fig. 1a) and brachymetatarsia of the 3rd & 4th toes on both feet (Fig. 1b). Café au lait spots were noted on his back and right side of his thigh. His penile length was 6 cm (normal 10 cm), testicular volume: is 12 ml bilaterally (normal—12–20 ml). X-rays of both the upper limbs, lower limbs and skull were taken. Roentgenogram pictures of limbs revealed bilateral short metacarpals (Fig. 2a) and short 3rd, 4th, 5th (Fig. 2b) metatarsals"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010807",
+      "label": "Open bite",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0031990",
+      "label": "Chvostek sign",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    }
+  ]
+}

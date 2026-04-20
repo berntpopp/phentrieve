@@ -1,0 +1,94 @@
+{
+  "doc_id": "CSC_100",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A boy in his early childhood, a known case of Goldenhar syndrome, born out of a non-consanguineous marriage sought medical attention for complaints of on and off cough and cold for the last 1 year. There were no other significant associated complaints at the time of presentation. He was diagnosed with Goldenhar syndrome at 2 years of age with a history of surgical removal of epibulbar dermoid 2 years back. There is a family history of valvular heart disease in the paternal grandmother for which she underwent valve replacement at the age of 58 years and expired 4 months later. On examination, he had an asymmetrical hypoplastic face (figure 1A), bilateral cloudy cornea, reversed bilateral epicanthal folds, wide philtrum, preauricular tags (figure 1B) and asymmetrical ears. Anthropometry was normal (weight and height for age between median to −1SD and head circumference between −1SD to −2 SD as per WHO charts). He had pectus carinatum. The hearing assessment revealed the bilateral mixed type of hearing loss. Examination of the musculoskeleton revealed significant joint laxity with the rest of the examination being normal.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "100",
+    "text_length_chars": 1136,
+    "num_annotations": 13,
+    "conversion_date": "2026-04-20T06:13:55.478668+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000286",
+      "label": "Epicanthus",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000289",
+      "label": "Broad philtrum",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000384",
+      "label": "Preauricular skin tag",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000410",
+      "label": "Mixed hearing impairment",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000768",
+      "label": "Pectus carinatum",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001140",
+      "label": "Limbal dermoid",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001382",
+      "label": "Joint hypermobility",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001382",
+      "label": "Joint hypermobility",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002788",
+      "label": "Recurrent upper respiratory tract infections",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0007759",
+      "label": "Opacification of the corneal stroma",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0010722",
+      "label": "Asymmetry of the ears",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0011332",
+      "label": "Hemifacial hypoplasia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0012735",
+      "label": "Cough",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    }
+  ]
+}

@@ -1,0 +1,220 @@
+{
+  "doc_id": "CSC_6",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "We present the case of a man in his 40s (patient 1) with a prior history of persistent childhood diarrhoea and cognitive- developmental delay. The patient presented to our neurology outpatient clinic with a 10- year history of progressive gait impairment and recent episodes of falls. The patient has one healthy brother and three sisters, two of whom (labelled as patients 2 and 3) also manifested cognitive impairment—see figure 1. All impaired siblings reported cataract extraction before the age of 20. Patient 2 had previously complained of ankle swelling in an orthopaedic evaluation 15 years earlier and performed ankle- joint MRI, deemed inconclusive. On examination, all patients exhibited low stature, appendicular ataxia, pyramidal signs and broad- based ataxic gait. Patient 2’s lower limb examination also showed marked pes cavus, clawing of the toes and Achilles’ tendon xanthomas (figure 2A). Brain MRI sagittal T1- weighted image revealed cerebellar atrophy (figure 2B) and axial T2- weighted image displayed hyperintensities within the dentate nuclei (figure 2C) in patient 1. The combination of cerebellar ataxia, early- onset cataracts and tendon xanthomas prompted testing for serum cholestanol, which was significantly raised (patient 1: 119 µmol/L; patient 2: 120 µmol/L; patient 3: 84 µmol/L, N: 3.5–23.8 µmol/L).",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "6",
+    "text_length_chars": 1336,
+    "num_annotations": 19,
+    "conversion_date": "2026-04-20T06:13:55.465837+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001118",
+      "label": "Juvenile cataract",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001251",
+      "label": "Ataxia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1113,
+          "end_char": 1130,
+          "text_snippet": "cerebellar ataxia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001263",
+      "label": "Global developmental delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001272",
+      "label": "Cerebellar atrophy",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 955,
+          "end_char": 973,
+          "text_snippet": "cerebellar atrophy"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001761",
+      "label": "Pes cavus",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 833,
+          "end_char": 842,
+          "text_snippet": "pes cavus"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001785",
+      "label": "Ankle swelling",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 546,
+          "end_char": 560,
+          "text_snippet": "ankle swelling"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002028",
+      "label": "Chronic diarrhea",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002066",
+      "label": "Gait ataxia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 766,
+          "end_char": 777,
+          "text_snippet": "ataxic gait"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002070",
+      "label": "Limb ataxia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 712,
+          "end_char": 731,
+          "text_snippet": "appendicular ataxia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002136",
+      "label": "Broad-based gait",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 753,
+          "end_char": 777,
+          "text_snippet": "broad- based ataxic gait"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002527",
+      "label": "Falls",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 278,
+          "end_char": 283,
+          "text_snippet": "falls"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004322",
+      "label": "Short stature",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 699,
+          "end_char": 710,
+          "text_snippet": "low stature"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0007240",
+      "label": "Progressive gait ataxia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 227,
+          "end_char": 254,
+          "text_snippet": "progressive gait impairment"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0007256",
+      "label": "Abnormal pyramidal sign",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 733,
+          "end_char": 748,
+          "text_snippet": "pyramidal signs"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010874",
+      "label": "Tendon xanthomatosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 878,
+          "end_char": 894,
+          "text_snippet": "tendon xanthomas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0034397",
+      "label": "Claw toe deformity",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 844,
+          "end_char": 863,
+          "text_snippet": "clawing of the toes"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100543",
+      "label": "Cognitive impairment",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 399,
+          "end_char": 419,
+          "text_snippet": "cognitive impairment"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:6000416",
+      "label": "T2 hyperintense cerebellar lesion",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1025,
+          "end_char": 1067,
+          "text_snippet": "hyperintensities within the dentate nuclei"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:6000527",
+      "label": "Elevated circulating cholestanol concentration",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    }
+  ]
+}

@@ -1,0 +1,334 @@
+{
+  "doc_id": "CSC_65",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A 32-year-old man with history of alcoholic cirrhosis presented with 2 weeks of worsening abdominal distension and skin yellowing. He was diagnosed with cirrhosis 2 years prior after presenting in acute liver failure. During his previous hospitalisation, he reported 10 years of significant alcohol consumption, typically drinking either 32 ounces of beer or 10 shots of liquor daily. Imaging revealed a cirrhotic-appearing liver and ascites. Other than alcohol, he had no other obvious risk factors for liver disease. He did not smoke, use illicit drugs, or take supplements or medications, including over-the-counter drugs. Laboratory studies at this initial encounter are shown in table 1, notable for a normal creatinine and macrocytosis without overt anaemia. Liver profile was consistent with a cholestatic pattern with a slightly elevated international normalised ratio. Autoimmune markers, including antinuclear antibodies, antimitochondrial antibodies and antismooth muscle antibodies, were negative, as were serology markers for viral hepatitis. Ceruloplasmin and serum copper were within normal range. His Maddrey discriminant function was 16.5, so he did not receive steroids. He was treated conservatively with supportive care, and his transaminases normalised. Total bilirubin improved from 10.1 to 6.8 mg/dL at the time of discharge. Subsequently, he was lost to follow-up until his present admission. At his present admission, the patient’s social history was unchanged, with continued consumption of five shots of liquor daily. His last drink was 2 weeks prior to admission. Family history was notable for oesophageal cancer in his father; otherwise, there was no family history of liver disease, though he had no siblings. He denied fevers, vomiting, bleeding, or changes in bowel movements. He did note a decrease in urine volume. Physical examination on admission was notable for jaundice with markedly icteric sclera and a diffusely tender, protuberant abdomen with a fluid wave. He was awake and fully oriented, without asterixis, on initial evaluation. During the hospitalisation, he became increasingly confused and lethargic. Subsequent physical examinations were notable for the development of asterixis and worsened abdominal distension with bilateral pitting oedema. Liver profile included alanine transaminase (ALT) 51 U/L (reference 10–50 U/L), aspartate aminotransferase (AST) 113 U/L (reference 10–50 U/L) and alkaline phosphatase (ALP) 153 U/L (reference 40–129 U/L). Total bilirubin was 38.5 mg/dL (reference 0.2–1.3 mg/dL), with direct bilirubin >20 mg/dL (reference 0.0–0.3 mg/dL). Viral serology indicated immunity to hepatitis A and B and a non-reactive hepatitis C antibody test. Basic metabolic panel was notable for creatinine of 6.7 mg/dL (baseline 0.5 mg/dL during prior admission). Haemoglobin was 98 g/L on admission and dropped to 65 g/L during the course of his hospitalisation (reference 132–169 g/L). Mean corpuscular volume was minimally elevated to 92.9 fL (reference 79.0–92.2 fL). White blood cell count was 21.24×109/L (reference 4.22–10.33×109/ L). Paracentesis was performed; peritoneal fluid contained 69 nucleated cells/μL, and fluid protein was 0.4 g/dL. His serum to ascites albumin gradient was 2.1 g/dL. Peritoneal fluid gram stain and cultures were negative. Thus, peritoneal fluid was consistent with cirrhosis and was not indicative of spontaneous bacterial peritonitis. Blood and urine cultures did not grow organisms. Abdominal ultrasound and abdominal CT scan on admission were consistent with cirrhosis and noted large volume ascites, similar to previous imaging. His hospital course was marked by worsening encephalopathy, significant renal disease in the absence of a recognisable toxic exposure that required dialysis, and a suspected haemolytic anaemia, given his worsening anaemia without an obvious source of bleeding. Ceruloplasmin was repeated and was low at 17.6 mg/dL (reference >20 mg/dL). Kayser-Fleischer rings, which result from copper deposition in Descemet’s membrane of the cornea,10 were identified on slit-lamp examination by two separate ophthalmologists. Twenty-four-hour urine copper was elevated at 62 μg/24 hours (reference 3–50 μg/24 hours).",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "65",
+    "text_length_chars": 4235,
+    "num_annotations": 28,
+    "conversion_date": "2026-04-20T06:13:55.473055+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000112",
+      "label": "Nephropathy",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 3705,
+          "end_char": 3718,
+          "text_snippet": "renal disease"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000952",
+      "label": "Jaundice",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 115,
+          "end_char": 129,
+          "text_snippet": "skin yellowing"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001254",
+      "label": "Lethargy",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2140,
+          "end_char": 2149,
+          "text_snippet": "lethargic"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001289",
+      "label": "Confusion",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2127,
+          "end_char": 2135,
+          "text_snippet": "confused"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001394",
+      "label": "Cirrhosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 44,
+          "end_char": 53,
+          "text_snippet": "cirrhosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001541",
+      "label": "Ascites",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 3582,
+          "end_char": 3602,
+          "text_snippet": "large volume ascites"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001878",
+      "label": "Hemolytic anemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 3807,
+          "end_char": 3825,
+          "text_snippet": "haemolytic anaemia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001903",
+      "label": "Anemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001974",
+      "label": "Leukocytosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 3034,
+          "end_char": 3102,
+          "text_snippet": "White blood cell count was 21.24×109/L (reference 4.22–10.33×109/ L)"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002448",
+      "label": "Progressive encephalopathy",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 3667,
+          "end_char": 3691,
+          "text_snippet": "worsening encephalopathy"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002611",
+      "label": "Cholestatic liver disease",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002908",
+      "label": "Conjugated hyperbilirubinemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2564,
+          "end_char": 2616,
+          "text_snippet": "direct bilirubin >20 mg/dL (reference 0.0–0.3 mg/dL)"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003155",
+      "label": "Elevated circulating alkaline phosphatase concentration",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2442,
+          "end_char": 2498,
+          "text_snippet": "alkaline phosphatase (ALP) 153 U/L (reference 40–129 U/L"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003259",
+      "label": "Elevated circulating creatinine concentration",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2757,
+          "end_char": 2824,
+          "text_snippet": "creatinine of 6.7 mg/dL (baseline 0.5 mg/dL during prior admission)"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003270",
+      "label": "Abdominal distention",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 90,
+          "end_char": 110,
+          "text_snippet": "abdominal distension"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003573",
+      "label": "Increased total bilirubin",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2501,
+          "end_char": 2556,
+          "text_snippet": "Total bilirubin was 38.5 mg/dL (reference 0.2–1.3 mg/dL"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0005518",
+      "label": "Increased mean corpuscular volume",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 729,
+          "end_char": 741,
+          "text_snippet": "macrocytosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0032106",
+      "label": "Conjunctival icterus",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1923,
+          "end_char": 1937,
+          "text_snippet": "icteric sclera"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010741",
+      "label": "Pedal edema",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2269,
+          "end_char": 2293,
+          "text_snippet": "bilateral pitting oedema"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010837",
+      "label": "Decreased circulating ceruloplasmin concentration",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0010839",
+      "label": "Increased urinary copper concentration",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 4162,
+          "end_char": 4187,
+          "text_snippet": "urine copper was elevated"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0011037",
+      "label": "Decreased urine output",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1824,
+          "end_char": 1848,
+          "text_snippet": "decrease in urine volume"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012164",
+      "label": "Asterixis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2042,
+          "end_char": 2051,
+          "text_snippet": "asterixis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0030955",
+      "label": "Addictive alcohol use",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 34,
+          "end_char": 43,
+          "text_snippet": "alcoholic"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0031956",
+      "label": "Elevated circulating aspartate aminotransferase concentration",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2375,
+          "end_char": 2437,
+          "text_snippet": "aspartate aminotransferase (AST) 113 U/L (reference 10–50 U/L)"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0031964",
+      "label": "Elevated circulating alanine aminotransferase concentration",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 837,
+          "end_char": 2338,
+          "text_snippet": "elevated international normalised ratio. Autoimmune markers, including antinuclear antibodies, antimitochondrial antibodies and antismooth muscle antibodies, were negative, as were serology markers for viral hepatitis. Ceruloplasmin and serum copper were within normal range. His Maddrey discriminant function was 16.5, so he did not receive steroids. He was treated conservatively with supportive care, and his transaminases normalised. Total bilirubin improved from 10.1 to 6.8 mg/dL at the time of discharge. Subsequently, he was lost to follow-up until his present admission. At his present admission, the patient’s social history was unchanged, with continued consumption of five shots of liquor daily. His last drink was 2 weeks prior to admission. Family history was notable for oesophageal cancer in his father; otherwise, there was no family history of liver disease, though he had no siblings. He denied fevers, vomiting, bleeding, or changes in bowel movements. He did note a decrease in urine volume. Physical examination on admission was notable for jaundice with markedly icteric sclera and a diffusely tender, protuberant abdomen with a fluid wave. He was awake and fully oriented, without asterixis, on initial evaluation. During the hospitalisation, he became increasingly confused and lethargic. Subsequent physical examinations were notable for the development of asterixis and worsened abdominal distension with bilateral pitting oedema. Liver profile included alanine transaminase"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0200032",
+      "label": "Kayser-Fleischer ring",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 3970,
+          "end_char": 3992,
+          "text_snippet": "Kayser-Fleischer rings"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:6000863",
+      "label": "Elevated serum-ascites albumin gradient (SAAG)",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 3218,
+          "end_char": 3264,
+          "text_snippet": "serum to ascites albumin gradient was 2.1 g/dL"
+        }
+      ]
+    }
+  ]
+}

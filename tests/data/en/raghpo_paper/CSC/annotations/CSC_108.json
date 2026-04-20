@@ -1,0 +1,208 @@
+{
+  "doc_id": "CSC_108",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "The first case was the second child of healthy non-consanguineous parents of Palestinian origin. She was born at 32 weeks gestation, weighing 1.800 kg via normal vaginal delivery, and required admission to the Neonatal unit for prematurity and respiratory distress. At 5 months of age, she was admitted to the pediatric ward due to recurrent vomiting, poor weight gain, and chronic constipation of 2 months duration. Physical examination showed a dehydrated, pale, cachectic infant, with poor eye contact but normal power and tone. Laboratory tests showed leukopenia, anemia, salt wasting, renal failure with elevated blood lactate, marked hyperuricemia, hypercholesterolemia, and hypertriglyceridemia. Abdominal ultrasound showed normal kidneys, heart echocardiography revealed no pulmonary hypertension. Moreover, Her clinical condition gradually deteriorated and within a few weeks of admission, she was in multiorgan failure, reached end-stage renal failure and regular peritoneal dialysis was initiated. At 12 months of age, the patient died after developing respiratory failure. Whole exome sequencing showed a homozygous variant in the SARS2 gene (c.1175A>G (p. Asp392Gly)), defined as a pathogenic variant according to the American College of Medical Genetics and Genomics (ACMG) classification",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "108",
+    "text_length_chars": 1302,
+    "num_annotations": 19,
+    "conversion_date": "2026-04-20T06:13:55.479693+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000083",
+      "label": "Renal insufficiency",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000127",
+      "label": "Renal salt wasting",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 576,
+          "end_char": 588,
+          "text_snippet": "salt wasting"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000817",
+      "label": "Reduced eye contact",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 488,
+          "end_char": 504,
+          "text_snippet": "poor eye contact"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000980",
+      "label": "Pallor",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001508",
+      "label": "Failure to thrive",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 352,
+          "end_char": 368,
+          "text_snippet": "poor weight gain"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001622",
+      "label": "Premature birth",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001882",
+      "label": "Leukopenia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 556,
+          "end_char": 566,
+          "text_snippet": "leukopenia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001903",
+      "label": "Anemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 568,
+          "end_char": 574,
+          "text_snippet": "anemia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001944",
+      "label": "Dehydration",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002098",
+      "label": "Respiratory distress",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 244,
+          "end_char": 264,
+          "text_snippet": "respiratory distress"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002149",
+      "label": "Hyperuricemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 640,
+          "end_char": 653,
+          "text_snippet": "hyperuricemia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002151",
+      "label": "Increased circulating lactate concentration",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 609,
+          "end_char": 631,
+          "text_snippet": "elevated blood lactate"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002155",
+      "label": "Hypertriglyceridemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 681,
+          "end_char": 701,
+          "text_snippet": "hypertriglyceridemia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002572",
+      "label": "Episodic vomiting",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 332,
+          "end_char": 350,
+          "text_snippet": "recurrent vomiting"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002878",
+      "label": "Respiratory failure",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1064,
+          "end_char": 1083,
+          "text_snippet": "respiratory failure"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003124",
+      "label": "Hypercholesterolemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 655,
+          "end_char": 675,
+          "text_snippet": "hypercholesterolemia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003774",
+      "label": "Stage 5 chronic kidney disease",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0004326",
+      "label": "Cachexia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0012450",
+      "label": "Chronic constipation",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 374,
+          "end_char": 394,
+          "text_snippet": "chronic constipation"
+        }
+      ]
+    }
+  ]
+}

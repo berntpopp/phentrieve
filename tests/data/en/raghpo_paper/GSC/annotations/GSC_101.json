@@ -1,0 +1,118 @@
+{
+  "doc_id": "GSC_101",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "Interferon regulatory factor 6 (IRF6) belongs to a family of nine transcription factors that share a highly conserved helix-turn-helix DNA-binding domain and a less conserved protein-binding domain. Most IRFs regulate the expression of interferon-alpha and -beta after viral infection, but the function of IRF6 is unknown. The gene encoding IRF6 is located in the critical region for the Van der Woude syndrome (VWS; OMIM 119300) locus at chromosome 1q32-q41 (refs 2,3). The disorder is an autosomal dominant form of cleft lip and palate with lip pits, and is the most common syndromic form of cleft lip or palate. Popliteal pterygium syndrome (PPS; OMIM 119500) is a disorder with a similar orofacial phenotype that also includes skin and genital anomalies. Phenotypic overlap and linkage data suggest that these two disorders are allelic. We found a nonsense mutation in IRF6 in the affected twin of a pair of monozygotic twins who were discordant for VWS. Subsequently, we identified mutations in IRF6 in 45 additional unrelated families affected with VWS and distinct mutations in 13 families affected with PPS. Expression analyses showed high levels of Irf6 mRNA along the medial edge of the fusing palate, tooth buds, hair follicles, genitalia and skin. Our observations demonstrate that haploinsufficiency of IRF6 disrupts orofacial development and are consistent with dominant-negative mutations disturbing development of the skin and genitalia.",
+  "metadata": {
+    "dataset": "GSC",
+    "original_dataset": "GSC",
+    "original_doc_id": "12219090",
+    "text_length_chars": 1453,
+    "num_annotations": 9,
+    "conversion_date": "2026-04-20T06:13:55.491199+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0410030",
+      "label": "Cleft lip",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000202",
+      "label": "Orofacial cleft",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 517,
+          "end_char": 537,
+          "text_snippet": "cleft lip and palate"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000175",
+      "label": "Cleft palate",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 517,
+          "end_char": 537,
+          "text_snippet": "cleft lip and palate"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000078",
+      "label": "Abnormality of the genital system",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 740,
+          "end_char": 757,
+          "text_snippet": "genital anomalies"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100267",
+      "label": "Lip pit",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 543,
+          "end_char": 550,
+          "text_snippet": "lip pit"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000234",
+      "label": "Abnormality of the head",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 692,
+          "end_char": 711,
+          "text_snippet": "orofacial phenotype"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009756",
+      "label": "Popliteal pterygium",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 615,
+          "end_char": 643,
+          "text_snippet": "Popliteal pterygium syndrome"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000951",
+      "label": "Abnormality of the skin",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 731,
+          "end_char": 735,
+          "text_snippet": "skin"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004429",
+      "label": "Recurrent viral infections",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 269,
+          "end_char": 284,
+          "text_snippet": "viral infection"
+        }
+      ]
+    }
+  ]
+}

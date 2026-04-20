@@ -1,0 +1,238 @@
+{
+  "doc_id": "CSC_56",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A 3-year-old girl presented with increased thirst and frequency of micturition since 18 months of age. Additionally, she suffered with poor growth since early infancy. She did not have any other symptoms suggestive of a renal disorder, nor other systemic symptoms. She was diagnosed as having primary hypothyroidism by an elevated thyroid stimulating hormone (TSH) level of 10.9 μIU/mL at 2 years of age and was subsequently commenced on levothyroxine replacement therapy. She was first born to a third-degree consanguineous Muslim couple from Northern India, at term, with a low birth weight (2000 g) and with a smooth perinatal transition. She achieved her developmental milestones at an appropriate age. Physical examination was suggestive of stunting (height 75 cm, −6.16 z score), wasting (weight 8 kg, −4.86 z score) and microcephaly (head circumference 46 cm, <−3 z score). Her vitals were stable at presentation, with normal haemodynamics. Systemic examination was normal except for mild hepatomegaly, and no features of rickets were seen. This toddler had a normal anion gap metabolic alkalosis, with hyponatraemia, hypokalaemia and hypochloremia. There was increased urinary excretion of sodium, potassium (transtubular potassium gradient was elevated for the level of serum potassium), chloride and calcium (elevated urine calcium:creatinine ratio). There was also increased protein excretion in urine. Serum osmolality was normal and urine osmolality was low. Mild elevation in serum TSH was noted despite levothyroxine replacement therapy (25 µg/day). Renal and liver function tests were within normal limits. Ultrasonography of the neck showed normal size and echotexture of bilateral thyroid lobes and renal ultrasound revealed mild hydronephrosis.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "56",
+    "text_length_chars": 1763,
+    "num_annotations": 22,
+    "conversion_date": "2026-04-20T06:13:55.471854+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000093",
+      "label": "Proteinuria",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000126",
+      "label": "Hydronephrosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1743,
+          "end_char": 1762,
+          "text_snippet": "mild hydronephrosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000128",
+      "label": "Renal potassium wasting",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000252",
+      "label": "Microcephaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000832",
+      "label": "Primary hypothyroidism",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 293,
+          "end_char": 315,
+          "text_snippet": "primary hypothyroidism"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001510",
+      "label": "Growth delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 135,
+          "end_char": 166,
+          "text_snippet": "poor growth since early infancy"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001518",
+      "label": "Small for gestational age",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001959",
+      "label": "Polydipsia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 33,
+          "end_char": 49,
+          "text_snippet": "increased thirst"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002150",
+      "label": "Hypercalciuria",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1319,
+          "end_char": 1358,
+          "text_snippet": "elevated urine calcium:creatinine ratio"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002240",
+      "label": "Hepatomegaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 991,
+          "end_char": 1008,
+          "text_snippet": "mild hepatomegaly"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002900",
+      "label": "Hypokalemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1125,
+          "end_char": 1137,
+          "text_snippet": "hypokalaemia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002902",
+      "label": "Hyponatremia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1110,
+          "end_char": 1123,
+          "text_snippet": "hyponatraemia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002914",
+      "label": "Hyperchloriduria",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002925",
+      "label": "Elevated circulating thyroid-stimulating hormone concentration",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 322,
+          "end_char": 370,
+          "text_snippet": "elevated thyroid stimulating hormone (TSH) level"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003081",
+      "label": "Increased urinary potassium",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0003113",
+      "label": "Hypochloremia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1142,
+          "end_char": 1155,
+          "text_snippet": "hypochloremia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003158",
+      "label": "Hyposthenuria",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1446,
+          "end_char": 1470,
+          "text_snippet": "urine osmolality was low"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004322",
+      "label": "Short stature",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 746,
+          "end_char": 785,
+          "text_snippet": "stunting (height 75 cm, −6.16 z score),"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004326",
+      "label": "Cachexia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 786,
+          "end_char": 793,
+          "text_snippet": "wasting"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012605",
+      "label": "Hypernatriuria",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0100515",
+      "label": "Pollakisuria",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 54,
+          "end_char": 78,
+          "text_snippet": "frequency of micturition"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0200114",
+      "label": "Metabolic alkalosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1074,
+          "end_char": 1103,
+          "text_snippet": "anion gap metabolic alkalosis"
+        }
+      ]
+    }
+  ]
+}

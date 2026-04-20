@@ -1,0 +1,112 @@
+{
+  "doc_id": "CSC_32",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A 54-year-old woman followed up with GD since 1998 was referred to the outpatient clinic with symptoms of limping, low back and the right hip joint pain. She had been visited the doctor in another clinic 6 months ago with similar symptoms. At this visit, a right-hip fracture was detected and operation was planned for the fracture. But she did not accept to undergo any operation. In her history, she had applied to hospital with epistaxis and abdominal pain. Because she had massive splenomegaly, bone marrow biopsy had been performed and Gaucher cells had been showed. Than molecular genetic evaluation had determined N370S mutation and finally the patient had been diagnosed with type 1 GD in 1998 but she had not take any treatment since that time. She had attacks of quick bruising and occasional epistaxis during this time. She had two brothers with GD. She went to the previous clinic because of increased symptoms. Surgery was planned again, but she could not be operated due to low blood values. Then she was referred to our hospital. The results of the laboratory tests were leucocytes 3000/mm3, haemoglobin 9.6 g/dL and platelets 26 000/mm3. Folat 7.67 ng/mL, vitamin B12 1044 pg/mL, Ferritin 377 ng/mL. Erythrocyte sedimentation rate of, C reactive protein, liver enzyme levels and tests those show the normal kidney function tests. Biochemical bone markers were calcium 9.6 mg/dL (normal range 8.6–10.2 mg/dL), phosphorus 4.24 mg/dL (normal range 2.3–4.7 mg/dL), alkaline phosphatase 2110 U/I (normal range 35–129 U/I), parathyroid hormone 3396 pg/mL (normal range 9.5–75 pg/mL), 25(OH) vitamin D 19.2 ng/mL (normal range 20–120). Bone mineral densitometry revealed osteoporosis (T-score 3.1). The patient’s X-ray (figure 1) and MRI of the hip (figure 2A,B) demostrated a femoral neck fracture with surrounding areas of avascular necrosis (figures 1 and 2). In the right femur geographic contours of medullary bone infarcts, high signal on T2-weighted and low signal in T1-weighted images could be seen in proksimal femoral head, neck, intertrochanteric region as well as proksimal shaft. There was no bone marrow oedema propably due to the late phase of fracture. The medullary of all bones also revealed abnormal T1-weighted and T2-weighted intermediate signals indicating red bone marrow infiltration. Orthopaedics department suggested surgery for fracture but asked for the correction of the blood values. Although the patient was given two units of erythrocyte suspension and three units of apheresis platelet before the operation, the patient’s platelet counts only reached to 39 000/mm. We talked with the patient and explained the risks of surgery. Surgery was planned after correction of blood values with enzyme (imiglucerase) treatment because she did not admit any operation. She has been visited our internal medicine department for the past 6 months and received the enzyme treatment once in a month. Her number of platelets has reached to 87 000/mm. Control plain film of pelvis revealed partial union of the femur neck fracture after 6 months. Her right hip was no longer aching but she was walking slightly lame.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "32",
+    "text_length_chars": 3143,
+    "num_annotations": 16,
+    "conversion_date": "2026-04-20T06:13:55.469113+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000421",
+      "label": "Epistaxis",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000939",
+      "label": "Osteoporosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000978",
+      "label": "Bruising susceptibility",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001288",
+      "label": "Gait disturbance",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001744",
+      "label": "Splenomegaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001873",
+      "label": "Thrombocytopenia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001882",
+      "label": "Leukopenia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001903",
+      "label": "Anemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002027",
+      "label": "Abdominal pain",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0003155",
+      "label": "Elevated circulating alkaline phosphatase concentration",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0003365",
+      "label": "Arthralgia of the hip",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0003419",
+      "label": "Low back pain",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0010885",
+      "label": "Avascular necrosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0031955",
+      "label": "Antalgic gait",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:6000655",
+      "label": "Femoral neck fracture",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:6000893",
+      "label": "Gaucher cells",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    }
+  ]
+}

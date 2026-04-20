@@ -1,0 +1,106 @@
+{
+  "doc_id": "CSC_41",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "Case 2: a male newborn was delivered at 33 weeks of gestation. Fetal bradycardia was identified during week 22 of gestation. On week 25 the fetus had a heart rate of 80 beats per minute with second-degree AV block. Regular monitoring of the fetus showed no signs of heart failure. He was born by caesarean section and birth weight was 1575 g. Heart rate was 120–145 beats per minute after birth. The newborn was admitted to the neonatal unit and ECG recordings documented prolonged QTc interval (550–650 ms) with 2:1 AV block and T wave alternans (figure 2). During the first month of life he remained in sinus rhythm with occasional ventricular extrasystolic beats. After the first month, he had recurrent episodes of non-sustained ventricular tachycardia (VT) and polymorphic VT (torsade de pointes type at 300 beats per minute) with short duration and spontaneous resolution. He was started on propranolol with gradual dose increase, but, due to a low heart rate while still having arrhythmic events, an epicardial pacemaker was implanted and programmed as VVI mode (ventricular demand pacing). Rescue HR of 70 beats per minute, allowed propranolol titration to 4 mg/kg/day and control of arrhythmias. Two heterozygous variants in SCN5A gene NM_198056.2: c.5315T>G, p.(Leuc1772Arg) and c.393–5C>T were identified by genetic testing. The first variant has not been reported in previous studies and is localised in a functional domain where several other variants causing LQTS have been described. The second variant is rare but has also been reported previously as a pathogenic variant in patients with arrhythmia. Parents were asymptomatic and had normal QTc on ECG recording. Despite proper information regarding disease severity, parents refused genetic testing and have missed several appointments.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "41",
+    "text_length_chars": 1804,
+    "num_annotations": 12,
+    "conversion_date": "2026-04-20T06:13:55.470047+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001518",
+      "label": "Small for gestational age",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001622",
+      "label": "Premature birth",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001662",
+      "label": "Bradycardia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 69,
+          "end_char": 80,
+          "text_snippet": "bradycardia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001664",
+      "label": "Torsade de pointes",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0004756",
+      "label": "Ventricular tachycardia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0005184",
+      "label": "Prolonged QTc interval",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0006682",
+      "label": "Premature ventricular contraction",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0011675",
+      "label": "Arrhythmia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0011706",
+      "label": "Second degree atrioventricular block",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0012266",
+      "label": "T-wave alternans",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 530,
+          "end_char": 546,
+          "text_snippet": "T wave alternans"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0031677",
+      "label": "Polymorphic ventricular tachycardia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0034305",
+      "label": "2:1 atrioventricular block",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 513,
+          "end_char": 525,
+          "text_snippet": "2:1 AV block"
+        }
+      ]
+    }
+  ]
+}

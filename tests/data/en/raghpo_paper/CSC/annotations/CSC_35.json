@@ -1,0 +1,88 @@
+{
+  "doc_id": "CSC_35",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A 39-year-old woman from Bam, Kerman, Iran with ovarian cancer was a candidate of blood transfusion due to anemia. She had a history of severe chronic hemolytic anemia, Hb levels as low as 5.5 g/dl with unknown etiology, and blood transfusion in her was followed by fever, chills, and hemolysis. Her blood was previously typed (back type method) as O, Rh (D) positive (CinnaGen Inc., Tehran, Iran) with incompatible crossmatch (3+ reaction) with all the blood units in hospital. Looking for compatible blood for this patient, her blood sample was referred to Kerman Blood Transfusion Center for identification of antibody. The results of antibody screening (Immucor, Norcross, GA, USA) direct Coombs test, and antibody identification (Immucor, Norcross, GA, USA) tests indicated the presence of allo- and auto-antibodies in patient’s serum, which were not reliable due to autoantibody interference. After a period of immunosuppressive therapy (4 months), the mentioned tests were repeated. Following a 3-cell antibody screening test, the presence of allo-antibodies in patient’s serum was detected. Antibody identification test was done using eleven panels of red cells to identify the type of antibody. 3+ reaction at the cells positive for Rh antigens (except for D) showed that specific antibodies for E, e, C, and c antigens were present. Based on RBC phenotyping test, the patient red cells were typed as D+, C-, c-, E-, e -, K-, Fya-, Fyb-, M+, N-, S+, s+, Jka+. All the above tests were performed in duplicate for confirmation of results. Patient’s family members were invited for phenotypic evaluation. It was found that her two brothers had the same red cell phenotype as the patient. Patient and family’s phenotypes and the most possible genotype of the individuals (according to phenotype and race) were shown in Table 1.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "35",
+    "text_length_chars": 1832,
+    "num_annotations": 9,
+    "conversion_date": "2026-04-20T06:13:55.469366+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001878",
+      "label": "Hemolytic anemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 285,
+          "end_char": 294,
+          "text_snippet": "hemolysis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001903",
+      "label": "Anemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 107,
+          "end_char": 113,
+          "text_snippet": "anemia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001945",
+      "label": "Fever",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0004870",
+      "label": "Chronic hemolytic anemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0025143",
+      "label": "Chills",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0030057",
+      "label": "Autoimmune antibody positivity",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0032374",
+      "label": "Duffy Fya positivity",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0032375",
+      "label": "Duffy Fyb positivity",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0100615",
+      "label": "Ovarian neoplasm",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 48,
+          "end_char": 62,
+          "text_snippet": "ovarian cancer"
+        }
+      ]
+    }
+  ]
+}

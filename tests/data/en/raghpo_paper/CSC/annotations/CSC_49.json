@@ -1,0 +1,52 @@
+{
+  "doc_id": "CSC_49",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A 62-year-old Caucasian man was admitted in November 2011 with increasing shortness of breath. He had first started feeling unwell about 3–4 weeks prior to his admission with flu-like symptoms and shortness of breath. He was given ciprofloxacin for a chest infection with no relief. He was previously fit and well with no allergies and had never smoked. He worked as a welder and some weeks prior to his illness had started work at a biofuel processing plant dealing with waste products from a brewery but had never worked with asbestos. He denied ever having tuberculosis (TB) or being significantly exposed to birds. His brother required a ‘triple heart bypass’ in his early 30s but there was otherwise no family history of note. On admission he looked well and was sat upright and speaking comfortably. Routine observations revealed a heart rate of 90 bpm, blood pressure 136/86 mm Hg, respiratory rate of 22 breaths/min, a temperature of 37°C and oxygen saturations were 93% on air. On examination there was no clubbing or signs of cyanosis and chest auscultation was clear. Jugular venous pulsations were not raised but cardiac auscultation revealed a pansystolic murmur loudest over the apex. There were no signs of peripheral oedema.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "49",
+    "text_length_chars": 1240,
+    "num_annotations": 5,
+    "conversion_date": "2026-04-20T06:13:55.470712+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0002094",
+      "label": "Dyspnea",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002789",
+      "label": "Tachypnea",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0011947",
+      "label": "Respiratory tract infection",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 251,
+          "end_char": 266,
+          "text_snippet": "chest infection"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0031667",
+      "label": "Holosystolic murmur",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0500165",
+      "label": "Abnormal blood oxygen level",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    }
+  ]
+}

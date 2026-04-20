@@ -1,0 +1,178 @@
+{
+  "doc_id": "CSC_30",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "An otherwise healthy 52-year-old man presented to his local hospital with non-specific abdominal pain in the absence of any other symptoms. He had previously undergone laparoscopic cholecystectomy for cholelithiasis, but his medical history was otherwise unremarkable. He was not on any regular medication, and had no family history of note and no known allergies. The patient had never smoked and reported a weekly alcohol consumption of 15 UK units. Physical examination of all major systems was unremarkable. Despite the absence of clinical signs, general blood tests revealed an abnormal liver biochemistry profile, which prompted imaging studies. MR Cholangiopancreatography (MRCP) demonstrated left hydronephrosis, and CT of the abdomen and pelvis showed inflammatory changes within the pancreatic tail, in proximity to the left kidney and in association with localised lymphadenopathy. A subsequent CT-guided biopsy established the diagnosis of a retroperitoneal de-differentiated liposarcoma, for which the patient was referred to the regional Sarcoma Service. The patient underwent an uneventful 5½ h operation under general anaesthesia for tumour resection via laparotomy. Owing to the tumour's anatomical relationships, the resection involved distal pancreatectomy, splenectomy, left nephrectomy, left hemicolectomy and, finally, local resection of the left hemidiaphragm. Furthermore, a right-iliac-fossa colostomy was formed and a left-sided chest drain was inserted, as well as a left-upper-quadrant abdominal drain. Postoperative imaging revealed moderate bilateral pleural effusions with bibasal atelectasis, and a left diaphragmatic hernia with small bowel herniation and obstruction. On the seventh postoperative day, the patient was taken back to theatre, where the herniated bowel was reduced. Thereafter, he remained in the ward to recover. Despite an otherwise stable and satisfactory recovery, an incidental and asymptomatic hyperkalaemia at 5.7 mmol/L was noted on the 11th postoperative day. ECG was initially performed to exclude arrhythmia and conduction abnormalities. As this demonstrated normal sinus rhythm in the absence of any characteristic hyperkalaemic changes, blood tests were repeated for confirmation. Over the next 3 days, potassium levels fluctuated between 5.3 and 5.9 mmol/L, alongside serum sodium levels of 130–132 mmol/L, creatinine levels of 95–102 μmol/L, normal urea levels and high, yet steadily decreasing, inflammatory markers. At a peak potassium value of 6.6 mmol/L on the 15th postoperative day, supplementary investigations were carried out to exclude various causes of persistent hyperkalaemia. These included paired urine-serum osmolalities (714 and 281 mOsm/L respectively), urinary sodium (203 mmol/L), fT4 (13.5 pmol/L), thyroid-stimulating hormone (TSH) (4.82 munit/L), early morning cortisol levels (569 nmol/L) and bicarbonate (21 mEq/L).",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "30",
+    "text_length_chars": 2903,
+    "num_annotations": 16,
+    "conversion_date": "2026-04-20T06:13:55.468755+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000126",
+      "label": "Hydronephrosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 700,
+          "end_char": 719,
+          "text_snippet": "left hydronephrosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001081",
+      "label": "Cholelithiasis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 201,
+          "end_char": 215,
+          "text_snippet": "cholelithiasis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001733",
+      "label": "Pancreatitis",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002027",
+      "label": "Abdominal pain",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 74,
+          "end_char": 101,
+          "text_snippet": "non-specific abdominal pain"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002153",
+      "label": "Hyperkalemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1935,
+          "end_char": 1961,
+          "text_snippet": "asymptomatic hyperkalaemia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002202",
+      "label": "Pleural effusion",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1571,
+          "end_char": 1598,
+          "text_snippet": "bilateral pleural effusions"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002716",
+      "label": "Lymphadenopathy",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002902",
+      "label": "Hyponatremia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002910",
+      "label": "Elevated circulating hepatic transaminase concentration",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 583,
+          "end_char": 618,
+          "text_snippet": "abnormal liver biochemistry profile"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0005214",
+      "label": "Intestinal obstruction",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1662,
+          "end_char": 1700,
+          "text_snippet": "small bowel herniation and obstruction"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009112",
+      "label": "Aplasia of the left hemidiaphragm",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1631,
+          "end_char": 1656,
+          "text_snippet": "left diaphragmatic hernia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0011227",
+      "label": "Elevated circulating C-reactive protein concentration",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0003565",
+      "label": "Elevated erythrocyte sedimentation rate",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0012034",
+      "label": "Liposarcoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 988,
+          "end_char": 999,
+          "text_snippet": "liposarcoma"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100750",
+      "label": "Atelectasis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1604,
+          "end_char": 1623,
+          "text_snippet": "bibasal atelectasis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100790",
+      "label": "Hernia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1662,
+          "end_char": 1684,
+          "text_snippet": "small bowel herniation"
+        }
+      ]
+    }
+  ]
+}

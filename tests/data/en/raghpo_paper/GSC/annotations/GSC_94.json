@@ -1,0 +1,130 @@
+{
+  "doc_id": "GSC_94",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "We present a child with mild to moderate global developmental delay including severe speech impairment, inappropriate happy demeanor, wide-based gait, frequent ear infections with mild hearing loss, deep-set eyes, a wide mouth, widely-spaced teeth, normal head circumference, and no seizures. Results of peripheral blood lymphocyte chromosomal analysis with GTG banding were normal. However, fluorescence in situ hybridization (FISH) studies showed mosaicism for a deletion of probes (D15S10 and SNRPN) from the Angelman syndrome (AS) critical region with approximately 40% of peripheral lymphocytes having the deletion. The deleted chromosome 15 also showed centromeric duplication, which was detected with a D15Z1 probe [46,XX, dic(15)(pter-->q11.1::p11.2-->q11. 1::q13-->qter)]. The same duplication pattern was observed in 30% of the nuclei obtained from a buccal smear. Methylation studies using polymerase chain reaction with sodium bisulfite-treated DNA demonstrated a normal biparental methylation pattern. To the best of our knowledge, this is the first case with AS and a FISH detectable deletion in a mosaic pattern. We recommend FISH studies for the detection of mosaicism in the patients with AS clinical findings even if results of the methylation studies are normal.",
+  "metadata": {
+    "dataset": "GSC",
+    "original_dataset": "GSC",
+    "original_doc_id": "11078565",
+    "text_length_chars": 1281,
+    "num_annotations": 10,
+    "conversion_date": "2026-04-20T06:13:55.491096+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000154",
+      "label": "Wide mouth",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 214,
+          "end_char": 226,
+          "text_snippet": "a wide mouth"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000490",
+      "label": "Deeply set eye",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 199,
+          "end_char": 212,
+          "text_snippet": "deep-set eyes"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0410018",
+      "label": "Recurrent ear infections",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 151,
+          "end_char": 174,
+          "text_snippet": "frequent ear infections"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0040082",
+      "label": "Happy demeanor",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 104,
+          "end_char": 132,
+          "text_snippet": "inappropriate happy demeanor"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000365",
+      "label": "Hearing impairment",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 180,
+          "end_char": 197,
+          "text_snippet": "mild hearing loss"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0011342",
+      "label": "Mild global developmental delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 24,
+          "end_char": 67,
+          "text_snippet": "mild to moderate global developmental delay"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0011343",
+      "label": "Moderate global developmental delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002463",
+      "label": "Language impairment",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 78,
+          "end_char": 102,
+          "text_snippet": "severe speech impairment"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002136",
+      "label": "Broad-based gait",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 134,
+          "end_char": 149,
+          "text_snippet": "wide-based gait"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000687",
+      "label": "Widely spaced teeth",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 228,
+          "end_char": 247,
+          "text_snippet": "widely-spaced teeth"
+        }
+      ]
+    }
+  ]
+}

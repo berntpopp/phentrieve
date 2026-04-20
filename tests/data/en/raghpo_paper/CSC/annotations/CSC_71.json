@@ -1,0 +1,130 @@
+{
+  "doc_id": "CSC_71",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A 10-year-old, right handed, Muslim girl from Moulvibazar was admitted to the Department of Neurology, Dhaka Medical College Hospital with the complaint of occasional left hemicranial headache for the last 5 years. The headache was throbbing, pulsatile in nature, of moderate intensity and associated with nausea, vomiting and photophobia. About 10–15 min before the headache, she saw bright sparkles of light in front of her eyes. The headache occurred every 1–2 months and persisted for few hours to 3 days. For the last 3 years, during some of the episodes she had also experienced transient weakness of the left side of her body, which started 15–30 min after the headache. This weakness usually persisted for 1–2 h and resolved spontaneously without any residual disability. She had no history of concurrent fever, trauma, convulsion, involuntary movement, change in speech, sensory impairment or loss of consciousness. She had no other significant past medical history. None of her family members have migraine-like headache. Physical examination was entirely normal and no neurological deficits were found. Clinically, she was diagnosed as having ‘sporadic hemiplegic migraine’ according to International Headache Society (IHS) criteria. All her routine investigations and vasculitic markers (ESR, ANA, anti-ds-DNA, C-ANCA, P-ANCA) were unremarkable. However, MRI of the brain showed tiny flow voids in the basal ganglia region, predominantly in the left thalamus. Magnetic resonant angiogram (MRA) of the brain showed narrowing of the MCAs, ACAs, PCAs and their branches with poor visualisation of distal terminations, suggesting moyamoya disease. These findings were confirmed by digital subtraction angiogram (DSA) of the brain which revealed discontinuation of the right ICA at the supraclenoid level after the PCom A junction. Multiple dural and meningeal vessels supplied the right MCA and right ACA territory giving the typical smoky angiographic appearance. Right external carotid artery and left external carotid artery angiogram revealed multiple dural and meningeal twigs compensating the deprived area. Left ICA angiogram showed discontinuation of the left ICA just after the junction of the ophthalmic branch with the typical smoky angiographic appearance of moyamoya disease. Left vertebral artery and right vertebral artery angiogram revealed normal findings with multiple choroidal and meningeal collaterals compensating the deprived ACA and MCA vascular territory.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "71",
+    "text_length_chars": 2488,
+    "num_annotations": 12,
+    "conversion_date": "2026-04-20T06:13:55.473798+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000613",
+      "label": "Photophobia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 327,
+          "end_char": 338,
+          "text_snippet": "photophobia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001269",
+      "label": "Hemiparesis",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002013",
+      "label": "Vomiting",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 314,
+          "end_char": 322,
+          "text_snippet": "vomiting"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002018",
+      "label": "Nausea",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 306,
+          "end_char": 312,
+          "text_snippet": "nausea"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002076",
+      "label": "Migraine",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 436,
+          "end_char": 470,
+          "text_snippet": "headache occurred every 1–2 months"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002077",
+      "label": "Migraine with aura",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002315",
+      "label": "Headache",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 167,
+          "end_char": 192,
+          "text_snippet": "left hemicranial headache"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0011834",
+      "label": "Moyamoya phenomenon",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0012194",
+      "label": "Episodic hemiplegia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 585,
+          "end_char": 633,
+          "text_snippet": "transient weakness of the left side of her body,"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012492",
+      "label": "Cerebral artery stenosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0012751",
+      "label": "Abnormal basal ganglia MRI signal intensity",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1391,
+          "end_char": 1434,
+          "text_snippet": "tiny flow voids in the basal ganglia region"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100545",
+      "label": "Arterial stenosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    }
+  ]
+}

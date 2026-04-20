@@ -1,0 +1,88 @@
+{
+  "doc_id": "CSC_3",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "In December 1990, a 24-year-old female was referred with recent onset blurred vision in the right eye. She had no previous ophthalmic history and was systemically well. There was also no family history of any eye diseases. Visual acuities were 3/60 right eye and 6/18 left eye. Posterior segment examination showed bilateral active retinal neovascularisation with vitreous haemorrhages in both eyes. There was no evidence of diabetes mellitus, and she had wide range of investigations, all of which were normal. She was labelled as idiopathic retinal neovascularisation. The patient was treated with bilateral panretinal photocoagulation and pars plana vitrectomy. Her vision and retinal status stabilised with acuities of 6/9 in the right eye and counting fingers in left eye after subsequent cataract surgery. In 2010 she was referred with a painless lump in her left breast for 2 months. She had a history of a previous benign right breast lump and thyroidectomy for a benign goiter 3 years ago. Family history revealed that her sister had had breast cancer at the age of 43 and her daughter a renal cell carcinoma at the age of 18 years. Biopsy showed an invasive carcinoma of the breast and after treatment with local excision, radiotherapy and tamoxifen went into remission.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "3",
+    "text_length_chars": 1280,
+    "num_annotations": 6,
+    "conversion_date": "2026-04-20T06:13:55.465479+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000622",
+      "label": "Blurred vision",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 70,
+          "end_char": 84,
+          "text_snippet": "blurred vision"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000853",
+      "label": "Goiter",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 979,
+          "end_char": 985,
+          "text_snippet": "goiter"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003002",
+      "label": "Breast carcinoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1159,
+          "end_char": 1191,
+          "text_snippet": "invasive carcinoma of the breast"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0007902",
+      "label": "Vitreous hemorrhage",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 364,
+          "end_char": 385,
+          "text_snippet": "vitreous haemorrhages"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0030666",
+      "label": "Retinal neovascularization",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 315,
+          "end_char": 358,
+          "text_snippet": "bilateral active retinal neovascularisation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0032408",
+      "label": "Breast mass",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 844,
+          "end_char": 947,
+          "text_snippet": "painless lump in her left breast for 2 months. She had a history of a previous benign right breast lump"
+        }
+      ]
+    }
+  ]
+}

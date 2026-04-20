@@ -1,0 +1,214 @@
+{
+  "doc_id": "CSC_10",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A male neonate was born at 35+4 weeks gestation with an unusual and distinctive appearance (figure 1). His skin was extremely thick and taut (hyperkeratotic), yellow and split by deep fissures into plates, resembling a harlequin jester costume. The digits of his hands and feet were fused and flexed, encased in thick shiny skin. The sclera was occluded by severe ectropion and chemosis. He had marked eversion of the lips, eclabium. The pinnae and nostrils were rudimentary and bound down. He was pink and well perfused and required no resuscitative intervention. The paediatric team reviewed and transferred him to the neonatal unit. There was no family history of ichthyosis. His parents are consanguineous, second cousins, originally from Pakistan. His mother had gestational diabetes requiring insulin. The couple has two older boys who are healthy. On the neonatal unit, the diagnosis of congenital harlequin ichthyosis was suspected and confirmed by a Paediatric Dermatologist on reviewing photographs. Full supportive care, which included an intensive emollient and skin care regime and protein supplements, was initiated. Oral acitretin was commenced on day 3 of life and continues to this day. After a 29-day stay on the unit, he was discharged to the care of his family and community healthcare team, with ongoing multidisciplinary team (MDT) support. Now 12 years old, his skin remains intensely erythematous with generalised scaling but his eyes and ears are much improved. He has persistent ectropion, epiphora (tear spillage) and myopia. However, despite his hypoplastic pinnae, his hearing is normal. His digits remain flexed and he has lost the tips of two fingers. He has extensive scarring alopecia and minimal sweating ability which leads to heat intolerance. He attends mainstream school with the help of a classroom assistant and retains the support of an MDT, including paediatrics, dermatology, ophthalmology, ear, nose and throat (ENT), physiotherapy, dietetics and children’s community nursing.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "10",
+    "text_length_chars": 2020,
+    "num_annotations": 20,
+    "conversion_date": "2026-04-20T06:13:55.466722+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000545",
+      "label": "Myopia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000656",
+      "label": "Ectropion",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 364,
+          "end_char": 373,
+          "text_snippet": "ectropion"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000952",
+      "label": "Jaundice",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 159,
+          "end_char": 328,
+          "text_snippet": "yellow and split by deep fissures into plates, resembling a harlequin jester costume. The digits of his hands and feet were fused and flexed, encased in thick shiny skin"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000962",
+      "label": "Hyperkeratosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000966",
+      "label": "Hypohidrosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1722,
+          "end_char": 1738,
+          "text_snippet": "minimal sweating"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001019",
+      "label": "Erythroderma",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001072",
+      "label": "Thickened skin",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002046",
+      "label": "Heat intolerance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1762,
+          "end_char": 1778,
+          "text_snippet": "heat intolerance"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004552",
+      "label": "Scarring alopecia of scalp",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1700,
+          "end_char": 1717,
+          "text_snippet": "scarring alopecia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0007431",
+      "label": "Congenital ichthyosiform erythroderma",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0008551",
+      "label": "Microtia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1574,
+          "end_char": 1592,
+          "text_snippet": "hypoplastic pinnae"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009924",
+      "label": "Aplasia/Hypoplasia involving the nose",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 463,
+          "end_char": 1943,
+          "text_snippet": "rudimentary and bound down. He was pink and well perfused and required no resuscitative intervention. The paediatric team reviewed and transferred him to the neonatal unit. There was no family history of ichthyosis. His parents are consanguineous, second cousins, originally from Pakistan. His mother had gestational diabetes requiring insulin. The couple has two older boys who are healthy. On the neonatal unit, the diagnosis of congenital harlequin ichthyosis was suspected and confirmed by a Paediatric Dermatologist on reviewing photographs. Full supportive care, which included an intensive emollient and skin care regime and protein supplements, was initiated. Oral acitretin was commenced on day 3 of life and continues to this day. After a 29-day stay on the unit, he was discharged to the care of his family and community healthcare team, with ongoing multidisciplinary team (MDT) support. Now 12 years old, his skin remains intensely erythematous with generalised scaling but his eyes and ears are much improved. He has persistent ectropion, epiphora (tear spillage) and myopia. However, despite his hypoplastic pinnae, his hearing is normal. His digits remain flexed and he has lost the tips of two fingers. He has extensive scarring alopecia and minimal sweating ability which leads to heat intolerance. He attends mainstream school with the help of a classroom assistant and retains the support of an MDT, including paediatrics, dermatology, ophthalmology, ear, nose"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009926",
+      "label": "Epiphora",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1516,
+          "end_char": 1524,
+          "text_snippet": "epiphora"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012375",
+      "label": "Chemosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 378,
+          "end_char": 386,
+          "text_snippet": "chemosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012472",
+      "label": "Eclabion",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 402,
+          "end_char": 422,
+          "text_snippet": "eversion of the lips"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0030044",
+      "label": "Flexion contracture of digit",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 293,
+          "end_char": 1627,
+          "text_snippet": "flexed, encased in thick shiny skin. The sclera was occluded by severe ectropion and chemosis. He had marked eversion of the lips, eclabium. The pinnae and nostrils were rudimentary and bound down. He was pink and well perfused and required no resuscitative intervention. The paediatric team reviewed and transferred him to the neonatal unit. There was no family history of ichthyosis. His parents are consanguineous, second cousins, originally from Pakistan. His mother had gestational diabetes requiring insulin. The couple has two older boys who are healthy. On the neonatal unit, the diagnosis of congenital harlequin ichthyosis was suspected and confirmed by a Paediatric Dermatologist on reviewing photographs. Full supportive care, which included an intensive emollient and skin care regime and protein supplements, was initiated. Oral acitretin was commenced on day 3 of life and continues to this day. After a 29-day stay on the unit, he was discharged to the care of his family and community healthcare team, with ongoing multidisciplinary team (MDT) support. Now 12 years old, his skin remains intensely erythematous with generalised scaling but his eyes and ears are much improved. He has persistent ectropion, epiphora (tear spillage) and myopia. However, despite his hypoplastic pinnae, his hearing is normal. His digits"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0031057",
+      "label": "Skin fissure",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0040189",
+      "label": "Scaling skin",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0100262",
+      "label": "Synostosis involving digits",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 283,
+          "end_char": 1627,
+          "text_snippet": "fused and flexed, encased in thick shiny skin. The sclera was occluded by severe ectropion and chemosis. He had marked eversion of the lips, eclabium. The pinnae and nostrils were rudimentary and bound down. He was pink and well perfused and required no resuscitative intervention. The paediatric team reviewed and transferred him to the neonatal unit. There was no family history of ichthyosis. His parents are consanguineous, second cousins, originally from Pakistan. His mother had gestational diabetes requiring insulin. The couple has two older boys who are healthy. On the neonatal unit, the diagnosis of congenital harlequin ichthyosis was suspected and confirmed by a Paediatric Dermatologist on reviewing photographs. Full supportive care, which included an intensive emollient and skin care regime and protein supplements, was initiated. Oral acitretin was commenced on day 3 of life and continues to this day. After a 29-day stay on the unit, he was discharged to the care of his family and community healthcare team, with ongoing multidisciplinary team (MDT) support. Now 12 years old, his skin remains intensely erythematous with generalised scaling but his eyes and ears are much improved. He has persistent ectropion, epiphora (tear spillage) and myopia. However, despite his hypoplastic pinnae, his hearing is normal. His digits"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0100720",
+      "label": "Hypoplasia of the ear cartilage",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 463,
+          "end_char": 1375,
+          "text_snippet": "rudimentary and bound down. He was pink and well perfused and required no resuscitative intervention. The paediatric team reviewed and transferred him to the neonatal unit. There was no family history of ichthyosis. His parents are consanguineous, second cousins, originally from Pakistan. His mother had gestational diabetes requiring insulin. The couple has two older boys who are healthy. On the neonatal unit, the diagnosis of congenital harlequin ichthyosis was suspected and confirmed by a Paediatric Dermatologist on reviewing photographs. Full supportive care, which included an intensive emollient and skin care regime and protein supplements, was initiated. Oral acitretin was commenced on day 3 of life and continues to this day. After a 29-day stay on the unit, he was discharged to the care of his family and community healthcare team, with ongoing multidisciplinary team (MDT) support. Now 12 years"
+        }
+      ]
+    }
+  ]
+}

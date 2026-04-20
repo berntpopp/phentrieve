@@ -1,0 +1,274 @@
+{
+  "doc_id": "CSC_81",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A girl patient aged 11 years 2 months was referred to the Queensland Paediatric and Adolescent Gynaecology Service with adrenarche, hyperandrogenism and obesity. History revealed adrenarche at age 8 years, with gradual onset of worsening hirsutism, acne and deepening of the voice over 2 years prior to referral. Menarche occurred at age 10 years and 11 months, with two light menses lasting 1 day at approximately a 28-day interval prior to presentation. The patient had a background of anxiety, mild attention-deficient hyperactivity disorder and learning problems, and chronic bronchitis. There was a family history of maternal gestational diabetes. On examination, her findings were as follows: Blood pressure 138/87 (>99th centile), height 166 cm (>99th centile), weight 98.5 kg (>99th centile), body mass index (BMI) 35.3 kg/m2 (>99th centile) and waist circumference 108.5 cm (>99th centile). She had normal facial features, with severe acanthosis nigricans visible on her neck, axillae and elbow creases and thick terminal hairs over her face, chest, abdomen, linea alba, lower back, legs, arms with a modified Ferriman–Gallwey score of 19. Acne was visible over her face, back, chest and inner thighs. Breast development to Tanner Stage 4 and Pubic Hair Stage 5 was noted. She had no clitoromegaly or virilisation of the external female genitalia. Her cardiorespiratory and abdominal examination was otherwise unremarkable. Investigations had found a normal full blood count (FBC), luteinising hormone (LH) 9.7 U/L, Follicular stimulating hormone (FSH) 4.6 U/L and oestradiol 140 pmol/L. Serum testosterone and free testosterone were found to be markedly elevated at 3.9 nmol/L (normal <2.5) and 122 pmol/L (range 10–45), respectively, androstenedione 10 nmol/L (range 0.8–6.1) and low sex hormone-binding globulin 13 nmol/L (range 40–90). Adrenal hormone investigations found normal cortisol, normal adrenocorticotropic hormone (ACTH), normal 17-hydroprogesterone 2.8 nmol/L (0.5–4.1) and mildly elevated dehydroepiandrosterone sulfate (DHEAS) 5.5 μmol/L (normal <4.0). Thyroid function was normal. A 24-hour urinary steroid profile showed high androgen levels and cortisone but not cortisol, consistent with PCOS but not congenital adrenal hyperplasia (CAH) or Cushing syndrome. Fasting insulin levels were grossly elevated at 266 mU/L (normal 2.0–23) with a Haemoglobin A1c (HbA1c) 6.1% (43.2 mmol/mol). Insulin-like Growth Hormone 1 (IGF1) was slightly elevated at 76 nmol/L (9.9–71) and growth hormone (GH) was low normal at 0.24 mcg/L (0.05–8.00) which along with a normal MRI brain with pituitary slices excluded gigantism and pituitary adenoma as a cause for early puberty. Imaging with MRI and CT adrenals were performed to exclude adrenal pathology and both were unremarkable. The histopathology was consistent with polycystic ovaries.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "81",
+    "text_length_chars": 2854,
+    "num_annotations": 26,
+    "conversion_date": "2026-04-20T06:13:55.475883+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000098",
+      "label": "Tall stature",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 738,
+          "end_char": 767,
+          "text_snippet": "height 166 cm (>99th centile)"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000147",
+      "label": "Polycystic ovaries",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2835,
+          "end_char": 2853,
+          "text_snippet": "polycystic ovaries"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000739",
+      "label": "Anxiety",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 488,
+          "end_char": 495,
+          "text_snippet": "anxiety"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000822",
+      "label": "Hypertension",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000826",
+      "label": "Precocious puberty",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 313,
+          "end_char": 360,
+          "text_snippet": "Menarche occurred at age 10 years and 11 months"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000956",
+      "label": "Acanthosis nigricans",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 944,
+          "end_char": 964,
+          "text_snippet": "acanthosis nigricans"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001007",
+      "label": "Hirsutism",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 238,
+          "end_char": 247,
+          "text_snippet": "hirsutism"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001061",
+      "label": "Acne",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 249,
+          "end_char": 253,
+          "text_snippet": "acne"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001328",
+      "label": "Specific learning disability",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0004469",
+      "label": "Chronic bronchitis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 572,
+          "end_char": 590,
+          "text_snippet": "chronic bronchitis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0007018",
+      "label": "Attention deficit hyperactivity disorder",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 502,
+          "end_char": 544,
+          "text_snippet": "attention-deficient hyperactivity disorder"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0008283",
+      "label": "Fasting hyperinsulinemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2290,
+          "end_char": 2334,
+          "text_snippet": "Fasting insulin levels were grossly elevated"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010300",
+      "label": "Abnormally low-pitched voice",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 258,
+          "end_char": 280,
+          "text_snippet": "deepening of the voice"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010314",
+      "label": "Premature thelarche",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0010465",
+      "label": "Precocious puberty in females",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2676,
+          "end_char": 2689,
+          "text_snippet": "early puberty"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012029",
+      "label": "Abnormal urine hormone level",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0012411",
+      "label": "Premature pubarche",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0012412",
+      "label": "Premature adrenarche",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0025380",
+      "label": "Increased circulating androstenedione concentration",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1745,
+          "end_char": 1786,
+          "text_snippet": "androstenedione 10 nmol/L (range 0.8–6.1)"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0025500",
+      "label": "Class II obesity",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0030088",
+      "label": "Increased serum testosterone level",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0030269",
+      "label": "Increased circulating insulin-like growth factor 1 concentration",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2416,
+          "end_char": 2474,
+          "text_snippet": "Insulin-like Growth Hormone 1 (IGF1) was slightly elevated"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0030348",
+      "label": "Increased circulating androgen concentration",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 132,
+          "end_char": 148,
+          "text_snippet": "hyperandrogenism"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0031419",
+      "label": "Reduced sex -hormone binding protein level",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1791,
+          "end_char": 1823,
+          "text_snippet": "low sex hormone-binding globulin"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0034589",
+      "label": "Increased circulating dehydroepiandrosterone-sulfate concentration",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2006,
+          "end_char": 2045,
+          "text_snippet": "elevated dehydroepiandrosterone sulfate"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0040217",
+      "label": "Elevated hemoglobin A1c",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    }
+  ]
+}

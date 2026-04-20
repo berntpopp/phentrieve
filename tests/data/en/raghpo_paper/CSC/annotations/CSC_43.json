@@ -1,0 +1,58 @@
+{
+  "doc_id": "CSC_43",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "Our patient is a woman in her 20s with a diagnosis of CPVT. This was diagnosed following a survived cardiac arrest at the age of 6, and she was found on genetic testing to possess the RYR2 mutation characteristic of CPVT1. She has a dual chamber implantable cardioverter defibrillator (ICD) in situ and has had appropriate shocks for episodes of ventricular tachycardia (VT) and ventricular fibrillation (VF; see figure 1). Her heart is structurally normal with good left ventricular function. Unfortunately, she has also been troubled with episodes of AF with high ventricular rates which are not only highly symptomatic (with presyncope and breathlessness) but have also led to inappropriate shocks, despite medical therapy including oral nadolol 120 mg once daily and oral flecainide 100 mg three times a day (see figure 2).",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "43",
+    "text_length_chars": 827,
+    "num_annotations": 7,
+    "conversion_date": "2026-04-20T06:13:55.470185+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001663",
+      "label": "Ventricular fibrillation",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001695",
+      "label": "Cardiac arrest",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002094",
+      "label": "Dyspnea",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0004751",
+      "label": "Paroxysmal ventricular tachycardia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0004756",
+      "label": "Ventricular tachycardia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0005110",
+      "label": "Atrial fibrillation",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0031972",
+      "label": "Presyncope",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    }
+  ]
+}

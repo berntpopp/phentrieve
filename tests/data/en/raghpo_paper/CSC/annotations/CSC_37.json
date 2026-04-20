@@ -1,0 +1,124 @@
+{
+  "doc_id": "CSC_37",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A 65-year-old man with a medical history of rheumatic fever in childhood reported thoracic pain while at work and collapsed. He died in the ambulance on the way to hospital due to ventricular fibrillation. After the few episodes of rheumatic fever with subsequent pancarditis in childhood, the patient suffered from recurrent arrhythmias throughout his life and received medical treatment including β blockers and diuretics in the past few years due to slowly progressive heart failure. At autopsy, the heart showed signs of rheumatic heart disease with left ventricular dilation, eccentric left ventricular hypertrophy, posteromedial papillary muscle hypertrophy, and thickening and fusion of the chordae tendineae of the mitral valve (figures 1 and 2; in comparison, a heart with regular chordae tendineae in figure 3). Chordae tendineae of the anterolateral papillary muscle measured up to 1.2 cm in length and 1.1 cm in diameter (figure 4); chordae tendineae of the posteromedial papillary muscle measured up to 2 cm in length and 6 mm in diameter. Histopathological analysis of the heart revealed extensive tendon fibrosis and sclerosis of the chordae tendineae without inflammation, small fibrous scars in the left and right ventricle and pericardial fibrosis, as evidence of prior myocarditis and pericarditis. At the time of death, no inflammatory infiltrates in atria, ventricles and heart valves were found.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "37",
+    "text_length_chars": 1417,
+    "num_annotations": 13,
+    "conversion_date": "2026-04-20T06:13:55.469647+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001654",
+      "label": "Abnormal heart valve morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 525,
+          "end_char": 548,
+          "text_snippet": "rheumatic heart disease"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001663",
+      "label": "Ventricular fibrillation",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001685",
+      "label": "Myocardial fibrosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001701",
+      "label": "Pericarditis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1304,
+          "end_char": 1316,
+          "text_snippet": "pericarditis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001712",
+      "label": "Left ventricular hypertrophy",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001945",
+      "label": "Fever",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 44,
+          "end_char": 59,
+          "text_snippet": "rheumatic fever"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002563",
+      "label": "Constrictive pericarditis",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0011675",
+      "label": "Arrhythmia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0012819",
+      "label": "Myocarditis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1288,
+          "end_char": 1299,
+          "text_snippet": "myocarditis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0025445",
+      "label": "Abnormal papillary muscle morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 635,
+          "end_char": 663,
+          "text_snippet": "papillary muscle hypertrophy"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0025523",
+      "label": "Abnormal morphology of the chordae tendinae of the mitral valve",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0100749",
+      "label": "Chest pain",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:4000141",
+      "label": "Left ventricular dilatation",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    }
+  ]
+}

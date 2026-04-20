@@ -1,0 +1,244 @@
+{
+  "doc_id": "CSC_75",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "We report a 6-year-old boy who presented with complaints of the paucity of movement of the right side of the body since 2½ years of age and multiple episodes of convulsions since 3 years of age. He was apparently well till 2½ years of age when he developed insidious onset of weakness involving right upper and lower limb. At the age of 3 years, he developed a cluster of flexor spasms on awakening from sleep. This was followed by loss of attained language and cognitive skills. By the age of 6 years, he developed multiple types of daily seizure including nocturnal tonic seizure, tonic drop attacks, and head drops. On examination, his head circumference was <−3SD. Motor examination revealed increased tone in right upper limb and lower limb, power of <3/5 MRC, brisk deep tendon reflexes, and extensor plantar response. Magnetic resonance (MR) imaging brain reveals bilateral asymmetric chronic infarcts with contrast scan showing a bunch of collaterals in a basal cistern. MR angiography revealed occlusion of the bilateral distal internal carotid artery with preserved posterior circulation and dense collaterals suggestive of moyamoya disease (MMD). His electroencephalography (EEG) revealed generalized spike and slow wave complex (1–1.5 Hz, 200–300 uV) with a paucity of sleep markers and generalized paroxysmal fast activity consistent with EEG findings of LGS.  He was started on oral aspirin (5 mg/kg/day) with oral valproate, levetiracetam, lamotrigine, and clonazepam with seizure reduction to 1–2 episodes of tonic drop attacks. The patient is scheduled for revascularization surgery.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "75",
+    "text_length_chars": 1600,
+    "num_annotations": 22,
+    "conversion_date": "2026-04-20T06:13:55.474945+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000252",
+      "label": "Microcephaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 639,
+          "end_char": 667,
+          "text_snippet": "head circumference was <−3SD"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001250",
+      "label": "Seizure",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001268",
+      "label": "Mental deterioration",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001348",
+      "label": "Brisk reflexes",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 766,
+          "end_char": 792,
+          "text_snippet": "brisk deep tendon reflexes"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002069",
+      "label": "Bilateral tonic-clonic seizure",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 161,
+          "end_char": 172,
+          "text_snippet": "convulsions"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002374",
+      "label": "Diminished movement",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 64,
+          "end_char": 83,
+          "text_snippet": "paucity of movement"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002509",
+      "label": "Limb hypertonia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 696,
+          "end_char": 745,
+          "text_snippet": "increased tone in right upper limb and lower limb"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003394",
+      "label": "Muscle spasm",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 361,
+          "end_char": 410,
+          "text_snippet": "cluster of flexor spasms on awakening from sleep."
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003487",
+      "label": "Babinski sign",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 798,
+          "end_char": 823,
+          "text_snippet": "extensor plantar response"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003701",
+      "label": "Proximal muscle weakness",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0007064",
+      "label": "Progressive language deterioration",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 432,
+          "end_char": 457,
+          "text_snippet": "loss of attained language"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010819",
+      "label": "Atonic seizure",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0010846",
+      "label": "EEG with persistent abnormal rhythmic activity",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1200,
+          "end_char": 1355,
+          "text_snippet": "generalized spike and slow wave complex (1–1.5 Hz, 200–300 uV) with a paucity of sleep markers and generalized paroxysmal fast activity consistent with EEG"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010847",
+      "label": "EEG with spike-wave complexes (<2.5 Hz)",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0011834",
+      "label": "Moyamoya phenomenon",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1134,
+          "end_char": 1150,
+          "text_snippet": "moyamoya disease"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012474",
+      "label": "Carotid artery occlusion",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1003,
+          "end_char": 1060,
+          "text_snippet": "occlusion of the bilateral distal internal carotid artery"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0025302",
+      "label": "Diurnal",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0025406",
+      "label": "Asthenia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 276,
+          "end_char": 284,
+          "text_snippet": "weakness"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0025722",
+      "label": "Cerebral infarct",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 871,
+          "end_char": 908,
+          "text_snippet": "bilateral asymmetric chronic infarcts"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0031951",
+      "label": "Nocturnal seizures",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 558,
+          "end_char": 581,
+          "text_snippet": "nocturnal tonic seizure"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0040293",
+      "label": "Right hemiplegia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 64,
+          "end_char": 101,
+          "text_snippet": "paucity of movement of the right side"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:5200298",
+      "label": "Abnormal sleep architecture",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 64,
+          "end_char": 1355,
+          "text_snippet": "paucity of movement of the right side of the body since 2½ years of age and multiple episodes of convulsions since 3 years of age. He was apparently well till 2½ years of age when he developed insidious onset of weakness involving right upper and lower limb. At the age of 3 years, he developed a cluster of flexor spasms on awakening from sleep. This was followed by loss of attained language and cognitive skills. By the age of 6 years, he developed multiple types of daily seizure including nocturnal tonic seizure, tonic drop attacks, and head drops. On examination, his head circumference was <−3SD. Motor examination revealed increased tone in right upper limb and lower limb, power of <3/5 MRC, brisk deep tendon reflexes, and extensor plantar response. Magnetic resonance (MR) imaging brain reveals bilateral asymmetric chronic infarcts with contrast scan showing a bunch of collaterals in a basal cistern. MR angiography revealed occlusion of the bilateral distal internal carotid artery with preserved posterior circulation and dense collaterals suggestive of moyamoya disease (MMD). His electroencephalography (EEG) revealed generalized spike and slow wave complex (1–1.5 Hz, 200–300 uV) with a paucity of sleep markers and generalized paroxysmal fast activity consistent with EEG"
+        }
+      ]
+    }
+  ]
+}

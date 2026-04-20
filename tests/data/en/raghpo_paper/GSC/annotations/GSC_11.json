@@ -1,0 +1,88 @@
+{
+  "doc_id": "GSC_11",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "Gorlin syndrome is an autosomal dominant disorder that predisposes to basal cell carcinomas of the skin, ovarian fibromas, and medulloblastomas. Unlike other hereditary disorders associated with cancer, it features widespread developmental defects. To investigate the possibility that the syndrome is caused by mutation in a tumor suppressor gene, we searched for loss of heterozygosity in 16 sporadic basal cell carcinomas, 2 hereditary basal cell carcinomas, and 1 hereditary ovarian fibroma and performed genetic linkage studies in five Gorlin syndrome kindreds. Eleven sporadic basal cell carcinomas and all 3 hereditary tumors had allelic loss of chromosome 9q31, and all informative kindreds showed tight linkage between the Gorlin syndrome gene and a genetic marker in this region. Loss of heterozygosity at this chromosomal location, particularly in hereditary tumors, implies that the gene is homozygously inactivated and normally functions as a tumor suppressor. In contrast, hemizygous germline mutations lead to multiple congenital anomalies.",
+  "metadata": {
+    "dataset": "GSC",
+    "original_dataset": "GSC",
+    "original_doc_id": "1348213",
+    "text_length_chars": 1054,
+    "num_annotations": 6,
+    "conversion_date": "2026-04-20T06:13:55.489011+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 22,
+          "end_char": 40,
+          "text_snippet": "autosomal dominant"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002671",
+      "label": "Basal cell carcinoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 70,
+          "end_char": 103,
+          "text_snippet": "basal cell carcinomas of the skin"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001263",
+      "label": "Global developmental delay",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 226,
+          "end_char": 247,
+          "text_snippet": "developmental defects"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0034343",
+      "label": "Requires heterozygosity",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 364,
+          "end_char": 386,
+          "text_snippet": "loss of heterozygosity"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002885",
+      "label": "Medulloblastoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 127,
+          "end_char": 143,
+          "text_snippet": "medulloblastomas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010618",
+      "label": "Ovarian fibroma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 105,
+          "end_char": 121,
+          "text_snippet": "ovarian fibromas"
+        }
+      ]
+    }
+  ]
+}

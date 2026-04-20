@@ -1,0 +1,94 @@
+{
+  "doc_id": "GSC_81",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "We compared epilepsy phenotypes with genotypes of Angelman syndrome (AS), including chromosome 15q11-13 deletions (class I), uniparental disomy (class II), methylation imprinting abnormalities (class III), and mutation in the UBE3A gene (class IV). Twenty patients were prospectively selected based on clinical cytogenetic and molecular diagnosis of AS. All patients had 6 to 72 hours of closed-circuit television videotaping and digitized electroencephalogrpahic (EEG) telemetry. Patients from all genotypic classes had characteristic EEGs with diffuse bifrontally dominant high-amplitude 1- to 3-Hz notched or triphasic or polyphasic slow waves, or slow and sharp waves. Class I patients had severe intractable epilepsy, most frequently with atypical absences and myoclonias and less frequently with generalized extensor tonic seizures or flexor spasms. Epileptic spasms were recorded in AS patients as old as 41 years. Aged-matched class II, III, and IV patients had either no epilepsy or drug-responsive mild epilepsy with relatively infrequent atypical absences, myoclonias, or atonic seizures. In conclusion, maternally inherited chromosome 15q11-13 deletions produce severe epilepsy. Loss-of-function UBE3A mutations, uniparental disomy, or methylation imprint abnormalities in AS are associated with relatively mild epilepsy. Involvement of other genes in the chromosome 15q11-13 deletion, such as GABRB3, may explain severe epilepsy in AS.",
+  "metadata": {
+    "dataset": "GSC",
+    "original_dataset": "GSC",
+    "original_doc_id": "9546330",
+    "text_length_chars": 1448,
+    "num_annotations": 7,
+    "conversion_date": "2026-04-20T06:13:55.490840+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0010819",
+      "label": "Atonic seizure",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1083,
+          "end_char": 1098,
+          "text_snippet": "atonic seizures"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0007270",
+      "label": "Atypical absence seizure",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 744,
+          "end_char": 761,
+          "text_snippet": "atypical absences"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001250",
+      "label": "Seizure",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 12,
+          "end_char": 20,
+          "text_snippet": "epilepsy"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0011097",
+      "label": "Epileptic spasm",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0034338",
+      "label": "Imprinted",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 156,
+          "end_char": 192,
+          "text_snippet": "methylation imprinting abnormalities"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001336",
+      "label": "Myoclonus",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 766,
+          "end_char": 776,
+          "text_snippet": "myoclonias"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0032382",
+      "label": "Uniparental disomy",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 125,
+          "end_char": 143,
+          "text_snippet": "uniparental disomy"
+        }
+      ]
+    }
+  ]
+}

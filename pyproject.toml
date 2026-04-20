@@ -79,6 +79,12 @@ llm = [
     "anthropic>=0.73.0,<1.0.0",
     "openai>=2.0.0,<3.0.0",
 ]
+benchmarks = [
+    "openpyxl>=3.1.0",
+]
+phenopackets = [
+    "jsonschema>=4.25.1,<5.0.0",
+]
 energy = [
     "codecarbon>=3.2,<4.0",
 ]
@@ -93,6 +99,7 @@ include = ["phentrieve*", "api*"]
 # exclude = ["tests*"] # Uncomment if/when you add tests
 
 [tool.setuptools.package-data]
+"phentrieve.phenopackets" = ["schemas/*.json"]
 "phentrieve.text_processing.default_lang_resources" = ["*.json"]
 "phentrieve.llm.prompts" = [
     "templates/*.txt",

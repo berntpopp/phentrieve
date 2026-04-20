@@ -1,0 +1,208 @@
+{
+  "doc_id": "CSC_84",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A 26-year-old Filipino male presented at the Philippine General Hospital outpatient clinic because of the absence of pubertal development. He was born full term via normal spontaneous delivery to a 26-year-old mother. He has no siblings. He was circumcised at birth. Micropenis was observed but no further consultation was sought. He had normal developmental milestones and intelligence was at par with age. At 11 years of age, he was seen at Ophthalmology clinic for frequent lacrimation. He was diagnosed with bilateral congenital absence of upper and lower puncta. He was advised further evaluation and possible corrective surgery, however, he was lost to follow-up. At age 15 he had psychiatric counselling for a conduct disorder from a disruptive behaviour after friends kept on teasing him for ‘looking like a girl’. It was at this time that he noted hyposmia. He had no history of seizures, blurring of vision, colour blindness, hearing loss and movement disorders. At present, he is a second year college student. Family history is unremarkable on the maternal side. No medical information can be obtained on the paternal side. On physical examination, his weight was 52 kg, height was 170 cm, arm span was 176 cm, crown to pubis was 74 cm, pubis to heel was 96 cm with a ratio of 0.77 compatible with eunuchoid stature. He has high pitched voice, absent upper and lower puncta bilaterally, smooth philtrum and thin upper lip (figure 1). He showed absence of hair over face, axillae and legs. He has sparse pubic hair (Tanner stage 2), bilateral descended prepubertal testes measuring 1ml using the orchidometer and microphallus, with penile length of 2.0 cm (figure 2). There were no other abnormalities on systemic examination. Neurologic examination was essentially normal except for decreased sense of smell. Abdominal ultrasonography revealed normal liver, gallbladder, pancreas, spleen, kidneys and urinary bladder. Both testes are small in size and volume (<4 cc) on scrotal ultrasound; the right testis measures 1.8×1.3×0.8 cm and the left testis measures 1.8×1.2×0.8 cm. Hormonal assay results included serum follicle-stimulating hormone (FSH), luteinising hormone (LH) and testosterone which revealed hypogonadotropic hypogonadism. Radioisotope Laboratory Philippine General Hospital Imaging MRI of the brain showed normal pituitary gland, hypoplastic left olfactory bulb and aplastic right olfactory bulb.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "84",
+    "text_length_chars": 2424,
+    "num_annotations": 17,
+    "conversion_date": "2026-04-20T06:13:55.476125+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000028",
+      "label": "Cryptorchidism",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1544,
+          "end_char": 1582,
+          "text_snippet": "bilateral descended prepubertal testes"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000044",
+      "label": "Hypogonadotropic hypogonadism",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2219,
+          "end_char": 2248,
+          "text_snippet": "hypogonadotropic hypogonadism"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000054",
+      "label": "Micropenis",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000219",
+      "label": "Thin upper lip vermilion",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1419,
+          "end_char": 1433,
+          "text_snippet": "thin upper lip"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000319",
+      "label": "Smooth philtrum",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1399,
+          "end_char": 1414,
+          "text_snippet": "smooth philtrum"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001092",
+      "label": "Absent lacrimal punctum",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 522,
+          "end_char": 566,
+          "text_snippet": "congenital absence of upper and lower puncta"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001620",
+      "label": "Abnormally high-pitched voice",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1336,
+          "end_char": 1354,
+          "text_snippet": "high pitched voice"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002225",
+      "label": "Sparse pubic hair",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002231",
+      "label": "Sparse body hair",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1456,
+          "end_char": 1499,
+          "text_snippet": "absence of hair over face, axillae and legs"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003782",
+      "label": "Eunuchoid habitus",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1310,
+          "end_char": 1327,
+          "text_snippet": "eunuchoid stature"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004409",
+      "label": "Hyposmia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 857,
+          "end_char": 865,
+          "text_snippet": "hyposmia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0008197",
+      "label": "Absence of pubertal development",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 106,
+          "end_char": 137,
+          "text_snippet": "absence of pubertal development"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0008734",
+      "label": "Decreased testicular size",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1935,
+          "end_char": 1970,
+          "text_snippet": "testes are small in size and volume"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0009926",
+      "label": "Epiphora",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 468,
+          "end_char": 488,
+          "text_snippet": "frequent lacrimation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0030260",
+      "label": "Microphallus",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1624,
+          "end_char": 1636,
+          "text_snippet": "microphallus"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0032466",
+      "label": "Aplasia of the olfactory bulb",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2394,
+          "end_char": 2423,
+          "text_snippet": "aplastic right olfactory bulb"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0040326",
+      "label": "Hypoplasia of the olfactory bulb",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2358,
+          "end_char": 2389,
+          "text_snippet": "hypoplastic left olfactory bulb"
+        }
+      ]
+    }
+  ]
+}

@@ -72,6 +72,8 @@ class FakeRetriever:
                 "hpo_id": "HP:0001250",
                 "label": "Seizure",
                 "similarity": 0.95,
+                "matched_text": "Convulsions",
+                "matched_component": "synonym",
             }
         ]
 
@@ -758,13 +760,25 @@ def test_tool_executor_uses_multi_vector_queries_when_enabled() -> None:
         {
             "phrase": "seizures",
             "candidates": [
-                {"hpo_id": "HP:0001250", "term_name": "Seizure", "score": 0.95}
+                {
+                    "hpo_id": "HP:0001250",
+                    "term_name": "Seizure",
+                    "score": 0.95,
+                    "matched_text": "Convulsions",
+                    "matched_component": "synonym",
+                }
             ],
         },
         {
             "phrase": "ataxia",
             "candidates": [
-                {"hpo_id": "HP:0001250", "term_name": "Seizure", "score": 0.95}
+                {
+                    "hpo_id": "HP:0001250",
+                    "term_name": "Seizure",
+                    "score": 0.95,
+                    "matched_text": "Convulsions",
+                    "matched_component": "synonym",
+                }
             ],
         },
     ]

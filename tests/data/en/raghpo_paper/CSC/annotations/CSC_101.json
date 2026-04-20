@@ -1,0 +1,136 @@
+{
+  "doc_id": "CSC_101",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A female patient in her late 50s presented with dizziness. Echocardiography identified a 50 mm aortic root aneurysm and moderate to severe regurgitation of a trileaflet aortic valve. The patient’s medical history included easy bruising, scoliosis requiring Harrington rod placement and prior inguinal hernia surgery. Examination demonstrated pectus excavatum, soft, velvety and translucent skin with visible veins, and a tall palate. Genetic testing identified the aforementioned TGFBR1 variant. The patient underwent elective valve-sparing aortic root replacement. Cerebral imaging demonstrated bilateral internal carotid artery tortuosity without cerebral aneurysm. Abdominopelvic imaging identified dilated visceral vessels involving the ileocolic branch of the SMA with corkscrew tortuosity, a 10 mm saccular aneurysm of the proximal SMA, a 12 mm aneurysm at the bifurcation of the ileocolic artery (figure 1), and 6 mm dilatation of the jejunal branch of the SMA. After multidisciplinary consultation, intervention on the ileocolic artery aneurysm was recommended. However, due to diffuse ectasia and aneurysm formation proximal and distal to the ileocolic artery aneurysm, concern arose that coil embolisation could lead to bowel ischaemia requiring resection. The patient underwent laparoscopic surgical resection of the ileocolic artery aneurysm and a small section of small bowel. Histopathology of the resected aneurysm demonstrated a thin-walled aneurysm with intimal hyperplasia and myxoid degeneration.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "101",
+    "text_length_chars": 1515,
+    "num_annotations": 18,
+    "conversion_date": "2026-04-20T06:13:55.478834+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000023",
+      "label": "Inguinal hernia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000218",
+      "label": "High palate",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000767",
+      "label": "Pectus excavatum",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000977",
+      "label": "Soft skin",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000978",
+      "label": "Bruising susceptibility",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001659",
+      "label": "Aortic regurgitation",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002321",
+      "label": "Vertigo",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002616",
+      "label": "Aortic root aneurysm",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002617",
+      "label": "Vascular dilatation",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002650",
+      "label": "Scoliosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0004948",
+      "label": "Vascular tortuosity",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 774,
+          "end_char": 794,
+          "text_snippet": "corkscrew tortuosity"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0005116",
+      "label": "Arterial tortuosity",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0005302",
+      "label": "Carotid artery tortuosity",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0007394",
+      "label": "Prominent superficial blood vessels",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0010648",
+      "label": "Dermal translucency",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0011353",
+      "label": "Arterial intimal fibrosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1471,
+          "end_char": 1490,
+          "text_snippet": "intimal hyperplasia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0011934",
+      "label": "Dilatation of mesenteric artery",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0100859",
+      "label": "Dilatation of superior mesenteric artery",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    }
+  ]
+}

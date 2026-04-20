@@ -1,0 +1,76 @@
+{
+  "doc_id": "GSC_95",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "Nevoid basal cell carcinoma syndrome (NBCCS) is a genodermatosis with autosomal dominant inheritance. In identified kindreds the diagnosis is relatively easy, but for the patients without family history of this syndrome a high clinical suspicion is necessary for diagnosis.\n\nAcrochordons are distinctly uncommon in childhood. Our purpose was to evaluate skin tags that develop at an early age.\n\nThis is a retrospective series evaluation of 7 children who presented with pedunculated papules (acrochordon-like growths). A full history was then correlated with biopsy results in each patient.\n\nClinically, lesions consisted of flesh-colored and pigmented pedunculated papules. Histopathologic examination of these papules showed basal cell carcinomas in each biopsy specimen.\n\nWe consider that \"skin tag\"-like basal cell carcinomas in childhood may represent a marker for NBCCS. Early diagnosis of this syndrome and early sun protection of the affected children could help decrease the number of lifetime tumors. Biopsy should be performed on acrochordons in children because they may be the presenting sign of NBCCS. Because these tags may precede other stigmata of the NBCCS, recognition may facilitate early diagnosis and allow early treatment and sun protection.",
+  "metadata": {
+    "dataset": "GSC",
+    "original_dataset": "GSC",
+    "original_doc_id": "11312426",
+    "text_length_chars": 1264,
+    "num_annotations": 5,
+    "conversion_date": "2026-04-20T06:13:55.491104+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0010609",
+      "label": "Skin tags",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 492,
+          "end_char": 516,
+          "text_snippet": "acrochordon-like growths"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000006",
+      "label": "Autosomal dominant inheritance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 70,
+          "end_char": 88,
+          "text_snippet": "autosomal dominant"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002671",
+      "label": "Basal cell carcinoma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 727,
+          "end_char": 748,
+          "text_snippet": "basal cell carcinomas"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0200034",
+      "label": "Papule",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 625,
+          "end_char": 673,
+          "text_snippet": "flesh-colored and pigmented pedunculated papules"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002664",
+      "label": "Neoplasm",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 994,
+          "end_char": 1009,
+          "text_snippet": "lifetime tumors"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,82 @@
+{
+  "doc_id": "CSC_50",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A 40-year-old male patient presented to the emergency department with complaints of shortness of breath associated with bilateral pleuritic chest pain. He denied any history of trauma and had smoked 40 cigarettes daily for the past 22 years. On examination, the patient appeared breathless with a respiratory rate of 25 breaths/min and peripheral capillary oxygen saturation (SpO2) of 92% on room air. Neck examination showed no tracheal deviation and chest examination identified decreased bilateral chest expansion with no intercostal retractions. On chest palpation, there was a slightly diminished tactile fremitus on both sides. Chest percussion revealed a hyper-resonant note heard over the right and left upper and mid zones. On auscultation, there were no audible breath sounds and whispered voice sounds were abolished over the right and left upper and mid zones. The gasometric evaluation revealed the presence of hypoxaemia and hypocapnia. A posteroanterior chest radiograph showed a large bilateral pneumothorax (figure 1). The thoracic CT scan revealed focal areas of emphysema and apical subpleural blebs, which were located predominantly in the peripheral regions of the apex (figure 2).",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "50",
+    "text_length_chars": 1202,
+    "num_annotations": 11,
+    "conversion_date": "2026-04-20T06:13:55.470790+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001621",
+      "label": "Weak voice",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002094",
+      "label": "Dyspnea",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002097",
+      "label": "Emphysema",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002107",
+      "label": "Pneumothorax",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002789",
+      "label": "Tachypnea",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0006596",
+      "label": "Restricted chest movement",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0012417",
+      "label": "Hypocapnia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0012418",
+      "label": "Hypoxemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0032447",
+      "label": "Pulmonary bleb",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0033771",
+      "label": "Pleuritic chest pain",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:4000214",
+      "label": "Diminished breath sounds",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    }
+  ]
+}

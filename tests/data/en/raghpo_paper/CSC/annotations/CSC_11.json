@@ -1,0 +1,244 @@
+{
+  "doc_id": "CSC_11",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A 22-year-old girl, presented to us with a history of progressive knee deformity and difficulty in walking of 5 years duration. She was born of consanguineous marriage at term by normal vaginal delivery, third in birth order with two normal sibs. She was noticed to have collodion membrane at birth which was shed within 48 h to be followed by generalised erythema and fish-like scaly skin lesions which persisted in the subsequent years. She was also noticed to have a negligible sweating from childhood. She was immunised appropriately and developmental milestones were normal. She was average in scholastic performances but dropped out from school in the 9th standard due to social disfigurement and used to stay mostly indoors limiting average daily sun exposure to around 15 min during winter and almost negligible during summer. Her menstrual history was normal. Since 17 years of age she started having pain in both the knees with difficulty in walking, climbing stairs and rising up from squatting position. Gradually she noticed valgus deformity of the knees involving initially the right and then the left within a period of 6 months. She also complained of mild burning sensation and grittiness of her eyes since 14 years of age associated with mild difficulty in hearing and right ear discharge. There was no history of trauma to the knees, fractures, chronic diarrhoea or steatorrhoea suggestive of malabsorption or any history of renal disorder. Dietary history revealed adequate intake of foods rich in calcium and vitamin D. There was no family history of similarly affected individuals. Treatment history included various topical applications like glycerine and urea cream since childhood and intermittent oral retinoid therapy for the past 3 years. Examination revealed a height of 153 cm (25th–50th percentile), weight of 40 kg, (5th–10th percentile), body mass index of 17.09, upper segment:lower segment ratio of 1.23 and an arm span of 153 cm. Mid-parental target height was 156 cm. Large fine grey scales were seen mostly on trunk and limbs with minimal involvement of face and sparing of palms and soles (figure 1). Dandruff was present and mucosal surfaces and teeth were normal. She had bilateral madarosis on lateral aspects. There was bilateral genu valgum with intermalleolar distance of 7.5 inches (figure 2A). Routine investigations including serum creatinine and blood gas analysis were normal. Serum thyroid stimulating hormone was 2.17 µIU/ml, serum calcium: 8.8 (8.5–10.2) mg/dl, serum phosphorus: 3.2 (2.5–4.5) mg/dl, serum albumin: 4.1 gm/dl, serum alkaline phosphatase: 485 (38–126) U/l, 25-hydroxy-vitamin D: 9.12 ng/ml (deficiency <20 ng/ml), serum parathyroid hormone (PTH): 68.8 (14–72) pg/ml. Radiographs showed valgus deformity of both knees (figure 2B) with thinned out cortex. A dexa scan was done which revealed a T score of −2.1 at the lumbar spine suggestive of osteopenia and a T score of −0.8 at the hip. Skin biopsy revealed mild-to-moderate epidermal acanthosis with a well-formed, focally thickened granular layer and thick laminated bright pink ‘ichthyotic’ stratum corneum, features consistent with lamellar ichthyosis (figure 3). Ophthalmological evaluation revealed superficial punctuate keratitis bilaterally (figure 4). She was also found to have chronic suppurative ottitis media bilaterally with central perforation on right. Pure tone audiometry revealed bilateral conductive hearing loss. Dermatology opinion was taken and she was started on oral retinoids and topical emollients.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "11",
+    "text_length_chars": 3544,
+    "num_annotations": 26,
+    "conversion_date": "2026-04-20T06:13:55.466988+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000389",
+      "label": "Chronic otitis media",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000938",
+      "label": "Osteopenia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2911,
+          "end_char": 2921,
+          "text_snippet": "osteopenia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000966",
+      "label": "Hypohidrosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 470,
+          "end_char": 489,
+          "text_snippet": "negligible sweating"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001019",
+      "label": "Erythroderma",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001051",
+      "label": "Seborrheic dermatitis",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001288",
+      "label": "Gait disturbance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 85,
+          "end_char": 106,
+          "text_snippet": "difficulty in walking"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002857",
+      "label": "Genu valgum",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 54,
+          "end_char": 80,
+          "text_snippet": "progressive knee deformity"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003155",
+      "label": "Elevated circulating alkaline phosphatase concentration",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0003508",
+      "label": "Proportionate short stature",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0006409",
+      "label": "Progressive leg bowing",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0007438",
+      "label": "Mottled pigmentation of the trunk and proximal extremities",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0007479",
+      "label": "Congenital nonbullous ichthyosiform erythroderma",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 271,
+          "end_char": 289,
+          "text_snippet": "collodion membrane"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0008513",
+      "label": "Bilateral conductive hearing impairment",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 3428,
+          "end_char": 3451,
+          "text_snippet": "conductive hearing loss"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0011409",
+      "label": "Abnormal placental membrane morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 271,
+          "end_char": 298,
+          "text_snippet": "collodion membrane at birth"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0011457",
+      "label": "Loss of eyelashes",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0011859",
+      "label": "Punctate keratitis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 3224,
+          "end_char": 3255,
+          "text_snippet": "superficial punctuate keratitis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0012712",
+      "label": "Mild hearing impairment",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1256,
+          "end_char": 1282,
+          "text_snippet": "mild difficulty in hearing"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0025092",
+      "label": "Epidermal acanthosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 2994,
+          "end_char": 3014,
+          "text_snippet": "epidermal acanthosis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0030839",
+      "label": "Knee pain",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0040090",
+      "label": "Abnormal tympanic membrane morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0040189",
+      "label": "Scaling skin",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 369,
+          "end_char": 2027,
+          "text_snippet": "fish-like scaly skin lesions which persisted in the subsequent years. She was also noticed to have a negligible sweating from childhood. She was immunised appropriately and developmental milestones were normal. She was average in scholastic performances but dropped out from school in the 9th standard due to social disfigurement and used to stay mostly indoors limiting average daily sun exposure to around 15 min during winter and almost negligible during summer. Her menstrual history was normal. Since 17 years of age she started having pain in both the knees with difficulty in walking, climbing stairs and rising up from squatting position. Gradually she noticed valgus deformity of the knees involving initially the right and then the left within a period of 6 months. She also complained of mild burning sensation and grittiness of her eyes since 14 years of age associated with mild difficulty in hearing and right ear discharge. There was no history of trauma to the knees, fractures, chronic diarrhoea or steatorrhoea suggestive of malabsorption or any history of renal disorder. Dietary history revealed adequate intake of foods rich in calcium and vitamin D. There was no family history of similarly affected individuals. Treatment history included various topical applications like glycerine and urea cream since childhood and intermittent oral retinoid therapy for the past 3 years. Examination revealed a height of 153 cm (25th–50th percentile), weight of 40 kg, (5th–10th percentile), body mass index of 17.09, upper segment:lower segment ratio of 1.23 and an arm span of 153 cm. Mid-parental target height was 156 cm. Large fine grey scales"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0040190",
+      "label": "White scaling skin",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0045082",
+      "label": "Decreased body mass index",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0200026",
+      "label": "Ocular pain",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0410017",
+      "label": "Otitis externa",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1293,
+          "end_char": 1306,
+          "text_snippet": "ear discharge"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:6000420",
+      "label": "Burning eye sensation",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    }
+  ]
+}

@@ -1,0 +1,130 @@
+{
+  "doc_id": "CSC_69",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A 30-year-old Caucasian man was referred for further investigation and management of hyperuricaemia. The medical history included 14 years of chronic gout, recurrent nephrolithiasis, hypertension and psoriasis. There was no significant family history and no history of cognitive or neurobehavioural deficits. His management included allopurinol, but serum uric acid levels had been consistently measured above 0.8 mmol/L (reference range 0.15–0.50). His renal function was normal with creatinine 105 μmol/L, urea 7.3 mmol/L and estimated glomerular filtration rate 72 ml/min per 1.73 m2.On examination, there was no obvious posturing. A gouty tophus was palpated over the right olecranon and tophi were observed at the medial aspect of the first metatarsal–phalangeal joints. Tophi and joint deformity were also observed in the hands at the third proximal interphalangeal joints, the left second distal interphalangeal and the right fifth proximal and distal interphalangeal joints. Scaling plaques were noted on the extensor surfaces of the elbows and knees. Neurological examination revealed generalised hyperreflexia and weakness, power 4/5, in all muscle groups of the upper and lower limbs. There was no dystonia, clonus or spasticity. HGPRT activity was investigated with erythrocyte enzymology testing and the result of 0.1 U/g haemoglobin (reference range 3.0–6.7) confirmed the diagnosis of HGPRT deficiency.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "69",
+    "text_length_chars": 1417,
+    "num_annotations": 12,
+    "conversion_date": "2026-04-20T06:13:55.473517+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000787",
+      "label": "Nephrolithiasis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 156,
+          "end_char": 181,
+          "text_snippet": "recurrent nephrolithiasis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000822",
+      "label": "Hypertension",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 183,
+          "end_char": 195,
+          "text_snippet": "hypertension"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001324",
+      "label": "Muscle weakness",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0001997",
+      "label": "Gout",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 142,
+          "end_char": 154,
+          "text_snippet": "chronic gout"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002149",
+      "label": "Hyperuricemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 85,
+          "end_char": 99,
+          "text_snippet": "hyperuricaemia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003765",
+      "label": "Psoriasiform dermatitis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 200,
+          "end_char": 209,
+          "text_snippet": "psoriasis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0006261",
+      "label": "Abnormal phalangeal joint morphology of the hand",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0007034",
+      "label": "Generalized hyperreflexia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0025526",
+      "label": "Psoriasiform lesion",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 983,
+          "end_char": 998,
+          "text_snippet": "Scaling plaques"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0031823",
+      "label": "Reduced hypoxanthine-guanine phosphoribosyltransferase level",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1400,
+          "end_char": 1416,
+          "text_snippet": "HGPRT deficiency"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0033073",
+      "label": "Urate tophus",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0040190",
+      "label": "White scaling skin",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    }
+  ]
+}

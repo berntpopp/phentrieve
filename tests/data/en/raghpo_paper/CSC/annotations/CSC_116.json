@@ -1,0 +1,130 @@
+{
+  "doc_id": "CSC_116",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A man in his 20s with a medical history of syphilis, chlamydia and HIV presented to the emergency department (ED) with 2 months of right hip pain that had progressively worsened within the last month. Initially, 2 months ago, he sought outpatient care from a nurse practitioner when the pain started. After the negative lumbar X-rays (XRs), the pain initially was attributed to sciatica. There were no physical examination findings available from the initial visit. The pain continued to worsen after failing lidocaine patches and rest, eventually rendering the patient unable to ambulate. Two months later, a CT lumbar spine was ordered, which demonstrated right femoral head dislocation, erosive changes in the femoral head and acetabulum, as well as a large hip joint effusion. This prompted the patient’s visit to the ED the same day, where a physical examination revealed that the right lower extremity was shortened and externally rotated, consistent with the known deformity of the right hip. Sensation and vibratory sense were intact bilaterally as well as dorsalis pedis pulses. A hip examination performed in the ED revealed no active range of motion of the right hip. Passive range of motion to 45 degrees with flexion and abduction of the right hip was possible with pain past 45 degrees and pain with any internal rotation of the right hip. An MRI of the right hip was ordered, with findings raising concern for a superimposed septic arthritis and osteomyelitis. This patient was incidentally diagnosed with HIV, chlamydia and syphilis during a general workup for health insurance 4 months prior to presentation. The patient stated that he completed treatment for chlamydia and syphilis and that he was compliant with his bictegravir/emtricitabine/tenofovir alafenamide regimen. The duration of his undiagnosed period is unknown. The patient reported no trauma, fever, recent infection, alcohol use, smoking or illicit drug use. An infectious disease specialist was consulted, who recommended delaying antibiotics until the results of the surgical cultures were available. No arthrocentesis was performed preoperatively. Orthopaedic surgery was consulted, and a right hip resection arthroplasty procedure was performed. Intraoperatively, 30 mL of fluid from a right capsular haemarthrosis was obtained for cytology, soft tissue specimens from the hip were sent for culture, and bone debris from the acetabulum was sent to pathology. Three of each of the following cultures were collected from the right hip, including aerobic/anaerobic cultures, fungal cultures, and acid-fast cultures and smears. Cytological analysis of the right hip joint fluid revealed predominantly blood with the presence of lymphocytes, histiocytes and a few neutrophils, indicative of haemarthrosis",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "116",
+    "text_length_chars": 2786,
+    "num_annotations": 13,
+    "conversion_date": "2026-04-20T06:13:55.481064+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0001386",
+      "label": "Joint swelling",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 761,
+          "end_char": 779,
+          "text_snippet": "hip joint effusion"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001288",
+      "label": "Gait disturbance",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 570,
+          "end_char": 588,
+          "text_snippet": "unable to ambulate"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002754",
+      "label": "Osteomyelitis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1461,
+          "end_char": 1474,
+          "text_snippet": "osteomyelitis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003095",
+      "label": "Septic arthritis",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1440,
+          "end_char": 1456,
+          "text_snippet": "septic arthritis"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003365",
+      "label": "Arthralgia of the hip",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0005261",
+      "label": "Joint hemorrhage",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0008796",
+      "label": "Femoral retroversion",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0008800",
+      "label": "Limited hip movement",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002827",
+      "label": "Hip dislocation",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 664,
+          "end_char": 688,
+          "text_snippet": "femoral head dislocation"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0010885",
+      "label": "Avascular necrosis",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0030838",
+      "label": "Hip pain",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 137,
+          "end_char": 145,
+          "text_snippet": "hip pain"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0033640",
+      "label": "Acetabular erosions",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0100557",
+      "label": "Hemiatrophy of lower limb",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    }
+  ]
+}

@@ -1,0 +1,208 @@
+{
+  "doc_id": "CSC_74",
+  "language": "en",
+  "source": "rag_hpo_paper",
+  "full_text": "A 25-year-old woman presented to us with insidious onset, gradually progressive symptoms in the form of imbalance, and a tendency to fall while walking of 2 years duration. In addition, she had noticed slurring of her speech for the past 1 year, and difficulty in swallowing since the past 6 months. She had no history of cognitive decline, behaviour abnormality, seizures, involuntary movements, parkinsonism, motor weakness, sensory symptoms or autonomic dysfunction. She had no significant medical history, and no history to suggest similar illness in other family members. On general examination she was found to have pallor and mild splenomegaly. Neurological examination was positive for restriction of gaze both in the horizontal and vertical directions with preserved movements elicited using the oculocephalic manoeuvre, slow saccades, mixed dysarthria having both cerebellar and pseudobulbar features, decreased palatal movements, Babinski sign bilaterally and gait ataxia with minimal limb ataxia. Complete blood counts showed a haemoglobin level of 8.6 g/dL, TC of 7300/mm3 and a platelet count of 163 000/mm3. Erythrocyte sedimentation rate was 16 mm/h. Peripheral smear revealed a microcytic hypochromic anaemia. Blood sugar, renal, liver and thyroid functions were normal. Serum lactate, copper and ceruloplasmin assays were within the normal range. Ultrasound abdomen confirmed splenomegaly, where as the rest of the study was normal. In view of the clinical findings, we performed an MRI of the brain specifically looking for abnormalities in the brainstem and cerebellum in view of the clinical presentation; however this was found to be normal. Nerve conduction studies were normal. Cardiac evaluation with ECG and echocardiogram was normal. Bone marrow aspiration and trephine biopsy showed scattered foamy histiocytes in a background of normal hematopoietic cells. Sphingomyelinase enzyme assay was within normal limits.",
+  "metadata": {
+    "dataset": "CSC",
+    "original_dataset": "CSC",
+    "original_doc_id": "74",
+    "text_length_chars": 1941,
+    "num_annotations": 18,
+    "conversion_date": "2026-04-20T06:13:55.474713+00:00"
+  },
+  "annotations": [
+    {
+      "hpo_id": "HP:0000511",
+      "label": "Vertical supranuclear gaze palsy",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0000514",
+      "label": "Slow saccadic eye movements",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 830,
+          "end_char": 843,
+          "text_snippet": "slow saccades"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0000980",
+      "label": "Pallor",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 622,
+          "end_char": 628,
+          "text_snippet": "pallor"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001260",
+      "label": "Dysarthria",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 845,
+          "end_char": 861,
+          "text_snippet": "mixed dysarthria"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001317",
+      "label": "Abnormal cerebellum morphology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 862,
+          "end_char": 910,
+          "text_snippet": "having both cerebellar and pseudobulbar features"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001350",
+      "label": "Slurred speech",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 202,
+          "end_char": 224,
+          "text_snippet": "slurring of her speech"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0001744",
+      "label": "Splenomegaly",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 633,
+          "end_char": 650,
+          "text_snippet": "mild splenomegaly"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002015",
+      "label": "Dysphagia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 250,
+          "end_char": 274,
+          "text_snippet": "difficulty in swallowing"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002066",
+      "label": "Gait ataxia",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002070",
+      "label": "Limb ataxia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 988,
+          "end_char": 1007,
+          "text_snippet": "minimal limb ataxia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002172",
+      "label": "Postural instability",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 104,
+          "end_char": 113,
+          "text_snippet": "imbalance"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0002200",
+      "label": "Pseudobulbar signs",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0002527",
+      "label": "Falls",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 121,
+          "end_char": 151,
+          "text_snippet": "tendency to fall while walking"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003487",
+      "label": "Babinski sign",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 941,
+          "end_char": 954,
+          "text_snippet": "Babinski sign"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0003651",
+      "label": "Foam cells",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1821,
+          "end_char": 1838,
+          "text_snippet": "foamy histiocytes"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0004840",
+      "label": "Hypochromic microcytic anemia",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 1195,
+          "end_char": 1225,
+          "text_snippet": "microcytic hypochromic anaemia"
+        }
+      ]
+    },
+    {
+      "hpo_id": "HP:0007817",
+      "label": "Horizontal supranuclear gaze palsy",
+      "assertion_status": "affirmed",
+      "evidence_spans": []
+    },
+    {
+      "hpo_id": "HP:0031815",
+      "label": "Abnormal oral physiology",
+      "assertion_status": "affirmed",
+      "evidence_spans": [
+        {
+          "start_char": 912,
+          "end_char": 939,
+          "text_snippet": "decreased palatal movements"
+        }
+      ]
+    }
+  ]
+}
