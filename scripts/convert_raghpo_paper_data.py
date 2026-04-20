@@ -192,10 +192,13 @@ def main() -> None:
         output_root=args.output,
         dataset=args.dataset,
     )
+    summary = report["summary"]
+    total_documents = int(summary["total_documents"])
+    warnings_count = int(summary["warnings"])
     logger.info(
         "Converted %s documents with %s warnings",
-        report["summary"]["total_documents"],
-        report["summary"]["warnings"],
+        total_documents,
+        warnings_count,
     )
 
 
