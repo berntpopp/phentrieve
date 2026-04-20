@@ -217,6 +217,54 @@ tests/data/en/raghpo_paper/
 
 ---
 
+### `render_llm_trace_graph.py`
+
+Render a single two-phase LLM trace JSON as an interactive HTML graph for
+debugging.
+
+The viewer is designed for benchmark trace artifacts such as:
+
+- `.../traces/two_phase/case_CSC_2.json`
+
+It shows:
+
+- grounded chunks and neighbor context
+- phase-1 extracted phrases
+- phase-2 candidate terms
+- local and LLM resolution steps
+- final annotations and projected predictions
+
+**Usage:**
+
+```bash
+# Render a single trace to HTML next to the trace file
+python scripts/render_llm_trace_graph.py \
+    /tmp/raghpo-csc-trace-debug/traces/two_phase/case_CSC_2.json
+
+# Render to an explicit output file
+python scripts/render_llm_trace_graph.py \
+    /tmp/raghpo-csc-trace-debug/traces/two_phase/case_CSC_2.json \
+    --output-html /tmp/case_CSC_2_trace.html \
+    --title CSC_2
+```
+
+**Output:**
+
+- standalone HTML file with:
+  - hierarchical stage layout
+  - interactive pan/zoom
+  - click-to-inspect details pane
+  - stage filters
+  - free-text search across node payloads
+
+**Options:**
+
+- `TRACE_JSON` - Path to a single trace JSON file
+- `--output-html PATH` - Output HTML path (default: `<trace>.html`)
+- `--title TEXT` - Optional title override for the viewer
+
+---
+
 ### `generate_chunking_variants.py`
 
 Generate ground-truth chunking variants for annotated documents using the Voronoi boundary algorithm. This creates chunks at multiple expansion levels for benchmarking Phentrieve's semantic chunking strategies.
