@@ -271,7 +271,7 @@ class TestPhenopacketUtils:
             aggregated_results=[
                 {"id": "HP:0001250", "name": "Seizure", "confidence": 0.9, "rank": 1}
             ],
-            phentrieve_version="0.16.0",
+            phentrieve_version="0.17.0",
             include_annotation_sidecar=True,
         )
 
@@ -553,7 +553,7 @@ class TestNormalizedExportModels:
         sidecar = build_annotation_sidecar(
             phenopacket_id="packet-1",
             records=records,
-            generated_by_version="0.16.0",
+            generated_by_version="0.17.0",
         )
 
         assert sidecar["phenopacket_id"] == "packet-1"
@@ -574,7 +574,7 @@ class TestNormalizedExportModels:
         sidecar = build_annotation_sidecar(
             phenopacket_id="packet-1",
             records=records,
-            generated_by_version="0.16.0",
+            generated_by_version="0.17.0",
         )
 
         assert sidecar["annotations"][0]["certainty"] == "confirmed"
@@ -598,7 +598,7 @@ class TestNormalizedExportModels:
         sidecar = build_annotation_sidecar(
             phenopacket_id="packet-1",
             records=records,
-            generated_by_version="0.16.0",
+            generated_by_version="0.17.0",
         )
 
         assert [item["annotation_id"] for item in sidecar["annotations"]] == [
@@ -625,7 +625,7 @@ class TestNormalizedExportModels:
         sidecar = build_annotation_sidecar(
             phenopacket_id="packet-1",
             records=records,
-            generated_by_version="0.16.0",
+            generated_by_version="0.17.0",
         )
 
         sidecar["annotations"][0].pop("chunk_refs")
@@ -657,7 +657,7 @@ class TestNormalizedExportModels:
         sidecar = build_annotation_sidecar(
             phenopacket_id="packet-1",
             records=records,
-            generated_by_version="0.16.0",
+            generated_by_version="0.17.0",
         )
 
         validate_annotation_sidecar(sidecar)
@@ -676,7 +676,7 @@ class TestNormalizedExportModels:
         invalid_sidecar = {
             "schema_version": "1.0.0",
             "artifact_type": "phenotype_annotation_bundle",
-            "generated_by": {"tool": "phentrieve", "version": "0.16.0"},
+            "generated_by": {"tool": "phentrieve", "version": "0.17.0"},
             "phenopacket_id": "packet-1",
             "annotations": [
                 {
