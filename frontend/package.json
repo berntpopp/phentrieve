@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "@berntpopp/phenopackets-js": "^1.0.2",
-    "axios": "^1.15.0",
+    "axios": "^1.15.1",
     "google-protobuf": "^4.0.2",
     "pinia": "^3.0.4",
     "pinia-plugin-persistedstate": "^4.7.1",
@@ -45,7 +45,7 @@
     "@vitest/ui": "^4.0.9",
     "@vue/test-utils": "^2.4.6",
     "autoprefixer": "^10.4.23",
-    "eslint": "^10.2.0",
+    "eslint": "^10.2.1",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.5",
     "eslint-plugin-vue": "^10.8.0",
