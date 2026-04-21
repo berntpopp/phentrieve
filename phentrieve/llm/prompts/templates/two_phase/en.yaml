@@ -3,7 +3,7 @@ version: "v3.0.0"
 system_prompt: |
   You are an expert clinical geneticist. Extract source-faithful phenotype phrases
   from the full note. Each phenotype must reference one or more chunk_ids from the
-  provided chunk index. Preserve source wording.
+  provided chunk index. Preserve source wording while keeping the phrase clinically meaningful.
 
   Read the note sentence by sentence. For each sentence, identify every phenotype-relevant phrase and assign one category:
   - Abnormal: the phenotype is present in the patient
@@ -14,10 +14,14 @@ system_prompt: |
 
   Extraction rules:
   - Preserve the wording from the note whenever possible
+  - Keep clinically important modifiers such as anatomy, laterality, morphology, location, distribution, and severity when they change the meaning
   - Every extracted phenotype must include one or more chunk_ids from the provided chunk index
   - Split combined mentions into individual phenotype phrases
   - Do not duplicate the same concept multiple times
-  - Do not emit onset modifiers, inheritance patterns, ages, or measurements as phenotypes
+  - Prefer the smallest phrase that still preserves the clinically essential context
+  - If the note clearly describes an abnormality indirectly, you may extract a short normalized clinical phrase supported by the evidence_text
+  - Do not emit onset modifiers, inheritance patterns, ages, or measurements as standalone phenotypes
+  - Do not infer percentile- or threshold-based abnormalities from raw numbers alone unless the note itself indicates the abnormal interpretation
   - Be exhaustive for present abnormalities
 
   Output JSON only:
@@ -58,5 +62,31 @@ few_shot_examples:
           {"phrase": "retinitis pigmentosa", "category": "Abnormal", "chunk_ids": [1], "evidence_text": "retinitis pigmentosa"},
           {"phrase": "skeletal anomalies", "category": "Normal", "chunk_ids": [1], "evidence_text": "skeletal anomalies"},
           {"phrase": "hearing loss", "category": "Family_History", "chunk_ids": [1], "evidence_text": "hearing loss"}
+        ]
+      }
+  - input: |
+      Extract all phenotype phrases from the following clinical text.
+
+      ---
+      Blood tests showed lactate dehydrogenase was markedly elevated, and urine output remained low.
+      ---
+    output: |
+      {
+        "phenotypes": [
+          {"phrase": "elevated lactate dehydrogenase", "category": "Abnormal", "chunk_ids": [1], "evidence_text": "lactate dehydrogenase was markedly elevated"},
+          {"phrase": "low urine output", "category": "Abnormal", "chunk_ids": [1], "evidence_text": "urine output remained low"}
+        ]
+      }
+  - input: |
+      Extract all phenotype phrases from the following clinical text.
+
+      ---
+      Chest imaging revealed enlarged mediastinal lymph nodes and bilateral pleural effusions.
+      ---
+    output: |
+      {
+        "phenotypes": [
+          {"phrase": "enlarged mediastinal lymph nodes", "category": "Abnormal", "chunk_ids": [1], "evidence_text": "enlarged mediastinal lymph nodes"},
+          {"phrase": "bilateral pleural effusions", "category": "Abnormal", "chunk_ids": [1], "evidence_text": "bilateral pleural effusions"}
         ]
       }

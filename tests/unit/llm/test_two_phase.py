@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-from phentrieve.llm.pipeline import TwoPhaseLLMPipeline
-from phentrieve.llm.prompts.loader import get_mapping_prompt
+from phentrieve.llm.pipeline import TwoPhaseLLMPipeline, prepare_retrieval_queries
+from phentrieve.llm.prompts.loader import get_mapping_prompt, get_prompt
 from phentrieve.llm.provider import LLMProvider
+from phentrieve.llm.types import AnnotationMode
 
 
 class FakeProvider(LLMProvider):
@@ -34,7 +35,9 @@ class FakeProvider(LLMProvider):
             "completion_tokens": 5,
             "total_tokens": 15,
         }
-        return response_model.model_validate(response.get("parsed", response))
+        parsed = response_model.model_validate(response.get("parsed", response))
+        self.last_structured_payload = parsed.model_dump(mode="json")
+        return parsed
 
 
 def test_try_local_match_requires_multiword_substring_boundary():
@@ -146,3 +149,40 @@ def test_resolve_with_mapping_prompt_normalizes_phrase_before_llm_call():
         '"matched_text": "Difficulty walking"'
         in provider.structured_calls[0]["user_prompt"]
     )
+
+
+def test_prepare_retrieval_queries_strips_unit_suffixes_without_losing_core_phrase():
+    queries = prepare_retrieval_queries("serum creatinine 11.2 mg/dL")
+
+    assert "serum creatinine 11.2 mg/dL" in queries
+    assert "serum creatinine 11.2" in queries
+    assert queries[-1] == "serum creatinine 11.2"
+
+    marker_queries = prepare_retrieval_queries("inflammatory marker 152 mg/l")
+    assert "inflammatory marker 152 mg/l" in marker_queries
+    assert "inflammatory marker 152" in marker_queries
+
+
+def test_prepare_retrieval_queries_keeps_location_and_morphology_modifiers():
+    queries = prepare_retrieval_queries("swelling in the right lower leg")
+
+    assert queries[0] == "swelling in the right lower leg"
+    assert any("right lower leg" in query for query in queries)
+    assert "swelling" not in queries[1:]
+
+
+def test_prepare_retrieval_queries_does_not_invent_hand_written_paraphrases():
+    queries = prepare_retrieval_queries("tongue biting")
+
+    assert "self biting" not in queries
+    assert "self-biting" not in queries
+
+
+def test_phase1_prompt_mentions_normalized_clinical_phrase_for_lab_or_event_evidence():
+    prompt = get_prompt(AnnotationMode.TWO_PHASE, "en")
+    system = prompt.render_system_prompt()
+
+    assert "normalized" in system.lower()
+    assert "measurement" in system.lower()
+    assert "indirectly" in system.lower()
+    assert "context" in system.lower()

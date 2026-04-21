@@ -55,6 +55,7 @@ class LLMProvider(ABC):
         self.last_usage = {}
         self.last_finish_reason = None
         self.last_request_count = 0
+        self.last_structured_payload = None
         self.structured_retries = DEFAULT_PROVIDER_STRUCTURED_RETRIES
         self.structured_retry_token_multiplier = (
             DEFAULT_PROVIDER_STRUCTURED_RETRY_TOKEN_MULTIPLIER
@@ -83,6 +84,17 @@ class LLMProvider(ABC):
     @last_request_count.setter
     def last_request_count(self, value: int) -> None:
         self._thread_state.last_request_count = int(value or 0)
+
+    @property
+    def last_structured_payload(self) -> dict[str, Any] | None:
+        payload = getattr(self._thread_state, "last_structured_payload", None)
+        return dict(payload) if isinstance(payload, dict) else None
+
+    @last_structured_payload.setter
+    def last_structured_payload(self, value: dict[str, Any] | None) -> None:
+        self._thread_state.last_structured_payload = (
+            dict(value) if isinstance(value, dict) else None
+        )
 
     @abstractmethod
     def complete(self, messages: list[dict[str, Any]]) -> LLMResponse:
@@ -122,6 +134,7 @@ class LLMProvider(ABC):
         self.last_usage = {}
         self.last_finish_reason = None
         self.last_request_count = 0
+        self.last_structured_payload = None
 
         for attempt in range(1, structured_retries + 2):
             response, request_count = invoke(current_output_tokens)
@@ -131,7 +144,9 @@ class LLMProvider(ABC):
                 aggregate_usage=aggregate_usage,
             )
             try:
-                return parse(response)
+                parsed = parse(response)
+                self.last_structured_payload = parsed.model_dump(mode="json")
+                return parsed
             except Exception as exc:
                 last_exception = exc
                 if (
