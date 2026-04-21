@@ -953,6 +953,7 @@ class TwoPhaseLLMPipeline:
         grounded_chunks: list[dict[str, Any]],
         extraction_prompt,
         chunk_index_text: str | None = None,
+        capture_debug: bool = False,
     ) -> tuple[list[dict[str, Any]], dict[str, int], int, dict[str, Any] | None]:
         user_prompt = _render_phase1_user_prompt(
             extraction_prompt=extraction_prompt,
@@ -995,9 +996,6 @@ class TwoPhaseLLMPipeline:
 
         usage = dict(getattr(self.provider, "last_usage", {}) or {})
         request_count = int(getattr(self.provider, "last_request_count", 0) or 0)
-        structured_payload = (
-            dict(getattr(self.provider, "last_structured_payload", {}) or {}) or None
-        )
         parsed: list[dict[str, Any]] = []
         for phenotype in response.phenotypes:
             parsed.append(
@@ -1010,18 +1008,25 @@ class TwoPhaseLLMPipeline:
                     "end_char": getattr(phenotype, "end_char", None),
                 }
             )
-        return (
-            parsed,
-            usage,
-            request_count,
-            {
+        debug_payload: dict[str, Any] | None = None
+        if capture_debug:
+            structured_payload = (
+                dict(getattr(self.provider, "last_structured_payload", {}) or {})
+                or None
+            )
+            debug_payload = {
                 "source_text": chunk_index_text
                 if chunk_index_text is not None
                 else text,
                 "user_prompt": user_prompt,
                 "structured_response": structured_payload,
                 "parsed_extracted": list(parsed),
-            },
+            }
+        return (
+            parsed,
+            usage,
+            request_count,
+            debug_payload,
         )
 
     def _extract_grouped_phase1_phenotypes(
@@ -1073,23 +1078,13 @@ class TwoPhaseLLMPipeline:
                 group = futures[future]
                 group_index = int(group.get("group_index", 0))
                 try:
-                    result = future.result()
-                    if len(result) == 4:
-                        (
-                            group_extracted,
-                            group_usage,
-                            group_request_count,
-                            group_elapsed,
-                        ) = result
-                        phase1_debug = None
-                    else:
-                        (
-                            group_extracted,
-                            group_usage,
-                            group_request_count,
-                            group_elapsed,
-                            phase1_debug,
-                        ) = result
+                    (
+                        group_extracted,
+                        group_usage,
+                        group_request_count,
+                        group_elapsed,
+                        phase1_debug,
+                    ) = future.result()
                     indexed_results.append(
                         (
                             group_index,
@@ -1259,6 +1254,7 @@ class TwoPhaseLLMPipeline:
                         grounded_chunks=group_grounded_chunks,
                     ),
                     extraction_prompt=extraction_prompt,
+                    capture_debug=capture_debug,
                 )
             )
         except LLMPipelinePhaseError as exc:
@@ -1297,6 +1293,7 @@ class TwoPhaseLLMPipeline:
                         text=text,
                         grounded_chunks=grounded_chunks,
                         extraction_prompt=extraction_prompt,
+                        capture_debug=capture_phase1_debug,
                     )
                 )
                 groups_trace: list[dict[str, Any]] = []
@@ -1620,23 +1617,26 @@ class TwoPhaseLLMPipeline:
         )
 
         shared_results: dict[tuple[str, str, tuple[str, ...]], dict[str, Any]] = {}
-        variant_index = 0
+        grouped_variant_results: dict[
+            tuple[str, str, tuple[str, ...]], list[tuple[str, dict[str, Any]]]
+        ] = {}
+        for index, dedupe_key in enumerate(expanded_query_keys):
+            query = expanded_queries[index]
+            batch_result = (
+                batched_variant_results[index]
+                if index < len(batched_variant_results)
+                else {}
+            )
+            grouped_variant_results.setdefault(dedupe_key, []).append(
+                (query, batch_result)
+            )
+
         for item in unique_actionable:
             phrase = str(item["phrase"])
             category = str(item["category"])
             dedupe_key = _downstream_dedupe_key(item, include_candidate_ids=False)
-            query_variants = prepare_retrieval_queries(phrase)
-            if not query_variants:
-                query_variants = [phrase]
-
             merged_candidates: dict[str, dict[str, Any]] = {}
-            for query in query_variants:
-                batch_result = (
-                    batched_variant_results[variant_index]
-                    if variant_index < len(batched_variant_results)
-                    else {}
-                )
-                variant_index += 1
+            for query, batch_result in grouped_variant_results.get(dedupe_key, []):
                 if "candidates" in batch_result:
                     candidates = [
                         {

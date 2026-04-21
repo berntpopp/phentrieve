@@ -1624,12 +1624,14 @@ def test_pipeline_retries_only_failed_grouped_large_windows_in_grouped_small(
                 {"prompt_tokens": 10, "completion_tokens": 2, "total_tokens": 12},
                 1,
                 0.1,
+                None,
             )
         return (
             [],
             {"prompt_tokens": 6, "completion_tokens": 1, "total_tokens": 7},
             1,
             0.1,
+            None,
         )
 
     run_group = mocker.patch.object(
@@ -1852,6 +1854,7 @@ def test_two_phase_pipeline_grouped_phase1_keeps_stable_merge_order(mocker) -> N
             {"prompt_tokens": 10, "completion_tokens": 2, "total_tokens": 12},
             1,
             0.1,
+            None,
         )
 
     run_group = mocker.patch.object(
@@ -1907,6 +1910,7 @@ def test_two_phase_pipeline_grouped_phase1_tracks_partial_failures_under_concurr
             {"prompt_tokens": 10, "completion_tokens": 2, "total_tokens": 12},
             1,
             0.1,
+            None,
         )
 
     run_group = mocker.patch.object(
