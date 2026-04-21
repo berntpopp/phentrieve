@@ -237,6 +237,7 @@ def run_llm_benchmark(
     input_cost_per_1m_tokens: float | None = None,
     output_cost_per_1m_tokens: float | None = None,
     cached_input_cost_per_1m_tokens: float | None = None,
+    capture_phase1_debug: bool = False,
     accounting_config: BenchmarkAccountingConfig | None = None,
     checkpoint_state: dict[str, Any] | None = None,
     progress_callback: Callable[[dict[str, Any]], None] | None = None,
@@ -350,6 +351,7 @@ def run_llm_benchmark(
             mode=llm_mode,
             language=language,
             seed=llm_seed,
+            capture_phase1_debug=capture_phase1_debug,
         )
         if len(completed_case_indexes) < len(documents) and hasattr(pipeline, "warmup"):
             logger.info("Benchmark warmup start: language=%s", language)

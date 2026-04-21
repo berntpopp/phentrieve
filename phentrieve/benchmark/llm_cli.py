@@ -69,6 +69,7 @@ def run_llm_benchmark_cli(
     input_cost_per_1m_tokens: float | None = None,
     output_cost_per_1m_tokens: float | None = None,
     cached_input_cost_per_1m_tokens: float | None = None,
+    capture_phase1_debug: bool = False,
     measure_energy: bool = False,
     per_document_energy: bool = False,
     electricity_cost_per_kwh: float | None = None,
@@ -136,6 +137,7 @@ def run_llm_benchmark_cli(
                 "llm_mode": llm_mode,
                 "llm_internal_mode": llm_internal_mode,
                 "language": language,
+                "capture_phase1_debug": capture_phase1_debug,
                 "prompt_templates_dir": prompt_templates_dir,
                 "requested_doc_ids": list(doc_ids) if doc_ids else None,
             },
@@ -172,6 +174,7 @@ def run_llm_benchmark_cli(
         input_cost_per_1m_tokens=input_cost_per_1m_tokens,
         output_cost_per_1m_tokens=output_cost_per_1m_tokens,
         cached_input_cost_per_1m_tokens=cached_input_cost_per_1m_tokens,
+        capture_phase1_debug=capture_phase1_debug,
         accounting_config=accounting_config,
         checkpoint_state=existing_checkpoint,
         progress_callback=_persist_checkpoint,
@@ -483,6 +486,13 @@ def benchmark_llm(
             help="Optional cached-input token price used for estimated benchmark cost reporting.",
         ),
     ] = None,
+    capture_phase1_debug: Annotated[
+        bool,
+        typer.Option(
+            "--capture-phase1-debug/--no-capture-phase1-debug",
+            help="Capture phase 1 source text, prompt, and raw structured outputs in per-case traces.",
+        ),
+    ] = False,
     measure_energy: Annotated[
         bool,
         typer.Option(
@@ -545,6 +555,7 @@ def benchmark_llm(
             input_cost_per_1m_tokens=input_cost_per_1m_tokens,
             output_cost_per_1m_tokens=output_cost_per_1m_tokens,
             cached_input_cost_per_1m_tokens=cached_input_cost_per_1m_tokens,
+            capture_phase1_debug=capture_phase1_debug,
             measure_energy=measure_energy,
             per_document_energy=per_document_energy,
             electricity_cost_per_kwh=electricity_cost_per_kwh,

@@ -86,7 +86,9 @@ class FakeProvider(LLMProvider):
         }
         self.last_request_count = response.get("request_count", 1)
         payload = response.get("parsed", response)
-        return response_model.model_validate(payload)
+        parsed = response_model.model_validate(payload)
+        self.last_structured_payload = parsed.model_dump(mode="json")
+        return parsed
 
     def count_tokens(self, *, system_prompt: str, user_prompt: str) -> dict[str, int]:
         self.count_token_calls.append(
@@ -359,6 +361,55 @@ def test_phase1_uses_legacy_schema_without_grounding() -> None:
     assert result[0][0]["evidence_text"] is None
 
 
+def test_ungrouped_phase1_debug_capture_persists_in_trace() -> None:
+    provider = FakeProvider(
+        responses=[
+            {
+                "parsed": {
+                    "phenotypes": [
+                        {
+                            "phrase": "recurrent seizures",
+                            "category": "Abnormal",
+                            "chunk_ids": [1],
+                            "evidence_text": "recurrent seizures",
+                        }
+                    ]
+                }
+            }
+        ]
+    )
+    pipeline = TwoPhaseLLMPipeline(
+        provider=provider,
+        tool_executor=FakeToolExecutor([]),
+    )
+
+    result = pipeline.run(
+        text="Patient had recurrent seizures.",
+        grounded_chunks=[{"chunk_id": 1, "text": "Patient had recurrent seizures."}],
+        config=LLMPipelineConfig(
+            model="gemini-2.5-flash",
+            mode="two_phase",
+            capture_phase1_debug=True,
+        ),
+    )
+
+    groups = result.meta.trace["phase1"]["groups"]
+    assert len(groups) == 1
+    assert groups[0]["debug"]["source_text"] == "Patient had recurrent seizures."
+    assert groups[0]["debug"]["structured_response"] == {
+        "phenotypes": [
+            {
+                "phrase": "recurrent seizures",
+                "category": "Abnormal",
+                "chunk_ids": [1],
+                "evidence_text": "recurrent seizures",
+                "start_char": None,
+                "end_char": None,
+            }
+        ]
+    }
+
+
 def test_phase1_runs_once_per_extraction_group() -> None:
     provider = FakeProvider(
         responses=[
@@ -485,6 +536,192 @@ def test_grouped_phase1_uses_budgeted_group_payload_text() -> None:
     )
     assert "Canonical chunk one." not in provider.structured_calls[0]["user_prompt"]
     assert "Canonical chunk two." not in provider.structured_calls[0]["user_prompt"]
+
+
+def test_grouped_phase1_merges_continuation_chunks_in_payload_text() -> None:
+    provider = FakeProvider(
+        responses=[
+            {
+                "parsed": {
+                    "phenotypes": [
+                        grounded_phenotype(
+                            "elevated inflammatory marker",
+                            "Abnormal",
+                            chunk_ids=[1, 2],
+                        ),
+                        grounded_phenotype(
+                            "ESR 50",
+                            "Abnormal",
+                            chunk_ids=[3, 4],
+                        ),
+                    ]
+                }
+            }
+        ]
+    )
+    pipeline = TwoPhaseLLMPipeline(
+        provider=provider,
+        tool_executor=FakeToolExecutor([]),
+    )
+
+    pipeline.run(
+        text="Laboratory findings were abnormal.",
+        grounded_chunks=[
+            {"chunk_id": 1, "text": "Marker was 152 mg/l (normal"},
+            {"chunk_id": 2, "text": "0-10)"},
+            {"chunk_id": 3, "text": "ESR"},
+            {"chunk_id": 4, "text": "50 mm/h"},
+        ],
+        extraction_groups=[
+            {
+                "group_id": 1,
+                "chunk_ids": [1, 2, 3, 4],
+                "text": (
+                    "chunk_id=1: Marker was 152 mg/l (normal\n"
+                    "chunk_id=2: 0-10)\n"
+                    "chunk_id=3: ESR\n"
+                    "chunk_id=4: 50 mm/h"
+                ),
+                "estimated_prompt_tokens": 12,
+            }
+        ],
+        config=LLMPipelineConfig(model="gemini-2.5-flash", mode="two_phase"),
+    )
+
+    assert len(provider.structured_calls) == 1
+    assert (
+        "chunk_ids=1,2: Marker was 152 mg/l (normal 0-10)"
+        in provider.structured_calls[0]["user_prompt"]
+    )
+    assert "chunk_ids=3,4: ESR 50 mm/h" in provider.structured_calls[0]["user_prompt"]
+
+
+def test_grouped_phase1_does_not_runaway_merge_after_open_paren() -> None:
+    provider = FakeProvider(
+        responses=[
+            {
+                "parsed": {
+                    "phenotypes": [
+                        grounded_phenotype("platelet count", "Abnormal", chunk_ids=[1])
+                    ]
+                }
+            }
+        ]
+    )
+    pipeline = TwoPhaseLLMPipeline(
+        provider=provider,
+        tool_executor=FakeToolExecutor([]),
+    )
+
+    pipeline.run(
+        text="Laboratory findings were abnormal.",
+        grounded_chunks=[
+            {"chunk_id": 1, "text": "platelet count of 842 (table 1"},
+            {
+                "chunk_id": 2,
+                "text": "peripheral blood smear was suggestive of abnormal cells",
+            },
+            {"chunk_id": 3, "text": "ESR"},
+            {"chunk_id": 4, "text": "50 mm/h"},
+        ],
+        extraction_groups=[
+            {
+                "group_id": 1,
+                "chunk_ids": [1, 2, 3, 4],
+                "text": (
+                    "chunk_id=1: platelet count of 842 (table 1\n"
+                    "chunk_id=2: peripheral blood smear was suggestive of abnormal cells\n"
+                    "chunk_id=3: ESR\n"
+                    "chunk_id=4: 50 mm/h"
+                ),
+                "estimated_prompt_tokens": 12,
+            }
+        ],
+        config=LLMPipelineConfig(model="gemini-2.5-flash", mode="two_phase"),
+    )
+
+    prompt = provider.structured_calls[0]["user_prompt"]
+    assert "chunk_id=1: platelet count of 842 (table 1" in prompt
+    assert (
+        "chunk_id=2: peripheral blood smear was suggestive of abnormal cells" in prompt
+    )
+    assert "chunk_ids=1,2:" not in prompt
+    assert "chunk_ids=3,4: ESR 50 mm/h" in prompt
+
+
+def test_grouped_phase1_debug_capture_is_additive_and_opt_in() -> None:
+    provider = FakeProvider(
+        responses=[
+            {
+                "parsed": {
+                    "phenotypes": [
+                        grounded_phenotype(
+                            "recurrent seizures",
+                            "Abnormal",
+                            chunk_ids=[1, 2],
+                        )
+                    ]
+                }
+            }
+        ]
+    )
+    pipeline = TwoPhaseLLMPipeline(
+        provider=provider,
+        tool_executor=FakeToolExecutor([]),
+    )
+
+    result = pipeline.run(
+        text="Patient had recurrent seizures.",
+        grounded_chunks=[
+            {"chunk_id": 1, "text": "Chunk one."},
+            {"chunk_id": 2, "text": "Chunk two."},
+        ],
+        extraction_groups=[
+            {
+                "group_id": 1,
+                "chunk_ids": [1, 2],
+                "text": "chunk_id=1: Budgeted chunk one.\nchunk_id=2: Budgeted chunk two.",
+                "estimated_prompt_tokens": 12,
+            }
+        ],
+        config=LLMPipelineConfig(
+            model="gemini-2.5-flash",
+            mode="two_phase",
+            capture_phase1_debug=True,
+        ),
+    )
+
+    group_trace = result.meta.trace["phase1"]["groups"][0]
+
+    assert group_trace["group_id"] == 1
+    assert group_trace["status"] == "completed"
+    assert group_trace["extracted"][0]["phrase"] == "recurrent seizures"
+    assert group_trace["debug"]["source_text"] == (
+        "chunk_id=1: Budgeted chunk one.\nchunk_id=2: Budgeted chunk two."
+    )
+    assert "Budgeted chunk one." in group_trace["debug"]["user_prompt"]
+    assert group_trace["debug"]["structured_response"] == {
+        "phenotypes": [
+            {
+                "phrase": "recurrent seizures",
+                "category": "Abnormal",
+                "chunk_ids": [1, 2],
+                "evidence_text": "recurrent seizures",
+                "start_char": None,
+                "end_char": None,
+            }
+        ]
+    }
+    assert group_trace["debug"]["parsed_extracted"] == [
+        {
+            "phrase": "recurrent seizures",
+            "category": "abnormal",
+            "chunk_ids": [1, 2],
+            "evidence_text": "recurrent seizures",
+            "start_char": None,
+            "end_char": None,
+        }
+    ]
 
 
 def test_grouped_phase1_aggregates_mentions_before_retrieval() -> None:
@@ -1387,12 +1624,14 @@ def test_pipeline_retries_only_failed_grouped_large_windows_in_grouped_small(
                 {"prompt_tokens": 10, "completion_tokens": 2, "total_tokens": 12},
                 1,
                 0.1,
+                None,
             )
         return (
             [],
             {"prompt_tokens": 6, "completion_tokens": 1, "total_tokens": 7},
             1,
             0.1,
+            None,
         )
 
     run_group = mocker.patch.object(
@@ -1615,6 +1854,7 @@ def test_two_phase_pipeline_grouped_phase1_keeps_stable_merge_order(mocker) -> N
             {"prompt_tokens": 10, "completion_tokens": 2, "total_tokens": 12},
             1,
             0.1,
+            None,
         )
 
     run_group = mocker.patch.object(
@@ -1670,6 +1910,7 @@ def test_two_phase_pipeline_grouped_phase1_tracks_partial_failures_under_concurr
             {"prompt_tokens": 10, "completion_tokens": 2, "total_tokens": 12},
             1,
             0.1,
+            None,
         )
 
     run_group = mocker.patch.object(
@@ -2832,11 +3073,13 @@ def test_two_phase_pipeline_batch_mapping_disambiguates_duplicate_phrase_text() 
                     "id": "HP:0001251",
                     "term": "Ataxia",
                     "retrieval_score": 0.95,
+                    "retrieval_query": "motor issues",
                 },
                 {
                     "id": "HP:0002066",
                     "term": "Gait ataxia",
                     "retrieval_score": 0.88,
+                    "retrieval_query": "motor issues",
                 },
             ],
         },
@@ -2851,11 +3094,13 @@ def test_two_phase_pipeline_batch_mapping_disambiguates_duplicate_phrase_text() 
                     "id": "HP:0033894",
                     "term": "Episodic ataxia",
                     "retrieval_score": 0.93,
+                    "retrieval_query": "motor issues",
                 },
                 {
                     "id": "HP:0001251",
                     "term": "Ataxia",
                     "retrieval_score": 0.89,
+                    "retrieval_query": "motor issues",
                 },
             ],
         },
@@ -3478,6 +3723,7 @@ def test_two_phase_pipeline_uses_single_mapping_prompt_for_final_one_item_slice(
                         "id": "HP:0002355",
                         "term": "Difficulty walking",
                         "retrieval_score": 0.81,
+                        "retrieval_query": "frequent falls",
                     }
                 ],
             },
@@ -3495,6 +3741,7 @@ def test_two_phase_pipeline_uses_single_mapping_prompt_for_final_one_item_slice(
                         "id": "HP:0002360",
                         "term": "Sleep abnormality",
                         "retrieval_score": 0.85,
+                        "retrieval_query": "sleep disturbances",
                     }
                 ],
             },
@@ -3510,7 +3757,14 @@ def test_two_phase_pipeline_uses_single_mapping_prompt_for_final_one_item_slice(
         "neighbor_chunk_texts": ["Sleep disturbances were reported."],
         "phrase": "balance issues",
         "category": "abnormal",
-        "candidates": [{"id": "HP:0001251", "term": "Ataxia", "retrieval_score": 0.95}],
+        "candidates": [
+            {
+                "id": "HP:0001251",
+                "term": "Ataxia",
+                "retrieval_score": 0.95,
+                "retrieval_query": "balance issues",
+            }
+        ],
     }
     assert result.meta.phase_request_counts["phase2b_llm_requests"] == 2
     assert [term.term_id for term in result.terms] == [

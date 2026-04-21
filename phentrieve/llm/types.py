@@ -144,6 +144,7 @@ class LLMPipelineConfig(BaseModel):
     mode: str = DEFAULT_LLM_MODE
     language: str | None = DEFAULT_LLM_LANGUAGE
     seed: int | None = None
+    capture_phase1_debug: bool = False
 
 
 class LLMExtractionResult(BaseModel):
