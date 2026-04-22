@@ -24,6 +24,7 @@ from api.dependencies import (
 from api.routers import (
     config_info_router,
     health,
+    phenopacket_router,
     query_router,
     similarity_router,
     system,
@@ -234,6 +235,7 @@ def create_app() -> FastAPI:
         prefix="/api/v1/similarity",
         tags=["HPO Term Similarity"],
     )
+    application.include_router(phenopacket_router.router)
     application.include_router(config_info_router.router, prefix="/api/v1")
     application.include_router(
         text_processing_router.router, tags=["Text Processing and HPO Extraction"]
