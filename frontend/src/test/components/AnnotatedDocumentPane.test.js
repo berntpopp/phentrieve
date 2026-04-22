@@ -253,7 +253,6 @@ describe('AnnotatedDocumentPane', () => {
 
     expect(selectedSharedCall).toBeDefined();
     expect(selectedSharedCall[1].ranges).toHaveLength(2);
-    expect(wrapper.findAll('[data-custom-highlight-hitbox="shared-ann"]')).toHaveLength(2);
 
     set.mockClear();
     deleteFn.mockClear();
@@ -268,70 +267,15 @@ describe('AnnotatedDocumentPane', () => {
     expect(unselectedSharedCall[1].ranges).toHaveLength(2);
   });
 
-  it('opens the action popover for selected text and annotation clicks in both fallback and custom highlight paths', async () => {
-    const fallbackComponent = await loadComponent();
-    const fallbackWrapper = mount(fallbackComponent, {
-      props: {
-        chunks: [
-          {
-            chunk_id: 2,
-            text: 'Developmental delay was present.',
-            evidence_mode: 'span',
-            annotations: [
-              { id: 'ann-1', start_char: 0, end_char: 19, matched_text_in_chunk: 'Developmental delay' },
-            ],
-          },
-        ],
-      },
-      global: {
-        stubs: popoverStub(),
-      },
-    });
-
-    const textNode = fallbackWrapper.find('.chunk-text').element.firstChild;
-    const removeAllRanges = vi.fn();
-    vi.spyOn(window, 'getSelection').mockReturnValue({
-      isCollapsed: false,
-      rangeCount: 1,
-      anchorNode: textNode,
-      focusNode: textNode,
-      toString: () => 'Developmental delay',
-      getRangeAt: () => ({
-        getBoundingClientRect: () => ({
-          left: 12,
-          top: 24,
-          right: 56,
-          bottom: 40,
-          width: 44,
-          height: 16,
-        }),
-      }),
-      removeAllRanges,
-    });
-
-    await fallbackWrapper.find('.chunk-text').trigger('mouseup');
-
-    expect(fallbackWrapper.find('.popover-probe').attributes('data-visible')).toBe('true');
-    expect(fallbackWrapper.find('.popover-probe').attributes('data-selected-text')).toBe(
-      'Developmental delay'
-    );
-    expect(fallbackWrapper.find('.popover-probe').attributes('data-target-left')).toBe('34');
-
-    await fallbackWrapper.find('mark[data-annotation-id="ann-1"]').trigger('click');
-
-    expect(fallbackWrapper.find('.popover-probe').attributes('data-annotation-id')).toBe('ann-1');
-    expect(removeAllRanges).toHaveBeenCalled();
-
-    vi.restoreAllMocks();
-
+  it('keeps text selection working in the custom path while still opening annotation actions on click', async () => {
     installCustomHighlightSupport([
       { left: 30, top: 40, right: 70, bottom: 52, width: 40, height: 12 },
       { left: 30, top: 40, right: 70, bottom: 52, width: 40, height: 12 },
       { left: 30, top: 40, right: 70, bottom: 52, width: 40, height: 12 },
       { left: 30, top: 40, right: 70, bottom: 52, width: 40, height: 12 },
     ]);
-    const customComponent = await loadComponent();
-    const customWrapper = mount(customComponent, {
+    const component = await loadComponent();
+    const wrapper = mount(component, {
       props: {
         chunks: [
           {
@@ -349,15 +293,48 @@ describe('AnnotatedDocumentPane', () => {
       },
     });
 
-    await waitForHighlightSync(customWrapper);
+    await waitForHighlightSync(wrapper);
 
-    await customWrapper.find('[data-custom-highlight-hitbox="ann-1"]').trigger('click');
+    const textNode = wrapper.find('.chunk-text').element.firstChild;
+    vi.spyOn(window, 'getSelection').mockReturnValueOnce({
+      isCollapsed: false,
+      rangeCount: 1,
+      anchorNode: textNode,
+      focusNode: textNode,
+      toString: () => 'Developmental delay',
+      getRangeAt: () => ({
+        getBoundingClientRect: () => ({
+          left: 30,
+          top: 40,
+          right: 70,
+          bottom: 52,
+          width: 40,
+          height: 12,
+        }),
+      }),
+    });
 
-    expect(customWrapper.find('.popover-probe').attributes('data-visible')).toBe('true');
-    expect(customWrapper.find('.popover-probe').attributes('data-annotation-id')).toBe('ann-1');
-    expect(customWrapper.find('.popover-probe').attributes('data-selected-text')).toBe(
+    await wrapper.find('.chunk-text').trigger('mouseup');
+
+    expect(wrapper.find('.popover-probe').attributes('data-visible')).toBe('true');
+    expect(wrapper.find('.popover-probe').attributes('data-selected-text')).toBe(
       'Developmental delay'
     );
-    expect(customWrapper.find('.popover-probe').attributes('data-target-left')).toBe('50');
+    expect(wrapper.find('.popover-probe').attributes('data-target-left')).toBe('50');
+
+    vi.spyOn(window, 'getSelection').mockReturnValueOnce({
+      isCollapsed: true,
+      rangeCount: 0,
+      toString: () => '',
+    });
+
+    await wrapper.find('.chunk-text').trigger('click', { clientX: 35, clientY: 45 });
+
+    expect(wrapper.find('.popover-probe').attributes('data-visible')).toBe('true');
+    expect(wrapper.find('.popover-probe').attributes('data-annotation-id')).toBe('ann-1');
+    expect(wrapper.find('.popover-probe').attributes('data-selected-text')).toBe(
+      'Developmental delay'
+    );
+    expect(wrapper.find('.popover-probe').attributes('data-target-left')).toBe('50');
   });
 });

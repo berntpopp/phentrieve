@@ -17,6 +17,7 @@
           :data-chunk-text-id="chunk.chunk_id"
           class="chunk-text"
           @mouseup="handleTextSelection(chunk)"
+          @click="handleChunkClick(chunk, $event)"
         >
           <template v-if="!needsFallbackMarks(chunk)">
             {{ chunk.text }}
@@ -45,24 +46,6 @@
         </p>
       </div>
     </article>
-
-    <div
-      v-if="customHighlightHitboxes.length > 0"
-      class="custom-highlight-hitbox-layer"
-      aria-hidden="true"
-    >
-      <button
-        v-for="hitbox in customHighlightHitboxes"
-        :key="hitbox.key"
-        type="button"
-        class="custom-highlight-hitbox"
-        :data-custom-highlight-hitbox="hitbox.annotationId"
-        :style="hitbox.style"
-        @click.stop="openCustomHighlightPopover(hitbox)"
-      >
-        <span class="sr-only">{{ hitbox.detailText }}</span>
-      </button>
-    </div>
 
     <AnnotationActionPopover
       :visible="popoverVisible"
@@ -320,25 +303,17 @@ function rectToTarget(rect) {
 }
 
 function buildHitboxesForRange(range, annotation, chunkIndex, annotationIndex) {
-  const paneRect = rootElement.value?.getBoundingClientRect?.() || {
-    left: 0,
-    top: 0,
-  };
   const rects = typeof range.getClientRects === 'function' ? [...range.getClientRects()] : [];
   const usableRects = rects.length > 0 ? rects : [range.getBoundingClientRect?.()].filter(Boolean);
 
   return usableRects.map((rect, rectIndex) => ({
     key: `custom-hitbox-${annotation.id}-${chunkIndex}-${annotationIndex}-${rectIndex}`,
+    chunkId: props.chunks[chunkIndex]?.chunk_id,
     annotationId: annotation.id,
     detailText: annotation.matched_text_in_chunk || '',
     selectedText: annotation.matched_text_in_chunk || '',
+    rect,
     target: rectToTarget(rect),
-    style: {
-      left: `${rect.left - paneRect.left}px`,
-      top: `${rect.top - paneRect.top}px`,
-      width: `${rect.width}px`,
-      height: `${rect.height}px`,
-    },
   }));
 }
 
@@ -422,6 +397,19 @@ function openCustomHighlightPopover(hitbox) {
   });
 }
 
+function hitboxContainsPoint(hitbox, event) {
+  if (!hitbox?.rect) {
+    return false;
+  }
+
+  return (
+    event.clientX >= hitbox.rect.left &&
+    event.clientX <= hitbox.rect.right &&
+    event.clientY >= hitbox.rect.top &&
+    event.clientY <= hitbox.rect.bottom
+  );
+}
+
 function handleTextSelection(chunk) {
   const selection = window.getSelection?.();
 
@@ -445,6 +433,27 @@ function handleTextSelection(chunk) {
 
   const rect = selection.getRangeAt(0).getBoundingClientRect();
   openPopover(rectToTarget(rect), { selectedText });
+}
+
+function handleChunkClick(chunk, event) {
+  if (!supportsCustomHighlight || needsFallbackMarks(chunk)) {
+    return;
+  }
+
+  const selection = window.getSelection?.();
+  if (selection && !selection.isCollapsed && selection.toString().trim()) {
+    return;
+  }
+
+  const matchedHitbox = customHighlightHitboxes.value.find(
+    (hitbox) => hitbox.chunkId === chunk.chunk_id && hitboxContainsPoint(hitbox, event)
+  );
+
+  if (!matchedHitbox) {
+    return;
+  }
+
+  openCustomHighlightPopover(matchedHitbox);
 }
 
 watch(
@@ -471,7 +480,6 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .annotated-document-pane {
-  position: relative;
   display: grid;
   gap: 0.75rem;
 }
@@ -521,22 +529,6 @@ onBeforeUnmount(() => {
 .chunk-text mark.annotated-mark--selected {
   background: rgba(var(--v-theme-error), 0.22);
   border-bottom-color: rgba(var(--v-theme-error), 0.8);
-}
-
-.custom-highlight-hitbox-layer {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-
-.custom-highlight-hitbox {
-  position: absolute;
-  border: 0;
-  padding: 0;
-  margin: 0;
-  background: transparent;
-  cursor: pointer;
-  pointer-events: auto;
 }
 
 .sr-only {
