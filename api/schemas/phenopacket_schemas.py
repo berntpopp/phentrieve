@@ -99,8 +99,40 @@ class ExportTextAttributionRequest(BaseModel):
     end_char: int | None = Field(default=None, ge=0)
     matched_text_in_chunk: str | None = None
 
+    @field_validator("matched_text_in_chunk", mode="before")
+    @classmethod
+    def normalize_matched_text_in_chunk(cls, value: object) -> str | None:
+        if value is None:
+            return None
+        if isinstance(value, str):
+            normalized = value.strip()
+            if normalized:
+                return normalized
+        raise ValueError("matched_text_in_chunk must be a non-empty string.")
+
     @model_validator(mode="after")
     def validate_character_span(self) -> "ExportTextAttributionRequest":
+        has_partial_span = any(
+            value is not None
+            for value in (
+                self.start_char,
+                self.end_char,
+                self.matched_text_in_chunk,
+            )
+        )
+        has_complete_span = all(
+            value is not None
+            for value in (
+                self.start_char,
+                self.end_char,
+                self.matched_text_in_chunk,
+            )
+        )
+
+        if has_partial_span and not has_complete_span:
+            raise ValueError(
+                "text_attributions require start_char, end_char, and matched_text_in_chunk together."
+            )
         if (
             self.start_char is not None
             and self.end_char is not None
@@ -143,6 +175,15 @@ class PhenopacketExportRequest(BaseModel):
     subject: ExportSubjectRequest | None = None
     include_annotation_sidecar: bool = False
     phenotypes: list[ExportPhenotypeRequest] = Field(default_factory=list)
+
+    @field_validator("case_id", mode="before")
+    @classmethod
+    def normalize_case_id(cls, value: object) -> str:
+        if isinstance(value, str):
+            normalized = value.strip()
+            if normalized:
+                return normalized
+        raise ValueError("case_id must be a non-empty string.")
 
 
 class AnnotationSidecarGeneratedByResponse(BaseModel):

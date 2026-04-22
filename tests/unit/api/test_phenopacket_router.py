@@ -261,6 +261,35 @@ def test_phenopacket_router_response_matches_declared_response_model(client):
             },
             "confidence_band",
         ),
+        (
+            {
+                "hpo_id": "HP:0001250",
+                "label": "Seizure",
+                "text_attributions": [
+                    {
+                        "chunk_id": 1,
+                        "start_char": 3,
+                        "matched_text_in_chunk": "text",
+                    }
+                ],
+            },
+            "text_attributions require",
+        ),
+        (
+            {
+                "hpo_id": "HP:0001250",
+                "label": "Seizure",
+                "text_attributions": [
+                    {
+                        "chunk_id": 1,
+                        "start_char": 3,
+                        "end_char": 7,
+                        "matched_text_in_chunk": "   ",
+                    }
+                ],
+            },
+            "matched_text_in_chunk",
+        ),
     ],
 )
 def test_phenopacket_router_rejects_invalid_phenotype_fields(
@@ -276,6 +305,19 @@ def test_phenopacket_router_rejects_invalid_phenotype_fields(
 
     assert response.status_code == 422
     assert expected_error_fragment in response.text
+
+
+def test_phenopacket_router_rejects_whitespace_only_case_id(client):
+    response = client.post(
+        "/api/v1/phenopackets/export",
+        json={
+            "case_id": "   ",
+            "phenotypes": [],
+        },
+    )
+
+    assert response.status_code == 422
+    assert "case_id" in response.text
 
 
 @pytest.mark.parametrize(
