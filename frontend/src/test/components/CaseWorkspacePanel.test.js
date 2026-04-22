@@ -33,6 +33,30 @@ async function mountPanel(props = {}) {
   });
 }
 
+async function mountLegacyBridge(props = {}) {
+  const component = (await import('../../components/PhenotypeCollectionPanel.vue')).default;
+  return mount(component, {
+    props: {
+      phenotypes: [],
+      panelOpen: true,
+      sexOptions: [],
+      ...props,
+    },
+    global: {
+      plugins: [vuetify],
+      stubs: {
+        'v-navigation-drawer': {
+          template:
+            '<div class="v-navigation-drawer-stub" :aria-label="$attrs[\'aria-label\']"><slot /><slot name="append" /></div>',
+        },
+      },
+      mocks: {
+        $t: (key) => key,
+      },
+    },
+  });
+}
+
 describe('CaseWorkspacePanel', () => {
   it('renders the case workspace title and case summaries', async () => {
     const wrapper = await mountPanel();
@@ -64,5 +88,15 @@ describe('CaseWorkspacePanel', () => {
     await listItems[1].trigger('click');
 
     expect(wrapper.emitted('select-case')).toEqual([['case-2']]);
+  });
+
+  it('keeps the temporary rename bridge consistent in the legacy panel UI', async () => {
+    const wrapper = await mountLegacyBridge();
+
+    expect(wrapper.text()).toContain('Case Workspace');
+    expect(wrapper.text()).not.toContain('HPO Collection');
+    expect(wrapper.html()).toContain('Open Case Workspace Panel');
+    expect(wrapper.html()).toContain('Close Case Workspace Panel');
+    expect(wrapper.html()).toContain('Case Workspace Panel');
   });
 });

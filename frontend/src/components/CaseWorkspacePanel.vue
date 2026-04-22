@@ -2,6 +2,7 @@
   <aside class="case-workspace">
     <div class="panel-header">
       <div class="text-subtitle-2">Case Workspace</div>
+      <!-- TODO(Stream G): Connect this action to fullTextWorkspace.js case creation and active-case selection from QueryInterface.vue. -->
       <v-btn size="small" variant="text" @click="$emit('create-case')">New case</v-btn>
     </div>
     <v-list>
@@ -15,7 +16,9 @@
         <template #subtitle>{{ item.phenotypes.length }} phenotypes</template>
       </v-list-item>
     </v-list>
+    <!-- TODO(Stream G): Route add-all from QueryInterface.vue full-text results into addPhenotypeToActiveCase(...) instead of the legacy global collection. -->
     <v-btn block color="primary" @click="$emit('add-all')">Add all extracted phenotypes</v-btn>
+    <!-- TODO(Stream G): Route export-case through usePhenotypeCollection.js and PhentrieveService.js backend phenopacket export for the active workspace case. -->
     <v-btn block variant="tonal" @click="$emit('export-case')">Export Phenopacket</v-btn>
   </aside>
 </template>

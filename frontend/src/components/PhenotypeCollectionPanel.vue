@@ -1,10 +1,11 @@
 <template>
   <div>
     <!-- Floating action button for collection panel -->
+    <!-- TODO(Stream G): Replace this temporary Case Workspace bridge with store-backed case workspace wiring from fullTextWorkspace.js and QueryInterface.vue. -->
     <v-tooltip
       location="left"
-      :text="$t('queryInterface.tooltips.phenotypeCollection')"
-      :content-props="{ 'aria-label': $t('queryInterface.tooltips.phenotypeCollection') }"
+      text="Open Case Workspace Panel"
+      :content-props="{ 'aria-label': 'Open Case Workspace Panel' }"
     >
       <template #activator="{ props }">
         <v-btn
@@ -16,7 +17,7 @@
           location="bottom right"
           size="large"
           elevation="3"
-          :aria-label="$t('queryInterface.phenotypeCollection.aria.openPanel')"
+          aria-label="Open Case Workspace Panel"
           data-tutorial-step="collection-fab"
           @click="$emit('toggle-panel')"
         >
@@ -34,7 +35,7 @@
       width="400"
       temporary
       style="z-index: 1500"
-      :aria-label="$t('queryInterface.phenotypeCollection.aria.panel')"
+      aria-label="Case Workspace Panel"
       @update:model-value="$emit('update:panelOpen', $event)"
     >
       <v-list-item class="pl-2 pr-1">
@@ -42,7 +43,7 @@
         <template #append>
           <v-btn
             icon
-            :aria-label="$t('queryInterface.phenotypeCollection.close')"
+            aria-label="Close Case Workspace Panel"
             variant="text"
             density="compact"
             @click="$emit('toggle-panel')"
@@ -244,6 +245,7 @@
       <template #append>
         <v-divider />
         <div class="pa-3">
+          <!-- TODO(Stream G): Wire this export action through usePhenotypeCollection.js -> PhentrieveService.js `/phenopackets/export`, using the active case from fullTextWorkspace.js instead of the legacy global collection. -->
           <v-btn
             block
             color="primary"
