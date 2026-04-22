@@ -68,8 +68,18 @@ def test_phenopacket_router_exports_bundle_with_optional_sidecar_and_negation(cl
     assert payload["annotation_sidecar"]["phenopacket_id"]
 
     phenopacket = json.loads(payload["phenopacket_json"])
+    assert phenopacket["id"] == "case-1"
     assert phenopacket["phenotypicFeatures"][0]["type"]["id"] == "HP:0001250"
     assert phenopacket["phenotypicFeatures"][0]["excluded"] is True
+    assert phenopacket["subject"] == {
+        "id": "patient-1",
+        "sex": "FEMALE",
+        "dateOfBirth": "2010-05-15T00:00:00.000Z",
+    }
+    assert any(
+        ref["id"] == "phentrieve:case_label" and ref["description"] == "Case 1"
+        for ref in phenopacket["metaData"]["externalReferences"]
+    )
 
     annotations = payload["annotation_sidecar"]["annotations"]
     assert annotations[0]["assertion"] == "negated"
@@ -91,7 +101,16 @@ def test_phenopacket_router_maps_request_payload_to_exporter_shape(client, monke
         captured_call.update(kwargs)
         return {
             "phenopacket_json": '{"id":"packet-1"}',
-            "annotation_sidecar": {"phenopacket_id": "packet-1", "annotations": []},
+            "annotation_sidecar": {
+                "schema_version": "1.0.0",
+                "artifact_type": "phenotype_annotation_bundle",
+                "generated_by": {
+                    "tool": "phentrieve",
+                    "version": "0.0.0-test",
+                },
+                "phenopacket_id": "packet-1",
+                "annotations": [],
+            },
         }
 
     monkeypatch.setattr(
@@ -150,3 +169,20 @@ def test_phenopacket_router_maps_request_payload_to_exporter_shape(client, monke
             ],
         }
     ]
+
+
+def test_phenopacket_router_response_matches_declared_response_model(client):
+    response = client.post(
+        "/api/v1/phenopackets/export",
+        json={
+            "case_id": "case-3",
+            "case_label": "Case 3",
+            "phenotypes": [],
+        },
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert set(payload) == {"phenopacket_json", "annotation_sidecar"}
+    assert isinstance(payload["phenopacket_json"], str)
+    assert payload["annotation_sidecar"] is None

@@ -35,3 +35,41 @@ class PhenopacketExportRequest(BaseModel):
     subject: ExportSubjectRequest | None = None
     include_annotation_sidecar: bool = False
     phenotypes: list[ExportPhenotypeRequest] = Field(default_factory=list)
+
+
+class AnnotationSidecarGeneratedByResponse(BaseModel):
+    tool: str
+    version: str
+
+
+class AnnotationSidecarSpanResponse(BaseModel):
+    start_char: int
+    end_char: int
+    text: str
+
+
+class AnnotationSidecarAnnotationResponse(BaseModel):
+    annotation_id: str
+    phenotypic_feature_index: int
+    hpo_id: str
+    label: str
+    assertion: str
+    spans: list[AnnotationSidecarSpanResponse] = Field(default_factory=list)
+    chunk_refs: list[int] = Field(default_factory=list)
+    provenance: dict[str, str] = Field(default_factory=dict)
+    confidence: float | None = None
+    certainty: str | None = None
+    evidence_text: str | None = None
+
+
+class AnnotationSidecarResponse(BaseModel):
+    schema_version: str
+    artifact_type: str
+    generated_by: AnnotationSidecarGeneratedByResponse
+    phenopacket_id: str
+    annotations: list[AnnotationSidecarAnnotationResponse] = Field(default_factory=list)
+
+
+class PhenopacketExportResponse(BaseModel):
+    phenopacket_json: str
+    annotation_sidecar: AnnotationSidecarResponse | None = None
