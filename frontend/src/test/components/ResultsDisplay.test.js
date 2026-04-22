@@ -77,6 +77,30 @@ describe('ResultsDisplay', () => {
     });
   });
 
+  it('does not mount the full-text workspace when turnId is missing', async () => {
+    const component = (await import('../../components/ResultsDisplay.vue')).default;
+    const wrapper = mount(component, {
+      props: {
+        resultType: 'textProcess',
+        responseData: {
+          meta: { extraction_backend: 'llm' },
+          processed_chunks: [],
+          aggregated_hpo_terms: [],
+        },
+      },
+      global: {
+        plugins: [vuetify, i18n],
+        stubs: {
+          FullTextAnnotationWorkspace: true,
+          ResultItem: true,
+        },
+      },
+    });
+
+    expect(wrapper.findComponent({ name: 'FullTextAnnotationWorkspace' }).exists()).toBe(false);
+    expect(wrapper.text()).toContain(i18n.global.t('resultsDisplay.defaultError'));
+  });
+
   it('uses the exposed ChunkResultsView state when scrolling to attributed evidence', async () => {
     vi.useFakeTimers();
 

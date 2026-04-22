@@ -85,6 +85,18 @@
     <div v-else-if="hasTextProcessResults">
       <FullTextAnnotationWorkspace :response-data="responseData" :turn-id="turnId" />
     </div>
+    <div
+      v-else-if="
+        resultType === 'textProcess' &&
+        responseData &&
+        responseData.aggregated_hpo_terms &&
+        !hasValidTurnId
+      "
+    >
+      <v-alert type="error" icon="mdi-alert-circle">
+        {{ $t('resultsDisplay.defaultError') }}
+      </v-alert>
+    </div>
 
     <!-- No Results / Empty States -->
     <div
@@ -204,10 +216,14 @@ export default {
         this.extractionBackend === 'llm' && this.quotaRemaining != null && this.quotaLimit != null
       );
     },
+    hasValidTurnId() {
+      return typeof this.turnId === 'string' && this.turnId.length > 0;
+    },
     hasTextProcessResults() {
       return (
         this.resultType === 'textProcess' &&
         !!this.responseData &&
+        this.hasValidTurnId &&
         !!this.responseData.aggregated_hpo_terms &&
         (this.processedChunks.length > 0 || this.extractionBackend === 'llm')
       );
