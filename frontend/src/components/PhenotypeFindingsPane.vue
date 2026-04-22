@@ -74,9 +74,9 @@ const normalizedTerms = computed(() =>
 );
 
 function confidenceBand(value) {
-  if (value >= 0.85) return 'High';
-  if (value >= 0.6) return 'Medium';
-  return 'Low';
+  if (value >= 0.85) return t('resultsDisplay.quality.high');
+  if (value >= 0.6) return t('resultsDisplay.quality.moderate');
+  return t('resultsDisplay.quality.low');
 }
 
 function assertionStatusLabel(status) {

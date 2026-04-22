@@ -59,7 +59,7 @@ describe('PhenotypeFindingsPane', () => {
   it('renders localized findings metadata while keeping numeric confidence out of the list', async () => {
     const wrapper = await mountFindingsPane();
 
-    expect(wrapper.text()).toContain('High');
+    expect(wrapper.text()).toContain(en.resultsDisplay.quality.high);
     expect(wrapper.text()).not.toContain('0.92');
     expect(wrapper.text()).toContain(
       en.queryInterface.phenotypeCollection.assertionStatus.affirmed
@@ -120,7 +120,7 @@ describe('PhenotypeFindingsPane', () => {
       }),
     ]);
 
-    expect(wrapper.text()).toContain('Medium');
+    expect(wrapper.text()).toContain(en.resultsDisplay.quality.moderate);
     expect(wrapper.text()).toContain(en.queryInterface.phenotypeCollection.assertionStatus.negated);
     expect(wrapper.text()).toContain(`${en.resultsDisplay.textProcess.sourceChunks}: 3`);
     expect(wrapper.text()).toContain(`${en.resultsDisplay.textProcess.topEvidence}: #9`);
@@ -128,50 +128,56 @@ describe('PhenotypeFindingsPane', () => {
 });
 
 describe('AnnotationInspectorPanel', () => {
-  it('renders localized inspector labels and numeric confidence details for the selected term', async () => {
-    const wrapper = await mountInspector();
+  describe('rendering', () => {
+    it('renders localized inspector labels and numeric confidence details for the selected term', async () => {
+      const wrapper = await mountInspector();
 
-    expect(wrapper.text()).toContain(en.resultsDisplay.showDetails);
-    expect(wrapper.text()).toContain(`${en.resultsDisplay.confidenceHeader}: 0.92`);
-    expect(wrapper.get('[id="annotation-detail-HP:0001250"]').text()).toContain('Seizure');
+      expect(wrapper.text()).toContain(en.resultsDisplay.showDetails);
+      expect(wrapper.text()).toContain(`${en.resultsDisplay.confidenceHeader}: 0.92`);
+      expect(wrapper.get('[id="annotation-detail-HP:0001250"]').text()).toContain('Seizure');
+    });
   });
 
-  it('emits back from the inspector return action without depending on one specific term row', async () => {
-    const wrapper = await mountInspector(
-      findingsTerm({
-        hpo_id: 'HP:0001627',
-        name: 'Abnormal heart morphology',
-        confidence: 0.61,
-      })
-    );
+  describe('navigation', () => {
+    it('emits back from the inspector return action without depending on one specific term row', async () => {
+      const wrapper = await mountInspector(
+        findingsTerm({
+          hpo_id: 'HP:0001627',
+          name: 'Abnormal heart morphology',
+          confidence: 0.61,
+        })
+      );
 
-    await wrapper.get('button').trigger('click');
+      await wrapper.get('button').trigger('click');
 
-    expect(wrapper.emitted('back')).toEqual([[]]);
+      expect(wrapper.emitted('back')).toEqual([[]]);
+    });
   });
 
-  it('suppresses details when selectedTerm does not match the expected contract', async () => {
-    const wrapper = await mountInspector({
-      hpoId: 'HP:0004322',
-      name: 'Spasticity',
-      confidence: 0.88,
+  describe('selectedTerm hardening', () => {
+    it('suppresses details when selectedTerm does not match the expected contract', async () => {
+      const wrapper = await mountInspector({
+        hpoId: 'HP:0004322',
+        name: 'Spasticity',
+        confidence: 0.88,
+      });
+
+      expect(wrapper.text()).toContain(en.resultsDisplay.showDetails);
+      expect(wrapper.text()).not.toContain('Spasticity');
+      expect(wrapper.text()).not.toContain(`${en.resultsDisplay.confidenceHeader}: 0.88`);
     });
 
-    expect(wrapper.text()).toContain(en.resultsDisplay.showDetails);
-    expect(wrapper.text()).not.toContain('Spasticity');
-    expect(wrapper.text()).not.toContain(`${en.resultsDisplay.confidenceHeader}: 0.88`);
-  });
+    it('renders the selected term label even when numeric confidence is unavailable', async () => {
+      const wrapper = await mountInspector(
+        findingsTerm({
+          hpo_id: 'HP:0004322',
+          name: 'Spasticity',
+          confidence: null,
+        })
+      );
 
-  it('renders the selected term label even when numeric confidence is unavailable', async () => {
-    const wrapper = await mountInspector(
-      findingsTerm({
-        hpo_id: 'HP:0004322',
-        name: 'Spasticity',
-        confidence: null,
-      })
-    );
-
-    expect(wrapper.text()).toContain('Spasticity');
-    expect(wrapper.text()).toContain(`${en.resultsDisplay.confidenceHeader}:`);
+      expect(wrapper.text()).toContain('Spasticity');
+      expect(wrapper.text()).toContain(`${en.resultsDisplay.confidenceHeader}:`);
+    });
   });
 });
