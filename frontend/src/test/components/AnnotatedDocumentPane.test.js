@@ -267,6 +267,85 @@ describe('AnnotatedDocumentPane', () => {
     expect(unselectedSharedCall[1].ranges).toHaveLength(2);
   });
 
+  it('keeps text selection working in the fallback mark path while still opening annotation actions on collapsed click', async () => {
+    const component = await loadComponent();
+    const wrapper = mount(component, {
+      props: {
+        chunks: [
+          {
+            chunk_id: 4,
+            text: 'Developmental delay was present.',
+            evidence_mode: 'span',
+            annotations: [
+              { id: 'ann-1', start_char: 0, end_char: 19, matched_text_in_chunk: 'Developmental delay' },
+            ],
+          },
+        ],
+      },
+      global: {
+        stubs: popoverStub(),
+      },
+    });
+
+    const textNode = wrapper.find('.chunk-text').element.firstChild;
+    const removeAllRanges = vi.fn();
+    vi.spyOn(window, 'getSelection').mockReturnValueOnce({
+      isCollapsed: false,
+      rangeCount: 1,
+      anchorNode: textNode,
+      focusNode: textNode,
+      toString: () => 'Developmental delay',
+      getRangeAt: () => ({
+        getBoundingClientRect: () => ({
+          left: 12,
+          top: 24,
+          right: 56,
+          bottom: 40,
+          width: 44,
+          height: 16,
+        }),
+      }),
+      removeAllRanges,
+    });
+
+    await wrapper.find('.chunk-text').trigger('mouseup');
+
+    expect(wrapper.find('.popover-probe').attributes('data-selected-text')).toBe(
+      'Developmental delay'
+    );
+    expect(wrapper.find('.popover-probe').attributes('data-annotation-id')).toBe('');
+
+    vi.spyOn(window, 'getSelection').mockReturnValueOnce({
+      isCollapsed: false,
+      rangeCount: 1,
+      toString: () => 'Developmental delay',
+      removeAllRanges,
+    });
+
+    await wrapper.find('mark[data-annotation-id="ann-1"]').trigger('click');
+
+    expect(wrapper.find('.popover-probe').attributes('data-selected-text')).toBe(
+      'Developmental delay'
+    );
+    expect(wrapper.find('.popover-probe').attributes('data-annotation-id')).toBe('');
+    expect(removeAllRanges).not.toHaveBeenCalled();
+
+    vi.spyOn(window, 'getSelection').mockReturnValueOnce({
+      isCollapsed: true,
+      rangeCount: 0,
+      toString: () => '',
+      removeAllRanges,
+    });
+
+    await wrapper.find('mark[data-annotation-id="ann-1"]').trigger('click');
+
+    expect(wrapper.find('.popover-probe').attributes('data-annotation-id')).toBe('ann-1');
+    expect(wrapper.find('.popover-probe').attributes('data-selected-text')).toBe(
+      'Developmental delay'
+    );
+    expect(removeAllRanges).toHaveBeenCalled();
+  });
+
   it('keeps text selection working in the custom path while still opening annotation actions on click', async () => {
     installCustomHighlightSupport([
       { left: 30, top: 40, right: 70, bottom: 52, width: 40, height: 12 },

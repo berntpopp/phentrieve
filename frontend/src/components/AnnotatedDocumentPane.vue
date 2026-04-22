@@ -378,10 +378,22 @@ function openPopover(target, options = {}) {
   popoverVisible.value = true;
 }
 
-function openAnnotationPopover(event, segment) {
-  const rect = event?.currentTarget?.getBoundingClientRect?.();
-  const selection = window.getSelection?.();
+function getCurrentSelection() {
+  return window.getSelection?.() || null;
+}
 
+function hasActiveTextSelection(selection = getCurrentSelection()) {
+  return Boolean(selection && !selection.isCollapsed && selection.toString().trim());
+}
+
+function openAnnotationPopover(event, segment) {
+  const selection = getCurrentSelection();
+
+  if (hasActiveTextSelection(selection)) {
+    return;
+  }
+
+  const rect = event?.currentTarget?.getBoundingClientRect?.();
   selection?.removeAllRanges?.();
 
   openPopover(rectToTarget(rect), {
@@ -411,7 +423,7 @@ function hitboxContainsPoint(hitbox, event) {
 }
 
 function handleTextSelection(chunk) {
-  const selection = window.getSelection?.();
+  const selection = getCurrentSelection();
 
   if (!selection || selection.isCollapsed || selection.rangeCount === 0) {
     return;
@@ -440,8 +452,7 @@ function handleChunkClick(chunk, event) {
     return;
   }
 
-  const selection = window.getSelection?.();
-  if (selection && !selection.isCollapsed && selection.toString().trim()) {
+  if (hasActiveTextSelection(getCurrentSelection())) {
     return;
   }
 
