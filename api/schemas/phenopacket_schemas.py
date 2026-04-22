@@ -87,9 +87,9 @@ class ExportSubjectRequest(BaseModel):
 
 
 class ExportTextAttributionRequest(BaseModel):
-    chunk_id: int
-    start_char: int | None = None
-    end_char: int | None = None
+    chunk_id: int = Field(ge=0)
+    start_char: int | None = Field(default=None, ge=0)
+    end_char: int | None = Field(default=None, ge=0)
     matched_text_in_chunk: str | None = None
 
 
@@ -98,7 +98,7 @@ class ExportPhenotypeRequest(BaseModel):
     label: str
     assertion_status: str = "affirmed"
     certainty: str | None = None
-    confidence: float | None = None
+    confidence: float | None = Field(default=None, ge=0.0, le=1.0)
     evidence_text: str | None = None
     source_mode: str | None = None
     match_method: str | None = None
@@ -108,7 +108,7 @@ class ExportPhenotypeRequest(BaseModel):
 
 
 class PhenopacketExportRequest(BaseModel):
-    case_id: str
+    case_id: str = Field(min_length=1)
     case_label: str | None = None
     input_text: str | None = None
     subject: ExportSubjectRequest | None = None

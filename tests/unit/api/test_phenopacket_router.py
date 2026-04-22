@@ -248,3 +248,61 @@ def test_phenopacket_router_rejects_invalid_subject_metadata(
 
     assert response.status_code == 422
     assert expected_error_fragment in response.text
+
+
+@pytest.mark.parametrize(
+    ("payload_override", "expected_error_fragment"),
+    [
+        (
+            {
+                "phenotypes": [
+                    {
+                        "hpo_id": "HP:0001250",
+                        "label": "Seizure",
+                        "confidence": 1.5,
+                    }
+                ]
+            },
+            "confidence",
+        ),
+        (
+            {
+                "phenotypes": [
+                    {
+                        "hpo_id": "HP:0001250",
+                        "label": "Seizure",
+                        "text_attributions": [
+                            {
+                                "chunk_id": 1,
+                                "start_char": -1,
+                                "end_char": 5,
+                                "matched_text_in_chunk": "text",
+                            }
+                        ],
+                    }
+                ]
+            },
+            "start_char",
+        ),
+        (
+            {
+                "case_id": "",
+                "phenotypes": [],
+            },
+            "case_id",
+        ),
+    ],
+)
+def test_phenopacket_router_rejects_invalid_numeric_span_and_case_fields(
+    client, payload_override, expected_error_fragment
+):
+    payload = {
+        "case_id": "case-validation",
+        "phenotypes": [],
+    }
+    payload.update(payload_override)
+
+    response = client.post("/api/v1/phenopackets/export", json=payload)
+
+    assert response.status_code == 422
+    assert expected_error_fragment in response.text
