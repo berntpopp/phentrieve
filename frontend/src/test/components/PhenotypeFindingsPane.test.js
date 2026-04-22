@@ -57,14 +57,51 @@ afterEach(() => {
 });
 
 describe('PhenotypeFindingsPane', () => {
-  it('renders localized findings metadata while keeping numeric confidence out of the list', async () => {
+  it('uses one bulk add action instead of per-row add and inspect buttons', async () => {
     const wrapper = await mountFindingsPane();
 
-    expect(wrapper.text()).toContain(en.resultsDisplay.quality.excellent);
-    expect(wrapper.text()).not.toContain('0.92');
+    expect(wrapper.find('[data-testid="findings-add-all"]').exists()).toBe(true);
+    expect(wrapper.find('[aria-label="Add HP:0001250"]').exists()).toBe(false);
+    expect(wrapper.find('[aria-label="Inspect HP:0001250"]').exists()).toBe(false);
+  });
+
+  it('emits all normalized findings for collection from the bulk add action', async () => {
+    const wrapper = await mountFindingsPane([
+      findingsTerm(),
+      findingsTerm({
+        hpo_id: 'HP:0001263',
+        name: 'Global developmental delay',
+        status: 'negated',
+      }),
+    ]);
+
+    await wrapper.get('[data-testid="findings-add-all"]').trigger('click');
+
+    expect(wrapper.emitted('add-all-to-collection')).toEqual([
+      [
+        [
+          { hpo_id: 'HP:0001250', label: 'Seizure', assertion_status: 'affirmed' },
+          {
+            hpo_id: 'HP:0001263',
+            label: 'Global developmental delay',
+            assertion_status: 'negated',
+          },
+        ],
+      ],
+    ]);
+  });
+
+  it('renders query-style confidence chips together with the findings metadata', async () => {
+    const wrapper = await mountFindingsPane();
+
+    const link = wrapper.get('a');
+
+    expect(link.text()).toContain('HP:0001250');
+    expect(wrapper.text()).toContain('0.92');
     expect(wrapper.text()).toContain(
       en.queryInterface.phenotypeCollection.assertionStatus.affirmed
     );
+    expect(wrapper.text()).toContain('Seizure');
     expect(wrapper.text()).toContain(`${en.resultsDisplay.textProcess.sourceChunks}: 1`);
     expect(wrapper.text()).toContain(`${en.resultsDisplay.textProcess.topEvidence}: #1`);
   });
@@ -121,10 +158,24 @@ describe('PhenotypeFindingsPane', () => {
       }),
     ]);
 
-    expect(wrapper.text()).toContain(en.resultsDisplay.quality.moderate);
+    expect(wrapper.text()).toContain('0.62');
     expect(wrapper.text()).toContain(en.queryInterface.phenotypeCollection.assertionStatus.negated);
     expect(wrapper.text()).toContain(`${en.resultsDisplay.textProcess.sourceChunks}: 3`);
     expect(wrapper.text()).toContain(`${en.resultsDisplay.textProcess.topEvidence}: #9`);
+  });
+
+  it('maps present assertions onto the shared affirmed status label without emitting missing-key lookups', async () => {
+    const wrapper = await mountFindingsPane([
+      findingsTerm({
+        hpo_id: 'HP:0001507',
+        name: 'Growth abnormality',
+        status: 'present',
+      }),
+    ]);
+
+    expect(wrapper.text()).toContain(
+      en.queryInterface.phenotypeCollection.assertionStatus.affirmed
+    );
   });
 
   it('preserves null confidence in the inspect payload so the inspector does not render 0.00', async () => {
@@ -154,7 +205,7 @@ describe('PhenotypeFindingsPane', () => {
     expect(inspector.text()).not.toContain(`${en.resultsDisplay.confidenceHeader}: 0.00`);
   });
 
-  it('uses the shared frontend score thresholds for confidence-band labels and fallback behavior', async () => {
+  it('uses the shared frontend score component and suppresses empty confidence chips', async () => {
     const wrapper = await mountFindingsPane([
       findingsTerm({ hpo_id: 'HP:1', name: 'Excellent edge', confidence: SCORE_EXCELLENT }),
       findingsTerm({ hpo_id: 'HP:2', name: 'High edge', confidence: SCORE_GOOD }),
@@ -166,13 +217,12 @@ describe('PhenotypeFindingsPane', () => {
 
     const itemTexts = wrapper.findAll('.v-list-item').map((item) => item.text());
 
-    expect(itemTexts[0]).toContain(en.resultsDisplay.quality.excellent);
-    expect(itemTexts[1]).toContain(en.resultsDisplay.quality.high);
-    expect(itemTexts[2]).toContain(en.resultsDisplay.quality.moderate);
-    expect(itemTexts[3]).toContain(en.resultsDisplay.quality.low);
-    expect(itemTexts[4]).toContain(en.resultsDisplay.quality.poor);
-    expect(itemTexts[5]).not.toContain(en.resultsDisplay.quality.poor);
-    expect(itemTexts[5]).not.toContain(en.resultsDisplay.quality.low);
+    expect(itemTexts[0]).toContain(SCORE_EXCELLENT.toFixed(2));
+    expect(itemTexts[1]).toContain(SCORE_GOOD.toFixed(2));
+    expect(itemTexts[2]).toContain(SCORE_MODERATE.toFixed(2));
+    expect(itemTexts[3]).toContain(SCORE_LOW.toFixed(2));
+    expect(itemTexts[4]).toContain((SCORE_LOW - 0.01).toFixed(2));
+    expect(itemTexts[5]).not.toContain('0.00');
   });
 });
 

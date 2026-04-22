@@ -67,9 +67,7 @@
               variant="flat"
               density="comfortable"
             >
-              {{
-                $t(`queryInterface.phenotypeCollection.assertionStatus.${term.status}`, term.status)
-              }}
+              {{ $t(assertionStatusLabel(term.status)) }}
             </v-chip>
           </div>
 
@@ -268,6 +266,36 @@ function toggleDetails(hpoId) {
     expandedTerms.value.add(hpoId);
   }
   expandedTerms.value = new Set(expandedTerms.value);
+}
+
+function normalizeAssertionStatus(status) {
+  if (status === 'present') {
+    return 'affirmed';
+  }
+
+  if (status === 'absent') {
+    return 'negated';
+  }
+
+  if (status === 'affirmed' || status === 'negated' || status === 'unknown') {
+    return status;
+  }
+
+  return 'unknown';
+}
+
+function assertionStatusLabel(status) {
+  const normalizedStatus = normalizeAssertionStatus(status);
+
+  if (normalizedStatus === 'affirmed') {
+    return 'queryInterface.phenotypeCollection.assertionStatus.affirmed';
+  }
+
+  if (normalizedStatus === 'negated') {
+    return 'queryInterface.phenotypeCollection.assertionStatus.negated';
+  }
+
+  return 'queryInterface.phenotypeCollection.assertionStatus.unknown';
 }
 </script>
 

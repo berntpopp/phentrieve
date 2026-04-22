@@ -2301,6 +2301,12 @@ class TwoPhaseLLMPipeline:
         )
 
     @staticmethod
+    def _optional_float(value: Any) -> float | None:
+        if value is None:
+            return None
+        return float(value)
+
+    @staticmethod
     def _phenotype_from_candidate(
         *,
         item: dict[str, Any],
@@ -2324,6 +2330,17 @@ class TwoPhaseLLMPipeline:
                 PRESENT_ASSERTION,
             ),
             category=_normalize_category(str(item.get("category", ""))),
+            confidence=(
+                TwoPhaseLLMPipeline._optional_float(candidate.get("confidence"))
+                if candidate.get("confidence") is not None
+                else float(candidate.get("score", 0.0) or 0.0)
+            ),
+            score=float(candidate.get("score", 0.0) or 0.0),
+            reranker_score=(
+                TwoPhaseLLMPipeline._optional_float(candidate.get("reranker_score"))
+                if candidate.get("reranker_score") is not None
+                else None
+            ),
             evidence_records=[evidence],
         )
 

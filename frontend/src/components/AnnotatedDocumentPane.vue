@@ -95,10 +95,7 @@ const NestedAnnotationMarks = defineComponent({
         return props.text;
       }
 
-      const child =
-        index === props.annotations.length - 1
-          ? props.text
-          : renderAt(index + 1);
+      const child = index === props.annotations.length - 1 ? props.text : renderAt(index + 1);
 
       return h(
         'mark',
@@ -223,9 +220,15 @@ function needsFallbackMarks(chunk) {
 
 function buildMarkedSegments(chunk) {
   const text = chunk.text || '';
-  const annotations = getSpanAnnotations(chunk).sort((left, right) => left.start_char - right.start_char);
+  const annotations = getSpanAnnotations(chunk).sort(
+    (left, right) => left.start_char - right.start_char
+  );
   const boundaries = Array.from(
-    new Set([0, text.length, ...annotations.flatMap((annotation) => [annotation.start_char, annotation.end_char])])
+    new Set([
+      0,
+      text.length,
+      ...annotations.flatMap((annotation) => [annotation.start_char, annotation.end_char]),
+    ])
   ).sort((left, right) => left - right);
   const segments = [];
 
@@ -260,7 +263,8 @@ function buildMarkedSegments(chunk) {
       annotations: activeAnnotations,
     };
     const previousSegment = segments[segments.length - 1];
-    const previousSignature = previousSegment?.annotations?.map((annotation) => annotation.id).join('|') || '';
+    const previousSignature =
+      previousSegment?.annotations?.map((annotation) => annotation.id).join('|') || '';
     const nextSignature = activeAnnotations.map((annotation) => annotation.id).join('|');
 
     if (previousSegment && previousSignature === nextSignature) {
@@ -384,18 +388,16 @@ function getAnchorTarget(anchor) {
       if (matchingHitboxes.length > 0) {
         const referenceTarget = anchor.target || popoverTarget.value || matchingHitboxes[0].target;
 
-        return matchingHitboxes
-          .slice()
-          .sort((left, right) => {
-            const leftDistance =
-              ((left.target?.x ?? 0) - referenceTarget.x) ** 2 +
-              ((left.target?.y ?? 0) - referenceTarget.y) ** 2;
-            const rightDistance =
-              ((right.target?.x ?? 0) - referenceTarget.x) ** 2 +
-              ((right.target?.y ?? 0) - referenceTarget.y) ** 2;
+        return matchingHitboxes.slice().sort((left, right) => {
+          const leftDistance =
+            ((left.target?.x ?? 0) - referenceTarget.x) ** 2 +
+            ((left.target?.y ?? 0) - referenceTarget.y) ** 2;
+          const rightDistance =
+            ((right.target?.x ?? 0) - referenceTarget.x) ** 2 +
+            ((right.target?.y ?? 0) - referenceTarget.y) ** 2;
 
-            return leftDistance - rightDistance;
-          })[0]?.target;
+          return leftDistance - rightDistance;
+        })[0]?.target;
       }
     }
   }
@@ -444,60 +446,97 @@ function refreshLayoutState() {
   refreshPopoverTarget();
 }
 
-function findFirstTextNode(element) {
-  if (!element) {
-    return null;
-  }
-
-  if (element.firstChild?.nodeType === 3) {
-    return element.firstChild;
-  }
-
-  const nodes = [...element.childNodes];
-
-  while (nodes.length > 0) {
-    const node = nodes.shift();
-
-    if (node?.nodeType === 3) {
-      return node;
-    }
-
-    if (node?.childNodes?.length) {
-      nodes.unshift(...node.childNodes);
-    }
-  }
-
-  return null;
-}
-
 function buildCustomHighlightRange(element, annotation, chunkText) {
   if (!supportsCustomHighlight || !element) {
     return null;
   }
 
-  if (!element.textContent && chunkText) {
-    element.textContent = chunkText;
-  }
-
-  const textNode = findFirstTextNode(element);
-  if (!textNode) {
+  const textNodes = collectTextNodes(element);
+  if (textNodes.length === 0) {
     return null;
   }
 
-  const nodeLength = textNode.textContent?.length || chunkText.length || 0;
-  const start = Math.max(0, Math.min(annotation.start_char, nodeLength));
-  const end = Math.max(start, Math.min(annotation.end_char, nodeLength));
+  const totalLength = textNodes.reduce(
+    (sum, textNode) => sum + (textNode.textContent?.length || 0),
+    0
+  );
+  const fallbackLength = chunkText.length || 0;
+  const safeLength = Math.max(totalLength, fallbackLength);
+
+  if (safeLength === 0) {
+    return null;
+  }
+
+  const start = Math.max(0, Math.min(annotation.start_char, safeLength));
+  const end = Math.max(start, Math.min(annotation.end_char, safeLength));
 
   if (end <= start) {
     return null;
   }
 
   const range = new globalThis.Range();
+  const startPosition = resolveTextPosition(textNodes, start);
+  const endPosition = resolveTextPosition(textNodes, end);
 
-  range.setStart(textNode, start);
-  range.setEnd(textNode, end);
+  if (!startPosition || !endPosition) {
+    return null;
+  }
+
+  range.setStart(startPosition.node, startPosition.offset);
+  range.setEnd(endPosition.node, endPosition.offset);
 
   return range;
+}
+
+function collectTextNodes(element) {
+  if (!element || typeof document.createTreeWalker !== 'function') {
+    return [];
+  }
+
+  const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+  const textNodes = [];
+  let currentNode = walker.nextNode();
+
+  while (currentNode) {
+    if ((currentNode.textContent?.length || 0) > 0) {
+      textNodes.push(currentNode);
+    }
+    currentNode = walker.nextNode();
+  }
+
+  return textNodes;
+}
+
+function resolveTextPosition(textNodes, offset) {
+  if (textNodes.length === 0) {
+    return null;
+  }
+
+  if (offset <= 0) {
+    return { node: textNodes[0], offset: 0 };
+  }
+
+  let consumedLength = 0;
+
+  for (const textNode of textNodes) {
+    const nodeLength = textNode.textContent?.length || 0;
+    const nextLength = consumedLength + nodeLength;
+
+    if (offset <= nextLength) {
+      return {
+        node: textNode,
+        offset: offset - consumedLength,
+      };
+    }
+
+    consumedLength = nextLength;
+  }
+
+  const lastNode = textNodes[textNodes.length - 1];
+  return {
+    node: lastNode,
+    offset: lastNode.textContent?.length || 0,
+  };
 }
 
 function rectToTarget(rect) {

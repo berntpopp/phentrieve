@@ -204,6 +204,217 @@ def test_run_llm_backend_surfaces_evidence_records(mocker):
     assert result["aggregated_hpo_terms"][0]["evidence_records"][0]["chunk_ids"] == [1]
 
 
+def test_run_llm_backend_adapts_grounded_chunks_and_text_attributions(mocker):
+    provider = mocker.Mock()
+    pipeline = mocker.Mock()
+    pipeline.run.return_value = LLMExtractionResult(
+        terms=[
+            LLMPhenotype(
+                term_id="HP:0001250",
+                label="Recurrent seizures",
+                evidence="recurrent seizures",
+                assertion="present",
+                evidence_records=[
+                    {
+                        "phrase": "recurrent seizures",
+                        "evidence_text": "recurrent seizures",
+                        "chunk_ids": [1],
+                        "start_char": 12,
+                        "end_char": 30,
+                        "match_method": "local",
+                    }
+                ],
+            )
+        ],
+        meta=LLMMeta(
+            llm_model="gpt-4o-mini",
+            llm_mode="two_phase",
+        ),
+    )
+    mocker.patch(
+        "phentrieve.text_processing.full_text_service.get_llm_provider",
+        return_value=provider,
+    )
+    mocker.patch(
+        "phentrieve.text_processing.full_text_service.TwoPhaseLLMPipeline",
+        return_value=pipeline,
+    )
+
+    result = run_llm_backend(
+        text="Patient had recurrent seizures.",
+        llm_model="gpt-4o-mini",
+        llm_mode="two_phase",
+    )
+
+    assert len(result["processed_chunks"]) == 1
+    chunk = result["processed_chunks"][0]
+    assert chunk["chunk_id"] == 1
+    assert chunk["status"] in {"unknown", "affirmed"}
+    assert chunk["hpo_matches"] == [
+        {
+            "id": "HP:0001250",
+            "name": "Recurrent seizures",
+            "score": 0.0,
+            "assertion_status": "present",
+        }
+    ]
+    assert isinstance(chunk["text"], str) and "recurrent seizures" in chunk["text"]
+
+    assert result["aggregated_hpo_terms"] == [
+        {
+            "id": "HP:0001250",
+            "name": "Recurrent seizures",
+            "evidence": "recurrent seizures",
+            "status": "present",
+            "evidence_records": [
+                {
+                    "phrase": "recurrent seizures",
+                    "evidence_text": "recurrent seizures",
+                    "chunk_ids": [1],
+                    "start_char": 12,
+                    "end_char": 30,
+                    "match_method": "local",
+                }
+            ],
+            "confidence": 0.0,
+            "evidence_count": 1,
+            "source_chunk_ids": [1],
+            "max_score_from_evidence": 0.0,
+            "top_evidence_chunk_id": 1,
+            "text_attributions": [
+                {
+                    "chunk_id": 1,
+                    "start_char": 12,
+                    "end_char": 30,
+                    "matched_text_in_chunk": "recurrent seizures",
+                }
+            ],
+            "score": 0.0,
+        }
+    ]
+
+
+def test_run_llm_backend_preserves_grounded_llm_scores(mocker):
+    provider = mocker.Mock()
+    pipeline = mocker.Mock()
+    pipeline.run.return_value = LLMExtractionResult(
+        terms=[
+            LLMPhenotype(
+                term_id="HP:0001250",
+                label="Recurrent seizures",
+                evidence="recurrent seizures",
+                assertion="present",
+                confidence=0.91,
+                score=0.93,
+                evidence_records=[
+                    {
+                        "phrase": "recurrent seizures",
+                        "evidence_text": "recurrent seizures",
+                        "chunk_ids": [1],
+                        "start_char": 12,
+                        "end_char": 30,
+                        "match_method": "local",
+                    }
+                ],
+            )
+        ],
+        meta=LLMMeta(
+            llm_model="gpt-4o-mini",
+            llm_mode="two_phase",
+        ),
+    )
+    mocker.patch(
+        "phentrieve.text_processing.full_text_service.get_llm_provider",
+        return_value=provider,
+    )
+    mocker.patch(
+        "phentrieve.text_processing.full_text_service.TwoPhaseLLMPipeline",
+        return_value=pipeline,
+    )
+
+    result = run_llm_backend(
+        text="Patient had recurrent seizures.",
+        llm_model="gpt-4o-mini",
+        llm_mode="two_phase",
+    )
+
+    term = result["aggregated_hpo_terms"][0]
+    assert term["confidence"] == pytest.approx(0.91)
+    assert term["score"] == pytest.approx(0.93)
+    assert term["max_score_from_evidence"] == pytest.approx(0.93)
+
+    chunk = result["processed_chunks"][0]
+    assert chunk["hpo_matches"][0]["score"] == pytest.approx(0.93)
+
+
+def test_run_llm_backend_infers_missing_text_attribution_offsets_from_chunk_text(
+    mocker,
+):
+    provider = mocker.Mock()
+    pipeline = mocker.Mock()
+    preprocessed = SimpleNamespace(
+        grounded_chunks=[
+            {
+                "chunk_id": 1,
+                "text": "The patient has intellectual disability and growth delay.",
+                "start_char": 0,
+                "end_char": 57,
+                "status": "affirmed",
+            }
+        ],
+        extraction_groups=[],
+    )
+    pipeline.run.return_value = LLMExtractionResult(
+        terms=[
+            LLMPhenotype(
+                term_id="HP:0001249",
+                label="Intellectual disability",
+                evidence="intellectual disability",
+                assertion="present",
+                evidence_records=[
+                    {
+                        "phrase": "intellectual disability",
+                        "evidence_text": "intellectual disability",
+                        "chunk_ids": [1],
+                        "match_method": "local",
+                    }
+                ],
+            )
+        ],
+        meta=LLMMeta(
+            llm_model="gpt-4o-mini",
+            llm_mode="two_phase",
+        ),
+    )
+    mocker.patch(
+        "phentrieve.text_processing.full_text_service.get_llm_provider",
+        return_value=provider,
+    )
+    mocker.patch(
+        "phentrieve.text_processing.full_text_service.preprocess_grounded_document",
+        return_value=preprocessed,
+    )
+    mocker.patch(
+        "phentrieve.text_processing.full_text_service.TwoPhaseLLMPipeline",
+        return_value=pipeline,
+    )
+
+    result = run_llm_backend(
+        text="The patient has intellectual disability and growth delay.",
+        llm_model="gpt-4o-mini",
+        llm_mode="two_phase",
+    )
+
+    assert result["aggregated_hpo_terms"][0]["text_attributions"] == [
+        {
+            "chunk_id": 1,
+            "start_char": 16,
+            "end_char": 39,
+            "matched_text_in_chunk": "intellectual disability",
+        }
+    ]
+
+
 def test_run_llm_backend_builds_grounded_chunks_for_pipeline(mocker):
     provider = mocker.Mock()
     pipeline = mocker.Mock()

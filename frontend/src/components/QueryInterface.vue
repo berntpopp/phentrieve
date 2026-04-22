@@ -2,31 +2,44 @@
   <div class="search-container mx-auto px-2">
     <!-- Clean Search Bar with Integrated Button -->
     <div class="search-bar-container pt-0 px-2 pb-2 pa-sm-3">
-      <v-sheet rounded="pill" elevation="0" class="pa-1 pa-sm-2 search-bar" color="white">
-        <div class="d-flex align-center flex-wrap flex-sm-nowrap">
+      <v-sheet
+        rounded="xl"
+        elevation="0"
+        :class="[
+          'search-bar',
+          isTextProcessModeActive ? 'search-bar--text-process' : 'search-bar--query',
+        ]"
+        color="white"
+      >
+        <div
+          :class="[
+            'search-shell',
+            'd-flex',
+            'flex-wrap',
+            'flex-sm-nowrap',
+            isTextProcessModeActive ? 'search-shell--text-process' : 'align-center',
+          ]"
+        >
           <v-textarea
             v-if="isTextProcessModeActive"
             v-model="queryText"
             density="comfortable"
             variant="outlined"
             hide-details
-            class="search-input ml-2 ml-sm-3 flex-grow-1"
+            class="search-input search-input--text-process ml-2 ml-sm-3 flex-grow-1"
             :disabled="isLoading"
             bg-color="white"
             color="primary"
             rows="3"
             auto-grow
             clearable
+            placeholder="Paste or type a clinical note"
             :aria-label="$t('queryInterface.accessibility.textProcessInputLabel')"
             :aria-description="getTextProcessInputDescription()"
             @keydown.enter.prevent="!isLoading && queryText.trim() ? submitQuery() : null"
           >
             <template #label>
-              <span class="text-high-emphasis"
-                >{{ $t('queryInterface.inputLabel') }} ({{
-                  $t('queryInterface.documentModeLabel')
-                }})</span
-              >
+              <span class="text-high-emphasis">Clinical note</span>
             </template>
           </v-textarea>
           <v-text-field
@@ -36,7 +49,7 @@
             density="comfortable"
             variant="outlined"
             hide-details
-            class="search-input ml-2 ml-sm-3 flex-grow-1"
+            class="search-input search-input--query ml-2 ml-sm-3 flex-grow-1"
             :disabled="isLoading"
             bg-color="white"
             color="primary"
@@ -46,51 +59,27 @@
             @keydown.enter.prevent="!isLoading && queryText.trim() ? submitQuery() : null"
           >
             <template #label>
-              <span class="text-high-emphasis"
-                >{{ $t('queryInterface.inputLabel') }} ({{
-                  $t('queryInterface.queryModeLabel')
-                }})</span
-              >
+              <span class="text-high-emphasis">Phenotype query</span>
             </template>
           </v-text-field>
 
-          <div class="d-flex align-center">
-            <v-tooltip
-              location="top"
-              :text="$t('queryInterface.tooltips.advancedOptions')"
-              :content-props="{ 'aria-label': $t('queryInterface.tooltips.advancedOptions') }"
-            >
-              <template #activator="{ props }">
-                <v-btn
-                  v-bind="props"
-                  icon
-                  variant="text"
-                  color="primary"
-                  class="mx-1 mx-sm-2"
-                  :disabled="isLoading"
-                  :aria-label="getAdvancedOptionsToggleLabel()"
-                  :aria-expanded="showAdvancedOptions.toString()"
-                  aria-controls="advanced-options-panel"
-                  size="small"
-                  data-tutorial-step="advanced-options"
-                  @click="showAdvancedOptions = !showAdvancedOptions"
-                >
-                  <v-icon>
-                    {{ showAdvancedOptions ? 'mdi-cog-outline' : 'mdi-tune-variant' }}
-                  </v-icon>
-                </v-btn>
-              </template>
-            </v-tooltip>
-
+          <div
+            :class="[
+              'search-action',
+              'd-flex',
+              'align-center',
+              isTextProcessModeActive ? 'search-action--overlay' : null,
+            ]"
+          >
             <v-btn
               ref="searchButton"
               color="primary"
-              variant="tonal"
+              variant="text"
               icon
               rounded="circle"
               :loading="isLoading"
               :disabled="!queryText.trim()"
-              class="mr-1 mr-sm-2"
+              class="search-submit-button"
               :aria-label="$t('queryInterface.accessibility.searchButton')"
               size="small"
               data-tutorial-step="search-button"
@@ -101,6 +90,57 @@
           </div>
         </div>
       </v-sheet>
+
+      <div class="search-controls-row d-flex justify-end mt-2">
+        <div class="search-controls-group d-flex align-center flex-wrap justify-end ga-2">
+          <div class="mode-switch" role="group" aria-label="Search mode switch">
+            <v-btn
+              data-testid="mode-pill-query"
+              size="small"
+              rounded="pill"
+              :variant="!isTextProcessModeActive ? 'tonal' : 'text'"
+              :color="!isTextProcessModeActive ? 'primary' : 'default'"
+              class="mode-switch__pill"
+              @click="setMode('query')"
+            >
+              <v-icon start size="small">mdi-magnify</v-icon>
+              Query
+            </v-btn>
+            <v-btn
+              data-testid="mode-pill-text-process"
+              size="small"
+              rounded="pill"
+              :variant="isTextProcessModeActive ? 'tonal' : 'text'"
+              :color="isTextProcessModeActive ? 'primary' : 'default'"
+              class="mode-switch__pill"
+              @click="setMode('textProcess')"
+            >
+              <v-icon start size="small">mdi-file-document-outline</v-icon>
+              Full Text
+            </v-btn>
+          </div>
+
+          <v-btn
+            data-testid="search-settings-button"
+            size="small"
+            rounded="pill"
+            variant="text"
+            color="primary"
+            class="search-controls-row__settings"
+            :disabled="isLoading"
+            :aria-label="getAdvancedOptionsToggleLabel()"
+            :aria-expanded="showAdvancedOptions.toString()"
+            aria-controls="advanced-options-panel"
+            data-tutorial-step="advanced-options"
+            @click="showAdvancedOptions = !showAdvancedOptions"
+          >
+            <v-icon start size="small">
+              {{ showAdvancedOptions ? 'mdi-cog-outline' : 'mdi-tune-variant' }}
+            </v-icon>
+            Settings
+          </v-btn>
+        </div>
+      </div>
 
       <!-- Advanced Options Panel -->
       <AdvancedOptionsPanel
@@ -128,21 +168,26 @@
         :available-languages="availableLanguages"
         :is-text-process-mode-active="isTextProcessModeActive"
       />
+
+      <div
+        v-if="showAutoSwitchNotice"
+        data-testid="mode-auto-switch-notice"
+        class="mode-switch-notice px-3 pt-2"
+      >
+        {{ getAutoSwitchNoticeLabel() }}
+      </div>
     </div>
 
     <!-- Chat-like conversation interface -->
     <div ref="conversationContainer" class="conversation-container">
-      <!-- Skeleton loading during hydration -->
       <ConversationSkeleton
         v-if="conversationStore.isHydrating"
         :count="2"
         class="hydration-skeleton"
       />
 
-      <!-- Actual conversation history (shown after hydration) -->
       <template v-else>
         <div v-for="item in conversationStore.queryHistory" :key="item.id" class="mb-4">
-          <!-- User query -->
           <div class="user-query d-flex">
             <v-tooltip
               location="top"
@@ -155,14 +200,68 @@
                 </v-avatar>
               </template>
             </v-tooltip>
-            <div class="query-bubble">
-              <p class="mb-0" style="white-space: pre-wrap">
+            <div
+              :class="
+                item.type === 'textProcess' ? 'query-bubble query-bubble--document' : 'query-bubble'
+              "
+            >
+              <template v-if="item.type === 'textProcess'">
+                <div data-testid="user-note-summary" class="user-note-summary">
+                  <div class="user-note-summary__header">
+                    <v-icon size="small" color="primary">mdi-file-document-outline</v-icon>
+                    <span class="text-body-2 font-weight-medium">Clinical note</span>
+                    <span class="text-caption text-medium-emphasis">
+                      {{ formatDocumentSummaryMeta(item.query) }}
+                    </span>
+                    <v-btn
+                      data-testid="user-note-summary-toggle"
+                      size="x-small"
+                      variant="text"
+                      icon
+                      @click="toggleUserNote(item.id)"
+                    >
+                      <v-icon size="small">
+                        {{ isUserNoteExpanded(item.id) ? 'mdi-chevron-up' : 'mdi-chevron-down' }}
+                      </v-icon>
+                    </v-btn>
+                  </div>
+                  <p
+                    v-if="!isUserNoteExpanded(item.id)"
+                    class="mb-0 text-body-2 text-medium-emphasis user-note-summary__preview"
+                  >
+                    {{ summarizeDocumentQuery(item.query) }}
+                  </p>
+                  <div
+                    v-if="isUserNoteExpanded(item.id)"
+                    data-testid="user-note-expanded"
+                    class="user-note-summary__expanded"
+                  >
+                    <span v-for="segment in buildUserNoteSegments(item)" :key="segment.key">
+                      <mark
+                        v-if="segment.highlighted"
+                        data-testid="annotated-note-span"
+                        :title="segment.tooltip"
+                        :class="{
+                          'annotated-note-span--active':
+                            getHoveredNotePhenotype(item.id) &&
+                            segment.termIds.includes(getHoveredNotePhenotype(item.id)),
+                        }"
+                        @mouseenter="handleAnnotatedTextHover(item.id, segment.termIds)"
+                        @mouseleave="clearHoveredNotePhenotype(item.id)"
+                      >
+                        {{ segment.text }}
+                      </mark>
+                      <span v-else>{{ segment.text }}</span>
+                    </span>
+                  </div>
+                </div>
+              </template>
+              <p v-else class="mb-0" style="white-space: pre-wrap">
                 {{ item.query }}
               </p>
             </div>
           </div>
 
-          <!-- API response -->
           <div v-if="item.loading || item.response || item.error" class="bot-response d-flex mt-2">
             <v-tooltip
               location="top"
@@ -179,6 +278,77 @@
               <v-progress-circular v-if="item.loading" indeterminate color="primary" size="24" />
 
               <ResultsDisplay
+                v-else-if="item.error"
+                :key="'results-' + item.id"
+                :response-data="item.response"
+                :result-type="item.type"
+                :turn-id="item.id"
+                :error="item.error"
+                :collected-phenotypes="conversationStore.collectedPhenotypes"
+                @add-to-collection="handleAddToCollection"
+              />
+
+              <div v-else-if="item.type === 'textProcess'" class="full-text-receipt">
+                <div class="full-text-receipt__title">Full-text analysis ready</div>
+                <div class="text-caption text-medium-emphasis">
+                  {{ formatFullTextReceipt(item) }}
+                </div>
+                <div
+                  v-if="getTextProcessPhenotypes(item).length > 0"
+                  class="d-flex justify-end mt-3"
+                >
+                  <v-btn
+                    data-testid="full-text-response-add-all"
+                    size="small"
+                    rounded="pill"
+                    color="primary"
+                    variant="tonal"
+                    @click="
+                      handleAddAllToCollection(
+                        getTextProcessPhenotypes(item).map((phenotype) =>
+                          normalizeTextProcessPhenotype(phenotype)
+                        )
+                      )
+                    "
+                  >
+                    <v-icon start size="small">mdi-plus-circle</v-icon>
+                    Add all
+                  </v-btn>
+                </div>
+                <v-list
+                  v-if="getTextProcessPhenotypes(item).length > 0"
+                  lines="two"
+                  class="rounded-lg mt-3 full-text-response-list"
+                >
+                  <div
+                    v-for="(phenotype, index) in getTextProcessPhenotypes(item)"
+                    :key="`${item.id}-${phenotype.hpo_id}`"
+                    data-testid="full-text-response-phenotype"
+                    class="full-text-response-phenotype"
+                    :class="{
+                      'full-text-response-phenotype--active':
+                        getHoveredNotePhenotype(item.id) === phenotype.hpo_id,
+                    }"
+                    @mouseenter="setHoveredNotePhenotype(item.id, phenotype.hpo_id)"
+                    @mouseleave="clearHoveredNotePhenotype(item.id)"
+                  >
+                    <ResultItem
+                      :result="mapTextProcessPhenotypeToResult(phenotype)"
+                      :rank="index + 1"
+                      :is-collected="
+                        conversationStore.collectedPhenotypes.some(
+                          (entry) => entry.hpo_id === phenotype.hpo_id
+                        )
+                      "
+                      @add-to-collection="
+                        handleAddToCollection(normalizeTextProcessPhenotype(phenotype))
+                      "
+                    />
+                  </div>
+                </v-list>
+              </div>
+
+              <ResultsDisplay
                 v-else
                 :key="'results-' + item.id"
                 :response-data="item.response"
@@ -186,7 +356,7 @@
                 :turn-id="item.id"
                 :error="item.error"
                 :collected-phenotypes="conversationStore.collectedPhenotypes"
-                @add-to-collection="addToPhenotypeCollection"
+                @add-to-collection="handleAddToCollection"
               />
             </div>
           </div>
@@ -230,6 +400,7 @@
 
 <script>
 import ResultsDisplay from './ResultsDisplay.vue';
+import ResultItem from './ResultItem.vue';
 import ConversationSkeleton from './ConversationSkeleton.vue';
 import AdvancedOptionsPanel from './AdvancedOptionsPanel.vue';
 import PhenotypeCollectionPanel from './PhenotypeCollectionPanel.vue';
@@ -250,6 +421,7 @@ export default {
   name: 'QueryInterface',
   components: {
     ResultsDisplay,
+    ResultItem,
     ConversationSkeleton,
     AdvancedOptionsPanel,
     PhenotypeCollectionPanel,
@@ -285,7 +457,6 @@ export default {
       exportCollectionAsText: exportPhenotypes,
       exportAsPhenopacket: exportPhenotypesAsPhenopacket,
     } = usePhenotypeCollection();
-
     return {
       conversationStore,
       fullTextWorkspaceStore,
@@ -341,9 +512,12 @@ export default {
         { title: this.$t('phenopacket.sexOther'), value: 3 },
       ],
       forceEndpointMode: null,
+      modeSelectionSource: null,
+      autoSwitchSuppressed: false,
+      expandedUserNotes: {},
       defaultTextProcessLlmOptions: DEFAULT_TEXT_PROCESS_LLM_OPTIONS,
       textProcessOptions: {
-        extractionBackend: 'standard',
+        extractionBackend: 'llm',
         ...DEFAULT_TEXT_PROCESS_LLM_OPTIONS,
       },
       chunkingStrategy: 'sliding_window_punct_conj_cleaned',
@@ -355,6 +529,7 @@ export default {
       // Phenopacket export error surface (snackbar feedback)
       exportErrorVisible: false,
       exportErrorMessage: '',
+      hoveredTextProcessPhenotypes: {},
     };
   },
   computed: {
@@ -364,6 +539,9 @@ export default {
         return this.forceEndpointMode === 'textProcess';
       }
       return this.queryText.length > this.inputTextLengthThreshold;
+    },
+    showAutoSwitchNotice() {
+      return this.modeSelectionSource === 'auto' && this.forceEndpointMode === 'textProcess';
     },
     // Access includeDetails from Pinia store (persisted in localStorage)
     includeDetails: {
@@ -397,6 +575,25 @@ export default {
         // Reset some query-specific settings to defaults when model changes
         this.resetToDefaults();
         logService.info('Reset query-specific settings to defaults due to model change.');
+      }
+    },
+    queryText(newValue, oldValue) {
+      if (typeof newValue !== 'string') {
+        return;
+      }
+
+      if (newValue.length <= this.inputTextLengthThreshold) {
+        this.autoSwitchSuppressed = false;
+      }
+
+      if (
+        !this.autoSwitchSuppressed &&
+        this.forceEndpointMode !== 'textProcess' &&
+        newValue.length > this.inputTextLengthThreshold &&
+        oldValue.length <= this.inputTextLengthThreshold
+      ) {
+        this.forceEndpointMode = 'textProcess';
+        this.modeSelectionSource = 'auto';
       }
     },
   },
@@ -439,6 +636,20 @@ export default {
         // The composable already logs via logService.error; no need to re-log.
         void error;
       }
+    },
+    handleAddToCollection(phenotype) {
+      this.addToPhenotypeCollection(phenotype);
+      this.conversationStore.showCollectionPanel = true;
+    },
+    handleAddAllToCollection(phenotypes) {
+      if (!Array.isArray(phenotypes)) {
+        return;
+      }
+
+      phenotypes.forEach((phenotype) => {
+        this.addToPhenotypeCollection(phenotype);
+      });
+      this.conversationStore.showCollectionPanel = true;
     },
     /**
      * Fetch available embedding models from API /info endpoint
@@ -567,6 +778,300 @@ export default {
         ? this.$t('queryInterface.accessibility.closeAdvancedOptions')
         : this.$t('queryInterface.accessibility.openAdvancedOptions');
     },
+    getAutoSwitchNoticeLabel() {
+      const translated = this.$t('queryInterface.modeSwitch.autoFullTextNotice');
+      return translated && translated !== 'queryInterface.modeSwitch.autoFullTextNotice'
+        ? translated
+        : 'Switched to Full Text for longer clinical text';
+    },
+    summarizeDocumentQuery(query) {
+      if (typeof query !== 'string') {
+        return '';
+      }
+
+      const compact = query.replace(/\s+/g, ' ').trim();
+      if (compact.length <= 120) {
+        return compact;
+      }
+
+      return `${compact.slice(0, 117)}...`;
+    },
+    formatDocumentSummaryMeta(query) {
+      if (typeof query !== 'string') {
+        return '';
+      }
+
+      const charCount = query.trim().length;
+      if (charCount === 0) {
+        return '';
+      }
+
+      const wordCount = query.trim().split(/\s+/).filter(Boolean).length;
+
+      return `${wordCount} words`;
+    },
+    isUserNoteExpanded(turnId) {
+      return Boolean(this.expandedUserNotes[turnId]);
+    },
+    toggleUserNote(turnId) {
+      this.expandedUserNotes = {
+        ...this.expandedUserNotes,
+        [turnId]: !this.expandedUserNotes[turnId],
+      };
+    },
+    getTextProcessPhenotypes(item) {
+      return Array.isArray(item?.response?.aggregated_hpo_terms)
+        ? item.response.aggregated_hpo_terms.filter(
+            (term) => term && typeof term.hpo_id === 'string' && typeof term.name === 'string'
+          )
+        : [];
+    },
+    parseScoreValue(value) {
+      if (typeof value === 'number' && Number.isFinite(value)) {
+        return value;
+      }
+
+      if (typeof value === 'string' && value.trim() !== '') {
+        const parsed = Number.parseFloat(value);
+        if (Number.isFinite(parsed)) {
+          return parsed;
+        }
+      }
+
+      return null;
+    },
+    mapTextProcessPhenotypeToResult(term) {
+      const confidence = this.parseScoreValue(term.confidence);
+      const similarity = this.parseScoreValue(term.similarity);
+
+      return {
+        hpo_id: term.hpo_id,
+        label: term.name,
+        confidence,
+        score: confidence,
+        scoreType: 'confidence',
+        similarity: confidence ?? similarity ?? 0,
+        definition: term.definition || '',
+        synonyms: Array.isArray(term.synonyms) ? term.synonyms : [],
+      };
+    },
+    getHoveredNotePhenotype(turnId) {
+      return this.hoveredTextProcessPhenotypes[turnId] || null;
+    },
+    setHoveredNotePhenotype(turnId, phenotypeId) {
+      this.hoveredTextProcessPhenotypes = {
+        ...this.hoveredTextProcessPhenotypes,
+        [turnId]: phenotypeId,
+      };
+    },
+    clearHoveredNotePhenotype(turnId) {
+      this.hoveredTextProcessPhenotypes = {
+        ...this.hoveredTextProcessPhenotypes,
+        [turnId]: null,
+      };
+    },
+    normalizeAssertionStatus(status) {
+      if (status === 'present') {
+        return 'affirmed';
+      }
+
+      if (status === 'absent') {
+        return 'negated';
+      }
+
+      if (status === 'affirmed' || status === 'negated' || status === 'unknown') {
+        return status;
+      }
+
+      return 'unknown';
+    },
+    normalizeTextProcessPhenotype(term) {
+      return {
+        hpo_id: term.hpo_id,
+        label: term.name,
+        assertion_status: this.normalizeAssertionStatus(term.status),
+      };
+    },
+    handleAnnotatedTextHover(turnId, termIds) {
+      if (!Array.isArray(termIds) || termIds.length === 0) {
+        return;
+      }
+
+      this.setHoveredNotePhenotype(turnId, termIds[0]);
+    },
+    buildUserNoteSegments(item) {
+      const fallbackText = typeof item?.query === 'string' ? item.query : '';
+      const chunks = Array.isArray(item?.response?.processed_chunks)
+        ? item.response.processed_chunks
+        : [];
+      const terms = Array.isArray(item?.response?.aggregated_hpo_terms)
+        ? item.response.aggregated_hpo_terms
+        : [];
+      const termLabels = new Map(
+        terms
+          .filter(
+            (term) => term && typeof term.hpo_id === 'string' && typeof term.name === 'string'
+          )
+          .map((term) => [term.hpo_id, term.name])
+      );
+      const activePhenotypeId = this.getHoveredNotePhenotype(item?.id);
+
+      if (!fallbackText || chunks.length === 0) {
+        return [{ key: 'fallback-note', text: fallbackText, highlighted: false }];
+      }
+
+      const chunkOffsets = this.resolveChunkOffsetsInNote(fallbackText, chunks);
+      const highlights = terms
+        .filter((term) => !activePhenotypeId || term?.hpo_id === activePhenotypeId)
+        .flatMap((term) =>
+          (Array.isArray(term.text_attributions) ? term.text_attributions : []).map((attr) => ({
+            ...attr,
+            termId: term.hpo_id,
+          }))
+        )
+        .map((attr) => {
+          const offset =
+            chunkOffsets.get(attr?.chunk_id) ??
+            chunkOffsets.get(String(attr?.chunk_id)) ??
+            chunkOffsets.get(Number(attr?.chunk_id));
+
+          if (offset != null) {
+            const start = offset + Math.max(0, attr.start_char ?? 0);
+            const end = offset + Math.max(0, attr.end_char ?? 0);
+            return {
+              start: Math.max(0, Math.min(start, fallbackText.length)),
+              end: Math.max(0, Math.min(end, fallbackText.length)),
+              termIds: [attr.termId],
+            };
+          }
+
+          const resolved = this.resolveMatchedTextRange(fallbackText, attr?.matched_text_in_chunk);
+          return resolved
+            ? {
+                ...resolved,
+                termIds: [attr.termId],
+              }
+            : null;
+        })
+        .filter(Boolean)
+        .map((attr) => ({
+          start: attr.start,
+          end: attr.end,
+          termIds: attr.termIds,
+        }))
+        .filter((attr) => attr.end > attr.start)
+        .sort((left, right) => left.start - right.start);
+
+      if (highlights.length === 0) {
+        return [{ key: 'plain-note', text: fallbackText, highlighted: false }];
+      }
+
+      const merged = [];
+      for (const range of highlights) {
+        const previous = merged[merged.length - 1];
+        if (previous && range.start <= previous.end) {
+          previous.end = Math.max(previous.end, range.end);
+          previous.termIds = [...new Set([...previous.termIds, ...range.termIds])];
+        } else {
+          merged.push({ ...range });
+        }
+      }
+
+      const segments = [];
+      let cursor = 0;
+      merged.forEach((range, index) => {
+        if (range.start > cursor) {
+          segments.push({
+            key: `plain-${index}-${cursor}`,
+            text: fallbackText.slice(cursor, range.start),
+            highlighted: false,
+          });
+        }
+        segments.push({
+          key: `mark-${index}-${range.start}`,
+          text: fallbackText.slice(range.start, range.end),
+          highlighted: true,
+          termIds: range.termIds,
+          tooltip: range.termIds
+            .map((termId) => `${termLabels.get(termId) || termId} (${termId})`)
+            .join(', '),
+        });
+        cursor = range.end;
+      });
+
+      if (cursor < fallbackText.length) {
+        segments.push({
+          key: `plain-tail-${cursor}`,
+          text: fallbackText.slice(cursor),
+          highlighted: false,
+        });
+      }
+
+      return segments;
+    },
+    resolveChunkOffsetsInNote(noteText, chunks) {
+      const offsets = new Map();
+      let searchFrom = 0;
+
+      chunks.forEach((chunk) => {
+        const chunkText =
+          typeof chunk?.text === 'string'
+            ? chunk.text
+            : typeof chunk?.chunk_text === 'string'
+              ? chunk.chunk_text
+              : '';
+
+        if (!chunkText || typeof chunk?.chunk_id !== 'number') {
+          return;
+        }
+
+        let offset = noteText.indexOf(chunkText, searchFrom);
+        if (offset === -1) {
+          offset = noteText.indexOf(chunkText);
+        }
+        if (offset === -1) {
+          return;
+        }
+
+        offsets.set(chunk.chunk_id, offset);
+        offsets.set(String(chunk.chunk_id), offset);
+        searchFrom = Math.max(offset + 1, searchFrom);
+      });
+
+      return offsets;
+    },
+    resolveMatchedTextRange(noteText, matchedText) {
+      if (typeof matchedText !== 'string' || matchedText.trim() === '') {
+        return null;
+      }
+
+      const normalizedNote = noteText.toLowerCase();
+      const normalizedMatch = matchedText.toLowerCase();
+      const start = normalizedNote.indexOf(normalizedMatch);
+      if (start === -1) {
+        return null;
+      }
+
+      return {
+        start,
+        end: start + matchedText.length,
+      };
+    },
+    formatFullTextReceipt(item) {
+      const terms = item?.response?.aggregated_hpo_terms?.length ?? 0;
+      const chunks = item?.response?.processed_chunks?.length ?? 0;
+      if (chunks === 0 && typeof item?.query === 'string' && item.query.trim().length > 0) {
+        return `${terms} findings in submitted note review`;
+      }
+      return `${terms} findings across ${chunks} document sections`;
+    },
+    setMode(mode) {
+      if (mode === 'query' && this.showAutoSwitchNotice) {
+        this.autoSwitchSuppressed = true;
+      }
+      this.forceEndpointMode = mode;
+      this.modeSelectionSource = 'manual';
+    },
     async submitQuery(isAutoSubmit = false) {
       const queryTextTrimmed = this.queryText.trim();
       if (!queryTextTrimmed) {
@@ -584,6 +1089,13 @@ export default {
         loading: true,
         type: useTextProcessMode ? 'textProcess' : 'query',
       });
+
+      if (useTextProcessMode) {
+        this.expandedUserNotes = {
+          ...this.expandedUserNotes,
+          [queryId]: true,
+        };
+      }
 
       if (!isAutoSubmit) this.queryText = ''; // Clear input only if not auto-submitting (URL params might be active)
 
@@ -681,28 +1193,166 @@ export default {
   line-height: 1.5;
 }
 
+.search-shell {
+  gap: 8px;
+}
+
+.search-shell--text-process {
+  align-items: flex-start;
+}
+
+.search-action {
+  flex-shrink: 0;
+}
+
+.search-action--overlay {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  z-index: 1;
+}
+
+.search-submit-button {
+  width: 34px !important;
+  height: 34px !important;
+  min-width: 34px !important;
+  color: rgba(25, 82, 166, 0.7) !important;
+}
+
+.search-submit-button:hover {
+  background: rgba(25, 82, 166, 0.08);
+}
+
+.search-input--text-process {
+  margin-right: 64px !important;
+}
+
+.search-input--text-process :deep(.v-label) {
+  font-size: 0.92rem;
+  color: rgba(60, 72, 88, 0.62);
+}
+
 .search-input :deep(.v-field) {
-  border-radius: 28px; /* More rounded */
-  min-height: 48px; /* Slightly taller */
   /* Removed box-shadow to rely on the search-bar border instead */
 }
-.search-input.v-textarea :deep(.v-field) {
-  border-radius: 18px; /* Consistent rounding for textarea */
+
+.search-input--query :deep(.v-field) {
+  border-radius: 28px;
+  min-height: 48px;
+}
+
+.search-input--text-process :deep(.v-field) {
+  border-radius: 22px;
+  min-height: 104px;
   padding-top: 8px;
   padding-bottom: 8px;
 }
 
-.search-input.v-textarea :deep(.v-field__input) {
-  min-height: 80px; /* Keep textarea height if needed */
+.search-input--text-process :deep(.v-field__input) {
+  min-height: 88px;
+}
+
+.search-controls-row {
+  padding-inline: 8px;
+}
+
+.search-controls-group {
+  width: 100%;
+}
+
+.mode-switch {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 999px;
+  padding: 2px;
+  background: rgba(245, 247, 252, 0.9);
+}
+
+.mode-switch__pill {
+  text-transform: none;
+  letter-spacing: 0;
+  min-width: 0;
+  font-size: 0.95rem;
+}
+
+.search-controls-row__settings {
+  text-transform: none;
+  letter-spacing: 0;
+  min-height: 34px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(245, 247, 252, 0.9);
+  font-size: 0.95rem;
+}
+
+.mode-switch-notice {
+  font-size: 0.8rem;
+  color: rgba(25, 82, 166, 0.92);
 }
 
 .search-bar {
-  border: 1px solid rgba(0, 0, 0, 0.15); /* Added border back to search-bar */
-  border-radius: 30px; /* Match outer radius if needed */
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 24px;
+  transition:
+    padding 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.search-bar--query {
+  padding: 6px 8px;
+}
+
+.search-bar--text-process {
+  position: relative;
+  padding: 10px 12px;
 }
 
 .search-input :deep(.v-field__outline) {
   --v-field-border-width: 0px; /* No internal outline needed */
+}
+
+@media (max-width: 600px) {
+  .search-bar--query {
+    padding: 4px 6px;
+  }
+
+  .search-bar--text-process {
+    padding: 8px 10px;
+    border-radius: 20px;
+  }
+
+  .search-shell--text-process {
+    gap: 6px;
+  }
+
+  .search-action {
+    align-self: flex-start;
+    padding-top: 2px;
+  }
+
+  .search-action--overlay {
+    top: 10px;
+    right: 10px;
+    padding-top: 0;
+  }
+
+  .search-input--text-process {
+    margin-right: 56px !important;
+  }
+
+  .search-input--text-process :deep(.v-field) {
+    border-radius: 18px;
+    min-height: 96px;
+  }
+
+  .search-input--text-process :deep(.v-field__input) {
+    min-height: 72px;
+  }
+
+  .search-input--text-process :deep(.v-label) {
+    font-size: 0.88rem;
+  }
 }
 
 /* Advanced options panel specific styling */
@@ -741,6 +1391,77 @@ export default {
   border-radius: 8px;
 }
 
+.query-bubble--document {
+  padding: 12px 14px;
+}
+
+.user-note-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.user-note-summary__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.user-note-summary__header .text-caption {
+  margin-left: auto;
+}
+
+.user-note-summary__preview {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.user-note-summary__expanded {
+  margin-top: 8px;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: rgba(15, 23, 42, 0.9);
+}
+
+.user-note-summary__expanded mark {
+  background: rgba(37, 99, 235, 0.16);
+  color: inherit;
+  border-radius: 4px;
+  padding: 0 1px;
+}
+
+.annotated-note-span--active {
+  background: rgba(37, 99, 235, 0.32) !important;
+}
+
+.full-text-receipt {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.full-text-receipt__title {
+  font-weight: 600;
+}
+
+.full-text-response-list {
+  background: transparent;
+}
+
+.full-text-response-phenotype {
+  border-radius: 12px;
+  transition:
+    transform 0.16s ease,
+    box-shadow 0.16s ease;
+}
+
+.full-text-response-phenotype--active {
+  transform: translateY(-1px);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
 /* Webkit Scrollbar Styles */
 .conversation-container::-webkit-scrollbar {
   width: 8px;
@@ -756,6 +1477,16 @@ export default {
 .conversation-container::-webkit-scrollbar-track {
   background: #f1f1f1;
   border-radius: 4px;
+}
+
+@media (max-width: 1100px) {
+  .full-text-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .full-text-case-rail {
+    position: static;
+  }
 }
 
 .query-bubble {

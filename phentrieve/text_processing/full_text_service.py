@@ -249,6 +249,217 @@ def _adapt_aggregated_terms(
     return adapted_terms
 
 
+def _coerce_chunk_id(value: Any) -> int | None:
+    if isinstance(value, int):
+        return value
+    if isinstance(value, str) and value.isdigit():
+        return int(value)
+    return None
+
+
+def _coerce_float(value: Any) -> float | None:
+    if value is None:
+        return None
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, (int, float)):
+        return float(value)
+    if isinstance(value, str):
+        try:
+            return float(value)
+        except ValueError:
+            return None
+    return None
+
+
+def _infer_text_attribution_offsets(
+    *,
+    chunk_text: str,
+    matched_text: str | None,
+    start_char: Any,
+    end_char: Any,
+) -> tuple[int | None, int | None]:
+    if isinstance(start_char, int) and isinstance(end_char, int):
+        return start_char, end_char
+    if not matched_text:
+        return None, None
+
+    start_idx = chunk_text.lower().find(matched_text.lower())
+    if start_idx < 0:
+        return None, None
+    return start_idx, start_idx + len(matched_text)
+
+
+def _adapt_llm_text_attributions(
+    evidence_records: list[Mapping[str, Any]],
+    *,
+    chunk_text_by_id: Mapping[int, str],
+) -> list[dict[str, Any]]:
+    text_attributions: list[dict[str, Any]] = []
+    seen: set[tuple[int, int | None, int | None, str | None]] = set()
+
+    for record in evidence_records:
+        chunk_ids = [
+            _coerce_chunk_id(chunk_id) for chunk_id in record.get("chunk_ids", [])
+        ]
+        matched_text = record.get("evidence_text") or record.get("phrase")
+        for chunk_id in chunk_ids:
+            if chunk_id is None:
+                continue
+            start_char, end_char = _infer_text_attribution_offsets(
+                chunk_text=chunk_text_by_id.get(chunk_id, ""),
+                matched_text=matched_text,
+                start_char=record.get("start_char"),
+                end_char=record.get("end_char"),
+            )
+            if start_char is None or end_char is None:
+                continue
+            key = (
+                chunk_id,
+                start_char,
+                end_char,
+                matched_text,
+            )
+            if key in seen:
+                continue
+            seen.add(key)
+            text_attributions.append(
+                {
+                    "chunk_id": chunk_id,
+                    "start_char": start_char,
+                    "end_char": end_char,
+                    "matched_text_in_chunk": matched_text,
+                }
+            )
+
+    return text_attributions
+
+
+def _adapt_llm_aggregated_terms(
+    terms: Sequence[Any],
+    *,
+    grounded_chunks: Sequence[Mapping[str, Any]],
+) -> list[dict[str, Any]]:
+    adapted_terms: list[dict[str, Any]] = []
+    chunk_text_by_id = {
+        chunk_id: str(chunk.get("text", ""))
+        for chunk in grounded_chunks
+        if (chunk_id := _coerce_chunk_id(chunk.get("chunk_id"))) is not None
+    }
+
+    for term in terms:
+        evidence_records = [
+            record.model_dump() if hasattr(record, "model_dump") else dict(record)
+            for record in getattr(term, "evidence_records", [])
+        ]
+        evidence_scores = [
+            score
+            for record in evidence_records
+            for score in (
+                _coerce_float(record.get("score")),
+                _coerce_float(record.get("confidence")),
+                _coerce_float(record.get("retrieval_score")),
+            )
+            if score is not None
+        ]
+        term_score = _coerce_float(getattr(term, "score", None))
+        term_confidence = _coerce_float(getattr(term, "confidence", None))
+        reranker_score = _coerce_float(getattr(term, "reranker_score", None))
+        max_evidence_score = (
+            max(
+                [*evidence_scores, term_score]
+                if term_score is not None
+                else evidence_scores
+            )
+            if evidence_scores or term_score is not None
+            else 0.0
+        )
+        source_chunk_ids = sorted(
+            {
+                chunk_id
+                for record in evidence_records
+                for chunk_id in (
+                    _coerce_chunk_id(value) for value in record.get("chunk_ids", [])
+                )
+                if chunk_id is not None
+            }
+        )
+        text_attributions = _adapt_llm_text_attributions(
+            evidence_records,
+            chunk_text_by_id=chunk_text_by_id,
+        )
+
+        adapted_terms.append(
+            {
+                "id": term.term_id,
+                "name": term.label,
+                "evidence": term.evidence,
+                "status": term.assertion,
+                "evidence_records": evidence_records,
+                "confidence": (
+                    term_confidence
+                    if term_confidence is not None
+                    else (term_score if term_score is not None else max_evidence_score)
+                ),
+                "evidence_count": len(evidence_records),
+                "source_chunk_ids": source_chunk_ids,
+                "max_score_from_evidence": max_evidence_score,
+                "top_evidence_chunk_id": source_chunk_ids[0]
+                if source_chunk_ids
+                else None,
+                "text_attributions": text_attributions,
+                "score": term_score if term_score is not None else max_evidence_score,
+            }
+        )
+        if reranker_score is not None:
+            adapted_terms[-1]["reranker_score"] = reranker_score
+
+    return adapted_terms
+
+
+def _adapt_llm_processed_chunks(
+    grounded_chunks: Sequence[Mapping[str, Any]],
+    adapted_terms: Sequence[Mapping[str, Any]],
+) -> list[dict[str, Any]]:
+    matches_by_chunk_id: dict[int, list[dict[str, Any]]] = {
+        chunk_id: []
+        for chunk in grounded_chunks
+        if (chunk_id := _coerce_chunk_id(chunk.get("chunk_id"))) is not None
+    }
+
+    for term in adapted_terms:
+        for chunk_id in term.get("source_chunk_ids", []):
+            if chunk_id not in matches_by_chunk_id:
+                continue
+            matches_by_chunk_id[chunk_id].append(
+                {
+                    "id": term.get("id"),
+                    "name": term.get("name"),
+                    "score": term.get("score", 0.0),
+                    "assertion_status": term.get("status", "unknown"),
+                }
+            )
+
+    adapted_chunks: list[dict[str, Any]] = []
+    for chunk in grounded_chunks:
+        chunk_id = _coerce_chunk_id(chunk.get("chunk_id"))
+        if chunk_id is None:
+            continue
+        adapted_chunks.append(
+            {
+                "chunk_id": chunk_id,
+                "text": chunk.get("text", ""),
+                "status": _normalize_status(chunk.get("status")),
+                "assertion_details": chunk.get("assertion_details"),
+                "hpo_matches": matches_by_chunk_id.get(chunk_id, []),
+                "start_char": chunk.get("start_char"),
+                "end_char": chunk.get("end_char"),
+            }
+        )
+
+    return adapted_chunks
+
+
 def adapt_standard_response(
     pipeline_result: Sequence[Mapping[str, Any]] | Mapping[str, Any] | None,
     extraction_result: tuple[Sequence[Mapping[str, Any]], Sequence[Mapping[str, Any]]]
@@ -542,6 +753,12 @@ def run_llm_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
     phase_request_counts = dict(result.meta.phase_request_counts)
     trace = dict(result.meta.trace)
 
+    adapted_terms = _adapt_llm_aggregated_terms(
+        result.terms,
+        grounded_chunks=grounded_chunks,
+    )
+    adapted_chunks = _adapt_llm_processed_chunks(grounded_chunks, adapted_terms)
+
     result_payload = {
         "meta": {
             "extraction_backend": "llm",
@@ -550,7 +767,8 @@ def run_llm_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
             "llm_mode": result.meta.llm_mode,
             "llm_internal_mode": llm_internal_mode,
             "prompt_version": result.meta.prompt_version,
-            "num_aggregated_hpo_terms": len(result.terms),
+            "num_processed_chunks": len(adapted_chunks),
+            "num_aggregated_hpo_terms": len(adapted_terms),
             "token_input": result.meta.token_input,
             "token_output": result.meta.token_output,
             "observability": {
@@ -589,19 +807,8 @@ def run_llm_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
                 ),
             },
         },
-        "processed_chunks": [],
-        "aggregated_hpo_terms": [
-            {
-                "id": term.term_id,
-                "name": term.label,
-                "evidence": term.evidence,
-                "status": term.assertion,
-                "evidence_records": [
-                    record.model_dump() for record in term.evidence_records
-                ],
-            }
-            for term in result.terms
-        ],
+        "processed_chunks": adapted_chunks,
+        "aggregated_hpo_terms": adapted_terms,
     }
 
     logger.info(

@@ -1,9 +1,6 @@
 import { defineStore } from 'pinia';
 import { readonly, ref } from 'vue';
-import {
-  SIDEBAR_MODE_CASE,
-  SIDEBAR_MODE_INSPECTOR,
-} from '../constants/fullTextWorkspace';
+import { SIDEBAR_MODE_CASE, SIDEBAR_MODE_INSPECTOR } from '../constants/fullTextWorkspace';
 
 const VALID_SIDEBAR_MODES = new Set([SIDEBAR_MODE_CASE, SIDEBAR_MODE_INSPECTOR]);
 

@@ -277,6 +277,8 @@ def test_two_phase_pipeline_maps_phrase_via_retrieved_candidates():
             evidence="recurrent seizures",
             assertion="present",
             category="abnormal",
+            confidence=0.92,
+            score=0.92,
             evidence_records=[
                 LLMPhenotypeEvidence(
                     phrase="recurrent seizures",
@@ -1100,6 +1102,8 @@ def test_grouped_mentions_deduplicate_before_retrieval() -> None:
             evidence="progressive ataxia",
             assertion="present",
             category="abnormal",
+            confidence=0.99,
+            score=0.99,
             evidence_records=[
                 LLMPhenotypeEvidence(
                     phrase="progressive ataxia",
@@ -2279,6 +2283,8 @@ def test_two_phase_pipeline_uses_mapping_prompt_for_unresolved_phrase():
             evidence="frequent falls",
             assertion="present",
             category="abnormal",
+            confidence=0.81,
+            score=0.81,
             evidence_records=[
                 LLMPhenotypeEvidence(
                     phrase="frequent falls",
@@ -2458,6 +2464,8 @@ def test_two_phase_pipeline_preserves_evidence_records_for_local_matches() -> No
             evidence="recurrent seizures",
             assertion="present",
             category="abnormal",
+            confidence=0.99,
+            score=0.99,
             evidence_records=[
                 LLMPhenotypeEvidence(
                     phrase="recurrent seizures",
@@ -2721,6 +2729,8 @@ def test_two_phase_pipeline_batches_unresolved_phrase_mapping_calls():
             evidence="frequent falls",
             assertion="present",
             category="abnormal",
+            confidence=0.81,
+            score=0.81,
             evidence_records=[
                 LLMPhenotypeEvidence(
                     phrase="frequent falls",
@@ -2736,6 +2746,8 @@ def test_two_phase_pipeline_batches_unresolved_phrase_mapping_calls():
             evidence="sleep disturbances",
             assertion="present",
             category="abnormal",
+            confidence=0.85,
+            score=0.85,
             evidence_records=[
                 LLMPhenotypeEvidence(
                     phrase="sleep disturbances",
@@ -2861,6 +2873,8 @@ def test_unresolved_mapping_batches_skip_duplicate_phrase_candidate_sets() -> No
             evidence="frequent falls",
             assertion="present",
             category="abnormal",
+            confidence=0.81,
+            score=0.81,
             evidence_records=[
                 LLMPhenotypeEvidence(
                     phrase="frequent falls",
@@ -2960,6 +2974,8 @@ def test_two_phase_pipeline_batch_mapping_uses_item_ids_for_batch_selections():
             evidence="knock-knee (genu valgum)",
             assertion="present",
             category="abnormal",
+            confidence=0.88,
+            score=0.88,
             evidence_records=[
                 LLMPhenotypeEvidence(
                     phrase="knock-knee (genu valgum)",
@@ -2975,6 +2991,8 @@ def test_two_phase_pipeline_batch_mapping_uses_item_ids_for_batch_selections():
             evidence="Legg Perthes disease",
             assertion="present",
             category="abnormal",
+            confidence=0.99,
+            score=0.99,
             evidence_records=[
                 LLMPhenotypeEvidence(
                     phrase="Legg Perthes disease",
@@ -3112,6 +3130,8 @@ def test_two_phase_pipeline_batch_mapping_disambiguates_duplicate_phrase_text() 
             evidence="motor issues",
             assertion="present",
             category="abnormal",
+            confidence=0.95,
+            score=0.95,
             evidence_records=[
                 LLMPhenotypeEvidence(
                     phrase="motor issues",
@@ -3127,6 +3147,8 @@ def test_two_phase_pipeline_batch_mapping_disambiguates_duplicate_phrase_text() 
             evidence="motor issues",
             assertion="uncertain",
             category="suspected",
+            confidence=0.93,
+            score=0.93,
             evidence_records=[
                 LLMPhenotypeEvidence(
                     phrase="motor issues",
@@ -3258,6 +3280,8 @@ def test_two_phase_pipeline_retrieves_all_categories_and_preserves_assertions():
             evidence="recurrent seizures",
             assertion="present",
             category="abnormal",
+            confidence=0.95,
+            score=0.95,
             evidence_records=[
                 LLMPhenotypeEvidence(
                     phrase="recurrent seizures",
@@ -3273,6 +3297,8 @@ def test_two_phase_pipeline_retrieves_all_categories_and_preserves_assertions():
             evidence="nystagmus",
             assertion="uncertain",
             category="suspected",
+            confidence=0.95,
+            score=0.95,
             evidence_records=[
                 LLMPhenotypeEvidence(
                     phrase="nystagmus",
@@ -3288,6 +3314,8 @@ def test_two_phase_pipeline_retrieves_all_categories_and_preserves_assertions():
             evidence="skeletal anomalies",
             assertion="negated",
             category="normal",
+            confidence=0.95,
+            score=0.95,
             evidence_records=[
                 LLMPhenotypeEvidence(
                     phrase="skeletal anomalies",
@@ -3303,6 +3331,8 @@ def test_two_phase_pipeline_retrieves_all_categories_and_preserves_assertions():
             evidence="hearing loss",
             assertion="family_history",
             category="family_history",
+            confidence=0.95,
+            score=0.95,
             evidence_records=[
                 LLMPhenotypeEvidence(
                     phrase="hearing loss",
@@ -3608,6 +3638,8 @@ def test_two_phase_pipeline_falls_back_to_local_match_after_invalid_mapping_sele
             evidence="frequent falls",
             assertion="present",
             category="abnormal",
+            confidence=0.81,
+            score=0.81,
             evidence_records=[
                 LLMPhenotypeEvidence(
                     phrase="frequent falls",

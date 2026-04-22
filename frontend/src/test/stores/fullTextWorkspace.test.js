@@ -161,15 +161,11 @@ describe('fullTextWorkspace store', () => {
         { id: 'case-1', label: 'Case 1 duplicate' },
       ])
     ).toThrow('Workspace cases must not contain duplicate ids: case-1');
-    expect(() => store.setUndoStack('turn-a', {})).toThrow(
-      'Workspace undo stack must be an array'
-    );
+    expect(() => store.setUndoStack('turn-a', {})).toThrow('Workspace undo stack must be an array');
     expect(() => store.setUndoStack('turn-a', [null])).toThrow(
       'Workspace undo stack items must be objects'
     );
-    expect(() => store.setRedoStack('turn-a', {})).toThrow(
-      'Workspace redo stack must be an array'
-    );
+    expect(() => store.setRedoStack('turn-a', {})).toThrow('Workspace redo stack must be an array');
     expect(() => store.setRedoStack('turn-a', [null])).toThrow(
       'Workspace redo stack items must be objects'
     );

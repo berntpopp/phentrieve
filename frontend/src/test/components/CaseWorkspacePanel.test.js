@@ -73,6 +73,15 @@ describe('CaseWorkspacePanel', () => {
     expect(wrapper.text()).toContain('0 phenotypes');
   });
 
+  it('shows the active case summary and included phenotype preview', async () => {
+    const wrapper = await mountPanel();
+
+    expect(wrapper.text()).toContain('Active case');
+    expect(wrapper.text()).toContain('1 phenotype selected');
+    expect(wrapper.text()).toContain('Included phenotypes');
+    expect(wrapper.text()).toContain('Seizure');
+  });
+
   it('emits create-case, add-all, and export-case actions', async () => {
     const wrapper = await mountPanel();
 
@@ -105,16 +114,18 @@ describe('CaseWorkspacePanel', () => {
       const wrapper = await mountLegacyBridge({ locale });
 
       expect(wrapper.get('[data-testid="case-workspace-title"]').text()).toBe(labels.title);
-      expect(wrapper.get('[data-testid="case-workspace-open-button"]').attributes('aria-label')).toBe(
-        labels.openPanel
-      );
-      expect(wrapper.get('[data-testid="case-workspace-close-button"]').attributes('aria-label')).toBe(
-        labels.closePanel
-      );
+      expect(
+        wrapper.get('[data-testid="case-workspace-open-button"]').attributes('aria-label')
+      ).toBe(labels.openPanel);
+      expect(
+        wrapper.get('[data-testid="case-workspace-close-button"]').attributes('aria-label')
+      ).toBe(labels.closePanel);
       expect(wrapper.get('[data-testid="case-workspace-drawer"]').attributes('aria-label')).toBe(
         labels.panel
       );
-      expect(wrapper.text()).not.toContain(`legacy-copy:${locale}:queryInterface.phenotypeCollection.title`);
+      expect(wrapper.text()).not.toContain(
+        `legacy-copy:${locale}:queryInterface.phenotypeCollection.title`
+      );
     });
   }
 });

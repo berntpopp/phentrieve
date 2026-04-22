@@ -155,7 +155,12 @@ describe('AnnotatedDocumentPane', () => {
             text: 'Developmental delay was present.',
             evidence_mode: 'span',
             annotations: [
-              { id: 'ann-1', start_char: 0, end_char: 19, matched_text_in_chunk: 'Developmental delay' },
+              {
+                id: 'ann-1',
+                start_char: 0,
+                end_char: 19,
+                matched_text_in_chunk: 'Developmental delay',
+              },
             ],
           },
         ],
@@ -246,7 +251,12 @@ describe('AnnotatedDocumentPane', () => {
             status: 'affirmed',
             evidence_mode: 'span',
             annotations: [
-              { id: 'ann-1', start_char: 0, end_char: 19, matched_text_in_chunk: 'Developmental delay' },
+              {
+                id: 'ann-1',
+                start_char: 0,
+                end_char: 19,
+                matched_text_in_chunk: 'Developmental delay',
+              },
             ],
           },
         ],
@@ -305,10 +315,50 @@ describe('AnnotatedDocumentPane', () => {
     await waitForHighlightSync(wrapper);
 
     expect(deleteFn.mock.calls.some(([name]) => name.endsWith('annotation-ann-1'))).toBe(true);
-    expect(deleteFn.mock.calls.some(([name]) => name.endsWith('annotation-selected-ann-2'))).toBe(true);
+    expect(deleteFn.mock.calls.some(([name]) => name.endsWith('annotation-selected-ann-2'))).toBe(
+      true
+    );
     expect(set.mock.calls.some(([name]) => name.endsWith('annotation-selected-ann-1'))).toBe(true);
     expect(set.mock.calls.some(([name]) => name.endsWith('annotation-ann-2'))).toBe(true);
     expect(document.head.innerHTML).toContain('annotation-selected-ann-1');
+  });
+
+  it('maps custom highlight offsets across text nodes instead of assuming the first node contains the whole chunk', async () => {
+    const { set } = installCustomHighlightSupport();
+    const component = await loadComponent();
+    const wrapper = mount(component, {
+      props: {
+        chunks: [
+          {
+            chunk_id: 2,
+            text: 'Developmental delay with seizures.',
+            evidence_mode: 'span',
+            annotations: [{ id: 'ann-1', start_char: 25, end_char: 33 }],
+          },
+        ],
+      },
+      global: {
+        stubs: popoverStub(),
+      },
+    });
+
+    const chunkText = wrapper.find('.chunk-text').element;
+    chunkText.insertBefore(document.createTextNode(''), chunkText.firstChild);
+    chunkText.appendChild(document.createTextNode(''));
+
+    await wrapper.setProps({ selectedAnnotationIds: ['ann-1'] });
+    await waitForHighlightSync(wrapper);
+
+    const highlightCall = set.mock.calls.find(([name]) =>
+      name.endsWith('annotation-selected-ann-1')
+    );
+
+    expect(highlightCall).toBeDefined();
+    expect(highlightCall[1].ranges).toHaveLength(1);
+    expect(highlightCall[1].ranges[0].start.offset).toBeGreaterThan(0);
+    expect(highlightCall[1].ranges[0].end.offset).toBeGreaterThan(
+      highlightCall[1].ranges[0].start.offset
+    );
   });
 
   it('keeps custom highlight registrations isolated across pane instances', async () => {
@@ -359,14 +409,18 @@ describe('AnnotatedDocumentPane', () => {
     const uniqueHighlightNames = [...new Set(highlightNames)];
 
     expect(uniqueHighlightNames).toHaveLength(2);
-    expect(document.head.querySelectorAll('[data-annotated-document-highlight-style]')).toHaveLength(2);
+    expect(
+      document.head.querySelectorAll('[data-annotated-document-highlight-style]')
+    ).toHaveLength(2);
 
     firstWrapper.unmount();
 
     const deletedNames = deleteFn.mock.calls.map(([name]) => name);
 
     expect(uniqueHighlightNames.filter((name) => deletedNames.includes(name))).toHaveLength(1);
-    expect(document.head.querySelectorAll('[data-annotated-document-highlight-style]')).toHaveLength(1);
+    expect(
+      document.head.querySelectorAll('[data-annotated-document-highlight-style]')
+    ).toHaveLength(1);
 
     secondWrapper.unmount();
   });
@@ -418,9 +472,9 @@ describe('AnnotatedDocumentPane', () => {
       name.endsWith('annotation-shared-ann')
     );
 
-    expect(deleteFn.mock.calls.some(([name]) => name.endsWith('annotation-selected-shared-ann'))).toBe(
-      true
-    );
+    expect(
+      deleteFn.mock.calls.some(([name]) => name.endsWith('annotation-selected-shared-ann'))
+    ).toBe(true);
     expect(unselectedSharedCall).toBeDefined();
     expect(unselectedSharedCall[1].ranges).toHaveLength(2);
   });
@@ -449,7 +503,9 @@ describe('AnnotatedDocumentPane', () => {
     expect(wrapper.text()).toContain('ABCDEFGH');
     expect(wrapper.find('mark[data-annotation-id="ann-1"]').exists()).toBe(true);
     expect(wrapper.find('mark[data-annotation-id="ann-2"]').exists()).toBe(true);
-    expect(wrapper.find('mark[data-annotation-id="ann-1"] mark[data-annotation-id="ann-2"]').exists()).toBe(true);
+    expect(
+      wrapper.find('mark[data-annotation-id="ann-1"] mark[data-annotation-id="ann-2"]').exists()
+    ).toBe(true);
     expect(
       wrapper.findAll('mark[data-annotation-id="ann-1"]').some((node) => node.text().includes('AB'))
     ).toBe(true);
@@ -468,7 +524,12 @@ describe('AnnotatedDocumentPane', () => {
             text: 'Developmental delay was present.',
             evidence_mode: 'span',
             annotations: [
-              { id: 'ann-1', start_char: 0, end_char: 19, matched_text_in_chunk: 'Developmental delay' },
+              {
+                id: 'ann-1',
+                start_char: 0,
+                end_char: 19,
+                matched_text_in_chunk: 'Developmental delay',
+              },
             ],
           },
         ],
@@ -553,7 +614,12 @@ describe('AnnotatedDocumentPane', () => {
             text: 'Developmental delay was present.',
             evidence_mode: 'span',
             annotations: [
-              { id: 'ann-1', start_char: 0, end_char: 19, matched_text_in_chunk: 'Developmental delay' },
+              {
+                id: 'ann-1',
+                start_char: 0,
+                end_char: 19,
+                matched_text_in_chunk: 'Developmental delay',
+              },
             ],
           },
         ],
@@ -624,7 +690,12 @@ describe('AnnotatedDocumentPane', () => {
             text: 'Developmental delay was present.',
             evidence_mode: 'span',
             annotations: [
-              { id: 'ann-1', start_char: 0, end_char: 19, matched_text_in_chunk: 'Developmental delay' },
+              {
+                id: 'ann-1',
+                start_char: 0,
+                end_char: 19,
+                matched_text_in_chunk: 'Developmental delay',
+              },
             ],
           },
         ],

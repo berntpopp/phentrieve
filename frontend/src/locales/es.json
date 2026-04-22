@@ -5,7 +5,8 @@
     "delete": "Eliminar",
     "reset": "Restablecer",
     "close": "Cerrar",
-    "dismiss": "Descartar"
+    "dismiss": "Descartar",
+    "unknown": "Desconocido"
   },
   "conversationSettings": {
     "tooltip": "Configuración de conversación",
@@ -70,6 +71,9 @@
     "welcomeText": "Phentrieve es una herramienta impulsada por IA que mapea con precisión texto clínico a términos estandarizados de la Ontología de Fenotipo Humano (HPO), agilizando la anotación de fenotipos para investigación y diagnóstico.",
     "queryModeLabel": "Modo de consulta",
     "documentModeLabel": "Modo de documento",
+    "modeSwitch": {
+      "autoFullTextNotice": "Se cambió automáticamente a Texto completo para textos clínicos largos"
+    },
     "inputLabel": "Introducir descripción de texto clínico",
     "examples": {
       "title": "Ejemplos",
@@ -113,6 +117,8 @@
       "assertionToggle": "Cambiar estado de afirmación",
       "assertionStatus": {
         "affirmed": "Afirmado",
+        "present": "Presente",
+        "absent": "Ausente",
         "negated": "Negado",
         "unknown": "Desconocido"
       },
@@ -193,6 +199,14 @@
       "selectQueryLanguage": "Seleccionar idioma de consulta",
       "queryLanguageDescription": "Elija el idioma para el procesamiento de la consulta. Seleccionado actualmente: {selectedLanguage}",
       "includeDetailsSwitch": "Incluir definiciones y sinónimos de términos HPO"
+    }
+  },
+  "annotatedDocumentPane": {
+    "actions": {
+      "inspect": "Inspeccionar",
+      "addToCase": "Agregar al caso",
+      "changeTerm": "Cambiar término",
+      "removeAnnotation": "Eliminar anotación"
     }
   },
   "resultsDisplay": {

@@ -196,11 +196,11 @@
             <v-select
               :model-value="textProcessOptions.extractionBackend"
               :items="[
+                { title: $t('queryInterface.advancedOptions.llmExtraction'), value: 'llm' },
                 {
                   title: $t('queryInterface.advancedOptions.standardExtraction'),
                   value: 'standard',
                 },
-                { title: $t('queryInterface.advancedOptions.llmExtraction'), value: 'llm' },
               ]"
               item-title="title"
               item-value="value"
@@ -528,7 +528,7 @@ const panelProps = defineProps({
   textProcessOptions: {
     type: Object,
     default: () => ({
-      extractionBackend: 'standard',
+      extractionBackend: 'llm',
     }),
   },
   chunkingStrategy: { type: String, default: 'sliding_window_punct_conj_cleaned' },
@@ -544,7 +544,7 @@ const panelProps = defineProps({
 });
 
 const resolvedTextProcessOptions = computed(() => ({
-  extractionBackend: 'standard',
+  extractionBackend: 'llm',
   llmModel: panelProps.defaultLlmModel,
   llmMode: panelProps.defaultLlmMode ?? 'two_phase',
   ...panelProps.textProcessOptions,

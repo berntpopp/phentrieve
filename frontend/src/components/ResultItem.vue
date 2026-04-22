@@ -1,106 +1,84 @@
 <template>
-  <v-list-item
-    class="mb-1 rounded-lg"
+  <PhenotypeCardRow
+    :hpo-id="result.hpo_id"
+    :label="result.label"
     :color="isCollected ? 'primary-lighten-5' : 'grey-lighten-5'"
-    border
-    density="compact"
   >
     <template #prepend>
       <v-badge :content="rank" color="primary" inline class="mr-2" />
     </template>
 
-    <v-list-item-title class="pb-2">
-      <div class="d-flex flex-wrap align-center">
-        <!-- HPO ID and Label on the left -->
-        <div class="flex-grow-1">
-          <div class="d-flex align-center mb-1">
-            <a
-              :href="hpoTermUrl(result.hpo_id)"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="hpo-link"
-              :title="`View ${result.hpo_id} in HPO Browser`"
-            >
-              <span class="hpo-id font-weight-bold">{{ result.hpo_id }}</span>
-              <v-icon size="x-small" class="ml-1">mdi-open-in-new</v-icon>
-            </a>
-            <v-btn
-              v-if="hasDetails"
-              variant="text"
-              size="x-small"
-              icon
-              density="compact"
-              class="ml-1"
-              @click.stop="detailsExpanded = !detailsExpanded"
-            >
-              <v-icon size="small">
-                {{ detailsExpanded ? 'mdi-chevron-up' : 'mdi-information' }}
-              </v-icon>
-              <v-tooltip
-                activator="parent"
-                location="top"
-                :content-props="{
-                  'aria-label': detailsExpanded
-                    ? $t('resultsDisplay.hideDetails', 'Hide details')
-                    : $t('resultsDisplay.showDetails', 'Show details'),
-                }"
-              >
-                {{
-                  detailsExpanded
-                    ? $t('resultsDisplay.hideDetails', 'Hide details')
-                    : $t('resultsDisplay.showDetails', 'Show details')
-                }}
-              </v-tooltip>
-            </v-btn>
-          </div>
-          <div class="d-flex align-center">
-            <span class="text-body-2 text-high-emphasis hpo-label">{{ result.label }}</span>
-          </div>
-        </div>
+    <template #inline-tools>
+      <v-btn
+        v-if="hasDetails"
+        variant="text"
+        size="x-small"
+        icon
+        density="compact"
+        class="ml-1"
+        @click.stop="detailsExpanded = !detailsExpanded"
+      >
+        <v-icon size="small">
+          {{ detailsExpanded ? 'mdi-chevron-up' : 'mdi-information' }}
+        </v-icon>
+        <v-tooltip
+          activator="parent"
+          location="top"
+          :content-props="{
+            'aria-label': detailsExpanded
+              ? $t('resultsDisplay.hideDetails', 'Hide details')
+              : $t('resultsDisplay.showDetails', 'Show details'),
+          }"
+        >
+          {{
+            detailsExpanded
+              ? $t('resultsDisplay.hideDetails', 'Hide details')
+              : $t('resultsDisplay.showDetails', 'Show details')
+          }}
+        </v-tooltip>
+      </v-btn>
+    </template>
 
-        <!-- Score chips and Add button on the right -->
-        <div class="d-flex align-center ml-auto">
-          <div class="d-flex flex-row align-center gap-1 mr-2 score-chips-container">
-            <SimilarityScore
-              :score="result.similarity"
-              type="similarity"
-              :decimals="2"
-              :show-animation="false"
-            />
-          </div>
-
-          <v-btn
-            :icon="isCollected ? 'mdi-check-circle' : 'mdi-plus-circle'"
-            size="small"
-            :color="isCollected ? 'success' : 'primary'"
-            variant="text"
-            class="flex-shrink-0 add-btn"
-            :disabled="isCollected"
-            :title="
-              isCollected
-                ? $t('resultsDisplay.alreadyInCollectionTooltip', { id: result.hpo_id })
-                : $t('resultsDisplay.addToCollectionTooltip', { id: result.hpo_id })
-            "
-            :aria-label="
-              isCollected
-                ? $t('resultsDisplay.alreadyInCollectionAriaLabel', {
-                    id: result.hpo_id,
-                    label: result.label,
-                  })
-                : $t('resultsDisplay.addToCollectionAriaLabel', {
-                    id: result.hpo_id,
-                    label: result.label,
-                  })
-            "
-            @click.stop="$emit('add-to-collection', result)"
-          />
-        </div>
+    <template #actions>
+      <div class="d-flex flex-row align-center gap-1 mr-2 score-chips-container">
+        <SimilarityScore
+          :score="displayScore"
+          :type="scoreType"
+          :decimals="2"
+          :show-animation="false"
+        />
       </div>
 
-      <!-- Expandable Details Section -->
+      <v-btn
+        :icon="isCollected ? 'mdi-check-circle' : 'mdi-plus-circle'"
+        size="small"
+        :color="isCollected ? 'success' : 'primary'"
+        variant="text"
+        class="flex-shrink-0 add-btn"
+        :disabled="isCollected"
+        :title="
+          isCollected
+            ? $t('resultsDisplay.alreadyInCollectionTooltip', { id: result.hpo_id })
+            : $t('resultsDisplay.addToCollectionTooltip', { id: result.hpo_id })
+        "
+        :aria-label="
+          isCollected
+            ? $t('resultsDisplay.alreadyInCollectionAriaLabel', {
+                id: result.hpo_id,
+                label: result.label,
+              })
+            : $t('resultsDisplay.addToCollectionAriaLabel', {
+                id: result.hpo_id,
+                label: result.label,
+              })
+        "
+        @click.stop="$emit('add-to-collection', result)"
+      />
+    </template>
+
+    <template #details>
       <v-expand-transition>
         <div v-if="detailsExpanded && hasDetails" class="mt-3 pt-3 details-section">
-          <!-- Definition -->
           <div v-if="result.definition && result.definition.trim()" class="mb-3">
             <div class="text-caption text-medium-emphasis mb-1 font-weight-bold">
               {{ $t('resultsDisplay.definitionLabel', 'Definition') }}:
@@ -110,7 +88,6 @@
             </div>
           </div>
 
-          <!-- Synonyms -->
           <div v-if="result.synonyms && result.synonyms.length > 0" class="mb-2">
             <div class="text-caption text-medium-emphasis mb-1 font-weight-bold">
               {{ $t('resultsDisplay.synonymsLabel', 'Synonyms') }}:
@@ -130,18 +107,14 @@
           </div>
         </div>
       </v-expand-transition>
-    </v-list-item-title>
-
-    <template #append>
-      <!-- Append content moved to subtitle for better space usage -->
     </template>
-  </v-list-item>
+  </PhenotypeCardRow>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue';
 import SimilarityScore from './SimilarityScore.vue';
-import { HPO_TERM_URL } from '../constants/urls';
+import PhenotypeCardRow from './PhenotypeCardRow.vue';
 
 const props = defineProps({
   result: { type: Object, required: true },
@@ -160,34 +133,52 @@ const hasDetails = computed(() => {
   );
 });
 
-function hpoTermUrl(hpoId) {
-  return HPO_TERM_URL(hpoId);
+function parseScoreValue(value) {
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return value;
+  }
+
+  if (typeof value === 'string' && value.trim() !== '') {
+    const parsed = Number.parseFloat(value);
+    if (Number.isFinite(parsed)) {
+      return parsed;
+    }
+  }
+
+  return null;
 }
+
+const displayScore = computed(() => {
+  const explicitScore = parseScoreValue(props.result.score);
+  if (explicitScore != null) {
+    return explicitScore;
+  }
+
+  const confidenceScore = parseScoreValue(props.result.confidence);
+  if (confidenceScore != null) {
+    return confidenceScore;
+  }
+
+  return parseScoreValue(props.result.similarity) ?? 0;
+});
+
+const scoreType = computed(() => {
+  if (props.result.scoreType === 'confidence' || props.result.scoreType === 'similarity') {
+    return props.result.scoreType;
+  }
+
+  if (
+    parseScoreValue(props.result.confidence) != null &&
+    parseScoreValue(props.result.similarity) == null
+  ) {
+    return 'confidence';
+  }
+
+  return 'similarity';
+});
 </script>
 
 <style scoped>
-.hpo-id {
-  font-weight: bold;
-  white-space: nowrap;
-}
-
-.hpo-link {
-  text-decoration: none;
-  color: inherit;
-  display: inline-flex;
-  align-items: center;
-  transition: color 0.2s;
-}
-
-.hpo-link:hover {
-  color: var(--v-theme-primary);
-}
-
-.hpo-label {
-  max-width: 100%;
-  display: inline-block;
-}
-
 .add-btn {
   transform: scale(1.2);
   margin-left: 8px;

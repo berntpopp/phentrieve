@@ -5,7 +5,8 @@
     "delete": "Löschen",
     "reset": "Zurücksetzen",
     "close": "Schließen",
-    "dismiss": "Schließen"
+    "dismiss": "Schließen",
+    "unknown": "Unbekannt"
   },
   "conversationSettings": {
     "tooltip": "Konversationseinstellungen",
@@ -70,6 +71,9 @@
     "welcomeText": "Phentrieve ist ein KI-gestütztes Tool, das klinischen Text präzise standardisierten Human Phenotype Ontology (HPO)-Begriffen zuordnet und so die Phänotyp-Annotation für Forschung und Diagnostik optimiert.",
     "queryModeLabel": "Abfragemodus",
     "documentModeLabel": "Dokumentenmodus",
+    "modeSwitch": {
+      "autoFullTextNotice": "Fuer laengere klinische Texte wurde automatisch zu Volltext gewechselt"
+    },
     "inputLabel": "Klinische Textbeschreibung eingeben",
     "examples": {
       "title": "Beispiele",
@@ -113,6 +117,8 @@
       "assertionToggle": "Aussagestatus umschalten",
       "assertionStatus": {
         "affirmed": "Bestätigt",
+        "present": "Vorhanden",
+        "absent": "Nicht vorhanden",
         "negated": "Verneint",
         "unknown": "Unbekannt"
       },
@@ -193,6 +199,14 @@
       "selectQueryLanguage": "Abfragesprache auswählen",
       "queryLanguageDescription": "Sprache für die Abfrageverarbeitung auswählen. Aktuell ausgewählt: {selectedLanguage}",
       "includeDetailsSwitch": "HPO-Begriff-Definitionen und Synonyme einschließen"
+    }
+  },
+  "annotatedDocumentPane": {
+    "actions": {
+      "inspect": "Pruefen",
+      "addToCase": "Zum Fall hinzufuegen",
+      "changeTerm": "Begriff aendern",
+      "removeAnnotation": "Annotation entfernen"
     }
   },
   "resultsDisplay": {

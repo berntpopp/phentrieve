@@ -35,14 +35,20 @@ def ensure_directory_exists(directory_path):
 
 def setup_environment():
     """Load environment variables and ensure directories exist."""
+    api_dir = Path(__file__).parent
+    project_root = api_dir.parent
+
     # Load environment from config file
-    config_path = Path(__file__).parent / "local_api_config.env"
+    config_path = api_dir / "local_api_config.env"
     if not config_path.exists():
         logger.error(f"Configuration file not found: {config_path}")
         logger.info("Please create the configuration file based on the template.")
         sys.exit(1)
 
-    load_dotenv(config_path)
+    # Local launcher supports both the API-specific env file and the repo root
+    # .env used by development tooling. Existing process env still wins.
+    load_dotenv(project_root / ".env", override=False)
+    load_dotenv(config_path, override=False)
 
     # Get environment variables with defaults
     data_root = os.environ.get(
@@ -66,7 +72,7 @@ def setup_environment():
     ensure_directory_exists(results_dir)
 
     # Set PYTHONPATH to include the project root
-    project_root = Path(__file__).parent.parent.absolute()
+    project_root = project_root.absolute()
     sys.path.insert(0, str(project_root))
     os.environ["PYTHONPATH"] = str(project_root)
 

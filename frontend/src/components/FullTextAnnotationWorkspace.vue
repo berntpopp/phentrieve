@@ -1,78 +1,163 @@
 <template>
-  <v-card class="full-text-workspace" rounded="lg" elevation="1">
-    <v-card-title class="d-flex justify-space-between align-center ga-3">
-      <div>
-        <div class="text-subtitle-1">Full-text analysis</div>
-        <div v-if="bannerText" class="text-caption text-medium-emphasis">
-          {{ bannerText }}
-        </div>
-      </div>
-      <v-btn
-        variant="text"
-        size="small"
-        :icon="expanded ? 'mdi-chevron-up' : 'mdi-chevron-down'"
-        @click="toggleExpanded"
-      />
-    </v-card-title>
-
-    <v-alert
-      v-if="fallbackBanner"
-      type="info"
-      density="compact"
-      variant="tonal"
-      class="mx-4 mb-2"
-    >
+  <section
+    class="full-text-workspace"
+    :class="{ 'full-text-workspace--embedded': !showCaseWorkspace }"
+  >
+    <v-alert v-if="fallbackBanner" type="info" density="compact" variant="tonal" class="mb-3">
       {{ fallbackBanner }}
     </v-alert>
 
-    <v-expand-transition>
-      <div v-show="expanded" class="workspace-layout">
-        <div class="workspace-main">
-          <AnnotatedDocumentPane
-            :chunks="workspaceChunks"
-            :selected-annotation-ids="selectedAnnotationIds"
-          />
-          <PhenotypeFindingsPane
-            :terms="workspaceTerms"
-            @inspect-term="inspectTerm"
-            @hover-term="highlightTerm"
-            @clear-hover="clearHighlight"
-          />
-        </div>
+    <template v-if="!showCaseWorkspace">
+      <PhenotypeFindingsPane
+        :terms="workspaceTerms"
+        @inspect-term="inspectTerm"
+        @hover-term="highlightTerm"
+        @clear-hover="clearHighlight"
+        @add-all-to-collection="$emit('add-all-to-collection', $event)"
+      />
 
-        <AnnotationInspectorPanel
-          v-if="sidebarMode === SIDEBAR_MODE_INSPECTOR"
-          :selected-term="selectedTerm"
-          @back="showCaseSidebar"
+      <section v-if="showDocumentPane" class="full-text-embedded__document">
+        <div class="text-subtitle-2 mb-2">Evidence in note</div>
+        <AnnotatedDocumentPane
+          :chunks="workspaceChunks"
+          :selected-annotation-ids="selectedAnnotationIds"
         />
-        <CaseWorkspacePanel
-          v-else
-          :cases="cases"
-          :active-case-id="activeCaseId || ''"
-          @create-case="createCase"
-          @select-case="selectCase"
-          @add-all="addAllPhenotypes"
-          @export-case="exportActiveCase"
+      </section>
+    </template>
+
+    <template v-else>
+      <div class="full-text-workspace__header d-flex justify-space-between align-center ga-3">
+        <div class="full-text-workspace__title-block">
+          <div class="text-subtitle-1">Full-text analysis</div>
+          <div v-if="bannerText" class="text-caption text-medium-emphasis">
+            {{ bannerText }}
+          </div>
+        </div>
+        <v-btn
+          variant="text"
+          size="small"
+          :icon="expanded ? 'mdi-chevron-up' : 'mdi-chevron-down'"
+          @click="toggleExpanded"
         />
       </div>
-    </v-expand-transition>
-  </v-card>
+
+      <v-expand-transition>
+        <div v-show="expanded">
+          <div class="workspace-mobile-nav">
+            <v-btn
+              v-if="showDocumentPane"
+              size="small"
+              rounded="pill"
+              :variant="mobilePane === 'document' ? 'tonal' : 'text'"
+              color="primary"
+              @click="mobilePane = 'document'"
+            >
+              Document
+            </v-btn>
+            <v-btn
+              size="small"
+              rounded="pill"
+              :variant="mobilePane === 'findings' ? 'tonal' : 'text'"
+              color="primary"
+              @click="mobilePane = 'findings'"
+            >
+              Findings
+            </v-btn>
+            <v-btn
+              v-if="showCaseWorkspace"
+              size="small"
+              rounded="pill"
+              :variant="mobilePane === 'case' ? 'tonal' : 'text'"
+              color="primary"
+              @click="mobilePane = 'case'"
+            >
+              Case
+            </v-btn>
+          </div>
+
+          <div
+            class="workspace-layout workspace-layout--desktop"
+            :class="{
+              'workspace-layout--desktop-findings-only': !showDocumentPane,
+              'workspace-layout--desktop-no-sidebar': !showSidebarPane,
+            }"
+          >
+            <AnnotatedDocumentPane
+              v-if="showDocumentPane"
+              :chunks="workspaceChunks"
+              :selected-annotation-ids="selectedAnnotationIds"
+            />
+            <PhenotypeFindingsPane
+              :terms="workspaceTerms"
+              @inspect-term="inspectTerm"
+              @hover-term="highlightTerm"
+              @clear-hover="clearHighlight"
+              @add-all-to-collection="$emit('add-all-to-collection', $event)"
+            />
+            <AnnotationInspectorPanel
+              v-if="sidebarMode === SIDEBAR_MODE_INSPECTOR"
+              :selected-term="selectedTerm"
+              @back="showCaseSidebar"
+            />
+            <CaseWorkspacePanel
+              v-else-if="showCaseWorkspace"
+              :cases="cases"
+              :active-case-id="activeCaseId || ''"
+              @create-case="createCase"
+              @select-case="selectCase"
+              @add-all="addAllPhenotypes"
+              @export-case="exportActiveCase"
+            />
+          </div>
+
+          <div class="workspace-layout workspace-layout--mobile">
+            <AnnotatedDocumentPane
+              v-if="showDocumentPane && mobilePane === 'document'"
+              :chunks="workspaceChunks"
+              :selected-annotation-ids="selectedAnnotationIds"
+            />
+            <PhenotypeFindingsPane
+              v-else-if="!showDocumentPane || mobilePane === 'findings'"
+              :terms="workspaceTerms"
+              @inspect-term="inspectTerm"
+              @hover-term="highlightTerm"
+              @clear-hover="clearHighlight"
+              @add-all-to-collection="$emit('add-all-to-collection', $event)"
+            />
+            <AnnotationInspectorPanel
+              v-else-if="sidebarMode === SIDEBAR_MODE_INSPECTOR"
+              :selected-term="selectedTerm"
+              @back="showCaseSidebar"
+            />
+            <CaseWorkspacePanel
+              v-else-if="showCaseWorkspace"
+              :cases="cases"
+              :active-case-id="activeCaseId || ''"
+              @create-case="createCase"
+              @select-case="selectCase"
+              @add-all="addAllPhenotypes"
+              @export-case="exportActiveCase"
+            />
+          </div>
+        </div>
+      </v-expand-transition>
+    </template>
+  </section>
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import AnnotatedDocumentPane from './AnnotatedDocumentPane.vue';
 import AnnotationInspectorPanel from './AnnotationInspectorPanel.vue';
 import CaseWorkspacePanel from './CaseWorkspacePanel.vue';
 import PhenotypeFindingsPane from './PhenotypeFindingsPane.vue';
 import PhentrieveService from '../services/PhentrieveService';
-import {
-  SIDEBAR_MODE_CASE,
-  SIDEBAR_MODE_INSPECTOR,
-} from '../constants/fullTextWorkspace';
+import { SIDEBAR_MODE_CASE, SIDEBAR_MODE_INSPECTOR } from '../constants/fullTextWorkspace';
 import { useFileDownload } from '../composables/useFileDownload';
 import { useFullTextWorkspaceStore } from '../stores/fullTextWorkspace';
+
+defineEmits(['add-all-to-collection']);
 
 const props = defineProps({
   responseData: {
@@ -83,11 +168,20 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  submittedText: {
+    type: String,
+    default: '',
+  },
+  showCaseWorkspace: {
+    type: Boolean,
+    default: true,
+  },
 });
 
 const { t } = useI18n();
 const workspaceStore = useFullTextWorkspaceStore();
 const { downloadJson, downloadText } = useFileDownload();
+const mobilePane = ref('document');
 
 if (!workspaceStore.hasTurn(props.turnId)) {
   workspaceStore.initializeTurn(props.turnId);
@@ -100,8 +194,30 @@ const selectedPhenotypeId = computed(() => turnState.value?.selectedPhenotypeId 
 const cases = computed(() => turnState.value?.cases ?? []);
 const activeCaseId = computed(() => turnState.value?.activeCaseId ?? null);
 const workspaceTerms = computed(() => props.responseData?.aggregated_hpo_terms ?? []);
+const usesSubmittedTextFallback = computed(
+  () =>
+    (props.responseData?.processed_chunks?.length ?? 0) === 0 &&
+    typeof props.submittedText === 'string' &&
+    props.submittedText.trim().length > 0
+);
+const fallbackAnnotations = computed(() =>
+  usesSubmittedTextFallback.value
+    ? buildSubmittedTextAnnotations(props.submittedText, workspaceTerms.value)
+    : []
+);
 
 const workspaceChunks = computed(() => {
+  if (usesSubmittedTextFallback.value) {
+    return [
+      {
+        chunk_id: '__submitted_note__',
+        text: props.submittedText,
+        evidence_mode: fallbackAnnotations.value.length > 0 ? 'span' : 'chunk',
+        annotations: fallbackAnnotations.value,
+      },
+    ];
+  }
+
   const annotationsByChunk = new Map();
 
   workspaceTerms.value.forEach((term) => {
@@ -126,8 +242,7 @@ const workspaceChunks = computed(() => {
 
   return (props.responseData?.processed_chunks ?? []).map((chunk) => ({
     ...chunk,
-    evidence_mode:
-      (annotationsByChunk.get(chunk.chunk_id) || []).length > 0 ? 'span' : 'chunk',
+    evidence_mode: (annotationsByChunk.get(chunk.chunk_id) || []).length > 0 ? 'span' : 'chunk',
     annotations: annotationsByChunk.get(chunk.chunk_id) || [],
   }));
 });
@@ -137,7 +252,15 @@ const selectedAnnotationIds = computed(() => {
     return [];
   }
 
-  const matchingTerm = workspaceTerms.value.find((term) => term.hpo_id === selectedPhenotypeId.value);
+  if (usesSubmittedTextFallback.value) {
+    return fallbackAnnotations.value
+      .filter((annotation) => annotation.termId === selectedPhenotypeId.value)
+      .map((annotation) => annotation.id);
+  }
+
+  const matchingTerm = workspaceTerms.value.find(
+    (term) => term.hpo_id === selectedPhenotypeId.value
+  );
   if (!matchingTerm || !Array.isArray(matchingTerm.text_attributions)) {
     return [];
   }
@@ -150,10 +273,23 @@ const selectedAnnotationIds = computed(() => {
 const selectedTerm = computed(
   () => workspaceTerms.value.find((term) => term.hpo_id === selectedPhenotypeId.value) || null
 );
+const showSidebarPane = computed(
+  () => sidebarMode.value === SIDEBAR_MODE_INSPECTOR || props.showCaseWorkspace
+);
+const showDocumentPane = computed(() => {
+  if ((props.responseData?.processed_chunks?.length ?? 0) > 0) {
+    return true;
+  }
+  return fallbackAnnotations.value.length > 0;
+});
 
 const bannerText = computed(() => {
   const meta = props.responseData?.meta || {};
-  if (meta.extraction_backend === 'llm' && meta.quota_remaining != null && meta.quota_limit != null) {
+  if (
+    meta.extraction_backend === 'llm' &&
+    meta.quota_remaining != null &&
+    meta.quota_limit != null
+  ) {
     return `${meta.quota_remaining} / ${meta.quota_limit} LLM analyses remaining today`;
   }
 
@@ -169,7 +305,8 @@ const fallbackBanner = computed(() => {
     return '';
   }
 
-  const resetAt = props.responseData?.meta?.llm_quota_reset_at || props.responseData?.meta?.quota_reset_at;
+  const resetAt =
+    props.responseData?.meta?.llm_quota_reset_at || props.responseData?.meta?.quota_reset_at;
   const resetText = resetAt ? new Date(resetAt).toLocaleString() : t('common.unknown');
   return `Richer LLM analysis is unavailable for today. Standard full-text analysis is shown instead. LLM access resets ${resetText}.`;
 });
@@ -254,29 +391,125 @@ async function exportActiveCase() {
     downloadJson(bundle.annotation_sidecar, `${activeCase.id}.annotations.json`);
   }
 }
+
+function buildSubmittedTextAnnotations(submittedText, terms) {
+  const noteText = typeof submittedText === 'string' ? submittedText : '';
+  const normalizedNote = noteText.toLowerCase();
+
+  return terms.flatMap((term) => {
+    const attributions = Array.isArray(term.text_attributions) ? term.text_attributions : [];
+
+    return attributions
+      .map((attribution, index) => {
+        const range = resolveSubmittedTextRange(normalizedNote, attribution);
+        if (!range) {
+          return null;
+        }
+
+        return {
+          id: `${term.hpo_id}-submitted-note-${index}`,
+          termId: term.hpo_id,
+          start_char: range.start,
+          end_char: range.end,
+          matched_text_in_chunk:
+            attribution.matched_text_in_chunk || noteText.slice(range.start, range.end),
+        };
+      })
+      .filter(Boolean);
+  });
+}
+
+function resolveSubmittedTextRange(normalizedNote, attribution) {
+  const matchedText =
+    typeof attribution?.matched_text_in_chunk === 'string' ? attribution.matched_text_in_chunk : '';
+  if (!matchedText) {
+    return null;
+  }
+
+  const start = normalizedNote.indexOf(matchedText.toLowerCase());
+  if (start === -1) {
+    return null;
+  }
+
+  return {
+    start,
+    end: start + matchedText.length,
+  };
+}
 </script>
 
 <style scoped>
 .full-text-workspace {
   overflow: hidden;
+  display: grid;
+  gap: 12px;
 }
 
-.workspace-layout {
-  display: grid;
-  grid-template-columns: minmax(0, 2fr) minmax(280px, 360px);
+.full-text-workspace--embedded {
   gap: 16px;
-  padding: 16px;
 }
 
-.workspace-main {
-  display: grid;
-  gap: 16px;
+.full-text-workspace__header {
+  padding-inline: 4px;
+}
+
+.full-text-workspace__title-block {
   min-width: 0;
 }
 
+.full-text-embedded__document {
+  display: grid;
+  gap: 8px;
+}
+
+.workspace-layout {
+  gap: 16px;
+}
+
+.workspace-layout--desktop {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.95fr) minmax(260px, 320px);
+  align-items: start;
+}
+
+.workspace-layout--desktop-no-sidebar {
+  grid-template-columns: minmax(0, 1.3fr) minmax(320px, 0.95fr);
+}
+
+.workspace-layout--desktop-findings-only {
+  grid-template-columns: minmax(0, 1.4fr);
+}
+
+.workspace-layout--desktop-findings-only > :deep(.findings-pane) {
+  max-width: 860px;
+}
+
+.workspace-layout--desktop > * {
+  min-width: 0;
+}
+
+.workspace-layout--mobile {
+  display: none;
+}
+
+.workspace-mobile-nav {
+  display: none;
+}
+
 @media (max-width: 960px) {
-  .workspace-layout {
-    grid-template-columns: 1fr;
+  .workspace-mobile-nav {
+    display: flex;
+    gap: 8px;
+    padding: 0 16px 8px;
+    overflow-x: auto;
+  }
+
+  .workspace-layout--desktop {
+    display: none;
+  }
+
+  .workspace-layout--mobile {
+    display: block;
   }
 }
 </style>

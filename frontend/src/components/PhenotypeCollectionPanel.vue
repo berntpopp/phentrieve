@@ -86,11 +86,7 @@
               label
               variant="flat"
             >
-              {{
-                $t(
-                  `queryInterface.phenotypeCollection.assertionStatus.${phenotype.assertion_status || 'affirmed'}`
-                )
-              }}
+              {{ assertionStatusLabel(phenotype.assertion_status) }}
             </v-chip>
           </v-list-item-title>
           <v-list-item-subtitle class="wrap-text">
@@ -363,6 +359,36 @@ export default {
     bridgeLabels() {
       const locale = resolveCaseWorkspaceBridgeLocale(this.$i18n?.locale);
       return CASE_WORKSPACE_BRIDGE_LABELS[locale] ?? CASE_WORKSPACE_BRIDGE_LABELS.en;
+    },
+  },
+  methods: {
+    normalizeAssertionStatus(status) {
+      if (status === 'present') {
+        return 'affirmed';
+      }
+
+      if (status === 'absent') {
+        return 'negated';
+      }
+
+      if (status === 'affirmed' || status === 'negated' || status === 'unknown') {
+        return status;
+      }
+
+      return 'unknown';
+    },
+    assertionStatusLabel(status) {
+      const normalizedStatus = this.normalizeAssertionStatus(status);
+
+      if (normalizedStatus === 'affirmed') {
+        return this.$t('queryInterface.phenotypeCollection.assertionStatus.affirmed');
+      }
+
+      if (normalizedStatus === 'negated') {
+        return this.$t('queryInterface.phenotypeCollection.assertionStatus.negated');
+      }
+
+      return this.$t('queryInterface.phenotypeCollection.assertionStatus.unknown');
     },
   },
 };
