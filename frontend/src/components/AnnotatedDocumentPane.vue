@@ -59,7 +59,16 @@
 </template>
 
 <script setup>
-import { computed, defineComponent, h, nextTick, onBeforeUnmount, ref, watch } from 'vue';
+import {
+  computed,
+  defineComponent,
+  getCurrentInstance,
+  h,
+  nextTick,
+  onBeforeUnmount,
+  ref,
+  watch,
+} from 'vue';
 import AnnotationActionPopover from './AnnotationActionPopover.vue';
 
 const NestedAnnotationMarks = defineComponent({
@@ -129,6 +138,7 @@ const supportsCustomHighlight =
   typeof globalThis.Highlight !== 'undefined' &&
   typeof globalThis.CSS.highlights !== 'undefined';
 
+const paneInstanceId = `pane-${getCurrentInstance()?.uid ?? 'unknown'}`;
 const customHighlightNames = new Set();
 let customHighlightStyleElement = null;
 const rootElement = ref(null);
@@ -252,7 +262,9 @@ function buildMarkedSegments(chunk) {
 }
 
 function getHighlightName(annotationId, selected) {
-  return selected ? `annotation-selected-${annotationId}` : `annotation-${annotationId}`;
+  return selected
+    ? `${paneInstanceId}-annotation-selected-${annotationId}`
+    : `${paneInstanceId}-annotation-${annotationId}`;
 }
 
 function ensureCustomHighlightStyleElement() {
@@ -263,6 +275,7 @@ function ensureCustomHighlightStyleElement() {
   if (!customHighlightStyleElement) {
     customHighlightStyleElement = document.createElement('style');
     customHighlightStyleElement.setAttribute('data-annotated-document-highlight-style', 'true');
+    customHighlightStyleElement.setAttribute('data-highlight-owner', paneInstanceId);
     document.head.appendChild(customHighlightStyleElement);
   }
 
@@ -391,6 +404,9 @@ function buildHitboxesForRange(range, annotation, chunkIndex, annotationIndex) {
     annotationId: annotation.id,
     detailText: annotation.matched_text_in_chunk || '',
     selectedText: annotation.matched_text_in_chunk || '',
+    startChar: annotation.start_char,
+    endChar: annotation.end_char,
+    annotationIndex,
     rect,
     target: rectToTarget(rect),
   }));
@@ -501,6 +517,25 @@ function hitboxContainsPoint(hitbox, event) {
   );
 }
 
+function compareHitboxesBySpecificity(left, right) {
+  const leftWidth = left.endChar - left.startChar;
+  const rightWidth = right.endChar - right.startChar;
+
+  if (leftWidth !== rightWidth) {
+    return leftWidth - rightWidth;
+  }
+
+  if (left.startChar !== right.startChar) {
+    return right.startChar - left.startChar;
+  }
+
+  if (left.endChar !== right.endChar) {
+    return left.endChar - right.endChar;
+  }
+
+  return right.annotationIndex - left.annotationIndex;
+}
+
 function handleTextSelection(chunk) {
   const selection = getCurrentSelection();
 
@@ -539,11 +574,17 @@ function handleChunkClick(chunk, event) {
     (hitbox) => hitbox.chunkId === chunk.chunk_id && hitboxContainsPoint(hitbox, event)
   );
 
-  if (!matchedHitbox) {
+  const matchingHitboxes = customHighlightHitboxes.value
+    .filter((hitbox) => hitbox.chunkId === chunk.chunk_id && hitboxContainsPoint(hitbox, event))
+    .sort(compareHitboxesBySpecificity);
+
+  const resolvedHitbox = matchingHitboxes[0] || matchedHitbox;
+
+  if (!resolvedHitbox) {
     return;
   }
 
-  openCustomHighlightPopover(matchedHitbox);
+  openCustomHighlightPopover(resolvedHitbox);
 }
 
 watch(

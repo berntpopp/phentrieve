@@ -200,11 +200,11 @@ describe('AnnotatedDocumentPane', () => {
     await waitForHighlightSync(wrapper);
 
     expect(wrapper.find('mark[data-annotation-id="ann-1"]').exists()).toBe(false);
-    expect(set).toHaveBeenCalledWith('annotation-ann-1', expect.any(globalThis.Highlight));
-    expect(set).toHaveBeenCalledWith('annotation-selected-ann-2', expect.any(globalThis.Highlight));
-    expect(set).not.toHaveBeenCalledWith('annotation-chunk-ann', expect.anything());
-    expect(document.head.innerHTML).toContain('::highlight(annotation-ann-1)');
-    expect(document.head.innerHTML).toContain('::highlight(annotation-selected-ann-2)');
+    expect(set.mock.calls.some(([name]) => name.endsWith('annotation-ann-1'))).toBe(true);
+    expect(set.mock.calls.some(([name]) => name.endsWith('annotation-selected-ann-2'))).toBe(true);
+    expect(set.mock.calls.some(([name]) => name.includes('chunk-ann'))).toBe(false);
+    expect(document.head.innerHTML).toContain('annotation-ann-1');
+    expect(document.head.innerHTML).toContain('annotation-selected-ann-2');
 
     set.mockClear();
     deleteFn.mockClear();
@@ -212,11 +212,71 @@ describe('AnnotatedDocumentPane', () => {
     await wrapper.setProps({ selectedAnnotationIds: ['ann-1'] });
     await waitForHighlightSync(wrapper);
 
-    expect(deleteFn).toHaveBeenCalledWith('annotation-ann-1');
-    expect(deleteFn).toHaveBeenCalledWith('annotation-selected-ann-2');
-    expect(set).toHaveBeenCalledWith('annotation-selected-ann-1', expect.any(globalThis.Highlight));
-    expect(set).toHaveBeenCalledWith('annotation-ann-2', expect.any(globalThis.Highlight));
-    expect(document.head.innerHTML).toContain('::highlight(annotation-selected-ann-1)');
+    expect(deleteFn.mock.calls.some(([name]) => name.endsWith('annotation-ann-1'))).toBe(true);
+    expect(deleteFn.mock.calls.some(([name]) => name.endsWith('annotation-selected-ann-2'))).toBe(true);
+    expect(set.mock.calls.some(([name]) => name.endsWith('annotation-selected-ann-1'))).toBe(true);
+    expect(set.mock.calls.some(([name]) => name.endsWith('annotation-ann-2'))).toBe(true);
+    expect(document.head.innerHTML).toContain('annotation-selected-ann-1');
+  });
+
+  it('keeps custom highlight registrations isolated across pane instances', async () => {
+    const { set, deleteFn } = installCustomHighlightSupport([
+      { left: 10, top: 20, right: 40, bottom: 28, width: 30, height: 8 },
+      { left: 60, top: 20, right: 90, bottom: 28, width: 30, height: 8 },
+      { left: 10, top: 20, right: 40, bottom: 28, width: 30, height: 8 },
+      { left: 60, top: 20, right: 90, bottom: 28, width: 30, height: 8 },
+    ]);
+    const component = await loadComponent();
+    const firstWrapper = mount(component, {
+      props: {
+        chunks: [
+          {
+            chunk_id: 11,
+            text: 'First pane annotation.',
+            evidence_mode: 'span',
+            annotations: [{ id: 'shared-ann', start_char: 0, end_char: 5 }],
+          },
+        ],
+      },
+      global: {
+        stubs: popoverStub(),
+      },
+    });
+    const secondWrapper = mount(component, {
+      props: {
+        chunks: [
+          {
+            chunk_id: 12,
+            text: 'Second pane annotation.',
+            evidence_mode: 'span',
+            annotations: [{ id: 'shared-ann', start_char: 0, end_char: 6 }],
+          },
+        ],
+      },
+      global: {
+        stubs: popoverStub(),
+      },
+    });
+
+    await waitForHighlightSync(firstWrapper);
+    await waitForHighlightSync(secondWrapper);
+
+    const highlightNames = set.mock.calls
+      .map(([name]) => name)
+      .filter((name) => name.includes('shared-ann'));
+    const uniqueHighlightNames = [...new Set(highlightNames)];
+
+    expect(uniqueHighlightNames).toHaveLength(2);
+    expect(document.head.querySelectorAll('[data-annotated-document-highlight-style]')).toHaveLength(2);
+
+    firstWrapper.unmount();
+
+    const deletedNames = deleteFn.mock.calls.map(([name]) => name);
+
+    expect(uniqueHighlightNames.filter((name) => deletedNames.includes(name))).toHaveLength(1);
+    expect(document.head.querySelectorAll('[data-annotated-document-highlight-style]')).toHaveLength(1);
+
+    secondWrapper.unmount();
   });
 
   it('keeps repeated linked ranges highlighted together for the same annotation id', async () => {
@@ -249,7 +309,9 @@ describe('AnnotatedDocumentPane', () => {
 
     await waitForHighlightSync(wrapper);
 
-    const selectedSharedCall = set.mock.calls.find(([name]) => name === 'annotation-selected-shared-ann');
+    const selectedSharedCall = set.mock.calls.find(([name]) =>
+      name.endsWith('annotation-selected-shared-ann')
+    );
 
     expect(selectedSharedCall).toBeDefined();
     expect(selectedSharedCall[1].ranges).toHaveLength(2);
@@ -260,9 +322,13 @@ describe('AnnotatedDocumentPane', () => {
     await wrapper.setProps({ selectedAnnotationIds: [] });
     await waitForHighlightSync(wrapper);
 
-    const unselectedSharedCall = set.mock.calls.find(([name]) => name === 'annotation-shared-ann');
+    const unselectedSharedCall = set.mock.calls.find(([name]) =>
+      name.endsWith('annotation-shared-ann')
+    );
 
-    expect(deleteFn).toHaveBeenCalledWith('annotation-selected-shared-ann');
+    expect(deleteFn.mock.calls.some(([name]) => name.endsWith('annotation-selected-shared-ann'))).toBe(
+      true
+    );
     expect(unselectedSharedCall).toBeDefined();
     expect(unselectedSharedCall[1].ranges).toHaveLength(2);
   });
@@ -448,5 +514,47 @@ describe('AnnotatedDocumentPane', () => {
       'Developmental delay'
     );
     expect(wrapper.find('.popover-probe').attributes('data-target-left')).toBe('50');
+  });
+
+  it('resolves overlapping custom highlight clicks to the innermost annotation', async () => {
+    installCustomHighlightSupport([
+      { left: 30, top: 40, right: 90, bottom: 52, width: 60, height: 12 },
+      { left: 45, top: 40, right: 75, bottom: 52, width: 30, height: 12 },
+      { left: 30, top: 40, right: 90, bottom: 52, width: 60, height: 12 },
+      { left: 45, top: 40, right: 75, bottom: 52, width: 30, height: 12 },
+    ]);
+    const component = await loadComponent();
+    const wrapper = mount(component, {
+      props: {
+        chunks: [
+          {
+            chunk_id: 13,
+            text: 'ABCDEFGH',
+            evidence_mode: 'span',
+            annotations: [
+              { id: 'outer-ann', start_char: 0, end_char: 6, matched_text_in_chunk: 'ABCDEF' },
+              { id: 'inner-ann', start_char: 2, end_char: 5, matched_text_in_chunk: 'CDE' },
+            ],
+          },
+        ],
+      },
+      global: {
+        stubs: popoverStub(),
+      },
+    });
+
+    await waitForHighlightSync(wrapper);
+
+    vi.spyOn(window, 'getSelection').mockReturnValueOnce({
+      isCollapsed: true,
+      rangeCount: 0,
+      toString: () => '',
+    });
+
+    await wrapper.find('.chunk-text').trigger('click', { clientX: 50, clientY: 45 });
+
+    expect(wrapper.find('.popover-probe').attributes('data-annotation-id')).toBe('inner-ann');
+    expect(wrapper.find('.popover-probe').attributes('data-selected-text')).toBe('CDE');
+    expect(wrapper.find('.popover-probe').attributes('data-target-left')).toBe('60');
   });
 });
