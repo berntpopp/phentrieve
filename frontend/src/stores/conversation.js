@@ -165,12 +165,22 @@ export const useConversationStore = defineStore(
      * @param {string|null} [error=null] - Error message
      */
     function updateQueryResponse(id, responseData, error = null) {
-      const item = queryHistory.value.find((q) => q.id === id);
+      const item = findQueryById(id);
       if (item) {
         item.response = responseData;
         item.error = error;
         item.loading = false;
       }
+    }
+
+    /**
+     * Find a query history item by ID
+     *
+     * @param {string} id - Query item ID
+     * @returns {Object|null} Matching query or null
+     */
+    function findQueryById(id) {
+      return queryHistory.value.find((item) => item.id === id) || null;
     }
 
     /**
@@ -344,6 +354,7 @@ export const useConversationStore = defineStore(
       // Query Actions
       addQuery,
       updateQueryResponse,
+      findQueryById,
       getLatestQuery,
       clearConversation,
 
