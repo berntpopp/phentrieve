@@ -47,11 +47,19 @@ async function mountLegacyBridge(props = {}) {
       stubs: {
         'v-navigation-drawer': {
           template:
-            '<div class="v-navigation-drawer-stub" :aria-label="$attrs[\'aria-label\']"><slot /><slot name="append" /></div>',
+            '<div class="v-navigation-drawer-stub" :aria-label="$attrs[\'aria-label\']" :data-testid="$attrs[\'data-testid\']"><slot /><slot name="append" /></div>',
         },
       },
       mocks: {
-        $t: (key) => key,
+        $t: (key) => {
+          const messages = {
+            'queryInterface.phenotypeCollection.title': 'HPO Collection',
+            'queryInterface.phenotypeCollection.close': 'Close HPO Collection Panel',
+            'queryInterface.phenotypeCollection.aria.openPanel': 'Open HPO Collection Panel',
+            'queryInterface.phenotypeCollection.aria.panel': 'Phenotype collection',
+          };
+          return messages[key] ?? key;
+        },
       },
     },
   });
@@ -71,10 +79,9 @@ describe('CaseWorkspacePanel', () => {
   it('emits create-case, add-all, and export-case actions', async () => {
     const wrapper = await mountPanel();
 
-    const buttons = wrapper.findAll('button');
-    await buttons[0].trigger('click');
-    await buttons[buttons.length - 2].trigger('click');
-    await buttons[buttons.length - 1].trigger('click');
+    await wrapper.get('[data-testid="create-case-button"]').trigger('click');
+    await wrapper.get('[data-testid="add-all-button"]').trigger('click');
+    await wrapper.get('[data-testid="export-case-button"]').trigger('click');
 
     expect(wrapper.emitted('create-case')).toHaveLength(1);
     expect(wrapper.emitted('add-all')).toHaveLength(1);
@@ -84,8 +91,7 @@ describe('CaseWorkspacePanel', () => {
   it('emits select-case when a case is clicked', async () => {
     const wrapper = await mountPanel();
 
-    const listItems = wrapper.findAll('.v-list-item');
-    await listItems[1].trigger('click');
+    await wrapper.get('[data-testid="case-item-case-2"]').trigger('click');
 
     expect(wrapper.emitted('select-case')).toEqual([['case-2']]);
   });
@@ -93,10 +99,16 @@ describe('CaseWorkspacePanel', () => {
   it('keeps the temporary rename bridge consistent in the legacy panel UI', async () => {
     const wrapper = await mountLegacyBridge();
 
-    expect(wrapper.text()).toContain('Case Workspace');
+    expect(wrapper.get('[data-testid="case-workspace-title"]').text()).toBe('Case Workspace');
     expect(wrapper.text()).not.toContain('HPO Collection');
-    expect(wrapper.html()).toContain('Open Case Workspace Panel');
-    expect(wrapper.html()).toContain('Close Case Workspace Panel');
-    expect(wrapper.html()).toContain('Case Workspace Panel');
+    expect(wrapper.get('[data-testid="case-workspace-open-button"]').attributes('aria-label')).toBe(
+      'Open Case Workspace Panel'
+    );
+    expect(wrapper.get('[data-testid="case-workspace-close-button"]').attributes('aria-label')).toBe(
+      'Close Case Workspace Panel'
+    );
+    expect(wrapper.get('[data-testid="case-workspace-drawer"]').attributes('aria-label')).toBe(
+      'Case Workspace Panel'
+    );
   });
 });

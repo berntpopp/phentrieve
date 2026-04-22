@@ -3,13 +3,21 @@
     <div class="panel-header">
       <div class="text-subtitle-2">Case Workspace</div>
       <!-- TODO(Stream G): Connect this action to fullTextWorkspace.js case creation and active-case selection from QueryInterface.vue. -->
-      <v-btn size="small" variant="text" @click="$emit('create-case')">New case</v-btn>
+      <v-btn
+        size="small"
+        variant="text"
+        data-testid="create-case-button"
+        @click="$emit('create-case')"
+      >
+        New case
+      </v-btn>
     </div>
     <v-list>
       <v-list-item
         v-for="item in cases"
         :key="item.id"
         :active="item.id === activeCaseId"
+        :data-testid="`case-item-${item.id}`"
         @click="$emit('select-case', item.id)"
       >
         <template #title>{{ item.label }}</template>
@@ -17,9 +25,13 @@
       </v-list-item>
     </v-list>
     <!-- TODO(Stream G): Route add-all from QueryInterface.vue full-text results into addPhenotypeToActiveCase(...) instead of the legacy global collection. -->
-    <v-btn block color="primary" @click="$emit('add-all')">Add all extracted phenotypes</v-btn>
+    <v-btn block color="primary" data-testid="add-all-button" @click="$emit('add-all')">
+      Add all extracted phenotypes
+    </v-btn>
     <!-- TODO(Stream G): Route export-case through usePhenotypeCollection.js and PhentrieveService.js backend phenopacket export for the active workspace case. -->
-    <v-btn block variant="tonal" @click="$emit('export-case')">Export Phenopacket</v-btn>
+    <v-btn block variant="tonal" data-testid="export-case-button" @click="$emit('export-case')">
+      Export Phenopacket
+    </v-btn>
   </aside>
 </template>
 

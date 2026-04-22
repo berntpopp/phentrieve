@@ -4,8 +4,8 @@
     <!-- TODO(Stream G): Replace this temporary Case Workspace bridge with store-backed case workspace wiring from fullTextWorkspace.js and QueryInterface.vue. -->
     <v-tooltip
       location="left"
-      text="Open Case Workspace Panel"
-      :content-props="{ 'aria-label': 'Open Case Workspace Panel' }"
+      :text="bridgeLabels.openPanel"
+      :content-props="{ 'aria-label': bridgeLabels.openPanel }"
     >
       <template #activator="{ props }">
         <v-btn
@@ -17,7 +17,8 @@
           location="bottom right"
           size="large"
           elevation="3"
-          aria-label="Open Case Workspace Panel"
+          :aria-label="bridgeLabels.openPanel"
+          data-testid="case-workspace-open-button"
           data-tutorial-step="collection-fab"
           @click="$emit('toggle-panel')"
         >
@@ -35,15 +36,19 @@
       width="400"
       temporary
       style="z-index: 1500"
-      aria-label="Case Workspace Panel"
+      :aria-label="bridgeLabels.panel"
+      data-testid="case-workspace-drawer"
       @update:model-value="$emit('update:panelOpen', $event)"
     >
       <v-list-item class="pl-2 pr-1">
-        <v-list-item-title class="text-h6">Case Workspace</v-list-item-title>
+        <v-list-item-title class="text-h6" data-testid="case-workspace-title">
+          {{ bridgeLabels.title }}
+        </v-list-item-title>
         <template #append>
           <v-btn
             icon
-            aria-label="Close Case Workspace Panel"
+            :aria-label="bridgeLabels.closePanel"
+            data-testid="case-workspace-close-button"
             variant="text"
             density="compact"
             @click="$emit('toggle-panel')"
@@ -285,10 +290,38 @@
 </template>
 
 <script setup>
+import { computed, getCurrentInstance } from 'vue';
+
 /**
  * PhenotypeCollectionPanel - Temporary case workspace bridge for the HPO collection panel.
  * Extracted from QueryInterface.vue to reduce component complexity.
  */
+const instance = getCurrentInstance();
+
+function t(key) {
+  return instance?.proxy?.$t ? instance.proxy.$t(key) : key;
+}
+
+const renameBridgeReplacements = Object.freeze([
+  ['HPO Collection', 'Case Workspace'],
+  ['Phenotype collection', 'Case Workspace Panel'],
+  ['phenotype collection', 'Case Workspace Panel'],
+]);
+
+function bridgeCollectionCopy(value) {
+  return renameBridgeReplacements.reduce(
+    (nextValue, [fromText, toText]) => nextValue.replace(fromText, toText),
+    value
+  );
+}
+
+const bridgeLabels = computed(() => ({
+  title: bridgeCollectionCopy(t('queryInterface.phenotypeCollection.title')),
+  openPanel: bridgeCollectionCopy(t('queryInterface.phenotypeCollection.aria.openPanel')),
+  closePanel: bridgeCollectionCopy(t('queryInterface.phenotypeCollection.close')),
+  panel: bridgeCollectionCopy(t('queryInterface.phenotypeCollection.aria.panel')),
+}));
+
 defineProps({
   phenotypes: { type: Array, default: () => [] },
   panelOpen: { type: Boolean, default: false },
