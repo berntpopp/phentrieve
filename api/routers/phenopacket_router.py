@@ -46,14 +46,29 @@ def _map_phenotype_for_export(phenotype: ExportPhenotypeRequest) -> dict[str, An
                 if chunk_ref not in chunk_refs:
                     chunk_refs.append(chunk_ref)
 
-    return {
-        "hpo_id": phenotype.hpo_id,
-        "label": phenotype.label,
-        "assertion": phenotype.assertion_status,
-        "assertion_status": phenotype.assertion_status,
-        "chunk_refs": chunk_refs,
-        "spans": spans,
-    }
+    export_record = phenotype.model_dump(
+        exclude_none=True,
+        include={
+            "hpo_id",
+            "label",
+            "certainty",
+            "confidence",
+            "evidence_text",
+            "source_mode",
+            "match_method",
+        },
+    )
+    export_record.update(
+        {
+            "hpo_id": phenotype.hpo_id,
+            "label": phenotype.label,
+            "assertion": phenotype.assertion_status,
+            "assertion_status": phenotype.assertion_status,
+            "chunk_refs": chunk_refs,
+            "spans": spans,
+        }
+    )
+    return export_record
 
 
 def _apply_request_metadata_to_bundle(

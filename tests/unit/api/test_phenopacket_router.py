@@ -34,6 +34,11 @@ def test_phenopacket_router_exports_bundle_with_optional_sidecar_and_negation(cl
                     "hpo_id": "HP:0001250",
                     "label": "Seizure",
                     "assertion_status": "negated",
+                    "certainty": "high",
+                    "confidence": 0.91,
+                    "evidence_text": "Patient had recurrent seizures.",
+                    "source_mode": "manual_review",
+                    "match_method": "workspace_collection",
                     "source_chunk_ids": [1],
                     "text_attributions": [
                         {
@@ -83,6 +88,9 @@ def test_phenopacket_router_exports_bundle_with_optional_sidecar_and_negation(cl
 
     annotations = payload["annotation_sidecar"]["annotations"]
     assert annotations[0]["assertion"] == "negated"
+    assert annotations[0]["certainty"] == "high"
+    assert annotations[0]["confidence"] == 0.91
+    assert annotations[0]["evidence_text"] == "Patient had recurrent seizures."
     assert annotations[0]["chunk_refs"] == [1]
     assert annotations[0]["spans"] == [
         {
@@ -91,6 +99,10 @@ def test_phenopacket_router_exports_bundle_with_optional_sidecar_and_negation(cl
             "text": "recurrent seizures",
         }
     ]
+    assert annotations[0]["provenance"] == {
+        "source_mode": "manual_review",
+        "match_method": "workspace_collection",
+    }
     assert annotations[1]["chunk_refs"] == [2]
 
 
@@ -135,6 +147,11 @@ def test_phenopacket_router_maps_request_payload_to_exporter_shape(client, monke
                     "hpo_id": "HP:0001250",
                     "label": "Seizure",
                     "assertion_status": "negated",
+                    "certainty": "high",
+                    "confidence": 0.91,
+                    "evidence_text": "No seizures were reported.",
+                    "source_mode": "manual_review",
+                    "match_method": "workspace_collection",
                     "source_chunk_ids": [4],
                     "text_attributions": [
                         {
@@ -158,6 +175,11 @@ def test_phenopacket_router_maps_request_payload_to_exporter_shape(client, monke
             "label": "Seizure",
             "assertion": "negated",
             "assertion_status": "negated",
+            "certainty": "high",
+            "confidence": 0.91,
+            "evidence_text": "No seizures were reported.",
+            "source_mode": "manual_review",
+            "match_method": "workspace_collection",
             "chunk_refs": [4],
             "spans": [
                 {

@@ -23,6 +23,11 @@ class ExportPhenotypeRequest(BaseModel):
     hpo_id: str
     label: str
     assertion_status: str = "affirmed"
+    certainty: str | None = None
+    confidence: float | None = None
+    evidence_text: str | None = None
+    source_mode: str | None = None
+    match_method: str | None = None
     source_chunk_ids: list[int] = Field(default_factory=list)
     text_attributions: list[ExportTextAttributionRequest] = Field(default_factory=list)
     confidence_band: Literal["high", "medium", "low"] | None = None
