@@ -59,13 +59,16 @@ const emit = defineEmits([
   'close',
 ]);
 
-const fallbackTranslate = (_key, fallback) => fallback;
-let translate = fallbackTranslate;
+let i18n = null;
 
 try {
-  ({ t: translate } = useI18n());
+  i18n = useI18n();
 } catch {
   // Tests may mount without the i18n plugin; keep literal fallbacks in that case.
+}
+
+function translate(key, fallback) {
+  return i18n ? i18n.t(key) : fallback;
 }
 
 function handleMenuVisibilityUpdate(nextVisible) {

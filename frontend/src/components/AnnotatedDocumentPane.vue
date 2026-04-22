@@ -774,14 +774,16 @@ function scheduleLayoutRefresh() {
   });
 }
 
+function handleRootResize() {
+  scheduleLayoutRefresh();
+}
+
 onMounted(() => {
   window.addEventListener('scroll', scheduleLayoutRefresh, true);
   window.addEventListener('resize', scheduleLayoutRefresh);
 
   if (typeof ResizeObserver !== 'undefined' && rootElement.value) {
-    customHighlightResizeObserver = new ResizeObserver(() => {
-      scheduleLayoutRefresh();
-    });
+    customHighlightResizeObserver = new ResizeObserver(handleRootResize);
     customHighlightResizeObserver.observe(rootElement.value);
   }
 
