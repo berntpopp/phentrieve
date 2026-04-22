@@ -46,6 +46,7 @@
 <script setup>
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { SCORE_EXCELLENT, SCORE_GOOD, SCORE_MODERATE, SCORE_LOW } from '../constants/defaults';
 
 const props = defineProps({
   terms: {
@@ -74,9 +75,11 @@ const normalizedTerms = computed(() =>
 );
 
 function confidenceBand(value) {
-  if (value >= 0.85) return t('resultsDisplay.quality.high');
-  if (value >= 0.6) return t('resultsDisplay.quality.moderate');
-  return t('resultsDisplay.quality.low');
+  if (value >= SCORE_EXCELLENT) return t('resultsDisplay.quality.excellent');
+  if (value >= SCORE_GOOD) return t('resultsDisplay.quality.high');
+  if (value >= SCORE_MODERATE) return t('resultsDisplay.quality.moderate');
+  if (value >= SCORE_LOW) return t('resultsDisplay.quality.low');
+  return t('resultsDisplay.quality.poor');
 }
 
 function assertionStatusLabel(status) {

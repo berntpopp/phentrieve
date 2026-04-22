@@ -5,6 +5,7 @@ import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
 import { createI18n } from 'vue-i18n';
 import en from '../../locales/en.json';
+import { SCORE_EXCELLENT, SCORE_GOOD, SCORE_MODERATE, SCORE_LOW } from '../../constants/defaults';
 
 const vuetify = createVuetify({ components, directives });
 const i18n = createI18n({
@@ -59,7 +60,7 @@ describe('PhenotypeFindingsPane', () => {
   it('renders localized findings metadata while keeping numeric confidence out of the list', async () => {
     const wrapper = await mountFindingsPane();
 
-    expect(wrapper.text()).toContain(en.resultsDisplay.quality.high);
+    expect(wrapper.text()).toContain(en.resultsDisplay.quality.excellent);
     expect(wrapper.text()).not.toContain('0.92');
     expect(wrapper.text()).toContain(
       en.queryInterface.phenotypeCollection.assertionStatus.affirmed
@@ -151,6 +152,27 @@ describe('PhenotypeFindingsPane', () => {
     });
     expect(inspector.text()).toContain('Spasticity');
     expect(inspector.text()).not.toContain(`${en.resultsDisplay.confidenceHeader}: 0.00`);
+  });
+
+  it('uses the shared frontend score thresholds for confidence-band labels and fallback behavior', async () => {
+    const wrapper = await mountFindingsPane([
+      findingsTerm({ hpo_id: 'HP:1', name: 'Excellent edge', confidence: SCORE_EXCELLENT }),
+      findingsTerm({ hpo_id: 'HP:2', name: 'High edge', confidence: SCORE_GOOD }),
+      findingsTerm({ hpo_id: 'HP:3', name: 'Moderate edge', confidence: SCORE_MODERATE }),
+      findingsTerm({ hpo_id: 'HP:4', name: 'Low edge', confidence: SCORE_LOW }),
+      findingsTerm({ hpo_id: 'HP:5', name: 'Poor fallback', confidence: SCORE_LOW - 0.01 }),
+      findingsTerm({ hpo_id: 'HP:6', name: 'Unknown fallback', confidence: null }),
+    ]);
+
+    const itemTexts = wrapper.findAll('.v-list-item').map((item) => item.text());
+
+    expect(itemTexts[0]).toContain(en.resultsDisplay.quality.excellent);
+    expect(itemTexts[1]).toContain(en.resultsDisplay.quality.high);
+    expect(itemTexts[2]).toContain(en.resultsDisplay.quality.moderate);
+    expect(itemTexts[3]).toContain(en.resultsDisplay.quality.low);
+    expect(itemTexts[4]).toContain(en.resultsDisplay.quality.poor);
+    expect(itemTexts[5]).not.toContain(en.resultsDisplay.quality.poor);
+    expect(itemTexts[5]).not.toContain(en.resultsDisplay.quality.low);
   });
 });
 
