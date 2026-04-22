@@ -225,7 +225,31 @@ class AggregatedHPOTermAPI(BaseModel):
 
 class TextProcessingResponseAPI(BaseModel):
     meta: dict[str, Any] = Field(
-        ..., description="Metadata about the request and processing parameters used."
+        ...,
+        description=(
+            "Metadata about the request and processing parameters used. "
+            "Common keys include extraction_backend, quota_limit, "
+            "quota_remaining, quota_reset_at, fallback_reason, "
+            "llm_quota_limit, and llm_quota_reset_at."
+        ),
+        json_schema_extra={
+            "examples": [
+                {
+                    "extraction_backend": "llm",
+                    "llm_model": "gpt-5.4-mini",
+                    "llm_mode": "two_phase",
+                    "quota_limit": 5,
+                    "quota_remaining": 4,
+                    "quota_reset_at": "2026-04-23T00:00:00+00:00",
+                },
+                {
+                    "extraction_backend": "standard",
+                    "fallback_reason": "llm_quota_exhausted",
+                    "llm_quota_limit": 5,
+                    "llm_quota_reset_at": "2026-04-23T00:00:00+00:00",
+                },
+            ]
+        },
     )
     processed_chunks: list[ProcessedChunkAPI] = Field(
         ..., description="List of text chunks after processing and assertion detection."

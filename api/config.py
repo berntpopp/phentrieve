@@ -242,7 +242,7 @@ DATA_ROOT_DIR: str = os.getenv(
 
 PHENTRIEVE_ENV: str = os.getenv("PHENTRIEVE_ENV", "development")
 PHENTRIEVE_TRUSTED_PROXY_CIDRS: str = os.getenv("PHENTRIEVE_TRUSTED_PROXY_CIDRS", "")
-PHENTRIEVE_LLM_DAILY_LIMIT: int = int(os.getenv("PHENTRIEVE_LLM_DAILY_LIMIT", "3"))
+PHENTRIEVE_LLM_DAILY_LIMIT: int = int(os.getenv("PHENTRIEVE_LLM_DAILY_LIMIT", "5"))
 PHENTRIEVE_LLM_QUOTA_DB_PATH: str = os.getenv(
     "PHENTRIEVE_LLM_QUOTA_DB_PATH",
     "../data/app/llm_quota.db",

@@ -17,6 +17,7 @@ from api.llm_quota import (
     QuotaExceededError,
     QuotaStatus,
     hash_subject_key,
+    quota_reset_at_iso,
     resolve_subject_ip,
 )
 from api.schemas.text_processing_schemas import (
@@ -481,7 +482,31 @@ def _adapt_shared_service_response_to_api(
     response_model=TextProcessingResponseAPI,
     operation_id="process_clinical_text",
     summary="Process clinical text to extract HPO terms",
-    description="Process clinical text with chunking, assertion detection, and HPO term extraction.",
+    description=(
+        "Process clinical text with chunking, assertion detection, and HPO "
+        "term extraction. When LLM extraction is selected in production, "
+        "clients can opt into automatic fallback to the standard backend by "
+        "sending `X-Phentrieve-Allow-Standard-Fallback: true`."
+    ),
+    openapi_extra={
+        "parameters": [
+            {
+                "name": "X-Phentrieve-Allow-Standard-Fallback",
+                "in": "header",
+                "required": False,
+                "schema": {
+                    "type": "string",
+                    "enum": ["true"],
+                },
+                "description": (
+                    "Optional opt-in for LLM requests in production. When set "
+                    "to `true`, a quota-exhausted LLM request falls back to "
+                    "the standard extraction backend instead of returning "
+                    "`429 Too Many Requests`."
+                ),
+            }
+        ]
+    },
 )
 async def process_text_extract_hpo(
     http_request: Request,
@@ -520,14 +545,33 @@ async def process_text_extract_hpo(
     )
 
     quota_status: QuotaStatus | None = None
+    forced_standard_fallback: dict[str, Any] | None = None
+    allow_standard_fallback = (
+        http_request.headers.get("x-phentrieve-allow-standard-fallback", "").lower()
+        == "true"
+    )
     if request.extraction_backend == "llm" and _is_production_environment():
         try:
             quota_status = check_llm_quota_or_raise(http_request)
         except QuotaExceededError as exc:
-            raise HTTPException(
-                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-                detail=exc.to_detail(),
-            ) from exc
+            if allow_standard_fallback:
+                request = request.model_copy(
+                    update={
+                        "extraction_backend": "standard",
+                        "llm_model": None,
+                        "llm_mode": None,
+                    }
+                )
+                forced_standard_fallback = {
+                    "fallback_reason": "llm_quota_exhausted",
+                    "llm_quota_limit": exc.quota_limit,
+                    "llm_quota_reset_at": quota_reset_at_iso(exc.usage_date_utc),
+                }
+            else:
+                raise HTTPException(
+                    status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                    detail=exc.to_detail(),
+                ) from exc
 
     try:
         # Wrap processing with timeout protection
@@ -552,6 +596,11 @@ async def process_text_extract_hpo(
                 ) from exc
             response.meta["quota_limit"] = updated_quota_status.quota_limit
             response.meta["quota_remaining"] = updated_quota_status.quota_remaining
+            response.meta["quota_reset_at"] = quota_reset_at_iso(
+                updated_quota_status.usage_date_utc
+            )
+        if forced_standard_fallback is not None:
+            response.meta.update(forced_standard_fallback)
         return response
     except asyncio.exceptions.TimeoutError:
         logger.error(

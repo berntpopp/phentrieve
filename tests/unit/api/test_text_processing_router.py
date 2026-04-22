@@ -62,6 +62,115 @@ def test_text_processing_router_returns_llm_meta(client, monkeypatch):
     assert response.json()["meta"]["extraction_backend"] == "llm"
 
 
+def test_text_processing_router_returns_localizable_quota_metadata(
+    tmp_path, monkeypatch
+):
+    monkeypatch.setattr("api.config.PHENTRIEVE_ENV", "production", raising=False)
+    monkeypatch.setattr("api.config.PHENTRIEVE_LLM_DAILY_LIMIT", 5, raising=False)
+    monkeypatch.setattr(
+        "api.config.PHENTRIEVE_LLM_QUOTA_DB_PATH",
+        str(tmp_path / "llm_quota.db"),
+        raising=False,
+    )
+    monkeypatch.setattr(
+        "api.main.get_sbert_model_dependency",
+        AsyncMock(return_value=MagicMock(model_name="FremyCompany/BioLORD-2023-M")),
+    )
+    monkeypatch.setattr(
+        "api.main.get_dense_retriever_dependency",
+        AsyncMock(return_value=MagicMock(model_name="FremyCompany/BioLORD-2023-M")),
+    )
+    monkeypatch.setattr(
+        "api.routers.text_processing_router.run_full_text_service",
+        lambda **kwargs: {
+            "meta": {
+                "extraction_backend": "llm",
+                "llm_model": "gpt-5.4-mini",
+                "llm_mode": "two_phase",
+            },
+            "processed_chunks": [],
+            "aggregated_hpo_terms": [],
+        },
+    )
+
+    with TestClient(
+        app,
+        raise_server_exceptions=False,
+        client=("172.18.0.10", 50000),
+    ) as local_client:
+        response = local_client.post(
+            "/api/v1/text/process",
+            json={
+                "text": "Patient had recurrent seizures.",
+                "extraction_backend": "llm",
+                "llm_model": "gpt-5.4-mini",
+            },
+        )
+
+    assert response.status_code == 200
+    assert response.json()["meta"]["quota_limit"] == 5
+    assert response.json()["meta"]["quota_reset_at"]
+
+
+def test_text_processing_router_can_mark_standard_fallback_after_llm_exhaustion(
+    monkeypatch,
+):
+    monkeypatch.setattr("api.config.PHENTRIEVE_ENV", "production", raising=False)
+    monkeypatch.setattr(
+        "api.main.get_sbert_model_dependency",
+        AsyncMock(return_value=MagicMock(model_name="FremyCompany/BioLORD-2023-M")),
+    )
+    monkeypatch.setattr(
+        "api.main.get_dense_retriever_dependency",
+        AsyncMock(return_value=MagicMock(model_name="FremyCompany/BioLORD-2023-M")),
+    )
+    monkeypatch.setattr(
+        "api.routers.text_processing_router.get_sbert_model_dependency",
+        AsyncMock(return_value=MagicMock(model_name="FremyCompany/BioLORD-2023-M")),
+    )
+    monkeypatch.setattr(
+        "api.routers.text_processing_router.get_dense_retriever_dependency",
+        AsyncMock(return_value=MagicMock(model_name="FremyCompany/BioLORD-2023-M")),
+    )
+    monkeypatch.setattr(
+        "api.routers.text_processing_router.check_llm_quota_or_raise",
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(
+            QuotaExceededError(
+                quota_used=5,
+                quota_limit=5,
+                quota_remaining=0,
+                usage_date_utc="2026-04-22",
+            )
+        ),
+    )
+    monkeypatch.setattr(
+        "api.routers.text_processing_router.run_full_text_service",
+        lambda **kwargs: {
+            "meta": {
+                "extraction_backend": "standard",
+            },
+            "processed_chunks": [],
+            "aggregated_hpo_terms": [],
+        },
+    )
+
+    with TestClient(app, raise_server_exceptions=False) as local_client:
+        response = local_client.post(
+            "/api/v1/text/process",
+            json={
+                "text": "Patient had recurrent seizures.",
+                "extraction_backend": "llm",
+                "llm_model": "gpt-5.4-mini",
+            },
+            headers={"X-Phentrieve-Allow-Standard-Fallback": "true"},
+        )
+
+    assert response.status_code == 200
+    assert response.json()["meta"]["fallback_reason"] == "llm_quota_exhausted"
+    assert response.json()["meta"]["llm_quota_limit"] == 5
+    assert response.json()["meta"]["llm_quota_reset_at"] == "2026-04-23T00:00:00+00:00"
+
+
 def test_text_processing_router_rejects_llm_without_model(client):
     response = client.post(
         "/api/v1/text/process",
@@ -106,6 +215,7 @@ def test_text_processing_router_returns_429_when_quota_exhausted(client, monkeyp
 
     assert response.status_code == 429
     assert response.json()["detail"]["quota_remaining"] == 0
+    assert response.json()["detail"]["quota_reset_at"] == "2026-04-16T00:00:00+00:00"
 
 
 def test_text_processing_router_returns_503_when_subject_resolution_is_untrusted(

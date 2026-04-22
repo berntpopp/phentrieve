@@ -1,6 +1,11 @@
 import pytest
 
-from api.llm_quota import DailyQuotaStore, QuotaExceededError, resolve_subject_ip
+from api.llm_quota import (
+    DailyQuotaStore,
+    QuotaExceededError,
+    quota_reset_at_iso,
+    resolve_subject_ip,
+)
 
 
 def test_daily_quota_store_counts_successful_requests_only(tmp_path):
@@ -86,3 +91,7 @@ def test_daily_quota_store_enables_sqlite_wal_mode(tmp_path):
 
     assert str(journal_mode).lower() == "wal"
     assert int(synchronous) == 1
+
+
+def test_quota_reset_at_iso_returns_next_midnight_utc():
+    assert quota_reset_at_iso("2026-04-22") == "2026-04-23T00:00:00+00:00"
