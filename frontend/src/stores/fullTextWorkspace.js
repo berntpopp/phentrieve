@@ -27,9 +27,13 @@ function cloneWorkspaceValue(value) {
   }
 
   if (value && typeof value === 'object') {
-    return Object.fromEntries(
-      Object.entries(value).map(([key, nestedValue]) => [key, cloneWorkspaceValue(nestedValue)])
-    );
+    const cloned = {};
+
+    Object.keys(value).forEach((key) => {
+      cloned[key] = cloneWorkspaceValue(value[key]);
+    });
+
+    return cloned;
   }
 
   return value;
@@ -206,7 +210,7 @@ export const useFullTextWorkspaceStore = defineStore('fullTextWorkspace', () => 
 
   function hasTurn(turnId) {
     assertTurnId(turnId);
-    return Object.hasOwn(turns.value, turnId);
+    return Object.prototype.hasOwnProperty.call(turns.value, turnId);
   }
 
   function getTurnState(turnId) {
