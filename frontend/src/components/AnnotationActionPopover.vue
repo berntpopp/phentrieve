@@ -5,23 +5,23 @@
     location="top"
     location-strategy="connected"
     :scrim="false"
-    @update:modelValue="handleMenuVisibilityUpdate"
+    @update:model-value="handleMenuVisibilityUpdate"
   >
     <v-list density="compact">
       <v-list-item
-        :title="t('annotatedDocumentPane.actions.inspect', 'Inspect')"
+        :title="translate('annotatedDocumentPane.actions.inspect', 'Inspect')"
         @click="handleAction('inspect')"
       />
       <v-list-item
-        :title="t('annotatedDocumentPane.actions.addToCase', 'Add to case')"
+        :title="translate('annotatedDocumentPane.actions.addToCase', 'Add to case')"
         @click="handleAction('add-to-case')"
       />
       <v-list-item
-        :title="t('annotatedDocumentPane.actions.changeTerm', 'Change term')"
+        :title="translate('annotatedDocumentPane.actions.changeTerm', 'Change term')"
         @click="handleAction('change-term')"
       />
       <v-list-item
-        :title="t('annotatedDocumentPane.actions.removeAnnotation', 'Remove annotation')"
+        :title="translate('annotatedDocumentPane.actions.removeAnnotation', 'Remove annotation')"
         @click="handleAction('remove-annotation')"
       />
     </v-list>
@@ -59,6 +59,15 @@ const emit = defineEmits([
   'close',
 ]);
 
+const fallbackTranslate = (_key, fallback) => fallback;
+let translate = fallbackTranslate;
+
+try {
+  ({ t: translate } = useI18n());
+} catch {
+  // Tests may mount without the i18n plugin; keep literal fallbacks in that case.
+}
+
 function handleMenuVisibilityUpdate(nextVisible) {
   emit('update:visible', nextVisible);
 
@@ -71,13 +80,5 @@ function handleAction(action) {
   emit(action);
   emit('update:visible', false);
   emit('close');
-}
-
-let t = (_key, fallback) => fallback;
-
-try {
-  ({ t } = useI18n());
-} catch {
-  // Tests may mount without the i18n plugin; keep literal fallbacks in that case.
 }
 </script>

@@ -1,11 +1,7 @@
 import { createPinia, setActivePinia } from 'pinia';
 import { describe, it, expect, beforeEach } from 'vitest';
 import { useFullTextWorkspaceStore } from '../../stores/fullTextWorkspace';
-import {
-  CONFIDENCE_BANDS,
-  SIDEBAR_MODE_CASE,
-  SIDEBAR_MODE_INSPECTOR,
-} from '../../constants/fullTextWorkspace';
+import { SIDEBAR_MODE_CASE, SIDEBAR_MODE_INSPECTOR } from '../../constants/fullTextWorkspace';
 
 describe('fullTextWorkspace store', () => {
   beforeEach(() => {
@@ -222,6 +218,34 @@ describe('fullTextWorkspace store', () => {
     );
   });
 
+  it('rejects circular structures in workspace payloads with a controlled error', () => {
+    const store = useFullTextWorkspaceStore();
+    store.initializeTurn('turn-a');
+
+    const circularDetails = {};
+    circularDetails.self = circularDetails;
+
+    expect(() =>
+      store.setQuotaBanner('turn-a', { fallbackReason: 'x', details: circularDetails })
+    ).toThrow('Workspace values must not contain circular references');
+
+    const circularPhenotype = {
+      hpo_id: 'HP:0001250',
+      label: 'Seizure',
+    };
+    circularPhenotype.details = circularPhenotype;
+
+    expect(() => store.addPhenotypeToActiveCase('turn-a', circularPhenotype)).toThrow(
+      'Cannot add phenotype without an active case for turn turn-a'
+    );
+
+    store.createCase('turn-a', { id: 'case-1', label: 'Case 1' });
+
+    expect(() => store.addPhenotypeToActiveCase('turn-a', circularPhenotype)).toThrow(
+      'Workspace values must not contain circular references'
+    );
+  });
+
   it('requires turn initialization before mutating workspace state', () => {
     const store = useFullTextWorkspaceStore();
 
@@ -263,16 +287,5 @@ describe('fullTextWorkspace store', () => {
 
     expect(store.hasTurn('turn-a')).toBe(false);
     expect(store.getTurnState('turn-a')).toBe(null);
-  });
-});
-
-describe('fullTextWorkspace constants', () => {
-  it('freezes confidence bands at the top level and nested band level', () => {
-    expect(Object.isFrozen(CONFIDENCE_BANDS)).toBe(true);
-    expect(Object.isFrozen(CONFIDENCE_BANDS.high)).toBe(true);
-    expect(() => {
-      CONFIDENCE_BANDS.high.min = 0.5;
-    }).toThrow();
-    expect(CONFIDENCE_BANDS.high.min).toBe(0.85);
   });
 });

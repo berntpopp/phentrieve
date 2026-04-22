@@ -151,6 +151,7 @@ const activeSelectedText = ref('');
 const activePopoverAnchor = ref(null);
 let customHighlightResizeObserver = null;
 let customHighlightFontListenersAttached = false;
+let layoutRefreshFrame = null;
 
 const selectedAnnotationSet = computed(() => new Set(props.selectedAnnotationIds));
 
@@ -762,20 +763,31 @@ function handleChunkClick(chunk, event) {
   openCustomHighlightPopover(resolvedHitbox);
 }
 
+function scheduleLayoutRefresh() {
+  if (layoutRefreshFrame != null) {
+    return;
+  }
+
+  layoutRefreshFrame = window.requestAnimationFrame(() => {
+    layoutRefreshFrame = null;
+    refreshLayoutState();
+  });
+}
+
 onMounted(() => {
-  window.addEventListener('scroll', refreshLayoutState, true);
-  window.addEventListener('resize', refreshLayoutState);
+  window.addEventListener('scroll', scheduleLayoutRefresh, true);
+  window.addEventListener('resize', scheduleLayoutRefresh);
 
   if (typeof ResizeObserver !== 'undefined' && rootElement.value) {
     customHighlightResizeObserver = new ResizeObserver(() => {
-      refreshLayoutState();
+      scheduleLayoutRefresh();
     });
     customHighlightResizeObserver.observe(rootElement.value);
   }
 
   if (document.fonts?.addEventListener) {
-    document.fonts.addEventListener('loadingdone', refreshLayoutState);
-    document.fonts.addEventListener('loadingerror', refreshLayoutState);
+    document.fonts.addEventListener('loadingdone', scheduleLayoutRefresh);
+    document.fonts.addEventListener('loadingerror', scheduleLayoutRefresh);
     customHighlightFontListenersAttached = true;
   }
 });
@@ -790,15 +802,20 @@ watch(
 );
 
 onBeforeUnmount(() => {
-  window.removeEventListener('scroll', refreshLayoutState, true);
-  window.removeEventListener('resize', refreshLayoutState);
+  window.removeEventListener('scroll', scheduleLayoutRefresh, true);
+  window.removeEventListener('resize', scheduleLayoutRefresh);
   customHighlightResizeObserver?.disconnect();
   customHighlightResizeObserver = null;
 
   if (customHighlightFontListenersAttached) {
-    document.fonts?.removeEventListener('loadingdone', refreshLayoutState);
-    document.fonts?.removeEventListener('loadingerror', refreshLayoutState);
+    document.fonts?.removeEventListener('loadingdone', scheduleLayoutRefresh);
+    document.fonts?.removeEventListener('loadingerror', scheduleLayoutRefresh);
     customHighlightFontListenersAttached = false;
+  }
+
+  if (layoutRefreshFrame != null) {
+    window.cancelAnimationFrame(layoutRefreshFrame);
+    layoutRefreshFrame = null;
   }
 
   clearCustomHighlights();

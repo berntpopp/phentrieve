@@ -2,7 +2,6 @@
   <aside class="case-workspace">
     <div class="panel-header">
       <div class="text-subtitle-2">Case Workspace</div>
-      <!-- TODO(Stream G): Connect this action to fullTextWorkspace.js case creation and active-case selection from QueryInterface.vue. -->
       <v-btn
         size="small"
         variant="text"

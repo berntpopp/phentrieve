@@ -26,18 +26,31 @@ function createWorkspaceId(prefix) {
   return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
-function cloneWorkspaceValue(value) {
+function cloneWorkspaceValue(value, activeAncestors = new WeakSet()) {
   if (Array.isArray(value)) {
-    return value.map((item) => cloneWorkspaceValue(item));
+    if (activeAncestors.has(value)) {
+      throw new Error('Workspace values must not contain circular references');
+    }
+
+    activeAncestors.add(value);
+    const cloned = value.map((item) => cloneWorkspaceValue(item, activeAncestors));
+    activeAncestors.delete(value);
+    return cloned;
   }
 
   if (value && typeof value === 'object') {
+    if (activeAncestors.has(value)) {
+      throw new Error('Workspace values must not contain circular references');
+    }
+
+    activeAncestors.add(value);
     const cloned = {};
 
     Object.keys(value).forEach((key) => {
-      cloned[key] = cloneWorkspaceValue(value[key]);
+      cloned[key] = cloneWorkspaceValue(value[key], activeAncestors);
     });
 
+    activeAncestors.delete(value);
     return cloned;
   }
 
@@ -93,13 +106,19 @@ function isPlainObject(value) {
   return prototype === Object.prototype || prototype === null;
 }
 
-function assertJsonLikeValue(value, message) {
+function assertJsonLikeValue(value, message, activeAncestors = new WeakSet()) {
   if (value === null) {
     return;
   }
 
   if (Array.isArray(value)) {
-    value.forEach((item) => assertJsonLikeValue(item, message));
+    if (activeAncestors.has(value)) {
+      throw new Error('Workspace values must not contain circular references');
+    }
+
+    activeAncestors.add(value);
+    value.forEach((item) => assertJsonLikeValue(item, message, activeAncestors));
+    activeAncestors.delete(value);
     return;
   }
 
@@ -115,7 +134,15 @@ function assertJsonLikeValue(value, message) {
   }
 
   if (isPlainObject(value)) {
-    Object.values(value).forEach((item) => assertJsonLikeValue(item, message));
+    if (activeAncestors.has(value)) {
+      throw new Error('Workspace values must not contain circular references');
+    }
+
+    activeAncestors.add(value);
+    Object.values(value).forEach((item) =>
+      assertJsonLikeValue(item, message, activeAncestors)
+    );
+    activeAncestors.delete(value);
     return;
   }
 
