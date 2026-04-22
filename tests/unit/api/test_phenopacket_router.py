@@ -1,5 +1,7 @@
 """Unit tests for the phenopacket export API router."""
 
+import json
+
 import pytest
 from fastapi.testclient import TestClient
 
@@ -14,7 +16,7 @@ def client():
         yield test_client
 
 
-def test_phenopacket_router_exports_bundle_with_optional_sidecar(client):
+def test_phenopacket_router_exports_bundle_with_optional_sidecar_and_negation(client):
     response = client.post(
         "/api/v1/phenopackets/export",
         json={
@@ -22,11 +24,16 @@ def test_phenopacket_router_exports_bundle_with_optional_sidecar(client):
             "case_label": "Case 1",
             "input_text": "Patient had recurrent seizures.",
             "include_annotation_sidecar": True,
+            "subject": {
+                "id": "patient-1",
+                "sex": "FEMALE",
+                "dateOfBirth": "2010-05-15T00:00:00.000Z",
+            },
             "phenotypes": [
                 {
                     "hpo_id": "HP:0001250",
                     "label": "Seizure",
-                    "assertion_status": "affirmed",
+                    "assertion_status": "negated",
                     "source_chunk_ids": [1],
                     "text_attributions": [
                         {
@@ -36,7 +43,21 @@ def test_phenopacket_router_exports_bundle_with_optional_sidecar(client):
                             "matched_text_in_chunk": "recurrent seizures",
                         }
                     ],
-                }
+                },
+                {
+                    "hpo_id": "HP:0001290",
+                    "label": "Generalized tonic-clonic seizure",
+                    "assertion_status": "affirmed",
+                    "source_chunk_ids": [2],
+                    "text_attributions": [
+                        {
+                            "chunk_id": 2,
+                            "start_char": 31,
+                            "end_char": 41,
+                            "matched_text_in_chunk": "convulsion",
+                        }
+                    ],
+                },
             ],
         },
     )
@@ -45,3 +66,87 @@ def test_phenopacket_router_exports_bundle_with_optional_sidecar(client):
     payload = response.json()
     assert "phenopacket_json" in payload
     assert payload["annotation_sidecar"]["phenopacket_id"]
+
+    phenopacket = json.loads(payload["phenopacket_json"])
+    assert phenopacket["phenotypicFeatures"][0]["type"]["id"] == "HP:0001250"
+    assert phenopacket["phenotypicFeatures"][0]["excluded"] is True
+
+    annotations = payload["annotation_sidecar"]["annotations"]
+    assert annotations[0]["assertion"] == "negated"
+    assert annotations[0]["chunk_refs"] == [1]
+    assert annotations[0]["spans"] == [
+        {
+            "start_char": 8,
+            "end_char": 26,
+            "text": "recurrent seizures",
+        }
+    ]
+    assert annotations[1]["chunk_refs"] == [2]
+
+
+def test_phenopacket_router_maps_request_payload_to_exporter_shape(client, monkeypatch):
+    captured_call = {}
+
+    def fake_export_phenopacket_bundle(**kwargs):
+        captured_call.update(kwargs)
+        return {
+            "phenopacket_json": '{"id":"packet-1"}',
+            "annotation_sidecar": {"phenopacket_id": "packet-1", "annotations": []},
+        }
+
+    monkeypatch.setattr(
+        "api.routers.phenopacket_router.export_phenopacket_bundle",
+        fake_export_phenopacket_bundle,
+    )
+
+    response = client.post(
+        "/api/v1/phenopackets/export",
+        json={
+            "case_id": "case-2",
+            "case_label": "Case 2",
+            "input_text": "No seizures were reported.",
+            "include_annotation_sidecar": True,
+            "subject": {
+                "id": "subject-2",
+                "sex": "MALE",
+                "dateOfBirth": "2000-01-01T00:00:00.000Z",
+            },
+            "phenotypes": [
+                {
+                    "hpo_id": "HP:0001250",
+                    "label": "Seizure",
+                    "assertion_status": "negated",
+                    "source_chunk_ids": [4],
+                    "text_attributions": [
+                        {
+                            "chunk_id": 4,
+                            "start_char": 3,
+                            "end_char": 11,
+                            "matched_text_in_chunk": "seizures",
+                        }
+                    ],
+                }
+            ],
+        },
+    )
+
+    assert response.status_code == 200
+    assert captured_call["input_text"] == "No seizures were reported."
+    assert captured_call["include_annotation_sidecar"] is True
+    assert captured_call["aggregated_results"] == [
+        {
+            "hpo_id": "HP:0001250",
+            "label": "Seizure",
+            "assertion": "negated",
+            "assertion_status": "negated",
+            "chunk_refs": [4],
+            "spans": [
+                {
+                    "start_char": 3,
+                    "end_char": 11,
+                    "evidence_text": "seizures",
+                    "chunk_refs": [4],
+                }
+            ],
+        }
+    ]

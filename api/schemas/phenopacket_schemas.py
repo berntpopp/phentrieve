@@ -1,6 +1,15 @@
 from typing import Literal
 
-from pydantic import BaseModel, Field
+from pydantic import AliasChoices, BaseModel, Field
+
+
+class ExportSubjectRequest(BaseModel):
+    id: str | None = None
+    sex: str | None = None
+    date_of_birth: str | None = Field(
+        default=None,
+        validation_alias=AliasChoices("date_of_birth", "dateOfBirth"),
+    )
 
 
 class ExportTextAttributionRequest(BaseModel):
@@ -23,5 +32,6 @@ class PhenopacketExportRequest(BaseModel):
     case_id: str
     case_label: str | None = None
     input_text: str | None = None
+    subject: ExportSubjectRequest | None = None
     include_annotation_sidecar: bool = False
     phenotypes: list[ExportPhenotypeRequest] = Field(default_factory=list)
