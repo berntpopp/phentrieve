@@ -75,6 +75,44 @@ function assertObjectEntries(items, message) {
   });
 }
 
+function isPlainObject(value) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    return false;
+  }
+
+  const prototype = Object.getPrototypeOf(value);
+  return prototype === Object.prototype || prototype === null;
+}
+
+function assertJsonLikeValue(value, message) {
+  if (value === null) {
+    return;
+  }
+
+  if (Array.isArray(value)) {
+    value.forEach((item) => assertJsonLikeValue(item, message));
+    return;
+  }
+
+  if (typeof value === 'number') {
+    if (!Number.isFinite(value)) {
+      throw new Error(message);
+    }
+    return;
+  }
+
+  if (typeof value === 'string' || typeof value === 'boolean') {
+    return;
+  }
+
+  if (isPlainObject(value)) {
+    Object.values(value).forEach((item) => assertJsonLikeValue(item, message));
+    return;
+  }
+
+  throw new Error(message);
+}
+
 function assertCases(cases) {
   if (!Array.isArray(cases)) {
     throw new Error('Workspace cases must be an array');
@@ -90,6 +128,8 @@ function assertCases(cases) {
       throw new Error(`Workspace cases[${index}].id must be a non-empty string`);
     }
 
+    assertJsonLikeValue(item, `Workspace cases[${index}] must contain only JSON-like data`);
+
     if (seenIds.has(item.id)) {
       throw new Error(`Workspace cases must not contain duplicate ids: ${item.id}`);
     }
@@ -104,29 +144,10 @@ function assertStackItems(items, label) {
   }
 
   assertObjectEntries(items, `Workspace ${label} items must be objects`);
-}
 
-function assertJsonSerializableValue(value) {
-  if (value === null) {
-    return;
-  }
-
-  if (Array.isArray(value)) {
-    value.forEach((item) => assertJsonSerializableValue(item));
-    return;
-  }
-
-  const valueType = typeof value;
-  if (valueType === 'string' || valueType === 'number' || valueType === 'boolean') {
-    return;
-  }
-
-  if (valueType === 'object') {
-    Object.values(value).forEach((item) => assertJsonSerializableValue(item));
-    return;
-  }
-
-  throw new Error('Workspace quota banner must be JSON-serializable');
+  items.forEach((item) =>
+    assertJsonLikeValue(item, `Workspace ${label} items must contain only JSON-like data`)
+  );
 }
 
 function assertQuotaBanner(banner) {
@@ -152,7 +173,7 @@ function assertQuotaBanner(banner) {
     throw new Error('Workspace quota banner quotaResetAt must be a non-empty string');
   }
 
-  assertJsonSerializableValue(banner);
+  assertJsonLikeValue(banner, 'Workspace quota banner must contain only JSON-like data');
 }
 
 export const useFullTextWorkspaceStore = defineStore('fullTextWorkspace', () => {

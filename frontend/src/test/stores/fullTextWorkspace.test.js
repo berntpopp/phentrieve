@@ -192,7 +192,37 @@ describe('fullTextWorkspace store', () => {
       'Workspace quota banner quotaResetAt must be a non-empty string'
     );
     expect(() => store.setQuotaBanner('turn-a', { fallbackReason: 'x', retry: () => {} })).toThrow(
-      'Workspace quota banner must be JSON-serializable'
+      'Workspace quota banner must contain only JSON-like data'
+    );
+  });
+
+  it('rejects non-json-like values that the clone path cannot round-trip', () => {
+    class CustomPayload {
+      constructor(value) {
+        this.value = value;
+      }
+    }
+
+    const store = useFullTextWorkspaceStore();
+    store.initializeTurn('turn-a');
+
+    expect(() =>
+      store.setCases('turn-a', [{ id: 'case-1', observedAt: new Date('2026-04-23T00:00:00Z') }])
+    ).toThrow('Workspace cases[0] must contain only JSON-like data');
+    expect(() => store.setUndoStack('turn-a', [{ payload: new Map([['a', 1]]) }])).toThrow(
+      'Workspace undo stack items must contain only JSON-like data'
+    );
+    expect(() => store.setRedoStack('turn-a', [{ payload: new Set(['a']) }])).toThrow(
+      'Workspace redo stack items must contain only JSON-like data'
+    );
+    expect(() =>
+      store.setQuotaBanner('turn-a', { fallbackReason: 'x', details: new CustomPayload(1) })
+    ).toThrow('Workspace quota banner must contain only JSON-like data');
+    expect(() => store.setQuotaBanner('turn-a', { fallbackReason: 'x', score: NaN })).toThrow(
+      'Workspace quota banner must contain only JSON-like data'
+    );
+    expect(() => store.setCases('turn-a', [{ id: 'case-1', score: Infinity }])).toThrow(
+      'Workspace cases[0] must contain only JSON-like data'
     );
   });
 
