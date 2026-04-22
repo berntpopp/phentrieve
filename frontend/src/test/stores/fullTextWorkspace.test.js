@@ -52,6 +52,24 @@ describe('fullTextWorkspace store', () => {
     expect(store.getTurnState('turn-a').quotaBanner.fallbackReason).toBe('llm_quota_exhausted');
   });
 
+  it('updates owned scalar workspace fields through explicit actions', () => {
+    const store = useFullTextWorkspaceStore();
+    store.initializeTurn('turn-a');
+    store.setCases('turn-a', [{ id: 'case-1', label: 'Case 1' }]);
+
+    store.setExpanded('turn-a', true);
+    store.setSelectedPhenotypeId('turn-a', 'HP:0001250');
+    store.setSelectedSpanId('turn-a', 'span-1');
+    store.setActiveCaseId('turn-a', 'case-1');
+
+    expect(store.getTurnState('turn-a')).toMatchObject({
+      expanded: true,
+      selectedPhenotypeId: 'HP:0001250',
+      selectedSpanId: 'span-1',
+      activeCaseId: 'case-1',
+    });
+  });
+
   it('returns turn snapshots without exposing mutable internal state', () => {
     const store = useFullTextWorkspaceStore();
     store.initializeTurn('turn-a');
@@ -111,6 +129,46 @@ describe('fullTextWorkspace store', () => {
 
     expect(() => store.setSidebarMode('turn-a', 'invalid-mode')).toThrow(
       'Unsupported sidebar mode: invalid-mode'
+    );
+  });
+
+  it('rejects invalid scalar workspace updates', () => {
+    const store = useFullTextWorkspaceStore();
+    store.initializeTurn('turn-a');
+
+    expect(() => store.setExpanded('turn-a', 'yes')).toThrow(
+      'Workspace expanded state must be a boolean'
+    );
+    expect(() => store.setSelectedPhenotypeId('turn-a', '')).toThrow(
+      'Selected phenotype id must be null or a non-empty string'
+    );
+    expect(() => store.setSelectedSpanId('turn-a', 42)).toThrow(
+      'Selected span id must be null or a non-empty string'
+    );
+  });
+
+  it('rejects invalid collection payloads and active case invariants', () => {
+    const store = useFullTextWorkspaceStore();
+    store.initializeTurn('turn-a');
+
+    expect(() => store.setCases('turn-a', 'invalid')).toThrow('Workspace cases must be an array');
+    expect(() => store.setCases('turn-a', [{}])).toThrow(
+      'Workspace cases[0].id must be a non-empty string'
+    );
+    expect(() => store.setUndoStack('turn-a', {})).toThrow(
+      'Workspace undo stack must be an array'
+    );
+    expect(() => store.setUndoStack('turn-a', [null])).toThrow(
+      'Workspace undo stack items must be objects'
+    );
+    expect(() => store.setRedoStack('turn-a', {})).toThrow(
+      'Workspace redo stack must be an array'
+    );
+    expect(() => store.setRedoStack('turn-a', [null])).toThrow(
+      'Workspace redo stack items must be objects'
+    );
+    expect(() => store.setActiveCaseId('turn-a', 'missing-case')).toThrow(
+      'Active case id must reference an existing case: missing-case'
     );
   });
 

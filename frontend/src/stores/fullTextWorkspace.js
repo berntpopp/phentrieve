@@ -55,6 +55,50 @@ function assertTurnId(turnId) {
   }
 }
 
+function assertNullableNonEmptyString(value, message) {
+  if (value !== null && (typeof value !== 'string' || value.length === 0)) {
+    throw new Error(message);
+  }
+}
+
+function assertBoolean(value, message) {
+  if (typeof value !== 'boolean') {
+    throw new Error(message);
+  }
+}
+
+function assertObjectEntries(items, message) {
+  items.forEach((item) => {
+    if (!item || typeof item !== 'object' || Array.isArray(item)) {
+      throw new Error(message);
+    }
+  });
+}
+
+function assertCases(cases) {
+  if (!Array.isArray(cases)) {
+    throw new Error('Workspace cases must be an array');
+  }
+
+  cases.forEach((item, index) => {
+    if (!item || typeof item !== 'object' || Array.isArray(item)) {
+      throw new Error(`Workspace cases[${index}] must be an object`);
+    }
+
+    if (typeof item.id !== 'string' || item.id.length === 0) {
+      throw new Error(`Workspace cases[${index}].id must be a non-empty string`);
+    }
+  });
+}
+
+function assertStackItems(items, label) {
+  if (!Array.isArray(items)) {
+    throw new Error(`Workspace ${label} must be an array`);
+  }
+
+  assertObjectEntries(items, `Workspace ${label} items must be objects`);
+}
+
 export const useFullTextWorkspaceStore = defineStore('fullTextWorkspace', () => {
   const turns = ref({});
 
@@ -99,19 +143,56 @@ export const useFullTextWorkspaceStore = defineStore('fullTextWorkspace', () => 
     requireTurn(turnId).sidebarMode = mode;
   }
 
+  function setExpanded(turnId, expanded) {
+    assertBoolean(expanded, 'Workspace expanded state must be a boolean');
+    requireTurn(turnId).expanded = expanded;
+  }
+
+  function setSelectedPhenotypeId(turnId, phenotypeId) {
+    assertNullableNonEmptyString(
+      phenotypeId,
+      'Selected phenotype id must be null or a non-empty string'
+    );
+    requireTurn(turnId).selectedPhenotypeId = phenotypeId;
+  }
+
+  function setSelectedSpanId(turnId, spanId) {
+    assertNullableNonEmptyString(spanId, 'Selected span id must be null or a non-empty string');
+    requireTurn(turnId).selectedSpanId = spanId;
+  }
+
   function setQuotaBanner(turnId, banner) {
     requireTurn(turnId).quotaBanner = cloneWorkspaceValue(banner);
   }
 
   function setCases(turnId, cases) {
-    requireTurn(turnId).cases = cloneWorkspaceValue(cases);
+    assertCases(cases);
+    const turn = requireTurn(turnId);
+    turn.cases = cloneWorkspaceValue(cases);
+
+    if (turn.activeCaseId !== null && !turn.cases.some((item) => item.id === turn.activeCaseId)) {
+      turn.activeCaseId = null;
+    }
+  }
+
+  function setActiveCaseId(turnId, caseId) {
+    assertNullableNonEmptyString(caseId, 'Active case id must be null or a non-empty string');
+
+    const turn = requireTurn(turnId);
+    if (caseId !== null && !turn.cases.some((item) => item.id === caseId)) {
+      throw new Error(`Active case id must reference an existing case: ${caseId}`);
+    }
+
+    turn.activeCaseId = caseId;
   }
 
   function setUndoStack(turnId, undoStack) {
+    assertStackItems(undoStack, 'undo stack');
     requireTurn(turnId).undoStack = cloneWorkspaceValue(undoStack);
   }
 
   function setRedoStack(turnId, redoStack) {
+    assertStackItems(redoStack, 'redo stack');
     requireTurn(turnId).redoStack = cloneWorkspaceValue(redoStack);
   }
 
@@ -133,8 +214,12 @@ export const useFullTextWorkspaceStore = defineStore('fullTextWorkspace', () => 
     hasTurn,
     getTurnState,
     setSidebarMode,
+    setExpanded,
+    setSelectedPhenotypeId,
+    setSelectedSpanId,
     setQuotaBanner,
     setCases,
+    setActiveCaseId,
     setUndoStack,
     setRedoStack,
     resetTurn,
