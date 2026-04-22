@@ -16,57 +16,65 @@ const i18n = createI18n({
   missing: () => '',
 });
 
+function findingsTerm(overrides = {}) {
+  return {
+    hpo_id: 'HP:0001250',
+    name: 'Seizure',
+    confidence: 0.92,
+    status: 'affirmed',
+    source_chunk_ids: [1],
+    top_evidence_chunk_id: 1,
+    ...overrides,
+  };
+}
+
+function mountFindingsPane(terms = [findingsTerm()]) {
+  return import('../../components/PhenotypeFindingsPane.vue').then(({ default: component }) =>
+    mount(component, {
+      props: { terms },
+      global: {
+        plugins: [vuetify, i18n],
+      },
+    })
+  );
+}
+
+function mountInspector(selectedTerm = findingsTerm()) {
+  return import('../../components/AnnotationInspectorPanel.vue').then(({ default: component }) =>
+    mount(component, {
+      props: { selectedTerm },
+      global: {
+        plugins: [vuetify, i18n],
+      },
+    })
+  );
+}
+
 afterEach(() => {
   vi.useRealTimers();
   vi.restoreAllMocks();
 });
 
 describe('PhenotypeFindingsPane', () => {
-  it('renders confidence bands instead of raw numeric scores in the primary list', async () => {
-    const component = (await import('../../components/PhenotypeFindingsPane.vue')).default;
-    const wrapper = mount(component, {
-      props: {
-        terms: [
-          {
-            hpo_id: 'HP:0001250',
-            name: 'Seizure',
-            confidence: 0.92,
-            status: 'affirmed',
-            source_chunk_ids: [1],
-          },
-        ],
-      },
-      global: {
-        plugins: [vuetify, i18n],
-      },
-    });
+  it('renders localized findings metadata while keeping numeric confidence out of the list', async () => {
+    const wrapper = await mountFindingsPane();
 
     expect(wrapper.text()).toContain('High');
     expect(wrapper.text()).not.toContain('0.92');
-    expect(wrapper.text()).toContain('Affirmed');
-    expect(wrapper.text()).toContain('1 evidence chunk');
-    expect(wrapper.text()).toContain('Top evidence: #1');
+    expect(wrapper.text()).toContain(
+      en.queryInterface.phenotypeCollection.assertionStatus.affirmed
+    );
+    expect(wrapper.text()).toContain(`${en.resultsDisplay.textProcess.sourceChunks}: 1`);
+    expect(wrapper.text()).toContain(`${en.resultsDisplay.textProcess.topEvidence}: #1`);
   });
 
-  it('emits hover, clear, and inspect events from the findings list interactions', async () => {
-    const component = (await import('../../components/PhenotypeFindingsPane.vue')).default;
-    const wrapper = mount(component, {
-      props: {
-        terms: [
-          {
-            hpo_id: 'HP:0001250',
-            name: 'Seizure',
-            confidence: 0.92,
-            status: 'affirmed',
-            source_chunk_ids: [1, 3],
-            top_evidence_chunk_id: 3,
-          },
-        ],
-      },
-      global: {
-        plugins: [vuetify, i18n],
-      },
+  it('emits explicit hover and inspect payload objects for the interacted term', async () => {
+    const term = findingsTerm({
+      hpo_id: 'HP:0004322',
+      source_chunk_ids: [2, 7],
+      top_evidence_chunk_id: 7,
     });
+    const wrapper = await mountFindingsPane([term]);
 
     const termItem = wrapper.get('.v-list-item');
 
@@ -74,45 +82,62 @@ describe('PhenotypeFindingsPane', () => {
     await termItem.trigger('mouseleave');
     await termItem.trigger('click');
 
-    expect(wrapper.emitted('hover-term')).toEqual([['HP:0001250']]);
+    expect(wrapper.emitted('hover-term')).toEqual([
+      [
+        {
+          hpoId: 'HP:0004322',
+        },
+      ],
+    ]);
     expect(wrapper.emitted('clear-hover')).toEqual([[]]);
-    expect(wrapper.emitted('inspect-term')).toEqual([['HP:0001250']]);
+    expect(wrapper.emitted('inspect-term')).toEqual([
+      [
+        {
+          hpoId: 'HP:0004322',
+          topEvidenceChunkId: 7,
+          sourceChunkIds: [2, 7],
+        },
+      ],
+    ]);
   });
 
-  it('renders inspector-only numeric details in the annotation panel', async () => {
-    const component = (await import('../../components/AnnotationInspectorPanel.vue')).default;
-    const wrapper = mount(component, {
-      props: {
-        selectedTerm: {
-          hpo_id: 'HP:0001250',
-          name: 'Seizure',
-          confidence: 0.92,
-        },
-      },
-      global: {
-        plugins: [vuetify, i18n],
-      },
-    });
+  it('renders per-row summaries from the matching term data', async () => {
+    const wrapper = await mountFindingsPane([
+      findingsTerm(),
+      findingsTerm({
+        hpo_id: 'HP:0001627',
+        name: 'Abnormal heart morphology',
+        confidence: 0.62,
+        status: 'negated',
+        source_chunk_ids: [4, 5, 9],
+        top_evidence_chunk_id: 9,
+      }),
+    ]);
 
-    expect(wrapper.text()).toContain('Annotation Inspector');
-    expect(wrapper.text()).toContain('Confidence: 0.92');
+    expect(wrapper.text()).toContain('Medium');
+    expect(wrapper.text()).toContain(en.queryInterface.phenotypeCollection.assertionStatus.negated);
+    expect(wrapper.text()).toContain(`${en.resultsDisplay.textProcess.sourceChunks}: 3`);
+    expect(wrapper.text()).toContain(`${en.resultsDisplay.textProcess.topEvidence}: #9`);
+  });
+});
+
+describe('AnnotationInspectorPanel', () => {
+  it('renders localized inspector labels and numeric confidence details for the selected term', async () => {
+    const wrapper = await mountInspector();
+
+    expect(wrapper.text()).toContain(en.resultsDisplay.showDetails);
+    expect(wrapper.text()).toContain(`${en.resultsDisplay.confidenceHeader}: 0.92`);
     expect(wrapper.get('[id="annotation-detail-HP:0001250"]').text()).toContain('Seizure');
   });
 
-  it('emits back from the inspector return action', async () => {
-    const component = (await import('../../components/AnnotationInspectorPanel.vue')).default;
-    const wrapper = mount(component, {
-      props: {
-        selectedTerm: {
-          hpo_id: 'HP:0001250',
-          name: 'Seizure',
-          confidence: 0.92,
-        },
-      },
-      global: {
-        plugins: [vuetify, i18n],
-      },
-    });
+  it('emits back from the inspector return action without depending on one specific term row', async () => {
+    const wrapper = await mountInspector(
+      findingsTerm({
+        hpo_id: 'HP:0001627',
+        name: 'Abnormal heart morphology',
+        confidence: 0.61,
+      })
+    );
 
     await wrapper.get('button').trigger('click');
 

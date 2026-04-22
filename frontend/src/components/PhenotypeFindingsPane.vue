@@ -2,18 +2,18 @@
   <section class="findings-pane">
     <v-list lines="three" class="rounded-lg findings-pane__list">
       <v-list-item
-        v-for="term in terms"
-        :key="term.hpo_id"
+        v-for="term in normalizedTerms"
+        :key="term.hpoId"
         class="findings-pane__item"
-        @mouseenter="$emit('hover-term', term.hpo_id)"
+        @mouseenter="$emit('hover-term', hoverPayload(term))"
         @mouseleave="$emit('clear-hover')"
-        @click="$emit('inspect-term', term.hpo_id)"
+        @click="$emit('inspect-term', inspectPayload(term))"
       >
         <template #title>
           <div class="d-flex align-center justify-space-between ga-3">
             <div class="d-flex flex-column">
               <span class="text-body-1 font-weight-medium">{{ term.name }}</span>
-              <span class="text-caption text-medium-emphasis">{{ term.hpo_id }}</span>
+              <span class="text-caption text-medium-emphasis">{{ term.hpoId }}</span>
             </div>
             <v-chip size="small" variant="tonal" color="primary">
               {{ confidenceBand(term.confidence) }}
@@ -28,10 +28,14 @@
               :color="term.status === 'negated' ? 'error' : 'success'"
               variant="flat"
             >
-              {{ formatStatus(term.status) }}
+              {{ assertionStatusLabel(term.status) }}
             </v-chip>
-            <span class="text-caption">{{ evidenceCountLabel(term.source_chunk_ids) }}</span>
-            <span class="text-caption">{{ topEvidenceLabel(term) }}</span>
+            <span class="text-caption">
+              {{ t('resultsDisplay.textProcess.sourceChunks') }}: {{ term.sourceChunkIds.length }}
+            </span>
+            <span class="text-caption">
+              {{ t('resultsDisplay.textProcess.topEvidence') }}: {{ topEvidenceValue(term) }}
+            </span>
           </div>
         </template>
       </v-list-item>
@@ -40,7 +44,10 @@
 </template>
 
 <script setup>
-defineProps({
+import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
+
+const props = defineProps({
   terms: {
     type: Array,
     default: () => [],
@@ -49,29 +56,48 @@ defineProps({
 
 defineEmits(['hover-term', 'clear-hover', 'inspect-term']);
 
+const { t } = useI18n();
+
+const normalizedTerms = computed(() =>
+  props.terms
+    .filter((term) => term && typeof term.hpo_id === 'string' && typeof term.name === 'string')
+    .map((term) => ({
+      hpoId: term.hpo_id,
+      name: term.name,
+      confidence: typeof term.confidence === 'number' ? term.confidence : 0,
+      status: typeof term.status === 'string' ? term.status : 'affirmed',
+      sourceChunkIds: Array.isArray(term.source_chunk_ids) ? term.source_chunk_ids : [],
+      topEvidenceChunkId:
+        term.top_evidence_chunk_id ??
+        (Array.isArray(term.source_chunk_ids) ? term.source_chunk_ids[0] : null),
+    }))
+);
+
 function confidenceBand(value) {
   if (value >= 0.85) return 'High';
   if (value >= 0.6) return 'Medium';
   return 'Low';
 }
 
-function formatStatus(status) {
-  if (!status) return 'Affirmed';
-  return status.charAt(0).toUpperCase() + status.slice(1);
+function assertionStatusLabel(status) {
+  return t(`queryInterface.phenotypeCollection.assertionStatus.${status}`, status);
 }
 
-function evidenceCountLabel(sourceChunkIds) {
-  const count = sourceChunkIds?.length ?? 0;
-  return `${count} evidence chunk${count === 1 ? '' : 's'}`;
+function topEvidenceValue(term) {
+  return term.topEvidenceChunkId == null ? '-' : `#${term.topEvidenceChunkId}`;
 }
 
-function topEvidenceLabel(term) {
-  const topChunkId = term.top_evidence_chunk_id ?? term.source_chunk_ids?.[0];
+function hoverPayload(term) {
+  return {
+    hpoId: term.hpoId,
+  };
+}
 
-  if (topChunkId == null) {
-    return 'Top evidence: unavailable';
-  }
-
-  return `Top evidence: #${topChunkId}`;
+function inspectPayload(term) {
+  return {
+    hpoId: term.hpoId,
+    sourceChunkIds: [...term.sourceChunkIds],
+    topEvidenceChunkId: term.topEvidenceChunkId,
+  };
 }
 </script>
