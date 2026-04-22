@@ -1,15 +1,89 @@
+from datetime import UTC, date, datetime, time
 from typing import Literal
 
-from pydantic import AliasChoices, BaseModel, Field
+from pydantic import AliasChoices, BaseModel, Field, field_validator
+
+_NORMALIZED_SUBJECT_SEX = Literal["UNKNOWN_SEX", "FEMALE", "MALE", "OTHER_SEX"]
+_SUBJECT_SEX_ALIASES = {
+    "0": "UNKNOWN_SEX",
+    "unknown_sex": "UNKNOWN_SEX",
+    "unknown": "UNKNOWN_SEX",
+    "1": "FEMALE",
+    "female": "FEMALE",
+    "2": "MALE",
+    "male": "MALE",
+    "3": "OTHER_SEX",
+    "other_sex": "OTHER_SEX",
+    "other": "OTHER_SEX",
+}
 
 
 class ExportSubjectRequest(BaseModel):
     id: str | None = None
-    sex: str | None = None
+    sex: _NORMALIZED_SUBJECT_SEX | None = None
     date_of_birth: str | None = Field(
         default=None,
+        serialization_alias="dateOfBirth",
         validation_alias=AliasChoices("date_of_birth", "dateOfBirth"),
     )
+
+    @field_validator("sex", mode="before")
+    @classmethod
+    def normalize_sex(cls, value: object) -> str | None:
+        if value is None:
+            return None
+        if isinstance(value, str):
+            normalized = value.strip()
+            if not normalized:
+                return None
+            if normalized in {"UNKNOWN_SEX", "FEMALE", "MALE", "OTHER_SEX"}:
+                return normalized
+            alias_match = _SUBJECT_SEX_ALIASES.get(normalized.lower())
+            if alias_match is not None:
+                return alias_match
+        if isinstance(value, int):
+            alias_match = _SUBJECT_SEX_ALIASES.get(str(value))
+            if alias_match is not None:
+                return alias_match
+
+        raise ValueError(
+            "subject.sex must be one of UNKNOWN_SEX, FEMALE, MALE, OTHER_SEX."
+        )
+
+    @field_validator("date_of_birth", mode="before")
+    @classmethod
+    def normalize_date_of_birth(cls, value: object) -> str | None:
+        if value is None:
+            return None
+        if isinstance(value, str):
+            normalized = value.strip()
+            if not normalized:
+                return None
+            try:
+                parsed = datetime.fromisoformat(normalized.replace("Z", "+00:00"))
+            except ValueError:
+                try:
+                    parsed_date = date.fromisoformat(normalized)
+                except ValueError as exc:
+                    raise ValueError(
+                        "subject.dateOfBirth must be a valid ISO 8601 date or datetime."
+                    ) from exc
+                parsed = datetime.combine(parsed_date, time.min, tzinfo=UTC)
+        elif isinstance(value, datetime):
+            parsed = value
+        elif isinstance(value, date):
+            parsed = datetime.combine(value, time.min, tzinfo=UTC)
+        else:
+            raise ValueError(
+                "subject.dateOfBirth must be a valid ISO 8601 date or datetime."
+            )
+
+        if parsed.tzinfo is None:
+            parsed = parsed.replace(tzinfo=UTC)
+        else:
+            parsed = parsed.astimezone(UTC)
+
+        return parsed.isoformat(timespec="milliseconds").replace("+00:00", "Z")
 
 
 class ExportTextAttributionRequest(BaseModel):

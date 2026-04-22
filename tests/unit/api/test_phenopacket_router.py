@@ -4,6 +4,8 @@ import json
 
 import pytest
 from fastapi.testclient import TestClient
+from google.protobuf.json_format import Parse
+from phenopackets import Phenopacket
 
 from api.main import app
 
@@ -85,6 +87,7 @@ def test_phenopacket_router_exports_bundle_with_optional_sidecar_and_negation(cl
         ref["id"] == "phentrieve:case_label" and ref["description"] == "Case 1"
         for ref in phenopacket["metaData"]["externalReferences"]
     )
+    Parse(payload["phenopacket_json"], Phenopacket(), ignore_unknown_fields=False)
 
     annotations = payload["annotation_sidecar"]["annotations"]
     assert annotations[0]["assertion"] == "negated"
@@ -208,3 +211,40 @@ def test_phenopacket_router_response_matches_declared_response_model(client):
     assert set(payload) == {"phenopacket_json", "annotation_sidecar"}
     assert isinstance(payload["phenopacket_json"], str)
     assert payload["annotation_sidecar"] is None
+
+
+@pytest.mark.parametrize(
+    ("subject_payload", "expected_error_fragment"),
+    [
+        (
+            {
+                "id": "subject-invalid-sex",
+                "sex": "ROBOT",
+                "dateOfBirth": "2010-05-15T00:00:00.000Z",
+            },
+            "subject.sex",
+        ),
+        (
+            {
+                "id": "subject-invalid-date",
+                "sex": "FEMALE",
+                "dateOfBirth": "not-a-date",
+            },
+            "subject.dateOfBirth",
+        ),
+    ],
+)
+def test_phenopacket_router_rejects_invalid_subject_metadata(
+    client, subject_payload, expected_error_fragment
+):
+    response = client.post(
+        "/api/v1/phenopackets/export",
+        json={
+            "case_id": "case-invalid-subject",
+            "subject": subject_payload,
+            "phenotypes": [],
+        },
+    )
+
+    assert response.status_code == 422
+    assert expected_error_fragment in response.text

@@ -71,6 +71,36 @@ def _map_phenotype_for_export(phenotype: ExportPhenotypeRequest) -> dict[str, An
     return export_record
 
 
+def _build_subject_payload(request: PhenopacketExportRequest) -> dict[str, str] | None:
+    if request.subject is None:
+        return None
+
+    subject_payload = request.subject.model_dump(
+        by_alias=True,
+        exclude_none=True,
+        include={"id", "sex", "date_of_birth"},
+    )
+    return subject_payload or None
+
+
+def _update_sidecar_linked_packet_id(
+    bundle: dict[str, Any],
+    external_references: list[dict[str, Any]],
+    old_id: str,
+    new_id: str,
+) -> None:
+    annotation_sidecar = bundle.get("annotation_sidecar")
+    if annotation_sidecar is not None:
+        annotation_sidecar["phenopacket_id"] = new_id
+
+    for reference in external_references:
+        if reference.get("id") == "phentrieve:annotation_sidecar":
+            reference["reference"] = str(reference.get("reference", "")).replace(
+                old_id,
+                new_id,
+            )
+
+
 def _apply_request_metadata_to_bundle(
     bundle: dict[str, Any], request: PhenopacketExportRequest
 ) -> dict[str, Any]:
@@ -80,16 +110,9 @@ def _apply_request_metadata_to_bundle(
     if request.case_id:
         phenopacket_payload["id"] = request.case_id
 
-    if request.subject is not None:
-        subject_payload = {}
-        if request.subject.id is not None:
-            subject_payload["id"] = request.subject.id
-        if request.subject.sex is not None:
-            subject_payload["sex"] = request.subject.sex
-        if request.subject.date_of_birth is not None:
-            subject_payload["dateOfBirth"] = request.subject.date_of_birth
-        if subject_payload:
-            phenopacket_payload["subject"] = subject_payload
+    subject_payload = _build_subject_payload(request)
+    if subject_payload is not None:
+        phenopacket_payload["subject"] = subject_payload
 
     meta = phenopacket_payload.setdefault("metaData", {})
     external_references = meta.setdefault("externalReferences", [])
@@ -107,13 +130,12 @@ def _apply_request_metadata_to_bundle(
         and bundle.get("annotation_sidecar") is not None
         and original_packet_id != request.case_id
     ):
-        bundle["annotation_sidecar"]["phenopacket_id"] = request.case_id
-        for reference in external_references:
-            if reference.get("id") == "phentrieve:annotation_sidecar":
-                reference["reference"] = str(reference.get("reference", "")).replace(
-                    original_packet_id,
-                    request.case_id,
-                )
+        _update_sidecar_linked_packet_id(
+            bundle,
+            external_references,
+            old_id=original_packet_id,
+            new_id=request.case_id,
+        )
 
     bundle["phenopacket_json"] = json.dumps(phenopacket_payload, indent=2)
     return bundle
