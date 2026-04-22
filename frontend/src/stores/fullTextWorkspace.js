@@ -21,6 +21,14 @@ function createEmptyTurnState() {
   };
 }
 
+function createWorkspaceId(prefix) {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return `${prefix}-${crypto.randomUUID()}`;
+  }
+
+  return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+}
+
 function cloneWorkspaceValue(value) {
   if (Array.isArray(value)) {
     return value.map((item) => cloneWorkspaceValue(item));
@@ -140,6 +148,29 @@ function assertCases(cases) {
 
     seenIds.add(item.id);
   });
+}
+
+function normalizePhenotypeRecord(phenotype, errorPrefix = 'Workspace phenotype') {
+  if (!phenotype || typeof phenotype !== 'object' || Array.isArray(phenotype)) {
+    throw new Error(`${errorPrefix} must be an object`);
+  }
+
+  if (typeof phenotype.hpo_id !== 'string' || phenotype.hpo_id.length === 0) {
+    throw new Error(`${errorPrefix}.hpo_id must be a non-empty string`);
+  }
+
+  if (typeof phenotype.label !== 'string' || phenotype.label.length === 0) {
+    throw new Error(`${errorPrefix}.label must be a non-empty string`);
+  }
+
+  const normalized = cloneWorkspaceValue(phenotype);
+  normalized.assertion_status =
+    typeof normalized.assertion_status === 'string' && normalized.assertion_status.length > 0
+      ? normalized.assertion_status
+      : 'affirmed';
+
+  assertJsonLikeValue(normalized, `${errorPrefix} must contain only JSON-like data`);
+  return normalized;
 }
 
 function assertStackItems(items, label) {
@@ -278,6 +309,80 @@ export const useFullTextWorkspaceStore = defineStore('fullTextWorkspace', () => 
     requireTurn(turnId).redoStack = cloneWorkspaceValue(redoStack);
   }
 
+  function createCase(turnId, casePayload = {}) {
+    const turn = requireTurn(turnId);
+    const nextCase = {
+      id:
+        typeof casePayload.id === 'string' && casePayload.id.length > 0
+          ? casePayload.id
+          : createWorkspaceId('case'),
+      label:
+        typeof casePayload.label === 'string' && casePayload.label.length > 0
+          ? casePayload.label
+          : `Case ${turn.cases.length + 1}`,
+      phenotypes: Array.isArray(casePayload.phenotypes)
+        ? casePayload.phenotypes.map((phenotype, index) =>
+            normalizePhenotypeRecord(phenotype, `Workspace case phenotype ${index}`)
+          )
+        : [],
+      inputText: typeof casePayload.inputText === 'string' ? casePayload.inputText : '',
+    };
+
+    turn.cases.push(nextCase);
+    turn.activeCaseId = nextCase.id;
+    return cloneWorkspaceValue(nextCase);
+  }
+
+  function getActiveCase(turnId) {
+    const turn = requireTurn(turnId);
+    if (!turn.activeCaseId) {
+      return null;
+    }
+
+    return cloneWorkspaceValue(turn.cases.find((item) => item.id === turn.activeCaseId) || null);
+  }
+
+  function addPhenotypeToActiveCase(turnId, phenotype) {
+    const turn = requireTurn(turnId);
+    if (!turn.activeCaseId) {
+      throw new Error(`Cannot add phenotype without an active case for turn ${turnId}`);
+    }
+
+    const activeCase = turn.cases.find((item) => item.id === turn.activeCaseId);
+    if (!activeCase) {
+      throw new Error(`Active case id must reference an existing case: ${turn.activeCaseId}`);
+    }
+
+    const normalizedPhenotype = normalizePhenotypeRecord(phenotype);
+    const duplicate = activeCase.phenotypes.some(
+      (item) =>
+        item.hpo_id === normalizedPhenotype.hpo_id &&
+        item.assertion_status === normalizedPhenotype.assertion_status
+    );
+
+    if (duplicate) {
+      return false;
+    }
+
+    activeCase.phenotypes.push(normalizedPhenotype);
+    return true;
+  }
+
+  function addPhenotypesToActiveCase(turnId, phenotypes) {
+    if (!Array.isArray(phenotypes)) {
+      throw new Error('Workspace phenotypes must be an array');
+    }
+
+    let addedCount = 0;
+    phenotypes.forEach((phenotype) => {
+      if (addPhenotypeToActiveCase(turnId, phenotype)) {
+        addedCount += 1;
+      }
+    });
+
+    return addedCount;
+  }
+
   function resetTurn(turnId) {
     requireTurn(turnId);
     turns.value[turnId] = createEmptyTurnState();
@@ -304,6 +409,10 @@ export const useFullTextWorkspaceStore = defineStore('fullTextWorkspace', () => 
     setActiveCaseId,
     setUndoStack,
     setRedoStack,
+    createCase,
+    getActiveCase,
+    addPhenotypeToActiveCase,
+    addPhenotypesToActiveCase,
     resetTurn,
     removeTurn,
   };

@@ -105,6 +105,15 @@ class PhentrieveService {
     }
   }
 
+  async exportPhenopacket(exportData) {
+    try {
+      const response = await axios.post(`${API_URL}/phenopackets/export`, exportData);
+      return response.data;
+    } catch (error) {
+      throw this._createStandardizedError(error, 'exporting a phenopacket');
+    }
+  }
+
   _normalizeTextProcessPayload(textProcessingData) {
     const extractionBackend =
       textProcessingData.extraction_backend ?? textProcessingData.extractionBackend ?? 'standard';
@@ -165,9 +174,13 @@ class PhentrieveService {
       include_details: textProcessingData.include_details ?? textProcessingData.includeDetails,
     };
 
-    return Object.fromEntries(
-      Object.entries(payload).filter(([, value]) => value !== null && value !== undefined)
-    );
+    return Object.keys(payload).reduce((normalized, key) => {
+      const value = payload[key];
+      if (value !== null && value !== undefined) {
+        normalized[key] = value;
+      }
+      return normalized;
+    }, {});
   }
 
   /**

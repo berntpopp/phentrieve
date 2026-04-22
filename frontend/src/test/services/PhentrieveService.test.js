@@ -225,4 +225,23 @@ describe('PhentrieveService', () => {
     expect(payload).not.toHaveProperty('llm_mode');
     expect(payload).not.toHaveProperty('retrieval_model_name');
   });
+
+  it('posts phenopacket export payloads to the backend endpoint', async () => {
+    axios.post.mockResolvedValue({
+      data: {
+        phenopacket_json: '{"id":"case-1"}',
+        annotation_sidecar: null,
+      },
+    });
+
+    await PhentrieveService.exportPhenopacket({
+      case_id: 'case-1',
+      phenotypes: [],
+    });
+
+    expect(axios.post).toHaveBeenCalledWith('/api/v1/phenopackets/export', {
+      case_id: 'case-1',
+      phenotypes: [],
+    });
+  });
 });

@@ -183,6 +183,7 @@
                 :key="'results-' + item.id"
                 :response-data="item.response"
                 :result-type="item.type"
+                :turn-id="item.id"
                 :error="item.error"
                 :collected-phenotypes="conversationStore.collectedPhenotypes"
                 @add-to-collection="addToPhenotypeCollection"
@@ -236,6 +237,7 @@ import PhentrieveService from '../services/PhentrieveService';
 import { logService } from '../services/logService';
 import { useQueryPreferencesStore } from '../stores/queryPreferences';
 import { useConversationStore } from '../stores/conversation';
+import { useFullTextWorkspaceStore } from '../stores/fullTextWorkspace';
 import { useAdvancedOptions } from '../composables/useAdvancedOptions';
 import { usePhenotypeCollection } from '../composables/usePhenotypeCollection';
 
@@ -254,6 +256,7 @@ export default {
   },
   setup() {
     const conversationStore = useConversationStore();
+    const fullTextWorkspaceStore = useFullTextWorkspaceStore();
 
     const {
       showAdvancedOptions,
@@ -285,6 +288,7 @@ export default {
 
     return {
       conversationStore,
+      fullTextWorkspaceStore,
       // Advanced options
       showAdvancedOptions,
       numResults,
@@ -629,6 +633,10 @@ export default {
         }
         // Update the query response in the store
         this.conversationStore.updateQueryResponse(queryId, response);
+        if (useTextProcessMode) {
+          this.fullTextWorkspaceStore.initializeTurn(queryId);
+          this.fullTextWorkspaceStore.setExpanded(queryId, true);
+        }
       } catch (error) {
         // Update with error in the store
         this.conversationStore.updateQueryResponse(queryId, null, error);

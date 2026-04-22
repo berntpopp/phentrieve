@@ -415,8 +415,32 @@ function refreshPopoverTarget() {
   }
 }
 
+function refreshCustomHighlightGeometry() {
+  if (!supportsCustomHighlight) {
+    customHighlightHitboxes.value = [];
+    return;
+  }
+
+  const hitboxes = [];
+
+  props.chunks.forEach((chunk, chunkIndex) => {
+    const element = findChunkTextElement(chunk.chunk_id);
+
+    getSpanAnnotations(chunk).forEach((annotation, annotationIndex) => {
+      const range = buildCustomHighlightRange(element, annotation, chunk.text || '');
+      if (!range) {
+        return;
+      }
+
+      hitboxes.push(...buildHitboxesForRange(range, annotation, chunkIndex, annotationIndex));
+    });
+  });
+
+  customHighlightHitboxes.value = hitboxes;
+}
+
 function refreshLayoutState() {
-  syncCustomHighlights();
+  refreshCustomHighlightGeometry();
   refreshPopoverTarget();
 }
 

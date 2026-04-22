@@ -6,6 +6,7 @@ import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
 import { createI18n } from 'vue-i18n';
 import en from '../../locales/en.json';
+import { useFullTextWorkspaceStore } from '../../stores/fullTextWorkspace';
 
 // Mock the API service class — methods are queryHpo() and processText()
 // (NOT query() — the real class in services/PhentrieveService.js uses queryHpo)
@@ -119,5 +120,22 @@ describe('QueryInterface (characterization)', () => {
     expect(wrapper.findComponent({ name: 'VTextarea' }).exists()).toBe(true);
     expect(wrapper.text()).toContain(documentModeLabel);
     expect(wrapper.text()).not.toContain(queryModeLabel);
+  });
+
+  it('initializes a workspace turn after a text processing response arrives', async () => {
+    const wrapper = await mountQueryInterface();
+    const workspaceStore = useFullTextWorkspaceStore();
+
+    await wrapper.setData({
+      queryText: 'Patient had recurrent seizures.',
+      forceEndpointMode: 'textProcess',
+    });
+
+    await wrapper.vm.submitQuery();
+
+    const latestQuery = wrapper.vm.conversationStore.queryHistory[0];
+    expect(latestQuery.type).toBe('textProcess');
+    expect(workspaceStore.hasTurn(latestQuery.id)).toBe(true);
+    expect(workspaceStore.getTurnState(latestQuery.id)?.expanded).toBe(true);
   });
 });
