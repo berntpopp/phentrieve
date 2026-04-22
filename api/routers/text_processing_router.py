@@ -482,7 +482,31 @@ def _adapt_shared_service_response_to_api(
     response_model=TextProcessingResponseAPI,
     operation_id="process_clinical_text",
     summary="Process clinical text to extract HPO terms",
-    description="Process clinical text with chunking, assertion detection, and HPO term extraction.",
+    description=(
+        "Process clinical text with chunking, assertion detection, and HPO "
+        "term extraction. When LLM extraction is selected in production, "
+        "clients can opt into automatic fallback to the standard backend by "
+        "sending `X-Phentrieve-Allow-Standard-Fallback: true`."
+    ),
+    openapi_extra={
+        "parameters": [
+            {
+                "name": "X-Phentrieve-Allow-Standard-Fallback",
+                "in": "header",
+                "required": False,
+                "schema": {
+                    "type": "string",
+                    "enum": ["true"],
+                },
+                "description": (
+                    "Optional opt-in for LLM requests in production. When set "
+                    "to `true`, a quota-exhausted LLM request falls back to "
+                    "the standard extraction backend instead of returning "
+                    "`429 Too Many Requests`."
+                ),
+            }
+        ]
+    },
 )
 async def process_text_extract_hpo(
     http_request: Request,

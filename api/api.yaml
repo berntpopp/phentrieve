@@ -54,6 +54,9 @@ cors:
   # Allowed HTTP headers
   allow_headers: ["*"]
 
+  # Clients may send X-Phentrieve-Allow-Standard-Fallback to opt into
+  # standard-backend fallback when an LLM request is quota exhausted.
+
 # =============================================================================
 # DATA PATH CONFIGURATION
 # =============================================================================

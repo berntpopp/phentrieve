@@ -148,7 +148,6 @@ def test_text_processing_router_can_mark_standard_fallback_after_llm_exhaustion(
         lambda **kwargs: {
             "meta": {
                 "extraction_backend": "standard",
-                "fallback_reason": "llm_quota_exhausted",
             },
             "processed_chunks": [],
             "aggregated_hpo_terms": [],
@@ -168,6 +167,8 @@ def test_text_processing_router_can_mark_standard_fallback_after_llm_exhaustion(
 
     assert response.status_code == 200
     assert response.json()["meta"]["fallback_reason"] == "llm_quota_exhausted"
+    assert response.json()["meta"]["llm_quota_limit"] == 5
+    assert response.json()["meta"]["llm_quota_reset_at"] == "2026-04-23T00:00:00+00:00"
 
 
 def test_text_processing_router_rejects_llm_without_model(client):
