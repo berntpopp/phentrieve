@@ -1,5 +1,5 @@
 <template>
-  <section class="annotated-document-pane">
+  <section ref="rootElement" class="annotated-document-pane">
     <article
       v-for="chunk in chunks"
       :key="chunk.chunk_id"
@@ -14,8 +14,9 @@
       />
       <div class="chunk-content">
         <p
-          :ref="(el) => setChunkTextRef(chunk.chunk_id, el)"
+          :data-chunk-text-id="chunk.chunk_id"
           class="chunk-text"
+          @mouseup="handleTextSelection(chunk)"
         >
           <template v-if="!needsFallbackMarks(chunk)">
             {{ chunk.text }}
@@ -27,6 +28,7 @@
                 :data-annotation-id="segment.annotationId"
                 :aria-details="`annotation-detail-${segment.annotationId}`"
                 :class="{ 'annotated-mark--selected': segment.selected }"
+                @click.stop="openAnnotationPopover($event, segment)"
               >
                 {{ segment.text }}
               </mark>
@@ -43,11 +45,23 @@
         </p>
       </div>
     </article>
+
+    <AnnotationActionPopover
+      :visible="popoverVisible"
+      :target="popoverTarget"
+      :annotation-id="activeAnnotationId"
+      :selected-text="activeSelectedText"
+      @inspect="noop"
+      @add-to-case="noop"
+      @change-term="noop"
+      @remove-annotation="noop"
+    />
   </section>
 </template>
 
 <script setup>
-import { computed, nextTick, onBeforeUnmount, onMounted, watch } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import AnnotationActionPopover from './AnnotationActionPopover.vue';
 
 const props = defineProps({
   chunks: {
@@ -61,38 +75,65 @@ const props = defineProps({
 });
 
 const supportsCustomHighlight =
-  typeof CSS !== 'undefined' &&
-  typeof Highlight !== 'undefined' &&
-  typeof CSS.highlights !== 'undefined';
+  typeof globalThis.CSS !== 'undefined' &&
+  typeof globalThis.Highlight !== 'undefined' &&
+  typeof globalThis.CSS.highlights !== 'undefined';
 
-const chunkTextRefs = new Map();
 const customHighlightNames = new Set();
+let customHighlightStyleElement = null;
+const rootElement = ref(null);
+
+const popoverVisible = ref(false);
+const popoverTarget = ref(null);
+const activeAnnotationId = ref(null);
+const activeSelectedText = ref('');
 
 const selectedAnnotationSet = computed(() => new Set(props.selectedAnnotationIds));
 
-function setChunkTextRef(chunkId, element) {
-  if (element) {
-    chunkTextRefs.set(chunkId, element);
-    return;
-  }
+function noop() {}
 
-  chunkTextRefs.delete(chunkId);
+function findChunkTextElement(chunkId) {
+  return rootElement.value?.querySelector(`[data-chunk-text-id="${chunkId}"]`) || null;
 }
 
 function getAnnotations(chunk) {
   return Array.isArray(chunk.annotations) ? [...chunk.annotations] : [];
 }
 
+function getSpanAnnotations(chunk) {
+  if ((chunk.evidence_mode || 'chunk') !== 'span') {
+    return [];
+  }
+
+  const textLength = (chunk.text || '').length;
+
+  return getAnnotations(chunk)
+    .filter((item) => item.start_char != null && item.end_char != null)
+    .map((item, index) => {
+      const start = Math.max(0, Math.min(item.start_char, textLength));
+      const end = Math.max(start, Math.min(item.end_char, textLength));
+
+      if (end <= start) {
+        return null;
+      }
+
+      return {
+        ...item,
+        id: item.id || `annotation-${chunk.chunk_id}-${index}`,
+        start_char: start,
+        end_char: end,
+      };
+    })
+    .filter(Boolean);
+}
+
 function needsFallbackMarks(chunk) {
-  return chunk.evidence_mode === 'span' && getAnnotations(chunk).length > 0 && !supportsCustomHighlight;
+  return getSpanAnnotations(chunk).length > 0 && !supportsCustomHighlight;
 }
 
 function buildMarkedSegments(chunk) {
   const text = chunk.text || '';
-  const annotations = getAnnotations(chunk)
-    .filter((item) => item.start_char != null && item.end_char != null)
-    .sort((left, right) => left.start_char - right.start_char);
-
+  const annotations = getSpanAnnotations(chunk).sort((left, right) => left.start_char - right.start_char);
   const segments = [];
   let cursor = 0;
 
@@ -108,13 +149,11 @@ function buildMarkedSegments(chunk) {
     }
 
     if (end > start) {
-      const annotationId = annotation.id || `annotation-${index}`;
-
       segments.push({
-        key: `annotation-${annotationId}-${start}-${end}`,
+        key: `annotation-${annotation.id}-${start}-${end}`,
         text: text.slice(start, end),
-        annotationId,
-        selected: selectedAnnotationSet.value.has(annotationId),
+        annotationId: annotation.id,
+        selected: selectedAnnotationSet.value.has(annotation.id),
         detailText: annotation.matched_text_in_chunk || text.slice(start, end),
       });
       cursor = end;
@@ -131,41 +170,116 @@ function buildMarkedSegments(chunk) {
   return segments;
 }
 
+function getHighlightName(annotationId, selected) {
+  return selected ? `annotation-selected-${annotationId}` : `annotation-${annotationId}`;
+}
+
+function ensureCustomHighlightStyleElement() {
+  if (!supportsCustomHighlight) {
+    return null;
+  }
+
+  if (!customHighlightStyleElement) {
+    customHighlightStyleElement = document.createElement('style');
+    customHighlightStyleElement.setAttribute('data-annotated-document-highlight-style', 'true');
+    document.head.appendChild(customHighlightStyleElement);
+  }
+
+  return customHighlightStyleElement;
+}
+
+function syncCustomHighlightStyles() {
+  if (!supportsCustomHighlight) {
+    return;
+  }
+
+  const styleElement = ensureCustomHighlightStyleElement();
+  const rules = [];
+
+  props.chunks.forEach((chunk) => {
+    getSpanAnnotations(chunk).forEach((annotation) => {
+      const baseName = getHighlightName(annotation.id, false);
+      const selectedName = getHighlightName(annotation.id, true);
+
+      rules.push(
+        `::highlight(${baseName}) { background: rgba(var(--v-theme-warning), 0.24); border-bottom: 1px solid rgba(var(--v-theme-warning), 0.72); }`
+      );
+      rules.push(
+        `::highlight(${selectedName}) { background: rgba(var(--v-theme-error), 0.22); border-bottom: 1px solid rgba(var(--v-theme-error), 0.8); }`
+      );
+    });
+  });
+
+  styleElement.textContent = rules.join('\n');
+}
+
 function clearCustomHighlights() {
   if (!supportsCustomHighlight) {
     return;
   }
 
   customHighlightNames.forEach((name) => {
-    CSS.highlights.delete(name);
+    globalThis.CSS.highlights.delete(name);
   });
   customHighlightNames.clear();
 }
 
-function applyCustomHighlights(chunkId, element, annotations) {
-  if (!supportsCustomHighlight || !element) return;
+function findFirstTextNode(element) {
+  if (!element) {
+    return null;
+  }
 
-  const highlightName = `chunk-${chunkId}`;
-  const ranges = annotations
-    .filter((item) => item.start_char != null && item.end_char != null)
-    .map((item) => {
-      const firstTextNode = element.firstChild;
-      if (!firstTextNode) return null;
+  if (element.firstChild?.nodeType === 3) {
+    return element.firstChild;
+  }
 
-      const range = new Range();
-      range.setStart(firstTextNode, item.start_char);
-      range.setEnd(firstTextNode, item.end_char);
-      return range;
-    })
-    .filter(Boolean);
+  const nodes = [...element.childNodes];
 
-  if (ranges.length === 0) {
-    CSS.highlights.delete(highlightName);
-    customHighlightNames.delete(highlightName);
+  while (nodes.length > 0) {
+    const node = nodes.shift();
+
+    if (node?.nodeType === 3) {
+      return node;
+    }
+
+    if (node?.childNodes?.length) {
+      nodes.unshift(...node.childNodes);
+    }
+  }
+
+  return null;
+}
+
+function applyCustomHighlight(element, annotation, chunkText) {
+  if (!supportsCustomHighlight || !element) {
     return;
   }
 
-  CSS.highlights.set(highlightName, new Highlight(...ranges));
+  if (!element.textContent && chunkText) {
+    element.textContent = chunkText;
+  }
+
+  const textNode = findFirstTextNode(element);
+  if (!textNode) {
+    return;
+  }
+
+  const nodeLength = textNode.textContent?.length || chunkText.length || 0;
+  const start = Math.max(0, Math.min(annotation.start_char, nodeLength));
+  const end = Math.max(start, Math.min(annotation.end_char, nodeLength));
+
+  if (end <= start) {
+    return;
+  }
+
+  const selected = selectedAnnotationSet.value.has(annotation.id);
+  const highlightName = getHighlightName(annotation.id, selected);
+  const range = new globalThis.Range();
+
+  range.setStart(textNode, start);
+  range.setEnd(textNode, end);
+
+  globalThis.CSS.highlights.set(highlightName, new globalThis.Highlight(range));
   customHighlightNames.add(highlightName);
 }
 
@@ -175,28 +289,103 @@ async function syncCustomHighlights() {
   }
 
   clearCustomHighlights();
+  syncCustomHighlightStyles();
 
   props.chunks.forEach((chunk) => {
-    const element = chunkTextRefs.get(chunk.chunk_id);
-    applyCustomHighlights(chunk.chunk_id, element, getAnnotations(chunk));
+    const element = findChunkTextElement(chunk.chunk_id);
+
+    getSpanAnnotations(chunk).forEach((annotation) => {
+      applyCustomHighlight(element, annotation, chunk.text || '');
+    });
   });
 }
 
+function clearPopover() {
+  popoverVisible.value = false;
+  popoverTarget.value = null;
+  activeAnnotationId.value = null;
+  activeSelectedText.value = '';
+}
+
+function rectToTarget(rect) {
+  if (!rect) {
+    return null;
+  }
+
+  return {
+    x: rect.left + rect.width / 2,
+    y: rect.top,
+  };
+}
+
+function openPopover(target, options = {}) {
+  if (!target) {
+    clearPopover();
+    return;
+  }
+
+  popoverTarget.value = target;
+  activeAnnotationId.value = options.annotationId || null;
+  activeSelectedText.value = options.selectedText || '';
+  popoverVisible.value = true;
+}
+
+function openAnnotationPopover(event, segment) {
+  const rect = event?.currentTarget?.getBoundingClientRect?.();
+  const selection = window.getSelection?.();
+
+  selection?.removeAllRanges?.();
+
+  openPopover(rectToTarget(rect), {
+    annotationId: segment.annotationId,
+    selectedText: segment.text,
+  });
+}
+
+function handleTextSelection(chunk) {
+  const selection = window.getSelection?.();
+
+  if (!selection || selection.isCollapsed || selection.rangeCount === 0) {
+    return;
+  }
+
+  const chunkElement = findChunkTextElement(chunk.chunk_id);
+  if (!chunkElement) {
+    return;
+  }
+
+  if (!chunkElement.contains(selection.anchorNode) || !chunkElement.contains(selection.focusNode)) {
+    return;
+  }
+
+  const selectedText = selection.toString().trim();
+  if (!selectedText) {
+    return;
+  }
+
+  const rect = selection.getRangeAt(0).getBoundingClientRect();
+  openPopover(rectToTarget(rect), { selectedText });
+}
+
 watch(
-  () => props.chunks,
+  () => [props.chunks, props.selectedAnnotationIds],
   async () => {
     await nextTick();
     await syncCustomHighlights();
   },
-  { deep: true, immediate: true }
+  { deep: true, immediate: true, flush: 'post' }
 );
 
 onMounted(() => {
-  syncCustomHighlights();
+  nextTick(() => {
+    syncCustomHighlights();
+  });
 });
 
 onBeforeUnmount(() => {
   clearCustomHighlights();
+  customHighlightStyleElement?.remove();
+  customHighlightStyleElement = null;
 });
 </script>
 

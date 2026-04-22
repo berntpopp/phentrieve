@@ -1,9 +1,116 @@
-import { describe, it, expect } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { mount } from '@vue/test-utils';
+
+let originalCSS;
+let originalHighlight;
+let originalRange;
+
+function installCustomHighlightSupport() {
+  const set = vi.fn();
+  const deleteFn = vi.fn();
+  originalCSS = globalThis.CSS;
+  originalHighlight = globalThis.Highlight;
+  originalRange = globalThis.Range;
+
+  Object.defineProperty(globalThis, 'Highlight', {
+    configurable: true,
+    writable: true,
+    value: class Highlight {
+      constructor(...ranges) {
+        this.ranges = ranges;
+      }
+    },
+  });
+  Object.defineProperty(globalThis, 'CSS', {
+    configurable: true,
+    writable: true,
+    value: {
+      highlights: {
+        set,
+        delete: deleteFn,
+      },
+    },
+  });
+  Object.defineProperty(globalThis, 'Range', {
+    configurable: true,
+    writable: true,
+    value: class Range {
+      setStart(node, offset) {
+        this.start = { node, offset };
+      }
+
+      setEnd(node, offset) {
+        this.end = { node, offset };
+      }
+    },
+  });
+
+  return { set, deleteFn };
+}
+
+function restoreHighlightGlobals() {
+  if (originalCSS === undefined) {
+    delete globalThis.CSS;
+  } else {
+    Object.defineProperty(globalThis, 'CSS', {
+      configurable: true,
+      writable: true,
+      value: originalCSS,
+    });
+  }
+
+  if (originalHighlight === undefined) {
+    delete globalThis.Highlight;
+  } else {
+    Object.defineProperty(globalThis, 'Highlight', {
+      configurable: true,
+      writable: true,
+      value: originalHighlight,
+    });
+  }
+
+  if (originalRange === undefined) {
+    delete globalThis.Range;
+  } else {
+    Object.defineProperty(globalThis, 'Range', {
+      configurable: true,
+      writable: true,
+      value: originalRange,
+    });
+  }
+
+  originalCSS = undefined;
+  originalHighlight = undefined;
+  originalRange = undefined;
+}
+
+async function loadComponent() {
+  vi.resetModules();
+  return (await import('../../components/AnnotatedDocumentPane.vue')).default;
+}
+
+function popoverStub() {
+  return {
+    AnnotationActionPopover: {
+      props: ['visible', 'target', 'annotationId', 'selectedText'],
+      template:
+        '<div class="popover-probe" :data-visible="visible" :data-target-left="target?.x ?? \'\'" :data-annotation-id="annotationId ?? \'\'" :data-selected-text="selectedText ?? \'\'" />',
+    },
+  };
+}
+
+afterEach(() => {
+  vi.restoreAllMocks();
+  vi.resetModules();
+  restoreHighlightGlobals();
+  document.head.querySelectorAll('[data-annotated-document-highlight-style]').forEach((node) => {
+    node.remove();
+  });
+});
 
 describe('AnnotatedDocumentPane', () => {
   it('renders chunk-only evidence with gutter tint and span evidence with marks', async () => {
-    const component = (await import('../../components/AnnotatedDocumentPane.vue')).default;
+    const component = await loadComponent();
     const wrapper = mount(component, {
       props: {
         chunks: [
@@ -24,9 +131,125 @@ describe('AnnotatedDocumentPane', () => {
           },
         ],
       },
+      global: {
+        stubs: popoverStub(),
+      },
     });
 
     expect(wrapper.find('[data-chunk-evidence-mode="chunk"]').exists()).toBe(true);
     expect(wrapper.find('mark[data-annotation-id="ann-1"]').exists()).toBe(true);
+  });
+
+  it('registers styled custom highlights only for span evidence and resyncs selected annotations', async () => {
+    const { set, deleteFn } = installCustomHighlightSupport();
+    const component = await loadComponent();
+    const wrapper = mount(component, {
+      props: {
+        chunks: [
+          {
+            chunk_id: 1,
+            text: 'Chunk-only evidence should not get offset highlights.',
+            evidence_mode: 'chunk',
+            annotations: [{ id: 'chunk-ann', start_char: 0, end_char: 10 }],
+          },
+          {
+            chunk_id: 2,
+            text: 'Developmental delay with seizures.',
+            evidence_mode: 'span',
+            annotations: [
+              { id: 'ann-1', start_char: 0, end_char: 19 },
+              { id: 'ann-2', start_char: 25, end_char: 33 },
+            ],
+          },
+        ],
+        selectedAnnotationIds: ['ann-2'],
+      },
+      global: {
+        stubs: popoverStub(),
+      },
+    });
+
+    await wrapper.vm.$nextTick();
+    await wrapper.vm.$nextTick();
+    await new Promise((resolve) => {
+      setTimeout(resolve, 0);
+    });
+
+    expect(wrapper.find('mark[data-annotation-id="ann-1"]').exists()).toBe(false);
+    expect(set).toHaveBeenCalledWith('annotation-ann-1', expect.any(globalThis.Highlight));
+    expect(set).toHaveBeenCalledWith('annotation-selected-ann-2', expect.any(globalThis.Highlight));
+    expect(set).not.toHaveBeenCalledWith('annotation-chunk-ann', expect.anything());
+    expect(document.head.innerHTML).toContain('::highlight(annotation-ann-1)');
+    expect(document.head.innerHTML).toContain('::highlight(annotation-selected-ann-2)');
+
+    set.mockClear();
+    deleteFn.mockClear();
+
+    await wrapper.setProps({ selectedAnnotationIds: ['ann-1'] });
+    await wrapper.vm.$nextTick();
+    await new Promise((resolve) => {
+      setTimeout(resolve, 0);
+    });
+
+    expect(deleteFn).toHaveBeenCalledWith('annotation-ann-1');
+    expect(deleteFn).toHaveBeenCalledWith('annotation-selected-ann-2');
+    expect(set).toHaveBeenCalledWith('annotation-selected-ann-1', expect.any(globalThis.Highlight));
+    expect(set).toHaveBeenCalledWith('annotation-ann-2', expect.any(globalThis.Highlight));
+    expect(document.head.innerHTML).toContain('::highlight(annotation-selected-ann-1)');
+  });
+
+  it('opens the action popover for selected text and annotation clicks with an anchor target', async () => {
+    const component = await loadComponent();
+    const wrapper = mount(component, {
+      props: {
+        chunks: [
+          {
+            chunk_id: 2,
+            text: 'Developmental delay was present.',
+            evidence_mode: 'span',
+            annotations: [
+              { id: 'ann-1', start_char: 0, end_char: 19, matched_text_in_chunk: 'Developmental delay' },
+            ],
+          },
+        ],
+      },
+      global: {
+        stubs: popoverStub(),
+      },
+    });
+
+    const textNode = wrapper.find('.chunk-text').element.firstChild;
+    const removeAllRanges = vi.fn();
+    vi.spyOn(window, 'getSelection').mockReturnValue({
+      isCollapsed: false,
+      rangeCount: 1,
+      anchorNode: textNode,
+      focusNode: textNode,
+      toString: () => 'Developmental delay',
+      getRangeAt: () => ({
+        getBoundingClientRect: () => ({
+          left: 12,
+          top: 24,
+          right: 56,
+          bottom: 40,
+          width: 44,
+          height: 16,
+        }),
+      }),
+      removeAllRanges,
+    });
+
+    await wrapper.find('.chunk-text').trigger('mouseup');
+
+    expect(wrapper.find('.popover-probe').attributes('data-visible')).toBe('true');
+    expect(wrapper.find('.popover-probe').attributes('data-selected-text')).toBe(
+      'Developmental delay'
+    );
+    expect(wrapper.find('.popover-probe').attributes('data-target-left')).toBe('34');
+
+    await wrapper.find('mark[data-annotation-id="ann-1"]').trigger('click');
+
+    expect(wrapper.find('.popover-probe').attributes('data-annotation-id')).toBe('ann-1');
+    expect(removeAllRanges).toHaveBeenCalled();
   });
 });

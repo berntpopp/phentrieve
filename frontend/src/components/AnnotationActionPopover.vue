@@ -1,5 +1,11 @@
 <template>
-  <v-menu :model-value="visible" location="top">
+  <v-menu
+    :model-value="visible"
+    :target="target"
+    location="top"
+    location-strategy="connected"
+    :scrim="false"
+  >
     <v-list density="compact">
       <v-list-item title="Inspect" @click="$emit('inspect')" />
       <v-list-item title="Add to case" @click="$emit('add-to-case')" />
@@ -14,6 +20,18 @@ defineProps({
   visible: {
     type: Boolean,
     default: false,
+  },
+  target: {
+    type: Object,
+    default: null,
+  },
+  annotationId: {
+    type: String,
+    default: null,
+  },
+  selectedText: {
+    type: String,
+    default: '',
   },
 });
 
