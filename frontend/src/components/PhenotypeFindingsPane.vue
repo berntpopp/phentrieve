@@ -95,9 +95,12 @@ function hoverPayload(term) {
 
 function inspectPayload(term) {
   return {
-    hpoId: term.hpoId,
-    sourceChunkIds: [...term.sourceChunkIds],
-    topEvidenceChunkId: term.topEvidenceChunkId,
+    hpo_id: term.hpoId,
+    name: term.name,
+    confidence: term.confidence,
+    status: term.status,
+    source_chunk_ids: [...term.sourceChunkIds],
+    top_evidence_chunk_id: term.topEvidenceChunkId,
   };
 }
 </script>

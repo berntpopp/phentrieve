@@ -43,7 +43,7 @@ defineEmits(['back']);
 const { t } = useI18n();
 
 const normalizedTerm = computed(() => {
-  if (!props.selectedTerm) return null;
+  if (!isValidSelectedTerm(props.selectedTerm)) return null;
 
   return {
     hpoId: props.selectedTerm.hpo_id,
@@ -56,4 +56,13 @@ const formattedConfidence = computed(() => {
   if (normalizedTerm.value?.confidence == null) return '';
   return normalizedTerm.value.confidence.toFixed(2);
 });
+
+function isValidSelectedTerm(term) {
+  return (
+    term != null &&
+    typeof term.hpo_id === 'string' &&
+    typeof term.name === 'string' &&
+    (term.confidence == null || typeof term.confidence === 'number')
+  );
+}
 </script>

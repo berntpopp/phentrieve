@@ -68,9 +68,12 @@ describe('PhenotypeFindingsPane', () => {
     expect(wrapper.text()).toContain(`${en.resultsDisplay.textProcess.topEvidence}: #1`);
   });
 
-  it('emits explicit hover and inspect payload objects for the interacted term', async () => {
+  it('emits an inspect payload that is directly compatible with the inspector term shape', async () => {
     const term = findingsTerm({
       hpo_id: 'HP:0004322',
+      name: 'Spasticity',
+      confidence: 0.88,
+      status: 'negated',
       source_chunk_ids: [2, 7],
       top_evidence_chunk_id: 7,
     });
@@ -93,9 +96,12 @@ describe('PhenotypeFindingsPane', () => {
     expect(wrapper.emitted('inspect-term')).toEqual([
       [
         {
-          hpoId: 'HP:0004322',
-          topEvidenceChunkId: 7,
-          sourceChunkIds: [2, 7],
+          hpo_id: 'HP:0004322',
+          name: 'Spasticity',
+          confidence: 0.88,
+          status: 'negated',
+          source_chunk_ids: [2, 7],
+          top_evidence_chunk_id: 7,
         },
       ],
     ]);
@@ -142,5 +148,30 @@ describe('AnnotationInspectorPanel', () => {
     await wrapper.get('button').trigger('click');
 
     expect(wrapper.emitted('back')).toEqual([[]]);
+  });
+
+  it('suppresses details when selectedTerm does not match the expected contract', async () => {
+    const wrapper = await mountInspector({
+      hpoId: 'HP:0004322',
+      name: 'Spasticity',
+      confidence: 0.88,
+    });
+
+    expect(wrapper.text()).toContain(en.resultsDisplay.showDetails);
+    expect(wrapper.text()).not.toContain('Spasticity');
+    expect(wrapper.text()).not.toContain(`${en.resultsDisplay.confidenceHeader}: 0.88`);
+  });
+
+  it('renders the selected term label even when numeric confidence is unavailable', async () => {
+    const wrapper = await mountInspector(
+      findingsTerm({
+        hpo_id: 'HP:0004322',
+        name: 'Spasticity',
+        confidence: null,
+      })
+    );
+
+    expect(wrapper.text()).toContain('Spasticity');
+    expect(wrapper.text()).toContain(`${en.resultsDisplay.confidenceHeader}:`);
   });
 });
