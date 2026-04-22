@@ -62,9 +62,16 @@ def test_text_processing_router_returns_llm_meta(client, monkeypatch):
     assert response.json()["meta"]["extraction_backend"] == "llm"
 
 
-def test_text_processing_router_returns_localizable_quota_metadata(monkeypatch):
+def test_text_processing_router_returns_localizable_quota_metadata(
+    tmp_path, monkeypatch
+):
     monkeypatch.setattr("api.config.PHENTRIEVE_ENV", "production", raising=False)
     monkeypatch.setattr("api.config.PHENTRIEVE_LLM_DAILY_LIMIT", 5, raising=False)
+    monkeypatch.setattr(
+        "api.config.PHENTRIEVE_LLM_QUOTA_DB_PATH",
+        str(tmp_path / "llm_quota.db"),
+        raising=False,
+    )
     monkeypatch.setattr(
         "api.main.get_sbert_model_dependency",
         AsyncMock(return_value=MagicMock(model_name="FremyCompany/BioLORD-2023-M")),
@@ -207,6 +214,7 @@ def test_text_processing_router_returns_429_when_quota_exhausted(client, monkeyp
 
     assert response.status_code == 429
     assert response.json()["detail"]["quota_remaining"] == 0
+    assert response.json()["detail"]["quota_reset_at"] == "2026-04-16T00:00:00+00:00"
 
 
 def test_text_processing_router_returns_503_when_subject_resolution_is_untrusted(

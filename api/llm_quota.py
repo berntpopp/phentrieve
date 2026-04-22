@@ -74,6 +74,7 @@ class QuotaExceededError(Exception):
             "quota_limit": self.quota_limit,
             "quota_remaining": self.quota_remaining,
             "usage_date_utc": self.usage_date_utc,
+            "quota_reset_at": quota_reset_at_iso(self.usage_date_utc),
         }
 
 

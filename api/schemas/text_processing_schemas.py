@@ -258,13 +258,3 @@ class TextProcessingResponseAPI(BaseModel):
         ...,
         description="Final list of aggregated HPO terms extracted from the document.",
     )
-
-
-class TextProcessingMetaAPI(BaseModel):
-    extraction_backend: Literal["standard", "llm"]
-    quota_limit: int | None = None
-    quota_remaining: int | None = None
-    quota_reset_at: str | None = None
-    fallback_reason: str | None = None
-    llm_quota_limit: int | None = None
-    llm_quota_reset_at: str | None = None

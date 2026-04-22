@@ -70,6 +70,9 @@ data:
 # ENVIRONMENT CONTROLS
 # =============================================================================
 
+# Reference only: these environment variables are documented here for local setup,
+# but api/config.py resolves them from real environment variables rather than from
+# this YAML block.
 environment:
   PHENTRIEVE_ENV: "development"
   PHENTRIEVE_TRUSTED_PROXY_CIDRS: ""
