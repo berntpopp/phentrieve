@@ -155,6 +155,12 @@ describe('fullTextWorkspace store', () => {
     expect(() => store.setCases('turn-a', [{}])).toThrow(
       'Workspace cases[0].id must be a non-empty string'
     );
+    expect(() =>
+      store.setCases('turn-a', [
+        { id: 'case-1', label: 'Case 1' },
+        { id: 'case-1', label: 'Case 1 duplicate' },
+      ])
+    ).toThrow('Workspace cases must not contain duplicate ids: case-1');
     expect(() => store.setUndoStack('turn-a', {})).toThrow(
       'Workspace undo stack must be an array'
     );
@@ -169,6 +175,24 @@ describe('fullTextWorkspace store', () => {
     );
     expect(() => store.setActiveCaseId('turn-a', 'missing-case')).toThrow(
       'Active case id must reference an existing case: missing-case'
+    );
+  });
+
+  it('rejects invalid quota banner payloads', () => {
+    const store = useFullTextWorkspaceStore();
+    store.initializeTurn('turn-a');
+
+    expect(() => store.setQuotaBanner('turn-a', 'invalid')).toThrow(
+      'Workspace quota banner must be null or an object'
+    );
+    expect(() => store.setQuotaBanner('turn-a', { fallbackReason: '' })).toThrow(
+      'Workspace quota banner fallbackReason must be a non-empty string'
+    );
+    expect(() => store.setQuotaBanner('turn-a', { quotaResetAt: '' })).toThrow(
+      'Workspace quota banner quotaResetAt must be a non-empty string'
+    );
+    expect(() => store.setQuotaBanner('turn-a', { fallbackReason: 'x', retry: () => {} })).toThrow(
+      'Workspace quota banner must be JSON-serializable'
     );
   });
 

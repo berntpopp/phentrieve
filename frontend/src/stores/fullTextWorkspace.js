@@ -80,6 +80,7 @@ function assertCases(cases) {
     throw new Error('Workspace cases must be an array');
   }
 
+  const seenIds = new Set();
   cases.forEach((item, index) => {
     if (!item || typeof item !== 'object' || Array.isArray(item)) {
       throw new Error(`Workspace cases[${index}] must be an object`);
@@ -88,6 +89,12 @@ function assertCases(cases) {
     if (typeof item.id !== 'string' || item.id.length === 0) {
       throw new Error(`Workspace cases[${index}].id must be a non-empty string`);
     }
+
+    if (seenIds.has(item.id)) {
+      throw new Error(`Workspace cases must not contain duplicate ids: ${item.id}`);
+    }
+
+    seenIds.add(item.id);
   });
 }
 
@@ -97,6 +104,55 @@ function assertStackItems(items, label) {
   }
 
   assertObjectEntries(items, `Workspace ${label} items must be objects`);
+}
+
+function assertJsonSerializableValue(value) {
+  if (value === null) {
+    return;
+  }
+
+  if (Array.isArray(value)) {
+    value.forEach((item) => assertJsonSerializableValue(item));
+    return;
+  }
+
+  const valueType = typeof value;
+  if (valueType === 'string' || valueType === 'number' || valueType === 'boolean') {
+    return;
+  }
+
+  if (valueType === 'object') {
+    Object.values(value).forEach((item) => assertJsonSerializableValue(item));
+    return;
+  }
+
+  throw new Error('Workspace quota banner must be JSON-serializable');
+}
+
+function assertQuotaBanner(banner) {
+  if (banner === null) {
+    return;
+  }
+
+  if (!banner || typeof banner !== 'object' || Array.isArray(banner)) {
+    throw new Error('Workspace quota banner must be null or an object');
+  }
+
+  if (
+    'fallbackReason' in banner &&
+    (typeof banner.fallbackReason !== 'string' || banner.fallbackReason.length === 0)
+  ) {
+    throw new Error('Workspace quota banner fallbackReason must be a non-empty string');
+  }
+
+  if (
+    'quotaResetAt' in banner &&
+    (typeof banner.quotaResetAt !== 'string' || banner.quotaResetAt.length === 0)
+  ) {
+    throw new Error('Workspace quota banner quotaResetAt must be a non-empty string');
+  }
+
+  assertJsonSerializableValue(banner);
 }
 
 export const useFullTextWorkspaceStore = defineStore('fullTextWorkspace', () => {
@@ -162,6 +218,7 @@ export const useFullTextWorkspaceStore = defineStore('fullTextWorkspace', () => 
   }
 
   function setQuotaBanner(turnId, banner) {
+    assertQuotaBanner(banner);
     requireTurn(turnId).quotaBanner = cloneWorkspaceValue(banner);
   }
 
