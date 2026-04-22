@@ -5,9 +5,10 @@ let originalCSS;
 let originalHighlight;
 let originalRange;
 
-function installCustomHighlightSupport() {
+function installCustomHighlightSupport(rects = []) {
   const set = vi.fn();
   const deleteFn = vi.fn();
+  const rectQueue = [...rects];
   originalCSS = globalThis.CSS;
   originalHighlight = globalThis.Highlight;
   originalRange = globalThis.Range;
@@ -35,12 +36,31 @@ function installCustomHighlightSupport() {
     configurable: true,
     writable: true,
     value: class Range {
+      constructor() {
+        this.rect = rectQueue.shift() || {
+          left: 10,
+          top: 20,
+          right: 40,
+          bottom: 28,
+          width: 30,
+          height: 8,
+        };
+      }
+
       setStart(node, offset) {
         this.start = { node, offset };
       }
 
       setEnd(node, offset) {
         this.end = { node, offset };
+      }
+
+      getClientRects() {
+        return [this.rect];
+      }
+
+      getBoundingClientRect() {
+        return this.rect;
       }
     },
   });
@@ -97,6 +117,14 @@ function popoverStub() {
         '<div class="popover-probe" :data-visible="visible" :data-target-left="target?.x ?? \'\'" :data-annotation-id="annotationId ?? \'\'" :data-selected-text="selectedText ?? \'\'" />',
     },
   };
+}
+
+async function waitForHighlightSync(wrapper) {
+  await wrapper.vm.$nextTick();
+  await wrapper.vm.$nextTick();
+  await new Promise((resolve) => {
+    setTimeout(resolve, 0);
+  });
 }
 
 afterEach(() => {
@@ -169,11 +197,7 @@ describe('AnnotatedDocumentPane', () => {
       },
     });
 
-    await wrapper.vm.$nextTick();
-    await wrapper.vm.$nextTick();
-    await new Promise((resolve) => {
-      setTimeout(resolve, 0);
-    });
+    await waitForHighlightSync(wrapper);
 
     expect(wrapper.find('mark[data-annotation-id="ann-1"]').exists()).toBe(false);
     expect(set).toHaveBeenCalledWith('annotation-ann-1', expect.any(globalThis.Highlight));
@@ -186,10 +210,7 @@ describe('AnnotatedDocumentPane', () => {
     deleteFn.mockClear();
 
     await wrapper.setProps({ selectedAnnotationIds: ['ann-1'] });
-    await wrapper.vm.$nextTick();
-    await new Promise((resolve) => {
-      setTimeout(resolve, 0);
-    });
+    await waitForHighlightSync(wrapper);
 
     expect(deleteFn).toHaveBeenCalledWith('annotation-ann-1');
     expect(deleteFn).toHaveBeenCalledWith('annotation-selected-ann-2');
@@ -198,9 +219,58 @@ describe('AnnotatedDocumentPane', () => {
     expect(document.head.innerHTML).toContain('::highlight(annotation-selected-ann-1)');
   });
 
-  it('opens the action popover for selected text and annotation clicks with an anchor target', async () => {
+  it('keeps repeated linked ranges highlighted together for the same annotation id', async () => {
+    const { set, deleteFn } = installCustomHighlightSupport([
+      { left: 10, top: 20, right: 40, bottom: 28, width: 30, height: 8 },
+      { left: 60, top: 20, right: 90, bottom: 28, width: 30, height: 8 },
+      { left: 10, top: 20, right: 40, bottom: 28, width: 30, height: 8 },
+      { left: 60, top: 20, right: 90, bottom: 28, width: 30, height: 8 },
+    ]);
     const component = await loadComponent();
     const wrapper = mount(component, {
+      props: {
+        chunks: [
+          {
+            chunk_id: 2,
+            text: 'Seizures and more seizures were reported.',
+            evidence_mode: 'span',
+            annotations: [
+              { id: 'shared-ann', start_char: 0, end_char: 8, matched_text_in_chunk: 'Seizures' },
+              { id: 'shared-ann', start_char: 18, end_char: 26, matched_text_in_chunk: 'seizures' },
+            ],
+          },
+        ],
+        selectedAnnotationIds: ['shared-ann'],
+      },
+      global: {
+        stubs: popoverStub(),
+      },
+    });
+
+    await waitForHighlightSync(wrapper);
+
+    const selectedSharedCall = set.mock.calls.find(([name]) => name === 'annotation-selected-shared-ann');
+
+    expect(selectedSharedCall).toBeDefined();
+    expect(selectedSharedCall[1].ranges).toHaveLength(2);
+    expect(wrapper.findAll('[data-custom-highlight-hitbox="shared-ann"]')).toHaveLength(2);
+
+    set.mockClear();
+    deleteFn.mockClear();
+
+    await wrapper.setProps({ selectedAnnotationIds: [] });
+    await waitForHighlightSync(wrapper);
+
+    const unselectedSharedCall = set.mock.calls.find(([name]) => name === 'annotation-shared-ann');
+
+    expect(deleteFn).toHaveBeenCalledWith('annotation-selected-shared-ann');
+    expect(unselectedSharedCall).toBeDefined();
+    expect(unselectedSharedCall[1].ranges).toHaveLength(2);
+  });
+
+  it('opens the action popover for selected text and annotation clicks in both fallback and custom highlight paths', async () => {
+    const fallbackComponent = await loadComponent();
+    const fallbackWrapper = mount(fallbackComponent, {
       props: {
         chunks: [
           {
@@ -218,7 +288,7 @@ describe('AnnotatedDocumentPane', () => {
       },
     });
 
-    const textNode = wrapper.find('.chunk-text').element.firstChild;
+    const textNode = fallbackWrapper.find('.chunk-text').element.firstChild;
     const removeAllRanges = vi.fn();
     vi.spyOn(window, 'getSelection').mockReturnValue({
       isCollapsed: false,
@@ -239,17 +309,55 @@ describe('AnnotatedDocumentPane', () => {
       removeAllRanges,
     });
 
-    await wrapper.find('.chunk-text').trigger('mouseup');
+    await fallbackWrapper.find('.chunk-text').trigger('mouseup');
 
-    expect(wrapper.find('.popover-probe').attributes('data-visible')).toBe('true');
-    expect(wrapper.find('.popover-probe').attributes('data-selected-text')).toBe(
+    expect(fallbackWrapper.find('.popover-probe').attributes('data-visible')).toBe('true');
+    expect(fallbackWrapper.find('.popover-probe').attributes('data-selected-text')).toBe(
       'Developmental delay'
     );
-    expect(wrapper.find('.popover-probe').attributes('data-target-left')).toBe('34');
+    expect(fallbackWrapper.find('.popover-probe').attributes('data-target-left')).toBe('34');
 
-    await wrapper.find('mark[data-annotation-id="ann-1"]').trigger('click');
+    await fallbackWrapper.find('mark[data-annotation-id="ann-1"]').trigger('click');
 
-    expect(wrapper.find('.popover-probe').attributes('data-annotation-id')).toBe('ann-1');
+    expect(fallbackWrapper.find('.popover-probe').attributes('data-annotation-id')).toBe('ann-1');
     expect(removeAllRanges).toHaveBeenCalled();
+
+    vi.restoreAllMocks();
+
+    installCustomHighlightSupport([
+      { left: 30, top: 40, right: 70, bottom: 52, width: 40, height: 12 },
+      { left: 30, top: 40, right: 70, bottom: 52, width: 40, height: 12 },
+      { left: 30, top: 40, right: 70, bottom: 52, width: 40, height: 12 },
+      { left: 30, top: 40, right: 70, bottom: 52, width: 40, height: 12 },
+    ]);
+    const customComponent = await loadComponent();
+    const customWrapper = mount(customComponent, {
+      props: {
+        chunks: [
+          {
+            chunk_id: 5,
+            text: 'Developmental delay was present.',
+            evidence_mode: 'span',
+            annotations: [
+              { id: 'ann-1', start_char: 0, end_char: 19, matched_text_in_chunk: 'Developmental delay' },
+            ],
+          },
+        ],
+      },
+      global: {
+        stubs: popoverStub(),
+      },
+    });
+
+    await waitForHighlightSync(customWrapper);
+
+    await customWrapper.find('[data-custom-highlight-hitbox="ann-1"]').trigger('click');
+
+    expect(customWrapper.find('.popover-probe').attributes('data-visible')).toBe('true');
+    expect(customWrapper.find('.popover-probe').attributes('data-annotation-id')).toBe('ann-1');
+    expect(customWrapper.find('.popover-probe').attributes('data-selected-text')).toBe(
+      'Developmental delay'
+    );
+    expect(customWrapper.find('.popover-probe').attributes('data-target-left')).toBe('50');
   });
 });

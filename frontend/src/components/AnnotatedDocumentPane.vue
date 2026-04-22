@@ -46,6 +46,24 @@
       </div>
     </article>
 
+    <div
+      v-if="customHighlightHitboxes.length > 0"
+      class="custom-highlight-hitbox-layer"
+      aria-hidden="true"
+    >
+      <button
+        v-for="hitbox in customHighlightHitboxes"
+        :key="hitbox.key"
+        type="button"
+        class="custom-highlight-hitbox"
+        :data-custom-highlight-hitbox="hitbox.annotationId"
+        :style="hitbox.style"
+        @click.stop="openCustomHighlightPopover(hitbox)"
+      >
+        <span class="sr-only">{{ hitbox.detailText }}</span>
+      </button>
+    </div>
+
     <AnnotationActionPopover
       :visible="popoverVisible"
       :target="popoverTarget"
@@ -82,6 +100,7 @@ const supportsCustomHighlight =
 const customHighlightNames = new Set();
 let customHighlightStyleElement = null;
 const rootElement = ref(null);
+const customHighlightHitboxes = ref([]);
 
 const popoverVisible = ref(false);
 const popoverTarget = ref(null);
@@ -195,9 +214,16 @@ function syncCustomHighlightStyles() {
 
   const styleElement = ensureCustomHighlightStyleElement();
   const rules = [];
+  const seenAnnotationIds = new Set();
 
   props.chunks.forEach((chunk) => {
     getSpanAnnotations(chunk).forEach((annotation) => {
+      if (seenAnnotationIds.has(annotation.id)) {
+        return;
+      }
+
+      seenAnnotationIds.add(annotation.id);
+
       const baseName = getHighlightName(annotation.id, false);
       const selectedName = getHighlightName(annotation.id, true);
 
@@ -215,6 +241,7 @@ function syncCustomHighlightStyles() {
 
 function clearCustomHighlights() {
   if (!supportsCustomHighlight) {
+    customHighlightHitboxes.value = [];
     return;
   }
 
@@ -222,6 +249,7 @@ function clearCustomHighlights() {
     globalThis.CSS.highlights.delete(name);
   });
   customHighlightNames.clear();
+  customHighlightHitboxes.value = [];
 }
 
 function findFirstTextNode(element) {
@@ -250,9 +278,9 @@ function findFirstTextNode(element) {
   return null;
 }
 
-function applyCustomHighlight(element, annotation, chunkText) {
+function buildCustomHighlightRange(element, annotation, chunkText) {
   if (!supportsCustomHighlight || !element) {
-    return;
+    return null;
   }
 
   if (!element.textContent && chunkText) {
@@ -261,7 +289,7 @@ function applyCustomHighlight(element, annotation, chunkText) {
 
   const textNode = findFirstTextNode(element);
   if (!textNode) {
-    return;
+    return null;
   }
 
   const nodeLength = textNode.textContent?.length || chunkText.length || 0;
@@ -269,42 +297,15 @@ function applyCustomHighlight(element, annotation, chunkText) {
   const end = Math.max(start, Math.min(annotation.end_char, nodeLength));
 
   if (end <= start) {
-    return;
+    return null;
   }
 
-  const selected = selectedAnnotationSet.value.has(annotation.id);
-  const highlightName = getHighlightName(annotation.id, selected);
   const range = new globalThis.Range();
 
   range.setStart(textNode, start);
   range.setEnd(textNode, end);
 
-  globalThis.CSS.highlights.set(highlightName, new globalThis.Highlight(range));
-  customHighlightNames.add(highlightName);
-}
-
-async function syncCustomHighlights() {
-  if (!supportsCustomHighlight) {
-    return;
-  }
-
-  clearCustomHighlights();
-  syncCustomHighlightStyles();
-
-  props.chunks.forEach((chunk) => {
-    const element = findChunkTextElement(chunk.chunk_id);
-
-    getSpanAnnotations(chunk).forEach((annotation) => {
-      applyCustomHighlight(element, annotation, chunk.text || '');
-    });
-  });
-}
-
-function clearPopover() {
-  popoverVisible.value = false;
-  popoverTarget.value = null;
-  activeAnnotationId.value = null;
-  activeSelectedText.value = '';
+  return range;
 }
 
 function rectToTarget(rect) {
@@ -316,6 +317,78 @@ function rectToTarget(rect) {
     x: rect.left + rect.width / 2,
     y: rect.top,
   };
+}
+
+function buildHitboxesForRange(range, annotation, chunkIndex, annotationIndex) {
+  const paneRect = rootElement.value?.getBoundingClientRect?.() || {
+    left: 0,
+    top: 0,
+  };
+  const rects = typeof range.getClientRects === 'function' ? [...range.getClientRects()] : [];
+  const usableRects = rects.length > 0 ? rects : [range.getBoundingClientRect?.()].filter(Boolean);
+
+  return usableRects.map((rect, rectIndex) => ({
+    key: `custom-hitbox-${annotation.id}-${chunkIndex}-${annotationIndex}-${rectIndex}`,
+    annotationId: annotation.id,
+    detailText: annotation.matched_text_in_chunk || '',
+    selectedText: annotation.matched_text_in_chunk || '',
+    target: rectToTarget(rect),
+    style: {
+      left: `${rect.left - paneRect.left}px`,
+      top: `${rect.top - paneRect.top}px`,
+      width: `${rect.width}px`,
+      height: `${rect.height}px`,
+    },
+  }));
+}
+
+async function syncCustomHighlights() {
+  if (!supportsCustomHighlight) {
+    return;
+  }
+
+  clearCustomHighlights();
+  syncCustomHighlightStyles();
+
+  const groupedRanges = new Map();
+  const hitboxes = [];
+
+  props.chunks.forEach((chunk, chunkIndex) => {
+    const element = findChunkTextElement(chunk.chunk_id);
+
+    getSpanAnnotations(chunk).forEach((annotation, annotationIndex) => {
+      const range = buildCustomHighlightRange(element, annotation, chunk.text || '');
+      if (!range) {
+        return;
+      }
+
+      const highlightName = getHighlightName(
+        annotation.id,
+        selectedAnnotationSet.value.has(annotation.id)
+      );
+
+      if (!groupedRanges.has(highlightName)) {
+        groupedRanges.set(highlightName, []);
+      }
+
+      groupedRanges.get(highlightName).push(range);
+      hitboxes.push(...buildHitboxesForRange(range, annotation, chunkIndex, annotationIndex));
+    });
+  });
+
+  groupedRanges.forEach((ranges, highlightName) => {
+    globalThis.CSS.highlights.set(highlightName, new globalThis.Highlight(...ranges));
+    customHighlightNames.add(highlightName);
+  });
+
+  customHighlightHitboxes.value = hitboxes;
+}
+
+function clearPopover() {
+  popoverVisible.value = false;
+  popoverTarget.value = null;
+  activeAnnotationId.value = null;
+  activeSelectedText.value = '';
 }
 
 function openPopover(target, options = {}) {
@@ -339,6 +412,13 @@ function openAnnotationPopover(event, segment) {
   openPopover(rectToTarget(rect), {
     annotationId: segment.annotationId,
     selectedText: segment.text,
+  });
+}
+
+function openCustomHighlightPopover(hitbox) {
+  openPopover(hitbox.target, {
+    annotationId: hitbox.annotationId,
+    selectedText: hitbox.selectedText,
   });
 }
 
@@ -391,6 +471,7 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .annotated-document-pane {
+  position: relative;
   display: grid;
   gap: 0.75rem;
 }
@@ -440,6 +521,22 @@ onBeforeUnmount(() => {
 .chunk-text mark.annotated-mark--selected {
   background: rgba(var(--v-theme-error), 0.22);
   border-bottom-color: rgba(var(--v-theme-error), 0.8);
+}
+
+.custom-highlight-hitbox-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.custom-highlight-hitbox {
+  position: absolute;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+  pointer-events: auto;
 }
 
 .sr-only {
