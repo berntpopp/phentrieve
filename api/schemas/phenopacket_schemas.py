@@ -1,7 +1,14 @@
 from datetime import UTC, date, datetime, time
 from typing import Literal
 
-from pydantic import AliasChoices, BaseModel, Field, field_validator
+from pydantic import (
+    AliasChoices,
+    BaseModel,
+    ConfigDict,
+    Field,
+    field_validator,
+    model_validator,
+)
 
 _NORMALIZED_SUBJECT_SEX = Literal["UNKNOWN_SEX", "FEMALE", "MALE", "OTHER_SEX"]
 _SUBJECT_SEX_ALIASES = {
@@ -92,11 +99,23 @@ class ExportTextAttributionRequest(BaseModel):
     end_char: int | None = Field(default=None, ge=0)
     matched_text_in_chunk: str | None = None
 
+    @model_validator(mode="after")
+    def validate_character_span(self) -> "ExportTextAttributionRequest":
+        if (
+            self.start_char is not None
+            and self.end_char is not None
+            and self.end_char < self.start_char
+        ):
+            raise ValueError("end_char must be greater than or equal to start_char.")
+        return self
+
 
 class ExportPhenotypeRequest(BaseModel):
-    hpo_id: str
-    label: str
-    assertion_status: str = "affirmed"
+    model_config = ConfigDict(extra="forbid")
+
+    hpo_id: str = Field(pattern=r"^HP:\d{7}$")
+    label: str = Field(min_length=1)
+    assertion_status: Literal["affirmed", "negated"] = "affirmed"
     certainty: str | None = None
     confidence: float | None = Field(default=None, ge=0.0, le=1.0)
     evidence_text: str | None = None
@@ -104,10 +123,20 @@ class ExportPhenotypeRequest(BaseModel):
     match_method: str | None = None
     source_chunk_ids: list[int] = Field(default_factory=list)
     text_attributions: list[ExportTextAttributionRequest] = Field(default_factory=list)
-    confidence_band: Literal["high", "medium", "low"] | None = None
+
+    @field_validator("label", mode="before")
+    @classmethod
+    def normalize_label(cls, value: object) -> str:
+        if isinstance(value, str):
+            normalized = value.strip()
+            if normalized:
+                return normalized
+        raise ValueError("label must be a non-empty string.")
 
 
 class PhenopacketExportRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     case_id: str = Field(min_length=1)
     case_label: str | None = None
     input_text: str | None = None
