@@ -38,9 +38,7 @@
       @update:model-value="$emit('update:panelOpen', $event)"
     >
       <v-list-item class="pl-2 pr-1">
-        <v-list-item-title class="text-h6">
-          {{ $t('queryInterface.phenotypeCollection.title') }}
-        </v-list-item-title>
+        <v-list-item-title class="text-h6">Case Workspace</v-list-item-title>
         <template #append>
           <v-btn
             icon
@@ -286,7 +284,7 @@
 
 <script setup>
 /**
- * PhenotypeCollectionPanel - Sub-component for HPO phenotype collection.
+ * PhenotypeCollectionPanel - Temporary case workspace bridge for the HPO collection panel.
  * Extracted from QueryInterface.vue to reduce component complexity.
  */
 defineProps({
