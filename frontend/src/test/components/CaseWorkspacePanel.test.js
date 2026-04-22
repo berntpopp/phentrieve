@@ -3,6 +3,10 @@ import { mount } from '@vue/test-utils';
 import { createVuetify } from 'vuetify';
 import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
+import {
+  CASE_WORKSPACE_BRIDGE_LABELS,
+  resolveCaseWorkspaceBridgeLocale,
+} from '../../components/PhenotypeCollectionPanel.vue';
 
 const vuetify = createVuetify({ components, directives });
 
@@ -33,21 +37,7 @@ async function mountPanel(props = {}) {
   });
 }
 
-const englishBridgeMessages = {
-  'queryInterface.phenotypeCollection.title': 'HPO Collection',
-  'queryInterface.phenotypeCollection.close': 'Close HPO Collection Panel',
-  'queryInterface.phenotypeCollection.aria.openPanel': 'Open HPO Collection Panel',
-  'queryInterface.phenotypeCollection.aria.panel': 'Phenotype collection',
-};
-
-const germanBridgeMessages = {
-  'queryInterface.phenotypeCollection.title': 'HPO-Sammlung',
-  'queryInterface.phenotypeCollection.close': 'HPO-Sammlungsbereich schließen',
-  'queryInterface.phenotypeCollection.aria.openPanel': 'HPO-Sammlung öffnen',
-  'queryInterface.phenotypeCollection.aria.panel': 'Phänotyp-Sammlung',
-};
-
-async function mountLegacyBridge({ messages = englishBridgeMessages, ...props } = {}) {
+async function mountLegacyBridge({ locale = 'en', ...props } = {}) {
   const component = (await import('../../components/PhenotypeCollectionPanel.vue')).default;
   return mount(component, {
     props: {
@@ -65,7 +55,8 @@ async function mountLegacyBridge({ messages = englishBridgeMessages, ...props } 
         },
       },
       mocks: {
-        $t: (key) => messages[key] ?? key,
+        $i18n: { locale },
+        $t: (key) => `legacy-copy:${locale}:${key}`,
       },
     },
   });
@@ -102,35 +93,28 @@ describe('CaseWorkspacePanel', () => {
     expect(wrapper.emitted('select-case')).toEqual([['case-2']]);
   });
 
-  it('keeps the temporary rename bridge consistent in the legacy panel UI', async () => {
-    const wrapper = await mountLegacyBridge();
-
-    expect(wrapper.get('[data-testid="case-workspace-title"]').text()).toBe('Case Workspace');
-    expect(wrapper.text()).not.toContain('HPO Collection');
-    expect(wrapper.get('[data-testid="case-workspace-open-button"]').attributes('aria-label')).toBe(
-      'Open Case Workspace Panel'
-    );
-    expect(wrapper.get('[data-testid="case-workspace-close-button"]').attributes('aria-label')).toBe(
-      'Close Case Workspace Panel'
-    );
-    expect(wrapper.get('[data-testid="case-workspace-drawer"]').attributes('aria-label')).toBe(
-      'Case Workspace Panel'
-    );
+  it('normalizes locale ids for the bridge override table', () => {
+    expect(resolveCaseWorkspaceBridgeLocale('de-DE')).toBe('de');
+    expect(resolveCaseWorkspaceBridgeLocale('FR-ca')).toBe('fr');
+    expect(resolveCaseWorkspaceBridgeLocale('')).toBe('en');
+    expect(resolveCaseWorkspaceBridgeLocale(undefined)).toBe('en');
   });
 
-  it('bridges the shipped German locale strings to case workspace wording', async () => {
-    const wrapper = await mountLegacyBridge({ messages: germanBridgeMessages });
+  for (const [locale, labels] of Object.entries(CASE_WORKSPACE_BRIDGE_LABELS)) {
+    it(`uses the explicit bridge override table for ${locale}`, async () => {
+      const wrapper = await mountLegacyBridge({ locale });
 
-    expect(wrapper.get('[data-testid="case-workspace-title"]').text()).toBe('Fallarbeitsbereich');
-    expect(wrapper.text()).not.toContain('HPO-Sammlung');
-    expect(wrapper.get('[data-testid="case-workspace-open-button"]').attributes('aria-label')).toBe(
-      'Fallarbeitsbereich öffnen'
-    );
-    expect(wrapper.get('[data-testid="case-workspace-close-button"]').attributes('aria-label')).toBe(
-      'Fallarbeitsbereich schließen'
-    );
-    expect(wrapper.get('[data-testid="case-workspace-drawer"]').attributes('aria-label')).toBe(
-      'Fallarbeitsbereich'
-    );
-  });
+      expect(wrapper.get('[data-testid="case-workspace-title"]').text()).toBe(labels.title);
+      expect(wrapper.get('[data-testid="case-workspace-open-button"]').attributes('aria-label')).toBe(
+        labels.openPanel
+      );
+      expect(wrapper.get('[data-testid="case-workspace-close-button"]').attributes('aria-label')).toBe(
+        labels.closePanel
+      );
+      expect(wrapper.get('[data-testid="case-workspace-drawer"]').attributes('aria-label')).toBe(
+        labels.panel
+      );
+      expect(wrapper.text()).not.toContain(`legacy-copy:${locale}:queryInterface.phenotypeCollection.title`);
+    });
+  }
 });

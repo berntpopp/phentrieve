@@ -289,74 +289,83 @@
   </div>
 </template>
 
-<script setup>
-import { computed, getCurrentInstance } from 'vue';
-
+<script>
 /**
  * PhenotypeCollectionPanel - Temporary case workspace bridge for the HPO collection panel.
  * Extracted from QueryInterface.vue to reduce component complexity.
  */
-const instance = getCurrentInstance();
-
-function t(key) {
-  return instance?.proxy?.$t ? instance.proxy.$t(key) : key;
-}
-
-const renameBridgeOverrides = Object.freeze({
-  'HPO Collection': 'Case Workspace',
-  'Close HPO Collection Panel': 'Close Case Workspace Panel',
-  'Open HPO Collection Panel': 'Open Case Workspace Panel',
-  'Phenotype collection': 'Case Workspace Panel',
-  'HPO-Sammlung': 'Fallarbeitsbereich',
-  'HPO-Sammlungsbereich schließen': 'Fallarbeitsbereich schließen',
-  'HPO-Sammlung öffnen': 'Fallarbeitsbereich öffnen',
-  'Phänotyp-Sammlung': 'Fallarbeitsbereich',
-  'Colección HPO': 'Espacio de trabajo del caso',
-  'Cerrar panel de colección HPO': 'Cerrar panel del espacio de trabajo del caso',
-  'Abrir panel de colección HPO': 'Abrir panel del espacio de trabajo del caso',
-  'Colección de fenotipos': 'Panel del espacio de trabajo del caso',
-  'Collection HPO': 'Espace de travail du cas',
-  'Fermer le panneau de collection HPO': "Fermer le panneau de l'espace de travail du cas",
-  'Ouvrir le panneau de collecte HPO': "Ouvrir le panneau de l'espace de travail du cas",
-  'Collecte de phénotypes': "Panneau de l'espace de travail du cas",
-  'HPO-Verzameling': 'Casuswerkruimte',
-  'HPO-verzamelingspaneel sluiten': 'Casuswerkruimtepaneel sluiten',
-  'HPO-verzameling panel openen': 'Casuswerkruimtepaneel openen',
-  'Fenotype-verzameling': 'Casuswerkruimtepaneel',
+const CASE_WORKSPACE_BRIDGE_LABELS = Object.freeze({
+  en: Object.freeze({
+    title: 'Case Workspace',
+    openPanel: 'Open Case Workspace Panel',
+    closePanel: 'Close Case Workspace Panel',
+    panel: 'Case Workspace Panel',
+  }),
+  de: Object.freeze({
+    title: 'Fallarbeitsbereich',
+    openPanel: 'Fallarbeitsbereich oeffnen',
+    closePanel: 'Fallarbeitsbereich schliessen',
+    panel: 'Fallarbeitsbereich',
+  }),
+  es: Object.freeze({
+    title: 'Espacio de trabajo del caso',
+    openPanel: 'Abrir panel del espacio de trabajo del caso',
+    closePanel: 'Cerrar panel del espacio de trabajo del caso',
+    panel: 'Panel del espacio de trabajo del caso',
+  }),
+  fr: Object.freeze({
+    title: 'Espace de travail du cas',
+    openPanel: "Ouvrir le panneau de l'espace de travail du cas",
+    closePanel: "Fermer le panneau de l'espace de travail du cas",
+    panel: "Panneau de l'espace de travail du cas",
+  }),
+  nl: Object.freeze({
+    title: 'Casuswerkruimte',
+    openPanel: 'Casuswerkruimtepaneel openen',
+    closePanel: 'Casuswerkruimtepaneel sluiten',
+    panel: 'Casuswerkruimtepaneel',
+  }),
 });
 
-function bridgeCollectionCopy(value) {
-  return renameBridgeOverrides[value] ?? value;
+function resolveCaseWorkspaceBridgeLocale(locale) {
+  if (typeof locale !== 'string' || locale.length === 0) {
+    return 'en';
+  }
+
+  return locale.toLowerCase().split('-')[0];
 }
 
-const bridgeLabels = computed(() => ({
-  title: bridgeCollectionCopy(t('queryInterface.phenotypeCollection.title')),
-  openPanel: bridgeCollectionCopy(t('queryInterface.phenotypeCollection.aria.openPanel')),
-  closePanel: bridgeCollectionCopy(t('queryInterface.phenotypeCollection.close')),
-  panel: bridgeCollectionCopy(t('queryInterface.phenotypeCollection.aria.panel')),
-}));
+export { CASE_WORKSPACE_BRIDGE_LABELS, resolveCaseWorkspaceBridgeLocale };
 
-defineProps({
-  phenotypes: { type: Array, default: () => [] },
-  panelOpen: { type: Boolean, default: false },
-  subjectId: { type: String, default: '' },
-  sex: { type: Number, default: null },
-  dateOfBirth: { type: String, default: null },
-  sexOptions: { type: Array, default: () => [] },
-});
-
-defineEmits([
-  'toggle-panel',
-  'update:panelOpen',
-  'remove',
-  'toggle-assertion',
-  'export-text',
-  'export-json',
-  'clear',
-  'update:subjectId',
-  'update:sex',
-  'update:dateOfBirth',
-]);
+export default {
+  name: 'PhenotypeCollectionPanel',
+  props: {
+    phenotypes: { type: Array, default: () => [] },
+    panelOpen: { type: Boolean, default: false },
+    subjectId: { type: String, default: '' },
+    sex: { type: Number, default: null },
+    dateOfBirth: { type: String, default: null },
+    sexOptions: { type: Array, default: () => [] },
+  },
+  emits: [
+    'toggle-panel',
+    'update:panelOpen',
+    'remove',
+    'toggle-assertion',
+    'export-text',
+    'export-json',
+    'clear',
+    'update:subjectId',
+    'update:sex',
+    'update:dateOfBirth',
+  ],
+  computed: {
+    bridgeLabels() {
+      const locale = resolveCaseWorkspaceBridgeLocale(this.$i18n?.locale);
+      return CASE_WORKSPACE_BRIDGE_LABELS[locale] ?? CASE_WORKSPACE_BRIDGE_LABELS.en;
+    },
+  },
+};
 </script>
 
 <style scoped>
