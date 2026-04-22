@@ -15,7 +15,7 @@
               <span class="text-body-1 font-weight-medium">{{ term.name }}</span>
               <span class="text-caption text-medium-emphasis">{{ term.hpoId }}</span>
             </div>
-            <v-chip size="small" variant="tonal" color="primary">
+            <v-chip v-if="term.confidence != null" size="small" variant="tonal" color="primary">
               {{ confidenceBand(term.confidence) }}
             </v-chip>
           </div>
@@ -64,7 +64,7 @@ const normalizedTerms = computed(() =>
     .map((term) => ({
       hpoId: term.hpo_id,
       name: term.name,
-      confidence: typeof term.confidence === 'number' ? term.confidence : 0,
+      confidence: typeof term.confidence === 'number' ? term.confidence : null,
       status: typeof term.status === 'string' ? term.status : 'affirmed',
       sourceChunkIds: Array.isArray(term.source_chunk_ids) ? term.source_chunk_ids : [],
       topEvidenceChunkId:

@@ -6,7 +6,7 @@
         variant="text"
         size="small"
         icon="mdi-arrow-left"
-        :aria-label="t('faq.backToHome')"
+        :aria-label="t('common.close')"
         @click="$emit('back')"
       />
     </div>

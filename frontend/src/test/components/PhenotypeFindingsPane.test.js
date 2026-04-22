@@ -125,6 +125,33 @@ describe('PhenotypeFindingsPane', () => {
     expect(wrapper.text()).toContain(`${en.resultsDisplay.textProcess.sourceChunks}: 3`);
     expect(wrapper.text()).toContain(`${en.resultsDisplay.textProcess.topEvidence}: #9`);
   });
+
+  it('preserves null confidence in the inspect payload so the inspector does not render 0.00', async () => {
+    const wrapper = await mountFindingsPane([
+      findingsTerm({
+        hpo_id: 'HP:0004322',
+        name: 'Spasticity',
+        confidence: null,
+        source_chunk_ids: [4],
+        top_evidence_chunk_id: 4,
+      }),
+    ]);
+
+    await wrapper.get('.v-list-item').trigger('click');
+
+    const inspectPayload = wrapper.emitted('inspect-term')?.[0]?.[0];
+    const inspector = await mountInspector(inspectPayload);
+
+    expect(inspectPayload).toMatchObject({
+      hpo_id: 'HP:0004322',
+      name: 'Spasticity',
+      confidence: null,
+      source_chunk_ids: [4],
+      top_evidence_chunk_id: 4,
+    });
+    expect(inspector.text()).toContain('Spasticity');
+    expect(inspector.text()).not.toContain(`${en.resultsDisplay.confidenceHeader}: 0.00`);
+  });
 });
 
 describe('AnnotationInspectorPanel', () => {
@@ -148,6 +175,7 @@ describe('AnnotationInspectorPanel', () => {
         })
       );
 
+      expect(wrapper.get('button').attributes('aria-label')).toBe(en.common.close);
       await wrapper.get('button').trigger('click');
 
       expect(wrapper.emitted('back')).toEqual([[]]);
