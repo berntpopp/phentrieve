@@ -1,6 +1,11 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import { SIDEBAR_MODE_CASE } from '../constants/fullTextWorkspace';
+import {
+  SIDEBAR_MODE_CASE,
+  SIDEBAR_MODE_INSPECTOR,
+} from '../constants/fullTextWorkspace';
+
+const VALID_SIDEBAR_MODES = new Set([SIDEBAR_MODE_CASE, SIDEBAR_MODE_INSPECTOR]);
 
 function createEmptyTurnState() {
   return {
@@ -16,23 +21,47 @@ function createEmptyTurnState() {
   };
 }
 
+function assertTurnId(turnId) {
+  if (typeof turnId !== 'string' || turnId.length === 0) {
+    throw new Error('Workspace turn id must be a non-empty string');
+  }
+}
+
 export const useFullTextWorkspaceStore = defineStore('fullTextWorkspace', () => {
   const turns = ref({});
 
   function initializeTurn(turnId) {
+    assertTurnId(turnId);
     if (!turns.value[turnId]) {
       turns.value[turnId] = createEmptyTurnState();
+    }
+
+    return turns.value[turnId];
+  }
+
+  function requireTurn(turnId) {
+    assertTurnId(turnId);
+
+    if (!turns.value[turnId]) {
+      throw new Error(`Unknown workspace turn: ${turnId}`);
+    }
+
+    return turns.value[turnId];
+  }
+
+  function assertSidebarMode(mode) {
+    if (!VALID_SIDEBAR_MODES.has(mode)) {
+      throw new Error(`Unsupported sidebar mode: ${mode}`);
     }
   }
 
   function setSidebarMode(turnId, mode) {
-    initializeTurn(turnId);
-    turns.value[turnId].sidebarMode = mode;
+    assertSidebarMode(mode);
+    requireTurn(turnId).sidebarMode = mode;
   }
 
   function setQuotaBanner(turnId, banner) {
-    initializeTurn(turnId);
-    turns.value[turnId].quotaBanner = banner;
+    requireTurn(turnId).quotaBanner = banner;
   }
 
   return {
