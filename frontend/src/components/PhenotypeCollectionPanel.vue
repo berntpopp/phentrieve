@@ -302,17 +302,31 @@ function t(key) {
   return instance?.proxy?.$t ? instance.proxy.$t(key) : key;
 }
 
-const renameBridgeReplacements = Object.freeze([
-  ['HPO Collection', 'Case Workspace'],
-  ['Phenotype collection', 'Case Workspace Panel'],
-  ['phenotype collection', 'Case Workspace Panel'],
-]);
+const renameBridgeOverrides = Object.freeze({
+  'HPO Collection': 'Case Workspace',
+  'Close HPO Collection Panel': 'Close Case Workspace Panel',
+  'Open HPO Collection Panel': 'Open Case Workspace Panel',
+  'Phenotype collection': 'Case Workspace Panel',
+  'HPO-Sammlung': 'Fallarbeitsbereich',
+  'HPO-Sammlungsbereich schließen': 'Fallarbeitsbereich schließen',
+  'HPO-Sammlung öffnen': 'Fallarbeitsbereich öffnen',
+  'Phänotyp-Sammlung': 'Fallarbeitsbereich',
+  'Colección HPO': 'Espacio de trabajo del caso',
+  'Cerrar panel de colección HPO': 'Cerrar panel del espacio de trabajo del caso',
+  'Abrir panel de colección HPO': 'Abrir panel del espacio de trabajo del caso',
+  'Colección de fenotipos': 'Panel del espacio de trabajo del caso',
+  'Collection HPO': 'Espace de travail du cas',
+  'Fermer le panneau de collection HPO': "Fermer le panneau de l'espace de travail du cas",
+  'Ouvrir le panneau de collecte HPO': "Ouvrir le panneau de l'espace de travail du cas",
+  'Collecte de phénotypes': "Panneau de l'espace de travail du cas",
+  'HPO-Verzameling': 'Casuswerkruimte',
+  'HPO-verzamelingspaneel sluiten': 'Casuswerkruimtepaneel sluiten',
+  'HPO-verzameling panel openen': 'Casuswerkruimtepaneel openen',
+  'Fenotype-verzameling': 'Casuswerkruimtepaneel',
+});
 
 function bridgeCollectionCopy(value) {
-  return renameBridgeReplacements.reduce(
-    (nextValue, [fromText, toText]) => nextValue.replace(fromText, toText),
-    value
-  );
+  return renameBridgeOverrides[value] ?? value;
 }
 
 const bridgeLabels = computed(() => ({

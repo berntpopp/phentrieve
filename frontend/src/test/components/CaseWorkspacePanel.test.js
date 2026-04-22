@@ -33,7 +33,21 @@ async function mountPanel(props = {}) {
   });
 }
 
-async function mountLegacyBridge(props = {}) {
+const englishBridgeMessages = {
+  'queryInterface.phenotypeCollection.title': 'HPO Collection',
+  'queryInterface.phenotypeCollection.close': 'Close HPO Collection Panel',
+  'queryInterface.phenotypeCollection.aria.openPanel': 'Open HPO Collection Panel',
+  'queryInterface.phenotypeCollection.aria.panel': 'Phenotype collection',
+};
+
+const germanBridgeMessages = {
+  'queryInterface.phenotypeCollection.title': 'HPO-Sammlung',
+  'queryInterface.phenotypeCollection.close': 'HPO-Sammlungsbereich schließen',
+  'queryInterface.phenotypeCollection.aria.openPanel': 'HPO-Sammlung öffnen',
+  'queryInterface.phenotypeCollection.aria.panel': 'Phänotyp-Sammlung',
+};
+
+async function mountLegacyBridge({ messages = englishBridgeMessages, ...props } = {}) {
   const component = (await import('../../components/PhenotypeCollectionPanel.vue')).default;
   return mount(component, {
     props: {
@@ -51,15 +65,7 @@ async function mountLegacyBridge(props = {}) {
         },
       },
       mocks: {
-        $t: (key) => {
-          const messages = {
-            'queryInterface.phenotypeCollection.title': 'HPO Collection',
-            'queryInterface.phenotypeCollection.close': 'Close HPO Collection Panel',
-            'queryInterface.phenotypeCollection.aria.openPanel': 'Open HPO Collection Panel',
-            'queryInterface.phenotypeCollection.aria.panel': 'Phenotype collection',
-          };
-          return messages[key] ?? key;
-        },
+        $t: (key) => messages[key] ?? key,
       },
     },
   });
@@ -109,6 +115,22 @@ describe('CaseWorkspacePanel', () => {
     );
     expect(wrapper.get('[data-testid="case-workspace-drawer"]').attributes('aria-label')).toBe(
       'Case Workspace Panel'
+    );
+  });
+
+  it('bridges the shipped German locale strings to case workspace wording', async () => {
+    const wrapper = await mountLegacyBridge({ messages: germanBridgeMessages });
+
+    expect(wrapper.get('[data-testid="case-workspace-title"]').text()).toBe('Fallarbeitsbereich');
+    expect(wrapper.text()).not.toContain('HPO-Sammlung');
+    expect(wrapper.get('[data-testid="case-workspace-open-button"]').attributes('aria-label')).toBe(
+      'Fallarbeitsbereich öffnen'
+    );
+    expect(wrapper.get('[data-testid="case-workspace-close-button"]').attributes('aria-label')).toBe(
+      'Fallarbeitsbereich schließen'
+    );
+    expect(wrapper.get('[data-testid="case-workspace-drawer"]').attributes('aria-label')).toBe(
+      'Fallarbeitsbereich'
     );
   });
 });
