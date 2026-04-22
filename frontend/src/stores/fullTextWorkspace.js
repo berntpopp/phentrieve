@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
+import { readonly, ref } from 'vue';
 import {
   SIDEBAR_MODE_CASE,
   SIDEBAR_MODE_INSPECTOR,
@@ -21,6 +21,16 @@ function createEmptyTurnState() {
   };
 }
 
+function cloneTurnState(turnState) {
+  return {
+    ...turnState,
+    quotaBanner: turnState.quotaBanner ? { ...turnState.quotaBanner } : null,
+    cases: [...turnState.cases],
+    undoStack: [...turnState.undoStack],
+    redoStack: [...turnState.redoStack],
+  };
+}
+
 function assertTurnId(turnId) {
   if (typeof turnId !== 'string' || turnId.length === 0) {
     throw new Error('Workspace turn id must be a non-empty string');
@@ -36,7 +46,7 @@ export const useFullTextWorkspaceStore = defineStore('fullTextWorkspace', () => 
       turns.value[turnId] = createEmptyTurnState();
     }
 
-    return turns.value[turnId];
+    return cloneTurnState(turns.value[turnId]);
   }
 
   function requireTurn(turnId) {
@@ -55,6 +65,17 @@ export const useFullTextWorkspaceStore = defineStore('fullTextWorkspace', () => 
     }
   }
 
+  function hasTurn(turnId) {
+    assertTurnId(turnId);
+    return Object.hasOwn(turns.value, turnId);
+  }
+
+  function getTurnState(turnId) {
+    assertTurnId(turnId);
+
+    return turns.value[turnId] ? cloneTurnState(turns.value[turnId]) : null;
+  }
+
   function setSidebarMode(turnId, mode) {
     assertSidebarMode(mode);
     requireTurn(turnId).sidebarMode = mode;
@@ -64,10 +85,26 @@ export const useFullTextWorkspaceStore = defineStore('fullTextWorkspace', () => 
     requireTurn(turnId).quotaBanner = banner;
   }
 
+  function resetTurn(turnId) {
+    requireTurn(turnId);
+    turns.value[turnId] = createEmptyTurnState();
+
+    return cloneTurnState(turns.value[turnId]);
+  }
+
+  function removeTurn(turnId) {
+    requireTurn(turnId);
+    delete turns.value[turnId];
+  }
+
   return {
-    turns,
+    turns: readonly(turns),
     initializeTurn,
+    hasTurn,
+    getTurnState,
     setSidebarMode,
     setQuotaBanner,
+    resetTurn,
+    removeTurn,
   };
 });
