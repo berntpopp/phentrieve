@@ -267,6 +267,39 @@ describe('AnnotatedDocumentPane', () => {
     expect(unselectedSharedCall[1].ranges).toHaveLength(2);
   });
 
+  it('renders overlapping fallback spans without clipping nested evidence', async () => {
+    const component = await loadComponent();
+    const wrapper = mount(component, {
+      props: {
+        chunks: [
+          {
+            chunk_id: 6,
+            text: 'ABCDEFGH',
+            evidence_mode: 'span',
+            annotations: [
+              { id: 'ann-1', start_char: 0, end_char: 4, matched_text_in_chunk: 'ABCD' },
+              { id: 'ann-2', start_char: 2, end_char: 6, matched_text_in_chunk: 'CDEF' },
+            ],
+          },
+        ],
+      },
+      global: {
+        stubs: popoverStub(),
+      },
+    });
+
+    expect(wrapper.text()).toContain('ABCDEFGH');
+    expect(wrapper.find('mark[data-annotation-id="ann-1"]').exists()).toBe(true);
+    expect(wrapper.find('mark[data-annotation-id="ann-2"]').exists()).toBe(true);
+    expect(wrapper.find('mark[data-annotation-id="ann-1"] mark[data-annotation-id="ann-2"]').exists()).toBe(true);
+    expect(
+      wrapper.findAll('mark[data-annotation-id="ann-1"]').some((node) => node.text().includes('AB'))
+    ).toBe(true);
+    expect(
+      wrapper.findAll('mark[data-annotation-id="ann-2"]').some((node) => node.text().includes('EF'))
+    ).toBe(true);
+  });
+
   it('keeps text selection working in the fallback mark path while still opening annotation actions on collapsed click', async () => {
     const component = await loadComponent();
     const wrapper = mount(component, {

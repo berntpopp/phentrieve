@@ -24,23 +24,21 @@
           </template>
           <template v-else>
             <span v-for="segment in buildMarkedSegments(chunk)" :key="segment.key">
-              <mark
-                v-if="segment.annotationId"
-                :data-annotation-id="segment.annotationId"
-                :aria-details="`annotation-detail-${segment.annotationId}`"
-                :class="{ 'annotated-mark--selected': segment.selected }"
-                @click.stop="openAnnotationPopover($event, segment)"
-              >
-                {{ segment.text }}
-              </mark>
-              <span
-                v-if="segment.annotationId"
-                :id="`annotation-detail-${segment.annotationId}`"
-                class="sr-only"
-              >
-                {{ segment.detailText }}
-              </span>
+              <NestedAnnotationMarks
+                v-if="segment.annotations.length > 0"
+                :annotations="segment.annotations"
+                :text="segment.text"
+                @annotation-click="openAnnotationPopover($event.event, $event.segment)"
+              />
               <span v-else>{{ segment.text }}</span>
+            </span>
+            <span
+              v-for="annotation in getChunkAnnotationDetails(chunk)"
+              :id="`annotation-detail-${annotation.id}`"
+              :key="`detail-${chunk.chunk_id}-${annotation.id}`"
+              class="sr-only"
+            >
+              {{ annotation.detailText }}
             </span>
           </template>
         </p>
@@ -61,8 +59,59 @@
 </template>
 
 <script setup>
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { computed, defineComponent, h, nextTick, onBeforeUnmount, ref, watch } from 'vue';
 import AnnotationActionPopover from './AnnotationActionPopover.vue';
+
+const NestedAnnotationMarks = defineComponent({
+  name: 'NestedAnnotationMarks',
+  props: {
+    annotations: {
+      type: Array,
+      required: true,
+    },
+    text: {
+      type: String,
+      required: true,
+    },
+  },
+  emits: ['annotation-click'],
+  setup(props, { emit }) {
+    function renderAt(index) {
+      const annotation = props.annotations[index];
+
+      if (!annotation) {
+        return props.text;
+      }
+
+      const child =
+        index === props.annotations.length - 1
+          ? props.text
+          : renderAt(index + 1);
+
+      return h(
+        'mark',
+        {
+          'data-annotation-id': annotation.id,
+          'aria-details': `annotation-detail-${annotation.id}`,
+          class: { 'annotated-mark--selected': annotation.selected },
+          onClick: (event) => {
+            event.stopPropagation();
+            emit('annotation-click', {
+              event,
+              segment: {
+                annotationId: annotation.id,
+                text: props.text,
+              },
+            });
+          },
+        },
+        child
+      );
+    }
+
+    return () => renderAt(0);
+  },
+});
 
 const props = defineProps({
   chunks: {
@@ -129,6 +178,21 @@ function getSpanAnnotations(chunk) {
     .filter(Boolean);
 }
 
+function getChunkAnnotationDetails(chunk) {
+  const detailsById = new Map();
+
+  getSpanAnnotations(chunk).forEach((annotation) => {
+    if (!detailsById.has(annotation.id)) {
+      detailsById.set(annotation.id, {
+        id: annotation.id,
+        detailText: annotation.matched_text_in_chunk || '',
+      });
+    }
+  });
+
+  return [...detailsById.values()];
+}
+
 function needsFallbackMarks(chunk) {
   return getSpanAnnotations(chunk).length > 0 && !supportsCustomHighlight;
 }
@@ -136,37 +200,52 @@ function needsFallbackMarks(chunk) {
 function buildMarkedSegments(chunk) {
   const text = chunk.text || '';
   const annotations = getSpanAnnotations(chunk).sort((left, right) => left.start_char - right.start_char);
+  const boundaries = Array.from(
+    new Set([0, text.length, ...annotations.flatMap((annotation) => [annotation.start_char, annotation.end_char])])
+  ).sort((left, right) => left - right);
   const segments = [];
-  let cursor = 0;
 
-  annotations.forEach((annotation, index) => {
-    const start = Math.max(cursor, annotation.start_char);
-    const end = Math.max(start, annotation.end_char);
+  for (let index = 0; index < boundaries.length - 1; index += 1) {
+    const start = boundaries[index];
+    const end = boundaries[index + 1];
 
-    if (start > cursor) {
-      segments.push({
-        key: `plain-${index}-${cursor}-${start}`,
-        text: text.slice(cursor, start),
-      });
+    if (end <= start) {
+      continue;
     }
 
-    if (end > start) {
-      segments.push({
-        key: `annotation-${annotation.id}-${start}-${end}`,
-        text: text.slice(start, end),
-        annotationId: annotation.id,
+    const activeAnnotations = annotations
+      .filter((annotation) => annotation.start_char < end && annotation.end_char > start)
+      .map((annotation) => ({
+        id: annotation.id,
         selected: selectedAnnotationSet.value.has(annotation.id),
         detailText: annotation.matched_text_in_chunk || text.slice(start, end),
-      });
-      cursor = end;
-    }
-  });
+        start_char: annotation.start_char,
+        end_char: annotation.end_char,
+      }))
+      .sort((left, right) => {
+        if (left.start_char !== right.start_char) {
+          return left.start_char - right.start_char;
+        }
 
-  if (cursor < text.length) {
-    segments.push({
-      key: `tail-${cursor}-${text.length}`,
-      text: text.slice(cursor),
-    });
+        return right.end_char - left.end_char;
+      });
+
+    const nextSegment = {
+      key: `segment-${start}-${end}`,
+      text: text.slice(start, end),
+      annotations: activeAnnotations,
+    };
+    const previousSegment = segments[segments.length - 1];
+    const previousSignature = previousSegment?.annotations?.map((annotation) => annotation.id).join('|') || '';
+    const nextSignature = activeAnnotations.map((annotation) => annotation.id).join('|');
+
+    if (previousSegment && previousSignature === nextSignature) {
+      previousSegment.text += nextSegment.text;
+      previousSegment.key = `${previousSegment.key}-${end}`;
+      continue;
+    }
+
+    segments.push(nextSegment);
   }
 
   return segments;
@@ -475,12 +554,6 @@ watch(
   },
   { deep: true, immediate: true, flush: 'post' }
 );
-
-onMounted(() => {
-  nextTick(() => {
-    syncCustomHighlights();
-  });
-});
 
 onBeforeUnmount(() => {
   clearCustomHighlights();
