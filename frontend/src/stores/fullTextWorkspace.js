@@ -21,13 +21,31 @@ function createEmptyTurnState() {
   };
 }
 
+function cloneWorkspaceValue(value) {
+  if (Array.isArray(value)) {
+    return value.map((item) => cloneWorkspaceValue(item));
+  }
+
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(
+      Object.entries(value).map(([key, nestedValue]) => [key, cloneWorkspaceValue(nestedValue)])
+    );
+  }
+
+  return value;
+}
+
 function cloneTurnState(turnState) {
   return {
-    ...turnState,
-    quotaBanner: turnState.quotaBanner ? { ...turnState.quotaBanner } : null,
-    cases: [...turnState.cases],
-    undoStack: [...turnState.undoStack],
-    redoStack: [...turnState.redoStack],
+    expanded: turnState.expanded,
+    sidebarMode: turnState.sidebarMode,
+    selectedPhenotypeId: turnState.selectedPhenotypeId,
+    selectedSpanId: turnState.selectedSpanId,
+    quotaBanner: cloneWorkspaceValue(turnState.quotaBanner),
+    activeCaseId: turnState.activeCaseId,
+    cases: cloneWorkspaceValue(turnState.cases),
+    undoStack: cloneWorkspaceValue(turnState.undoStack),
+    redoStack: cloneWorkspaceValue(turnState.redoStack),
   };
 }
 
@@ -82,7 +100,19 @@ export const useFullTextWorkspaceStore = defineStore('fullTextWorkspace', () => 
   }
 
   function setQuotaBanner(turnId, banner) {
-    requireTurn(turnId).quotaBanner = banner;
+    requireTurn(turnId).quotaBanner = cloneWorkspaceValue(banner);
+  }
+
+  function setCases(turnId, cases) {
+    requireTurn(turnId).cases = cloneWorkspaceValue(cases);
+  }
+
+  function setUndoStack(turnId, undoStack) {
+    requireTurn(turnId).undoStack = cloneWorkspaceValue(undoStack);
+  }
+
+  function setRedoStack(turnId, redoStack) {
+    requireTurn(turnId).redoStack = cloneWorkspaceValue(redoStack);
   }
 
   function resetTurn(turnId) {
@@ -104,6 +134,9 @@ export const useFullTextWorkspaceStore = defineStore('fullTextWorkspace', () => 
     getTurnState,
     setSidebarMode,
     setQuotaBanner,
+    setCases,
+    setUndoStack,
+    setRedoStack,
     resetTurn,
     removeTurn,
   };

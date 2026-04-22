@@ -64,6 +64,47 @@ describe('fullTextWorkspace store', () => {
     expect(store.getTurnState('turn-a').cases).toEqual([]);
   });
 
+  it('defensively copies nested workspace structures on write and read', () => {
+    const store = useFullTextWorkspaceStore();
+    store.initializeTurn('turn-a');
+
+    const cases = [{ id: 'case-1', details: { rank: 1 } }];
+    const undoStack = [{ type: 'assign-case', payload: { caseId: 'case-1' } }];
+    const redoStack = [{ type: 'restore-case', payload: { caseId: 'case-2' } }];
+    const quotaBanner = {
+      fallbackReason: 'llm_quota_exhausted',
+      quotaResetAt: '2026-04-23T00:00:00+00:00',
+      details: { remaining: 0 },
+    };
+
+    store.setCases('turn-a', cases);
+    store.setUndoStack('turn-a', undoStack);
+    store.setRedoStack('turn-a', redoStack);
+    store.setQuotaBanner('turn-a', quotaBanner);
+
+    cases[0].details.rank = 99;
+    undoStack[0].payload.caseId = 'mutated-undo';
+    redoStack[0].payload.caseId = 'mutated-redo';
+    quotaBanner.details.remaining = 99;
+
+    const snapshot = store.getTurnState('turn-a');
+    expect(snapshot.cases[0].details.rank).toBe(1);
+    expect(snapshot.undoStack[0].payload.caseId).toBe('case-1');
+    expect(snapshot.redoStack[0].payload.caseId).toBe('case-2');
+    expect(snapshot.quotaBanner.details.remaining).toBe(0);
+
+    snapshot.cases[0].details.rank = -1;
+    snapshot.undoStack[0].payload.caseId = 'snapshot-undo';
+    snapshot.redoStack[0].payload.caseId = 'snapshot-redo';
+    snapshot.quotaBanner.details.remaining = -1;
+
+    const freshSnapshot = store.getTurnState('turn-a');
+    expect(freshSnapshot.cases[0].details.rank).toBe(1);
+    expect(freshSnapshot.undoStack[0].payload.caseId).toBe('case-1');
+    expect(freshSnapshot.redoStack[0].payload.caseId).toBe('case-2');
+    expect(freshSnapshot.quotaBanner.details.remaining).toBe(0);
+  });
+
   it('rejects unsupported sidebar modes', () => {
     const store = useFullTextWorkspaceStore();
     store.initializeTurn('turn-a');
