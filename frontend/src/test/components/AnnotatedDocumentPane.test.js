@@ -1,9 +1,11 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { mount } from '@vue/test-utils';
+import { enableAutoUnmount, mount } from '@vue/test-utils';
 
 let originalCSS;
 let originalHighlight;
 let originalRange;
+
+enableAutoUnmount(afterEach);
 
 function installCustomHighlightSupport(rects = []) {
   const set = vi.fn();
@@ -109,9 +111,15 @@ async function loadComponent() {
   return (await import('../../components/AnnotatedDocumentPane.vue')).default;
 }
 
+async function loadPopoverComponent() {
+  vi.resetModules();
+  return (await import('../../components/AnnotationActionPopover.vue')).default;
+}
+
 function popoverStub() {
   return {
     AnnotationActionPopover: {
+      name: 'AnnotationActionPopover',
       props: ['visible', 'target', 'annotationId', 'selectedText'],
       template:
         '<div class="popover-probe" :data-visible="visible" :data-target-left="target?.x ?? \'\'" :data-annotation-id="annotationId ?? \'\'" :data-selected-text="selectedText ?? \'\'" />',
@@ -137,6 +145,90 @@ afterEach(() => {
 });
 
 describe('AnnotatedDocumentPane', () => {
+  it('clears the open popover when the child emits a visibility update', async () => {
+    const component = await loadComponent();
+    const wrapper = mount(component, {
+      props: {
+        chunks: [
+          {
+            chunk_id: 1,
+            text: 'Developmental delay was present.',
+            evidence_mode: 'span',
+            annotations: [
+              { id: 'ann-1', start_char: 0, end_char: 19, matched_text_in_chunk: 'Developmental delay' },
+            ],
+          },
+        ],
+      },
+      global: {
+        stubs: popoverStub(),
+      },
+    });
+
+    const textNode = wrapper.find('.chunk-text').element.firstChild;
+    vi.spyOn(window, 'getSelection').mockReturnValue({
+      isCollapsed: true,
+      rangeCount: 0,
+      anchorNode: textNode,
+      focusNode: textNode,
+      toString: () => '',
+      removeAllRanges: vi.fn(),
+    });
+
+    await wrapper.find('mark[data-annotation-id="ann-1"]').trigger('click');
+
+    expect(wrapper.find('.popover-probe').attributes('data-visible')).toBe('true');
+
+    wrapper.findComponent({ name: 'AnnotationActionPopover' }).vm.$emit('update:visible', false);
+    await wrapper.vm.$nextTick();
+
+    expect(wrapper.find('.popover-probe').attributes('data-visible')).toBe('false');
+    expect(wrapper.find('.popover-probe').attributes('data-annotation-id')).toBe('');
+    expect(wrapper.find('.popover-probe').attributes('data-selected-text')).toBe('');
+  });
+
+  it('emits a close signal when the annotation action popover closes or an action is chosen', async () => {
+    const component = await loadPopoverComponent();
+    const wrapper = mount(component, {
+      props: {
+        visible: true,
+        target: { x: 12, y: 24 },
+        annotationId: 'ann-1',
+        selectedText: 'Developmental delay',
+      },
+      global: {
+        stubs: {
+          'v-menu': {
+            name: 'VMenuStub',
+            emits: ['update:modelValue'],
+            template: '<div class="menu-stub"><slot /></div>',
+          },
+          'v-list': {
+            template: '<div class="list-stub"><slot /></div>',
+          },
+          'v-list-item': {
+            name: 'VListItemStub',
+            emits: ['click'],
+            props: ['title'],
+            template:
+              '<button class="action-stub" type="button" :data-title="title" @click="$emit(\'click\')"><slot /></button>',
+          },
+        },
+      },
+    });
+
+    wrapper.findComponent({ name: 'VMenuStub' }).vm.$emit('update:modelValue', false);
+
+    expect(wrapper.emitted('update:visible')?.at(-1)).toEqual([false]);
+    expect(wrapper.emitted('close')).toBeTruthy();
+
+    await wrapper.find('.action-stub').trigger('click');
+
+    expect(wrapper.emitted('inspect')).toBeTruthy();
+    expect(wrapper.emitted('update:visible')?.at(-1)).toEqual([false]);
+    expect(wrapper.emitted('close').length).toBeGreaterThanOrEqual(2);
+  });
+
   it('renders chunk-only evidence with gutter tint and span evidence with marks', async () => {
     const component = await loadComponent();
     const wrapper = mount(component, {
@@ -514,6 +606,51 @@ describe('AnnotatedDocumentPane', () => {
       'Developmental delay'
     );
     expect(wrapper.find('.popover-probe').attributes('data-target-left')).toBe('50');
+  });
+
+  it('refreshes custom highlight anchors after scroll so click hitboxes stay aligned with layout', async () => {
+    installCustomHighlightSupport([
+      { left: 20, top: 30, right: 40, bottom: 40, width: 20, height: 10 },
+      { left: 20, top: 30, right: 40, bottom: 40, width: 20, height: 10 },
+      { left: 60, top: 30, right: 80, bottom: 40, width: 20, height: 10 },
+      { left: 60, top: 30, right: 80, bottom: 40, width: 20, height: 10 },
+    ]);
+    const component = await loadComponent();
+    const wrapper = mount(component, {
+      props: {
+        chunks: [
+          {
+            chunk_id: 21,
+            text: 'Developmental delay was present.',
+            evidence_mode: 'span',
+            annotations: [
+              { id: 'ann-1', start_char: 0, end_char: 19, matched_text_in_chunk: 'Developmental delay' },
+            ],
+          },
+        ],
+      },
+      global: {
+        stubs: popoverStub(),
+      },
+    });
+
+    await waitForHighlightSync(wrapper);
+
+    vi.spyOn(window, 'getSelection').mockReturnValue({
+      isCollapsed: true,
+      rangeCount: 0,
+      toString: () => '',
+    });
+
+    await wrapper.find('.chunk-text').trigger('click', { clientX: 30, clientY: 35 });
+
+    expect(wrapper.find('.popover-probe').attributes('data-visible')).toBe('true');
+    expect(wrapper.find('.popover-probe').attributes('data-target-left')).toBe('30');
+
+    window.dispatchEvent(new Event('scroll'));
+    await waitForHighlightSync(wrapper);
+
+    expect(wrapper.find('.popover-probe').attributes('data-target-left')).toBe('70');
   });
 
   it('resolves overlapping custom highlight clicks to the innermost annotation', async () => {

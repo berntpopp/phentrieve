@@ -50,6 +50,8 @@
       :target="popoverTarget"
       :annotation-id="activeAnnotationId"
       :selected-text="activeSelectedText"
+      @update:visible="handlePopoverVisibilityUpdate"
+      @close="clearPopover"
       @inspect="noop"
       @add-to-case="noop"
       @change-term="noop"
@@ -66,6 +68,7 @@ import {
   h,
   nextTick,
   onBeforeUnmount,
+  onMounted,
   ref,
   watch,
 } from 'vue';
@@ -148,10 +151,21 @@ const popoverVisible = ref(false);
 const popoverTarget = ref(null);
 const activeAnnotationId = ref(null);
 const activeSelectedText = ref('');
+const activePopoverAnchor = ref(null);
+let customHighlightResizeObserver = null;
+let customHighlightFontListenersAttached = false;
 
 const selectedAnnotationSet = computed(() => new Set(props.selectedAnnotationIds));
 
 function noop() {}
+
+function handlePopoverVisibilityUpdate(nextVisible) {
+  popoverVisible.value = nextVisible;
+
+  if (!nextVisible) {
+    clearPopover();
+  }
+}
 
 function findChunkTextElement(chunkId) {
   return rootElement.value?.querySelector(`[data-chunk-text-id="${chunkId}"]`) || null;
@@ -315,7 +329,8 @@ function syncCustomHighlightStyles() {
 }
 
 function clearCustomHighlights() {
-  if (!supportsCustomHighlight) {
+  if (!supportsCustomHighlight || !globalThis.CSS?.highlights) {
+    customHighlightNames.clear();
     customHighlightHitboxes.value = [];
     return;
   }
@@ -325,6 +340,84 @@ function clearCustomHighlights() {
   });
   customHighlightNames.clear();
   customHighlightHitboxes.value = [];
+}
+
+function getAnchorTarget(anchor) {
+  if (!anchor) {
+    return null;
+  }
+
+  if (anchor.type === 'selection') {
+    return rectToTarget(anchor.range?.getBoundingClientRect?.());
+  }
+
+  if (anchor.type === 'mark-element') {
+    if (anchor.element?.isConnected !== false) {
+      const rect = anchor.element?.getBoundingClientRect?.();
+
+      if (rect) {
+        return rectToTarget(rect);
+      }
+    }
+
+    if (anchor.annotationId) {
+      const markElement = rootElement.value?.querySelector(
+        `[data-annotation-id="${anchor.annotationId}"]`
+      );
+
+      return rectToTarget(markElement?.getBoundingClientRect?.());
+    }
+  }
+
+  if (anchor.type === 'custom-hitbox') {
+    const exactHitbox = customHighlightHitboxes.value.find((hitbox) => hitbox.key === anchor.key);
+
+    if (exactHitbox) {
+      return exactHitbox.target;
+    }
+
+    if (anchor.annotationId) {
+      const matchingHitboxes = customHighlightHitboxes.value.filter(
+        (hitbox) => hitbox.annotationId === anchor.annotationId
+      );
+
+      if (matchingHitboxes.length > 0) {
+        const referenceTarget = anchor.target || popoverTarget.value || matchingHitboxes[0].target;
+
+        return matchingHitboxes
+          .slice()
+          .sort((left, right) => {
+            const leftDistance =
+              ((left.target?.x ?? 0) - referenceTarget.x) ** 2 +
+              ((left.target?.y ?? 0) - referenceTarget.y) ** 2;
+            const rightDistance =
+              ((right.target?.x ?? 0) - referenceTarget.x) ** 2 +
+              ((right.target?.y ?? 0) - referenceTarget.y) ** 2;
+
+            return leftDistance - rightDistance;
+          })[0]?.target;
+      }
+    }
+  }
+
+  return null;
+}
+
+function refreshPopoverTarget() {
+  if (!popoverVisible.value) {
+    return;
+  }
+
+  const nextTarget = getAnchorTarget(activePopoverAnchor.value);
+
+  if (nextTarget) {
+    popoverTarget.value = nextTarget;
+  }
+}
+
+function refreshLayoutState() {
+  syncCustomHighlights();
+  refreshPopoverTarget();
 }
 
 function findFirstTextNode(element) {
@@ -412,7 +505,7 @@ function buildHitboxesForRange(range, annotation, chunkIndex, annotationIndex) {
   }));
 }
 
-async function syncCustomHighlights() {
+function syncCustomHighlights() {
   if (!supportsCustomHighlight) {
     return;
   }
@@ -452,6 +545,7 @@ async function syncCustomHighlights() {
   });
 
   customHighlightHitboxes.value = hitboxes;
+  refreshPopoverTarget();
 }
 
 function clearPopover() {
@@ -459,6 +553,7 @@ function clearPopover() {
   popoverTarget.value = null;
   activeAnnotationId.value = null;
   activeSelectedText.value = '';
+  activePopoverAnchor.value = null;
 }
 
 function openPopover(target, options = {}) {
@@ -470,6 +565,7 @@ function openPopover(target, options = {}) {
   popoverTarget.value = target;
   activeAnnotationId.value = options.annotationId || null;
   activeSelectedText.value = options.selectedText || '';
+  activePopoverAnchor.value = options.anchor || null;
   popoverVisible.value = true;
 }
 
@@ -494,6 +590,11 @@ function openAnnotationPopover(event, segment) {
   openPopover(rectToTarget(rect), {
     annotationId: segment.annotationId,
     selectedText: segment.text,
+    anchor: {
+      type: 'mark-element',
+      annotationId: segment.annotationId,
+      element: event?.currentTarget || null,
+    },
   });
 }
 
@@ -501,6 +602,12 @@ function openCustomHighlightPopover(hitbox) {
   openPopover(hitbox.target, {
     annotationId: hitbox.annotationId,
     selectedText: hitbox.selectedText,
+    anchor: {
+      type: 'custom-hitbox',
+      key: hitbox.key,
+      annotationId: hitbox.annotationId,
+      target: hitbox.target,
+    },
   });
 }
 
@@ -557,8 +664,15 @@ function handleTextSelection(chunk) {
     return;
   }
 
-  const rect = selection.getRangeAt(0).getBoundingClientRect();
-  openPopover(rectToTarget(rect), { selectedText });
+  const range = selection.getRangeAt(0);
+  const rect = range.getBoundingClientRect();
+  openPopover(rectToTarget(rect), {
+    selectedText,
+    anchor: {
+      type: 'selection',
+      range: range.cloneRange?.() || range,
+    },
+  });
 }
 
 function handleChunkClick(chunk, event) {
@@ -570,15 +684,13 @@ function handleChunkClick(chunk, event) {
     return;
   }
 
-  const matchedHitbox = customHighlightHitboxes.value.find(
-    (hitbox) => hitbox.chunkId === chunk.chunk_id && hitboxContainsPoint(hitbox, event)
-  );
+  refreshCustomHighlightGeometry();
 
   const matchingHitboxes = customHighlightHitboxes.value
     .filter((hitbox) => hitbox.chunkId === chunk.chunk_id && hitboxContainsPoint(hitbox, event))
     .sort(compareHitboxesBySpecificity);
 
-  const resolvedHitbox = matchingHitboxes[0] || matchedHitbox;
+  const resolvedHitbox = matchingHitboxes[0];
 
   if (!resolvedHitbox) {
     return;
@@ -587,16 +699,45 @@ function handleChunkClick(chunk, event) {
   openCustomHighlightPopover(resolvedHitbox);
 }
 
+onMounted(() => {
+  window.addEventListener('scroll', refreshLayoutState, true);
+  window.addEventListener('resize', refreshLayoutState);
+
+  if (typeof ResizeObserver !== 'undefined' && rootElement.value) {
+    customHighlightResizeObserver = new ResizeObserver(() => {
+      refreshLayoutState();
+    });
+    customHighlightResizeObserver.observe(rootElement.value);
+  }
+
+  if (document.fonts?.addEventListener) {
+    document.fonts.addEventListener('loadingdone', refreshLayoutState);
+    document.fonts.addEventListener('loadingerror', refreshLayoutState);
+    customHighlightFontListenersAttached = true;
+  }
+});
+
 watch(
   () => [props.chunks, props.selectedAnnotationIds],
   async () => {
     await nextTick();
-    await syncCustomHighlights();
+    syncCustomHighlights();
   },
   { deep: true, immediate: true, flush: 'post' }
 );
 
 onBeforeUnmount(() => {
+  window.removeEventListener('scroll', refreshLayoutState, true);
+  window.removeEventListener('resize', refreshLayoutState);
+  customHighlightResizeObserver?.disconnect();
+  customHighlightResizeObserver = null;
+
+  if (customHighlightFontListenersAttached) {
+    document.fonts?.removeEventListener('loadingdone', refreshLayoutState);
+    document.fonts?.removeEventListener('loadingerror', refreshLayoutState);
+    customHighlightFontListenersAttached = false;
+  }
+
   clearCustomHighlights();
   customHighlightStyleElement?.remove();
   customHighlightStyleElement = null;
