@@ -15,10 +15,7 @@ def test_setup_environment_loads_local_config_after_repo_env_with_override(
 
     mocker.patch.object(run_api_local, "__file__", str(api_dir / "run_api_local.py"))
     load_dotenv = mocker.patch("api.run_api_local.load_dotenv")
-    mocker.patch(
-        "api.run_api_local.ensure_directory_exists",
-        side_effect=lambda value: Path(value),
-    )
+    mocker.patch("api.run_api_local.ensure_directory_exists", side_effect=Path)
     monkeypatch.setenv("PHENTRIEVE_DATA_ROOT_DIR", str(tmp_path / "resolved-data"))
     monkeypatch.setenv("PHENTRIEVE_DATA_DIR", str(tmp_path / "resolved-data"))
     monkeypatch.setenv("PHENTRIEVE_INDEX_DIR", str(tmp_path / "resolved-indexes"))

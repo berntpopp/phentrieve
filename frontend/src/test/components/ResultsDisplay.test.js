@@ -101,6 +101,41 @@ describe('ResultsDisplay', () => {
     expect(wrapper.text()).toContain(i18n.global.t('resultsDisplay.defaultError'));
   });
 
+  it('re-emits bulk full-text collection actions from the workspace', async () => {
+    const component = (await import('../../components/ResultsDisplay.vue')).default;
+    const workspacePayload = [
+      { hpo_id: 'HP:0001250', label: 'Seizure', assertion_status: 'affirmed' },
+    ];
+    const wrapper = mount(component, {
+      props: {
+        resultType: 'textProcess',
+        turnId: 'turn-3',
+        responseData: {
+          meta: { extraction_backend: 'llm' },
+          processed_chunks: [],
+          aggregated_hpo_terms: [],
+        },
+      },
+      global: {
+        plugins: [vuetify, i18n],
+        stubs: {
+          FullTextAnnotationWorkspace: {
+            name: 'FullTextAnnotationWorkspace',
+            template: '<button @click="$emit(\'add-all-to-collection\', payload)">Emit</button>',
+            data() {
+              return { payload: workspacePayload };
+            },
+          },
+          ResultItem: true,
+        },
+      },
+    });
+
+    await wrapper.get('button').trigger('click');
+
+    expect(wrapper.emitted('add-all-to-collection')).toEqual([[workspacePayload]]);
+  });
+
   it('uses the exposed ChunkResultsView state when scrolling to attributed evidence', async () => {
     vi.useFakeTimers();
 

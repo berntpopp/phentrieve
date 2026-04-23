@@ -83,7 +83,11 @@
 
     <!-- Text Processing Results Display -->
     <div v-else-if="hasTextProcessResults">
-      <FullTextAnnotationWorkspace :response-data="responseData" :turn-id="turnId" />
+      <FullTextAnnotationWorkspace
+        :response-data="responseData"
+        :turn-id="turnId"
+        @add-all-to-collection="$emit('add-all-to-collection', $event)"
+      />
     </div>
     <div
       v-else-if="
@@ -184,7 +188,7 @@ export default {
       default: '',
     },
   },
-  emits: ['add-to-collection'],
+  emits: ['add-to-collection', 'add-all-to-collection'],
   data() {
     return {
       highlightedAttributions: [],

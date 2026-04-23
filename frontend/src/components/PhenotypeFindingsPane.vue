@@ -107,7 +107,7 @@ const collectionPayloads = computed(() =>
   normalizedTerms.value.map((term) => ({
     hpo_id: term.hpoId,
     label: term.name,
-    assertion_status: term.status,
+    assertion_status: normalizeAssertionStatus(term.status),
   }))
 );
 

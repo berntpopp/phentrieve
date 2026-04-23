@@ -139,9 +139,7 @@ function assertJsonLikeValue(value, message, activeAncestors = new WeakSet()) {
     }
 
     activeAncestors.add(value);
-    Object.values(value).forEach((item) =>
-      assertJsonLikeValue(item, message, activeAncestors)
-    );
+    Object.values(value).forEach((item) => assertJsonLikeValue(item, message, activeAncestors));
     activeAncestors.delete(value);
     return;
   }

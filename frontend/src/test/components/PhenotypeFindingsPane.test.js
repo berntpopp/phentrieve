@@ -178,6 +178,36 @@ describe('PhenotypeFindingsPane', () => {
     );
   });
 
+  it('normalizes present and absent assertions before emitting bulk collection payloads', async () => {
+    const wrapper = await mountFindingsPane([
+      findingsTerm({
+        hpo_id: 'HP:0001507',
+        name: 'Growth abnormality',
+        status: 'present',
+      }),
+      findingsTerm({
+        hpo_id: 'HP:0001249',
+        name: 'Intellectual disability',
+        status: 'absent',
+      }),
+    ]);
+
+    await wrapper.get('[data-testid="findings-add-all"]').trigger('click');
+
+    expect(wrapper.emitted('add-all-to-collection')).toEqual([
+      [
+        [
+          { hpo_id: 'HP:0001507', label: 'Growth abnormality', assertion_status: 'affirmed' },
+          {
+            hpo_id: 'HP:0001249',
+            label: 'Intellectual disability',
+            assertion_status: 'negated',
+          },
+        ],
+      ],
+    ]);
+  });
+
   it('preserves null confidence in the inspect payload so the inspector does not render 0.00', async () => {
     const wrapper = await mountFindingsPane([
       findingsTerm({
