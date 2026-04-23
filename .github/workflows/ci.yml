@@ -157,7 +157,7 @@ jobs:
         run: npm ci
 
       - name: Cache ESLint
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: frontend/.eslintcache
           key: eslint-${{ hashFiles('frontend/package-lock.json', 'frontend/eslint.config.*') }}
@@ -235,18 +235,97 @@ jobs:
     if: github.event_name == 'pull_request'
     permissions:
       contents: read
-      pull-requests: write
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
+      - name: Review dependency changes via API
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
 
-      - name: Dependency Review
-        uses: actions/dependency-review-action@v4
-        with:
-          fail-on-severity: high
-          fail-on-scopes: runtime
-          license-check: false
-          comment-summary-in-pr: on-failure
+          response_body="$(mktemp)"
+          response_headers="$(mktemp)"
+          findings_json="$(mktemp)"
+          trap 'rm -f "$response_body" "$response_headers" "$findings_json"' EXIT
+
+          attempt=1
+          max_attempts=3
+          while true; do
+            curl -fsSL \
+              -D "$response_headers" \
+              -H "Accept: application/vnd.github+json" \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H "X-GitHub-Api-Version: 2026-03-10" \
+              "https://api.github.com/repos/${REPOSITORY}/dependency-graph/compare/${BASE_SHA}...${HEAD_SHA}" \
+              -o "$response_body"
+
+            snapshot_warning_header="$(awk 'BEGIN{IGNORECASE=1} /^x-github-dependency-graph-snapshot-warnings:/{sub(/^[^:]+:[[:space:]]*/, ""); print; exit}' "$response_headers")"
+            snapshot_warning="$(printf '%s' "$snapshot_warning_header" | python -c 'import base64, sys; data = sys.stdin.read().strip(); print(base64.b64decode(data).decode("utf-8") if data else "", end="")')"
+
+            if [[ -z "${snapshot_warning}" ]] || [[ "$attempt" -ge "$max_attempts" ]]; then
+              break
+            fi
+
+            echo "Dependency graph snapshot warning detected; retrying in $((2 ** attempt))s..." >&2
+            sleep $((2 ** attempt))
+            attempt=$((attempt + 1))
+          done
+
+          if [[ -n "${snapshot_warning:-}" ]]; then
+            {
+              echo "## Dependency review snapshot warning"
+              echo
+              echo '```'
+              echo "${snapshot_warning}"
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+          jq '
+            [
+              .[]
+              | select(.change_type != "removed")
+              | select((.scope // "unknown") == "runtime")
+              | . as $dependency
+              | ($dependency.vulnerabilities // [])[]?
+              | select((.severity // "" | ascii_downcase) == "high" or (.severity // "" | ascii_downcase) == "critical")
+              | {
+                  manifest: $dependency.manifest,
+                  ecosystem: $dependency.ecosystem,
+                  name: $dependency.name,
+                  version: $dependency.version,
+                  scope: ($dependency.scope // "unknown"),
+                  severity: (.severity // "unknown"),
+                  advisory: (.advisory_ghsa_id // "unknown"),
+                  summary: (.advisory_summary // "No summary provided"),
+                  url: (.advisory_url // "")
+                }
+            ]
+          ' "$response_body" > "$findings_json"
+
+          if [[ "$(jq 'length' "$findings_json")" -eq 0 ]]; then
+            {
+              echo "## Dependency review"
+              echo
+              echo "No new runtime dependencies with high or critical vulnerabilities were detected."
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          {
+            echo "## Dependency review failures"
+            echo
+            echo "| Dependency | Version | Severity | Advisory | Manifest |"
+            echo "|---|---|---|---|---|"
+            jq -r '.[] | "| \(.name) | \(.version) | \(.severity) | \(.advisory) | \(.manifest) |"' "$findings_json"
+            echo
+            echo "High or critical vulnerabilities were introduced in runtime dependency changes."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          jq -r '.[] | "\(.severity): \(.name)@\(.version) (\(.advisory)) - \(.summary)\n\(.url)\n"' "$findings_json" >&2
+          exit 1
 
   ci-summary:
     name: CI Summary
