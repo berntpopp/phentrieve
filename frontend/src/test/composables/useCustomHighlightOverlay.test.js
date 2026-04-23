@@ -301,9 +301,7 @@ describe('useCustomHighlightOverlay', () => {
     await waitForOverlaySync(wrapper);
 
     expect(overlay.supportsCustomHighlight).toBe(true);
-    expect(set.mock.calls.some(([name]) => name.endsWith('annotation-selected-ann-1'))).toBe(
-      true
-    );
+    expect(set.mock.calls.some(([name]) => name.endsWith('annotation-selected-ann-1'))).toBe(true);
     expect(document.head.innerHTML).toContain('annotation-ann-1');
     expect(document.head.innerHTML).toContain('annotation-selected-ann-1');
     expect(resizeObservers).toHaveLength(1);
@@ -321,9 +319,9 @@ describe('useCustomHighlightOverlay', () => {
     selectedAnnotationIds.value = [];
     await waitForOverlaySync(wrapper);
 
-    expect(
-      deleteFn.mock.calls.some(([name]) => name.endsWith('annotation-selected-ann-1'))
-    ).toBe(true);
+    expect(deleteFn.mock.calls.some(([name]) => name.endsWith('annotation-selected-ann-1'))).toBe(
+      true
+    );
     expect(set.mock.calls.some(([name]) => name.endsWith('annotation-ann-1'))).toBe(true);
     expect(onLayoutRefresh).toHaveBeenCalledTimes(1);
 

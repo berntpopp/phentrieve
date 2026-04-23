@@ -1,7 +1,11 @@
 function getContextOrThrow(getContext) {
   const context = getContext?.();
 
-  if (!context || typeof context.getState !== 'function' || typeof context.setState !== 'function') {
+  if (
+    !context ||
+    typeof context.getState !== 'function' ||
+    typeof context.setState !== 'function'
+  ) {
     throw new Error('QueryInterface controller requires an explicit component context.');
   }
 
@@ -150,8 +154,7 @@ export function useQueryInterfaceController({ getContext, service, logService })
   async function submitQuery(isAutoSubmit = false) {
     const context = getContextOrThrow(getContext);
     const state = context.getState();
-    const queryTextTrimmed =
-      typeof state.queryText === 'string' ? state.queryText.trim() : '';
+    const queryTextTrimmed = typeof state.queryText === 'string' ? state.queryText.trim() : '';
 
     if (!queryTextTrimmed) {
       logService.warn('Empty query submission prevented');

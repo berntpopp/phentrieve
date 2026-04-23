@@ -34,10 +34,7 @@ function collectTextNodes(element) {
     return [];
   }
 
-  const walker = document.createTreeWalker(
-    element,
-    globalThis.NodeFilter?.SHOW_TEXT ?? 4
-  );
+  const walker = document.createTreeWalker(element, globalThis.NodeFilter?.SHOW_TEXT ?? 4);
   const textNodes = [];
   let currentNode = walker.nextNode();
 
@@ -253,7 +250,8 @@ export function useCustomHighlightOverlay({
 
   function buildHitboxesForRange(range, annotation, chunkId, chunkIndex, annotationIndex) {
     const rects = typeof range.getClientRects === 'function' ? [...range.getClientRects()] : [];
-    const usableRects = rects.length > 0 ? rects : [range.getBoundingClientRect?.()].filter(Boolean);
+    const usableRects =
+      rects.length > 0 ? rects : [range.getBoundingClientRect?.()].filter(Boolean);
 
     return usableRects.map((rect, rectIndex) => ({
       key: `custom-hitbox-${annotation.id}-${chunkIndex}-${annotationIndex}-${rectIndex}`,
@@ -287,13 +285,7 @@ export function useCustomHighlightOverlay({
         }
 
         hitboxes.push(
-          ...buildHitboxesForRange(
-            range,
-            annotation,
-            chunk.chunk_id,
-            chunkIndex,
-            annotationIndex
-          )
+          ...buildHitboxesForRange(range, annotation, chunk.chunk_id, chunkIndex, annotationIndex)
         );
       });
     });
@@ -332,13 +324,7 @@ export function useCustomHighlightOverlay({
 
         groupedRanges.get(highlightName).push(range);
         hitboxes.push(
-          ...buildHitboxesForRange(
-            range,
-            annotation,
-            chunk.chunk_id,
-            chunkIndex,
-            annotationIndex
-          )
+          ...buildHitboxesForRange(range, annotation, chunk.chunk_id, chunkIndex, annotationIndex)
         );
       });
     });

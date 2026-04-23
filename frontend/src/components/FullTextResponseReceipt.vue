@@ -17,7 +17,11 @@
         Add all
       </v-btn>
     </div>
-    <v-list v-if="phenotypes.length > 0" lines="two" class="rounded-lg mt-3 full-text-response-list">
+    <v-list
+      v-if="phenotypes.length > 0"
+      lines="two"
+      class="rounded-lg mt-3 full-text-response-list"
+    >
       <div
         v-for="(phenotype, index) in phenotypes"
         :key="`${item.id}-${phenotype.hpo_id}`"
