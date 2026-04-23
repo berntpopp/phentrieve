@@ -347,6 +347,84 @@ def test_run_llm_backend_preserves_grounded_llm_scores(mocker):
     assert chunk["hpo_matches"][0]["score"] == pytest.approx(0.93)
 
 
+def test_run_llm_backend_uses_highest_scoring_evidence_chunk_for_top_chunk_id(mocker):
+    provider = mocker.Mock()
+    pipeline = mocker.Mock()
+    preprocessed = SimpleNamespace(
+        grounded_chunks=[
+            {
+                "chunk_id": 1,
+                "text": "First chunk",
+                "start_char": 0,
+                "end_char": 11,
+                "status": "affirmed",
+            },
+            {
+                "chunk_id": 2,
+                "text": "Second chunk",
+                "start_char": 12,
+                "end_char": 24,
+                "status": "affirmed",
+            },
+        ],
+        extraction_groups=[],
+    )
+    pipeline.run.return_value = SimpleNamespace(
+        terms=[
+            SimpleNamespace(
+                term_id="HP:0001250",
+                label="Recurrent seizures",
+                evidence="recurrent seizures",
+                assertion="present",
+                confidence=None,
+                score=None,
+                reranker_score=None,
+                evidence_records=[
+                    {
+                        "phrase": "recurrent seizures",
+                        "evidence_text": "recurrent seizures",
+                        "chunk_ids": [2],
+                        "confidence": 0.92,
+                        "match_method": "local",
+                    },
+                    {
+                        "phrase": "recurrent seizures",
+                        "evidence_text": "recurrent seizures",
+                        "chunk_ids": [1],
+                        "confidence": 0.31,
+                        "match_method": "local",
+                    },
+                ],
+            )
+        ],
+        meta=LLMMeta(
+            llm_model="gpt-4o-mini",
+            llm_mode="two_phase",
+        ),
+    )
+    mocker.patch(
+        "phentrieve.text_processing.full_text_service.get_llm_provider",
+        return_value=provider,
+    )
+    mocker.patch(
+        "phentrieve.text_processing.full_text_service.preprocess_grounded_document",
+        return_value=preprocessed,
+    )
+    mocker.patch(
+        "phentrieve.text_processing.full_text_service.TwoPhaseLLMPipeline",
+        return_value=pipeline,
+    )
+
+    result = run_llm_backend(
+        text="Patient had recurrent seizures.",
+        llm_model="gpt-4o-mini",
+        llm_mode="two_phase",
+    )
+
+    assert result["aggregated_hpo_terms"][0]["source_chunk_ids"] == [1, 2]
+    assert result["aggregated_hpo_terms"][0]["top_evidence_chunk_id"] == 2
+
+
 def test_run_llm_backend_infers_missing_text_attribution_offsets_from_chunk_text(
     mocker,
 ):

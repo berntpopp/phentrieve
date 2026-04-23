@@ -272,6 +272,21 @@ def _coerce_float(value: Any) -> float | None:
     return None
 
 
+def _score_evidence_record(record: Mapping[str, Any]) -> float | None:
+    return max(
+        (
+            score
+            for score in (
+                _coerce_float(record.get("score")),
+                _coerce_float(record.get("confidence")),
+                _coerce_float(record.get("retrieval_score")),
+            )
+            if score is not None
+        ),
+        default=None,
+    )
+
+
 def _infer_text_attribution_offsets(
     *,
     chunk_text: str,
@@ -388,6 +403,21 @@ def _adapt_llm_aggregated_terms(
             evidence_records,
             chunk_text_by_id=chunk_text_by_id,
         )
+        top_evidence_chunk_id = None
+        top_evidence_score = None
+        for record in evidence_records:
+            record_score = _score_evidence_record(record)
+            if record_score is None:
+                continue
+            for chunk_id in (
+                _coerce_chunk_id(value) for value in record.get("chunk_ids", [])
+            ):
+                if chunk_id is None:
+                    continue
+                if top_evidence_score is None or record_score > top_evidence_score:
+                    top_evidence_score = record_score
+                    top_evidence_chunk_id = chunk_id
+                break
 
         adapted_terms.append(
             {
@@ -404,9 +434,9 @@ def _adapt_llm_aggregated_terms(
                 "evidence_count": len(evidence_records),
                 "source_chunk_ids": source_chunk_ids,
                 "max_score_from_evidence": max_evidence_score,
-                "top_evidence_chunk_id": source_chunk_ids[0]
-                if source_chunk_ids
-                else None,
+                "top_evidence_chunk_id": top_evidence_chunk_id
+                if top_evidence_chunk_id is not None
+                else (source_chunk_ids[0] if source_chunk_ids else None),
                 "text_attributions": text_attributions,
                 "score": term_score if term_score is not None else max_evidence_score,
             }

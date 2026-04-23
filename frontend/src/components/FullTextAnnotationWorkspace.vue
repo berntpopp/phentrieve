@@ -64,6 +64,16 @@
               Findings
             </v-btn>
             <v-btn
+              v-if="sidebarMode === SIDEBAR_MODE_INSPECTOR"
+              size="small"
+              rounded="pill"
+              :variant="mobilePane === 'inspector' ? 'tonal' : 'text'"
+              color="primary"
+              @click="mobilePane = 'inspector'"
+            >
+              Inspector
+            </v-btn>
+            <v-btn
               v-if="showCaseWorkspace"
               size="small"
               rounded="pill"
@@ -116,27 +126,27 @@
               :chunks="workspaceChunks"
               :selected-annotation-ids="selectedAnnotationIds"
             />
-            <PhenotypeFindingsPane
-              v-else-if="!showDocumentPane || mobilePane === 'findings'"
-              :terms="workspaceTerms"
-              @inspect-term="inspectTerm"
-              @hover-term="highlightTerm"
-              @clear-hover="clearHighlight"
-              @add-all-to-collection="$emit('add-all-to-collection', $event)"
-            />
             <AnnotationInspectorPanel
-              v-else-if="sidebarMode === SIDEBAR_MODE_INSPECTOR"
+              v-else-if="sidebarMode === SIDEBAR_MODE_INSPECTOR && mobilePane === 'inspector'"
               :selected-term="selectedTerm"
               @back="showCaseSidebar"
             />
             <CaseWorkspacePanel
-              v-else-if="showCaseWorkspace"
+              v-else-if="showCaseWorkspace && mobilePane === 'case'"
               :cases="cases"
               :active-case-id="activeCaseId || ''"
               @create-case="createCase"
               @select-case="selectCase"
               @add-all="addAllPhenotypes"
               @export-case="exportActiveCase"
+            />
+            <PhenotypeFindingsPane
+              v-else
+              :terms="workspaceTerms"
+              @inspect-term="inspectTerm"
+              @hover-term="highlightTerm"
+              @clear-hover="clearHighlight"
+              @add-all-to-collection="$emit('add-all-to-collection', $event)"
             />
           </div>
         </div>
@@ -318,6 +328,7 @@ function toggleExpanded() {
 function inspectTerm(term) {
   workspaceStore.setSelectedPhenotypeId(props.turnId, term?.hpo_id || null);
   workspaceStore.setSidebarMode(props.turnId, SIDEBAR_MODE_INSPECTOR);
+  mobilePane.value = 'inspector';
 }
 
 function highlightTerm(term) {
@@ -332,6 +343,7 @@ function clearHighlight() {
 
 function showCaseSidebar() {
   workspaceStore.setSidebarMode(props.turnId, SIDEBAR_MODE_CASE);
+  mobilePane.value = props.showCaseWorkspace ? 'case' : 'findings';
 }
 
 function createCase() {
@@ -357,11 +369,16 @@ function normalizeExportPhenotype(term) {
   return {
     hpo_id: term.hpo_id,
     label: term.name || term.label,
-    assertion_status: term.status || term.assertion_status || 'affirmed',
+    assertion_status: normalizeExportAssertionStatus(term.status || term.assertion_status),
     confidence: typeof term.confidence === 'number' ? term.confidence : null,
     source_chunk_ids: Array.isArray(term.source_chunk_ids) ? [...term.source_chunk_ids] : [],
     text_attributions: Array.isArray(term.text_attributions) ? [...term.text_attributions] : [],
   };
+}
+
+function normalizeExportAssertionStatus(status) {
+  const normalized = typeof status === 'string' ? status.trim().toLowerCase() : '';
+  return normalized === 'negated' || normalized === 'absent' ? 'negated' : 'affirmed';
 }
 
 function addAllPhenotypes() {

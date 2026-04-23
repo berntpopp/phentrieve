@@ -48,7 +48,7 @@ def setup_environment():
     # Local launcher supports both the API-specific env file and the repo root
     # .env used by development tooling. Existing process env still wins.
     load_dotenv(project_root / ".env", override=False)
-    load_dotenv(config_path, override=False)
+    load_dotenv(config_path, override=True)
 
     # Get environment variables with defaults
     data_root = os.environ.get(

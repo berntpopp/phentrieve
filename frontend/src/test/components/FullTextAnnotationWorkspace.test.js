@@ -7,6 +7,7 @@ import * as directives from 'vuetify/directives';
 import { createI18n } from 'vue-i18n';
 import en from '../../locales/en.json';
 import { useFullTextWorkspaceStore } from '../../stores/fullTextWorkspace';
+import PhentrieveService from '../../services/PhentrieveService';
 
 vi.mock('../../services/PhentrieveService', () => ({
   default: {
@@ -112,6 +113,80 @@ describe('FullTextAnnotationWorkspace', () => {
       label: 'Seizure',
       assertion_status: 'affirmed',
     });
+  });
+
+  it('normalizes full-text assertion statuses before storing and exporting case phenotypes', async () => {
+    const component = (await import('../../components/FullTextAnnotationWorkspace.vue')).default;
+    const store = useFullTextWorkspaceStore();
+    store.initializeTurn('turn-export-status');
+    store.setExpanded('turn-export-status', true);
+
+    const wrapper = mount(component, {
+      props: {
+        turnId: 'turn-export-status',
+        responseData: {
+          meta: { extraction_backend: 'llm' },
+          processed_chunks: [{ chunk_id: 1, text: 'Clinical note chunk.' }],
+          aggregated_hpo_terms: [
+            {
+              hpo_id: 'HP:0001250',
+              name: 'Seizure',
+              status: 'present',
+              source_chunk_ids: [1],
+            },
+            {
+              hpo_id: 'HP:0001249',
+              name: 'Intellectual disability',
+              status: 'absent',
+              source_chunk_ids: [1],
+            },
+            {
+              hpo_id: 'HP:0001263',
+              name: 'Global developmental delay',
+              status: 'uncertain',
+              source_chunk_ids: [1],
+            },
+            {
+              hpo_id: 'HP:0001626',
+              name: 'Abnormality of the cardiovascular system',
+              status: 'family_history',
+              source_chunk_ids: [1],
+            },
+          ],
+        },
+      },
+      global: {
+        plugins: [vuetify, i18n],
+      },
+    });
+
+    await wrapper.find('[data-testid="create-case-button"]').trigger('click');
+    await wrapper.find('[data-testid="add-all-button"]').trigger('click');
+
+    const activeCase = store.getActiveCase('turn-export-status');
+    expect(activeCase.phenotypes.map((phenotype) => phenotype.assertion_status)).toEqual([
+      'affirmed',
+      'negated',
+      'affirmed',
+      'affirmed',
+    ]);
+
+    await wrapper.find('[data-testid="export-case-button"]').trigger('click');
+
+    expect(PhentrieveService.exportPhenopacket).toHaveBeenCalledWith(
+      expect.objectContaining({
+        phenotypes: expect.arrayContaining([
+          expect.objectContaining({
+            hpo_id: 'HP:0001250',
+            assertion_status: 'affirmed',
+          }),
+          expect.objectContaining({
+            hpo_id: 'HP:0001249',
+            assertion_status: 'negated',
+          }),
+        ]),
+      })
+    );
   });
 
   it('emits bulk collection payloads when the integrated case workspace is disabled', async () => {
@@ -237,5 +312,66 @@ describe('FullTextAnnotationWorkspace', () => {
 
     expect(wrapper.text()).toContain('Patient had recurrent seizures and developmental delay.');
     expect(wrapper.find('[data-annotation-id]').exists()).toBe(true);
+  });
+
+  it('renders the inspector in the mobile workspace after selecting a finding', async () => {
+    const component = (await import('../../components/FullTextAnnotationWorkspace.vue')).default;
+    const store = useFullTextWorkspaceStore();
+    store.initializeTurn('turn-mobile-inspector');
+    store.setExpanded('turn-mobile-inspector', true);
+
+    const wrapper = mount(component, {
+      props: {
+        turnId: 'turn-mobile-inspector',
+        responseData: {
+          meta: { extraction_backend: 'llm' },
+          processed_chunks: [{ chunk_id: 1, text: 'Clinical note chunk.' }],
+          aggregated_hpo_terms: [
+            {
+              hpo_id: 'HP:0001250',
+              name: 'Seizure',
+              status: 'present',
+              source_chunk_ids: [1],
+            },
+          ],
+        },
+      },
+      global: {
+        plugins: [vuetify, i18n],
+        stubs: {
+          AnnotatedDocumentPane: {
+            template: '<div data-testid="document-pane-stub" />',
+          },
+          PhenotypeFindingsPane: {
+            props: ['terms'],
+            emits: ['inspect-term', 'hover-term', 'clear-hover', 'add-all-to-collection'],
+            template:
+              '<button data-testid="inspect-term-stub" @click="$emit(\'inspect-term\', terms[0])">Inspect</button>',
+          },
+          AnnotationInspectorPanel: {
+            props: ['selectedTerm'],
+            template:
+              '<div data-testid="inspector-pane-stub">{{ selectedTerm ? selectedTerm.hpo_id : "" }}</div>',
+          },
+          CaseWorkspacePanel: {
+            template: '<div data-testid="case-pane-stub" />',
+          },
+        },
+      },
+    });
+
+    const mobileLayout = wrapper.find('.workspace-layout--mobile');
+    const findingsButton = wrapper
+      .findAll('.workspace-mobile-nav .v-btn')
+      .find((button) => button.text() === 'Findings');
+
+    expect(findingsButton).toBeTruthy();
+    await findingsButton.trigger('click');
+    expect(mobileLayout.find('[data-testid="inspect-term-stub"]').exists()).toBe(true);
+
+    await mobileLayout.find('[data-testid="inspect-term-stub"]').trigger('click');
+
+    expect(mobileLayout.find('[data-testid="inspector-pane-stub"]').exists()).toBe(true);
+    expect(mobileLayout.find('[data-testid="inspect-term-stub"]').exists()).toBe(false);
   });
 });
