@@ -2848,7 +2848,7 @@ wheels = [
 
 [[package]]
 name = "phentrieve"
-version = "0.17.1"
+version = "0.17.2"
 source = { editable = "." }
 dependencies = [
     { name = "cachetools" },
