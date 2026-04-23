@@ -288,65 +288,16 @@
                 @add-to-collection="handleAddToCollection"
               />
 
-              <div v-else-if="item.type === 'textProcess'" class="full-text-receipt">
-                <div class="full-text-receipt__title">Full-text analysis ready</div>
-                <div class="text-caption text-medium-emphasis">
-                  {{ formatFullTextReceipt(item) }}
-                </div>
-                <div
-                  v-if="getTextProcessPhenotypes(item).length > 0"
-                  class="d-flex justify-end mt-3"
-                >
-                  <v-btn
-                    data-testid="full-text-response-add-all"
-                    size="small"
-                    rounded="pill"
-                    color="primary"
-                    variant="tonal"
-                    @click="
-                      handleAddAllToCollection(
-                        getTextProcessPhenotypes(item).map((phenotype) =>
-                          normalizeTextProcessPhenotype(phenotype)
-                        )
-                      )
-                    "
-                  >
-                    <v-icon start size="small">mdi-plus-circle</v-icon>
-                    Add all
-                  </v-btn>
-                </div>
-                <v-list
-                  v-if="getTextProcessPhenotypes(item).length > 0"
-                  lines="two"
-                  class="rounded-lg mt-3 full-text-response-list"
-                >
-                  <div
-                    v-for="(phenotype, index) in getTextProcessPhenotypes(item)"
-                    :key="`${item.id}-${phenotype.hpo_id}`"
-                    data-testid="full-text-response-phenotype"
-                    class="full-text-response-phenotype"
-                    :class="{
-                      'full-text-response-phenotype--active':
-                        getHoveredNotePhenotype(item.id) === phenotype.hpo_id,
-                    }"
-                    @mouseenter="setHoveredNotePhenotype(item.id, phenotype.hpo_id)"
-                    @mouseleave="clearHoveredNotePhenotype(item.id)"
-                  >
-                    <ResultItem
-                      :result="mapTextProcessPhenotypeToResult(phenotype)"
-                      :rank="index + 1"
-                      :is-collected="
-                        conversationStore.collectedPhenotypes.some(
-                          (entry) => entry.hpo_id === phenotype.hpo_id
-                        )
-                      "
-                      @add-to-collection="
-                        handleAddToCollection(normalizeTextProcessPhenotype(phenotype))
-                      "
-                    />
-                  </div>
-                </v-list>
-              </div>
+              <FullTextResponseReceipt
+                v-else-if="item.type === 'textProcess'"
+                :item="item"
+                :collected-phenotypes="conversationStore.collectedPhenotypes"
+                :hovered-phenotype-id="getHoveredNotePhenotype(item.id)"
+                @add-to-collection="handleAddToCollection"
+                @add-all-to-collection="handleAddAllToCollection"
+                @hover-phenotype="setHoveredNotePhenotype(item.id, $event)"
+                @clear-hover="clearHoveredNotePhenotype(item.id)"
+              />
 
               <ResultsDisplay
                 v-else
@@ -399,11 +350,12 @@
 </template>
 
 <script>
+import { getCurrentInstance } from 'vue';
 import ResultsDisplay from './ResultsDisplay.vue';
-import ResultItem from './ResultItem.vue';
 import ConversationSkeleton from './ConversationSkeleton.vue';
 import AdvancedOptionsPanel from './AdvancedOptionsPanel.vue';
 import PhenotypeCollectionPanel from './PhenotypeCollectionPanel.vue';
+import FullTextResponseReceipt from './FullTextResponseReceipt.vue';
 import PhentrieveService from '../services/PhentrieveService';
 import { logService } from '../services/logService';
 import { useQueryPreferencesStore } from '../stores/queryPreferences';
@@ -411,6 +363,14 @@ import { useConversationStore } from '../stores/conversation';
 import { useFullTextWorkspaceStore } from '../stores/fullTextWorkspace';
 import { useAdvancedOptions } from '../composables/useAdvancedOptions';
 import { usePhenotypeCollection } from '../composables/usePhenotypeCollection';
+import { useQueryInterfaceController } from '../composables/useQueryInterfaceController';
+import {
+  buildUserNoteSegments as deriveUserNoteSegments,
+  formatDocumentSummaryMeta as summarizeUserNoteMeta,
+  resolveChunkOffsetsInNote as resolveUserNoteChunkOffsets,
+  resolveMatchedTextRange as resolveUserNoteMatchedTextRange,
+  summarizeDocumentQuery as summarizeUserNote,
+} from '../composables/useUserNoteAnnotations';
 
 const DEFAULT_TEXT_PROCESS_LLM_OPTIONS = Object.freeze({
   llmModel: 'gemini-3.1-flash-lite-preview',
@@ -421,12 +381,13 @@ export default {
   name: 'QueryInterface',
   components: {
     ResultsDisplay,
-    ResultItem,
     ConversationSkeleton,
     AdvancedOptionsPanel,
     PhenotypeCollectionPanel,
+    FullTextResponseReceipt,
   },
   setup() {
+    const instance = getCurrentInstance();
     const conversationStore = useConversationStore();
     const fullTextWorkspaceStore = useFullTextWorkspaceStore();
 
@@ -457,9 +418,71 @@ export default {
       exportCollectionAsText: exportPhenotypes,
       exportAsPhenopacket: exportPhenotypesAsPhenopacket,
     } = usePhenotypeCollection();
+    const queryInterfaceController = useQueryInterfaceController({
+      getContext: () => {
+        const vm = instance?.proxy;
+        if (!vm) {
+          return null;
+        }
+
+        return {
+          routeQuery: vm.$route.query,
+          nextTick: vm.$nextTick.bind(vm),
+          replaceRouteQuery(query) {
+            return vm.$router.replace({ query });
+          },
+          getState() {
+            return {
+              availableModels: vm.availableModels,
+              selectedModel: vm.selectedModel,
+              queryText: vm.queryText,
+              similarityThreshold: vm.similarityThreshold,
+              forceEndpointMode: vm.forceEndpointMode,
+              chunkingStrategy: vm.chunkingStrategy,
+              showAdvancedOptions: vm.showAdvancedOptions,
+              modelsLoading: vm.modelsLoading,
+              isLoading: vm.isLoading,
+              shouldScrollToTop: vm.shouldScrollToTop,
+              userHasScrolled: vm.userHasScrolled,
+              isTextProcessModeActive: vm.isTextProcessModeActive,
+              selectedLanguage: vm.selectedLanguage,
+              textProcessOptions: vm.textProcessOptions,
+              windowSize: vm.windowSize,
+              stepSize: vm.stepSize,
+              splitThreshold: vm.splitThreshold,
+              minSegmentLength: vm.minSegmentLength,
+              semanticModelForChunking: vm.semanticModelForChunking,
+              retrievalModelForTextProcess: vm.retrievalModelForTextProcess,
+              chunkRetrievalThreshold: vm.chunkRetrievalThreshold,
+              numResultsPerChunk: vm.numResultsPerChunk,
+              noAssertionDetectionForTextProcess: vm.noAssertionDetectionForTextProcess,
+              assertionPreferenceForTextProcess: vm.assertionPreferenceForTextProcess,
+              aggregatedTermConfidence: vm.aggregatedTermConfidence,
+              topTermPerChunkForAggregation: vm.topTermPerChunkForAggregation,
+              includeDetails: vm.includeDetails,
+              numResults: vm.numResults,
+            };
+          },
+          setState(patch) {
+            Object.assign(vm, patch);
+          },
+          setExpandedUserNote(turnId, expanded) {
+            vm.expandedUserNotes = {
+              ...vm.expandedUserNotes,
+              [turnId]: expanded,
+            };
+          },
+          conversationStore: vm.conversationStore,
+          fullTextWorkspaceStore: vm.fullTextWorkspaceStore,
+        };
+      },
+      service: PhentrieveService,
+      logService,
+    });
     return {
       conversationStore,
       fullTextWorkspaceStore,
+      queryInterfaceController,
       // Advanced options
       showAdvancedOptions,
       numResults,
@@ -656,92 +679,18 @@ export default {
      * Falls back to BioLORD if API is unavailable
      */
     async fetchAvailableModels() {
-      this.modelsLoading = true;
-      try {
-        const config = await PhentrieveService.getConfigInfo();
-        if (config.available_embedding_models && config.available_embedding_models.length > 0) {
-          this.availableModels = config.available_embedding_models.map((m) => ({
-            // Use the model name (last part of ID) as display text, e.g., "BioLORD-2023-M"
-            text: m.id.split('/').pop(),
-            value: m.id,
-          }));
-          // Set default model from API config
-          if (config.default_embedding_model) {
-            this.selectedModel = config.default_embedding_model;
-          } else {
-            this.selectedModel = this.availableModels[0]?.value || null;
-          }
-          logService.info('Loaded embedding models from API', {
-            count: this.availableModels.length,
-            defaultModel: this.selectedModel,
-          });
-        } else {
-          this.setFallbackModel();
-        }
-      } catch (error) {
-        logService.warn('Failed to fetch models from API, using fallback', {
-          error: error.message,
-        });
-        this.setFallbackModel();
-      } finally {
-        this.modelsLoading = false;
-      }
+      return this.queryInterfaceController.fetchAvailableModels();
     },
 
     /**
      * Set fallback model when API is unavailable
      */
     setFallbackModel() {
-      this.availableModels = [{ text: 'BioLORD 2023-M', value: 'FremyCompany/BioLORD-2023-M' }];
-      this.selectedModel = 'FremyCompany/BioLORD-2023-M';
-      logService.info('Using fallback embedding model', { model: this.selectedModel });
+      return this.queryInterfaceController.setFallbackModel();
     },
 
     applyUrlParametersAndAutoSubmit() {
-      const queryParams = this.$route.query;
-      logService.debug('Raw URL query parameters:', { ...queryParams });
-      let advancedOptionsWereSet = false;
-      const parseBooleanParam = (val) =>
-        typeof val === 'string' && (val.toLowerCase() === 'true' || val === '1');
-
-      if (queryParams.text !== undefined) {
-        this.queryText = queryParams.text;
-      }
-      if (queryParams.model !== undefined) {
-        const validModels = this.availableModels.map((m) => m.value);
-        if (validModels.includes(queryParams.model)) {
-          this.selectedModel = queryParams.model;
-          advancedOptionsWereSet = true;
-        }
-      }
-      if (queryParams.threshold !== undefined) {
-        const val = parseFloat(queryParams.threshold);
-        if (!isNaN(val) && val >= 0 && val <= 1) {
-          this.similarityThreshold = val;
-          advancedOptionsWereSet = true;
-        }
-      }
-      // Add processing for text process specific URL params
-      if (queryParams.forceEndpointMode) {
-        this.forceEndpointMode = queryParams.forceEndpointMode;
-        advancedOptionsWereSet = true;
-      }
-      if (queryParams.chunkingStrategy) {
-        this.chunkingStrategy = queryParams.chunkingStrategy;
-        advancedOptionsWereSet = true;
-      }
-
-      if (advancedOptionsWereSet) this.showAdvancedOptions = true;
-
-      const performAutoSubmit =
-        queryParams.autoSubmit !== undefined
-          ? parseBooleanParam(queryParams.autoSubmit)
-          : queryParams.text !== undefined;
-
-      if (performAutoSubmit && this.queryText && this.queryText.trim()) {
-        logService.info('Auto-submitting query based on URL parameters.');
-        this.$nextTick(() => setTimeout(() => this.submitQuery(true), 300)); // autoSubmit = true
-      }
+      return this.queryInterfaceController.applyUrlParametersAndAutoSubmit();
     },
     handleUserScroll() {
       const container = this.$refs.conversationContainer;
@@ -785,30 +734,10 @@ export default {
         : 'Switched to Full Text for longer clinical text';
     },
     summarizeDocumentQuery(query) {
-      if (typeof query !== 'string') {
-        return '';
-      }
-
-      const compact = query.replace(/\s+/g, ' ').trim();
-      if (compact.length <= 120) {
-        return compact;
-      }
-
-      return `${compact.slice(0, 117)}...`;
+      return summarizeUserNote(query);
     },
     formatDocumentSummaryMeta(query) {
-      if (typeof query !== 'string') {
-        return '';
-      }
-
-      const charCount = query.trim().length;
-      if (charCount === 0) {
-        return '';
-      }
-
-      const wordCount = query.trim().split(/\s+/).filter(Boolean).length;
-
-      return `${wordCount} words`;
+      return summarizeUserNoteMeta(query);
     },
     isUserNoteExpanded(turnId) {
       return Boolean(this.expandedUserNotes[turnId]);
@@ -817,42 +746,6 @@ export default {
       this.expandedUserNotes = {
         ...this.expandedUserNotes,
         [turnId]: !this.expandedUserNotes[turnId],
-      };
-    },
-    getTextProcessPhenotypes(item) {
-      return Array.isArray(item?.response?.aggregated_hpo_terms)
-        ? item.response.aggregated_hpo_terms.filter(
-            (term) => term && typeof term.hpo_id === 'string' && typeof term.name === 'string'
-          )
-        : [];
-    },
-    parseScoreValue(value) {
-      if (typeof value === 'number' && Number.isFinite(value)) {
-        return value;
-      }
-
-      if (typeof value === 'string' && value.trim() !== '') {
-        const parsed = Number.parseFloat(value);
-        if (Number.isFinite(parsed)) {
-          return parsed;
-        }
-      }
-
-      return null;
-    },
-    mapTextProcessPhenotypeToResult(term) {
-      const confidence = this.parseScoreValue(term.confidence);
-      const similarity = this.parseScoreValue(term.similarity);
-
-      return {
-        hpo_id: term.hpo_id,
-        label: term.name,
-        confidence,
-        score: confidence,
-        scoreType: 'confidence',
-        similarity: confidence ?? similarity ?? 0,
-        definition: term.definition || '',
-        synonyms: Array.isArray(term.synonyms) ? term.synonyms : [],
       };
     },
     getHoveredNotePhenotype(turnId) {
@@ -870,28 +763,6 @@ export default {
         [turnId]: null,
       };
     },
-    normalizeAssertionStatus(status) {
-      if (status === 'present') {
-        return 'affirmed';
-      }
-
-      if (status === 'absent') {
-        return 'negated';
-      }
-
-      if (status === 'affirmed' || status === 'negated' || status === 'unknown') {
-        return status;
-      }
-
-      return 'unknown';
-    },
-    normalizeTextProcessPhenotype(term) {
-      return {
-        hpo_id: term.hpo_id,
-        label: term.name,
-        assertion_status: this.normalizeAssertionStatus(term.status),
-      };
-    },
     handleAnnotatedTextHover(turnId, termIds) {
       if (!Array.isArray(termIds) || termIds.length === 0) {
         return;
@@ -900,170 +771,18 @@ export default {
       this.setHoveredNotePhenotype(turnId, termIds[0]);
     },
     buildUserNoteSegments(item) {
-      const fallbackText = typeof item?.query === 'string' ? item.query : '';
-      const chunks = Array.isArray(item?.response?.processed_chunks)
-        ? item.response.processed_chunks
-        : [];
-      const terms = Array.isArray(item?.response?.aggregated_hpo_terms)
-        ? item.response.aggregated_hpo_terms
-        : [];
-      const termLabels = new Map(
-        terms
-          .filter(
-            (term) => term && typeof term.hpo_id === 'string' && typeof term.name === 'string'
-          )
-          .map((term) => [term.hpo_id, term.name])
-      );
-      const activePhenotypeId = this.getHoveredNotePhenotype(item?.id);
-
-      if (!fallbackText || chunks.length === 0) {
-        return [{ key: 'fallback-note', text: fallbackText, highlighted: false }];
-      }
-
-      const chunkOffsets = this.resolveChunkOffsetsInNote(fallbackText, chunks);
-      const highlights = terms
-        .filter((term) => !activePhenotypeId || term?.hpo_id === activePhenotypeId)
-        .flatMap((term) =>
-          (Array.isArray(term.text_attributions) ? term.text_attributions : []).map((attr) => ({
-            ...attr,
-            termId: term.hpo_id,
-          }))
-        )
-        .map((attr) => {
-          const offset =
-            chunkOffsets.get(attr?.chunk_id) ??
-            chunkOffsets.get(String(attr?.chunk_id)) ??
-            chunkOffsets.get(Number(attr?.chunk_id));
-
-          if (offset != null) {
-            const start = offset + Math.max(0, attr.start_char ?? 0);
-            const end = offset + Math.max(0, attr.end_char ?? 0);
-            return {
-              start: Math.max(0, Math.min(start, fallbackText.length)),
-              end: Math.max(0, Math.min(end, fallbackText.length)),
-              termIds: [attr.termId],
-            };
-          }
-
-          const resolved = this.resolveMatchedTextRange(fallbackText, attr?.matched_text_in_chunk);
-          return resolved
-            ? {
-                ...resolved,
-                termIds: [attr.termId],
-              }
-            : null;
-        })
-        .filter(Boolean)
-        .map((attr) => ({
-          start: attr.start,
-          end: attr.end,
-          termIds: attr.termIds,
-        }))
-        .filter((attr) => attr.end > attr.start)
-        .sort((left, right) => left.start - right.start);
-
-      if (highlights.length === 0) {
-        return [{ key: 'plain-note', text: fallbackText, highlighted: false }];
-      }
-
-      const merged = [];
-      for (const range of highlights) {
-        const previous = merged[merged.length - 1];
-        if (previous && range.start <= previous.end) {
-          previous.end = Math.max(previous.end, range.end);
-          previous.termIds = [...new Set([...previous.termIds, ...range.termIds])];
-        } else {
-          merged.push({ ...range });
-        }
-      }
-
-      const segments = [];
-      let cursor = 0;
-      merged.forEach((range, index) => {
-        if (range.start > cursor) {
-          segments.push({
-            key: `plain-${index}-${cursor}`,
-            text: fallbackText.slice(cursor, range.start),
-            highlighted: false,
-          });
-        }
-        segments.push({
-          key: `mark-${index}-${range.start}`,
-          text: fallbackText.slice(range.start, range.end),
-          highlighted: true,
-          termIds: range.termIds,
-          tooltip: range.termIds
-            .map((termId) => `${termLabels.get(termId) || termId} (${termId})`)
-            .join(', '),
-        });
-        cursor = range.end;
+      return deriveUserNoteSegments({
+        note: item?.query,
+        chunks: item?.response?.processed_chunks,
+        terms: item?.response?.aggregated_hpo_terms,
+        activePhenotypeId: this.getHoveredNotePhenotype(item?.id),
       });
-
-      if (cursor < fallbackText.length) {
-        segments.push({
-          key: `plain-tail-${cursor}`,
-          text: fallbackText.slice(cursor),
-          highlighted: false,
-        });
-      }
-
-      return segments;
     },
     resolveChunkOffsetsInNote(noteText, chunks) {
-      const offsets = new Map();
-      let searchFrom = 0;
-
-      chunks.forEach((chunk) => {
-        const chunkText =
-          typeof chunk?.text === 'string'
-            ? chunk.text
-            : typeof chunk?.chunk_text === 'string'
-              ? chunk.chunk_text
-              : '';
-
-        if (!chunkText || typeof chunk?.chunk_id !== 'number') {
-          return;
-        }
-
-        let offset = noteText.indexOf(chunkText, searchFrom);
-        if (offset === -1) {
-          offset = noteText.indexOf(chunkText);
-        }
-        if (offset === -1) {
-          return;
-        }
-
-        offsets.set(chunk.chunk_id, offset);
-        offsets.set(String(chunk.chunk_id), offset);
-        searchFrom = Math.max(offset + 1, searchFrom);
-      });
-
-      return offsets;
+      return resolveUserNoteChunkOffsets(noteText, chunks);
     },
     resolveMatchedTextRange(noteText, matchedText) {
-      if (typeof matchedText !== 'string' || matchedText.trim() === '') {
-        return null;
-      }
-
-      const normalizedNote = noteText.toLowerCase();
-      const normalizedMatch = matchedText.toLowerCase();
-      const start = normalizedNote.indexOf(normalizedMatch);
-      if (start === -1) {
-        return null;
-      }
-
-      return {
-        start,
-        end: start + matchedText.length,
-      };
-    },
-    formatFullTextReceipt(item) {
-      const terms = item?.response?.aggregated_hpo_terms?.length ?? 0;
-      const chunks = item?.response?.processed_chunks?.length ?? 0;
-      if (chunks === 0 && typeof item?.query === 'string' && item.query.trim().length > 0) {
-        return `${terms} findings in submitted note review`;
-      }
-      return `${terms} findings across ${chunks} document sections`;
+      return resolveUserNoteMatchedTextRange(noteText, matchedText);
     },
     setMode(mode) {
       if (mode === 'query' && this.showAutoSwitchNotice) {
@@ -1073,102 +792,7 @@ export default {
       this.modeSelectionSource = 'manual';
     },
     async submitQuery(isAutoSubmit = false) {
-      const queryTextTrimmed = this.queryText.trim();
-      if (!queryTextTrimmed) {
-        logService.warn('Empty query submission prevented');
-        return;
-      }
-
-      const useTextProcessMode = this.isTextProcessModeActive;
-      this.isLoading = true;
-      const currentQuery = queryTextTrimmed;
-
-      // Add query to store and get the generated ID
-      const queryId = this.conversationStore.addQuery({
-        query: currentQuery,
-        loading: true,
-        type: useTextProcessMode ? 'textProcess' : 'query',
-      });
-
-      if (useTextProcessMode) {
-        this.expandedUserNotes = {
-          ...this.expandedUserNotes,
-          [queryId]: true,
-        };
-      }
-
-      if (!isAutoSubmit) this.queryText = ''; // Clear input only if not auto-submitting (URL params might be active)
-
-      this.shouldScrollToTop = true;
-      this.userHasScrolled = false;
-
-      try {
-        let response;
-        if (useTextProcessMode) {
-          const textProcessData = {
-            text: currentQuery,
-            extractionBackend: this.textProcessOptions.extractionBackend,
-            llmModel: this.textProcessOptions.llmModel,
-            llmMode: this.textProcessOptions.llmMode,
-            language: this.selectedLanguage,
-            chunkingStrategy: this.chunkingStrategy,
-            windowSize: this.windowSize,
-            stepSize: this.stepSize,
-            splitThreshold: this.splitThreshold,
-            minSegmentLength: this.minSegmentLength,
-            semanticModelForChunking: this.semanticModelForChunking || this.selectedModel,
-            retrievalModelForTextProcess: this.retrievalModelForTextProcess || this.selectedModel,
-            trustRemoteCode: true,
-            chunkRetrievalThreshold: this.chunkRetrievalThreshold,
-            numResultsPerChunk: this.numResultsPerChunk,
-            noAssertionDetectionForTextProcess: this.noAssertionDetectionForTextProcess,
-            assertionPreferenceForTextProcess: this.assertionPreferenceForTextProcess,
-            aggregatedTermConfidence: this.aggregatedTermConfidence,
-            topTermPerChunkForAggregation: this.topTermPerChunkForAggregation,
-            includeDetails: this.includeDetails,
-          };
-          logService.info('Sending to /text/process API', textProcessData);
-          response = await PhentrieveService.processText(textProcessData);
-        } else {
-          const queryData = {
-            text: currentQuery,
-            model_name: this.selectedModel,
-            language: this.selectedLanguage,
-            num_results: this.numResults,
-            similarity_threshold: this.similarityThreshold,
-            query_assertion_language: this.selectedLanguage, // Pass selected language for query assertion
-            detect_query_assertion: true, // Default to true for query mode now
-            include_details: this.includeDetails,
-          };
-          logService.info('Sending to /query API', queryData);
-          response = await PhentrieveService.queryHpo(queryData);
-        }
-        // Update the query response in the store
-        this.conversationStore.updateQueryResponse(queryId, response);
-        if (useTextProcessMode) {
-          this.fullTextWorkspaceStore.initializeTurn(queryId);
-          this.fullTextWorkspaceStore.setExpanded(queryId, true);
-        }
-      } catch (error) {
-        // Update with error in the store
-        this.conversationStore.updateQueryResponse(queryId, null, error);
-        logService.error('Error submitting query/processing text', error);
-      } finally {
-        this.isLoading = false;
-        if (!isAutoSubmit) {
-          // Only clear URL params if it wasn't an auto-submit
-          const newRouteQuery = { ...this.$route.query };
-          delete newRouteQuery.autoSubmit; // Remove autoSubmit flag
-          if (Object.keys(newRouteQuery).length !== Object.keys(this.$route.query).length - 1) {
-            // Check if other params were there
-            this.$router.replace({ query: newRouteQuery }).catch((err) => {
-              if (err.name !== 'NavigationDuplicated' && err.name !== 'NavigationCancelled') {
-                logService.warn('Error clearing autoSubmit from URL:', err);
-              }
-            });
-          }
-        }
-      }
+      return this.queryInterfaceController.submitQuery(isAutoSubmit);
     },
   },
 };
@@ -1434,32 +1058,6 @@ export default {
 
 .annotated-note-span--active {
   background: rgba(37, 99, 235, 0.32) !important;
-}
-
-.full-text-receipt {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.full-text-receipt__title {
-  font-weight: 600;
-}
-
-.full-text-response-list {
-  background: transparent;
-}
-
-.full-text-response-phenotype {
-  border-radius: 12px;
-  transition:
-    transform 0.16s ease,
-    box-shadow 0.16s ease;
-}
-
-.full-text-response-phenotype--active {
-  transform: translateY(-1px);
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
 }
 
 /* Webkit Scrollbar Styles */

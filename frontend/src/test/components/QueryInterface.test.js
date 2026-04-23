@@ -1,11 +1,12 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { mount } from '@vue/test-utils';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { mount, flushPromises } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { createVuetify } from 'vuetify';
 import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
 import { createI18n } from 'vue-i18n';
 import en from '../../locales/en.json';
+import PhentrieveService from '../../services/PhentrieveService';
 import { useFullTextWorkspaceStore } from '../../stores/fullTextWorkspace';
 
 // Mock the API service class — methods are queryHpo() and processText()
@@ -42,7 +43,10 @@ const i18n = createI18n({
   missing: () => '',
 });
 
-async function mountQueryInterface() {
+async function mountQueryInterface({
+  routeQuery = {},
+  routerReplace = vi.fn().mockResolvedValue(undefined),
+} = {}) {
   // QueryInterface uses Options API with setup() hook, has no props.
   // It renders a search container with query input.
   const pinia = createPinia();
@@ -52,13 +56,16 @@ async function mountQueryInterface() {
     global: {
       plugins: [pinia, vuetify, i18n],
       stubs: {
-        ResultsDisplay: true,
+        ResultsDisplay: {
+          props: ['error'],
+          template: '<div class="results-display-stub">{{ error?.detail || "" }}</div>',
+        },
         ConversationSkeleton: true,
         'v-navigation-drawer': true,
       },
       mocks: {
-        $route: { query: {} },
-        $router: { replace: vi.fn().mockResolvedValue(undefined) },
+        $route: { query: routeQuery },
+        $router: { replace: routerReplace },
       },
     },
   });
@@ -67,6 +74,11 @@ async function mountQueryInterface() {
 describe('QueryInterface (characterization)', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
+    vi.clearAllMocks();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   it('mounts without errors', async () => {
@@ -77,6 +89,18 @@ describe('QueryInterface (characterization)', () => {
   it('renders the search container', async () => {
     const wrapper = await mountQueryInterface();
     expect(wrapper.find('.search-container').exists()).toBe(true);
+  });
+
+  it('loads available models through the controller-owned bootstrap flow', async () => {
+    const wrapper = await mountQueryInterface();
+
+    await flushPromises();
+
+    expect(PhentrieveService.getConfigInfo).toHaveBeenCalledTimes(1);
+    expect(wrapper.vm.availableModels).toEqual(
+      expect.arrayContaining([expect.objectContaining({ value: 'test-model' })])
+    );
+    expect(wrapper.vm.selectedModel).toBe('test-model');
   });
 
   it('initializes with empty query text', async () => {
@@ -205,6 +229,183 @@ describe('QueryInterface (characterization)', () => {
     expect(wrapper.find('[data-testid="mode-auto-switch-notice"]').exists()).toBe(false);
   });
 
+  it('hydrates URL parameters and auto-submits once models finish loading', async () => {
+    vi.useFakeTimers();
+
+    const wrapper = await mountQueryInterface({
+      routeQuery: {
+        text: 'Patient had recurrent seizures.',
+        model: 'test-model',
+        threshold: '0.8',
+        forceEndpointMode: 'textProcess',
+        chunkingStrategy: 'by_sentence',
+        autoSubmit: 'true',
+      },
+    });
+
+    await flushPromises();
+    await wrapper.vm.$nextTick();
+    await vi.runAllTimersAsync();
+    await flushPromises();
+
+    expect(wrapper.vm.queryText).toBe('Patient had recurrent seizures.');
+    expect(wrapper.vm.selectedModel).toBe('test-model');
+    expect(wrapper.vm.similarityThreshold).toBe(0.8);
+    expect(wrapper.vm.forceEndpointMode).toBe('textProcess');
+    expect(wrapper.vm.chunkingStrategy).toBe('by_sentence');
+    expect(wrapper.vm.showAdvancedOptions).toBe(true);
+    expect(PhentrieveService.processText).toHaveBeenCalledTimes(1);
+
+    vi.useRealTimers();
+  });
+
+  it('hydrates array query params safely and auto-submits using the first value', async () => {
+    vi.useFakeTimers();
+
+    const wrapper = await mountQueryInterface({
+      routeQuery: {
+        text: ['Patient had recurrent seizures.', 'ignored'],
+        model: ['test-model', 'ignored-model'],
+        threshold: ['0.8', '0.4'],
+        forceEndpointMode: ['textProcess', 'query'],
+        chunkingStrategy: ['by_sentence', 'sliding_window'],
+        autoSubmit: ['true', 'false'],
+      },
+    });
+
+    await flushPromises();
+    await wrapper.vm.$nextTick();
+    await vi.runAllTimersAsync();
+    await flushPromises();
+
+    expect(wrapper.vm.queryText).toBe('Patient had recurrent seizures.');
+    expect(wrapper.vm.selectedModel).toBe('test-model');
+    expect(wrapper.vm.similarityThreshold).toBe(0.8);
+    expect(wrapper.vm.forceEndpointMode).toBe('textProcess');
+    expect(wrapper.vm.chunkingStrategy).toBe('by_sentence');
+    expect(PhentrieveService.processText).toHaveBeenCalledTimes(1);
+  });
+
+  it('uses the fallback model when config loading fails', async () => {
+    PhentrieveService.getConfigInfo.mockRejectedValueOnce(new Error('network down'));
+
+    const wrapper = await mountQueryInterface();
+    await flushPromises();
+
+    expect(wrapper.vm.availableModels).toEqual([
+      { text: 'BioLORD 2023-M', value: 'FremyCompany/BioLORD-2023-M' },
+    ]);
+    expect(wrapper.vm.selectedModel).toBe('FremyCompany/BioLORD-2023-M');
+  });
+
+  it('uses the fallback model when config returns no available models', async () => {
+    PhentrieveService.getConfigInfo.mockResolvedValueOnce({
+      available_embedding_models: [],
+      default_embedding_model: null,
+    });
+
+    const wrapper = await mountQueryInterface();
+    await flushPromises();
+
+    expect(wrapper.vm.availableModels).toEqual([
+      { text: 'BioLORD 2023-M', value: 'FremyCompany/BioLORD-2023-M' },
+    ]);
+    expect(wrapper.vm.selectedModel).toBe('FremyCompany/BioLORD-2023-M');
+  });
+
+  it('submits query-mode requests through queryHpo with the selected options', async () => {
+    const wrapper = await mountQueryInterface();
+    await flushPromises();
+
+    await wrapper.setData({
+      queryText: 'short syndrome query',
+      forceEndpointMode: 'query',
+      selectedLanguage: 'de',
+      selectedModel: 'test-model',
+    });
+    wrapper.vm.similarityThreshold = 0.65;
+    await wrapper.vm.$nextTick();
+
+    await wrapper.vm.submitQuery();
+
+    expect(PhentrieveService.queryHpo).toHaveBeenCalledWith(
+      expect.objectContaining({
+        text: 'short syndrome query',
+        model_name: 'test-model',
+        language: 'de',
+        similarity_threshold: 0.65,
+        include_details: wrapper.vm.includeDetails,
+      })
+    );
+    expect(wrapper.vm.queryText).toBe('');
+  });
+
+  it('submits text-process requests through processText with controller-managed options', async () => {
+    const wrapper = await mountQueryInterface();
+    await flushPromises();
+
+    await wrapper.setData({
+      queryText: 'Patient had recurrent seizures.',
+      forceEndpointMode: 'textProcess',
+      selectedLanguage: 'en',
+      selectedModel: 'test-model',
+      textProcessOptions: {
+        extractionBackend: 'llm',
+        llmModel: 'gemini-test',
+        llmMode: 'two_phase',
+      },
+      chunkingStrategy: 'sliding_window',
+      windowSize: 3,
+      stepSize: 1,
+    });
+
+    await wrapper.vm.submitQuery();
+
+    expect(PhentrieveService.processText).toHaveBeenCalledWith(
+      expect.objectContaining({
+        text: 'Patient had recurrent seizures.',
+        llmModel: 'gemini-test',
+        llmMode: 'two_phase',
+        language: 'en',
+        chunkingStrategy: 'sliding_window',
+        windowSize: 3,
+        stepSize: 1,
+        semanticModelForChunking: 'test-model',
+        retrievalModelForTextProcess: 'test-model',
+        includeDetails: wrapper.vm.includeDetails,
+      })
+    );
+  });
+
+  it('clears autoSubmit from the URL after a manual submit', async () => {
+    const routerReplace = vi.fn().mockResolvedValue(undefined);
+    const wrapper = await mountQueryInterface({
+      routeQuery: {
+        autoSubmit: 'true',
+        model: 'test-model',
+        threshold: '0.8',
+      },
+      routerReplace,
+    });
+    await flushPromises();
+
+    await wrapper.setData({
+      queryText: 'short syndrome query',
+      forceEndpointMode: 'query',
+      selectedModel: 'test-model',
+    });
+
+    await wrapper.vm.submitQuery();
+    await flushPromises();
+
+    expect(routerReplace).toHaveBeenCalledWith({
+      query: {
+        model: 'test-model',
+        threshold: '0.8',
+      },
+    });
+  });
+
   it('initializes a workspace turn after a text processing response arrives', async () => {
     const wrapper = await mountQueryInterface();
     const workspaceStore = useFullTextWorkspaceStore();
@@ -277,6 +478,7 @@ describe('QueryInterface (characterization)', () => {
 
     expect(wrapper.find('[data-testid="user-note-summary"]').exists()).toBe(true);
     expect(wrapper.text()).toContain('Full-text analysis ready');
+    expect(wrapper.findComponent({ name: 'FullTextResponseReceipt' }).exists()).toBe(true);
   });
 
   it('shows a real error for failed full-text requests instead of a zero-findings receipt', async () => {
@@ -570,6 +772,7 @@ describe('QueryInterface (characterization)', () => {
     await wrapper.get('[data-testid="user-note-summary-toggle"]').trigger('click');
 
     expect(wrapper.find('[data-testid="user-note-expanded"]').exists()).toBe(true);
+    expect(wrapper.findAll('[data-testid="annotated-note-span"]').length).toBeGreaterThan(0);
     expect(wrapper.find('[data-testid="user-note-expanded"]').text()).toContain('seizures');
     expect(wrapper.find('[data-testid="user-note-expanded"] mark').exists()).toBe(true);
   });

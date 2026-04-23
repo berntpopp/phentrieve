@@ -503,6 +503,7 @@ describe('AnnotatedDocumentPane', () => {
     expect(wrapper.text()).toContain('ABCDEFGH');
     expect(wrapper.find('mark[data-annotation-id="ann-1"]').exists()).toBe(true);
     expect(wrapper.find('mark[data-annotation-id="ann-2"]').exists()).toBe(true);
+    expect(wrapper.findAll('mark[data-annotation-id]').length).toBeGreaterThan(0);
     expect(
       wrapper.find('mark[data-annotation-id="ann-1"] mark[data-annotation-id="ann-2"]').exists()
     ).toBe(true);
@@ -721,7 +722,62 @@ describe('AnnotatedDocumentPane', () => {
     window.dispatchEvent(new Event('scroll'));
     await waitForHighlightSync(wrapper);
 
+    expect(wrapper.find('.popover-probe').attributes('data-visible')).toBe('true');
     expect(wrapper.find('.popover-probe').attributes('data-target-left')).toBe('70');
+  });
+
+  it('refreshes an open custom highlight popover immediately after reactive highlight resync', async () => {
+    installCustomHighlightSupport([
+      { left: 20, top: 30, right: 40, bottom: 40, width: 20, height: 10 },
+      { left: 20, top: 30, right: 40, bottom: 40, width: 20, height: 10 },
+      { left: 60, top: 30, right: 80, bottom: 40, width: 20, height: 10 },
+      { left: 60, top: 30, right: 80, bottom: 40, width: 20, height: 10 },
+    ]);
+    const component = await loadComponent();
+    const wrapper = mount(component, {
+      props: {
+        chunks: [
+          {
+            chunk_id: 22,
+            text: 'Developmental delay was present.',
+            evidence_mode: 'span',
+            annotations: [
+              {
+                id: 'ann-1',
+                start_char: 0,
+                end_char: 19,
+                matched_text_in_chunk: 'Developmental delay',
+              },
+            ],
+          },
+        ],
+        selectedAnnotationIds: [],
+      },
+      global: {
+        stubs: popoverStub(),
+      },
+    });
+
+    await waitForHighlightSync(wrapper);
+
+    vi.spyOn(window, 'getSelection').mockReturnValue({
+      isCollapsed: true,
+      rangeCount: 0,
+      toString: () => '',
+    });
+
+    await wrapper.find('.chunk-text').trigger('click', { clientX: 30, clientY: 35 });
+
+    expect(wrapper.find('.popover-probe').attributes('data-visible')).toBe('true');
+    expect(wrapper.find('.popover-probe').attributes('data-target-left')).toBe('30');
+    expect(wrapper.find('.popover-probe').attributes('data-annotation-id')).toBe('ann-1');
+
+    await wrapper.setProps({ selectedAnnotationIds: ['ann-1'] });
+    await waitForHighlightSync(wrapper);
+
+    expect(wrapper.find('.popover-probe').attributes('data-visible')).toBe('true');
+    expect(wrapper.find('.popover-probe').attributes('data-target-left')).toBe('70');
+    expect(wrapper.find('.popover-probe').attributes('data-annotation-id')).toBe('ann-1');
   });
 
   it('resolves overlapping custom highlight clicks to the innermost annotation', async () => {
