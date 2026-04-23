@@ -218,6 +218,12 @@ describe('AnnotatedDocumentPane', () => {
             template:
               '<button class="action-stub" type="button" :data-title="title" @click="$emit(\'click\')"><slot /></button>',
           },
+          'v-icon': {
+            template: '<i class="icon-stub"><slot /></i>',
+          },
+          'v-divider': {
+            template: '<hr class="divider-stub" />',
+          },
         },
       },
     });
@@ -232,6 +238,46 @@ describe('AnnotatedDocumentPane', () => {
     expect(wrapper.emitted('inspect')).toBeTruthy();
     expect(wrapper.emitted('update:visible')?.at(-1)).toEqual([false]);
     expect(wrapper.emitted('close').length).toBeGreaterThanOrEqual(2);
+  });
+
+  it('renders a compact action menu header with the selected text excerpt', async () => {
+    const component = await loadPopoverComponent();
+    const wrapper = mount(component, {
+      props: {
+        visible: true,
+        target: { x: 12, y: 24 },
+        annotationId: 'ann-1',
+        selectedText: 'Developmental delay',
+      },
+      global: {
+        stubs: {
+          'v-menu': {
+            name: 'VMenuStub',
+            template: '<div class="menu-stub"><slot /></div>',
+          },
+          'v-list': {
+            template: '<div class="list-stub"><slot /></div>',
+          },
+          'v-list-item': {
+            name: 'VListItemStub',
+            props: ['title'],
+            template: '<div class="action-stub" :data-title="title"><slot /></div>',
+          },
+          'v-icon': {
+            template: '<i class="icon-stub"><slot /></i>',
+          },
+          'v-divider': {
+            template: '<hr class="divider-stub" />',
+          },
+        },
+      },
+    });
+
+    expect(wrapper.find('.annotation-action-popover__header').exists()).toBe(true);
+    expect(wrapper.find('.annotation-action-popover__selection').text()).toContain(
+      'Developmental delay'
+    );
+    expect(wrapper.findAll('.action-stub')).toHaveLength(4);
   });
 
   it('renders chunk-only evidence with gutter tint and span evidence with marks', async () => {
@@ -268,6 +314,42 @@ describe('AnnotatedDocumentPane', () => {
 
     expect(wrapper.find('[data-chunk-evidence-mode="chunk"]').exists()).toBe(true);
     expect(wrapper.find('mark[data-annotation-id="ann-1"]').exists()).toBe(true);
+    expect(wrapper.find('.chunk-text').classes()).toContain('chunk-text--selectable');
+    expect(wrapper.find('mark[data-annotation-id="ann-1"]').classes()).toContain('annotated-mark');
+  });
+
+  it('switches to an annotation hover cursor only when the pointer is over a custom-highlight hitbox', async () => {
+    installCustomHighlightSupport([
+      { left: 20, top: 30, right: 80, bottom: 42, width: 60, height: 12 },
+    ]);
+    const component = await loadComponent();
+    const wrapper = mount(component, {
+      props: {
+        chunks: [
+          {
+            chunk_id: 2,
+            text: 'Developmental delay with seizures.',
+            evidence_mode: 'span',
+            annotations: [{ id: 'ann-1', start_char: 0, end_char: 19 }],
+          },
+        ],
+      },
+      global: {
+        stubs: popoverStub(),
+      },
+    });
+
+    await waitForHighlightSync(wrapper);
+
+    const chunkText = wrapper.find('.chunk-text');
+
+    expect(chunkText.classes()).not.toContain('chunk-text--annotation-hover');
+
+    await chunkText.trigger('mousemove', { clientX: 40, clientY: 36 });
+    expect(chunkText.classes()).toContain('chunk-text--annotation-hover');
+
+    await chunkText.trigger('mousemove', { clientX: 140, clientY: 96 });
+    expect(chunkText.classes()).not.toContain('chunk-text--annotation-hover');
   });
 
   it('registers styled custom highlights only for span evidence and resyncs selected annotations', async () => {

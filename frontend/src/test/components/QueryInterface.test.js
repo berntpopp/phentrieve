@@ -918,7 +918,49 @@ describe('QueryInterface (characterization)', () => {
     await wrapper.get('[data-testid="user-note-summary-toggle"]').trigger('click');
 
     const mark = wrapper.get('[data-testid="annotated-note-span"]');
-    expect(mark.attributes('title')).toContain('Seizure');
-    expect(mark.attributes('title')).toContain('HP:0001250');
+    expect(mark.attributes('title')).toBeUndefined();
+    expect(mark.classes()).toContain('annotated-note-span');
+  });
+
+  it('uses interactive annotation styling in the expanded note without inline padding', async () => {
+    const wrapper = await mountQueryInterface();
+    const note = 'Patient had recurrent seizures and developmental delay in clinic.';
+
+    wrapper.vm.conversationStore.queryHistory.unshift({
+      id: 'turn-note-styling',
+      query: note,
+      type: 'textProcess',
+      loading: false,
+      error: null,
+      response: {
+        processed_chunks: [
+          {
+            chunk_id: 1,
+            text: note,
+          },
+        ],
+        aggregated_hpo_terms: [
+          {
+            hpo_id: 'HP:0001250',
+            name: 'Seizure',
+            text_attributions: [
+              {
+                chunk_id: 1,
+                start_char: 22,
+                end_char: 30,
+                matched_text_in_chunk: 'seizures',
+              },
+            ],
+          },
+        ],
+      },
+    });
+    await wrapper.vm.$nextTick();
+
+    await wrapper.get('[data-testid="user-note-summary-toggle"]').trigger('click');
+
+    const mark = wrapper.get('[data-testid="annotated-note-span"]');
+    expect(mark.classes()).toContain('annotated-note-span');
+    expect(mark.attributes('style') || '').not.toContain('padding');
   });
 });

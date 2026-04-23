@@ -181,10 +181,10 @@ export function useCustomHighlightOverlay({
         const selectedName = getHighlightName(annotation.id, true);
 
         rules.push(
-          `::highlight(${baseName}) { background: rgba(var(--v-theme-warning), 0.24); border-bottom: 1px solid rgba(var(--v-theme-warning), 0.72); }`
+          `::highlight(${baseName}) { background-color: rgba(var(--v-theme-warning), 0.24); text-decoration: underline; text-decoration-color: rgba(var(--v-theme-warning), 0.72); text-decoration-thickness: 0.12em; text-underline-offset: 0.16em; }`
         );
         rules.push(
-          `::highlight(${selectedName}) { background: rgba(var(--v-theme-error), 0.22); border-bottom: 1px solid rgba(var(--v-theme-error), 0.8); }`
+          `::highlight(${selectedName}) { background-color: rgba(var(--v-theme-error), 0.22); text-decoration: underline; text-decoration-color: rgba(var(--v-theme-error), 0.8); text-decoration-thickness: 0.14em; text-underline-offset: 0.16em; }`
         );
       });
     });

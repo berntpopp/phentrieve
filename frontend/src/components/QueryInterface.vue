@@ -237,20 +237,35 @@
                     class="user-note-summary__expanded"
                   >
                     <span v-for="segment in buildUserNoteSegments(item)" :key="segment.key">
-                      <mark
+                      <v-tooltip
                         v-if="segment.highlighted"
-                        data-testid="annotated-note-span"
-                        :title="segment.tooltip"
-                        :class="{
-                          'annotated-note-span--active':
-                            getHoveredNotePhenotype(item.id) &&
-                            segment.termIds.includes(getHoveredNotePhenotype(item.id)),
-                        }"
-                        @mouseenter="handleAnnotatedTextHover(item.id, segment.termIds)"
-                        @mouseleave="clearHoveredNotePhenotype(item.id)"
+                        location="top"
+                        :open-delay="180"
+                        max-width="280"
+                        content-class="annotated-note-tooltip"
+                        :content-props="{ 'aria-label': segment.tooltip }"
                       >
-                        {{ segment.text }}
-                      </mark>
+                        <template #activator="{ props }">
+                          <mark
+                            v-bind="props"
+                            data-testid="annotated-note-span"
+                            class="annotated-note-span"
+                            :class="{
+                              'annotated-note-span--active':
+                                getHoveredNotePhenotype(item.id) &&
+                                segment.termIds.includes(getHoveredNotePhenotype(item.id)),
+                            }"
+                            @mouseenter="handleAnnotatedTextHover(item.id, segment.termIds)"
+                            @mouseleave="clearHoveredNotePhenotype(item.id)"
+                          >
+                            {{ segment.text }}
+                          </mark>
+                        </template>
+                        <div class="annotated-note-tooltip__content">
+                          <div class="annotated-note-tooltip__eyebrow">Linked phenotype</div>
+                          <div class="annotated-note-tooltip__label">{{ segment.tooltip }}</div>
+                        </div>
+                      </v-tooltip>
                       <span v-else>{{ segment.text }}</span>
                     </span>
                   </div>
@@ -1049,15 +1064,54 @@ export default {
   color: rgba(15, 23, 42, 0.9);
 }
 
+.annotated-note-span,
 .user-note-summary__expanded mark {
   background: rgba(37, 99, 235, 0.16);
   color: inherit;
   border-radius: 4px;
-  padding: 0 1px;
+  box-shadow: inset 0 -0.42em 0 rgba(37, 99, 235, 0.14);
+  cursor: pointer;
+  transition:
+    background-color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.annotated-note-span:hover,
+.user-note-summary__expanded mark:hover {
+  background: rgba(37, 99, 235, 0.22);
+  box-shadow: inset 0 -0.5em 0 rgba(37, 99, 235, 0.18);
 }
 
 .annotated-note-span--active {
   background: rgba(37, 99, 235, 0.32) !important;
+  box-shadow: inset 0 -0.5em 0 rgba(37, 99, 235, 0.24);
+}
+
+:deep(.annotated-note-tooltip) {
+  border-radius: 14px;
+  border: 1px solid rgba(var(--v-theme-outline), 0.12);
+  background: linear-gradient(180deg, rgba(248, 250, 252, 0.98), rgba(255, 255, 255, 1));
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.14);
+  padding: 10px 12px;
+}
+
+.annotated-note-tooltip__content {
+  display: grid;
+  gap: 4px;
+}
+
+.annotated-note-tooltip__eyebrow {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: rgba(37, 99, 235, 0.92);
+}
+
+.annotated-note-tooltip__label {
+  font-size: 0.82rem;
+  line-height: 1.4;
+  color: rgba(15, 23, 42, 0.92);
 }
 
 /* Webkit Scrollbar Styles */

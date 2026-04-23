@@ -15,9 +15,14 @@
       <div class="chunk-content">
         <p
           :data-chunk-text-id="chunk.chunk_id"
-          class="chunk-text"
+          class="chunk-text chunk-text--selectable"
+          :class="{
+            'chunk-text--annotation-hover': hoveredAnnotationChunkId === chunk.chunk_id,
+          }"
           @mouseup="handleTextSelection(chunk)"
           @click="handleChunkClick(chunk, $event)"
+          @mousemove="handleChunkPointerMove(chunk, $event)"
+          @mouseleave="clearChunkPointerState(chunk)"
         >
           <template v-if="!needsFallbackMarks(chunk, supportsCustomHighlight)">
             {{ chunk.text }}
@@ -101,7 +106,7 @@ const NestedAnnotationMarks = defineComponent({
         {
           'data-annotation-id': annotation.id,
           'aria-details': `annotation-detail-${annotation.id}`,
-          class: { 'annotated-mark--selected': annotation.selected },
+          class: ['annotated-mark', { 'annotated-mark--selected': annotation.selected }],
           onClick: (event) => {
             event.stopPropagation();
             emit('annotation-click', {
@@ -138,6 +143,7 @@ const popoverTarget = ref(null);
 const activeAnnotationId = ref(null);
 const activeSelectedText = ref('');
 const activePopoverAnchor = ref(null);
+const hoveredAnnotationChunkId = ref(null);
 
 const selectedAnnotationSet = computed(() => new Set(props.selectedAnnotationIds));
 const overlay = useCustomHighlightOverlay({
@@ -187,6 +193,23 @@ function clearPopover() {
   activeAnnotationId.value = null;
   activeSelectedText.value = '';
   activePopoverAnchor.value = null;
+}
+
+function clearChunkPointerState(chunk) {
+  if (hoveredAnnotationChunkId.value === chunk.chunk_id) {
+    hoveredAnnotationChunkId.value = null;
+  }
+}
+
+function handleChunkPointerMove(chunk, event) {
+  if (!supportsCustomHighlight || needsFallbackMarks(chunk, supportsCustomHighlight)) {
+    clearChunkPointerState(chunk);
+    return;
+  }
+
+  hoveredAnnotationChunkId.value = overlay.findHitboxForEvent(chunk.chunk_id, event)
+    ? chunk.chunk_id
+    : null;
 }
 
 function openPopover(target, options = {}) {
@@ -336,19 +359,35 @@ function handleChunkClick(chunk, event) {
   color: rgba(var(--v-theme-on-surface), 0.92);
   white-space: pre-wrap;
   word-break: break-word;
+  cursor: text;
 }
 
-.chunk-text mark {
-  background: rgba(var(--v-theme-warning), 0.24);
+.chunk-text--annotation-hover {
+  cursor: pointer;
+}
+
+.chunk-text mark,
+.annotated-mark {
+  background-color: rgba(var(--v-theme-warning), 0.24);
   color: inherit;
-  border-bottom: 1px solid rgba(var(--v-theme-warning), 0.72);
   border-radius: 0.2rem;
-  padding: 0 0.08rem;
+  box-shadow: inset 0 -0.4em 0 rgba(var(--v-theme-warning), 0.16);
+  cursor: pointer;
+  transition:
+    background-color 0.18s ease,
+    box-shadow 0.18s ease;
 }
 
-.chunk-text mark.annotated-mark--selected {
-  background: rgba(var(--v-theme-error), 0.22);
-  border-bottom-color: rgba(var(--v-theme-error), 0.8);
+.chunk-text mark:hover,
+.annotated-mark:hover {
+  background-color: rgba(var(--v-theme-warning), 0.3);
+  box-shadow: inset 0 -0.48em 0 rgba(var(--v-theme-warning), 0.2);
+}
+
+.chunk-text mark.annotated-mark--selected,
+.annotated-mark.annotated-mark--selected {
+  background-color: rgba(var(--v-theme-error), 0.22);
+  box-shadow: inset 0 -0.4em 0 rgba(var(--v-theme-error), 0.14);
 }
 
 .sr-only {

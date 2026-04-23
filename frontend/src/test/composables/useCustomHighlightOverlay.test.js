@@ -304,6 +304,11 @@ describe('useCustomHighlightOverlay', () => {
     expect(set.mock.calls.some(([name]) => name.endsWith('annotation-selected-ann-1'))).toBe(true);
     expect(document.head.innerHTML).toContain('annotation-ann-1');
     expect(document.head.innerHTML).toContain('annotation-selected-ann-1');
+    expect(document.head.innerHTML).toContain(
+      'background-color: rgba(var(--v-theme-warning), 0.24)'
+    );
+    expect(document.head.innerHTML).toContain('text-decoration: underline');
+    expect(document.head.innerHTML).not.toContain('border-bottom');
     expect(resizeObservers).toHaveLength(1);
     expect(resizeObservers[0].observe).toHaveBeenCalledWith(wrapper.element);
     expect(fonts.addEventListener).toHaveBeenCalledWith('loadingdone', expect.any(Function));
