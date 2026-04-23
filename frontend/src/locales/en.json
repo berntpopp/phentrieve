@@ -5,7 +5,8 @@
     "delete": "Delete",
     "reset": "Reset",
     "close": "Close",
-    "dismiss": "Dismiss"
+    "dismiss": "Dismiss",
+    "unknown": "Unknown"
   },
   "conversationSettings": {
     "tooltip": "Conversation Settings",
@@ -70,6 +71,9 @@
     "welcomeText": "Phentrieve is an AI-powered tool that accurately maps clinical text to standardized Human Phenotype Ontology (HPO) terms, streamlining phenotype annotation for research and diagnostics.",
     "queryModeLabel": "Query Mode",
     "documentModeLabel": "Document Mode",
+    "modeSwitch": {
+      "autoFullTextNotice": "Switched to Full Text for longer clinical text"
+    },
     "inputLabel": "Enter clinical text description",
     "examples": {
       "title": "Examples",
@@ -113,6 +117,8 @@
       "assertionToggle": "Toggle Assertion Status",
       "assertionStatus": {
         "affirmed": "Affirmed",
+        "present": "Present",
+        "absent": "Absent",
         "negated": "Negated",
         "unknown": "Unknown"
       },
@@ -193,6 +199,14 @@
       "selectQueryLanguage": "Select query language",
       "queryLanguageDescription": "Choose the language for query processing. Currently selected: {selectedLanguage}",
       "includeDetailsSwitch": "Include HPO term definitions and synonyms"
+    }
+  },
+  "annotatedDocumentPane": {
+    "actions": {
+      "inspect": "Inspect",
+      "addToCase": "Add to case",
+      "changeTerm": "Change term",
+      "removeAnnotation": "Remove annotation"
     }
   },
   "resultsDisplay": {

@@ -1,4 +1,4 @@
-.PHONY: help format format-check lint typecheck check ci-local config-validate test test-ci test-scripts test-all clean all install install-text-processing lock upgrade add remove clean-venv frontend-install frontend-lint frontend-format frontend-format-check frontend-dev frontend-build frontend-build-ci frontend-test-ci docker-build docker-up docker-down docker-logs dev-api dev-frontend dev-all test-api test-api-cov test-e2e test-e2e-security test-e2e-health test-e2e-api test-e2e-fast test-e2e-clean test-e2e-logs test-e2e-shell cov-package cov-api cov-frontend cov-all security security-python security-frontend security-audit security-report version version-cli version-api version-frontend bump-cli-patch bump-cli-minor bump-cli-major bump-api-patch bump-api-minor bump-api-major bump-frontend-patch bump-frontend-minor bump-frontend-major benchmark-compare-vectors benchmark-single benchmark-multi mcp-serve mcp-serve-http mcp-info mcp-install
+.PHONY: help format format-check lint typecheck check ci-local precommit config-validate test test-ci test-scripts test-all clean all install install-text-processing lock upgrade add remove clean-venv frontend-install frontend-lint frontend-format frontend-format-check frontend-dev frontend-build frontend-build-ci frontend-test-ci docker-build docker-up docker-down docker-logs dev-api dev-frontend dev-all test-api test-api-cov test-e2e test-e2e-security test-e2e-health test-e2e-api test-e2e-fast test-e2e-clean test-e2e-logs test-e2e-shell cov-package cov-api cov-frontend cov-all security security-python security-frontend security-audit security-report version version-cli version-api version-frontend bump-cli-patch bump-cli-minor bump-cli-major bump-api-patch bump-api-minor bump-api-major bump-frontend-patch bump-frontend-minor bump-frontend-major benchmark-compare-vectors benchmark-single benchmark-multi mcp-serve mcp-serve-http mcp-info mcp-install
 
 # Docker Compose command detection (supports both v1 and v2)
 # Prefer v2 (docker compose) over v1 (docker-compose)
@@ -57,6 +57,8 @@ typecheck-fresh: ## Type check from scratch (clear cache first)
 check: format lint ## Format and lint code
 
 ci-local: format-check lint typecheck-fast test-ci frontend-lint frontend-format-check frontend-test-ci frontend-build-ci ## Run every check CI runs, in order, locally
+
+precommit: ci-local ## Run the full local pre-commit verification set (CI parity)
 
 config-validate: ## Validate configuration sync between Python and Frontend
 	uv run python scripts/validate_config_sync.py

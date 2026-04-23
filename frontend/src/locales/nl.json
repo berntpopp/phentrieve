@@ -5,7 +5,8 @@
     "delete": "Verwijderen",
     "reset": "Resetten",
     "close": "Sluiten",
-    "dismiss": "Sluiten"
+    "dismiss": "Sluiten",
+    "unknown": "Onbekend"
   },
   "conversationSettings": {
     "tooltip": "Gespreksinstellingen",
@@ -70,6 +71,9 @@
     "welcomeText": "Phentrieve is een door AI aangedreven tool die klinische tekst nauwkeurig koppelt aan gestandaardiseerde Human Phenotype Ontology (HPO) termen, waardoor fenotype-annotatie voor onderzoek en diagnostiek wordt gestroomlijnd.",
     "queryModeLabel": "Query-modus",
     "documentModeLabel": "Documentmodus",
+    "modeSwitch": {
+      "autoFullTextNotice": "Automatisch overgeschakeld naar volledige tekst voor langere klinische tekst"
+    },
     "inputLabel": "Voer klinische tekstbeschrijving in",
     "examples": {
       "title": "Voorbeelden",
@@ -113,6 +117,8 @@
       "assertionToggle": "Bevestigingsstatus omschakelen",
       "assertionStatus": {
         "affirmed": "Bevestigd",
+        "present": "Aanwezig",
+        "absent": "Afwezig",
         "negated": "Ontkend",
         "unknown": "Onbekend"
       },
@@ -193,6 +199,14 @@
       "selectQueryLanguage": "Zoektaal selecteren",
       "queryLanguageDescription": "Kies de taal voor zoekverwerking. Momenteel geselecteerd: {selectedLanguage}",
       "includeDetailsSwitch": "HPO-termdefinities en synoniemen opnemen"
+    }
+  },
+  "annotatedDocumentPane": {
+    "actions": {
+      "inspect": "Inspecteren",
+      "addToCase": "Aan casus toevoegen",
+      "changeTerm": "Term wijzigen",
+      "removeAnnotation": "Annotatie verwijderen"
     }
   },
   "resultsDisplay": {

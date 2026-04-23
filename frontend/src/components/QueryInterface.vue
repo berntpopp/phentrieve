@@ -2,31 +2,44 @@
   <div class="search-container mx-auto px-2">
     <!-- Clean Search Bar with Integrated Button -->
     <div class="search-bar-container pt-0 px-2 pb-2 pa-sm-3">
-      <v-sheet rounded="pill" elevation="0" class="pa-1 pa-sm-2 search-bar" color="white">
-        <div class="d-flex align-center flex-wrap flex-sm-nowrap">
+      <v-sheet
+        rounded="xl"
+        elevation="0"
+        :class="[
+          'search-bar',
+          isTextProcessModeActive ? 'search-bar--text-process' : 'search-bar--query',
+        ]"
+        color="white"
+      >
+        <div
+          :class="[
+            'search-shell',
+            'd-flex',
+            'flex-wrap',
+            'flex-sm-nowrap',
+            isTextProcessModeActive ? 'search-shell--text-process' : 'align-center',
+          ]"
+        >
           <v-textarea
             v-if="isTextProcessModeActive"
             v-model="queryText"
             density="comfortable"
             variant="outlined"
             hide-details
-            class="search-input ml-2 ml-sm-3 flex-grow-1"
+            class="search-input search-input--text-process ml-2 ml-sm-3 flex-grow-1"
             :disabled="isLoading"
             bg-color="white"
             color="primary"
             rows="3"
             auto-grow
             clearable
+            placeholder="Paste or type a clinical note"
             :aria-label="$t('queryInterface.accessibility.textProcessInputLabel')"
             :aria-description="getTextProcessInputDescription()"
             @keydown.enter.prevent="!isLoading && queryText.trim() ? submitQuery() : null"
           >
             <template #label>
-              <span class="text-high-emphasis"
-                >{{ $t('queryInterface.inputLabel') }} ({{
-                  $t('queryInterface.documentModeLabel')
-                }})</span
-              >
+              <span class="text-high-emphasis">Clinical note</span>
             </template>
           </v-textarea>
           <v-text-field
@@ -36,7 +49,7 @@
             density="comfortable"
             variant="outlined"
             hide-details
-            class="search-input ml-2 ml-sm-3 flex-grow-1"
+            class="search-input search-input--query ml-2 ml-sm-3 flex-grow-1"
             :disabled="isLoading"
             bg-color="white"
             color="primary"
@@ -46,51 +59,27 @@
             @keydown.enter.prevent="!isLoading && queryText.trim() ? submitQuery() : null"
           >
             <template #label>
-              <span class="text-high-emphasis"
-                >{{ $t('queryInterface.inputLabel') }} ({{
-                  $t('queryInterface.queryModeLabel')
-                }})</span
-              >
+              <span class="text-high-emphasis">Phenotype query</span>
             </template>
           </v-text-field>
 
-          <div class="d-flex align-center">
-            <v-tooltip
-              location="top"
-              :text="$t('queryInterface.tooltips.advancedOptions')"
-              :content-props="{ 'aria-label': $t('queryInterface.tooltips.advancedOptions') }"
-            >
-              <template #activator="{ props }">
-                <v-btn
-                  v-bind="props"
-                  icon
-                  variant="text"
-                  color="primary"
-                  class="mx-1 mx-sm-2"
-                  :disabled="isLoading"
-                  :aria-label="getAdvancedOptionsToggleLabel()"
-                  :aria-expanded="showAdvancedOptions.toString()"
-                  aria-controls="advanced-options-panel"
-                  size="small"
-                  data-tutorial-step="advanced-options"
-                  @click="showAdvancedOptions = !showAdvancedOptions"
-                >
-                  <v-icon>
-                    {{ showAdvancedOptions ? 'mdi-cog-outline' : 'mdi-tune-variant' }}
-                  </v-icon>
-                </v-btn>
-              </template>
-            </v-tooltip>
-
+          <div
+            :class="[
+              'search-action',
+              'd-flex',
+              'align-center',
+              isTextProcessModeActive ? 'search-action--overlay' : null,
+            ]"
+          >
             <v-btn
               ref="searchButton"
               color="primary"
-              variant="tonal"
+              variant="text"
               icon
               rounded="circle"
               :loading="isLoading"
               :disabled="!queryText.trim()"
-              class="mr-1 mr-sm-2"
+              class="search-submit-button"
               :aria-label="$t('queryInterface.accessibility.searchButton')"
               size="small"
               data-tutorial-step="search-button"
@@ -101,6 +90,57 @@
           </div>
         </div>
       </v-sheet>
+
+      <div class="search-controls-row d-flex justify-end mt-2">
+        <div class="search-controls-group d-flex align-center flex-wrap justify-end ga-2">
+          <div class="mode-switch" role="group" aria-label="Search mode switch">
+            <v-btn
+              data-testid="mode-pill-query"
+              size="small"
+              rounded="pill"
+              :variant="!isTextProcessModeActive ? 'tonal' : 'text'"
+              :color="!isTextProcessModeActive ? 'primary' : 'default'"
+              class="mode-switch__pill"
+              @click="setMode('query')"
+            >
+              <v-icon start size="small">mdi-magnify</v-icon>
+              Query
+            </v-btn>
+            <v-btn
+              data-testid="mode-pill-text-process"
+              size="small"
+              rounded="pill"
+              :variant="isTextProcessModeActive ? 'tonal' : 'text'"
+              :color="isTextProcessModeActive ? 'primary' : 'default'"
+              class="mode-switch__pill"
+              @click="setMode('textProcess')"
+            >
+              <v-icon start size="small">mdi-file-document-outline</v-icon>
+              Full Text
+            </v-btn>
+          </div>
+
+          <v-btn
+            data-testid="search-settings-button"
+            size="small"
+            rounded="pill"
+            variant="text"
+            color="primary"
+            class="search-controls-row__settings"
+            :disabled="isLoading"
+            :aria-label="getAdvancedOptionsToggleLabel()"
+            :aria-expanded="showAdvancedOptions.toString()"
+            aria-controls="advanced-options-panel"
+            data-tutorial-step="advanced-options"
+            @click="showAdvancedOptions = !showAdvancedOptions"
+          >
+            <v-icon start size="small">
+              {{ showAdvancedOptions ? 'mdi-cog-outline' : 'mdi-tune-variant' }}
+            </v-icon>
+            Settings
+          </v-btn>
+        </div>
+      </div>
 
       <!-- Advanced Options Panel -->
       <AdvancedOptionsPanel
@@ -128,21 +168,26 @@
         :available-languages="availableLanguages"
         :is-text-process-mode-active="isTextProcessModeActive"
       />
+
+      <div
+        v-if="showAutoSwitchNotice"
+        data-testid="mode-auto-switch-notice"
+        class="mode-switch-notice px-3 pt-2"
+      >
+        {{ getAutoSwitchNoticeLabel() }}
+      </div>
     </div>
 
     <!-- Chat-like conversation interface -->
     <div ref="conversationContainer" class="conversation-container">
-      <!-- Skeleton loading during hydration -->
       <ConversationSkeleton
         v-if="conversationStore.isHydrating"
         :count="2"
         class="hydration-skeleton"
       />
 
-      <!-- Actual conversation history (shown after hydration) -->
       <template v-else>
         <div v-for="item in conversationStore.queryHistory" :key="item.id" class="mb-4">
-          <!-- User query -->
           <div class="user-query d-flex">
             <v-tooltip
               location="top"
@@ -155,14 +200,83 @@
                 </v-avatar>
               </template>
             </v-tooltip>
-            <div class="query-bubble">
-              <p class="mb-0" style="white-space: pre-wrap">
+            <div
+              :class="
+                item.type === 'textProcess' ? 'query-bubble query-bubble--document' : 'query-bubble'
+              "
+            >
+              <template v-if="item.type === 'textProcess'">
+                <div data-testid="user-note-summary" class="user-note-summary">
+                  <div class="user-note-summary__header">
+                    <v-icon size="small" color="primary">mdi-file-document-outline</v-icon>
+                    <span class="text-body-2 font-weight-medium">Clinical note</span>
+                    <span class="text-caption text-medium-emphasis">
+                      {{ formatDocumentSummaryMeta(item.query) }}
+                    </span>
+                    <v-btn
+                      data-testid="user-note-summary-toggle"
+                      size="x-small"
+                      variant="text"
+                      icon
+                      @click="toggleUserNote(item.id)"
+                    >
+                      <v-icon size="small">
+                        {{ isUserNoteExpanded(item.id) ? 'mdi-chevron-up' : 'mdi-chevron-down' }}
+                      </v-icon>
+                    </v-btn>
+                  </div>
+                  <p
+                    v-if="!isUserNoteExpanded(item.id)"
+                    class="mb-0 text-body-2 text-medium-emphasis user-note-summary__preview"
+                  >
+                    {{ summarizeDocumentQuery(item.query) }}
+                  </p>
+                  <div
+                    v-if="isUserNoteExpanded(item.id)"
+                    data-testid="user-note-expanded"
+                    class="user-note-summary__expanded"
+                  >
+                    <span v-for="segment in buildUserNoteSegments(item)" :key="segment.key">
+                      <v-tooltip
+                        v-if="segment.highlighted"
+                        location="top"
+                        :open-delay="180"
+                        max-width="280"
+                        content-class="annotated-note-tooltip"
+                        :content-props="{ 'aria-label': segment.tooltip }"
+                      >
+                        <template #activator="{ props }">
+                          <mark
+                            v-bind="props"
+                            data-testid="annotated-note-span"
+                            class="annotated-note-span"
+                            :class="{
+                              'annotated-note-span--active':
+                                getHoveredNotePhenotype(item.id) &&
+                                segment.termIds.includes(getHoveredNotePhenotype(item.id)),
+                            }"
+                            @mouseenter="handleAnnotatedTextHover(item.id, segment.termIds)"
+                            @mouseleave="clearHoveredNotePhenotype(item.id)"
+                          >
+                            {{ segment.text }}
+                          </mark>
+                        </template>
+                        <div class="annotated-note-tooltip__content">
+                          <div class="annotated-note-tooltip__eyebrow">Linked phenotype</div>
+                          <div class="annotated-note-tooltip__label">{{ segment.tooltip }}</div>
+                        </div>
+                      </v-tooltip>
+                      <span v-else>{{ segment.text }}</span>
+                    </span>
+                  </div>
+                </div>
+              </template>
+              <p v-else class="mb-0" style="white-space: pre-wrap">
                 {{ item.query }}
               </p>
             </div>
           </div>
 
-          <!-- API response -->
           <div v-if="item.loading || item.response || item.error" class="bot-response d-flex mt-2">
             <v-tooltip
               location="top"
@@ -179,13 +293,36 @@
               <v-progress-circular v-if="item.loading" indeterminate color="primary" size="24" />
 
               <ResultsDisplay
+                v-else-if="item.error"
+                :key="'results-' + item.id"
+                :response-data="item.response"
+                :result-type="item.type"
+                :turn-id="item.id"
+                :error="item.error"
+                :collected-phenotypes="conversationStore.collectedPhenotypes"
+                @add-to-collection="handleAddToCollection"
+              />
+
+              <FullTextResponseReceipt
+                v-else-if="item.type === 'textProcess'"
+                :item="item"
+                :collected-phenotypes="conversationStore.collectedPhenotypes"
+                :hovered-phenotype-id="getHoveredNotePhenotype(item.id)"
+                @add-to-collection="handleAddToCollection"
+                @add-all-to-collection="handleAddAllToCollection"
+                @hover-phenotype="setHoveredNotePhenotype(item.id, $event)"
+                @clear-hover="clearHoveredNotePhenotype(item.id)"
+              />
+
+              <ResultsDisplay
                 v-else
                 :key="'results-' + item.id"
                 :response-data="item.response"
                 :result-type="item.type"
+                :turn-id="item.id"
                 :error="item.error"
                 :collected-phenotypes="conversationStore.collectedPhenotypes"
-                @add-to-collection="addToPhenotypeCollection"
+                @add-to-collection="handleAddToCollection"
               />
             </div>
           </div>
@@ -228,16 +365,27 @@
 </template>
 
 <script>
+import { getCurrentInstance } from 'vue';
 import ResultsDisplay from './ResultsDisplay.vue';
 import ConversationSkeleton from './ConversationSkeleton.vue';
 import AdvancedOptionsPanel from './AdvancedOptionsPanel.vue';
 import PhenotypeCollectionPanel from './PhenotypeCollectionPanel.vue';
+import FullTextResponseReceipt from './FullTextResponseReceipt.vue';
 import PhentrieveService from '../services/PhentrieveService';
 import { logService } from '../services/logService';
 import { useQueryPreferencesStore } from '../stores/queryPreferences';
 import { useConversationStore } from '../stores/conversation';
+import { useFullTextWorkspaceStore } from '../stores/fullTextWorkspace';
 import { useAdvancedOptions } from '../composables/useAdvancedOptions';
 import { usePhenotypeCollection } from '../composables/usePhenotypeCollection';
+import { useQueryInterfaceController } from '../composables/useQueryInterfaceController';
+import {
+  buildUserNoteSegments as deriveUserNoteSegments,
+  formatDocumentSummaryMeta as summarizeUserNoteMeta,
+  resolveChunkOffsetsInNote as resolveUserNoteChunkOffsets,
+  resolveMatchedTextRange as resolveUserNoteMatchedTextRange,
+  summarizeDocumentQuery as summarizeUserNote,
+} from '../composables/useUserNoteAnnotations';
 
 const DEFAULT_TEXT_PROCESS_LLM_OPTIONS = Object.freeze({
   llmModel: 'gemini-3.1-flash-lite-preview',
@@ -251,9 +399,12 @@ export default {
     ConversationSkeleton,
     AdvancedOptionsPanel,
     PhenotypeCollectionPanel,
+    FullTextResponseReceipt,
   },
   setup() {
+    const instance = getCurrentInstance();
     const conversationStore = useConversationStore();
+    const fullTextWorkspaceStore = useFullTextWorkspaceStore();
 
     const {
       showAdvancedOptions,
@@ -282,9 +433,71 @@ export default {
       exportCollectionAsText: exportPhenotypes,
       exportAsPhenopacket: exportPhenotypesAsPhenopacket,
     } = usePhenotypeCollection();
+    const queryInterfaceController = useQueryInterfaceController({
+      getContext: () => {
+        const vm = instance?.proxy;
+        if (!vm) {
+          return null;
+        }
 
+        return {
+          routeQuery: vm.$route.query,
+          nextTick: vm.$nextTick.bind(vm),
+          replaceRouteQuery(query) {
+            return vm.$router.replace({ query });
+          },
+          getState() {
+            return {
+              availableModels: vm.availableModels,
+              selectedModel: vm.selectedModel,
+              queryText: vm.queryText,
+              similarityThreshold: vm.similarityThreshold,
+              forceEndpointMode: vm.forceEndpointMode,
+              chunkingStrategy: vm.chunkingStrategy,
+              showAdvancedOptions: vm.showAdvancedOptions,
+              modelsLoading: vm.modelsLoading,
+              isLoading: vm.isLoading,
+              shouldScrollToTop: vm.shouldScrollToTop,
+              userHasScrolled: vm.userHasScrolled,
+              isTextProcessModeActive: vm.isTextProcessModeActive,
+              selectedLanguage: vm.selectedLanguage,
+              textProcessOptions: vm.textProcessOptions,
+              windowSize: vm.windowSize,
+              stepSize: vm.stepSize,
+              splitThreshold: vm.splitThreshold,
+              minSegmentLength: vm.minSegmentLength,
+              semanticModelForChunking: vm.semanticModelForChunking,
+              retrievalModelForTextProcess: vm.retrievalModelForTextProcess,
+              chunkRetrievalThreshold: vm.chunkRetrievalThreshold,
+              numResultsPerChunk: vm.numResultsPerChunk,
+              noAssertionDetectionForTextProcess: vm.noAssertionDetectionForTextProcess,
+              assertionPreferenceForTextProcess: vm.assertionPreferenceForTextProcess,
+              aggregatedTermConfidence: vm.aggregatedTermConfidence,
+              topTermPerChunkForAggregation: vm.topTermPerChunkForAggregation,
+              includeDetails: vm.includeDetails,
+              numResults: vm.numResults,
+            };
+          },
+          setState(patch) {
+            Object.assign(vm, patch);
+          },
+          setExpandedUserNote(turnId, expanded) {
+            vm.expandedUserNotes = {
+              ...vm.expandedUserNotes,
+              [turnId]: expanded,
+            };
+          },
+          conversationStore: vm.conversationStore,
+          fullTextWorkspaceStore: vm.fullTextWorkspaceStore,
+        };
+      },
+      service: PhentrieveService,
+      logService,
+    });
     return {
       conversationStore,
+      fullTextWorkspaceStore,
+      queryInterfaceController,
       // Advanced options
       showAdvancedOptions,
       numResults,
@@ -337,9 +550,12 @@ export default {
         { title: this.$t('phenopacket.sexOther'), value: 3 },
       ],
       forceEndpointMode: null,
+      modeSelectionSource: null,
+      autoSwitchSuppressed: false,
+      expandedUserNotes: {},
       defaultTextProcessLlmOptions: DEFAULT_TEXT_PROCESS_LLM_OPTIONS,
       textProcessOptions: {
-        extractionBackend: 'standard',
+        extractionBackend: 'llm',
         ...DEFAULT_TEXT_PROCESS_LLM_OPTIONS,
       },
       chunkingStrategy: 'sliding_window_punct_conj_cleaned',
@@ -351,6 +567,7 @@ export default {
       // Phenopacket export error surface (snackbar feedback)
       exportErrorVisible: false,
       exportErrorMessage: '',
+      hoveredTextProcessPhenotypes: {},
     };
   },
   computed: {
@@ -360,6 +577,9 @@ export default {
         return this.forceEndpointMode === 'textProcess';
       }
       return this.queryText.length > this.inputTextLengthThreshold;
+    },
+    showAutoSwitchNotice() {
+      return this.modeSelectionSource === 'auto' && this.forceEndpointMode === 'textProcess';
     },
     // Access includeDetails from Pinia store (persisted in localStorage)
     includeDetails: {
@@ -393,6 +613,25 @@ export default {
         // Reset some query-specific settings to defaults when model changes
         this.resetToDefaults();
         logService.info('Reset query-specific settings to defaults due to model change.');
+      }
+    },
+    queryText(newValue, oldValue) {
+      if (typeof newValue !== 'string') {
+        return;
+      }
+
+      if (newValue.length <= this.inputTextLengthThreshold) {
+        this.autoSwitchSuppressed = false;
+      }
+
+      if (
+        !this.autoSwitchSuppressed &&
+        this.forceEndpointMode !== 'textProcess' &&
+        newValue.length > this.inputTextLengthThreshold &&
+        oldValue.length <= this.inputTextLengthThreshold
+      ) {
+        this.forceEndpointMode = 'textProcess';
+        this.modeSelectionSource = 'auto';
       }
     },
   },
@@ -436,97 +675,37 @@ export default {
         void error;
       }
     },
+    handleAddToCollection(phenotype) {
+      this.addToPhenotypeCollection(phenotype);
+      this.conversationStore.showCollectionPanel = true;
+    },
+    handleAddAllToCollection(phenotypes) {
+      if (!Array.isArray(phenotypes)) {
+        return;
+      }
+
+      phenotypes.forEach((phenotype) => {
+        this.addToPhenotypeCollection(phenotype);
+      });
+      this.conversationStore.showCollectionPanel = true;
+    },
     /**
      * Fetch available embedding models from API /info endpoint
      * Falls back to BioLORD if API is unavailable
      */
     async fetchAvailableModels() {
-      this.modelsLoading = true;
-      try {
-        const config = await PhentrieveService.getConfigInfo();
-        if (config.available_embedding_models && config.available_embedding_models.length > 0) {
-          this.availableModels = config.available_embedding_models.map((m) => ({
-            // Use the model name (last part of ID) as display text, e.g., "BioLORD-2023-M"
-            text: m.id.split('/').pop(),
-            value: m.id,
-          }));
-          // Set default model from API config
-          if (config.default_embedding_model) {
-            this.selectedModel = config.default_embedding_model;
-          } else {
-            this.selectedModel = this.availableModels[0]?.value || null;
-          }
-          logService.info('Loaded embedding models from API', {
-            count: this.availableModels.length,
-            defaultModel: this.selectedModel,
-          });
-        } else {
-          this.setFallbackModel();
-        }
-      } catch (error) {
-        logService.warn('Failed to fetch models from API, using fallback', {
-          error: error.message,
-        });
-        this.setFallbackModel();
-      } finally {
-        this.modelsLoading = false;
-      }
+      return this.queryInterfaceController.fetchAvailableModels();
     },
 
     /**
      * Set fallback model when API is unavailable
      */
     setFallbackModel() {
-      this.availableModels = [{ text: 'BioLORD 2023-M', value: 'FremyCompany/BioLORD-2023-M' }];
-      this.selectedModel = 'FremyCompany/BioLORD-2023-M';
-      logService.info('Using fallback embedding model', { model: this.selectedModel });
+      return this.queryInterfaceController.setFallbackModel();
     },
 
     applyUrlParametersAndAutoSubmit() {
-      const queryParams = this.$route.query;
-      logService.debug('Raw URL query parameters:', { ...queryParams });
-      let advancedOptionsWereSet = false;
-      const parseBooleanParam = (val) =>
-        typeof val === 'string' && (val.toLowerCase() === 'true' || val === '1');
-
-      if (queryParams.text !== undefined) {
-        this.queryText = queryParams.text;
-      }
-      if (queryParams.model !== undefined) {
-        const validModels = this.availableModels.map((m) => m.value);
-        if (validModels.includes(queryParams.model)) {
-          this.selectedModel = queryParams.model;
-          advancedOptionsWereSet = true;
-        }
-      }
-      if (queryParams.threshold !== undefined) {
-        const val = parseFloat(queryParams.threshold);
-        if (!isNaN(val) && val >= 0 && val <= 1) {
-          this.similarityThreshold = val;
-          advancedOptionsWereSet = true;
-        }
-      }
-      // Add processing for text process specific URL params
-      if (queryParams.forceEndpointMode) {
-        this.forceEndpointMode = queryParams.forceEndpointMode;
-        advancedOptionsWereSet = true;
-      }
-      if (queryParams.chunkingStrategy) {
-        this.chunkingStrategy = queryParams.chunkingStrategy;
-        advancedOptionsWereSet = true;
-      }
-
-      if (advancedOptionsWereSet) this.showAdvancedOptions = true;
-
-      const performAutoSubmit =
-        queryParams.autoSubmit !== undefined
-          ? parseBooleanParam(queryParams.autoSubmit)
-          : queryParams.text !== undefined;
-
-      if (performAutoSubmit && this.queryText && this.queryText.trim()) {
-        logService.info('Auto-submitting query based on URL parameters.');
-        this.$nextTick(() => setTimeout(() => this.submitQuery(true), 300)); // autoSubmit = true
-      }
+      return this.queryInterfaceController.applyUrlParametersAndAutoSubmit();
     },
     handleUserScroll() {
       const container = this.$refs.conversationContainer;
@@ -563,92 +742,72 @@ export default {
         ? this.$t('queryInterface.accessibility.closeAdvancedOptions')
         : this.$t('queryInterface.accessibility.openAdvancedOptions');
     },
-    async submitQuery(isAutoSubmit = false) {
-      const queryTextTrimmed = this.queryText.trim();
-      if (!queryTextTrimmed) {
-        logService.warn('Empty query submission prevented');
+    getAutoSwitchNoticeLabel() {
+      const translated = this.$t('queryInterface.modeSwitch.autoFullTextNotice');
+      return translated && translated !== 'queryInterface.modeSwitch.autoFullTextNotice'
+        ? translated
+        : 'Switched to Full Text for longer clinical text';
+    },
+    summarizeDocumentQuery(query) {
+      return summarizeUserNote(query);
+    },
+    formatDocumentSummaryMeta(query) {
+      return summarizeUserNoteMeta(query);
+    },
+    isUserNoteExpanded(turnId) {
+      return Boolean(this.expandedUserNotes[turnId]);
+    },
+    toggleUserNote(turnId) {
+      this.expandedUserNotes = {
+        ...this.expandedUserNotes,
+        [turnId]: !this.expandedUserNotes[turnId],
+      };
+    },
+    getHoveredNotePhenotype(turnId) {
+      return this.hoveredTextProcessPhenotypes[turnId] || null;
+    },
+    setHoveredNotePhenotype(turnId, phenotypeId) {
+      this.hoveredTextProcessPhenotypes = {
+        ...this.hoveredTextProcessPhenotypes,
+        [turnId]: phenotypeId,
+      };
+    },
+    clearHoveredNotePhenotype(turnId) {
+      this.hoveredTextProcessPhenotypes = {
+        ...this.hoveredTextProcessPhenotypes,
+        [turnId]: null,
+      };
+    },
+    handleAnnotatedTextHover(turnId, termIds) {
+      if (!Array.isArray(termIds) || termIds.length === 0) {
         return;
       }
 
-      const useTextProcessMode = this.isTextProcessModeActive;
-      this.isLoading = true;
-      const currentQuery = queryTextTrimmed;
-
-      // Add query to store and get the generated ID
-      const queryId = this.conversationStore.addQuery({
-        query: currentQuery,
-        loading: true,
-        type: useTextProcessMode ? 'textProcess' : 'query',
+      this.setHoveredNotePhenotype(turnId, termIds[0]);
+    },
+    buildUserNoteSegments(item) {
+      return deriveUserNoteSegments({
+        note: item?.query,
+        chunks: item?.response?.processed_chunks,
+        terms: item?.response?.aggregated_hpo_terms,
+        activePhenotypeId: this.getHoveredNotePhenotype(item?.id),
       });
-
-      if (!isAutoSubmit) this.queryText = ''; // Clear input only if not auto-submitting (URL params might be active)
-
-      this.shouldScrollToTop = true;
-      this.userHasScrolled = false;
-
-      try {
-        let response;
-        if (useTextProcessMode) {
-          const textProcessData = {
-            text: currentQuery,
-            extractionBackend: this.textProcessOptions.extractionBackend,
-            llmModel: this.textProcessOptions.llmModel,
-            llmMode: this.textProcessOptions.llmMode,
-            language: this.selectedLanguage,
-            chunkingStrategy: this.chunkingStrategy,
-            windowSize: this.windowSize,
-            stepSize: this.stepSize,
-            splitThreshold: this.splitThreshold,
-            minSegmentLength: this.minSegmentLength,
-            semanticModelForChunking: this.semanticModelForChunking || this.selectedModel,
-            retrievalModelForTextProcess: this.retrievalModelForTextProcess || this.selectedModel,
-            trustRemoteCode: true,
-            chunkRetrievalThreshold: this.chunkRetrievalThreshold,
-            numResultsPerChunk: this.numResultsPerChunk,
-            noAssertionDetectionForTextProcess: this.noAssertionDetectionForTextProcess,
-            assertionPreferenceForTextProcess: this.assertionPreferenceForTextProcess,
-            aggregatedTermConfidence: this.aggregatedTermConfidence,
-            topTermPerChunkForAggregation: this.topTermPerChunkForAggregation,
-            includeDetails: this.includeDetails,
-          };
-          logService.info('Sending to /text/process API', textProcessData);
-          response = await PhentrieveService.processText(textProcessData);
-        } else {
-          const queryData = {
-            text: currentQuery,
-            model_name: this.selectedModel,
-            language: this.selectedLanguage,
-            num_results: this.numResults,
-            similarity_threshold: this.similarityThreshold,
-            query_assertion_language: this.selectedLanguage, // Pass selected language for query assertion
-            detect_query_assertion: true, // Default to true for query mode now
-            include_details: this.includeDetails,
-          };
-          logService.info('Sending to /query API', queryData);
-          response = await PhentrieveService.queryHpo(queryData);
-        }
-        // Update the query response in the store
-        this.conversationStore.updateQueryResponse(queryId, response);
-      } catch (error) {
-        // Update with error in the store
-        this.conversationStore.updateQueryResponse(queryId, null, error);
-        logService.error('Error submitting query/processing text', error);
-      } finally {
-        this.isLoading = false;
-        if (!isAutoSubmit) {
-          // Only clear URL params if it wasn't an auto-submit
-          const newRouteQuery = { ...this.$route.query };
-          delete newRouteQuery.autoSubmit; // Remove autoSubmit flag
-          if (Object.keys(newRouteQuery).length !== Object.keys(this.$route.query).length - 1) {
-            // Check if other params were there
-            this.$router.replace({ query: newRouteQuery }).catch((err) => {
-              if (err.name !== 'NavigationDuplicated' && err.name !== 'NavigationCancelled') {
-                logService.warn('Error clearing autoSubmit from URL:', err);
-              }
-            });
-          }
-        }
+    },
+    resolveChunkOffsetsInNote(noteText, chunks) {
+      return resolveUserNoteChunkOffsets(noteText, chunks);
+    },
+    resolveMatchedTextRange(noteText, matchedText) {
+      return resolveUserNoteMatchedTextRange(noteText, matchedText);
+    },
+    setMode(mode) {
+      if (mode === 'query' && this.showAutoSwitchNotice) {
+        this.autoSwitchSuppressed = true;
       }
+      this.forceEndpointMode = mode;
+      this.modeSelectionSource = 'manual';
+    },
+    async submitQuery(isAutoSubmit = false) {
+      return this.queryInterfaceController.submitQuery(isAutoSubmit);
     },
   },
 };
@@ -673,28 +832,166 @@ export default {
   line-height: 1.5;
 }
 
+.search-shell {
+  gap: 8px;
+}
+
+.search-shell--text-process {
+  align-items: flex-start;
+}
+
+.search-action {
+  flex-shrink: 0;
+}
+
+.search-action--overlay {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  z-index: 1;
+}
+
+.search-submit-button {
+  width: 34px !important;
+  height: 34px !important;
+  min-width: 34px !important;
+  color: rgba(25, 82, 166, 0.7) !important;
+}
+
+.search-submit-button:hover {
+  background: rgba(25, 82, 166, 0.08);
+}
+
+.search-input--text-process {
+  margin-right: 64px !important;
+}
+
+.search-input--text-process :deep(.v-label) {
+  font-size: 0.92rem;
+  color: rgba(60, 72, 88, 0.62);
+}
+
 .search-input :deep(.v-field) {
-  border-radius: 28px; /* More rounded */
-  min-height: 48px; /* Slightly taller */
   /* Removed box-shadow to rely on the search-bar border instead */
 }
-.search-input.v-textarea :deep(.v-field) {
-  border-radius: 18px; /* Consistent rounding for textarea */
+
+.search-input--query :deep(.v-field) {
+  border-radius: 28px;
+  min-height: 48px;
+}
+
+.search-input--text-process :deep(.v-field) {
+  border-radius: 22px;
+  min-height: 104px;
   padding-top: 8px;
   padding-bottom: 8px;
 }
 
-.search-input.v-textarea :deep(.v-field__input) {
-  min-height: 80px; /* Keep textarea height if needed */
+.search-input--text-process :deep(.v-field__input) {
+  min-height: 88px;
+}
+
+.search-controls-row {
+  padding-inline: 8px;
+}
+
+.search-controls-group {
+  width: 100%;
+}
+
+.mode-switch {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 999px;
+  padding: 2px;
+  background: rgba(245, 247, 252, 0.9);
+}
+
+.mode-switch__pill {
+  text-transform: none;
+  letter-spacing: 0;
+  min-width: 0;
+  font-size: 0.95rem;
+}
+
+.search-controls-row__settings {
+  text-transform: none;
+  letter-spacing: 0;
+  min-height: 34px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(245, 247, 252, 0.9);
+  font-size: 0.95rem;
+}
+
+.mode-switch-notice {
+  font-size: 0.8rem;
+  color: rgba(25, 82, 166, 0.92);
 }
 
 .search-bar {
-  border: 1px solid rgba(0, 0, 0, 0.15); /* Added border back to search-bar */
-  border-radius: 30px; /* Match outer radius if needed */
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 24px;
+  transition:
+    padding 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.search-bar--query {
+  padding: 6px 8px;
+}
+
+.search-bar--text-process {
+  position: relative;
+  padding: 10px 12px;
 }
 
 .search-input :deep(.v-field__outline) {
   --v-field-border-width: 0px; /* No internal outline needed */
+}
+
+@media (max-width: 600px) {
+  .search-bar--query {
+    padding: 4px 6px;
+  }
+
+  .search-bar--text-process {
+    padding: 8px 10px;
+    border-radius: 20px;
+  }
+
+  .search-shell--text-process {
+    gap: 6px;
+  }
+
+  .search-action {
+    align-self: flex-start;
+    padding-top: 2px;
+  }
+
+  .search-action--overlay {
+    top: 10px;
+    right: 10px;
+    padding-top: 0;
+  }
+
+  .search-input--text-process {
+    margin-right: 56px !important;
+  }
+
+  .search-input--text-process :deep(.v-field) {
+    border-radius: 18px;
+    min-height: 96px;
+  }
+
+  .search-input--text-process :deep(.v-field__input) {
+    min-height: 72px;
+  }
+
+  .search-input--text-process :deep(.v-label) {
+    font-size: 0.88rem;
+  }
 }
 
 /* Advanced options panel specific styling */
@@ -733,6 +1030,90 @@ export default {
   border-radius: 8px;
 }
 
+.query-bubble--document {
+  padding: 12px 14px;
+}
+
+.user-note-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.user-note-summary__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.user-note-summary__header .text-caption {
+  margin-left: auto;
+}
+
+.user-note-summary__preview {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.user-note-summary__expanded {
+  margin-top: 8px;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: rgba(15, 23, 42, 0.9);
+}
+
+.annotated-note-span,
+.user-note-summary__expanded mark {
+  background: rgba(37, 99, 235, 0.16);
+  color: inherit;
+  border-radius: 4px;
+  box-shadow: inset 0 -0.42em 0 rgba(37, 99, 235, 0.14);
+  cursor: pointer;
+  transition:
+    background-color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.annotated-note-span:hover,
+.user-note-summary__expanded mark:hover {
+  background: rgba(37, 99, 235, 0.22);
+  box-shadow: inset 0 -0.5em 0 rgba(37, 99, 235, 0.18);
+}
+
+.annotated-note-span--active {
+  background: rgba(37, 99, 235, 0.32) !important;
+  box-shadow: inset 0 -0.5em 0 rgba(37, 99, 235, 0.24);
+}
+
+:deep(.annotated-note-tooltip) {
+  border-radius: 14px;
+  border: 1px solid rgba(var(--v-theme-outline), 0.12);
+  background: linear-gradient(180deg, rgba(248, 250, 252, 0.98), rgba(255, 255, 255, 1));
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.14);
+  padding: 10px 12px;
+}
+
+.annotated-note-tooltip__content {
+  display: grid;
+  gap: 4px;
+}
+
+.annotated-note-tooltip__eyebrow {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: rgba(37, 99, 235, 0.92);
+}
+
+.annotated-note-tooltip__label {
+  font-size: 0.82rem;
+  line-height: 1.4;
+  color: rgba(15, 23, 42, 0.92);
+}
+
 /* Webkit Scrollbar Styles */
 .conversation-container::-webkit-scrollbar {
   width: 8px;
@@ -748,6 +1129,16 @@ export default {
 .conversation-container::-webkit-scrollbar-track {
   background: #f1f1f1;
   border-radius: 4px;
+}
+
+@media (max-width: 1100px) {
+  .full-text-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .full-text-case-rail {
+    position: static;
+  }
 }
 
 .query-bubble {

@@ -6,7 +6,7 @@ import logging
 import sqlite3
 from contextlib import closing
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime, time, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -27,6 +27,7 @@ __all__ = [
     "DailyQuotaStore",
     "QuotaExceededError",
     "QuotaStatus",
+    "quota_reset_at_iso",
     "hash_subject_key",
     "resolve_subject_ip",
 ]
@@ -73,7 +74,14 @@ class QuotaExceededError(Exception):
             "quota_limit": self.quota_limit,
             "quota_remaining": self.quota_remaining,
             "usage_date_utc": self.usage_date_utc,
+            "quota_reset_at": quota_reset_at_iso(self.usage_date_utc),
         }
+
+
+def quota_reset_at_iso(usage_date_utc: str) -> str:
+    current_day = date.fromisoformat(usage_date_utc)
+    next_day = current_day + timedelta(days=1)
+    return datetime.combine(next_day, time(0, 0, tzinfo=UTC)).isoformat()
 
 
 def _utc_now_date_string() -> str:

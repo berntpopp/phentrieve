@@ -39,7 +39,17 @@ Required checks before claiming completion:
 - `make typecheck-fast`
 - `make test`
 
-Combined shortcut:
+For changes that can affect GitHub Actions frontend parity, also run:
+
+- `make frontend-test-ci`
+- `make frontend-build-ci`
+
+Recommended pre-commit CI-parity shortcut:
+
+- `make ci-local`
+- `make precommit`
+
+Python-only shortcut:
 
 - `make all`
 
@@ -62,7 +72,9 @@ Frontend commands:
 - `make frontend-format`
 - `make frontend-dev`
 - `make frontend-build`
+- `make frontend-build-ci`
 - `make frontend-test`
+- `make frontend-test-ci`
 - `make frontend-test-cov`
 - Run `make frontend-i18n-check` for locale changes
 

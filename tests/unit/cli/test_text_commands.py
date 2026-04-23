@@ -425,6 +425,13 @@ def test_run_llm_backend_uses_pipeline_and_provider(monkeypatch):
             "evidence": "Patient had recurrent seizures.",
             "status": "present",
             "evidence_records": [],
+            "confidence": 0.0,
+            "evidence_count": 0,
+            "source_chunk_ids": [],
+            "max_score_from_evidence": 0.0,
+            "top_evidence_chunk_id": None,
+            "text_attributions": [],
+            "score": 0.0,
         }
     ]
 

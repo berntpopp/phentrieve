@@ -58,6 +58,9 @@ class LLMPhenotype(BaseModel):
     evidence: str | None = None
     assertion: str = AssertionStatus.PRESENT.value
     category: str | None = None
+    confidence: float | None = None
+    score: float | None = None
+    reranker_score: float | None = None
     evidence_records: list[LLMPhenotypeEvidence] = Field(default_factory=list)
 
 

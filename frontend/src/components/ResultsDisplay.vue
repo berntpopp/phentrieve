@@ -83,115 +83,23 @@
 
     <!-- Text Processing Results Display -->
     <div v-else-if="hasTextProcessResults">
-      <!-- Meta Information Card -->
-      <v-card class="mb-4 info-card">
-        <v-card-title class="text-subtitle-1 pa-2 pa-sm-4">
-          <div class="d-flex flex-wrap align-center">
-            <div v-if="extractionBackend === 'llm'" class="info-item mr-4 mb-1">
-              <v-icon color="info" class="mr-1" size="small"> mdi-robot-outline </v-icon>
-              <span>
-                <small class="text-caption text-medium-emphasis"
-                  >{{ $t('queryInterface.advancedOptions.extractionBackend') }}:</small
-                >
-                {{ $t('queryInterface.advancedOptions.llmExtraction') }}
-              </span>
-            </div>
-
-            <div v-else class="info-item mr-4 mb-1">
-              <v-icon color="info" class="mr-1" size="small"> mdi-information </v-icon>
-              <span class="model-name">
-                <small class="text-caption text-medium-emphasis"
-                  >{{ $t('resultsDisplay.textProcess.strategyLabel') }}:</small
-                >
-                {{
-                  responseData.meta?.request_parameters?.chunking_strategy ||
-                  $t('resultsDisplay.textProcess.strategyUnknown')
-                }}
-              </span>
-            </div>
-
-            <div v-if="processedChunks.length > 0" class="info-item mr-4 mb-1">
-              <v-icon color="info" class="mr-1" size="small"> mdi-file-document-multiple </v-icon>
-              <span>
-                <small class="text-caption text-medium-emphasis"
-                  >{{ $t('resultsDisplay.textProcess.chunksLabel') }}:</small
-                >
-                {{ processedChunks.length }}
-              </span>
-            </div>
-
-            <div
-              v-if="
-                responseData.meta?.effective_language ||
-                responseData.meta?.request_parameters?.language
-              "
-              class="info-item mr-4 mb-1"
-            >
-              <v-icon color="info" class="mr-1" size="small"> mdi-translate </v-icon>
-              <span>
-                <small class="text-caption text-medium-emphasis"
-                  >{{ $t('resultsDisplay.languageLabel') }}:</small
-                >
-                {{
-                  responseData.meta?.effective_language ||
-                  responseData.meta?.request_parameters?.language
-                }}
-              </span>
-            </div>
-          </div>
-
-          <div v-if="showQuotaNotice" class="info-item mt-2 d-flex align-center">
-            <v-icon color="warning" class="mr-1" size="small"> mdi-counter </v-icon>
-            <span class="text-caption text-medium-emphasis">
-              {{ $t('resultsDisplay.textProcess.llmLimitedNotice', { quotaLimit }) }}
-              {{ quotaRemaining }} / {{ quotaLimit }}
-            </span>
-          </div>
-
-          <div
-            v-if="
-              responseData.meta?.effective_retrieval_model ||
-              responseData.meta?.request_parameters?.retrieval_model_name ||
-              responseData.meta?.llm_model ||
-              responseData.meta?.request_parameters?.llm_model
-            "
-            class="info-item mt-2"
-          >
-            <v-icon color="info" class="mr-1" size="small"> mdi-brain </v-icon>
-            <span class="model-name">
-              <small class="text-caption text-medium-emphasis"
-                >{{ $t('resultsDisplay.modelLabel') }}:</small
-              >
-              {{
-                displayModelName(
-                  responseData.meta?.effective_retrieval_model ||
-                    responseData.meta?.request_parameters?.retrieval_model_name ||
-                    responseData.meta?.llm_model ||
-                    responseData.meta?.request_parameters?.llm_model
-                )
-              }}
-            </span>
-          </div>
-        </v-card-title>
-      </v-card>
-
-      <!-- Processed Chunks Section -->
-      <ChunkResultsView
-        v-if="processedChunks.length > 0"
-        ref="chunkResultsView"
-        :chunks="processedChunks"
-        :highlighted-attributions="highlightedAttributions"
+      <FullTextAnnotationWorkspace
+        :response-data="responseData"
+        :turn-id="turnId"
+        @add-all-to-collection="$emit('add-all-to-collection', $event)"
       />
-
-      <!-- Aggregated HPO Terms Section -->
-      <AggregatedTermsView
-        :terms="responseData.aggregated_hpo_terms"
-        :collected-phenotype-ids="collectedPhenotypeIds"
-        @add-to-collection="(phenotype, status) => addToCollection(phenotype, status)"
-        @highlight-attributions="updateHighlightedAttributions"
-        @clear-attributions="clearHighlightedAttributions"
-        @scroll-to-chunk="scrollToChunk"
-      />
+    </div>
+    <div
+      v-else-if="
+        resultType === 'textProcess' &&
+        responseData &&
+        responseData.aggregated_hpo_terms &&
+        !hasValidTurnId
+      "
+    >
+      <v-alert type="error" icon="mdi-alert-circle">
+        {{ $t('resultsDisplay.defaultError') }}
+      </v-alert>
     </div>
 
     <!-- No Results / Empty States -->
@@ -235,16 +143,14 @@
 <script>
 import { logService } from '../services/logService';
 import ResultItem from './ResultItem.vue';
-import ChunkResultsView from './ChunkResultsView.vue';
-import AggregatedTermsView from './AggregatedTermsView.vue';
+import FullTextAnnotationWorkspace from './FullTextAnnotationWorkspace.vue';
 import { HPO_TERM_URL } from '../constants/urls';
 
 export default {
   name: 'ResultsDisplay',
   components: {
     ResultItem,
-    ChunkResultsView,
-    AggregatedTermsView,
+    FullTextAnnotationWorkspace,
   },
   props: {
     responseData: {
@@ -277,8 +183,12 @@ export default {
       type: Array,
       default: () => [],
     },
+    turnId: {
+      type: String,
+      default: '',
+    },
   },
-  emits: ['add-to-collection'],
+  emits: ['add-to-collection', 'add-all-to-collection'],
   data() {
     return {
       highlightedAttributions: [],
@@ -310,10 +220,14 @@ export default {
         this.extractionBackend === 'llm' && this.quotaRemaining != null && this.quotaLimit != null
       );
     },
+    hasValidTurnId() {
+      return typeof this.turnId === 'string' && this.turnId.length > 0;
+    },
     hasTextProcessResults() {
       return (
         this.resultType === 'textProcess' &&
         !!this.responseData &&
+        this.hasValidTurnId &&
         !!this.responseData.aggregated_hpo_terms &&
         (this.processedChunks.length > 0 || this.extractionBackend === 'llm')
       );

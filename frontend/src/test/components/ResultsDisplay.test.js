@@ -22,11 +22,12 @@ afterEach(() => {
 });
 
 describe('ResultsDisplay', () => {
-  it('renders localized quota metadata with the response quota limit and tolerates empty processed_chunks', async () => {
+  it('mounts the unified full-text workspace for text processing results', async () => {
     const component = (await import('../../components/ResultsDisplay.vue')).default;
     const wrapper = mount(component, {
       props: {
         resultType: 'textProcess',
+        turnId: 'turn-1',
         responseData: {
           meta: { extraction_backend: 'llm', quota_remaining: 2, quota_limit: 7 },
           processed_chunks: [],
@@ -36,25 +37,23 @@ describe('ResultsDisplay', () => {
       global: {
         plugins: [vuetify, i18n],
         stubs: {
-          ChunkResultsView: true,
-          AggregatedTermsView: true,
+          FullTextAnnotationWorkspace: true,
           ResultItem: true,
         },
       },
     });
 
-    expect(wrapper.text()).toContain(
-      i18n.global.t('resultsDisplay.textProcess.llmLimitedNotice', { quotaLimit: 7 })
-    );
-    expect(wrapper.text()).toContain('2 / 7');
-    expect(wrapper.text()).not.toContain('3 LLM analyses per day');
+    const workspace = wrapper.findComponent({ name: 'FullTextAnnotationWorkspace' });
+    expect(workspace.exists()).toBe(true);
+    expect(workspace.props('turnId')).toBe('turn-1');
   });
 
-  it('renders the LLM extraction metadata without duplicating the value', async () => {
+  it('passes full text response metadata through to the workspace shell', async () => {
     const component = (await import('../../components/ResultsDisplay.vue')).default;
     const wrapper = mount(component, {
       props: {
         resultType: 'textProcess',
+        turnId: 'turn-2',
         responseData: {
           meta: { extraction_backend: 'llm', quota_remaining: 2, quota_limit: 3 },
           processed_chunks: [],
@@ -64,19 +63,77 @@ describe('ResultsDisplay', () => {
       global: {
         plugins: [vuetify, i18n],
         stubs: {
-          ChunkResultsView: true,
-          AggregatedTermsView: true,
+          FullTextAnnotationWorkspace: true,
           ResultItem: true,
         },
       },
     });
 
-    const llmLabel = en.queryInterface.advancedOptions.llmExtraction;
-    const extractionBackendLabel = en.queryInterface.advancedOptions.extractionBackend;
-    const occurrences = wrapper.text().split(llmLabel).length - 1;
+    const workspace = wrapper.findComponent({ name: 'FullTextAnnotationWorkspace' });
+    expect(workspace.props('responseData')).toEqual({
+      meta: { extraction_backend: 'llm', quota_remaining: 2, quota_limit: 3 },
+      processed_chunks: [],
+      aggregated_hpo_terms: [],
+    });
+  });
 
-    expect(wrapper.text()).toContain(extractionBackendLabel);
-    expect(occurrences).toBe(1);
+  it('does not mount the full-text workspace when turnId is missing', async () => {
+    const component = (await import('../../components/ResultsDisplay.vue')).default;
+    const wrapper = mount(component, {
+      props: {
+        resultType: 'textProcess',
+        responseData: {
+          meta: { extraction_backend: 'llm' },
+          processed_chunks: [],
+          aggregated_hpo_terms: [],
+        },
+      },
+      global: {
+        plugins: [vuetify, i18n],
+        stubs: {
+          FullTextAnnotationWorkspace: true,
+          ResultItem: true,
+        },
+      },
+    });
+
+    expect(wrapper.findComponent({ name: 'FullTextAnnotationWorkspace' }).exists()).toBe(false);
+    expect(wrapper.text()).toContain(i18n.global.t('resultsDisplay.defaultError'));
+  });
+
+  it('re-emits bulk full-text collection actions from the workspace', async () => {
+    const component = (await import('../../components/ResultsDisplay.vue')).default;
+    const workspacePayload = [
+      { hpo_id: 'HP:0001250', label: 'Seizure', assertion_status: 'affirmed' },
+    ];
+    const wrapper = mount(component, {
+      props: {
+        resultType: 'textProcess',
+        turnId: 'turn-3',
+        responseData: {
+          meta: { extraction_backend: 'llm' },
+          processed_chunks: [],
+          aggregated_hpo_terms: [],
+        },
+      },
+      global: {
+        plugins: [vuetify, i18n],
+        stubs: {
+          FullTextAnnotationWorkspace: {
+            name: 'FullTextAnnotationWorkspace',
+            template: '<button @click="$emit(\'add-all-to-collection\', payload)">Emit</button>',
+            data() {
+              return { payload: workspacePayload };
+            },
+          },
+          ResultItem: true,
+        },
+      },
+    });
+
+    await wrapper.get('button').trigger('click');
+
+    expect(wrapper.emitted('add-all-to-collection')).toEqual([[workspacePayload]]);
   });
 
   it('uses the exposed ChunkResultsView state when scrolling to attributed evidence', async () => {

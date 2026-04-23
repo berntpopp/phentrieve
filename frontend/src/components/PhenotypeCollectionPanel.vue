@@ -1,10 +1,11 @@
 <template>
   <div>
     <!-- Floating action button for collection panel -->
+    <!-- TODO(Stream G): Replace this temporary Case Workspace bridge with store-backed case workspace wiring from fullTextWorkspace.js and QueryInterface.vue. -->
     <v-tooltip
       location="left"
-      :text="$t('queryInterface.tooltips.phenotypeCollection')"
-      :content-props="{ 'aria-label': $t('queryInterface.tooltips.phenotypeCollection') }"
+      :text="bridgeLabels.openPanel"
+      :content-props="{ 'aria-label': bridgeLabels.openPanel }"
     >
       <template #activator="{ props }">
         <v-btn
@@ -16,7 +17,8 @@
           location="bottom right"
           size="large"
           elevation="3"
-          :aria-label="$t('queryInterface.phenotypeCollection.aria.openPanel')"
+          :aria-label="bridgeLabels.openPanel"
+          data-testid="case-workspace-open-button"
           data-tutorial-step="collection-fab"
           @click="$emit('toggle-panel')"
         >
@@ -34,17 +36,19 @@
       width="400"
       temporary
       style="z-index: 1500"
-      :aria-label="$t('queryInterface.phenotypeCollection.aria.panel')"
+      :aria-label="bridgeLabels.panel"
+      data-testid="case-workspace-drawer"
       @update:model-value="$emit('update:panelOpen', $event)"
     >
       <v-list-item class="pl-2 pr-1">
-        <v-list-item-title class="text-h6">
-          {{ $t('queryInterface.phenotypeCollection.title') }}
+        <v-list-item-title class="text-h6" data-testid="case-workspace-title">
+          {{ bridgeLabels.title }}
         </v-list-item-title>
         <template #append>
           <v-btn
             icon
-            :aria-label="$t('queryInterface.phenotypeCollection.close')"
+            :aria-label="bridgeLabels.closePanel"
+            data-testid="case-workspace-close-button"
             variant="text"
             density="compact"
             @click="$emit('toggle-panel')"
@@ -82,11 +86,7 @@
               label
               variant="flat"
             >
-              {{
-                $t(
-                  `queryInterface.phenotypeCollection.assertionStatus.${phenotype.assertion_status || 'affirmed'}`
-                )
-              }}
+              {{ assertionStatusLabel(phenotype.assertion_status) }}
             </v-chip>
           </v-list-item-title>
           <v-list-item-subtitle class="wrap-text">
@@ -246,6 +246,7 @@
       <template #append>
         <v-divider />
         <div class="pa-3">
+          <!-- TODO(Stream G): Wire this export action through usePhenotypeCollection.js -> PhentrieveService.js `/phenopackets/export`, using the active case from fullTextWorkspace.js instead of the legacy global collection. -->
           <v-btn
             block
             color="primary"
@@ -284,32 +285,113 @@
   </div>
 </template>
 
-<script setup>
+<script>
 /**
- * PhenotypeCollectionPanel - Sub-component for HPO phenotype collection.
+ * PhenotypeCollectionPanel - Temporary case workspace bridge for the HPO collection panel.
  * Extracted from QueryInterface.vue to reduce component complexity.
  */
-defineProps({
-  phenotypes: { type: Array, default: () => [] },
-  panelOpen: { type: Boolean, default: false },
-  subjectId: { type: String, default: '' },
-  sex: { type: Number, default: null },
-  dateOfBirth: { type: String, default: null },
-  sexOptions: { type: Array, default: () => [] },
+const CASE_WORKSPACE_BRIDGE_LABELS = Object.freeze({
+  en: Object.freeze({
+    title: 'Case Workspace',
+    openPanel: 'Open Case Workspace Panel',
+    closePanel: 'Close Case Workspace Panel',
+    panel: 'Case Workspace Panel',
+  }),
+  de: Object.freeze({
+    title: 'Fallarbeitsbereich',
+    openPanel: 'Fallarbeitsbereich oeffnen',
+    closePanel: 'Fallarbeitsbereich schliessen',
+    panel: 'Fallarbeitsbereich',
+  }),
+  es: Object.freeze({
+    title: 'Espacio de trabajo del caso',
+    openPanel: 'Abrir panel del espacio de trabajo del caso',
+    closePanel: 'Cerrar panel del espacio de trabajo del caso',
+    panel: 'Panel del espacio de trabajo del caso',
+  }),
+  fr: Object.freeze({
+    title: 'Espace de travail du cas',
+    openPanel: "Ouvrir le panneau de l'espace de travail du cas",
+    closePanel: "Fermer le panneau de l'espace de travail du cas",
+    panel: "Panneau de l'espace de travail du cas",
+  }),
+  nl: Object.freeze({
+    title: 'Casuswerkruimte',
+    openPanel: 'Casuswerkruimtepaneel openen',
+    closePanel: 'Casuswerkruimtepaneel sluiten',
+    panel: 'Casuswerkruimtepaneel',
+  }),
 });
 
-defineEmits([
-  'toggle-panel',
-  'update:panelOpen',
-  'remove',
-  'toggle-assertion',
-  'export-text',
-  'export-json',
-  'clear',
-  'update:subjectId',
-  'update:sex',
-  'update:dateOfBirth',
-]);
+function resolveCaseWorkspaceBridgeLocale(locale) {
+  if (typeof locale !== 'string' || locale.length === 0) {
+    return 'en';
+  }
+
+  return locale.toLowerCase().split('-')[0];
+}
+
+export { CASE_WORKSPACE_BRIDGE_LABELS, resolveCaseWorkspaceBridgeLocale };
+
+export default {
+  name: 'PhenotypeCollectionPanel',
+  props: {
+    phenotypes: { type: Array, default: () => [] },
+    panelOpen: { type: Boolean, default: false },
+    subjectId: { type: String, default: '' },
+    sex: { type: Number, default: null },
+    dateOfBirth: { type: String, default: null },
+    sexOptions: { type: Array, default: () => [] },
+  },
+  emits: [
+    'toggle-panel',
+    'update:panelOpen',
+    'remove',
+    'toggle-assertion',
+    'export-text',
+    'export-json',
+    'clear',
+    'update:subjectId',
+    'update:sex',
+    'update:dateOfBirth',
+  ],
+  computed: {
+    bridgeLabels() {
+      const locale = resolveCaseWorkspaceBridgeLocale(this.$i18n?.locale);
+      return CASE_WORKSPACE_BRIDGE_LABELS[locale] ?? CASE_WORKSPACE_BRIDGE_LABELS.en;
+    },
+  },
+  methods: {
+    normalizeAssertionStatus(status) {
+      if (status === 'present') {
+        return 'affirmed';
+      }
+
+      if (status === 'absent') {
+        return 'negated';
+      }
+
+      if (status === 'affirmed' || status === 'negated' || status === 'unknown') {
+        return status;
+      }
+
+      return 'unknown';
+    },
+    assertionStatusLabel(status) {
+      const normalizedStatus = this.normalizeAssertionStatus(status);
+
+      if (normalizedStatus === 'affirmed') {
+        return this.$t('queryInterface.phenotypeCollection.assertionStatus.affirmed');
+      }
+
+      if (normalizedStatus === 'negated') {
+        return this.$t('queryInterface.phenotypeCollection.assertionStatus.negated');
+      }
+
+      return this.$t('queryInterface.phenotypeCollection.assertionStatus.unknown');
+    },
+  },
+};
 </script>
 
 <style scoped>
