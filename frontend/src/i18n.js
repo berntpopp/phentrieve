@@ -15,16 +15,17 @@ const messages = {
   de,
   nl,
 };
+const supportedLocales = new Set(Object.keys(messages));
 
 // Determine initial locale: localStorage > browser language > default ('en')
 let initialLocale = 'en'; // Default
 try {
   const savedLang = localStorage.getItem('phentrieve-lang');
-  if (savedLang && messages[savedLang]) {
+  if (savedLang && supportedLocales.has(savedLang)) {
     initialLocale = savedLang;
   } else {
     const browserLang = navigator.language.split('-')[0];
-    if (messages[browserLang]) {
+    if (supportedLocales.has(browserLang)) {
       initialLocale = browserLang;
     }
   }

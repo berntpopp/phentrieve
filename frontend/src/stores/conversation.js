@@ -267,7 +267,7 @@ export const useConversationStore = defineStore(
      * @param {number} index - Index of phenotype
      */
     function toggleAssertionStatus(index) {
-      const phenotype = collectedPhenotypes.value[index];
+      const phenotype = collectedPhenotypes.value.at(index);
       if (phenotype) {
         phenotype.assertion_status =
           phenotype.assertion_status === 'negated' ? 'affirmed' : 'negated';

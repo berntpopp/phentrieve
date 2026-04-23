@@ -755,28 +755,25 @@ export default {
       return summarizeUserNoteMeta(query);
     },
     isUserNoteExpanded(turnId) {
-      return Boolean(this.expandedUserNotes[turnId]);
+      return Boolean(Reflect.get(this.expandedUserNotes, turnId));
     },
     toggleUserNote(turnId) {
-      this.expandedUserNotes = {
-        ...this.expandedUserNotes,
-        [turnId]: !this.expandedUserNotes[turnId],
-      };
+      const nextExpandedUserNotes = { ...this.expandedUserNotes };
+      Reflect.set(nextExpandedUserNotes, turnId, !Reflect.get(this.expandedUserNotes, turnId));
+      this.expandedUserNotes = nextExpandedUserNotes;
     },
     getHoveredNotePhenotype(turnId) {
-      return this.hoveredTextProcessPhenotypes[turnId] || null;
+      return Reflect.get(this.hoveredTextProcessPhenotypes, turnId) || null;
     },
     setHoveredNotePhenotype(turnId, phenotypeId) {
-      this.hoveredTextProcessPhenotypes = {
-        ...this.hoveredTextProcessPhenotypes,
-        [turnId]: phenotypeId,
-      };
+      const nextHoveredTextProcessPhenotypes = { ...this.hoveredTextProcessPhenotypes };
+      Reflect.set(nextHoveredTextProcessPhenotypes, turnId, phenotypeId);
+      this.hoveredTextProcessPhenotypes = nextHoveredTextProcessPhenotypes;
     },
     clearHoveredNotePhenotype(turnId) {
-      this.hoveredTextProcessPhenotypes = {
-        ...this.hoveredTextProcessPhenotypes,
-        [turnId]: null,
-      };
+      const nextHoveredTextProcessPhenotypes = { ...this.hoveredTextProcessPhenotypes };
+      Reflect.set(nextHoveredTextProcessPhenotypes, turnId, null);
+      this.hoveredTextProcessPhenotypes = nextHoveredTextProcessPhenotypes;
     },
     handleAnnotatedTextHover(turnId, termIds) {
       if (!Array.isArray(termIds) || termIds.length === 0) {

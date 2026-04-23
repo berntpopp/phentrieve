@@ -93,7 +93,7 @@ const NestedAnnotationMarks = defineComponent({
   emits: ['annotation-click'],
   setup(props, { emit }) {
     function renderAt(index) {
-      const annotation = props.annotations[index];
+      const annotation = props.annotations.at(index);
 
       if (!annotation) {
         return props.text;

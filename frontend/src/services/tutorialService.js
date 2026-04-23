@@ -40,7 +40,10 @@ class TutorialService {
       return false;
     }
 
-    const step = this.steps[stepIndex];
+    const step = this.steps.at(stepIndex);
+    if (!step) {
+      return false;
+    }
     logService.debug('Showing tutorial step', { stepIndex, step: step.titleKey });
 
     // Execute pre-action if defined
@@ -115,7 +118,7 @@ class TutorialService {
 
   // Get current step info
   getCurrentStep() {
-    return this.steps[this.currentStep] || null;
+    return this.steps.at(this.currentStep) || null;
   }
 
   getCurrentStepIndex() {

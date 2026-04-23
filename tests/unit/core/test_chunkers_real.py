@@ -221,3 +221,15 @@ class TestSlidingWindowSemanticSplitterReal:
             step_size_tokens=0,  # Try to set to 0
         )
         assert splitter.step_size_tokens == 1  # Should be enforced to 1
+
+    def test_init_prefers_non_deprecated_embedding_dimension_accessor(self):
+        """Test initialization prefers get_embedding_dimension over deprecated accessor."""
+        mock_model = Mock()
+        mock_model.get_embedding_dimension.return_value = 384
+        mock_model.get_sentence_embedding_dimension.side_effect = AssertionError(
+            "deprecated accessor should not be called"
+        )
+
+        SlidingWindowSemanticSplitter(language="en", model=mock_model)
+
+        mock_model.get_embedding_dimension.assert_called_once_with()

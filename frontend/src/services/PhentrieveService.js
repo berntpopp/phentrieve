@@ -174,13 +174,9 @@ class PhentrieveService {
       include_details: textProcessingData.include_details ?? textProcessingData.includeDetails,
     };
 
-    return Object.keys(payload).reduce((normalized, key) => {
-      const value = payload[key];
-      if (value !== null && value !== undefined) {
-        normalized[key] = value;
-      }
-      return normalized;
-    }, {});
+    return Object.fromEntries(
+      Object.entries(payload).filter(([, value]) => value !== null && value !== undefined)
+    );
   }
 
   /**

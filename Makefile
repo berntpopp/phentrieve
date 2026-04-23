@@ -45,7 +45,31 @@ typecheck: ## Type check with mypy (incremental with SQLite cache)
 
 typecheck-fast: ## Fast type check using mypy daemon (first run starts daemon)
 	@echo "Using mypy daemon for faster checking..."
-	@uv run dmypy run -- phentrieve/ api/ || (echo "Starting mypy daemon..." && uv run dmypy start && uv run dmypy run -- phentrieve/ api/)
+	@tmp_log=$$(mktemp); \
+	if uv run dmypy run -- phentrieve/ api/ >$$tmp_log 2>&1; then \
+		cat $$tmp_log; \
+	elif grep -Eq "Daemon crashed!|INTERNAL ERROR" $$tmp_log; then \
+		echo "dmypy crashed; retrying with a fresh daemon..."; \
+		uv run dmypy stop >/dev/null 2>&1 || true; \
+		if uv run dmypy run -- phentrieve/ api/ >$$tmp_log 2>&1; then \
+			cat $$tmp_log; \
+		elif grep -Eq "Daemon crashed!|INTERNAL ERROR" $$tmp_log; then \
+			echo "dmypy remained unstable; falling back to plain mypy..."; \
+			uv run dmypy stop >/dev/null 2>&1 || true; \
+			rm -f $$tmp_log; \
+			uv run mypy phentrieve/ api/; \
+			exit $$?; \
+		else \
+			cat $$tmp_log; \
+			rm -f $$tmp_log; \
+			exit 1; \
+		fi; \
+	else \
+		cat $$tmp_log; \
+		rm -f $$tmp_log; \
+		exit 1; \
+	fi; \
+	rm -f $$tmp_log
 
 typecheck-daemon-stop: ## Stop mypy daemon
 	uv run dmypy stop

@@ -402,12 +402,16 @@ export default {
   },
   methods: {
     getEnvironmentColor(env) {
-      const colors = {
-        production: 'success',
-        staging: 'warning',
-        development: 'info',
-      };
-      return colors[env] || 'default';
+      switch (env) {
+        case 'production':
+          return 'success';
+        case 'staging':
+          return 'warning';
+        case 'development':
+          return 'info';
+        default:
+          return 'default';
+      }
     },
     showDisclaimerDialog() {
       logService.debug('Manual disclaimer dialog trigger');

@@ -44,11 +44,12 @@ function cloneWorkspaceValue(value, activeAncestors = new WeakSet()) {
     }
 
     activeAncestors.add(value);
-    const cloned = {};
-
-    Object.keys(value).forEach((key) => {
-      cloned[key] = cloneWorkspaceValue(value[key], activeAncestors);
-    });
+    const cloned = Object.fromEntries(
+      Object.entries(value).map(([key, nestedValue]) => [
+        key,
+        cloneWorkspaceValue(nestedValue, activeAncestors),
+      ])
+    );
 
     activeAncestors.delete(value);
     return cloned;
@@ -236,23 +237,32 @@ function assertQuotaBanner(banner) {
 export const useFullTextWorkspaceStore = defineStore('fullTextWorkspace', () => {
   const turns = ref({});
 
+  function getTurnEntry(turnId) {
+    return Reflect.get(turns.value, turnId);
+  }
+
+  function setTurnEntry(turnId, turnState) {
+    Reflect.set(turns.value, turnId, turnState);
+    return turnState;
+  }
+
   function initializeTurn(turnId) {
     assertTurnId(turnId);
-    if (!turns.value[turnId]) {
-      turns.value[turnId] = createEmptyTurnState();
+    if (!getTurnEntry(turnId)) {
+      setTurnEntry(turnId, createEmptyTurnState());
     }
 
-    return cloneTurnState(turns.value[turnId]);
+    return cloneTurnState(getTurnEntry(turnId));
   }
 
   function requireTurn(turnId) {
     assertTurnId(turnId);
 
-    if (!turns.value[turnId]) {
+    if (!getTurnEntry(turnId)) {
       throw new Error(`Unknown workspace turn: ${turnId}`);
     }
 
-    return turns.value[turnId];
+    return getTurnEntry(turnId);
   }
 
   function assertSidebarMode(mode) {
@@ -268,8 +278,9 @@ export const useFullTextWorkspaceStore = defineStore('fullTextWorkspace', () => 
 
   function getTurnState(turnId) {
     assertTurnId(turnId);
+    const turnState = getTurnEntry(turnId);
 
-    return turns.value[turnId] ? cloneTurnState(turns.value[turnId]) : null;
+    return turnState ? cloneTurnState(turnState) : null;
   }
 
   function setSidebarMode(turnId, mode) {
@@ -407,14 +418,14 @@ export const useFullTextWorkspaceStore = defineStore('fullTextWorkspace', () => 
 
   function resetTurn(turnId) {
     requireTurn(turnId);
-    turns.value[turnId] = createEmptyTurnState();
+    setTurnEntry(turnId, createEmptyTurnState());
 
-    return cloneTurnState(turns.value[turnId]);
+    return cloneTurnState(getTurnEntry(turnId));
   }
 
   function removeTurn(turnId) {
     requireTurn(turnId);
-    delete turns.value[turnId];
+    Reflect.deleteProperty(turns.value, turnId);
   }
 
   return {

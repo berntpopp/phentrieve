@@ -9,7 +9,7 @@ The primary semantic chunking is handled by SlidingWindowSemanticSplitter in a s
 import logging
 import re
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 # Lazy imports for heavy dependencies
 # This avoids loading torch/transformers at module import time
@@ -31,6 +31,21 @@ TRAILING_PUNCTUATION_CHARS = ",.;:?!\"')}]"
 LEADING_PUNCTUATION_CHARS = "\"'([{"
 
 logger = logging.getLogger(__name__)
+
+
+def _get_model_embedding_dimension(model: object) -> int | None:
+    """Return model embedding dimension using the preferred available accessor."""
+    get_dimension = getattr(model, "get_embedding_dimension", None)
+    if callable(get_dimension):
+        dimension = cast(object, get_dimension())
+        return dimension if isinstance(dimension, int) else None
+
+    get_sentence_dimension = getattr(model, "get_sentence_embedding_dimension", None)
+    if callable(get_sentence_dimension):
+        dimension = cast(object, get_sentence_dimension())
+        return dimension if isinstance(dimension, int) else None
+
+    return None
 
 
 class TextChunker(ABC):
@@ -881,11 +896,9 @@ class SlidingWindowSemanticSplitter(TextChunker):
 
         # Log model info
         logger.debug("Using model: %s", _sanitize(self.model.__class__.__name__))
-        if hasattr(self.model, "get_sentence_embedding_dimension"):
-            logger.debug(
-                "Model embedding dimension: %s",
-                self.model.get_sentence_embedding_dimension(),
-            )
+        model_embedding_dimension = _get_model_embedding_dimension(self.model)
+        if model_embedding_dimension is not None:
+            logger.debug("Model embedding dimension: %s", model_embedding_dimension)
 
     def chunk(self, text_segments: list[str]) -> list[str]:
         """

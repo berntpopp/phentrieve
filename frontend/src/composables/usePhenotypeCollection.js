@@ -37,7 +37,7 @@ export function usePhenotypeCollection() {
   }
 
   function removePhenotype(index) {
-    const phenotype = conversationStore.collectedPhenotypes[index];
+    const phenotype = conversationStore.collectedPhenotypes.at(index);
     logService.info('Removing phenotype from collection', {
       index,
       phenotype,
@@ -47,7 +47,7 @@ export function usePhenotypeCollection() {
 
   function toggleAssertionStatus(index) {
     conversationStore.toggleAssertionStatus(index);
-    const phenotype = conversationStore.collectedPhenotypes[index];
+    const phenotype = conversationStore.collectedPhenotypes.at(index);
     if (phenotype) {
       logService.info('Toggled phenotype assertion status', {
         hpo_id: phenotype.hpo_id,

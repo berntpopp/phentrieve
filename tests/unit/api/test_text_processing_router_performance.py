@@ -22,6 +22,18 @@ from phentrieve.config import DEFAULT_MODEL
 pytestmark = pytest.mark.unit
 
 
+async def _raise_timeout_and_close(awaitable, timeout):
+    if hasattr(awaitable, "close"):
+        awaitable.close()
+    raise TimeoutError()
+
+
+async def _return_mock_result_and_close(awaitable, timeout):
+    if hasattr(awaitable, "close"):
+        awaitable.close()
+    return {"test": "result"}
+
+
 class TestAdaptiveTimeout:
     """Test adaptive timeout calculation based on text length."""
 
@@ -41,7 +53,7 @@ class TestAdaptiveTimeout:
             with patch(
                 "api.routers.text_processing_router.asyncio.wait_for"
             ) as mock_wait:
-                mock_wait.return_value = {"test": "result"}
+                mock_wait.side_effect = _return_mock_result_and_close
 
                 await process_text_extract_hpo(MagicMock(), request)
 
@@ -65,7 +77,7 @@ class TestAdaptiveTimeout:
             with patch(
                 "api.routers.text_processing_router.asyncio.wait_for"
             ) as mock_wait:
-                mock_wait.return_value = {"test": "result"}
+                mock_wait.side_effect = _return_mock_result_and_close
 
                 await process_text_extract_hpo(MagicMock(), request)
 
@@ -88,7 +100,7 @@ class TestAdaptiveTimeout:
             with patch(
                 "api.routers.text_processing_router.asyncio.wait_for"
             ) as mock_wait:
-                mock_wait.return_value = {"test": "result"}
+                mock_wait.side_effect = _return_mock_result_and_close
 
                 await process_text_extract_hpo(MagicMock(), request)
 
@@ -111,7 +123,7 @@ class TestAdaptiveTimeout:
             with patch(
                 "api.routers.text_processing_router.asyncio.wait_for"
             ) as mock_wait:
-                mock_wait.return_value = {"test": "result"}
+                mock_wait.side_effect = _return_mock_result_and_close
 
                 await process_text_extract_hpo(MagicMock(), request)
 
@@ -132,7 +144,7 @@ class TestTimeoutHandling:
 
         with patch("api.routers.text_processing_router.asyncio.wait_for") as mock_wait:
             # Simulate timeout
-            mock_wait.side_effect = TimeoutError()
+            mock_wait.side_effect = _raise_timeout_and_close
 
             with pytest.raises(HTTPException) as exc_info:
                 await process_text_extract_hpo(MagicMock(), request)
@@ -154,7 +166,7 @@ class TestTimeoutHandling:
         )
 
         with patch("api.routers.text_processing_router.asyncio.wait_for") as mock_wait:
-            mock_wait.side_effect = TimeoutError()
+            mock_wait.side_effect = _raise_timeout_and_close
 
             with pytest.raises(HTTPException) as exc_info:
                 await process_text_extract_hpo(MagicMock(), request)
@@ -168,6 +180,21 @@ class TestTimeoutHandling:
                 or "disable reranker" in detail
             )
             assert has_suggestion, f"No suggestions in error message: {detail}"
+
+    @pytest.mark.asyncio
+    async def test_timeout_mock_does_not_leak_unawaited_coroutines(self):
+        """Timeout-path tests should close the created coroutine when wait_for is mocked."""
+        request = TextProcessingRequest(
+            text_content="Test text",
+        )
+
+        with patch("api.routers.text_processing_router.asyncio.wait_for") as mock_wait:
+            mock_wait.side_effect = _raise_timeout_and_close
+
+            with pytest.raises(HTTPException) as exc_info:
+                await process_text_extract_hpo(MagicMock(), request)
+
+            assert exc_info.value.status_code == 504
 
 
 class TestModelCaching:

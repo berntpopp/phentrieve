@@ -101,10 +101,11 @@ export function buildMarkedSegments(chunk, selectedAnnotationIds = new Set()) {
     ])
   ).sort((left, right) => left - right);
   const segments = [];
+  let previousBoundary = boundaries[0];
 
-  for (let index = 0; index < boundaries.length - 1; index += 1) {
-    const start = boundaries[index];
-    const end = boundaries[index + 1];
+  for (const end of boundaries.slice(1)) {
+    const start = previousBoundary;
+    previousBoundary = end;
 
     if (end <= start) {
       continue;
