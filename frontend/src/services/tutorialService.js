@@ -40,7 +40,9 @@ class TutorialService {
       return false;
     }
 
-    const step = this.steps.at(stepIndex);
+    // Safe array index access after explicit bounds check.
+    // eslint-disable-next-line security/detect-object-injection
+    const step = this.steps[stepIndex] || null;
     if (!step) {
       return false;
     }
@@ -118,7 +120,9 @@ class TutorialService {
 
   // Get current step info
   getCurrentStep() {
-    return this.steps.at(this.currentStep) || null;
+    return this.currentStep >= 0 && this.currentStep < this.steps.length
+      ? this.steps[this.currentStep]
+      : null;
   }
 
   getCurrentStepIndex() {

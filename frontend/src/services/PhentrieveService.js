@@ -174,9 +174,14 @@ class PhentrieveService {
       include_details: textProcessingData.include_details ?? textProcessingData.includeDetails,
     };
 
-    return Object.fromEntries(
-      Object.entries(payload).filter(([, value]) => value !== null && value !== undefined)
-    );
+    return Object.entries(payload).reduce((normalized, [key, value]) => {
+      if (value !== null && value !== undefined) {
+        // Payload keys are defined by the static object above.
+        // eslint-disable-next-line security/detect-object-injection
+        normalized[key] = value;
+      }
+      return normalized;
+    }, {});
   }
 
   /**

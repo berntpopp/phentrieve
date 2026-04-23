@@ -44,12 +44,13 @@ function cloneWorkspaceValue(value, activeAncestors = new WeakSet()) {
     }
 
     activeAncestors.add(value);
-    const cloned = Object.fromEntries(
-      Object.entries(value).map(([key, nestedValue]) => [
-        key,
-        cloneWorkspaceValue(nestedValue, activeAncestors),
-      ])
-    );
+    const cloned = {};
+
+    Object.entries(value).forEach(([key, nestedValue]) => {
+      // Keys come from the current plain object being cloned.
+      // eslint-disable-next-line security/detect-object-injection
+      cloned[key] = cloneWorkspaceValue(nestedValue, activeAncestors);
+    });
 
     activeAncestors.delete(value);
     return cloned;
