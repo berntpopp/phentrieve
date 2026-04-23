@@ -267,7 +267,12 @@ export const useConversationStore = defineStore(
      * @param {number} index - Index of phenotype
      */
     function toggleAssertionStatus(index) {
-      const phenotype = collectedPhenotypes.value[index];
+      let phenotype = null;
+      if (index >= 0 && index < collectedPhenotypes.value.length) {
+        // Safe array index access after explicit bounds check.
+        // eslint-disable-next-line security/detect-object-injection
+        phenotype = collectedPhenotypes.value[index];
+      }
       if (phenotype) {
         phenotype.assertion_status =
           phenotype.assertion_status === 'negated' ? 'affirmed' : 'negated';

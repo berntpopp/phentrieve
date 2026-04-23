@@ -331,7 +331,26 @@ function resolveCaseWorkspaceBridgeLocale(locale) {
   return locale.toLowerCase().split('-')[0];
 }
 
-export { CASE_WORKSPACE_BRIDGE_LABELS, resolveCaseWorkspaceBridgeLocale };
+function getCaseWorkspaceBridgeLabels(locale) {
+  switch (resolveCaseWorkspaceBridgeLocale(locale)) {
+    case 'de':
+      return CASE_WORKSPACE_BRIDGE_LABELS.de;
+    case 'es':
+      return CASE_WORKSPACE_BRIDGE_LABELS.es;
+    case 'fr':
+      return CASE_WORKSPACE_BRIDGE_LABELS.fr;
+    case 'nl':
+      return CASE_WORKSPACE_BRIDGE_LABELS.nl;
+    default:
+      return CASE_WORKSPACE_BRIDGE_LABELS.en;
+  }
+}
+
+export {
+  CASE_WORKSPACE_BRIDGE_LABELS,
+  resolveCaseWorkspaceBridgeLocale,
+  getCaseWorkspaceBridgeLabels,
+};
 
 export default {
   name: 'PhenotypeCollectionPanel',
@@ -357,8 +376,7 @@ export default {
   ],
   computed: {
     bridgeLabels() {
-      const locale = resolveCaseWorkspaceBridgeLocale(this.$i18n?.locale);
-      return CASE_WORKSPACE_BRIDGE_LABELS[locale] ?? CASE_WORKSPACE_BRIDGE_LABELS.en;
+      return getCaseWorkspaceBridgeLabels(this.$i18n?.locale);
     },
   },
   methods: {

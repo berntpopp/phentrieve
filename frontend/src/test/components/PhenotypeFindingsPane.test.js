@@ -6,6 +6,7 @@ import * as directives from 'vuetify/directives';
 import { createI18n } from 'vue-i18n';
 import en from '../../locales/en.json';
 import { SCORE_EXCELLENT, SCORE_GOOD, SCORE_MODERATE, SCORE_LOW } from '../../constants/defaults';
+import { normalizeSelectedTerm } from '../../utils/annotationInspector';
 
 const vuetify = createVuetify({ components, directives });
 const i18n = createI18n({
@@ -285,16 +286,53 @@ describe('AnnotationInspectorPanel', () => {
   });
 
   describe('selectedTerm hardening', () => {
-    it('suppresses details when selectedTerm does not match the expected contract', async () => {
-      const wrapper = await mountInspector({
+    it('normalizes invalid selectedTerm payloads to null before rendering', () => {
+      expect(
+        normalizeSelectedTerm({
+          hpoId: 'HP:0004322',
+          name: 'Spasticity',
+          confidence: 0.88,
+        })
+      ).toBeNull();
+    });
+
+    it('suppresses details when selectedTerm is omitted', async () => {
+      const wrapper = await mountInspector(null);
+
+      expect(wrapper.text()).toContain(en.resultsDisplay.showDetails);
+      expect(wrapper.text()).not.toContain('Seizure');
+      expect(wrapper.text()).not.toContain(`${en.resultsDisplay.confidenceHeader}: 0.92`);
+    });
+
+    it('suppresses details when selectedTerm confidence is invalid during normalization', () => {
+      expect(
+        normalizeSelectedTerm({
+          hpo_id: 'HP:0004322',
+          name: 'Spasticity',
+          confidence: '0.88',
+        })
+      ).toBeNull();
+    });
+
+    it('keeps valid selectedTerm payloads normalized for rendering', () => {
+      expect(
+        normalizeSelectedTerm({
+          hpoId: 'HP:0004322',
+          name: 'Spasticity',
+          confidence: 0.88,
+        })
+      ).toBeNull();
+      expect(
+        normalizeSelectedTerm({
+          hpo_id: 'HP:0004322',
+          name: 'Spasticity',
+          confidence: 0.88,
+        })
+      ).toEqual({
         hpoId: 'HP:0004322',
         name: 'Spasticity',
         confidence: 0.88,
       });
-
-      expect(wrapper.text()).toContain(en.resultsDisplay.showDetails);
-      expect(wrapper.text()).not.toContain('Spasticity');
-      expect(wrapper.text()).not.toContain(`${en.resultsDisplay.confidenceHeader}: 0.88`);
     });
 
     it('renders the selected term label even when numeric confidence is unavailable', async () => {

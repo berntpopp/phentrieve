@@ -63,4 +63,20 @@ export default [
       },
     },
   },
+
+  // Local build/test tooling reads repository-controlled files, not user input.
+  {
+    files: ['scripts/**/*.js', 'src/test/**/*.js', 'vite.config.js'],
+    rules: {
+      'security/detect-non-literal-fs-filename': 'off',
+    },
+  },
+
+  // The i18n validation script intentionally traverses locale maps by dynamic key.
+  {
+    files: ['scripts/validate-i18n.js'],
+    rules: {
+      'security/detect-object-injection': 'off',
+    },
+  },
 ];

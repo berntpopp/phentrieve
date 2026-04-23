@@ -93,7 +93,10 @@ const NestedAnnotationMarks = defineComponent({
   emits: ['annotation-click'],
   setup(props, { emit }) {
     function renderAt(index) {
-      const annotation = props.annotations[index];
+      const annotation =
+        // Safe array index access after explicit bounds check.
+        // eslint-disable-next-line security/detect-object-injection
+        index >= 0 && index < props.annotations.length ? props.annotations[index] : null;
 
       if (!annotation) {
         return props.text;

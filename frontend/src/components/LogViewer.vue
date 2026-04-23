@@ -233,13 +233,18 @@ export default {
     });
 
     const getLogColor = (level) => {
-      const colors = {
-        [LogLevel.DEBUG]: 'grey-lighten-3',
-        [LogLevel.INFO]: 'blue-lighten-4',
-        [LogLevel.WARN]: 'amber-lighten-4',
-        [LogLevel.ERROR]: 'red-lighten-4',
-      };
-      return colors[level] || 'grey-lighten-3';
+      switch (level) {
+        case LogLevel.DEBUG:
+          return 'grey-lighten-3';
+        case LogLevel.INFO:
+          return 'blue-lighten-4';
+        case LogLevel.WARN:
+          return 'amber-lighten-4';
+        case LogLevel.ERROR:
+          return 'red-lighten-4';
+        default:
+          return 'grey-lighten-3';
+      }
     };
 
     const formatTimestamp = (timestamp) => {

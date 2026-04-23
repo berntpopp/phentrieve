@@ -37,7 +37,12 @@ export function usePhenotypeCollection() {
   }
 
   function removePhenotype(index) {
-    const phenotype = conversationStore.collectedPhenotypes[index];
+    let phenotype = null;
+    if (index >= 0 && index < conversationStore.collectedPhenotypes.length) {
+      // Safe array index access after explicit bounds check.
+      // eslint-disable-next-line security/detect-object-injection
+      phenotype = conversationStore.collectedPhenotypes[index];
+    }
     logService.info('Removing phenotype from collection', {
       index,
       phenotype,
@@ -47,7 +52,12 @@ export function usePhenotypeCollection() {
 
   function toggleAssertionStatus(index) {
     conversationStore.toggleAssertionStatus(index);
-    const phenotype = conversationStore.collectedPhenotypes[index];
+    let phenotype = null;
+    if (index >= 0 && index < conversationStore.collectedPhenotypes.length) {
+      // Safe array index access after explicit bounds check.
+      // eslint-disable-next-line security/detect-object-injection
+      phenotype = conversationStore.collectedPhenotypes[index];
+    }
     if (phenotype) {
       logService.info('Toggled phenotype assertion status', {
         hpo_id: phenotype.hpo_id,

@@ -123,6 +123,21 @@ const props = defineProps({
 });
 
 const { t } = useI18n();
+
+function getDefaultQualityLabel(level) {
+  switch (level) {
+    case 'excellent':
+      return 'Excellent Match';
+    case 'high':
+      return 'High Match';
+    case 'moderate':
+      return 'Moderate Match';
+    case 'low':
+      return 'Low Match';
+    default:
+      return 'Poor Match';
+  }
+}
 const showTooltip = ref(false);
 
 // Format score to specified decimal places
@@ -172,14 +187,7 @@ const scoreIcon = computed(() => {
 const qualityText = computed(() => {
   const level = qualityLevel.value;
   const key = `resultsDisplay.quality.${level}`;
-  const defaults = {
-    excellent: 'Excellent Match',
-    high: 'High Match',
-    moderate: 'Moderate Match',
-    low: 'Low Match',
-    poor: 'Poor Match',
-  };
-  return t(key, defaults[level]);
+  return t(key, getDefaultQualityLabel(level));
 });
 
 // Tooltip title based on type

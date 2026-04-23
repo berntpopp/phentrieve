@@ -19,6 +19,7 @@ def mock_sbert_model():
     """Shared mock SentenceTransformer model for unit tests."""
     model = MagicMock()
     model.encode.return_value = [[0.1] * 384]
+    model.get_embedding_dimension.return_value = 384
     model.get_sentence_embedding_dimension.return_value = 384
     return model
 
