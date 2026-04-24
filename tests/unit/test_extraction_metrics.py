@@ -1,5 +1,7 @@
 """Tests for extraction metrics module."""
 
+import json
+
 import pytest
 
 from phentrieve.evaluation.extraction_metrics import (
@@ -8,8 +10,25 @@ from phentrieve.evaluation.extraction_metrics import (
     _calculate_prf,
     _doc_metrics,
 )
+from phentrieve.evaluation.ontology_credit import MatchKind, PairCredit
 
 pytestmark = pytest.mark.unit
+
+
+def _fake_credit(
+    predicted_id: str,
+    gold_id: str,
+    credit: float,
+    match_kind: str,
+) -> PairCredit:
+    return PairCredit(
+        predicted_id=predicted_id,
+        gold_id=gold_id,
+        credit=credit,
+        match_kind=MatchKind(match_kind),
+        semantic_similarity=credit,
+        distance=None,
+    )
 
 
 class TestHelperFunctions:
@@ -212,6 +231,91 @@ class TestCorpusExtractionMetrics:
 
         with pytest.raises(ValueError, match="Unknown averaging strategy"):
             evaluator.calculate_metrics(results)
+
+    def test_calculate_ontology_aware_metrics_aggregates_micro(self, monkeypatch):
+        """Ontology-aware corpus metrics include strict, soft, and partial blocks."""
+        monkeypatch.setattr(
+            "phentrieve.evaluation.ontology_matching.calculate_pair_credit",
+            lambda pred, gold, config=None: _fake_credit(pred, gold, 0.0, "unrelated"),
+        )
+        evaluator = CorpusExtractionMetrics()
+        results = [
+            ExtractionResult("doc1", [("HP:1", "PRESENT")], [("HP:1", "PRESENT")]),
+            ExtractionResult("doc2", [("HP:2", "PRESENT")], [("HP:3", "PRESENT")]),
+        ]
+
+        metrics = evaluator.calculate_ontology_aware_metrics(results)
+
+        assert (
+            metrics.strict.micro["f1"]
+            == evaluator.calculate_all_metrics(results).micro["f1"]
+        )
+        assert "f1" in metrics.soft.micro
+        assert "f1" in metrics.partial.micro
+
+    def test_calculate_ontology_aware_metrics_empty_results(self):
+        """Empty corpora return zero metric blocks and no document details."""
+        evaluator = CorpusExtractionMetrics()
+
+        metrics = evaluator.calculate_ontology_aware_metrics([])
+
+        zero_metrics = {"precision": 0.0, "recall": 0.0, "f1": 0.0}
+        for block in (metrics.strict, metrics.soft, metrics.partial):
+            assert block.micro == zero_metrics
+            assert block.macro == zero_metrics
+            assert block.weighted == zero_metrics
+        assert metrics.match_breakdown == {}
+        assert metrics.document_metrics == []
+
+    def test_calculate_ontology_aware_metrics_match_breakdown_shape(self, monkeypatch):
+        """Match breakdown counts matched pairs and sums credit by match kind."""
+        monkeypatch.setattr(
+            "phentrieve.evaluation.ontology_matching.calculate_pair_credit",
+            lambda pred, gold, config=None: _fake_credit(
+                pred, gold, 0.95, "descendant"
+            ),
+        )
+        evaluator = CorpusExtractionMetrics()
+        results = [
+            ExtractionResult("doc1", [("HP:1", "PRESENT")], [("HP:1", "PRESENT")]),
+            ExtractionResult(
+                "doc2",
+                [("HP:child", "PRESENT")],
+                [("HP:parent", "PRESENT")],
+            ),
+        ]
+
+        metrics = evaluator.calculate_ontology_aware_metrics(results)
+
+        assert metrics.match_breakdown == {
+            "descendant": {"count": 1, "credit": pytest.approx(0.95)},
+            "exact": {"count": 1, "credit": pytest.approx(1.0)},
+        }
+        for breakdown in metrics.match_breakdown.values():
+            assert isinstance(breakdown["count"], int)
+            assert isinstance(breakdown["credit"], float)
+
+    def test_serialize_ontology_metrics_returns_json_primitives(self):
+        """Compact ontology metric serialization can be encoded as JSON."""
+        from phentrieve.evaluation.extraction_metrics import (
+            serialize_ontology_metrics,
+        )
+
+        evaluator = CorpusExtractionMetrics()
+        metrics = evaluator.calculate_ontology_aware_metrics(
+            [
+                ExtractionResult(
+                    "doc1",
+                    [("HP:1", "PRESENT")],
+                    [("HP:1", "PRESENT")],
+                )
+            ]
+        )
+
+        serialized = serialize_ontology_metrics(metrics)
+
+        assert set(serialized) == {"strict", "soft", "partial", "match_breakdown"}
+        json.dumps(serialized)
 
 
 class TestAssertionAwareMatching:
