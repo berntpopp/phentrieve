@@ -1,7 +1,7 @@
 # PR 229 Review Follow-Up Modularization Design
 
 Date: 2026-04-23
-Source review: `.planning/analysis/pr-229-deep-review-report.md`
+Source review: `.planning/archived/pr-229-deep-review-report.md`
 
 ## Goal
 

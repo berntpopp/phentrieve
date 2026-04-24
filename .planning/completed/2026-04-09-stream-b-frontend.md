@@ -10,7 +10,7 @@
 
 **Branch:** `improve/frontend-refactor`
 
-**Spec:** `docs/superpowers/specs/2026-04-09-code-quality-improvements-design.md` (Stream B)
+**Spec:** `../archived/2026-04-09-code-quality-improvements-design.md` (Stream B)
 
 ---
 

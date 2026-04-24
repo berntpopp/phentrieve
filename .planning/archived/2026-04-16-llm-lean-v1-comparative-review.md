@@ -446,8 +446,8 @@ Phentrieve branch `feat/llm-full-text-lean-v1`:
 - `phentrieve/llm/full_text_service.py:408–428` — preflight + warning path
 - `tests/unit/test_llm_benchmark.py:14–19` — the over-mocking that masks
   real preprocessing
-- `.planning/specs/2026-04-15-llm-full-text-lean-v1-design.md`
-- `.planning/specs/2026-04-16-llm-cli-grounded-whole-note-design.md`
+- `.planning/archived/2026-04-15-llm-full-text-lean-v1-design.md`
+- `.planning/archived/2026-04-16-llm-cli-grounded-whole-note-design.md`
 - `.planning/active/2026-04-16-llm-cli-grounded-whole-note-implementation-plan.md`
 - `.planning/active/2026-04-16-llm-shared-chunk-pipeline-internal-refactor-plan.md`
 

@@ -10,7 +10,7 @@
 
 **Branch:** `improve/infrastructure`
 
-**Spec:** `docs/superpowers/specs/2026-04-09-code-quality-improvements-design.md` (Stream C)
+**Spec:** `../archived/2026-04-09-code-quality-improvements-design.md` (Stream C)
 
 ---
 
@@ -142,7 +142,7 @@ repos:
       - id: ruff-format
 ```
 
-**Spec deviation: mypy hook omitted.** The design spec at `docs/superpowers/specs/2026-04-09-code-quality-improvements-design.md:287` included a `mirrors-mypy` hook. After research, this is omitted because:
+**Spec deviation: mypy hook omitted.** The design spec at `../archived/2026-04-09-code-quality-improvements-design.md:287` included a `mirrors-mypy` hook. After research, this is omitted because:
 1. mypy in pre-commit runs from scratch on every commit (no daemon), taking 30-60s on this codebase
 2. The project already uses `make typecheck-fast` (mypy daemon, ~3s) which developers run via `make all`
 3. The pre-commit docs recommend against slow hooks that discourage frequent commits

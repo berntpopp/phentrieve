@@ -5,7 +5,7 @@
 **Revised:** 2025-11-20 (Addressed critical issues from code review)
 **Priority:** High
 **Related Issue:** [#24](https://github.com/berntpopp/phentrieve/issues/24)
-**Review Document:** `.planning/analysis/HPO-TERM-DETAILS-CRITICAL-REVIEW.md`
+**Review Document:** `.planning/archived/HPO-TERM-DETAILS-CRITICAL-REVIEW.md`
 **Estimated Complexity:** Medium
 **Estimated Time:** 10 hours (reduced from 14)
 

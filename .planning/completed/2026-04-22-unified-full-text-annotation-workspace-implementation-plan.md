@@ -307,7 +307,7 @@ If parallel workers discover they need to touch one of these files outside the a
 
 ### Documentation
 
-- Modify: `.planning/specs/2026-04-21-unified-full-text-annotation-workspace-design.md`
+- Modify: `.planning/archived/2026-04-21-unified-full-text-annotation-workspace-design.md`
   Only if implementation uncovers contradictions that must be reflected back into the spec.
 
 ## Task-to-Stream Mapping
@@ -1493,7 +1493,7 @@ git commit -m "feat: integrate unified full-text annotation workspace"
 ## Task 9: Full verification and documentation alignment
 
 **Files:**
-- Modify: `.planning/specs/2026-04-21-unified-full-text-annotation-workspace-design.md` (only if implementation changed the agreed design)
+- Modify: `.planning/archived/2026-04-21-unified-full-text-annotation-workspace-design.md` (only if implementation changed the agreed design)
 
 - [ ] **Step 1: Run Python verification for touched backend paths**
 
@@ -1534,7 +1534,7 @@ Expected: PASS. If any unrelated failures appear, document them explicitly befor
 If the implementation forced any material behavior change, update:
 
 ```markdown
-.planning/specs/2026-04-21-unified-full-text-annotation-workspace-design.md
+.planning/archived/2026-04-21-unified-full-text-annotation-workspace-design.md
 ```
 
 with the exact final behavior, especially for:
@@ -1547,7 +1547,7 @@ with the exact final behavior, especially for:
 - [ ] **Step 5: Commit**
 
 ```bash
-git add .planning/specs/2026-04-21-unified-full-text-annotation-workspace-design.md
+git add .planning/archived/2026-04-21-unified-full-text-annotation-workspace-design.md
 git commit -m "docs: align full-text workspace spec with implementation"
 ```
 

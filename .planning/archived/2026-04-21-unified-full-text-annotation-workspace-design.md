@@ -60,7 +60,7 @@ Relevant files:
 
 Related design work that this spec depends on:
 
-- `.planning/specs/2026-04-19-phenopacket-v2-and-annotation-sidecar-design.md`
+- `.planning/archived/2026-04-19-phenopacket-v2-and-annotation-sidecar-design.md`
 
 The sidecar format from that design is the intended provenance read/write model for this workspace. This spec should not define a parallel provenance contract.
 
@@ -333,7 +333,7 @@ The right sidebar in case-workspace mode should contain:
 - source-note status
 - export action(s)
 
-Frontend phenopacket export is new in this design; backend serialization logic is reused from the CLI and sidecar-related provenance should align with `.planning/specs/2026-04-19-phenopacket-v2-and-annotation-sidecar-design.md`.
+Frontend phenopacket export is new in this design; backend serialization logic is reused from the CLI and sidecar-related provenance should align with `.planning/archived/2026-04-19-phenopacket-v2-and-annotation-sidecar-design.md`.
 
 Prominent actions:
 
