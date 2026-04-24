@@ -2,10 +2,11 @@
 
 import random
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, TypedDict
 
 if TYPE_CHECKING:
     from phentrieve.evaluation.ontology_credit import OntologyCreditConfig
+    from phentrieve.evaluation.ontology_matching import DocumentOntologyMetrics
 
 
 @dataclass
@@ -27,6 +28,13 @@ class CorpusMetrics:
     confidence_intervals: dict[str, tuple[float, float]]
 
 
+class MatchBreakdownEntry(TypedDict):
+    """Corpus-level count and credit total for one ontology match kind."""
+
+    count: int
+    credit: float
+
+
 @dataclass
 class OntologyMetricBlock:
     """Ontology-aware corpus metrics for one matching mode."""
@@ -43,8 +51,8 @@ class OntologyAwareCorpusMetrics:
     strict: OntologyMetricBlock
     soft: OntologyMetricBlock
     partial: OntologyMetricBlock
-    match_breakdown: dict[str, dict[str, float]]
-    document_metrics: list[Any]
+    match_breakdown: dict[str, MatchBreakdownEntry]
+    document_metrics: list["DocumentOntologyMetrics"]
 
 
 def _calculate_prf(tp: int, fp: int, fn: int) -> tuple[float, float, float]:
@@ -147,6 +155,17 @@ def serialize_ontology_metrics(
     }
 
 
+def calculate_document_ontology_metrics(
+    result: ExtractionResult,
+    config: "OntologyCreditConfig | None" = None,
+) -> "DocumentOntologyMetrics":
+    from phentrieve.evaluation.ontology_matching import (
+        calculate_document_ontology_metrics as calculate,
+    )
+
+    return calculate(result, config)
+
+
 class CorpusExtractionMetrics:
     """Document-level HPO extraction evaluation."""
 
@@ -197,10 +216,6 @@ class CorpusExtractionMetrics:
                 match_breakdown={},
                 document_metrics=[],
             )
-
-        from phentrieve.evaluation.ontology_matching import (
-            calculate_document_ontology_metrics,
-        )
 
         document_metrics = [
             calculate_document_ontology_metrics(result, config) for result in results
@@ -286,7 +301,7 @@ class CorpusExtractionMetrics:
             weighted=_average_metric_dicts(partial_document_metrics, weights),
         )
 
-        match_breakdown: dict[str, dict[str, float]] = {}
+        match_breakdown: dict[str, MatchBreakdownEntry] = {}
         for metric in document_metrics:
             for match in metric.matches:
                 kind = match.credit.match_kind.value
