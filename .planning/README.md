@@ -27,6 +27,13 @@ execution context.
 - Read `specs/` before implementing multi-step work.
 - Use `completed/` for historical implementation patterns.
 
+## Current Active Work
+
+- `active/2026-04-24-ontology-aware-benchmark-command-option-plan.md` - plan
+  for adding opt-in ontology-aware soft/partial metrics to benchmark commands.
+- `specs/2026-04-24-ontology-aware-benchmark-metrics-spec.md` - consolidated
+  design input for ontology-aware full-text HPO benchmark metrics.
+
 ## Migration Note
 
 The repository previously stored planning material in `plan/` and
