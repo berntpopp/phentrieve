@@ -34,6 +34,7 @@ from phentrieve.evaluation.extraction_metrics import (
     CorpusExtractionMetrics,
     CorpusMetrics,
     ExtractionResult,
+    serialize_ontology_metrics,
 )
 
 if TYPE_CHECKING:
@@ -62,6 +63,46 @@ class ExtractionConfig:
     bootstrap_samples: int = 1000
     dataset: str = "all"
     detailed_output: bool = False
+    ontology_aware_metrics: bool = False
+    ontology_semantic_floor: float = 0.30
+    ontology_similarity_formula: str = "hybrid"
+
+
+def _build_ontology_credit_config(config: ExtractionConfig) -> Any:
+    """Build ontology-aware metric config from extraction benchmark settings."""
+    from phentrieve.evaluation.metrics import SimilarityFormula
+    from phentrieve.evaluation.ontology_credit import OntologyCreditConfig
+
+    if not 0.0 <= config.ontology_semantic_floor <= 1.0:
+        raise ValueError(
+            "ontology_semantic_floor must be between 0.0 and 1.0 inclusive; "
+            f"got {config.ontology_semantic_floor!r}."
+        )
+
+    formula = config.ontology_similarity_formula.strip().lower()
+    formula_map = {
+        "hybrid": SimilarityFormula.HYBRID,
+        "simple_resnik_like": SimilarityFormula.SIMPLE_RESNIK_LIKE,
+    }
+    if formula not in formula_map:
+        raise ValueError(
+            "Invalid ontology similarity formula: "
+            f"{config.ontology_similarity_formula!r}. "
+            "Expected 'hybrid' or 'simple_resnik_like'."
+        )
+
+    return OntologyCreditConfig(
+        semantic_floor=config.ontology_semantic_floor,
+        similarity_formula=formula_map[formula],
+    )
+
+
+def _attach_ontology_metrics(
+    metrics: CorpusMetrics,
+    ontology_metrics: Any,
+) -> None:
+    metrics_with_extension: Any = metrics
+    metrics_with_extension.ontology_metrics = ontology_metrics
 
 
 class HPOExtractor:
@@ -218,6 +259,10 @@ class ExtractionBenchmark:
                 if hasattr(config, key):
                     setattr(config, key, value)
 
+        ontology_config = None
+        if config.ontology_aware_metrics:
+            ontology_config = _build_ontology_credit_config(config)
+
         # Update extractor with new config for this run
         self.extractor.config = config
 
@@ -267,6 +312,13 @@ class ExtractionBenchmark:
         # Calculate metrics
         evaluator = CorpusExtractionMetrics(averaging=config.averaging)
         metrics = evaluator.calculate_all_metrics(results)
+        ontology_metrics = None
+        if ontology_config is not None:
+            ontology_metrics = evaluator.calculate_ontology_aware_metrics(
+                results,
+                config=ontology_config,
+            )
+            _attach_ontology_metrics(metrics, ontology_metrics)
 
         # Calculate bootstrap CI if requested
         if config.bootstrap_ci:
@@ -279,6 +331,8 @@ class ExtractionBenchmark:
                 weighted=metrics.weighted,
                 confidence_intervals=ci,
             )
+            if ontology_metrics is not None:
+                _attach_ontology_metrics(metrics, ontology_metrics)
 
         # Save results (pass detailed_results only if enabled)
         self._save_results(
@@ -287,6 +341,7 @@ class ExtractionBenchmark:
             output_dir,
             test_data.get("metadata", {}),
             config,
+            ontology_metrics,
             detailed_results if config.detailed_output else None,
         )
 
@@ -500,6 +555,7 @@ class ExtractionBenchmark:
         output_dir: Path,
         dataset_metadata: dict,
         config: ExtractionConfig,
+        ontology_metrics: Any | None = None,
         detailed_results: list[dict[str, Any]] | None = None,
     ):
         """Save benchmark results to files."""
@@ -531,6 +587,9 @@ class ExtractionBenchmark:
                             "relaxed_matching": config.relaxed_matching,
                             "chunk_retrieval_threshold": config.chunk_retrieval_threshold,
                             "min_confidence_for_aggregated": config.min_confidence_for_aggregated,
+                            "ontology_aware_metrics": config.ontology_aware_metrics,
+                            "ontology_semantic_floor": config.ontology_semantic_floor,
+                            "ontology_similarity_formula": config.ontology_similarity_formula,
                         },
                         "dataset": dataset_metadata,
                     },
@@ -540,6 +599,15 @@ class ExtractionBenchmark:
                         "macro": metrics.macro,
                         "weighted": metrics.weighted,
                         "confidence_intervals": metrics.confidence_intervals,
+                        **(
+                            {
+                                "ontology_metrics": serialize_ontology_metrics(
+                                    ontology_metrics
+                                )
+                            }
+                            if ontology_metrics is not None
+                            else {}
+                        ),
                     },
                 },
                 f,
@@ -547,24 +615,39 @@ class ExtractionBenchmark:
             )
 
         # Save summary metrics
+        summary = {
+            "model": self.model_name,
+            "micro_f1": metrics.micro.get("f1", 0),
+            "micro_precision": metrics.micro.get("precision", 0),
+            "micro_recall": metrics.micro.get("recall", 0),
+            "macro_f1": metrics.macro.get("f1", 0),
+            "macro_precision": metrics.macro.get("precision", 0),
+            "macro_recall": metrics.macro.get("recall", 0),
+            "weighted_f1": metrics.weighted.get("f1", 0),
+            "weighted_precision": metrics.weighted.get("precision", 0),
+            "weighted_recall": metrics.weighted.get("recall", 0),
+        }
+        if ontology_metrics is not None:
+            summary.update(
+                {
+                    "soft_micro_f1": ontology_metrics.soft.micro.get("f1", 0),
+                    "soft_micro_precision": ontology_metrics.soft.micro.get(
+                        "precision", 0
+                    ),
+                    "soft_micro_recall": ontology_metrics.soft.micro.get("recall", 0),
+                    "partial_micro_f1": ontology_metrics.partial.micro.get("f1", 0),
+                    "partial_micro_precision": ontology_metrics.partial.micro.get(
+                        "precision", 0
+                    ),
+                    "partial_micro_recall": ontology_metrics.partial.micro.get(
+                        "recall", 0
+                    ),
+                }
+            )
+
         summary_file = output_dir / "extraction_summary.json"
         with open(summary_file, "w") as f:
-            json.dump(
-                {
-                    "model": self.model_name,
-                    "micro_f1": metrics.micro.get("f1", 0),
-                    "micro_precision": metrics.micro.get("precision", 0),
-                    "micro_recall": metrics.micro.get("recall", 0),
-                    "macro_f1": metrics.macro.get("f1", 0),
-                    "macro_precision": metrics.macro.get("precision", 0),
-                    "macro_recall": metrics.macro.get("recall", 0),
-                    "weighted_f1": metrics.weighted.get("f1", 0),
-                    "weighted_precision": metrics.weighted.get("precision", 0),
-                    "weighted_recall": metrics.weighted.get("recall", 0),
-                },
-                f,
-                indent=2,
-            )
+            json.dump(summary, f, indent=2)
 
         # Save detailed analysis with chunks (NEW!)
         if detailed_results:

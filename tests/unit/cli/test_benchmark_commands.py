@@ -250,6 +250,21 @@ def test_benchmark_group_exposes_llm_subcommand():
     assert "llm" in result.stdout
 
 
+def test_benchmark_extraction_run_help_exposes_ontology_metric_options():
+    runner = CliRunner()
+
+    result = runner.invoke(
+        cli_app,
+        ["benchmark", "extraction", "run", "--help"],
+        env={"COLUMNS": "200"},
+    )
+
+    assert result.exit_code == 0
+    assert "--ontology-aware-metrics" in result.stdout
+    assert "--ontology-semantic-floor" in result.stdout
+    assert "--ontology-similarity-formula" in result.stdout
+
+
 def test_benchmark_llm_command_shows_friendly_error_for_missing_file(tmp_path):
     runner = CliRunner()
     missing_file = tmp_path / "does-not-exist.json"

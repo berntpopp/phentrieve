@@ -24,6 +24,10 @@ from phentrieve.benchmark.extraction_benchmark import (
     ExtractionConfig,
 )
 from phentrieve.benchmark.llm_cli import run_llm_benchmark_cli
+from phentrieve.evaluation.extraction_metrics import (
+    OntologyAwareCorpusMetrics,
+    OntologyMetricBlock,
+)
 from phentrieve.evaluation.runner import compare_models, run_evaluation
 from phentrieve.evaluation.statistics import (
     compare_models_with_significance,
@@ -1305,3 +1309,146 @@ def test_extraction_benchmark_uses_effective_config_overrides(tmp_path, monkeypa
     assert saved_payload["metadata"]["dataset"]["dataset_name"] == (
         "phenobert_GeneReviews"
     )
+
+
+def test_extraction_benchmark_saves_ontology_metrics_when_enabled(
+    tmp_path, monkeypatch
+):
+    benchmark = ExtractionBenchmark(
+        model_name="sentence-transformers/LaBSE",
+        config=ExtractionConfig(
+            model_name="sentence-transformers/LaBSE",
+            dataset="all",
+            averaging="micro",
+            bootstrap_ci=False,
+            ontology_aware_metrics=True,
+        ),
+    )
+
+    def _fake_load_benchmark_data(test_path, dataset):
+        return {
+            "metadata": {
+                "dataset_name": f"phenobert_{dataset}",
+                "source": "phenobert",
+                "total_documents": 1,
+                "total_annotations": 1,
+            },
+            "documents": [
+                {
+                    "id": "doc-1",
+                    "text": "Clinical text",
+                    "gold_hpo_terms": [{"id": "HP:0001250", "assertion": "PRESENT"}],
+                    "source_dataset": dataset,
+                }
+            ],
+        }
+
+    def _metric_block(value):
+        metric = {"precision": value, "recall": value, "f1": value}
+        return OntologyMetricBlock(
+            micro=dict(metric),
+            macro=dict(metric),
+            weighted=dict(metric),
+        )
+
+    def _fake_calculate_ontology_aware_metrics(self, results, config=None):
+        return OntologyAwareCorpusMetrics(
+            strict=_metric_block(0.0),
+            soft=_metric_block(0.75),
+            partial=_metric_block(0.5),
+            match_breakdown={},
+            document_metrics=[],
+        )
+
+    monkeypatch.setattr(
+        "phentrieve.benchmark.extraction_benchmark.load_benchmark_data",
+        _fake_load_benchmark_data,
+    )
+    monkeypatch.setattr(benchmark.extractor, "extract", lambda text: [])
+    monkeypatch.setattr(
+        "phentrieve.evaluation.extraction_metrics.CorpusExtractionMetrics."
+        "calculate_ontology_aware_metrics",
+        _fake_calculate_ontology_aware_metrics,
+    )
+
+    output_dir = tmp_path / "results"
+    benchmark.run_benchmark(test_file=tmp_path, output_dir=output_dir)
+
+    saved_payload = json.loads(
+        (output_dir / "extraction_results.json").read_text(encoding="utf-8")
+    )
+    summary = json.loads(
+        (output_dir / "extraction_summary.json").read_text(encoding="utf-8")
+    )
+
+    assert saved_payload["metadata"]["config"]["ontology_aware_metrics"] is True
+    assert "ontology_metrics" in saved_payload["corpus_metrics"]
+    assert (
+        saved_payload["corpus_metrics"]["ontology_metrics"]["soft"]["micro"]["f1"]
+        == 0.75
+    )
+    assert summary["soft_micro_f1"] == 0.75
+    assert summary["partial_micro_f1"] == 0.5
+
+
+def test_extraction_benchmark_rejects_invalid_ontology_formula_before_extraction(
+    tmp_path, monkeypatch
+):
+    benchmark = ExtractionBenchmark(
+        model_name="sentence-transformers/LaBSE",
+        config=ExtractionConfig(
+            model_name="sentence-transformers/LaBSE",
+            dataset="all",
+            averaging="micro",
+            bootstrap_ci=False,
+            ontology_aware_metrics=True,
+            ontology_similarity_formula="invalid_formula",
+        ),
+    )
+
+    def _fail_load_benchmark_data(test_path, dataset):
+        raise AssertionError("benchmark data should not be loaded")
+
+    def _fail_extract(text):
+        raise AssertionError("extractor should not be called")
+
+    monkeypatch.setattr(
+        "phentrieve.benchmark.extraction_benchmark.load_benchmark_data",
+        _fail_load_benchmark_data,
+    )
+    monkeypatch.setattr(benchmark.extractor, "extract", _fail_extract)
+
+    with pytest.raises(ValueError, match="Invalid ontology similarity formula"):
+        benchmark.run_benchmark(test_file=tmp_path, output_dir=tmp_path / "results")
+
+
+@pytest.mark.parametrize("semantic_floor", [-0.1, 1.1])
+def test_extraction_benchmark_rejects_invalid_ontology_floor_before_extraction(
+    tmp_path, monkeypatch, semantic_floor
+):
+    benchmark = ExtractionBenchmark(
+        model_name="sentence-transformers/LaBSE",
+        config=ExtractionConfig(
+            model_name="sentence-transformers/LaBSE",
+            dataset="all",
+            averaging="micro",
+            bootstrap_ci=False,
+            ontology_aware_metrics=True,
+            ontology_semantic_floor=semantic_floor,
+        ),
+    )
+
+    def _fail_load_benchmark_data(test_path, dataset):
+        raise AssertionError("benchmark data should not be loaded")
+
+    def _fail_extract(text):
+        raise AssertionError("extractor should not be called")
+
+    monkeypatch.setattr(
+        "phentrieve.benchmark.extraction_benchmark.load_benchmark_data",
+        _fail_load_benchmark_data,
+    )
+    monkeypatch.setattr(benchmark.extractor, "extract", _fail_extract)
+
+    with pytest.raises(ValueError, match="ontology_semantic_floor"):
+        benchmark.run_benchmark(test_file=tmp_path, output_dir=tmp_path / "results")
