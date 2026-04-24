@@ -8,6 +8,7 @@ from networkx.algorithms.matching import max_weight_matching
 
 from phentrieve.evaluation.extraction_metrics import ExtractionResult
 from phentrieve.evaluation.ontology_credit import (
+    MatchKind,
     OntologyCreditConfig,
     PairCredit,
     calculate_pair_credit,
@@ -55,7 +56,7 @@ def calculate_document_ontology_metrics(
         MatchedPair(
             predicted=annotation,
             gold=annotation,
-            credit=calculate_pair_credit(annotation[0], annotation[0], config),
+            credit=_exact_pair_credit(annotation[0]),
         )
         for annotation in predictions
         if annotation in exact_matches
@@ -71,17 +72,18 @@ def calculate_document_ontology_metrics(
     matches.extend(
         _match_remaining_by_assertion(unmatched_predictions, unmatched_gold, config)
     )
+    matches = sorted(matches, key=_matched_pair_sort_key)
 
     matched_predictions = {match.predicted for match in matches}
     matched_gold = {match.gold for match in matches}
-    final_unmatched_predictions = [
+    final_unmatched_predictions = sorted(
         annotation
         for annotation in predictions
         if annotation not in matched_predictions
-    ]
-    final_unmatched_gold = [
+    )
+    final_unmatched_gold = sorted(
         annotation for annotation in gold if annotation not in matched_gold
-    ]
+    )
 
     prediction_count = len(predictions)
     gold_count = len(gold)
@@ -116,7 +118,18 @@ def calculate_document_ontology_metrics(
 
 
 def _unique_annotations(annotations: list[Annotation]) -> list[Annotation]:
-    return list(dict.fromkeys(annotations))
+    return sorted(dict.fromkeys(annotations))
+
+
+def _exact_pair_credit(hpo_id: str) -> PairCredit:
+    return PairCredit(
+        predicted_id=hpo_id,
+        gold_id=hpo_id,
+        credit=1.0,
+        match_kind=MatchKind.EXACT,
+        semantic_similarity=1.0,
+        distance=0,
+    )
 
 
 def _match_remaining_by_assertion(
@@ -128,7 +141,7 @@ def _match_remaining_by_assertion(
     gold_by_assertion = _group_by_assertion(gold)
     matches: list[MatchedPair] = []
 
-    for assertion in predictions_by_assertion.keys() & gold_by_assertion.keys():
+    for assertion in sorted(predictions_by_assertion.keys() & gold_by_assertion.keys()):
         matches.extend(
             _maximum_weight_matches(
                 predictions_by_assertion[assertion],
@@ -152,7 +165,7 @@ def _maximum_weight_matches(
         for gold_index, gold_annotation in enumerate(gold):
             gold_node = ("gold", gold_index)
             graph.add_node(gold_node, bipartite=1)
-            credit = calculate_pair_credit(prediction[0], gold_annotation[0], config)
+            credit = _pair_credit(prediction[0], gold_annotation[0], config)
             if credit.credit <= 0.0:
                 continue
             graph.add_edge(
@@ -175,7 +188,11 @@ def _maximum_weight_matches(
             )
         )
 
-    return matched_pairs
+    return sorted(matched_pairs, key=_matched_pair_sort_key)
+
+
+def _matched_pair_sort_key(match: MatchedPair) -> tuple[Annotation, Annotation]:
+    return match.predicted, match.gold
 
 
 def _group_by_assertion(annotations: list[Annotation]) -> dict[str, list[Annotation]]:
@@ -221,7 +238,7 @@ def _best_credit(
         return 0.0
     return _clean_float(
         max(
-            calculate_pair_credit(source[0], candidate[0], config).credit
+            _pair_credit(source[0], candidate[0], config).credit
             for candidate in candidates
         )
     )
@@ -236,10 +253,20 @@ def _best_recall_credit(
         return 0.0
     return _clean_float(
         max(
-            calculate_pair_credit(prediction[0], gold[0], config).credit
+            _pair_credit(prediction[0], gold[0], config).credit
             for prediction in prediction_candidates
         )
     )
+
+
+def _pair_credit(
+    predicted_id: str,
+    gold_id: str,
+    config: OntologyCreditConfig | None,
+) -> PairCredit:
+    if predicted_id == gold_id:
+        return _exact_pair_credit(predicted_id)
+    return calculate_pair_credit(predicted_id, gold_id, config)
 
 
 def _mean(values: list[float]) -> float:
