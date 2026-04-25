@@ -217,16 +217,16 @@ class TestBundleManifest:
         assert loaded.hpo_version == manifest.hpo_version
         assert loaded.active_terms == manifest.active_terms
 
-    def test_get_bundle_filename_raises_without_model(self):
-        """Test bundle filename raises ValueError when model is missing."""
+    def test_get_bundle_filename_without_model_uses_minimal_slug(self):
+        """Test minimal bundle filename generation without model metadata."""
         # Arrange
         manifest = BundleManifest(hpo_version="v2025-03-03")
 
-        # Act & Assert
-        with pytest.raises(ValueError) as exc_info:
-            manifest.get_bundle_filename()
+        # Act
+        filename = manifest.get_bundle_filename()
 
-        assert "requires a model" in str(exc_info.value)
+        # Assert
+        assert filename == "phentrieve-data-v2025-03-03-minimal.tar.gz"
 
     def test_get_bundle_filename_with_model(self):
         """Test bundle filename generation with model."""

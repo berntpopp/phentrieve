@@ -214,11 +214,12 @@ class BundleManifest:
         Format: phentrieve-data-{hpo_version}-{model_slug}[-multivec].tar.gz
 
         Examples:
+            - phentrieve-data-v2025-03-03-minimal.tar.gz (database only)
             - phentrieve-data-v2025-03-03-biolord.tar.gz (single-vector)
             - phentrieve-data-v2025-03-03-biolord-multivec.tar.gz (multi-vector)
         """
         if self.model is None:
-            raise ValueError("Bundle requires a model to generate filename")
+            return f"phentrieve-data-{self.hpo_version}-minimal.tar.gz"
         suffix = "-multivec" if self.model.multi_vector else ""
         return f"phentrieve-data-{self.hpo_version}-{self.model.slug}{suffix}.tar.gz"
 

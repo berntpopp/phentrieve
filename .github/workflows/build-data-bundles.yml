@@ -114,6 +114,7 @@ jobs:
           bundle_path = create_bundle(
               output_dir=Path('dist/bundles'),
               model_name=None,  # Minimal bundle - no index
+              data_dir=Path('data'),
           )
           print(f'Created bundle: {bundle_path}')
           "
@@ -189,6 +190,7 @@ jobs:
           bundle_path = create_bundle(
               output_dir=Path('dist/bundles'),
               model_name='${{ matrix.model }}',
+              data_dir=Path('data'),
           )
           print(bundle_path)
           ")

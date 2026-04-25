@@ -73,6 +73,35 @@ class TestCreateBundle:
 
         assert "ChromaDB index not found" in str(exc_info.value)
 
+    def test_creates_minimal_bundle_from_explicit_data_dir(self, tmp_path):
+        """Test minimal bundle creation uses the provided data directory."""
+        # Arrange
+        output_dir = tmp_path / "output"
+        data_dir = tmp_path / "data"
+        data_dir.mkdir()
+        (data_dir / "hpo_data.db").write_text("mock database")
+
+        def populate_manifest(manifest, _db_path):
+            manifest.hpo_version = "v2025-03-03"
+            manifest.active_terms = 17
+            manifest.total_terms = 17
+
+        # Act
+        with patch(
+            "phentrieve.data_processing.bundle_packager._populate_manifest_from_db",
+            side_effect=populate_manifest,
+        ):
+            bundle_path = create_bundle(
+                output_dir=output_dir,
+                model_name=None,
+                data_dir=data_dir,
+            )
+
+        # Assert
+        assert bundle_path.name == "phentrieve-data-v2025-03-03-minimal.tar.gz"
+        with tarfile.open(bundle_path, "r:gz") as tar:
+            assert {"hpo_data.db", "manifest.json"} <= set(tar.getnames())
+
 
 # =============================================================================
 # Tests for extract_bundle()

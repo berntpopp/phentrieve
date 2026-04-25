@@ -16,6 +16,18 @@ together:
 
 ---
 
+## [0.18.2] — 2026-04-25
+
+**Component versions**: phentrieve `0.18.2`, phentrieve-api `0.9.3`, phentrieve-frontend `0.8.3`
+
+Patch release for release-bundle workflow stabilization.
+
+### Fixed
+
+- fixed data bundle creation for minimal database-only bundles
+- aligned the release data bundle workflow with the repository data directory
+  used by `phentrieve data prepare`
+
 ## [0.18.1] — 2026-04-25
 
 **Component versions**: phentrieve `0.18.1`, phentrieve-api `0.9.2`, phentrieve-frontend `0.8.2`
