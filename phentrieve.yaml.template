@@ -127,6 +127,30 @@ multi_vector:
   # custom_formula: null
 
 # =============================================================================
+# HPO EXTRACTION THRESHOLDS
+# =============================================================================
+# Read by phentrieve/config.py to populate DEFAULT_CHUNK_RETRIEVAL_THRESHOLD,
+# DEFAULT_MIN_CONFIDENCE_AGGREGATED, DEFAULT_CHUNK_CONFIDENCE, and
+# DEFAULT_ASSERTION_PREFERENCE. Key names match the existing config.py reads
+# exactly - DO NOT rename.
+
+# extraction:
+#   chunk_threshold: 0.7
+#   min_confidence: 0.75
+#   chunk_confidence: 0.2
+#   assertion_preference: dependency
+
+# =============================================================================
+# OUTPUT FORMAT DEFAULTS
+# =============================================================================
+# Read by phentrieve/config.py to populate DEFAULT_OUTPUT_FORMAT_QUERY and
+# DEFAULT_OUTPUT_FORMAT_PROCESS.
+
+# output:
+#   format_query: text
+#   format_process: json_lines
+
+# =============================================================================
 # EXTRACTION BENCHMARK CONFIGURATION
 # =============================================================================
 
