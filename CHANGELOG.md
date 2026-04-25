@@ -16,6 +16,25 @@ together:
 
 ---
 
+## [0.18.1] — 2026-04-25
+
+**Component versions**: phentrieve `0.18.1`, phentrieve-api `0.9.2`, phentrieve-frontend `0.8.2`
+
+Patch release for the deprecated second-stage ranking removal.
+
+### Changed
+
+- removed the obsolete second-stage ranking implementation, public options,
+  stale benchmark artifacts, and related documentation/frontend copy
+- added a tracked-source guard test for removed ranking terminology
+
+### Benchmarks
+
+- `gemini-3.1-flash-lite-preview` full 10-doc GeneReviews run:
+  - micro precision `0.820`
+  - micro recall `0.806`
+  - micro F1 `0.813`
+
 ## [0.15.0] — 2026-04-17
 
 **Component versions**: phentrieve `0.15.0`, phentrieve-api `0.8.2`, phentrieve-frontend `0.7.3`
