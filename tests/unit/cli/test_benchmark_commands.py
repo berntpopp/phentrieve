@@ -14,6 +14,7 @@ Following best practices:
 
 import pytest
 import typer
+from click.utils import strip_ansi
 from typer.testing import CliRunner
 
 from phentrieve.cli import app as cli_app
@@ -260,10 +261,12 @@ def test_benchmark_extraction_run_help_exposes_ontology_metric_options():
         color=False,
     )
 
+    help_text = strip_ansi(result.stdout)
+
     assert result.exit_code == 0
-    assert "--ontology-aware-metrics" in result.stdout
-    assert "--ontology-semantic-floor" in result.stdout
-    assert "--ontology-similarity-formula" in result.stdout
+    assert "--ontology-aware-metrics" in help_text
+    assert "--ontology-semantic-floor" in help_text
+    assert "--ontology-similarity-formula" in help_text
 
 
 def test_benchmark_llm_command_shows_friendly_error_for_missing_file(tmp_path):
