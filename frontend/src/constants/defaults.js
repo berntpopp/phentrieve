@@ -1,11 +1,18 @@
 /**
  * Default values for query parameters and thresholds.
  * Single source of truth — used by QueryInterface and API calls.
+ *
+ * SURFACE PARITY: these constants must match the values in
+ * phentrieve/config.py. Cross-language drift is caught by
+ * tests/unit/profiles/test_frontend_constant_parity.py.
+ *
+ * Intentional UI-specific divergence: DEFAULT_NUM_RESULTS_PER_CHUNK = 3
+ * (backend default is 10; frontend uses a more compact display).
  */
 
 // Query defaults
 export const DEFAULT_NUM_RESULTS = 10;
-export const DEFAULT_SIMILARITY_THRESHOLD = 0.5;
+export const DEFAULT_SIMILARITY_THRESHOLD = 0.3;
 export const DEFAULT_SPLIT_THRESHOLD = 0.5;
 
 // Chunking defaults
