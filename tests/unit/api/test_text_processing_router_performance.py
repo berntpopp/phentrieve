@@ -177,7 +177,7 @@ class TestTimeoutHandling:
             has_suggestion = (
                 "reduce text" in detail
                 or "simple" in detail
-                or "disable reranker" in detail
+                or "lower num_results_per_chunk" in detail
             )
             assert has_suggestion, f"No suggestions in error message: {detail}"
 

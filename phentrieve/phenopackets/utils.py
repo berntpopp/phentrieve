@@ -130,7 +130,6 @@ def format_as_phenopacket_v2(
     chunk_results: list[dict[str, Any]] | None = None,
     phentrieve_version: str | None = None,
     embedding_model: str | None = None,
-    reranker_model: str | None = None,
     hpo_version: str | None = None,
     input_text: str | None = None,
 ) -> str:
@@ -149,7 +148,6 @@ def format_as_phenopacket_v2(
             When provided, this is the preferred data source.
         phentrieve_version: Version of Phentrieve used (e.g., "0.3.0"). If None, retrieved from package.
         embedding_model: Name of embedding model used (e.g., "BAAI/bge-m3").
-        reranker_model: Name of reranker model used (e.g., "BAAI/bge-reranker-v2-m3").
         hpo_version: Version of HPO used (e.g., "v2025-03-03"). If None, retrieved from database.
         input_text: Original input text/query for provenance tracking in metadata.
 
@@ -175,7 +173,6 @@ def format_as_phenopacket_v2(
             chunk_results,
             phentrieve_version=phentrieve_version,
             embedding_model=embedding_model,
-            reranker_model=reranker_model,
             hpo_version=hpo_version,
             input_text=input_text,
         )
@@ -184,7 +181,6 @@ def format_as_phenopacket_v2(
             aggregated_results,
             phentrieve_version=phentrieve_version,
             embedding_model=embedding_model,
-            reranker_model=reranker_model,
             hpo_version=hpo_version,
             input_text=input_text,
         )
@@ -196,7 +192,6 @@ def format_as_phenopacket_v2(
             [],
             phentrieve_version=phentrieve_version,
             embedding_model=embedding_model,
-            reranker_model=reranker_model,
             hpo_version=hpo_version,
             input_text=input_text,
         )
@@ -208,7 +203,6 @@ def export_phenopacket_bundle(
     chunk_results: list[dict[str, Any]] | None = None,
     phentrieve_version: str | None = None,
     embedding_model: str | None = None,
-    reranker_model: str | None = None,
     hpo_version: str | None = None,
     input_text: str | None = None,
     include_annotation_sidecar: bool = False,
@@ -232,7 +226,6 @@ def export_phenopacket_bundle(
         chunk_results=chunk_results,
         phentrieve_version=resolved_phentrieve_version,
         embedding_model=embedding_model,
-        reranker_model=reranker_model,
         hpo_version=resolved_hpo_version,
         input_text=input_text,
     )
@@ -275,7 +268,6 @@ def _format_from_chunk_results(
     chunk_results: list[dict[str, Any]],
     phentrieve_version: str = "unknown",
     embedding_model: str | None = None,
-    reranker_model: str | None = None,
     hpo_version: str = "unknown",
     input_text: str | None = None,
 ) -> str:
@@ -290,7 +282,6 @@ def _format_from_chunk_results(
             'chunk_text', and 'matches' (list of HPO term matches).
         phentrieve_version: Phentrieve version string.
         embedding_model: Name of embedding model used.
-        reranker_model: Name of reranker model used.
         hpo_version: HPO version string.
         input_text: Original input text for metadata.
 
@@ -323,7 +314,6 @@ def _format_from_chunk_results(
         phenotypic_features,
         phentrieve_version=phentrieve_version,
         embedding_model=embedding_model,
-        reranker_model=reranker_model,
         hpo_version=hpo_version,
         input_text=input_text,
     )
@@ -333,7 +323,6 @@ def _format_from_aggregated_results(
     aggregated_results: list[dict[str, Any]],
     phentrieve_version: str = "unknown",
     embedding_model: str | None = None,
-    reranker_model: str | None = None,
     hpo_version: str = "unknown",
     input_text: str | None = None,
 ) -> str:
@@ -341,10 +330,9 @@ def _format_from_aggregated_results(
 
     Args:
         aggregated_results: A list of dictionaries representing aggregated HPO
-            term results with 'id', 'name', 'confidence', and 'rank' fields.
+        term results with 'id', 'name', 'confidence', and 'rank' fields.
         phentrieve_version: Phentrieve version string.
         embedding_model: Name of embedding model used.
-        reranker_model: Name of reranker model used.
         hpo_version: HPO version string.
         input_text: Original input text/query for metadata.
 
@@ -380,7 +368,6 @@ def _format_from_aggregated_results(
         phenotypic_features,
         phentrieve_version=phentrieve_version,
         embedding_model=embedding_model,
-        reranker_model=reranker_model,
         hpo_version=hpo_version,
         input_text=input_text,
     )
@@ -455,7 +442,6 @@ def _create_phenopacket_json(
     phenotypic_features: list[PhenotypicFeature],
     phentrieve_version: str = "unknown",
     embedding_model: str | None = None,
-    reranker_model: str | None = None,
     hpo_version: str = "unknown",
     input_text: str | None = None,
 ) -> str:
@@ -466,7 +452,6 @@ def _create_phenopacket_json(
         phenotypic_features: List of PhenotypicFeature objects.
         phentrieve_version: Phentrieve version string.
         embedding_model: Name of embedding model used.
-        reranker_model: Name of reranker model used.
         hpo_version: HPO version string.
         input_text: Original input text for provenance tracking.
 
@@ -484,13 +469,6 @@ def _create_phenopacket_json(
             ExternalReference(
                 id="phentrieve:embedding_model",
                 description=embedding_model,
-            )
-        )
-    if reranker_model:
-        external_references.append(
-            ExternalReference(
-                id="phentrieve:reranker_model",
-                description=reranker_model,
             )
         )
     if input_text:

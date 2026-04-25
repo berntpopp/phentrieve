@@ -251,8 +251,8 @@ class TestFormatResults:
         # Should use default distance of 0.0 (similarity = 1.0)
         assert formatted["results"][0]["similarity"] == 1.0
 
-    def test_sorts_non_reranked_results_by_similarity(self):
-        """Test sorts non-reranked results by bi-encoder similarity."""
+    def test_sorts_dense_results_by_similarity(self):
+        """Test sorts dense results by bi-encoder similarity."""
         # Arrange
         results = {
             "ids": [["HP:0001", "HP:0002", "HP:0003"]],

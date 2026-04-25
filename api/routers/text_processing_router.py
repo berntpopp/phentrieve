@@ -440,7 +440,6 @@ def _adapt_shared_service_response_to_api(
                 definition=term.get("definition"),
                 synonyms=term.get("synonyms"),
                 score=term.get("score"),
-                reranker_score=term.get("reranker_score"),
             )
         )
 

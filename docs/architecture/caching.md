@@ -70,6 +70,6 @@ When adding a new cache:
 
 ## History
 
-- **Pre-PR #191**: `api/dependencies.py` used **unbounded** module-level dicts (`LOADED_SBERT_MODELS`, `LOADED_RETRIEVERS`, `LOADED_CROSS_ENCODERS`). Cross-encoder has since been removed entirely with the reranker feature.
+- **Pre-PR #191**: `api/dependencies.py` used **unbounded** module-level dicts for model and retriever caches.
 - **PR #191 (2026-04-10)**: Model caches converted to `TTLCache`, `_cache_lock` introduced, `cleanup_model_caches()` wired into lifespan shutdown.
 - **PR #191 follow-up**: `MODEL_LOADING_STATUS` and `MODEL_LOAD_LOCKS` also converted to `TTLCache` to close the unbounded-tracking-dict gap.

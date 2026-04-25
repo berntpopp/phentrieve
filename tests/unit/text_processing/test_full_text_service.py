@@ -378,7 +378,6 @@ def test_run_llm_backend_uses_highest_scoring_evidence_chunk_for_top_chunk_id(mo
                 assertion="present",
                 confidence=None,
                 score=None,
-                reranker_score=None,
                 evidence_records=[
                     {
                         "phrase": "recurrent seizures",
@@ -891,7 +890,6 @@ def test_adapt_standard_response_preserves_optional_term_fields():
                         }
                     ],
                     "score": 0.95,
-                    "reranker_score": 0.88,
                     "definition": "A seizure.",
                     "synonyms": ["convulsion"],
                 }
@@ -916,7 +914,6 @@ def test_adapt_standard_response_preserves_optional_term_fields():
     term = result["aggregated_hpo_terms"][0]
     assert term["definition"] == "A seizure."
     assert term["synonyms"] == ["convulsion"]
-    assert term["reranker_score"] == 0.88
     assert term["source_chunk_ids"] == [1]
     assert term["top_evidence_chunk_id"] == 1
     assert term["text_attributions"][0]["chunk_id"] == 1

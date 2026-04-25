@@ -4,9 +4,9 @@ Tests for the API-specific retrieval orchestration:
 - execute_hpo_retrieval_for_api: Main API query processing function
 
 Following best practices:
-- Mock external dependencies (retriever, cross-encoder, assertion detector)
+- Mock external dependencies (retriever, assertion detector)
 - Test async function behavior
-- Comprehensive path coverage (empty query, no results, reranking)
+- Comprehensive path coverage (empty query, no results, filtering)
 - Clear Arrange-Act-Assert structure
 """
 
@@ -71,8 +71,8 @@ class TestExecuteHpoRetrievalForApi:
         assert result["results"] == []
 
     @pytest.mark.asyncio
-    async def test_successful_retrieval_without_reranking(self, mocker):
-        """Test successful retrieval without reranking."""
+    async def test_successful_dense_retrieval(self, mocker):
+        """Test successful dense retrieval."""
         # Arrange
         mock_retriever = mocker.Mock()
         query_text = "Patient has fever and cough"

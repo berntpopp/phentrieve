@@ -64,24 +64,14 @@ Focused LLM CLI stabilization and provider-quality release.
 **Component versions**: phentrieve `0.13.0`, phentrieve-api `0.8.0`, phentrieve-frontend `0.7.0`
 
 A 90-commit refactor-and-perf release that closes the 2026-04-09 code quality
-review, removes the cross-encoder reranker feature entirely, and speeds up the
-full CI pipeline by ~17% on warm caches.
+review, removes a deprecated second-stage ranking layer, and speeds up the full
+CI pipeline by ~17% on warm caches.
 
 ### ⚠ BREAKING CHANGES
 
-- **Cross-encoder reranker removed** across every layer (CLI, API, frontend,
-  config, tests, docs). The reranker was unvalidated against benchmark data
-  and added significant complexity without measured accuracy gains. Affected
-  surfaces:
-  - CLI: `--rerank`, `--reranker-model`, `--translation-dir`, `--no-monolingual-reranking`
-    flags removed from `phentrieve query` and `phentrieve text process`
-  - Python API: `phentrieve.retrieval.reranker` module deleted; `ReRankedResult`
-    type gone; `reranker_mode` parameter removed from all public functions
-  - REST API: reranker query params and response fields removed from
-    `/api/v1/query/*` and `/api/v1/text/*` endpoints
-  - Frontend: reranker toggle and options removed from `AdvancedOptionsPanel`
-  - Config: `DEFAULT_RERANKER_MODEL`, `DEFAULT_RERANKER_MODE`, reranker YAML
-    section removed from `phentrieve.yaml` template
+- **Deprecated second-stage ranking removed** across every layer (CLI, API,
+  frontend, config, tests, docs). It was unvalidated against benchmark data and
+  added significant complexity without measured accuracy gains.
 - **`sys.path.append`** in `api/main.py` removed. The API must now be installed
   via `pip install -e .` / `uv sync` before running `uvicorn api.main:app` or
   the module import will fail. Docker images already did this correctly.
@@ -103,8 +93,8 @@ full CI pipeline by ~17% on warm caches.
 ### ♻ Refactoring
 
 - **Backend query orchestration**: `phentrieve/retrieval/query_orchestrator.py`
-  reduced from 1057 → 715 LOC (−32%). Extracted `execute_single_vector_pipeline()`
-  to eliminate 3× duplicated retrieve→convert→rerank→format sequence.
+  reduced from 1057 → 715 LOC (−32%). Extracted shared retrieval and formatting
+  flow.
   Extracted `InteractiveState` to its own module with proper instance attributes.
   Extracted `convert_multi_vector_to_chromadb_format()` to `phentrieve/retrieval/utils.py`.
 - **HPO extraction orchestrator**: `phentrieve/text_processing/hpo_extraction_orchestrator.py`
@@ -129,9 +119,9 @@ full CI pipeline by ~17% on warm caches.
   shutdown — cancels in-flight loads via `asyncio.shield` + `gather` before
   clearing.
 - **SBERT loader inlined**: `_load_model_with_status_tracking()` was a 2-caller
-  abstraction; after the cross-encoder path was removed the only remaining
-  call site was inlined into `_load_sbert_in_background()` and the
-  `is_sbert` dead parameter dropped.
+  abstraction; after model-loading simplification the only remaining call site
+  was inlined into `_load_sbert_in_background()` and the `is_sbert` dead
+  parameter dropped.
 - **Frontend mega-components decomposed**:
   - `QueryInterface.vue` 1483 → 801 LOC (−46%)
   - `ResultsDisplay.vue` 1079 → 634 LOC (−41%)
@@ -146,9 +136,9 @@ full CI pipeline by ~17% on warm caches.
 - **Hardcoded constants**: thresholds extracted to `frontend/src/constants/defaults.js`,
   URLs to `frontend/src/constants/urls.js`. 7+ `document.querySelector` calls
   replaced with `data-tutorial-step` attributes and reactive refs.
-- **Dead code removed**: `phentrieve/visualization/` module deleted (orphaned
-  after reranker removal); `useDisclaimer.js` composable deleted; 6 unused
-  chunker class imports removed from `pipeline.py`.
+- **Dead code removed**: `phentrieve/visualization/` module deleted;
+  `useDisclaimer.js` composable deleted; 6 unused chunker class imports removed
+  from `pipeline.py`.
 
 ### ⚡ Performance
 
@@ -233,7 +223,7 @@ full CI pipeline by ~17% on warm caches.
 - Phase 2 plan (`.planning/completed/2026-04-10-code-quality-phase-2.md`)
   and CI speedup plan (`.planning/active/CI-SPEEDUP-PLAN-2026-04-10.md`)
   saved for future reference.
-- Stale reranker references removed from docs and config.
+- Stale deprecated-ranking references removed from docs and config.
 - `AGENTS.md` notes the `pytest -n 0` escape hatch for single-threaded
   debugging when the default `-n auto` causes issues.
 

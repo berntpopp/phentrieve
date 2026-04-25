@@ -10,7 +10,6 @@ from phentrieve.config import (
     DEFAULT_MIN_CONFIDENCE_AGGREGATED,
     DEFAULT_MIN_SEGMENT_LENGTH_WORDS,
     DEFAULT_MODEL,
-    DEFAULT_RERANKER_MODEL,
     DEFAULT_SPLITTING_THRESHOLD,
     DEFAULT_STEP_SIZE_TOKENS,
     DEFAULT_WINDOW_SIZE_TOKENS,
@@ -76,7 +75,7 @@ class TextProcessingRequest(BaseModel):
         description=f"Embedding model for HPO term retrieval (default: '{DEFAULT_MODEL}').",
     )
 
-    # Retrieval & Reranking Parameters
+    # Retrieval Parameters
     chunk_retrieval_threshold: float | None = Field(
         default=DEFAULT_CHUNK_RETRIEVAL_THRESHOLD,
         ge=0.0,
@@ -86,23 +85,6 @@ class TextProcessingRequest(BaseModel):
     num_results_per_chunk: int | None = Field(
         default=10, ge=1, description="Max HPO terms to consider from each chunk."
     )
-    enable_reranker: bool | None = Field(
-        default=False,
-        deprecated=True,
-        description="Deprecated: reranking is not currently supported by the text-processing endpoint and this parameter is ignored.",
-    )
-    reranker_model_name: str | None = Field(
-        default=DEFAULT_RERANKER_MODEL,
-        deprecated=True,
-        description="Deprecated: reranking is not currently supported by the text-processing endpoint and this parameter is ignored.",
-    )
-    rerank_count_per_chunk: int | None = Field(
-        default=50,
-        ge=1,
-        deprecated=True,
-        description="Deprecated: reranking is not currently supported by the text-processing endpoint and this parameter is ignored.",
-    )
-
     # Assertion Detection
     no_assertion_detection: bool | None = Field(
         default=False, description="Disable assertion detection."
@@ -218,9 +200,6 @@ class AggregatedHPOTermAPI(BaseModel):
     )
     # Keeping these for backward compatibility
     score: float | None = None  # Max bi-encoder score from evidence
-    reranker_score: float | None = (
-        None  # Max reranker score from evidence (if applicable)
-    )
 
 
 class TextProcessingResponseAPI(BaseModel):

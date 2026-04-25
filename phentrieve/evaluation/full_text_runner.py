@@ -9,8 +9,6 @@ and semantic metrics.
 import logging
 from typing import Any
 
-from sentence_transformers import CrossEncoder
-
 from phentrieve.evaluation.metrics import SimilarityFormula
 from phentrieve.evaluation.semantic_metrics import (
     calculate_assertion_accuracy,
@@ -31,12 +29,9 @@ def evaluate_single_document_extraction(
     # --- Phentrieve Components (pre-initialized) ---
     pipeline: TextProcessingPipeline,
     retriever: DenseRetriever,
-    cross_encoder: CrossEncoder | None = None,
     # --- Extraction Configs (passed to orchestrate_hpo_extraction) ---
     similarity_threshold_per_chunk: float = 0.3,
     num_results_per_chunk: int = 10,
-    enable_reranker: bool = False,
-    rerank_count_per_chunk: int = 3,
     min_confidence_for_aggregated: float = 0.0,
     top_term_per_chunk_for_aggregated: bool = False,
     # --- Metrics Configs ---
@@ -59,11 +54,8 @@ def evaluate_single_document_extraction(
         language: Language of the document
         pipeline: Initialized text processing pipeline
         retriever: Initialized dense retriever for HPO terms
-        cross_encoder: Optional cross-encoder for re-ranking
         similarity_threshold_per_chunk: Min similarity for retrieval
         num_results_per_chunk: Number of HPO terms to retrieve per chunk
-        enable_reranker: Whether to use cross-encoder re-ranking
-        rerank_count_per_chunk: Number of terms to re-rank per chunk
         min_confidence_for_aggregated: Min confidence for final results
         top_term_per_chunk_for_aggregated: Whether to keep only top term per chunk
         metrics_target_assertion_status: Target status for metrics
@@ -116,18 +108,12 @@ def evaluate_single_document_extraction(
 
     # Use HPO extraction orchestrator
     try:
-        # Only use cross encoder if enabled
-        cross_encoder_to_use = None
-        if enable_reranker:
-            cross_encoder_to_use = cross_encoder
-
         # Call orchestrate_hpo_extraction
         aggregated_results, chunk_results = orchestrate_hpo_extraction(
             text_chunks=text_chunks_for_orchestrator,
             retriever=retriever,
             num_results_per_chunk=num_results_per_chunk,
             chunk_retrieval_threshold=similarity_threshold_per_chunk,
-            cross_encoder=cross_encoder_to_use,
             language=language,
             top_term_per_chunk=top_term_per_chunk_for_aggregated,
             min_confidence_for_aggregated=min_confidence_for_aggregated,

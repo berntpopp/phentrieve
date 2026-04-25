@@ -220,7 +220,7 @@ def test_paired_bootstrap_reproducibility():
 
 @pytest.fixture
 def mock_benchmark_results():
-    """Mock benchmark results with all metric types (dense only - reranking removed)."""
+    """Mock benchmark results with all metric types."""
     return {
         "mrr_dense": [0.5, 0.6, 0.7],
         "hit_rate_dense@1": [0.3, 0.4, 0.5],
@@ -256,7 +256,7 @@ def test_calculate_bootstrap_ci_all_metrics(mock_benchmark_results):
         mock_benchmark_results, k_values=(1, 3, 5, 10), n_bootstrap=100
     )
 
-    # Check MRR metric (dense only - reranking removed)
+    # Check MRR metric
     assert "mrr_dense" in ci_results
 
     # Check structure of CI results

@@ -379,7 +379,6 @@ def _adapt_llm_aggregated_terms(
         ]
         term_score = _coerce_float(getattr(term, "score", None))
         term_confidence = _coerce_float(getattr(term, "confidence", None))
-        reranker_score = _coerce_float(getattr(term, "reranker_score", None))
         max_evidence_score = (
             max(
                 [*evidence_scores, term_score]
@@ -441,8 +440,6 @@ def _adapt_llm_aggregated_terms(
                 "score": term_score if term_score is not None else max_evidence_score,
             }
         )
-        if reranker_score is not None:
-            adapted_terms[-1]["reranker_score"] = reranker_score
 
     return adapted_terms
 
@@ -606,7 +603,6 @@ def run_standard_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
         chunk_retrieval_threshold=kwargs.pop(
             "chunk_retrieval_threshold", DEFAULT_CHUNK_RETRIEVAL_THRESHOLD
         ),
-        cross_encoder=kwargs.pop("cross_encoder", None),
         language=language,
         top_term_per_chunk=kwargs.pop("top_term_per_chunk", False),
         min_confidence_for_aggregated=kwargs.pop(

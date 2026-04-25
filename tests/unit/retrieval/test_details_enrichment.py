@@ -91,8 +91,6 @@ class TestEnrichmentPureFunction:
                 "hpo_id": "HP:0001250",
                 "label": "Seizure",
                 "similarity": 0.95,
-                "cross_encoder_score": 0.87,
-                "original_rank": 1,
                 "custom_field": "test",
             }
         ]
@@ -105,8 +103,6 @@ class TestEnrichmentPureFunction:
         assert enriched[0]["hpo_id"] == "HP:0001250"
         assert enriched[0]["label"] == "Seizure"
         assert enriched[0]["similarity"] == 0.95
-        assert enriched[0]["cross_encoder_score"] == 0.87
-        assert enriched[0]["original_rank"] == 1
         assert enriched[0]["custom_field"] == "test"
 
         # New fields added

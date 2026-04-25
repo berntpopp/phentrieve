@@ -2336,11 +2336,6 @@ class TwoPhaseLLMPipeline:
                 else float(candidate.get("score", 0.0) or 0.0)
             ),
             score=float(candidate.get("score", 0.0) or 0.0),
-            reranker_score=(
-                TwoPhaseLLMPipeline._optional_float(candidate.get("reranker_score"))
-                if candidate.get("reranker_score") is not None
-                else None
-            ),
             evidence_records=[evidence],
         )
 

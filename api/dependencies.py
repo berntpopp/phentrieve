@@ -6,15 +6,14 @@ from typing import Literal, cast
 from cachetools import TTLCache  # type: ignore[import-untyped]
 from fastapi import HTTPException
 from fastapi.concurrency import run_in_threadpool
-from sentence_transformers import CrossEncoder, SentenceTransformer
+from sentence_transformers import SentenceTransformer
 
-from api.config import CROSS_ENCODER_LOAD_TIMEOUT, SBERT_LOAD_TIMEOUT
+from api.config import SBERT_LOAD_TIMEOUT
 from phentrieve.config import DEFAULT_DEVICE, DEFAULT_MODEL, DEFAULT_MULTI_VECTOR
 
 # Core loader functions
 from phentrieve.embeddings import load_embedding_model
 from phentrieve.retrieval.dense_retriever import DenseRetriever
-from phentrieve.retrieval.reranker import load_cross_encoder as load_ce_model
 from phentrieve.utils import sanitize_log_value
 
 logger = logging.getLogger(__name__)
@@ -27,7 +26,6 @@ _sanitize = sanitize_log_value
 _cache_lock = threading.Lock()
 LOADED_SBERT_MODELS: TTLCache = TTLCache(maxsize=10, ttl=3600)
 LOADED_RETRIEVERS: TTLCache = TTLCache(maxsize=10, ttl=3600)
-LOADED_CROSS_ENCODERS: TTLCache = TTLCache(maxsize=10, ttl=3600)
 
 # Model loading status tracking
 ModelLoadStatus = Literal["not_loaded", "loading", "loaded", "failed"]
@@ -52,37 +50,27 @@ def _get_lock_for_model(model_name: str) -> asyncio.Lock:
 
 
 async def _load_model_in_background(
-    model_name: str, is_sbert: bool, trust_remote_code: bool, device: str | None
+    model_name: str, trust_remote_code: bool, device: str | None
 ):
-    """Load the specified model (SBERT or CrossEncoder) in background using run_in_threadpool.
+    """Load the specified SBERT model in background using run_in_threadpool.
 
     Updates global cache and loading status. Handles exceptions.
     """
-    model_type = "SBERT" if is_sbert else "CrossEncoder"
     logger.info(
-        "Background task started: Loading %s model '%s' on device '%s'.",
-        model_type,
+        "Background task started: Loading SBERT model '%s' on device '%s'.",
         _sanitize(model_name),
         _sanitize(device),
     )
     actual_device = device or DEFAULT_DEVICE
     try:
-        if is_sbert:
-            model_instance = await run_in_threadpool(
-                load_embedding_model,
-                model_name=model_name,
-                trust_remote_code=trust_remote_code,
-                device=actual_device,
-            )
-            with _cache_lock:
-                LOADED_SBERT_MODELS[model_name] = model_instance
-        else:
-            # Explicit type annotation for cross-encoder loading
-            ce_model_instance: CrossEncoder | None = await run_in_threadpool(
-                load_ce_model, model_name=model_name, device=actual_device
-            )
-            with _cache_lock:
-                LOADED_CROSS_ENCODERS[model_name] = ce_model_instance
+        model_instance = await run_in_threadpool(
+            load_embedding_model,
+            model_name=model_name,
+            trust_remote_code=trust_remote_code,
+            device=actual_device,
+        )
+        with _cache_lock:
+            LOADED_SBERT_MODELS[model_name] = model_instance
 
         with _cache_lock:
             MODEL_LOADING_STATUS[model_name] = "loaded"
@@ -101,10 +89,7 @@ async def _load_model_in_background(
         )
         # Clear from cache if partially added
         with _cache_lock:
-            if is_sbert:
-                LOADED_SBERT_MODELS.pop(model_name, None)
-            else:
-                LOADED_CROSS_ENCODERS.pop(model_name, None)
+            LOADED_SBERT_MODELS.pop(model_name, None)
     finally:
         # Clean up the task from tracking dict
         if model_name in MODEL_LOADING_TASKS:
@@ -197,7 +182,7 @@ async def get_sbert_model_dependency(
 
         # Create task and store it for awaiting
         task = asyncio.create_task(
-            _load_model_in_background(model_name, True, trust_remote_code, device)
+            _load_model_in_background(model_name, trust_remote_code, device)
         )
         MODEL_LOADING_TASKS[model_name] = task
 
@@ -293,149 +278,6 @@ async def get_dense_retriever_dependency(
     return cast(DenseRetriever, LOADED_RETRIEVERS[retriever_cache_key])
 
 
-async def get_cross_encoder_dependency(
-    reranker_model_name: str | None = None, device_override: str | None = None
-) -> CrossEncoder | None:
-    if not reranker_model_name:
-        return None
-
-    device = device_override or DEFAULT_DEVICE
-
-    if (
-        reranker_model_name in LOADED_CROSS_ENCODERS
-        and LOADED_CROSS_ENCODERS[reranker_model_name] is not None
-    ):
-        logger.debug(
-            "API: Returning cached CrossEncoder: %s", _sanitize(reranker_model_name)
-        )
-        return cast(CrossEncoder, LOADED_CROSS_ENCODERS[reranker_model_name])
-
-    lock = _get_lock_for_model(reranker_model_name)
-    async with lock:
-        # Re-check after acquiring lock
-        if (
-            reranker_model_name in LOADED_CROSS_ENCODERS
-            and LOADED_CROSS_ENCODERS[reranker_model_name] is not None
-        ):
-            logger.debug(
-                "API: Returning cached CrossEncoder (post-lock): %s",
-                _sanitize(reranker_model_name),
-            )
-            return cast(CrossEncoder, LOADED_CROSS_ENCODERS[reranker_model_name])
-
-        current_status = MODEL_LOADING_STATUS.get(reranker_model_name, "not_loaded")
-
-        if current_status == "loading":
-            # Model is loading - wait for it with timeout
-            logger.info(
-                "API: CrossEncoder '%s' is loading. Waiting up to %ss...",
-                _sanitize(reranker_model_name),
-                CROSS_ENCODER_LOAD_TIMEOUT,
-            )
-            if reranker_model_name in MODEL_LOADING_TASKS:
-                try:
-                    await asyncio.wait_for(
-                        asyncio.shield(MODEL_LOADING_TASKS[reranker_model_name]),
-                        timeout=CROSS_ENCODER_LOAD_TIMEOUT,
-                    )
-                    # Loading completed successfully, return the model
-                    if (
-                        reranker_model_name in LOADED_CROSS_ENCODERS
-                        and LOADED_CROSS_ENCODERS[reranker_model_name] is not None
-                    ):
-                        logger.info(
-                            "API: CrossEncoder '%s' finished loading, returning it.",
-                            _sanitize(reranker_model_name),
-                        )
-                    return cast(
-                        CrossEncoder, LOADED_CROSS_ENCODERS[reranker_model_name]
-                    )
-                except asyncio.exceptions.TimeoutError:
-                    logger.warning(
-                        "API: CrossEncoder '%s' loading timeout (%ss). Loading continues in background.",
-                        _sanitize(reranker_model_name),
-                        CROSS_ENCODER_LOAD_TIMEOUT,
-                    )
-                    raise HTTPException(
-                        status_code=503,
-                        detail=f"CrossEncoder '{reranker_model_name}' is taking longer than expected to load. Please try again in 10 seconds.",
-                        headers={"Retry-After": "10"},
-                    )
-            # Task not found but status is loading - fallback to old behavior
-            logger.warning(
-                "API: CrossEncoder '%s' status is 'loading' but no task found. Advise retry.",
-                _sanitize(reranker_model_name),
-            )
-            raise HTTPException(
-                status_code=503,
-                detail=f"CrossEncoder '{reranker_model_name}' is currently being prepared. Please try again in 30 seconds.",
-                headers={"Retry-After": "30"},
-            )
-
-        if current_status == "failed":
-            logger.error(
-                "API: CrossEncoder '%s' failed to load previously.",
-                _sanitize(reranker_model_name),
-            )
-            raise HTTPException(
-                status_code=503,
-                detail=f"CrossEncoder '{reranker_model_name}' failed to load and is unavailable.",
-            )
-
-        # If 'not_loaded', initiate loading
-        logger.info(
-            "API: Initiating background load for CrossEncoder: %s",
-            _sanitize(reranker_model_name),
-        )
-        with _cache_lock:
-            MODEL_LOADING_STATUS[reranker_model_name] = "loading"
-
-        # Create task and store it for awaiting
-        task = asyncio.create_task(
-            _load_model_in_background(reranker_model_name, False, False, device)
-        )
-        MODEL_LOADING_TASKS[reranker_model_name] = task
-
-        # Wait for the model to load with timeout
-        try:
-            await asyncio.wait_for(
-                asyncio.shield(task), timeout=CROSS_ENCODER_LOAD_TIMEOUT
-            )
-            # Loading completed successfully, return the model
-            if (
-                reranker_model_name in LOADED_CROSS_ENCODERS
-                and LOADED_CROSS_ENCODERS[reranker_model_name] is not None
-            ):
-                logger.info(
-                    "API: CrossEncoder '%s' loaded successfully on first request.",
-                    _sanitize(reranker_model_name),
-                )
-                return cast(CrossEncoder, LOADED_CROSS_ENCODERS[reranker_model_name])
-            # Edge case: task completed but model not in cache (should not happen)
-            logger.error(
-                "API: CrossEncoder '%s' loading task completed but model not found in cache.",
-                _sanitize(reranker_model_name),
-            )
-            raise HTTPException(
-                status_code=500,
-                detail=f"CrossEncoder '{reranker_model_name}' failed to load due to an internal error.",
-            )
-        except asyncio.exceptions.TimeoutError:
-            logger.warning(
-                "API: CrossEncoder '%s' loading timeout (%ss) on first request. "
-                "Loading continues in background.",
-                _sanitize(reranker_model_name),
-                CROSS_ENCODER_LOAD_TIMEOUT,
-            )
-            # Task continues in background - don't cancel it
-            # Inform client to retry
-            raise HTTPException(
-                status_code=503,
-                detail=f"CrossEncoder '{reranker_model_name}' is taking longer than expected to load. Please try again in 10 seconds.",
-                headers={"Retry-After": "10"},
-            )
-
-
 async def cleanup_model_caches() -> None:
     """Clear cached models and cancel any in-flight background loading tasks."""
     pending_tasks = []
@@ -451,4 +293,3 @@ async def cleanup_model_caches() -> None:
     MODEL_LOAD_LOCKS.clear()
     LOADED_SBERT_MODELS.clear()
     LOADED_RETRIEVERS.clear()
-    LOADED_CROSS_ENCODERS.clear()

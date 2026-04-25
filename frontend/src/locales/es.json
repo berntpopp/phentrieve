@@ -382,7 +382,7 @@
           },
           "howItWorks": {
             "question": "¿Cómo funciona Phentrieve?",
-            "answer": "<p>Phentrieve utiliza un sofisticado pipeline de modelos de IA y algoritmos para procesar texto clínico:</p><ol><li><strong>Análisis de texto:</strong> El sistema analiza el texto de entrada utilizando modelos de lenguaje biomédico especializados</li><li><strong>Coincidencia de términos:</strong> Identifica posibles términos HPO mediante búsqueda semántica y coincidencia contextual</li><li><strong>Clasificación:</strong> Las coincidencias se clasifican por relevancia utilizando modelos cross-encoder avanzados</li><li><strong>Resultados:</strong> Los términos HPO más relevantes se presentan al usuario</li></ol><p>Este proceso garantiza coincidencias de alta calidad manteniendo la eficiencia.</p>"
+            "answer": "<p>Phentrieve utiliza un sofisticado pipeline de modelos de IA y algoritmos para procesar texto clínico:</p><ol><li><strong>Análisis de texto:</strong> El sistema analiza el texto de entrada utilizando modelos de lenguaje biomédico especializados</li><li><strong>Coincidencia de términos:</strong> Identifica posibles términos HPO mediante búsqueda semántica y coincidencia contextual</li><li><strong>Clasificación:</strong> Las coincidencias se clasifican por relevancia</li><li><strong>Resultados:</strong> Los términos HPO más relevantes se presentan al usuario</li></ol><p>Este proceso garantiza coincidencias de alta calidad manteniendo la eficiencia.</p>"
           },
           "whoCanUse": {
             "question": "¿Quién puede usar Phentrieve?",

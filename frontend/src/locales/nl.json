@@ -338,7 +338,7 @@
           },
           "howItWorks": {
             "question": "Hoe werkt Phentrieve?",
-            "answer": "<p>Phentrieve gebruikt een geavanceerde pipeline van AI-modellen en algoritmen om klinische tekst te verwerken:</p><ol><li><strong>Tekstanalyse:</strong> Het systeem analyseert de invoertekst met behulp van gespecialiseerde biomedische taalmodellen</li><li><strong>Termmatching:</strong> Het identificeert potentiële HPO-termen met behulp van semantisch zoeken en contextbewuste matching</li><li><strong>Rangschikking:</strong> De matches worden gerangschikt op relevantie met behulp van geavanceerde cross-encoder modellen</li><li><strong>Resultaten:</strong> De meest relevante HPO-termen worden aan de gebruiker gepresenteerd</li></ol><p>Dit proces zorgt voor kwalitatief hoogwaardige matches met behoud van efficiëntie.</p>"
+            "answer": "<p>Phentrieve gebruikt een geavanceerde pipeline van AI-modellen en algoritmen om klinische tekst te verwerken:</p><ol><li><strong>Tekstanalyse:</strong> Het systeem analyseert de invoertekst met behulp van gespecialiseerde biomedische taalmodellen</li><li><strong>Termmatching:</strong> Het identificeert potentiële HPO-termen met behulp van semantisch zoeken en contextbewuste matching</li><li><strong>Rangschikking:</strong> De matches worden gerangschikt op relevantie</li><li><strong>Resultaten:</strong> De meest relevante HPO-termen worden aan de gebruiker gepresenteerd</li></ol><p>Dit proces zorgt voor kwalitatief hoogwaardige matches met behoud van efficiëntie.</p>"
           },
           "whoCanUse": {
             "question": "Wie kan Phentrieve gebruiken?",

@@ -184,21 +184,6 @@ def interactive(
             help="Assertion detection strategy preference (dependency, keyword, any_negative)",
         ),
     ] = "dependency",
-    enable_reranker: Annotated[
-        bool,
-        typer.Option(
-            "--enable-reranker",
-            "--rerank",
-            help="Enable cross-encoder reranking of results",
-        ),
-    ] = False,
-    reranker_model: Annotated[
-        str | None,
-        typer.Option(
-            "--reranker-model",
-            help="Cross-encoder model for reranking (if reranking enabled)",
-        ),
-    ] = None,
     annotations_above: Annotated[
         bool,
         typer.Option(
@@ -237,7 +222,7 @@ def interactive(
     Example usage:
         phentrieve text interactive
         phentrieve text interactive -l de --annotations-above
-        phentrieve text interactive -s semantic --enable-reranker
+        phentrieve text interactive -s semantic
     """
     from phentrieve.cli.text_interactive import interactive_text_mode
 
@@ -254,8 +239,6 @@ def interactive(
         num_results=num_results,
         no_assertion_detection=no_assertion_detection,
         assertion_preference=assertion_preference,
-        enable_reranker=enable_reranker,
-        reranker_model=reranker_model,
         annotations_above=annotations_above,
         aggregated_term_confidence=aggregated_term_confidence,
         top_term_per_chunk=top_term_per_chunk,
@@ -436,21 +419,6 @@ def process_text_for_hpo_command(
             help="Assertion detection strategy preference (dependency, keyword, any_negative)",
         ),
     ] = "dependency",
-    enable_reranker: Annotated[
-        bool,
-        typer.Option(
-            "--enable-reranker",
-            "--rerank",
-            help="Enable cross-encoder reranking of results",
-        ),
-    ] = False,
-    reranker_model: Annotated[
-        str | None,
-        typer.Option(
-            "--reranker-model",
-            help="Cross-encoder model for reranking (if reranking enabled)",
-        ),
-    ] = None,
     output_format: Annotated[
         str,
         typer.Option(
@@ -630,19 +598,6 @@ def process_text_for_hpo_command(
                 )
                 raise typer.Exit(code=1)
 
-    cross_encoder = None
-    if extraction_backend == "standard" and enable_reranker:
-        try:
-            from sentence_transformers import CrossEncoder
-
-            from phentrieve.config import DEFAULT_RERANKER_MODEL
-
-            reranker_to_use = reranker_model or DEFAULT_RERANKER_MODEL
-            logger.info("Loading reranker: %s", reranker_to_use)
-            cross_encoder = CrossEncoder(reranker_to_use)
-        except Exception as e:
-            logger.warning("Failed to load cross-encoder: %s", e)
-
     try:
         service_result = run_full_text_service(
             text=raw_text,
@@ -661,7 +616,6 @@ def process_text_for_hpo_command(
             sbert_model_for_semantic_chunking=sbert_model_for_chunking,
             num_results_per_chunk=num_results,
             chunk_retrieval_threshold=chunk_retrieval_threshold,
-            cross_encoder=cross_encoder,
             top_term_per_chunk=top_term_per_chunk,
             min_confidence_for_aggregated=aggregated_term_confidence,
             include_details=include_details,
@@ -721,7 +675,6 @@ def process_text_for_hpo_command(
         language,
         output_format,
         embedding_model=model_name,
-        reranker_model=reranker_model if enable_reranker else None,
         input_text=raw_text,
         phenopacket_sidecar=phenopacket_sidecar,
         phenopacket_sidecar_output_file=phenopacket_sidecar_output_file,
@@ -961,7 +914,6 @@ def _format_and_output_results(
     language: str,
     output_format: str,
     embedding_model: str | None = None,
-    reranker_model: str | None = None,
     input_text: str | None = None,
     phenopacket_sidecar: bool = False,
     phenopacket_sidecar_output_file: Path | None = None,
@@ -977,7 +929,6 @@ def _format_and_output_results(
         language: The language of the text
         output_format: The output format (json_lines, rich_json_summary, csv_hpo_list)
         embedding_model: Name of embedding model used for retrieval
-        reranker_model: Name of reranker model used (if enabled)
         input_text: Original input text for phenopacket metadata
     """
     if output_format == "phenopacket_v2_json":
@@ -996,7 +947,6 @@ def _format_and_output_results(
             chunk_results=chunk_level_results if chunk_level_results else None,
             aggregated_results=term_level_results if not chunk_level_results else None,
             embedding_model=embedding_model,
-            reranker_model=reranker_model,
             input_text=input_text,
             include_annotation_sidecar=phenopacket_sidecar,
         )

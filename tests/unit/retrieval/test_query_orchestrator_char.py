@@ -76,7 +76,7 @@ class TestProcessQuerySentenceMode:
 class TestProcessQueryFullTextMode:
     """Tests for process_query with sentence_mode=False."""
 
-    def test_full_text_without_reranking(self, mock_retriever):
+    def test_full_text_uses_dense_retrieval(self, mock_retriever):
         """Full text mode returns formatted results."""
         results = process_query(
             text="Patient presents with severe intellectual disability",

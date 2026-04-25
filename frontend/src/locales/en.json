@@ -343,7 +343,7 @@
     },
     "step5": {
       "title": "Advanced Options",
-      "content": "Expand this section to access advanced search parameters like model selection, result limits, and re-ranking options."
+      "content": "Expand this section to access advanced search parameters like model selection and result limits."
     },
     "step6": {
       "title": "Collect Terms",
@@ -382,7 +382,7 @@
           },
           "howItWorks": {
             "question": "How does Phentrieve work?",
-            "answer": "<p>Phentrieve uses a sophisticated pipeline of AI models and algorithms to process clinical text:</p><ol><li><strong>Text Analysis:</strong> The system analyzes the input text using specialized biomedical language models</li><li><strong>Term Matching:</strong> It identifies potential HPO terms using semantic search and context-aware matching</li><li><strong>Ranking:</strong> The matches are ranked by relevance using advanced cross-encoder models</li><li><strong>Results:</strong> The most relevant HPO terms are presented to the user</li></ol><p>This process ensures high-quality matches while maintaining efficiency.</p>"
+            "answer": "<p>Phentrieve uses a sophisticated pipeline of AI models and algorithms to process clinical text:</p><ol><li><strong>Text Analysis:</strong> The system analyzes the input text using specialized biomedical language models</li><li><strong>Term Matching:</strong> It identifies potential HPO terms using semantic search and context-aware matching</li><li><strong>Ranking:</strong> The matches are ranked by relevance</li><li><strong>Results:</strong> The most relevant HPO terms are presented to the user</li></ol><p>This process ensures high-quality matches while maintaining efficiency.</p>"
           },
           "whoCanUse": {
             "question": "Who can use Phentrieve?",
