@@ -1,6 +1,7 @@
 """Tests for extraction metrics module."""
 
 import json
+from dataclasses import replace as dataclass_replace
 
 import pytest
 
@@ -212,6 +213,27 @@ class TestCorpusExtractionMetrics:
         assert metrics.micro["f1"] == 1.0
         assert metrics.macro["f1"] == 1.0
         assert metrics.weighted["f1"] == 1.0
+        assert metrics.ontology_metrics is None
+
+    def test_corpus_metrics_explicitly_preserves_ontology_metrics_on_replace(
+        self,
+    ):
+        """Ontology metrics are part of the dataclass schema, not a dynamic attr."""
+        evaluator = CorpusExtractionMetrics()
+        strict_metrics = evaluator.calculate_all_metrics(
+            [ExtractionResult("doc1", [("HP:1", "PRESENT")], [("HP:1", "PRESENT")])]
+        )
+        ontology_metrics = evaluator.calculate_ontology_aware_metrics(
+            [ExtractionResult("doc1", [("HP:1", "PRESENT")], [("HP:1", "PRESENT")])]
+        )
+
+        strict_metrics.ontology_metrics = ontology_metrics
+        replaced = dataclass_replace(
+            strict_metrics,
+            confidence_intervals={"f1": (0.9, 1.0)},
+        )
+
+        assert replaced.ontology_metrics is ontology_metrics
 
     def test_empty_results(self):
         """Test with empty results."""

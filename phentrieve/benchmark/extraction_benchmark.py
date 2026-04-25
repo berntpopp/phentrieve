@@ -34,12 +34,14 @@ from phentrieve.evaluation.extraction_metrics import (
     CorpusExtractionMetrics,
     CorpusMetrics,
     ExtractionResult,
+    OntologyAwareCorpusMetrics,
     serialize_ontology_metrics,
 )
 
 if TYPE_CHECKING:
     from sentence_transformers import SentenceTransformer
 
+    from phentrieve.evaluation.ontology_credit import OntologyCreditConfig
     from phentrieve.retrieval.dense_retriever import DenseRetriever
     from phentrieve.text_processing.pipeline import TextProcessingPipeline
 
@@ -68,41 +70,22 @@ class ExtractionConfig:
     ontology_similarity_formula: str = "hybrid"
 
 
-def _build_ontology_credit_config(config: ExtractionConfig) -> Any:
+def _build_ontology_credit_config(config: ExtractionConfig) -> OntologyCreditConfig:
     """Build ontology-aware metric config from extraction benchmark settings."""
-    from phentrieve.evaluation.metrics import SimilarityFormula
-    from phentrieve.evaluation.ontology_credit import OntologyCreditConfig
+    from phentrieve.evaluation.ontology_credit import build_ontology_credit_config
 
-    if not 0.0 <= config.ontology_semantic_floor <= 1.0:
-        raise ValueError(
-            "ontology_semantic_floor must be between 0.0 and 1.0 inclusive; "
-            f"got {config.ontology_semantic_floor!r}."
-        )
-
-    formula = config.ontology_similarity_formula.strip().lower()
-    formula_map = {
-        "hybrid": SimilarityFormula.HYBRID,
-        "simple_resnik_like": SimilarityFormula.SIMPLE_RESNIK_LIKE,
-    }
-    if formula not in formula_map:
-        raise ValueError(
-            "Invalid ontology similarity formula: "
-            f"{config.ontology_similarity_formula!r}. "
-            "Expected 'hybrid' or 'simple_resnik_like'."
-        )
-
-    return OntologyCreditConfig(
+    return build_ontology_credit_config(
         semantic_floor=config.ontology_semantic_floor,
-        similarity_formula=formula_map[formula],
+        similarity_formula=config.ontology_similarity_formula,
     )
 
 
-def _attach_ontology_metrics(
-    metrics: CorpusMetrics,
-    ontology_metrics: Any,
-) -> None:
-    metrics_with_extension: Any = metrics
-    metrics_with_extension.ontology_metrics = ontology_metrics
+def validate_hpo_graph_available() -> None:
+    from phentrieve.evaluation.ontology_credit import (
+        validate_hpo_graph_available as validate,
+    )
+
+    validate()
 
 
 class HPOExtractor:
@@ -262,6 +245,7 @@ class ExtractionBenchmark:
         ontology_config = None
         if config.ontology_aware_metrics:
             ontology_config = _build_ontology_credit_config(config)
+            validate_hpo_graph_available()
 
         # Update extractor with new config for this run
         self.extractor.config = config
@@ -318,7 +302,7 @@ class ExtractionBenchmark:
                 results,
                 config=ontology_config,
             )
-            _attach_ontology_metrics(metrics, ontology_metrics)
+            metrics.ontology_metrics = ontology_metrics
             if config.detailed_output:
                 self._attach_ontology_detailed_results(
                     detailed_results,
@@ -335,9 +319,8 @@ class ExtractionBenchmark:
                 macro=metrics.macro,
                 weighted=metrics.weighted,
                 confidence_intervals=ci,
+                ontology_metrics=ontology_metrics,
             )
-            if ontology_metrics is not None:
-                _attach_ontology_metrics(metrics, ontology_metrics)
 
         # Save results (pass detailed_results only if enabled)
         self._save_results(
@@ -665,7 +648,7 @@ class ExtractionBenchmark:
         output_dir: Path,
         dataset_metadata: dict,
         config: ExtractionConfig,
-        ontology_metrics: Any | None = None,
+        ontology_metrics: OntologyAwareCorpusMetrics | None = None,
         detailed_results: list[dict[str, Any]] | None = None,
     ):
         """Save benchmark results to files."""

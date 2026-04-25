@@ -1,8 +1,10 @@
 import pytest
 
+from phentrieve.evaluation.metrics import SimilarityFormula
 from phentrieve.evaluation.ontology_credit import (
     MatchKind,
     OntologyCreditConfig,
+    build_ontology_credit_config,
     calculate_pair_credit,
     load_hpo_graph_data,
 )
@@ -37,6 +39,28 @@ def test_direct_descendant_receives_high_credit(monkeypatch):
     assert credit.credit == 0.95
     assert credit.match_kind == MatchKind.DESCENDANT
     assert credit.distance == 1
+
+
+def test_descendant_credit_records_semantic_similarity(monkeypatch):
+    monkeypatch.setattr(
+        "phentrieve.evaluation.ontology_credit.load_hpo_graph_data",
+        lambda: (
+            {
+                "HP:parent": {"HP:root", "HP:parent"},
+                "HP:child": {"HP:root", "HP:parent", "HP:child"},
+            },
+            {"HP:root": 0, "HP:parent": 1, "HP:child": 2},
+        ),
+    )
+    monkeypatch.setattr(
+        "phentrieve.evaluation.ontology_credit.calculate_semantic_similarity",
+        lambda *_args, **_kwargs: 0.42,
+    )
+
+    credit = calculate_pair_credit("HP:child", "HP:parent")
+
+    assert credit.match_kind == MatchKind.DESCENDANT
+    assert credit.semantic_similarity == pytest.approx(0.42)
 
 
 def test_direct_ancestor_receives_lower_credit(monkeypatch):
@@ -153,6 +177,60 @@ def test_unrelated_below_floor_receives_zero(monkeypatch):
 
     assert credit.credit == 0.0
     assert credit.match_kind == MatchKind.UNRELATED
+
+
+def test_semantic_similarity_failures_are_logged(monkeypatch, caplog):
+    monkeypatch.setattr(
+        "phentrieve.evaluation.ontology_credit.load_hpo_graph_data",
+        lambda: (
+            {
+                "HP:a": {"HP:root", "HP:a"},
+                "HP:b": {"HP:other", "HP:b"},
+            },
+            {"HP:root": 0, "HP:other": 0, "HP:a": 1, "HP:b": 1},
+        ),
+    )
+
+    def fail_similarity(*_args, **_kwargs):
+        raise RuntimeError("similarity backend failed")
+
+    monkeypatch.setattr(
+        "phentrieve.evaluation.ontology_credit.calculate_semantic_similarity",
+        fail_similarity,
+    )
+
+    with caplog.at_level("WARNING"):
+        credit = calculate_pair_credit("HP:a", "HP:b")
+
+    assert credit.match_kind == MatchKind.UNRELATED
+    assert "Failed to calculate semantic similarity" in caplog.text
+
+
+def test_build_ontology_credit_config_validates_options():
+    config = build_ontology_credit_config(
+        semantic_floor=0.25,
+        similarity_formula="simple_resnik_like",
+    )
+
+    assert config.semantic_floor == 0.25
+    assert config.similarity_formula == SimilarityFormula.SIMPLE_RESNIK_LIKE
+
+
+@pytest.mark.parametrize("semantic_floor", [-0.1, 1.1])
+def test_build_ontology_credit_config_rejects_invalid_floor(semantic_floor):
+    with pytest.raises(ValueError, match="ontology_semantic_floor"):
+        build_ontology_credit_config(
+            semantic_floor=semantic_floor,
+            similarity_formula="hybrid",
+        )
+
+
+def test_build_ontology_credit_config_rejects_invalid_formula():
+    with pytest.raises(ValueError, match="Invalid ontology similarity formula"):
+        build_ontology_credit_config(
+            semantic_floor=0.25,
+            similarity_formula="simple",
+        )
 
 
 def test_real_hpo_intellectual_disability_child_credit():

@@ -82,32 +82,22 @@ def build_ontology_credit_config(
     semantic_floor: float,
     similarity_formula: str,
 ) -> Any:
-    """Build ontology-aware metric config from benchmark option values."""
-    from phentrieve.evaluation.metrics import SimilarityFormula
-    from phentrieve.evaluation.ontology_credit import OntologyCreditConfig
-
-    if not 0.0 <= semantic_floor <= 1.0:
-        raise ValueError(
-            "ontology_semantic_floor must be between 0.0 and 1.0 inclusive; "
-            f"got {semantic_floor!r}."
-        )
-
-    formula = similarity_formula.strip().lower()
-    formula_map = {
-        "hybrid": SimilarityFormula.HYBRID,
-        "simple_resnik_like": SimilarityFormula.SIMPLE_RESNIK_LIKE,
-    }
-    if formula not in formula_map:
-        raise ValueError(
-            "Invalid ontology similarity formula: "
-            f"{similarity_formula!r}. "
-            "Expected 'hybrid' or 'simple_resnik_like'."
-        )
-
-    return OntologyCreditConfig(
-        semantic_floor=semantic_floor,
-        similarity_formula=formula_map[formula],
+    from phentrieve.evaluation.ontology_credit import (
+        build_ontology_credit_config as build,
     )
+
+    return build(
+        semantic_floor=semantic_floor,
+        similarity_formula=similarity_formula,
+    )
+
+
+def validate_hpo_graph_available() -> None:
+    from phentrieve.evaluation.ontology_credit import (
+        validate_hpo_graph_available as validate,
+    )
+
+    validate()
 
 
 class TokenPricingConfig(BaseModel):
@@ -300,6 +290,7 @@ def run_llm_benchmark(
             semantic_floor=ontology_semantic_floor,
             similarity_formula=ontology_similarity_formula,
         )
+        validate_hpo_graph_available()
 
     test_path = Path(test_file)
     logger.info(

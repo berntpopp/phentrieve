@@ -257,6 +257,7 @@ def test_benchmark_extraction_run_help_exposes_ontology_metric_options():
         cli_app,
         ["benchmark", "extraction", "run", "--help"],
         env={"COLUMNS": "200"},
+        color=False,
     )
 
     assert result.exit_code == 0

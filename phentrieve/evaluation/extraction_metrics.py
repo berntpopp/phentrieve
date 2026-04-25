@@ -1,21 +1,16 @@
 """Extraction metrics for document-level HPO extraction evaluation."""
 
+from __future__ import annotations
+
 import random
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, TypedDict
 
+from phentrieve.evaluation._extraction_types import ExtractionResult
+
 if TYPE_CHECKING:
     from phentrieve.evaluation.ontology_credit import OntologyCreditConfig
     from phentrieve.evaluation.ontology_matching import DocumentOntologyMetrics
-
-
-@dataclass
-class ExtractionResult:
-    """Single document extraction result."""
-
-    doc_id: str
-    predicted: list[tuple[str, str]]  # (hpo_id, assertion)
-    gold: list[tuple[str, str]]  # (hpo_id, assertion)
 
 
 @dataclass
@@ -26,6 +21,7 @@ class CorpusMetrics:
     macro: dict[str, float]  # precision, recall, f1
     weighted: dict[str, float]  # weighted by doc size
     confidence_intervals: dict[str, tuple[float, float]]
+    ontology_metrics: OntologyAwareCorpusMetrics | None = None
 
 
 class MatchBreakdownEntry(TypedDict):
@@ -52,7 +48,7 @@ class OntologyAwareCorpusMetrics:
     soft: OntologyMetricBlock
     partial: OntologyMetricBlock
     match_breakdown: dict[str, MatchBreakdownEntry]
-    document_metrics: list["DocumentOntologyMetrics"]
+    document_metrics: list[DocumentOntologyMetrics]
 
 
 def _calculate_prf(tp: int, fp: int, fn: int) -> tuple[float, float, float]:
@@ -157,8 +153,8 @@ def serialize_ontology_metrics(
 
 def calculate_document_ontology_metrics(
     result: ExtractionResult,
-    config: "OntologyCreditConfig | None" = None,
-) -> "DocumentOntologyMetrics":
+    config: OntologyCreditConfig | None = None,
+) -> DocumentOntologyMetrics:
     from phentrieve.evaluation.ontology_matching import (
         calculate_document_ontology_metrics as calculate,
     )
@@ -205,7 +201,7 @@ class CorpusExtractionMetrics:
     def calculate_ontology_aware_metrics(
         self,
         results: list[ExtractionResult],
-        config: "OntologyCreditConfig | None" = None,
+        config: OntologyCreditConfig | None = None,
     ) -> OntologyAwareCorpusMetrics:
         """Calculate strict and ontology-aware corpus extraction metrics."""
         if not results:

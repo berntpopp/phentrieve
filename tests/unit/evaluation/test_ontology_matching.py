@@ -183,3 +183,30 @@ def test_partial_recall_uses_prediction_to_gold_credit_direction(monkeypatch):
     metrics = calculate_document_ontology_metrics(result)
 
     assert metrics.partial_recall == 0.95
+
+
+def test_document_matching_memoizes_pair_credit(monkeypatch):
+    calls = []
+
+    def counting_credit(pred, gold, config=None):
+        calls.append((pred, gold))
+        return _fake_credit(pred, gold, 0.5, "semantic")
+
+    monkeypatch.setattr(
+        "phentrieve.evaluation.ontology_matching.calculate_pair_credit",
+        counting_credit,
+    )
+    result = ExtractionResult(
+        doc_id="doc",
+        predicted=[("HP:p1", "PRESENT"), ("HP:p2", "PRESENT")],
+        gold=[("HP:g1", "PRESENT"), ("HP:g2", "PRESENT")],
+    )
+
+    calculate_document_ontology_metrics(result)
+
+    assert sorted(calls) == [
+        ("HP:p1", "HP:g1"),
+        ("HP:p1", "HP:g2"),
+        ("HP:p2", "HP:g1"),
+        ("HP:p2", "HP:g2"),
+    ]

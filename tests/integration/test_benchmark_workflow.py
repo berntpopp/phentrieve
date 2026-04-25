@@ -1370,6 +1370,10 @@ def test_extraction_benchmark_saves_ontology_metrics_when_enabled(
         "calculate_ontology_aware_metrics",
         _fake_calculate_ontology_aware_metrics,
     )
+    monkeypatch.setattr(
+        "phentrieve.benchmark.extraction_benchmark.validate_hpo_graph_available",
+        lambda: None,
+    )
 
     output_dir = tmp_path / "results"
     benchmark.run_benchmark(test_file=tmp_path, output_dir=output_dir)
@@ -1473,6 +1477,10 @@ def test_extraction_benchmark_detailed_output_includes_ontology_pairs_when_enabl
         "extract_with_details",
         _fake_extract_with_details,
     )
+    monkeypatch.setattr(
+        "phentrieve.benchmark.extraction_benchmark.validate_hpo_graph_available",
+        lambda: None,
+    )
 
     output_dir = tmp_path / "results"
     benchmark.run_benchmark(test_file=tmp_path, output_dir=output_dir)
@@ -1503,6 +1511,35 @@ def test_extraction_benchmark_detailed_output_includes_ontology_pairs_when_enabl
             "distance": 0,
         }
     ]
+
+
+def test_extraction_benchmark_requires_hpo_graph_for_ontology_metrics(
+    tmp_path,
+    monkeypatch,
+):
+    benchmark = ExtractionBenchmark(
+        model_name="sentence-transformers/LaBSE",
+        config=ExtractionConfig(
+            model_name="sentence-transformers/LaBSE",
+            bootstrap_ci=False,
+            ontology_aware_metrics=True,
+        ),
+    )
+
+    def _fail_load_benchmark_data(test_path, dataset):
+        raise AssertionError("benchmark data should not be loaded")
+
+    monkeypatch.setattr(
+        "phentrieve.benchmark.extraction_benchmark.load_benchmark_data",
+        _fail_load_benchmark_data,
+    )
+    monkeypatch.setattr(
+        "phentrieve.evaluation.ontology_credit.load_hpo_graph_data",
+        lambda: ({}, {}),
+    )
+
+    with pytest.raises(RuntimeError, match="HPO graph data is required"):
+        benchmark.run_benchmark(test_file=tmp_path, output_dir=tmp_path / "results")
 
 
 def test_extraction_benchmark_rejects_invalid_ontology_formula_before_extraction(

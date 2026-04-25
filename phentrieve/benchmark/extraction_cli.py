@@ -272,7 +272,7 @@ def _display_results(metrics):
 
     console.print(table)
 
-    ontology_metrics = getattr(metrics, "ontology_metrics", None)
+    ontology_metrics = metrics.ontology_metrics
     if ontology_metrics is not None:
         ontology_table = Table(title="Ontology-Aware Benchmark Results")
         ontology_table.add_column("Metric", style="cyan")

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 import math
 from collections import deque
 from dataclasses import dataclass
@@ -10,6 +11,9 @@ from phentrieve.evaluation.metrics import (
     calculate_semantic_similarity,
     load_hpo_graph_data,
 )
+
+logger = logging.getLogger(__name__)
+_PARENTS_CACHE: dict[tuple[int, str], set[str]] = {}
 
 
 class MatchKind(str, Enum):  # noqa: UP042 - Python 3.10 compatible enum.
@@ -46,6 +50,45 @@ class PairCredit:
     distance: int | None
 
 
+def build_ontology_credit_config(
+    *,
+    semantic_floor: float,
+    similarity_formula: str,
+) -> OntologyCreditConfig:
+    """Build ontology-aware metric config from benchmark option values."""
+    if not 0.0 <= semantic_floor <= 1.0:
+        raise ValueError(
+            "ontology_semantic_floor must be between 0.0 and 1.0 inclusive; "
+            f"got {semantic_floor!r}."
+        )
+
+    formula = similarity_formula.strip().lower()
+    formula_map = {
+        "hybrid": SimilarityFormula.HYBRID,
+        "simple_resnik_like": SimilarityFormula.SIMPLE_RESNIK_LIKE,
+    }
+    if formula not in formula_map:
+        raise ValueError(
+            "Invalid ontology similarity formula: "
+            f"{similarity_formula!r}. Expected 'hybrid' or 'simple_resnik_like'."
+        )
+
+    return OntologyCreditConfig(
+        semantic_floor=semantic_floor,
+        similarity_formula=formula_map[formula],
+    )
+
+
+def validate_hpo_graph_available() -> None:
+    """Fail fast when opt-in ontology metrics cannot load HPO graph data."""
+    ancestors, depths = load_hpo_graph_data()
+    if not ancestors or not depths:
+        raise RuntimeError(
+            "HPO graph data is required for ontology-aware metrics. "
+            "Run 'phentrieve data prepare' to generate the HPO database."
+        )
+
+
 def calculate_pair_credit(
     predicted_id: str,
     gold_id: str,
@@ -58,21 +101,23 @@ def calculate_pair_credit(
 
     distance = _ontology_distance(predicted_id, gold_id, ancestors, depths)
     if _is_descendant(predicted_id, gold_id, ancestors):
+        similarity = _safe_similarity(predicted_id, gold_id, config)
         credit = max(
             config.descendant_min,
             config.descendant_base
             - config.descendant_step_penalty * ((distance or 1) - 1),
         )
         return PairCredit(
-            predicted_id, gold_id, credit, MatchKind.DESCENDANT, 0.0, distance
+            predicted_id, gold_id, credit, MatchKind.DESCENDANT, similarity, distance
         )
     if _is_descendant(gold_id, predicted_id, ancestors):
+        similarity = _safe_similarity(predicted_id, gold_id, config)
         credit = max(
             config.ancestor_min,
             config.ancestor_base - config.ancestor_step_penalty * ((distance or 1) - 1),
         )
         return PairCredit(
-            predicted_id, gold_id, credit, MatchKind.ANCESTOR, 0.0, distance
+            predicted_id, gold_id, credit, MatchKind.ANCESTOR, similarity, distance
         )
 
     similarity = _safe_similarity(predicted_id, gold_id, config)
@@ -144,7 +189,7 @@ def _ancestor_distances(
     queue = deque([term_id])
     while queue:
         current = queue.popleft()
-        for parent in _parents_of(current, ancestors, depths):
+        for parent in _parents_of(current, ancestors):
             if parent in distances:
                 continue
             distances[parent] = distances[current] + 1
@@ -153,16 +198,17 @@ def _ancestor_distances(
     return distances
 
 
-def _parents_of(
-    term_id: str,
-    ancestors: dict[str, set[str]],
-    depths: dict[str, int],
-) -> set[str]:
+def _parents_of(term_id: str, ancestors: dict[str, set[str]]) -> set[str]:
+    cache_key = (id(ancestors), term_id)
+    if cache_key in _PARENTS_CACHE:
+        return _PARENTS_CACHE[cache_key]
+
     proper_ancestors = ancestors.get(term_id, set()) - {term_id}
     if not proper_ancestors:
-        return set()
+        _PARENTS_CACHE[cache_key] = set()
+        return _PARENTS_CACHE[cache_key]
 
-    return {
+    parents = {
         ancestor
         for ancestor in proper_ancestors
         if not any(
@@ -171,6 +217,8 @@ def _parents_of(
             if other_ancestor != ancestor
         )
     }
+    _PARENTS_CACHE[cache_key] = parents
+    return parents
 
 
 def _sibling_or_cousin(
@@ -179,8 +227,8 @@ def _sibling_or_cousin(
     ancestors: dict[str, set[str]],
     depths: dict[str, int],
 ) -> MatchKind | None:
-    parents_a = _parents_of(term_a, ancestors, depths)
-    parents_b = _parents_of(term_b, ancestors, depths)
+    parents_a = _parents_of(term_a, ancestors)
+    parents_b = _parents_of(term_b, ancestors)
     if not parents_a or not parents_b:
         return None
 
@@ -188,11 +236,11 @@ def _sibling_or_cousin(
         return MatchKind.SIBLING
 
     for parent_a in parents_a:
-        grand_parents_a = _parents_of(parent_a, ancestors, depths)
+        grand_parents_a = _parents_of(parent_a, ancestors)
         if not grand_parents_a:
             continue
         for parent_b in parents_b:
-            if grand_parents_a.intersection(_parents_of(parent_b, ancestors, depths)):
+            if grand_parents_a.intersection(_parents_of(parent_b, ancestors)):
                 return MatchKind.COUSIN
 
     return None
@@ -210,6 +258,12 @@ def _safe_similarity(
             config.similarity_formula,
         )
     except Exception:
+        logger.warning(
+            "Failed to calculate semantic similarity for %s vs %s",
+            predicted_id,
+            gold_id,
+            exc_info=True,
+        )
         return 0.0
 
     if not math.isfinite(similarity):

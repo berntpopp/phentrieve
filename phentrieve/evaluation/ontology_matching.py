@@ -6,7 +6,7 @@ from dataclasses import dataclass
 import networkx as nx
 from networkx.algorithms.matching import max_weight_matching
 
-from phentrieve.evaluation.extraction_metrics import ExtractionResult
+from phentrieve.evaluation._extraction_types import ExtractionResult
 from phentrieve.evaluation.ontology_credit import (
     MatchKind,
     OntologyCreditConfig,
@@ -50,6 +50,7 @@ def calculate_document_ontology_metrics(
 ) -> DocumentOntologyMetrics:
     predictions = _unique_annotations(result.predicted)
     gold = _unique_annotations(result.gold)
+    credit_cache: dict[tuple[str, str], PairCredit] = {}
 
     exact_matches = set(predictions).intersection(gold)
     matches = [
@@ -70,7 +71,12 @@ def calculate_document_ontology_metrics(
     ]
 
     matches.extend(
-        _match_remaining_by_assertion(unmatched_predictions, unmatched_gold, config)
+        _match_remaining_by_assertion(
+            unmatched_predictions,
+            unmatched_gold,
+            config,
+            credit_cache,
+        )
     )
     matches = sorted(matches, key=_matched_pair_sort_key)
 
@@ -95,6 +101,7 @@ def calculate_document_ontology_metrics(
         predictions,
         gold,
         config,
+        credit_cache,
     )
 
     return DocumentOntologyMetrics(
@@ -136,6 +143,7 @@ def _match_remaining_by_assertion(
     predictions: list[Annotation],
     gold: list[Annotation],
     config: OntologyCreditConfig | None,
+    credit_cache: dict[tuple[str, str], PairCredit],
 ) -> list[MatchedPair]:
     predictions_by_assertion = _group_by_assertion(predictions)
     gold_by_assertion = _group_by_assertion(gold)
@@ -147,6 +155,7 @@ def _match_remaining_by_assertion(
                 predictions_by_assertion[assertion],
                 gold_by_assertion[assertion],
                 config,
+                credit_cache,
             )
         )
 
@@ -157,6 +166,7 @@ def _maximum_weight_matches(
     predictions: list[Annotation],
     gold: list[Annotation],
     config: OntologyCreditConfig | None,
+    credit_cache: dict[tuple[str, str], PairCredit],
 ) -> list[MatchedPair]:
     graph = nx.Graph()
     for pred_index, prediction in enumerate(predictions):
@@ -165,7 +175,12 @@ def _maximum_weight_matches(
         for gold_index, gold_annotation in enumerate(gold):
             gold_node = ("gold", gold_index)
             graph.add_node(gold_node, bipartite=1)
-            credit = _pair_credit(prediction[0], gold_annotation[0], config)
+            credit = _pair_credit(
+                prediction[0],
+                gold_annotation[0],
+                config,
+                credit_cache,
+            )
             if credit.credit <= 0.0:
                 continue
             graph.add_edge(
@@ -206,12 +221,18 @@ def _partial_diagnostics(
     predictions: list[Annotation],
     gold: list[Annotation],
     config: OntologyCreditConfig | None,
+    credit_cache: dict[tuple[str, str], PairCredit],
 ) -> tuple[float, float, float]:
     gold_by_assertion = _group_by_assertion(gold)
     predictions_by_assertion = _group_by_assertion(predictions)
 
     prediction_scores = [
-        _best_credit(prediction, gold_by_assertion.get(prediction[1], []), config)
+        _best_credit(
+            prediction,
+            gold_by_assertion.get(prediction[1], []),
+            config,
+            credit_cache,
+        )
         for prediction in predictions
     ]
     gold_scores = [
@@ -219,6 +240,7 @@ def _partial_diagnostics(
             predictions_by_assertion.get(gold_annotation[1], []),
             gold_annotation,
             config,
+            credit_cache,
         )
         for gold_annotation in gold
     ]
@@ -233,12 +255,13 @@ def _best_credit(
     source: Annotation,
     candidates: list[Annotation],
     config: OntologyCreditConfig | None,
+    credit_cache: dict[tuple[str, str], PairCredit],
 ) -> float:
     if not candidates:
         return 0.0
     return _clean_float(
         max(
-            _pair_credit(source[0], candidate[0], config).credit
+            _pair_credit(source[0], candidate[0], config, credit_cache).credit
             for candidate in candidates
         )
     )
@@ -248,12 +271,13 @@ def _best_recall_credit(
     prediction_candidates: list[Annotation],
     gold: Annotation,
     config: OntologyCreditConfig | None,
+    credit_cache: dict[tuple[str, str], PairCredit],
 ) -> float:
     if not prediction_candidates:
         return 0.0
     return _clean_float(
         max(
-            _pair_credit(prediction[0], gold[0], config).credit
+            _pair_credit(prediction[0], gold[0], config, credit_cache).credit
             for prediction in prediction_candidates
         )
     )
@@ -263,10 +287,14 @@ def _pair_credit(
     predicted_id: str,
     gold_id: str,
     config: OntologyCreditConfig | None,
+    credit_cache: dict[tuple[str, str], PairCredit],
 ) -> PairCredit:
     if predicted_id == gold_id:
         return _exact_pair_credit(predicted_id)
-    return calculate_pair_credit(predicted_id, gold_id, config)
+    cache_key = (predicted_id, gold_id)
+    if cache_key not in credit_cache:
+        credit_cache[cache_key] = calculate_pair_credit(predicted_id, gold_id, config)
+    return credit_cache[cache_key]
 
 
 def _mean(values: list[float]) -> float:

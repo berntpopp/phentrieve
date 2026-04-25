@@ -99,6 +99,7 @@ def test_run_llm_benchmark_includes_ontology_metrics_when_enabled(monkeypatch):
     monkeypatch.setattr(llm_benchmark, "load_benchmark_data", fake_load_benchmark_data)
     monkeypatch.setattr(llm_benchmark, "get_llm_provider", lambda llm_model: object())
     monkeypatch.setattr(llm_benchmark, "TwoPhaseLLMPipeline", _FakePipeline)
+    monkeypatch.setattr(llm_benchmark, "validate_hpo_graph_available", lambda: None)
 
     result = llm_benchmark.run_llm_benchmark(
         test_file="tests/data/en/phenobert",
@@ -111,6 +112,24 @@ def test_run_llm_benchmark_includes_ontology_metrics_when_enabled(monkeypatch):
     assert result["ontology_aware_metrics"] is True
     assert result["ontology_semantic_floor"] == 0.30
     assert result["ontology_similarity_formula"] == "hybrid"
+
+
+def test_run_llm_benchmark_requires_hpo_graph_for_ontology_metrics(monkeypatch):
+    def fail_load_benchmark_data(*_args, **_kwargs):
+        raise AssertionError("benchmark data should not load without ontology graph")
+
+    monkeypatch.setattr(llm_benchmark, "load_benchmark_data", fail_load_benchmark_data)
+    monkeypatch.setattr(
+        "phentrieve.evaluation.ontology_credit.load_hpo_graph_data",
+        lambda: ({}, {}),
+    )
+
+    with pytest.raises(RuntimeError, match="HPO graph data is required"):
+        llm_benchmark.run_llm_benchmark(
+            test_file="tests/data/en/phenobert",
+            llm_model="gemini-2.5-flash",
+            ontology_aware_metrics=True,
+        )
 
 
 def test_run_llm_benchmark_filters_to_requested_doc_ids(monkeypatch):
