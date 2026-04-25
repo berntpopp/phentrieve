@@ -53,13 +53,7 @@ def deduplicate_summaries(summaries: list[dict[str, Any]]) -> list[dict[str, Any
         return []
     unique_summaries_dict = {}
     for summary in summaries:
-        # Use a composite key if re-ranking info is present to differentiate runs
-        key_parts = [summary.get("model", "Unknown")]
-        if summary.get("reranker_enabled", False):
-            key_parts.append(summary.get("reranker_model", "Unknown"))
-            key_parts.append(summary.get("reranker_mode", "Unknown"))
-
-        composite_key = tuple(key_parts)
+        composite_key = (summary.get("model", "Unknown"),)
 
         if composite_key not in unique_summaries_dict:
             unique_summaries_dict[composite_key] = summary
@@ -74,7 +68,7 @@ def deduplicate_summaries(summaries: list[dict[str, Any]]) -> list[dict[str, Any
 def prepare_comparison_dataframe(summaries: list[dict[str, Any]]) -> pd.DataFrame:
     """
     Prepare a Pandas DataFrame for comparing benchmark summaries.
-    Handles both dense and re-ranked metrics.
+    Handles dense retrieval metrics.
     """
     comparison_data = []
     k_values = [1, 3, 5, 10]
@@ -85,27 +79,12 @@ def prepare_comparison_dataframe(summaries: list[dict[str, Any]]) -> pd.DataFram
             "Test File": summary.get("test_file", "Unknown"),
             "Test Cases": summary.get("num_test_cases", 0),
             "Date": summary.get("timestamp", ""),
-            "Reranker": "Enabled" if summary.get("reranker_enabled") else "Disabled",
-            "Reranker Model": (
-                summary.get("reranker_model", "N/A")
-                if summary.get("reranker_enabled")
-                else "N/A"
-            ),
-            "Reranker Mode": (
-                summary.get("reranker_mode", "N/A")
-                if summary.get("reranker_enabled")
-                else "N/A"
-            ),
         }
 
         # MRR
         row["MRR (Dense)"] = summary.get(
             "avg_mrr_dense", summary.get("avg_mrr", summary.get("mrr", 0.0))
         )
-        if summary.get("reranker_enabled"):
-            row["MRR (ReRanked)"] = summary.get("avg_mrr_reranked", 0.0)
-            row["MRR (Diff)"] = row["MRR (ReRanked)"] - row["MRR (Dense)"]
-
         # Hit Rate and Maximum Ontology Similarity
         for metric_prefix, display_prefix in [
             ("hit_rate", "HR"),
@@ -116,19 +95,12 @@ def prepare_comparison_dataframe(summaries: list[dict[str, Any]]) -> pd.DataFram
                 dense_key_legacy = f"avg_{metric_prefix}@{k}"  # for older files
                 dense_key_direct = f"{metric_prefix}@{k}"  # for even older files
 
-                reranked_key_avg = f"avg_{metric_prefix}_reranked@{k}"
-
                 # Get dense value, checking multiple possible keys
                 dense_val = summary.get(
                     dense_key_avg,
                     summary.get(dense_key_legacy, summary.get(dense_key_direct, 0.0)),
                 )
                 row[f"{display_prefix}@{k} (Dense)"] = dense_val
-
-                if summary.get("reranker_enabled"):
-                    reranked_val = summary.get(reranked_key_avg, 0.0)
-                    row[f"{display_prefix}@{k} (ReRanked)"] = reranked_val
-                    row[f"{display_prefix}@{k} (Diff)"] = reranked_val - dense_val
         comparison_data.append(row)
 
     df = pd.DataFrame(comparison_data)
@@ -151,7 +123,6 @@ def prepare_flat_dataframe_for_plotting(
     plot_data = []
     for summary in summaries:
         model_name = summary.get("model", "Unknown")
-        reranker_enabled = summary.get("reranker_enabled", False)
 
         for k in k_values:
             # Dense metrics
@@ -187,32 +158,6 @@ def prepare_flat_dataframe_for_plotting(
                         "std_dev": dense_std_dev,
                     }
                 )
-
-            # Re-ranked metrics (if enabled and present)
-            if reranker_enabled:
-                reranked_key_avg = f"avg_{metric_prefix}_reranked@{k}"
-                reranked_value = summary.get(reranked_key_avg, np.nan)
-
-                reranked_std_dev = np.nan
-                reranked_per_case_key = f"{metric_prefix}_reranked@{k}_per_case"
-                per_case_data_reranked = summary.get(reranked_per_case_key)
-                if (
-                    per_case_data_reranked
-                    and isinstance(per_case_data_reranked, list)
-                    and len(per_case_data_reranked) > 1
-                ):
-                    reranked_std_dev = float(np.std(per_case_data_reranked))
-
-                if not np.isnan(reranked_value):
-                    plot_data.append(
-                        {
-                            "model": model_name,
-                            "k": k,
-                            "method": "Re-Ranked",
-                            "value": reranked_value,
-                            "std_dev": reranked_std_dev,
-                        }
-                    )
 
     df = pd.DataFrame(plot_data)
     if not df.empty:

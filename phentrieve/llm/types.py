@@ -60,7 +60,6 @@ class LLMPhenotype(BaseModel):
     category: str | None = None
     confidence: float | None = None
     score: float | None = None
-    reranker_score: float | None = None
     evidence_records: list[LLMPhenotypeEvidence] = Field(default_factory=list)
 
 

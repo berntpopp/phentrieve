@@ -12,7 +12,7 @@ from typing import Annotated, Any
 import typer
 
 from phentrieve.cli.utils import resolve_chunking_pipeline_config
-from phentrieve.config import DEFAULT_MODEL, DEFAULT_RERANKER_MODEL
+from phentrieve.config import DEFAULT_MODEL
 from phentrieve.retrieval.dense_retriever import DenseRetriever
 from phentrieve.text_processing.hpo_extraction_orchestrator import (
     orchestrate_hpo_extraction,
@@ -243,21 +243,6 @@ def interactive_text_mode(
             help="Assertion detection strategy preference (dependency, keyword, any_negative)",
         ),
     ] = "dependency",
-    enable_reranker: Annotated[
-        bool,
-        typer.Option(
-            "--enable-reranker",
-            "--rerank",
-            help="Enable cross-encoder reranking of results",
-        ),
-    ] = False,
-    reranker_model: Annotated[
-        str | None,
-        typer.Option(
-            "--reranker-model",
-            help="Cross-encoder model for reranking (if reranking enabled)",
-        ),
-    ] = None,
     annotations_above: Annotated[
         bool,
         typer.Option(
@@ -296,7 +281,7 @@ def interactive_text_mode(
     Example usage:
         phentrieve text interactive
         phentrieve text interactive -l de --annotations-above
-        phentrieve text interactive -s semantic --enable-reranker
+        phentrieve text interactive -s semantic
     """
     from rich.console import Console
     from rich.panel import Panel
@@ -420,18 +405,6 @@ def interactive_text_mode(
         console.print(f"[red]Error initializing retriever: {e}[/red]")
         raise typer.Exit(code=1)
 
-    # Load cross-encoder if reranking is enabled
-    cross_encoder = None
-    if enable_reranker:
-        try:
-            from sentence_transformers import CrossEncoder
-
-            reranker_to_use = reranker_model or DEFAULT_RERANKER_MODEL
-            console.print(f"[dim]Loading reranker: {reranker_to_use}[/dim]")
-            cross_encoder = CrossEncoder(reranker_to_use)
-        except Exception as e:
-            console.print(f"[yellow]Warning: Failed to load reranker: {e}[/yellow]")
-
     console.print("[green]Models loaded successfully![/green]")
     console.print()
 
@@ -495,7 +468,6 @@ def interactive_text_mode(
                     phenopacket_json = format_as_phenopacket_v2(
                         chunk_results=chunk_results_with_text,
                         embedding_model=retrieval_model,
-                        reranker_model=reranker_model if enable_reranker else None,
                         input_text=last_input_text,
                     )
                     console.print("[green]Phenopacket JSON:[/green]")
@@ -570,7 +542,6 @@ def interactive_text_mode(
                     retriever=retriever,
                     num_results_per_chunk=num_results,
                     chunk_retrieval_threshold=chunk_retrieval_threshold,
-                    cross_encoder=cross_encoder,
                     language=language,
                     top_term_per_chunk=top_term_per_chunk,
                     min_confidence_for_aggregated=aggregated_term_confidence,

@@ -639,7 +639,7 @@ def mean_reciprocal_rank(results: dict[str, Any], expected_ids: list[str]) -> fl
     # Sort by similarity score (descending)
     retrieved_ids.sort(key=lambda x: x[2], reverse=True)
 
-    # Re-rank based on similarity
+    # Reassign ranks after sorting by similarity.
     ranked_ids = [
         (hpo_id, i + 1, sim) for i, (hpo_id, _, sim) in enumerate(retrieved_ids)
     ]

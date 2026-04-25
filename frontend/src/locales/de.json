@@ -382,7 +382,7 @@
           },
           "howItWorks": {
             "question": "Wie funktioniert Phentrieve?",
-            "answer": "<p>Phentrieve verwendet eine anspruchsvolle Pipeline von KI-Modellen und Algorithmen zur Verarbeitung klinischer Texte:</p><ol><li><strong>Textanalyse:</strong> Das System analysiert den Eingabetext mithilfe spezialisierter biomedizinischer Sprachmodelle</li><li><strong>Begriffsabgleich:</strong> Es identifiziert potenzielle HPO-Begriffe durch semantische Suche und kontextbewusste Zuordnung</li><li><strong>Ranking:</strong> Die Treffer werden mittels fortschrittlicher Cross-Encoder-Modelle nach Relevanz geordnet</li><li><strong>Ergebnisse:</strong> Die relevantesten HPO-Begriffe werden dem Benutzer präsentiert</li></ol><p>Dieser Prozess gewährleistet hochwertige Übereinstimmungen bei gleichzeitiger Effizienz.</p>"
+            "answer": "<p>Phentrieve verwendet eine anspruchsvolle Pipeline von KI-Modellen und Algorithmen zur Verarbeitung klinischer Texte:</p><ol><li><strong>Textanalyse:</strong> Das System analysiert den Eingabetext mithilfe spezialisierter biomedizinischer Sprachmodelle</li><li><strong>Begriffsabgleich:</strong> Es identifiziert potenzielle HPO-Begriffe durch semantische Suche und kontextbewusste Zuordnung</li><li><strong>Ranking:</strong> Die Treffer werden nach Relevanz geordnet</li><li><strong>Ergebnisse:</strong> Die relevantesten HPO-Begriffe werden dem Benutzer präsentiert</li></ol><p>Dieser Prozess gewährleistet hochwertige Übereinstimmungen bei gleichzeitiger Effizienz.</p>"
           },
           "whoCanUse": {
             "question": "Wer kann Phentrieve nutzen?",

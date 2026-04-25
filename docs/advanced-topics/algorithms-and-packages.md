@@ -480,9 +480,7 @@ chunking_pipeline:
 
 2. **Dense Passage Retrieval**: Karpukhin, V., et al. (2020). "Dense Passage Retrieval for Open-Domain Question Answering." EMNLP 2020.
 
-3. **Cross-Encoders**: Nogueira, R., & Cho, K. (2019). "Passage Re-ranking with BERT." arXiv:1901.04085.
-
-4. **HNSW Algorithm**: Malkov, Y. A., & Yashunin, D. A. (2018). "Efficient and robust approximate nearest neighbor search using Hierarchical Navigable Small World graphs." TPAMI.
+3. **HNSW Algorithm**: Malkov, Y. A., & Yashunin, D. A. (2018). "Efficient and robust approximate nearest neighbor search using Hierarchical Navigable Small World graphs." TPAMI.
 
 ### Package Documentation
 

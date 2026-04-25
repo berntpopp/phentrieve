@@ -22,11 +22,3 @@ def mock_sbert_model():
     model.get_embedding_dimension.return_value = 384
     model.get_sentence_embedding_dimension.return_value = 384
     return model
-
-
-@pytest.fixture
-def mock_cross_encoder():
-    """Shared mock CrossEncoder for unit tests."""
-    encoder = MagicMock()
-    encoder.predict.return_value = [0.9, 0.8, 0.7, 0.6, 0.5]
-    return encoder
