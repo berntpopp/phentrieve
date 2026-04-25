@@ -50,7 +50,7 @@ def _get_lock_for_model(model_name: str) -> asyncio.Lock:
 
 
 async def _load_model_in_background(
-    model_name: str, is_sbert: bool, trust_remote_code: bool, device: str | None
+    model_name: str, trust_remote_code: bool, device: str | None
 ):
     """Load the specified SBERT model in background using run_in_threadpool.
 
@@ -63,8 +63,6 @@ async def _load_model_in_background(
     )
     actual_device = device or DEFAULT_DEVICE
     try:
-        if not is_sbert:
-            raise ValueError("Only SBERT model loading is supported")
         model_instance = await run_in_threadpool(
             load_embedding_model,
             model_name=model_name,
@@ -184,7 +182,7 @@ async def get_sbert_model_dependency(
 
         # Create task and store it for awaiting
         task = asyncio.create_task(
-            _load_model_in_background(model_name, True, trust_remote_code, device)
+            _load_model_in_background(model_name, trust_remote_code, device)
         )
         MODEL_LOADING_TASKS[model_name] = task
 

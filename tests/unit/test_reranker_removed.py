@@ -26,8 +26,13 @@ _BANNED_TERMS = (
 
 def test_removed_second_stage_ranking_has_no_tracked_references() -> None:
     repo_root = Path(__file__).resolve().parents[2]
+    if not (repo_root / ".git").exists():
+        pytest.skip("requires a git checkout")
+
     git = shutil.which("git")
-    assert git is not None
+    if git is None:
+        pytest.skip("requires git")
+
     tracked_files = subprocess.run(  # noqa: S603 - fixed git executable and arguments
         [git, "ls-files"],
         cwd=repo_root,
@@ -56,4 +61,6 @@ def test_removed_second_stage_ranking_has_no_tracked_references() -> None:
             if pattern.search(line):
                 offenders.append(f"{relative_path}:{line_number}: {line.strip()}")
 
-    assert offenders == []
+    assert not offenders, (
+        "Removed second-stage ranking references remain:\n" + "\n".join(offenders)
+    )

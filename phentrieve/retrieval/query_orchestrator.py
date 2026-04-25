@@ -191,12 +191,6 @@ def format_results(
     result_tuples.sort(key=lambda x: x[2], reverse=True)
     threshold_filtered = [res for res in result_tuples if res[2] >= threshold]
 
-    if not isinstance(max_results, int):
-        logging.warning(
-            f"max_results is not an integer: {type(max_results)}, value: {max_results}"
-        )
-        max_results = int(max_results) if max_results is not None else DEFAULT_TOP_K
-
     filtered_results = threshold_filtered[:max_results]
 
     # Format the results
