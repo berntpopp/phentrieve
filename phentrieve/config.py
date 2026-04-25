@@ -67,6 +67,13 @@ __all__ = [
     # HPO extraction thresholds
     "DEFAULT_CHUNK_RETRIEVAL_THRESHOLD",
     "DEFAULT_MIN_CONFIDENCE_AGGREGATED",
+    "DEFAULT_CHUNK_CONFIDENCE",
+    "DEFAULT_ASSERTION_PREFERENCE",
+    # CLI symmetry alias
+    "DEFAULT_NUM_RESULTS",
+    # Output format defaults
+    "DEFAULT_OUTPUT_FORMAT_QUERY",
+    "DEFAULT_OUTPUT_FORMAT_PROCESS",
     # Chunking strategy
     "DEFAULT_CHUNKING_STRATEGY",
     # Assertion detection
@@ -121,6 +128,12 @@ DEFAULT_MIN_SEGMENT_LENGTH_WORDS = 2
 # HPO extraction thresholds
 _DEFAULT_CHUNK_RETRIEVAL_THRESHOLD_FALLBACK = 0.7
 _DEFAULT_MIN_CONFIDENCE_AGGREGATED_FALLBACK = 0.75
+_DEFAULT_CHUNK_CONFIDENCE_FALLBACK = 0.2
+_DEFAULT_ASSERTION_PREFERENCE_FALLBACK = "dependency"
+
+# Output format defaults (used by CLI commands)
+_DEFAULT_OUTPUT_FORMAT_QUERY_FALLBACK = "text"
+_DEFAULT_OUTPUT_FORMAT_PROCESS_FALLBACK = "json_lines"
 
 # Default chunking strategy
 DEFAULT_CHUNKING_STRATEGY = "sliding_window_punct_conj_cleaned"
@@ -504,6 +517,23 @@ DEFAULT_CHUNK_RETRIEVAL_THRESHOLD: float = get_config_value(
 DEFAULT_MIN_CONFIDENCE_AGGREGATED: float = get_config_value(
     "extraction", _DEFAULT_MIN_CONFIDENCE_AGGREGATED_FALLBACK, "min_confidence"
 )
+DEFAULT_CHUNK_CONFIDENCE: float = get_config_value(
+    "extraction", _DEFAULT_CHUNK_CONFIDENCE_FALLBACK, "chunk_confidence"
+)
+DEFAULT_ASSERTION_PREFERENCE: str = get_config_value(
+    "extraction", _DEFAULT_ASSERTION_PREFERENCE_FALLBACK, "assertion_preference"
+)
+
+# Output format defaults
+DEFAULT_OUTPUT_FORMAT_QUERY: str = get_config_value(
+    "output", _DEFAULT_OUTPUT_FORMAT_QUERY_FALLBACK, "format_query"
+)
+DEFAULT_OUTPUT_FORMAT_PROCESS: str = get_config_value(
+    "output", _DEFAULT_OUTPUT_FORMAT_PROCESS_FALLBACK, "format_process"
+)
+
+# Alias for CLI symmetry - CLI uses num_results, config has DEFAULT_TOP_K
+DEFAULT_NUM_RESULTS: int = DEFAULT_TOP_K
 
 
 # =============================================================================
