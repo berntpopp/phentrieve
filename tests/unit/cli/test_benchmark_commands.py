@@ -524,6 +524,50 @@ def test_benchmark_llm_command_passes_timeout_override(tmp_path, monkeypatch):
     assert captured["llm_timeout_seconds"] == 900
 
 
+def test_benchmark_llm_command_passes_ontology_metric_options(tmp_path, monkeypatch):
+    runner = CliRunner()
+    test_file = tmp_path / "cases.json"
+    test_file.write_text("[]", encoding="utf-8")
+    captured: dict[str, object] = {}
+
+    def fake_run_llm_benchmark_cli(**kwargs):
+        captured.update(kwargs)
+        return {
+            "cases": 0,
+            "llm_model": kwargs["llm_model"],
+            "llm_mode": kwargs["llm_mode"],
+            "dataset": kwargs["dataset"],
+            "output_path": str(tmp_path / "result.json"),
+        }
+
+    monkeypatch.setattr(
+        "phentrieve.benchmark.llm_cli.run_llm_benchmark_cli",
+        fake_run_llm_benchmark_cli,
+    )
+
+    result = runner.invoke(
+        cli_app,
+        [
+            "benchmark",
+            "llm",
+            "--test-file",
+            str(test_file),
+            "--llm-model",
+            "gemini-3.1-flash-lite-preview",
+            "--ontology-aware-metrics",
+            "--ontology-semantic-floor",
+            "0.25",
+            "--ontology-similarity-formula",
+            "simple_resnik_like",
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert captured["ontology_aware_metrics"] is True
+    assert captured["ontology_semantic_floor"] == 0.25
+    assert captured["ontology_similarity_formula"] == "simple_resnik_like"
+
+
 # =============================================================================
 # Tests for compare_benchmarks()
 # =============================================================================

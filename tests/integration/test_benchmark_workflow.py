@@ -1391,6 +1391,120 @@ def test_extraction_benchmark_saves_ontology_metrics_when_enabled(
     assert summary["partial_micro_f1"] == 0.5
 
 
+def test_extraction_benchmark_detailed_output_includes_ontology_pairs_when_enabled(
+    tmp_path, monkeypatch
+):
+    benchmark = ExtractionBenchmark(
+        model_name="sentence-transformers/LaBSE",
+        config=ExtractionConfig(
+            model_name="sentence-transformers/LaBSE",
+            dataset="all",
+            averaging="micro",
+            bootstrap_ci=False,
+            detailed_output=True,
+            ontology_aware_metrics=True,
+        ),
+    )
+
+    def _fake_load_benchmark_data(test_path, dataset):
+        return {
+            "metadata": {
+                "dataset_name": f"phenobert_{dataset}",
+                "source": "phenobert",
+                "total_documents": 1,
+                "total_annotations": 1,
+            },
+            "documents": [
+                {
+                    "id": "doc-1",
+                    "text": "Patient has seizures.",
+                    "gold_hpo_terms": [
+                        {
+                            "id": "HP:0001250",
+                            "label": "Seizure",
+                            "assertion": "PRESENT",
+                            "evidence_spans": [],
+                        }
+                    ],
+                    "source_dataset": dataset,
+                }
+            ],
+        }
+
+    def _fake_extract_with_details(text):
+        return [("HP:0001250", "PRESENT")], {
+            "chunk_results": [
+                {
+                    "chunk_idx": 0,
+                    "chunk_text": text,
+                    "matches": [
+                        {
+                            "id": "HP:0001250",
+                            "score": 0.91,
+                        }
+                    ],
+                }
+            ],
+            "aggregated_results": [
+                {
+                    "id": "HP:0001250",
+                    "name": "Seizure",
+                    "score": 0.91,
+                    "avg_score": 0.91,
+                }
+            ],
+            "processed_chunks": [
+                {
+                    "chunk_idx": 0,
+                    "text": text,
+                    "assertion_status": "affirmed",
+                    "start_char": 0,
+                    "end_char": len(text),
+                }
+            ],
+        }
+
+    monkeypatch.setattr(
+        "phentrieve.benchmark.extraction_benchmark.load_benchmark_data",
+        _fake_load_benchmark_data,
+    )
+    monkeypatch.setattr(
+        benchmark.extractor,
+        "extract_with_details",
+        _fake_extract_with_details,
+    )
+
+    output_dir = tmp_path / "results"
+    benchmark.run_benchmark(test_file=tmp_path, output_dir=output_dir)
+
+    detailed = json.loads(
+        (output_dir / "extraction_detailed_analysis.json").read_text(encoding="utf-8")
+    )
+    ontology_details = detailed["documents"][0]["ontology_metrics"]
+
+    assert ontology_details["soft"]["tp"] == 1.0
+    assert ontology_details["partial"]["f1"] == 1.0
+    assert ontology_details["matches"] == [
+        {
+            "predicted": {
+                "hpo_id": "HP:0001250",
+                "label": "Seizure",
+                "assertion": "PRESENT",
+            },
+            "gold": {
+                "hpo_id": "HP:0001250",
+                "label": "Seizure",
+                "assertion": "PRESENT",
+            },
+            "assertion": "PRESENT",
+            "match_kind": "exact",
+            "credit": 1.0,
+            "semantic_similarity": 1.0,
+            "distance": 0,
+        }
+    ]
+
+
 def test_extraction_benchmark_rejects_invalid_ontology_formula_before_extraction(
     tmp_path, monkeypatch
 ):

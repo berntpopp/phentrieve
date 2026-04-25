@@ -26,6 +26,11 @@ app = typer.Typer(help="Benchmark LLM full-text extraction.")
 console = Console()
 logger = logging.getLogger(__name__)
 DEFAULT_LLM_BENCHMARK_OUTPUT_DIR = Path("results") / "llm"
+CHECKPOINT_DEFAULTS: dict[str, Any] = {
+    "ontology_aware_metrics": False,
+    "ontology_semantic_floor": 0.30,
+    "ontology_similarity_formula": "hybrid",
+}
 
 
 def _default_output_path() -> Path:
@@ -70,6 +75,9 @@ def run_llm_benchmark_cli(
     output_cost_per_1m_tokens: float | None = None,
     cached_input_cost_per_1m_tokens: float | None = None,
     capture_phase1_debug: bool = False,
+    ontology_aware_metrics: bool = False,
+    ontology_semantic_floor: float = 0.30,
+    ontology_similarity_formula: str = "hybrid",
     measure_energy: bool = False,
     per_document_energy: bool = False,
     electricity_cost_per_kwh: float | None = None,
@@ -138,6 +146,9 @@ def run_llm_benchmark_cli(
                 "llm_internal_mode": llm_internal_mode,
                 "language": language,
                 "capture_phase1_debug": capture_phase1_debug,
+                "ontology_aware_metrics": ontology_aware_metrics,
+                "ontology_semantic_floor": ontology_semantic_floor,
+                "ontology_similarity_formula": ontology_similarity_formula,
                 "prompt_templates_dir": prompt_templates_dir,
                 "requested_doc_ids": list(doc_ids) if doc_ids else None,
             },
@@ -175,6 +186,9 @@ def run_llm_benchmark_cli(
         output_cost_per_1m_tokens=output_cost_per_1m_tokens,
         cached_input_cost_per_1m_tokens=cached_input_cost_per_1m_tokens,
         capture_phase1_debug=capture_phase1_debug,
+        ontology_aware_metrics=ontology_aware_metrics,
+        ontology_semantic_floor=ontology_semantic_floor,
+        ontology_similarity_formula=ontology_similarity_formula,
         accounting_config=accounting_config,
         checkpoint_state=existing_checkpoint,
         progress_callback=_persist_checkpoint,
@@ -292,7 +306,10 @@ def _checkpoint_matches_run(
     payload: dict[str, Any],
     current_run: dict[str, Any],
 ) -> bool:
-    return all(payload.get(key) == value for key, value in current_run.items())
+    return all(
+        payload.get(key, CHECKPOINT_DEFAULTS.get(key)) == value
+        for key, value in current_run.items()
+    )
 
 
 def _write_benchmark_artifacts(
@@ -493,6 +510,27 @@ def benchmark_llm(
             help="Capture phase 1 source text, prompt, and raw structured outputs in per-case traces.",
         ),
     ] = False,
+    ontology_aware_metrics: Annotated[
+        bool,
+        typer.Option(
+            "--ontology-aware-metrics/--no-ontology-aware-metrics",
+            help="Calculate ontology-aware soft and partial benchmark metrics.",
+        ),
+    ] = False,
+    ontology_semantic_floor: Annotated[
+        float,
+        typer.Option(
+            "--ontology-semantic-floor",
+            help="Minimum fallback semantic similarity for ontology-aware credit.",
+        ),
+    ] = 0.30,
+    ontology_similarity_formula: Annotated[
+        str,
+        typer.Option(
+            "--ontology-similarity-formula",
+            help="Ontology fallback similarity formula: hybrid or simple_resnik_like.",
+        ),
+    ] = "hybrid",
     measure_energy: Annotated[
         bool,
         typer.Option(
@@ -556,6 +594,9 @@ def benchmark_llm(
             output_cost_per_1m_tokens=output_cost_per_1m_tokens,
             cached_input_cost_per_1m_tokens=cached_input_cost_per_1m_tokens,
             capture_phase1_debug=capture_phase1_debug,
+            ontology_aware_metrics=ontology_aware_metrics,
+            ontology_semantic_floor=ontology_semantic_floor,
+            ontology_similarity_formula=ontology_similarity_formula,
             measure_energy=measure_energy,
             per_document_energy=per_document_energy,
             electricity_cost_per_kwh=electricity_cost_per_kwh,

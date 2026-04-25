@@ -319,6 +319,11 @@ class ExtractionBenchmark:
                 config=ontology_config,
             )
             _attach_ontology_metrics(metrics, ontology_metrics)
+            if config.detailed_output:
+                self._attach_ontology_detailed_results(
+                    detailed_results,
+                    ontology_metrics.document_metrics,
+                )
 
         # Calculate bootstrap CI if requested
         if config.bootstrap_ci:
@@ -546,6 +551,111 @@ class ExtractionBenchmark:
                 "false_negatives": false_negatives,
             },
             "all_chunks": all_chunks,
+        }
+
+    def _attach_ontology_detailed_results(
+        self,
+        detailed_results: list[dict[str, Any]],
+        document_metrics: list[Any],
+    ) -> None:
+        metrics_by_doc_id = {metric.doc_id: metric for metric in document_metrics}
+        for detailed_result in detailed_results:
+            ontology_metric = metrics_by_doc_id.get(detailed_result["doc_id"])
+            if ontology_metric is None:
+                continue
+            detailed_result["ontology_metrics"] = (
+                self._serialize_document_ontology_metrics(
+                    ontology_metric,
+                    detailed_result,
+                )
+            )
+
+    def _serialize_document_ontology_metrics(
+        self,
+        ontology_metric: Any,
+        detailed_result: dict[str, Any],
+    ) -> dict[str, Any]:
+        predicted_labels, gold_labels = self._ontology_label_lookups(detailed_result)
+
+        return {
+            "counts": {
+                "predictions": ontology_metric.prediction_count,
+                "gold": ontology_metric.gold_count,
+                "strict_tp": ontology_metric.strict_tp,
+            },
+            "soft": {
+                "tp": ontology_metric.soft_tp,
+                "fp": ontology_metric.soft_fp,
+                "fn": ontology_metric.soft_fn,
+                "precision": ontology_metric.soft_precision,
+                "recall": ontology_metric.soft_recall,
+                "f1": ontology_metric.soft_f1,
+            },
+            "partial": {
+                "precision": ontology_metric.partial_precision,
+                "recall": ontology_metric.partial_recall,
+                "f1": ontology_metric.partial_f1,
+            },
+            "matches": [
+                {
+                    "predicted": self._serialize_ontology_annotation(
+                        match.predicted,
+                        predicted_labels,
+                    ),
+                    "gold": self._serialize_ontology_annotation(
+                        match.gold,
+                        gold_labels,
+                    ),
+                    "assertion": match.predicted[1],
+                    "match_kind": match.credit.match_kind.value,
+                    "credit": match.credit.credit,
+                    "semantic_similarity": match.credit.semantic_similarity,
+                    "distance": match.credit.distance,
+                }
+                for match in ontology_metric.matches
+            ],
+            "unmatched_predictions": [
+                self._serialize_ontology_annotation(annotation, predicted_labels)
+                for annotation in ontology_metric.unmatched_predictions
+            ],
+            "unmatched_gold": [
+                self._serialize_ontology_annotation(annotation, gold_labels)
+                for annotation in ontology_metric.unmatched_gold
+            ],
+        }
+
+    def _ontology_label_lookups(
+        self,
+        detailed_result: dict[str, Any],
+    ) -> tuple[dict[str, str], dict[str, str]]:
+        predicted_labels: dict[str, str] = {}
+        gold_labels: dict[str, str] = {}
+        analysis = detailed_result.get("analysis", {})
+
+        for item in analysis.get("true_positives", []):
+            hpo_id = item["hpo_id"]
+            label = item.get("label", "")
+            predicted_labels[hpo_id] = label
+            gold_labels[hpo_id] = label
+
+        for item in analysis.get("false_positives", []):
+            predicted_labels[item["hpo_id"]] = item.get("label", "")
+
+        for item in analysis.get("false_negatives", []):
+            gold_labels[item["hpo_id"]] = item.get("label", "")
+
+        return predicted_labels, gold_labels
+
+    def _serialize_ontology_annotation(
+        self,
+        annotation: tuple[str, str],
+        labels_by_id: dict[str, str],
+    ) -> dict[str, Any]:
+        hpo_id, assertion = annotation
+        return {
+            "hpo_id": hpo_id,
+            "label": labels_by_id.get(hpo_id, ""),
+            "assertion": assertion,
         }
 
     def _save_results(
