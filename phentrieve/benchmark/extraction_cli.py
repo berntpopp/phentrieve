@@ -66,6 +66,21 @@ def run(
         "--detailed-output",
         help="Generate detailed chunk-level analysis JSON (extraction_detailed_analysis.json)",
     ),
+    ontology_aware_metrics: bool = typer.Option(
+        False,
+        "--ontology-aware-metrics/--no-ontology-aware-metrics",
+        help="Calculate ontology-aware soft and partial benchmark metrics.",
+    ),
+    ontology_semantic_floor: float = typer.Option(
+        0.30,
+        "--ontology-semantic-floor",
+        help="Minimum fallback semantic similarity for ontology-aware credit.",
+    ),
+    ontology_similarity_formula: str = typer.Option(
+        "hybrid",
+        "--ontology-similarity-formula",
+        help="Ontology fallback similarity formula: hybrid or simple_resnik_like.",
+    ),
     verbose: bool = typer.Option(
         False, "-v", "--verbose", help="Enable verbose output"
     ),
@@ -112,6 +127,9 @@ def run(
         top_term_per_chunk=top_term_only,
         dataset=dataset,
         detailed_output=detailed_output,
+        ontology_aware_metrics=ontology_aware_metrics,
+        ontology_semantic_floor=ontology_semantic_floor,
+        ontology_similarity_formula=ontology_similarity_formula,
     )
 
     # Initialize benchmark
@@ -253,6 +271,24 @@ def _display_results(metrics):
         )
 
     console.print(table)
+
+    ontology_metrics = metrics.ontology_metrics
+    if ontology_metrics is not None:
+        ontology_table = Table(title="Ontology-Aware Benchmark Results")
+        ontology_table.add_column("Metric", style="cyan")
+        ontology_table.add_column("Micro F1", style="magenta")
+
+        ontology_table.add_row(
+            "Strict", f"{ontology_metrics.strict.micro.get('f1', 0):.3f}"
+        )
+        ontology_table.add_row(
+            "Soft", f"{ontology_metrics.soft.micro.get('f1', 0):.3f}"
+        )
+        ontology_table.add_row(
+            "Partial", f"{ontology_metrics.partial.micro.get('f1', 0):.3f}"
+        )
+
+        console.print(ontology_table)
 
     # Display confidence intervals if available
     if metrics.confidence_intervals:

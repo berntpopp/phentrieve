@@ -1,5 +1,8 @@
 """Tests for extraction metrics module."""
 
+import json
+from dataclasses import replace as dataclass_replace
+
 import pytest
 
 from phentrieve.evaluation.extraction_metrics import (
@@ -8,8 +11,60 @@ from phentrieve.evaluation.extraction_metrics import (
     _calculate_prf,
     _doc_metrics,
 )
+from phentrieve.evaluation.ontology_credit import MatchKind, PairCredit
+from phentrieve.evaluation.ontology_matching import DocumentOntologyMetrics
 
 pytestmark = pytest.mark.unit
+
+
+def _fake_credit(
+    predicted_id: str,
+    gold_id: str,
+    credit: float,
+    match_kind: str,
+) -> PairCredit:
+    return PairCredit(
+        predicted_id=predicted_id,
+        gold_id=gold_id,
+        credit=credit,
+        match_kind=MatchKind(match_kind),
+        semantic_similarity=credit,
+        distance=None,
+    )
+
+
+def _document_metrics(
+    doc_id: str,
+    prediction_count: int,
+    gold_count: int,
+    soft_tp: float,
+    soft_fp: float,
+    soft_fn: float,
+    soft_precision: float,
+    soft_recall: float,
+    soft_f1: float,
+    partial_precision: float,
+    partial_recall: float,
+    partial_f1: float,
+) -> DocumentOntologyMetrics:
+    return DocumentOntologyMetrics(
+        doc_id=doc_id,
+        prediction_count=prediction_count,
+        gold_count=gold_count,
+        strict_tp=0,
+        soft_tp=soft_tp,
+        soft_fp=soft_fp,
+        soft_fn=soft_fn,
+        soft_precision=soft_precision,
+        soft_recall=soft_recall,
+        soft_f1=soft_f1,
+        partial_precision=partial_precision,
+        partial_recall=partial_recall,
+        partial_f1=partial_f1,
+        matches=[],
+        unmatched_predictions=[],
+        unmatched_gold=[],
+    )
 
 
 class TestHelperFunctions:
@@ -158,6 +213,27 @@ class TestCorpusExtractionMetrics:
         assert metrics.micro["f1"] == 1.0
         assert metrics.macro["f1"] == 1.0
         assert metrics.weighted["f1"] == 1.0
+        assert metrics.ontology_metrics is None
+
+    def test_corpus_metrics_explicitly_preserves_ontology_metrics_on_replace(
+        self,
+    ):
+        """Ontology metrics are part of the dataclass schema, not a dynamic attr."""
+        evaluator = CorpusExtractionMetrics()
+        strict_metrics = evaluator.calculate_all_metrics(
+            [ExtractionResult("doc1", [("HP:1", "PRESENT")], [("HP:1", "PRESENT")])]
+        )
+        ontology_metrics = evaluator.calculate_ontology_aware_metrics(
+            [ExtractionResult("doc1", [("HP:1", "PRESENT")], [("HP:1", "PRESENT")])]
+        )
+
+        strict_metrics.ontology_metrics = ontology_metrics
+        replaced = dataclass_replace(
+            strict_metrics,
+            confidence_intervals={"f1": (0.9, 1.0)},
+        )
+
+        assert replaced.ontology_metrics is ontology_metrics
 
     def test_empty_results(self):
         """Test with empty results."""
@@ -212,6 +288,168 @@ class TestCorpusExtractionMetrics:
 
         with pytest.raises(ValueError, match="Unknown averaging strategy"):
             evaluator.calculate_metrics(results)
+
+    def test_calculate_ontology_aware_metrics_aggregates_micro(self, monkeypatch):
+        """Ontology-aware corpus metrics include strict, soft, and partial blocks."""
+        monkeypatch.setattr(
+            "phentrieve.evaluation.ontology_matching.calculate_pair_credit",
+            lambda pred, gold, config=None: _fake_credit(pred, gold, 0.0, "unrelated"),
+        )
+        evaluator = CorpusExtractionMetrics()
+        results = [
+            ExtractionResult("doc1", [("HP:1", "PRESENT")], [("HP:1", "PRESENT")]),
+            ExtractionResult("doc2", [("HP:2", "PRESENT")], [("HP:3", "PRESENT")]),
+        ]
+
+        metrics = evaluator.calculate_ontology_aware_metrics(results)
+
+        assert (
+            metrics.strict.micro["f1"]
+            == evaluator.calculate_all_metrics(results).micro["f1"]
+        )
+        assert "f1" in metrics.soft.micro
+        assert "f1" in metrics.partial.micro
+
+    def test_calculate_ontology_aware_metrics_empty_results(self):
+        """Empty corpora return zero metric blocks and no document details."""
+        evaluator = CorpusExtractionMetrics()
+
+        metrics = evaluator.calculate_ontology_aware_metrics([])
+
+        zero_metrics = {"precision": 0.0, "recall": 0.0, "f1": 0.0}
+        for block in (metrics.strict, metrics.soft, metrics.partial):
+            assert block.micro == zero_metrics
+            assert block.macro == zero_metrics
+            assert block.weighted == zero_metrics
+        assert metrics.match_breakdown == {}
+        assert metrics.document_metrics == []
+
+    def test_calculate_ontology_aware_metrics_match_breakdown_shape(self, monkeypatch):
+        """Match breakdown counts matched pairs and sums credit by match kind."""
+        monkeypatch.setattr(
+            "phentrieve.evaluation.ontology_matching.calculate_pair_credit",
+            lambda pred, gold, config=None: _fake_credit(
+                pred, gold, 0.95, "descendant"
+            ),
+        )
+        evaluator = CorpusExtractionMetrics()
+        results = [
+            ExtractionResult("doc1", [("HP:1", "PRESENT")], [("HP:1", "PRESENT")]),
+            ExtractionResult(
+                "doc2",
+                [("HP:child", "PRESENT")],
+                [("HP:parent", "PRESENT")],
+            ),
+        ]
+
+        metrics = evaluator.calculate_ontology_aware_metrics(results)
+
+        assert metrics.match_breakdown == {
+            "descendant": {"count": 1, "credit": pytest.approx(0.95)},
+            "exact": {"count": 1, "credit": pytest.approx(1.0)},
+        }
+        for breakdown in metrics.match_breakdown.values():
+            assert isinstance(breakdown["count"], int)
+            assert isinstance(breakdown["credit"], float)
+
+    def test_calculate_ontology_aware_metrics_numeric_aggregation(self, monkeypatch):
+        """Ontology-aware corpus metrics use the documented aggregation rules."""
+        document_metrics = {
+            "doc1": _document_metrics(
+                doc_id="doc1",
+                prediction_count=2,
+                gold_count=4,
+                soft_tp=1.5,
+                soft_fp=0.5,
+                soft_fn=2.5,
+                soft_precision=0.75,
+                soft_recall=0.375,
+                soft_f1=0.5,
+                partial_precision=0.5,
+                partial_recall=0.25,
+                partial_f1=1 / 3,
+            ),
+            "doc2": _document_metrics(
+                doc_id="doc2",
+                prediction_count=1,
+                gold_count=0,
+                soft_tp=0.0,
+                soft_fp=1.0,
+                soft_fn=0.0,
+                soft_precision=0.0,
+                soft_recall=0.0,
+                soft_f1=0.0,
+                partial_precision=1.0,
+                partial_recall=0.0,
+                partial_f1=0.0,
+            ),
+        }
+
+        monkeypatch.setattr(
+            "phentrieve.evaluation.extraction_metrics."
+            "calculate_document_ontology_metrics",
+            lambda result, config=None: document_metrics[result.doc_id],
+        )
+        evaluator = CorpusExtractionMetrics()
+        results = [
+            ExtractionResult("doc1", [("HP:1", "PRESENT")], [("HP:1", "PRESENT")]),
+            ExtractionResult("doc2", [("HP:2", "PRESENT")], []),
+        ]
+
+        metrics = evaluator.calculate_ontology_aware_metrics(results)
+
+        assert metrics.soft.micro == {
+            "precision": pytest.approx(0.5),
+            "recall": pytest.approx(0.375),
+            "f1": pytest.approx(3 / 7),
+        }
+        assert metrics.partial.micro == {
+            "precision": pytest.approx(2 / 3),
+            "recall": pytest.approx(0.25),
+            "f1": pytest.approx(4 / 11),
+        }
+        assert metrics.soft.macro == {
+            "precision": pytest.approx(0.375),
+            "recall": pytest.approx(0.1875),
+            "f1": pytest.approx(0.25),
+        }
+        assert metrics.partial.macro == {
+            "precision": pytest.approx(0.75),
+            "recall": pytest.approx(0.125),
+            "f1": pytest.approx(1 / 6),
+        }
+        assert metrics.soft.weighted == {
+            "precision": pytest.approx(0.6),
+            "recall": pytest.approx(0.3),
+            "f1": pytest.approx(0.4),
+        }
+        assert metrics.partial.weighted == {
+            "precision": pytest.approx(0.6),
+            "recall": pytest.approx(0.2),
+            "f1": pytest.approx(4 / 15),
+        }
+
+    def test_serialize_ontology_metrics_returns_json_primitives(self):
+        """Compact ontology metric serialization can be encoded as JSON."""
+        from phentrieve.evaluation.extraction_metrics import (
+            serialize_ontology_metrics,
+        )
+
+        evaluator = CorpusExtractionMetrics()
+        metrics = evaluator.calculate_ontology_aware_metrics(
+            [
+                ExtractionResult(
+                    "doc1",
+                    [("HP:1", "PRESENT")],
+                    [("HP:1", "PRESENT")],
+                )
+            ]
+        )
+
+        serialized = serialize_ontology_metrics(metrics)
+
+        assert set(serialized) == {"strict", "soft", "partial", "match_breakdown"}
+        json.dumps(serialized)
 
 
 class TestAssertionAwareMatching:

@@ -70,6 +70,68 @@ def test_run_llm_benchmark_defaults_to_genereviews_dataset(monkeypatch):
     assert result["dataset_metadata"]["dataset_name"] == "phenobert_GeneReviews"
 
 
+def test_run_llm_benchmark_includes_ontology_metrics_when_enabled(monkeypatch):
+    def fake_load_benchmark_data(test_path: Path, dataset: str):
+        return {
+            "metadata": {"dataset_name": f"phenobert_{dataset}"},
+            "documents": [
+                {
+                    "id": "doc-1",
+                    "text": "Clinical text",
+                    "gold_hpo_terms": [],
+                    "source_dataset": "GeneReviews",
+                }
+            ],
+        }
+
+    class _FakePipeline:
+        def __init__(self, provider):
+            self.provider = provider
+
+        def run(self, *, text, grounded_chunks, config):
+            from phentrieve.llm.types import LLMExtractionResult, LLMMeta
+
+            return LLMExtractionResult(
+                terms=[],
+                meta=LLMMeta(llm_model=config.model, llm_mode=config.mode),
+            )
+
+    monkeypatch.setattr(llm_benchmark, "load_benchmark_data", fake_load_benchmark_data)
+    monkeypatch.setattr(llm_benchmark, "get_llm_provider", lambda llm_model: object())
+    monkeypatch.setattr(llm_benchmark, "TwoPhaseLLMPipeline", _FakePipeline)
+    monkeypatch.setattr(llm_benchmark, "validate_hpo_graph_available", lambda: None)
+
+    result = llm_benchmark.run_llm_benchmark(
+        test_file="tests/data/en/phenobert",
+        llm_model="gemini-2.5-flash",
+        ontology_aware_metrics=True,
+    )
+
+    assert "ontology_metrics" in result["metrics"]["assertion_aware"]
+    assert "ontology_metrics" in result["metrics"]["id_only"]
+    assert result["ontology_aware_metrics"] is True
+    assert result["ontology_semantic_floor"] == 0.30
+    assert result["ontology_similarity_formula"] == "hybrid"
+
+
+def test_run_llm_benchmark_requires_hpo_graph_for_ontology_metrics(monkeypatch):
+    def fail_load_benchmark_data(*_args, **_kwargs):
+        raise AssertionError("benchmark data should not load without ontology graph")
+
+    monkeypatch.setattr(llm_benchmark, "load_benchmark_data", fail_load_benchmark_data)
+    monkeypatch.setattr(
+        "phentrieve.evaluation.ontology_credit.load_hpo_graph_data",
+        lambda: ({}, {}),
+    )
+
+    with pytest.raises(RuntimeError, match="HPO graph data is required"):
+        llm_benchmark.run_llm_benchmark(
+            test_file="tests/data/en/phenobert",
+            llm_model="gemini-2.5-flash",
+            ontology_aware_metrics=True,
+        )
+
+
 def test_run_llm_benchmark_filters_to_requested_doc_ids(monkeypatch):
     def fake_load_benchmark_data(test_path: Path, dataset: str):
         return {
@@ -247,6 +309,48 @@ def test_run_llm_benchmark_passes_provider_to_factory(monkeypatch) -> None:
 
     assert captured["llm_provider"] == "ollama"
     assert captured["timeout_seconds"] == 900
+
+
+def test_run_llm_benchmark_rejects_invalid_ontology_formula_before_loading(
+    monkeypatch,
+) -> None:
+    monkeypatch.setattr(
+        llm_benchmark,
+        "load_benchmark_data",
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(
+            AssertionError("benchmark data should not be loaded")
+        ),
+    )
+
+    with pytest.raises(ValueError, match="Invalid ontology similarity formula"):
+        llm_benchmark.run_llm_benchmark(
+            test_file="tests/data/en/phenobert",
+            llm_model="gemini-2.5-flash",
+            ontology_aware_metrics=True,
+            ontology_similarity_formula="invalid_formula",
+        )
+
+
+@pytest.mark.parametrize("semantic_floor", [-0.1, 1.1])
+def test_run_llm_benchmark_rejects_invalid_ontology_floor_before_loading(
+    monkeypatch,
+    semantic_floor,
+) -> None:
+    monkeypatch.setattr(
+        llm_benchmark,
+        "load_benchmark_data",
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(
+            AssertionError("benchmark data should not be loaded")
+        ),
+    )
+
+    with pytest.raises(ValueError, match="ontology_semantic_floor"):
+        llm_benchmark.run_llm_benchmark(
+            test_file="tests/data/en/phenobert",
+            llm_model="gemini-2.5-flash",
+            ontology_aware_metrics=True,
+            ontology_semantic_floor=semantic_floor,
+        )
 
 
 def test_run_llm_benchmark_records_resolved_provider_base_url(monkeypatch) -> None:
@@ -2090,6 +2194,54 @@ def test_run_llm_benchmark_cli_writes_prediction_and_metrics_artifacts(
     assert (artifacts_dir / "metrics" / "benchmark_two_phase.json").exists()
 
 
+def test_run_llm_benchmark_cli_writes_ontology_metrics_artifact(tmp_path, monkeypatch):
+    test_file = tmp_path / "cases.json"
+    test_file.write_text("[]", encoding="utf-8")
+    output_path = tmp_path / "summary.json"
+    artifacts_dir = tmp_path / "artifacts"
+
+    monkeypatch.setattr(
+        llm_cli.llm_benchmark,
+        "run_llm_benchmark",
+        lambda **kwargs: {
+            "cases": 1,
+            "llm_model": kwargs["llm_model"],
+            "llm_mode": kwargs["llm_mode"],
+            "dataset": kwargs["dataset"],
+            "dataset_metadata": {"dataset_name": "phenobert_GeneReviews"},
+            "metrics": {
+                "assertion_aware": {
+                    "micro": {"f1": 1.0},
+                    "ontology_metrics": {
+                        "soft": {"micro": {"f1": 0.75}},
+                        "partial": {"micro": {"f1": 0.5}},
+                    },
+                },
+                "id_only": {"micro": {"f1": 1.0}},
+            },
+            "prediction_records": [],
+            "results": [{"doc_id": "doc-1"}],
+        },
+    )
+
+    result = llm_cli.run_llm_benchmark_cli(
+        test_file=str(test_file),
+        llm_model="gemini-2.5-flash",
+        output_path=str(output_path),
+        artifacts_dir=str(artifacts_dir),
+    )
+
+    metrics_path = Path(result["metrics_path"])
+    metrics_payload = json.loads(metrics_path.read_text(encoding="utf-8"))
+    assert "ontology_metrics" in metrics_payload["assertion_aware_metrics"]
+    assert (
+        metrics_payload["assertion_aware_metrics"]["ontology_metrics"]["soft"]["micro"][
+            "f1"
+        ]
+        == 0.75
+    )
+
+
 def test_run_llm_benchmark_cli_sanitizes_artifact_filenames(tmp_path, monkeypatch):
     test_file = tmp_path / "cases.json"
     test_file.write_text("[]", encoding="utf-8")
@@ -2241,6 +2393,72 @@ def test_run_llm_benchmark_cli_rejects_mismatched_checkpoint(tmp_path):
             checkpoint_path=str(checkpoint_path),
             output_path=str(tmp_path / "summary.json"),
         )
+
+
+def test_run_llm_benchmark_cli_resumes_checkpoint_without_ontology_keys(
+    tmp_path, monkeypatch
+):
+    test_file = tmp_path / "cases.json"
+    test_file.write_text("[]", encoding="utf-8")
+    checkpoint_path = tmp_path / "checkpoint.json"
+    output_path = tmp_path / "summary.json"
+    artifacts_dir = tmp_path / "artifacts"
+    checkpoint_path.write_text(
+        json.dumps(
+            {
+                "test_file": str(test_file),
+                "dataset": "GeneReviews",
+                "llm_provider": None,
+                "llm_model": "gemini-2.5-flash",
+                "llm_base_url": None,
+                "llm_timeout_seconds": None,
+                "llm_seed": None,
+                "llm_mode": "two_phase",
+                "llm_internal_mode": "whole_document_grounded",
+                "language": "en",
+                "capture_phase1_debug": False,
+                "prompt_templates_dir": None,
+                "requested_doc_ids": None,
+                "status": "running",
+                "prediction_records": [],
+                "results": [],
+            }
+        ),
+        encoding="utf-8",
+    )
+    captured_checkpoint_state: dict[str, object] = {}
+
+    def fake_run_llm_benchmark(**kwargs):
+        captured_checkpoint_state.update(kwargs["checkpoint_state"])
+        return {
+            "status": "completed",
+            "cases": 0,
+            "llm_model": kwargs["llm_model"],
+            "llm_mode": kwargs["llm_mode"],
+            "dataset": kwargs["dataset"],
+            "dataset_metadata": {"dataset_name": "phenobert_GeneReviews"},
+            "metrics": {
+                "assertion_aware": {"micro": {"f1": 0.0}},
+                "id_only": {"micro": {"f1": 0.0}},
+            },
+            "prediction_records": [],
+            "results": [],
+        }
+
+    monkeypatch.setattr(
+        llm_cli.llm_benchmark, "run_llm_benchmark", fake_run_llm_benchmark
+    )
+
+    llm_cli.run_llm_benchmark_cli(
+        test_file=str(test_file),
+        llm_model="gemini-2.5-flash",
+        checkpoint_path=str(checkpoint_path),
+        output_path=str(output_path),
+        artifacts_dir=str(artifacts_dir),
+    )
+
+    assert captured_checkpoint_state["status"] == "running"
+    assert "ontology_aware_metrics" not in captured_checkpoint_state
 
 
 def test_run_llm_benchmark_cli_overwrites_existing_output_without_checkpoint(

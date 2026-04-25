@@ -22,6 +22,7 @@ from phentrieve.benchmark.data_loader import (
 from phentrieve.evaluation.extraction_metrics import (
     CorpusExtractionMetrics,
     ExtractionResult,
+    serialize_ontology_metrics,
 )
 from phentrieve.llm.config import DEFAULT_LLM_LANGUAGE, DEFAULT_PROVIDER_NAME
 from phentrieve.llm.pipeline import (
@@ -74,6 +75,29 @@ DATASET_ASSERTION_PROJECTION: dict[str, dict[str, str | None]] = {
         "other": None,
     },
 }
+
+
+def build_ontology_credit_config(
+    *,
+    semantic_floor: float,
+    similarity_formula: str,
+) -> Any:
+    from phentrieve.evaluation.ontology_credit import (
+        build_ontology_credit_config as build,
+    )
+
+    return build(
+        semantic_floor=semantic_floor,
+        similarity_formula=similarity_formula,
+    )
+
+
+def validate_hpo_graph_available() -> None:
+    from phentrieve.evaluation.ontology_credit import (
+        validate_hpo_graph_available as validate,
+    )
+
+    validate()
 
 
 class TokenPricingConfig(BaseModel):
@@ -238,6 +262,9 @@ def run_llm_benchmark(
     output_cost_per_1m_tokens: float | None = None,
     cached_input_cost_per_1m_tokens: float | None = None,
     capture_phase1_debug: bool = False,
+    ontology_aware_metrics: bool = False,
+    ontology_semantic_floor: float = 0.30,
+    ontology_similarity_formula: str = "hybrid",
     accounting_config: BenchmarkAccountingConfig | None = None,
     checkpoint_state: dict[str, Any] | None = None,
     progress_callback: Callable[[dict[str, Any]], None] | None = None,
@@ -256,6 +283,14 @@ def run_llm_benchmark(
             f"{llm_internal_mode!r}. Expected 'whole_document_legacy' or "
             "'whole_document_grounded'."
         )
+
+    ontology_config = None
+    if ontology_aware_metrics:
+        ontology_config = build_ontology_credit_config(
+            semantic_floor=ontology_semantic_floor,
+            similarity_formula=ontology_similarity_formula,
+        )
+        validate_hpo_graph_available()
 
     test_path = Path(test_file)
     logger.info(
@@ -635,6 +670,9 @@ def run_llm_benchmark(
                         llm_internal_mode=llm_internal_mode,
                         language=language,
                         prompt_templates_dir=prompt_templates_dir,
+                        ontology_aware_metrics=ontology_aware_metrics,
+                        ontology_semantic_floor=ontology_semantic_floor,
+                        ontology_similarity_formula=ontology_similarity_formula,
                         dataset_metadata=test_data.get("metadata", {}),
                         total_prompt_tokens=total_prompt_tokens,
                         total_completion_tokens=total_completion_tokens,
@@ -656,6 +694,23 @@ def run_llm_benchmark(
 
     assertion_metrics = evaluator.calculate_all_metrics(assertion_results)
     id_only_metrics = evaluator.calculate_all_metrics(id_only_results)
+    assertion_metrics_payload = _serialize_corpus_metrics(assertion_metrics)
+    id_only_metrics_payload = _serialize_corpus_metrics(id_only_metrics)
+    if ontology_config is not None:
+        assertion_ontology_metrics = evaluator.calculate_ontology_aware_metrics(
+            assertion_results,
+            config=ontology_config,
+        )
+        id_only_ontology_metrics = evaluator.calculate_ontology_aware_metrics(
+            id_only_results,
+            config=ontology_config,
+        )
+        assertion_metrics_payload["ontology_metrics"] = serialize_ontology_metrics(
+            assertion_ontology_metrics
+        )
+        id_only_metrics_payload["ontology_metrics"] = serialize_ontology_metrics(
+            id_only_ontology_metrics
+        )
     logger.info("Calculated benchmark metrics for %d documents", len(results))
     wall_clock_seconds = prior_wall_clock_seconds + (
         time.perf_counter() - benchmark_start_time
@@ -678,6 +733,9 @@ def run_llm_benchmark(
         llm_internal_mode=llm_internal_mode,
         language=language,
         prompt_templates_dir=prompt_templates_dir,
+        ontology_aware_metrics=ontology_aware_metrics,
+        ontology_semantic_floor=ontology_semantic_floor,
+        ontology_similarity_formula=ontology_similarity_formula,
         dataset_metadata=test_data.get("metadata", {}),
         total_prompt_tokens=total_prompt_tokens,
         total_completion_tokens=total_completion_tokens,
@@ -692,8 +750,8 @@ def run_llm_benchmark(
         results=results,
         prediction_records=prediction_records,
         metrics={
-            "assertion_aware": _serialize_corpus_metrics(assertion_metrics),
-            "id_only": _serialize_corpus_metrics(id_only_metrics),
+            "assertion_aware": assertion_metrics_payload,
+            "id_only": id_only_metrics_payload,
         },
         status="completed",
     )
@@ -846,6 +904,9 @@ def _build_benchmark_payload(
     llm_internal_mode: str,
     language: str,
     prompt_templates_dir: str | None,
+    ontology_aware_metrics: bool,
+    ontology_semantic_floor: float,
+    ontology_similarity_formula: str,
     dataset_metadata: dict[str, Any],
     total_prompt_tokens: int,
     total_completion_tokens: int,
@@ -873,6 +934,9 @@ def _build_benchmark_payload(
         "llm_internal_mode": llm_internal_mode,
         "language": language,
         "prompt_templates_dir": prompt_templates_dir,
+        "ontology_aware_metrics": ontology_aware_metrics,
+        "ontology_semantic_floor": ontology_semantic_floor,
+        "ontology_similarity_formula": ontology_similarity_formula,
         "requested_doc_ids": list(requested_doc_ids) if requested_doc_ids else None,
         "dataset_metadata": dataset_metadata,
         "token_usage": {

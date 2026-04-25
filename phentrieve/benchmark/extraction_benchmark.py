@@ -34,11 +34,14 @@ from phentrieve.evaluation.extraction_metrics import (
     CorpusExtractionMetrics,
     CorpusMetrics,
     ExtractionResult,
+    OntologyAwareCorpusMetrics,
+    serialize_ontology_metrics,
 )
 
 if TYPE_CHECKING:
     from sentence_transformers import SentenceTransformer
 
+    from phentrieve.evaluation.ontology_credit import OntologyCreditConfig
     from phentrieve.retrieval.dense_retriever import DenseRetriever
     from phentrieve.text_processing.pipeline import TextProcessingPipeline
 
@@ -62,6 +65,27 @@ class ExtractionConfig:
     bootstrap_samples: int = 1000
     dataset: str = "all"
     detailed_output: bool = False
+    ontology_aware_metrics: bool = False
+    ontology_semantic_floor: float = 0.30
+    ontology_similarity_formula: str = "hybrid"
+
+
+def _build_ontology_credit_config(config: ExtractionConfig) -> OntologyCreditConfig:
+    """Build ontology-aware metric config from extraction benchmark settings."""
+    from phentrieve.evaluation.ontology_credit import build_ontology_credit_config
+
+    return build_ontology_credit_config(
+        semantic_floor=config.ontology_semantic_floor,
+        similarity_formula=config.ontology_similarity_formula,
+    )
+
+
+def validate_hpo_graph_available() -> None:
+    from phentrieve.evaluation.ontology_credit import (
+        validate_hpo_graph_available as validate,
+    )
+
+    validate()
 
 
 class HPOExtractor:
@@ -218,6 +242,11 @@ class ExtractionBenchmark:
                 if hasattr(config, key):
                     setattr(config, key, value)
 
+        ontology_config = None
+        if config.ontology_aware_metrics:
+            ontology_config = _build_ontology_credit_config(config)
+            validate_hpo_graph_available()
+
         # Update extractor with new config for this run
         self.extractor.config = config
 
@@ -267,6 +296,18 @@ class ExtractionBenchmark:
         # Calculate metrics
         evaluator = CorpusExtractionMetrics(averaging=config.averaging)
         metrics = evaluator.calculate_all_metrics(results)
+        ontology_metrics = None
+        if ontology_config is not None:
+            ontology_metrics = evaluator.calculate_ontology_aware_metrics(
+                results,
+                config=ontology_config,
+            )
+            metrics.ontology_metrics = ontology_metrics
+            if config.detailed_output:
+                self._attach_ontology_detailed_results(
+                    detailed_results,
+                    ontology_metrics.document_metrics,
+                )
 
         # Calculate bootstrap CI if requested
         if config.bootstrap_ci:
@@ -278,6 +319,7 @@ class ExtractionBenchmark:
                 macro=metrics.macro,
                 weighted=metrics.weighted,
                 confidence_intervals=ci,
+                ontology_metrics=ontology_metrics,
             )
 
         # Save results (pass detailed_results only if enabled)
@@ -287,6 +329,7 @@ class ExtractionBenchmark:
             output_dir,
             test_data.get("metadata", {}),
             config,
+            ontology_metrics,
             detailed_results if config.detailed_output else None,
         )
 
@@ -493,6 +536,111 @@ class ExtractionBenchmark:
             "all_chunks": all_chunks,
         }
 
+    def _attach_ontology_detailed_results(
+        self,
+        detailed_results: list[dict[str, Any]],
+        document_metrics: list[Any],
+    ) -> None:
+        metrics_by_doc_id = {metric.doc_id: metric for metric in document_metrics}
+        for detailed_result in detailed_results:
+            ontology_metric = metrics_by_doc_id.get(detailed_result["doc_id"])
+            if ontology_metric is None:
+                continue
+            detailed_result["ontology_metrics"] = (
+                self._serialize_document_ontology_metrics(
+                    ontology_metric,
+                    detailed_result,
+                )
+            )
+
+    def _serialize_document_ontology_metrics(
+        self,
+        ontology_metric: Any,
+        detailed_result: dict[str, Any],
+    ) -> dict[str, Any]:
+        predicted_labels, gold_labels = self._ontology_label_lookups(detailed_result)
+
+        return {
+            "counts": {
+                "predictions": ontology_metric.prediction_count,
+                "gold": ontology_metric.gold_count,
+                "strict_tp": ontology_metric.strict_tp,
+            },
+            "soft": {
+                "tp": ontology_metric.soft_tp,
+                "fp": ontology_metric.soft_fp,
+                "fn": ontology_metric.soft_fn,
+                "precision": ontology_metric.soft_precision,
+                "recall": ontology_metric.soft_recall,
+                "f1": ontology_metric.soft_f1,
+            },
+            "partial": {
+                "precision": ontology_metric.partial_precision,
+                "recall": ontology_metric.partial_recall,
+                "f1": ontology_metric.partial_f1,
+            },
+            "matches": [
+                {
+                    "predicted": self._serialize_ontology_annotation(
+                        match.predicted,
+                        predicted_labels,
+                    ),
+                    "gold": self._serialize_ontology_annotation(
+                        match.gold,
+                        gold_labels,
+                    ),
+                    "assertion": match.predicted[1],
+                    "match_kind": match.credit.match_kind.value,
+                    "credit": match.credit.credit,
+                    "semantic_similarity": match.credit.semantic_similarity,
+                    "distance": match.credit.distance,
+                }
+                for match in ontology_metric.matches
+            ],
+            "unmatched_predictions": [
+                self._serialize_ontology_annotation(annotation, predicted_labels)
+                for annotation in ontology_metric.unmatched_predictions
+            ],
+            "unmatched_gold": [
+                self._serialize_ontology_annotation(annotation, gold_labels)
+                for annotation in ontology_metric.unmatched_gold
+            ],
+        }
+
+    def _ontology_label_lookups(
+        self,
+        detailed_result: dict[str, Any],
+    ) -> tuple[dict[str, str], dict[str, str]]:
+        predicted_labels: dict[str, str] = {}
+        gold_labels: dict[str, str] = {}
+        analysis = detailed_result.get("analysis", {})
+
+        for item in analysis.get("true_positives", []):
+            hpo_id = item["hpo_id"]
+            label = item.get("label", "")
+            predicted_labels[hpo_id] = label
+            gold_labels[hpo_id] = label
+
+        for item in analysis.get("false_positives", []):
+            predicted_labels[item["hpo_id"]] = item.get("label", "")
+
+        for item in analysis.get("false_negatives", []):
+            gold_labels[item["hpo_id"]] = item.get("label", "")
+
+        return predicted_labels, gold_labels
+
+    def _serialize_ontology_annotation(
+        self,
+        annotation: tuple[str, str],
+        labels_by_id: dict[str, str],
+    ) -> dict[str, Any]:
+        hpo_id, assertion = annotation
+        return {
+            "hpo_id": hpo_id,
+            "label": labels_by_id.get(hpo_id, ""),
+            "assertion": assertion,
+        }
+
     def _save_results(
         self,
         results: list[ExtractionResult],
@@ -500,6 +648,7 @@ class ExtractionBenchmark:
         output_dir: Path,
         dataset_metadata: dict,
         config: ExtractionConfig,
+        ontology_metrics: OntologyAwareCorpusMetrics | None = None,
         detailed_results: list[dict[str, Any]] | None = None,
     ):
         """Save benchmark results to files."""
@@ -531,6 +680,9 @@ class ExtractionBenchmark:
                             "relaxed_matching": config.relaxed_matching,
                             "chunk_retrieval_threshold": config.chunk_retrieval_threshold,
                             "min_confidence_for_aggregated": config.min_confidence_for_aggregated,
+                            "ontology_aware_metrics": config.ontology_aware_metrics,
+                            "ontology_semantic_floor": config.ontology_semantic_floor,
+                            "ontology_similarity_formula": config.ontology_similarity_formula,
                         },
                         "dataset": dataset_metadata,
                     },
@@ -540,6 +692,15 @@ class ExtractionBenchmark:
                         "macro": metrics.macro,
                         "weighted": metrics.weighted,
                         "confidence_intervals": metrics.confidence_intervals,
+                        **(
+                            {
+                                "ontology_metrics": serialize_ontology_metrics(
+                                    ontology_metrics
+                                )
+                            }
+                            if ontology_metrics is not None
+                            else {}
+                        ),
                     },
                 },
                 f,
@@ -547,24 +708,39 @@ class ExtractionBenchmark:
             )
 
         # Save summary metrics
+        summary = {
+            "model": self.model_name,
+            "micro_f1": metrics.micro.get("f1", 0),
+            "micro_precision": metrics.micro.get("precision", 0),
+            "micro_recall": metrics.micro.get("recall", 0),
+            "macro_f1": metrics.macro.get("f1", 0),
+            "macro_precision": metrics.macro.get("precision", 0),
+            "macro_recall": metrics.macro.get("recall", 0),
+            "weighted_f1": metrics.weighted.get("f1", 0),
+            "weighted_precision": metrics.weighted.get("precision", 0),
+            "weighted_recall": metrics.weighted.get("recall", 0),
+        }
+        if ontology_metrics is not None:
+            summary.update(
+                {
+                    "soft_micro_f1": ontology_metrics.soft.micro.get("f1", 0),
+                    "soft_micro_precision": ontology_metrics.soft.micro.get(
+                        "precision", 0
+                    ),
+                    "soft_micro_recall": ontology_metrics.soft.micro.get("recall", 0),
+                    "partial_micro_f1": ontology_metrics.partial.micro.get("f1", 0),
+                    "partial_micro_precision": ontology_metrics.partial.micro.get(
+                        "precision", 0
+                    ),
+                    "partial_micro_recall": ontology_metrics.partial.micro.get(
+                        "recall", 0
+                    ),
+                }
+            )
+
         summary_file = output_dir / "extraction_summary.json"
         with open(summary_file, "w") as f:
-            json.dump(
-                {
-                    "model": self.model_name,
-                    "micro_f1": metrics.micro.get("f1", 0),
-                    "micro_precision": metrics.micro.get("precision", 0),
-                    "micro_recall": metrics.micro.get("recall", 0),
-                    "macro_f1": metrics.macro.get("f1", 0),
-                    "macro_precision": metrics.macro.get("precision", 0),
-                    "macro_recall": metrics.macro.get("recall", 0),
-                    "weighted_f1": metrics.weighted.get("f1", 0),
-                    "weighted_precision": metrics.weighted.get("precision", 0),
-                    "weighted_recall": metrics.weighted.get("recall", 0),
-                },
-                f,
-                indent=2,
-            )
+            json.dump(summary, f, indent=2)
 
         # Save detailed analysis with chunks (NEW!)
         if detailed_results:

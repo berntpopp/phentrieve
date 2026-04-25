@@ -29,19 +29,43 @@ class ExtractionReporter:
 
         # Summary table
         lines.append("## Summary\n")
-        lines.append("| Model | Micro F1 | Macro F1 | Precision | Recall |")
-        lines.append("|-------|----------|----------|-----------|--------|")
+        has_ontology_metrics = any(
+            result.get("corpus_metrics", {}).get("ontology_metrics")
+            for result in results
+        )
+        if has_ontology_metrics:
+            lines.append(
+                "| Model | Micro F1 | Macro F1 | Precision | Recall | "
+                "Soft Micro F1 | Partial Micro F1 |"
+            )
+            lines.append(
+                "|-------|----------|----------|-----------|--------|"
+                "---------------|------------------|"
+            )
+        else:
+            lines.append("| Model | Micro F1 | Macro F1 | Precision | Recall |")
+            lines.append("|-------|----------|----------|-----------|--------|")
 
         for result in results:
             model = result.get("metadata", {}).get("model", "Unknown")
-            micro = result.get("corpus_metrics", {}).get("micro", {})
-            macro = result.get("corpus_metrics", {}).get("macro", {})
+            corpus_metrics = result.get("corpus_metrics", {})
+            micro = corpus_metrics.get("micro", {})
+            macro = corpus_metrics.get("macro", {})
 
-            lines.append(
+            row = (
                 f"| {model} | {micro.get('f1', 0):.3f} | "
                 f"{macro.get('f1', 0):.3f} | {micro.get('precision', 0):.3f} | "
-                f"{micro.get('recall', 0):.3f} |"
+                f"{micro.get('recall', 0):.3f}"
             )
+            if has_ontology_metrics:
+                ontology_metrics = corpus_metrics.get("ontology_metrics") or {}
+                soft_micro = ontology_metrics.get("soft", {}).get("micro", {})
+                partial_micro = ontology_metrics.get("partial", {}).get("micro", {})
+                row += (
+                    f" | {soft_micro.get('f1', 0):.3f} | "
+                    f"{partial_micro.get('f1', 0):.3f}"
+                )
+            lines.append(f"{row} |")
 
         lines.append("\n## Details\n")
         # Add more detailed sections as needed
