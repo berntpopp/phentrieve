@@ -66,13 +66,13 @@ jobs:
       - name: Install dependencies
         run: uv sync --all-extras --dev
 
+      - name: Export locked Python dependencies
+        run: |
+          uv export --format requirements-txt --all-extras --dev --no-emit-project --no-hashes > audit-requirements.txt
+
       - name: Run pip-audit
-        uses: pypa/gh-action-pip-audit@v1.1.0
-        with:
-          vulnerability-service: pypi
-          # Uncomment to ignore specific vulns if needed:
-          # ignore-vulns: |
-          #   GHSA-xxxx-xxxx-xxxx
+        run: |
+          uv run pip-audit --requirement audit-requirements.txt --vulnerability-service pypi
 
   # Python SAST with Bandit (run directly with uv for proper pyproject.toml support)
   bandit:
