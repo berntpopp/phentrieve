@@ -10,6 +10,7 @@ Phentrieve is an advanced AI-powered system for mapping clinical text to Human P
 
 * Multilingual HPO term mapping using state-of-the-art embedding models
 * Advanced text processing pipeline including semantic chunking and assertion detection
+* Optional adaptive re-chunking improves recall on multi-concept clinical sentences (`--adaptive-rechunking`). See [docs/user-guide/adaptive-rechunking.md](docs/user-guide/adaptive-rechunking.md).
 * Extensive benchmarking framework for model evaluation and comparison
 * User-friendly interfaces: CLI, FastAPI backend, and Vue.js frontend
 
@@ -45,6 +46,24 @@ phentrieve text process "The patient exhibits microcephaly and frequent seizures
 ```
 
 Discover more commands and options in the [User Guide](https://berntpopp.github.io/phentrieve/user-guide/).
+
+## Configuration
+
+### Configuration profiles
+
+Define named profiles in `phentrieve.yaml` to preset CLI options:
+
+```yaml
+profiles:
+  fast_query:
+    command: query
+    num_results: 5
+    similarity_threshold: 0.5
+```
+
+Then `phentrieve query "TEXT" --profile fast_query`.
+
+See [docs/user-guide/configuration-profiles.md](docs/user-guide/configuration-profiles.md) for the full guide.
 
 ## Docker Deployment
 

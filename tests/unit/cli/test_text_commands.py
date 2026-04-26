@@ -1,6 +1,7 @@
 import json
 import logging
 from types import SimpleNamespace
+from unittest.mock import patch
 
 import pytest
 from typer.testing import CliRunner
@@ -845,3 +846,435 @@ def test_run_llm_backend_uses_default_model_when_not_explicitly_configured(
 
     assert calls["config"].model == "gemini-3.1-flash-lite-preview"
     assert result["meta"]["llm_model"] == "gemini-3.1-flash-lite-preview"
+
+
+def _clear_yaml_cache() -> None:
+    from phentrieve.config import _load_yaml_config
+    from phentrieve.utils import load_user_config
+
+    _load_yaml_config.cache_clear()
+    load_user_config.cache_clear()
+
+
+class TestProcessProfileResolution:
+    """Plan A Phase 5: ``phentrieve text process`` --profile resolution.
+
+    The four hardcoded literals (``language="en"``, ``num_results=10``,
+    ``chunk_confidence=0.2``, ``assertion_preference="dependency"``) get
+    replaced with ``None`` Typer defaults plus a value-or-constant body
+    fallback. Together with the eager ``--profile`` callback this lets the
+    precedence stack (explicit flag > profile > top-level YAML > constants)
+    work without a hardcoded literal short-circuiting it.
+    """
+
+    def setup_method(self) -> None:
+        _clear_yaml_cache()
+
+    def teardown_method(self) -> None:
+        _clear_yaml_cache()
+
+    @patch("phentrieve.cli.text_commands.run_full_text_service")
+    def test_default_profile_falls_through_to_config(
+        self, mock_run, monkeypatch, tmp_path
+    ):
+        from phentrieve.config import (
+            DEFAULT_CHUNK_RETRIEVAL_THRESHOLD,
+            DEFAULT_LANGUAGE,
+        )
+
+        monkeypatch.chdir(tmp_path)
+        _clear_yaml_cache()
+        mock_run.return_value = {
+            "meta": {},
+            "processed_chunks": [],
+            "aggregated_hpo_terms": [],
+        }
+        monkeypatch.setattr(
+            "phentrieve.cli.text_commands.resolve_chunking_pipeline_config",
+            lambda **kwargs: [{"type": "paragraph"}],
+        )
+
+        (tmp_path / "in.txt").write_text("Patient with seizures.")
+
+        runner = CliRunner()
+        result = runner.invoke(
+            app,
+            ["text", "process", "--input-file", str(tmp_path / "in.txt")],
+        )
+        assert result.exit_code == 0, result.output
+
+        kwargs = mock_run.call_args.kwargs
+        # No profile, no YAML override -> falls through to config constants.
+        assert kwargs["chunk_retrieval_threshold"] == DEFAULT_CHUNK_RETRIEVAL_THRESHOLD
+        # language: not hardcoded to "en"; either auto-detected or DEFAULT_LANGUAGE.
+        assert kwargs.get("language") in {None, DEFAULT_LANGUAGE}
+
+    @patch("phentrieve.cli.text_commands.run_full_text_service")
+    def test_profile_provides_defaults(self, mock_run, monkeypatch, tmp_path):
+        # User profile with overrides.
+        (tmp_path / "phentrieve.yaml").write_text(
+            "profiles:\n"
+            "  high_recall_german:\n"
+            "    command: text process\n"
+            "    language: de\n"
+            "    num_results: 5\n"
+            "    chunk_retrieval_threshold: 0.5\n"
+        )
+        monkeypatch.chdir(tmp_path)
+        _clear_yaml_cache()
+        mock_run.return_value = {
+            "meta": {},
+            "processed_chunks": [],
+            "aggregated_hpo_terms": [],
+        }
+        monkeypatch.setattr(
+            "phentrieve.cli.text_commands.resolve_chunking_pipeline_config",
+            lambda **kwargs: [{"type": "paragraph"}],
+        )
+
+        (tmp_path / "in.txt").write_text("Der Patient hat Anfaelle.")
+        runner = CliRunner()
+        result = runner.invoke(
+            app,
+            [
+                "text",
+                "process",
+                "--input-file",
+                str(tmp_path / "in.txt"),
+                "--profile",
+                "high_recall_german",
+            ],
+        )
+        assert result.exit_code == 0, result.output
+        kwargs = mock_run.call_args.kwargs
+        assert kwargs["language"] == "de"
+        assert kwargs["chunk_retrieval_threshold"] == 0.5
+        assert kwargs["num_results_per_chunk"] == 5
+
+    @patch("phentrieve.cli.text_commands.run_full_text_service")
+    def test_explicit_flag_overrides_profile(self, mock_run, monkeypatch, tmp_path):
+        (tmp_path / "phentrieve.yaml").write_text(
+            "profiles:\n"
+            "  custom:\n"
+            "    command: text process\n"
+            "    language: de\n"
+            "    num_results: 5\n"
+        )
+        monkeypatch.chdir(tmp_path)
+        _clear_yaml_cache()
+        mock_run.return_value = {
+            "meta": {},
+            "processed_chunks": [],
+            "aggregated_hpo_terms": [],
+        }
+        monkeypatch.setattr(
+            "phentrieve.cli.text_commands.resolve_chunking_pipeline_config",
+            lambda **kwargs: [{"type": "paragraph"}],
+        )
+
+        (tmp_path / "in.txt").write_text("Patient.")
+        runner = CliRunner()
+        result = runner.invoke(
+            app,
+            [
+                "text",
+                "process",
+                "--input-file",
+                str(tmp_path / "in.txt"),
+                "--profile",
+                "custom",
+                "--language",
+                "fr",
+                "--num-results",
+                "3",
+            ],
+        )
+        assert result.exit_code == 0, result.output
+        kwargs = mock_run.call_args.kwargs
+        # Explicit flags beat profile-supplied values.
+        assert kwargs["language"] == "fr"
+        assert kwargs["num_results_per_chunk"] == 3
+
+    @patch("phentrieve.cli.text_commands.run_full_text_service")
+    def test_language_auto_detect_when_not_in_profile(
+        self, mock_run, monkeypatch, tmp_path
+    ):
+        """When neither flag nor profile/YAML supply a language, the body
+        falls through to DEFAULT_LANGUAGE (or auto-detect). This guards that
+        ``language="en"`` is no longer hardcoded as a Typer default literal.
+        """
+        from phentrieve.config import DEFAULT_LANGUAGE
+
+        # Profile that DOES NOT set language.
+        (tmp_path / "phentrieve.yaml").write_text(
+            "profiles:\n"
+            "  recall_only:\n"
+            "    command: text process\n"
+            "    chunk_retrieval_threshold: 0.4\n"
+        )
+        monkeypatch.chdir(tmp_path)
+        _clear_yaml_cache()
+        mock_run.return_value = {
+            "meta": {},
+            "processed_chunks": [],
+            "aggregated_hpo_terms": [],
+        }
+        monkeypatch.setattr(
+            "phentrieve.cli.text_commands.resolve_chunking_pipeline_config",
+            lambda **kwargs: [{"type": "paragraph"}],
+        )
+
+        (tmp_path / "in.txt").write_text("Patient.")
+        runner = CliRunner()
+        result = runner.invoke(
+            app,
+            [
+                "text",
+                "process",
+                "--input-file",
+                str(tmp_path / "in.txt"),
+                "--profile",
+                "recall_only",
+            ],
+        )
+        assert result.exit_code == 0, result.output
+        kwargs = mock_run.call_args.kwargs
+        # Language is whatever DEFAULT_LANGUAGE resolves to (matches API
+        # behaviour). Critically NOT hardcoded as "en" inside Typer signature.
+        assert kwargs["language"] == DEFAULT_LANGUAGE
+        assert kwargs["chunk_retrieval_threshold"] == 0.4
+
+
+class TestProcessAdaptiveRechunkingFlags:
+    """Plan B Phase 8: --adaptive-rechunking* flags on ``text process``.
+
+    Four flags map onto an ``AdaptiveRechunkingConfig`` resolved with the
+    precedence stack CLI > profile > YAML > defaults. The boolean
+    ``--adaptive-rechunking / --no-adaptive-rechunking`` only enters the
+    CLI tier when the user explicitly supplied it; otherwise profile and
+    YAML values pass through.
+    """
+
+    def setup_method(self) -> None:
+        _clear_yaml_cache()
+
+    def teardown_method(self) -> None:
+        _clear_yaml_cache()
+
+    @patch("phentrieve.cli.text_commands.run_full_text_service")
+    def test_disabled_by_default(self, mock_run, tmp_path, monkeypatch):
+        monkeypatch.chdir(tmp_path)
+        _clear_yaml_cache()
+        mock_run.return_value = {
+            "meta": {},
+            "processed_chunks": [],
+            "aggregated_hpo_terms": [],
+        }
+        monkeypatch.setattr(
+            "phentrieve.cli.text_commands.resolve_chunking_pipeline_config",
+            lambda **kwargs: [{"type": "paragraph"}],
+        )
+
+        (tmp_path / "in.txt").write_text("text")
+        runner = CliRunner()
+        result = runner.invoke(
+            app, ["text", "process", "--input-file", str(tmp_path / "in.txt")]
+        )
+        assert result.exit_code == 0, result.output
+        cfg = mock_run.call_args.kwargs.get("adaptive_rechunking")
+        # When the flag isn't passed, the config is built with enabled=False
+        # (or absent - both acceptable).
+        if cfg is not None:
+            assert getattr(cfg, "enabled", False) is False
+
+    @patch("phentrieve.cli.text_commands.run_full_text_service")
+    def test_enabled_via_flag(self, mock_run, tmp_path, monkeypatch):
+        monkeypatch.chdir(tmp_path)
+        _clear_yaml_cache()
+        mock_run.return_value = {
+            "meta": {},
+            "processed_chunks": [],
+            "aggregated_hpo_terms": [],
+        }
+        monkeypatch.setattr(
+            "phentrieve.cli.text_commands.resolve_chunking_pipeline_config",
+            lambda **kwargs: [{"type": "paragraph"}],
+        )
+
+        (tmp_path / "in.txt").write_text("text")
+        runner = CliRunner()
+        result = runner.invoke(
+            app,
+            [
+                "text",
+                "process",
+                "--input-file",
+                str(tmp_path / "in.txt"),
+                "--adaptive-rechunking",
+            ],
+        )
+        assert result.exit_code == 0, result.output
+        cfg = mock_run.call_args.kwargs["adaptive_rechunking"]
+        assert cfg.enabled is True
+
+    @patch("phentrieve.cli.text_commands.run_full_text_service")
+    def test_threshold_flags(self, mock_run, tmp_path, monkeypatch):
+        monkeypatch.chdir(tmp_path)
+        _clear_yaml_cache()
+        mock_run.return_value = {
+            "meta": {},
+            "processed_chunks": [],
+            "aggregated_hpo_terms": [],
+        }
+        monkeypatch.setattr(
+            "phentrieve.cli.text_commands.resolve_chunking_pipeline_config",
+            lambda **kwargs: [{"type": "paragraph"}],
+        )
+
+        (tmp_path / "in.txt").write_text("text")
+        runner = CliRunner()
+        result = runner.invoke(
+            app,
+            [
+                "text",
+                "process",
+                "--input-file",
+                str(tmp_path / "in.txt"),
+                "--adaptive-rechunking",
+                "--adaptive-rechunking-quality-threshold",
+                "0.5",
+                "--adaptive-rechunking-margin-threshold",
+                "0.05",
+                "--adaptive-rechunking-max-depth",
+                "1",
+            ],
+        )
+        assert result.exit_code == 0, result.output
+        cfg = mock_run.call_args.kwargs["adaptive_rechunking"]
+        assert cfg.enabled is True
+        assert cfg.quality_threshold == 0.5
+        assert cfg.margin_threshold == 0.05
+        assert cfg.max_depth == 1
+
+    @patch("phentrieve.cli.text_commands.run_full_text_service")
+    def test_yaml_extraction_block_applies(self, mock_run, tmp_path, monkeypatch):
+        """YAML extraction.adaptive_rechunking propagates when no CLI flag."""
+        (tmp_path / "phentrieve.yaml").write_text(
+            "extraction:\n"
+            "  adaptive_rechunking:\n"
+            "    enabled: true\n"
+            "    quality_threshold: 0.42\n"
+        )
+        monkeypatch.chdir(tmp_path)
+        _clear_yaml_cache()
+        mock_run.return_value = {
+            "meta": {},
+            "processed_chunks": [],
+            "aggregated_hpo_terms": [],
+        }
+        monkeypatch.setattr(
+            "phentrieve.cli.text_commands.resolve_chunking_pipeline_config",
+            lambda **kwargs: [{"type": "paragraph"}],
+        )
+
+        (tmp_path / "in.txt").write_text("text")
+        runner = CliRunner()
+        result = runner.invoke(
+            app, ["text", "process", "--input-file", str(tmp_path / "in.txt")]
+        )
+        assert result.exit_code == 0, result.output
+        cfg = mock_run.call_args.kwargs["adaptive_rechunking"]
+        assert cfg.enabled is True
+        assert cfg.quality_threshold == 0.42
+
+    @patch("phentrieve.cli.text_commands.run_full_text_service")
+    def test_profile_block_applies(self, mock_run, tmp_path, monkeypatch):
+        """``Profile.adaptive_rechunking`` block flows through when no CLI flag."""
+        (tmp_path / "phentrieve.yaml").write_text(
+            "profiles:\n"
+            "  adaptive_demo:\n"
+            "    command: text process\n"
+            "    adaptive_rechunking:\n"
+            "      enabled: true\n"
+            "      quality_threshold: 0.6\n"
+            "      max_depth: 3\n"
+        )
+        monkeypatch.chdir(tmp_path)
+        _clear_yaml_cache()
+        mock_run.return_value = {
+            "meta": {},
+            "processed_chunks": [],
+            "aggregated_hpo_terms": [],
+        }
+        monkeypatch.setattr(
+            "phentrieve.cli.text_commands.resolve_chunking_pipeline_config",
+            lambda **kwargs: [{"type": "paragraph"}],
+        )
+
+        (tmp_path / "in.txt").write_text("text")
+        runner = CliRunner()
+        result = runner.invoke(
+            app,
+            [
+                "text",
+                "process",
+                "--input-file",
+                str(tmp_path / "in.txt"),
+                "--profile",
+                "adaptive_demo",
+            ],
+        )
+        assert result.exit_code == 0, result.output
+        cfg = mock_run.call_args.kwargs["adaptive_rechunking"]
+        assert cfg.enabled is True
+        assert cfg.quality_threshold == 0.6
+        assert cfg.max_depth == 3
+
+    @patch("phentrieve.cli.text_commands.run_full_text_service")
+    def test_explicit_flag_beats_profile(self, mock_run, tmp_path, monkeypatch):
+        """An explicit ``--adaptive-rechunking-*`` flag wins over profile values."""
+        (tmp_path / "phentrieve.yaml").write_text(
+            "profiles:\n"
+            "  adaptive_demo:\n"
+            "    command: text process\n"
+            "    adaptive_rechunking:\n"
+            "      enabled: true\n"
+            "      quality_threshold: 0.6\n"
+            "      max_depth: 3\n"
+        )
+        monkeypatch.chdir(tmp_path)
+        _clear_yaml_cache()
+        mock_run.return_value = {
+            "meta": {},
+            "processed_chunks": [],
+            "aggregated_hpo_terms": [],
+        }
+        monkeypatch.setattr(
+            "phentrieve.cli.text_commands.resolve_chunking_pipeline_config",
+            lambda **kwargs: [{"type": "paragraph"}],
+        )
+
+        (tmp_path / "in.txt").write_text("text")
+        runner = CliRunner()
+        result = runner.invoke(
+            app,
+            [
+                "text",
+                "process",
+                "--input-file",
+                str(tmp_path / "in.txt"),
+                "--profile",
+                "adaptive_demo",
+                "--adaptive-rechunking-quality-threshold",
+                "0.5",
+                "--adaptive-rechunking-max-depth",
+                "1",
+            ],
+        )
+        assert result.exit_code == 0, result.output
+        cfg = mock_run.call_args.kwargs["adaptive_rechunking"]
+        # Profile still supplies enabled=True (untouched).
+        assert cfg.enabled is True
+        # Explicit flags beat profile-supplied values.
+        assert cfg.quality_threshold == 0.5
+        assert cfg.max_depth == 1

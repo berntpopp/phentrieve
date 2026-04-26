@@ -17,10 +17,12 @@ from typer.main import get_command
 # Import all command groups
 from phentrieve.cli import (
     benchmark_commands,
+    config_commands,
     index_commands,
     mcp_commands,
     query_commands,
 )
+from phentrieve.cli._profile import apply_profile_callback
 
 # Read version from pyproject.toml
 __version__ = importlib.metadata.version("phentrieve")
@@ -172,6 +174,7 @@ def version_callback(value: bool):
 
 @app.callback()
 def main_callback(
+    ctx: typer.Context,
     version: Annotated[
         bool,
         typer.Option(
@@ -182,9 +185,36 @@ def main_callback(
             help="Show the application version and exit.",
         ),
     ] = False,
+    profile: Annotated[
+        str | None,
+        typer.Option(
+            "--profile",
+            "-P",
+            envvar="PHENTRIEVE_PROFILE",
+            callback=apply_profile_callback,
+            is_eager=True,
+            help=(
+                "Apply a named profile globally. A subcommand-level "
+                "--profile wins on conflict."
+            ),
+        ),
+    ] = None,
+    show_resolved_config: Annotated[
+        bool,
+        typer.Option(
+            "--show-resolved-config",
+            help=(
+                "Print the resolved option values (with source labels) to "
+                "stderr before running the command. Useful for diagnosing "
+                "why a profile or YAML default did not take effect."
+            ),
+        ),
+    ] = False,
 ):
     """Main callback for Phentrieve CLI - handles global options like --version."""
-    pass
+    ctx.ensure_object(dict)
+    if isinstance(ctx.obj, dict):
+        ctx.obj["show_resolved_config"] = show_resolved_config
 
 
 # Register command groups
@@ -203,6 +233,11 @@ app.add_typer(
     mcp_commands.app,
     name="mcp",
     help="Model Context Protocol (MCP) server commands.",
+)
+app.add_typer(
+    config_commands.config_app,
+    name="config",
+    help="Inspect and validate phentrieve.yaml configuration profiles.",
 )
 
 # Main command for query

@@ -226,6 +226,53 @@ describe('PhentrieveService', () => {
     expect(payload).not.toHaveProperty('retrieval_model_name');
   });
 
+  describe('adaptive_rechunking pass-through', () => {
+    it('forwards adaptive_rechunking when supplied', async () => {
+      axios.post.mockResolvedValue({
+        data: {
+          meta: { adaptive_rechunking: { enabled: true, trigger_count: 2 } },
+          processed_chunks: [],
+          aggregated_hpo_terms: [],
+        },
+      });
+
+      await PhentrieveService.processText({
+        text: 'Patient.',
+        adaptive_rechunking: { enabled: true, quality_threshold: 0.5 },
+      });
+
+      const payload = axios.post.mock.calls[0][1];
+      expect(payload.adaptive_rechunking).toEqual({
+        enabled: true,
+        quality_threshold: 0.5,
+      });
+    });
+
+    it('parses meta.adaptive_rechunking response without error', async () => {
+      axios.post.mockResolvedValue({
+        data: {
+          meta: { adaptive_rechunking: { enabled: true, trigger_count: 1 } },
+          processed_chunks: [],
+          aggregated_hpo_terms: [],
+        },
+      });
+
+      const result = await PhentrieveService.processText({ text: 'Patient.' });
+      expect(result.meta.adaptive_rechunking.enabled).toBe(true);
+    });
+
+    it('omits adaptive_rechunking from payload when not supplied', async () => {
+      axios.post.mockResolvedValue({
+        data: { meta: {}, processed_chunks: [], aggregated_hpo_terms: [] },
+      });
+
+      await PhentrieveService.processText({ text: 'Patient.' });
+
+      const payload = axios.post.mock.calls[0][1];
+      expect(payload).not.toHaveProperty('adaptive_rechunking');
+    });
+  });
+
   it('posts phenopacket export payloads to the backend endpoint', async () => {
     axios.post.mockResolvedValue({
       data: {

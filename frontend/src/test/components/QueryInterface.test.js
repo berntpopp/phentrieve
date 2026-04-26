@@ -120,7 +120,7 @@ describe('QueryInterface (characterization)', () => {
 
   it('has default threshold values', async () => {
     const wrapper = await mountQueryInterface();
-    expect(wrapper.vm.similarityThreshold).toBe(0.5);
+    expect(wrapper.vm.similarityThreshold).toBe(0.3);
     expect(wrapper.vm.numResults).toBe(10);
     expect(wrapper.vm.chunkRetrievalThreshold).toBe(0.7);
     expect(wrapper.vm.aggregatedTermConfidence).toBe(0.75);

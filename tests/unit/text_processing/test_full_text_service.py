@@ -14,6 +14,7 @@ from phentrieve.text_processing.full_text_service import (
     adapt_standard_response,
     preprocess_grounded_document,
     run_llm_backend,
+    run_standard_backend,
 )
 
 
@@ -1085,3 +1086,173 @@ def test_run_llm_backend_surfaces_phase2_routing_counts(mocker) -> None:
     assert result["meta"]["observability"]["phase2b_local_accept_count"] == 3
     assert result["meta"]["observability"]["phase2b_deferred_count"] == 2
     assert result["meta"]["observability"]["phase2b_no_candidate_skip_count"] == 1
+
+
+def _make_orchestration_result(
+    aggregated: list[dict] | None = None,
+    chunks: list[dict] | None = None,
+    raw: list[dict] | None = None,
+):
+    from phentrieve.text_processing.orchestration_result import OrchestrationResult
+
+    return OrchestrationResult(
+        aggregated_results=list(aggregated or []),
+        chunk_results=list(chunks or []),
+        raw_query_results=list(raw or []),
+    )
+
+
+def test_run_standard_backend_skips_adaptive_when_disabled(mocker):
+    """When adaptive_rechunking config is absent, no rechunker call is made
+    and meta.adaptive_rechunking is not surfaced.
+    """
+    text_pipeline = mocker.Mock()
+    text_pipeline.process.return_value = [
+        {"text": "chunk one", "status": "AFFIRMED", "start_char": 0, "end_char": 9},
+    ]
+    retriever = mocker.Mock()
+
+    raw = [{"similarities": [[0.9, 0.7]], "ids": [["HP:0001"]], "metadatas": [[{}]]}]
+    mocker.patch(
+        "phentrieve.text_processing.hpo_extraction_orchestrator.orchestrate_hpo_extraction",
+        return_value=_make_orchestration_result(
+            aggregated=[{"id": "HP:0001", "name": "X", "score": 0.9}],
+            chunks=[{"chunk_idx": 0, "matches": []}],
+            raw=raw,
+        ),
+    )
+    rechunker_spy = mocker.patch(
+        "phentrieve.retrieval.adaptive_rechunker.run_adaptive_rechunking"
+    )
+
+    result = run_standard_backend(
+        text="some clinical text",
+        text_pipeline=text_pipeline,
+        retriever=retriever,
+    )
+
+    rechunker_spy.assert_not_called()
+    assert "adaptive_rechunking" not in result["meta"]
+    assert result["meta"]["extraction_backend"] == "standard"
+
+
+def test_run_standard_backend_skips_adaptive_when_config_disabled(mocker):
+    """An AdaptiveRechunkingConfig with enabled=False is treated as no-op."""
+    from phentrieve.retrieval.adaptive_rechunker import AdaptiveRechunkingConfig
+
+    text_pipeline = mocker.Mock()
+    text_pipeline.process.return_value = [
+        {"text": "chunk one", "status": "AFFIRMED", "start_char": 0, "end_char": 9},
+    ]
+    retriever = mocker.Mock()
+    mocker.patch(
+        "phentrieve.text_processing.hpo_extraction_orchestrator.orchestrate_hpo_extraction",
+        return_value=_make_orchestration_result(),
+    )
+    rechunker_spy = mocker.patch(
+        "phentrieve.retrieval.adaptive_rechunker.run_adaptive_rechunking"
+    )
+
+    result = run_standard_backend(
+        text="some clinical text",
+        text_pipeline=text_pipeline,
+        retriever=retriever,
+        adaptive_rechunking=AdaptiveRechunkingConfig(enabled=False),
+    )
+
+    rechunker_spy.assert_not_called()
+    assert "adaptive_rechunking" not in result["meta"]
+
+
+def test_run_standard_backend_invokes_adaptive_when_enabled(mocker):
+    """When adaptive_rechunking is enabled, the rechunker is called and its
+    meta is surfaced under meta.adaptive_rechunking. The post-rechunk
+    processed_chunks / aggregated_results / chunk_results replace the
+    initial pass outputs.
+    """
+    from phentrieve.retrieval.adaptive_rechunker import (
+        AdaptiveRechunkingConfig,
+        AdaptiveRechunkingResult,
+    )
+
+    initial_processed = [
+        {
+            "text": "weak parent chunk",
+            "status": "AFFIRMED",
+            "start_char": 0,
+            "end_char": 17,
+        },
+    ]
+    text_pipeline = mocker.Mock()
+    text_pipeline.process.return_value = initial_processed
+    retriever = mocker.Mock()
+
+    initial_raw = [{"similarities": [[0.4]], "ids": [["HP:0001"]], "metadatas": [[{}]]}]
+    initial_orchestration = _make_orchestration_result(
+        aggregated=[{"id": "HP:0001", "name": "Weak", "score": 0.4}],
+        chunks=[{"chunk_idx": 0, "matches": []}],
+        raw=initial_raw,
+    )
+    mocker.patch(
+        "phentrieve.text_processing.hpo_extraction_orchestrator.orchestrate_hpo_extraction",
+        return_value=initial_orchestration,
+    )
+
+    post_processed = [
+        {"text": "child a", "status": "AFFIRMED", "start_char": 0, "end_char": 7},
+        {"text": "child b", "status": "AFFIRMED", "start_char": 8, "end_char": 15},
+    ]
+    post_aggregated = [
+        {"id": "HP:0002", "name": "Better", "score": 0.85, "chunks": [0]},
+    ]
+    post_chunks = [
+        {"chunk_idx": 0, "matches": []},
+        {"chunk_idx": 1, "matches": []},
+    ]
+    adaptive_meta = {
+        "enabled": True,
+        "trigger_count": 1,
+        "subdivided_count": 1,
+        "reverted_count": 0,
+        "max_depth_reached": 1,
+        "extra_chunks_added": 1,
+    }
+    rechunker_spy = mocker.patch(
+        "phentrieve.retrieval.adaptive_rechunker.run_adaptive_rechunking",
+        return_value=AdaptiveRechunkingResult(
+            processed_chunks=post_processed,
+            aggregated_results=post_aggregated,
+            chunk_results=post_chunks,
+            meta=adaptive_meta,
+        ),
+    )
+
+    cfg = AdaptiveRechunkingConfig(enabled=True)
+    result = run_standard_backend(
+        text="some clinical text",
+        text_pipeline=text_pipeline,
+        retriever=retriever,
+        adaptive_rechunking=cfg,
+        num_results_per_chunk=10,
+        chunk_retrieval_threshold=0.3,
+        min_confidence_for_aggregated=0.4,
+        include_details=False,
+    )
+
+    rechunker_spy.assert_called_once()
+    call_kwargs = rechunker_spy.call_args.kwargs
+    assert call_kwargs["processed_chunks"] == initial_processed
+    assert call_kwargs["chunk_results"] == initial_orchestration.chunk_results
+    assert call_kwargs["raw_query_results"] == initial_orchestration.raw_query_results
+    assert call_kwargs["retriever"] is retriever
+    assert call_kwargs["config"] is cfg
+    assert call_kwargs["num_results_per_chunk"] == 10
+    assert call_kwargs["chunk_retrieval_threshold"] == 0.3
+    assert call_kwargs["min_confidence_for_aggregated"] == 0.4
+    assert call_kwargs["include_details"] is False
+
+    assert result["meta"]["adaptive_rechunking"] == adaptive_meta
+    assert result["meta"]["num_processed_chunks"] == 2
+    assert result["meta"]["num_aggregated_hpo_terms"] == 1
+    # The aggregated terms come from the rechunker output, not the initial pass.
+    assert [t["id"] for t in result["aggregated_hpo_terms"]] == ["HP:0002"]

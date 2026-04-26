@@ -100,13 +100,18 @@ class TestMainCallback:
 
     def test_main_callback_executes_without_error(self, mocker):
         """Test main callback executes successfully."""
+        from unittest.mock import MagicMock
+
         from phentrieve.cli import main_callback
 
         # Arrange - Mock version_callback to prevent exit
         mocker.patch("phentrieve.cli.version_callback", return_value=None)
+        # Phase 7 added a ctx parameter for the root --profile callback.
+        ctx = MagicMock()
+        ctx.obj = None
 
         # Act - should not raise any exception
-        result = main_callback(version=False)
+        result = main_callback(ctx=ctx, version=False)
 
         # Assert - callback returns None (does nothing except handle --version)
         assert result is None

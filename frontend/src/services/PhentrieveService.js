@@ -172,6 +172,8 @@ class PhentrieveService {
         textProcessingData.topTermPerChunkForAggregation ??
         null,
       include_details: textProcessingData.include_details ?? textProcessingData.includeDetails,
+      adaptive_rechunking:
+        textProcessingData.adaptive_rechunking ?? textProcessingData.adaptiveRechunking ?? null,
     };
 
     return Object.entries(payload).reduce((normalized, [key, value]) => {

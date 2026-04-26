@@ -17,18 +17,27 @@ import typer
 # Importing sentence_transformers loads PyTorch/CUDA (18+ seconds), which should
 # only happen when commands actually need ML models, not for --help or --version.
 # The import is done inside command functions where the model is actually used.
+from phentrieve.cli._profile import apply_profile_callback
 from phentrieve.cli.utils import load_text_from_input, resolve_chunking_pipeline_config
 from phentrieve.config import (
+    DEFAULT_ASSERTION_PREFERENCE,
+    DEFAULT_CHUNK_CONFIDENCE,
     DEFAULT_CHUNK_RETRIEVAL_THRESHOLD,
     DEFAULT_CHUNKING_STRATEGY,
+    DEFAULT_LANGUAGE,
     DEFAULT_MIN_CONFIDENCE_AGGREGATED,
     DEFAULT_MIN_SEGMENT_LENGTH_WORDS,
     DEFAULT_MODEL,
     DEFAULT_SPLITTING_THRESHOLD,
     DEFAULT_STEP_SIZE_TOKENS,
+    DEFAULT_TOP_K,
     DEFAULT_WINDOW_SIZE_TOKENS,
+    _load_yaml_config,
 )
 from phentrieve.llm import config as llm_config
+from phentrieve.retrieval.adaptive_rechunker import (
+    adaptive_config_from_profile_block,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -277,6 +286,20 @@ def process_text_for_hpo_command(
         None,
         help="Text to process for HPO term extraction (can be a string or file path). Not required in interactive mode.",
     ),
+    profile: Annotated[
+        str,
+        typer.Option(
+            "--profile",
+            "-P",
+            envvar="PHENTRIEVE_PROFILE",
+            help=(
+                "Apply a named profile from phentrieve.yaml. "
+                "See `phentrieve config list-profiles`."
+            ),
+            callback=apply_profile_callback,
+            is_eager=True,
+        ),
+    ] = "default",
     input_file: Annotated[
         Path | None,
         typer.Option(
@@ -284,9 +307,9 @@ def process_text_for_hpo_command(
         ),
     ] = None,
     language: Annotated[
-        str,
+        str | None,
         typer.Option("--language", "-l", help="Language of the text (en, de, etc.)"),
-    ] = "en",
+    ] = None,
     chunking_pipeline_config_file: Annotated[
         Path | None,
         typer.Option(
@@ -398,13 +421,13 @@ def process_text_for_hpo_command(
         ),
     ] = DEFAULT_CHUNK_RETRIEVAL_THRESHOLD,
     num_results: Annotated[
-        int,
+        int | None,
         typer.Option(
             "--num-results",
             "-n",
             help="Maximum number of HPO terms to return per query",
         ),
-    ] = 10,
+    ] = None,
     no_assertion_detection: Annotated[
         bool,
         typer.Option(
@@ -413,12 +436,12 @@ def process_text_for_hpo_command(
         ),
     ] = False,
     assertion_preference: Annotated[
-        str,
+        str | None,
         typer.Option(
             "--assertion-preference",
             help="Assertion detection strategy preference (dependency, keyword, any_negative)",
         ),
-    ] = "dependency",
+    ] = None,
     output_format: Annotated[
         str,
         typer.Option(
@@ -461,13 +484,13 @@ def process_text_for_hpo_command(
         typer.Option("--debug", help="Enable debug logging"),
     ] = False,
     chunk_confidence: Annotated[
-        float,
+        float | None,
         typer.Option(
             "--chunk-confidence",
             "-cc",
             help="Minimum confidence score for a term to be included in a chunk result",
         ),
-    ] = 0.2,
+    ] = None,
     aggregated_term_confidence: Annotated[
         float,
         typer.Option(
@@ -491,6 +514,34 @@ def process_text_for_hpo_command(
             help="Include HPO term definitions and synonyms in output",
         ),
     ] = False,
+    adaptive_rechunking: Annotated[
+        bool,
+        typer.Option(
+            "--adaptive-rechunking/--no-adaptive-rechunking",
+            help="Enable adaptive re-chunking (opt-in feature, see issue #148).",
+        ),
+    ] = False,
+    adaptive_rechunking_quality_threshold: Annotated[
+        float | None,
+        typer.Option(
+            "--adaptive-rechunking-quality-threshold",
+            help="top-1 similarity below which a chunk flags as poor.",
+        ),
+    ] = None,
+    adaptive_rechunking_margin_threshold: Annotated[
+        float | None,
+        typer.Option(
+            "--adaptive-rechunking-margin-threshold",
+            help="top_1 - top_2 below which a chunk flags as poor (with low score).",
+        ),
+    ] = None,
+    adaptive_rechunking_max_depth: Annotated[
+        int | None,
+        typer.Option(
+            "--adaptive-rechunking-max-depth",
+            help="Recursion depth cap (default 2).",
+        ),
+    ] = None,
 ) -> None:
     """Process clinical text to extract HPO terms.
 
@@ -505,12 +556,44 @@ def process_text_for_hpo_command(
     """
     import time
 
-    from phentrieve.config import DEFAULT_LANGUAGE, DEFAULT_MODEL
+    from phentrieve.config import DEFAULT_MODEL
     from phentrieve.utils import detect_language, setup_logging_cli
 
     logger = logging.getLogger(__name__)
     start_time = time.time()
     setup_logging_cli(debug=debug)
+
+    # Optional: print resolved configuration to stderr for debugging.
+    import click as _click
+
+    _ctx = _click.get_current_context(silent=True)
+    if (
+        _ctx is not None
+        and isinstance(_ctx.obj, dict)
+        and _ctx.obj.get("show_resolved_config")
+    ):
+        from phentrieve.cli._profile import render_resolved_config
+
+        typer.echo(render_resolved_config(_ctx), err=True)
+
+    # Resolve None defaults to fallback constants. Click's eager --profile
+    # callback has already populated ctx.default_map (and Click has resolved
+    # commandline overrides on top), so a None at this point means no flag,
+    # no profile entry, and no YAML supplied a value.
+    num_results = num_results if num_results is not None else DEFAULT_TOP_K
+    # The --chunk-confidence option is a long-standing CLI accept-only knob:
+    # not yet wired into the orchestrator. Resolving it here with the new
+    # DEFAULT_CHUNK_CONFIDENCE keeps the constant referenced for future use
+    # (and makes the resolver visible alongside the other Plan A defaults)
+    # without producing a dead local. Tracked for follow-up wiring.
+    _resolved_chunk_confidence = (  # noqa: F841 — placeholder until wired downstream
+        chunk_confidence if chunk_confidence is not None else DEFAULT_CHUNK_CONFIDENCE
+    )
+    assertion_preference = (
+        assertion_preference
+        if assertion_preference is not None
+        else DEFAULT_ASSERTION_PREFERENCE
+    )
 
     raw_text = load_text_from_input(text, input_file)
 
@@ -598,6 +681,81 @@ def process_text_for_hpo_command(
                 )
                 raise typer.Exit(code=1)
 
+    # Resolve adaptive_rechunking config: CLI > profile > YAML > defaults.
+    # The eager --profile callback (Plan A) intentionally skips the
+    # `adaptive_rechunking` Profile field, so we resolve the block here in
+    # the command body. The boolean --adaptive-rechunking flag has a default
+    # of False; treat it as a CLI override only when explicitly supplied so
+    # profile/YAML enabled=True can pass through when the user didn't pass
+    # the flag.
+    adaptive_yaml = (
+        _load_yaml_config().get("extraction", {}).get("adaptive_rechunking", {})
+    )
+    adaptive_profile_block = None
+    try:
+        import click as _click_for_profile
+
+        _profile_ctx = _click_for_profile.get_current_context(silent=True)
+    except Exception:  # noqa: BLE001 - defensive: keep CLI working without click ctx
+        _profile_ctx = None
+
+    if _profile_ctx is not None:
+        try:
+            _adaptive_enabled_source = _profile_ctx.get_parameter_source(
+                "adaptive_rechunking"
+            )
+        except Exception:  # noqa: BLE001 - older click variants
+            _adaptive_enabled_source = None
+        # Resolve the active profile (if any) so its adaptive_rechunking block
+        # can layer between CLI and YAML.
+        try:
+            from phentrieve.profiles import (
+                merged_profiles,
+                resolve_profile_for_command,
+            )
+
+            _profile_name = _profile_ctx.params.get("profile") or None
+            if _profile_name == "":
+                _profile_name = None
+            _profile_obj, _ = resolve_profile_for_command(
+                _profile_name,
+                ("text", "process"),
+                set(),
+                all_profiles=merged_profiles(),
+            )
+            adaptive_profile_block = getattr(_profile_obj, "adaptive_rechunking", None)
+        except Exception:  # noqa: BLE001 - defensive: profile lookup is best-effort
+            adaptive_profile_block = None
+    else:
+        _adaptive_enabled_source = None
+
+    cli_overrides: dict[str, Any] = {}
+    try:
+        from click.core import ParameterSource as _PS  # noqa: WPS433
+
+        if (
+            _adaptive_enabled_source is not None
+            and _adaptive_enabled_source != _PS.DEFAULT
+        ):
+            cli_overrides["enabled"] = adaptive_rechunking
+    except Exception:  # noqa: BLE001
+        # Without ParameterSource we cannot distinguish default from explicit;
+        # fall back to passing the value through so --adaptive-rechunking
+        # still has an effect.
+        cli_overrides["enabled"] = adaptive_rechunking
+    if adaptive_rechunking_quality_threshold is not None:
+        cli_overrides["quality_threshold"] = adaptive_rechunking_quality_threshold
+    if adaptive_rechunking_margin_threshold is not None:
+        cli_overrides["margin_threshold"] = adaptive_rechunking_margin_threshold
+    if adaptive_rechunking_max_depth is not None:
+        cli_overrides["max_depth"] = adaptive_rechunking_max_depth
+
+    adaptive_config = adaptive_config_from_profile_block(
+        block=adaptive_profile_block,
+        yaml_block=adaptive_yaml,
+        cli_overrides=cli_overrides,
+    )
+
     try:
         service_result = run_full_text_service(
             text=raw_text,
@@ -619,6 +777,7 @@ def process_text_for_hpo_command(
             top_term_per_chunk=top_term_per_chunk,
             min_confidence_for_aggregated=aggregated_term_confidence,
             include_details=include_details,
+            adaptive_rechunking=adaptive_config,
         )
     except Exception as e:
         typer.secho(f"Error processing text: {e!s}", fg=typer.colors.RED, err=True)

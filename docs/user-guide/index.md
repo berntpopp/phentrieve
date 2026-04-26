@@ -42,6 +42,7 @@ This User Guide section contains the following pages:
 
 - [CLI Usage](cli-usage.md): Detailed guide on using the Phentrieve command-line interface
 - [Text Processing Guide](text-processing-guide.md): How to process clinical text to extract HPO terms
+- [Adaptive Re-Chunking](adaptive-rechunking.md): Opt-in retrieval-quality-driven sub-chunking for multi-concept clinical sentences
 - [Benchmarking Guide](benchmarking-guide.md): Running and interpreting benchmarks
 - [Configuration Profiles](configuration-profiles.md): Configuring Phentrieve for different use cases
 - [API Usage](api-usage.md): Using the Phentrieve API

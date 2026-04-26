@@ -68,3 +68,69 @@ When the API is running, the OpenAPI pages are available at:
 
 - Swagger UI: `http://localhost:8734/docs`
 - ReDoc: `http://localhost:8734/redoc`
+
+## Profiles vs API
+
+The HTTP API does not accept the CLI's `--profile` flag - request fields
+are explicit. If you're moving a workflow from the CLI to the API, copy the
+relevant fields from your profile into the request body. See
+[Configuration Profiles](./configuration-profiles.md) for the profile schema.
+
+## Adaptive Re-Chunking
+
+`TextProcessingRequest` accepts an optional `adaptive_rechunking` field that
+mirrors the YAML `extraction.adaptive_rechunking` block. When provided with
+`enabled: true`, poor-quality chunks are subdivided at sentence boundaries
+and re-queried. The full schema and trigger semantics are described in
+[Adaptive Re-Chunking](./adaptive-rechunking.md).
+
+Request example:
+
+```bash
+curl -X POST "http://localhost:8734/api/v1/text/process" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "text": "Patient with intellectual disability, microcephaly, seizures, and short stature.",
+    "adaptive_rechunking": {
+      "enabled": true,
+      "quality_threshold": 0.55,
+      "margin_threshold": 0.03,
+      "max_depth": 2
+    }
+  }'
+```
+
+All `adaptive_rechunking` fields are optional; omitted fields fall through
+to server-side defaults. The full set of knobs is:
+
+- `enabled` (bool, default `false`)
+- `quality_threshold` (float, default `0.55`)
+- `margin_threshold` (float, default `0.03`)
+- `max_depth` (int, default `2`)
+- `min_chunk_chars` (int, default `30`)
+- `max_sentences_per_subchunk` (int, default `3`)
+- `overlap_sentences` (int, default `1`)
+- `score_improvement_gate` (float, default `0.05`)
+- `use_ontology_coherence` (bool, default `false`; reserved, inert in v1)
+
+When the feature is enabled and triggered, the response carries a
+`meta.adaptive_rechunking` block summarizing what happened:
+
+```json
+{
+  "meta": {
+    "extraction_backend": "standard",
+    "adaptive_rechunking": {
+      "enabled": true,
+      "trigger_count": 3,
+      "subdivided_count": 2,
+      "reverted_count": 1,
+      "max_depth_reached": 1,
+      "extra_chunks_added": 4
+    }
+  }
+}
+```
+
+The block is omitted when `adaptive_rechunking` is disabled or omitted from
+the request.

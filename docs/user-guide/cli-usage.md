@@ -18,6 +18,12 @@ Available for all commands:
 *   `--version`: Show version information and exit
 *   `--help`: Show help message for any command
 
+## Profiles
+
+Most commands accept `--profile NAME` to apply a preset bundle of options
+defined in `phentrieve.yaml`. See [Configuration Profiles](./configuration-profiles.md)
+for the full guide.
+
 ## Available Commands
 
 ### Data Management
@@ -61,6 +67,13 @@ phentrieve query --text "The patient shows microcephaly and seizures"
 - `--similarity-threshold`: Minimum similarity score (0-1) to show results (default: 0.3)
 - `--num-results`: Maximum number of results to display (default: 5)
 - `--model-name`: Embedding model to use (default: "FremyCompany/BioLORD-2023-M")
+- `--profile`, `-P`: Apply a named profile from `phentrieve.yaml`. See [Configuration Profiles](./configuration-profiles.md).
+- `--show-resolved-config`: Print resolved option values with source labels to stderr before running.
+
+For interactive mode (`phentrieve query --interactive`), the same `--profile`
+and `--show-resolved-config` flags apply. The built-in `interactive` profile
+is auto-selected by `phentrieve text interactive` when no `--profile` is
+given; pass `--profile default` to swap to strict thresholds.
 
 ### Text Processing
 
@@ -120,6 +133,22 @@ Example JSON Lines output:
 - `--strategy`: Chunking strategy (see above)
 - `--language`: Text language for accurate processing (en, de, es, fr, nl)
 - `--output-format`: Output format (json_lines, rich_json_summary, csv_hpo_list)
+- `--profile`, `-P`: Apply a named profile from `phentrieve.yaml`. See [Configuration Profiles](./configuration-profiles.md).
+- `--show-resolved-config`: Print resolved option values with source labels to stderr before running.
+
+**Adaptive Re-Chunking Flags** (opt-in; see [Adaptive Re-Chunking](./adaptive-rechunking.md)):
+
+- `--adaptive-rechunking` / `--no-adaptive-rechunking`: Enable adaptive re-chunking for poor-quality chunks (default: disabled).
+- `--adaptive-rechunking-quality-threshold FLOAT`: Override the top-1 quality floor (default: 0.55).
+- `--adaptive-rechunking-margin-threshold FLOAT`: Override the minimum top-1 minus top-2 margin (default: 0.03).
+- `--adaptive-rechunking-max-depth INT`: Override the recursion cap (default: 2).
+
+When enabled, chunks whose retrieval is poor (low top-1 AND low margin) are
+subdivided into sentence-bounded sub-chunks and re-queried. The full set of
+knobs (e.g. `min_chunk_chars`, `score_improvement_gate`) is reachable via
+`phentrieve.yaml` or a profile. See
+[Adaptive Re-Chunking](./adaptive-rechunking.md) for the trigger semantics,
+encoder-calibration warning, cost envelope, and worked examples.
 
 **Sliding Window Parameters** (override config for all strategies using sliding window):
 - `--window-size`: Window size in tokens (default: 7)

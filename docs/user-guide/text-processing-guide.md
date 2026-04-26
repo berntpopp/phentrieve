@@ -57,6 +57,15 @@ phentrieve text process --strategy sliding_window --window-size 128 --step-size 
 !!! note "Command-line Parameters"
     The parameters `--window-size`, `--step-size`, `--threshold`, and `--min-segment` override the configuration for all strategies, not just "sliding_window".
 
+### Adaptive Re-Chunking (opt-in)
+
+When initial retrieval on a chunk is poor (low top-1 similarity AND low
+margin between top-1 and top-2), Phentrieve can optionally subdivide the
+chunk into sentence-window sub-chunks and re-query them. This is wired into
+`phentrieve text process` and the API only, not into `text interactive`.
+See [Adaptive Re-Chunking](./adaptive-rechunking.md) for the trigger
+semantics, configuration knobs, and cost envelope.
+
 ## Assertion Detection
 
 Phentrieve can detect the assertion status of each identified HPO term:

@@ -21,7 +21,7 @@ import { HPO_TERM_URL, GITHUB_REPO_URL, PHENTRIEVE_PRODUCTION_URL } from '../con
 describe('constants/defaults', () => {
   it('exports numeric query defaults', () => {
     expect(DEFAULT_NUM_RESULTS).toBe(10);
-    expect(DEFAULT_SIMILARITY_THRESHOLD).toBe(0.5);
+    expect(DEFAULT_SIMILARITY_THRESHOLD).toBe(0.3);
     expect(DEFAULT_SPLIT_THRESHOLD).toBe(0.5);
   });
 

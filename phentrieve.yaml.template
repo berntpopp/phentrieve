@@ -127,6 +127,62 @@ multi_vector:
   # custom_formula: null
 
 # =============================================================================
+# CONFIGURATION PROFILES
+# =============================================================================
+# Named profiles for common CLI workflows. Pass --profile NAME to apply.
+# See docs/user-guide/configuration-profiles.md for the full schema.
+
+# profiles:
+#   high_recall_german:
+#     description: "Recall-oriented German extraction"
+#     command: text process              # bind to a specific command (optional)
+#     language: de
+#     chunk_retrieval_threshold: 0.6
+#
+#   fast_query:
+#     command: query
+#     num_results: 5
+#     similarity_threshold: 0.5
+
+# =============================================================================
+# HPO EXTRACTION THRESHOLDS
+# =============================================================================
+# Read by phentrieve/config.py to populate DEFAULT_CHUNK_RETRIEVAL_THRESHOLD,
+# DEFAULT_MIN_CONFIDENCE_AGGREGATED, DEFAULT_CHUNK_CONFIDENCE, and
+# DEFAULT_ASSERTION_PREFERENCE. Key names match the existing config.py reads
+# exactly - DO NOT rename.
+
+# extraction:
+#   chunk_threshold: 0.7
+#   min_confidence: 0.75
+#   chunk_confidence: 0.2
+#   assertion_preference: dependency
+#
+#   # Adaptive re-chunking (opt-in). When a chunk's retrieval is poor,
+#   # subdivide it into sentence-bounded sub-chunks and re-query.
+#   # See docs/user-guide/adaptive-rechunking.md for full details.
+#   adaptive_rechunking:
+#     enabled: false                 # opt-in switch; default behavior unchanged
+#     quality_threshold: 0.55        # top-1 floor; encoder-calibrated for BioLORD
+#     margin_threshold: 0.03         # minimum top-1 minus top-2 distance
+#     use_ontology_coherence: false  # reserved, inert in v1
+#     max_depth: 2                   # recursion cap; 1 + max_depth query_batch calls worst case
+#     min_chunk_chars: 30            # drop sub-chunks shorter than this many chars
+#     max_sentences_per_subchunk: 3  # sliding-window size in sentences
+#     overlap_sentences: 1           # sentence-level overlap between sub-chunk windows
+#     score_improvement_gate: 0.05   # children below this top-1 lift over parent are reverted
+
+# =============================================================================
+# OUTPUT FORMAT DEFAULTS
+# =============================================================================
+# Read by phentrieve/config.py to populate DEFAULT_OUTPUT_FORMAT_QUERY and
+# DEFAULT_OUTPUT_FORMAT_PROCESS.
+
+# output:
+#   format_query: text
+#   format_process: json_lines
+
+# =============================================================================
 # EXTRACTION BENCHMARK CONFIGURATION
 # =============================================================================
 
