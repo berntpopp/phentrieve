@@ -492,8 +492,15 @@ def adapt_standard_response(
     extraction_result: tuple[Sequence[Mapping[str, Any]], Sequence[Mapping[str, Any]]]
     | Mapping[str, Any]
     | None,
+    extra_meta: dict[str, Any] | None = None,
 ) -> StableBackendResponse:
-    """Convert pipeline and extraction outputs into the stable response shape."""
+    """Convert pipeline and extraction outputs into the stable response shape.
+
+    extra_meta: optional dict merged into the response's meta block. Used by
+    adaptive rechunking to surface its meta.adaptive_rechunking summary.
+    Canonical keys (extraction_backend, num_processed_chunks,
+    num_aggregated_hpo_terms) always win on conflict.
+    """
     if isinstance(pipeline_result, Mapping):
         processed_chunks = _coerce_list(
             pipeline_result.get("processed_chunks") or pipeline_result.get("chunks")
@@ -520,12 +527,14 @@ def adapt_standard_response(
     adapted_chunks = _adapt_processed_chunks(processed_chunks, chunk_results)
     adapted_terms = _adapt_aggregated_terms(aggregated_results)
 
+    # Build meta starting from extra_meta so canonical keys override.
+    meta_block: dict[str, Any] = dict(extra_meta or {})
+    meta_block["num_processed_chunks"] = len(adapted_chunks)
+    meta_block["num_aggregated_hpo_terms"] = len(adapted_terms)
+
     return adapt_full_text_response(
         {
-            "meta": {
-                "num_processed_chunks": len(adapted_chunks),
-                "num_aggregated_hpo_terms": len(adapted_terms),
-            },
+            "meta": meta_block,
             "processed_chunks": adapted_chunks,
             "aggregated_hpo_terms": adapted_terms,
         },
