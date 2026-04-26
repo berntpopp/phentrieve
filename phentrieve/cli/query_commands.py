@@ -9,6 +9,15 @@ from typing import Annotated, Any
 
 import typer
 
+from phentrieve.cli._profile import apply_profile_callback
+from phentrieve.config import (
+    DEFAULT_AGGREGATION_STRATEGY,
+    DEFAULT_MODEL,
+    DEFAULT_MULTI_VECTOR,
+    DEFAULT_OUTPUT_FORMAT_QUERY,
+    DEFAULT_TOP_K,
+    MIN_SIMILARITY_THRESHOLD,
+)
 from phentrieve.retrieval.output_formatters import (
     format_results_as_json,
     format_results_as_jsonl,
@@ -112,6 +121,20 @@ def query_hpo(
     text: Annotated[
         str | None, typer.Argument(help="Clinical text to query for HPO terms")
     ] = None,
+    profile: Annotated[
+        str,
+        typer.Option(
+            "--profile",
+            "-P",
+            envvar="PHENTRIEVE_PROFILE",
+            help=(
+                "Apply a named profile from phentrieve.yaml. "
+                "See `phentrieve config list-profiles`."
+            ),
+            callback=apply_profile_callback,
+            is_eager=True,
+        ),
+    ] = "default",
     interactive: Annotated[
         bool,
         typer.Option(
@@ -123,21 +146,21 @@ def query_hpo(
     model_name: Annotated[
         str | None,
         typer.Option("--model-name", "-m", help="Model name to use for embeddings"),
-    ] = "FremyCompany/BioLORD-2023-M",
+    ] = None,
     num_results: Annotated[
-        int,
+        int | None,
         typer.Option(
             "--num-results", "-n", help="Number of results to display for each query"
         ),
-    ] = 10,
+    ] = None,
     similarity_threshold: Annotated[
-        float,
+        float | None,
         typer.Option(
             "--similarity-threshold",
             "-t",
             help="Minimum similarity threshold for results",
         ),
-    ] = 0.3,
+    ] = None,
     sentence_mode: Annotated[
         bool,
         typer.Option(
@@ -166,14 +189,14 @@ def query_hpo(
         ),
     ] = None,
     output_format: Annotated[
-        str,
+        str | None,
         typer.Option(
             "--output-format",
             "-F",
             help="Format for the output (text, json, json_lines, phenopacket_v2_json). Default is 'text'.",
             case_sensitive=False,
         ),
-    ] = "text",
+    ] = None,
     cpu: Annotated[
         bool, typer.Option("--cpu", help="Force CPU usage even if GPU is available")
     ] = False,
@@ -210,20 +233,20 @@ def query_hpo(
         ),
     ] = False,
     multi_vector: Annotated[
-        bool,
+        bool | None,
         typer.Option(
             "--multi-vector",
             help="Use multi-vector index with component-level aggregation",
         ),
-    ] = False,
+    ] = None,
     aggregation_strategy: Annotated[
-        str,
+        str | None,
         typer.Option(
             "--aggregation-strategy",
             "-A",
             help="Multi-vector aggregation strategy: label_only, label_synonyms_min, label_synonyms_max, all_weighted, all_max",
         ),
-    ] = "label_synonyms_max",
+    ] = None,
 ):
     """Query HPO terms with natural language clinical descriptions.
 
@@ -235,17 +258,32 @@ def query_hpo(
     - json: Structured JSON output
     - json_lines: JSON Lines format (one JSON object per line)
     """
-    from phentrieve.config import DEFAULT_MODEL
     from phentrieve.retrieval.query_orchestrator import orchestrate_query
     from phentrieve.utils import setup_logging_cli
 
     # Set up logging
     setup_logging_cli(debug=debug)
 
-    # Use default model if not specified
-    if model_name is None:
-        model_name = DEFAULT_MODEL
-        typer.echo(f"Using default model: {model_name}")
+    # Resolve None defaults to fallback constants. Click's eager --profile
+    # callback has already populated ctx.default_map (and Click has resolved
+    # commandline overrides on top), so a None at this point means no flag,
+    # no profile entry, and no YAML supplied a value.
+    model_name = model_name if model_name is not None else DEFAULT_MODEL
+    num_results = num_results if num_results is not None else DEFAULT_TOP_K
+    similarity_threshold = (
+        similarity_threshold
+        if similarity_threshold is not None
+        else MIN_SIMILARITY_THRESHOLD
+    )
+    multi_vector = multi_vector if multi_vector is not None else DEFAULT_MULTI_VECTOR
+    aggregation_strategy = (
+        aggregation_strategy
+        if aggregation_strategy is not None
+        else DEFAULT_AGGREGATION_STRATEGY
+    )
+    output_format = (
+        output_format if output_format is not None else DEFAULT_OUTPUT_FORMAT_QUERY
+    )
 
     # Determine device based on CPU flag
     device_override = "cpu" if cpu else None

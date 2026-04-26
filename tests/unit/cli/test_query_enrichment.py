@@ -5,10 +5,15 @@ Tests cover:
 - Helper function for enriching structured query results
 - Output formatters with definition and synonyms
 - Integration with CLI command (mocked)
+- Plan A Phase 6: --profile resolution for ``phentrieve query``
 """
 
-import pytest
+from unittest.mock import patch
 
+import pytest
+from typer.testing import CliRunner
+
+from phentrieve.cli import app
 from phentrieve.cli.query_commands import enrich_query_results_with_details
 from phentrieve.retrieval.output_formatters import (
     format_results_as_json,
@@ -18,6 +23,14 @@ from phentrieve.retrieval.output_formatters import (
 
 # Mark all tests in this file as unit tests
 pytestmark = pytest.mark.unit
+
+
+def _clear_yaml_cache() -> None:
+    from phentrieve.config import _load_yaml_config
+    from phentrieve.utils import load_user_config
+
+    _load_yaml_config.cache_clear()
+    load_user_config.cache_clear()
 
 
 @pytest.fixture
@@ -335,3 +348,111 @@ class TestOutputFormatterEdgeCases:
         assert "Synonym 5" in output
         # Check comma-separated format
         assert "Synonym 1, Synonym 2" in output
+
+
+class TestQueryProfileResolution:
+    """Plan A Phase 6: ``phentrieve query`` --profile resolution.
+
+    The hardcoded model_name/num_results/similarity_threshold/multi_vector/
+    aggregation_strategy/output_format literals get replaced with ``None``
+    Typer defaults plus a value-or-constant body fallback. Together with the
+    eager ``--profile`` callback this lets the precedence stack (explicit
+    flag > profile > top-level YAML > constants) work without a hardcoded
+    literal short-circuiting it.
+    """
+
+    def setup_method(self) -> None:
+        _clear_yaml_cache()
+
+    def teardown_method(self) -> None:
+        _clear_yaml_cache()
+
+    @patch("phentrieve.retrieval.query_orchestrator.orchestrate_query")
+    def test_profile_provides_query_defaults(
+        self, mock_orchestrate, monkeypatch, tmp_path
+    ):
+        """A profile with command=query supplies num_results and
+        similarity_threshold defaults via the eager callback."""
+        (tmp_path / "phentrieve.yaml").write_text(
+            "profiles:\n"
+            "  precise_english_query:\n"
+            "    command: query\n"
+            "    num_results: 5\n"
+            "    similarity_threshold: 0.5\n"
+        )
+        monkeypatch.chdir(tmp_path)
+        _clear_yaml_cache()
+        mock_orchestrate.return_value = []
+
+        runner = CliRunner()
+        result = runner.invoke(
+            app,
+            [
+                "query",
+                "patient with seizures",
+                "--profile",
+                "precise_english_query",
+            ],
+        )
+        assert result.exit_code == 0, result.output
+        assert mock_orchestrate.called
+        kwargs = mock_orchestrate.call_args.kwargs
+        assert kwargs["num_results"] == 5
+        assert kwargs["similarity_threshold"] == 0.5
+
+    @patch("phentrieve.retrieval.query_orchestrator.orchestrate_query")
+    def test_explicit_flag_overrides_profile(
+        self, mock_orchestrate, monkeypatch, tmp_path
+    ):
+        """``--num-results 3`` on the command line beats the profile's
+        ``num_results: 5`` (explicit flag is the strongest precedence layer)."""
+        (tmp_path / "phentrieve.yaml").write_text(
+            "profiles:\n"
+            "  precise_english_query:\n"
+            "    command: query\n"
+            "    num_results: 5\n"
+            "    similarity_threshold: 0.5\n"
+        )
+        monkeypatch.chdir(tmp_path)
+        _clear_yaml_cache()
+        mock_orchestrate.return_value = []
+
+        runner = CliRunner()
+        result = runner.invoke(
+            app,
+            [
+                "query",
+                "patient with seizures",
+                "--profile",
+                "precise_english_query",
+                "--num-results",
+                "3",
+            ],
+        )
+        assert result.exit_code == 0, result.output
+        assert mock_orchestrate.called
+        kwargs = mock_orchestrate.call_args.kwargs
+        # Explicit flag beats the profile-supplied value.
+        assert kwargs["num_results"] == 3
+        # similarity_threshold still comes from the profile.
+        assert kwargs["similarity_threshold"] == 0.5
+
+    @patch("phentrieve.retrieval.query_orchestrator.orchestrate_query")
+    def test_no_profile_falls_through_to_constants(
+        self, mock_orchestrate, monkeypatch, tmp_path
+    ):
+        """With no user profile and no YAML overrides, the body fallbacks
+        resolve to the config constants."""
+        from phentrieve.config import DEFAULT_TOP_K, MIN_SIMILARITY_THRESHOLD
+
+        monkeypatch.chdir(tmp_path)
+        _clear_yaml_cache()
+        mock_orchestrate.return_value = []
+
+        runner = CliRunner()
+        result = runner.invoke(app, ["query", "patient with seizures"])
+        assert result.exit_code == 0, result.output
+        assert mock_orchestrate.called
+        kwargs = mock_orchestrate.call_args.kwargs
+        assert kwargs["num_results"] == DEFAULT_TOP_K
+        assert kwargs["similarity_threshold"] == MIN_SIMILARITY_THRESHOLD
