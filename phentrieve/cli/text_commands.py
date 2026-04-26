@@ -531,6 +531,19 @@ def process_text_for_hpo_command(
     start_time = time.time()
     setup_logging_cli(debug=debug)
 
+    # Optional: print resolved configuration to stderr for debugging.
+    import click as _click
+
+    _ctx = _click.get_current_context(silent=True)
+    if (
+        _ctx is not None
+        and isinstance(_ctx.obj, dict)
+        and _ctx.obj.get("show_resolved_config")
+    ):
+        from phentrieve.cli._profile import render_resolved_config
+
+        typer.echo(render_resolved_config(_ctx), err=True)
+
     # Resolve None defaults to fallback constants. Click's eager --profile
     # callback has already populated ctx.default_map (and Click has resolved
     # commandline overrides on top), so a None at this point means no flag,

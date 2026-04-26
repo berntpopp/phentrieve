@@ -304,9 +304,21 @@ def interactive_text_mode(
         phentrieve text interactive -l de --annotations-above
         phentrieve text interactive -s semantic
     """
+    # Optional: print resolved configuration to stderr for debugging.
+    import click as _click
     from rich.console import Console
     from rich.panel import Panel
     from rich.prompt import Prompt
+
+    _ctx = _click.get_current_context(silent=True)
+    if (
+        _ctx is not None
+        and isinstance(_ctx.obj, dict)
+        and _ctx.obj.get("show_resolved_config")
+    ):
+        from phentrieve.cli._profile import render_resolved_config
+
+        typer.echo(render_resolved_config(_ctx), err=True)
 
     # Resolve None defaults to fallback constants. Click's eager --profile
     # callback has already populated ctx.default_map (and Click has resolved

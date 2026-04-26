@@ -307,3 +307,62 @@ def apply_profile_callback(
         new_defaults,
     )
     return value
+
+
+def render_resolved_config(ctx: click.Context) -> str:
+    """Build a human-readable resolved-config table.
+
+    Walks the active subcommand's option parameters and emits one line per
+    option in the format::
+
+        <name>  <value>  <- <source-label>
+
+    where the source label is one of:
+
+    - ``--<flag> (commandline)`` when the user passed the flag explicitly
+    - ``profile:<name>``, ``yaml:<key>``, or ``const:<NAME>`` from the
+      sidecar source map populated by :func:`apply_profile_callback`
+    - ``default`` when no layer in the precedence stack supplied a value
+
+    The result is returned as a string for the caller to print to stderr.
+    """
+    if ctx.command is None:
+        return ""
+
+    lines: list[str] = []
+    cmd_path = " ".join(_command_path_from_ctx(ctx))
+    if cmd_path:
+        lines.append(f"Resolved configuration for `phentrieve {cmd_path}`:")
+    else:
+        lines.append("Resolved configuration for `phentrieve`:")
+
+    sources: dict[str, str] = (
+        ctx.obj.get("resolved_sources", {}) if isinstance(ctx.obj, dict) else {}
+    )
+
+    for param in ctx.command.params:
+        if not isinstance(param, click.Option):
+            continue
+        name = param.name
+        if name is None:
+            continue
+        if name in {"profile", "show_resolved_config", "version"}:
+            continue
+        value = ctx.params.get(name)
+        try:
+            param_source = ctx.get_parameter_source(name)
+        except Exception:  # noqa: BLE001 - defensive: older click variants
+            param_source = None
+        # COMMANDLINE wins on labeling - user-provided.
+        if (
+            param_source is not None
+            and param_source == click.core.ParameterSource.COMMANDLINE
+        ):
+            label = f"--{name.replace('_', '-')} (commandline)"
+        elif name in sources:
+            label = sources[name]
+        else:
+            label = "default"
+        lines.append(f"  {name:<35} {value!r:<20} <- {label}")
+
+    return "\n".join(lines)

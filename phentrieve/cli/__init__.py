@@ -199,9 +199,22 @@ def main_callback(
             ),
         ),
     ] = None,
+    show_resolved_config: Annotated[
+        bool,
+        typer.Option(
+            "--show-resolved-config",
+            help=(
+                "Print the resolved option values (with source labels) to "
+                "stderr before running the command. Useful for diagnosing "
+                "why a profile or YAML default did not take effect."
+            ),
+        ),
+    ] = False,
 ):
     """Main callback for Phentrieve CLI - handles global options like --version."""
     ctx.ensure_object(dict)
+    if isinstance(ctx.obj, dict):
+        ctx.obj["show_resolved_config"] = show_resolved_config
 
 
 # Register command groups
