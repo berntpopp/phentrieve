@@ -18,6 +18,8 @@ together:
 
 ## [Unreleased]
 
+## [0.19.0] — 2026-04-26 (CLI 0.19.0 / API 0.10.0 / Frontend 0.9.0)
+
 ### Added
 
 - **`--profile NAME`** flag on `query`, `text process`, `text interactive` (issue #28).
