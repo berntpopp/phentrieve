@@ -11,8 +11,15 @@ from typing import Annotated, Any
 
 import typer
 
+from phentrieve.cli._profile import apply_profile_callback
 from phentrieve.cli.utils import resolve_chunking_pipeline_config
-from phentrieve.config import DEFAULT_MODEL
+from phentrieve.config import (
+    DEFAULT_CHUNK_RETRIEVAL_THRESHOLD,
+    DEFAULT_LANGUAGE,
+    DEFAULT_MIN_CONFIDENCE_AGGREGATED,
+    DEFAULT_MODEL,
+    DEFAULT_TOP_K,
+)
 from phentrieve.retrieval.dense_retriever import DenseRetriever
 from phentrieve.text_processing.hpo_extraction_orchestrator import (
     orchestrate_hpo_extraction,
@@ -157,10 +164,24 @@ def _display_interactive_text_results(
 
 
 def interactive_text_mode(
-    language: Annotated[
+    profile: Annotated[
         str,
+        typer.Option(
+            "--profile",
+            "-P",
+            envvar="PHENTRIEVE_PROFILE",
+            help=(
+                "Apply a named profile from phentrieve.yaml. "
+                "See `phentrieve config list-profiles`."
+            ),
+            callback=apply_profile_callback,
+            is_eager=True,
+        ),
+    ] = "interactive",
+    language: Annotated[
+        str | None,
         typer.Option("--language", "-l", help="Language of the text (en, de, etc.)"),
-    ] = "en",
+    ] = None,
     strategy: Annotated[
         str,
         typer.Option(
@@ -214,21 +235,21 @@ def interactive_text_mode(
         typer.Option("--model", "-m", help="Model name for HPO term retrieval"),
     ] = None,
     chunk_retrieval_threshold: Annotated[
-        float,
+        float | None,
         typer.Option(
             "--chunk-retrieval-threshold",
             "-crt",
             help="Minimum similarity score for HPO term matches per chunk (0.0-1.0)",
         ),
-    ] = 0.3,
+    ] = None,
     num_results: Annotated[
-        int,
+        int | None,
         typer.Option(
             "--num-results",
             "-n",
             help="Maximum number of HPO terms to return per chunk",
         ),
-    ] = 5,
+    ] = None,
     no_assertion_detection: Annotated[
         bool,
         typer.Option(
@@ -252,13 +273,13 @@ def interactive_text_mode(
         ),
     ] = False,
     aggregated_term_confidence: Annotated[
-        float,
+        float | None,
         typer.Option(
             "--aggregated-term-confidence",
             "-atc",
             help="Minimum confidence score for aggregated HPO terms",
         ),
-    ] = 0.35,
+    ] = None,
     top_term_per_chunk: Annotated[
         bool,
         typer.Option(
@@ -286,6 +307,23 @@ def interactive_text_mode(
     from rich.console import Console
     from rich.panel import Panel
     from rich.prompt import Prompt
+
+    # Resolve None defaults to fallback constants. Click's eager --profile
+    # callback has already populated ctx.default_map (and Click has resolved
+    # commandline overrides on top), so a None at this point means no flag,
+    # no profile entry, and no YAML supplied a value.
+    language = language if language is not None else DEFAULT_LANGUAGE
+    chunk_retrieval_threshold = (
+        chunk_retrieval_threshold
+        if chunk_retrieval_threshold is not None
+        else DEFAULT_CHUNK_RETRIEVAL_THRESHOLD
+    )
+    aggregated_term_confidence = (
+        aggregated_term_confidence
+        if aggregated_term_confidence is not None
+        else DEFAULT_MIN_CONFIDENCE_AGGREGATED
+    )
+    num_results = num_results if num_results is not None else DEFAULT_TOP_K
 
     console = Console()
     setup_logging_cli(debug=debug)
