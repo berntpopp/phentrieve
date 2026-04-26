@@ -106,6 +106,8 @@ def resolve_profile_for_command(
     command_path: tuple[str, ...],
     accepted_keys: set[str],
     all_profiles: dict[str, Profile] | None = None,
+    *,
+    skip_binding_check: bool = False,
 ) -> tuple[Profile, dict[str, Any]]:
     """Select the active profile and return (profile, kwargs_for_default_map).
 
@@ -148,7 +150,7 @@ def resolve_profile_for_command(
     profile = profiles[profile_name]
 
     # Command binding check.
-    if profile.command is not None:
+    if profile.command is not None and not skip_binding_check:
         bound = tuple(profile.command.split())
         if bound != command_path:
             raise typer.BadParameter(

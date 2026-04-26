@@ -197,6 +197,29 @@ def apply_profile_callback(
     # Idempotence guard: bail if already populated for this exact value.
     if ctx.obj.get("_profile_applied") == value:
         return value
+
+    # Placement precedence: when the root callback has already applied an
+    # explicit --profile (root --profile X), and this subcommand-level
+    # callback is firing with the option's built-in default (i.e. no
+    # subcommand-level --profile and no PHENTRIEVA_PROFILE env), do not
+    # overwrite the root's resolved defaults. The subcommand value only
+    # wins when the user (or env) supplied it explicitly.
+    parent_obj = ctx.parent.obj if ctx.parent is not None else None
+    parent_applied = (
+        parent_obj.get("_profile_applied") if isinstance(parent_obj, dict) else None
+    )
+    if parent_applied not in (None, ""):
+        try:
+            from click.core import ParameterSource
+
+            source = ctx.get_parameter_source(param.name) if param.name else None
+        except Exception:  # noqa: BLE001 - defensive: older click variants
+            source = None
+        if source is not None and source == ParameterSource.DEFAULT:
+            # Inherit the parent's resolved sources/defaults; bail.
+            ctx.obj["_profile_applied"] = parent_applied
+            return value
+
     ctx.obj["_profile_applied"] = value
 
     # Reconstruct command path. For the root-callback case where the
@@ -218,11 +241,17 @@ def apply_profile_callback(
     accepted_keys = set() if is_root else raw_accepted_keys
 
     profiles = merged_profiles()
+    # At the root callback Click has not yet selected the subcommand, so the
+    # command-binding check in resolve_profile_for_command would always reject
+    # bound profiles like `command: query`. Skip the binding check for the
+    # root case; the per-subcommand eager callback re-runs at the subcommand
+    # level and re-validates the binding then.
     profile, profile_kwargs = resolve_profile_for_command(
         value if value not in (None, "") else None,
         command_path,
         accepted_keys,
         all_profiles=profiles,
+        skip_binding_check=is_root and not command_path,
     )
 
     # Lazy import - phentrieve.config has its own initialization side effects

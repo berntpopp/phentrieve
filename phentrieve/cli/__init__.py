@@ -21,6 +21,7 @@ from phentrieve.cli import (
     mcp_commands,
     query_commands,
 )
+from phentrieve.cli._profile import apply_profile_callback
 
 # Read version from pyproject.toml
 __version__ = importlib.metadata.version("phentrieve")
@@ -172,6 +173,7 @@ def version_callback(value: bool):
 
 @app.callback()
 def main_callback(
+    ctx: typer.Context,
     version: Annotated[
         bool,
         typer.Option(
@@ -182,9 +184,23 @@ def main_callback(
             help="Show the application version and exit.",
         ),
     ] = False,
+    profile: Annotated[
+        str | None,
+        typer.Option(
+            "--profile",
+            "-P",
+            envvar="PHENTRIEVE_PROFILE",
+            callback=apply_profile_callback,
+            is_eager=True,
+            help=(
+                "Apply a named profile globally. A subcommand-level "
+                "--profile wins on conflict."
+            ),
+        ),
+    ] = None,
 ):
     """Main callback for Phentrieve CLI - handles global options like --version."""
-    pass
+    ctx.ensure_object(dict)
 
 
 # Register command groups
