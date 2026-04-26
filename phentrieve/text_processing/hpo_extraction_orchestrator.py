@@ -12,6 +12,7 @@ from phentrieve.config import DEFAULT_HPO_DB_FILENAME
 from phentrieve.data_processing.hpo_database import HPODatabase
 from phentrieve.retrieval.dense_retriever import DenseRetriever
 from phentrieve.retrieval.text_attribution import get_text_attributions
+from phentrieve.text_processing.orchestration_result import OrchestrationResult
 from phentrieve.utils import get_default_data_dir, resolve_data_path
 
 logger = logging.getLogger(__name__)
@@ -27,10 +28,8 @@ def orchestrate_hpo_extraction(
     min_confidence_for_aggregated: float = 0.0,
     assertion_statuses: list[str | None] | None = None,
     include_details: bool = False,
-) -> tuple[
-    list[dict[str, Any]],  # aggregated results
-    list[dict[str, Any]],  # chunk results
-]:
+    precomputed_query_results: list[dict] | None = None,
+) -> OrchestrationResult:
     """Orchestrate HPO term extraction from text.
 
     Process involves:
@@ -47,24 +46,45 @@ def orchestrate_hpo_extraction(
         min_confidence_for_aggregated: Minimum confidence threshold for aggregated terms
         assertion_statuses: Optional list of assertion statuses per chunk
         include_details: If True, include HPO term definitions and synonyms in results
+        precomputed_query_results: Optional pre-fetched per-chunk raw retrieval
+            results (same shape as ``DenseRetriever.query_batch`` output, one
+            entry per chunk). When provided, retrieval is skipped and
+            aggregation runs over the supplied data. Used by the adaptive
+            rechunker to re-aggregate over a curated mix of original and
+            child-chunk raw results without re-querying.
 
     Returns:
-        Tuple containing:
-        - List of aggregated HPO terms with scores and ranks
-        - List of chunk-level results with matches
+        OrchestrationResult dataclass exposing ``aggregated_results``,
+        ``chunk_results``, and ``raw_query_results``. Iteration and indexing
+        yield the legacy 2-tuple ``(aggregated_results, chunk_results)`` for
+        backward compatibility with existing call sites.
     """
     # Initialize results
     chunk_results = []  # Store results for each chunk
     aggregated_hpo_evidence_map = defaultdict(list)  # Group evidence by HPO ID
 
     # OPTIMIZATION: Query all chunks at once using batch API (10-20x faster!)
-    # This replaces the sequential query loop with a single batch query to ChromaDB
-    logger.info(f"Batch querying {len(text_chunks)} chunks at once")
-    all_query_results = retriever.query_batch(
-        texts=text_chunks,
-        n_results=num_results_per_chunk,
-        include_similarities=True,
-    )
+    # This replaces the sequential query loop with a single batch query to ChromaDB.
+    # If precomputed_query_results is supplied (e.g. from the adaptive
+    # rechunker's re-aggregation pass), skip retrieval and use it directly.
+    if precomputed_query_results is not None:
+        if len(precomputed_query_results) != len(text_chunks):
+            raise ValueError(
+                f"precomputed_query_results length ({len(precomputed_query_results)}) "
+                f"does not match text_chunks length ({len(text_chunks)})"
+            )
+        all_query_results = precomputed_query_results
+        logger.info(
+            "Using %d precomputed query results (skipping retrieval)",
+            len(all_query_results),
+        )
+    else:
+        logger.info(f"Batch querying {len(text_chunks)} chunks at once")
+        all_query_results = retriever.query_batch(
+            texts=text_chunks,
+            n_results=num_results_per_chunk,
+            include_similarities=True,
+        )
 
     # Process chunks with pre-fetched results
     for chunk_idx, chunk_text in enumerate(text_chunks):
@@ -294,4 +314,8 @@ def orchestrate_hpo_extraction(
         f"above threshold {min_confidence_for_aggregated}"
     )
 
-    return (aggregated_results_list, chunk_results)
+    return OrchestrationResult(
+        aggregated_results=aggregated_results_list,
+        chunk_results=chunk_results,
+        raw_query_results=list(all_query_results),
+    )

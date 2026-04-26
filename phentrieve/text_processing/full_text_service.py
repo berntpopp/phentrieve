@@ -596,7 +596,7 @@ def run_standard_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
         _normalize_status(chunk.get("status")) for chunk in processed_chunks
     ]
 
-    aggregated_results, chunk_results = orchestrate_hpo_extraction(
+    extraction_result = orchestrate_hpo_extraction(
         text_chunks=text_chunks,
         retriever=retriever,
         num_results_per_chunk=kwargs.pop("num_results_per_chunk", 10),
@@ -611,6 +611,10 @@ def run_standard_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
         assertion_statuses=assertion_statuses,
         include_details=kwargs.pop("include_details", False),
     )
+    aggregated_results = extraction_result.aggregated_results
+    chunk_results = extraction_result.chunk_results
+    # raw_query_results is reachable via extraction_result.raw_query_results
+    # for the upcoming adaptive rechunker (Plan B Phase 6+).
 
     return adapt_standard_response(
         processed_chunks, (aggregated_results, chunk_results)
