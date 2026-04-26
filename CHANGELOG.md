@@ -16,6 +16,43 @@ together:
 
 ---
 
+## [Unreleased]
+
+### Added
+
+- **`--profile NAME`** flag on `query`, `text process`, `text interactive` (issue #28).
+  Apply a named profile from `phentrieve.yaml` to preset CLI options. See
+  [Configuration Profiles](docs/user-guide/configuration-profiles.md). Both root
+  placement (`phentrieve --profile X cmd`) and per-command placement
+  (`phentrieve cmd --profile X`) work; subcommand-level wins on conflict.
+- **`phentrieve config`** subcommand group with `list-profiles`, `show`,
+  `validate`, `path` subcommands.
+- **`--show-resolved-config`** debug flag on every command. Prints resolved
+  option values with source labels (profile/yaml/const/commandline) to stderr
+  before running.
+- **`PHENTRIEVE_PROFILE`** environment variable, equivalent to `--profile`.
+- New `phentrieve.yaml` sections: `profiles:` and `extraction:`.
+- Built-in profiles: `default` (API-matching strict defaults) and `interactive`
+  (legacy `text interactive` defaults).
+
+### Fixed
+
+- **`phentrieve text interactive`** now uses config-driven defaults (issue #171).
+  Previously hardcoded `language="en"`, `chunk_retrieval_threshold=0.3`,
+  `aggregated_term_confidence=0.35`, `num_results=5` are now read from the new
+  built-in `interactive` profile (preserving prior behavior — no migration
+  needed). Pass `--profile default` to switch to API-matching strict defaults.
+- **Frontend `DEFAULT_SIMILARITY_THRESHOLD`** aligned with the API: `0.5` → `0.3`.
+  This is a behavior change for users who relied on the frontend's stricter
+  cutoff. To recover, pass an explicit threshold in the UI.
+
+### Changed
+
+- The previously-documented `--config-profile` flag (which was never
+  implemented) is replaced by the now-real `--profile`.
+  `docs/user-guide/configuration-profiles.md` is rewritten in place to reflect
+  the actual design.
+
 ## [0.18.2] — 2026-04-25
 
 **Component versions**: phentrieve `0.18.2`, phentrieve-api `0.9.3`, phentrieve-frontend `0.8.3`
