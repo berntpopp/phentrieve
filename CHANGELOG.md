@@ -34,6 +34,20 @@ together:
 - New `phentrieve.yaml` sections: `profiles:` and `extraction:`.
 - Built-in profiles: `default` (API-matching strict defaults) and `interactive`
   (legacy `text interactive` defaults).
+- **Adaptive re-chunking** (issue #148): an opt-in mechanism that detects
+  per-chunk retrieval quality and, when poor, subdivides the chunk into
+  sentence-bounded sub-chunks, re-queries them, and merges results. Enable
+  on the CLI via `phentrieve text process FILE --adaptive-rechunking` with
+  three threshold flags (`--rechunk-quality-threshold`,
+  `--rechunk-margin-threshold`, `--rechunk-score-improvement-threshold`),
+  or in `phentrieve.yaml` under the new `extraction.adaptive_rechunking:`
+  block (also surfaced as `Profile.adaptive_rechunking` for per-profile
+  overrides). The API `/text/process` request schema gains an
+  `adaptive_rechunking` field (request-time override), and the response's
+  `meta` block gains an `adaptive_rechunking` summary
+  (`triggered_chunks`, `subdivided_chunks`, `recursion_depth`, etc.) when
+  the feature runs. See
+  [docs/user-guide/adaptive-rechunking.md](docs/user-guide/adaptive-rechunking.md).
 
 ### Fixed
 
@@ -52,6 +66,12 @@ together:
   implemented) is replaced by the now-real `--profile`.
   `docs/user-guide/configuration-profiles.md` is rewritten in place to reflect
   the actual design.
+- **`orchestrate_hpo_extraction` return type**: now returns an
+  `OrchestrationResult` dataclass instead of a plain tuple. Backward
+  compatible — legacy 2-tuple unpacking via `__iter__` continues to work
+  for all existing call sites. New attribute `raw_query_results` exposes
+  the unfiltered top-K from `query_batch` for callers (e.g. adaptive
+  re-chunking) that need scores below `chunk_retrieval_threshold`.
 
 ## [0.18.2] — 2026-04-25
 
