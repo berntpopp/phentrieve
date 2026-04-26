@@ -97,3 +97,75 @@ def adaptive_config_from_profile_block(
             continue
         resolved[name] = getattr(defaults, name)
     return AdaptiveRechunkingConfig(**resolved)
+
+
+@dataclass(frozen=True)
+class ChunkQualitySignals:
+    """Quality assessment of one chunk's retrieval result."""
+
+    chunk_idx: int
+    top_1: float | None
+    top_2: float | None
+    margin: float | None
+    n_matches_above_threshold: int
+    is_poor: bool
+    reason: str  # "low_score" | "low_margin" | "no_matches" | "ok"
+
+
+def assess_chunk_quality(
+    raw_query_result: dict[str, Any],
+    chunk_idx: int,
+    chunk_retrieval_threshold: float,
+    config: AdaptiveRechunkingConfig,
+) -> ChunkQualitySignals:
+    """Read top-K from raw query_batch output, decide if the chunk is poor.
+
+    Reads from ``raw_query_result["similarities"][0]`` (the unfiltered list of
+    top-K similarity scores from ``query_batch``). Crucially, this is NOT the
+    threshold-filtered ``chunk_results`` - see Spec B Architecture for why.
+
+    Trigger conjunction:
+        is_poor = top_1 < quality_threshold AND
+                  (margin < margin_threshold OR top_2 is None)
+    """
+    similarities_outer = raw_query_result.get("similarities") or []
+    similarities = similarities_outer[0] if similarities_outer else []
+
+    if not similarities:
+        return ChunkQualitySignals(
+            chunk_idx=chunk_idx,
+            top_1=None,
+            top_2=None,
+            margin=None,
+            n_matches_above_threshold=0,
+            is_poor=True,
+            reason="no_matches",
+        )
+
+    top_1 = similarities[0]
+    top_2 = similarities[1] if len(similarities) > 1 else None
+    margin = (top_1 - top_2) if top_2 is not None else None
+    n_above = sum(1 for s in similarities if s >= chunk_retrieval_threshold)
+
+    score_low = top_1 < config.quality_threshold
+    margin_low_or_unknown = top_2 is None or (
+        margin is not None and margin < config.margin_threshold
+    )
+
+    is_poor = score_low and margin_low_or_unknown
+    if not is_poor:
+        reason = "ok"
+    elif top_2 is None:
+        reason = "low_score"  # only one match, score too low
+    else:
+        reason = "low_margin"
+
+    return ChunkQualitySignals(
+        chunk_idx=chunk_idx,
+        top_1=top_1,
+        top_2=top_2,
+        margin=margin,
+        n_matches_above_threshold=n_above,
+        is_poor=is_poor,
+        reason=reason,
+    )
