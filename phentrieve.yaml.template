@@ -127,6 +127,24 @@ multi_vector:
   # custom_formula: null
 
 # =============================================================================
+# CONFIGURATION PROFILES
+# =============================================================================
+# Named profiles for common CLI workflows. Pass --profile NAME to apply.
+# See docs/user-guide/configuration-profiles.md for the full schema.
+
+# profiles:
+#   high_recall_german:
+#     description: "Recall-oriented German extraction"
+#     command: text process              # bind to a specific command (optional)
+#     language: de
+#     chunk_retrieval_threshold: 0.6
+#
+#   fast_query:
+#     command: query
+#     num_results: 5
+#     similarity_threshold: 0.5
+
+# =============================================================================
 # HPO EXTRACTION THRESHOLDS
 # =============================================================================
 # Read by phentrieve/config.py to populate DEFAULT_CHUNK_RETRIEVAL_THRESHOLD,

@@ -46,6 +46,24 @@ phentrieve text process "The patient exhibits microcephaly and frequent seizures
 
 Discover more commands and options in the [User Guide](https://berntpopp.github.io/phentrieve/user-guide/).
 
+## Configuration
+
+### Configuration profiles
+
+Define named profiles in `phentrieve.yaml` to preset CLI options:
+
+```yaml
+profiles:
+  fast_query:
+    command: query
+    num_results: 5
+    similarity_threshold: 0.5
+```
+
+Then `phentrieve query "TEXT" --profile fast_query`.
+
+See [docs/user-guide/configuration-profiles.md](docs/user-guide/configuration-profiles.md) for the full guide.
+
 ## Docker Deployment
 
 Deploy Phentrieve using Docker Compose for production environments:
