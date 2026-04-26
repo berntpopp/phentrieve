@@ -38,9 +38,10 @@ together:
   per-chunk retrieval quality and, when poor, subdivides the chunk into
   sentence-bounded sub-chunks, re-queries them, and merges results. Enable
   on the CLI via `phentrieve text process FILE --adaptive-rechunking` with
-  three threshold flags (`--rechunk-quality-threshold`,
-  `--rechunk-margin-threshold`, `--rechunk-score-improvement-threshold`),
-  or in `phentrieve.yaml` under the new `extraction.adaptive_rechunking:`
+  three threshold flags (`--adaptive-rechunking-quality-threshold`,
+  `--adaptive-rechunking-margin-threshold`,
+  `--adaptive-rechunking-max-depth`), or in `phentrieve.yaml` under the new
+  `extraction.adaptive_rechunking:`
   block (also surfaced as `Profile.adaptive_rechunking` for per-profile
   overrides). The API `/text/process` request schema gains an
   `adaptive_rechunking` field (request-time override), and the response's
