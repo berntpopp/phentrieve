@@ -17,6 +17,7 @@ from typer.main import get_command
 # Import all command groups
 from phentrieve.cli import (
     benchmark_commands,
+    config_commands,
     index_commands,
     mcp_commands,
     query_commands,
@@ -219,6 +220,11 @@ app.add_typer(
     mcp_commands.app,
     name="mcp",
     help="Model Context Protocol (MCP) server commands.",
+)
+app.add_typer(
+    config_commands.config_app,
+    name="config",
+    help="Inspect and validate phentrieve.yaml configuration profiles.",
 )
 
 # Main command for query
