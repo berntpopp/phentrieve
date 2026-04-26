@@ -1,0 +1,4 @@
+{
+  "_note": "Populated empirically by running the e2e test against the test ChromaDB index. The test asserts at least one HPO term not present in the no-adaptive baseline.",
+  "minimum_extra_terms": 1
+}
