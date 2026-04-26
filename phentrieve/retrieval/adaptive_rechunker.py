@@ -11,10 +11,13 @@ imports - this module does not import from `phentrieve.profiles`.
 
 from __future__ import annotations
 
+import logging
 from dataclasses import dataclass
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -307,3 +310,339 @@ def apply_score_improvement_gate(
         else:
             revert.add(parent_idx)
     return revert, keep
+
+
+@dataclass(frozen=True)
+class AdaptiveRechunkingResult:
+    """Return value of ``run_adaptive_rechunking``.
+
+    Mirrors the legacy 2-tuple ``(aggregated_results, chunk_results)`` that
+    callers expect from ``orchestrate_hpo_extraction`` while also exposing
+    the (possibly expanded / curated) ``processed_chunks`` and a ``meta``
+    dict with bookkeeping for telemetry / logging.
+    """
+
+    processed_chunks: list[dict[str, Any]]
+    aggregated_results: list[dict[str, Any]]
+    chunk_results: list[dict[str, Any]]
+    meta: dict[str, Any]
+
+
+def _placeholder_raw() -> dict[str, Any]:
+    """Empty raw query slot used while child slots are reserved before
+    the depth-N batch query has run.
+    """
+    return {
+        "ids": [[]],
+        "metadatas": [[]],
+        "similarities": [[]],
+        "distances": [[]],
+        "documents": [[]],
+    }
+
+
+def _no_op_result(
+    processed_chunks: list[dict[str, Any]],
+    chunk_results: list[dict[str, Any]],
+    meta: dict[str, Any],
+) -> AdaptiveRechunkingResult:
+    """Return a result that mirrors the inputs without doing anything.
+
+    ``aggregated_results`` is left empty - the caller already holds the
+    aggregated output from the initial extraction pass and does not need
+    the rechunker to recompute it when adaptive re-chunking is disabled
+    or no chunks were flagged.
+    """
+    return AdaptiveRechunkingResult(
+        processed_chunks=list(processed_chunks),
+        aggregated_results=[],
+        chunk_results=list(chunk_results),
+        meta=meta,
+    )
+
+
+def _aggregate(
+    chunks: list[dict[str, Any]],
+    raw: list[dict[str, Any]],
+    retriever: Any,
+    num_results_per_chunk: int,
+    chunk_retrieval_threshold: float,
+    language: str,
+    min_confidence_for_aggregated: float,
+    include_details: bool,
+    assertion_statuses: list[str | None] | None,
+) -> Any:
+    """Re-aggregate via ``orchestrate_hpo_extraction`` with precomputed raw
+    results so retrieval is skipped (cost-model invariant).
+    """
+    # Lazy import to avoid an import cycle: the orchestrator depends on
+    # the retriever module, and this module is imported from CLI / API
+    # paths that may not need the orchestrator on every call.
+    from phentrieve.text_processing.hpo_extraction_orchestrator import (
+        orchestrate_hpo_extraction,
+    )
+
+    text_chunks = [c.get("text", "") for c in chunks]
+    return orchestrate_hpo_extraction(
+        text_chunks=text_chunks,
+        retriever=retriever,
+        num_results_per_chunk=num_results_per_chunk,
+        chunk_retrieval_threshold=chunk_retrieval_threshold,
+        language=language,
+        min_confidence_for_aggregated=min_confidence_for_aggregated,
+        assertion_statuses=assertion_statuses,
+        include_details=include_details,
+        precomputed_query_results=raw,  # KEY: skips query_batch.
+    )
+
+
+def run_adaptive_rechunking(
+    processed_chunks: list[dict[str, Any]],
+    chunk_results: list[dict[str, Any]],
+    raw_query_results: list[dict[str, Any]],
+    retriever: Any,
+    language: str,
+    config: AdaptiveRechunkingConfig,
+    num_results_per_chunk: int,
+    chunk_retrieval_threshold: float,
+    min_confidence_for_aggregated: float,
+    include_details: bool,
+    assertion_statuses: list[str | None] | None = None,
+) -> AdaptiveRechunkingResult:
+    """Top-level adaptive re-chunking orchestration.
+
+    Cost contract: at most ``config.max_depth`` additional
+    ``retriever.query_batch`` calls (one per recursion level where chunks
+    flag as poor). Re-aggregation uses
+    ``orchestrate_hpo_extraction(precomputed_query_results=...)`` so
+    existing chunk results are not re-queried.
+
+    The function:
+      1. If disabled, returns inputs unchanged with no retrieval calls.
+      2. Detects poor chunks via ``assess_chunk_quality`` over the raw
+         (unfiltered) query results.
+      3. Subdivides each poor parent via ``subdivide_parent_chunk``.
+      4. Issues a single ``retriever.query_batch`` for all children at
+         this depth.
+      5. Applies the score-improvement gate to keep / revert per parent.
+      6. Rebuilds the flat chunk list (originals for non-flagged or
+         reverted parents, accepted children for kept parents).
+      7. Recurses on the new list up to ``config.max_depth``.
+      8. Re-aggregates once at the end via
+         ``orchestrate_hpo_extraction(precomputed_query_results=...)``.
+    """
+    meta: dict[str, Any] = {
+        "enabled": config.enabled,
+        "trigger_count": 0,
+        "subdivided_count": 0,
+        "reverted_count": 0,
+        "max_depth_reached": 0,
+        "extra_chunks_added": 0,
+    }
+
+    if not config.enabled:
+        return _no_op_result(processed_chunks, chunk_results, meta)
+
+    # Detect poor chunks at depth 0 (the initial pass already done by the
+    # caller). Used only for the trigger_count meta and the early-exit
+    # path - the recursion loop re-assesses against ``current_raw``.
+    initial_quality = [
+        assess_chunk_quality(raw, idx, chunk_retrieval_threshold, config)
+        for idx, raw in enumerate(raw_query_results)
+    ]
+    initial_poor = [s.chunk_idx for s in initial_quality if s.is_poor]
+    meta["trigger_count"] = len(initial_poor)
+
+    if not initial_poor:
+        # Nothing to subdivide - keep inputs as-is and skip aggregation
+        # (the caller already has aggregated_results from the initial
+        # extraction pass).
+        return _no_op_result(processed_chunks, chunk_results, meta)
+
+    # Recursion loop. Each iteration performs at most ONE query_batch call.
+    current_chunks: list[dict[str, Any]] = list(processed_chunks)
+    current_raw: list[dict[str, Any]] = list(raw_query_results)
+    current_assertions: list[str | None] = list(
+        assertion_statuses
+        if assertion_statuses is not None
+        else [c.get("status") for c in current_chunks]
+    )
+
+    any_kept = False
+    for depth in range(1, config.max_depth + 1):
+        # Identify chunks still flagged as poor at this depth, against the
+        # raw scores attached to the *current* flat list.
+        depth_quality = [
+            assess_chunk_quality(raw, idx, chunk_retrieval_threshold, config)
+            for idx, raw in enumerate(current_raw)
+        ]
+        depth_poor = {s.chunk_idx for s in depth_quality if s.is_poor}
+        if not depth_poor:
+            break
+
+        # Subdivide each poor parent and reserve slots for its children
+        # in the new flat list. Non-flagged chunks are copied through.
+        new_chunks: list[dict[str, Any]] = []
+        new_assertions: list[str | None] = []
+        new_raw: list[dict[str, Any]] = []
+        children_texts: list[str] = []
+        # Maps original-index-in-current_chunks -> new-flat-list slots.
+        child_slots: dict[int, list[int]] = {}
+
+        for idx, parent in enumerate(current_chunks):
+            if idx not in depth_poor:
+                new_chunks.append(parent)
+                new_assertions.append(current_assertions[idx])
+                new_raw.append(current_raw[idx])
+                continue
+            children = subdivide_parent_chunk(parent, language, config, depth)
+            if not children:
+                # Subdivision impossible - keep parent as-is.
+                new_chunks.append(parent)
+                new_assertions.append(current_assertions[idx])
+                new_raw.append(current_raw[idx])
+                continue
+            slot_indices: list[int] = []
+            for child in children:
+                slot_indices.append(len(new_chunks))
+                new_chunks.append(child)
+                new_assertions.append(child.get("status"))
+                new_raw.append(_placeholder_raw())
+                children_texts.append(child["text"])
+            child_slots[idx] = slot_indices
+
+        if not children_texts:
+            # No useful subdivision was possible at this depth.
+            break
+
+        # ONE query_batch call per recursion level (the cost-model
+        # invariant). Returned list is one entry per child text.
+        child_raw = retriever.query_batch(
+            texts=children_texts,
+            n_results=num_results_per_chunk,
+            include_similarities=True,
+        )
+        meta["max_depth_reached"] = depth
+
+        # Fill placeholders with real raw results in the same order they
+        # were appended to ``children_texts``.
+        ci = 0
+        for slot_indices in child_slots.values():
+            for slot in slot_indices:
+                new_raw[slot] = child_raw[ci]
+                ci += 1
+
+        # Score-improvement gate decides per parent: keep children, or
+        # revert to the original parent.
+        parent_top_1: dict[int, float] = {}
+        for parent_idx in child_slots:
+            sims_outer = current_raw[parent_idx].get("similarities") or []
+            sims = sims_outer[0] if sims_outer else []
+            if sims:
+                parent_top_1[parent_idx] = sims[0]
+
+        # Re-key child top_1 onto the parent_idx -> child slot mapping
+        # used by ``apply_score_improvement_gate``.
+        child_top_1: dict[int, float] = {}
+        for slot_indices in child_slots.values():
+            for slot in slot_indices:
+                sims_outer = new_raw[slot].get("similarities") or []
+                sims = sims_outer[0] if sims_outer else []
+                if sims:
+                    child_top_1[slot] = sims[0]
+
+        revert, keep = apply_score_improvement_gate(
+            child_slots, parent_top_1, child_top_1, config
+        )
+
+        if revert:
+            # Rebuild flat list: restore reverted parents, drop their
+            # children. Non-flagged chunks and kept-parent children pass
+            # through. Iterate ``current_chunks`` so we preserve original
+            # ordering for parents and pull children from ``new_*`` for
+            # kept parents.
+            keep_chunks: list[dict[str, Any]] = []
+            keep_assertions: list[str | None] = []
+            keep_raw: list[dict[str, Any]] = []
+            for idx, parent in enumerate(current_chunks):
+                if idx in child_slots and idx in revert:
+                    # Flagged + subdivided + reverted: restore parent.
+                    keep_chunks.append(parent)
+                    keep_assertions.append(current_assertions[idx])
+                    keep_raw.append(current_raw[idx])
+                elif idx in child_slots:
+                    # Flagged + subdivided + kept: append children.
+                    for slot in child_slots[idx]:
+                        keep_chunks.append(new_chunks[slot])
+                        keep_assertions.append(new_assertions[slot])
+                        keep_raw.append(new_raw[slot])
+                else:
+                    # Not flagged or subdivision failed: copy parent.
+                    keep_chunks.append(parent)
+                    keep_assertions.append(current_assertions[idx])
+                    keep_raw.append(current_raw[idx])
+            new_chunks, new_assertions, new_raw = (
+                keep_chunks,
+                keep_assertions,
+                keep_raw,
+            )
+
+        meta["subdivided_count"] += len(keep)
+        meta["reverted_count"] += len(revert)
+        if keep:
+            any_kept = True
+
+        current_chunks = new_chunks
+        current_assertions = new_assertions
+        current_raw = new_raw
+
+        if not keep:
+            # All subdivisions reverted - no point recursing further.
+            break
+
+    meta["extra_chunks_added"] = len(current_chunks) - len(processed_chunks)
+
+    if not any_kept:
+        # Nothing accepted - the flat list is unchanged from the input.
+        # Skip re-aggregation; caller already has the original aggregate.
+        return _no_op_result(processed_chunks, chunk_results, meta)
+
+    # Final re-aggregation using ``precomputed_query_results`` - no
+    # retrieval call.
+    final = _aggregate(
+        current_chunks,
+        current_raw,
+        retriever,
+        num_results_per_chunk,
+        chunk_retrieval_threshold,
+        language,
+        min_confidence_for_aggregated,
+        include_details,
+        current_assertions,
+    )
+
+    return AdaptiveRechunkingResult(
+        processed_chunks=current_chunks,
+        aggregated_results=final.aggregated_results,
+        chunk_results=final.chunk_results,
+        meta=meta,
+    )
+
+
+def dump_quality_report(
+    raw_query_results: list[dict[str, Any]],
+    chunk_retrieval_threshold: float,
+    config: AdaptiveRechunkingConfig,
+) -> str:
+    """Library-only helper for users tuning thresholds.
+
+    Returns a per-chunk quality report as a human-readable string.
+    """
+    lines = ["chunk_idx  is_poor  reason       top_1  top_2  margin"]
+    for idx, raw in enumerate(raw_query_results):
+        s = assess_chunk_quality(raw, idx, chunk_retrieval_threshold, config)
+        t1 = f"{s.top_1:.3f}" if s.top_1 is not None else "  -  "
+        t2 = f"{s.top_2:.3f}" if s.top_2 is not None else "  -  "
+        m = f"{s.margin:.3f}" if s.margin is not None else "  -  "
+        lines.append(f"{idx:>9}  {s.is_poor!s:<6}  {s.reason:<11}  {t1}  {t2}  {m}")
+    return "\n".join(lines)
