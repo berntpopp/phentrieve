@@ -60,3 +60,19 @@ class ProfilesFile(BaseModel):
 
     model_config = ConfigDict(extra="ignore")
     profiles: dict[str, Profile] = Field(default_factory=dict)
+
+
+# Built-in profiles ship as Python dict literals constructed into Profile
+# instances at import time. Users can shadow these by name in phentrieve.yaml.
+BUILTIN_PROFILES: dict[str, Profile] = {
+    "default": Profile(
+        description="Strict defaults matching API behavior",
+        # All fields None - falls through to YAML / fallback constants.
+    ),
+    "interactive": Profile(
+        description="Loose discovery defaults for `phentrieve text interactive`",
+        chunk_retrieval_threshold=0.3,
+        aggregated_term_confidence=0.35,
+        num_results=5,
+    ),
+}

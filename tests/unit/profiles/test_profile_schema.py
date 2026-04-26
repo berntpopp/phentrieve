@@ -59,3 +59,29 @@ class TestProfilesFileSchema:
             {"profiles": {"x": {"language": "en"}}, "unrelated_top_level": 42}
         )
         assert "x" in f.profiles
+
+
+class TestBuiltInProfiles:
+    def test_builtin_default_exists(self):
+        from phentrieve.profiles import BUILTIN_PROFILES
+
+        assert "default" in BUILTIN_PROFILES
+        # All fields None - fall through to YAML / constants.
+        assert BUILTIN_PROFILES["default"].chunk_retrieval_threshold is None
+
+    def test_builtin_interactive_exists_and_loose(self):
+        from phentrieve.profiles import BUILTIN_PROFILES
+
+        interactive = BUILTIN_PROFILES["interactive"]
+        assert interactive.chunk_retrieval_threshold == 0.3
+        assert interactive.aggregated_term_confidence == 0.35
+        assert interactive.num_results == 5
+
+    def test_builtin_profiles_validate(self):
+        from phentrieve.profiles import BUILTIN_PROFILES
+
+        # Each is a real Profile instance, not a dict.
+        for name, p in BUILTIN_PROFILES.items():
+            assert isinstance(p, Profile), (
+                f"BUILTIN_PROFILES[{name!r}] is not a Profile"
+            )
