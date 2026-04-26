@@ -32,8 +32,12 @@ from phentrieve.config import (
     DEFAULT_STEP_SIZE_TOKENS,
     DEFAULT_TOP_K,
     DEFAULT_WINDOW_SIZE_TOKENS,
+    _load_yaml_config,
 )
 from phentrieve.llm import config as llm_config
+from phentrieve.retrieval.adaptive_rechunker import (
+    adaptive_config_from_profile_block,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -510,6 +514,34 @@ def process_text_for_hpo_command(
             help="Include HPO term definitions and synonyms in output",
         ),
     ] = False,
+    adaptive_rechunking: Annotated[
+        bool,
+        typer.Option(
+            "--adaptive-rechunking/--no-adaptive-rechunking",
+            help="Enable adaptive re-chunking (opt-in feature, see issue #148).",
+        ),
+    ] = False,
+    adaptive_rechunking_quality_threshold: Annotated[
+        float | None,
+        typer.Option(
+            "--adaptive-rechunking-quality-threshold",
+            help="top-1 similarity below which a chunk flags as poor.",
+        ),
+    ] = None,
+    adaptive_rechunking_margin_threshold: Annotated[
+        float | None,
+        typer.Option(
+            "--adaptive-rechunking-margin-threshold",
+            help="top_1 - top_2 below which a chunk flags as poor (with low score).",
+        ),
+    ] = None,
+    adaptive_rechunking_max_depth: Annotated[
+        int | None,
+        typer.Option(
+            "--adaptive-rechunking-max-depth",
+            help="Recursion depth cap (default 2).",
+        ),
+    ] = None,
 ) -> None:
     """Process clinical text to extract HPO terms.
 
@@ -644,6 +676,81 @@ def process_text_for_hpo_command(
                 )
                 raise typer.Exit(code=1)
 
+    # Resolve adaptive_rechunking config: CLI > profile > YAML > defaults.
+    # The eager --profile callback (Plan A) intentionally skips the
+    # `adaptive_rechunking` Profile field, so we resolve the block here in
+    # the command body. The boolean --adaptive-rechunking flag has a default
+    # of False; treat it as a CLI override only when explicitly supplied so
+    # profile/YAML enabled=True can pass through when the user didn't pass
+    # the flag.
+    adaptive_yaml = (
+        _load_yaml_config().get("extraction", {}).get("adaptive_rechunking", {})
+    )
+    adaptive_profile_block = None
+    try:
+        import click as _click_for_profile
+
+        _profile_ctx = _click_for_profile.get_current_context(silent=True)
+    except Exception:  # noqa: BLE001 - defensive: keep CLI working without click ctx
+        _profile_ctx = None
+
+    if _profile_ctx is not None:
+        try:
+            _adaptive_enabled_source = _profile_ctx.get_parameter_source(
+                "adaptive_rechunking"
+            )
+        except Exception:  # noqa: BLE001 - older click variants
+            _adaptive_enabled_source = None
+        # Resolve the active profile (if any) so its adaptive_rechunking block
+        # can layer between CLI and YAML.
+        try:
+            from phentrieve.profiles import (
+                merged_profiles,
+                resolve_profile_for_command,
+            )
+
+            _profile_name = _profile_ctx.params.get("profile") or None
+            if _profile_name == "":
+                _profile_name = None
+            _profile_obj, _ = resolve_profile_for_command(
+                _profile_name,
+                ("text", "process"),
+                set(),
+                all_profiles=merged_profiles(),
+            )
+            adaptive_profile_block = getattr(_profile_obj, "adaptive_rechunking", None)
+        except Exception:  # noqa: BLE001 - defensive: profile lookup is best-effort
+            adaptive_profile_block = None
+    else:
+        _adaptive_enabled_source = None
+
+    cli_overrides: dict[str, Any] = {}
+    try:
+        from click.core import ParameterSource as _PS  # noqa: WPS433
+
+        if (
+            _adaptive_enabled_source is not None
+            and _adaptive_enabled_source != _PS.DEFAULT
+        ):
+            cli_overrides["enabled"] = adaptive_rechunking
+    except Exception:  # noqa: BLE001
+        # Without ParameterSource we cannot distinguish default from explicit;
+        # fall back to passing the value through so --adaptive-rechunking
+        # still has an effect.
+        cli_overrides["enabled"] = adaptive_rechunking
+    if adaptive_rechunking_quality_threshold is not None:
+        cli_overrides["quality_threshold"] = adaptive_rechunking_quality_threshold
+    if adaptive_rechunking_margin_threshold is not None:
+        cli_overrides["margin_threshold"] = adaptive_rechunking_margin_threshold
+    if adaptive_rechunking_max_depth is not None:
+        cli_overrides["max_depth"] = adaptive_rechunking_max_depth
+
+    adaptive_config = adaptive_config_from_profile_block(
+        block=adaptive_profile_block,
+        yaml_block=adaptive_yaml,
+        cli_overrides=cli_overrides,
+    )
+
     try:
         service_result = run_full_text_service(
             text=raw_text,
@@ -665,6 +772,7 @@ def process_text_for_hpo_command(
             top_term_per_chunk=top_term_per_chunk,
             min_confidence_for_aggregated=aggregated_term_confidence,
             include_details=include_details,
+            adaptive_rechunking=adaptive_config,
         )
     except Exception as e:
         typer.secho(f"Error processing text: {e!s}", fg=typer.colors.RED, err=True)
