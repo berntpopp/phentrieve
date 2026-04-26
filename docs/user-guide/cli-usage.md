@@ -136,6 +136,20 @@ Example JSON Lines output:
 - `--profile`, `-P`: Apply a named profile from `phentrieve.yaml`. See [Configuration Profiles](./configuration-profiles.md).
 - `--show-resolved-config`: Print resolved option values with source labels to stderr before running.
 
+**Adaptive Re-Chunking Flags** (opt-in; see [Adaptive Re-Chunking](./adaptive-rechunking.md)):
+
+- `--adaptive-rechunking` / `--no-adaptive-rechunking`: Enable adaptive re-chunking for poor-quality chunks (default: disabled).
+- `--adaptive-rechunking-quality-threshold FLOAT`: Override the top-1 quality floor (default: 0.55).
+- `--adaptive-rechunking-margin-threshold FLOAT`: Override the minimum top-1 minus top-2 margin (default: 0.03).
+- `--adaptive-rechunking-max-depth INT`: Override the recursion cap (default: 2).
+
+When enabled, chunks whose retrieval is poor (low top-1 AND low margin) are
+subdivided into sentence-bounded sub-chunks and re-queried. The full set of
+knobs (e.g. `min_chunk_chars`, `score_improvement_gate`) is reachable via
+`phentrieve.yaml` or a profile. See
+[Adaptive Re-Chunking](./adaptive-rechunking.md) for the trigger semantics,
+encoder-calibration warning, cost envelope, and worked examples.
+
 **Sliding Window Parameters** (override config for all strategies using sliding window):
 - `--window-size`: Window size in tokens (default: 7)
 - `--step-size`: Step size in tokens (default: 1)

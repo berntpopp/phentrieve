@@ -10,6 +10,7 @@ Phentrieve is an advanced AI-powered system for mapping clinical text to Human P
 
 * Multilingual HPO term mapping using state-of-the-art embedding models
 * Advanced text processing pipeline including semantic chunking and assertion detection
+* Optional adaptive re-chunking improves recall on multi-concept clinical sentences (`--adaptive-rechunking`). See [docs/user-guide/adaptive-rechunking.md](docs/user-guide/adaptive-rechunking.md).
 * Extensive benchmarking framework for model evaluation and comparison
 * User-friendly interfaces: CLI, FastAPI backend, and Vue.js frontend
 
