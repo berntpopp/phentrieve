@@ -1,0 +1,19 @@
+profiles:
+  high_recall_german:
+    description: "Recall-oriented German extraction"
+    command: text process
+    language: de
+    chunk_retrieval_threshold: 0.5
+
+  precise_english_query:
+    command: query
+    num_results: 3
+    similarity_threshold: 0.6
+
+  shared_lang:
+    language: de
+
+  shadow_test:
+    description: "User profile shadowing built-in"
+    # name `shadow_test` does not collide with built-ins by default,
+    # but tests that shadow `interactive` use the same key separately.
