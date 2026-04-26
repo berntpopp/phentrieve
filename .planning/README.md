@@ -29,10 +29,11 @@ execution context.
 
 ## Current Active Work
 
-- `active/2026-04-24-ontology-aware-benchmark-command-option-plan.md` - plan
-  for adding opt-in ontology-aware soft/partial metrics to benchmark commands.
-- `specs/2026-04-24-ontology-aware-benchmark-metrics-spec.md` - consolidated
-  design input for ontology-aware full-text HPO benchmark metrics.
+- `active/2026-04-17-ontology-embedding-fidelity-implementation-plan.md` -
+  plan for the standalone embedding-vs-HPO-DAG fidelity analysis script
+  (issue #34). Branch `feat/ontology-embedding-fidelity` (worktree).
+- `specs/2026-04-17-ontology-embedding-fidelity-design.md` - canonical design
+  input for the ontology-embedding fidelity work above.
 
 ## Migration Note
 
