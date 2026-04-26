@@ -113,3 +113,66 @@ class TestResolveProfileForCommand:
         # num_results is None on shared_german -> not included.
         assert "num_results" not in kwargs
         assert kwargs == {"language": "de"}
+
+
+class TestLoadProfilesFromYaml:
+    def test_no_profiles_section_returns_empty(self, tmp_path, monkeypatch):
+        from phentrieve.profiles import load_profiles_from_yaml
+
+        yaml_path = tmp_path / "phentrieve.yaml"
+        yaml_path.write_text("data_dir: data\ndefault_model: foo\n")
+        # Force phentrieve.yaml lookup to point at our tmp path.
+        monkeypatch.chdir(tmp_path)
+        # Clear caches from any prior test - both layers cache.
+        from phentrieve.config import _load_yaml_config
+        from phentrieve.utils import load_user_config
+
+        load_user_config.cache_clear()
+        _load_yaml_config.cache_clear()
+
+        profiles = load_profiles_from_yaml()
+        assert profiles == {}
+
+    def test_profiles_section_parses(self, tmp_path, monkeypatch):
+        from phentrieve.config import _load_yaml_config
+        from phentrieve.profiles import load_profiles_from_yaml
+
+        yaml_path = tmp_path / "phentrieve.yaml"
+        yaml_path.write_text(
+            "profiles:\n"
+            "  fast_query:\n"
+            "    command: query\n"
+            "    num_results: 5\n"
+            "    similarity_threshold: 0.5\n"
+        )
+        monkeypatch.chdir(tmp_path)
+        from phentrieve.utils import load_user_config
+
+        load_user_config.cache_clear()
+        _load_yaml_config.cache_clear()
+
+        profiles = load_profiles_from_yaml()
+        assert "fast_query" in profiles
+        assert profiles["fast_query"].num_results == 5
+
+    def test_invalid_profile_logs_warning_and_skips(
+        self, tmp_path, monkeypatch, caplog
+    ):
+        from phentrieve.config import _load_yaml_config
+        from phentrieve.profiles import load_profiles_from_yaml
+
+        yaml_path = tmp_path / "phentrieve.yaml"
+        # Has an unknown key (extra=forbid -> validation error on this profile only).
+        yaml_path.write_text(
+            "profiles:\n  good:\n    language: en\n  bad:\n    unknown_field: value\n"
+        )
+        monkeypatch.chdir(tmp_path)
+        from phentrieve.utils import load_user_config
+
+        load_user_config.cache_clear()
+        _load_yaml_config.cache_clear()
+
+        profiles = load_profiles_from_yaml()
+        assert "good" in profiles
+        assert "bad" not in profiles  # Skipped due to validation error.
+        assert any("bad" in rec.message for rec in caplog.records)

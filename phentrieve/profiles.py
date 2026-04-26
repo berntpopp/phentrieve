@@ -6,10 +6,13 @@ Implements Spec A (.planning/specs/2026-04-25-cli-profiles-default-resolution-sp
 from __future__ import annotations
 
 import difflib
+import logging
 from typing import Any, Literal
 
 import typer
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
+
+logger = logging.getLogger(__name__)
 
 # Forward reference - defined in Plan B (phentrieve/retrieval/adaptive_rechunker.py).
 # Until Plan B lands, use a permissive dict shape.
@@ -158,3 +161,62 @@ def resolve_profile_for_command(
             )
 
     return profile, _profile_to_kwargs(profile, accepted_keys)
+
+
+def load_profiles_from_yaml() -> dict[str, Profile]:
+    """Load and validate the `profiles:` section of phentrieve.yaml.
+
+    Each profile is validated independently - a failure on one profile
+    logs a WARNING and skips that profile, leaving others usable. The
+    `phentrieve config validate` command (Phase 8) raises non-zero on
+    validation errors so CI can catch them.
+
+    Caching is provided by the underlying ``phentrieve.config._load_yaml_config``
+    (an ``lru_cache``); call its ``cache_clear()`` when on-disk state changes.
+    """
+    # Lazy import to avoid circular dependency: config -> utils -> profiles.
+    from phentrieve.config import _load_yaml_config
+
+    raw = _load_yaml_config()
+    profiles_raw = raw.get("profiles", {})
+    if not isinstance(profiles_raw, dict):
+        logger.warning(
+            "phentrieve.yaml `profiles:` section is not a mapping; ignoring."
+        )
+        return {}
+
+    profiles: dict[str, Profile] = {}
+    for name, data in profiles_raw.items():
+        if not isinstance(data, dict):
+            logger.warning(
+                "Profile %r in phentrieve.yaml is not a mapping; skipping.", name
+            )
+            continue
+        try:
+            profiles[name] = Profile.model_validate(data)
+        except ValidationError as e:
+            logger.warning(
+                "Profile %r in phentrieve.yaml failed validation; skipping. %s",
+                name,
+                e,
+            )
+    return profiles
+
+
+# Tracks which built-in shadow names we've already logged about this session,
+# so the INFO message fires only on first use per name per session.
+_SHADOW_LOGGED: set[str] = set()
+
+
+def merged_profiles() -> dict[str, Profile]:
+    """Return BUILTIN_PROFILES merged with user profiles. User wins on shadow."""
+    user = load_profiles_from_yaml()
+    merged = {**BUILTIN_PROFILES, **user}
+    for name in user:
+        if name in BUILTIN_PROFILES and name not in _SHADOW_LOGGED:
+            logger.info(
+                "User profile %r in phentrieve.yaml shadows the built-in profile.",
+                name,
+            )
+            _SHADOW_LOGGED.add(name)
+    return merged
