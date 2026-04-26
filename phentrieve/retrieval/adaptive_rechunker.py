@@ -169,3 +169,95 @@ def assess_chunk_quality(
         is_poor=is_poor,
         reason=reason,
     )
+
+
+def subdivide_parent_chunk(
+    parent_chunk: dict[str, Any],
+    language: str,
+    config: AdaptiveRechunkingConfig,
+    depth: int,
+) -> list[dict[str, Any]]:
+    """Generate sentence-bounded sub-chunks from a parent chunk.
+
+    Returns sub-chunks in the same dict shape as the upstream
+    ``TextProcessingPipeline`` output. Sub-chunks inherit the parent's
+    ``status`` / ``assertion_details`` (no re-detection in v1 - subdividing
+    a NEGATED parent must not flip non-negated tail clauses to AFFIRMED).
+    Returns ``[]`` if no useful subdivision is possible (single-sentence
+    parent, empty text, or every candidate would be dropped).
+
+    Each sub-chunk's ``source_indices.processing_stages`` gets the parent's
+    stages plus ``"adaptive_rechunker_depth_<N>"`` for traceability, and its
+    ``start_char`` / ``end_char`` are computed by linear search inside the
+    parent text and offset by the parent's ``start_char`` for absolute
+    document positions.
+    """
+    # Lazy import - SentenceChunker pulls in pysbd which is heavy.
+    from phentrieve.text_processing.chunkers import SentenceChunker
+
+    parent_text = parent_chunk.get("text", "")
+    if not parent_text:
+        return []
+
+    chunker = SentenceChunker(language=language)
+    sentences = chunker.chunk([parent_text])
+    if len(sentences) <= 1:
+        return []  # Single sentence - no useful subdivision.
+
+    # Sliding window: window=max_sentences_per_subchunk, step=window-overlap.
+    window = max(1, config.max_sentences_per_subchunk)
+    overlap = max(0, min(config.overlap_sentences, window - 1))
+    step = window - overlap
+    if step <= 0:
+        step = 1
+
+    parent_start = parent_chunk.get("start_char", 0)
+    parent_status = parent_chunk.get("status")
+    parent_details = parent_chunk.get("assertion_details")
+    parent_stages = list(
+        parent_chunk.get("source_indices", {}).get("processing_stages", [])
+    )
+    parent_text_stripped = parent_text.strip()
+
+    children: list[dict[str, Any]] = []
+    seen_texts: set[str] = set()
+    for i in range(0, len(sentences), step):
+        group = sentences[i : i + window]
+        if not group:
+            continue
+        sub_text = " ".join(group).strip()
+        if not sub_text:
+            continue
+        if sub_text == parent_text_stripped:
+            continue  # Identical to parent - no useful subdivision.
+        if sub_text in seen_texts:
+            continue
+        seen_texts.add(sub_text)
+        if len(sub_text) < config.min_chunk_chars:
+            continue
+
+        # Locate within the parent text to compute spans.
+        idx = parent_text.find(sub_text)
+        if idx < 0:
+            # Fallback: anchor on the first sentence of the group.
+            idx = parent_text.find(group[0]) if group else -1
+            if idx < 0:
+                idx = 0
+        start_char = parent_start + idx
+        end_char = start_char + len(sub_text)
+
+        children.append(
+            {
+                "text": sub_text,
+                "status": parent_status,
+                "assertion_details": parent_details,
+                "source_indices": {
+                    "processing_stages": parent_stages
+                    + [f"adaptive_rechunker_depth_{depth}"],
+                },
+                "start_char": start_char,
+                "end_char": end_char,
+            }
+        )
+
+    return children
