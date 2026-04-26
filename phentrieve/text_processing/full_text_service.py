@@ -605,28 +605,66 @@ def run_standard_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
         _normalize_status(chunk.get("status")) for chunk in processed_chunks
     ]
 
+    # Pop kwargs once so the values are reusable across initial + adaptive paths.
+    num_results_per_chunk = kwargs.pop("num_results_per_chunk", 10)
+    chunk_retrieval_threshold = kwargs.pop(
+        "chunk_retrieval_threshold", DEFAULT_CHUNK_RETRIEVAL_THRESHOLD
+    )
+    top_term_per_chunk = kwargs.pop("top_term_per_chunk", False)
+    min_confidence_for_aggregated = kwargs.pop(
+        "min_confidence_for_aggregated", DEFAULT_MIN_CONFIDENCE_AGGREGATED
+    )
+    include_details = kwargs.pop("include_details", False)
+
     extraction_result = orchestrate_hpo_extraction(
         text_chunks=text_chunks,
         retriever=retriever,
-        num_results_per_chunk=kwargs.pop("num_results_per_chunk", 10),
-        chunk_retrieval_threshold=kwargs.pop(
-            "chunk_retrieval_threshold", DEFAULT_CHUNK_RETRIEVAL_THRESHOLD
-        ),
+        num_results_per_chunk=num_results_per_chunk,
+        chunk_retrieval_threshold=chunk_retrieval_threshold,
         language=language,
-        top_term_per_chunk=kwargs.pop("top_term_per_chunk", False),
-        min_confidence_for_aggregated=kwargs.pop(
-            "min_confidence_for_aggregated", DEFAULT_MIN_CONFIDENCE_AGGREGATED
-        ),
+        top_term_per_chunk=top_term_per_chunk,
+        min_confidence_for_aggregated=min_confidence_for_aggregated,
         assertion_statuses=assertion_statuses,
-        include_details=kwargs.pop("include_details", False),
+        include_details=include_details,
     )
     aggregated_results = extraction_result.aggregated_results
     chunk_results = extraction_result.chunk_results
-    # raw_query_results is reachable via extraction_result.raw_query_results
-    # for the upcoming adaptive rechunker (Plan B Phase 6+).
+    raw_query_results = extraction_result.raw_query_results
+
+    # Adaptive rechunking - opt-in. No behavior change when config is absent
+    # or disabled.
+    adaptive_meta: dict[str, Any] | None = None
+    adaptive_cfg = kwargs.pop("adaptive_rechunking", None)
+    if adaptive_cfg is not None and getattr(adaptive_cfg, "enabled", False):
+        from phentrieve.retrieval.adaptive_rechunker import run_adaptive_rechunking
+
+        rechunk = run_adaptive_rechunking(
+            processed_chunks=processed_chunks,
+            chunk_results=chunk_results,
+            raw_query_results=raw_query_results,
+            retriever=retriever,
+            language=language,
+            config=adaptive_cfg,
+            num_results_per_chunk=num_results_per_chunk,
+            chunk_retrieval_threshold=chunk_retrieval_threshold,
+            min_confidence_for_aggregated=min_confidence_for_aggregated,
+            include_details=include_details,
+            assertion_statuses=assertion_statuses,
+        )
+        processed_chunks = rechunk.processed_chunks
+        # When the rechunker reports no kept subdivisions it returns an empty
+        # ``aggregated_results`` and expects the caller to keep the initial
+        # aggregate. Only swap in the rechunker's aggregate when it actually
+        # re-ran aggregation.
+        if rechunk.aggregated_results:
+            aggregated_results = rechunk.aggregated_results
+        chunk_results = rechunk.chunk_results
+        adaptive_meta = rechunk.meta
 
     return adapt_standard_response(
-        processed_chunks, (aggregated_results, chunk_results)
+        processed_chunks,
+        (aggregated_results, chunk_results),
+        extra_meta={"adaptive_rechunking": adaptive_meta} if adaptive_meta else None,
     )
 
 
