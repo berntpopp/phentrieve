@@ -38,6 +38,7 @@ def _try_run_standard(text: str, **kwargs: object) -> dict[str, object]:
             f"Skipping e2e test: standard backend unavailable in this "
             f"environment ({type(exc).__name__}: {exc})."
         )
+        return {}  # unreachable: pytest.skip raises Skipped — satisfies static analysis
 
 
 def test_adaptive_rechunking_finds_more_terms() -> None:

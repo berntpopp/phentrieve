@@ -581,7 +581,12 @@ def process_text_for_hpo_command(
     # commandline overrides on top), so a None at this point means no flag,
     # no profile entry, and no YAML supplied a value.
     num_results = num_results if num_results is not None else DEFAULT_TOP_K
-    chunk_confidence = (
+    # The --chunk-confidence option is a long-standing CLI accept-only knob:
+    # not yet wired into the orchestrator. Resolving it here with the new
+    # DEFAULT_CHUNK_CONFIDENCE keeps the constant referenced for future use
+    # (and makes the resolver visible alongside the other Plan A defaults)
+    # without producing a dead local. Tracked for follow-up wiring.
+    _resolved_chunk_confidence = (  # noqa: F841 — placeholder until wired downstream
         chunk_confidence if chunk_confidence is not None else DEFAULT_CHUNK_CONFIDENCE
     )
     assertion_preference = (

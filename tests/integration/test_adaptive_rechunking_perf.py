@@ -31,6 +31,7 @@ def _try_run_standard(text: str, **kwargs: object) -> dict[str, object]:
             f"Skipping perf smoke: standard backend unavailable "
             f"({type(exc).__name__}: {exc})."
         )
+        return {}  # unreachable: pytest.skip raises Skipped — satisfies static analysis
 
 
 def test_wall_time_within_loose_bound() -> None:
