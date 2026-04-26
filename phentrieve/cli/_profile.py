@@ -66,6 +66,21 @@ _OPTION_RESOLUTION_MAP: dict[str, tuple[str | tuple[str, ...], str]] = {
 }
 
 
+# Per-command overrides for fields whose YAML key / fallback constant
+# depends on the active subcommand (e.g. ``output_format`` resolves to
+# ``output.format_query`` for ``query`` but ``output.format_process`` for
+# ``text process``). Lookup is keyed by the leaf command name extracted
+# from ``command_path``.
+_OPTION_COMMAND_OVERRIDES: dict[str, dict[str, tuple[str | tuple[str, ...], str]]] = {
+    "output_format": {
+        "process": (
+            ("output", "format_process"),
+            "DEFAULT_OUTPUT_FORMAT_PROCESS",
+        ),
+    },
+}
+
+
 def _walk_yaml(yaml_data: dict, path: str | tuple[str, ...]) -> Any:
     """Walk a nested YAML key path. Returns None if any segment is missing."""
     if isinstance(path, str):
@@ -84,6 +99,7 @@ def _resolve_option_value(
     field_name: str,
     profile_kwargs: dict[str, Any],
     yaml_data: dict,
+    command_path: tuple[str, ...] = (),
 ) -> tuple[Any, str] | None:
     """Walk the precedence stack for a single option:
     profile -> YAML -> fallback constant.
@@ -94,12 +110,20 @@ def _resolve_option_value(
     - ``"const:<NAME>"`` for fallback constant
 
     Returns None if no layer in the stack supplies a value for this option.
+
+    ``command_path`` lets command-specific overrides in
+    ``_OPTION_COMMAND_OVERRIDES`` take precedence over the global mapping
+    (e.g. ``output_format`` reads ``output.format_process`` for the
+    ``text process`` subcommand instead of ``output.format_query``).
     """
     if field_name in profile_kwargs:
         return profile_kwargs[field_name], "<profile-set>"
 
-    if field_name in _OPTION_RESOLUTION_MAP:
-        yaml_path, const_name = _OPTION_RESOLUTION_MAP[field_name]
+    overrides = _OPTION_COMMAND_OVERRIDES.get(field_name, {})
+    leaf = command_path[-1] if command_path else ""
+    resolution = overrides.get(leaf) or _OPTION_RESOLUTION_MAP.get(field_name)
+    if resolution is not None:
+        yaml_path, const_name = resolution
         yaml_value = _walk_yaml(yaml_data, yaml_path)
         if yaml_value is not None:
             label = (
@@ -214,7 +238,9 @@ def apply_profile_callback(
             continue
         if accepted_keys and field_name not in accepted_keys:
             continue
-        resolved = _resolve_option_value(field_name, profile_kwargs, yaml_data)
+        resolved = _resolve_option_value(
+            field_name, profile_kwargs, yaml_data, command_path=command_path
+        )
         if resolved is None:
             continue
         resolved_value, label = resolved

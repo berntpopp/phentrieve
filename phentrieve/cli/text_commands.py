@@ -17,15 +17,20 @@ import typer
 # Importing sentence_transformers loads PyTorch/CUDA (18+ seconds), which should
 # only happen when commands actually need ML models, not for --help or --version.
 # The import is done inside command functions where the model is actually used.
+from phentrieve.cli._profile import apply_profile_callback
 from phentrieve.cli.utils import load_text_from_input, resolve_chunking_pipeline_config
 from phentrieve.config import (
+    DEFAULT_ASSERTION_PREFERENCE,
+    DEFAULT_CHUNK_CONFIDENCE,
     DEFAULT_CHUNK_RETRIEVAL_THRESHOLD,
     DEFAULT_CHUNKING_STRATEGY,
+    DEFAULT_LANGUAGE,
     DEFAULT_MIN_CONFIDENCE_AGGREGATED,
     DEFAULT_MIN_SEGMENT_LENGTH_WORDS,
     DEFAULT_MODEL,
     DEFAULT_SPLITTING_THRESHOLD,
     DEFAULT_STEP_SIZE_TOKENS,
+    DEFAULT_TOP_K,
     DEFAULT_WINDOW_SIZE_TOKENS,
 )
 from phentrieve.llm import config as llm_config
@@ -277,6 +282,20 @@ def process_text_for_hpo_command(
         None,
         help="Text to process for HPO term extraction (can be a string or file path). Not required in interactive mode.",
     ),
+    profile: Annotated[
+        str,
+        typer.Option(
+            "--profile",
+            "-P",
+            envvar="PHENTRIEVE_PROFILE",
+            help=(
+                "Apply a named profile from phentrieve.yaml. "
+                "See `phentrieve config list-profiles`."
+            ),
+            callback=apply_profile_callback,
+            is_eager=True,
+        ),
+    ] = "default",
     input_file: Annotated[
         Path | None,
         typer.Option(
@@ -284,9 +303,9 @@ def process_text_for_hpo_command(
         ),
     ] = None,
     language: Annotated[
-        str,
+        str | None,
         typer.Option("--language", "-l", help="Language of the text (en, de, etc.)"),
-    ] = "en",
+    ] = None,
     chunking_pipeline_config_file: Annotated[
         Path | None,
         typer.Option(
@@ -398,13 +417,13 @@ def process_text_for_hpo_command(
         ),
     ] = DEFAULT_CHUNK_RETRIEVAL_THRESHOLD,
     num_results: Annotated[
-        int,
+        int | None,
         typer.Option(
             "--num-results",
             "-n",
             help="Maximum number of HPO terms to return per query",
         ),
-    ] = 10,
+    ] = None,
     no_assertion_detection: Annotated[
         bool,
         typer.Option(
@@ -413,12 +432,12 @@ def process_text_for_hpo_command(
         ),
     ] = False,
     assertion_preference: Annotated[
-        str,
+        str | None,
         typer.Option(
             "--assertion-preference",
             help="Assertion detection strategy preference (dependency, keyword, any_negative)",
         ),
-    ] = "dependency",
+    ] = None,
     output_format: Annotated[
         str,
         typer.Option(
@@ -461,13 +480,13 @@ def process_text_for_hpo_command(
         typer.Option("--debug", help="Enable debug logging"),
     ] = False,
     chunk_confidence: Annotated[
-        float,
+        float | None,
         typer.Option(
             "--chunk-confidence",
             "-cc",
             help="Minimum confidence score for a term to be included in a chunk result",
         ),
-    ] = 0.2,
+    ] = None,
     aggregated_term_confidence: Annotated[
         float,
         typer.Option(
@@ -505,12 +524,26 @@ def process_text_for_hpo_command(
     """
     import time
 
-    from phentrieve.config import DEFAULT_LANGUAGE, DEFAULT_MODEL
+    from phentrieve.config import DEFAULT_MODEL
     from phentrieve.utils import detect_language, setup_logging_cli
 
     logger = logging.getLogger(__name__)
     start_time = time.time()
     setup_logging_cli(debug=debug)
+
+    # Resolve None defaults to fallback constants. Click's eager --profile
+    # callback has already populated ctx.default_map (and Click has resolved
+    # commandline overrides on top), so a None at this point means no flag,
+    # no profile entry, and no YAML supplied a value.
+    num_results = num_results if num_results is not None else DEFAULT_TOP_K
+    chunk_confidence = (
+        chunk_confidence if chunk_confidence is not None else DEFAULT_CHUNK_CONFIDENCE
+    )
+    assertion_preference = (
+        assertion_preference
+        if assertion_preference is not None
+        else DEFAULT_ASSERTION_PREFERENCE
+    )
 
     raw_text = load_text_from_input(text, input_file)
 
