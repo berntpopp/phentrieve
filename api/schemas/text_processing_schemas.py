@@ -14,6 +14,7 @@ from phentrieve.config import (
     DEFAULT_STEP_SIZE_TOKENS,
     DEFAULT_WINDOW_SIZE_TOKENS,
 )
+from phentrieve.retrieval.adaptive_rechunker import AdaptiveRechunkingProfileBlock
 
 
 class TextProcessingRequest(BaseModel):
@@ -117,6 +118,17 @@ class TextProcessingRequest(BaseModel):
     include_chunk_positions: bool = Field(
         default=False,
         description="Include character positions (start_char, end_char) for each chunk.",
+    )
+
+    # Adaptive Re-chunking (Spec B)
+    adaptive_rechunking: AdaptiveRechunkingProfileBlock | None = Field(
+        default=None,
+        description=(
+            "Optional adaptive re-chunking configuration. When provided with "
+            "enabled=true, poor-quality chunks are re-chunked at finer "
+            "granularity. The response surfaces a meta.adaptive_rechunking "
+            "summary block when the feature triggers."
+        ),
     )
 
     @model_validator(mode="after")

@@ -40,6 +40,9 @@ from phentrieve.config import (
     DEFAULT_STEP_SIZE_TOKENS,
     DEFAULT_WINDOW_SIZE_TOKENS,
 )
+from phentrieve.retrieval.adaptive_rechunker import (
+    adaptive_config_from_profile_block,
+)
 from phentrieve.text_processing.full_text_service import run_full_text_service
 from phentrieve.text_processing.pipeline import TextProcessingPipeline
 from phentrieve.utils import detect_language
@@ -674,6 +677,12 @@ async def _process_text_via_shared_service(request: TextProcessingRequest):
                 "include_positions": request.include_chunk_positions,
             }
         )
+        if request.adaptive_rechunking is not None:
+            service_kwargs["adaptive_rechunking"] = adaptive_config_from_profile_block(
+                block=request.adaptive_rechunking,
+                yaml_block=None,
+                cli_overrides=None,
+            )
     else:
         service_kwargs.update(
             {
