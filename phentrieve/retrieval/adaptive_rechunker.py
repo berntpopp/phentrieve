@@ -261,3 +261,49 @@ def subdivide_parent_chunk(
         )
 
     return children
+
+
+def apply_score_improvement_gate(
+    parent_to_children: dict[int, list[int]],
+    parent_top_1: dict[int, float],
+    child_top_1: dict[int, float],
+    config: AdaptiveRechunkingConfig,
+) -> tuple[set[int], set[int]]:
+    """Decide per parent whether subdivision improved retrieval enough to keep.
+
+    Returns:
+        ``(revert_parents, keep_parents)`` - indices of parents whose
+        children should be reverted (sub-chunks dropped, parent restored)
+        vs kept (sub-chunks replace the parent in the final flat list).
+
+    A parent is kept iff at least one of its children's ``top_1`` is at
+    least ``parent_top_1 + config.score_improvement_gate``. Parents with
+    no children, no recorded ``parent_top_1``, or no recorded child scores
+    are skipped (no children) or reverted (children but no scores).
+
+    Operates on raw ``top_1`` values from ``raw_query_results`` (parent)
+    and from this recursion level's child query (children). No
+    re-aggregation runs before the gate decision.
+    """
+    revert: set[int] = set()
+    keep: set[int] = set()
+    for parent_idx, children in parent_to_children.items():
+        if not children:
+            continue
+        parent_t1 = parent_top_1.get(parent_idx)
+        if parent_t1 is None:
+            continue
+        child_scores = [
+            score
+            for score in (child_top_1.get(c) for c in children)
+            if score is not None
+        ]
+        if not child_scores:
+            revert.add(parent_idx)
+            continue
+        best = max(child_scores)
+        if best >= parent_t1 + config.score_improvement_gate:
+            keep.add(parent_idx)
+        else:
+            revert.add(parent_idx)
+    return revert, keep
