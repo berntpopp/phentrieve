@@ -12,11 +12,9 @@ from typing import Any, Literal
 import typer
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
-logger = logging.getLogger(__name__)
+from phentrieve.retrieval.adaptive_rechunker import AdaptiveRechunkingProfileBlock
 
-# Forward reference - defined in Plan B (phentrieve/retrieval/adaptive_rechunker.py).
-# Until Plan B lands, use a permissive dict shape.
-AdaptiveRechunkingProfileBlock = dict[str, Any]
+logger = logging.getLogger(__name__)
 
 
 class Profile(BaseModel):
