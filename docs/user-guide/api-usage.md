@@ -68,3 +68,10 @@ When the API is running, the OpenAPI pages are available at:
 
 - Swagger UI: `http://localhost:8734/docs`
 - ReDoc: `http://localhost:8734/redoc`
+
+## Profiles vs API
+
+The HTTP API does not accept the CLI's `--profile` flag - request fields
+are explicit. If you're moving a workflow from the CLI to the API, copy the
+relevant fields from your profile into the request body. See
+[Configuration Profiles](./configuration-profiles.md) for the profile schema.

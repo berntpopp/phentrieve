@@ -18,6 +18,12 @@ Available for all commands:
 *   `--version`: Show version information and exit
 *   `--help`: Show help message for any command
 
+## Profiles
+
+Most commands accept `--profile NAME` to apply a preset bundle of options
+defined in `phentrieve.yaml`. See [Configuration Profiles](./configuration-profiles.md)
+for the full guide.
+
 ## Available Commands
 
 ### Data Management
@@ -61,6 +67,13 @@ phentrieve query --text "The patient shows microcephaly and seizures"
 - `--similarity-threshold`: Minimum similarity score (0-1) to show results (default: 0.3)
 - `--num-results`: Maximum number of results to display (default: 5)
 - `--model-name`: Embedding model to use (default: "FremyCompany/BioLORD-2023-M")
+- `--profile`, `-P`: Apply a named profile from `phentrieve.yaml`. See [Configuration Profiles](./configuration-profiles.md).
+- `--show-resolved-config`: Print resolved option values with source labels to stderr before running.
+
+For interactive mode (`phentrieve query --interactive`), the same `--profile`
+and `--show-resolved-config` flags apply. The built-in `interactive` profile
+is auto-selected by `phentrieve text interactive` when no `--profile` is
+given; pass `--profile default` to swap to strict thresholds.
 
 ### Text Processing
 
@@ -120,6 +133,8 @@ Example JSON Lines output:
 - `--strategy`: Chunking strategy (see above)
 - `--language`: Text language for accurate processing (en, de, es, fr, nl)
 - `--output-format`: Output format (json_lines, rich_json_summary, csv_hpo_list)
+- `--profile`, `-P`: Apply a named profile from `phentrieve.yaml`. See [Configuration Profiles](./configuration-profiles.md).
+- `--show-resolved-config`: Print resolved option values with source labels to stderr before running.
 
 **Sliding Window Parameters** (override config for all strategies using sliding window):
 - `--window-size`: Window size in tokens (default: 7)
