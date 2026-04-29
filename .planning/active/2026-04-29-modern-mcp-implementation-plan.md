@@ -1,6 +1,6 @@
 # Modern MCP Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Modernize Phentrieve's HTTP MCP server so Claude, ChatGPT, and other current MCP consumers can reliably discover and use research-only HPO retrieval plus full-text LLM extraction.
 
@@ -203,7 +203,7 @@ Do not expose `compare_standard_vs_llm_extraction` as an MCP tool or prompt. Tha
 - Modify: `api/mcp/http_server.py`
 - Modify: `api/main.py`
 
-- [ ] **Step 1: Write failing route-shape tests**
+- [x] **Step 1: Write failing route-shape tests**
 
 Create `tests/unit/mcp/test_mcp_transport.py`:
 
@@ -236,7 +236,7 @@ def test_mount_mcp_http_uses_streamable_http_routes() -> None:
     assert ("POST", "/mcp/messages/") not in _mcp_routes(app)
 ```
 
-- [ ] **Step 2: Run the failing tests**
+- [x] **Step 2: Run the failing tests**
 
 Run:
 
@@ -246,7 +246,7 @@ uv run --extra mcp pytest tests/unit/mcp/test_mcp_transport.py -q
 
 Expected: fail because `mount_mcp_http` does not exist.
 
-- [ ] **Step 3: Add explicit mount helpers**
+- [x] **Step 3: Add explicit mount helpers**
 
 In `api/mcp/server.py`, add:
 
@@ -262,7 +262,7 @@ def mount_mcp_http(
 
 Update the module docstring examples from `mcp.mount()` to `mount_mcp_http(mcp)`.
 
-- [ ] **Step 4: Use the helper in standalone HTTP mode**
+- [x] **Step 4: Use the helper in standalone HTTP mode**
 
 In `api/mcp/http_server.py`, replace:
 
@@ -280,7 +280,7 @@ mount_mcp_http(mcp)
 
 Keep the existing `create_mcp_server` import in the same import block.
 
-- [ ] **Step 5: Use the helper in same-domain API mode**
+- [x] **Step 5: Use the helper in same-domain API mode**
 
 In `api/main.py`, replace:
 
@@ -302,7 +302,7 @@ mount_mcp_http(mcp)
 logger.info("MCP Streamable HTTP server mounted at /mcp")
 ```
 
-- [ ] **Step 6: Run transport tests**
+- [x] **Step 6: Run transport tests**
 
 Run:
 
@@ -312,7 +312,7 @@ uv run --extra mcp pytest tests/unit/mcp/test_mcp_transport.py -q
 
 Expected: all tests pass.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add api/mcp/server.py api/mcp/http_server.py api/main.py tests/unit/mcp/test_mcp_transport.py
@@ -328,7 +328,7 @@ git commit -m "fix: mount mcp over streamable http"
 - Modify: `phentrieve/cli/mcp_commands.py`
 - Modify: `tests/unit/mcp/test_mcp_server.py`
 
-- [ ] **Step 1: Add tests for HTTP-first info output**
+- [x] **Step 1: Add tests for HTTP-first info output**
 
 Append to `tests/unit/mcp/test_mcp_server.py`:
 
@@ -348,7 +348,7 @@ def test_mcp_info_prefers_http_configuration():
     assert "/sse" not in result.output
 ```
 
-- [ ] **Step 2: Run the failing CLI test**
+- [x] **Step 2: Run the failing CLI test**
 
 Run:
 
@@ -358,7 +358,7 @@ uv run --extra mcp pytest tests/unit/mcp/test_mcp_server.py::test_mcp_info_prefe
 
 Expected: fail because `mcp info` still presents stdio-first configuration and does not label Streamable HTTP.
 
-- [ ] **Step 3: Update `mcp info` output**
+- [x] **Step 3: Update `mcp info` output**
 
 In `phentrieve/cli/mcp_commands.py`, change the example panel to HTTP-first:
 
@@ -380,7 +380,7 @@ console.print("  HTTP Transport: Streamable HTTP")
 console.print(f"  MCP URL: http://{settings.host}:{settings.port}/mcp")
 ```
 
-- [ ] **Step 4: Run MCP unit tests**
+- [x] **Step 4: Run MCP unit tests**
 
 Run:
 
@@ -390,7 +390,7 @@ uv run --extra mcp pytest tests/unit/mcp -q
 
 Expected: all MCP unit tests pass.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add phentrieve/cli/mcp_commands.py tests/unit/mcp/test_mcp_server.py
@@ -407,7 +407,7 @@ git commit -m "chore: clarify http-first mcp configuration"
 - Create: `tests/unit/mcp/test_mcp_tool_metadata.py`
 - Modify: `api/mcp/server.py`
 
-- [ ] **Step 1: Write metadata tests**
+- [x] **Step 1: Write metadata tests**
 
 Create `tests/unit/mcp/test_mcp_tool_metadata.py`:
 
@@ -451,7 +451,7 @@ def test_process_clinical_text_description_mentions_llm_backend() -> None:
     assert "full-text LLM" in description
 ```
 
-- [ ] **Step 2: Run the failing metadata tests**
+- [x] **Step 2: Run the failing metadata tests**
 
 Run:
 
@@ -461,7 +461,7 @@ uv run --extra mcp pytest tests/unit/mcp/test_mcp_tool_metadata.py -q
 
 Expected: fail because generated tools have no titles or annotations.
 
-- [ ] **Step 3: Add metadata patch definitions**
+- [x] **Step 3: Add metadata patch definitions**
 
 Create `api/mcp/metadata.py`:
 
@@ -544,7 +544,7 @@ def apply_tool_metadata(tools: list[types.Tool]) -> list[types.Tool]:
     return patched
 ```
 
-- [ ] **Step 4: Apply metadata in server factory**
+- [x] **Step 4: Apply metadata in server factory**
 
 In `api/mcp/server.py`, after constructing `mcp`, add:
 
@@ -554,7 +554,7 @@ from api.mcp.metadata import apply_tool_metadata
 mcp.tools = apply_tool_metadata(mcp.tools)
 ```
 
-- [ ] **Step 5: Run metadata tests**
+- [x] **Step 5: Run metadata tests**
 
 Run:
 
@@ -564,7 +564,7 @@ uv run --extra mcp pytest tests/unit/mcp/test_mcp_tool_metadata.py -q
 
 Expected: all tests pass.
 
-- [ ] **Step 6: Run MCP unit tests**
+- [x] **Step 6: Run MCP unit tests**
 
 Run:
 
@@ -574,7 +574,7 @@ uv run --extra mcp pytest tests/unit/mcp -q
 
 Expected: all MCP unit tests pass.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add api/mcp/server.py api/mcp/metadata.py tests/unit/mcp/test_mcp_tool_metadata.py
@@ -593,7 +593,7 @@ git commit -m "feat: improve mcp tool metadata"
 - Modify: `tests/unit/api/test_text_processing_router.py`
 - Modify: `tests/unit/mcp/test_mcp_tool_metadata.py`
 
-- [ ] **Step 1: Add schema tests**
+- [x] **Step 1: Add schema tests**
 
 Append to `tests/unit/api/test_schemas.py`:
 
@@ -618,7 +618,7 @@ def test_text_processing_request_accepts_llm_provider_fields() -> None:
     assert request.allow_standard_fallback is True
 ```
 
-- [ ] **Step 2: Run the failing schema test**
+- [x] **Step 2: Run the failing schema test**
 
 Run:
 
@@ -628,7 +628,7 @@ uv run pytest tests/unit/api/test_schemas.py::test_text_processing_request_accep
 
 Expected: fail because the fields do not exist.
 
-- [ ] **Step 3: Add request fields**
+- [x] **Step 3: Add request fields**
 
 In `api/schemas/text_processing_schemas.py`, update `TextProcessingRequest`:
 
@@ -663,7 +663,7 @@ In `api/schemas/text_processing_schemas.py`, update `TextProcessingRequest`:
     )
 ```
 
-- [ ] **Step 4: Use request fallback flag in router**
+- [x] **Step 4: Use request fallback flag in router**
 
 In `api/routers/text_processing_router.py`, replace:
 
@@ -683,7 +683,7 @@ allow_standard_fallback = request.allow_standard_fallback or (
 )
 ```
 
-- [ ] **Step 5: Forward LLM fields into service**
+- [x] **Step 5: Forward LLM fields into service**
 
 In `_process_text_via_shared_service`, replace the LLM `service_kwargs.update` block with:
 
@@ -702,7 +702,7 @@ In `_process_text_via_shared_service`, replace the LLM `service_kwargs.update` b
         )
 ```
 
-- [ ] **Step 6: Add router forwarding test**
+- [x] **Step 6: Add router forwarding test**
 
 Append to `tests/unit/api/test_text_processing_router.py`:
 
@@ -753,7 +753,7 @@ async def test_llm_request_forwards_provider_fields(monkeypatch) -> None:
     assert captured["llm_internal_mode"] == "whole_document_grounded"
 ```
 
-- [ ] **Step 7: Run targeted tests**
+- [x] **Step 7: Run targeted tests**
 
 Run:
 
@@ -763,7 +763,7 @@ uv run pytest tests/unit/api/test_schemas.py::test_text_processing_request_accep
 
 Expected: both tests pass.
 
-- [ ] **Step 8: Run MCP metadata test to verify fields appear in tool schema**
+- [x] **Step 8: Run MCP metadata test to verify fields appear in tool schema**
 
 Add to `tests/unit/mcp/test_mcp_tool_metadata.py`:
 
@@ -792,7 +792,7 @@ uv run --extra mcp pytest tests/unit/mcp/test_mcp_tool_metadata.py::test_process
 
 Expected: pass.
 
-- [ ] **Step 9: Commit**
+- [x] **Step 9: Commit**
 
 ```bash
 git add api/schemas/text_processing_schemas.py api/routers/text_processing_router.py tests/unit/api/test_schemas.py tests/unit/api/test_text_processing_router.py tests/unit/mcp/test_mcp_tool_metadata.py
@@ -810,7 +810,7 @@ git commit -m "feat: expose llm extraction controls to mcp"
 - Create: `tests/unit/mcp/test_mcp_facade_tools.py`
 - Modify: `pyproject.toml`
 
-- [ ] **Step 1: Add official MCP SDK dependency**
+- [x] **Step 1: Add official MCP SDK dependency**
 
 In `pyproject.toml`, extend the `mcp` optional dependency:
 
@@ -825,7 +825,7 @@ mcp = [
 ]
 ```
 
-- [ ] **Step 2: Write facade tool tests**
+- [x] **Step 2: Write facade tool tests**
 
 Create `tests/unit/mcp/test_mcp_facade_tools.py`:
 
@@ -841,7 +841,7 @@ def test_facade_registers_first_class_tools() -> None:
     assert "phentrieve.get_server_capabilities" in tool_names
 ```
 
-- [ ] **Step 3: Run failing facade test**
+- [x] **Step 3: Run failing facade test**
 
 Run:
 
@@ -851,7 +851,7 @@ uv run --extra mcp pytest tests/unit/mcp/test_mcp_facade_tools.py -q
 
 Expected: fail because `api.mcp.facade` does not exist.
 
-- [ ] **Step 4: Add tool request and response models**
+- [x] **Step 4: Add tool request and response models**
 
 Create `api/mcp/tools.py`:
 
@@ -932,7 +932,7 @@ class CompareHpoTermsRequest(BaseModel):
     formula: Literal["hybrid", "simple_resnik_like"] = "hybrid"
 ```
 
-- [ ] **Step 5: Add the initial facade**
+- [x] **Step 5: Add the initial facade**
 
 Create `api/mcp/facade.py`:
 
@@ -1034,7 +1034,7 @@ def create_phentrieve_mcp() -> FastMCP:
     return mcp
 ```
 
-- [ ] **Step 6: Run facade registration test**
+- [x] **Step 6: Run facade registration test**
 
 Run:
 
@@ -1044,7 +1044,7 @@ uv run --extra mcp pytest tests/unit/mcp/test_mcp_facade_tools.py -q
 
 Expected: pass for registration.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add pyproject.toml api/mcp/tools.py api/mcp/facade.py tests/unit/mcp/test_mcp_facade_tools.py
@@ -1062,7 +1062,7 @@ git commit -m "feat: add explicit phentrieve mcp facade"
 - Modify: `tests/unit/mcp/test_mcp_llm_tool.py`
 - Modify: `tests/unit/mcp/test_mcp_facade_tools.py`
 
-- [ ] **Step 1: Add extraction wrapper tests**
+- [x] **Step 1: Add extraction wrapper tests**
 
 Create `tests/unit/mcp/test_mcp_llm_tool.py`:
 
@@ -1100,7 +1100,7 @@ def test_llm_tool_maps_request_to_full_text_service(monkeypatch) -> None:
     assert captured["llm_internal_mode"] == "whole_document_grounded"
 ```
 
-- [ ] **Step 2: Run failing wrapper test**
+- [x] **Step 2: Run failing wrapper test**
 
 Run:
 
@@ -1110,7 +1110,7 @@ uv run --extra mcp pytest tests/unit/mcp/test_mcp_llm_tool.py -q
 
 Expected: fail because implementation helper does not exist.
 
-- [ ] **Step 3: Extract implementation helpers**
+- [x] **Step 3: Extract implementation helpers**
 
 In `api/mcp/facade.py`, add module-level helper functions:
 
@@ -1152,7 +1152,7 @@ def extract_hpo_terms_llm_impl(
 
 Change the registered facade tools to call these helpers.
 
-- [ ] **Step 4: Wire search and compare helpers**
+- [x] **Step 4: Wire search and compare helpers**
 
 Add tests first in `tests/unit/mcp/test_mcp_facade_tools.py` using injected fake callables:
 
@@ -1238,7 +1238,7 @@ def compare_hpo_terms_impl(
 
 Then add real `search_hpo_terms` and `compare_hpo_terms` facade tool registrations that call these helpers with existing backend functions. If the current code only exposes router-level logic, create small service helpers under `phentrieve/retrieval/api_helpers.py` and the current similarity module, then inject those helpers into the facade tools.
 
-- [ ] **Step 5: Run MCP facade tests**
+- [x] **Step 5: Run MCP facade tests**
 
 Run:
 
@@ -1248,7 +1248,7 @@ uv run --extra mcp pytest tests/unit/mcp/test_mcp_facade_tools.py tests/unit/mcp
 
 Expected: all tests pass.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add api/mcp/facade.py api/mcp/tools.py tests/unit/mcp/test_mcp_facade_tools.py tests/unit/mcp/test_mcp_llm_tool.py
@@ -1266,7 +1266,7 @@ git commit -m "feat: wire explicit mcp tools to services"
 - Create: `tests/unit/mcp/test_mcp_resources_prompts.py`
 - Modify: `api/mcp/facade.py`
 
-- [ ] **Step 1: Write resources and prompts tests**
+- [x] **Step 1: Write resources and prompts tests**
 
 Create `tests/unit/mcp/test_mcp_resources_prompts.py`:
 
@@ -1307,7 +1307,7 @@ def test_benchmark_comparison_is_not_an_mcp_prompt() -> None:
     assert "phentrieve.compare_standard_vs_llm_extraction" not in tool_names
 ```
 
-- [ ] **Step 2: Run failing tests**
+- [x] **Step 2: Run failing tests**
 
 Run:
 
@@ -1317,7 +1317,7 @@ uv run --extra mcp pytest tests/unit/mcp/test_mcp_resources_prompts.py -q
 
 Expected: fail because modules do not exist.
 
-- [ ] **Step 3: Add resources**
+- [x] **Step 3: Add resources**
 
 Create `api/mcp/resources.py`:
 
@@ -1400,7 +1400,7 @@ def get_research_use_resource() -> dict[str, Any]:
     }
 ```
 
-- [ ] **Step 4: Add prompts**
+- [x] **Step 4: Add prompts**
 
 Create `api/mcp/prompts.py`:
 
@@ -1442,7 +1442,7 @@ def extract_research_case_phenotypes_prompt(language: str = "en") -> str:
     )
 ```
 
-- [ ] **Step 5: Register resources and prompts in facade**
+- [x] **Step 5: Register resources and prompts in facade**
 
 In `api/mcp/facade.py`, import:
 
@@ -1498,7 +1498,7 @@ Inside `create_phentrieve_mcp`, add:
         return extract_research_case_phenotypes_prompt(language=language)
 ```
 
-- [ ] **Step 6: Run resource and prompt tests**
+- [x] **Step 6: Run resource and prompt tests**
 
 Run:
 
@@ -1508,7 +1508,7 @@ uv run --extra mcp pytest tests/unit/mcp/test_mcp_resources_prompts.py -q
 
 Expected: all tests pass.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add api/mcp/facade.py api/mcp/resources.py api/mcp/prompts.py tests/unit/mcp/test_mcp_resources_prompts.py
@@ -1526,7 +1526,7 @@ git commit -m "feat: add mcp resources and prompts"
 - Modify: `api/mcp/server.py`
 - Create: `tests/integration/test_mcp_http_protocol.py`
 
-- [ ] **Step 1: Write HTTP protocol smoke test**
+- [x] **Step 1: Write HTTP protocol smoke test**
 
 Create `tests/integration/test_mcp_http_protocol.py`:
 
@@ -1570,7 +1570,7 @@ def test_mcp_http_tools_list_smoke(monkeypatch) -> None:
     assert "phentrieve.extract_hpo_terms_llm" in tool_names
 ```
 
-- [ ] **Step 2: Run failing smoke test**
+- [x] **Step 2: Run failing smoke test**
 
 Run:
 
@@ -1580,7 +1580,7 @@ uv run --extra mcp pytest tests/integration/test_mcp_http_protocol.py -q
 
 Expected: fail until the facade is mounted over HTTP.
 
-- [ ] **Step 3: Add facade ASGI mounting helper**
+- [x] **Step 3: Add facade ASGI mounting helper**
 
 In `api/mcp/server.py`, add:
 
@@ -1609,7 +1609,7 @@ PY
 
 Use the SDK-provided Streamable HTTP ASGI app method shown by that command.
 
-- [ ] **Step 4: Use facade for HTTP**
+- [x] **Step 4: Use facade for HTTP**
 
 In `api/main.py`, replace the `fastapi-mcp` mount path with:
 
@@ -1632,11 +1632,11 @@ mount_phentrieve_mcp_facade(mcp_app)
 uvicorn.run(mcp_app, host=settings.host, port=settings.port)
 ```
 
-- [ ] **Step 5: Keep OpenAPI conversion behind a compatibility name**
+- [x] **Step 5: Keep OpenAPI conversion behind a compatibility name**
 
 Rename the old `create_mcp_server` docstring to state it is legacy OpenAPI conversion. Keep it importable for compatibility and tests until a later release can remove it.
 
-- [ ] **Step 6: Run smoke test**
+- [x] **Step 6: Run smoke test**
 
 Run:
 
@@ -1646,7 +1646,7 @@ uv run --extra mcp pytest tests/integration/test_mcp_http_protocol.py -q
 
 Expected: pass.
 
-- [ ] **Step 7: Run MCP suite**
+- [x] **Step 7: Run MCP suite**
 
 Run:
 
@@ -1656,7 +1656,7 @@ uv run --extra mcp pytest tests/unit/mcp tests/integration/test_mcp_http_protoco
 
 Expected: all tests pass.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add api/mcp/server.py api/mcp/http_server.py api/main.py tests/integration/test_mcp_http_protocol.py
@@ -1674,7 +1674,7 @@ git commit -m "feat: serve explicit mcp facade over http"
 - Modify: `docker-compose.yml`
 - Modify: `api/Dockerfile`
 
-- [ ] **Step 1: Rewrite transport section**
+- [x] **Step 1: Rewrite transport section**
 
 In `docs/mcp-server.md`, make this table the source of truth:
 
@@ -1685,7 +1685,7 @@ In `docs/mcp-server.md`, make this table the source of truth:
 | stdio | command-based | Local fallback | Local desktop clients only |
 ```
 
-- [ ] **Step 2: Add ChatGPT developer mode configuration**
+- [x] **Step 2: Add ChatGPT developer mode configuration**
 
 Add:
 
@@ -1702,7 +1702,7 @@ Use no authentication only for local/private deployments. For public deployments
 ```
 ```
 
-- [ ] **Step 3: Add Claude HTTP configuration**
+- [x] **Step 3: Add Claude HTTP configuration**
 
 Add:
 
@@ -1721,7 +1721,7 @@ claude mcp add --transport http phentrieve http://127.0.0.1:8734/mcp
 ```
 ```
 
-- [ ] **Step 4: Document first-class tools**
+- [x] **Step 4: Document first-class tools**
 
 Replace the old three-tool table with:
 
@@ -1735,7 +1735,7 @@ Replace the old three-tool table with:
 | `phentrieve.get_server_capabilities` | Discover supported languages, models, backends, and research-use limitations |
 ```
 
-- [ ] **Step 5: Update Docker comments**
+- [x] **Step 5: Update Docker comments**
 
 In `docker-compose.yml`, change the MCP comment to:
 
@@ -1750,7 +1750,7 @@ In `api/Dockerfile`, update the MCP install comment to:
 # Install MCP dependencies for the Streamable HTTP endpoint at /mcp
 ```
 
-- [ ] **Step 6: Run docs checks available in repo**
+- [x] **Step 6: Run docs checks available in repo**
 
 Run:
 
@@ -1760,7 +1760,7 @@ make check
 
 Expected: pass.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add docs/mcp-server.md docs/prompts/claude-desktop-hpo-annotator.md docker-compose.yml api/Dockerfile
@@ -1775,7 +1775,7 @@ git commit -m "docs: document modern http mcp usage"
 
 - Verify only.
 
-- [ ] **Step 1: Run targeted MCP tests**
+- [x] **Step 1: Run targeted MCP tests**
 
 Run:
 
@@ -1785,7 +1785,7 @@ uv run --extra mcp pytest tests/unit/mcp tests/integration/test_mcp_http_protoco
 
 Expected: all tests pass.
 
-- [ ] **Step 2: Run API schema and router tests**
+- [x] **Step 2: Run API schema and router tests**
 
 Run:
 
@@ -1795,7 +1795,7 @@ uv run pytest tests/unit/api/test_schemas.py tests/unit/api/test_text_processing
 
 Expected: all tests pass.
 
-- [ ] **Step 3: Run required repository checks**
+- [x] **Step 3: Run required repository checks**
 
 Run:
 
@@ -1807,7 +1807,7 @@ make test
 
 Expected: all checks pass.
 
-- [ ] **Step 4: Manual MCP Inspector smoke test**
+- [x] **Step 4: Manual MCP Inspector smoke test**
 
 Run the HTTP MCP server:
 
@@ -1829,7 +1829,7 @@ Expected:
 - `prompts/list` shows annotation prompts.
 - `phentrieve.get_server_capabilities` returns JSON with `standard` and `llm` backends.
 
-- [ ] **Step 5: Commit verification notes**
+- [x] **Step 5: Commit verification notes**
 
 Create `.planning/analysis/2026-04-29-modern-mcp-verification.md` with the exact commands run and outcomes.
 
