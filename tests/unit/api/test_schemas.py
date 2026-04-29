@@ -21,6 +21,11 @@ from api.schemas.query_schemas import HPOResultItem, QueryRequest, QueryResponse
 from api.schemas.text_processing_schemas import (
     TextProcessingRequest,
 )
+from phentrieve.config import (
+    DEFAULT_ASSERTION_PREFERENCE,
+    DEFAULT_NUM_RESULTS,
+    MIN_SIMILARITY_THRESHOLD,
+)
 
 pytestmark = pytest.mark.unit
 
@@ -42,9 +47,10 @@ class TestQueryRequest:
         assert req.text == "patient has seizures"
         assert req.model_name is None  # Optional
         assert req.language is None  # Optional
-        assert req.num_results == 10  # Default
-        assert req.similarity_threshold == 0.3  # Default
+        assert req.num_results == DEFAULT_NUM_RESULTS
+        assert req.similarity_threshold == MIN_SIMILARITY_THRESHOLD
         assert req.detect_query_assertion is True  # Default
+        assert req.query_assertion_preference == DEFAULT_ASSERTION_PREFERENCE
 
     def test_full_request_with_all_fields(self):
         """Test request with all optional fields specified."""

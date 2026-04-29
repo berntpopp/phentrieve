@@ -3,6 +3,8 @@ from typing import Any
 
 from phentrieve.config import (
     DEFAULT_AGGREGATION_STRATEGY,
+    DEFAULT_ASSERTION_PREFERENCE,
+    DEFAULT_MULTI_VECTOR,
 )
 from phentrieve.retrieval.dense_retriever import DenseRetriever
 from phentrieve.text_processing.assertion_detection import (
@@ -103,10 +105,10 @@ async def execute_hpo_retrieval_for_api(
     include_details: bool = False,
     detect_query_assertion: bool = True,
     query_assertion_language: str | None = None,
-    query_assertion_preference: str = "dependency",
+    query_assertion_preference: str = DEFAULT_ASSERTION_PREFERENCE,
     debug: bool = False,
     # Multi-vector parameters (Issue #136)
-    multi_vector: bool = False,
+    multi_vector: bool = DEFAULT_MULTI_VECTOR,
     aggregation_strategy: str = DEFAULT_AGGREGATION_STRATEGY,
     component_weights: dict[str, float] | None = None,
     custom_formula: str | None = None,
@@ -189,12 +191,13 @@ async def execute_hpo_retrieval_for_api(
         # Detect index type to ensure we're using a multi-vector index
         index_type = retriever.detect_index_type()
         if index_type != "multi_vector":
-            logger.warning(
+            message = (
                 "Multi-vector mode requested but index type is '%s'. "
-                "Falling back to single-vector query.",
-                _sanitize(index_type),
+                "Check PHENTRIEVE_INDEX_DIR/PHENTRIEVE_DATA_ROOT_DIR and build the "
+                "multi-vector index for the configured retrieval model."
             )
-            multi_vector = False
+            logger.error(message, _sanitize(index_type))
+            raise RuntimeError(message % _sanitize(index_type))
 
     if multi_vector:
         # Use multi-vector query with aggregation (deduplicates by HPO ID)

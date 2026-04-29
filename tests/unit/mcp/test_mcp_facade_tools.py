@@ -1,3 +1,6 @@
+import pytest
+
+
 def _ensure_external_mcp_sdk() -> None:
     import sys
     from pathlib import Path
@@ -60,6 +63,36 @@ def test_search_hpo_terms_impl_delegates() -> None:
     assert result["results"][0]["hpo_id"] == "HP:0001250"
     assert captured["text"] == "seizures"
     assert captured["language"] == "en"
+
+
+@pytest.mark.asyncio
+async def test_search_hpo_terms_service_uses_multi_vector(mocker) -> None:
+    _ensure_external_mcp_sdk()
+
+    from api.mcp.facade import _search_hpo_terms_service
+
+    retriever = mocker.Mock()
+    get_retriever = mocker.patch(
+        "api.dependencies.get_dense_retriever_dependency",
+        return_value=retriever,
+    )
+    execute_retrieval = mocker.patch(
+        "api.mcp.facade.execute_hpo_retrieval_for_api",
+        return_value={"results": []},
+    )
+
+    await _search_hpo_terms_service(
+        text="seizures",
+        language="en",
+        num_results=3,
+        similarity_threshold=0.1,
+        include_details=False,
+    )
+
+    from api.mcp.facade import DEFAULT_MULTI_VECTOR
+
+    assert get_retriever.call_args.kwargs["multi_vector"] is DEFAULT_MULTI_VECTOR
+    assert execute_retrieval.call_args.kwargs["multi_vector"] is DEFAULT_MULTI_VECTOR
 
 
 def test_compare_hpo_terms_impl_delegates() -> None:

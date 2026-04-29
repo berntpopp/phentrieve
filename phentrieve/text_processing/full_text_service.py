@@ -19,6 +19,7 @@ from phentrieve.config import (
     DEFAULT_LANGUAGE,
     DEFAULT_MIN_CONFIDENCE_AGGREGATED,
     DEFAULT_MODEL,
+    DEFAULT_MULTI_VECTOR,
 )
 from phentrieve.llm.config import (
     DEFAULT_LLM_MODE,
@@ -590,6 +591,7 @@ def run_standard_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
         retriever = DenseRetriever.from_model_name(
             model=sbert_model_for_semantic_chunking,
             model_name=retrieval_model_name,
+            multi_vector=DEFAULT_MULTI_VECTOR,
         )
         if retriever is None:
             raise RuntimeError(

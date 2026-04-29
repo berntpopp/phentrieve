@@ -4,6 +4,12 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
+from phentrieve.config import (
+    DEFAULT_CHUNK_RETRIEVAL_THRESHOLD,
+    DEFAULT_NUM_RESULTS,
+    MIN_SIMILARITY_THRESHOLD,
+)
+
 
 class ExtractHpoTermsRequest(BaseModel):
     text: str = Field(
@@ -25,13 +31,13 @@ class ExtractHpoTermsRequest(BaseModel):
         description="Include source character offsets for evidence chunks.",
     )
     num_results_per_chunk: int = Field(
-        default=10,
+        default=DEFAULT_NUM_RESULTS,
         ge=1,
         le=50,
         description="Maximum HPO candidates per chunk.",
     )
     chunk_retrieval_threshold: float = Field(
-        default=0.7,
+        default=DEFAULT_CHUNK_RETRIEVAL_THRESHOLD,
         ge=0.0,
         le=1.0,
         description="Minimum chunk-level retrieval similarity.",
@@ -68,8 +74,12 @@ class SearchHpoTermsRequest(BaseModel):
         )
     )
     language: str | None = None
-    num_results: int = Field(default=10, ge=1, le=50)
-    similarity_threshold: float = Field(default=0.3, ge=0.0, le=1.0)
+    num_results: int = Field(default=DEFAULT_NUM_RESULTS, ge=1, le=50)
+    similarity_threshold: float = Field(
+        default=MIN_SIMILARITY_THRESHOLD,
+        ge=0.0,
+        le=1.0,
+    )
     include_details: bool = True
 
 

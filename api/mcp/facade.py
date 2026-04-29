@@ -22,7 +22,7 @@ from api.mcp.tools import (
     ExtractHpoTermsRequest,
     SearchHpoTermsRequest,
 )
-from phentrieve.config import DEFAULT_LANGUAGE, DEFAULT_MODEL
+from phentrieve.config import DEFAULT_LANGUAGE, DEFAULT_MODEL, DEFAULT_MULTI_VECTOR
 from phentrieve.evaluation.metrics import (
     SimilarityFormula,
     calculate_semantic_similarity,
@@ -112,7 +112,7 @@ async def _search_hpo_terms_service(**kwargs: Any) -> dict[str, Any]:
 
     retriever = await get_dense_retriever_dependency(
         sbert_model_name_for_retriever=DEFAULT_MODEL,
-        multi_vector=False,
+        multi_vector=DEFAULT_MULTI_VECTOR,
     )
     language = kwargs["language"] or DEFAULT_LANGUAGE
     result = await execute_hpo_retrieval_for_api(
@@ -124,6 +124,7 @@ async def _search_hpo_terms_service(**kwargs: Any) -> dict[str, Any]:
         include_details=kwargs["include_details"],
         detect_query_assertion=False,
         debug=False,
+        multi_vector=DEFAULT_MULTI_VECTOR,
     )
     return {"results": result.get("results", [])}
 

@@ -1136,6 +1136,38 @@ def test_run_standard_backend_skips_adaptive_when_disabled(mocker):
     assert result["meta"]["extraction_backend"] == "standard"
 
 
+def test_run_standard_backend_initializes_retriever_with_configured_multi_vector(
+    mocker,
+):
+    from phentrieve.config import DEFAULT_MULTI_VECTOR
+
+    text_pipeline = mocker.Mock()
+    text_pipeline.process.return_value = [
+        {"text": "chunk one", "status": "AFFIRMED", "start_char": 0, "end_char": 9},
+    ]
+    model = mocker.Mock()
+    retriever = mocker.Mock()
+    mocker.patch(
+        "phentrieve.embeddings.load_embedding_model",
+        return_value=model,
+    )
+    from_model_name = mocker.patch(
+        "phentrieve.retrieval.dense_retriever.DenseRetriever.from_model_name",
+        return_value=retriever,
+    )
+    mocker.patch(
+        "phentrieve.text_processing.hpo_extraction_orchestrator.orchestrate_hpo_extraction",
+        return_value=_make_orchestration_result(),
+    )
+
+    run_standard_backend(
+        text="some clinical text",
+        text_pipeline=text_pipeline,
+    )
+
+    assert from_model_name.call_args.kwargs["multi_vector"] is DEFAULT_MULTI_VECTOR
+
+
 def test_run_standard_backend_skips_adaptive_when_config_disabled(mocker):
     """An AdaptiveRechunkingConfig with enabled=False is treated as no-op."""
     from phentrieve.retrieval.adaptive_rechunker import AdaptiveRechunkingConfig
