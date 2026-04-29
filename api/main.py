@@ -65,11 +65,11 @@ def _try_mount_mcp(target_app: FastAPI) -> None:
             return
 
         # Import MCP server factory (requires fastapi-mcp optional dependency)
-        from api.mcp.server import create_mcp_server
+        from api.mcp.server import create_mcp_server, mount_mcp_http
 
         mcp = create_mcp_server(target_app)
-        mcp.mount()  # Mounts at /mcp by default
-        logger.info("MCP server mounted at /mcp (ENABLE_MCP_HTTP=true)")
+        mount_mcp_http(mcp)
+        logger.info("MCP Streamable HTTP server mounted at /mcp")
     except ImportError:
         # fastapi-mcp not installed - silently skip
         logger.debug("MCP dependencies not available - skipping /mcp mount")

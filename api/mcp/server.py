@@ -17,9 +17,9 @@ Architecture (avoiding cyclic imports):
 
 Usage:
     # Programmatically (for HTTP mounting in api/main.py)
-    from api.mcp.server import create_mcp_server
+    from api.mcp.server import create_mcp_server, mount_mcp_http
     mcp = create_mcp_server(app)
-    mcp.mount()  # Mount at /mcp
+    mount_mcp_http(mcp)
 
     # CLI entry point is in cli.py (phentrieve-mcp command)
 """
@@ -86,3 +86,12 @@ def create_mcp_server(app: FastAPI) -> Any:  # Returns FastApiMCP when installed
     )
 
     return mcp
+
+
+def mount_mcp_http(
+    mcp: Any,
+    *,
+    mount_path: str = "/mcp",
+) -> None:
+    """Mount MCP using modern Streamable HTTP."""
+    mcp.mount_http(mount_path=mount_path)

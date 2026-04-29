@@ -23,12 +23,12 @@ def main() -> None:
 
     from api.main import app
     from api.mcp.config import settings
-    from api.mcp.server import create_mcp_server
+    from api.mcp.server import create_mcp_server, mount_mcp_http
 
     mcp = create_mcp_server(app)
 
     # Mount MCP at /mcp endpoint
-    mcp.mount()
+    mount_mcp_http(mcp)
 
     logger.info(
         "Starting Phentrieve MCP server (HTTP) at http://%s:%d/mcp",
