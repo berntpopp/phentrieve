@@ -282,6 +282,15 @@
             </v-select>
           </v-col>
         </v-row>
+        <v-alert
+          v-if="textProcessOptions.extractionBackend === 'llm'"
+          type="warning"
+          variant="tonal"
+          density="compact"
+          class="my-2"
+        >
+          {{ $t('queryInterface.advancedOptions.llmDisclosure') }}
+        </v-alert>
 
         <div v-if="textProcessOptions.extractionBackend === 'standard'">
           <v-row dense>

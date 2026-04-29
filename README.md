@@ -2,7 +2,9 @@
 
 ![Phentrieve Logo](docs/assets/phentrieve-logo.svg)
 
-Phentrieve is an advanced AI-powered system for mapping clinical text to Human Phenotype Ontology (HPO) terms using a Retrieval-Augmented Generation (RAG) approach. It supports multiple languages and offers robust tools for benchmarking, text processing, and HPO term retrieval.
+Phentrieve is an advanced AI-powered research system for mapping phenotype descriptions to Human Phenotype Ontology (HPO) terms using a Retrieval-Augmented Generation (RAG) approach. It supports multiple languages and offers robust tools for benchmarking, text processing, and HPO term retrieval.
+
+**Research use only:** Phentrieve is not a medical device and must not be used for diagnosis, treatment selection, patient triage, or other clinical decision-making. See the [Research Use Only guide](docs/compliance/research-use.md) and [Privacy and LLM Processing](docs/compliance/privacy-and-llm-processing.md).
 
 **For comprehensive documentation, please visit the [Phentrieve Documentation Site](https://berntpopp.github.io/phentrieve/).**
 
@@ -41,8 +43,8 @@ For detailed setup and usage instructions, including Docker deployment, please s
 # Launch interactive query mode
 phentrieve query --interactive
 
-# Process clinical text to extract HPO terms
-phentrieve text process "The patient exhibits microcephaly and frequent seizures."
+# Process research text to extract HPO terms
+phentrieve text process "The research note mentions microcephaly and frequent seizures."
 ```
 
 Discover more commands and options in the [User Guide](https://berntpopp.github.io/phentrieve/user-guide/).
@@ -67,7 +69,7 @@ See [docs/user-guide/configuration-profiles.md](docs/user-guide/configuration-pr
 
 ## Docker Deployment
 
-Deploy Phentrieve using Docker Compose for production environments:
+Deploy Phentrieve using Docker Compose for self-hosted research environments:
 
 ```bash
 # Linux: Setup volume permissions (required)

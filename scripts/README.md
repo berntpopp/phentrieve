@@ -389,6 +389,55 @@ pytest scripts/tests/ -v --cov=scripts --cov-report=term-missing
 make test-all
 ```
 
+---
+
+### `analyze_embedding_ontology.py`
+
+Analyze how closely HPO term embeddings preserve the ontology graph structure.
+The script loads HPO embeddings from the existing ChromaDB index, caches them as
+`.npy` files, computes ontology fidelity metrics, and writes CSV/JSON/plot
+artifacts for research review.
+
+**Prerequisites:**
+
+```bash
+uv sync --extra analysis
+phentrieve data prepare
+phentrieve index build --model-name FremyCompany/BioLORD-2023-M
+```
+
+When running against a checkout-local index, point the script at the repo data
+directory:
+
+```bash
+export PHENTRIEVE_INDEX_DIR=$PWD/data/indexes
+```
+
+**Usage:**
+
+```bash
+python scripts/analyze_embedding_ontology.py \
+    --model-name FremyCompany/BioLORD-2023-M \
+    --k 10 \
+    --n-pairs 50000
+```
+
+Outputs are written under
+`data/results/ontology_fidelity/<model-slug>_<YYYYMMDD-HHMMSS>/`:
+
+- `summary.json` - global correlations, branch purity, depth correlation, and
+  run configuration.
+- `per_term_fidelity.csv` - per-term embedding-vs-DAG neighborhood overlap,
+  sorted worst-first.
+- `umap_coords.csv` - 2D UMAP coordinates per HPO term.
+- `umap_by_branch.png`, `umap_by_fidelity.png`, `distance_correlation.png`,
+  and `branch_fidelity.png` - static review plots.
+- `umap_interactive.html` - optional Plotly view, omitted with
+  `--skip-interactive`.
+
+See `.planning/specs/2026-04-17-ontology-embedding-fidelity-design.md` for the
+metric contract.
+
 ## Example Workflow
 
 ```bash

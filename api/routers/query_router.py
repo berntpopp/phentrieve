@@ -1,9 +1,14 @@
 import logging
 from typing import Literal, cast
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 
 from api.dependencies import get_dense_retriever_dependency
+from api.research_use import (
+    RESEARCH_USE_LIMITATION,
+    require_research_use_acknowledgement,
+    research_ack_openapi_parameter,
+)
 from api.schemas.query_schemas import QueryRequest, QueryResponse
 from phentrieve.config import (
     DEFAULT_AGGREGATION_STRATEGY,
@@ -88,10 +93,15 @@ async def get_retriever_for_get_params(
     "/",
     response_model=QueryResponse,
     operation_id="query_hpo_terms",
-    summary="Query HPO terms from clinical text",
-    description="Extract relevant HPO terms from clinical text using semantic search.",
+    summary="Query HPO terms from research text",
+    description=(
+        f"{RESEARCH_USE_LIMITATION} Extract relevant HPO terms from research "
+        "text using semantic search."
+    ),
+    openapi_extra={"parameters": [research_ack_openapi_parameter()]},
 )
 async def run_hpo_query_get(
+    http_request: Request,
     text: str,
     model_name: str | None = DEFAULT_MODEL,
     language: str | None = None,  # Will auto-detect if not provided
@@ -148,7 +158,11 @@ async def run_hpo_query_get(
     )
 
     # Reuse the POST endpoint logic
-    return await run_hpo_query(request=request, retriever=retriever)
+    return await run_hpo_query(
+        request=request,
+        http_request=http_request,
+        retriever=retriever,
+    )
 
 
 @router.post(
@@ -156,10 +170,15 @@ async def run_hpo_query_get(
     response_model=QueryResponse,
     operation_id="query_hpo_terms_advanced",
     summary="Advanced HPO term query with full configuration",
-    description="Execute HPO term query with full control over retrieval parameters.",
+    description=(
+        f"{RESEARCH_USE_LIMITATION} Execute HPO term query with full control "
+        "over retrieval parameters."
+    ),
+    openapi_extra={"parameters": [research_ack_openapi_parameter()]},
 )
 async def run_hpo_query(
     request: QueryRequest,
+    http_request: Request,
     retriever: DenseRetriever = Depends(get_retriever_for_request),
 ):
     """Execute an HPO term query with full control over parameters.
@@ -167,6 +186,8 @@ async def run_hpo_query(
     This endpoint accepts a JSON body with various options for fine-tuning the query.
     For a simpler interface, use the GET endpoint.
     """
+    require_research_use_acknowledgement(http_request)
+
     sbert_model_to_use_for_retrieval = (
         request.model_name or DEFAULT_MODEL
     )  # Use requested or default for retrieval SBERT

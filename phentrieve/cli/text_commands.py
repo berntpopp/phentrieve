@@ -18,10 +18,13 @@ import typer
 # only happen when commands actually need ML models, not for --help or --version.
 # The import is done inside command functions where the model is actually used.
 from phentrieve.cli._profile import apply_profile_callback
-from phentrieve.cli.utils import load_text_from_input, resolve_chunking_pipeline_config
+from phentrieve.cli.utils import (
+    emit_research_use_notice,
+    load_text_from_input,
+    resolve_chunking_pipeline_config,
+)
 from phentrieve.config import (
     DEFAULT_ASSERTION_PREFERENCE,
-    DEFAULT_CHUNK_CONFIDENCE,
     DEFAULT_CHUNK_RETRIEVAL_THRESHOLD,
     DEFAULT_CHUNKING_STRATEGY,
     DEFAULT_LANGUAGE,
@@ -223,7 +226,7 @@ def interactive(
 ) -> None:
     """Interactive text processing mode for HPO term extraction.
 
-    This command enables an interactive session where you can enter clinical text
+    This command enables an interactive session where you can enter research phenotype text
     and see the chunking, annotations, and HPO term matches displayed with rich
     formatting. Each chunk is highlighted with its annotations shown in a box
     below the chunk text.
@@ -235,6 +238,7 @@ def interactive(
     """
     from phentrieve.cli.text_interactive import interactive_text_mode
 
+    emit_research_use_notice()
     interactive_text_mode(
         language=language,
         strategy=strategy,
@@ -267,12 +271,13 @@ def main_callback(
         ),
     ] = False,
 ):
-    """Text processing commands for clinical text analysis."""
+    """Text processing commands for research phenotype text analysis."""
     if ctx.invoked_subcommand is None:
         if interactive:
             # Call interactive mode directly
             from phentrieve.cli.text_interactive import interactive_text_mode
 
+            emit_research_use_notice()
             interactive_text_mode()
         else:
             # Show help if no subcommand and not interactive
@@ -543,11 +548,11 @@ def process_text_for_hpo_command(
         ),
     ] = None,
 ) -> None:
-    """Process clinical text to extract HPO terms.
+    """Process research phenotype text to extract HPO terms.
 
-    This command processes clinical texts through a chunking pipeline and assertion
-    detection, then extracts HPO terms from each chunk. Results are aggregated to provide
-    a comprehensive set of terms with evidence.
+    This command processes research phenotype texts through a chunking pipeline and
+    assertion detection, then extracts HPO terms from each chunk. Results are
+    aggregated to provide a comprehensive set of terms with evidence.
 
     Example usage:
     - Process direct text input: phentrieve text process "Patient has severe headaches"
@@ -562,6 +567,7 @@ def process_text_for_hpo_command(
     logger = logging.getLogger(__name__)
     start_time = time.time()
     setup_logging_cli(debug=debug)
+    emit_research_use_notice()
 
     # Optional: print resolved configuration to stderr for debugging.
     import click as _click
@@ -581,14 +587,6 @@ def process_text_for_hpo_command(
     # commandline overrides on top), so a None at this point means no flag,
     # no profile entry, and no YAML supplied a value.
     num_results = num_results if num_results is not None else DEFAULT_TOP_K
-    # The --chunk-confidence option is a long-standing CLI accept-only knob:
-    # not yet wired into the orchestrator. Resolving it here with the new
-    # DEFAULT_CHUNK_CONFIDENCE keeps the constant referenced for future use
-    # (and makes the resolver visible alongside the other Plan A defaults)
-    # without producing a dead local. Tracked for follow-up wiring.
-    _resolved_chunk_confidence = (  # noqa: F841 — placeholder until wired downstream
-        chunk_confidence if chunk_confidence is not None else DEFAULT_CHUNK_CONFIDENCE
-    )
     assertion_preference = (
         assertion_preference
         if assertion_preference is not None

@@ -77,11 +77,11 @@ given; pass `--profile default` to swap to strict thresholds.
 
 ### Text Processing
 
-Process clinical text to extract HPO terms with advanced pipeline:
+Process research phenotype text to extract HPO terms with advanced pipeline:
 
 ```bash
 # Basic processing with default strategy
-phentrieve text process "Patient has arachnodactyly but no scoliosis"
+phentrieve text process "The research note mentions arachnodactyly but no scoliosis"
 
 # Process with specific chunking strategy
 phentrieve text process "..." --strategy sliding_window_punct_conj_cleaned

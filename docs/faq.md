@@ -4,15 +4,15 @@
 
 ### What is Phentrieve?
 
-Phentrieve is a comprehensive system for mapping clinical text in multiple languages to Human Phenotype Ontology (HPO) terms using a Retrieval-Augmented Generation (RAG) approach. It supports multilingual text processing, benchmarking across various embedding models, and provides flexible interfaces through a Python package, API, and web frontend.
+Phentrieve is a comprehensive research system for mapping phenotype text in multiple languages to Human Phenotype Ontology (HPO) terms using a Retrieval-Augmented Generation (RAG) approach. It supports multilingual text processing, benchmarking across various embedding models, and provides flexible interfaces through a Python package, API, and web frontend.
 
 ### What languages does Phentrieve support?
 
 Phentrieve supports multiple languages through its multilingual embedding models. The exact language coverage depends on the specific model being used. Domain-specific models like BioLORD support major languages for biomedical text, while general multilingual models like BGE-M3 support dozens of languages.
 
-### Do I need to translate my clinical text?
+### Do I need to translate my research phenotype text?
 
-No, that's the core innovation of Phentrieve! The system uses multilingual embedding models that can map clinical text in various languages directly to HPO terms without requiring translation.
+No, that's the core innovation of Phentrieve. The system uses multilingual embedding models that can map research phenotype text in various languages directly to HPO terms without requiring translation.
 
 ## Technical Questions
 
@@ -38,11 +38,11 @@ For the most accurate decision, run a benchmark on a representative sample of yo
 
 ### What is the difference between chunking strategies?
 
-Phentrieve offers different text chunking strategies for processing clinical text:
+Phentrieve offers different text chunking strategies for processing research phenotype text:
 
 - **Simple**: Basic chunking that splits text into paragraphs and then sentences. Good for well-structured notes.
 - **Semantic**: More advanced chunking that uses semantic similarity to create meaningful chunks. Good for complex sentences.
-- **Detailed**: The most fine-grained chunking that splits by punctuation and then applies semantic splitting. Best for dense clinical text.
+- **Detailed**: The most fine-grained chunking that splits by punctuation and then applies semantic splitting. Best for dense research phenotype text.
 - **Sliding Window**: Most configurable strategy with parameters for window size, step size, etc. Good when you need precise control.
 
 Choose based on your text structure and specific needs.

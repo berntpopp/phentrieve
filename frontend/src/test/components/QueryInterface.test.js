@@ -71,6 +71,11 @@ async function mountQueryInterface({
   });
 }
 
+async function setVmState(wrapper, patch) {
+  Object.assign(wrapper.vm, patch);
+  await wrapper.vm.$nextTick();
+}
+
 describe('QueryInterface (characterization)', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
@@ -131,14 +136,14 @@ describe('QueryInterface (characterization)', () => {
     const queryModeLabel = 'Phenotype query';
     const documentModeLabel = 'Clinical note';
 
-    await wrapper.setData({ forceEndpointMode: 'query' });
+    await setVmState(wrapper, { forceEndpointMode: 'query' });
 
     expect(wrapper.findComponent({ name: 'VTextField' }).exists()).toBe(true);
     expect(wrapper.findComponent({ name: 'VTextarea' }).exists()).toBe(false);
     expect(wrapper.text()).toContain(queryModeLabel);
     expect(wrapper.text()).not.toContain(documentModeLabel);
 
-    await wrapper.setData({ forceEndpointMode: 'textProcess' });
+    await setVmState(wrapper, { forceEndpointMode: 'textProcess' });
 
     expect(wrapper.findComponent({ name: 'VTextField' }).exists()).toBe(false);
     expect(wrapper.findComponent({ name: 'VTextarea' }).exists()).toBe(true);
@@ -196,7 +201,7 @@ describe('QueryInterface (characterization)', () => {
   it('switches back to query mode from the visible search-shell pill', async () => {
     const wrapper = await mountQueryInterface();
 
-    await wrapper.setData({ forceEndpointMode: 'textProcess' });
+    await setVmState(wrapper, { forceEndpointMode: 'textProcess' });
     await wrapper.find('[data-testid="mode-pill-query"]').trigger('click');
 
     expect(wrapper.vm.forceEndpointMode).toBe('query');
@@ -209,7 +214,7 @@ describe('QueryInterface (characterization)', () => {
 
     expect(wrapper.vm.forceEndpointMode).toBe(null);
 
-    await wrapper.setData({
+    await setVmState(wrapper, {
       queryText:
         'This is a deliberately long clinical note text that should cross the query threshold and trigger an automatic switch into full-text mode for document review.',
     });
@@ -221,7 +226,7 @@ describe('QueryInterface (characterization)', () => {
   it('does not auto-switch to full-text mode for short query text', async () => {
     const wrapper = await mountQueryInterface();
 
-    await wrapper.setData({
+    await setVmState(wrapper, {
       queryText: 'short syndrome query',
     });
 
@@ -317,7 +322,7 @@ describe('QueryInterface (characterization)', () => {
     const wrapper = await mountQueryInterface();
     await flushPromises();
 
-    await wrapper.setData({
+    await setVmState(wrapper, {
       queryText: 'short syndrome query',
       forceEndpointMode: 'query',
       selectedLanguage: 'de',
@@ -344,7 +349,7 @@ describe('QueryInterface (characterization)', () => {
     const wrapper = await mountQueryInterface();
     await flushPromises();
 
-    await wrapper.setData({
+    await setVmState(wrapper, {
       queryText: 'Patient had recurrent seizures.',
       forceEndpointMode: 'textProcess',
       selectedLanguage: 'en',
@@ -389,7 +394,7 @@ describe('QueryInterface (characterization)', () => {
     });
     await flushPromises();
 
-    await wrapper.setData({
+    await setVmState(wrapper, {
       queryText: 'short syndrome query',
       forceEndpointMode: 'query',
       selectedModel: 'test-model',
@@ -410,7 +415,7 @@ describe('QueryInterface (characterization)', () => {
     const wrapper = await mountQueryInterface();
     const workspaceStore = useFullTextWorkspaceStore();
 
-    await wrapper.setData({
+    await setVmState(wrapper, {
       queryText: 'Patient had recurrent seizures.',
       forceEndpointMode: 'textProcess',
     });
@@ -426,7 +431,7 @@ describe('QueryInterface (characterization)', () => {
   it('expands the submitted clinical note by default for new text-processing turns', async () => {
     const wrapper = await mountQueryInterface();
 
-    await wrapper.setData({
+    await setVmState(wrapper, {
       queryText: 'Patient had recurrent seizures.',
       forceEndpointMode: 'textProcess',
     });

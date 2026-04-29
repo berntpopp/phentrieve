@@ -294,7 +294,7 @@ def interactive_text_mode(
 ) -> None:
     """Interactive text processing mode for HPO term extraction.
 
-    This command enables an interactive session where you can enter clinical text
+    This command enables an interactive session where you can enter research phenotype text
     and see the chunking, annotations, and HPO term matches displayed with rich
     formatting. Each chunk is highlighted with its annotations shown in a box
     below the chunk text.
@@ -345,7 +345,7 @@ def interactive_text_mode(
     console.print(
         Panel.fit(
             "[bold cyan]Phentrieve Interactive Text Analysis[/bold cyan]\n\n"
-            "Enter clinical text to analyze for HPO terms.\n"
+            "Enter research phenotype text to analyze for HPO terms.\n"
             "Each chunk will be displayed with its HPO annotations.\n\n"
             "[dim]Commands:[/dim]\n"
             "  • Type your text and press Enter to analyze\n"

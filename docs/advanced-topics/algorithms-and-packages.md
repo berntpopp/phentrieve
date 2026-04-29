@@ -4,7 +4,7 @@ This document provides a comprehensive reference of the algorithms, packages, me
 
 ## Overview
 
-Phentrieve implements a multi-stage pipeline combining natural language processing, vector embeddings, and information retrieval to map clinical text to HPO terms. This reference documents the technical implementation details.
+Phentrieve implements a multi-stage pipeline combining natural language processing, vector embeddings, and information retrieval to map research phenotype text to HPO terms. This reference documents the technical implementation details.
 
 ## Core Algorithms
 

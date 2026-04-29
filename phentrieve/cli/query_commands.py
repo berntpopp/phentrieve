@@ -10,6 +10,7 @@ from typing import Annotated, Any
 import typer
 
 from phentrieve.cli._profile import apply_profile_callback
+from phentrieve.cli.utils import emit_research_use_notice
 from phentrieve.config import (
     DEFAULT_AGGREGATION_STRATEGY,
     DEFAULT_MODEL,
@@ -248,10 +249,10 @@ def query_hpo(
         ),
     ] = None,
 ):
-    """Query HPO terms with natural language clinical descriptions.
+    """Query HPO terms with natural language research phenotype descriptions.
 
-    This command allows querying the HPO term index with clinical text descriptions
-    to find matching HPO terms. It supports various embedding models.
+    This command allows querying the HPO term index with research phenotype text
+    descriptions to find matching HPO terms. It supports various embedding models.
 
     Results can be printed to the console or saved to a file in various formats:
     - text: Human-readable text output (default)
@@ -263,6 +264,7 @@ def query_hpo(
 
     # Set up logging
     setup_logging_cli(debug=debug)
+    emit_research_use_notice()
 
     # Optional: print resolved configuration to stderr for debugging.
     import click as _click
@@ -309,7 +311,7 @@ def query_hpo(
     if interactive:
         # Display welcome message for interactive mode
         typer.echo("\n===== Phentrieve HPO RAG Query Tool =====")
-        typer.echo("Enter clinical descriptions to find matching HPO terms.")
+        typer.echo("Enter research text to find matching HPO terms.")
         typer.echo("Type 'exit', 'quit', or 'q' to exit the program.\n")
 
         # Initialize the retriever once for all queries
@@ -460,7 +462,7 @@ def query_hpo(
             )
             raise typer.Exit(code=1)
 
-        typer.echo(f"Querying for HPO terms with text: '{text}'")
+        typer.echo(f"Querying for HPO terms with input length: {len(text)} characters")
 
         # Call the orchestrator for a single query
         all_query_results = orchestrate_query(

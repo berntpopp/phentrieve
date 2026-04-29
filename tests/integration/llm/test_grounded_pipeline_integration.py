@@ -1,11 +1,12 @@
 import pytest
 
 import phentrieve.llm.pipeline as pipeline_module
-from phentrieve.llm.pipeline import TwoPhaseLLMPipeline
 from phentrieve.llm.provider import LLMProvider
 from phentrieve.llm.types import LLMExtractionResult, LLMPipelineConfig, LLMResponse
 
 pytestmark = pytest.mark.integration
+
+TwoPhaseLLMPipeline = pipeline_module.TwoPhaseLLMPipeline
 
 
 class FakeProvider(LLMProvider):

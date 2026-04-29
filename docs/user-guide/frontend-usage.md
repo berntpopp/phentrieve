@@ -16,7 +16,7 @@ phentrieve text process --extraction-backend llm note.txt
 
 1. Start the API with your LLM environment configured.
 2. Open the frontend at `http://localhost:5734`.
-3. Paste clinical text into the main input.
+3. Paste research phenotype text into the main input.
 4. Open Advanced Options.
 5. Select the `llm` extraction backend.
 6. The shared default model is `gemini-3.1-flash-lite-preview`; override it only for targeted experiments.

@@ -15,7 +15,9 @@ from phentrieve.config import (
 
 class QueryRequest(BaseModel):
     text: str = Field(
-        ..., min_length=1, description="Clinical text to query for HPO terms."
+        ...,
+        min_length=1,
+        description="Research phenotype text to query for HPO terms.",
     )
     model_name: str | None = Field(
         None,

@@ -1,6 +1,6 @@
 # Multilingual Embeddings
 
-Multilingual embedding models are at the core of Phentrieve's ability to map clinical text in different languages to HPO terms without requiring translation.
+Multilingual embedding models are at the core of Phentrieve's ability to map research phenotype text in different languages to HPO terms without requiring translation.
 
 ## How Multilingual Embeddings Work
 
@@ -9,7 +9,7 @@ Multilingual embedding models are trained on text from multiple languages simult
 For example, the words "headache" (English), "Kopfschmerzen" (German), and "céphalée" (French) all refer to the same medical concept. A well-trained multilingual model will place these terms close together in the embedding space despite their different languages.
 
 This property enables Phentrieve to:
-1. Embed clinical text in any supported language
+1. Embed research phenotype text in any supported language
 2. Embed HPO terms (primarily in English)
 3. Find matches based on semantic similarity in the shared embedding space
 
@@ -23,7 +23,7 @@ Phentrieve supports several multilingual embedding models, each with different s
 
 ### Language-Specific Models
 
-- **jinaai/jina-embeddings-v2-base-de**: Optimized for German language understanding, this model performs well for German clinical text but lacks the cross-lingual capabilities of other models.
+- **jinaai/jina-embeddings-v2-base-de**: Optimized for German language understanding, this model performs well for German phenotype text but lacks the cross-lingual capabilities of other models.
 
 ### General Multilingual Models
 

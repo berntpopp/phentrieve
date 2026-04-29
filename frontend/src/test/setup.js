@@ -11,7 +11,8 @@ global.IntersectionObserver = class IntersectionObserver {
 };
 
 global.ResizeObserver = class ResizeObserver {
-  constructor() {
+  constructor(callback) {
+    this.callback = callback;
     this.observe = vi.fn();
     this.unobserve = vi.fn();
     this.disconnect = vi.fn();

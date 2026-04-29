@@ -1,6 +1,6 @@
 # Text Processing Guide
 
-Phentrieve includes robust text processing capabilities for extracting HPO terms from clinical text. This guide explains how to use these features and customize the text processing pipeline.
+Phentrieve includes robust text processing capabilities for extracting HPO terms from research phenotype text. This guide explains how to use these features and customize the text processing pipeline.
 
 ## Text Processing Overview
 

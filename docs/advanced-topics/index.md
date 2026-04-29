@@ -8,7 +8,7 @@ Phentrieve leverages state-of-the-art algorithms from machine learning, NLP, and
 
 ## Text Processing Pipeline
 
-Phentrieve's text processing pipeline is highly configurable and can be adapted to different clinical text formats and languages. The [Text Processing Pipeline](text-processing-pipeline.md) page explains the internal architecture and customization options.
+Phentrieve's text processing pipeline is highly configurable and can be adapted to different research phenotype text formats and languages. The [Text Processing Pipeline](text-processing-pipeline.md) page explains the internal architecture and customization options.
 
 ## Benchmarking Framework
 

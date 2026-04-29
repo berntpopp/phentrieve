@@ -153,6 +153,7 @@
       "llmModes": {
         "twoPhase": "Extractie in twee fasen"
       },
+      "llmDisclosure": "LLM-extractie kan ingediende tekst verwerken met een externe AI-aanbieder die door de servicebeheerder is geconfigureerd. Gebruik alleen onderzoekstekst; dien geen direct identificerende informatie in.",
       "chunkingStrategy": "Opdelingsstrategie",
       "windowSize": "Venstergrootte (tokens)",
       "stepSize": "Stapgrootte",

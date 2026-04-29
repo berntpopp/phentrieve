@@ -18,11 +18,11 @@ Phentrieve provides several key functionalities:
 
 ### HPO Term Retrieval
 
-Map clinical text to relevant HPO terms using multilingual embedding models. This works across languages without requiring translation.
+Map research phenotype text to relevant HPO terms using multilingual embedding models. This works across languages without requiring translation.
 
 ### Text Processing
 
-Process clinical text with advanced features:
+Process research phenotype text with advanced features:
 - Semantic chunking
 - Assertion detection (negated, normal, uncertain)
 - Evidence aggregation
@@ -41,8 +41,8 @@ Calculate semantic similarity between HPO terms using the ontology graph structu
 This User Guide section contains the following pages:
 
 - [CLI Usage](cli-usage.md): Detailed guide on using the Phentrieve command-line interface
-- [Text Processing Guide](text-processing-guide.md): How to process clinical text to extract HPO terms
-- [Adaptive Re-Chunking](adaptive-rechunking.md): Opt-in retrieval-quality-driven sub-chunking for multi-concept clinical sentences
+- [Text Processing Guide](text-processing-guide.md): How to process research phenotype text to extract HPO terms
+- [Adaptive Re-Chunking](adaptive-rechunking.md): Opt-in retrieval-quality-driven sub-chunking for multi-concept phenotype sentences
 - [Benchmarking Guide](benchmarking-guide.md): Running and interpreting benchmarks
 - [Configuration Profiles](configuration-profiles.md): Configuring Phentrieve for different use cases
 - [API Usage](api-usage.md): Using the Phentrieve API

@@ -82,7 +82,7 @@ class _LazyRootGroup(TyperGroup):
             "text",
             _LazyTyperProxy(
                 import_path="phentrieve.cli.text_commands:app",
-                help_text="Process and analyze clinical text.",
+                help_text="Process and analyze research phenotype text.",
             ),
         ),
         (
@@ -220,7 +220,9 @@ def main_callback(
 # Register command groups
 app.add_typer(typer.Typer(), name="data", help="Manage HPO data.")
 app.add_typer(index_commands.app, name="index", help="Manage vector indexes.")
-app.add_typer(typer.Typer(), name="text", help="Process and analyze clinical text.")
+app.add_typer(
+    typer.Typer(), name="text", help="Process and analyze research phenotype text."
+)
 app.add_typer(
     benchmark_commands.app, name="benchmark", help="Run and manage benchmarks."
 )
