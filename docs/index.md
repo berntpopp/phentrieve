@@ -17,7 +17,7 @@ Phentrieve is a comprehensive research system for mapping phenotype descriptions
 
 In rare disease research and phenotype curation, identifying phenotypic abnormalities in text descriptions is a common step. Traditional approaches often require translation when descriptions are in languages other than English, which can introduce inaccuracies.
 
-Phentrieve implements a novel approach using **multilingual embedding models** that map semantically similar concepts from different languages to nearby points in the embedding space. This allows direct matching between non-English clinical descriptions and English-based HPO terminology.
+Phentrieve implements a novel approach using **multilingual embedding models** that map semantically similar concepts from different languages to nearby points in the embedding space. This allows direct matching between non-English phenotype descriptions and English-based HPO terminology.
 
 ## Dive Deeper
 

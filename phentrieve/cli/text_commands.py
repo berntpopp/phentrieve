@@ -226,7 +226,7 @@ def interactive(
 ) -> None:
     """Interactive text processing mode for HPO term extraction.
 
-    This command enables an interactive session where you can enter clinical text
+    This command enables an interactive session where you can enter research phenotype text
     and see the chunking, annotations, and HPO term matches displayed with rich
     formatting. Each chunk is highlighted with its annotations shown in a box
     below the chunk text.
@@ -270,7 +270,7 @@ def main_callback(
         ),
     ] = False,
 ):
-    """Text processing commands for clinical text analysis."""
+    """Text processing commands for research phenotype text analysis."""
     if ctx.invoked_subcommand is None:
         if interactive:
             # Call interactive mode directly
@@ -546,11 +546,11 @@ def process_text_for_hpo_command(
         ),
     ] = None,
 ) -> None:
-    """Process clinical text to extract HPO terms.
+    """Process research phenotype text to extract HPO terms.
 
-    This command processes clinical texts through a chunking pipeline and assertion
-    detection, then extracts HPO terms from each chunk. Results are aggregated to provide
-    a comprehensive set of terms with evidence.
+    This command processes research phenotype texts through a chunking pipeline and
+    assertion detection, then extracts HPO terms from each chunk. Results are
+    aggregated to provide a comprehensive set of terms with evidence.
 
     Example usage:
     - Process direct text input: phentrieve text process "Patient has severe headaches"

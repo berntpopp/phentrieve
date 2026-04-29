@@ -488,7 +488,7 @@ def _adapt_shared_service_response_to_api(
     "/process",
     response_model=TextProcessingResponseAPI,
     operation_id="process_clinical_text",
-    summary="Process clinical text to extract HPO terms",
+    summary="Process research phenotype text to extract HPO terms",
     description=(
         f"{RESEARCH_USE_LIMITATION} Process text with chunking, assertion "
         "detection, and HPO term extraction. When LLM extraction is selected "
@@ -535,10 +535,10 @@ async def process_text_extract_hpo(
     request: TextProcessingRequest,
 ):
     """
-    Process clinical text to extract Human Phenotype Ontology (HPO) terms.
+    Process research phenotype text to extract Human Phenotype Ontology (HPO) terms.
 
     This endpoint replicates the functionality of the `phentrieve text process` CLI command,
-    accepting raw clinical text input along with various processing configurations.
+    accepting raw research phenotype text input along with various processing configurations.
     It returns processed text chunks with assertion statuses and aggregated HPO terms.
 
     Heavy NLP operations are executed asynchronously to prevent blocking the API server.

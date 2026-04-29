@@ -259,22 +259,22 @@ def create_app() -> FastAPI:
             "description": "API for Human Phenotype Ontology (HPO) term retrieval and semantic similarity calculation",
             "endpoints": {
                 "HPO Term Query": {
-                    "description": "Query HPO terms based on clinical text",
+                    "description": "Query HPO terms based on research phenotype text",
                     "endpoints": [
                         {
                             "path": "/api/v1/query/",
                             "methods": ["GET", "POST"],
-                            "description": "Retrieve relevant HPO terms for clinical text",
+                            "description": "Retrieve relevant HPO terms for research phenotype text",
                         }
                     ],
                 },
                 "Text Processing": {
-                    "description": "Process clinical text to extract HPO terms with advanced configuration",
+                    "description": "Process research phenotype text to extract HPO terms with advanced configuration",
                     "endpoints": [
                         {
                             "path": "/api/v1/text/process",
                             "methods": ["POST"],
-                            "description": "Process raw clinical text with customizable chunking and assertion detection settings",
+                            "description": "Process raw research phenotype text with customizable chunking and assertion detection settings",
                         }
                     ],
                 },

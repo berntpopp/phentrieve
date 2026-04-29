@@ -182,9 +182,9 @@
     },
     "accessibility": {
       "textProcessInputLabel": "Clinical document input for text processing",
-      "textProcessInputDescription": "Enter longer clinical text for document processing.",
+      "textProcessInputDescription": "Enter longer research phenotype text for document processing.",
       "queryInputLabel": "Clinical text input field",
-      "queryInputDescription": "Enter clinical text to search for HPO terms.",
+      "queryInputDescription": "Enter research phenotype text to search for HPO terms.",
       "processingInProgress": "Processing in progress.",
       "searchInProgress": "Search in progress.",
       "openAdvancedOptions": "Open advanced options",
@@ -328,7 +328,7 @@
   "tutorial": {
     "step1": {
       "title": "Welcome to Phentrieve",
-      "content": "This is your starting point for mapping clinical text to HPO terms. Let's take a quick tour of the main features!"
+      "content": "This is your starting point for mapping research phenotype text to HPO terms. Let's take a quick tour of the main features!"
     },
     "step2": {
       "title": "Enter Clinical Text",
@@ -383,7 +383,7 @@
           },
           "howItWorks": {
             "question": "How does Phentrieve work?",
-            "answer": "<p>Phentrieve uses a sophisticated pipeline of AI models and algorithms to process clinical text:</p><ol><li><strong>Text Analysis:</strong> The system analyzes the input text using specialized biomedical language models</li><li><strong>Term Matching:</strong> It identifies potential HPO terms using semantic search and context-aware matching</li><li><strong>Ranking:</strong> The matches are ranked by relevance</li><li><strong>Results:</strong> The most relevant HPO terms are presented to the user</li></ol><p>This process ensures high-quality matches while maintaining efficiency.</p>"
+            "answer": "<p>Phentrieve uses a sophisticated pipeline of AI models and algorithms to process research phenotype text:</p><ol><li><strong>Text Analysis:</strong> The system analyzes the input text using specialized biomedical language models</li><li><strong>Term Matching:</strong> It identifies potential HPO terms using semantic search and context-aware matching</li><li><strong>Ranking:</strong> The matches are ranked by relevance</li><li><strong>Results:</strong> The most relevant HPO terms are presented to the user</li></ol><p>This process ensures high-quality matches while maintaining efficiency.</p>"
           },
           "whoCanUse": {
             "question": "Who can use Phentrieve?",
@@ -400,7 +400,7 @@
           },
           "similarityScore": {
             "question": "What do the similarity scores mean?",
-            "answer": "<p>Phentrieve uses cosine similarity to measure how closely your clinical text matches HPO terms. Scores range from 0.0 (no similarity) to 1.0 (perfect match).</p><h4>Score Ranges</h4><ul><li><strong>0.90 - 1.00:</strong> Excellent match - highly relevant</li><li><strong>0.75 - 0.89:</strong> High match - very relevant</li><li><strong>0.60 - 0.74:</strong> Moderate match - potentially relevant</li><li><strong>0.40 - 0.59:</strong> Low match - loosely related</li><li><strong>0.00 - 0.39:</strong> Poor match - not recommended</li></ul><h4>Technical Details</h4><p>Scores are calculated using cosine similarity between embedding vectors. A score of 1.0 indicates identical semantic meaning, while 0.0 indicates no similarity.</p><p><strong>Note:</strong> These scores represent semantic similarity in vector space, not clinical certainty. Always review results with clinical expertise.</p>"
+            "answer": "<p>Phentrieve uses cosine similarity to measure how closely your research phenotype text matches HPO terms. Scores range from 0.0 (no similarity) to 1.0 (perfect match).</p><h4>Score Ranges</h4><ul><li><strong>0.90 - 1.00:</strong> Excellent match - highly relevant</li><li><strong>0.75 - 0.89:</strong> High match - very relevant</li><li><strong>0.60 - 0.74:</strong> Moderate match - potentially relevant</li><li><strong>0.40 - 0.59:</strong> Low match - loosely related</li><li><strong>0.00 - 0.39:</strong> Poor match - not recommended</li></ul><h4>Technical Details</h4><p>Scores are calculated using cosine similarity between embedding vectors. A score of 1.0 indicates identical semantic meaning, while 0.0 indicates no similarity.</p><p><strong>Note:</strong> These scores represent semantic similarity in vector space, not clinical certainty.</p>"
           }
         }
       }

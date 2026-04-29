@@ -6,7 +6,7 @@ This directory contains the FastAPI implementation for the Phentrieve project, p
 
 The Phentrieve API provides a set of endpoints to interact with the Human Phenotype Ontology (HPO) data for:
 
-- Querying clinical text to retrieve relevant HPO terms
+- Querying research phenotype text to retrieve relevant HPO terms
 - Calculating semantic similarity between HPO terms
 - Retrieving configuration and model information
 - Health check endpoint for monitoring

@@ -4,7 +4,7 @@ Phentrieve includes a comprehensive benchmarking framework for evaluating and co
 
 ## Overview
 
-The benchmarking framework tests how well different models map clinical text to the correct HPO terms. It uses a set of test cases with ground truth HPO terms and measures various metrics to evaluate performance.
+The benchmarking framework tests how well different models map research phenotype text to the correct HPO terms. It uses a set of test cases with ground truth HPO terms and measures various metrics to evaluate performance.
 
 ## Running Benchmarks
 
@@ -159,7 +159,7 @@ class CustomMetric(BaseMetric):
 
 ## Extraction Benchmarking
 
-The extraction benchmark evaluates document-level HPO extraction from clinical text against gold-standard annotations.
+The extraction benchmark evaluates document-level HPO extraction from research phenotype text against gold-standard annotations.
 
 ### Overview
 

@@ -249,10 +249,10 @@ def query_hpo(
         ),
     ] = None,
 ):
-    """Query HPO terms with natural language clinical descriptions.
+    """Query HPO terms with natural language research phenotype descriptions.
 
-    This command allows querying the HPO term index with clinical text descriptions
-    to find matching HPO terms. It supports various embedding models.
+    This command allows querying the HPO term index with research phenotype text
+    descriptions to find matching HPO terms. It supports various embedding models.
 
     Results can be printed to the console or saved to a file in various formats:
     - text: Human-readable text output (default)
