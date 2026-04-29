@@ -27,6 +27,12 @@ execution context.
 - Read `specs/` before implementing multi-step work.
 - Use `completed/` for historical implementation patterns.
 
+## Recent Analysis
+
+- `analysis/2026-04-29-eu-ai-act-research-use-review.md` - EU AI Act
+  research-use posture review for Phentrieve documentation, UI, API, deployment,
+  and open-source/public-service positioning.
+
 ## Current Active Work
 
 - `active/2026-04-17-ontology-embedding-fidelity-implementation-plan.md` -
@@ -34,6 +40,9 @@ execution context.
   (issue #34). Branch `feat/ontology-embedding-fidelity` (worktree).
 - `specs/2026-04-17-ontology-embedding-fidelity-design.md` - canonical design
   input for the ontology-embedding fidelity work above.
+- `active/2026-04-29-eu-ai-act-research-use-compliance-plan.md` -
+  implementation plan for aligning Phentrieve's docs, UI, API, CLI, MCP,
+  deployment defaults, and tests with a research-use-only EU AI Act posture.
 
 ## Migration Note
 
