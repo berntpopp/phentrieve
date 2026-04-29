@@ -100,13 +100,10 @@ def load_hpo_bundle(
         raise FileNotFoundError(
             f"HPO database not found: {db_path}. Run 'phentrieve data prepare' first."
         )
-    db = HPODatabase(db_path)
-    try:
+    with HPODatabase(db_path) as db:
         terms = db.load_all_terms()
         ancestors, depths = db.load_graph_data()
         hpo_version = db.get_metadata("hpo_version")
-    finally:
-        db.close()
     logger.info(
         "HPO DB loaded: %d terms, version=%s, path=%s",
         len(terms),

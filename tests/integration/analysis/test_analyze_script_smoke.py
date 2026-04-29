@@ -58,11 +58,8 @@ def test_analyze_script_smoke(tmp_path, monkeypatch):
     if not db_path.exists():
         pytest.skip(f"HPO SQLite DB not present at {db_path}")
 
-    db = HPODatabase(db_path)
-    try:
+    with HPODatabase(db_path) as db:
         all_terms = db.load_all_terms()
-    finally:
-        db.close()
     # Use all terms so the divergence check passes; --sample 150 limits computation.
     term_ids = [t["id"] for t in all_terms]
 

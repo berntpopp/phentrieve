@@ -237,8 +237,10 @@ def global_distance_correlation(
     rho_rk, _ = spearmanr(cosine, -resnik)
 
     return {
-        "spearman_shortest_path": float(rho_sp) if rho_sp == rho_sp else float("nan"),
-        "spearman_resnik": float(rho_rk) if rho_rk == rho_rk else float("nan"),
+        "spearman_shortest_path": float(rho_sp)
+        if not math.isnan(rho_sp)
+        else float("nan"),
+        "spearman_resnik": float(rho_rk) if not math.isnan(rho_rk) else float("nan"),
         "n_pairs": int(len(pairs)),
     }
 
@@ -342,7 +344,7 @@ def depth_correlation(
     dists = np.linalg.norm(embeddings - centroid, axis=1)
     depth_arr = np.array([depths[tid] for tid in term_ids], dtype=np.float64)
     rho, _ = spearmanr(depth_arr, dists)
-    return float(rho) if rho == rho else float("nan")
+    return float(rho) if not math.isnan(rho) else float("nan")
 
 
 def per_term_fidelity(
