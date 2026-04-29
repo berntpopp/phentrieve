@@ -98,6 +98,7 @@ class TestExecuteHpoRetrievalForApi:
             num_results=5,
             similarity_threshold=0.5,
             detect_query_assertion=False,
+            multi_vector=False,
         )
 
         # Assert
@@ -132,12 +133,33 @@ class TestExecuteHpoRetrievalForApi:
             num_results=5,
             similarity_threshold=0.5,
             detect_query_assertion=False,
+            multi_vector=False,
         )
 
         # Assert
         assert result["query_text_processed"] == query_text.strip()
         assert "No HPO terms found" in result["header"]
         assert result["results"] == []
+
+    @pytest.mark.asyncio
+    async def test_multi_vector_request_rejects_single_vector_index(self, mocker):
+        """A requested multi-vector query must not silently downgrade."""
+        mock_retriever = mocker.Mock()
+        mock_retriever.detect_index_type.return_value = "single_vector"
+
+        with pytest.raises(RuntimeError, match="Multi-vector mode requested"):
+            await execute_hpo_retrieval_for_api(
+                text="Patient has fever",
+                language="en",
+                retriever=mock_retriever,
+                num_results=5,
+                similarity_threshold=0.5,
+                detect_query_assertion=False,
+                multi_vector=True,
+            )
+
+        mock_retriever.query.assert_not_called()
+        mock_retriever.query_multi_vector.assert_not_called()
 
     @pytest.mark.asyncio
     async def test_similarity_threshold_filtering(self, mocker):
@@ -167,6 +189,7 @@ class TestExecuteHpoRetrievalForApi:
             num_results=5,
             similarity_threshold=0.5,
             detect_query_assertion=False,
+            multi_vector=False,
         )
 
         # Assert - only Fever should be included
@@ -199,6 +222,7 @@ class TestExecuteHpoRetrievalForApi:
             num_results=3,
             similarity_threshold=0.5,
             detect_query_assertion=False,
+            multi_vector=False,
         )
 
         # Assert - should only return 3 results
@@ -241,6 +265,7 @@ class TestExecuteHpoRetrievalForApi:
             detect_query_assertion=True,
             query_assertion_language="en",
             query_assertion_preference="dependency",
+            multi_vector=False,
         )
 
         # Assert
@@ -276,6 +301,7 @@ class TestExecuteHpoRetrievalForApi:
             num_results=5,
             similarity_threshold=0.5,
             detect_query_assertion=False,  # Disabled
+            multi_vector=False,
         )
 
         # Assert
@@ -316,13 +342,19 @@ class TestExecuteHpoRetrievalForApi:
             num_results=5,
             similarity_threshold=0.5,
             detect_query_assertion=True,
+            multi_vector=False,
         )
 
         # Assert - should continue with None assertion status
         assert result["original_query_assertion_status"] is None
         # Should log warning
         mock_logger.warning.assert_called()
-        assert "Error in assertion detection" in mock_logger.warning.call_args[0][0]
+        warning_messages = [
+            call_args.args[0] for call_args in mock_logger.warning.call_args_list
+        ]
+        assert any(
+            "Error in assertion detection" in message for message in warning_messages
+        )
 
     @pytest.mark.asyncio
     async def test_debug_logging_enabled(self, mocker):
@@ -348,6 +380,7 @@ class TestExecuteHpoRetrievalForApi:
             similarity_threshold=0.5,
             detect_query_assertion=False,
             debug=True,  # Debug enabled
+            multi_vector=False,
         )
 
         # Assert

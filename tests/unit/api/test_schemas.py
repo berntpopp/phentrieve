@@ -21,6 +21,11 @@ from api.schemas.query_schemas import HPOResultItem, QueryRequest, QueryResponse
 from api.schemas.text_processing_schemas import (
     TextProcessingRequest,
 )
+from phentrieve.config import (
+    DEFAULT_ASSERTION_PREFERENCE,
+    DEFAULT_NUM_RESULTS,
+    MIN_SIMILARITY_THRESHOLD,
+)
 
 pytestmark = pytest.mark.unit
 
@@ -42,9 +47,10 @@ class TestQueryRequest:
         assert req.text == "patient has seizures"
         assert req.model_name is None  # Optional
         assert req.language is None  # Optional
-        assert req.num_results == 10  # Default
-        assert req.similarity_threshold == 0.3  # Default
+        assert req.num_results == DEFAULT_NUM_RESULTS
+        assert req.similarity_threshold == MIN_SIMILARITY_THRESHOLD
         assert req.detect_query_assertion is True  # Default
+        assert req.query_assertion_preference == DEFAULT_ASSERTION_PREFERENCE
 
     def test_full_request_with_all_fields(self):
         """Test request with all optional fields specified."""
@@ -278,6 +284,23 @@ class TestTextProcessingRequest:
         assert request.text_content == "Patient had recurrent seizures."
         assert request.extraction_backend == "llm"
         assert request.llm_mode == "two_phase"
+
+    def test_text_processing_request_accepts_llm_provider_fields(self) -> None:
+        request = TextProcessingRequest(
+            text="Patient has seizures.",
+            extraction_backend="llm",
+            llm_model="openai/gpt-5.4-mini",
+            llm_provider="openai",
+            llm_base_url="https://api.openai.com/v1",
+            llm_mode="two_phase",
+            llm_internal_mode="whole_document_grounded",
+            allow_standard_fallback=True,
+        )
+
+        assert request.llm_provider == "openai"
+        assert request.llm_base_url == "https://api.openai.com/v1"
+        assert request.llm_internal_mode == "whole_document_grounded"
+        assert request.allow_standard_fallback is True
 
     def test_text_processing_request_accepts_text_content_extraction_backend_alias(
         self,

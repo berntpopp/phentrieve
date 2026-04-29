@@ -62,6 +62,52 @@ def test_text_processing_router_returns_llm_meta(client, monkeypatch):
     assert response.json()["meta"]["extraction_backend"] == "llm"
 
 
+@pytest.mark.asyncio
+async def test_llm_request_forwards_provider_fields(monkeypatch) -> None:
+    from api.routers import text_processing_router
+    from api.schemas.text_processing_schemas import TextProcessingRequest
+
+    captured: dict[str, object] = {}
+
+    def fake_run_full_text_service(**kwargs):
+        captured.update(kwargs)
+        return {
+            "meta": {"extraction_backend": "llm"},
+            "processed_chunks": [],
+            "aggregated_hpo_terms": [],
+        }
+
+    async def fake_run_in_threadpool(func, **kwargs):
+        return func(**kwargs)
+
+    monkeypatch.setattr(
+        text_processing_router,
+        "run_full_text_service",
+        fake_run_full_text_service,
+    )
+    monkeypatch.setattr(
+        text_processing_router,
+        "run_in_threadpool",
+        fake_run_in_threadpool,
+    )
+
+    request = TextProcessingRequest(
+        text="Patient has seizures.",
+        extraction_backend="llm",
+        llm_provider="openai",
+        llm_model="openai/gpt-5.4-mini",
+        llm_base_url="https://api.openai.com/v1",
+        llm_internal_mode="whole_document_grounded",
+    )
+
+    await text_processing_router._process_text_via_shared_service(request)
+
+    assert captured["llm_provider"] == "openai"
+    assert captured["llm_model"] == "openai/gpt-5.4-mini"
+    assert captured["llm_base_url"] == "https://api.openai.com/v1"
+    assert captured["llm_internal_mode"] == "whole_document_grounded"
+
+
 def test_text_processing_router_returns_localizable_quota_metadata(
     tmp_path, monkeypatch
 ):

@@ -12,9 +12,12 @@ from api.research_use import (
 from api.schemas.query_schemas import QueryRequest, QueryResponse
 from phentrieve.config import (
     DEFAULT_AGGREGATION_STRATEGY,
+    DEFAULT_ASSERTION_PREFERENCE,
     DEFAULT_LANGUAGE,
     DEFAULT_MODEL,
     DEFAULT_MULTI_VECTOR,
+    DEFAULT_NUM_RESULTS,
+    MIN_SIMILARITY_THRESHOLD,
 )
 from phentrieve.retrieval.api_helpers import execute_hpo_retrieval_for_api
 from phentrieve.retrieval.dense_retriever import DenseRetriever
@@ -102,12 +105,12 @@ async def run_hpo_query_get(
     text: str,
     model_name: str | None = DEFAULT_MODEL,
     language: str | None = None,  # Will auto-detect if not provided
-    num_results: int = 10,
-    similarity_threshold: float = 0.3,
+    num_results: int = DEFAULT_NUM_RESULTS,
+    similarity_threshold: float = MIN_SIMILARITY_THRESHOLD,
     include_details: bool = False,
     detect_query_assertion: bool = True,
     query_assertion_language: str | None = None,
-    query_assertion_preference: str = "dependency",
+    query_assertion_preference: str = DEFAULT_ASSERTION_PREFERENCE,
     retriever: DenseRetriever = Depends(
         lambda model=DEFAULT_MODEL: get_retriever_for_get_params(model)
     ),
@@ -131,7 +134,18 @@ async def run_hpo_query_get(
         include_details=include_details,
         # Multi-vector params (use configured default)
         multi_vector=DEFAULT_MULTI_VECTOR,
-        aggregation_strategy="label_synonyms_max",
+        aggregation_strategy=cast(
+            Literal[
+                "label_only",
+                "label_synonyms_min",
+                "label_synonyms_max",
+                "all_weighted",
+                "all_max",
+                "all_min",
+                "custom",
+            ],
+            DEFAULT_AGGREGATION_STRATEGY,
+        ),
         component_weights=None,
         custom_formula=None,
         # Assertion detection

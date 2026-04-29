@@ -1,8 +1,14 @@
-from typing import Literal
+from typing import Literal, cast
 
 from pydantic import BaseModel, Field, model_validator
 
-from phentrieve.config import DEFAULT_MULTI_VECTOR
+from phentrieve.config import (
+    DEFAULT_AGGREGATION_STRATEGY,
+    DEFAULT_ASSERTION_PREFERENCE,
+    DEFAULT_MULTI_VECTOR,
+    DEFAULT_NUM_RESULTS,
+    MIN_SIMILARITY_THRESHOLD,
+)
 
 # For assertion status type
 
@@ -22,10 +28,13 @@ class QueryRequest(BaseModel):
         description="ISO 639-1 language code (e.g., 'en', 'de'). If None, language will be auto-detected.",
     )
     num_results: int = Field(
-        10, gt=0, le=50, description="Number of HPO terms to return."
+        DEFAULT_NUM_RESULTS,
+        gt=0,
+        le=50,
+        description="Number of HPO terms to return.",
     )
     similarity_threshold: float = Field(
-        0.3,
+        MIN_SIMILARITY_THRESHOLD,
         ge=0.0,
         le=1.0,
         description="Minimum similarity score for dense retrieval results.",
@@ -52,7 +61,18 @@ class QueryRequest(BaseModel):
         ]
         | None
     ) = Field(
-        "label_synonyms_max",
+        cast(
+            Literal[
+                "label_only",
+                "label_synonyms_min",
+                "label_synonyms_max",
+                "all_weighted",
+                "all_max",
+                "all_min",
+                "custom",
+            ],
+            DEFAULT_AGGREGATION_STRATEGY,
+        ),
         description="Aggregation strategy for multi-vector results.",
     )
     component_weights: dict[str, float] | None = Field(
@@ -74,7 +94,10 @@ class QueryRequest(BaseModel):
     )
     query_assertion_preference: Literal["dependency", "keyword", "any_negative"] = (
         Field(
-            "dependency",
+            cast(
+                Literal["dependency", "keyword", "any_negative"],
+                DEFAULT_ASSERTION_PREFERENCE,
+            ),
             description="Assertion detection strategy (dependency-based, keyword-based, or any negative detection).",
         )
     )

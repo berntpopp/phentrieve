@@ -10,6 +10,7 @@ from phentrieve.config import (
     DEFAULT_MIN_CONFIDENCE_AGGREGATED,
     DEFAULT_MIN_SEGMENT_LENGTH_WORDS,
     DEFAULT_MODEL,
+    DEFAULT_NUM_RESULTS,
     DEFAULT_SPLITTING_THRESHOLD,
     DEFAULT_STEP_SIZE_TOKENS,
     DEFAULT_WINDOW_SIZE_TOKENS,
@@ -25,7 +26,35 @@ class TextProcessingRequest(BaseModel):
     )
     extraction_backend: Literal["standard", "llm"] = "standard"
     llm_model: str | None = None
+    llm_provider: str | None = Field(
+        default=None,
+        description=(
+            "Optional LLM provider name for full-text extraction. Examples: "
+            "'openai', 'anthropic', 'gemini', 'ollama'. If omitted, server "
+            "environment defaults are used."
+        ),
+    )
+    llm_base_url: str | None = Field(
+        default=None,
+        description=(
+            "Optional provider base URL for compatible LLM providers. Use this "
+            "for local Ollama or OpenAI-compatible gateways."
+        ),
+    )
     llm_mode: Literal["two_phase"] | None = None
+    llm_internal_mode: (
+        Literal["whole_document_legacy", "whole_document_grounded"] | None
+    ) = Field(
+        default="whole_document_grounded",
+        description="Internal grounding mode for LLM full-text extraction.",
+    )
+    allow_standard_fallback: bool = Field(
+        default=False,
+        description=(
+            "When true, production LLM quota exhaustion falls back to the standard "
+            "backend instead of returning a quota error."
+        ),
+    )
     language: str | None = Field(
         default=DEFAULT_LANGUAGE,
         description="ISO 639-1 language code of the text (e.g., 'en', 'de'). If None, language detection might be attempted.",
@@ -84,7 +113,9 @@ class TextProcessingRequest(BaseModel):
         description="Similarity threshold for HPO matches per chunk.",
     )
     num_results_per_chunk: int | None = Field(
-        default=10, ge=1, description="Max HPO terms to consider from each chunk."
+        default=DEFAULT_NUM_RESULTS,
+        ge=1,
+        description="Max HPO terms to consider from each chunk.",
     )
     # Assertion Detection
     no_assertion_detection: bool | None = Field(

@@ -1,8 +1,7 @@
-"""MCP Server factory for Phentrieve.
+"""MCP Server factories for Phentrieve.
 
-This module creates an MCP server from the existing FastAPI application
-using fastapi-mcp. It follows the Single Responsibility Principle by
-keeping MCP concerns separate from the main API.
+This module contains helpers for the explicit Phentrieve MCP facade and the
+legacy OpenAPI-to-MCP conversion based on fastapi-mcp.
 
 Key design decisions:
 - Uses include_operations (allowlist) instead of exclude (more explicit)
@@ -17,9 +16,8 @@ Architecture (avoiding cyclic imports):
 
 Usage:
     # Programmatically (for HTTP mounting in api/main.py)
-    from api.mcp.server import create_mcp_server
-    mcp = create_mcp_server(app)
-    mcp.mount()  # Mount at /mcp
+    from api.mcp.server import mount_phentrieve_mcp_facade
+    mount_phentrieve_mcp_facade(app)
 
     # CLI entry point is in cli.py (phentrieve-mcp command)
 """
@@ -45,7 +43,7 @@ MCP_ALLOWED_OPERATIONS: list[str] = [
 
 
 def create_mcp_server(app: FastAPI) -> Any:  # Returns FastApiMCP when installed
-    """Create MCP server from FastAPI application.
+    """Create legacy OpenAPI-converted MCP server from FastAPI application.
 
     Args:
         app: FastAPI application instance with routes that have operation_id set.
@@ -69,6 +67,7 @@ def create_mcp_server(app: FastAPI) -> Any:  # Returns FastApiMCP when installed
     from fastapi_mcp import FastApiMCP
 
     from api.mcp.config import settings
+    from api.mcp.metadata import apply_tool_metadata
 
     mcp = FastApiMCP(
         app,
@@ -77,6 +76,7 @@ def create_mcp_server(app: FastAPI) -> Any:  # Returns FastApiMCP when installed
         # Allowlist pattern - explicit is better than implicit
         include_operations=MCP_ALLOWED_OPERATIONS,
     )
+    mcp.tools = apply_tool_metadata(mcp.tools)
 
     logger.info(
         "MCP server '%s' created with %d tools: %s",
@@ -86,3 +86,38 @@ def create_mcp_server(app: FastAPI) -> Any:  # Returns FastApiMCP when installed
     )
 
     return mcp
+
+
+def mount_phentrieve_mcp_facade(
+    app: FastAPI,
+    *,
+    mount_path: str = "/mcp",
+) -> None:
+    """Mount the explicit Phentrieve MCP facade over Streamable HTTP."""
+    from api.mcp.facade import create_phentrieve_mcp
+
+    normalized_mount_path = mount_path or "/"
+    if not normalized_mount_path.startswith("/"):
+        normalized_mount_path = f"/{normalized_mount_path}"
+
+    for route in app.routes:
+        if getattr(route, "path", None) == normalized_mount_path:
+            logger.debug(
+                "Phentrieve MCP facade already mounted at '%s'; skipping duplicate mount",
+                normalized_mount_path,
+            )
+            return
+
+    facade = create_phentrieve_mcp(streamable_http_path="/")
+    facade_app = facade.streamable_http_app()
+    app.mount(normalized_mount_path, facade_app)
+    app.state.phentrieve_mcp_session_manager = facade.session_manager
+
+
+def mount_mcp_http(
+    mcp: Any,
+    *,
+    mount_path: str = "/mcp",
+) -> None:
+    """Mount MCP using modern Streamable HTTP."""
+    mcp.mount_http(mount_path=mount_path)

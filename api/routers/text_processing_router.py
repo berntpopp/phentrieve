@@ -557,7 +557,7 @@ async def process_text_extract_hpo(
 
     quota_status: QuotaStatus | None = None
     forced_standard_fallback: dict[str, Any] | None = None
-    allow_standard_fallback = (
+    allow_standard_fallback = request.allow_standard_fallback or (
         http_request.headers.get("x-phentrieve-allow-standard-fallback", "").lower()
         == "true"
     )
@@ -570,7 +570,10 @@ async def process_text_extract_hpo(
                     update={
                         "extraction_backend": "standard",
                         "llm_model": None,
+                        "llm_provider": None,
+                        "llm_base_url": None,
                         "llm_mode": None,
+                        "llm_internal_mode": None,
                     }
                 )
                 forced_standard_fallback = {
@@ -695,8 +698,14 @@ async def _process_text_via_shared_service(request: TextProcessingRequest):
     else:
         service_kwargs.update(
             {
+                "language": request.language,
+                "llm_provider": request.llm_provider,
                 "llm_model": request.llm_model,
+                "llm_base_url": request.llm_base_url,
                 "llm_mode": request.llm_mode or "two_phase",
+                "llm_internal_mode": (
+                    request.llm_internal_mode or "whole_document_grounded"
+                ),
             }
         )
 
