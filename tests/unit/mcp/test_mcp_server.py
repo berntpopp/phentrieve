@@ -70,3 +70,21 @@ class TestMcpCliCommands:
             from phentrieve.cli.mcp_commands import _check_mcp_installed
 
             assert _check_mcp_installed() is True
+
+
+def test_mcp_info_prefers_http_configuration():
+    import sys
+
+    from typer.testing import CliRunner
+
+    from phentrieve.cli.mcp_commands import app
+
+    runner = CliRunner()
+    with patch.dict(sys.modules, {"fastapi_mcp": MagicMock()}):
+        result = runner.invoke(app, ["info"])
+
+    assert result.exit_code == 0
+    assert '"type": "http"' in result.output
+    assert "http://127.0.0.1:8734/mcp" in result.output
+    assert "Streamable HTTP" in result.output
+    assert "/sse" not in result.output

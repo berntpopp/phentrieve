@@ -134,16 +134,15 @@ def mcp_info() -> None:
     console.print(f"  Name: {settings.name}")
     console.print(f"  HTTP Host: {settings.host}")
     console.print(f"  HTTP Port: {settings.port}")
+    console.print("  HTTP Transport: Streamable HTTP")
+    console.print(f"  MCP URL: http://{settings.host}:{settings.port}/mcp")
 
     # Claude Desktop config
     config_json = """{
   "mcpServers": {
     "phentrieve": {
-      "command": "phentrieve",
-      "args": ["mcp", "serve"],
-      "env": {
-        "PHENTRIEVE_DATA_ROOT_DIR": "/path/to/phentrieve/data"
-      }
+      "type": "http",
+      "url": "http://127.0.0.1:8734/mcp"
     }
   }
 }"""
