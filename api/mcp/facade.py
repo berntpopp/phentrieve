@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Callable
 from typing import Any
 
 from mcp.server.fastmcp import FastMCP
@@ -41,12 +42,15 @@ RESEARCH_USE_INSTRUCTIONS = (
     "document-level phenotype annotation."
 )
 
+McpResult = dict[str, Any]
+SyncMcpService = Callable[..., McpResult]
+
 
 def extract_hpo_terms_impl(
     request: ExtractHpoTermsRequest,
     *,
-    service=run_full_text_service,
-) -> dict[str, Any]:
+    service: SyncMcpService = run_full_text_service,
+) -> McpResult:
     return service(
         text=request.text,
         extraction_backend="standard",
@@ -61,8 +65,8 @@ def extract_hpo_terms_impl(
 def extract_hpo_terms_llm_impl(
     request: ExtractHpoTermsLlmRequest,
     *,
-    service=run_full_text_service,
-) -> dict[str, Any]:
+    service: SyncMcpService = run_full_text_service,
+) -> McpResult:
     return service(
         text=request.text,
         extraction_backend="llm",
@@ -80,8 +84,8 @@ def extract_hpo_terms_llm_impl(
 def search_hpo_terms_impl(
     request: SearchHpoTermsRequest,
     *,
-    search: Any,
-) -> dict[str, Any]:
+    search: SyncMcpService,
+) -> McpResult:
     return search(
         text=request.text,
         language=request.language,
@@ -94,8 +98,8 @@ def search_hpo_terms_impl(
 def compare_hpo_terms_impl(
     request: CompareHpoTermsRequest,
     *,
-    compare: Any,
-) -> dict[str, Any]:
+    compare: SyncMcpService,
+) -> McpResult:
     return compare(
         term1_id=request.term1_id,
         term2_id=request.term2_id,
@@ -179,7 +183,13 @@ def create_phentrieve_mcp(*, streamable_http_path: str = "/mcp") -> FastMCP:
     )
     async def search_hpo_terms(request: SearchHpoTermsRequest) -> dict[str, Any]:
         """Use this when a short research phenotype phrase should be mapped to candidate HPO terms. Not for diagnosis, treatment, triage, patient management, clinical decision support, or identifiable patient data in public demo instances."""
-        return await search_hpo_terms_impl(request, search=_search_hpo_terms_service)
+        return await _search_hpo_terms_service(
+            text=request.text,
+            language=request.language,
+            num_results=request.num_results,
+            similarity_threshold=request.similarity_threshold,
+            include_details=request.include_details,
+        )
 
     @mcp.tool(
         name="phentrieve.compare_hpo_terms",
