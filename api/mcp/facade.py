@@ -5,10 +5,20 @@ from typing import Any
 from mcp.server.fastmcp import FastMCP
 
 from api.mcp.tools import (
+    CompareHpoTermsRequest,
     ExtractHpoTermsLlmRequest,
     ExtractHpoTermsRequest,
+    SearchHpoTermsRequest,
 )
+from phentrieve.config import DEFAULT_LANGUAGE, DEFAULT_MODEL
+from phentrieve.evaluation.metrics import (
+    SimilarityFormula,
+    calculate_semantic_similarity,
+    load_hpo_graph_data,
+)
+from phentrieve.retrieval.api_helpers import execute_hpo_retrieval_for_api
 from phentrieve.text_processing.full_text_service import run_full_text_service
+from phentrieve.utils import normalize_id
 
 RESEARCH_USE_INSTRUCTIONS = (
     "Phentrieve maps clinical or biomedical research text to Human Phenotype "
@@ -19,6 +29,113 @@ RESEARCH_USE_INSTRUCTIONS = (
     "when the user asks for research-only LLM-assisted full-text extraction or "
     "document-level phenotype annotation."
 )
+
+
+def extract_hpo_terms_impl(
+    request: ExtractHpoTermsRequest,
+    *,
+    service=run_full_text_service,
+) -> dict[str, Any]:
+    return service(
+        text=request.text,
+        extraction_backend="standard",
+        language=request.language,
+        include_details=request.include_details,
+        include_positions=request.include_chunk_positions,
+        num_results_per_chunk=request.num_results_per_chunk,
+        chunk_retrieval_threshold=request.chunk_retrieval_threshold,
+    )
+
+
+def extract_hpo_terms_llm_impl(
+    request: ExtractHpoTermsLlmRequest,
+    *,
+    service=run_full_text_service,
+) -> dict[str, Any]:
+    return service(
+        text=request.text,
+        extraction_backend="llm",
+        language=request.language,
+        llm_provider=request.llm_provider,
+        llm_model=request.llm_model,
+        llm_base_url=request.llm_base_url,
+        llm_mode=request.llm_mode,
+        llm_internal_mode=request.llm_internal_mode,
+        include_details=request.include_details,
+        include_positions=request.include_chunk_positions,
+    )
+
+
+def search_hpo_terms_impl(
+    request: SearchHpoTermsRequest,
+    *,
+    search: Any,
+) -> dict[str, Any]:
+    return search(
+        text=request.text,
+        language=request.language,
+        num_results=request.num_results,
+        similarity_threshold=request.similarity_threshold,
+        include_details=request.include_details,
+    )
+
+
+def compare_hpo_terms_impl(
+    request: CompareHpoTermsRequest,
+    *,
+    compare: Any,
+) -> dict[str, Any]:
+    return compare(
+        term1_id=request.term1_id,
+        term2_id=request.term2_id,
+        formula=request.formula,
+    )
+
+
+async def _search_hpo_terms_service(**kwargs: Any) -> dict[str, Any]:
+    from api.dependencies import get_dense_retriever_dependency
+
+    retriever = await get_dense_retriever_dependency(
+        sbert_model_name_for_retriever=DEFAULT_MODEL,
+        multi_vector=False,
+    )
+    language = kwargs["language"] or DEFAULT_LANGUAGE
+    result = await execute_hpo_retrieval_for_api(
+        text=kwargs["text"],
+        language=language,
+        retriever=retriever,
+        num_results=kwargs["num_results"],
+        similarity_threshold=kwargs["similarity_threshold"],
+        include_details=kwargs["include_details"],
+        detect_query_assertion=False,
+        debug=False,
+    )
+    return {"results": result.get("results", [])}
+
+
+def _compare_hpo_terms_service(**kwargs: Any) -> dict[str, Any]:
+    term1_id = normalize_id(kwargs["term1_id"])
+    term2_id = normalize_id(kwargs["term2_id"])
+    formula = SimilarityFormula(kwargs["formula"])
+    _ancestors, depths = load_hpo_graph_data()
+    if term1_id not in depths or term2_id not in depths:
+        return {
+            "term1_id": term1_id,
+            "term2_id": term2_id,
+            "formula_used": formula.value,
+            "similarity_score": 0.0,
+            "error_message": "One or both HPO terms were not found in ontology data.",
+        }
+    return {
+        "term1_id": term1_id,
+        "term2_id": term2_id,
+        "formula_used": formula.value,
+        "similarity_score": calculate_semantic_similarity(
+            term1_id,
+            term2_id,
+            formula=formula,
+        ),
+    }
 
 
 def create_phentrieve_mcp() -> FastMCP:
@@ -33,15 +150,7 @@ def create_phentrieve_mcp() -> FastMCP:
     )
     def extract_hpo_terms(request: ExtractHpoTermsRequest) -> dict[str, Any]:
         """Use this when research text should be mapped to HPO term suggestions without LLM calls. Research use only; not for diagnosis, treatment, triage, patient management, clinical decision support, or identifiable patient data in public demo instances."""
-        return run_full_text_service(
-            text=request.text,
-            extraction_backend="standard",
-            language=request.language,
-            include_details=request.include_details,
-            include_positions=request.include_chunk_positions,
-            num_results_per_chunk=request.num_results_per_chunk,
-            chunk_retrieval_threshold=request.chunk_retrieval_threshold,
-        )
+        return extract_hpo_terms_impl(request)
 
     @mcp.tool(
         name="phentrieve.extract_hpo_terms_llm",
@@ -49,18 +158,23 @@ def create_phentrieve_mcp() -> FastMCP:
     )
     def extract_hpo_terms_llm(request: ExtractHpoTermsLlmRequest) -> dict[str, Any]:
         """Use this when research-only full-text LLM extraction should identify phenotype mentions and map them to grounded HPO term suggestions. Not for diagnosis, treatment, triage, patient management, clinical decision support, or identifiable patient data in public demo instances."""
-        return run_full_text_service(
-            text=request.text,
-            extraction_backend="llm",
-            language=request.language,
-            llm_provider=request.llm_provider,
-            llm_model=request.llm_model,
-            llm_base_url=request.llm_base_url,
-            llm_mode=request.llm_mode,
-            llm_internal_mode=request.llm_internal_mode,
-            include_details=request.include_details,
-            include_positions=request.include_chunk_positions,
-        )
+        return extract_hpo_terms_llm_impl(request)
+
+    @mcp.tool(
+        name="phentrieve.search_hpo_terms",
+        title="Search HPO Terms",
+    )
+    async def search_hpo_terms(request: SearchHpoTermsRequest) -> dict[str, Any]:
+        """Use this when a short research phenotype phrase should be mapped to candidate HPO terms. Not for diagnosis, treatment, triage, patient management, clinical decision support, or identifiable patient data in public demo instances."""
+        return await search_hpo_terms_impl(request, search=_search_hpo_terms_service)
+
+    @mcp.tool(
+        name="phentrieve.compare_hpo_terms",
+        title="Compare HPO Terms",
+    )
+    def compare_hpo_terms(request: CompareHpoTermsRequest) -> dict[str, Any]:
+        """Use this when two HPO IDs should be compared for research similarity analysis. Not for diagnosis, treatment, triage, patient management, clinical decision support, or identifiable patient data in public demo instances."""
+        return compare_hpo_terms_impl(request, compare=_compare_hpo_terms_service)
 
     @mcp.tool(
         name="phentrieve.get_server_capabilities",
