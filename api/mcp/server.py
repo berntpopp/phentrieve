@@ -69,6 +69,7 @@ def create_mcp_server(app: FastAPI) -> Any:  # Returns FastApiMCP when installed
     from fastapi_mcp import FastApiMCP
 
     from api.mcp.config import settings
+    from api.mcp.metadata import apply_tool_metadata
 
     mcp = FastApiMCP(
         app,
@@ -77,6 +78,7 @@ def create_mcp_server(app: FastAPI) -> Any:  # Returns FastApiMCP when installed
         # Allowlist pattern - explicit is better than implicit
         include_operations=MCP_ALLOWED_OPERATIONS,
     )
+    mcp.tools = apply_tool_metadata(mcp.tools)
 
     logger.info(
         "MCP server '%s' created with %d tools: %s",

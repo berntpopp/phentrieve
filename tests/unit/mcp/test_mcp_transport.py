@@ -18,11 +18,12 @@ def _mcp_routes(app: FastAPI) -> set[tuple[str, str]]:
 
 def test_mount_mcp_http_uses_streamable_http_routes() -> None:
     import sys
-    from unittest.mock import patch
+    from unittest.mock import MagicMock, patch
 
     class FakeFastApiMCP:
         def __init__(self, app: FastAPI, **_: object) -> None:
             self.app = app
+            self.tools = []
 
         def mount_http(self, *, mount_path: str = "/mcp") -> None:
             self.app.add_api_route(mount_path, _noop, methods=["GET"])
@@ -34,7 +35,10 @@ def test_mount_mcp_http_uses_streamable_http_routes() -> None:
         del sys.modules[module_name]
 
     fake_fastapi_mcp = type("FakeFastApiMcpModule", (), {"FastApiMCP": FakeFastApiMCP})
-    with patch.dict(sys.modules, {"fastapi_mcp": fake_fastapi_mcp}):
+    with patch.dict(
+        sys.modules,
+        {"fastapi_mcp": fake_fastapi_mcp, "mcp": MagicMock(types=MagicMock())},
+    ):
         from api.mcp.server import create_mcp_server, mount_mcp_http
 
         app = FastAPI(title="MCP test")

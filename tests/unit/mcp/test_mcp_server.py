@@ -30,10 +30,15 @@ class TestCreateMcpServer:
 
         mock_mcp_class = MagicMock()
         mock_mcp_instance = MagicMock()
+        mock_mcp_instance.tools = []
         mock_mcp_class.return_value = mock_mcp_instance
 
         with patch.dict(
-            "sys.modules", {"fastapi_mcp": MagicMock(FastApiMCP=mock_mcp_class)}
+            "sys.modules",
+            {
+                "fastapi_mcp": MagicMock(FastApiMCP=mock_mcp_class),
+                "mcp": MagicMock(types=MagicMock()),
+            },
         ):
             # Re-import after patching
             from api.mcp.server import MCP_ALLOWED_OPERATIONS, create_mcp_server
