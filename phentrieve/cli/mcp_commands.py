@@ -16,9 +16,10 @@ app = typer.Typer(
 
 
 def _check_mcp_installed() -> bool:
-    """Check if fastapi-mcp is installed."""
+    """Check if MCP dependencies are installed."""
     try:
         import fastapi_mcp  # noqa: F401
+        import mcp.server.fastmcp  # noqa: F401
 
         return True
     except ImportError:
@@ -98,34 +99,42 @@ def mcp_info() -> None:
     from rich.table import Table
 
     from api.mcp.config import settings
-    from api.mcp.server import MCP_ALLOWED_OPERATIONS
+    from api.mcp.resources import get_capabilities_resource
 
     console = Console()
 
     # Tool table
     table = Table(title="Available MCP Tools", show_header=True)
-    table.add_column("Tool Name", style="cyan")
+    table.add_column("Tool Name", style="cyan", no_wrap=True)
     table.add_column("Endpoint")
     table.add_column("Description")
 
     tool_info = {
-        "query_hpo_terms": (
-            "GET /api/v1/query/",
-            "Extract HPO terms from clinical text",
+        "phentrieve.extract_hpo_terms": (
+            "/mcp",
+            "Quick deterministic research screening without LLM calls",
         ),
-        "process_clinical_text": (
-            "POST /api/v1/text/process",
-            "Process clinical documents with chunking",
+        "phentrieve.extract_hpo_terms_llm": (
+            "/mcp",
+            "LLM-assisted full-text research annotation",
         ),
-        "calculate_term_similarity": (
-            "GET /api/v1/similarity/{id}/{id}",
-            "Calculate semantic similarity between HPO terms",
+        "phentrieve.search_hpo_terms": (
+            "/mcp",
+            "Map a short research phenotype phrase to HPO candidates",
+        ),
+        "phentrieve.compare_hpo_terms": (
+            "/mcp",
+            "Compare two HPO IDs for research similarity analysis",
+        ),
+        "phentrieve.get_server_capabilities": (
+            "/mcp",
+            "Report supported backends, languages, and configured LLM model",
         ),
     }
 
-    for op in MCP_ALLOWED_OPERATIONS:
-        endpoint, desc = tool_info.get(op, ("", ""))
-        table.add_row(op, endpoint, desc)
+    for tool_name in get_capabilities_resource()["tools"]:
+        endpoint, desc = tool_info.get(tool_name, ("/mcp", ""))
+        table.add_row(tool_name, endpoint, desc)
 
     console.print(table)
 

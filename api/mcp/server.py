@@ -96,9 +96,21 @@ def mount_phentrieve_mcp_facade(
     """Mount the explicit Phentrieve MCP facade over Streamable HTTP."""
     from api.mcp.facade import create_phentrieve_mcp
 
-    facade = create_phentrieve_mcp(streamable_http_path=mount_path)
+    normalized_mount_path = mount_path or "/"
+    if not normalized_mount_path.startswith("/"):
+        normalized_mount_path = f"/{normalized_mount_path}"
+
+    for route in app.routes:
+        if getattr(route, "path", None) == normalized_mount_path:
+            logger.debug(
+                "Phentrieve MCP facade already mounted at '%s'; skipping duplicate mount",
+                normalized_mount_path,
+            )
+            return
+
+    facade = create_phentrieve_mcp(streamable_http_path="/")
     facade_app = facade.streamable_http_app()
-    app.router.routes.extend(facade_app.routes)
+    app.mount(normalized_mount_path, facade_app)
     app.state.phentrieve_mcp_session_manager = facade.session_manager
 
 

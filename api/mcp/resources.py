@@ -55,6 +55,7 @@ def get_capabilities_resource() -> dict[str, Any]:
             "phentrieve.extract_hpo_terms_llm",
             "phentrieve.search_hpo_terms",
             "phentrieve.compare_hpo_terms",
+            "phentrieve.get_server_capabilities",
         ],
         **get_llm_capability_defaults(),
     }

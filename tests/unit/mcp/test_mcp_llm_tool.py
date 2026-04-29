@@ -45,6 +45,8 @@ def test_llm_tool_maps_request_to_full_text_service(monkeypatch) -> None:
     assert "llm_model" not in captured
     assert "llm_base_url" not in captured
     assert captured["llm_internal_mode"] == "whole_document_grounded"
+    assert captured["num_results_per_chunk"] == 10
+    assert captured["chunk_retrieval_threshold"] == 0.7
 
 
 def test_llm_tool_allows_configured_default_model() -> None:
@@ -140,3 +142,72 @@ def test_llm_tool_falls_back_to_standard_when_requested() -> None:
     assert result["meta"]["fallback_reason"] == "llm_backend_error"
     assert "LLM provider is not configured" in result["meta"]["fallback_error"]
     assert [call["extraction_backend"] for call in calls] == ["llm", "standard"]
+
+
+def test_llm_tool_records_quota_in_production(tmp_path, monkeypatch) -> None:
+    _ensure_external_mcp_sdk()
+
+    from api.mcp.facade import extract_hpo_terms_llm_impl
+    from api.mcp.tools import ExtractHpoTermsLlmRequest
+
+    monkeypatch.setattr("api.config.PHENTRIEVE_ENV", "production")
+    monkeypatch.setattr("api.config.PHENTRIEVE_LLM_DAILY_LIMIT", 2)
+    monkeypatch.setattr(
+        "api.config.PHENTRIEVE_LLM_QUOTA_DB_PATH",
+        str(tmp_path / "mcp_quota.db"),
+    )
+
+    def fake_service(**_kwargs):
+        return {
+            "meta": {"extraction_backend": "llm"},
+            "processed_chunks": [],
+            "aggregated_hpo_terms": [],
+        }
+
+    result = extract_hpo_terms_llm_impl(
+        ExtractHpoTermsLlmRequest(text="Patient has seizures."),
+        service=fake_service,
+    )
+
+    assert result["meta"]["quota_limit"] == 2
+    assert result["meta"]["quota_remaining"] == 1
+    assert result["meta"]["quota_reset_at"]
+
+
+def test_llm_tool_quota_exhaustion_can_fallback_to_standard(
+    tmp_path, monkeypatch
+) -> None:
+    _ensure_external_mcp_sdk()
+
+    from api.mcp.facade import extract_hpo_terms_llm_impl
+    from api.mcp.tools import ExtractHpoTermsLlmRequest
+
+    monkeypatch.setattr("api.config.PHENTRIEVE_ENV", "production")
+    monkeypatch.setattr("api.config.PHENTRIEVE_LLM_DAILY_LIMIT", 0)
+    monkeypatch.setattr(
+        "api.config.PHENTRIEVE_LLM_QUOTA_DB_PATH",
+        str(tmp_path / "mcp_quota.db"),
+    )
+    calls: list[str] = []
+
+    def fake_service(**kwargs):
+        calls.append(str(kwargs["extraction_backend"]))
+        return {
+            "meta": {"extraction_backend": kwargs["extraction_backend"]},
+            "processed_chunks": [],
+            "aggregated_hpo_terms": [],
+        }
+
+    result = extract_hpo_terms_llm_impl(
+        ExtractHpoTermsLlmRequest(
+            text="Patient has seizures.",
+            allow_standard_fallback=True,
+        ),
+        service=fake_service,
+    )
+
+    assert calls == ["standard"]
+    assert result["meta"]["extraction_backend"] == "standard"
+    assert result["meta"]["fallback_reason"] == "llm_quota_exhausted"
+    assert result["meta"]["llm_quota_limit"] == 0
+    assert result["meta"]["llm_quota_reset_at"]

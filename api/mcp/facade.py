@@ -1,10 +1,20 @@
 from __future__ import annotations
 
 from collections.abc import Callable
+from datetime import UTC, datetime
+from pathlib import Path
 from typing import Any
 
 from mcp.server.fastmcp import FastMCP
 
+import api.config as api_config
+from api.llm_quota import (
+    DailyQuotaStore,
+    QuotaExceededError,
+    QuotaStatus,
+    hash_subject_key,
+    quota_reset_at_iso,
+)
 from api.mcp.prompts import (
     annotate_research_text_prompt,
     extract_research_case_phenotypes_prompt,
@@ -47,6 +57,60 @@ McpResult = dict[str, Any]
 SyncMcpService = Callable[..., McpResult]
 
 
+def _is_production_environment() -> bool:
+    return api_config.PHENTRIEVE_ENV.strip().lower() == "production"
+
+
+def _get_llm_quota_store() -> DailyQuotaStore:
+    return DailyQuotaStore(
+        db_path=Path(api_config.PHENTRIEVE_LLM_QUOTA_DB_PATH),
+        daily_limit=api_config.PHENTRIEVE_LLM_DAILY_LIMIT,
+    )
+
+
+def _check_mcp_llm_quota_or_raise() -> QuotaStatus:
+    usage_date_utc = datetime.now(UTC).date().isoformat()
+    quota_status = _get_llm_quota_store().get_status(
+        subject_key=hash_subject_key("mcp:streamable-http"),
+        usage_date_utc=usage_date_utc,
+    )
+    if quota_status.quota_remaining <= 0:
+        raise QuotaExceededError(
+            quota_used=quota_status.quota_used,
+            quota_limit=quota_status.quota_limit,
+            quota_remaining=quota_status.quota_remaining,
+            usage_date_utc=quota_status.usage_date_utc,
+        )
+    return quota_status
+
+
+def _record_mcp_llm_quota_success(quota_status: QuotaStatus) -> QuotaStatus:
+    return _get_llm_quota_store().record_success(
+        subject_key=quota_status.subject_key,
+        usage_date_utc=quota_status.usage_date_utc,
+    )
+
+
+def _standard_fallback_result(
+    request: ExtractHpoTermsLlmRequest,
+    *,
+    service: SyncMcpService,
+    fallback_meta: dict[str, Any],
+) -> McpResult:
+    result = service(
+        text=request.text,
+        extraction_backend="standard",
+        language=request.language,
+        include_details=request.include_details,
+        include_positions=request.include_chunk_positions,
+        num_results_per_chunk=request.num_results_per_chunk,
+        chunk_retrieval_threshold=request.chunk_retrieval_threshold,
+    )
+    result.setdefault("meta", {})
+    result["meta"].update(fallback_meta)
+    return result
+
+
 def extract_hpo_terms_impl(
     request: ExtractHpoTermsRequest,
     *,
@@ -76,29 +140,53 @@ def extract_hpo_terms_llm_impl(
         "llm_internal_mode": request.llm_internal_mode,
         "include_details": request.include_details,
         "include_positions": request.include_chunk_positions,
+        "num_results_per_chunk": request.num_results_per_chunk,
+        "chunk_retrieval_threshold": request.chunk_retrieval_threshold,
     }
+    quota_status: QuotaStatus | None = None
+    if _is_production_environment():
+        try:
+            quota_status = _check_mcp_llm_quota_or_raise()
+        except QuotaExceededError as exc:
+            if not request.allow_standard_fallback:
+                raise
+            return _standard_fallback_result(
+                request,
+                service=service,
+                fallback_meta={
+                    "fallback_reason": "llm_quota_exhausted",
+                    "llm_quota_limit": exc.quota_limit,
+                    "llm_quota_reset_at": quota_reset_at_iso(exc.usage_date_utc),
+                },
+            )
+
     try:
-        return service(**llm_kwargs)
+        result = service(**llm_kwargs)
     except Exception as exc:
         if not request.allow_standard_fallback:
             raise
-        result = service(
-            text=request.text,
-            extraction_backend="standard",
-            language=request.language,
-            include_details=request.include_details,
-            include_positions=request.include_chunk_positions,
-            num_results_per_chunk=request.num_results_per_chunk,
-            chunk_retrieval_threshold=request.chunk_retrieval_threshold,
+        return _standard_fallback_result(
+            request,
+            service=service,
+            fallback_meta={
+                "fallback_reason": "llm_backend_error",
+                "fallback_error": str(exc),
+            },
         )
+
+    if quota_status is not None:
+        updated_quota_status = _record_mcp_llm_quota_success(quota_status)
         result.setdefault("meta", {})
         result["meta"].update(
             {
-                "fallback_reason": "llm_backend_error",
-                "fallback_error": str(exc),
+                "quota_limit": updated_quota_status.quota_limit,
+                "quota_remaining": updated_quota_status.quota_remaining,
+                "quota_reset_at": quota_reset_at_iso(
+                    updated_quota_status.usage_date_utc
+                ),
             }
         )
-        return result
+    return result
 
 
 def search_hpo_terms_impl(

@@ -28,6 +28,7 @@ def test_resource_payloads_are_available() -> None:
     assert capabilities["default_llm_model"]
     assert capabilities["configured_llm_models"] == [capabilities["default_llm_model"]]
     assert "supported_llm_providers" not in capabilities
+    assert "phentrieve.get_server_capabilities" in capabilities["tools"]
     assert "en" in languages["supported_languages"]
     assert "de" in languages["supported_languages"]
     assert "identifiable patient data" in " ".join(capabilities["not_intended_for"])
