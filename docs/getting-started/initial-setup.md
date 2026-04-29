@@ -97,7 +97,7 @@ Phentrieve supports several multilingual embedding models optimized for differen
 
 - **`jinaai/jina-embeddings-v2-base-de`**
   - German language specialization
-  - High precision for German clinical text
+  - High precision for German phenotype text
 
 ### General Multilingual Models
 
@@ -184,7 +184,7 @@ If everything is working, you should see HPO term suggestions like:
 Once you've completed the initial setup:
 
 1. Try [Interactive Querying](../user-guide/cli-usage.md#interactive-querying) to test your setup
-2. Explore the [Text Processing Guide](../user-guide/text-processing-guide.md) to learn how to process clinical text
+2. Explore the [Text Processing Guide](../user-guide/text-processing-guide.md) to learn how to process research phenotype text
 3. Check out the [Benchmarking Guide](../user-guide/benchmarking-guide.md) to evaluate model performance
 
 ## Troubleshooting

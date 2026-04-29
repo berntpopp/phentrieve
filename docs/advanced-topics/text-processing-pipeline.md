@@ -1,6 +1,6 @@
 # Text Processing Pipeline
 
-Phentrieve utilizes a sophisticated, configurable pipeline to transform raw clinical text into analyzable semantic units. This document explains the architecture, implementation details, and customization options.
+Phentrieve utilizes a sophisticated, configurable pipeline to transform raw research phenotype text into analyzable semantic units. This document explains the architecture, implementation details, and customization options.
 
 ## Architecture Overview
 
@@ -345,7 +345,7 @@ pipeline = TextProcessingPipeline(
 )
 
 # Process text
-chunks = pipeline.chunk_text("Your clinical text here...")
+chunks = pipeline.chunk_text("Your research phenotype text here...")
 ```
 
 ## Language Support

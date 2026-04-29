@@ -32,5 +32,8 @@ Scans run on every push/PR and weekly.
 ## Considerations
 
 - ML models loaded from Hugging Face Hub (verify checksums when possible)
-- Configure rate limiting in production
+- Configure rate limiting for hosted deployments
+- Public-hosted research deployments should set `PHENTRIEVE_PUBLIC_HOSTED_MODE=true`
+- Do not submit PHI/PII unless you have an appropriate legal basis, privacy controls, and operational safeguards
 - No PHI/PII stored by default
+- For LLM extraction, publish which external provider is configured and avoid raw-text logging

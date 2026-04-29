@@ -4,7 +4,7 @@ This section explains the key concepts and technologies behind Phentrieve's appr
 
 ## Multilingual Retrieval Augmented Generation (RAG)
 
-Phentrieve uses a Retrieval Augmented Generation (RAG) approach to map clinical text to Human Phenotype Ontology (HPO) terms. The key innovation is doing this in a multilingual context without requiring translation.
+Phentrieve uses a Retrieval Augmented Generation (RAG) approach to map research phenotype text to Human Phenotype Ontology (HPO) terms. The key innovation is doing this in a multilingual context without requiring translation.
 
 ## Key Components
 
@@ -24,7 +24,7 @@ These documents are converted into vector embeddings and stored in a vector data
 
 ### Semantic Similarity
 
-When clinical text is processed, it's embedded using the same model and compared to the stored HPO term vectors using semantic similarity. This allows direct matching between clinical descriptions in any language and English-based HPO terminology.
+When research phenotype text is processed, it is embedded using the same model and compared to the stored HPO term vectors using semantic similarity. This allows direct matching between phenotype descriptions in any language and English-based HPO terminology.
 
 ## Section Contents
 

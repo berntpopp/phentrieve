@@ -20,6 +20,11 @@ from api.llm_quota import (
     quota_reset_at_iso,
     resolve_subject_ip,
 )
+from api.research_use import (
+    RESEARCH_USE_LIMITATION,
+    require_research_use_acknowledgement,
+    research_ack_openapi_parameter,
+)
 from api.schemas.text_processing_schemas import (
     AggregatedHPOTermAPI,
     HPOMatchInChunkAPI,
@@ -483,10 +488,11 @@ def _adapt_shared_service_response_to_api(
     "/process",
     response_model=TextProcessingResponseAPI,
     operation_id="process_clinical_text",
-    summary="Process clinical text to extract HPO terms",
+    summary="Process research phenotype text to extract HPO terms",
     description=(
-        "Process clinical text with chunking, assertion detection, and HPO "
-        "term extraction. When LLM extraction is selected in production, "
+        f"{RESEARCH_USE_LIMITATION} Process text with chunking, assertion "
+        "detection, and HPO term extraction. When LLM extraction is selected "
+        "in production, "
         "clients can opt into automatic fallback to the standard backend by "
         "sending `X-Phentrieve-Allow-Standard-Fallback: true`."
     ),
@@ -506,7 +512,8 @@ def _adapt_shared_service_response_to_api(
                     "the standard extraction backend instead of returning "
                     "`429 Too Many Requests`."
                 ),
-            }
+            },
+            research_ack_openapi_parameter(),
         ]
     },
 )
@@ -515,16 +522,18 @@ async def process_text_extract_hpo(
     request: TextProcessingRequest,
 ):
     """
-    Process clinical text to extract Human Phenotype Ontology (HPO) terms.
+    Process research phenotype text to extract Human Phenotype Ontology (HPO) terms.
 
     This endpoint replicates the functionality of the `phentrieve text process` CLI command,
-    accepting raw clinical text input along with various processing configurations.
+    accepting raw research phenotype text input along with various processing configurations.
     It returns processed text chunks with assertion statuses and aggregated HPO terms.
 
     Heavy NLP operations are executed asynchronously to prevent blocking the API server.
 
     Includes adaptive timeout based on text length to prevent frontend disconnects.
     """
+    require_research_use_acknowledgement(http_request)
+
     logger.info(
         "API: Received request to process text. Language: %s, Strategy: %s",
         _sanitize(request.language),

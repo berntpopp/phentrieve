@@ -15,6 +15,17 @@ from phentrieve.config import (
     DEFAULT_WINDOW_SIZE_TOKENS,
 )
 
+RESEARCH_USE_NOTICE = (
+    "Research use only: Phentrieve maps text to HPO terms for research, "
+    "education, and knowledge discovery. Do not use results for diagnosis, "
+    "treatment, triage, or other clinical decision-making."
+)
+
+
+def emit_research_use_notice() -> None:
+    """Print the research-use limitation to stderr for text-bearing commands."""
+    typer.secho(RESEARCH_USE_NOTICE, fg=typer.colors.YELLOW, err=True)
+
 
 def load_text_from_input(text_arg: str | None, file_arg: Path | None) -> str:
     """Load text from command line argument, file, or stdin.

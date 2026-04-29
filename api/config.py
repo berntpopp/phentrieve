@@ -30,6 +30,8 @@ __all__ = [
     "PHENTRIEVE_TRUSTED_PROXY_CIDRS",
     "PHENTRIEVE_LLM_DAILY_LIMIT",
     "PHENTRIEVE_LLM_QUOTA_DB_PATH",
+    "PHENTRIEVE_PUBLIC_HOSTED_MODE",
+    "PHENTRIEVE_REQUIRE_RESEARCH_ACK",
     "get_api_config_value",
 ]
 
@@ -49,6 +51,14 @@ _DEFAULT_CORS_METHODS = ["*"]
 _DEFAULT_CORS_HEADERS = ["*"]
 
 _DEFAULT_DATA_ROOT_DIR = "../data"
+
+
+def _env_bool(name: str, default: bool = False) -> bool:
+    """Parse a boolean environment variable with a conservative default."""
+    raw_value = os.getenv(name)
+    if raw_value is None:
+        return default
+    return raw_value.strip().lower() in {"1", "true", "yes", "on"}
 
 
 @functools.lru_cache(maxsize=1)
@@ -234,4 +244,8 @@ PHENTRIEVE_LLM_DAILY_LIMIT: int = int(os.getenv("PHENTRIEVE_LLM_DAILY_LIMIT", "5
 PHENTRIEVE_LLM_QUOTA_DB_PATH: str = os.getenv(
     "PHENTRIEVE_LLM_QUOTA_DB_PATH",
     "../data/app/llm_quota.db",
+)
+PHENTRIEVE_PUBLIC_HOSTED_MODE: bool = _env_bool("PHENTRIEVE_PUBLIC_HOSTED_MODE", False)
+PHENTRIEVE_REQUIRE_RESEARCH_ACK: bool = _env_bool(
+    "PHENTRIEVE_REQUIRE_RESEARCH_ACK", False
 )

@@ -1,20 +1,23 @@
 # Welcome to Phentrieve
 
-Phentrieve is a comprehensive system for mapping clinical text in multiple languages to Human Phenotype Ontology (HPO) terms via a Retrieval-Augmented Generation (RAG) approach. The system supports multilingual text processing, benchmarking across various embedding models, and provides flexible interfaces through a Python package, API, and web frontend.
+Phentrieve is a comprehensive research system for mapping phenotype descriptions in multiple languages to Human Phenotype Ontology (HPO) terms via a Retrieval-Augmented Generation (RAG) approach. The system supports multilingual text processing, benchmarking across various embedding models, and provides flexible interfaces through a Python package, API, and web frontend.
+
+!!! warning "Research use only"
+    Phentrieve is not a medical device and must not be used for diagnosis, treatment selection, patient triage, or other clinical decision-making.
 
 ## Key Features
 
-* **Multilingual HPO Term Mapping**: Map clinical text to HPO terms in multiple languages without translation
-* **Advanced Text Processing**: Process clinical text with semantic chunking and assertion detection
+* **Multilingual HPO Term Mapping**: Map phenotype research text to HPO terms in multiple languages without translation
+* **Advanced Text Processing**: Process research text with semantic chunking and assertion detection
 * **Multiple Embedding Models**: Support for domain-specific, language-specific, and general multilingual models
 * **Comprehensive Benchmarking**: Evaluate and compare model performance with detailed metrics
 * **Multiple Interfaces**: Command-line tools, FastAPI backend, and Vue.js frontend
 
 ## Core Concept
 
-In clinical genomics and rare disease diagnosis, identifying phenotypic abnormalities in patient descriptions is a critical step. Traditional approaches often require translation when descriptions are in languages other than English, which can introduce inaccuracies.
+In rare disease research and phenotype curation, identifying phenotypic abnormalities in text descriptions is a common step. Traditional approaches often require translation when descriptions are in languages other than English, which can introduce inaccuracies.
 
-Phentrieve implements a novel approach using **multilingual embedding models** that map semantically similar concepts from different languages to nearby points in the embedding space. This allows direct matching between non-English clinical descriptions and English-based HPO terminology.
+Phentrieve implements a novel approach using **multilingual embedding models** that map semantically similar concepts from different languages to nearby points in the embedding space. This allows direct matching between non-English phenotype descriptions and English-based HPO terminology.
 
 ## Dive Deeper
 

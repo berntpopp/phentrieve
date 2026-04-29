@@ -1,6 +1,6 @@
 # Docker Deployment Guide
 
-This guide covers deploying Phentrieve using Docker and Docker Compose for production environments.
+This guide covers deploying Phentrieve using Docker and Docker Compose for self-hosted research environments.
 
 ## Table of Contents
 
@@ -10,7 +10,7 @@ This guide covers deploying Phentrieve using Docker and Docker Compose for produ
 - [Pre-built Data Bundles](#pre-built-data-bundles)
 - [Volume Permissions (Linux Only)](#volume-permissions-linux-only)
 - [Configuration](#configuration)
-- [Production Deployment](#production-deployment)
+- [Hosted Research Deployment](#hosted-research-deployment)
 - [Troubleshooting](#troubleshooting)
 - [Security Considerations](#security-considerations)
 - [Upgrading from Previous Versions](#upgrading-from-previous-versions)
@@ -19,7 +19,7 @@ This guide covers deploying Phentrieve using Docker and Docker Compose for produ
 
 ## Overview
 
-Phentrieve provides production-ready Docker images with comprehensive security hardening:
+Phentrieve provides Docker images with comprehensive security hardening for hosted research deployments:
 
 - ✅ **Non-root execution** - API runs as UID 10001, frontend as UID 101
 - ✅ **Resource limits** - CPU and memory constraints prevent resource exhaustion
@@ -379,7 +379,7 @@ healthcheck:
 
 ---
 
-## Production Deployment
+## Hosted Research Deployment
 
 ### Reverse Proxy Integration (Nginx Proxy Manager)
 

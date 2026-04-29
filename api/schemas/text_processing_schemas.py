@@ -21,7 +21,7 @@ class TextProcessingRequest(BaseModel):
     text: str = Field(
         ...,
         validation_alias=AliasChoices("text", "text_content"),
-        description="The raw clinical text to process.",
+        description="The raw research phenotype text to process.",
     )
     extraction_backend: Literal["standard", "llm"] = "standard"
     llm_model: str | None = None

@@ -153,6 +153,7 @@
       "llmModes": {
         "twoPhase": "Extraction en deux phases"
       },
+      "llmDisclosure": "L'extraction LLM peut traiter le texte soumis avec un fournisseur d'IA externe configuré par l'opérateur du service. Utilisez uniquement du texte de recherche ; ne soumettez pas d'informations directement identifiantes.",
       "chunkingStrategy": "Stratégie de découpage",
       "windowSize": "Taille de fenêtre (tokens)",
       "stepSize": "Taille de pas",

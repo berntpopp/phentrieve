@@ -111,7 +111,7 @@ def mcp_info() -> None:
     tool_info = {
         "query_hpo_terms": (
             "GET /api/v1/query/",
-            "Extract HPO terms from clinical text",
+            "Extract HPO terms from research phenotype text",
         ),
         "process_clinical_text": (
             "POST /api/v1/text/process",

@@ -14,7 +14,7 @@ Phentrieve supports the [Model Context Protocol (MCP)](https://modelcontextproto
 
 | Tool | Description |
 |------|-------------|
-| `query_hpo_terms` | Search HPO terms by semantic similarity to clinical text |
+| `query_hpo_terms` | Search HPO terms by semantic similarity to research phenotype text |
 | `process_clinical_text` | Extract HPO terms from clinical notes with chunking and assertion detection |
 | `calculate_term_similarity` | Calculate semantic similarity between two HPO terms |
 
