@@ -149,10 +149,12 @@ def _compare_hpo_terms_service(**kwargs: Any) -> dict[str, Any]:
     }
 
 
-def create_phentrieve_mcp() -> FastMCP:
+def create_phentrieve_mcp(*, streamable_http_path: str = "/mcp") -> FastMCP:
     mcp = FastMCP(
         name="phentrieve",
         instructions=RESEARCH_USE_INSTRUCTIONS,
+        streamable_http_path=streamable_http_path,
+        json_response=True,
     )
 
     @mcp.tool(

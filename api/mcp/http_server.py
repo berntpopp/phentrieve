@@ -21,14 +21,10 @@ def main() -> None:
     """
     import uvicorn
 
-    from api.main import app
     from api.mcp.config import settings
-    from api.mcp.server import create_mcp_server, mount_mcp_http
+    from api.mcp.facade import create_phentrieve_mcp
 
-    mcp = create_mcp_server(app)
-
-    # Mount MCP at /mcp endpoint
-    mount_mcp_http(mcp)
+    mcp_app = create_phentrieve_mcp().streamable_http_app()
 
     logger.info(
         "Starting Phentrieve MCP server (HTTP) at http://%s:%d/mcp",
@@ -38,7 +34,7 @@ def main() -> None:
 
     # Run the combined server
     uvicorn.run(
-        app,
+        mcp_app,
         host=settings.host,
         port=settings.port,
     )
