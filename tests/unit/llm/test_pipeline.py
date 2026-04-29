@@ -7,7 +7,6 @@ import pytest
 from pydantic import ValidationError
 
 import phentrieve.llm.pipeline as pipeline_module
-from phentrieve.llm.pipeline import LLMPipelinePhaseError, TwoPhaseLLMPipeline
 from phentrieve.llm.prompts.loader import (
     PromptTemplate,
     get_batch_mapping_prompt,
@@ -28,6 +27,9 @@ from phentrieve.llm.types import (
     LLMPipelineConfig,
     LLMResponse,
 )
+
+LLMPipelinePhaseError = pipeline_module.LLMPipelinePhaseError
+TwoPhaseLLMPipeline = pipeline_module.TwoPhaseLLMPipeline
 
 
 class FakeProvider(LLMProvider):

@@ -8,7 +8,7 @@
 # Python 3.12 offers ~5% performance improvement and is the latest stable LTS
 # Keep at 3.11 for now due to dependency compatibility (spaCy, torch, etc.)
 ARG PYTHON_VERSION=3.11.13
-ARG DEBIAN_VERSION=bookworm
+ARG DEBIAN_VERSION=trixie
 # SQLite 3.51.1 fixes CVE-2025-7458 and CVE-2025-6965 (critical integer overflow vulnerabilities)
 ARG SQLITE_VERSION=3510100
 ARG SQLITE_YEAR=2025
@@ -277,9 +277,9 @@ LABEL org.opencontainers.image.title="Phentrieve API" \
       org.opencontainers.image.documentation="https://github.com/berntpopp/phentrieve/blob/main/README.md" \
       org.opencontainers.image.authors="Bernt Popp <bernt.popp@gmail.com>"
 
-# Install runtime dependencies and apply security updates
-# gosu is required for the entrypoint script to drop privileges after fixing permissions
-# See: https://www.docker.com/blog/understanding-the-docker-user-instruction/
+# Install runtime dependencies and apply security updates.
+# gosu remains available for explicit root-run overrides; the default image
+# runs as the non-root phentrieve user below.
 # hadolint ignore=DL3005,DL3008,DL3009
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
@@ -316,6 +316,16 @@ ENV LD_LIBRARY_PATH=/usr/local/lib
 COPY --link --from=python-builder /opt/venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH" \
     VIRTUAL_ENV=/opt/venv
+
+# Remove package-management tools from the runtime image. They are only needed
+# in builder stages and otherwise create unnecessary scanner findings.
+RUN rm -f /usr/local/bin/pip /usr/local/bin/pip3 /usr/local/bin/pip3.* \
+          /opt/venv/bin/pip /opt/venv/bin/pip3 /opt/venv/bin/pip3.* \
+          /opt/venv/bin/wheel && \
+    rm -rf /usr/local/lib/python*/site-packages/pip* \
+           /usr/local/lib/python*/site-packages/wheel* \
+           /opt/venv/lib/python*/site-packages/pip* \
+           /opt/venv/lib/python*/site-packages/wheel*
 
 # Create non-root user (SECURITY: CRITICAL)
 # Using UID 10001 to avoid conflicts with host users
@@ -372,10 +382,7 @@ ENV PYTHONPATH=/app \
     HF_HOME=/app/.cache/huggingface \
     TRANSFORMERS_CACHE=/app/.cache/huggingface/hub
 
-# NOTE: No USER directive here - entrypoint starts as root to fix permissions,
-# then drops to non-root user (phentrieve:10001) before running the application.
-# This follows Docker best practices for handling volume permissions:
-# https://www.docker.com/blog/understanding-the-docker-user-instruction/
+USER phentrieve
 
 # Health check (using Python instead of curl to reduce attack surface)
 HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=3 \

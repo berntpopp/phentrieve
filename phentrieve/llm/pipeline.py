@@ -558,14 +558,12 @@ class TwoPhaseLLMPipeline:
         phase1_initial_mode = self._resolve_initial_phase1_mode(
             extraction_groups=extraction_groups
         )
-        phase1_final_mode = phase1_initial_mode
         phase1_fallback_count = 0
         phase1_failure_class: Phase1FailureClass = None
         phase1_attempts_trace: list[dict[str, Any]] = []
         phase1_usage = {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}
         phase1_request_count = 0
         phase1_elapsed = 0.0
-        phase1_groups_trace: list[dict[str, Any]] = []
         phase1_carried_groups_trace: list[dict[str, Any]] = []
         phase1_carried_extracted: list[dict[str, Any]] = []
         current_phase1_mode = phase1_initial_mode
@@ -603,7 +601,6 @@ class TwoPhaseLLMPipeline:
                     groups_trace=attempt_phase1_groups_trace,
                 )
                 if terminal_failure_class is not None:
-                    phase1_failure_class = terminal_failure_class
                     terminal_exc = LLMPipelinePhaseError(
                         "phase1",
                         "Structured extraction failed for one or more extraction groups",
@@ -619,7 +616,6 @@ class TwoPhaseLLMPipeline:
                         phase1_failure_class = retry_failure_class
                     phase1_carried_extracted.extend(extracted)
                     phase1_carried_groups_trace.extend(retained_groups_trace)
-                    phase1_groups_trace = list(phase1_carried_groups_trace)
                     phase1_attempts_trace.append(
                         _build_phase1_attempt_trace(
                             mode=current_phase1_mode,
@@ -659,7 +655,6 @@ class TwoPhaseLLMPipeline:
                 phase1_elapsed = round(
                     phase1_elapsed + float(exc.elapsed_seconds or 0.0), 6
                 )
-                phase1_final_mode = current_phase1_mode
                 phase1_groups_trace = list(phase1_carried_groups_trace) + list(
                     exc.groups_trace
                 )
