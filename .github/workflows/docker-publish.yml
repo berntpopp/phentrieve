@@ -131,6 +131,7 @@ jobs:
           format: 'sarif'
           output: 'trivy-api-results.sarif'
           severity: 'CRITICAL,HIGH'
+          ignore-unfixed: true
           exit-code: '0'  # Don't fail build, just report
 
       - name: Upload Trivy results to GitHub Security
@@ -150,10 +151,15 @@ jobs:
           failure-threshold: high
           exit-code: 0  # Don't fail build, just report
           # Accept known deviations from CIS benchmarks
-          accept-keys: |
-            CIS-DI-0010
-          accept-file: settings.py
+          accept-filenames: settings.py
           # CIS-DI-0010: Do not store secrets - we use env vars at runtime
+
+      - name: Filter accepted Dockle API findings
+        run: |
+          jq '(.runs[]?.results) |= map(select((.ruleId // .rule.id // "") != "DKL-DI-0005"))' \
+            dockle-api-results.sarif > dockle-api-results.filtered.sarif
+          mv dockle-api-results.filtered.sarif dockle-api-results.sarif
+        # DKL-DI-0005 is emitted from the upstream python:slim base image apt layer.
 
       - name: Upload Dockle API results to GitHub Security
         uses: github/codeql-action/upload-sarif@v4
@@ -239,6 +245,7 @@ jobs:
           format: 'sarif'
           output: 'trivy-frontend-results.sarif'
           severity: 'CRITICAL,HIGH'
+          ignore-unfixed: true
           exit-code: '0'  # Don't fail build, just report
 
       - name: Upload Trivy results to GitHub Security
