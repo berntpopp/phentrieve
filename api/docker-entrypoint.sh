@@ -293,6 +293,16 @@ main() {
     else
         log_info "Already running as non-root user"
 
+        if check_data_sync; then
+            if [ -w "$DATA_DIR" ]; then
+                if ! sync_embedded_data; then
+                    log_warn "Data sync failed - continuing with existing data"
+                fi
+            else
+                log_warn "Data sync needed, but $DATA_DIR is not writable by the current user"
+            fi
+        fi
+
         # Verify data exists
         if ! verify_data; then
             log_error "Data verification failed - exiting"

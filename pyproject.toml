@@ -41,7 +41,7 @@ dependencies = [
     "numpy>=2.0.0,<3.0.0",                  # NumPy 2.x for modern library compatibility (spacy 3.8+, thinc 8.3+)
     "matplotlib>=3.10.8",
     "seaborn>=0.12.0",
-    "typer>=0.24.1,<0.25.0",
+    "typer>=0.24.1,<0.26.0",
     "rich>=10.0.0",                         # Required for typer CLI features
     "shellingham>=1.3.0",                   # Required for typer shell completion
     "PyYAML>=6.0",
@@ -87,6 +87,10 @@ phenopackets = [
 ]
 energy = [
     "codecarbon>=3.2,<4.0",
+]
+analysis = [
+    "umap-learn>=0.5.6",
+    "plotly>=5.22.0",
 ]
 # Install CLI + API with: pip install "phentrieve[api]"
 # Install CLI + MCP with: pip install "phentrieve[mcp]"

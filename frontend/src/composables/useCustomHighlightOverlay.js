@@ -423,7 +423,7 @@ export function useCustomHighlightOverlay({
     });
   }
 
-  function handleRootResize() {
+  function handleRootResize(_entries, _observer) {
     scheduleLayoutRefresh();
   }
 
