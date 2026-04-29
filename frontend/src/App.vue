@@ -30,7 +30,7 @@
                 <v-icon>mdi-scale-balance</v-icon>
               </v-btn>
               <v-tooltip
-                v-if="disclaimerStore.isAcknowledged"
+                v-if="disclaimerStore.isCurrentVersionAcknowledged"
                 location="top"
                 :text="
                   $t('app.footer.disclaimerAcknowledgedTooltip', {
@@ -370,11 +370,12 @@ export default {
     // Store state is automatically hydrated by pinia-plugin-persistedstate
     logService.debug('Disclaimer store state', {
       isAcknowledged: this.disclaimerStore.isAcknowledged,
+      acknowledgedVersion: this.disclaimerStore.acknowledgedVersion,
       timestamp: this.disclaimerStore.acknowledgmentTimestamp,
     });
 
     // Show the disclaimer dialog if it has not been acknowledged
-    if (!this.disclaimerStore.isAcknowledged) {
+    if (!this.disclaimerStore.isCurrentVersionAcknowledged) {
       this.disclaimerDialogVisible = true;
       logService.info('Showing initial disclaimer dialog');
     }

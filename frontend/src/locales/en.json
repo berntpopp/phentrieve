@@ -53,12 +53,12 @@
   "disclaimerDialog": {
     "title": "Research Use Disclaimer",
     "mainHeader": "Phentrieve is intended for research and informational purposes only.",
-    "description": "This tool is designed to map clinical text to standardized Human Phenotype Ontology (HPO) terms to aid in research and knowledge discovery.",
+    "description": "This tool is designed to map research text to standardized Human Phenotype Ontology (HPO) terms to aid in research and knowledge discovery.",
     "limitationsTitle": "Important Limitations:",
     "limitations": {
       "item1": "Phentrieve is NOT a clinical diagnostic tool and should not replace professional medical advice, diagnosis, or treatment.",
       "item2": "The AI models and HPO mapping may contain inaccuracies, errors, or limitations.",
-      "item3": "Results should be verified by qualified medical professionals before being used in any clinical context.",
+      "item3": "Results require independent review before any downstream use and must not be used for clinical decision-making.",
       "item4": "The tool does not establish a doctor-patient relationship and is not a substitute for consulting with healthcare providers."
     },
     "responsibilityTitle": "User Responsibility:",
@@ -67,22 +67,22 @@
   },
   "queryInterface": {
     "title": "Phentrieve",
-    "subtitle": "HPO Term Mapping for Clinical Phenotype Descriptions",
-    "welcomeText": "Phentrieve is an AI-powered tool that accurately maps clinical text to standardized Human Phenotype Ontology (HPO) terms, streamlining phenotype annotation for research and diagnostics.",
+    "subtitle": "HPO Term Mapping for Research Phenotype Descriptions",
+    "welcomeText": "Phentrieve is an AI-powered research tool that maps phenotype text to standardized Human Phenotype Ontology (HPO) terms for research annotation and knowledge discovery.",
     "queryModeLabel": "Query Mode",
     "documentModeLabel": "Document Mode",
     "modeSwitch": {
-      "autoFullTextNotice": "Switched to Full Text for longer clinical text"
+      "autoFullTextNotice": "Switched to Full Text for longer research text"
     },
-    "inputLabel": "Enter clinical text description",
+    "inputLabel": "Enter research text description",
     "examples": {
       "title": "Examples",
       "loadExample": "Load example",
-      "example1": "The patient presents with short stature, recurrent fractures, and blue sclerae, suggesting osteogenesis imperfecta.",
-      "example2": "The child exhibits facial dysmorphism with hypertelorism, downslanting palpebral fissures, and low-set ears, along with congenital heart defects and developmental delay."
+      "example1": "The research note describes short stature, recurrent fractures, and blue sclerae.",
+      "example2": "The research summary mentions facial dysmorphism with hypertelorism, downslanting palpebral fissures, low-set ears, congenital heart defects, and developmental delay."
     },
-    "formLabel": "Patient Information (Optional)",
-    "idLabel": "Patient ID",
+    "formLabel": "Research Subject Metadata (Optional)",
+    "idLabel": "Subject ID",
     "sexLabel": "Sex",
     "dobLabel": "Date of Birth",
     "sexOptions": {
@@ -153,6 +153,7 @@
       "llmModes": {
         "twoPhase": "Two-phase extraction"
       },
+      "llmDisclosure": "LLM extraction may process submitted text with an external AI provider configured by the service operator. Use research text only; do not submit directly identifying information.",
       "chunkingStrategy": "Chunking Strategy",
       "windowSize": "Window Size (tokens)",
       "stepSize": "Step Size",
@@ -331,7 +332,7 @@
     },
     "step2": {
       "title": "Enter Clinical Text",
-      "content": "Type or paste your clinical description here. You can describe patient symptoms, phenotypes, or any medical observations you want to map to HPO terms."
+      "content": "Type or paste your research description here. You can describe phenotypes or research observations you want to map to HPO terms."
     },
     "step3": {
       "title": "Search for HPO Terms",
@@ -378,7 +379,7 @@
         "questions": {
           "whatIsPhentrieve": {
             "question": "What is Phentrieve?",
-            "answer": "<p>Phentrieve is an advanced AI-powered tool that automatically maps clinical descriptions to standardized Human Phenotype Ontology (HPO) terms. It streamlines the process of phenotype annotation for both research and clinical diagnostics, making it faster and more accurate.</p><p>Key features include:</p><ul><li>Automatic mapping of clinical text to HPO terms</li><li>High accuracy through state-of-the-art AI models</li><li>Support for multiple languages</li><li>User-friendly interface</li></ul>"
+            "answer": "<p>Phentrieve is an advanced AI-powered research tool that maps phenotype descriptions to standardized Human Phenotype Ontology (HPO) terms. It supports phenotype annotation for research, education, benchmarking, and knowledge discovery.</p><p>Key features include:</p><ul><li>Mapping research text to HPO terms</li><li>Semantic retrieval with state-of-the-art AI models</li><li>Support for multiple languages</li><li>User-friendly interface</li></ul>"
           },
           "howItWorks": {
             "question": "How does Phentrieve work?",
@@ -386,7 +387,7 @@
           },
           "whoCanUse": {
             "question": "Who can use Phentrieve?",
-            "answer": "<p><strong>Phentrieve is for research and informational purposes only.</strong> It is NOT a clinical diagnostic tool.</p><p>Designed for:</p><ul><li><strong>Researchers:</strong> Standardizing phenotype descriptions in research studies</li><li><strong>Clinical Geneticists:</strong> Research phenotyping and literature review (NOT for patient diagnosis)</li><li><strong>Bioinformaticians:</strong> Automated phenotype analysis in research datasets</li><li><strong>Healthcare Professionals:</strong> Educational purposes and research documentation</li></ul><p><strong>Important:</strong> Results must be verified by qualified medical professionals before any clinical application. See the disclaimer for complete terms of use.</p>"
+            "answer": "<p><strong>Phentrieve is for research and informational purposes only.</strong> It is NOT a clinical diagnostic tool.</p><p>Designed for:</p><ul><li><strong>Researchers:</strong> Standardizing phenotype descriptions in research studies</li><li><strong>Bioinformaticians:</strong> Automated phenotype analysis in research datasets</li><li><strong>Educators and students:</strong> Learning about HPO-based phenotype annotation</li><li><strong>Curators:</strong> Literature review and research documentation</li></ul><p><strong>Important:</strong> Results must not be used for diagnosis, treatment, triage, or other clinical decision-making.</p>"
           }
         }
       },

@@ -7,7 +7,7 @@
       "questions": [
         {
           "question": "What is Phentrieve?",
-          "answer": "<p>Phentrieve is an advanced AI-powered tool that automatically maps clinical descriptions to standardized Human Phenotype Ontology (HPO) terms. It streamlines the process of phenotype annotation for both research and clinical diagnostics, making it faster and more accurate.</p><p>Key features include:</p><ul><li>Automatic mapping of clinical text to HPO terms</li><li>High accuracy through state-of-the-art AI models</li><li>Support for multiple languages</li><li>User-friendly interface</li></ul>"
+          "answer": "<p>Phentrieve is an advanced AI-powered research tool that maps phenotype descriptions to standardized Human Phenotype Ontology (HPO) terms. It supports phenotype annotation for research, education, benchmarking, and knowledge discovery.</p><p>Key features include:</p><ul><li>Mapping research text to HPO terms</li><li>Semantic retrieval with state-of-the-art AI models</li><li>Support for multiple languages</li><li>User-friendly interface</li></ul>"
         },
         {
           "question": "How does Phentrieve work?",
@@ -15,7 +15,7 @@
         },
         {
           "question": "Who can use Phentrieve?",
-          "answer": "<p>Phentrieve is designed for:</p><ul><li><strong>Clinical Geneticists:</strong> For efficient patient phenotyping</li><li><strong>Researchers:</strong> For standardizing phenotype descriptions in studies</li><li><strong>Healthcare Professionals:</strong> For consistent phenotype documentation</li><li><strong>Bioinformaticians:</strong> For automated phenotype analysis</li></ul><p>The tool is free to use and accessible through a web browser.</p>"
+          "answer": "<p><strong>Phentrieve is for research and informational purposes only.</strong> It is not a clinical diagnostic tool.</p><p>Designed for:</p><ul><li><strong>Researchers:</strong> Standardizing phenotype descriptions in studies</li><li><strong>Bioinformaticians:</strong> Automated phenotype analysis in research datasets</li><li><strong>Educators and students:</strong> Learning HPO annotation concepts</li><li><strong>Curators:</strong> Literature review and research documentation</li></ul><p>The public service must not be used for diagnosis, treatment, triage, or other clinical decision-making.</p>"
         }
       ]
     },

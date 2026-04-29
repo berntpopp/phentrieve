@@ -153,6 +153,7 @@
       "llmModes": {
         "twoPhase": "Zweistufige Extraktion"
       },
+      "llmDisclosure": "Die LLM-Extraktion kann eingegebenen Text mit einem vom Betreiber konfigurierten externen KI-Anbieter verarbeiten. Verwenden Sie nur Forschungstext; geben Sie keine direkt identifizierenden Informationen ein.",
       "chunkingStrategy": "Aufteilungsstrategie",
       "windowSize": "Fenstergröße (Tokens)",
       "stepSize": "Schrittgröße",

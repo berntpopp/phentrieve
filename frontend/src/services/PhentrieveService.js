@@ -10,14 +10,21 @@ import { logService } from './logService';
  * 3. Development fallback - localhost with port for local development
  */
 const API_URL = import.meta.env.VITE_API_URL || '/api/v1'; // Default to relative path for Nginx proxy
+const RESEARCH_USE_ACK_CONFIG = Object.freeze({
+  headers: { 'X-Phentrieve-Research-Use-Acknowledged': 'true' },
+});
 
 class PhentrieveService {
   async queryHpo(queryData) {
     // queryData should match QueryRequest schema from FastAPI
     // Example: { text: "...", model_name: "...", num_results: 10, ... }
     try {
-      logService.info('Querying HPO API', { query: queryData });
-      const response = await axios.post(`${API_URL}/query/`, queryData);
+      logService.info('Querying HPO API', {
+        textLength: queryData.text?.length || 0,
+        numResults: queryData.num_results ?? queryData.numResults,
+        model: queryData.model_name ?? queryData.modelName,
+      });
+      const response = await axios.post(`${API_URL}/query/`, queryData, RESEARCH_USE_ACK_CONFIG);
       logService.debug('HPO API response received', {
         status: response.status,
         data: response.data,
@@ -63,7 +70,11 @@ class PhentrieveService {
         model: normalizedPayload.llm_model || normalizedPayload.retrieval_model_name,
       });
 
-      const response = await axios.post(`${API_URL}/text/process`, normalizedPayload);
+      const response = await axios.post(
+        `${API_URL}/text/process`,
+        normalizedPayload,
+        RESEARCH_USE_ACK_CONFIG
+      );
 
       logService.debug('Text Processing API response received', {
         status: response.status,
@@ -107,7 +118,11 @@ class PhentrieveService {
 
   async exportPhenopacket(exportData) {
     try {
-      const response = await axios.post(`${API_URL}/phenopackets/export`, exportData);
+      const response = await axios.post(
+        `${API_URL}/phenopackets/export`,
+        exportData,
+        RESEARCH_USE_ACK_CONFIG
+      );
       return response.data;
     } catch (error) {
       throw this._createStandardizedError(error, 'exporting a phenopacket');

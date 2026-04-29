@@ -11,6 +11,8 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 
+export const DISCLAIMER_VERSION = '2026-04-29-research-use';
+
 export const useDisclaimerStore = defineStore(
   'disclaimer',
   () => {
@@ -29,6 +31,7 @@ export const useDisclaimerStore = defineStore(
      * @type {import('vue').Ref<string|null>}
      */
     const acknowledgmentTimestamp = ref(null);
+    const acknowledgedVersion = ref(null);
 
     // ===========================
     // Computed Properties
@@ -50,6 +53,9 @@ export const useDisclaimerStore = defineStore(
         minute: '2-digit',
       });
     });
+    const isCurrentVersionAcknowledged = computed(
+      () => isAcknowledged.value && acknowledgedVersion.value === DISCLAIMER_VERSION
+    );
 
     // ===========================
     // Actions
@@ -61,6 +67,7 @@ export const useDisclaimerStore = defineStore(
      */
     function saveAcknowledgment() {
       isAcknowledged.value = true;
+      acknowledgedVersion.value = DISCLAIMER_VERSION;
       acknowledgmentTimestamp.value = new Date().toISOString();
       // No manual localStorage - plugin handles persistence automatically
     }
@@ -72,6 +79,7 @@ export const useDisclaimerStore = defineStore(
     function reset() {
       isAcknowledged.value = false;
       acknowledgmentTimestamp.value = null;
+      acknowledgedVersion.value = null;
       // No manual localStorage - plugin handles persistence automatically
     }
 
@@ -83,9 +91,12 @@ export const useDisclaimerStore = defineStore(
       // State
       isAcknowledged,
       acknowledgmentTimestamp,
+      acknowledgedVersion,
+      DISCLAIMER_VERSION,
 
       // Computed
       formattedAcknowledgmentDate,
+      isCurrentVersionAcknowledged,
 
       // Actions
       saveAcknowledgment,
@@ -97,7 +108,7 @@ export const useDisclaimerStore = defineStore(
     persist: {
       key: 'phentrieve-disclaimer',
       storage: localStorage,
-      pick: ['isAcknowledged', 'acknowledgmentTimestamp'],
+      pick: ['isAcknowledged', 'acknowledgmentTimestamp', 'acknowledgedVersion'],
     },
   }
 );

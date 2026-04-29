@@ -62,6 +62,8 @@ nav:
     - 'Local Docker': 'deployment/local-docker.md'
     - 'Data Management': 'deployment/data-management.md'
     - 'Security': 'deployment/security.md'
+  - 'Compliance':
+    - 'Research Use Only': 'compliance/research-use.md'
   - 'Development':
     - 'Overview': 'development/index.md'
     - 'Project Structure': 'development/project-structure.md'

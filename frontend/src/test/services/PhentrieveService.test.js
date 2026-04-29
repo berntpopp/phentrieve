@@ -27,7 +27,8 @@ describe('PhentrieveService', () => {
 
     expect(axios.post).toHaveBeenCalledWith(
       '/api/v1/text/process',
-      expect.objectContaining({ extraction_backend: 'llm' })
+      expect.objectContaining({ extraction_backend: 'llm' }),
+      expect.any(Object)
     );
   });
 
@@ -194,7 +195,8 @@ describe('PhentrieveService', () => {
       '/api/v1/text/process',
       expect.objectContaining({
         top_term_per_chunk_for_aggregation: true,
-      })
+      }),
+      expect.any(Object)
     );
     expect(axios.post.mock.calls[0][1]).not.toHaveProperty('top_term_per_chunk');
   });
@@ -286,9 +288,13 @@ describe('PhentrieveService', () => {
       phenotypes: [],
     });
 
-    expect(axios.post).toHaveBeenCalledWith('/api/v1/phenopackets/export', {
-      case_id: 'case-1',
-      phenotypes: [],
-    });
+    expect(axios.post).toHaveBeenCalledWith(
+      '/api/v1/phenopackets/export',
+      {
+        case_id: 'case-1',
+        phenotypes: [],
+      },
+      expect.any(Object)
+    );
   });
 });

@@ -18,7 +18,11 @@ import typer
 # only happen when commands actually need ML models, not for --help or --version.
 # The import is done inside command functions where the model is actually used.
 from phentrieve.cli._profile import apply_profile_callback
-from phentrieve.cli.utils import load_text_from_input, resolve_chunking_pipeline_config
+from phentrieve.cli.utils import (
+    emit_research_use_notice,
+    load_text_from_input,
+    resolve_chunking_pipeline_config,
+)
 from phentrieve.config import (
     DEFAULT_ASSERTION_PREFERENCE,
     DEFAULT_CHUNK_RETRIEVAL_THRESHOLD,
@@ -561,6 +565,7 @@ def process_text_for_hpo_command(
     logger = logging.getLogger(__name__)
     start_time = time.time()
     setup_logging_cli(debug=debug)
+    emit_research_use_notice()
 
     # Optional: print resolved configuration to stderr for debugging.
     import click as _click

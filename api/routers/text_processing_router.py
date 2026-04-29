@@ -20,6 +20,11 @@ from api.llm_quota import (
     quota_reset_at_iso,
     resolve_subject_ip,
 )
+from api.research_use import (
+    RESEARCH_ACK_HEADER_DISPLAY,
+    RESEARCH_USE_LIMITATION,
+    require_research_use_acknowledgement,
+)
 from api.schemas.text_processing_schemas import (
     AggregatedHPOTermAPI,
     HPOMatchInChunkAPI,
@@ -485,8 +490,9 @@ def _adapt_shared_service_response_to_api(
     operation_id="process_clinical_text",
     summary="Process clinical text to extract HPO terms",
     description=(
-        "Process clinical text with chunking, assertion detection, and HPO "
-        "term extraction. When LLM extraction is selected in production, "
+        f"{RESEARCH_USE_LIMITATION} Process text with chunking, assertion "
+        "detection, and HPO term extraction. When LLM extraction is selected "
+        "in production, "
         "clients can opt into automatic fallback to the standard backend by "
         "sending `X-Phentrieve-Allow-Standard-Fallback: true`."
     ),
@@ -506,7 +512,21 @@ def _adapt_shared_service_response_to_api(
                     "the standard extraction backend instead of returning "
                     "`429 Too Many Requests`."
                 ),
-            }
+            },
+            {
+                "name": RESEARCH_ACK_HEADER_DISPLAY,
+                "in": "header",
+                "required": False,
+                "schema": {
+                    "type": "string",
+                    "enum": ["true"],
+                },
+                "description": (
+                    "Required when public-hosted or research-ack mode is "
+                    "enabled. Confirms the user has accepted the research-use "
+                    "limitation."
+                ),
+            },
         ]
     },
 )
@@ -525,6 +545,8 @@ async def process_text_extract_hpo(
 
     Includes adaptive timeout based on text length to prevent frontend disconnects.
     """
+    require_research_use_acknowledgement(http_request)
+
     logger.info(
         "API: Received request to process text. Language: %s, Strategy: %s",
         _sanitize(request.language),

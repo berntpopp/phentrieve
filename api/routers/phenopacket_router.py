@@ -1,8 +1,12 @@
 import json
 from typing import Any
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 
+from api.research_use import (
+    RESEARCH_USE_LIMITATION,
+    require_research_use_acknowledgement,
+)
 from api.schemas.phenopacket_schemas import (
     ExportPhenotypeRequest,
     ExportTextAttributionRequest,
@@ -116,6 +120,12 @@ def _apply_request_metadata_to_bundle(
 
     meta = phenopacket_payload.setdefault("metaData", {})
     external_references = meta.setdefault("externalReferences", [])
+    external_references.append(
+        {
+            "id": "phentrieve:intended_use",
+            "description": RESEARCH_USE_LIMITATION,
+        }
+    )
     if request.case_label:
         external_references.append(
             {
@@ -143,8 +153,11 @@ def _apply_request_metadata_to_bundle(
 
 @router.post("/export", response_model=PhenopacketExportResponse)
 def export_phenopacket(
+    http_request: Request,
     request: PhenopacketExportRequest,
 ) -> PhenopacketExportResponse:
+    require_research_use_acknowledgement(http_request)
+
     aggregated_results = [
         _map_phenotype_for_export(phenotype) for phenotype in request.phenotypes
     ]

@@ -39,7 +39,11 @@ class MCPSettings(BaseSettings):
         description="MCP server name shown to clients",
     )
     description: str = Field(
-        default="Extract HPO (Human Phenotype Ontology) terms from clinical text",
+        default=(
+            "Research use only: map research text to Human Phenotype "
+            "Ontology (HPO) terms. Not for diagnosis, treatment, triage, "
+            "or other clinical decision-making."
+        ),
         description="MCP server description shown to clients",
     )
 
