@@ -4,7 +4,7 @@
 
 Phentrieve is an advanced AI-powered research system for mapping phenotype descriptions to Human Phenotype Ontology (HPO) terms using a Retrieval-Augmented Generation (RAG) approach. It supports multiple languages and offers robust tools for benchmarking, text processing, and HPO term retrieval.
 
-**Research use only:** Phentrieve is not a medical device and must not be used for diagnosis, treatment selection, patient triage, or other clinical decision-making. See the [Research Use Only guide](docs/compliance/research-use.md).
+**Research use only:** Phentrieve is not a medical device and must not be used for diagnosis, treatment selection, patient triage, or other clinical decision-making. See the [Research Use Only guide](docs/compliance/research-use.md) and [Privacy and LLM Processing](docs/compliance/privacy-and-llm-processing.md).
 
 **For comprehensive documentation, please visit the [Phentrieve Documentation Site](https://berntpopp.github.io/phentrieve/).**
 

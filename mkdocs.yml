@@ -64,6 +64,7 @@ nav:
     - 'Security': 'deployment/security.md'
   - 'Compliance':
     - 'Research Use Only': 'compliance/research-use.md'
+    - 'Privacy and LLM Processing': 'compliance/privacy-and-llm-processing.md'
   - 'Development':
     - 'Overview': 'development/index.md'
     - 'Project Structure': 'development/project-structure.md'

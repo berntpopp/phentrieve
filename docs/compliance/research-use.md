@@ -52,5 +52,9 @@ text that you are not authorized to process. The CLI prints a research-use
 notice for text-bearing commands, the web app requires the current disclaimer to
 be acknowledged, and the frontend avoids logging raw submitted text.
 
+See [Privacy and LLM Processing](privacy-and-llm-processing.md) for the
+recommended public-service posture when LLM extraction sends text to an external
+AI provider.
+
 Phenopacket exports include a Phentrieve intended-use metadata reference so
 exported artifacts carry the research-use limitation with them.
