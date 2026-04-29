@@ -4,6 +4,17 @@ from typing import Any
 
 from mcp.server.fastmcp import FastMCP
 
+from api.mcp.prompts import (
+    annotate_research_text_prompt,
+    extract_research_case_phenotypes_prompt,
+    review_hpo_research_annotations_prompt,
+)
+from api.mcp.resources import (
+    get_capabilities_resource,
+    get_extraction_profiles_resource,
+    get_languages_resource,
+    get_research_use_resource,
+)
 from api.mcp.tools import (
     CompareHpoTermsRequest,
     ExtractHpoTermsLlmRequest,
@@ -175,6 +186,40 @@ def create_phentrieve_mcp() -> FastMCP:
     def compare_hpo_terms(request: CompareHpoTermsRequest) -> dict[str, Any]:
         """Use this when two HPO IDs should be compared for research similarity analysis. Not for diagnosis, treatment, triage, patient management, clinical decision support, or identifiable patient data in public demo instances."""
         return compare_hpo_terms_impl(request, compare=_compare_hpo_terms_service)
+
+    @mcp.resource("phentrieve://capabilities")
+    def capabilities() -> dict[str, Any]:
+        return get_capabilities_resource()
+
+    @mcp.resource("phentrieve://hpo/languages")
+    def languages() -> dict[str, Any]:
+        return get_languages_resource()
+
+    @mcp.resource("phentrieve://hpo/extraction-profiles")
+    def extraction_profiles() -> dict[str, Any]:
+        return get_extraction_profiles_resource()
+
+    @mcp.resource("phentrieve://compliance/research-use")
+    def research_use() -> dict[str, Any]:
+        return get_research_use_resource()
+
+    @mcp.prompt(name="annotate_research_text", title="Annotate Research Text")
+    def annotate_research_text(language: str = "en") -> str:
+        return annotate_research_text_prompt(language=language)
+
+    @mcp.prompt(
+        name="review_hpo_research_annotations",
+        title="Review HPO Research Annotations",
+    )
+    def review_hpo_research_annotations() -> str:
+        return review_hpo_research_annotations_prompt()
+
+    @mcp.prompt(
+        name="extract_research_case_phenotypes",
+        title="Extract Research Case Phenotypes",
+    )
+    def extract_research_case_phenotypes(language: str = "en") -> str:
+        return extract_research_case_phenotypes_prompt(language=language)
 
     @mcp.tool(
         name="phentrieve.get_server_capabilities",
