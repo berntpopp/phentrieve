@@ -21,9 +21,9 @@ from api.llm_quota import (
     resolve_subject_ip,
 )
 from api.research_use import (
-    RESEARCH_ACK_HEADER_DISPLAY,
     RESEARCH_USE_LIMITATION,
     require_research_use_acknowledgement,
+    research_ack_openapi_parameter,
 )
 from api.schemas.text_processing_schemas import (
     AggregatedHPOTermAPI,
@@ -513,20 +513,7 @@ def _adapt_shared_service_response_to_api(
                     "`429 Too Many Requests`."
                 ),
             },
-            {
-                "name": RESEARCH_ACK_HEADER_DISPLAY,
-                "in": "header",
-                "required": False,
-                "schema": {
-                    "type": "string",
-                    "enum": ["true"],
-                },
-                "description": (
-                    "Required when public-hosted or research-ack mode is "
-                    "enabled. Confirms the user has accepted the research-use "
-                    "limitation."
-                ),
-            },
+            research_ack_openapi_parameter(),
         ]
     },
 )

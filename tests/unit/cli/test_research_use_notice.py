@@ -48,3 +48,29 @@ def test_text_process_command_shows_research_notice(monkeypatch):
 
     assert result.exit_code == 0
     assert "Research use only" in result.stderr
+
+
+def test_text_interactive_command_shows_research_notice(monkeypatch):
+    runner = CliRunner()
+    monkeypatch.setattr(
+        "phentrieve.cli.text_interactive.interactive_text_mode",
+        lambda **_kwargs: None,
+    )
+
+    result = runner.invoke(app, ["text", "interactive"])
+
+    assert result.exit_code == 0
+    assert "Research use only" in result.stderr
+
+
+def test_text_group_interactive_option_shows_research_notice(monkeypatch):
+    runner = CliRunner()
+    monkeypatch.setattr(
+        "phentrieve.cli.text_interactive.interactive_text_mode",
+        lambda **_kwargs: None,
+    )
+
+    result = runner.invoke(app, ["text", "--interactive"])
+
+    assert result.exit_code == 0
+    assert "Research use only" in result.stderr

@@ -7,6 +7,7 @@ from api.dependencies import get_dense_retriever_dependency
 from api.research_use import (
     RESEARCH_USE_LIMITATION,
     require_research_use_acknowledgement,
+    research_ack_openapi_parameter,
 )
 from api.schemas.query_schemas import QueryRequest, QueryResponse
 from phentrieve.config import (
@@ -94,6 +95,7 @@ async def get_retriever_for_get_params(
         f"{RESEARCH_USE_LIMITATION} Extract relevant HPO terms from research "
         "text using semantic search."
     ),
+    openapi_extra={"parameters": [research_ack_openapi_parameter()]},
 )
 async def run_hpo_query_get(
     http_request: Request,
@@ -158,6 +160,7 @@ async def run_hpo_query_get(
         f"{RESEARCH_USE_LIMITATION} Execute HPO term query with full control "
         "over retrieval parameters."
     ),
+    openapi_extra={"parameters": [research_ack_openapi_parameter()]},
 )
 async def run_hpo_query(
     request: QueryRequest,

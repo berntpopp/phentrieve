@@ -13,6 +13,23 @@ RESEARCH_USE_LIMITATION = (
 )
 
 
+def research_ack_openapi_parameter() -> dict[str, object]:
+    """Return the OpenAPI parameter for research-use acknowledgement."""
+    return {
+        "name": RESEARCH_ACK_HEADER_DISPLAY,
+        "in": "header",
+        "required": False,
+        "schema": {
+            "type": "string",
+            "enum": ["true"],
+        },
+        "description": (
+            "Required when public-hosted or research-ack mode is enabled. "
+            "Set to `true` after presenting the research-use limitation."
+        ),
+    }
+
+
 def is_research_ack_required() -> bool:
     """Return whether text-bearing endpoints require acknowledgement."""
     return bool(

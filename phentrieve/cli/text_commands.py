@@ -238,6 +238,7 @@ def interactive(
     """
     from phentrieve.cli.text_interactive import interactive_text_mode
 
+    emit_research_use_notice()
     interactive_text_mode(
         language=language,
         strategy=strategy,
@@ -276,6 +277,7 @@ def main_callback(
             # Call interactive mode directly
             from phentrieve.cli.text_interactive import interactive_text_mode
 
+            emit_research_use_notice()
             interactive_text_mode()
         else:
             # Show help if no subcommand and not interactive

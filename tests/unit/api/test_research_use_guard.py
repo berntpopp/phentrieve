@@ -6,6 +6,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from api.main import app
+from api.research_use import RESEARCH_ACK_HEADER_DISPLAY
 from api.schemas.text_processing_schemas import TextProcessingResponseAPI
 
 pytestmark = pytest.mark.unit
@@ -105,3 +106,22 @@ def test_public_hosted_mode_allows_llm_after_research_ack(client, monkeypatch):
 
     assert response.status_code == 200
     assert response.json()["meta"]["extraction_backend"] == "llm"
+
+
+def test_text_bearing_routes_document_research_ack_header_in_openapi(client):
+    schema = client.get("/openapi.json").json()
+    operations = [
+        schema["paths"]["/api/v1/query/"]["get"],
+        schema["paths"]["/api/v1/query/"]["post"],
+        schema["paths"]["/api/v1/text/process"]["post"],
+        schema["paths"]["/api/v1/phenopackets/export"]["post"],
+    ]
+
+    for operation in operations:
+        header = next(
+            parameter
+            for parameter in operation["parameters"]
+            if parameter["name"] == RESEARCH_ACK_HEADER_DISPLAY
+        )
+        assert header["in"] == "header"
+        assert header["schema"]["enum"] == ["true"]

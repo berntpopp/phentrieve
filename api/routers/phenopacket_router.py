@@ -6,6 +6,7 @@ from fastapi import APIRouter, Request
 from api.research_use import (
     RESEARCH_USE_LIMITATION,
     require_research_use_acknowledgement,
+    research_ack_openapi_parameter,
 )
 from api.schemas.phenopacket_schemas import (
     ExportPhenotypeRequest,
@@ -151,7 +152,11 @@ def _apply_request_metadata_to_bundle(
     return bundle
 
 
-@router.post("/export", response_model=PhenopacketExportResponse)
+@router.post(
+    "/export",
+    response_model=PhenopacketExportResponse,
+    openapi_extra={"parameters": [research_ack_openapi_parameter()]},
+)
 def export_phenopacket(
     http_request: Request,
     request: PhenopacketExportRequest,
