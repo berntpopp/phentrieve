@@ -379,7 +379,7 @@ healthcheck:
 
 ---
 
-## Production Deployment
+## Hosted Research Deployment
 
 ### Reverse Proxy Integration (Nginx Proxy Manager)
 
