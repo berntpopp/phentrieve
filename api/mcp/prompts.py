@@ -11,9 +11,11 @@ def annotate_research_text_prompt(language: str = "en") -> str:
     return (
         f"{RESEARCH_USE_NOTICE} Map the supplied clinical or biomedical research "
         "text to Human Phenotype Ontology term suggestions. "
-        f"Use language='{language}'. For ordinary deterministic extraction, call "
-        "phentrieve.extract_hpo_terms. For full-text LLM-assisted extraction, "
-        "call phentrieve.extract_hpo_terms_llm. Return HPO IDs, labels, assertion "
+        f"Use language='{language}'. Prefer phentrieve.extract_hpo_terms_llm "
+        "for full abstracts, publication-style annotation, syndrome/eponym-heavy "
+        "text, and review work where retrieval-only noise should be suppressed. "
+        "Use phentrieve.extract_hpo_terms for quick deterministic screening. "
+        "Return HPO IDs, labels, assertion "
         "status, evidence spans, and a short research-use uncertainty note."
     )
 

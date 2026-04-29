@@ -34,9 +34,6 @@ def test_llm_tool_maps_request_to_full_text_service(monkeypatch) -> None:
     request = ExtractHpoTermsLlmRequest(
         text="Patient has seizures.",
         language="en",
-        llm_provider="openai",
-        llm_model="openai/gpt-5.4-mini",
-        llm_base_url="https://api.openai.com/v1",
     )
 
     result = extract_hpo_terms_llm_impl(request, service=fake_service)
@@ -44,7 +41,102 @@ def test_llm_tool_maps_request_to_full_text_service(monkeypatch) -> None:
     assert result["meta"]["extraction_backend"] == "llm"
     assert captured["text"] == "Patient has seizures."
     assert captured["extraction_backend"] == "llm"
-    assert captured["llm_provider"] == "openai"
-    assert captured["llm_model"] == "openai/gpt-5.4-mini"
-    assert captured["llm_base_url"] == "https://api.openai.com/v1"
+    assert "llm_provider" not in captured
+    assert "llm_model" not in captured
+    assert "llm_base_url" not in captured
     assert captured["llm_internal_mode"] == "whole_document_grounded"
+
+
+def test_llm_tool_allows_configured_default_model() -> None:
+    _ensure_external_mcp_sdk()
+
+    from api.mcp.tools import ExtractHpoTermsLlmRequest
+
+    request = ExtractHpoTermsLlmRequest(
+        text="Patient has seizures.",
+        language="en",
+    )
+
+    assert request.text == "Patient has seizures."
+    assert not hasattr(request, "llm_model")
+
+
+def test_llm_tool_schema_does_not_expose_model_provider_or_base_url() -> None:
+    _ensure_external_mcp_sdk()
+
+    from api.mcp.facade import create_phentrieve_mcp
+
+    mcp = create_phentrieve_mcp()
+    tool = mcp._tool_manager._tools["phentrieve.extract_hpo_terms_llm"]
+    properties = tool.parameters["$defs"]["ExtractHpoTermsLlmRequest"]["properties"]
+
+    assert "llm_model" not in properties
+    assert "llm_provider" not in properties
+    assert "llm_base_url" not in properties
+
+
+def test_llm_tool_rejects_model_provider_or_base_url_override() -> None:
+    _ensure_external_mcp_sdk()
+
+    import pytest
+    from pydantic import ValidationError
+
+    from api.mcp.tools import ExtractHpoTermsLlmRequest
+
+    for field in ("llm_model", "llm_provider", "llm_base_url"):
+        with pytest.raises(ValidationError):
+            ExtractHpoTermsLlmRequest.model_validate(
+                {
+                    "text": "Patient has seizures.",
+                    field: "untrusted-override",
+                }
+            )
+
+
+def test_llm_tool_prefers_full_text_for_abstracts() -> None:
+    _ensure_external_mcp_sdk()
+
+    from api.mcp.facade import create_phentrieve_mcp
+
+    mcp = create_phentrieve_mcp()
+    standard_tool = mcp._tool_manager._tools["phentrieve.extract_hpo_terms"]
+    llm_tool = mcp._tool_manager._tools["phentrieve.extract_hpo_terms_llm"]
+
+    assert "prefer" in llm_tool.description.lower()
+    assert "abstract" in llm_tool.description.lower()
+    assert "publication" in llm_tool.description.lower()
+    assert "eponym" in llm_tool.description.lower()
+    assert "full abstracts" in standard_tool.description.lower()
+
+
+def test_llm_tool_falls_back_to_standard_when_requested() -> None:
+    _ensure_external_mcp_sdk()
+
+    from api.mcp.facade import extract_hpo_terms_llm_impl
+    from api.mcp.tools import ExtractHpoTermsLlmRequest
+
+    calls: list[dict[str, object]] = []
+
+    def fake_service(**kwargs):
+        calls.append(kwargs)
+        if kwargs["extraction_backend"] == "llm":
+            raise RuntimeError("LLM provider is not configured")
+        return {
+            "meta": {"extraction_backend": "standard"},
+            "processed_chunks": [],
+            "aggregated_hpo_terms": [],
+        }
+
+    result = extract_hpo_terms_llm_impl(
+        ExtractHpoTermsLlmRequest(
+            text="Patient has seizures.",
+            language="en",
+            allow_standard_fallback=True,
+        ),
+        service=fake_service,
+    )
+
+    assert result["meta"]["extraction_backend"] == "standard"
+    assert result["meta"]["fallback_reason"] == "llm_backend_error"
+    assert "LLM provider is not configured" in result["meta"]["fallback_error"]
+    assert [call["extraction_backend"] for call in calls] == ["llm", "standard"]

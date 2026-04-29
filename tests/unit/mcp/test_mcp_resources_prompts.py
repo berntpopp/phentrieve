@@ -23,9 +23,30 @@ def test_resource_payloads_are_available() -> None:
 
     assert capabilities["server"] == "phentrieve"
     assert "llm" in capabilities["extraction_backends"]
+    assert capabilities["recommended_backend_for_full_text"] == "llm"
+    assert capabilities["default_llm_provider"]
+    assert capabilities["default_llm_model"]
+    assert capabilities["configured_llm_models"] == [capabilities["default_llm_model"]]
+    assert "supported_llm_providers" not in capabilities
     assert "en" in languages["supported_languages"]
     assert "de" in languages["supported_languages"]
     assert "identifiable patient data" in " ".join(capabilities["not_intended_for"])
+
+
+def test_server_capabilities_list_configured_llm_defaults() -> None:
+    _ensure_external_mcp_sdk()
+
+    from api.mcp.facade import create_phentrieve_mcp
+
+    mcp = create_phentrieve_mcp()
+    result = mcp._tool_manager._tools["phentrieve.get_server_capabilities"].fn()
+
+    assert result["recommended_backend_for_full_text"] == "llm"
+    assert result["default_llm_provider"]
+    assert result["default_llm_model"]
+    assert result["configured_llm_models"] == [result["default_llm_model"]]
+    assert "supported_llm_providers" not in result
+    assert "credential_environment_variables" not in result
 
 
 def test_prompt_templates_are_short_actionable_and_research_only() -> None:

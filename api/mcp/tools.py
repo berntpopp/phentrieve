@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from phentrieve.config import (
     DEFAULT_CHUNK_RETRIEVAL_THRESHOLD,
@@ -45,24 +45,18 @@ class ExtractHpoTermsRequest(BaseModel):
 
 
 class ExtractHpoTermsLlmRequest(ExtractHpoTermsRequest):
-    llm_model: str = Field(
-        description="LLM model name, optionally provider-prefixed.",
-    )
-    llm_provider: str | None = Field(
-        default=None,
-        description="Provider name such as openai, anthropic, gemini, or ollama.",
-    )
-    llm_base_url: str | None = Field(
-        default=None,
-        description="Optional provider base URL.",
-    )
+    model_config = ConfigDict(extra="forbid")
+
     llm_mode: Literal["two_phase"] = "two_phase"
     llm_internal_mode: Literal["whole_document_legacy", "whole_document_grounded"] = (
         "whole_document_grounded"
     )
     allow_standard_fallback: bool = Field(
         default=False,
-        description="Fall back to standard extraction if production quota is exhausted.",
+        description=(
+            "Fall back to standard extraction if the LLM backend is unavailable. "
+            "The response metadata will include fallback_reason."
+        ),
     )
 
 

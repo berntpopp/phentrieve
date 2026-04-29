@@ -14,6 +14,7 @@ from api.mcp.resources import (
     get_capabilities_resource,
     get_extraction_profiles_resource,
     get_languages_resource,
+    get_llm_capability_defaults,
     get_research_use_resource,
 )
 from api.mcp.tools import (
@@ -67,18 +68,37 @@ def extract_hpo_terms_llm_impl(
     *,
     service: SyncMcpService = run_full_text_service,
 ) -> McpResult:
-    return service(
-        text=request.text,
-        extraction_backend="llm",
-        language=request.language,
-        llm_provider=request.llm_provider,
-        llm_model=request.llm_model,
-        llm_base_url=request.llm_base_url,
-        llm_mode=request.llm_mode,
-        llm_internal_mode=request.llm_internal_mode,
-        include_details=request.include_details,
-        include_positions=request.include_chunk_positions,
-    )
+    llm_kwargs = {
+        "text": request.text,
+        "extraction_backend": "llm",
+        "language": request.language,
+        "llm_mode": request.llm_mode,
+        "llm_internal_mode": request.llm_internal_mode,
+        "include_details": request.include_details,
+        "include_positions": request.include_chunk_positions,
+    }
+    try:
+        return service(**llm_kwargs)
+    except Exception as exc:
+        if not request.allow_standard_fallback:
+            raise
+        result = service(
+            text=request.text,
+            extraction_backend="standard",
+            language=request.language,
+            include_details=request.include_details,
+            include_positions=request.include_chunk_positions,
+            num_results_per_chunk=request.num_results_per_chunk,
+            chunk_retrieval_threshold=request.chunk_retrieval_threshold,
+        )
+        result.setdefault("meta", {})
+        result["meta"].update(
+            {
+                "fallback_reason": "llm_backend_error",
+                "fallback_error": str(exc),
+            }
+        )
+        return result
 
 
 def search_hpo_terms_impl(
@@ -167,7 +187,7 @@ def create_phentrieve_mcp(*, streamable_http_path: str = "/mcp") -> FastMCP:
         title="Extract HPO Terms",
     )
     def extract_hpo_terms(request: ExtractHpoTermsRequest) -> dict[str, Any]:
-        """Use this when research text should be mapped to HPO term suggestions without LLM calls. Research use only; not for diagnosis, treatment, triage, patient management, clinical decision support, or identifiable patient data in public demo instances."""
+        """Use this for quick deterministic research screening without LLM calls. For full abstracts, publication-style annotation, syndrome/eponym-heavy text, or review work where retrieval-only noise should be suppressed, prefer phentrieve.extract_hpo_terms_llm. Research use only; not for diagnosis, treatment, triage, patient management, clinical decision support, or identifiable patient data in public demo instances."""
         return extract_hpo_terms_impl(request)
 
     @mcp.tool(
@@ -175,7 +195,7 @@ def create_phentrieve_mcp(*, streamable_http_path: str = "/mcp") -> FastMCP:
         title="Extract HPO Terms With LLM",
     )
     def extract_hpo_terms_llm(request: ExtractHpoTermsLlmRequest) -> dict[str, Any]:
-        """Use this when research-only full-text LLM extraction should identify phenotype mentions and map them to grounded HPO term suggestions. Not for diagnosis, treatment, triage, patient management, clinical decision support, or identifiable patient data in public demo instances."""
+        """Prefer this for full abstracts, publication-style annotation, syndrome/eponym-heavy text, and review workflows where retrieval-only noise should be suppressed. Uses only the server-configured LLM provider/model; clients cannot override model, provider, or base URL. Not for diagnosis, treatment, triage, patient management, clinical decision support, or identifiable patient data in public demo instances."""
         return extract_hpo_terms_llm_impl(request)
 
     @mcp.tool(
@@ -262,6 +282,7 @@ def create_phentrieve_mcp(*, streamable_http_path: str = "/mcp") -> FastMCP:
                 "clinical decision support",
                 "identifiable patient data in public demo instances",
             ],
+            **get_llm_capability_defaults(),
         }
 
     return mcp
