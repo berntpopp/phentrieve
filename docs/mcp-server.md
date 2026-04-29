@@ -1,66 +1,90 @@
 # MCP Server Integration
 
-Phentrieve supports the [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) to expose HPO term extraction capabilities to LLM clients like Claude Desktop.
+Phentrieve exposes a Streamable HTTP MCP endpoint for research-use Human
+Phenotype Ontology (HPO) annotation workflows. The endpoint is intended for
+Claude, ChatGPT developer mode, and other current remote MCP clients.
 
-## Transport Modes
+Phentrieve MCP outputs are algorithmic research suggestions only. They are not
+for diagnosis, treatment, triage, patient management, or clinical decision
+support. Do not submit identifiable patient data to public demo instances.
 
-| Mode | URL | Use Case |
-|------|-----|----------|
-| **stdio** | N/A (command-based) | Claude Desktop integration |
-| **HTTP (same-domain)** | `https://phentrieve.example.com/mcp` | Production Docker deployment |
-| **HTTP (standalone)** | `http://localhost:8735/mcp` | Local development/testing |
+## Transport
+
+| Mode | Endpoint | Status | Use Case |
+|------|----------|--------|----------|
+| Streamable HTTP | `/mcp` | Recommended | Claude, ChatGPT developer mode, remote MCP clients |
+
+Legacy SSE endpoints are not supported. Use the single Streamable HTTP URL:
+
+```text
+https://your-domain.example/mcp
+```
+
+## ChatGPT Developer Mode
+
+Create a custom app from the remote MCP server:
+
+```text
+https://your-domain.example/mcp
+```
+
+Use no authentication only for local or private deployments. For public
+deployments, put the endpoint behind OAuth or an authenticated reverse proxy.
+Phentrieve's current tools are read-only and annotated as such.
+
+## Claude Code HTTP
+
+```bash
+claude mcp add --transport http phentrieve https://your-domain.example/mcp
+```
+
+For local development:
+
+```bash
+make mcp-serve-http
+claude mcp add --transport http phentrieve http://127.0.0.1:8734/mcp
+```
 
 ## Available MCP Tools
 
-| Tool | Description |
-|------|-------------|
-| `query_hpo_terms` | Search HPO terms by semantic similarity to clinical text |
-| `process_clinical_text` | Extract HPO terms from clinical notes with chunking and assertion detection |
-| `calculate_term_similarity` | Calculate semantic similarity between two HPO terms |
+| Tool | Use When |
+|------|----------|
+| `phentrieve.extract_hpo_terms` | Deterministic retrieval-backed HPO term suggestions for research text |
+| `phentrieve.extract_hpo_terms_llm` | LLM-assisted full-text research annotation and grounded HPO mapping suggestions |
+| `phentrieve.search_hpo_terms` | Candidate HPO terms for a short phrase |
+| `phentrieve.compare_hpo_terms` | Similarity between two HPO IDs |
+| `phentrieve.get_server_capabilities` | Discover supported languages, models, backends, and research-use limitations |
 
-## Quick Start
+All tools are read-only from the perspective of user data. Tool descriptions
+carry the same research-only limitation and public demo data warning.
 
-### Claude Desktop (stdio)
+## MCP Resources
 
-Add to `~/.config/claude/claude_desktop_config.json`:
+| Resource | Contents |
+|----------|----------|
+| `phentrieve://capabilities` | Server capabilities, backends, transports, and tool names |
+| `phentrieve://hpo/languages` | Supported language codes |
+| `phentrieve://hpo/extraction-profiles` | Standard and LLM extraction profile guidance |
+| `phentrieve://compliance/research-use` | Intended use, non-intended uses, and public demo data notice |
 
-```json
-{
-  "mcpServers": {
-    "phentrieve": {
-      "command": "phentrieve",
-      "args": ["mcp", "serve"],
-      "env": {
-        "PHENTRIEVE_DATA_ROOT_DIR": "/path/to/phentrieve/data"
-      }
-    }
-  }
-}
-```
+## MCP Prompts
 
-### Production Docker (same-domain HTTP)
+| Prompt | Purpose |
+|--------|---------|
+| `annotate_research_text` | Map supplied research text to HPO suggestions |
+| `review_hpo_research_annotations` | Review Phentrieve-returned HPO annotations against text evidence |
+| `extract_research_case_phenotypes` | Extract phenotype suggestions from synthetic or research-consented case-report-like text |
 
-The Docker image ships with MCP support enabled by default. The `/mcp` endpoint is available on the same domain as the API:
+These prompts are short workflow templates. They do not expose benchmarking
+comparison workflows as routine annotation prompts.
 
-```
-https://phentrieve.example.com/mcp
-```
-
-**Environment variable** (optional, enabled by default in Docker):
-```bash
-ENABLE_MCP_HTTP=true
-```
-
-### Local Development
+## Local Development
 
 ```bash
 # Install MCP dependencies
 make mcp-install
 
-# Option 1: stdio mode (for Claude Desktop)
-make mcp-serve
-
-# Option 2: HTTP mode (standalone)
+# Start the Streamable HTTP MCP endpoint
 make mcp-serve-http
 
 # View MCP configuration
@@ -69,57 +93,25 @@ make mcp-info
 
 ## Configuration
 
-### Environment Variables
-
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `ENABLE_MCP_HTTP` | `false` (local) / `true` (Docker) | Mount MCP at `/mcp` on main API |
+| `ENABLE_MCP_HTTP` | `false` local, `true` Docker | Mount MCP at `/mcp` on the main API |
 | `PHENTRIEVE_MCP_ENABLE_HTTP` | `false` | Alternative env var for enabling HTTP |
 | `PHENTRIEVE_MCP_NAME` | `phentrieve` | MCP server name shown to clients |
 | `PHENTRIEVE_MCP_HOST` | `127.0.0.1` | Host for standalone HTTP mode |
 | `PHENTRIEVE_MCP_PORT` | `8734` | Port for standalone HTTP mode |
 
-### CLI Commands
+## CLI Commands
 
 ```bash
-# Start MCP server (stdio mode, for Claude Desktop)
-phentrieve mcp serve
-
-# Start MCP server (HTTP mode, standalone)
-phentrieve mcp serve --http --port 8735
+# Start MCP server over Streamable HTTP
+phentrieve mcp serve --http --port 8734
 
 # Display MCP configuration and tools
 phentrieve mcp info
 ```
 
-## Architecture
-
-```
-┌─────────────────────────────────────────────────────────┐
-│                    Phentrieve API                        │
-│                                                          │
-│  ┌────────────────┐  ┌────────────────┐  ┌───────────┐ │
-│  │ /api/v1/query  │  │ /api/v1/text   │  │ /api/v1/  │ │
-│  │                │  │                │  │ similarity│ │
-│  └───────┬────────┘  └───────┬────────┘  └─────┬─────┘ │
-│          │                   │                 │       │
-│          └───────────────────┼─────────────────┘       │
-│                              │                          │
-│                    ┌─────────▼─────────┐               │
-│                    │   FastAPI-MCP     │               │
-│                    │   (when enabled)  │               │
-│                    └─────────┬─────────┘               │
-│                              │                          │
-│                    ┌─────────▼─────────┐               │
-│                    │      /mcp         │               │
-│                    │  (HTTP transport) │               │
-│                    └───────────────────┘               │
-└─────────────────────────────────────────────────────────┘
-```
-
 ## Deployment
-
-### Docker Compose (Production)
 
 The default `docker-compose.yml` enables MCP HTTP:
 
@@ -127,25 +119,26 @@ The default `docker-compose.yml` enables MCP HTTP:
 services:
   phentrieve_api:
     environment:
-      - ENABLE_MCP_HTTP=true  # Enabled by default
+      - ENABLE_MCP_HTTP=true
 ```
 
 To disable MCP in Docker:
+
 ```bash
 ENABLE_MCP_HTTP=false docker-compose up
 ```
 
-### Nginx Reverse Proxy
+## Nginx Reverse Proxy
 
-If using Nginx Proxy Manager or similar, ensure the `/mcp` path is proxied to the API container:
+Proxy `/mcp` to the API container:
 
 ```nginx
 location /mcp {
     proxy_pass http://phentrieve_api:8000/mcp;
     proxy_http_version 1.1;
-    proxy_set_header Upgrade $http_upgrade;
-    proxy_set_header Connection "upgrade";
     proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
 }
 ```
 
@@ -154,37 +147,34 @@ location /mcp {
 ### MCP not available in Docker
 
 Verify the environment variable is set:
+
 ```bash
 docker-compose exec phentrieve_api printenv | grep MCP
 ```
 
-Check API logs for MCP mount message:
+Check API logs for the MCP mount message:
+
 ```bash
 docker-compose logs phentrieve_api | grep -i mcp
 ```
 
-### Dependencies not installed (local development)
+### Dependencies not installed locally
 
 Install MCP optional dependencies:
+
 ```bash
 uv sync --extra mcp
-# or
-make mcp-install
 ```
 
-### stdio mode not working with Claude Desktop
+### Client cannot initialize
 
-1. Verify `phentrieve` is in your PATH
-2. Check Claude Desktop logs for error messages
-3. Test manually: `echo '{"jsonrpc":"2.0","method":"tools/list","id":1}' | phentrieve mcp serve`
-
-## API Reference
-
-See `/docs` endpoint for full OpenAPI documentation of the underlying FastAPI routes that power the MCP tools.
+Confirm the client is configured for Streamable HTTP at `/mcp`, not a legacy
+SSE URL such as `/sse` or `/mcp/messages/`.
 
 ## Security Considerations
 
-- MCP HTTP endpoint uses the same authentication as the main API (none by default)
-- For production, place behind a reverse proxy with authentication
-- Consider rate limiting MCP endpoints to prevent abuse
-- The `/mcp` endpoint only exposes explicitly allowlisted operations
+- Put public MCP deployments behind OAuth or an authenticated reverse proxy.
+- Do not submit identifiable patient data to public demo instances.
+- The current MCP tools are read-only and intended for research, benchmarking,
+  education, and research data standardisation only.
+- Consider rate limiting MCP endpoints to prevent abuse.
