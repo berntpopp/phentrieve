@@ -1118,6 +1118,11 @@ describe('QueryInterface (characterization)', () => {
         text: expect.stringContaining('[REDACTED_MRN]'),
       })
     );
+    expect(wrapper.vm.conversationStore.queryHistory[0]).toMatchObject({
+      query: '[redacted]',
+      redactedQuery: '[REDACTED_MRN]',
+      rawQuerySessionOnly: 'MRN: AB-123456 with seizures',
+    });
   });
 
   it('does not log raw text or detected snippets during PII review and submit', async () => {

@@ -190,6 +190,8 @@ export function useQueryInterfaceController({ getContext, service, logService })
 
   async function submitQueryText({
     currentQuery,
+    rawQueryForHistory = currentQuery,
+    redactedQueryForHistory = null,
     useTextProcessMode,
     isAutoSubmit,
     piiScanResult = null,
@@ -204,7 +206,8 @@ export function useQueryInterfaceController({ getContext, service, logService })
     });
 
     const queryId = context.conversationStore.addQuery({
-      query: currentQuery,
+      query: rawQueryForHistory,
+      redactedQuery: redactedQueryForHistory,
       loading: true,
       type: useTextProcessMode ? 'textProcess' : 'query',
     });
@@ -343,6 +346,8 @@ export function useQueryInterfaceController({ getContext, service, logService })
 
     await submitQueryText({
       currentQuery: redaction.text,
+      rawQueryForHistory: pending.text,
+      redactedQueryForHistory: redaction.text,
       useTextProcessMode: pending.useTextProcessMode,
       isAutoSubmit: pending.isAutoSubmit,
       piiScanResult: pending.scanResult,

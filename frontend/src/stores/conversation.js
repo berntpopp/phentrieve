@@ -16,6 +16,7 @@ import { ref, computed } from 'vue';
  * @private
  */
 const STORAGE_KEY = 'phentrieve-conversation';
+const REDACTED_QUERY_PLACEHOLDER = '[redacted]';
 
 /**
  * Check if there's persisted conversation data in localStorage
@@ -46,6 +47,37 @@ function generateId() {
     return crypto.randomUUID();
   }
   return `${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
+}
+
+function normalizeRedactedQuery(redactedQuery) {
+  return typeof redactedQuery === 'string' && redactedQuery.trim()
+    ? redactedQuery
+    : REDACTED_QUERY_PLACEHOLDER;
+}
+
+function stripSessionOnlyRawQueries(state) {
+  if (!state || typeof state !== 'object') {
+    return state;
+  }
+
+  return {
+    ...state,
+    queryHistory: Array.isArray(state.queryHistory)
+      ? state.queryHistory.map(({ rawQuerySessionOnly: _rawQuerySessionOnly, ...item }) => item)
+      : state.queryHistory,
+  };
+}
+
+function sanitizeHydratedQueryHistory(queryHistory) {
+  if (!Array.isArray(queryHistory)) {
+    return [];
+  }
+
+  return queryHistory.map(({ rawQuerySessionOnly: _rawQuerySessionOnly, ...item }) => ({
+    ...item,
+    query: REDACTED_QUERY_PLACEHOLDER,
+    redactedQuery: normalizeRedactedQuery(item.redactedQuery),
+  }));
 }
 
 export const useConversationStore = defineStore(
@@ -137,6 +169,7 @@ export const useConversationStore = defineStore(
      */
     function addQuery(queryItem) {
       const id = generateId();
+      const rawQuery = typeof queryItem.query === 'string' ? queryItem.query : '';
       const item = {
         id,
         timestamp: new Date().toISOString(),
@@ -145,6 +178,9 @@ export const useConversationStore = defineStore(
         error: null,
         type: 'query',
         ...queryItem,
+        query: REDACTED_QUERY_PLACEHOLDER,
+        redactedQuery: normalizeRedactedQuery(queryItem.redactedQuery),
+        rawQuerySessionOnly: rawQuery,
       };
 
       queryHistory.value.unshift(item);
@@ -381,9 +417,14 @@ export const useConversationStore = defineStore(
     persist: {
       key: STORAGE_KEY,
       storage: localStorage,
+      serializer: {
+        serialize: (state) => JSON.stringify(stripSessionOnlyRawQueries(state)),
+        deserialize: (state) => JSON.parse(state),
+      },
       pick: ['queryHistory', 'collectedPhenotypes', 'maxHistoryLength', 'showCollectionPanel'],
       // Signal hydration complete after restore (pinia-plugin-persistedstate v4 hook)
       afterHydrate: (ctx) => {
+        ctx.store.queryHistory = sanitizeHydratedQueryHistory(ctx.store.queryHistory);
         // Pinia auto-unwraps refs, so direct assignment works
         ctx.store.isHydrating = false;
       },

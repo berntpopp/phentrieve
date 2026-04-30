@@ -50,7 +50,8 @@ describe('Conversation Store', () => {
 
       expect(store.queryHistory).toHaveLength(1);
       expect(store.queryHistory[0].id).toBe(id);
-      expect(store.queryHistory[0].query).toBe('test query');
+      expect(store.queryHistory[0].query).toBe('[redacted]');
+      expect(store.queryHistory[0].rawQuerySessionOnly).toBe('test query');
     });
 
     it('should add timestamp automatically', () => {
@@ -67,9 +68,9 @@ describe('Conversation Store', () => {
       store.addQuery({ query: 'second' });
       store.addQuery({ query: 'third' });
 
-      expect(store.queryHistory[0].query).toBe('third');
-      expect(store.queryHistory[1].query).toBe('second');
-      expect(store.queryHistory[2].query).toBe('first');
+      expect(store.queryHistory[0].rawQuerySessionOnly).toBe('third');
+      expect(store.queryHistory[1].rawQuerySessionOnly).toBe('second');
+      expect(store.queryHistory[2].rawQuerySessionOnly).toBe('first');
     });
 
     it('should set default values for query items', () => {
@@ -106,8 +107,8 @@ describe('Conversation Store', () => {
 
       expect(store.queryHistory).toHaveLength(5);
       // Should keep newest (highest numbers)
-      expect(store.queryHistory[0].query).toBe('query 9');
-      expect(store.queryHistory[4].query).toBe('query 5');
+      expect(store.queryHistory[0].rawQuerySessionOnly).toBe('query 9');
+      expect(store.queryHistory[4].rawQuerySessionOnly).toBe('query 5');
     });
 
     it('should update query response by ID', () => {
@@ -152,7 +153,7 @@ describe('Conversation Store', () => {
       store.addQuery({ query: 'first' });
       store.addQuery({ query: 'second' });
 
-      expect(store.getLatestQuery().query).toBe('second');
+      expect(store.getLatestQuery().rawQuerySessionOnly).toBe('second');
     });
 
     it('should clear conversation', () => {
