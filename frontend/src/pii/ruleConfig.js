@@ -2,6 +2,40 @@ export const SUPPORTED_PII_LOCALES = Object.freeze(['en', 'de', 'fr', 'es', 'nl'
 
 export const DATE_PATTERN = /\b(?:\d{1,2}[./-]\d{1,2}[./-]\d{2,4}|\d{4}-\d{2}-\d{2})\b/gu;
 const ID_VALUE_PATTERN = /\b[A-Z]{0,4}[- ]?\d{4,12}[A-Z0-9-]*\b/giu;
+const PERSON_NAME_TOKEN = '[A-ZÀ-ÖØ-Þ][A-Za-zÀ-ÖØ-öø-ÿß-]+';
+
+const TITLED_NAME_RULE_CONFIG = Object.freeze({
+  en: { id: 'en.titled_name', titles: ['Mr', 'Mrs', 'Ms', 'Dr', 'Prof'] },
+  de: { id: 'de.titled_name', titles: ['Herr', 'Frau', 'Dr', 'Prof'] },
+  fr: { id: 'fr.titled_name', titles: ['Monsieur', 'Madame', 'M', 'Mme', 'Dr', 'Prof'] },
+  es: { id: 'es.titled_name', titles: ['Señor', 'Señora', 'Sr', 'Sra', 'Dr', 'Dra'] },
+  nl: { id: 'nl.titled_name', titles: ['Dhr', 'Mevrouw', 'Mw', 'Dr', 'Prof'] },
+});
+
+function escapeRegex(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/gu, '\\$&');
+}
+
+function createTitledNameRule(locale, config) {
+  const titlePattern = config.titles.map(escapeRegex).join('|');
+  const optionalDot = '\\.?';
+
+  return {
+    id: config.id,
+    category: 'person_name',
+    confidence: 'review',
+    locales: [locale],
+    redactionToken: '[REDACTED_NAME]',
+    enabled: true,
+    patterns: [
+      // Titles come from static locale config and are escaped before RegExp construction.
+      // eslint-disable-next-line security/detect-non-literal-regexp
+      new RegExp(`\\b(?:${titlePattern})${optionalDot}\\s+${PERSON_NAME_TOKEN}\\s+${PERSON_NAME_TOKEN}\\b`, 'gu'),
+      // eslint-disable-next-line security/detect-non-literal-regexp
+      new RegExp(`\\b(?:${titlePattern})${optionalDot}\\s+${PERSON_NAME_TOKEN}\\b`, 'gu'),
+    ],
+  };
+}
 
 export const GLOBAL_RULES = Object.freeze([
   {
@@ -44,6 +78,7 @@ export const GLOBAL_RULES = Object.freeze([
 
 export const LOCALE_RULES = Object.freeze({
   en: [
+    createTitledNameRule('en', TITLED_NAME_RULE_CONFIG.en),
     {
       id: 'en.dob',
       category: 'dob',
@@ -66,6 +101,7 @@ export const LOCALE_RULES = Object.freeze({
     },
   ],
   de: [
+    createTitledNameRule('de', TITLED_NAME_RULE_CONFIG.de),
     {
       id: 'de.dob',
       category: 'dob',
@@ -89,6 +125,7 @@ export const LOCALE_RULES = Object.freeze({
     },
   ],
   fr: [
+    createTitledNameRule('fr', TITLED_NAME_RULE_CONFIG.fr),
     {
       id: 'fr.nir',
       category: 'national_identifier',
@@ -101,6 +138,7 @@ export const LOCALE_RULES = Object.freeze({
     },
   ],
   es: [
+    createTitledNameRule('es', TITLED_NAME_RULE_CONFIG.es),
     {
       id: 'es.dni_nie',
       category: 'national_identifier',
@@ -122,6 +160,7 @@ export const LOCALE_RULES = Object.freeze({
     },
   ],
   nl: [
+    createTitledNameRule('nl', TITLED_NAME_RULE_CONFIG.nl),
     {
       id: 'nl.bsn',
       category: 'national_identifier',

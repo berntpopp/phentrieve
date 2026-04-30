@@ -37,6 +37,25 @@ describe('scanPii', () => {
     expect(result.summary.high.national_identifier).toBe(1);
   });
 
+  it('marks German titled person names as review confidence', () => {
+    const result = scanPii('Herr Bernt Popp ist dumm', { locale: 'de' });
+
+    expect(result.summary.review.person_name).toBe(1);
+    expect(result.findings[0]).not.toHaveProperty('text');
+  });
+
+  it.each([
+    ['en', 'Mr John Smith has seizures'],
+    ['fr', 'Monsieur Jean Dupont a des crises'],
+    ['es', 'Señor Juan Garcia tiene convulsiones'],
+    ['nl', 'Dhr Jan Jansen heeft aanvallen'],
+  ])('marks %s titled person names as review confidence', (locale, text) => {
+    const result = scanPii(text, { locale });
+
+    expect(result.summary.review.person_name).toBe(1);
+    expect(result.findings[0]).not.toHaveProperty('text');
+  });
+
   it('detects French NIR labels', () => {
     const result = scanPii('NIR 1900675123456 pour le patient.', { locale: 'fr' });
     expect(result.summary.high.national_identifier).toBe(1);
