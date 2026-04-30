@@ -13,6 +13,8 @@ const API_URL = import.meta.env.VITE_API_URL || '/api/v1'; // Default to relativ
 const RESEARCH_USE_ACK_CONFIG = Object.freeze({
   headers: { 'X-Phentrieve-Research-Use-Acknowledged': 'true' },
 });
+const getSerializedSize = value => JSON.stringify(value)?.length || 0;
+const GENERIC_API_DETAIL = 'API returned an error. See status code for details.';
 
 class PhentrieveService {
   async queryHpo(queryData) {
@@ -27,12 +29,12 @@ class PhentrieveService {
       const response = await axios.post(`${API_URL}/query/`, queryData, RESEARCH_USE_ACK_CONFIG);
       logService.debug('HPO API response received', {
         status: response.status,
-        data: response.data,
+        dataSize: getSerializedSize(response.data),
+        resultsCount: response.data?.results?.length || 0,
       });
       return response.data; // Expected to match QueryResponse schema
     } catch (error) {
       logService.error('Original API Error in PhentrieveService queryHpo:', {
-        message: error.message,
         name: error.name,
         code: error.code,
         config: error.config
@@ -46,7 +48,7 @@ class PhentrieveService {
         response: error.response
           ? {
               status: error.response.status,
-              data: error.response.data,
+              dataSize: getSerializedSize(error.response.data),
             }
           : null,
       });
@@ -81,7 +83,7 @@ class PhentrieveService {
 
       logService.debug('Text Processing API response received', {
         status: response.status,
-        dataSize: JSON.stringify(response.data).length,
+        dataSize: getSerializedSize(response.data),
         numChunks: response.data.processed_chunks?.length || 0,
         numAggregatedTerms: response.data.aggregated_hpo_terms?.length || 0,
       });
@@ -89,7 +91,6 @@ class PhentrieveService {
       return response.data; // Expected to match TextProcessingResponseAPI schema
     } catch (error) {
       logService.error('Original API Error in PhentrieveService processText:', {
-        message: error.message,
         name: error.name,
         code: error.code,
         config: error.config
@@ -103,7 +104,7 @@ class PhentrieveService {
         response: error.response
           ? {
               status: error.response.status,
-              data: error.response.data,
+              dataSize: getSerializedSize(error.response.data),
             }
           : null,
       });
@@ -244,11 +245,8 @@ class PhentrieveService {
       originalErrorDetails: {
         message: error.message,
         code: error.code,
-        apiResponseMessage:
-          typeof responseDetail === 'string'
-            ? responseDetail
-            : responseDetail?.error_message || responseDetail?.message,
-        apiResponseData: responseData,
+        apiResponseStatus: error.response?.status,
+        apiResponseDataSize: getSerializedSize(responseData),
         configUrl: error.config?.url,
       },
     };
@@ -260,9 +258,7 @@ class PhentrieveService {
       standardError.type = 'API_ERROR';
       const { key, params } = this._getErrorMessageKeyForStatus(
         error.response.status,
-        typeof responseDetail === 'string'
-          ? responseDetail
-          : responseDetail?.error_message || responseDetail?.message || ''
+        ''
       );
       standardError.userMessageKey = key;
       standardError.userMessageParams = params;
@@ -312,7 +308,7 @@ class PhentrieveService {
    */
   _getErrorMessageKeyForStatus(status, detail = '') {
     let key = 'errors.api.unknown';
-    let params = { status, detail: detail || 'No additional details.' };
+    let params = { status, detail: detail || GENERIC_API_DETAIL };
 
     switch (status) {
       case 400:

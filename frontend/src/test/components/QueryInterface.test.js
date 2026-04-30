@@ -7,6 +7,7 @@ import * as directives from 'vuetify/directives';
 import { createI18n } from 'vue-i18n';
 import en from '../../locales/en.json';
 import PhentrieveService from '../../services/PhentrieveService';
+import { logService } from '../../services/logService';
 import { useFullTextWorkspaceStore } from '../../stores/fullTextWorkspace';
 
 // Mock the API service class — methods are queryHpo() and processText()
@@ -1063,6 +1064,30 @@ describe('QueryInterface (characterization)', () => {
         text: expect.stringContaining('[REDACTED_MRN]'),
       })
     );
+  });
+
+  it('does not log raw text or detected snippets during PII review and submit', async () => {
+    const wrapper = await mountQueryInterface();
+    await flushPromises();
+
+    await setVmState(wrapper, {
+      queryText: 'Email jane@example.org with seizures',
+      forceEndpointMode: 'query',
+    });
+
+    await wrapper.vm.submitQuery();
+    await wrapper.vm.continueWithPiiRedaction();
+
+    const serializedLogs = JSON.stringify([
+      ...logService.info.mock.calls,
+      ...logService.debug.mock.calls,
+      ...logService.warn.mock.calls,
+      ...logService.error.mock.calls,
+    ]);
+
+    expect(serializedLogs).not.toContain('jane@example.org');
+    expect(serializedLogs).not.toContain('Email jane');
+    expect(serializedLogs).toContain('piiSummary');
   });
 
   it('redacts in input without submitting', async () => {

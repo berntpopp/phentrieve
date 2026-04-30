@@ -7,8 +7,27 @@ vi.mock('axios', () => ({
   },
 }));
 
+vi.mock('../../services/logService', () => ({
+  logService: {
+    info: vi.fn(),
+    debug: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+  },
+}));
+
 import axios from 'axios';
 import PhentrieveService from '../../services/PhentrieveService';
+import { logService } from '../../services/logService';
+
+function serializedServiceLogs() {
+  return JSON.stringify([
+    ...logService.info.mock.calls,
+    ...logService.debug.mock.calls,
+    ...logService.warn.mock.calls,
+    ...logService.error.mock.calls,
+  ]);
+}
 
 describe('PhentrieveService', () => {
   beforeEach(() => {
@@ -84,7 +103,8 @@ describe('PhentrieveService', () => {
       quotaLimit: 3,
       extractionBackend: 'llm',
       originalErrorDetails: expect.objectContaining({
-        apiResponseMessage: 'LLM daily quota exhausted.',
+        apiResponseStatus: 429,
+        apiResponseDataSize: expect.any(Number),
       }),
     });
 
@@ -104,18 +124,7 @@ describe('PhentrieveService', () => {
         llmModel: 'gpt-5.4-mini',
         llmMode: 'two_phase',
       })
-    ).rejects.toMatchObject({
-      originalErrorDetails: expect.objectContaining({
-        apiResponseData: expect.objectContaining({
-          detail: expect.objectContaining({
-            quota_remaining: 0,
-            quota_limit: 3,
-            usage_date_utc: '2026-04-16',
-            error_message: 'LLM daily quota exhausted.',
-          }),
-        }),
-      }),
-    });
+    ).rejects.not.toHaveProperty('originalErrorDetails.apiResponseData');
   });
 
   it('keeps generic handling for llm 429 responses without quota fields', async () => {
@@ -247,6 +256,181 @@ describe('PhentrieveService', () => {
     expect(payload).not.toHaveProperty('window_size');
     expect(payload).not.toHaveProperty('llm_mode');
     expect(payload).not.toHaveProperty('retrieval_model_name');
+  });
+
+  it('logs query request and response metadata without raw text payloads', async () => {
+    axios.post.mockResolvedValue({
+      status: 200,
+      data: {
+        query_text_received: 'Email jane@example.org with seizures',
+        results: [{ id: 'HP:0001250' }],
+      },
+    });
+
+    await PhentrieveService.queryHpo({
+      text: 'Email jane@example.org with seizures',
+      num_results: 5,
+      model_name: 'test-model',
+    });
+
+    const logs = serializedServiceLogs();
+    expect(logs).not.toContain('jane@example.org');
+    expect(logs).not.toContain('Email jane');
+    expect(logs).not.toContain('query_text_received');
+    expect(logs).toContain('textLength');
+    expect(logs).toContain('resultsCount');
+  });
+
+  it('logs API errors with response metadata without raw response or request bodies', async () => {
+    axios.post.mockRejectedValueOnce({
+      isAxiosError: true,
+      message: 'Request failed with status code 400',
+      name: 'AxiosError',
+      code: 'ERR_BAD_REQUEST',
+      config: {
+        url: '/api/v1/query/',
+        method: 'post',
+        timeout: 0,
+        data: 'Email jane@example.org with seizures',
+      },
+      request: {},
+      response: {
+        status: 400,
+        statusText: 'Bad Request',
+        data: {
+          detail: 'Email jane@example.org with seizures is invalid',
+        },
+      },
+    });
+
+    await expect(
+      PhentrieveService.queryHpo({
+        text: 'Email jane@example.org with seizures',
+        num_results: 5,
+      })
+    ).rejects.toMatchObject({ status: 400 });
+
+    axios.post.mockRejectedValueOnce({
+      isAxiosError: true,
+      message: 'Request failed with status code 422',
+      name: 'AxiosError',
+      code: 'ERR_BAD_RESPONSE',
+      config: {
+        url: '/api/v1/text/process',
+        method: 'post',
+        timeout: 0,
+        data: JSON.stringify({ text: 'Email jane@example.org with seizures' }),
+      },
+      request: {},
+      response: {
+        status: 422,
+        statusText: 'Unprocessable Content',
+        data: {
+          submitted_text: 'Email jane@example.org with seizures',
+          redacted_text: '[REDACTED_EMAIL] with seizures',
+          snippets: ['Email jane@example.org'],
+        },
+      },
+    });
+
+    await expect(
+      PhentrieveService.processText({
+        text: 'Email jane@example.org with seizures',
+        extractionBackend: 'standard',
+      })
+    ).rejects.toMatchObject({ status: 422 });
+
+    const logs = serializedServiceLogs();
+    expect(logs).not.toContain('jane@example.org');
+    expect(logs).not.toContain('Email jane');
+    expect(logs).not.toContain('submitted_text');
+    expect(logs).not.toContain('redacted_text');
+    expect(logs).not.toContain('snippets');
+    expect(logs).not.toContain('Bad Request');
+    expect(logs).not.toContain('Unprocessable Content');
+    expect(logs).toContain('dataSize');
+  });
+
+  it('does not expose raw API error details on thrown standardized errors', async () => {
+    axios.post.mockRejectedValueOnce({
+      isAxiosError: true,
+      message: 'Request failed with status code 400',
+      name: 'AxiosError',
+      code: 'ERR_BAD_REQUEST',
+      config: {
+        url: '/api/v1/query/',
+        method: 'post',
+        data: 'Email jane@example.org with seizures',
+      },
+      response: {
+        status: 400,
+        data: {
+          detail: 'Email jane@example.org with seizures is invalid',
+          submitted_text: 'Email jane@example.org with seizures',
+          snippets: ['Email jane@example.org'],
+        },
+      },
+    });
+
+    let thrownError;
+    try {
+      await PhentrieveService.queryHpo({
+        text: 'Email jane@example.org with seizures',
+        num_results: 5,
+      });
+    } catch (error) {
+      thrownError = error;
+    }
+
+    const serializedError = JSON.stringify(thrownError);
+    expect(serializedError).not.toContain('jane@example.org');
+    expect(serializedError).not.toContain('Email jane');
+    expect(serializedError).not.toContain('submitted_text');
+    expect(serializedError).not.toContain('snippets');
+    expect(thrownError.originalErrorDetails).toEqual(
+      expect.objectContaining({
+        apiResponseStatus: 400,
+        apiResponseDataSize: expect.any(Number),
+      })
+    );
+    expect(thrownError.originalErrorDetails).not.toHaveProperty('apiResponseData');
+  });
+
+  it('does not expose object-shaped API error detail messages on thrown errors', async () => {
+    axios.post.mockRejectedValueOnce({
+      isAxiosError: true,
+      message: 'Request failed with status code 422',
+      name: 'AxiosError',
+      code: 'ERR_BAD_REQUEST',
+      config: {
+        url: '/api/v1/query/',
+        method: 'post',
+      },
+      response: {
+        status: 422,
+        data: {
+          detail: {
+            message: 'Email jane@example.org with seizures is invalid',
+            error_message: 'Email jane@example.org was rejected',
+          },
+        },
+      },
+    });
+
+    let thrownError;
+    try {
+      await PhentrieveService.queryHpo({
+        text: 'Email jane@example.org with seizures',
+        num_results: 5,
+      });
+    } catch (error) {
+      thrownError = error;
+    }
+
+    const serializedError = JSON.stringify(thrownError);
+    expect(serializedError).not.toContain('jane@example.org');
+    expect(serializedError).not.toContain('Email jane');
+    expect(thrownError.userMessageParams.detail).toBe('API returned an error. See status code for details.');
   });
 
   describe('adaptive_rechunking pass-through', () => {
