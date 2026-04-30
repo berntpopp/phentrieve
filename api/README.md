@@ -35,7 +35,7 @@ api/
 
 ### Prerequisites
 
-- Python 3.8+
+- Python 3.11+
 - Phentrieve core package installed
 - HPO data initialized
 
@@ -44,13 +44,13 @@ api/
 1. Install required dependencies:
 
 ```bash
-pip install python-dotenv uvicorn fastapi
+uv sync --extra api
 ```
 
 2. Make sure HPO data is initialized (if not already done):
 
 ```bash
-python -m phentrieve.setup_hpo_index
+uv run python -m phentrieve.setup_hpo_index
 ```
 
 ### Running the API Server
@@ -58,7 +58,7 @@ python -m phentrieve.setup_hpo_index
 From the `api` directory, run:
 
 ```bash
-python run_api_local.py
+uv run --project .. python run_api_local.py
 ```
 
 This will:
@@ -159,7 +159,7 @@ ERROR: HPO graph data (ancestors or depths) is critically unavailable.
 Run the setup script to initialize HPO data:
 
 ```bash
-python -m phentrieve.setup_hpo_index
+uv run python -m phentrieve.setup_hpo_index
 ```
 
 ### Index Issues
@@ -173,7 +173,7 @@ ERROR: DenseRetriever: Failed to connect to Chroma collection
 Build the vector indexes:
 
 ```bash
-python -m phentrieve.setup_hpo_index --build-index
+uv run python -m phentrieve.setup_hpo_index --build-index
 ```
 
 ### Path Configuration

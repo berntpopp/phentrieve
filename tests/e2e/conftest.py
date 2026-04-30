@@ -17,7 +17,7 @@ import os
 
 import pytest
 import requests
-from docker import DockerClient
+from docker import DockerClient, from_env
 from docker.models.containers import Container
 
 
@@ -61,6 +61,16 @@ def docker_setup() -> list[str]:
         list[str]: Docker Compose commands for setup
     """
     return ["down -v", "up --build -d"]
+
+
+@pytest.fixture(scope="session")
+def docker_client() -> DockerClient:
+    """Return a Docker client for container inspection tests."""
+    client = from_env()
+    try:
+        yield client
+    finally:
+        client.close()
 
 
 def is_api_responsive(url: str, timeout: int = 1) -> bool:
@@ -193,7 +203,7 @@ def api_config_endpoint(api_service: str) -> str:
     Returns:
         str: Config info endpoint URL
     """
-    return f"{api_service}/api/v1/config-info"
+    return f"{api_service}/api/v1/info"
 
 
 @pytest.fixture(scope="session")

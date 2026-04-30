@@ -208,19 +208,19 @@ class TestModelCaching:
         )
 
         with patch(
-            "api.routers.text_processing_router.get_sbert_model_dependency"
+            "api.services.text_processing_context.get_sbert_model_dependency"
         ) as mock_get_model:
             mock_get_model.return_value = MagicMock()
 
             with patch(
-                "api.routers.text_processing_router.get_dense_retriever_dependency"
+                "api.services.text_processing_context.get_dense_retriever_dependency"
             ) as mock_get_retriever:
                 mock_retriever = MagicMock()
                 mock_retriever.model_name = "test-model"
                 mock_get_retriever.return_value = mock_retriever
 
                 with patch(
-                    "api.routers.text_processing_router.run_in_threadpool"
+                    "api.services.text_processing_execution.run_in_threadpool"
                 ) as mock_threadpool:
                     mock_threadpool.return_value = {
                         "meta": {},
@@ -229,7 +229,7 @@ class TestModelCaching:
                     }
 
                     with patch(
-                        "api.routers.text_processing_router.TextProcessingPipeline"
+                        "api.services.text_processing_context.TextProcessingPipeline"
                     ) as mock_pipeline_cls:
                         mock_pipeline = MagicMock()
                         mock_pipeline.sbert_model = MagicMock()
@@ -248,19 +248,19 @@ class TestModelCaching:
         )
 
         with patch(
-            "api.routers.text_processing_router.get_sbert_model_dependency"
+            "api.services.text_processing_context.get_sbert_model_dependency"
         ) as mock_get_model:
             mock_get_model.return_value = MagicMock()
 
             with patch(
-                "api.routers.text_processing_router.get_dense_retriever_dependency"
+                "api.services.text_processing_context.get_dense_retriever_dependency"
             ) as mock_get_retriever:
                 mock_retriever = MagicMock()
                 mock_retriever.model_name = "test-model"
                 mock_get_retriever.return_value = mock_retriever
 
                 with patch(
-                    "api.routers.text_processing_router.run_in_threadpool"
+                    "api.services.text_processing_execution.run_in_threadpool"
                 ) as mock_threadpool:
                     mock_threadpool.return_value = {
                         "meta": {},
@@ -269,7 +269,7 @@ class TestModelCaching:
                     }
 
                     with patch(
-                        "api.routers.text_processing_router.TextProcessingPipeline"
+                        "api.services.text_processing_context.TextProcessingPipeline"
                     ) as mock_pipeline_cls:
                         mock_pipeline = MagicMock()
                         mock_pipeline.sbert_model = MagicMock()
@@ -294,20 +294,20 @@ class TestModelReuse:
         )
 
         with patch(
-            "api.routers.text_processing_router.get_sbert_model_dependency"
+            "api.services.text_processing_context.get_sbert_model_dependency"
         ) as mock_get_model:
             mock_model = MagicMock()
             mock_get_model.return_value = mock_model
 
             with patch(
-                "api.routers.text_processing_router.get_dense_retriever_dependency"
+                "api.services.text_processing_context.get_dense_retriever_dependency"
             ) as mock_get_retriever:
                 mock_retriever = MagicMock()
                 mock_retriever.model_name = DEFAULT_MODEL
                 mock_get_retriever.return_value = mock_retriever
 
                 with patch(
-                    "api.routers.text_processing_router.run_in_threadpool"
+                    "api.services.text_processing_execution.run_in_threadpool"
                 ) as mock_threadpool:
                     mock_threadpool.return_value = {
                         "meta": {},
@@ -316,7 +316,7 @@ class TestModelReuse:
                     }
 
                     with patch(
-                        "api.routers.text_processing_router.TextProcessingPipeline"
+                        "api.services.text_processing_context.TextProcessingPipeline"
                     ) as mock_pipeline_cls:
                         mock_pipeline = MagicMock()
                         mock_pipeline.sbert_model = MagicMock()

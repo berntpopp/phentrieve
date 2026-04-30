@@ -22,6 +22,35 @@ afterEach(() => {
 });
 
 describe('ResultsDisplay', () => {
+  it('does not log while validating responseData props', async () => {
+    const debugSpy = vi.spyOn(console, 'debug').mockImplementation(() => {});
+    const logModule = await import('../../services/logService');
+    const serviceDebugSpy = vi.spyOn(logModule.logService, 'debug').mockImplementation(() => {});
+    const component = (await import('../../components/ResultsDisplay.vue')).default;
+
+    mount(component, {
+      props: {
+        resultType: 'query',
+        responseData: {
+          model_used_for_retrieval: 'test-model',
+          language_detected: 'en',
+          query_assertion_status: 'affirmed',
+          results: [],
+        },
+      },
+      global: {
+        plugins: [vuetify, i18n],
+        stubs: {
+          FullTextAnnotationWorkspace: true,
+          ResultItem: true,
+        },
+      },
+    });
+
+    expect(debugSpy).not.toHaveBeenCalled();
+    expect(serviceDebugSpy).not.toHaveBeenCalled();
+  });
+
   it('mounts the unified full-text workspace for text processing results', async () => {
     const component = (await import('../../components/ResultsDisplay.vue')).default;
     const wrapper = mount(component, {

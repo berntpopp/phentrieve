@@ -1,12 +1,11 @@
 from __future__ import annotations
 
-import json
 import logging
 import re
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import asdict
-from typing import Any, cast
+from typing import Any
 
 from phentrieve.llm.config import (
     DEFAULT_GROUNDED_PHASE1_MAX_OUTPUT_TOKENS,
@@ -21,9 +20,96 @@ from phentrieve.llm.config import (
     DEFAULT_PHASE1_SMALL_GROUP_MAX_CHUNKS,
     DEFAULT_QUERY_RESULTS_PER_PHRASE,
     DEFAULT_SIMILARITY_THRESHOLD,
-    NEGATED_ASSERTION,
     PRESENT_ASSERTION,
-    UNCERTAIN_ASSERTION,
+)
+from phentrieve.llm.pipeline_phase1 import (
+    ACTIONABLE_CATEGORIES,
+)
+from phentrieve.llm.pipeline_phase1 import (
+    clean_text as _clean_text,
+)
+from phentrieve.llm.pipeline_phase1 import (
+    expand_combined_phase1_extractions as _expand_combined_phase1_extractions,
+)
+from phentrieve.llm.pipeline_phase1 import (
+    merge_optional_bounds as _merge_optional_bounds,
+)
+from phentrieve.llm.pipeline_phase1 import (
+    normalize_category as _normalize_category,
+)
+from phentrieve.llm.pipeline_phase1 import (
+    normalized_evidence_text as _normalized_evidence_text,
+)
+from phentrieve.llm.pipeline_phase1 import (
+    phase1_extraction_dedup_key as _phase1_extraction_dedup_key,
+)
+from phentrieve.llm.pipeline_phase1 import (
+    prefer_richer_text as _prefer_richer_text,
+)
+from phentrieve.llm.pipeline_phase1 import (
+    render_group_chunk_index_text as _render_group_chunk_index_text,
+)
+from phentrieve.llm.pipeline_phase1 import (
+    render_phase1_user_prompt as _render_phase1_user_prompt,
+)
+from phentrieve.llm.pipeline_phase1 import (
+    sorted_chunk_ids as _sorted_chunk_ids,
+)
+from phentrieve.llm.pipeline_phase1 import (
+    spans_overlap as _spans_overlap,
+)
+from phentrieve.llm.pipeline_phase1 import (
+    tokenize as _tokenize,
+)
+from phentrieve.llm.pipeline_phase2 import (
+    CATEGORY_TO_ASSERTION,
+    build_grounded_context,
+    deduplicate_terms,
+    extract_first_result_list,
+    hybrid_select_candidates,
+    local_match,
+    optional_float,
+    phenotype_from_candidate,
+    prepare_retrieval_queries,
+    run_mapping_batch,
+    select_candidate_id,
+    select_candidate_ids,
+)
+from phentrieve.llm.pipeline_phase2 import (
+    candidate_match_text as _candidate_match_text,
+)
+from phentrieve.llm.pipeline_phase2 import (
+    downstream_dedupe_key as _downstream_dedupe_key,
+)
+from phentrieve.llm.pipeline_phase2 import (
+    mapping_batch_item_id as _mapping_batch_item_id,
+)
+from phentrieve.llm.pipeline_retry import (
+    LLMPipelinePhaseError,
+)
+from phentrieve.llm.pipeline_retry import (
+    classify_phase1_failure as _classify_phase1_failure,
+)
+from phentrieve.llm.pipeline_retry import (
+    group_source_chunk_ids as _group_source_chunk_ids,
+)
+from phentrieve.llm.pipeline_retry import (
+    next_phase1_mode as _next_phase1_mode,
+)
+from phentrieve.llm.pipeline_trace import (
+    annotate_mapping_trace_with_provenance,
+    attach_phase1_failure_context,
+    build_phase1_trace,
+    build_phase2a_trace,
+    build_phase2b_local_trace,
+    phase1_extracted_trace_items,
+    phase1_failure_class_from_groups,
+)
+from phentrieve.llm.pipeline_trace import (
+    build_phase1_attempt_trace as _build_phase1_attempt_trace,
+)
+from phentrieve.llm.pipeline_trace import (
+    sum_usage_dicts as _sum_usage_dicts,
 )
 from phentrieve.llm.preprocessing import build_extraction_groups
 from phentrieve.llm.prompts.loader import (
@@ -43,7 +129,6 @@ from phentrieve.llm.types import (
     LLMMappingSelection,
     LLMMeta,
     LLMPhenotype,
-    LLMPhenotypeEvidence,
     LLMPipelineConfig,
     Phase1FailureClass,
     Phase1Mode,
@@ -51,460 +136,6 @@ from phentrieve.llm.types import (
 from phentrieve.llm.utils import token_sort_similarity
 
 logger = logging.getLogger(__name__)
-
-WORD_PATTERN = re.compile(r"\w+")
-PHRASE_PARENTHESES_PATTERN = re.compile(r"\(.*?\)")
-UNIT_TOKEN_PATTERN = re.compile(
-    r"\b(?:mg/dl|mg/dL|mg/l|mg/L|g/dl|g/dL|g/l|g/L|mmol/l|mmol/L|μmol/l|μmol/L|umol/l|umol/L)\b"
-)
-
-CATEGORY_TO_ASSERTION = {
-    "abnormal": PRESENT_ASSERTION,
-    "normal": NEGATED_ASSERTION,
-    "suspected": UNCERTAIN_ASSERTION,
-    "family_history": "family_history",
-    "other": "other",
-}
-
-ACTIONABLE_CATEGORIES = frozenset({"abnormal", "normal", "suspected", "family_history"})
-
-
-class LLMPipelinePhaseError(RuntimeError):
-    def __init__(
-        self,
-        phase: str,
-        message: str,
-        *,
-        usage: dict[str, int] | None = None,
-        request_count: int = 0,
-        elapsed_seconds: float | None = None,
-        groups_trace: list[dict[str, Any]] | None = None,
-    ) -> None:
-        super().__init__(message)
-        self.phase = phase
-        self.usage = dict(usage or {})
-        self.request_count = int(request_count or 0)
-        self.elapsed_seconds = elapsed_seconds
-        self.groups_trace = list(groups_trace or [])
-        self.phase1_trace: dict[str, Any] = {}
-        self.phase_counts: dict[str, int] = {}
-        self.phase_request_counts: dict[str, int] = {}
-        self.initial_mode: Phase1Mode | None = None
-        self.final_mode: Phase1Mode | None = None
-        self.fallback_triggered = False
-        self.failure_class: Phase1FailureClass = None
-
-
-def _phase1_failure_message(exc: Exception) -> str:
-    parts: list[str] = []
-    current: BaseException | None = exc
-    while current is not None:
-        parts.append(type(current).__name__.lower())
-        message = str(current).strip().lower()
-        if message:
-            parts.append(message)
-        current = current.__cause__
-    return " ".join(parts)
-
-
-def _classify_phase1_failure(exc: Exception) -> Phase1FailureClass:
-    if isinstance(exc, LLMPipelinePhaseError) and exc.failure_class is not None:
-        return exc.failure_class
-    message = _phase1_failure_message(exc)
-    if "refusal" in message:
-        return "structured_refusal"
-    if "timeout" in message or "deadline_exceeded" in message or "timed out" in message:
-        return "provider_timeout"
-    if (
-        "json" in message
-        or "unterminated" in message
-        or "no structured response payload" in message
-    ):
-        return "structured_json_invalid"
-    if (
-        "validationerror" in message
-        or "schema" in message
-        or "field required" in message
-        or "input should" in message
-        or "literal" in message
-        or "pydantic" in message
-    ):
-        return "structured_schema_validation_failed"
-    if (
-        "unauthorized" in message
-        or "forbidden" in message
-        or "authentication" in message
-        or "api key" in message
-        or "permission" in message
-        or "billing" in message
-        or "quota" in message
-        or "401" in message
-        or "403" in message
-    ):
-        return "provider_auth_error"
-    if (
-        "connection" in message
-        or "network" in message
-        or "transport" in message
-        or "dns" in message
-        or "ssl" in message
-        or "remoteprotocol" in message
-        or "readerror" in message
-        or "connecterror" in message
-    ):
-        return "provider_transport_error"
-    if (
-        "unsupported" in message
-        or "misconfig" in message
-        or "configuration" in message
-        or "invalid base_url" in message
-        or "model not found" in message
-        or "unknown provider" in message
-    ):
-        return "provider_config_error"
-    return "provider_execution_error"
-
-
-def _next_phase1_mode(current_mode: Phase1Mode) -> Phase1Mode | None:
-    if current_mode == "ungrouped":
-        return "grouped_large"
-    if current_mode == "grouped_large":
-        return "grouped_small"
-    return None
-
-
-def _build_phase1_attempt_trace(
-    *,
-    mode: Phase1Mode,
-    status: str,
-    groups_trace: list[dict[str, Any]],
-    request_count: int,
-    elapsed_seconds: float,
-    failure_class: Phase1FailureClass = None,
-) -> dict[str, Any]:
-    return {
-        "mode": mode,
-        "status": status,
-        "request_count": request_count,
-        "elapsed_seconds": elapsed_seconds,
-        "failure_class": failure_class,
-        "groups": list(groups_trace),
-    }
-
-
-def _group_source_chunk_ids(group_trace: dict[str, Any]) -> list[int]:
-    chunk_ids = group_trace.get("source_chunk_ids")
-    if not isinstance(chunk_ids, list):
-        chunk_ids = group_trace.get("chunk_ids", [])
-    return [int(chunk_id) for chunk_id in chunk_ids]
-
-
-def _normalize_category(category: str) -> str:
-    normalized = category.strip().lower().replace("-", "_").replace(" ", "_")
-    return {
-        "family_history": "family_history",
-        "familyhistory": "family_history",
-    }.get(normalized, normalized)
-
-
-def _normalize_token(token: str) -> str:
-    normalized = token.strip().lower()
-    if len(normalized) > 3 and normalized.endswith("s"):
-        return normalized[:-1]
-    return normalized
-
-
-def _tokenize(text: str) -> set[str]:
-    return {
-        _normalize_token(token)
-        for token in WORD_PATTERN.findall(text.lower())
-        if _normalize_token(token)
-    }
-
-
-def _clean_text(text: str) -> str:
-    text = PHRASE_PARENTHESES_PATTERN.sub("", text or "")
-    text = text.replace("_", " ").replace("-", " ").lower().strip()
-    return " ".join(text.split())
-
-
-def prepare_retrieval_queries(phrase: str) -> list[str]:
-    original = " ".join(str(phrase or "").split()).strip()
-    if not original:
-        return []
-
-    variants = [original]
-    stripped_units = " ".join(UNIT_TOKEN_PATTERN.sub(" ", original).split())
-    if stripped_units and stripped_units != original:
-        variants.append(stripped_units)
-    return variants
-
-
-def _candidate_match_text(candidate: dict[str, Any]) -> str:
-    matched_text = str(candidate.get("matched_text", "") or "").strip()
-    if matched_text:
-        return matched_text
-    return str(candidate.get("term_name", "") or "")
-
-
-def _normalize_mapping_phrase_key(text: str) -> str:
-    return " ".join(str(text or "").lower().replace("-", " ").split())
-
-
-def _candidate_id_tuple(item: dict[str, Any]) -> tuple[str, ...]:
-    return tuple(
-        sorted(
-            {
-                str(candidate.get("hpo_id", "")).strip()
-                for candidate in item.get("candidates", [])
-                if str(candidate.get("hpo_id", "")).strip()
-            }
-        )
-    )
-
-
-def _downstream_dedupe_key(
-    item: dict[str, Any],
-    *,
-    include_candidate_ids: bool,
-) -> tuple[str, str, tuple[str, ...]]:
-    return (
-        _normalize_mapping_phrase_key(str(item.get("phrase", ""))),
-        _normalize_category(str(item.get("category", ""))),
-        _candidate_id_tuple(item) if include_candidate_ids else (),
-    )
-
-
-def _render_phase1_user_prompt(
-    *,
-    extraction_prompt: PromptTemplate,
-    text: str,
-    grounded_chunks: list[dict[str, Any]],
-    chunk_index_text: str | None = None,
-) -> str:
-    if chunk_index_text is not None:
-        chunk_index = chunk_index_text or "[]"
-        return extraction_prompt.render_user_prompt(
-            "",
-            chunk_index=chunk_index,
-        )
-    if grounded_chunks:
-        chunk_index = (
-            "\n".join(
-                f"- chunk_id={chunk['chunk_id']}: {chunk.get('text', '')}"
-                for chunk in grounded_chunks
-            )
-            or "[]"
-        )
-        return extraction_prompt.render_user_prompt(
-            "",
-            chunk_index=chunk_index,
-        )
-    return extraction_prompt.render_user_prompt(text, chunk_index="[]")
-
-
-_CHUNK_INDEX_LINE_PATTERN = re.compile(r"^-?\s*chunk_id=(\d+):\s*(.*)$")
-
-
-def _parse_chunk_index_lines(chunk_index_text: str) -> list[tuple[list[int], str]]:
-    rows: list[tuple[list[int], str]] = []
-    for raw_line in chunk_index_text.splitlines():
-        line = raw_line.strip()
-        if not line:
-            continue
-        match = _CHUNK_INDEX_LINE_PATTERN.match(line)
-        if not match:
-            continue
-        rows.append(([int(match.group(1))], match.group(2).strip()))
-    return rows
-
-
-def _has_unmatched_open_paren(text: str) -> bool:
-    return text.count("(") > text.count(")")
-
-
-def _looks_like_uppercase_fragment(text: str) -> bool:
-    token = text.strip()
-    return bool(token) and token.replace("-", "").replace("/", "").isupper()
-
-
-def _should_merge_chunk_rows(current_text: str, next_text: str) -> bool:
-    current = current_text.strip()
-    following = next_text.strip()
-    if not current or not following:
-        return False
-    if re.search(r"[.!?]$", current):
-        return False
-    following_word_count = len(WORD_PATTERN.findall(following))
-    continuation_start = bool(re.match(r"^[0-9(\[\]±<>/%-]", following))
-    if _has_unmatched_open_paren(current) and (
-        continuation_start or following_word_count <= 3
-    ):
-        return True
-    if _looks_like_uppercase_fragment(current) and following_word_count <= 3:
-        return True
-    if current[-1].isdigit() and following_word_count <= 3:
-        return True
-    return continuation_start
-
-
-def _merge_chunk_index_rows(
-    rows: list[tuple[list[int], str]],
-) -> list[tuple[list[int], str]]:
-    if not rows:
-        return []
-    merged: list[tuple[list[int], str]] = []
-    current_ids, current_text = list(rows[0][0]), rows[0][1]
-    for next_ids, next_text in rows[1:]:
-        if _should_merge_chunk_rows(current_text, next_text):
-            current_ids.extend(next_ids)
-            current_text = f"{current_text.rstrip()} {next_text.lstrip()}".strip()
-            continue
-        merged.append((current_ids, current_text))
-        current_ids, current_text = list(next_ids), next_text
-    merged.append((current_ids, current_text))
-    return merged
-
-
-def _render_chunk_index_rows(rows: list[tuple[list[int], str]]) -> str:
-    rendered_lines: list[str] = []
-    for chunk_ids, text in rows:
-        chunk_key = "chunk_id" if len(chunk_ids) == 1 else "chunk_ids"
-        rendered_lines.append(
-            f"{chunk_key}={','.join(str(chunk_id) for chunk_id in chunk_ids)}: {text}"
-        )
-    return "\n".join(rendered_lines)
-
-
-def _render_group_chunk_index_text(
-    *, group: dict[str, Any], grounded_chunks: list[dict[str, Any]]
-) -> str:
-    group_text = group.get("text")
-    raw_chunk_index = (
-        group_text
-        if isinstance(group_text, str) and group_text.strip()
-        else "\n".join(
-            f"chunk_id={chunk['chunk_id']}: {chunk.get('text', '')}"
-            for chunk in grounded_chunks
-        )
-    )
-    parsed_rows = _parse_chunk_index_lines(raw_chunk_index)
-    if not parsed_rows:
-        return raw_chunk_index
-    return _render_chunk_index_rows(_merge_chunk_index_rows(parsed_rows))
-
-
-def _normalize_grounded_text(text: Any) -> str:
-    return str(text or "").strip()
-
-
-def _mapping_batch_item_id(index: int) -> str:
-    return f"item_{index + 1}"
-
-
-def _compact_mapping_item(
-    item: dict[str, Any],
-    *,
-    item_id: str | None = None,
-) -> dict[str, Any]:
-    grounded_context = dict(item.get("grounded_context", {}) or {})
-    neighbor_texts = [
-        _normalize_grounded_text(text)
-        for text in grounded_context.get("neighbor_chunk_texts", [])
-        if _normalize_grounded_text(text)
-    ]
-    compact_item: dict[str, Any] = {
-        "primary_chunk_text": _normalize_grounded_text(
-            grounded_context.get("primary_chunk_text")
-        ),
-        "neighbor_chunk_texts": neighbor_texts,
-        "phrase": str(item["phrase"]).lower().replace("-", " ").strip(),
-        "category": item["category"],
-        "candidates": [],
-    }
-    for candidate in item["candidates"]:
-        compact_candidate = {
-            "id": candidate["hpo_id"],
-            "term": candidate["term_name"],
-            "retrieval_score": candidate.get("score"),
-        }
-        if candidate.get("retrieval_query"):
-            compact_candidate["retrieval_query"] = candidate.get("retrieval_query")
-        if candidate.get("matched_text"):
-            compact_candidate["matched_text"] = candidate.get("matched_text")
-        if candidate.get("matched_component"):
-            compact_candidate["matched_component"] = candidate.get("matched_component")
-        compact_item["candidates"].append(compact_candidate)
-    if item_id is not None:
-        compact_item["item_id"] = item_id
-    return compact_item
-
-
-def _phase1_extraction_dedup_key(item: dict[str, Any]) -> tuple[Any, ...]:
-    return (
-        str(item.get("phrase", "")).strip().lower(),
-        _normalize_category(str(item.get("category", ""))),
-        tuple(int(chunk_id) for chunk_id in item.get("chunk_ids", [])),
-        item.get("evidence_text"),
-        item.get("start_char"),
-        item.get("end_char"),
-    )
-
-
-def _sorted_chunk_ids(chunk_ids: list[Any]) -> list[int]:
-    return sorted({int(chunk_id) for chunk_id in chunk_ids})
-
-
-def _normalized_evidence_text(item: dict[str, Any]) -> str:
-    return _clean_text(str(item.get("evidence_text") or item.get("phrase") or ""))
-
-
-def _prefer_richer_text(current: str | None, incoming: str | None) -> str | None:
-    current_text = str(current or "").strip()
-    incoming_text = str(incoming or "").strip()
-    if not current_text:
-        return incoming_text or None
-    if not incoming_text:
-        return current_text
-    return incoming_text if len(incoming_text) > len(current_text) else current_text
-
-
-def _merge_optional_bounds(
-    current: int | None,
-    incoming: int | None,
-    *,
-    pick: str,
-) -> int | None:
-    if current is None:
-        return incoming
-    if incoming is None:
-        return current
-    return min(current, incoming) if pick == "min" else max(current, incoming)
-
-
-def _spans_overlap(
-    start_a: int | None,
-    end_a: int | None,
-    start_b: int | None,
-    end_b: int | None,
-) -> bool:
-    if None in (start_a, end_a, start_b, end_b):
-        return False
-    assert start_a is not None
-    assert end_a is not None
-    assert start_b is not None
-    assert end_b is not None
-    if end_a <= start_a or end_b <= start_b:
-        return False
-    return max(start_a, start_b) < min(end_a, end_b)
-
-
-def _sum_usage_dicts(*usage_dicts: dict[str, int]) -> dict[str, int]:
-    totals: dict[str, int] = {}
-    for usage in usage_dicts:
-        for key, value in usage.items():
-            totals[key] = int(totals.get(key, 0) or 0) + int(value or 0)
-    return totals
 
 
 class TwoPhaseLLMPipeline:
@@ -564,6 +195,7 @@ class TwoPhaseLLMPipeline:
         phase1_elapsed = 0.0
         phase1_carried_groups_trace: list[dict[str, Any]] = []
         phase1_carried_extracted: list[dict[str, Any]] = []
+        extracted: list[dict[str, Any]] = []
         current_phase1_mode = phase1_initial_mode
         current_grounded_chunks = list(grounded_chunks)
         current_extraction_groups = list(extraction_groups)
@@ -701,6 +333,9 @@ class TwoPhaseLLMPipeline:
             len(extracted),
             sum(1 for item in extracted if item.get("chunk_ids")),
         )
+        extracted = self._deduplicate_phase1_extractions(
+            _expand_combined_phase1_extractions(extracted)
+        )
         actionable = [
             item
             for item in extracted
@@ -734,25 +369,15 @@ class TwoPhaseLLMPipeline:
             "phase2b_llm_requests": 0,
         }
         trace: dict[str, Any] = {
-            "phase1": {
-                "extracted": [
-                    {
-                        "phrase": str(item["phrase"]),
-                        "category": _normalize_category(str(item["category"])),
-                        "chunk_ids": list(item.get("chunk_ids", [])),
-                        "evidence_text": item.get("evidence_text"),
-                        "actionable": _normalize_category(str(item["category"]))
-                        in ACTIONABLE_CATEGORIES,
-                    }
-                    for item in extracted
-                ],
-                "groups": phase1_groups_trace,
-                "attempts": phase1_attempts_trace,
-                "initial_mode": phase1_initial_mode,
-                "final_mode": phase1_final_mode,
-                "fallback_triggered": phase1_fallback_count > 0,
-                "failure_class": phase1_failure_class,
-            }
+            "phase1": build_phase1_trace(
+                extracted=extracted,
+                groups_trace=phase1_groups_trace,
+                attempts_trace=phase1_attempts_trace,
+                initial_mode=phase1_initial_mode,
+                final_mode=phase1_final_mode,
+                fallback_count=phase1_fallback_count,
+                failure_class=phase1_failure_class,
+            )
         }
         all_phase1_groups = [
             group
@@ -785,27 +410,7 @@ class TwoPhaseLLMPipeline:
                 time.perf_counter() - phase2a_start, 6
             )
             phase_counts["candidate_sets"] = len(phrase_candidates)
-            trace["phase2a"] = {
-                "candidate_sets": [
-                    {
-                        "phrase": str(item.get("phrase", "")),
-                        "category": _normalize_category(str(item.get("category", ""))),
-                        "grounded_context": dict(item.get("grounded_context", {})),
-                        "candidates": [
-                            {
-                                "term_id": str(candidate.get("hpo_id", "")),
-                                "label": str(candidate.get("term_name", "")),
-                                "score": float(candidate.get("score", 0.0) or 0.0),
-                                "matched_text": candidate.get("matched_text"),
-                                "matched_component": candidate.get("matched_component"),
-                                "retrieval_query": candidate.get("retrieval_query"),
-                            }
-                            for candidate in item.get("candidates", [])
-                        ],
-                    }
-                    for item in phrase_candidates
-                ]
-            }
+            trace["phase2a"] = build_phase2a_trace(phrase_candidates)
             logger.debug(
                 "Phase 2A complete: candidate_sets=%d",
                 len(phrase_candidates),
@@ -830,26 +435,10 @@ class TwoPhaseLLMPipeline:
             phase_counts["local_matches"] = len(locally_resolved)
             phase_counts.update(routing_counts)
             resolved_terms.extend(locally_resolved)
-            trace["phase2b_local"] = {
-                "resolved": [
-                    {
-                        "phrase": term.evidence,
-                        "term_id": term.term_id,
-                        "label": term.label,
-                        "assertion": term.assertion,
-                        "category": term.category,
-                        "match_method": "local",
-                    }
-                    for term in locally_resolved
-                ],
-                "unresolved": [
-                    {
-                        "phrase": str(item.get("phrase", "")),
-                        "category": _normalize_category(str(item.get("category", ""))),
-                    }
-                    for item in unresolved
-                ],
-            }
+            trace["phase2b_local"] = build_phase2b_local_trace(
+                locally_resolved=locally_resolved,
+                unresolved=unresolved,
+            )
             logger.debug(
                 "Phase 2B-local complete: matched=%d unresolved=%d",
                 len(locally_resolved),
@@ -1159,17 +748,7 @@ class TwoPhaseLLMPipeline:
             completion_tokens_total += int(group_usage.get("completion_tokens", 0) or 0)
             total_request_count += group_request_count
             extracted.extend(group_extracted)
-            group_trace_extracted = [
-                {
-                    "phrase": str(item["phrase"]),
-                    "category": _normalize_category(str(item["category"])),
-                    "chunk_ids": list(item.get("chunk_ids", [])),
-                    "evidence_text": item.get("evidence_text"),
-                    "actionable": _normalize_category(str(item["category"]))
-                    in ACTIONABLE_CATEGORIES,
-                }
-                for item in group_extracted
-            ]
+            group_trace_extracted = phase1_extracted_trace_items(group_extracted)
             phase1_groups_trace.append(
                 {
                     "group_id": group.get("group_id"),
@@ -1316,21 +895,7 @@ class TwoPhaseLLMPipeline:
                             "elapsed_seconds": round(
                                 time.perf_counter() - phase1_started, 6
                             ),
-                            "extracted": [
-                                {
-                                    "phrase": str(item["phrase"]),
-                                    "category": _normalize_category(
-                                        str(item["category"])
-                                    ),
-                                    "chunk_ids": list(item.get("chunk_ids", [])),
-                                    "evidence_text": item.get("evidence_text"),
-                                    "actionable": _normalize_category(
-                                        str(item["category"])
-                                    )
-                                    in ACTIONABLE_CATEGORIES,
-                                }
-                                for item in extracted
-                            ],
+                            "extracted": phase1_extracted_trace_items(extracted),
                             "debug": phase1_debug,
                         }
                     ]
@@ -1402,7 +967,7 @@ class TwoPhaseLLMPipeline:
                 retained_groups_trace.append(group)
                 continue
 
-            failure_class = cast(Phase1FailureClass, group.get("failure_class"))
+            failure_class = group.get("failure_class")
             if self._should_fallback_phase1(
                 failure_class=failure_class,
                 grounded_chunks=grounded_chunks,
@@ -1524,11 +1089,7 @@ class TwoPhaseLLMPipeline:
     def _phase1_failure_class_from_groups(
         phase1_groups_trace: list[dict[str, Any]],
     ) -> Phase1FailureClass:
-        for group in phase1_groups_trace:
-            failure_class = group.get("failure_class")
-            if isinstance(failure_class, str):
-                return cast(Phase1FailureClass, failure_class)
-        return None
+        return phase1_failure_class_from_groups(phase1_groups_trace)
 
     @staticmethod
     def _attach_phase1_failure_context(
@@ -1541,39 +1102,15 @@ class TwoPhaseLLMPipeline:
         final_groups_trace: list[dict[str, Any]],
         attempts_trace: list[dict[str, Any]],
     ) -> None:
-        exc.initial_mode = initial_mode
-        exc.final_mode = final_mode
-        exc.fallback_triggered = fallback_count > 0
-        exc.failure_class = failure_class
-        exc.phase1_trace = {
-            "initial_mode": initial_mode,
-            "final_mode": final_mode,
-            "fallback_triggered": fallback_count > 0,
-            "failure_class": failure_class,
-            "groups": list(final_groups_trace),
-            "attempts": list(attempts_trace),
-        }
-        all_groups = [
-            group for attempt in attempts_trace for group in attempt.get("groups", [])
-        ]
-        exc.phase_counts = {
-            "phase1_fallbacks": fallback_count,
-            "phase1_completed_groups": sum(
-                1 for group in all_groups if group.get("status") == "completed"
-            ),
-            "phase1_failed_groups": sum(
-                1 for group in all_groups if group.get("status") == "failed"
-            ),
-        }
-        exc.phase_counts["phase1_partial_failures"] = int(
-            exc.phase_counts["phase1_completed_groups"] > 0
-            and exc.phase_counts["phase1_failed_groups"] > 0
+        attach_phase1_failure_context(
+            exc=exc,
+            initial_mode=initial_mode,
+            final_mode=final_mode,
+            fallback_count=fallback_count,
+            failure_class=failure_class,
+            final_groups_trace=final_groups_trace,
+            attempts_trace=attempts_trace,
         )
-        exc.phase_request_counts = {
-            "phase1_requests": sum(
-                int(attempt.get("request_count", 0) or 0) for attempt in attempts_trace
-            )
-        }
 
     def _retrieve_candidates(
         self,
@@ -1707,11 +1244,7 @@ class TwoPhaseLLMPipeline:
         batch_result: dict[str, Any],
         key: str,
     ) -> list[Any]:
-        values = batch_result.get(key)
-        if not isinstance(values, list) or not values:
-            return []
-        first = values[0]
-        return first if isinstance(first, list) else []
+        return extract_first_result_list(batch_result, key)
 
     @staticmethod
     def _build_grounded_context(
@@ -1719,24 +1252,7 @@ class TwoPhaseLLMPipeline:
         item: dict[str, Any],
         grounded_chunks: list[dict[str, Any]],
     ) -> dict[str, Any]:
-        chunk_lookup = {chunk["chunk_id"]: chunk for chunk in grounded_chunks}
-        chunk_ids = [int(chunk_id) for chunk_id in item.get("chunk_ids", [])]
-        primary = chunk_lookup.get(chunk_ids[0]) if chunk_ids else None
-        neighbor_ids = [chunk_ids[0] - 1, chunk_ids[0] + 1] if chunk_ids else []
-        neighbors = [
-            chunk_lookup[cid]
-            for cid in neighbor_ids
-            if cid in chunk_lookup and chunk_lookup[cid] is not primary
-        ]
-        return {
-            "chunk_ids": chunk_ids,
-            "primary_chunk_text": (
-                primary.get("text", "")
-                if primary
-                else item.get("evidence_text", item.get("phrase", ""))
-            ),
-            "neighbor_chunk_texts": [chunk.get("text", "") for chunk in neighbors],
-        }
+        return build_grounded_context(item=item, grounded_chunks=grounded_chunks)
 
     def _hybrid_select_candidates(
         self,
@@ -1745,38 +1261,14 @@ class TwoPhaseLLMPipeline:
         metadatas: list[dict[str, Any]],
         similarities: list[float],
     ) -> list[dict[str, Any]]:
-        selected: list[dict[str, Any]] = []
-        seen_ids: set[str] = set()
-        phrase_tokens = _tokenize(phrase)
-
-        for index, metadata in enumerate(metadatas):
-            if len(selected) >= self.max_unique_candidates:
-                break
-
-            hpo_id = str(metadata.get("hpo_id", "")).strip()
-            if not hpo_id or hpo_id in seen_ids:
-                continue
-
-            label = str(metadata.get("label", "")).strip()
-            similarity = (
-                float(similarities[index]) if index < len(similarities) else 0.0
-            )
-            label_tokens = _tokenize(label)
-
-            has_token_overlap = bool(phrase_tokens & label_tokens)
-            meets_threshold = similarity >= self.similarity_threshold
-            requires_fill = len(selected) < self.min_unique_candidates
-
-            if has_token_overlap or meets_threshold or requires_fill:
-                seen_ids.add(hpo_id)
-                selected.append(
-                    {
-                        "hpo_id": hpo_id,
-                        "term_name": label,
-                        "score": similarity,
-                    }
-                )
-        return selected
+        return hybrid_select_candidates(
+            phrase=phrase,
+            metadatas=metadatas,
+            similarities=similarities,
+            max_unique_candidates=self.max_unique_candidates,
+            min_unique_candidates=self.min_unique_candidates,
+            similarity_threshold=self.similarity_threshold,
+        )
 
     @staticmethod
     def _deduplicate_phase1_extractions(
@@ -1978,36 +1470,11 @@ class TwoPhaseLLMPipeline:
         phrase: str,
         candidates: list[dict[str, Any]],
     ) -> dict[str, Any] | None:
-        phrase_clean = _clean_text(phrase)
-        phrase_tokens = _tokenize(phrase)
-
-        for candidate in candidates:
-            match_tokens = _tokenize(_candidate_match_text(candidate))
-            if phrase_tokens and match_tokens and phrase_tokens == match_tokens:
-                return candidate
-
-        for candidate in candidates:
-            if _clean_text(_candidate_match_text(candidate)) == phrase_clean:
-                return candidate
-
-        if len(phrase_tokens) > 1:
-            for candidate in candidates:
-                match_clean = _clean_text(_candidate_match_text(candidate))
-                if match_clean and re.search(
-                    rf"\b{re.escape(match_clean)}\b", phrase_clean
-                ):
-                    return candidate
-
-        best_candidate: dict[str, Any] | None = None
-        best_score = 0.0
-        for candidate in candidates:
-            score = token_sort_similarity(
-                phrase_clean, _clean_text(_candidate_match_text(candidate))
-            )
-            if score >= self.local_match_threshold and score > best_score:
-                best_candidate = candidate
-                best_score = score
-        return best_candidate
+        return local_match(
+            phrase=phrase,
+            candidates=candidates,
+            local_match_threshold=self.local_match_threshold,
+        )
 
     def _resolve_with_mapping_prompt(
         self,
@@ -2100,18 +1567,7 @@ class TwoPhaseLLMPipeline:
         trace_entry: dict[str, Any],
         item: dict[str, Any],
     ) -> dict[str, Any]:
-        if not trace_entry:
-            return trace_entry
-        annotated = dict(trace_entry)
-        if item.get("evidence_text") is not None:
-            annotated["evidence_text"] = item.get("evidence_text")
-        if item.get("chunk_ids") is not None:
-            annotated["chunk_ids"] = list(item.get("chunk_ids", []))
-        if item.get("start_char") is not None:
-            annotated["start_char"] = item.get("start_char")
-        if item.get("end_char") is not None:
-            annotated["end_char"] = item.get("end_char")
-        return annotated
+        return annotate_mapping_trace_with_provenance(trace_entry, item)
 
     def _run_mapping_batch(
         self,
@@ -2119,41 +1575,11 @@ class TwoPhaseLLMPipeline:
         batch: list[dict[str, Any]],
         mapping_prompt,
     ) -> tuple[LLMMappingSelection | LLMBatchMappingSelections, dict[str, int]]:
-        response_model: type[LLMMappingSelection] | type[LLMBatchMappingSelections]
-        if len(batch) == 1:
-            batch_mapping_prompt = get_mapping_prompt(mapping_prompt.language)
-            candidate_payload = json.dumps(
-                _compact_mapping_item(batch[0]),
-                ensure_ascii=False,
-            )
-            response_model = LLMMappingSelection
-        else:
-            batch_mapping_prompt = get_batch_mapping_prompt(mapping_prompt.language)
-            candidate_payload = json.dumps(
-                {
-                    "items": [
-                        _compact_mapping_item(
-                            item,
-                            item_id=_mapping_batch_item_id(index),
-                        )
-                        for index, item in enumerate(batch)
-                    ]
-                },
-                ensure_ascii=False,
-            )
-            response_model = LLMBatchMappingSelections
-        response = self.provider.run_structured_prompt(
-            system_prompt=batch_mapping_prompt.render_system_prompt(
-                language=batch_mapping_prompt.language
-            ),
-            user_prompt=batch_mapping_prompt.render_user_prompt(
-                candidate_payload,
-                language=batch_mapping_prompt.language,
-            ),
-            response_model=response_model,
+        return run_mapping_batch(
+            provider=self.provider,
+            batch=batch,
+            mapping_prompt=mapping_prompt,
         )
-        usage = dict(getattr(self.provider, "last_usage", {}) or {})
-        return response, usage
 
     def _resolve_mapping_selection(
         self,
@@ -2295,9 +1721,7 @@ class TwoPhaseLLMPipeline:
 
     @staticmethod
     def _optional_float(value: Any) -> float | None:
-        if value is None:
-            return None
-        return float(value)
+        return optional_float(value)
 
     @staticmethod
     def _phenotype_from_candidate(
@@ -2306,30 +1730,10 @@ class TwoPhaseLLMPipeline:
         candidate: dict[str, Any],
         match_method: str = "local",
     ) -> LLMPhenotype:
-        evidence = LLMPhenotypeEvidence(
-            phrase=str(item["phrase"]),
-            evidence_text=item.get("evidence_text"),
-            chunk_ids=list(item.get("chunk_ids", [])),
-            start_char=item.get("start_char"),
-            end_char=item.get("end_char"),
+        return phenotype_from_candidate(
+            item=item,
+            candidate=candidate,
             match_method=match_method,
-        )
-        return LLMPhenotype(
-            term_id=candidate["hpo_id"],
-            label=candidate["term_name"],
-            evidence=item["phrase"],
-            assertion=CATEGORY_TO_ASSERTION.get(
-                _normalize_category(str(item.get("category", ""))),
-                PRESENT_ASSERTION,
-            ),
-            category=_normalize_category(str(item.get("category", ""))),
-            confidence=(
-                TwoPhaseLLMPipeline._optional_float(candidate.get("confidence"))
-                if candidate.get("confidence") is not None
-                else float(candidate.get("score", 0.0) or 0.0)
-            ),
-            score=float(candidate.get("score", 0.0) or 0.0),
-            evidence_records=[evidence],
         )
 
     @staticmethod
@@ -2338,11 +1742,9 @@ class TwoPhaseLLMPipeline:
         mapping_response: LLMMappingSelection,
         candidates: list[dict[str, Any]],
     ) -> str | None:
-        candidate_ids = {candidate["hpo_id"] for candidate in candidates}
-        return (
-            mapping_response.hpo_id
-            if mapping_response.hpo_id in candidate_ids
-            else None
+        return select_candidate_id(
+            mapping_response=mapping_response,
+            candidates=candidates,
         )
 
     @classmethod
@@ -2352,49 +1754,8 @@ class TwoPhaseLLMPipeline:
         mapping_response: LLMMappingSelection | LLMBatchMappingSelections,
         batch: list[dict[str, Any]],
     ) -> dict[str, str | None]:
-        if len(batch) == 1:
-            item = batch[0]
-            if not isinstance(mapping_response, LLMMappingSelection):
-                return {_mapping_batch_item_id(0): None}
-            return {
-                _mapping_batch_item_id(0): cls._select_candidate_id(
-                    mapping_response=mapping_response,
-                    candidates=item["candidates"],
-                )
-            }
-
-        selected: dict[str, str | None] = {
-            _mapping_batch_item_id(index): None for index, _ in enumerate(batch)
-        }
-        if not isinstance(mapping_response, LLMBatchMappingSelections):
-            return selected
-
-        candidates_by_item_id = {
-            _mapping_batch_item_id(index): {
-                candidate["hpo_id"] for candidate in item["candidates"]
-            }
-            for index, item in enumerate(batch)
-        }
-        for mapping in mapping_response.mappings:
-            item_id = mapping.item_id
-            selected_id = mapping.hpo_id
-            if (
-                isinstance(selected_id, str)
-                and item_id in candidates_by_item_id
-                and selected_id in candidates_by_item_id[item_id]
-            ):
-                selected[item_id] = selected_id
-        return selected
+        return select_candidate_ids(mapping_response=mapping_response, batch=batch)
 
     @staticmethod
     def _deduplicate_terms(terms: list[LLMPhenotype]) -> list[LLMPhenotype]:
-        deduplicated: dict[tuple[str, str], LLMPhenotype] = {}
-        for term in terms:
-            key = (term.term_id, term.assertion)
-            if key not in deduplicated:
-                deduplicated[key] = term
-                continue
-            deduplicated[key].evidence_records.extend(term.evidence_records)
-            if not deduplicated[key].evidence and term.evidence:
-                deduplicated[key].evidence = term.evidence
-        return list(deduplicated.values())
+        return deduplicate_terms(terms)

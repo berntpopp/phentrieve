@@ -249,11 +249,13 @@ async def get_dense_retriever_dependency(
 
         # Uses internal logic (resolve_data_path -> get_default_index_dir)
         # to find the index based on environment variables.
-        retriever = DenseRetriever.from_model_name(
-            model=sbert_instance,
-            model_name=sbert_model_name_for_retriever,
-            multi_vector=multi_vector,  # Pass multi_vector flag to retriever
-            # No index_dir is passed here.
+        retriever = await run_in_threadpool(
+            lambda: DenseRetriever.from_model_name(
+                model=sbert_instance,
+                model_name=sbert_model_name_for_retriever,
+                multi_vector=multi_vector,  # Pass multi_vector flag to retriever
+                # No index_dir is passed here.
+            )
         )
 
         if not retriever:

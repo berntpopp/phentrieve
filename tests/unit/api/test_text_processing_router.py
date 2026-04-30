@@ -36,7 +36,7 @@ def client():
 
 def test_text_processing_router_returns_llm_meta(client, monkeypatch):
     monkeypatch.setattr(
-        "api.routers.text_processing_router.run_full_text_service",
+        "api.services.text_processing_execution.run_full_text_service",
         lambda **kwargs: {
             "meta": {
                 "extraction_backend": "llm",
@@ -68,6 +68,7 @@ def test_text_processing_router_returns_llm_meta(client, monkeypatch):
 async def test_llm_request_uses_server_owned_llm_target(monkeypatch) -> None:
     from api.routers import text_processing_router
     from api.schemas.text_processing_schemas import TextProcessingRequest
+    from api.services import text_processing_execution
 
     captured: dict[str, object] = {}
 
@@ -83,12 +84,12 @@ async def test_llm_request_uses_server_owned_llm_target(monkeypatch) -> None:
         return func(**kwargs)
 
     monkeypatch.setattr(
-        text_processing_router,
+        text_processing_execution,
         "run_full_text_service",
         fake_run_full_text_service,
     )
     monkeypatch.setattr(
-        text_processing_router,
+        text_processing_execution,
         "run_in_threadpool",
         fake_run_in_threadpool,
     )
@@ -128,7 +129,7 @@ def test_text_processing_router_rejects_public_llm_config_fields(
 
 def test_text_processing_router_accepts_llm_without_model(client, monkeypatch):
     monkeypatch.setattr(
-        "api.routers.text_processing_router.run_full_text_service",
+        "api.services.text_processing_execution.run_full_text_service",
         lambda **kwargs: {
             "meta": {
                 "extraction_backend": "llm",
@@ -178,7 +179,7 @@ def test_llm_text_injection_cannot_change_public_llm_target(
         }
 
     monkeypatch.setattr(
-        "api.routers.text_processing_router.run_full_text_service",
+        "api.services.text_processing_execution.run_full_text_service",
         fake_service,
     )
 
@@ -219,7 +220,7 @@ def test_text_processing_router_returns_localizable_quota_metadata(
         AsyncMock(return_value=MagicMock(model_name="FremyCompany/BioLORD-2023-M")),
     )
     monkeypatch.setattr(
-        "api.routers.text_processing_router.run_full_text_service",
+        "api.services.text_processing_execution.run_full_text_service",
         lambda **kwargs: {
             "meta": {
                 "extraction_backend": "llm",
@@ -262,11 +263,11 @@ def test_text_processing_router_can_mark_standard_fallback_after_llm_exhaustion(
         AsyncMock(return_value=MagicMock(model_name="FremyCompany/BioLORD-2023-M")),
     )
     monkeypatch.setattr(
-        "api.routers.text_processing_router.get_sbert_model_dependency",
+        "api.services.text_processing_context.get_sbert_model_dependency",
         AsyncMock(return_value=MagicMock(model_name="FremyCompany/BioLORD-2023-M")),
     )
     monkeypatch.setattr(
-        "api.routers.text_processing_router.get_dense_retriever_dependency",
+        "api.services.text_processing_context.get_dense_retriever_dependency",
         AsyncMock(return_value=MagicMock(model_name="FremyCompany/BioLORD-2023-M")),
     )
     monkeypatch.setattr(
@@ -281,7 +282,7 @@ def test_text_processing_router_can_mark_standard_fallback_after_llm_exhaustion(
         ),
     )
     monkeypatch.setattr(
-        "api.routers.text_processing_router.run_full_text_service",
+        "api.services.text_processing_execution.run_full_text_service",
         lambda **kwargs: {
             "meta": {
                 "extraction_backend": "standard",
@@ -309,7 +310,7 @@ def test_text_processing_router_can_mark_standard_fallback_after_llm_exhaustion(
 
 def test_text_processing_router_accepts_llm_without_model_required(client, monkeypatch):
     monkeypatch.setattr(
-        "api.routers.text_processing_router.run_full_text_service",
+        "api.services.text_processing_execution.run_full_text_service",
         lambda **kwargs: {
             "meta": {
                 "extraction_backend": "llm",
@@ -354,7 +355,7 @@ def test_text_processing_router_passes_assertion_config_to_public_llm(
         }
 
     monkeypatch.setattr(
-        "api.routers.text_processing_router.run_full_text_service",
+        "api.services.text_processing_execution.run_full_text_service",
         fake_run_full_text_service,
     )
 
@@ -407,7 +408,7 @@ def test_text_processing_router_rejects_non_allowlisted_public_llm_retrieval_mod
         }
 
     monkeypatch.setattr(
-        "api.routers.text_processing_router.run_full_text_service",
+        "api.services.text_processing_execution.run_full_text_service",
         fake_run_full_text_service,
     )
 
@@ -524,7 +525,7 @@ def test_text_processing_router_counts_successes_and_skips_failed_requests(
         }
 
     monkeypatch.setattr(
-        "api.routers.text_processing_router.run_full_text_service",
+        "api.services.text_processing_execution.run_full_text_service",
         run_service,
     )
 
@@ -599,15 +600,15 @@ def test_text_processing_router_returns_standard_extraction_backend_contract(
     client, monkeypatch
 ):
     monkeypatch.setattr(
-        "api.routers.text_processing_router.get_sbert_model_dependency",
+        "api.services.text_processing_context.get_sbert_model_dependency",
         AsyncMock(return_value=MagicMock(model_name="FremyCompany/BioLORD-2023-M")),
     )
     monkeypatch.setattr(
-        "api.routers.text_processing_router.get_dense_retriever_dependency",
+        "api.services.text_processing_context.get_dense_retriever_dependency",
         AsyncMock(return_value=MagicMock(model_name="FremyCompany/BioLORD-2023-M")),
     )
     monkeypatch.setattr(
-        "api.routers.text_processing_router.run_full_text_service",
+        "api.services.text_processing_execution.run_full_text_service",
         lambda **kwargs: {
             "meta": {"extraction_backend": "standard"},
             "processed_chunks": [
@@ -864,17 +865,17 @@ class TestTextProcessingModelValidation:
         )
 
         with patch(
-            "api.routers.text_processing_router.get_sbert_model_dependency"
+            "api.services.text_processing_context.get_sbert_model_dependency"
         ) as mock_get_model:
             mock_get_model.return_value = MagicMock()
 
             with patch(
-                "api.routers.text_processing_router.get_dense_retriever_dependency"
+                "api.services.text_processing_context.get_dense_retriever_dependency"
             ) as mock_get_retriever:
                 mock_get_retriever.return_value = MagicMock()
 
                 with patch(
-                    "api.routers.text_processing_router.TextProcessingPipeline"
+                    "api.services.text_processing_context.TextProcessingPipeline"
                 ) as mock_pipeline_cls:
                     mock_pipeline = MagicMock()
                     mock_pipeline.process = MagicMock()
@@ -884,7 +885,7 @@ class TestTextProcessingModelValidation:
                         raise AssertionError(f"Unexpected callable: {func!r}")
 
                     with patch(
-                        "api.routers.text_processing_router.run_in_threadpool",
+                        "api.services.text_processing_context.run_in_threadpool",
                         side_effect=fake_run_in_threadpool,
                     ):
                         with pytest.raises(HTTPException) as exc_info:
@@ -905,17 +906,17 @@ class TestTextProcessingModelValidation:
         )
 
         with patch(
-            "api.routers.text_processing_router.get_sbert_model_dependency"
+            "api.services.text_processing_context.get_sbert_model_dependency"
         ) as mock_get_model:
             mock_get_model.return_value = MagicMock()
 
             with patch(
-                "api.routers.text_processing_router.get_dense_retriever_dependency"
+                "api.services.text_processing_context.get_dense_retriever_dependency"
             ) as mock_get_retriever:
                 mock_get_retriever.return_value = MagicMock()
 
                 with patch(
-                    "api.routers.text_processing_router.TextProcessingPipeline"
+                    "api.services.text_processing_context.TextProcessingPipeline"
                 ) as mock_pipeline_cls:
                     mock_pipeline = MagicMock()
                     mock_pipeline.process = MagicMock()
@@ -925,7 +926,7 @@ class TestTextProcessingModelValidation:
                         raise AssertionError(f"Unexpected callable: {func!r}")
 
                     with patch(
-                        "api.routers.text_processing_router.run_in_threadpool",
+                        "api.services.text_processing_context.run_in_threadpool",
                         side_effect=fake_run_in_threadpool,
                     ):
                         await _prepare_standard_request_context(request)
@@ -948,17 +949,17 @@ class TestTextProcessingModelValidation:
         )
 
         with patch(
-            "api.routers.text_processing_router.get_sbert_model_dependency"
+            "api.services.text_processing_context.get_sbert_model_dependency"
         ) as mock_get_model:
             mock_get_model.return_value = MagicMock()
 
             with patch(
-                "api.routers.text_processing_router.get_dense_retriever_dependency"
+                "api.services.text_processing_context.get_dense_retriever_dependency"
             ) as mock_get_retriever:
                 mock_get_retriever.return_value = MagicMock()
 
                 with patch(
-                    "api.routers.text_processing_router.TextProcessingPipeline"
+                    "api.services.text_processing_context.TextProcessingPipeline"
                 ) as mock_pipeline_cls:
                     mock_pipeline = MagicMock()
                     mock_pipeline.process = MagicMock()
@@ -968,7 +969,7 @@ class TestTextProcessingModelValidation:
                         raise AssertionError(f"Unexpected callable: {func!r}")
 
                     with patch(
-                        "api.routers.text_processing_router.run_in_threadpool",
+                        "api.services.text_processing_context.run_in_threadpool",
                         side_effect=fake_run_in_threadpool,
                     ):
                         await _prepare_standard_request_context(request)
@@ -994,17 +995,17 @@ class TestTextProcessingModelValidation:
         )
 
         with patch(
-            "api.routers.text_processing_router.get_sbert_model_dependency"
+            "api.services.text_processing_context.get_sbert_model_dependency"
         ) as mock_get_model:
             mock_get_model.return_value = MagicMock()
 
             with patch(
-                "api.routers.text_processing_router.get_dense_retriever_dependency"
+                "api.services.text_processing_context.get_dense_retriever_dependency"
             ) as mock_get_retriever:
                 mock_get_retriever.return_value = MagicMock()
 
                 with patch(
-                    "api.routers.text_processing_router.TextProcessingPipeline"
+                    "api.services.text_processing_context.TextProcessingPipeline"
                 ) as mock_pipeline_cls:
                     mock_pipeline = MagicMock()
                     mock_pipeline.process = MagicMock()
@@ -1014,7 +1015,7 @@ class TestTextProcessingModelValidation:
                         raise AssertionError(f"Unexpected callable: {func!r}")
 
                     with patch(
-                        "api.routers.text_processing_router.run_in_threadpool",
+                        "api.services.text_processing_context.run_in_threadpool",
                         side_effect=fake_run_in_threadpool,
                     ):
                         await _prepare_standard_request_context(request)
@@ -1055,11 +1056,11 @@ class TestTextProcessingModelValidation:
         captured_kwargs: dict[str, object] = {}
 
         with patch(
-            "api.routers.text_processing_router._prepare_standard_request_context",
+            "api.services.text_processing_execution.prepare_standard_text_processing_context",
             AsyncMock(return_value=standard_context),
         ):
             with patch(
-                "api.routers.text_processing_router.run_full_text_service",
+                "api.services.text_processing_execution.run_full_text_service",
                 side_effect=lambda **kwargs: (
                     captured_kwargs.update(kwargs)
                     or {
@@ -1093,11 +1094,11 @@ class TestTextProcessingModelValidation:
         }
 
         with patch(
-            "api.routers.text_processing_router._prepare_standard_request_context",
+            "api.services.text_processing_execution.prepare_standard_text_processing_context",
             AsyncMock(return_value=standard_context),
         ):
             with patch(
-                "api.routers.text_processing_router.run_full_text_service",
+                "api.services.text_processing_execution.run_full_text_service",
                 return_value={
                     "meta": {"extraction_backend": "standard"},
                     "processed_chunks": [
@@ -1123,7 +1124,7 @@ class TestTextProcessingModelValidation:
                 },
             ):
                 with patch(
-                    "api.routers.text_processing_router._validate_response_chunk_references"
+                    "api.services.text_processing_execution.validate_response_chunk_references"
                 ) as mock_validate:
                     await _process_text_via_shared_service(request)
 

@@ -93,8 +93,8 @@ analysis = [
     "umap-learn>=0.5.6",
     "plotly>=5.22.0",
 ]
-# Install CLI + API with: pip install "phentrieve[api]"
-# Install CLI + MCP with: pip install "phentrieve[mcp]"
+# Install CLI + API with: uv sync --extra api
+# Install CLI + MCP with: uv sync --extra mcp
 
 [tool.setuptools]
 
