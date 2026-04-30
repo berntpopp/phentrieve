@@ -229,7 +229,7 @@ export function useQueryInterfaceController({ getContext, service, logService })
       });
 
       if (useTextProcessMode) {
-        const textProcessData = {
+        const textProcessPayload = {
           text: currentQuery,
           extractionBackend: latestState.textProcessOptions.extractionBackend,
           llmModel: latestState.textProcessOptions.llmModel,
@@ -253,10 +253,10 @@ export function useQueryInterfaceController({ getContext, service, logService })
           topTermPerChunkForAggregation: latestState.topTermPerChunkForAggregation,
           includeDetails: latestState.includeDetails,
         };
-        logService.info('Sending to /text/process API', sanitizedLog);
-        response = await service.processText(textProcessData);
+        logService.info('Submitting text request', sanitizedLog);
+        response = await service.processText(textProcessPayload);
       } else {
-        const queryData = {
+        const queryPayload = {
           text: currentQuery,
           model_name: latestState.selectedModel,
           language: latestState.selectedLanguage,
@@ -266,8 +266,8 @@ export function useQueryInterfaceController({ getContext, service, logService })
           detect_query_assertion: true,
           include_details: latestState.includeDetails,
         };
-        logService.info('Sending to /query API', sanitizedLog);
-        response = await service.queryHpo(queryData);
+        logService.info('Submitting text request', sanitizedLog);
+        response = await service.queryHpo(queryPayload);
       }
 
       context.conversationStore.updateQueryResponse(queryId, response);

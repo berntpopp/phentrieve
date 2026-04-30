@@ -17,16 +17,16 @@ const getSerializedSize = value => JSON.stringify(value)?.length || 0;
 const GENERIC_API_DETAIL = 'API returned an error. See status code for details.';
 
 class PhentrieveService {
-  async queryHpo(queryData) {
-    // queryData should match QueryRequest schema from FastAPI
+  async queryHpo(queryPayload) {
+    // Payload should match QueryRequest schema from FastAPI
     // Example: { text: "...", model_name: "...", num_results: 10, ... }
     try {
       logService.info('Querying HPO API', {
-        textLength: queryData.text?.length || 0,
-        numResults: queryData.num_results ?? queryData.numResults,
-        model: queryData.model_name ?? queryData.modelName,
+        textLength: queryPayload.text?.length || 0,
+        numResults: queryPayload.num_results ?? queryPayload.numResults,
+        model: queryPayload.model_name ?? queryPayload.modelName,
       });
-      const response = await axios.post(`${API_URL}/query/`, queryData, RESEARCH_USE_ACK_CONFIG);
+      const response = await axios.post(`${API_URL}/query/`, queryPayload, RESEARCH_USE_ACK_CONFIG);
       logService.debug('HPO API response received', {
         status: response.status,
         dataSize: getSerializedSize(response.data),
