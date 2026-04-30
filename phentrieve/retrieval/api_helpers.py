@@ -140,7 +140,7 @@ async def execute_hpo_retrieval_for_api(
     """
     if debug:
         logger.setLevel(logging.DEBUG)
-        logger.debug("Processing API query with text: %s...", _sanitize(text[:50]))
+        logger.debug("Processing API query text_chars=%s", _sanitize(len(text)))
     # Validate input
     if not text or not text.strip():
         return {

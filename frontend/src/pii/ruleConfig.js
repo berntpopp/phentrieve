@@ -2,6 +2,102 @@ export const SUPPORTED_PII_LOCALES = Object.freeze(['en', 'de', 'fr', 'es', 'nl'
 
 export const DATE_PATTERN = /\b(?:\d{1,2}[./-]\d{1,2}[./-]\d{2,4}|\d{4}-\d{2}-\d{2})\b/gu;
 const ID_VALUE_PATTERN = /\b[A-Z]{0,4}[- ]?\d{4,12}[A-Z0-9-]*\b/giu;
+const PERSON_NAME_TOKEN = String.raw`\p{Lu}[\p{L}\p{M}'-]+`;
+const LETTER_LEFT_BOUNDARY = String.raw`(?<![\p{L}\p{M}])`;
+const LETTER_RIGHT_BOUNDARY = String.raw`(?![\p{L}\p{M}])`;
+
+const TITLED_NAME_RULE_CONFIG = Object.freeze({
+  en: { id: 'en.titled_name', titles: ['Mr', 'Mrs', 'Ms', 'Dr', 'Prof'] },
+  de: { id: 'de.titled_name', titles: ['Herr', 'Frau', 'Dr', 'Prof'] },
+  fr: { id: 'fr.titled_name', titles: ['Monsieur', 'Madame', 'M', 'Mme', 'Dr', 'Prof'] },
+  es: { id: 'es.titled_name', titles: ['Señor', 'Señora', 'Sr', 'Sra', 'Dr', 'Dra'] },
+  nl: { id: 'nl.titled_name', titles: ['Dhr', 'Mevrouw', 'Mw', 'Dr', 'Prof'] },
+});
+
+export const UNTITLED_NAME_RULE_CONFIG = Object.freeze({
+  id: 'global.untitled_name',
+  category: 'person_name',
+  confidence: 'review',
+  redactionToken: '[REDACTED_NAME]',
+  enabled: true,
+  minScore: 2,
+  minNameTokens: 2,
+  maxTokens: 4,
+  contextWindowChars: 32,
+  particles: ['de', 'del', 'da', 'di', 'du', 'le', 'la', 'van', 'von', 'der', 'den'],
+  contextWords: [
+    'called',
+    'case',
+    'name',
+    'patient',
+    'subject',
+    'Nachname',
+    'Name',
+    'Patient',
+    'Vorname',
+    'Naam',
+    'Patiënt',
+    'Nom',
+    'Patient',
+    'Paciente',
+    'paciente',
+  ],
+  blockedTerms: [
+    'abnormality',
+    'biolord',
+    'called',
+    'carinatum',
+    'case',
+    'clinical',
+    'disease',
+    'down',
+    'hpo',
+    'model',
+    'naam',
+    'nachname',
+    'name',
+    'nom',
+    'paciente',
+    'patient',
+    'pectus',
+    'phenotype',
+    'syndrome',
+    'term',
+    'tracheomalacia',
+    'vorname',
+  ],
+});
+
+function escapeRegex(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/gu, '\\$&');
+}
+
+function createTitledNameRule(locale, config) {
+  const titlePattern = config.titles.map(escapeRegex).join('|');
+  const optionalDot = '\\.?';
+
+  return {
+    id: config.id,
+    category: 'person_name',
+    confidence: 'review',
+    locales: [locale],
+    redactionToken: '[REDACTED_NAME]',
+    enabled: true,
+    patterns: [
+      // Titles come from static locale config and are escaped before RegExp construction.
+      // eslint-disable-next-line security/detect-non-literal-regexp
+      new RegExp(
+        `${LETTER_LEFT_BOUNDARY}(?:${titlePattern})${optionalDot}\\s+${PERSON_NAME_TOKEN}\\s+${PERSON_NAME_TOKEN}${LETTER_RIGHT_BOUNDARY}`,
+        'gu'
+      ),
+      // eslint-disable-next-line security/detect-non-literal-regexp
+      new RegExp(
+        `${LETTER_LEFT_BOUNDARY}(?:${titlePattern})${optionalDot}\\s+${PERSON_NAME_TOKEN}${LETTER_RIGHT_BOUNDARY}`,
+        'gu'
+      ),
+    ],
+  };
+}
 
 export const GLOBAL_RULES = Object.freeze([
   {
@@ -44,6 +140,7 @@ export const GLOBAL_RULES = Object.freeze([
 
 export const LOCALE_RULES = Object.freeze({
   en: [
+    createTitledNameRule('en', TITLED_NAME_RULE_CONFIG.en),
     {
       id: 'en.dob',
       category: 'dob',
@@ -62,10 +159,13 @@ export const LOCALE_RULES = Object.freeze({
       locales: ['en'],
       redactionToken: '[REDACTED_MRN]',
       enabled: true,
-      patterns: [/(?:MRN|medical record number|patient ID|NHS number)\s*[:#-]?\s*[A-Z0-9 -]{4,24}/giu],
+      patterns: [
+        /(?:MRN|medical record number|patient ID|NHS number)\s*[:#-]?\s*[A-Z0-9 -]{4,24}/giu,
+      ],
     },
   ],
   de: [
+    createTitledNameRule('de', TITLED_NAME_RULE_CONFIG.de),
     {
       id: 'de.dob',
       category: 'dob',
@@ -89,6 +189,7 @@ export const LOCALE_RULES = Object.freeze({
     },
   ],
   fr: [
+    createTitledNameRule('fr', TITLED_NAME_RULE_CONFIG.fr),
     {
       id: 'fr.nir',
       category: 'national_identifier',
@@ -96,11 +197,14 @@ export const LOCALE_RULES = Object.freeze({
       locales: ['fr'],
       redactionToken: '[REDACTED_NATIONAL_ID]',
       enabled: true,
-      patterns: [/(?:NIR|numéro de sécurité sociale|securite sociale)\s*[:#-]?\s*[12][\d .-]{12,20}/giu],
+      patterns: [
+        /(?:NIR|numéro de sécurité sociale|securite sociale)\s*[:#-]?\s*[12][\d .-]{12,20}/giu,
+      ],
       validator: 'validateFrenchNir',
     },
   ],
   es: [
+    createTitledNameRule('es', TITLED_NAME_RULE_CONFIG.es),
     {
       id: 'es.dni_nie',
       category: 'national_identifier',
@@ -118,10 +222,13 @@ export const LOCALE_RULES = Object.freeze({
       locales: ['es'],
       redactionToken: '[REDACTED_MRN]',
       enabled: true,
-      patterns: [/(?:número de historia clínica|historia clínica|paciente id)\s*[:#-]?\s*[A-Z0-9 -]{4,24}/giu],
+      patterns: [
+        /(?:número de historia clínica|historia clínica|paciente id)\s*[:#-]?\s*[A-Z0-9 -]{4,24}/giu,
+      ],
     },
   ],
   nl: [
+    createTitledNameRule('nl', TITLED_NAME_RULE_CONFIG.nl),
     {
       id: 'nl.bsn',
       category: 'national_identifier',

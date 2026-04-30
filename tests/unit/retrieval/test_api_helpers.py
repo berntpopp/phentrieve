@@ -116,6 +116,28 @@ class TestExecuteHpoRetrievalForApi:
         )
 
     @pytest.mark.asyncio
+    async def test_debug_logs_do_not_include_raw_query_text(self, mocker, caplog):
+        """Debug logging should report metadata without submitted text."""
+        mock_retriever = mocker.Mock()
+        query_text = "Herr Bernt Popp ist dumm"
+        mock_retriever.query.return_value = {"ids": [[]], "documents": [[]]}
+
+        with caplog.at_level("DEBUG", logger="phentrieve.retrieval.api_helpers"):
+            await execute_hpo_retrieval_for_api(
+                text=query_text,
+                language="en",
+                retriever=mock_retriever,
+                num_results=5,
+                similarity_threshold=0.5,
+                detect_query_assertion=False,
+                multi_vector=False,
+                debug=True,
+            )
+
+        assert query_text not in caplog.text
+        assert f"text_chars={len(query_text)}" in caplog.text
+
+    @pytest.mark.asyncio
     async def test_no_results_found(self, mocker):
         """Test handling when no results are found."""
         # Arrange

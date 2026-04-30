@@ -23,6 +23,13 @@ describe('scanPii', () => {
     }
   });
 
+  it('keeps finding IDs unique when phone rules run across locales', () => {
+    const result = scanPii('Call +1 202 555 0199 or +31 20 123 4567.', { locale: 'en' });
+    const ids = result.findings.map((finding) => finding.id);
+
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
   it('detects English medical record labels', () => {
     const result = scanPii('MRN: AB-123456. Patient has seizures.', { locale: 'en' });
     expect(result.summary.high.medical_record).toBe(1);
@@ -35,6 +42,89 @@ describe('scanPii', () => {
     expect(result.summary.high.dob).toBe(1);
     expect(result.summary.review.date).toBeUndefined();
     expect(result.summary.high.national_identifier).toBe(1);
+  });
+
+  it('marks German titled person names as review confidence', () => {
+    const result = scanPii('Herr Popp ist dumm', { locale: 'de' });
+
+    expect(result.summary.review.person_name).toBe(1);
+    expect(result.findings[0]).not.toHaveProperty('text');
+  });
+
+  it('marks configured titled person names even when the selected language differs', () => {
+    const result = scanPii('M Dupont a des crises', { locale: 'en' });
+
+    expect(result.summary.review.person_name).toBe(1);
+    expect(result.findings[0]).not.toHaveProperty('text');
+  });
+
+  it.each([
+    ['fr', 'M René a des crises'],
+    ['es', 'Sr José tiene convulsiones'],
+  ])('marks %s titled person names with accented letters', (locale, text) => {
+    const result = scanPii(text, { locale });
+
+    expect(result.summary.review.person_name).toBe(1);
+    expect(result.findings[0]).not.toHaveProperty('text');
+  });
+
+  it.each([
+    ['en', 'Mr Smith has seizures'],
+    ['fr', 'M Dupont a des crises'],
+    ['es', 'Sr Garcia tiene convulsiones'],
+    ['nl', 'Dhr Jansen heeft aanvallen'],
+  ])('marks %s titled person names as review confidence', (locale, text) => {
+    const result = scanPii(text, { locale });
+
+    expect(result.summary.review.person_name).toBe(1);
+    expect(result.findings[0]).not.toHaveProperty('text');
+  });
+
+  it.each([
+    ['en', 'John Smith has seizures'],
+    ['de', 'Bernt Popp ist dumm'],
+    ['fr', 'Jean Dupont a des crises'],
+    ['es', 'María García tiene convulsiones'],
+    ['nl', 'Jan van Dijk heeft aanvallen'],
+  ])('marks %s untitled person names as review confidence', (locale, text) => {
+    const result = scanPii(text, { locale });
+
+    expect(result.summary.review.person_name).toBe(1);
+    expect(result.findings[0]).not.toHaveProperty('text');
+  });
+
+  it.each([
+    ['de', 'Bernt Popp ist dumm'],
+    ['fr', 'Jean Dupont a des crises'],
+    ['es', 'María García tiene convulsiones'],
+    ['nl', 'Jan van Dijk heeft aanvallen'],
+  ])('marks %s untitled person names when selected language is English', (_locale, text) => {
+    const result = scanPii(text, { locale: 'en' });
+
+    expect(result.summary.review.person_name).toBe(1);
+    expect(result.findings[0]).not.toHaveProperty('text');
+  });
+
+  it('keeps context words outside untitled person-name spans', () => {
+    const text = 'Patient John Smith has seizures';
+    const result = scanPii(text, { locale: 'en' });
+    const finding = result.findings.find((item) => item.category === 'person_name');
+
+    expect(finding).toBeDefined();
+    expect(finding.start).toBe(text.indexOf('John'));
+    expect(finding.end).toBe(text.indexOf(' has seizures'));
+  });
+
+  it.each([
+    ['Pectus Carinatum was noted.'],
+    ['Down Syndrome was discussed.'],
+    ['BioLORD Model returned results.'],
+    ['Brain MRI was normal.'],
+    ['HP:0002779 Tracheomalacia'],
+  ])('does not mark clinical or domain phrases as untitled names: %s', (text) => {
+    const result = scanPii(text, { locale: 'en' });
+
+    expect(result.summary.review.person_name).toBeUndefined();
   });
 
   it('detects French NIR labels', () => {

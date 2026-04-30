@@ -1,6 +1,17 @@
 import { findPhoneNumbersInText } from 'libphonenumber-js';
-import { ADDRESS_RULES, GLOBAL_RULES, LOCALE_RULES, SUPPORTED_PII_LOCALES } from './ruleConfig';
+import {
+  ADDRESS_RULES,
+  GLOBAL_RULES,
+  LOCALE_RULES,
+  SUPPORTED_PII_LOCALES,
+  UNTITLED_NAME_RULE_CONFIG,
+} from './ruleConfig';
 import { VALIDATORS } from './validators';
+
+const WORD_PATTERN = /[A-Za-zÀ-ÖØ-öø-ÿß'-]+/gu;
+const NAME_TOKEN_PATTERN = /^[A-ZÀ-ÖØ-Þ][A-Za-zÀ-ÖØ-öø-ÿß'-]*$/u;
+const CODE_LIKE_PATTERN = /(?:\d|[A-Z]{2,}[:_-]?\d|[a-z][A-Z])/u;
+const ALL_CAPS_TOKEN_PATTERN = /^[A-ZÀ-ÖØ-Þ]{2,}$/u;
 
 function createSummary() {
   return { high: {}, review: {} };
@@ -75,7 +86,7 @@ function regionForLocale(locale) {
 
 function applyPhoneRule(text, locale) {
   return findPhoneNumbersInText(text, regionForLocale(locale)).map((match, index) => ({
-    id: `global.phone-${index}`,
+    id: `global.phone-${locale}-${index}-${match.startsAt}-${match.endsAt}`,
     ruleId: 'global.phone',
     category: 'phone',
     confidence: 'high',
@@ -122,6 +133,126 @@ function applyAddressRule(text, locale) {
   return findings;
 }
 
+function normalizeNameToken(token) {
+  return String(token ?? '').toLowerCase();
+}
+
+function tokenizeWords(text) {
+  const tokens = [];
+  WORD_PATTERN.lastIndex = 0;
+  let match;
+  while ((match = WORD_PATTERN.exec(text)) !== null) {
+    tokens.push({
+      value: match[0],
+      start: match.index,
+      end: match.index + match[0].length,
+    });
+  }
+  return tokens;
+}
+
+function isNameToken(token, config) {
+  const value = token.value;
+  return (
+    value.length >= 2 &&
+    NAME_TOKEN_PATTERN.test(value) &&
+    !CODE_LIKE_PATTERN.test(value) &&
+    !ALL_CAPS_TOKEN_PATTERN.test(value) &&
+    !config.blockedTerms.includes(normalizeNameToken(value))
+  );
+}
+
+function isNameParticle(token, config) {
+  return config.particles.includes(normalizeNameToken(token.value));
+}
+
+function hasOnlyNameSeparators(text, previous, next) {
+  return /^[\s'-]+$/u.test(text.slice(previous.end, next.start));
+}
+
+function hasNameContext(text, candidate, config) {
+  const start = Math.max(0, candidate.start - config.contextWindowChars);
+  const end = Math.min(text.length, candidate.end + config.contextWindowChars);
+  const context = text.slice(start, end).toLowerCase();
+  return config.contextWords.some((word) => context.includes(word.toLowerCase()));
+}
+
+function scoreNameCandidate(text, candidate, config) {
+  const normalizedValues = candidate.tokens.map((token) => normalizeNameToken(token.value));
+  if (normalizedValues.some((value) => config.blockedTerms.includes(value))) {
+    return 0;
+  }
+
+  let score = candidate.nameTokenCount >= config.minNameTokens ? 2 : 0;
+  if (candidate.hasParticle) score += 1;
+  if (hasNameContext(text, candidate, config)) score += 2;
+  return score;
+}
+
+function buildUntitledNameFinding(candidate, index, config) {
+  return {
+    id: `${config.id}-${index}`,
+    ruleId: config.id,
+    category: config.category,
+    confidence: config.confidence,
+    start: candidate.start,
+    end: candidate.end,
+    redactionToken: config.redactionToken,
+  };
+}
+
+function applyUntitledNameRule(text, config = UNTITLED_NAME_RULE_CONFIG) {
+  if (!config.enabled) return [];
+
+  const tokens = tokenizeWords(text);
+  const findings = [];
+  for (const [index, firstToken] of tokens.entries()) {
+    if (!isNameToken(firstToken, config)) continue;
+
+    let candidate = null;
+    let nameTokenCount = 1;
+    let hasParticle = false;
+    let previous = firstToken;
+    const candidateTokens = [firstToken];
+
+    for (let nextIndex = index + 1; nextIndex < tokens.length; nextIndex += 1) {
+      // eslint-disable-next-line security/detect-object-injection -- Bounded numeric token scan avoids per-token slice allocations.
+      const next = tokens[nextIndex];
+      if (candidateTokens.length >= config.maxTokens) break;
+      if (!hasOnlyNameSeparators(text, previous, next)) break;
+
+      if (isNameParticle(next, config)) {
+        hasParticle = true;
+        candidateTokens.push(next);
+        previous = next;
+        continue;
+      }
+
+      if (!isNameToken(next, config)) break;
+
+      nameTokenCount += 1;
+      candidateTokens.push(next);
+      previous = next;
+      if (nameTokenCount >= config.minNameTokens) {
+        candidate = {
+          start: firstToken.start,
+          end: next.end,
+          tokens: [...candidateTokens],
+          nameTokenCount,
+          hasParticle,
+        };
+      }
+    }
+
+    if (!candidate) continue;
+    if (scoreNameCandidate(text, candidate, config) < config.minScore) continue;
+
+    findings.push(buildUntitledNameFinding(candidate, findings.length, config));
+  }
+
+  return findings;
+}
+
 function mergeOverlappingFindings(findings) {
   const sorted = [...findings].sort((a, b) => a.start - b.start || a.end - b.end);
   const merged = [];
@@ -162,17 +293,24 @@ function rulesForLocale(locale) {
   }
 }
 
+function localesForScan(locale) {
+  return [locale, ...SUPPORTED_PII_LOCALES.filter((supportedLocale) => supportedLocale !== locale)];
+}
+
 export function scanPii(text, { locale = 'en', includeGlobalRules = true } = {}) {
   const normalizedLocale = SUPPORTED_PII_LOCALES.includes(locale) ? locale : 'en';
   const source = String(text ?? '');
-  const configuredRules = [
-    ...(includeGlobalRules ? GLOBAL_RULES : []),
-    ...rulesForLocale(normalizedLocale),
-  ];
+  const scanLocales = localesForScan(normalizedLocale);
   const findings = mergeOverlappingFindings([
-    ...applyRules(source, configuredRules, normalizedLocale),
-    ...(includeGlobalRules ? applyPhoneRule(source, normalizedLocale) : []),
-    ...applyAddressRule(source, normalizedLocale),
+    ...(includeGlobalRules ? applyRules(source, GLOBAL_RULES, normalizedLocale) : []),
+    ...scanLocales.flatMap((scanLocale) =>
+      applyRules(source, rulesForLocale(scanLocale), scanLocale)
+    ),
+    ...applyUntitledNameRule(source),
+    ...(includeGlobalRules
+      ? scanLocales.flatMap((scanLocale) => applyPhoneRule(source, scanLocale))
+      : []),
+    ...scanLocales.flatMap((scanLocale) => applyAddressRule(source, scanLocale)),
   ]);
 
   const summary = createSummary();

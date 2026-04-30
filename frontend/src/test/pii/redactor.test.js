@@ -20,9 +20,9 @@ describe('redactPiiFindings', () => {
     expect(redactPiiFindings(text, scan.findings, { includeReviewFindings: false }).text).toBe(
       text
     );
-    expect(
-      redactPiiFindings(text, scan.findings, { includeReviewFindings: true }).text
-    ).toContain('[REDACTED_DATE]');
+    expect(redactPiiFindings(text, scan.findings, { includeReviewFindings: true }).text).toContain(
+      '[REDACTED_DATE]'
+    );
   });
 
   it('handles overlapping findings by keeping the longest span', () => {

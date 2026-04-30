@@ -430,7 +430,9 @@ describe('PhentrieveService', () => {
     const serializedError = JSON.stringify(thrownError);
     expect(serializedError).not.toContain('jane@example.org');
     expect(serializedError).not.toContain('Email jane');
-    expect(thrownError.userMessageParams.detail).toBe('API returned an error. See status code for details.');
+    expect(thrownError.userMessageParams.detail).toBe(
+      'API returned an error. See status code for details.'
+    );
   });
 
   describe('adaptive_rechunking pass-through', () => {
