@@ -245,7 +245,6 @@ export function useQueryInterfaceController({ getContext, service, logService })
             latestState.semanticModelForChunking || latestState.selectedModel,
           retrievalModelForTextProcess:
             latestState.retrievalModelForTextProcess || latestState.selectedModel,
-          trustRemoteCode: true,
           chunkRetrievalThreshold: latestState.chunkRetrievalThreshold,
           numResultsPerChunk: latestState.numResultsPerChunk,
           noAssertionDetectionForTextProcess: latestState.noAssertionDetectionForTextProcess,
