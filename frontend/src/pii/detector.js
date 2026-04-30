@@ -11,6 +11,7 @@ import { VALIDATORS } from './validators';
 const WORD_PATTERN = /[A-Za-zÀ-ÖØ-öø-ÿß'-]+/gu;
 const NAME_TOKEN_PATTERN = /^[A-ZÀ-ÖØ-Þ][A-Za-zÀ-ÖØ-öø-ÿß'-]*$/u;
 const CODE_LIKE_PATTERN = /(?:\d|[A-Z]{2,}[:_-]?\d|[a-z][A-Z])/u;
+const ALL_CAPS_TOKEN_PATTERN = /^[A-ZÀ-ÖØ-Þ]{2,}$/u;
 
 function createSummary() {
   return { high: {}, review: {} };
@@ -85,7 +86,7 @@ function regionForLocale(locale) {
 
 function applyPhoneRule(text, locale) {
   return findPhoneNumbersInText(text, regionForLocale(locale)).map((match, index) => ({
-    id: `global.phone-${index}`,
+    id: `global.phone-${locale}-${index}-${match.startsAt}-${match.endsAt}`,
     ruleId: 'global.phone',
     category: 'phone',
     confidence: 'high',
@@ -133,7 +134,7 @@ function applyAddressRule(text, locale) {
 }
 
 function normalizeNameToken(token) {
-  return String(token ?? '').toLocaleLowerCase();
+  return String(token ?? '').toLowerCase();
 }
 
 function tokenizeWords(text) {
@@ -156,6 +157,7 @@ function isNameToken(token, config) {
     value.length >= 2 &&
     NAME_TOKEN_PATTERN.test(value) &&
     !CODE_LIKE_PATTERN.test(value) &&
+    !ALL_CAPS_TOKEN_PATTERN.test(value) &&
     !config.blockedTerms.includes(normalizeNameToken(value))
   );
 }
@@ -171,8 +173,8 @@ function hasOnlyNameSeparators(text, previous, next) {
 function hasNameContext(text, candidate, config) {
   const start = Math.max(0, candidate.start - config.contextWindowChars);
   const end = Math.min(text.length, candidate.end + config.contextWindowChars);
-  const context = text.slice(start, end).toLocaleLowerCase();
-  return config.contextWords.some((word) => context.includes(word.toLocaleLowerCase()));
+  const context = text.slice(start, end).toLowerCase();
+  return config.contextWords.some((word) => context.includes(word.toLowerCase()));
 }
 
 function scoreNameCandidate(text, candidate, config) {
@@ -213,7 +215,9 @@ function applyUntitledNameRule(text, config = UNTITLED_NAME_RULE_CONFIG) {
     let previous = firstToken;
     const candidateTokens = [firstToken];
 
-    for (const next of tokens.slice(index + 1)) {
+    for (let nextIndex = index + 1; nextIndex < tokens.length; nextIndex += 1) {
+      // eslint-disable-next-line security/detect-object-injection -- Bounded numeric token scan avoids per-token slice allocations.
+      const next = tokens[nextIndex];
       if (candidateTokens.length >= config.maxTokens) break;
       if (!hasOnlyNameSeparators(text, previous, next)) break;
 

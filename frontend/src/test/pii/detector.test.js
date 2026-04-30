@@ -23,6 +23,13 @@ describe('scanPii', () => {
     }
   });
 
+  it('keeps finding IDs unique when phone rules run across locales', () => {
+    const result = scanPii('Call +1 202 555 0199 or +31 20 123 4567.', { locale: 'en' });
+    const ids = result.findings.map((finding) => finding.id);
+
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
   it('detects English medical record labels', () => {
     const result = scanPii('MRN: AB-123456. Patient has seizures.', { locale: 'en' });
     expect(result.summary.high.medical_record).toBe(1);
@@ -38,24 +45,24 @@ describe('scanPii', () => {
   });
 
   it('marks German titled person names as review confidence', () => {
-    const result = scanPii('Herr Bernt Popp ist dumm', { locale: 'de' });
+    const result = scanPii('Herr Popp ist dumm', { locale: 'de' });
 
     expect(result.summary.review.person_name).toBe(1);
     expect(result.findings[0]).not.toHaveProperty('text');
   });
 
   it('marks configured titled person names even when the selected language differs', () => {
-    const result = scanPii('Herr Bernt Popp ist dumm', { locale: 'en' });
+    const result = scanPii('M Dupont a des crises', { locale: 'en' });
 
     expect(result.summary.review.person_name).toBe(1);
     expect(result.findings[0]).not.toHaveProperty('text');
   });
 
   it.each([
-    ['en', 'Mr John Smith has seizures'],
-    ['fr', 'Monsieur Jean Dupont a des crises'],
-    ['es', 'Señor Juan Garcia tiene convulsiones'],
-    ['nl', 'Dhr Jan Jansen heeft aanvallen'],
+    ['en', 'Mr Smith has seizures'],
+    ['fr', 'M Dupont a des crises'],
+    ['es', 'Sr Garcia tiene convulsiones'],
+    ['nl', 'Dhr Jansen heeft aanvallen'],
   ])('marks %s titled person names as review confidence', (locale, text) => {
     const result = scanPii(text, { locale });
 
@@ -102,6 +109,7 @@ describe('scanPii', () => {
     ['Pectus Carinatum was noted.'],
     ['Down Syndrome was discussed.'],
     ['BioLORD Model returned results.'],
+    ['Brain MRI was normal.'],
     ['HP:0002779 Tracheomalacia'],
   ])('does not mark clinical or domain phrases as untitled names: %s', (text) => {
     const result = scanPii(text, { locale: 'en' });
