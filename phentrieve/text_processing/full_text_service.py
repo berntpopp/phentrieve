@@ -432,6 +432,8 @@ def _adapt_llm_aggregated_terms(
                 if chunk_id in valid_chunk_ids
             }
         )
+        if raw_source_chunk_ids and not source_chunk_ids:
+            continue
         text_attributions = _adapt_llm_text_attributions(
             evidence_records,
             chunk_text_by_id=chunk_text_by_id,

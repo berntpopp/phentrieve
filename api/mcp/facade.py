@@ -33,7 +33,13 @@ from api.mcp.tools import (
     ExtractHpoTermsRequest,
     SearchHpoTermsRequest,
 )
-from phentrieve.config import DEFAULT_LANGUAGE, DEFAULT_MODEL, DEFAULT_MULTI_VECTOR
+from phentrieve.config import (
+    DEFAULT_ASSERTION_CONFIG,
+    DEFAULT_LANGUAGE,
+    DEFAULT_MODEL,
+    DEFAULT_MULTI_VECTOR,
+    get_default_chunk_pipeline_config,
+)
 from phentrieve.evaluation.metrics import (
     SimilarityFormula,
     calculate_semantic_similarity,
@@ -134,10 +140,11 @@ def extract_hpo_terms_llm_impl(
     service: SyncMcpService = run_full_text_service,
 ) -> McpResult:
     target = resolve_public_llm_target()
+    actual_language = request.language or DEFAULT_LANGUAGE
     llm_kwargs = {
         "text": request.text,
         "extraction_backend": "llm",
-        "language": request.language,
+        "language": actual_language,
         "llm_provider": target.provider,
         "llm_model": target.model,
         "llm_base_url": target.base_url,
@@ -147,6 +154,13 @@ def extract_hpo_terms_llm_impl(
         "include_positions": request.include_chunk_positions,
         "num_results_per_chunk": request.num_results_per_chunk,
         "chunk_retrieval_threshold": request.chunk_retrieval_threshold,
+        "chunking_pipeline_config": get_default_chunk_pipeline_config(),
+        "assertion_config": {
+            **DEFAULT_ASSERTION_CONFIG,
+            "disable": False,
+            "language": actual_language,
+        },
+        "retrieval_model_name": DEFAULT_MODEL,
     }
     quota_status: QuotaStatus | None = None
     if _is_production_environment():

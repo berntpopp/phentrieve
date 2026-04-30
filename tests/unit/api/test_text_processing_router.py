@@ -391,6 +391,40 @@ def test_text_processing_router_passes_assertion_config_to_public_llm(
     )
 
 
+def test_text_processing_router_rejects_non_allowlisted_public_llm_retrieval_model(
+    client,
+    monkeypatch,
+) -> None:
+    service_called = False
+
+    def fake_run_full_text_service(**_kwargs):
+        nonlocal service_called
+        service_called = True
+        return {
+            "meta": {"extraction_backend": "llm"},
+            "processed_chunks": [],
+            "aggregated_hpo_terms": [],
+        }
+
+    monkeypatch.setattr(
+        "api.routers.text_processing_router.run_full_text_service",
+        fake_run_full_text_service,
+    )
+
+    response = client.post(
+        "/api/v1/text/process",
+        json={
+            "text": "Patient has no macrocephaly.",
+            "extraction_backend": "llm",
+            "retrieval_model_name": "not-allowlisted-model",
+        },
+    )
+
+    assert response.status_code == 400
+    assert "retrieval_model_name" in response.text
+    assert service_called is False
+
+
 def test_text_processing_router_returns_429_when_quota_exhausted(client, monkeypatch):
     monkeypatch.setattr(
         "api.config.PHENTRIEVE_ENV",

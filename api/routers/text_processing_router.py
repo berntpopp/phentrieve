@@ -696,6 +696,9 @@ async def _process_text_via_shared_service(request: TextProcessingRequest):
     else:
         target = resolve_public_llm_target()
         actual_language = request.language or DEFAULT_LANGUAGE
+        retrieval_model_name_to_load = _validate_model_name(
+            "retrieval_model_name", request.retrieval_model_name or DEFAULT_MODEL
+        )
         service_kwargs.update(
             {
                 "language": actual_language,
@@ -713,7 +716,7 @@ async def _process_text_via_shared_service(request: TextProcessingRequest):
                     "preference": request.assertion_preference,
                     "language": actual_language,
                 },
-                "retrieval_model_name": request.retrieval_model_name or DEFAULT_MODEL,
+                "retrieval_model_name": retrieval_model_name_to_load,
             }
         )
 

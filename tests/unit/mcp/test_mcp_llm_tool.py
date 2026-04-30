@@ -47,6 +47,15 @@ def test_llm_tool_maps_request_to_full_text_service(monkeypatch) -> None:
     assert captured["llm_internal_mode"] == "whole_document_grounded"
     assert captured["num_results_per_chunk"] == 10
     assert captured["chunk_retrieval_threshold"] == 0.7
+    assert captured["assertion_config"] == {
+        "enable_keyword": True,
+        "enable_dependency": True,
+        "preference": "dependency",
+        "disable": False,
+        "language": "en",
+    }
+    assert captured["retrieval_model_name"] == "FremyCompany/BioLORD-2023-M"
+    assert isinstance(captured["chunking_pipeline_config"], list)
 
 
 def test_llm_tool_uses_shared_public_target(monkeypatch) -> None:

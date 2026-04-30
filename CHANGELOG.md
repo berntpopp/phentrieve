@@ -18,6 +18,8 @@ together:
 
 ## [Unreleased]
 
+## [0.20.0] — 2026-04-30 (CLI 0.20.0 / API 0.11.0 / Frontend 0.10.0)
+
 ### Changed
 
 - Public REST and MCP LLM extraction now use a server-owned

@@ -521,6 +521,27 @@ def test_llm_adaptation_filters_invalid_chunk_references() -> None:
     )
 
 
+def test_llm_adaptation_drops_terms_without_valid_chunk_references() -> None:
+    term = SimpleNamespace(
+        term_id="HP:0001250",
+        label="Seizure",
+        evidence="seizures",
+        assertion="present",
+        score=0.91,
+        confidence=0.91,
+        evidence_records=[
+            {"chunk_ids": [99], "evidence_text": "seizures", "score": 0.91}
+        ],
+    )
+
+    adapted = _adapt_llm_aggregated_terms(
+        [term],
+        grounded_chunks=[{"chunk_id": 1, "text": "Patient has seizures."}],
+    )
+
+    assert adapted == []
+
+
 def test_llm_adaptation_projects_negated_grounded_chunk_status() -> None:
     term = SimpleNamespace(
         term_id="HP:0000256",

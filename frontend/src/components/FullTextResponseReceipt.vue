@@ -134,7 +134,12 @@ function normalizeAssertionStatus(status) {
     return 'negated';
   }
 
-  if (status === 'affirmed' || status === 'negated' || status === 'unknown') {
+  if (
+    status === 'affirmed' ||
+    status === 'negated' ||
+    status === 'uncertain' ||
+    status === 'unknown'
+  ) {
     return status;
   }
 

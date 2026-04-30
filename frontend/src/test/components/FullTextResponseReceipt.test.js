@@ -134,4 +134,25 @@ describe('FullTextResponseReceipt', () => {
 
     expect(wrapper.get('.result-item-stub').text()).toContain('negated');
   });
+
+  it('passes uncertain assertion status to phenotype rows', () => {
+    const wrapper = mountReceipt({
+      item: {
+        id: 'turn-1',
+        response: {
+          aggregated_hpo_terms: [
+            {
+              hpo_id: 'HP:0001250',
+              name: 'Seizure',
+              confidence: 0.72,
+              status: 'uncertain',
+            },
+          ],
+          processed_chunks: [{ chunk_id: 1, text: 'possible seizure', status: 'uncertain' }],
+        },
+      },
+    });
+
+    expect(wrapper.get('.result-item-stub').text()).toContain('uncertain');
+  });
 });
