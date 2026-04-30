@@ -11,12 +11,34 @@
 # - Minimal data volumes (no persistent storage needed)
 
 services:
+  phentrieve_data_init:
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+      args:
+        BUILDKIT_INLINE_CACHE: 1
+    image: phentrieve-api-e2e-test
+    user: "0:0"
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - >-
+        rm -rf /phentrieve_data_mount/* /phentrieve_data_mount/.[!.]* /phentrieve_data_mount/..?* 2>/dev/null || true;
+        cp -a /app/embedded_data/. /phentrieve_data_mount/;
+        chown -R 10001:10001 /phentrieve_data_mount
+    volumes:
+      - test_data:/phentrieve_data_mount:rw
+
   phentrieve_api_test:
     build:
       context: .
       dockerfile: api/Dockerfile
       args:
         BUILDKIT_INLINE_CACHE: 1
+    image: phentrieve-api-e2e-test
+
+    depends_on:
+      phentrieve_data_init:
+        condition: service_completed_successfully
 
     # SECURITY: Run as non-root user (same as production)
     user: "10001:10001"
@@ -45,12 +67,12 @@ services:
     # Writable tmpfs mounts
     tmpfs:
       - /tmp:uid=10001,gid=10001,mode=1777,size=500M
-      - /app/.cache:uid=10001,gid=10001,mode=0755,size=1G
+      - /app/.cache:uid=10001,gid=10001,mode=0755,size=3G
 
     # Minimal volumes for testing (no persistent data needed)
     volumes:
-      - ./data:/phentrieve_data_mount:ro
-      - test_hf_cache:/app/.cache/huggingface:rw
+      - test_data:/phentrieve_data_mount:rw
+      - ./tests/e2e/phentrieve.e2e.yaml:/app/phentrieve.yaml:ro
 
     # Environment variables
     environment:
@@ -82,6 +104,5 @@ networks:
   test_network:
     driver: bridge
 
-# Named volume for test HuggingFace cache
 volumes:
-  test_hf_cache:
+  test_data:

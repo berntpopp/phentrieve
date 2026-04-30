@@ -107,7 +107,7 @@ class TestDockerSecurity:
 
         Expected Tmpfs Mounts:
             - /tmp (size=500M, uid=10001, gid=10001, mode=1777)
-            - /app/.cache (size=1G, uid=10001, gid=10001, mode=0755)
+            - /app/.cache (size=3G, uid=10001, gid=10001, mode=0755)
         """
         tmpfs_config = api_container.attrs["HostConfig"]["Tmpfs"]
 
@@ -121,9 +121,9 @@ class TestDockerSecurity:
         # Verify /app/.cache tmpfs mount exists
         assert "/app/.cache" in tmpfs_config, "Tmpfs mount for /app/.cache should exist"
         assert (
-            "size=1G" in tmpfs_config["/app/.cache"]
-            or "size=1073741824" in tmpfs_config["/app/.cache"]
-        ), "/app/.cache should have 1G size limit"
+            "size=3G" in tmpfs_config["/app/.cache"]
+            or "size=3221225472" in tmpfs_config["/app/.cache"]
+        ), "/app/.cache should have 3G size limit"
 
         # Test write to /tmp succeeds
         exit_code, output = api_container.exec_run("sh -c 'echo test > /tmp/test'")
