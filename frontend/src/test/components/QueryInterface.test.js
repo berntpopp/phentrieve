@@ -414,9 +414,7 @@ describe('QueryInterface (characterization)', () => {
         includeDetails: wrapper.vm.includeDetails,
       })
     );
-    expect(PhentrieveService.processText.mock.calls[0][0]).not.toHaveProperty(
-      'trustRemoteCode'
-    );
+    expect(PhentrieveService.processText.mock.calls[0][0]).not.toHaveProperty('trustRemoteCode');
   });
 
   it('adds a phenotype from a collection action payload and opens the collection panel', async () => {

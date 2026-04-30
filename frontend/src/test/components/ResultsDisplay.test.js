@@ -25,9 +25,7 @@ describe('ResultsDisplay', () => {
   it('does not log while validating responseData props', async () => {
     const debugSpy = vi.spyOn(console, 'debug').mockImplementation(() => {});
     const logModule = await import('../../services/logService');
-    const serviceDebugSpy = vi
-      .spyOn(logModule.logService, 'debug')
-      .mockImplementation(() => {});
+    const serviceDebugSpy = vi.spyOn(logModule.logService, 'debug').mockImplementation(() => {});
     const component = (await import('../../components/ResultsDisplay.vue')).default;
 
     mount(component, {
