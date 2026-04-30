@@ -142,6 +142,31 @@ class TestMultiChunkAggregation:
         # Top evidence chunk should be the one with max_score (0.9)
         assert term["top_evidence_chunk_idx"] == 0
 
+    def test_duplicate_hpo_matches_in_one_chunk_are_aggregated(self):
+        retriever = _make_mock_retriever(
+            [
+                _chroma_batch_entry(
+                    [
+                        ("HP:0001250", "Seizure", 0.9),
+                        ("HP:0001250", "Seizure", 0.7),
+                    ]
+                )
+            ]
+        )
+        aggregated, chunk_results = orchestrate_hpo_extraction(
+            text_chunks=["Patient had recurrent seizures."],
+            retriever=retriever,
+            chunk_retrieval_threshold=0.5,
+        )
+        assert len(chunk_results[0]["matches"]) == 2
+        assert len(aggregated) == 1
+        term = aggregated[0]
+        assert term["id"] == "HP:0001250"
+        assert term["count"] == 2
+        assert term["score"] == pytest.approx(0.9)
+        assert term["avg_score"] == pytest.approx(0.8)
+        assert term["chunks"] == [0]
+
 
 class TestAssertionStatuses:
     def test_assertion_status_propagated_to_matches_and_aggregated(self):
@@ -164,6 +189,20 @@ class TestAssertionStatuses:
         assert aggregated[0]["assertion_status"] == "affirmed"
         assert aggregated[0]["status"] == "affirmed"  # alias
 
+    def test_negated_assertion_status_is_preserved_when_all_evidence_negated(self):
+        retriever = _make_mock_retriever(
+            [_chroma_batch_entry([("HP:0001250", "Seizure", 0.9)])]
+        )
+        aggregated, chunk_results = orchestrate_hpo_extraction(
+            text_chunks=["No seizures were reported."],
+            retriever=retriever,
+            chunk_retrieval_threshold=0.5,
+            assertion_statuses=["negated"],
+        )
+        assert chunk_results[0]["matches"][0]["assertion_status"] == "negated"
+        assert aggregated[0]["assertion_status"] == "negated"
+        assert aggregated[0]["status"] == "negated"
+
 
 class TestRankingAndOrdering:
     def test_results_sorted_by_avg_score_then_count_desc(self):
@@ -183,6 +222,25 @@ class TestRankingAndOrdering:
             chunk_retrieval_threshold=0.5,
         )
         assert [t["id"] for t in aggregated] == ["HP:0001250", "HP:0001251"]
+        assert [t["rank"] for t in aggregated] == [1, 2]
+
+    def test_equal_rank_keys_preserve_first_seen_order(self):
+        retriever = _make_mock_retriever(
+            [
+                _chroma_batch_entry(
+                    [
+                        ("HP:0001251", "Ataxia", 0.8),
+                        ("HP:0001250", "Seizure", 0.8),
+                    ]
+                )
+            ]
+        )
+        aggregated, _ = orchestrate_hpo_extraction(
+            text_chunks=["x"],
+            retriever=retriever,
+            chunk_retrieval_threshold=0.5,
+        )
+        assert [t["id"] for t in aggregated] == ["HP:0001251", "HP:0001250"]
         assert [t["rank"] for t in aggregated] == [1, 2]
 
 
@@ -205,3 +263,24 @@ class TestRetrieverInteraction:
         assert kwargs["texts"] == ["a", "b"]
         assert kwargs["n_results"] == 7
         assert kwargs["include_similarities"] is True
+
+
+class TestDetailsLoading:
+    def test_missing_term_details_do_not_crash_extraction(self, monkeypatch, tmp_path):
+        monkeypatch.setattr(
+            "phentrieve.text_processing._hpo_extraction_helpers.resolve_data_path",
+            lambda *_args: tmp_path,
+        )
+        retriever = _make_mock_retriever(
+            [_chroma_batch_entry([("HP:0001250", "Seizure", 0.9)])]
+        )
+        aggregated, chunk_results = orchestrate_hpo_extraction(
+            text_chunks=["Patient had a seizure."],
+            retriever=retriever,
+            chunk_retrieval_threshold=0.5,
+            include_details=True,
+        )
+        assert len(chunk_results[0]["matches"]) == 1
+        assert len(aggregated) == 1
+        assert aggregated[0]["definition"] is None
+        assert aggregated[0]["synonyms"] == []
