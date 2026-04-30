@@ -24,6 +24,8 @@ from phentrieve.llm.provider import (
     get_llm_provider,
     resolve_llm_provider_request,
 )
+from phentrieve.llm.providers.anthropic import _load_anthropic_module
+from phentrieve.llm.providers.openai import _load_openai_module
 from phentrieve.llm.types import (
     LLMExtractedPhenotype,
     LLMExtractedPhenotypes,
@@ -1448,6 +1450,20 @@ def test_anthropic_count_tokens_uses_messages_count_tokens(monkeypatch) -> None:
     ]
 
 
+def test_anthropic_sdk_loader_uses_explicit_external_module_import(monkeypatch) -> None:
+    anthropic_module = ModuleType("anthropic")
+    import_calls: list[str] = []
+
+    def fake_import_module(module_name: str):
+        import_calls.append(module_name)
+        return anthropic_module
+
+    monkeypatch.setattr("importlib.import_module", fake_import_module)
+
+    assert _load_anthropic_module() is anthropic_module
+    assert import_calls == ["anthropic"]
+
+
 def test_openai_structured_prompt_uses_responses_api_json_schema(
     monkeypatch,
 ) -> None:
@@ -1487,6 +1503,20 @@ def test_openai_structured_prompt_uses_responses_api_json_schema(
         "completion_tokens": 11,
         "total_tokens": 53,
     }
+
+
+def test_openai_sdk_loader_uses_explicit_external_module_import(monkeypatch) -> None:
+    openai_module = ModuleType("openai")
+    import_calls: list[str] = []
+
+    def fake_import_module(module_name: str):
+        import_calls.append(module_name)
+        return openai_module
+
+    monkeypatch.setattr("importlib.import_module", fake_import_module)
+
+    assert _load_openai_module() is openai_module
+    assert import_calls == ["openai"]
 
 
 def test_openai_complete_uses_responses_api(monkeypatch) -> None:

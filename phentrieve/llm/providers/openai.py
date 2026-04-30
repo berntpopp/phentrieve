@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import importlib
 import logging
 import os
 import time
@@ -25,6 +26,16 @@ from phentrieve.llm.types import LLMResponse
 
 logger = logging.getLogger(__name__)
 _retry_rng = SystemRandom()
+
+
+def _load_openai_module() -> Any:
+    try:
+        return importlib.import_module("openai")
+    except ImportError as exc:
+        raise RuntimeError(
+            "OpenAI support requires the optional llm dependencies. "
+            "Install them with `uv sync --extra llm`."
+        ) from exc
 
 
 class OpenAIStructuredOutputProvider(LLMProvider):
@@ -145,14 +156,7 @@ class OpenAIStructuredOutputProvider(LLMProvider):
         text_format: dict[str, Any] | None = None,
         max_output_tokens: int | None = None,
     ) -> tuple[Any, int]:
-        try:
-            import openai
-        except ImportError as exc:
-            raise RuntimeError(
-                "OpenAI support requires the optional llm dependencies. "
-                "Install them with `uv sync --extra llm`."
-            ) from exc
-
+        openai = _load_openai_module()
         request_count = 0
         last_exception: Exception | None = None
         for attempt in range(1, self.transient_retries + 2):

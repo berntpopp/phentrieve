@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import importlib
 import logging
 import os
 import time
@@ -29,6 +30,16 @@ from phentrieve.llm.types import LLMResponse
 
 logger = logging.getLogger(__name__)
 _retry_rng = SystemRandom()
+
+
+def _load_anthropic_module() -> Any:
+    try:
+        return importlib.import_module("anthropic")
+    except ImportError as exc:
+        raise RuntimeError(
+            "Anthropic support requires the optional llm dependencies. "
+            "Install them with `uv sync --extra llm`."
+        ) from exc
 
 
 class AnthropicStructuredOutputProvider(LLMProvider):
@@ -127,14 +138,7 @@ class AnthropicStructuredOutputProvider(LLMProvider):
         )
 
     def count_tokens(self, *, system_prompt: str, user_prompt: str) -> dict[str, int]:
-        try:
-            import anthropic
-        except ImportError as exc:
-            raise RuntimeError(
-                "Anthropic support requires the optional llm dependencies. "
-                "Install them with `uv sync --extra llm`."
-            ) from exc
-
+        anthropic = _load_anthropic_module()
         client = self._create_client(anthropic_module=anthropic)
         response = client.messages.count_tokens(
             model=self.model_name,
@@ -160,14 +164,7 @@ class AnthropicStructuredOutputProvider(LLMProvider):
         max_output_tokens: int | None = None,
         output_schema: dict[str, Any] | None = None,
     ) -> tuple[Any, int]:
-        try:
-            import anthropic
-        except ImportError as exc:
-            raise RuntimeError(
-                "Anthropic support requires the optional llm dependencies. "
-                "Install them with `uv sync --extra llm`."
-            ) from exc
-
+        anthropic = _load_anthropic_module()
         request_count = 0
         last_exception: Exception | None = None
         for attempt in range(1, self.transient_retries + 2):
