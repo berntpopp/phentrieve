@@ -162,17 +162,22 @@ function rulesForLocale(locale) {
   }
 }
 
+function localesForScan(locale) {
+  return [
+    locale,
+    ...SUPPORTED_PII_LOCALES.filter((supportedLocale) => supportedLocale !== locale),
+  ];
+}
+
 export function scanPii(text, { locale = 'en', includeGlobalRules = true } = {}) {
   const normalizedLocale = SUPPORTED_PII_LOCALES.includes(locale) ? locale : 'en';
   const source = String(text ?? '');
-  const configuredRules = [
-    ...(includeGlobalRules ? GLOBAL_RULES : []),
-    ...rulesForLocale(normalizedLocale),
-  ];
+  const scanLocales = localesForScan(normalizedLocale);
   const findings = mergeOverlappingFindings([
-    ...applyRules(source, configuredRules, normalizedLocale),
-    ...(includeGlobalRules ? applyPhoneRule(source, normalizedLocale) : []),
-    ...applyAddressRule(source, normalizedLocale),
+    ...(includeGlobalRules ? applyRules(source, GLOBAL_RULES, normalizedLocale) : []),
+    ...scanLocales.flatMap((scanLocale) => applyRules(source, rulesForLocale(scanLocale), scanLocale)),
+    ...(includeGlobalRules ? scanLocales.flatMap((scanLocale) => applyPhoneRule(source, scanLocale)) : []),
+    ...scanLocales.flatMap((scanLocale) => applyAddressRule(source, scanLocale)),
   ]);
 
   const summary = createSummary();

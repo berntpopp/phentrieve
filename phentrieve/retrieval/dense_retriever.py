@@ -387,7 +387,7 @@ class DenseRetriever:
         Returns:
             Dictionary containing query results with distances and/or similarities
         """
-        logging.info("Processing query: '%s'", _sanitize(text))
+        logging.info("Processing query text_chars=%s", _sanitize(len(text)))
 
         # Use query_batch() internally to avoid code duplication
         batch_results = self.query_batch([text], n_results, include_similarities)
@@ -515,8 +515,8 @@ class DenseRetriever:
             )
 
         logging.info(
-            "Multi-vector query: '%s' with strategy %s",
-            _sanitize(text[:50] + "..." if len(text) > 50 else text),
+            "Multi-vector query text_chars=%s with strategy %s",
+            _sanitize(len(text)),
             _sanitize(str(aggregation_strategy)),
         )
 

@@ -44,6 +44,13 @@ describe('scanPii', () => {
     expect(result.findings[0]).not.toHaveProperty('text');
   });
 
+  it('marks configured titled person names even when the selected language differs', () => {
+    const result = scanPii('Herr Bernt Popp ist dumm', { locale: 'en' });
+
+    expect(result.summary.review.person_name).toBe(1);
+    expect(result.findings[0]).not.toHaveProperty('text');
+  });
+
   it.each([
     ['en', 'Mr John Smith has seizures'],
     ['fr', 'Monsieur Jean Dupont a des crises'],

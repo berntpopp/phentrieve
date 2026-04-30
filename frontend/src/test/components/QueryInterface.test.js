@@ -1003,6 +1003,24 @@ describe('QueryInterface (characterization)', () => {
     expect(wrapper.vm.piiReviewDialogVisible).toBe(true);
   });
 
+  it('opens PII review for configured titled names even when query language is English', async () => {
+    const wrapper = await mountQueryInterface();
+    await flushPromises();
+
+    await setVmState(wrapper, {
+      queryText: 'Herr Bernt Popp ist dumm',
+      selectedLanguage: 'en',
+      forceEndpointMode: 'query',
+    });
+
+    await wrapper.vm.submitQuery();
+    await wrapper.vm.$nextTick();
+
+    expect(PhentrieveService.queryHpo).not.toHaveBeenCalled();
+    expect(wrapper.vm.piiReviewDialogVisible).toBe(true);
+    expect(wrapper.vm.pendingPiiSubmission.scanResult.summary.review.person_name).toBe(1);
+  });
+
   it('opens PII review before full-text network submission', async () => {
     const wrapper = await mountQueryInterface();
     await flushPromises();
