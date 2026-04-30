@@ -43,17 +43,26 @@ export const UNTITLED_NAME_RULE_CONFIG = Object.freeze({
   blockedTerms: [
     'abnormality',
     'biolord',
+    'called',
     'carinatum',
+    'case',
     'clinical',
     'disease',
     'down',
     'hpo',
     'model',
+    'naam',
+    'nachname',
+    'name',
+    'nom',
+    'paciente',
+    'patient',
     'pectus',
     'phenotype',
     'syndrome',
     'term',
     'tracheomalacia',
+    'vorname',
   ],
 });
 
@@ -75,7 +84,10 @@ function createTitledNameRule(locale, config) {
     patterns: [
       // Titles come from static locale config and are escaped before RegExp construction.
       // eslint-disable-next-line security/detect-non-literal-regexp
-      new RegExp(`\\b(?:${titlePattern})${optionalDot}\\s+${PERSON_NAME_TOKEN}\\s+${PERSON_NAME_TOKEN}\\b`, 'gu'),
+      new RegExp(
+        `\\b(?:${titlePattern})${optionalDot}\\s+${PERSON_NAME_TOKEN}\\s+${PERSON_NAME_TOKEN}\\b`,
+        'gu'
+      ),
       // eslint-disable-next-line security/detect-non-literal-regexp
       new RegExp(`\\b(?:${titlePattern})${optionalDot}\\s+${PERSON_NAME_TOKEN}\\b`, 'gu'),
     ],
@@ -142,7 +154,9 @@ export const LOCALE_RULES = Object.freeze({
       locales: ['en'],
       redactionToken: '[REDACTED_MRN]',
       enabled: true,
-      patterns: [/(?:MRN|medical record number|patient ID|NHS number)\s*[:#-]?\s*[A-Z0-9 -]{4,24}/giu],
+      patterns: [
+        /(?:MRN|medical record number|patient ID|NHS number)\s*[:#-]?\s*[A-Z0-9 -]{4,24}/giu,
+      ],
     },
   ],
   de: [
@@ -178,7 +192,9 @@ export const LOCALE_RULES = Object.freeze({
       locales: ['fr'],
       redactionToken: '[REDACTED_NATIONAL_ID]',
       enabled: true,
-      patterns: [/(?:NIR|numéro de sécurité sociale|securite sociale)\s*[:#-]?\s*[12][\d .-]{12,20}/giu],
+      patterns: [
+        /(?:NIR|numéro de sécurité sociale|securite sociale)\s*[:#-]?\s*[12][\d .-]{12,20}/giu,
+      ],
       validator: 'validateFrenchNir',
     },
   ],
@@ -201,7 +217,9 @@ export const LOCALE_RULES = Object.freeze({
       locales: ['es'],
       redactionToken: '[REDACTED_MRN]',
       enabled: true,
-      patterns: [/(?:número de historia clínica|historia clínica|paciente id)\s*[:#-]?\s*[A-Z0-9 -]{4,24}/giu],
+      patterns: [
+        /(?:número de historia clínica|historia clínica|paciente id)\s*[:#-]?\s*[A-Z0-9 -]{4,24}/giu,
+      ],
     },
   ],
   nl: [

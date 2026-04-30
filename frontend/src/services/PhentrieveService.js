@@ -13,7 +13,7 @@ const API_URL = import.meta.env.VITE_API_URL || '/api/v1'; // Default to relativ
 const RESEARCH_USE_ACK_CONFIG = Object.freeze({
   headers: { 'X-Phentrieve-Research-Use-Acknowledged': 'true' },
 });
-const getSerializedSize = value => JSON.stringify(value)?.length || 0;
+const getSerializedSize = (value) => JSON.stringify(value)?.length || 0;
 const GENERIC_API_DETAIL = 'API returned an error. See status code for details.';
 
 class PhentrieveService {
@@ -256,10 +256,7 @@ class PhentrieveService {
       standardError.userMessageKey = 'errors.api.network';
     } else if (error.response) {
       standardError.type = 'API_ERROR';
-      const { key, params } = this._getErrorMessageKeyForStatus(
-        error.response.status,
-        ''
-      );
+      const { key, params } = this._getErrorMessageKeyForStatus(error.response.status, '');
       standardError.userMessageKey = key;
       standardError.userMessageParams = params;
       if (

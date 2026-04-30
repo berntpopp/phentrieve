@@ -290,10 +290,7 @@ function rulesForLocale(locale) {
 }
 
 function localesForScan(locale) {
-  return [
-    locale,
-    ...SUPPORTED_PII_LOCALES.filter((supportedLocale) => supportedLocale !== locale),
-  ];
+  return [locale, ...SUPPORTED_PII_LOCALES.filter((supportedLocale) => supportedLocale !== locale)];
 }
 
 export function scanPii(text, { locale = 'en', includeGlobalRules = true } = {}) {
@@ -302,9 +299,13 @@ export function scanPii(text, { locale = 'en', includeGlobalRules = true } = {})
   const scanLocales = localesForScan(normalizedLocale);
   const findings = mergeOverlappingFindings([
     ...(includeGlobalRules ? applyRules(source, GLOBAL_RULES, normalizedLocale) : []),
-    ...scanLocales.flatMap((scanLocale) => applyRules(source, rulesForLocale(scanLocale), scanLocale)),
+    ...scanLocales.flatMap((scanLocale) =>
+      applyRules(source, rulesForLocale(scanLocale), scanLocale)
+    ),
     ...applyUntitledNameRule(source),
-    ...(includeGlobalRules ? scanLocales.flatMap((scanLocale) => applyPhoneRule(source, scanLocale)) : []),
+    ...(includeGlobalRules
+      ? scanLocales.flatMap((scanLocale) => applyPhoneRule(source, scanLocale))
+      : []),
     ...scanLocales.flatMap((scanLocale) => applyAddressRule(source, scanLocale)),
   ]);
 

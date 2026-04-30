@@ -64,7 +64,8 @@ describe('scanPii', () => {
   });
 
   it.each([
-    ['en', 'Bernt Popp ist dumm'],
+    ['en', 'John Smith has seizures'],
+    ['de', 'Bernt Popp ist dumm'],
     ['fr', 'Jean Dupont a des crises'],
     ['es', 'María García tiene convulsiones'],
     ['nl', 'Jan van Dijk heeft aanvallen'],
@@ -73,6 +74,28 @@ describe('scanPii', () => {
 
     expect(result.summary.review.person_name).toBe(1);
     expect(result.findings[0]).not.toHaveProperty('text');
+  });
+
+  it.each([
+    ['de', 'Bernt Popp ist dumm'],
+    ['fr', 'Jean Dupont a des crises'],
+    ['es', 'María García tiene convulsiones'],
+    ['nl', 'Jan van Dijk heeft aanvallen'],
+  ])('marks %s untitled person names when selected language is English', (_locale, text) => {
+    const result = scanPii(text, { locale: 'en' });
+
+    expect(result.summary.review.person_name).toBe(1);
+    expect(result.findings[0]).not.toHaveProperty('text');
+  });
+
+  it('keeps context words outside untitled person-name spans', () => {
+    const text = 'Patient John Smith has seizures';
+    const result = scanPii(text, { locale: 'en' });
+    const finding = result.findings.find((item) => item.category === 'person_name');
+
+    expect(finding).toBeDefined();
+    expect(finding.start).toBe(text.indexOf('John'));
+    expect(finding.end).toBe(text.indexOf(' has seizures'));
   });
 
   it.each([
