@@ -1180,23 +1180,35 @@ class CombinedAssertionDetector(AssertionDetector):
             "combination_strategy": self.preference,
         }
 
-        # Determine final status - Always use the same straightforward priority as in test script
-        final_status = AssertionStatus.AFFIRMED  # Default
-
-        # Apply the simple priority logic from test_semantic_chunking.py
-        if self.dependency_detector and dependency_status == AssertionStatus.NEGATED:
-            # Dependency parsing detected negation - highest priority
-            final_status = AssertionStatus.NEGATED
-        elif self.dependency_detector and dependency_status == AssertionStatus.NORMAL:
-            # Dependency parsing detected normality - second priority
-            final_status = AssertionStatus.NORMAL
-        elif keyword_status == AssertionStatus.NEGATED:
-            # Keyword detection found negation - third priority
-            final_status = AssertionStatus.NEGATED
-        elif keyword_status == AssertionStatus.NORMAL:
-            # Keyword detection found normality - fourth priority
-            final_status = AssertionStatus.NORMAL
-        # Default remains AFFIRMED if none of the above conditions are met
+        final_status = self._choose_result_by_preference(
+            keyword_status, dependency_status
+        )
 
         combined_details["final_status"] = final_status.value
         return final_status, combined_details
+
+    def _choose_result_by_preference(
+        self,
+        keyword_result: AssertionStatus | None,
+        dependency_result: AssertionStatus | None,
+    ) -> AssertionStatus:
+        """
+        Select the final assertion status according to the configured preference.
+        """
+        if self.preference == "keyword":
+            return keyword_result or dependency_result or AssertionStatus.AFFIRMED
+
+        if self.preference == "dependency":
+            return dependency_result or keyword_result or AssertionStatus.AFFIRMED
+
+        if self.preference == "any_negative":
+            negative_or_uncertain = {
+                AssertionStatus.NEGATED,
+                AssertionStatus.UNCERTAIN,
+            }
+            for result in (dependency_result, keyword_result):
+                if result in negative_or_uncertain:
+                    return result
+            return dependency_result or keyword_result or AssertionStatus.AFFIRMED
+
+        return dependency_result or keyword_result or AssertionStatus.AFFIRMED
