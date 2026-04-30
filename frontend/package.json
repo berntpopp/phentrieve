@@ -26,6 +26,7 @@
     "@berntpopp/phenopackets-js": "^1.0.2",
     "axios": "^1.15.2",
     "google-protobuf": "^4.0.2",
+    "libphonenumber-js": "^1.12.42",
     "pinia": "^3.0.4",
     "pinia-plugin-persistedstate": "^4.7.1",
     "vue": "^3.5.33",
