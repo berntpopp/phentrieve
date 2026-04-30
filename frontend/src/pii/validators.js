@@ -40,7 +40,11 @@ export function validateGermanKvnr(value) {
 
 export function validateFrenchNir(value) {
   const normalized = normalizeIdentifierCandidate(value);
-  if (!/^[12]\d{12}(?:\d{2})?$/u.test(normalized)) return false;
+  const isValidLength = normalized.length === 13 || normalized.length === 15;
+  if (!isValidLength || (normalized[0] !== '1' && normalized[0] !== '2')) return false;
+  if (![...normalized.slice(1)].every((character) => character >= '0' && character <= '9')) {
+    return false;
+  }
   const month = Number(normalized.slice(3, 5));
   return month >= 1 && month <= 12;
 }
