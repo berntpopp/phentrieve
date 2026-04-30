@@ -63,6 +63,29 @@ describe('scanPii', () => {
     expect(result.findings[0]).not.toHaveProperty('text');
   });
 
+  it.each([
+    ['en', 'Bernt Popp ist dumm'],
+    ['fr', 'Jean Dupont a des crises'],
+    ['es', 'María García tiene convulsiones'],
+    ['nl', 'Jan van Dijk heeft aanvallen'],
+  ])('marks %s untitled person names as review confidence', (locale, text) => {
+    const result = scanPii(text, { locale });
+
+    expect(result.summary.review.person_name).toBe(1);
+    expect(result.findings[0]).not.toHaveProperty('text');
+  });
+
+  it.each([
+    ['Pectus Carinatum was noted.'],
+    ['Down Syndrome was discussed.'],
+    ['BioLORD Model returned results.'],
+    ['HP:0002779 Tracheomalacia'],
+  ])('does not mark clinical or domain phrases as untitled names: %s', (text) => {
+    const result = scanPii(text, { locale: 'en' });
+
+    expect(result.summary.review.person_name).toBeUndefined();
+  });
+
   it('detects French NIR labels', () => {
     const result = scanPii('NIR 1900675123456 pour le patient.', { locale: 'fr' });
     expect(result.summary.high.national_identifier).toBe(1);

@@ -12,6 +12,51 @@ const TITLED_NAME_RULE_CONFIG = Object.freeze({
   nl: { id: 'nl.titled_name', titles: ['Dhr', 'Mevrouw', 'Mw', 'Dr', 'Prof'] },
 });
 
+export const UNTITLED_NAME_RULE_CONFIG = Object.freeze({
+  id: 'global.untitled_name',
+  category: 'person_name',
+  confidence: 'review',
+  redactionToken: '[REDACTED_NAME]',
+  enabled: true,
+  minScore: 2,
+  minNameTokens: 2,
+  maxTokens: 4,
+  contextWindowChars: 32,
+  particles: ['de', 'del', 'da', 'di', 'du', 'le', 'la', 'van', 'von', 'der', 'den'],
+  contextWords: [
+    'called',
+    'case',
+    'name',
+    'patient',
+    'subject',
+    'Nachname',
+    'Name',
+    'Patient',
+    'Vorname',
+    'Naam',
+    'Patiënt',
+    'Nom',
+    'Patient',
+    'Paciente',
+    'paciente',
+  ],
+  blockedTerms: [
+    'abnormality',
+    'biolord',
+    'carinatum',
+    'clinical',
+    'disease',
+    'down',
+    'hpo',
+    'model',
+    'pectus',
+    'phenotype',
+    'syndrome',
+    'term',
+    'tracheomalacia',
+  ],
+});
+
 function escapeRegex(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/gu, '\\$&');
 }
