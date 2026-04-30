@@ -60,6 +60,23 @@ responsible for assessing whether their deployment has an appropriate legal
 basis, privacy notice, data processing agreement, cross-border transfer basis,
 and security controls for the data they accept.
 
+## Browser-Side PII Warning
+
+The frontend includes a local browser-side warning and redaction aid for English,
+German, French, Spanish, and Dutch submissions. Before Query or Full Text input
+is sent to the API, the browser checks for common direct identifiers such as
+contact details, record numbers, national identifier patterns, exact date
+labels, and address-like text.
+
+High-confidence identifiers are redacted locally before submission when the user
+continues. Lower-confidence findings require explicit acknowledgement and may
+remain if the user decides to proceed.
+
+This feature is a safety aid. It is not a guarantee that all PII or PHI is
+detected, and it does not make submitted text HIPAA Safe Harbor de-identified,
+GDPR-anonymised, or suitable for identifiable patient data in public demos.
+Users should review and remove identifiers before submitting research text.
+
 ## Logging and Storage
 
 The public research service should avoid logging raw submitted text. Logs should

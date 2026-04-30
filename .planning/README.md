@@ -35,7 +35,9 @@ execution context.
 
 ## Current Active Work
 
-- None currently tracked in this index.
+- `active/2026-04-30-local-browser-pii-guard-implementation-plan.md` -
+  implementation plan for GitHub issue #249, covering local browser-side PII
+  detection and redaction before Query and Full Text submissions.
 
 ## Recently Completed
 
