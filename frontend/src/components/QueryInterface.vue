@@ -82,8 +82,8 @@
             >
               <template v-if="item.type === 'textProcess'">
                 <FullTextWorkspace
-                  :summary="summarizeDocumentQuery(item.query)"
-                  :meta="formatDocumentSummaryMeta(item.query)"
+                  :summary="summarizeDocumentQuery(getHistoryDisplayQuery(item))"
+                  :meta="formatDocumentSummaryMeta(getHistoryDisplayQuery(item))"
                   :expanded="isUserNoteExpanded(item.id)"
                   :segments="buildUserNoteSegments(item)"
                   :active-phenotype-id="getHoveredNotePhenotype(item.id)"
@@ -93,7 +93,7 @@
                 />
               </template>
               <p v-else class="mb-0" style="white-space: pre-wrap">
-                {{ item.query }}
+                {{ getHistoryDisplayQuery(item) }}
               </p>
             </div>
           </div>
@@ -212,6 +212,7 @@ const DEFAULT_TEXT_PROCESS_LLM_OPTIONS = Object.freeze({
   llmModel: 'gemini-3.1-flash-lite-preview',
   llmMode: 'two_phase',
 });
+const REDACTED_QUERY_PLACEHOLDER = '[redacted]';
 
 export default {
   name: 'QueryInterface',
@@ -585,6 +586,20 @@ export default {
     formatDocumentSummaryMeta(query) {
       return summarizeUserNoteMeta(query);
     },
+    getHistoryDisplayQuery(item) {
+      const redactedQuery = typeof item?.redactedQuery === 'string' ? item.redactedQuery : '';
+      if (redactedQuery.trim() && redactedQuery !== REDACTED_QUERY_PLACEHOLDER) {
+        return redactedQuery;
+      }
+
+      const rawQuery =
+        typeof item?.rawQuerySessionOnly === 'string' ? item.rawQuerySessionOnly : '';
+      if (rawQuery.trim()) {
+        return rawQuery;
+      }
+
+      return typeof item?.query === 'string' ? item.query : '';
+    },
     isUserNoteExpanded(turnId) {
       return Boolean(Reflect.get(this.expandedUserNotes, turnId));
     },
@@ -615,7 +630,7 @@ export default {
     },
     buildUserNoteSegments(item) {
       return deriveUserNoteSegments({
-        note: item?.query,
+        note: this.getHistoryDisplayQuery(item),
         chunks: item?.response?.processed_chunks,
         terms: item?.response?.aggregated_hpo_terms,
         activePhenotypeId: this.getHoveredNotePhenotype(item?.id),

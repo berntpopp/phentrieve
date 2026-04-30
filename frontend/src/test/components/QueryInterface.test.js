@@ -796,6 +796,76 @@ describe('QueryInterface (characterization)', () => {
     expect(wrapper.find('[data-testid="user-note-summary"]').text()).not.toContain(longNote);
   });
 
+  it('uses session-only raw text for submitted note summaries when durable history is redacted', async () => {
+    const wrapper = await mountQueryInterface();
+    const note =
+      'NAA10-related syndrome is an X-linked condition with broad phenotypic variability and developmental impairment.';
+
+    wrapper.vm.conversationStore.queryHistory.unshift({
+      id: 'turn-session-note',
+      query: '[redacted]',
+      redactedQuery: '[redacted]',
+      rawQuerySessionOnly: note,
+      type: 'textProcess',
+      loading: false,
+      error: null,
+      response: {
+        aggregated_hpo_terms: [],
+        processed_chunks: [{ chunk_id: 0, text: note }],
+      },
+    });
+    await wrapper.vm.$nextTick();
+
+    const summary = wrapper.find('[data-testid="user-note-summary"]').text();
+
+    expect(summary).toContain('NAA10-related syndrome');
+    expect(summary).toContain('13 words');
+    expect(summary).not.toContain('[redacted]');
+  });
+
+  it('uses session-only raw text for query-mode history when durable history is redacted', async () => {
+    const wrapper = await mountQueryInterface();
+
+    wrapper.vm.conversationStore.queryHistory.unshift({
+      id: 'turn-session-query',
+      query: '[redacted]',
+      redactedQuery: '[redacted]',
+      rawQuerySessionOnly: 'Nierensteine',
+      type: 'query',
+      loading: false,
+      error: null,
+      response: { results: [] },
+    });
+    await wrapper.vm.$nextTick();
+
+    expect(wrapper.text()).toContain('Nierensteine');
+    expect(wrapper.text()).not.toContain('[redacted]');
+  });
+
+  it('prefers explicit redacted query text over session-only raw text in note summaries', async () => {
+    const wrapper = await mountQueryInterface();
+
+    wrapper.vm.conversationStore.queryHistory.unshift({
+      id: 'turn-redacted-note',
+      query: '[redacted]',
+      redactedQuery: '[REDACTED_MRN] with seizures',
+      rawQuerySessionOnly: 'MRN: AB-123456 with seizures',
+      type: 'textProcess',
+      loading: false,
+      error: null,
+      response: {
+        aggregated_hpo_terms: [],
+        processed_chunks: [{ chunk_id: 0, text: '[REDACTED_MRN] with seizures' }],
+      },
+    });
+    await wrapper.vm.$nextTick();
+
+    const summary = wrapper.find('[data-testid="user-note-summary"]').text();
+
+    expect(summary).toContain('[REDACTED_MRN] with seizures');
+    expect(summary).not.toContain('AB-123456');
+  });
+
   it('expands the submitted clinical note and highlights evidence spans from processed chunks', async () => {
     const wrapper = await mountQueryInterface();
     const note =
