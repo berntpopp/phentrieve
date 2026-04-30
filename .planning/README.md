@@ -35,14 +35,20 @@ execution context.
 
 ## Current Active Work
 
-- `active/2026-04-17-ontology-embedding-fidelity-implementation-plan.md` -
-  plan for the standalone embedding-vs-HPO-DAG fidelity analysis script
-  (issue #34). Branch `feat/ontology-embedding-fidelity` (worktree).
+- None currently tracked in this index.
+
+## Recently Completed
+
 - `specs/2026-04-17-ontology-embedding-fidelity-design.md` - canonical design
-  input for the ontology-embedding fidelity work above.
-- `active/2026-04-29-eu-ai-act-research-use-compliance-plan.md` -
-  implementation plan for aligning Phentrieve's docs, UI, API, CLI, MCP,
-  deployment defaults, and tests with a research-use-only EU AI Act posture.
+  input for the completed ontology-embedding fidelity work.
+- `completed/2026-04-17-ontology-embedding-fidelity-implementation-plan.md` -
+  standalone embedding-vs-HPO-DAG fidelity analysis script (issue #34).
+- `completed/2026-04-29-eu-ai-act-research-use-compliance-plan.md` -
+  research-use-only compliance posture implementation (PR #245).
+- `completed/2026-04-29-modern-mcp-implementation-plan.md` -
+  modern MCP HTTP facade implementation (PR #247).
+- `completed/2026-04-30-prompt-injection-guards-implementation-plan.md` -
+  public LLM prompt-injection guard implementation (PR #250).
 
 ## Migration Note
 

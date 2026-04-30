@@ -2,7 +2,7 @@
 
 **Date:** 2026-04-17
 **Issue:** [#34 — HPO term embedding visualization with UMAP](https://github.com/berntpopp/phentrieve/issues/34)
-**Status:** Design, awaiting implementation plan
+**Status:** Implemented
 **Branch:** `feat/ontology-embedding-fidelity`
 
 ## Problem
