@@ -121,6 +121,7 @@ function mapTextProcessPhenotypeToResult(term) {
     similarity: confidence ?? similarity ?? 0,
     definition: term.definition || '',
     synonyms: Array.isArray(term.synonyms) ? term.synonyms : [],
+    assertion_status: normalizeAssertionStatus(term.status),
   };
 }
 
@@ -133,7 +134,12 @@ function normalizeAssertionStatus(status) {
     return 'negated';
   }
 
-  if (status === 'affirmed' || status === 'negated' || status === 'unknown') {
+  if (
+    status === 'affirmed' ||
+    status === 'negated' ||
+    status === 'uncertain' ||
+    status === 'unknown'
+  ) {
     return status;
   }
 

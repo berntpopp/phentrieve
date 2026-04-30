@@ -313,6 +313,7 @@ def _adapt_llm_text_attributions(
 ) -> list[dict[str, Any]]:
     text_attributions: list[dict[str, Any]] = []
     seen: set[tuple[int, int | None, int | None, str | None]] = set()
+    valid_chunk_ids = set(chunk_text_by_id)
 
     for record in evidence_records:
         chunk_ids = [
@@ -320,7 +321,7 @@ def _adapt_llm_text_attributions(
         ]
         matched_text = record.get("evidence_text") or record.get("phrase")
         for chunk_id in chunk_ids:
-            if chunk_id is None:
+            if chunk_id is None or chunk_id not in valid_chunk_ids:
                 continue
             start_char, end_char = _infer_text_attribution_offsets(
                 chunk_text=chunk_text_by_id.get(chunk_id, ""),
@@ -351,6 +352,24 @@ def _adapt_llm_text_attributions(
     return text_attributions
 
 
+def _project_llm_term_status_from_chunks(
+    *,
+    llm_status: str,
+    source_chunk_ids: Sequence[int],
+    chunk_status_by_id: Mapping[int, str],
+) -> str:
+    source_statuses = [
+        chunk_status_by_id[chunk_id]
+        for chunk_id in source_chunk_ids
+        if chunk_id in chunk_status_by_id
+    ]
+    if source_statuses and all(
+        status in {"negated", "normal"} for status in source_statuses
+    ):
+        return "negated"
+    return llm_status
+
+
 def _adapt_llm_aggregated_terms(
     terms: Sequence[Any],
     *,
@@ -362,6 +381,12 @@ def _adapt_llm_aggregated_terms(
         for chunk in grounded_chunks
         if (chunk_id := _coerce_chunk_id(chunk.get("chunk_id"))) is not None
     }
+    chunk_status_by_id = {
+        chunk_id: _normalize_status(chunk.get("status"))
+        for chunk in grounded_chunks
+        if (chunk_id := _coerce_chunk_id(chunk.get("chunk_id"))) is not None
+    }
+    valid_chunk_ids = set(chunk_text_by_id)
 
     for term in terms:
         evidence_records = [
@@ -389,16 +414,26 @@ def _adapt_llm_aggregated_terms(
             if evidence_scores or term_score is not None
             else 0.0
         )
+        raw_source_chunk_ids = [
+            chunk_id
+            for record in evidence_records
+            for chunk_id in (
+                _coerce_chunk_id(value) for value in record.get("chunk_ids", [])
+            )
+            if chunk_id is not None
+        ]
+        invalid_chunk_reference_count = sum(
+            1 for chunk_id in raw_source_chunk_ids if chunk_id not in valid_chunk_ids
+        )
         source_chunk_ids = sorted(
             {
                 chunk_id
-                for record in evidence_records
-                for chunk_id in (
-                    _coerce_chunk_id(value) for value in record.get("chunk_ids", [])
-                )
-                if chunk_id is not None
+                for chunk_id in raw_source_chunk_ids
+                if chunk_id in valid_chunk_ids
             }
         )
+        if raw_source_chunk_ids and not source_chunk_ids:
+            continue
         text_attributions = _adapt_llm_text_attributions(
             evidence_records,
             chunk_text_by_id=chunk_text_by_id,
@@ -412,7 +447,7 @@ def _adapt_llm_aggregated_terms(
             for chunk_id in (
                 _coerce_chunk_id(value) for value in record.get("chunk_ids", [])
             ):
-                if chunk_id is None:
+                if chunk_id is None or chunk_id not in valid_chunk_ids:
                     continue
                 if top_evidence_score is None or record_score > top_evidence_score:
                     top_evidence_score = record_score
@@ -438,8 +473,14 @@ def _adapt_llm_aggregated_terms(
                 if top_evidence_chunk_id is not None
                 else (source_chunk_ids[0] if source_chunk_ids else None),
                 "text_attributions": text_attributions,
+                "invalid_chunk_reference_count": invalid_chunk_reference_count,
                 "score": term_score if term_score is not None else max_evidence_score,
             }
+        )
+        adapted_terms[-1]["status"] = _project_llm_term_status_from_chunks(
+            llm_status=str(term.assertion),
+            source_chunk_ids=source_chunk_ids,
+            chunk_status_by_id=chunk_status_by_id,
         )
 
     return adapted_terms
@@ -727,7 +768,7 @@ def run_llm_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
             provider=provider,
             extraction_prompt=extraction_prompt,
             chunking_pipeline_config=kwargs.get("chunking_pipeline_config"),
-            assertion_config={"disable": True},
+            assertion_config=kwargs.get("assertion_config"),
             retrieval_model_name=kwargs.get("retrieval_model_name", DEFAULT_MODEL),
         )
         grounded_chunks = preprocessed.grounded_chunks

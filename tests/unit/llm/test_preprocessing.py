@@ -2,7 +2,10 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 
-from phentrieve.llm.preprocessing import build_extraction_groups
+from phentrieve.llm.preprocessing import (
+    build_extraction_groups,
+    build_grounded_chunks_from_text_pipeline,
+)
 from phentrieve.llm.types import ExtractionGroup, GroundedChunk
 
 
@@ -211,3 +214,52 @@ def test_build_extraction_groups_does_not_emit_overlap_only_tail_group() -> None
     )
 
     assert [group.chunk_ids for group in groups] == [[1, 2, 3]]
+
+
+def test_build_grounded_chunks_uses_left_context_for_negated_chunk_status(
+    monkeypatch,
+) -> None:
+    class FakeStatus:
+        def __init__(self, value: str) -> None:
+            self.value = value
+
+    class FakeDetector:
+        def detect(self, text: str):
+            if "no big head" in text:
+                return FakeStatus("negated"), {"source": "context"}
+            return FakeStatus("affirmed"), {"source": "chunk"}
+
+    class FakeTextProcessingPipeline:
+        def __init__(self, **kwargs) -> None:
+            self.assertion_detector = FakeDetector()
+
+        def process(self, raw_text: str, include_positions: bool = False):
+            return [
+                {
+                    "text": "big head",
+                    "status": FakeStatus("affirmed"),
+                    "assertion_details": {"source": "chunk"},
+                    "start_char": raw_text.index("big head"),
+                    "end_char": raw_text.index("big head") + len("big head"),
+                }
+            ]
+
+    monkeypatch.setattr(
+        "phentrieve.text_processing.pipeline.TextProcessingPipeline",
+        FakeTextProcessingPipeline,
+    )
+    monkeypatch.setattr(
+        "phentrieve.embeddings.load_embedding_model",
+        lambda model_name: object(),
+    )
+
+    chunks = build_grounded_chunks_from_text_pipeline(
+        text="Bernt Popp is small and dumb and has blonde hair but no big head",
+        language="en",
+        chunking_pipeline_config=[],
+        assertion_config={"disable": False, "preference": "dependency"},
+        retrieval_model_name="FremyCompany/BioLORD-2023-M",
+    )
+
+    assert chunks[0].text == "big head"
+    assert chunks[0].status == "negated"

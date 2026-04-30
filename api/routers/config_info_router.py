@@ -16,11 +16,13 @@ from api.schemas.config_info_schemas import (
     HPODataStatusAPI,
     ModelInfo,
     PhentrieveConfigInfoResponseAPI,
+    PublicLLMCapabilitiesAPI,
 )
 
 # Import constants and getters from Phentrieve's config
 from phentrieve import config as phentrieve_config
 from phentrieve.evaluation.metrics import load_hpo_graph_data
+from phentrieve.llm.security_policy import get_public_llm_capabilities
 
 logger = logging.getLogger(__name__)
 router = APIRouter(tags=["Configuration & Information"])
@@ -154,6 +156,9 @@ async def get_phentrieve_info():
             default_parameters=default_params,
             chunking_config=chunking_config,
             hpo_data_status=hpo_data_status,
+            public_llm_capabilities=PublicLLMCapabilitiesAPI.model_validate(
+                get_public_llm_capabilities()
+            ),
         )
 
     except Exception as e:

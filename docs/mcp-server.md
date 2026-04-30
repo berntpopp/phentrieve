@@ -8,6 +8,11 @@ Phentrieve MCP outputs are algorithmic research suggestions only. They are not
 for diagnosis, treatment, triage, patient management, or clinical decision
 support. Do not submit identifiable patient data to public demo instances.
 
+Public MCP LLM extraction uses the same server-owned LLM target as public REST:
+`gemini/gemini-3.1-flash-lite-preview`. MCP clients cannot select
+`llm_model`, `llm_provider`, or `llm_base_url`; those settings are intentionally
+server-controlled.
+
 ## Transport
 
 | Mode | Endpoint | Status | Use Case |
@@ -101,6 +106,11 @@ make mcp-info
 | `PHENTRIEVE_MCP_HOST` | `127.0.0.1` | Host for standalone HTTP mode |
 | `PHENTRIEVE_MCP_PORT` | `8734` | Port for standalone HTTP mode |
 
+The public MCP tool schema does not expose provider, model, or base URL
+selection for LLM extraction. Deployments that need different public LLM
+behavior must change the server policy rather than accepting client-supplied
+`llm_model`, `llm_provider`, or `llm_base_url` values.
+
 ## CLI Commands
 
 ```bash
@@ -175,6 +185,9 @@ SSE URL such as `/sse` or `/mcp/messages/`.
 
 - Put public MCP deployments behind OAuth or an authenticated reverse proxy.
 - Do not submit identifiable patient data to public demo instances.
+- Treat all submitted text and retrieval payloads as untrusted data. Phentrieve
+  uses prompt boundaries, a server-owned LLM target, structured output, and
+  backend validation as defense-in-depth prompt-injection controls.
 - The current MCP tools are read-only and intended for research, benchmarking,
   education, and research data standardisation only.
 - Consider rate limiting MCP endpoints to prevent abuse.

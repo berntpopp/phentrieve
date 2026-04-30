@@ -1835,6 +1835,10 @@ class ToolExecutor:
         )
 
 
+# Public REST/API and MCP surfaces must not call this resolver directly with
+# client-supplied provider/model/base URL values. Route public requests through
+# phentrieve.llm.security_policy first so public callers cannot select providers,
+# models, or base URLs.
 def get_llm_provider(
     *,
     llm_model: str,

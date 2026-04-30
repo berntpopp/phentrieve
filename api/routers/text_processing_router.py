@@ -45,6 +45,7 @@ from phentrieve.config import (
     DEFAULT_STEP_SIZE_TOKENS,
     DEFAULT_WINDOW_SIZE_TOKENS,
 )
+from phentrieve.llm.security_policy import resolve_public_llm_target
 from phentrieve.retrieval.adaptive_rechunker import (
     adaptive_config_from_profile_block,
 )
@@ -569,9 +570,6 @@ async def process_text_extract_hpo(
                 request = request.model_copy(
                     update={
                         "extraction_backend": "standard",
-                        "llm_model": None,
-                        "llm_provider": None,
-                        "llm_base_url": None,
                         "llm_mode": None,
                         "llm_internal_mode": None,
                     }
@@ -696,16 +694,29 @@ async def _process_text_via_shared_service(request: TextProcessingRequest):
                 cli_overrides=None,
             )
     else:
+        target = resolve_public_llm_target()
+        actual_language = request.language or DEFAULT_LANGUAGE
+        retrieval_model_name_to_load = _validate_model_name(
+            "retrieval_model_name", request.retrieval_model_name or DEFAULT_MODEL
+        )
         service_kwargs.update(
             {
-                "language": request.language,
-                "llm_provider": request.llm_provider,
-                "llm_model": request.llm_model,
-                "llm_base_url": request.llm_base_url,
+                "language": actual_language,
+                "llm_provider": target.provider,
+                "llm_model": target.model,
+                "llm_base_url": target.base_url,
                 "llm_mode": request.llm_mode or "two_phase",
                 "llm_internal_mode": (
                     request.llm_internal_mode or "whole_document_grounded"
                 ),
+                "chunking_pipeline_config": _get_chunking_config_for_api(request),
+                "assertion_config": {
+                    **DEFAULT_ASSERTION_CONFIG,
+                    "disable": request.no_assertion_detection,
+                    "preference": request.assertion_preference,
+                    "language": actual_language,
+                },
+                "retrieval_model_name": retrieval_model_name_to_load,
             }
         )
 

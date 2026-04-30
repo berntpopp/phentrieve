@@ -1,12 +1,8 @@
 from __future__ import annotations
 
-import os
 from typing import Any
 
-from phentrieve.llm.config import (
-    DEFAULT_LLM_MODEL,
-    DEFAULT_PROVIDER_NAME,
-)
+from phentrieve.llm.security_policy import get_public_llm_capabilities
 
 PUBLIC_DEMO_DATA_NOTICE = (
     "Do not submit identifiable patient data to public demo instances."
@@ -14,14 +10,9 @@ PUBLIC_DEMO_DATA_NOTICE = (
 
 
 def get_llm_capability_defaults() -> dict[str, Any]:
-    default_model = os.getenv("PHENTRIEVE_LLM_MODEL", DEFAULT_LLM_MODEL)
     return {
         "recommended_backend_for_full_text": "llm",
-        "default_llm_provider": os.getenv(
-            "PHENTRIEVE_LLM_PROVIDER", DEFAULT_PROVIDER_NAME
-        ),
-        "default_llm_model": default_model,
-        "configured_llm_models": [default_model],
+        **get_public_llm_capabilities(),
         "llm_guidance": (
             "Prefer phentrieve.extract_hpo_terms_llm for full abstracts, "
             "publication-style annotation, syndrome/eponym-heavy text, and review "

@@ -85,7 +85,8 @@ def test_public_hosted_mode_allows_llm_after_research_ack(client, monkeypatch):
                 {
                     "meta": {
                         "extraction_backend": "llm",
-                        "llm_model": "gpt-5.4-mini",
+                        "llm_provider": "gemini",
+                        "llm_model": "gemini-3.1-flash-lite-preview",
                     },
                     "processed_chunks": [],
                     "aggregated_hpo_terms": [],
@@ -100,7 +101,6 @@ def test_public_hosted_mode_allows_llm_after_research_ack(client, monkeypatch):
         json={
             "text": "Research note mentions recurrent seizures.",
             "extraction_backend": "llm",
-            "llm_model": "gpt-5.4-mini",
         },
     )
 

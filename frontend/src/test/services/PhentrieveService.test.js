@@ -32,6 +32,27 @@ describe('PhentrieveService', () => {
     );
   });
 
+  it('does not send client-selected LLM model fields in text process requests', async () => {
+    axios.post.mockResolvedValue({ data: { meta: { extraction_backend: 'llm' } } });
+
+    await PhentrieveService.processText({
+      text: 'Patient had recurrent seizures.',
+      extractionBackend: 'llm',
+      llmModel: 'gpt-5.4-mini',
+      llm_model: 'gemini-3.1-flash-lite-preview',
+      model_name: 'legacy-model-name',
+      llmMode: 'two_phase',
+    });
+
+    const payload = axios.post.mock.calls[0][1];
+    expect(payload).toMatchObject({
+      text: 'Patient had recurrent seizures.',
+      extraction_backend: 'llm',
+      llm_mode: 'two_phase',
+    });
+    expect(payload).not.toHaveProperty('llm_model');
+  });
+
   it('preserves structured quota fields for 429 responses', async () => {
     axios.post.mockRejectedValue({
       isAxiosError: true,
@@ -201,7 +222,7 @@ describe('PhentrieveService', () => {
     expect(axios.post.mock.calls[0][1]).not.toHaveProperty('top_term_per_chunk');
   });
 
-  it('omits null and undefined text process fields from the API payload', async () => {
+  it('omits null, undefined, and model-loader-only text process fields from the API payload', async () => {
     axios.post.mockResolvedValue({ data: { meta: { extraction_backend: 'llm' } } });
 
     await PhentrieveService.processText({
@@ -219,9 +240,9 @@ describe('PhentrieveService', () => {
     expect(payload).toMatchObject({
       text: 'Patient had recurrent seizures.',
       extraction_backend: 'llm',
-      llm_model: 'gpt-5.4-mini',
-      trust_remote_code: false,
     });
+    expect(payload).not.toHaveProperty('trust_remote_code');
+    expect(payload).not.toHaveProperty('llm_model');
     expect(payload).not.toHaveProperty('chunking_strategy');
     expect(payload).not.toHaveProperty('window_size');
     expect(payload).not.toHaveProperty('llm_mode');

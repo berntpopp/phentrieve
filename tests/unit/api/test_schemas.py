@@ -275,7 +275,6 @@ class TestTextProcessingRequest:
             {
                 "text": "Patient had recurrent seizures.",
                 "extraction_backend": "llm",
-                "llm_model": "gpt-5.4-mini",
                 "llm_mode": "two_phase",
             }
         )
@@ -285,22 +284,18 @@ class TestTextProcessingRequest:
         assert request.extraction_backend == "llm"
         assert request.llm_mode == "two_phase"
 
-    def test_text_processing_request_accepts_llm_provider_fields(self) -> None:
-        request = TextProcessingRequest(
-            text="Patient has seizures.",
-            extraction_backend="llm",
-            llm_model="openai/gpt-5.4-mini",
-            llm_provider="openai",
-            llm_base_url="https://api.openai.com/v1",
-            llm_mode="two_phase",
-            llm_internal_mode="whole_document_grounded",
-            allow_standard_fallback=True,
-        )
-
-        assert request.llm_provider == "openai"
-        assert request.llm_base_url == "https://api.openai.com/v1"
-        assert request.llm_internal_mode == "whole_document_grounded"
-        assert request.allow_standard_fallback is True
+    @pytest.mark.parametrize("field", ["llm_model", "llm_provider", "llm_base_url"])
+    def test_text_processing_request_forbids_public_llm_config_fields(
+        self, field: str
+    ) -> None:
+        with pytest.raises(ValueError):
+            TextProcessingRequest.model_validate(
+                {
+                    "text": "Patient has seizures.",
+                    "extraction_backend": "llm",
+                    field: "untrusted",
+                }
+            )
 
     def test_text_processing_request_accepts_text_content_extraction_backend_alias(
         self,

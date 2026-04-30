@@ -18,6 +18,23 @@ together:
 
 ## [Unreleased]
 
+## [0.20.0] — 2026-04-30 (CLI 0.20.0 / API 0.11.0 / Frontend 0.10.0)
+
+### Changed
+
+- Public REST and MCP LLM extraction now use a server-owned
+  `gemini/gemini-3.1-flash-lite-preview` target. Public clients should omit
+  `llm_model`, `llm_provider`, and `llm_base_url`; those request fields are
+  rejected by the public API/MCP policy.
+- Frontend text-processing requests no longer send `llm_model` for the public
+  LLM backend, and frontend logs report LLM target selection as server-owned.
+
+### Documentation
+
+- Documented the public REST/MCP prompt-injection defense-in-depth posture,
+  research-only limitation, and warning not to submit identifiable patient data
+  to public deployments.
+
 ## [0.19.0] — 2026-04-26 (CLI 0.19.0 / API 0.10.0 / Frontend 0.9.0)
 
 ### Added

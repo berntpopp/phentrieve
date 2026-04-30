@@ -52,7 +52,7 @@ function mountReceipt(props = {}) {
               type="button"
               @click="$emit('add-to-collection', result)"
             >
-              {{ rank }} {{ result.label }} {{ result.score }}
+              {{ rank }} {{ result.label }} {{ result.score }} {{ result.assertion_status }}
             </button>
           `,
         },
@@ -112,5 +112,47 @@ describe('FullTextResponseReceipt', () => {
     expect(wrapper.emitted('hover-phenotype')).toHaveLength(1);
     expect(wrapper.emitted('hover-phenotype')[0]).toEqual(['HP:0001250']);
     expect(wrapper.emitted('clear-hover')).toHaveLength(1);
+  });
+
+  it('passes negated assertion status to phenotype rows', () => {
+    const wrapper = mountReceipt({
+      item: {
+        id: 'turn-1',
+        response: {
+          aggregated_hpo_terms: [
+            {
+              hpo_id: 'HP:0000256',
+              name: 'Macrocephaly',
+              confidence: 0.91,
+              status: 'negated',
+            },
+          ],
+          processed_chunks: [{ chunk_id: 1, text: 'no big head', status: 'negated' }],
+        },
+      },
+    });
+
+    expect(wrapper.get('.result-item-stub').text()).toContain('negated');
+  });
+
+  it('passes uncertain assertion status to phenotype rows', () => {
+    const wrapper = mountReceipt({
+      item: {
+        id: 'turn-1',
+        response: {
+          aggregated_hpo_terms: [
+            {
+              hpo_id: 'HP:0001250',
+              name: 'Seizure',
+              confidence: 0.72,
+              status: 'uncertain',
+            },
+          ],
+          processed_chunks: [{ chunk_id: 1, text: 'possible seizure', status: 'uncertain' }],
+        },
+      },
+    });
+
+    expect(wrapper.get('.result-item-stub').text()).toContain('uncertain');
   });
 });
