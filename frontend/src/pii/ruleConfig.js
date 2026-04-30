@@ -2,7 +2,9 @@ export const SUPPORTED_PII_LOCALES = Object.freeze(['en', 'de', 'fr', 'es', 'nl'
 
 export const DATE_PATTERN = /\b(?:\d{1,2}[./-]\d{1,2}[./-]\d{2,4}|\d{4}-\d{2}-\d{2})\b/gu;
 const ID_VALUE_PATTERN = /\b[A-Z]{0,4}[- ]?\d{4,12}[A-Z0-9-]*\b/giu;
-const PERSON_NAME_TOKEN = '[A-ZÀ-ÖØ-Þ][A-Za-zÀ-ÖØ-öø-ÿß-]+';
+const PERSON_NAME_TOKEN = String.raw`\p{Lu}[\p{L}\p{M}'-]+`;
+const LETTER_LEFT_BOUNDARY = String.raw`(?<![\p{L}\p{M}])`;
+const LETTER_RIGHT_BOUNDARY = String.raw`(?![\p{L}\p{M}])`;
 
 const TITLED_NAME_RULE_CONFIG = Object.freeze({
   en: { id: 'en.titled_name', titles: ['Mr', 'Mrs', 'Ms', 'Dr', 'Prof'] },
@@ -85,11 +87,14 @@ function createTitledNameRule(locale, config) {
       // Titles come from static locale config and are escaped before RegExp construction.
       // eslint-disable-next-line security/detect-non-literal-regexp
       new RegExp(
-        `\\b(?:${titlePattern})${optionalDot}\\s+${PERSON_NAME_TOKEN}\\s+${PERSON_NAME_TOKEN}\\b`,
+        `${LETTER_LEFT_BOUNDARY}(?:${titlePattern})${optionalDot}\\s+${PERSON_NAME_TOKEN}\\s+${PERSON_NAME_TOKEN}${LETTER_RIGHT_BOUNDARY}`,
         'gu'
       ),
       // eslint-disable-next-line security/detect-non-literal-regexp
-      new RegExp(`\\b(?:${titlePattern})${optionalDot}\\s+${PERSON_NAME_TOKEN}\\b`, 'gu'),
+      new RegExp(
+        `${LETTER_LEFT_BOUNDARY}(?:${titlePattern})${optionalDot}\\s+${PERSON_NAME_TOKEN}${LETTER_RIGHT_BOUNDARY}`,
+        'gu'
+      ),
     ],
   };
 }

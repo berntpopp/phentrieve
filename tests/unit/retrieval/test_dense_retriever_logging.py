@@ -22,4 +22,4 @@ def test_query_logs_text_length_without_raw_query(mocker, caplog):
         retriever.query(query_text)
 
     assert query_text not in caplog.text
-    assert "text_chars=24" in caplog.text
+    assert f"text_chars={len(query_text)}" in caplog.text

@@ -59,6 +59,16 @@ describe('scanPii', () => {
   });
 
   it.each([
+    ['fr', 'M René a des crises'],
+    ['es', 'Sr José tiene convulsiones'],
+  ])('marks %s titled person names with accented letters', (locale, text) => {
+    const result = scanPii(text, { locale });
+
+    expect(result.summary.review.person_name).toBe(1);
+    expect(result.findings[0]).not.toHaveProperty('text');
+  });
+
+  it.each([
     ['en', 'Mr Smith has seizures'],
     ['fr', 'M Dupont a des crises'],
     ['es', 'Sr Garcia tiene convulsiones'],

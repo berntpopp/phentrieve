@@ -135,7 +135,7 @@ class TestExecuteHpoRetrievalForApi:
             )
 
         assert query_text not in caplog.text
-        assert "text_chars=24" in caplog.text
+        assert f"text_chars={len(query_text)}" in caplog.text
 
     @pytest.mark.asyncio
     async def test_no_results_found(self, mocker):
