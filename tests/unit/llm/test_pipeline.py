@@ -147,6 +147,12 @@ FAILED_GENEREVIEWS_DOC = json.loads(
 
 
 def extract_mapping_payload_from_prompt(user_prompt: str) -> dict[str, object]:
+    begin_marker = "UNTRUSTED_MAPPING_PAYLOAD_BEGIN\n"
+    end_marker = "\nUNTRUSTED_MAPPING_PAYLOAD_END"
+    if begin_marker in user_prompt:
+        user_prompt = user_prompt.split(begin_marker, 1)[1]
+        user_prompt = user_prompt.split(end_marker, 1)[0].strip()
+        return json.loads(user_prompt)
     payload_marker = "Payload:\n"
     if payload_marker in user_prompt:
         user_prompt = user_prompt.split(payload_marker, 1)[1].strip()
@@ -490,10 +496,13 @@ def test_phase1_runs_once_per_extraction_group() -> None:
     )
 
     assert len(provider.structured_calls) == 2
-    assert provider.structured_calls[0]["user_prompt"].endswith(
-        "chunk_id=1: WRONG.\nchunk_id=2: WRONG.\n"
+    assert "UNTRUSTED_CHUNK_INDEX_BEGIN" in provider.structured_calls[0]["user_prompt"]
+    assert (
+        "chunk_id=1: WRONG.\nchunk_id=2: WRONG."
+        in provider.structured_calls[0]["user_prompt"]
     )
-    assert provider.structured_calls[1]["user_prompt"].endswith("chunk_id=3: WRONG.\n")
+    assert "UNTRUSTED_CHUNK_INDEX_END" in provider.structured_calls[0]["user_prompt"]
+    assert "chunk_id=3: WRONG." in provider.structured_calls[1]["user_prompt"]
 
 
 def test_grouped_phase1_uses_budgeted_group_payload_text() -> None:
@@ -535,9 +544,12 @@ def test_grouped_phase1_uses_budgeted_group_payload_text() -> None:
     )
 
     assert len(provider.structured_calls) == 1
-    assert provider.structured_calls[0]["user_prompt"].endswith(
-        "chunk_id=1: Budgeted chunk one.\nchunk_id=2: Budgeted chunk two.\n"
+    assert "UNTRUSTED_CHUNK_INDEX_BEGIN" in provider.structured_calls[0]["user_prompt"]
+    assert (
+        "chunk_id=1: Budgeted chunk one.\nchunk_id=2: Budgeted chunk two."
+        in provider.structured_calls[0]["user_prompt"]
     )
+    assert "UNTRUSTED_CHUNK_INDEX_END" in provider.structured_calls[0]["user_prompt"]
     assert "Canonical chunk one." not in provider.structured_calls[0]["user_prompt"]
     assert "Canonical chunk two." not in provider.structured_calls[0]["user_prompt"]
 

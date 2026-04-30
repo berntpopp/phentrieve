@@ -18,6 +18,38 @@ def _normalize_status(status: Any) -> str:
     return str(status)
 
 
+def _status_with_left_context(
+    *,
+    text: str,
+    chunk: dict[str, Any],
+    assertion_detector: Any,
+    left_context_chars: int = 64,
+) -> str:
+    chunk_status = _normalize_status(chunk.get("status"))
+    if chunk_status != "affirmed":
+        return chunk_status
+
+    start_char = chunk.get("start_char")
+    end_char = chunk.get("end_char")
+    if not isinstance(start_char, int) or not isinstance(end_char, int):
+        return chunk_status
+
+    context_start = max(0, start_char - left_context_chars)
+    context_text = text[context_start:end_char]
+    if context_text.strip() == str(chunk.get("text", "")).strip():
+        return chunk_status
+
+    try:
+        context_status, _context_details = assertion_detector.detect(context_text)
+    except Exception:
+        return chunk_status
+
+    normalized_context_status = _normalize_status(context_status)
+    if normalized_context_status in {"negated", "normal"}:
+        return normalized_context_status
+    return chunk_status
+
+
 def _render_group_text(chunks: list[GroundedChunk]) -> str:
     return "\n".join(f"chunk_id={chunk.chunk_id}: {chunk.text}" for chunk in chunks)
 
@@ -54,7 +86,11 @@ def build_grounded_chunks_from_text_pipeline(
             text=str(chunk.get("text", "")),
             start_char=chunk.get("start_char"),
             end_char=chunk.get("end_char"),
-            status=_normalize_status(chunk.get("status")),
+            status=_status_with_left_context(
+                text=text,
+                chunk=chunk,
+                assertion_detector=text_pipeline.assertion_detector,
+            ),
         )
         for index, chunk in enumerate(processed_chunks)
     ]

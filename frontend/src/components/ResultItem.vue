@@ -9,6 +9,15 @@
     </template>
 
     <template #inline-tools>
+      <v-chip
+        v-if="assertionBadge"
+        size="x-small"
+        :color="assertionBadge.color"
+        variant="tonal"
+        class="ml-1 assertion-chip"
+      >
+        {{ assertionBadge.label }}
+      </v-chip>
       <v-btn
         v-if="hasDetails"
         variant="text"
@@ -133,6 +142,18 @@ const hasDetails = computed(() => {
   );
 });
 
+const assertionBadge = computed(() => {
+  if (props.result.assertion_status === 'negated') {
+    return { label: 'Negated', color: 'warning' };
+  }
+
+  if (props.result.assertion_status === 'uncertain') {
+    return { label: 'Uncertain', color: 'blue-grey' };
+  }
+
+  return null;
+});
+
 function parseScoreValue(value) {
   if (typeof value === 'number' && Number.isFinite(value)) {
     return value;
@@ -186,6 +207,10 @@ const scoreType = computed(() => {
 
 .score-chips-container {
   margin-top: 4px;
+}
+
+.assertion-chip {
+  font-weight: 600;
 }
 
 .details-section {

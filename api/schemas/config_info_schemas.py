@@ -107,6 +107,31 @@ class HPODataStatusAPI(BaseModel):
     )
 
 
+class PublicLLMTargetAPI(BaseModel):
+    """Read-only public LLM target advertised by the server."""
+
+    provider: str = Field(description="Server-owned LLM provider identifier")
+    model: str = Field(description="Server-owned LLM model identifier")
+    display_name: str = Field(description="Human-readable LLM target name")
+
+
+class PublicLLMCapabilitiesAPI(BaseModel):
+    """Read-only public LLM capabilities advertised by the server."""
+
+    default_llm_provider: str = Field(description="Default public LLM provider")
+    default_llm_model: str = Field(description="Default public LLM model")
+    configured_llm_models: list[str] = Field(
+        description="Read-only list of configured public LLM models"
+    )
+    allowed_llm_targets: list[PublicLLMTargetAPI] = Field(
+        description="Read-only public LLM targets"
+    )
+    llm_modes: list[str] = Field(description="Publicly supported LLM extraction modes")
+    research_use_only: bool = Field(
+        description="Whether public LLM use is restricted to research use"
+    )
+
+
 class PhentrieveConfigInfoResponseAPI(BaseModel):
     """Response model for the Phentrieve configuration information API endpoint."""
 
@@ -158,3 +183,8 @@ class PhentrieveConfigInfoResponseAPI(BaseModel):
     )
     chunking_config: ChunkingConfig = Field(description="Text chunking configuration")
     hpo_data_status: HPODataStatusAPI = Field(description="Status of HPO data loading")
+    public_llm_capabilities: PublicLLMCapabilitiesAPI = Field(
+        description=(
+            "Read-only public LLM configuration. Clients cannot mutate these values."
+        )
+    )

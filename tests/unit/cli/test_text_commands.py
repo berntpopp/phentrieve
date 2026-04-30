@@ -432,6 +432,7 @@ def test_run_llm_backend_uses_pipeline_and_provider(monkeypatch):
             "max_score_from_evidence": 0.0,
             "top_evidence_chunk_id": None,
             "text_attributions": [],
+            "invalid_chunk_reference_count": 0,
             "score": 0.0,
         }
     ]

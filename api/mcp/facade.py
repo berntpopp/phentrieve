@@ -39,6 +39,7 @@ from phentrieve.evaluation.metrics import (
     calculate_semantic_similarity,
     load_hpo_graph_data,
 )
+from phentrieve.llm.security_policy import resolve_public_llm_target
 from phentrieve.retrieval.api_helpers import execute_hpo_retrieval_for_api
 from phentrieve.text_processing.full_text_service import run_full_text_service
 from phentrieve.utils import normalize_id
@@ -132,10 +133,14 @@ def extract_hpo_terms_llm_impl(
     *,
     service: SyncMcpService = run_full_text_service,
 ) -> McpResult:
+    target = resolve_public_llm_target()
     llm_kwargs = {
         "text": request.text,
         "extraction_backend": "llm",
         "language": request.language,
+        "llm_provider": target.provider,
+        "llm_model": target.model,
+        "llm_base_url": target.base_url,
         "llm_mode": request.llm_mode,
         "llm_internal_mode": request.llm_internal_mode,
         "include_details": request.include_details,

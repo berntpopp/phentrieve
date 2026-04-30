@@ -147,7 +147,8 @@ def test_process_clinical_text_schema_exposes_llm_controls() -> None:
     assert schema is not None
     request_properties = schema["properties"]
 
-    assert "llm_provider" in request_properties
-    assert "llm_base_url" in request_properties
+    assert "llm_provider" not in request_properties
+    assert "llm_model" not in request_properties
+    assert "llm_base_url" not in request_properties
     assert "llm_internal_mode" in request_properties
     assert "allow_standard_fallback" in request_properties

@@ -121,6 +121,7 @@ function mapTextProcessPhenotypeToResult(term) {
     similarity: confidence ?? similarity ?? 0,
     definition: term.definition || '',
     synonyms: Array.isArray(term.synonyms) ? term.synonyms : [],
+    assertion_status: normalizeAssertionStatus(term.status),
   };
 }
 

@@ -34,13 +34,25 @@ curl -X POST "http://localhost:8734/api/v1/text/process" \
   -d '{
     "text": "The patient exhibits microcephaly and frequent seizures.",
     "extraction_backend": "llm",
-    "llm_model": "gemini-3.1-flash-lite-preview",
     "llm_mode": "two_phase"
   }'
 ```
 
 The LLM response keeps the same top-level shape and includes metadata such as
 `extraction_backend`, `llm_model`, and `llm_mode`.
+
+Public REST clients cannot select the LLM provider, model, or base URL. The
+server owns the public LLM target and currently routes LLM extraction to
+`gemini/gemini-3.1-flash-lite-preview`. Requests that include `llm_model`,
+`llm_provider`, or `llm_base_url` are rejected; omit those fields and use
+`llm_mode: "two_phase"` when requesting LLM extraction.
+
+LLM extraction uses defense-in-depth prompt-injection controls: submitted text
+is treated as untrusted data, prompt templates separate data from instructions,
+and backend validation checks structured output before returning suggestions.
+These controls reduce risk but do not make the service appropriate for clinical
+decision support. Use the public REST API for research workflows only, and do
+not submit identifiable patient data to public deployments.
 
 ## Production Environment
 

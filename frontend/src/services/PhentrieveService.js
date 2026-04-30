@@ -67,7 +67,10 @@ class PhentrieveService {
         requestSize: JSON.stringify(normalizedPayload).length,
         textLength: normalizedPayload.text?.length || 0,
         backend: normalizedPayload.extraction_backend,
-        model: normalizedPayload.llm_model || normalizedPayload.retrieval_model_name,
+        llmTarget:
+          normalizedPayload.extraction_backend === 'llm'
+            ? 'server-owned'
+            : normalizedPayload.retrieval_model_name,
       });
 
       const response = await axios.post(
@@ -136,11 +139,6 @@ class PhentrieveService {
     const payload = {
       text: textProcessingData.text ?? textProcessingData.text_content ?? '',
       extraction_backend: extractionBackend,
-      llm_model:
-        textProcessingData.llm_model ??
-        textProcessingData.llmModel ??
-        textProcessingData.model_name ??
-        null,
       llm_mode: textProcessingData.llm_mode ?? textProcessingData.llmMode ?? null,
       language: textProcessingData.language ?? null,
       chunking_strategy:
@@ -163,7 +161,6 @@ class PhentrieveService {
         textProcessingData.retrievalModelName ??
         textProcessingData.selectedModel ??
         null,
-      trust_remote_code: textProcessingData.trust_remote_code ?? textProcessingData.trustRemoteCode,
       chunk_retrieval_threshold:
         textProcessingData.chunk_retrieval_threshold ??
         textProcessingData.chunkRetrievalThreshold ??

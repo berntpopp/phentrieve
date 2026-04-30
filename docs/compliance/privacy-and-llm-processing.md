@@ -9,6 +9,11 @@ Phentrieve can process text through two backend modes:
 - **LLM extraction** may send submitted text to the external LLM provider
   configured by the service operator.
 
+Public REST and MCP LLM extraction use a server-owned target, currently
+`gemini/gemini-3.1-flash-lite-preview`. Public clients cannot override the LLM
+provider, model, or base URL with `llm_provider`, `llm_model`, or
+`llm_base_url`; requests that try to set those fields are rejected.
+
 ## Public Hosted Mode
 
 Public deployments should enable:
@@ -35,6 +40,14 @@ When LLM extraction is enabled, the operator should disclose:
 The frontend displays an LLM-specific notice when the LLM extraction backend is
 selected. Operators should keep the deployment privacy notice consistent with
 the configured LLM provider and data processing terms.
+
+Phentrieve applies defense-in-depth prompt-injection controls for LLM
+extraction. Submitted clinical or biomedical text is treated as untrusted data,
+prompt templates separate data from instructions, public model selection is
+server-owned, and backend validators check structured output before returning
+research suggestions. These controls do not make the service suitable for
+diagnosis, treatment, triage, patient management, or other clinical decision
+support.
 
 ## User Data Guidance
 

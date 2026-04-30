@@ -1,6 +1,6 @@
 from typing import Any, Literal, cast
 
-from pydantic import AliasChoices, BaseModel, Field, model_validator
+from pydantic import AliasChoices, BaseModel, ConfigDict, Field
 
 from phentrieve.config import (
     DEFAULT_ASSERTION_CONFIG,
@@ -19,28 +19,14 @@ from phentrieve.retrieval.adaptive_rechunker import AdaptiveRechunkingProfileBlo
 
 
 class TextProcessingRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     text: str = Field(
         ...,
         validation_alias=AliasChoices("text", "text_content"),
         description="The raw research phenotype text to process.",
     )
     extraction_backend: Literal["standard", "llm"] = "standard"
-    llm_model: str | None = None
-    llm_provider: str | None = Field(
-        default=None,
-        description=(
-            "Optional LLM provider name for full-text extraction. Examples: "
-            "'openai', 'anthropic', 'gemini', 'ollama'. If omitted, server "
-            "environment defaults are used."
-        ),
-    )
-    llm_base_url: str | None = Field(
-        default=None,
-        description=(
-            "Optional provider base URL for compatible LLM providers. Use this "
-            "for local Ollama or OpenAI-compatible gateways."
-        ),
-    )
     llm_mode: Literal["two_phase"] | None = None
     llm_internal_mode: (
         Literal["whole_document_legacy", "whole_document_grounded"] | None
@@ -162,12 +148,6 @@ class TextProcessingRequest(BaseModel):
         ),
     )
 
-    @model_validator(mode="after")
-    def validate_llm_configuration(self) -> "TextProcessingRequest":
-        if self.extraction_backend == "llm" and not self.llm_model:
-            raise ValueError("llm_model is required when extraction_backend='llm'.")
-        return self
-
     @property
     def text_content(self) -> str:
         """Backward-compatible access for older callers."""
@@ -258,7 +238,8 @@ class TextProcessingResponseAPI(BaseModel):
             "examples": [
                 {
                     "extraction_backend": "llm",
-                    "llm_model": "gpt-5.4-mini",
+                    "llm_provider": "gemini",
+                    "llm_model": "gemini-3.1-flash-lite-preview",
                     "llm_mode": "two_phase",
                     "quota_limit": 5,
                     "quota_remaining": 4,
