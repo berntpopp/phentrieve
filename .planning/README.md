@@ -27,9 +27,20 @@ execution context.
 - Read `specs/` before implementing multi-step work.
 - Use `completed/` for historical implementation patterns.
 
+## Recent Analysis
+
+- `analysis/2026-04-30-codebase-health-review.md` - current-state codebase
+  health review with scorecard, prioritized findings, and improvement roadmap.
+
 ## Current Active Work
 
-- None.
+- `active/2026-04-30-codebase-health-remediation-plan.md` - umbrella
+  implementation plan for remediating the 2026-04-30 codebase health review.
+
+## Current Specs
+
+- `specs/2026-04-30-codebase-health-remediation-design.md` - design for the
+  codebase health remediation program.
 
 ## Recently Completed
 
