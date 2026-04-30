@@ -29,6 +29,9 @@ from phentrieve.llm.pipeline_phase1 import (
     clean_text as _clean_text,
 )
 from phentrieve.llm.pipeline_phase1 import (
+    expand_combined_phase1_extractions as _expand_combined_phase1_extractions,
+)
+from phentrieve.llm.pipeline_phase1 import (
     merge_optional_bounds as _merge_optional_bounds,
 )
 from phentrieve.llm.pipeline_phase1 import (
@@ -192,6 +195,7 @@ class TwoPhaseLLMPipeline:
         phase1_elapsed = 0.0
         phase1_carried_groups_trace: list[dict[str, Any]] = []
         phase1_carried_extracted: list[dict[str, Any]] = []
+        extracted: list[dict[str, Any]] = []
         current_phase1_mode = phase1_initial_mode
         current_grounded_chunks = list(grounded_chunks)
         current_extraction_groups = list(extraction_groups)
@@ -328,6 +332,9 @@ class TwoPhaseLLMPipeline:
             "Phase 1 anchor resolution: extracted=%d anchored=%d",
             len(extracted),
             sum(1 for item in extracted if item.get("chunk_ids")),
+        )
+        extracted = self._deduplicate_phase1_extractions(
+            _expand_combined_phase1_extractions(extracted)
         )
         actionable = [
             item

@@ -12,6 +12,32 @@ UNIT_TOKEN_PATTERN = re.compile(
 )
 
 ACTIONABLE_CATEGORIES = frozenset({"abnormal", "normal", "suspected", "family_history"})
+SHARED_HEAD_MODIFIERS = frozenset(
+    {
+        "brainstem",
+        "cerebellar",
+        "cerebral",
+        "cortical",
+        "pontine",
+    }
+)
+SHARED_HEAD_NOUNS = frozenset(
+    {
+        "agenesis",
+        "atrophy",
+        "dysplasia",
+        "hypoplasia",
+        "malformation",
+    }
+)
+SLASH_COMBINED_PHRASE_PATTERN = re.compile(r"^([^/\s][^/]*)/([^/\s][^/]*)$")
+SHARED_HEAD_PHRASE_PATTERN = re.compile(
+    r"^(?P<first>[a-z][a-z-]*)\s+(?P<second>[a-z][a-z-]*)\s+(?P<head>[a-z][a-z-]*)$",
+    re.IGNORECASE,
+)
+PHENOTYPE_ABBREVIATIONS = {
+    "xlid": "X-linked intellectual disability",
+}
 
 
 def normalize_category(category: str) -> str:
@@ -202,6 +228,76 @@ def merge_optional_bounds(
     if incoming is None:
         return current
     return min(current, incoming) if pick == "min" else max(current, incoming)
+
+
+def _clone_split_phase1_item(item: dict[str, Any], phrase: str) -> dict[str, Any]:
+    split_item = dict(item)
+    split_item["phrase"] = phrase
+    split_item["evidence_text"] = phrase
+    split_item["start_char"] = None
+    split_item["end_char"] = None
+    return split_item
+
+
+def _split_slash_combined_phrase(phrase: str) -> list[str]:
+    match = SLASH_COMBINED_PHRASE_PATTERN.match(phrase.strip())
+    if not match:
+        return []
+    left = match.group(1).strip()
+    right = match.group(2).strip()
+    if not left or not right:
+        return []
+    return [left, right]
+
+
+def _split_shared_head_phrase(phrase: str) -> list[str]:
+    match = SHARED_HEAD_PHRASE_PATTERN.match(clean_text(phrase))
+    if not match:
+        return []
+    first = match.group("first")
+    second = match.group("second")
+    head = match.group("head")
+    if (
+        first not in SHARED_HEAD_MODIFIERS
+        or second not in SHARED_HEAD_MODIFIERS
+        or head not in SHARED_HEAD_NOUNS
+    ):
+        return []
+    return [f"{first} {head}", f"{second} {head}"]
+
+
+def split_combined_phase1_phrase(phrase: str) -> list[str]:
+    """Split clear combined phenotype mentions into standalone source phrases."""
+    expanded_abbreviation = PHENOTYPE_ABBREVIATIONS.get(phrase.strip().lower())
+    if expanded_abbreviation:
+        return [expanded_abbreviation]
+    slash_split = _split_slash_combined_phrase(phrase)
+    if slash_split:
+        return slash_split
+    return _split_shared_head_phrase(phrase)
+
+
+def expand_combined_phase1_extractions(
+    extracted: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    expanded: list[dict[str, Any]] = []
+    for item in extracted:
+        phrase = str(item.get("phrase", "")).strip()
+        expanded_abbreviation = PHENOTYPE_ABBREVIATIONS.get(phrase.lower())
+        if expanded_abbreviation:
+            expanded_item = dict(item)
+            expanded_item["phrase"] = expanded_abbreviation
+            expanded.append(expanded_item)
+            continue
+        split_phrases = split_combined_phase1_phrase(phrase)
+        if not split_phrases:
+            expanded.append(dict(item))
+            continue
+        expanded.extend(
+            _clone_split_phase1_item(item, split_phrase)
+            for split_phrase in split_phrases
+        )
+    return expanded
 
 
 def spans_overlap(
