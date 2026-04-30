@@ -27,22 +27,12 @@ execution context.
 - Read `specs/` before implementing multi-step work.
 - Use `completed/` for historical implementation patterns.
 
-## Recent Analysis
-
-- `analysis/2026-04-29-eu-ai-act-research-use-review.md` - EU AI Act
-  research-use posture review for Phentrieve documentation, UI, API, deployment,
-  and open-source/public-service positioning.
-
 ## Current Active Work
 
-- `active/2026-04-30-local-browser-pii-guard-implementation-plan.md` -
-  implementation plan for GitHub issue #249, covering local browser-side PII
-  detection and redaction before Query and Full Text submissions.
+- None.
 
 ## Recently Completed
 
-- `specs/2026-04-17-ontology-embedding-fidelity-design.md` - canonical design
-  input for the completed ontology-embedding fidelity work.
 - `completed/2026-04-17-ontology-embedding-fidelity-implementation-plan.md` -
   standalone embedding-vs-HPO-DAG fidelity analysis script (issue #34).
 - `completed/2026-04-29-eu-ai-act-research-use-compliance-plan.md` -
@@ -51,6 +41,10 @@ execution context.
   modern MCP HTTP facade implementation (PR #247).
 - `completed/2026-04-30-prompt-injection-guards-implementation-plan.md` -
   public LLM prompt-injection guard implementation (PR #250).
+- `completed/2026-04-30-local-browser-pii-guard-implementation-plan.md` -
+  browser-side PII warning and redaction gate implementation (PR #252).
+- `completed/2026-04-30-untitled-local-person-name-pii-implementation-plan.md` -
+  configurable untitled person-name PII detection follow-up (PR #252).
 
 ## Migration Note
 

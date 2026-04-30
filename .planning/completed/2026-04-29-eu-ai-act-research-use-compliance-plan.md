@@ -50,7 +50,7 @@ Modify:
 - `frontend/src/stores/disclaimer.js` - Version disclaimer acknowledgement so changed terms are shown again.
 - `frontend/src/services/PhentrieveService.js` - Send hosted research-use acknowledgement header when user accepted the current disclaimer.
 - `SECURITY.md` - Strengthen PHI/PII statement and link privacy notice.
-- `.planning/analysis/2026-04-29-eu-ai-act-research-use-review.md` - Add completion links after implementation.
+- `.planning/archived/2026-04-29-eu-ai-act-research-use-review.md` - Add completion links after implementation.
 
 ## Compliance Configuration
 

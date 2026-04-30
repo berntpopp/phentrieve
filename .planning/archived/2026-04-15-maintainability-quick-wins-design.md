@@ -10,7 +10,7 @@
 
 ## Context
 
-The maintainability review in `.planning/analysis/CODEBASE-MAINTAINABILITY-REVIEW-2026-04-15.md` identified two distinct classes of work:
+The maintainability review in `.planning/archived/CODEBASE-MAINTAINABILITY-REVIEW-2026-04-15.md` identified two distinct classes of work:
 
 1. Large structural refactors with high eventual payoff but higher coupling and execution risk.
 2. Small trust-restoring fixes that improve maintainability immediately and can be executed in parallel.

@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Spec:** [`.planning/specs/2026-04-17-ontology-embedding-fidelity-design.md`](../specs/2026-04-17-ontology-embedding-fidelity-design.md) (commit `1bb3326`)
+**Spec:** [`.planning/archived/2026-04-17-ontology-embedding-fidelity-design.md`](../archived/2026-04-17-ontology-embedding-fidelity-design.md) (commit `1bb3326`)
 **Issue:** [#34](https://github.com/berntpopp/phentrieve/issues/34)
 **Branch:** `feat/ontology-embedding-fidelity` (in a git worktree at `~/worktrees/phentrieve-ontology-fidelity/`)
 
@@ -1715,7 +1715,7 @@ metrics and produces five plots in a timestamped output directory.
 Run `python scripts/analyze_embedding_ontology.py --help` for usage.
 
 This is a standalone research script — intentionally not exposed via the
-`phentrieve` CLI. See .planning/specs/2026-04-17-ontology-embedding-fidelity-design.md
+`phentrieve` CLI. See .planning/archived/2026-04-17-ontology-embedding-fidelity-design.md
 for the full contract.
 """
 
@@ -2842,7 +2842,7 @@ Full flag set: see `--help`.
 | `distance_correlation.png` | Hexbin of embedding cosine vs graph distance (two panels). |
 | `branch_fidelity.png` | Per-branch mean fidelity bar chart. |
 
-See [`.planning/specs/2026-04-17-ontology-embedding-fidelity-design.md`](../.planning/specs/2026-04-17-ontology-embedding-fidelity-design.md)
+See [`.planning/archived/2026-04-17-ontology-embedding-fidelity-design.md`](../archived/2026-04-17-ontology-embedding-fidelity-design.md)
 for the full contract and metric definitions.
 ```
 
@@ -2898,7 +2898,7 @@ Expected: ~14 atomic commits, one per task (Tasks 1–3 combined into the scaffo
 git push -u origin feat/ontology-embedding-fidelity
 gh pr create --title "feat: ontology–embedding fidelity analysis script" --body "$(cat <<'EOF'
 ## Summary
-Implements the spec at `.planning/specs/2026-04-17-ontology-embedding-fidelity-design.md` (commit 1bb3326).
+Implements the spec at `.planning/archived/2026-04-17-ontology-embedding-fidelity-design.md` (commit 1bb3326).
 
 Ships a standalone research script `scripts/analyze_embedding_ontology.py` that:
 - Loads BioLORD-2023-M embeddings once from ChromaDB (cached to `.npy`).

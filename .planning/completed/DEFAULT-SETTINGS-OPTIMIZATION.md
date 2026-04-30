@@ -4,7 +4,7 @@
 **Date:** 2025-12-10
 **Completed:** 2025-12-10
 **PR:** #141
-**Related Analysis:** `.planning/archived/EXTRACTION-BENCHMARK-ACTION-PLAN.md`, `.planning/analysis/EXTRACTION-BENCHMARK-DEEP-ANALYSIS.md`
+**Related Analysis:** `.planning/archived/EXTRACTION-BENCHMARK-ACTION-PLAN.md`, `.planning/archived/EXTRACTION-BENCHMARK-DEEP-ANALYSIS.md`
 **Priority:** High
 **Design Principles:** DRY, KISS, SOLID, Modularization
 

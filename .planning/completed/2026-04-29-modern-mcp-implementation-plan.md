@@ -1831,12 +1831,12 @@ Expected:
 
 - [x] **Step 5: Commit verification notes**
 
-Create `.planning/analysis/2026-04-29-modern-mcp-verification.md` with the exact commands run and outcomes.
+Create `.planning/archived/2026-04-29-modern-mcp-verification.md` with the exact commands run and outcomes.
 
 Commit:
 
 ```bash
-git add .planning/analysis/2026-04-29-modern-mcp-verification.md
+git add .planning/archived/2026-04-29-modern-mcp-verification.md
 git commit -m "test: record modern mcp verification"
 ```
 

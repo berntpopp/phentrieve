@@ -1566,7 +1566,7 @@ Users should review and remove identifiers before submitting research text.
 In `.planning/README.md`, add under `Current Active Work`:
 
 ```markdown
-- `active/2026-04-30-local-browser-pii-guard-implementation-plan.md` -
+- `completed/2026-04-30-local-browser-pii-guard-implementation-plan.md` -
   implementation plan for GitHub issue #249, covering local browser-side PII
   detection and redaction before Query and Full Text submissions.
 ```
@@ -1667,7 +1667,7 @@ Expected: commit succeeds. If no fixes were needed, skip this step.
 
 ## Execution Options
 
-Plan complete and saved to `.planning/active/2026-04-30-local-browser-pii-guard-implementation-plan.md`.
+Plan complete and saved to `.planning/completed/2026-04-30-local-browser-pii-guard-implementation-plan.md`.
 
 1. **Subagent-Driven (recommended)** - dispatch a fresh subagent per task, review between tasks, fast iteration.
 2. **Inline Execution** - execute tasks in this session using executing-plans, batch execution with checkpoints.

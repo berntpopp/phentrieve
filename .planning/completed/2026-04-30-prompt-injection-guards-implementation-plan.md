@@ -12,7 +12,7 @@
 
 ## Reviewed Inputs
 
-- Spec: `.planning/specs/2026-04-30-prompt-injection-guards-design.md`
+- Spec: `.planning/archived/2026-04-30-prompt-injection-guards-design.md`
 - GitHub issue: https://github.com/berntpopp/phentrieve/issues/248
 - OWASP LLM01 and OWASP prompt-injection cheat sheet: layered controls, least privilege, structured prompts, output validation.
 - OpenAI agent safety guidance: prompt injection is untrusted data attempting to override instructions; use structured outputs and constrained data flow.
