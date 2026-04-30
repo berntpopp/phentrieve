@@ -43,6 +43,21 @@ const i18n = createI18n({
   missing: () => '',
 });
 
+Object.defineProperty(window, 'visualViewport', {
+  configurable: true,
+  value: {
+    width: 1024,
+    height: 768,
+    offsetLeft: 0,
+    offsetTop: 0,
+    pageLeft: 0,
+    pageTop: 0,
+    scale: 1,
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+  },
+});
+
 async function mountQueryInterface({
   routeQuery = {},
   routerReplace = vi.fn().mockResolvedValue(undefined),
@@ -967,5 +982,102 @@ describe('QueryInterface (characterization)', () => {
     const mark = wrapper.get('[data-testid="annotated-note-span"]');
     expect(mark.classes()).toContain('annotated-note-span');
     expect(mark.attributes('style') || '').not.toContain('padding');
+  });
+
+  it('opens PII review before query-mode network submission', async () => {
+    const wrapper = await mountQueryInterface();
+    await flushPromises();
+
+    await setVmState(wrapper, {
+      queryText: 'MRN: AB-123456 with seizures',
+      forceEndpointMode: 'query',
+    });
+
+    await wrapper.vm.submitQuery();
+    await wrapper.vm.$nextTick();
+
+    expect(PhentrieveService.queryHpo).not.toHaveBeenCalled();
+    expect(wrapper.vm.conversationStore.queryHistory).toHaveLength(0);
+    expect(wrapper.findComponent({ name: 'PiiReviewDialog' }).exists()).toBe(true);
+    expect(wrapper.vm.piiReviewDialogVisible).toBe(true);
+  });
+
+  it('opens PII review before full-text network submission', async () => {
+    const wrapper = await mountQueryInterface();
+    await flushPromises();
+
+    await setVmState(wrapper, {
+      queryText: 'DOB: 12/03/1980. Patient had seizures.',
+      forceEndpointMode: 'textProcess',
+    });
+
+    await wrapper.vm.submitQuery();
+    await wrapper.vm.$nextTick();
+
+    expect(PhentrieveService.processText).not.toHaveBeenCalled();
+    expect(wrapper.vm.conversationStore.queryHistory).toHaveLength(0);
+    expect(wrapper.vm.piiReviewDialogVisible).toBe(true);
+  });
+
+  it('clears autoSubmit from the URL when manual submission opens PII review', async () => {
+    const routerReplace = vi.fn().mockResolvedValue(undefined);
+    const wrapper = await mountQueryInterface({
+      routeQuery: {
+        autoSubmit: 'true',
+        model: 'test-model',
+      },
+      routerReplace,
+    });
+    await flushPromises();
+
+    await setVmState(wrapper, {
+      queryText: 'MRN: AB-123456 with seizures',
+      forceEndpointMode: 'query',
+    });
+
+    await wrapper.vm.submitQuery();
+    await flushPromises();
+
+    expect(routerReplace).toHaveBeenCalledWith({
+      query: {
+        model: 'test-model',
+      },
+    });
+    expect(PhentrieveService.queryHpo).not.toHaveBeenCalled();
+  });
+
+  it('continues with local redaction and submits redacted query text', async () => {
+    const wrapper = await mountQueryInterface();
+    await flushPromises();
+
+    await setVmState(wrapper, {
+      queryText: 'MRN: AB-123456 with seizures',
+      forceEndpointMode: 'query',
+    });
+
+    await wrapper.vm.submitQuery();
+    await wrapper.vm.continueWithPiiRedaction();
+
+    expect(PhentrieveService.queryHpo).toHaveBeenCalledWith(
+      expect.objectContaining({
+        text: expect.stringContaining('[REDACTED_MRN]'),
+      })
+    );
+  });
+
+  it('redacts in input without submitting', async () => {
+    const wrapper = await mountQueryInterface();
+    await flushPromises();
+
+    await setVmState(wrapper, {
+      queryText: 'Email jane@example.org and seizures',
+      forceEndpointMode: 'query',
+    });
+
+    await wrapper.vm.submitQuery();
+    await wrapper.vm.redactPiiInInput();
+
+    expect(wrapper.vm.queryText).toContain('[REDACTED_EMAIL]');
+    expect(PhentrieveService.queryHpo).not.toHaveBeenCalled();
   });
 });

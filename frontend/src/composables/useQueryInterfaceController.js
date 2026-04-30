@@ -1,3 +1,5 @@
+import { redactPiiFindings, scanPii } from '../pii';
+
 function getContextOrThrow(getContext) {
   const context = getContext?.();
 
@@ -25,6 +27,37 @@ function hasOwnQueryParam(query, key) {
   return Object.prototype.hasOwnProperty.call(query ?? {}, key);
 }
 
+function getSanitizedSubmissionLog({
+  mode,
+  text,
+  latestState,
+  piiScanResult = null,
+  redactionApplied = false,
+}) {
+  return {
+    mode,
+    textLength: String(text ?? '').length,
+    selectedLanguage: latestState.selectedLanguage,
+    extractionBackend:
+      mode === 'textProcess' ? latestState.textProcessOptions?.extractionBackend || null : null,
+    piiSummary: piiScanResult?.summary || { high: {}, review: {} },
+    piiRedactionApplied: redactionApplied,
+  };
+}
+
+function clearAutoSubmitQueryParamIfNeeded(context, isAutoSubmit, logService) {
+  if (!isAutoSubmit && hasOwnQueryParam(context.routeQuery, 'autoSubmit')) {
+    const newRouteQuery = { ...context.routeQuery };
+    delete newRouteQuery.autoSubmit;
+
+    Promise.resolve(context.replaceRouteQuery(newRouteQuery)).catch((error) => {
+      if (error.name !== 'NavigationDuplicated' && error.name !== 'NavigationCancelled') {
+        logService.warn('Error clearing autoSubmit from URL:', error);
+      }
+    });
+  }
+}
+
 export function useQueryInterfaceController({ getContext, service, logService }) {
   let hasAppliedInitialUrlParameters = false;
 
@@ -45,7 +78,11 @@ export function useQueryInterfaceController({ getContext, service, logService })
     const context = getContextOrThrow(getContext);
     const queryParams = context.routeQuery ?? {};
 
-    logService.debug('Raw URL query parameters:', { ...queryParams });
+    logService.debug('URL query parameters received', {
+      keys: Object.keys(queryParams),
+      hasText: hasOwnQueryParam(queryParams, 'text'),
+      textLength: String(getStringQueryValue(queryParams.text) ?? '').length,
+    });
 
     let advancedOptionsWereSet = false;
     const parseBooleanParam = (value) =>
@@ -151,18 +188,14 @@ export function useQueryInterfaceController({ getContext, service, logService })
     }
   }
 
-  async function submitQuery(isAutoSubmit = false) {
+  async function submitQueryText({
+    currentQuery,
+    useTextProcessMode,
+    isAutoSubmit,
+    piiScanResult = null,
+    redactionApplied = false,
+  }) {
     const context = getContextOrThrow(getContext);
-    const state = context.getState();
-    const queryTextTrimmed = typeof state.queryText === 'string' ? state.queryText.trim() : '';
-
-    if (!queryTextTrimmed) {
-      logService.warn('Empty query submission prevented');
-      return;
-    }
-
-    const useTextProcessMode = state.isTextProcessModeActive;
-    const currentQuery = queryTextTrimmed;
 
     context.setState({
       isLoading: true,
@@ -187,6 +220,13 @@ export function useQueryInterfaceController({ getContext, service, logService })
     try {
       let response;
       const latestState = context.getState();
+      const sanitizedLog = getSanitizedSubmissionLog({
+        mode: useTextProcessMode ? 'textProcess' : 'query',
+        text: currentQuery,
+        latestState,
+        piiScanResult,
+        redactionApplied,
+      });
 
       if (useTextProcessMode) {
         const textProcessData = {
@@ -213,7 +253,7 @@ export function useQueryInterfaceController({ getContext, service, logService })
           topTermPerChunkForAggregation: latestState.topTermPerChunkForAggregation,
           includeDetails: latestState.includeDetails,
         };
-        logService.info('Sending to /text/process API', textProcessData);
+        logService.info('Sending to /text/process API', sanitizedLog);
         response = await service.processText(textProcessData);
       } else {
         const queryData = {
@@ -226,7 +266,7 @@ export function useQueryInterfaceController({ getContext, service, logService })
           detect_query_assertion: true,
           include_details: latestState.includeDetails,
         };
-        logService.info('Sending to /query API', queryData);
+        logService.info('Sending to /query API', sanitizedLog);
         response = await service.queryHpo(queryData);
       }
 
@@ -241,18 +281,92 @@ export function useQueryInterfaceController({ getContext, service, logService })
       logService.error('Error submitting query/processing text', error);
     } finally {
       context.setState({ isLoading: false });
-
-      if (!isAutoSubmit && hasOwnQueryParam(context.routeQuery, 'autoSubmit')) {
-        const newRouteQuery = { ...context.routeQuery };
-        delete newRouteQuery.autoSubmit;
-
-        Promise.resolve(context.replaceRouteQuery(newRouteQuery)).catch((error) => {
-          if (error.name !== 'NavigationDuplicated' && error.name !== 'NavigationCancelled') {
-            logService.warn('Error clearing autoSubmit from URL:', error);
-          }
-        });
-      }
+      clearAutoSubmitQueryParamIfNeeded(context, isAutoSubmit, logService);
     }
+  }
+
+  async function submitQuery(isAutoSubmit = false) {
+    const context = getContextOrThrow(getContext);
+    const state = context.getState();
+    const queryTextTrimmed = typeof state.queryText === 'string' ? state.queryText.trim() : '';
+
+    if (!queryTextTrimmed) {
+      logService.warn('Empty query submission prevented');
+      return;
+    }
+
+    const useTextProcessMode = state.isTextProcessModeActive;
+    const piiScanResult = scanPii(queryTextTrimmed, { locale: state.selectedLanguage || 'en' });
+
+    if (piiScanResult.hasFindings) {
+      const pendingSubmission = {
+        text: queryTextTrimmed,
+        useTextProcessMode,
+        isAutoSubmit,
+        scanResult: piiScanResult,
+      };
+      context.openPiiReview(pendingSubmission);
+      clearAutoSubmitQueryParamIfNeeded(context, isAutoSubmit, logService);
+      logService.info('PII review required before submission', {
+        mode: useTextProcessMode ? 'textProcess' : 'query',
+        textLength: queryTextTrimmed.length,
+        piiSummary: piiScanResult.summary,
+      });
+      return;
+    }
+
+    await submitQueryText({
+      currentQuery: queryTextTrimmed,
+      useTextProcessMode,
+      isAutoSubmit,
+      piiScanResult,
+      redactionApplied: false,
+    });
+  }
+
+  async function continueWithPiiRedaction() {
+    const context = getContextOrThrow(getContext);
+    const pending = context.getState().pendingPiiSubmission;
+
+    if (!pending) {
+      return;
+    }
+
+    const redaction = redactPiiFindings(pending.text, pending.scanResult.findings, {
+      includeReviewFindings: false,
+    });
+
+    context.setState({
+      piiReviewDialogVisible: false,
+      pendingPiiSubmission: null,
+    });
+
+    await submitQueryText({
+      currentQuery: redaction.text,
+      useTextProcessMode: pending.useTextProcessMode,
+      isAutoSubmit: pending.isAutoSubmit,
+      piiScanResult: pending.scanResult,
+      redactionApplied: redaction.changed,
+    });
+  }
+
+  function redactPiiInInput() {
+    const context = getContextOrThrow(getContext);
+    const pending = context.getState().pendingPiiSubmission;
+
+    if (!pending) {
+      return;
+    }
+
+    const redaction = redactPiiFindings(pending.text, pending.scanResult.findings, {
+      includeReviewFindings: true,
+    });
+
+    context.setState({
+      queryText: redaction.text,
+      piiReviewDialogVisible: false,
+      pendingPiiSubmission: null,
+    });
   }
 
   return {
@@ -260,5 +374,7 @@ export function useQueryInterfaceController({ getContext, service, logService })
     setFallbackModel,
     applyUrlParametersAndAutoSubmit,
     submitQuery,
+    continueWithPiiRedaction,
+    redactPiiInInput,
   };
 }

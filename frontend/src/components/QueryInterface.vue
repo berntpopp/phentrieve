@@ -347,6 +347,14 @@
       @clear="clearPhenotypeCollection"
     />
 
+    <PiiReviewDialog
+      v-model="piiReviewDialogVisible"
+      :summary="pendingPiiSubmission?.scanResult?.summary || { high: {}, review: {} }"
+      @cancel="cancelPiiReview"
+      @redact="redactPiiInInput"
+      @continue="continueWithPiiRedaction"
+    />
+
     <v-snackbar
       v-model="exportErrorVisible"
       color="error"
@@ -371,6 +379,7 @@ import ConversationSkeleton from './ConversationSkeleton.vue';
 import AdvancedOptionsPanel from './AdvancedOptionsPanel.vue';
 import PhenotypeCollectionPanel from './PhenotypeCollectionPanel.vue';
 import FullTextResponseReceipt from './FullTextResponseReceipt.vue';
+import PiiReviewDialog from './PiiReviewDialog.vue';
 import PhentrieveService from '../services/PhentrieveService';
 import { logService } from '../services/logService';
 import { useQueryPreferencesStore } from '../stores/queryPreferences';
@@ -400,6 +409,7 @@ export default {
     AdvancedOptionsPanel,
     PhenotypeCollectionPanel,
     FullTextResponseReceipt,
+    PiiReviewDialog,
   },
   setup() {
     const instance = getCurrentInstance();
@@ -476,10 +486,15 @@ export default {
               topTermPerChunkForAggregation: vm.topTermPerChunkForAggregation,
               includeDetails: vm.includeDetails,
               numResults: vm.numResults,
+              pendingPiiSubmission: vm.pendingPiiSubmission,
             };
           },
           setState(patch) {
             Object.assign(vm, patch);
+          },
+          openPiiReview(pendingSubmission) {
+            vm.pendingPiiSubmission = pendingSubmission;
+            vm.piiReviewDialogVisible = true;
           },
           setExpandedUserNote(turnId, expanded) {
             vm.expandedUserNotes = {
@@ -568,6 +583,8 @@ export default {
       exportErrorVisible: false,
       exportErrorMessage: '',
       hoveredTextProcessPhenotypes: {},
+      piiReviewDialogVisible: false,
+      pendingPiiSubmission: null,
     };
   },
   computed: {
@@ -805,6 +822,16 @@ export default {
     },
     async submitQuery(isAutoSubmit = false) {
       return this.queryInterfaceController.submitQuery(isAutoSubmit);
+    },
+    cancelPiiReview() {
+      this.piiReviewDialogVisible = false;
+      this.pendingPiiSubmission = null;
+    },
+    redactPiiInInput() {
+      return this.queryInterfaceController.redactPiiInInput();
+    },
+    continueWithPiiRedaction() {
+      return this.queryInterfaceController.continueWithPiiRedaction();
     },
   },
 };
