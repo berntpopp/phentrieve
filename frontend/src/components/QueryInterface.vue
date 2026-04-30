@@ -2,145 +2,28 @@
   <div class="search-container mx-auto px-2">
     <!-- Clean Search Bar with Integrated Button -->
     <div class="search-bar-container pt-0 px-2 pb-2 pa-sm-3">
-      <v-sheet
-        rounded="xl"
-        elevation="0"
-        :class="[
-          'search-bar',
-          isTextProcessModeActive ? 'search-bar--text-process' : 'search-bar--query',
-        ]"
-        color="white"
-      >
-        <div
-          :class="[
-            'search-shell',
-            'd-flex',
-            'flex-wrap',
-            'flex-sm-nowrap',
-            isTextProcessModeActive ? 'search-shell--text-process' : 'align-center',
-          ]"
-        >
-          <v-textarea
-            v-if="isTextProcessModeActive"
-            v-model="queryText"
-            density="comfortable"
-            variant="outlined"
-            hide-details
-            class="search-input search-input--text-process ml-2 ml-sm-3 flex-grow-1"
-            :disabled="isLoading"
-            bg-color="white"
-            color="primary"
-            rows="3"
-            auto-grow
-            clearable
-            placeholder="Paste or type a clinical note"
-            :aria-label="$t('queryInterface.accessibility.textProcessInputLabel')"
-            :aria-description="getTextProcessInputDescription()"
-            @keydown.enter.prevent="!isLoading && queryText.trim() ? submitQuery() : null"
-          >
-            <template #label>
-              <span class="text-high-emphasis">Clinical note</span>
-            </template>
-          </v-textarea>
-          <v-text-field
-            v-else
-            ref="queryInput"
-            v-model="queryText"
-            density="comfortable"
-            variant="outlined"
-            hide-details
-            class="search-input search-input--query ml-2 ml-sm-3 flex-grow-1"
-            :disabled="isLoading"
-            bg-color="white"
-            color="primary"
-            clearable
-            :aria-label="$t('queryInterface.accessibility.queryInputLabel')"
-            :aria-description="getQueryInputDescription()"
-            @keydown.enter.prevent="!isLoading && queryText.trim() ? submitQuery() : null"
-          >
-            <template #label>
-              <span class="text-high-emphasis">Phenotype query</span>
-            </template>
-          </v-text-field>
+      <QueryForm
+        v-model="queryText"
+        :is-text-process-mode-active="isTextProcessModeActive"
+        :is-loading="isLoading"
+        :query-input-label="$t('queryInterface.accessibility.queryInputLabel')"
+        :query-input-description="getQueryInputDescription()"
+        :text-process-input-label="$t('queryInterface.accessibility.textProcessInputLabel')"
+        :text-process-input-description="getTextProcessInputDescription()"
+        :search-button-label="$t('queryInterface.accessibility.searchButton')"
+        @submit="submitQuery"
+      />
 
-          <div
-            :class="[
-              'search-action',
-              'd-flex',
-              'align-center',
-              isTextProcessModeActive ? 'search-action--overlay' : null,
-            ]"
-          >
-            <v-btn
-              ref="searchButton"
-              color="primary"
-              variant="text"
-              icon
-              rounded="circle"
-              :loading="isLoading"
-              :disabled="!queryText.trim()"
-              class="search-submit-button"
-              :aria-label="$t('queryInterface.accessibility.searchButton')"
-              size="small"
-              data-tutorial-step="search-button"
-              @click="submitQuery"
-            >
-              <v-icon>mdi-magnify</v-icon>
-            </v-btn>
-          </div>
-        </div>
-      </v-sheet>
-
-      <div class="search-controls-row d-flex justify-end mt-2">
-        <div class="search-controls-group d-flex align-center flex-wrap justify-end ga-2">
-          <div class="mode-switch" role="group" aria-label="Search mode switch">
-            <v-btn
-              data-testid="mode-pill-query"
-              size="small"
-              rounded="pill"
-              :variant="!isTextProcessModeActive ? 'tonal' : 'text'"
-              :color="!isTextProcessModeActive ? 'primary' : 'default'"
-              class="mode-switch__pill"
-              @click="setMode('query')"
-            >
-              <v-icon start size="small">mdi-magnify</v-icon>
-              Query
-            </v-btn>
-            <v-btn
-              data-testid="mode-pill-text-process"
-              size="small"
-              rounded="pill"
-              :variant="isTextProcessModeActive ? 'tonal' : 'text'"
-              :color="isTextProcessModeActive ? 'primary' : 'default'"
-              class="mode-switch__pill"
-              @click="setMode('textProcess')"
-            >
-              <v-icon start size="small">mdi-file-document-outline</v-icon>
-              Full Text
-            </v-btn>
-          </div>
-
-          <v-btn
-            data-testid="search-settings-button"
-            size="small"
-            rounded="pill"
-            variant="text"
-            color="primary"
-            class="search-controls-row__settings"
-            :disabled="isLoading"
-            :aria-label="getAdvancedOptionsToggleLabel()"
-            :aria-expanded="showAdvancedOptions.toString()"
-            aria-controls="advanced-options-panel"
-            data-tutorial-step="advanced-options"
-            @click="showAdvancedOptions = !showAdvancedOptions"
-          >
-            <v-icon start size="small">
-              {{ showAdvancedOptions ? 'mdi-cog-outline' : 'mdi-tune-variant' }}
-            </v-icon>
-            Settings
-          </v-btn>
-        </div>
-      </div>
+      <QueryModeControls
+        :is-text-process-mode-active="isTextProcessModeActive"
+        :is-loading="isLoading"
+        :show-advanced-options="showAdvancedOptions"
+        :advanced-options-toggle-label="getAdvancedOptionsToggleLabel()"
+        :show-auto-switch-notice="showAutoSwitchNotice"
+        :auto-switch-notice-label="getAutoSwitchNoticeLabel()"
+        @set-mode="setMode"
+        @toggle-advanced="showAdvancedOptions = !showAdvancedOptions"
+      />
 
       <!-- Advanced Options Panel -->
       <AdvancedOptionsPanel
@@ -168,14 +51,6 @@
         :available-languages="availableLanguages"
         :is-text-process-mode-active="isTextProcessModeActive"
       />
-
-      <div
-        v-if="showAutoSwitchNotice"
-        data-testid="mode-auto-switch-notice"
-        class="mode-switch-notice px-3 pt-2"
-      >
-        {{ getAutoSwitchNoticeLabel() }}
-      </div>
     </div>
 
     <!-- Chat-like conversation interface -->
@@ -206,70 +81,16 @@
               "
             >
               <template v-if="item.type === 'textProcess'">
-                <div data-testid="user-note-summary" class="user-note-summary">
-                  <div class="user-note-summary__header">
-                    <v-icon size="small" color="primary">mdi-file-document-outline</v-icon>
-                    <span class="text-body-2 font-weight-medium">Clinical note</span>
-                    <span class="text-caption text-medium-emphasis">
-                      {{ formatDocumentSummaryMeta(item.query) }}
-                    </span>
-                    <v-btn
-                      data-testid="user-note-summary-toggle"
-                      size="x-small"
-                      variant="text"
-                      icon
-                      @click="toggleUserNote(item.id)"
-                    >
-                      <v-icon size="small">
-                        {{ isUserNoteExpanded(item.id) ? 'mdi-chevron-up' : 'mdi-chevron-down' }}
-                      </v-icon>
-                    </v-btn>
-                  </div>
-                  <p
-                    v-if="!isUserNoteExpanded(item.id)"
-                    class="mb-0 text-body-2 text-medium-emphasis user-note-summary__preview"
-                  >
-                    {{ summarizeDocumentQuery(item.query) }}
-                  </p>
-                  <div
-                    v-if="isUserNoteExpanded(item.id)"
-                    data-testid="user-note-expanded"
-                    class="user-note-summary__expanded"
-                  >
-                    <span v-for="segment in buildUserNoteSegments(item)" :key="segment.key">
-                      <v-tooltip
-                        v-if="segment.highlighted"
-                        location="top"
-                        :open-delay="180"
-                        max-width="280"
-                        content-class="annotated-note-tooltip"
-                        :content-props="{ 'aria-label': segment.tooltip }"
-                      >
-                        <template #activator="{ props }">
-                          <mark
-                            v-bind="props"
-                            data-testid="annotated-note-span"
-                            class="annotated-note-span"
-                            :class="{
-                              'annotated-note-span--active':
-                                getHoveredNotePhenotype(item.id) &&
-                                segment.termIds.includes(getHoveredNotePhenotype(item.id)),
-                            }"
-                            @mouseenter="handleAnnotatedTextHover(item.id, segment.termIds)"
-                            @mouseleave="clearHoveredNotePhenotype(item.id)"
-                          >
-                            {{ segment.text }}
-                          </mark>
-                        </template>
-                        <div class="annotated-note-tooltip__content">
-                          <div class="annotated-note-tooltip__eyebrow">Linked phenotype</div>
-                          <div class="annotated-note-tooltip__label">{{ segment.tooltip }}</div>
-                        </div>
-                      </v-tooltip>
-                      <span v-else>{{ segment.text }}</span>
-                    </span>
-                  </div>
-                </div>
+                <FullTextWorkspace
+                  :summary="summarizeDocumentQuery(item.query)"
+                  :meta="formatDocumentSummaryMeta(item.query)"
+                  :expanded="isUserNoteExpanded(item.id)"
+                  :segments="buildUserNoteSegments(item)"
+                  :active-phenotype-id="getHoveredNotePhenotype(item.id)"
+                  @toggle="toggleUserNote(item.id)"
+                  @hover="handleAnnotatedTextHover(item.id, $event)"
+                  @clear-hover="clearHoveredNotePhenotype(item.id)"
+                />
               </template>
               <p v-else class="mb-0" style="white-space: pre-wrap">
                 {{ item.query }}
@@ -330,14 +151,16 @@
       </template>
     </div>
 
-    <!-- Phenotype Collection Panel -->
-    <PhenotypeCollectionPanel
+    <QueryResultActions
       v-model:subject-id="phenopacketSubjectId"
       v-model:sex="phenopacketSex"
       v-model:date-of-birth="phenopacketDateOfBirth"
+      v-model:export-error-visible="exportErrorVisible"
       :phenotypes="conversationStore.collectedPhenotypes"
       :panel-open="conversationStore.showCollectionPanel"
       :sex-options="sexOptions"
+      :export-error-message="exportErrorMessage"
+      :dismiss-label="$t('common.dismiss')"
       @toggle-panel="toggleCollectionPanel"
       @update:panel-open="conversationStore.showCollectionPanel = $event"
       @remove="removePhenotype"
@@ -354,21 +177,6 @@
       @redact="redactPiiInInput"
       @continue="continueWithPiiRedaction"
     />
-
-    <v-snackbar
-      v-model="exportErrorVisible"
-      color="error"
-      location="bottom"
-      timeout="6000"
-      role="alert"
-    >
-      {{ exportErrorMessage }}
-      <template #actions>
-        <v-btn variant="text" @click="exportErrorVisible = false">
-          {{ $t('common.dismiss') }}
-        </v-btn>
-      </template>
-    </v-snackbar>
   </div>
 </template>
 
@@ -377,9 +185,12 @@ import { getCurrentInstance } from 'vue';
 import ResultsDisplay from './ResultsDisplay.vue';
 import ConversationSkeleton from './ConversationSkeleton.vue';
 import AdvancedOptionsPanel from './AdvancedOptionsPanel.vue';
-import PhenotypeCollectionPanel from './PhenotypeCollectionPanel.vue';
 import FullTextResponseReceipt from './FullTextResponseReceipt.vue';
 import PiiReviewDialog from './PiiReviewDialog.vue';
+import QueryForm from './query/QueryForm.vue';
+import FullTextWorkspace from './query/FullTextWorkspace.vue';
+import QueryModeControls from './query/QueryModeControls.vue';
+import QueryResultActions from './query/QueryResultActions.vue';
 import PhentrieveService from '../services/PhentrieveService';
 import { logService } from '../services/logService';
 import { useQueryPreferencesStore } from '../stores/queryPreferences';
@@ -388,6 +199,7 @@ import { useFullTextWorkspaceStore } from '../stores/fullTextWorkspace';
 import { useAdvancedOptions } from '../composables/useAdvancedOptions';
 import { usePhenotypeCollection } from '../composables/usePhenotypeCollection';
 import { useQueryInterfaceController } from '../composables/useQueryInterfaceController';
+import { usePiiReviewFlow } from '../composables/usePiiReviewFlow';
 import {
   buildUserNoteSegments as deriveUserNoteSegments,
   formatDocumentSummaryMeta as summarizeUserNoteMeta,
@@ -407,14 +219,18 @@ export default {
     ResultsDisplay,
     ConversationSkeleton,
     AdvancedOptionsPanel,
-    PhenotypeCollectionPanel,
     FullTextResponseReceipt,
     PiiReviewDialog,
+    QueryForm,
+    FullTextWorkspace,
+    QueryModeControls,
+    QueryResultActions,
   },
   setup() {
     const instance = getCurrentInstance();
     const conversationStore = useConversationStore();
     const fullTextWorkspaceStore = useFullTextWorkspaceStore();
+    const piiReviewFlow = usePiiReviewFlow({ logService });
 
     const {
       showAdvancedOptions,
@@ -492,16 +308,13 @@ export default {
           setState(patch) {
             Object.assign(vm, patch);
           },
-          openPiiReview(pendingSubmission) {
-            vm.pendingPiiSubmission = pendingSubmission;
-            vm.piiReviewDialogVisible = true;
-          },
           setExpandedUserNote(turnId, expanded) {
             vm.expandedUserNotes = {
               ...vm.expandedUserNotes,
               [turnId]: expanded,
             };
           },
+          piiReviewFlow,
           conversationStore: vm.conversationStore,
           fullTextWorkspaceStore: vm.fullTextWorkspaceStore,
         };
@@ -512,6 +325,9 @@ export default {
     return {
       conversationStore,
       fullTextWorkspaceStore,
+      piiReviewDialogVisible: piiReviewFlow.piiReviewDialogVisible,
+      pendingPiiSubmission: piiReviewFlow.pendingPiiSubmission,
+      piiReviewFlow,
       queryInterfaceController,
       // Advanced options
       showAdvancedOptions,
@@ -583,8 +399,6 @@ export default {
       exportErrorVisible: false,
       exportErrorMessage: '',
       hoveredTextProcessPhenotypes: {},
-      piiReviewDialogVisible: false,
-      pendingPiiSubmission: null,
     };
   },
   computed: {
@@ -824,8 +638,7 @@ export default {
       return this.queryInterfaceController.submitQuery(isAutoSubmit);
     },
     cancelPiiReview() {
-      this.piiReviewDialogVisible = false;
-      this.pendingPiiSubmission = null;
+      this.piiReviewFlow.cancelPiiReview();
     },
     redactPiiInInput() {
       return this.queryInterfaceController.redactPiiInInput();
@@ -842,180 +655,6 @@ export default {
   max-width: 900px; /* Slightly wider for comfort */
   width: 100%;
   margin-top: 0;
-}
-
-.collection-fab-position {
-  margin: 16px;
-  bottom: 72px !important; /* Increased to clear bottom menu bar */
-  right: 16px !important;
-  z-index: 1050; /* Ensure it's above navigation drawer backdrop */
-}
-
-.search-input {
-  font-size: 1rem;
-  line-height: 1.5;
-}
-
-.search-shell {
-  gap: 8px;
-}
-
-.search-shell--text-process {
-  align-items: flex-start;
-}
-
-.search-action {
-  flex-shrink: 0;
-}
-
-.search-action--overlay {
-  position: absolute;
-  top: 12px;
-  right: 14px;
-  z-index: 1;
-}
-
-.search-submit-button {
-  width: 34px !important;
-  height: 34px !important;
-  min-width: 34px !important;
-  color: rgba(25, 82, 166, 0.7) !important;
-}
-
-.search-submit-button:hover {
-  background: rgba(25, 82, 166, 0.08);
-}
-
-.search-input--text-process {
-  margin-right: 64px !important;
-}
-
-.search-input--text-process :deep(.v-label) {
-  font-size: 0.92rem;
-  color: rgba(60, 72, 88, 0.62);
-}
-
-.search-input :deep(.v-field) {
-  /* Removed box-shadow to rely on the search-bar border instead */
-}
-
-.search-input--query :deep(.v-field) {
-  border-radius: 28px;
-  min-height: 48px;
-}
-
-.search-input--text-process :deep(.v-field) {
-  border-radius: 22px;
-  min-height: 104px;
-  padding-top: 8px;
-  padding-bottom: 8px;
-}
-
-.search-input--text-process :deep(.v-field__input) {
-  min-height: 88px;
-}
-
-.search-controls-row {
-  padding-inline: 8px;
-}
-
-.search-controls-group {
-  width: 100%;
-}
-
-.mode-switch {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: 999px;
-  padding: 2px;
-  background: rgba(245, 247, 252, 0.9);
-}
-
-.mode-switch__pill {
-  text-transform: none;
-  letter-spacing: 0;
-  min-width: 0;
-  font-size: 0.95rem;
-}
-
-.search-controls-row__settings {
-  text-transform: none;
-  letter-spacing: 0;
-  min-height: 34px;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  background: rgba(245, 247, 252, 0.9);
-  font-size: 0.95rem;
-}
-
-.mode-switch-notice {
-  font-size: 0.8rem;
-  color: rgba(25, 82, 166, 0.92);
-}
-
-.search-bar {
-  border: 1px solid rgba(0, 0, 0, 0.15);
-  border-radius: 24px;
-  transition:
-    padding 0.18s ease,
-    border-color 0.18s ease;
-}
-
-.search-bar--query {
-  padding: 6px 8px;
-}
-
-.search-bar--text-process {
-  position: relative;
-  padding: 10px 12px;
-}
-
-.search-input :deep(.v-field__outline) {
-  --v-field-border-width: 0px; /* No internal outline needed */
-}
-
-@media (max-width: 600px) {
-  .search-bar--query {
-    padding: 4px 6px;
-  }
-
-  .search-bar--text-process {
-    padding: 8px 10px;
-    border-radius: 20px;
-  }
-
-  .search-shell--text-process {
-    gap: 6px;
-  }
-
-  .search-action {
-    align-self: flex-start;
-    padding-top: 2px;
-  }
-
-  .search-action--overlay {
-    top: 10px;
-    right: 10px;
-    padding-top: 0;
-  }
-
-  .search-input--text-process {
-    margin-right: 56px !important;
-  }
-
-  .search-input--text-process :deep(.v-field) {
-    border-radius: 18px;
-    min-height: 96px;
-  }
-
-  .search-input--text-process :deep(.v-field__input) {
-    min-height: 72px;
-  }
-
-  .search-input--text-process :deep(.v-label) {
-    font-size: 0.88rem;
-  }
 }
 
 /* Advanced options panel specific styling */
@@ -1058,86 +697,6 @@ export default {
   padding: 12px 14px;
 }
 
-.user-note-summary {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.user-note-summary__header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.user-note-summary__header .text-caption {
-  margin-left: auto;
-}
-
-.user-note-summary__preview {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.user-note-summary__expanded {
-  margin-top: 8px;
-  font-size: 0.95rem;
-  line-height: 1.6;
-  color: rgba(15, 23, 42, 0.9);
-}
-
-.annotated-note-span,
-.user-note-summary__expanded mark {
-  background: rgba(37, 99, 235, 0.16);
-  color: inherit;
-  border-radius: 4px;
-  box-shadow: inset 0 -0.42em 0 rgba(37, 99, 235, 0.14);
-  cursor: pointer;
-  transition:
-    background-color 0.18s ease,
-    box-shadow 0.18s ease;
-}
-
-.annotated-note-span:hover,
-.user-note-summary__expanded mark:hover {
-  background: rgba(37, 99, 235, 0.22);
-  box-shadow: inset 0 -0.5em 0 rgba(37, 99, 235, 0.18);
-}
-
-.annotated-note-span--active {
-  background: rgba(37, 99, 235, 0.32) !important;
-  box-shadow: inset 0 -0.5em 0 rgba(37, 99, 235, 0.24);
-}
-
-:deep(.annotated-note-tooltip) {
-  border-radius: 14px;
-  border: 1px solid rgba(var(--v-theme-outline), 0.12);
-  background: linear-gradient(180deg, rgba(248, 250, 252, 0.98), rgba(255, 255, 255, 1));
-  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.14);
-  padding: 10px 12px;
-}
-
-.annotated-note-tooltip__content {
-  display: grid;
-  gap: 4px;
-}
-
-.annotated-note-tooltip__eyebrow {
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: rgba(37, 99, 235, 0.92);
-}
-
-.annotated-note-tooltip__label {
-  font-size: 0.82rem;
-  line-height: 1.4;
-  color: rgba(15, 23, 42, 0.92);
-}
-
 /* Webkit Scrollbar Styles */
 .conversation-container::-webkit-scrollbar {
   width: 8px;
@@ -1153,16 +712,6 @@ export default {
 .conversation-container::-webkit-scrollbar-track {
   background: #f1f1f1;
   border-radius: 4px;
-}
-
-@media (max-width: 1100px) {
-  .full-text-shell {
-    grid-template-columns: 1fr;
-  }
-
-  .full-text-case-rail {
-    position: static;
-  }
 }
 
 .query-bubble {

@@ -334,6 +334,24 @@ describe('QueryInterface (characterization)', () => {
     expect(wrapper.vm.selectedModel).toBe('FremyCompany/BioLORD-2023-M');
   });
 
+  it('preserves the user-selected query mode when switching embedding models', async () => {
+    const wrapper = await mountQueryInterface();
+    await flushPromises();
+
+    await setVmState(wrapper, {
+      forceEndpointMode: 'textProcess',
+      modeSelectionSource: 'manual',
+      selectedModel: 'test-model',
+    });
+
+    await setVmState(wrapper, {
+      selectedModel: 'alternate-test-model',
+    });
+
+    expect(wrapper.vm.forceEndpointMode).toBe('textProcess');
+    expect(wrapper.vm.modeSelectionSource).toBe('manual');
+  });
+
   it('submits query-mode requests through queryHpo with the selected options', async () => {
     const wrapper = await mountQueryInterface();
     await flushPromises();
@@ -395,6 +413,29 @@ describe('QueryInterface (characterization)', () => {
         retrievalModelForTextProcess: 'test-model',
         includeDetails: wrapper.vm.includeDetails,
       })
+    );
+  });
+
+  it('adds a phenotype from a collection action payload and opens the collection panel', async () => {
+    const wrapper = await mountQueryInterface();
+    await flushPromises();
+
+    wrapper.vm.handleAddToCollection({
+      hpo_id: 'HP:0001250',
+      label: 'Seizure',
+      assertion_status: 'present',
+    });
+    await wrapper.vm.$nextTick();
+
+    expect(wrapper.vm.conversationStore.showCollectionPanel).toBe(true);
+    expect(wrapper.vm.conversationStore.collectedPhenotypes).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          hpo_id: 'HP:0001250',
+          label: 'Seizure',
+          assertion_status: 'present',
+        }),
+      ])
     );
   });
 
