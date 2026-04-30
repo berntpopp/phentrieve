@@ -703,6 +703,57 @@ def test_tool_executor_caps_query_results_and_formats_matches() -> None:
     assert result == [{"hpo_id": "HP:0001250", "term_name": "Seizure", "score": 0.95}]
 
 
+def test_tool_executor_handles_empty_retriever_metadata_outer_list() -> None:
+    class EmptyMetadataRetriever:
+        def query(self, query: str, n_results: int):
+            del query, n_results
+            return {"metadatas": [], "similarities": []}
+
+    executor = ToolExecutor(
+        retriever=EmptyMetadataRetriever(),
+        max_num_results=3,
+        multi_vector=False,
+    )
+
+    assert executor.query_hpo_terms(query="seizures", num_results=3) == []
+
+
+def test_tool_executor_query_only_batch_fallback_queries_each_phrase_once() -> None:
+    class QueryOnlyRetriever:
+        def __init__(self) -> None:
+            self.calls: list[tuple[str, int]] = []
+
+        def query(self, query: str, n_results: int):
+            self.calls.append((query, n_results))
+            return {
+                "metadatas": [
+                    [{"hpo_id": f"HP:{len(self.calls):07d}", "label": query}]
+                ],
+                "similarities": [[0.9]],
+            }
+
+    retriever = QueryOnlyRetriever()
+    executor = ToolExecutor(retriever=retriever, multi_vector=False)
+
+    result = executor.query_batch_hpo_terms(
+        phrases=["seizures", "ataxia"],
+        language="en",
+        n_results=5,
+    )
+
+    assert retriever.calls == [("seizures", 5), ("ataxia", 5)]
+    assert result == [
+        {
+            "metadatas": [[{"hpo_id": "HP:0000001", "label": "seizures"}]],
+            "similarities": [[0.9]],
+        },
+        {
+            "metadatas": [[{"hpo_id": "HP:0000002", "label": "ataxia"}]],
+            "similarities": [[0.9]],
+        },
+    ]
+
+
 def test_tool_executor_process_clinical_text_uses_injected_processor() -> None:
     executor = ToolExecutor(text_processor=FakeTextProcessor())
 

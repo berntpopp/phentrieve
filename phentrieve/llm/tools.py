@@ -68,10 +68,10 @@ class ToolExecutor:
             ]
 
         raw = retriever.query(query, n_results=capped_results)
-        metadatas = raw.get("metadatas", [[]])[0]
-        similarities = (
-            raw.get("similarities", [[]])[0] if raw.get("similarities") else []
-        )
+        raw_metadatas = raw.get("metadatas") or []
+        raw_similarities = raw.get("similarities") or []
+        metadatas = raw_metadatas[0] if raw_metadatas else []
+        similarities = raw_similarities[0] if raw_similarities else []
 
         results: list[dict[str, Any]] = []
         for index, metadata in enumerate(metadatas):
@@ -130,32 +130,26 @@ class ToolExecutor:
                     list(retriever.query_batch(batch_phrases, n_results=n_results))
                 )
             return batch_results
-        return [
-            {
-                "metadatas": [
-                    [
-                        {
-                            "hpo_id": result.get("hpo_id", ""),
-                            "label": result.get("term_name", ""),
-                        }
-                        for result in self.query_hpo_terms(
-                            query=phrase,
-                            num_results=n_results,
-                        )
-                    ]
-                ],
-                "similarities": [
-                    [
-                        float(result.get("score", 0.0))
-                        for result in self.query_hpo_terms(
-                            query=phrase,
-                            num_results=n_results,
-                        )
-                    ]
-                ],
-            }
-            for phrase in phrases
-        ]
+        fallback_results: list[dict[str, Any]] = []
+        for phrase in phrases:
+            phrase_results = self.query_hpo_terms(query=phrase, num_results=n_results)
+            fallback_results.append(
+                {
+                    "metadatas": [
+                        [
+                            {
+                                "hpo_id": result.get("hpo_id", ""),
+                                "label": result.get("term_name", ""),
+                            }
+                            for result in phrase_results
+                        ]
+                    ],
+                    "similarities": [
+                        [float(result.get("score", 0.0)) for result in phrase_results]
+                    ],
+                }
+            )
+        return fallback_results
 
     def execute(self, tool_name: str, arguments: dict[str, Any]) -> Any:
         if tool_name == "query_hpo_terms":
