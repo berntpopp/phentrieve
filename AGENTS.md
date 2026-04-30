@@ -100,7 +100,7 @@ Docker and E2E:
 - Use `uv` for Python dependency management; do not use `pip`.
 - Use modern Python typing: `list[str]`, `dict[str, int]`, `str | None`.
 - Python formatting and linting use Ruff.
-- Type checking uses mypy targeting Python 3.10.
+- Type checking uses mypy targeting Python 3.11.
 - Frontend uses Vue 3, Vuetify, Pinia, Vue I18n, ESLint 9, and Prettier.
 
 ## Testing Notes

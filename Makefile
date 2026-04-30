@@ -19,11 +19,11 @@ help: ## Display this help message
 install: ## Install package with uv
 	uv sync
 
-install-dev: ## Install package with all optional dependencies (includes text_processing)
+install-dev: ## Install package with all optional dependencies
 	uv sync --all-extras
 
-install-text-processing: ## Install text processing dependencies (spaCy + model)
-	uv sync --extra text_processing
+install-text-processing: ## Install package with core text processing dependencies
+	uv sync
 
 install-editable: ## Install in editable mode (for development)
 	uv pip install -e .
