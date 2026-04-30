@@ -34,7 +34,6 @@ from api.schemas.text_processing_schemas import (
     TextProcessingResponseAPI,
 )
 from phentrieve.config import (
-    BENCHMARK_MODELS,
     DEFAULT_ASSERTION_CONFIG,
     DEFAULT_CHUNK_RETRIEVAL_THRESHOLD,
     DEFAULT_LANGUAGE,
@@ -49,6 +48,7 @@ from phentrieve.llm.security_policy import resolve_public_llm_target
 from phentrieve.retrieval.adaptive_rechunker import (
     adaptive_config_from_profile_block,
 )
+from phentrieve.retrieval.model_policy import resolve_retrieval_model_policy
 from phentrieve.text_processing.full_text_service import run_full_text_service
 from phentrieve.text_processing.pipeline import TextProcessingPipeline
 from phentrieve.utils import detect_language
@@ -56,7 +56,6 @@ from phentrieve.utils import sanitize_log_value as _sanitize
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/v1/text", tags=["Text Processing and HPO Extraction"])
-ALLOWED_TEXT_PROCESSING_MODELS = {DEFAULT_MODEL, *BENCHMARK_MODELS}
 
 
 def _coerce_response_items(value: Any) -> list[Any]:
@@ -83,24 +82,18 @@ def _coerce_text_attribution_chunk_id(attr: dict[str, Any]) -> int:
 
 def _validate_model_name(field_name: str, model_name: str | None) -> str:
     """Validate a caller-supplied model name against the server allowlist."""
-    if model_name is None:
-        return DEFAULT_MODEL
-    if model_name not in ALLOWED_TEXT_PROCESSING_MODELS:
-        allowed_models = ", ".join(sorted(ALLOWED_TEXT_PROCESSING_MODELS))
+    try:
+        return resolve_retrieval_model_policy(model_name).model_name
+    except ValueError as exc:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=(
-                f"Unsupported {field_name}: {model_name}. "
-                f"Allowed values: {allowed_models}."
-            ),
-        )
-    return model_name
+            detail=f"Unsupported {field_name}: {model_name}. {exc}",
+        ) from exc
 
 
 def _get_trust_remote_code_for_model(model_name: str) -> bool:
     """Return the server-owned trust policy for an allowed text-processing model."""
-    normalized_name = model_name.lower()
-    return "biolord" in normalized_name or "jina" in normalized_name
+    return resolve_retrieval_model_policy(model_name).trust_remote_code
 
 
 def _is_production_environment() -> bool:

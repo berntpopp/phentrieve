@@ -21,6 +21,7 @@ from phentrieve.config import (
 )
 from phentrieve.retrieval.api_helpers import execute_hpo_retrieval_for_api
 from phentrieve.retrieval.dense_retriever import DenseRetriever
+from phentrieve.retrieval.model_policy import resolve_retrieval_model_policy
 from phentrieve.utils import detect_language
 from phentrieve.utils import sanitize_log_value as _sanitize
 
@@ -65,14 +66,17 @@ def _resolve_query_language(
 # Helper dependency to extract model_name from request for the retriever
 async def get_retriever_for_request(request: QueryRequest) -> DenseRetriever:
     """Extract model name from request and get retriever dependency"""
-    model_name_to_use = request.model_name or DEFAULT_MODEL
+    try:
+        model_policy = resolve_retrieval_model_policy(request.model_name)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
     multi_vector_flag = (
         request.multi_vector
         if hasattr(request, "multi_vector")
         else DEFAULT_MULTI_VECTOR
     )
     return await get_dense_retriever_dependency(
-        sbert_model_name_for_retriever=model_name_to_use,
+        sbert_model_name_for_retriever=model_policy.model_name,
         multi_vector=multi_vector_flag,
     )
 
@@ -83,8 +87,12 @@ async def get_retriever_for_get_params(
     multi_vector: bool = DEFAULT_MULTI_VECTOR,
 ) -> DenseRetriever:
     """Get retriever dependency for GET request's model name parameter"""
+    try:
+        model_policy = resolve_retrieval_model_policy(model_name)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
     return await get_dense_retriever_dependency(
-        sbert_model_name_for_retriever=model_name or DEFAULT_MODEL,
+        sbert_model_name_for_retriever=model_policy.model_name,
         multi_vector=multi_vector,
     )
 
@@ -188,9 +196,12 @@ async def run_hpo_query(
     """
     require_research_use_acknowledgement(http_request)
 
-    sbert_model_to_use_for_retrieval = (
-        request.model_name or DEFAULT_MODEL
-    )  # Use requested or default for retrieval SBERT
+    try:
+        model_policy = resolve_retrieval_model_policy(request.model_name)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    sbert_model_to_use_for_retrieval = model_policy.model_name
 
     # Log information about the retriever we're using
     if hasattr(retriever, "model_name"):

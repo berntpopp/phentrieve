@@ -102,8 +102,8 @@ def load_embedding_model(
     Args:
         model_name: Name or path of the sentence transformer model to load.
             If None, uses DEFAULT_BIOLORD_MODEL.
-        trust_remote_code: Whether to trust remote code (needed for some models like Jina).
-            Automatically set to True for known models (Jina, BioLORD).
+        trust_remote_code: Whether to trust remote code. This must be provided by
+            the caller's explicit trust policy.
         device: Device to load the model on ('cuda', 'cpu', 'mps'). If None, auto-detects
             best available device (CUDA > MPS > CPU).
         force_reload: If True, forces a fresh load even if model is cached.
@@ -180,15 +180,7 @@ def load_embedding_model(
         logging.info(f"Loading embedding model: {model_name} on {device}")
 
         try:
-            # Special handling for BioLORD model which may require special authentication
-            if model_name == DEFAULT_BIOLORD_MODEL or "BioLORD" in model_name:
-                logging.info(
-                    f"Loading BioLORD model '{model_name}' with trust_remote_code=True on {device}"
-                )
-                # BioLORD models often require trust_remote_code for custom layers
-                model = SentenceTransformer(model_name, trust_remote_code=True)
-            # Handle other models that might require trust_remote_code
-            elif trust_remote_code:
+            if trust_remote_code:
                 logging.info(
                     f"Loading model '{model_name}' with trust_remote_code=True on {device}"
                 )

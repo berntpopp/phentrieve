@@ -14,6 +14,7 @@ from phentrieve.config import DEFAULT_DEVICE, DEFAULT_MODEL, DEFAULT_MULTI_VECTO
 # Core loader functions
 from phentrieve.embeddings import load_embedding_model
 from phentrieve.retrieval.dense_retriever import DenseRetriever
+from phentrieve.retrieval.model_policy import resolve_retrieval_model_policy
 from phentrieve.utils import sanitize_log_value
 
 logger = logging.getLogger(__name__)
@@ -224,6 +225,12 @@ async def get_dense_retriever_dependency(
     sbert_model_name_for_retriever: str,  # SBERT model name for retriever
     multi_vector: bool = DEFAULT_MULTI_VECTOR,  # Use multi-vector index by default
 ) -> DenseRetriever:
+    try:
+        model_policy = resolve_retrieval_model_policy(sbert_model_name_for_retriever)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    sbert_model_name_for_retriever = model_policy.model_name
+
     # Include multi_vector in cache key to support both index types
     retriever_cache_key = (
         f"retriever_for_{sbert_model_name_for_retriever}_multi={multi_vector}"
@@ -236,7 +243,8 @@ async def get_dense_retriever_dependency(
             multi_vector,
         )
         sbert_instance = await get_sbert_model_dependency(
-            model_name_requested=sbert_model_name_for_retriever
+            model_name_requested=sbert_model_name_for_retriever,
+            trust_remote_code=model_policy.trust_remote_code,
         )
 
         # Uses internal logic (resolve_data_path -> get_default_index_dir)
