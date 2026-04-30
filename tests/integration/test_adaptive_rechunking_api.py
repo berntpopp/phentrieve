@@ -64,11 +64,11 @@ class TestAdaptiveRechunkingAPI:
             }
 
         with patch(
-            "api.routers.text_processing_router._prepare_standard_request_context",
+            "api.services.text_processing_execution.prepare_standard_text_processing_context",
             AsyncMock(return_value=_standard_context()),
         ):
             with patch(
-                "api.routers.text_processing_router.run_full_text_service",
+                "api.services.text_processing_execution.run_full_text_service",
                 side_effect=fake_run,
             ):
                 response = client.post(
@@ -111,11 +111,11 @@ class TestAdaptiveRechunkingAPI:
             }
 
         with patch(
-            "api.routers.text_processing_router._prepare_standard_request_context",
+            "api.services.text_processing_execution.prepare_standard_text_processing_context",
             AsyncMock(return_value=_standard_context()),
         ):
             with patch(
-                "api.routers.text_processing_router.run_full_text_service",
+                "api.services.text_processing_execution.run_full_text_service",
                 side_effect=fake_run,
             ):
                 response = client.post(
