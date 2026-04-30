@@ -100,6 +100,33 @@
     "copySuccess": "Termes HPO copiés dans le presse-papiers",
     "exportSuccess": "Phenopacket exporté dans le presse-papiers",
     "error": "Erreur: {message}",
+    "piiReview": {
+      "title": "Identifiants possibles detectes",
+      "description": "Phentrieve a trouve des identifiants possibles avant l'envoi de ce texte.",
+      "willRedact": "Seront masques localement",
+      "needsReview": "A verifier",
+      "overrideNotice": "Les identifiants a forte confiance seront masques localement avant l'envoi. D'autres identifiants possibles peuvent rester si vous continuez.",
+      "safetyAid": "Ceci est une aide de securite et ne peut pas garantir que toutes les donnees personnelles sont detectees ni que le texte est desidentifie.",
+      "cancel": "Verifier le texte",
+      "redact": "Masquer dans le texte",
+      "continue": "Continuer avec le masquage local",
+      "categories": {
+        "email": "E-mail",
+        "phone": "Telephone",
+        "url": "URL",
+        "ip_address": "Adresse IP",
+        "date": "Date",
+        "dob": "Date de naissance",
+        "medical_record": "Dossier medical",
+        "accession_id": "ID d'accession",
+        "sample_id": "ID d'echantillon",
+        "national_identifier": "Identifiant national",
+        "address": "Adresse",
+        "person_name": "Nom",
+        "location": "Lieu",
+        "organization": "Organisation"
+      }
+    },
     "phenotypeCollection": {
       "title": "Collection HPO",
       "close": "Fermer le panneau de collection HPO",

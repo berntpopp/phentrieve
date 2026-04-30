@@ -100,6 +100,33 @@
     "copySuccess": "HPO-termen gekopieerd naar klembord",
     "exportSuccess": "Phenopacket geëxporteerd naar klembord",
     "error": "Fout: {message}",
+    "piiReview": {
+      "title": "Mogelijke identificatoren gedetecteerd",
+      "description": "Phentrieve heeft mogelijke identificatoren gevonden voordat deze tekst wordt verzonden.",
+      "willRedact": "Worden lokaal geredigeerd",
+      "needsReview": "Moet worden gecontroleerd",
+      "overrideNotice": "Identificatoren met hoge betrouwbaarheid worden lokaal geredigeerd voordat ze worden verzonden. Andere mogelijke identificatoren kunnen blijven staan als u doorgaat.",
+      "safetyAid": "Dit is een veiligheidshulp en kan niet garanderen dat alle persoonsgegevens worden gedetecteerd of dat tekst is gede-identificeerd.",
+      "cancel": "Tekst controleren",
+      "redact": "Redigeren in tekst",
+      "continue": "Doorgaan met lokale redactie",
+      "categories": {
+        "email": "E-mail",
+        "phone": "Telefoon",
+        "url": "URL",
+        "ip_address": "IP-adres",
+        "date": "Datum",
+        "dob": "Geboortedatum",
+        "medical_record": "Medisch dossier",
+        "accession_id": "Accessie-ID",
+        "sample_id": "Monster-ID",
+        "national_identifier": "Nationale identificator",
+        "address": "Adres",
+        "person_name": "Naam",
+        "location": "Locatie",
+        "organization": "Organisatie"
+      }
+    },
     "phenotypeCollection": {
       "title": "HPO-Verzameling",
       "close": "HPO-verzamelingspaneel sluiten",

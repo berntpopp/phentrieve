@@ -100,6 +100,33 @@
     "copySuccess": "HPO-Begriffe in die Zwischenablage kopiert",
     "exportSuccess": "Phenopacket in die Zwischenablage exportiert",
     "error": "Fehler: {message}",
+    "piiReview": {
+      "title": "Moegliche Kennungen erkannt",
+      "description": "Phentrieve hat vor dem Absenden dieses Textes moegliche Kennungen gefunden.",
+      "willRedact": "Wird lokal geschwaerzt",
+      "needsReview": "Muss geprueft werden",
+      "overrideNotice": "Kennungen mit hoher Konfidenz werden vor dem Absenden lokal geschwaerzt. Andere moegliche Kennungen koennen verbleiben, wenn Sie fortfahren.",
+      "safetyAid": "Dies ist eine Sicherheitshilfe und kann nicht garantieren, dass alle personenbezogenen Daten erkannt werden oder der Text de-identifiziert ist.",
+      "cancel": "Text pruefen",
+      "redact": "Im Text schwaerzen",
+      "continue": "Mit lokaler Schwaerzung fortfahren",
+      "categories": {
+        "email": "E-Mail",
+        "phone": "Telefon",
+        "url": "URL",
+        "ip_address": "IP-Adresse",
+        "date": "Datum",
+        "dob": "Geburtsdatum",
+        "medical_record": "Krankenaktennummer",
+        "accession_id": "Zugangs-ID",
+        "sample_id": "Proben-ID",
+        "national_identifier": "Nationale Kennung",
+        "address": "Adresse",
+        "person_name": "Name",
+        "location": "Ort",
+        "organization": "Organisation"
+      }
+    },
     "phenotypeCollection": {
       "title": "HPO-Sammlung",
       "close": "HPO-Sammlungsbereich schließen",

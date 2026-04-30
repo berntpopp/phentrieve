@@ -100,6 +100,33 @@
     "copySuccess": "HPO terms copied to clipboard",
     "exportSuccess": "Phenopacket exported to clipboard",
     "error": "Error: {message}",
+    "piiReview": {
+      "title": "Possible identifiers detected",
+      "description": "Phentrieve found possible identifiers before submitting this text.",
+      "willRedact": "Will be redacted locally",
+      "needsReview": "Needs review",
+      "overrideNotice": "High-confidence identifiers will be redacted locally before submission. Other possible identifiers may remain if you continue.",
+      "safetyAid": "This is a safety aid and cannot guarantee all PII is detected or that text is de-identified.",
+      "cancel": "Review text",
+      "redact": "Redact in text",
+      "continue": "Continue with local redaction",
+      "categories": {
+        "email": "Email",
+        "phone": "Phone",
+        "url": "URL",
+        "ip_address": "IP address",
+        "date": "Date",
+        "dob": "Date of birth",
+        "medical_record": "Medical record",
+        "accession_id": "Accession ID",
+        "sample_id": "Sample ID",
+        "national_identifier": "National identifier",
+        "address": "Address",
+        "person_name": "Name",
+        "location": "Location",
+        "organization": "Organization"
+      }
+    },
     "phenotypeCollection": {
       "title": "HPO Collection",
       "close": "Close HPO Collection Panel",

@@ -17,6 +17,7 @@ export const usedIcons = [
   'mdi-download',
   'mdi-delete',
   'mdi-alert-circle-outline',
+  'mdi-shield-alert-outline',
   'mdi-text-box-search-outline',
   'mdi-github',
   'mdi-book-open-page-variant-outline',

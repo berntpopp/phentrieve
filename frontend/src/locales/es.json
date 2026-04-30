@@ -100,6 +100,33 @@
     "copySuccess": "Términos HPO copiados al portapapeles",
     "exportSuccess": "Phenopacket exportado al portapapeles",
     "error": "Error: {message}",
+    "piiReview": {
+      "title": "Posibles identificadores detectados",
+      "description": "Phentrieve encontro posibles identificadores antes de enviar este texto.",
+      "willRedact": "Se redactaran localmente",
+      "needsReview": "Necesita revision",
+      "overrideNotice": "Los identificadores de alta confianza se redactaran localmente antes del envio. Otros posibles identificadores pueden permanecer si continua.",
+      "safetyAid": "Esto es una ayuda de seguridad y no puede garantizar que se detecte toda la informacion personal ni que el texto este desidentificado.",
+      "cancel": "Revisar texto",
+      "redact": "Redactar en el texto",
+      "continue": "Continuar con redaccion local",
+      "categories": {
+        "email": "Correo electronico",
+        "phone": "Telefono",
+        "url": "URL",
+        "ip_address": "Direccion IP",
+        "date": "Fecha",
+        "dob": "Fecha de nacimiento",
+        "medical_record": "Historia clinica",
+        "accession_id": "ID de acceso",
+        "sample_id": "ID de muestra",
+        "national_identifier": "Identificador nacional",
+        "address": "Direccion",
+        "person_name": "Nombre",
+        "location": "Ubicacion",
+        "organization": "Organizacion"
+      }
+    },
     "phenotypeCollection": {
       "title": "Colección HPO",
       "close": "Cerrar panel de colección HPO",
