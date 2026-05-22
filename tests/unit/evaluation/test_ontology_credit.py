@@ -102,6 +102,27 @@ def test_dag_descendant_distance_uses_parent_edges_not_global_depth(monkeypatch)
     assert credit.distance == 2
 
 
+def test_pair_credit_does_not_reuse_stale_parent_cache(monkeypatch):
+    ancestors = {
+        "HP:parent": {"HP:root", "HP:parent"},
+        "HP:mid": {"HP:root", "HP:parent", "HP:mid"},
+        "HP:child": {"HP:root", "HP:parent", "HP:child"},
+    }
+    depths = {"HP:root": 0, "HP:parent": 1, "HP:mid": 2, "HP:child": 2}
+    monkeypatch.setattr(
+        "phentrieve.evaluation.ontology_credit.load_hpo_graph_data",
+        lambda: (ancestors, depths),
+    )
+
+    direct_credit = calculate_pair_credit("HP:child", "HP:parent")
+    ancestors["HP:child"] = {"HP:root", "HP:parent", "HP:mid", "HP:child"}
+
+    updated_credit = calculate_pair_credit("HP:child", "HP:parent")
+
+    assert direct_credit.distance == 1
+    assert updated_credit.distance == 2
+
+
 def test_assertion_independent_sibling_credit_uses_minimum(monkeypatch):
     monkeypatch.setattr(
         "phentrieve.evaluation.ontology_credit.load_hpo_graph_data",

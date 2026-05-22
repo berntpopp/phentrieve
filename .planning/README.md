@@ -34,8 +34,7 @@ execution context.
 
 ## Current Active Work
 
-- `active/2026-04-30-codebase-health-remediation-plan.md` - umbrella
-  implementation plan for remediating the 2026-04-30 codebase health review.
+- None.
 
 ## Current Specs
 
@@ -44,6 +43,8 @@ execution context.
 
 ## Recently Completed
 
+- `completed/2026-04-30-codebase-health-remediation-plan.md` - umbrella
+  remediation of the 2026-04-30 codebase health review (PR #253).
 - `completed/2026-04-17-ontology-embedding-fidelity-implementation-plan.md` -
   standalone embedding-vs-HPO-DAG fidelity analysis script (issue #34).
 - `completed/2026-04-29-eu-ai-act-research-use-compliance-plan.md` -

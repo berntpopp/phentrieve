@@ -63,17 +63,13 @@ jobs:
               - 'docker-compose*.yml'
               - '.github/workflows/ci.yml'
 
-  python-ci:
-    name: Python CI
+  python-quality:
+    name: Python Quality (3.11)
     needs: changes
     if: needs.changes.outputs.python == 'true'
     runs-on: ubuntu-latest
     env:
       HF_HOME: ${{ github.workspace }}/.cache/huggingface
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ['3.11', '3.12', '3.13']
 
     steps:
       - name: Checkout repository
@@ -83,57 +79,72 @@ jobs:
         uses: astral-sh/setup-uv@v7
         with:
           version: "latest"
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: uv sync --locked --all-extras --dev
+
+      - name: Run Ruff format check
+        run: make format-check
+
+      - name: Run Ruff linting
+        run: make lint
+
+      - name: Run mypy type checking
+        run: make typecheck
+
+      - name: Run pytest
+        env:
+          COVERAGE_CORE: sysmon
+        run: make test-ci
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v6
+        with:
+          files: ./coverage.xml
+          flags: python
+          name: python-3.11
+        continue-on-error: true
+
+  python-compat:
+    name: Python Compatibility (${{ matrix.python-version }})
+    needs: changes
+    if: needs.changes.outputs.python == 'true'
+    runs-on: ubuntu-latest
+    env:
+      HF_HOME: ${{ github.workspace }}/.cache/huggingface
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.12', '3.13']
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          version: "latest"
+          enable-cache: true
+          cache-dependency-glob: uv.lock
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Cache uv dependencies
-        uses: actions/cache@v5
-        with:
-          path: |
-            ~/.cache/uv
-            .venv
-          key: ${{ runner.os }}-uv-${{ matrix.python-version }}-${{ hashFiles('uv.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-uv-${{ matrix.python-version }}-
-            ${{ runner.os }}-uv-
-
       - name: Install dependencies
-        run: |
-          uv sync --all-extras --dev
+        run: uv sync --locked --all-extras --dev
 
-      - name: Run Ruff format check
-        run: |
-          uv run ruff format --check phentrieve/ api/ tests/
-
-      - name: Run Ruff linting
-        run: |
-          uv run ruff check phentrieve/ api/ tests/
-
-      - name: Run mypy type checking
-        run: |
-          uv run mypy phentrieve/ api/
-
-      - name: Validate pytest collection
-        run: |
-          uv run pytest -o addopts='' tests/ --collect-only -q --strict-markers -m "not slow and not e2e"
-
-      - name: Run pytest
-        env:
-          COVERAGE_CORE: sysmon
-        run: |
-          uv run pytest tests/ -v -m "not e2e" --cov=phentrieve --cov=api --cov-report=xml --cov-report=term
-
-      - name: Upload coverage to Codecov
-        if: matrix.python-version == '3.11'
-        uses: codecov/codecov-action@v6
-        with:
-          files: ./coverage.xml
-          flags: python
-          name: python-${{ matrix.python-version }}
-        continue-on-error: true
+      - name: Run pytest compatibility suite
+        run: uv run pytest tests/ -q -m "not slow and not e2e" --no-cov
 
   frontend-ci:
     name: Frontend CI
@@ -329,7 +340,7 @@ jobs:
 
   ci-summary:
     name: CI Summary
-    needs: [changes, python-ci, frontend-ci, docker-build-test, dependency-review]
+    needs: [changes, python-quality, python-compat, frontend-ci, docker-build-test, dependency-review]
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -340,12 +351,14 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Job | Result |" >> $GITHUB_STEP_SUMMARY
           echo "|-----|--------|" >> $GITHUB_STEP_SUMMARY
-          echo "| Python CI | ${{ needs.python-ci.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Python Quality | ${{ needs.python-quality.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Python Compatibility | ${{ needs.python-compat.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Frontend CI | ${{ needs.frontend-ci.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Docker Build | ${{ needs.docker-build-test.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Dependency Review | ${{ needs.dependency-review.result }} |" >> $GITHUB_STEP_SUMMARY
 
-          if [[ "${{ needs.python-ci.result }}" == "failure" ]] || \
+          if [[ "${{ needs.python-quality.result }}" == "failure" ]] || \
+             [[ "${{ needs.python-compat.result }}" == "failure" ]] || \
              [[ "${{ needs.frontend-ci.result }}" == "failure" ]] || \
              [[ "${{ needs.docker-build-test.result }}" == "failure" ]]; then
             echo "One or more CI jobs failed"

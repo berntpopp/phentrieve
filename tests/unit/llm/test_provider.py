@@ -24,6 +24,8 @@ from phentrieve.llm.provider import (
     get_llm_provider,
     resolve_llm_provider_request,
 )
+from phentrieve.llm.providers.anthropic import _load_anthropic_module
+from phentrieve.llm.providers.openai import _load_openai_module
 from phentrieve.llm.types import (
     LLMExtractedPhenotype,
     LLMExtractedPhenotypes,
@@ -699,6 +701,57 @@ def test_tool_executor_caps_query_results_and_formats_matches() -> None:
 
     assert retriever.calls == [("seizures", 3, False)]
     assert result == [{"hpo_id": "HP:0001250", "term_name": "Seizure", "score": 0.95}]
+
+
+def test_tool_executor_handles_empty_retriever_metadata_outer_list() -> None:
+    class EmptyMetadataRetriever:
+        def query(self, query: str, n_results: int):
+            del query, n_results
+            return {"metadatas": [], "similarities": []}
+
+    executor = ToolExecutor(
+        retriever=EmptyMetadataRetriever(),
+        max_num_results=3,
+        multi_vector=False,
+    )
+
+    assert executor.query_hpo_terms(query="seizures", num_results=3) == []
+
+
+def test_tool_executor_query_only_batch_fallback_queries_each_phrase_once() -> None:
+    class QueryOnlyRetriever:
+        def __init__(self) -> None:
+            self.calls: list[tuple[str, int]] = []
+
+        def query(self, query: str, n_results: int):
+            self.calls.append((query, n_results))
+            return {
+                "metadatas": [
+                    [{"hpo_id": f"HP:{len(self.calls):07d}", "label": query}]
+                ],
+                "similarities": [[0.9]],
+            }
+
+    retriever = QueryOnlyRetriever()
+    executor = ToolExecutor(retriever=retriever, multi_vector=False)
+
+    result = executor.query_batch_hpo_terms(
+        phrases=["seizures", "ataxia"],
+        language="en",
+        n_results=5,
+    )
+
+    assert retriever.calls == [("seizures", 5), ("ataxia", 5)]
+    assert result == [
+        {
+            "metadatas": [[{"hpo_id": "HP:0000001", "label": "seizures"}]],
+            "similarities": [[0.9]],
+        },
+        {
+            "metadatas": [[{"hpo_id": "HP:0000002", "label": "ataxia"}]],
+            "similarities": [[0.9]],
+        },
+    ]
 
 
 def test_tool_executor_process_clinical_text_uses_injected_processor() -> None:
@@ -1448,6 +1501,20 @@ def test_anthropic_count_tokens_uses_messages_count_tokens(monkeypatch) -> None:
     ]
 
 
+def test_anthropic_sdk_loader_uses_explicit_external_module_import(monkeypatch) -> None:
+    anthropic_module = ModuleType("anthropic")
+    import_calls: list[str] = []
+
+    def fake_import_module(module_name: str):
+        import_calls.append(module_name)
+        return anthropic_module
+
+    monkeypatch.setattr("importlib.import_module", fake_import_module)
+
+    assert _load_anthropic_module() is anthropic_module
+    assert import_calls == ["anthropic"]
+
+
 def test_openai_structured_prompt_uses_responses_api_json_schema(
     monkeypatch,
 ) -> None:
@@ -1487,6 +1554,20 @@ def test_openai_structured_prompt_uses_responses_api_json_schema(
         "completion_tokens": 11,
         "total_tokens": 53,
     }
+
+
+def test_openai_sdk_loader_uses_explicit_external_module_import(monkeypatch) -> None:
+    openai_module = ModuleType("openai")
+    import_calls: list[str] = []
+
+    def fake_import_module(module_name: str):
+        import_calls.append(module_name)
+        return openai_module
+
+    monkeypatch.setattr("importlib.import_module", fake_import_module)
+
+    assert _load_openai_module() is openai_module
+    assert import_calls == ["openai"]
 
 
 def test_openai_complete_uses_responses_api(monkeypatch) -> None:

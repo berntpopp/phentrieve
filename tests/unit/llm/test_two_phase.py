@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from phentrieve.llm.pipeline import TwoPhaseLLMPipeline, prepare_retrieval_queries
+from phentrieve.llm.pipeline_phase1 import expand_combined_phase1_extractions
 from phentrieve.llm.prompts.loader import get_mapping_prompt, get_prompt
 from phentrieve.llm.provider import LLMProvider
 from phentrieve.llm.types import AnnotationMode
@@ -186,3 +187,75 @@ def test_phase1_prompt_mentions_normalized_clinical_phrase_for_lab_or_event_evid
     assert "measurement" in system.lower()
     assert "indirectly" in system.lower()
     assert "context" in system.lower()
+
+
+def test_expand_combined_phase1_extractions_splits_slash_and_shared_head_mentions():
+    expanded = expand_combined_phase1_extractions(
+        [
+            {
+                "phrase": "hypertonia/spasticity of the extremities",
+                "category": "abnormal",
+                "chunk_ids": [15],
+                "evidence_text": "hypertonia/spasticity of the extremities",
+            },
+            {
+                "phrase": "pontine cerebellar hypoplasia",
+                "category": "abnormal",
+                "chunk_ids": [44, 45],
+                "evidence_text": "pontine cerebellar hypoplasia",
+            },
+        ]
+    )
+
+    phrases = [item["phrase"] for item in expanded]
+
+    assert phrases == [
+        "hypertonia",
+        "spasticity of the extremities",
+        "pontine hypoplasia",
+        "cerebellar hypoplasia",
+    ]
+    assert all(item["category"] == "abnormal" for item in expanded)
+    assert expanded[0]["chunk_ids"] == [15]
+    assert expanded[2]["chunk_ids"] == [44, 45]
+
+
+def test_expand_combined_phase1_extractions_expands_common_phenotype_abbreviations():
+    expanded = expand_combined_phase1_extractions(
+        [
+            {
+                "phrase": "XLID",
+                "category": "abnormal",
+                "chunk_ids": [29],
+                "evidence_text": "XLID",
+            }
+        ]
+    )
+
+    assert expanded == [
+        {
+            "phrase": "X-linked intellectual disability",
+            "category": "abnormal",
+            "chunk_ids": [29],
+            "evidence_text": "XLID",
+        }
+    ]
+
+
+def test_expand_combined_phase1_extractions_leaves_non_combined_phrases_unchanged():
+    original = [
+        {
+            "phrase": "severe global developmental delay",
+            "category": "abnormal",
+            "chunk_ids": [3],
+            "evidence_text": "severe global developmental delay",
+        },
+        {
+            "phrase": "respiratory failure",
+            "category": "abnormal",
+            "chunk_ids": [4],
+            "evidence_text": "respiratory failure",
+        },
+    ]
+
+    assert expand_combined_phase1_extractions(original) == original

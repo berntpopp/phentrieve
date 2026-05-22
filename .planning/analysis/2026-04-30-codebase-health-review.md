@@ -509,3 +509,19 @@ Commands not run:
 
 No product files were modified as part of the review. This Markdown artifact was
 created after the review at the user's request.
+
+## Remediation Status
+
+The active remediation plan has been implemented through Task 12 and final
+verification has been recorded in
+[`2026-04-30-codebase-health-remediation-verification.md`](2026-04-30-codebase-health-remediation-verification.md).
+
+Verified head: `b70d8d1` on `codebase-health-remediation`.
+
+Final required checks passed:
+
+- `make check`
+- `make typecheck-fast`
+- `make test`
+- `make frontend-test-ci`
+- `make frontend-build-ci`

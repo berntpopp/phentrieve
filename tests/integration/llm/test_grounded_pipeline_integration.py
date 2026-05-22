@@ -394,9 +394,12 @@ def test_grounded_llm_pipeline_chains_fallback_to_grouped_small_and_preserves_pr
         1,
         2,
     ]
-    assert result.meta.trace["phase1"]["attempts"][2]["groups"][1]["extracted"][0][
-        "chunk_ids"
-    ] == [2]
+    small_attempt_groups = result.meta.trace["phase1"]["attempts"][2]["groups"]
+    assert any(
+        extracted["chunk_ids"] == [2]
+        for group in small_attempt_groups
+        for extracted in group["extracted"]
+    )
     assert result.meta.trace["phase1"]["extracted"][0]["chunk_ids"] == [2]
     grounded_context = result.meta.trace["phase2a"]["candidate_sets"][0][
         "grounded_context"

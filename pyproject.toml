@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "phentrieve"
-version = "0.21.0"
+version = "0.21.1"
 description = "A CLI tool for retrieving Human Phenotype Ontology (HPO) terms from clinical text using multilingual embeddings."
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -33,7 +33,7 @@ dependencies = [
     "sentence-transformers>=4.1.0,<6.0.0",
     "chromadb>=1.5.7,<2.0.0",
     "requests>=2.31.0",
-    "urllib3>=2.5.0",                        # Security: CVE fixes (GHSA-48p4-8xcf-vxj5, GHSA-pq67-6m6q-mj2v)
+    "urllib3>=2.7.0",                        # Security: CVE fixes (GHSA-48p4-8xcf-vxj5, GHSA-pq67-6m6q-mj2v, PYSEC-2026-141, PYSEC-2026-142)
     "pysbd>=0.3.4",
     "tqdm>=4.66.1",
     "pandas>=2.0.0",
@@ -76,7 +76,7 @@ mcp = [
     "pydantic-settings>=2.0.0",
 ]
 llm = [
-    "google-genai>=1.22.0,<2.0.0",
+    "google-genai>=1.22.0,<3.0.0",
     "anthropic>=0.73.0,<1.0.0",
     "openai>=2.0.0,<3.0.0",
 ]
@@ -93,8 +93,8 @@ analysis = [
     "umap-learn>=0.5.6",
     "plotly>=5.22.0",
 ]
-# Install CLI + API with: pip install "phentrieve[api]"
-# Install CLI + MCP with: pip install "phentrieve[mcp]"
+# Install CLI + API with: uv sync --extra api
+# Install CLI + MCP with: uv sync --extra mcp
 
 [tool.setuptools]
 
@@ -277,6 +277,7 @@ dev = [
     "bandit[toml,sarif]>=1.9.0",  # Python SAST with TOML config and SARIF output
     "mkdocs-glightbox>=0.5.2",
     "mkdocs-material>=9.7.6",
+    "pre-commit>=4.6.0",
 ]
 
 [tool.semantic_release]

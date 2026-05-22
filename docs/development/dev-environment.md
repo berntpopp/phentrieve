@@ -43,7 +43,7 @@ This runs `uv sync --all-extras`, which:
 - Creates a `.venv/` virtual environment automatically
 - Installs core dependencies
 - Installs API extras (FastAPI, ChromaDB)
-- Installs text processing extras (spaCy models)
+- Installs core text processing dependencies (spaCy models)
 - Installs dev tools (Ruff, mypy, pytest)
 
 ### 2. Run Code Quality Checks
@@ -184,7 +184,8 @@ make remove PACKAGE=requests
 
 # Install optional extras individually
 uv sync --extra api           # API dependencies only
-uv sync --extra text          # Text processing only
+uv sync --extra llm           # LLM provider dependencies only
+uv sync --extra mcp           # MCP server dependencies only
 uv sync --all-extras          # Everything (recommended for dev)
 ```
 
@@ -496,8 +497,8 @@ docker stats
 ### uv Installation Issues
 
 ```bash
-# Manual install via pip
-pip install uv
+# Install with the official installer
+curl -LsSf https://astral.sh/uv/install.sh | sh
 
 # Or use pipx
 pipx install uv

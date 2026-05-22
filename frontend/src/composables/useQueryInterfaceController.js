@@ -1,5 +1,3 @@
-import { redactPiiFindings, scanPii } from '../pii';
-
 function getContextOrThrow(getContext) {
   const context = getContext?.();
 
@@ -247,7 +245,6 @@ export function useQueryInterfaceController({ getContext, service, logService })
             latestState.semanticModelForChunking || latestState.selectedModel,
           retrievalModelForTextProcess:
             latestState.retrievalModelForTextProcess || latestState.selectedModel,
-          trustRemoteCode: true,
           chunkRetrievalThreshold: latestState.chunkRetrievalThreshold,
           numResultsPerChunk: latestState.numResultsPerChunk,
           noAssertionDetectionForTextProcess: latestState.noAssertionDetectionForTextProcess,
@@ -299,22 +296,15 @@ export function useQueryInterfaceController({ getContext, service, logService })
     }
 
     const useTextProcessMode = state.isTextProcessModeActive;
-    const piiScanResult = scanPii(queryTextTrimmed, { locale: state.selectedLanguage || 'en' });
+    const piiReviewResult = context.piiReviewFlow.scanSubmissionForPii({
+      text: queryTextTrimmed,
+      locale: state.selectedLanguage || 'en',
+      useTextProcessMode,
+      isAutoSubmit,
+    });
 
-    if (piiScanResult.hasFindings) {
-      const pendingSubmission = {
-        text: queryTextTrimmed,
-        useTextProcessMode,
-        isAutoSubmit,
-        scanResult: piiScanResult,
-      };
-      context.openPiiReview(pendingSubmission);
+    if (piiReviewResult.hasFindings) {
       clearAutoSubmitQueryParamIfNeeded(context, isAutoSubmit, logService);
-      logService.info('PII review required before submission', {
-        mode: useTextProcessMode ? 'textProcess' : 'query',
-        textLength: queryTextTrimmed.length,
-        piiSummary: piiScanResult.summary,
-      });
       return;
     }
 
@@ -322,55 +312,24 @@ export function useQueryInterfaceController({ getContext, service, logService })
       currentQuery: queryTextTrimmed,
       useTextProcessMode,
       isAutoSubmit,
-      piiScanResult,
+      piiScanResult: piiReviewResult.scanResult,
       redactionApplied: false,
     });
   }
 
   async function continueWithPiiRedaction() {
     const context = getContextOrThrow(getContext);
-    const pending = context.getState().pendingPiiSubmission;
-
-    if (!pending) {
-      return;
-    }
-
-    const redaction = redactPiiFindings(pending.text, pending.scanResult.findings, {
-      includeReviewFindings: false,
-    });
-
-    context.setState({
-      piiReviewDialogVisible: false,
-      pendingPiiSubmission: null,
-    });
-
-    await submitQueryText({
-      currentQuery: redaction.text,
-      rawQueryForHistory: pending.text,
-      redactedQueryForHistory: redaction.text,
-      useTextProcessMode: pending.useTextProcessMode,
-      isAutoSubmit: pending.isAutoSubmit,
-      piiScanResult: pending.scanResult,
-      redactionApplied: redaction.changed,
+    return context.piiReviewFlow.continueWithPiiRedaction({
+      submitQueryText,
     });
   }
 
   function redactPiiInInput() {
     const context = getContextOrThrow(getContext);
-    const pending = context.getState().pendingPiiSubmission;
-
-    if (!pending) {
-      return;
-    }
-
-    const redaction = redactPiiFindings(pending.text, pending.scanResult.findings, {
-      includeReviewFindings: true,
-    });
-
-    context.setState({
-      queryText: redaction.text,
-      piiReviewDialogVisible: false,
-      pendingPiiSubmission: null,
+    return context.piiReviewFlow.redactPiiInInput({
+      setQueryText(value) {
+        context.setState({ queryText: value });
+      },
     });
   }
 

@@ -14,6 +14,12 @@ from phentrieve.llm.config import (
     DEFAULT_TOOL_QUERY_RESULTS,
     PROMPT_VARIANT_MAPPING,
 )
+from phentrieve.llm.prompts.safety import (
+    DOCUMENT_BOUNDARY_END,
+    DOCUMENT_BOUNDARY_START,
+    UNTRUSTED_DOCUMENT_INSTRUCTION,
+    UNTRUSTED_PAYLOAD_INSTRUCTION,
+)
 from phentrieve.llm.types import AnnotationMode, PostProcessingStep
 
 logger = logging.getLogger(__name__)
@@ -25,6 +31,8 @@ TOOL_TERM_VARIANT = "term_search"
 TOOL_TEXT_VARIANT = "text_process"
 MAPPING_BATCH_VARIANT = "mapping_batch"
 PLACEHOLDER_PATTERN = re.compile(r"\{([a-zA-Z_][a-zA-Z0-9_]*)\}")
+DOCUMENT_BOUNDARY_MODES = {"direct_text", "tool_guided", "postprocess"}
+SAFETY_INSTRUCTION_MODES = DOCUMENT_BOUNDARY_MODES | {"two_phase"}
 
 
 @dataclass(slots=True)
@@ -37,6 +45,28 @@ class PromptTemplate:
     language: str = DEFAULT_LLM_LANGUAGE
     source_path: str = ""
 
+    def _safety_instruction(self) -> str:
+        if self.mode not in SAFETY_INSTRUCTION_MODES:
+            return ""
+        if self.mode == "two_phase" and (
+            "mapping" in Path(self.source_path).stem if self.source_path else False
+        ):
+            return UNTRUSTED_PAYLOAD_INSTRUCTION
+        return UNTRUSTED_DOCUMENT_INSTRUCTION
+
+    def _with_safety_instruction(self, prompt: str) -> str:
+        instruction = self._safety_instruction()
+        if not instruction or instruction.lower() in prompt.lower():
+            return prompt
+        return f"{prompt.rstrip()}\n\n{instruction}"
+
+    def _wrap_untrusted_document_text(self, text: str) -> str:
+        if self.mode not in DOCUMENT_BOUNDARY_MODES:
+            return text
+        if DOCUMENT_BOUNDARY_START in text and DOCUMENT_BOUNDARY_END in text:
+            return text
+        return f"{DOCUMENT_BOUNDARY_START}\n{text}\n{DOCUMENT_BOUNDARY_END}"
+
     def _render_prompt_text(self, template: str, **kwargs: Any) -> str:
         prompt_kwargs = {"tool_query_results": DEFAULT_TOOL_QUERY_RESULTS, **kwargs}
         return PLACEHOLDER_PATTERN.sub(
@@ -45,10 +75,15 @@ class PromptTemplate:
         )
 
     def render_system_prompt(self, **kwargs: Any) -> str:
-        return self._render_prompt_text(self.system_prompt, **kwargs)
+        rendered = self._render_prompt_text(self.system_prompt, **kwargs)
+        return self._with_safety_instruction(rendered)
 
     def render_user_prompt(self, text: str, **kwargs: Any) -> str:
-        return self._render_prompt_text(self.user_prompt_template, text=text, **kwargs)
+        return self._render_prompt_text(
+            self.user_prompt_template,
+            text=self._wrap_untrusted_document_text(text),
+            **kwargs,
+        )
 
     def get_messages(
         self,

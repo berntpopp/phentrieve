@@ -18,6 +18,11 @@ import pytest
 import requests
 
 
+def _query_payload(text: str, num_results: int = 5, language: str = "en") -> dict:
+    """Build a payload for the current query API schema."""
+    return {"text": text, "num_results": num_results, "language": language}
+
+
 @pytest.mark.e2e
 class TestAPIEndpoints:
     """Test suite for API endpoint availability and basic functionality."""
@@ -32,7 +37,7 @@ class TestAPIEndpoints:
         """
         response = requests.post(api_query_endpoint, json={}, timeout=10)
 
-        # Should return 422 (validation error) since query_text is required
+        # Should return 422 (validation error) since text is required
         # NOT 404 (endpoint doesn't exist) or 500 (server error)
         assert response.status_code in [
             422,
@@ -59,7 +64,7 @@ class TestAPIEndpoints:
         Verify config endpoint returns service configuration.
 
         Expected:
-            GET /api/v1/config-info returns 200
+            GET /api/v1/info returns 200
             Response contains configuration data
         """
         response = requests.get(api_config_endpoint, timeout=5)
@@ -88,11 +93,7 @@ class TestQueryWorkflow:
             - Valid JSON response
             - Contains "results" field with HPO terms
         """
-        payload = {
-            "query_text": "Patient has fever and headache",
-            "top_k": 5,
-            "language": "en",
-        }
+        payload = _query_payload("Patient has fever and headache")
 
         response = requests.post(api_query_endpoint, json=payload, timeout=30)
 
@@ -112,8 +113,8 @@ class TestQueryWorkflow:
         # Verify result structure
         first_result = data["results"][0]
         assert "hpo_id" in first_result, "Result should contain 'hpo_id'"
-        assert "hpo_name" in first_result, "Result should contain 'hpo_name'"
-        assert "score" in first_result, "Result should contain 'score'"
+        assert "label" in first_result, "Result should contain 'label'"
+        assert "similarity" in first_result, "Result should contain 'similarity'"
 
     def test_query_with_medical_terminology(self, api_query_endpoint: str):
         """
@@ -128,11 +129,7 @@ class TestQueryWorkflow:
             - Scores are between 0 and 1
             - Results ordered by relevance (descending score)
         """
-        payload = {
-            "query_text": "Microcephaly and developmental delay",
-            "top_k": 5,
-            "language": "en",
-        }
+        payload = _query_payload("Microcephaly and developmental delay")
 
         response = requests.post(api_query_endpoint, json=payload, timeout=30)
 
@@ -147,43 +144,43 @@ class TestQueryWorkflow:
 
         # Verify scores are valid (between 0 and 1)
         for result in results:
-            score = result["score"]
+            score = result["similarity"]
             assert 0.0 <= score <= 1.0, f"Score should be in [0, 1], got: {score}"
 
         # Verify results are ordered by score (descending)
-        scores = [r["score"] for r in results]
+        scores = [r["similarity"] for r in results]
         assert scores == sorted(scores, reverse=True), (
             "Results should be ordered by score (descending)"
         )
 
-    def test_query_with_top_k_parameter(self, api_query_endpoint: str):
+    def test_query_with_num_results_parameter(self, api_query_endpoint: str):
         """
-        Verify top_k parameter controls number of results.
+        Verify num_results parameter controls number of results.
 
         Test Cases:
-            - top_k=3 returns exactly 3 results
-            - top_k=10 returns up to 10 results
+            - num_results=3 returns up to 3 results
+            - num_results=10 returns up to 10 results
         """
         query_text = "Patient with seizures and intellectual disability"
 
-        # Test top_k=3
-        payload = {"query_text": query_text, "top_k": 3, "language": "en"}
+        # Test num_results=3
+        payload = _query_payload(query_text, num_results=3)
         response = requests.post(api_query_endpoint, json=payload, timeout=30)
-        assert response.status_code == 200, "Query with top_k=3 should succeed"
+        assert response.status_code == 200, "Query with num_results=3 should succeed"
 
         data = response.json()
         assert len(data["results"]) <= 3, (
-            f"top_k=3 should return ≤3 results, got: {len(data['results'])}"
+            f"num_results=3 should return <=3 results, got: {len(data['results'])}"
         )
 
-        # Test top_k=10
-        payload = {"query_text": query_text, "top_k": 10, "language": "en"}
+        # Test num_results=10
+        payload = _query_payload(query_text, num_results=10)
         response = requests.post(api_query_endpoint, json=payload, timeout=30)
-        assert response.status_code == 200, "Query with top_k=10 should succeed"
+        assert response.status_code == 200, "Query with num_results=10 should succeed"
 
         data = response.json()
         assert len(data["results"]) <= 10, (
-            f"top_k=10 should return ≤10 results, got: {len(data['results'])}"
+            f"num_results=10 should return <=10 results, got: {len(data['results'])}"
         )
 
     def test_query_with_empty_text_fails(self, api_query_endpoint: str):
@@ -191,9 +188,9 @@ class TestQueryWorkflow:
         Verify query endpoint rejects empty query text.
 
         Expected:
-            Empty query_text returns 422 (validation error)
+            Empty text returns 422 (validation error)
         """
-        payload = {"query_text": "", "top_k": 5, "language": "en"}
+        payload = _query_payload("")
 
         response = requests.post(api_query_endpoint, json=payload, timeout=10)
 
@@ -208,9 +205,9 @@ class TestQueryWorkflow:
         Verify query endpoint validates required fields.
 
         Expected:
-            Missing query_text returns 422 (validation error)
+            Missing text returns 422 (validation error)
         """
-        payload = {"top_k": 5, "language": "en"}  # Missing query_text
+        payload = {"num_results": 5, "language": "en"}  # Missing text
 
         response = requests.post(api_query_endpoint, json=payload, timeout=10)
 
@@ -219,47 +216,43 @@ class TestQueryWorkflow:
             400,
         ], f"Missing required field should fail, got: {response.status_code}"
 
-    def test_query_with_invalid_top_k_fails(self, api_query_endpoint: str):
+    def test_query_with_invalid_num_results_fails(self, api_query_endpoint: str):
         """
-        Verify query endpoint validates top_k parameter.
+        Verify query endpoint validates num_results parameter.
 
         Expected:
-            Invalid top_k (negative, zero, or too large) returns 422
+            Invalid num_results (negative or zero) returns 422
         """
         query_text = "Patient with fever"
 
-        # Test negative top_k
-        payload = {"query_text": query_text, "top_k": -1, "language": "en"}
+        # Test negative num_results
+        payload = _query_payload(query_text, num_results=-1)
         response = requests.post(api_query_endpoint, json=payload, timeout=10)
 
         assert response.status_code in [
             422,
             400,
-        ], f"Negative top_k should fail, got: {response.status_code}"
+        ], f"Negative num_results should fail, got: {response.status_code}"
 
-        # Test zero top_k
-        payload = {"query_text": query_text, "top_k": 0, "language": "en"}
+        # Test zero num_results
+        payload = _query_payload(query_text, num_results=0)
         response = requests.post(api_query_endpoint, json=payload, timeout=10)
 
         assert response.status_code in [
             422,
             400,
-        ], f"Zero top_k should fail, got: {response.status_code}"
+        ], f"Zero num_results should fail, got: {response.status_code}"
 
     def test_query_response_contains_metadata(self, api_query_endpoint: str):
         """
         Verify query response includes useful metadata.
 
         Expected metadata fields:
-            - query_text (echoed back)
+            - text (echoed back)
             - results_count or similar
             - model_name or embedding_model
         """
-        payload = {
-            "query_text": "Patient with hypertension",
-            "top_k": 5,
-            "language": "en",
-        }
+        payload = _query_payload("Patient with hypertension")
 
         response = requests.post(api_query_endpoint, json=payload, timeout=30)
         assert response.status_code == 200, "Query should succeed"
@@ -281,11 +274,7 @@ class TestQueryWorkflow:
         Note: This test validates that the API processes the text,
         but assertion detection logic is tested at unit level.
         """
-        payload = {
-            "query_text": "Patient does not have fever but has headache",
-            "top_k": 5,
-            "language": "en",
-        }
+        payload = _query_payload("Patient does not have fever but has headache")
 
         response = requests.post(api_query_endpoint, json=payload, timeout=30)
 
@@ -310,11 +299,7 @@ class TestQueryWorkflow:
         Cardiac evaluation shows no structural abnormalities.
         """
 
-        payload = {
-            "query_text": clinical_note.strip(),
-            "top_k": 10,
-            "language": "en",
-        }
+        payload = _query_payload(clinical_note.strip(), num_results=10)
 
         response = requests.post(api_query_endpoint, json=payload, timeout=60)
 
@@ -331,8 +316,8 @@ class TestQueryWorkflow:
         # Verify each result has required fields
         for result in results:
             assert "hpo_id" in result, "Each result should have hpo_id"
-            assert "hpo_name" in result, "Each result should have hpo_name"
-            assert "score" in result, "Each result should have score"
+            assert "label" in result, "Each result should have label"
+            assert "similarity" in result, "Each result should have similarity"
 
     def test_query_performance_acceptable(self, api_query_endpoint: str):
         """
@@ -343,11 +328,7 @@ class TestQueryWorkflow:
         """
         import time
 
-        payload = {
-            "query_text": "Patient with seizures and developmental delay",
-            "top_k": 5,
-            "language": "en",
-        }
+        payload = _query_payload("Patient with seizures and developmental delay")
 
         start_time = time.time()
         response = requests.post(api_query_endpoint, json=payload, timeout=30)
@@ -378,7 +359,7 @@ class TestQueryWorkflow:
         ]
 
         for i, query_text in enumerate(test_queries):
-            payload = {"query_text": query_text, "top_k": 5, "language": "en"}
+            payload = _query_payload(query_text)
 
             response = requests.post(api_query_endpoint, json=payload, timeout=30)
 
@@ -398,11 +379,7 @@ class TestQueryWorkflow:
         """
         import re
 
-        payload = {
-            "query_text": "Patient with developmental delay",
-            "top_k": 5,
-            "language": "en",
-        }
+        payload = _query_payload("Patient with developmental delay")
 
         response = requests.post(api_query_endpoint, json=payload, timeout=30)
         assert response.status_code == 200, "Query should succeed"
@@ -423,11 +400,9 @@ class TestQueryWorkflow:
         Expected:
             Each HPO ID appears only once in results
         """
-        payload = {
-            "query_text": "Patient has fever and high temperature",
-            "top_k": 10,
-            "language": "en",
-        }
+        payload = _query_payload(
+            "Patient has fever and high temperature", num_results=10
+        )
 
         response = requests.post(api_query_endpoint, json=payload, timeout=30)
         assert response.status_code == 200, "Query should succeed"

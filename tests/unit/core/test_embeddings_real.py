@@ -44,7 +44,7 @@ class TestLoadEmbeddingModel:
         load_embedding_model()
 
         # Assert
-        mock_st.assert_called_once_with(DEFAULT_BIOLORD_MODEL, trust_remote_code=True)
+        mock_st.assert_called_once_with(DEFAULT_BIOLORD_MODEL)
         mock_model.to.assert_called_once_with("cpu")
 
     @patch("phentrieve.embeddings.SentenceTransformer")
@@ -88,8 +88,8 @@ class TestLoadEmbeddingModel:
 
     @patch("phentrieve.embeddings.SentenceTransformer")
     @patch("phentrieve.embeddings.torch.cuda.is_available")
-    def test_biolord_model_special_handling(self, mock_cuda, mock_st):
-        """Test BioLORD model loads with trust_remote_code=True."""
+    def test_biolord_model_uses_explicit_trust_policy(self, mock_cuda, mock_st):
+        """Test BioLORD model does not infer trust_remote_code from its name."""
         # Arrange
         mock_cuda.return_value = False
         mock_model = Mock()
@@ -99,7 +99,7 @@ class TestLoadEmbeddingModel:
         load_embedding_model(model_name=DEFAULT_BIOLORD_MODEL)
 
         # Assert
-        mock_st.assert_called_once_with(DEFAULT_BIOLORD_MODEL, trust_remote_code=True)
+        mock_st.assert_called_once_with(DEFAULT_BIOLORD_MODEL)
 
     @patch("phentrieve.embeddings.SentenceTransformer")
     @patch("phentrieve.embeddings.torch.cuda.is_available")
