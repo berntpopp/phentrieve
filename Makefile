@@ -1,4 +1,4 @@
-.PHONY: help format format-check lint typecheck check ci-local precommit config-validate test test-ci test-scripts test-all clean all install install-text-processing lock upgrade add remove clean-venv frontend-install frontend-lint frontend-format frontend-format-check frontend-dev frontend-build frontend-build-ci frontend-test-ci docker-build docker-up docker-down docker-logs dev-api dev-frontend dev-all test-api test-api-cov test-e2e test-e2e-security test-e2e-health test-e2e-api test-e2e-fast test-e2e-clean test-e2e-logs test-e2e-shell cov-package cov-api cov-frontend cov-all security security-python security-frontend security-audit security-report version version-cli version-api version-frontend bump-cli-patch bump-cli-minor bump-cli-major bump-api-patch bump-api-minor bump-api-major bump-frontend-patch bump-frontend-minor bump-frontend-major benchmark-compare-vectors benchmark-single benchmark-multi mcp-serve mcp-serve-http mcp-info mcp-install
+.PHONY: help format format-check lint typecheck typecheck-fast typecheck-daemon-stop typecheck-fresh check ci-local precommit ci ci-python-quality ci-python-compat ci-python ci-frontend ci-quick config-validate test test-cov test-ci test-scripts test-all clean all install install-dev install-text-processing install-editable lock upgrade add remove clean-venv frontend-install frontend-lint frontend-format frontend-format-check frontend-dev frontend-build frontend-build-ci frontend-test frontend-test-ci frontend-test-ui frontend-test-cov frontend-i18n-check frontend-i18n-report docker-build docker-up docker-down docker-logs docker-dev dev-api dev-frontend dev-all test-api test-api-cov test-e2e test-e2e-security test-e2e-health test-e2e-api test-e2e-fast test-e2e-clean test-e2e-logs test-e2e-shell cov-package cov-api cov-frontend cov-all security security-python security-frontend security-audit security-report version version-cli version-api version-frontend bump-cli-patch bump-cli-minor bump-cli-major bump-api-patch bump-api-minor bump-api-major bump-frontend-patch bump-frontend-minor bump-frontend-major benchmark-compare-vectors benchmark-single benchmark-multi mcp-serve mcp-serve-http mcp-info mcp-install
 
 # Docker Compose command detection (supports both v1 and v2)
 # Prefer v2 (docker compose) over v1 (docker-compose)
@@ -80,7 +80,7 @@ typecheck-fresh: ## Type check from scratch (clear cache first)
 
 check: format lint ## Format and lint code
 
-ci-local: format-check lint typecheck-fast test-ci frontend-lint frontend-format-check frontend-test-ci frontend-build-ci ## Run every check CI runs, in order, locally
+ci-local: ci-python-quality ci-frontend ## Run every pull request quality check locally
 
 precommit: ci-local ## Run the full local pre-commit verification set (CI parity)
 
@@ -287,37 +287,44 @@ clean-data: ## Clean data caches (use with caution)
 
 ##@ CI/CD Pipeline (Local-First Best Practice)
 
-ci: ci-python ci-frontend ## Run full CI pipeline locally (matches GitHub Actions 1:1)
+ci: ci-python-quality ci-frontend ## Run full pull request quality pipeline locally
 
-ci-python: ## Run Python CI checks (matches GitHub Actions)
+ci-python-quality: ## Run Python pull request quality checks
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-	@echo "  Python CI Pipeline"
+	@echo "  Python Quality Pipeline"
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 	@echo ""
-	@echo "Running Python CI checks (same as GitHub Actions)..."
+	@echo "Running Python quality checks..."
 	@echo ""
 	@echo "[1/5] Install dependencies..."
-	@uv sync --all-extras --dev
+	@uv sync --locked --all-extras --dev
 	@echo "✅ Dependencies installed"
 	@echo ""
 	@echo "[2/5] Ruff format check..."
-	@ruff format --check phentrieve/ api/ tests/ || (echo "❌ Format check failed. Run: make format" && exit 1)
+	@$(MAKE) format-check || (echo "❌ Format check failed. Run: make format" && exit 1)
 	@echo "✅ Format check passed"
 	@echo ""
 	@echo "[3/5] Ruff lint check..."
-	@ruff check phentrieve/ api/ tests/ || (echo "❌ Lint check failed. Run: make lint-fix" && exit 1)
+	@$(MAKE) lint || (echo "❌ Lint check failed. Run: make lint-fix" && exit 1)
 	@echo "✅ Lint check passed"
 	@echo ""
-	@echo "[4/5] mypy type check..."
-	@uv run mypy phentrieve/ api/ || echo "⚠️  Type errors found (non-blocking)"
+	@echo "[4/5] mypy type check (fast local daemon)..."
+	@$(MAKE) typecheck-fast
 	@echo ""
 	@echo "[5/5] pytest with coverage (unit + integration only)..."
-	@uv run pytest tests/ -v -m "not e2e" --cov=phentrieve --cov=api --cov-report=xml --cov-report=term || (echo "❌ Tests failed" && exit 1)
+	@$(MAKE) test-ci || (echo "❌ Tests failed" && exit 1)
 	@echo "✅ Tests passed"
 	@echo ""
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-	@echo "  ✅ Python CI Pipeline Complete"
+	@echo "  ✅ Python Quality Pipeline Complete"
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+ci-python-compat: ## Run Python compatibility tests for the current interpreter
+	@echo "Running Python compatibility tests for the current interpreter..."
+	@uv sync --locked --all-extras --dev
+	@uv run pytest tests/ -q -m "not e2e" --no-cov
+
+ci-python: ci-python-quality ## Alias for the Python pull request quality checks
 
 ci-frontend: ## Run Frontend CI checks (matches GitHub Actions)
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
@@ -338,12 +345,12 @@ ci-frontend: ## Run Frontend CI checks (matches GitHub Actions)
 	@cd frontend && npm run format:check || (echo "❌ Format check failed. Run: make frontend-format" && exit 1)
 	@echo "✅ Format check passed"
 	@echo ""
-	@echo "[4/5] Vitest tests with coverage..."
-	@cd frontend && npm run test:coverage || (echo "❌ Tests failed" && exit 1)
+	@echo "[4/5] Vitest tests..."
+	@$(MAKE) frontend-test-ci || (echo "❌ Tests failed" && exit 1)
 	@echo "✅ Tests passed"
 	@echo ""
 	@echo "[5/5] Production build..."
-	@cd frontend && VITE_API_URL=/api/v1 npm run build || (echo "❌ Build failed" && exit 1)
+	@$(MAKE) frontend-build-ci || (echo "❌ Build failed" && exit 1)
 	@echo "✅ Build passed"
 	@echo ""
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
