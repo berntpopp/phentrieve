@@ -557,7 +557,7 @@ def test_benchmark_llm_command_passes_ontology_metric_options(tmp_path, monkeypa
             "--test-file",
             str(test_file),
             "--llm-model",
-            "gemini-3.1-flash-lite-preview",
+            "gemini-3.1-flash-lite",
             "--ontology-aware-metrics",
             "--ontology-semantic-floor",
             "0.25",

@@ -86,7 +86,7 @@ def test_public_hosted_mode_allows_llm_after_research_ack(client, monkeypatch):
                     "meta": {
                         "extraction_backend": "llm",
                         "llm_provider": "gemini",
-                        "llm_model": "gemini-3.1-flash-lite-preview",
+                        "llm_model": "gemini-3.1-flash-lite",
                     },
                     "processed_chunks": [],
                     "aggregated_hpo_terms": [],

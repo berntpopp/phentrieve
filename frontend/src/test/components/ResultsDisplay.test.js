@@ -221,7 +221,7 @@ describe('AdvancedOptionsPanel', () => {
         isTextProcessModeActive: true,
         textProcessOptions: {
           extractionBackend: 'llm',
-          llmModel: 'gemini-3.1-flash-lite-preview',
+          llmModel: 'gemini-3.1-flash-lite',
           llmMode: 'two_phase',
         },
       },
@@ -247,7 +247,7 @@ describe('AdvancedOptionsPanel', () => {
       props: {
         visible: true,
         isTextProcessModeActive: true,
-        defaultLlmModel: 'gemini-3.1-flash-lite-preview',
+        defaultLlmModel: 'gemini-3.1-flash-lite',
         defaultLlmMode: 'two_phase',
         textProcessOptions: {
           extractionBackend: 'llm',
@@ -264,7 +264,7 @@ describe('AdvancedOptionsPanel', () => {
       .find((select) => select.props('modelValue') === 'two_phase');
 
     expect(
-      textFields.some((field) => field.props('modelValue') === 'gemini-3.1-flash-lite-preview')
+      textFields.some((field) => field.props('modelValue') === 'gemini-3.1-flash-lite')
     ).toBe(true);
     expect(llmModeSelect).toBeDefined();
   });

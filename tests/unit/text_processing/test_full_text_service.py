@@ -604,7 +604,7 @@ def test_run_llm_backend_uses_default_llm_model(mocker, monkeypatch):
     pipeline.run.return_value = LLMExtractionResult(
         terms=[],
         meta=LLMMeta(
-            llm_model="gemini-3.1-flash-lite-preview",
+            llm_model="gemini-3.1-flash-lite",
             llm_mode="two_phase",
         ),
     )
@@ -625,9 +625,7 @@ def test_run_llm_backend_uses_default_llm_model(mocker, monkeypatch):
         language="en",
     )
 
-    assert (
-        pipeline.run.call_args.kwargs["config"].model == "gemini-3.1-flash-lite-preview"
-    )
+    assert pipeline.run.call_args.kwargs["config"].model == "gemini-3.1-flash-lite"
 
 
 def test_llm_backend_logs_do_not_include_injection_payload(monkeypatch, caplog) -> None:
@@ -637,7 +635,7 @@ def test_llm_backend_logs_do_not_include_injection_payload(monkeypatch, caplog) 
 
     class FakeProvider:
         provider_name = "gemini"
-        model_name = "gemini-3.1-flash-lite-preview"
+        model_name = "gemini-3.1-flash-lite"
         last_usage = {}
         last_request_count = 0
 
@@ -653,7 +651,7 @@ def test_llm_backend_logs_do_not_include_injection_payload(monkeypatch, caplog) 
                 terms=[],
                 meta=LLMMeta(
                     llm_provider="gemini",
-                    llm_model="gemini-3.1-flash-lite-preview",
+                    llm_model="gemini-3.1-flash-lite",
                     llm_mode="two_phase",
                 ),
             )
@@ -671,7 +669,7 @@ def test_llm_backend_logs_do_not_include_injection_payload(monkeypatch, caplog) 
         full_text_service.run_llm_backend(
             text=injection,
             llm_provider="gemini",
-            llm_model="gemini-3.1-flash-lite-preview",
+            llm_model="gemini-3.1-flash-lite",
             llm_base_url=None,
             provider_factory=lambda **_kwargs: FakeProvider(),
             pipeline_factory=FakePipeline,

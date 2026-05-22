@@ -239,7 +239,7 @@ class TextProcessingResponseAPI(BaseModel):
                 {
                     "extraction_backend": "llm",
                     "llm_provider": "gemini",
-                    "llm_model": "gemini-3.1-flash-lite-preview",
+                    "llm_model": "gemini-3.1-flash-lite",
                     "llm_mode": "two_phase",
                     "quota_limit": 5,
                     "quota_remaining": 4,

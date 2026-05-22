@@ -42,7 +42,7 @@ def test_llm_tool_maps_request_to_full_text_service(monkeypatch) -> None:
     assert captured["text"] == "Patient has seizures."
     assert captured["extraction_backend"] == "llm"
     assert captured["llm_provider"] == "gemini"
-    assert captured["llm_model"] == "gemini-3.1-flash-lite-preview"
+    assert captured["llm_model"] == "gemini-3.1-flash-lite"
     assert captured["llm_base_url"] is None
     assert captured["llm_internal_mode"] == "whole_document_grounded"
     assert captured["num_results_per_chunk"] == 10
@@ -80,7 +80,7 @@ def test_llm_tool_uses_shared_public_target(monkeypatch) -> None:
     )
 
     assert captured["llm_provider"] == "gemini"
-    assert captured["llm_model"] == "gemini-3.1-flash-lite-preview"
+    assert captured["llm_model"] == "gemini-3.1-flash-lite"
     assert captured["llm_base_url"] is None
     assert captured["llm_mode"] == "two_phase"
 
@@ -179,7 +179,7 @@ def test_llm_tool_falls_back_to_standard_when_requested() -> None:
     assert "LLM provider is not configured" in result["meta"]["fallback_error"]
     assert [call["extraction_backend"] for call in calls] == ["llm", "standard"]
     assert calls[0]["llm_provider"] == "gemini"
-    assert calls[0]["llm_model"] == "gemini-3.1-flash-lite-preview"
+    assert calls[0]["llm_model"] == "gemini-3.1-flash-lite"
     assert calls[0]["llm_base_url"] is None
     assert "llm_provider" not in calls[1]
     assert "llm_model" not in calls[1]
@@ -213,7 +213,7 @@ def test_mcp_llm_text_injection_cannot_change_public_llm_target() -> None:
     )
 
     assert captured["llm_provider"] == "gemini"
-    assert captured["llm_model"] == "gemini-3.1-flash-lite-preview"
+    assert captured["llm_model"] == "gemini-3.1-flash-lite"
     assert captured["llm_base_url"] is None
 
 

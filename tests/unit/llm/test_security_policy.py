@@ -14,7 +14,7 @@ def test_public_llm_target_defaults_to_single_server_owned_target() -> None:
     target = resolve_public_llm_target()
 
     assert target.provider == "gemini"
-    assert target.model == "gemini-3.1-flash-lite-preview"
+    assert target.model == "gemini-3.1-flash-lite"
     assert target.base_url is None
 
 
@@ -22,8 +22,8 @@ def test_public_llm_target_defaults_to_single_server_owned_target() -> None:
     ("provider", "model", "base_url"),
     [
         ("gemini", None, None),
-        (None, "gemini-3.1-flash-lite-preview", None),
-        ("gemini", "gemini-3.1-flash-lite-preview", None),
+        (None, "gemini-3.1-flash-lite", None),
+        ("gemini", "gemini-3.1-flash-lite", None),
         ("openai", "gpt-5.4-mini", None),
         ("anthropic", "claude-sonnet-4-6", None),
         ("ollama", "qwen3:32b", None),
@@ -52,12 +52,12 @@ def test_public_llm_capabilities_are_read_only_and_sanitized() -> None:
 
     assert capabilities == {
         "default_llm_provider": "gemini",
-        "default_llm_model": "gemini-3.1-flash-lite-preview",
-        "configured_llm_models": ["gemini-3.1-flash-lite-preview"],
+        "default_llm_model": "gemini-3.1-flash-lite",
+        "configured_llm_models": ["gemini-3.1-flash-lite"],
         "allowed_llm_targets": [
             {
                 "provider": "gemini",
-                "model": "gemini-3.1-flash-lite-preview",
+                "model": "gemini-3.1-flash-lite",
                 "display_name": "Gemini 3.1 Flash Lite",
             }
         ],

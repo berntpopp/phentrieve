@@ -61,7 +61,7 @@ def test_text_processing_router_returns_llm_meta(client, monkeypatch):
     assert response.status_code == 200
     assert response.json()["meta"]["extraction_backend"] == "llm"
     assert response.json()["meta"]["llm_provider"] == "gemini"
-    assert response.json()["meta"]["llm_model"] == "gemini-3.1-flash-lite-preview"
+    assert response.json()["meta"]["llm_model"] == "gemini-3.1-flash-lite"
 
 
 @pytest.mark.asyncio
@@ -103,7 +103,7 @@ async def test_llm_request_uses_server_owned_llm_target(monkeypatch) -> None:
     await text_processing_router._process_text_via_shared_service(request)
 
     assert captured["llm_provider"] == "gemini"
-    assert captured["llm_model"] == "gemini-3.1-flash-lite-preview"
+    assert captured["llm_model"] == "gemini-3.1-flash-lite"
     assert captured["llm_base_url"] is None
     assert captured["llm_mode"] == "two_phase"
     assert captured["llm_internal_mode"] == "whole_document_grounded"
@@ -119,7 +119,7 @@ def test_text_processing_router_rejects_public_llm_config_fields(
         json={
             "text": "Patient had recurrent seizures.",
             "extraction_backend": "llm",
-            field: "gemini-3.1-flash-lite-preview",
+            field: "gemini-3.1-flash-lite",
         },
     )
 
@@ -153,7 +153,7 @@ def test_text_processing_router_accepts_llm_without_model(client, monkeypatch):
 
     assert response.status_code == 200
     assert response.json()["meta"]["llm_provider"] == "gemini"
-    assert response.json()["meta"]["llm_model"] == "gemini-3.1-flash-lite-preview"
+    assert response.json()["meta"]["llm_model"] == "gemini-3.1-flash-lite"
 
 
 def test_llm_text_injection_cannot_change_public_llm_target(
@@ -195,7 +195,7 @@ def test_llm_text_injection_cannot_change_public_llm_target(
 
     assert response.status_code == 200
     assert captured["llm_provider"] == "gemini"
-    assert captured["llm_model"] == "gemini-3.1-flash-lite-preview"
+    assert captured["llm_model"] == "gemini-3.1-flash-lite"
     assert captured["llm_base_url"] is None
     assert injection not in caplog.text
     assert "https://evil.example/v1" not in caplog.text
@@ -332,7 +332,7 @@ def test_text_processing_router_accepts_llm_without_model_required(client, monke
     )
 
     assert response.status_code == 200
-    assert response.json()["meta"]["llm_model"] == "gemini-3.1-flash-lite-preview"
+    assert response.json()["meta"]["llm_model"] == "gemini-3.1-flash-lite"
 
 
 def test_text_processing_router_passes_assertion_config_to_public_llm(

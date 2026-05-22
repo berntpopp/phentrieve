@@ -845,8 +845,8 @@ def test_run_llm_backend_uses_default_model_when_not_explicitly_configured(
 
     result = _run_llm_backend(text="Patient had recurrent seizures.")
 
-    assert calls["config"].model == "gemini-3.1-flash-lite-preview"
-    assert result["meta"]["llm_model"] == "gemini-3.1-flash-lite-preview"
+    assert calls["config"].model == "gemini-3.1-flash-lite"
+    assert result["meta"]["llm_model"] == "gemini-3.1-flash-lite"
 
 
 def _clear_yaml_cache() -> None:

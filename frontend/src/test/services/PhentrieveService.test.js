@@ -58,7 +58,7 @@ describe('PhentrieveService', () => {
       text: 'Patient had recurrent seizures.',
       extractionBackend: 'llm',
       llmModel: 'gpt-5.4-mini',
-      llm_model: 'gemini-3.1-flash-lite-preview',
+      llm_model: 'gemini-3.1-flash-lite',
       model_name: 'legacy-model-name',
       llmMode: 'two_phase',
     });

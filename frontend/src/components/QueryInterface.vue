@@ -209,7 +209,7 @@ import {
 } from '../composables/useUserNoteAnnotations';
 
 const DEFAULT_TEXT_PROCESS_LLM_OPTIONS = Object.freeze({
-  llmModel: 'gemini-3.1-flash-lite-preview',
+  llmModel: 'gemini-3.1-flash-lite',
   llmMode: 'two_phase',
 });
 const REDACTED_QUERY_PLACEHOLDER = '[redacted]';
