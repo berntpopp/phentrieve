@@ -144,7 +144,7 @@ jobs:
         run: uv sync --locked --all-extras --dev
 
       - name: Run pytest compatibility suite
-        run: uv run pytest tests/ -q -m "not e2e" --no-cov
+        run: uv run pytest tests/ -q -m "not slow and not e2e" --no-cov
 
   frontend-ci:
     name: Frontend CI

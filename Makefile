@@ -1,4 +1,4 @@
-.PHONY: help format format-check lint typecheck typecheck-fast typecheck-daemon-stop typecheck-fresh check ci-local precommit ci ci-python-quality ci-python-compat ci-python ci-frontend ci-quick config-validate test test-cov test-ci test-scripts test-all clean all install install-dev install-text-processing install-editable lock upgrade add remove clean-venv frontend-install frontend-lint frontend-format frontend-format-check frontend-dev frontend-build frontend-build-ci frontend-test frontend-test-ci frontend-test-ui frontend-test-cov frontend-i18n-check frontend-i18n-report docker-build docker-up docker-down docker-logs docker-dev dev-api dev-frontend dev-all test-api test-api-cov test-e2e test-e2e-security test-e2e-health test-e2e-api test-e2e-fast test-e2e-clean test-e2e-logs test-e2e-shell cov-package cov-api cov-frontend cov-all security security-python security-frontend security-audit security-report version version-cli version-api version-frontend bump-cli-patch bump-cli-minor bump-cli-major bump-api-patch bump-api-minor bump-api-major bump-frontend-patch bump-frontend-minor bump-frontend-major benchmark-compare-vectors benchmark-single benchmark-multi mcp-serve mcp-serve-http mcp-info mcp-install
+.PHONY: help format format-check lint typecheck typecheck-fast typecheck-daemon-stop typecheck-fresh check ci-local precommit ci ci-python-quality ci-python-compat ci-python-compat-all ci-python ci-frontend ci-quick config-validate test test-cov test-ci test-scripts test-all clean all install install-dev install-text-processing install-editable lock upgrade add remove clean-venv frontend-install frontend-lint frontend-format frontend-format-check frontend-dev frontend-build frontend-build-ci frontend-test frontend-test-ci frontend-test-ui frontend-test-cov frontend-i18n-check frontend-i18n-report docker-build docker-up docker-down docker-logs docker-dev dev-api dev-frontend dev-all test-api test-api-cov test-e2e test-e2e-security test-e2e-health test-e2e-api test-e2e-fast test-e2e-clean test-e2e-logs test-e2e-shell cov-package cov-api cov-frontend cov-all security security-python security-frontend security-audit security-report version version-cli version-api version-frontend bump-cli-patch bump-cli-minor bump-cli-major bump-api-patch bump-api-minor bump-api-major bump-frontend-patch bump-frontend-minor bump-frontend-major benchmark-compare-vectors benchmark-single benchmark-multi mcp-serve mcp-serve-http mcp-info mcp-install
 
 # Docker Compose command detection (supports both v1 and v2)
 # Prefer v2 (docker compose) over v1 (docker-compose)
@@ -93,8 +93,8 @@ test: ## Run package tests with pytest
 test-cov: ## Run package tests with coverage
 	uv run pytest tests/ -v --cov=phentrieve --cov=api --cov-report=html --cov-report=term
 
-test-ci: ## Run Python tests exactly as CI does (pytest -m "not e2e" with coverage XML)
-	uv run pytest tests/ -v -m "not e2e" --cov=phentrieve --cov=api --cov-report=xml --cov-report=term
+test-ci: ## Run Python tests exactly as CI does (pytest -m "not slow and not e2e" with coverage XML)
+	uv run pytest tests/ -v -m "not slow and not e2e" --cov=phentrieve --cov=api --cov-report=xml --cov-report=term
 
 test-scripts: ## Run script tests (scripts/tests/)
 	uv run pytest scripts/tests/ -v --cov=scripts --cov-report=term-missing
@@ -319,10 +319,15 @@ ci-python-quality: ## Run Python pull request quality checks
 	@echo "  ✅ Python Quality Pipeline Complete"
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
-ci-python-compat: ## Run Python compatibility tests for the current interpreter
-	@echo "Running Python compatibility tests for the current interpreter..."
-	@uv sync --locked --all-extras --dev
-	@uv run pytest tests/ -q -m "not e2e" --no-cov
+ci-python-compat: ## Run Python compatibility tests; set PYTHON=3.12 or PYTHON=3.13 to mirror CI
+	@if [ -n "$${PYTHON:-}" ]; then \
+		scripts/ci-python-compat.sh "$${PYTHON}"; \
+	else \
+		scripts/ci-python-compat.sh; \
+	fi
+
+ci-python-compat-all: ## Run Python compatibility tests for the same versions as GitHub Actions
+	@scripts/ci-python-compat.sh 3.12 3.13
 
 ci-python: ci-python-quality ## Alias for the Python pull request quality checks
 

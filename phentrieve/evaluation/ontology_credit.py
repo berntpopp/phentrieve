@@ -13,7 +13,6 @@ from phentrieve.evaluation.metrics import (
 )
 
 logger = logging.getLogger(__name__)
-_PARENTS_CACHE: dict[tuple[int, str], set[str]] = {}
 
 
 class MatchKind(str, Enum):  # noqa: UP042 - Python 3.10 compatible enum.
@@ -99,7 +98,10 @@ def calculate_pair_credit(
     if predicted_id == gold_id:
         return PairCredit(predicted_id, gold_id, 1.0, MatchKind.EXACT, 1.0, 0)
 
-    distance = _ontology_distance(predicted_id, gold_id, ancestors, depths)
+    parents_cache: dict[str, set[str]] = {}
+    distance = _ontology_distance(
+        predicted_id, gold_id, ancestors, depths, parents_cache
+    )
     if _is_descendant(predicted_id, gold_id, ancestors):
         similarity = _safe_similarity(predicted_id, gold_id, config)
         credit = max(
@@ -121,7 +123,9 @@ def calculate_pair_credit(
         )
 
     similarity = _safe_similarity(predicted_id, gold_id, config)
-    relationship = _sibling_or_cousin(predicted_id, gold_id, ancestors, depths)
+    relationship = _sibling_or_cousin(
+        predicted_id, gold_id, ancestors, depths, parents_cache
+    )
     if relationship == MatchKind.SIBLING:
         return PairCredit(
             predicted_id,
@@ -162,9 +166,11 @@ def _ontology_distance(
     term_b: str,
     ancestors: dict[str, set[str]],
     depths: dict[str, int],
+    parents_cache: dict[str, set[str]] | None = None,
 ) -> int | None:
-    distances_a = _ancestor_distances(term_a, ancestors, depths)
-    distances_b = _ancestor_distances(term_b, ancestors, depths)
+    parents_cache = parents_cache if parents_cache is not None else {}
+    distances_a = _ancestor_distances(term_a, ancestors, depths, parents_cache)
+    distances_b = _ancestor_distances(term_b, ancestors, depths, parents_cache)
     if not distances_a or not distances_b:
         return None
 
@@ -181,6 +187,7 @@ def _ancestor_distances(
     term_id: str,
     ancestors: dict[str, set[str]],
     depths: dict[str, int],
+    parents_cache: dict[str, set[str]],
 ) -> dict[str, int]:
     if term_id not in ancestors:
         return {}
@@ -189,7 +196,7 @@ def _ancestor_distances(
     queue = deque([term_id])
     while queue:
         current = queue.popleft()
-        for parent in _parents_of(current, ancestors):
+        for parent in _parents_of(current, ancestors, parents_cache):
             if parent in distances:
                 continue
             distances[parent] = distances[current] + 1
@@ -198,15 +205,20 @@ def _ancestor_distances(
     return distances
 
 
-def _parents_of(term_id: str, ancestors: dict[str, set[str]]) -> set[str]:
-    cache_key = (id(ancestors), term_id)
-    if cache_key in _PARENTS_CACHE:
-        return _PARENTS_CACHE[cache_key]
+def _parents_of(
+    term_id: str,
+    ancestors: dict[str, set[str]],
+    parents_cache: dict[str, set[str]] | None = None,
+) -> set[str]:
+    if parents_cache is not None and term_id in parents_cache:
+        return parents_cache[term_id]
 
     proper_ancestors = ancestors.get(term_id, set()) - {term_id}
     if not proper_ancestors:
-        _PARENTS_CACHE[cache_key] = set()
-        return _PARENTS_CACHE[cache_key]
+        parents: set[str] = set()
+        if parents_cache is not None:
+            parents_cache[term_id] = parents
+        return parents
 
     parents = {
         ancestor
@@ -217,7 +229,8 @@ def _parents_of(term_id: str, ancestors: dict[str, set[str]]) -> set[str]:
             if other_ancestor != ancestor
         )
     }
-    _PARENTS_CACHE[cache_key] = parents
+    if parents_cache is not None:
+        parents_cache[term_id] = parents
     return parents
 
 
@@ -226,9 +239,11 @@ def _sibling_or_cousin(
     term_b: str,
     ancestors: dict[str, set[str]],
     depths: dict[str, int],
+    parents_cache: dict[str, set[str]] | None = None,
 ) -> MatchKind | None:
-    parents_a = _parents_of(term_a, ancestors)
-    parents_b = _parents_of(term_b, ancestors)
+    parents_cache = parents_cache if parents_cache is not None else {}
+    parents_a = _parents_of(term_a, ancestors, parents_cache)
+    parents_b = _parents_of(term_b, ancestors, parents_cache)
     if not parents_a or not parents_b:
         return None
 
@@ -236,11 +251,13 @@ def _sibling_or_cousin(
         return MatchKind.SIBLING
 
     for parent_a in parents_a:
-        grand_parents_a = _parents_of(parent_a, ancestors)
+        grand_parents_a = _parents_of(parent_a, ancestors, parents_cache)
         if not grand_parents_a:
             continue
         for parent_b in parents_b:
-            if grand_parents_a.intersection(_parents_of(parent_b, ancestors)):
+            if grand_parents_a.intersection(
+                _parents_of(parent_b, ancestors, parents_cache)
+            ):
                 return MatchKind.COUSIN
 
     return None

@@ -39,14 +39,26 @@ Required checks before claiming completion:
 - `make typecheck-fast`
 - `make test`
 
-For changes that can affect GitHub Actions frontend parity, also run:
+Use these CI-parity targets locally:
+
+- Python quality PR gate: `make ci-python-quality`
+- Python compatibility matrix: `make ci-python-compat-all`
+- One Python compatibility version: `make ci-python-compat PYTHON=3.13`
+- Frontend PR gate: `make ci-frontend`
+- Full local PR gate: `make ci-local`
+
+For changes that can affect GitHub Actions frontend parity, run:
 
 - `make frontend-test-ci`
 - `make frontend-build-ci`
 
-Recommended pre-commit CI-parity shortcut:
+For changes that can affect Python version compatibility, run:
 
-- `make ci-local`
+- `make ci-python-compat PYTHON=3.12`
+- `make ci-python-compat PYTHON=3.13`
+
+Recommended pre-commit shortcut:
+
 - `make precommit`
 
 Python-only shortcut:
@@ -106,6 +118,8 @@ Docker and E2E:
 ## Testing Notes
 
 - `make test` excludes `slow` and `e2e` tests by default.
+- `make test-ci` and `make ci-python-compat*` also exclude `slow` and `e2e`
+  tests to match GitHub Actions PR checks.
 - Available pytest markers: `unit`, `integration`, `e2e`, `slow`.
 - Tests run in parallel via `pytest-xdist`.
 - For single-threaded debugging, use `uv run pytest tests/ -n 0 ...`.
