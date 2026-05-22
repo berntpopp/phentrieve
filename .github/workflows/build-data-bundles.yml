@@ -286,8 +286,12 @@ jobs:
           if [ "${{ github.event_name }}" = "release" ]; then
             TAG="${{ github.event.release.tag_name }}"
           else
-            # Generate tag for workflow_dispatch
-            TAG="data-$(date +%Y%m%d)"
+            HPO_VERSION="${{ needs.prepare-matrix.outputs.hpo_version }}"
+            if [ "$HPO_VERSION" != "latest" ] && [ -n "$HPO_VERSION" ]; then
+              TAG="data-$HPO_VERSION"
+            else
+              TAG="data-$(date +%Y%m%d)"
+            fi
           fi
           echo "tag=$TAG" >> $GITHUB_OUTPUT
           echo "Release tag: $TAG"
