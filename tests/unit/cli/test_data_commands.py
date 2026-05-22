@@ -210,3 +210,50 @@ class TestPrepareHpoData:
             "Starting HPO data preparation" in str(call.args[0])
             for call in mock_echo.call_args_list
         )
+
+
+# =============================================================================
+# Tests for download_bundle()
+# =============================================================================
+
+
+class TestDownloadBundle:
+    """Test download_bundle() command."""
+
+    def test_download_passes_multivector_selection(self, mocker, tmp_path):
+        from phentrieve.cli.data_commands import download_bundle
+
+        bundle = mocker.Mock()
+        bundle.name = "phentrieve-data-v2026-02-16-biolord-multivec.tar.gz"
+        bundle.size = 1024 * 1024
+        manifest = mocker.Mock()
+        manifest.hpo_version = "v2026-02-16"
+        manifest.active_terms = 17000
+        manifest.model.name = "FremyCompany/BioLORD-2023-M"
+        mock_setup_logging = mocker.patch("phentrieve.utils.setup_logging_cli")
+        find = mocker.patch(
+            "phentrieve.data_processing.bundle_downloader.find_bundle",
+            return_value=bundle,
+        )
+        download_and_extract = mocker.patch(
+            "phentrieve.data_processing.bundle_downloader.download_and_extract_bundle",
+            return_value=manifest,
+        )
+        mocker.patch("typer.echo")
+        mocker.patch("typer.secho")
+
+        download_bundle(
+            model="biolord",
+            hpo_version="v2026-02-16",
+            data_dir=str(tmp_path),
+            multi_vector=True,
+        )
+
+        mock_setup_logging.assert_called_once_with(debug=False)
+        find.assert_called_once_with(
+            model_name="biolord",
+            hpo_version="v2026-02-16",
+            multi_vector=True,
+        )
+        download_and_extract.assert_called_once()
+        assert download_and_extract.call_args.kwargs["multi_vector"] is True

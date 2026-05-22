@@ -67,6 +67,7 @@ class BundleAsset:
     size: int
     hpo_version: str | None = None
     model_slug: str | None = None
+    multi_vector: bool = False
 
 
 def list_available_releases(
@@ -109,7 +110,7 @@ def list_available_releases(
             name = asset.get("name", "")
             if name.startswith("phentrieve-data-") and name.endswith(".tar.gz"):
                 # Parse bundle filename
-                hpo_version, model_slug = _parse_bundle_filename(name)
+                hpo_version, model_slug, multi_vector = _parse_bundle_filename(name)
                 bundles.append(
                     BundleAsset(
                         name=name,
@@ -117,6 +118,7 @@ def list_available_releases(
                         size=asset.get("size", 0),
                         hpo_version=hpo_version,
                         model_slug=model_slug,
+                        multi_vector=multi_vector,
                     )
                 )
 
@@ -135,7 +137,7 @@ def list_available_releases(
     return releases
 
 
-def _parse_bundle_filename(filename: str) -> tuple[str | None, str | None]:
+def _parse_bundle_filename(filename: str) -> tuple[str | None, str | None, bool]:
     """
     Parse bundle filename to extract HPO version and model slug.
 
@@ -143,21 +145,23 @@ def _parse_bundle_filename(filename: str) -> tuple[str | None, str | None]:
         filename: Bundle filename (e.g., "phentrieve-data-v2025-03-03-biolord.tar.gz")
 
     Returns:
-        Tuple of (hpo_version, model_slug) or (None, None) if parsing fails
+        Tuple of (hpo_version, model_slug, multi_vector) or
+        (None, None, False) if parsing fails
     """
-    # Pattern: phentrieve-data-{hpo_version}-{model_slug}.tar.gz
-    pattern = r"phentrieve-data-(v[\d-]+)-([a-z0-9_-]+)\.tar\.gz"
+    # Pattern: phentrieve-data-{hpo_version}-{model_slug}[-multivec].tar.gz
+    pattern = r"phentrieve-data-(v[\d-]+)-([a-z0-9_-]+?)(-multivec)?\.tar\.gz"
     match = re.match(pattern, filename, re.IGNORECASE)
 
     if match:
-        return match.group(1), match.group(2)
-    return None, None
+        return match.group(1), match.group(2), bool(match.group(3))
+    return None, None, False
 
 
 def find_bundle(
     model_name: str,
     hpo_version: str | None = None,
     release_tag: str | None = None,
+    multi_vector: bool = False,
 ) -> BundleAsset | None:
     """
     Find a specific bundle in available releases.
@@ -167,6 +171,7 @@ def find_bundle(
                    or model slug (e.g., "biolord")
         hpo_version: Specific HPO version (default: latest)
         release_tag: Specific release tag (default: latest)
+        multi_vector: Select multivector bundle instead of single-vector bundle
 
     Returns:
         BundleAsset if found, None otherwise
@@ -193,6 +198,8 @@ def find_bundle(
             # Check model slug match
             if bundle.model_slug != target_slug:
                 continue
+            if bundle.multi_vector != multi_vector:
+                continue
 
             # Check HPO version match if specified
             if hpo_version and bundle.hpo_version != hpo_version:
@@ -203,7 +210,8 @@ def find_bundle(
 
     logger.warning(
         f"No bundle found for model_slug={target_slug}, "
-        f"hpo_version={hpo_version}, release_tag={release_tag}"
+        f"hpo_version={hpo_version}, release_tag={release_tag}, "
+        f"multi_vector={multi_vector}"
     )
     return None
 
@@ -288,6 +296,7 @@ def download_and_extract_bundle(
     target_data_dir: Path | None = None,
     verify_checksums: bool = True,
     progress_callback: Callable[[int, int], None] | None = None,
+    multi_vector: bool = False,
 ) -> BundleManifest | None:
     """
     Download and extract a bundle to the data directory.
@@ -300,6 +309,7 @@ def download_and_extract_bundle(
         target_data_dir: Target data directory (default: from config)
         verify_checksums: Verify checksums after extraction
         progress_callback: Optional callback(bytes_downloaded, total_bytes)
+        multi_vector: Select multivector bundle instead of single-vector bundle
 
     Returns:
         BundleManifest if successful, None if bundle not found or download failed
@@ -311,7 +321,11 @@ def download_and_extract_bundle(
         ...     print(f"Installed HPO {manifest.hpo_version} with {manifest.active_terms} terms")
     """
     # Find bundle
-    bundle = find_bundle(model_name=model_name, hpo_version=hpo_version)
+    bundle = find_bundle(
+        model_name=model_name,
+        hpo_version=hpo_version,
+        multi_vector=multi_vector,
+    )
     if not bundle:
         return None
 
@@ -394,13 +408,16 @@ def check_for_updates(
     # Use installed model if not specified
     if model_name is None and installed.model:
         model_name = installed.model.name
+        multi_vector = installed.model.multi_vector
+    else:
+        multi_vector = False
 
     # Cannot check updates without a model
     if model_name is None:
         return False, "No model specified and no model in installed bundle"
 
     # Find latest available bundle
-    latest = find_bundle(model_name=model_name)
+    latest = find_bundle(model_name=model_name, multi_vector=multi_vector)
 
     if not latest:
         return False, "No bundles available for download"

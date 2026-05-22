@@ -103,6 +103,10 @@ def download_bundle(
         bool,
         typer.Option("--skip-verify", help="Skip checksum verification"),
     ] = False,
+    multi_vector: Annotated[
+        bool,
+        typer.Option("--multi-vector", help="Download a multivector bundle"),
+    ] = False,
     debug: Annotated[
         bool, typer.Option("--debug", help="Enable debug logging")
     ] = False,
@@ -131,7 +135,11 @@ def download_bundle(
     )
 
     # Find bundle first to show info
-    bundle = find_bundle(model_name=model, hpo_version=hpo_version)
+    bundle = find_bundle(
+        model_name=model,
+        hpo_version=hpo_version,
+        multi_vector=multi_vector,
+    )
     if not bundle:
         typer.secho(
             "No matching bundle found. Try 'phentrieve data list-bundles' to see available bundles.",
@@ -155,6 +163,7 @@ def download_bundle(
         target_data_dir=target_dir,
         verify_checksums=not skip_verify,
         progress_callback=progress_callback,
+        multi_vector=multi_vector,
     )
 
     typer.echo("")  # Newline after progress
