@@ -277,6 +277,7 @@ dev = [
     "bandit[toml,sarif]>=1.9.0",  # Python SAST with TOML config and SARIF output
     "mkdocs-glightbox>=0.5.2",
     "mkdocs-material>=9.7.6",
+    "pre-commit>=4.6.0",
 ]
 
 [tool.semantic_release]
