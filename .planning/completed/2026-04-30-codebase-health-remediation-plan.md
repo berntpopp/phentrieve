@@ -3,7 +3,7 @@
 > **For agentic workers:** REQUIRED SUB-SKILL: Use
 > `superpowers:subagent-driven-development` (recommended) or
 > `superpowers:executing-plans` to implement this plan task-by-task. Steps use
-> checkbox (`- [ ]`) syntax for tracking.
+> checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Fix all findings from the 2026-04-30 codebase health review and raise
 Phentrieve's maintainability, safety, and test signal above an `8/10` standard.
@@ -43,7 +43,7 @@ format-only changes. If a task uncovers unrelated dirty files, leave them alone.
 - Test: `tests/unit/api/test_text_processing_router.py`
 - Test: `tests/unit/test_embeddings_model_policy.py`
 
-- [ ] **Step 1: Write API query rejection tests**
+- [x] **Step 1: Write API query rejection tests**
 
 Add `tests/unit/api/test_query_router_model_policy.py`:
 
@@ -101,7 +101,7 @@ def test_query_accepts_default_model_without_client_trust_flag(client, monkeypat
     assert captured["model_name"] is None
 ```
 
-- [ ] **Step 2: Run the new query model-policy tests and verify failure**
+- [x] **Step 2: Run the new query model-policy tests and verify failure**
 
 Run:
 
@@ -112,7 +112,7 @@ uv run pytest tests/unit/api/test_query_router_model_policy.py -q
 Expected: the rejection test fails because `/query` does not yet validate model
 names.
 
-- [ ] **Step 3: Add shared model policy module**
+- [x] **Step 3: Add shared model policy module**
 
 Create `phentrieve/retrieval/model_policy.py`:
 
@@ -163,7 +163,7 @@ def resolve_retrieval_model_policy(
         ) from exc
 ```
 
-- [ ] **Step 4: Use the policy in `/query`**
+- [x] **Step 4: Use the policy in `/query`**
 
 In `api/routers/query_router.py`, resolve the policy before dependency/model
 construction:
@@ -188,13 +188,13 @@ dense_retriever = await get_dense_retriever_dependency(
 If the router reinitializes the retriever in another branch, pass
 `model_policy.model_name` there too.
 
-- [ ] **Step 5: Use the policy in `/text/process`**
+- [x] **Step 5: Use the policy in `/text/process`**
 
 Replace the local allowlist/trust helpers in
 `api/routers/text_processing_router.py` with
 `resolve_retrieval_model_policy()`. Preserve the current 400 response behavior.
 
-- [ ] **Step 6: Stop inferring trust from model-name substrings**
+- [x] **Step 6: Stop inferring trust from model-name substrings**
 
 In `phentrieve/embeddings.py`, replace the BioLORD substring check with explicit
 trust from the caller:
@@ -205,13 +205,13 @@ effective_trust_remote_code = trust_remote_code
 
 Do not set trust based on `"BioLORD" in model_name`.
 
-- [ ] **Step 7: Add embedding policy tests**
+- [x] **Step 7: Add embedding policy tests**
 
 Add a unit test that monkeypatches `SentenceTransformer` and verifies an
 unallowlisted BioLORD-like string does not automatically set
 `trust_remote_code=True`.
 
-- [ ] **Step 8: Run focused tests**
+- [x] **Step 8: Run focused tests**
 
 Run:
 
@@ -221,7 +221,7 @@ uv run pytest tests/unit/api/test_query_router_model_policy.py tests/unit/api/te
 
 Expected: all pass.
 
-- [ ] **Step 9: Commit**
+- [x] **Step 9: Commit**
 
 ```bash
 git add phentrieve/retrieval/model_policy.py api/routers/text_processing_router.py api/routers/query_router.py api/schemas/query_schemas.py api/dependencies.py phentrieve/embeddings.py tests/unit/api/test_query_router_model_policy.py tests/unit/api/test_text_processing_router.py tests/unit/test_embeddings_model_policy.py
@@ -235,7 +235,7 @@ git commit -m "fix(api): centralize retrieval model policy"
 - Modify: `phentrieve/text_processing/assertion_detection.py`
 - Test: `tests/unit/text_processing/test_assertion_detection_preferences.py`
 
-- [ ] **Step 1: Write failing preference tests**
+- [x] **Step 1: Write failing preference tests**
 
 Create `tests/unit/text_processing/test_assertion_detection_preferences.py`:
 
@@ -305,7 +305,7 @@ def test_any_negative_preference_keeps_negative_result():
     assert result.status == AssertionStatus.NEGATED
 ```
 
-- [ ] **Step 2: Run the tests and verify failure**
+- [x] **Step 2: Run the tests and verify failure**
 
 Run:
 
@@ -315,7 +315,7 @@ uv run pytest tests/unit/text_processing/test_assertion_detection_preferences.py
 
 Expected: at least one preference test fails.
 
-- [ ] **Step 3: Implement explicit preference selection**
+- [x] **Step 3: Implement explicit preference selection**
 
 In `CombinedAssertionDetector.detect()`, after both detector results are
 available, select the final result using a small helper:
@@ -340,7 +340,7 @@ def _choose_result_by_preference(self, keyword_result, dependency_result):
 Use the selected result for final status/confidence while preserving existing
 detail metadata.
 
-- [ ] **Step 4: Run focused and related tests**
+- [x] **Step 4: Run focused and related tests**
 
 Run:
 
@@ -350,7 +350,7 @@ uv run pytest tests/unit/text_processing/test_assertion_detection_preferences.py
 
 Expected: all pass.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add phentrieve/text_processing/assertion_detection.py tests/unit/text_processing/test_assertion_detection_preferences.py
@@ -367,7 +367,7 @@ git commit -m "fix(text): honor assertion detector preference"
 - Test: `frontend/src/test/stores/conversation.persistence.test.js`
 - Test: `frontend/src/test/components/QueryInterface.pii.test.js`
 
-- [ ] **Step 1: Write persistence tests**
+- [x] **Step 1: Write persistence tests**
 
 Add tests asserting that persisted state does not contain raw PII text by
 default:
@@ -396,7 +396,7 @@ describe('conversation persistence privacy', () => {
 })
 ```
 
-- [ ] **Step 2: Run the new frontend test and verify failure**
+- [x] **Step 2: Run the new frontend test and verify failure**
 
 Run:
 
@@ -406,7 +406,7 @@ cd frontend && npm run test -- conversation.persistence.test.js
 
 Expected: fails because raw `query` is currently stored.
 
-- [ ] **Step 3: Store raw text transiently and durable text redacted**
+- [x] **Step 3: Store raw text transiently and durable text redacted**
 
 Update `addQuery()` so durable history stores:
 
@@ -425,18 +425,18 @@ const historyItem = {
 
 Exclude `rawQuerySessionOnly` from persisted paths.
 
-- [ ] **Step 4: Add explicit opt-in if raw durable history is required**
+- [x] **Step 4: Add explicit opt-in if raw durable history is required**
 
 If the UI already has settings infrastructure, add a boolean such as
 `persistRawClinicalText`. Default it to `false`. When false, never persist raw
 query text.
 
-- [ ] **Step 5: Wire PII redaction into continue/redact flows**
+- [x] **Step 5: Wire PII redaction into continue/redact flows**
 
 When `continue` is selected in the PII dialog, pass both raw query and redacted
 query to the store. Persist the redacted value.
 
-- [ ] **Step 6: Run frontend tests**
+- [x] **Step 6: Run frontend tests**
 
 Run:
 
@@ -446,7 +446,7 @@ cd frontend && npm run test -- conversation.persistence.test.js QueryInterface.p
 
 Expected: all pass.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add frontend/src/stores/conversation.js frontend/src/composables/useQueryInterfaceController.js frontend/src/pii/redactor.js frontend/src/test/stores/conversation.persistence.test.js frontend/src/test/components/QueryInterface.pii.test.js
@@ -461,7 +461,7 @@ git commit -m "fix(frontend): avoid persisting raw clinical text by default"
 - Modify: `phentrieve/text_processing/_hpo_extraction_helpers.py`
 - Test: `tests/unit/text_processing/test_hpo_extraction_orchestrator.py`
 
-- [ ] **Step 1: Add characterization tests**
+- [x] **Step 1: Add characterization tests**
 
 Add tests covering:
 
@@ -472,7 +472,7 @@ Add tests covering:
 
 Use fake retriever/database objects so the tests do not require ChromaDB.
 
-- [ ] **Step 2: Run characterization tests**
+- [x] **Step 2: Run characterization tests**
 
 Run:
 
@@ -482,22 +482,22 @@ uv run pytest tests/unit/text_processing/test_hpo_extraction_orchestrator.py -q
 
 Expected: pass before refactor.
 
-- [ ] **Step 3: Move chunk match processing into helper**
+- [x] **Step 3: Move chunk match processing into helper**
 
 Make `hpo_extraction_orchestrator.py` call
 `_hpo_extraction_helpers.process_chunk_matches()` for chunk match normalization.
 
-- [ ] **Step 4: Move term detail loading into helper**
+- [x] **Step 4: Move term detail loading into helper**
 
 Call `_hpo_extraction_helpers.load_term_details()` from the orchestrator and
 remove duplicate inlined code.
 
-- [ ] **Step 5: Move evidence aggregation/ranking into helper**
+- [x] **Step 5: Move evidence aggregation/ranking into helper**
 
 Call `_hpo_extraction_helpers.build_evidence_map()` and
 `_hpo_extraction_helpers.aggregate_and_rank()`.
 
-- [ ] **Step 6: Run focused tests**
+- [x] **Step 6: Run focused tests**
 
 Run:
 
@@ -507,7 +507,7 @@ uv run pytest tests/unit/text_processing/test_hpo_extraction_orchestrator.py tes
 
 Expected: all pass.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add phentrieve/text_processing/hpo_extraction_orchestrator.py phentrieve/text_processing/_hpo_extraction_helpers.py tests/unit/text_processing/test_hpo_extraction_orchestrator.py
@@ -524,7 +524,7 @@ git commit -m "refactor(text): use focused HPO extraction helpers"
 - Test: `tests/unit/api/test_text_processing_context.py`
 - Test: `tests/unit/api/test_text_processing_router.py`
 
-- [ ] **Step 1: Write service tests for request context preparation**
+- [x] **Step 1: Write service tests for request context preparation**
 
 Create tests proving:
 
@@ -532,7 +532,7 @@ Create tests proving:
 - standard backend resolves retrieval policy
 - LLM backend ignores client provider/model override
 
-- [ ] **Step 2: Extract request context code**
+- [x] **Step 2: Extract request context code**
 
 Move `_prepare_standard_request_context()` and related model policy handling into
 `api/services/text_processing_context.py`.
@@ -541,7 +541,7 @@ Expose a function named `prepare_standard_text_processing_context(request,
 settings)` that returns the same context object currently built by the router
 helper.
 
-- [ ] **Step 3: Extract execution code**
+- [x] **Step 3: Extract execution code**
 
 Move standard and LLM backend execution helpers into
 `api/services/text_processing_execution.py`.
@@ -549,7 +549,7 @@ Move standard and LLM backend execution helpers into
 Expose `execute_standard_text_processing(context)` for the standard backend and
 `execute_llm_text_processing(request, settings)` for the LLM backend.
 
-- [ ] **Step 4: Reduce router to HTTP adapter**
+- [x] **Step 4: Reduce router to HTTP adapter**
 
 Keep in `text_processing_router.py`:
 
@@ -558,7 +558,7 @@ Keep in `text_processing_router.py`:
 - HTTPException conversion
 - calls into service functions
 
-- [ ] **Step 5: Run API tests**
+- [x] **Step 5: Run API tests**
 
 Run:
 
@@ -568,7 +568,7 @@ uv run pytest tests/unit/api/test_text_processing_context.py tests/unit/api/test
 
 Expected: all pass.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add api/services/text_processing_context.py api/services/text_processing_execution.py api/routers/text_processing_router.py tests/unit/api/test_text_processing_context.py tests/unit/api/test_text_processing_router.py
@@ -582,12 +582,12 @@ git commit -m "refactor(api): move text processing logic out of router"
 - Modify: `api/dependencies.py`
 - Test: `tests/unit/api/test_dependencies_async_boundaries.py`
 
-- [ ] **Step 1: Write threadpool boundary test**
+- [x] **Step 1: Write threadpool boundary test**
 
 Monkeypatch `DenseRetriever.from_model_name` with a slow or sentinel function
 and monkeypatch `starlette.concurrency.run_in_threadpool` to capture calls.
 
-- [ ] **Step 2: Move cache-miss construction to threadpool**
+- [x] **Step 2: Move cache-miss construction to threadpool**
 
 In `get_dense_retriever_dependency()`, wrap heavy construction:
 
@@ -606,7 +606,7 @@ retriever = await run_in_threadpool(
 
 Keep cache reads/writes protected by the existing lock.
 
-- [ ] **Step 3: Run tests**
+- [x] **Step 3: Run tests**
 
 Run:
 
@@ -616,7 +616,7 @@ uv run pytest tests/unit/api/test_dependencies_async_boundaries.py tests/unit/ap
 
 Expected: all pass.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add api/dependencies.py tests/unit/api/test_dependencies_async_boundaries.py
@@ -633,7 +633,7 @@ git commit -m "fix(api): avoid blocking retriever initialization in async path"
 - Modify: prompt rendering code that loads templates
 - Test: `tests/unit/llm/test_prompts.py`
 
-- [ ] **Step 1: Extend prompt safety tests**
+- [x] **Step 1: Extend prompt safety tests**
 
 Add parameterized tests asserting every extraction-capable rendered prompt
 contains:
@@ -642,7 +642,7 @@ contains:
 - document boundary markers
 - an instruction to ignore instructions in clinical text
 
-- [ ] **Step 2: Add shared safety wording**
+- [x] **Step 2: Add shared safety wording**
 
 Create `phentrieve/llm/prompts/safety.py`:
 
@@ -656,12 +656,12 @@ DOCUMENT_BOUNDARY_START = "<clinical_document>"
 DOCUMENT_BOUNDARY_END = "</clinical_document>"
 ```
 
-- [ ] **Step 3: Apply safety wording to extraction prompts**
+- [x] **Step 3: Apply safety wording to extraction prompts**
 
 Update direct, tool-guided, agentic, mapping, and postprocess templates to use
 the same instruction and boundaries.
 
-- [ ] **Step 4: Run prompt tests**
+- [x] **Step 4: Run prompt tests**
 
 Run:
 
@@ -671,7 +671,7 @@ uv run pytest tests/unit/llm/test_prompts.py -q
 
 Expected: all pass.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add phentrieve/llm/prompts/safety.py phentrieve/llm/prompts/templates tests/unit/llm/test_prompts.py
@@ -692,7 +692,7 @@ git commit -m "fix(llm): apply shared prompt injection safeguards"
 - Test: `frontend/src/test/components/QueryInterface.test.js`
 - Test: `frontend/src/test/composables/usePiiReviewFlow.test.js`
 
-- [ ] **Step 1: Add characterization tests for current behavior**
+- [x] **Step 1: Add characterization tests for current behavior**
 
 Cover:
 
@@ -702,37 +702,37 @@ Cover:
 - model switching preserves intended mode
 - collection action emits expected event
 
-- [ ] **Step 2: Extract PII review flow**
+- [x] **Step 2: Extract PII review flow**
 
 Move PII scan, review dialog state, continue, redact, and cancel handlers into
 `usePiiReviewFlow.js`.
 
-- [ ] **Step 3: Extract query form**
+- [x] **Step 3: Extract query form**
 
 Create `QueryForm.vue` for text entry, submit button, loading/disabled state,
 and validation messaging.
 
-- [ ] **Step 4: Extract full-text workspace**
+- [x] **Step 4: Extract full-text workspace**
 
 Create `FullTextWorkspace.vue` for note/document mode controls and note-specific
 display state.
 
-- [ ] **Step 5: Extract mode/model controls**
+- [x] **Step 5: Extract mode/model controls**
 
 Create `QueryModeControls.vue` for mode selection, model selection, and related
 status text.
 
-- [ ] **Step 6: Extract result actions**
+- [x] **Step 6: Extract result actions**
 
 Create `QueryResultActions.vue` for collection/export/history actions.
 
-- [ ] **Step 7: Simplify `QueryInterface.vue`**
+- [x] **Step 7: Simplify `QueryInterface.vue`**
 
 Keep `QueryInterface.vue` as the shell that wires stores, services, and child
 components. Remove the manual state bridge where child props/events can express
 ownership directly.
 
-- [ ] **Step 8: Run frontend focused tests**
+- [x] **Step 8: Run frontend focused tests**
 
 Run:
 
@@ -742,7 +742,7 @@ cd frontend && npm run test -- QueryInterface.test.js usePiiReviewFlow.test.js
 
 Expected: all pass.
 
-- [ ] **Step 9: Commit**
+- [x] **Step 9: Commit**
 
 ```bash
 git add frontend/src/components/QueryInterface.vue frontend/src/components/query frontend/src/composables/useQueryInterfaceController.js frontend/src/composables/usePiiReviewFlow.js frontend/src/test/components/QueryInterface.test.js frontend/src/test/composables/usePiiReviewFlow.test.js
@@ -758,24 +758,24 @@ git commit -m "refactor(frontend): split query interface responsibilities"
 - Test: `frontend/src/test/components/ResultsDisplay.test.js`
 - Test: `frontend/src/test/services/PhentrieveService.test.js`
 
-- [ ] **Step 1: Add validator purity test**
+- [x] **Step 1: Add validator purity test**
 
 Spy on `console.log` and mount `ResultsDisplay` with valid results. Assert no
 validator-time logging occurs.
 
-- [ ] **Step 2: Remove prop-validator side effects**
+- [x] **Step 2: Remove prop-validator side effects**
 
 Remove logging from the `results` validator. Keep structural validation only.
 
-- [ ] **Step 3: Remove `trustRemoteCode` from frontend payload intent**
+- [x] **Step 3: Remove `trustRemoteCode` from frontend payload intent**
 
 Delete `trustRemoteCode: true` from `useQueryInterfaceController.js`.
 
-- [ ] **Step 4: Add service normalization test**
+- [x] **Step 4: Add service normalization test**
 
 Assert normalized text-process payload does not include `trustRemoteCode`.
 
-- [ ] **Step 5: Run focused frontend tests**
+- [x] **Step 5: Run focused frontend tests**
 
 Run:
 
@@ -785,7 +785,7 @@ cd frontend && npm run test -- ResultsDisplay.test.js PhentrieveService.test.js
 
 Expected: all pass.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add frontend/src/components/ResultsDisplay.vue frontend/src/composables/useQueryInterfaceController.js frontend/src/test/components/ResultsDisplay.test.js frontend/src/test/services/PhentrieveService.test.js
@@ -803,7 +803,7 @@ git commit -m "fix(frontend): remove validator side effects and dead trust flag"
 - Modify: `phentrieve/llm/pipeline.py`
 - Test: `tests/unit/llm/test_pipeline_characterization.py`
 
-- [ ] **Step 1: Add characterization tests**
+- [x] **Step 1: Add characterization tests**
 
 Cover:
 
@@ -813,29 +813,29 @@ Cover:
 - trace metadata preservation
 - fallback path behavior
 
-- [ ] **Step 2: Extract retry policy**
+- [x] **Step 2: Extract retry policy**
 
 Move retry/error classification helpers into `pipeline_retry.py`.
 
-- [ ] **Step 3: Extract trace/result assembly**
+- [x] **Step 3: Extract trace/result assembly**
 
 Move trace metadata and final response assembly helpers into
 `pipeline_trace.py`.
 
-- [ ] **Step 4: Extract phase 1 execution**
+- [x] **Step 4: Extract phase 1 execution**
 
 Move phase 1 chunk extraction logic into `pipeline_phase1.py`.
 
-- [ ] **Step 5: Extract phase 2 execution**
+- [x] **Step 5: Extract phase 2 execution**
 
 Move mapping/candidate consolidation logic into `pipeline_phase2.py`.
 
-- [ ] **Step 6: Keep `pipeline.py` as orchestration facade**
+- [x] **Step 6: Keep `pipeline.py` as orchestration facade**
 
 `TwoPhaseLLMPipeline` should orchestrate the smaller modules and preserve the
 public constructor/method API.
 
-- [ ] **Step 7: Run LLM tests**
+- [x] **Step 7: Run LLM tests**
 
 Run:
 
@@ -845,7 +845,7 @@ uv run pytest tests/unit/llm/test_pipeline_characterization.py tests/unit/llm -q
 
 Expected: all pass.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add phentrieve/llm/pipeline.py phentrieve/llm/pipeline_phase1.py phentrieve/llm/pipeline_phase2.py phentrieve/llm/pipeline_trace.py phentrieve/llm/pipeline_retry.py tests/unit/llm/test_pipeline_characterization.py
@@ -866,35 +866,35 @@ git commit -m "refactor(llm): split two phase pipeline internals"
 - Modify: `phentrieve/llm/provider.py`
 - Test: `tests/unit/llm/test_provider_characterization.py`
 
-- [ ] **Step 1: Add provider characterization tests**
+- [x] **Step 1: Add provider characterization tests**
 
 Cover provider resolution, request shaping, tool execution, retryable error
 classification, and schema compaction.
 
-- [ ] **Step 2: Extract base provider contracts**
+- [x] **Step 2: Extract base provider contracts**
 
 Move shared ABCs, dataclasses, and response types to
 `phentrieve/llm/providers/base.py`.
 
-- [ ] **Step 3: Extract each provider implementation**
+- [x] **Step 3: Extract each provider implementation**
 
 Move provider classes into provider-specific files while preserving import
 compatibility through `phentrieve/llm/provider.py`.
 
-- [ ] **Step 4: Extract tool executor**
+- [x] **Step 4: Extract tool executor**
 
 Move `ToolExecutor` and related helpers to `phentrieve/llm/tools.py`.
 
-- [ ] **Step 5: Extract resolver**
+- [x] **Step 5: Extract resolver**
 
 Move provider resolution logic to `phentrieve/llm/providers/resolver.py`.
 
-- [ ] **Step 6: Keep compatibility exports**
+- [x] **Step 6: Keep compatibility exports**
 
 Make `phentrieve/llm/provider.py` re-export the public names used by existing
 callers.
 
-- [ ] **Step 7: Run provider tests**
+- [x] **Step 7: Run provider tests**
 
 Run:
 
@@ -904,7 +904,7 @@ uv run pytest tests/unit/llm/test_provider_characterization.py tests/unit/llm -q
 
 Expected: all pass.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add phentrieve/llm/provider.py phentrieve/llm/providers phentrieve/llm/tools.py tests/unit/llm/test_provider_characterization.py
@@ -922,7 +922,7 @@ git commit -m "refactor(llm): split provider implementations"
 - Modify: `api/README.md`
 - Create: `tests/unit/test_project_metadata_consistency.py`
 
-- [ ] **Step 1: Add metadata consistency test**
+- [x] **Step 1: Add metadata consistency test**
 
 Create a test that:
 
@@ -931,7 +931,7 @@ Create a test that:
 - checks each Makefile `uv sync --extra <name>` reference exists
 - checks docs do not reference known stale extras `text` or `text_processing`
 
-- [ ] **Step 2: Run the test and verify failure**
+- [x] **Step 2: Run the test and verify failure**
 
 Run:
 
@@ -941,22 +941,22 @@ uv run pytest tests/unit/test_project_metadata_consistency.py -q
 
 Expected: fails on stale Makefile/docs references.
 
-- [ ] **Step 3: Fix Makefile extras**
+- [x] **Step 3: Fix Makefile extras**
 
 Replace nonexistent `text_processing` extra references with the correct current
 extra or remove the target if no separate extra is needed.
 
-- [ ] **Step 4: Fix docs**
+- [x] **Step 4: Fix docs**
 
 Update docs to use `uv` commands and existing extras from `pyproject.toml`.
 Remove direct `pip install` setup instructions for development paths.
 
-- [ ] **Step 5: Align Python version docs**
+- [x] **Step 5: Align Python version docs**
 
 Update `AGENTS.md` to match `pyproject.toml` Python `>=3.11` and current mypy
 target.
 
-- [ ] **Step 6: Run metadata and docs-adjacent checks**
+- [x] **Step 6: Run metadata and docs-adjacent checks**
 
 Run:
 
@@ -967,7 +967,7 @@ make check
 
 Expected: all pass.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add pyproject.toml Makefile AGENTS.md docs/development/dev-environment.md api/README.md tests/unit/test_project_metadata_consistency.py
@@ -981,7 +981,7 @@ git commit -m "chore(docs): align setup docs with packaging metadata"
 - Modify: `.planning/analysis/2026-04-30-codebase-health-review.md`
 - Create: `.planning/analysis/2026-04-30-codebase-health-remediation-verification.md`
 
-- [ ] **Step 1: Run required checks**
+- [x] **Step 1: Run required checks**
 
 Run:
 
@@ -995,7 +995,7 @@ make frontend-build-ci
 
 Expected: all pass. If any command fails, diagnose and fix before continuing.
 
-- [ ] **Step 2: Record verification**
+- [x] **Step 2: Record verification**
 
 Create `.planning/analysis/2026-04-30-codebase-health-remediation-verification.md`
 with:
@@ -1006,12 +1006,12 @@ with:
 - any remaining known risk
 - updated estimated scorecard
 
-- [ ] **Step 3: Update original review status**
+- [x] **Step 3: Update original review status**
 
 Append a short "Remediation Status" section to the original health review that
 links to the verification report.
 
-- [ ] **Step 4: Commit verification artifact**
+- [x] **Step 4: Commit verification artifact**
 
 ```bash
 git add .planning/analysis/2026-04-30-codebase-health-review.md .planning/analysis/2026-04-30-codebase-health-remediation-verification.md
