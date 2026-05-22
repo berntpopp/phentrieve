@@ -93,6 +93,7 @@ Thumbs.db
 # output files
 output/
 results/
+.runs/
 
 # MkDocs build output
 site/
