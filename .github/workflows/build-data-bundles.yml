@@ -17,6 +17,15 @@ on:
         required: false
         default: 'FremyCompany/BioLORD-2023-M'
         type: string
+      index_type:
+        description: 'Index type to build: single, multi, or both'
+        required: false
+        default: 'both'
+        type: choice
+        options:
+          - single
+          - multi
+          - both
       create_release:
         description: 'Create GitHub Release with bundles'
         required: false
@@ -99,10 +108,10 @@ jobs:
         run: |
           HPO_VERSION="${{ needs.prepare-matrix.outputs.hpo_version }}"
           if [ "$HPO_VERSION" != "latest" ] && [ -n "$HPO_VERSION" ]; then
-            echo "Using HPO version: $HPO_VERSION"
-            # TODO: Add version pinning support to data prepare command
+            uv run phentrieve data prepare --hpo-version "$HPO_VERSION" --force --debug
+          else
+            uv run phentrieve data prepare --force --debug
           fi
-          uv run phentrieve data prepare --debug
 
       - name: Create minimal bundle
         run: |
@@ -118,6 +127,12 @@ jobs:
           )
           print(f'Created bundle: {bundle_path}')
           "
+
+      - name: Generate bundle checksums
+        run: |
+          cd dist/bundles
+          sha256sum phentrieve-data-*.tar.gz > SHA256SUMS.txt
+          sha256sum *-multivec.tar.gz > SHA256SUMS-multivec.txt || true
 
       - name: Upload minimal bundle artifact
         uses: actions/upload-artifact@v7
@@ -172,30 +187,47 @@ jobs:
             hf-
 
       - name: Prepare HPO data
-        run: uv run phentrieve data prepare --debug
-
-      - name: Build vector index for ${{ matrix.model }}
         run: |
-          echo "Building index for model: ${{ matrix.model }}"
-          uv run phentrieve index build --model-name "${{ matrix.model }}" --debug
+          HPO_VERSION="${{ needs.prepare-matrix.outputs.hpo_version }}"
+          if [ "$HPO_VERSION" != "latest" ] && [ -n "$HPO_VERSION" ]; then
+            uv run phentrieve data prepare --hpo-version "$HPO_VERSION" --force --debug
+          else
+            uv run phentrieve data prepare --force --debug
+          fi
 
-      - name: Create bundle with index
+      - name: Build vector indexes and create bundles
         id: create-bundle
         run: |
           mkdir -p dist/bundles
-          BUNDLE_PATH=$(uv run python -c "
-          from pathlib import Path
-          from phentrieve.data_processing.bundle_packager import create_bundle
+          INDEX_TYPE="${{ github.event.inputs.index_type || 'both' }}"
+          MODEL="${{ matrix.model }}"
 
-          bundle_path = create_bundle(
-              output_dir=Path('dist/bundles'),
-              model_name='${{ matrix.model }}',
-              data_dir=Path('data'),
-          )
-          print(bundle_path)
-          ")
-          echo "bundle_path=$BUNDLE_PATH" >> $GITHUB_OUTPUT
-          echo "bundle_name=$(basename $BUNDLE_PATH)" >> $GITHUB_OUTPUT
+          if [ "$INDEX_TYPE" = "single" ] || [ "$INDEX_TYPE" = "both" ]; then
+            rm -rf data/indexes
+            uv run phentrieve index build --model-name "$MODEL" --recreate --debug
+            uv run phentrieve data bundle create \
+              --model "$MODEL" \
+              --output-dir dist/bundles \
+              --data-dir data \
+              --debug
+          fi
+
+          if [ "$INDEX_TYPE" = "multi" ] || [ "$INDEX_TYPE" = "both" ]; then
+            rm -rf data/indexes
+            uv run phentrieve index build --model-name "$MODEL" --multi-vector --recreate --debug
+            uv run phentrieve data bundle create \
+              --model "$MODEL" \
+              --output-dir dist/bundles \
+              --data-dir data \
+              --multi-vector \
+              --debug
+          fi
+
+      - name: Generate bundle checksums
+        run: |
+          cd dist/bundles
+          sha256sum phentrieve-data-*.tar.gz > SHA256SUMS.txt
+          sha256sum *-multivec.tar.gz > SHA256SUMS-multivec.txt || true
 
       - name: Get model slug for artifact name
         id: slug
@@ -222,6 +254,14 @@ jobs:
       contents: write
 
     steps:
+      - name: Validate release index type
+        run: |
+          INDEX_TYPE="${{ github.event.inputs.index_type || 'both' }}"
+          if [ "$INDEX_TYPE" != "both" ]; then
+            echo "::error::Release publishing requires index_type=both so release notes match uploaded assets."
+            exit 1
+          fi
+
       - name: Download all bundle artifacts
         uses: actions/download-artifact@v8
         with:
@@ -233,6 +273,12 @@ jobs:
         run: |
           echo "Downloaded bundles:"
           ls -la bundles/
+
+      - name: Generate bundle checksums
+        run: |
+          cd bundles
+          sha256sum phentrieve-data-*.tar.gz > SHA256SUMS.txt
+          sha256sum *-multivec.tar.gz > SHA256SUMS-multivec.txt || true
 
       - name: Get release tag
         id: release-info
@@ -250,7 +296,9 @@ jobs:
         uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ steps.release-info.outputs.tag }}
-          files: bundles/*.tar.gz
+          files: |
+            bundles/*.tar.gz
+            bundles/*.txt
           fail_on_unmatched_files: false
           generate_release_notes: false
           append_body: true
@@ -258,14 +306,17 @@ jobs:
 
             ## Pre-built Data Bundles
 
-            Download pre-built HPO data bundles for faster setup:
+            HPO version: `${{ needs.prepare-matrix.outputs.hpo_version }}`
 
             | Bundle | Description |
-            |--------|-------------|
-            | `phentrieve-data-*-minimal.tar.gz` | HPO database only (no embeddings) |
-            | `phentrieve-data-*-biolord.tar.gz` | BioLORD-2023-M embeddings (recommended) |
-            | `phentrieve-data-*-bge-m3.tar.gz` | BGE-M3 multilingual embeddings |
-            | `phentrieve-data-*-labse.tar.gz` | LaBSE embeddings |
+            | --- | --- |
+            | `phentrieve-data-*-minimal.tar.gz` | HPO SQLite database only |
+            | `phentrieve-data-*-biolord.tar.gz` | BioLORD single-vector embeddings |
+            | `phentrieve-data-*-biolord-multivec.tar.gz` | BioLORD multivector embeddings |
+            | `phentrieve-data-*-bge-m3.tar.gz` | BGE-M3 single-vector embeddings |
+            | `phentrieve-data-*-bge-m3-multivec.tar.gz` | BGE-M3 multivector embeddings |
+            | `phentrieve-data-*-labse.tar.gz` | LaBSE single-vector embeddings |
+            | `phentrieve-data-*-labse-multivec.tar.gz` | LaBSE multivector embeddings |
 
             ### Usage
 
@@ -274,8 +325,8 @@ jobs:
             phentrieve data download --model biolord
 
             # Or manually
-            curl -LO https://github.com/${{ github.repository }}/releases/download/${{ steps.release-info.outputs.tag }}/phentrieve-data-v2025-03-03-biolord.tar.gz
-            tar -xzf phentrieve-data-v2025-03-03-biolord.tar.gz -C ~/.local/share/phentrieve/
+            gh release download ${{ steps.release-info.outputs.tag }} --pattern 'phentrieve-data-*-biolord.tar.gz'
+            tar -xzf phentrieve-data-*-biolord.tar.gz -C ~/.local/share/phentrieve/
             ```
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
