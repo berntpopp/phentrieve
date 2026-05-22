@@ -168,13 +168,14 @@ docker build -t phentrieve-api ./api
 
 # Or specify a different bundle
 docker build \
-  --build-arg BUNDLE_URL="https://github.com/berntpopp/phentrieve/releases/download/data-v2025-11-24-multivec/phentrieve-data-v2025-11-24-biolord-multivec.tar.gz" \
+  --build-arg BUNDLE_URL="https://github.com/berntpopp/phentrieve/releases/download/data-v2026-02-16/phentrieve-data-v2026-02-16-biolord-multivec.tar.gz" \
   -t phentrieve-api ./api
 ```
 
 **Available bundles** (from [GitHub Releases](https://github.com/berntpopp/phentrieve/releases)):
-- `phentrieve-data-v2025-11-24-biolord-multivec.tar.gz` - BioLORD-2023-M multi-vector (recommended, MRR: 0.922)
-- `phentrieve-data-v2025-11-24-biolord.tar.gz` - BioLORD-2023-M single-vector (legacy, MRR: 0.823)
+- `phentrieve-data-v2026-02-16-biolord-multivec.tar.gz` - BioLORD multivector, recommended
+- `phentrieve-data-v2026-02-16-biolord.tar.gz` - BioLORD single-vector
+- `phentrieve-data-v2026-02-16-minimal.tar.gz` - HPO SQLite database only
 
 ### Mode 2: Build from Scratch
 
@@ -206,10 +207,10 @@ Use the CLI to create bundles for distribution:
 
 ```bash
 # Create bundle with BioLORD model
-phentrieve bundle create --model "FremyCompany/BioLORD-2023-M" --output ./bundles/
+phentrieve data bundle create --model "FremyCompany/BioLORD-2023-M" --output-dir ./bundles/
 
 # List available bundle configurations
-phentrieve bundle list
+phentrieve data bundle list
 ```
 
 Bundle contents:

@@ -1,5 +1,12 @@
 # HPO Data Release Runbook
 
+## Existing Workflow
+
+- GitHub workflow: `.github/workflows/build-data-bundles.yml`
+- Docker bundle consumer: `.github/workflows/docker-publish.yml`
+- User-facing Docker documentation: `docs/DOCKER-DEPLOYMENT.md`
+- CLI commands: `phentrieve data prepare`, `phentrieve index build`, `phentrieve data bundle create`, `phentrieve data download`
+
 ## GitHub Actions Release Build
 
 Run the existing bundle workflow from `main` for the pinned HPO release:
@@ -9,7 +16,8 @@ gh workflow run "Build and Release Data Bundles" --ref main -f hpo_version=v2026
 ```
 
 The workflow builds the minimal database bundle plus single-vector and multivector
-model bundles, then publishes them to a GitHub Release when `create_release=true`.
+model bundles, then publishes them to `data-v2026-02-16` when
+`create_release=true`.
 
 ## RTX-Local Full Rebuild Fallback
 
@@ -113,15 +121,15 @@ Create checksums:
 
 ```bash
 cd "dist/hpo-$HPO_VERSION"
-sha256sum phentrieve-data-v2026-02-16-*.tar.gz > SHA256SUMS.txt
-sha256sum phentrieve-data-v2026-02-16-*-multivec.tar.gz > SHA256SUMS-multivec.txt
+sha256sum "phentrieve-data-$HPO_VERSION"-*.tar.gz > SHA256SUMS.txt
+sha256sum "phentrieve-data-$HPO_VERSION"-*-multivec.tar.gz > SHA256SUMS-multivec.txt
 cd -
 ```
 
 Verify the expected bundle count:
 
 ```bash
-find "dist/hpo-$HPO_VERSION" -maxdepth 1 -type f -name 'phentrieve-data-v2026-02-16-*.tar.gz' | wc -l
+find "dist/hpo-$HPO_VERSION" -maxdepth 1 -type f -name "phentrieve-data-$HPO_VERSION-*.tar.gz" | wc -l
 ```
 
 Expected output: `19` bundle files: 1 minimal, 9 single-vector, 9 multivector.

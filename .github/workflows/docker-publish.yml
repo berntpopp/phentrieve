@@ -121,7 +121,7 @@ jobs:
           # Mode 1 (default): Download BioLORD bundle from GitHub Releases
           # This embeds HPO data + vector indexes for instant cold starts
           build-args: |
-            BUNDLE_URL=https://github.com/berntpopp/phentrieve/releases/download/data-v2025-11-24/phentrieve-data-v2025-11-24-biolord.tar.gz
+            BUNDLE_URL=https://github.com/berntpopp/phentrieve/releases/download/data-v2026-02-16/phentrieve-data-v2026-02-16-biolord-multivec.tar.gz
             BUILD_INDEXES=false
 
       - name: Scan API image with Trivy
