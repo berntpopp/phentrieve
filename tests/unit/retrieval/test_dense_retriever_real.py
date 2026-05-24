@@ -787,6 +787,52 @@ class TestDenseRetrieverQueryBatchMultiVector:
         ]
         assert [result["similarities"] for result in results] == [[[0.91]], [[0.88]]]
 
+    def test_batch_multi_vector_pads_missing_batch_results_with_empty_results(self):
+        retriever = DenseRetriever(Mock(), Mock(), min_similarity=0.0)
+        retriever._index_type = "multi_vector"
+        retriever.query_batch = Mock(
+            return_value=[
+                _raw_multi_vector_entry(
+                    [
+                        {
+                            "id": "HP:0001250__label__0",
+                            "document": "Seizure",
+                            "metadata": {
+                                "hpo_id": "HP:0001250",
+                                "component": "label",
+                                "label": "Seizure",
+                            },
+                            "similarity": 0.91,
+                        }
+                    ]
+                )
+            ]
+        )
+
+        results = retriever.query_batch_multi_vector(
+            ["chunk one", "chunk two", "chunk three"],
+            n_results=1,
+        )
+
+        assert len(results) == 3
+        assert results[0]["ids"] == [["HP:0001250"]]
+        assert results[1:] == [
+            {
+                "ids": [[]],
+                "distances": [[]],
+                "documents": [[]],
+                "metadatas": [[]],
+                "similarities": [[]],
+            },
+            {
+                "ids": [[]],
+                "distances": [[]],
+                "documents": [[]],
+                "metadatas": [[]],
+                "similarities": [[]],
+            },
+        ]
+
     def test_batch_multi_vector_failure_returns_empty_result_per_text(self):
         retriever = DenseRetriever(Mock(), Mock(), min_similarity=0.0)
         retriever._index_type = "multi_vector"
