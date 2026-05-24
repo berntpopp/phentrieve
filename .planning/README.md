@@ -38,6 +38,9 @@ execution context.
 
 ## Current Specs
 
+- `specs/2026-05-24-full-text-multi-vector-parity-design.md` - design for
+  standard full-text extraction parity with direct-query multi-vector
+  aggregation.
 - `specs/2026-04-30-codebase-health-remediation-design.md` - design for the
   codebase health remediation program.
 
