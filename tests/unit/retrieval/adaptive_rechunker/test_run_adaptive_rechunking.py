@@ -25,7 +25,9 @@ def make_raw(similarities: list[float]) -> dict:
 
 @pytest.fixture
 def mock_retriever():
-    return MagicMock()
+    retriever = MagicMock()
+    retriever.detect_index_type.return_value = "single_vector"
+    return retriever
 
 
 @pytest.fixture
@@ -71,6 +73,100 @@ def basic_inputs():
 
 
 class TestRunAdaptiveRechunking:
+    def test_multi_vector_retriever_queries_children_with_query_batch_multi_vector(
+        self,
+    ):
+        processed = [
+            {
+                "text": "Sentence one. Sentence two. Sentence three.",
+                "status": "AFFIRMED",
+                "start_char": 0,
+                "end_char": 44,
+                "source_indices": {"processing_stages": ["sentence"]},
+            },
+        ]
+        results = [{"chunk_idx": 0, "chunk_text": processed[0]["text"], "matches": []}]
+        raw = [make_raw([0.4, 0.39])]
+        retriever = MagicMock()
+        retriever.detect_index_type.return_value = "multi_vector"
+        retriever.query_batch_multi_vector.return_value = [make_raw([0.9, 0.5])] * 5
+
+        config = AdaptiveRechunkingConfig(
+            enabled=True,
+            quality_threshold=0.55,
+            margin_threshold=0.03,
+            score_improvement_gate=0.05,
+            max_depth=1,
+            max_sentences_per_subchunk=2,
+            overlap_sentences=0,
+            min_chunk_chars=5,
+        )
+
+        run_adaptive_rechunking(
+            processed_chunks=processed,
+            chunk_results=results,
+            raw_query_results=raw,
+            retriever=retriever,
+            language="en",
+            config=config,
+            num_results_per_chunk=6,
+            chunk_retrieval_threshold=0.7,
+            min_confidence_for_aggregated=0.0,
+            include_details=False,
+        )
+
+        retriever.query_batch_multi_vector.assert_called_once()
+        call_kwargs = retriever.query_batch_multi_vector.call_args.kwargs
+        assert call_kwargs["n_results"] == 6
+        assert call_kwargs["texts"]
+        retriever.query_batch.assert_not_called()
+
+    def test_single_vector_retriever_queries_children_with_query_batch(
+        self, mock_retriever
+    ):
+        processed = [
+            {
+                "text": "Sentence one. Sentence two. Sentence three.",
+                "status": "AFFIRMED",
+                "start_char": 0,
+                "end_char": 44,
+                "source_indices": {"processing_stages": ["sentence"]},
+            },
+        ]
+        results = [{"chunk_idx": 0, "chunk_text": processed[0]["text"], "matches": []}]
+        raw = [make_raw([0.4, 0.39])]
+        mock_retriever.query_batch.return_value = [make_raw([0.9, 0.5])] * 5
+
+        config = AdaptiveRechunkingConfig(
+            enabled=True,
+            quality_threshold=0.55,
+            margin_threshold=0.03,
+            score_improvement_gate=0.05,
+            max_depth=1,
+            max_sentences_per_subchunk=2,
+            overlap_sentences=0,
+            min_chunk_chars=5,
+        )
+
+        run_adaptive_rechunking(
+            processed_chunks=processed,
+            chunk_results=results,
+            raw_query_results=raw,
+            retriever=mock_retriever,
+            language="en",
+            config=config,
+            num_results_per_chunk=6,
+            chunk_retrieval_threshold=0.7,
+            min_confidence_for_aggregated=0.0,
+            include_details=False,
+        )
+
+        mock_retriever.query_batch.assert_called_once()
+        assert (
+            mock_retriever.query_batch.call_args.kwargs["include_similarities"] is True
+        )
+        mock_retriever.query_batch_multi_vector.assert_not_called()
+
     def test_disabled_returns_inputs_unchanged(self, mock_retriever, basic_inputs):
         chunks, results, raw = basic_inputs
         config = AdaptiveRechunkingConfig(enabled=False)
@@ -91,10 +187,14 @@ class TestRunAdaptiveRechunking:
         assert out.chunk_results == results
         assert out.meta["enabled"] is False
         # No retrieval calls were made.
-        assert mock_retriever.query_batch.call_count == 0
+        child_retrieval_calls = (
+            mock_retriever.query_batch.call_count
+            + mock_retriever.query_batch_multi_vector.call_count
+        )
+        assert child_retrieval_calls == 0
 
     def test_no_poor_chunks_no_op(self, mock_retriever):
-        """All chunks are fine - no subdivision, no extra query_batch calls."""
+        """All chunks are fine - no subdivision, no extra retrieval calls."""
         processed = [
             {
                 "text": "Good chunk one.",
@@ -126,7 +226,11 @@ class TestRunAdaptiveRechunking:
             min_confidence_for_aggregated=0.0,
             include_details=False,
         )
-        assert mock_retriever.query_batch.call_count == 0
+        child_retrieval_calls = (
+            mock_retriever.query_batch.call_count
+            + mock_retriever.query_batch_multi_vector.call_count
+        )
+        assert child_retrieval_calls == 0
         assert out.meta["trigger_count"] == 0
         assert out.meta["subdivided_count"] == 0
 
@@ -145,7 +249,7 @@ class TestRunAdaptiveRechunking:
         raw = [make_raw([0.4, 0.39])]  # poor: low score, low margin
 
         # Mock retriever returns improved scores for children. We expect 1
-        # query_batch call (the children) at depth 1. With max_sentences=3 and
+        # retrieval call (the children) at depth 1. With max_sentences=3 and
         # overlap=0 the parent (3 sentences) yields a single child window; with
         # overlap=1 it yields multiple windows. We don't pin child count here
         # except via the side_effect length below.
@@ -180,9 +284,13 @@ class TestRunAdaptiveRechunking:
             include_details=False,
         )
 
-        # Exactly one query_batch call for the children at this single
+        # Exactly one retrieval call for the children at this single
         # recursion level.
-        assert mock_retriever.query_batch.call_count == 1
+        child_retrieval_calls = (
+            mock_retriever.query_batch.call_count
+            + mock_retriever.query_batch_multi_vector.call_count
+        )
+        assert child_retrieval_calls == 1
         assert out.meta["enabled"] is True
         assert out.meta["trigger_count"] == 1
         assert out.meta["subdivided_count"] == 1
@@ -245,8 +353,12 @@ class TestRunAdaptiveRechunking:
             include_details=False,
         )
 
-        # AT MOST 2 query_batch calls (depth 1 + depth 2). Hard invariant.
-        assert mock_retriever.query_batch.call_count <= 2
+        # AT MOST 2 retrieval calls (depth 1 + depth 2). Hard invariant.
+        child_retrieval_calls = (
+            mock_retriever.query_batch.call_count
+            + mock_retriever.query_batch_multi_vector.call_count
+        )
+        assert child_retrieval_calls <= 2
 
     def test_recursion_respects_max_depth(self, mock_retriever):
         """max_depth=1 means: subdivide once, do not recurse further."""
@@ -288,5 +400,9 @@ class TestRunAdaptiveRechunking:
             include_details=False,
         )
 
-        assert mock_retriever.query_batch.call_count == 1
+        child_retrieval_calls = (
+            mock_retriever.query_batch.call_count
+            + mock_retriever.query_batch_multi_vector.call_count
+        )
+        assert child_retrieval_calls == 1
         assert out.meta["max_depth_reached"] == 1

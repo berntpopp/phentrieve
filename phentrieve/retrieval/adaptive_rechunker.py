@@ -17,6 +17,8 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict
 
+from phentrieve.retrieval.utils import query_chunk_candidates
+
 logger = logging.getLogger(__name__)
 
 
@@ -411,9 +413,8 @@ def run_adaptive_rechunking(
 ) -> AdaptiveRechunkingResult:
     """Top-level adaptive re-chunking orchestration.
 
-    Cost contract: at most ``config.max_depth`` additional
-    ``retriever.query_batch`` calls (one per recursion level where chunks
-    flag as poor). Re-aggregation uses
+    Cost contract: at most ``config.max_depth`` additional retrieval calls
+    (one per recursion level where chunks flag as poor). Re-aggregation uses
     ``orchestrate_hpo_extraction(precomputed_query_results=...)`` so
     existing chunk results are not re-queried.
 
@@ -422,8 +423,7 @@ def run_adaptive_rechunking(
       2. Detects poor chunks via ``assess_chunk_quality`` over the raw
          (unfiltered) query results.
       3. Subdivides each poor parent via ``subdivide_parent_chunk``.
-      4. Issues a single ``retriever.query_batch`` for all children at
-         this depth.
+      4. Issues a single retrieval call for all children at this depth.
       5. Applies the score-improvement gate to keep / revert per parent.
       6. Rebuilds the flat chunk list (originals for non-flagged or
          reverted parents, accepted children for kept parents).
@@ -459,7 +459,7 @@ def run_adaptive_rechunking(
         # extraction pass).
         return _no_op_result(processed_chunks, chunk_results, meta)
 
-    # Recursion loop. Each iteration performs at most ONE query_batch call.
+    # Recursion loop. Each iteration performs at most ONE retrieval call.
     current_chunks: list[dict[str, Any]] = list(processed_chunks)
     current_raw: list[dict[str, Any]] = list(raw_query_results)
     current_assertions: list[str | None] = list(
@@ -515,10 +515,11 @@ def run_adaptive_rechunking(
             # No useful subdivision was possible at this depth.
             break
 
-        # ONE query_batch call per recursion level (the cost-model
+        # ONE retrieval call per recursion level (the cost-model
         # invariant). Returned list is one entry per child text.
-        child_raw = retriever.query_batch(
-            texts=children_texts,
+        child_raw = query_chunk_candidates(
+            retriever=retriever,
+            text_chunks=children_texts,
             n_results=num_results_per_chunk,
             include_similarities=True,
         )

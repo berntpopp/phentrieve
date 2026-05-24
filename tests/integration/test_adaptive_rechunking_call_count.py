@@ -1,6 +1,5 @@
-"""HARD CONTRACT: at most ``max_depth`` additional ``retriever.query_batch``
-calls during adaptive rechunking, even when every chunk flags as poor at
-every level.
+"""HARD CONTRACT: at most ``max_depth`` additional child retrieval calls during
+adaptive rechunking, even when every chunk flags as poor at every level.
 
 This is the cost-model invariant from Spec B. The
 ``precomputed_query_results`` parameter on ``orchestrate_hpo_extraction``
@@ -36,19 +35,29 @@ def _make_raw(similarities: list[float]) -> dict[str, Any]:
     }
 
 
-def test_at_most_max_depth_query_batch_calls() -> None:
+@pytest.mark.parametrize(
+    ("index_type", "retrieval_method", "wrong_method"),
+    [
+        ("single_vector", "query_batch", "query_batch_multi_vector"),
+        ("multi_vector", "query_batch_multi_vector", "query_batch"),
+    ],
+)
+def test_at_most_max_depth_child_retrieval_calls(
+    index_type: str, retrieval_method: str, wrong_method: str
+) -> None:
     """Worst case fan-out: every chunk flags at every reachable level.
 
-    The hard cap is ``config.max_depth`` calls to ``retriever.query_batch``.
-    A regression that re-queries parents during the final aggregation pass
+    The hard cap is ``config.max_depth`` child retrieval calls. A regression
+    that re-queries parents during the final aggregation pass
     (e.g., dropping ``precomputed_query_results`` somewhere) would fail
     this assertion.
     """
     retriever = MagicMock()
+    retriever.detect_index_type.return_value = index_type
     # Simulate every level still flagging poor. Side effects supply one
-    # query_batch return value per recursion level. ``max_depth=2`` so we
+    # child retrieval return value per recursion level. ``max_depth=2`` so we
     # provide at most two levels of fan-out.
-    retriever.query_batch.side_effect = [
+    getattr(retriever, retrieval_method).side_effect = [
         # depth 1: 3 children (one sentence each), all still poor
         [_make_raw([0.5, 0.49]) for _ in range(3)],
         # depth 2: would-be grandchildren; sentence-level parents cannot
@@ -98,9 +107,13 @@ def test_at_most_max_depth_query_batch_calls() -> None:
         include_details=False,
     )
 
-    assert retriever.query_batch.call_count <= config.max_depth, (
-        f"query_batch was called {retriever.query_batch.call_count} times; "
+    child_retrieval_calls = (
+        retriever.query_batch.call_count + retriever.query_batch_multi_vector.call_count
+    )
+    assert child_retrieval_calls <= config.max_depth, (
+        f"child retrieval was called {child_retrieval_calls} times; "
         f"max_depth={config.max_depth} should be the cap. "
         f"This fails if the precomputed_query_results contract regresses "
         f"and parents (or accepted children) get re-queried."
     )
+    getattr(retriever, wrong_method).assert_not_called()
