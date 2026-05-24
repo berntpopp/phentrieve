@@ -18,6 +18,7 @@ pytestmark = pytest.mark.unit
 def _make_mock_retriever(batch_results):
     """Build a mock DenseRetriever whose query_batch returns ``batch_results``."""
     retriever = MagicMock()
+    retriever.detect_index_type.return_value = "single_vector"
     retriever.query_batch.return_value = batch_results
     return retriever
 
@@ -263,6 +264,88 @@ class TestRetrieverInteraction:
         assert kwargs["texts"] == ["a", "b"]
         assert kwargs["n_results"] == 7
         assert kwargs["include_similarities"] is True
+
+    def test_multi_vector_retriever_uses_query_batch_multi_vector(self):
+        retriever = MagicMock()
+        retriever.detect_index_type.return_value = "multi_vector"
+        retriever.query_batch.return_value = [
+            _chroma_batch_entry([("HP:9999999", "Wrong raw component", 0.99)])
+        ]
+        retriever.query_batch_multi_vector.return_value = [
+            _chroma_batch_entry([("HP:0001250", "Seizure", 0.9)])
+        ]
+
+        result = orchestrate_hpo_extraction(
+            text_chunks=["Patient had seizures."],
+            retriever=retriever,
+            num_results_per_chunk=3,
+            chunk_retrieval_threshold=0.5,
+        )
+
+        retriever.query_batch_multi_vector.assert_called_once_with(
+            texts=["Patient had seizures."],
+            n_results=3,
+        )
+        retriever.query_batch.assert_not_called()
+        assert [term["id"] for term in result.aggregated_results] == ["HP:0001250"]
+
+    def test_single_vector_retriever_keeps_query_batch_route(self):
+        retriever = _make_mock_retriever(
+            [_chroma_batch_entry([("HP:0001250", "Seizure", 0.9)])]
+        )
+
+        orchestrate_hpo_extraction(
+            text_chunks=["Patient had seizures."],
+            retriever=retriever,
+            num_results_per_chunk=4,
+            chunk_retrieval_threshold=0.5,
+        )
+
+        retriever.query_batch.assert_called_once_with(
+            texts=["Patient had seizures."],
+            n_results=4,
+            include_similarities=True,
+        )
+        retriever.query_batch_multi_vector.assert_not_called()
+
+    def test_multi_vector_route_prevents_duplicate_component_matches(self):
+        raw_component_entry = {
+            "metadatas": [
+                [
+                    {
+                        "hpo_id": "HP:0001250",
+                        "label": "Seizure",
+                        "component": "label",
+                    },
+                    {
+                        "hpo_id": "HP:0001250",
+                        "label": "Seizure",
+                        "component": "synonym",
+                    },
+                ]
+            ],
+            "similarities": [[0.88, 0.86]],
+            "distances": [[0.12, 0.14]],
+            "documents": [["Seizure", "Convulsions"]],
+            "ids": [["HP:0001250__label__0", "HP:0001250__synonym__0"]],
+        }
+        retriever = MagicMock()
+        retriever.detect_index_type.return_value = "multi_vector"
+        retriever.query_batch.return_value = [raw_component_entry]
+        retriever.query_batch_multi_vector.return_value = [
+            _chroma_batch_entry([("HP:0001250", "Seizure", 0.88)])
+        ]
+
+        result = orchestrate_hpo_extraction(
+            text_chunks=["Patient had recurrent convulsions."],
+            retriever=retriever,
+            num_results_per_chunk=10,
+            chunk_retrieval_threshold=0.5,
+        )
+
+        assert len(result.chunk_results[0]["matches"]) == 1
+        assert result.chunk_results[0]["matches"][0]["id"] == "HP:0001250"
+        assert result.aggregated_results[0]["count"] == 1
 
 
 class TestDetailsLoading:

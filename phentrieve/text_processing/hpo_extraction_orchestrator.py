@@ -7,6 +7,7 @@ pipeline-based approach with dense retrieval.
 import logging
 
 from phentrieve.retrieval.dense_retriever import DenseRetriever
+from phentrieve.retrieval.utils import query_chunk_candidates
 from phentrieve.text_processing._hpo_extraction_helpers import (
     aggregate_and_rank,
     build_evidence_map,
@@ -75,9 +76,9 @@ def orchestrate_hpo_extraction(
             len(all_query_results),
         )
     else:
-        logger.info(f"Batch querying {len(text_chunks)} chunks at once")
-        all_query_results = retriever.query_batch(
-            texts=text_chunks,
+        all_query_results = query_chunk_candidates(
+            retriever=retriever,
+            text_chunks=text_chunks,
             n_results=num_results_per_chunk,
             include_similarities=True,
         )

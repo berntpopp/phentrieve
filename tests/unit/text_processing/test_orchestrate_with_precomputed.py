@@ -14,13 +14,22 @@ from phentrieve.text_processing.orchestration_result import OrchestrationResult
 @pytest.fixture
 def mock_retriever():
     r = MagicMock()
-    # Standard query_batch return shape.
+    r.detect_index_type.return_value = "multi_vector"
     r.query_batch.return_value = [
         {
             "ids": [["HP:0001250"]],
             "metadatas": [[{"id": "HP:0001250", "label": "Seizure"}]],
             "similarities": [[0.85]],
             "distances": [[0.15]],
+            "documents": [[""]],
+        }
+    ]
+    r.query_batch_multi_vector.return_value = [
+        {
+            "ids": [["HP:9999999"]],
+            "metadatas": [[{"id": "HP:9999999", "label": "Wrong"}]],
+            "similarities": [[0.99]],
+            "distances": [[0.01]],
             "documents": [[""]],
         }
     ]
@@ -65,10 +74,23 @@ def test_precomputed_skips_retrieval(mock_retriever):
         num_results_per_chunk=1,
         precomputed_query_results=raw,
     )
-    # query_batch should NOT have been called.
     assert mock_retriever.query_batch.call_count == 0
+    assert mock_retriever.query_batch_multi_vector.call_count == 0
     assert result.raw_query_results == raw
     assert any(t["id"] == "HP:0001" for t in result.aggregated_results)
+
+
+def test_precomputed_length_mismatch_still_raises(mock_retriever):
+    with pytest.raises(ValueError, match="precomputed_query_results length"):
+        orchestrate_hpo_extraction(
+            text_chunks=["a", "b"],
+            retriever=mock_retriever,
+            num_results_per_chunk=1,
+            precomputed_query_results=[],
+        )
+
+    assert mock_retriever.query_batch.call_count == 0
+    assert mock_retriever.query_batch_multi_vector.call_count == 0
 
 
 def test_precomputed_value_drives_aggregation(mock_retriever):
