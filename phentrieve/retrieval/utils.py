@@ -8,6 +8,7 @@ from typing import Any
 
 def convert_multi_vector_to_chromadb_format(
     multi_vector_results: list[dict[str, Any]],
+    include_similarities: bool = False,
 ) -> dict[str, Any]:
     """
     Convert multi-vector aggregated results to ChromaDB-style format.
@@ -16,40 +17,54 @@ def convert_multi_vector_to_chromadb_format(
 
     Args:
         multi_vector_results: List of aggregated results from query_multi_vector()
+        include_similarities: Whether to include nested similarity scores
 
     Returns:
         Dictionary in ChromaDB query result format
     """
     if not multi_vector_results:
-        return {"ids": [[]], "distances": [[]], "documents": [[]], "metadatas": [[]]}
+        empty: dict[str, Any] = {
+            "ids": [[]],
+            "distances": [[]],
+            "documents": [[]],
+            "metadatas": [[]],
+        }
+        if include_similarities:
+            empty["similarities"] = [[]]
+        return empty
 
     ids = []
     metadatas = []
     documents = []
     distances = []
+    similarities = []
 
     for result in multi_vector_results:
-        ids.append(result["hpo_id"])
-        # Build metadata with component scores
+        hpo_id = result["hpo_id"]
+        ids.append(hpo_id)
         metadata = {
-            "hpo_id": result["hpo_id"],
+            "hpo_id": hpo_id,
             "label": result.get("label", ""),
         }
-        # Add component scores if present
         if "component_scores" in result:
             metadata["component_scores"] = result["component_scores"]
+        if "matched_component" in result:
+            metadata["matched_component"] = result["matched_component"]
+        if "matched_text" in result:
+            metadata["matched_text"] = result["matched_text"]
         metadatas.append(metadata)
         documents.append(result.get("label", ""))
-        # Convert similarity to distance (1 - similarity).
-        # Normalize to float: guard against None (key present but null) which
-        # would raise TypeError in `1.0 - None`.  The legitimate 0.0 case is
-        # handled correctly because `0.0 or 0.0` evaluates to 0.0.
-        similarity = result.get("similarity") or 0.0
+
+        similarity = float(result.get("similarity") or 0.0)
+        similarities.append(similarity)
         distances.append(1.0 - similarity)
 
-    return {
+    converted: dict[str, Any] = {
         "ids": [ids],
         "metadatas": [metadatas],
         "documents": [documents],
         "distances": [distances],
     }
+    if include_similarities:
+        converted["similarities"] = [similarities]
+    return converted

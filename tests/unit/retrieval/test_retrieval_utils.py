@@ -19,6 +19,61 @@ class TestConvertMultiVectorToChromadbFormat:
             "metadatas": [[]],
         }
 
+    def test_default_does_not_include_similarities(self):
+        results = [
+            {
+                "hpo_id": "HP:0001250",
+                "label": "Seizure",
+                "similarity": 0.91,
+            }
+        ]
+
+        converted = convert_multi_vector_to_chromadb_format(results)
+
+        assert "similarities" not in converted
+
+    def test_include_similarities_true_adds_nested_scores(self):
+        results = [
+            {
+                "hpo_id": "HP:0001250",
+                "label": "Seizure",
+                "similarity": 0.91,
+                "matched_component": "synonym",
+                "matched_text": "Convulsions",
+            },
+            {
+                "hpo_id": "HP:0001251",
+                "label": "Ataxia",
+                "similarity": 0.75,
+            },
+        ]
+
+        converted = convert_multi_vector_to_chromadb_format(
+            results,
+            include_similarities=True,
+        )
+
+        assert converted["ids"] == [["HP:0001250", "HP:0001251"]]
+        assert converted["similarities"] == [[0.91, 0.75]]
+        assert converted["distances"] == [[pytest.approx(0.09), pytest.approx(0.25)]]
+        assert converted["metadatas"][0][0]["hpo_id"] == "HP:0001250"
+        assert converted["metadatas"][0][0]["matched_component"] == "synonym"
+        assert converted["metadatas"][0][0]["matched_text"] == "Convulsions"
+
+    def test_empty_result_includes_empty_similarities_when_requested(self):
+        converted = convert_multi_vector_to_chromadb_format(
+            [],
+            include_similarities=True,
+        )
+
+        assert converted == {
+            "ids": [[]],
+            "distances": [[]],
+            "documents": [[]],
+            "metadatas": [[]],
+            "similarities": [[]],
+        }
+
     def test_single_result(self):
         results = [
             {
