@@ -3,7 +3,10 @@
 Functions used across multiple retrieval and evaluation modules.
 """
 
-from typing import Any
+import logging
+from typing import Any, cast
+
+logger = logging.getLogger(__name__)
 
 
 def convert_multi_vector_to_chromadb_format(
@@ -68,3 +71,57 @@ def convert_multi_vector_to_chromadb_format(
     if include_similarities:
         converted["similarities"] = [similarities]
     return converted
+
+
+def query_chunk_candidates(
+    *,
+    retriever: Any,
+    text_chunks: list[str],
+    n_results: int,
+    include_similarities: bool = True,
+) -> list[dict[str, Any]]:
+    """Retrieve per-chunk HPO candidates using the retriever's index mode."""
+    index_type = "single_vector"
+    detect_index_type = getattr(retriever, "detect_index_type", None)
+    if callable(detect_index_type):
+        try:
+            detected = detect_index_type()
+            if detected in {"single_vector", "multi_vector"}:
+                index_type = detected
+            else:
+                logger.debug("Unknown index type %r; using query_batch", detected)
+        except Exception:
+            logger.warning(
+                "Could not detect retriever index type; using query_batch",
+                exc_info=True,
+            )
+
+    query_batch_multi_vector = getattr(retriever, "query_batch_multi_vector", None)
+    if index_type == "multi_vector" and callable(query_batch_multi_vector):
+        logger.info(
+            "Batch querying %d chunks with multi-vector aggregation",
+            len(text_chunks),
+        )
+        return cast(
+            list[dict[str, Any]],
+            query_batch_multi_vector(
+                texts=text_chunks,
+                n_results=n_results,
+            ),
+        )
+
+    if index_type == "multi_vector":
+        logger.warning(
+            "Retriever is connected to a multi-vector index but does not expose "
+            "query_batch_multi_vector(); using query_batch"
+        )
+
+    logger.info("Batch querying %d chunks with query_batch", len(text_chunks))
+    return cast(
+        list[dict[str, Any]],
+        retriever.query_batch(
+            texts=text_chunks,
+            n_results=n_results,
+            include_similarities=include_similarities,
+        ),
+    )

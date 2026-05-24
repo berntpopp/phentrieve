@@ -2,7 +2,10 @@
 
 import pytest
 
-from phentrieve.retrieval.utils import convert_multi_vector_to_chromadb_format
+from phentrieve.retrieval.utils import (
+    convert_multi_vector_to_chromadb_format,
+    query_chunk_candidates,
+)
 
 pytestmark = pytest.mark.unit
 
@@ -162,3 +165,214 @@ class TestConvertMultiVectorToChromadbFormat:
         assert isinstance(converted["documents"][0], list)
         assert isinstance(converted["metadatas"], list)
         assert isinstance(converted["metadatas"][0], list)
+
+
+class _RecordingRetriever:
+    def __init__(
+        self,
+        index_type: str = "single_vector",
+        detection_error: Exception | None = None,
+    ):
+        self.index_type = index_type
+        self.detection_error = detection_error
+        self.batch_calls: list[dict[str, object]] = []
+        self.batch_multi_vector_calls: list[dict[str, object]] = []
+
+    def detect_index_type(self) -> str:
+        if self.detection_error is not None:
+            raise self.detection_error
+        return self.index_type
+
+    def query_batch(
+        self,
+        *,
+        texts: list[str],
+        n_results: int,
+        include_similarities: bool,
+    ) -> list[dict[str, object]]:
+        self.batch_calls.append(
+            {
+                "texts": texts,
+                "n_results": n_results,
+                "include_similarities": include_similarities,
+            }
+        )
+        return [{"ids": [["single"]], "metadatas": [[]], "similarities": [[]]}]
+
+    def query_batch_multi_vector(
+        self,
+        *,
+        texts: list[str],
+        n_results: int,
+    ) -> list[dict[str, object]]:
+        self.batch_multi_vector_calls.append(
+            {
+                "texts": texts,
+                "n_results": n_results,
+            }
+        )
+        return [{"ids": [["multi"]], "metadatas": [[]], "similarities": [[]]}]
+
+
+class TestQueryChunkCandidates:
+    def test_uses_multi_vector_batch_when_index_type_matches(self):
+        retriever = _RecordingRetriever(index_type="multi_vector")
+
+        results = query_chunk_candidates(
+            retriever=retriever,
+            text_chunks=["chunk a", "chunk b"],
+            n_results=7,
+        )
+
+        assert results[0]["ids"] == [["multi"]]
+        assert retriever.batch_multi_vector_calls == [
+            {"texts": ["chunk a", "chunk b"], "n_results": 7}
+        ]
+        assert retriever.batch_calls == []
+
+    def test_uses_query_batch_for_single_vector_index(self):
+        retriever = _RecordingRetriever(index_type="single_vector")
+
+        results = query_chunk_candidates(
+            retriever=retriever,
+            text_chunks=["chunk a"],
+            n_results=3,
+        )
+
+        assert results[0]["ids"] == [["single"]]
+        assert retriever.batch_calls == [
+            {
+                "texts": ["chunk a"],
+                "n_results": 3,
+                "include_similarities": True,
+            }
+        ]
+        assert retriever.batch_multi_vector_calls == []
+
+    def test_detection_error_falls_back_to_query_batch(self):
+        retriever = _RecordingRetriever(detection_error=RuntimeError("metadata failed"))
+
+        results = query_chunk_candidates(
+            retriever=retriever,
+            text_chunks=["chunk a"],
+            n_results=4,
+        )
+
+        assert results[0]["ids"] == [["single"]]
+        assert len(retriever.batch_calls) == 1
+        assert retriever.batch_multi_vector_calls == []
+
+    def test_unknown_index_type_falls_back_to_query_batch(self):
+        retriever = _RecordingRetriever(index_type="legacy_vector")
+
+        results = query_chunk_candidates(
+            retriever=retriever,
+            text_chunks=["chunk a"],
+            n_results=6,
+        )
+
+        assert results[0]["ids"] == [["single"]]
+        assert retriever.batch_calls == [
+            {
+                "texts": ["chunk a"],
+                "n_results": 6,
+                "include_similarities": True,
+            }
+        ]
+        assert retriever.batch_multi_vector_calls == []
+
+    def test_include_similarities_false_is_forwarded_to_query_batch(self):
+        retriever = _RecordingRetriever(index_type="single_vector")
+
+        results = query_chunk_candidates(
+            retriever=retriever,
+            text_chunks=["chunk a"],
+            n_results=3,
+            include_similarities=False,
+        )
+
+        assert results[0]["ids"] == [["single"]]
+        assert retriever.batch_calls == [
+            {
+                "texts": ["chunk a"],
+                "n_results": 3,
+                "include_similarities": False,
+            }
+        ]
+        assert retriever.batch_multi_vector_calls == []
+
+    def test_missing_detect_index_type_falls_back_to_query_batch(self):
+        class NoDetectIndexType:
+            def __init__(self):
+                self.batch_calls: list[dict[str, object]] = []
+
+            def query_batch(
+                self,
+                *,
+                texts: list[str],
+                n_results: int,
+                include_similarities: bool,
+            ) -> list[dict[str, object]]:
+                self.batch_calls.append(
+                    {
+                        "texts": texts,
+                        "n_results": n_results,
+                        "include_similarities": include_similarities,
+                    }
+                )
+                return [{"ids": [["single"]], "metadatas": [[]], "similarities": [[]]}]
+
+        retriever = NoDetectIndexType()
+
+        results = query_chunk_candidates(
+            retriever=retriever,
+            text_chunks=["chunk a"],
+            n_results=4,
+        )
+
+        assert results[0]["ids"] == [["single"]]
+        assert retriever.batch_calls == [
+            {
+                "texts": ["chunk a"],
+                "n_results": 4,
+                "include_similarities": True,
+            }
+        ]
+
+    def test_multi_vector_index_without_method_falls_back_to_query_batch(self):
+        class NoMultiVectorMethod(_RecordingRetriever):
+            query_batch_multi_vector = None
+
+        retriever = NoMultiVectorMethod(index_type="multi_vector")
+
+        results = query_chunk_candidates(
+            retriever=retriever,
+            text_chunks=["chunk a"],
+            n_results=5,
+        )
+
+        assert results[0]["ids"] == [["single"]]
+        assert len(retriever.batch_calls) == 1
+
+    def test_dynamic_mock_attributes_do_not_force_multi_vector_route(self):
+        from unittest.mock import MagicMock
+
+        retriever = MagicMock()
+        retriever.detect_index_type.return_value = MagicMock()
+        retriever.query_batch.return_value = [
+            {"ids": [["single"]], "metadatas": [[]], "similarities": [[]]}
+        ]
+
+        results = query_chunk_candidates(
+            retriever=retriever,
+            text_chunks=["chunk a"],
+            n_results=2,
+        )
+
+        assert results[0]["ids"] == [["single"]]
+        retriever.query_batch.assert_called_once_with(
+            texts=["chunk a"],
+            n_results=2,
+            include_similarities=True,
+        )
+        retriever.query_batch_multi_vector.assert_not_called()
