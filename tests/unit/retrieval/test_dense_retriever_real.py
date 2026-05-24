@@ -9,7 +9,7 @@ import chromadb
 import numpy as np
 import pytest
 
-from phentrieve.config import MIN_SIMILARITY_THRESHOLD
+from phentrieve.config import MIN_SIMILARITY_THRESHOLD, MULTI_VECTOR_RESULT_MULTIPLIER
 from phentrieve.retrieval.dense_retriever import DenseRetriever, connect_to_chroma
 
 # Explicit reference to chromadb to satisfy static analysis
@@ -643,6 +643,236 @@ class TestDenseRetrieverQueryBatch:
         # Batch results should match sequential results
         assert batch_results[0]["ids"] == sequential_result1["ids"]
         assert batch_results[1]["ids"] == sequential_result2["ids"]
+
+
+def _raw_multi_vector_entry(items):
+    ids = []
+    documents = []
+    metadatas = []
+    distances = []
+    similarities = []
+    for item in items:
+        ids.append(item["id"])
+        documents.append(item.get("document", ""))
+        metadatas.append(item["metadata"])
+        similarity = item["similarity"]
+        similarities.append(similarity)
+        distances.append(1.0 - similarity)
+    return {
+        "ids": [ids],
+        "documents": [documents],
+        "metadatas": [metadatas],
+        "distances": [distances],
+        "similarities": [similarities],
+    }
+
+
+class TestDenseRetrieverQueryBatchMultiVector:
+    def test_batch_multi_vector_empty_list_does_not_query(self):
+        retriever = DenseRetriever(Mock(), Mock())
+        retriever.query_batch = Mock()
+
+        results = retriever.query_batch_multi_vector([])
+
+        assert results == []
+        retriever.query_batch.assert_not_called()
+
+    def test_batch_multi_vector_aggregates_component_hits_per_hpo_id(self):
+        retriever = DenseRetriever(Mock(), Mock(), min_similarity=0.0)
+        retriever._index_type = "multi_vector"
+        retriever.query_batch = Mock(
+            return_value=[
+                _raw_multi_vector_entry(
+                    [
+                        {
+                            "id": "HP:0001250__label__0",
+                            "document": "Seizure",
+                            "metadata": {
+                                "hpo_id": "HP:0001250",
+                                "component": "label",
+                                "label": "Seizure",
+                            },
+                            "similarity": 0.82,
+                        },
+                        {
+                            "id": "HP:0001250__synonym__0",
+                            "document": "Convulsions",
+                            "metadata": {
+                                "hpo_id": "HP:0001250",
+                                "component": "synonym",
+                                "label": "Seizure",
+                                "synonym_text": "Convulsions",
+                            },
+                            "similarity": 0.94,
+                        },
+                        {
+                            "id": "HP:0001251__label__0",
+                            "document": "Ataxia",
+                            "metadata": {
+                                "hpo_id": "HP:0001251",
+                                "component": "label",
+                                "label": "Ataxia",
+                            },
+                            "similarity": 0.73,
+                        },
+                    ]
+                )
+            ]
+        )
+
+        results = retriever.query_batch_multi_vector(
+            ["recurrent convulsions"], n_results=2
+        )
+
+        assert len(results) == 1
+        assert results[0]["ids"] == [["HP:0001250", "HP:0001251"]]
+        assert results[0]["documents"] == [["Seizure", "Ataxia"]]
+        assert results[0]["similarities"] == [[0.94, 0.73]]
+        assert results[0]["distances"][0] == [pytest.approx(0.06), pytest.approx(0.27)]
+        assert results[0]["metadatas"][0][0]["component_scores"] == {
+            "label": 0.82,
+            "synonyms": [0.94],
+            "definition": None,
+        }
+        assert results[0]["metadatas"][0][0]["matched_component"] == "synonym"
+        retriever.query_batch.assert_called_once_with(
+            texts=["recurrent convulsions"],
+            n_results=2 * MULTI_VECTOR_RESULT_MULTIPLIER,
+            include_similarities=True,
+        )
+
+    def test_batch_multi_vector_aggregates_each_chunk_independently(self):
+        retriever = DenseRetriever(Mock(), Mock(), min_similarity=0.0)
+        retriever._index_type = "multi_vector"
+        retriever.query_batch = Mock(
+            return_value=[
+                _raw_multi_vector_entry(
+                    [
+                        {
+                            "id": "HP:0001250__label__0",
+                            "document": "Seizure",
+                            "metadata": {
+                                "hpo_id": "HP:0001250",
+                                "component": "label",
+                                "label": "Seizure",
+                            },
+                            "similarity": 0.91,
+                        }
+                    ]
+                ),
+                _raw_multi_vector_entry(
+                    [
+                        {
+                            "id": "HP:0001251__label__0",
+                            "document": "Ataxia",
+                            "metadata": {
+                                "hpo_id": "HP:0001251",
+                                "component": "label",
+                                "label": "Ataxia",
+                            },
+                            "similarity": 0.88,
+                        }
+                    ]
+                ),
+            ]
+        )
+
+        results = retriever.query_batch_multi_vector(
+            ["chunk one", "chunk two"], n_results=1
+        )
+
+        assert [result["ids"] for result in results] == [
+            [["HP:0001250"]],
+            [["HP:0001251"]],
+        ]
+        assert [result["similarities"] for result in results] == [[[0.91]], [[0.88]]]
+
+    def test_batch_multi_vector_failure_returns_empty_result_per_text(self):
+        retriever = DenseRetriever(Mock(), Mock(), min_similarity=0.0)
+        retriever._index_type = "multi_vector"
+        retriever.query_batch = Mock(side_effect=RuntimeError("query failed"))
+
+        results = retriever.query_batch_multi_vector(["a", "b"], n_results=3)
+
+        assert results == [
+            {
+                "ids": [[]],
+                "distances": [[]],
+                "documents": [[]],
+                "metadatas": [[]],
+                "similarities": [[]],
+            },
+            {
+                "ids": [[]],
+                "distances": [[]],
+                "documents": [[]],
+                "metadatas": [[]],
+                "similarities": [[]],
+            },
+        ]
+
+    def test_batch_multi_vector_detection_failure_returns_empty_result_per_text(self):
+        retriever = DenseRetriever(Mock(), Mock(), min_similarity=0.0)
+        retriever.detect_index_type = Mock(side_effect=RuntimeError("detect failed"))
+        retriever.query_batch = Mock()
+
+        results = retriever.query_batch_multi_vector(["a", "b"], n_results=3)
+
+        assert results == [
+            {
+                "ids": [[]],
+                "distances": [[]],
+                "documents": [[]],
+                "metadatas": [[]],
+                "similarities": [[]],
+            },
+            {
+                "ids": [[]],
+                "distances": [[]],
+                "documents": [[]],
+                "metadatas": [[]],
+                "similarities": [[]],
+            },
+        ]
+        retriever.query_batch.assert_not_called()
+
+    def test_batch_multi_vector_invalid_strategy_returns_empty_results(self):
+        retriever = DenseRetriever(Mock(), Mock(), min_similarity=0.0)
+        retriever._index_type = "multi_vector"
+        retriever.query_batch = Mock(
+            return_value=[
+                _raw_multi_vector_entry(
+                    [
+                        {
+                            "id": "HP:0001250__label__0",
+                            "document": "Seizure",
+                            "metadata": {
+                                "hpo_id": "HP:0001250",
+                                "component": "label",
+                                "label": "Seizure",
+                            },
+                            "similarity": 0.91,
+                        }
+                    ]
+                )
+            ]
+        )
+
+        results = retriever.query_batch_multi_vector(
+            ["seizure"],
+            n_results=1,
+            aggregation_strategy="not_a_strategy",
+        )
+
+        assert results == [
+            {
+                "ids": [[]],
+                "distances": [[]],
+                "documents": [[]],
+                "metadatas": [[]],
+                "similarities": [[]],
+            }
+        ]
 
 
 class TestDenseRetrieverFilterResults:

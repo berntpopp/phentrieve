@@ -27,6 +27,7 @@ from phentrieve.retrieval.aggregation import (
     AggregationStrategy,
     aggregate_multi_vector_results,
 )
+from phentrieve.retrieval.utils import convert_multi_vector_to_chromadb_format
 from phentrieve.utils import (
     calculate_similarity,
     generate_collection_name,
@@ -540,3 +541,74 @@ class DenseRetriever:
 
         # Return top n_results
         return aggregated[:n_results]
+
+    def query_batch_multi_vector(
+        self,
+        texts: list[str],
+        n_results: int = 10,
+        aggregation_strategy: str
+        | AggregationStrategy = AggregationStrategy.LABEL_SYNONYMS_MAX,
+        component_weights: dict[str, float] | None = None,
+        custom_formula: str | None = None,
+    ) -> list[dict[str, Any]]:
+        """
+        Query a multi-vector index for multiple texts with per-text HPO aggregation.
+
+        Returns one ChromaDB-style result dictionary per input text, matching
+        the shape consumed by process_chunk_matches().
+        """
+        if not texts:
+            return []
+
+        try:
+            index_type = self.detect_index_type()
+            if index_type != "multi_vector":
+                logging.warning(
+                    "query_batch_multi_vector called on %s index. Results may be incorrect.",
+                    _sanitize(index_type),
+                )
+
+            raw_n_results = n_results * MULTI_VECTOR_RESULT_MULTIPLIER
+            raw_batch_results = self.query_batch(
+                texts=texts,
+                n_results=raw_n_results,
+                include_similarities=True,
+            )
+
+            converted_results: list[dict[str, Any]] = []
+            for raw_results in raw_batch_results:
+                aggregated = aggregate_multi_vector_results(
+                    results=raw_results,
+                    strategy=aggregation_strategy,
+                    weights=component_weights,
+                    custom_formula=custom_formula,
+                    min_similarity=self.min_similarity,
+                )[:n_results]
+                converted_results.append(
+                    convert_multi_vector_to_chromadb_format(
+                        aggregated,
+                        include_similarities=True,
+                    )
+                )
+
+            while len(converted_results) < len(texts):
+                converted_results.append(
+                    convert_multi_vector_to_chromadb_format(
+                        [],
+                        include_similarities=True,
+                    )
+                )
+            return converted_results
+
+        except Exception as e:
+            logging.error(
+                "Error in batch multi-vector query to HPO index: %s",
+                _sanitize(e),
+            )
+            return [
+                convert_multi_vector_to_chromadb_format(
+                    [],
+                    include_similarities=True,
+                )
+                for _ in texts
+            ]
