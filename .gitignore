@@ -110,4 +110,8 @@ SERENA.md
 
 # Playwright MCP files
 .playwright-mcp/
+
+# Understand-Anything knowledge graph (generated locally per developer)
+.understand-anything/
+
 data/hp.json
