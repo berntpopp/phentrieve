@@ -388,6 +388,7 @@ class TwoPhaseLLMPipeline:
             "unresolved_phrases": 0,
             "local_matches": 0,
             "llm_mapped_phrases": 0,
+            "phase2_mapping_prompt_tokens_per_request": 0,
             "local_fallbacks": 0,
             "phase1_fallbacks": phase1_fallback_count,
         }
@@ -507,6 +508,10 @@ class TwoPhaseLLMPipeline:
                 )
                 request_count_total += mapping_request_count
                 phase_request_counts["phase2b_llm_requests"] = mapping_request_count
+                if mapping_request_count > 0:
+                    phase_counts["phase2_mapping_prompt_tokens_per_request"] = round(
+                        mapping_prompt_tokens / mapping_request_count
+                    )
                 resolved_terms.extend(mapped_terms)
                 phase_counts["local_fallbacks"] = local_fallback_count
                 phase_counts["llm_mapped_phrases"] = (

@@ -114,6 +114,74 @@ def test_run_llm_benchmark_includes_ontology_metrics_when_enabled(monkeypatch):
     assert result["ontology_similarity_formula"] == "hybrid"
 
 
+def test_run_llm_benchmark_observability_includes_mapping_prompt_token_metric(
+    monkeypatch,
+):
+    def fake_load_benchmark_data(test_path: Path, dataset: str):
+        return {
+            "metadata": {"dataset_name": "phenobert_GeneReviews"},
+            "documents": [
+                {
+                    "id": "doc-1",
+                    "text": "Clinical text",
+                    "gold_hpo_terms": [],
+                    "source_dataset": "GeneReviews",
+                }
+            ],
+        }
+
+    class _FakePipeline:
+        def __init__(self, provider):
+            self.provider = provider
+
+        def warmup(self, *, language: str) -> None:
+            return None
+
+        def run(self, *, text, grounded_chunks, config):
+            from phentrieve.llm.types import LLMExtractionResult, LLMMeta
+
+            return LLMExtractionResult(
+                terms=[],
+                meta=LLMMeta(
+                    llm_model=config.model,
+                    llm_mode=config.mode,
+                    phase_counts={
+                        "phase2_mapping_prompt_tokens_per_request": 42,
+                        "phase1_evidence_kept": 1,
+                        "phase1_evidence_dropped": 0,
+                    },
+                    trace={
+                        "phase1_evidence_validation": {
+                            "status": "validated",
+                            "kept_count": 1,
+                            "dropped_count": 0,
+                            "repair_count": 0,
+                            "downgraded_count": 0,
+                            "dropped": [],
+                            "repairs": [],
+                        }
+                    },
+                ),
+            )
+
+    monkeypatch.setattr(llm_benchmark, "load_benchmark_data", fake_load_benchmark_data)
+    monkeypatch.setattr(llm_benchmark, "get_llm_provider", lambda llm_model: object())
+    monkeypatch.setattr(llm_benchmark, "TwoPhaseLLMPipeline", _FakePipeline)
+
+    result = llm_benchmark.run_llm_benchmark(
+        test_file="tests/data/en/phenobert",
+        llm_model="gemini-2.5-flash",
+        dataset="GeneReviews",
+    )
+
+    record = result["prediction_records"][0]
+    assert (
+        record["metadata"]["observability"]["phase2_mapping_prompt_tokens_per_request"]
+        == 42
+    )
+    assert record["trace"]["phase1_evidence_validation"]["status"] == "validated"
+
+
 def test_run_llm_benchmark_requires_hpo_graph_for_ontology_metrics(monkeypatch):
     def fail_load_benchmark_data(*_args, **_kwargs):
         raise AssertionError("benchmark data should not load without ontology graph")

@@ -385,6 +385,71 @@ def test_two_phase_pipeline_drops_ungrounded_phase1_records_before_retrieval() -
     assert [term.term_id for term in result.terms] == ["HP:0001250"]
 
 
+def test_phase2_mapping_prompt_tokens_per_request_is_recorded() -> None:
+    provider = FakeProvider(
+        responses=[
+            {
+                "parsed": {
+                    "phenotypes": [
+                        grounded_phenotype(
+                            "frequent falls",
+                            "Abnormal",
+                            chunk_ids=[1],
+                            evidence_text="frequent falls",
+                        )
+                    ]
+                }
+            },
+            {
+                "parsed": {
+                    "phrase": "frequent falls",
+                    "hpo_id": "HP:0002359",
+                },
+                "usage": {
+                    "prompt_tokens": 42,
+                    "completion_tokens": 6,
+                    "total_tokens": 48,
+                },
+                "request_count": 1,
+            },
+        ]
+    )
+    tool_executor = FakeToolExecutor(
+        batch_results=[
+            {
+                "phrase": "frequent falls",
+                "candidates": [
+                    {
+                        "hpo_id": "HP:0002355",
+                        "term_name": "Difficulty walking",
+                        "score": 0.81,
+                    },
+                    {
+                        "hpo_id": "HP:0002359",
+                        "term_name": "Frequent falls",
+                        "score": 0.79,
+                    },
+                ],
+            }
+        ]
+    )
+    pipeline = TwoPhaseLLMPipeline(
+        provider=provider,
+        tool_executor=tool_executor,
+        mapping_batch_size=1,
+    )
+
+    result = pipeline.run(
+        text="The child has frequent falls while walking.",
+        grounded_chunks=[
+            {"chunk_id": 1, "text": "The child has frequent falls while walking."}
+        ],
+        config=LLMPipelineConfig(model="gemini-2.5-flash", mode="two_phase"),
+    )
+
+    assert result.meta.phase_counts["phase2_mapping_prompt_tokens_per_request"] == 42
+
+
 def test_phase1_returns_chunk_ids_and_evidence_text():
     provider = FakeProvider(
         responses=[
