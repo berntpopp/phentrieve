@@ -3158,6 +3158,164 @@ def test_two_phase_pipeline_batch_mapping_uses_item_ids_for_batch_selections():
     ]
 
 
+def test_mapping_batch_structured_truncation_retries_smaller_batches(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    provider = FakeProvider(
+        responses=[
+            {
+                "parsed": {
+                    "phenotypes": [
+                        grounded_phenotype("feature one", "Abnormal"),
+                        grounded_phenotype("feature two", "Abnormal"),
+                        grounded_phenotype("feature three", "Abnormal"),
+                        grounded_phenotype("feature four", "Abnormal"),
+                    ]
+                },
+            },
+            {
+                "exception": ValueError(
+                    "Invalid JSON: EOF while parsing a string at line 1 column 14331"
+                ),
+                "usage": {
+                    "prompt_tokens": 100,
+                    "completion_tokens": 8192,
+                    "total_tokens": 8292,
+                },
+                "request_count": 2,
+            },
+            {
+                "parsed": {
+                    "mappings": [
+                        {"item_id": "item_1", "hpo_id": "HP:0000001"},
+                        {"item_id": "item_2", "hpo_id": "HP:0000002"},
+                    ]
+                },
+                "usage": {
+                    "prompt_tokens": 20,
+                    "completion_tokens": 5,
+                    "total_tokens": 25,
+                },
+            },
+            {
+                "parsed": {
+                    "mappings": [
+                        {"item_id": "item_1", "hpo_id": "HP:0000003"},
+                        {"item_id": "item_2", "hpo_id": "HP:0000004"},
+                    ]
+                },
+                "usage": {
+                    "prompt_tokens": 22,
+                    "completion_tokens": 5,
+                    "total_tokens": 27,
+                },
+            },
+        ]
+    )
+    tool_executor = FakeToolExecutor(
+        batch_results=[
+            {
+                "phrase": "feature one",
+                "candidates": [
+                    {
+                        "hpo_id": "HP:0000001",
+                        "term_name": "All",
+                        "score": 0.7,
+                    }
+                ],
+            },
+            {
+                "phrase": "feature two",
+                "candidates": [
+                    {
+                        "hpo_id": "HP:0000002",
+                        "term_name": "Mode of inheritance",
+                        "score": 0.7,
+                    }
+                ],
+            },
+            {
+                "phrase": "feature three",
+                "candidates": [
+                    {
+                        "hpo_id": "HP:0000003",
+                        "term_name": "Multicystic kidney dysplasia",
+                        "score": 0.7,
+                    }
+                ],
+            },
+            {
+                "phrase": "feature four",
+                "candidates": [
+                    {
+                        "hpo_id": "HP:0000004",
+                        "term_name": "Onset",
+                        "score": 0.7,
+                    }
+                ],
+            },
+        ]
+    )
+    pipeline = TwoPhaseLLMPipeline(
+        provider=provider,
+        tool_executor=tool_executor,
+        mapping_batch_size=4,
+    )
+
+    with caplog.at_level(logging.WARNING, logger="phentrieve.llm.pipeline"):
+        result = pipeline.run(
+            text="feature one. feature two. feature three. feature four.",
+            grounded_chunks=[
+                {
+                    "chunk_id": 1,
+                    "text": "feature one. feature two. feature three. feature four.",
+                }
+            ],
+            config=LLMPipelineConfig(model="gemini-2.5-flash", mode="two_phase"),
+        )
+
+    assert [term.term_id for term in result.terms] == [
+        "HP:0000001",
+        "HP:0000002",
+        "HP:0000003",
+        "HP:0000004",
+    ]
+    assert len(provider.structured_calls) == 4
+    assert provider.structured_calls[1]["response_model"] is LLMBatchMappingSelections
+    assert (
+        len(
+            extract_mapping_payload_from_prompt(
+                provider.structured_calls[1]["user_prompt"]
+            )["items"]
+        )
+        == 4
+    )
+    assert (
+        len(
+            extract_mapping_payload_from_prompt(
+                provider.structured_calls[2]["user_prompt"]
+            )["items"]
+        )
+        == 2
+    )
+    assert (
+        len(
+            extract_mapping_payload_from_prompt(
+                provider.structured_calls[3]["user_prompt"]
+            )["items"]
+        )
+        == 2
+    )
+    assert result.meta.phase_request_counts["phase2b_llm_requests"] == 4
+    assert result.meta.token_usage["prompt_tokens"] == 152
+    assert result.meta.token_usage["completion_tokens"] == 8207
+    assert any(
+        "retrying with smaller mapping batches" in record.message
+        and "batch_size=4" in record.message
+        for record in caplog.records
+    )
+
+
 def test_two_phase_pipeline_batch_mapping_disambiguates_duplicate_phrase_text() -> None:
     provider = FakeProvider(
         responses=[

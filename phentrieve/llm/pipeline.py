@@ -141,6 +141,7 @@ from phentrieve.llm.types import (
     Phase1Mode,
 )
 from phentrieve.llm.utils import token_sort_similarity
+from phentrieve.utils import sanitize_log_value as _sanitize
 
 logger = logging.getLogger(__name__)
 
@@ -1433,49 +1434,56 @@ class TwoPhaseLLMPipeline:
 
         for start in range(0, len(unique_unresolved), self.mapping_batch_size):
             batch = unique_unresolved[start : start + self.mapping_batch_size]
-            mapping_response, batch_usage = self._run_mapping_batch(
+            (
+                mapping_batch_results,
+                batch_usage,
+                batch_request_count,
+            ) = self._run_mapping_batch_with_structured_recovery(
                 batch=batch,
                 mapping_prompt=mapping_prompt,
             )
-            request_count_total += int(
-                getattr(self.provider, "last_request_count", 0) or 0
-            )
+            request_count_total += batch_request_count
             token_usage_total = _sum_usage_dicts(token_usage_total, batch_usage)
             prompt_tokens_total += int(batch_usage.get("prompt_tokens", 0) or 0)
             completion_tokens_total += int(batch_usage.get("completion_tokens", 0) or 0)
-            selected_ids = self._select_candidate_ids(
-                mapping_response=mapping_response,
-                batch=batch,
-            )
-            for index, item in enumerate(batch):
-                dedupe_key = _downstream_dedupe_key(item, include_candidate_ids=True)
-                grouped_items = unresolved_groups[dedupe_key]
-                selected_id = selected_ids.get(_mapping_batch_item_id(index))
-                (
-                    item_resolved,
-                    item_local_fallback_count,
-                    item_trace,
-                ) = self._resolve_mapping_selection(item=item, selected_id=selected_id)
-                resolved.extend(item_resolved)
-                local_fallback_count += item_local_fallback_count
-                mapping_trace.append(item_trace)
-                for grouped_item in grouped_items[1:]:
+            for result_batch, mapping_response in mapping_batch_results:
+                selected_ids = self._select_candidate_ids(
+                    mapping_response=mapping_response,
+                    batch=result_batch,
+                )
+                for index, item in enumerate(result_batch):
+                    dedupe_key = _downstream_dedupe_key(
+                        item, include_candidate_ids=True
+                    )
+                    grouped_items = unresolved_groups[dedupe_key]
+                    selected_id = selected_ids.get(_mapping_batch_item_id(index))
                     (
-                        grouped_resolved,
-                        grouped_local_fallback_count,
-                        grouped_item_trace,
+                        item_resolved,
+                        item_local_fallback_count,
+                        item_trace,
                     ) = self._resolve_mapping_selection(
-                        item=grouped_item,
-                        selected_id=selected_id,
+                        item=item, selected_id=selected_id
                     )
-                    resolved.extend(grouped_resolved)
-                    local_fallback_count += grouped_local_fallback_count
-                    mapping_trace.append(
-                        self._annotate_mapping_trace_with_provenance(
+                    resolved.extend(item_resolved)
+                    local_fallback_count += item_local_fallback_count
+                    mapping_trace.append(item_trace)
+                    for grouped_item in grouped_items[1:]:
+                        (
+                            grouped_resolved,
+                            grouped_local_fallback_count,
                             grouped_item_trace,
-                            grouped_item,
+                        ) = self._resolve_mapping_selection(
+                            item=grouped_item,
+                            selected_id=selected_id,
                         )
-                    )
+                        resolved.extend(grouped_resolved)
+                        local_fallback_count += grouped_local_fallback_count
+                        mapping_trace.append(
+                            self._annotate_mapping_trace_with_provenance(
+                                grouped_item_trace,
+                                grouped_item,
+                            )
+                        )
         return (
             resolved,
             prompt_tokens_total,
@@ -1484,6 +1492,103 @@ class TwoPhaseLLMPipeline:
             request_count_total,
             local_fallback_count,
             mapping_trace,
+        )
+
+    def _run_mapping_batch_with_structured_recovery(
+        self,
+        *,
+        batch: list[dict[str, Any]],
+        mapping_prompt,
+    ) -> tuple[
+        list[
+            tuple[
+                list[dict[str, Any]],
+                LLMMappingSelection | LLMBatchMappingSelections,
+            ]
+        ],
+        dict[str, int],
+        int,
+    ]:
+        try:
+            mapping_response, batch_usage = self._run_mapping_batch(
+                batch=batch,
+                mapping_prompt=mapping_prompt,
+            )
+            return (
+                [(batch, mapping_response)],
+                dict(batch_usage),
+                int(getattr(self.provider, "last_request_count", 0) or 0),
+            )
+        except Exception as exc:
+            failed_usage = dict(getattr(self.provider, "last_usage", {}) or {})
+            failed_request_count = int(
+                getattr(self.provider, "last_request_count", 0) or 0
+            )
+            if len(batch) <= 1 or not self._is_retryable_mapping_batch_error(exc):
+                raise
+
+            retry_batch_size = max(1, len(batch) // 2)
+            logger.warning(
+                "Phase 2B-llm: mapping batch failed with retryable structured "
+                "response error; retrying with smaller mapping batches "
+                "batch_size=%s retry_batch_size=%s failed_requests=%s error=%s",
+                len(batch),
+                retry_batch_size,
+                failed_request_count,
+                _sanitize(exc),
+            )
+
+            recovered_results: list[
+                tuple[
+                    list[dict[str, Any]],
+                    LLMMappingSelection | LLMBatchMappingSelections,
+                ]
+            ] = []
+            recovered_usage = dict(failed_usage)
+            recovered_request_count = failed_request_count
+
+            for retry_start in range(0, len(batch), retry_batch_size):
+                retry_batch = batch[retry_start : retry_start + retry_batch_size]
+                (
+                    retry_results,
+                    retry_usage,
+                    retry_request_count,
+                ) = self._run_mapping_batch_with_structured_recovery(
+                    batch=retry_batch,
+                    mapping_prompt=mapping_prompt,
+                )
+                recovered_results.extend(retry_results)
+                recovered_usage = _sum_usage_dicts(recovered_usage, retry_usage)
+                recovered_request_count += retry_request_count
+
+            return recovered_results, recovered_usage, recovered_request_count
+
+    def _is_retryable_mapping_batch_error(self, exc: Exception) -> bool:
+        provider_checker = getattr(
+            self.provider, "_is_retryable_structured_error", None
+        )
+        if callable(provider_checker):
+            try:
+                return bool(provider_checker(exc))
+            except Exception:
+                logger.debug(
+                    "Phase 2B-llm: provider structured error classifier failed",
+                    exc_info=True,
+                )
+
+        message = str(exc).lower()
+        return any(
+            marker in message
+            for marker in (
+                "invalid json",
+                "json_invalid",
+                "unterminated",
+                "eof while parsing",
+                "expecting value",
+                "extra data",
+                "max_tokens",
+                "no structured response payload",
+            )
         )
 
     @staticmethod
