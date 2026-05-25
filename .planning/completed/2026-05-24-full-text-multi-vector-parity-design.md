@@ -1,5 +1,10 @@
 # Full-Text Multi-Vector Parity Design
 
+> Status: Completed and filed on 2026-05-25 based on git-history audit. The
+> planned retrieval parity work is present on `main` in the multi-vector batch
+> query, shared chunk candidate selector, full-text orchestrator routing, and
+> adaptive child retrieval routing.
+
 ## Goal
 
 Make standard full-text HPO extraction use HPO-level multi-vector aggregation
