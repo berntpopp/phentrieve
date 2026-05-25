@@ -939,9 +939,9 @@ def test_grouped_phase1_aggregates_mentions_before_retrieval() -> None:
     result = pipeline.run(
         text="Patient had recurrent seizures. Cognition remained normal.",
         grounded_chunks=[
-            {"chunk_id": 1, "text": "Chunk one."},
-            {"chunk_id": 2, "text": "Chunk two."},
-            {"chunk_id": 3, "text": "Chunk three."},
+            {"chunk_id": 1, "text": "Patient had recurrent"},
+            {"chunk_id": 2, "text": "seizures."},
+            {"chunk_id": 3, "text": "normal cognition."},
         ],
         extraction_groups=[
             {
@@ -1018,8 +1018,8 @@ def test_grouped_phase1_deduplicates_mentions_across_groups() -> None:
     result = pipeline.run(
         text="Patient had recurrent seizures.",
         grounded_chunks=[
-            {"chunk_id": 1, "text": "Chunk one."},
-            {"chunk_id": 2, "text": "Chunk two."},
+            {"chunk_id": 1, "text": "Patient had recurrent seizures."},
+            {"chunk_id": 2, "text": "Additional context."},
         ],
         extraction_groups=[
             {
@@ -1110,7 +1110,7 @@ def test_grouped_phase1_deduplicates_overlapping_mentions_and_merges_grounding()
     result = pipeline.run(
         text="Patient had recurrent seizures since infancy.",
         grounded_chunks=[
-            {"chunk_id": 1, "text": "Patient had recurrent"},
+            {"chunk_id": 1, "text": "Patient had"},
             {"chunk_id": 2, "text": "recurrent seizures"},
             {"chunk_id": 3, "text": "since infancy."},
         ],
@@ -1151,8 +1151,8 @@ def test_grouped_phase1_deduplicates_overlapping_mentions_and_merges_grounding()
             phrase="recurrent seizures",
             evidence_text="Patient had recurrent seizures since infancy",
             chunk_ids=[1, 2, 3],
-            start_char=12,
-            end_char=44,
+            start_char=None,
+            end_char=None,
             match_method="local",
         )
     ]
@@ -1262,16 +1262,16 @@ def test_grouped_mentions_deduplicate_before_retrieval() -> None:
                     phrase="progressive ataxia",
                     evidence_text="difficulty with balance",
                     chunk_ids=[1, 2],
-                    start_char=12,
-                    end_char=30,
+                    start_char=None,
+                    end_char=None,
                     match_method="local",
                 ),
                 LLMPhenotypeEvidence(
                     phrase="progressive ataxia",
                     evidence_text="unsteady gait",
                     chunk_ids=[2, 3],
-                    start_char=64,
-                    end_char=78,
+                    start_char=None,
+                    end_char=None,
                     match_method="local",
                 ),
             ],
@@ -3015,8 +3015,8 @@ def test_unresolved_mapping_batches_skip_duplicate_phrase_candidate_sets() -> No
             "local_fallback": False,
             "evidence_text": "Frequent falls were also reported at school.",
             "chunk_ids": [3],
-            "start_char": 52,
-            "end_char": 66,
+            "start_char": 0,
+            "end_char": 44,
         },
     ]
     assert result.terms == [
@@ -3033,16 +3033,16 @@ def test_unresolved_mapping_batches_skip_duplicate_phrase_candidate_sets() -> No
                     phrase="frequent falls",
                     evidence_text="The child has frequent falls while walking.",
                     chunk_ids=[1],
-                    start_char=14,
-                    end_char=28,
+                    start_char=0,
+                    end_char=43,
                     match_method="llm",
                 ),
                 LLMPhenotypeEvidence(
                     phrase="frequent falls",
                     evidence_text="Frequent falls were also reported at school.",
                     chunk_ids=[3],
-                    start_char=52,
-                    end_char=66,
+                    start_char=0,
+                    end_char=44,
                     match_method="llm",
                 ),
             ],
@@ -3568,6 +3568,12 @@ def test_two_phase_pipeline_accumulates_usage_and_logs_phases(caplog):
         "unresolved_phrases": 1,
         "local_matches": 0,
         "llm_mapped_phrases": 1,
+        "phase1_validated_phrases": 1,
+        "phase1_evidence_kept": 1,
+        "phase1_evidence_dropped": 0,
+        "phase1_evidence_repaired": 0,
+        "phase1_evidence_downgraded": 0,
+        "phase2_mapping_prompt_tokens_per_request": 4,
         "local_fallbacks": 0,
         "phase1_fallbacks": 0,
         "phase2b_local_accept_count": 0,
