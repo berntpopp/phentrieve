@@ -22,6 +22,7 @@ from phentrieve.llm.config import (
     DEFAULT_SIMILARITY_THRESHOLD,
     PRESENT_ASSERTION,
 )
+from phentrieve.llm.phase2a import retrieve_candidates as _retrieve_phase2a_candidates
 from phentrieve.llm.pipeline_phase1 import (
     ACTIONABLE_CATEGORIES,
 )
@@ -70,7 +71,6 @@ from phentrieve.llm.pipeline_phase2 import (
     local_match,
     optional_float,
     phenotype_from_candidate,
-    prepare_retrieval_queries,
     run_mapping_batch,
     select_candidate_id,
     select_candidate_ids,
@@ -1119,125 +1119,16 @@ class TwoPhaseLLMPipeline:
         grounded_chunks: list[dict[str, Any]],
         language: str,
     ) -> list[dict[str, Any]]:
-        unique_actionable: list[dict[str, Any]] = []
-        actionable_groups: dict[
-            tuple[str, str, tuple[str, ...]], list[dict[str, Any]]
-        ] = {}
-        for item in actionable:
-            dedupe_key = _downstream_dedupe_key(item, include_candidate_ids=False)
-            actionable_groups.setdefault(dedupe_key, []).append(item)
-            if len(actionable_groups[dedupe_key]) == 1:
-                unique_actionable.append(item)
-
-        expanded_queries: list[str] = []
-        expanded_query_keys: list[tuple[str, str, tuple[str, ...]]] = []
-        for item in unique_actionable:
-            dedupe_key = _downstream_dedupe_key(item, include_candidate_ids=False)
-            query_variants = prepare_retrieval_queries(str(item["phrase"]))
-            if not query_variants:
-                query_variants = [str(item["phrase"])]
-            for query in query_variants:
-                expanded_queries.append(query)
-                expanded_query_keys.append(dedupe_key)
-
-        batched_variant_results = self.tool_executor.query_batch_hpo_terms(
-            phrases=expanded_queries,
+        return _retrieve_phase2a_candidates(
+            actionable=actionable,
+            grounded_chunks=grounded_chunks,
             language=language,
-            n_results=self.n_results_per_phrase,
+            tool_executor=self.tool_executor,
+            n_results_per_phrase=self.n_results_per_phrase,
+            max_unique_candidates=self.max_unique_candidates,
+            min_unique_candidates=self.min_unique_candidates,
+            similarity_threshold=self.similarity_threshold,
         )
-
-        shared_results: dict[tuple[str, str, tuple[str, ...]], dict[str, Any]] = {}
-        grouped_variant_results: dict[
-            tuple[str, str, tuple[str, ...]], list[tuple[str, dict[str, Any]]]
-        ] = {}
-        for index, dedupe_key in enumerate(expanded_query_keys):
-            query = expanded_queries[index]
-            batch_result = (
-                batched_variant_results[index]
-                if index < len(batched_variant_results)
-                else {}
-            )
-            grouped_variant_results.setdefault(dedupe_key, []).append(
-                (query, batch_result)
-            )
-
-        for item in unique_actionable:
-            phrase = str(item["phrase"])
-            category = str(item["category"])
-            dedupe_key = _downstream_dedupe_key(item, include_candidate_ids=False)
-            merged_candidates: dict[str, dict[str, Any]] = {}
-            for query, batch_result in grouped_variant_results.get(dedupe_key, []):
-                if "candidates" in batch_result:
-                    candidates = [
-                        {
-                            **dict(candidate),
-                            "retrieval_query": query,
-                        }
-                        for candidate in batch_result.get("candidates", [])
-                        if isinstance(candidate, dict)
-                    ]
-                else:
-                    metadatas = self._extract_first_result_list(
-                        batch_result, "metadatas"
-                    )
-                    similarities = self._extract_first_result_list(
-                        batch_result, "similarities"
-                    )
-                    candidates = [
-                        {
-                            **candidate,
-                            "retrieval_query": query,
-                        }
-                        for candidate in self._hybrid_select_candidates(
-                            phrase=query,
-                            metadatas=metadatas,
-                            similarities=similarities,
-                        )
-                    ]
-
-                for candidate in candidates:
-                    hpo_id = str(candidate.get("hpo_id", "")).strip()
-                    if not hpo_id:
-                        continue
-                    existing = merged_candidates.get(hpo_id)
-                    if existing is None or float(
-                        candidate.get("score", 0.0) or 0.0
-                    ) > float(existing.get("score", 0.0) or 0.0):
-                        merged_candidates[hpo_id] = candidate
-
-            merged = sorted(
-                merged_candidates.values(),
-                key=lambda candidate: float(candidate.get("score", 0.0) or 0.0),
-                reverse=True,
-            )[: self.n_results_per_phrase]
-            shared_results[dedupe_key] = {
-                "phrase": phrase,
-                "category": category,
-                "candidates": merged,
-            }
-            logger.debug(
-                "Phase 2A candidate retrieval: phrase=%r candidates=%d",
-                phrase,
-                len(shared_results[dedupe_key]["candidates"]),
-            )
-
-        results: list[dict[str, Any]] = []
-        for item in actionable:
-            dedupe_key = _downstream_dedupe_key(item, include_candidate_ids=False)
-            shared_result = dict(shared_results.get(dedupe_key, {}))
-            shared_result.setdefault("phrase", str(item["phrase"]))
-            shared_result.setdefault("category", str(item["category"]))
-            shared_result["chunk_ids"] = list(item.get("chunk_ids", []))
-            shared_result["evidence_text"] = item.get("evidence_text")
-            shared_result["start_char"] = item.get("start_char")
-            shared_result["end_char"] = item.get("end_char")
-            shared_result["grounded_context"] = self._build_grounded_context(
-                item=item,
-                grounded_chunks=grounded_chunks,
-            )
-            shared_result["candidates"] = list(shared_result.get("candidates", []))
-            results.append(shared_result)
-        return results
 
     @staticmethod
     def _extract_first_result_list(
