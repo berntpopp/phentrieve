@@ -95,6 +95,14 @@ output/
 results/
 .runs/
 
+# Generated LLM benchmark/debug artifacts
+.planning/analysis/llm-evidence-validation-*.json
+.planning/analysis/llm-evidence-validation-*.checkpoint.json
+.planning/analysis/llm-evidence-validation-*/
+.planning/analysis/debug-*.json
+.planning/analysis/debug-*.checkpoint.json
+.planning/analysis/debug-*/
+
 # MkDocs build output
 site/
 
