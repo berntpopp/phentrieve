@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import re
 from typing import Any
 
@@ -24,6 +25,9 @@ from phentrieve.llm.types import (
     LLMPhenotypeEvidence,
 )
 from phentrieve.llm.utils import token_sort_similarity
+from phentrieve.retrieval.details_enrichment import enrich_results_with_details
+
+logger = logging.getLogger(__name__)
 
 CATEGORY_TO_ASSERTION = {
     "abnormal": PRESENT_ASSERTION,
@@ -135,10 +139,62 @@ def mapping_batch_item_id(index: int) -> str:
     return f"item_{index + 1}"
 
 
+def truncate_definition(text: str, *, char_limit: int) -> str:
+    stripped = " ".join(text.split())
+    if len(stripped) <= char_limit:
+        return stripped
+    truncated = stripped[:char_limit].rsplit(" ", 1)[0].rstrip()
+    return f"{truncated}..." if truncated else f"{stripped[:char_limit]}..."
+
+
+def candidate_details_by_id(
+    candidates: list[dict[str, Any]],
+    *,
+    data_dir_override: str | None = None,
+) -> dict[str, dict[str, Any]]:
+    if not candidates:
+        return {}
+    try:
+        enriched = enrich_results_with_details(
+            [
+                {
+                    "hpo_id": str(candidate.get("hpo_id", "")),
+                    "label": str(candidate.get("term_name", "")),
+                }
+                for candidate in candidates
+                if str(candidate.get("hpo_id", "")).strip()
+            ],
+            data_dir_override=data_dir_override,
+        )
+    except Exception:
+        logger.exception("Failed to enrich LLM mapping candidates with HPO details")
+        return {}
+    return {str(row.get("hpo_id", "")): dict(row) for row in enriched}
+
+
+def matched_synonym(candidate: dict[str, Any], details: dict[str, Any]) -> str | None:
+    matched_text = str(candidate.get("matched_text") or "").strip()
+    if not matched_text:
+        return None
+    if str(candidate.get("matched_component") or "").strip().lower() == "synonym":
+        return matched_text
+    synonyms = details.get("synonyms")
+    if not isinstance(synonyms, list):
+        return None
+    for synonym in synonyms:
+        synonym_text = str(synonym).strip()
+        if synonym_text.lower() == matched_text.lower():
+            return synonym_text
+    return None
+
+
 def compact_mapping_item(
     item: dict[str, Any],
     *,
     item_id: str | None = None,
+    enrich_candidates: bool = True,
+    definition_char_limit: int = 240,
+    data_dir_override: str | None = None,
 ) -> dict[str, Any]:
     grounded_context = dict(item.get("grounded_context", {}) or {})
     neighbor_texts = [
@@ -155,6 +211,14 @@ def compact_mapping_item(
         "category": item["category"],
         "candidates": [],
     }
+    details_lookup = (
+        candidate_details_by_id(
+            list(item["candidates"]),
+            data_dir_override=data_dir_override,
+        )
+        if enrich_candidates
+        else {}
+    )
     for candidate in item["candidates"]:
         compact_candidate = {
             "id": candidate["hpo_id"],
@@ -167,6 +231,16 @@ def compact_mapping_item(
             compact_candidate["matched_text"] = candidate.get("matched_text")
         if candidate.get("matched_component"):
             compact_candidate["matched_component"] = candidate.get("matched_component")
+        details = details_lookup.get(str(candidate.get("hpo_id", "")), {})
+        definition = details.get("definition")
+        if isinstance(definition, str) and definition.strip():
+            compact_candidate["definition"] = truncate_definition(
+                definition,
+                char_limit=definition_char_limit,
+            )
+        synonym = matched_synonym(candidate, details)
+        if synonym:
+            compact_candidate["matched_synonym"] = synonym
         compact_item["candidates"].append(compact_candidate)
     if item_id is not None:
         compact_item["item_id"] = item_id

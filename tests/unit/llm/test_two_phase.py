@@ -152,6 +152,99 @@ def test_resolve_with_mapping_prompt_normalizes_phrase_before_llm_call():
     )
 
 
+def test_compact_mapping_item_includes_truncated_definition_and_matched_synonym(
+    monkeypatch,
+):
+    from phentrieve.llm import pipeline_phase2
+
+    def fake_enrich_results_with_details(results, data_dir_override=None):
+        assert results == [{"hpo_id": "HP:0002359", "label": "Frequent falls"}]
+        return [
+            {
+                "hpo_id": "HP:0002359",
+                "label": "Frequent falls",
+                "definition": (
+                    "Increased frequency of falls relative to peers and expected "
+                    "developmental stage with repeated loss of balance during gait."
+                ),
+                "synonyms": ["Frequent falls", "Repeated falls"],
+            }
+        ]
+
+    monkeypatch.setattr(
+        pipeline_phase2,
+        "enrich_results_with_details",
+        fake_enrich_results_with_details,
+    )
+
+    payload = pipeline_phase2.compact_mapping_item(
+        {
+            "phrase": "frequent falls",
+            "category": "abnormal",
+            "grounded_context": {
+                "primary_chunk_text": "The child has frequent falls while walking.",
+                "neighbor_chunk_texts": [],
+            },
+            "candidates": [
+                {
+                    "hpo_id": "HP:0002359",
+                    "term_name": "Frequent falls",
+                    "score": 0.91,
+                    "matched_text": "Frequent falls",
+                    "matched_component": "synonym",
+                }
+            ],
+        },
+        definition_char_limit=64,
+    )
+
+    candidate = payload["candidates"][0]
+    assert candidate["definition"] == (
+        "Increased frequency of falls relative to peers and expected..."
+    )
+    assert candidate["matched_synonym"] == "Frequent falls"
+    assert candidate["matched_text"] == "Frequent falls"
+    assert candidate["matched_component"] == "synonym"
+
+
+def test_compact_mapping_item_continues_without_enrichment_on_database_error(
+    monkeypatch,
+):
+    from phentrieve.llm import pipeline_phase2
+
+    def fake_enrich_results_with_details(results, data_dir_override=None):
+        raise RuntimeError("database locked")
+
+    monkeypatch.setattr(
+        pipeline_phase2,
+        "enrich_results_with_details",
+        fake_enrich_results_with_details,
+    )
+
+    payload = pipeline_phase2.compact_mapping_item(
+        {
+            "phrase": "frequent falls",
+            "category": "abnormal",
+            "grounded_context": {"primary_chunk_text": "frequent falls"},
+            "candidates": [
+                {
+                    "hpo_id": "HP:0002359",
+                    "term_name": "Frequent falls",
+                    "score": 0.91,
+                }
+            ],
+        }
+    )
+
+    assert payload["candidates"] == [
+        {
+            "id": "HP:0002359",
+            "term": "Frequent falls",
+            "retrieval_score": 0.91,
+        }
+    ]
+
+
 def test_prepare_retrieval_queries_strips_unit_suffixes_without_losing_core_phrase():
     queries = prepare_retrieval_queries("serum creatinine 11.2 mg/dL")
 
