@@ -46,7 +46,11 @@ system_prompt: |
   }
 
 user_prompt_template: |
-  Extract all phenotype phrases from the following clinical text.
+  Extract all phenotype phrases from the clinical text below.
+
+  When the chunk index contains chunk_id rows, the chunk index is the clinical text.
+  Extract phenotypes from those chunk lines and cite their chunk_id values.
+  If the chunk index is empty, extract from the clinical text block.
 
   UNTRUSTED_CHUNK_INDEX_BEGIN
   {chunk_index}

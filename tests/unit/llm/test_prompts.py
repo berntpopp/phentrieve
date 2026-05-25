@@ -257,6 +257,22 @@ def test_grounded_phase1_prompt_uses_chunk_index_without_repeating_full_text() -
     assert "FULL NOTE SENTINEL" not in rendered
 
 
+def test_grounded_phase1_prompt_names_chunk_index_as_clinical_text() -> None:
+    template = loader.get_prompt(AnnotationMode.TWO_PHASE, "en")
+
+    rendered = pipeline_module._render_phase1_user_prompt(
+        extraction_prompt=template,
+        text="FULL NOTE SENTINEL",
+        grounded_chunks=[
+            {"chunk_id": 1, "text": "recurrent seizures"},
+        ],
+    )
+
+    normalized = " ".join(rendered.lower().split())
+    assert "chunk index is the clinical text" in normalized
+    assert "extract phenotypes from those chunk lines" in normalized
+
+
 def test_legacy_phase1_prompt_keeps_full_text_when_no_grounding() -> None:
     template = loader.get_prompt(AnnotationMode.TWO_PHASE, "en")
 
