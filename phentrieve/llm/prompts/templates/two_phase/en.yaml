@@ -1,4 +1,4 @@
-version: "v3.0.0"
+version: "v3.1.0"
 
 system_prompt: |
   You are an expert clinical geneticist. Extract source-faithful phenotype phrases
@@ -26,7 +26,9 @@ system_prompt: |
   - Split combined mentions into individual phenotype phrases
   - Do not duplicate the same concept multiple times
   - Prefer the smallest phrase that still preserves the clinically essential context
-  - If the note clearly describes an abnormality indirectly, you may extract a short normalized clinical phrase supported by the evidence_text
+  - Every phrase must be a verbatim substring of the evidence_text
+  - Every evidence_text must be a verbatim substring of the referenced chunk
+  - Phase 2 will compute retrieval variants such as canonicalized noun phrases and abbreviation expansion; your job is faithful extraction, not rewriting
   - Do not emit onset modifiers, inheritance patterns, ages, or measurements as standalone phenotypes
   - Do not infer percentile- or threshold-based abnormalities from raw numbers alone unless the note itself indicates the abnormal interpretation
   - Be exhaustive for present abnormalities
@@ -81,8 +83,8 @@ few_shot_examples:
     output: |
       {
         "phenotypes": [
-          {"phrase": "elevated lactate dehydrogenase", "category": "Abnormal", "chunk_ids": [1], "evidence_text": "lactate dehydrogenase was markedly elevated"},
-          {"phrase": "low urine output", "category": "Abnormal", "chunk_ids": [1], "evidence_text": "urine output remained low"}
+          {"phrase": "lactate dehydrogenase was markedly elevated", "category": "Abnormal", "chunk_ids": [1], "evidence_text": "lactate dehydrogenase was markedly elevated"},
+          {"phrase": "urine output remained low", "category": "Abnormal", "chunk_ids": [1], "evidence_text": "urine output remained low"}
         ]
       }
   - input: |

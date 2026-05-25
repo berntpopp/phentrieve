@@ -88,6 +88,9 @@ from phentrieve.llm.pipeline_phase2 import (
 from phentrieve.llm.pipeline_phase2 import (
     mapping_batch_item_id as _mapping_batch_item_id,
 )
+from phentrieve.llm.pipeline_phase2 import (
+    prepare_retrieval_queries as _prepare_retrieval_queries,
+)
 from phentrieve.llm.pipeline_retry import (
     LLMPipelinePhaseError,
 )
@@ -140,6 +143,10 @@ from phentrieve.llm.types import (
 from phentrieve.llm.utils import token_sort_similarity
 
 logger = logging.getLogger(__name__)
+
+
+def prepare_retrieval_queries(phrase: str) -> list[str]:
+    return _prepare_retrieval_queries(phrase)
 
 
 class TwoPhaseLLMPipeline:

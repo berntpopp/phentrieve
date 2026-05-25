@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import pytest
@@ -34,6 +35,17 @@ def test_get_batch_mapping_prompt_uses_shared_english_template_with_requested_la
     assert template.language == "de"
     assert template.version == "v4.1.0"
     assert template.source_path.endswith("two_phase/en_mapping_batch.yaml")
+
+
+def test_phase1_few_shot_examples_are_source_faithful() -> None:
+    template = loader.get_prompt(AnnotationMode.TWO_PHASE, "en")
+
+    for example in template.few_shot_examples:
+        source_text = example["input"].split("---", 2)[1]
+        output = json.loads(example["output"])
+        for item in output["phenotypes"]:
+            assert item["phrase"] in item["evidence_text"]
+            assert item["evidence_text"] in source_text
 
 
 def test_load_prompt_template_prefers_user_override(monkeypatch, tmp_path) -> None:

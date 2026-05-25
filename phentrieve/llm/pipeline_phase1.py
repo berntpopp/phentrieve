@@ -268,13 +268,7 @@ def _split_shared_head_phrase(phrase: str) -> list[str]:
 
 def split_combined_phase1_phrase(phrase: str) -> list[str]:
     """Split clear combined phenotype mentions into standalone source phrases."""
-    expanded_abbreviation = PHENOTYPE_ABBREVIATIONS.get(phrase.strip().lower())
-    if expanded_abbreviation:
-        return [expanded_abbreviation]
-    slash_split = _split_slash_combined_phrase(phrase)
-    if slash_split:
-        return slash_split
-    return _split_shared_head_phrase(phrase)
+    return _split_slash_combined_phrase(phrase)
 
 
 def expand_combined_phase1_extractions(
@@ -283,12 +277,6 @@ def expand_combined_phase1_extractions(
     expanded: list[dict[str, Any]] = []
     for item in extracted:
         phrase = str(item.get("phrase", "")).strip()
-        expanded_abbreviation = PHENOTYPE_ABBREVIATIONS.get(phrase.lower())
-        if expanded_abbreviation:
-            expanded_item = dict(item)
-            expanded_item["phrase"] = expanded_abbreviation
-            expanded.append(expanded_item)
-            continue
         split_phrases = split_combined_phase1_phrase(phrase)
         if not split_phrases:
             expanded.append(dict(item))

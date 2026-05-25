@@ -179,17 +179,16 @@ def test_prepare_retrieval_queries_does_not_invent_hand_written_paraphrases():
     assert "self-biting" not in queries
 
 
-def test_phase1_prompt_mentions_normalized_clinical_phrase_for_lab_or_event_evidence():
+def test_phase1_prompt_says_phase2_handles_retrieval_variants():
     prompt = get_prompt(AnnotationMode.TWO_PHASE, "en")
     system = prompt.render_system_prompt()
 
-    assert "normalized" in system.lower()
-    assert "measurement" in system.lower()
-    assert "indirectly" in system.lower()
-    assert "context" in system.lower()
+    assert "Phase 2 will compute retrieval variants" in system
+    assert "faithful extraction" in system
+    assert "short normalized clinical phrase" not in system
 
 
-def test_expand_combined_phase1_extractions_splits_slash_and_shared_head_mentions():
+def test_expand_combined_phase1_extractions_splits_only_source_substring_mentions():
     expanded = expand_combined_phase1_extractions(
         [
             {
@@ -212,15 +211,14 @@ def test_expand_combined_phase1_extractions_splits_slash_and_shared_head_mention
     assert phrases == [
         "hypertonia",
         "spasticity of the extremities",
-        "pontine hypoplasia",
-        "cerebellar hypoplasia",
+        "pontine cerebellar hypoplasia",
     ]
     assert all(item["category"] == "abnormal" for item in expanded)
     assert expanded[0]["chunk_ids"] == [15]
     assert expanded[2]["chunk_ids"] == [44, 45]
 
 
-def test_expand_combined_phase1_extractions_expands_common_phenotype_abbreviations():
+def test_expand_combined_phase1_extractions_keeps_abbreviations_source_faithful():
     expanded = expand_combined_phase1_extractions(
         [
             {
@@ -234,7 +232,7 @@ def test_expand_combined_phase1_extractions_expands_common_phenotype_abbreviatio
 
     assert expanded == [
         {
-            "phrase": "X-linked intellectual disability",
+            "phrase": "XLID",
             "category": "abnormal",
             "chunk_ids": [29],
             "evidence_text": "XLID",
