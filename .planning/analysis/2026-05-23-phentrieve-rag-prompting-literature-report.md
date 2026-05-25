@@ -2,7 +2,8 @@
 
 Date: 2026-05-23
 Scope: retrieval, full-text RAG, LLM prompting, and evaluation strategy
-Status: research analysis; no implementation performed
+Status: research analysis with follow-up outcomes; full-text parity completed,
+LLM evidence/enriched mapping attempt superseded after benchmark regression
 
 ## Executive Summary
 
@@ -30,6 +31,74 @@ The highest-value opportunities are:
 7. Keep phase 1 source-faithful and move normalization/rewrite behavior into
    phase 2.
 8. Require A/B benchmark gates for every retrieval or prompt change.
+
+## Update 2026-05-25: What Was Tried And What Changed
+
+Follow-up work executed the report's first implementation candidates, with
+different outcomes:
+
+| Item | Outcome | Planning evidence |
+| --- | --- | --- |
+| Full-text multi-vector parity | Completed and moved to completed planning records. | [`../completed/2026-05-24-full-text-multi-vector-parity-plan.md`](../completed/2026-05-24-full-text-multi-vector-parity-plan.md), [`../completed/2026-05-24-full-text-multi-vector-parity-design.md`](../completed/2026-05-24-full-text-multi-vector-parity-design.md) |
+| LLM evidence validation + enriched mapping | Attempted in PR #261, then closed because focused same-command A/B showed regression versus `main`. | [`2026-05-25-llm-evidence-validation-enriched-mapping-pr-regression.md`](2026-05-25-llm-evidence-validation-enriched-mapping-pr-regression.md) |
+| Original combined implementation plan/spec | Archived as superseded; the direction remains useful, but the combined PR is not mergeable. | [`../archived/2026-05-25-llm-evidence-validation-enriched-mapping-plan.md`](../archived/2026-05-25-llm-evidence-validation-enriched-mapping-plan.md), [`../archived/2026-05-25-llm-evidence-validation-enriched-mapping-design.md`](../archived/2026-05-25-llm-evidence-validation-enriched-mapping-design.md) |
+
+The focused same-command comparison used the same six CSC documents, model,
+seed, and index on `main` and PR #261:
+
+| Branch | Commit | TP | FP | FN | Precision | Recall | F1 |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| `main` | `ad984b5` | 53 | 18 | 20 | 0.746 | 0.726 | 0.736 |
+| PR #261 | `5cd3fce` | 43 | 28 | 30 | 0.606 | 0.589 | 0.597 |
+
+Per-document F1 changed as follows:
+
+| Document | `main` F1 | PR #261 F1 |
+| --- | ---: | ---: |
+| `CSC_91` | 0.556 | 0.556 |
+| `CSC_71` | 0.762 | 0.560 |
+| `CSC_18` | 0.737 | 0.632 |
+| `CSC_107` | 0.824 | 0.632 |
+| `CSC_4` | 0.696 | 0.500 |
+| `CSC_85` | 0.783 | 0.651 |
+
+What PR #261 tried:
+
+- Extracted phase 2A into a scoped module as a prerequisite.
+- Added Phase 1 evidence validation and trace metadata for chunk IDs, evidence
+  text, offsets, and validation outcomes.
+- Added enriched Phase 2 candidate context such as definitions, synonyms, and
+  matched metadata.
+- Kept the implementation inside the existing retrieval architecture: no
+  generic reranking, no LLM-as-judge reranking, no hybrid lexical/dense
+  retrieval, and no new retrieval subsystem.
+- Added targeted fixes after debugging for abbreviation/context handling, but
+  the final focused A/B still regressed.
+
+Observed regression mechanism:
+
+- The implementation made Phase 1 more source-faithful, which improved
+  provenance but shifted extracted phrases toward raw abbreviations and local
+  modifiers such as `GTC`, `unilateral`, `BWGS`, `throbbing`, and
+  `sparse axillary`.
+- The pre-existing `main` behavior often emitted normalized clinical phrases
+  such as `generalized tonic-clonic seizures` or `Dravet syndrome`, which made
+  candidate retrieval easier.
+- Phase 2 did not recover enough normalized concepts from the source-faithful
+  phrases. The result was exact-ID loss and new false positives, especially in
+  abbreviation-heavy and modifier-heavy cases.
+
+Revised recommendation after the experiment:
+
+- Keep the full-text multi-vector parity work completed.
+- Do not merge or continue PR #261 wholesale.
+- Restart from `main` with smaller behavior-gated PRs:
+  observability-only trace fields first if behavior-neutral, then evidence
+  validation, then Phase 2 abbreviation/context query expansion.
+- Test the risky cases before full benchmarks: `GTC`, `BWGS`, `PJS`, seizure
+  laterality, headache modifiers, sparse hair/axillary findings, and tumor
+  context.
+- Require same-command focused A/B before full GeneReviews/CSC runs.
 
 ## Research Method
 
@@ -513,7 +582,7 @@ Suggested benchmark sets:
 
 ## Concrete Next Implementation Candidates
 
-### Candidate A: Full-Text Multi-Vector Parity
+### Candidate A: Full-Text Multi-Vector Parity (completed)
 
 Smallest high-impact code change and the clearest bug fix from this report.
 This is an incomplete implementation of multi-vector behavior in standard
@@ -538,7 +607,11 @@ Acceptance criteria:
 - LLM backend behavior remains unchanged except for shared helper reuse if that
   is intentionally added later.
 
-### Candidate B: LLM Evidence Validator
+2026-05-25 outcome: this candidate has been implemented and moved to completed
+planning records. Future work should treat it as baseline infrastructure, not
+as part of the failed PR #261 experiment.
+
+### Candidate B: LLM Evidence Validator (attempted; restart smaller)
 
 Most likely to improve trust and UI evidence quality.
 
@@ -557,7 +630,12 @@ Acceptance criteria:
 - Offset precision is represented honestly.
 - Tests cover negation, uncertainty, family history, and bad chunk IDs.
 
-### Candidate C: Enriched Mapping Payload
+2026-05-25 outcome: attempted in PR #261 together with source-faithful Phase 1
+changes and enriched Phase 2 mapping. The focused same-command A/B regressed
+from F1 `0.736` on `main` to F1 `0.597` on PR #261, so this should be
+restarted from `main` as a smaller gated change.
+
+### Candidate C: Enriched Mapping Payload (attempted; restart smaller)
 
 Best prompt-only or prompt-adjacent improvement.
 
@@ -576,6 +654,12 @@ Acceptance criteria:
 - Prompt asks for evidence-supported specificity and abstention.
 - Token growth is measured.
 - A/B benchmark does not increase failed-doc count.
+
+2026-05-25 outcome: candidate enrichment remains directionally useful, but the
+PR #261 implementation did not sufficiently compensate for source-faithful
+abbreviations and modifiers in Phase 2 query construction. A new attempt should
+prove abbreviation/context recovery on focused fixtures before full benchmark
+runs.
 
 ## Source Links
 
@@ -633,6 +717,13 @@ dense semantic candidate generation, ontology-aware or cross-encoder reranking
 for ambiguous candidates, and LLM mapping constrained to retrieved candidates
 with explicit abstention. That architecture fits Phentrieve's current design
 well and can be added incrementally behind benchmark gates.
+
+2026-05-25 outcome: the consistency gap has been addressed by the full-text
+multi-vector parity work. Evidence validation and enriched mapping are still
+worth pursuing, but PR #261 showed that making Phase 1 more source-faithful can
+hurt exact HPO mapping unless Phase 2 explicitly recovers abbreviations,
+clinical expansions, and context-sensitive concepts. Treat that as the next
+required design constraint.
 
 ---
 
