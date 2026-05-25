@@ -22,6 +22,10 @@ from phentrieve.llm.config import (
     DEFAULT_SIMILARITY_THRESHOLD,
     PRESENT_ASSERTION,
 )
+from phentrieve.llm.evidence_validation import (
+    validate_phase1_evidence,
+    validation_report_summary,
+)
 from phentrieve.llm.phase2a import retrieve_candidates as _retrieve_phase2a_candidates
 from phentrieve.llm.pipeline_phase1 import (
     ACTIONABLE_CATEGORIES,
@@ -336,6 +340,15 @@ class TwoPhaseLLMPipeline:
         extracted = self._deduplicate_phase1_extractions(
             _expand_combined_phase1_extractions(extracted)
         )
+        phase1_extracted_count = len(extracted)
+        evidence_validation_report = validate_phase1_evidence(
+            extracted=extracted,
+            grounded_chunks=grounded_chunks,
+        )
+        extracted = evidence_validation_report.kept
+        evidence_validation_trace = validation_report_summary(
+            evidence_validation_report
+        )
         actionable = [
             item
             for item in extracted
@@ -355,7 +368,14 @@ class TwoPhaseLLMPipeline:
             "phase2b_llm_seconds": 0.0,
         }
         phase_counts: dict[str, int] = {
-            "extracted_phrases": len(extracted),
+            "extracted_phrases": phase1_extracted_count,
+            "phase1_validated_phrases": len(extracted),
+            "phase1_evidence_kept": len(evidence_validation_report.kept),
+            "phase1_evidence_dropped": len(evidence_validation_report.dropped),
+            "phase1_evidence_repaired": len(evidence_validation_report.repairs),
+            "phase1_evidence_downgraded": int(
+                evidence_validation_trace.get("downgraded_count", 0) or 0
+            ),
             "actionable_phrases": len(actionable),
             "candidate_sets": 0,
             "unresolved_phrases": 0,
@@ -377,7 +397,8 @@ class TwoPhaseLLMPipeline:
                 final_mode=phase1_final_mode,
                 fallback_count=phase1_fallback_count,
                 failure_class=phase1_failure_class,
-            )
+            ),
+            "phase1_evidence_validation": evidence_validation_trace,
         }
         all_phase1_groups = [
             group

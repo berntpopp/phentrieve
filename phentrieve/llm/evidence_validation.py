@@ -57,11 +57,9 @@ def validate_phase1_evidence(
             str(chunk.get("text", "") or "") for chunk in referenced_chunks
         )
         evidence = str(item.get("evidence_text") or "").strip()
-        evidence_was_repaired = False
         if not evidence and phrase and _find_case_insensitive(phrase, haystack):
             item["evidence_text"] = phrase
             evidence = phrase
-            evidence_was_repaired = True
             repairs.append({"phrase": phrase, "kind": "evidence_text_repair"})
 
         if not evidence:
@@ -77,7 +75,6 @@ def validate_phase1_evidence(
                 evidence=evidence,
                 exact_span=exact_span,
                 referenced_chunks=referenced_chunks,
-                allow_missing_offset_repair=not evidence_was_repaired,
             )
             if repaired["kind"]:
                 repairs.append({"phrase": phrase, "kind": repaired["kind"]})
@@ -166,7 +163,6 @@ def _repair_offsets(
     evidence: str,
     exact_span: tuple[int, int] | None,
     referenced_chunks: list[dict[str, Any]],
-    allow_missing_offset_repair: bool,
 ) -> dict[str, Any]:
     if len(referenced_chunks) != 1:
         return {
@@ -178,6 +174,7 @@ def _repair_offsets(
     chunk_text = str(chunk.get("text", "") or "")
     start = item.get("start_char")
     end = item.get("end_char")
+    has_offset_value = start is not None or end is not None
 
     if isinstance(start, int) and isinstance(end, int):
         if _span_matches_evidence(chunk_text, start, end, evidence):
@@ -192,9 +189,7 @@ def _repair_offsets(
                     "kind": "offset_coordinate_repair",
                 }
 
-    if exact_span is not None and (
-        allow_missing_offset_repair or "start_char" in item or "end_char" in item
-    ):
+    if exact_span is not None and has_offset_value:
         repaired = {**item, "start_char": exact_span[0], "end_char": exact_span[1]}
         return {"item": repaired, "kind": "offset_repair"}
     if exact_span is not None:

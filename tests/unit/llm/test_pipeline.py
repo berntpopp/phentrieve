@@ -311,6 +311,80 @@ def test_two_phase_pipeline_maps_phrase_via_retrieved_candidates():
     assert len(provider.calls) == 0
 
 
+def test_two_phase_pipeline_drops_ungrounded_phase1_records_before_retrieval() -> None:
+    provider = FakeProvider(
+        responses=[
+            {
+                "parsed": {
+                    "phenotypes": [
+                        grounded_phenotype(
+                            "recurrent seizures",
+                            "Abnormal",
+                            chunk_ids=[1],
+                            evidence_text="recurrent seizures",
+                        ),
+                        grounded_phenotype(
+                            "invented ataxia",
+                            "Abnormal",
+                            chunk_ids=[99],
+                            evidence_text="invented ataxia",
+                        ),
+                    ]
+                }
+            }
+        ]
+    )
+    tool_executor = FakeToolExecutor(
+        batch_results=[
+            {
+                "phrase": "recurrent seizures",
+                "candidates": [
+                    {
+                        "hpo_id": "HP:0001250",
+                        "term_name": "Recurrent seizures",
+                        "score": 0.95,
+                    }
+                ],
+            }
+        ]
+    )
+    pipeline = TwoPhaseLLMPipeline(provider=provider, tool_executor=tool_executor)
+
+    result = pipeline.run(
+        text="Patient had recurrent seizures.",
+        grounded_chunks=[{"chunk_id": 1, "text": "Patient had recurrent seizures."}],
+        config=LLMPipelineConfig(model="gemini-2.5-flash", mode="two_phase"),
+    )
+
+    assert tool_executor.queries == [
+        {
+            "phrases": ["recurrent seizures"],
+            "language": "en",
+            "n_results": 50,
+        }
+    ]
+    assert result.meta.phase_counts["extracted_phrases"] == 2
+    assert result.meta.phase_counts["phase1_validated_phrases"] == 1
+    assert result.meta.phase_counts["phase1_evidence_kept"] == 1
+    assert result.meta.phase_counts["phase1_evidence_dropped"] == 1
+    assert result.meta.trace["phase1_evidence_validation"] == {
+        "status": "validated",
+        "kept_count": 1,
+        "dropped_count": 1,
+        "repair_count": 0,
+        "downgraded_count": 0,
+        "dropped": [
+            {
+                "phrase": "invented ataxia",
+                "reason": "unknown_chunk_id",
+                "chunk_ids": [99],
+            }
+        ],
+        "repairs": [],
+    }
+    assert [term.term_id for term in result.terms] == ["HP:0001250"]
+
+
 def test_phase1_returns_chunk_ids_and_evidence_text():
     provider = FakeProvider(
         responses=[
