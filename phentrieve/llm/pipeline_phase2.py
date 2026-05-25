@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 from typing import Any
 
 from phentrieve.llm.config import (
@@ -9,6 +10,7 @@ from phentrieve.llm.config import (
     UNCERTAIN_ASSERTION,
 )
 from phentrieve.llm.pipeline_phase1 import (
+    PHENOTYPE_ABBREVIATIONS,
     UNIT_TOKEN_PATTERN,
     clean_text,
     normalize_category,
@@ -32,6 +34,43 @@ CATEGORY_TO_ASSERTION = {
 }
 
 
+TRAILING_STATE_PATTERN = re.compile(
+    r"^(?P<noun>[a-z0-9][a-z0-9\s\-/]+?)\s+"
+    r"(?P<verb>was|were|is|are|remained)\s+"
+    r"(?:(?P<intensity>markedly|severely|mildly)\s+)?"
+    r"(?P<state>elevated|increased|reduced|low)$",
+    re.IGNORECASE,
+)
+CANONICAL_STATES = {
+    "elevated": "elevated",
+    "increased": "increased",
+    "reduced": "reduced",
+    "low": "low",
+}
+
+
+def _dedupe_preserving_order(values: list[str]) -> list[str]:
+    deduped: list[str] = []
+    seen: set[str] = set()
+    for value in values:
+        key = value.lower()
+        if value and key not in seen:
+            seen.add(key)
+            deduped.append(value)
+    return deduped
+
+
+def conservative_canonical_phrase_variant(phrase: str) -> str | None:
+    match = TRAILING_STATE_PATTERN.match(phrase.strip())
+    if not match:
+        return None
+    noun = " ".join(match.group("noun").split())
+    state = CANONICAL_STATES.get(match.group("state").lower())
+    if not noun or state is None:
+        return None
+    return f"{state} {noun}"
+
+
 def prepare_retrieval_queries(phrase: str) -> list[str]:
     original = " ".join(str(phrase or "").split()).strip()
     if not original:
@@ -41,7 +80,16 @@ def prepare_retrieval_queries(phrase: str) -> list[str]:
     stripped_units = " ".join(UNIT_TOKEN_PATTERN.sub(" ", original).split())
     if stripped_units and stripped_units != original:
         variants.append(stripped_units)
-    return variants
+
+    canonical = conservative_canonical_phrase_variant(original)
+    if canonical and canonical != original:
+        variants.append(canonical)
+
+    expanded_abbreviation = PHENOTYPE_ABBREVIATIONS.get(original.lower())
+    if expanded_abbreviation:
+        variants.append(expanded_abbreviation)
+
+    return _dedupe_preserving_order(variants)
 
 
 def candidate_match_text(candidate: dict[str, Any]) -> str:

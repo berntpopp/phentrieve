@@ -179,6 +179,27 @@ def test_prepare_retrieval_queries_does_not_invent_hand_written_paraphrases():
     assert "self-biting" not in queries
 
 
+def test_prepare_retrieval_queries_expands_known_abbreviations_after_original():
+    queries = prepare_retrieval_queries("XLID")
+
+    assert queries[0] == "XLID"
+    assert "X-linked intellectual disability" in queries
+
+
+def test_prepare_retrieval_queries_adds_conservative_lab_canonical_variant():
+    queries = prepare_retrieval_queries("lactate dehydrogenase was markedly elevated")
+
+    assert queries[0] == "lactate dehydrogenase was markedly elevated"
+    assert "elevated lactate dehydrogenase" in queries
+
+
+def test_prepare_retrieval_queries_adds_conservative_low_output_variant():
+    queries = prepare_retrieval_queries("urine output remained low")
+
+    assert queries[0] == "urine output remained low"
+    assert "low urine output" in queries
+
+
 def test_phase1_prompt_says_phase2_handles_retrieval_variants():
     prompt = get_prompt(AnnotationMode.TWO_PHASE, "en")
     system = prompt.render_system_prompt()
