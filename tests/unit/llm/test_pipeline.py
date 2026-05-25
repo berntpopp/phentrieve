@@ -2663,6 +2663,94 @@ def test_two_phase_pipeline_routes_high_confidence_english_match_locally() -> No
     assert counts["phase2b_deferred_count"] == 0
 
 
+def test_two_phase_pipeline_defers_short_modifier_when_context_variant_exists() -> None:
+    pipeline = TwoPhaseLLMPipeline(
+        provider=FakeProvider(responses=[]),
+        tool_executor=FakeToolExecutor(batch_results=[]),
+    )
+    item = {
+        "phrase": "unilateral",
+        "category": "Abnormal",
+        "candidates": [
+            {
+                "hpo_id": "HP:0012833",
+                "term_name": "Unilateral",
+                "score": 0.99,
+                "retrieval_query": "unilateral",
+            },
+            {
+                "hpo_id": "HP:0006813",
+                "term_name": "Focal hemiclonic seizure",
+                "score": 0.88,
+                "retrieval_query": "unilateral seizures",
+                "matched_text": "Unilateral clonic seizures",
+            },
+        ],
+        "grounded_context": {
+            "chunk_ids": [2],
+            "primary_chunk_text": "initially unilateral prior to becoming GTC",
+            "neighbor_chunk_texts": ["following seizures since infancy"],
+        },
+        "chunk_ids": [2],
+        "evidence_text": "unilateral",
+    }
+
+    resolved, unresolved, counts = pipeline._route_phase2_candidates(
+        phrase_candidates=[item],
+        language="en",
+    )
+
+    assert resolved == []
+    assert unresolved == [item]
+    assert counts["phase2b_local_accept_count"] == 0
+    assert counts["phase2b_deferred_count"] == 1
+
+
+def test_two_phase_pipeline_routes_high_confidence_abbreviation_expansion_locally() -> (
+    None
+):
+    pipeline = TwoPhaseLLMPipeline(
+        provider=FakeProvider(responses=[]),
+        tool_executor=FakeToolExecutor(batch_results=[]),
+    )
+    item = {
+        "phrase": "GTC",
+        "category": "Abnormal",
+        "candidates": [
+            {
+                "hpo_id": "HP:0025190",
+                "term_name": "Bilateral tonic-clonic seizure with generalized onset",
+                "score": 0.987,
+                "retrieval_query": "generalized tonic-clonic seizures",
+                "matched_text": "Primarily generalized tonic-clonic seizures",
+            },
+            {
+                "hpo_id": "HP:0007334",
+                "term_name": "Bilateral tonic-clonic seizure with focal onset",
+                "score": 0.963,
+                "retrieval_query": "generalized tonic-clonic seizures",
+            },
+        ],
+        "grounded_context": {
+            "chunk_ids": [2],
+            "primary_chunk_text": "The seizures were initially unilateral prior to becoming GTC.",
+            "neighbor_chunk_texts": [],
+        },
+        "chunk_ids": [2],
+        "evidence_text": "GTC",
+    }
+
+    resolved, unresolved, counts = pipeline._route_phase2_candidates(
+        phrase_candidates=[item],
+        language="en",
+    )
+
+    assert [term.term_id for term in resolved] == ["HP:0025190"]
+    assert unresolved == []
+    assert counts["phase2b_local_accept_count"] == 1
+    assert counts["phase2b_deferred_count"] == 0
+
+
 def test_two_phase_pipeline_keeps_german_substring_match_deferred() -> None:
     pipeline = TwoPhaseLLMPipeline(
         provider=FakeProvider(responses=[]),

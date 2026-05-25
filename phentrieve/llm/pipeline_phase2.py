@@ -88,6 +88,15 @@ def prepare_retrieval_queries(phrase: str) -> list[str]:
     if canonical and canonical != original:
         variants.append(canonical)
 
+    verbal_communication_variant = re.sub(
+        r"\bverbal communication\b",
+        "speech",
+        original,
+        flags=re.IGNORECASE,
+    )
+    if verbal_communication_variant != original:
+        variants.append(verbal_communication_variant)
+
     expanded_abbreviation = PHENOTYPE_ABBREVIATIONS.get(original.lower())
     if expanded_abbreviation:
         variants.append(expanded_abbreviation)

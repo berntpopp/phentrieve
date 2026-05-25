@@ -103,3 +103,67 @@ def test_retrieve_candidates_merges_query_variants_and_preserves_grounding() -> 
             },
         }
     ]
+
+
+def test_retrieve_candidates_adds_grounded_context_head_variants() -> None:
+    tool_executor = FakeToolExecutor(
+        [
+            {
+                "phrase": "unilateral",
+                "candidates": [
+                    {
+                        "hpo_id": "HP:0012833",
+                        "term_name": "Unilateral",
+                        "score": 0.99,
+                    }
+                ],
+            },
+            {
+                "phrase": "unilateral seizures",
+                "candidates": [
+                    {
+                        "hpo_id": "HP:0006813",
+                        "term_name": "Focal hemiclonic seizure",
+                        "score": 0.88,
+                    }
+                ],
+            },
+        ]
+    )
+
+    results = retrieve_candidates(
+        actionable=[
+            {
+                "phrase": "unilateral",
+                "category": "Abnormal",
+                "chunk_ids": [2],
+                "evidence_text": "unilateral",
+            }
+        ],
+        grounded_chunks=[
+            {"chunk_id": 1, "text": "following seizures since infancy"},
+            {"chunk_id": 2, "text": "initially unilateral prior to becoming GTC"},
+        ],
+        language="en",
+        tool_executor=tool_executor,
+        n_results_per_phrase=50,
+        max_unique_candidates=10,
+        min_unique_candidates=3,
+        similarity_threshold=0.60,
+    )
+
+    assert tool_executor.queries == [
+        {
+            "phrases": ["unilateral", "unilateral seizures"],
+            "language": "en",
+            "n_results": 50,
+        }
+    ]
+    assert results[0]["candidates"] == [
+        {
+            "hpo_id": "HP:0006813",
+            "term_name": "Focal hemiclonic seizure",
+            "score": 0.88,
+            "retrieval_query": "unilateral seizures",
+        }
+    ]

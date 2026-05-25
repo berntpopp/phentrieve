@@ -36,6 +36,9 @@ SHARED_HEAD_PHRASE_PATTERN = re.compile(
     re.IGNORECASE,
 )
 PHENOTYPE_ABBREVIATIONS = {
+    "bwgs": "Bland-White-Garland syndrome",
+    "gtc": "generalized tonic-clonic seizures",
+    "pjs": "Peutz-Jeghers syndrome",
     "xlid": "X-linked intellectual disability",
 }
 

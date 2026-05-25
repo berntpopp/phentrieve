@@ -279,6 +279,20 @@ def test_prepare_retrieval_queries_expands_known_abbreviations_after_original():
     assert "X-linked intellectual disability" in queries
 
 
+def test_prepare_retrieval_queries_expands_common_clinical_abbreviations():
+    queries = prepare_retrieval_queries("GTC")
+
+    assert queries[0] == "GTC"
+    assert "generalized tonic-clonic seizures" in queries
+
+
+def test_prepare_retrieval_queries_adds_speech_variant_for_verbal_communication():
+    queries = prepare_retrieval_queries("limited verbal communication")
+
+    assert queries[0] == "limited verbal communication"
+    assert "limited speech" in queries
+
+
 def test_prepare_retrieval_queries_adds_conservative_lab_canonical_variant():
     queries = prepare_retrieval_queries("lactate dehydrogenase was markedly elevated")
 

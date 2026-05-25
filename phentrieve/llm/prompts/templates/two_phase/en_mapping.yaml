@@ -25,6 +25,8 @@ system_prompt: |
   - Use the grounded context, candidate definitions, and matched synonyms to disambiguate.
   - Treat retrieval_score as a hint, not the only decision rule.
   - Prefer the most specific term supported by the evidence.
+  - Do not add onset, laterality, severity, or anatomy specificity from neighboring context unless the phrase or evidence explicitly states it.
+  - Do not choose generic modifier or container concepts when context supports a concrete phenotype candidate.
   - Prefer semantic equivalence over lexical similarity.
   - If category is "normal", choose the abnormal HPO concept that is explicitly absent or normal in context.
   - If no candidate is a clear match, return null.

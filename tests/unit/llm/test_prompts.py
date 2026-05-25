@@ -138,6 +138,19 @@ def test_mapping_prompts_describe_enriched_candidate_fields() -> None:
         assert "retrieval_score as a hint" in system
 
 
+def test_mapping_prompts_limit_context_specificity_inference() -> None:
+    for template in [
+        loader.get_mapping_prompt("en"),
+        loader.get_batch_mapping_prompt("en"),
+    ]:
+        system = template.system_prompt
+
+        assert (
+            "Do not add onset, laterality, severity, or anatomy specificity" in system
+        )
+        assert "Do not choose generic modifier or container concepts" in system
+
+
 def test_mapping_prompt_example_prefers_specific_frequent_falls_candidate() -> None:
     template = loader.get_mapping_prompt("en")
     example = template.few_shot_examples[0]

@@ -29,6 +29,7 @@ from phentrieve.llm.evidence_validation import (
 from phentrieve.llm.phase2a import retrieve_candidates as _retrieve_phase2a_candidates
 from phentrieve.llm.pipeline_phase1 import (
     ACTIONABLE_CATEGORIES,
+    PHENOTYPE_ABBREVIATIONS,
 )
 from phentrieve.llm.pipeline_phase1 import (
     clean_text as _clean_text,
@@ -1362,11 +1363,31 @@ class TwoPhaseLLMPipeline:
             return "defer"
 
         normalized_language = (language or "").strip().lower()
+        if normalized_language == "en" and self._is_abbreviation_expansion_match(
+            phrase=str(item["phrase"]),
+            candidate=local_match,
+        ):
+            return "local"
+
         phrase_clean = _clean_text(str(item["phrase"]))
         term_clean = _clean_text(_candidate_match_text(local_match))
         phrase_tokens = _tokenize(str(item["phrase"]))
         term_tokens = _tokenize(_candidate_match_text(local_match))
         match_score = float(local_match.get("score", 0.0) or 0.0)
+        local_query_clean = _clean_text(str(local_match.get("retrieval_query", "")))
+        has_context_variant = any(
+            _clean_text(str(candidate.get("retrieval_query", "")))
+            not in {"", phrase_clean}
+            for candidate in candidates
+        )
+
+        if (
+            normalized_language == "en"
+            and len(phrase_tokens) <= 2
+            and local_query_clean == phrase_clean
+            and has_context_variant
+        ):
+            return "defer"
 
         if normalized_language == "en":
             if phrase_clean == term_clean or (
@@ -1395,11 +1416,63 @@ class TwoPhaseLLMPipeline:
         phrase: str,
         candidates: list[dict[str, Any]],
     ) -> dict[str, Any] | None:
+        abbreviation_match = self._try_abbreviation_expansion_match(
+            phrase=phrase,
+            candidates=candidates,
+        )
+        if abbreviation_match is not None:
+            return abbreviation_match
         return local_match(
             phrase=phrase,
             candidates=candidates,
             local_match_threshold=self.local_match_threshold,
         )
+
+    @staticmethod
+    def _try_abbreviation_expansion_match(
+        *,
+        phrase: str,
+        candidates: list[dict[str, Any]],
+    ) -> dict[str, Any] | None:
+        expanded = PHENOTYPE_ABBREVIATIONS.get(_clean_text(phrase))
+        if expanded is None:
+            return None
+        expanded_clean = _clean_text(expanded)
+        best_candidate: dict[str, Any] | None = None
+        best_score = 0.0
+        for candidate in candidates:
+            if not TwoPhaseLLMPipeline._is_abbreviation_expansion_match(
+                phrase=phrase,
+                candidate=candidate,
+            ):
+                continue
+            score = float(candidate.get("score", 0.0) or 0.0)
+            if score > best_score:
+                best_candidate = candidate
+                best_score = score
+        if best_candidate is None:
+            return None
+        retrieval_query_clean = _clean_text(
+            str(best_candidate.get("retrieval_query", "") or "")
+        )
+        if retrieval_query_clean != expanded_clean:
+            return None
+        return best_candidate if best_score >= 0.95 else None
+
+    @staticmethod
+    def _is_abbreviation_expansion_match(
+        *,
+        phrase: str,
+        candidate: dict[str, Any],
+    ) -> bool:
+        expanded = PHENOTYPE_ABBREVIATIONS.get(_clean_text(phrase))
+        if expanded is None:
+            return False
+        expanded_clean = _clean_text(expanded)
+        retrieval_query_clean = _clean_text(
+            str(candidate.get("retrieval_query", "") or "")
+        )
+        return retrieval_query_clean == expanded_clean
 
     def _resolve_with_mapping_prompt(
         self,

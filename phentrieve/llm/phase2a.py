@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import re
 from typing import Any
 
 from phentrieve.llm.pipeline_phase2 import (
@@ -12,6 +13,101 @@ from phentrieve.llm.pipeline_phase2 import (
 )
 
 logger = logging.getLogger(__name__)
+
+CONTEXT_HEAD_NOUNS = (
+    "seizures",
+    "seizure",
+    "headache",
+    "tumour",
+    "tumor",
+    "hairs",
+    "hair",
+)
+
+
+def _dedupe_preserving_order(values: list[str]) -> list[str]:
+    deduped: list[str] = []
+    seen: set[str] = set()
+    for value in values:
+        normalized = " ".join(str(value or "").split()).strip()
+        key = normalized.lower()
+        if normalized and key not in seen:
+            deduped.append(normalized)
+            seen.add(key)
+    return deduped
+
+
+def _contains_word(text: str, word: str) -> bool:
+    return bool(re.search(rf"\b{re.escape(word)}\b", text, flags=re.IGNORECASE))
+
+
+def _phrase_can_use_context_head(phrase: str) -> bool:
+    tokens = re.findall(r"[A-Za-z]+", phrase.lower())
+    if not tokens or len(tokens) > 2:
+        return False
+    phrase_heads = {token.rstrip("s") for token in tokens}
+    context_heads = {head.rstrip("s") for head in CONTEXT_HEAD_NOUNS}
+    return not bool(phrase_heads & context_heads)
+
+
+def prepare_contextual_retrieval_queries(
+    *,
+    phrase: str,
+    grounded_context: dict[str, Any],
+) -> list[str]:
+    queries = prepare_retrieval_queries(phrase)
+    if not _phrase_can_use_context_head(phrase):
+        return queries
+
+    context_parts = [
+        str(grounded_context.get("primary_chunk_text", "") or ""),
+        *[
+            str(text or "")
+            for text in grounded_context.get("neighbor_chunk_texts", [])
+            if isinstance(text, str)
+        ],
+    ]
+    context_text = " ".join(context_parts)
+    for head in CONTEXT_HEAD_NOUNS:
+        if _contains_word(context_text, head):
+            queries.append(f"{phrase} {head}")
+            break
+    return _dedupe_preserving_order(queries)
+
+
+def _candidate_match_text(candidate: dict[str, Any]) -> str:
+    matched_text = str(candidate.get("matched_text", "") or "").strip()
+    if matched_text:
+        return matched_text
+    return str(candidate.get("term_name", "") or "")
+
+
+def _filter_raw_modifier_candidates(
+    *,
+    phrase: str,
+    candidates: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    phrase_tokens = re.findall(r"[A-Za-z]+", phrase.lower())
+    if not phrase_tokens or len(phrase_tokens) > 2:
+        return candidates
+    phrase_clean = " ".join(phrase.lower().split())
+    has_context_variant = any(
+        str(candidate.get("retrieval_query", "") or "").strip().lower()
+        not in {"", phrase_clean}
+        for candidate in candidates
+    )
+    if not has_context_variant:
+        return candidates
+    return [
+        candidate
+        for candidate in candidates
+        if not (
+            str(candidate.get("retrieval_query", "") or "").strip().lower()
+            == phrase_clean
+            and " ".join(_candidate_match_text(candidate).lower().split())
+            == phrase_clean
+        )
+    ]
 
 
 def retrieve_candidates(
@@ -37,7 +133,14 @@ def retrieve_candidates(
     expanded_query_keys: list[tuple[str, str, tuple[str, ...]]] = []
     for item in unique_actionable:
         dedupe_key = downstream_dedupe_key(item, include_candidate_ids=False)
-        query_variants = prepare_retrieval_queries(str(item["phrase"]))
+        grounded_context = build_grounded_context(
+            item=item,
+            grounded_chunks=grounded_chunks,
+        )
+        query_variants = prepare_contextual_retrieval_queries(
+            phrase=str(item["phrase"]),
+            grounded_context=grounded_context,
+        )
         if not query_variants:
             query_variants = [str(item["phrase"])]
         for query in query_variants:
@@ -107,6 +210,7 @@ def retrieve_candidates(
             key=lambda candidate: float(candidate.get("score", 0.0) or 0.0),
             reverse=True,
         )[:n_results_per_phrase]
+        merged = _filter_raw_modifier_candidates(phrase=phrase, candidates=merged)
         shared_results[dedupe_key] = {
             "phrase": phrase,
             "category": category,
