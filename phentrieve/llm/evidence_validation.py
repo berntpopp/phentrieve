@@ -131,11 +131,48 @@ def _normalize_text(text: str) -> str:
 
 
 def _find_case_insensitive(needle: str, haystack: str) -> tuple[int, int] | None:
-    pattern = re.compile(rf"(?<!\w){re.escape(needle)}(?!\w)", re.IGNORECASE)
-    match = pattern.search(haystack)
-    if match is None:
-        return None
-    return match.start(), match.end()
+    pattern = re.compile(re.escape(needle), re.IGNORECASE)
+    for match in pattern.finditer(haystack):
+        if _has_evidence_boundaries(
+            haystack=haystack,
+            start=match.start(),
+            end=match.end(),
+            evidence=needle,
+        ):
+            return match.start(), match.end()
+    return None
+
+
+def _has_evidence_boundaries(
+    *,
+    haystack: str,
+    start: int,
+    end: int,
+    evidence: str,
+) -> bool:
+    before = haystack[start - 1] if start > 0 else ""
+    after = haystack[end] if end < len(haystack) else ""
+    evidence_start = evidence[0] if evidence else ""
+    evidence_end = evidence[-1] if evidence else ""
+    return _is_evidence_left_boundary(before, evidence_start) and (
+        _is_evidence_right_boundary(after, evidence_end)
+    )
+
+
+def _is_evidence_left_boundary(before: str, evidence_start: str) -> bool:
+    if not before:
+        return True
+    if not (before.isalnum() or before == "_"):
+        return True
+    return before.islower() and evidence_start.isupper()
+
+
+def _is_evidence_right_boundary(after: str, evidence_end: str) -> bool:
+    if not after:
+        return True
+    if not (after.isalnum() or after == "_"):
+        return True
+    return evidence_end.islower() and after.isupper()
 
 
 def _best_window_ratio(needle: str, haystack: str) -> float:
@@ -203,8 +240,9 @@ def _span_matches_evidence(text: str, start: int, end: int, evidence: str) -> bo
         return False
     if text[start:end].lower() != evidence.lower():
         return False
-    before = text[start - 1] if start > 0 else ""
-    after = text[end] if end < len(text) else ""
-    return (not before.isalnum() and before != "_") and (
-        not after.isalnum() and after != "_"
+    return _has_evidence_boundaries(
+        haystack=text,
+        start=start,
+        end=end,
+        evidence=evidence,
     )

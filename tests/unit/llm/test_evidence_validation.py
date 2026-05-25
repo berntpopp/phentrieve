@@ -171,6 +171,44 @@ def test_validate_phase1_evidence_downgrades_fuzzy_evidence_to_chunk_level() -> 
     ]
 
 
+def test_validate_phase1_evidence_accepts_camel_case_list_boundary() -> None:
+    report = validate_phase1_evidence(
+        extracted=[
+            {
+                "phrase": "Ptosis",
+                "category": "Abnormal",
+                "chunk_ids": [1],
+                "evidence_text": "Ptosis",
+            },
+            {
+                "phrase": "Ophthalmoplegia",
+                "category": "Abnormal",
+                "chunk_ids": [1],
+                "evidence_text": "Ophthalmoplegia",
+            },
+            {
+                "phrase": "Corneal ulcers",
+                "category": "Abnormal",
+                "chunk_ids": [1],
+                "evidence_text": "Corneal ulcers",
+            },
+        ],
+        grounded_chunks=[
+            {
+                "chunk_id": 1,
+                "text": "Other findings include the following:PtosisOphthalmoplegiaCorneal ulcers.",
+            }
+        ],
+    )
+
+    assert [item["phrase"] for item in report.kept] == [
+        "Ptosis",
+        "Ophthalmoplegia",
+        "Corneal ulcers",
+    ]
+    assert report.dropped == []
+
+
 def test_validate_phase1_evidence_drops_ungrounded_evidence() -> None:
     report = validate_phase1_evidence(
         extracted=[
