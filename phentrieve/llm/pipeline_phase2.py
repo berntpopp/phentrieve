@@ -25,7 +25,6 @@ from phentrieve.llm.types import (
     LLMPhenotypeEvidence,
 )
 from phentrieve.llm.utils import token_sort_similarity
-from phentrieve.retrieval.details_enrichment import enrich_results_with_details
 
 logger = logging.getLogger(__name__)
 
@@ -145,6 +144,17 @@ def truncate_definition(text: str, *, char_limit: int) -> str:
         return stripped
     truncated = stripped[:char_limit].rsplit(" ", 1)[0].rstrip()
     return f"{truncated}..." if truncated else f"{stripped[:char_limit]}..."
+
+
+def enrich_results_with_details(
+    results: list[dict[str, Any]],
+    data_dir_override: str | None = None,
+) -> list[dict[str, Any]]:
+    from phentrieve.retrieval.details_enrichment import (
+        enrich_results_with_details as enrich,
+    )
+
+    return enrich(results, data_dir_override=data_dir_override)
 
 
 def candidate_details_by_id(
