@@ -22,7 +22,7 @@ def test_get_mapping_prompt_loads_packaged_template() -> None:
     template = loader.get_mapping_prompt("fr")
 
     assert template.language == "fr"
-    assert template.version == "v4.1.0"
+    assert template.version == "v4.2.0"
     assert "You map clinical phenotype phrases to HPO terms." in template.system_prompt
     assert template.source_path.endswith("two_phase/en_mapping.yaml")
 
@@ -33,7 +33,7 @@ def test_get_batch_mapping_prompt_uses_shared_english_template_with_requested_la
     template = loader.get_batch_mapping_prompt("de")
 
     assert template.language == "de"
-    assert template.version == "v4.1.0"
+    assert template.version == "v4.2.0"
     assert template.source_path.endswith("two_phase/en_mapping_batch.yaml")
 
 
@@ -121,6 +121,30 @@ def test_mapping_prompts_keep_single_compact_example() -> None:
 
     assert len(single.few_shot_examples) == 1
     assert len(batch.few_shot_examples) == 1
+
+
+def test_mapping_prompts_describe_enriched_candidate_fields() -> None:
+    for template in [
+        loader.get_mapping_prompt("en"),
+        loader.get_batch_mapping_prompt("en"),
+    ]:
+        system = template.system_prompt
+
+        assert "optional definition" in system
+        assert "optional matched_synonym" in system
+        assert "optional matched_component" in system
+        assert "optional matched_text" in system
+        assert "most specific term supported by the evidence" in system
+        assert "retrieval_score as a hint" in system
+
+
+def test_mapping_prompt_example_prefers_specific_frequent_falls_candidate() -> None:
+    template = loader.get_mapping_prompt("en")
+    example = template.few_shot_examples[0]
+
+    assert '"id": "HP:0002359"' in example["input"]
+    assert '"matched_synonym": "Frequent falls"' in example["input"]
+    assert example["output"] == '{"phrase": "frequent falls", "hpo_id": "HP:0002359"}'
 
 
 def test_batch_mapping_prompt_prefix_stays_stable_before_variable_context() -> None:

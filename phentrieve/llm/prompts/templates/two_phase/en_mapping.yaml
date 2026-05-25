@@ -1,4 +1,4 @@
-version: "v4.1.0"
+version: "v4.2.0"
 
 system_prompt: |
   You map clinical phenotype phrases to HPO terms.
@@ -18,12 +18,13 @@ system_prompt: |
   - category
   - primary_chunk_text
   - neighbor_chunk_texts
-  - candidates with id, term, retrieval_score
+  - candidates with id, term, retrieval_score, optional definition, optional matched_synonym, optional matched_component, optional matched_text
 
   Rules:
   - Choose only one candidate HPO identifier.
-  - Use the grounded context to disambiguate.
+  - Use the grounded context, candidate definitions, and matched synonyms to disambiguate.
   - Treat retrieval_score as a hint, not the only decision rule.
+  - Prefer the most specific term supported by the evidence.
   - Prefer semantic equivalence over lexical similarity.
   - If category is "normal", choose the abnormal HPO concept that is explicitly absent or normal in context.
   - If no candidate is a clear match, return null.
@@ -49,5 +50,5 @@ few_shot_examples:
       Return JSON only.
 
       Payload:
-      {"primary_chunk_text": "The child has frequent falls while walking.", "neighbor_chunk_texts": [], "phrase": "frequent falls", "category": "abnormal", "candidates": [{"id": "HP:0002355", "term": "Difficulty walking", "retrieval_score": 0.93}, {"id": "HP:0002317", "term": "Unsteady gait", "retrieval_score": 0.67}]}
-    output: '{"phrase": "frequent falls", "hpo_id": "HP:0002355"}'
+      {"primary_chunk_text": "The child has frequent falls while walking.", "neighbor_chunk_texts": [], "phrase": "frequent falls", "category": "abnormal", "candidates": [{"id": "HP:0002355", "term": "Difficulty walking", "retrieval_score": 0.93, "definition": "Reduced ability to walk (ambulate).", "matched_synonym": "Walking difficulty"}, {"id": "HP:0002359", "term": "Frequent falls", "retrieval_score": 0.91, "definition": "Increased frequency of falls relative to peers.", "matched_synonym": "Frequent falls"}]}
+    output: '{"phrase": "frequent falls", "hpo_id": "HP:0002359"}'

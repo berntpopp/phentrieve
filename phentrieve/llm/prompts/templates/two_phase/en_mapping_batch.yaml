@@ -1,4 +1,4 @@
-version: "v4.1.0"
+version: "v4.2.0"
 
 system_prompt: |
   You map clinical phenotype phrases to HPO terms.
@@ -19,14 +19,15 @@ system_prompt: |
   - category
   - primary_chunk_text
   - neighbor_chunk_texts
-  - candidates with id, term, retrieval_score
+  - candidates with id, term, retrieval_score, optional definition, optional matched_synonym, optional matched_component, optional matched_text
 
   Rules:
   - Return one mapping object for each input item.
   - Each mapping must include the original item_id.
   - Choose only one candidate HPO identifier per item_id.
-  - Use the grounded context to disambiguate.
+  - Use the grounded context, candidate definitions, and matched synonyms to disambiguate.
   - Treat retrieval_score as a hint, not the only decision rule.
+  - Prefer the most specific term supported by the evidence.
   - Prefer semantic equivalence over lexical similarity.
   - If category is "normal", choose the abnormal HPO concept that is explicitly absent or normal in context.
   - If no candidate is a clear match, return null for that item_id.
@@ -49,5 +50,5 @@ few_shot_examples:
       Return JSON only.
 
       Payload:
-      {"items": [{"item_id": "item_1", "primary_chunk_text": "Physical examination revealed scoliosis and joint hypermobility", "neighbor_chunk_texts": [], "phrase": "scoliosis", "category": "abnormal", "candidates": [{"id": "HP:0002650", "term": "Scoliosis", "retrieval_score": 0.99}, {"id": "HP:0100884", "term": "Compensatory scoliosis", "retrieval_score": 0.42}]}, {"item_id": "item_2", "primary_chunk_text": "The child has frequent falls while walking.", "neighbor_chunk_texts": [], "phrase": "frequent falls", "category": "abnormal", "candidates": [{"id": "HP:0002355", "term": "Difficulty walking", "retrieval_score": 0.93}, {"id": "HP:0002317", "term": "Unsteady gait", "retrieval_score": 0.67}]}]}
-    output: '{"mappings": [{"item_id": "item_1", "hpo_id": "HP:0002650"}, {"item_id": "item_2", "hpo_id": "HP:0002355"}]}'
+      {"items": [{"item_id": "item_1", "primary_chunk_text": "Physical examination revealed scoliosis and joint hypermobility", "neighbor_chunk_texts": [], "phrase": "scoliosis", "category": "abnormal", "candidates": [{"id": "HP:0002650", "term": "Scoliosis", "retrieval_score": 0.99}, {"id": "HP:0100884", "term": "Compensatory scoliosis", "retrieval_score": 0.42}]}, {"item_id": "item_2", "primary_chunk_text": "The child has frequent falls while walking.", "neighbor_chunk_texts": [], "phrase": "frequent falls", "category": "abnormal", "candidates": [{"id": "HP:0002355", "term": "Difficulty walking", "retrieval_score": 0.93, "definition": "Reduced ability to walk (ambulate).", "matched_synonym": "Walking difficulty"}, {"id": "HP:0002359", "term": "Frequent falls", "retrieval_score": 0.91, "definition": "Increased frequency of falls relative to peers.", "matched_synonym": "Frequent falls"}]}]}
+    output: '{"mappings": [{"item_id": "item_1", "hpo_id": "HP:0002650"}, {"item_id": "item_2", "hpo_id": "HP:0002359"}]}'
