@@ -29,7 +29,7 @@
     "libphonenumber-js": "^1.13.3",
     "pinia": "^3.0.4",
     "pinia-plugin-persistedstate": "^4.7.1",
-    "vue": "^3.5.34",
+    "vue": "^3.5.35",
     "vue-i18n": "^11.4.4",
     "vue-router": "^5.0.7",
     "vue-virtual-scroller": "^3.0.4",
