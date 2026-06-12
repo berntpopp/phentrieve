@@ -113,11 +113,8 @@ def _get_hpo_version_from_db(db_path: Path | str | None = None) -> str:
 
         from phentrieve.data_processing.hpo_database import HPODatabase
 
-        db = HPODatabase(db_file)
-        try:
+        with HPODatabase(db_file) as db:
             version = db.get_metadata("hpo_version")
-        finally:
-            db.close()
 
         return version or "unknown"
     except Exception as e:

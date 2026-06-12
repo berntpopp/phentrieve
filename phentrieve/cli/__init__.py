@@ -45,10 +45,14 @@ class _LazyTyperProxy(click.Group):
             self._loaded_command = get_command(target)
             self.params = list(self._loaded_command.params)
             self.callback = self._loaded_command.callback
-            self.help = self._loaded_command.help
-            self.short_help = self._loaded_command.short_help
-            self.epilog = self._loaded_command.epilog
+            self.help = self._loaded_command.help or self.help
+            self.short_help = self._loaded_command.short_help or self.short_help
+            self.epilog = self._loaded_command.epilog or self.epilog
         return self._loaded_command
+
+    def get_params(self, ctx: click.Context) -> list[click.Parameter]:
+        self._load()
+        return super().get_params(ctx)
 
     def get_command(self, ctx: click.Context, cmd_name: str) -> click.Command | None:
         loaded = self._load()

@@ -63,7 +63,14 @@ jobs:
 
       - name: Run pip-audit
         run: |
-          uv run pip-audit --requirement audit-requirements.txt --vulnerability-service pypi
+          # Ignored vulnerabilities have no patched release yet (checked 2026-06-12):
+          # - CVE-2026-45829 / GHSA-f4j7-r4q5-qw2c: chromadb pre-auth code injection,
+          #   all of 1.0.0-1.5.9 vulnerable. Remove once a fixed chromadb ships.
+          # - CVE-2025-3000 / GHSA-rrmf-rvhw-rf47: torch.jit.script memory corruption,
+          #   <= 2.12.0 vulnerable. Remove once a fixed torch ships.
+          uv run pip-audit --requirement audit-requirements.txt --vulnerability-service pypi \
+            --ignore-vuln CVE-2026-45829 \
+            --ignore-vuln CVE-2025-3000
 
   # Python SAST with Bandit (run directly with uv for proper pyproject.toml support)
   bandit:

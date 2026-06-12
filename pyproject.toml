@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "phentrieve"
-version = "0.21.3"
+version = "0.21.4"
 description = "A CLI tool for retrieving Human Phenotype Ontology (HPO) terms from clinical text using multilingual embeddings."
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -41,7 +41,7 @@ dependencies = [
     "numpy>=2.0.0,<3.0.0",                  # NumPy 2.x for modern library compatibility (spacy 3.8+, thinc 8.3+)
     "matplotlib>=3.10.8",
     "seaborn>=0.12.0",
-    "typer>=0.24.1,<0.26.0",
+    "typer>=0.24.1,<0.26.0",        # 0.26 vendors click (typer._click) and breaks the lazy CLI groups in phentrieve/cli
     "rich>=10.0.0",                         # Required for typer CLI features
     "shellingham>=1.3.0",                   # Required for typer shell completion
     "PyYAML>=6.0",

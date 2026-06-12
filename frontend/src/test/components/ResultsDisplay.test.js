@@ -263,9 +263,9 @@ describe('AdvancedOptionsPanel', () => {
       .findAllComponents({ name: 'VSelect' })
       .find((select) => select.props('modelValue') === 'two_phase');
 
-    expect(
-      textFields.some((field) => field.props('modelValue') === 'gemini-3.1-flash-lite')
-    ).toBe(true);
+    expect(textFields.some((field) => field.props('modelValue') === 'gemini-3.1-flash-lite')).toBe(
+      true
+    );
     expect(llmModeSelect).toBeDefined();
   });
 });

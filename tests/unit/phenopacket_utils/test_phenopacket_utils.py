@@ -14,6 +14,7 @@ from phentrieve.phenopackets.sidecar import (
     validate_annotation_sidecar,
 )
 from phentrieve.phenopackets.utils import (
+    _get_hpo_version_from_db,
     _normalize_aggregated_results,
     _normalize_export_records,
     export_phenopacket_bundle,
@@ -715,3 +716,75 @@ class TestNormalizedExportModels:
         assert len(records) == 1
         assert records[0].spans == []
         assert records[0].evidence_text == "unmapped evidence text"
+
+
+class TestGetHpoVersionFromDb:
+    def test_returns_version_via_context_manager(self, tmp_path, monkeypatch):
+        """The DB handle is opened as a context manager and closed after use."""
+        db_file = tmp_path / "hpo.db"
+        db_file.touch()
+
+        events: list[str] = []
+
+        class FakeHPODatabase:
+            def __init__(self, path):
+                events.append(f"init:{path}")
+
+            def __enter__(self):
+                events.append("enter")
+                return self
+
+            def __exit__(self, exc_type, exc_val, exc_tb):
+                events.append("exit")
+                return False
+
+            def get_metadata(self, key):
+                assert key == "hpo_version"
+                return "v2026-02-16"
+
+        monkeypatch.setattr(
+            "phentrieve.data_processing.hpo_database.HPODatabase",
+            FakeHPODatabase,
+        )
+
+        assert _get_hpo_version_from_db(db_file) == "v2026-02-16"
+        assert events == [f"init:{db_file}", "enter", "exit"]
+
+    def test_returns_unknown_when_metadata_missing(self, tmp_path, monkeypatch):
+        db_file = tmp_path / "hpo.db"
+        db_file.touch()
+
+        class FakeHPODatabase:
+            def __init__(self, path):
+                pass
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, exc_type, exc_val, exc_tb):
+                return False
+
+            def get_metadata(self, key):
+                return None
+
+        monkeypatch.setattr(
+            "phentrieve.data_processing.hpo_database.HPODatabase",
+            FakeHPODatabase,
+        )
+
+        assert _get_hpo_version_from_db(db_file) == "unknown"
+
+    def test_returns_unknown_when_db_errors(self, tmp_path, monkeypatch):
+        db_file = tmp_path / "hpo.db"
+        db_file.touch()
+
+        class BrokenHPODatabase:
+            def __init__(self, path):
+                raise RuntimeError("corrupt database")
+
+        monkeypatch.setattr(
+            "phentrieve.data_processing.hpo_database.HPODatabase",
+            BrokenHPODatabase,
+        )
+
+        assert _get_hpo_version_from_db(db_file) == "unknown"
