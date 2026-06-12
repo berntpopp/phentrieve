@@ -79,6 +79,40 @@ Phase 2 did not recover enough of that lost clinical normalization. Focused
 fixes improved selected cases, especially `CSC_91`, but the branch still
 regressed five of the six focused documents against current `main`.
 
+## Current Main Baseline And CSC_68 Watch Item
+
+Follow-up full benchmark checks on `main` with Gemini 3.1 Flash-Lite did not
+show the PR #261 regression on the maintained branch.
+
+| Dataset | Cases | Model | Strict micro P | Strict micro R | Strict micro F1 | Status |
+|---|---:|---|---:|---:|---:|---|
+| GeneReviews | 10 | `gemini-3.1-flash-lite` | 0.840 | 0.797 | 0.818 | matches the local stable run |
+| CSC | 112 | `gemini-3.1-flash-lite` | 0.747 | 0.702 | 0.724 | slightly above the older local CSC run |
+
+The worst strict-F1 CSC case in that full-main run was `CSC_68`:
+
+- `CSC_68`: TP `0`, FP `7`, FN `10`, strict F1 `0.000`.
+- The system predictions were source-faithful to the available note
+  (`fever`, `hyponatremia`, `hydrocephalus`, `SIADH`, `primary adrenal
+  insufficiency`, `hyperpigmentation`, and white-matter findings).
+- The ten gold labels had no evidence spans and appeared not to be grounded in
+  the available note text.
+
+This is distinct from the four CSC cases excluded during dataset conversion:
+
+| Case | Manual annotations | Current treatment |
+|---|---:|---|
+| `CSC_22` | none released | excluded |
+| `CSC_25` | none released | excluded |
+| `CSC_44` | none released | excluded |
+| `CSC_89` | none released | excluded |
+| `CSC_68` | 10 annotations | included; data-quality watch item |
+
+Decision: keep `CSC_68` in the benchmark for now. Do not silently group it with
+the four no-annotation exclusions. If the benchmark later excludes
+non-source-grounded gold records, document that as a separate exclusion class
+and report metrics with and without those records.
+
 ## Follow-Up Recommendation
 
 Restart from `main` and split the concept into smaller, independently gated
