@@ -1,6 +1,6 @@
 {
   "name": "phentrieve-frontend",
-  "version": "0.11.5",
+  "version": "0.11.6",
   "private": true,
   "type": "module",
   "scripts": {
@@ -31,7 +31,7 @@
     "pinia-plugin-persistedstate": "^4.7.1",
     "vue": "^3.5.35",
     "vue-i18n": "^11.4.5",
-    "vue-router": "^5.0.7",
+    "vue-router": "^5.1.0",
     "vue-virtual-scroller": "^3.0.4",
     "vuetify": "^3.12.8"
   },
@@ -56,7 +56,7 @@
     "prettier": "^3.8.4",
     "rollup-plugin-visualizer": "^7.0.1",
     "terser": "^5.48.0",
-    "vite": "^6.4.3",
+    "vite": "^7.3.5",
     "vite-plugin-compression": "^0.5.1",
     "vitest": "^4.0.9",
     "vue-eslint-parser": "^10.4.1",

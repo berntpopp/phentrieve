@@ -1,8 +1,19 @@
-.PHONY: help format format-check lint typecheck typecheck-fast typecheck-daemon-stop typecheck-fresh check ci-local precommit ci ci-python-quality ci-python-compat ci-python-compat-all ci-python ci-frontend ci-quick config-validate test test-cov test-ci test-scripts test-all clean all install install-dev install-text-processing install-editable lock upgrade add remove clean-venv frontend-install frontend-lint frontend-format frontend-format-check frontend-dev frontend-build frontend-build-ci frontend-test frontend-test-ci frontend-test-ui frontend-test-cov frontend-i18n-check frontend-i18n-report docker-build docker-up docker-down docker-logs docker-dev dev-api dev-frontend dev-all test-api test-api-cov test-e2e test-e2e-security test-e2e-health test-e2e-api test-e2e-fast test-e2e-clean test-e2e-logs test-e2e-shell cov-package cov-api cov-frontend cov-all security security-python security-frontend security-audit security-report version version-cli version-api version-frontend bump-cli-patch bump-cli-minor bump-cli-major bump-api-patch bump-api-minor bump-api-major bump-frontend-patch bump-frontend-minor bump-frontend-major benchmark-compare-vectors benchmark-single benchmark-multi mcp-serve mcp-serve-http mcp-info mcp-install
+.PHONY: help format format-check lint typecheck typecheck-fast typecheck-daemon-stop typecheck-fresh check ci-local precommit ci ci-python-quality ci-python-quality-clean ci-python-compat ci-python-compat-all ci-python ci-frontend ci-frontend-clean ci-quick config-validate test test-cov test-ci test-scripts test-all clean all install install-dev install-text-processing install-editable python-install-ci python-deps lock upgrade add remove clean-venv frontend-install frontend-install-ci frontend-deps frontend-lint frontend-format frontend-format-check frontend-dev frontend-build frontend-build-ci frontend-test frontend-test-ci frontend-test-ui frontend-test-cov frontend-i18n-check frontend-i18n-report docker-build docker-up docker-down docker-logs docker-dev dev-api dev-frontend dev-all test-api test-api-cov test-e2e test-e2e-security test-e2e-health test-e2e-api test-e2e-fast test-e2e-clean test-e2e-logs test-e2e-shell cov-package cov-api cov-frontend cov-all security security-python security-frontend security-audit security-report version version-cli version-api version-frontend bump-cli-patch bump-cli-minor bump-cli-major bump-api-patch bump-api-minor bump-api-major bump-frontend-patch bump-frontend-minor bump-frontend-major benchmark-compare-vectors benchmark-single benchmark-multi mcp-serve mcp-serve-http mcp-info mcp-install
 
 # Docker Compose command detection (supports both v1 and v2)
 # Prefer v2 (docker compose) over v1 (docker-compose)
 DOCKER_COMPOSE := $(shell if command -v docker >/dev/null 2>&1 && docker compose version >/dev/null 2>&1; then echo "docker compose"; elif command -v docker-compose >/dev/null 2>&1; then echo "docker-compose"; else echo "docker compose"; fi)
+
+# Keep pytest parallelism explicit and bounded. Override locally with
+# `PYTEST_WORKERS=8 make test` or `PYTEST_CI_WORKERS=4 make test-ci`.
+PYTEST_WORKERS ?= 4
+PYTEST_CI_WORKERS ?= 2
+PYTEST_DIST ?= loadscope
+PYTEST_PATHS ?= tests/
+PYTEST_OUTPUT ?= -q
+PYTEST_COV_FAIL_UNDER ?= 40
+PYTEST_COV_TERM_REPORT ?= term:skip-covered
+PYTEST_ARGS ?=
 
 # Default target
 .DEFAULT_GOAL := help
@@ -28,6 +39,16 @@ install-text-processing: ## Install package with core text processing dependenci
 install-editable: ## Install in editable mode (for development)
 	uv pip install -e .
 
+python-install-ci: ## Sync Python dependencies exactly like GitHub Actions
+	uv sync --locked --all-extras --dev
+
+python-deps: ## Ensure Python dependencies exist without resyncing an existing venv
+	@if [ -d .venv ]; then \
+		echo "Python environment already exists; skipping uv sync"; \
+	else \
+		$(MAKE) python-install-ci; \
+	fi
+
 format: ## Format Python code with Ruff
 	uv run ruff format phentrieve/ api/ tests/
 
@@ -43,33 +64,8 @@ lint-fix: ## Lint and auto-fix Python code
 typecheck: ## Type check with mypy (incremental with SQLite cache)
 	uv run mypy phentrieve/ api/
 
-typecheck-fast: ## Fast type check using mypy daemon (first run starts daemon)
-	@echo "Using mypy daemon for faster checking..."
-	@tmp_log=$$(mktemp); \
-	if uv run dmypy run -- phentrieve/ api/ >$$tmp_log 2>&1; then \
-		cat $$tmp_log; \
-	elif grep -Eq "Daemon crashed!|INTERNAL ERROR" $$tmp_log; then \
-		echo "dmypy crashed; retrying with a fresh daemon..."; \
-		uv run dmypy stop >/dev/null 2>&1 || true; \
-		if uv run dmypy run -- phentrieve/ api/ >$$tmp_log 2>&1; then \
-			cat $$tmp_log; \
-		elif grep -Eq "Daemon crashed!|INTERNAL ERROR" $$tmp_log; then \
-			echo "dmypy remained unstable; falling back to plain mypy..."; \
-			uv run dmypy stop >/dev/null 2>&1 || true; \
-			rm -f $$tmp_log; \
-			uv run mypy phentrieve/ api/; \
-			exit $$?; \
-		else \
-			cat $$tmp_log; \
-			rm -f $$tmp_log; \
-			exit 1; \
-		fi; \
-	else \
-		cat $$tmp_log; \
-		rm -f $$tmp_log; \
-		exit 1; \
-	fi; \
-	rm -f $$tmp_log
+typecheck-fast: ## Fast local type check using incremental mypy cache
+	uv run mypy phentrieve/ api/
 
 typecheck-daemon-stop: ## Stop mypy daemon
 	uv run dmypy stop
@@ -88,13 +84,13 @@ config-validate: ## Validate configuration sync between Python and Frontend
 	uv run python scripts/validate_config_sync.py
 
 test: ## Run package tests with pytest
-	uv run pytest tests/ -v
+	uv run pytest $(PYTEST_PATHS) $(PYTEST_OUTPUT) -n $(PYTEST_WORKERS) --dist $(PYTEST_DIST) --no-cov $(PYTEST_ARGS)
 
 test-cov: ## Run package tests with coverage
-	uv run pytest tests/ -v --cov=phentrieve --cov=api --cov-report=html --cov-report=term
+	uv run pytest $(PYTEST_PATHS) $(PYTEST_OUTPUT) -n $(PYTEST_WORKERS) --dist $(PYTEST_DIST) --cov=phentrieve --cov=api --cov-report=html --cov-report=$(PYTEST_COV_TERM_REPORT) --cov-fail-under=$(PYTEST_COV_FAIL_UNDER) $(PYTEST_ARGS)
 
 test-ci: ## Run Python tests exactly as CI does (pytest -m "not slow and not e2e" with coverage XML)
-	uv run pytest tests/ -v -m "not slow and not e2e" --cov=phentrieve --cov=api --cov-report=xml --cov-report=term
+	uv run pytest $(PYTEST_PATHS) $(PYTEST_OUTPUT) -n $(PYTEST_CI_WORKERS) --dist $(PYTEST_DIST) -m "not slow and not e2e" --cov=phentrieve --cov=api --cov-report=xml --cov-report=$(PYTEST_COV_TERM_REPORT) --cov-fail-under=$(PYTEST_COV_FAIL_UNDER) $(PYTEST_ARGS)
 
 test-scripts: ## Run script tests (scripts/tests/)
 	uv run pytest scripts/tests/ -v --cov=scripts --cov-report=term-missing
@@ -119,6 +115,16 @@ remove: ## Remove a dependency (usage: make remove PACKAGE=package-name)
 
 frontend-install: ## Install frontend dependencies
 	cd frontend && npm install
+
+frontend-install-ci: ## Clean-install frontend dependencies exactly like GitHub Actions
+	cd frontend && npm ci
+
+frontend-deps: ## Ensure frontend dependencies exist without deleting node_modules
+	@if [ -d frontend/node_modules ]; then \
+		echo "Frontend dependencies already installed; skipping npm install"; \
+	else \
+		$(MAKE) frontend-install; \
+	fi
 
 frontend-lint: ## Lint frontend code
 	cd frontend && npm run lint
@@ -296,9 +302,9 @@ ci-python-quality: ## Run Python pull request quality checks
 	@echo ""
 	@echo "Running Python quality checks..."
 	@echo ""
-	@echo "[1/5] Install dependencies..."
-	@uv sync --locked --all-extras --dev
-	@echo "✅ Dependencies installed"
+	@echo "[1/5] Ensure Python dependencies are present..."
+	@$(MAKE) python-deps
+	@echo "✅ Dependencies ready"
 	@echo ""
 	@echo "[2/5] Ruff format check..."
 	@$(MAKE) format-check || (echo "❌ Format check failed. Run: make format" && exit 1)
@@ -308,7 +314,7 @@ ci-python-quality: ## Run Python pull request quality checks
 	@$(MAKE) lint || (echo "❌ Lint check failed. Run: make lint-fix" && exit 1)
 	@echo "✅ Lint check passed"
 	@echo ""
-	@echo "[4/5] mypy type check (fast local daemon)..."
+	@echo "[4/5] mypy type check (incremental cache)..."
 	@$(MAKE) typecheck-fast
 	@echo ""
 	@echo "[5/5] pytest with coverage (unit + integration only)..."
@@ -318,6 +324,10 @@ ci-python-quality: ## Run Python pull request quality checks
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 	@echo "  ✅ Python Quality Pipeline Complete"
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+ci-python-quality-clean: ## Clean-sync Python deps, then run local Python quality checks
+	@$(MAKE) python-install-ci
+	@$(MAKE) ci-python-quality
 
 ci-python-compat: ## Run Python compatibility tests; set PYTHON=3.12 or PYTHON=3.13 to mirror CI
 	@if [ -n "$${PYTHON:-}" ]; then \
@@ -336,11 +346,11 @@ ci-frontend: ## Run Frontend CI checks (matches GitHub Actions)
 	@echo "  Frontend CI Pipeline"
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 	@echo ""
-	@echo "Running Frontend CI checks (same as GitHub Actions)..."
+	@echo "Running Frontend CI checks locally..."
 	@echo ""
-	@echo "[1/5] npm install (if needed)..."
-	@cd frontend && npm ci
-	@echo "✅ Dependencies installed"
+	@echo "[1/5] Ensure npm dependencies are present..."
+	@$(MAKE) frontend-deps
+	@echo "✅ Dependencies ready"
 	@echo ""
 	@echo "[2/5] ESLint check..."
 	@cd frontend && npm run lint || (echo "❌ ESLint failed. Run: make frontend-lint" && exit 1)
@@ -362,10 +372,14 @@ ci-frontend: ## Run Frontend CI checks (matches GitHub Actions)
 	@echo "  ✅ Frontend CI Pipeline Complete"
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
+ci-frontend-clean: ## Clean-install frontend deps, then run local frontend CI checks
+	@$(MAKE) frontend-install-ci
+	@$(MAKE) ci-frontend
+
 ci-quick: ## Quick CI check (format + lint only, no tests)
 	@echo "Running quick CI checks (format + lint)..."
-	@ruff format --check phentrieve/ api/ tests/
-	@ruff check phentrieve/ api/ tests/
+	@$(MAKE) format-check
+	@$(MAKE) lint
 	@cd frontend && npm run lint
 	@cd frontend && npm run format:check
 	@echo "✅ Quick CI checks passed"

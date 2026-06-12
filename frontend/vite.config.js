@@ -63,12 +63,12 @@ export default defineConfig(({ mode }) => ({
       '@': fileURLToPath(new URL('./src', import.meta.url))
     }
   },
-  // esbuild is Vite 6's default minifier; drop console/debugger in production
+  // esbuild is Vite's default minifier; drop console/debugger in production
   // builds only (not dev server) to preserve the dev debugging experience.
   esbuild: mode === 'production' ? { drop: ['console', 'debugger'] } : {},
   build: {
     target: 'es2015',
-    // Vite 6's default minifier is esbuild — 30-90x faster than terser with
+    // Vite's default minifier is esbuild: 30-90x faster than terser with
     // negligible compression loss. Console/debugger stripping lives in the
     // top-level `esbuild:` config (see above) so it applies to the default
     // minify pass.

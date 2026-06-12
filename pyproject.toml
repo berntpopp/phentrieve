@@ -213,18 +213,8 @@ python_files = ["test_*.py"]
 testpaths = ["tests"]
 # pythonpath = "."  # Temporarily disabled - using PYTHONPATH env var instead
 addopts = [
-    "-v",
     "--strict-markers",
     "--tb=short",
-    "-n", "auto",   # pytest-xdist parallelization across CPU cores
-
-    # Coverage (80% target - temporarily disabled during migration)
-    "--cov=phentrieve",
-    "--cov=api",
-    "--cov-report=term-missing",
-    "--cov-report=html:htmlcov",
-    "--cov-report=xml:coverage.xml",
-    "--cov-fail-under=40",  # Baseline: 45% as of 2026-04-09. Ratchet up as coverage improves.
 
     # Execution - Skip slow and e2e tests by default
     "-m", "not slow and not e2e",  # E2E tests require Docker, run separately

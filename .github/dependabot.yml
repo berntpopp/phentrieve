@@ -82,12 +82,6 @@ updates:
         update-types: ["version-update:semver-major"]
       - dependency-name: "@fullhuman/postcss-purgecss"
         update-types: ["version-update:semver-major"]
-      # vue-router 5.1+ declares peerOptional vite ^7 || ^8 and fails to
-      # install against the pinned vite 6 toolchain. Hold minor/major bumps
-      # until the dedicated vite 7 migration; 5.0.x patches still flow.
-      - dependency-name: "vue-router"
-        update-types:
-          ["version-update:semver-minor", "version-update:semver-major"]
 
   # GitHub Actions
   - package-ecosystem: "github-actions"
