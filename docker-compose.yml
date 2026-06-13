@@ -152,6 +152,8 @@ services:
       # MCP Streamable HTTP endpoint
       # URL: https://your-domain.com/mcp
       - ENABLE_MCP_HTTP=${ENABLE_MCP_HTTP:-true}
+      # Disable ChromaDB anonymized telemetry (noisy, occasionally errors at startup)
+      - ANONYMIZED_TELEMETRY=${ANONYMIZED_TELEMETRY:-False}
 
     # Enhanced health check with longer start period for model loading
     healthcheck:

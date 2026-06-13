@@ -24,12 +24,14 @@ from api.mcp.tools import (
     register_retrieval_tools,
     register_similarity_tools,
 )
+from api.version import get_api_version
 
 
 def create_phentrieve_mcp() -> FastMCP:
     """Build the Phentrieve FastMCP server (tools, resources, prompts, middleware)."""
     mcp = FastMCP(
         name="phentrieve",
+        version=get_api_version(),
         instructions=SERVER_INSTRUCTIONS,
         mask_error_details=True,
     )
