@@ -1008,9 +1008,23 @@ describe('QueryInterface (characterization)', () => {
     const phenotypes = wrapper.findAll('[data-testid="full-text-response-phenotype"]');
     await phenotypes[0].trigger('mouseenter');
 
+    // Hovering one phenotype must NOT hide the others: every mention stays
+    // highlighted, and only the hovered phenotype's span gains the active
+    // emphasis class.
     const marks = wrapper.findAll('[data-testid="user-note-expanded"] mark');
-    expect(marks).toHaveLength(1);
-    expect(marks[0].text()).toContain('seizures');
+    expect(marks).toHaveLength(2);
+    const seizuresMark = marks.find((mark) => mark.text().includes('seizures'));
+    const delayMark = marks.find((mark) => mark.text().includes('developmental delay'));
+    expect(seizuresMark.classes()).toContain('annotated-note-span--active');
+    expect(delayMark.classes()).not.toContain('annotated-note-span--active');
+
+    // Leaving resets emphasis without losing any highlight.
+    await phenotypes[0].trigger('mouseleave');
+    const marksAfterLeave = wrapper.findAll('[data-testid="user-note-expanded"] mark');
+    expect(marksAfterLeave).toHaveLength(2);
+    expect(
+      marksAfterLeave.every((mark) => !mark.classes().includes('annotated-note-span--active'))
+    ).toBe(true);
   });
 
   it('shows the linked HPO term in the annotated note span tooltip', async () => {

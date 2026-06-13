@@ -11,6 +11,7 @@
         size="x-small"
         variant="text"
         icon
+        :aria-label="expanded ? 'Collapse clinical note' : 'Expand clinical note'"
         @click="$emit('toggle')"
       >
         <v-icon size="small">
@@ -27,6 +28,7 @@
           v-if="segment.highlighted"
           location="top"
           :open-delay="180"
+          open-on-focus
           max-width="280"
           content-class="annotated-note-tooltip"
           :content-props="{ 'aria-label': segment.tooltip }"
@@ -40,8 +42,12 @@
                 'annotated-note-span--active':
                   activePhenotypeId && segment.termIds.includes(activePhenotypeId),
               }"
+              tabindex="0"
+              :aria-label="`Linked phenotype: ${segment.tooltip}`"
               @mouseenter="$emit('hover', segment.termIds)"
               @mouseleave="$emit('clear-hover')"
+              @focus="$emit('hover', segment.termIds)"
+              @blur="$emit('clear-hover')"
             >
               {{ segment.text }}
             </mark>
@@ -140,30 +146,50 @@ export default {
   box-shadow: inset 0 -0.5em 0 rgba(37, 99, 235, 0.24);
 }
 
-:deep(.annotated-note-tooltip) {
+/* Keyboard focus parity: a focused span gets the same emphasis as hover, plus a
+   visible focus ring for non-pointer users (WCAG 2.4.7 / 1.4.13). */
+.annotated-note-span:focus-visible {
+  outline: 2px solid rgb(var(--v-theme-primary));
+  outline-offset: 2px;
+  background: rgba(37, 99, 235, 0.22);
+}
+</style>
+
+<!--
+  The v-tooltip content is teleported to <body>, outside this component's
+  scoped styles, so a scoped :deep() rule can never reach it. Style it from a
+  GLOBAL block instead. Vuetify's default tooltip surface is dark
+  (surface-variant); we override it with the theme surface/on-surface tokens so
+  the text stays readable (WCAG AA contrast) in BOTH light and dark themes.
+  The selector includes `.v-tooltip >` to out-specify Vuetify's own
+  `.v-tooltip > .v-overlay__content` rule deterministically.
+-->
+<style>
+.v-tooltip > .v-overlay__content.annotated-note-tooltip {
   border-radius: 14px;
-  border: 1px solid rgba(var(--v-theme-outline), 0.12);
-  background: linear-gradient(180deg, rgba(248, 250, 252, 0.98), rgba(255, 255, 255, 1));
-  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.14);
+  border: 1px solid rgba(var(--v-theme-on-surface), 0.12);
+  background: rgb(var(--v-theme-surface));
+  color: rgb(var(--v-theme-on-surface));
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.18);
   padding: 10px 12px;
 }
 
-.annotated-note-tooltip__content {
+.annotated-note-tooltip .annotated-note-tooltip__content {
   display: grid;
   gap: 4px;
 }
 
-.annotated-note-tooltip__eyebrow {
+.annotated-note-tooltip .annotated-note-tooltip__eyebrow {
   font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: rgba(37, 99, 235, 0.92);
+  color: rgb(var(--v-theme-primary));
 }
 
-.annotated-note-tooltip__label {
+.annotated-note-tooltip .annotated-note-tooltip__label {
   font-size: 0.82rem;
   line-height: 1.4;
-  color: rgba(15, 23, 42, 0.92);
+  color: rgb(var(--v-theme-on-surface));
 }
 </style>
