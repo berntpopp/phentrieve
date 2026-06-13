@@ -176,6 +176,29 @@ describe('seedAnnotationsFromResponse', () => {
     expect(r[0].status).toBe('negated');
   });
 
+  it('keeps a term with no resolvable span (empty spans) so it still appears in findings', () => {
+    const r = seedAnnotationsFromResponse({
+      note,
+      response: {
+        processed_chunks: [{ chunk_id: 9, text: 'unrelated' }],
+        aggregated_hpo_terms: [
+          {
+            hpo_id: 'HP:9999999',
+            name: 'Inferred term',
+            status: 'present',
+            confidence: 0.5,
+            text_attributions: [
+              { chunk_id: 9, start_char: 0, end_char: 0, matched_text_in_chunk: 'nowhere-in-note' },
+            ],
+          },
+        ],
+      },
+    });
+    expect(r).toHaveLength(1);
+    expect(r[0].spans).toHaveLength(0);
+    expect(deriveFindingsFromAnnotations(r)).toHaveLength(1);
+  });
+
   it('falls back to matched-text search when offsets do not resolve', () => {
     const r = seedAnnotationsFromResponse({
       note,
@@ -295,11 +318,12 @@ describe('deriveFindingsFromAnnotations', () => {
     expect(findings.find((f) => f.hpo_id === 'HP:2').status).toBe('negated');
   });
 
-  it('excludes annotations with no spans', () => {
+  it('includes terms without spans (findings can exceed note highlights)', () => {
     const findings = deriveFindingsFromAnnotations([
-      { id: 'a1', hpoId: 'HP:1', label: 'A', status: 'affirmed', origin: 'manual', spans: [] },
+      { id: 'a1', hpoId: 'HP:1', label: 'A', status: 'affirmed', origin: 'auto', spans: [] },
     ]);
-    expect(findings).toHaveLength(0);
+    expect(findings).toHaveLength(1);
+    expect(findings[0].hpo_id).toBe('HP:1');
   });
 });
 

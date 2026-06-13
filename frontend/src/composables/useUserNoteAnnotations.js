@@ -205,7 +205,9 @@ export function seedAnnotationsFromResponse({ note, response }) {
   const noteText = typeof note === 'string' ? note : '';
   const chunks = Array.isArray(response?.processed_chunks) ? response.processed_chunks : [];
   const terms = Array.isArray(response?.aggregated_hpo_terms) ? response.aggregated_hpo_terms : [];
-  if (!noteText || terms.length === 0) return [];
+  // Findings should not depend on note text; only span resolution does. When the
+  // note is empty we still create span-less annotations so terms reach findings.
+  if (terms.length === 0) return [];
 
   const chunkOffsets = resolveChunkOffsetsInNote(noteText, chunks);
 
@@ -231,8 +233,9 @@ export function seedAnnotationsFromResponse({ note, response }) {
         .filter(Boolean)
         .sort((a, b) => a.start - b.start);
 
-      if (spans.length === 0) return null;
-
+      // Keep terms even when no note span resolves: they still belong in the
+      // findings list (e.g. inferred terms without offsets). Such annotations
+      // simply produce no highlight in the note.
       const confidence = typeof term.confidence === 'number' ? term.confidence : null;
       return {
         id: `auto-${term.hpo_id}-${index}`,
@@ -243,8 +246,7 @@ export function seedAnnotationsFromResponse({ note, response }) {
         origin: 'auto',
         confidence,
       };
-    })
-    .filter(Boolean);
+    });
 }
 
 /**
@@ -321,7 +323,7 @@ export function deriveFindingsFromAnnotations(annotations) {
   const byTerm = new Map();
 
   (Array.isArray(annotations) ? annotations : []).forEach((ann) => {
-    if (!ann || !Array.isArray(ann.spans) || ann.spans.length === 0) return;
+    if (!ann || typeof ann.hpoId !== 'string') return;
     const existing = byTerm.get(ann.hpoId);
     if (!existing) {
       byTerm.set(ann.hpoId, {

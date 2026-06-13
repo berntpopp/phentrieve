@@ -33,12 +33,25 @@
         @mouseenter="emit('hover-phenotype', phenotype.hpo_id)"
         @mouseleave="emit('clear-hover')"
       >
-        <ResultItem
-          :result="mapTextProcessPhenotypeToResult(phenotype)"
-          :rank="index + 1"
-          :is-collected="isCollected(phenotype.hpo_id)"
-          @add-to-collection="emit('add-to-collection', normalizeTextProcessPhenotype(phenotype))"
-        />
+        <div class="full-text-response-phenotype__row">
+          <ResultItem
+            :result="mapTextProcessPhenotypeToResult(phenotype)"
+            :rank="index + 1"
+            :is-collected="isCollected(phenotype.hpo_id)"
+            @add-to-collection="emit('add-to-collection', normalizeTextProcessPhenotype(phenotype))"
+          />
+          <v-chip
+            v-if="phenotype.origin === 'manual'"
+            data-testid="finding-origin-badge"
+            size="x-small"
+            color="primary"
+            variant="tonal"
+            label
+            class="full-text-response-phenotype__badge"
+          >
+            {{ translate('annotatedDocumentPane.origin.manual', 'Manual') }}
+          </v-chip>
+        </div>
       </div>
     </v-list>
   </div>
@@ -46,7 +59,9 @@
 
 <script setup>
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import ResultItem from './ResultItem.vue';
+import { useFullTextCuration } from '../composables/useFullTextCuration';
 
 defineOptions({
   name: 'FullTextResponseReceipt',
@@ -56,6 +71,10 @@ const props = defineProps({
   item: {
     type: Object,
     required: true,
+  },
+  noteText: {
+    type: String,
+    default: '',
   },
   collectedPhenotypes: {
     type: Array,
@@ -74,16 +93,42 @@ const emit = defineEmits([
   'clear-hover',
 ]);
 
+let i18n = null;
+try {
+  i18n = useI18n();
+} catch {
+  i18n = null;
+}
+function translate(key, fallback) {
+  return i18n ? i18n.t(key) : fallback;
+}
+
+const curation = useFullTextCuration(props.item.id);
+curation.ensureSeeded(props.item, props.noteText || props.item?.query || '');
+
+// Curated, term-level findings (auto terms minus removals, plus manual additions,
+// with replaced terms reflecting their new HPO id). Origin drives the badge.
 const phenotypes = computed(() =>
-  Array.isArray(props.item?.response?.aggregated_hpo_terms)
-    ? props.item.response.aggregated_hpo_terms.filter(
-        (term) => term && typeof term.hpo_id === 'string' && typeof term.name === 'string'
-      )
-    : []
+  curation.findings.value.filter(
+    (term) => term && typeof term.hpo_id === 'string' && typeof term.name === 'string'
+  )
 );
 
+// HPO term details (definition/synonyms) are only on the original response, not
+// in the lightweight annotation model — look them up by id for display.
+const detailsByHpoId = computed(() => {
+  const map = new Map();
+  const terms = Array.isArray(props.item?.response?.aggregated_hpo_terms)
+    ? props.item.response.aggregated_hpo_terms
+    : [];
+  terms.forEach((term) => {
+    if (term && typeof term.hpo_id === 'string') map.set(term.hpo_id, term);
+  });
+  return map;
+});
+
 const receiptMeta = computed(() => {
-  const terms = props.item?.response?.aggregated_hpo_terms?.length ?? 0;
+  const terms = phenotypes.value.length;
   const chunks = props.item?.response?.processed_chunks?.length ?? 0;
 
   if (chunks === 0 && typeof props.item?.query === 'string' && props.item.query.trim().length > 0) {
@@ -111,6 +156,7 @@ function parseScoreValue(value) {
 function mapTextProcessPhenotypeToResult(term) {
   const confidence = parseScoreValue(term.confidence);
   const similarity = parseScoreValue(term.similarity);
+  const details = detailsByHpoId.value.get(term.hpo_id) || {};
 
   return {
     hpo_id: term.hpo_id,
@@ -119,8 +165,8 @@ function mapTextProcessPhenotypeToResult(term) {
     score: confidence,
     scoreType: 'confidence',
     similarity: confidence ?? similarity ?? 0,
-    definition: term.definition || '',
-    synonyms: Array.isArray(term.synonyms) ? term.synonyms : [],
+    definition: details.definition || '',
+    synonyms: Array.isArray(details.synonyms) ? details.synonyms : [],
     assertion_status: normalizeAssertionStatus(term.status),
   };
 }
@@ -191,5 +237,16 @@ function emitAddAll() {
 .full-text-response-phenotype--active {
   transform: translateY(-1px);
   box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+.full-text-response-phenotype__row {
+  position: relative;
+}
+
+.full-text-response-phenotype__badge {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  pointer-events: none;
 }
 </style>
